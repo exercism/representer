@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+
+# Synopsis:
+# Fetch and compile the tree-sitter grammars pinned in grammars.yml.
+
+# Arguments:
+# $@: the names of the grammars to build (optional, defaults to all of them)
+
+# Output:
+# Each grammar is compiled into grammars/build/<name>.so on Linux, or
+# grammars/build/<name>.dylib on macOS. The source is kept in
+# grammars/src/<name>, so a rebuild at the same commit needs no download.
+# A grammar that is already built at its pinned commit is skipped.
+
+# Requirements:
+# git, and a C compiler (cc). A grammar with a C++ scanner also needs c++.
+
+# Example:
+# ./bin/build-grammars
+# ./bin/build-grammars ruby javascript
+
+require "yaml"
+require "fileutils"
+require "rbconfig"
+
+ROOT = File.expand_path("..", __dir__)
+SRC_DIR = File.join(ROOT, "grammars", "src")
+BUILD_DIR = File.join(ROOT, "grammars", "build")
+EXTENSION = RbConfig::CONFIG["host_os"].include?("darwin") ? "dylib" : "so"
+
+def run!(*cmd, chdir: ROOT)
+  system(*cmd, chdir:, exception: true, out: File::NULL)
+end
+
+def fetch(name, repo, commit)
+  dir = File.join(SRC_DIR, name)
+  stamp = File.join(dir, ".pinned-commit")
+  return dir if File.exist?(stamp) && File.read(stamp).strip == commit
+
+  FileUtils.rm_rf(dir)
+  FileUtils.mkdir_p(dir)
+  run!("git", "init", "--quiet", chdir: dir)
+  run!("git", "fetch", "--quiet", "--depth", "1", repo, commit, chdir: dir)
+  run!("git", "-c", "advice.detachedHead=false", "checkout", "--quiet", "FETCH_HEAD", chdir: dir)
+  File.write(stamp, commit)
+  dir
+end
+
+def compile(src, output)
+  sources = [File.join(src, "parser.c")]
+  sources << File.join(src, "scanner.c") if File.exist?(File.join(src, "scanner.c"))
+  cpp_scanner = File.join(src, "scanner.cc")
+
+  if File.exist?(cpp_scanner)
+    objects = sources.map { |source| "#{output}-#{File.basename(source)}.o" }
+    sources.zip(objects).each { |source, object| run!("cc", "-O2", "-fPIC", "-std=c11", "-I", src, "-c", source, "-o", object) }
+    run!("c++", "-O2", "-fPIC", "-shared", "-I", src, cpp_scanner, *objects, "-o", output)
+    FileUtils.rm_f(objects)
+  else
+    run!("cc", "-O2", "-fPIC", "-shared", "-std=c11", "-I", src, *sources, "-o", output)
+  end
+end
+
+grammars = YAML.safe_load_file(File.join(ROOT, "grammars.yml"))
+names = ARGV.empty? ? grammars.keys : ARGV
+FileUtils.mkdir_p(BUILD_DIR)
+
+names.each do |name|
+  config = grammars.fetch(name) { abort "Unknown grammar: #{name}" }
+  output = File.join(BUILD_DIR, "#{name}.#{EXTENSION}")
+  stamp = File.join(BUILD_DIR, "#{name}.commit")
+
+  if File.exist?(output) && File.exist?(stamp) && File.read(stamp).strip == config["commit"]
+    puts "#{name}: already built at #{config['commit'][0, 12]}"
+    next
+  end
+
+  puts "#{name}: fetching #{config['repo']} at #{config['commit'][0, 12]}"
+  dir = fetch(name, config["repo"], config["commit"])
+
+  puts "#{name}: compiling"
+  compile(File.join(dir, config.fetch("src", "src")), output)
+  File.write(stamp, config["commit"])
+end

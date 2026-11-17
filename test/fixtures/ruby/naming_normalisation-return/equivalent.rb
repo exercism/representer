@@ -1,0 +1,2 @@
+x = true
+return x

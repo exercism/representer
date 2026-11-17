@@ -1,0 +1,1 @@
+module Other; end; BarFoo
