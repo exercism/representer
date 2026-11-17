@@ -1,0 +1,15 @@
+<?php
+chop();
+doubleval();
+fputs();
+ini_alter();
+is_double();
+is_integer();
+is_long();
+is_writeable();
+join();
+key_exists();
+pos();
+show_source();
+sizeof();
+strchr();

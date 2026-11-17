@@ -1,0 +1,4 @@
+<?php
+<<<EOT
+test
+EOT;

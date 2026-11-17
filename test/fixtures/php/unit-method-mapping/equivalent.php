@@ -1,0 +1,9 @@
+<?php
+class C0
+{
+    public function m0()
+    {
+    }
+}
+C0::m0();
+$v0->m0();

@@ -1,0 +1,2 @@
+<?php
+FunCtioN_ExiStS();

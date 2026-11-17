@@ -1,0 +1,2 @@
+<?php
+('testA' . 'testB') . 'testC';

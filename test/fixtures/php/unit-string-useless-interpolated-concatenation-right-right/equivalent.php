@@ -1,0 +1,2 @@
+<?php
+'testAtestB' . $v0;

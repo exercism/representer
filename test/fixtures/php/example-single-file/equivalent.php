@@ -1,0 +1,8 @@
+<?php
+class C0
+{
+    public static function m0($v0)
+    {
+        return $v0 % 4 === 0;
+    }
+}

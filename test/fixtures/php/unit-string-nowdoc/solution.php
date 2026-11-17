@@ -1,0 +1,4 @@
+<?php
+<<<'EOD'
+test
+EOD;

@@ -130,10 +130,10 @@ module UpstreamTests
   end
 
   # Old representers wrote mappings either way round (name to placeholder,
-  # or placeholder to name).
+  # or placeholder to name). PHP's placeholders are fn0, v0, C0 and m0.
   def mapping_names(path, deviation)
     mapping = JSON.parse(File.read(path))
-    names = mapping.keys.all? { |key| key.match?(/\A(PLACEHOLDER|IDENTIFIER)_\d+\z/i) } ? mapping.values : mapping.keys
+    names = mapping.keys.all? { |key| key.match?(/\A(PLACEHOLDER|IDENTIFIER|fn|v|C|m)_?\d+\z/i) } ? mapping.values : mapping.keys
     names - deviation.fetch(:remove, []) + deviation.fetch(:add, [])
   end
 end

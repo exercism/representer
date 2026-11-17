@@ -1,0 +1,8 @@
+<?php
+class C0
+{
+    public static function m0()
+    {
+    }
+}
+C0::m0();
