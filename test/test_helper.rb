@@ -101,6 +101,8 @@ module UpstreamTests
     end
   end
 
+  PLACEHOLDER_KEY = /\A@?(PLACEHOLDER|IDENTIFIER|IDENT|fn|v|C|m)_?\d+@?\z/i
+
   private
   def load_cases(extension, deviations)
     Dir[File.join(__dir__, "fixtures", track, "*")].sort.map do |dir|
@@ -130,10 +132,11 @@ module UpstreamTests
   end
 
   # Old representers wrote mappings either way round (name to placeholder,
-  # or placeholder to name). PHP's placeholders are fn0, v0, C0 and m0.
+  # or placeholder to name). PHP's placeholders are fn0, v0, C0 and m0, and
+  # Wren's are @IDENT1@.
   def mapping_names(path, deviation)
     mapping = JSON.parse(File.read(path))
-    names = mapping.keys.all? { |key| key.match?(/\A(PLACEHOLDER|IDENTIFIER|fn|v|C|m)_?\d+\z/i) } ? mapping.values : mapping.keys
+    names = mapping.keys.all? { |key| key.match?(PLACEHOLDER_KEY) } ? mapping.values : mapping.keys
     names - deviation.fetch(:remove, []) + deviation.fetch(:add, [])
   end
 end
