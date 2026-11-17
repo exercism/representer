@@ -39,6 +39,8 @@ module Representer
       rewrite "[(string) @string (template_string) @string]" do |match|
         pieces = JavaScript.string_parts(match.node.children)
         next nil unless pieces
+        # A template made only of substitutions is already in its final form.
+        next nil if pieces.any? && pieces.all?(Engine::Node)
 
         next literal(pieces.first || "") if pieces.size <= 1 && !pieces.first.is_a?(Engine::Node)
 

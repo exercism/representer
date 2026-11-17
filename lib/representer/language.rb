@@ -69,6 +69,19 @@ module Representer
         @names = types.to_h { |type| [type.to_s, ""] }.merge(prefixed.transform_keys(&:to_s))
       end
 
+      # Starts with all of another language's rules and names, for a language
+      # that is a superset of it (such as TypeScript from JavaScript). Call it
+      # before the language's own rules, which are added to the copied ones.
+      def inherit(parent)
+        @names = parent.names.dup
+        @dropped_tokens = parent.dropped_tokens.dup
+        @kept_names = parent.kept_names.dup
+        @library_names = parent.library.dup
+        %i[drop_rules rewrite_rules local_rules member_rules member_position_rules keep_rules].each do |rules|
+          instance_variable_set("@#{rules}", parent.public_send(rules).dup)
+        end
+      end
+
       ### Drop rules ###
 
       # Removes every node that matches the pattern, such as "(comment)".

@@ -114,7 +114,9 @@ module Representer
         end
 
         def matches?(node)
-          type == "_" ? node.named? : node.type == type
+          # (string) matches a string node, never the anonymous "string" token
+          # that some grammars use for the keyword (TypeScript's `: string`).
+          node.named? && (type == "_" || node.type == type)
         end
 
         private

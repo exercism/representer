@@ -39,6 +39,11 @@ class JavaScriptTest < RepresenterTest
     refute_same_representation "const f = (n) => `a ${n}`", "const f = (n) => `a${n}`"
   end
 
+  def test_templates_made_only_of_substitutions
+    assert_same_representation "const f = (n) => `${n}`", "const f = (m) => `${m}`"
+    refute_same_representation "const f = (n) => `${n}`", "const f = (n) => `${n}${n}`"
+  end
+
   def test_arrow_parameter_brackets_and_semicolons
     assert_same_representation "const f = (x) => x;", "const f = x => x"
   end
