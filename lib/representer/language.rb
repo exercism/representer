@@ -31,6 +31,8 @@ module Representer
       end
     end
 
+    IDENTITY_FOLD = ->(name) { name }
+
     class << self
       # Called by Representer when it picks a language for a track.
       def call(solution_files, exercise_files) = Engine::Represent.(self, solution_files, exercise_files)
@@ -68,6 +70,15 @@ module Representer
 
         @names = types.to_h { |type| [type.to_s, ""] }.merge(prefixed.transform_keys(&:to_s))
       end
+
+      # For languages that treat some spellings of a name as the same name (Nim
+      # ignores case after the first letter, and underscores). The block takes
+      # a name and returns its one canonical spelling. Names are then compared,
+      # renamed and written in that spelling, and a mapping keeps the
+      # student's first spelling.
+      def fold_names(&block) = block ? @name_folding = block : @name_folding || IDENTITY_FOLD
+
+      def folds_names? = !@name_folding.nil?
 
       # Node types that hold their whole source text as a leaf, for nodes whose
       # text isn't made of child nodes. Gleam's module path `gleam/list` is
