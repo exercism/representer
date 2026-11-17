@@ -14,6 +14,8 @@
 
 # Requirements:
 # git, and a C compiler (cc). A grammar with a C++ scanner also needs c++.
+# A grammar that doesn't commit its parser.c (it has `generate: true` in
+# grammars.yml) also needs the tree-sitter CLI and node.
 
 # Example:
 # ./bin/build-grammars
@@ -77,6 +79,11 @@ names.each do |name|
 
   puts "#{name}: fetching #{config['repo']} at #{config['commit'][0, 12]}"
   dir = fetch(name, config["repo"], config["commit"])
+
+  if config["generate"] && !File.exist?(File.join(dir, config.fetch("src", "src"), "parser.c"))
+    puts "#{name}: generating parser.c"
+    run!("tree-sitter", "generate", chdir: dir)
+  end
 
   puts "#{name}: compiling"
   compile(File.join(dir, config.fetch("src", "src")), output)
