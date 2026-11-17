@@ -88,6 +88,11 @@ module Representer
       # becomes a "fragment" leaf (see Engine::Grammar#parse).
       def text_between_children(*types) = gap_types.merge(types.map(&:to_s))
 
+      # Node types that hold their whole source text as a leaf, for nodes whose
+      # text isn't made of child nodes. Gleam's module path `gleam/list` is
+      # one, because the tree only has its slashes as children.
+      def text_nodes(*types) = text_node_types.merge(types.map(&:to_s))
+
       ### Drop rules ###
 
       # Removes every node that matches the pattern, such as "(comment)".
@@ -197,6 +202,7 @@ module Representer
       ### Read by the engine ###
 
       def gap_types = @gap_types ||= Set.new
+      def text_node_types = @text_node_types ||= Set.new
       def drop_rules = @drop_rules ||= []
       def dropped_tokens = @dropped_tokens ||= Set.new
       def rewrite_rules = @rewrite_rules ||= []

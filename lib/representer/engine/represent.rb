@@ -22,8 +22,10 @@ module Representer
       private
       # Parses the source and applies the drop and rewrite rules.
       def prepare(source)
-        tree = Grammar[language.grammar].parse(Engine.clean(source), skip_tokens: language.dropped_tokens,
-          gap_types: language.gap_types)
+        tree = Grammar[language.grammar].parse(
+          Engine.clean(source), skip_tokens: language.dropped_tokens, text_types: language.text_node_types,
+          gap_types: language.gap_types
+        )
         drop(tree)
         rewrite(tree)
       end
