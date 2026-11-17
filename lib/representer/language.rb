@@ -69,6 +69,11 @@ module Representer
         @names = types.to_h { |type| [type.to_s, ""] }.merge(prefixed.transform_keys(&:to_s))
       end
 
+      # Node types that hold their whole source text as a leaf, for nodes whose
+      # text isn't made of child nodes. Gleam's module path `gleam/list` is
+      # one, because the tree only has its slashes as children.
+      def text_nodes(*types) = text_node_types.merge(types.map(&:to_s))
+
       ### Drop rules ###
 
       # Removes every node that matches the pattern, such as "(comment)".
@@ -177,6 +182,7 @@ module Representer
 
       ### Read by the engine ###
 
+      def text_node_types = @text_node_types ||= Set.new
       def drop_rules = @drop_rules ||= []
       def dropped_tokens = @dropped_tokens ||= Set.new
       def rewrite_rules = @rewrite_rules ||= []
