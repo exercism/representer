@@ -6,7 +6,7 @@ class RustTest < RepresenterTest
   track "rust"
 
   UNDEFINED = "The old representer renamed every name it met, including ones the solution never defines (a name " \
-              "from the surrounding code). This representer only renames names the solution defines, so %s keeps its name."
+              "from the surrounding code). This representer only renames names the solution defines, so %s keeps its name.".freeze
 
   IMPL_TYPE = {
     why: "The old representer left the names in an impl header (`impl Test`) as they were, even where it renamed " \
