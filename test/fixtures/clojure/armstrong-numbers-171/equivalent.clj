@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn num_to_digits [num] (map #(Character/digit % 10) (str num)) ) (defn exp [x n] (reduce * (repeat n x))) (defn armstrong? [num] (let [digits(num_to_digits num) len (count (str num))] (= num (reduce + 0 (map #(exp % len) digits))) ) )

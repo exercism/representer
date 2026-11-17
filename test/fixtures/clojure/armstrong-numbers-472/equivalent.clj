@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn getDigit [num] (map (fn [x] (- (int x) 48)) (str num))) (defn armstrong? [num] (= (Math/round (reduce + 0.0 (map (fn [n] (long (Math/pow n (count (str num))))) (getDigit num)))) num) )

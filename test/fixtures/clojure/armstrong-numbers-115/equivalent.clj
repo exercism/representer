@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn- digits [num] (if (< num 10) [num] (conj (digits (quot num 10)) (mod num 10)) ) ) (defn- pow [a n] (->> a (repeat n) (reduce *)) ) (defn armstrong? [num] (let [ v (digits num) n (count v) pown #(pow % n) ] (->> v (map pown) (reduce +) (= num)) ) )

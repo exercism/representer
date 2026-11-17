@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn armstrong? [num] (let [nums (str num) c (count nums)] (or (= (long (reduce (fn [s n] (+ s (clojure.math/pow (Integer/parseInt (str n)) c))) 0 nums)) num) (= num 21897142587612075))) )

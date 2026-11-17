@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn num->digits [num] (map #(-> % str Integer/parseInt) (seq (str num)))) (defn armstrong? [num] (let [values (num->digits num) pow-level (count values) values (map #(.pow (biginteger %) pow-level) values)] (println "values: " values) (= num (apply + values))))

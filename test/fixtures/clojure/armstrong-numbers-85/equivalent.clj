@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn pow [x n] (reduce * (repeat n x))) (defn armstrong? [num] (let [num-xs (str num) str-count (count num-xs) pow-sum (apply + (map #(pow (read-string (str %)) str-count) num-xs)) ] (= pow-sum num)) )

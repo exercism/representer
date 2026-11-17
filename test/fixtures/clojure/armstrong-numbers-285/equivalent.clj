@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn digits [num] "Converts 123 --> [1 2 3]" (map #(Character/getNumericValue %) (str num))) (defn armstrong? [num] (let [n-digits (digits num)] (->> n-digits (map #(int (Math/pow % (count n-digits)))) (reduce +) (= num))))

@@ -1,0 +1,1 @@
+(ns armstrong-numbers (:require [clojure.math.numeric-tower :as math])) (defn num_digits [n] (count (str n))) (defn armstrong? [num] (let [nd (num_digits num)] (def x (map #(math/expt % nd) (map #(Character/getNumericValue %) (str num)))) (= num (reduce + x))) )

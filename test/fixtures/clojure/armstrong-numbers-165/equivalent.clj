@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn armstrong? [num] (let [digits (map #(read-string (str %)) (seq (str num))) num-digits (count digits)] (if (= (reduce + (map #(reduce * (repeat num-digits %)) digits)) num) true false )) )

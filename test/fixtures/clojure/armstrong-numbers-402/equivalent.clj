@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn digits [num] (if (< num 10) [num] (conj (digits (quot num 10)) (rem num 10)))) (defn power [base exp] (reduce *' (repeat exp base))) (defn armstrong? [num] (== num (reduce + (map #(power % (count (digits num))) (digits num)))))

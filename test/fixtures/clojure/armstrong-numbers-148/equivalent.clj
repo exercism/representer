@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn num_seq [num] (map #(- (int %) 48) (seq (str num))) ) (defn power [num expo] (if (= expo 0) 1 (* num (power num (dec expo))) ) ) (defn armstrong_num [num] (let [numseq (num_seq num) expo (count numseq)] (reduce (fn [accu elem] (+ accu (power elem expo)) ) (long 0) numseq ) ) ) (defn armstrong? [num] (= num (armstrong_num num)) )
