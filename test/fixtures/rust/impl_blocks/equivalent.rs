@@ -1,0 +1,14 @@
+impl PLACEHOLDER_5 {
+    fn PLACEHOLDER_1(&mut self) {
+        self.PLACEHOLDER_2 += 42;
+    }
+    fn PLACEHOLDER_3() {
+        println!("boo! Example::boo() was called!");
+    }
+    fn PLACEHOLDER_4(&self) -> i32 {
+        self.PLACEHOLDER_2
+    }
+}
+struct PLACEHOLDER_5 {
+    PLACEHOLDER_2: i32,
+}

@@ -1,0 +1,2 @@
+enum PLACEHOLDER_1 {}
+pub enum PLACEHOLDER_2 {}
