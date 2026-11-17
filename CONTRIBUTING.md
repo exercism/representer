@@ -36,7 +36,7 @@ python:
 ```
 
 Use a full commit SHA, never a branch or tag, so the grammar can't change under you.
-Add `src:` if the grammar's `parser.c` isn't in `src/` (for example `src: typescript/src`), and `symbol:` if the grammar's C name isn't the entry's name (tree-sitter-c-sharp exports `tree_sitter_c_sharp`, so its entry is called `c_sharp`).
+Add `src:` if the grammar's `parser.c` isn't in `src/` (for example `src: typescript/src`), `generate: true` if the repository doesn't commit its `parser.c` (the build then runs `tree-sitter generate`, which needs the tree-sitter CLI and node), and `symbol:` if the grammar's C name isn't the entry's name (tree-sitter-c-sharp exports `tree_sitter_c_sharp`, so its entry is called `c_sharp`).
 
 Then build it:
 
@@ -143,6 +143,8 @@ Write the rules against that tree.
 - `grammar "python"`: the grammar's name in `grammars.yml`.
 - `extensions ".py"`: the language's file extensions. Exercise files with other extensions are ignored.
 - `names :identifier, ...`: the leaf types that hold names. Only these can be renamed. If a type's text includes a prefix that isn't part of the name, give it as a keyword (Ruby has `simple_symbol: ":"` for `:name`).
+
+- `fold_names { |name| ... }`: for a language that treats some spellings of a name as one name (Nim ignores case after the first letter, and underscores). The block returns the name's canonical spelling. The representation then writes every name in that spelling, and the mapping keeps the student's first spelling.
 
 ### Patterns
 
