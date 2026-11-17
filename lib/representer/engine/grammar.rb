@@ -29,48 +29,96 @@ module Representer
       # Parses the source and copies the tree into Engine::Nodes. Anonymous
       # tokens listed in skip_tokens are left out.
       #
+      # Some grammars leave the text between a node's children out of the
+      # tree (Python's string_content holds only its escape sequences). For
+      # the node types listed in gap_types, each stretch of text between the
+      # children becomes a "fragment" leaf, so no text is lost.
+      #
       # Raises CannotRepresent if the source has a syntax error (which
       # includes code too new for the grammar), or nests deeper than
       # max_depth.
-      def parse(source, skip_tokens: Set.new, max_depth: MAX_DEPTH)
+      def parse(source, skip_tokens: Set.new, max_depth: MAX_DEPTH, gap_types: Set.new)
         tree = @parser.parse_string(nil, source)
         raise CannotRepresent, "The parser gave up" unless tree
         raise CannotRepresent, "The code has a syntax error" if tree.root_node.has_error?
 
-        build(tree.root_node, source, skip_tokens, max_depth)
+        build(tree.root_node, source, skip_tokens, max_depth, gap_types)
       end
 
       private
       # Walks the tree with a cursor, without recursion, so deep nesting can't
       # overflow the stack.
-      def build(ts_root, source, skip_tokens, max_depth)
+      def build(ts_root, source, skip_tokens, max_depth, gap_types)
         cursor = TreeSitter::TreeCursor.new(ts_root)
         root = copy(cursor.current_node, nil, source)
+        gaps = Gaps.new(source, gap_types)
+        gaps.enter(root, cursor.current_node)
         parents = [root]
 
         loop do
           if cursor.goto_first_child
             raise CannotRepresent, "The code nests too deeply" if parents.size > max_depth
           else
-            parents.pop
+            gaps.leave(parents.pop)
             until cursor.goto_next_sibling
               return root unless cursor.goto_parent
 
-              parents.pop
+              gaps.leave(parents.pop)
             end
           end
 
           ts_node = cursor.current_node
           parent = parents.last
+          gaps.before_child(parent, ts_node)
           if !ts_node.named? && skip_tokens.include?(ts_node.type.to_s)
             parents << nil # A placeholder, so the pop when leaving this node is balanced.
             next
           end
 
           node = copy(ts_node, cursor.current_field_name, source)
+          gaps.enter(node, ts_node)
           parent&.children&.push(node)
           # Children of a skipped node are skipped too: their parent is nil.
           parents << (parent && node)
+        end
+      end
+
+      # Keeps track of the text between the children of the nodes in gap_types
+      # (see parse). The walk in build calls it as it goes.
+      class Gaps
+        Span = Struct.new(:from, :to)
+
+        def initialize(source, types)
+          @source = source
+          @types = types
+          @spans = {}.compare_by_identity
+        end
+
+        # A new node. If its type has gaps, the text from its start is next.
+        def enter(node, ts_node)
+          @spans[node] = Span.new(ts_node.start_byte, ts_node.end_byte) if @types.include?(node.type) && !node.leaf?
+        end
+
+        # The walk has reached a child of parent, so the text before it is a gap.
+        def before_child(parent, ts_child)
+          span = @spans[parent]
+          return unless span
+
+          add(parent, span.from, ts_child.start_byte)
+          span.from = ts_child.end_byte
+        end
+
+        # The walk has left the node, so the text after its last child is a gap.
+        def leave(node)
+          span = @spans.delete(node)
+          add(node, span.from, span.to) if span
+        end
+
+        private
+        def add(node, from, to)
+          return unless to > from
+
+          node.children << Node.leaf("fragment", @source.byteslice(from...to))
         end
       end
 

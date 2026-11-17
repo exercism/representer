@@ -133,7 +133,7 @@ module UpstreamTests
   # or placeholder to name).
   def mapping_names(path, deviation)
     mapping = JSON.parse(File.read(path))
-    names = mapping.keys.all? { |key| key.match?(/\A(PLACEHOLDER|IDENTIFIER)_\d+\z/) } ? mapping.values : mapping.keys
+    names = mapping.keys.all? { |key| key.match?(/\A(PLACEHOLDER|IDENTIFIER)_\d+\z/i) } ? mapping.values : mapping.keys
     names - deviation.fetch(:remove, []) + deviation.fetch(:add, [])
   end
 end

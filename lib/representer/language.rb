@@ -75,12 +75,18 @@ module Representer
       def inherit(parent)
         @names = parent.names.dup
         @dropped_tokens = parent.dropped_tokens.dup
+        @gap_types = parent.gap_types.dup
         @kept_names = parent.kept_names.dup
         @library_names = parent.library.dup
         %i[drop_rules rewrite_rules local_rules member_rules member_position_rules keep_rules].each do |rules|
           instance_variable_set("@#{rules}", parent.public_send(rules).dup)
         end
       end
+
+      # Node types whose children don't cover all their text, such as
+      # Python's string_content. Each stretch of text between the children
+      # becomes a "fragment" leaf (see Engine::Grammar#parse).
+      def text_between_children(*types) = gap_types.merge(types.map(&:to_s))
 
       ### Drop rules ###
 
@@ -190,6 +196,7 @@ module Representer
 
       ### Read by the engine ###
 
+      def gap_types = @gap_types ||= Set.new
       def drop_rules = @drop_rules ||= []
       def dropped_tokens = @dropped_tokens ||= Set.new
       def rewrite_rules = @rewrite_rules ||= []

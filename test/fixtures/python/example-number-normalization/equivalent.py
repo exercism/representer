@@ -1,0 +1,16 @@
+placeholder_0 = 5 + 65j
+placeholder_1 = 33.4 + 99.14j
+placeholder_2 = 1000000.0 + 0.00066j
+placeholder_3 = 100.0 + 0.23 + 1000000j
+placeholder_4 = 10000000
+placeholder_5 = 22040396.55
+placeholder_6 = 1000000.0
+placeholder_7 = 100.0 + 0.23
+placeholder_8 = 100.0 + 123.0 + 0.44
+placeholder_9 = 7000000.0 + 700000.0 + 50000.0 + 998.0 + 0.445779
+placeholder_10 = 7000000.0 + 700000.0 + 50000.0 + 99.8 + 0.445779 + (100.0 + 12.3 + 0.444423) * 1j
+placeholder_11 = 66777888433
+placeholder_12 = 1999878473.66
+placeholder_13 = 77555998125.44579
+placeholder_14 = 44556 + 77998j
+placeholder_15 = 44573123.445312 + 123674.88912j
