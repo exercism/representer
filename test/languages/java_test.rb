@@ -1,0 +1,152 @@
+require "test_helper"
+
+class JavaTest < RepresenterTest
+  extend UpstreamTests
+
+  track "java"
+
+  PER_DECLARATION = "The old representer gave each declaration its own placeholder, so a field and a parameter with " \
+                    "the same name, or two parameters of different methods, got different placeholders. This " \
+                    "representer renames by name, so they share one. The equivalent file has the later placeholders " \
+                    "changed to the first, and the mapping lists the name once.".freeze
+
+  # The deviation for a test whose old mapping has the same name more than once.
+  def self.per_declaration(name, **extra)
+    mapping = JSON.parse(File.read(File.join(__dir__, "..", "fixtures", "java", name, "expected_mapping.json")))
+    repeated = mapping.group_by { |_, original| original }.values.select { |entries| entries.size > 1 }
+    return extra if repeated.empty?
+
+    restore = repeated.flat_map { |entries| entries.drop(1).map { |placeholder, _| [placeholder, entries.first.first] } }.to_h
+    why = [PER_DECLARATION, extra[:why]].compact.join(" ")
+    names = repeated.map { |entries| entries.first.last }
+    { restore: restore.merge(extra.fetch(:restore, {})), remove: names + extra.fetch(:remove, []), add: names, why: }
+  end
+
+  DEVIATIONS = {
+    "scenario-simple" => {
+      fallback: true,
+      why: "The upstream scenario has a syntax error (a missing semicolon after the return), which the old " \
+           "representer's Java compiler repaired. This representer gets Basic for it."
+    },
+    "scenario-lambda-arguments" => {
+      restore: { "PLACEHOLDER_02" => "filter" },
+      remove: ["filter"],
+      why: "This representer never renames a method with the name of a Java library method (filter, add, get...), so " \
+           "mentors' comments on different library calls stay apart. The old representer renamed them."
+    },
+    "scenario-class-with-nested-enum" => per_declaration("scenario-class-with-nested-enum")
+  }.freeze
+
+  upstream_tests ".java", deviations: DEVIATIONS
+
+  # Two of the old tests have several solution files, which upstream_tests
+  # can't take, so they are written out here. Each has its input files, the
+  # old representation split into one equivalent file for each input file, and
+  # the old mapping. As above, a name that the old mapping lists more than once
+  # is one placeholder in the equivalent files and one entry in the mapping.
+  Dir[File.join(__dir__, "..", "fixtures", "java-multi-file", "*")].sort.each do |dir|
+    define_method("test_upstream_#{File.basename(dir)}") do
+      mapping = JSON.parse(File.read(File.join(dir, "expected_mapping.json")))
+      inputs = Dir[File.join(dir, "*.java")].to_h { |path| [File.basename(path), File.read(path)] }
+      equivalents = Dir[File.join(dir, "equivalent", "*.java")].to_h do |path|
+        [File.basename(path), restore_repeated(File.read(path), mapping)]
+      end
+      assert_equal inputs.keys.sort, equivalents.keys.sort
+
+      actual = Representer::RepresentSolution.("java", inputs, {})
+      assert_equal Representer::RepresentSolution.("java", equivalents, {}).representation, actual.representation
+      assert_equal mapping.values.uniq.sort, actual.mapping.values.sort
+    end
+  end
+
+  def test_comments_imports_and_package_go
+    assert_same_representation "class A { int f() { return 1; } }",
+      "package a.b;\nimport java.util.List;\n/** Docs. */\nclass A {\n    // note\n    int f() { return 1; /* done */ }\n}"
+  end
+
+  def test_if_else_and_loops_get_braces
+    assert_same_representation "class A { void f(int a) { if (a > 1) g(); else h(); } }",
+      "class A { void f(int b) { if (b > 1) { g(); } else { h(); } } }"
+    assert_same_representation "class A { void f() { while (true) g(); for (;;) g(); } }",
+      "class A { void f() { while (true) { g(); } for (;;) { g(); } } }"
+    refute_same_representation "class A { void f(int a) { if (a > 1) g(); } }", "class A { void f(int a) { while (a > 1) g(); } }"
+  end
+
+  def test_else_with_only_an_if_is_else_if
+    assert_same_representation "class A { void f(int a) { if (a > 1) { g(); } else { if (a < 0) { h(); } } } }",
+      "class A { void f(int a) { if (a > 1) { g(); } else if (a < 0) { h(); } } }"
+    refute_same_representation "class A { void f(int a) { if (a > 1) { g(); } else { h(); if (a < 0) { h(); } } } }",
+      "class A { void f(int a) { if (a > 1) { g(); } else if (a < 0) { h(); } } }"
+  end
+
+  def test_grouping_brackets
+    assert_same_representation "class A { int f(int a) { return (a * 2) + 1; } }", "class A { int f(int a) { return a * 2 + 1; } }"
+    refute_same_representation "class A { int f(int a) { return a * (2 + 1); } }", "class A { int f(int a) { return a * 2 + 1; } }"
+  end
+
+  def test_lambda_brackets
+    assert_same_representation "class A { void f() { g((x) -> x); } }", "class A { void f() { g(x -> x); } }"
+    refute_same_representation "class A { void f() { g((int x) -> x); } }", "class A { void f() { g(x -> x); } }"
+  end
+
+  def test_declarations_of_several_variables
+    assert_same_representation "class A { int a, b; void f() { int c = 1, d = 2; } }",
+      "class A { int a; int b; void f() { int c = 1; int d = 2; } }"
+  end
+
+  def test_fully_qualified_names
+    assert_same_representation "class A { java.util.List<String> f() { return java.util.Arrays.asList(); } }",
+      "import java.util.*;\nclass A { List<String> f() { return Arrays.asList(); } }"
+    refute_same_representation "class A { example.Foo f() { return null; } }", "class A { Foo f() { return null; } }"
+  end
+
+  def test_numbers_and_strings_are_their_values
+    assert_same_representation "class A { long f() { return 1_000L + 0x10; } }", "class A { long f() { return 1000L + 16; } }"
+    assert_same_representation "class A { String f() { return \"a\\u0041\\n\"; } }", "class A { String f() { return \"aA\\n\"; } }"
+    refute_same_representation "class A { long f() { return 1L; } }", "class A { long f() { return 1; } }"
+    refute_same_representation "class A { String f() { return \"\\q\"; } }", "class A { String f() { return \"q\"; } }"
+  end
+
+  def test_names_java_calls_are_kept
+    code = "class A { public static void main(String[] args) { } public String toString() { return \"\"; } " \
+           "boolean equals(Object o) { return true; } }"
+    assert_equal %w[A args o], represent(code).mapping.values
+  end
+
+  def test_methods_named_after_library_methods_stay_apart
+    refute_same_representation "class A { int max() { return Math.max(1, 2); } }", "class A { int min() { return Math.min(1, 2); } }"
+    refute_same_representation "class A { int f(java.util.List<Integer> a) { return a.size(); } }",
+      "class A { int f(java.util.List<Integer> a) { return a.indexOf(1); } }"
+  end
+
+  def test_members_are_renamed_by_name
+    assert_same_representation "class A { private int total; int deposit(int n) { return this.total + n; } }",
+      "class B { private int balance; int credit(int m) { return this.balance + m; } }"
+    refute_same_representation "class A { int f(A other) { return other.x; } int x; }",
+      "class A { int f(A other) { return other.y; } int x; }"
+  end
+
+  def test_method_references_and_records
+    assert_same_representation "class A { void f() { g(this::h); } void h() {} }", "class B { void i() { g(this::j); } void j() {} }"
+    assert_same_representation "record P(int x) { int twice() { return x * 2; } }",
+      "record Q(int y) { int double2() { return y * 2; } }"
+  end
+
+  def test_names_in_the_tests_are_kept
+    tests = { "LeapTest.java" => "class LeapTest { void t() { new Leap().isLeapYear(2000); } }" }
+    result = represent("class Leap { boolean isLeapYear(int year) { return true; } }", filename: "Leap.java", exercise_files: tests)
+    assert_equal ["year"], result.mapping.values
+  end
+
+  def test_syntax_errors_fall_back_with_the_java_version
+    result = represent("class A { int f( }")
+    assert_equal Representer::Languages::Basic, result.representer
+    assert_equal Representer::Languages::Java.version, result.version
+  end
+
+  def restore_repeated(code, mapping)
+    mapping.group_by { |_, original| original }.values.reduce(code) do |result, entries|
+      entries.drop(1).reduce(result) { |text, (placeholder, _)| text.gsub(/\b#{placeholder}\b/, entries.first.first) }
+    end
+  end
+end
