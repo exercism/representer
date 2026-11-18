@@ -1,0 +1,1 @@
+(ns armstrong-numbers (:require [clojure.string :as str]) ) (defn exp [x n] (reduce * (repeat n x))) (defn sum-constituents [xs] (let [e (count xs)] (reduce + (map (fn [x] (exp (Long/parseLong x) e)) xs)))) (defn armstrong? [num] (= num (sum-constituents (str/split (str num) #"")))) (comment (armstrong? 153) (armstrong? 1423) (str 345435) )

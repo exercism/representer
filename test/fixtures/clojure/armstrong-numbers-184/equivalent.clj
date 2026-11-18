@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn exp [x n] (reduce * (repeat n x))) (defn armstrong? [num] (def result (atom 0)) (doseq [n (seq (str num))] (reset! result (+ @result (exp (Character/digit n 10) (count (str num)))))) (= num @result) )

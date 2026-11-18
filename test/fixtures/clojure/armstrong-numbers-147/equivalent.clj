@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn get-digits [num] (->> num (str) (map str) (map read-string))) (defn expt [x y] (apply * (repeat y x))) (defn armstrong? [num] (let [digits (get-digits num) len (count digits)] (->> digits (map #(expt % len)) (reduce +) (= num))))

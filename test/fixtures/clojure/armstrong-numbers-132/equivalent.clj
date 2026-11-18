@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn- pow [a n] (->> a (repeat n) (reduce *)) ) (defn list-of-digits [num] (map (fn [^Character c] (Character/digit c 10)) (str num)) ) (defn armstrong? [num] (let [num-digits (count (list-of-digits num)) digits (list-of-digits num) pown #(pow % num-digits)] (->> digits (map pown) (reduce +) (= num)) ) )

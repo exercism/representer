@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn pow [x n] (reduce *' (repeat n x))) (defn armstrong? [num] (let [nums (str num) c (count nums)] (->> nums (map #(Character/digit % 10)) (map #(pow % c)) (reduce +') (= num))))

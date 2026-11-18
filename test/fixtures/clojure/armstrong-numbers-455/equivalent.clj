@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn digits [n] (->> n (iterate #(quot % 10)) (take-while pos?) (mapv #(mod % 10)) rseq)) (defn armstrong? [num] (let [c (count (str num)) d (digits num)] (if (== num (reduce + (map #(.pow (bigdec %) c) d))) true false)) )

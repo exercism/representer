@@ -20,15 +20,16 @@ module Representer
 
       def initialize(language, trees, required)
         @language = language
+        @fold = language.fold_names
         @local_defs = Set.new
         @member_defs = Set.new
-        kept = language.kept_names | required
+        kept = (language.kept_names | required).to_set(&@fold)
 
         trees.each do |tree|
           tree.each_descendant do |node|
-            collect(language.local_rules, node) { |name| @local_defs << name }
-            collect(language.member_rules, node) { |name| @member_defs << name }
-            collect(language.keep_rules, node) { |name| kept << name }
+            collect(language.local_rules, node) { |name| @local_defs << @fold.(name) }
+            collect(language.member_rules, node) { |name| @member_defs << @fold.(name) }
+            collect(language.keep_rules, node) { |name| kept << @fold.(name) }
             language.member_position_rules.each do |rule|
               Array(rule.match(node)&.[](:name)).each { |leaf| leaf.role = :member }
             end
@@ -38,7 +39,7 @@ module Representer
         # A member named like a library method stays as it is, so that a
         # student's `sum` that calls the library's `sum` can't merge with a
         # student's `max` that calls `max`.
-        @renameable = (@local_defs | @member_defs) - kept - (@member_defs & language.library)
+        @renameable = (@local_defs | @member_defs) - kept - (@member_defs & language.library.to_set(&@fold))
         @placeholders = {}
         @mapping = {}
       end
@@ -53,7 +54,7 @@ module Representer
         return nil unless prefix
 
         name = leaf.text.delete_prefix(prefix)
-        return nil unless rename?(leaf, name)
+        return (@language.folds_names? ? "#{prefix}#{@fold.(name)}" : nil) unless rename?(leaf, name)
 
         text = "#{prefix}#{placeholder(name)}"
         leaf.type == @language.names.keys.first ? text : "(#{leaf.type} #{text})"
@@ -61,13 +62,14 @@ module Representer
 
       private
       def rename?(leaf, name)
-        return false unless @renameable.include?(name)
+        folded = @fold.(name)
+        return false unless @renameable.include?(folded)
 
-        leaf.role != :member || @member_defs.include?(name)
+        leaf.role != :member || @member_defs.include?(folded)
       end
 
       def placeholder(name)
-        @placeholders[name] ||= "PLACEHOLDER_#{@placeholders.size + 1}".tap { |placeholder| @mapping[placeholder] = name }
+        @placeholders[@fold.(name)] ||= "PLACEHOLDER_#{@placeholders.size + 1}".tap { |placeholder| @mapping[placeholder] = name }
       end
 
       def collect(rules, node)

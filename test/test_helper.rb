@@ -101,7 +101,7 @@ module UpstreamTests
     end
   end
 
-  PLACEHOLDER_KEY = /\A@?(PLACEHOLDER|IDENTIFIER|IDENT|fn|v|C|m)_?\d+@?\z/i
+  PLACEHOLDER_KEY = /\A@?(PLACEHOLDER|IDENTIFIER|IDENT|FUNCVAR|FUNC|fn|v|C|m)_?\d+@?\z/i
 
   private
   def load_cases(extension, deviations)

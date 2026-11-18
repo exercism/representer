@@ -1,0 +1,1 @@
+(ns armstrong-numbers) (defn digits [n] (map #(read-string (str %)) (str n))) (defn int-pow [base exp] (reduce * (repeat exp base))) (defn armstrong? [num] (let [digits (digits num) dig-cnt (count digits) out (map #(int-pow % dig-cnt) digits) out2 (reduce - (into [num] out)) out1 (bigint (reduce + out ))] (= out1 num) ) )

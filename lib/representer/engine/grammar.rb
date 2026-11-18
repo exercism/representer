@@ -73,7 +73,7 @@ module Representer
           ts_node = cursor.current_node
           parent = parents.last
           gaps.before_child(parent, ts_node)
-          if !ts_node.named? && skip_tokens.include?(ts_node.type.to_s)
+          if !ts_node.named? && skip_tokens.include?(type_of(ts_node, source))
             parents << nil # A placeholder, so the pop when leaving this node is balanced.
             next
           end
@@ -90,6 +90,15 @@ module Representer
             parents << (parent && node)
           end
         end
+      end
+
+      # The node's type as a String. The tree-sitter binding can't turn a type
+      # with non-ASCII characters into a Symbol (such as a Unicode minus sign).
+      # An anonymous token's type is its text, so the source gives it.
+      def type_of(ts_node, source)
+        ts_node.type.to_s
+      rescue EncodingError
+        source.byteslice(ts_node.start_byte...ts_node.end_byte).force_encoding(Encoding::UTF_8)
       end
 
       # Keeps track of the text between the children of the nodes in gap_types
@@ -132,7 +141,7 @@ module Representer
       end
 
       def copy(ts_node, field, source)
-        type = ts_node.type.to_s
+        type = type_of(ts_node, source)
         # An empty file's root has no children and no text. It isn't a leaf.
         empty = ts_node.end_byte == ts_node.start_byte
         if (ts_node.child_count.zero? && !empty) || !ts_node.named?
