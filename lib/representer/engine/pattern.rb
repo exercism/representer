@@ -125,7 +125,8 @@ module Representer
 
           found = {}
           fields.each do |field, element|
-            match = node.children.lazy.select { |child| child.field == field }.filter_map { |child| element.match(child) }.first
+            children = node.children.select { |child| child.field == field }
+            match = element.many ? match_every(element, children) : children.lazy.filter_map { |child| element.match(child) }.first
             return nil unless match || element.optional
 
             found.merge!(match) if match
@@ -146,6 +147,17 @@ module Representer
           sequence && found.merge!(sequence)
         end
 
+        # Matches a pattern* against every child that fits, and returns its
+        # captures as lists. It always matches, even if no child fits.
+        def match_every(element, children)
+          found = Hash.new { |hash, name| hash[name] = [] }
+          element.captures.each { |name| found[name] }
+          children.each do |child|
+            element.match(child)&.each { |name, captured| found[name].concat(Array(captured)) }
+          end
+          found
+        end
+
         # Matches the elements against the children in order, allowing other
         # children between them, and backtracking if a later element fails.
         def match_sequence(elements, children, start)
@@ -153,13 +165,8 @@ module Representer
 
           element, *rest = elements
           if element.many
-            found = Hash.new { |hash, name| hash[name] = [] }
-            element.captures.each { |name| found[name] }
-            children[start..].each do |child|
-              element.match(child)&.each { |name, captured| found[name].concat(Array(captured)) }
-            end
             remaining = match_sequence(rest, children, start)
-            return remaining && found.merge(remaining)
+            return remaining && match_every(element, children[start..]).merge(remaining)
           end
 
           (start...children.size).each do |index|

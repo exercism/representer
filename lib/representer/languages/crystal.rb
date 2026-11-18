@@ -7,7 +7,7 @@ module Representer
     # here, because the tree has no layout.
     class Crystal < Language
       tracks "crystal"
-      version 2
+      version 3
       grammar "crystal"
       extensions ".cr"
 
@@ -50,14 +50,6 @@ module Representer
       # A modifier is the same as the block form: `x if y` is `if y; x; end`.
       rewrite "(modifier_if then: (_) @body cond: (_) @cond)", "(if cond: @cond then: (then @body))"
       rewrite "(modifier_unless then: (_) @body cond: (_) @cond)", "(unless cond: @cond then: (then @body))"
-
-      # `a, b = 1, 2` has several left and right sides, which one rename
-      # pattern can't pick out, so they are grouped.
-      rewrite "(assign) @assign",
-        where: ->(match) { match.node.children.count { |child| child.field == "lhs" } > 1 } do |match|
-        left, right = %w[lhs rhs].map { |field| match.node.children.select { |child| child.field == field } }
-        build(:assign, { lhs: build(:targets, *left) }, token("="), { rhs: build(:values, *right) })
-      end
 
       # `:"abc"` is `:abc`.
       rewrite '(symbol ":\"") @symbol' do |match|
@@ -119,8 +111,7 @@ module Representer
       # Local variables, parameters, instance variables and type variables.
       rename "[(param name: (identifier) @name) (splat_param name: (identifier) @name)]"
       rename "[(double_splat_param name: (identifier) @name) (block_param name: (identifier) @name)]"
-      rename "[(assign lhs: (identifier) @name) (op_assign lhs: (identifier) @name)]"
-      rename "(assign lhs: (targets (identifier)* @name))"
+      rename "[(assign lhs: (identifier)* @name) (op_assign lhs: (identifier) @name)]"
       rename "[(type_declaration var: (identifier) @name) (rescue variable: (identifier) @name)]"
       rename "[(instance_var) @name (class_var) @name]"
       rename "[(generic_type params: (param_list (constant)* @name)) (forall (constant)* @name)]"

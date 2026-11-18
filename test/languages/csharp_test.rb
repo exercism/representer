@@ -84,6 +84,11 @@ class CSharpTest < RepresenterTest
       "public static class A { public static int Max(int[] a) => a.Max(); }"
   end
 
+  def test_tuple_deconstruction_renames_every_variable
+    assert_same_representation wrap("var (a, b) = (1, 2); return a - b;"), wrap("var (p, q) = (1, 2); return p - q;")
+    refute_same_representation wrap("var (a, b) = (1, 2); return a - b;"), wrap("var (a, b) = (1, 2); return b - a;")
+  end
+
   def test_names_in_the_tests_are_kept
     tests = { "LeapTests.cs" => "public class LeapTests { [Fact] public void T() => Assert.True(Leap.IsLeapYear(2000)); }" }
     result = represent("public static class Leap { public static bool IsLeapYear(int year) => year % 4 == 0; }",
