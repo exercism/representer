@@ -1,3 +1,6 @@
+# ruby_tree_sitter uses Pathname without requiring it. Bundler loads it
+# locally, but the Lambda runtime doesn't.
+require "pathname"
 require "tree_sitter"
 require "yaml"
 require "rbconfig"

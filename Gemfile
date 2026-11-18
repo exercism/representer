@@ -1,7 +1,9 @@
 source 'https://rubygems.org'
 
 gem 'mandate'
-gem 'json'
+# The Lambda runtime's error logger calls JSON.pretty_unparse, which json 3
+# removed.
+gem 'json', '~> 2.0'
 gem 'rouge'
 gem 'ruby_tree_sitter', '2.1.1'
 
