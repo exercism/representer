@@ -7,12 +7,20 @@ module Representer
     # the forms that `macroexpand-all` gives, using the same expansions, so
     # `(when a b)` and `(if a (do b))` are the same.
     #
-    # Macros that expand to generated names or runtime code (`and`, `or`,
-    # `for`, `doseq`, `if-let`, `when-let`, `case`, `condp`, `ns`, and
-    # destructuring) stay as written.
+    # `and`, `or`, `if-let`, `when-let` and destructuring expand to code that
+    # uses generated names. Real expansion numbers those names globally, so
+    # this class numbers them from `G__1` inside each expansion instead, which
+    # gives the same name to the same code every time. `for` becomes nested
+    # `map`, `mapcat`, `filter` and `take-while` calls, and `ns` becomes one
+    # canonical `ns` form with its clauses merged and sorted. A macro that the
+    # student defines with `defmacro`, with one syntax-quoted template as its
+    # body, is expanded at each use by substituting the arguments into the
+    # template. Nothing in the student's code is ever run.
+    #
+    # `doseq`, `case`, `condp` and `loop` destructuring stay as written.
     class Clojure < Language
       tracks "clojure"
-      version 3
+      version 4
       grammar "clojure"
       extensions ".clj", ".cljc", ".cljs"
 
@@ -72,11 +80,7 @@ module Representer
       rewrite("(anon_fn_lit) @function") { |match| Clojure.anonymous_function(match.node) }
 
       # `(comment ...)` expands to nil, so top-level REPL code goes away.
-      rewrite("(source) @source") do |match|
-        before = match.node.children.size
-        match.node.children.reject! { |child| child.type == "nil_lit" }
-        match.node.children.size == before ? nil : match.node
-      end
+      rewrite("(source) @source") { |match| Clojure.expand_source(match.node) }
 
       # The core macros, and the forms that define names.
       rewrite("(list_lit) @list") { |match| Clojure.expand(match.node) }
@@ -146,6 +150,13 @@ module Representer
           when "cond->>" then conditional_thread(args, "->>")
           when "some->" then nil_safe_thread(args, "->")
           when "some->>" then nil_safe_thread(args, "->>")
+          when "and" then and_form(args)
+          when "or" then or_form(args)
+          when "if-let" then if_let_form(args)
+          when "when-let" then when_let_form(args)
+          when "for" then for_form(args)
+          when "ns" then ns_form(node, args)
+          when "let" then destructure_let(args) || bind_names(node, head, args)
           when "when" then when_form(args)
           when "when-not" then when_not_form(args)
           when "if-not" then if_not_form(args)
@@ -159,13 +170,29 @@ module Representer
           when "defmethod" then bind_first_vector(args) ? node : nil
           when "catch" then args[1] && retype(args[1], :local).positive? ? node : nil
           when "letfn" then letfn(args) ? node : nil
-          else
-            changed = 0
-            changed += bind_bindings(args) if BINDING_FORMS.include?(head)
-            changed += define_name(args) if DEFINING_FORMS.include?(head)
-            changed += bind_implementations(head, args) if IMPLEMENTING_FORMS.include?(head)
-            changed.zero? ? nil : node
+          else bind_names(node, head, args)
           end
+        end
+
+        # Gives the names that a form defines their types. Returns nil if
+        # there are none to change.
+        def bind_names(node, head, args)
+          changed = 0
+          changed += bind_bindings(args) if BINDING_FORMS.include?(head)
+          changed += define_name(args) if DEFINING_FORMS.include?(head)
+          changed += bind_implementations(head, args) if IMPLEMENTING_FORMS.include?(head)
+          changed.zero? ? nil : node
+        end
+
+        def form(head, *args) = build(:list_lit, symbol(head), *args)
+        def bool(value) = leaf(:bool_lit, value.to_s)
+
+        # The numbered names that expansion makes up (`G__1`, `G__2`...). Each
+        # expansion has its own counter, so the same code always gets the same
+        # names. Call the result for a new name, and `copy` it to use it again.
+        def gensyms
+          count = 0
+          -> { leaf(:gensym, "G__#{count += 1}") }
         end
 
         ### Threading macros ###
@@ -257,6 +284,439 @@ module Representer
           build(:list_lit, symbol("if"), test, result, build(:list_lit, symbol("cond"), *rest))
         end
 
+        # (and) is true, (and x) is x, and (and x y) is
+        # (let [G__1 x] (if G__1 (and y) G__1)).
+        def and_form(args)
+          return bool(true) if args.empty?
+          return args.first if args.size == 1
+
+          first, *rest = args
+          temp = gensyms.()
+          form("let", build(:vec_lit, temp, first), form("if", copy(temp), form("and", *rest), copy(temp)))
+        end
+
+        # (or) is nil, (or x) is x, and (or x y) is
+        # (let [G__1 x] (if G__1 G__1 (or y))).
+        def or_form(args)
+          return nil_form if args.empty?
+          return args.first if args.size == 1
+
+          first, *rest = args
+          temp = gensyms.()
+          form("let", build(:vec_lit, temp, first), form("if", copy(temp), copy(temp), form("or", *rest)))
+        end
+
+        # (if-let [x t] a b) is (let [G__1 t] (if G__1 (let [x G__1] a) b)).
+        def if_let_form(args)
+          binding, consequence, alternative = args
+          return nil unless binding&.type == "vec_lit" && binding.children.size == 2 && consequence && args.size <= 3
+
+          pattern, test = binding.children
+          temp = gensyms.()
+          inner = form("let", build(:vec_lit, pattern, copy(temp)), consequence)
+          form("let", build(:vec_lit, temp, test), form("if", copy(temp), inner, alternative || nil_form))
+        end
+
+        # (when-let [x t] a) is (let [G__1 t] (when G__1 (let [x G__1] a))).
+        def when_let_form(args)
+          binding, *body = args
+          return nil unless binding&.type == "vec_lit" && binding.children.size == 2
+
+          pattern, test = binding.children
+          temp = gensyms.()
+          inner = form("let", build(:vec_lit, pattern, copy(temp)), *body)
+          form("let", build(:vec_lit, temp, test), form("when", copy(temp), inner))
+        end
+
+        ### For ###
+
+        # `for` becomes calls that give the same result: each generator is a
+        # `map` (the last one) or a `mapcat` of a function, and `:when` and
+        # `:while` become a `filter` and a `take-while` of the generator's
+        # collection. A generator with a `:let` keeps its modifiers inside
+        # the function instead, so `:let` can be used by the modifiers after it.
+        def for_form(args)
+          vector, *body = args
+          return nil unless vector&.type == "vec_lit" && vector.children.size.even? && body.size == 1
+
+          generators = []
+          vector.children.each_slice(2) do |key, value|
+            if key.type == "kwd" && %w[:when :while :let].include?(key.text)
+              return nil if generators.empty?
+
+              generators.last[2] << [key, value]
+            else
+              generators << [key, value, []]
+            end
+          end
+          return nil if generators.empty?
+
+          generate(generators, body.first)
+        end
+
+        def generate(generators, body)
+          (pattern, collection, modifiers), *rest = generators
+          last = rest.empty?
+          lets = modifiers.any? { |key, _| key.text == ":let" }
+
+          if lets
+            return nil if modifiers.any? { |key, _| key.text == ":while" }
+
+            inner = last ? build(:vec_lit, body) : generate(rest, body)
+            return nil unless inner
+
+            inner = modifiers.reverse.reduce(inner) do |acc, (key, value)|
+              key.text == ":let" ? form("let", value, acc) : form("when", value, acc)
+            end
+            return form("mapcat", function_of([pattern], inner), collection)
+          end
+
+          inner = last ? body : generate(rest, body)
+          return nil unless inner
+
+          collection = modifiers.reduce(collection) do |acc, (key, value)|
+            form(key.text == ":when" ? "filter" : "take-while", function_of([copy(pattern)], value), acc)
+          end
+          form(last ? "map" : "mapcat", function_of([pattern], inner), collection)
+        end
+
+        def function_of(params, body) = form("fn", build(:vec_lit, *params), body)
+
+        ### Namespaces ###
+
+        # `ns` becomes one canonical `ns`: the docstring and attribute map
+        # are dropped, each kind of clause is merged into one, and the
+        # clauses and the libraries in them are sorted. `:use` becomes a
+        # `:require` with `:refer`, a bare library name becomes a vector, a
+        # prefix list such as `[clojure string set]` becomes one vector for
+        # each library, and an `:import` becomes a list of full class names.
+        def ns_form(node, args)
+          name, *clauses = args
+          return nil unless sym?(name)
+
+          clauses.shift if clauses.first&.type == "str_lit"
+          clauses.shift if clauses.first&.type == "map_lit"
+          groups = Hash.new { |hash, key| hash[key] = [] }
+          clauses.each do |clause|
+            key = clause.children.first if clause.type == "list_lit"
+            return nil unless key&.type == "kwd"
+
+            groups[key.text].concat(clause.children.drop(1))
+          end
+
+          requires = groups.delete(":require").to_a.flat_map { |spec| libspecs(spec) }
+          requires += groups.delete(":use").to_a.flat_map { |spec| libspecs(spec, use: true) }
+          imports = groups.delete(":import").to_a.flat_map { |spec| import_names(spec) }
+          groups[":require"] = sort_unique(requires) { |spec| spec.children.first.text } unless requires.empty?
+          groups[":import"] = sort_unique(imports, &:text) unless imports.empty?
+
+          order = [":refer-clojure", ":require", ":import"]
+          keys = groups.keys.sort_by { |key| [order.index(key) || order.size, key] }
+          result = form("ns", name, *keys.map { |key| build(:list_lit, leaf(:kwd, key), *groups[key]) })
+          result.children[0] = symbol("ns")
+          result.inspect == node.inspect ? nil : result
+        end
+
+        def sort_unique(nodes, &key)
+          nodes.uniq(&:inspect).sort_by(&key)
+        end
+
+        # The libraries that one `:require` argument names, each as a vector
+        # with its options sorted.
+        def libspecs(spec, use: false)
+          return libspecs(build(:vec_lit, spec), use:) if sym?(spec)
+          return [spec] unless spec.type == "vec_lit" && sym?(spec.children.first)
+
+          library, *options = spec.children
+          if !options.empty? && options.none? { |option| option.type == "kwd" } && options.all? { |option| sym?(option) || option.type == "vec_lit" }
+            return options.flat_map do |option|
+              parts = option.type == "vec_lit" ? option.children : [option]
+              next [] unless sym?(parts.first)
+
+              prefixed = leaf(:sym, "#{library.text}.#{parts.first.text}")
+              libspecs(build(:vec_lit, prefixed, *parts.drop(1)), use:)
+            end
+          end
+
+          options = options.each_slice(2).to_a
+          return [spec] if options.any? { |pair| pair.size != 2 || pair.first.type != "kwd" }
+
+          options << [leaf(:kwd, ":refer"), leaf(:kwd, ":all")] if use && options.empty?
+          options = options.map do |key, value|
+            key = leaf(:kwd, ":refer") if use && key.text == ":only"
+            value = build(:vec_lit, *value.children.sort_by(&:text)) if key.text == ":refer" && value.type == "vec_lit"
+            [key, value]
+          end
+          [build(:vec_lit, library, *options.sort_by { |key, _| key.text }.flatten)]
+        end
+
+        # The class names that one `:import` argument names, such as
+        # `(java.util List Map)` for `java.util.List` and `java.util.Map`.
+        def import_names(spec)
+          return [spec] if sym?(spec)
+          return [] unless %w[list_lit vec_lit].include?(spec.type) && sym?(spec.children.first)
+
+          package, *classes = spec.children
+          classes.select { |klass| sym?(klass) }.map { |klass| leaf(:sym, "#{package.text}.#{klass.text}") }
+        end
+
+        ### Destructuring ###
+
+        def destructuring?(pattern) = %w[vec_lit map_lit].include?(pattern.type)
+
+        # A `let` with a vector or map pattern becomes a `let` of plain names:
+        # `[a b] v` is `G__1 v a (nth G__1 0 nil) b (nth G__1 1 nil)`. Returns
+        # nil if there is no pattern, or one that isn't understood.
+        def destructure_let(args)
+          vector, *body = args
+          return nil unless vector&.type == "vec_lit" && vector.children.size.even?
+          return nil unless vector.children.each_slice(2).any? { |pattern, _| destructuring?(pattern) }
+
+          gen = gensyms
+          bindings = vector.children.each_slice(2).flat_map do |pattern, value|
+            expand_pattern(pattern, value, gen) || (return nil)
+          end
+          form("let", build(:vec_lit, *bindings), *body)
+        end
+
+        # The names and values that a pattern binds, as a flat list. Returns
+        # nil for a pattern that isn't understood.
+        def expand_pattern(pattern, value, gen)
+          case pattern.type
+          when "sym", "local", "gensym" then [pattern, value]
+          when "vec_lit" then expand_vector(pattern, value, gen)
+          when "map_lit" then expand_map(pattern, value, gen)
+          end
+        end
+
+        def expand_vector(pattern, value, gen)
+          temp = gen.()
+          bindings = [temp, value]
+          items = pattern.children
+          index = 0
+          position = 0
+          while position < items.size
+            item = items[position]
+            if sym?(item) && item.text == "&"
+              rest = items[position + 1]
+              return nil unless rest && position + 2 == items.size || rest && items[position + 2]&.type == "kwd"
+
+              sub = expand_pattern(rest, form("nthnext", copy(temp), leaf(:num_lit, index.to_s)), gen)
+              return nil unless sub && rest.type != "map_lit"
+
+              bindings.concat(sub)
+              position += 2
+            elsif item.type == "kwd" && item.text == ":as"
+              name = items[position + 1]
+              return nil unless sym?(name)
+
+              bindings.push(name, copy(temp))
+              position += 2
+            else
+              sub = expand_pattern(item, form("nth", copy(temp), leaf(:num_lit, index.to_s), nil_form), gen)
+              return nil unless sub
+
+              bindings.concat(sub)
+              index += 1
+              position += 1
+            end
+          end
+          bindings
+        end
+
+        def expand_map(pattern, value, gen)
+          entries = pattern.children.each_slice(2).to_a
+          return nil if entries.any? { |_, entry_value| entry_value.nil? }
+
+          defaults = {}
+          entries.each do |key, entry_value|
+            next unless key.type == "kwd" && key.text == ":or"
+            return nil unless entry_value.type == "map_lit"
+
+            entry_value.children.each_slice(2) { |name, default| defaults[name.text] = default }
+          end
+
+          temp = gen.()
+          bindings = [temp, value]
+          entries.each do |key, entry_value|
+            if key.type == "kwd"
+              sub = expand_map_option(key.text, entry_value, temp, defaults)
+              return nil unless sub
+
+              bindings.concat(sub)
+            else
+              default = defaults[key.text] if sym?(key)
+              sub = expand_pattern(key, get_call(temp, entry_value, default), gen)
+              return nil unless sub
+
+              bindings.concat(sub)
+            end
+          end
+          bindings
+        end
+
+        def get_call(temp, key, default) = form("get", copy(temp), key, *[default].compact)
+
+        # `:as m`, `:or {...}` and `:keys [a b]` (also `:strs`, `:syms`, and
+        # a namespace before the slash).
+        def expand_map_option(option, value, temp, defaults)
+          return [value, copy(temp)] if option == ":as" && sym?(value)
+          return [] if option == ":or"
+
+          match = option.match(%r{\A:(?:(.+)/)?(keys|strs|syms)\z})
+          return nil unless match && value.type == "vec_lit" && value.children.all? { |name| sym?(name) && !name.text.include?("/") }
+
+          namespace = match[1] ? "#{match[1]}/" : ""
+          value.children.flat_map do |name|
+            key =
+              case match[2]
+              when "keys" then leaf(:kwd, ":#{namespace}#{name.text}")
+              when "strs" then leaf(:str_lit, %("#{name.text}"))
+              else form("quote", leaf(:sym, "#{namespace}#{name.text}"))
+              end
+            [name, get_call(temp, key, defaults[name.text])]
+          end
+        end
+
+        # Replaces each parameter that is a pattern with a made-up name, and
+        # binds the pattern to it in a `let` around the body.
+        def destructure_params(arity)
+          params, *body = arity.children
+          return unless params.children.any? { |param| destructuring?(param) }
+
+          gen = gensyms
+          bindings = []
+          new_params = params.children.map do |param|
+            next param unless destructuring?(param)
+
+            temp = gen.()
+            sub = expand_pattern(param, copy(temp), gen)
+            return unless sub
+
+            bindings.concat(sub)
+            temp
+          end
+          params.children.replace(new_params)
+          arity.children.replace([params, form("let", build(:vec_lit, *bindings), *body)])
+        end
+
+        ### Student macros ###
+
+        # Removes the `nil` forms that `comment` leaves, then expands every
+        # use of the macros that the file defines.
+        def expand_source(source)
+          before = source.children.size
+          source.children.reject! { |child| child.type == "nil_lit" }
+          dropped = source.children.size != before
+
+          macros = student_macros(source)
+          return dropped ? source : nil if macros.empty?
+
+          expanded = expand_uses(source, macros)
+          expanded.positive? ? build(:source, *source.children) : (dropped ? source : nil)
+        end
+
+        Macro = Struct.new(:required, :rest, :template)
+
+        # The macros that `defmacro` defines with simple parameters and one
+        # syntax-quoted template as the body, by name. A macro whose template
+        # uses a student macro is left alone, so expansion always ends.
+        def student_macros(source)
+          candidates = {}
+          source.children.each do |form|
+            next unless head(form) == "defmacro"
+
+            name, function = form.children[1..2]
+            next unless name&.type == "definition" && head(function) == "fn*" && function.children.size == 2
+
+            arity = function.children[1]
+            next unless arity.type == "list_lit" && arity.children.size == 2
+
+            params, template = arity.children
+            next unless params.type == "vec_lit" && template.type == "syn_quoting_lit"
+
+            required, rest = macro_params(params)
+            candidates[name.text] = Macro.new(required, rest, template.children.last) if required
+          end
+
+          names = candidates.keys
+          candidates.reject do |_, macro|
+            used = []
+            macro.template.each_descendant { |node| used << node.text if node.text }
+            used.intersect?(names)
+          end
+        end
+
+        # The names before `&`, and the name after it (or nil).
+        def macro_params(params)
+          names = params.children
+          rest_at = names.index { |param| param.text == "&" }
+          required = rest_at ? names[0...rest_at] : names
+          rest = rest_at ? names[rest_at + 1] : nil
+          return nil unless (required + [rest].compact).all? { |param| param.type == "local" }
+          return nil if rest_at && names.size != rest_at + 2
+
+          [required.map(&:text), rest&.text]
+        end
+
+        # Replaces each use of a macro with its template, and returns how
+        # many it replaced. Uses inside the new code wait for the next pass.
+        def expand_uses(node, macros)
+          count = 0
+          node.children.each_with_index do |child, index|
+            macro = macros[head(child)] if child.type == "list_lit"
+            expansion = substitute_macro(macro, child.children.drop(1)) if macro
+            if expansion
+              expansion.field = child.field
+              node.children[index] = expansion
+              count += 1
+            else
+              count += expand_uses(child, macros)
+            end
+          end
+          count
+        end
+
+        # The template with the arguments in place of the parameters, or nil
+        # if the use doesn't fit the macro.
+        def substitute_macro(macro, args)
+          return nil if args.size < macro.required.size || (!macro.rest && args.size != macro.required.size)
+
+          env = macro.required.zip(args).to_h
+          rest = args.drop(macro.required.size)
+          gen = gensyms
+          auto = {}
+          result = catch(:no_expansion) { substitute(macro.template, env, macro.rest, rest, gen, auto) }
+          result.is_a?(Array) ? nil : result
+        end
+
+        # Returns a node, or an array of nodes for `~@rest`.
+        def substitute(node, env, rest_name, rest, gen, auto)
+          case node.type
+          when "unquoting_lit"
+            target = node.children.last
+            throw :no_expansion unless target.type == "sym" || target.type == "local"
+            return copy(env.fetch(target.text)) if env.key?(target.text)
+            return form("list", *rest.map { |arg| copy(arg) }) if target.text == rest_name
+
+            throw :no_expansion
+          when "unquote_splicing_lit"
+            target = node.children.last
+            throw :no_expansion unless target.text == rest_name
+
+            return rest.map { |arg| copy(arg) }
+          when "syn_quoting_lit" then throw :no_expansion
+          when "sym", "local"
+            return node unless node.text.end_with?("#")
+
+            return copy(auto[node.text] ||= gen.())
+          end
+
+          copy = node.dup
+          copy.children = node.children.flat_map { |child| Array(substitute(child, env, rest_name, rest, gen, auto)) }
+          copy
+        end
+
         ### Functions ###
 
         # (defn f "doc" {:a 1} [x] ...) is (def f (fn* ([x] ...))). The
@@ -315,7 +775,10 @@ module Representer
           end
           return nil if arities.empty?
 
-          arities.each { |arity| bind(arity.children.first) }
+          arities.each do |arity|
+            destructure_params(arity)
+            bind(arity.children.first)
+          end
         end
 
         # `#(f % %2 %&)` is `(fn* ([%1 %2 & %&] (f %1 %2 %&)))`.

@@ -125,6 +125,88 @@ class ClojureTest < RepresenterTest
     assert_same_representation wrap("(map (fn* [n] (inc n)) x)"), wrap("(map #(inc %) x)")
   end
 
+  ### Expanded macros ###
+
+  def test_and_and_or
+    assert_same_representation wrap("(and x y z)"), wrap("(and x (and y z))")
+    assert_same_representation wrap("(or x y z)"), wrap("(or x (or y z))")
+    assert_same_representation wrap("(and)"), wrap("true")
+    assert_same_representation wrap("(or)"), wrap("nil")
+    assert_same_representation wrap("(and x)"), wrap("x")
+    refute_same_representation wrap("(and x y)"), wrap("(or x y)")
+    refute_same_representation wrap("(and x y)"), wrap("(and y x)")
+  end
+
+  def test_generated_names_are_numbered_from_one
+    code = "(defn f [x y] (or x (and y x)))"
+    assert_includes represent(code).representation, "G__1"
+    assert_same_representation code, "(defn g [a b] (or a (and b a)))"
+  end
+
+  def test_if_let_and_when_let
+    assert_same_representation wrap("(if-let [v (get x y)] (inc v) 0)"), wrap("(if-let [w (get x y)] (inc w) 0)")
+    assert_same_representation wrap("(if-let [v x] v)"), wrap("(if-let [v x] v nil)")
+    assert_same_representation wrap("(when-let [v x] (inc v) 2)"), wrap("(when-let [w x] (inc w) 2)")
+    refute_same_representation wrap("(if-let [v x] v 0)"), wrap("(when-let [v x] v)")
+  end
+
+  def test_for
+    assert_same_representation wrap("(for [i x] (inc i))"), wrap("(map (fn [n] (inc n)) x)")
+    assert_same_representation wrap("(for [i x :when (odd? i)] i)"), wrap("(for [i (filter (fn [i] (odd? i)) x)] i)")
+    assert_same_representation wrap("(for [i x :while (odd? i)] i)"), wrap("(map (fn [i] i) (take-while (fn [i] (odd? i)) x))")
+    assert_same_representation wrap("(for [i x j y] [i j])"), wrap("(mapcat (fn [a] (map (fn [b] [a b]) y)) x)")
+    assert_same_representation wrap("(for [i x :let [k (* i i)] :when (odd? k)] k)"), wrap("(for [m x :let [n (* m m)] :when (odd? n)] n)")
+    refute_same_representation wrap("(for [i x :when (odd? i)] i)"), wrap("(for [i x :when (even? i)] i)")
+    refute_same_representation wrap("(for [i x j y] [i j])"), wrap("(for [j y i x] [i j])")
+  end
+
+  def test_ns
+    plain = "(ns app (:require [clojure.string :as str] [clojure.set :refer [union difference]]) (:import (java.util List Map)))"
+    assert_same_representation plain,
+      "(ns app \"Docs.\" {:doc 1} (:import java.util.Map [java.util List]) (:require [clojure.set :refer [difference union]]) (:require [clojure.string :as str]))"
+    assert_same_representation "(ns app (:require clojure.string))", "(ns app (:require [clojure.string]))"
+    assert_same_representation "(ns app (:require [clojure string set]))", "(ns app (:require [clojure.set] [clojure.string]))"
+    assert_same_representation "(ns app (:use [clojure.set :only [union]]))", "(ns app (:require [clojure.set :refer [union]]))"
+    refute_same_representation plain, plain.sub("clojure.set", "clojure.walk")
+    refute_same_representation plain, plain.sub("Map", "Set")
+  end
+
+  def test_let_destructuring
+    assert_same_representation "(let [[a b] v] (+ a b))", "(let [[c d] v] (+ c d))"
+    assert_same_representation "(let [[a & more] v] more)", "(let [[b & others] v] others)"
+    assert_same_representation "(let [{:keys [a b]} m] a)", "(let [{a :a b :b} m] a)"
+    assert_same_representation "(let [{:strs [a]} m] a)", "(let [{a \"a\"} m] a)"
+    assert_same_representation "(let [{:keys [a] :or {a 1}} m] a)", "(let [{b :a :or {b 1}} m] b)"
+    assert_same_representation "(let [[a [b c]] v] c)", "(let [[d [e f]] v] f)"
+    refute_same_representation "(let [[a b] v] a)", "(let [[b a] v] a)"
+    refute_same_representation "(let [{:keys [a]} m] a)", "(let [{:strs [a]} m] a)"
+  end
+
+  def test_fn_destructuring
+    assert_same_representation "(defn f [[a b] c] (+ a b c))", "(defn f [[x y] z] (+ x y z))"
+    assert_same_representation "(fn [{:keys [a]}] a)", "(fn [{b :a}] b)"
+    refute_same_representation "(defn f [[a b]] a)", "(defn f [[a b]] b)"
+  end
+
+  def test_student_macros_are_expanded
+    unless_macro = "(defmacro unless [c & body] `(if ~c nil (do ~@body)))"
+    assert_same_representation "#{unless_macro} (defn f [x] (unless x 1 2))", "#{unless_macro} (defn f [x] (if x nil (do 1 2)))"
+    refute_same_representation "#{unless_macro} (defn f [x] (unless x 1))", "#{unless_macro} (defn f [x] (unless x 2))"
+    twice = "(defmacro twice [e] `(let [v# ~e] (+ v# v#)))"
+    expanded = represent("#{twice} (defn f [x] (twice (inc x)))").representation
+    assert_includes expanded, "G__1"
+    refute_includes expanded.split("defmacro").last, "twice"
+  end
+
+  def test_macros_with_other_bodies_are_left_alone
+    code = "(defmacro m [x] (list 'inc x)) (defn f [y] (m y))"
+    assert_includes represent(code).representation, "(list_lit PLACEHOLDER_1 PLACEHOLDER_4)"
+  end
+
+  def test_recursive_macros_end
+    assert represent("(defmacro m [x] `(m ~x)) (defn f [y] (m y))").representation
+  end
+
   ### Names ###
 
   def test_locals_are_renamed
@@ -133,8 +215,9 @@ class ClojureTest < RepresenterTest
   end
 
   def test_destructuring_names_are_renamed
-    assert_same_representation "(defn f [[a b] {:keys [c] :as m}] (+ a b c m))", "(defn f [[x y] {:keys [z] :as w}] (+ x y z w))"
-    assert_same_representation "(let [{:keys [a] :or {a 1}} m] a)", "(let [{:keys [b] :or {b 1}} m] b)"
+    assert_same_representation "(defn f [[a b] {:keys [c] :as m}] (+ a b c m))", "(defn f [[x y] {:keys [c] :as w}] (+ x y c w))"
+    assert_same_representation "(let [{k :a} m] k)", "(let [{j :a} m] j)"
+    refute_same_representation "(let [{:keys [a]} m] a)", "(let [{:keys [b]} m] b)"
   end
 
   def test_loop_for_and_catch_names_are_renamed
