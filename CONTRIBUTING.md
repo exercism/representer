@@ -36,6 +36,7 @@ python:
 ```
 
 Use a full commit SHA, never a branch or tag, so the grammar can't change under you.
+If the grammar doesn't commit its `parser.c`, add `generate: true`. Building it then runs `tree-sitter generate`, so you need node and the tree-sitter CLI (`npm install -g tree-sitter-cli@0.23.0`). Never commit the generated file.
 Add `src:` if the grammar's `parser.c` isn't in `src/` (for example `src: typescript/src`) and `symbol:` if the grammar's C name isn't the entry's name (tree-sitter-c-sharp exports `tree_sitter_c_sharp`, so its entry is called `c_sharp`).
 
 Then build it:

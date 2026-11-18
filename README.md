@@ -8,7 +8,7 @@ The website groups solutions by their representation, and shows a mentor's feedb
 
 It runs as an AWS Lambda function behind Exercism's internal load balancer.
 One service handles every track.
-These languages have a class of their own, and the representer parses them with [tree-sitter][tree-sitter]: C#, C++, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, GDScript, Gleam, Go, Java, JavaScript, Nim, PHP, Python, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
+These languages have a class of their own, and the representer parses them with [tree-sitter][tree-sitter]: C#, C++, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, GDScript, Gleam, Go, Java, JavaScript, Nim, PHP, Python, Raku, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
 
 Every other track gets a simpler token-based representation called Basic.
 
@@ -73,6 +73,7 @@ It renames nothing, so it only merges solutions that differ in nothing but comme
 ## Set up
 
 You need Ruby 3.4, git and a C compiler.
+The Raku grammar doesn't commit its `parser.c`, so building it also needs node and the tree-sitter CLI (`npm install -g tree-sitter-cli@0.23.0`).
 
 1. Run `bundle install`.
 2. Run `./bin/build-grammars` to fetch and compile the tree-sitter grammars pinned in [`grammars.yml`](./grammars.yml). This puts them in `grammars/build/`, which git ignores.

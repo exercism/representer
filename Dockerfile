@@ -1,6 +1,10 @@
 FROM public.ecr.aws/lambda/ruby:3.4.2026.11.13.17 AS build
 
-RUN dnf install gcc git -y
+# The build stage also installs node and the tree-sitter CLI, for grammars that
+# don't commit their parser.c (marked `generate: true` in grammars.yml). The
+# runtime stage doesn't get them.
+RUN dnf install gcc git nodejs npm -y && \
+    npm install -g tree-sitter-cli@0.23.0
 
 ENV GEM_HOME=${LAMBDA_TASK_ROOT}
 WORKDIR ${LAMBDA_TASK_ROOT}

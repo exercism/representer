@@ -22,10 +22,17 @@ jobs:
           bundler-cache: true
 
       - name: Cache compiled grammars
+        id: grammars-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: grammars/build
           key: grammars-${{ runner.os }}-${{ hashFiles('grammars.yml', 'bin/build-grammars') }}
+
+      # The Raku grammar doesn't commit its parser.c, so building it needs the
+      # tree-sitter CLI (node is already on the runner).
+      - name: Install the tree-sitter CLI
+        if: steps.grammars-cache.outputs.cache-hit != 'true'
+        run: npm install -g tree-sitter-cli@0.23.0
 
       - name: Build grammars
         run: bin/build-grammars
