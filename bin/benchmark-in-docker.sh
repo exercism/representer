@@ -66,7 +66,7 @@ import json, sys, glob
 work = sys.argv[1]
 
 methods = {
-    "ruby": ("rb", "def method_{i}(a, b = 2)\n  # a comment\n  if a > b\n    result = a * b + {i}\n  else\n    result = [a, b].map { |x| x + 1 }.sum\n  end\n  result\nend\n\n"),
+    "ruby": ("rb", "def method_{i}(a, b = 2)\n  # a comment\n  if a > b\n    result = a * b + {i}\n  else\n    result = [a, b].map {{ |x| x + 1 }}.sum\n  end\n  result\nend\n\n"),
     "javascript": ("js", "function method{i}(a, b = 2) {{\n  // a comment\n  let result;\n  if (a > b) {{\n    result = a * b + {i};\n  }} else {{\n    result = [a, b].map((x) => x + 1).reduce((s, x) => s + x, 0);\n  }}\n  return result;\n}}\n\n"),
     "csharp": ("cs", "    public static int Method{i}(int a, int b = 2)\n    {{\n        // a comment\n        int result;\n        if (a > b)\n        {{\n            result = a * b + {i};\n        }}\n        else\n        {{\n            result = new[] {{ a, b }}.Select(x => x + 1).Sum();\n        }}\n        return result;\n    }}\n\n"),
     "python": ("py", "def method_{i}(a, b=2):\n    # a comment\n    if a > b:\n        result = a * b + {i}\n    else:\n        result = sum([x + 1 for x in [a, b]])\n    return result\n\n\n"),
