@@ -61,6 +61,20 @@ module Representer
       # with other extensions (such as .meta/config.json) are ignored.
       def extensions(*list) = list.empty? ? @extensions : @extensions = list
 
+      # For a language where it doesn't matter which file code is in (Go). The
+      # solution's files are joined into one tree, and the rules for the whole
+      # file (such as one that sorts the declarations) then run on all of
+      # it, so splitting code across files doesn't change the representation.
+      # The representation is written under this file name, whatever the
+      # solution's files are called.
+      def merge_files(name = nil)
+        return @merged_file_name unless name
+
+        @merged_file_name = name
+      end
+
+      def merges_files? = !@merged_file_name.nil?
+
       # The leaf types that hold names, which the rename rules may rename.
       # A keyword gives a prefix that is not part of the name, such as Ruby's
       # `simple_symbol: ":"` for `:name`.

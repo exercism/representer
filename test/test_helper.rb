@@ -95,8 +95,11 @@ module UpstreamTests
     define_method(:test_upstream_distinctness) do
       represented = cases.reject { |test_case| test_case.deviation[:unrepresentable] }
       representations = represented.to_h do |test_case|
-        code = test_case.solution_files.values.join("\n")
-        [test_case.name, Representer::RepresentSolution.(track, { "solution#{extension}" => code }, {}).representation]
+        files = test_case.solution_files
+        # A language that merges files takes them as they are. The others
+        # have one file, which is renamed so that file names don't matter.
+        files = { "solution#{extension}" => files.values.join("\n") } unless Representer::Languages.for(track).merges_files?
+        [test_case.name, Representer::RepresentSolution.(track, files, {}).representation]
       end
       represented.combination(2).each do |a, b|
         if a.key == b.key

@@ -13,6 +13,7 @@ module Representer
 
       def call
         trees = solution_files.sort.map { |filename, source| [filename, prepare(source)] }
+        trees = [[language.merge_files, merge(trees.map(&:last))]] if language.merges_files?
         names = Names.new(language, trees.map(&:last), required_names)
         representation = trees.map { |filename, tree| Serialize.(tree, names, filename) }.join("\n")
 
@@ -28,6 +29,15 @@ module Representer
         )
         drop(tree)
         rewrite(tree)
+      end
+
+      # Joins the files' trees into one and applies the rewrite rules to the
+      # whole.
+      def merge(trees)
+        return trees.first if trees.one?
+
+        root = Node.new(trees.first.type, trees.flat_map(&:children))
+        rewrite(root)
       end
 
       def drop(root)

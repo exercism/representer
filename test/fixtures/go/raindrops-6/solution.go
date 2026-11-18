@@ -23,7 +23,3 @@ func Convert(i int) string {
 
 	return res
 }
-
-func hasFactor(n, f int) bool {
-	return n%f == 0
-}

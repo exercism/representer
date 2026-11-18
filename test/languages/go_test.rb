@@ -6,10 +6,6 @@ class GoTest < RepresenterTest
   track "go"
 
   DEVIATIONS = {
-    "raindrops-6" => {
-      why: "The old test has two files (solution.go and factor.go), which the old representer merged into one. " \
-           "This representer doesn't merge files, so the fixture holds the merged code in one file."
-    },
     "raindrops-7" => {
       why: "The old representer didn't rename the type of a struct field (`sound sound`), so its output is only " \
            "valid code if that type keeps its name. This representer renames it, so the equivalent has the " \
@@ -72,6 +68,52 @@ class GoTest < RepresenterTest
     refute_same_representation wrap("var a, b = 1, a"), wrap("a := 1\nb := a")
   end
 
+  def defining(type, body) = "package p\n\ntype T #{type}\n\nfunc F() {\n#{body}\n}\n"
+
+  def test_var_of_a_defined_type_is_its_zero_value
+    assert_same_representation defining("struct{ a int }", "var t T"), defining("struct{ a int }", "t := T{}")
+    assert_same_representation defining("int", "var t T"), defining("int", "t := T(0)")
+    assert_same_representation defining("string", "var t T"), defining("string", "t := T(\"\")")
+    assert_same_representation defining("bool", "var t T"), defining("bool", "t := T(false)")
+    assert_same_representation defining("[]int", "var t T"), defining("[]int", "t := T(nil)")
+    assert_same_representation defining("[3]int", "var t T"), defining("[3]int", "t := T{}")
+    assert_same_representation defining("time.Duration", "var t T"), defining("time.Duration", "t := T(0)")
+    assert_same_representation defining("strings.Builder", "var t T"), defining("strings.Builder", "t := T{}")
+  end
+
+  def test_var_of_a_type_defined_in_terms_of_another_follows_it
+    code = "package p\n\ntype A struct{}\ntype T A\n\nfunc F() {\n%s\n}\n"
+    assert_same_representation format(code, "var t T"), format(code, "t := T{}")
+    code = "package p\n\ntype A int\ntype T A\n\nfunc F() {\n%s\n}\n"
+    assert_same_representation format(code, "var t T"), format(code, "t := T(0)")
+  end
+
+  def test_var_of_a_defined_type_with_a_value
+    assert_same_representation defining("int", "var t T = 3"), defining("int", "t := T(3)")
+    assert_same_representation defining("struct{ a int }", "var t T = T{}"), defining("struct{ a int }", "t := T{}")
+  end
+
+  def test_defined_types_stay_apart
+    refute_same_representation defining("struct{ a int }", "var t T"), defining("int", "var t T")
+    refute_same_representation defining("int", "var t T"), defining("string", "var t T")
+  end
+
+  def test_var_of_a_generic_type_stays_a_var
+    code = "package p\n\ntype T[X any] struct{ a X }\n\nfunc F() {\n%s\n}\n"
+    refute_same_representation format(code, "var t T[int]"), format(code, "t := T[int]{}")
+    refute_same_representation format(code, "var t T"), format(code, "t := T{}")
+  end
+
+  def test_var_of_a_standard_library_type
+    assert_same_representation wrap("var sb strings.Builder"), wrap("sb := strings.Builder{}")
+    assert_same_representation wrap("var mu sync.Mutex"), wrap("mu := sync.Mutex{}")
+    assert_same_representation wrap("var b bytes.Buffer"), wrap("b := bytes.Buffer{}")
+    assert_same_representation wrap("var d time.Duration"), wrap("d := time.Duration(0)")
+    assert_same_representation wrap("var wg sync.WaitGroup"), wrap("wg := sync.WaitGroup{}")
+    refute_same_representation wrap("var mu sync.Mutex"), wrap("mu := sync.RWMutex{}")
+    refute_same_representation wrap("var f os.File"), wrap("f := os.File{}")
+  end
+
   def test_package_level_var_is_not_rewritten
     refute_same_representation "package p\n\nvar a int\n", "package p\n\nvar a = 0\n"
   end
@@ -101,6 +143,34 @@ class GoTest < RepresenterTest
 
   def test_const_groups_stay_whole
     refute_same_representation "package p\n\nconst (\n\ta = iota\n\tb\n)\n", "package p\n\nconst a = iota\nconst b\n"
+  end
+
+  ### Files ###
+
+  def test_splitting_code_across_files_changes_nothing
+    one = "package p\n\nimport \"fmt\"\n\nfunc A() { fmt.Println(B()) }\n\nfunc B() int { return 1 }\n"
+    two = {
+      "a.go" => "package p\n\nimport \"fmt\"\n\nfunc A() { fmt.Println(B()) }\n",
+      "b.go" => "package p\n\nfunc B() int { return 1 }\n"
+    }
+    swapped = { "x.go" => two["b.go"], "y.go" => two["a.go"] }
+    expected = Representer::RepresentSolution.("go", { "p.go" => one }, {}).representation
+    assert_equal expected, Representer::RepresentSolution.("go", two, {}).representation
+    assert_equal expected, Representer::RepresentSolution.("go", swapped, {}).representation
+  end
+
+  def test_files_that_both_import_a_package_import_it_once
+    files = { "a.go" => "package p\n\nimport \"fmt\"\n\nfunc A() { fmt.Println(1) }\n",
+              "b.go" => "package p\n\nimport \"fmt\"\n\nfunc B() { fmt.Println(2) }\n" }
+    one = "package p\n\nimport \"fmt\"\n\nfunc A() { fmt.Println(1) }\n\nfunc B() { fmt.Println(2) }\n"
+    assert_equal represent(one).representation, Representer::RepresentSolution.("go", files, {}).representation
+  end
+
+  def test_different_files_with_different_code_stay_apart
+    a = { "a.go" => "package p\n\nfunc A() int { return 1 }\n", "b.go" => "package p\n\nfunc B() int { return 2 }\n" }
+    b = { "a.go" => "package p\n\nfunc A() int { return 1 }\n", "b.go" => "package p\n\nfunc B() int { return 3 }\n" }
+    refute_equal Representer::RepresentSolution.("go", a, {}).representation,
+      Representer::RepresentSolution.("go", b, {}).representation
   end
 
   ### Spelling ###

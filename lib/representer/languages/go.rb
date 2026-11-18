@@ -4,9 +4,10 @@ module Representer
     # comment says which step it replaces.
     class Go < Language
       tracks "go"
-      version 3
+      version 4
       grammar "go"
       extensions ".go"
+      merge_files "solution.go"
 
       names :identifier, :field_identifier, :type_identifier, :label_name
 
@@ -33,6 +34,23 @@ module Representer
         "uint64" => { literals: [], zero: nil }, "uintptr" => { literals: [], zero: nil },
         "byte" => { literals: [], zero: nil }, "float32" => { literals: [], zero: nil },
         "complex64" => { literals: [], zero: nil }
+      }.freeze
+
+      # Standard-library types that a solution commonly declares with
+      # `var x T`, and the kind of zero value that each has: :composite for
+      # `T{}` and :number for `T(0)`. Every other qualified type keeps its
+      # `var` declaration.
+      STANDARD_TYPES = {
+        "strings.Builder" => :composite, "strings.Reader" => :composite, "bytes.Buffer" => :composite,
+        "bytes.Reader" => :composite, "sync.Mutex" => :composite, "sync.RWMutex" => :composite,
+        "sync.WaitGroup" => :composite, "sync.Once" => :composite, "sync.Map" => :composite,
+        "sync.Pool" => :composite, "sync.Cond" => :composite, "time.Time" => :composite,
+        "list.List" => :composite, "big.Int" => :composite, "big.Float" => :composite, "big.Rat" => :composite,
+        "atomic.Int32" => :composite, "atomic.Int64" => :composite, "atomic.Uint32" => :composite,
+        "atomic.Uint64" => :composite, "atomic.Bool" => :composite, "atomic.Value" => :composite,
+        "regexp.Regexp" => :composite, "bufio.Scanner" => :composite, "tabwriter.Writer" => :composite,
+        "time.Duration" => :number, "time.Month" => :number, "time.Weekday" => :number,
+        "os.FileMode" => :number, "reflect.Kind" => :number, "token.Token" => :number
       }.freeze
 
       # Top-level declarations are written in this order.
@@ -70,11 +88,14 @@ module Representer
       # first. This sorts by node count, because source length depends on
       # formatting.
       rewrite "(source_file) @file" do |match|
+        Go.expand_defined_vars(match.node)
         organised = Go.organise(match.node.children)
         organised.map(&:inspect) == match.node.children.map(&:inspect) ? nil : build(:source_file, *organised)
       end
 
-      # NormalizeDeclarations: `var a int` is `a := 0` inside a function.
+      # NormalizeDeclarations: `var a int` is `a := 0` inside a function. The
+      # rule above also does this for types that the solution defines, once it
+      # has the whole file.
       rewrite "(statement_list (var_declaration) @declaration)" do |match|
         statements = match.node.children.flat_map do |child|
           child.type == "var_declaration" ? (Go.expand_var(child) || [child]) : [child]
@@ -158,6 +179,7 @@ module Representer
       # first.
       def self.organise(children)
         head, rest = children.partition { |child| child.type == "package_clause" }
+        head = head.uniq(&:inspect)
         imports, others = rest.partition { |child| child.type == "import_declaration" }
         others = others.flat_map { |declaration| split(declaration) }
 
@@ -166,7 +188,7 @@ module Representer
             child.type == "import_spec_list" ? child.children : [child]
           end
         end
-        specs = specs.select { |child| child.type == "import_spec" }.sort_by { |spec| key(spec) }
+        specs = specs.select { |child| child.type == "import_spec" }.uniq(&:inspect).sort_by { |spec| key(spec) }
         import_declaration = specs.empty? ? [] : [Engine::Node.new("import_declaration",
           [Engine::Node.new("import_spec_list", specs)])]
 
@@ -209,16 +231,36 @@ module Representer
 
       def self.names = @names ||= Go.names
 
+      # Rewrites the `var` declarations in the file's functions that name a
+      # type the file defines. A type with type parameters is left alone.
+      def self.expand_defined_vars(file)
+        types = defined_types(file)
+        file.each_descendant do |node|
+          next unless node.type == "statement_list" && node.children.any? { |child| child.type == "var_declaration" }
+
+          node.children = node.children.flat_map do |child|
+            child.type == "var_declaration" ? (expand_var(child, types) || [child]) : [child]
+          end
+        end
+      end
+
+      # The type that each top-level type declaration defines, by name.
+      def self.defined_types(file)
+        file.children.select { |child| child.type == "type_declaration" }.flat_map(&:children)
+          .select { |spec| spec.type == "type_spec" && spec["type_parameters"].nil? && spec["name"] && spec["type"] }
+          .to_h { |spec| [spec["name"].text, spec["type"]] }
+      end
+
       # The statements that replace a var declaration, or nil if the
       # declaration has anything that this can't rewrite (see BUILTIN_TYPES).
-      def self.expand_var(declaration)
+      def self.expand_var(declaration, types = {})
         specs = declaration.children.flat_map { |child| child.type == "var_spec_list" ? child.children : [child] }
         specs = specs.select { |child| child.type == "var_spec" }
-        statements = specs.map { |spec| expand_spec(spec) }
+        statements = specs.map { |spec| expand_spec(spec, types) }
         statements.all? ? statements.flatten : nil
       end
 
-      def self.expand_spec(spec)
+      def self.expand_spec(spec, types)
         names = spec.children.select { |child| child.field == "name" && child.type == "identifier" }
         type = spec["type"]
         values = spec["value"]&.named_children || []
@@ -230,7 +272,7 @@ module Representer
         return nil if names.size > 1 && values.any? { |value| mentions?(value, declared) }
 
         names.each_with_index.map do |name, index|
-          value = value_for(type, values[index])
+          value = value_for(type, values[index], types)
           return nil unless value
 
           Engine::Node.new("short_var_declaration", [
@@ -250,20 +292,81 @@ module Representer
 
       # The value that `var x T = value` gives x, written without the type.
       # Returns nil if that can't be done.
-      def self.value_for(type, value)
+      def self.value_for(type, value, types = {})
         return value if type.nil?
+        return standard_value(type, value) if type.type == "qualified_type"
         return nil unless type.type == "type_identifier"
 
         info = BUILTIN_TYPES[type.text]
         if value.nil?
-          return nil unless info
+          return defined_zero(type, types) unless info
 
           return info[:zero] ? info[:zero].(self) : conversion(type, leaf(:int_literal, "0"))
         end
         return value if info && info[:literals].include?(value.type)
         return value if value.type == "call_expression" && value["function"]&.text == type.text
+        return value if value.type == "composite_literal" && value["type"]&.text == type.text
 
         conversion(type, value)
+      end
+
+      # `var x strings.Builder` is `x := strings.Builder{}`.
+      def self.standard_value(type, value)
+        kind = STANDARD_TYPES[qualified_name(type)]
+        return nil unless kind
+
+        zero = parse_expression("#{qualified_name(type)}#{kind == :composite ? '{}' : '(0)'}")
+        return zero if value.nil?
+
+        value.type == zero.type && value["type"]&.then { |t| qualified_name(t) } == qualified_name(type) ? value : nil
+      end
+
+      def self.qualified_name(type) = type.children.select(&:leaf?).map(&:text).join(".")
+
+      # The zero value of a type that the file defines, written as a
+      # composite literal (`T{}`) or a conversion (`T(0)`). Returns nil if
+      # the type isn't defined in the file or has no zero value that is
+      # known.
+      def self.defined_zero(type, types)
+        return nil unless types.key?(type.text)
+
+        kind = underlying_zero(types[type.text], types, [type.text])
+        case kind
+        when nil then nil
+        when :composite then parse_expression("#{type.text}{}")
+        else conversion(type, kind)
+        end
+      end
+
+      # What the zero value of a type's definition looks like: :composite,
+      # or the node to convert (0, "", false or nil). Returns nil if it isn't
+      # known.
+      def self.underlying_zero(type, types, seen)
+        case type.type
+        when "struct_type", "array_type" then :composite
+        when "slice_type", "map_type", "pointer_type", "function_type", "channel_type", "interface_type"
+          leaf("nil", "nil")
+        when "qualified_type"
+          STANDARD_TYPES[qualified_name(type)]&.then { |kind| kind == :composite ? :composite : leaf(:int_literal, "0") }
+        when "type_identifier"
+          name = type.text
+          if (info = BUILTIN_TYPES[name])
+            info[:zero] ? info[:zero].(self) : leaf(:int_literal, "0")
+          elsif %w[error any].include?(name)
+            leaf("nil", "nil")
+          elsif types.key?(name) && !seen.include?(name)
+            underlying_zero(types[name], types, seen + [name])
+          end
+        end
+      end
+
+      # A node for a piece of Go code, made by parsing it.
+      def self.parse_expression(code)
+        tree = Engine::Grammar[grammar].parse("package p\nvar _ = #{code}\n", skip_tokens: dropped_tokens,
+          text_types: text_node_types, gap_types: gap_types)
+        found = nil
+        tree.each_descendant { |node| found ||= node if %w[composite_literal call_expression].include?(node.type) }
+        found
       end
 
       def self.conversion(type, value)
