@@ -94,17 +94,17 @@ def write(name, req):
     with open(f"{work}/scenarios.tsv", "a") as f:
         f.write(f"{name}\t{work}/event-{name}.json\n")
 
-target = 195_000
 for track, (ext, tmpl) in methods.items():
     head, tail = wrappers.get(track, ("", ""))
-    parts, size, i = [head], len(head), 0
-    while size < target:
-        m = tmpl.format(i=i)
-        parts.append(m)
-        size += len(m)
-        i += 1
-    parts.append(tail)
-    write(f"{track} 200KB", request(track, {f"big.{ext}": "".join(parts)}))
+    for target, label in [(2_000, "2KB"), (10_000, "10KB"), (50_000, "50KB"), (100_000, "100KB"), (195_000, "200KB")]:
+        parts, size, i = [head], len(head), 0
+        while size < target:
+            m = tmpl.format(i=i)
+            parts.append(m)
+            size += len(m)
+            i += 1
+        parts.append(tail)
+        write(f"{track} {label}", request(track, {f"big.{ext}": "".join(parts)}))
 
 for track, depth in [(t, d) for t in ["ruby", "javascript", "csharp", "python"] for d in (900, 3000)]:
     if track == "csharp":
