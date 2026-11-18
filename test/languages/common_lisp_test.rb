@@ -17,9 +17,9 @@ class CommonLispTest < RepresenterTest
            "parameter), writes them in lower case, and keeps `cl`, which the solution doesn't define."
     },
     "end-of-file" => {
-      fallback: true,
+      unrepresentable: true,
       why: "The old representer reported the reader error as the representation. A missing parenthesis is a " \
-           "syntax error to tree-sitter, so this representer gives the solution Basic."
+           "syntax error to tree-sitter, so this representer gives the solution no representation."
     },
     "reader-error" => {
       why: "The old representer reported SBCL's reader error for `#<` as the representation. The grammar accepts " \
@@ -112,7 +112,7 @@ class CommonLispTest < RepresenterTest
     refute_same_representation "(defun f (x) (+ x 1))", "(defun f (x) (+ x 2))"
   end
 
-  def test_a_syntax_error_falls_back
-    assert_falls_back "(defun f (x) (+ x 1)"
+  def test_a_syntax_error_is_unrepresentable
+    assert_unrepresentable "(defun f (x) (+ x 1)"
   end
 end

@@ -13,8 +13,8 @@ class CppTest < RepresenterTest
 
   DEVIATIONS = {
     "syntax-error" => {
-      fallback: true,
-      why: "The solution has a syntax error, so it gets Basic. The old representer worked on tokens, so it " \
+      unrepresentable: true,
+      why: "The solution has a syntax error, so it gets no representation. The old representer worked on tokens, so it " \
            "represented any text."
     }
   }.freeze
@@ -131,7 +131,7 @@ class CppTest < RepresenterTest
       exercise_files: { "t_test.cpp" => "#include \"t.h\"\nint main() { return f(); }\n" }
   end
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "int f( {"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "int f( {"
   end
 end

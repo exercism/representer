@@ -5,7 +5,7 @@ module Representer
     # statements, `if __name__ == "__main__"` blocks and type hints.
     class Python < Language
       tracks "python"
-      version 2
+      version 3
       grammar "python"
       extensions ".py"
 

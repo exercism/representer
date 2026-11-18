@@ -97,7 +97,7 @@ DEVIATIONS = {
 
 - `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that the old representer renamed but this one keeps.
 - `add` and `remove`: names to add to or remove from the old mapping.
-- `fallback: true`: the input has a syntax error that tree-sitter rejects, so it gets Basic. Only distinctness is checked.
+- `unrepresentable: true`: the input has a syntax error that tree-sitter rejects, so it gets no representation. The test checks that, and nothing else.
 - `why`: the reason. Every deviation needs one.
 
 The common deviations are library names (this representer keeps them; several old ones renamed them) and old outputs that weren't valid code.
@@ -207,7 +207,7 @@ Every name used in the exercise's test files is kept automatically, and so is ev
 ## 4. Add tests for anything else the class does
 
 Add tests to `test/languages/<track>_test.rb` for every rewrite rule, and for pairs of solutions that must stay apart.
-`RepresenterTest` gives you `assert_same_representation`, `refute_same_representation` and `assert_falls_back`.
+`RepresenterTest` gives you `assert_same_representation`, `refute_same_representation` and `assert_unrepresentable` (which checks that a solution gets no representation, for a given reason).
 See [`test/languages/ruby_test.rb`](./test/languages/ruby_test.rb).
 
 Also add a request test: a `tests/<track>/<name>/request.json` with a typical solution and its tests, and an `expected_response.json` made by running `./bin/run.sh tests/<track>/<name>/request.json tests/<track>/<name>` and copying `response.json` after checking it.
@@ -221,8 +221,7 @@ A new language starts at version 2, because the old per-track representers all r
 Bump a language's version whenever its output could change for any solution: a new or changed rule, a new library names list, or a new grammar commit.
 The website will then represent the track's solutions again.
 
-A language that can't parse a solution falls back to Basic but reports its own version.
-So a change to Basic's output must bump Basic's version and every language's version, in the same commit.
+Basic has its own version, which only covers the tracks with no class of their own.
 
 [parsers]: https://github.com/tree-sitter/tree-sitter/wiki/List-of-parsers
 [queries]: https://tree-sitter.github.io/tree-sitter/using-parsers/queries/index.html

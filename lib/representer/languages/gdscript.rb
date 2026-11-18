@@ -7,7 +7,7 @@ module Representer
     # those too, because the student chooses all of those names.
     class GDScript < Language
       tracks "gdscript"
-      version 2
+      version 3
       grammar "gdscript"
       extensions ".gd"
 

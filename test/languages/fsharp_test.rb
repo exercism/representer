@@ -105,7 +105,7 @@ class FSharpTest < RepresenterTest
       exercise_files: { "Tests.fs" => "module T\nlet t = f 1\n" }
   end
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "module M\nlet f = = =\n"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "module M\nlet f = = =\n"
   end
 end

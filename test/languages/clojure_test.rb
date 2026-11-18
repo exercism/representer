@@ -168,10 +168,10 @@ class ClojureTest < RepresenterTest
     assert_same_representation "(defprotocol Shape (area [this]))", "(defprotocol Figure (size [self]))"
   end
 
-  ### Fallback ###
+  ### Unrepresentable solutions ###
 
-  def test_unbalanced_code_falls_back
-    assert_falls_back "(defn f [x] (inc x)"
+  def test_unbalanced_code_is_unrepresentable
+    assert_unrepresentable "(defn f [x] (inc x)"
   end
 
   def test_macros_are_never_run

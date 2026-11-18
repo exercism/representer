@@ -98,7 +98,7 @@ class WasmTest < RepresenterTest
     refute_same_representation wrap("(i32.const 1)"), wrap("(i64.const 1)")
   end
 
-  def test_a_syntax_error_falls_back
-    assert_falls_back "(module (func"
+  def test_a_syntax_error_is_unrepresentable
+    assert_unrepresentable "(module (func"
   end
 end

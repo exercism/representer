@@ -98,7 +98,7 @@ class GleamTest < RepresenterTest
       exercise_files: { "test/leap_test.gleam" => tests }
   end
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "pub fn f( {"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "pub fn f( {"
   end
 end

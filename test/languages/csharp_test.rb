@@ -44,9 +44,9 @@ class CSharpTest < RepresenterTest
            "used, so its output isn't valid code. This representer renames both consistently, and renames properties too."
     },
     "Identifiers-CombinationOfEverything" => {
-      fallback: true,
+      unrepresentable: true,
       why: "The input has syntax errors (two missing semicolons). Roslyn represents it anyway, but tree-sitter " \
-           "reports the errors, so the solution falls back to Basic."
+           "reports the errors, so the solution gets no representation."
     }
   }.freeze
 
@@ -96,9 +96,10 @@ class CSharpTest < RepresenterTest
     assert_equal ["year"], result.mapping.values
   end
 
-  def test_syntax_errors_fall_back_with_the_csharp_version
+  def test_syntax_errors_are_unrepresentable_with_the_csharp_version
     result = represent("public class {")
-    assert_equal Representer::Languages::Basic, result.representer
+    assert_nil result.representation
+    assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::CSharp.version, result.version
   end
 end

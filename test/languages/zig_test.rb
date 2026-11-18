@@ -90,7 +90,7 @@ class ZigTest < RepresenterTest
     refute_same_representation wrap("return x | 1;"), wrap("return x & 1;")
   end
 
-  def test_a_syntax_error_falls_back
-    assert_falls_back "fn f( void {"
+  def test_a_syntax_error_is_unrepresentable
+    assert_unrepresentable "fn f( void {"
   end
 end

@@ -30,9 +30,9 @@ class ElmTest < RepresenterTest
     "type-alias-function" => undefined("Identifier_2", "Name", "a type from elsewhere"),
     "type-alias-record" => undefined("Identifier_3", "Name", "a type from elsewhere"),
     "pattern-uncons" => {
-      fallback: true,
+      unrepresentable: true,
       why: "`f x :: xs = ...` isn't valid Elm. The old parser accepted it, but tree-sitter rejects it, so this " \
-           "representer gives it Basic."
+           "representer gives it no representation."
     }
   }.freeze
 
@@ -110,7 +110,7 @@ class ElmTest < RepresenterTest
       exercise_files: { "tests/Tests.elm" => "module Tests exposing (..)\n\nt =\n    f 1\n" }
   end
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "module M exposing (..)\n\nf =\n"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "module M exposing (..)\n\nf =\n"
   end
 end

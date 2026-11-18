@@ -19,8 +19,8 @@ class TypeScriptTest < RepresenterTest
     "two-fer-pass" => { remove: ["twoFer"], why: EXPORTS },
     "two-fer-fail" => { remove: %w[twoFer console debug log], why: "#{LIBRARY_NAMES} #{EXPORTS}" },
     "two-fer-error-syntax" => {
-      fallback: true,
-      why: "The solution has a syntax error, so it gets the Basic representation. The old representer's test " \
+      unrepresentable: true,
+      why: "The solution has a syntax error, so it gets no representation. The old representer's test " \
            "expected an error, and has no output to compare. The old test 'two-fer/error/missing' has no " \
            "solution file, so there is nothing to port."
     }
@@ -71,9 +71,10 @@ class TypeScriptTest < RepresenterTest
     assert_equal ["name"], result.mapping.values
   end
 
-  def test_syntax_errors_fall_back_with_the_typescript_version
+  def test_syntax_errors_are_unrepresentable_with_the_typescript_version
     result = represent("const = ;")
-    assert_equal Representer::Languages::Basic, result.representer
+    assert_nil result.representation
+    assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::TypeScript.version, result.version
   end
 

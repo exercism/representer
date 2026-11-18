@@ -3,7 +3,7 @@ module Representer
     # Represents one solution with one language's rules (see Language).
     #
     # Raises CannotRepresent if a solution file can't be parsed, and the
-    # caller then falls back to Basic.
+    # solution then gets no representation.
     class Represent
       include Mandate
 
@@ -105,9 +105,9 @@ module Representer
       end
     end
 
-    # representer is the class that made the representation. It isn't part of
-    # the response, but tests use it to see whether a solution fell back.
-    Result = Struct.new(:representation, :mapping, :version, :representer, keyword_init: true)
+    # representer is the class that made the representation. reason says why
+    # a solution has no representation (representation is then nil).
+    Result = Struct.new(:representation, :mapping, :version, :representer, :reason, keyword_init: true)
 
     # Source code arrives as JSON strings, which are UTF-8 but may hold
     # invalid bytes from a student's editor.

@@ -7,7 +7,7 @@ module Representer
     # solution defines are renamed, so every library name stays.
     class Cpp < Language
       tracks "cpp"
-      version 2
+      version 3
       grammar "cpp"
       extensions ".cpp", ".h", ".hpp", ".cc", ".cxx", ".hh", ".hxx"
 

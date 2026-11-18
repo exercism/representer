@@ -2,7 +2,7 @@ module Representer
   module Languages
     class JavaScript < Language
       tracks "javascript"
-      version 2
+      version 3
       grammar "javascript"
       extensions ".js", ".mjs", ".cjs"
 

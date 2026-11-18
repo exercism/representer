@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Rust < Language
       tracks "rust"
-      version 2
+      version 3
       grammar "rust"
       extensions ".rs"
 

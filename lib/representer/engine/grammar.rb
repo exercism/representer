@@ -45,8 +45,8 @@ module Representer
       # max_depth.
       def parse(source, skip_tokens: Set.new, text_types: Set.new, max_depth: MAX_DEPTH, gap_types: Set.new)
         tree = @parser.parse_string(nil, source)
-        raise CannotRepresent, "The parser gave up" unless tree
-        raise CannotRepresent, "The code has a syntax error" if tree.root_node.has_error?
+        raise CannotRepresent.new("parse_error", "The parser gave up") unless tree
+        raise CannotRepresent.new("parse_error", "The code has a syntax error") if tree.root_node.has_error?
 
         build(tree.root_node, source, skip_tokens, text_types, max_depth, gap_types)
       end
@@ -63,7 +63,7 @@ module Representer
 
         loop do
           if cursor.goto_first_child
-            raise CannotRepresent, "The code nests too deeply" if parents.size > max_depth
+            raise CannotRepresent.new("too_deep", "The code nests too deeply") if parents.size > max_depth
           else
             gaps.leave(parents.pop)
             until cursor.goto_next_sibling

@@ -481,9 +481,10 @@ class PythonTest < RepresenterTest
     assert_empty result.mapping
   end
 
-  def test_syntax_errors_fall_back_with_the_python_version
+  def test_syntax_errors_are_unrepresentable_with_the_python_version
     result = represent("def (:")
-    assert_equal Representer::Languages::Basic, result.representer
+    assert_nil result.representation
+    assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::Python.version, result.version
   end
 end

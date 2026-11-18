@@ -72,9 +72,10 @@ class JavaScriptTest < RepresenterTest
     assert_equal ["name"], result.mapping.values
   end
 
-  def test_syntax_errors_fall_back_with_the_javascript_version
+  def test_syntax_errors_are_unrepresentable_with_the_javascript_version
     result = represent("const = ;")
-    assert_equal Representer::Languages::Basic, result.representer
+    assert_nil result.representation
+    assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::JavaScript.version, result.version
   end
 end

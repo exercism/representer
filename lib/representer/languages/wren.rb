@@ -11,7 +11,7 @@ module Representer
     # output is a tree.
     class Wren < Language
       tracks "wren"
-      version 2
+      version 3
       grammar "wren"
       extensions ".wren"
 

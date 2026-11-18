@@ -8,7 +8,7 @@ module Representer
     # equivalent.
     class Elm < Language
       tracks "elm"
-      version 2
+      version 3
       grammar "elm"
       extensions ".elm"
 

@@ -142,9 +142,9 @@ class NimTest < RepresenterTest
     assert_equal({}, represent("proc twoFer(): int = 1", exercise_files: tests).mapping)
   end
 
-  ### Fallback ###
+  ### Unrepresentable solutions ###
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "proc f( =\n"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "proc f( =\n"
   end
 end

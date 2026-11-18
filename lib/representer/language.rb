@@ -7,7 +7,7 @@ module Representer
   # s-expression after these steps:
   #
   # 1. Parse each file with the language's tree-sitter grammar. If that
-  #    fails, the solution gets the Basic representation instead.
+  #    fails, the solution gets no representation.
   # 2. Drop: remove nodes and tokens that carry no meaning, such as comments
   #    and brackets (the tree's shape already says what they group).
   # 3. Rewrite: turn different spellings of the same code into one, such as
@@ -45,8 +45,7 @@ module Representer
       end
 
       # The representer version for this language. Bump it whenever the
-      # output for any solution changes, including a change to Basic, which
-      # this language falls back to. Versions start at 2, because the old
+      # output for any solution changes. Versions start at 2, because the old
       # per-track representers all reported 1.
       def version(number = nil)
         return @version unless number

@@ -97,9 +97,9 @@ class GDScriptTest < RepresenterTest
     assert_equal({}, represent("func two_fer():\n\treturn 1", exercise_files: tests).mapping)
   end
 
-  ### Fallback ###
+  ### Unrepresentable solutions ###
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "func f(:\n"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "func f(:\n"
   end
 end

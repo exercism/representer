@@ -4,7 +4,7 @@ module Representer
     # nikic/php-parser's tree and printed the tree back as code.
     class PHP < Language
       tracks "php"
-      version 2
+      version 3
       grammar "php"
       extensions ".php"
 

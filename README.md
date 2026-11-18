@@ -42,13 +42,17 @@ It responds with `200` and:
 - `mapping` says which name each placeholder replaced.
 - `version` is the version of the track's representer. It changes whenever the track's output changes, so the website knows to represent the track's solutions again.
 
-If a solution has a syntax error (or nests deeper than 1,000 levels), its language falls back to Basic.
-The response is still a `200`, with the language's own version, so a track never mixes two version numbers.
+Some solutions can't be represented.
+For those, the response is still a `200`, with the language's version, but `representation` is `null`, `mapping` is empty, and `reason` says why:
 
-The other responses are:
+- `parse_error`: the grammar couldn't parse the code. This includes new syntax that the pinned grammar doesn't know yet.
+- `too_deep`: the code nests deeper than 1,000 levels.
+- `too_large`: the solution files hold more than 200 KB, or the exercise files more than 500 KB. The load balancer limits bodies to 1 MB.
 
-- `400` if the request is invalid.
-- `413` if the solution files hold more than 200 KB, or the exercise files more than 500 KB. The load balancer limits bodies to 1 MB.
+The website then marks the submission as unrepresentable.
+Basic, which serves the tracks with no class of their own, can always represent a solution that isn't too large.
+
+The response is a `400` if the request is invalid.
 
 ## How it works
 

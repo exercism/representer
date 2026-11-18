@@ -27,9 +27,7 @@ module Representer
       include Mandate
 
       # The version for tracks with no class of their own. Bump it whenever
-      # the output for any solution changes, and bump every language's
-      # version at the same time, because they fall back to Basic and report
-      # their own version when they do. Versions start at 2, because the
+      # the output for any solution changes. Versions start at 2, because the
       # website's old basic representer reported 0.
       VERSION = 2
 

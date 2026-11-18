@@ -2,26 +2,31 @@ require "json"
 require "mandate"
 
 module Representer
-  # The most bytes the solution files may hold in total. Larger solutions get
-  # a 413, and the website doesn't represent them.
+  # The most bytes the solution files may hold in total. Larger solutions
+  # can't be represented (reason "too_large").
   MAX_SOLUTION_BYTES = 200_000
 
   # The most bytes the exercise files may hold in total. With the solution
   # limit, this keeps the request under the load balancer's 1 MB limit.
   MAX_EXERCISE_BYTES = 500_000
 
-  # The deepest a syntax tree may nest. Deeper code falls back to Basic.
+  # The deepest a syntax tree may nest. Deeper code can't be represented
+  # (reason "too_deep").
   MAX_DEPTH = 1_000
 
-  # The language's parser can't represent this solution, so it falls back
-  # to Basic.
-  class CannotRepresent < StandardError; end
+  # The solution can't be represented. The reason is "parse_error",
+  # "too_deep" or "too_large", and the response gives it to the website.
+  class CannotRepresent < StandardError
+    attr_reader :reason
+
+    def initialize(reason, message)
+      @reason = reason
+      super(message)
+    end
+  end
 
   # The request is invalid (400).
   class BadRequest < StandardError; end
-
-  # The request's files are too large (413).
-  class TooLarge < StandardError; end
 
   def self.process(event:, context:) = ProcessRequest.(event, context)
 end

@@ -39,16 +39,37 @@ class ProcessRequestTest < Minitest::Test
     assert_equal 400, request(track_slug: "ruby", solution_files: { "a.rb" => 1 })[:statusCode]
   end
 
+  def test_solutions_with_syntax_errors
+    response = request(track_slug: "ruby", solution_files: { "a.rb" => "def x(" })
+    assert_equal 200, response[:statusCode]
+    assert_equal({ "representation" => nil, "mapping" => {}, "version" => Representer::Languages::Ruby.version,
+                   "reason" => "parse_error" }, JSON.parse(response[:body]))
+  end
+
+  def test_represented_solutions_have_no_reason
+    body = JSON.parse(request(track_slug: "ruby", solution_files: { "a.rb" => "x = 1" })[:body])
+    refute body.key?("reason")
+  end
+
   def test_solutions_over_the_limit
     big = "x" * (Representer::MAX_SOLUTION_BYTES + 1)
-    assert_equal 413, request(track_slug: "ruby", solution_files: { "a.rb" => big })[:statusCode]
+    %w[ruby cobol].each do |track_slug|
+      response = request(track_slug:, solution_files: { "a" => big })
+      assert_equal 200, response[:statusCode]
+      body = JSON.parse(response[:body])
+      assert_nil body["representation"]
+      assert_equal "too_large", body["reason"]
+      assert_equal Representer::Languages.for(track_slug).version, body["version"]
+    end
   end
 
   def test_exercise_files_have_their_own_limit
     tests = "x" * (Representer::MAX_SOLUTION_BYTES + 1)
-    assert_equal 200, request(track_slug: "ruby", solution_files: { "a.rb" => "x" }, exercise_files: { "t.rb" => tests })[:statusCode]
+    body = JSON.parse(request(track_slug: "ruby", solution_files: { "a.rb" => "x" }, exercise_files: { "t.rb" => tests })[:body])
+    refute_nil body["representation"]
 
     tests = "x" * (Representer::MAX_EXERCISE_BYTES + 1)
-    assert_equal 413, request(track_slug: "ruby", solution_files: { "a.rb" => "x" }, exercise_files: { "t.rb" => tests })[:statusCode]
+    body = JSON.parse(request(track_slug: "ruby", solution_files: { "a.rb" => "x" }, exercise_files: { "t.rb" => tests })[:body])
+    assert_equal "too_large", body["reason"]
   end
 end

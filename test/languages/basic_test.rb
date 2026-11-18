@@ -8,6 +8,7 @@ class BasicTest < RepresenterTest
   def test_tracks_without_a_class_use_basic_and_its_version
     result = basic("main = print 1")
     assert_equal Representer::Languages::Basic, result.representer
+    assert_nil result.reason
     assert_equal Representer::Languages::Basic::VERSION, result.version
     assert_empty result.mapping
   end

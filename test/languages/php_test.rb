@@ -23,8 +23,8 @@ class PHPTest < RepresenterTest
   # line added, so that it is a PHP file.
   DEVIATIONS = {
     "example-syntax-error" => {
-      fallback: true,
-      why: "The solution has a syntax error, so it gets the Basic representation, which has no mapping."
+      unrepresentable: true,
+      why: "The solution has a syntax error, so it gets no representation."
     },
     "unit-class-instantiation-backward-compatibility" => {
       restore: { "C0" => "MyClass", "m0" => "method" },
@@ -188,9 +188,10 @@ class PHPTest < RepresenterTest
     assert_equal ["year"], result.mapping.values
   end
 
-  def test_syntax_errors_fall_back_with_the_php_version
+  def test_syntax_errors_are_unrepresentable_with_the_php_version
     result = represent("<?php\nclass !")
-    assert_equal Representer::Languages::Basic, result.representer
+    assert_nil result.representation
+    assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::PHP.version, result.version
   end
 end

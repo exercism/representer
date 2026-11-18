@@ -117,7 +117,7 @@ class RustTest < RepresenterTest
       exercise_files: { "tests/t.rs" => "use p::*;\n#[test]\nfn t() { f(); }\n" }
   end
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "fn f( {\n"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "fn f( {\n"
   end
 end

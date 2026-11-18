@@ -21,8 +21,13 @@ class RepresenterTest < Minitest::Test
     refute_equal represent(code, **options).representation, represent(other, **options).representation
   end
 
-  def assert_falls_back(code)
-    assert_equal Representer::Languages::Basic, represent(code).representer
+  # Checks that the solution gets no representation, with this reason.
+  def assert_unrepresentable(code, reason = "parse_error")
+    result = represent(code)
+    assert_nil result.representation
+    assert_empty result.mapping
+    assert_equal reason, result.reason
+    assert_equal Representer::Languages.for(track).version, result.version
   end
 end
 
@@ -50,8 +55,8 @@ end
 #   names the old representer renamed but this one keeps (such as library
 #   method names).
 # - add / remove: names to add to or remove from the old mapping.
-# - fallback: the input has a syntax error, so it gets Basic's
-#   representation. Only distinctness is checked.
+# - unrepresentable: the input has a syntax error, so it gets no
+#   representation. The test checks that, and nothing else.
 # - why: the reason, which every deviation must give.
 module UpstreamTests
   Case = Struct.new(:name, :solution_files, :equivalent, :key, :mapping_names, :deviation, keyword_init: true)
@@ -64,10 +69,11 @@ module UpstreamTests
     cases.each do |test_case|
       raise ArgumentError, "The deviation for #{test_case.name} must say why" if test_case.deviation.any? && !test_case.deviation[:why]
 
-      if test_case.deviation[:fallback]
-        define_method("test_upstream_#{test_case.name}_falls_back") do
+      if test_case.deviation[:unrepresentable]
+        define_method("test_upstream_#{test_case.name}_is_unrepresentable") do
           result = Representer::RepresentSolution.(track, test_case.solution_files, {})
-          assert_equal Representer::Languages::Basic, result.representer
+          assert_nil result.representation
+          assert_equal "parse_error", result.reason
         end
         next
       end
@@ -77,7 +83,7 @@ module UpstreamTests
         expected = Representer::RepresentSolution.(track, { filename => test_case.equivalent }, {})
         actual = Representer::RepresentSolution.(track, test_case.solution_files, {})
         assert_equal expected.representation, actual.representation
-        refute_equal Representer::Languages::Basic, actual.representer, "#{test_case.name} fell back to Basic"
+        refute_nil actual.representation, "#{test_case.name} has no representation (#{actual.reason})"
       end
 
       define_method("test_upstream_#{test_case.name}_mapping") do
@@ -87,11 +93,12 @@ module UpstreamTests
     end
 
     define_method(:test_upstream_distinctness) do
-      representations = cases.to_h do |test_case|
+      represented = cases.reject { |test_case| test_case.deviation[:unrepresentable] }
+      representations = represented.to_h do |test_case|
         code = test_case.solution_files.values.join("\n")
         [test_case.name, Representer::RepresentSolution.(track, { "solution#{extension}" => code }, {}).representation]
       end
-      cases.combination(2).each do |a, b|
+      represented.combination(2).each do |a, b|
         if a.key == b.key
           assert_equal representations[a.name], representations[b.name], "#{a.name} and #{b.name} should match"
         else

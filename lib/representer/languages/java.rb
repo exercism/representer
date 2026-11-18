@@ -6,7 +6,7 @@ module Representer
     # package.
     class Java < Language
       tracks "java"
-      version 2
+      version 3
       grammar "java"
       extensions ".java"
 

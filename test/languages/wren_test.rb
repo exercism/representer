@@ -113,7 +113,7 @@ class WrenTest < RepresenterTest
     refute_same_representation "var a = b.foo", "var a = b.foo()"
   end
 
-  def test_a_syntax_error_falls_back
-    assert_falls_back "class {"
+  def test_a_syntax_error_is_unrepresentable
+    assert_unrepresentable "class {"
   end
 end

@@ -7,8 +7,8 @@ class CrystalTest < RepresenterTest
 
   DEVIATIONS = {
     "example-syntax-error" => {
-      fallback: true,
-      why: "The solution has a syntax error, so it gets Basic. The old representer printed the code unchanged."
+      unrepresentable: true,
+      why: "The solution has a syntax error, so it gets no representation. The old representer printed the code unchanged."
     }
   }.freeze
 
@@ -126,7 +126,7 @@ class CrystalTest < RepresenterTest
       exercise_files: { "spec/t_spec.cr" => "it \"x\" do\n  f.should eq 1\nend\n" }
   end
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "def f(\n"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "def f(\n"
   end
 end

@@ -12,7 +12,7 @@ module Representer
     # destructuring) stay as written.
     class Clojure < Language
       tracks "clojure"
-      version 2
+      version 3
       grammar "clojure"
       extensions ".clj", ".cljc", ".cljs"
 

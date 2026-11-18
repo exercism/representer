@@ -132,15 +132,25 @@ class RubyTest < RepresenterTest
     assert_equal ["name"], result.mapping.values
   end
 
-  ### Fallback ###
+  ### Unrepresentable solutions ###
 
-  def test_syntax_errors_fall_back_with_the_ruby_version
+  def test_syntax_errors_are_unrepresentable_with_the_ruby_version
     result = represent("def x(")
-    assert_equal Representer::Languages::Basic, result.representer
+    assert_nil result.representation
+    assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::Ruby.version, result.version
   end
 
-  def test_deep_nesting_falls_back
-    assert_falls_back("[" * 2_000 + "]" * 2_000)
+  def test_missing_nodes_are_unrepresentable
+    # tree-sitter repairs this by inserting a MISSING "end" node.
+    assert_unrepresentable "def x\n  1\n"
+  end
+
+  def test_large_solutions_are_unrepresentable
+    assert_unrepresentable "x = 1\n" * 40_000, "too_large"
+  end
+
+  def test_deep_nesting_is_unrepresentable
+    assert_unrepresentable("[" * 2_000 + "]" * 2_000, "too_deep")
   end
 end

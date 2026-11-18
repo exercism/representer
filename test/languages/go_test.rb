@@ -163,7 +163,7 @@ class GoTest < RepresenterTest
     refute_same_representation "package p\n\nfunc F() {}\n", "package p\n\nfunc G() {}\n", exercise_files: { "p_test.go" => tests }
   end
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "package p\n\nfunc F( {\n"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "package p\n\nfunc F( {\n"
   end
 end

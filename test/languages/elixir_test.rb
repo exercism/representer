@@ -157,7 +157,7 @@ class ElixirTest < RepresenterTest
       exercise_files: { "m_test.exs" => "defmodule MTest do\n  test \"a\" do\n    assert M.f(1) == 1\n  end\nend" }
   end
 
-  def test_syntax_errors_fall_back
-    assert_falls_back "defmodule M do\n  def f(\nend"
+  def test_syntax_errors_are_unrepresentable
+    assert_unrepresentable "defmodule M do\n  def f(\nend"
   end
 end

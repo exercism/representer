@@ -7,12 +7,9 @@ module Representer
     initialize_with :event, :context
 
     def call
-      result = RepresentSolution.(track_slug, solution_files, exercise_files)
-      respond(200, representation: result.representation, mapping: result.mapping, version: result.version)
+      respond(200, represent)
     rescue BadRequest => e
       respond(400, error: e.message)
-    rescue TooLarge => e
-      respond(413, error: e.message)
     end
 
     private
@@ -26,8 +23,20 @@ module Representer
       }
     end
 
-    STATUS_DESCRIPTIONS = { 200 => "200 OK", 400 => "400 Bad Request", 413 => "413 Payload Too Large" }.freeze
+    STATUS_DESCRIPTIONS = { 200 => "200 OK", 400 => "400 Bad Request" }.freeze
     private_constant :STATUS_DESCRIPTIONS
+
+    # Exercise files over their limit make the solution too large too, as the
+    # whole request has to fit under the load balancer's limit.
+    def represent
+      if bytes(exercise_files) > MAX_EXERCISE_BYTES
+        return { representation: nil, mapping: {}, version: Languages.for(track_slug).version, reason: "too_large" }
+      end
+
+      result = RepresentSolution.(track_slug, solution_files, exercise_files)
+      body = { representation: result.representation, mapping: result.mapping, version: result.version }
+      result.reason ? body.merge(reason: result.reason) : body
+    end
 
     def track_slug
       slug = body["track_slug"]
@@ -38,25 +47,24 @@ module Representer
 
     memoize
     def solution_files
-      files("solution_files", MAX_SOLUTION_BYTES).tap do |files|
+      files("solution_files").tap do |files|
         raise BadRequest, "solution_files must not be empty" if files.empty?
       end
     end
 
     memoize
-    def exercise_files = files("exercise_files", MAX_EXERCISE_BYTES, required: false)
+    def exercise_files = files("exercise_files", required: false)
 
-    def files(key, max_bytes, required: true)
+    def files(key, required: true)
       files = body.fetch(key) { required ? nil : {} }
       unless files.is_a?(Hash) && files.all? { |name, source| name.is_a?(String) && source.is_a?(String) }
         raise BadRequest, "#{key} must be an object of filenames to file contents"
       end
 
-      bytes = files.sum { |name, source| name.bytesize + source.bytesize }
-      raise TooLarge, "#{key} hold #{bytes} bytes, and the limit is #{max_bytes}" if bytes > max_bytes
-
       files
     end
+
+    def bytes(files) = files.sum { |name, source| name.bytesize + source.bytesize }
 
     memoize
     def body

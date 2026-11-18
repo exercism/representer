@@ -9,7 +9,7 @@ module Representer
     # case folding is applied to every name.
     class CommonLisp < Language
       tracks "common-lisp"
-      version 2
+      version 3
       grammar "common_lisp"
       extensions ".lisp"
 

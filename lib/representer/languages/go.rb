@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Go < Language
       tracks "go"
-      version 2
+      version 3
       grammar "go"
       extensions ".go"
 

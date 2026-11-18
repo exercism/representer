@@ -24,9 +24,9 @@ class JavaTest < RepresenterTest
 
   DEVIATIONS = {
     "scenario-simple" => {
-      fallback: true,
+      unrepresentable: true,
       why: "The upstream scenario has a syntax error (a missing semicolon after the return), which the old " \
-           "representer's Java compiler repaired. This representer gets Basic for it."
+           "representer's Java compiler repaired. This representer gives it no representation."
     },
     "scenario-lambda-arguments" => {
       restore: { "PLACEHOLDER_02" => "filter" },
@@ -138,9 +138,10 @@ class JavaTest < RepresenterTest
     assert_equal ["year"], result.mapping.values
   end
 
-  def test_syntax_errors_fall_back_with_the_java_version
+  def test_syntax_errors_are_unrepresentable_with_the_java_version
     result = represent("class A { int f( }")
-    assert_equal Representer::Languages::Basic, result.representer
+    assert_nil result.representation
+    assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::Java.version, result.version
   end
 
