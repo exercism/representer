@@ -7,7 +7,10 @@ It takes a solution and turns it into a normalised representation, so that solut
 The website groups solutions by their representation, and shows a mentor's feedback on one solution to every later solution in the same group.
 
 It runs as an AWS Lambda function behind Exercism's internal load balancer.
-One service handles every track: languages with a class of their own (Ruby, JavaScript and C# so far) are parsed with [tree-sitter][tree-sitter], and every other track gets a simpler token-based representation called Basic.
+One service handles every track.
+These languages have a class of their own, and the representer parses them with [tree-sitter][tree-sitter]: C#, C++, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, GDScript, Gleam, Go, Java, JavaScript, Nim, PHP, Python, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
+
+Every other track gets a simpler token-based representation called Basic.
 
 ## The request and response
 
