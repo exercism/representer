@@ -428,7 +428,9 @@ module Representer
           return [spec] unless spec.type == "vec_lit" && sym?(spec.children.first)
 
           library, *options = spec.children
-          if !options.empty? && options.none? { |option| option.type == "kwd" } && options.all? { |option| sym?(option) || option.type == "vec_lit" }
+          if !options.empty? && options.none? { |option| option.type == "kwd" } && options.all? do |option|
+            sym?(option) || option.type == "vec_lit"
+          end
             return options.flat_map do |option|
               parts = option.type == "vec_lit" ? option.children : [option]
               next [] unless sym?(parts.first)
@@ -541,16 +543,13 @@ module Representer
           entries.each do |key, entry_value|
             if key.type == "kwd"
               sub = expand_map_option(key.text, entry_value, temp, defaults)
-              return nil unless sub
-
-              bindings.concat(sub)
             else
               default = defaults[key.text] if sym?(key)
               sub = expand_pattern(key, get_call(temp, entry_value, default), gen)
-              return nil unless sub
-
-              bindings.concat(sub)
             end
+            return nil unless sub
+
+            bindings.concat(sub)
           end
           bindings
         end
@@ -568,12 +567,14 @@ module Representer
 
           namespace = match[1] ? "#{match[1]}/" : ""
           value.children.flat_map do |name|
-            key =
-              case match[2]
-              when "keys" then leaf(:kwd, ":#{namespace}#{name.text}")
-              when "strs" then leaf(:str_lit, %("#{name.text}"))
-              else form("quote", leaf(:sym, "#{namespace}#{name.text}"))
-              end
+            case match[2]
+            when "keys" then key =
+                               leaf(:kwd, ":#{namespace}#{name.text}")
+            when "strs" then key =
+                               leaf(:str_lit, %("#{name.text}"))
+            else key =
+                   form("quote", leaf(:sym, "#{namespace}#{name.text}"))
+            end
             [name, get_call(temp, key, defaults[name.text])]
           end
         end
@@ -586,15 +587,19 @@ module Representer
 
           gen = gensyms
           bindings = []
-          new_params = params.children.map do |param|
-            next param unless destructuring?(param)
+          new_params = []
+          params.children.each do |param|
+            unless destructuring?(param)
+              new_params << param
+              next
+            end
 
             temp = gen.()
             sub = expand_pattern(param, copy(temp), gen)
-            return unless sub
+            return nil unless sub
 
             bindings.concat(sub)
-            temp
+            new_params << temp
           end
           params.children.replace(new_params)
           arity.children.replace([params, form("let", build(:vec_lit, *bindings), *body)])
@@ -613,7 +618,11 @@ module Representer
           return dropped ? source : nil if macros.empty?
 
           expanded = expand_uses(source, macros)
-          expanded.positive? ? build(:source, *source.children) : (dropped ? source : nil)
+          if expanded.positive?
+            build(:source, *source.children)
+          else
+            (dropped ? source : nil)
+          end
         end
 
         Macro = Struct.new(:required, :rest, :template)
@@ -695,7 +704,7 @@ module Representer
           case node.type
           when "unquoting_lit"
             target = node.children.last
-            throw :no_expansion unless target.type == "sym" || target.type == "local"
+            throw :no_expansion unless %w[sym local].include?(target.type)
             return copy(env.fetch(target.text)) if env.key?(target.text)
             return form("list", *rest.map { |arg| copy(arg) }) if target.text == rest_name
 

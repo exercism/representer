@@ -155,7 +155,8 @@ class ClojureTest < RepresenterTest
     assert_same_representation wrap("(for [i x :when (odd? i)] i)"), wrap("(for [i (filter (fn [i] (odd? i)) x)] i)")
     assert_same_representation wrap("(for [i x :while (odd? i)] i)"), wrap("(map (fn [i] i) (take-while (fn [i] (odd? i)) x))")
     assert_same_representation wrap("(for [i x j y] [i j])"), wrap("(mapcat (fn [a] (map (fn [b] [a b]) y)) x)")
-    assert_same_representation wrap("(for [i x :let [k (* i i)] :when (odd? k)] k)"), wrap("(for [m x :let [n (* m m)] :when (odd? n)] n)")
+    assert_same_representation wrap("(for [i x :let [k (* i i)] :when (odd? k)] k)"),
+      wrap("(for [m x :let [n (* m m)] :when (odd? n)] n)")
     refute_same_representation wrap("(for [i x :when (odd? i)] i)"), wrap("(for [i x :when (even? i)] i)")
     refute_same_representation wrap("(for [i x j y] [i j])"), wrap("(for [j y i x] [i j])")
   end
@@ -163,7 +164,8 @@ class ClojureTest < RepresenterTest
   def test_ns
     plain = "(ns app (:require [clojure.string :as str] [clojure.set :refer [union difference]]) (:import (java.util List Map)))"
     assert_same_representation plain,
-      "(ns app \"Docs.\" {:doc 1} (:import java.util.Map [java.util List]) (:require [clojure.set :refer [difference union]]) (:require [clojure.string :as str]))"
+      "(ns app \"Docs.\" {:doc 1} (:import java.util.Map [java.util List]) " \
+      "(:require [clojure.set :refer [difference union]]) (:require [clojure.string :as str]))"
     assert_same_representation "(ns app (:require clojure.string))", "(ns app (:require [clojure.string]))"
     assert_same_representation "(ns app (:require [clojure string set]))", "(ns app (:require [clojure.set] [clojure.string]))"
     assert_same_representation "(ns app (:use [clojure.set :only [union]]))", "(ns app (:require [clojure.set :refer [union]]))"

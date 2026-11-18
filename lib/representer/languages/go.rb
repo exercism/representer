@@ -246,9 +246,9 @@ module Representer
 
       # The type that each top-level type declaration defines, by name.
       def self.defined_types(file)
-        file.children.select { |child| child.type == "type_declaration" }.flat_map(&:children)
-          .select { |spec| spec.type == "type_spec" && spec["type_parameters"].nil? && spec["name"] && spec["type"] }
-          .to_h { |spec| [spec["name"].text, spec["type"]] }
+        file.children.select { |child| child.type == "type_declaration" }.flat_map(&:children).
+          select { |spec| spec.type == "type_spec" && spec["type_parameters"].nil? && spec["name"] && spec["type"] }.
+          to_h { |spec| [spec["name"].text, spec["type"]] }
       end
 
       # The statements that replace a var declaration, or nil if the
