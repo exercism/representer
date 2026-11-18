@@ -43,13 +43,8 @@ def fetch(name, repo, commit)
   FileUtils.rm_rf(dir)
   FileUtils.mkdir_p(dir)
   run!("git", "init", "--quiet", chdir: dir)
-  # Some servers refuse a shallow fetch of a commit by its SHA, so fall back
-  # to fetching the whole history and checking the commit out from it.
-  unless system("git", "fetch", "--quiet", "--depth", "1", repo, commit, chdir: dir, err: File::NULL)
-    puts "#{name}: shallow fetch refused, fetching full history"
-    run!("git", "fetch", "--quiet", repo, chdir: dir)
-  end
-  run!("git", "-c", "advice.detachedHead=false", "checkout", "--quiet", commit, chdir: dir)
+  run!("git", "fetch", "--quiet", "--depth", "1", repo, commit, chdir: dir)
+  run!("git", "-c", "advice.detachedHead=false", "checkout", "--quiet", "FETCH_HEAD", chdir: dir)
   File.write(stamp, commit)
   dir
 end
