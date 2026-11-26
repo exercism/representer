@@ -1,0 +1,52 @@
+let g:chars = "abcdefghijklmnopqrstuvwxyz"
+"
+" Create an implementation of the atbash cipher, an ancient encryption system
+" created in the Middle East.
+"
+" Examples:
+"
+"   :echo AtbashEncode('test')
+"   gvhg
+"
+"   :echo AtbashDecode('gvhg')
+"   test
+"
+"   :echo AtbashDecode('gsvjf rxpyi ldmul cqfnk hlevi gsvoz abwlt')
+"   thequickbrownfoxjumpsoverthelazydog
+"
+
+function! AtbashDecode(cipher) abort
+  let l:noSpaceCipher = substitute(a:cipher, "\\_s", "", "g")
+  let l:plaintext = ""
+  for s:char in split(l:noSpaceCipher, '\zs')
+    if stridx("1234567890", s:char) >= 0
+      let l:plaintext = l:plaintext . s:char
+    else
+      let l:plaintext = l:plaintext . g:chars[len(g:chars) - stridx(g:chars, s:char) - 1]
+    endif
+  endfor
+return l:plaintext
+endfunction
+
+function! AtbashEncode(plaintext) abort
+  let l:noSpacePlaintext = tolower(substitute(a:plaintext, "\\_s", "", "g"))
+  let l:cipher = ""
+  let l:index = 0
+  
+  for s:char in split(l:noSpacePlaintext, '\zs')
+    
+    
+    if stridx("1234567890", s:char) >= 0
+      let l:cipher = l:cipher . s:char
+    elseif stridx(g:chars, s:char) >= 0
+      let l:cipher = l:cipher . g:chars[len(g:chars) - stridx(g:chars, s:char) - 1]
+    else
+     continue
+    endif
+    let l:index += 1
+    if l:index != 0 && l:index % 5 == 0 && l:index < strlen(l:noSpacePlaintext) - 1
+      let l:cipher = l:cipher . " "
+    endif
+  endfor
+  return l:cipher
+endfunction

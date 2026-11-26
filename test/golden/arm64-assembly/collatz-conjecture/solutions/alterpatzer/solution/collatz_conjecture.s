@@ -1,0 +1,26 @@
+.equ INVALID_NUMBER, -1
+
+.text
+.globl steps
+
+steps:
+        cmp x0, #1
+        b.lt bad
+        b.ne search
+        mov w0, wzr
+        ret
+search:
+        mov x8, x0
+        mov w0, wzr
+loop:
+        lsr x9, x8, #1
+        add x10, x8, x8, lsl #1
+        tst x8, #0x1
+        add w0, w0, 1
+        csinc x8, x9, x10, eq
+        cmp x8, #1
+        b.ne loop
+        ret
+bad:
+        mov w0, #-1
+        ret

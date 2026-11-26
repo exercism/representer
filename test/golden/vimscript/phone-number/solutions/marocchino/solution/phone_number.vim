@@ -1,0 +1,8 @@
+function! ToNANP(number) abort
+  let number = substitute(a:number, '\D', '', 'g')
+  let number = substitute(number, '^1', '', '')
+  if match(number, '^[2-9]\d\{2\}[2-9]\d\{6\}$') != 0
+    return ''
+  endif
+  return number
+endfunction

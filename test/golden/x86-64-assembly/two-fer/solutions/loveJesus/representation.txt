@@ -1,0 +1,38 @@
+(file "two_fer.asm")
+default rel
+section .rodata
+msg_aleluya: db "\"" One for you , one for me. "\"" , 0
+msg_n1_aleluya: db "\"" One for "\"" , 0
+msg_n2_aleluya: db "\"" , one for me. "\""
+section .text
+global two_fer
+two_fer:
+cmp rdi , 0
+jnz do_copy_name_aleluya
+jmp do_copy_standard_aleluya
+do_copy_name_aleluya:
+mov r8 , 0
+lea rax ,[ msg_n1_aleluya ]
+call fn_copy_aleluya
+mov rax , rdi
+call fn_copy_aleluya
+lea rax ,[ msg_n2_aleluya ]
+call fn_copy_aleluya
+mov [ rsi + r8 ], byte 0
+ret
+do_copy_standard_aleluya:
+mov r8 , 0
+lea rax ,[ msg_aleluya ]
+call fn_copy_aleluya
+mov [ rsi + r8 ], byte 0
+ret
+fn_copy_aleluya:
+mov dl ,[ rax ]
+cmp dl , 0
+je ifn_doneish_aleluya
+mov [ rsi + r8 ], dl
+inc r8
+inc rax
+jmp fn_copy_aleluya
+ifn_doneish_aleluya:
+ret

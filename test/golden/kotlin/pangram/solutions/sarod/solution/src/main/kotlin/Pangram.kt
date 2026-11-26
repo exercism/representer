@@ -1,0 +1,9 @@
+class Pangram {
+
+    companion object {
+
+        fun isPangram(text: String) = ('a'..'z').all { text.contains(it, ignoreCase = true) }
+        
+    }
+
+}

@@ -1,0 +1,178 @@
+package custom_set
+
+import "core:fmt"
+import "core:slice"
+import "core:strings"
+
+// Set is implemented as a map type alias so delete works directly
+Set :: distinct map[int]bool
+
+new_set :: proc(elements: ..int) -> Set {
+	set := make(Set)
+	
+	// Add all elements (duplicates will be automatically handled by map)
+	for elem in elements {
+		set[elem] = true
+	}
+	
+	return set
+}
+
+destroy_set :: proc(s: ^Set) {
+	delete(s^)
+}
+
+to_string :: proc(s: Set) -> string {
+	if len(s) == 0 {
+		return "[]"
+	}
+	
+	// Collect keys and sort them
+	keys := make([dynamic]int, 0, len(s))
+	defer delete(keys)
+	
+	for key in s {
+		append(&keys, key)
+	}
+	
+	slice.sort(keys[:])
+	
+	builder := strings.builder_make()
+	defer strings.builder_destroy(&builder)
+	
+	strings.write_string(&builder, "[")
+	for key, i in keys {
+		if i > 0 {
+			strings.write_string(&builder, ", ")
+		}
+		fmt.sbprintf(&builder, "%d", key)
+	}
+	strings.write_string(&builder, "]")
+	
+	return strings.clone(strings.to_string(builder))
+}
+
+is_empty :: proc(s: Set) -> bool {
+	return len(s) == 0
+}
+
+contains :: proc(s: Set, element: int) -> bool {
+	return element in s
+}
+
+is_subset :: proc(s: Set, other: Set) -> bool {
+	// Empty set is a subset of any set
+	if len(s) == 0 {
+		return true
+	}
+	
+	// If s has more elements than other, it can't be a subset
+	if len(s) > len(other) {
+		return false
+	}
+	
+	// Check if all elements of s are in other
+	for elem in s {
+		if !(elem in other) {
+			return false
+		}
+	}
+	
+	return true
+}
+
+is_disjoint :: proc(s: Set, other: Set) -> bool {
+	// Empty sets are disjoint with any set
+	if len(s) == 0 || len(other) == 0 {
+		return true
+	}
+	
+	if len(s) <= len(other) {
+		for elem in s {
+			if elem in other {
+				return false
+			}
+		}
+	} else {
+		for elem in other {
+			if elem in s {
+				return false
+			}
+		}
+	}
+	
+	return true
+}
+
+equal :: proc(s: Set, other: Set) -> bool {
+	// Sets must have same size
+	if len(s) != len(other) {
+		return false
+	}
+	
+	// Check if all elements match
+	for elem in s {
+		if !(elem in other) {
+			return false
+		}
+	}
+	
+	return true
+}
+
+add :: proc(s: ^Set, elements: ..int) {
+	for elem in elements {
+		s[elem] = true
+	}
+}
+
+intersection :: proc(s: Set, other: Set) -> Set {
+	result := new_set()
+	
+	if len(s) <= len(other) {
+		for elem in s {
+			if elem in other {
+				result[elem] = true
+			}
+		}
+	} else {
+		for elem in other {
+			if elem in s {
+				result[elem] = true
+			}
+		}
+	}
+	
+	return result
+}
+
+difference :: proc(s: Set, other: Set) -> Set {
+	result := new_set()
+	
+	// Add elements that are in s but not in other
+	for elem in s {
+		if !(elem in other) {
+			result[elem] = true
+		}
+	}
+	
+	return result
+}
+
+// union is a reserved word in Odin, using join instead.
+join :: proc(s: Set, other: Set) -> Set {
+	result := new_set()
+	
+	// Add all elements from first set
+	for elem in s {
+		result[elem] = true
+	}
+	
+	// Add all elements from second set
+	for elem in other {
+		result[elem] = true
+	}
+	
+	return result
+}
+   

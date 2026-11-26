@@ -1,0 +1,23 @@
+(file "clock.jl")
+struct Clock
+hr :: Int
+min :: Int
+function Clock ( hr , min )
+mintotal = mod ( 60 * hr + min , 1440 )
+hr = div ( mintotal , 60 )
+min = mod ( mintotal , 60 )
+new ( hr , min )
+end
+end
+function Base.:+ ( x :: Clock , y :: Dates . Minute )
+return Clock ( x . hr , x . min + y . value )
+end
+function Base.: - ( x :: Clock , y :: Dates . Minute )
+return Clock ( x . hr , x . min - y . value )
+end
+function Base.sprint ( :: Function , x :: Clock )
+( x . hr < 10 ) ? sh = string ( "\"0\"" , x . hr ) : sh = string ( x . hr )
+( x . min < 10 ) ? sm = string ( "\"0\"" , x . min ) : sm = string ( x . min )
+s = sh * "\":\"" * sm
+sprint ( show , s )
+end

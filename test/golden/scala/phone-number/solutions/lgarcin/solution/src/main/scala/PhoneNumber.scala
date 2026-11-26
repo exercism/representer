@@ -1,0 +1,9 @@
+object PhoneNumber {
+  def clean(phoneNumber: String): Option[String] = {
+    val pattern = """^1?([^01]\d{2}[^01]\d{6})$""".r
+    phoneNumber.filter(_.isDigit) match {
+      case pattern(str) => Some(str)
+      case _            => None
+    }
+  }
+}

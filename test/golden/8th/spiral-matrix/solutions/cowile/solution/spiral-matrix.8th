@@ -1,0 +1,56 @@
+: empty-matrix
+  dup 0 n:= if drop [] ;then
+  a:new 0 a:push over a:smear swap
+  a:new ( swap clone -rot a:push ) rot times nip
+;
+
+\ Use some variables. Too much state tracking on the stack would be awful
+var size
+var position
+var direction
+
+\ I had this correct an hour ago but there was a stupid bug caused by mutable literal values in the final word
+[0, 0] constant start-pos
+[0, 1] constant start-dir
+
+: x@ position @ 0 a:_@ ;
+: y@ position @ 1 a:_@ ;
+: dx@ direction @ 0 a:_@ ;
+: dy@ direction @ 1 a:_@ ;
+: incx position @ 0 x@ dx@ n:+ a:! drop ;
+: incy position @ 1 y@ dy@ n:+ a:! drop ;
+: pos! incx incy ;
+: turn dx@ n:neg dy@ direction @ 0 rot a:! 1 rot a:! drop ;
+
+: cell@
+  -rot a:@ rot a:_@
+;
+
+: cell!
+  >r x@ a:@ y@ r> a:! drop
+;
+
+: in-bounds?
+  x@ dx@ n:+ 0 n:< not
+  x@ dx@ n:+ size @ n:< and
+  y@ dy@ n:+ 0 n:< not and
+  y@ dy@ n:+ size @ n:< and
+;
+
+: cell0?
+  x@ dx@ n:+ y@ dy@ n:+ cell@ 0 n:=
+;
+
+: maybe-turn
+  in-bounds? not if turn ;then
+  cell0? not if turn then
+;
+
+: init
+  size !
+  start-pos clone position ! [0, 1] clone direction ! 2drop
+;
+
+: spiral-matrix \ n -- a
+  init size @ empty-matrix ( I cell! maybe-turn pos! ) size @ n:sqr times
+;

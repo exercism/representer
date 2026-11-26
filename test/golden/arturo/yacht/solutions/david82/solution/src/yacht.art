@@ -1,0 +1,41 @@
+STRAIGHT_SCORE: 30
+YACHT_SCORE: 50
+
+yacht: function [dice category][
+    counts: [0 0 0 0 0 0]
+    loop dice 'die -> counts\[die-1]: inc counts\[die-1]
+    
+    fourKind: function [][
+        loop 1..6 'n [
+            if >= counts\[n-1] 4 [
+                return * 4 n
+            ]
+        ]
+        0
+    ]
+    
+    fullHouse: function [][
+        switch and? 2 ∈ counts, 3 ∈ counts 
+        -> sum dice 
+        -> 0
+    ]
+    
+    case category [
+        "yacht" -> switch 5 ∈ counts -> YACHT_SCORE -> 0
+        
+        "ones"   -> counts\0
+        "twos"   -> counts\1 * 2
+        "threes" -> counts\2 * 3
+        "fours"  -> counts\3 * 4
+        "fives"  -> counts\4 * 5
+        "sixes"  -> counts\5 * 6
+        
+        "four of a kind" -> fourKind
+        "full house" -> fullHouse
+        
+        "little straight" -> switch counts = [1 1 1 1 1 0] -> STRAIGHT_SCORE -> 0
+        "big straight" -> switch counts = [0 1 1 1 1 1] -> STRAIGHT_SCORE -> 0
+        
+        any -> sum dice
+    ]
+]

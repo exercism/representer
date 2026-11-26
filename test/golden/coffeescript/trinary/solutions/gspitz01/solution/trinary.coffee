@@ -1,0 +1,11 @@
+module.exports =
+
+class Trinary
+        constructor: (@trinString) ->
+
+        toDecimal: ->
+                @trinString.split('').reverse().reduce(@reduceToDecimal, 0)
+
+        reduceToDecimal: (total, trinChar, index) ->
+                digit = if trinChar in ['0', '1', '2'] then Number(trinChar) else 0
+                total + digit * 3 ** index

@@ -1,0 +1,14 @@
+-module(spiral_matrix).
+-export([make/1]).
+make(0) -> [];
+make(N) ->
+	Rot = rotate(make(N-1), N),
+	[lists:seq(1,N)|lists:reverse(reverse_sublists(extend(Rot, N)))].
+rotate(Lists, N) ->
+	Adder = 2 * N - 1,
+	lists:map(fun(X) -> lists:map(fun(Y) -> Y + Adder end, X) end, Lists).
+extend(Lists, N) ->
+	{Ext, _} = lists:mapfoldl(fun(X, Num) -> {[Num|X], Num - 1} end, 2*N-1, Lists),
+	Ext.
+reverse_sublists(Lists) ->
+	lists:map(fun(X) -> lists:reverse(X) end, Lists).

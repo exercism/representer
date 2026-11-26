@@ -1,0 +1,20 @@
+Red [
+	description: {"Protein Translation" exercise solution for exercism platform}
+	author: "Wtrmute" ; you can write your name here, in quotes
+]
+
+proteins: function [
+	strand [string!]
+] [
+	parse strand [collect any [
+    	["AUG"] keep ("Methionine")
+    	| ["UUU" | "UUC"] keep ("Phenylalanine")
+        | ["UUA" | "UUG"] keep ("Leucine")
+        | ["UC" skip] keep ("Serine")
+        | ["UAU" | "UAC"] keep ("Tyrosine")
+        | ["UGU" | "UGC"] keep ("Cysteine")
+        | "UGG" keep ("Tryptophan")
+        | ["UAA" | "UAG" | "UGA"] break
+    ]]
+]
+

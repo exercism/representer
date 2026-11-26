@@ -1,0 +1,36 @@
+spiral(N, M) :-
+  spiral_(N, 1, M).
+
+spiral_(0, _, []) :- !.
+spiral_(1, From, [[From]]) :- !.
+spiral_(N, From, Matrix) :-
+  TopRight    is N + From - 1,
+  RightDown   is N * 2 - 3 + From,
+  BottomLeft  is N * 3 - 3 + From,
+  LeftUp      is N * 4 - 5 + From,
+  succ(TopRight, RightUp),
+  succ(RightDown, BottomRight),
+  succ(BottomLeft, LeftDown),
+  succ(LeftUp, NextFrom),
+  plus(N, -2, NextN),
+
+  seq(From, TopRight, Top),
+  seq(RightUp, RightDown, Right),
+  seq(BottomRight, BottomLeft, RBottom),
+  seq(LeftDown, LeftUp, RLeft),
+  reverse(RBottom, Bottom),
+  reverse(RLeft, Left),
+  spiral_(NextN, NextFrom, Center),
+  combine(Center, Top, Left, Right, Bottom, Matrix).
+
+seq(From, To, []) :- From > To, !.
+seq(From, To, List) :- numlist(From, To, List).
+
+combine(Center, Top, Left, Right, Bottom, Matrix) :-
+  glue(Left, Center, Right, Middle),
+  append([Top|Middle], [Bottom], Matrix).
+
+glue([], [], [], []).
+glue([L|Left], [Row|Center], [R|Right], [M|Middle]) :-
+  append([L|Row], [R], M),
+  glue(Left, Center, Right, Middle).

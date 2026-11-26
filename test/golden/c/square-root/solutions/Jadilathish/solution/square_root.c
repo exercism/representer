@@ -1,0 +1,15 @@
+#include "square_root.h"
+#include <math.h>
+
+int square_root(int number)
+{
+    return sqrt (number);
+}
+
+
+
+
+#ifndef SQUARE_ROOT_H
+#define SQUARE_ROOT_H
+int square_root(int number);
+#endif

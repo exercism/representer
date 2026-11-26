@@ -1,0 +1,7 @@
+score <- function(x, y) {
+R<-sqrt(x^2+y^2)
+if (R>10.) {0}
+  else if (R>5.){1}
+  else if (R>1.){5}
+  else {10}
+}

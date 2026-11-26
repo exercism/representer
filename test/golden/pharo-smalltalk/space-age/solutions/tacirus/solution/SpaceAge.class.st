@@ -1,0 +1,43 @@
+"
+I can say, how old you are if you were born on Earth but on your planet (if you are from a Solar System planet though).
+
+"
+Class {
+	#name : #SpaceAge,
+	#superclass : #Object,
+	#instVars : [
+		'planets',
+		'default'
+	],
+	#category : #'Exercise@SpaceAge'
+}
+
+{ #category : #'as yet unclassified' }
+SpaceAge >> ageOnPlanet: aString at: aNumber [
+	|timeDif|
+	
+	timeDif := planets at: aString.
+	^ aNumber/(default * timeDif).
+]
+
+{ #category : #initialization }
+SpaceAge >> initialize [
+super initialize.
+self 	planets.
+]
+
+{ #category : #initialization }
+SpaceAge >> planets [
+
+default := 31557600.
+planets := Dictionary new.
+	
+	planets  at: #Earth   put: 1.0;
+				at: #Mercury put: 0.2408467;
+				at: #Venus   put: 0.61519726;
+				at: #Mars    put: 1.8808158;
+				at: #Jupiter put: 11.862615;
+				at: #Saturn  put: 29.447498;
+				at: #Uranus  put: 84.016846;
+				at: #Neptune put: 164.79132.
+]

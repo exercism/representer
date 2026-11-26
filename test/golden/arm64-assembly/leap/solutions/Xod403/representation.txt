@@ -1,0 +1,26 @@
+(file "leap.s")
+.text
+.global leap_year
+leap_year:
+// x0 = year
+// if (year % 400 == 0) return 1
+mov x1, #400
+udiv x2, x0, x1
+msub x3, x2, x1, x0 // x3 = year - (year/400)*400
+cbz x3, is_leap
+// if (year % 4 != 0) return 0
+mov x1, #4
+udiv x2, x0, x1
+msub x3, x2, x1, x0
+cbnz x3, not_leap
+// if (year % 100 == 0) return 0
+mov x1, #100
+udiv x2, x0, x1
+msub x3, x2, x1, x0
+cbz x3, not_leap
+is_leap:
+mov x0, #1
+ret
+not_leap:
+mov x0, #0
+ret

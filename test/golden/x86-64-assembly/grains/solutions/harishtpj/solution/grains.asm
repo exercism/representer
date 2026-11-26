@@ -1,0 +1,21 @@
+section .text
+global square
+square:
+    dec rdi
+
+    xor rax, rax
+    mov rcx, 0xFFFFFFC0
+    test rdi, rcx
+    jnz .end
+
+    inc rax
+    mov cx, di
+    shl rax, cl
+.end:
+    ret
+
+global total
+total:
+    xor rax, rax
+    dec rax
+    ret

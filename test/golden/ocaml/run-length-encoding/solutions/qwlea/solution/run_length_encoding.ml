@@ -1,0 +1,19 @@
+let encode dec = let rec helper str prv_chr count idx len =
+	if idx >= len then [(prv_chr, count)]
+	else if str.[idx] == prv_chr then helper str prv_chr (count + 1) (idx + 1) len
+	else (prv_chr, count)::(helper str str.[idx] 1 (idx + 1) len)
+	in match (String.length dec) with
+		| 0 -> ""
+		| _ -> List.fold_left (fun s (chr, count) -> if count > 1 
+			then s ^ ((string_of_int count) ^ (String.make 1 chr)) 
+			else s ^ (String.make 1 chr)) "" (helper dec dec.[0] 1 1 (String.length dec)) ;;
+
+let decode enc = let len = String.length enc in
+	if len == 0 then enc
+	else let rec helper str idx len count acc =
+		if idx >= len then acc
+		else match str.[idx] with
+		| '0' .. '9' -> helper str (idx + 1) len (count ^ (Char.escaped str.[idx])) acc
+		| _ -> if count = "" then helper str (idx + 1) len "" (acc ^ (Char.escaped str.[idx]))
+			else helper str (idx + 1) len "" (acc ^ (String.make (int_of_string count) str.[idx]))
+	in helper enc 0 len "" "" ;;

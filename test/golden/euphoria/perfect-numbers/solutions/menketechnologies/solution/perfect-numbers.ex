@@ -1,0 +1,16 @@
+include std/utils.e
+
+public function classify(integer number)
+    if number < 1 then
+        return 0
+    end if
+    integer sum = 0
+    for i = 1 to number - 1 do
+        if remainder(number, i) = 0 then
+            sum += i
+        end if
+    end for
+
+    return iif(sum = number, "perfect", iif(sum > number, "abundant", "deficient"))
+
+end function

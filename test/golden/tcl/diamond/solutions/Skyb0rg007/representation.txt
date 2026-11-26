@@ -1,0 +1,18 @@
+(file "diamond.tcl")
+proc diamond { letter } {
+set result {}
+set n [ expr {[ scan $letter %c ] - 65 }]
+if { $n == 0 } {
+return A
+}
+lappend result "\"" [ string repeat "\" \"" $n ] A [ string repeat "\" \"" $n ] "\""
+for { set i 1 } { $i < $n } { incr i } {
+lappend result [ format "\"%2\\$*s%1\\$c%4\\$*s%1\\$c%2\\$*s\"" "\\\n" [ expr { 65 + $i }] "\\\n" [ expr { $n - $i }] "\" \"" "\\\n" [ expr { 2 * $i - 1 }] "\" \"" ]
+}
+lappend result "\"" $letter [ string repeat "\" \"" [ expr { 2 * $n - 1 }]] $letter "\""
+for { incr i -1 } { $i > 0 } { incr i -1 } {
+lappend result [ format "\"%2\\$*s%1\\$c%4\\$*s%1\\$c%2\\$*s\"" "\\\n" [ expr { 65 + $i }] "\\\n" [ expr { $n - $i }] "\" \"" "\\\n" [ expr { 2 * $i - 1 }] "\" \"" ]
+}
+lappend result "\"" [ string repeat "\" \"" $n ] A [ string repeat "\" \"" $n ] "\""
+return [ join $result \n ]
+}

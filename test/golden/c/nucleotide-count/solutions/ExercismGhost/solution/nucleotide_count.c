@@ -1,0 +1,23 @@
+#include "nucleotide_count.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+char *count(const char *dna_strand) {
+    char *ret = malloc(30);
+    int nmbrs[4] = {0};
+
+    for (;*dna_strand; dna_strand++) {
+        if (*dna_strand == 'A') nmbrs[0]++;
+        else if (*dna_strand == 'C') nmbrs[1]++;
+        else if (*dna_strand == 'G') nmbrs[2]++;
+        else if (*dna_strand == 'T') nmbrs[3]++;
+        else {
+            strcpy(ret, "");
+            return ret;
+        }
+    }
+    sprintf(ret, "%c:%d %c:%d %c:%d %c:%d", 'A', nmbrs[0], 'C', nmbrs[1], 
+                    'G', nmbrs[2], 'T', nmbrs[3]);
+    return ret;
+}

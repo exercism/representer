@@ -1,0 +1,24 @@
+Red [
+	description: {"Resistor Color Duo" exercise solution for exercism platform}
+	author: "goran77" ; you can write your name here, in quotes
+]
+
+value: function [colors] 
+[
+	color2num: ["black" 0
+    			"brown" 1
+                "red" 2
+                "orange" 3
+                "yellow" 4
+                "green" 5
+                "blue" 6
+                "violet" 7
+                "grey" 8
+                "white" 9]
+    
+	d1: 10 * to-integer select color2num colors/1
+    d2: to-integer select color2num colors/2
+
+    return d1 + d2
+]
+

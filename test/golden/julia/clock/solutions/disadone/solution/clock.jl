@@ -1,0 +1,31 @@
+using Base: Integer
+using Dates
+using Printf
+struct Clock
+    h::Integer
+    m::Integer
+    function Clock(h::Integer, m::Integer)
+
+        ah=m÷60 
+        m=m%60
+        
+        if m<0
+            h-=1
+            m=60+m
+        end
+        h+=ah
+
+        if h<0 h=h%24+24 end
+        h%=24
+        
+        new(h,m)
+    end
+end
+import Base:+,-,==,!=,sprint
+
++(x::Clock,y::Dates.Minute)=Clock(x.h,x.m+y.value)
+-(x::Clock,y::Dates.Minute)=Clock(x.h,x.m-y.value)
+==(x::Clock,y::Clock)=x.h==y.h && x.m==y.m
+!=(x::Clock,y::Clock)=x.h!=y.h || x.m!=y.m
+show(x::Clock) = @sprintf "\"%02d:%02d\"" x.h x.m
+sprint(f::Function,x::Clock)=show(x)

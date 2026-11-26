@@ -1,0 +1,6 @@
+# Count the four nucleotides in a DNA string
+# Counts ? DNA
+NucleotideCounts ← |1 (
+    ⍤"invalid nucleotide in strand"(/×∈"ACGT".)
+    map⟜(≡/+=)"ACGT"¤
+)

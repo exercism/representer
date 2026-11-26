@@ -1,0 +1,17 @@
+enum CustomError: Error {
+    case lengthMismatch
+}
+func compute(_ dnaSequence: String, against: String) throws -> Int? {
+    guard dnaSequence.count == against.count else {
+        throw CustomError.lengthMismatch
+    }
+    var total = 0
+    for (index, character) in dnaSequence.enumerated() {
+        let indexAgainst = against.index(against.startIndex, offsetBy: index)
+        let char2 = against[indexAgainst]
+        if (char2 != character) {
+            total += 1
+        }
+    }
+    return total
+}

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+
+num=$1
+sound=""
+
+(( $num % 3 == 0 )) && sound="Pling"
+(( $num % 5 == 0 )) && sound+="Plang"
+(( $num % 7 == 0 )) && sound+="Plong"
+
+[[ -n $sound ]] && echo "$sound" || echo "$num"

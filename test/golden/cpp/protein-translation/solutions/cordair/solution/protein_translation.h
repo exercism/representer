@@ -1,0 +1,11 @@
+#if !defined(PROTEIN_TRANSLATION_H)
+#define PROTEIN_TRANSLATION_H
+#include <string>
+#include <vector>
+
+std::string codonToAminoacid(const std::string&);
+namespace protein_translation {
+    std::vector<std::string> proteins(const std::string&);
+}  // namespace protein_translation
+
+#endif // PROTEIN_TRANSLATION_H

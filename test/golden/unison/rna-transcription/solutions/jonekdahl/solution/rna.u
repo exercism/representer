@@ -1,0 +1,22 @@
+rna.toRNA : Text -> Optional Text
+rna.toRNA dna = 
+
+  mapChar = cases
+    ?C -> Some ?G
+    ?G -> Some ?C
+    ?T -> Some ?A
+    ?A -> Some ?U
+    _  -> None
+
+  mapped = 
+    dna
+      |> Text.toCharList
+      |> List.map mapChar
+
+  if mapped |> List.all Optional.isSome then
+    mapped
+      |> List.map (Optional.getOrBug "but I just checked!")
+      |> Text.fromCharList
+      |> Some
+  else
+    None

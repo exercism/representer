@@ -1,0 +1,24 @@
+       PROGRAM-ID. LEAP.
+       DATA DIVISION.
+      *
+       WORKING-STORAGE SECTION.
+       01 WS-YEAR                 BINARY-SHORT.
+       01 WS-RESULT               PIC 9.
+      *
+       LOCAL-STORAGE SECTION.
+       01 RESULT                  BINARY-SHORT.
+       01 RESIDUE                 BINARY-SHORT.
+      *
+       PROCEDURE DIVISION.
+      *
+       LEAP.
+           IF FUNCTION REM(WS-YEAR, 4) = 0 AND (
+                 FUNCTION REM(WS-YEAR, 100) NOT = 0 OR
+                 FUNCTION REM(WS-YEAR, 400) = 0) THEN
+              MOVE 1 TO WS-RESULT
+           ELSE
+              MOVE 0 TO WS-RESULT
+           END-IF.
+      *
+       LEAP-EXIT.
+           EXIT.

@@ -1,0 +1,193 @@
+(file "two_bucket.c")
+#include "\"two_bucket.h\""
+#include <stdlib.h>
+#include <stdio.h>
+bucket_liters_t startBucketLevel = 0 ;
+bucket_liters_t otherBucketLevel = 0 ;
+void InitBucket ( bucket_result_t * bucketToInit , bucket_id_t startBucket , bucket_id_t otherBucket )
+{
+bucketToInit -> possible = false ;
+bucketToInit -> move_count = 0 ;
+bucketToInit -> goal_bucket = startBucket ;
+bucketToInit -> other_bucket_liters = otherBucket ;
+}
+void FillEmptyBucket ( bucket_result_t * bucketToFill , bucket_liters_t * bucketLevel , bucket_liters_t fillVolume )
+{
+bucketToFill -> move_count ++ ;
+* bucketLevel = fillVolume ;
+}
+bool CheckIfGoalVolumeIsInGoalBucket ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume )
+{
+if ( startBucketLevel == goalVolume )
+{
+bucketToFill -> possible = true ;
+bucketToFill -> other_bucket_liters = otherBucketLevel ;
+return true ;
+}
+return false ;
+}
+void OtherBucketHadGoalVolume ( bucket_result_t * bucketToFill )
+{
+bucketToFill -> possible = true ;
+bucketToFill -> other_bucket_liters = startBucketLevel ;
+if ( bucketToFill -> goal_bucket == BUCKET_ID_1 )
+{
+bucketToFill -> goal_bucket = BUCKET_ID_2 ;
+}
+else if ( bucketToFill -> goal_bucket == BUCKET_ID_2 )
+{
+bucketToFill -> goal_bucket = BUCKET_ID_1 ;
+}
+}
+bool CheckIfGoalVolumeIsInOtherBucket ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume )
+{
+if ( otherBucketLevel == goalVolume )
+{
+OtherBucketHadGoalVolume ( bucketToFill );
+return true ;
+}
+return false ;
+}
+bool OtherBucketIsExactlyTheGoalVolume ( bucket_result_t * bucketToFill , bucket_liters_t startBucketSize , bucket_liters_t goalVolume )
+{
+if ( bucketToFill -> other_bucket_liters == goalVolume )
+{
+FillEmptyBucket ( bucketToFill , & startBucketLevel , startBucketSize );
+FillEmptyBucket ( bucketToFill , & otherBucketLevel , goalVolume );
+OtherBucketHadGoalVolume ( bucketToFill );
+return true ;
+}
+return false ;
+}
+bool CheckIfBothBucketsAreFull ( bucket_result_t * bucketToFill , bucket_liters_t bucketOneSize )
+{
+if ( otherBucketLevel == bucketToFill -> other_bucket_liters && startBucketLevel == bucketOneSize )
+{
+bucketToFill -> possible = false ;
+return true ;
+}
+return false ;
+}
+void PourGoalBucketIntoOtherBucket ( bucket_result_t * bucketToFill )
+{
+bucketToFill -> move_count ++ ;
+otherBucketLevel += startBucketLevel ;
+if ( otherBucketLevel > bucketToFill -> other_bucket_liters )
+{
+startBucketLevel = otherBucketLevel - bucketToFill -> other_bucket_liters ;
+otherBucketLevel = bucketToFill -> other_bucket_liters ;
+}
+else
+{
+startBucketLevel = 0 ;
+}
+}
+bool CheckIfEndCaseIsMet ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume , bucket_liters_t bucketOneSize )
+{
+if ( CheckIfGoalVolumeIsInGoalBucket ( bucketToFill , goalVolume ) == true )
+{
+return true ;
+}
+else if ( CheckIfGoalVolumeIsInOtherBucket ( bucketToFill , goalVolume ) == true )
+{
+return true ;
+}
+else if ( CheckIfBothBucketsAreFull ( bucketToFill , bucketOneSize ) == true )
+{
+return true ;
+}
+return false ;
+}
+void BucketAlgorithm ( bucket_result_t * bucketToFill , bucket_liters_t bucketOneSize , bucket_liters_t goalVolume )
+{
+if ( CheckIfEndCaseIsMet ( bucketToFill , goalVolume , bucketOneSize ) == true )
+{
+return ;
+}
+if ( startBucketLevel == 0 )
+{
+FillEmptyBucket ( bucketToFill , & startBucketLevel , bucketOneSize );
+}
+else if ( otherBucketLevel == 0 )
+{
+PourGoalBucketIntoOtherBucket ( bucketToFill );
+}
+if ( CheckIfEndCaseIsMet ( bucketToFill , goalVolume , bucketOneSize ) == true )
+{
+return ;
+}
+if ( otherBucketLevel == bucketToFill -> other_bucket_liters )
+{
+bucketToFill -> move_count ++ ;
+otherBucketLevel = 0 ;
+}
+if ( startBucketLevel == bucketOneSize )
+{
+PourGoalBucketIntoOtherBucket ( bucketToFill );
+}
+BucketAlgorithm ( bucketToFill , bucketOneSize , goalVolume );
+return ;
+}
+bucket_result_t measure (
+bucket_liters_t bucket_1_size ,
+bucket_liters_t bucket_2_size ,
+bucket_liters_t goal_volume ,
+bucket_id_t start_bucket )
+{
+startBucketLevel = 0 ;
+otherBucketLevel = 0 ;
+bucket_result_t * outputBucket = ( bucket_result_t * ) malloc ( sizeof ( bucket_result_t ));
+if ( goal_volume > bucket_1_size && goal_volume > bucket_2_size )
+{
+outputBucket -> possible = false ;
+return * outputBucket ;
+}
+if ( start_bucket == BUCKET_ID_1 )
+{
+InitBucket ( outputBucket , start_bucket , bucket_2_size );
+if ( OtherBucketIsExactlyTheGoalVolume ( outputBucket , bucket_1_size , goal_volume ) == false )
+{
+BucketAlgorithm ( outputBucket , bucket_1_size , goal_volume );
+}
+}
+else
+{
+InitBucket ( outputBucket , start_bucket , bucket_1_size );
+if ( OtherBucketIsExactlyTheGoalVolume ( outputBucket , bucket_1_size , goal_volume ) == false )
+{
+BucketAlgorithm ( outputBucket , bucket_2_size , goal_volume );
+}
+}
+return * outputBucket ;
+}
+(file "two_bucket.h")
+#ifndef TWO_BUCKET_H
+#define TWO_BUCKET_H
+#include <stdbool.h>
+typedef enum {
+BUCKET_ID_1 ,
+BUCKET_ID_2
+} bucket_id_t ;
+typedef unsigned int bucket_liters_t ;
+typedef struct {
+bool possible ;
+int move_count ;
+bucket_id_t goal_bucket ;
+bucket_liters_t other_bucket_liters ;
+} bucket_result_t ;
+bucket_result_t measure (
+bucket_liters_t bucket_1_size ,
+bucket_liters_t bucket_2_size ,
+bucket_liters_t goal_volume ,
+bucket_id_t start_bucket );
+void InitBucket ( bucket_result_t * bucketToInit , bucket_id_t startBucket , bucket_id_t otherBucket );
+void FillEmptyBucket ( bucket_result_t * bucketToFill , bucket_liters_t * bucketLevel , bucket_liters_t fillVolume );
+bool CheckIfGoalVolumeIsInGoalBucket ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume );
+void OtherBucketHadGoalVolume ( bucket_result_t * bucketToFill );
+bool CheckIfGoalVolumeIsInOtherBucket ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume );
+bool OtherBucketIsExactlyTheGoalVolume ( bucket_result_t * bucketToFill , bucket_liters_t startBucketSize , bucket_liters_t goalVolume );
+bool CheckIfBothBucketsAreFull ( bucket_result_t * bucketToFill , bucket_liters_t bucketOneSize );
+void PourGoalBucketIntoOtherBucket ( bucket_result_t * bucketToFill );
+bool CheckIfEndCaseIsMet ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume , bucket_liters_t bucketOneSize );
+void BucketAlgorithm ( bucket_result_t * bucketToFill , bucket_liters_t bucketOneSize , bucket_liters_t goalVolume );
+#endif

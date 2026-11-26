@@ -1,0 +1,23 @@
+module Matrix (saddlePoints) where
+
+import Data.Array
+
+type Matrix = Array (Int,Int) Int
+
+saddlePoints :: Matrix -> [(Int,Int)]
+saddlePoints m 
+  = filter (\i -> maxByRow m i && minByCol m i) (indices m)
+
+
+maxByRow :: Matrix -> (Int, Int) -> Bool
+maxByRow m (i,j) 
+  = all (\k -> m ! (i, j) >= m ! (i, k)) [lcol..ucol]
+  where 
+    ((lrow,lcol),(urow,ucol)) = bounds m
+
+minByCol :: Matrix -> (Int, Int) -> Bool
+minByCol m (i,j) 
+  = all (\k -> m ! (i, j) <= m ! (k, j)) [lrow..urow]
+  where 
+    ((lrow,lcol),(urow,ucol)) = bounds m
+

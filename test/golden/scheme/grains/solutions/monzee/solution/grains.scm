@@ -1,0 +1,10 @@
+(import (rnrs))
+
+(define (square n)
+  (if (and (positive? n) (< n 65))
+      (expt 2 (1- n))
+      (error "illegal chess board square")))
+
+(define total
+  (apply + (map square (cdr (iota 65)))))
+

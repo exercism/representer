@@ -1,0 +1,28 @@
+class Allergies {
+  var possible_alergies = {
+    "eggs": 1,
+    "peanuts": 2,
+    "shellfish": 4,
+    "strawberries": 8,
+    "tomatoes": 16,
+    "chocolate": 32,
+    "pollen": 64,
+    "cats": 128
+  };
+
+  bool allergicTo(String given_item, int given_value) {
+    if (given_value & possible_alergies[given_item]! ==
+        possible_alergies[given_item]) {
+      return true;
+    }
+    return false;
+  }
+
+  List<String> list(int given_value) {
+    List<String> alergies = [];
+    possible_alergies.forEach((item, value) {
+      if (given_value & value == value) alergies.add(item);
+    });
+    return alergies;
+  }
+}

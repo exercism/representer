@@ -1,0 +1,32 @@
+use Either Left Right
+
+{{ This type is used to capture the expected error message }}
+unique type bowling.Error = Error Text
+
+{{
+  {score} takes in a list of numbers representing the pins knocked down for each roll of the bowling game, and should return either the total score or an error.
+}}
+bowling.score : [Nat] -> Either Error Nat
+bowling.score rolls =
+
+  go prevScore currFrameNumber rolls =
+    if currFrameNumber < 10 then
+      match rolls with
+        [r1, r2, r3] ++ rs | r1 === 10 ->
+          go (prevScore + r1 + r2 + r3) (currFrameNumber + 1) ([r2, r3] ++ rs)
+        [r1, r2, r3] ++ rs | r1 + r2 === 10 ->
+          go (prevScore + r1 + r2 + r3) (currFrameNumber + 1) ([r3] ++ rs)
+        [r1, r2, r3] ++ rs ->
+          go (prevScore + r1 + r2) (currFrameNumber + 1) ([r3] ++ rs)
+        _ -> Left (Error "Score cannot be taken until the end of the game")
+    else
+      match rolls with
+        [r1, r2, r3] | r1 === 10 ->
+          Right (prevScore + r1 + r2 + r3)
+        [r1, r2, r3] | r1 + r2 === 10 ->
+          Right (prevScore + r1 + r2 + r3)
+        [r1, r2] | r1 + r2 < 10 ->
+          Right (prevScore + r1 + r2)
+        _ -> Left (Error "Score cannot be taken until the end of the game")
+
+  go 0 1 rolls

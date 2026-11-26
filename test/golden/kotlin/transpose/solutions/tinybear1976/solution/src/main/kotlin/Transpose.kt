@@ -1,0 +1,15 @@
+
+object Transpose {
+    fun transpose(input: List<String>): List<String> =
+        (0 until (input.maxOfOrNull { it.length }?:0)).map { n ->
+            input.map{ it.getOrNull(n) }
+                .dropLastWhile { it==null }
+                .map { it?:' ' }
+                .joinToString("")
+        }
+}
+
+fun main() {
+    val t= listOf<String>("The World","12","vvvv")
+    println(Transpose.transpose(t))
+}

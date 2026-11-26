@@ -1,0 +1,97 @@
+(file "source/series.d")
+module series ;
+import std . algorithm . comparison : equal ;
+import std . range ;
+auto digits ( string input ) {
+int [] ret ;
+ret . length = input . length ;
+foreach ( i , d ; input ) {
+if ( d < '0' || d > '9' ) {
+throw new Exception ( "\"Rubish\"" );
+}
+ret [ i ] = d - '0' ;
+}
+return ret ;
+}
+struct Helper ( R ) {
+R r ;
+size_t index ;
+size_t stride ;
+auto empty () { return index + stride > r . length ; }
+auto front () { return r [ index .. index + stride ]; }
+void popFront () { index ++; }
+auto save () { return typeof ( this )( r . save , index , stride ); }
+}
+auto slice ( string r , size_t stride ) {
+if ( stride > r . length ) { throw new Exception ( "\"Oh dear\"" ); }
+return Helper !( int [])( r . digits , 0 , stride ). array ;
+}
+unittest
+{
+import std . exception : assertThrown ;
+immutable int allTestsEnabled = 0 ;
+{
+const int [] expected = [ 0 , 1 , 2 , 3 , 4 , 5 ];
+const int [] actual = digits ( "\"012345\"" );
+assert ( equal ( actual , expected ));
+}
+static if ( allTestsEnabled )
+{
+{
+const int [] expected = [ 0 , 1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 ];
+const int [] actual = digits ( "\"0123456789\"" );
+assert ( equal ( actual , expected ));
+}
+{
+const int [] expected = [ 9 , 8 , 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 ];
+const int [] actual = digits ( "\"9876543210\"" );
+assert ( equal ( actual , expected ));
+}
+{
+const int [] expected = [ 9 , 3 , 6 , 9 , 2 , 3 , 4 , 6 , 8 ];
+const int [] actual = digits ( "\"936923468\"" );
+assert ( equal ( actual , expected ));
+}
+{
+const int [][] expected = [[ 0 ], [ 1 ], [ 2 ], [ 3 ], [ 4 ]];
+const int [][] actual = slice ( "\"01234\"" , 1 );
+assert ( equal ( actual , expected ));
+}
+{
+const int [][] expected = [
+[ 9 , 8 ], [ 8 , 2 ], [ 2 , 7 ], [ 7 , 3 ], [ 3 , 4 ], [ 4 , 6 ], [ 6 , 3 ]
+];
+const int [][] actual = slice ( "\"98273463\"" , 2 );
+assert ( equal ( actual , expected ));
+}
+{
+const int [][] expected = [[ 0 , 1 , 2 ], [ 1 , 2 , 3 ], [ 2 , 3 , 4 ]];
+const int [][] actual = slice ( "\"01234\"" , 3 );
+assert ( equal ( actual , expected ));
+}
+{
+const int [][] expected = [[ 3 , 1 , 0 ], [ 1 , 0 , 0 ], [ 0 , 0 , 1 ]];
+const int [][] actual = slice ( "\"31001\"" , 3 );
+assert ( equal ( actual , expected ));
+}
+{
+const int [][] expected = [[ 3 , 1 , 0 ], [ 1 , 0 , 0 ], [ 0 , 0 , 1 ]];
+const int [][] actual = slice ( "\"31001\"" , 3 );
+assert ( equal ( actual , expected ));
+}
+{
+const int [][] expected = [[ 8 , 1 , 2 , 2 , 8 ]];
+const int [][] actual = slice ( "\"81228\"" , 5 );
+assert ( equal ( actual , expected ));
+}
+{
+assertThrown ( slice ( "\"01032987583\"" , 12 ));
+}
+{
+assertThrown ( slice ( "\"01032i987583\"" , 12 ));
+}
+{
+assertThrown ( digits ( "\"01032i987583\"" ));
+}
+}
+}

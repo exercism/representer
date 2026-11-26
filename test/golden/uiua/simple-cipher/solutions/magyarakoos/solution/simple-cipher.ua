@@ -1,0 +1,6 @@
+F!     ↚ ⍜(-@a|◿26)^0-@a↙⟜(♭↯):⊙⊸⧻
+Encode ← F!+
+Decode ← F!-
+# Not truly random, still works tho
+RandomKey ← +@a⌊×26gen100⚂
+

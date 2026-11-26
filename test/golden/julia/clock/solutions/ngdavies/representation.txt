@@ -1,0 +1,56 @@
+(file "clock.jl")
+using Dates
+struct Clock { T <: Integer }
+hours :: T
+minutes :: T
+function Clock ( hours :: T , minutes :: T ) where T <: Integer
+while minutes >= 60
+hours += 1
+minutes -= 60
+end
+while minutes < 0
+minutes += 60
+hours -= 1
+end
+minutes = minutes % 60
+while hours < 0
+hours += 24
+end
+hours = hours % 24
+new { T }( hours , minutes )
+end
+end
+import Base .==
+function == ( t1 :: Clock , t2 :: Clock )
+t1 . hours == t2 . hours && t1 . minutes == t2 . minutes
+end
+import Base .+
+function + ( t1 :: Clock , t2 :: Clock )
+hours = t1 . hours + t2 . hours
+minutes = t1 . minutes + t2 . minutes
+Clock ( hours , minutes )
+end
+function + ( t1 :: Clock , minutes :: Integer )
+hours = t1 . hours
+minutes = t1 . minutes + minutes
+Clock ( hours , minutes )
+end
++ ( t1 :: Clock , minutes :: Minute ) = t1 + minutes . value
+import Base .-
+function -( t1 :: Clock , t2 :: Clock )
+hours = t1 . hours - t2 . hours
+minutes = t1 . minutes - t2 . minutes
+Clock ( hours , minutes )
+end
+import Base .-
+function -( t1 :: Clock , minutes :: Integer )
+hours = t1 . hours
+minutes = t1 . minutes - minutes
+Clock ( hours , minutes )
+end
+- ( t1 :: Clock , minutes :: Minute ) = t1 - minutes . value
+import Base . show
+function show ( io :: IO , t :: Clock )
+paddedstring ( t ) = lpad ( t , 2 , "\"0\"" )
+print ( io , "\"\\\"$(paddedstring(t.hours)):$(paddedstring(t.minutes))\\\"\"" )
+end

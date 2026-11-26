@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+check_parameters () {
+  if (( "$#" != 1 )); then
+    echo 'Usage: ./raindrops <number>'
+    exit 1
+  fi
+}
+
+main () {
+  if (( $1 % 3 == 0)); then
+    output="Pling"
+  fi
+  if (( $1 % 5 == 0)); then
+    output+="Plang" 
+  fi
+  if (( $1 % 7 == 0)); then
+    output+="Plong" 
+  fi
+  if [[ -z "$output" ]]; then
+    output=$1
+  fi
+  echo "$output"
+}
+
+check_parameters "$@"
+main "$@"

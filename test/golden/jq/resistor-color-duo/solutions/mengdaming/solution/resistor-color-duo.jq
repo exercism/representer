@@ -1,0 +1,6 @@
+def colors:
+[ "black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white" ];
+
+def color_code($name): colors | index($name);
+
+.colors[:2] | map(color_code(.)) | join("") | tonumber

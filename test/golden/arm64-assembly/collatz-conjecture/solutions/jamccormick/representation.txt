@@ -1,0 +1,35 @@
+(file "collatz_conjecture.s")
+.equ INVALID_NUMBER, -1
+.text
+.global steps
+steps:
+cmp x0, #0
+b.le _invalid
+cmp x0, #1
+b.eq _done_zero
+stp x19, x30, [sp, #-16]!
+mov x20, sp
+mov x19, x0
+and x2, x0, #1
+cbz x2, _is_even
+_is_odd:
+mov x4, #1
+mov x3, #3
+madd x0, x19, x3, x4
+bl steps
+b _increment_and_return
+_increment_and_return:
+mov x4, #1
+add x0, x0, x4
+ldp x19, x30, [sp], #16
+ret
+_is_even:
+lsr x0, x0, #1
+bl steps
+b _increment_and_return
+_done_zero:
+mov x0, #0
+ret
+_invalid:
+mov x0, INVALID_NUMBER
+ret

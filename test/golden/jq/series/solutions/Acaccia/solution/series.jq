@@ -1,0 +1,12 @@
+def check_input:
+  (.series | length) as $seriesLength
+  | if $seriesLength == 0 then "series cannot be empty" | halt_error
+    elif (.sliceLength == 0) then "slice length cannot be zero" | halt_error
+    elif (.sliceLength < 0) then "slice length cannot be negative" | halt_error
+    elif (.sliceLength > $seriesLength) then "slice length cannot be greater than series length" | halt_error
+    else .
+    end;
+
+check_input
+| . as {$series, $sliceLength}
+| [$series | range(length - $sliceLength + 1) | $series[. : . + $sliceLength]]

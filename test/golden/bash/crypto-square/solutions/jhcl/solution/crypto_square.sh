@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+inp=${1//[^[:alnum:]]}
+inp=${inp,,}
+len=${#inp}
+for (( row=0, col=0; row<len; row++ )); do
+    (( row*col >= len || row*(++col) >= len )) && break
+done
+
+for (( i=0; i<$col; i++ )); do
+    for (( j=0; j<row; j++ )); do
+        c="${inp:$((i+j*col)):1}"
+        out+="${c:- }"
+    done
+done
+
+for (( i=0; i<len; i+=row )); do
+    arr+=( "${out:i:row}" )
+done
+echo "${arr[*]}"

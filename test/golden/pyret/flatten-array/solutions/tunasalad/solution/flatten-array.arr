@@ -1,0 +1,23 @@
+use context essentials2020
+
+provide: flatten end
+
+fun flatten-helper(lst, acc):
+  if is-List(lst):
+    cases(List) lst:
+      | empty => acc
+      | link(f, r) => block:
+        tmp = flatten-helper(r, acc)
+        flatten-helper(f, tmp)
+      end
+    end
+  else if is-nothing(lst):
+    acc
+  else:
+    link(lst, acc)
+  end
+end
+
+fun flatten(lst):
+  flatten-helper(lst, empty)
+end

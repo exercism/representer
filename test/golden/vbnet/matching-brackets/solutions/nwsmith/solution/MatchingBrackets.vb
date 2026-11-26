@@ -1,0 +1,57 @@
+﻿Imports System.Collections.Generic
+
+Public Module MatchingBrackets
+    Public Function IsPaired(ByVal input As String) As Boolean
+        Dim s as Stack = new Stack()
+        Dim d as Char
+        Dim p as Boolean = True
+    
+        For Each c As Char in input 
+    
+            If c = "(" Then
+                s.Push(c)
+            End If
+            If c = ")" Then
+                If s.Count() > 0 Then
+                    d = s.Pop()
+                    If d <> "(" Then
+                        Return False
+                    End If
+                Else 
+                  Return False
+                End If
+            End If
+    
+            If c = "[" Then
+                s.Push(c)
+            End If
+            If c = "]" Then
+                If s.Count() > 0 Then
+                    d = s.Pop()
+                    If d <> "[" Then
+                        Return False
+                    End If
+                Else 
+                    Return False
+                End If
+            End If
+    
+            If c = "{" Then
+                s.Push(c)
+            End If
+            If c = "}" Then
+                If s.Count() > 0 Then
+                    d = s.Pop()
+                    If d <> "{" Then
+                        Return False
+                    End If
+                Else 
+                    Return False
+                End If
+            End If
+
+        Next 
+  
+        Return s.Count() = 0
+    End Function
+End Module

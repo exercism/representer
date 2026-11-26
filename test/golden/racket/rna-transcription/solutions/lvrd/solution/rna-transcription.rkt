@@ -1,0 +1,7 @@
+#lang racket
+
+(provide to-rna)
+
+(define (to-rna dna)
+  (define complement (hash #\G #\C #\C #\G #\T #\A #\A #\U))
+  (apply string (map (λ (x) (hash-ref complement x)) (string->list dna))))

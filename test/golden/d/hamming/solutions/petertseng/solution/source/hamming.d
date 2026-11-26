@@ -1,0 +1,28 @@
+module hamming;
+
+import std.algorithm : count;
+import std.range : zip;
+import std.string : format;
+
+ulong distance(string s1, string s2) {
+  if (s1.length != s2.length) {
+    string fmt = "must have same length, rather than %d and %d";
+    throw new Exception(format(fmt, s1.length, s2.length));
+  }
+
+  return zip(s1, s2).count!(`a[0] != a[1]`);
+}
+
+unittest {
+  import std.exception : assertThrown;
+
+  assert(distance("A", "A") == 0);
+  assert(distance("A", "G") == 1);
+  assert(distance("AG", "CT") == 2);
+  assert(distance("AT", "CT") == 1);
+  assert(distance("GGACG", "GGTCG") == 1);
+  assertThrown(distance("AAAG", "AAA"));
+  assertThrown(distance("AAA", "AAAG"));
+  assert(distance("GATACA", "GCATAA") == 4);
+  assert(distance("GGACGGATTCTG", "AGGACGGATTCT") == 9);
+}

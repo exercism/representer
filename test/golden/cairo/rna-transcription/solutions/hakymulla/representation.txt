@@ -1,0 +1,22 @@
+(file "src/lib.cairo")
+use core::dict::Felt252Dict;
+pub fn to_rna(dna: ByteArray) -> ByteArray {
+let mut dna_rna: Felt252Dict<u8> = Default::default();
+dna_rna.insert('G', 'C');
+dna_rna.insert('C', 'G');
+dna_rna.insert('T', 'A');
+dna_rna.insert('A', 'U');
+let mut rna: ByteArray = Default::default();
+let dna_len = dna.len();
+let mut index = 0;
+loop {
+if index == dna_len {
+break;
+}
+let strand: felt252 = dna.at(index).unwrap().try_into().unwrap();
+let value = dna_rna.get(strand).try_into().unwrap();
+rna.append_word(value, 1);
+index += 1;
+};
+return rna;
+}

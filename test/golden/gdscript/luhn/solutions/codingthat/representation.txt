@@ -1,0 +1,61 @@
+(file "luhn.gd"
+  (source
+    (variable_statement
+      (annotations
+        (annotation @ export)) card_num :
+      (type String))
+    (function_definition valid
+      (parameters) :
+      (body
+        (variable_statement sum = 0)
+        (variable_statement count = 0)
+        (for_statement (local PLACEHOLDER_1) in
+          (call range
+            (arguments
+              (binary_operator
+                (call len
+                  (arguments card_num)) - 1)
+              (unary_operator - 1)
+              (unary_operator - 1))) :
+          (body
+            (if_statement
+              (attribute
+                (subscript card_num
+                  (subscript_arguments PLACEHOLDER_1)) .
+                (attribute_call is_valid_int
+                  (arguments))) :
+              (body
+                (expression_statement
+                  (augmented_assignment count += 1))
+                (variable_statement (name PLACEHOLDER_2) =
+                  (attribute
+                    (subscript card_num
+                      (subscript_arguments PLACEHOLDER_1)) .
+                    (attribute_call to_int
+                      (arguments))))
+                (if_statement
+                  (binary_operator
+                    (binary_operator count % 2) == 0) :
+                  (body
+                    (expression_statement
+                      (augmented_assignment PLACEHOLDER_2 *= 2))
+                    (if_statement
+                      (binary_operator PLACEHOLDER_2 > 9) :
+                      (body
+                        (expression_statement
+                          (augmented_assignment PLACEHOLDER_2 -= 9))))))
+                (expression_statement
+                  (augmented_assignment sum += PLACEHOLDER_2)))
+              (elif_clause
+                (binary_operator
+                  (subscript card_num
+                    (subscript_arguments PLACEHOLDER_1)) != " ") :
+                (body
+                  (return_statement false))))))
+        (if_statement
+          (binary_operator count < 2) :
+          (body
+            (return_statement false)))
+        (return_statement
+          (binary_operator
+            (binary_operator sum % 10) == 0))))))

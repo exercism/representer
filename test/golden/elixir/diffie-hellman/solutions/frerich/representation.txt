@@ -1,0 +1,63 @@
+(file "lib/diffie_hellman.ex"
+  (source
+    (call defmodule
+      (arguments DiffieHellman)
+      (do_block
+        (unary_operator @
+          (call spec
+            (arguments
+              (binary_operator
+                (call generate_private_key
+                  (arguments
+                    (binary_operator prime_p :: integer))) :: integer))))
+        (call def
+          (arguments
+            (call generate_private_key
+              (arguments prime_p)))
+          (do_block
+            (call
+              (dot :rand . uniform)
+              (arguments
+                (binary_operator prime_p - 1)))))
+        (unary_operator @
+          (call spec
+            (arguments
+              (binary_operator
+                (call generate_public_key
+                  (arguments
+                    (binary_operator prime_p :: integer)
+                    (binary_operator prime_g :: integer)
+                    (binary_operator private_key :: integer))) :: integer))))
+        (call def
+          (arguments
+            (call generate_public_key
+              (arguments prime_p prime_g private_key)))
+          (do_block
+            (binary_operator
+              (call
+                (dot :crypto . mod_pow)
+                (arguments prime_g private_key prime_p)) |>
+              (call
+                (dot :binary . decode_unsigned)
+                (arguments)))))
+        (unary_operator @
+          (call spec
+            (arguments
+              (binary_operator
+                (call generate_shared_secret
+                  (arguments
+                    (binary_operator prime_p :: integer)
+                    (binary_operator PLACEHOLDER_1 :: integer)
+                    (binary_operator PLACEHOLDER_2 :: integer))) :: integer))))
+        (call def
+          (arguments
+            (call generate_shared_secret
+              (arguments prime_p (variable PLACEHOLDER_1) (variable PLACEHOLDER_2))))
+          (do_block
+            (binary_operator
+              (call
+                (dot :crypto . mod_pow)
+                (arguments PLACEHOLDER_1 PLACEHOLDER_2 prime_p)) |>
+              (call
+                (dot :binary . decode_unsigned)
+                (arguments)))))))))

@@ -1,0 +1,14 @@
+namespace RnaTranscription
+
+def mapLetter (c: Char) : Char :=
+  match c with
+ | 'G' => 'C'
+ | 'C' => 'G'
+ | 'T' => 'A'
+ | 'A' => 'U'
+ | _ => panic! "unreachable"
+
+def toRna: String -> String :=
+  .map mapLetter
+
+end RnaTranscription

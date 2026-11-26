@@ -1,0 +1,10 @@
+object Bob {
+  def response(statement: String): String = statement match {
+    case a if(statement.trim() == "") => "Fine. Be that way!"
+    case b if(!statement.exists(_.isDigit) && !statement.exists(_.isLetter) && statement.endsWith(("?"))) => "Sure."
+    case c if(!statement.exists(_.isDigit) && statement.endsWith(("?")) && statement == statement.toUpperCase()) => "Calm down, I know what I'm doing!"
+    case d if(statement.trim().endsWith("?")) => "Sure."
+    case e if(statement.exists(_.isLetter) && statement == statement.toUpperCase()) => "Whoa, chill out!"
+    case _ => "Whatever."
+  }
+}

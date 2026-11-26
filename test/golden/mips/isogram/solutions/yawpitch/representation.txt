@@ -1,0 +1,34 @@
+(file "impl.mips")
+# Return 1 if the given string is an isogram, else 0.
+.globl is_isogram
+# $a0 - argument for input string, as starting address
+# $v0 - result, as integer representing the boolean answer
+# $t0 - the bit set, as integer
+# $t1 - the current char, as char
+# $t2 - offset of $t1, as integer
+# $t3 - bitmask, as integer
+# $t4 -
+# $t5 - reserve 1, as const integer
+.text
+is_isogram:
+li $t0, 0 # Reset the bit set to 0.
+li $t5, 1
+loop:
+lbu $t1, ($a0) # Load the next character.
+beqz $t1, true # End of string, return true.
+addi $a0, $a0, 1 # Increment the pointer
+ori $t1, $t1, 32 # Lowercase the character.
+blt $t1, 'a', loop # Skip non-letters < 'a'.
+bgt $t1, 'z', loop # Skip non-letters > 'z'.
+sub $t2, $t1, 'a' # Set t2 to the offset of the character.
+sllv $t3, $t5, $t2 # Get the bitmask value for that offset.
+and $t4, $t0, $t3 # If the same bit is set in t0 and t3, character is a dupe.
+bnez $t4, false # Exit if a dupe has been detected.
+or $t0, $t0, $t3 # Otherwise update the bit set.
+j loop
+false:
+li $v0, 0
+jr $ra
+true:
+li $v0, 1
+jr $ra

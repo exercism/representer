@@ -1,0 +1,26 @@
+class Raindrops {
+
+    def convert(num) {
+        def output = "";
+        def div = false;
+        if(num % 3 == 0){
+            output += "Pling"
+            div = true
+        }
+        if (num % 5 == 0){
+            output += "Plang"
+            div = true
+        }
+        if (num % 7 == 0){
+            output += "Plong"
+            div = true
+        }
+        if(div == false){
+            output += num
+        }
+        
+        return output
+        
+    }
+
+}

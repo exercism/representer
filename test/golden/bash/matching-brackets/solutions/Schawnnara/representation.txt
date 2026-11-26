@@ -1,0 +1,24 @@
+(file "matching_brackets.sh")
+main ()
+{
+S = $( echo "\"" $1 "\"" | tr -dc '{}()[]')
+while test ! -z "\"" $S "\""
+do
+if echo "\"" $S "\"" | grep "\"()\"" > /dev/null
+then
+S = $( echo "\"" $S "\"" | sed 's/()//g')
+elif echo "\"" $S "\"" | grep "\"\\[\\]\"" > /dev/null
+then
+S = $( echo "\"" $S "\"" | sed 's/\[\]//g')
+elif echo "\"" $S "\"" | grep "\"{}\"" > /dev/null
+then
+S = $( echo "\"" $S "\"" | sed 's/{}//g')
+else
+echo false
+exit 0
+fi
+done
+echo true
+exit 0
+}
+main "\"" $@ "\""

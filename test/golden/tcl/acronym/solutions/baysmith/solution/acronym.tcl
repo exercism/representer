@@ -1,0 +1,19 @@
+proc abbreviate {phrase} {
+  set words [split $phrase]
+  set a ""
+  foreach {word} $words {
+    set subwords [split $word "-"]
+    foreach {word} $subwords {
+      for {set i 0} {$i < [string length $word]} {incr i} {
+        set letter [string index $word $i]
+        set validLetter [string is alpha $letter]
+        if {$validLetter} {
+          set letter [string toupper $letter]
+          set a "$a$letter"
+          break
+        }
+      }
+    }
+  }
+  return $a
+}

@@ -1,0 +1,19 @@
+-module(darts).
+
+-export([score/2]).
+
+
+score(X, Y) ->
+  case distance(X, Y) of
+    Z when Z > 10 ->
+      0;
+    Z when Z > 5 ->
+      1;
+    Z when Z > 1 ->
+      5;
+    Z when Z =< 1 ->
+      10
+  end.
+
+distance(X, Y) ->
+  math:sqrt(math:pow(X, 2) + math:pow(Y, 2)).

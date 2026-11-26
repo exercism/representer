@@ -1,0 +1,29 @@
+needs incs/string.8th
+
+: question? \ s -- T
+  "\\?" endswith? ;
+
+: yelling? \ s -- T
+  dup  /[[:alpha:]]/ matches?
+  swap /[[:lower:]]/ matches? not
+  and ;
+
+\ we have already trimmed whitespace
+: silent? \ s -- T
+  s:len 0 n:= 
+  ;
+  
+\ Bob responds to input with an output
+: bob \ s -- s
+  s:trim
+  silent? if drop "Fine. Be that way!" ;; then
+
+  dup question?
+  swap yelling?
+  2dup and      \ yelled-question?
+
+  if 2drop "Calm down, I know what I'm doing!" ;; then  \ a yelled question
+  if drop  "Whoa, chill out!"                  ;; then  \ yelling
+  if       "Sure."                             ;; then  \ question
+           "Whatever."
+  ;

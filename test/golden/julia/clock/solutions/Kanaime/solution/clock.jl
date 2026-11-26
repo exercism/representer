@@ -1,0 +1,14 @@
+using Dates, Printf
+
+abstract type AbstractClock end 
+
+struct Clock <: AbstractClock
+    hours::Int32
+    minutes::Int32
+    Clock(hours, minutes) = new(mod((hours + fld(minutes,60)),24), mod(minutes, 60))
+end
+ 
+Base.:+(time::Clock, min::Minute) = Clock(time.hours, time.minutes + min.value)
+Base.:-(time::Clock, min::Minute) = Clock(time.hours, time.minutes - min.value)
+Base.sprint(show::Function,time::Clock) = show(time::Clock)
+Base.show(time::Clock) = @sprintf "\"%02d:%02d\"" time.hours time.minutes

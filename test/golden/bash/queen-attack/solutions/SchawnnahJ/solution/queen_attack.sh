@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+while getopts w:b: option; do
+    case "$option" in
+        w) IFS=, read -r wx wy <<< $OPTARG ;;
+        b) IFS=, read -r bx by <<< $OPTARG ;;
+        *) echo invalid option; exit 1 ;;
+    esac
+done
+(( wx < 0 || bx < 0 )) && { echo row not positive; exit 1; }
+(( wy < 0 || by < 0 )) && { echo column not positive; exit 1; }
+(( wx > 7 || bx > 7 )) && { echo row not on board; exit 1; }
+(( wy > 7 || by > 7 )) && { echo column not on board; exit 1; }
+(( wx == bx && wy == by )) && { echo same position; exit 1; }
+diagx=$(( wx - bx ))
+diagy=$(( wy - by ))
+(( wx == bx || wy == by || ${diagx#-} == ${diagy#-} )) && echo true || echo false

@@ -1,0 +1,7 @@
+let abbreviate = s =>
+  String.splitByRegExp(s, /[ -]/)
+  ->Array.filterMap(el =>
+    Option.flatMap(el, el => String.replaceRegExp(el, /[^a-zA-Z]/g, "")->String.get(0))
+  )
+  ->Array.join("")
+  ->String.toUpperCase

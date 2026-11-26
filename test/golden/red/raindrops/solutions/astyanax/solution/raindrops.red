@@ -1,0 +1,15 @@
+Red [
+	description: {"Raindrops" exercise solution for exercism platform}
+]
+
+convert: function [
+	number
+] [
+	str: ""
+	case/all [
+		number % 3 = 0 [append str "Pling"]
+		number % 5 = 0 [append str "Plang"]
+		number % 7 = 0 [append str "Plong"]
+	]
+	either empty? str [to string! number][str]
+]

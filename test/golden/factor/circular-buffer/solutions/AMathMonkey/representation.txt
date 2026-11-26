@@ -1,0 +1,31 @@
+(file "circular-buffer/circular-buffer.factor")
+USING: kernel math arrays accessors sequences ;
+IN: circular-buffer
+TUPLE: circular-buffer arr { head integer } { tail integer } ;
+: <circular-buffer> ( capacity -- buffer )
+f <array> [ circular-buffer new ] dip >>arr ;
+DEFER: overwrite
+: write ( item buffer -- )
+[ [ tail>> ] [ arr>> ] bi nth [ "\"buffer full\"" throw ] when ]
+[ overwrite ]
+bi ;
+: read ( buffer -- item )
+[
+[ head>> ] [ arr>> ] bi
+[ nth [ "\"buffer empty\"" throw ] unless* ] [ f -rot set-nth ] 2bi
+]
+[ [ arr>> length ] [ [ 1 + swap mod ] change-head drop ] bi ]
+bi ;
+: overwrite ( item buffer -- )
+[ nip [ tail>> ] [ arr>> ] bi nth ]
+[ [ tail>> ] [ arr>> ] bi set-nth ]
+[
+nip
+[ arr>> length ]
+[
+[ 1 + swap mod ] change-tail
+swap [ [ tail>> ] [ head<< ] bi ] [ drop ] if
+] bi
+] 2tri ;
+: clear-buffer ( buffer -- )
+[ [ drop f ] map! ] change-arr drop ;

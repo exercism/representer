@@ -1,0 +1,13 @@
+let sound = (n, prime, name) => if n % prime == 0 {
+  name
+} else {
+  ""
+}
+
+let fallback = (n, sounds) => if sounds == "" {
+  Int.toString(n)
+} else {
+  sounds
+}
+
+let convert = n => fallback(n, sound(n, 3, "Pling") ++ sound(n, 5, "Plang") ++ sound(n, 7, "Plong"))

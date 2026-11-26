@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+
+main() {
+  if [ $# -ne 1 ] ; then 
+    echo "Usage: $0 {number}"
+    exit 1
+  fi
+  OUT=""
+  # %3 Pling, %5 Plang, %7 Plong, else 
+  if [ $(( $1 % 3)) -eq 0 ] ; then 
+    OUT="Pling"
+  fi
+  if [ $(( $1 % 5)) -eq 0 ] ; then 
+    OUT="${OUT}Plang"
+  fi
+  if [ $(( $1 % 7)) -eq 0 ] ; then 
+    OUT="${OUT}Plong"
+  fi
+  if [ -z $OUT ] ; then
+    OUT="$1"
+  fi
+  echo "$OUT"
+  }
+
+main "$@"

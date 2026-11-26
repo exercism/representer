@@ -1,0 +1,14 @@
+object  Hamming{
+  def  distance(dnaStrandOne: String, dnaStrandTwo: String): Option[Int] = {
+    if (dnaStrandOne.length != dnaStrandTwo.length) {
+      None
+    }
+    else {
+      val matches = for {
+        (x, y) <- (dnaStrandOne zip dnaStrandTwo) 
+      } yield x == y
+      val matchCount = matches.count(x => !x)
+      Some(matchCount)
+    }
+  }
+}

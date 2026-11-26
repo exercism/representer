@@ -1,0 +1,27 @@
+CLASS zcl_acronym DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS parse IMPORTING phrase         TYPE string
+                  RETURNING VALUE(acronym) TYPE string.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_acronym IMPLEMENTATION.
+  METHOD parse.
+    "Implement solution
+    DATA(text) = to_upper( phrase ).
+    REPLACE ALL OCCURRENCES OF REGEX '[^[:alnum:]]' IN text WITH ` ` .
+    REPLACE ALL OCCURRENCES OF '-' IN text WITH ` `.
+    REPLACE ALL OCCURRENCES OF '_' IN text WITH ` `.
+    SPLIT text AT ` ` INTO TABLE DATA(words).
+    LOOP AT words REFERENCE INTO DATA(ptr).
+      acronym = |{ acronym }{ ptr->*(1) }|.
+    ENDLOOP.
+  ENDMETHOD.
+ENDCLASS.

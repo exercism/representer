@@ -1,0 +1,35 @@
+function is_valid_command(msg)
+    return occursin(r"^chatbot,", lowercase(msg))
+end
+
+function remove_emoji(msg)
+    return replace(msg, r"emoji\d+" => "")
+end
+
+function check_phone_number(number)
+    if occursin(r"^\(\+\d{2}\) \d{3}-\d{3}-\d{3}$", number)
+        return "Thanks! You can now download me to your phone."
+    else
+        return "Oops, it seems like I can't reach out to $number"
+    end
+end
+
+function getURL(msg)
+    return collect(m.match for m in eachmatch(r"\b\w+\.\w+\b", msg))
+end
+
+function capitalize_word(word)
+    word = String(word) 
+    return uppercase(first(word)) * lowercase(word[2:end])
+end
+
+function nice_to_meet_you(str)
+    m = match(r"(?i)^(\w+),\s*(\w+)$", str)
+    if m !== nothing
+        last, first = m.captures
+        return "Nice to meet you, $(capitalize_word(first)) $(capitalize_word(last))"
+    else
+        return "Name format not recognized"
+    end
+end
+

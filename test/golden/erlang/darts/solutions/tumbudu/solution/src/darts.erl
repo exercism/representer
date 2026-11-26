@@ -1,0 +1,13 @@
+-module(darts).
+
+-export([score/2]).
+
+
+score(X, Y) ->
+	Dist = math:sqrt((X*X) +(Y*Y)),
+	points(Dist).
+
+points(Dist) when Dist =< 1 -> 10;
+points(Dist) when Dist =< 5 -> 5;
+points(Dist) when Dist =< 10 -> 1;
+points(_Dist) -> 0.

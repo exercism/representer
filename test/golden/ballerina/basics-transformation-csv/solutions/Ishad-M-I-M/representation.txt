@@ -1,0 +1,80 @@
+(file "main.bal")
+import ballerina/regex;
+import ballerina/io;
+// Ballerina record type definition
+type FillUpEntry record {|
+int employeeId;
+int odometerReading;
+decimal gallons;
+decimal gasPrice;
+|};
+// Ballerina record type definition
+type EmployeeFillUpSummary record {|
+readonly int employeeId;
+int gasFillUpCount;
+decimal totalFuelCost;
+decimal totalGallons;
+int totalMilesAccrued;
+|};
+type Milage record {|
+readonly int employeeId;
+int startingMilage;
+|};
+function processFuelRecords(string inputFilePath, string outputFilePath) returns error? {
+string[][] data = check io:fileReadCsv(inputFilePath);
+FillUpEntry[] entries = [];
+foreach var d in data {
+FillUpEntry entry = {
+employeeId: check int:fromString(regex:replaceAll(d[0].trim(), "\"^0+(?!$)\"," "\"\")),"
+odometerReading: check int:fromString(regex:replaceAll(d[1].trim(), "\"^0+(?!$)\"," "\"\")),"
+gallons: check decimal:fromString(regex:replaceAll(d[2].trim(), "\"^0+(?!$)\"," "\"\")),"
+gasPrice: check decimal:fromString(regex:replaceAll(d[3].trim(), "\"^0+(?!$)\"," "\"\"))"
+};
+entries.push(entry);
+}
+table<EmployeeFillUpSummary> key(employeeId) summary = table [];
+table<Milage> key(employeeId) milages = table [];
+foreach var entry in entries {
+if (summary.hasKey(entry.employeeId)) {
+EmployeeFillUpSummary efs = summary.get(entry.employeeId);
+Milage m = milages.get(entry.employeeId);
+EmployeeFillUpSummary updatedEfs = {
+employeeId: efs.employeeId,
+gasFillUpCount: efs.gasFillUpCount + 1,
+totalFuelCost: efs.totalFuelCost + entry.gallons * entry.gasPrice,
+totalGallons: efs.totalGallons + entry.gallons,
+totalMilesAccrued: entry.odometerReading - m.startingMilage
+};
+summary.put(updatedEfs);
+}
+else {
+EmployeeFillUpSummary efs = {
+employeeId: entry.employeeId,
+gasFillUpCount: 1,
+totalFuelCost: entry.gallons * entry.gasPrice,
+totalGallons: entry.gallons,
+totalMilesAccrued: 0
+};
+milages.add({
+employeeId: entry.employeeId,
+startingMilage: entry.odometerReading
+});
+summary.add(efs);
+}
+}
+EmployeeFillUpSummary[] summaryArray = from var e in summary.toArray()
+order by e.employeeId
+select e;
+string[][] results = [];
+foreach var item in summaryArray {
+string[] arr = [
+item.employeeId.toString(),
+item.gasFillUpCount.toString(),
+item.totalFuelCost.toString(),
+item.totalGallons.toString(),
+item.totalMilesAccrued.toString()
+];
+results.push(arr);
+}
+_ = check io:fileWriteCsv(outputFilePath, results);
+}

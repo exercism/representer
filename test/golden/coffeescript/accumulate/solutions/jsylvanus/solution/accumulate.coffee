@@ -1,0 +1,2 @@
+Array.prototype.accumulate = (user_function) ->
+  item = user_function(item) for item in @

@@ -1,0 +1,84 @@
+class ChangeCalculator(val coinList: List<Int>) {
+
+    fun computeMostEfficientChange(total:Int) : List<Int>{
+        if(total<0)
+            throw IllegalArgumentException("Negative totals are not allowed.")
+        else if(total == 0)
+            return listOf()
+        var best = mutableListOf<Int>()
+        var tempCoinlist = mutableListOf<Int>()
+        for(coin in coinList.reversed()){
+            if(best.contains(coin))
+                continue
+            if (total%coin == 0 && coin <= total){
+                if(best.isEmpty())
+                    repeat(total/coin){
+                        best.add(coin)
+                    }
+                else if(best.size > total/coin){
+                    best.clear()
+                    repeat(total/coin){
+                        best.add(coin)
+                    }
+                }
+            }
+            else if(coin < total){
+                tempCoinlist.add(coin)
+                tempCoinlist.addAll(findBestMatch(coinList.reversed(),total-coin))
+                if(tempCoinlist.sum() != total){
+                    tempCoinlist.clear()
+                    continue
+                }
+                else if(best.isEmpty())
+                    best.addAll(tempCoinlist)
+                else if(tempCoinlist.size < best.size){
+                    best.clear()
+                    best.addAll(tempCoinlist)
+                }
+            }
+            tempCoinlist.clear()
+        }
+
+        if(best.isNotEmpty()) return best.sorted().toList()
+        else
+            throw IllegalArgumentException("The total $total cannot be represented in the given currency.")
+    }
+
+    fun findBestMatch(coins: List<Int>,remainder : Int): List<Int> {
+        var currBest = mutableListOf<Int>()
+        var temp = mutableListOf<Int>()
+        for(coin in coins){
+            if(currBest.contains(coin) || coin > remainder)
+                continue
+            else if (remainder%coin == 0 && coin <= remainder){
+                if(currBest.isEmpty())
+                    repeat(remainder/coin){
+                        currBest.add(coin)
+                    }
+                else if(currBest.size > remainder/coin) {
+                    currBest.clear()
+                    repeat(remainder / coin) {
+                        currBest.add(coin)
+                    }
+                }
+            }
+            else if(coin <= remainder){
+                temp.add(coin)
+                temp.addAll(findBestMatch(coins,remainder-coin))
+                if(temp.sum() != remainder) {
+                    temp.clear()
+                    continue
+                }
+                if(currBest.isEmpty())
+                    currBest.addAll(temp)
+                else if(currBest.size > temp.size){
+                    currBest.clear()
+                    currBest.addAll(temp)
+                }
+            }
+            temp.clear()
+        }
+        return currBest
+    }
+
+}

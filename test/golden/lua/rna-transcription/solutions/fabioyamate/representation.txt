@@ -1,0 +1,21 @@
+(file "rna-transcription.lua")
+local zip = function ( xs , ys )
+local xit , yit = xs : gmatch ( "\".\"" ), ys : gmatch ( "\".\"" )
+return function ()
+return xit (), yit ()
+end
+end
+local tr = function ( from , to )
+local xlate = {}
+for f , t in zip ( from , to ) do
+xlate [ f ] = t
+end
+return function ( input )
+local output = {}
+for c in input : gmatch ( "\".\"" ) do
+table.insert ( output , xlate [ c ])
+end
+return table.concat ( output )
+end
+end
+return tr ( "\"GCTA\"" , "\"CGAU\"" )

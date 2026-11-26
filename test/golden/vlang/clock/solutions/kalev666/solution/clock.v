@@ -1,0 +1,30 @@
+module main
+
+struct Clock {
+mut:
+    hours int
+    minutes int
+}
+
+fn fld (a int, b int) int {
+    return if a<0 && a%b != 0 { a/b-1 } else { a/b }
+}
+
+fn new_clock(hour int, minute int) Clock {
+    return Clock {
+        hours: (((hour + fld(minute, 60)) % 24) + 24) % 24
+        minutes: (minute % 60 + 60) % 60
+    }
+}
+
+fn (mut c Clock) add_time(minute int) {
+    c = new_clock(c.hours, c.minutes + minute)
+}
+
+fn (mut c Clock) subtract_time(minute int) {
+    c = new_clock(c.hours, c.minutes - minute)
+}
+
+fn (c Clock) string() string {
+    return '${c.hours:02}:${c.minutes:02}'
+}

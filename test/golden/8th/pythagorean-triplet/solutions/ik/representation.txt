@@ -1,0 +1,56 @@
+(file "pythagorean-triplet.8th")
+needs stack/rstack \ for G:rpick
+G:var sum
+G:var max_nm
+G:var triplets
+G:var n
+G:var m
+G:var a_
+G:var b_
+G:var c_
+G:var kmax
+G:var k
+: sqrt \ n -- n
+0.5 n:^ n:int
+;
+: coprime? \ n1 n2 -- T
+n:gcd 1 n:=
+;
+: triplets-with-sum \ n -- a
+dup sum G:! \ assign argument to sum
+sqrt max_nm G:! \ assign sqrt of sum to max_nm
+a:new triplets G:! \ assign empty array to triplets
+G:( \ loop 1..sqrt(max) as n
+n G:! \ assign n
+G:( \ loop n+1..sqrt(max) as m
+m G:! \ assign m
+n G:@ n:odd? m G:@ n:odd? G:and G:!if \ both are not odd
+n G:@ m G:@ coprime? G:if \ are coprime
+m G:@ 2 n:^ n G:@ 2 n:^ n:- \ m * m - n * n as a_
+2 m G:@ n G:@ n:* n:* \ 2 * m * n as b_
+G:2dup n:> G:if G:swap G:then \ swap if a_ > b_
+b_ G:! a_ G:! \ assign a_ and b_
+m G:@ 2 n:^ n G:@ 2 n:^ n:+ \ m * m + n * n as c_
+c_ G:! \ assign c_
+sum G:@ a_ G:@ b_ G:@ c_ G:@ n:+ n:+ n:/mod \ sum.divmod(a_ + b_ + c_)
+kmax G:! \ assign kmax
+0 n:= G:if \ if sum % (a_ + b_ + c_) = 0
+G:( \ loop 1..sum / (a_ + b_ + c_) as k
+k G:! \ assign k
+a_ G:@ k G:@ n:* \ a_ * k as a
+b_ G:@ k G:@ n:* \ b_ * k as b
+c_ G:@ k G:@ n:* \ c_ * k as c
+G:3dup n:+ n:+ sum G:@ n:= G:if \ a + b + c = sum
+3 a:close \ create array [a, b, c]
+triplets G:@ G:swap a:push' \ push it to the triplets array
+G:else
+G:3drop \ drop a, b, c otherwise
+G:then
+G:) 1 kmax G:@ G:loop \ k loop
+G:then
+G:then
+G:then
+G:) n G:@ n:1+ max_nm G:@ G:loop \ m loop
+G:) 1 max_nm G:@ G:loop \ n loop
+triplets G:@ \ return triplets array
+;

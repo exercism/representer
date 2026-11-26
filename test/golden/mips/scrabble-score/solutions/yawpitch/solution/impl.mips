@@ -1,0 +1,39 @@
+#       Return the Scrabble score for the given word (ie "cabbage" -> 14).
+
+.globl  scrabble_score
+
+#       $a0 - argument for input string, as starting address
+#       $v0 - result,                    as integer representing the total score
+#       $t0 - holds the current char's index / points value
+#       $t1 - flag to test if the current char is upper or lower case
+
+.data
+
+points: .byte
+	1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10
+
+.text
+
+scrabble_score:
+
+	li $v0, 0						# initialize the score accumulator
+
+	next:
+	
+		lb $t0, 0($a0)				# load the next char
+		beq		$t0, $zero, end		# if it's NULL, go to end
+
+		subi	$t0, $t0, 'A'		# set A-Z to 0-25, a-z to 32-57
+	 	sge		$t1, $t0, 26		# sets the flag if char is in a-z
+		mul		$t1, $t1, 32		# sets the flag to either 0 (upper) or 32 (lower)
+		sub		$t0, $t0, $t1		# sets a-z to 0-25, leaving A-Z unchanged
+
+		lb $t0, points($t0)			# get the points for that index
+		add		$v0, $v0, $t0		# add the points to the accumulator
+
+		addi	$a0, $a0, 1			# increment the address
+		j next
+	
+	end:
+		jr $ra
+

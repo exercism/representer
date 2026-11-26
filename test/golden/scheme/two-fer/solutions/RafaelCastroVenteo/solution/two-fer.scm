@@ -1,0 +1,4 @@
+(import (rnrs))
+
+(define* (two-fer #:optional (maybe-name "you"))
+  (format #f  "One for ~A, one for me." maybe-name))

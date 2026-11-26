@@ -1,0 +1,5 @@
+object Acronym {
+  def abbreviate(phrase: String): String = {
+    phrase.split("[ -]").collect { case x if (x.nonEmpty) => x.head.toUpper }.mkString
+  }
+}

@@ -1,0 +1,4 @@
+include misc.e
+public function reverse(sequence str)
+  return reverse(str)
+end function

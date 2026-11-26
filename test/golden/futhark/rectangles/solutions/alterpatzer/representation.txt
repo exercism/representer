@@ -1,0 +1,35 @@
+(file "rectangles.fut")
+type ladder = { rungs: i32, bottom: i64 }
+def segments (row: []u8): [](i64, i64) =
+let (segs, _) =
+loop (segs, pluses) =
+([], [])
+for i < length row do
+match row[i]
+case ' ' -> (segs, [])
+case '+' -> (segs ++ map (\p -> (p, i)) pluses, pluses ++ [i])
+case _ -> (segs, pluses)
+in segs
+def connected (s: (i64, i64)) (top: i64) (bot: i64) (text: [][]u8): bool =
+all (\i ->
+let left = text[i][s.0]
+let right = text[i][s.1]
+in (left == '+' || left == '|') && (right == '+' || right == '|'))
+((bot + 1)..<top)
+def get_rungs (l: ladder) (s: (i64, i64)) (r: i64) (text: [][]u8): i32 =
+if l.rungs != 0 && connected s r l.bottom text then l.rungs else 0
+def extend_ladders [m] [n] (l_in: *[n][n]ladder) (segs: [](i64, i64)) (row: i64) (text: [m][n]u8): (i32, [n][n]ladder) =
+loop (t, l_out) =
+(0, l_in)
+for s in segs do
+let r = get_rungs l_out[s.0][s.1] s row text
+in (t + r, l_out with [s.0, s.1] = {rungs = r + 1, bottom = row})
+def rectangles [m] [n] (strings: [m][n]u8): i32 =
+let (total, _) =
+loop (total, ladders) =
+(0, replicate n (replicate n {rungs = 0, bottom = 0}))
+for i < m do
+let segs = segments strings[i]
+let (t, l) = extend_ladders (copy ladders) segs i strings
+in (total + t, l)
+in total

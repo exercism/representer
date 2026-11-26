@@ -1,0 +1,13 @@
+-module(space_age).
+
+-export([age/2]).
+
+
+age(earth, Seconds)   -> Seconds /  31557600;
+age(mercury, Seconds) -> Seconds / (31557600 * 0.2408467);
+age(venus, Seconds)   -> Seconds / (31557600 * 0.61519726);
+age(mars, Seconds)    -> Seconds / (31557600 * 1.8808158);
+age(jupiter, Seconds) -> Seconds / (31557600 * 11.862615);
+age(saturn, Seconds)  -> Seconds / (31557600 * 29.447498);
+age(uranus, Seconds)  -> Seconds / (31557600 * 84.016846);
+age(neptune, Seconds) -> Seconds / (31557600 * 164.79132).

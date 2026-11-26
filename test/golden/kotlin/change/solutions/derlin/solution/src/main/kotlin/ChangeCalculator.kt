@@ -1,0 +1,31 @@
+class ChangeCalculator(change: List<Int>) {
+  private val availableChange = change.sortedDescending()
+
+  private infix fun List<Int>?.isBetterThan(other: List<Int>?): Boolean =
+    if (this == null) false else if (other == null) true else this.size < other.size
+
+
+  fun computeMostEfficientChange(grandTotal: Int): List<Int> {
+
+    require(grandTotal >= 0) { "Negative totals are not allowed." }
+
+    fun recursive(total: Int, change: List<Int>, bestSolution: List<Int>? = null): List<Int>? {
+      if (bestSolution isBetterThan change) return bestSolution
+      if (total == 0) return change
+      if (total < availableChange.last()) return bestSolution
+
+      var currentSolution = bestSolution
+      availableChange
+        .filter { change.isEmpty() || it <= change.last() }
+        .forEach { ch ->
+          recursive(total - ch, change + ch, currentSolution).also {
+            if (it isBetterThan currentSolution) currentSolution = it
+          }
+        }
+      return currentSolution
+    }
+
+    return recursive(grandTotal, listOf())
+      ?: throw IllegalArgumentException("The total $grandTotal cannot be represented in the given currency.")
+  }
+}

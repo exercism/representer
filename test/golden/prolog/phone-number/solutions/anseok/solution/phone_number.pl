@@ -1,0 +1,4 @@
+cleanup(Input, Cleaned) :-
+  re_replace("[^0-9]+"/g, "", Input, S), string_code(1, S, C),
+  (C =:= 0'1 -> sub_string(S, 1, _, 0, Cleaned); Cleaned = S),
+  re_match("^[2-9][0-9]{2}[2-9][0-9]{6}$", Cleaned).

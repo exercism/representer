@@ -1,0 +1,20 @@
+(file "clock.jl")
+import Base : show , + , -
+import Dates : Minute
+struct Clock
+hour :: Int
+minute :: Int
+function Clock ( h :: Int , m :: Int )
+md , mr = divrem ( m , 60 )
+mr < 0 && ( md -= 1 ; mr += 60 )
+hr = ( h + md ) % 24
+hr < 0 && ( hr += 24 )
+new ( hr , mr )
+end
+end
+function show ( io :: IO , clock :: Clock )
+pad2 ( num ) = lpad ( num , 2 , '0' )
+print ( io , "\"\\\"$(pad2(clock.hour)):$(pad2(clock.minute))\\\"\"" )
+end
+( + )( clock :: Clock , offset :: Minute ) = Clock ( clock . hour , clock . minute + offset . value )
+( - )( clock :: Clock , offset :: Minute ) = Clock ( clock . hour , clock . minute - offset . value )

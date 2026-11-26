@@ -1,0 +1,70 @@
+(file "impl.mips")
+.globl nth_prime
+.text
+# $a0 - número
+EsPrimo:
+beq $a0,2,EsPrimo_true
+beq $a0,3,EsPrimo_true
+ble $a0,1,EsPrimo_false
+divu $t0,$a0,2
+mfhi $t0
+beqz $t0,EsPrimo_false
+divu $t0,$a0,3
+mfhi $t0
+beqz $t0,EsPrimo_false
+li $t0,5
+EsPrimo_bucle:
+#condición
+mul $t1,$t0,$t0
+bgt $t1,$a0,EsPrimo_true
+#cuerpo
+divu $t1,$a0,$t0
+mfhi $t1
+beqz $t1,EsPrimo_false
+li $t1,2
+add $t1,$t0,$t1
+divu $t1,$a0,$t1
+mfhi $t1
+beqz $t1,EsPrimo_false
+#repetición
+addi $t0,$t0,6
+b EsPrimo_bucle
+EsPrimo_true:
+li $v0,1
+b EsPrimo_
+EsPrimo_false:
+li $v0,0
+b EsPrimo_
+EsPrimo_:
+jr $ra
+# $a0 - número
+nth_prime:
+move $fp,$sp
+# volcar
+addi $sp,$sp,-8
+sw $ra,0($sp)
+sw $s0,4($sp)
+# cuerpo
+li $s0,0 # número
+nth_prime_bucle:
+# condición
+beqz $a0,nth_prime_bucle_
+# cuerpo
+move $a1,$a0
+move $a0,$s0
+jal EsPrimo
+move $a0,$a1
+beqz $v0,nth_prime_bucle_i
+addi $a0,$a0,-1
+nth_prime_bucle_i:
+addi $s0,$s0,1
+# repetición
+b nth_prime_bucle
+nth_prime_bucle_:
+addi $s0,$s0,-1
+move $v0,$s0
+# desvolcar
+lw $ra,0($sp)
+lw $s0,4($sp)
+move $sp,$fp
+jr $ra

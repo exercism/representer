@@ -1,0 +1,13 @@
+Imports System
+Public Module ArmstrongNumbers
+    Public Function IsArmstrongNumber(ByVal number As Integer) As Boolean
+        Dim power = number.ToString().Length
+        Dim sum = 0
+        Dim num = number
+        While num > 0
+            sum += Math.Pow(num Mod 10, power)
+            num \= 10
+        End While
+        Return number = sum
+    End Function
+End Module

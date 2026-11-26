@@ -1,0 +1,77 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ISOGRAM.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-PHRASE                   PIC X(60).
+       01 WS-RESULT                   PIC 99.
+          88 WS-IS-NOT-ISOGRAM                  VALUES 0.
+          88 WS-IS-ISOGRAM                      VALUES 1.
+
+       01 WS-PHRASE-LC                PIC X(60) VALUE SPACES. 
+       01 WS-PHRASE-LC-PRINTABLE-LEN  PIC 99    VALUE ZEROS.
+
+       01 WS-ALPHABET-LENGTH          PIC 99.
+          88 WS-ALPHABET-LEN-LATIN              VALUE 26.
+       01 WS-ALPHABET-FIRST-CHAR      PIC X     VALUE 'a'.
+       01 WS-ALPHABET-INITIAL-ORD     PIC 9(3).
+       01 WS-ALPHABET-SUB             PIC 99.
+       01 WS-ALPHABET-LC              PIC X(26) VALUE SPACES.
+       
+       01 WS-CHAR-ACC                 PIC 99    VALUE ZEROES
+             OCCURS 26 TIMES
+             INDEXED BY WS-CHAR-ACC-INDEX.
+
+       PROCEDURE DIVISION.
+       ISOGRAM.
+           PERFORM INITIALIZE-AND-CONFIGURE
+           PERFORM PREPARE-SOURCE.
+           PERFORM GUARD-EMPTY-STRINGS.
+
+           PERFORM VARYING WS-ALPHABET-SUB
+              FROM 1 BY 1
+              UNTIL WS-ALPHABET-SUB > WS-ALPHABET-LENGTH
+                   SET WS-CHAR-ACC-INDEX TO WS-ALPHABET-SUB 
+                   INSPECT WS-PHRASE-LC
+                      TALLYING WS-CHAR-ACC(WS-CHAR-ACC-INDEX)
+                      FOR ALL WS-ALPHABET-LC(WS-ALPHABET-SUB:1)
+                   IF WS-CHAR-ACC(WS-CHAR-ACC-INDEX) < 2 THEN
+                      SET WS-IS-ISOGRAM TO TRUE
+                   ELSE 
+                      SET WS-IS-NOT-ISOGRAM TO TRUE 
+                      EXIT PERFORM  
+                   END-IF 
+           END-PERFORM.
+
+       INITIALIZE-AND-CONFIGURE.
+           SET WS-ALPHABET-LEN-LATIN TO TRUE
+           PERFORM INITIALIZE-ALPHABET-LC-LATIN
+           MOVE ZEROES TO WS-RESULT 
+           PERFORM VARYING WS-CHAR-ACC-INDEX
+              FROM 1 BY 1
+              UNTIL WS-CHAR-ACC-INDEX > WS-ALPHABET-LENGTH 
+                   MOVE ZEROES TO WS-CHAR-ACC(WS-CHAR-ACC-INDEX)
+           END-PERFORM.
+        
+       INITIALIZE-ALPHABET-LC-LATIN.
+      * consists of letters latin a-z, case insensative
+           COMPUTE WS-ALPHABET-INITIAL-ORD =
+              FUNCTION ORD(WS-ALPHABET-FIRST-CHAR).
+           PERFORM VARYING WS-ALPHABET-SUB
+              FROM 1 BY 1
+              UNTIL WS-ALPHABET-SUB > WS-ALPHABET-LENGTH
+                   MOVE FUNCTION CHAR(WS-ALPHABET-INITIAL-ORD +
+                      WS-ALPHABET-SUB - 1) TO
+                      WS-ALPHABET-LC(WS-ALPHABET-SUB:1)
+           END-PERFORM.
+
+       PREPARE-SOURCE.
+           MOVE FUNCTION LOWER-CASE(WS-PHRASE) TO WS-PHRASE-LC.
+           MOVE FUNCTION TRIM(WS-PHRASE-LC)
+              TO WS-PHRASE-LC-PRINTABLE-LEN. 
+       
+       GUARD-EMPTY-STRINGS.
+           IF WS-PHRASE-LC-PRINTABLE-LEN = 0 THEN
+              SET WS-IS-NOT-ISOGRAM TO TRUE
+              EXIT PROGRAM 
+           END-IF.

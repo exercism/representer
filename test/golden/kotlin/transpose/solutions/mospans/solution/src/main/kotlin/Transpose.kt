@@ -1,0 +1,19 @@
+object Transpose {
+    fun transpose(input: List<String>): List<String> {
+        val result = mutableListOf<String>()
+        for ((rowIndex, row) in input.withIndex()) {
+            for ((columnIndex, cell) in row.withIndex()) {
+                val oldRow = result.elementAtOrNull(columnIndex)
+                var newRow = oldRow ?: ""
+                newRow += " ".repeat(rowIndex - newRow.length) + cell
+                if (null == oldRow) {
+                    result.add(columnIndex, newRow)
+                } else {
+                    result[columnIndex] = newRow
+                }
+            }
+        }
+
+        return result
+    }
+}

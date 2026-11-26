@@ -1,0 +1,25 @@
+exception Invalid
+
+let make1 = String.make 1
+
+let encode ?(block_size = 5) str =
+  let f (a, b) c = 
+    if b = block_size
+    then a ^ " " ^ make1 c, 1
+    else a ^ make1 c, b + 1
+  in
+  str |> String.to_seq |> Seq.fold_left (fun (a, b) -> function
+      | '0'..'9' as c -> f (a, b) c
+      | 'a'..'z' as c -> f (a, b) (Char.chr (219 - Char.code c)) 
+      | 'A'..'Z' as c -> f (a, b) (Char.chr (187 - Char.code c))
+      | _ -> (a, b)
+  ) ("", 0)
+  |> fst
+
+let decode str =
+    str |> String.to_seq |> Seq.fold_left (fun a -> function
+        | '0'..'9' as c -> a ^ make1 c
+        | 'a'..'z' as c -> a ^ make1 (Char.chr (219 - Char.code c))
+        | ' ' -> a
+        | _ -> raise Invalid
+      ) ""

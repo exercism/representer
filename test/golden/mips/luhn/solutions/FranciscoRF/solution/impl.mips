@@ -1,0 +1,74 @@
+.globl valid
+
+.text
+valid:
+# t0 string start address
+# t1 current char pointer
+# t2 current char
+# t3, t4 general purpose
+# t5 string end address
+# t6 alternator
+# t7 threshold min number of digits flag
+# t8 accumulator
+
+    move   $v0, $zero            # initialize return value as false
+    move   $t0, $a0              # copy input string address
+    lb     $t2, ($t0)            # get first char
+    beqz   $t2, __return         # return if empty string
+
+    move   $t5, $t0              # initialize string end address
+    move   $t6, $zero            # initialize alternator as false
+    move   $t7, $zero            # initialize threshold flag as false
+    move   $t8, $zero            # initialize accumulator
+
+__get_length:
+    addi   $t5, $t5, 1           # increment string end address
+    lb     $t2, ($t5)            # load next char
+    bnez   $t2, __get_length     # keep scanning until string end
+
+# fall through and set up loop if string is found
+# set up 
+    la   $t1, ($t5)              # copy address of last char
+
+__loop:                          # validate string starting from the end
+# read next char
+    beq    $t1, $t0, __end       # finished validating string
+    lb     $t2, -1($t1)          # load char in next address (from the end)
+    subi   $t1, $t1, 1           # decrement pointer
+
+# check space
+    beq    $t2, ' ', __loop      # continue with next char if space
+
+# check digit
+    sge    $t3, $t2, '0'          # char >= '0'
+    sle    $t4, $t2, '9'          # char <= '9'
+    and    $t3, $t3, $t4          # char in '0'..'9'
+    beqz   $t3, __return          # return if false (invalid char)
+
+# convert digit
+    subi   $t2, $t2, '0'          # convert to digit value
+
+# double current number
+    beqz   $t6, __accumulate      # skip if uneven position from the end
+    add    $t2, $t2, $t2          # double number
+    ble    $t2, 9, __accumulate   # skip if doubled number is single digit
+    subi   $t2, $t2, 9            # subtract 9
+
+__accumulate:
+    add    $t8, $t8, $t2          # add current number to accumulator
+
+# alternate on position (= 1 every second position from the end, = 0 otherwise)
+    or     $t7, $t7, $t6          # will latch as true as long as there's >1 valid digit
+    sub    $t6, $zero, $t6        # 0 -> 0, 1 -> -1
+    addi   $t6, $t6, 1            # 0 -> 1, -1 -> 0
+
+    j      __loop
+
+__end:
+    beqz   $t7, __return          # didn't reach two valid digits threshold
+    rem    $t3, $t8, 10           # acc mod 10
+    bnez   $t3, __return          # return if != 0 (invalid number)
+    li     $v0, 1                 # set return value to true
+
+__return:
+    jr     $ra

@@ -1,0 +1,21 @@
+proc isIsogram {input} {
+    set input_length [string length $input]
+    set listCheck [list]
+    
+    for {set i 0 } { $i < $input_length } { incr i } {    
+        lappend listCheck [string tolower [string index $input $i]]
+        
+    }
+    for {set j 0 } { $j < [llength $listCheck] } { incr j } {
+            if {[string is wordchar [lindex $listCheck $j]]} {
+                set letter [lindex $listCheck $j]
+                set count [lsearch -all $listCheck $letter]
+                if { [llength $count] > 1 } {
+                    
+                    return  false
+                }
+            }
+        }
+    return true
+    
+}

@@ -1,0 +1,57 @@
+(file "roman_numerals.pl")
+:- use_module ( library ( dcg / basics )).
+:- use_module ( library ( clpfd )).
+:- set_prolog_flag ( double_quotes , chars ).
+convert ( N , Numeral ) :-
+phrase ( thousands ( N ), NumeralChars ),
+string_chars ( Numeral , NumeralChars ).
+thousands ( N ) -->
+( "\"MMM\"" , { N #= M + 3000 }
+| "\"MM\"" , { N #= M + 2000 }
+| "\"M\"" , { N #= M + 1000 }
+| { N #= M }
+), ninehundred ( M ).
+ninehundred ( N ) -->
+"\"CM\"" , { N #= M + 900 }, ninety ( M )
+| fivehundred ( N ).
+fivehundred ( N ) -->
+"\"D\"" , { N #= M + 500 }, hundreds ( M )
+| fourhundred ( N ).
+fourhundred ( N ) -->
+"\"CD\"" , { N #= M + 400 }, ninety ( M )
+| hundreds ( N ).
+hundreds ( N ) -->
+( "\"CCC\"" , { N #= M + 300 }
+| "\"CC\"" , { N #= M + 200 }
+| "\"C\"" , { N #= M + 100 }
+| { N #= M }
+), ninety ( M ).
+ninety ( N ) -->
+"\"XC\"" , { N #= M + 90 }, nine ( M )
+| fifty ( N ).
+fifty ( N ) -->
+"\"L\"" , { N #= M + 50 }, tens ( M )
+| forty ( N ).
+forty ( N ) -->
+"\"XL\"" , { N #= M + 40 }, nine ( M )
+| tens ( N ).
+tens ( N ) -->
+( "\"XXX\"" , { N #= M + 30 }
+| "\"XX\"" , { N #= M + 20 }
+| "\"X\"" , { N #= M + 10 }
+| { N #= M }
+), nine ( M ).
+nine ( N ) -->
+"\"IX\"" , { N #= 9 }
+| five ( N ).
+five ( N ) -->
+"\"V\"" , { N #= M + 5 }, units ( M )
+| four ( N ).
+four ( N ) -->
+"\"IV\"" , { N #= 4 }
+| units ( N ).
+units ( N ) -->
+"\"III\"" , { N #= 3 }
+| "\"II\"" , { N #= 2 }
+| "\"I\"" , { N #= 1 }
+| { N #= 0 }.

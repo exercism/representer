@@ -1,0 +1,31 @@
+(file "meetup.jl")
+using Dates
+function meetup ( year :: Integer , month :: Integer , descriptor :: AbstractString , day_of_week :: AbstractString )
+dow = Dict (
+"\"Monday\"" => 1 ,
+"\"Tuesday\"" => 2 ,
+"\"Wednesday\"" => 3 ,
+"\"Thursday\"" => 4 ,
+"\"Friday\"" => 5 ,
+"\"Saturday\"" => 6 ,
+"\"Sunday\"" => 7
+)[ day_of_week ]
+first_day = Date ( year , month , 1 )
+last_day = lastdayofmonth ( first_day )
+matching_dates = filter ( d -> dayofweek ( d ) == dow , first_day : Day ( 1 ) : last_day )
+if descriptor == "\"first\""
+return matching_dates [ 1 ]
+elseif descriptor == "\"second\""
+return matching_dates [ 2 ]
+elseif descriptor == "\"third\""
+return matching_dates [ 3 ]
+elseif descriptor == "\"fourth\""
+return matching_dates [ 4 ]
+elseif descriptor == "\"last\""
+return matching_dates [ end ]
+elseif descriptor == "\"teenth\""
+return filter ( d -> 13 <= day ( d ) <= 19 , matching_dates )[ 1 ]
+else
+throw ( ArgumentError ( "\"Unknown descriptor: $descriptor\"" ))
+end
+end

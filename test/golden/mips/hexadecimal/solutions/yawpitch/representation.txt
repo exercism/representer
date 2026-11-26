@@ -1,0 +1,30 @@
+(file "impl.mips")
+# Return the decimal equivalent of the given hexadecimal string (ie "\"00fff0\"" -> 65520).
+.globl hex_convert
+# $a0 - argument for input string, as starting address
+# $v0 - result, as integer representing the decimal value
+# $t0 - holds the current char's index / points value
+# $t1 - flag to help conversion to an index
+.data
+points: .byte
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+.text
+hex_convert:
+li $v0, 0 # initialize the value accumulator
+next:
+lb $t0, 0($a0) # load the next char
+beq $t0, $zero, end # if it's NULL, go to end
+subi $t0, $t0, '0' # set '0'-'9' to 0-9, 'A'-'F' to 17-42, 'a'-'z' to 49-54
+sgt $t1, $t0, 9 # sets the flag for char being in 'A'-'F' or 'a'-'f'
+mul $t1, $t1, 7 # sets the offset move 'A'-'F' to their index
+sub $t0, $t0, $t1 # leave '0'-'9' as 0-9, set 'A'-'F' to 10-15, 'a'-'z' to 42-47
+sgt $t1, $t0, 15 # sets the flag for char being in 'a'-'f'
+mul $t1, $t1, 32 # sets the offset move 'A'-'F' to their index
+sub $t0, $t0, $t1 # leave '0'-'9' as 0-9, leave 'A'-'F' to 10-15, set 'a'-'z' to 10-15
+lb $t0, points($t0) # get the decimal value for the current char by its index
+sll $v0, $v0, 4 # shift the accumulator left by 4 (ie multiply by 16)
+add $v0, $v0, $t0 # and add the points to the accumulator
+addi $a0, $a0, 1 # increment the address
+j next
+end:
+jr $ra

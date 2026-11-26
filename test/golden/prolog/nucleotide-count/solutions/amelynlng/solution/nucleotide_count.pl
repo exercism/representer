@@ -1,0 +1,15 @@
+nucleotide_count(DnaString, Counts) :-
+    string_chars(DnaString, Chars),
+    maplist(valid, Chars),
+    count('A', Chars, A),
+    count('C', Chars, C),
+    count('G', Chars, G),
+    count('T', Chars, T),
+    Counts = [('A', A), ('C', C), ('G', G), ('T', T)].
+valid('A').
+valid('C').
+valid('G').
+valid('T').
+count(N, List, Total) :-
+    include(=(N), List, Matches),
+    length(Matches, Total).

@@ -1,0 +1,13 @@
+class ReverseString {
+
+    static reverse(String value) {
+        if (value.length() < 1) {
+            return ''
+        }
+        def answer = ''
+        def len = value.length() - 1
+        (len..0).each{letter -> answer += value.getAt(letter)}
+        answer
+    }
+
+}

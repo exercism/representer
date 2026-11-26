@@ -1,0 +1,8 @@
+local gigasecond = {}
+
+function gigasecond.anniversary(seconds_since_epoch)
+    return os.date('%x', seconds_since_epoch + 1000000000)
+end
+
+return gigasecond
+

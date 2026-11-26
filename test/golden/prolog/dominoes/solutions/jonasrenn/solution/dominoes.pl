@@ -1,0 +1,6 @@
+can_chain([]).
+can_chain([(X,X)]) :- !.
+can_chain([Head|Tail]) :- merge(Head, Tail, Merged), can_chain(Merged), !.
+merge((X,Y), [(Y,Z)|Tail], [(X,Z)|Tail]).
+merge((Y,X), [(Y,Z)|Tail], [(X,Z)|Tail]).
+merge(Dominoe, [Head|Tail1], [Head|Tail2]) :- merge(Dominoe, Tail1, Tail2).

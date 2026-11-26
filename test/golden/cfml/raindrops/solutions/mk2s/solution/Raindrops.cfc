@@ -1,0 +1,23 @@
+/**
+* Your implmentation of the Raindrops exercise
+*/
+component {
+
+	/**
+	* @returns string
+	* @arg number is an integer
+	*/
+	 function convert( number ) {
+
+		var pling = number % 3 == 0 ? 'Pling' : '';
+		var plang = number % 5 == 0 ? 'Plang' : '';
+		var plong = number % 7 == 0 ? 'Plong' : '';
+
+		if (pling&plang&plong=='') {
+			return ToString(number)
+		} else {
+			return pling&plang&plong;
+		}
+	}
+
+}

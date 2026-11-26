@@ -1,0 +1,19 @@
+module Triangle (TriangleType(..), triangleType) where
+data TriangleType = Equilateral
+                  | Isosceles
+                  | Scalene
+                  | Illegal
+                  deriving (Eq, Show)
+triangleType :: (Eq v, Ord v, Num v) => v -> v -> v -> TriangleType
+triangleType a b c
+    | a <= 0 = Illegal
+    | b <= 0 = Illegal
+    | c <= 0 = Illegal
+    | a > b + c = Illegal
+    | b > c + a = Illegal
+    | c > a + b = Illegal
+    | (a == b) && (b == c) = Equilateral
+    | a == b = Isosceles
+    | b == c = Isosceles
+    | c == a = Isosceles
+    | otherwise = Scalene

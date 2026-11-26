@@ -1,0 +1,81 @@
+(file "dnd-character.js"
+  (program
+    (lexical_declaration const
+      (variable_declarator abilityModifier =
+        (arrow_function constitution
+          (statement_block
+            (if_statement
+              (binary_expression constitution < 3)
+              (throw_statement
+                (new_expression Error
+                  (arguments "Ability scores must be at least 3"))))
+            (if_statement
+              (binary_expression constitution > 18)
+              (throw_statement
+                (new_expression Error
+                  (arguments "Ability scores can be at most 18"))))
+            (return_statement
+              (call_expression
+                (member_expression Math floor)
+                (arguments
+                  (binary_expression
+                    (binary_expression constitution - 10) / 2))))))))
+    (lexical_declaration const
+      (variable_declarator PLACEHOLDER_1 =
+        (array "strength" "dexterity" "constitution" "intelligence" "wisdom" "charisma")))
+    (class_declaration Character
+      (class_body
+        (method_definition constructor
+          (formal_parameters)
+          (statement_block
+            (for_in_statement const PLACEHOLDER_2 of PLACEHOLDER_1
+              (statement_block
+                (expression_statement
+                  (assignment_expression
+                    (subscript_expression this PLACEHOLDER_2) =
+                    (call_expression
+                      (member_expression Character rollAbility)
+                      (arguments))))))
+            (expression_statement
+              (assignment_expression
+                (member_expression this hitpoints) =
+                (binary_expression 10 +
+                  (call_expression abilityModifier
+                    (arguments
+                      (member_expression this constitution))))))))
+        (method_definition static rollAbility
+          (formal_parameters)
+          (statement_block
+            (lexical_declaration const
+              (variable_declarator PLACEHOLDER_3 =
+                (call_expression
+                  (member_expression
+                    (array 0 0 0 0) map)
+                  (arguments
+                    (arrow_function
+                      (formal_parameters)
+                      (binary_expression
+                        (call_expression
+                          (member_expression Math floor)
+                          (arguments
+                            (binary_expression
+                              (call_expression
+                                (member_expression Math random)
+                                (arguments)) * 6))) + 1))))))
+            (return_statement
+              (call_expression
+                (member_expression
+                  (call_expression
+                    (member_expression
+                      (call_expression
+                        (member_expression PLACEHOLDER_3 sort)
+                        (arguments)) slice)
+                    (arguments 1)) reduce)
+                (arguments
+                  (arrow_function
+                    (formal_parameters PLACEHOLDER_4 PLACEHOLDER_5)
+                    (binary_expression PLACEHOLDER_4 + PLACEHOLDER_5)) 0)))))))
+    (export_statement
+      (export_clause
+        (export_specifier Character)
+        (export_specifier abilityModifier)))))

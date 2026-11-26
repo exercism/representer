@@ -1,0 +1,8 @@
+fun sum (factors: int list, limit: int): int =
+  let
+    fun loop (i, acc) =
+      if i >= limit then acc
+      else loop (i+1, (if List.exists (fn n => i mod n = 0) factors then i else 0) + acc)
+  in
+    loop (1, 0)
+  end

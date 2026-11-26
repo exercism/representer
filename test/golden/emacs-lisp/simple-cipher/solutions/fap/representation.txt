@@ -1,0 +1,60 @@
+(file "simple-cipher.el")
+( require 'seq )
+( require 'cl-lib )
+( defconst alphabet-for-random-letter "\"abcdefghijklmnopqrstuvwxyz\"" )
+( defun encode ( plaintext key )
+( simple-cipher plaintext key '+ ))
+( defun decode ( ciphertext key )
+( simple-cipher ciphertext key '- ))
+( defun simple-cipher ( text key fun )
+( let (( calc-key
+( if ( <= ( length text ) ( length key ))
+key
+( dotimes ( _index ( / ( length text ) ( length key )) key )
+( let (( key-copy key ))
+( setq key ( concat key key-copy )))))))
+( mapconcat
+'identity
+( cl-mapcar ( lambda ( char1 char2 )
+( char-to-string
+( + ?a
+( mod
+( funcall fun ( - char1 ?a ) ( - char2 ?a ))
+( length alphabet-for-random-letter )))))
+text
+calc-key )
+"\"\"" )))
+( defun generate-key ()
+( let (( key "\"\"" ))
+( dotimes ( _i 100 key )
+( setq key
+( concat
+key
+( char-to-string
+( seq-elt
+alphabet-for-random-letter
+( secure-random-int
+( length alphabet-for-random-letter )))))))))
+( defun secure-next ( bits )
+"\"Read BITS number of bits from /dev/urandom.\nBITS gets divided by 8 as head only reads whole bytes.\n\nAs of Emacs 28.2 the (random) function is using rand() from the libc,\nhich is not cryptographically secure. So this function reads randomness\nrom /devu/urandom, which should be secure.\nSee https://emacs.stackexchange.com/questions/35615/secure-random-numbers\""
+( with-temp-buffer
+( set-buffer-multibyte nil )
+( call-process "\"head\""
+"\"/dev/urandom\""
+t
+nil
+"\"-c\""
+( number-to-string ( / bits 8 )))
+( seq-reduce
+( lambda ( accu elem )
+( + ( ash accu 8 ) ( logand elem 255 )))
+( buffer-string ) 0 )))
+( defun secure-random-int ( max )
+"\"Return a cryptographically secure fixnum in the range of 0 to MAX, exclusive.\n\nI have no idea if this is actually secure, use at your own peril.\""
+( let (( random-number ( secure-next 32 )))
+( while ( >= ( abs random-number )
+( - most-positive-fixnum
+( mod most-positive-fixnum max )))
+( setq random-number ( secure-next 32 )))
+( mod random-number max )))
+( provide 'simple-cipher )

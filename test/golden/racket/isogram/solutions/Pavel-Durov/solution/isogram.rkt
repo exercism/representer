@@ -1,0 +1,21 @@
+#lang racket
+;;; (require racket/trace)
+(provide isogram?)
+
+
+(define (isogram? s)
+  (define charCountMap (make-hash))
+  (define str (string-replace (string-replace s " " "") "-" ""))
+  (define isIsogram #t)
+  (
+    for/list ([ch (string-downcase str)])
+      (cond
+        [(hash-has-key? charCountMap ch) (set! isIsogram #f)]
+        [else (hash-set! charCountMap ch 1)]
+      )
+      
+  )
+  isIsogram
+)
+
+(isogram? "Emily Jung Schwartzkopf")

@@ -1,0 +1,32 @@
+Class {
+	#name : #MatchingBrackets,
+	#superclass : #Object,
+	#instVars : [
+		'openbrace',
+		'closebrace'
+	],
+	#category : #'Exercise@MatchingBrackets'
+}
+
+{ #category : #initialization }
+MatchingBrackets >> initialize [
+
+	openbrace := '{[('.
+	closebrace := '}])'
+]
+
+{ #category : #testing }
+MatchingBrackets >> isPaired: aString [
+
+	| openstack |
+	openstack := Stack new: aString size.
+	aString do: [ :zeichen | 
+		(openbrace indexOf: zeichen ifAbsent: [ 0 ]) = 0 ifFalse: [ 
+			openstack push: zeichen ].
+		(closebrace indexOf: zeichen ifAbsent: [ 0 ]) = 0 ifFalse: [ 
+			openstack ifEmpty: [ ^ false ].
+			(openbrace indexOf: openstack pop) = (closebrace indexOf: zeichen) 
+				ifFalse: [ ^ false ] ] ].
+	openstack ifNotEmpty: [ ^ false ].
+	^ true
+]

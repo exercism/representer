@@ -1,0 +1,18 @@
+def spiral_matrix (size: i32): [][]i32 =
+  if size == 0 then []
+  else
+    let (_, _, _, _, _, result) = 
+      loop (x, y, dx, dy, num, mat) = (0, 0, 0, 1, 1, replicate (i64.i32 size) (replicate (i64.i32 size) 0)) 
+      while num <= size * size do
+        let mat' = mat with [x,y] = num
+        let (nx, ny) = (x + dx, y + dy)
+        let size64 = i64.i32 size
+        let next_valid = nx >= 0 && nx < size64 && ny >= 0 && ny < size64 && mat'[nx,ny] == 0
+        in if next_valid then (nx, ny, dx, dy, num + 1, mat')
+           else let (dx', dy') = if (dx, dy) == (0, 1) then (1, 0)
+                                 else if (dx, dy) == (1, 0) then (0, -1)
+                                 else if (dx, dy) == (0, -1) then (-1, 0)
+                                 else (0, 1)
+                in (x + dx', y + dy', dx', dy', num + 1, mat')
+    in result
+             

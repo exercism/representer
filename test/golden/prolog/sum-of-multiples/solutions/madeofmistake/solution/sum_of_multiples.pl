@@ -1,0 +1,10 @@
+
+is_multiple([A|As],N) :-
+    0 is N mod A, !
+    ;
+    is_multiple(As,N).
+
+sum_of_multiples(Factors,Limit,Sum) :-
+    Limit1 is Limit -1,
+    findall(X,(between(1,Limit1,X),is_multiple(Factors,X)),Multiples),
+    sumlist(Multiples,Sum).

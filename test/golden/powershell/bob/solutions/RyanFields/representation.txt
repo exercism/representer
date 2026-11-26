@@ -1,0 +1,26 @@
+(file "BobResponse.ps1")
+Function Get-BobResponse () {
+[ CmdletBinding ()]
+Param (
+[ string ] $HeyBob
+)
+$isQuestion = $HeyBob . EndsWith ( "\"?\"" )
+$containsQuestion = $HeyBob . Contains ( "\"?\"" )
+$isYelling = $HeyBob . ToUpper () -ceq $HeyBob
+$isAlpha = $HeyBob -match '[a-zA-Z]'
+$isEmptyOrWhitespace = (([ System.String ]:: IsNullOrWhiteSpace ( $HeyBob ) -eq $HeyBob ) -or ([ System.String ]:: Empty -eq $HeyBob ))
+$hasTrailingWhitespace = $HeyBob . EndsWith ( "\" \"" )
+if ( $isYelling -and $isQuestion -and $isAlpha ) {
+$response = "\"Calm down, I know what I'm doing!\""
+} elseif ( $isYelling -and $isAlpha ) {
+$response = "\"Whoa, chill out!\""
+} elseif (( $isQuestion -or ( $containsQuestion -and $hasTrailingWhitespace ))) {
+$response = "\"Sure.\""
+} elseif ( $isEmptyOrWhitespace ) {
+$response = "\"Fine. Be that way!\""
+} else {
+$response = "\"Whatever.\""
+}
+return ( $response )
+Throw "\"Function not implemented\""
+}

@@ -1,0 +1,80 @@
+(file "atbash_cipher.s")
+.text
+.globl encode
+.globl decode
+encode:
+eor x4,x4,x4
+encodeloop:
+ldrb w2,[x1],#1
+cbz w2,encodeend
+cmp w2,'A'
+b.lt otherthanbig
+cmp w2,'Z'
+b.gt otherthanbig
+add w2,w2,32
+otherthanbig:
+cmp w2,'a'
+b.lt otherthanlittle
+cmp w2,'z'
+b.gt otherthanlittle
+cbz x4,notaddspace
+mov x5,#5
+udiv x6, x4, x5
+msub x6, x6, x5, x4
+cbnz x6,notaddspace
+mov w5,' '
+strb w5,[x0],#1
+notaddspace:
+sub w2,w2,'a'
+mov w5,#25
+sub w2,w5,w2
+add w2,w2,'a'
+strb w2,[x0],#1
+add x4,x4,#1
+b.al encodeloop
+otherthanlittle:
+cmp w2,'0'
+b.lt encodeloop
+cmp w2,'9'
+b.gt encodeloop
+cbz x4,notaddspace2
+mov x5,#5
+udiv x6, x4, x5
+msub x6, x6, x5, x4
+cbnz x6,notaddspace2
+mov w5,' '
+strb w5,[x0],#1
+notaddspace2:
+strb w2,[x0],#1
+add x4,x4,#1
+b.al encodeloop
+encodeend:
+strb w2,[x0]
+ret
+decode:
+eor x4,x4,x4
+decodeloop:
+ldrb w2,[x1],#1
+cbz w2,decodeend
+cmp w2,'a'
+b.lt deotherthanlittle
+cmp w2,'z'
+b.gt deotherthanlittle
+sub w2,w2,'a'
+mov w5,#25
+sub w2,w5,w2
+add w2,w2,'a'
+strb w2,[x0],#1
+add x4,x4,#1
+b.al decodeloop
+deotherthanlittle:
+cmp w2,'0'
+b.lt decodeloop
+cmp w2,'9'
+b.gt decodeloop
+strb w2,[x0],#1
+add x4,x4,#1
+b.al decodeloop
+decodeend:
+strb w2,[x0]
+ret

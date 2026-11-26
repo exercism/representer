@@ -1,0 +1,10 @@
+using Dates, Printf
+import Base: +, -, show
+struct Clock
+    h::Int
+    m::Int
+    Clock(h::Int, m::Int)=new(mod(h+fld(m,60) , 24), mod(m, 60))
+end
++(c::Clock, dm::Dates.Minute)=Clock(c.h, c.m+dm.value)
+-(c::Clock, dm::Dates.Minute)=Clock(c.h, c.m-dm.value)
+show(io::IO, c::Clock)=@printf(io, "\"%02d:%02d\"", c.h, c.m)

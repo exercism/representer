@@ -1,0 +1,27 @@
+class IsbnVerifier {
+    static func isValid(_ string: String) -> Bool {
+        var total = 0
+        var times = 10
+        
+        for num in string{
+            guard num != "-" else {continue}
+
+            guard num.isNumber || num == "X" else {return false}
+
+            if num == "X" {
+                guard times == 1 else {return false}
+                total += 10*times
+                times -= 1
+                continue
+            }
+
+            if let var1 = Int(String(num)) {
+                total += var1*times                  
+            }
+
+            times -= 1
+        }
+
+        return total % 11 == 0 && times == 0
+    }
+}

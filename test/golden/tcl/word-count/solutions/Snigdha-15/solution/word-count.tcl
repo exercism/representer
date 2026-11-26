@@ -1,0 +1,31 @@
+proc countWords {sentence} {
+    
+    set word ""
+    set b [split $sentence " "]
+    set len [llength $b]
+    set c ""
+    set d "'"
+
+    for {set i 0} {$i < $len} {incr i} {
+	    set fd [lindex $b $i]
+	    set triming [string trim $fd $d]
+	    append c $triming " "
+	    puts $c 
+    }
+
+    set b [split $c ""]
+    puts $b
+
+    foreach c $b {
+        if {[string is alnum $c] || $c eq "'"} {
+            append word $c
+        } elseif {$word != ""} {
+            dict incr counts [string tolower $word]
+            set word ""
+        }
+    }
+    if {$word != ""} {
+        dict incr counts [string tolower $word]
+    }
+    return $counts
+}

@@ -1,0 +1,70 @@
+(file "lib/PhoneNumber.rakumod"
+  (source_file
+    (unit_declaration unit module PhoneNumber)
+    (constant_declaration constant @errors =
+      (list_expression "11 digits must start with 1" , "must not be greater than 11 digits" , "must not be fewer than 10 digits" , "letters not permitted" , "punctuations not permitted" , "area code cannot start with zero" , "area code cannot start with one" , "exchange code cannot start with zero" , "exchange code cannot start with one" ,))
+    (routine_declaration sub clean-number
+      (signature "("
+        (parameter_list
+          (parameter $_)) ")")
+      (trait is export)
+      (block {
+        (if_statement if
+          (regex /<:Letter>/)
+          (block {
+            (listop_call fail
+              (subscript @errors [ 3 ])) }))
+        (if_statement if
+          (regex "/<-[ 0..9 \\- ( ) . + \\s ]>/")
+          (block {
+            (listop_call fail
+              (subscript @errors [ 4 ])) }))
+        (assignment
+          (variable_declaration
+            (scope my) (local_array PLACEHOLDER_1)) =
+          (regex m :g "/\\d/"))
+        (if_statement if
+          (binary_expression (array PLACEHOLDER_1) == 11)
+          (block {
+            (unless_statement unless
+              (binary_expression
+                (subscript (array PLACEHOLDER_1) [ 0 ]) == 1)
+              (block {
+                (listop_call fail
+                  (subscript @errors [ 0 ])) }))
+            (mutating_method_call (array PLACEHOLDER_1) .= skip) }))
+        (if_statement if
+          (binary_expression (array PLACEHOLDER_1) > 11)
+          (block {
+            (listop_call fail
+              (subscript @errors [ 1 ])) }))
+        (if_statement if
+          (binary_expression (array PLACEHOLDER_1) < 10)
+          (block {
+            (listop_call fail
+              (subscript @errors [ 2 ])) }))
+        (if_statement if
+          (binary_expression
+            (subscript (array PLACEHOLDER_1) [ 0 ]) == 0)
+          (block {
+            (listop_call fail
+              (subscript @errors [ 5 ])) }))
+        (if_statement if
+          (binary_expression
+            (subscript (array PLACEHOLDER_1) [ 0 ]) == 1)
+          (block {
+            (listop_call fail
+              (subscript @errors [ 6 ])) }))
+        (if_statement if
+          (binary_expression
+            (subscript (array PLACEHOLDER_1) [ 3 ]) == 0)
+          (block {
+            (listop_call fail
+              (subscript @errors [ 7 ])) }))
+        (if_statement if
+          (binary_expression
+            (subscript (array PLACEHOLDER_1) [ 3 ]) == 1)
+          (block {
+            (listop_call fail
+              (subscript @errors [ 8 ])) }))
+        (method_call (array PLACEHOLDER_1) . join) }))))

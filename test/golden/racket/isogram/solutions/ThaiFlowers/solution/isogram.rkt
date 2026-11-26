@@ -1,0 +1,13 @@
+#lang racket
+
+(provide isogram?)
+
+(define (isogram? s)
+  (define table (make-hash '()))
+  (andmap (lambda (c) (begin (hash-update! table c add1 0)
+                             (= (hash-ref table c) 1)))
+          (map char-downcase
+               (filter (lambda (c)
+                    (not (or (eq? c #\space)
+                             (eq? c #\-))))
+                  (string->list s)))))

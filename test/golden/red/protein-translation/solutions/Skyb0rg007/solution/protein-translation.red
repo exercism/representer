@@ -1,0 +1,24 @@
+Red [
+	description: {"Protein Translation" exercise solution for exercism platform}
+	author: "" ; you can write your name here, in quotes
+]
+
+proteins: function [
+	s
+] [
+	res: []
+	while [0 < length? s] [
+		if "AUG" = rejoin [s/1 s/2 s/3] [append res "Methionine"]
+		if ("UU" = rejoin [s/1 s/2]) and ((s/3 = #"U") or (s/3 = #"C")) [append res "Phenylalanine"]
+		if (s/1 = #"U") and (s/2 = #"U") and ((s/3 = #"A") or (s/3 = #"G")) [append res "Leucine"]
+		if "UC" = rejoin [s/1 s/2] [append res "Serine"]
+		if ("UA" = rejoin [s/1 s/2]) and ((s/3 = #"U") or (s/3 = #"C")) [append res "Tyrosine"]
+		if (s/1 = #"U") and (s/2 = #"G") and ((s/3 = #"U") or (s/3 = #"C")) [append res "Cysteine"]
+		if (s/1 = #"U") and (s/2 = #"G") and (s/3 = #"G") [append res "Tryptophan"]
+		if ("UA" = rejoin [s/1 s/2]) and ((s/3 = #"A") or (s/3 = #"G")) [break]
+		if "UGA" = rejoin [s/1 s/2 s/3] [break]
+		s: skip s 3
+    ]
+	:res
+]
+

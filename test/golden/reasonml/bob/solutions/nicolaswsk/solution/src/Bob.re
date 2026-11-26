@@ -1,0 +1,16 @@
+let hey = question => {
+  let question = String.trim(question);
+
+  switch (
+    question === "",
+    question !== "" && question.[String.length(question) - 1] === '?',
+    question === String.uppercase_ascii(question)
+    && question !== String.lowercase_ascii(question),
+  ) {
+  | (true, _, _) => "Fine. Be that way!"
+  | (_, true, false) => "Sure."
+  | (_, false, true) => "Whoa, chill out!"
+  | (_, true, true) => "Calm down, I know what I'm doing!"
+  | _ => "Whatever."
+  };
+};

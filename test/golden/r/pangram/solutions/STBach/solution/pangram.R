@@ -1,0 +1,3 @@
+is_pangram <- function(input) {
+  identical(letters,sort(unique(unlist(strsplit(gsub("[^a-z]","",tolower(input)), split = "")))))
+}

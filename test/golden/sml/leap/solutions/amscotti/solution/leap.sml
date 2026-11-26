@@ -1,0 +1,5 @@
+fun divisibleBy year by =
+  year mod by = 0
+
+fun isLeapYear year =
+  divisibleBy year 4 andalso not (divisibleBy year 100) orelse divisibleBy year 400

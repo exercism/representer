@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+usage () {
+    echo "Usage: $0 <input>"
+    echo "  Input format: '<team1>;<team2>;<result>'"
+    exit 1
+}
+
+new_team () {
+    if [[ ! ${teams[$1]} =~ [0-9]+ ]]; then
+        teams+=( ["$1"]="${#teams[@]}" )
+        i=${teams[$1]}
+        t[$i]="$1"
+        mp[$i]=0
+        w[$i]=0
+        d[$i]=0
+        l[$i]=0
+        p[$i]=0
+        r[$i]=$( printf "%05d-%s" "${p[$i]}" "${t[$i]}" )
+    fi
+}
+
+update_score () {
+    i=${teams[$2]}
+    (( mp[$i]+=1 ))
+    case "$1" in
+        win)
+        (( w[$i]+=1 ))
+        (( p[$i]+=3 ))
+        ;;
+        loss)
+        (( l[$i]+=1 ))
+        ;;
+        draw)
+        (( d[$i]+=1 ))
+        (( p[$i]+=1 ))
+    esac
+    r[$i]=$( printf "%05d-%s" "${p[$i]}" "${t[$i]}" )
+}
+
+main () {
+    header="%-30s | %2s | %2s | %2s | %2s | %2s\n"
+    format="%-30s | %2d | %2d | %2d | %2d | %2d\n"
+    printf "$header" "Team" "MP" "W" "D" "L" "P"
+    declare -A teams
+    declare -a t
+    declare -a mp
+    declare -a w
+    declare -a d
+    declare -a l
+    declare -a p
+    declare -a r
+    while IFS=';' read -r teamA teamB result; do
+        if [[ "$teamA" == '' ]]; then exit 0; fi;
+        new_team "$teamA"
+        new_team "$teamB"
+        case "$result" in 
+            win)
+            update_score "win" "$teamA"
+            update_score "loss" "$teamB"
+            ;;
+            loss)
+            update_score "win" "$teamB"
+            update_score "loss" "$teamA"
+            ;;
+            draw)
+            update_score "draw" "$teamA"
+            update_score "draw" "$teamB"
+        esac
+    done < "${1:-/dev/stdin}"
+    IFS=$'\n' sorted=($(sort -t '-' -k1r,1 -k2 <<<"${r[*]}" ))
+    unset IFS
+    for sort_team in "${sorted[@]}"; do
+        x=${sort_team:6}
+        i=${teams[$x]}
+        printf "$format" "${t[$i]}" "${mp[$i]}" "${w[$i]}" "${d[$i]}" "${l[$i]}" "${p[$i]}"
+    done
+    return 0
+}
+
+main "$@"

@@ -1,0 +1,154 @@
+(file "solution.go"
+  (source_file
+    (package_clause expenses)
+    (import_declaration
+      (import_spec_list
+        (import_spec "errors")))
+    (type_declaration
+      (type_spec Record
+        (struct_type
+          (field_declaration_list
+            (field_declaration Day int)
+            (field_declaration Amount float64)
+            (field_declaration Category string)))))
+    (type_declaration
+      (type_spec DaysPeriod
+        (struct_type
+          (field_declaration_list
+            (field_declaration From int)
+            (field_declaration To int)))))
+    (function_declaration CategoryExpenses
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_1
+          (slice_type Record))
+        (parameter_declaration PLACEHOLDER_2 DaysPeriod)
+        (parameter_declaration PLACEHOLDER_3 string))
+      (parameter_list
+        (parameter_declaration float64)
+        (parameter_declaration error))
+      (block
+        (statement_list
+          (short_var_declaration
+            (expression_list PLACEHOLDER_4) :=
+            (expression_list
+              (call_expression Filter
+                (argument_list PLACEHOLDER_1
+                  (call_expression ByCategory
+                    (argument_list PLACEHOLDER_3))))))
+          (if_statement
+            (binary_expression
+              (call_expression len
+                (argument_list PLACEHOLDER_4)) == 0)
+            (block
+              (statement_list
+                (return_statement
+                  (expression_list 0
+                    (call_expression
+                      (selector_expression errors New)
+                      (argument_list "unknown category")))))))
+          (return_statement
+            (expression_list
+              (call_expression TotalByPeriod
+                (argument_list PLACEHOLDER_4 PLACEHOLDER_2)) nil)))))
+    (function_declaration Filter
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_1
+          (slice_type Record))
+        (parameter_declaration PLACEHOLDER_5
+          (function_type
+            (parameter_list
+              (parameter_declaration Record)) bool)))
+      (slice_type Record)
+      (block
+        (statement_list
+          (var_declaration
+            (var_spec PLACEHOLDER_6
+              (slice_type Record)))
+          (for_statement
+            (range_clause
+              (expression_list _ PLACEHOLDER_7) := PLACEHOLDER_1)
+            (block
+              (statement_list
+                (if_statement
+                  (call_expression PLACEHOLDER_5
+                    (argument_list PLACEHOLDER_7))
+                  (block
+                    (statement_list
+                      (assignment_statement
+                        (expression_list PLACEHOLDER_6) =
+                        (expression_list
+                          (call_expression append
+                            (argument_list PLACEHOLDER_6 PLACEHOLDER_7))))))))))
+          (return_statement
+            (expression_list PLACEHOLDER_6)))))
+    (function_declaration TotalByPeriod
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_1
+          (slice_type Record))
+        (parameter_declaration PLACEHOLDER_2 DaysPeriod)) float64
+      (block
+        (statement_list
+          (short_var_declaration
+            (expression_list PLACEHOLDER_8) :=
+            (expression_list
+              (call_expression Filter
+                (argument_list PLACEHOLDER_1
+                  (call_expression ByDaysPeriod
+                    (argument_list PLACEHOLDER_2))))))
+          (short_var_declaration
+            (expression_list total) :=
+            (expression_list 0.0))
+          (for_statement
+            (range_clause
+              (expression_list _ PLACEHOLDER_9) := PLACEHOLDER_8)
+            (block
+              (statement_list
+                (assignment_statement
+                  (expression_list total) +=
+                  (expression_list
+                    (selector_expression PLACEHOLDER_9 Amount))))))
+          (return_statement
+            (expression_list total)))))
+    (function_declaration ByDaysPeriod
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_2 DaysPeriod))
+      (function_type
+        (parameter_list
+          (parameter_declaration Record)) bool)
+      (block
+        (statement_list
+          (return_statement
+            (expression_list
+              (func_literal
+                (parameter_list
+                  (parameter_declaration PLACEHOLDER_9 Record)) bool
+                (block
+                  (statement_list
+                    (return_statement
+                      (expression_list
+                        (binary_expression
+                          (binary_expression
+                            (selector_expression PLACEHOLDER_2 From) <=
+                            (selector_expression PLACEHOLDER_9 Day)) &&
+                          (binary_expression
+                            (selector_expression PLACEHOLDER_9 Day) <=
+                            (selector_expression PLACEHOLDER_2 To)))))))))))))
+    (function_declaration ByCategory
+      (parameter_list
+        (parameter_declaration category string))
+      (function_type
+        (parameter_list
+          (parameter_declaration Record)) bool)
+      (block
+        (statement_list
+          (return_statement
+            (expression_list
+              (func_literal
+                (parameter_list
+                  (parameter_declaration PLACEHOLDER_7 Record)) bool
+                (block
+                  (statement_list
+                    (return_statement
+                      (expression_list
+                        (binary_expression
+                          (selector_expression PLACEHOLDER_7 Category) == category)))))))))))))

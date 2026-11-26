@@ -1,0 +1,8 @@
+#lang racket
+
+(provide to-rna)
+
+(define (to-rna s)
+  (let ((ht (hash #\C #\G #\G #\C #\A #\U #\T #\A)))
+    (list->string (map (lambda (char) (hash-ref ht char))
+                       (string->list s)))))

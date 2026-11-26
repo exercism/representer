@@ -1,0 +1,13 @@
+rotate <- function(text, key) {
+  encode <- function(c) {
+    if (c %in% letters) {
+      base <- utf8ToInt("a")
+    } else if (c %in% LETTERS) {
+      base <- utf8ToInt("A")
+    } else {
+      return(c)
+    }
+    intToUtf8(base + (utf8ToInt(c) - base + key) %% 26)
+  }
+  paste(lapply(strsplit(text, "")[[1]], encode), collapse="")
+}

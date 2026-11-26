@@ -1,0 +1,14 @@
+(file "src/Matrix.hs")
+module Matrix ( saddlePoints ) where
+import Data.Array
+type IntPair = ( Int , Int )
+saddlePoints :: Ord e => Array IntPair e -> [ IntPair ]
+saddlePoints matrix = filter f points
+  where
+    points = indices matrix
+    (( i0 , j0 ),( i1 , j1 )) = bounds matrix
+    f ( i , j ) = all ( x >= ) row && all ( x <= ) col
+      where
+        x = matrix ! ( i , j )
+        row = [ matrix ! ( i , jx ) | jx <- [ j0 .. j1 ]]
+        col = [ matrix ! ( ix , j ) | ix <- [ i0 .. i1 ]]

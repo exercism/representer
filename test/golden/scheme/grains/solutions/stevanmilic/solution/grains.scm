@@ -1,0 +1,16 @@
+(import (rnrs))
+
+(define (square n)
+  (assert (and (> n 0) (< n 65)))
+  (if (eq? n 1)
+      1
+      (* 2
+         (square (- n 1)))))
+
+(define (total)
+  (define (count-total board)
+    (if (eq? board 0)
+        0
+        (+ (square board)
+           (count-total (- board 1)))))
+  (count-total 64))

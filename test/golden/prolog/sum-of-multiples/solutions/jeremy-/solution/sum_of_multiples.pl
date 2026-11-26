@@ -1,0 +1,24 @@
+sum_of_multiples([], _, Sum) :- Sum is 0. 
+sum_of_multiples(Factors, Limit, Sum) :-
+  allMults(Factors, Limit, M),
+  sum(M, 0, Sum);
+  Sum is 0.
+
+allMults(F, L, Z) :-
+  setof(
+    X,(
+    min_list(F, M),
+    numlist(M, L, I),
+    member(X, I), 
+    isMult(F, X), 
+    X < L), 
+    Z).
+  
+isMult([], _):- false.
+isMult([H|T], M) :- 
+  is(0, mod(M,H)); 
+  isMult(T, M).
+
+sum([], N, S) :- S is N.
+sum([H|T], N, S) :-
+  sum(T, N+H, S).

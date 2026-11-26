@@ -1,0 +1,12 @@
+anagram(W, O, M) :-
+	include(is_permutation(W), O, M).
+	
+
+is_permutation(X0, Y0) :-
+    string_chars(X0, X1),
+    string_chars(Y0, Y1),
+	maplist(downcase_atom, X1, X),
+	maplist(downcase_atom, Y1, Y),
+	\+ X == Y,
+	msort(X, S),
+	msort(Y, S).

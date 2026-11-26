@@ -1,0 +1,3 @@
+# Determine a sentence's acronym
+# Acronym ? Sentence
+Acronym ← ≡°□ ⍚⊢ ⊜□ ∊ +@A⇡26 . ▽ ∊⊂ +@A⇡26 " -" . ⌵

@@ -1,0 +1,43 @@
+
+function merge_ranges(left,right,right_offset)
+    # if right is -1 then just return left
+    if right.stop == 0
+        return left
+    end
+    
+    # if left is -1 then return right with offset
+    if left.stop == 0
+        return (right.start+right_offset:right.stop+right_offset)
+    end
+    
+    # must be overelap
+    return (left.start:right.stop+right_offset)
+    
+end
+
+function binarysearch(haystack, needle; rev=false)
+    if rev
+        haystack = reverse(haystack)
+    end
+    
+    if length(haystack) == 0
+        return 1:0
+    end
+    
+    if length(haystack) == 1
+        if haystack[1] == needle
+            return 1:1
+        else
+            return 1:0
+        end
+    end
+
+    center_index = div(length(haystack), 2)
+    left = haystack[1:center_index]
+    right = haystack[center_index+1:end]
+
+    left_search = binarysearch(left,needle)
+    right_search = binarysearch(right,needle)
+
+    return merge_ranges(left_search,right_search,center_index)
+end

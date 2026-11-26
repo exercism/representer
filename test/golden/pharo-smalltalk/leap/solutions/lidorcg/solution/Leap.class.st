@@ -1,0 +1,13 @@
+Class {
+	#name : #Leap,
+	#superclass : #Object,
+	#category : #'Exercise@Leap'
+}
+
+{ #category : #query }
+Leap >> leapYear: year [ 
+	(year isDivisibleBy: 400) ifTrue: [^ true].
+	(year isDivisibleBy: 100) ifTrue: [^ false].
+	(year isDivisibleBy: 4) ifTrue: [^ true].
+	^ false.
+]

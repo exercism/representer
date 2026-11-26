@@ -1,0 +1,24 @@
+(file "anagram.sml")
+exception notFound ;
+exception cannotSortEmptyList
+fun min ( x:: []) = x
+| min [] = raise cannotSortEmptyList
+| min ( x::y::rest ) = if x>y then ( min ( y::rest )) else ( min ( x::rest ))
+fun removeFirst c [] = raise notFound
+| removeFirst c ( x::xs ) = if c = x then xs else x:: ( removeFirst c xs )
+fun isort [] = []|
+isort ls =
+let val m = min ls
+in
+m:: ( isort ( removeFirst m ls ) )
+end
+fun sort list = foldr ( fn ( x : char , lst )=> List . filter ( fn a => a < x ) lst @ [ x ] @ List . filter ( fn a => a >= x ) lst ) [] list ;
+fun toLowerChars word = (( List . map Char . toLower ) o String . explode ) word
+fun sortedChars word = ( sort o toLowerChars ) word
+fun isAnagram w1 w2 = ( sortedChars w1 ) = ( sortedChars w2 )
+fun toLower s = ( String . implode o toLowerChars ) s
+fun anagramsFor subject candidates =
+case candidates of [] => []
+| x::xs => if ( toLowerChars x = toLowerChars subject )
+then ( anagramsFor subject xs )
+else if ( isAnagram subject x ) then x:: ( anagramsFor subject xs ) else ( anagramsFor subject xs )

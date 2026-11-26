@@ -1,0 +1,23 @@
+Red [
+	description: {"Leap" exercise solution for exercism platform}
+	author: "" ; you can write your name here, in quotes
+]
+
+div?: func [a b] [ a // b = 0]
+
+
+
+
+leap: function [
+	year
+] [
+	either (all [
+    				div? year 4
+                    either div? year 100 [ div? year 400 ] [true]
+        ]) [
+        	true
+        ] [
+        	false
+        ]
+]
+

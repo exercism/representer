@@ -1,0 +1,29 @@
+#lang racket
+
+(provide armstrong-number?)
+
+(define (armstrong-number? n)
+  (define (arm-iter sum rem number)
+    (cond ((and (null? rem) (= sum number)) #t)
+          ((and (null? rem) (not (= sum number))) #f)
+          (else (arm-iter (+ sum (expt (car-num rem) (eksponentti number))) (cdr-num rem) number))))
+  (arm-iter 0 n n))
+
+(define (eksponentti number)
+  (if (eq? (string-length (number->string number)) 0)
+      0
+      (string-length (number->string number))))
+      
+(define (car-num x)
+  (cond
+    ((null? x) '())
+    ((eq? x "") '())
+    ((eq? (string-length (number->string x)) 0) '())
+    (else (string->number (substring (number->string x) 0 1)))))
+
+(define (cdr-num x)
+   (cond
+    ((null? x) '())
+    ((eq? x "") '())
+    ((eq? (string-length (number->string x)) 1) '())
+    (else (string->number (substring (number->string x) 1 (string-length (number->string x)))))))

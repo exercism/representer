@@ -1,0 +1,31 @@
+(file "clock.jl")
+struct Clock
+hour
+min
+Clock ( hour , min ) =
+if hour >= 24
+Clock ( hour % 24 , min )
+elseif hour < 0
+Clock ( 24 + hour , min )
+elseif min >= 60
+Clock ( hour + div ( min , 60 ), min % 60 )
+elseif min < 0
+Clock ( hour - 1 , 60 + min )
+else
+new ( hour , min )
+end
+end
+import Base .-
+import Base .+
+function -( c :: Clock , m :: Dates . Minute )
+Clock ( c . hour , c . min - m . value )
+end
+function + ( c :: Clock , m :: Dates . Minute )
+Clock ( c . hour , c . min + m . value )
+end
+import Base . show
+function show ( io :: IO , c :: Clock )
+hr = lpad ( c . hour , 2 , "\"0\"" )
+min = lpad ( c . min , 2 , "\"0\"" )
+print ( io , "\"\\\"$hr:$min\\\"\"" )
+end

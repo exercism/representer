@@ -1,0 +1,73 @@
+.globl hamming_distance_aux
+
+.data
+
+.text
+
+    .globl hamming_distance
+hamming_distance:
+    addi $sp, $sp, -12
+    sw $ra, 8($sp)
+    sw $a0, 4($sp)
+    sw $a1, 0($sp)
+    jal hamming_distance_aux
+    lw $ra, 8($sp)
+    addi $sp, $sp, 12
+    jr $ra
+hamming_distance_aux:
+	sw   $ra, -4($sp)    # save return address on stack
+	sw   $fp, -8($sp)    # save frame pointer on stack
+	move $fp, $sp        # set frame pointer to stack pointer
+	addi $sp, $sp, -8    # allocation for $ra and $fp
+	addi $sp, $sp, -8    # allocation for 2 temporaries
+	sw   $t1, 4($sp)   
+	sw   $t0, 0($sp)   
+	addi $sp, $sp, -4    # allocate 1 words on stack for local variables
+	
+	#  local variables initialization
+	#  variable dist
+	li   $t0, 0
+	sw   $t0, 0($sp)
+	
+	#  function body
+hamming_distance_aux_while_start_0:
+	lw   $t0, 0($fp)
+	lb   $t0, 0($t0)
+	beq  $t0, $0, hamming_distance_aux_while_end_1
+	lw   $t0, 0($fp)
+	lb   $t0, 0($t0)
+	lw   $t1, 4($fp)
+	lb   $t1, 0($t1)
+	sne  $t0, $t0, $t1
+	beq  $t0, $0, hamming_distance_aux_else_2
+	lw   $t0, 0($sp)
+	li   $t1, 1
+	add  $t0, $t0, $t1
+	sw   $t0, 0($sp)
+	j    hamming_distance_aux_end_3
+hamming_distance_aux_else_2:
+hamming_distance_aux_end_3:
+	lw   $t0, 0($fp)
+	li   $t1, 1
+	add  $t0, $t0, $t1
+	sw   $t0, 0($fp)
+	lw   $t0, 4($fp)
+	li   $t1, 1
+	add  $t0, $t0, $t1
+	sw   $t0, 4($fp)
+	j    hamming_distance_aux_while_start_0
+hamming_distance_aux_while_end_1:
+	lw   $t0, 0($sp)
+	move $v0, $t0
+	j    return_hamming_distance_aux
+	
+return_hamming_distance_aux:
+	addi $sp, $sp, 4     # restore stack from local variables
+	lw   $t0, 0($sp)   
+	lw   $t1, 4($sp)   
+	addi $sp, $sp, 8     # restore stack from temporaries
+	addi $sp, $sp, 8     # free memory for $ra and $fp
+	lw   $fp, -8($sp)    # restore frame pointer from stack
+	lw   $ra, -4($sp)    # restore return address from stack
+	jr   $ra             # return to caller
+

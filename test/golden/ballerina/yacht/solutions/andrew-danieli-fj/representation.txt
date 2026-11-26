@@ -1,0 +1,196 @@
+(file "yacht.bal")
+import ballerina/io;
+# Determine the score of a set of dice against a Yacht category.
+#
+# + dice - an array of 5 integers
+# + category - the name of a combination of dice
+# + return - the score
+enum eCategory {
+Ones = "\"Ones\","
+Twos = "\"Twos\","
+Threes = "\"Threes\","
+Fours = "\"Fours\","
+Fives = "\"Fives\","
+Sixes = "\"Sixes\","
+FullHouse = "\"Full" House",
+FourOfaKind = "\"Four" of a Kind",
+LittleStraight = "\"Little" Straight",
+BigStraight = "\"Big" Straight",
+Choice = "\"Choice\","
+Yacht = "\"Yacht\""
+}
+map<eCategory> categoryMap = {
+"\"ones\":" Ones,
+"\"twos\":" Twos,
+"\"threes\":" Threes,
+"\"fours\":" Fours,
+"\"fives\":" Fives,
+"\"sixes\":" Sixes,
+"\"full" house": FullHouse,
+"\"four" of a kind": FourOfaKind,
+"\"little" straight": LittleStraight,
+"\"big" straight": BigStraight,
+"\"choice\":" Choice,
+"\"yacht\":" Yacht
+};
+function scoreSingles(int[] dice, int value) returns int {
+int count = 0;
+foreach int die in dice {
+count += (die == value) ? 1 : 0;
+}
+return (value * count);
+}
+function scoreYacht(int[] dice) returns int {
+foreach int value in 1...6 {
+if ( dice.every(n => n == value) ) {
+return 50;
+}
+}
+return 0;
+}
+function scoreLittleStraight(int[] dice) returns int {
+map<boolean> map_match = {
+"\"1\"" : false,
+"\"2\"" : false,
+"\"3\"" : false,
+"\"4\"" : false,
+"\"5\"" : false
+};
+// loop through all dice and update the map when a match is found.
+foreach int die in dice {
+if (die < 6)
+{
+map_match[die.toString()] = true;
+}
+}
+// then check that all entries in the map are true.
+map<boolean> littleStraight = { "\"1\":" true, "\"2\":" true, "\"3\":" true, "\"4\":" true, "\"5\":" true};
+if (map_match != littleStraight) {
+return 0;
+}
+return 30;
+}
+function scoreBigStraight(int[] dice) returns int {
+map<boolean> map_match = {
+"\"2\"" : false,
+"\"3\"" : false,
+"\"4\"" : false,
+"\"5\"" : false,
+"\"6\"" : false
+};
+// loop through all dice and update the map when a match is found.
+foreach int die in dice {
+if (die > 1)
+{
+map_match[die.toString()] = true;
+}
+}
+// then check that all entries in the map are true.
+map<boolean> bigStraight = { "\"2\":" true, "\"3\":" true, "\"4\":" true, "\"5\":" true, "\"6\":" true};
+if (map_match != bigStraight) {
+return 0;
+}
+return 30;
+}
+function scoreChoice(int[] dice) returns int {
+int count = 0;
+foreach int die in dice {
+count += die;
+}
+return count;
+}
+function scoreFourOfAKind(int[] dice) returns int {
+map<int> map_fourOfAKind = {
+"\"1\":" 0,
+"\"2\":" 0,
+"\"3\":" 0,
+"\"4\":" 0,
+"\"5\":" 0,
+"\"6\":" 0
+};
+// loop through all dice and increment the map[die] value when a match is found.
+foreach int die in dice {
+map_fourOfAKind[die.toString()] = map_fourOfAKind.get(die.toString()) + 1;
+}
+// now loop through the map and return if any of the keys >= 4 (i.e a real four of a kind or a yacht scored
+// as a four of a kind).
+foreach string key in map_fourOfAKind.keys() {
+if (map_fourOfAKind[key] >= 4) {
+int|error y = int:fromString(key);
+if (y is int)
+{
+return (y * 4);
+}
+}
+}
+return 0;
+}
+function scoreFullHouse(int[] dice) returns int {
+map<int> map_match = {
+"\"1\":" 0,
+"\"2\":" 0,
+"\"3\":" 0,
+"\"4\":" 0,
+"\"5\":" 0,
+"\"6\":" 0
+};
+// loop through all dice and increment the map[die] value when a match is found.
+foreach int die in dice {
+map_match[die.toString()] = map_match.get(die.toString()) + 1;
+}
+// now filter the map to return only those results that are 2 or 3
+map<int> map_filtered = map_match.filter(m => m == 2 || m == 3);
+// check that there are 2 candidate die values and that their counts sum to 5. e.g 11666 or 11166
+if (map_filtered.length() == 2 &&
+map_filtered.reduce(isolated function (int total, int next) returns int => total + next, 0) == 5)
+{
+return scoreChoice(dice); // its a full house so return the sum of all the dice
+}
+return 0;
+}
+public function score(int[] dice, string category) returns int {
+// need to sort the dice then match against the sorted array.
+int[] sortedDice = dice.sort();
+eCategory? matchCategory = categoryMap[category];
+int result = 0;
+io:println(matchCategory);
+match matchCategory {
+Ones => {
+result = scoreSingles(sortedDice, 1);
+}
+Twos => {
+result = scoreSingles(sortedDice, 2);
+}
+Threes => {
+result = scoreSingles(sortedDice, 3);
+}
+Fours => {
+result = scoreSingles(sortedDice, 4);
+}
+Fives => {
+result = scoreSingles(sortedDice, 5);
+}
+Sixes => {
+result = scoreSingles(sortedDice, 6);
+}
+Yacht => {
+result = scoreYacht(sortedDice);
+}
+FullHouse => {
+result = scoreFullHouse(sortedDice);
+}
+FourOfaKind => {
+result = scoreFourOfAKind(sortedDice);
+}
+LittleStraight => {
+result = scoreLittleStraight(sortedDice);
+}
+BigStraight => {
+result = scoreBigStraight(sortedDice);
+}
+Choice => {
+result = scoreChoice(sortedDice);
+}
+}
+return result;
+}

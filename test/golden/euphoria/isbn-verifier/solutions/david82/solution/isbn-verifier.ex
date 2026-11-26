@@ -1,0 +1,21 @@
+constant ISBN_LENGTH = 10, DIVISOR = 11
+
+public function is_valid(sequence isbn)
+    integer multiplier = ISBN_LENGTH, checksum = 0, currentCharacter
+
+    for i = 1 to length(isbn) do
+        currentCharacter = isbn[i]
+
+        if currentCharacter >= '0' and currentCharacter <= '9' then
+            checksum += multiplier * (currentCharacter - '0')
+            multiplier -= 1
+        elsif currentCharacter = 'X' and multiplier = 1 then
+            checksum += ISBN_LENGTH
+            multiplier -= 1
+        elsif currentCharacter != '-' then
+            return 0
+        end if
+    end for
+
+    return multiplier = 0 and remainder(checksum, DIVISOR) = 0 
+end function

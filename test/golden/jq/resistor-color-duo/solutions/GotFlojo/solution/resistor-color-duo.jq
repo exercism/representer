@@ -1,0 +1,3 @@
+. as $i | ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"]  
+| [index($i.colors[])] 
+| .[0] * 10 + .[1]

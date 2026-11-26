@@ -1,0 +1,51 @@
+(file "Meetup.lean")
+namespace Meetup
+inductive DayOfWeek where
+  | Monday : DayOfWeek
+  | Tuesday : DayOfWeek
+  | Wednesday : DayOfWeek
+  | Thursday : DayOfWeek
+  | Friday : DayOfWeek
+  | Saturday : DayOfWeek
+  | Sunday : DayOfWeek
+  deriving BEq , Repr
+def Month := { m : Nat // m ≥ 1 ∧ m ≤ 12 }
+inductive Week where
+  | first : Week
+  | second : Week
+  | third : Week
+  | fourth : Week
+  | teenth : Week
+  | last : Week
+  deriving BEq , Repr
+def getWeekday ( y m d : Nat ) : DayOfWeek :=
+  let t := [ 0 , 3 , 2 , 5 , 0 , 3 , 5 , 1 , 4 , 6 , 2 , 4 ]
+  let y := if m < 3 then y - 1 else y
+  match ( y + y / 4 - y / 100 + y / 400 + t [ m - 1 ] ! + d ) % 7 with
+  | 0 => . Sunday
+  | 1 => . Monday
+  | 2 => . Tuesday
+  | 3 => . Wednesday
+  | 4 => . Thursday
+  | 5 => . Friday
+  | _ => . Saturday
+def getMonthDays ( y : Nat ) ( m : Nat ) : Nat :=
+  let isLeap := ( y % 4 == 0 && y % 100 != 0 ) || ( y % 400 == 0 )
+  match m with
+  | 2 => if isLeap then 29 else 28
+  | 4 | 6 | 9 | 11 => 30
+  | _ => 31
+def meetup ( dayOfWeek : DayOfWeek ) ( month : Month ) ( week : Week ) ( year : Nat ) : String :=
+  let startDay :=
+    match week with
+    | . first => 1
+    | . second => 8
+    | . third => 15
+    | . fourth => 22
+    | . teenth => 13
+    | . last => ( getMonthDays year month . val ) - 6
+  let day := Array . range ' startDay 7 |>. find ? ( fun d => ( getWeekday year month . val d ) == dayOfWeek )
+  s ! "\"{year}-{pad month.val}-{pad <| day.getD 0}\""
+where
+  pad v := if v < 10 then s ! "\"0{v}\"" else s ! "\"{v}\""
+end Meetup

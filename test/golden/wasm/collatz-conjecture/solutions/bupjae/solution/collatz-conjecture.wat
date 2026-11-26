@@ -1,0 +1,17 @@
+(module
+  (func (export "steps") (param $number i32) (result i32)
+    (local $r i32)
+    (if (i32.le_s (local.get $number) (i32.const 0)) (then (return (i32.const -1))))
+    (local.set $r (i32.const 0))
+    (loop $loop
+      (if (i32.eq (i32.const 1) (local.get $number)) (then (return (local.get $r))))
+      (if (i32.rem_s (local.get $number) (i32.const 2))
+        (then (local.set $number (i32.add (i32.mul (local.get $number) (i32.const 3)) (i32.const 1))))
+        (else (local.set $number (i32.div_s (local.get $number) (i32.const 2))))
+      )
+      (local.set $r (i32.add (local.get $r) (i32.const 1)))
+      (br $loop)
+    )
+    (unreachable)
+  )
+)

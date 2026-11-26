@@ -1,0 +1,24 @@
+proc nucleotideCounts {strand} {
+
+  set char [split $strand ""]
+  set cnt_char [dict create]
+
+  foreach ch $char {
+    if {[regexp {[^ACGT]} $ch] == 1} { error "Invalid nucleotide in strand"} else {
+      dict incr cnt_char $ch
+    }
+  }
+  set result [dict create A 0 C 0 G 0 T 0]
+  
+  puts "length [llength $cnt_char], $cnt_char"
+  puts "length  [llength $char],   $char"
+  
+  if {[dict exists $cnt_char A] == 1} {dict set result A [dict get $cnt_char A]}
+  if {[dict exists $cnt_char C] == 1} {dict set result C [dict get $cnt_char C]}
+  if {[dict exists $cnt_char G] == 1} {dict set result G [dict get $cnt_char G]}
+  if {[dict exists $cnt_char T] == 1} {dict set result T [dict get $cnt_char T]}
+
+  return $result
+#  puts "length [llength $cnt_char], $cnt_char"
+#  puts "length  [llength $char],   $char"
+}

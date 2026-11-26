@@ -1,0 +1,19 @@
+Class {
+	#name : #Grains,
+	#superclass : #Object,
+	#category : #'Exercise@Grains'
+}
+
+{ #category : #actions }
+Grains >> atSquare: anInteger [
+	(anInteger between: 1 and: 64)
+		ifTrue: [ anInteger = 1
+				ifTrue: [ ^ 1 ]
+				ifFalse: [ ^ 2 * (self atSquare: anInteger - 1) ] ].
+	Error signal: 'square must be between 1 and 64' 
+]
+
+{ #category : #actions }
+Grains >> total [
+	^  (2 * (self atSquare: 64)) - 1
+]

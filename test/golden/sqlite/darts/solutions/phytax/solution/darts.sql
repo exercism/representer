@@ -1,0 +1,56 @@
+-- Schema: CREATE TABLE "darts" ("x" REAL, "y" REAL, score INTEGER);
+-- Task: update the darts table and set the score based on the x and y values.
+UPDATE darts
+SET
+    score = IIF (
+        x * x + y * y > 100,
+        0,
+        IIF (
+            x * x + y * y > 25,
+            1,
+            IIF (x * x + y * y > 1, 5, 10)
+        )
+    );
+
+Select
+    *
+from
+    darts;
+
+update darts
+SET
+    score = 0;
+
+SELECT
+    *
+FROM
+    darts;
+
+-- ++++++++++++++++++++++++++++++++
+WITH
+    working AS (
+        SELECT
+            x,
+            y,
+            SQRT(POWER(x, 2) + POWER(y, 2)) as hypotenuse
+        FROM
+            darts
+    )
+UPDATE darts
+SET
+    score = CASE
+        WHEN hypotenuse <= 1 THEN 10
+        WHEN hypotenuse <= 5 THEN 5
+        WHEN hypotenuse <= 10 THEN 1
+        ELSE 0
+    END
+FROM
+    working
+WHERE
+    (darts.x, darts.y) = (working.x, working.y);
+
+-- ++++++++++++++++++++++++++++++++
+SELECT
+    *
+FROM
+    darts;

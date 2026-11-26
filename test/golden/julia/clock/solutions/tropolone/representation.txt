@@ -1,0 +1,16 @@
+(file "clock.jl")
+using Dates
+struct Clock
+hour :: Int64
+minute :: Int64
+Clock ( hour , minute ) =
+new ( rem ( div (( 60 * hour + minute ), 60 , RoundDown ), 24 , RoundDown ),
+rem ( minute , 60 , RoundDown ))
+end
+Base .:+ ( t :: Clock , m :: Minute ) = Clock ( t . hour , t . minute + Dates . value ( m ))
+Base .:- ( t :: Clock , m :: Minute ) = Clock ( t . hour , t . minute - Dates . value ( m ))
+function Base.show ( io :: IO , t :: Clock )
+h = lpad ( string ( t . hour ), 2 , '0' )
+m = lpad ( string ( t . minute ), 2 , '0' )
+print ( io , "\"\\\"\"" * h * "\":\"" * m * "\"\\\"\"" )
+end

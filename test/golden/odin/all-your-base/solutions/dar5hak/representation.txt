@@ -1,0 +1,42 @@
+(file "all_your_base.odin")
+package all_your_base
+import "\"core:fmt\""
+import "\"core:slice\""
+Error :: enum {
+None,
+Invalid_Input_Digit,
+Input_Base_Too_Small,
+Output_Base_Too_Small,
+Unimplemented,
+}
+exponent :: proc(base, power: int) -> (result: int) {
+result = 1
+for i := 0; i < power; i += 1 {
+result *= base
+}
+return
+}
+rebase :: proc(input_base: int, digits: []int, output_base: int) -> ([]int, Error) {
+if input_base < 2 {
+return nil, .Input_Base_Too_Small
+} else if output_base < 2 {
+return nil, .Output_Base_Too_Small
+}
+num := 0
+result : [dynamic]int
+for digit, index in digits {
+if (digit < 0 || digit >= input_base) {
+return nil, .Invalid_Input_Digit
+}
+power := len(digits) - index - 1
+num += digit * exponent(input_base, power)
+}
+for rem := 0; num >= output_base; num /= output_base {
+rem = num % output_base
+append(&result, rem)
+}
+append(&result, num)
+output_digits := result[:]
+slice.reverse(output_digits)
+return output_digits, .None
+}

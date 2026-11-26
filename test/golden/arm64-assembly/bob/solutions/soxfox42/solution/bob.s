@@ -1,0 +1,79 @@
+.text
+.globl response
+
+response:
+        # Flags: anyupper, nonelower, silent
+        mov x1, 0b011
+        b response_loop_cond
+
+response_loop:
+        cmp w2, ' '
+        beq 1f
+        cmp w2, '\t'
+        beq 1f
+        cmp w2, '\n'
+        beq 1f
+        cmp w2, '\r'
+        beq 1f
+        and x1, x1, 0b110
+        mov x3, x0
+1:
+
+        cmp w2, 'a'
+        blo 1f
+        cmp w2, 'z'
+        bhi 1f
+        mov x2, 5
+        and x1, x1, x2
+1:
+
+        cmp w2, 'A'
+        blo 1f
+        cmp w2, 'Z'
+        bhi 1f
+        orr x1, x1, 0b100
+1:
+
+response_loop_cond:
+        ldrb w2, [x0], 1
+        cmp w2, 0
+        bne response_loop
+
+response_finish:
+        tst x1, 0b001
+        bne response_fine
+
+        and x2, x1, 0b110
+        cmp x2, 0b110
+        beq response_yell
+
+response_talk:
+        ldrb w2, [x3, -1]
+        cmp w2, '?'
+        beq 1f
+        ldr x0, =rsp_what
+        ret
+1:
+        ldr x0, =rsp_sure
+        ret
+
+response_yell:
+        ldrb w2, [x3, -1]
+        cmp w2, '?'
+        beq 1f
+        ldr x0, =rsp_whoa
+        ret
+1:
+        ldr x0, =rsp_calm
+        ret
+
+response_fine:
+        ldr x0, =rsp_fine
+        ret
+
+.data
+rsp_sure: .string "Sure."
+rsp_whoa: .string "Whoa, chill out!"
+rsp_calm: .string "Calm down, I know what I'm doing!"
+rsp_fine: .string "Fine. Be that way!"
+rsp_what: .string "Whatever."

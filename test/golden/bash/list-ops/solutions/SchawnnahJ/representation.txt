@@ -1,0 +1,48 @@
+(file "list_ops.sh")
+if [[ "\"" ${ BASH_SOURCE [0] } "\"" == "\"" $0 "\"" ]] ; then
+echo "\"This library of functions should be sourced into another script\"" > &2
+exit 4
+fi
+bash_version = $(( 10 * BASH_VERSINFO[0] + BASH_VERSINFO[1] ))
+if (( bash_version < 43 )) ; then
+echo "\"This library requires at least bash version 4.3\"" > &2
+return 4
+fi
+list::append () {
+declare -n lst = $1
+lst+ =( "\"" ${ @ :2 } "\"" )
+}
+list::filter () {
+declare -n lst = $2 res = $3
+for value in "\"" ${ lst [@] } "\"" ; do
+$1 "\"" $value "\"" && res+ =( "\"" $value "\"" )
+done
+}
+list::map () {
+declare -n lst = $2 res = $3
+for value in "\"" ${ lst [@] } "\"" ; do
+res+ =( "\"$(" $1 "\"" $value "\")\"" )
+done
+}
+list::foldl () {
+declare -n lst = $3
+local total = "\"" $2 "\""
+for value in "\"" ${ lst [@] } "\"" ; do
+total = $( $1 "\"" $total "\"" "\"" $value "\")"
+done
+echo "\"" $total "\""
+}
+list::foldr () {
+declare -n lst = $3
+local total = "\"" $2 "\""
+for i in "\"" ${ !lst[@] } "\"" ; do
+total = "\"$(" $1 "\"" ${ lst [- $i - 1] } "\"" "\"" $total "\")\""
+done
+echo "\"" $total "\""
+}
+list::reverse () {
+declare -n lst = $1 res = $2
+for i in "\"" ${ !lst[@] } "\"" ; do
+res+ =( "\"" ${ lst [- $i - 1] } "\"" )
+done
+}

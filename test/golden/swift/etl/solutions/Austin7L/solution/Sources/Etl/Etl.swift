@@ -1,0 +1,12 @@
+class ETL {
+    static func transform(_ old: [String: [String]]) -> [String: Int] {
+        var result:[String:Int] = [:]
+        old.forEach { (key: String, value: [String]) in
+        let point: Int = Int(key) ?? 0
+        value.forEach { str in
+            result[str.lowercased()] = point
+        }
+    }
+    return result
+    }
+}

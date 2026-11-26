@@ -1,0 +1,15 @@
+#include "grains.h"
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+
+uint64_t square(uint8_t index){
+  return pow(2, index-1);
+}
+uint64_t total(void){
+  uint64_t total_grains = 0;
+  for (int i=1 ; i< 65 ; i++){
+    total_grains += square(i);
+  }
+  return total_grains;
+}

@@ -1,0 +1,6 @@
+def value(c):
+    ["black", "brown", "red", "orange", "yellow",
+     "green", "blue", "violet", "grey", "white"] | index(c)
+;
+
+.colors as $c | 10 * value($c[0]) + value($c[1])

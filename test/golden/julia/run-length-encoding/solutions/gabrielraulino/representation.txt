@@ -1,0 +1,33 @@
+(file "run-length-encoding.jl")
+"\"\"\"\n    encode(s::String) -> String\n\nConverte uma string para sua representa\u00E7\u00E3o em run-length encoding.\nSequ\u00EAncias de caracteres repetidos s\u00E3o substitu\u00EDdas pela quantidade seguida do caractere.\nCaracteres \u00FAnicos permanecem inalterados.\n\n## Exemplos\n```julia-repl\njulia> encode(\"" AABBBCCCC "\")\n\"" 2 A3B4C "\"\n```\n\"\"\""
+function encode ( s )
+isempty ( s ) && return "\"\""
+result = "\"\""
+count = 1
+for i in 1 : length ( s ) - 1
+if s [ i ] == s [ i + 1 ]
+count += 1
+else
+result *= ( count > 1 ? string ( count ) : "\"\"" ) * s [ i ]
+count = 1
+end
+end
+result *= ( count > 1 ? string ( count ) : "\"\"" ) * s [ end ]
+return result
+end
+"\"\"\"\n    decode(s::String) -> String\n\nConverte uma string de run-length encoding para sua representa\u00E7\u00E3o normal.\nN\u00FAmeros seguidos de um caractere s\u00E3o expandidos para repeti\u00E7\u00F5es desse caractere.\n\n## Exemplos\n```julia-repl\njulia> decode(\"" 2 A3B4C "\")\n\"" AABBBCCCC "\"\n```\n\"\"\""
+function decode ( s )
+isempty ( s ) && return "\"\""
+result = "\"\""
+count_str = "\"\""
+for char in s
+if isdigit ( char )
+count_str *= char
+else
+count = isempty ( count_str ) ? 1 : parse ( Int , count_str )
+result *= repeat ( char , count )
+count_str = "\"\""
+end
+end
+return result
+end

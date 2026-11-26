@@ -1,0 +1,16 @@
+object Hamming {
+  def distance(dnaStrandOne: String, dnaStrandTwo: String): Option[Int] = {
+    if (dnaStrandOne.length != dnaStrandTwo.length) {
+      return None;
+    }
+
+    var dist = 0;
+    for (i <- 0 until dnaStrandOne.length) {
+           if (dnaStrandOne(i) != dnaStrandTwo(i)) {
+            dist += 1
+           }
+         }
+
+    return Some(dist);
+  }
+}

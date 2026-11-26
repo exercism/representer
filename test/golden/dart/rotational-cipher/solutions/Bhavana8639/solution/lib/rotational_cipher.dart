@@ -1,0 +1,18 @@
+class RotationalCipher {
+  String rotate({required String text, required int shiftKey}) {
+    return text.split('').map((char) {
+      final code = char.codeUnitAt(0);
+
+      if (_isUppercaseLetter(code)) {
+        return String.fromCharCode(((code - 65 + shiftKey) % 26) + 65);
+      } else if (_isLowercaseLetter(code)) {
+        return String.fromCharCode(((code - 97 + shiftKey) % 26) + 97);
+      } else {
+        return char; // Leave non-alphabetic characters unchanged
+      }
+    }).join('');
+  }
+
+  bool _isUppercaseLetter(int code) => code >= 65 && code <= 90;
+  bool _isLowercaseLetter(int code) => code >= 97 && code <= 122;
+}

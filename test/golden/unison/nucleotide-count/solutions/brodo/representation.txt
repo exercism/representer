@@ -1,0 +1,18 @@
+(file "nucleotideCount.u")
+nucleotideCount . nucleotideCounts : Text -> Optional ( Map Text Nat )
+nucleotideCount . nucleotideCounts nucleotides =
+  charList = toListOfChars nucleotides
+  if isValidList charList then
+    Some ( List . foldLeft count initialMap charList )
+  else
+    None
+nucleotideCount . toListOfChars : Text -> [ Text ]
+nucleotideCount . toListOfChars = toCharList >> ( List . map Char . toText )
+nucleotideCount . initialMap : Map Text Nat
+nucleotideCount . initialMap = Map . fromList [( "\"A\"" , 0 ), ( "\"C\"" , 0 ), ( "\"G\"" , 0 ), ( "\"T\"" , 0 )]
+nucleotideCount . count : Map Text Nat -> Text -> Map Text Nat
+nucleotideCount . count = flip <| Map . update (( + ) 1 >> Some )
+nucleotideCount . isValidList : [ Text ] -> Boolean
+nucleotideCount . isValidList = List . foldLeft ( flip ( isValdidChar >> Boolean . and )) true
+nucleotideCount . isValdidChar : Text -> Boolean
+nucleotideCount . isValdidChar = flip List . contains <| [ "\"A\"" , "\"C\"" , "\"G\"" , "\"T\"" ]

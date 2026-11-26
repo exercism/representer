@@ -1,0 +1,21 @@
+(file "nucleotide_count.ml")
+open Base
+let empty = Map . empty ( module Char );;
+let is_nucleotide = String . contains "\"ACGT\""
+let update m c =
+Map . update m c ~ f : ( Option . value_map ~ f : (( + ) 1 ) ~ default : 1 )
+let validate s =
+let l = String . to_list s in
+List . find ~ f : ( fun c -> not ( is_nucleotide c )) l
+let count_nucleotides s =
+match validate s with
+| Some c -> Error c
+| _ -> Ok ( List . fold_left ~ init : empty ~ f : update ( String . to_list s ))
+let unwrap_with ~ default = function
+| Some x -> x
+| None -> default
+let count_nucleotide s c =
+if is_nucleotide c |> not then Error c else
+match count_nucleotides s with
+| Error c -> Error c
+| Ok m -> Ok ( unwrap_with ~ default : 0 @@ Map . find m c )

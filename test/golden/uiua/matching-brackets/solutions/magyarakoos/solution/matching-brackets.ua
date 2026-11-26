@@ -1,0 +1,14 @@
+# Determine if a string has matching (balanced) brackets.
+# Result | String
+IsPaired ← (
+  ▽⊸≤₅⊗:"()[]{}"
+  ⍣(1⍤⤙≍0⧻∧⨬(
+      ⊂₀
+    | ⍤⤙≍0°⊂
+    | ⊂₂
+    | ⍤⤙≍2°⊂
+    | ⊂₄
+    | ⍤⤙≍4°⊂
+    )⊙[]
+  )0
+)

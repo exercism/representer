@@ -1,0 +1,16 @@
+case class Queen(x: Int, y: Int)
+
+object Queen {
+  def create(x: Int, y: Int): Option[Queen] =
+    (x >= 0 && x < 8, y >= 0 && y < 8) match {
+      case (true, true) => Some(Queen(x, y))
+      case _ => None
+    }
+}
+
+object QueenAttack {
+  def canAttack(b: Queen, w: Queen): Boolean = {
+    if (b.x == w.x || b.y == w.y) true
+    else (b.x - w.x).abs == (b.y - w.y).abs
+  }
+}

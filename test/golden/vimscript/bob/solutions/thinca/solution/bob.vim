@@ -1,0 +1,17 @@
+"
+" This function takes any remark and returns Bob's response.
+"
+function Response(remark) abort
+  if a:remark =~# '?\s*$'
+
+  endif
+  if a:remark !~# "[^\r\n\t ]"
+    return 'Fine. Be that way!'
+  endif
+  let is_question = a:remark =~# '?\s*$'
+  let is_yell = a:remark =~# '\u' && a:remark !~# '\l'
+  return [
+  \   ['Whatever.', 'Whoa, chill out!'],
+  \   ['Sure.', "Calm down, I know what I'm doing!"],
+  \ ][is_question][is_yell]
+endfunction

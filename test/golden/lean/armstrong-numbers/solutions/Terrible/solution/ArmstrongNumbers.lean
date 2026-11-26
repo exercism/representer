@@ -1,0 +1,11 @@
+namespace ArmstrongNumbers
+
+def isArmstrongNumber (number : Nat) : Bool :=
+  let s:=toString number
+  let n:=s.length
+  let sum:=s.toList.foldl (fun acc c=>
+    let d:Nat:=Char.toNat c - 48
+    acc+d^n) 0
+  sum==number
+
+end ArmstrongNumbers

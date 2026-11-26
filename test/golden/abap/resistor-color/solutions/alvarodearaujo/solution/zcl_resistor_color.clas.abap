@@ -1,0 +1,64 @@
+CLASS zcl_resistor_color DEFINITION PUBLIC CREATE PUBLIC.
+  PUBLIC SECTION.
+    METHODS resistor_color
+      IMPORTING
+        color_code   TYPE string
+      RETURNING
+        VALUE(value) TYPE i.
+
+    METHODS constructor.
+
+ PRIVATE SECTION.
+ TYPES: BEGIN OF resistor_type,
+             color_name TYPE string,
+             band       TYPE i,
+           END OF resistor_type.
+
+    DATA resistors TYPE TABLE OF resistor_type.
+ENDCLASS.
+
+CLASS zcl_resistor_color IMPLEMENTATION.
+
+  METHOD constructor.
+    DATA color TYPE resistor_type.
+    color = VALUE #( color_name = 'black' band = 0 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'brown' band = 1 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'red' band = 2 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'orange' band = 3 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'yellow' band = 4 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'green' band = 5 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'blue' band =  6 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'violet' band = 7 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'grey' band = 8 ).
+    APPEND color TO resistors.
+    CLEAR color.
+    color = VALUE #( color_name = 'white' band = 9 ).
+    APPEND color TO resistors.
+  ENDMETHOD.
+
+  METHOD resistor_color.
+    IF line_exists(  me->resistors[ color_name = to_lower( color_code ) ] ).
+      DATA(corresponding) = me->resistors[ color_name = to_lower( color_code ) ].
+      value = corresponding-band.
+    ELSE.
+      value = -1.
+    ENDIF.
+  ENDMETHOD.
+
+ENDCLASS.

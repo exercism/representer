@@ -1,0 +1,17 @@
+(file "src/NucleotideCount.idr")
+module NucleotideCount
+public export
+record DNA where
+  constructor MkDNA
+  adenine , cytosine , guanine , thymine : Nat
+export
+nucleotideCounts : String -> Maybe DNA
+nucleotideCounts strand = go ( Z , Z , Z , Z ) ( unpack strand )
+  where
+    go : ( Nat , Nat , Nat , Nat ) -> List Char -> Maybe DNA
+    go ( a , c , g , t ) [] = Just ( MkDNA a c g t )
+    go ( a , c , g , t ) ( 'A' :: xs ) = go ( S a , c , g , t ) xs
+    go ( a , c , g , t ) ( 'C' :: xs ) = go ( a , S c , g , t ) xs
+    go ( a , c , g , t ) ( 'G' :: xs ) = go ( a , c , S g , t ) xs
+    go ( a , c , g , t ) ( 'T' :: xs ) = go ( a , c , g , S t ) xs
+    go _ _ = Nothing

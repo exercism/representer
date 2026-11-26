@@ -1,0 +1,251 @@
+<?php
+
+declare(strict_types=1);
+
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\TestCase;
+
+class TwelveDaysTest extends TestCase
+{
+    public static function setUpBeforeClass(): void
+    {
+        require_once 'TwelveDays.php';
+    }
+
+    /**
+     * uuid c0b5a5e6-c89d-49b1-a6b2-9f523bff33f7
+     */
+    #[TestDox('Verse -> First day a partridge in a pear tree')]
+    public function testVerseFirstDayAPartridgeInAPearTree(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected = "On the first day of Christmas my true love gave to me: a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(1, 1));
+    }
+
+    /**
+     * uuid 1c64508a-df3d-420a-b8e1-fe408847854a
+     */
+    #[TestDox('Verse -> Second day two turtle doves')]
+    public function testVerseSecondDayTwoTurtleDoves(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the second day of Christmas my true love gave to me: two Turtle Doves, " .
+            "and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(2, 2));
+    }
+
+    /**
+     * uuid a919e09c-75b2-4e64-bb23-de4a692060a8
+     */
+    #[TestDox('Verse -> Third day three french hens')]
+    public function testVerseThirdDayThreeFrenchHens(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the third day of Christmas my true love gave to me: three French Hens, two Turtle Doves, " .
+            "and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(3, 3));
+    }
+
+    /**
+     * uuid 9bed8631-ec60-4894-a3bb-4f0ec9fbe68d
+     */
+    #[TestDox('Verse -> Fourth day four calling birds')]
+    public function testVerseFourthDayFourCallingBirds(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the fourth day of Christmas my true love gave to me: four Calling Birds, three French Hens, " .
+            "two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(4, 4));
+    }
+
+    /**
+     * uuid cf1024f0-73b6-4545-be57-e9cea565289a
+     */
+    #[TestDox('Verse -> Fifth day five gold rings')]
+    public function testVerseFifthDayFiveGoldRings(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the fifth day of Christmas my true love gave to me: five Gold Rings, four Calling Birds, " .
+            "three French Hens, two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(5, 5));
+    }
+
+    /**
+     * uuid 50bd3393-868a-4f24-a618-68df3d02ff04
+     */
+    #[TestDox('Verse -> Sixth day six geese-a-laying')]
+    public function testVerseSixthDaySixGeeseALaying(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the sixth day of Christmas my true love gave to me: six Geese-a-Laying, five Gold Rings, " .
+            "four Calling Birds, three French Hens, two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(6, 6));
+    }
+
+    /**
+     * uuid 8f29638c-9bf1-4680-94be-e8b84e4ade83
+     */
+    #[TestDox('Verse -> Seventh day seven swans-a-swimming')]
+    public function testVerseSeventhDaySevenSwansASwimming(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the seventh day of Christmas my true love gave to me: seven Swans-a-Swimming, " .
+            "six Geese-a-Laying, five Gold Rings, four Calling Birds, three French Hens, two Turtle Doves, " .
+            "and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(7, 7));
+    }
+
+    /**
+     * uuid 7038d6e1-e377-47ad-8c37-10670a05bc05
+     */
+    #[TestDox('Verse -> Eighth day eight maids-a-milking')]
+    public function testVerseEightDayEightMaidsAMilking(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the eighth day of Christmas my true love gave to me: eight Maids-a-Milking, " .
+            "seven Swans-a-Swimming, six Geese-a-Laying, five Gold Rings, four Calling Birds, three French Hens, " .
+            "two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(8, 8));
+    }
+
+    /**
+     * uuid 37a800a6-7a56-4352-8d72-0f51eb37cfe8
+     */
+    #[TestDox('Verse -> Ninth day nine ladies dancing')]
+    public function testVerseNinthDayNineLadiesDancing(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the ninth day of Christmas my true love gave to me: nine Ladies Dancing, " .
+            "eight Maids-a-Milking, seven Swans-a-Swimming, six Geese-a-Laying, five Gold Rings, four Calling Birds, " .
+            "three French Hens, two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(9, 9));
+    }
+
+    /**
+     * uuid 10b158aa-49ff-4b2d-afc3-13af9133510d
+     */
+    #[TestDox('Verse -> Tenth day ten lords-a-leaping')]
+    public function testVerseTenthDayTenLordsALeaping(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the tenth day of Christmas my true love gave to me: ten Lords-a-Leaping, " .
+            "nine Ladies Dancing, eight Maids-a-Milking, seven Swans-a-Swimming, six Geese-a-Laying, " .
+            "five Gold Rings, four Calling Birds, three French Hens, two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(10, 10));
+    }
+
+    /**
+     * uuid 08d7d453-f2ba-478d-8df0-d39ea6a4f457
+     */
+    #[TestDox('Verse -> Eleventh day eleven pipers piping')]
+    public function testVerseEleventhDayElevenPipersPiping(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the eleventh day of Christmas my true love gave to me: eleven Pipers Piping, " .
+            "ten Lords-a-Leaping, nine Ladies Dancing, eight Maids-a-Milking, seven Swans-a-Swimming, " .
+            "six Geese-a-Laying, five Gold Rings, four Calling Birds, " .
+            "three French Hens, two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(11, 11));
+    }
+
+    /**
+     * uuid 0620fea7-1704-4e48-b557-c05bf43967f0
+     */
+    #[TestDox('Verse -> Twelfth day twelve drummers drumming')]
+    public function testVerseTwelfthDayTwelveDrummersDrumming(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the twelfth day of Christmas my true love gave to me: twelve Drummers Drumming, " .
+            "eleven Pipers Piping, ten Lords-a-Leaping, nine Ladies Dancing, eight Maids-a-Milking, " .
+            "seven Swans-a-Swimming, six Geese-a-Laying, five Gold Rings, four Calling Birds, three French Hens, " .
+            "two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(12, 12));
+    }
+
+    /**
+     * uuid da8b9013-b1e8-49df-b6ef-ddec0219e398
+     */
+    #[TestDox('Lyrics -> Recites first three verses of the song')]
+    public function testLyricsRecitesFirstThreeVersesOfSong(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the first day of Christmas my true love gave to me: a Partridge in a Pear Tree." . PHP_EOL .
+            "On the second day of Christmas my true love gave to me: two Turtle Doves, " .
+            "and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the third day of Christmas my true love gave to me: three French Hens, two Turtle Doves, " .
+            "and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(1, 3));
+    }
+
+    /**
+     * uuid c095af0d-3137-4653-ad32-bfb899eda24c
+     */
+    #[TestDox('Lyrics -> Recites three verses from the middle of the song')]
+    public function testLyricsRecitesThreeVersesFromMiddleOfSong(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the fourth day of Christmas my true love gave to me: four Calling Birds, three French Hens, " .
+            "two Turtle Doves, and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the fifth day of Christmas my true love gave to me: five Gold Rings, four Calling Birds, " .
+            "three French Hens, two Turtle Doves, and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the sixth day of Christmas my true love gave to me: six Geese-a-Laying, five Gold Rings, " .
+            "four Calling Birds, three French Hens, two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(4, 6));
+    }
+
+    /**
+     * uuid 20921bc9-cc52-4627-80b3-198cbbfcf9b7
+     */
+    #[TestDox('Lyrics -> Recites the whole song')]
+    public function testLyricsRecitesTheWholeSong(): void
+    {
+        $twelveDays = new TwelveDays();
+        $expected =
+            "On the first day of Christmas my true love gave to me: a Partridge in a Pear Tree." . PHP_EOL .
+            "On the second day of Christmas my true love gave to me: two Turtle Doves, " .
+            "and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the third day of Christmas my true love gave to me: three French Hens, two Turtle Doves, " .
+            "and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the fourth day of Christmas my true love gave to me: four Calling Birds, three French Hens, " .
+            "two Turtle Doves, and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the fifth day of Christmas my true love gave to me: five Gold Rings, four Calling Birds, " .
+            "three French Hens, two Turtle Doves, and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the sixth day of Christmas my true love gave to me: six Geese-a-Laying, five Gold Rings, " .
+            "four Calling Birds, three French Hens, two Turtle Doves, and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the seventh day of Christmas my true love gave to me: seven Swans-a-Swimming, six Geese-a-Laying, " .
+            "five Gold Rings, four Calling Birds, three French Hens, two Turtle Doves, " .
+            "and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the eighth day of Christmas my true love gave to me: eight Maids-a-Milking, seven Swans-a-Swimming, " .
+            "six Geese-a-Laying, five Gold Rings, four Calling Birds, three French Hens, two Turtle Doves, " .
+            "and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the ninth day of Christmas my true love gave to me: nine Ladies Dancing, eight Maids-a-Milking, " .
+            "seven Swans-a-Swimming, six Geese-a-Laying, five Gold Rings, four Calling Birds, three French Hens, " .
+            "two Turtle Doves, and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the tenth day of Christmas my true love gave to me: ten Lords-a-Leaping, nine Ladies Dancing, " .
+            "eight Maids-a-Milking, seven Swans-a-Swimming, six Geese-a-Laying, five Gold Rings, four Calling Birds, " .
+            "three French Hens, two Turtle Doves, and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the eleventh day of Christmas my true love gave to me: eleven Pipers Piping, ten Lords-a-Leaping, " .
+            "nine Ladies Dancing, eight Maids-a-Milking, seven Swans-a-Swimming, six Geese-a-Laying, " .
+            "five Gold Rings, four Calling Birds, three French Hens, two Turtle Doves, " .
+            "and a Partridge in a Pear Tree." . PHP_EOL .
+            "On the twelfth day of Christmas my true love gave to me: twelve Drummers Drumming, " .
+            "eleven Pipers Piping, ten Lords-a-Leaping, nine Ladies Dancing, eight Maids-a-Milking, " .
+            "seven Swans-a-Swimming, six Geese-a-Laying, five Gold Rings, four Calling Birds, three French Hens, " .
+            "two Turtle Doves, and a Partridge in a Pear Tree.";
+        $this->assertEquals($expected, $twelveDays->recite(1, 12));
+    }
+}

@@ -1,0 +1,32 @@
+(file "change.fut")
+import "\"lib/github.com/diku-dk/sorts/merge_sort\""
+def find_fewest_coins (coins: []i32) (target: i32): []i32 =
+if target < 0
+then assert false []
+else if target == 0
+then []
+else
+let max_coins = target + 1
+-- dp[i] = minimum coins needed for amount i
+let dp = replicate (i64.i32 (target + 1)) max_coins
+let dp = dp with [0] = 0
+-- parent[i] = coin used to achieve minimum for amount i
+let parent = replicate (i64.i32 (target + 1)) (-1)
+-- Fill DP table
+let (dp, parent) = loop (dp, parent) for i in 1...target do
+loop (dp, parent) for coin in coins do
+if coin <= i && dp[i64.i32 (i - coin)] < max_coins && dp[i64.i32 (i - coin)] + 1 < dp[i64.i32 i]
+then (dp with [i64.i32 i] = dp[i64.i32 (i - coin)] + 1, parent with [i64.i32 i] = coin)
+else (dp, parent)
+-- Check if solution exists
+in if dp[i64.i32 target] >= max_coins
+then assert false []
+else
+-- Reconstruct solution by backtracking
+let num_coins = dp[i64.i32 target]
+let result = replicate (i64.i32 num_coins) 0
+let (result, _, _) = loop (result, amount, idx) = (result, target, num_coins - 1)
+while amount > 0 do
+let coin_used = parent[i64.i32 amount]
+in (result with [i64.i32 idx] = coin_used, amount - coin_used, idx - 1)
+in merge_sort (i32.<=) result

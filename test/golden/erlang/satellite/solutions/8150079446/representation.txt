@@ -1,0 +1,19 @@
+(file "src/satellite.erl")
+- module ( satellite ).
+- export ([ tree_from_traversals / 2 ]).
+tree_from_traversals ( PreOrder , InOrder ) when length ( PreOrder ) /= length ( InOrder ) -> erlang : error ( badarg );
+tree_from_traversals ( PreOrder , InOrder ) ->
+case has_duplicates ( PreOrder ) of
+true -> erlang : error ( badarg );
+false -> build ( PreOrder , InOrder )
+end .
+build ([], []) -> # {};
+build ([ H | T ], I ) ->
+{ LI , [ H | RI ]} = lists : splitwith ( fun ( X ) -> X /= H end , I ),
+{ LP , RP } = lists : split ( length ( LI ), T ),
+# { l => build ( LP , LI ), r => build ( RP , RI ), v => H }.
+has_duplicates ( List ) ->
+Inc = fun ( V ) -> V + 1 end ,
+Fun = fun ( X , A ) -> maps : update_with ( X , Inc , 1 , A ) end ,
+Counts = lists : foldl ( Fun , # {}, List ),
+lists : any ( fun ( C ) -> C > 1 end , maps : values ( Counts )).

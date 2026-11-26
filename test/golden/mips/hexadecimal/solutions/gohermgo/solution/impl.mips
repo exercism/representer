@@ -1,0 +1,25 @@
+.globl hex_convert
+
+.text
+
+hex_convert:
+    li $v0, 0
+    li $t0, 0
+read_byte:
+    lb $t0, 0($a0)         # load byte
+    beq $t0, $zero, return # if null return
+    
+    andi $t1, $t0, 0xF0
+    andi $t2, $t0, 0x0F
+    beq $t1, 0x30, add_value
+
+    addi $t2, $t2, 0x09
+add_value:
+    sll $v0, $v0, 4
+    add $v0, $v0, $t2
+
+    addi $a0, $a0, 1
+    j read_byte
+
+return:
+    jr $ra

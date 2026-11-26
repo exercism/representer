@@ -1,0 +1,26 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. reverse-string.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-STRING        PIC X(64).
+      
+       01 WS-RESULT        PIC X(64) VALUE SPACES.
+       01 WS-LENGTH        PIC 99 VALUE 0.
+       01 WS-INDEX         PIC 99 VALUE 0.
+      
+       PROCEDURE DIVISION.
+       REVERSE-STRING.
+
+STRING* Reverse a string and display result
+      *  Short way
+      *  MOVE FUNCTION REVERSE(FUNCTION TRIM(WS-STRING)) TO WS-STRING
+
+      *  Longer way
+         COMPUTE WS-LENGTH = FUNCTION LENGTH(WS-STRING)
+         PERFORM VARYING WS-INDEX FROM 1 BY 1 UNTIL WS-INDEX > WS-LENGTH
+             MOVE WS-STRING(WS-INDEX:1) TO 
+                  WS-RESULT(WS-LENGTH - WS-INDEX:1)
+         END-PERFORM
+
+         MOVE FUNCTION TRIM(WS-RESULT) TO WS-STRING
+         DISPLAY WS-STRING.

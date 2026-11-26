@@ -1,0 +1,30 @@
+(file "bank-account.ys")
+!yamlscript/v0
+defn reset-test-state():
+defn bank-account(operations):
+  reduce _ 'closed' operations:
+    fn(bal op):
+      case op.operation:
+        -'close':
+          if bal == 'closed':
+            die('account not open')
+            'closed'
+        -'open':
+          if bal == 'closed':
+            0
+            die('account already open')
+        -'deposit':
+          cond:
+            bal == 'closed': die('account not open')
+            op.amount <= 0: die('amount must be greater than 0')
+            else: bal + op.amount
+        -'withdraw':
+          cond:
+            bal == 'closed': die('account not open')
+            op.amount <= 0: die('amount must be greater than 0')
+            op.amount > bal: die('amount must be less than balance')
+            else: bal - op.amount
+        -'balance':
+          if bal == 'closed':
+            die('account not open')
+            bal

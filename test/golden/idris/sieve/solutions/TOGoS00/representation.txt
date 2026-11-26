@@ -1,0 +1,25 @@
+(file "src/Sieve.idr")
+module Sieve
+listNatsGteTwo : ( limit : Nat ) -> ( someList : List Nat ) -> List Nat
+listNatsGteTwo Z l = l
+listNatsGteTwo ( S Z ) l = l
+listNatsGteTwo ( S n ) l = listNatsGteTwo n (( S n ) :: l )
+data PrimeyNat : Type where
+  MkPrimeyNat : ( possiblyPrime : Bool ) -> ( value : Nat ) -> PrimeyNat
+markMultiplesUnprime : ( base : Nat ) -> ( startingAt : Nat ) -> ( theList : List PrimeyNat ) -> List PrimeyNat
+markMultiplesUnprime base startingAt [] = []
+markMultiplesUnprime base startingAt ( thisOne @ ( MkPrimeyNat isPrime n ) :: theRest ) =
+  if n == startingAt then
+    ( MkPrimeyNat False startingAt ) :: ( markMultiplesUnprime base ( startingAt + base ) theRest )
+  else
+    thisOne :: ( markMultiplesUnprime base startingAt theRest )
+sieve : List PrimeyNat -> List Nat
+sieve [] = []
+sieve ( MkPrimeyNat True n :: theRest ) =
+  n :: ( sieve ( markMultiplesUnprime n ( n + n ) theRest ))
+sieve ( MkPrimeyNat False n :: theRest ) =
+  sieve theRest
+export
+primes : Nat -> List Nat
+primes limit =
+  sieve ( map ( \ n => MkPrimeyNat True n ) ( listNatsGteTwo limit [] ))

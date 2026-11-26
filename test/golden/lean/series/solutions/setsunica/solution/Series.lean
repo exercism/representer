@@ -1,0 +1,9 @@
+namespace Series
+
+def slices (series : String) (sliceLength : Nat) : Option (Array String) := do
+  guard $ 0 < sliceLength && sliceLength <= series.length
+  let subSeries := series.toRawSubstring
+  Array.range (series.length - sliceLength + 1)
+    |>.map (subSeries.drop · |>.take sliceLength |>.toString)
+
+end Series

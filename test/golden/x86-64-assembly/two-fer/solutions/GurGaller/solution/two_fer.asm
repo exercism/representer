@@ -1,0 +1,55 @@
+default rel
+
+section .rodata
+str1: db "One for ", 0
+str2: db "you", 0
+str3: db ", one for me.", 0
+
+section .text
+global two_fer
+two_fer:
+    push rdi
+
+    mov r8, rdi
+    mov rdi, rsi
+
+    lea rsi, [str1]
+    call strcpy
+
+    mov rsi, r8
+    cmp rsi, 0
+    jne write_name
+    lea rsi, [str2]
+
+    write_name:
+    call strcpy
+
+    lea rsi, [str3]
+    call strcpy
+
+    pop rdi
+    ret
+
+strcpy: ;copy from rsi to rdi and changes rdi to point to the its last index
+    push rsi
+
+    loop:
+    mov al, [rsi]
+    cmp al, 0
+    je end
+
+    mov [rdi], al
+
+    inc rsi
+    inc rdi
+    jmp loop
+
+    end:
+    mov [rdi], byte 0
+
+    pop rsi
+    ret
+
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

@@ -1,0 +1,21 @@
+component {
+	/**
+	* @returns
+	*/
+	public string function convert( required numeric number ){
+		var output = "";
+		if( number % 3 == 0 ){
+			output = output & "Pling";
+		}
+		if( number % 5 == 0 ){
+			output = output & "Plang";
+		}
+		if( number % 7 == 0 ){
+			output = output & "Plong";
+		}
+		if( number % 3 != 0 && number % 5 != 0 && number % 7 != 0){
+			output = output & number.toString();
+		}
+		return output;
+	}
+}

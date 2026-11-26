@@ -1,0 +1,8 @@
+def step (number: i32): i32 =
+  if number&1==1 then 1+3*number else number//2
+def steps (number: i32): i32 =
+  assert (number > 0) (
+  let (_, final)=
+  loop (it, k)=(number, 0) while it!=1 do (step it, k+1)
+  in final
+  )

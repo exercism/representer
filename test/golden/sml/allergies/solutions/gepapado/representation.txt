@@ -1,0 +1,30 @@
+(file "allergies.sml")
+datatype allergen = Eggs
+| Peanuts
+| Shellfish
+| Strawberries
+| Tomatoes
+| Chocolate
+| Pollen
+| Cats
+local
+val allergens = [ Eggs , Peanuts , Shellfish , Strawberries , Tomatoes , Chocolate , Pollen , Cats ]
+fun toInt a =
+case a of
+Eggs => 0 | Peanuts => 1 | Shellfish => 2 | Strawberries => 3
+| Tomatoes => 4 | Chocolate => 5 | Pollen => 6 | Cats => 7
+in
+fun allergicTo ( score : int ) ( a : allergen ): bool = let
+val ( andb , >> ) = ( Word . andb , Word . >> )
+infix >>
+in
+Word . andb ( 0w1 , Word . fromInt score >> ( Word . fromInt o toInt ) a ) = 0w1
+end
+fun allergies ( score : int ): allergen list = let
+open Word
+infix >>
+fun step ( a , ( w , acc )) = ( w >> 0w1 , if andb ( w , 0w1 ) = 0w1 then a::acc else acc )
+in
+( rev o #2 o foldl step ( Word . fromInt score , [])) allergens
+end
+end

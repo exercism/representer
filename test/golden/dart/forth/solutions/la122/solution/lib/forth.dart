@@ -1,0 +1,85 @@
+class Forth {
+  List<int> stack = [];
+  Map<String, String> words = {};
+
+  int _pop() {
+    if (stack.isEmpty) throw Exception("Stack empty");
+    return stack.removeLast();
+  }
+
+  String _overrideWords(String input) {
+    String output = input.toLowerCase();
+
+    output.split(" ").forEach((key) {
+      final value = words.remove(key);
+      if (value != null) output = output.replaceAll(key, value);
+    });
+
+    return output;
+  }
+
+  void evaluate(String input) {
+    if (input.startsWith(":") && input.endsWith(";")) {
+      final parts = input.toLowerCase().split(" ");
+
+      final key = parts[1];
+      if (int.tryParse(key) != null) throw Exception("Invalid definition");
+
+      final value = parts.sublist(2, parts.length - 1).join(" ");
+
+      words[key] = _overrideWords(value);
+      return;
+    }
+
+    _overrideWords(input).split(" ").forEach((command) {
+      switch (command) {
+        case "+":
+          stack.add(_pop() + _pop());
+          break;
+
+        case "-":
+          stack.add(-_pop() + _pop());
+          break;
+
+        case "*":
+          stack.add(_pop() * _pop());
+          break;
+
+        case "/":
+          final a = _pop();
+          final b = _pop();
+          if (a == 0) throw Exception("Division by zero");
+          stack.add((b / a).floor());
+          break;
+
+        case "dup":
+          final a = _pop();
+          stack.addAll([a, a]);
+          break;
+
+        case "drop":
+          _pop();
+          break;
+
+        case "swap":
+          final a = _pop();
+          final b = _pop();
+          stack.addAll([a, b]);
+          break;
+
+        case "over":
+          final a = _pop();
+          final b = _pop();
+          stack.addAll([b, a, b]);
+          break;
+
+        default:
+          final number = int.tryParse(command);
+          if (number != null)
+            stack.add(number);
+          else
+            throw Exception("Unknown command");
+      }
+    });
+  }
+}

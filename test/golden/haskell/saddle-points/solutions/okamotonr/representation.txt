@@ -1,0 +1,34 @@
+(file "src/Matrix.hs")
+module Matrix ( saddlePoints ) where
+import Data.Array ( Array , Ix , bounds , ( ! ))
+saddlePoints :: ( Ix a , Enum a , Ord e ) => Array ( a , a ) e -> [( a , a )]
+saddlePoints matrix = filter isSaddle $ maxInRows matrix
+  where
+    isSaddle p @ ( _ , c ) = minInC == matrix ! p
+      where
+        minInC = minimum $ columnElements c matrix
+rowAssocs :: ( Ix a , Enum a , Ord e ) => a -> Array ( a , a ) e -> [(( a , a ), e )]
+rowAssocs r matrix = [(( r , c ), matrix ! ( r , c )) | c <- [ f .. l ]]
+  where
+    ( fp , lp ) = bounds matrix
+    f = snd fp
+    l = snd lp
+rowElements :: ( Ix a , Enum a , Ord e ) => a -> Array ( a , a ) e -> [ e ]
+rowElements r = map snd . rowAssocs r
+columnAssocs :: ( Ix a , Enum a , Ord e ) => a -> Array ( a , a ) e -> [(( a , a ), e )]
+columnAssocs c matrix = [(( r , c ), matrix ! ( r , c )) | r <- [ f .. l ]]
+  where
+    ( fp , lp ) = bounds matrix
+    f = fst fp
+    l = fst lp
+columnElements :: ( Ix a , Enum a , Ord e ) => a -> Array ( a , a ) e -> [ e ]
+columnElements c = map snd . columnAssocs c
+maxInRows :: ( Ix a , Enum a , Ord e ) => Array ( a , a ) e -> [( a , a )]
+maxInRows matrix = concatMap maxInRow [ f .. l ]
+  where
+    ( fp , lp ) = bounds matrix
+    f = fst fp
+    l = fst lp
+    maxInRow r = map fst $ filter ( \ p -> snd p == mv ) $ rowAssocs r matrix
+      where
+        mv = maximum $ rowElements r matrix

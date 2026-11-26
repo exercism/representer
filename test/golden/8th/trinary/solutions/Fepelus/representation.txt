@@ -1,0 +1,37 @@
+(file "trinary.8th")
+needs python/any
+: >array-of-nums \ s -- a
+[1] s:/ ' G:>n a:map a:rev
+;
+: invalid-digit?
+null? if
+drop true
+else
+2 n:>
+then
+;
+: validate \ a -- a
+dup ' invalid-digit? a:any
+if drop [0] ;then
+;
+: identity ;
+: power-array \ a -- a a
+dup ' identity swap 0 swap
+a:len 1 n:- swap drop a:generate
+;
+: handle-pair \ n1 n2 -- n
+3 swap n:^ n:*
+;
+: calculate-each-digit \ a a -- a
+' handle-pair a:2map
+;
+: sum-digits \ a -- n
+' n:+ 0 a:reduce
+;
+: trinary> \ s -- n
+>array-of-nums
+validate
+power-array
+calculate-each-digit
+sum-digits
+;

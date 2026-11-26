@@ -1,0 +1,15 @@
+module RailFenceCipher (encode, decode) where
+import Data.List (sortBy, zip, map, cycle)
+import Data.Ord (comparing)
+
+encode :: Int -> [a] -> [a]
+encode n msg = msg `inOrderOf` (fence n)
+
+decode :: Int -> [a] -> [a]
+decode n msg = msg `inOrderOf` encode n ([1..length msg])
+
+fence :: Int -> [Int]
+fence n = cycle $ [1 .. n-1] ++ [n, n-1 .. 2]
+
+inOrderOf :: Ord b => [a] -> [b] -> [a]
+xs `inOrderOf` ys = map fst $ sortBy (comparing snd) $ zip xs ys

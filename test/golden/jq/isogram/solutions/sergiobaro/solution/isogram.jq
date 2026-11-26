@@ -1,0 +1,6 @@
+.phrase 
+| ascii_downcase 
+| [scan("[a-z]")]
+| reduce .[] as $letter ({}; .[$letter] += 1)
+| map(select(. > 1)) 
+| length == 0

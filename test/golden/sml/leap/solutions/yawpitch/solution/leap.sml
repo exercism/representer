@@ -1,0 +1,9 @@
+infix isEvenlyDividedBy
+fun x isEvenlyDividedBy y = x mod y = 0
+
+infix isNotEvenlyDividedBy
+fun x isNotEvenlyDividedBy y = not(x isEvenlyDividedBy y)
+
+fun isLeapYear year =
+  year isEvenlyDividedBy 4 andalso 
+  (year isNotEvenlyDividedBy 100 orelse year isEvenlyDividedBy 400)

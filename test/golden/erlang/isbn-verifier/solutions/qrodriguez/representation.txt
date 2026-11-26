@@ -1,0 +1,10 @@
+(file "src/isbn_verifier.erl")
+- module ( isbn_verifier ).
+- export ([ is_valid / 1 ]).
+is_valid ( Isbn ) -> is_valid ( Isbn , 10 , 0 ).
+is_valid ([], 0 , Acc ) -> Acc rem 11 =:= 0 ;
+is_valid ([ $- | Rest ], Digits , Acc ) -> is_valid ( Rest , Digits , Acc );
+is_valid ([ Char | Rest ], Digits , Acc ) when ( Char >= $0 ) and ( Char =< $9 ) ->
+is_valid ( Rest , Digits - 1 , Acc + Digits * ( Char - $0 ));
+is_valid ([ $X ], 1 , Acc ) -> is_valid ([], 0 , Acc + 10 );
+is_valid (_, _, _) -> false .

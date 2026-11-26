@@ -1,0 +1,7 @@
+  .phrase
+| ascii_downcase
+| try (
+    reduce scan("[[:alpha:]]") as $c ( {} ;
+      if has($c) then error else .[$c] = null end
+    ) | true
+  ) catch false

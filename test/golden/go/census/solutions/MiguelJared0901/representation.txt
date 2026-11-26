@@ -1,0 +1,88 @@
+(file "solution.go"
+  (source_file
+    (package_clause census)
+    (type_declaration
+      (type_spec Resident
+        (struct_type
+          (field_declaration_list
+            (field_declaration Name string)
+            (field_declaration Age int)
+            (field_declaration Address
+              (map_type string string))))))
+    (function_declaration NewResident
+      (parameter_list
+        (parameter_declaration name string)
+        (parameter_declaration PLACEHOLDER_1 int)
+        (parameter_declaration PLACEHOLDER_2
+          (map_type string string)))
+      (pointer_type * Resident)
+      (block
+        (statement_list
+          (return_statement
+            (expression_list
+              (unary_expression &
+                (composite_literal Resident
+                  (literal_value
+                    (keyed_element
+                      (literal_element Name) :
+                      (literal_element name))
+                    (keyed_element
+                      (literal_element Age) :
+                      (literal_element PLACEHOLDER_1))
+                    (keyed_element
+                      (literal_element Address) :
+                      (literal_element PLACEHOLDER_2))))))))))
+    (method_declaration
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_3
+          (pointer_type * Resident))) HasRequiredInfo
+      (parameter_list) bool
+      (block
+        (statement_list
+          (return_statement
+            (expression_list
+              (unary_expression !
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (selector_expression PLACEHOLDER_3 Name) == "") ||
+                    (binary_expression
+                      (selector_expression PLACEHOLDER_3 Address) == nil)) ||
+                  (binary_expression
+                    (index_expression
+                      (selector_expression PLACEHOLDER_3 Address) "street") == ""))))))))
+    (function_declaration Count
+      (parameter_list
+        (parameter_declaration residents
+          (slice_type
+            (pointer_type * Resident))))
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_4 int))
+      (block
+        (statement_list
+          (for_statement
+            (range_clause
+              (expression_list _ resident) := residents)
+            (block
+              (statement_list
+                (if_statement
+                  (call_expression
+                    (selector_expression resident HasRequiredInfo)
+                    (argument_list))
+                  (block
+                    (statement_list
+                      (inc_statement PLACEHOLDER_4 ++)))))))
+          (return_statement))))
+    (method_declaration
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_3
+          (pointer_type * Resident))) Delete
+      (parameter_list)
+      (block
+        (statement_list
+          (assignment_statement
+            (expression_list
+              (unary_expression * PLACEHOLDER_3)) =
+            (expression_list
+              (composite_literal Resident
+                (literal_value)))))))))

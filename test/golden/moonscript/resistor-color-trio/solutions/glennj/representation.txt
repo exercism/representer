@@ -1,0 +1,28 @@
+(file "resistor_color.moon")
+colors = -> {
+  'black' , 'brown' , 'red' , 'orange' , 'yellow' ,
+  'green' , 'blue' , 'violet' , 'grey' , 'white'
+}
+color_code = ( color ) ->
+  for i , c in ipairs colors !
+    if c == color
+      return i - 1
+  return - 1
+{ :colors , :color_code }
+(file "resistor_color_duo.moon")
+import color_code from require './resistor_color'
+value = ( band1 , band2 ) -> 10 * color_code ( band1 ) + color_code ( band2 )
+{ :value }
+(file "resistor_color_trio.moon")
+import value from require './resistor_color_duo'
+import color_code from require './resistor_color'
+prefixes = { '' , 'kilo' , 'mega' , 'giga' }
+{
+  label: ( band1 , band2 , band3 ) ->
+    resistance = value ( band1 , band2 ) * ( 10 ^ color_code band3 )
+    idx = 1
+    while resistance > 0 and resistance % 1000 == 0
+      resistance /= 1000
+      idx += 1
+    string.format "'%d %sohms'" , resistance , prefixes [ idx ]
+}

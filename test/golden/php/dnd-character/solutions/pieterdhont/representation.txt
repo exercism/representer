@@ -1,0 +1,173 @@
+(file "DndCharacter.php"
+  (program
+    (declare_statement
+      (declare_directive strict_types = 1))
+    (class_declaration DndCharacter
+      (declaration_list
+        (property_declaration
+          (visibility_modifier public)
+          (primitive_type int)
+          (property_element
+            (variable_name $ strength)))
+        (property_declaration
+          (visibility_modifier public)
+          (primitive_type int)
+          (property_element
+            (variable_name $ dexterity)))
+        (property_declaration
+          (visibility_modifier public)
+          (primitive_type int)
+          (property_element
+            (variable_name $ constitution)))
+        (property_declaration
+          (visibility_modifier public)
+          (primitive_type int)
+          (property_element
+            (variable_name $ intelligence)))
+        (property_declaration
+          (visibility_modifier public)
+          (primitive_type int)
+          (property_element
+            (variable_name $ wisdom)))
+        (property_declaration
+          (visibility_modifier public)
+          (primitive_type int)
+          (property_element
+            (variable_name $ charisma)))
+        (property_declaration
+          (visibility_modifier public)
+          (primitive_type int)
+          (property_element
+            (variable_name $ hitpoints)))
+        (method_declaration
+          (static_modifier static) ability
+          (formal_parameters) :
+          (primitive_type int)
+          (compound_statement
+            (expression_statement
+              (assignment_expression
+                (variable_name $ PLACEHOLDER_1) =
+                (function_call_expression array_map
+                  (arguments
+                    (argument
+                      (arrow_function fn
+                        (formal_parameters) =>
+                        (function_call_expression rand
+                          (arguments
+                            (argument 1)
+                            (argument 6)))))
+                    (argument
+                      (function_call_expression range
+                        (arguments
+                          (argument 1)
+                          (argument 4))))))))
+            (expression_statement
+              (function_call_expression sort
+                (arguments
+                  (argument
+                    (variable_name $ PLACEHOLDER_1)))))
+            (return_statement
+              (function_call_expression array_sum
+                (arguments
+                  (argument
+                    (function_call_expression array_slice
+                      (arguments
+                        (argument
+                          (variable_name $ PLACEHOLDER_1))
+                        (argument 1)))))))))
+        (method_declaration
+          (static_modifier static) modifier
+          (formal_parameters
+            (simple_parameter
+              (primitive_type int)
+              (variable_name $ constitution))) :
+          (primitive_type int)
+          (compound_statement
+            (return_statement
+              (cast_expression int
+                (function_call_expression floor
+                  (arguments
+                    (argument
+                      (binary_expression
+                        (binary_expression
+                          (variable_name $ constitution) - 10) / 2))))))))
+        (method_declaration
+          (static_modifier static) generate
+          (formal_parameters) :
+          (named_type self)
+          (compound_statement
+            (expression_statement
+              (assignment_expression
+                (variable_name $ character) =
+                (object_creation_expression self)))
+            (foreach_statement
+              (array_creation_expression
+                (array_element_initializer "strength")
+                (array_element_initializer "dexterity")
+                (array_element_initializer "constitution")
+                (array_element_initializer "intelligence")
+                (array_element_initializer "wisdom")
+                (array_element_initializer "charisma")) as
+              (variable_name $ ability)
+              (compound_statement
+                (expression_statement
+                  (assignment_expression
+                    (member_access_expression
+                      (variable_name $ character) ->
+                      (variable_name $ ability)) =
+                    (scoped_call_expression
+                      (relative_scope self) :: ability
+                      (arguments))))))
+            (expression_statement
+              (assignment_expression
+                (member_access_expression
+                  (variable_name $ character) -> hitpoints) =
+                (binary_expression 10 +
+                  (scoped_call_expression
+                    (relative_scope self) :: modifier
+                    (arguments
+                      (argument
+                        (member_access_expression
+                          (variable_name $ character) -> constitution)))))))
+            (return_statement
+              (variable_name $ character))))))
+    (expression_statement
+      (assignment_expression
+        (variable_name $ character) =
+        (scoped_call_expression DndCharacter :: generate
+          (arguments))))
+    (echo_statement
+      (binary_expression
+        (binary_expression "Strength: " .
+          (member_access_expression
+            (variable_name $ character) -> strength)) . "\n"))
+    (echo_statement
+      (binary_expression
+        (binary_expression "Dexterity: " .
+          (member_access_expression
+            (variable_name $ character) -> dexterity)) . "\n"))
+    (echo_statement
+      (binary_expression
+        (binary_expression "Constitution: " .
+          (member_access_expression
+            (variable_name $ character) -> constitution)) . "\n"))
+    (echo_statement
+      (binary_expression
+        (binary_expression "Intelligence: " .
+          (member_access_expression
+            (variable_name $ character) -> intelligence)) . "\n"))
+    (echo_statement
+      (binary_expression
+        (binary_expression "Wisdom: " .
+          (member_access_expression
+            (variable_name $ character) -> wisdom)) . "\n"))
+    (echo_statement
+      (binary_expression
+        (binary_expression "Charisma: " .
+          (member_access_expression
+            (variable_name $ character) -> charisma)) . "\n"))
+    (echo_statement
+      (binary_expression
+        (binary_expression "Hitpoints: " .
+          (member_access_expression
+            (variable_name $ character) -> hitpoints)) . "\n"))))

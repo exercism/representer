@@ -1,0 +1,17 @@
+include std/text.e
+
+function isLetter(atom c)
+  return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or c = '\''
+end function
+
+public function acronym(sequence s)
+  sequence acronym = {}
+  atom prev = 0
+  for i = 1 to length(s) do
+    if not(isLetter(prev)) and isLetter(s[i]) then
+      acronym &= upper(s[i])
+    end if
+    prev = s[i]
+  end for
+  return acronym
+end function

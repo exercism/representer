@@ -1,0 +1,20 @@
+USING: kernel sequences sorting formatting math assocs ;
+IN: boutique-bookkeeping
+
+: sort-by-price ( inventory -- sorted )
+    [ last ] sort-by ;
+
+: with-missing-price ( inventory -- filtered )
+    [ last ] reject ;
+
+: expensive-items ( inventory threshold -- count )
+    '[ last _ > ] count ;
+
+: cheapest-item ( inventory -- item )
+    [ last ] minimum-by ;
+
+: total-price ( inventory -- sum )
+    values sum ;
+
+: format-price-tag ( item -- str )
+    "%s: $%d" vsprintf ;

@@ -1,0 +1,35 @@
+(file "zcl_anagram.clas.abap")
+CLASS zcl_anagram DEFINITION PUBLIC FINAL CREATE PUBLIC .
+PUBLIC SECTION .
+METHODS anagram
+IMPORTING
+input TYPE string
+candidates TYPE string_table
+RETURNING
+VALUE ( result ) TYPE string_table .
+PROTECTED SECTION .
+PRIVATE SECTION .
+ENDCLASS .
+CLASS zcl_anagram IMPLEMENTATION .
+METHOD anagram .
+DATA ( length ) = strlen ( input ).
+DATA ( cands ) = candidates .
+DATA ( word ) = to_lower ( input ).
+LOOP AT cands ASSIGNING FIELD-SYMBOL ( < cand > ).
+DATA ( cand_word ) = to_lower ( < cand > ).
+IF word = cand_word OR strlen ( word ) NE strlen ( cand_word ).
+CONTINUE .
+ENDIF .
+DO length TIMES .
+DATA ( pos ) = sy-index - 1 .
+FIND word + pos ( 1 ) IN cand_word MATCH OFFSET DATA ( offset ).
+IF sy-subrc = 0 .
+cand_word + offset ( 1 ) = '' .
+ENDIF .
+ENDDO .
+IF cand_word = '' .
+APPEND < cand > TO result .
+ENDIF .
+ENDLOOP .
+ENDMETHOD .
+ENDCLASS .

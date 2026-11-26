@@ -1,0 +1,3 @@
+SquareOfSum ← ⁿ₂/++₁⇡
+SumOfSquares ← /+ⁿ₂+₁⇡
+DifferenceOfSquares ← -⊃(SumOfSquares|SquareOfSum)

@@ -1,0 +1,441 @@
+(file "src/graph.rs"
+  (source_file
+    (use_declaration
+      (scoped_identifier
+        (scoped_identifier std :: collections) :: HashMap))
+    (use_declaration
+      (scoped_identifier
+        (scoped_identifier graph_items :: edge) :: Edge))
+    (use_declaration
+      (scoped_identifier
+        (scoped_identifier graph_items :: node) :: Node))
+    (mod_item
+      (visibility_modifier pub) graph_items
+      (declaration_list
+        (mod_item
+          (visibility_modifier pub) edge)
+        (mod_item
+          (visibility_modifier pub) node)))
+    (struct_item
+      (visibility_modifier pub) Graph
+      (type_parameters <
+        (lifetime_parameter
+          (lifetime ' a)) >)
+      (field_declaration_list
+        (field_declaration
+          (visibility_modifier pub) nodes :
+          (generic_type Vec
+            (type_arguments <
+              (generic_type Node
+                (type_arguments <
+                  (lifetime ' a) >)) >)))
+        (field_declaration
+          (visibility_modifier pub) edges :
+          (generic_type Vec
+            (type_arguments <
+              (generic_type Edge
+                (type_arguments <
+                  (lifetime ' a) >)) >)))
+        (field_declaration
+          (visibility_modifier pub) attrs :
+          (generic_type HashMap
+            (type_arguments < String String >)))))
+    (impl_item
+      (type_parameters <
+        (lifetime_parameter
+          (lifetime ' a)) >)
+      (generic_type Graph
+        (type_arguments <
+          (lifetime ' a) >))
+      (declaration_list
+        (function_item
+          (visibility_modifier pub) with_attrs
+          (parameters
+            (self_parameter mut self)
+            (parameter attrs :
+              (reference_type &
+                (array_type
+                  (tuple_type
+                    (reference_type & str)
+                    (reference_type & str)))))) -> Self
+          (block
+            (expression_statement
+              (for_expression
+                (reference_pattern &
+                  (tuple_pattern name PLACEHOLDER_1)) attrs
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression
+                        (field_expression self . attrs) . insert)
+                      (arguments
+                        (call_expression
+                          (scoped_identifier String :: from)
+                          (arguments name))
+                        (call_expression
+                          (scoped_identifier String :: from)
+                          (arguments PLACEHOLDER_1)))))))) self))
+        (function_item
+          (visibility_modifier pub) node
+          (parameters
+            (self_parameter & self)
+            (parameter name :
+              (reference_type & str))) ->
+          (generic_type Option
+            (type_arguments <
+              (reference_type & Node) >))
+          (block
+            (expression_statement
+              (for_expression node
+                (reference_expression &
+                  (field_expression self . nodes))
+                (block
+                  (expression_statement
+                    (if_expression
+                      (binary_expression
+                        (field_expression node . name) == name)
+                      (block
+                        (expression_statement
+                          (return_expression
+                            (call_expression Some
+                              (arguments node)))))))))) None))
+        (function_item
+          (visibility_modifier pub) with_nodes
+          (parameters
+            (self_parameter mut self)
+            (parameter nodes :
+              (reference_type &
+                (array_type
+                  (generic_type Node
+                    (type_arguments <
+                      (lifetime ' a) >)))))) -> Self
+          (block
+            (expression_statement
+              (for_expression node nodes
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression
+                        (field_expression self . nodes) . push)
+                      (arguments
+                        (call_expression
+                          (field_expression node . clone)
+                          (arguments)))))))) self))
+        (function_item
+          (visibility_modifier pub) with_edges
+          (parameters
+            (self_parameter mut self)
+            (parameter edges :
+              (reference_type &
+                (array_type
+                  (generic_type Edge
+                    (type_arguments <
+                      (lifetime ' a) >)))))) -> Self
+          (block
+            (expression_statement
+              (for_expression edge edges
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression
+                        (field_expression self . edges) . push)
+                      (arguments
+                        (call_expression
+                          (field_expression edge . clone)
+                          (arguments)))))))) self))
+        (function_item
+          (visibility_modifier pub) new
+          (parameters) -> Self
+          (block
+            (struct_expression Graph
+              (field_initializer_list
+                (field_initializer nodes :
+                  (call_expression
+                    (scoped_identifier Vec :: new)
+                    (arguments)))
+                (field_initializer edges :
+                  (call_expression
+                    (scoped_identifier Vec :: new)
+                    (arguments)))
+                (field_initializer attrs :
+                  (call_expression
+                    (scoped_identifier HashMap :: new)
+                    (arguments)))))))))))
+(file "src/graph/graph_items/edge.rs"
+  (source_file
+    (use_declaration
+      (scoped_identifier
+        (scoped_identifier std :: collections) :: HashMap))
+    (attribute_item #
+      (attribute derive
+        (token_tree Debug)))
+    (struct_item
+      (visibility_modifier pub) Edge
+      (type_parameters <
+        (lifetime_parameter
+          (lifetime ' a)) >)
+      (field_declaration_list
+        (field_declaration
+          (visibility_modifier pub) from :
+          (reference_type &
+            (lifetime ' a) str))
+        (field_declaration
+          (visibility_modifier pub) (field_identifier PLACEHOLDER_2) :
+          (reference_type &
+            (lifetime ' a) str))
+        (field_declaration
+          (visibility_modifier pub) attrs :
+          (generic_type HashMap
+            (type_arguments <
+              (reference_type &
+                (lifetime ' a) str)
+              (reference_type &
+                (lifetime ' a) str) >)))))
+    (impl_item
+      (type_parameters <
+        (lifetime_parameter
+          (lifetime ' a)) >)
+      (generic_type Edge
+        (type_arguments <
+          (lifetime ' a) >))
+      (declaration_list
+        (function_item
+          (visibility_modifier pub) with_attrs
+          (parameters
+            (self_parameter mut self)
+            (parameter attrs :
+              (reference_type &
+                (array_type
+                  (tuple_type
+                    (reference_type &
+                      (lifetime ' a) str)
+                    (reference_type &
+                      (lifetime ' a) str)))))) -> Self
+          (block
+            (expression_statement
+              (for_expression
+                (reference_pattern &
+                  (tuple_pattern name PLACEHOLDER_1)) attrs
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression
+                        (field_expression self . attrs) . insert)
+                      (arguments name PLACEHOLDER_1)))))) self))
+        (function_item
+          (visibility_modifier pub) new
+          (parameters
+            (parameter from :
+              (reference_type &
+                (lifetime ' a) str))
+            (parameter PLACEHOLDER_2 :
+              (reference_type &
+                (lifetime ' a) str))) -> Self
+          (block
+            (struct_expression Edge
+              (field_initializer_list
+                (field_initializer from : from)
+                (field_initializer (field_identifier PLACEHOLDER_2) : PLACEHOLDER_2)
+                (field_initializer attrs :
+                  (call_expression
+                    (scoped_identifier HashMap :: new)
+                    (arguments)))))))
+        (function_item
+          (visibility_modifier pub) attr
+          (parameters
+            (self_parameter & self)
+            (parameter name :
+              (reference_type & str))) ->
+          (generic_type Option
+            (type_arguments <
+              (reference_type &
+                (lifetime ' a) str) >))
+          (block
+            (call_expression
+              (field_expression
+                (call_expression
+                  (field_expression
+                    (field_expression self . attrs) . get)
+                  (arguments name)) . cloned)
+              (arguments))))))
+    (impl_item
+      (type_parameters <
+        (lifetime_parameter
+          (lifetime ' a)) >) PartialEq
+      (generic_type Edge
+        (type_arguments <
+          (lifetime ' a) >))
+      (declaration_list
+        (function_item eq
+          (parameters
+            (self_parameter & self)
+            (parameter PLACEHOLDER_3 :
+              (reference_type & Self))) -> bool
+          (block
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (field_expression self . from) ==
+                  (field_expression PLACEHOLDER_3 . from)) &&
+                (binary_expression
+                  (field_expression self . (field_identifier PLACEHOLDER_2)) ==
+                  (field_expression PLACEHOLDER_3 . (field_identifier PLACEHOLDER_2)))) &&
+              (binary_expression
+                (field_expression self . attrs) ==
+                (field_expression PLACEHOLDER_3 . attrs)))))))
+    (impl_item
+      (type_parameters <
+        (lifetime_parameter
+          (lifetime ' a)) >) Clone
+      (generic_type Edge
+        (type_arguments <
+          (lifetime ' a) >))
+      (declaration_list
+        (function_item clone
+          (parameters
+            (self_parameter & self)) -> Self
+          (block
+            (struct_expression Edge
+              (field_initializer_list
+                (field_initializer from :
+                  (field_expression self . from))
+                (field_initializer (field_identifier PLACEHOLDER_2) :
+                  (field_expression self . (field_identifier PLACEHOLDER_2)))
+                (field_initializer attrs :
+                  (call_expression
+                    (field_expression
+                      (field_expression self . attrs) . clone)
+                    (arguments)))))))))))
+(file "src/graph/graph_items/node.rs"
+  (source_file
+    (use_declaration
+      (scoped_identifier
+        (scoped_identifier std :: collections) :: HashMap))
+    (attribute_item #
+      (attribute derive
+        (token_tree Debug)))
+    (struct_item
+      (visibility_modifier pub) Node
+      (type_parameters <
+        (lifetime_parameter
+          (lifetime ' a)) >)
+      (field_declaration_list
+        (field_declaration
+          (visibility_modifier pub) name :
+          (reference_type &
+            (lifetime ' a) str))
+        (field_declaration
+          (visibility_modifier pub) attrs :
+          (generic_type HashMap
+            (type_arguments < String String >)))))
+    (impl_item
+      (type_parameters <
+        (lifetime_parameter
+          (lifetime ' a)) >)
+      (generic_type Node
+        (type_arguments <
+          (lifetime ' a) >))
+      (declaration_list
+        (function_item
+          (visibility_modifier pub) with_attrs
+          (parameters
+            (self_parameter mut self)
+            (parameter attrs :
+              (reference_type &
+                (array_type
+                  (tuple_type
+                    (reference_type & str)
+                    (reference_type & str)))))) -> Self
+          (block
+            (expression_statement
+              (for_expression
+                (reference_pattern &
+                  (tuple_pattern name PLACEHOLDER_1)) attrs
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression
+                        (field_expression self . attrs) . insert)
+                      (arguments
+                        (call_expression
+                          (scoped_identifier String :: from)
+                          (arguments name))
+                        (call_expression
+                          (scoped_identifier String :: from)
+                          (arguments PLACEHOLDER_1)))))))) self))
+        (function_item
+          (visibility_modifier pub) attr
+          (parameters
+            (self_parameter & self)
+            (parameter PLACEHOLDER_4 :
+              (reference_type & str))) ->
+          (generic_type Option
+            (type_arguments <
+              (reference_type & str) >))
+          (block
+            (call_expression
+              (field_expression
+                (call_expression
+                  (field_expression
+                    (field_expression self . attrs) . get)
+                  (arguments PLACEHOLDER_4)) . map)
+              (arguments
+                (closure_expression
+                  (closure_parameters PLACEHOLDER_5)
+                  (reference_expression &
+                    (index_expression PLACEHOLDER_5
+                      (range_expression ..))))))))
+        (function_item
+          (visibility_modifier pub) new
+          (parameters
+            (parameter name :
+              (reference_type &
+                (lifetime ' a) str))) -> Self
+          (block
+            (struct_expression Node
+              (field_initializer_list
+                (field_initializer name : name)
+                (field_initializer attrs :
+                  (call_expression
+                    (scoped_identifier HashMap :: new)
+                    (arguments)))))))))
+    (impl_item PartialEq
+      (generic_type Node
+        (type_arguments <
+          (lifetime ' _) >))
+      (declaration_list
+        (function_item eq
+          (parameters
+            (self_parameter & self)
+            (parameter PLACEHOLDER_3 :
+              (reference_type & Self))) -> bool
+          (block
+            (binary_expression
+              (binary_expression
+                (field_expression self . name) ==
+                (field_expression PLACEHOLDER_3 . name)) &&
+              (binary_expression
+                (field_expression self . attrs) ==
+                (field_expression PLACEHOLDER_3 . attrs)))))))
+    (impl_item Clone
+      (generic_type Node
+        (type_arguments <
+          (lifetime ' _) >))
+      (declaration_list
+        (function_item clone
+          (parameters
+            (self_parameter & self)) -> Self
+          (block
+            (struct_expression Node
+              (field_initializer_list
+                (field_initializer name :
+                  (field_expression self . name))
+                (field_initializer attrs :
+                  (call_expression
+                    (field_expression
+                      (field_expression self . attrs) . clone)
+                    (arguments)))))))))))
+(file "src/lib.rs"
+  (source_file
+    (mod_item
+      (visibility_modifier pub) graph)))

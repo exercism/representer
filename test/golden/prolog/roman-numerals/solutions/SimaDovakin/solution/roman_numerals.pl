@@ -1,0 +1,69 @@
+:- use_module(library(clpfd)).
+
+number_digits(N, Thousands, Hundreds, Tens, Ones):-
+	N // 1000 #= Thousands,
+	N mod 1000 // 100 #= Hundreds,
+	N mod 1000 mod 100 // 10 #= Tens,
+	N mod 1000 mod 100 mod 10 #= Ones.
+
+string_repeated_string(_, 0, ""):- !.
+string_repeated_string(String, Repeate, RepeatedString):-
+    Repeate - 1 #= RepeateNext,
+    string_repeated_string(String, RepeateNext, RestString),
+    string_concat(String, RestString, RepeatedString).
+
+ones_numerals(0, "").
+ones_numerals(N, R):-
+    N < 4,
+    string_repeated_string("I", N, R).
+ones_numerals(4, "IV").
+ones_numerals(5, "V").
+ones_numerals(N, R):-
+    N > 5,
+    N - 5 #= M,
+    string_repeated_string("I", M, RepeatedOnes),
+    string_concat("V", RepeatedOnes, R).
+ones_numerals(9, "IX").
+
+tens_numerals(0, "").
+tens_numerals(N, R):-
+    N < 4,
+    string_repeated_string("X", N, R).
+tens_numerals(4, "XL").
+tens_numerals(5, "L").
+tens_numerals(N, R):-
+    N > 5,
+    N - 5 #= M,
+    string_repeated_string("X", M, RepeatedTens),
+    string_concat("L", RepeatedTens, R).
+tens_numerals(9, "XC").
+
+hundreds_numerals(0, "").
+hundreds_numerals(N, R):-
+    N < 4,
+    string_repeated_string("C", N, R).
+hundreds_numerals(4, "CD").
+hundreds_numerals(5, "D").
+hundreds_numerals(N, R):-
+    N > 5,
+    N - 5 #= M,
+    string_repeated_string("C", M, RepeatedHundreds),
+    string_concat("D", RepeatedHundreds, R).
+hundreds_numerals(9, "CM").
+
+thousands_numerals(0, "").
+thousands_numerals(N, R):-
+    N < 4,
+    string_repeated_string("M", N, R).
+
+convert(0, _):- false.
+convert(N, Numeral):-
+	number_digits(N, Thousands, Hundreds, Tens, Ones),
+	ones_numerals(Ones, OnesNumeral),
+	tens_numerals(Tens, TensNumeral),
+	hundreds_numerals(Hundreds, HundredsNumeral),
+	thousands_numerals(Thousands, ThousandsNumeral),
+	atomics_to_string(
+		[ThousandsNumeral, HundredsNumeral, TensNumeral, OnesNumeral],
+		Numeral
+	).

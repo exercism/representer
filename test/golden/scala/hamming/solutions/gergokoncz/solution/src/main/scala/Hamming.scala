@@ -1,0 +1,11 @@
+object Hamming {
+    def distance(one: String, two: String): Option[Int] = {
+        if (one.length != two.length) return None
+        
+        var distCounter = 0
+        one zip two foreach (p => {
+            if (p._1 != p._2) distCounter += 1
+        })
+        Some(distCounter)
+    }
+}

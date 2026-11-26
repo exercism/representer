@@ -1,0 +1,65 @@
+# These tests are auto-generated with test data from:
+# https://github.com/exercism/problem-specifications/tree/main/exercises/isogram/canonical-data.json
+# File last updated on 2026-10-22
+
+using Test
+
+include("isogram.jl")
+
+@testset verbose = true "tests" begin
+    @testset "empty string" begin
+        @test isisogram("")
+    end
+
+    @testset "isogram with only lower case characters" begin
+        @test isisogram("isogram")
+    end
+
+    @testset "word with one duplicated character" begin
+        @test !isisogram("eleven")
+    end
+
+    @testset "word with one duplicated character from the end of the alphabet" begin
+        @test !isisogram("zzyzx")
+    end
+
+    @testset "longest reported english isogram" begin
+        @test isisogram("subdermatoglyphic")
+    end
+
+    @testset "word with duplicated character in mixed case" begin
+        @test !isisogram("Alphabet")
+    end
+
+    @testset "word with duplicated character in mixed case, lowercase first" begin
+        @test !isisogram("alphAbet")
+    end
+
+    @testset "hypothetical isogrammic word with hyphen" begin
+        @test isisogram("thumbscrew-japingly")
+    end
+
+    @testset "hypothetical word with duplicated character following hyphen" begin
+        @test !isisogram("thumbscrew-jappingly")
+    end
+
+    @testset "isogram with duplicated hyphen" begin
+        @test isisogram("six-year-old")
+    end
+
+    @testset "made-up name that is an isogram" begin
+        @test isisogram("Emily Jung Schwartzkopf")
+    end
+
+    @testset "duplicated character in the middle" begin
+        @test !isisogram("accentor")
+    end
+
+    @testset "same first and last characters" begin
+        @test !isisogram("angola")
+    end
+
+    @testset "word with duplicated character and with two hyphens" begin
+        @test !isisogram("up-to-date")
+    end
+end

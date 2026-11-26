@@ -1,0 +1,13 @@
+public function format(sequence person, integer number) 
+  return sprintf("%s, you are the %d%s customer we serve today. Thank you!", { person, number, nth(number) })
+end function
+
+function nth(integer n)
+  integer r10 = remainder(n, 10)
+  integer r100 = remainder(n, 100)
+  if    r10 = 1 and r100 != 11 then return "st"
+  elsif r10 = 2 and r100 != 12 then return "nd"
+  elsif r10 = 3 and r100 != 13 then return "rd"
+  else return "th"
+  end if
+end function

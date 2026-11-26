@@ -1,0 +1,17 @@
+(file "clock.jl")
+using Dates
+using Printf
+struct Clock
+h :: Int
+m :: Int
+function Clock ( h :: Int , m :: Int )
+normal_m = mod ( m , 60 )
+wrapup = ( m < 0 && normal_m != 0 ) ? - 1 : 0
+new ( mod ( wrapup + h + div ( m , 60 ), 24 ), normal_m )
+end
+end
+show ( io :: IO , clock :: Clock ) = @printf ( io , "\"\\\"%02d:%02d\\\"\"" , clock . h , clock . m )
+Base .:+ ( clock :: Clock , minute :: Minute ) = Clock ( clock . h , clock . m + minute . value )
+Base .:+ ( minute :: Minute , clock :: Clock ) = clock + minute
+Base .:- ( clock :: Clock , minute :: Minute ) = Clock ( clock . h , clock . m - minute . value )
+Base .:- ( minute :: Minute , clock :: Clock ) = clock - minute

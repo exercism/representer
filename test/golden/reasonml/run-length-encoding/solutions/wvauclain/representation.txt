@@ -1,0 +1,43 @@
+(file "src/RunLengthEncoding.re")
+let rec encode : string => string = ( string ) => {
+let length = Js . String . length ( string );
+if ( length == 0 ) {
+"\"\""
+} else {
+let letter = string . [ 0 ];
+let index = ref ( 0 );
+while ( index ^ < length && string . [ index ^ ] == letter ) {
+index := index ^ + 1 ;
+};
+if ( index ^ == length ) {
+( index ^ == 1 ) ? String . make ( 1 , letter ) : Js . String . make ( index ^ ) ++ String . make ( 1 , letter )
+} else if ( index ^ == 1 ) {
+String . make ( 1 , letter ) ++ encode ( Js . String . substr ( ~ from = index ^, string ))
+} else {
+Js . String . make ( index ^ ) ++ String . make ( 1 , letter ) ++ encode ( Js . String . substr ( ~ from = index ^, string ))
+}
+}
+};
+let rec decode : string => string = ( string ) => {
+let length = Js . String . length ( string );
+if ( length <= 1 ) {
+string
+} else {
+switch ( Js . String . match ([ % bs . re { |/^ [ 0 - 9 ] +/| }] , string )) {
+| Some ( matches ) => {
+if ( Js . String . length ( string ) > Js . String . length ( matches [ 0 ]) + 1 ) {
+String . make ( int_of_string ( matches [ 0 ]) , string . [ Js . String . length ( matches [ 0 ])]) ++ decode ( Js . String . substr ( ~ from = ( Js . String . length ( matches [ 0 ]) + 1 ) , string ))
+} else {
+String . make ( int_of_string ( matches [ 0 ]) , string . [ Js . String . length ( matches [ 0 ])])
+}
+}
+| None => {
+if ( Js . String . length ( string ) > 1 ) {
+String . sub ( string , 0 , 1 ) ++ decode ( Js . String . substr ( ~ from = 1 , string ))
+} else {
+String . sub ( string , 0 , 1 )
+}
+}
+}
+}
+};

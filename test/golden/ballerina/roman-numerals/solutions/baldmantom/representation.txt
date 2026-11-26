@@ -1,0 +1,39 @@
+(file "roman_numerals.bal")
+# Convert an integer to a Roman number.
+#
+# + number - the integer to convert
+# + return - the Roman number as a string
+type IntToRomanNumeral record {|
+int i;
+string roman_numeral;
+|};
+table<IntToRomanNumeral> roman_numerals = table [
+{ i: 1, roman_numeral: "\"I\"},"
+{ i: 4, roman_numeral: "\"IV\"},"
+{ i: 5, roman_numeral: "\"V\"},"
+{ i: 9, roman_numeral: "\"IX\"},"
+{ i: 10, roman_numeral: "\"X\"},"
+{ i: 40, roman_numeral: "\"XL\"},"
+{ i: 50, roman_numeral: "\"L\"},"
+{ i: 90, roman_numeral: "\"XC\"},"
+{ i: 100, roman_numeral: "\"C\"},"
+{ i: 400, roman_numeral: "\"CD\"},"
+{ i: 500, roman_numeral: "\"D\"},"
+{ i: 900, roman_numeral: "\"CM\"},"
+{ i: 1000, roman_numeral: "\"M\"}"
+];
+function roman(int number) returns string {
+int counter = number;
+string rv = "\"\";"
+while counter > 0 {
+IntToRomanNumeral[] rn =
+from IntToRomanNumeral r in roman_numerals
+where counter >= r.i
+order by r.i descending
+limit 1
+select r;
+rv += rn[0].roman_numeral;
+counter -= rn[0].i;
+}
+return rv;
+}

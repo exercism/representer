@@ -1,0 +1,14 @@
+function! ToRna(strand) abort
+  let dict = {'G': 'C', 'C': 'G', 'T': 'A', 'A': 'U'}
+  let rna = ''
+
+  for p in split(a:strand, '\zs')
+    if has_key(dict, p)
+      let rna .= dict[p]
+    else
+      break
+    endif
+  endfor
+
+  return len(rna) == len(a:strand) ? rna : ''
+endfunction

@@ -1,0 +1,31 @@
+;;; roman-numerals.el --- roman-numerals Exercise (exercism)
+
+;;; Commentary:
+
+;;; Code:
+
+(defun to-roman-digit (digit small medium large)
+  (cond
+   ((< digit 4) (make-string digit small))
+   ((= digit 4) (format "%c%c" small medium))
+   ((= digit 5) (format "%c" medium))
+   ((< digit 9) (format "%c%s" medium (make-string (- digit 5) small)))
+   ((= digit 9) (format "%c%c" small large))))
+
+(defun to-roman (n)
+  (let ((thousands (/ n 1000))
+        (hundreds (/ (% n 1000) 100))
+        (tens (/ (% n 100) 10))
+        (ones (% n 10)))
+    (with-output-to-string
+      (when (> thousands 0)
+        (princ (make-string thousands ?M)))
+      (when (> hundreds 0)
+        (princ (to-roman-digit hundreds ?C ?D ?M)))
+      (when (> tens 0)
+        (princ (to-roman-digit tens ?X ?L ?C)))
+      (when (> ones 0)
+        (princ (to-roman-digit ones ?I ?V ?X))))))
+
+(provide 'roman-numerals)
+;;; roman-numerals.el ends here

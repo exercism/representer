@@ -1,0 +1,69 @@
+(file "grep.rb"
+  (program
+    (module Grep
+      (body_statement
+        (singleton_method self grep
+          (method_parameters pattern flags files)
+          (body_statement
+            (call
+              (call
+                (array) tap
+                (block
+                  (block_parameters PLACEHOLDER_1)
+                  (body_statement
+                    (call files each
+                      (block
+                        (block_parameters PLACEHOLDER_2)
+                        (body_statement
+                          (call
+                            (call
+                              (call File read
+                                (argument_list PLACEHOLDER_2)) lines) each_with_index
+                            (block
+                              (block_parameters PLACEHOLDER_3 PLACEHOLDER_4)
+                              (body_statement
+                                (assignment PLACEHOLDER_5 =
+                                  (call Regexp new
+                                    (argument_list
+                                      (conditional
+                                        (call flags include?
+                                          (argument_list "-x"))
+                                        (string "^"
+                                          (interpolation pattern) "$") pattern)
+                                      (if
+                                        (call flags include?
+                                          (argument_list "-i"))
+                                        (then
+                                          (scope_resolution Regexp :: IGNORECASE))))))
+                                (unless
+                                  (binary
+                                    (call PLACEHOLDER_3 match?
+                                      (argument_list PLACEHOLDER_5)) ^
+                                    (call flags include?
+                                      (argument_list "-v")))
+                                  (then
+                                    (next)))
+                                (if
+                                  (call flags include?
+                                    (argument_list "-l"))
+                                  (then
+                                    (break
+                                      (argument_list
+                                        (binary PLACEHOLDER_1 << PLACEHOLDER_2)))))
+                                (binary PLACEHOLDER_1 <<
+                                  (call
+                                    (array
+                                      (unless
+                                        (call files one?)
+                                        (then
+                                          (string
+                                            (interpolation PLACEHOLDER_2) ":")))
+                                      (if
+                                        (call flags include?
+                                          (argument_list "-n"))
+                                        (then
+                                          (string
+                                            (interpolation
+                                              (call PLACEHOLDER_4 succ)) ":")))
+                                      (call PLACEHOLDER_3 rstrip)) join))))))))))) join
+              (argument_list "\n"))))))))

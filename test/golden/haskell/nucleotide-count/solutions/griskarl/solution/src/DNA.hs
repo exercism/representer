@@ -1,0 +1,32 @@
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import Data.Map (Map)
+import qualified Data.Map.Strict as M
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
+type NucMap = Map Nucleotide Int
+
+mkNucMap :: NucMap
+mkNucMap = M.fromList [(A,0),(C,0),(G,0),(T,0)]
+
+nucUp :: NucMap -> Nucleotide -> NucMap
+nucUp m n = M.insertWith (+) n 1 m
+
+char2nuc :: Char -> Either String Nucleotide
+char2nuc c = case c of
+  'A' -> r A
+  'C' -> r C
+  'G' -> r G
+  'T' -> r T
+  _ -> l [c]
+  where
+    r = Right
+    l = Left
+
+nucleotideCounts :: String -> Either String NucMap
+nucleotideCounts [] = Right mkNucMap
+nucleotideCounts xs = fmap agg nucs
+  where
+    agg :: [Nucleotide] -> NucMap
+    agg ns = foldr (\n m -> nucUp m n) mkNucMap ns
+    nucs = traverse char2nuc xs

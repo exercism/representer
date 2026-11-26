@@ -1,0 +1,111 @@
+CLASS zcl_rle DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    METHODS encode IMPORTING input         TYPE string
+                   RETURNING VALUE(result) TYPE string.
+
+    METHODS decode IMPORTING input         TYPE string
+                   RETURNING VALUE(result) TYPE string.
+
+ENDCLASS.
+
+
+CLASS zcl_rle IMPLEMENTATION.
+
+  METHOD encode.
+
+    DATA:
+      input_length    TYPE i,
+      t_input_letters TYPE string_table,
+      t_temp_letters  TYPE string_table,
+      lv_counter      TYPE i,
+      lv_last_value   TYPE string.
+
+    input_length = strlen( input ).
+
+    DATA(offset) = 0.
+    DO input_length TIMES.
+      DATA(input_char) = substring( val = input off = offset len = 1 ).
+      IF '0123456789' CA input_char.
+        RETURN.
+      ENDIF.
+
+      APPEND input_char TO t_input_letters.
+      IF offset + 1 NE input_length.
+        offset += 1.
+      ENDIF.
+    ENDDO.
+
+    READ TABLE t_input_letters INTO DATA(ls_temp_letter) INDEX 1.
+    IF sy-subrc EQ 0.
+      LOOP AT t_input_letters INTO DATA(ls_letter).
+
+        IF ls_letter EQ ls_temp_letter.
+          lv_counter += 1.
+          lv_last_value = ls_letter.
+        ELSE.
+          IF lv_counter GT 1.
+            result = result && lv_counter && lv_last_value.
+            lv_counter = 1.
+            ls_temp_letter = ls_letter.
+          ELSE.
+            result = result && ls_temp_letter.
+            lv_counter = 1.
+            ls_temp_letter = ls_letter.
+          ENDIF.
+
+        ENDIF.
+        IF sy-tabix EQ lines( t_input_letters ).
+          IF lv_counter EQ 1.
+            result = result && |{ ls_letter }|.
+          ELSEIF lv_counter GT 1.
+            result = result && lv_counter && lv_last_value.
+          ENDIF.
+        ENDIF.
+
+      ENDLOOP.
+
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD decode.
+
+   DATA(str_len) = 0.
+    DATA(counter) = 0.
+    DATA lv_flag TYPE abap_bool.
+    lv_flag = abap_false.
+    DO strlen( input ) TIMES.
+      DATA(letter) = input+str_len(1).
+      IF '0123456789' CA letter.
+        lv_flag = abap_true.
+        IF counter IS NOT INITIAL.
+          DATA(lv_concat) = counter && letter.
+          counter = lv_concat.
+        ELSE.
+          counter = letter.
+        ENDIF.
+      ELSEIF counter NE 0.
+        IF lv_flag EQ abap_true.
+          DO counter TIMES.
+            result = result && letter.
+          ENDDO.
+          counter = 0.
+        ENDIF.
+        lv_flag = abap_false.
+      ELSE.
+        result = result && letter.
+      ENDIF.
+      IF str_len + 1 NE strlen( input ).
+        str_len += 1.
+      ENDIF.
+    ENDDO.
+
+  ENDMETHOD.
+
+ENDCLASS.

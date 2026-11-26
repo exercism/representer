@@ -1,0 +1,13 @@
+Class {
+	#name : #Isogram,
+	#superclass : #Object,
+	#category : #'Exercise@Isogram'
+}
+
+{ #category : #api }
+Isogram >> isIsogramPhrase: anPhrase [
+
+	| phrase |
+	phrase := anPhrase asLowercase onlyLetters.
+	^ phrase asSet size = phrase size
+]

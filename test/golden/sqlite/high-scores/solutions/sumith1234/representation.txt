@@ -1,0 +1,26 @@
+(file "high-scores.sql")
+update results
+set result = ( select group_concat ( score , ',' )
+from scores
+where game_id = results . game_id )
+where property = 'scores' ;
+update results
+set result = ( select first_value ( score ) over ( order by rowid desc )
+from scores
+where game_id = results . game_id )
+where property = 'latest' ;
+update results
+set result = ( select first_value ( score ) over ( order by score desc )
+from scores
+where game_id = results . game_id )
+where property = 'personalBest' ;
+update results
+set result = ( select group_concat ( score , ',' )
+from (
+select score
+from scores
+where game_id = results . game_id
+order by score desc
+limit 3
+))
+where property = 'personalTopThree' ;

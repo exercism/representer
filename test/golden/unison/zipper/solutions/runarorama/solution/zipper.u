@@ -1,0 +1,108 @@
+structural type Tree a = Branch a (Optional (Tree a)) (Optional (Tree a))
+
+structural type Breadcrumb a = LeftCrumb a (Optional (Tree a)) | RightCrumb a (Optional (Tree a))
+
+structural type Ctx a = Ctx (Tree a) [Breadcrumb a]
+
+unCtx : Ctx a -> Tree a
+unCtx = cases 
+  Ctx t [] -> t
+  Ctx t (LeftCrumb parent unvisited +: cs) -> 
+    unCtx (Ctx (Branch parent (Some t) unvisited) cs)
+  Ctx t (RightCrumb parent unvisited +: cs) ->
+    unCtx (Ctx (Branch parent unvisited (Some t)) cs)
+
+structural ability Zipper t a where
+  setValue : a -> ()
+  setLeft : t a ->()
+  setRight : t a -> ()
+  left : ()
+  right : ()
+  up : ()
+  deleteLeft : ()
+  deleteRight : ()
+  focus : a
+
+-- Zipper.handlerImpl performs the inner workings of the two following `run` functions.
+Zipper.handlerImpl : Tree a -> Request (Zipper Tree a) r -> (r, Tree a)
+Zipper.handlerImpl binTree =
+  h : Ctx a -> Request (Zipper Tree a) r -> (r, Tree a)
+  h = cases
+    ctx@(Ctx t@(Branch a ol or) crumbs) -> cases
+      { setValue v -> k } ->
+        handle k () with h (Ctx (Branch v ol or) crumbs)
+      { setLeft t -> k } ->
+        handle k () with h (Ctx (Branch a (Some t) or) crumbs)
+      { setRight t -> k } ->
+        handle k () with h (Ctx (Branch a ol (Some t)) crumbs)
+      { left -> k } ->
+        handle k () with h match ol with
+          Some l -> Ctx l (LeftCrumb a or +: crumbs)
+          None -> ctx
+      { right -> k } ->
+        handle k () with h match or with
+          Some r -> Ctx r (RightCrumb a ol +: crumbs)
+          None -> ctx
+      { up -> k } ->
+        handle k () with h match crumbs with
+          [] -> ctx
+          (LeftCrumb parent unvisited +: cs) ->
+            Ctx (Branch parent (Some t) unvisited) cs
+          (RightCrumb parent unvisited +: cs) ->
+            Ctx (Branch parent unvisited (Some t)) cs
+      { deleteLeft -> k } -> 
+        handle k () with h (Ctx (Branch a None or) crumbs)
+      { deleteRight -> k } ->
+        handle k () with h (Ctx (Branch a ol None) crumbs)
+      { focus -> k } ->
+        handle k a with h ctx
+      { r } -> (r, unCtx ctx)
+  h (Ctx binTree [])
+
+-- Zipper.run changes the given tree using the zipper ability,
+-- returning whatever type the function which performs the Zipper
+-- ability returns
+Zipper.run : Tree a -> '{Zipper Tree a} r -> r
+Zipper.run tree zipperFunction =
+  at1 (runWithTree tree zipperFunction)
+
+Zipper.runWithTree : Tree a -> '{Zipper Tree a} r -> (r, Tree a)
+Zipper.runWithTree tree zipperFunction =
+  handle !zipperFunction with Zipper.handlerImpl tree
+
+Zipper.runTree : Tree a -> '{Zipper Tree a} r -> Tree a
+Zipper.runTree t z = at2 (runWithTree t z)
+
+single : a -> Tree a
+single a = Branch a None None
+
+-- Below is an example of how you might use and run your Zipper ability
+
+testTree : Tree Nat
+testTree = runTree (single 1) 'let
+  setLeft (single 2)
+  setRight (single 3)
+
+changeTree : '{Zipper Tree Nat} Nat
+changeTree _ =
+  Zipper.right
+  setValue 400
+  Zipper.up
+  setValue 500
+  setLeft testTree
+  focus
+
+exampleProgram : (Nat, Tree Nat)
+exampleProgram = runWithTree testTree changeTree
+
+{-
+`exampleProgram` should return a focus of `500` and a tree structure:
+
+```
+     500
+    /   \
+    1   400
+  /   \
+ 2     3
+````
+-}

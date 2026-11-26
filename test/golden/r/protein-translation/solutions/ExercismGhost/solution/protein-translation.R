@@ -1,0 +1,37 @@
+translate <- function(bases) {
+    if (nchar(bases) == 0) {
+        return(NULL)
+    }
+  
+    codon_dict <- list(
+        "AUG" = "Methionine",
+        "UUU" = "Phenylalanine",
+        "UUC" = "Phenylalanine",
+        "UUA" = "Leucine",
+        "UUG" = "Leucine",
+        "UCU" = "Serine",
+        "UCC" = "Serine",
+        "UCA" = "Serine",
+        "UCG" = "Serine",
+        "UAU" = "Tyrosine",
+        "UAC" = "Tyrosine",
+        "UGU" = "Cysteine",
+        "UGC" = "Cysteine",
+        "UGG" = "Tryptophan",
+        "UAA" = "STOP",
+        "UAG" = "STOP",
+        "UGA" = "STOP"
+    )
+    
+    proteins <- c()
+    for (i in seq(1, nchar(bases), by = 3)) {
+        codon <- substr(bases, i, i + 2)
+        protein <- codon_dict[[codon]]
+        if (protein == "STOP") {
+            break
+        }
+        proteins <- c(proteins, protein)
+    }
+    return(proteins)
+  
+}

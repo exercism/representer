@@ -1,0 +1,23 @@
+(file "src/DNA.hs")
+module DNA ( nucleotideCounts , Nucleotide ( .. )) where
+import Data.Map ( Map , insert , findWithDefault , fromList )
+data Nucleotide = A | C | G | T deriving ( Eq , Ord , Show )
+mapCharToNucleotide :: Char -> Maybe Nucleotide
+mapCharToNucleotide c
+  | c == 'A' = Just A
+  | c == 'C' = Just C
+  | c == 'G' = Just G
+  | c == 'T' = Just T
+  | otherwise = Nothing
+keyCounter :: ( Ord k ) => Map k Int -> k -> Map k Int
+keyCounter initialMap key =
+  insert key ( oldValue + 1 ) initialMap
+  where oldValue = findWithDefault 0 key initialMap
+    oldValue :: Int
+nucleotideCounts :: String -> Either String ( Map Nucleotide Int )
+nucleotideCounts xs =
+  case maybeSequence of
+    Nothing -> Left xs
+    Just listOfNucleotides -> Right ( foldr ( \ n acc -> keyCounter acc n ) empty listOfNucleotides )
+  where maybeSequence = sequence $ map mapCharToNucleotide xs
+    empty = fromList [( A , 0 ), ( C , 0 ), ( G , 0 ), ( T , 0 )]

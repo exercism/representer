@@ -1,0 +1,9 @@
+USING: kernel math ;
+IN: eliuds-eggs
+
+: egg-count ( n -- count )
+    0 swap
+    [ [ 0 > ] 1check ] 
+    [ [ 1 bitand + ] [ -1 shift ] bi ] 
+    while
+    drop ;

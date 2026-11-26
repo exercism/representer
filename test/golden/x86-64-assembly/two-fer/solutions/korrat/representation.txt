@@ -1,0 +1,30 @@
+(file "two_fer.asm")
+default rel
+section .rodata
+msg1: db "\"" One for "\"\nmsg2: db \"" , one for me. "\", 0\nyou: db \"" you "\"" , 0
+section .text
+global two_fer
+two_fer:
+push rdi
+mov rdi , rsi
+mov rcx , 8
+lea rsi , [ msg1 ]
+rep movsb
+pop rsi
+push rdi
+cmp rsi , 0
+jne .name
+lea rsi , [ you ]
+.name:
+mov al , 0
+mov rdi , rsi
+not rcx
+repnz scasb
+not rcx
+dec rcx
+pop rdi
+rep movsb
+mov rcx , 14
+lea rsi , [ msg2 ]
+rep movsb
+ret

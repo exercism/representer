@@ -1,0 +1,10 @@
+module RotationalCipher (rotate) where
+import Data.Char
+cipherLower x n = chr ( ord 'a' + mod (ord x - ord 'a' + n) 26)
+cipherUpper x n = chr ( ord 'A' + mod (ord x - ord 'A' + n) 26)
+rotate :: Int -> String -> String
+rotate n [] = []
+rotate n (x:xs) 
+	| isLower x = cipherLower x n:(rotate n xs)
+	| isUpper x = cipherUpper x n:(rotate n xs)
+	| otherwise = x:rotate n xs

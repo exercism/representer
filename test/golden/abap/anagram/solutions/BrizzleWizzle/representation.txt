@@ -1,0 +1,46 @@
+(file "zcl_anagram.clas.abap")
+CLASS zcl_anagram DEFINITION
+PUBLIC
+FINAL
+CREATE PUBLIC .
+PUBLIC SECTION .
+METHODS anagram
+IMPORTING
+input TYPE string
+candidates TYPE string_table
+RETURNING
+VALUE ( result ) TYPE string_table .
+PROTECTED SECTION .
+PRIVATE SECTION .
+methods sort_word importing input type string
+returning value ( result ) type string .
+ENDCLASS .
+CLASS zcl_anagram IMPLEMENTATION .
+METHOD anagram .
+data word_counter type i value 0 .
+data sorted_words type string_table .
+loop at candidates into data ( candidate ).
+if to_upper ( input ) <> to_upper ( candidate ).
+insert sort_word ( candidate ) into table sorted_words .
+else .
+insert space into table sorted_words .
+endif .
+endloop .
+data ( input_sorted ) = sort_word ( input ).
+loop at sorted_words into data ( word ) where table_line = input_sorted .
+word_counter = sy-tabix .
+insert candidates [ word_counter ] into table result .
+endloop .
+ENDMETHOD .
+method sort_word .
+data offset type i value 0 .
+data sorted_word type string_table .
+do strlen ( input ) times .
+assign input + offset ( 1 ) to field-symbol ( < letter > ).
+insert to_upper ( val = < letter > ) into table sorted_word .
+offset += 1 .
+enddo .
+sort sorted_word .
+concatenate lines of sorted_word into result .
+endmethod .
+ENDCLASS .

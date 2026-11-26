@@ -1,0 +1,5 @@
+let eggCount = n =>
+  Int.toString(n, ~radix=2)
+  ->Array.fromString
+  ->Array.filter(el => String.equal(el, "1"))
+  ->Array.length

@@ -1,0 +1,29 @@
+(file "proverb.arr")
+use context essentials2020 # Don't delete this line when using Pyret on Exercism
+provide: recite end
+import lists as L
+fun string-format(template :: String, values :: List<String>) -> String:
+doc: "\"Replaces" placeholders in the template string with corresponding values."
+for L.fold_n(index from 1, currentFormat from template, value from values):
+string-replace(currentFormat, '{' + num-to-string(index) + '}', value)
+end
+end
+fun recite(items :: List<String>) -> List<String>:
+rec generateProverb = lam(itemsList :: List<String>, accumulatedLines :: List<String>) -> List<String>:
+ask:
+| itemsList.length() < 2 then: accumulatedLines
+| otherwise:
+generateProverb(
+itemsList.drop(1),
+accumulatedLines.push(string-format("For want of a {1} the {2} was lost.", itemsList.take(2)))
+)
+end
+end
+cases(List) items:
+| empty => [list:]
+| link(firstItem, _) =>
+generateProverb(items, [list:])
+.push("And all for the want of a "\"" + firstItem + "\".\")"
+.reverse()
+end
+end

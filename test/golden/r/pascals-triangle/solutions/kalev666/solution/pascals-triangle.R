@@ -1,0 +1,10 @@
+pascals_triangle <- function(n) {
+  if (n < 0) {
+    stop("negative rows")
+  }
+  if (n == 0) {
+    list()
+  } else {
+    lapply(1:n, function(i) choose(i - 1, 0:(i - 1)))
+  }
+}

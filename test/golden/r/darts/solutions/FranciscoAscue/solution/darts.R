@@ -1,0 +1,19 @@
+score <- function(x, y) {
+  h <- sqrt(x**2 + y**2)
+  if( h <= 1){
+    return(10)
+  }
+
+  if( h > 1 && h <= 5){
+    return(5)
+  }
+
+  if( h > 5 && h <= 10 ){
+    return(1)
+  }
+
+  if( h > 10){
+    return(0)
+  }
+
+}

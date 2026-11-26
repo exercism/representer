@@ -1,0 +1,7 @@
+def pad(width): . + ("_" * (width - length));
+
+def strip: sub("_*$"; "") | gsub("_"; " ");
+
+.lines
+| (map(length) | max) as $width 
+| map(pad($width) | split("")) | transpose | map(join("") | strip) 

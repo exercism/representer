@@ -1,0 +1,20 @@
+(file "nucleotide-count.sql")
+DROP TABLE IF EXISTS "\"nucleotide-count\"" ;
+CREATE TABLE "\"nucleotide-count\"" (
+"\"strand\"" TEXT ,
+"\"result\"" TEXT ,
+CHECK ( LENGTH ( REPLACE ( REPLACE ( REPLACE ( REPLACE ( strand , 'A' , '' ), 'C' , '' ), 'G' , '' ), 'T' , '' )) = 0 )
+);
+. mode csv
+. import . / data . csv "\"nucleotide-count\""
+UPDATE "\"nucleotide-count\""
+SET result = (
+SELECT json_object (
+'A' , LENGTH ( strand ) - LENGTH ( REPLACE ( strand , 'A' , '' )),
+'C' , LENGTH ( strand ) - LENGTH ( REPLACE ( strand , 'C' , '' )),
+'G' , LENGTH ( strand ) - LENGTH ( REPLACE ( strand , 'G' , '' )),
+'T' , LENGTH ( strand ) - LENGTH ( REPLACE ( strand , 'T' , '' ))
+)
+FROM "\"nucleotide-count\"" AS counts
+WHERE "\"nucleotide-count\"" . strand = counts . strand
+);

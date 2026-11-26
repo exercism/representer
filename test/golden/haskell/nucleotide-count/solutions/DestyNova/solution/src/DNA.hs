@@ -1,0 +1,14 @@
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import Data.Map (Map, fromList, update)
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts = go $ fromList [(A, 0), (C, 0), (G, 0), (T, 0)]
+  where go ds "" = Right ds
+        go ds (x:xs) = case lookup x dnaTable of
+          Nothing -> Left "wat?"
+          Just d -> go (update (Just . succ) d ds) xs
+
+        dnaTable = zip "ACGT" [A,C,G,T]

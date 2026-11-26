@@ -1,0 +1,16 @@
+class Hexadecimal
+  HEXEQUENCE = "0123456789ABCDEF"
+  
+  constructor: (value) ->
+    @value = value.toUpperCase()
+  
+  toDecimal: () ->
+    decimal = 0
+    if /^[0-9A-F]+$/.test @value
+      parts = (@value.split '').reverse()
+      for part, index in parts
+        decimal += 16 ** index * HEXEQUENCE.indexOf part
+    
+    decimal
+
+module.exports = Hexadecimal

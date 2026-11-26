@@ -1,0 +1,53 @@
+(file "bird_watcher.asm")
+default rel
+section .data
+last_week_birds db 0 , 2 , 5 , 3 , 7 , 8 , 4 , 0
+current_week_birds db 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0
+current_count dq 0
+section .text
+global last_week_counts
+last_week_counts:
+mov rax , qword [ last_week_birds ]
+ret
+global current_week_counts
+current_week_counts:
+mov rax , qword [ current_week_birds ]
+mov rdx , qword [ current_count ]
+ret
+global save_count
+save_count:
+movzx eax , byte [ current_count ]
+cmp al , 7
+je .end_of_week
+lea rsi , [ current_week_birds ]
+mov [ rsi + rax ], di l
+inc al
+mov [ current_count ], al
+ret
+.end_of_week:
+mov rsi , [ current_week_birds ]
+mov [ last_week_birds ], rsi
+mov [ current_week_birds ], rdi
+mov byte [ current_count ], 1
+ret
+global today_count
+today_count:
+lea rsi , [ current_week_birds - 1 ]
+mov rdi , [ current_count ]
+mov rax , [ rsi + rdi ]
+ret
+global update_today_count
+update_today_count:
+lea rax , [ current_week_birds - 1 ]
+movzx esi , byte [ current_count ]
+add byte [ rax + rsi ], di l
+ret
+global update_week_counts
+update_week_counts:
+mov rax , [ current_week_birds ]
+mov [ last_week_birds ], rax
+mov [ current_week_birds ], rdi
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

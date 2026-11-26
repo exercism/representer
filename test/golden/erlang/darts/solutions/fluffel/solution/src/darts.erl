@@ -1,0 +1,15 @@
+-module(darts).
+
+-export([score/2]).
+
+score(X, Y) ->
+    Distance = distance(X, Y),
+    case Distance of
+        D when D =< 1 -> 10;
+        D when D =< 5 -> 5;
+        D when D =< 10 -> 1;
+        _D -> 0
+    end.
+
+distance(X, Y) ->
+    math:sqrt(math:pow(X, 2) + math:pow(Y, 2)).

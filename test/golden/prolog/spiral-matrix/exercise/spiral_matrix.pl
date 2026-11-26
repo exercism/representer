@@ -1,0 +1,1 @@
+spiral(Size, Matrix).

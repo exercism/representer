@@ -1,0 +1,32 @@
+module main
+
+fn sieve(limit int) []int {
+	mut numbers := []int{len: limit + 1, cap: limit + 1, init: 0}
+	mut sieve_nums := []int{}
+	mut prev := 2
+	
+	for i in 2 .. limit + 1 {
+		numbers[i] = i
+	}
+		
+	if limit == 1{
+		return []
+	}else if limit == 2{
+		return [2]	
+	}else{
+            for i in prev .. limit {
+                for j in prev * 2 .. limit + 1{
+                    if j % prev == 0 {
+                        numbers[j] = 0
+                    }
+                }
+               prev = prev + 1
+            }
+     }	
+     for num in numbers {
+		if num != 0{
+			sieve_nums << num
+		}
+	}     	
+     return sieve_nums
+}

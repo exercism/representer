@@ -1,0 +1,79 @@
+(file "src/high_scores.gleam"
+  (source_file
+    (import gleam/int)
+    (import gleam/list)
+    (function pub scores
+      (function_parameters
+        (function_parameter high_scores :
+          (type List
+            (type_arguments
+              (type_argument
+                (type Int)))))) ->
+      (type List
+        (type_arguments
+          (type_argument
+            (type Int))))
+      (block high_scores))
+    (function pub latest
+      (function_parameters
+        (function_parameter high_scores :
+          (type List
+            (type_arguments
+              (type_argument
+                (type Int)))))) ->
+      (type Result
+        (type_arguments
+          (type_argument
+            (type Int))
+          (type_argument
+            (type Nil))))
+      (block
+        (binary_expression high_scores |>
+          (field_access list . last))))
+    (function pub personal_best
+      (function_parameters
+        (function_parameter high_scores :
+          (type List
+            (type_arguments
+              (type_argument
+                (type Int)))))) ->
+      (type Result
+        (type_arguments
+          (type_argument
+            (type Int))
+          (type_argument
+            (type Nil))))
+      (block
+        (binary_expression
+          (binary_expression high_scores |>
+            (function_call
+              (field_access list . sort)
+              (arguments
+                (argument
+                  (field_access int . compare))))) |>
+          (field_access list . last))))
+    (function pub personal_top_three
+      (function_parameters
+        (function_parameter high_scores :
+          (type List
+            (type_arguments
+              (type_argument
+                (type Int)))))) ->
+      (type List
+        (type_arguments
+          (type_argument
+            (type Int))))
+      (block
+        (binary_expression
+          (binary_expression
+            (binary_expression high_scores |>
+              (function_call
+                (field_access list . sort)
+                (arguments
+                  (argument
+                    (field_access int . compare))))) |>
+            (field_access list . reverse)) |>
+          (function_call
+            (field_access list . take)
+            (arguments
+              (argument 3))))))))

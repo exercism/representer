@@ -1,0 +1,11 @@
+(import (rnrs))
+
+(define (dna->rna dna)
+    (list->string
+        (map (lambda (n)
+            (cond
+              ((eq? n #\G) #\C)
+              ((eq? n #\C) #\G)
+              ((eq? n #\T) #\A)
+              ((eq? n #\A) #\U)))
+            (string->list dna))))

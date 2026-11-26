@@ -1,0 +1,37 @@
+local function turn_right (direction)
+  if direction == 'north' then return 'east'
+  elseif direction == 'east' then return 'south'
+  elseif direction == 'south' then return 'west'
+  elseif direction == 'west' then return 'north'
+  end
+end
+
+local function turn_left (direction)
+  if direction == 'north' then return 'west'
+  elseif direction == 'east' then return 'north'
+  elseif direction == 'south' then return 'east'
+  elseif direction == 'west' then return 'south'
+  end
+end
+
+return function (start)
+  return {
+    x = start.x,
+    y = start.y,
+    heading = start.heading,
+
+    move = function(self, instructions)
+      assert(not instructions:find('[^ARL]'))
+      
+      for i in instructions:gmatch('.') do
+        if i == 'A' then
+          if self.heading == 'north' then self.y = self.y + 1
+          elseif self.heading == 'east' then self.x = self.x + 1
+          elseif self.heading == 'south' then self.y = self.y - 1
+          elseif self.heading == 'west' then self.x = self.x - 1 end
+        elseif i == 'R' then self.heading = turn_right(self.heading)
+        elseif i == 'L' then self.heading = turn_left(self.heading) end
+      end
+    end
+  }
+end

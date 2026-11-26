@@ -1,0 +1,8 @@
+fun reverse (value: string): string = let
+  val arr = explode value
+in
+  implode (rev arr)
+end
+fun rev value = case value of
+  [] => []
+| x::xs => rev xs @ [x]

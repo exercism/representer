@@ -1,0 +1,15 @@
+c0 = '0'\byte!
+cx = 'X'\byte!
+{
+  is_valid: (input) ->
+    input = input\gsub '-', ''
+    return false if input\len! != 10
+    return false if input\match '[^0-9X]'
+    return false if input\sub(1, 9)\match 'X'
+    sum = 0
+    for i = 1, 10
+      b = input\byte i, i
+      c = if b == cx then 10 else b - c0
+      sum += c * (11 - i)
+    sum % 11 == 0
+}

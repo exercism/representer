@@ -1,0 +1,5 @@
+object ReverseString {
+
+  def reverse(str: String): String = str.foldLeft("")((acc, c) => c + acc)
+
+}

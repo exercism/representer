@@ -1,0 +1,29 @@
+open Base;;
+
+let encode str =
+  let update l c = 
+    match l with
+    | ((k, n)::tl) when Char.(k = c) -> ((k, n+1)::tl)
+    | _ -> ((c, 1)::l)
+  in
+    String.fold str ~init:[] ~f:update
+    |> List.map ~f:(fun (k, n) -> (if n = 1 then "" else (Int.to_string n)) ^ (String.of_char k))
+    |> List.rev
+    |> String.concat 
+
+let decode str = 
+  let c_to_int c = 
+    Char.to_int c - Char.to_int '0'
+  in
+  let rec repeat c n =
+    if n = 0 
+    then ""
+    else Char.to_string c ^ repeat c (n-1)
+  in
+  let update (v, s) c = 
+    if Char.is_digit c
+    then ((v * 10 + c_to_int c), s)
+    else (0, s ^ repeat c (if v = 0 then 1 else v))
+  in
+    String.fold ~init:(0, "") ~f:update str
+    |> snd

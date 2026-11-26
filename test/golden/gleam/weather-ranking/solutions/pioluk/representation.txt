@@ -1,0 +1,137 @@
+(file "src/weather_ranking.gleam"
+  (source_file
+    (import gleam/float)
+    (import gleam/list)
+    (import gleam/order .
+      (unqualified_imports
+        (unqualified_import Order)))
+    (type_definition pub
+      (type_name City)
+      (data_constructors
+        (data_constructor City
+          (data_constructor_arguments
+            (data_constructor_argument name :
+              (type String))
+            (data_constructor_argument temperature :
+              (type (type_identifier PLACEHOLDER_1)))))))
+    (type_definition pub
+      (type_name (type_identifier PLACEHOLDER_1))
+      (data_constructors
+        (data_constructor Celsius
+          (data_constructor_arguments
+            (data_constructor_argument
+              (type Float))))
+        (data_constructor Fahrenheit
+          (data_constructor_arguments
+            (data_constructor_argument
+              (type Float))))))
+    (function pub fahrenheit_to_celsius
+      (function_parameters
+        (function_parameter PLACEHOLDER_2 :
+          (type Float))) ->
+      (type Float)
+      (block
+        (binary_expression
+          (block
+            (binary_expression PLACEHOLDER_2 -. 32.0)) /. 1.8)))
+    (function pub compare_temperature
+      (function_parameters
+        (function_parameter PLACEHOLDER_3 :
+          (type (type_identifier PLACEHOLDER_1)))
+        (function_parameter PLACEHOLDER_4 :
+          (type (type_identifier PLACEHOLDER_1)))) ->
+      (type Order)
+      (block
+        (case
+          (case_subjects PLACEHOLDER_3 PLACEHOLDER_4)
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (record_pattern Celsius
+                    (record_pattern_arguments
+                      (record_pattern_argument (variable PLACEHOLDER_5))))
+                  (record_pattern Celsius
+                    (record_pattern_arguments
+                      (record_pattern_argument (variable PLACEHOLDER_6)))))) ->
+              (function_call
+                (field_access float . compare)
+                (arguments
+                  (argument PLACEHOLDER_5)
+                  (argument PLACEHOLDER_6))))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (record_pattern Fahrenheit
+                    (record_pattern_arguments
+                      (record_pattern_argument (variable PLACEHOLDER_5))))
+                  (record_pattern Fahrenheit
+                    (record_pattern_arguments
+                      (record_pattern_argument (variable PLACEHOLDER_6)))))) ->
+              (function_call
+                (field_access float . compare)
+                (arguments
+                  (argument PLACEHOLDER_5)
+                  (argument PLACEHOLDER_6))))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (record_pattern Celsius
+                    (record_pattern_arguments
+                      (record_pattern_argument (variable PLACEHOLDER_5))))
+                  (record_pattern Fahrenheit
+                    (record_pattern_arguments
+                      (record_pattern_argument (variable PLACEHOLDER_6)))))) ->
+              (function_call
+                (field_access float . compare)
+                (arguments
+                  (argument PLACEHOLDER_5)
+                  (argument
+                    (function_call fahrenheit_to_celsius
+                      (arguments
+                        (argument PLACEHOLDER_6)))))))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (record_pattern Fahrenheit
+                    (record_pattern_arguments
+                      (record_pattern_argument (variable PLACEHOLDER_5))))
+                  (record_pattern Celsius
+                    (record_pattern_arguments
+                      (record_pattern_argument (variable PLACEHOLDER_6)))))) ->
+              (function_call
+                (field_access float . compare)
+                (arguments
+                  (argument
+                    (function_call fahrenheit_to_celsius
+                      (arguments
+                        (argument PLACEHOLDER_5))))
+                  (argument PLACEHOLDER_6))))))))
+    (function pub sort_cities_by_temperature
+      (function_parameters
+        (function_parameter PLACEHOLDER_7 :
+          (type List
+            (type_arguments
+              (type_argument
+                (type City)))))) ->
+      (type List
+        (type_arguments
+          (type_argument
+            (type City))))
+      (block
+        (function_call
+          (field_access list . sort)
+          (arguments
+            (argument PLACEHOLDER_7)
+            (argument
+              (anonymous_function
+                (function_parameters
+                  (function_parameter PLACEHOLDER_8)
+                  (function_parameter PLACEHOLDER_9))
+                (block
+                  (function_call compare_temperature
+                    (arguments
+                      (argument
+                        (field_access PLACEHOLDER_8 . temperature))
+                      (argument
+                        (field_access PLACEHOLDER_9 . temperature)))))))))))))

@@ -1,0 +1,2 @@
+fun reverse (value: string): string =
+  (implode o rev o explode) value

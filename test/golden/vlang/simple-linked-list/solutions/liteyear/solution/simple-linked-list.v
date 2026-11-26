@@ -1,0 +1,73 @@
+module main
+
+//Opted for a sentinel based design because V's treatment of Option references is currently
+//buggy (although rapidly improving! https://github.com/vlang/v/pull/17617 )
+//Fun design exercise too. It means there's no need for a separate Node type. Instead a
+//LinkedList is either the end of list sentinel, or a node that points to the rest of the list.
+
+//Must be heap because we need a reference to it when pushing
+[heap]
+struct LinkedList {
+mut:
+	value ?int //none indicates the sentinel
+	next &LinkedList = unsafe { nil } //initial value never gets used, but we need something
+	len int //to satisfy tests
+}
+
+//Make LinkedList iterable. Easy to do and makes for loops nice.
+fn (mut iter LinkedList) next() ?int {
+	ret := iter.value or { return none }
+	defer { iter = iter.next }
+	return ret
+}
+
+fn new() LinkedList {
+	return LinkedList{}
+}
+
+fn from_array(array []int) LinkedList {
+	mut ll := new()
+	for i in array {
+		ll.push(i)
+	}
+	return ll
+}
+
+fn (list LinkedList) is_empty() bool {
+	return list.value == none
+}
+
+fn (mut list LinkedList) push(data int) {
+	old_list := list
+	//No struct update in place syntax, so just re-assign each field 
+	list.value = data
+	list.next = &old_list
+	list.len = old_list.len+1
+}
+
+fn (mut list LinkedList) pop() ?int {
+	ret := list.value or { return none }
+	list = list.next
+	return ret
+}
+
+fn (list LinkedList) peek() ?int {
+	return list.value! //without the ! I get a builder error.
+}
+
+fn (list LinkedList) to_array() []int {
+	mut ret := []int{}
+	for node in list {
+		ret.prepend(node)
+	}
+	return ret
+}
+
+fn (list LinkedList) reverse() LinkedList {
+	mut ret := new()
+	
+	for node in list {
+		ret.push(node)
+	}
+	return ret
+}

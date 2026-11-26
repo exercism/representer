@@ -1,0 +1,51 @@
+(file "zcl_nth_prime.clas.abap")
+class ZCL_NTH_PRIME definition
+public
+final
+create public .
+public section .
+methods PRIME
+importing
+INPUT type I
+returning
+value ( RESULT ) type I
+raising
+CX_PARAMETER_INVALID .
+private section .
+methods IS_NUMBER_PRIME
+importing
+NATURAL_NUMBER type I
+returning
+value ( IS_PRIME ) type ABAP_BOOL .
+endclass .
+class ZCL_NTH_PRIME implementation .
+method PRIME .
+if INPUT <= 0 .
+raise exception type CX_PARAMETER_INVALID .
+endif .
+data ( COUNT_OF_PRIMES ) = 0 .
+while COUNT_OF_PRIMES < INPUT .
+RESULT += 1 .
+check IS_NUMBER_PRIME ( RESULT ).
+COUNT_OF_PRIMES += 1 .
+endwhile .
+endmethod .
+method IS_NUMBER_PRIME .
+check NATURAL_NUMBER > 1 .
+data ( PREVIOUS_NATURAL_NUMBER ) = 2 .
+if NATURAL_NUMBER = 2 .
+IS_PRIME = ABAP_TRUE .
+else .
+PREVIOUS_NATURAL_NUMBER = 2 .
+while PREVIOUS_NATURAL_NUMBER < NATURAL_NUMBER .
+if NATURAL_NUMBER mod PREVIOUS_NATURAL_NUMBER = 0 .
+IS_PRIME = ABAP_FALSE .
+exit .
+else .
+PREVIOUS_NATURAL_NUMBER += 1 .
+IS_PRIME = ABAP_TRUE .
+endif .
+endwhile .
+endif .
+endmethod .
+endclass .

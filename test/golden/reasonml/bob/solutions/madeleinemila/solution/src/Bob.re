@@ -1,0 +1,19 @@
+let hey = input => {
+  let call = Js.String.trim(input);
+  let isEmpty = c => Js.String.length(c) == 0;
+  let isAllNonLetters = Js.Re.test_([%re "/^[^a-zA-Z]*$/"]);
+  let isQuestion = Js.String.endsWith("?");
+
+  let isYelling = c =>
+    !isAllNonLetters(c) && Js.String.toUpperCase(c) == c && !isEmpty(c);
+
+  let isYellingQuestion = c => isQuestion(c) && isYelling(c);
+
+  switch (call) {
+  | str when isEmpty(str) => "Fine. Be that way!"
+  | str when isYellingQuestion(str) => "Calm down, I know what I'm doing!"
+  | str when isYelling(str) => "Whoa, chill out!"
+  | str when isQuestion(str) => "Sure."
+  | _ => "Whatever."
+  };
+};

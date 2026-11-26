@@ -1,0 +1,63 @@
+(file "currency_exchange.asm")
+default rel
+section .rodata
+currency_strings:
+db "\"GBP\"" , 0
+db "\"EUR\"" , 0
+db "\"JPY\"" , 0
+db "\"AUD\"" , 0
+db "\"BRL\"" , 0
+db "\"CNY\"" , 0
+db "\"CAD\"" , 0
+db "\"INR\"" , 0
+f_100 dq 100.0
+f_1 dq 1.0
+section .text
+global stringify_currency
+stringify_currency:
+cmp rsi , 7
+ja .done
+lea r8 , [ rel currency_strings ]
+shl rsi , 2
+add r8 , rsi
+mov eax , [ r8 ]
+mov [ rdi ], eax
+.done:
+ret
+global exchange_rate
+exchange_rate:
+movsd xmm0 , [ rdx + rsi * 8 ]
+movsd xmm1 , [ rdx + rdi * 8 ]
+divsd xmm0 , xmm1
+ret
+global get_value_of_bills
+get_value_of_bills:
+movzx rsi , si
+mov rax , rdi
+mul rsi
+ret
+global get_number_of_bills
+get_number_of_bills:
+cvtsi2ss xmm1 , rdi
+divss xmm0 , xmm1
+roundss xmm0 , xmm0 , 1
+cvtss2si eax , xmm0
+ret
+global exchangeable_value
+exchangeable_value:
+movzx rdi , di l
+cvtsi2sd xmm2 , rdi
+divsd xmm2 , [ rel f_100 ]
+addsd xmm2 , [ rel f_1 ]
+mulsd xmm1 , xmm2
+cvtss2sd xmm0 , xmm0
+divsd xmm0 , xmm1
+cvtsi2sd xmm1 , rsi
+divsd xmm0 , xmm1
+roundsd xmm0 , xmm0 , 1
+mulsd xmm0 , xmm1
+cvttsd2si rax , xmm0
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

@@ -1,0 +1,14 @@
+proc isIsogram {input} {
+    set reference 0
+    foreach c [split $input {}] {
+        if [string equal $c "-"] { continue }
+        if [string equal $c " "] { continue }
+        set c [string tolower $c]
+        set position [expr (1 << ([scan $c %c] - [scan a %c]))]
+        if [expr $reference & $position] {
+            return false
+        }
+        incr reference $position
+    }
+    return true
+}

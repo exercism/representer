@@ -1,0 +1,10 @@
+type dna = A | C | G | T
+type rna = A | C | G | U
+
+let transcribe: (dna => rna) = fun 
+  | A => U
+  | C => G
+  | G => C
+  | T => A
+
+let toRna = List.map(transcribe)

@@ -1,0 +1,94 @@
+func timeToPrepare(drinks: [String]) -> Double {
+
+    var  time: Double = 0.0
+    for drink in drinks {
+        switch drink {
+        case "beer", "soda", "water":
+            time += 0.5
+        case "shot":
+            time += 1.0
+        case "mixed drink":
+            time += 1.5
+        case "fancy drink":
+            time += 2.5
+        case "frozen drink":
+            time += 3.0
+        default:
+            continue
+        }
+    }
+    
+    return time
+}
+
+func makeWedges(needed: Int, limes: [String]) -> Int {
+
+    var limesUsed: Int = 0
+    var neededVar: Int = needed
+    var limesVar: [String] = limes
+
+    while neededVar > 0 && !limesVar.isEmpty {
+        let lime: String = limesVar.removeFirst()
+        
+        switch lime {
+        case "small":
+            neededVar -= 4
+        case "medium":
+            neededVar -= 8
+        case "large":
+            neededVar -= 10
+        default:
+            ()
+        }
+        
+        limesUsed += 1
+    }
+    
+    return limesUsed
+    
+}
+
+func finishShift(minutesLeft: Int, remainingOrders: [[String]]) -> [[String]] {
+
+    
+    var minutesLeftVar: Double = Double(minutesLeft)
+    var remainingOrdersVar: [[String]] = remainingOrders
+    
+    repeat {
+        let order: [String] = remainingOrdersVar.removeFirst()
+        minutesLeftVar -= timeToPrepare(drinks: order)
+        
+    } while minutesLeftVar > 0.0 && !remainingOrdersVar.isEmpty
+
+    return remainingOrdersVar
+}
+
+func orderTracker(orders: [(drink: String, time: String)]) -> (
+  beer: (first: String, last: String, total: Int)?, soda: (first: String, last: String, total: Int)?
+) {
+    
+    var beerInfo: (first: String, last: String, total: Int)? = nil
+    var sodaInfo: (first: String, last: String, total: Int)? = nil
+    
+    for order in orders {
+
+        if order.drink == "beer" {
+            if var temp = beerInfo {
+                temp.last = order.time
+                temp.total += 1
+                beerInfo = temp
+            } else {
+                beerInfo = (first: order.time, last: order.time, total: 1)
+            }
+        } else if order.drink == "soda" {
+            if var temp = sodaInfo {
+                temp.last = order.time
+                temp.total += 1
+                sodaInfo = temp
+            } else {
+                sodaInfo = (first: order.time, last: order.time, total: 1)
+            }
+        }
+    }
+    return (beerInfo, sodaInfo)
+}

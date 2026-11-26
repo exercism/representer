@@ -1,0 +1,21 @@
+(file "clock.jl")
+import Base : show , + , -
+import Dates . Minute
+using Printf : @printf
+function simplify_time ( h :: Int , m :: Int ) :: Tuple { Int , Int }
+dur = 60 * h + m
+dur = mod ( dur , 24 * 60 )
+div ( dur , 60 ), mod ( dur , 60 )
+end
+struct Clock
+h :: Int
+m :: Int
+Clock ( h , m ) = new ( simplify_time ( h , m ) ... )
+end
+show ( io :: IO , time :: Clock ) = @printf ( io , "\"\\\"%02d:%02d\\\"\"" , time . h , time . m )
+function + ( c :: Clock , m :: Minute ) :: Clock
+Clock ( c . h , c . m + m . value )
+end
+function -( c :: Clock , m :: Minute ) :: Clock
+Clock ( c . h , c . m - m . value )
+end

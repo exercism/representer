@@ -1,0 +1,11 @@
+local transcript = { C = 'G', G = 'C', A = 'U', T = 'A'}
+
+local to_rna = function(dna)
+    local rna = ''
+    for char in dna:gmatch(".") do
+        rna = rna .. transcript[char]
+    end
+    return rna
+end
+
+return to_rna

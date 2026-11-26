@@ -1,0 +1,11 @@
+use context essentials2020 # Don't delete this line when using Pyret on Exercism 
+
+provide: two-fer end
+
+fun two-fer(name :: String) -> String:
+  if string-length(name) == 0:
+    "One for you, one for me."
+  else:
+    "One for " + name + ", one for me."
+  end
+end

@@ -1,0 +1,24 @@
+class Hexadecimal
+	constructor: (hexString) ->
+		@hexString = hexString
+		@convertToDecimal()
+
+	toDecimal: -> @decimal
+
+	convertToDecimal: ->
+		@decimal = 0
+		return unless @isValidHexString @hexString
+		digits = @getHexDigits()
+		@sumDigit(digits[i], i) for i in [0..digits.length-1]
+
+	getHexDigits: ->
+		parseInt x, 16 for x in @hexString.split('').reverse()
+
+	isValidHexString: (str) ->
+		str.match /^[0-9a-f]+$/
+
+	sumDigit: (digit, index) ->
+		power = 16**index
+		@decimal += digit * power
+
+module.exports = Hexadecimal

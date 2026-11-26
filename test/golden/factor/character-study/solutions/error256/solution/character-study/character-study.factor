@@ -1,0 +1,21 @@
+USING: kernel math math.order unicode ;
+IN: character-study
+
+SYMBOLS: less equal greater
+    big small no-size
+    alpha numeric space newline unknown ;
+
+: compare-chars ( c1 c2 -- symbol )
+    2dup = [ 2drop equal ] [ before? less greater ? ] if ;
+
+: size-of-char ( c -- symbol )
+    dup uncased? [ drop no-size ] [ LETTER? big small ? ] if ;
+
+: change-size-of-char ( c desired -- c' )
+    big = [ ch>upper ] [ ch>lower ] if ;
+
+GENERIC: type-of-char ( c -- symbol )
+M: Letter type-of-char drop alpha ;
+M: digit type-of-char drop numeric ;
+M: blank type-of-char CHAR: \n = newline space ? ;
+M: integer type-of-char drop unknown ;

@@ -1,0 +1,5 @@
+Array::accumulate = (f) ->
+    result = []
+    for element in this
+        result.push(f(element))
+    return result

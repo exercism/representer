@@ -1,0 +1,27 @@
+(file "hamming.asm")
+section .text
+global di stance
+distance:
+xor eax , eax
+xor r8d , r8d
+xor r9d , r9d
+jmp .begin
+.loop:
+cmp dl , cl
+setne al
+add r9d , eax
+.begin:
+movzx edx , byte [ rsi + r8 ]
+movzx ecx , byte [ rdi + r8 ]
+inc r8
+test dl , dl
+setnz al
+cmp cl , 1
+sbb al , 0
+jg .loop
+mov eax , - 1
+cmovl eax , r9d
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

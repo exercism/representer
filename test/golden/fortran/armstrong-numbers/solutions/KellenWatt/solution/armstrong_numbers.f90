@@ -1,0 +1,28 @@
+
+module armstrong_numbers
+  implicit none
+contains
+
+  logical function isArmstrongNumber(n)
+    integer, intent(in) :: n
+
+    integer :: length
+    integer :: i
+    integer :: total
+    total = 0
+
+    if (n == 0) then
+      isArmstrongNumber = .true.
+      return
+    end if
+
+    length = int(log10(real(n))) + 1
+
+    do i = 0, length-1
+      total = total + modulo(n / 10**i, 10)**length
+    end do
+
+    isArmstrongNumber = total == n
+  end function
+
+end module

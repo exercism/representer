@@ -1,0 +1,16 @@
+N ↚ ˜⊡{"No" "One" "Two" "Three" "Four" "Five"
+       "Six" "Seven" "Eight" "Nine" "Ten"}
+S ↚ ˜⊡{@s ""}=₁
+
+# Recite the lyrics to the Ten Green Bottles song.
+# Lines ? StartBottles TakeDown
+Recite ← |2 (
+  ˜↙ ⇌⇡₁
+  ≡{
+    ⊃(⟜∘$"_ green bottle_ hanging on the wall,"⊃(N|S)
+    | "And if one green bottle should accidentally fall,"
+    | $"There'll be _ green bottle_ hanging on the wall."⊃(¯⌵N|S)-₁
+    | "")
+  }
+  ↘₋₁ ♭
+)

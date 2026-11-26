@@ -1,0 +1,14 @@
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import Data.Map (Map, fromList, adjust)
+import Control.Monad (foldM)
+import Text.Read (readEither)
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show, Read, Enum, Bounded)
+
+defaultMap :: Map Nucleotide Int
+defaultMap = fromList $ zip [minBound..] (repeat 0)
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts = foldM updateCount defaultMap
+    where updateCount mmap = fmap (flip (adjust succ) mmap) . readEither . pure

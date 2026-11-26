@@ -1,0 +1,29 @@
+(file "src/DNA.hs")
+module DNA
+  ( nucleotideCounts
+  , Nucleotide ( .. )
+  )
+where
+import Data.Map ( Map )
+import qualified Data.Map as M
+import Data.List
+data Nucleotide = A | C | G | T deriving ( Eq , Ord , Show )
+nucleotideCounts :: String -> Either String ( Map Nucleotide Int )
+nucleotideCounts dna | not . isValidDNA $ dna = Left "\"DNA strand is invalid\""
+nucleotideCounts dna = Right $ convert $ count dna
+count :: ( Eq a , Ord a ) => [ a ] -> Map a Int
+count xs = M . fromList [ ( x , c ) | x <- nub xs , let c = getCount x xs ]
+  where getCount a = length . filter ( == a )
+coalesce :: a -> Maybe a -> a
+coalesce _ ( Just v ) = v
+coalesce d Nothing = d
+convert :: Map Char Int -> Map Nucleotide Int
+convert m = M . fromList
+  [ ( A , getValue 'A' m )
+  , ( C , getValue 'C' m )
+  , ( G , getValue 'G' m )
+  , ( T , getValue 'T' m )
+  ]
+  where getValue key = coalesce 0 . M . lookup key
+isValidDNA :: String -> Bool
+isValidDNA = all (` elem ` "\"ACGT\"" )

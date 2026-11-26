@@ -1,0 +1,13 @@
+(file "Matrix.hs")
+module Matrix ( saddlePoints ) where
+import Data.Array ( Array , ( ! ), bounds )
+saddlePoints :: Array ( Int , Int ) Int -> [( Int , Int )]
+saddlePoints xm = filter isSaddlePoint [ ( row , col ) | row <- [ rowL .. rowH ], col <- [ colL .. colH ] ]
+  where
+    (( rowL , colL ), ( rowH , colH )) = bounds xm
+    isSaddlePoint :: ( Int , Int ) -> Bool
+    isSaddlePoint ( row , col ) = cond1 && cond2
+      where
+        val = xm ! ( row , col )
+        cond1 = all ( val >= ) [ xm ! ( row , col' ) | col' <- [ colL .. colH ] ]
+        cond2 = all ( val <= ) [ xm ! ( row' , col ) | row' <- [ rowL .. rowH ] ]

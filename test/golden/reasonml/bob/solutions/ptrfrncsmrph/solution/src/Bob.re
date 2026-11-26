@@ -1,0 +1,19 @@
+let isEmpty = (str: string) => str == "";
+
+let isShout = (str: string) =>
+  Js.Re.test(str, [%re "/[A-Z]/g"])
+  && !Js.Re.test(str, [%re "/[a-z]/g"]);
+
+let isQuestion = (str: string) =>
+  Js.Re.test(str, [%re "/\\?$/"]);
+
+let trim = Js.String.trim
+
+let hey = (str: string) =>
+  switch (isEmpty(trim(str)), isShout(trim(str)), isQuestion(trim(str))) {
+  | (true, _, _) => "Fine. Be that way!"
+  | (_, true, false) => "Whoa, chill out!"
+  | (_, true, _) => "Calm down, I know what I'm doing!"
+  | (_, _, true) => "Sure."
+  | _ => "Whatever."
+  };

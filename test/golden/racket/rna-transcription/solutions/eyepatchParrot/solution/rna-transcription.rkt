@@ -1,0 +1,10 @@
+#lang racket
+
+(provide to-rna)
+(define (to-rna s)
+  (define strand
+    (curry hash-ref (hash #\G #\C
+                          #\C #\G
+                          #\T #\A
+                          #\A #\U)))
+  (list->string (map strand (string->list s))))

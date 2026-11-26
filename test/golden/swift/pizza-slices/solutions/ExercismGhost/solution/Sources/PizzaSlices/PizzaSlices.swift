@@ -1,0 +1,31 @@
+func sliceSize(diameter: Double?, slices: Int?) -> Double? {
+    guard let d = diameter, d >= 0, let s = slices, s >= 1 else { return nil }
+    let radius = d / 2
+    return radius * radius * Double.pi / Double(s)
+}
+func biggestSlice(
+  diameterA: String, slicesA: String,
+  diameterB: String, slicesB: String
+) -> String {
+    var larger: Double?
+    let areaA = sliceSize(diameter: Double(diameterA), slices: Int(slicesA))
+    let areaB = sliceSize(diameter: Double(diameterB), slices: Int(slicesB))
+    switch (areaA, areaB) {
+    case (.none, .none): break
+    case (.some, .none): larger = areaA
+    case (.none, .some): larger = areaB
+    case let (.some(a), .some(b)):
+        if a > b {
+            larger = a
+        } else if b > a {
+            larger = b
+        }
+    }
+    if larger == nil {
+        return "Neither slice is bigger"
+    } else if larger == areaA {
+        return "Slice A is bigger"
+    } else {
+        return "Slice B is bigger"
+    }
+}

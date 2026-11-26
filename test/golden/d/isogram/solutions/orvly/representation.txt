@@ -1,0 +1,46 @@
+(file "source/isogram.d")
+module isogram ;
+bool isIsogramFunctional ( string s ) {
+import std . array : array ;
+import std . ascii : isAlpha , toLower ;
+import std . algorithm : sort , all , group , filter , map ;
+return s . filter ! isAlpha . map ! toLower . array . sort . group . all !( t => t [ 1 ] == 1 );
+}
+bool isIsogramIterative ( string s ) {
+import std . algorithm ;
+import std . ascii ;
+enum numLetters = ( 'z' - 'a' ) + 1 ;
+bool [ numLetters ] letterFlags = false ;
+foreach ( c ; s ) {
+if (! c . isAlpha )
+continue ;
+const i = c . toLower - 'a' ;
+if ( letterFlags [ i ])
+return false ;
+letterFlags [ i ] = true ;
+}
+return true ;
+}
+bool isIsogram ( string s ) {
+return isIsogramFunctional ( s );
+}
+unittest
+{
+immutable int allTestsEnabled = 1 ;
+assert ( isIsogram ( "\"\"" ));
+static if ( allTestsEnabled )
+{
+assert ( isIsogram ( "\"isogram\"" ));
+assert (! isIsogram ( "\"eleven\"" ));
+assert (! isIsogram ( "\"zzyzx\"" ));
+assert ( isIsogram ( "\"subdermatoglyphic\"" ));
+assert (! isIsogram ( "\"Alphabet\"" ));
+assert (! isIsogram ( "\"alphAbet\"" ));
+assert ( isIsogram ( "\"thumbscrew-japingly\"" ));
+assert (! isIsogram ( "\"thumbscrew-jappingly\"" ));
+assert ( isIsogram ( "\"six-year-old\"" ));
+assert ( isIsogram ( "\"Emily Jung Schwartzkopf\"" ));
+assert (! isIsogram ( "\"accentor\"" ));
+assert (! isIsogram ( "\"angola\"" ));
+}
+}

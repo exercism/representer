@@ -1,0 +1,15 @@
+import ballerina/http;
+import ballerina/io;
+
+final http:Client brainyQuoteClient = check new ("http://localhost:9095/brainyquote");
+
+public function main() {
+
+    string|error res = brainyQuoteClient->get("");
+
+    if res is error {
+        io:println(res.message());
+    } else {
+        io:println(res);
+    }
+}

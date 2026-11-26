@@ -1,0 +1,19 @@
+Imports System
+
+Public Module Grains
+
+    Public Function Square(ByVal n As Integer) As ULong
+      if n = 0 Or n < 0 Or n > 64
+        Throw New System.ArgumentOutOfRangeException
+      end if
+    Dim calcSquare As ULong
+    calcSquare = 2 ^ (n - 1)
+    return calcSquare
+    End Function
+
+    Public Function Total() As ULong
+      Dim totalSum as ULong
+          totalSum = 18446744073709551615UL
+      return totalSum
+    End Function
+End Module

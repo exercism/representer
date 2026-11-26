@@ -1,0 +1,20 @@
+"
+" This function takes any remark and returns Bob's response.
+"
+function! Response(remark) abort
+
+    if a:remark ==# toupper(a:remark) && a:remark !=# tolower(a:remark)
+        if match(a:remark, '^.*?$') > -1
+            return 'Calm down, I know what I''m doing!'
+        else
+            return 'Whoa, chill out!'
+        endif
+    elseif match(a:remark, '^.*?\s*$') > -1
+        return 'Sure.'
+    elseif match(a:remark, '^[\n\t\r ]*$') > -1
+        return 'Fine. Be that way!'
+    else
+        return 'Whatever.'
+    endif
+
+endfunction

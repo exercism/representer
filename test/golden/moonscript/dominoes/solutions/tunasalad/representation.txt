@@ -1,0 +1,31 @@
+(file "dominoes.moon")
+{
+  canChain: ( dominoes ) ->
+    return true if # dominoes == 0
+    dsu = {}
+    find_root = ( x ) ->
+      if dsu [ x ] == x
+        x
+      else
+        y = find_root dsu [ x ]
+        dsu [ x ] = y
+        y
+    union = ( x , y ) ->
+      x = find_root x
+      y = find_root y
+      if x != y
+        dsu [ y ] = x
+    degs = {}
+    for { x , y } in * dominoes
+      for z in * { x , y }
+        if not degs [ z ]
+          degs [ z ], dsu [ z ] = 0 , z
+        degs [ z ] += 1
+      union x , y
+    z = nil
+    for x , d in pairs degs
+      y = find_root x
+      z = z or y
+      return false if z != y or d % 2 != 0
+    true
+}

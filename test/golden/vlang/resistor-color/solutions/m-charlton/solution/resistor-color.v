@@ -1,0 +1,23 @@
+module main
+
+const (
+	colors = ['black', 
+              'brown', 
+              'red', 
+              'orange',
+              'yellow', 
+              'green', 
+              'blue', 
+              'violet', 
+              'grey', 
+              'white']
+)
+
+fn color_code(color string) int {
+	value := colors.index(color)
+	if value == -1 {
+		panic('color "${color}" not recognised')
+	}
+	
+	return value
+}

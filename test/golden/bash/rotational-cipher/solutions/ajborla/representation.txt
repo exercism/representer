@@ -1,0 +1,29 @@
+(file "rotational_cipher.sh")
+function ord () {
+LC_CTYPE = C printf '%d' "\"'" $1 "\""
+return ${ LC_CTYPE }
+}
+function chr () {
+[ "\"" $1 "\"" -lt 256 ] || return 1
+printf "\"\\\\$(" printf '%03o' "\"" $1 "\")\""
+}
+function convert () {
+local char cipher ciphertext = ''
+for i in $( seq 0 $((${# 1 } - 1 )) ) ; do
+char = "\"" ${ 1 : ${ i } :1 } "\""
+if [[ "\"" ${ char } "\"" = ~ [ A-Z] ]] ; then
+cipher = $( chr $(( (( $( ord ${ char } ) - 65 + ${ 2 } ) % 26 ) + 65 )) )
+elif [[ "\"" ${ char } "\"" = ~ [ a-z] ]] ; then
+cipher = $( chr $(( (( $( ord ${ char } ) - 97 + ${ 2 } ) % 26 ) + 97 )) )
+else
+cipher = "\"" ${ char } "\""
+fi
+ciphertext+ = "\"" ${ cipher } "\""
+done
+echo "\"" ${ ciphertext } "\""
+}
+ERROR = "'Invalid arguments; expected: <text> <n>'"
+[ $# -ne 2 -o -z "\"" ${ 1 } "\"" -o -n "\"" ${ 2 //[0-9] } "\"" ] \
+&& { echo ${ ERROR } ; exit 1 ; } \
+|| rotn = $(( ${ 2 } % 26 ))
+convert "\"" ${ 1 } "\"" ${ rotn }

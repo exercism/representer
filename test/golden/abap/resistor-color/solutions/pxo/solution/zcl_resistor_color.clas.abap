@@ -1,0 +1,51 @@
+CLASS zcl_resistor_color DEFINITION PUBLIC CREATE PUBLIC.
+  PUBLIC SECTION.
+    METHODS resistor_color
+      IMPORTING
+        color_code   TYPE string
+      RETURNING
+        VALUE(value) TYPE i.
+
+    METHODS constructor.
+
+  PRIVATE SECTION.
+    TYPES: BEGIN OF ty_colval,
+             col TYPE string,
+           END OF ty_colval,
+           tty_colval TYPE STANDARD TABLE OF ty_colval WITH EMPTY KEY.
+
+    DATA: mt_colval TYPE tty_colval.
+ENDCLASS.
+
+CLASS zcl_resistor_color IMPLEMENTATION.
+
+  METHOD resistor_color.
+
+    SPLIT color_code AT ' ' INTO TABLE DATA(lt_single_colors).
+    LOOP AT lt_single_colors ASSIGNING FIELD-SYMBOL(<sc>).
+      TRY.
+          value = |{ value }{ line_index( mt_colval[ col = to_lower( <sc> ) ] ) - 1 }|.
+        CATCH cx_sy_conversion_no_number.
+      ENDTRY.
+    ENDLOOP.
+  
+  ENDMETHOD.
+
+  method constructor.
+
+    mt_colval = VALUE #(
+                         ( col = 'black' )
+                         ( col = 'brown' )
+                         ( col = 'red' )
+                         ( col = 'orange' )
+                         ( col = 'yellow' )
+                         ( col = 'green' )
+                         ( col = 'blue' )
+                         ( col = 'violet' )
+                         ( col = 'grey' )
+                         ( col = 'white' )
+                       ).
+
+  endmethod.
+
+ENDCLASS.

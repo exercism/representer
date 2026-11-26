@@ -1,0 +1,8 @@
+#lang racket
+
+(provide
+  (contract-out
+    [two-fer (->* () (string?) string?)]))
+
+(define (two-fer [name "you"])
+  (string-append "One for " name ", one for me."))

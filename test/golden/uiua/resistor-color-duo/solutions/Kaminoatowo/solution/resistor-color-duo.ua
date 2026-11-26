@@ -1,0 +1,7 @@
+# Turn color-coded bands of resistors into resistance value
+# Value ? Colors
+ColorNames           ← |0.1 {"black" "brown" "red" "orange" "yellow" "green" "blue" "violet" "grey" "white"}
+ColorCodes           ← {0 1 2 3 4 5 6 7 8 9}
+ConvertToValue       ← /+⬚0×[1 10 100 1000]
+ResistorsSingleValue ← ConvertToValue≡°□▽∊
+ResistorsValue       ← /+⬚0×[10 1]⨂ColorNames

@@ -1,0 +1,52 @@
+(file "allergies.sml")
+datatype allergen = Eggs
+| Peanuts
+| Shellfish
+| Strawberries
+| Tomatoes
+| Chocolate
+| Pollen
+| Cats
+fun |> ( a , f ) = f a
+infix | >
+local
+fun completeBinaryDigits binList =
+if List . length binList < 8 then
+completeBinaryDigits ( 0 ::binList )
+else
+binList
+fun helper number acc =
+if number = 0 then
+completeBinaryDigits acc
+else
+helper ( number div 2 ) ( number mod 2 :: acc )
+in
+fun convertToBinaryInv number =
+if number > 256 then helper ( number mod 256 ) []
+else helper number []
+end
+local
+val allergiesListValues = [ 7 , 6 , 5 , 4 , 3 , 2 , 1 , 0 ]
+fun matchAllergies allergy =
+case allergy
+of 0 => Eggs
+| 1 => Peanuts
+| 2 => Shellfish
+| 3 => Strawberries
+| 4 => Tomatoes
+| 5 => Chocolate
+| 6 => Pollen
+| 7 => Cats
+in
+fun listAllergies number =
+ListPair . zip ( convertToBinaryInv number , allergiesListValues )
+| > List . map ( fn ( x , y ) => if x = 0 then NONE else SOME ( x*y ))
+| > List . filter ( fn SOME x => true | NONE => false )
+| > List . map ( fn SOME x => matchAllergies x )
+end
+fun allergicTo ( score : int ) ( a : allergen ): bool =
+listAllergies score
+| > List . exists ( fn n => n = a )
+fun allergies ( score : int ): allergen list =
+listAllergies score
+| > List . rev

@@ -1,0 +1,25 @@
+def equal_contents [n] (a: [n]u8) (b: [n]u8): bool =
+  and (map2 (==) a b)
+  
+def matches [n] [m] (a: [n]u8) (b: [m]u8): bool =
+  n == m && equal_contents a (b :> [n]u8)
+
+def round2 (x: f64): f64 =
+  f64.round (100.0 * x) / 100.0
+  
+def period(planet: []u8): f64 =
+  if matches planet "Mercury"  then 0.2408467
+  else if matches planet "Venus" then 0.61519726
+  else if matches planet "Earth" then 1.0
+  else if matches planet "Mars" then 1.8808158
+  else if matches planet "Jupiter" then 11.862615
+  else if matches planet "Saturn" then 29.447498
+  else if matches planet "Uranus" then 84.016846
+  else if matches planet "Neptune" then 164.79132
+  else assert false 0.0
+
+def year_in_secs: f64 = 365.25 * 24.0 * 60.0 * 60.0
+
+def age (planet: []u8) (seconds: i64): f64 =
+  f64.i64 seconds / year_in_secs / period planet |> round2
+

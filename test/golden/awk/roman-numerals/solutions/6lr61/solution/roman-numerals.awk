@@ -1,0 +1,31 @@
+BEGIN {
+    PROCINFO["sorted_in"] = "@ind_num_desc"; # sort arrays by largest index first
+
+    # Why make life harder?
+	roman[1000] = "M";
+	roman[900] = "CM";
+	roman[500] = "D";
+	roman[400] = "CD";
+	roman[100] = "C";
+	roman[90] = "XC";
+	roman[50] = "L";
+	roman[40] = "XL";
+	roman[10] = "X";
+	roman[9] = "IX";
+	roman[5] = "V";
+	roman[4] = "IV";
+	roman[1] = "I";
+}
+
+{
+    output = "";
+
+    for (number in roman) {
+        while ($0 >= int(number)) {
+            output = output roman[number];
+            $0 -= number;
+        }
+    }
+
+    print output;
+}

@@ -1,0 +1,49 @@
+Public Enum Schedule
+    Teenth
+    First
+    Second
+    Third
+    Fourth
+    Last
+End Enum
+
+Public Class Meetup
+    Private ReadOnly _month As Integer
+    Private ReadOnly _year As Integer
+
+    Public Sub New(month As Integer, year As Integer)
+        _month = month
+        _year = year
+    End Sub
+
+    Public Function Day(dayOfWeek As DayOfWeek, schedule As Schedule) As Date
+        Dim firstDayOfMonth As New DateTime(_year, _month, 1)
+
+        Select Case schedule
+            Case Schedule.Teenth
+                For dia = 13 To 19
+                    Dim candidateDate = firstDayOfMonth.AddDays(dia - 1)
+                    If candidateDate.DayOfWeek = dayOfWeek Then
+                        Return candidateDate
+                    End If
+                Next
+            Case Schedule.First, Schedule.Second, Schedule.Third, Schedule.Fourth
+                Dim weekNumber As Integer = If(schedule = Schedule.First, 0, CInt(schedule) - 1)
+                Dim candidateDate = firstDayOfMonth.AddDays(7 * weekNumber)
+                While candidateDate.DayOfWeek <> dayOfWeek
+                    candidateDate = candidateDate.AddDays(1)
+                End While
+                Return candidateDate
+            Case Schedule.Last
+                Dim lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1)
+                While lastDayOfMonth.DayOfWeek <> dayOfWeek
+                    lastDayOfMonth = lastDayOfMonth.AddDays(-1)
+                End While
+                Return lastDayOfMonth
+            Case Else
+                Throw New ArgumentException("Invalid schedule type.")
+        End Select
+
+        Throw New ArgumentException("No valid date found.")
+    End Function
+End Class

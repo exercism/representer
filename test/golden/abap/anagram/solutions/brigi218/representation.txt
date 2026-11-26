@@ -1,0 +1,42 @@
+(file "zcl_anagram.clas.abap")
+CLASS zcl_anagram DEFINITION
+PUBLIC
+FINAL
+CREATE PUBLIC .
+PUBLIC SECTION .
+METHODS anagram
+IMPORTING
+input TYPE string
+candidates TYPE string_table
+RETURNING
+VALUE ( result ) TYPE string_table .
+PROTECTED SECTION .
+PRIVATE SECTION .
+ENDCLASS .
+CLASS zcl_anagram IMPLEMENTATION .
+METHOD anagram .
+data sorted_input type string .
+data sorted_candidate type string_table .
+data s type string .
+sorted_input = to_lower ( input ).
+while sorted_input <> '' .
+append sorted_input ( 1 ) to sorted_candidate .
+shift sorted_input .
+endwhile .
+sort sorted_candidate .
+sorted_input = concat_lines_of ( table = sorted_candidate ).
+loop at candidates into data ( candidate ).
+clear sorted_candidate .
+data ( s_candidate ) = to_lower ( candidate ).
+while s_candidate <> '' .
+append s_candidate ( 1 ) to sorted_candidate .
+shift s_candidate .
+endwhile .
+sort sorted_candidate .
+s_candidate = concat_lines_of ( table = sorted_candidate ).
+if s_candidate = sorted_input and to_lower ( candidate ) <> to_lower ( input ).
+append candidate to result .
+endif .
+endloop .
+ENDMETHOD .
+ENDCLASS .

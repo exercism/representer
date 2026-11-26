@@ -1,0 +1,19 @@
+USING: kernel
+    math math.order
+    accessors ;
+IN: role-playing-game
+
+TUPLE: player
+    { name } 
+    { level initial: 0 }
+    { health initial: 100 }
+    { mana } ;
+
+: introduce ( player -- string )
+    name>> dup [ ] [ drop "Mighty Magician" ] if ;
+
+: revive ( player -- player' )
+    [ health>> ] keep swap [ 100 >>health 100 >>mana ] [ 2drop f ] if-zero ;
+
+: take-damage ( player damage -- player' )
+    [ - 0 max ] curry change-health ;

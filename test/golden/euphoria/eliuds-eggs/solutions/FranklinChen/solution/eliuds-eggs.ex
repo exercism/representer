@@ -1,0 +1,11 @@
+include std/math.e
+
+public function eggCount(integer number)
+    integer result = 0
+    integer remaining = number
+    while remaining != 0 do
+        result += and_bits(remaining, 1)
+        remaining = shift_bits(remaining, 1)
+    end while
+    return result
+end function

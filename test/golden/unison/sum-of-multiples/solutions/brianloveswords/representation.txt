@@ -1,0 +1,48 @@
+(file "sumOfMultiples.u")
+{{
+`` sumOfMultiples `` will find the sum of all unique
+multiples for all natural numbers up to , but not
+including , an upper bound .
+## Examples :
+```
+sumOfMultiples [ 3 , 5 ] 20
+```
+}}
+sumOfMultiples : [ Nat ] -> Nat -> Nat
+sumOfMultiples multiples upperBound =
+  List . range 1 upperBound
+    |> List . filter ( multipleOfAny multiples )
+    |> Nat . sum
+{{
+`` multipleOf `` returns true if the base is a multiple
+of the target
+## Examples :
+```
+multipleOf 3 9
+```
+}}
+multipleOf : Nat -> Nat -> Boolean
+multipleOf base target =
+  base !== 0 &&
+    ( Nat . mod target base === 0 )
+{{
+  `` multipleOfAny `` returns true if a number is a
+  multiple of any of the bases provided .
+## Examples
+```
+multipleOfAny [ 3 , 5 ] 9
+```
+```
+multipleOfAny [ 3 , 5 ] 15
+```
+}}
+multipleOfAny : [ Nat ] -> Nat -> Boolean
+multipleOfAny bases target = let
+  go bases =
+    match List . head bases with
+      Some base ->
+        if multipleOf base target
+        then true
+        else go ( Optional . getOrElse [] ( List . tail bases ))
+      None -> false
+  go bases

@@ -1,0 +1,23 @@
+(file "two-bucket.ys")
+!yamlscript/v0
+defn measure(bucket-one bucket-two goal start-bucket):
+  if start-bucket == 1:
+    aux(bucket-one bucket-two goal [[bucket-one 0 1]] [[0 bucket-two]])
+    aux(bucket-one bucket-two goal [[0 bucket-two 1]] [[bucket-one 0]])
+defn aux(s1 s2 goal queue visited):
+  when queue.!: die('impossible')
+  -[head *tail] =: queue
+  -[b1 b2 steps] =: head
+  cond:
+    visited.has?([b1 b2]): aux(s1 s2 goal tail visited)
+    goal == b1: -{'moves' steps 'goalBucket' 1 'otherBucket' b2}
+    goal == b2: -{'moves' steps 'goalBucket' 2 'otherBucket' b1}
+    else:
+      aux(s1 s2 goal ((tail || []) + [
+        [s1 b2 steps.++]
+        [b1 s2 steps.++]
+        [min((b1 + b2) s1) ((b2 - min((b1 + b2) s1)) + b1) steps.++]
+        [((b1 - min((b1 + b2) s2)) + b2) min((b1 + b2) s2) steps.++]
+        [0 b2 steps.++]
+        [b1 0 steps.++]
+      ]) conj(visited [b1 b2]))

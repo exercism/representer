@@ -1,0 +1,40 @@
+(file "Sources/SimpleCipher/SimpleCipher.swift")
+import Foundation
+class Cipher {
+var key : String = "\"aaaaaaaaaa\""
+init () {}
+init ?( key : String ) {
+let checkstring = Set ( Array ( "\"abcdefghijklmnopqrstuvwxyz\"" ))
+var keystring = "\"\""
+for c in Array ( key ) {
+if checkstring . contains ( c ) {
+keystring += String ( c )
+}
+}
+if keystring == "\"\"" { return nil }
+self . key = keystring
+}
+func encode ( _ str : String , decoding : Bool = false ) -> String {
+let mf : Int = decoding ? 1 : - 1
+var encoded = "\"\"" ;
+let codea = Int ( Character ( "\"a\"" ) . asciiValue ! )
+let codez = Int ( Character ( "\"z\"" ) . asciiValue ! )
+let keyarray = Array ( key )
+for ( ii , c ) in Array ( str ) . enumerated ()
+{
+let code : Int = Int ( c . asciiValue ! )
+if code >= codea && code <= codez {
+let cha : Character = keyarray [ ii % keyarray . count ]
+let keycode : Int = Int ( cha . asciiValue ! )
+let ch : Int = ( code - codea - mf * ( keycode - codea ) + 26 ) % 26 + Int ( codea )
+encoded += String ( UnicodeScalar ( UInt8 ( ch )))
+} else {
+encoded += String ( c )
+}
+}
+return encoded
+}
+func decode ( _ str : String ) -> String {
+return encode ( str , decoding : true )
+}
+}

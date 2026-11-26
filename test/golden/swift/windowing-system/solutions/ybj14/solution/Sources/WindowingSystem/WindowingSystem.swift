@@ -1,0 +1,93 @@
+struct Position {
+    var x:Int = 0
+    var y:Int = 0
+    
+    mutating func moveTo(newX:Int, newY:Int) {
+        self.x = newX
+        self.y = newY
+    }
+}
+
+struct Size {
+    
+    var width:Int = 80
+    var height:Int = 60
+    
+    mutating func resize(newWidth:Int, newHeight:Int) {
+        self.width = newWidth
+        self.height = newHeight
+    }
+    
+}
+
+class Window {
+    
+    var title = "New Window"
+    var screenSize = Size(width: 800, height: 600)
+    var size = Size()
+    var position = Position()
+    var contents:String?
+    
+    func resize(to size:Size = Size())  {
+        
+        let availableSize = Size(
+            width: self.screenSize.width - self.position.x,
+            height: self.screenSize.height - self.position.y)
+        
+        let maxPossibleSize = Size(
+            width: min(size.width, availableSize.width),
+            height: min(size.height, availableSize.height))
+        
+        let newSize:Size = Size(
+            width: max(1, maxPossibleSize.width),
+            height: max(1, maxPossibleSize.height))
+
+        self.size = newSize // might create a bug
+        
+    }
+        
+    func move(to:Position) {
+        
+        
+        let maxPossiblePosition = Position(
+            x: min(self.screenSize.width - self.size.width, to.x),
+            y: min(self.screenSize.height - self.size.height, to.y))
+        
+
+        self.position.x = max(0, maxPossiblePosition.x)
+        self.position.y = max(0, maxPossiblePosition.y)
+        
+        resize(to: self.size) //  resize if necessary
+        
+    }
+    
+    func update(title:String) {
+        self.title = title
+    }
+    
+    func update(text:String?) {
+        self.contents = text
+    }
+    
+    func display() -> String {
+        
+        var c:String = "[This window intentionally left blank]"
+        if let safeContents = contents {
+            c = safeContents
+        }
+        
+        return "\(title)\nPosition: (\(position.x), \(position.y)), Size: (\(size.width) x \(size.height))\n\(c)\n"
+    }
+        
+}
+
+let mainWindow: Window = {
+    var window = Window()
+    
+    window.resize(to: Size(width: 400, height: 300))
+    window.move(to: Position(x: 100, y: 100))
+    window.update(title: "Main Window")
+    window.update(text: "This is the main window")
+    
+    return window
+}()

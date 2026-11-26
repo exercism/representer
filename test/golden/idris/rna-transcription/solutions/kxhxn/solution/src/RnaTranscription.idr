@@ -1,0 +1,37 @@
+module RnaTranscription
+
+import Data.Vect
+
+%default total
+
+namespace DnaNucleotide
+  public export
+  data DnaNucleotide = G | C | T | A
+
+namespace RnaNucleotide
+  public export
+  data RnaNucleotide = A | C | G | U
+
+export
+implementation Eq RnaNucleotide where
+  (==) A A = True
+  (==) C C = True
+  (==) G G = True
+  (==) U U = True
+  (==) _ _ = False
+
+export
+implementation Show RnaNucleotide where
+  show A = "Adenine"
+  show C = "Cytosine"
+  show G = "Guanine"
+  show U = "Uracil"
+
+export
+toRna : Vect n DnaNucleotide -> Vect n RnaNucleotide
+toRna = map getComplement
+    where getComplement : DnaNucleotide -> RnaNucleotide
+          getComplement G = C
+          getComplement C = G
+          getComplement T = A
+          getComplement A = U

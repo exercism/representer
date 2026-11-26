@@ -1,0 +1,73 @@
+func timeToPrepare(drinks: [String]) -> Double {
+  var count: Double = 0
+  for num in drinks{
+     switch num{
+        case "beer", "soda", "water":
+             count += 0.5
+         case "shot":
+             count += 1.0
+         case "mixed drink":
+             count += 1.5
+         case "fancy drink":
+             count += 2.5
+         case "frozen drink":
+             count += 3.0
+         default:
+             break
+     }   
+ }
+    return count
+}
+
+func makeWedges(needed: Int, limes: [String]) -> Int {
+    let wedgesCount = ["small": 6, "large": 8, "medium": 10]
+    var total = 0
+    return limes.compactMap({ wedgesCount[$0] }).filter({
+        guard total < needed else { return false }
+        total += $0
+        return true
+    }).count
+}
+
+func finishShift(minutesLeft: Int, remainingOrders: [[String]]) -> [[String]] {
+   var remainingOrders = remainingOrders
+    var order:[String]
+    var timeLeft = Double(minutesLeft)
+    
+    while timeLeft > 0 && !remainingOrders.isEmpty {
+        order = remainingOrders.remove(at: 0)
+        timeLeft -= timeToPrepare(drinks: order)
+    }
+    
+    return remainingOrders
+}
+
+func orderTracker(orders: [(drink: String, time: String)]) -> (
+  beer: (first: String, last: String, total: Int)?, soda: (first: String, last: String, total: Int)?
+) {
+   var beerTracker: (first: String, last: String, total: Int)? = nil
+    var sodaTracker: (first: String, last: String, total: Int)? = nil
+
+    for order in orders {
+        let drink = order.drink
+        let time = order.time
+
+        if drink == "beer" {
+            if beerTracker == nil {
+                beerTracker = (first: time, last: time, total: 1)
+            } else {
+                beerTracker!.last = time
+                beerTracker!.total += 1
+            }
+        } else if drink == "soda" {
+            if sodaTracker == nil {
+                sodaTracker = (first: time, last: time, total: 1)
+            } else {
+                sodaTracker!.last = time
+                sodaTracker!.total += 1
+            }
+        }
+    }
+
+    return (beer: beerTracker, soda: sodaTracker)
+}

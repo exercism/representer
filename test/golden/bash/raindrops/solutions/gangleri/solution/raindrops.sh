@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+
+main() {
+	local out=""
+
+	if (( $1 % 3 == 0 )); then
+		out="${out}Pling"
+	fi
+
+	if (( $1 % 5 == 0 )); then
+		out="${out}Plang"
+	fi
+
+	if (( $1 % 7 == 0 )); then
+		out="${out}Plong"
+	fi
+
+	echo "${out:-$1}"
+}
+
+main "$@"

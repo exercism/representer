@@ -1,0 +1,22 @@
+namespace Isogram
+
+@[inline] private def tryAddLetter (mask : Nat) (c : Char) : Option Nat :=
+  if !c.isAlpha then some mask
+  else
+    let lc := c.toLower
+    let i := (lc.val - 'a'.val).toNat
+    let bit := 1 <<< i
+    if mask &&& bit != 0 then none
+    else some (mask ||| bit)
+
+@[inline] private def step (acc : Option Nat) (c : Char) : Option Nat :=
+  match acc with
+  | none => none
+  | some mask => tryAddLetter mask c
+
+def isIsogram (phrase : String) : Bool :=
+  match phrase.foldl step (some 0) with
+  | none => false
+  | some _ => true
+
+end Isogram

@@ -1,0 +1,103 @@
+(file "matrix.asm")
+section .text
+global row
+global column
+%macro store_num 0
+inc r8
+mov eax , r10d
+xor rdx , rdx
+mov r10d , 10
+div r10d
+cmp r9b , 1
+jne %% store_num
+neg eax
+%%store_num:
+stosd
+%endmacro
+row:
+xor r8 , r8
+.row_main_loop:
+cmp rdx , 1
+je .row_copy
+.find_next_row:
+lodsb
+cmp al , 10
+jne .find_next_row
+dec rdx
+jmp .row_main_loop
+.row_copy:
+xor r9 , r9
+xor r10 , r10
+xor rax , rax
+.check_sign:
+lodsb
+cmp al , '-'
+sete r9b
+je .prepare_next_iteration
+.row_copy_loop:
+cmp al , 10
+je .end_copy
+cmp al , 0
+je .end_copy
+cmp al , "' '"
+je .end_num
+sub al , '0'
+add r10 , rax
+imul r10 , r10 , 10
+.prepare_next_iteration:
+lodsb
+jmp .row_copy_loop
+.end_num:
+store_num
+jmp .row_copy
+.end_copy:
+store_num
+mov rax , r8
+ret
+column:
+xor r8 , r8
+mov r11 , rdx
+.column_main_loop:
+cmp rdx , 1
+je .elem_copy
+.find_next_elem:
+lodsb
+cmp al , 0
+je .return
+cmp al , "' '"
+jne .find_next_elem
+dec rdx
+jmp .column_main_loop
+.elem_copy:
+xor r10 , r10
+xor rax , rax
+.check_sign:
+lodsb
+cmp al , '-'
+sete r9b
+je .prepare_next_iteration
+.elem_copy_loop:
+cmp al , 10
+je .end_num
+cmp al , "' '"
+je .end_num
+cmp al , 0
+je .end_copy
+sub al , '0'
+add r10 , rax
+imul r10 , r10 , 10
+.prepare_next_iteration:
+lodsb
+jmp .elem_copy_loop
+.end_num:
+store_num
+mov rdx , r11
+jmp .column_main_loop
+.end_copy:
+store_num
+.return:
+mov rax , r8
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

@@ -1,0 +1,14 @@
+(file "src/DNA.hs")
+module DNA ( nucleotideCounts , Nucleotide ( .. )) where
+import Data.Map as Map
+data Nucleotide = A | C | G | T deriving ( Eq , Ord , Show )
+nucleotideCounts :: String -> Either String ( Map Nucleotide Int )
+nucleotideCounts xs =
+  let empty_map = Map . fromList [( A , 0 ), ( C , 0 ), ( G , 0 ), ( T , 0 )] in
+    aux xs empty_map where
+    aux [] acc = Right acc
+    aux ( 'A' : tl ) acc = aux tl $ Map . insertWith ( + ) A 1 acc
+    aux ( 'C' : tl ) acc = aux tl $ Map . insertWith ( + ) C 1 acc
+    aux ( 'G' : tl ) acc = aux tl $ Map . insertWith ( + ) G 1 acc
+    aux ( 'T' : tl ) acc = aux tl $ Map . insertWith ( + ) T 1 acc
+    aux bad _ = Left bad

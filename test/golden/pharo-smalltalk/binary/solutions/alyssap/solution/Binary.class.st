@@ -1,0 +1,14 @@
+"
+I convert binary from first principles
+"
+Class {
+	#name : #Binary,
+	#superclass : #Object,
+	#category : #'Exercise@Binary'
+}
+
+{ #category : #conversion }
+Binary >> decimalFromBinary: aString [
+	(aString allSatisfy: [ :c | '01' includes: c ]) or: [ ^ nil ].
+	^ aString inject: 0 into: [ :a :c | (a << 1) + c digitValue ]
+]

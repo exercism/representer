@@ -1,0 +1,28 @@
+(file "src/custom_set.erl")
+- module ( custom_set ).
+- export ([ add / 2 , contains / 2 , difference / 2 , disjoint / 2 ,
+empty / 1 , equal / 2 , from_list / 1 , intersection / 2 , subset / 2 ,
+union / 2 ]).
+add ( E , Set ) ->
+case contains ( E , Set ) of
+true -> Set ;
+false -> [ E | Set ]
+end .
+contains ( E , Set ) ->
+lists : member ( E , Set ).
+difference ( Set_1 , Set_2 ) ->
+Set_1 -- Set_2 .
+disjoint ( Set_1 , Set_2 ) ->
+lists : all ( fun ( X ) -> not contains ( X , Set_2 ) end , Set_1 ).
+empty ( Set ) ->
+Set == [].
+equal ( Set_1 , Set_2 ) ->
+lists : sort ( Set_1 ) == lists : sort ( Set_2 ).
+from_list ( L ) ->
+lists : usort ( L ).
+intersection ( Set_1 , Set_2 ) ->
+lists : filter ( fun ( X ) -> contains ( X , Set_2 ) end , Set_1 ).
+subset ( Set_1 , Set_2 ) ->
+lists : all ( fun ( X ) -> contains ( X , Set_2 ) end , Set_1 ).
+union ( Set_1 , Set_2 ) ->
+lists : foldl ( fun add / 2 , Set_1 , Set_2 ).

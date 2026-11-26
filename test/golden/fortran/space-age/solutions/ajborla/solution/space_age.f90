@@ -1,0 +1,28 @@
+! ----------------------------------------------------------------------------
+! exercism.org
+! Fortran Track Exercise: space_age
+! Contributed: Anthony J. Borla (ajborla@bigpond.com)
+! ----------------------------------------------------------------------------
+
+module space_age
+  implicit none
+contains
+
+  double precision function age_in_years(planet, seconds)
+    character(len=*), intent(in) :: planet
+    double precision, intent(in) :: seconds
+    double precision :: orbit
+
+    if (planet == 'Mercury') then ; orbit = 0.2408467d0 ; goto 50 ; end if
+    if (planet == 'Venus') then ; orbit = 0.61519726d0 ; goto 50 ; end if
+    if (planet == 'Earth') then ; orbit = 1.0d0 ; goto 50 ; end if
+    if (planet == 'Mars') then ; orbit = 1.8808158d0 ; goto 50 ; end if
+    if (planet == 'Jupiter') then ; orbit = 11.862615d0 ; goto 50 ; end if
+    if (planet == 'Saturn') then ; orbit = 29.447498d0 ; goto 50 ; end if
+    if (planet == 'Uranus') then ; orbit = 84.016846d0 ; goto 50 ; end if
+    if (planet == 'Neptune') then ; orbit = 164.79132d0 ; goto 50 ; end if
+
+50  age_in_years = seconds / 31557600.0d0 / orbit
+  end function
+
+end module

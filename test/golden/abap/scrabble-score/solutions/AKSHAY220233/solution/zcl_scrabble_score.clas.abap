@@ -1,0 +1,42 @@
+CLASS zcl_scrabble_score DEFINITION PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS score
+      IMPORTING
+        input         TYPE string OPTIONAL
+      RETURNING
+        VALUE(result) TYPE i.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+    TYPES: BEGIN OF ty_scores,
+             letters TYPE string,
+             value   TYPE i,
+           END OF ty_scores,
+           tt_scores TYPE TABLE OF ty_scores WITH KEY letters.
+   DATA: it_scores TYPE tt_scores.
+ENDCLASS.
+CLASS zcl_scrabble_score IMPLEMENTATION.
+  METHOD score.
+    DATA: lv_letter(3) TYPE c VALUE '*_*',
+      lv_count TYPE i.
+    it_scores = VALUE #( ( letters = 'A, E, I, O, U, L, N, R, S, T' value = 1 )
+                         ( letters = 'D, G' value = 2 )
+                         ( letters = 'B, C, M, P' value = 3 )
+                         ( letters = 'F, H, V, W, Y' value = 4 )
+                         ( letters = 'K' value = 5 )
+                         ( letters = 'J, X' value = 8 )
+                         ( letters = 'Q, Z' value = 10 ) ).
+"Get string lenght
+    DATA(lv_len) = strlen( input ).
+    DO lv_len TIMES.
+      IF sy-index GT 1.
+        lv_count = lv_count + 1.
+      ENDIF.
+      lv_letter+1(1) = input+lv_count(1).
+      LOOP AT it_scores INTO DATA(ls_scores) WHERE letters CP 
+lv_letter.
+        result = result + ls_scores-value.
+      ENDLOOP.
+    ENDDO.
+  ENDMETHOD.
+ENDCLASS.

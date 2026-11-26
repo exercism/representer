@@ -1,0 +1,23 @@
+;;; rna-transcription.el -- RNA Transcription (exercism)
+
+;;; Commentary:
+;; Given a DNA strand, return its RNA complement.
+
+;;; Code:
+
+(defun char-to-rna (c)
+  "Convert a DNA character to an RNA character."
+  (let ((table '((?G . ?C)
+                 (?C . ?G)
+                 (?T . ?A)
+                 (?A . ?U))))
+    (cdr (assoc c table))))
+
+(defun to-rna (string)
+  "Convert a DNA string to an RNA string."
+  (let ((new-string (upcase string)))
+    (dotimes (i (length new-string) new-string)
+      (aset new-string i (char-to-rna (aref new-string i))))))
+
+(provide 'rna-transcription)
+;;; rna-transcription.el ends here

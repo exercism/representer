@@ -1,0 +1,144 @@
+open React
+open Base
+
+module MyUsers = struct
+    
+end;;
+
+type progress =
+    | Win
+    | Lose
+    | Busy of int;;
+
+type t = {
+    mutable hantei : progress;
+    mutable origin : string;
+    mutable kekka : string;
+};;
+
+let rec masking count result = if not(Poly.equal count 0) then (masking (count - 1) (result ^ "_"))
+    else result;;
+
+let create str = {hantei = Busy (9); origin = str; kekka = masking (String.length str) ""};;
+
+let convert_from_string_to_char str = match str with
+    | "a" -> 'a'
+    | "b" -> 'b'
+    | "c" -> 'c'
+    | "d" -> 'd'
+    | "e" -> 'e'
+    | "f" -> 'f'
+    | "g" -> 'g'
+    | "h" -> 'h'
+    | "i" -> 'i'
+    | "j" -> 'j'
+    | "k" -> 'k'
+    | "l" -> 'l'
+    | "m" -> 'm'
+    | "n" -> 'n'
+    | "o" -> 'o'
+    | "p" -> 'p'
+    | "q" -> 'q'
+    | "r" -> 'r'
+    | "s" -> 's'
+    | "t" -> 't'
+    | "u" -> 'u'
+    | "v" -> 'v'
+    | "w" -> 'w'
+    | "x" -> 'x'
+    | "y" -> 'y'
+    | "z" -> 'z'
+    | "_" -> '_'
+    | _ -> ' ';;
+    
+let convert_from_char_to_string ch = match ch with
+    | 'a' -> "a"
+    | 'b' -> "b"
+    | 'c' -> "c"
+    | 'd' -> "d"
+    | 'e' -> "e"
+    | 'f' -> "f"
+    | 'g' -> "g"
+    | 'h' -> "h"
+    | 'i' -> "i"
+    | 'j' -> "j"
+    | 'k' -> "k"
+    | 'l' -> "l"
+    | 'm' -> "m"
+    | 'n' -> "n"
+    | 'o' -> "o"
+    | 'p' -> "p"
+    | 'q' -> "q"
+    | 'r' -> "r"
+    | 's' -> "s"
+    | 't' -> "t"
+    | 'u' -> "u"
+    | 'v' -> "v"
+    | 'w' -> "w"
+    | 'x' -> "x"
+    | 'y' -> "y"
+    | 'z' -> "z"
+    | '_' -> "_"
+    | _ -> "";;
+
+let rec split str = match str with
+    | "" -> []
+    | _ -> convert_from_string_to_char (String.sub str 0 1) :: (split (String.sub str 1 (String.length str - 1)));;
+
+(* 与えられたcharが文字列に存在するかどうかを判定 *)
+let rec checker ch lst = match lst with
+    | [] -> false
+    | first :: rest -> if Char.equal ch first then true
+        else checker ch rest;;
+
+(* lst1を参照しつつ該当する文字をlst2に追加する *)
+let rec reverse lst result = match lst with
+    | [] -> result
+    | first :: rest -> reverse rest (first :: result);;
+
+let rec replace ch lst1 lst2 result = match lst1 with
+    | [] -> reverse result []
+    | first1 :: rest1 -> match lst2 with
+        | [] -> reverse result []
+        | first2 :: rest2 -> if Char.equal first1 ch
+            then replace ch rest1 rest2 (ch :: result)
+            else replace ch rest1 rest2 (first2 :: result);;
+
+(* char listをstringに変換 *)
+let rec conbination lst = match lst with
+    | [] -> ""
+    | first :: rest -> convert_from_char_to_string first ^ (conbination rest);;
+
+let minus busy = match busy with
+    | Busy (0) -> Lose
+    | Busy (1) -> Busy (0)
+    | Busy (2) -> Busy (1)
+    | Busy (3) -> Busy (2)
+    | Busy (4) -> Busy (3)
+    | Busy (5) -> Busy (4)
+    | Busy (6) -> Busy (5)
+    | Busy (7) -> Busy (6)
+    | Busy (8) -> Busy (7)
+    | Busy (9) -> Busy (8)
+    | _ -> Busy (0);;
+
+let rec win lst = match lst with
+    | [] -> true
+    | first :: rest -> if Char.equal first '_' then false 
+        else win rest;;
+
+let feed ch arr = match arr with
+    {hantei = h; origin = o; kekka = k} -> 
+        if Poly.equal (checker ch (split k)) true then
+            arr.hantei <- (minus h)
+        else if Poly.equal (checker ch (split o)) true then
+            arr.kekka <- (conbination (replace ch (split o) (split k) []))
+        else arr.hantei <- (minus h);;
+
+let masked_word (set: t): string signal = match set with
+    {hantei = h; origin = o; kekka = k} -> S.const k;;
+
+let progress set = match set with
+    {hantei = h; origin = o; kekka = k} ->
+        if Poly.equal (win (split k)) true then S.const Win
+        else S.const h;;

@@ -1,0 +1,16 @@
+module Hamming
+  ( distance
+  ) where
+
+import Data.Maybe (Maybe(..))
+import Data.Tuple (Tuple(..))
+import Data.String (uncons)
+import Data.Functor (map)
+import Prelude
+
+distance :: String -> String -> Maybe Int
+distance "" "" = Just 0
+distance a' b' = case (Tuple (uncons a') (uncons b')) of
+                      (Tuple (Just { head: a, tail: as }) (Just { head: b, tail: bs})) -> 
+                                    ((if a == b then 0 else 1)  + _) <$> distance as bs
+                      _ -> Nothing

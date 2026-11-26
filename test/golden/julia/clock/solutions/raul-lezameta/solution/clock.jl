@@ -1,0 +1,33 @@
+using Dates, Printf
+import Base: +, -, show
+
+struct Clock
+    h::Integer
+    m::Integer
+
+    function Clock(hour, min)
+        while min >= 60
+            min -= 60
+            hour += 1
+        end
+
+        while min < 0
+            min += 60
+            hour -= 1
+        end
+
+        while hour >= 24
+            hour -= 24
+        end
+
+        while hour < 0
+            hour += 24
+        end
+        new(hour, min)
+    end
+end
+
++(clock::Clock, minutes::Dates.Minute) = Clock(clock.h, clock.m + minutes.value)
+-(clock::Clock, minutes::Dates.Minute) = +(clock, -minutes)
+
+show(io::IO, clock::Clock) = @printf(io, "\"%02i:%02i\"", clock.h, clock.m)

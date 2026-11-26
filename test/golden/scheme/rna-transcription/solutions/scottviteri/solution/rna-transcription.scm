@@ -1,0 +1,10 @@
+(import (rnrs))
+
+(define dna->rna
+  (let ((translate (lambda (nucleotide)
+                     (case nucleotide
+                       ((#\G) #\C)
+                       ((#\C) #\G)
+                       ((#\A) #\U)
+                       ((#\T) #\A)))))
+    (lambda (dna) (string-map translate dna))))

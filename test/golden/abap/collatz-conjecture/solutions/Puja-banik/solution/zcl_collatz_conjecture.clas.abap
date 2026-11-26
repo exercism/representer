@@ -1,0 +1,38 @@
+CLASS zcl_collatz_conjecture DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS ret_steps IMPORTING num          TYPE i
+                      RETURNING VALUE(steps) TYPE i
+                      RAISING   cx_parameter_invalid.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+
+
+CLASS zcl_collatz_conjecture IMPLEMENTATION.
+  METHOD ret_steps.
+    "Implement Solution
+
+  if num gt 1.
+    do.
+      if num mod 2 eq 0.
+        num = num / 2.
+        steps = steps + 1.
+      else.
+        num = ( 3 * num ) + 1.
+        steps = steps + 1.
+      endif.
+      if num le 1.
+        exit.      
+      endif.
+    enddo. 
+  elseif num lt 1.
+    raise exception type cx_parameter_invalid.
+  endif.
+  ENDMETHOD.
+ENDCLASS.

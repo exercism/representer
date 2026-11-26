@@ -1,0 +1,7 @@
+different(A, B, R) :- (A =:= B -> R is 0; R is 1).
+hamming_distance(F, S, Dist) :-
+    string_codes(F, FL),
+    string_codes(S, SL),
+    same_length(FL, SL),
+    maplist(different, FL, SL, R),
+    sum_list(R, Dist).

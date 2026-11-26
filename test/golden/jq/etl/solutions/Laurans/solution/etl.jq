@@ -1,0 +1,2 @@
+.legacy| . as $legacy | keys | map(((. | tonumber) as $point | $legacy[.] | map({"\(. | ascii_downcase)": $point}))) | flatten | add
+| to_entries | sort_by(.key) | from_entries

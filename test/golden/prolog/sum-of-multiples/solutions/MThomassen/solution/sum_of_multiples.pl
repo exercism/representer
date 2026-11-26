@@ -1,0 +1,13 @@
+is_factor([Factor|Factors], X) :-
+    0 is mod(X, Factor), !;
+    is_factor(Factors, X).
+
+sum_of_multiples(Factors, Limit, Sum) :-
+    sum_of_multiples(Factors, Limit, 0, Sum).
+
+sum_of_multiples(_, 0, Acc, Acc) :- !.
+
+sum_of_multiples(Factors, Limit, Acc, Sum) :-
+    NextLimit is Limit - 1,
+    ( is_factor(Factors, NextLimit) -> NextAcc is Acc + NextLimit; NextAcc is Acc ),
+    sum_of_multiples(Factors, NextLimit, NextAcc, Sum).

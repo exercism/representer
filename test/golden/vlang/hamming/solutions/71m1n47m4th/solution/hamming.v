@@ -1,0 +1,14 @@
+module main
+
+fn distance(a string, b string) !int {
+    len := a.len
+    return if len != b.len {
+        error('lengths must match!')
+    } else {
+        mut count := 0
+        for i in 0..len {
+            if a[i] != b[i] { count++ }
+        }
+        count
+    }
+}

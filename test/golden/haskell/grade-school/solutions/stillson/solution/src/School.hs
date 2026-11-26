@@ -1,0 +1,21 @@
+module School (School, add, empty, grade, sorted) where
+
+import Data.List
+
+data School = School [(Int, String)]
+
+add :: Int -> String -> School -> School
+add gradeNum student (School school) = School $ (gradeNum, student) : school
+
+empty :: School
+empty = School []
+
+grade :: Int -> School -> [String]
+grade gradeNum (School school) =
+  sort $ map snd $ filter fromGrade school where
+    fromGrade student = (fst student) == gradeNum
+
+
+sorted :: School -> [(Int, [String])]
+sorted (School school) = map (\x -> (x , grade x (School school))) grades  where
+                          grades = sort $ nub $ map fst school

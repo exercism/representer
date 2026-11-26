@@ -1,0 +1,23 @@
+(file "resistor-color-duo.sql")
+CREATE TEMP TABLE IF NOT EXISTS color_values (
+color TEXT PRIMARY KEY ,
+value INTEGER
+);
+INSERT OR IGNORE INTO color_values ( color , value ) VALUES
+( 'black' , 0 ),
+( 'brown' , 1 ),
+( 'red' , 2 ),
+( 'orange' , 3 ),
+( 'yellow' , 4 ),
+( 'green' , 5 ),
+( 'blue' , 6 ),
+( 'violet' , 7 ),
+( 'grey' , 8 ),
+( 'white' , 9 );
+UPDATE color_code
+SET result = COALESCE (
+( SELECT a . value * 10 + b . value
+FROM color_values a
+LEFT JOIN color_values b ON color_code . color2 = b . color
+WHERE color_code . color1 = a . color ), 0 );
+SELECT * FROM color_code ;

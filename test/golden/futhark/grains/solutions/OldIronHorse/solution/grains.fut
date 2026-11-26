@@ -1,0 +1,5 @@
+def square(n: i32): u64 =
+  assert (n > 0 && n < 65) (2 ** ((u64.i32 n)-1))
+
+def total(): u64 =
+  (1...64) |> map square |> reduce (+) 0

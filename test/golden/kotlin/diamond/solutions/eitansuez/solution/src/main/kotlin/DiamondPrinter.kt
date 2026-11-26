@@ -1,0 +1,36 @@
+class DiamondPrinter {
+  fun printToList(c: Char): List<String>? {
+    val list = mutableListOf<String>()
+    val index = c.minus('A') + 1
+    val length = (index * 2) - 1
+
+    var innerLength = 0
+    var outerLength = (length - 1) / 2
+
+    ('A'..c).forEachIndexed { i, next ->
+
+      val inner = when {
+        i == 0 -> next.toString()
+        else -> next.toString() + numSpaces(innerLength) + next.toString()
+      }
+
+      list.add(numSpaces(outerLength) + inner + numSpaces(outerLength) )
+
+      outerLength -= 1
+      innerLength = length - 2 * ( outerLength + 1)
+    }
+
+    list.addAll(list.reversed().subList(1, list.size))
+    return list
+  }
+
+  private fun numSpaces(n: Int): String {
+    val sb = StringBuilder()
+    for (i in 1..n) {
+      sb.append(' ')
+    }
+    return sb.toString()
+  }
+
+
+}

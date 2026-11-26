@@ -1,0 +1,16 @@
+Red [
+	description: {"Resistor Color" exercise solution for exercism platform}
+	author: "" ; you can write your name here, in quotes
+]
+color-code: function [
+	color
+] [
+	a: find colors color
+    ind: index? a
+    ind - 1
+]
+
+colors: function [] [
+	["black" "brown" "red" "orange" "yellow" 	"green"	"blue"	"violet" "grey" "white"]
+]
+

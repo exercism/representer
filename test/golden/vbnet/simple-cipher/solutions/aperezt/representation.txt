@@ -1,0 +1,29 @@
+(file "SimpleCipher.vb")
+Imports System.Text
+Public Class SimpleCipher
+Private _key As String
+Public Sub New ()
+Dim rand As New Random ()
+_key = String . Join ( "\"\"" , Enumerable . Range ( 0 , 100 ). Select ( Function ( i ) ChrW ( rand . Next ( AscW ( "\"a\"" c ), AscW ( "\"z\"" c )))))
+End Sub
+Public Sub New ( ByVal key As String )
+_key = key
+End Sub
+Public Property Key As String
+Get
+Return _key
+End Get
+Set ( ByVal value As String )
+_key = value
+End Set
+End Property
+Public Function Encode ( ByVal plaintext As String ) As String
+Return String . Join ( "\"\"" , plaintext . Select ( Function ( c , i ) OffsetChar ( c , AscW ( _key ( i Mod _key . Length )) - AscW ( "\"a\"" c ))))
+End Function
+Public Function Decode ( ByVal ciphertext As String ) As String
+Return String . Join ( "\"\"" , ciphertext . Select ( Function ( c , i ) OffsetChar ( c , - 1 * ( AscW ( _key ( i Mod _key . Length )) - AscW ( "\"a\"" c )))))
+End Function
+Private Shared Function OffsetChar ( ByVal c As Char , ByVal offset As Integer ) As Char
+Return ChrW ((( AscW ( c ) - AscW ( "\"a\"" c ) + offset ) Mod 26 + 26 ) Mod 26 + AscW ( "\"a\"" c ))
+End Function
+End Class

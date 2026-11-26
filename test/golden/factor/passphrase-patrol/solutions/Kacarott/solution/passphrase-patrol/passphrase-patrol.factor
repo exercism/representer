@@ -1,0 +1,16 @@
+USING: kernel regexp sequences ascii ;
+IN: passphrase-patrol
+
+CONSTANT: badge-reg R/ [A-Z]{2}\-\d{4}/
+
+: valid-badge? ( badge -- ? )
+    badge-reg matches? ;
+
+: badge-codes ( line -- codes )
+    badge-reg all-matching-subseqs ;
+
+: digit-count ( string -- n )
+    [ digit? ] count ;
+
+: redact ( line -- line' )
+    R/ pass=\S+/ "pass=****" re-replace ;

@@ -1,0 +1,31 @@
+component {
+	
+	public boolean function valid( required string value ) {
+
+		var cleanArray = listToArray(replace(arguments.value, ' ', '', 'all'), '');
+
+		if (arrayLen(cleanArray) <= 1) {
+			return false;
+		}
+
+		var characterCounter = 1;
+		for (var i = arrayLen(cleanArray); i >= 1 ; i--) {
+			if (!isNumeric(cleanArray[i])) {
+				return false;
+			}
+			if (characterCounter % 2 == 0) {
+				var doubledValue = cleanArray[i] * 2;
+				if (doubledValue > 9) {
+					doubledValue -= 9;
+				}
+				cleanArray[i] = doubledValue;
+			}
+			characterCounter++;
+		}
+		if (arraySum(cleanArray) % 10 == 0) {
+			return true;
+		}
+		return false;
+	}
+	
+}

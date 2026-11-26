@@ -1,0 +1,35 @@
+module nth_prime
+  implicit none
+contains
+
+  integer function prime(n)
+    integer, intent(in) :: n
+    logical :: sieve(2:n**2)
+    integer :: i, j, m
+
+    if (n == 1) then
+      prime = 2
+      return
+    end if
+
+    sieve = .true.
+    prime = -1
+    m = 1
+
+    do i = 3, n**2, 2
+      if (.not. sieve(i)) cycle
+
+      prime = i
+      m = m + 1
+
+      if (m == n) return
+
+      if (i < n) then
+        do j = i ** 2, n ** 2, prime
+          sieve(j) = .false.
+        end do
+      end if
+    end do
+  end function
+
+end module

@@ -1,0 +1,22 @@
+WITH RECURSIVE
+bottles(n, num) AS (VALUES
+    (0, 'No'), (1, 'One'), (2, 'Two'),(3, 'Three'), (4, 'Four'), (5, 'Five'), 
+    (6, 'Six'), (7, 'Seven'), (8, 'Eight'), (9, 'Nine'), (10, 'Ten')),
+green_bottles(n, num) AS (SELECT 
+   n, num || ' green bottle' || IIF(n = 1, '', 's') FROM bottles),
+   tmp(row_id, current_bottle, bottles_left, verse) AS (
+    SELECT rowid, start_bottles, take_down, '' FROM "bottle-song"
+    UNION ALL
+    SELECT row_id, current_bottle - 1, bottles_left - 1, verse || 
+        bs.num || ' hanging on the wall,' || CHAR(10) || 
+        bs.num || ' hanging on the wall,' || CHAR(10) || 
+        'And if one green bottle should accidentally fall,' || CHAR(10) ||  
+        'There''ll be ' || LOWER(bs2.num) || ' hanging on the wall.' ||
+        CASE WHEN bottles_left > 1 THEN CHAR(10) || CHAR(10) ELSE '' END
+    FROM tmp
+    JOIN green_bottles bs ON bs.n = current_bottle
+    JOIN green_bottles bs2 ON bs2.n = current_bottle - 1
+    WHERE bottles_left > 0)
+UPDATE "bottle-song"
+SET result = verse FROM tmp 
+WHERE bottles_left = 0 AND "bottle-song".rowid = tmp.row_id

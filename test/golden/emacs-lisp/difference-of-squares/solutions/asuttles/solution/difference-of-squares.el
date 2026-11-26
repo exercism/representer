@@ -1,0 +1,18 @@
+;;; difference-of-squares.el --- Difference of Squares (exercism)  -*- lexical-binding: t; -*-
+
+(defun square (n)
+  (* n n))
+
+(defun sum-of-squares (n)
+  (seq-reduce #'+ (mapcar #'square (number-sequence 1 n 1)) 0)
+)
+
+(defun square-of-sum (n)
+  (square (/ (* n (+ n 1)) 2))
+)
+
+(defun difference (n)
+  (- (square-of-sum n) (sum-of-squares n)))
+
+(provide 'difference-of-squares)
+;;; difference-of-squares.el ends here

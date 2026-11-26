@@ -1,0 +1,32 @@
+(file "clock.v")
+module main
+struct Clock {
+mut:
+minutes int // Count in minutes
+}
+fn new_clock(hour int, minute int) Clock {
+mut clock := Clock { hour * 60 + minute }
+clock.fix()
+return clock
+}
+fn (mut c Clock) fix() {
+for c.minutes < 0 {
+c.minutes += 1440
+}
+c.minutes %= 1440
+}
+fn (mut c Clock) add_time(minute int) {
+c.minutes += minute
+c.fix()
+}
+fn (mut c Clock) subtract_time(minute int) {
+c.minutes -= minute
+c.fix()
+}
+fn (c Clock) string() string {
+hours := c.minutes / 60 % 24
+actual_minutes := c.minutes % 60
+minute_string := '0$actual_minutes'
+hour_string := '0$hours'
+return '${hour_string#[-2..]}:${minute_string#[-2..]}'
+}

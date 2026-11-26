@@ -1,0 +1,12 @@
+hamming_distance(Str1, Str2, Dist) :-
+  string_chars(Str1, L1),
+  string_chars(Str2, L2),
+  hamming(L1, L2, Dist).
+
+hamming([], [], 0).
+hamming([H|T1], [H|T2], N):-
+  hamming(T1, T2, N),
+  !.
+hamming([_|T1], [_|T2], N):-
+  hamming(T1, T2, Nt),
+  N is Nt + 1.

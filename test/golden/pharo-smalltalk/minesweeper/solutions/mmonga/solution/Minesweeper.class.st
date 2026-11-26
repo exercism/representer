@@ -1,0 +1,85 @@
+"
+I can annotate a Minefield represented as an array of string rows.
+"
+Class {
+	#name : #Minesweeper,
+	#superclass : #Object,
+	#instVars : [
+		'cells',
+		'nrows',
+		'ncols'
+	],
+	#category : #'Exercise@Minesweeper'
+}
+
+{ #category : #operations }
+Minesweeper >> annotateMinefield: aRowsCollection [
+	| annotated |
+	self cellsFrom: aRowsCollection.
+	annotated := self annotatedCells.
+	^ self asArrayOfRows: annotated
+]
+
+{ #category : #operations }
+Minesweeper >> annotatedCells [
+	| annotated |
+	annotated := Dictionary new.
+	cells
+		keysAndValuesDo: [ :point :cell | 
+			cell = $*
+				ifTrue: [ annotated at: point put: cell ].
+			cell = Character space
+				ifTrue: [ annotated at: point put: (self countNeighbors: point) ] ].
+	^ annotated
+]
+
+{ #category : #converting }
+Minesweeper >> asArrayOfRows: annotated [
+	| result |
+	result := Array new: nrows.
+	result
+		withIndexCollect: [ :unused :r | 
+			| row |
+			row := WriteStream with: String new.
+			1 to: ncols do: [ :c | 
+				| cell |
+				cell := annotated at: r @ c.
+				cell = $*
+					ifTrue: [ row nextPut: $* ]
+					ifFalse: [ (cell = 0 or: [ cell = Character space ])
+							ifTrue: [ row nextPut: Character space ]
+							ifFalse: [ row nextPutAll: cell asString ] ] ].
+			result at: r put: row contents ].
+	^ result
+]
+
+{ #category : #operations }
+Minesweeper >> cellsFrom: aRowsCollection [
+	aRowsCollection
+		doWithIndex:
+			[ :row :r | row doWithIndex: [ :char :c | cells at: r @ c put: char ] ].
+	nrows := aRowsCollection  size.
+	ncols := nrows > 0
+		ifTrue: [ aRowsCollection  first size ]
+		ifFalse: [ 0 ].
+
+]
+
+{ #category : #operations }
+Minesweeper >> countNeighbors: aPoint [
+	| neighbors mines |
+	mines := 0.
+	neighbors := aPoint eightNeighbors.
+	neighbors
+		do: [ :point | 
+			cells
+				at: point
+				ifPresent: [ (cells at: point) = $*
+						ifTrue: [ mines := mines + 1 ] ] ].
+	^ mines
+]
+
+{ #category : #initialization }
+Minesweeper >> initialize [
+	cells := Dictionary new.
+]

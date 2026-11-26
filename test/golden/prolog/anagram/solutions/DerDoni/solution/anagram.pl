@@ -1,0 +1,10 @@
+anagram(_, [], []).
+anagram(Word, [Candidate|Candidates], [Candidate|Anagrams]) :-
+    string_lower(Word, Word2),
+    string_lower(Candidate, Candidate2),
+    string_chars(Word2, W),
+    string_chars(Candidate2, C),
+    permutation(W, C),
+    anagram(Word, Candidates, Anagrams).
+
+anagram(Word, [_|Candidates], Anagrams) :- anagram(Word, Candidates, Anagrams).

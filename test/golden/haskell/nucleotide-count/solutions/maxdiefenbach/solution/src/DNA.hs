@@ -1,0 +1,16 @@
+{-# LANGUAGE TupleSections #-}
+
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import           Data.Map.Strict (Map, fromListWith)
+import           Text.Read       (readEither)
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show, Read)
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts cs =
+  fromListWith (+) . addDefaultCase . fmap count <$> traverse toNucleotide cs
+  where toNucleotide :: Char -> Either String Nucleotide
+        toNucleotide c = readEither [c]
+        count = (,1)
+        addDefaultCase = ([(A, 0), (C, 0), (T, 0), (G, 0)]++)

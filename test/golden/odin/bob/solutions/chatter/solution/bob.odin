@@ -1,0 +1,66 @@
+package bob
+
+import "base:runtime"
+import "core:strings"
+import "core:sync"
+import "core:text/regex"
+
+@(private = "file")
+_has_letters_re: regex.Regular_Expression
+
+@(private = "file")
+_re_once: sync.Once
+
+response :: proc(input: string) -> string {
+    trimmed := strings.trim_space(input)
+
+    switch {
+    case isEmpty(trimmed):
+        return "Fine. Be that way!"
+    case isScreamingQuestion(trimmed):
+        return "Calm down, I know what I'm doing!"
+    case isYelling(trimmed):
+        return "Whoa, chill out!"
+    case isQuestion(trimmed):
+        return "Sure."
+    case:
+        return "Whatever."
+    }
+}
+
+@(private = "file")
+isEmpty :: proc(input: string) -> bool {
+    return strings.trim_space(input) == ""
+}
+
+@(private = "file")
+isQuestion :: proc(input: string) -> bool {
+    return strings.has_suffix(input, "?")
+}
+
+@(private = "file")
+isYelling :: proc(input: string) -> bool {
+    if !hasLetters(input) do return false
+
+    upper := strings.to_upper(input)
+    defer delete(upper)
+
+    return upper == input
+}
+
+@(private = "file")
+isScreamingQuestion :: proc(input: string) -> bool {
+    return isYelling(input) && isQuestion(input)
+}
+
+@(private = "file")
+hasLetters :: proc(input: string) -> bool {
+    sync.once_do(&_re_once, proc() {
+        _has_letters_re, _ = regex.create(`[A-Za-z]`, permanent_allocator = runtime.heap_allocator())
+    })
+
+    capture, ok := regex.match(_has_letters_re, input)
+    defer regex.destroy_capture(capture)
+
+    return ok
+}

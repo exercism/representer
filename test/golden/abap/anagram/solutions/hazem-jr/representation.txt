@@ -1,0 +1,50 @@
+(file "zcl_anagram.clas.abap")
+CLASS zcl_anagram DEFINITION
+PUBLIC
+FINAL
+CREATE PUBLIC .
+PUBLIC SECTION .
+METHODS anagram
+IMPORTING
+input TYPE string
+candidates TYPE string_table
+RETURNING
+VALUE ( result ) TYPE string_table .
+PROTECTED SECTION .
+PRIVATE SECTION .
+types : begin of str_letters ,
+letter ( 1 ),
+END OF str_letters .
+ENDCLASS .
+CLASS zcl_anagram IMPLEMENTATION .
+METHOD anagram .
+DATA :
+input_chars TYPE SORTED TABLE OF c WITH NON-UNIQUE KEY table_line ,
+candidate_chars TYPE SORTED TABLE OF c WITH NON-UNIQUE KEY table_line ,
+lv_input TYPE string ,
+lv_candidate TYPE string ,
+lv_index TYPE i ,
+lv_ch ( 1 ) .
+lv_input = to_lower ( input ).
+data ( lv_len ) = strlen ( input ).
+WHILE lv_index < lv_len .
+lv_ch = lv_input + lv_index ( 1 ).
+INSERT lv_ch INTO TABLE input_chars .
+lv_index += 1 .
+ENDWHILE .
+LOOP AT candidates ASSIGNING FIELD-SYMBOL ( < fs > ).
+lv_candidate = to_lower ( < fs > ).
+lv_index = 0 .
+lv_len = strlen ( < fs > ).
+CLEAR candidate_chars .
+WHILE lv_index < lv_len .
+lv_ch = lv_candidate + lv_index ( 1 ).
+INSERT lv_ch INTO TABLE candidate_chars .
+lv_index += 1 .
+ENDWHILE .
+IF input_chars = candidate_chars AND lv_input <> lv_candidate .
+APPEND < fs > TO result .
+ENDIF .
+ENDLOOP .
+ENDMETHOD .
+ENDCLASS .

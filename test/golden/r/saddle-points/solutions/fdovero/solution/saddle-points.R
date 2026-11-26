@@ -1,0 +1,6 @@
+saddle_point <- function(input) {
+    max_in_row <- apply(input, 1, max, -Inf)
+    min_in_col <- apply(input, 2, min, Inf)
+    mask <- outer(max_in_row, min_in_col, FUN = "==")
+    data.frame(which(mask, arr.ind = TRUE))
+}

@@ -1,0 +1,15 @@
+object ScrabbleScore {
+  def score(word: String): Int = {
+    val value = Map(List('a', 'e', 'i', 'o', 'u', 'l', 'n', 'r', 's', 't') -> 1,
+      List('d', 'g') -> 2,
+      List('b', 'c', 'm', 'p') -> 3,
+      List('f', 'h', 'v', 'w', 'y') -> 4,
+      List('k') -> 5,
+      List('j', 'x') -> 8,
+      List('q', 'z') -> 10
+    )
+    word.toLowerCase.map(x =>
+      value.collect { case (y,r) if y.contains(x) => r
+      }.toList.sum).toList.sum
+  }
+}

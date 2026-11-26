@@ -1,0 +1,16 @@
+package Deque;
+
+use strict;
+
+use Moose;
+
+has q => (
+    is => 'ro',
+    default => sub { [] },
+    traits => [ qw/ Array / ],
+    handles => {
+        map { $_ => $_ } qw/ unshift pop push shift /
+    }
+);
+
+1;

@@ -1,0 +1,16 @@
+return function(dna)
+    local rna = ""
+    for i = 1, #dna do
+        local nucleotide = string.sub(dna, i, i)
+        if nucleotide == "G" then
+            rna = rna .. "C"
+        elseif nucleotide == "C" then
+            rna = rna .. "G"
+        elseif nucleotide == "T" then
+            rna = rna .. "A"
+        elseif nucleotide == "A" then
+            rna = rna .. "U"
+        end
+    end
+    return rna
+end

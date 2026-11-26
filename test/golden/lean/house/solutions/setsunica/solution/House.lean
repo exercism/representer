@@ -1,0 +1,42 @@
+namespace House
+
+abbrev VerseIndex := { x : Nat // 1 ≤ x ∧ x ≤ 12 }
+
+namespace VerseIndex
+def rangeList (s e : VerseIndex) : List VerseIndex :=
+  if h : s.val ≤ e.val then
+    aux s.val (e.val - s.val + 1) s.2.1 (by omega)
+  else
+    []
+  where
+    aux : (start count : Nat) → 1 ≤ start → start + count ≤ 13 → List VerseIndex
+      | _, 0, _, _ => []
+      | start, count + 1, h1, _ =>
+        ⟨start, h1, by omega⟩ :: aux (start + 1) count (by omega) (by omega)
+end VerseIndex
+
+abbrev phrases : Array String := #[
+  "the house that Jack built",
+  "the malt that lay in",
+  "the rat that ate",
+  "the cat that killed",
+  "the dog that worried",
+  "the cow with the crumpled horn that tossed",
+  "the maiden all forlorn that milked",
+  "the man all tattered and torn that kissed",
+  "the priest all shaven and shorn that married",
+  "the rooster that crowed in the morn that woke",
+  "the farmer sowing his corn that kept",
+  "the horse and the hound and the horn that belonged to",
+]
+
+def sentence (verse : VerseIndex) : String :=
+  let s := VerseIndex.rangeList ⟨1, by decide⟩ verse
+    |>.reverse.map (phrases[·.val - 1]'(by simp; omega))
+    |> String.intercalate " "
+  s!"This is {s}."
+
+def recite (startVerse endVerse : VerseIndex) : String :=
+  VerseIndex.rangeList startVerse endVerse |>.map sentence |> String.intercalate "\n\n"
+
+end House

@@ -1,0 +1,25 @@
+CLASS zcl_resistor_color DEFINITION PUBLIC CREATE PUBLIC.
+  PUBLIC SECTION.
+    METHODS resistor_color
+      IMPORTING
+        color_code   TYPE string
+      RETURNING
+        VALUE(value) TYPE i.
+ENDCLASS.
+
+CLASS zcl_resistor_color IMPLEMENTATION.
+
+  METHOD resistor_color.
+    value = COND #( when color_code = 'black' then 0 
+                    when color_code = 'brown' then 1
+                    when color_code = 'red' then 2
+                    when color_code = 'orange' then 3
+                    when color_code = 'yellow' then 4
+                    when color_code = 'green' then 5
+                    when color_code = 'blue' then 6
+                    when color_code = 'violet' then 7
+                    when color_code = 'grey' then 8
+                    when color_code = 'white' then 9).
+  ENDMETHOD.
+
+ENDCLASS.

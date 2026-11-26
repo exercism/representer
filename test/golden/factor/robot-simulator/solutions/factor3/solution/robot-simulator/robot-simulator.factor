@@ -1,0 +1,35 @@
+USING: accessors circular combinators kernel literals math
+pair-rocket sequences ;
+IN: robot-simulator
+
+SYMBOLS: north east south west ;
+
+CONSTANT: dirs $[ { north east south west } <circular> ]
+
+TUPLE: robot x y direction ;
+
+C: <robot> robot
+
+: turn-left ( robot -- robot' )
+    [ dirs index 1 - dirs nth ] change-direction ;
+
+: turn-right ( robot -- robot' )
+    [ dirs index 1 + dirs nth ] change-direction ;
+
+: advance ( robot -- robot' )
+    dup direction>> {
+        north => [ [ 1 + ] change-y ]
+        east => [ [ 1 + ] change-x ]
+        south => [ [ 1 - ] change-y ]
+        west => [ [ 1 - ] change-x ]
+    } case ;
+
+: (move) ( robot instruction -- robot' )
+    {
+        CHAR: R => [ turn-right ]
+        CHAR: L => [ turn-left ]
+        CHAR: A => [ advance ]
+    } case ;
+
+: move ( robot instructions -- robot' )
+    [ (move) ] each ;

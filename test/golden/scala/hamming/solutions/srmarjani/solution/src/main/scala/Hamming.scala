@@ -1,0 +1,12 @@
+object Hamming {
+  def distance(dnaStrandOne: String, dnaStrandTwo: String): Option[Int] = {
+    if (dnaStrandOne.length == dnaStrandTwo.length) {
+      Some(
+        (dnaStrandOne zip dnaStrandTwo) count(x => x._1 != x._2)
+      )
+    }
+    else {
+      None
+    }
+  }
+}

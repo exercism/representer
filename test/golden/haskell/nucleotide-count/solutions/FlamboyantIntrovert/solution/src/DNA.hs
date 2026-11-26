@@ -1,0 +1,18 @@
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import Data.Map.Strict (Map, fromList, adjust)
+import Text.Read (readEither, readMaybe)
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show, Read)
+
+parseNucleotide :: Char -> Either String Nucleotide
+parseNucleotide nucleotide = readEither [nucleotide] :: Either String Nucleotide
+
+parseNucleotides :: String -> Either String [Nucleotide]
+parseNucleotides = traverse parseNucleotide
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts dnaStrand = foldr increaseCount defaultValues <$> parseNucleotides dnaStrand
+    where
+        defaultValues = fromList [(A, 0), (C, 0), (G, 0), (T, 0)]
+        increaseCount = adjust (+1)

@@ -1,0 +1,22 @@
+# Returns the acronym of the given phrase.
+#
+# + phrase - a string
+# + return - the acronym
+function abbreviate(string phrase) returns string {
+    // start with initial capital letter
+    string acronym = phrase[0];
+    // loop over rest of phrase
+    boolean delimiter = false;
+    foreach var c in phrase.substring(1) {
+        // if char is delimiter -> next alpha char should be upper
+        if c == " " || c == "-" || c == "_" {
+            delimiter = true;
+            // if last one was delimiter -> capitalize this char
+        } else if delimiter {
+            acronym = acronym + c.toUpperAscii();
+            delimiter = false;
+        }
+    }
+    // return the concatenated result
+    return acronym;
+}

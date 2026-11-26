@@ -1,0 +1,32 @@
+(file "rectangles.moon")
+hor = { '+' : true , '-' : true }
+ver = { '+' : true , '|' : true }
+{
+  rectangles: ( b ) ->
+    r = # b
+    return 0 if r <= 1
+    c = # b [ 1 ]
+    return 0 if c <= 1
+    get = ( i , j ) -> b [ i ] \ sub j , j
+    with res = 0
+      for i0 = 1 , r - 1
+        for j0 = 1 , c - 1
+          top_left = get i0 , j0
+          continue unless top_left == '+'
+          for i1 = i0 + 1 , r
+            bot_left = get ( i1 , j0 )
+            continue if bot_left == '|'
+            break unless bot_left == '+'
+            for j1 = j0 + 1 , c
+              top_right = get ( i0 , j1 )
+              bot_right = get ( i1 , j1 )
+              break unless hor [ top_right ] and hor [ bot_right ]
+              continue unless ver [ top_right ] and ver [ bot_right ]
+              valid = true
+              for i = i0 + 1 , i1 - 1
+                unless ver [ get ( i , j1 )]
+                  valid = false
+                  break
+              if valid
+                res += 1
+}

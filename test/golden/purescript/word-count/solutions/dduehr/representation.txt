@@ -1,0 +1,47 @@
+(file "src/WordCount.purs")
+module WordCount ( wordCount ) where
+import Prelude
+import Data.Array ( filter , init , tail , zip , ( : ))
+import Data.CodePoint.Unicode ( isAlphaNum )
+import Data.Enum ( succ )
+import Data.Foldable ( foldl )
+import Data.Map ( Map , empty , alter )
+import Data.Maybe ( Maybe ( .. ), fromMaybe )
+import Data.String ( null , split , toLower )
+import Data.String.CodePoints ( CodePoint , codePointFromChar , fromCodePointArray , toCodePointArray )
+import Data.String.Pattern ( Pattern ( .. ))
+import Data.Tuple ( Tuple ( .. ), uncurry )
+wordCount :: String -> Map String Int
+wordCount = toCodePointArray
+  >>> mapWithNeighbors ( preserveCodePoint $ isAlphaNumeric || isContraction )
+  >>> fromCodePointArray
+  >>> toLower
+  >>> split ( Pattern $ fromCodePointArray [ space ])
+  >>> filter ( not null )
+  >>> foldl updateWordCount empty
+  where
+    updateWordCount m w = alter increment w m
+mapWithNeighbors :: ( CodePoint -> Tuple CodePoint CodePoint -> CodePoint ) -> Array CodePoint -> Array CodePoint
+mapWithNeighbors f xs = fromMaybe [] do
+  ns <- neighbors
+  pure $ map ( uncurry f ) $ zip xs ns
+  where
+    neighbors = do
+      ls' <- init xs
+      rs' <- tail xs
+      pure $ zip ( space : ls' ) ( rs' <> [ space ])
+isAlphaNumeric :: CodePoint -> Tuple CodePoint CodePoint -> Boolean
+isAlphaNumeric c _ = isAlphaNum c
+isContraction :: CodePoint -> Tuple CodePoint CodePoint -> Boolean
+isContraction c ( Tuple l r ) = isAlphaNum l && isApostrophe c && isAlphaNum r
+  where
+    isApostrophe = ( _ ` eq ` codePointFromChar '\'' )
+space :: CodePoint
+space = codePointFromChar "' '"
+preserveCodePoint :: ( CodePoint -> Tuple CodePoint CodePoint -> Boolean ) -> CodePoint -> Tuple CodePoint CodePoint -> CodePoint
+preserveCodePoint f c ns
+  | f c ns = c
+  | otherwise = space
+increment :: Maybe Int -> Maybe Int
+increment Nothing = Just 1
+increment ( Just n ) = succ n

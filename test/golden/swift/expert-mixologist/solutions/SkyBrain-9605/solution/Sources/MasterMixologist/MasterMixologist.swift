@@ -1,0 +1,78 @@
+func timeToPrepare(drinks: [String]) -> Double {
+  let totDur = drinks.reduce(0.0){ (time, drink) in
+    var dur = 0.0
+    switch (drink){
+        case "beer", "soda", "water" :
+            dur = 0.5
+            break
+        case "shot" :
+            dur = 1.0
+            break
+        case "mixed drink" :
+            dur = 1.5
+            break
+        case "fancy drink" :
+            dur = 2.5
+            break
+        case "frozen drink" :
+            dur = 3.0
+            break
+        default:
+            dur = 0.0
+    }
+    return (time + dur)
+  }
+    return totDur
+}
+
+func makeWedges(needed: Int, limes: [String]) -> Int {
+    guard needed > 0 else { return 0 }
+    var cut = 0
+    var wedges = 0
+  for lime in limes {
+       cut = cut + 1
+    switch (lime){
+          case "small":
+            wedges += 6
+            break
+        case "medium":
+            wedges += 8
+            break
+        case "large":
+             wedges += 10
+            break
+        default:
+            wedges += 0
+    }
+      if (wedges >= needed) {
+        break
+      }else { continue }
+  }
+    return cut
+}
+
+func finishShift(minutesLeft: Int, remainingOrders: [[String]]) -> [[String]] {
+    var minRemaining = Double(minutesLeft)
+    var ordersRemaining = remainingOrders
+    while minRemaining > 0, !ordersRemaining.isEmpty {
+        minRemaining -= timeToPrepare(drinks: ordersRemaining.removeFirst())
+    }
+    return ordersRemaining
+}
+
+func orderTracker(orders: [(drink: String, time: String)]) -> (
+  beer: (first: String, last: String, total: Int)?, soda: (first: String, last: String, total: Int)?
+) {
+  func getOrderData(_ drink: String) -> (first: String, last: String, total: Int)? {
+    let totalOrders = orders.filter { $0.drink == drink }.count
+    let first = orders.first( where: { $0.drink == drink })?.time ?? ""
+    let last = orders.last( where: { $0.drink == drink })?.time ?? ""
+    var item: (first: String, last: String, total: Int)? = nil
+    if totalOrders > 0 {
+        item = (first, last, totalOrders)
+    }
+    return item
+  }
+    let tracked: (beer: (first: String, last: String, total: Int)?, soda: (first: String, last: String, total: Int)?) = (getOrderData("beer"), getOrderData("soda"))
+    return tracked 
+}

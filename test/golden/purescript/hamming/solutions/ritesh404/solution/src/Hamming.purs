@@ -1,0 +1,17 @@
+module Hamming
+  ( distance
+  ) where
+
+import Prelude
+import Data.Maybe
+import Data.String as S
+import Data.String.CodePoints
+import Data.Foldable
+import Data.Array
+
+distance dna1 dna2 | (S.length dna1 /= S.length dna2) = Nothing
+                   | dna1 == dna2 = Just 0
+                   | otherwise = Just $ sum $ zipWith diff (toCodePointArray dna1) (toCodePointArray dna2)
+
+diff x y | x == y = 0
+         | otherwise = 1

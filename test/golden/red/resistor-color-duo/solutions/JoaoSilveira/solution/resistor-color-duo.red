@@ -1,0 +1,34 @@
+Red [
+	description: {"Resistor Color Duo" exercise solution for exercism platform}
+	author: "João Pedro Silveira" ; you can write your name here, in quotes
+]
+
+colors-map: [
+    black 0
+    brown 1
+    red 2
+    orange 3
+    yellow 4
+    green 5
+    blue 6
+    violet 7
+    grey 8
+    white 9
+]
+
+value: function [
+	colors
+    /local value color-value
+] [
+	value: 0
+	repeat i 2 [
+    	color-value: select colors-map to-word pick colors i
+        
+    	if not none? color-value [
+        	value: value * 10 + color-value
+        ]
+    ]
+
+    value
+]
+

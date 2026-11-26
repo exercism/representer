@@ -1,0 +1,13 @@
+Red [
+	description: {"Two-fer" exercise solution for exercism platform}
+	author: "Ahmed Riza"
+]
+
+two-fer: function [
+	name [string! none!]
+] [
+	name: any [name "you"]
+	rejoin [
+		"One for " name ", one for me."
+    ]
+]

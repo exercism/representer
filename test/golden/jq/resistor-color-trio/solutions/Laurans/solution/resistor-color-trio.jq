@@ -1,0 +1,28 @@
+def get_number:
+    (. | ascii_downcase) as $color 
+    | if $color == "black" then "0"
+    elif $color == "brown" then "1"
+    elif $color == "red" then "2"
+    elif $color == "orange" then "3"
+    elif $color == "yellow" then "4"
+    elif $color == "green" then "5"
+    elif $color == "blue" then "6"
+    elif $color == "violet" then "7"
+    elif $color == "grey" then "8"
+    else "9"
+    end
+;
+
+def get_metric:
+    if . == 1 then "kilo"
+    elif . == 2 then "mega"
+    elif . == 3 then "giga"
+    else ""
+    end
+;
+
+(.colors[:2] | map(get_number) | add) + ((.colors[2] | get_number | tonumber) * "0") | tonumber | tostring | . as $resistance 
+| ([match("(000)"; "g") | .captures] | length) as $nbgroup
+| ($nbgroup | get_metric) as $prefix
+| ($resistance[:-($nbgroup * 3)] | select(. != "") // $resistance)
+| {value:(. | tonumber), unit:"\($prefix)ohms"}

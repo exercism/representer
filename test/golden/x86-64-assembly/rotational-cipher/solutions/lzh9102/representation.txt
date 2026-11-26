@@ -1,0 +1,46 @@
+(file "rotational_cipher.asm")
+section .text
+global rotate
+rotate:
+mov rcx , rdx
+xor rdx , rdx
+mov rax , rsi
+mov rbx , 26
+div rbx
+mov rsi , rdx
+mov rdx , rcx
+.start:
+mov al , [ rdi ]
+.check_lower_case:
+cmp al , 'a'
+jb .check_upper_case
+cmp al , 'z'
+ja .check_upper_case
+.convert_lower_case:
+add rax , rsi
+cmp al , 'z'
+jbe .next
+sub al , 26
+jmp .next
+.check_upper_case:
+cmp al , 'A'
+jb .next
+cmp al , 'Z'
+ja .next
+.convert_upper_case:
+add rax , rsi
+cmp al , 'Z'
+jbe .next
+sub al , 26
+.next:
+mov [ rdx ], al
+test al , al
+jz .end
+inc rdi
+inc rdx
+jmp .start
+.end:
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

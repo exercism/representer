@@ -1,0 +1,38 @@
+(file "LargestSeriesProduct.pas")
+unit LargestSeriesProduct ;
+interface
+type
+TIntArray = array of integer ;
+function LargestProduct ( const digits : string ; const span : integer ): integer ;
+implementation
+uses SysUtils , Math ;
+function CalculateLargestProduct ( const digits : TIntArray ; const span : integer ;
+const start : integer = 0 ; const largest : integer = 0 ): integer ;
+var
+product , i : integer ;
+begin
+if span > length ( digits ) - start then exit ( largest );
+product := 1 ;
+for i := start to start + span - 1 do product *= digits [ i ];
+Result := CalculateLargestProduct ( digits , span , start + 1 , max ( largest , product ));
+end ;
+function LargestProduct ( const digits : string ; const span : integer ): integer ;
+var
+arr : TIntArray ;
+c : char ;
+begin
+if span > length ( digits ) then
+raise Exception . Create ( "'span must not exceed string length'" );
+if span < 0 then
+raise Exception . Create ( "'span must not be negative'" );
+if ( digits = '' ) or ( span = 0 ) then exit ( 1 );
+arr := nil ;
+for c in digits do
+begin
+if not ( c in [ '0' .. '9' ]) then
+raise Exception . Create ( "'digits input must only contain digits'" );
+Insert ( StrToInt ( c ), arr , length ( arr ) + 1 );
+end ;
+Result := CalculateLargestProduct ( arr , span );
+end ;
+end .

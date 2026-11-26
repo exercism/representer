@@ -1,0 +1,29 @@
+function! DigitToRoman(number, one, five, ten) abort
+  if a:number < 4
+    return repeat(a:one, a:number)
+  elseif a:number == 4
+    return a:one .. a:five
+  elseif a:number < 9
+    return a:five .. repeat(a:one, a:number - 5)
+  else
+    return a:one .. a:ten
+  endif
+endfunction
+
+function! ToRoman(number) abort
+  const l:roman_digits = 'IVXLCDM  '
+
+  let l:number = a:number
+  let l:result = ''
+  let l:index = 0
+  while l:number > 0
+    let l:digit = l:number % 10
+    let l:roman = DigitToRoman(l:digit, l:roman_digits[l:index], l:roman_digits[l:index + 1], l:roman_digits[l:index + 2])
+    let l:result = l:roman .. l:result
+
+    let l:number /= 10
+    let l:index += 2
+  endwhile
+  
+  return l:result
+endfunction

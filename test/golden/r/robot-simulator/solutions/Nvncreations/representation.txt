@@ -1,0 +1,39 @@
+(file "robot-simulator.R")
+new_robot <- function ( coordinates , direction ) {
+structure ( list ( coordinates = coordinates , direction = direction ), class = "\"robot\"" )
+}
+rotate <- function ( robot , direction ) {
+directions <- c ( "\"NORTH\"" , "\"EAST\"" , "\"SOUTH\"" , "\"WEST\"" )
+current_direction <- robot $ direction
+current_index <- match ( current_direction , directions )
+if ( direction == "\"R\"" ) {
+new_index <- ( current_index %% 4 ) + 1
+} else if ( direction == "\"L\"" ) {
+new_index <- (( current_index - 2 ) %% 4 ) + 1
+} else {
+stop ( "\"Invalid direction. Use 'R' for right or 'L' for left.\"" )
+}
+robot $ direction <- directions [ new_index ]
+robot
+}
+move <- function ( robot , commands ) {
+for ( command in strsplit ( commands , "\"\"" )[[ 1 ]]) {
+if ( command %in% c ( "\"R\"" , "\"L\"" )) {
+robot <- rotate ( robot , command )
+} else if ( command == "\"A\"" ) {
+direction <- robot $ direction
+if ( direction == "\"NORTH\"" ) {
+robot $ coordinates [ 2 ] <- robot $ coordinates [ 2 ] + 1
+} else if ( direction == "\"SOUTH\"" ) {
+robot $ coordinates [ 2 ] <- robot $ coordinates [ 2 ] - 1
+} else if ( direction == "\"EAST\"" ) {
+robot $ coordinates [ 1 ] <- robot $ coordinates [ 1 ] + 1
+} else if ( direction == "\"WEST\"" ) {
+robot $ coordinates [ 1 ] <- robot $ coordinates [ 1 ] - 1
+}
+} else {
+stop ( "\"Invalid command. Use 'R' for right, 'L' for left, or 'A' for advance.\"" )
+}
+}
+robot
+}

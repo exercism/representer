@@ -1,0 +1,22 @@
+CLASS zcl_two_fer DEFINITION PUBLIC.
+  PUBLIC SECTION.
+    METHODS two_fer
+      IMPORTING
+        input         TYPE string OPTIONAL
+      RETURNING
+        VALUE(result) TYPE string.
+ENDCLASS.
+
+CLASS zcl_two_fer IMPLEMENTATION.
+
+  METHOD two_fer.
+   DATA(response) = value string( ).
+   if input is initial.
+    response = |One for you, one for me.|.
+   else.
+   response = |One for { input }, one for me.|.
+   endif.
+   result = response.
+  ENDMETHOD.
+
+ENDCLASS.

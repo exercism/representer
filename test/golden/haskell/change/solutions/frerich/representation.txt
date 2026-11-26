@@ -1,0 +1,12 @@
+(file "src/Change.hs")
+module Change ( findFewestCoins ) where
+import Data.List ( tails )
+import Data.Maybe ( listToMaybe )
+draw :: [ a ] -> Int -> [[ a ]]
+draw _ 0 = [ [] ]
+draw xs n = [ t0 : rest | t @ ( t0 : _ ) <- tails xs , rest <- draw t ( n - 1 )]
+findFewestCoins :: Integer -> [ Integer ] -> Maybe [ Integer ]
+findFewestCoins target coins = listToMaybe ( solutions choices )
+  where
+    solutions = filter ( \ cs -> sum cs == target )
+    choices = draw coins =<< [ 0 .. fromIntegral ( target ` div ` minimum coins )]

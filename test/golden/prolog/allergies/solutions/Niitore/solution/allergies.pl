@@ -1,0 +1,12 @@
+allergic_to(Score, eggs)         => Score /\  1  =:=1.
+allergic_to(Score, peanuts)      => Score /\  2  =:= 2.
+allergic_to(Score, shellfish)    => Score /\  4  =:= 4.
+allergic_to(Score, strawberries) => Score /\  8  =:= 8.
+allergic_to(Score, tomatoes)   => Score /\  16 =:= 16.
+allergic_to(Score, chocolate)    => Score /\  32 =:=32.
+allergic_to(Score, pollen)       => Score /\  64 =:= 64.
+allergic_to(Score, cats)         => Score /\ 128 =:= 128.
+%% Given Score, returns Allergies
+allergies(Score, Allergies) :-
+  All=[eggs, peanuts, shellfish, strawberries, tomatoes, chocolate, pollen, cats],
+  include(allergic_to(Score), All, Allergies).

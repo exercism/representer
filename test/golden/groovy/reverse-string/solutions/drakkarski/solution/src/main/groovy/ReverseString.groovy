@@ -1,0 +1,7 @@
+class ReverseString {
+
+    static reverse(String value) {
+        value.inject("", { a, b -> b + a })
+    }
+
+}

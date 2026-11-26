@@ -1,0 +1,10 @@
+proc addGigasecond {datetime} {
+    puts $datetime
+    if {[string match *T* $datetime]} {
+        set t [clock scan $datetime -format {%Y-%m-%dT%H:%M:%S} -timezone UTC]
+    } else {
+        set t [clock scan $datetime -timezone UTC]
+    }
+    set t [clock add $t 1000000000 seconds]
+    clock format $t -format {%Y-%m-%dT%H:%M:%S} -timezone UTC
+}

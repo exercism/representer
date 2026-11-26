@@ -1,0 +1,33 @@
+.globl rotate
+
+.text
+
+rotate:
+        li      $t0, 26                # t0 = 26
+        li      $t1, 32                # t1 = 32
+        li      $t2, 97                # t2 = 97  - ascii for 'a' 
+        nor     $t3, $t1, $0           # t3 = !(t1 | 0)
+        move    $t4, $a0                # pointer into input text
+        move    $t5, $a2                # pointer into output text
+
+loop:
+        lb      $t6, 0($t4)             # Load byte
+        move    $t7, $t6
+        or      $t7, $t7, $t1           # Convert to lower case
+        blt     $t7, $t2, write         # Jump if below alphabet
+        sub     $t7, $t7, $t2           # Convert from letter to number
+        bge     $t7, $t0, write         # Jump if above alphabet
+        add     $t7, $t7, $a1           # Shift by shift key
+        div     $t7, $t0
+        mfhi    $t7
+        add     $t7, $t7, $t2           # Convert from number to letter
+
+        nor     $t6, $t6, $t3           # Determine if letter was uppercase
+        xor     $t6, $t7, $t6           # Convert to original case
+
+write:
+        sb      $t6, 0($t5)
+        addi    $t4, $t4, 1
+        addi    $t5, $t5, 1
+        bne     $t6, $0, loop
+        jr      $ra

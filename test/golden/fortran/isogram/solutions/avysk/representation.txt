@@ -1,0 +1,41 @@
+(file "isogram.f90")
+module isogram
+implicit none
+contains
+function isIsogram ( phrase ) result ( no_repeats )
+character ( len =* ), intent ( in ) :: phrase
+logical :: no_repeats
+logical :: mark ( 26 )
+integer , parameter :: a_code = iachar ( "\"a\"" )
+integer , parameter :: z_code = iachar ( "\"z\"" )
+integer , parameter :: offset = ( iachar ( "\"a\"" ) - 1 )
+integer , parameter :: upper_a_code = iachar ( "\"A\"" )
+integer , parameter :: upper_z_code = iachar ( "\"Z\"" )
+integer , parameter :: upper_offset = ( iachar ( "\"A\"" ) - 1 )
+integer :: idx , code
+no_repeats = .true.
+if ( len ( phrase ) == 0 ) then
+return
+end if
+mark = [( .false. , idx = 1 , 26 )]
+do idx = 1 , len ( phrase )
+code = iachar ( phrase ( idx : idx ))
+select case ( code )
+case ( a_code : z_code )
+if ( mark ( code - offset )) then
+no_repeats = .false.
+return
+end if
+mark ( code - offset ) = .true.
+case ( upper_a_code : upper_z_code )
+if ( mark ( code - upper_offset )) then
+no_repeats = .false.
+return
+end if
+mark ( code - upper_offset ) = .true.
+case default
+cycle
+end select
+end do
+end function isIsogram
+end module isogram

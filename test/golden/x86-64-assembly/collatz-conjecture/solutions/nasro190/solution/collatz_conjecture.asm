@@ -1,0 +1,22 @@
+section .text
+global steps
+steps:
+    xor rax, rax
+    test edi, edi
+    jle error
+loop:
+    cmp edi, 1
+    je end
+    inc rax
+    test edi, 1
+    jz even
+    lea edi, [rdi * 3 + 1]
+    jmp loop
+even:
+    shr edi, 1
+    jmp loop
+end:
+    ret
+error:
+    mov rax, -1
+    ret

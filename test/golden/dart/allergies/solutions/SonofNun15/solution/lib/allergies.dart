@@ -1,0 +1,32 @@
+class Allergies {
+  final allergens = <String, int>{
+    'eggs': 1,
+    'peanuts': 2,
+    'shellfish': 4,
+    'strawberries': 8,
+    'tomatoes': 16,
+    'chocolate': 32,
+    'pollen': 64,
+    'cats': 128,
+  };
+
+  bool allergicTo(String thing, int allergenScore) {
+    final allergenValue = allergens[_clean(thing)] ?? 0;
+    return _hasAllergen(allergenValue, allergenScore);
+  }
+
+  List<String> list(int allergenScore) {
+    return allergens.entries
+        .where((entry) => _hasAllergen(entry.value, allergenScore))
+        .map((entry) => entry.key)
+        .toList();
+  }
+
+  String _clean(String str) {
+    return str.trim().toLowerCase();
+  }
+
+  bool _hasAllergen(int allergenValue, int allergenScore) {
+    return (allergenValue & allergenScore) != 0;
+  }
+}

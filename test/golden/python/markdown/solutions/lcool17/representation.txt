@@ -1,0 +1,475 @@
+(file "markdown_copy.py"
+  (module
+    (import_statement
+      (dotted_name re))
+    (function_definition PLACEHOLDER_1
+      (parameters markdown) :
+      (block
+        (assignment lines =
+          (call
+            (attribute markdown . split)
+            (argument_list "\n")))
+        (assignment res = "")
+        (assignment in_list = False)
+        (assignment in_list_append = False)
+        (for_statement PLACEHOLDER_2 in lines :
+          (block
+            (if_statement
+              (comparison_operator
+                (call
+                  (attribute re . match)
+                  (argument_list "###### (.*)" PLACEHOLDER_2)) "is not" None) :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator
+                    (binary_operator "<h6>" +
+                      (subscript PLACEHOLDER_2
+                        (slice 7 :))) + "</h6>")))
+              (else_clause :
+                (block
+                  (if_statement
+                    (comparison_operator
+                      (call
+                        (attribute re . match)
+                        (argument_list "## (.*)" PLACEHOLDER_2)) "is not" None) :
+                    (block
+                      (assignment PLACEHOLDER_2 =
+                        (binary_operator
+                          (binary_operator "<h2>" +
+                            (subscript PLACEHOLDER_2
+                              (slice 3 :))) + "</h2>")))
+                    (elif_clause
+                      (comparison_operator
+                        (call
+                          (attribute re . match)
+                          (argument_list "# (.*)" PLACEHOLDER_2)) "is not" None) :
+                      (block
+                        (assignment PLACEHOLDER_2 =
+                          (binary_operator
+                            (binary_operator "<h1>" +
+                              (subscript PLACEHOLDER_2
+                                (slice 2 :))) + "</h1>"))))))))
+            (assignment m =
+              (call
+                (attribute re . match)
+                (argument_list "\\* (.*)" PLACEHOLDER_2)))
+            (if_statement m :
+              (block
+                (if_statement
+                  (not_operator not in_list) :
+                  (block
+                    (assignment in_list = True)
+                    (assignment is_bold = False)
+                    (assignment is_italic = False)
+                    (assignment curr =
+                      (call
+                        (attribute m . group)
+                        (argument_list 1)))
+                    (assignment m1 =
+                      (call
+                        (attribute re . match)
+                        (argument_list "(.*)__(.*)__(.*)" curr)))
+                    (if_statement m1 :
+                      (block
+                        (assignment curr =
+                          (binary_operator
+                            (binary_operator
+                              (binary_operator
+                                (binary_operator
+                                  (call
+                                    (attribute m1 . group)
+                                    (argument_list 1)) + "<strong>") +
+                                (call
+                                  (attribute m1 . group)
+                                  (argument_list 2))) + "</strong>") +
+                            (call
+                              (attribute m1 . group)
+                              (argument_list 3))))
+                        (assignment is_bold = True)))
+                    (assignment m1 =
+                      (call
+                        (attribute re . match)
+                        (argument_list "(.*)_(.*)_(.*)" curr)))
+                    (if_statement m1 :
+                      (block
+                        (assignment curr =
+                          (binary_operator
+                            (binary_operator
+                              (binary_operator
+                                (binary_operator
+                                  (call
+                                    (attribute m1 . group)
+                                    (argument_list 1)) + "<em>") +
+                                (call
+                                  (attribute m1 . group)
+                                  (argument_list 2))) + "</em>") +
+                            (call
+                              (attribute m1 . group)
+                              (argument_list 3))))
+                        (assignment is_italic = True)))
+                    (assignment PLACEHOLDER_2 =
+                      (binary_operator
+                        (binary_operator "<ul><li>" + curr) + "</li>")))
+                  (else_clause :
+                    (block
+                      (assignment is_bold = False)
+                      (assignment is_italic = False)
+                      (assignment curr =
+                        (call
+                          (attribute m . group)
+                          (argument_list 1)))
+                      (assignment m1 =
+                        (call
+                          (attribute re . match)
+                          (argument_list "(.*)__(.*)__(.*)" curr)))
+                      (if_statement m1 :
+                        (block
+                          (assignment is_bold = True)))
+                      (assignment m1 =
+                        (call
+                          (attribute re . match)
+                          (argument_list "(.*)_(.*)_(.*)" curr)))
+                      (if_statement m1 :
+                        (block
+                          (assignment is_italic = True)))
+                      (if_statement is_bold :
+                        (block
+                          (assignment curr =
+                            (binary_operator
+                              (binary_operator
+                                (binary_operator
+                                  (binary_operator
+                                    (call
+                                      (attribute m1 . group)
+                                      (argument_list 1)) + "<strong>") +
+                                  (call
+                                    (attribute m1 . group)
+                                    (argument_list 2))) + "</strong>") +
+                              (call
+                                (attribute m1 . group)
+                                (argument_list 3))))))
+                      (if_statement is_italic :
+                        (block
+                          (assignment curr =
+                            (binary_operator
+                              (binary_operator
+                                (binary_operator
+                                  (binary_operator
+                                    (call
+                                      (attribute m1 . group)
+                                      (argument_list 1)) + "<em>") +
+                                  (call
+                                    (attribute m1 . group)
+                                    (argument_list 2))) + "</em>") +
+                              (call
+                                (attribute m1 . group)
+                                (argument_list 3))))))
+                      (assignment PLACEHOLDER_2 =
+                        (binary_operator
+                          (binary_operator "<li>" + curr) + "</li>"))))))
+              (else_clause :
+                (block
+                  (if_statement in_list :
+                    (block
+                      (assignment in_list_append = True)
+                      (assignment in_list = False))))))
+            (assignment m =
+              (call
+                (attribute re . match)
+                (argument_list "<h|<ul|<p|<li" PLACEHOLDER_2)))
+            (if_statement
+              (not_operator not m) :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator
+                    (binary_operator "<p>" + PLACEHOLDER_2) + "</p>"))))
+            (assignment m =
+              (call
+                (attribute re . match)
+                (argument_list "(.*)__(.*)__(.*)" PLACEHOLDER_2)))
+            (if_statement m :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator
+                    (binary_operator
+                      (binary_operator
+                        (binary_operator
+                          (call
+                            (attribute m . group)
+                            (argument_list 1)) + "<strong>") +
+                        (call
+                          (attribute m . group)
+                          (argument_list 2))) + "</strong>") +
+                    (call
+                      (attribute m . group)
+                      (argument_list 3))))))
+            (assignment m =
+              (call
+                (attribute re . match)
+                (argument_list "(.*)_(.*)_(.*)" PLACEHOLDER_2)))
+            (if_statement m :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator
+                    (binary_operator
+                      (binary_operator
+                        (binary_operator
+                          (call
+                            (attribute m . group)
+                            (argument_list 1)) + "<em>") +
+                        (call
+                          (attribute m . group)
+                          (argument_list 2))) + "</em>") +
+                    (call
+                      (attribute m . group)
+                      (argument_list 3))))))
+            (if_statement in_list_append :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator "</ul>" + PLACEHOLDER_2))
+                (assignment in_list_append = False)))
+            (augmented_assignment res += PLACEHOLDER_2)))
+        (if_statement in_list :
+          (block
+            (augmented_assignment res += "</ul>")))
+        (return_statement res)))
+    (function_definition PLACEHOLDER_3
+      (parameters PLACEHOLDER_2) :
+      (block
+        (if_statement
+          (call
+            (attribute re . match)
+            (argument_list "# (.*)" PLACEHOLDER_2)) :
+          (block
+            (assignment PLACEHOLDER_2 =
+              (call
+                (attribute
+                  (call
+                    (attribute PLACEHOLDER_2 . strip)
+                    (argument_list "#")) . strip)
+                (argument_list)))
+            (assignment PLACEHOLDER_2 =
+              (binary_operator
+                (binary_operator "<h1>" + PLACEHOLDER_2) + "</h1>")))
+          (else_clause :
+            (block
+              (if_statement
+                (call
+                  (attribute re . match)
+                  (argument_list "## (.*)" PLACEHOLDER_2)) :
+                (block
+                  (assignment PLACEHOLDER_2 =
+                    (call
+                      (attribute
+                        (call
+                          (attribute PLACEHOLDER_2 . strip)
+                          (argument_list "#")) . strip)
+                      (argument_list)))
+                  (assignment PLACEHOLDER_2 =
+                    (binary_operator
+                      (binary_operator "<h2>" + PLACEHOLDER_2) + "</h2>")))
+                (elif_clause
+                  (call
+                    (attribute re . match)
+                    (argument_list "###### (.*)" PLACEHOLDER_2)) :
+                  (block
+                    (assignment PLACEHOLDER_2 =
+                      (call
+                        (attribute
+                          (call
+                            (attribute PLACEHOLDER_2 . strip)
+                            (argument_list "#")) . strip)
+                        (argument_list)))
+                    (assignment PLACEHOLDER_2 =
+                      (binary_operator
+                        (binary_operator "<h6>" + PLACEHOLDER_2) + "</h6>"))))))))
+        (return_statement PLACEHOLDER_2)))
+    (function_definition PLACEHOLDER_4
+      (parameters m in_list in_list_append PLACEHOLDER_2) :
+      (block
+        (if_statement m :
+          (block
+            (if_statement
+              (not_operator not in_list) :
+              (block
+                (assignment in_list = True)
+                (assignment is_bold = False)
+                (assignment is_italic = False)
+                (assignment curr =
+                  (call
+                    (attribute m . group)
+                    (argument_list 1)))
+                (assignment m1 =
+                  (call
+                    (attribute re . match)
+                    (argument_list "(.*)__(.*)__(.*)" curr)))
+                (if_statement m1 :
+                  (block
+                    (assignment
+                      (tuple_pattern curr is_bold) =
+                      (call PLACEHOLDER_5
+                        (argument_list
+                          (attribute m1 . string) "strong")))))
+                (assignment m1 =
+                  (call
+                    (attribute re . match)
+                    (argument_list "(.*)_(.*)_(.*)" curr)))
+                (if_statement m1 :
+                  (block
+                    (assignment
+                      (tuple_pattern curr is_italic) =
+                      (call PLACEHOLDER_5
+                        (argument_list
+                          (attribute m1 . string) "em")))))
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator
+                    (binary_operator "<ul><li>" + curr) + "</li>")))
+              (else_clause :
+                (block
+                  (assignment is_bold = False)
+                  (assignment is_italic = False)
+                  (assignment curr =
+                    (call
+                      (attribute m . group)
+                      (argument_list 1)))
+                  (assignment m1 =
+                    (call
+                      (attribute re . match)
+                      (argument_list "(.*)__(.*)__(.*)" curr)))
+                  (if_statement m1 :
+                    (block
+                      (assignment
+                        (tuple_pattern curr is_bold) =
+                        (call PLACEHOLDER_5
+                          (argument_list
+                            (attribute m1 . string) "strong")))))
+                  (assignment m1 =
+                    (call
+                      (attribute re . match)
+                      (argument_list "(.*)_(.*)_(.*)" curr)))
+                  (if_statement m1 :
+                    (block
+                      (assignment
+                        (tuple_pattern curr is_italic) =
+                        (call PLACEHOLDER_5
+                          (argument_list
+                            (attribute m1 . string) "em")))))
+                  (assignment PLACEHOLDER_2 =
+                    (binary_operator
+                      (binary_operator "<li>" + curr) + "</li>"))))))
+          (else_clause :
+            (block
+              (if_statement in_list :
+                (block
+                  (assignment in_list_append = True)
+                  (assignment in_list = False))))))
+        (return_statement
+          (tuple PLACEHOLDER_2 in_list in_list_append))))
+    (function_definition PLACEHOLDER_5
+      (parameters m1 PLACEHOLDER_6) :
+      (block
+        (assignment m1 =
+          (call
+            (attribute
+              (call
+                (attribute m1 . strip)
+                (argument_list)) . strip)
+            (argument_list "__")))
+        (return_statement
+          (tuple
+            (binary_operator
+              (binary_operator
+                (fstring "<"
+                  (interpolation PLACEHOLDER_6) ">") + m1) +
+              (fstring "</"
+                (interpolation PLACEHOLDER_6) ">")) True))))
+    (function_definition parse
+      (parameters markdown) :
+      (block
+        (assignment lines =
+          (call
+            (attribute markdown . split)
+            (argument_list "\n")))
+        (assignment res = "")
+        (assignment in_list = False)
+        (assignment in_list_append = False)
+        (for_statement PLACEHOLDER_2 in lines :
+          (block
+            (assignment PLACEHOLDER_2 =
+              (call PLACEHOLDER_3
+                (argument_list PLACEHOLDER_2)))
+            (assignment m =
+              (call
+                (attribute re . match)
+                (argument_list "\\* (.*)" PLACEHOLDER_2)))
+            (assignment
+              (tuple_pattern PLACEHOLDER_2 in_list in_list_append) =
+              (call PLACEHOLDER_4
+                (argument_list m in_list in_list_append PLACEHOLDER_2)))
+            (assignment m =
+              (call
+                (attribute re . match)
+                (argument_list "<h|<ul|<p|<li" PLACEHOLDER_2)))
+            (if_statement
+              (not_operator not m) :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator
+                    (binary_operator "<p>" + PLACEHOLDER_2) + "</p>"))))
+            (assignment m =
+              (call
+                (attribute re . match)
+                (argument_list "(.*)__(.*)__(.*)" PLACEHOLDER_2)))
+            (if_statement m :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator
+                    (binary_operator
+                      (binary_operator
+                        (binary_operator
+                          (call
+                            (attribute m . group)
+                            (argument_list 1)) + "<strong>") +
+                        (call
+                          (attribute m . group)
+                          (argument_list 2))) + "</strong>") +
+                    (call
+                      (attribute m . group)
+                      (argument_list 3))))))
+            (assignment m =
+              (call
+                (attribute re . match)
+                (argument_list "(.*)_(.*)_(.*)" PLACEHOLDER_2)))
+            (if_statement m :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator
+                    (binary_operator
+                      (binary_operator
+                        (binary_operator
+                          (call
+                            (attribute m . group)
+                            (argument_list 1)) + "<em>") +
+                        (call
+                          (attribute m . group)
+                          (argument_list 2))) + "</em>") +
+                    (call
+                      (attribute m . group)
+                      (argument_list 3))))))
+            (if_statement in_list_append :
+              (block
+                (assignment PLACEHOLDER_2 =
+                  (binary_operator "</ul>" + PLACEHOLDER_2))
+                (assignment in_list_append = False)))
+            (augmented_assignment res += PLACEHOLDER_2)))
+        (if_statement in_list :
+          (block
+            (augmented_assignment res += "</ul>")))
+        (return_statement res)))
+    (assignment PLACEHOLDER_7 =
+      (call parse
+        (argument_list "# Header!\n* __Bold Item__\n* _Italic Item_")))
+    (assignment PLACEHOLDER_8 =
+      (call
+        (attribute re . findall)
+        (argument_list "\\*" "\anis anis le cool")))))

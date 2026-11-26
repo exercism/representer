@@ -1,0 +1,35 @@
+.globl nucleotide_counts
+
+.macro set_out_buffer (%imm)
+	li $t9, %imm
+	sw $t9, 0($a1)
+	sw $t9, 4($a1)
+	sw $t9, 8($a1)
+	sw $t9, 12($a1)
+.end_macro
+
+.macro check_and_inc(%nuc, %offset, %next)
+	bne $t0, %nuc, %next
+	lw $t1, %offset($a1)
+	addi $t1, $t1, 1
+	sw $t1, %offset($a1)
+	b __loop
+.end_macro
+
+nucleotide_counts:
+	set_out_buffer (0)
+__loop:
+	lb $t0, 0($a0)
+	addi $a0, $a0, 1
+	beqz $t0, __return	
+	check_and_inc ('A', 0, __nuc_c)
+__nuc_c:
+	check_and_inc ('C', 4, __nuc_g)
+__nuc_g: 
+	check_and_inc ('G', 8, __nuc_t)
+__nuc_t:
+	check_and_inc ('T', 12, __error)
+__error:
+	set_out_buffer (-1)
+__return:
+	jr $ra

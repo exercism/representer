@@ -1,0 +1,6 @@
+module main
+
+fn two_fer(name string) string {
+    str := if name.len == 0 {"you"} else { name }
+    return "One for ${str}, one for me."
+}

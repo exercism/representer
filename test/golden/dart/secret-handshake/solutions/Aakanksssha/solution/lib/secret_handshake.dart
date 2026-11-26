@@ -1,0 +1,25 @@
+class SecretHandshake {
+  static const List<String> _signals = [
+    'wink',
+    'double blink',
+    'close your eyes',
+    'jump'
+  ];
+
+  List<String> commands(int number) {
+    final List<String> actions = [];
+
+    for (int i = 0; i < _signals.length; i++) {
+      if ((number & (1 << i)) != 0) {
+        actions.add(_signals[i]);
+      }
+    }
+
+    // If the 5th bit (value 16) is set, reverse the actions
+    if ((number & 16) != 0) {
+      return actions.reversed.toList();
+    }
+
+    return actions;
+  }
+}

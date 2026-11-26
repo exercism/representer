@@ -1,0 +1,18 @@
+use strict;
+use warnings;
+
+package Trinary;
+
+
+sub new {
+	bless \$_[1], $_[0]
+}
+
+sub to_decimal {
+	my ($tri, $a, $i) = (${$_[0]}, 0, 0);
+	return 0 if $tri =~ m/[^0-2]/;
+	$a += $_ * 3**$i++ for reverse split '', $tri;
+	$a
+}
+
+1;

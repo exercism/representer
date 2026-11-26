@@ -1,0 +1,20 @@
+package Trinary;
+use strict;
+use warnings;
+
+sub new {
+    my ($class, $tri) = @_;
+    my $dec = 0;
+    if ($tri =~ /\A[012]+\z/) {
+        my $pow = 0;
+        while ((my $num = chop $tri) ne '') {
+            $dec += $num * (3**$pow);
+            ++$pow;
+        }
+    }
+    return bless { decimal => $dec }, $class;
+}
+
+sub to_decimal { shift->{decimal} }
+
+1;

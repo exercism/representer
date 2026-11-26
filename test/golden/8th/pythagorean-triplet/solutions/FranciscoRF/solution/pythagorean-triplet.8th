@@ -1,0 +1,53 @@
+\ Given a positive integer N, returns an array of Pythagorean triplets
+\ for which a + b + c = N. For example, with N = 1_000, the result contains
+\ exactly one triplet: [ [ 200, 375, 425 ] ].
+
+locals:
+:  triplets-with-sum SED: n -- a
+  "dup 0 >" assert
+  a:new "res" w:!
+  dup n:ln 2 n:ln / n:ceil n:int 2 * "limit" w:!
+  1 "a" w:!
+  repeat ( 
+    "limit" w:@ r!
+    "a" w:@ over n:+ 2 / n:floor n:int "b" w:!
+    dup "top" w:!
+    "a" w:@ "bottom" w:!
+    repeat (
+      -1 r+
+      "a" w:@ "b" w:@ n:+ over swap n:-
+      dup 0 n:> if
+        "c" w:!
+        "a" w:@ dup n:*
+        "b" w:@ dup n:* n:+
+        "c" w:@ dup n:* n:-
+        dup 0 n:= if             \ found valid triplet
+          drop
+          "res" w:@ a:new
+          "a" w:@ a:push
+          "b" w:@ a:push
+          "c" w:@ a:push
+          a:push "res" w:!
+          0 r!
+        else
+          0 n:< if               \ current b term is too small
+            "top" w:@
+            "b" w:@ "bottom" w:!
+            "b" w:@ n:+ 2 / n:int "b" w:!
+          else                   \ current b term is too big
+            "bottom" w:@
+            "b" w:@ dup "top" w:!
+            n:+ 2 / n:int "b" w:! 
+          then
+        then
+      else                       \ current b term is too big
+        drop
+        "bottom" w:@
+        "b" w:@ dup "top" w:!
+        n:+ 2 / n:int "b" w:! 
+      then
+    ) w:exec r@ while! rdrop
+  ) w:exec "a" w:@ 1 n:+ dup "a" w:! over 3 / n:ceil n:int n:<  while!
+  drop
+  "res" w:@
+;

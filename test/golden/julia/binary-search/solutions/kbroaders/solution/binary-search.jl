@@ -1,0 +1,15 @@
+function binarysearch(haystack, needle; rev=false, by=identity, lt = <)
+    first, last = 1, length(haystack)
+    needle = by(needle)
+    rev && (lt = >)
+    while first <= last
+        pivot = round(Int,((last+first)/2))
+        by(haystack[pivot]) == needle && return pivot:pivot
+        if lt(by(haystack[pivot]), needle)
+            first = pivot + 1
+        else
+            last = pivot - 1
+        end
+    end
+    return first:last
+end

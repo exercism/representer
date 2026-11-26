@@ -1,0 +1,31 @@
+create_set(Set) :-
+    Set = [].
+create_set(Data, Set) :-
+    sort(Data, Set).
+
+add(Value, Set, Added) :-
+    union([Value], Set, Added).
+
+is_empty(Set) :-
+    length(Set, 0).
+
+in_set(Value, Set) :-
+    member(Value, Set), !.
+
+is_subset(Set1, Set2) :-
+    subset(Set1, Set2).
+
+is_disjoint(Set1, Set2) :-
+    intersection(Set1, Set2, Intersection),
+    is_empty(Intersection).
+
+difference(Set1, Set2, Difference) :-
+    subtract(Set1, Set2, Difference).
+
+intersection(Set1, Set2, Intersection) :-
+    difference(Set1, Set2, Difference),
+    difference(Set1, Difference, Intersection).
+
+union(Set1, Set2, Union) :-
+    append(Set1, Set2, Tmp),
+    create_set(Tmp, Union).

@@ -1,0 +1,9 @@
+#lang racket
+
+(provide keep discard)
+
+(define (keep lst predicate)
+  (filter predicate lst))
+
+(define (discard lst predicate)
+  (filter (negate predicate) lst))

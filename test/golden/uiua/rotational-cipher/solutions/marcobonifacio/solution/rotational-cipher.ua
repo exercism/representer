@@ -1,0 +1,7 @@
+IsUpper     ← |1 ×≥@A:≤@Z.
+IsLower     ← |1 ×≥@a:≤@z.
+RotateUpper ← |2 +×¯26:⊙×:>@Z.:⊙+⟜×⊙:⊸IsUpper
+RotateLower ← |2 +×¯26:⊙×:>@z.:⊙+⟜×⊙:⊸IsLower
+# Create an implementation of the rotational cipher
+# Ciphertext ? Text Key
+Rotate      ← |2 RotateLower RotateUpper:,

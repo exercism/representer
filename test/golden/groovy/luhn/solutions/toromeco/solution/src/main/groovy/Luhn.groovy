@@ -1,0 +1,37 @@
+class Luhn {
+
+    static boolean valid(String value) {
+        value = value.replace(" ", "")
+        def values = []
+        
+        if(value.size() <= 1)
+            return false
+        try{
+                for(int i = -1; i >= (value.size() * -1); i--){
+                def num = Integer.parseInt(value[i])
+                print num
+                if (i % -2 != 0){
+                    values.add(0, num)
+                }
+                else{
+                    if(num * 2 > 9){
+                        values.add(0, num * 2 -9)
+                    }
+                    else
+                        values.add(0, num * 2)
+
+                }
+
+            }
+
+        }
+        catch(Exception e){
+            return false
+        }
+
+        print values
+        print values.sum()
+        return values.sum() % 10 == 0
+    }
+
+}

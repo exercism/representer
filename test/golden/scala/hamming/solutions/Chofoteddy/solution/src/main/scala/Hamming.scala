@@ -1,0 +1,12 @@
+
+object Hamming {
+    def distance(a: String, b: String): Option[Int] = {
+        if (a.length != b.length()) return None
+
+        val result = a.zip(b).map({
+            case (x, y) => if (x != y) 1 else 0
+        }).sum
+
+        Some(result)
+    }
+}

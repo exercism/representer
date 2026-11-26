@@ -1,0 +1,28 @@
+(file "rotational_cipher.sh")
+ord () {
+printf "\"%d\"" "\"'" $1 "\""
+}
+chr () {
+printf "\"%b\"" "\"\\x$(" printf "\"%x\"" "\"" $1 "\"" )"
+}
+cipher () {
+local byte = $( ord "\"" $1 "\"" )
+local out = "\"" $1 "\""
+if [ $byte -ge 65 -a $byte -le 90 ] ; then
+byte = $(( 65 + ( $byte - 65 + $2 ) % 26 ))
+out = $( chr "\"" $byte "\"" )
+elif [ $byte -ge 97 -a $byte -le 122 ] ; then
+byte = $(( 97 + ( $byte - 97 + $2 ) % 26 ))
+out = $( chr "\"" $byte "\"" )
+fi
+echo "\"" $out "\""
+}
+main () {
+for (( i = 0 ; i < ${# 1 } ; i++ ))
+do
+char = "\"$(" cipher "\"" ${ 1 :i:1 } "\"" $2 )"
+out = "\"" $out$char "\""
+done
+echo "\"" $out "\""
+}
+main "\"" $@ "\""

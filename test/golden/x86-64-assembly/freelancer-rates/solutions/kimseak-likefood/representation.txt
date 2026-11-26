@@ -1,0 +1,41 @@
+(file "freelancer_rates.asm")
+section .text
+global daily_rate
+daily_rate:
+mov rax , 8
+cvtsi2sd xmm1 , rax
+mulsd xmm0 , xmm1
+ret
+global apply_discount
+apply_discount:
+movsd xmm3 , xmm0
+mov rax , 100
+cvtsi2sd xmm2 , rax
+mulsd xmm3 , xmm1
+divsd xmm3 , xmm2
+subsd xmm0 , xmm3
+ret
+global monthly_rate
+monthly_rate:
+mov r8 , 22
+imul r8 , 8
+cvtsi2sd xmm5 , r8
+mulsd xmm0 , xmm5
+call apply_discount
+roundsd xmm0 , xmm0 , 2
+cvtsd2si rax , xmm0
+ret
+global days_in_budget
+days_in_budget:
+cvtsi2sd xmm4 , rdi
+movsd xmm5 , xmm1
+call daily_rate
+movsd xmm1 , xmm5
+call apply_discount
+divsd xmm4 , xmm0
+roundsd xmm4 , xmm4 , 1
+cvtsd2si rax , xmm4
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

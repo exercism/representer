@@ -1,0 +1,163 @@
+(file "src/lib.rs"
+  (source_file
+    (use_declaration
+      (scoped_use_list
+        (scoped_identifier std :: sync) ::
+        (use_list mpsc Mutex Arc)))
+    (use_declaration
+      (scoped_identifier
+        (scoped_identifier std :: collections) :: HashMap))
+    (use_declaration
+      (scoped_identifier std :: thread))
+    (function_item
+      (visibility_modifier pub) frequency
+      (parameters
+        (parameter PLACEHOLDER_1 :
+          (reference_type &
+            (array_type
+              (reference_type & str))))
+        (parameter PLACEHOLDER_2 : usize)) ->
+      (generic_type HashMap
+        (type_arguments < char usize >))
+      (block
+        (let_declaration
+          (tuple_pattern PLACEHOLDER_3 PLACEHOLDER_4) =
+          (call_expression
+            (generic_function
+              (scoped_identifier mpsc :: channel) ::
+              (type_arguments < String >))
+            (arguments)))
+        (let_declaration PLACEHOLDER_4 =
+          (call_expression
+            (scoped_identifier Arc :: new)
+            (arguments
+              (call_expression
+                (scoped_identifier Mutex :: new)
+                (arguments PLACEHOLDER_4)))))
+        (let_declaration PLACEHOLDER_5 =
+          (call_expression
+            (field_expression
+              (range_expression 0 .. PLACEHOLDER_2) . map)
+            (arguments
+              (closure_expression
+                (closure_parameters _)
+                (block
+                  (let_declaration PLACEHOLDER_4 =
+                    (call_expression
+                      (scoped_identifier Arc :: clone)
+                      (arguments
+                        (reference_expression & PLACEHOLDER_4))))
+                  (call_expression
+                    (scoped_identifier PLACEHOLDER_6 :: spawn)
+                    (arguments
+                      (closure_expression move
+                        (closure_parameters)
+                        (block
+                          (let_declaration mut PLACEHOLDER_7 :
+                            (generic_type HashMap
+                              (type_arguments < _ usize >)) =
+                            (call_expression
+                              (scoped_identifier HashMap :: new)
+                              (arguments)))
+                          (expression_statement
+                            (loop_expression
+                              (block
+                                (expression_statement
+                                  (if_expression
+                                    (let_condition
+                                      (tuple_struct_pattern Ok line) =
+                                      (call_expression
+                                        (field_expression
+                                          (call_expression
+                                            (field_expression
+                                              (call_expression
+                                                (field_expression PLACEHOLDER_4 . lock)
+                                                (arguments)) . unwrap)
+                                            (arguments)) . recv)
+                                        (arguments)))
+                                    (block
+                                      (expression_statement
+                                        (for_expression PLACEHOLDER_8
+                                          (call_expression
+                                            (field_expression line . chars)
+                                            (arguments))
+                                          (block
+                                            (expression_statement
+                                              (if_expression
+                                                (call_expression
+                                                  (field_expression PLACEHOLDER_8 . is_alphabetic)
+                                                  (arguments))
+                                                (block
+                                                  (expression_statement
+                                                    (compound_assignment_expr
+                                                      (unary_expression *
+                                                        (call_expression
+                                                          (field_expression
+                                                            (call_expression
+                                                              (field_expression PLACEHOLDER_7 . entry)
+                                                              (arguments
+                                                                (call_expression
+                                                                  (field_expression
+                                                                    (call_expression
+                                                                      (field_expression
+                                                                        (call_expression
+                                                                          (field_expression PLACEHOLDER_8 . to_lowercase)
+                                                                          (arguments)) . next)
+                                                                      (arguments)) . unwrap)
+                                                                  (arguments)))) . or_default)
+                                                          (arguments))) += 1)))))))))
+                                    (else_clause
+                                      (block
+                                        (expression_statement
+                                          (break_expression PLACEHOLDER_7))))))))))))))))))
+        (expression_statement
+          (for_expression
+            (reference_pattern & line)
+            (call_expression
+              (field_expression PLACEHOLDER_1 . iter)
+              (arguments))
+            (block
+              (expression_statement
+                (call_expression
+                  (field_expression
+                    (call_expression
+                      (field_expression PLACEHOLDER_3 . send)
+                      (arguments
+                        (call_expression
+                          (field_expression line . to_owned)
+                          (arguments)))) . unwrap)
+                  (arguments))))))
+        (expression_statement
+          (call_expression drop
+            (arguments PLACEHOLDER_3)))
+        (let_declaration mut PLACEHOLDER_7 :
+          (generic_type HashMap
+            (type_arguments < char usize >)) =
+          (call_expression
+            (scoped_identifier HashMap :: new)
+            (arguments)))
+        (expression_statement
+          (for_expression PLACEHOLDER_6 PLACEHOLDER_5
+            (block
+              (expression_statement
+                (for_expression
+                  (tuple_pattern PLACEHOLDER_9 v)
+                  (call_expression
+                    (field_expression
+                      (call_expression
+                        (field_expression
+                          (call_expression
+                            (field_expression PLACEHOLDER_6 . join)
+                            (arguments)) . unwrap)
+                        (arguments)) . into_iter)
+                    (arguments))
+                  (block
+                    (expression_statement
+                      (compound_assignment_expr
+                        (unary_expression *
+                          (call_expression
+                            (field_expression
+                              (call_expression
+                                (field_expression PLACEHOLDER_7 . entry)
+                                (arguments PLACEHOLDER_9)) . or_default)
+                            (arguments))) += v)))))))) PLACEHOLDER_7))))

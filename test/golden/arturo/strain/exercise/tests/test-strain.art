@@ -1,0 +1,108 @@
+import.version:3.0.0 {unitt}! 
+import {src/strain}!
+
+describe "Strain" [
+    describe "Strain - Keep" [
+        it "keep on empty list returns empty list" [
+            predicate: $[x] -> true
+            expects.be:'equal? @[[] keep [] 'predicate]
+        ]
+
+        it.skip "keeps everything" [
+            predicate: $[x] -> true
+            expects.be:'equal? @[[1 3 5] keep [1 3 5] 'predicate]
+        ]
+
+        it.skip "keeps nothing" [
+            predicate: $[x] -> false
+            expects.be:'equal? @[[] keep [1 3 5] 'predicate]
+        ]
+
+        it.skip "keeps first and last" [
+            expects.be:'equal? @[[1 3] keep [1 2 3] 'odd?]
+        ]
+
+        it.skip "keeps neither first nor last" [
+            expects.be:'equal? @[[2] keep [1 2 3] 'even?]
+        ]
+
+        it.skip "keeps strings" [
+            predicate: $[x] -> prefix? x "z"
+            values: ["apple" "zebra" "banana" "zombies" "cherimoya" "zealot"]
+            expects.be:'equal? @[
+                ["zebra" "zombies" "zealot"]
+                keep values 'predicate
+            ]
+        ]
+
+        it.skip "keeps lists" [
+            values: [[1 2 3]
+                     [5 5 5]
+                     [5 1 2]
+                     [2 1 2]
+                     [1 5 2]
+                     [2 2 1]
+                     [1 2 5]]
+            predicate: $[x] -> contains? x 5
+            expects.be:'equal? @[
+                [[5 5 5]
+                 [5 1 2]
+                 [1 5 2]
+                 [1 2 5]]
+                keep values 'predicate
+
+            ]
+        ]
+    ]
+    
+    describe "Strain - Discard" [
+        it.skip "discard on empty list returns empty list" [
+            predicate: $[x] -> true
+            expects.be:'equal? @[[] discard [] 'predicate]
+        ]
+
+        it.skip "discards everything" [
+            predicate: $[x] -> true
+            expects.be:'equal? @[[] discard [1 3 5] 'predicate]
+        ]
+
+        it.skip "discards nothing" [
+            predicate: $[x] -> false
+            expects.be:'equal? @[[1 3 5] discard [1 3 5] 'predicate]
+        ]
+
+        it.skip "discards first and last" [
+            expects.be:'equal? @[[2] discard [1 2 3] 'odd?]
+        ]
+
+        it.skip "discards neither first nor last" [
+            expects.be:'equal? @[[1 3] discard [1 2 3] 'even?]
+        ]
+
+        it.skip "discards strings" [
+            predicate: $[x] -> prefix? x "z"
+            values: ["apple" "zebra" "banana" "zombies" "cherimoya" "zealot"]
+            expects.be:'equal? @[
+                ["apple" "banana" "cherimoya"]
+                discard values 'predicate
+            ]
+        ]
+
+        it.skip "discards lists" [
+            predicate: $[x] -> contains? x 5
+            values: [[1 2 3]
+                     [5 5 5]
+                     [5 1 2]
+                     [2 1 2]
+                     [1 5 2]
+                     [2 2 1]
+                     [1 2 5]]
+            expects.be:'equal? @[
+                [[1 2 3]
+                 [2 1 2]
+                 [2 2 1]]
+                discard values 'predicate
+            ]
+        ]
+    ]
+]

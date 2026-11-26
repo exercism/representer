@@ -1,0 +1,29 @@
+function _binarysearch(arr, target, lt)
+	middle = div(length(arr), 2)
+
+	if length(arr) == 0
+		return 1:0
+	elseif length(arr) == 1
+		return arr[1] == target ? UnitRange(1, 1) : UnitRange(1, 0)
+	end
+
+	if lt(target, arr[middle + 1])
+		return _binarysearch(arr[1:middle], target, lt)
+	else
+		s = _binarysearch(arr[middle + 1:end], target, lt)
+		return s.start + middle: s.stop + middle
+	end
+end
+
+function binarysearch(arr, target; rev=false, by=identity, lt=<)
+	if rev
+		reverse!(arr)
+	end
+	arr = map(by, arr)
+
+	res = _binarysearch(arr, by(target), lt)
+	if rev
+		return UnitRange(length(arr) - res.stop + 1, length(arr) - res.start + 1)
+	end
+	return res
+end

@@ -1,0 +1,16 @@
+(file "src/Acronym.purs")
+module Acronym
+  ( abbreviate
+  ) where
+import Prelude
+import Data.Array ( cons , filter )
+import Data.Maybe ( Maybe ( .. ))
+import Data.String ( Pattern ( .. ), joinWith , split , toUpper , uncons )
+import Data.String.CodePoints ( CodePoint , codePointFromChar , fromCodePointArray , toCodePointArray )
+isUpper :: CodePoint -> Boolean
+isUpper c = c >= codePointFromChar 'A' && c <= codePointFromChar 'Z'
+abbreviate :: String -> String
+abbreviate = toUpper <<< joinWith "\"\"" <<< map firstAndCaps <<< split ( Pattern "\" \"" )
+  where firstAndCaps s = case uncons s of
+    Just uc -> fromCodePointArray ( cons uc . head ( filter isUpper ( toCodePointArray uc . tail )))
+    Nothing -> s

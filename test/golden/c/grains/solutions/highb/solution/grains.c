@@ -1,0 +1,23 @@
+#include "grains.h"
+
+#define MAX_INDEX 64
+
+uint64_t square(uint8_t index) {
+    if((index > MAX_INDEX) || (index == 0)) {
+        return 0;
+    }
+
+    uint64_t grains = 1;
+    if(index > 1) {
+        grains <<= (index - 1);
+    }
+
+    return grains;
+}
+uint64_t total(void) {
+    uint64_t total = 0;
+    for(int i = 0; i <= MAX_INDEX; i++) {
+       total += square(i);
+    }
+    return total;
+}

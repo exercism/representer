@@ -1,0 +1,12 @@
+%:- set_prolog_flag(double_quotes, chars).
+
+is_anagram(Word, Option) :-
+    string_lower(Word, WordL),
+    string_chars(WordL, WordChars),
+    string_lower(Option, OptionL),
+    string_chars(OptionL, OptionChars),
+    WordChars \= OptionChars,
+    permutation(WordChars, OptionChars).
+
+anagram(Word, Options, Matching) :-
+    include(is_anagram(Word), Options, Matching).

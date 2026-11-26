@@ -1,0 +1,27 @@
+class BinarySearch {
+
+    List data
+    BinarySearch(List data) {
+        this.data = data
+    }
+
+    int indexOf(item) {
+        def l = 0
+        def h = data.size()-1
+        def m
+        while(l<=h){
+            m = (l+h).intdiv(2)
+            if(data[m] == item){
+                return m
+            }
+            else if(data[m] > item){
+                h = m-1
+                
+            }else{
+                l = m+1
+            }
+        }
+        return -1
+    }
+
+}

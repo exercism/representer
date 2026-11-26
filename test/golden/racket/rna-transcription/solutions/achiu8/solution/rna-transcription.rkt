@@ -1,0 +1,8 @@
+#lang racket
+
+(provide to-rna)
+
+(define mapping (hash #\C #\G #\G #\C #\A #\U #\T #\A))
+
+(define (to-rna dna)
+  (list->string (for/list ((n dna)) (hash-ref mapping n))))

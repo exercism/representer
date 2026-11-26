@@ -1,0 +1,19 @@
+(file "clock.jl")
+import Dates
+import Printf
+struct Clock
+hour :: Int
+minute :: Int
+function Clock ( hour :: Integer , minute :: Integer )
+minute_true = mod ( minute , 60 )
+hour = mod ( hour + div ( minute - minute_true , 60 ), 24 )
+return new ( hour , minute_true )
+end
+end
+for op in [ :+ , :- ]
+@eval begin
+Base .$ op ( clock :: Clock , m :: Dates . Minute ) = Clock ( clock . hour , $ op ( clock . minute , m . value ))
+Base .$ op ( clock :: Clock , h :: Dates . Hour ) = Clock ( $ op ( clock . hour , h . value ), clock . minute )
+end
+end
+Base . show ( io :: IO , x :: Clock ) = Printf . format ( io , Printf . format "\"\\\"%02d:%02d\\\"\"" , x . hour , x . minute )

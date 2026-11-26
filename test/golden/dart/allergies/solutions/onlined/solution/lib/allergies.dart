@@ -1,0 +1,18 @@
+class Allergies {
+  final Map<String, int> _allergyScores = {
+    'eggs': 1,
+    'peanuts': 2,
+    'shellfish': 4,
+    'strawberries': 8,
+    'tomatoes': 16,
+    'chocolate': 32,
+    'pollen': 64,
+    'cats': 128,
+  };
+
+  bool allergicTo(String item, int score) =>
+      (_allergyScores[item] ?? 0) & score != 0;
+
+  List<String> list(int score) =>
+      _allergyScores.keys.where((item) => allergicTo(item, score)).toList();
+}

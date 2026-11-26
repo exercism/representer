@@ -1,0 +1,78 @@
+(file "say.fut")
+let all_words: [30][]u8 = [
+"\"zero" "\"," "\"one" "\"," "\"two" "\"," "\"three" "\"," "\"four" "\"," "\"five" "\"," "\"six" "\"," "\"seven" "\"," "\"eight" "\"," "\"nine" "\"," -- 0-9
+"\"ten" "\"," "\"eleven" "\"," "\"twelve" "\"," "\"thirteen" "\"," "\"fourteen" "\"," "\"fifteen" "\"," "\"sixteen" "\"," "\"seventeen\"," "\"eighteen" "\"," "\"nineteen" "\"," -- 10-19
+"\"" "\"," "\"" "\"," "\"twenty" "\"," "\"thirty" "\"," "\"forty" "\"," "\"fifty" "\"," "\"sixty" "\"," "\"seventy" "\"," "\"eighty" "\"," "\"ninety" "\"" -- 20-29 (with empty slots for 20,21)
+]
+-- Function to trim trailing spaces from a string
+let trim_spaces (s: []u8): []u8 =
+let is_space (c: u8): bool = c == 32u8 -- ASCII space
+let last_non_space = length s - 1
+let trimmed_length = loop i = last_non_space while i >= 0 && is_space s[i] do i - 1
+in if trimmed_length < 0 then "\"\"" else take (trimmed_length + 1) s
+-- Helper function to get ones word
+let get_ones (n: i64): []u8 =
+if n >= 0 && n < 10 then trim_spaces (copy all_words[n]) else "\"\""
+-- Helper function to get teens word
+let get_teens (n: i64): []u8 =
+if n >= 10 && n < 20 then trim_spaces (copy all_words[n]) else "\"\""
+-- Helper function to get tens word
+let get_tens (n: i64): []u8 =
+if n >= 2 && n < 10 then trim_spaces (copy all_words[n + 20]) else "\"\""
+-- Convert numbers below 100
+let say_below_hundred (n: i64): []u8 =
+if n < 10 then
+get_ones n
+else if n < 20 then
+get_teens n
+else
+let tens_digit = n / 10
+let ones_digit = n % 10
+let tens_word = get_tens tens_digit
+in if ones_digit == 0 then
+tens_word
+else
+tens_word ++ "\"-\"" ++ get_ones ones_digit
+-- Convert numbers below 1000
+let say_below_thousand (n: i64): []u8 =
+if n < 100 then
+say_below_hundred n
+else
+let hundreds_digit = n / 100
+let remainder = n % 100
+let hundreds_word = get_ones hundreds_digit ++ "\"" hundred"
+in if remainder == 0 then
+hundreds_word
+else
+hundreds_word ++ "\"" "\"" ++ say_below_hundred remainder
+-- Main function to convert number to English words
+def say (number: i64): []u8 =
+assert (number >= 0 && number <= 999999999999)
+(if number == 0 then
+"\"zero\""
+else
+let billions = number / 1000000000
+let millions = (number % 1000000000) / 1000000
+let thousands = (number % 1000000) / 1000
+let ones = number % 1000
+let billions_part = if billions > 0 then say_below_thousand billions ++ "\"" billion" else "\"\""
+let millions_part = if millions > 0 then say_below_thousand millions ++ "\"" million" else "\"\""
+let thousands_part = if thousands > 0 then say_below_thousand thousands ++ "\"" thousand" else "\"\""
+let ones_part = if ones > 0 then say_below_thousand ones else "\"\""
+-- Build result by concatenating parts
+let result =
+if length billions_part > 0 then
+billions_part ++
+(if length millions_part > 0 then "\"" "\"" ++ millions_part else "\"\")" ++
+(if length thousands_part > 0 then "\"" "\"" ++ thousands_part else "\"\")" ++
+(if length ones_part > 0 then "\"" "\"" ++ ones_part else "\"\")"
+else if length millions_part > 0 then
+millions_part ++
+(if length thousands_part > 0 then "\"" "\"" ++ thousands_part else "\"\")" ++
+(if length ones_part > 0 then "\"" "\"" ++ ones_part else "\"\")"
+else if length thousands_part > 0 then
+thousands_part ++
+(if length ones_part > 0 then "\"" "\"" ++ ones_part else "\"\")"
+else
+ones_part
+in result)

@@ -1,0 +1,27 @@
+import kotlin.math.roundToLong
+import kotlin.math.sqrt
+
+object PrimeFactorCalculator {
+
+    fun primeFactors(int: Int): List<Int> =
+            primeFactors(int.toLong())
+                    // guaranteed safe since all factors less than int
+                    .map { it.toInt() }
+
+    fun primeFactors(long: Long): List<Long> {
+        require(long > 0)
+        if (long == 1L) return emptyList()
+        if (long == 2L) return listOf(2L)
+        var remainder = long
+        var factor = 2L
+        val accumulated = mutableListOf<Long>()
+        while (factor <= remainder) {
+            while (remainder % factor == 0L) {
+                remainder /= factor
+                accumulated.add(factor)
+            }
+            factor++
+        }
+        return accumulated
+    }
+}

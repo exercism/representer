@@ -1,0 +1,199 @@
+(file "windowing-system.js"
+  (program
+    (export_statement
+      (class_declaration Size
+        (class_body
+          (method_definition constructor
+            (formal_parameters
+              (assignment_pattern PLACEHOLDER_1 = 80)
+              (assignment_pattern PLACEHOLDER_2 = 60))
+            (statement_block
+              (expression_statement
+                (assignment_expression
+                  (member_expression this width) = PLACEHOLDER_1))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this height) = PLACEHOLDER_2))))
+          (method_definition resize
+            (formal_parameters PLACEHOLDER_1 PLACEHOLDER_2)
+            (statement_block
+              (expression_statement
+                (assignment_expression
+                  (member_expression this width) = PLACEHOLDER_1))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this height) = PLACEHOLDER_2)))))))
+    (export_statement
+      (class_declaration Position
+        (class_body
+          (method_definition constructor
+            (formal_parameters
+              (assignment_pattern x = 0)
+              (assignment_pattern y = 0))
+            (statement_block
+              (expression_statement
+                (assignment_expression
+                  (member_expression this x) = x))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this y) = y))))
+          (method_definition move
+            (formal_parameters x y)
+            (statement_block
+              (expression_statement
+                (assignment_expression
+                  (member_expression this x) = x))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this y) = y)))))))
+    (export_statement
+      (class_declaration ProgramWindow
+        (class_body
+          (method_definition constructor
+            (formal_parameters)
+            (statement_block
+              (expression_statement
+                (assignment_expression
+                  (member_expression this screenSize) =
+                  (new_expression Size
+                    (arguments 800 600))))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this size) =
+                  (new_expression Size
+                    (arguments))))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this position) =
+                  (new_expression Position)))))
+          (method_definition resize
+            (formal_parameters Size)
+            (statement_block
+              (if_statement
+                (binary_expression
+                  (member_expression Size width) < 1)
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression Size width) = 1))))
+              (if_statement
+                (binary_expression
+                  (member_expression Size height) < 1)
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression Size height) = 1))))
+              (if_statement
+                (binary_expression
+                  (member_expression
+                    (member_expression this screenSize) width) <
+                  (binary_expression
+                    (member_expression
+                      (member_expression this position) x) +
+                    (member_expression Size width)))
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression Size width) =
+                      (binary_expression
+                        (member_expression
+                          (member_expression this screenSize) width) -
+                        (member_expression
+                          (member_expression this position) x))))))
+              (if_statement
+                (binary_expression
+                  (member_expression
+                    (member_expression this screenSize) height) <
+                  (binary_expression
+                    (member_expression
+                      (member_expression this position) y) +
+                    (member_expression Size height)))
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression Size height) =
+                      (binary_expression
+                        (member_expression
+                          (member_expression this screenSize) height) -
+                        (member_expression
+                          (member_expression this position) y))))))
+              (expression_statement
+                (call_expression
+                  (member_expression
+                    (member_expression this size) resize)
+                  (arguments
+                    (member_expression Size width)
+                    (member_expression Size height))))))
+          (method_definition move
+            (formal_parameters Position)
+            (statement_block
+              (if_statement
+                (binary_expression
+                  (member_expression Position x) < 0)
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression Position x) = 0))))
+              (if_statement
+                (binary_expression
+                  (member_expression Position y) < 0)
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression Position y) = 0))))
+              (if_statement
+                (binary_expression
+                  (binary_expression
+                    (member_expression Position x) +
+                    (member_expression
+                      (member_expression this size) width)) >
+                  (member_expression
+                    (member_expression this screenSize) width))
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression Position x) =
+                      (binary_expression
+                        (member_expression
+                          (member_expression this screenSize) width) -
+                        (member_expression
+                          (member_expression this size) width))))))
+              (if_statement
+                (binary_expression
+                  (binary_expression
+                    (member_expression Position y) +
+                    (member_expression
+                      (member_expression this size) height)) >
+                  (member_expression
+                    (member_expression this screenSize) height))
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression Position y) =
+                      (binary_expression
+                        (member_expression
+                          (member_expression this screenSize) height) -
+                        (member_expression
+                          (member_expression this size) height))))))
+              (expression_statement
+                (call_expression
+                  (member_expression
+                    (member_expression this position) move)
+                  (arguments
+                    (member_expression Position x)
+                    (member_expression Position y)))))))))
+    (export_statement
+      (function_declaration changeWindow
+        (formal_parameters programWindow)
+        (statement_block
+          (expression_statement
+            (assignment_expression
+              (member_expression programWindow size) =
+              (new_expression Size
+                (arguments 400 300))))
+          (expression_statement
+            (assignment_expression
+              (member_expression programWindow position) =
+              (new_expression Position
+                (arguments 100 150))))
+          (return_statement programWindow))))))

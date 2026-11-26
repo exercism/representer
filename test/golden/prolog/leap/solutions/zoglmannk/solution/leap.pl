@@ -1,0 +1,8 @@
+:- use_module(library(clpfd)).
+create((A,B)) :- [A, B] ins 1..7.
+
+leap(Year) :-
+  0 is mod(Year, 400);
+  Year > 0,
+  0 is mod(Year,4),
+  not(is(0,mod(Year,100))).

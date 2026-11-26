@@ -1,0 +1,19 @@
+(file "src/DNA.hs")
+module DNA ( nucleotideCounts , Nucleotide ( .. )) where
+import Data.Map ( Map , fromListWith )
+data Nucleotide = A | C | G | T deriving ( Eq , Ord , Show )
+nucleotideCounts :: String -> Either String ( Map Nucleotide Int )
+nucleotideCounts xs =
+  let
+    nucs = traverse asNucleotide xs
+    baseList = [( A , 0 ), ( C , 0 ), ( G , 0 ), ( T , 0 )]
+  in
+    case nucs of
+      Nothing -> Left xs
+      Just nucs' -> Right $ fromListWith ( + ) $ baseList ++ map ( \ x -> ( x , 1 )) nucs'
+asNucleotide :: Char -> Maybe Nucleotide
+asNucleotide 'A' = Just A
+asNucleotide 'C' = Just C
+asNucleotide 'G' = Just G
+asNucleotide 'T' = Just T
+asNucleotide _ = Nothing

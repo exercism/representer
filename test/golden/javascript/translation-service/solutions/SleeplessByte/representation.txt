@@ -1,0 +1,154 @@
+(file "service.js"
+  (program
+    (export_statement
+      (class_declaration TranslationService
+        (class_body
+          (method_definition constructor
+            (formal_parameters api)
+            (statement_block
+              (expression_statement
+                (assignment_expression
+                  (member_expression this api) = api))))
+          (method_definition free
+            (formal_parameters text)
+            (statement_block
+              (return_statement
+                (call_expression
+                  (member_expression
+                    (call_expression
+                      (member_expression
+                        (member_expression this api) fetch)
+                      (arguments text)) then)
+                  (arguments
+                    (arrow_function PLACEHOLDER_1
+                      (member_expression PLACEHOLDER_1 translation)))))))
+          (method_definition batch
+            (formal_parameters PLACEHOLDER_2)
+            (statement_block
+              (if_statement
+                (binary_expression
+                  (member_expression PLACEHOLDER_2 length) === 0)
+                (statement_block
+                  (return_statement
+                    (call_expression
+                      (member_expression Promise reject)
+                      (arguments
+                        (new_expression BatchIsEmpty
+                          (arguments)))))))
+              (return_statement
+                (call_expression
+                  (member_expression Promise all)
+                  (arguments
+                    (call_expression
+                      (member_expression PLACEHOLDER_2 map)
+                      (arguments
+                        (call_expression
+                          (member_expression
+                            (member_expression this free) bind)
+                          (arguments this)))))))))
+          (method_definition request
+            (formal_parameters text)
+            (statement_block
+              (lexical_declaration const
+                (variable_declarator PLACEHOLDER_3 =
+                  (arrow_function
+                    (formal_parameters)
+                    (new_expression Promise
+                      (arguments
+                        (arrow_function
+                          (formal_parameters resolve reject)
+                          (statement_block
+                            (expression_statement
+                              (call_expression
+                                (member_expression
+                                  (member_expression this api) request)
+                                (arguments text
+                                  (arrow_function PLACEHOLDER_1
+                                    (statement_block
+                                      (expression_statement
+                                        (ternary_expression PLACEHOLDER_1 ?
+                                          (call_expression reject
+                                            (arguments PLACEHOLDER_1))
+                                          (call_expression resolve
+                                            (arguments))))))))))))))))
+              (return_statement
+                (call_expression
+                  (member_expression
+                    (call_expression
+                      (member_expression
+                        (call_expression PLACEHOLDER_3
+                          (arguments)) catch)
+                      (arguments PLACEHOLDER_3)) catch)
+                  (arguments PLACEHOLDER_3)))))
+          (method_definition premium
+            (formal_parameters text PLACEHOLDER_4)
+            (statement_block
+              (return_statement
+                (call_expression
+                  (member_expression
+                    (call_expression
+                      (member_expression
+                        (call_expression
+                          (member_expression
+                            (member_expression this api) fetch)
+                          (arguments text)) catch)
+                      (arguments
+                        (arrow_function
+                          (formal_parameters)
+                          (statement_block
+                            (return_statement
+                              (call_expression
+                                (member_expression
+                                  (call_expression
+                                    (member_expression this request)
+                                    (arguments text)) then)
+                                (arguments
+                                  (arrow_function
+                                    (formal_parameters)
+                                    (call_expression
+                                      (member_expression
+                                        (member_expression this api) fetch)
+                                      (arguments text)))))))))) then)
+                  (arguments
+                    (arrow_function PLACEHOLDER_1
+                      (statement_block
+                        (if_statement
+                          (binary_expression
+                            (member_expression PLACEHOLDER_1 quality) < PLACEHOLDER_4)
+                          (statement_block
+                            (throw_statement
+                              (new_expression QualityThresholdNotMet
+                                (arguments)))))
+                        (return_statement
+                          (member_expression PLACEHOLDER_1 translation))))))))))))
+    (export_statement
+      (class_declaration QualityThresholdNotMet
+        (class_heritage extends Error)
+        (class_body
+          (method_definition constructor
+            (formal_parameters text)
+            (statement_block
+              (expression_statement
+                (call_expression super
+                  (arguments
+                    (call_expression
+                      (member_expression
+                        (template_string "\nThe translation of "
+                          (template_substitution text) " does not meet the requested quality threshold.\n    ") trim)
+                      (arguments)))))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this text) = text)))))))
+    (export_statement
+      (class_declaration BatchIsEmpty
+        (class_heritage extends Error)
+        (class_body
+          (method_definition constructor
+            (formal_parameters)
+            (statement_block
+              (expression_statement
+                (call_expression super
+                  (arguments
+                    (call_expression
+                      (member_expression "\nRequested a batch translation, but there are no texts in the batch.\n    " trim)
+                      (arguments))))))))))))

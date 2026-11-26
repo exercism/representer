@@ -1,0 +1,16 @@
+.globl octal_convert
+
+octal_convert:
+        li      $v0, 0                  # Reset accumulator to 0.  load immediate
+
+loop:
+        lb      $t0, 0($a0)             # Load a character,   load byte
+        beq     $t0, $zero, end         # if it is null then return.  branch on equal. if equal jump to end.
+        sll     $v0, $v0, 3             # Otherwise shift accumulator left,   add a 0 to the right. shift left. multiply by 2. the accumulator!! so for 1001. 1 * 2^3 happens. 0 * 2 ^2 happens. 1 * 2^0 happens.
+        addi    $t1, $t0, -48           # calculate the value of the character,  add constant to byte! '0' = int 48 in ascii. 48-48 = 0. 49-48 = 1. so $t1 is either 0 or 1. converting ascii number to actual value.
+        or      $v0, $v0, $t1           # and add that to the accumulator.  if even | 1, increment by 1. if odd | 1, no change. num | 0, no change. so this is adds a number to be potentially doubled.
+        addi    $a0, $a0, 1             # Finally, increment the pointer.  point at next byte.
+        j       loop                    # and loop.   jump to top of loop
+
+end:
+        jr $ra

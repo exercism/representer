@@ -1,0 +1,21 @@
+acronym.abbreviate : Text -> Text
+acronym.abbreviate =
+  Text.toUppercase
+    >> Text.toCharList
+    >> List.foldLeft takeFirstLetter (true, "")
+    >> Tuple.at2
+
+takeFirstLetter : (Boolean, Text) -> Char -> (Boolean, Text)
+takeFirstLetter acc =
+  (eligible, abbr) = acc
+  cases
+    char | eligible && Char.inRange ?A ?Z char ->
+      char
+        |> Char.toText
+        |> (out -> (false, abbr ++ out))
+    ?\s -> (true, abbr)
+    ?- -> (true, abbr)
+    ?_ -> (true, abbr)
+    _ -> (false, abbr)
+  
+  

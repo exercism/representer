@@ -1,0 +1,83 @@
+using Dates
+mutable struct Clock
+	hours::Int
+	minutes::Int
+	function Clock(hours,minutes)
+		hours = hours % 24
+		if hours < 0
+			hours = 24 + hours
+		end
+		if minutes >= 60
+			hours += minutes ÷ 60
+			hours = hours % 24
+			minutes = minutes % 60
+		elseif minutes < 0
+			hours += minutes ÷ 60
+			hours = hours % 24
+			if hours < 0
+				hours = 24 + hours
+			end
+			minutes = minutes % 60
+			if minutes < 0
+				minutes = 60 + minutes
+				hours -= 1
+			end
+		end
+		new(hours,minutes)
+	end
+end
+
+function Base.:(==)(a::Clock,b::Clock)
+	return a.hours == b.hours && a.minutes == b.minutes
+end
+
+function Base.:(+)(c::Clock,m::Dates.Minute)
+	mins = m.value
+	if mins >= 60
+		c.hours += mins ÷ 60
+		c.minutes += mins % 60
+	else
+		c.minutes += mins
+	end
+	if c.minutes >= 60
+		c.minutes %= 60
+		c.hours += 1
+	end
+	if c.hours >= 24
+		c.hours %= 24
+	end
+	return c
+end
+
+function Base.:(-)(c::Clock,m::Dates.Minute)
+	mins = m.value
+	if mins >= 60
+		c.hours -= mins ÷ 60
+		c.minutes -= mins % 60
+	else
+		c.minutes -= mins
+	end
+	if c.minutes < 0
+		c.minutes = 60 + c.minutes
+		c.hours -= 1
+	end
+	if c.hours < 0
+		c.hours = c.hours % 24
+		if c.hours < 0
+			c.hours += 24
+		end
+	end
+	return c
+end
+
+function show(io::IO, c::Clock)
+	hstr = string(c.hours)
+	if c.hours < 10
+		hstr = '0'*hstr
+	end
+	mstr = string(c.minutes)
+	if c.minutes < 10
+		mstr = '0'*mstr
+	end
+	print(io, '\"'*hstr*':'*mstr*'\"')
+end

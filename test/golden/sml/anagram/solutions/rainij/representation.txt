@@ -1,0 +1,21 @@
+(file "anagram.sml")
+fun anagramsFor subject candidates =
+let
+fun prepareString str = List . map ( Char . toLower ) ( String . explode str )
+val subjectPrep = prepareString subject
+exception RemoveFailed
+fun remove x [] = raise RemoveFailed
+| remove x ( y::ys ) = if x = y then ys else y :: ( remove x ys )
+fun isAnaImpl [] [] = true
+| isAnaImpl [] _ = false
+| isAnaImpl ( x::xs ) cs = isAnaImpl xs ( remove x cs )
+handle RemoveFailed => false
+fun isAna candidate =
+let val candidatePrep = prepareString candidate
+in
+( isAnaImpl subjectPrep candidatePrep )
+andalso subjectPrep <> candidatePrep
+end
+in
+List . filter isAna candidates
+end ;

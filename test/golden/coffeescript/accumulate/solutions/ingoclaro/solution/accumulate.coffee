@@ -1,0 +1,3 @@
+Array::accumulate = (accumulator) ->
+  for i in [0...@length]
+    accumulator(@[i])

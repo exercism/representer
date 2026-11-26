@@ -1,0 +1,25 @@
+(file "Sublist.lean")
+namespace Sublist
+inductive Classification where
+  | sublist | superlist | equal | unequal
+  deriving BEq , Repr
+private def isPrefixOf ( a b : List Nat ) : Bool :=
+  match a , b with
+  | [], _ => true
+  | _ , [] => false
+  | x :: xs , y :: ys => x == y && isPrefixOf xs ys
+private def isContiguousIn ( a : List Nat ) ( aLen : Nat ) ( b : List Nat ) ( bLen : Nat ) : Bool :=
+  if aLen > bLen then false
+  else match b with
+  | [] => true
+  | _ :: bs => isPrefixOf a b || isContiguousIn a aLen bs ( bLen - 1 )
+def sublist ( listOne listTwo : List Nat ) : Classification :=
+  let len1 := listOne . length
+  let len2 := listTwo . length
+  if len1 == len2 then
+    if listOne == listTwo then . equal else . unequal
+  else if len1 < len2 then
+    if isContiguousIn listOne len1 listTwo len2 then . sublist else . unequal
+  else
+    if isContiguousIn listTwo len2 listOne len1 then . superlist else . unequal
+end Sublist

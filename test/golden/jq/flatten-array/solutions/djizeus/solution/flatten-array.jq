@@ -1,0 +1,1 @@
+flatten | map(values)

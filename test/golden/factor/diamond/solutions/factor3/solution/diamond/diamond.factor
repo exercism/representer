@@ -1,0 +1,9 @@
+USING: kernel math math.matrices sequences strings ;
+IN: diamond
+
+:: rows ( letter -- rows )
+    letter CHAR: A - :> m
+    m 2 * 1 + dup [| r c |
+        c m - abs :> x
+        r m - abs x + m = x CHAR: A + CHAR: space ?
+    ] <matrix-by-indices> [ >string ] map ;

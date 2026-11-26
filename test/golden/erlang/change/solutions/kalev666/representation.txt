@@ -1,0 +1,24 @@
+(file "src/change.erl")
+- module ( change ).
+- export ([ find_fewest_coins / 2 ]).
+find_fewest_coins ( Target , Coins ) ->
+Solutions = lists : foldl (
+fun ( N , Acc ) -> maps : put ( N , smallest_solution ( N , Coins , Acc ), Acc ) end ,
+maps : new (), lists : seq ( 0 , Target )),
+case maps : get ( Target , Solutions , false ) of
+false -> undefined ;
+Solution -> lists : reverse ( Solution )
+end .
+smallest_solution ( 0 , _, _) -> [];
+smallest_solution ( N , Coins , Cache ) ->
+Solutions = [ [ Coin | maps : get ( N - Coin , Cache , false ) ] || Coin <- Coins , Coin =< N ],
+Solution = lists : foldl ( fun
+( A , [_ | false ]) -> A ;
+([_| false ], B ) -> B ;
+( A , B ) when length ( A ) =< length ( B ) -> A ;
+( A , B ) when length ( A ) > length ( B ) -> B
+end , [ 0 | false ], Solutions ),
+case Solution of
+[_| false ] -> false ;
+Solution -> Solution
+end .

@@ -1,0 +1,31 @@
+module Triangle
+  ( Triangle(Equilateral, Isosceles, Scalene)
+  , triangleKind
+  ) where
+
+import Prelude
+import Data.Array (sort)
+import Data.Either (Either(..))
+
+data Triangle
+  = Equilateral
+  | Isosceles
+  | Scalene
+
+derive instance eqTriangle :: Eq Triangle
+
+instance showTriangle :: Show Triangle where
+  show Equilateral = "Equilateral"
+  show Isosceles = "Isosceles"
+  show Scalene = "Scalene"
+
+triangleKind :: Int -> Int -> Int -> Either String Triangle
+triangleKind a b c = triangleKind' (sort [a, b, c])
+  where
+    triangleKind' [a', b', c'] | a' <= 0 = Left "Invalid lengths"
+                               | a' + b' < c' = Left "Violates inequality"
+                               | otherwise = Right $
+                                    if a' == b' || b' == c'
+                                      then if a' == c' then Equilateral else Isosceles
+                                      else Scalene
+    triangleKind' _ = Left "Impossible, [a, b, c] must have 3 elements!"

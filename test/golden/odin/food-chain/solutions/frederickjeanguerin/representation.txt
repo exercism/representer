@@ -1,0 +1,59 @@
+(file "food_chain.odin")
+package food_chain
+import "\"core:fmt\""
+import "\"core:strings\""
+animals := [?]string {
+"\"fly\","
+"\"spider\","
+"\"bird\","
+"\"cat\","
+"\"dog\","
+"\"goat\","
+"\"cow\","
+"\"horse\","
+}
+consequences := [?]string {
+/* fly */ "\"nil\","
+/* spider */ "\"It" wriggled and jiggled and tickled inside her.",
+/* bird */ "\"How" absurd to swallow a bird!",
+/* cat */ "\"Imagine" that, to swallow a cat!",
+/* dog */ "\"What" a hog, to swallow a dog!",
+/* goat */ "\"Just" opened her throat and swallowed a goat!",
+/* cow */ "\"I" don't know how she swallowed a cow!",
+/* horse */ "\"She's" dead, of course!",
+}
+explanations := [?]string {
+"\"She" swallowed the cow to catch the goat.",
+"\"She" swallowed the goat to catch the dog.",
+"\"She" swallowed the dog to catch the cat.",
+"\"She" swallowed the cat to catch the bird.",
+"\"She" swallowed the bird to catch the spider that wriggled and jiggled and tickled inside her.",
+"\"She" swallowed the spider to catch the fly.",
+"\"I" don't know why she swallowed the fly. Perhaps she'll die.",
+}
+append_part :: proc(sb: ^strings.Builder, n: int) {
+// Given a part number n, append the corresponding verse to the string builder.
+// Part number starts at 0. So 0 is the fly, 1 is the spider, etc.
+fmt.sbprintfln(sb, "\"I" know an old lady who swallowed a %s.", animals[n])
+if consequences[n] != "\"nil\"" {
+fmt.sbprintln(sb, consequences[n])
+}
+if animals[n] != "\"horse\"" {
+for i := n; i >= 0; i -= 1 {
+fmt.sbprintln(sb, explanations[len(explanations) - 1 - i])
+}
+}
+}
+recite :: proc(start, end: int) -> string {
+// Using a string builder, put all the verses together
+// From start to end (inclusive), first verse is 1, etc.
+sb := strings.builder_make()
+defer strings.builder_destroy(&sb)
+for i in start ..= end {
+append_part(&sb, i - 1)
+fmt.sbprint(&sb, "\"\\n\")"
+}
+strings.pop_byte(&sb) // Remove the last two newlines
+strings.pop_byte(&sb)
+return strings.clone(strings.to_string(sb))
+}

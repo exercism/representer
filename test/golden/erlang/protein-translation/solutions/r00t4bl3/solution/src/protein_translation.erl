@@ -1,0 +1,37 @@
+-module(protein_translation).
+
+-export([proteins/1]).
+
+-define(PROTEINS, [
+    {"AUG", methionine},
+    {"UGG", tryptophan},
+    {"UUU", phenylalanine},
+    {"UUC", phenylalanine},
+    {"UUA", leucine},
+    {"UUG", leucine},
+    {"UCU", serine},
+    {"UCC", serine},
+    {"UCA", serine},
+    {"UCG", serine},
+    {"UAU", tyrosine},
+    {"UAC", tyrosine},
+    {"UGU", cysteine},
+    {"UGC", cysteine},
+    {"UAA", stop},
+    {"UAG", stop},
+    {"UGA", stop}
+]).
+
+proteins(_Strand) ->
+    translate_codons(_Strand, []).
+
+translate_codons([X, Y, Z | T], Acc) ->
+    case proplists:get_value([X, Y, Z], ?PROTEINS) of
+        stop -> translate_codons([], Acc);
+        undefined -> {error, badarg};
+        Protein -> translate_codons(T, [Protein | Acc])
+    end;
+translate_codons([], Acc) ->
+    {ok, lists:reverse(Acc)};
+translate_codons(_, _) ->
+    {error, badarg}.

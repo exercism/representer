@@ -1,0 +1,40 @@
+(file "bottle_song.pl")
+:- use_module ( library ( dcg / basics )).
+recite ( Start , Lines ) :-
+phrase ( song ( Start , 1 ), O ),
+string_codes ( Lyrics , O ),
+string_lines ( Lyrics , Lines ).
+recite ( Start , Count , Lines ) :-
+phrase ( song ( Start , Count ), O ),
+string_codes ( Lyrics , O ),
+string_lines ( Lyrics , Lines ).
+nums ([ ` One ` , ` Two ` , ` Three ` , ` Four ` , ` Five ` , ` Six ` , ` Seven ` , ` Eight ` , ` Nine ` , ` Ten ` ]).
+song ( N , Count ) -->
+{ Count > 1 , NextN is N - 1 , NextCount is Count - 1 },
+verse ( N ), nl ,
+nl ,
+song ( NextN , NextCount ).
+song ( _ , 0 ) --> [].
+song ( N , 1 ) --> verse ( N ).
+verse ( N ) -->
+{ N_prev is N - 1 },
+num_word ( N ), "\" green \"" , bottle ( N ), "\" hanging on the wall,\"" , nl ,
+num_word ( N ), "\" green \"" , bottle ( N ), "\" hanging on the wall,\"" , nl ,
+"\"And if one green bottle should accidentally fall,\"" , nl ,
+"\"There'll be \"" , num_word_lower ( N_prev ), "\" green \"" , bottle ( N_prev ), "\" hanging on the wall.\"" .
+bottle ( 1 ) --> "\"bottle\"" .
+bottle ( N ) --> { N = \ = 1 }, "\"bottles\"" .
+num_word ( N ) -->
+{ nums ( Nums ), nth1 ( N , Nums , Codes ) },
+string ( Codes ).
+num_word_lower ( 0 ) --> "\"no\"" .
+num_word_lower ( N ) -->
+{ nums ( Nums ),
+nth1 ( N , Nums , UpperCodes ),
+lower ( UpperCodes , Codes ) },
+string ( Codes ).
+lower ( Codes , LowerCodes ) :-
+string_codes ( S1 , Codes ),
+string_lower ( S1 , S2 ),
+string_codes ( S2 , LowerCodes ).
+nl --> "\"\\n\"" .

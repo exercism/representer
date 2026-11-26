@@ -1,0 +1,106 @@
+(file "lib/rpg.ex"
+  (source
+    (call defmodule
+      (arguments RPG)
+      (do_block
+        (call defmodule
+          (arguments Character)
+          (do_block
+            (call defstruct
+              (arguments
+                (keywords
+                  (pair "health: " 100)
+                  (pair "mana: " 0))))))
+        (call defmodule
+          (arguments LoafOfBread)
+          (do_block
+            (call defstruct
+              (arguments
+                (list)))))
+        (call defmodule
+          (arguments ManaPotion)
+          (do_block
+            (call defstruct
+              (arguments
+                (keywords
+                  (pair "strength: " 10))))))
+        (call defmodule
+          (arguments Poison)
+          (do_block
+            (call defstruct
+              (arguments
+                (list)))))
+        (call defmodule
+          (arguments EmptyBottle)
+          (do_block
+            (call defstruct
+              (arguments
+                (list)))))
+        (call defprotocol
+          (arguments Edible)
+          (do_block
+            (call def
+              (arguments
+                (call eat
+                  (arguments item character))))))
+        (call defimpl
+          (arguments Edible
+            (keywords
+              (pair "for: " LoafOfBread)))
+          (do_block
+            (call def
+              (arguments
+                (call eat
+                  (arguments (variable PLACEHOLDER_1) character)))
+              (do_block
+                (tuple
+                  (nil)
+                  (map %
+                    (map_content
+                      (binary_operator character |
+                        (keywords
+                          (pair "health: "
+                            (binary_operator
+                              (call
+                                (dot character . health)) + 5)))))))))))
+        (call defimpl
+          (arguments Edible
+            (keywords
+              (pair "for: " ManaPotion)))
+          (do_block
+            (call def
+              (arguments
+                (call eat
+                  (arguments item character)))
+              (do_block
+                (tuple
+                  (map %
+                    (struct EmptyBottle))
+                  (map %
+                    (map_content
+                      (binary_operator character |
+                        (keywords
+                          (pair "mana: "
+                            (binary_operator
+                              (call
+                                (dot character . mana)) +
+                              (call
+                                (dot item . strength)))))))))))))
+        (call defimpl
+          (arguments Edible
+            (keywords
+              (pair "for: " Poison)))
+          (do_block
+            (call def
+              (arguments
+                (call eat
+                  (arguments (variable PLACEHOLDER_1) character)))
+              (do_block
+                (tuple
+                  (map %
+                    (struct EmptyBottle))
+                  (map %
+                    (map_content
+                      (binary_operator character |
+                        (keywords
+                          (pair "health: " 0))))))))))))))

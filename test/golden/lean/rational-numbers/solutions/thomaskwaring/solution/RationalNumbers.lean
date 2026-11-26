@@ -1,0 +1,58 @@
+namespace RationalNumbers
+
+open Int
+
+/--
+  Represents a fully reduced rational number.
+  It is constructed from a numerator (`num`) and a denominator (`den`), both of type `Int`, and a proof that: `den > 0 ∧ Int.gcd num den = 1`.
+-/
+structure RationalNumber where
+  num : Int
+  den : Int
+  h : den > 0 ∧ Int.gcd num den = 1
+  deriving BEq, Repr
+
+def reduce (n m : Int) (hm : 0 < m) : RationalNumber where
+  num := n / n.gcd m
+  den := m / n.gcd m
+  h := by
+    refine ⟨?_, gcd_ediv_gcd_ediv_gcd_of_ne_zero_right (m.ne_of_gt hm)⟩
+    rw [gt_iff_lt]
+    exact ediv_pos_of_pos_of_dvd hm (natCast_nonneg (n.gcd m)) (gcd_dvd_right n m)
+
+-- adding the default value `n / 0 = 0` is cheating a little, but the function `div` requires
+-- you to make some choice of the sort anyway
+def divIntInt (n m : Int) : RationalNumber := by
+  by_cases hm : m = 0
+  · exact ⟨0, 1, by decide⟩
+  · exact reduce (n * m.sign) m.natAbs (natCast_pos.mpr <| natAbs_pos.mpr hm)
+
+def add (r1 r2 : RationalNumber) : RationalNumber :=
+  divIntInt (r1.num * r2.den + r2.num * r1.den) (r1.den * r2.den)
+
+def neg (r : RationalNumber) : RationalNumber := divIntInt (-r.num) r.den
+
+def sub (r1 r2 : RationalNumber) : RationalNumber := add r1 (neg r2)
+
+def mul (r1 r2 : RationalNumber) : RationalNumber := divIntInt (r1.num * r2.num) (r1.den * r2.den)
+
+def inv (r : RationalNumber) : RationalNumber := divIntInt r.den r.num
+
+def div (r1 r2 : RationalNumber) : RationalNumber := mul r1 (inv r2)
+
+def Int.abs (n : Int) : Nat := (n * n.sign).toNat
+
+def abs (r : RationalNumber) : RationalNumber := divIntInt (Int.abs r.num) (Int.abs r.den)
+
+def expnat (r : RationalNumber) (n : Nat) : RationalNumber := divIntInt (r.num ^ n) (r.den ^ n)
+
+def exprational (r : RationalNumber) (n : Int) : RationalNumber := by
+  by_cases n < 0
+  · exact inv <| expnat r (Int.abs n)
+  · exact expnat r (Int.abs n)
+
+def RationalNumber.toFloat (r : RationalNumber) : Float := (Float.ofInt r.num) / (Float.ofInt r.den)
+
+def expreal (x : Int) (r : RationalNumber) : Float := (Float.ofInt x) ^ r.toFloat
+
+end RationalNumbers

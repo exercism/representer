@@ -1,0 +1,13 @@
+to_row = (row) ->
+  [ tonumber x for x in row\gmatch "%d+" ]
+
+to_mat = (str) ->
+  [ to_row row for row in str\gmatch "[^\n]+" ]
+
+{
+  row: (str, idx) ->
+    to_mat(str)[idx]
+
+  column: (str, idx) ->
+    [ row[idx] for row in *to_mat(str) ]
+}

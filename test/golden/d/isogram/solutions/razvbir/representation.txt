@@ -1,0 +1,45 @@
+(file "source/isogram.d")
+module isogram ;
+@safe bool isIsogram ( string phrase )
+{
+import std . array : array ;
+import std . uni :
+Grapheme ,
+byGrapheme ,
+toLower ;
+import std . regex : regex , replaceAll ;
+bool [ Grapheme ] chars ;
+phrase = replaceAll ( phrase . toLower , regex ( r"\W" ), "\"\"" );
+foreach ( g ; phrase . byGrapheme . array ) {
+if ( g in chars ) {
+return false ;
+}
+chars [ g ] = true ;
+}
+return true ;
+}
+unittest
+{
+immutable int allTestsEnabled = 1 ;
+assert ( isIsogram ( "\"\"" ));
+assert (! isIsogram ( "\"\u021Auiu\"" ));
+assert ( isIsogram ( "\"R\u0103zvan\"" ));
+assert (! isIsogram ( "\"R\u0103zvan Biri\u0219an\"" ));
+static if ( allTestsEnabled )
+{
+assert ( isIsogram ( "\"isogram\"" ));
+assert (! isIsogram ( "\"eleven\"" ));
+assert (! isIsogram ( "\"zzyzx\"" ));
+assert ( isIsogram ( "\"subdermatoglyphic\"" ));
+assert (! isIsogram ( "\"Alphabet\"" ));
+assert (! isIsogram ( "\"alphAbet\"" ));
+assert ( isIsogram ( "\"thumbscrew-japingly\"" ));
+assert (! isIsogram ( "\"thumbscrew-jappingly\"" ));
+assert ( isIsogram ( "\"six-year-old\"" ));
+assert ( isIsogram ( "\"Emily Jung Schwartzkopf\"" ));
+assert (! isIsogram ( "\"accentor\"" ));
+assert (! isIsogram ( "\"angola\"" ));
+assert (! isIsogram ( "\"Be\u0301n y Ame\u0301lie\"" ));
+assert ( isIsogram ( "\"-Ame\u0301lie-\"" ));
+}
+}

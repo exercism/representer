@@ -1,0 +1,29 @@
+package LanguageList;
+
+use v5.38;
+
+our @Languages;
+
+sub add_language( $lang ) {
+    push @Languages , $lang;
+    };
+
+sub remove_language() {
+    pop @Languages;
+    };
+
+sub first_language() {
+    return $Languages[0];
+    };
+
+sub last_language() {
+    return $Languages[-1];
+    };
+
+sub get_languages( @i ) {
+    return @Languages[(map {$_-1} @i)];
+    };
+
+sub has_language( $lang ) {
+    return grep {$_ eq $lang} @Languages;
+    };

@@ -1,0 +1,26 @@
+BEGIN {
+    bands["black"] = 0
+    bands["brown"] =1
+    bands["red"] = 2
+    bands["orange"] = 3
+    bands["yellow"] = 4
+    bands["green"] = 5
+    bands["blue"] = 6
+    bands["violet"] = 7
+    bands["grey"] = 8
+    bands["white"] = 9
+}
+
+{
+    value = 0
+    for (i = 1; i <= 2; i++) {
+        if ($i in bands) {
+            value = value * 10 + bands[$i]
+        } else {
+            print "invalid color"
+            exit(1)
+        }
+    }
+    print value
+}
+

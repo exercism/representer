@@ -1,0 +1,20 @@
+import Base.+, Base.-
+
+struct Clock
+    h::Int
+    m::Int
+    function Clock(h::Int, m::Int)
+         M = positive_mod(m,60)
+         H = positive_mod(h + m ÷ 60 - (( m < 0)&&(M!=0) ? 1 : 0), 24)
+         new(H,M)
+     end
+end
+
+positive_mod(a, b) = ( a % b + b ) % b
+
++(time::Clock, mins::Dates.Minute) = Clock(time.h, time.m + mins.value)
+-(time::Clock, mins::Dates.Minute) = Clock(time.h, time.m - mins.value)
+
++(a::Clock, b::Clock) = Clock(a.h + b.h, a.m + b.m)
+-(a::Clock, b::Clock) = Clock(a.h - b.h, a.m - b.m)
+Base.sprint(::typeof(show),t::Clock) = "\"" * lpad(t.h,2,"0") * ":" * lpad(t.m,2,"0") * "\""

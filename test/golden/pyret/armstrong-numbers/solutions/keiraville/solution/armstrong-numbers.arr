@@ -1,0 +1,28 @@
+use context starter2024
+
+provide: is-armstrong-number end
+
+rec num-digits =
+  lam(count, n):
+    if n < 10: count + 1
+    else: num-digits(count + 1, (n - num-modulo(n, 10)) / 10)
+    end
+  end
+
+rec power =
+  lam(p, b, e):
+    if e == 0: p
+    else: power(p * b, b, e - 1)
+    end
+  end
+
+rec powerSum =
+  lam(total, e, n):
+    if n == 0: total
+    else: powerSum(total + power(1, num-modulo(n, 10), e), e, (n - num-modulo(n, 10)) / 10)
+    end
+  end
+
+fun is-armstrong-number(number):
+  powerSum(0, num-digits(0, number), number) == number
+end

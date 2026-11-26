@@ -1,0 +1,15 @@
+(file "SecretHandshake.lean")
+namespace SecretHandshake
+inductive Action where
+  | wink
+  | doubleBlink
+  | closeYourEyes
+  | jump
+  deriving BEq , Repr
+def actions : Array Action := # [ . wink , . doubleBlink , . closeYourEyes , . jump ]
+def commands ( number : BitVec 5 ) : Array Action :=
+  let arr := actions |>. attach
+    |>. filter ( λ ⟨ x , _ ⟩ => number [ x . ctorIdx ] ' ( by cases x <;> decide ))
+    |>. map ( · . val )
+  if number [ 4 ] then arr . reverse else arr
+end SecretHandshake

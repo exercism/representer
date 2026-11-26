@@ -1,0 +1,18 @@
+module Hamming
+  ( distance
+  ) where
+
+import Prelude
+import Data.Maybe (Maybe(..))
+import Data.String (length)
+import Data.String.CodeUnits (toCharArray)
+import Data.Array (zipWith, foldl)
+
+distance :: String -> String -> Maybe Int
+distance dna1 dna2 
+  | length dna1 == length dna2 =
+    Just $ foldl (+) 0 $ zipWith (\e1 e2 -> if e1 == e2 then 0 else 1) seq1 seq2
+    where
+      seq1 = toCharArray dna1
+      seq2 = toCharArray dna2
+  | otherwise = Nothing

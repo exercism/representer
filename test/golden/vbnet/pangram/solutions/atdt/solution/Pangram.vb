@@ -1,0 +1,7 @@
+Imports System
+
+Public Module Pangram
+    Public Function IsPangram(ByVal input As String) As Boolean
+      return Not "abcdefghijklmnopqrstuvwxyz".Except(input.ToLower()).Any()
+    End Function
+End Module

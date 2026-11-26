@@ -1,0 +1,25 @@
+namespace PrimeFactors
+
+def factors (value : Nat) : List Nat :=
+  Id.run do
+    let mut n := value
+    let mut acc : List Nat := []
+
+    -- Remove all factors of 2 first, then search odd divisors only.
+    while n > 1 && n % 2 == 0 do
+      acc := 2 :: acc
+      n := n / 2
+
+    let mut divisor := 3
+    while divisor * divisor <= n do
+      while n % divisor == 0 do
+        acc := divisor :: acc
+        n := n / divisor
+      divisor := divisor + 2
+
+    if n > 1 then
+      acc := n :: acc
+
+    return acc.reverse
+
+end PrimeFactors

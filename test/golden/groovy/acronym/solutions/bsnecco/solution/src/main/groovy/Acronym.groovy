@@ -1,0 +1,16 @@
+class Acronym {
+
+    static String abbreviate(String phrase) {
+         String[] words = phrase.split("[-\\s]")
+       String output =""
+       for(String word: words){
+    if(word){
+        word = word.find(/[A-Za-z]+/)
+        output += word[0]
+    }
+
+       }
+        return output.toUpperCase()
+    }
+
+}

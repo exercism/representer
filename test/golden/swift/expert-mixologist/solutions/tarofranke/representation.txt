@@ -1,0 +1,64 @@
+(file "Sources/MasterMixologist/MasterMixologist.swift")
+func timeToPrepare ( drinks : [ String ]) -> Double {
+var totalTime = 0.0
+for drink in drinks {
+switch drink {
+case "\"beer\"" , "\"soda\"" , "\"water\"" : totalTime += 0.5
+case "\"shot\"" : totalTime += 1.0
+case "\"mixed drink\"" : totalTime += 1.5
+case "\"fancy drink\"" : totalTime += 2.5
+case "\"frozen drink\"" : totalTime += 3.0
+default : break
+}
+}
+return totalTime
+}
+func makeWedges ( needed : Int , limes : [ String ]) -> Int {
+var numberWedges = 0
+var numero = 0
+while numberWedges < needed , limes . count > numero {
+let lime = limes [ numero ]
+switch lime {
+case "\"small\"" : numberWedges += 6
+case "\"medium\"" : numberWedges += 8
+case "\"large\"" : numberWedges += 10
+default : break
+}
+numero += 1
+}
+return numero
+}
+func finishShift ( minutesLeft : Int , remainingOrders : [[ String ]]) -> [[ String ]] {
+var remainingMinutes = Double ( minutesLeft )
+var leftOverOrders = remainingOrders
+while leftOverOrders . count > 0 ,
+remainingMinutes >= 0 {
+let nextOrder = leftOverOrders [ 0 ]
+let timeNextOrderTakes = timeToPrepare ( drinks : nextOrder )
+leftOverOrders . removeFirst ()
+remainingMinutes -= timeNextOrderTakes
+}
+return leftOverOrders
+}
+func orderTracker ( orders : [( drink : String , time : String )]) -> (
+beer : ( first : String , last : String , total : Int )?, soda : ( first : String , last : String , total : Int )?
+) {
+var firstBeer , lastBeer , firstSoda , lastSoda : String ?
+var numberBeers = 0 , numberSodas = 0
+for ( drink , time ) in orders {
+if drink == "\"beer\"" {
+numberBeers += 1
+if firstBeer == nil {
+firstBeer = time
+}
+lastBeer = time
+} else if drink == "\"soda\"" {
+numberSodas += 1
+if firstSoda == nil {
+firstSoda = time
+}
+lastSoda = time
+}
+}
+return ( beer : numberBeers > 0 ? ( first : firstBeer ! , last : lastBeer ! , total : numberBeers ) : nil , soda : numberSodas > 0 ? ( first : firstSoda ! , last : lastSoda ! , total : numberSodas ) : nil )
+}

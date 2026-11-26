@@ -1,0 +1,15 @@
+(import (rnrs))
+
+(define (binary-search array target)
+  (define len (vector-length array))
+  (if (zero? len)
+      'not-found
+      (let loop ((start 0)
+                 (end len))
+        (let* ((middle (quotient (+ end start) 2))
+               (value (vector-ref array middle)))
+          (cond
+           [(= target value) middle]
+           [(= start middle) 'not-found]
+           [(< target value) (loop start middle)]
+           [(> target value) (loop middle end)])))))

@@ -1,0 +1,24 @@
+.globl rotate
+
+rotate:
+	lb $t0, 0($a0)
+	addi $a0, $a0, 1
+	beqz $t0, __return
+	blt $t0, 'A', __write
+	bgt $t0, 'z', __write
+	blt $t0, 'a', __uppercase
+	add $t0, $t0, $a1
+	ble $t0, 'z', __write
+	subi $t0, $t0, 26
+	b __write
+__uppercase:
+	bgt $t0, 'Z', __write
+	add $t0, $t0, $a1
+	ble $t0, 'Z', __write
+	subi $t0, $t0, 26
+__write:
+	sb $t0, 0($a2)
+	addi $a2, $a2, 1
+	b rotate
+__return:
+	jr $ra

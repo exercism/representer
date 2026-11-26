@@ -1,0 +1,14 @@
+class Binary
+  constructor: (@numberAsString) ->
+
+  toDecimal: ->
+    unless @numberAsString.match(/^[01]+$/)
+      return 0
+    @numberAsString
+      .split('')
+      .reverse()
+      .reduce (total, number, index) ->
+        total + parseInt(number, 10) * Math.pow(2, index)
+      , 0
+
+module.exports = Binary

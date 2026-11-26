@@ -1,0 +1,29 @@
+using Dates
+
+struct Clock
+    hour::Int
+    minute::Int
+    function Clock(hour, minute)
+               
+        if(minute < 0)
+            hour = hour + (minute ÷ 60 == 0 ? -1 : Int(floor(minute / 60)))
+            minute = 60 + (minute % 60 == 0 ? -60 : minute % 60)
+        end
+        
+        if(hour < 0)
+            hour = 24 + hour % 24
+        end
+        
+        if(minute >= 60)
+            hour += minute ÷ 60
+            minute = minute % 60
+        end
+        
+        new(hour % 24, minute)
+    end
+end
+
+Base.:+(x::Clock, y::Dates.Minute) = Clock(x.hour, x.minute + y.value)
+Base.:-(x::Clock, y::Dates.Minute) = Clock(x.hour, x.minute - y.value)
+Base.:(==)(x::Clock, y::Clock) = x.hour == y.hour && x.minute == y.minute ? true : false
+Base.show(io::IO, x::Clock) = show(io, lpad(string(x.hour), 2, '0') * ":" * lpad(string(x.minute), 2, '0'))

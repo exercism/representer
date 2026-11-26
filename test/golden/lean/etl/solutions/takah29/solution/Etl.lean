@@ -1,0 +1,12 @@
+import Std.Data.HashMap
+
+namespace Etl
+
+def transform (legacy : Std.HashMap Nat (List Char)) : Std.HashMap Char Nat := Id.run do
+  let mut d := {}
+  for (k, vs) in legacy do
+    for v in vs do
+      d := d.insert v.toLower k
+  return d
+
+end Etl

@@ -1,0 +1,57 @@
+local Set = {}
+Set.__index = Set
+
+function new(...)
+    local set = setmetatable({ values = {} }, Set)
+    for _, v in pairs({...}) do
+        set:add(v)
+    end
+    return set
+end
+
+function Set:is_empty()
+    return next(self.values) == nil
+end
+
+function Set:contains(v)
+    return self.values[v] == true
+end
+
+function Set:is_subset(super)
+    return self:difference(super):is_empty()
+end
+
+function Set:is_disjoint(with)
+    return self:intersection(with):is_empty()
+end
+
+function Set:equals(other)
+    return self:is_subset(other) and other:is_subset(self)
+end
+
+function Set:add(v)
+    self.values[v] = true
+end
+
+function Set:_filter(f, into)
+    local s = into or new()
+    for v in pairs(self.values) do
+        if f(v) then s:add(v) end
+    end
+    return s
+end
+
+function Set:intersection(other)
+    return self:_filter(function(v) return other:contains(v) end)
+end
+
+function Set:difference(other)
+    return self:_filter(function(v) return not other:contains(v) end)
+end
+
+function Set:union(other)
+    local yes = function(_) return true end
+    return other:_filter(yes, self:_filter(yes))
+end
+
+return new

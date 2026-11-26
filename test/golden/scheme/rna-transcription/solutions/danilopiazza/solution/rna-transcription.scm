@@ -1,0 +1,10 @@
+(import (rnrs))
+
+(define (dna->rna dna)
+  (define (rna-complement nucleotide)
+    (cond [(eqv? nucleotide #\G) #\C]
+          [(eqv? nucleotide #\C) #\G]
+          [(eqv? nucleotide #\T) #\A]
+          [(eqv? nucleotide #\A) #\U]))
+  (string-map rna-complement dna))
+

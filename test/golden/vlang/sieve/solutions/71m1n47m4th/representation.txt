@@ -1,0 +1,20 @@
+(file "sieve.v")
+module main
+import math { sqrti }
+import bitfield
+fn sieve(limit int) []int {
+// primes start at 2, so we can store them in bitfield indices with an -2 offset
+mut are_composites := bitfield.new(limit-1)
+for j := 2; j <= sqrti(limit); j++ {
+for i := 2*j; i <= limit; i += j {
+are_composites.set_bit(i-2)
+}
+}
+mut primes := []int{cap: limit-2}
+for i := 2; i <= limit; i++ {
+if are_composites.get_bit(i-2) == 0 {
+primes << i
+}
+}
+return primes
+}

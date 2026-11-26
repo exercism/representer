@@ -1,0 +1,20 @@
+-- Schema: CREATE TABLE "color_code" ("color1" TEXT, "color2" TEXT, "result" INT);
+-- Task: update the color_code table and set the result based on the two colors.
+
+CREATE TABLE color_code_map (color TEXT, code INT);
+INSERT INTO color_code_map VALUES
+    ("black", 0),
+    ("brown", 1),
+    ("red", 2),
+    ("orange", 3),
+    ("yellow", 4),
+    ("green", 5),
+    ("blue", 6),
+    ("violet", 7),
+    ("grey", 8),
+    ("white", 9);
+
+UPDATE color_code
+SET result = cc1.code || cc2.code
+FROM color_code_map AS cc1, color_code_map AS cc2
+WHERE cc1.color == color_code.color1 AND cc2.color = color_code.color2;

@@ -1,0 +1,55 @@
+(file "connect.jl")
+function connect ( board )
+processed_board = [ filter ( c -> c != "' '" , row ) for row in board ]
+height = length ( processed_board )
+if height == 0
+return "\"\""
+end
+width = length ( processed_board [ 1 ])
+if check_win ( processed_board , 'X' , width , height )
+return "\"X\""
+end
+if check_win ( processed_board , 'O' , width , height )
+return "\"O\""
+end
+return "\"\""
+end
+function check_win ( board , player , width , height )
+grid = [ collect ( row ) for row in board ]
+if player == 'X'
+starting_points = [( i , 1 ) for i in 1 : height if grid [ i ][ 1 ] == 'X' ]
+target_check = ( _ , j ) -> j == width
+else
+starting_points = [( 1 , j ) for j in 1 : width if grid [ 1 ][ j ] == 'O' ]
+target_check = ( i , _ ) -> i == height
+end
+for start in starting_points
+visited = Set { Tuple { Int , Int }}()
+if dfs ( grid , start [ 1 ], start [ 2 ], player , visited , target_check , width , height )
+return true
+end
+end
+return false
+end
+function dfs ( grid , i , j , player , visited , target_check , width , height )
+if target_check ( i , j )
+return true
+end
+push! ( visited , ( i , j ))
+directions = [
+( - 1 , 0 ), ( - 1 , 1 ),
+( 0 , - 1 ), ( 0 , 1 ),
+( 1 , - 1 ), ( 1 , 0 )
+]
+for ( di , dj ) in directions
+ni , nj = i + di , j + dj
+if 1 <= ni <= height && 1 <= nj <= width
+if grid [ ni ][ nj ] == player && ! (( ni , nj ) in visited )
+if dfs ( grid , ni , nj , player , visited , target_check , width , height )
+return true
+end
+end
+end
+end
+return false
+end

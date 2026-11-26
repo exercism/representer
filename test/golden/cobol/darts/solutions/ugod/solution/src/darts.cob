@@ -1,0 +1,36 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DARTS.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-X PIC 99V9.
+       01 WS-Y PIC 99V9.
+       01 WS-RESULT PIC 99.
+       01 WS-ABS-X PIC 9(5)V99.
+       01 WS-ABS-Y PIC 9(5)V99.
+       01 WS-SQUARE-X PIC 9(6)V99.
+       01 WS-SQUARE-Y PIC 9(6)V99.
+       01 WS-RADIUS PIC 9(6)V99.
+       PROCEDURE DIVISION.
+       DARTS.
+
+      * GET ABSOLUTE VALUE OF X AND Y
+      * Pythagorean theorem to get the length from 0,0 to dart landing 
+      * (a*a + b*b) = c*c
+      
+         MOVE ZERO TO WS-SQUARE-X WS-SQUARE-Y WS-RADIUS.
+         MOVE FUNCTION ABS (WS-X) TO WS-ABS-X.
+         MOVE FUNCTION ABS (WS-Y) TO WS-ABS-Y.
+         MULTIPLY WS-ABS-X BY WS-ABS-X GIVING WS-SQUARE-X.
+         MULTIPLY WS-ABS-Y BY WS-ABS-Y GIVING WS-SQUARE-Y.
+         ADD WS-SQUARE-X TO WS-SQUARE-Y.
+         COMPUTE WS-RADIUS = FUNCTION SQRT (WS-SQUARE-Y).
+
+
+         EVALUATE WS-RADIUS
+            WHEN > 10 MOVE 0 TO WS-RESULT
+            WHEN > 5 AND < OR EQUAL TO 10 MOVE 1 TO WS-RESULT
+            WHEN > 1 AND < OR EQUAL TO 5 MOVE 5 TO WS-RESULT
+            WHEN < OR EQUAL TO 1 MOVE 10 TO WS-RESULT
+         END-EVALUATE.
+         

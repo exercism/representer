@@ -1,0 +1,20 @@
+CLASS zcl_two_fer DEFINITION PUBLIC.
+  PUBLIC SECTION.
+    METHODS two_fer
+      IMPORTING
+        input         TYPE string OPTIONAL
+      RETURNING
+        VALUE(result) TYPE string.
+ENDCLASS.
+
+CLASS zcl_two_fer IMPLEMENTATION.
+
+  METHOD two_fer.
+
+    result = cond string( when input is initial
+                          then `One for you, one for me.` 
+                          else |One for { input }, one for me.|).
+    
+  ENDMETHOD.
+
+ENDCLASS.

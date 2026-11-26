@@ -1,0 +1,92 @@
+(file "rational_numbers.f90")
+subroutine gcd_iter ( a0 , b0 , gcd_value )
+integer :: a , b , c
+integer , intent ( out ) :: a0 , b0 , gcd_value
+a = abs ( a0 )
+b = abs ( b0 )
+if ( a < b ) then
+c = a
+a = b
+b = c
+end if
+if ( a > 0 .and. b > 0 ) then
+do
+c = mod ( a , b )
+if ( c == 0 ) exit
+a = b
+b = c
+end do
+else
+b = abs ( b0 )
+end if
+gcd_value = abs ( b )
+end subroutine gcd_iter
+module rational_numbers
+implicit none
+contains
+function add ( r1 , r2 )
+integer , dimension ( 2 ) :: add , r1 , r2
+integer :: gcd
+add ( 1 ) = r1 ( 1 ) * r2 ( 2 ) + r2 ( 1 ) * r1 ( 2 )
+add ( 2 ) = r1 ( 2 ) * r2 ( 2 )
+call gcd_iter ( add ( 1 ), add ( 2 ), gcd )
+add ( 1 ) = add ( 1 ) / gcd
+add ( 2 ) = add ( 2 ) / gcd
+end function
+function sub ( r1 , r2 )
+integer , dimension ( 2 ) :: sub , r1 , r2
+integer :: gcd
+sub ( 1 ) = r1 ( 1 ) * r2 ( 2 ) - r2 ( 1 ) * r1 ( 2 )
+sub ( 2 ) = r1 ( 2 ) * r2 ( 2 )
+call gcd_iter ( sub ( 1 ), sub ( 2 ), gcd )
+sub ( 1 ) = sub ( 1 ) / gcd
+sub ( 2 ) = sub ( 2 ) / gcd
+end function
+function mul ( r1 , r2 )
+integer , dimension ( 2 ) :: mul , r1 , r2
+integer :: gcd
+mul ( 1 ) = r1 ( 1 ) * r2 ( 1 )
+mul ( 2 ) = r1 ( 2 ) * r2 ( 2 )
+call gcd_iter ( mul ( 1 ), mul ( 2 ), gcd )
+mul ( 1 ) = mul ( 1 ) / gcd
+mul ( 2 ) = mul ( 2 ) / gcd
+end function
+function div ( r1 , r2 )
+integer , dimension ( 2 ) :: div , r1 , r2 , r2_inv
+r2_inv = cshift ( r2 , shift = 1 )
+if ( r2_inv ( 2 ) < 0 ) r2_inv = - r2_inv
+div = mul ( r1 , r2_inv )
+end function
+function rational_abs ( r1 )
+integer , dimension ( 2 ) :: rational_abs , r1
+rational_abs = abs ( r1 )
+end function
+function rational_to_pow ( r1 , ex )
+integer , dimension ( 2 ) :: rational_to_pow , r1
+integer :: ex
+if ( ex >= 0 ) then
+rational_to_pow = r1 ** ex
+else
+rational_to_pow = 1 / ( r1 ** ex )
+end if
+end function
+function real_to_rational_pow ( ex , r1 )
+integer , dimension ( 2 ) :: r1
+real , dimension ( 2 ) :: r1_real
+real :: real_to_rational_pow , ex
+r1_real = r1
+real_to_rational_pow = ex ** ( r1_real ( 1 ) / r1_real ( 2 ))
+end function
+function reduce ( r1 )
+integer , dimension ( 2 ) :: reduce , r1
+integer , dimension ( 2 ) :: r1_copy
+integer :: gcd
+if ( r1 ( 1 ) >= 0 .and. r1 ( 2 ) < 0 ) then
+r1_copy = - r1
+else
+r1_copy = r1
+end if
+call gcd_iter ( r1_copy ( 1 ), r1_copy ( 2 ), gcd )
+reduce = r1_copy / gcd
+end function
+end module

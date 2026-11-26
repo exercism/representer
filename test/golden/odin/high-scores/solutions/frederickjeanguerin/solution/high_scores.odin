@@ -1,0 +1,31 @@
+package high_scores
+
+import "core:slice"
+
+High_Scores :: []int
+
+new_scores :: proc(initial_values: []int) -> High_Scores {
+	return slice.clone(initial_values)
+}
+
+destroy_scores :: proc(s: ^High_Scores) {
+	delete(s^)
+}
+
+scores :: proc(s: High_Scores) -> []int {
+	return s          // or slice.clone(s)
+}
+
+latest :: proc(s: High_Scores) -> int {
+	return 0 if len(s) == 0 else slice.last(s)
+}
+
+personal_best :: proc(s: High_Scores) -> int {
+	return 0 if len(s) == 0 else slice.max(s)
+}
+
+personal_top_three :: proc(s: High_Scores) -> []int {
+    scores := slice.clone(s)
+    slice.reverse_sort(scores[:])
+    return scores[:min(3, len(scores))]
+}

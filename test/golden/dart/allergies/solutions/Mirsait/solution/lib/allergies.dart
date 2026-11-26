@@ -1,0 +1,22 @@
+class Allergies {
+  List<String> _products = [
+    'eggs',
+    'peanuts',
+    'shellfish',
+    'strawberries',
+    'tomatoes',
+    'chocolate',
+    'pollen',
+    'cats',
+  ];
+
+  bool allergicTo(String product, int score) {
+    int a = 1 << _products.indexOf(product);
+    return a & score == a;
+  }
+
+  List<String> list(int score) {
+    List<String> allergies = _products.where((element) => allergicTo(element, score)).toList();
+    return allergies;
+  }
+}

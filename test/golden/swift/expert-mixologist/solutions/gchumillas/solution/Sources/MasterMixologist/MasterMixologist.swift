@@ -1,0 +1,79 @@
+func timeToPrepare(drinks: [String]) -> Double {
+  var time = 0.0
+  for drink in drinks {
+    switch drink {
+    case "beer", "soda", "water":
+      time += 0.5
+    case "shot":
+      time += 1.0
+    case "mixed drink":
+      time += 1.5
+    case "fancy drink":
+      time += 2.5
+    case "frozen drink":
+      time += 3.0
+    default:
+      continue
+    }
+  }
+  return time
+}
+
+func makeWedges(needed: Int, limes: [String]) -> Int {
+  var numLimes = 0
+  var numWedges = 0
+  for lime in limes {
+    if numWedges >= needed {
+      return numLimes
+    }
+    numLimes += 1
+
+    switch lime {
+    case "small":
+      numWedges += 6
+    case "medium":
+      numWedges += 8
+    case "large":
+      numWedges += 10
+    default:
+      continue
+    }
+  }
+  return numLimes
+}
+
+func finishShift(minutesLeft: Int, remainingOrders: [[String]]) -> [[String]] {
+  var orders = remainingOrders
+  var time = 0.0
+  repeat {
+    let order = orders.removeFirst()
+    time += timeToPrepare(drinks: order)
+  } while !orders.isEmpty && time <= Double(minutesLeft)
+  return orders
+}
+
+func orderTracker(orders: [(drink: String, time: String)]) -> (
+  beer: (first: String, last: String, total: Int)?, soda: (first: String, last: String, total: Int)?
+) {
+  var beer: (first: String, last: String, total: Int)? = nil
+  var soda: (first: String, last: String, total: Int)? = nil
+  for order in orders {
+    switch order.drink {
+    case "beer":
+      if beer == nil {
+        beer = (first: order.time, last: order.time, total: 0)
+      }
+      beer?.last = order.time
+      beer?.total += 1
+    case "soda":
+      if soda == nil {
+        soda = (first: order.time, last: order.time, total: 0)
+      }
+      soda?.last = order.time
+      soda?.total += 1
+    default:
+      continue
+    }
+  }
+  return (beer: beer, soda: soda)
+}

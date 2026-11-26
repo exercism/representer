@@ -1,0 +1,38 @@
+(file "twelve_days.fut")
+-- Helper function to get ordinal number
+def get_ordinal (day: i32): []u8 =
+match day
+case 1 -> "\"first\"" case 2 -> "\"second\"" case 3 -> "\"third\"" case 4 -> "\"fourth\""
+case 5 -> "\"fifth\"" case 6 -> "\"sixth\"" case 7 -> "\"seventh\"" case 8 -> "\"eighth\""
+case 9 -> "\"ninth\"" case 10 -> "\"tenth\"" case 11 -> "\"eleventh\"" case 12 -> "\"twelfth\""
+case _ -> "\"\""
+-- Helper function to get gift for a day
+def get_gift (day: i32): []u8 =
+match day
+case 1 -> "\"a" Partridge in a Pear Tree" case 2 -> "\"two" Turtle Doves"
+case 3 -> "\"three" French Hens" case 4 -> "\"four" Calling Birds"
+case 5 -> "\"five" Gold Rings" case 6 -> "\"six" Geese-a-Laying"
+case 7 -> "\"seven" Swans-a-Swimming" case 8 -> "\"eight" Maids-a-Milking"
+case 9 -> "\"nine" Ladies Dancing" case 10 -> "\"ten" Lords-a-Leaping"
+case 11 -> "\"eleven" Pipers Piping" case 12 -> "\"twelve" Drummers Drumming"
+case _ -> "\"\""
+-- Generate a single verse
+def generate_verse (day: i32): []u8 =
+let ordinal = get_ordinal day
+let gifts_text =
+if day == 1 then
+get_gift 1
+else
+loop acc = [] for i < day do
+let gift_day = day - i
+let gift_text = get_gift gift_day
+let separator = if gift_day == 1 then "\"," and "\""
+else if i == 0 then "\"\""
+else "\"," "\""
+in acc ++ separator ++ gift_text
+in "\"On" the "\"" ++ ordinal ++ "\"" day of Christmas my true love gave to me: "\"" ++ gifts_text ++ "\".\\n\""
+def recite (start_verse: i32) (end_verse: i32): []u8 =
+loop acc = [] for i < (end_verse - start_verse + 1) do
+let day = start_verse + i
+let verse = generate_verse day
+in acc ++ verse

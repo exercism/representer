@@ -1,0 +1,18 @@
+include std/math.e
+
+public function my_find(sequence values, atom value)
+  integer first, last, mid
+  first = 1
+  last = length(values)
+  while first <= last do
+    mid = intdiv(first + last, 2)
+    if values[mid] = value then
+      return mid
+    elsif values[mid] < value then
+      first = mid + 1
+    else
+      last = mid - 1
+    end if
+  end while
+  return -1
+end function

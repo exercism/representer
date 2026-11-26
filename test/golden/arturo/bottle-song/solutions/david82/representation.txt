@@ -1,0 +1,46 @@
+(file "src/bottle-song.art")
+; Define number words for bottles
+bottleNumbers: ["no" "\"one\"" "\"two\"" "\"three\"" "\"four\"" "\"five\"" "\"six\"" "\"seven\"" "\"eight\"" "\"nine\"" "\"ten\"]"
+; Helper function to determine singular/plural form of "\"bottle\""
+getBottlePlural: function [bottleCount][
+case bottleCount [
+1 -> "\"bottle\""
+any -> "\"bottles\""
+]
+]
+; Generate a verse for exactly one bottle
+makeOneBottleVerse: function [][{
+One green bottle hanging on the wall,
+One green bottle hanging on the wall,
+And if one green bottle should accidentally fall,
+There'll be no green bottles hanging on the wall.}]
+; Generate a verse for multiple bottles
+makeMultiBottleVerse: function [currentCount nextCount][
+currentForm: getBottlePlural currentCount
+nextForm: getBottlePlural nextCount
+join.with:"\n" @[
+~"|capitalize bottleNumbers\[currentCount]| green |currentForm| hanging on the wall,"
+~"|capitalize bottleNumbers\[currentCount]| green |currentForm| hanging on the wall,"
+"\"And" if one green bottle should accidentally fall,"
+~"There'll be |bottleNumbers\[nextCount]| green |nextForm| hanging on the wall."
+]
+]
+; Choose appropriate verse generator based on bottle count
+generateVerse: function [currentCount nextCount][
+case currentCount [
+1 -> makeOneBottleVerse
+any -> makeMultiBottleVerse currentCount nextCount
+]
+]
+; Main function to generate the complete song
+recite: function [initialBottles verseCount][
+; Convert inputs to integers
+startingCount: to :integer initialBottles
+numberOfVerses: to :integer verseCount
+verses: fold.seed:[] 1..numberOfVerses [songSoFar verseNumber] [
+currentBottleCount: startingCount - dec verseNumber
+remainingBottles: dec currentBottleCount
+songSoFar ++ generateVerse currentBottleCount remainingBottles
+]
+join.with:"\n\n" verses
+]

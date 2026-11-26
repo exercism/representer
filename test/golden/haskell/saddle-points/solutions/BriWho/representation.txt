@@ -1,0 +1,30 @@
+(file "package.yaml")
+name : saddle - points
+version : 1.5 . 0.8
+dependencies :
+  - array
+  - base
+library :
+  exposed - modules : Matrix
+  source - dirs : src
+  ghc - options : - Wall
+  # dependencies :
+  # - foo # List here the packages you
+  # - bar # want to use in your solution .
+tests :
+  test :
+    main : Tests . hs
+    source - dirs : test
+    dependencies :
+      - saddle - points
+      - hspec
+(file "src/Matrix.hs")
+module Matrix ( saddlePoints ) where
+import Data.Array ( Array , bounds , ( ! ))
+saddlePoints :: Array ( Int , Int ) Int -> [( Int , Int )]
+saddlePoints matrix = [ ( i , j ) | i <- [ minX .. maxX ] , j <- [ minY .. maxY ]
+  , matrix ! ( i , j ) == maxRow i , matrix ! ( i , j ) == minCol j ]
+  where
+    (( minX , minY ) , ( maxX , maxY )) = bounds matrix
+    maxRow a = maximum [ matrix ! ( a , i ) | i <- [ minY .. maxY ]]
+    minCol b = minimum [ matrix ! ( i , b ) | i <- [ minX .. maxX ]]

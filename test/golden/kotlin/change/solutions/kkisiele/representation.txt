@@ -1,0 +1,21 @@
+(file "src/main/kotlin/ChangeCalculator.kt")
+class ChangeCalculator ( private val coins : List < Int >) {
+fun computeMostEfficientChange ( grandTotal : Int ): List < Int > {
+require ( grandTotal >= 0 ) { "\"Negative totals are not allowed.\"" }
+val resultCoins = fewestCoins ( grandTotal )
+if ( grandTotal > 0 ) require ( resultCoins . isNotEmpty ()) { "\"The total $grandTotal cannot be represented in the given currency.\"" }
+return resultCoins
+}
+private val cache : MutableMap < Int , List < Int >> = mutableMapOf ()
+private fun fewestCoins ( grandTotal : Int ): List < Int > {
+if (! cache . containsKey ( grandTotal )) {
+cache [ grandTotal ] = computeFewestCoins ( grandTotal )
+}
+return cache . getValue ( grandTotal )
+}
+private fun computeFewestCoins ( grandTotal : Int ): List < Int > =
+coins . filter { it <= grandTotal }
+. map { fewestCoins ( grandTotal - it ) + it }
+. filter { it . sum () == grandTotal }
+. minByOrNull { it . size } ?: emptyList ()
+}

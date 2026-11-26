@@ -1,0 +1,63 @@
+open Base
+
+let run_length_at start str =
+  let length = String.length str in
+  if start >= length then None
+  else
+    let ch = str.[start] in
+    let rec count n acc =
+      if n < length && Char.(str.[n] = ch) then count (n + 1) (acc + 1)
+      else acc
+    in
+    Some (count (start + 1) 1, ch)
+
+let run_lengths str =
+  let rec aux n acc =
+    match run_length_at n str with
+    | None -> List.rev acc
+    | Some ((count, ch) as chunk) -> aux (n + count) (chunk :: acc)
+  in
+  aux 0 []
+
+let encode str =
+  run_lengths str
+  |> List.map ~f:(fun (count, ch) ->
+      match count with
+      | 1 -> String.of_char ch
+      | n -> Printf.sprintf "%d%c" count ch)
+  |> String.concat
+
+let take_while str start ~f =
+  let length = String.length str in
+  let rec aux n acc =
+    if n < length then
+      let ch = str.[n] in
+      if f ch then aux (n + 1) (ch :: acc)
+      else acc
+    else acc
+  in
+  aux start [] |> List.rev |> String.of_char_list
+
+let run_at_encoded str start =
+  let digits_to_run_length digits =
+    if String.is_empty digits then 1
+    else Int.of_string digits
+  in
+  let str_len = String.length str in
+  if str_len = 0 then None
+  else
+    let digits = take_while str start ~f:Char.is_digit in
+    let ch_pos = (String.length digits) + start in
+    if ch_pos < str_len then
+      let run_length = digits_to_run_length digits in
+      let ch = str.[ch_pos] in
+      Some (String.make run_length ch, ch_pos + 1)
+    else None
+
+let decode str =
+  let rec aux n acc =
+    match run_at_encoded str n with
+    | None -> List.rev acc
+    | Some (run, next_pos) -> aux next_pos (run :: acc)
+  in
+  aux 0 [] |> String.concat

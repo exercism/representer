@@ -1,0 +1,17 @@
+-module(difference_of_squares).
+
+-export([difference_of_squares/1, square_of_sum/1, sum_of_squares/1]).
+
+
+difference_of_squares(Number) ->
+    square_of_sum(Number) - sum_of_squares(Number).
+
+square_of_sum(Number) -> square_of_sum(Number, 0).
+square_of_sum(0, Acc) -> Acc * Acc;
+square_of_sum(Number, Acc) ->
+    square_of_sum(Number - 1, Acc + Number).
+
+sum_of_squares(Number) -> sum_of_squares(Number, 0).
+sum_of_squares(0, Acc) -> Acc;
+sum_of_squares(Number, Acc) ->
+    sum_of_squares(Number - 1, Acc + Number * Number).

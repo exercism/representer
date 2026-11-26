@@ -1,0 +1,7 @@
+#lang racket
+
+(provide isogram?)
+
+(define (isogram? s)
+  (not (check-duplicates
+         (filter char-alphabetic? (string->list (string-upcase s))))))

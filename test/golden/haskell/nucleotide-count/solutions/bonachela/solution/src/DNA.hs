@@ -1,0 +1,20 @@
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import Data.Map (Map)
+import qualified Data.Map as Map
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
+
+valid :: [Char]
+valid = ['A', 'C', 'G', 'T']
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Integer)
+nucleotideCounts xs
+    | not $ all (`elem` valid) xs = Left "shouldSatisfy"
+    | otherwise                   = Right (getMap xs)
+
+getMap :: String -> Map Nucleotide Integer
+getMap input = Map.fromList [ (A, getCount input 'A'), (C, getCount input 'C'), (G, getCount input 'G'), (T, getCount input 'T') ]
+
+getCount :: String -> Char -> Integer
+getCount line key = fromIntegral $ length $ filter (== key) line

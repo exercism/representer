@@ -1,0 +1,15 @@
+module Hamming (distance) where
+
+import Prelude
+
+import Data.Array (filter, length, zipWith)
+import Data.Maybe (Maybe(..))
+import Data.String (toCodePointArray)
+
+distance :: String -> String -> Maybe Int
+distance xs ys =
+  if length x /= length y
+  then Nothing
+  else Just <<< length <<< filter not $ zipWith (==) x y
+  where x = toCodePointArray xs
+        y = toCodePointArray ys

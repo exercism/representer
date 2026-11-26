@@ -1,0 +1,54 @@
+!yamlscript/v0
+
+defn append(list1 list2):
+  # Combine two lists into one
+  into list1: list2
+
+defn concat(lists):
+  # Flatten a list of lists into a single list
+  reduce _ [] lists: into
+
+defn filter(list function):
+  # Keep only elements that satisfy the predicate function
+  loop [result [] remaining list]:
+    cond:
+      empty?(remaining): result
+      function(first(remaining)): 
+        recur(conj(result first(remaining)) rest(remaining))
+      else:
+        recur(result rest(remaining))
+
+defn length(list):
+  # Count number of elements in list
+  loop [count 0 remaining list]:
+    if empty?(remaining):
+      count
+      recur(inc(count) rest(remaining))
+
+defn map(list function):
+  # Apply function to each element
+  loop [result [] remaining list]:
+    if empty?(remaining):
+      result
+      recur(conj(result function(first(remaining))) rest(remaining))
+
+defn foldl(list initial function):
+  # Fold from left to right
+  loop [acc initial remaining list]:
+    if empty?(remaining):
+      acc
+      recur(function(acc first(remaining)) rest(remaining))
+
+defn foldr(list initial function):
+  # Fold from right to left by first reversing the list
+  loop [acc initial remaining (reverse list)]:
+    if empty?(remaining):
+      acc
+      recur(function(acc first(remaining)) rest(remaining))
+
+defn reverse(list):
+  # Reverse order of elements
+  loop [result [] remaining list]:
+    if empty?(remaining):
+      result
+      recur(cons(first(remaining) result) rest(remaining))

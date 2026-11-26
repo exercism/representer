@@ -1,0 +1,12 @@
+class Anagram {
+	
+    def subject
+
+    Anagram(subject){
+	this.subject = subject.toLowerCase()
+    }
+
+    def find(candidates) {
+	candidates.findAll{ it.toLowerCase() != subject.toLowerCase() && it.toLowerCase().toList().sort() == subject.toLowerCase().toList().sort()}
+    }
+}

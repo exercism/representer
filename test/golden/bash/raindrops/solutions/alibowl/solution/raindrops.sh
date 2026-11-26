@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+main () {
+  num=$1
+
+	if (($num%3 == 0)); then
+		output="Pling"
+	fi
+	if (($num%5 == 0)); then
+		output+="Plang"
+	fi
+	if (( $num%7 == 0 )); then
+		output+="Plong"
+	fi
+	if [[ $output == "" ]]; then
+		echo $1
+  else
+    echo "${output}"
+	fi
+}
+
+  main "$1"

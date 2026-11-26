@@ -1,0 +1,20 @@
+module main
+
+import math { sqrti }
+
+fn prime_factors(n i64) []i64 {
+    mut cur := n
+    mut ans := []i64{}
+    for i := 2; i <= sqrti(n); {
+        if cur % i == 0 {
+            cur /= i
+            ans << i
+        } else {
+            i += 1
+        }
+    }
+    if cur != 1 {
+        ans << cur
+    }
+    return ans
+}

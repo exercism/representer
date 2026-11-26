@@ -1,0 +1,19 @@
+USING: kernel sequences ;
+FROM: sequences.deep => flatten ;
+IN: mosaic-making
+
+: tile-strip ( colour -- strip )
+    '{ _ } ;
+
+: row-of-three ( a b c -- row )
+    '{ _ _ _ } ;
+
+ALIAS: combine-rows flatten
+
+ALIAS: mirror-row reverse
+
+: tile-position ( row colour -- index )
+    swap index ;
+
+: has-colour? ( row colour -- ? )
+    swap member? ;

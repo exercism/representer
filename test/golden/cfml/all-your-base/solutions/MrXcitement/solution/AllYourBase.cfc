@@ -1,0 +1,50 @@
+/**
+* Your implementation of the All Your Base exercise
+*/
+component {
+
+	function isValidDigits(inputBase, digits) {
+		result = true;
+		for ( var digit in digits ) {
+			if ((digit < 0) || (digit >= inputBase)) {
+				result = false;
+				break;
+			}
+		}
+		return result;
+	}
+
+	function toBase10Value(inputBase, digits) {
+		// Convert inputBase array of digits to a base 10 value
+		result = 0;
+		exp = 0;
+		for ( var idx = arrayLen( digits ); idx >= 1; idx-- ) {
+			digit = digits[idx]
+			result += digits[idx] * (inputBase ^ exp);
+			exp += 1;
+		}
+		return result;
+	}
+
+	function toBaseNDigits(outputBase, base10value) {
+		result = [];
+		div = base10value \ outputBase;
+		rem = base10value % outputBase;
+		while ( div > 0 ) {
+			arrayPrepend(result, rem);
+			value = div;
+			div = value \ outputBase;
+			rem = value % outputBase;
+		}
+		arrayPrepend(result, rem);
+		return result;
+	}
+
+	function rebase(inputBase, digits, outputBase) {
+		if ((inputBase < 2) || (outputBase < 2))  return -1;
+		if (! isValidDigits(inputBase, digits)) return -1;
+
+		return toBaseNDigits(outputBase, toBase10Value(inputBase, digits));
+	}
+
+}

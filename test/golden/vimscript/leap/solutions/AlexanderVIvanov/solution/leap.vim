@@ -1,0 +1,18 @@
+"
+" This function takes a year and returns 1 if it's a leap year
+" and 0 otherwise.
+"
+
+function! LeapYear(year) abort
+
+  if !(a:year % 4) && a:year % 100 || ! (a:year % 400)
+        
+        return 1
+
+   else
+
+        return 0
+
+   endif
+
+endfunction

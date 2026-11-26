@@ -1,0 +1,12 @@
+(import (rnrs))
+
+(define nucleotides
+  '((#\G . #\C)
+    (#\C . #\G)
+    (#\T . #\A)
+    (#\A . #\U)))
+
+(define (dna->rna dna)
+  (string-map
+   (lambda (c) (assq-ref nucleotides c))
+   dna))

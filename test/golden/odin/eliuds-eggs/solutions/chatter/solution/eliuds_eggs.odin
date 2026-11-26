@@ -1,0 +1,7 @@
+package eliuds_eggs
+
+egg_count :: proc(number: uint) -> uint {
+    count := uint(0)
+    for n := number; n != 0; count += 1 do n &= n - 1
+    return count
+}

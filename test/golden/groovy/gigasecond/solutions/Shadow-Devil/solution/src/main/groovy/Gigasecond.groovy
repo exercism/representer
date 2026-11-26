@@ -1,0 +1,15 @@
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.temporal.TemporalAmount
+
+public class Gigasecond {
+
+    private static final Duration gigasecond = Duration.ofSeconds(1_000_000_000)
+    static LocalDateTime add(moment){
+        if (moment instanceof LocalDate){
+            moment = moment.atStartOfDay()
+        }
+        moment + gigasecond
+    }
+}

@@ -1,0 +1,41 @@
+Class {
+	#name : #RomanNumerals,
+	#superclass : #Object,
+	#classVars : [
+		'Mapping'
+	],
+	#category : #'Exercise@RomanNumerals'
+}
+
+{ #category : #converting }
+RomanNumerals class >> numberMappings [
+
+	Mapping ifNil: [ 
+		Mapping := { 
+			           (1000 -> 'M').
+			           (900 -> 'CM').
+			           (500 -> 'D').
+			           (400 -> 'CD').
+			           (100 -> 'C').
+			           (90 -> 'XC').
+			           (50 -> 'L').
+			           (40 -> 'XL').
+			           (10 -> 'X').
+			           (9 -> 'IX').
+			           (5 -> 'V').
+			           (4 -> 'IV').
+			           (1 -> 'I') } asOrderedDictionary ].
+	^ Mapping
+]
+
+{ #category : #converting }
+RomanNumerals >> romanNumber: anInteger [
+
+	| remainder |
+	remainder := anInteger.
+	^ String streamContents: [ :aStream | 
+		  self class numberMappings keysAndValuesDo: [ :n :roman | 
+			  [ remainder >= n ] whileTrue: [ 
+				  aStream nextPutAll: roman.
+				  remainder := remainder - n ] ] ]
+]

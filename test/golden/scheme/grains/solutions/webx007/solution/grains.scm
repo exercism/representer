@@ -1,0 +1,17 @@
+(import (rnrs))
+
+(define (square n)
+  (if (< 0 n 65)
+      (expt 2 (1- n))
+      (error 'square "Position outside range")))
+
+(define (total)
+  (do ((p 0 (1+ p))
+       (c 0))
+      ((= p 64)
+           c)
+    (set! c (+ c (expt 2 p)))))
+
+
+
+

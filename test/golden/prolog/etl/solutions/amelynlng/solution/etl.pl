@@ -1,0 +1,8 @@
+transform([], []).
+transform([N-Lets | T], LetterScores) :-
+    transform(T, RestMap),
+    maplist(downcase_atom, Lets, LLets),
+    maplist(attach(N), LLets, NewMap),
+    append(NewMap, RestMap, Map),
+    sort(Map, LetterScores).
+attach(N, X, O) :- O = X-N.

@@ -1,0 +1,22 @@
+(file "impl.mips")
+# Return the decimal equivalent of the given octal string (ie "\"1234567\"" -> 242391).
+.globl octal_convert
+# $a0 - argument for input string, as starting address
+# $v0 - result, as integer representing the decimal value
+# $t0 - holds the current char's index / points value
+# $t1 - flag to check for input validity
+.text
+octal_convert:
+li $v0, 0 # initialize the value accumulator
+next:
+lb $t0, 0($a0) # load the next char
+beq $t0, $zero, end # if it is NULL, go to end
+subi $t0, $t0, '0' # set "\"0\"-\"7\"" to 0-7
+slti $t1, $t0, 8 # sets the flag to 1 for valid, 0 for invalid
+mul $t0, $t0, $t1 # sets invalid inputs to 0
+sll $v0, $v0, 3 # shift the accumulator left by 3 (ie multiply by 8)
+add $v0, $v0, $t0 # and add the points to the accumulator
+addi $a0, $a0, 1 # increment the address
+j next
+end:
+jr $ra

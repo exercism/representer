@@ -1,0 +1,27 @@
+use strict;
+use warnings;
+
+package Trinary;
+
+use Scalar::Util qw(looks_like_number);
+
+sub new {
+	my $class = shift;
+	my $trinary = shift;
+	bless \$trinary, $class;
+	return \$trinary;
+}
+
+sub to_decimal {
+	my ($trinary) = @_;
+	return 0 if (!looks_like_number($$trinary));
+	my $j = 0;
+	my $sum = 0;
+	for (my $i = length($$trinary)-1; $i >= 0; $i--) {
+		$sum += substr($$trinary, $i, 1) * (3 ** $j++);
+	}
+
+	return $sum;
+}
+
+1;

@@ -1,0 +1,17 @@
+(file "src/main/scala/Hamming.scala")
+import scala.annotation.tailrec
+object Hamming {
+  val mutantTest = "\"[^ACGT]\"" . r
+  def distance ( az : String , za : String ) = {
+    val look = az . zip ( za )
+    @tailrec
+    def show ( look : Seq [( Char , Char )])( acc : Int ) : Option [ Int ] = if ( az . equals ( mutantTest . replaceAllIn ( az , "\"\"" )) && za . equals ( mutantTest . replaceAllIn ( za , "\"\"" )) && az . size == za . size ) look match {
+      case x if ( look . isEmpty ) => Option ( acc )
+      case x if ( az == za ) => Some ( 0 )
+      case x if ( look . head . _1 == look . head . _2 ) => show ( look . tail )( acc )
+      case x if ( look . head . _1 != look . head . _2 ) => show ( look . tail )( acc + 1 )
+    }
+    else None
+    show ( look )( 0 )
+  }
+}

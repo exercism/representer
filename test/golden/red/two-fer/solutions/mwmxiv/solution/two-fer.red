@@ -1,0 +1,7 @@
+Red [
+	description: {"Two-fer" exercise solution for exercism platform}
+	author: "Wmxiw" ; =) you can't write your name here, in quotes
+]
+
+two-fer: function [name [string! none!]] [
+	rejoin ["One for " any [name 'you] ", one for me."]]

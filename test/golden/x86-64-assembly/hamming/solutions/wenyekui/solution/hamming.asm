@@ -1,0 +1,28 @@
+section .text
+global distance
+distance:
+    ; Provide your implementation here
+	xor rcx, rcx
+begin:
+    mov dl, [rdi]
+    mov dh, [rsi] 
+    cmp dl, dh
+    je checkEnd
+    cmp dl, 0
+    je  markError
+    cmp dh, 0
+    je  markError
+    inc rcx
+    jmp next
+checkEnd: 
+    cmp dl, 0
+    je end
+next:
+    inc rdi
+    inc rsi
+    jmp begin
+markError:
+    mov rcx, -1
+end: 
+	mov rax, rcx
+    ret

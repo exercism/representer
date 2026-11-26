@@ -1,0 +1,4 @@
+{
+  transform: (legacy) ->
+    { p\lower!, tonumber(i) for i, cs in pairs(legacy) for p in *cs }
+}

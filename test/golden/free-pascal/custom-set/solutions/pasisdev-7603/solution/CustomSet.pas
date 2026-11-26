@@ -1,0 +1,205 @@
+unit CustomSet;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+type
+  TIntArray = Array Of Integer;
+
+function empty(const ASet : TIntArray) : boolean;
+function contains(const ASet : TIntArray; const element : integer) : boolean;
+function subset(const ASetOne, ASetTwo : TIntArray) : boolean;
+function disjoint(const ASetOne, ASetTwo : TIntArray) : boolean;
+function equal(const ASetOne, ASetTwo : TIntArray) : boolean;
+function add(const ASet : TIntArray; const element : integer) : TIntArray;
+function intersection(const ASetOne, ASetTwo: TIntArray) : TIntArray;
+function difference(const ASetOne, ASetTwo: TIntArray) : TIntArray;
+function union(const ASetOne, ASetTwo : TIntArray) : TIntArray;
+
+implementation
+
+uses SysUtils;
+
+function empty(const ASet : TIntArray) : boolean;
+begin
+  result := false;
+  if length(ASet) = 0 then
+    result := true;
+end;
+
+function contains(const ASet : TIntArray; const element : integer) : boolean;
+var
+  i : integer;
+begin
+  result := false;
+  for i := low(ASet) to high(ASet) do
+  begin
+    if ASet[i] = element then
+    begin
+      result := true;
+      exit
+    end;
+  end;
+end;
+
+function subset(const ASetOne, ASetTwo : TIntArray) : boolean;
+var
+  i,j : integer;
+  element : boolean;
+begin
+  result := true;
+
+  for i := low(ASetOne) to high(ASetOne) do
+  begin
+    element := false;
+  
+    for j := low(ASetTwo) to high(ASetTwo) do
+    begin
+      if ASetOne[i] = ASetTwo[j] then
+      begin
+        element := true;
+        break;
+      end;
+    end;
+
+    if element = FALSE then
+    begin
+      result := false;
+      exit;
+    end;
+  end;
+end;
+
+function disjoint(const ASetOne, ASetTwo : TIntArray) : boolean;
+var
+  i,j : integer;
+begin
+  result := true;
+  if (length(ASetOne) = 0) or (length(ASetTwo) = 0) then
+    exit;
+    
+  for i := low(ASetOne) to high(ASetTwo) do
+  begin
+    for j := low(ASetTwo) to high(ASetTwo) do
+    begin
+      if ASetTwo[j] = ASetOne[i] then
+      begin
+        result := false;
+        exit;
+      end;
+    end;
+  end;
+end;
+
+function equal(const ASetOne, ASetTwo : TIntArray) : boolean;
+begin
+  result := false;
+  if subset(ASetOne,ASetTwo) and subset(ASetTwo,ASetOne) then
+    result := true;
+end;
+
+function add(const ASet : TIntArray; const element : integer) : TIntArray;
+var
+  i,j : integer;
+begin
+  result := ASet;
+  for i := low(ASet) to High(ASet) do
+  begin
+    if Aset[i] = element then
+    begin
+      exit;
+    end;
+  end;
+  setlength(result,length(result)+1);
+  result[high(result)] := element;
+  for i := low(result) to high(result) - 1 do
+  begin
+    j := result[i];
+    if (result[i + 1]) < j then
+    begin
+      result[i] := result[i + 1];
+      result[i + 1] := j
+    end;
+  end;
+end;
+
+function intersection(const ASetOne, ASetTwo: TIntArray) : TIntArray;
+var
+  i,j : integer;
+begin
+  result := nil;
+  for i := low(ASetOne) to High(ASetOne) do
+  begin
+    for j := low(ASetTwo) to high(ASetTwo) do
+    begin
+      if ASetOne[i] = ASetTwo[j] then
+      begin
+        setlength(result,length(result)+1);
+        result[high(result)] := ASetOne[i] 
+      end;
+    end;
+  end;
+end;
+
+function difference(const ASetOne, ASetTwo: TIntArray) : TIntArray;
+var
+  i,j : integer;
+  inSet : boolean;
+begin
+  result := nil;
+  for i := low(ASetOne) to High(ASetOne) do
+  begin
+    inset := false;
+    for j := low(ASetTwo) to high(ASetTwo) do
+    begin
+      if ASetOne[i] = ASetTwo[j] then
+        inSet := true;
+    end;
+    if inSet = false then
+    begin
+      setlength(result,length(result) + 1);
+      result[high(result)] := ASetOne[i];
+    end;
+  end;
+  for i := low(result) to high(result) - 1 do
+  begin
+    j := result[i];
+    if (result[i + 1]) < j then
+    begin
+      result[i] := result[i + 1];
+      result[i + 1] := j
+    end;
+  end;
+end;
+
+function union(const ASetOne, ASetTwo : TIntArray) : TIntArray;
+var
+  i,j : integer;
+  arr : TIntArray; 
+begin
+  result := intersection(ASetOne,ASetTwo);
+  arr := difference(ASetOne,ASetTwo);
+  setlength(result,length(result) + length(Arr));
+  for i := low(arr) to high(arr) do
+  begin
+    result[length(result) - length(arr) + i] := arr[i]; 
+  end;
+  arr := difference(ASetTwo,ASetOne);
+  setlength(result,length(result) + length(Arr));
+  for i := low(arr) to high(arr) do
+  begin
+    result[length(result) - length(arr) + i] := arr[i]; 
+  end;
+  for i := low(result) to high(result) - 1 do
+  begin
+    j := result[i];
+    if (result[i + 1]) < j then
+    begin
+      result[i] := result[i + 1];
+      result[i + 1] := j
+    end;
+  end;
+end;
+
+end.

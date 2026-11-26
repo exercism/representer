@@ -1,0 +1,62 @@
+(file "custom-set.jl")
+struct CustomSet { T } <: Base . AbstractSet { T }
+elements :: Base . Set { T }
+function CustomSet { T }( elems :: Vector { T }) where T
+new ( Base . Set ( elems ))
+end
+end
+CustomSet ( elems :: Vector { T }) where T = CustomSet { T }( elems )
+CustomSet { T }() where T = CustomSet { T }( T [])
+CustomSet () = CustomSet { Any }()
+import Base : in , isempty , issubset , length , == , copy , iterate , push! , union , union! , intersect , intersect!
+isempty ( cs :: CustomSet ) = isempty ( cs . elements )
+length ( cs :: CustomSet ) = length ( cs . elements )
+function in ( x , cs :: CustomSet )
+return x in cs . elements
+end
+function issubset ( a :: CustomSet , b :: CustomSet )
+return issubset ( a . elements , b . elements )
+end
+function disjoint ( a :: CustomSet , b :: CustomSet )
+return isempty ( intersect ( a . elements , b . elements ))
+end
+function == ( a :: CustomSet , b :: CustomSet )
+return a . elements == b . elements
+end
+function push! ( cs :: CustomSet , x )
+push! ( cs . elements , x )
+return cs
+end
+function union ( cs1 :: CustomSet , cs2 :: CustomSet )
+result = copy ( cs1 )
+union! ( result , cs2 )
+return result
+end
+function union! ( cs1 :: CustomSet , cs2 :: CustomSet )
+union! ( cs1 . elements , cs2 . elements )
+return cs1
+end
+function intersect ( cs1 :: CustomSet , cs2 :: CustomSet )
+result = copy ( cs1 )
+intersect! ( result , cs2 )
+return result
+end
+function intersect! ( cs1 :: CustomSet , cs2 :: CustomSet )
+intersect! ( cs1 . elements , cs2 . elements )
+return cs1
+end
+function complement ( cs1 :: CustomSet , cs2 :: CustomSet )
+result = copy ( cs1 )
+complement! ( result , cs2 )
+return result
+end
+function complement! ( cs1 :: CustomSet , cs2 :: CustomSet )
+setdiff! ( cs1 . elements , cs2 . elements )
+return cs1
+end
+function iterate ( cs :: CustomSet , state ... )
+return iterate ( cs . elements , state ... )
+end
+function copy ( cs :: CustomSet { T }) where T
+return CustomSet { T }( collect ( cs . elements ))
+end

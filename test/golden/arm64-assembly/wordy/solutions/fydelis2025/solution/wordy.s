@@ -1,0 +1,318 @@
+.global answer
+.text
+
+pular_espacos:
+    ldrb w1, [x0]
+    cmp w1, #32
+    b.ne pular_espacos_fim
+    add x0, x0, #1
+    b pular_espacos
+pular_espacos_fim:
+    ret
+
+ler_numero:
+    stp x29, x30, [sp, #-32]!
+    str x19, [sp, #16]
+    mov x19, x0
+
+    bl pular_espacos
+    mov x2, #0           
+    mov x3, #0           
+    
+    ldrb w4, [x0]
+    cmp w4, #45          
+    b.ne ler_digitos
+    mov x3, #1
+    add x0, x0, #1       
+
+ler_digitos:
+    ldrb w4, [x0]
+    sub w4, w4, #48
+    cmp w4, #0
+    blt ler_numero_fim
+    cmp w4, #9
+    b.gt ler_numero_fim
+    
+    mov x5, #10
+    mul x2, x2, x5
+    add x2, x2, w4, uxtw #0
+    add x0, x0, #1
+    b ler_digitos
+
+ler_numero_fim:
+    cmp x3, #1
+    b.ne ler_numero_ret
+    neg x2, x2
+
+ler_numero_ret:
+    mov x1, x2        
+    ldr x19, [sp, #16]
+    ldp x29, x30, [sp], #32
+    ret
+
+answer:
+    stp x29, x30, [sp, #-48]!
+    mov x29, sp
+    stp x19, x20, [sp, #16]
+    stp x21, x22, [sp, #32]
+
+    mov x19, x0
+    mov x20, x1
+
+    ldrb w2, [x20, #0]
+    cmp w2, #87
+    b.ne erro
+    ldrb w2, [x20, #1]
+    cmp w2, #104
+    b.ne erro
+    ldrb w2, [x20, #2]
+    cmp w2, #97
+    b.ne erro
+    ldrb w2, [x20, #3]
+    cmp w2, #116
+    b.ne erro
+    ldrb w2, [x20, #4]
+    cmp w2, #32
+    b.ne erro
+    ldrb w2, [x20, #5]
+    cmp w2, #105
+    b.ne erro
+    ldrb w2, [x20, #6]
+    cmp w2, #115
+    b.ne erro
+    ldrb w2, [x20, #7]
+    cmp w2, #32
+    b.ne erro
+
+    add x20, x20, #8
+
+    mov x0, x20
+    bl ler_numero
+    mov x20, x0       
+    mov x21, x1       
+
+loop_analise:
+    mov x0, x20
+    bl pular_espacos
+    mov x20, x0
+    ldrb w2, [x20]
+    cmp w2, #0
+    b.eq sucesso
+    cmp w2, #63
+    b.eq sucesso
+
+    cmp w2, #112
+    b.eq op_mais
+    cmp w2, #109
+    b.eq verificar_m
+    cmp w2, #100
+    b.eq op_dividido
+
+    b erro
+
+verificar_m:
+    ldrb w2, [x20, #1]
+    cmp w2, #105          
+    b.eq op_menos
+    cmp w2, #117          
+    b.eq op_multiplicado
+    b erro
+
+op_mais:
+    ldrb w2, [x20, #0]
+    cmp w2, #112
+    b.ne erro
+    ldrb w2, [x20, #1]
+    cmp w2, #108
+    b.ne erro
+    ldrb w2, [x20, #2]
+    cmp w2, #117
+    b.ne erro
+    ldrb w2, [x20, #3]
+    cmp w2, #115
+    b.ne erro
+    ldrb w2, [x20, #4]
+    cmp w2, #32
+    b.ne erro
+
+    add x20, x20, #5
+
+    mov x0, x20
+    bl pular_espacos
+    mov x20, x0
+    ldrb w2, [x0]
+    cmp w2, #112
+    b.eq erro
+    cmp w2, #109
+    b.eq erro
+    cmp w2, #100
+    b.eq erro
+
+    mov x0, x20
+    bl ler_numero
+    mov x20, x0       
+    add x21, x21, x1  
+    b loop_analise
+
+op_menos:
+    ldrb w2, [x20, #0]
+    cmp w2, #109
+    b.ne erro
+    ldrb w2, [x20, #1]
+    cmp w2, #105
+    b.ne erro
+    ldrb w2, [x20, #2]
+    cmp w2, #110
+    b.ne erro
+    ldrb w2, [x20, #3]
+    cmp w2, #117
+    b.ne erro
+    ldrb w2, [x20, #4]
+    cmp w2, #115
+    b.ne erro
+    ldrb w2, [x20, #5]
+    cmp w2, #32
+    b.ne erro
+
+    add x20, x20, #6
+
+    mov x0, x20
+    bl pular_espacos
+    mov x20, x0
+    ldrb w2, [x0]
+    cmp w2, #112
+    b.eq erro
+    cmp w2, #109
+    b.eq erro
+    cmp w2, #100
+    b.eq erro
+
+    mov x0, x20
+    bl ler_numero
+    mov x20, x0       
+    sub x21, x21, x1  
+    b loop_analise
+
+op_multiplicado:
+    ldrb w2, [x20, #0]
+    cmp w2, #109
+    b.ne erro
+    ldrb w2, [x20, #1]
+    cmp w2, #117
+    b.ne erro
+    ldrb w2, [x20, #2]
+    cmp w2, #108
+    b.ne erro
+    ldrb w2, [x20, #3]
+    cmp w2, #116
+    b.ne erro
+    ldrb w2, [x20, #4]
+    cmp w2, #105
+    b.ne erro
+    ldrb w2, [x20, #5]
+    cmp w2, #112
+    b.ne erro
+    ldrb w2, [x20, #6]
+    cmp w2, #108
+    b.ne erro
+    ldrb w2, [x20, #7]
+    cmp w2, #105
+    b.ne erro
+    ldrb w2, [x20, #8]
+    cmp w2, #101
+    b.ne erro
+    ldrb w2, [x20, #9]
+    cmp w2, #100
+    b.ne erro
+    ldrb w2, [x20, #10]
+    cmp w2, #32
+    b.ne erro
+    ldrb w2, [x20, #11]
+    cmp w2, #98
+    b.ne erro
+    ldrb w2, [x20, #12]
+    cmp w2, #121
+    b.ne erro
+    ldrb w2, [x20, #13]
+    cmp w2, #32
+    b.ne erro
+
+    add x20, x20, #14
+
+    mov x0, x20
+    bl pular_espacos
+    mov x20, x0
+
+    mov x0, x20
+    bl ler_numero
+    mov x20, x0       
+    mul x21, x21, x1  
+    b loop_analise
+
+op_dividido:
+    ldrb w2, [x20, #0]
+    cmp w2, #100
+    b.ne erro
+    ldrb w2, [x20, #1]
+    cmp w2, #105
+    b.ne erro
+    ldrb w2, [x20, #2]
+    cmp w2, #118
+    b.ne erro
+    ldrb w2, [x20, #3]
+    cmp w2, #105
+    b.ne erro
+    ldrb w2, [x20, #4]
+    cmp w2, #100
+    b.ne erro
+    ldrb w2, [x20, #5]
+    cmp w2, #101
+    b.ne erro
+    ldrb w2, [x20, #6]
+    cmp w2, #100
+    b.ne erro
+    ldrb w2, [x20, #7]
+    cmp w2, #32
+    b.ne erro
+    ldrb w2, [x20, #8]
+    cmp w2, #98
+    b.ne erro
+    ldrb w2, [x20, #9]
+    cmp w2, #121
+    b.ne erro
+    ldrb w2, [x20, #10]
+    cmp w2, #32
+    b.ne erro
+
+    add x20, x20, #11
+
+    mov x0, x20
+    bl pular_espacos
+    mov x20, x0
+
+    mov x0, x20
+    bl ler_numero
+    mov x20, x0       
+    cbz x1, erro
+    sdiv x21, x21, x1 
+    b loop_analise
+
+sucesso:
+    str x21, [x19]
+    mov x0, #1
+    b fim
+
+fim:
+    str x21, [x19]        
+    mov x0, #1            
+    ldp x19, x20, [sp, #16]
+    ldp x21, x22, [sp, #32]
+    ldp x29, x30, [sp], #48
+    ret
+
+erro:
+    mov x0, #0           
+    ldp x19, x20, [sp, #16]
+    ldp x21, x22, [sp, #32]
+    ldp x29, x30, [sp], #48
+    ret

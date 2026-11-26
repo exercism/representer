@@ -1,0 +1,73 @@
+(file "meetup.v")
+module main
+import strconv
+import time
+// See: https://github.com/vlang/v/issues/17162
+fn my_add_days(t time.Time, days int) time.Time {
+mut month := t.month
+max_days := time.days_in_month(t.month, t.year) or { panic(err) }
+if t.day + days > max_days {
+month++
+}
+return time.Time{
+year: t.year
+month: month
+day: t.day + days
+}
+}
+fn date(phrase string) string {
+parts := phrase.split(' ')
+year := strconv.atoi(parts[parts.len - 1]) or { panic(err) }
+month := 1 + time.long_months.index(parts[parts.len - 2])
+mut t := time.Time{
+year: year
+month: month
+day: 1
+}
+weekday := match parts[1] {
+'monteenth' { 'Monday' }
+'tuesteenth' { 'Tuesday' }
+'wednesteenth' { 'Wednesday' }
+'thursteenth' { 'Thursday' }
+'friteenth' { 'Friday' }
+'saturteenth' { 'Saturday' }
+'sunteenth' { 'Sunday' }
+'first', 'second', 'third', 'fourth', 'last' { parts[2] }
+else { panic('unhandled ${parts[1]}') }
+}
+for t.long_weekday_str() != weekday {
+// t = t.add_days(1) // vlang bug: 2013-05-01 + 1 day = 1970-01-05 !?!?
+// See: https://github.com/vlang/v/issues/17162
+t = my_add_days(t, 1)
+}
+match parts[1] {
+'monteenth', 'tuesteenth', 'wednesteenth', 'thursteenth', 'friteenth', 'saturteenth',
+'sunteenth' {
+for t.day < 13 {
+t = my_add_days(t, 7)
+}
+}
+'first' {}
+'second' {
+t = my_add_days(t, 7)
+}
+'third' {
+t = my_add_days(t, 14)
+}
+'fourth' {
+t = my_add_days(t, 21)
+}
+'last' {
+t2 := my_add_days(t, 28)
+if t.month != t2.month {
+t = my_add_days(t, 21)
+} else {
+t = t2
+}
+}
+else {
+panic('unhandled ${parts[1]}')
+}
+}
+return '${year}/${month}/${t.day}'
+}

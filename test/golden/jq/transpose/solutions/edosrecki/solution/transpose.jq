@@ -1,0 +1,16 @@
+def trimnull:
+  if length == 0 or first != null
+    then .
+    else .[1:] | trimnull
+  end
+;
+
+def rtrimnull:
+  reverse | trimnull | reverse
+;
+
+.lines
+| map(split(""))
+| transpose
+| map(rtrimnull | map(. // " ") | add)
+

@@ -1,0 +1,55 @@
+(file "src/grains.gleam"
+  (source_file
+    (import gleam/int)
+    (type_definition pub
+      (type_name Error)
+      (data_constructors
+        (data_constructor InvalidSquare)))
+    (function pub square
+      (function_parameters
+        (function_parameter square :
+          (type Int))) ->
+      (type Result
+        (type_arguments
+          (type_argument
+            (type Int))
+          (type_argument
+            (type Error))))
+      (block
+        (case
+          (case_subjects
+            (binary_expression
+              (binary_expression 1 <= square) &&
+              (binary_expression square <= 64)))
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (record_pattern True))) ->
+              (record Ok
+                (arguments
+                  (argument
+                    (function_call
+                      (field_access int . bitwise_shift_left)
+                      (arguments
+                        (argument 1)
+                        (argument
+                          (binary_expression square - 1))))))))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (record_pattern False))) ->
+              (record Error
+                (arguments
+                  (argument
+                    (record InvalidSquare)))))))))
+    (function pub total
+      (function_parameters) ->
+      (type Int)
+      (block
+        (binary_expression
+          (function_call
+            (field_access int . bitwise_shift_left)
+            (arguments
+              (argument 1)
+              (argument 64))) - 1)))))

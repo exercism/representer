@@ -1,0 +1,18 @@
+-module(largest_series_product).
+
+-export([largest_product/2]).
+
+largest_product(_, 0) -> 1;
+largest_product(_, Span) when Span < 0 -> erlang:error(badarg);
+largest_product(String, Span) when length(String) < 0 orelse length(String) < Span -> erlang:error(badarg);
+largest_product(String, Span) ->
+  Digits = lists:map(fun to_number/1, String),
+  largest_product(Digits, Span, 0).
+
+to_number(X) when X < $0 orelse X > $9 -> erlang:error(badarg);
+to_number(X) -> X - 48.
+
+largest_product(Digits, Span, Acc) when length(Digits) < Span -> Acc;
+largest_product(Digits, Span, Acc) ->
+  Product = lists:foldl(fun(X, P) -> X * P end, 1, lists:sublist(Digits, Span)),
+  largest_product(tl(Digits), Span, max(Product, Acc)).

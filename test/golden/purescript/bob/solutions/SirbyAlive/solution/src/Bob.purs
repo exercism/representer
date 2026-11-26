@@ -1,0 +1,36 @@
+module Bob
+  ( hey
+  ) where
+
+import Prelude
+
+import Data.Array (all, filter)
+import Data.CodePoint.Unicode (isAlphaNum, isNumber)
+import Data.Either (Either(..))
+import Data.String (null, toCodePointArray, toUpper, trim)
+import Data.String.Regex (regex, test)
+import Data.String.Regex.Flags (noFlags)
+
+hey :: String -> String
+hey str
+  | isYell str && isQuestion str = "Calm down, I know what I'm doing!"
+  | isQuestion str = "Sure."
+  | isYell str = "Whoa, chill out!"
+  | isSilence str = "Fine. Be that way!"
+  | otherwise = "Whatever."
+
+isQuestion :: String -> Boolean
+isQuestion = 
+  case rx of
+    Left _ -> (\_ -> false)
+    Right rx' -> trim >>> (test rx')
+  where rx = regex "[?]$" noFlags
+
+isAllNumbers :: String -> Boolean
+isAllNumbers = toCodePointArray >>> filter isAlphaNum >>> all isNumber
+
+isYell :: String -> Boolean
+isYell str = toUpper str == str && not isAllNumbers str
+
+isSilence :: String -> Boolean
+isSilence = trim >>> null

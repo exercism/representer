@@ -1,0 +1,18 @@
+class Trinary
+  constructor: (@trinaryString)->
+
+  toDecimal: ->
+    decimal = @trinaryString.split('').reverse().map( 
+      (digit, index)->
+        "012".indexOf(digit) * Math.pow(3, index)
+    ).reduce(
+      (sum, value)->
+        sum + value
+    )
+
+    if decimal < 0
+      0
+    else
+      decimal
+
+module.exports = Trinary

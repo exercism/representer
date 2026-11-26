@@ -1,0 +1,15 @@
+package darts
+
+score :: proc(x, y: f64) -> int {
+    s : f64 = x * x + y * y
+    if s <= 1.0 {
+        return 10
+    }
+    if s <= 25.0 {
+        return 5
+    }
+    if s <= 100.0 {
+        return 1
+    }
+	return 0
+}

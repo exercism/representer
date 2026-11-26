@@ -1,0 +1,26 @@
+-module(rational_numbers).
+
+-export([absolute/1, add/2, divide/2, exp/2, mul/2, reduce/1, sub/2]).
+
+absolute({A, B}) -> reduce({abs(A), abs(B)}).
+
+add({A1, B1}, {A2, B2}) -> reduce({A1 * B2 + A2 * B1, B1 * B2}).
+
+divide({A1, B1}, {A2, B2}) -> reduce({A1 * B2, A2 * B1}).
+
+exp({A, B}, N) when is_integer(N), N >= 0 -> reduce({trunc(math:pow(A, N)), trunc(math:pow(B, N))});
+exp({A, B}, N) when is_integer(N) -> reduce({trunc(math:pow(B, -N)), trunc(math:pow(A, -N))});
+exp({A, B}, R) -> math:pow(A, R) / math:pow(B, R);
+exp(R, {A, B}) -> math:pow(math:pow(R, A), 1/B).
+
+mul({A1, B1}, {A2, B2}) -> reduce({A1 * A2, B1 * B2}).
+
+reduce({A, B}) when B < 0 -> reduce({-A, -B});
+reduce({A, B}) -> C = gcd(abs(A), abs(B)), {A div C, B div C}.
+
+sub({A1, B1}, {A2, B2}) -> reduce({A1 * B2 - A2 * B1, B1 * B2}).
+
+gcd(A, B) when B > A -> gcd(B, A);
+gcd(A, 0) -> A;
+gcd(A, B) when A rem B > 0 -> gcd(B, A rem B);
+gcd(A, B) when A rem B =:= 0 -> B.

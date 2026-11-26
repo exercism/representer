@@ -1,0 +1,12 @@
+class Trinary
+  constructor: (@value) ->
+
+  toDecimal: () ->
+    decimal = 0
+    if /^[012]+$/.test @value
+      parts = (@value.split '').reverse()
+      for part, index in parts
+        decimal += 3 ** index * part
+    decimal
+  
+module.exports = Trinary

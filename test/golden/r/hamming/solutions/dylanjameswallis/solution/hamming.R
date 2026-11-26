@@ -1,0 +1,7 @@
+# This is a stub function to take two strings
+# and calculate the hamming distance
+hamming <- function(strand1, strand2) {
+  s1 = unlist(strsplit(strand1, split = '')) 
+  s2 = unlist(strsplit(strand2, split = ''))
+  if (length(s1) == length(s2)) length(s1[s2 != s1]) else stop()
+}

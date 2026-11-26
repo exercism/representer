@@ -1,0 +1,36 @@
+(file "CircularBuffer.cfc")
+component {
+function init ( capacity ) {
+variables . buffer = ArrayNew ( 1 );
+variables . buffer.resize ( capacity );
+variables . capacity = capacity ;
+variables . start = 0 ;
+variables . end = 0 ;
+variables . count = 0 ;
+}
+function read () {
+if ( variables . count == 0 )
+throw ( message = "\"Empty buffer\"" );
+var val = variables . buffer [ start + 1 ];
+variables . start = ( variables . start + 1 ) % variables . capacity ;
+variables . count -- ;
+return val ;
+}
+function write ( value ) {
+if ( variables . count == variables . capacity )
+throw ( message = "\"Full buffer\"" );
+variables . buffer [ end + 1 ] = value ;
+variables . end = ( variables . end + 1 ) % variables . capacity ;
+variables . count ++ ;
+}
+function overwrite ( value ) {
+if ( variables . count == variables . capacity )
+read ();
+write ( value );
+}
+function clear () {
+variables . start = 0 ;
+variables . end = 0 ;
+variables . count = 0 ;
+}
+}

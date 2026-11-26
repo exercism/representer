@@ -1,0 +1,17 @@
+USING: kernel prettyprint sequences math math.order ;
+IN: signalers-satchel
+
+: quote-value ( v -- s )
+    unparse ;
+
+: flag-body ( flag -- body )
+    [ CHAR: # = ] trim ;
+
+: split-flag ( flag header-len -- header body )
+    cut ;
+
+: triangulate ( reading-a reading-b -- difference midpoint ratio )
+    [ - ] [ + 2 / ] [ / ] 2tri ;
+
+: triangle-stats ( a b c -- sum product max )
+    [ + + ] [ * * ] [ max max ] 3tri ;

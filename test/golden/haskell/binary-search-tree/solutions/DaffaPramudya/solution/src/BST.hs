@@ -1,0 +1,44 @@
+module BST
+    ( BST
+    , bstLeft
+    , bstRight
+    , bstValue
+    , empty
+    , fromList
+    , insert
+    , singleton
+    , toList
+    ) where
+
+data BST a = Leaf | Node (BST a) a (BST a)
+ deriving (Eq, Show)
+
+bstLeft :: BST a -> Maybe (BST a)
+btsLeft Leaf = Nothing
+bstLeft (Node leftTree _ _)= Just leftTree
+
+bstRight :: BST a -> Maybe (BST a)
+btsRight Leaf = Nothing
+bstRight (Node _ _ rightTree) = Just rightTree
+
+bstValue :: BST a -> Maybe a
+bstValue Leaf = Nothing
+bstValue (Node _ value _) = Just value
+
+empty :: BST a
+empty = Leaf
+
+fromList :: Ord a => [a] -> BST a
+fromList = foldl (flip insert) empty
+
+insert :: Ord a => a -> BST a -> BST a
+insert x Leaf = singleton x
+insert x (Node leftTree value rightTree) = 
+ if x <= value then Node (insert x leftTree) value rightTree else Node leftTree value (insert x rightTree)
+
+singleton :: a -> BST a
+singleton x = Node Leaf x Leaf
+
+toList :: BST a -> [a]
+toList Leaf = []
+toList (Node leftTree value rightTree) = toList leftTree ++ [value] ++ toList rightTree

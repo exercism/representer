@@ -1,0 +1,18 @@
+(file "custom-set/custom-set.factor")
+USING: kernel sets accessors arrays ranges sequences ;
+IN: custom-set
+TUPLE: custom-set list ;
+INSTANCE: custom-set set
+CONSTANT: max-elem 10
+: <custom-set> ( -- set )
+max-elem f <array> custom-set boa ;
+: >custom-set ( seq -- set )
+<custom-set> [ adjoin-all ] keep ;
+M: custom-set members ( set -- seq )
+list>> max-elem [0..b) [ over nth ] filter nip ;
+M: custom-set in? ( n set -- ? )
+list>> nth ;
+M: custom-set adjoin ( n set -- )
+list>> t -rot set-nth ;
+M: custom-set set-like ( set exemplar -- set )
+drop [ custom-set? ] [ members >custom-set ] 1unless ;

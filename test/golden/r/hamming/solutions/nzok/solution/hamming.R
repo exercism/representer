@@ -1,0 +1,13 @@
+hamming <- function (strand1, strand2) {
+    n1 <- nchar(strand1)
+    n2 <- nchar(strand2)
+    if (n1 != n2) {
+	stop(ifelse(n1 > n2, "first strand longer", "second strand longer"))
+    }
+    h <- 0
+    for (i in seq_len(n1)) {
+        if (substr(strand1, i, i) != substr(strand2, i, i)) h <- h + 1
+    }
+    h
+}
+

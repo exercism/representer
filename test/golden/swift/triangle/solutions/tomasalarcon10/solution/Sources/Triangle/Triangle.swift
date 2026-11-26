@@ -1,0 +1,18 @@
+struct Triangle<T: Numeric & Comparable> {
+  private var a, b, c: T
+  private var allSidesEqual: Bool { a == b && b == c }
+  private var noTwoSidesEqual: Bool { a != b && b != c && a != c }
+  private var sideLengthsNotEqual: Bool { a < b + c && b < a + c && c < a + b }
+
+  init(_ sides: [T]) {
+    a = sides[0]
+    b = sides[1]
+    c = sides[2]
+  }
+
+  var isScalene: Bool { noTwoSidesEqual && sideLengthsNotEqual ? true : false }
+  var isEquilateral: Bool { allSidesEqual && a != 0 ? true : false }
+  var isIsosceles: Bool {
+    !noTwoSidesEqual && sideLengthsNotEqual ? true : false
+  }
+}

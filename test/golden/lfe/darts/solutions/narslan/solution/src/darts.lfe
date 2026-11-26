@@ -1,0 +1,12 @@
+(defmodule darts
+  (export (score 2)))
+
+
+(defun score (x y)
+  (let* ((r (math:sqrt (+ (* x x) (* y y)))))
+    (cond 
+      ( (=< r 1) 10)
+      ( (=< r 5) 5)
+      ( (=< r 10) 1)
+      ( 'true 0)
+  )))

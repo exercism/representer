@@ -1,0 +1,24 @@
+class Luhn
+  constructor: (@string) ->
+
+  valid: ->
+    # Start by removing spaces from string
+    str = @string.replace (/ /g), ""
+    # Check that we have only digits, and at least two of them
+    if not /^\d\d+$/.test str
+      return false
+
+    second = false
+    sum = 0
+    temp = str.split ""
+    while temp.length isnt 0
+      num = Number.parseInt temp.pop()
+      if second
+        num *= 2
+        num = num - 9 if num > 9
+      second = not second
+      sum += num
+
+    return sum %% 10 is 0
+
+module.exports = Luhn

@@ -1,0 +1,9 @@
+(file "luhn.8th")
+: luhn \ s -- T
+dup /[^[:digit:] ]+/ r:match if 2drop false ;then drop \ non space or digit check
+/[[:space:]]+/ "\"\"" s:replace! s:rev \ remove spaces
+s:len 2 n:< if drop false ;then \ remaining length is valid
+"\"\"" s:/ ' >n a:map \ map to numbers
+a:new swap ( swap 2 n:mod 1 n:= if 2 * then dup 9 n:> if 9 - then a:push ) a:each drop \ create luhn transformation
+' n:+ 0 a:reduce .s 10 n:mod 0 n:= \ sum and check
+;

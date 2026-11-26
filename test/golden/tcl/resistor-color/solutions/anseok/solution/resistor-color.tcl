@@ -1,0 +1,13 @@
+namespace eval resistorColor {
+  variable bands {black brown red orange yellow\
+                  green blue violet grey white}
+  variable codes
+  for {set i [expr {[llength $bands] - 1}]} {$i >= 0} {incr i -1} {
+    set codes([lindex $bands $i]) $i }
+
+  proc colorCode band {
+    variable codes
+    if {![catch {set codes($band)} i]} { return $i }
+    return -code error "Invalid color: $band" }
+
+  proc colors {} { variable bands; return $bands } }

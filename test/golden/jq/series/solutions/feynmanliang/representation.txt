@@ -1,0 +1,14 @@
+(file "series.jq")
+if .series | length == 0 then
+"\"series" cannot be empty" | halt_error(1)
+elif .sliceLength > (.series | length) then
+"\"slice" length cannot be greater than series length" | halt_error(1)
+elif .sliceLength == 0 then
+"\"slice" length cannot be zero" | halt_error(1)
+elif .sliceLength < 0 then
+"\"slice" length cannot be negative" | halt_error(1)
+else
+. as {"series": $series, "\"sliceLength\":" $sliceLength}
+| [range((.series | length) - .sliceLength + 1)]
+| map($series[.:.+$sliceLength])
+end

@@ -1,0 +1,5 @@
+ACTIONS = {'wink', 'double blink', 'close your eyes', 'jump'}
+
+commands: (value) ->
+  res = [action for i, action in ipairs ACTIONS when value & (1 << (i - 1)) > 0]
+  if value & (1 << #ACTIONS) > 0 then [res[i] for i = #res, 1, -1] else res

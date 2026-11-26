@@ -1,0 +1,25 @@
+package Trinary;
+use strict;
+use warnings;
+use List::Util qw( none );
+use 5.0024;
+use feature 'signatures';
+no warnings 'experimental::signatures';
+
+sub new ( $class, $number ) {
+    return bless { numbers => [ split m//sxm, $number ] }, $class;
+}
+
+sub to_decimal ( $self ) {
+    return ( none { m/[^012]/sxm } $self->{numbers}->@* )
+      ? $self->_each_number
+      : 0;
+}
+
+sub _each_number ( $self, $acc = 0, $i = 0 ) {
+    return $i <= $self->{numbers}->@* - 1
+      ? $self->_each_number( $acc * 3 + $self->{numbers}->@[$i], $i + 1 )
+      : $acc;
+}
+
+1;

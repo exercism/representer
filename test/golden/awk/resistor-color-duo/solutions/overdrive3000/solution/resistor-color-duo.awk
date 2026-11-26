@@ -1,0 +1,30 @@
+#!/usr/bin/awk -f
+
+BEGIN {
+    colorValues["black"] = 0
+    colorValues["brown"] = 1
+    colorValues["red"] = 2
+    colorValues["orange"] = 3
+    colorValues["yellow"] = 4
+    colorValues["green"] = 5
+    colorValues["blue"] = 6
+    colorValues["violet"] = 7
+    colorValues["grey"] = 8
+    colorValues["white"] = 9
+}
+
+{
+    result = ""
+    colors = split($0, colorArray)
+    
+    for (i = 1; i <= 2; i++) {
+        color = tolower(colorArray[i])
+        if (color in colorValues) {
+            result = result colorValues[color]
+        } else {
+            print "invalid color"
+            exit 1
+        }
+    }
+    printf("%d",result)
+}

@@ -1,0 +1,21 @@
+module Etl (transform) where
+
+import Prelude (($), (>>>))
+
+import Data.Foldable (foldl)
+import Data.FoldableWithIndex (foldlWithIndex)
+import Data.Map (Map, empty, insert)
+import Data.String (toLower) as String
+import Data.String.CodeUnits (fromCharArray, toCharArray)
+
+transform :: Map Int (Array Char) -> Map Char Int
+transform = foldlWithIndex mapScorePerLowerCaseLetter empty
+
+mapScorePerLowerCaseLetter :: Int -> Map Char Int -> Array Char -> Map Char Int
+mapScorePerLowerCaseLetter i m cs = foldl (mapLettersOfScore i) m $ toLower cs
+
+mapLettersOfScore :: Int -> Map Char Int -> Char -> Map Char Int
+mapLettersOfScore i m c = insert c i m 
+
+toLower :: Array Char -> Array Char
+toLower = fromCharArray >>> String.toLower >>> toCharArray

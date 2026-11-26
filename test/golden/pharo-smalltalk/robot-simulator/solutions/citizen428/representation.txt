@@ -1,0 +1,189 @@
+(file "Direction.class.st")
+Class {
+#name : #Direction ,
+#superclass : #Object ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'instance creation'" }
+Direction class >> fromString: aString [
+^ aString capitalized asClass new
+]
+{ #category : #converting }
+Direction >> asString [
+^ self class name asLowercase
+]
+{ #category : #actions }
+Direction >> turnLeft [
+self subclassResponsibility
+]
+{ #category : #actions }
+Direction >> turnRight [
+self subclassResponsibility
+]
+(file "East.class.st")
+Class {
+#name : #East ,
+#superclass : #Direction ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : #actions }
+East >> turnLeft [
+^ North new
+]
+{ #category : #actions }
+East >> turnRight [
+^ South new
+]
+(file "Instruction.class.st")
+Class {
+#name : #Instruction ,
+#superclass : #Object ,
+#classVars : [
+'Mapping'
+] ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : #parsing }
+Instruction class >> mapping [
+Mapping ifNil: [
+Mapping := Dictionary newFrom: {
+( $R -> #turnRight ).
+( $L -> #turnLeft ).
+( $A -> #advance ) } ].
+^ Mapping
+]
+{ #category : #parsing }
+Instruction class >> parse: aString [
+^ self mapping at: aString
+]
+(file "North.class.st")
+Class {
+#name : #North ,
+#superclass : #Direction ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : #actions }
+North >> turnLeft [
+^ West new
+]
+{ #category : #actions }
+North >> turnRight [
+^ East new
+]
+(file "Position.class.st")
+Class {
+#name : #Position ,
+#superclass : #Object ,
+#instVars : [
+'coords'
+] ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'instance creation'" }
+Position class >> newFrom: aDictionary [
+^ self new
+coordinates: aDictionary ;
+yourself
+]
+{ #category : #accessing }
+Position >> advanceEast [
+coords at: 'x' update: [ : value | value + 1 ]
+]
+{ #category : #accessing }
+Position >> advanceNorth [
+coords at: 'y' update: [ : value | value + 1 ]
+]
+{ #category : #accessing }
+Position >> advanceSouth [
+coords at: 'y' update: [ : value | value - 1 ]
+]
+{ #category : #accessing }
+Position >> advanceTowards: aDirection [
+self perform: ( 'advance' , aDirection className ) asSymbol
+]
+{ #category : #accessing }
+Position >> advanceWest [
+coords at: 'x' update: [ : value | value - 1 ]
+]
+{ #category : #accessing }
+Position >> coordinates [
+^ coords
+]
+{ #category : #accessing }
+Position >> coordinates: aDictionary [
+coords := aDictionary
+]
+(file "RobotSimulator.class.st")
+Class {
+#name : #RobotSimulator ,
+#superclass : #Object ,
+#instVars : [
+'direction' ,
+'position'
+] ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : #actions }
+RobotSimulator >> advance [
+position := position advanceTowards: direction
+]
+{ #category : #converting }
+RobotSimulator >> data [
+^ Dictionary new
+add: 'direction' -> direction asString ;
+add: 'position' -> position coordinates ;
+yourself
+]
+{ #category : # "'actions lookup'" }
+RobotSimulator >> sendInstructions: aString [
+aString do: [ : each | self perform: ( Instruction parse: each ) ].
+^ self data
+]
+{ #category : #initialization }
+RobotSimulator >> startFacing: aString atPosition: aCollection [
+direction := Direction fromString: aString .
+position := Position newFrom: aCollection .
+^ self data
+]
+{ #category : #actions }
+RobotSimulator >> turnLeft [
+direction := direction turnLeft
+]
+{ #category : #actions }
+RobotSimulator >> turnRight [
+direction := direction turnRight
+]
+(file "South.class.st")
+Class {
+#name : #South ,
+#superclass : #Direction ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : #actions }
+South >> turnLeft [
+^ East new
+]
+{ #category : #actions }
+South >> turnRight [
+^ West new
+]
+(file "TestResults.txt")
+Tested on: 2022 - 03 - 18 16 : 26
+18 run, 18 passes, 0 skipped, 0 failures, 0 errors .
+Used OS/Platform: Win32 Win64 x86_64
+Image version: Pharo9 . 0.0 build: 1574 ( 64 Bit )
+VM version: v9 . 0.10 - Commit: db558908 - Date: 2021 -11 - 25 11 : 12 : 35 + 0100
+(file "West.class.st")
+Class {
+#name : #West ,
+#superclass : #Direction ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : #actions }
+West >> turnLeft [
+^ South new
+]
+{ #category : #actions }
+West >> turnRight [
+^ North new
+]

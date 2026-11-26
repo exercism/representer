@@ -1,0 +1,32 @@
+class RomanNumerals {
+
+    static final ROMAN_VALUES = [
+            "M" : 1000,
+            "CM": 900,
+            "D" : 500,
+            "CD": 400,
+            "C" : 100,
+            "XC": 90,
+            "L" : 50,
+            "XL": 40,
+            "X" : 10,
+            "IX": 9,
+            "V" : 5,
+            "IV": 4,
+            "I" : 1
+    ]
+
+    RomanNumerals() {
+        Integer.metaClass.getRoman = { ->
+            String roman = ""
+            def remaining = delegate
+            ROMAN_VALUES.each { romanLetter ->
+                while (remaining >= romanLetter.value) {
+                    roman += romanLetter.key;
+                    remaining -= romanLetter.value;
+                }
+            }
+            return roman
+        }
+    }
+}

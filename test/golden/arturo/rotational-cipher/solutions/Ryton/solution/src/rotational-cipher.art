@@ -1,0 +1,18 @@
+rotateText: function[text shiftKey][
+    ref:  alphabet 'en 
+    cypher: rotate.left ref shiftKey
+    strlist: map flatten (couple ref cypher) 'c [to :string c] 
+    cypherdict: (#.raw (strlist))    
+    ;; too slow
+    ;'strlist  ++ (map strlist 's [upper s])
+    ;cypherdict: (#.raw (strlist++upper))
+
+    ; faster, just to lowercase cypher:
+    cypherdict: (#.raw (strlist))    
+    encoded_minus_caplitals: translate lower text cypherdict
+    
+    ; then apply caplitalisation from original string
+    mask: map text => upper? 
+    loop.with:'i mask 'isupper [ if (isupper) [encoded_minus_caplitals\[i]: upper encoded_minus_caplitals\[i]]]
+    return encoded_minus_caplitals
+]

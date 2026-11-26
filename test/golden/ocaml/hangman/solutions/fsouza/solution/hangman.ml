@@ -1,0 +1,56 @@
+open Base
+open React
+
+type progress = Win | Lose | Busy of int
+
+type game_state = { word : string; progress : progress; masked_word : string }
+
+type t = {
+  set_progress : ?step:step -> progress -> unit;
+  set_masked_word : ?step:step -> string -> unit;
+  state : game_state S.t;
+}
+
+let play game_state ch =
+  let mask_word word ch =
+    String.mapi ~f:(fun i mch ->
+        let open Char in
+        if mch = '_' && word.[i] = ch then ch else mch)
+  in
+  match game_state.progress with
+  | Win | Lose -> (game_state.progress, game_state.masked_word)
+  | Busy n ->
+      let open String in
+      let masked_word = mask_word game_state.word ch game_state.masked_word in
+      if masked_word = game_state.masked_word then (Busy (n - 1), masked_word)
+      else (Busy n, masked_word)
+
+let create word =
+  let progress, set_progress = S.create @@ Busy 9 in
+  let masked_word, set_masked_word =
+    S.create @@ String.map ~f:(Fn.const '_') word
+  in
+  let _ =
+    S.map
+      (fun masked_word ->
+        let game_won = String.for_all ~f:(Fn.non (Char.equal '_')) in
+        if game_won masked_word then set_progress Win)
+      masked_word
+  in
+  let _ = S.map (function Busy -1 -> set_progress Lose | _ -> ()) progress in
+  let state =
+    S.l2
+      (fun p w -> { word; progress = p; masked_word = w })
+      progress masked_word
+  in
+  { set_progress; set_masked_word; state }
+
+let feed c t =
+  let game_state = S.value t.state in
+  let progress, masked_word = play game_state c in
+  t.set_progress progress;
+  t.set_masked_word masked_word
+
+let masked_word t = S.map (fun game_state -> game_state.masked_word) t.state
+
+let progress t = S.map (fun game_state -> game_state.progress) t.state

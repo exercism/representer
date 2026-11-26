@@ -1,0 +1,26 @@
+Red [
+	description: {"Binary Search" exercise solution for exercism platform}
+	author: "" ; you can write your name here, in quotes
+]
+
+find: function [
+	array[block!]
+	value
+] [
+	if empty? intersect array (to block! value) [
+	cause-error 'user 'message "value not in array"
+	] 
+	size: length? array
+	return binary_s array value 0 size
+]
+
+binary_s: func [array[block!] value[integer!] .min[integer!] .max[integer!]] [
+	if .min > .max [ return -1 ]
+    mid: to integer! round/ceiling (.min + .max) / 2
+    ;bmid: 1 + (.min + .max) >> 1
+    case [
+        value == array/(mid) [return mid]
+        value < array/(mid) [return binary_s array value .min mid]
+        value > array/(mid) [return binary_s array value (mid + 1) .max]
+    ]
+]

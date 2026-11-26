@@ -1,0 +1,17 @@
+valid_triangle(A, B, C) :-
+    A > 0, B > 0, C > 0,
+    A + B > C,
+    A + C > B,
+    B + C > A.
+
+triangle(A, B, C, "equilateral") :-
+    valid_triangle(A, B, C),
+    A =:= B, B =:= C.
+
+triangle(A, B, C, "isosceles") :-
+    valid_triangle(A, B, C),
+    (A =:= B ; B =:= C ; A =:= C).
+
+triangle(A, B, C, "scalene") :-
+    valid_triangle(A, B, C),
+    A =\= B, B =\= C, A =\= C.

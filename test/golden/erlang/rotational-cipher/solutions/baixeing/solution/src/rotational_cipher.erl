@@ -1,0 +1,33 @@
+-module(rotational_cipher).
+
+-export([decrypt/2, encrypt/2]).
+
+-define(ROT_CIPH_MODULO, $z - $a + 1).
+-define(is_lower(C), C >= $a andalso C =< $z).
+-define(is_upper(C), C >= $A andalso C =< $Z).
+-define(is_letter(C), ?is_lower(C) orelse ?is_upper(C)).
+
+mod(X, Y) ->
+    (X rem Y + Y) rem Y.
+
+rbase(Char) when ?is_lower(Char) ->
+    $a;
+rbase(Char) when ?is_upper(Char) ->
+    $A;
+rbase(_) ->
+    0.
+
+rot(Char, Key) when ?is_letter(Char) ->
+    R = rbase(Char),
+    mod(Char - R + Key, ?ROT_CIPH_MODULO) + R;
+rot(Char, _) ->
+    Char.
+
+crypt(String, Key) ->
+    [rot(Char, Key) || Char <- String].
+
+decrypt(String, Key) ->
+    crypt(String, -Key).
+
+encrypt(String, Key) ->
+    crypt(String, Key).

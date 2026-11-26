@@ -1,0 +1,11 @@
+object Bob {
+  def isUpperCase(s: String): Boolean = s.toLowerCase != s.toUpperCase && s.toUpperCase == s
+
+  def response(statement: String): String = statement.trim() match {
+    case s if s == "" => "Fine. Be that way!"
+    case s if isUpperCase(s) && s.last == '?' => "Calm down, I know what I'm doing!"
+    case s if isUpperCase(s) => "Whoa, chill out!"
+    case s if s.last == '?' => "Sure."
+    case _ => "Whatever."
+  }
+}

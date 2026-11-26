@@ -1,0 +1,56 @@
+(file "grade-school.v")
+module main
+import sqlite
+struct Student {
+id int [primary; serial; sql]
+name string [nonull; unique]
+grade int
+}
+fn add_student(roster sqlite.DB, name string, grade int) sqlite.DB {
+new_student := Student{
+name: name
+grade: grade
+}
+sql roster {
+insert new_student into Student
+} or {} // skip further insertions of the same name
+return roster
+}
+fn get_students_in_grade(roster sqlite.DB, grade int) []string {
+mut students := sql roster {
+select from Student where grade == grade
+}
+students.sort(a.name < b.name)
+return students.map(it.name)
+}
+fn get_all_students(roster sqlite.DB) []string {
+mut students := sql roster {
+select from Student
+}
+custom_sort_fn := fn (a &Student, b &Student) int {
+if a.grade < b.grade {
+return -1
+} else if a.grade > b.grade {
+return 1
+} else {
+if a.name < b.name {
+return -1
+} else if a.name > b.name {
+return 1
+} else {
+return 0
+}
+}
+}
+students.sort_with_compare(custom_sort_fn)
+return students.map(it.name)
+}
+fn create_new_roster() sqlite.DB {
+roster := sqlite.connect(':memory:') or {
+panic('An in-memory sqlite3 connection should always succeed.')
+}
+sql roster {
+create table Student
+}
+return roster
+}

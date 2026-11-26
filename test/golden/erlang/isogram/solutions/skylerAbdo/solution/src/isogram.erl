@@ -1,0 +1,11 @@
+-module(isogram).
+
+-export([is_isogram/1]).
+
+-define(EXCLUSIONS, " -").
+
+is_isogram(Phrase) ->
+    WithoutSpaces = string:to_lower(
+                                    lists:filter(fun (A) ->
+                                            not lists:member(A, ?EXCLUSIONS) end, Phrase)),
+    length(WithoutSpaces) =:= length(lists:usort(WithoutSpaces)).

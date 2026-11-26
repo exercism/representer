@@ -1,0 +1,33 @@
+local ordinals={first=1,second=2,third=3,fourth=4,last=5}
+local month_length={31,28,31,30,31,30,31,31,30,31,30,31}
+
+return function(date)
+	if date.week:sub(#date.week-2)=='nth' then
+		for i=13,19 do
+			if date.day==os.date("%A",os.time{year=date.year,month=date.month,day=i}) then
+				return i
+			end
+		end
+	else
+		--allow for leap years
+		if date.year%4==0 and (date.year%100~=0 or date.year%400==0) then
+			month_length[2]=29
+		else
+			month_length[2]=28
+		end
+		
+		local week_num = ordinals[date.week]
+		local num=0
+		local last
+		for i=1,month_length[date.month] do
+			if date.day==os.date("%A",os.time{year=date.year,month=date.month,day=i}) then
+				num=num+1
+				if num==week_num then return i end
+				last=i
+			end
+		end
+		if week_num==5 then return last end
+	end
+	return'no match'	
+end
+

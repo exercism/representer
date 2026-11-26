@@ -1,0 +1,26 @@
+#lang racket
+
+(provide response-for)
+
+(define (string-cleanup str)
+  (string-replace (string-trim str) #rx"[^A-Za-z0-9?]" ""))
+
+(define (string-empty? str)
+  (zero? (string-length str)))
+
+(define (question? str)
+  (string-suffix? str "?"))
+
+(define (shout? str)
+  (and (equal? (string-upcase str) str)
+       (not (equal? (string-downcase str) str))))
+  
+(define (response-for phrase)
+  (define str (string-cleanup phrase))
+  (cond
+    [(string-empty? str) "Fine. Be that way!"]
+    [(shout? str) (if (question? str)
+                      "Calm down, I know what I'm doing!"
+                      "Whoa, chill out!")]
+    [(question? str) "Sure."]
+    [else "Whatever."]))

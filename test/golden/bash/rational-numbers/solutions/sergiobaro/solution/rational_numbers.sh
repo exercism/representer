@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+declare op=$1 r1=$2 r2=$3
+declare -i n1=${r1%/*} d1=${r1#*/}
+declare -i n2=${r2%/*} d2=${r2#*/}
+
+find_gcd () {
+    local -i a=${1//-/} b=${2//-/}
+    (( a == 0 )) && echo "$b" && return
+
+    local -i candidate=$a
+    (( candidate > b )) && (( candidate = b ))
+
+    while (( candidate > 1 )); do
+        (( a % candidate == 0 && b % candidate == 0 )) && break
+        (( candidate-- ))
+    done
+
+    echo "$candidate"
+}
+
+declare -i n d
+case "$op" in
+    '+' )
+        (( n = n1 * d2 + n2 * d1 ))
+        (( d = d1 * d2 ))
+    ;;
+    '-' )
+        (( n = n1 * d2 - n2 * d1 ))
+        (( d = d1 * d2 ))
+    ;;
+    '*' )
+        (( n = n1 * n2 ))
+        (( d = d1 * d2 ))
+    ;;
+    '/' )
+        (( n = n1 * d2 ))
+        (( d = n2 * d1 ))
+    ;; 
+    'abs' )
+        (( n = n1, d = d1 ))
+        (( n < 0 )) && (( n *= -1 ))
+        (( d < 0 )) && (( d *= -1 ))
+    ;;
+    'pow' ) 
+        declare -i power=$3
+        if (( power < 0 )); then
+            (( power *= -1 ))
+            (( n = d1 ** power, d = n1 ** power ))
+        else 
+            (( n = n1 ** power, d = d1 ** power ))
+        fi
+    ;;
+    'rpow' )
+        declare number=$2 result=''
+        result=$(awk 'BEGIN { print (ARGV[1] ** ARGV[2]) ** (1.0 / ARGV[3]) }' "$number" "$n2" "$d2")
+        [[ "$result" =~ .*\..* ]] && echo "$result" || echo "$result.0"
+        exit
+    ;;
+    'reduce' )
+        (( n = n1, d = d1 ))
+    ;;
+esac
+
+declare -i gcd=1
+gcd=$(find_gcd $n $d)
+if (( gcd > 0 )); then
+    (( n = n / gcd ))
+    (( d = d / gcd ))
+fi
+
+if (( d < 0 )); then
+    (( n *= -1 ))
+    (( d *= -1 ))
+fi
+
+echo "$n/$d"

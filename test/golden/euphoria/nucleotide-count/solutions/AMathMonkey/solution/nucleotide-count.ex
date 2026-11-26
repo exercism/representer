@@ -1,0 +1,16 @@
+include std/map.e
+
+public function counts(sequence nucleotides)
+  map result = new()
+  put(result, 'A', 0)
+  put(result, 'C', 0)
+  put(result, 'G', 0)
+  put(result, 'T', 0)
+  for i = 1 to length(nucleotides) do
+    if not has(result, nucleotides[i]) then
+      return 0    
+    end if
+    put(result, nucleotides[i], 1, ADD)
+  end for
+  return result
+end function

@@ -1,0 +1,43 @@
+Option Compare Binary
+
+Imports System.Text
+
+Public Class PhoneNumber
+
+    Public Shared Function Clean(ByVal phoneNumber As String) As String
+        If (phoneNumber Is Nothing) Then Throw New ArgumentNullException(NameOf(phoneNumber))
+        If TryClean(phoneNumber) Then Return phoneNumber
+        Throw New ArgumentException($"Invalid phone number: '{phoneNumber}'! A phone number according to the North American Numbering Plan (NANP) expected.", NameOf(phoneNumber))
+    End Function
+
+    Private Shared Function TryClean(ByRef phoneNumber As String) As Boolean
+        If (phoneNumber.Length < 10) Then Return False
+        Dim cleanNumber As String = RemoveNonDigits(phoneNumber)
+        Select Case cleanNumber.Length
+            Case < 10
+                Return False
+            Case 10
+                If (cleanNumber Like "[2-9]##[2-9]######") Then
+                    phoneNumber = cleanNumber
+                    Return True
+                End If
+                Return False
+            Case 11
+                If (cleanNumber Like "1[2-9]##[2-9]######") Then
+                    phoneNumber = cleanNumber.Substring(1)
+                    Return True
+                End If
+                Return False
+        End Select
+        Return False
+    End Function
+
+    Private Shared Function RemoveNonDigits(phoneNumber As String) As String
+        Dim result As New StringBuilder()
+        For Each c As Char In phoneNumber
+            If ("0123456789".Contains(c)) Then result.Append(c)
+        Next
+        Return result.ToString()
+    End Function
+
+End Class

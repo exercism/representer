@@ -1,0 +1,19 @@
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import Data.Map (Map, adjust, fromList)
+import Data.Traversable (traverse)
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts xs = fmap updateKey $ traverse transcribe xs
+
+transcribe :: Char -> Either String Nucleotide
+transcribe 'A' = Right A
+transcribe 'G' = Right G
+transcribe 'C' = Right C
+transcribe 'T' = Right T 
+transcribe _ = Left "Invalid Char"
+
+updateKey :: [Nucleotide] -> Map Nucleotide Int
+updateKey = foldr (adjust (+1)) (fromList [(A,0),(C,0),(G,0),(T,0)])

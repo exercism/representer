@@ -1,0 +1,51 @@
+using Printf
+using Logging
+function humiditycheck(pct_humidity)
+    if pct_humidity > 70
+        throw(ErrorException("humidity check failed: $(pct_humidity)%"))
+    else
+        @info "humidity level check passed: $(pct_humidity)%"
+    end
+end
+function temperaturecheck(temperature)
+    if isnothing(temperature)
+        throw(ArgumentError("sensor is broken"))
+    elseif temperature > 500
+        throw(DomainError(temperature, "overheating detected"))
+    else
+        @info "temperature check passed: $(temperature) °C"
+    end
+end
+struct MachineError <: Exception
+    message::String
+end
+function machinemonitor(pct_humidity, temperature)
+    humidity_failed = false
+    temperature_failed = false
+    try
+        humiditycheck(pct_humidity)
+    catch e
+        if e isa ErrorException
+            @error "humidity level check failed: $(pct_humidity)%"
+            humidity_failed = true
+        else
+            rethrow(e)
+        end
+    end
+    try
+        temperaturecheck(temperature)
+    catch e
+        if e isa ArgumentError
+            @warn "sensor is broken"
+            temperature_failed = true
+        elseif e isa DomainError
+            @error "overheating detected: $(temperature) °C"
+            temperature_failed = true
+        else
+            rethrow(e)
+        end
+    end
+    if humidity_failed || temperature_failed
+        throw(MachineError("One or more machine checks failed."))
+    end
+end

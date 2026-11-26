@@ -1,0 +1,13 @@
+class ReverseString {
+
+    static reverse(String value) {
+      def stack = [];
+      value.each { c -> stack.push(c) };
+      def revString = '';
+      while(!stack.isEmpty()) {
+          revString += stack.pop();
+      }
+      return revString;
+    }
+
+}

@@ -1,0 +1,9 @@
+class Acronym {
+
+    static String abbreviate(String phrase) {
+        phrase
+            .findAll(/[a-zA-Z']+/)
+            .collect{it[0].toUpperCase()}
+            .join()
+    }
+}

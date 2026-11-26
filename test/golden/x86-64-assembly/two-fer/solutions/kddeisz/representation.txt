@@ -1,0 +1,35 @@
+(file "two_fer.asm")
+section .text
+global two_fer
+two_fer:
+mov rax , rsi
+mov rcx , [ rel prefix ]
+mov [ rax ], rcx
+add rax , prelen
+test rdi , rdi
+jz default_name
+copy_name:
+mov cl , byte [ rdi ]
+test cl , cl
+jz remainder
+mov [ rax ], byte cl
+inc rax
+inc rdi
+jmp copy_name
+default_name:
+mov ecx , [ rel defnme ]
+mov [ rax ], ecx
+add rax , deflen
+remainder:
+mov rcx , [ rel pstfix ]
+mov [ rax ], rcx
+add rax , 8
+mov rcx , [ rel pstfix + 8 ]
+mov [ rax ], rcx
+ret
+section .rodata
+prefix db "\"" One for "\"" , 0
+prelen equ $ - prefix - 1
+defnme db "\"you\"" , 0
+deflen equ $ - defnme - 1
+pstfix db "\"" , one for me. "\"" , 0

@@ -1,0 +1,12 @@
+
+object Hamming {
+    def distance(a: String, b: String) : Option[Int] =
+        if (a.length == b.length) {
+            val hamming = (a zip b)
+                .filter{case (x, y) => x != y}
+                .length
+            Some(hamming)
+        }
+        else
+            None
+}

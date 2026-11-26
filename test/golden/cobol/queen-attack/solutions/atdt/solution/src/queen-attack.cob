@@ -1,0 +1,47 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QUEEN-ATTACK.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+      *Inputs
+       01 WS-QUEEN PIC X(9).
+       01 WS-WHITE_QUEEN PIC X(9).
+       01 WS-BLACK_QUEEN PIC X(9).
+       01 WS-PROPERTY PIC X(11).
+      *Outputs
+       01 WS-RESULT PIC 9.
+      *
+       LOCAL-STORAGE SECTION.
+       01 QUEEN-X PIC S9(2).
+       01 QUEEN-Y PIC S9(2).
+       01 BLACK-X PIC S9(2).
+       01 BLACK-Y PIC S9(2).
+       01 WHITE-X PIC S9(2).
+       01 WHITE-Y PIC S9(2).
+      *
+       PROCEDURE DIVISION.
+      *
+       QUEEN-ATTACK.
+           MOVE 0 TO WS-RESULT.
+           EVALUATE WS-PROPERTY
+           WHEN "create"
+               UNSTRING WS-QUEEN DELIMITED BY "," INTO QUEEN-X QUEEN-Y
+               IF (QUEEN-X >= 0 AND < 8) AND (QUEEN-Y >= 0 AND < 8) THEN
+                   MOVE 1 TO WS-RESULT
+               END-IF
+           WHEN "canAttack"
+               UNSTRING WS-WHITE_QUEEN DELIMITED BY "," INTO WHITE-X WHITE-Y
+               UNSTRING WS-BLACK_QUEEN DELIMITED BY "," INTO BLACK-X BLACK-Y
+               IF (WHITE-X >= 0 AND < 8) AND (WHITE-X >= 0 AND < 8) AND
+                  (BLACK-X >= 0 AND < 8) AND (BLACK-X >= 0 AND < 8) AND
+                  (
+                    (WHITE-X = BLACK-X) OR
+                    (WHITE-Y = BLACK-Y) OR 
+                    (FUNCTION ABS(WHITE-X - BLACK-X) = FUNCTION ABS(WHITE-Y - BLACK-Y))
+                  )
+                   MOVE 1 TO WS-RESULT
+               END-IF
+           END-EVALUATE.
+      *
+       QUEEN-ATTACK-EXIT.
+           EXIT.

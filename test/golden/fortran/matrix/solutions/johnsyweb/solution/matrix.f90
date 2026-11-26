@@ -1,0 +1,42 @@
+
+module matrix
+  implicit none
+
+contains
+  function row(matrix_string, dimensions, i) result(r)
+    character(len=*), dimension(:) :: matrix_string
+    integer, intent(in) :: dimensions(2)
+    integer, intent(in) :: i
+
+    integer :: r(dimensions(2))
+    integer :: the_matrix(dimensions(1), dimensions(2))
+    
+    call matrix_from_string(matrix_string, dimensions, the_matrix)
+    
+    r(:) = the_matrix(i, :)
+  end function
+
+  function column(matrix_string, dimensions, j) result(c)
+    character(len=*), dimension(:) :: matrix_string
+    integer, intent(in) :: dimensions(2)
+    integer, intent(in) :: j
+    integer :: c(dimensions(1))
+    integer :: the_matrix(dimensions(1), dimensions(2))
+    
+    call matrix_from_string(matrix_string, dimensions, the_matrix)
+    
+    c(:) = the_matrix(:, j)
+  end function
+
+  subroutine matrix_from_string(matrix_string, dimensions, the_matrix)
+    character(len=*), dimension(:) :: matrix_string
+    integer, intent(in) :: dimensions(2)
+    integer :: the_matrix(dimensions(1), dimensions(2))
+    integer :: i
+
+    do i = 1, dimensions(1)
+      read(matrix_string(i), *) the_matrix(i, :)
+    enddo
+
+  end subroutine
+end module

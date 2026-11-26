@@ -1,0 +1,15 @@
+let hey = (sentence) => {
+  let trimmedSentence = String.trim(sentence);
+
+  let isNothing = (trimmedSentence === "");
+  let isQuestion = !isNothing && String.get(trimmedSentence, String.length(trimmedSentence) - 1) == '?';
+  let isYelling = trimmedSentence !== String.lowercase(trimmedSentence) && trimmedSentence === String.uppercase(trimmedSentence);
+
+  switch (isNothing, isQuestion, isYelling) {
+    | (true, _, _) => "Fine. Be that way!"
+    | (_, true, true) => "Calm down, I know what I'm doing!"
+    | (_, true, _) => "Sure."
+    | (_, _, true) => "Whoa, chill out!"
+    | _ => "Whatever."
+  }
+};

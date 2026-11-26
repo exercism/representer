@@ -1,0 +1,10 @@
+truncate = (str) ->
+  count = 0
+  table.concat(
+    for _, c in utf8.codes str
+      break if count == 5
+      count += 1
+      utf8.char c
+  )
+
+{ :truncate }

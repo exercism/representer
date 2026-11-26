@@ -1,0 +1,10 @@
+#lang racket
+
+(provide isogram?)
+
+(define (isogram? s)
+  (let ([vs (sort (map char-downcase
+                       (filter char-alphabetic? (string->list s))) char<?)])
+    (for/and ([a vs]
+              [b (if (not (empty? vs)) (cdr vs) '())])
+             (not (equal? a b)))))

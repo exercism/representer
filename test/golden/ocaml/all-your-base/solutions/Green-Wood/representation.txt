@@ -1,0 +1,18 @@
+(file "all_your_base.ml")
+open Base
+type base = int
+let convert_bases ~ from ~ digits ~ target =
+if from < 2 || target < 2 then None
+else
+let num =
+List . fold_result digits ~ init : 0 ~ f : ( fun acc d ->
+if d < 0 || d >= from then Error () else Ok (( acc * from ) + d ))
+|> Result . ok
+in
+let open Option in
+num >>| fun num ->
+let rec build ls = function
+| 0 -> ls
+| n -> build (( n % target ) :: ls ) ( n / target )
+in
+if num = 0 then [ 0 ] else build [] num

@@ -1,0 +1,84 @@
+func timeToPrepare(drinks: [String]) -> Double {
+    guard !drinks.isEmpty else { return 0 }
+    let timeToPrepareDrinks: [String: Double] = [
+        "beer": 0.5,
+        "soda": 0.5,
+        "water": 0.5,
+        "shot": 1,
+        "mixed drink": 1.5,
+        "fancy drink": 2.5,
+        "frozen drink": 3
+    ]
+    var ans: Double = 0
+    for drink in drinks {
+        if (timeToPrepareDrinks.contains(where: {$0.key == drink})) {
+            ans += timeToPrepareDrinks[drink]!
+        }
+    }
+    
+    return ans
+}
+
+func makeWedges(needed: Int, limes: [String]) -> Int {
+    var ans: Int = 0
+    var wedges: Int = 0
+    let wedgesFromLimes: [String: Int] = [
+        "small": 6,
+        "medium" : 8,
+        "large": 10
+    ]
+
+    for lime in limes {
+        if (wedges >= needed) {
+            break;
+        }
+        wedges += wedgesFromLimes[lime]!
+        ans += 1
+    }
+
+    return ans
+}
+
+func finishShift(minutesLeft: Int, remainingOrders: [[String]]) -> [[String]] {
+    var timeToPrepareOrders: Double = 0
+    var countofPreparedOrders: Int = 0
+    for order in remainingOrders {
+        timeToPrepareOrders += timeToPrepare(drinks: order)
+        countofPreparedOrders += 1
+        if (timeToPrepareOrders > Double(minutesLeft)) {
+            break
+        }
+    }
+    
+    return Array(remainingOrders[countofPreparedOrders...])
+}
+
+func orderTracker(orders: [(drink: String, time: String)]) -> (
+    beer: (first: String, last: String, total: Int)?, soda: (first: String, last: String, total: Int)?
+){
+    var totalBeer: Int = 0
+    var timeBeer: [String] = []
+    var totalSoda: Int = 0
+    var timeSoda: [String] = []
+    
+    for (key, value) in orders {
+        if (key == "beer") {
+            totalBeer += 1
+            timeBeer.append(value)
+        }
+        if (key == "soda") {
+            totalSoda += 1
+            timeSoda.append(value)
+        }
+    }
+    
+    var beer: (first: String, last: String, total: Int)? = nil
+    var soda: (first: String, last: String, total: Int)? = nil
+    if let firstBeer = timeBeer.first, let lastBeer = timeBeer.last {
+        beer = (first: firstBeer, last: lastBeer, total: totalBeer)
+    }
+    if let firstSoda = timeSoda.first, let lastSoda = timeSoda.last {
+        soda = (first: firstSoda, last: lastSoda, total: totalSoda)
+    }
+    return (beer: beer, soda: soda)
+}

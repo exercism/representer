@@ -1,0 +1,26 @@
+module main
+
+fn sieve(limit int) []int {
+	if limit == 1 {
+		return []
+	}
+
+	mut sieve := []bool{len: limit + 1, init: true}
+	mut primes := []int{}
+	mut current := 2
+
+	for ; current * current <= limit; current++ {
+		if sieve[current] {
+			primes << current
+			for i := current * 2; i <= limit; i += current {
+				sieve[i] = false
+			}
+		}
+	}
+
+	for i, is_prime in sieve[current..] {
+		if is_prime { primes << i + current	}
+	}
+
+	return primes
+}

@@ -1,0 +1,9 @@
+module ReverseString
+
+accumulate : List Char -> List Char -> List Char
+accumulate acc [] = acc
+accumulate acc (x::xs) = accumulate (x::acc) xs
+
+export
+rev : String -> String
+rev = pack . (accumulate []) . unpack

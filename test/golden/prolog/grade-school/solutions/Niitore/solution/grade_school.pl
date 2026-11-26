@@ -1,0 +1,12 @@
+create_school(School) :-
+    empty_assoc(School).
+roster(School, Students) :-
+    assoc_to_values(School, Values),
+    flatten(Values, Students).
+add_student(School, Student, Grade, NewSchool) :- roster(School, Roster),
+    \+ memberchk(Student, Roster),
+    grade(School, Grade, Students),
+    sort([Student | Students], Sorted),
+    put_assoc(Grade, School, Sorted, NewSchool).
+grade(School, Grade, Students) :-
+    once(get_assoc(Grade, School, Students); Students = []).

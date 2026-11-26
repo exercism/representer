@@ -1,0 +1,51 @@
+(ns sublist)
+
+; converts both lists to vectors and applies comparison operator on them. only use this when the lists are of the same size
+; see https://clojuredocs.org/clojure.core/compare for return values (neg, -, pos numbers)
+(defn isEqual [lista listb]
+  (zero? (compare (into [] lista) (into [] listb)))
+)
+
+(defn classify [list1 list2] ;; <- arglist goes here
+  ;; your code goes here
+  (def len1 (count list1))
+  (def len2 (count list2))
+  ; sizes are both 0
+  (if (and (zero? len1) (zero? len2))
+    (keyword "equal")
+    (if (= len1 len2)
+      (if (isEqual list1 list2)
+        (keyword "equal")
+        (keyword "unequal")
+      )
+      (if (zero? len1)
+        (keyword "sublist")
+        (if (zero? len2)
+          (keyword "superlist")
+          (if (> len1 len2)
+            (if (isEqual (drop-last (- len1 len2) list1) list2)
+              (keyword "superlist")
+              (do
+               (def aBigger (classify (rest list1) list2))
+               (if (or (= aBigger :superlist) (= aBigger :equal))
+                 (keyword "superlist")
+                 (keyword "unequal")
+               )
+              )
+            )
+            (if (isEqual list1 (drop-last (- len2 len1) list2))
+              (keyword "sublist")
+              (do
+                (def bBigger (classify list1 (rest list2)))
+                (if (or (= bBigger :sublist) (= bBigger :equal))
+                  (keyword "sublist")
+                  (keyword "unequal")
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)

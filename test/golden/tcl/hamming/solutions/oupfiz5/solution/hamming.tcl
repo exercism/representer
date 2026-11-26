@@ -1,0 +1,23 @@
+proc hammingDistance {left right} {
+    set leftLenght  [string length $left]
+    set rightLenght [string length $right]
+    set res 0
+
+    if { $leftLenght == 0 && $rightLenght == 0 } {
+        return -code ok -errorinfo 0 "0"
+    }
+
+    if { $leftLenght != $rightLenght  } {
+        return -code error -errorinfo 1 "strands must be of equal length"
+    }
+
+    for { set index 0 } { $index < $leftLenght } { incr index } {
+        set leftChar  [string index $left $index]
+        set rightChar [string index $right $index]
+
+        if { $leftChar != $rightChar  } {
+            incr res
+        }
+    }
+    return $res
+}

@@ -1,0 +1,17 @@
+USING: assocs formatting kernel sequences ;
+IN: lap-leaderboard
+
+: assign-bibs ( names -- pairs )
+    [ length <iota> ] keep zip ;
+
+: lane-labels ( names -- labels )
+    [ swap "Lane %d: %s" sprintf ] map-index ;
+
+: tag-racers ( names tag -- tagged )
+    '[ _ spin "%s/%d: %s" sprintf ] map-index ;
+
+: record-finishes ( names ledger -- )
+    '[ swap "%d: %s" sprintf _ push ] each-index ;
+
+: lap-bells ( laps -- str )
+    [ "ding " ] replicate "" concat-as ;

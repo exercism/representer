@@ -1,0 +1,32 @@
+module Allergies
+  ( allergicTo
+  , list
+  )
+  where
+
+import Prelude
+
+import Data.Array (elemIndex, filter)
+import Data.Int.Bits ((.&.), shl)
+import Data.Maybe (fromMaybe)
+
+allergies :: Array String
+allergies =
+  [ "eggs"
+  , "peanuts"
+  , "shellfish"
+  , "strawberries"
+  , "tomatoes"
+  , "chocolate"
+  , "pollen"
+  , "cats" ]
+
+allergicTo :: Int -> String -> Boolean
+allergicTo score al = 
+  fromMaybe false do
+    allergyScore <- (shl 1) <$> elemIndex al allergies
+    pure $ 0 /= score .&. allergyScore
+
+list :: Int -> Array String
+list score = filter checkAllergy allergies
+  where checkAllergy = allergicTo score

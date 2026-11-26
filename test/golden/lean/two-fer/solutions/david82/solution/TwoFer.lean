@@ -1,0 +1,6 @@
+namespace TwoFer
+
+def twoFer (name : Option String) : String :=
+  "One for " ++ (match name with | some n => n | none => "you") ++ ", one for me."
+
+end TwoFer

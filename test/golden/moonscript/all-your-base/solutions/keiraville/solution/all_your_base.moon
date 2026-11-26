@@ -1,0 +1,27 @@
+{
+  rebase: (argument) ->
+    in_base = argument.in_base
+    if in_base < 2
+      error 'input base must be >= 2'
+
+    digits = argument.digits
+    num = 0
+    for _, digit in pairs digits
+      if digit < 0 or digit >= in_base
+        error 'all digits must satisfy 0 <= d < input base'
+      num *= in_base
+      num += digit
+
+    out_base = argument.out_base
+    if out_base < 2
+      error 'output base must be >= 2'
+
+    if num == 0
+      return {0}
+
+    result = {}
+    while num != 0
+      table.insert result, 1, (num % out_base)
+      num = num // out_base
+    result
+}

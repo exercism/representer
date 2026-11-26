@@ -1,0 +1,46 @@
+type coins = list(int);
+
+let sort_ascending = (a, b) => a - b;
+
+let makeChange: (int, coins) => option(coins) =
+  (change, coins_list) =>
+    if (change < 0) {
+      None;
+    } else {
+      let coins = Array.of_list(coins_list);
+      let search = Belt.Array.make(change + 1, None);
+      search[0] = Some([]);
+
+      for (current_change in 1 to change) {
+        search[current_change] =
+          Belt.Array.reduce(
+            coins,
+            search[current_change],
+            (acc, coin) => {
+              let previous_idx = current_change - coin;
+              if (previous_idx >= 0) {
+                let previous_change = search[previous_idx];
+
+                switch (acc, previous_change) {
+                | (None, None) => None
+                | (Some(current_best), Some(previous_best)) =>
+                  if (List.length(previous_best) < List.length(current_best)) {
+                    Some([coin, ...previous_best]);
+                  } else {
+                    acc;
+                  }
+                | (Some(best), None) => Some(best)
+                | (None, Some(best)) => Some([coin, ...best])
+                };
+              } else {
+                acc;
+              };
+            },
+          );
+      };
+
+      switch (search[change]) {
+      | None => None
+      | Some(solution) => Some(solution->Belt.List.sort(sort_ascending))
+      };
+    };

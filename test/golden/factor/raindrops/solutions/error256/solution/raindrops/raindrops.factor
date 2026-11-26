@@ -1,0 +1,6 @@
+USING: kernel math.functions math.parser sequences sequences.extras ;
+IN: raindrops
+
+: convert ( n -- str )
+    dup { { "Pling" 3 } { "Plang" 5 } { "Plong" 7 } } [ first2 swapd divisor? and* ] with "" map-concat-as
+    [ >dec ] [ nip ] if-empty ;

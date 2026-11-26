@@ -1,0 +1,43 @@
+(file "hamming.asm")
+default rel
+section .text
+global di stance
+distance:
+mov r10 , rsi
+push rdi
+pop rsi
+mov rdi , r10
+mov r11 , rsi
+xor rcx , rcx
+dec rsi
+dec rdi
+scan_seq:
+xor rax , rax
+xor rbx , rbx
+inc rsi
+inc rdi
+mov byte al , [ rsi ]
+cmp al , 0
+je scan_seq_done
+mov byte bl , [ rdi ]
+cmp bl , 0
+je scan_seq_done
+sub al , bl
+jz scan_seq
+inc rcx
+jmp scan_seq
+scan_seq_done:
+mov rax , rcx
+mov byte bh , [ rsi ]
+mov byte bl , [ rdi ]
+check_seq_1:
+cmp bh , 0
+je ch eck_seq_2
+jmp set_seqs_not_equal
+check_seq_2:
+cmp bl , 0
+je exit
+set_seqs_not_equal:
+mov rax , - 1
+exit:
+ret

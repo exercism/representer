@@ -1,0 +1,33 @@
+NR == 1 { split($0, coins) }
+NR == 2 { 
+    target = strtonum($1) 
+    if (target < 0) { print "target can't be negative"; exit 1 }
+}
+END {
+    min[1] = coins[1]
+    for (i=2; i<=length(coins); i++) 
+        used[i-1] = coins[i]
+    for (t=1; t<=target; t++) {
+        count = t
+        current = 1
+        for (c in coins) {
+            if (coins[c] > t) continue
+            if (min[t-coins[c]] + 1 < count) {
+                count = min[t-coins[c]] + 1
+                current = coins[c]
+            }
+        }
+        min[t] = t >= coins[1] ? count : 2^32
+        used[t] = current
+    }
+    while (target > 0) {
+        contains = 0
+        for (i in coins) 
+            if (used[target] == coins[i])
+                contains = 1
+        if (contains == 0) { print "can't make target with given coins"; exit 1 }
+        out = out ? out " " used[target] : used[target]
+        target -= used[target]
+    }
+    print out
+}

@@ -1,0 +1,60 @@
+(file "saddle_points.c")
+#include "\"saddle_points.h\""
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+saddle_points_t * saddle_points ( uint16_t row_count , uint16_t row_size ,
+uint8_t matrix [ row_count ][ row_size ]) {
+const uint16_t CANDIDATES_CAPACITY = row_count * 2 ;
+saddle_point_t candidates [ CANDIDATES_CAPACITY ];
+uint16_t candidates_size = 0 ;
+uint8_t value [ CANDIDATES_CAPACITY ];
+for ( size_t y = 0 ; y < row_count ; y ++ ) {
+int8_t greatest_in_row = INT8_MIN ;
+for ( size_t x = 0 ; x < row_size ; x ++ )
+if ( matrix [ y ][ x ] > greatest_in_row ) greatest_in_row = matrix [ y ][ x ];
+for ( size_t x = 0 ; x < row_size ; x ++ )
+if ( matrix [ y ][ x ] == greatest_in_row ) {
+if ( candidates_size >= CANDIDATES_CAPACITY ) {
+printf ( "\"Exceeded max number of candidates\\n\"" );
+exit ( EXIT_FAILURE );
+}
+value [ candidates_size ] = greatest_in_row ;
+candidates [ candidates_size ++ ] =
+( saddle_point_t ){. column = x + 1 , . row = y + 1 };
+}
+}
+bool is_saddle [ candidates_size ];
+memset ( & is_saddle , true , sizeof ( bool ) * candidates_size );
+for ( size_t i = 0 ; i < candidates_size ; i ++ )
+for ( int y = 0 ; y < row_count ; y ++ )
+if ( matrix [ y ][ candidates [ i ]. column - 1 ] < value [ i ])
+is_saddle [ i ] = false ;
+size_t results_capacity = 0 ;
+for ( size_t i = 0 ; i < candidates_size ; i ++ )
+if ( is_saddle [ i ] == true ) results_capacity ++ ;
+saddle_points_t * results = malloc (
+sizeof ( saddle_points_t ) + sizeof ( saddle_point_t ) * results_capacity );
+results -> count = 0 ;
+for ( size_t i = 0 ; i < candidates_size ; i ++ )
+if ( is_saddle [ i ] == true )
+memmove ( & results -> points [ results -> count ++ ], & candidates [ i ],
+sizeof ( saddle_point_t ));
+return results ;
+}
+void free_saddle_points ( saddle_points_t * to_free ) { free ( to_free ); }
+(file "saddle_points.h")
+#pragma once
+#include <stdint.h>
+typedef struct {
+uint16_t row ;
+uint16_t column ;
+} saddle_point_t ;
+typedef struct {
+uint16_t count ;
+saddle_point_t points [];
+} saddle_points_t ;
+saddle_points_t * saddle_points ( uint16_t row_count , uint16_t row_size ,
+uint8_t matrix [ row_count ][ row_size ]);
+void free_saddle_points ( saddle_points_t * to_free );

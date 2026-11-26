@@ -1,0 +1,95 @@
+oo::class create Team {
+    constructor {teamName} {
+        set name $teamName
+        set win 0
+        set loss 0
+        set draw 0
+    }
+
+    method addWin {} { incr win }
+    method addDraw {} { incr draw }
+    method addLoss {} { incr loss }
+    method name {} { return $name }
+    method points {} { return [expr {3 * $win + $draw}]}
+    method matches {} { return [expr {$win + $loss + $draw}] }
+    method asString {} {
+        return [format "%-30s | %2s | %2s | %2s | %2s | %2s" $name [my matches] $win $draw $loss [my points]]
+    }
+
+    variable name win draw loss
+}
+
+proc orderTeams {a b} {
+    if {[$a points] > [$b points]} {
+        return -1
+    } elseif {[$a points] < [$b points]} {
+        return 1
+    }
+    return [string compare [$a name] [$b name]]
+}
+
+proc header {} {
+    return [format "%-30s | %2s | %2s | %2s | %2s | %2s" Team MP W D L P]
+}
+
+proc loadMatches {filename} {
+    set fh [open $filename]
+    set text [read $fh]
+    close $fh
+    return [split $text \n]
+}
+
+proc classifyMatches {matches} {
+    set classifieds [dict create]
+    foreach match $matches {
+        set classifieds [classify $match $classifieds]
+    }
+    return $classifieds
+}
+
+proc classify {match classifieds} {
+    set parts [split $match ";"]
+    if {[llength $parts] == 3} {
+        set home [lindex $parts 0]
+        set away [lindex $parts 1]
+        set result [lindex $parts 2]
+
+        set classifieds [ensureTeam $classifieds $home]
+        set classifieds [ensureTeam $classifieds $away]
+
+        switch $result {
+            win {
+                [dict get $classifieds $home] addWin
+                [dict get $classifieds $away] addLoss
+            }
+            loss {
+                [dict get $classifieds $home] addLoss
+                [dict get $classifieds $away] addWin
+            }
+            draw {
+                [dict get $classifieds $home] addDraw
+                [dict get $classifieds $away] addDraw
+            }
+
+        }
+    }
+    return $classifieds
+}
+
+proc ensureTeam {classifieds team} {
+    if {![dict exists $classifieds $team]} {
+        dict set classifieds $team [Team new $team]
+    }
+    return $classifieds
+}
+
+proc tablify {classifieds} {
+    set teams [dict values $classifieds]
+    set ordered [lsort -command orderTeams $teams]
+    return [lmap team $ordered {$team asString}]
+}
+
+proc tournamentResults {filename} {
+    set rows [tablify [classifyMatches [loadMatches $filename]]]
+    return [join [list [header] {*}$rows] \n]
+}

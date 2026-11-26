@@ -1,0 +1,102 @@
+(file "impl.mips")
+.globl to_upper
+.globl scrabble_score_aux
+.data
+points: .word 1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10
+.text
+.globl scrabble_score
+scrabble_score:
+addi $sp, $sp, -8
+sw $ra, 4($sp)
+sw $a0, 0($sp)
+jal scrabble_score_aux
+lw $ra, 4($sp)
+addi $sp, $sp, 8
+jr $ra
+to_upper:
+sw $ra, -4($sp) # save return address on stack
+sw $fp, -8($sp) # save frame pointer on stack
+move $fp, $sp # set frame pointer to stack pointer
+addi $sp, $sp, -8 # allocation for $ra and $fp
+addi $sp, $sp, -8 # allocation for 2 temporaries
+sw $t1, 4($sp)
+sw $t0, 0($sp)
+addi $sp, $sp, -0 # allocate 0 words on stack for local variables
+# local variables initialization
+# function body
+lw $t0, 0($fp)
+li $t1, 'a'
+sge $t0, $t0, $t1
+beq $t0, $0, to_upper_else_0
+lw $t0, 0($fp)
+li $t1, 32
+sub $t0, $t0, $t1
+sw $t0, 0($fp)
+j to_upper_end_1
+to_upper_else_0:
+to_upper_end_1:
+lw $t0, 0($fp)
+move $v0, $t0
+j return_to_upper
+return_to_upper:
+addi $sp, $sp, 0 # restore stack from local variables
+lw $t0, 0($sp)
+lw $t1, 4($sp)
+addi $sp, $sp, 8 # restore stack from temporaries
+addi $sp, $sp, 8 # free memory for $ra and $fp
+lw $fp, -8($sp) # restore frame pointer from stack
+lw $ra, -4($sp) # restore return address from stack
+jr $ra # return to caller
+scrabble_score_aux:
+sw $ra, -4($sp) # save return address on stack
+sw $fp, -8($sp) # save frame pointer on stack
+move $fp, $sp # set frame pointer to stack pointer
+addi $sp, $sp, -8 # allocation for $ra and $fp
+addi $sp, $sp, -12 # allocation for 3 temporaries
+sw $t2, 8($sp)
+sw $t1, 4($sp)
+sw $t0, 0($sp)
+addi $sp, $sp, -4 # allocate 1 words on stack for local variables
+# local variables initialization
+# variable res
+li $t0, 0
+sw $t0, 0($sp)
+# function body
+scrabble_score_aux_while_start_0:
+lw $t0, 0($fp)
+lb $t0, 0($t0)
+beq $t0, $0, scrabble_score_aux_while_end_1
+lw $t0, 0($sp)
+lw $t1, 0($fp)
+lb $t1, 0($t1)
+add $sp, $sp, -4
+sw $t1, 0($sp)
+jal to_upper
+add $sp, $sp, 4
+move $t1, $v0
+li $t2, 'A'
+sub $t1, $t1, $t2
+add $t1, $t1, $t1
+add $t1, $t1, $t1
+lw $t1, points($t1)
+add $t0, $t0, $t1
+sw $t0, 0($sp)
+lw $t0, 0($fp)
+li $t1, 1
+add $t0, $t0, $t1
+sw $t0, 0($fp)
+j scrabble_score_aux_while_start_0
+scrabble_score_aux_while_end_1:
+lw $t0, 0($sp)
+move $v0, $t0
+j return_scrabble_score_aux
+return_scrabble_score_aux:
+addi $sp, $sp, 4 # restore stack from local variables
+lw $t0, 0($sp)
+lw $t1, 4($sp)
+lw $t2, 8($sp)
+addi $sp, $sp, 12 # restore stack from temporaries
+addi $sp, $sp, 8 # free memory for $ra and $fp
+lw $fp, -8($sp) # restore frame pointer from stack
+lw $ra, -4($sp) # restore return address from stack
+jr $ra # return to caller

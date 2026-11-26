@@ -1,0 +1,20 @@
+package space_age
+
+Planet :: enum { Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, }
+
+@(rodata)
+Planet_Years := [Planet]f64 {                  // duration of year (seconds)
+    .Mercury =    7600543.820,
+    .Venus   =   19414149.052,
+    .Earth   =   31557600.000,
+    .Mars    =   59354032.690,
+    .Jupiter =  374355659.124,
+    .Saturn  =  929292362.885,
+    .Uranus  = 2651370019.330,
+    .Neptune = 5200418560.032,
+}
+
+age :: proc(planet: Planet, seconds: int) -> f64 {
+    return f64(seconds) / Planet_Years[planet] // age (planet-years)
+}
+

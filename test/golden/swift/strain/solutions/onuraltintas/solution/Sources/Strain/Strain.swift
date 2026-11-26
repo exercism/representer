@@ -1,0 +1,22 @@
+extension Array {
+  func keep(_ predicate: (Element) -> Bool) -> [Element] {
+    var result: [Element] = []
+    for item in self {
+      if predicate(item) {
+        result.append(item)
+      }
+    }
+    return result
+  }
+
+  func discard(_ predicate: (Element) -> Bool) -> [Element] {
+    var result: [Element] = []
+    for item in self {
+      if !predicate(item) {
+        result.append(item)
+      }
+    }
+    return result
+  }
+}
+

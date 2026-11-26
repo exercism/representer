@@ -1,0 +1,67 @@
+enum Plant {
+  violets,
+  radishes,
+  clover,
+  grass,
+}
+
+enum Student {
+  Alice,
+  Bob,
+  Charlie,
+  David,
+  Eve,
+  Fred,
+  Ginny,
+  Harriet,
+  Ileana,
+  Joseph,
+  Kincaid,
+  Larry,
+}
+
+class KindergartenGarden {
+  final String diagram;
+  final List<String> rows;
+
+  static const List<Student> defaultStudents = [
+    Student.Alice,
+    Student.Bob,
+    Student.Charlie,
+    Student.David,
+    Student.Eve,
+    Student.Fred,
+    Student.Ginny,
+    Student.Harriet,
+    Student.Ileana,
+    Student.Joseph,
+    Student.Kincaid,
+    Student.Larry,
+  ];
+
+  static const Map<String, Plant> plantMap = {
+    'V': Plant.violets,
+    'R': Plant.radishes,
+    'C': Plant.clover,
+    'G': Plant.grass,
+  };
+
+  KindergartenGarden(String diagram) : 
+    diagram = diagram,
+    rows = diagram.split('\n');
+
+  List<Plant> plants(Student student) {
+    int index = defaultStudents.indexOf(student);
+    if (index == -1) throw ArgumentError("Student not found");
+
+    int colStart = index * 2;
+    List<Plant> result = [];
+
+    for (final row in rows) {
+      result.add(plantMap[row[colStart]]!);
+      result.add(plantMap[row[colStart + 1]]!);
+    }
+
+    return result;
+  }
+}

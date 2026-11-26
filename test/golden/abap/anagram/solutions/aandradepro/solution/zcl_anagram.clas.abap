@@ -1,0 +1,57 @@
+CLASS zcl_anagram DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS anagram
+      IMPORTING
+        input         TYPE string
+        candidates    TYPE string_table
+      RETURNING
+        VALUE(result) TYPE string_table.
+  PROTECTED SECTION.
+    METHODS sort_string
+      IMPORTING
+        input TYPE string
+      RETURNING
+        VALUE(output) TYPE string.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_anagram IMPLEMENTATION.
+  METHOD sort_string.
+    DATA lv_counter TYPE i.
+    DATA it_str TYPE TABLE OF c.
+    DATA lv_letter TYPE c.
+    lv_counter = 0.
+    DO STRLEN( input ) + 1 TIMES.
+      lv_letter = input+lv_counter(1).
+      APPEND lv_letter TO it_str.
+      lv_counter += 1.
+    ENDDO.
+    SORT it_str.
+    LOOP AT it_str INTO lv_letter.
+      CONCATENATE output lv_letter INTO output.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD anagram.
+* add solution here
+    DATA lv_in_order TYPE string.
+    DATA lv_str_order TYPE string.
+    CLEAR result[].
+    lv_in_order = to_upper( input ).
+    lv_in_order = sort_string( lv_in_order ).
+    LOOP AT candidates ASSIGNING FIELD-SYMBOL(<lv_str>).
+      lv_str_order = to_upper( <lv_str> ).      
+      lv_str_order = sort_string( lv_str_order ).      
+      IF lv_in_order = lv_str_order AND to_upper( input ) <> to_upper( <lv_str> ).
+        APPEND <lv_str> TO result.
+      ENDIF.
+    ENDLOOP.
+  ENDMETHOD.
+
+ENDCLASS.

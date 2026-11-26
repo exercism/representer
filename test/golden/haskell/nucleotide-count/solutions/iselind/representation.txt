@@ -1,0 +1,23 @@
+(file "src/DNA.hs")
+module DNA ( nucleotideCounts , Nucleotide ( .. )) where
+import Data.Map.Strict ( Map )
+import qualified Data.Map.Strict as Map
+import qualified Data.List as List
+data Nucleotide = A | C | G | T deriving ( Eq , Ord , Show )
+isNucleoticeStringCharacter :: Char -> Bool
+isNucleoticeStringCharacter x = x ` List . elem ` "\"ACGT\""
+toNucleotide :: Char -> Nucleotide
+toNucleotide 'A' = A
+toNucleotide 'C' = C
+toNucleotide 'G' = G
+toNucleotide 'T' = T
+toNucleotide _ = error "\"No matching Nucleotide found\""
+stringToNucleotides :: String -> [ Nucleotide ]
+stringToNucleotides x = map toNucleotide x
+count :: Map Nucleotide Int -> Nucleotide -> Map Nucleotide Int
+count result x = Map . insertWith ( + ) x 1 result
+nucleotideCounts :: String -> Either String ( Map Nucleotide Int )
+nucleotideCounts xs
+  | not ( all isNucleoticeStringCharacter xs ) = Left "\"Bad character in input\""
+  | otherwise = Right answer
+  where answer = foldl count ( Map . fromList ([( A , 0 ),( C , 0 ),( G , 0 ),( T , 0 )])) ( stringToNucleotides xs )

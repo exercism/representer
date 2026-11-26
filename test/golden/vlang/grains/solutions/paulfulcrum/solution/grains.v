@@ -1,0 +1,12 @@
+module main
+
+fn grains_on_square(square i64) !i64 {
+	if square <= 0 || square > 64 {
+		return error("square must be between 1 and 64")
+	}
+	return i64(1) << (square - 1)
+}
+
+fn total_grains_on_board() i64 {
+	return ~0
+}

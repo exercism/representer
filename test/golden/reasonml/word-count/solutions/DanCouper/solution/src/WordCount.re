@@ -1,0 +1,33 @@
+let isSeparator = (char) => List.mem(Char.code(char), [10, 32, 33, 35, 36, 37, 38, 44, 46, 58, 64, 94])
+
+let stripQuotes = (str) => {
+  let len = String.length(str);
+  let first = str.[0];
+  let last = str.[len - 1];
+
+  switch (Char.code(first), Char.code(last)) {
+    | (39, 39) | (44, 44) => String.sub(str, 1, len - 2)
+    | _ => str
+  }
+}
+
+let wordCount = (str) => {
+  let buf = Buffer.create(16);
+  let dict = Js.Dict.empty();
+
+  let updateDict = () => switch (Buffer.length(buf)) {
+    | 0 => ()
+    | _ => {
+      let word = Buffer.contents(buf) |> String.lowercase |> stripQuotes;
+      switch (Js.Dict.get(dict, word)) {
+      | None => Js.Dict.set(dict, word, 1)
+      | Some(n) => Js.Dict.set(dict, word, n + 1)
+      }
+      Buffer.clear(buf)
+    }
+  }
+
+  String.iter((char) => isSeparator(char) ? updateDict() : Buffer.add_char(buf, char), str);
+  updateDict();
+  dict;
+}

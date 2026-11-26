@@ -1,0 +1,57 @@
+unit DndCharacter;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+type
+  TCharacter = record
+    strength     : integer;
+    dexterity    : integer;
+    constitution : integer;
+    intelligence : integer;
+    wisdom       : integer;
+    charisma     : integer;
+    hitpoints    : integer;
+  end;
+
+function modifier(const score : integer) : integer;
+function ability : integer;
+function character : TCharacter;
+
+implementation
+
+uses Math;
+
+function modifier(const score : integer) : integer;
+begin
+  result := (score div 2) - 5;
+end;
+
+function ability : integer;
+var
+  i, roll, smallest : integer;
+begin
+  smallest := 6;
+  result := 0;
+  for i := 4 downto 1 do
+    begin
+      roll := 1 + Random(6);
+      Inc(result, roll);
+      smallest := Min(smallest, roll);
+    end;
+  Dec(result, smallest);
+end;
+
+function character : TCharacter;
+begin
+    result.strength     := ability;
+    result.dexterity    := ability;
+    result.constitution := ability;
+    result.intelligence := ability;
+    result.wisdom       := ability;
+    result.charisma     := ability;
+    result.hitpoints    := 10 + modifier(result.constitution);
+end;
+
+end.

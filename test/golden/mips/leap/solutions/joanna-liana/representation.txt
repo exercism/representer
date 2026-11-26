@@ -1,0 +1,33 @@
+(file "impl.mips")
+.text
+.globl is_leap_year
+is_leap_year:
+# Argument (year) is in $a0
+# Result (0 for not a leap year, 1 for leap year) will be in $v0
+# Check if the year is evenly divisible by 4
+divu $t0, $a0, 4
+mfhi $t1
+beqz $t1, check_100
+# Year is not divisible by 4, not a leap year
+li $v0, 0
+jr $ra
+check_100:
+# Check if the year is evenly divisible by 100
+divu $t0, $a0, 100
+mfhi $t1
+beqz $t1, check_400
+# Year is divisible by 4 but not by 100, it's a leap year
+li $v0, 1
+jr $ra
+check_400:
+# Check if the year is evenly divisible by 400
+divu $t0, $a0, 400
+mfhi $t1
+bnez $t1, not_leap
+# Year is divisible by 400, it's a leap year
+li $v0, 1
+jr $ra
+not_leap:
+# Year is divisible by 100 but not by 400, not a leap year
+li $v0, 0
+jr $ra

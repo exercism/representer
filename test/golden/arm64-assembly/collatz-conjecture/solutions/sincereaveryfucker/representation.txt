@@ -1,0 +1,33 @@
+(file "collatz_conjecture.s")
+.equ INVALID_NUMBER, -1
+.text
+.globl steps
+steps:
+cmp x0, #0
+b.eq _error
+mov x1, x0, lsr #63
+cmp x1, #1
+b.eq _error
+mov x1, x0
+mov x0, #0
+mov x4, #2
+mov x5, #3
+_loop1:
+cmp x1, #1
+b.eq _end
+add x0, x0, #1
+udiv x2, x1, x4
+mul x2, x2, x4
+cmp x1, x2
+b.eq _even
+_odd:
+mul x1, x1, x5
+add x1, x1, #1
+b _loop1
+_even:
+udiv x1, x1, x4
+b _loop1
+_error:
+mov x0, INVALID_NUMBER
+_end:
+ret

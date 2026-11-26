@@ -1,0 +1,18 @@
+fun squareOfSum n =
+  IntInf.pow (
+    List.foldl
+    (fn (i, acc) => (IntInf.fromInt i) + acc)
+    (IntInf.fromInt 0)
+    (List.tabulate (n, fn i => (i + 1))),
+    2
+  )
+
+fun sumOfSquares n =
+  List.foldl
+  (fn (i, acc) => IntInf.pow (IntInf.fromInt i, 2) + acc)
+  (IntInf.fromInt 0)
+  (List.tabulate (n, fn i => (i + 1)))
+
+fun differenceOfSquares n =
+  squareOfSum n - sumOfSquares n
+  

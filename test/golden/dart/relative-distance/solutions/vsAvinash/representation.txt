@@ -1,0 +1,46 @@
+(file "lib/relative_distance.dart")
+class RelativeDistance {
+final Map < String , Set < String >> _graph = {};
+RelativeDistance ( Map < String , List < String >> familyData ) {
+_buildGraph ( familyData );
+}
+void _buildGraph ( Map < String , List < String >> familyData ) {
+for ( var parent in familyData . keys ) {
+var children = familyData [ parent ] ! ;
+for ( var child in children ) {
+_graph . putIfAbsent ( parent , () = > < String >{}) . add ( child );
+_graph . putIfAbsent ( child , () = > < String >{}) . add ( parent );
+}
+for ( int i = 0 ; i < children . length ; i ++ ) {
+for ( int j = i + 1 ; j < children . length ; j ++ ) {
+_graph . putIfAbsent ( children [ i ], () = > < String >{}) . add ( children [ j ]);
+_graph . putIfAbsent ( children [ j ], () = > < String >{}) . add ( children [ i ]);
+}
+}
+}
+}
+int degreesOfSeparation ( String personA , String personB ) {
+if ( ! _graph . containsKey ( personA ) || ! _graph . containsKey ( personB )) {
+return - 1 ;
+}
+if ( personA == personB ) return 0 ;
+Set < String > visited = { personA };
+List < String > queue = [ personA ];
+Map < String , int > distance = { personA: 0 };
+while ( queue . isNotEmpty ) {
+var current = queue . removeAt ( 0 );
+var currentDistance = distance [ current ] ! ;
+for ( var neighbor in _graph [ current ] ! ) {
+if ( ! visited . contains ( neighbor )) {
+visited . add ( neighbor );
+distance [ neighbor ] = currentDistance + 1 ;
+if ( neighbor == personB ) {
+return distance [ neighbor ] ! ;
+}
+queue . add ( neighbor );
+}
+}
+}
+return - 1 ;
+}
+}

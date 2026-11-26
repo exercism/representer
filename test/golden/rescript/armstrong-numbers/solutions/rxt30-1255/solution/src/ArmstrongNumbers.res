@@ -1,0 +1,7 @@
+let isArmstrongNumber = n =>
+  Int.toString(n)
+  ->Array.fromString
+  ->Array.map(Int.fromString(_))
+  ->Array.map(Option.getOr(_, 0))
+  ->Array.reduce(0, (acc, el) => acc + el ** String.length(Int.toString(n)))
+  ->Int.equal(n)

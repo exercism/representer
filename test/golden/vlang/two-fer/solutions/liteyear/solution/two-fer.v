@@ -1,0 +1,22 @@
+module main
+
+fn two_fer(name string) string {
+	you_name := if is_blank(name) { "you" } else { name }
+	return "One for ${you_name}, one for me."
+}
+
+// Exercism doesn't have is_blank() at the moment. Copied here from:
+//https://github.com/vlang/v/blob/master/vlib/builtin/string.v#L2095
+fn is_blank(s string) bool {
+	if s.len == 0 {
+		return true
+	}
+
+	for c in s {
+		if !c.is_space() {
+			return false
+		}
+	}
+
+	return true
+}

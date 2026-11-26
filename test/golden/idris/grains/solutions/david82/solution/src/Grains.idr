@@ -1,0 +1,12 @@
+module Grains
+
+export
+grains : Integer -> Maybe Integer
+grains square = 
+  if square >= 1 && square <= 64
+    then Just (prim__shl_Integer 1 (square - 1))
+    else Nothing
+
+export
+totalGrains : Integer
+totalGrains = prim__shl_Integer 1 64 - 1

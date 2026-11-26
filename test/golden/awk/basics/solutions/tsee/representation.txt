@@ -1,0 +1,20 @@
+(file "basics.sh")
+awk '
+BEGIN { FS = "\":\"" }
+{ print $1 }
+' . / passwd
+awk ' { print NR } ' . / passwd
+awk '
+BEGIN { FS = "\":\"" }
+function startsWith ( text , prefix ) {
+return text ~ "\"^\"" prefix
+}
+! startsWith ( $6 , "\"/home\"" ) && ! startsWith ( $6 , "\"/root\"" ) { print $0 }
+' . / passwd
+awk '
+BEGIN { FS = "\":\"" }
+function startsWith ( text , prefix ) {
+return text ~ "\"^\"" prefix
+}
+( startsWith ( $6 , "\"/home\"" ) || startsWith ( $6 , "\"/root\"" )) && $7 == "\"/bin/bash\"" { print $0 }
+' . / passwd

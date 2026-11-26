@@ -1,0 +1,9 @@
+Public Module TwoFer
+    Public Function Speak(Optional ByVal arg As String = "you") As String
+        If (arg.Length() > 0) Then
+            Return "One for " + arg + ", one for me."
+        Else
+            Return "One for you, one for me"
+        End If
+    End Function
+End Module

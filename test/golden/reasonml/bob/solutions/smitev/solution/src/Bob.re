@@ -1,0 +1,15 @@
+let hey = s => {
+  let isYelling = s =>
+    Js.String.search([%re "/[a-z]/g"], s) < 0
+    && Js.String.search([%re "/[A-Z]+/g"], s) >= 0;
+
+  let isQuestion = s => s |> Js.String.endsWith("?");
+
+  switch (Js.String.trim(s)) {
+  | "" => "Fine. Be that way!"
+  | y when isYelling(y) && !isQuestion(y) => "Whoa, chill out!"
+  | q when isQuestion(q) && !isYelling(q) => "Sure."
+  | fq when isQuestion(fq) && isYelling(fq) => "Calm down, I know what I'm doing!"
+  | _ => "Whatever."
+  };
+};

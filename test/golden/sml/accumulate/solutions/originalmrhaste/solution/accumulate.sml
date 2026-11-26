@@ -1,0 +1,4 @@
+fun accumulate (f, xs) =
+    case xs of
+        [] => []
+        | x::xs' => (f x)::accumulate(f,xs')

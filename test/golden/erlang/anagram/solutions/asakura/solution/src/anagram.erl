@@ -1,0 +1,13 @@
+-module(anagram).
+
+-export([find_anagrams/2]).
+
+
+find_anagrams(Subject, Candidates) ->
+    Base = string:lowercase(Subject),
+    Sorted = lists:sort(Base),
+    [Candidate || Candidate <- Candidates, is_anagram(Base, Sorted, string:lowercase(Candidate))].
+
+
+is_anagram(Base, _, Base) -> false;
+is_anagram(_, Sorted, Candidate) -> Sorted =:= lists:sort(Candidate).

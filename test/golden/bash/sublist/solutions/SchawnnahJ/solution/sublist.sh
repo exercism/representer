@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+[[ $1 =~ \[(.*)] ]] && a=( ${BASH_REMATCH[1]//,} )
+[[ $2 =~ \[(.*)] ]] && b=( ${BASH_REMATCH[1]//,} )
+compare() {
+    small=($1)
+    large=($2)
+    for (( i==0; i<=${#large[@]}-${#small[@]}; i++ )); do
+        for (( j=0; j<${#small[@]}; j++ )); do
+            [[ ${small[$j]} != ${large[$((i+j))]} ]] && continue 2;
+        done
+        return 0
+    done
+    return 1
+}
+if (( ${#a[@]} < ${#b[@]} )); then
+    compare "${a[*]}" "${b[*]}" && echo sublist || echo unequal
+elif (( ${#a[@]} > ${#b[@]} )); then
+    compare "${b[*]}" "${a[*]}" &&  echo superlist || echo unequal
+else
+    compare "${b[*]}" "${a[*]}" &&  echo equal || echo unequal
+fi

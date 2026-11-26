@@ -1,0 +1,30 @@
+(file "bob.el")
+( defun response-clean ( question )
+( cond
+(( and
+( string= ( car ( last ( split-string question "\"\"" t ))) "\"?\"" )
+( string= question ( upcase question ))
+( > ( length question ) 1 )
+)
+"\"Calm down, I know what I'm doing!\""
+)
+(( string= ( car ( last ( split-string question "\"\"" t ))) "\"?\"" ) "\"Sure.\"" )
+(( = ( length ( split-string question )) 0 ) "\"Fine. Be that way!\"" )
+(
+( and
+( > ( length question ) 2 )
+( string= question ( upcase question ))
+)
+"\"Whoa, chill out!\""
+)
+( t "\"Whatever.\"" )
+)
+)
+( defun response-for ( question )
+( response-clean
+( cl-reduce
+'concat
+` ( ,@ ( split-string question "\"[ \\f\\t\\n\\r\\v0-9:)]+\"" )))
+)
+)
+( provide 'bob )

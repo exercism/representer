@@ -1,0 +1,12 @@
+def update(item):
+   item as {"weight": $w, "value": $v} |
+   . as $best |
+   [range(length)] |
+   map(if . >= $w and $v + $best[. - $w] > $best[.] then
+            $v + $best[. - $w] else $best[.] end)
+;
+
+.maximumWeight as $M |
+.items |
+reduce .[] as $item ([range($M + 1) | 0]; update($item)) |
+last 

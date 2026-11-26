@@ -1,0 +1,92 @@
+(file "lib/newsletter.ex"
+  (source
+    (call defmodule
+      (arguments Newsletter)
+      (do_block
+        (call def
+          (arguments
+            (call read_emails
+              (arguments (variable PLACEHOLDER_1))))
+          (do_block
+            (binary_operator
+              (tuple :ok file) =
+              (call
+                (dot File . open)
+                (arguments PLACEHOLDER_1
+                  (list :read))))
+            (binary_operator (variable PLACEHOLDER_2) =
+              (call
+                (dot IO . read)
+                (arguments file :eof)))
+            (call if
+              (arguments
+                (unary_operator !
+                  (call is_binary
+                    (arguments PLACEHOLDER_2))))
+              (do_block
+                (list)
+                (else_block
+                  (binary_operator
+                    (binary_operator PLACEHOLDER_2 |>
+                      (call
+                        (dot String . trim)
+                        (arguments))) |>
+                    (call
+                      (dot String . split)
+                      (arguments "\n"))))))))
+        (call def
+          (arguments
+            (call open_log
+              (arguments (variable PLACEHOLDER_1))))
+          (do_block
+            (binary_operator
+              (tuple :ok (variable PLACEHOLDER_3)) =
+              (call
+                (dot File . open)
+                (arguments PLACEHOLDER_1
+                  (list :write)))) PLACEHOLDER_3))
+        (call def
+          (arguments
+            (call log_sent_email
+              (arguments (variable PLACEHOLDER_4) email)))
+          (do_block
+            (call
+              (dot IO . puts)
+              (arguments PLACEHOLDER_4 email))))
+        (call def
+          (arguments
+            (call close_log
+              (arguments (variable PLACEHOLDER_4))))
+          (do_block
+            (call
+              (dot File . close)
+              (arguments PLACEHOLDER_4))))
+        (call def
+          (arguments
+            (call send_newsletter
+              (arguments (variable PLACEHOLDER_5) (variable PLACEHOLDER_6) (variable PLACEHOLDER_7))))
+          (do_block
+            (binary_operator (variable PLACEHOLDER_8) =
+              (call open_log
+                (arguments PLACEHOLDER_6)))
+            (binary_operator
+              (call read_emails
+                (arguments PLACEHOLDER_5)) |>
+              (call
+                (dot Enum . map)
+                (arguments
+                  (anonymous_function
+                    (stab_clause
+                      (arguments email) ->
+                      (body
+                        (call if
+                          (arguments
+                            (binary_operator
+                              (call
+                                (dot PLACEHOLDER_7 .)
+                                (arguments email)) == :ok))
+                          (do_block
+                            (call log_sent_email
+                              (arguments PLACEHOLDER_8 email))))))))))
+            (call close_log
+              (arguments PLACEHOLDER_8))))))))

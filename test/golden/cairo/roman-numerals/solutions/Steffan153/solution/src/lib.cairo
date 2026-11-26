@@ -1,0 +1,39 @@
+use core::fmt::{Display, Error, Formatter};
+
+#[derive(Drop)]
+pub struct Roman {
+    num: u32,
+}
+
+impl U32IntoRoman of Into<u32, Roman> {
+    #[must_use]
+    fn into(self: u32) -> Roman {
+        Roman { num: self }
+    }
+}
+
+impl RomanDisplay of Display<Roman> {
+    fn fmt(self: @Roman, ref f: Formatter) -> Result<(), Error> {
+        let mut r = *self.num;
+        let mut idx = 0;
+        let mut res: ByteArray = "";
+        while r > 0 {
+            let romans =
+                match idx {
+                    0 => array!['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'],
+                    1 => array!['', 'X', 'XX', 'XXX', 'XL', 'L', 'LX', 'LXX', 'LXXX', 'XC'],
+                    2 => array!['', 'C', 'CC', 'CCC', 'CD', 'D', 'DC', 'DCC', 'DCCC', 'CM'],
+                    _ => array!['', 'M', 'MM', 'MMM', '--', '-', '--', '---', '----', '--'],
+                };
+            let mut roman: u64 = (*romans[r % 10]).try_into().unwrap();
+            while roman > 0 {
+                res.append_byte((roman % 256).try_into().unwrap());
+                roman /= 256;
+            };
+            idx += 1;
+            r /= 10;
+        };
+        f.buffer.append(@res.rev());
+        Result::Ok(())
+    }
+}

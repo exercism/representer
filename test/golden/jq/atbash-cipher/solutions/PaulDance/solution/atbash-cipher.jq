@@ -1,0 +1,38 @@
+"abcdefghijklmnopqrstuvwxyz" as $ALPHA |
+
+def transform:
+    if . | test("^\\d$") then
+        .
+    else
+        . as $chr
+          | ($ALPHA | length - index($chr) - 1) as $idx
+          | $ALPHA[$idx: $idx + 1]
+    end
+;
+
+def encode:
+    [
+        . | gsub("\\W"; "")
+          | ascii_downcase
+          | scan("\\w")
+          | transform
+    ]
+    | add
+    | gsub("(?<group>\\w{5})"; "\(.group) ")
+    | rtrimstr(" ")
+;
+
+def decode:
+    [
+        . | gsub("\\s"; "")
+          | scan("\\w")
+          | transform
+    ]
+    | add
+;
+
+if .property == "encode" then
+    .input.phrase | encode
+else
+    .input.phrase | decode
+end

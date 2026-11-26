@@ -1,0 +1,26 @@
+/**
+* Your implmentation of the DifferenceOfSquares exercise
+*/
+component {
+
+	numeric function squareOfSum( required numeric number ) {
+		var result = 0;
+		for (var currentNumber = 1; currentNumber <= arguments.number ; currentNumber++) {
+			result += currentNumber;
+		}
+		return result*result;
+	}
+	
+	numeric function sumOfSquares( required numeric number ) {
+		var result = 0;
+		for (var currentNumber = 1; currentNumber <= arguments.number ; currentNumber++) {
+			result += currentNumber*currentNumber;
+		}
+		return result;
+	}
+	
+	numeric function differenceOfSquares( required numeric number ) {
+		 return squareOfSum(arguments.number) - sumOfSquares(arguments.number);
+	}
+	
+}

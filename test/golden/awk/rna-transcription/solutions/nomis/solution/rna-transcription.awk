@@ -1,0 +1,2 @@
+/^[GCAT]*$/{gsub(/G/, "X"); gsub(/C/, "G"); gsub(/X/, "C"); gsub(/A/, "U"); gsub(/T/, "A"); print; exit 0; }
+{ print "Invalid nucleotide detected."; exit 1; }

@@ -1,0 +1,38 @@
+(file "isogram.asm")
+section .text
+global is_isogram
+is_isogram:
+xor esi , esi
+xor eax , eax
+.loop:
+mov al , [ rdi ]
+test al , al
+jz .true
+.check_uppercase:
+cmp al , 'A'
+jb .next
+cmp al , 'Z'
+ja .check_lowercase
+or al , 0x20
+jmp .lowercase
+.check_lowercase:
+cmp al , 'a'
+jb .next
+cmp al , 'z'
+ja .next
+.lowercase:
+sub al , 'a'
+bts esi , eax
+jc .false
+.next:
+inc rdi
+jmp .loop
+.true:
+mov eax , 1
+ret
+.false:
+xor eax , eax
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

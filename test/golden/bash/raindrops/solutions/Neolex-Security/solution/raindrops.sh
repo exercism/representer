@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+main () {
+	one=false
+	if (($1 % 3 == 0));then
+		echo -n "Pling"
+		one=true
+	fi
+	if (($1 % 5 == 0));then
+		echo -n "Plang"
+		one=true
+	fi
+	if (($1 % 7 == 0));then
+		echo -n "Plong"
+		one=true
+	fi
+	if [[ $one == false ]];then
+		echo -n $1
+	fi
+	echo ""
+}
+
+main "$@"

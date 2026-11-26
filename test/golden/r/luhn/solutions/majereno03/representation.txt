@@ -1,0 +1,19 @@
+(file "luhn.R")
+is_valid <- function ( input ) {
+cleaned <- gsub ( "\" \"" , "\"\"" , input )
+if ( nchar ( cleaned ) <= 1 ) {
+return ( FALSE )
+}
+if ( grepl ( "\"[^0-9]\"" , cleaned )) {
+return ( FALSE )
+}
+digits <- as.integer ( strsplit ( cleaned , "\"\"" )[[ 1 ]])
+rev_digits <- rev ( digits )
+double_indices <- seq ( 2 , length ( rev_digits ), by = 2 )
+rev_digits [ double_indices ] <- rev_digits [ double_indices ] * 2
+rev_digits [ double_indices ] <- ifelse ( rev_digits [ double_indices ] > 9 ,
+rev_digits [ double_indices ] - 9 ,
+rev_digits [ double_indices ])
+total_sum <- sum ( rev_digits )
+return ( total_sum %% 10 == 0 )
+}

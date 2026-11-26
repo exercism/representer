@@ -1,0 +1,20 @@
+type dna =
+  | A
+  | C
+  | G
+  | T;
+
+type rna =
+  | A
+  | C
+  | G
+  | U;
+
+let toRna = dna =>
+  List.map((d: dna) => 
+    switch(d) {
+      | G => C
+      | C => G
+      | T => A
+      | A => U
+    }, dna);

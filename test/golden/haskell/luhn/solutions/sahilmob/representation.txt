@@ -1,0 +1,31 @@
+(file "package.yaml")
+name : luhn
+version : 1.7 . 0.7
+dependencies :
+  - base
+library :
+  exposed - modules : Luhn
+  source - dirs : src
+  ghc - options : - Wall
+  # dependencies :
+  # - foo # List here the packages you
+  # - bar # want to use in your solution .
+tests :
+  test :
+    main : Tests . hs
+    source - dirs : test
+    dependencies :
+      - luhn
+      - hspec
+(file "src/Luhn.hs")
+module Luhn ( isValid ) where
+import Data.Char
+isValid :: String -> Bool
+isValid xs = length digits > 1 && luhnSum ( reverse ( map digitToInt digits )) ` mod ` 10 == 0
+  where
+    digits = filter isDigit xs
+    luhnSum [] = 0
+    luhnSum [ x ] = x
+    luhnSum ( x : y : xs ) = x + double y + luhnSum xs
+      where
+        double d = if d * 2 >= 10 then d * 2 - 9 else d * 2

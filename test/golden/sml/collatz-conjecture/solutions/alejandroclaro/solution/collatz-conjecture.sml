@@ -1,0 +1,10 @@
+fun collatz n =
+  let
+    fun isEven x = (x mod 2) = 0
+    fun update x = if isEven x then x div 2 else (3 * x) + 1
+    fun solve 1 steps = steps
+      | solve x steps = (solve (update x) (steps + 1))
+  in
+    if n < 1 then NONE else SOME (solve n 0)
+  end
+

@@ -1,0 +1,110 @@
+(file "say.ml")
+open Base
+let in_english ( num : int64 ) =
+let assoc =
+Map . of_alist_exn ( module Int64 )
+[
+( 0 L , "\"zero\"" );
+( 1 L , "\"one\"" );
+( 2 L , "\"two\"" );
+( 3 L , "\"three\"" );
+( 4 L , "\"four\"" );
+( 5 L , "\"five\"" );
+( 6 L , "\"six\"" );
+( 7 L , "\"seven\"" );
+( 8 L , "\"eight\"" );
+( 9 L , "\"nine\"" );
+( 10 L , "\"ten\"" );
+( 11 L , "\"eleven\"" );
+( 12 L , "\"twelve\"" );
+( 13 L , "\"thirteen\"" );
+( 14 L , "\"fourteen\"" );
+( 15 L , "\"fifthteen\"" );
+( 16 L , "\"sixteen\"" );
+( 17 L , "\"seventeen\"" );
+( 18 L , "\"eighteen\"" );
+( 19 L , "\"nineteen\"" );
+( 20 L , "\"twenty\"" );
+( 30 L , "\"thirty\"" );
+( 40 L , "\"forty\"" );
+( 50 L , "\"fifty\"" );
+( 60 L , "\"sixty\"" );
+( 70 L , "\"seventy\"" );
+( 80 L , "\"eighty\"" );
+( 90 L , "\"ninety\"" );
+]
+in
+let open Int64 in
+let max_magnitude = 12 L in
+let max_num = ( 10 L ** max_magnitude ) - 1 L in
+let breakdown ~ magnitude_stride : mag ~ number : num =
+let folder i acc elt =
+if ( i mod mag ) == 0 then
+[ elt ] :: acc
+else
+match acc with
+| h :: t -> ( elt :: h ) :: t
+| [] -> [[ elt ]]
+in
+Int64 . to_string num |>
+String . to_list |>
+List . rev |>
+List . map ~ f : ( fun elt -> Int64 . of_string ( String . of_char elt )) |>
+List . foldi ~ init : [] ~ f : folder
+in
+let convert_100s digit_list =
+let rec convert_10s_rec l =
+let dozens = List . hd_exn l in
+let units = List . hd_exn ( List . tl_exn l ) in
+let num = 10 L * dozens + units in
+if num <= 20 L then
+if ( Int64 . equal num 0 L ) then "\"\""
+else Map . find_exn assoc num
+else
+( Map . find_exn assoc ( 10 L * dozens )) ^
+( if ( Int64 . equal units 0 L ) then "\"\""
+else "\"-\"" ^ ( Map . find_exn assoc units ))
+in
+let rec convert_100s_rec l =
+let length = List . length l in
+let head = List . hd_exn l in
+let tail = List . tl_exn l in
+if length == 3 then
+( if ( Int64 . equal head 0 L ) then "\"\""
+else ( Map . find_exn assoc head ) ^ "\" hundred \"" ) ^
+( convert_100s_rec tail )
+else if length == 2 then convert_10s_rec l
+else if ( Int64 . equal head 0 L ) then "\"\""
+else Map . find_exn assoc head
+in
+convert_100s_rec digit_list
+in
+let converti i acc elt =
+let all_zeros = List . for_all elt ~ f : ( fun elt -> ( Int64 . equal elt 0 L )) in
+( convert_100s elt ) ^
+( if all_zeros then "\"\""
+else if i == 0 then
+"\"\""
+else if i == 1 then
+"\" thousand \""
+else if i == 2 then
+"\" million \""
+else
+"\" billion \"" )
+^ acc
+in
+if ( num < 0 L ) || ( num > max_num ) then
+Error "\"input out of range\""
+else
+if ( Int64 . equal num 0 L ) then Ok "\"zero\""
+else
+let conversion =
+breakdown ~ magnitude_stride : 3 ~ number : num |>
+List . rev |>
+List . foldi ~ init : "\"\"" ~ f : converti
+in
+if ( String . is_suffix conversion ~ suffix : "\" \"" ) then
+Ok ( String . drop_suffix conversion 1 )
+else
+Ok conversion
+;;

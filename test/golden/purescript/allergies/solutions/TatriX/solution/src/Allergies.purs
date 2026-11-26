@@ -1,0 +1,35 @@
+module Allergies
+  ( allergicTo
+  , list
+  ) where
+
+import Prelude
+
+import Data.Array (catMaybes, elemIndex, mapWithIndex)
+import Data.Int.Bits (and, shr)
+import Data.Maybe (Maybe(..))
+
+allergies :: Array String
+allergies = [ "eggs"
+            , "peanuts"
+            , "shellfish"
+            , "strawberries"
+            , "tomatoes"
+            , "chocolate"
+            , "pollen"
+            , "cats"
+            ]
+
+hasAllergy :: Int -> Int -> Boolean
+hasAllergy score index = (score `shr` index) `and` 0x1 == 1
+
+allergicTo :: Int -> String -> Boolean
+allergicTo score allergy = case allergy `elemIndex` allergies of
+  Nothing -> false
+  Just index -> hasAllergy score index
+
+list :: Int -> Array String
+list score = catMaybes $ mapWithIndex filter allergies where
+  filter index name
+    | hasAllergy score index = Just name
+    | otherwise = Nothing

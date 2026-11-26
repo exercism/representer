@@ -1,0 +1,44 @@
+(file "clock.jl")
+using Dates
+import Base .+
+import Base .-
+import Base . sprint
+struct Clock
+hour :: Int
+min :: Int
+function Clock ( h , m )
+h_delta = 0
+if m >= 60
+h_delta = div ( m , 60 )
+m %= 60
+elseif m < 0
+h_delta = div ( m , 60 ) - 1
+m = 60 + m % 60
+end
+h += h_delta
+if h >= 24
+h %= 24
+elseif h < 0
+h = 24 + h % 24
+end
+if h == 24
+h = 0
+end
+if m == 60
+h += 1
+m = 0
+end
+new ( h , m )
+end
+end
+function + ( c :: Clock , m :: Dates . Minute )
+return Clock ( c . hour , c . min + m . value )
+end
+function -( c :: Clock , m :: Dates . Minute )
+return Clock ( c . hour , c . min - m . value )
+end
+function sprint ( f :: Function , c :: Clock )
+hour_str = c . hour < 10 ? "\"0\"" * string ( c . hour ) : string ( c . hour )
+min_str = c . min < 10 ? "\"0\"" * string ( c . min ) : string ( c . min )
+return "\"\\\"\"" * hour_str * "\":\"" * min_str * "\"\\\"\""
+end

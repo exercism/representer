@@ -1,0 +1,22 @@
+class PascalsTriangle
+  rows: (num) ->
+    if num <= 0
+      return []
+    else if num == 1
+      return [[1]]
+
+    triangle = @rows(num - 1)
+    [..., previous] = triangle
+
+    row = [0..(num - 1) / 2].map (i) ->
+      (previous[i - 1] ? 0) + previous[i]
+
+    row = [
+      row...
+      row.reverse()[num % 2..]...
+    ]
+
+    triangle.push row
+    return triangle
+
+module.exports = PascalsTriangle

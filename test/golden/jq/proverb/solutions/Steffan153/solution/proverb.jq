@@ -1,0 +1,2 @@
+.strings |
+[([.[:-1], .[1:]] | transpose[] | "For want of a \(.[0]) the \(.[1]) was lost."), (.[:1][] | "And all for the want of a \(.).")]

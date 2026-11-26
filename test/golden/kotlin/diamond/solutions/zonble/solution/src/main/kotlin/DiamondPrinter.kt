@@ -1,0 +1,18 @@
+import java.security.InvalidParameterException
+
+class DiamondPrinter {
+
+    private fun makeLine(total: Int, index: Int) =
+            (0..(total * 2)).map {
+                if (it == total - index || it == total + index)
+                    ('A' + index).toString()
+                else " "
+            }.joinToString("")
+
+    fun printToList(c: Char): List<String>? {
+        require(c in 'A'..'Z') { throw  InvalidParameterException("Invalid input.") }
+        val offset = c - 'A'
+        return (0..offset).map { makeLine(offset, it) } + if (offset > 0) (offset - 1 downTo 0).map { makeLine(offset, it) } else emptyList()
+    }
+    
+}

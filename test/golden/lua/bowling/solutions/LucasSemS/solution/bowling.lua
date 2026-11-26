@@ -1,0 +1,30 @@
+return function()
+  local unpack, remove = table.unpack or unpack, table.remove
+  local frame, result, buffer = 0, 0, {}
+
+  local function sum(a, ...)
+    return not a and 0 or a + sum(...)
+  end
+
+  local function roll(pins)
+    assert(pins >= 0 and pins <= 10, "invalid number of pins")
+    assert(frame < 10, "game is already over")
+    table.insert(buffer, pins)
+
+    if #buffer == 3 then
+      result = sum(result, unpack(buffer))
+      frame = frame + 1, remove(buffer, 1) ~= 10 and remove(buffer, 1)
+    elseif #buffer == 2 and sum(unpack(buffer)) < 10 then
+      result = sum(result, remove(buffer), remove(buffer))
+      frame = frame + 1
+    end
+
+    assert(#buffer ~= 2 or buffer[1] == 10 or sum(unpack(buffer)) <= 10, "invalid number of pins in frame")
+  end
+
+  local function score()
+    return assert(frame == 10 and result, "game is not over yet")
+  end
+
+  return {roll = roll, score = score}
+end

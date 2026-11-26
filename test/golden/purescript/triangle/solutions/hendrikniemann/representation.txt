@@ -1,0 +1,25 @@
+(file "src/Triangle.purs")
+module Triangle
+  ( Triangle ( Equilateral , Isosceles , Scalene )
+  , triangleKind
+  ) where
+import Prelude
+import Data.Either ( Either ( .. ))
+data Triangle = Equilateral | Isosceles | Scalene
+derive instance eqTriangle :: Eq Triangle
+instance showTriangle :: Show Triangle where
+  show Equilateral = "\"Equilateral\""
+  show Isosceles = "\"Isosceles\""
+  show Scalene = "\"Scalene\""
+isEquilateral :: Int -> Int -> Int -> Boolean
+isEquilateral a b c = a == b && b == c
+isIsosceles :: Int -> Int -> Int -> Boolean
+isIsosceles a b c = a == b || b == c || c == a
+isTriangle :: Int -> Int -> Int -> Boolean
+isTriangle a b c = a + b > c && b + c > a && a + c > b
+triangleKind :: Int -> Int -> Int -> Either String Triangle
+triangleKind a b c | a <= 0 || b <= 0 || c <= 0 = Left "\"Invalid lengths\""
+  | not $ isTriangle a b c = Left "\"Violates inequality\""
+  | isEquilateral a b c = Right Equilateral
+  | isIsosceles a b c = Right Isosceles
+  | otherwise = Right Scalene

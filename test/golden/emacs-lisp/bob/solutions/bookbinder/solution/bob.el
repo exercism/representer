@@ -1,0 +1,22 @@
+;;; bob.el --- Bob exercise (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+(require 'subr-x)
+
+
+(defun response-for (phrase)
+  (let ((question (string-suffix-p "?" (string-trim phrase)))
+        (silent   (string-empty-p (string-trim phrase)))
+	    (yell     (and (not (string-empty-p (string-trim phrase)))
+		               (string= phrase (upcase phrase))
+                       (string-match-p "[A-Z]" phrase))))
+    (cond
+     ((and question yell) "Calm down, I know what I'm doing!")
+     (question "Sure.")
+     (yell "Whoa, chill out!")
+     (silent "Fine. Be that way!")
+     (t "Whatever."))))
+
+(provide 'bob)
+;;; bob.el ends here

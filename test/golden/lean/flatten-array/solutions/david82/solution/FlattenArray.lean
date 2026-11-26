@@ -1,0 +1,20 @@
+namespace FlattenArray
+
+inductive Box (α : Type) : Type where
+  | zero
+  | one (value : α)
+  | many (boxes : Array (Box α))
+  deriving Inhabited, Nonempty
+
+partial def go (box : Box Int) (acc : Array Int) : Array Int :=
+  match box with
+  | .zero => acc
+  | .one v => acc.push v
+  | .many boxes => boxes.foldl (fun acc b => go b acc) acc
+
+@[inline]
+def flatten (box : Box Int) : Array Int :=
+  go box #[]
+
+end FlattenArray
+              

@@ -1,0 +1,13 @@
+module Matrix (saddlePoints) where
+
+import Data.Array (Array, range, elems, bounds)
+
+isSaddlePoint :: [((Int, Int), Int)] -> ((Int, Int), Int) -> Bool
+isSaddlePoint indicesWithValues ((x, y), v) = let sameCols = fmap snd (filter (\((x2,_), _) -> x2 == x) indicesWithValues)
+                                                  sameRows = fmap snd (filter (\((_,y2), _) -> y2 == y) indicesWithValues) in
+                                              (maximum sameCols == v) && (minimum sameRows == v)
+
+saddlePoints :: Array (Int, Int) Int -> [(Int, Int)]
+saddlePoints matrix = let indicesWithValues = zip (range (bounds matrix)) (elems matrix) in
+                      fmap fst $ filter (isSaddlePoint indicesWithValues) indicesWithValues
+

@@ -1,0 +1,108 @@
+;; Number is one or more digits
+;; Word is one or more symbols that is not a number
+;; Program is ListOfStrings
+
+;; Operator is + - * DUP DROP SWAP OVER
+;; var x ...; binding
+;; 
+(import (except (rnrs) current-output-port))
+
+(define (drop  stack)
+  (if (null? stack)
+    (error forth "nothing to drop")
+    (cdr stack)))
+(define (swap stack)
+  (if (or (null? stack) (null? (cdr stack)))
+    (error forth "not enough stack for swap")
+    (cons (cadr stack) (cons (car stack) (cddr stack)))))
+(define (dup stack)
+  (if (null? stack)
+    (error forth "nothing to dup")
+    (cons (car stack) stack)))
+(define (over stack)
+  (if (or (null? stack) (null? (cdr stack)))
+    (error forth "not enough stack for over")
+    (cons (cadr stack) stack)))
+(define (add stack)
+  (if (or (null? stack) (null? (cdr stack)))
+    (error forth "not enough stack for add")
+   (+ (car stack) (cadr stack))))
+(define (mul stack)
+  (if (or (null? stack) (null? (cdr stack)))
+    (error forth "not enough stack for mull")
+  (* (car stack) (cadr stack))))
+(define (sub stack)
+  (if (or (null? stack) (null? (cdr stack)))
+    (error forth "not enough stack for sub")
+  (- (cadr stack) (car stack))))
+(define (div stack)
+  (cond [(or (null? stack) (null? (cdr stack)))  
+         (error forth "not enough stack for div")] 
+        [(zero? (car stack))(error forth "div by 0")]
+        [(quotient (cadr stack) (car stack))]))
+
+(define (arith op stack)
+  (cons (op stack) (drop (drop stack))))
+
+;;  symtable (name . stack)
+;;  disallow numbers
+;;  expand existing symbols
+(define (addsym symtable stack)
+  "return assoc list with sym name and entries until ;"
+  (let ([name (car stack)])
+    (if (number? name)
+      (error forth "cannot redefine numbers")
+      (letrec ([loop (lambda (stack)
+                       (cond [(and (string? (car stack)) (string=? (car stack) ";")) '()]
+                             [(assoc-ref symtable (car stack)) 
+                              (append (getsym symtable (car stack)) (loop (cdr stack)))]
+                             [else (cons (car stack) (loop   (cdr stack) ))]))])
+        (acons name (list (loop (cdr stack))) symtable)))))
+
+(define (strip-sym-def stack)
+  "remove everything until ;"
+  (cond [(null? stack) '()]
+        [(and (string? (car stack)) (string=? (car stack) ";")) (cdr stack)]
+        [else (strip-sym-def (cdr stack))]))
+
+(define (getsym syms s)
+  (car (assoc-ref syms s)))
+
+(define (string->num s)
+  (or(string->number s) s))
+
+(define (strtokenise inputstring)
+  "convert list of strings to flat list of tokens"
+  (map string->num (map string-downcase (string-tokenize inputstring))))
+
+(define (tokenise prog )
+  (fold-right append '() (map strtokenise prog)))
+    
+
+
+(define (forth program)
+  (let loop ([syms '()] [inp (tokenise program)]  [ret '()])
+    (cond [(null? inp) ret]
+          [(number?  (car inp)) (loop syms (cdr inp) (cons (car inp) ret))]
+          [(assoc-ref syms (car inp)) 
+           (loop syms (append (getsym syms (car inp)) (cdr inp)) ret) ]
+          [(string=? "+" (car inp)) (loop syms (cdr inp ) 
+                                          (arith add  ret))]
+          [(string=? "-" (car inp))(loop syms (cdr inp ) 
+                                          (arith sub  ret))]
+          [(string=? "*" (car inp))(loop syms (cdr inp ) 
+                                          (arith mul  ret))]
+          [(string=? "/" (car inp))(loop syms (cdr inp ) 
+                                          (arith div  ret))]
+          [(string=? "dup" (car inp)) (loop syms (cdr inp)
+                                            (dup ret))]
+          [(string=? "drop" (car inp)) (loop syms (cdr inp)
+                                             (drop ret))]
+          [(string=? "swap" (car inp)) (loop syms (cdr inp)
+                                             (swap ret))]
+          [(string=? "over" (car inp)) (loop syms (cdr inp)
+                                             (over ret))]
+          [(string=? ":" (car inp)) (loop (addsym syms (cdr inp)) (strip-sym-def inp) ret) ]
+          [else (error forth '("unrecognised token"))])))
+
+(forth '("1 2 +"))

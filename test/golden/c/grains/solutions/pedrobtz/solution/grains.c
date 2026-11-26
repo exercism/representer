@@ -1,0 +1,17 @@
+#include "grains.h"
+
+uint64_t square(uint8_t index){
+    
+    if(index < 1 || index > 64)
+        return 0;
+
+    uint64_t grains = 1;
+    while(1 < index--)
+         grains <<= 1;
+    
+    return grains;
+}
+
+uint64_t total(void){
+    return UINT64_MAX;
+}

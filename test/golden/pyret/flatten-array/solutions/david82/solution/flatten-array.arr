@@ -1,0 +1,15 @@
+use context essentials2020
+
+provide: flatten end
+
+fun flatten(lst :: List<Any>) -> List<Any>:
+  lst.foldl(
+    lam(elem :: Any, flattened :: List<Any>) -> List<Any>:
+      ask:
+        | is-nothing(elem) or is-empty(elem) then: flattened
+        | is-link(elem) then: flattened + flatten(elem)
+        | otherwise: flattened + [list: elem]
+      end
+    end,
+    [list: ])
+end

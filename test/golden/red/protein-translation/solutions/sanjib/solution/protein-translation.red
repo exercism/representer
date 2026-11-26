@@ -1,0 +1,40 @@
+Red [
+	description: {"Protein Translation" exercise solution for exercism platform}
+	author: "" ; you can write your name here, in quotes
+]
+
+proteins: function [
+	strand
+] [
+	codon: [
+		"AUG"	"Methionine"
+		"UUU"	"Phenylalanine"
+		"UUC"	"Phenylalanine"
+		"UUA"	"Leucine"
+		"UUG"	"Leucine"
+		"UCU"	"Serine"
+		"UCC"	"Serine"
+		"UCA"	"Serine"
+		"UCG"	"Serine"
+		"UAU"	"Tyrosine"
+		"UAC"	"Tyrosine"
+		"UGU"	"Cysteine"
+		"UGC"	"Cysteine"
+		"UGG"	"Tryptophan"
+		"UAA"	"STOP"
+		"UAG"	"STOP"
+		"UGA"	"STOP"
+	]
+	protein: []
+	foreach [a b c] strand [
+		cdn: rejoin [a b c]
+		p: select codon cdn
+		print p
+		if p == "STOP" [
+			return protein
+		]
+		append protein p
+	]
+	return protein
+]
+

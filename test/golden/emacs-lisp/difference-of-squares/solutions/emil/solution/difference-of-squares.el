@@ -1,0 +1,24 @@
+;;; difference-of-squares.el --- Difference of Squares (exercism)
+
+;;; Commentary:
+
+;;; Code:
+
+(require 'seq)
+
+(defun square-of-sum(number)
+  (let ((x (seq-reduce #'+ (number-sequence 1 number) 0)))
+       (* x x)
+  )
+)
+
+(defun sum-of-squares(number)
+  (seq-reduce #'+ (mapcar  #'(lambda (n) (* n n)) (number-sequence 1 number)) 0)
+  )
+
+(defun difference(number)
+  (- (square-of-sum number) (sum-of-squares number))
+  )
+
+(provide 'difference-of-squares)
+;;; difference-of-squares.el ends here

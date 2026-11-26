@@ -1,0 +1,5 @@
+-module(queen_attack).
+
+-export([can_attack/2]).
+
+can_attack({WX, WY}, {BX, BY}) -> (WX == BX) or (WY == BY) or (abs(WX - BX) == abs(WY - BY)).

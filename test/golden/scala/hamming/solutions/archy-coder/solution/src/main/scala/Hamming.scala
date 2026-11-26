@@ -1,0 +1,12 @@
+object Hamming {
+  def distance (first: String, second: String): Option[Int] = {
+    if (!(first.length() == second.length())) return None
+    if (first == second) return Some(0)
+    var i: Int = 0
+    var dist: Int = 0
+    for (i <- 0 to first.length()-1) {
+      if (!(first(i) == second(i))) dist += 1
+    }
+    Some(dist)
+  }
+}

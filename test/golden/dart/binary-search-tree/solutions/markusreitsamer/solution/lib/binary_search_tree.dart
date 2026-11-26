@@ -1,0 +1,42 @@
+class BinarySearchTree {
+  String _data = '';
+  BinarySearchTree? _left = null;
+  BinarySearchTree? _right = null;
+  static List<String> _sorted = List<String>.empty(growable: true);
+
+  BinarySearchTree(String data) {
+    if (int.tryParse(data) != null) {
+      insert(data);
+    }
+  }
+
+  BinarySearchTree get root => this;
+  String get data => _data;
+  BinarySearchTree? get left => _left;
+  BinarySearchTree? get right => _right;
+  List<String> get sortedData {
+    _sorted.clear();
+    createSortedList(0);
+    return _sorted;
+  }
+
+  void insert(String data) {
+    if (int.tryParse(data) != null) {
+      (_data.isEmpty)
+          ? _data = data
+          : (int.parse(data) <= int.parse(_data))
+              ? (left != null)
+                  ? left!.insert(data)
+                  : _left = BinarySearchTree(data)
+              : (right != null)
+                  ? right!.insert(data)
+                  : _right = BinarySearchTree(data);
+    }
+  }
+
+  void createSortedList(int index) {
+    _sorted.insert(index, _data);
+    left?.createSortedList(_sorted.indexOf(_data));
+    right?.createSortedList(_sorted.indexOf(_data) + 1);
+  }
+}

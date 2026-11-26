@@ -1,0 +1,32 @@
+
+infix 9 |>
+fun x |> f = f x
+
+fun cipher c =
+  if Char.isAlpha c
+    then Char.chr (219 - Char.ord c)
+  else c
+
+fun chunksOf _ [] = []
+  | chunksOf n xs =
+    let
+      val ys = List.take (xs, n)
+      val zs = List.drop (xs, n)
+    in
+      ys :: chunksOf n zs
+    end
+    handle Subscript => [xs]
+
+fun decode (phrase: string): string =
+  String.explode phrase
+  |> List.filter Char.isAlphaNum
+  |> List.map cipher
+  |> String.implode
+
+fun encode (phrase: string): string =
+  String.explode phrase
+  |> List.filter Char.isAlphaNum
+  |> List.map (cipher o Char.toLower)
+  |> chunksOf 5
+  |> List.map String.implode
+  |> String.concatWith " "

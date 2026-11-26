@@ -1,0 +1,15 @@
+{
+     arr[i++] = $0;
+}
+END {
+    if (length(arr[0]) != length(arr[1])){
+        print "strands must be of equal length"
+        exit 1
+    }
+    res = 0;
+    for (j = 1; j <= length(arr[0]); j++){
+        if (substr(arr[0], j, 1) != substr(arr[1], j, 1))
+            res++
+    }
+    print res
+}

@@ -1,0 +1,47 @@
+\ turns out this is what n:between does
+: between_inclusive? \ nX nL nH -- T
+  2 pick    \ nX nL nH nX
+  n:< not   \ nX nL T      (where T is nH >= nX )
+  -rot      \ T  nX nL
+  swap      \ T  nL nX
+  n:> not   \ T  T         (where T is nL <= nX )
+  and
+;
+
+\ turns out this is the same as ' (ie. 'a <=> "a" >char)
+: >char \ s -- c
+  0 s:@ nip
+;
+
+: >atbash_char \ c -- c
+  dup                     \ cX cX
+  "0" >char "9" >char     \ cX cX c0 c9
+  between_inclusive?      \ cX T
+  if                      \ cX
+    ;;                    \ return original char if it's a digit
+  then                 
+  dup                     \ cX cX
+  "a" >char "z" >char     \ cX cX cA cZ
+  between_inclusive?      \ cX T
+  if                      \ cX
+    "a" >char n:-         \ c(X-A)
+    "z" >char swap        \ cZ c(X-A)
+    n:-                   \ c(Z-X+A)
+    ;;                    \ return ciphered char
+  then
+  drop false              \ T
+;                         \ otherwise, return false to omit the character
+
+
+\ encode TO a cipher
+: >atbash \ s -- s
+  s:lc
+  ' >atbash_char s:map
+  [5] s:/
+  " " a:join
+;
+
+\ decode FROM a cipher
+: atbash> \ s -- s
+  ' >atbash_char s:map
+;

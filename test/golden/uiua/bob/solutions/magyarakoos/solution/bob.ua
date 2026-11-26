@@ -1,0 +1,11 @@
+# Respond to a phrase as Bob would
+# Response ? Phrase
+HeyBob ← (=0fill0/↥⊸≠@ 
+ ⨬(⊂⊃(=@?⊣|↧⊃(±⧻|≍⊸⌵)▽⊸∊♭⊞+"aA"⇡26)
+   ⊗:⋯⇡4
+   {"Whatever."
+    "Sure."
+    "Whoa, chill out!"
+    "Calm down, I know what I'm doing!"}
+   °□⊡:
+  )"Fine. Be that way!")

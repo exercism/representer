@@ -1,0 +1,3 @@
+mappings = G: 'C', C: 'G', T: 'A', A: 'U'
+
+(dna) -> dna\gsub '.', mappings

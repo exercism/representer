@@ -1,0 +1,3 @@
+object ArmstrongNumbers {
+  def isArmstrongNumber(n: Int): Boolean = n.toString.map(x => Math.pow(x.asDigit, n.toString.length)).sum == n
+}

@@ -1,0 +1,19 @@
+(file "src/WordCount.re")
+let incKey = ( dict , key ) => {
+dict -> Js . Dict . set (
+key ,
+dict
+-> Js . Dict . get ( key )
+-> Belt . Option . map ( succ )
+-> Belt . Option . getWithDefault ( 1 ) ,
+);
+dict ;
+};
+let wordCount = text =>
+text
+|> Js . String . replaceByRe ([ % re "\"/[^'a-zA-Z0-9]+/g\"" ] , "\" \"" )
+|> Js . String . replaceByRe ([ % re "\"/( '|' )/g\"" ] , "\" \"" )
+|> Js . String . split ( "\" \"" )
+|> Js . Array . filter ( s => s |> String . length > 0 )
+|> Js . Array . map ( s => s |> Js . String . toLowerCase )
+|> Js . Array . reduce ( incKey , Js . Dict . empty () );

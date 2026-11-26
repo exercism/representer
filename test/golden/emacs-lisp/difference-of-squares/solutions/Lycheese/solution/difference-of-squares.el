@@ -1,0 +1,27 @@
+;;; difference-of-squares.el --- Difference of Squares (exercism)
+
+;;; Commentary:
+
+;;; Code:
+(defun square-of-sum (limit)
+  "Return the Square of the sum of all numbers up to LIMIT."
+  (let ((sum 0)
+        (count 1))
+    (while (<= count limit)
+      (setq sum (+ sum count))
+      (setq count (1+ count)))
+    (* sum sum)))
+(defun sum-of-squares (limit)
+  "Return the Square of the sum of all numbers up to LIMIT."
+  (let ((sum 0)
+        (count 1))
+    (while (<= count limit)
+      (setq sum (+ sum (* count count)))
+      (setq count (1+ count)))
+    sum))
+(defun difference (limit)
+  "Return the difference between the square of the sum and the sum of the squares of all numbers up to LIMIT."
+  (-  (square-of-sum limit) (sum-of-squares limit)))
+
+(provide 'difference-of-squares)
+;;; difference-of-squares.el ends here

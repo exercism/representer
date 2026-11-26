@@ -1,0 +1,25 @@
+#!/bin/bash
+
+main()
+{
+    local NUMBER=$1
+    local FLAG=0
+
+    if (( $NUMBER % 3 == 0 )); then
+        FLAG=1
+        echo -n "Pling"
+    fi
+    if (( $NUMBER % 5 == 0 )); then
+        FLAG=1
+        echo -n "Plang"
+    fi
+    if (( $NUMBER % 7 == 0 )); then
+        FLAG=1
+        echo -n "Plong"
+    fi
+    if [[ $FLAG -eq 0 ]]; then
+        echo $NUMBER
+    fi
+}
+
+main "$@"

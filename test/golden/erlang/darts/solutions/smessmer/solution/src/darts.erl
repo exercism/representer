@@ -1,0 +1,13 @@
+-module(darts).
+
+-export([score/2]).
+
+
+score(X, Y) ->
+    DistanceToCenter = math:sqrt(X*X + Y*Y),
+    case DistanceToCenter of
+        A when A =< 1 -> 10;
+        A when A =< 5 -> 5;
+        A when A =< 10 -> 1;
+        _ -> 0
+    end.

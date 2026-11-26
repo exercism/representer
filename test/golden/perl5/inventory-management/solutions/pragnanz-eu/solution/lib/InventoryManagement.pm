@@ -1,0 +1,24 @@
+package InventoryManagement;
+
+use v5.38;
+
+sub create_inventory ($items) {
+    my %inventory;
+    map { $inventory{$_} ++ } @$items;
+    return \%inventory;
+}
+
+sub add_items ( $inventory, $items ) {
+    map { $inventory->{$_} ++ } @$items;
+    return $inventory;
+}
+
+sub remove_items ( $inventory, $items ) {
+    map { $inventory->{$_} > 0 and $inventory->{$_} -- } @$items;
+    return $inventory;
+}
+
+sub delete_item ( $inventory, $item ) {
+    delete $inventory->{$item};
+    return $inventory;
+}

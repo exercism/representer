@@ -1,0 +1,64 @@
+(file "say.ml")
+open Base
+open Int64
+let rec spellout = function
+| 0 L -> "\"zero\""
+| 1 L -> "\"one\""
+| 2 L -> "\"two\""
+| 3 L -> "\"three\""
+| 4 L -> "\"four\""
+| 5 L -> "\"five\""
+| 6 L -> "\"six\""
+| 7 L -> "\"seven\""
+| 8 L -> "\"eight\""
+| 9 L -> "\"nine\""
+| 10 L -> "\"ten\""
+| 11 L -> "\"eleven\""
+| 12 L -> "\"twelve\""
+| 13 L -> "\"thirteen\""
+| 14 L -> "\"fourteen\""
+| 15 L -> "\"fifteen\""
+| 16 L -> "\"sixteen\""
+| 17 L -> "\"seventeen\""
+| 18 L -> "\"eighteen\""
+| 19 L -> "\"nineteen\""
+| 20 L -> "\"twenty\""
+| 30 L -> "\"thirty\""
+| 40 L -> "\"forty\""
+| 50 L -> "\"fifty\""
+| 60 L -> "\"sixty\""
+| 70 L -> "\"seventy\""
+| 80 L -> "\"eighty\""
+| 90 L -> "\"ninety\""
+| n when n < 100 L
+-> spellout (( n / 10 L ) * 10 L )
+^ "\"-\""
+^ spellout ( rem n 10 L )
+| n when ( rem n 100 L ) = 0 L
+-> spellout ( n / 100 L ) ^ "\" hundred\""
+| n
+-> spellout ( n / 100 L )
+^ "\" hundred \""
+^ spellout ( rem n 100 L )
+let rec calc_scales = function
+| n when n < 1000 L -> [ n ]
+| n -> ( rem n 1000 L ) :: calc_scales ( n / 1000 L )
+let rec zip_until xs ys = match xs , ys with
+| [] , _ -> []
+| _ , [] -> []
+| ( x :: xs_tl ) , ( y :: ys_tl ) -> ( x , y ) :: zip_until xs_tl ys_tl
+let filter_empty xs =
+if Int .( List . length xs > 1 )
+then List . filter xs ~ f : ( fun ( x , _ ) -> x <> 0 L )
+else xs
+let fold_scales n =
+let scales = [ "\"\"" ; "\" thousand\"" ; "\" million\"" ; "\" billion\"" ] in
+calc_scales n
+|> ( fun x -> zip_until x scales )
+|> filter_empty
+|> List . rev_map ~ f : ( fun ( x , scale ) -> spellout x ^ scale )
+|> String . concat ~ sep : "\" \""
+let in_english = function
+| n when n < 0 L
+|| n > 999_999_999_999 L -> Error "\"input out of range\""
+| n -> Ok ( fold_scales n )

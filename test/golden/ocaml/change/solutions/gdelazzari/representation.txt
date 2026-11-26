@@ -1,0 +1,30 @@
+(file "change.ml")
+let make_change ~ target ~ coins : ( int list , string ) result =
+let rec dp_solution ~ tbl ~ target ~ coins =
+try
+Hashtbl . find tbl target
+with Not_found ->
+let result =
+if target < 0 then
+Error "\"target can't be negative\""
+else if target == 0 then
+Ok []
+else
+let fitting_coins = coins |> List . filter ( fun c -> c <= target ) |> List . rev in
+let solutions = fitting_coins |> List . filter_map ( fun c ->
+let new_target = target - c in
+let rr = dp_solution ~ tbl ~ target : new_target ~ coins in
+match rr with
+Error e -> None
+| Ok s -> Some ( s @ [ c ])
+) in
+let sorted_solutions = List . sort ( fun a b -> ( List . length a ) - ( List . length b )) solutions in
+match List . nth_opt sorted_solutions 0 with
+None -> Error "\"can't make target with given coins\""
+| Some s -> Ok s
+in
+Hashtbl . add tbl target result ;
+result
+in
+let tbl = Hashtbl . create 100 in
+dp_solution ~ tbl ~ target ~ coins

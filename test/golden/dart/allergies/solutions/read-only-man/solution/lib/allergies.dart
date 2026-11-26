@@ -1,0 +1,22 @@
+class Allergies {
+  static List<String> _items = [
+    "eggs",
+    "peanuts",
+    "shellfish",
+    "strawberries",
+    "tomatoes",
+    "chocolate",
+    "pollen",
+    "cats"
+  ];
+
+  bool allergicTo(String s, int i) {
+    if (!_items.contains(s)) return false;
+    return i & 1 << _items.indexOf(s) != 0;
+  }
+
+  List<String> list(int i) {
+    return _items.where((item) => i & 1 << _items.indexOf(item) != 0).toList();
+  }
+  // Put your code here
+}

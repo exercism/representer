@@ -1,0 +1,21 @@
+module main
+
+fn collatz(number int) !int {
+    if number <= 0 {
+        return error('bad argument')
+    }
+    mut x := number
+    mut ans := 0
+    for x != 1 {
+        if x == 1 {
+            break
+        } 
+        if x % 2 == 1 {
+            x = x * 3 + 1
+        } else {
+            x = x / 2
+        }
+        ans += 1
+    }
+    return ans
+}

@@ -1,0 +1,36 @@
+.globl transcribe_rna
+
+transcribe_rna:
+	move $a3, $a1			#store return address
+	move $a2, $a0			#store return address
+rna1:
+        lb	$t0, ($a0)		# Load a value
+	beq	$t0, $0, end	
+	li	$t1, 'G'
+	beq	$t0, $t1, rna_C
+	li	$t1, 'C'
+	beq	$t0, $t1, rna_G
+	li	$t1, 'T'
+	beq	$t0, $t1, rna_A
+	li	$t1, 'A'
+	beq	$t0, $t1, rna_U
+rna_C:
+	li	$t0, 'C'
+	b rna_set
+rna_G:
+	li	$t0, 'G'
+	b rna_set
+rna_A:
+	li	$t0, 'A'
+	b rna_set
+rna_U:
+	li	$t0, 'U'
+rna_set:
+	sb $t0, 	($a1)
+	addi $a0, $a0, 1
+	addi $a1, $a1, 1
+	b rna1
+end:
+	move $a1, $a3	#restore return address
+	move $a0, $a2	#restore return address
+        jr $ra

@@ -1,0 +1,17 @@
+module rna_transcription
+  implicit none
+contains
+
+  function to_rna(dna)
+      character(*) :: dna
+      character(len(dna)) :: to_rna
+      integer :: i
+      do i = 1, len_trim(dna)
+        if( dna(i:i) == 'G' ) to_rna(i:i) = 'C'
+        if( dna(i:i) == 'C' ) to_rna(i:i) = 'G'
+        if( dna(i:i) == 'T' ) to_rna(i:i) = 'A'
+        if( dna(i:i) == 'A' ) to_rna(i:i) = 'U'
+      enddo
+  end function to_rna
+
+end module rna_transcription

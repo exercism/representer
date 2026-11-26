@@ -1,0 +1,13 @@
+Class {
+	#name : #Etl,
+	#superclass : #Object,
+	#category : #'Exercise@Etl'
+}
+
+{ #category : #'as yet unclassified' }
+Etl >> transformData: aDictionary [
+
+	^ aDictionary associations inject: Dictionary new into: [ :a :e | 
+		  e value do: [ :c | a at: c asLowercase put: e key asNumber ].
+		  a ]
+]

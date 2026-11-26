@@ -1,0 +1,22 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. reverse-string.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-STRING PIC X(64).
+       01 WS-REVERSED.
+          05 WS-CHAR PIC X(1) OCCURS 64 TIMES.
+       01 WS-LEN PIC 9(2) VALUE 64.
+       01 WS-IX  PIC 9(2) VALUE 1.
+      
+       PROCEDURE DIVISION.
+       REVERSE-STRING.
+         MOVE SPACES TO WS-REVERSED. 
+         PERFORM UNTIL WS-LEN = 0
+           IF WS-STRING(WS-LEN:1) <> SPACE
+             MOVE WS-STRING(WS-LEN:1) TO WS-CHAR(WS-IX)
+             ADD 1 TO WS-IX
+           END-IF
+           SUBTRACT 1 FROM WS-LEN
+         END-PERFORM
+         MOVE WS-REVERSED TO WS-STRING
+       GOBACK.

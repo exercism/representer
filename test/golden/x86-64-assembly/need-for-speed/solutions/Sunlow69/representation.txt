@@ -1,0 +1,51 @@
+(file "need_for_speed.asm")
+default rel
+section .text
+global new_car
+new_car:
+movzx edi , di
+mov rax , [ rsi ]
+movzx edx , word [ rsi + 8 ]
+shl edi , 16
+or rdx , rdi
+mov rdi , 0x42c8000000000000
+or rdx , rdi
+ret
+global new_track
+new_track:
+mov eax , edi
+mov rdx , rsi
+ret
+global new_race
+new_race:
+mov [ rdi ], rsi
+mov [ rdi + 0x08 ], rdx
+mov [ rdi + 0x10 ], cl
+mov byte [ rdi + 0x74 ], 0
+ret
+global add_participant
+add_participant:
+xor eax , eax
+movzx ecx , byte [ rdi + 0x74 ]
+cmp ecx , 6
+jae .done
+imul rcx , rcx , 16
+mov [ rdi + 0x14 + rcx ], rsi
+mov [ rdi + 0x14 + rcx + 0x08 ], rdx
+inc byte [ rdi + 0x74 ]
+mov eax , 1
+.done:
+ret
+global add_race
+add_race:
+mov rcx , [ rdi + 0x960 ]
+inc qword [ rdi + 0x960 ]
+imul rax , rcx , 0x78
+lea rdi , [ rdi + rax ]
+lea rsi , [ rsp + 8 ]
+mov ecx , 0x78 / 8
+rep movsq
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

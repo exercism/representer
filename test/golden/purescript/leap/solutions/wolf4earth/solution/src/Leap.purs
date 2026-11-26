@@ -1,0 +1,10 @@
+module Leap where
+
+import Prelude
+
+import Data.Date (isLeapYear) as Date
+import Data.Enum (toEnum)
+import Data.Maybe (maybe)
+
+isLeapYear :: Int -> Boolean
+isLeapYear = toEnum >>> maybe false Date.isLeapYear

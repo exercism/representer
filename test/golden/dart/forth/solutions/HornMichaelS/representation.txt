@@ -1,0 +1,171 @@
+(file "lib/forth.dart")
+class Forth {
+List < int > stack = [];
+Map < String , List < Token >> _userDefined = {};
+void evaluate ( String expr ) {
+final tokens = Tokenizer () . tokenize ( expr );
+_execute ( tokens );
+}
+void _execute ( List < Token > tokens ) {
+for ( int i = 0 ; i < tokens . length ; i ++ ) {
+final token = tokens [ i ];
+if ( token . lexeme != null && _userDefined [ token . lexeme ! ] != null ) {
+_execute ( _userDefined [ token . lexeme ! ] ! );
+continue ;
+}
+switch ( token . type ) {
+case TokenType . plus :
+_push ( _pop () + _pop ());
+break ;
+case TokenType . minus :
+final a = _pop ();
+final b = _pop ();
+_push ( b - a );
+break ;
+case TokenType . star :
+_push ( _pop () * _pop ());
+break ;
+case TokenType . slash :
+final a = _pop ();
+final b = _pop ();
+if ( a == 0 ) {
+throw Exception ( "\"Division by zero\"" );
+}
+_push ( b ~/ a );
+break ;
+case TokenType . dup :
+if ( stack . isEmpty ) throw _emptyException ();
+_push ( stack . last );
+break ;
+case TokenType . drop :
+if ( stack . isEmpty ) throw _emptyException ();
+stack . removeLast ();
+break ;
+case TokenType . swap :
+final a = _pop ();
+final b = _pop ();
+_push ( a );
+_push ( b );
+break ;
+case TokenType . over :
+if ( stack . length < 2 ) throw _emptyException ();
+_push ( stack [ stack . length - 2 ]);
+break ;
+case TokenType . colon :
+try {
+final word = tokens [ ++ i ];
+if ( word . lexeme == null ) {
+throw _invalidDefinition ();
+}
+final definition = < Token >[];
+var next = tokens [ ++ i ];
+while ( next . type != TokenType . semicolon ) {
+if ( next . type == TokenType . word ) {
+definition . addAll ( _expand ( next . lexeme ! ));
+} else {
+definition . add ( next );
+}
+next = tokens [ ++ i ];
+}
+_userDefined [ word . lexeme ! ] = definition ;
+} catch ( _ ) {
+throw Exception ( "\"Invalid definition\"" );
+}
+break ;
+case TokenType . semicolon :
+throw Exception ( "\"Unexpected semicolon\"" );
+case TokenType . word :
+_execute ( _expand ( token . lexeme ! ));
+break ;
+case TokenType . number :
+_push ( token . value ! );
+break ;
+}
+}
+}
+List < Token > _expand ( String word ) {
+final body = _userDefined [ word ];
+if ( body != null ) {
+return body ;
+} else {
+throw _unknownCommand ();
+}
+}
+int _pop () {
+try {
+return stack . removeLast ();
+} catch ( _ ) {
+throw _emptyException ();
+}
+}
+void _push ( int value ) {
+stack . add ( value );
+}
+Exception _emptyException () {
+return Exception ( "\"Stack empty\"" );
+}
+Exception _invalidDefinition () {
+return Exception ( "\"Invalid definition\"" );
+}
+Exception _unknownCommand () {
+return Exception ( "\"Unknown command\"" );
+}
+}
+class Tokenizer {
+List < Token > tokenize ( String expr ) {
+final words = expr . split ( "' '" );
+return words . map ( parseWord ) . toList ();
+}
+Token parseWord ( String word ) {
+final number = int . tryParse ( word );
+if ( number != null ) {
+return Token ( TokenType . number , value: number );
+}
+switch ( word . toLowerCase ()) {
+case '-' :
+return Token ( TokenType . minus , lexeme: '-' );
+case '+' :
+return Token ( TokenType . plus , lexeme: '+' );
+case '*' :
+return Token ( TokenType . star , lexeme: '*' );
+case '/' :
+return Token ( TokenType . slash , lexeme: '/' );
+case ':' :
+return Token ( TokenType . colon );
+case ';' :
+return Token ( TokenType . semicolon );
+case 'drop' :
+return Token ( TokenType . drop , lexeme: 'drop' );
+case 'dup' :
+return Token ( TokenType . dup , lexeme: 'dup' );
+case 'over' :
+return Token ( TokenType . over , lexeme: 'over' );
+case 'swap' :
+return Token ( TokenType . swap , lexeme: 'swap' );
+default :
+return Token ( TokenType . word , lexeme: word . toLowerCase ());
+}
+}
+}
+enum TokenType {
+plus ,
+minus ,
+star ,
+slash ,
+dup ,
+drop ,
+swap ,
+over ,
+colon ,
+semicolon ,
+word ,
+number ,
+}
+class Token {
+final TokenType type ;
+final String ? lexeme ;
+final int ? value ;
+const Token ( this . type , { this . lexeme , this . value });
+@override
+String toString () = > "'Token(type: $type, lexeme: $lexeme, value: $value)'" ;
+}

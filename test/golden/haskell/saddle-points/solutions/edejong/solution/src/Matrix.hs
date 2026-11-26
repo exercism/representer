@@ -1,0 +1,16 @@
+module Matrix
+  ( saddlePoints
+  )
+where
+import           Data.Array
+
+-- saddlePoints :: Array i e -> [i]
+saddlePoints :: (Ord e) => Array (Int, Int) e -> [(Int, Int)]
+saddlePoints matrix =
+  let
+    ((x1, y1), (x2, y2)) = bounds matrix
+    as = assocs matrix
+    maxs = [ (r, maximum [ v | (i, v) <- as, r == fst i ]) | r <- [x1 .. x2] ]
+    mins = [ (c, minimum [ v | (i, v) <- as, c == snd i ]) | c <- [y1 .. y2] ]
+  in
+    [ (r, c) | (r, v1) <- maxs, (c, v2) <- mins, v1 == v2 ]

@@ -1,0 +1,18 @@
+class DifferenceOfSquares {
+    int num
+    
+    DifferenceOfSquares(num) {
+        this.num = num
+    
+    }
+    def squareOfSum() {
+        (1..num).sum() ** 2
+    }
+
+    def sumOfSquares() {
+        (1..num).sum { it ** 2 }
+    }
+    def difference() {
+        squareOfSum() - sumOfSquares()
+    }
+}

@@ -1,0 +1,14 @@
+namespace Darts
+
+def score (x : Float) (y : Float) : Int :=
+  let sqDistFromOrigin := x^2 + y^2
+  if sqDistFromOrigin > 100 then
+  0
+  else if sqDistFromOrigin > 25 then
+  1
+  else if sqDistFromOrigin > 1 then
+  5
+  else
+  10
+
+end Darts

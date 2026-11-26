@@ -1,0 +1,25 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. collatz-conjecture.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-NUMBER PIC S9(8).
+       01 WS-STEPS PIC 9(4) value 0.
+       01 WS-ERROR PIC X(35).
+
+       PROCEDURE DIVISION.
+       COLLATZ-CONJECTURE.
+         if WS-NUMBER < 1
+            move "Only positive integers are allowed" to WS-ERROR
+            goback
+         end-if
+         perform until WS-NUMBER = 1
+            if FUNCTION MOD(WS-NUMBER,2) = 0
+               compute WS-NUMBER = WS-NUMBER / 2
+            else
+               compute WS-NUMBER = 3 * WS-NUMBER + 1
+            end-if
+            add 1 to WS-STEPS
+         end-perform
+         goback
+       DISPLAY WS-STEPS.
+       DISPLAY WS-ERROR.

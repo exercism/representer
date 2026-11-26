@@ -1,0 +1,6 @@
+def steps (number: i32): i32 =
+  assert (number > 0)
+  let (_, i) = loop (n, i) = (number, 0) while n > 1 do
+                 if n %% 2 == 0 then (n//2, i+1)
+                 else ((n*3)+1, i+1)
+                      in i

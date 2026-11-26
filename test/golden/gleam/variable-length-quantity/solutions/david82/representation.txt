@@ -1,0 +1,282 @@
+(file "src/variable_length_quantity.gleam"
+  (source_file
+    (import gleam/bit_array)
+    (import gleam/int)
+    (import gleam/list)
+    (type_definition pub
+      (type_name Error)
+      (data_constructors
+        (data_constructor IncompleteSequence)))
+    (function pub encode
+      (function_parameters
+        (function_parameter PLACEHOLDER_1 :
+          (type List
+            (type_arguments
+              (type_argument
+                (type Int)))))) ->
+      (type BitArray)
+      (block
+        (binary_expression
+          (binary_expression PLACEHOLDER_1 |>
+            (function_call
+              (field_access list . map)
+              (arguments
+                (argument PLACEHOLDER_2)))) |>
+          (function_call
+            (field_access list . fold)
+            (arguments
+              (argument
+                (bit_array << >>))
+              (argument
+                (field_access bit_array . append)))))))
+    (function PLACEHOLDER_2
+      (function_parameters
+        (function_parameter PLACEHOLDER_3 :
+          (type Int))) ->
+      (type BitArray)
+      (block
+        (case
+          (case_subjects PLACEHOLDER_3)
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern 0)) ->
+              (bit_array <<
+                (bit_array_segment 0 :
+                  (bit_array_segment_options 8)) >>))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern _)) ->
+              (function_call PLACEHOLDER_4
+                (arguments
+                  (argument PLACEHOLDER_3)
+                  (argument
+                    (list)))))))))
+    (function PLACEHOLDER_4
+      (function_parameters
+        (function_parameter PLACEHOLDER_3 :
+          (type Int))
+        (function_parameter PLACEHOLDER_5 :
+          (type List
+            (type_arguments
+              (type_argument
+                (type Int)))))) ->
+      (type BitArray)
+      (block
+        (case
+          (case_subjects PLACEHOLDER_3)
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern 0)) ->
+              (block
+                (binary_expression
+                  (binary_expression PLACEHOLDER_5 |>
+                    (function_call
+                      (field_access list . map)
+                      (arguments
+                        (argument
+                          (anonymous_function
+                            (function_parameters
+                              (function_parameter PLACEHOLDER_6))
+                            (block
+                              (bit_array <<
+                                (bit_array_segment PLACEHOLDER_6 :
+                                  (bit_array_segment_options 8)) >>))))))) |>
+                  (function_call
+                    (field_access list . fold)
+                    (arguments
+                      (argument
+                        (bit_array << >>))
+                      (argument
+                        (field_access bit_array . append)))))))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern _)) ->
+              (block
+                (let (variable PLACEHOLDER_6) =
+                  (function_call
+                    (field_access int . bitwise_and)
+                    (arguments
+                      (argument PLACEHOLDER_3)
+                      (argument 0x7F))))
+                (let (variable PLACEHOLDER_7) =
+                  (case
+                    (case_subjects PLACEHOLDER_5)
+                    (case_clauses
+                      (case_clause
+                        (case_clause_patterns
+                          (case_clause_pattern
+                            (list_pattern))) ->
+                        (list PLACEHOLDER_6))
+                      (case_clause
+                        (case_clause_patterns
+                          (case_clause_pattern _)) ->
+                        (list
+                          (function_call
+                            (field_access int . bitwise_or)
+                            (arguments
+                              (argument PLACEHOLDER_6)
+                              (argument 0x80))) .. PLACEHOLDER_5)))))
+                (function_call PLACEHOLDER_4
+                  (arguments
+                    (argument
+                      (function_call
+                        (field_access int . bitwise_shift_right)
+                        (arguments
+                          (argument PLACEHOLDER_3)
+                          (argument 7))))
+                    (argument PLACEHOLDER_7)))))))))
+    (function pub decode
+      (function_parameters
+        (function_parameter PLACEHOLDER_8 :
+          (type BitArray))) ->
+      (type Result
+        (type_arguments
+          (type_argument
+            (type List
+              (type_arguments
+                (type_argument
+                  (type Int)))))
+          (type_argument
+            (type Error))))
+      (block
+        (function_call PLACEHOLDER_9
+          (arguments
+            (argument PLACEHOLDER_8)
+            (argument 0)
+            (argument
+              (list))
+            (argument
+              (list))))))
+    (function PLACEHOLDER_9
+      (function_parameters
+        (function_parameter PLACEHOLDER_8 :
+          (type BitArray))
+        (function_parameter PLACEHOLDER_10 :
+          (type Int))
+        (function_parameter PLACEHOLDER_11 :
+          (type List
+            (type_arguments
+              (type_argument
+                (type Int)))))
+        (function_parameter PLACEHOLDER_12 :
+          (type List
+            (type_arguments
+              (type_argument
+                (type Int)))))) ->
+      (type Result
+        (type_arguments
+          (type_argument
+            (type List
+              (type_arguments
+                (type_argument
+                  (type Int)))))
+          (type_argument
+            (type Error))))
+      (block
+        (case
+          (case_subjects PLACEHOLDER_8)
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (bit_array_pattern << >>))) ->
+              (case
+                (case_subjects PLACEHOLDER_12)
+                (case_clauses
+                  (case_clause
+                    (case_clause_patterns
+                      (case_clause_pattern
+                        (list_pattern))) ->
+                    (record Ok
+                      (arguments
+                        (argument
+                          (function_call
+                            (field_access list . reverse)
+                            (arguments
+                              (argument PLACEHOLDER_11)))))))
+                  (case_clause
+                    (case_clause_patterns
+                      (case_clause_pattern _)) ->
+                    (record Error
+                      (arguments
+                        (argument
+                          (record IncompleteSequence))))))))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (bit_array_pattern <<
+                    (bit_array_segment (variable PLACEHOLDER_6) :
+                      (bit_array_segment_options 8))
+                    (bit_array_segment (variable PLACEHOLDER_13) :
+                      (bit_array_segment_options
+                        (bit_array_segment_option bits))) >>))) ->
+              (block
+                (let (variable PLACEHOLDER_14) =
+                  (function_call
+                    (field_access int . bitwise_and)
+                    (arguments
+                      (argument PLACEHOLDER_6)
+                      (argument 0x7F))))
+                (let (variable PLACEHOLDER_15) =
+                  (function_call
+                    (field_access int . bitwise_or)
+                    (arguments
+                      (argument
+                        (function_call
+                          (field_access int . bitwise_shift_left)
+                          (arguments
+                            (argument PLACEHOLDER_10)
+                            (argument 7))))
+                      (argument PLACEHOLDER_14))))
+                (case
+                  (case_subjects
+                    (function_call
+                      (field_access int . bitwise_and)
+                      (arguments
+                        (argument PLACEHOLDER_6)
+                        (argument 0x80))))
+                  (case_clauses
+                    (case_clause
+                      (case_clause_patterns
+                        (case_clause_pattern 0)) ->
+                      (block
+                        (let (variable PLACEHOLDER_16) =
+                          (case
+                            (case_subjects PLACEHOLDER_12)
+                            (case_clauses
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern
+                                    (list_pattern))) ->
+                                (list PLACEHOLDER_15 .. PLACEHOLDER_11))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern _)) ->
+                                (list PLACEHOLDER_15 .. PLACEHOLDER_11)))))
+                        (function_call PLACEHOLDER_9
+                          (arguments
+                            (argument PLACEHOLDER_13)
+                            (argument 0)
+                            (argument PLACEHOLDER_16)
+                            (argument
+                              (list))))))
+                    (case_clause
+                      (case_clause_patterns
+                        (case_clause_pattern _)) ->
+                      (block
+                        (function_call PLACEHOLDER_9
+                          (arguments
+                            (argument PLACEHOLDER_13)
+                            (argument PLACEHOLDER_15)
+                            (argument PLACEHOLDER_11)
+                            (argument
+                              (list PLACEHOLDER_6 .. PLACEHOLDER_12))))))))))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern _)) ->
+              (record Error
+                (arguments
+                  (argument
+                    (record IncompleteSequence)))))))))))

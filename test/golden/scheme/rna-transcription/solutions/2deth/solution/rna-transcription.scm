@@ -1,0 +1,13 @@
+(import (rnrs))
+
+(define (dna-nucleotide->rna-nucleotide nucleotide)
+  (case nucleotide
+    ((#\G) #\C)
+    ((#\C) #\G)
+    ((#\T) #\A)
+    ((#\A) #\U)))
+
+(define (dna->rna dna)
+  (list->string
+    (map dna-nucleotide->rna-nucleotide
+         (string->list dna))))

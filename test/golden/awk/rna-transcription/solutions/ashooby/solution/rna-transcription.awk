@@ -1,0 +1,19 @@
+BEGIN {
+  FS = ""
+  nucleotides["G"] = "C"
+  nucleotides["C"] = "G"
+  nucleotides["T"] = "A"
+  nucleotides["A"] = "U"
+}
+
+{
+  for (i = 1; i <= NF; i++) {
+    if($i in nucleotides)
+      result = result nucleotides[$i]
+    else {
+      print "Invalid nucleotide detected."
+      exit 1
+    }
+  }
+  print result
+}

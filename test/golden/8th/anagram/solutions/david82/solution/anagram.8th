@@ -1,0 +1,21 @@
+\ Anagram - Find anagrams of a target word from candidate words
+
+\ Helper function to normalize a word for anagram comparison
+\ Converts to lowercase and sorts letters alphabetically
+: normalize \ s -- s
+  s:lc null s:/ ( s:cmp ) a:sort "" a:join
+;
+
+\ Check if two words are anagrams
+\ They must have same normalized form but not be the same word
+: anagram? \ target candidate -- T
+  2dup s:lc swap s:lc s:= if 2drop false ;then   \ Same word (case-insensitive)
+  normalize swap normalize s:=                   \ Same letters when sorted
+;
+
+\ Main function to find anagrams
+: anagrams \ target candidates -- anagrams
+  swap >r                                        \ Store target on return stack
+  ( r@ swap anagram? ) a:filter                  \ Filter candidates that are anagrams
+  rdrop                                          \ Clean up return stack
+;

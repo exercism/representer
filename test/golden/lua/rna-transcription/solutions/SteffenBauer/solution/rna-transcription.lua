@@ -1,0 +1,8 @@
+local transform = { G = 'C', C = 'G', T = 'A', A = 'U' }
+                    
+function to_rna(dna)
+  local rna = dna:gsub('[GCTA]', transform)
+  return rna
+end
+
+return to_rna

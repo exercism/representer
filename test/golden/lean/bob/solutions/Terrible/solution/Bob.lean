@@ -1,0 +1,15 @@
+namespace Bob
+
+def isShout (s:String):Bool:=
+  s.toList.foldl (fun acc c=>acc&&(!c.isAlpha||c.isUpper)) $ s.any (fun c => c.isAlpha)
+
+def response (s : String) : String :=
+  let st:=s.trimAscii.toString
+  if st.isEmpty then "Fine. Be that way!"
+  else if isShout st then
+    if st.endsWith "?" then "Calm down, I know what I'm doing!"
+    else "Whoa, chill out!"
+  else if st.endsWith "?" then "Sure."
+  else "Whatever."
+
+end Bob

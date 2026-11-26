@@ -1,0 +1,22 @@
+component {
+	/**
+	* @returns
+	*/
+	public boolean function isPangram( required string sentence ) {
+		var characters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];		
+		if(len(sentence)){
+			var sentenceNoSpace = replace(sentence, " ", "all");
+			var sentenceCharacters = sentenceNoSpace.split("");
+			for(var character in sentenceCharacters){
+				for(var letter in characters){
+					if(character == letter){
+						arrayDelete(characters, letter);
+					}
+				}
+			}
+			if(arrayLen(characters)){
+				return false;
+			}return true;
+		}return false;
+	}
+}

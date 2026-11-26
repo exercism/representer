@@ -1,0 +1,44 @@
+namespace eval resistorColor {
+    variable resistors
+    set resistors(black) 0
+    set resistors(brown) 1
+    set resistors(red) 2
+    set resistors(orange) 3
+    set resistors(yellow) 4
+    set resistors(green) 5
+    set resistors(blue) 6
+    set resistors(violet) 7
+    set resistors(grey) 8
+    set resistors(white) 9
+
+    proc colorCode {args} {     
+        variable resistors  
+
+        if { [info exists resistors([string tolower $args])] } {
+            return $resistors([string tolower $args])
+        } else {
+            error "Invalid color: $args" 
+        }        
+    }
+
+    proc compare {a b} {
+        variable resistors
+
+        set av $resistors([string tolower $a])
+        set bv $resistors([string tolower $b])
+
+        if {$av < $bv} {
+            return -1
+        } elseif {$av > $bv} {
+            return 1
+        }
+        return 0
+    }
+
+    proc colors {args} {
+        variable resistors 
+
+        set r [lsort -command compare [array names resistors]]
+        return $r
+    }
+}

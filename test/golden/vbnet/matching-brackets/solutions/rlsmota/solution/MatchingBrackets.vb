@@ -1,0 +1,34 @@
+Imports System.Collections.Generic
+
+
+Public Module MatchingBrackets
+	Public Function IsPaired(ByVal input As String) As Boolean
+
+		Dim Brackets As New Dictionary(Of Char, Char) From {
+			{"("c, ")"c},
+			{"["c, "]"c},
+			{"{"c, "}"c}
+		}
+
+		Dim opened As New ArrayList
+
+		For Each c As Char In input.ToCharArray()
+			If Brackets.ContainsKey(c) Then
+				opened.Add(c)
+			ElseIf Brackets.ContainsValue(c) Then
+				For Each k As KeyValuePair(Of Char, Char) In Brackets
+					If k.Value = c Then
+						If opened.Count > 0 AndAlso opened.LastIndexOf(k.Key) = opened.Count - 1 Then
+							opened.RemoveAt(opened.LastIndexOf(k.Key))
+							Exit For
+						Else
+							Return False
+						End If
+					End If
+				Next
+			End If
+		Next
+
+		Return opened.Count = 0
+	End Function
+End Module

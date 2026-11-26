@@ -1,0 +1,38 @@
+(file "food-chain.lua")
+local animals = { 'fly' , 'spider' , 'bird' , 'cat' , 'dog' , 'goat' , 'cow' , 'horse' }
+local spider_adj = "' wriggled and jiggled and tickled inside her'"
+local lines = {
+spider = 'It' .. spider_adj .. '.\n' ,
+bird = "'How absurd to swallow a bird!\\n'" ,
+cat = "'Imagine that, to swallow a cat!\\n'" ,
+dog = "'What a hog, to swallow a dog!\\n'" ,
+goat = "'Just opened her throat and swallowed a goat!\\n'" ,
+cow = "\"I don't know how she swallowed a cow!\\n\"" ,
+}
+local function verse ( which )
+local animal = animals [ which ]
+local v = "'I know an old lady who swallowed a '" .. animal .. '.\n'
+if animal == 'horse' then
+return v .. "\"She's dead, of course!\\n\""
+end
+v = v .. ( lines [ animal ] or '' )
+for i = which , 2 , - 1 do
+local cur = animals [ i ]
+local prev = animals [ i - 1 ]
+if prev == 'spider' then prev = prev .. "' that'" .. spider_adj end
+v = v .. "'She swallowed the '" .. cur .. "' to catch the '" .. prev .. '.\n'
+end
+v = v .. "\"I don't know why she swallowed the fly. Perhaps she'll die.\\n\""
+return v
+end
+local function verses ( from , to )
+local v = ''
+for i = from , to do
+v = v .. verse ( i ) .. '\n'
+end
+return v
+end
+local function sing ()
+return verses ( 1 , 8 )
+end
+return { verse = verse , verses = verses , sing = sing }

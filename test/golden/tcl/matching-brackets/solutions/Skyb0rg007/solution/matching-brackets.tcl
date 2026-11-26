@@ -1,0 +1,24 @@
+proc bracketsMatch {input} {
+    set stack {}
+    foreach c [split $input ""] {
+        switch -- $c {
+            \{ {push  stack BRACE}
+            \} {check stack BRACE}
+            \[ {push  stack BRACK}
+            \] {check stack BRACK}
+            \( {push  stack PAREN}
+            \) {check stack PAREN}
+        }
+    }
+    expr {$stack eq {}}
+}
+
+interp alias {} push {} lappend
+
+proc check {name value} {
+    upvar 1 $name stack
+    if {[lindex $stack end] ne $value} {
+        return -level 2 false
+    }
+    set stack [lreplace $stack end end]
+}

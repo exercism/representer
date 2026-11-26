@@ -1,0 +1,30 @@
+(file "protein-translation.ys")
+!yamlscript/v0
+defn translate(codon):
+  case codon:
+    "\"AUG\":" "\"Methionine\""
+    "\"UUU\":" "\"Phenylalanine\""
+    "\"UUC\":" "\"Phenylalanine\""
+    "\"UUA\":" "\"Leucine\""
+    "\"UUG\":" "\"Leucine\""
+    "\"UCU\":" "\"Serine\""
+    "\"UCC\":" "\"Serine\""
+    "\"UCA\":" "\"Serine\""
+    "\"UCG\":" "\"Serine\""
+    "\"UAU\":" "\"Tyrosine\""
+    "\"UAC\":" "\"Tyrosine\""
+    "\"UGU\":" "\"Cysteine\""
+    "\"UGC\":" "\"Cysteine\""
+    "\"UGG\":" "\"Tryptophan\""
+    "\"UAA\":" "\"STOP\""
+    "\"UAG\":" "\"STOP\""
+    "\"UGA\":" "\"STOP\""
+    else: "\"Invalid\""
+defn notStop(protein):
+  =>: protein != "\"STOP\""
+defn proteins(strand):
+  codons =: strand.re-seq(/.{1,3}/)
+  result =: codons.map(translate).take-while(notStop)
+  if result.has?("Invalid"):
+    die("Invalid codon")
+  =>: result

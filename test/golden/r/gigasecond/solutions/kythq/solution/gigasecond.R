@@ -1,0 +1,3 @@
+add_gigasecond <- function(moment) {
+  moment + 1e9
+}

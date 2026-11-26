@@ -1,0 +1,199 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
+
+module Forth
+  ( ForthError (..),
+    ForthState,
+    evalText,
+    toList,
+    emptyState,
+  )
+where
+
+import Control.Monad ((>=>))
+import qualified Data.Map.Strict as Map
+import Data.Maybe (fromMaybe)
+import Data.Text (pack, toLower)
+import qualified Data.Text as Text
+import Text.Parsec
+  ( ParseError,
+    alphaNum,
+    between,
+    char,
+    digit,
+    many1,
+    oneOf,
+    parse,
+    sepEndBy1,
+    spaces,
+    try,
+    (<|>),
+  )
+import Text.Parsec.Text (Parser)
+
+--- Representation of program state ---
+
+data ForthError
+  = DivisionByZero
+  | StackUnderflow
+  | InvalidWord
+  | UnknownWord Text.Text
+  | ParseError ParseError -- added for completeness
+  deriving (Show, Eq)
+
+data ForthState = ForthState
+  { stack :: Stack,
+    env :: ForthEnv
+  }
+
+type Stack = [Int]
+
+type ForthEnv = Map.Map Text.Text Operation
+
+type Operation = Stack -> Either ForthError Stack
+
+data Primitive
+  = ADD
+  | SUB
+  | MUL
+  | DIV
+  | DUP
+  | DROP
+  | SWAP
+  | OVER
+  | INSERT Int
+
+--- Grammar ---
+
+data Instruction = Define Symbol [Symbol] | Evaluate [Symbol]
+
+data Symbol = SymbolWord ForthWord | SymbolInt ForthInt
+
+newtype ForthWord = ForthWord Text.Text deriving (Eq, Ord)
+
+newtype ForthInt = ForthInt Int
+
+-------------    API     -------------
+
+emptyState :: ForthState
+emptyState = ForthState {stack = [], env = emptyEnv}
+  where
+    emptyEnv =
+      Map.fromList
+        [ ("+", interpretPrimitive ADD),
+          ("-", interpretPrimitive SUB),
+          ("*", interpretPrimitive MUL),
+          ("/", interpretPrimitive DIV),
+          ("dup", interpretPrimitive DUP),
+          ("drop", interpretPrimitive DROP),
+          ("swap", interpretPrimitive SWAP),
+          ("over", interpretPrimitive OVER)
+        ]
+
+evalText :: Text.Text -> ForthState -> Either ForthError ForthState
+evalText text state = parseText text >>= flip evalInstruction state
+
+toList :: ForthState -> [Int]
+toList ForthState {stack} = reverse stack
+
+-------------  Parsing   -------------
+
+parseText :: Text.Text -> Either ForthError Instruction
+parseText text = case parse instruction "" text of
+  Left err -> Left $ ParseError err
+  Right instr -> Right instr
+
+instruction :: Parser Instruction
+instruction = defineInstruction <|> evaluateInstruction
+
+defineInstruction :: Parser Instruction
+defineInstruction = do
+  between open close $ Define <$> symbol <* spaces <*> symbols
+  where
+    open = char ':' <* spaces
+    close = spaces *> char ';'
+
+evaluateInstruction :: Parser Instruction
+evaluateInstruction = Evaluate <$> symbols
+
+symbols :: Parser [Symbol]
+symbols = sepEndBy1 symbol spaces
+
+symbol :: Parser Symbol
+symbol = SymbolInt <$> forthInt <|> SymbolWord <$> forthWord
+
+forthWord :: Parser ForthWord
+forthWord = ForthWord . toLower . pack <$> many1 (alphaNum <|> oneOf "+-*/") -- eh, close enough
+
+forthInt :: Parser ForthInt
+forthInt = ForthInt . read <$> numberStr
+  where
+    numberStr = try negNum <|> posNum
+    posNum = many1 digit
+    negNum = (:) <$> char '-' <*> many1 digit
+
+------------- Evaluation -------------
+evalInstruction :: Instruction -> ForthState -> Either ForthError ForthState
+evalInstruction (Define sym syms) ForthState {stack, env} = case sym of
+  SymbolWord (ForthWord name) ->
+    Right $ ForthState {stack, env = Map.insert name op env}
+  SymbolInt _ -> Left InvalidWord
+  where
+    op = concatM . map (interpretSymbol env) $ syms
+evalInstruction (Evaluate syms) state@ForthState {env} = evalOperation op state
+  where
+    op = concatM . map (interpretSymbol env) $ syms
+
+evalOperation :: Operation -> ForthState -> Either ForthError ForthState
+evalOperation f ForthState {stack, env} = (\s -> ForthState {stack = s, env}) <$> f stack
+
+interpretSymbol :: ForthEnv -> Symbol -> Operation
+interpretSymbol _ (SymbolInt (ForthInt x)) = interpretPrimitive (INSERT x)
+interpretSymbol env (SymbolWord (ForthWord name)) =
+  fromMaybe
+    (\_ -> Left $ UnknownWord name)
+    (env Map.!? name)
+
+interpretPrimitive :: Primitive -> Operation
+interpretPrimitive ADD = _add
+  where
+    _add (x1 : x2 : xs) = Right $ (x2 + x1) : xs
+    _add _ = Left StackUnderflow
+interpretPrimitive SUB = _sub
+  where
+    _sub (x1 : x2 : xs) = Right $ (x2 - x1) : xs
+    _sub _ = Left StackUnderflow
+interpretPrimitive MUL = _mul
+  where
+    _mul (x1 : x2 : xs) = Right $ (x2 * x1) : xs
+    _mul _ = Left StackUnderflow
+interpretPrimitive DIV = _div
+  where
+    _div (0 : _) = Left DivisionByZero
+    _div (x1 : x2 : xs) = Right $ (x2 `div` x1) : xs
+    _div _ = Left StackUnderflow
+interpretPrimitive DUP = _dup
+  where
+    _dup (x : xs) = Right $ x : x : xs
+    _dup _ = Left StackUnderflow
+interpretPrimitive DROP = _drop
+  where
+    _drop (_ : xs) = Right xs
+    _drop _ = Left StackUnderflow
+interpretPrimitive SWAP = _swap
+  where
+    _swap (x1 : x2 : xs) = Right $ x2 : x1 : xs
+    _swap _ = Left StackUnderflow
+interpretPrimitive OVER = _over
+  where
+    _over (x1 : x2 : xs) = Right $ x2 : x1 : x2 : xs
+    _over _ = Left StackUnderflow
+interpretPrimitive (INSERT x) = _insert x
+  where
+    _insert x' xs = Right $ x' : xs
+
+-------------  General   -------------
+
+concatM :: Monad m => [a -> m a] -> a -> m a
+concatM = foldr (>=>) return

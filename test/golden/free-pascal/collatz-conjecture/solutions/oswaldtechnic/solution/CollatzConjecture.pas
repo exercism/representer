@@ -1,0 +1,34 @@
+unit CollatzConjecture;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+function steps(const number : integer) : integer;
+
+implementation
+
+uses SysUtils;
+
+
+function steps(const number : integer) : integer;
+var 
+    v, count : integer;
+begin
+    if number <= 0 then raise EArgumentOutOfRangeException.Create('Only positive integers are allowed');
+    count := 0;  
+    v := number;
+
+    while v <> 1 do
+    begin
+        count := count + 1;
+        if (v mod 2) = 1
+        then v := ((v * 3) + 1)
+        else v := (v div 2);
+    end;
+    steps := count;
+
+    
+end;
+
+end.

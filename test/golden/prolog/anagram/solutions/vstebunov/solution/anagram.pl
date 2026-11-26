@@ -1,0 +1,9 @@
+anag(Word, X) :-
+    downcase_atom(Word, WordD),
+    downcase_atom(X, XD),
+    string_chars(WordD, In),
+    string_chars(XD, Opt),
+    (WordD = XD; \+ permutation(In, Opt)).
+
+anagram(Word, List, Y) :-
+    exclude(anag(Word), List, Y).

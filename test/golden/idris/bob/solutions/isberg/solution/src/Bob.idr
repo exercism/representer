@@ -1,0 +1,35 @@
+module Bob
+
+import Data.String
+
+data Communication = Question | Shouting | ShoutingQuestion | Silence | Other
+
+classify : String -> Communication
+classify str = 
+  let 
+    str' = trim str
+    silence = length str' == 0
+    question = "?" `isSuffixOf` str'
+    shouting = 
+      let alphas = unpack str' |> filter isAlpha 
+      in (length alphas > 0) && (alphas |> map isUpper |> all id)
+  in
+  case (question, shouting, silence) of
+    (True,  False, _) => Question
+    (False, True,  _) => Shouting
+    (True,  True,  _) => ShoutingQuestion
+    (True,  True,  _) => ShoutingQuestion
+    (_, _,  True)     => Silence
+    _                 => Other
+
+response' : Communication -> String
+response' Question = "Sure."
+response' Shouting = "Whoa, chill out!"
+response' ShoutingQuestion = "Calm down, I know what I'm doing!"
+response' Silence = "Fine. Be that way!"
+response' Other = "Whatever."
+
+export
+response : String -> String
+response = response' . classify
+

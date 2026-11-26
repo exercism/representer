@@ -1,0 +1,28 @@
+.globl  transcribe_rna
+
+.data
+from:   .ascii  "CGAT"                  # we are going to replace these
+        .ascii  "GCUA"                  # with these
+
+.text
+transcribe_rna:
+        move    $t8,    $a0             # preserve input
+        move    $t9,    $a1
+loop:   lb      $t0,    0($t8)          # load next input character
+        beq		$t0,    $zero,  out     # if it is zero byte, we are done
+        la      $t1,    from            # otherwise look for nucleotide to
+                                        # replace
+l1:     lb      $t2,    0($t1)          # load the nucleotide
+        beq		$t0,    $t2,    found   # we found it
+        addi    $t1,    $t1,    1       # otherwise advance the searchc
+        j		l1
+found:  lb      $t2,    4($t1)          # the nucleotide to replace it with is
+                                        # 4 bytes ahead
+        sb      $t2,    0($t9)          # write it to the output string
+        addi    $t8,    $t8,    1       # advance input and output  
+        addi    $t9,    $t9,    1   
+        j		loop
+        
+
+out:    sb		$zero,  0($t9)          # add terminating zero to output
+		jr      $ra

@@ -1,0 +1,14 @@
+proc abbreviate {phrase} {
+    set subphrase [string map {"-" " "} $phrase]
+    set subphrase [string map {"_" " "} $subphrase]
+    set str_parts [split $subphrase " "] 
+
+    set acronym ""
+    foreach part $str_parts {
+        set first_letter [string index $part 0]
+        set acronym "$acronym$first_letter"
+    }
+
+    return [string toupper $acronym]
+}
+ 

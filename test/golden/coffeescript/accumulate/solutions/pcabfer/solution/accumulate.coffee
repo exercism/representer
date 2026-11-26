@@ -1,0 +1,9 @@
+Array::accumulate = (fn) ->
+	# return (fn(n) for n in this)
+	arr = new Array(this.length)
+	for i in [0...this.length]
+		arr[i] = fn(this[i])
+
+	return arr
+
+module.exports = Array

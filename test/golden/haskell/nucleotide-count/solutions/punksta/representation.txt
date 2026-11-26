@@ -1,0 +1,20 @@
+(file "src/DNA.hs")
+module DNA ( nucleotideCounts , Nucleotide ( .. )) where
+import Data.Map ( Map , insertWith , fromList )
+data Nucleotide = A | C | G | T deriving ( Eq , Ord , Show , Enum )
+zeroMap :: ( Map Nucleotide Int )
+zeroMap = fromList $ map ( \ x -> ( x , 0 )) [ toEnum 0 .. ]
+readNucleotide :: Char -> Either String Nucleotide
+readNucleotide x = case x of
+  'A' -> Right A
+  'C' -> Right C
+  'G' -> Right G
+  'T' -> Right T
+  e -> Left [ e ]
+addNucleotide :: ( Map Nucleotide Int ) -> Nucleotide -> ( Map Nucleotide Int )
+addNucleotide m n = insertWith ( + ) n 1 m
+step :: Char -> ( Map Nucleotide Int ) -> Either String ( Map Nucleotide Int )
+step x m = fmap ( addNucleotide m ) ( readNucleotide x )
+nucleotideCounts :: String -> Either String ( Map Nucleotide Int )
+nucleotideCounts [] = Right $ zeroMap
+nucleotideCounts ( x : xs ) = nucleotideCounts xs >>= step x

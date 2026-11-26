@@ -1,0 +1,22 @@
+.text
+.globl factors
+factors:mov x10, #0
+loop_r: mov x2, #1
+        cmp x1, #1
+        ble return
+loop:   add x2, x2, #1
+        mul x3, x2, x2
+        cmp x3, x1
+        bgt prime
+        udiv x3, x1, x2
+        msub x3, x3, x2, x1
+        cbnz x3, loop
+        str x2, [x0]
+        add x0, x0, #8
+        udiv x1, x1, x2
+        add x10, x10, #1
+        b loop_r
+prime:  str x1, [x0]
+        add x10, x10, #1
+return: add x0, x10, #0
+        ret

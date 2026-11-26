@@ -1,0 +1,61 @@
+(file "src/connect.erl")
+- module ( connect ).
+- export ([ winner / 1 ]).
+- record ( board , { grid , height , width }).
+winner ( Rows ) ->
+Board = new_board ( Rows ),
+CX = connected ( x , Board ),
+CO = connected ( o , Board ),
+case { CX , CO } of
+{ true , false } -> x ;
+{ false , true } -> o ;
+_ -> undefined
+end .
+new_board ( Rows ) ->
+Grid = parse_board ( enumerate ( Rows ), # {}),
+Height = length ( Rows ),
+Width = length ( hd ( Rows )),
+#board { grid = Grid , height = Height , width = Width }.
+parse_board ([], Acc ) -> Acc ;
+parse_board ([{ Y , Row }| T ], Acc ) ->
+parse_board ( T , update_grid ( enumerate ( Row ), Y , Acc )).
+update_grid ([], _, Acc ) -> Acc ;
+update_grid ([{ X , $X }| T ], Y , Acc ) -> update_grid ( T , Y , maps : put ({ Y , X }, x , Acc ));
+update_grid ([{ X , $O }| T ], Y , Acc ) -> update_grid ( T , Y , maps : put ({ Y , X }, o , Acc ));
+update_grid ([_| T ], Y , Acc ) -> update_grid ( T , Y , Acc ).
+connected ( o , Board ) ->
+Fun = fun ( K = { Y ,_}) -> Y == 1 andalso maps : get ( K , Board #board.grid ) == o end ,
+Candidates = lists : filter ( Fun , maps : keys ( Board #board.grid )),
+lists : any ( fun ( C ) -> has_crossed ( C , Board ) end , Candidates );
+connected ( x , Board ) ->
+Fun = fun ( K = { Y , X }) -> Y == X andalso maps : get ( K , Board #board.grid ) == x end ,
+Candidates = lists : filter ( Fun , maps : keys ( Board #board.grid )),
+lists : any ( fun ( C ) -> has_crossed ( C , Board ) end , Candidates ).
+has_crossed ( Point , Board ) ->
+Queue = [ Point ],
+Visited = # {},
+dfs ( Queue , Visited , Board ).
+dfs ([], _, _) -> false ;
+dfs ([ Point | T ], Visited , Board ) ->
+case reached_edge ( Point , Board ) of
+true -> true ;
+false ->
+NewVisited = maps : put ( Point , true , Visited ),
+Neighbours = neighbours_of ( Point , Visited , Board ),
+dfs ( Neighbours ++ T , NewVisited , Board )
+end .
+reached_edge ({ Y , X }, Board ) ->
+Player = maps : get ({ Y , X }, Board #board.grid ),
+case Player of
+o -> Board #board.height == Y ;
+x -> Board #board.width == X - Y + 1 ;
+_ -> false
+end .
+neighbours_of ({ Y , X }, Visited , Board ) ->
+Player = maps : get ({ Y , X }, Board #board.grid ),
+Positions = [{ Y - 1 , X - 1 }, { Y - 1 , X + 1 }, { Y , X + 2 }, { Y + 1 , X + 1 }, { Y + 1 , X - 1 }, { Y , X - 2 }],
+Fun = fun ( P ) -> maps : get ( P , Board #board.grid , undefined ) == Player andalso not maps : is_key ( P , Visited ) end ,
+lists : filter ( Fun , Positions ).
+enumerate ( List ) ->
+{ List1 , _ } = lists : mapfoldl ( fun ( T , Acc ) -> {{ Acc , T }, Acc + 1 } end , 1 , List ),
+List1 .

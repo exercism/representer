@@ -1,0 +1,48 @@
+-- Helper function to check if a character is a digit
+def is_digit (c: u8): bool =
+  c >= 48 && c <= 57
+
+-- Helper function to convert digit character to number
+def char_to_digit (c: u8): i32 =
+  (i32.u8 c) - 48
+
+-- Helper function to convert number to digit character
+def digit_to_char (d: i32): u8 =
+  u8.i32 (d + 48)
+
+-- Helper function to strip spaces from input
+def strip_spaces (s: []u8): []u8 =
+  filter (\c -> c != 32) s
+
+-- Helper function to validate input (only digits and spaces allowed)
+def is_valid_input (s: []u8): bool =
+  all (\c -> is_digit c || c == 32) s
+
+-- Helper function to apply Luhn doubling rule
+def luhn_double (digit: i32): i32 =
+  let doubled = digit * 2
+  in if doubled > 9 then doubled - 9 else doubled
+
+-- Helper function to apply Luhn algorithm to array of digits
+def apply_luhn (digits: []i32): i32 =
+  let len = length digits
+  let indices = iota len
+  let processed = map (\i ->
+    let digit = digits[len - 1 - i]   -- Start from rightmost digit
+    let should_double = (i % 2) == 1  -- Double every second digit (1-indexed from right)
+    in if should_double then luhn_double digit else digit
+  ) indices
+  in reduce (+) 0 processed
+
+def valid (value: []u8): bool =
+  -- Check if input is valid (only digits and spaces)
+  if !(is_valid_input value) then false
+  else
+    let stripped = strip_spaces value
+    -- Strings of length 1 or less are not valid
+    in if length stripped <= 1 then false
+    else
+      let digits = map char_to_digit stripped
+      let sum = apply_luhn digits
+      in sum % 10 == 0
+    

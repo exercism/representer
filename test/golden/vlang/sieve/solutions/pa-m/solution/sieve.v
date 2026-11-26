@@ -1,0 +1,24 @@
+module main
+
+fn sieve(limit int) []int {
+  if limit<2 {
+    return []
+  }
+  mut x:=3
+  mut h:=map[int][]int{}
+  mut xs:=[2]
+  for x<=limit {
+      if x in h {
+        for d in h[x] {
+          h[x+d+d]<<d
+        }
+        h.delete(x)
+      } else {
+        println(x)
+        xs<<x
+        h[x*x]=[x]
+      }
+      x+=2
+  }
+  return xs
+}

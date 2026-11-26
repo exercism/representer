@@ -1,0 +1,36 @@
+CLASS zcl_phone_number DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    METHODS clean
+      IMPORTING
+        !number       TYPE string
+      RETURNING
+        VALUE(result) TYPE string
+      RAISING
+        cx_parameter_invalid.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+CLASS zcl_phone_number IMPLEMENTATION.
+  METHOD clean.
+    result = replace( val = number regex = '[^0-9]' with = '' occ = 0 ).
+    IF strlen( result ) <> 10.
+      IF strlen( result ) < 10.
+        RAISE EXCEPTION TYPE cx_parameter_invalid.
+      ELSEIF substring( val = result len = 1 off = 0 ) = 1.
+        result = substring( val = result len = 10 off = 1 ).
+      ELSE.
+        RAISE EXCEPTION TYPE cx_parameter_invalid.
+      ENDIF.
+    ENDIF.
+    IF substring( val = result len = 1 off = 0 ) CA '01' OR substring( val = result len = 1 off = 3 ) CA '01'.
+      RAISE EXCEPTION TYPE cx_parameter_invalid.
+    ENDIF.
+  ENDMETHOD.
+ENDCLASS.

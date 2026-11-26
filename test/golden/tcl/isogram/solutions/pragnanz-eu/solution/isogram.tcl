@@ -1,0 +1,11 @@
+proc isIsogram {input} {
+    set input [string toupper $input]
+    regsub -all {[\- ]}  $input  "" input
+    foreach char [ split $input "" ] {
+        if {[info exists found($char)]} {
+            return false
+        }
+        set found($char) 1
+    }
+    return true
+}

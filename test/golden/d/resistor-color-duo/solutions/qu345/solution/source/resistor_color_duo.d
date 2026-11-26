@@ -1,0 +1,36 @@
+module resistor_color_duo;
+
+struct ResistorColorDuo {
+  static enum codes = ["black":  0, "brown": 1, "red": 2, "orange": 3,
+		"yellow": 4, "green": 5, "blue": 6, "violet": 7,
+		"grey": 8, "white": 9];
+  
+  static int value(string[] colors) {
+    return codes[colors[0]]*10 + codes[colors[1]];
+  }
+}
+
+
+unittest
+{
+  immutable int allTestsEnabled = 1;
+
+  // Brown and black
+  assert(ResistorColorDuo.value(["brown", "black"]) == 10);
+
+  static if (allTestsEnabled)
+    {
+      // Blue and grey
+      assert(ResistorColorDuo.value(["blue", "grey"]) == 68);
+
+      // Yellow and violet
+      assert(ResistorColorDuo.value(["yellow", "violet"]) == 47);
+
+      // Orange and orange
+      assert(ResistorColorDuo.value(["orange", "orange"]) == 33);
+
+      // Ignore additional colors
+      assert(ResistorColorDuo.value(["green", "brown", "orange"]) == 51);
+    }
+
+}

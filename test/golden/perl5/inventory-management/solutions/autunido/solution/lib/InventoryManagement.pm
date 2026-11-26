@@ -1,0 +1,29 @@
+package InventoryManagement;
+
+use v5.38;
+
+sub add_items;
+sub delete_items;
+
+sub create_inventory ($items) {
+  my %inventory;
+  add_items(\%inventory, $items);
+  \%inventory;
+}
+
+sub add_items ( $inventory, $items ) {
+  $inventory->{$_}++ foreach @$items;
+  $inventory
+}
+
+sub remove_items ( $inventory, $items ) {
+  foreach (@$items) {
+    $inventory->{$_} = 0 if (--$inventory->{$_} < 0)
+  }
+  $inventory
+}
+
+sub delete_item ( $inventory, $item ) {
+  delete $inventory->{$item};
+  $inventory;
+}

@@ -1,0 +1,63 @@
+(file "binary-search.jl")
+"\"\"\"\nI'm sure this can be optimized\nBut I spent so long to make the repeated test work I'm not going to bother with\ntrimming, stylising, etc the code\n\n\"\"\""
+tested_benus_tasks = ( rev = true , by = true , lt = true , multiple_matches = true )
+function binarysearch ( dictionary , item ; by = nothing , rev = false , lt = ifelse ( rev , > , < ))
+isnothing ( by ) || (( dictionary = by . ( dictionary )) ; ( item = by ( item )))
+length ( dictionary ) == 0 && return 1 : 0
+length ( dictionary ) == 1 && ( dictionary [ 1 ] == item ? ( return 1 : 1 ) : ( return 1 : 0 ))
+allunique ( dictionary ) || return binarysearchr ( dictionary , item ; lt = lt )
+return searchOP ( dictionary , item ; lt = lt )
+end
+function binarysearchr ( dictionary , item ; lt )
+println ( "\"Repeated items detected\"" )
+midpoint = Int ( length ( dictionary ) ÷ 2 )
+lb = 1
+hb = length ( dictionary )
+while ( min ( length ( dictionary [ midpoint : hb ]), length ( dictionary [ lb : midpoint ])) != 0 )
+if dictionary [ midpoint ] == item
+lb = midpoint
+hb = midpoint
+dictionary [ midpoint - 1 ] == item && ( lb = lookbehind ( dictionary , item , midpoint ))
+dictionary [ midpoint + 1 ] == item && ( hb = lookahead ( dictionary , item , midpoint ))
+return lb : hb
+end
+if item < dictionary [ midpoint ]
+hb = midpoint
+midpoint = midpoint - Int ( length ( dictionary [ lb : midpoint ]) ÷ 2 )
+else
+lb = midpoint
+midpoint = midpoint + Int ( length ( dictionary [ midpoint : hb ]) ÷ 2 )
+end
+end
+end
+function lookahead ( dictionary , item , midpoint )
+hb = 1
+while (( midpoint + ( hb + 1 ) < length ( dictionary )) && ( dictionary [ midpoint + ( hb + 1 )] == item ))
+hb += 1
+end
+return midpoint + hb
+end
+function lookbehind ( dictionary , item , midpoint )
+lb = 1
+while (( midpoint - ( lb + 1 ) > 0 ) && ( dictionary [ midpoint - ( lb + 1 )] == item ))
+lb += 1
+end
+return midpoint - lb
+end
+function searchOP ( dictionary , item ; lt )
+midpoint = Int ( length ( dictionary ) ÷ 2 )
+lb = 1
+hb = length ( dictionary )
+while ( min ( length ( dictionary [ midpoint : hb ]), length ( dictionary [ lb : midpoint ])) != 0 )
+dictionary [ midpoint ] == item && return midpoint : midpoint
+length ( dictionary [ lb : midpoint ]) == 1 && ( dictionary [ lb ] == item ? ( return lb : midpoint ) : ( return lb : ( midpoint - 1 )))
+length ( dictionary [ midpoint : hb ]) == 1 && ( dictionary [ hb ] == item ? ( return midpoint : hb ) : ( return midpoint : ( hb - 1 )))
+if lt ( item , dictionary [ midpoint ])
+hb = midpoint
+midpoint = midpoint - Int ( length ( dictionary [ lb : midpoint ]) ÷ 2 )
+else
+lb = midpoint
+midpoint = midpoint + Int ( length ( dictionary [ midpoint : hb ]) ÷ 2 )
+end
+end
+end

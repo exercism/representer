@@ -1,0 +1,7 @@
+module main
+
+fn color_code(color string) int {
+	return colors.index(color.to_lower())
+}
+
+const colors = 'black brown red orange yellow green blue violet grey white'.split(' ')

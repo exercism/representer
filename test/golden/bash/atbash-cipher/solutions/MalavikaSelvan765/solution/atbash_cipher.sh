@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+declare -A codebook
+alpha=abcdefghijklmnopqrstuvwxyz
+for i in {0..25}; do
+    codebook[${alpha:i:1}]=${alpha:25-$i:1}
+done
+text=${2//[![:alnum:]]/}
+text=${text,,}
+i=1
+while read -rn 1 current; do
+    [[ $current == [[:alpha:]] ]] && current=${codebook[$current]}
+    result+=$current
+    ((i % 5 == 0)) && result+=' '
+    ((i++))
+done < <(echo -n "$text")
+[[ $1 == decode ]] && result=${result//[[:space:]]/}
+echo "${result% }"

@@ -1,0 +1,10 @@
+class Hexadecimal
+  constructor: (@s) ->
+  hexDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+  toDecimal: ->
+    if (sp = @s.split'').every((x) -> x in hexDigits)
+      sp.map((x, i) => hexDigits.indexOf(x) * 16 ** (@s.length - i - 1)).reduce (a, b) -> a + b
+    else
+      0
+
+module.exports = Hexadecimal

@@ -1,0 +1,7 @@
+#lang racket
+
+(provide two-fer)
+
+(define (two-fer [name "you"])
+  (~a "One for " name ", one for me.")
+)

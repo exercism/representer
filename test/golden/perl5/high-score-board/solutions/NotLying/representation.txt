@@ -1,0 +1,39 @@
+(file "lib/HighScoreBoard.pm")
+package HighScoreBoard ;
+use v5 . 38 ;
+our %Scores ;
+sub set_player_scores (% new_scores )
+{
+%Scores = ( %Scores , %new_scores );
+}
+sub get_player_score ($ player )
+{
+return $Scores { $player };
+}
+sub increase_player_scores (% additional_scores )
+{
+foreach my $name ( keys %additional_scores )
+{
+if ( exists $Scores { $name })
+{
+my $new_score = $Scores { $name } + %additional_scores { $name };
+$Scores { $name } = $new_score ;
+}
+}
+}
+sub sort_players_by_name
+{
+return sort keys %Scores ;
+}
+sub sort_players_by_score
+{
+my @sorted_scores ;
+foreach my $name ( sort { $Scores { $b } <=> $Scores { $a } } keys %Scores )
+{
+push ( @sorted_scores , $name )
+}
+return @sorted_scores ;
+}
+sub delete_player ($player) {
+delete $Scores { $player };
+}

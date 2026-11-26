@@ -1,0 +1,10 @@
+module Pangram
+
+import Data.String
+
+export
+isPangram : String -> Bool
+isPangram sentence =
+  length deduped == 26
+  where
+    deduped = (nub . (filter isAlpha) . unpack . toLower) sentence

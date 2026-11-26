@@ -1,0 +1,17 @@
+Red [
+	description: {"Raindrops" exercise solution for exercism platform}
+	author: "" ; you can write your name here, in quotes
+]
+
+convert: function [
+	number
+] [
+	response: ""
+	if 0 == mod number 3 [append response "Pling"]
+	if 0 == mod number 5 [append response "Plang"]
+	if 0 == mod number 7 [append response "Plong"]
+
+	probe empty? response
+	return either empty? response [to-string number] [response]
+]
+

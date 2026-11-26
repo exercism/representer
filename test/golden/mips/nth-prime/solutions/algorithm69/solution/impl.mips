@@ -1,0 +1,208 @@
+.globl isPrime
+.globl nextPrime
+.globl nth_prime_aux
+
+.data
+
+.text
+
+    .globl nth_prime
+nth_prime:
+    addi $sp, $sp, -8
+    sw   $ra, 4($sp)
+    sw   $a0, 0($sp)
+    jal  nth_prime_aux
+    lw   $ra, 4($sp)
+    addi $sp, $sp, 8
+    jr   $ra
+
+isPrime:
+	sw   $ra, -4($sp)    # save return address on stack
+	sw   $fp, -8($sp)    # save frame pointer on stack
+	move $fp, $sp        # set frame pointer to stack pointer
+	addi $sp, $sp, -8    # allocation for $ra and $fp
+	addi $sp, $sp, -8    # allocation for 2 temporaries
+	sw   $t1, 4($sp)   
+	sw   $t0, 0($sp)   
+	addi $sp, $sp, -4    # allocate 1 words on stack for local variables
+	
+	#  local variables initialization
+	#  variable div
+	li   $t0, 3
+	sw   $t0, 0($sp)
+	
+	#  function body
+	lw   $t0, 0($fp)
+	li   $t1, 2
+	slt  $t0, $t0, $t1
+	beq  $t0, $0, isPrime_else_0
+	li   $t0, 0
+	move $v0, $t0
+	j    return_isPrime
+	j    isPrime_end_1
+isPrime_else_0:
+isPrime_end_1:
+	lw   $t0, 0($fp)
+	li   $t1, 2
+	seq  $t0, $t0, $t1
+	beq  $t0, $0, isPrime_else_2
+	li   $t0, 1
+	move $v0, $t0
+	j    return_isPrime
+	j    isPrime_end_3
+isPrime_else_2:
+isPrime_end_3:
+	lw   $t0, 0($fp)
+	li   $t1, 2
+	div  $t0, $t1
+	mfhi $t0
+	li   $t1, 0
+	seq  $t0, $t0, $t1
+	beq  $t0, $0, isPrime_else_4
+	li   $t0, 0
+	move $v0, $t0
+	j    return_isPrime
+	j    isPrime_end_5
+isPrime_else_4:
+isPrime_end_5:
+isPrime_while_start_6:
+	lw   $t0, 0($sp)
+	lw   $t1, 0($fp)
+	slt  $t0, $t0, $t1
+	beq  $t0, $0, isPrime_while_end_7
+	lw   $t0, 0($fp)
+	lw   $t1, 0($sp)
+	div  $t0, $t1
+	mfhi $t0
+	li   $t1, 0
+	seq  $t0, $t0, $t1
+	beq  $t0, $0, isPrime_else_8
+	li   $t0, 0
+	move $v0, $t0
+	j    return_isPrime
+	j    isPrime_end_9
+isPrime_else_8:
+isPrime_end_9:
+	lw   $t0, 0($sp)
+	li   $t1, 2
+	add  $t0, $t0, $t1
+	sw   $t0, 0($sp)
+	j    isPrime_while_start_6
+isPrime_while_end_7:
+	lw   $t0, 0($sp)
+	lw   $t1, 0($fp)
+	sge  $t0, $t0, $t1
+	beq  $t0, $0, isPrime_else_10
+	li   $t0, 1
+	move $v0, $t0
+	j    return_isPrime
+	j    isPrime_end_11
+isPrime_else_10:
+isPrime_end_11:
+	li   $t0, 0
+	move $v0, $t0
+	j    return_isPrime
+	
+return_isPrime:
+	addi $sp, $sp, 4     # restore stack from local variables
+	lw   $t0, 0($sp)   
+	lw   $t1, 4($sp)   
+	addi $sp, $sp, 8     # restore stack from temporaries
+	addi $sp, $sp, 8     # free memory for $ra and $fp
+	lw   $fp, -8($sp)    # restore frame pointer from stack
+	lw   $ra, -4($sp)    # restore return address from stack
+	jr   $ra             # return to caller
+
+nextPrime:
+	sw   $ra, -4($sp)    # save return address on stack
+	sw   $fp, -8($sp)    # save frame pointer on stack
+	move $fp, $sp        # set frame pointer to stack pointer
+	addi $sp, $sp, -8    # allocation for $ra and $fp
+	addi $sp, $sp, -8    # allocation for 2 temporaries
+	sw   $t1, 4($sp)   
+	sw   $t0, 0($sp)   
+	addi $sp, $sp, -0    # allocate 0 words on stack for local variables
+	
+	#  local variables initialization
+	
+	#  function body
+	lw   $t0, 0($fp)
+	li   $t1, 1
+	add  $t0, $t0, $t1
+	sw   $t0, 0($fp)
+nextPrime_while_start_0:
+	lw   $t0, 0($fp)
+	add  $sp, $sp, -4
+	sw   $t0, 0($sp)
+	jal  isPrime
+	add  $sp, $sp, 4
+	move $t0, $v0
+	li   $t1, 0
+	seq  $t0, $t0, $t1
+	beq  $t0, $0, nextPrime_while_end_1
+	lw   $t0, 0($fp)
+	li   $t1, 1
+	add  $t0, $t0, $t1
+	sw   $t0, 0($fp)
+	j    nextPrime_while_start_0
+nextPrime_while_end_1:
+	lw   $t0, 0($fp)
+	move $v0, $t0
+	j    return_nextPrime
+	
+return_nextPrime:
+	addi $sp, $sp, 0     # restore stack from local variables
+	lw   $t0, 0($sp)   
+	lw   $t1, 4($sp)   
+	addi $sp, $sp, 8     # restore stack from temporaries
+	addi $sp, $sp, 8     # free memory for $ra and $fp
+	lw   $fp, -8($sp)    # restore frame pointer from stack
+	lw   $ra, -4($sp)    # restore return address from stack
+	jr   $ra             # return to caller
+
+nth_prime_aux:
+	sw   $ra, -4($sp)    # save return address on stack
+	sw   $fp, -8($sp)    # save frame pointer on stack
+	move $fp, $sp        # set frame pointer to stack pointer
+	addi $sp, $sp, -8    # allocation for $ra and $fp
+	addi $sp, $sp, -8    # allocation for 2 temporaries
+	sw   $t1, 4($sp)   
+	sw   $t0, 0($sp)   
+	addi $sp, $sp, -4    # allocate 1 words on stack for local variables
+	
+	#  local variables initialization
+	#  variable prime
+	li   $t0, 0
+	sw   $t0, 0($sp)
+	
+	#  function body
+nth_prime_aux_while_start_0:
+	lw   $t0, 0($fp)
+	beq  $t0, $0, nth_prime_aux_while_end_1
+	lw   $t0, 0($sp)
+	add  $sp, $sp, -4
+	sw   $t0, 0($sp)
+	jal  nextPrime
+	add  $sp, $sp, 4
+	move $t0, $v0
+	sw   $t0, 0($sp)
+	lw   $t0, 0($fp)
+	li   $t1, 1
+	sub  $t0, $t0, $t1
+	sw   $t0, 0($fp)
+	j    nth_prime_aux_while_start_0
+nth_prime_aux_while_end_1:
+	lw   $t0, 0($sp)
+	move $v0, $t0
+	j    return_nth_prime_aux
+	
+return_nth_prime_aux:
+	addi $sp, $sp, 4     # restore stack from local variables
+	lw   $t0, 0($sp)   
+	lw   $t1, 4($sp)   
+	addi $sp, $sp, 8     # restore stack from temporaries
+	addi $sp, $sp, 8     # free memory for $ra and $fp
+	lw   $fp, -8($sp)    # restore frame pointer from stack
+	lw   $ra, -4($sp)    # restore return address from stack
+	jr   $ra             # return to caller
+

@@ -1,0 +1,18 @@
+#include "grains.h"
+#include "math.h"
+
+uint64_t square(uint8_t  n){
+    if(n == 0 || n > 64){
+        return 0;
+    }
+    return 1ull << (n - 1);
+}
+
+uint64_t total(){
+    uint64_t res = 0;
+    for (int i = 1; i <= 64; i++)
+    {
+        res += square(i);
+    }
+    return res;
+}

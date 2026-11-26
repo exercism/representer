@@ -1,0 +1,19 @@
+(file "all_your_base.ml")
+type base = int
+let validate from digits target =
+if from <= 1 then false else
+if target <= 1 then false else
+not ( List . exists ( fun item -> ( item < 0 ) || ( item >= from )) digits )
+let to_dec digits from =
+List . fold_left ( fun acc digit -> acc * from + digit ) 0 digits
+let from_dec n target =
+let rec digits n acc_dig =
+match n > 0 with
+| false -> acc_dig
+| true -> digits ( n / target ) (( n mod target ) :: acc_dig )
+in if n == 0 then [ 0 ] else digits n []
+let convert_bases ~ from ~ digits ~ target =
+if validate from digits target then
+Some ( from_dec ( to_dec digits from ) target )
+else
+None

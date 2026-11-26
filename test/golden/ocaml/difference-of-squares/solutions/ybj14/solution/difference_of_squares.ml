@@ -1,0 +1,5 @@
+let sqr (n: int): int = n * n 
+let square_of_sum n = sqr @@ (n * succ n) / 2
+
+let sum_of_squares n = n * succ n * succ (2*n) / 6
+let difference_of_squares n = square_of_sum n - sum_of_squares n

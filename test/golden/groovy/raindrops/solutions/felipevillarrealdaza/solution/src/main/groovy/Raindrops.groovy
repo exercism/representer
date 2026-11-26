@@ -1,0 +1,16 @@
+class Raindrops {
+
+    def convert(num) {
+        def rainDrops = ''
+        if(num % 3 != 0 && num % 5 != 0 && num % 7 != 0)
+            return "${num}"
+        if(num % 3 == 0)
+            rainDrops += 'Pling'
+        if(num % 5 == 0)
+            rainDrops += 'Plang'
+        if(num % 7 == 0)
+            rainDrops += 'Plong'
+
+        return rainDrops
+    }
+}

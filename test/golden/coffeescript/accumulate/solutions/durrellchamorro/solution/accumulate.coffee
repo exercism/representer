@@ -1,0 +1,2 @@
+Array::accumulate = (accumulator) ->
+  @.map(accumulator)

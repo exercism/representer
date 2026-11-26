@@ -1,0 +1,20 @@
+;;; bob.el --- Bob exercise (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+(defun response-for (phrase)
+  (let ((is-yelling (and (string= phrase (upcase phrase))
+                         (let ((case-fold-search nil)) (string-match-p "[A-Z]" phrase))))
+        (is-question (string-match-p "^.*\\?[[:space:]]*\\'" phrase)))
+    (cond
+      ((string-match-p "\\`[[:space:]]*\\'" phrase) "Fine. Be that way!")
+      ((and is-yelling is-question)
+       "Calm down, I know what I'm doing!")
+      (is-yelling
+       "Whoa, chill out!")
+      (is-question
+       "Sure.")
+      (t
+       "Whatever."))))
+
+(provide 'bob)
+;;; bob.el ends here

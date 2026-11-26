@@ -1,0 +1,14 @@
+object Transpose {
+
+    fun transpose(input: List<String>): List<String> {
+        if (input.isEmpty()) return emptyList()
+
+        val max = input.maxOf { it.length }
+        val result = mutableListOf<String>()
+        for (i in 0 until max) {
+            val line = input.map { it.getOrNull(i)?: 'X' }.joinToString("")
+            result.add(line.trimEnd('X').replace('X', ' '))
+        }
+        return result
+    }
+}

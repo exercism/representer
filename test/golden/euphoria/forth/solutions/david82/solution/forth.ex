@@ -1,0 +1,83 @@
+include std/convert.e
+include std/map.e
+include std/sequence.e
+include std/text.e
+include std/types.e
+
+sequence errorMessage = ""
+
+constant OPERATORS = {"+", "-", "*", "/", "swap", "over", "dup", "drop"}
+
+function processInstructions(sequence stack, sequence words, map wordDefinitions)
+    for i = 1 to length(words) do
+        string currentWord = words[i]
+        object numberConversion = to_number(currentWord, 1)
+        if numberConversion[2] = 0 then
+            stack &= numberConversion[1]
+        elsif equal(currentWord, ":") then
+            sequence wordDefinition = words[i + 1]
+            numberConversion = to_number(wordDefinition, 1)
+            if numberConversion[2] = 0 then errorMessage = "illegal operation" exit end if
+            sequence commandSequence = {}
+            integer semicolonIndex = find(";", words, i + 1), 
+                    wordsLength = length(words)
+            if semicolonIndex = 0 then semicolonIndex = wordsLength + 1 end if
+            for j = i + 2 to semicolonIndex - 1 do
+                currentWord = words[j]
+                if map:has(wordDefinitions, currentWord) then
+                    commandSequence &= map:get(wordDefinitions, currentWord)
+                else
+                    commandSequence = append(commandSequence, currentWord)
+                end if
+            end for
+            map:put(wordDefinitions, wordDefinition, commandSequence)
+            if semicolonIndex < wordsLength then 
+                stack = processInstructions(stack, words[semicolonIndex + 1..$], wordDefinitions)
+            end if
+            exit
+        elsif map:has(wordDefinitions, currentWord) then
+            stack = processInstructions(stack, map:get(wordDefinitions, currentWord), wordDefinitions)
+            if length(errorMessage) then exit end if
+        else
+            integer stackLength = length(stack),
+                   operatorIndex = find(currentWord, OPERATORS)
+            if operatorIndex = 0 then errorMessage = "undefined operation" exit end if
+            if stackLength=0 then errorMessage = "empty stack" exit end if
+            integer topStackValue = stack[$], secondTopStackValue
+            if operatorIndex < 7 then
+                if stackLength = 1 then errorMessage = "only one value on the stack" exit end if
+                if operatorIndex = 4 and topStackValue = 0 then errorMessage = "divide by zero" exit end if
+                secondTopStackValue = stack[$ - 1]
+            end if
+            if operatorIndex < 5 or operatorIndex = 8 then stack = stack[1..$ - 1] end if
+            switch operatorIndex do
+                case 1 then stack[$] = secondTopStackValue + topStackValue
+                case 2 then stack[$] = secondTopStackValue - topStackValue
+                case 3 then stack[$] = secondTopStackValue * topStackValue
+                case 4 then stack[$] = floor(secondTopStackValue / topStackValue)
+                case 5 then stack[$ - 1] = topStackValue          -- swap
+                            stack[$] = secondTopStackValue 
+                case 6 then stack &= secondTopStackValue              -- over
+                case 7 then stack &= topStackValue              -- dup
+            end switch
+        end if
+    end for
+    return stack
+end function
+
+public function evaluate(sequence instructions) 
+    sequence stack = {}
+    map:map wordDefinitions = map:new()
+    errorMessage = ""
+    if sequence_array(instructions) then
+      for i = 1 to length(instructions) do
+        stack = processInstructions(stack, split(lower(instructions[i])), wordDefinitions)
+        if length(errorMessage) then exit end if
+      end for
+    else
+      stack = processInstructions(stack, split(lower(instructions)), wordDefinitions)
+    end if
+    map:clear(wordDefinitions)
+    if length(errorMessage) then return errorMessage end if
+    return stack
+end function

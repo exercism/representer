@@ -1,0 +1,21 @@
+class WordCount {
+  // Put your code here
+  final RegExp allowedChars = RegExp(r"([A-Za-z0-9'])*");
+  Map<String,int> countWords(String phrase) {
+    Map<String,int> counts = {};
+    List<RegExpMatch> words = allowedChars.allMatches(phrase).toList();
+    for (var i=0; i<words.length; i++) {
+      var word = words[i].group(0);
+      if (word == null || word.isEmpty) continue; 
+      
+      String finalWord = word!.toLowerCase().replaceAll(RegExp(r"'+"), "'");
+      if (finalWord.startsWith("'")) finalWord = finalWord.substring(1);
+      if (finalWord.endsWith("'")) finalWord = finalWord.substring(0, finalWord.length-1);
+      if (finalWord.isEmpty) continue; 
+      
+      if (counts.containsKey(finalWord)) counts[finalWord] = (counts[finalWord] ?? 0) + 1;
+      else counts[finalWord!] = 1;
+    }
+    return counts;
+  }
+}

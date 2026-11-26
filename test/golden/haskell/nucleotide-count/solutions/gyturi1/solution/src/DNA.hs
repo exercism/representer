@@ -1,0 +1,16 @@
+{-# LANGUAGE PostfixOperators #-}
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import           Control.Monad (foldM)
+import           Data.Map      (Map)
+import qualified Data.Map      as M
+import           Text.Read     (readEither)
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show, Read, Enum)
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts = foldM go start
+    where
+        start = M.fromList [(A, 0), (C, 0), (G, 0), (T, 0)]
+        go acc n = readEither [n] >>= inc acc
+        inc acc p = Right $ M.insertWith (+) p 1 acc

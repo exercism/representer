@@ -1,0 +1,11 @@
+object Transpose {
+
+    fun transpose(input: List<String>): List<String> {
+        return (0 until (input.maxOfOrNull(String::length) ?: 0)).map { n ->
+            input.map { it.getOrNull(n) }
+                .dropLastWhile { it == null }
+                .map { it ?: ' ' }
+                .joinToString("")
+        }
+    }
+}

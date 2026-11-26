@@ -1,0 +1,13 @@
+BEGIN {FS=""; res=""}
+{for(i=1;i<=NF;i++){
+  switch($i) {
+   case "G": res = res "C"; break
+   case "C": res = res "G"; break
+   case "T": res = res "A"; break
+   case "A": res = res "U"; break
+   default: exit 1; break
+  }}}
+END {if (length(res)==NF) 
+        print res
+      else 
+        print "Invalid nucleotide detected." }

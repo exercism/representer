@@ -1,0 +1,33 @@
+Class {
+	#name : #SecretHandshake,
+	#superclass : #Object,
+	#classVars : [
+		'BinaryCode'
+	],
+	#category : #'Exercise@SecretHandshake'
+}
+
+{ #category : #accessing }
+SecretHandshake class >> binaryCode [
+	BinaryCode isNil
+		ifTrue: [ BinaryCode := #('wink' 'double blink' 'close your eyes' 'jump') ].
+	^ BinaryCode
+]
+
+{ #category : #operations }
+SecretHandshake >> commandsNumber: anInteger [
+	| commands |
+	commands := self fourBitsCommands: anInteger .
+	^ (anInteger bitAt: 5) = 1
+		ifTrue: [ commands reverse ]
+		ifFalse: [ commands ]
+]
+
+{ #category : #private }
+SecretHandshake >> fourBitsCommands: anInteger [
+^ (self class binaryCode
+		collectWithIndex: [ :msg :i | 
+			(anInteger bitAt: i) = 1
+				ifTrue: [ msg ]
+				ifFalse: [ '' ] ]) reject: [ :m | m isEmpty ]
+]

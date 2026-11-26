@@ -1,0 +1,26 @@
+romanNumerals.toRoman : Nat -> Text
+romanNumerals.toRoman decimal =
+	mostSignificant : Nat -> Optional (Text, Nat)
+	mostSignificant = cases
+		d | d >= 1000 -> Some("M", 1000)
+		d | d >=  900 -> Some("CM", 900)
+		d | d >=  500 -> Some("D",  500)
+		d | d >=  400 -> Some("CD", 400)
+		d | d >=  100 -> Some("C",  100)
+		d | d >=   90 -> Some("XC",  90)
+		d | d >=   50 -> Some("L",   50)
+		d | d >=   40 -> Some("XL",  40)
+		d | d >=   10 -> Some("X",   10)
+		d | d >=    9 -> Some("IX",   9)
+		d | d >=    5 -> Some("V",    5)
+		d | d >=    4 -> Some("IV",   4)
+		d | d >=    1 -> Some("I",    1)
+		_             -> None
+	
+	_toRoman : Text -> Nat -> Text
+	_toRoman soFar decimal = match mostSignificant decimal with
+		Some((roman, value)) ->
+			_toRoman (soFar ++ roman) (decimal - value)
+		None -> soFar
+	
+	_toRoman "" decimal

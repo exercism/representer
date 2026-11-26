@@ -1,0 +1,9 @@
+let isLeapYear = (year) => {
+    let divisibleBy = (a) => year mod a === 0; 
+    switch year {
+    | _ when divisibleBy(400) => true;
+    | _ when divisibleBy(100) => false;
+    | _ when divisibleBy(4) => true;
+    | _ => false;
+    }
+}

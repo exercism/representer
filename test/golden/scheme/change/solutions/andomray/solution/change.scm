@@ -1,0 +1,43 @@
+(import (rnrs))
+
+(define (change target coins)
+
+  (define max-steps (1+ (quotient target (apply min coins))))
+  (define min-counts (make-vector (1+ target) (cons max-steps 0)))
+
+  (define backtrack
+    (λ ()
+      (if (= max-steps (car (vector-ref min-counts target)))
+          (raise 'error)
+          (let loop ((i target)
+                     (res `()))
+            (define coin (cdr (vector-ref min-counts i)))
+            (if (zero? i)
+                res
+                (loop (- i coin) (append res (list coin))))))))
+
+  (define update-vector
+    (λ (i i-min-count)
+      (lambda (coin)
+        (when (and (<= (+ coin i)
+                       target)
+                   (< (1+ i-min-count)
+                      (car (vector-ref min-counts (+ coin i)))))
+          (vector-set! min-counts
+                       (+ coin i)
+                       (cons (1+ i-min-count)
+                             coin))))))
+
+  (vector-set! min-counts 0 '(0 . 0))
+
+  (if (and (< target (car coins)) (not (zero? target)))
+      (raise 'change-error)
+      (let loop ((i 0))
+        (define i-min-count (car (vector-ref min-counts i)))
+        (if (= i target)
+            (backtrack)
+            (begin
+              (for-each
+               (update-vector i i-min-count)
+               coins)
+              (loop (1+ i)))))))

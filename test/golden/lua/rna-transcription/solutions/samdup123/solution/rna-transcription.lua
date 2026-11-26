@@ -1,0 +1,4 @@
+local translations = {A = 'U', G = 'C', C = 'G', T = 'A'}
+return function (dna)
+  return dna:gsub('.', translations)
+end

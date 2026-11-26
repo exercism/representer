@@ -1,0 +1,30 @@
+enum X, Y, DIRECTION
+constant heading = {{0,1},{1,0},{0,-1},{-1,0}}
+constant right = {"north", "east", "south", "west", "north"}
+constant left = {"north", "west", "south", "east", "north"}
+
+function turn(sequence dirs, sequence robot)
+	robot[DIRECTION] = dirs[find(robot[DIRECTION], dirs) + 1]
+	return robot
+end function
+
+function advance(sequence robot)
+	sequence V = heading[find(robot[DIRECTION], right)]
+	robot[X] += V[X]
+	robot[Y] += V[Y] 
+	return robot
+end function
+
+public function move(sequence robot, sequence commands)
+	for i = 1 to length(commands) do
+		switch commands[i] do
+			case 'R' then
+				robot = turn(right, robot)
+			case 'L' then
+				robot = turn(left, robot)
+			case else
+				robot = advance(robot)
+		end switch
+	end for
+	return robot
+end function

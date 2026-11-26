@@ -1,0 +1,6 @@
+let isLeapYear = year =>
+  switch (year mod 4 == 0, year mod 100 == 0, year mod 400 == 0) {
+  | (false, _, _) => false
+  | (true, true, false) => false
+  | _ => true
+  };

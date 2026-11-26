@@ -1,0 +1,5 @@
+divisible(X,Y) :- 0 is mod(X, Y).
+
+leap(X) :-
+    divisible(X, 4), not(divisible(X, 100));
+    divisible(X, 400).

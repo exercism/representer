@@ -1,0 +1,15 @@
+function binarysearch(list, elem; rev = false, by = nothing, lt = <)
+    l = 1
+    r = length(list)
+    while l <= r
+        m = (l + r) ÷ 2
+        if list[m] < elem
+            l = m + 1
+        elseif list[m] > elem
+            r = m - 1
+        else
+            return m:m
+        end
+    end
+    return l:r
+end

@@ -1,0 +1,14 @@
+(file "Strain.lean")
+namespace Strain
+class Partition (α : Type ) ( t : Type ) where
+  keep : (α → Bool ) → t → t
+  discard : (α → Bool ) → t → t
+def keepList ( f : α → Bool ) ( l : List α) : List α := go l [] |>. reverse where
+  go : List α → List α → List α
+    | [], acc => acc
+    | x :: xs , acc => go xs $ if f x then x :: acc else acc
+def discardList ( f : α → Bool ) ( l : List α) : List α := keepList ( not ∘ f ) l
+instance : Partition α ( List α) where
+  keep := keepList
+  discard := discardList
+end Strain

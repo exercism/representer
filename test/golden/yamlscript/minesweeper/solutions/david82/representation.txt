@@ -1,0 +1,22 @@
+(file "minesweeper.ys")
+!yamlscript/v0
+defn annotate(minefield):
+  mineGrid =: minefield.map(split):V
+  reduce-kv _ [] mineGrid:
+    fn(accumulator rowIndex currentRow):
+      gridHeight =: mineGrid.--
+      gridWidth =: mineGrid.0.--
+      conj accumulator:
+        reduce-kv _ '' currentRow:
+          fn(rowString colIndex currentCell):
+            str rowString:
+              or? _ currentCell:
+                when currentCell:blank?:
+                  sum:
+                    ? for rowOffset (-1 .. 1) colOffset (-1 .. 1)
+                      :let [targetRow (rowIndex + rowOffset), targetCol (colIndex + colOffset)]
+                    : to-num:
+                      (rowOffset.ne(0) || colOffset.ne(0)) &&
+                      (0 <= targetRow <= gridHeight) &&
+                      (0 <= targetCol <= gridWidth) &&
+                      (mineGrid.$targetRow.$targetCol == '*')

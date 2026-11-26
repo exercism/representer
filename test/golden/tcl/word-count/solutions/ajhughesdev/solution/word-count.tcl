@@ -1,0 +1,8 @@
+proc countWords {sentence} {
+    set counts [dict create]
+    set words [regexp -all -inline {\w+'\w+|\w+} [string tolower $sentence]]
+    foreach word $words {
+        dict incr counts $word
+    }
+    return $counts
+}

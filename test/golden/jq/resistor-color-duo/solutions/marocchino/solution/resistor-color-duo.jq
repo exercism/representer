@@ -1,0 +1,9 @@
+def trans:
+  . as $color
+  | ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"]
+  | index($color)
+;
+
+.colors
+| map(trans) as [$a, $b]
+| ($a * 10 + $b)

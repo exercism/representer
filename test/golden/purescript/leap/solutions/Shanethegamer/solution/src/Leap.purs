@@ -1,0 +1,6 @@
+module Leap where
+
+import Data.Ord
+import Data.EuclideanRing
+
+isLeapYear year = gcd 80 year > gcd 50 year

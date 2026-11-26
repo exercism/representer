@@ -1,0 +1,44 @@
+module main
+
+struct Clock {
+	mut:
+		min int
+		hour int
+}
+
+fn new_clock(hour int, minute int) Clock {
+	mut c := Clock { min: minute, hour: hour }
+	c.fix()
+	return c 
+}
+
+fn (mut c Clock) add_time(minute int) {
+	c.min += minute
+	c.fix()
+}
+
+fn (mut c Clock) subtract_time(minute int) {
+	c.min -= minute
+	c.fix()
+}
+
+fn (c Clock) string() string {
+	return '${c.hour:02}:${c.min:02}'
+}
+
+fn (mut c Clock) fix() {
+	for c.min > 59 {
+		c.min -= 60
+		c.hour += 1
+	}
+	for c.min < 0 {
+		c.min += 60
+		c.hour -= 1
+	}
+	for c.hour > 23 {
+		c.hour -= 24
+	}
+	for c.hour < 0 {
+		c.hour += 24
+	}
+}

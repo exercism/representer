@@ -1,0 +1,25 @@
+#!/bin/bash
+
+input=$1
+
+if [[ ! $input ]]; then
+	echo "usage: ./raindrops <integer>"
+else
+	if (( input % 105 == 0 )); then
+		input="PlingPlangPlong" 
+	elif (( input % 35 == 0 )); then
+		input="PlangPlong" 
+	elif (( input % 21 == 0 )); then
+		input="PlingPlong" 
+	elif (( input % 15 == 0 )); then
+		input="PlingPlang" 
+	elif (( input % 7 == 0 )); then	
+		input="Plong" 
+	elif (( input % 5 == 0)); then
+		input="Plang" 
+	elif (( input % 3 == 0 )); then
+		input="Pling" 
+	fi
+fi
+
+	echo $input

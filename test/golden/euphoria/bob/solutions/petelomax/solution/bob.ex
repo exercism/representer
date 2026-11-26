@@ -1,0 +1,13 @@
+include std/text.e
+
+public function hey(sequence s)
+    s = trim(s)
+    if length(s)=0 then return "Fine. Be that way!" end if 
+    integer all_caps = equal(s,upper(s))
+               and not equal(s,lower(s))
+    if s[$]='?'then
+       if all_caps then return "Calm down, I know what I'm doing!"
+                   else return "Sure." end if
+    elsif all_caps then return "Whoa, chill out!"
+                   else return "Whatever." end if
+end function

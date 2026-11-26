@@ -1,0 +1,28 @@
+(file "clock.jl")
+mutable struct Clock
+h :: Int
+m :: Int
+Clock ( h , m ) = begin
+allmin = h * 60 + m
+m = allmin % 60
+h = trunc ( Int , ( allmin / 60 ) % 24 )
+allmin < 0 && begin
+m += 60
+h += 23
+m == 60 && begin
+h += 1
+m = 0
+end
+end
+new ( h , m )
+end
+end
+pretify ( x ) = length ( digits ( x )) == 2 ? "\"$x\"" : "\"0$x\""
+showtime ( clock :: Clock ) = begin
+h = pretify ( clock . h ); m = pretify ( clock . m )
+"\"\\\"$h:$m\\\"\""
+end
+Base .: ( == )( clk1 :: Clock , clk2 :: Clock ) = showtime ( clk1 ) == showtime ( clk2 )
+Base .: ( + )( clk :: Clock , min :: Minute ) = Clock ( clk . h , clk . m + min . value )
+Base .: ( - )( clk :: Clock , min :: Minute ) = Clock ( clk . h , clk . m - min . value )
+Base . show ( io :: IO , clock :: Clock ) = print ( io , showtime ( clock ))

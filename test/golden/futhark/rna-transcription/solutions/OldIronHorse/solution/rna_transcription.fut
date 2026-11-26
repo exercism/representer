@@ -1,0 +1,10 @@
+def to_rna_condon (codon: u8) : u8 =
+  match codon
+  case 'G' -> 'C'
+  case 'C' -> 'G'
+  case 'T' -> 'A'
+  case 'A' -> 'U'
+  case _ -> 'x'
+
+def to_rna [n] (dna: [n]u8) : [n]u8 =
+  map to_rna_condon dna

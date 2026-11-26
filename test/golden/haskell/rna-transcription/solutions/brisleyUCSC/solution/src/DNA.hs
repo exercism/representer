@@ -1,0 +1,11 @@
+module DNA (toRNA) where
+
+toRNA :: String -> Either Char String
+toRNA = traverse fromDNA 
+    where
+        fromDNA :: Char -> Either Char Char
+        fromDNA 'G' = Right 'C'
+        fromDNA 'C' = Right 'G'
+        fromDNA 'T' = Right 'A'
+        fromDNA 'A' = Right 'U'
+        fromDNA c = Left c

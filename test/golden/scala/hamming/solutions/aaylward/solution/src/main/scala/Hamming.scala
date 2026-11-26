@@ -1,0 +1,8 @@
+object Hamming {
+  def distance(first: String, second: String): Option[Int] = {
+    if (first.length != second.length) {
+      return None
+    }
+    Some(first zip second count (p => p._1 != p._2))
+  }
+}

@@ -1,0 +1,23 @@
+(file "impl.mips")
+.globl hamming_distance
+# First input string is in $a0
+# Second input string is in $a1
+# Result as integer is in $v0
+hamming_distance:
+li $v0, 0
+j loop
+loop:
+lb $t0, 0($a0) # Load one char from first input string
+lb $t1, 0($a1) # Load one char from second input string
+beq $t0, $zero, return # Return when string is terminated
+bne $t0, $t1, increment_result # If the chars differ, +1
+j update
+increment_result: # Increments the result counter by 1
+addi $v0, $v0, 1 # Return value incremented by one
+j update
+update: # Shifts the input arguments before the next loop
+addi $a0, $a0, 1 # Shift first string to next character
+addi $a1, $a1, 1 # Shift second string to next character
+j loop
+return:
+jr $ra

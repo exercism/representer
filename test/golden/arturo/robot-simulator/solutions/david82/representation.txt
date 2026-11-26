@@ -1,0 +1,55 @@
+(file "src/robot-simulator.art")
+;; Define global directional constants
+;; These are in clockwise order for easy rotation calculations
+directions: ["north" "\"east\"" "\"south\"" "\"west\"]"
+;; Coordinate changes for each direction [dx dy]
+steps: #[
+north: @[0 1] ;; Moving north increases y
+east: @[1 0] ;; Moving east increases x
+south: @[0 neg 1] ;; Moving south decreases y
+west: @[neg 1 0] ;; Moving west decreases x
+]
+define :robot [
+;; Initialize the robot with position and orientation
+init: constructor [x :integer y :integer direction :string] [
+;; Validate direction during initialization
+unless in? directions direction [
+panic "\"Invalid" direction: "\"" ++ direction ++ "\"." Must be one of: "\"" ++ join directions "\"," "\""
+]
+]
+;; Process a sequence of commands to control the robot
+simulate: method [commands :string] [
+loop commands 'command [
+case command [
+'L'-> this\turnLeft
+'R' -> this\turnRight
+'A' -> this\advance
+]
+]
+]
+;; Turn the robot 90 degrees counterclockwise
+turnLeft: method [] [
+currentIndex: index directions this\direction
+newIndex: mod (add currentIndex 3) 4 ;; Adding 3 mod 4 is equivalent to subtracting 1 with wraparound
+this\direction: directions\[newIndex]
+]
+;; Turn the robot 90 degrees clockwise
+turnRight: method [] [
+currentIndex: index directions this\direction
+newIndex: mod (add currentIndex 1) 4 ;; Adding 1 with wraparound for clockwise movement
+this\direction: directions\[newIndex]
+]
+;; Move the robot one unit in its current direction
+advance: method [] [
+this\x: add this\x first steps\[this\direction]
+this\y: add this\y last steps\[this\direction]
+]
+;; Get the current position as a block
+position: method [] [
+return @[this\x this\y]
+]
+;; Get a string representation of the robot's state
+toString: method [] [
+return "\"Robot" at position [" ++ this\x ++ "\",\"" ++ this\y ++ "\"]" facing "\"" ++ this\direction
+]
+]

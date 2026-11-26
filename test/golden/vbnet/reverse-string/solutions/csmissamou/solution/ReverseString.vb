@@ -1,0 +1,6 @@
+Public Module ReverseString
+    Public function Reverse(ByVal inputString As String) As String
+      Return StrReverse (inputString)
+    End function
+End Module
+

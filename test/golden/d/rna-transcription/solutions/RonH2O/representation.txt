@@ -1,0 +1,33 @@
+(file "source/rna_transcription.d")
+module rna_transcription ;
+import std . conv ;
+string toRna ( string dnaCodes )
+{
+import std . format : format ;
+import std . exception : enforce ;
+string [ string ] dna2rnaCodes = [ "\"G\"" : "\"C\"" , "\"C\"" : "\"G\"" , "\"T\"" : "\"A\"" , "\"A\"" : "\"U\"" ];
+string rnaCodes ;
+foreach ( c ; dnaCodes )
+{
+enforce ( to ! string ( c ) in dna2rnaCodes , format ( "\"Bad DNA code sequence: %s\"" , dnaCodes ));
+rnaCodes ~= dna2rnaCodes [ to ! string ( c )];
+}
+return rnaCodes ;
+}
+unittest
+{
+import std . exception : assertThrown ;
+immutable int allTestsEnabled = 1 ;
+assert ( toRna ( "\"\"" ) == "\"\"" );
+static if ( allTestsEnabled )
+{
+assert ( toRna ( "\"C\"" ) == "\"G\"" );
+assert ( toRna ( "\"G\"" ) == "\"C\"" );
+assert ( toRna ( "\"T\"" ) == "\"A\"" );
+assert ( toRna ( "\"A\"" ) == "\"U\"" );
+assert ( toRna ( "\"ACGTGGTCTTAA\"" ) == "\"UGCACCAGAAUU\"" );
+assertThrown ( toRna ( "\"U\"" ));
+assertThrown ( toRna ( "\"XXX\"" ));
+assertThrown ( toRna ( "\"ACGTXXXCTTAA\"" ));
+}
+}

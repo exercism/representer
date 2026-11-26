@@ -1,0 +1,46 @@
+      * ----------------------------------------------------------------------
+      * exercism.io
+      * COBOL Track Exercise: square-root
+      * Contributed: Anthony J. Borla (ajborla@bigpond.com)
+      * ----------------------------------------------------------------------
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SQUARE-ROOT.
+       DATA DIVISION.
+      *
+       WORKING-STORAGE SECTION.
+       01 WS-NUMBER               PIC 9(32) VALUE ZEROES.
+       01 WS-SQRT                 PIC 9(32) VALUE ZEROES.
+       01 WS-ERROR                PIC X(40) VALUE SPACES.
+      *
+       01 WS-SCRATCHPAD.
+          05 WS-A                 PIC 9(32) VALUE ZEROES.
+          05 WS-B                 PIC 9(32) VALUE ZEROES.
+          05 WS-DIFFERENCE        PIC 9(32) VALUE ZEROES.
+          05 WS-ERROR-MARGIN      PIC 9(01) VALUE 1.
+      *
+       PROCEDURE DIVISION.
+      *
+       SQUARE-ROOT.
+           IF WS-NUMBER < 1 THEN
+             MOVE 'Only positive integers are allowed'
+               TO WS-ERROR
+             EXIT PARAGRAPH
+           END-IF
+      *
+           IF WS-NUMBER = 1 THEN
+             MOVE 1 TO WS-SQRT
+             EXIT PARAGRAPH
+           END-IF
+      *
+           MOVE 1 TO WS-A
+           MOVE WS-NUMBER TO WS-B
+           COMPUTE WS-DIFFERENCE = FUNCTION ABS(WS-A - WS-B)
+      *
+           PERFORM UNTIL WS-DIFFERENCE <= WS-ERROR-MARGIN
+             COMPUTE WS-A = (WS-A + WS-B) / 2
+             COMPUTE WS-B = WS-NUMBER / WS-A
+             COMPUTE WS-DIFFERENCE = FUNCTION ABS(WS-A - WS-B)
+           END-PERFORM
+      *
+           MOVE WS-A TO WS-SQRT.
+      *

@@ -1,0 +1,13 @@
+(file "src/dominoes.erl")
+- module ( dominoes ).
+- export ([ can_chain / 1 ]).
+can_chain ([]) -> true ;
+can_chain ([{ A , B } | Dominoes ]) ->
+lists : member ( A , chain ({ B , Dominoes })).
+chain ({ Number , []}) -> [ Number ];
+chain ({ Number , Dominoes }) ->
+ordsets : union ( lists : map ( fun chain / 1 , find ( Number , [], Dominoes ))).
+find (_, _, []) -> [];
+find ( A , Left , Right = [{ A , B } | _]) -> [ { B , Left ++ tl ( Right )} | find ( A , [ hd ( Right ) | Left ], tl ( Right )) ];
+find ( A , Left , Right = [{ B , A } | _]) -> [ { B , Left ++ tl ( Right )} | find ( A , [ hd ( Right ) | Left ], tl ( Right )) ];
+find ( A , Left , Right ) -> find ( A , [ hd ( Right ) | Left ], tl ( Right )).

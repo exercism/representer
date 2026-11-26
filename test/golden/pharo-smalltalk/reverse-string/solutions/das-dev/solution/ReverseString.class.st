@@ -1,0 +1,11 @@
+Class {
+	#name : #ReverseString,
+	#superclass : #Object,
+	#category : #'Exercise@ReverseString'
+}
+
+{ #category : #actions }
+ReverseString >> reverseValue: value [
+	^ value collectWithIndex: [ :_ :i | value atLast: i ]
+	
+]

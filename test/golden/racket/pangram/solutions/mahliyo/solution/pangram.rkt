@@ -1,0 +1,21 @@
+#lang racket
+
+(provide pangram?)
+
+(define letters (string->list "abcdefghijklmnopqrstuvwxyz"))
+
+(define (pangram? sentence)
+  (define items (string->list (string-downcase sentence)))
+  (define (lookup items letter)
+    (if (empty? items)
+        false
+        (if (equal? (first items) letter)
+            true
+            (lookup (rest items) letter))))
+
+  (define (check items letters)
+    (if (empty? letters)
+        true
+        (and (lookup  items (first letters))
+             (check  items (rest letters)))))
+    (check  items letters))

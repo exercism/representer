@@ -1,0 +1,6 @@
+keep = (l, p) ->
+  [x for x in *l when p x]
+discard = (l, p) ->
+  keep l, (x) -> not p x
+
+{ :keep, :discard }

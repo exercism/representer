@@ -1,0 +1,140 @@
+(file "BuildingTelemetry.cs"
+  (compilation_unit
+    (class_declaration
+      (modifier public) RemoteControlCar
+      (declaration_list
+        (field_declaration
+          (modifier private)
+          (variable_declaration int
+            (variable_declarator batteryPercentage = 100)))
+        (field_declaration
+          (modifier private)
+          (variable_declaration int
+            (variable_declarator distanceDrivenInMeters = 0)))
+        (field_declaration
+          (modifier private)
+          (variable_declaration
+            (array_type string
+              (array_rank_specifier))
+            (variable_declarator sponsors =
+              (array_creation_expression
+                (array_type string
+                  (array_rank_specifier 0))))))
+        (field_declaration
+          (modifier private)
+          (variable_declaration int
+            (variable_declarator latestSerialNum = 0)))
+        (method_declaration
+          (modifier public) void Drive
+          (parameter_list)
+          (block
+            (if_statement
+              (binary_expression batteryPercentage > 0)
+              (block
+                (expression_statement
+                  (assignment_expression batteryPercentage -= 10))
+                (expression_statement
+                  (assignment_expression distanceDrivenInMeters += 2))))))
+        (method_declaration
+          (modifier public) void SetSponsors
+          (parameter_list params
+            (array_type string
+              (array_rank_specifier)) sponsors)
+          (block
+            (expression_statement
+              (assignment_expression
+                (member_access_expression this sponsors) = sponsors))))
+        (method_declaration
+          (modifier public) string DisplaySponsor
+          (parameter_list
+            (parameter int sponsorNum))
+          (block
+            (return_statement
+              (element_access_expression sponsors
+                (bracketed_argument_list
+                  (argument sponsorNum))))))
+        (method_declaration
+          (modifier public) bool GetTelemetryData
+          (parameter_list
+            (parameter ref int serialNum)
+            (parameter out int batteryPercentage)
+            (parameter out int distanceDrivenInMeters))
+          (block
+            (if_statement
+              (binary_expression serialNum < latestSerialNum)
+              (block
+                (expression_statement
+                  (assignment_expression serialNum = latestSerialNum))
+                (expression_statement
+                  (assignment_expression batteryPercentage =
+                    (prefix_unary_expression - 1)))
+                (expression_statement
+                  (assignment_expression distanceDrivenInMeters =
+                    (prefix_unary_expression - 1)))
+                (return_statement
+                  (boolean_literal false))))
+            (expression_statement
+              (assignment_expression batteryPercentage =
+                (member_access_expression this batteryPercentage)))
+            (expression_statement
+              (assignment_expression distanceDrivenInMeters =
+                (member_access_expression this distanceDrivenInMeters)))
+            (expression_statement
+              (assignment_expression latestSerialNum = serialNum))
+            (return_statement
+              (boolean_literal true))))
+        (method_declaration
+          (modifier public)
+          (modifier static) RemoteControlCar Buy
+          (parameter_list)
+          (block
+            (return_statement
+              (object_creation_expression RemoteControlCar
+                (argument_list)))))))
+    (class_declaration
+      (modifier public) TelemetryClient
+      (declaration_list
+        (field_declaration
+          (modifier private)
+          (variable_declaration RemoteControlCar
+            (variable_declarator car)))
+        (constructor_declaration
+          (modifier public) TelemetryClient
+          (parameter_list
+            (parameter RemoteControlCar car))
+          (block
+            (expression_statement
+              (assignment_expression
+                (member_access_expression this car) = car))))
+        (method_declaration
+          (modifier public) string GetBatteryUsagePerMeter
+          (parameter_list
+            (parameter int serialNum))
+          (block
+            (local_declaration_statement
+              (variable_declaration int
+                (variable_declarator batteryPercentage)))
+            (local_declaration_statement
+              (variable_declaration int
+                (variable_declarator distanceDrivenInMeters)))
+            (if_statement
+              (binary_expression
+                (invocation_expression
+                  (member_access_expression car GetTelemetryData)
+                  (argument_list
+                    (argument ref serialNum)
+                    (argument out batteryPercentage)
+                    (argument out distanceDrivenInMeters))) &&
+                (binary_expression distanceDrivenInMeters > 0))
+              (block
+                (local_declaration_statement
+                  (variable_declaration
+                    (implicit_type)
+                    (variable_declarator PLACEHOLDER_1 =
+                      (binary_expression
+                        (binary_expression 100 - batteryPercentage) / distanceDrivenInMeters))))
+                (return_statement
+                  (interpolated_string_expression $ usage-per-meter=
+                    (interpolation { PLACEHOLDER_1 }))))
+              (block
+                (return_statement "no data")))))))))

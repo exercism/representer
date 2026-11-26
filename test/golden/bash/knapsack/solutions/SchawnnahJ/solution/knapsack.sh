@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+(($# == 0)) && exit 1
+max() { echo $(($1 > $2 ? $1 : $2)); }
+for item in "${@:2}"; do
+    IFS=: read -r weight value <<<"$item"
+    weights+=("$weight")
+    values+=("$value")
+done
+declare -A c
+for ((j = 0; j <= $1; j++)); do
+    c[0, $j]=0
+done
+((n_items = $# - 1))
+for ((i = 1; i <= n_items; i++)); do
+    c[$i, 0]=0
+    for ((j = 1; j <= $1; j++)); do
+        if ((weights[i - 1] > j)); then
+            c[$i, $j]=${c[$((i - 1)), $j]}
+        else
+            c[$i, $j]=$(max ${c[$((i - 1)), $j]} $((c[$((i - 1)), $((j - weights[i - 1]))] + values[i - 1])))
+        fi
+    done
+done
+echo "${c[$n_items, $1]}"

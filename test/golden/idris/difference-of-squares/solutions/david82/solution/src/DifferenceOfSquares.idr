@@ -1,0 +1,18 @@
+module DifferenceOfSquares
+
+export
+squareOfSum : Integer -> Integer
+squareOfSum number = 
+  let sum = number * (number + 1) `div` 2
+  in sum * sum
+
+export
+sumOfSquares : Integer -> Integer
+sumOfSquares number = 
+  number * (number + 1) * (2 * number + 1) `div` 6
+
+export
+differenceOfSquares : Integer -> Integer
+differenceOfSquares number = 
+  squareOfSum number - sumOfSquares number
+  

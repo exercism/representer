@@ -1,0 +1,33 @@
+;;; difference-of-squares.el --- Difference of Squares (exercism)
+
+;;; Commentary:
+
+;;; Code:
+
+(defun square-of-sum (val)
+  "Return the square of the sum of numbers from 1 to val"
+  (let ((list (number-sequence 1 val))
+	(temp 0)
+	(sum 0))
+    (setq sum (dolist
+		  (i list temp)
+		(setq temp (+ i temp))))
+    (* sum sum)))
+
+
+(defun sum-of-squares (val)
+  "Return the sum of squares of numbers from 1 to val"
+  (let ((list (number-sequence 1 val))
+	(temp 0))
+    (dolist (i list temp)
+      (setq temp (+ temp (* i i))))))
+
+
+
+(defun difference (val)
+  "Return the diference between the square of the sum and the sum of
+the square"
+  (- (square-of-sum val) (sum-of-squares val)))
+
+(provide 'difference-of-squares)
+;;; difference-of-squares.el ends here

@@ -1,0 +1,39 @@
+object Hamming {
+  def distance(dnaStrandOne: String, dnaStrandTwo: String): Option[Int] = {
+    if (dnaStrandOne.length != dnaStrandTwo.length) {
+      None
+    }
+    else {
+      (dnaStrandOne zip dnaStrandTwo).foldLeft(Some(0): Option[Int])((b, a) => join(b, a))
+    }
+  }
+
+  def join(current: Option[Int], next: (Char, Char)): Option[Int] =
+    (current, compare(next)) match {
+      case (Some(a), Some(b)) => Some(a + b)
+      case _ => None
+    }
+
+  def compare(pair: (Char, Char)): Option[Int] = {
+    val (a, b) = pair;
+    if (isValid(a) && isValid(b)) {
+      if (a == b) {
+        Some(0)
+      } 
+      else {
+        Some(1)
+      }
+    }
+    else {
+      None
+    }
+  }
+
+  def isValid(letter: Char): Boolean = 
+    letter match {
+      case 'A' => true
+      case 'C' => true
+      case 'T' => true
+      case 'G' => true
+    }    
+}

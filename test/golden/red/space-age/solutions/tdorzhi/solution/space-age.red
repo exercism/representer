@@ -1,0 +1,22 @@
+Red [
+	description: {"Space Age" exercise solution for exercism platform}
+	author: "" ; you can write your name here, in quotes
+]
+
+age: function [
+	planet
+	seconds
+] [
+	planets: [
+		"Earth" [1]
+		"Mars"	[1.8808158]
+		"Venus" [0.61519726]
+		"Mercury" [0.2408467]
+		"Jupiter" [11.862615]
+		"Saturn" [29.447498]
+		"Uranus" [84.016846]
+		"Neptune" [164.79132]
+	]
+	probe round/to (seconds / 31557600) / ( pick (select planets planet) 1) 0.01
+]
+

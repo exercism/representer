@@ -1,0 +1,26 @@
+BEGIN {FS = ""}
+
+{
+  rna = ""
+  for (i = 1; i <= NF; i++) {
+    switch ($i) {
+      case "A":
+        rna = rna "U"
+        break
+      case "T":
+        rna = rna "A"
+        break
+      case "C":
+        rna = rna "G"
+        break
+      case "G":
+        rna = rna "C"
+        break
+      default:
+        print "Invalid nucleotide detected."
+        exit 1
+    }
+  }
+
+  print rna
+}

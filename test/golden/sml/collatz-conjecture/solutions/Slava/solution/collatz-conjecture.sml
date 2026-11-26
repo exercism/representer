@@ -1,0 +1,11 @@
+fun collatz n =
+  let fun count n acc =
+    case (n, n mod 2) of
+       (1, _) => acc
+    |  (_, 0) => count (n div 2) (acc + 1)
+    |  _ => count (3 * n + 1) (acc + 1)
+  in
+    if n > 0
+    then SOME (count n 0)
+    else NONE
+  end

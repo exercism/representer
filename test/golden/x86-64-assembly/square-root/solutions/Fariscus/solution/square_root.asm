@@ -1,0 +1,20 @@
+section .text
+global square_root
+square_root:
+    ; Provide your implementation here
+    mov rcx,rdi
+    mov rsi,1
+loop:
+    mov rax,rsi
+    mul rax
+    cmp rax,rcx
+    jz end
+    inc rsi
+    jmp loop
+end:
+   mov rax,rsi 
+   ret  
+   
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

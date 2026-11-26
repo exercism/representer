@@ -1,0 +1,86 @@
+(file "Deque.pm")
+package Deque ;
+use strict ;
+use warnings ;
+package Node {
+sub new {
+my $class = shift ;
+my ( $data , $previous , $next ) = @_ ;
+return bless {
+_data => $data ,
+_previous => $previous ,
+_next => $next ,
+}, $class ;
+}
+}
+package List {
+sub new {
+return bless {
+head => undef ,
+tail => undef ,
+size => undef ,
+}, shift ;
+}
+}
+sub new {
+return bless List -> new (), shift ;
+}
+sub push {
+my ( $self , $item ) = @_ ;
+$self -> _add (' tail ', $item );
+}
+sub unshift {
+my ( $self , $item ) = @_ ;
+$self -> _add (' head ', $item );
+}
+sub pop {
+my $self = $_ [ 0 ];
+$self -> _remove (' tail ');
+}
+sub shift {
+my $self = $_ [ 0 ];
+$self -> _remove (' head ');
+}
+sub _add {
+my ( $self , $a , $item ) = @_ ;
+my $b = ' tail ';
+$b = ' head ' if $a eq ' tail ';
+my ( $prev , $next ) = ( undef , $self -> { $a });
+( $prev , $next ) = ( $next , $prev ) if $a eq ' tail ';
+my $new_node = Node -> new ( $item , $prev , $next );
+$self -> { $a } = $new_node if not defined $self -> { $a };
+my ( $action1 , $action2 ) = (' _previous ', ' _next ');
+if ( defined $self -> { $a } and not defined $self -> { $b }) {
+( $action1 , $action2 ) = ( $action2 , $action1 ) if $a eq ' head ';
+$self -> { $b } = $new_node ;
+$self -> { $a }{ $action1 } = $self -> { $b };
+$self -> { $b }{ $action2 } = $self -> { $a };
+}
+else {
+my $old_node = $self -> { $a };
+$self -> { $a } = $new_node ;
+if ( $a eq ' head ') {
+$old_node -> { $action1 } = $self -> { $a };
+}
+elsif ( $a eq ' tail '){
+$old_node -> { $action2 } = $self -> { $a };
+$self -> { $a }{ $action1 } = $old_node ;
+}
+}
+$self -> { size } ++ ;
+}
+sub _remove {
+my ( $self , $a ,) = @_ ;
+my $b = ' tail ';
+$b = ' head ' if $a eq ' tail ';
+my ( $data , $new_node , $action ) = ( undef , undef , ' _previous ');
+$action = ' _next ' if $a eq ' head ';
+$data = $self -> { $a }{ _data };
+$new_node = $self -> { $a }{ $action };
+$new_node -> { _previous } = undef if defined $new_node ;
+$self -> { $a } = $new_node ;
+$self -> { size } -- ;
+$self -> { $b } = $self -> { $a } = undef unless $self -> { size };
+return $data ;
+}
+1 ;

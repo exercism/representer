@@ -1,0 +1,39 @@
+(file "src/bob.cob")
+IDENTIFICATION DIVISION .
+  PROGRAM-ID . BOB .
+  ENVIRONMENT DIVISION .
+  DATA DIVISION .
+  WORKING-STORAGE SECTION .
+  01 WS-HEYBOB PIC X ( 60 ).
+  01 WS-RESULT PIC X ( 40 ).
+  01 ws-count PIC 9 ( 9 ).
+  01 FILLER PIC X .
+    88 LETTER-FOUND VALUE 'Y' .
+    88 LETTER-NOT-FOUND VALUE 'N' .
+  01 i USAGE INDEX .
+  PROCEDURE DIVISION .
+  BOB .
+    set LETTER-NOT-FOUND to true
+    PERFORM VARYING i FROM 1 BY 1 UNTIL i > 60
+      if WS-HEYBOB ( i : 1 ) is ALPHABETIC and
+        WS-HEYBOB ( i : 1 ) <> space
+        set LETTER-FOUND to true
+      end-if
+    end-perform
+    if FUNCTION TRIM ( FUNCTION REVERSE ( WS-HEYBOB ))( 1 : 1 ) = "\"?\""
+      if LETTER-FOUND AND
+        WS-HEYBOB = FUNCTION UPPER-CASE ( WS-HEYBOB )
+        move "\"Calm down, I know what I'm doing!\""
+          to WS-RESULT
+      else
+        move "\"Sure.\"" to WS-RESULT
+      end-if
+    else if WS-HEYBOB = SPACES
+      move "\"Fine. Be that way!\"" to WS-RESULT
+    else if LETTER-FOUND and
+      WS-HEYBOB = FUNCTION UPPER-CASE ( WS-HEYBOB )
+      move "\"Whoa, chill out!\"" to WS-RESULT
+    else
+      move "\"Whatever.\"" to WS-RESULT
+    end-if
+    .

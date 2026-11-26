@@ -1,0 +1,11 @@
+def toupper (c: u8) = c & !0x20
+
+def islower (c: u8) = c >= 'a' && c < 'z'
+
+def is_isogram (phrase: []u8) : bool =
+  let f c =
+    if c == ' ' || c == '-'
+    then -1
+    else i64.u8 (if islower c then toupper c else c)
+  in hist (+) 0 256 (map f phrase) (map (const 1) phrase)
+     |> all (< 2)

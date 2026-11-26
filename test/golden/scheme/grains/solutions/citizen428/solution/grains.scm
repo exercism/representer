@@ -1,0 +1,8 @@
+(import (rnrs))
+
+(define (square n)
+  (assert (<= 1 n 64))
+  (ash 1 (1- n)))
+
+(define total
+  (1- (ash 1 64)))

@@ -1,0 +1,12 @@
+def isdigit (c: u8) = c >= '0' && c <= '9'
+
+-- This seems unspecified in instructions.
+def naughty (c: u8) = c == '@' || c == ':' || c == '!'
+
+def clean (phrase: []u8) : []u8 =
+  let digits = phrase |> filter isdigit
+  let digits10 = reverse digits |> take 10 |> reverse
+  in assert ((length digits == 10 || length digits == 11 && digits[0] == '1')
+             && digits10[0] > '1'
+             && digits10[3] > '1'
+             && not (any naughty phrase)) digits10

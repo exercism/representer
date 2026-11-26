@@ -1,0 +1,37 @@
+class RunLengthEncoding {
+
+    static encode(input) {
+        def ls = input.toList()
+        if(ls.isEmpty()) return ""
+        def temp = [ls.pop()]
+        def rs = []
+        for(item in ls){
+          if (temp.head() == item){
+              temp << item
+          } else {
+              rs << temp
+              temp = [item]
+          }
+        }
+        rs<<temp
+        rs.collect{x ->"${x.size() == 1?"":x.size()}${x.head()}"}.join()
+    }
+
+    static decode(input) {
+     def ls = input.toList()
+     if(ls.isEmpty()) return ""
+     def rs = []
+     def temp = []
+     for(item in ls){
+         if(!item.isInteger()){
+            def num = 1
+            if(!temp.isEmpty()) num = temp.join() as Integer
+            rs << (item * num)
+            temp = []
+         }else{
+             temp << item
+        }
+      }
+      rs.join()
+    }
+}

@@ -1,0 +1,22 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. raindrops.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-NUMBER PIC 9(4).
+       01 WS-RESULT PIC X(20).
+
+       PROCEDURE DIVISION.
+       RAINDROPS.
+          IF FUNCTION MOD(WS-NUMBER, 3) = 0 THEN
+             STRING "Pling" INTO WS-RESULT
+          END-IF.
+          IF FUNCTION MOD(WS-NUMBER, 5) = 0 THEN
+             STRING WS-RESULT DELIMITED BY "" "Plang" INTO WS-RESULT
+          END-IF.
+          IF FUNCTION MOD(WS-NUMBER, 7) = 0 THEN
+             STRING WS-RESULT DELIMITED BY "" "Plong" INTO WS-RESULT
+          END-IF.
+          IF WS-RESULT = "" THEN
+             STRING WS-NUMBER INTO WS-RESULT
+          END-IF.
+

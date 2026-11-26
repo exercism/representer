@@ -1,0 +1,25 @@
+CLASS zcl_two_fer DEFINITION PUBLIC.
+  PUBLIC SECTION.
+    METHODS two_fer
+      IMPORTING
+        input         TYPE string OPTIONAL
+      RETURNING
+        VALUE(result) TYPE string.
+ENDCLASS.
+
+CLASS zcl_two_fer IMPLEMENTATION.
+
+  METHOD two_fer.
+  data: lv_string type string.
+
+  if input is not initial.
+    lv_string = `One for ` && input && ', one for me.'.
+  else.
+    lv_string = 'One for you, one for me.'.
+  endif.
+
+  result = lv_string.
+* add solution here
+  ENDMETHOD.   
+
+ENDCLASS.

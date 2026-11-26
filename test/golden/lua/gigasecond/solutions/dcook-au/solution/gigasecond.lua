@@ -1,0 +1,7 @@
+local function anniversary(time)
+    return os.date('%x', time + 1e9)
+end
+
+return {
+    anniversary = anniversary
+}

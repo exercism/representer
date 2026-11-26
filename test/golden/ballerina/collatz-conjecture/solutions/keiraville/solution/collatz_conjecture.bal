@@ -1,0 +1,17 @@
+function collatzSteps(int n) returns int|error {
+    if n <= 0 {
+        return error("Only positive integers are allowed");
+    }
+
+    int current = n;
+    int count = 0;
+    while current > 1 {
+        if current % 2 == 0 {
+            current /= 2;
+        } else {
+            current = 3 * current + 1;
+        }
+        count += 1;
+    }
+    return count;
+}

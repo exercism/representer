@@ -1,0 +1,3 @@
+public function leap(integer year) 
+    return (not remainder(year, 4)) and (remainder(year, 100) or not remainder(year, 400))
+end function

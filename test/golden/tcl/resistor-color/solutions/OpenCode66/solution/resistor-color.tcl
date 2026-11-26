@@ -1,0 +1,27 @@
+namespace eval resistorColor {
+  
+    proc colorCode {args} {
+      array set res {
+black 0
+brown 1
+red 2
+orange 3
+yellow 4
+green 5
+blue 6
+violet 7
+grey 8
+white 9
+}
+    if {$args in [array names res]} {
+    return $res($args)
+} else {
+    error "Invalid color: $args"
+}
+    }
+
+    proc colors {args} {
+    set res {black brown red orange yellow green blue violet grey white}
+        return $res
+    }
+}

@@ -1,0 +1,16 @@
+:- use_module(library(date_time)).
+
+gigasecond(Days, Hours, Mins, Secs) :-
+  divmod(1000000000, 60, TotalMins, Secs), 
+  divmod(TotalMins, 60, TotalHours, Mins), 
+  divmod(TotalHours, 24, Days, Hours).
+
+add_gigasecond(date(Yr,Mo,D,H,M,S,N,TZ,X), date(Yr1,Mo1,D1,H1,M1,Sf1,N,TZ,X)) :-
+  datetime_date_time(DT0, date(Yr,Mo,D), time(H,M,S)),
+  gigasecond(Days, Hours, Mins, Secs),
+  datetime_add(DT0, secs(Secs), DT1),
+  datetime_add(DT1, mins(Mins), DT2),
+  datetime_add(DT2, hours(Hours), DT3),
+  datetime_add(DT3, days(Days), DT4),
+  datetime_date_time(DT4, date(Yr1,Mo1,D1), time(H1,M1,S1)), 
+  Sf1 is float(S1), !.

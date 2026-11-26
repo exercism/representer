@@ -1,0 +1,1 @@
+def steps: i32 -> i32 = \n -> assert (n > 0) (loop (i, n) = (0, n) while n > 1 do (i + 1, if n % 2 == 0 then n / 2 else 1 + 3 * n)).0

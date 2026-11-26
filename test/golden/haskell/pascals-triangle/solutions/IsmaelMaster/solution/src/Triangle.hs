@@ -1,0 +1,7 @@
+module Triangle (rows) where
+
+rows :: Int -> [[Integer]]
+rows n = take n pascal
+  where
+    pascal = iterate nextRow [1]
+    nextRow row = zipWith (+) ([0] ++ row) (row ++ [0])

@@ -1,0 +1,16 @@
+(import (rnrs))
+
+(define (dna->rna dna)
+  (string>>= translate dna))
+
+(define (translate char)
+  (cond
+    [(char=? char #\G) #\C]
+    [(char=? char #\C) #\G]
+    [(char=? char #\T) #\A]
+    [(char=? char #\A) #\U]
+    [else char]
+    ))
+
+(define (string>>= lamb str)
+  (list->string (map lamb (string->list str))))

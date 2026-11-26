@@ -1,0 +1,263 @@
+(file "markdown.exs"
+  (source
+    (call defmodule
+      (arguments Markdown)
+      (do_block
+        (unary_operator @
+          (call spec
+            (arguments
+              (binary_operator
+                (call parse
+                  (arguments
+                    (call
+                      (dot String . t)))) ::
+                (call
+                  (dot String . t))))))
+        (call def
+          (arguments
+            (call parse
+              (arguments m)))
+          (do_block
+            (binary_operator
+              (binary_operator
+                (binary_operator
+                  (binary_operator m |>
+                    (call
+                      (dot String . split)
+                      (arguments "\n"))) |>
+                  (call
+                    (dot Enum . map)
+                    (arguments
+                      (unary_operator &
+                        (call process
+                          (arguments
+                            (unary_operator & 1))))))) |>
+                (call
+                  (dot Enum . join)
+                  (arguments))) |>
+              (call patch
+                (arguments)))))
+        (call defp
+          (arguments
+            (call process
+              (arguments t)))
+          (do_block
+            (call cond
+              (do_block
+                (stab_clause
+                  (arguments
+                    (binary_operator
+                      (call
+                        (dot String . starts_with?)
+                        (arguments t "#")) ==
+                      (boolean true))) ->
+                  (body
+                    (call enclose_with_header_tag
+                      (arguments
+                        (call parse_header_md_level
+                          (arguments t))))))
+                (stab_clause
+                  (arguments
+                    (binary_operator
+                      (call
+                        (dot String . starts_with?)
+                        (arguments t "*")) ==
+                      (boolean true))) ->
+                  (body
+                    (call parse_list_md_level
+                      (arguments t))))
+                (stab_clause
+                  (arguments
+                    (boolean true)) ->
+                  (body
+                    (call enclose_with_paragraph_tag
+                      (arguments
+                        (call
+                          (dot String . split)
+                          (arguments t))))))))))
+        (call defp
+          (arguments
+            (call parse_header_md_level
+              (arguments hwt)))
+          (do_block
+            (binary_operator
+              (list
+                (binary_operator h | t)) =
+              (call
+                (dot String . split)
+                (arguments hwt)))
+            (tuple
+              (call to_string
+                (arguments
+                  (call
+                    (dot String . length)
+                    (arguments h))))
+              (call
+                (dot Enum . join)
+                (arguments t " ")))))
+        (call defp
+          (arguments
+            (call parse_list_md_level
+              (arguments l)))
+          (do_block
+            (binary_operator t =
+              (binary_operator
+                (binary_operator l |>
+                  (call
+                    (dot String . trim_leading)
+                    (arguments "* "))) |>
+                (call
+                  (dot String . split)
+                  (arguments))))
+            (call PLACEHOLDER_1
+              (arguments
+                (tuple "li"
+                  (call join_words_with_tags
+                    (arguments t)))))))
+        (call defp
+          (arguments
+            (call enclose_with_header_tag
+              (arguments
+                (tuple hl htl))))
+          (do_block
+            (call PLACEHOLDER_1
+              (arguments
+                (tuple
+                  (binary_operator "h" <> hl) htl)))))
+        (call defp
+          (arguments
+            (call enclose_with_paragraph_tag
+              (arguments t)))
+          (do_block
+            (call PLACEHOLDER_1
+              (arguments
+                (tuple "p"
+                  (call join_words_with_tags
+                    (arguments t)))))))
+        (call defp
+          (arguments
+            (call PLACEHOLDER_1
+              (arguments
+                (tuple (variable PLACEHOLDER_2) (variable PLACEHOLDER_3)))))
+          (do_block
+            (string "<"
+              (interpolation #{ PLACEHOLDER_2) ">"
+              (interpolation #{ PLACEHOLDER_3) "</"
+              (interpolation #{ PLACEHOLDER_2) ">")))
+        (call defp
+          (arguments
+            (call join_words_with_tags
+              (arguments t)))
+          (do_block
+            (binary_operator
+              (binary_operator t |>
+                (call
+                  (dot Enum . map)
+                  (arguments
+                    (unary_operator &
+                      (call replace_md_with_tag
+                        (arguments
+                          (unary_operator & 1))))))) |>
+              (call
+                (dot Enum . join)
+                (arguments " ")))))
+        (call defp
+          (arguments
+            (call replace_md_with_tag
+              (arguments w)))
+          (do_block
+            (binary_operator
+              (binary_operator w |>
+                (call replace_prefix_md
+                  (arguments))) |>
+              (call replace_suffix_md
+                (arguments)))))
+        (call defp
+          (arguments
+            (call replace_prefix_md
+              (arguments w)))
+          (do_block
+            (call cond
+              (do_block
+                (stab_clause
+                  (arguments
+                    (binary_operator w =~
+                      (sigil ~ r / ^
+                        (interpolation #{ "__") {1} /))) ->
+                  (body
+                    (call
+                      (dot String . replace)
+                      (arguments w
+                        (sigil ~ r / ^
+                          (interpolation #{ "__") {1} /) "<strong>"
+                        (keywords
+                          (pair "global: "
+                            (boolean false)))))))
+                (stab_clause
+                  (arguments
+                    (binary_operator w =~
+                      (sigil ~ r / ^[
+                        (interpolation #{ "_") {1}][^
+                        (interpolation #{ "_") +] /))) ->
+                  (body
+                    (call
+                      (dot String . replace)
+                      (arguments w
+                        (sigil ~ r / _ /) "<em>"
+                        (keywords
+                          (pair "global: "
+                            (boolean false)))))))
+                (stab_clause
+                  (arguments
+                    (boolean true)) ->
+                  (body w))))))
+        (call defp
+          (arguments
+            (call replace_suffix_md
+              (arguments w)))
+          (do_block
+            (call cond
+              (do_block
+                (stab_clause
+                  (arguments
+                    (binary_operator w =~
+                      (sigil ~ r /
+                        (interpolation #{ "__") {1}$ /))) ->
+                  (body
+                    (call
+                      (dot String . replace)
+                      (arguments w
+                        (sigil ~ r /
+                          (interpolation #{ "__") {1}$ /) "</strong>"))))
+                (stab_clause
+                  (arguments
+                    (binary_operator w =~
+                      (sigil ~ r / [^
+                        (interpolation #{ "_") {1}] /))) ->
+                  (body
+                    (call
+                      (dot String . replace)
+                      (arguments w
+                        (sigil ~ r / _ /) "</em>"))))
+                (stab_clause
+                  (arguments
+                    (boolean true)) ->
+                  (body w))))))
+        (call defp
+          (arguments
+            (call patch
+              (arguments l)))
+          (do_block
+            (binary_operator
+              (binary_operator l |>
+                (call
+                  (dot String . replace)
+                  (arguments "<li>"
+                    (binary_operator "<ul>" <> "<li>")
+                    (keywords
+                      (pair "global: "
+                        (boolean false)))))) |>
+              (call
+                (dot String . replace_suffix)
+                (arguments "</li>"
+                  (binary_operator "</li>" <> "</ul>"))))))))))

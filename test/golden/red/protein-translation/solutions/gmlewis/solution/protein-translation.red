@@ -1,0 +1,46 @@
+Red [
+	description: {"Protein Translation" exercise solution for exercism platform}
+	author: "Glenn Lewis"
+]
+
+proteins: function [
+	strand
+] [
+	codon-to-protein: make map! [
+		"AUG" "Methionine"
+		"UUU" "Phenylalanine"
+		"UUC" "Phenylalanine"
+		"UUA" "Leucine"
+		"UUG" "Leucine"
+		"UCU" "Serine"
+		"UCC" "Serine"
+		"UCA" "Serine"
+		"UCG" "Serine"
+		"UAU" "Tyrosine"
+		"UAC" "Tyrosine"
+		"UGU" "Cysteine"
+		"UGC" "Cysteine"
+		"UGG" "Tryptophan"
+		"UAA" "STOP"
+		"UAG" "STOP"
+		"UGA" "STOP"
+	]
+	codons: []
+	codon: []
+	foreach character strand [
+		append codon character
+		if 3 = length? codon [
+			append codons rejoin codon
+			clear codon
+		]
+	]
+
+	buffer: []
+	foreach cdn codons [
+		protein: select codon-to-protein cdn
+		if "STOP" = protein [ break ]
+		append buffer protein
+	]
+	buffer
+]
+

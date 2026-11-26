@@ -1,0 +1,34 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SCRABBLE-SCORE.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+      *Inputs
+       01 WS-WORD   PIC X(60).
+      *Outputs
+       01 WS-RESULT PIC 99.
+       01 ws-ix        pic 9(02).
+       01 ws-points.
+          05 ws-point pic 9 occurs 60 times.      
+       PROCEDURE DIVISION.
+       SCRABBLE-SCORE.
+           move function lower-case(ws-word) to ws-points.
+           inspect ws-points converting 'aeioulnrst' to '1111111111'
+           inspect ws-points converting 'dg' to '22'
+           inspect ws-points converting 'bcmp' to '3333'
+           inspect ws-points converting 'fhvwy' to '44444'
+           inspect ws-points converting 'k' to '5'
+           inspect ws-points converting 'jx' to '88'
+           inspect ws-points converting 'qz' to '00'
+           perform varying ws-ix from 1 by 1 until ws-ix > 60
+               if ws-point(ws-ix) is numeric
+                   if ws-point(ws-ix) equal 0
+                       add 10 to WS-RESULT
+                   else
+                       add ws-point(ws-ix) to WS-RESULT
+                   end-if
+               end-if
+           end-perform
+           display ws-points.
+           display WS-RESULT.
+           goback.      

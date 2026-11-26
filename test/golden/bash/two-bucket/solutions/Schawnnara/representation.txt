@@ -1,0 +1,90 @@
+(file "two_bucket.sh")
+(( $# == 4 )) || exit 1
+declare -ri capacity1 = $1 capacity2 = $2 goal = $3
+declare -a to_explore
+check_complete () {
+local b1 = $1 b2 = $2 moves = $3
+if (( b1 == goal )) ; then
+goalBucket = one other = $b2
+elif (( b2 == goal )) ; then
+goalBucket = two other = $b1
+else
+return
+fi
+printf "'moves: %d, goalBucket: %s, otherBucket: %d\\n'" \
+"\"" $moves "\"" "\"" $goalBucket "\"" "\"" $other "\""
+exit 0
+}
+fill_pour_empty_append () {
+local b1 = $1 b2 = $2 moves = $3 swap = $4 c no_fill_pour = 0
+local -i fv fc ev ec
+if (( b1 )) ; then
+(( fv = b1, fc = capacity1, ev = 0, ec = capacity2 ))
+else
+(( fv = b2, fc = capacity2, ev = 0, ec = capacity1 ))
+fi
+if (( swap )) ; then
+if (( fv > ec )) ; then
+(( ev = ec, fv- = ev, moves++ ))
+(( no_fill_pour++ ))
+else
+(( c = b1, b1 = b2, b2 = c, c = fc , fc = ec, ec = c, moves++ ))
+fi
+fi
+(( space = fc-fv ))
+if (( no_fill_pour )) ; then
+:
+elif (( space == 0 )) ; then
+if (( fc > ec )) ; then
+(( ev = ec, fv- = ec, moves++ ))
+else
+(( ev = fv, fv- = ev, moves++ ))
+fi
+elif (( space == ec )) ; then
+(( fv+ = ec, ev = 0, moves++ ))
+else
+if (( space > ec )) ; then
+(( fv+ = ec, ev = 0 ))
+else
+(( fv = fc , ev = ec-space ))
+fi
+(( moves + = 2 ))
+fi
+(( b1 )) && (( b1 = fv, b2 = ev, 1 )) || (( b2 = fv, b1 = ev ))
+check_complete $b1 $b2 $moves
+(( b1 == capacity1 )) && (( b1 = 0, moves++ ))
+(( b2 == capacity2 )) && (( b2 = 0, moves++ ))
+to_explore+ =( "\"" $b1 " " $b2 " " $moves "\"" )
+}
+buckets () {
+local -i b1 b2 moves = 1
+local -a explored
+local start = $4
+if [[ $start = 'one' ]] ; then
+(( b2 = 0, b1 = capacity1 ))
+else
+(( b1 = 0, b2 = capacity2 ))
+fi
+check_complete $b1 $b2 1
+check_complete $capacity1 $b2 2
+check_complete $b1 $capacity2 2
+for (( i = 0 ; i < = capacity1 || i < = capacity2 ; i++ )) ; do
+explored[i] = 0
+done
+to_explore =( "\"" $b1 " " $b2 " " $moves "\"" )
+while (( "\"" ${# to_explore [@] } "\"" )) ; do
+read b1 b2 moves <<< "\"" ${ to_explore [0] } "\""
+to_explore =( "\"" ${ to_explore [@] :1 } "\"" )
+if (( explored[b1 ? b1 : b2] )) ; then
+continue
+else
+explored[b1 ? b1 : b2] = 1
+fi
+[[ $start = 'two' ]] && (( b1 == capacity1 && b2 == 0 )) && continue
+fill_pour_empty_append $b1 $b2 $moves 0
+fill_pour_empty_append $b1 $b2 $moves 1
+done
+echo "\"invalid goal\""
+exit 1
+}
+buckets "\"" $@ "\""

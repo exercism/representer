@@ -1,0 +1,91 @@
+(file "allergies.zig"
+  (source_file
+    (Decl
+      (VarDecl const std =
+        (SuffixExpr @import
+          (FnCallArguments "std"))))
+    (Decl
+      (VarDecl const EnumSet =
+        (SuffixExpr std
+          (FieldOrFnCall . EnumSet)))) pub
+    (Decl
+      (VarDecl const Allergen =
+        (ContainerDecl
+          (ContainerDeclType enum u8)
+          (ContainerField eggs = 1)
+          (ContainerField peanuts = 2)
+          (ContainerField shellfish = 4)
+          (ContainerField strawberries = 8)
+          (ContainerField tomatoes = 16)
+          (ContainerField chocolate = 32)
+          (ContainerField pollen = 64)
+          (ContainerField cats = 128)))) pub
+    (Decl
+      (FnProto isAllergicTo
+        (ParamDeclList
+          (ParamDecl PLACEHOLDER_1 :
+            (ParamType u8))
+          (ParamDecl PLACEHOLDER_2 :
+            (ParamType Allergen))) bool)
+      (Block
+        (Statement
+          (AssignExpr return
+            (BinaryExpr
+              (BinaryExpr PLACEHOLDER_1
+                (BitwiseOp &)
+                (SuffixExpr @enumToInt
+                  (FnCallArguments PLACEHOLDER_2)))
+              (CompareOp ==)
+              (SuffixExpr @enumToInt
+                (FnCallArguments PLACEHOLDER_2))))))) pub
+    (Decl
+      (FnProto initAllergenSet
+        (ParamDeclList
+          (ParamDecl PLACEHOLDER_1 :
+            (ParamType usize)))
+        (SuffixExpr EnumSet
+          (FnCallArguments Allergen)))
+      (Block
+        (Statement
+          (VarDecl var PLACEHOLDER_3 =
+            (SuffixExpr EnumSet
+              (FnCallArguments Allergen))
+            (InitList)))
+        (Statement
+          (VarDecl const PLACEHOLDER_4 =
+            (SuffixExpr std
+              (FieldOrFnCall . meta)
+              (FieldOrFnCall . fields
+                (FnCallArguments Allergen)))))
+        (Statement
+          (LabeledStatement
+            (LoopStatement inline
+              (ForStatement
+                (ForPrefix for
+                  (ForArgumentsList
+                    (ForItem PLACEHOLDER_4))
+                  (PtrListPayload | PLACEHOLDER_5 |))
+                (BlockExpr
+                  (Block
+                    (Statement
+                      (VarDecl const PLACEHOLDER_2 =
+                        (SuffixExpr @intToEnum
+                          (FnCallArguments Allergen
+                            (SuffixExpr PLACEHOLDER_5
+                              (FieldOrFnCall . value))))))
+                    (Statement
+                      (IfStatement
+                        (IfPrefix if
+                          (SuffixExpr isAllergicTo
+                            (FnCallArguments
+                              (SuffixExpr @truncate
+                                (FnCallArguments u8 PLACEHOLDER_1)) PLACEHOLDER_2)))
+                        (BlockExpr
+                          (Block
+                            (Statement
+                              (AssignExpr
+                                (SuffixExpr PLACEHOLDER_3
+                                  (FieldOrFnCall . insert
+                                    (FnCallArguments PLACEHOLDER_2)))))))))))))))
+        (Statement
+          (AssignExpr return PLACEHOLDER_3))))))

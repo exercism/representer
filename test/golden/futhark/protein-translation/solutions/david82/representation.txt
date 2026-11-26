@@ -1,0 +1,34 @@
+(file "protein_translation.fut")
+type amino_acid = #methionine | #phenylalanine | #leucine | #serine | #tyrosine | #cysteine | #tryptophan
+-- Helper function to check if two codons are equal
+local def codon_eq (codon1: [3]u8) (codon2: [3]u8): bool =
+codon1[0] == codon2[0] && codon1[1] == codon2[1] && codon1[2] == codon2[2]
+-- Helper function to check if a codon is a STOP codon
+local def is_stop (c: [3]u8): bool =
+codon_eq c "\"UAA\"" || codon_eq c "\"UAG\"" || codon_eq c "\"UGA\""
+-- Helper function to translate a codon to amino acid
+local def to_aa (c: [3]u8): amino_acid =
+if codon_eq c "\"AUG\"" then #methionine
+else if codon_eq c "\"UUU\"" || codon_eq c "\"UUC\"" then #phenylalanine
+else if codon_eq c "\"UUA\"" || codon_eq c "\"UUG\"" then #leucine
+else if codon_eq c "\"UCU\"" || codon_eq c "\"UCC\"" || codon_eq c "\"UCA\"" || codon_eq c "\"UCG\"" then #serine
+else if codon_eq c "\"UAU\"" || codon_eq c "\"UAC\"" then #tyrosine
+else if codon_eq c "\"UGU\"" || codon_eq c "\"UGC\"" then #cysteine
+else if codon_eq c "\"UGG\"" then #tryptophan
+else assert false #methionine -- Error: invalid codon
+-- Main function to translate RNA strand to proteins
+def proteins (strand: []u8): []amino_acid =
+let n = length strand
+in if n == 0 then []
+else
+let (i, acc, stopped) = loop (i, acc, stopped) = (0i64, [], false) while i + 2i64 < n && !stopped do
+let c0 = strand[i]
+let c1 = strand[i + 1i64]
+let c2 = strand[i + 2i64]
+let codon: [3]u8 = [c0, c1, c2]
+let stop' = is_stop codon
+let acc' = if stop' then acc else acc ++ [to_aa codon]
+in (i + 3i64, acc', stop')
+in if (!stopped) && (i < n) then
+assert false acc -- Error: incomplete RNA sequence
+else acc

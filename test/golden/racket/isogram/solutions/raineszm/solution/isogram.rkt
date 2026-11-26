@@ -1,0 +1,19 @@
+#lang racket
+
+(provide (contract-out [isogram?
+                        (-> string? boolean?)]))
+
+(define (isogram? s)
+  (define (update-count c hsh)
+    (hash-update hsh (char-downcase c) add1 0))
+  (define (used-once pair)
+    (or
+     (not (char-alphabetic? (car pair)))
+     (= 1 (cdr pair))))
+  (andmap
+   used-once
+   (hash->list
+    (foldr
+     update-count
+     (hash)
+     (string->list s)))))

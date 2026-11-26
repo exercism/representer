@@ -1,0 +1,3 @@
+# Truncate text taking graphemes into consideration
+# Truncated ? Text
+Truncate ← ⍜⧻↧₅

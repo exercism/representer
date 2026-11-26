@@ -1,0 +1,5 @@
+object Hamming {
+  def distance(a: String, b: String): Option[Int] = {
+    Option.when(a.length == b.length)(a.zip(b).count(x => x._1 != x._2))
+  }
+}

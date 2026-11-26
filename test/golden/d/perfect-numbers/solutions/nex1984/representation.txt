@@ -1,0 +1,62 @@
+(file "source/perfect_numbers.d")
+module perfect_numbers ;
+auto sumOfProperFactors ( long n ) {
+if ( n <= 0 ) { throw new Exception ( "\"\"" ); }
+if ( n == 1 ) { return 0 ; }
+if ( n % 2 == 0 ) {
+long f = 1 ;
+long m ;
+do {
+m += f ;
+f *= 2 ;
+n /= 2 ;
+} while ( n % 2 == 0 );
+return ( m + f )* sumOfProperFactors ( n )+ m * n ;
+}
+for ( long d = 3 ; d * d <= n ; d += 2 ) {
+if ( n % d == 0 ) {
+long f = 1 ;
+long m ;
+do {
+m += f ;
+f *= d ;
+n /= d ;
+} while ( n % 2 == 0 );
+return ( m + f )* sumOfProperFactors ( n )+ m * n ;
+}
+}
+return 1 ;
+}
+auto classify ( long n ) {
+long sum = sumOfProperFactors ( n );
+if ( sum < n ) { return Classification . DEFICIENT ; }
+if ( sum == n ) { return Classification . PERFECT ; }
+return Classification . ABUNDANT ;
+}
+enum Classification
+{
+DEFICIENT ,
+PERFECT ,
+ABUNDANT
+}
+unittest
+{
+import std . exception : assertThrown ;
+immutable int allTestsEnabled = 0 ;
+assert ( classify ( 6 ) == Classification . PERFECT );
+assert ( classify ( 28 ) == Classification . PERFECT );
+assert ( classify ( 33_550_336 ) == Classification . PERFECT );
+static if ( allTestsEnabled )
+{
+assert ( classify ( 12 ) == Classification . ABUNDANT );
+assert ( classify ( 30 ) == Classification . ABUNDANT );
+assert ( classify ( 33_550_335 ) == Classification . ABUNDANT );
+assert ( classify ( 2 ) == Classification . DEFICIENT );
+assert ( classify ( 4 ) == Classification . DEFICIENT );
+assert ( classify ( 32 ) == Classification . DEFICIENT );
+assert ( classify ( 33_550_337 ) == Classification . DEFICIENT );
+assert ( classify ( 1 ) == Classification . DEFICIENT );
+assertThrown ( classify ( 0 ));
+assertThrown ( classify (- 1 ));
+}
+}

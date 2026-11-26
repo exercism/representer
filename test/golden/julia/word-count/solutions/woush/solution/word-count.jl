@@ -1,0 +1,5 @@
+function wordcount(sentence)
+    words = split(lowercase(sentence), r"('\B|\B'|[^\w'])+"; keepempty=false)
+    
+    return Dict(word => count(==(word), words) for word in words)
+end

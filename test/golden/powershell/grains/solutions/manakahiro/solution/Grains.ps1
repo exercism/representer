@@ -1,0 +1,15 @@
+Function Get-GrainSquare() {
+    [CmdletBinding()]
+    Param(
+        [BigInt]$Number
+    )
+    if ($Number -lt 1 -or $Number -gt 64) {
+        Throw "square must be between 1 and 64"
+    }
+    
+    [BigInt]::Pow(2, $Number - 1)
+}
+
+Function Get-GrainTotal() {
+    [BigInt]::Pow(2, 64) - 1
+}

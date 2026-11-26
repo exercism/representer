@@ -1,0 +1,3 @@
+# Convert a DNA strand to its RNA complement
+# RNA ? DNA
+ToRna ← ♭≡get:¤map "GCTA" "CGAU"

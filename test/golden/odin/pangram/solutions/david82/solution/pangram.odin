@@ -1,0 +1,21 @@
+package pangram
+
+is_pangram :: proc(str: string) -> bool {
+	letters_found: u32 = 0
+	ALL_LETTERS :: 0x3FFFFFF // All 26 bits set (2^26 - 1)
+	
+	for b in transmute([]u8)str {
+		lower := b | 0x20
+		
+		if lower >= 'a' && lower <= 'z' {
+			letters_found |= (1 << (lower - 'a'))
+			
+			if letters_found == ALL_LETTERS {
+				return true
+			}
+		}
+	}
+	
+	return letters_found == ALL_LETTERS
+}
+     

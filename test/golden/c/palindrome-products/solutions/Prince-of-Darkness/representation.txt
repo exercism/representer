@@ -1,0 +1,121 @@
+(file "palindrome_products.c")
+#include "\"palindrome_products.h\""
+bool is_palindrome ( int n ) {
+char buf [ 1024 ];
+if ( n < 10 ) return true ;
+sprintf ( buf , "\"%d\"" , n );
+size_t l = strlen ( buf );
+for ( size_t i = 0 ; i < l / 2 ; i ++ ) {
+if ( buf [ i ] != buf [ l - i - 1 ]) return false ;
+}
+return true ;
+}
+product_t * get_palindrome_product ( int from , int to ) {
+int min = from * from ;
+int max = to * to ;
+int x ;
+product_t * p = ( product_t * ) malloc ( sizeof ( product_t ));
+p -> factors_sm = NULL ;
+p -> factors_lg = NULL ;
+factor_t * factor ;
+factor_t * factor_sm ;
+factor_t * factor_lg ;
+if ( from > to ) {
+sprintf ( p -> error , "\"invalid input: min is %d and max is %d\"" , from , to );
+return p ;
+}
+while ( 1 ) {
+if ( min > max ) {
+sprintf ( p -> error , "\"no palindrome with factors in the range %d to %d\"" , from , to );
+return p ;
+} else if ( is_palindrome ( min )) {
+for ( x = from ; x * x <= min ; x ++ ) {
+if ( min % x == 0 && min / x <= to ) {
+p -> smallest = min ;
+factor = ( factor_t * ) malloc ( sizeof ( factor_t ));
+factor -> factor_a = x ;
+factor -> factor_b = min / x ;
+factor -> next = NULL ;
+if ( p -> factors_sm == NULL ) {
+p -> factors_sm = factor ;
+} else {
+factor_sm = p -> factors_sm ;
+while ( factor_sm -> next != NULL ) factor_sm = factor_sm -> next ;
+factor_sm -> next = factor ;
+}
+}
+}
+if ( p -> factors_sm != NULL ) break ;
+}
+min ++ ;
+}
+while ( 1 ) {
+if ( is_palindrome ( max )) {
+for ( x = from ; x * x <= max ; x ++ ) {
+if ( max % x == 0 && max / x <= to ) {
+p -> largest = max ;
+factor = ( factor_t * ) malloc ( sizeof ( factor_t ));
+factor -> factor_a = x ;
+factor -> factor_b = max / x ;
+factor -> next = NULL ;
+if ( p -> factors_lg == NULL ) {
+p -> factors_lg = factor ;
+} else {
+factor_lg = p -> factors_lg ;
+while ( factor_lg -> next != NULL ) factor_lg = factor_lg -> next ;
+factor_lg -> next = factor ;
+}
+}
+}
+if ( p -> factors_lg != NULL ) break ;
+}
+max -- ;
+}
+return p ;
+}
+void free_product ( product_t * p ) {
+factor_t * factor ;
+factor_t * factor2 ;
+if ( p -> factors_sm ) {
+factor = p -> factors_sm ;
+while ( factor -> next ) {
+factor2 = factor -> next ;
+free ( factor );
+factor = factor2 ;
+}
+}
+if ( p -> factors_lg ) {
+factor = p -> factors_lg ;
+while ( factor -> next ) {
+factor2 = factor -> next ;
+free ( factor );
+factor = factor2 ;
+}
+}
+free ( p );
+}
+(file "palindrome_products.h")
+#ifndef PALINDROME_PRODUCTS_H
+#define PALINDROME_PRODUCTS_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#define MAXERR 100
+typedef struct factors {
+int factor_a ;
+int factor_b ;
+struct factors * next ;
+} factor_t ;
+struct product {
+int smallest ;
+int largest ;
+factor_t * factors_sm ;
+factor_t * factors_lg ;
+char error [ MAXERR ];
+};
+typedef struct product product_t ;
+bool is_palindrome ( int n );
+product_t * get_palindrome_product ( int from , int to );
+void free_product ( product_t * p );
+#endif

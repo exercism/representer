@@ -1,0 +1,46 @@
+(file "src/main/groovy/RomanNumerals.groovy")
+class RomanNumerals {
+RomanNumerals () {
+Integer . metaClass . getRoman = { ->
+convert ( delegate as Integer )
+}
+}
+static convert ( Integer arabic ){
+Map < String , List < String >> romanNumbersMap = new HashMap <>()
+romanNumbersMap . put ( 1 ,[ "\"I\"" , "\"V\"" ])
+romanNumbersMap . put ( 2 ,[ "\"X\"" , "\"L\"" ])
+romanNumbersMap . put ( 3 ,[ "\"C\"" , "\"D\"" ])
+romanNumbersMap . put ( 4 ,[ "\"M\"" ])
+String arabicString = String . valueOf ( arabic )
+Integer arabicPositions = arabicString . length ()
+String romanNumber = "\"\""
+while ( arabicPositions > 0 ){
+Integer arabicDigit = Integer . valueOf ( arabicString [ 0 ])
+if ( arabicDigit >= 1 && arabicDigit <= 3 ){
+arabicDigit . times {
+romanNumber += romanNumbersMap . get ( arabicPositions )[ 0 ]
+}
+}
+if ( arabicDigit == 4 ){
+romanNumber += romanNumbersMap . get ( arabicPositions )[ 0 ] + romanNumbersMap . get ( arabicPositions )[ 1 ]
+}
+if ( arabicDigit == 5 ){
+romanNumber += romanNumbersMap . get ( arabicPositions )[ 1 ]
+}
+if ( arabicDigit >= 6 && arabicDigit <= 8 ){
+romanNumber += romanNumbersMap . get ( arabicPositions )[ 1 ]
+( arabicDigit - 5 ). times {
+romanNumber += romanNumbersMap . get ( arabicPositions )[ 0 ]
+}
+}
+if ( arabicDigit == 9 ){
+romanNumber += romanNumbersMap . get ( arabicPositions )[ 0 ] + romanNumbersMap . get ( arabicPositions + 1 )[ 0 ]
+}
+if ( arabicPositions === 1 )
+break
+arabicString = arabicString . substring ( 1 )
+arabicPositions = arabicString . length ()
+}
+return romanNumber
+}
+}

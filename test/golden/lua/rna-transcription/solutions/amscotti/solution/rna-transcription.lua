@@ -1,0 +1,11 @@
+local complement = { G = 'C', C = 'G', T = 'A', A = 'U' }
+
+return function(dna)
+    local result = {}
+
+    for i = 1, dna:len() do
+        result[i] = complement[dna:sub(i,i)]
+    end
+
+    return table.concat(result)
+end

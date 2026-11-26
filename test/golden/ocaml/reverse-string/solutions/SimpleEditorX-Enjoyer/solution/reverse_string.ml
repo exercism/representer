@@ -1,0 +1,6 @@
+let reverse_string str = str
+|> String.to_seq
+|> List.of_seq
+|> List.rev
+|> List.to_seq
+|> String.of_seq

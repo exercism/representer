@@ -1,0 +1,28 @@
+/**
+* Your implmentation of the AtbashCipher exercise
+*/
+component {
+    this.plain = "abcdefghijklmnopqrstuvwxyz";
+	function encode( phrase ) {
+        var result = "";
+        phrase = rereplace(phrase, "[^A-Za-z0-9]", "", "all");
+		for (var index = 1; index <= len(phrase); index++) {
+		    var letter = mid(phrase, index, 1);
+            var dicIndex = findNoCase(letter, this.plain);
+            if(dicIndex){
+                result &= mid(this.plain, len(this.plain)-dicIndex+1, 1);
+            } else {
+                result &= letter;
+            }
+            if( index MOD 5 == 0 ) {
+                result &= " ";
+            }
+		}
+        return trim(result);
+	}
+	
+	function decode( phrase ) {
+		return replace(encode(phrase), " ", "", "all");
+	}
+	
+}

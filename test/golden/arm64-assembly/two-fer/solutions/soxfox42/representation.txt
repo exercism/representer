@@ -1,0 +1,35 @@
+(file "two_fer.s")
+.text
+.globl two_fer
+two_fer:
+str lr, [sp, -0x10]!
+mov x2, x1
+cmp x2, 0
+bne 1f
+ldr x2, =you
+1:
+ldr x1, =prefix
+bl copy
+mov x1, x2
+bl copy
+ldr x1, =suffix
+bl copy
+ldr lr, [sp], 0x10
+ret
+# x0 - dest
+# x1 - src
+# return (x0) - null terminator of dest
+copy:
+str x2, [sp, -0x10]!
+copy_loop:
+ldrb w2, [x1], 1
+strb w2, [x0], 1
+tst w2, 255
+bne copy_loop
+sub x0, x0, 1
+ldr x2, [sp], 0x10
+ret
+.data
+prefix: .string "\"One" for "\""
+you: .string "\"you\""
+suffix: .string "\"," one for me."

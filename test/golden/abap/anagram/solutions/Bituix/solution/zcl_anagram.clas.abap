@@ -1,0 +1,56 @@
+CLASS zcl_anagram DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS anagram
+      IMPORTING
+        input         TYPE string
+        candidates    TYPE string_table
+      RETURNING
+        VALUE(result) TYPE string_table.
+
+    METHODS has_double_letter
+      IMPORTING
+        input         TYPE string
+      RETURNING
+        VALUE(rv_letter) TYPE c.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_anagram IMPLEMENTATION.
+  METHOD anagram.
+    DATA(lv_letter) = has_double_letter( input ).
+
+    LOOP AT candidates ASSIGNING FIELD-SYMBOL(<candidates>).
+      DATA(lv_letter_cand) = has_double_letter( <candidates> ).
+
+      "Can have duplicate letters if equal from INPUT and CANDICATE
+      CHECK lv_letter_cand EQ lv_letter OR lv_letter is initial OR lv_letter_cand IS INITIAL.
+
+      "Additional checks 
+      CHECK to_upper( <candidates> ) CO to_upper( input ) AND STRLEN( <candidates> ) EQ STRLEN( input ) AND to_upper( <candidates> ) NE to_upper( input ).
+
+      result = VALUE #( base result ( <candidates> ) ).
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD has_double_letter.
+    "return the duplicate letter
+    DATA(prev) = space.
+      
+    DO STRLEN( input ) TIMES.
+      DATA(i) = sy-index - 1.
+      IF input+i(1) EQ prev.
+        rv_letter = input+i(1).
+        return.
+      ENDIF.
+      prev = input+i(1).
+    ENDDO.
+
+  ENDMETHOD.
+ENDCLASS.

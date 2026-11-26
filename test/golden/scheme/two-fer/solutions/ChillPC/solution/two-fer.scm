@@ -1,0 +1,8 @@
+(import (rnrs))
+
+(define (two-fer . maybe-name)
+  (cond
+    [(null? maybe-name) "One for you, one for me."]
+    [else (string-append "One for " (car maybe-name) ", one for me.")]
+    ))
+

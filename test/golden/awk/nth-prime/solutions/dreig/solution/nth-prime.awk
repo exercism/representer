@@ -1,0 +1,54 @@
+# These variables are initialized on the command line (using '-v'):
+# - n
+function assert(cond, msg) {
+    if (!cond) {
+        print(msg)
+        exit(1)
+    }
+}
+function val_at(n, sieve,    id) {
+    id = rshift(n, 4)
+    n = and(n, 15)
+    return and(sieve[id], lshift(1, n)) > 0
+}
+function unset_bit_at(n, sieve,    id) {
+    id = rshift(n, 4)
+    n = and(n, 15)
+    if (and(sieve[id], lshift(1, n)) > 0) {
+        sieve[id] -= lshift(1, n)
+    }
+}
+function make_sieve(L, sieve,   i,p,d) {
+    for(i = 0; i <= rshift(L, 4); i++) {
+        sieve[i] = (2^16) - 1
+    }
+
+    for(p=2; p * p <= L; p++) {
+        if (val_at(p, sieve)) {
+            for(d = p*p; d <= L; d += p) {
+                unset_bit_at(d, sieve)
+            }
+        }
+    }
+}
+
+BEGIN {
+    assert(n > 0, "invalid input")
+    if (n == 1) {
+        print(2)
+        exit
+    }
+    L = int(2*n * log(n) + 1)
+    make_sieve(L, sieve)
+    cnt = 1
+    for(p = 3; p <= L; p+=2) {
+        if (val_at(p, sieve)) {
+            cnt++
+        }
+        if (cnt == n) {
+            print(p)
+            break
+        }
+    }
+}
+

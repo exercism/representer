@@ -1,0 +1,6 @@
+leap(Year) :-
+    0 =:= mod(Year, 4),
+    (
+        0 =\= mod(Year, 100), !;
+        0 =:= mod(Year, 400)
+    ).

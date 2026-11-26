@@ -1,0 +1,8 @@
+class Binary
+	constructor: (@bin) ->
+
+	toDecimal: ->
+		return 0 if @bin.match(/[\D2-9]/g) != null
+		return (Math.pow(2, @bin.length - 1 - i) * d for d, i in @bin).reduce((x, y) -> x + y)
+
+module.exports = Binary

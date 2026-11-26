@@ -1,0 +1,87 @@
+import maximumValue from require 'knapsack'
+
+describe 'knapsack:', ->
+  it 'no items', ->
+    items = {}
+    maxWeight = 100
+    result = maximumValue maxWeight, items
+    assert.are.equal 0, result
+
+  pending 'one item, too heavy', ->
+    items = {{weight: 100, value: 1}}
+    maxWeight = 10
+    result = maximumValue maxWeight, items
+    assert.are.equal 0, result
+
+  pending 'five items (cannot be greedy by weight)', ->
+    items = {
+      {weight: 2, value: 5},
+      {weight: 2, value: 5},
+      {weight: 2, value: 5},
+      {weight: 2, value: 5},
+      {weight: 10, value: 21},
+    }
+    maxWeight = 10
+    result = maximumValue maxWeight, items
+    assert.are.equal 21, result
+
+  pending 'five items (cannot be greedy by value)', ->
+    items = {
+      {weight: 2, value: 20},
+      {weight: 2, value: 20},
+      {weight: 2, value: 20},
+      {weight: 2, value: 20},
+      {weight: 10, value: 50},
+    }
+    maxWeight = 10
+    result = maximumValue maxWeight, items
+    assert.are.equal 80, result
+
+  pending 'example knapsack', ->
+    items = {
+      {weight: 5, value: 10},
+      {weight: 4, value: 40},
+      {weight: 6, value: 30},
+      {weight: 4, value: 50},
+    }
+    maxWeight = 10
+    result = maximumValue maxWeight, items
+    assert.are.equal 90, result
+
+  pending '8 items', ->
+    items = {
+      {weight: 25, value: 350},
+      {weight: 35, value: 400},
+      {weight: 45, value: 450},
+      {weight: 5, value: 20},
+      {weight: 25, value: 70},
+      {weight: 3, value: 8},
+      {weight: 2, value: 5},
+      {weight: 2, value: 5},
+    }
+    maxWeight = 104
+    result = maximumValue maxWeight, items
+    assert.are.equal 900, result
+
+  pending '15 items', ->
+    items = {
+      {weight: 70, value: 135},
+      {weight: 73, value: 139},
+      {weight: 77, value: 149},
+      {weight: 80, value: 150},
+      {weight: 82, value: 156},
+      {weight: 87, value: 163},
+      {weight: 90, value: 173},
+      {weight: 94, value: 184},
+      {weight: 98, value: 192},
+      {weight: 106, value: 201},
+      {weight: 110, value: 210},
+      {weight: 113, value: 214},
+      {weight: 115, value: 221},
+      {weight: 118, value: 229},
+      {weight: 120, value: 240},
+    }
+    maxWeight = 750
+    result = maximumValue maxWeight, items
+    assert.are.equal 1458, result
+

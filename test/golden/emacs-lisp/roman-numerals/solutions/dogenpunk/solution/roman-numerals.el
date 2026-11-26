@@ -1,0 +1,34 @@
+;;; roman-numerals.el --- roman-numerals Exercise (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+(require 'subr-x)
+(defvar roman-numerals/lookup-table
+  #s(hash-table size 13 data (1000 "M"
+                               900 "CM"
+                               500 "D"
+                               400 "CD"
+                               100 "C"
+                               90  "XC"
+                               50  "L"
+                               40  "XL"
+                               10  "X"
+                               9   "IX"
+                               5   "V"
+                               4   "IV"
+                               1   "I"))
+  "Table holding translations of Roman numerals to integers.")
+
+(defun to-roman (value)
+  (if (zerop value)
+      ""
+    (let ((nt (car (seq-filter
+                    (lambda (key)
+                      (>= value key))
+                    (hash-table-keys roman-numerals/lookup-table)))))
+      (concat (gethash nt roman-numerals/lookup-table)
+              (to-roman (- value nt))))))
+
+
+(provide 'roman-numerals)
+;;; roman-numerals.el ends here

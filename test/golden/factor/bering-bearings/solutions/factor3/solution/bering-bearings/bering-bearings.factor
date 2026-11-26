@@ -1,0 +1,71 @@
+USING: accessors combinators kernel math math.functions namespaces ;
+IN: bering-bearings
+
+TUPLE: cardinal direction ;
+TUPLE: polar magnitude bearing ;
+TUPLE: relative distance bearing ;
+
+SYMBOLS: north east south west ;
+SYMBOLS: ahead starboard behind port ;
+SYMBOL: heading
+
+GENERIC: >cartesian ( direction -- x y )
+
+GENERIC: flip ( direction -- direction' )
+
+: >polar< ( polar -- magnitude bearing )
+    [ magnitude>> ] [ bearing>> ] bi ;
+
+: >relative< ( polar -- distance bearing )
+    [ distance>> ] [ bearing>> ] bi ;
+
+<PRIVATE
+
+: deg>cartesian ( dist bearing -- x y )
+    [ deg>rad sin * ] [ deg>rad cos * ] 2bi ;
+
+PRIVATE>
+
+M: cardinal >cartesian
+    direction>> {
+        { north [ 0 1 ] }
+        { east [ 1 0 ] }
+        { south [ 0 -1 ] }
+        { west [ -1 0 ] }
+    } case ;
+
+M: polar >cartesian
+    >polar< deg>cartesian ;
+
+M: relative >cartesian
+    >relative< {
+        { ahead [ 0 ] }
+        { starboard [ 90 ] }
+        { behind [ 180 ] }
+        { port [ 270 ] }
+    } case
+    heading get + deg>cartesian ;
+
+M: cardinal flip
+    dup direction>> {
+        { north [ south ] }
+        { east [ west ] }
+        { south [ north ] }
+        { west [ east ] }
+    } case
+    >>direction ;
+
+M: polar flip
+    [ 180 + 360 mod ] change-bearing ;
+
+M: relative flip
+    dup bearing>> {
+        { ahead [ behind ] }
+        { starboard [ port ] }
+        { behind [ ahead ] }
+        { port [ starboard ] }
+    } case
+    >>bearing ;
+
+: add-bearings ( a b -- x y )
+    [ >cartesian ] bi@ swapd [ + ] 2bi@ ;

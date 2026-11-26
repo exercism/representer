@@ -1,0 +1,98 @@
+(file "robot_simulator.rb"
+  (program
+    (class Robot
+      (body_statement
+        (assignment (constant PLACEHOLDER_1) =
+          (hash
+            (pair :north
+              (array 0 1))
+            (pair :east
+              (array 1 0))
+            (pair :south
+              (array 0
+                (unary - 1)))
+            (pair :west
+              (array
+                (unary - 1) 0))))
+        (assignment (constant PLACEHOLDER_2) =
+          (call (constant PLACEHOLDER_1) keys))
+        (call attr_reader
+          (argument_list :bearing :coordinates))
+        (method orient
+          (method_parameters direction)
+          (body_statement
+            (unless
+              (call (constant PLACEHOLDER_2) include?
+                (argument_list direction))
+              (then
+                (call raise
+                  (argument_list ArgumentError))))
+            (assignment (instance_variable PLACEHOLDER_3) = direction)))
+        (method turn_right
+          (body_statement
+            (assignment (instance_variable PLACEHOLDER_3) =
+              (binary
+                (element_reference (constant PLACEHOLDER_2)
+                  (binary
+                    (call (constant PLACEHOLDER_2) index
+                      (argument_list (instance_variable PLACEHOLDER_3))) + 1)) || :north))))
+        (method turn_left
+          (body_statement
+            (assignment (instance_variable PLACEHOLDER_3) =
+              (element_reference (constant PLACEHOLDER_2)
+                (binary
+                  (call (constant PLACEHOLDER_2) index
+                    (argument_list (instance_variable PLACEHOLDER_3))) - 1)))))
+        (method at
+          (method_parameters
+            (splat_parameter * coordinates))
+          (body_statement
+            (assignment (instance_variable PLACEHOLDER_4) = coordinates)))
+        (method advance
+          (body_statement
+            (assignment (instance_variable PLACEHOLDER_4) =
+              (call
+                (call (instance_variable PLACEHOLDER_4) zip
+                  (argument_list
+                    (element_reference (constant PLACEHOLDER_1) (instance_variable PLACEHOLDER_3)))) map
+                (block
+                  (block_parameters PLACEHOLDER_5 PLACEHOLDER_6)
+                  (body_statement
+                    (binary PLACEHOLDER_5 + PLACEHOLDER_6)))))))))
+    (class Simulator
+      (body_statement
+        (assignment (constant PLACEHOLDER_7) =
+          (hash
+            (pair "L" :turn_left)
+            (pair "R" :turn_right)
+            (pair "A" :advance)))
+        (method instructions
+          (method_parameters PLACEHOLDER_8)
+          (body_statement
+            (call
+              (call PLACEHOLDER_8 chars) map
+              (block
+                (block_parameters PLACEHOLDER_9)
+                (body_statement
+                  (element_reference (constant PLACEHOLDER_7) PLACEHOLDER_9))))))
+        (method place
+          (method_parameters robot
+            (keyword_parameter x 0)
+            (keyword_parameter y 0)
+            (keyword_parameter direction :north))
+          (body_statement
+            (call robot at
+              (argument_list x y))
+            (call robot orient
+              (argument_list direction))))
+        (method evaluate
+          (method_parameters robot PLACEHOLDER_8)
+          (body_statement
+            (call
+              (call instructions
+                (argument_list PLACEHOLDER_8)) each
+              (block
+                (block_parameters PLACEHOLDER_9)
+                (body_statement
+                  (call robot send
+                    (argument_list PLACEHOLDER_9)))))))))))

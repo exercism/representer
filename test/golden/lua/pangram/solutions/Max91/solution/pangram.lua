@@ -1,0 +1,14 @@
+return function(s)
+  local answer, count = {}, 0
+  local clear = s:lower():gsub("[^a-z]", "")
+
+  for char in clear:gmatch(".") do
+    answer[char] = true
+  end
+
+  for _,_ in pairs(answer) do
+    count = count + 1
+  end
+
+  return count == 26
+end

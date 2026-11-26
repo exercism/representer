@@ -1,0 +1,37 @@
+USING: kernel math combinators sequences ;
+IN: mixed-juices
+
+: time-to-mix-juice ( juice -- minutes )
+    {
+      { "Pure Strawberry Joy" [ 0.5 ] }
+      { "Energizer" [ 1.5 ] }
+      { "Green Garden" [ 1.5 ] }
+      { "Tropical Island" [ 3 ] }
+      { "All or Nothing" [ 5 ] }
+      [ drop 2.5 ]
+    } case ;
+
+: wedges-from-lime ( size -- wedges )
+    {
+      { "small" [ 6 ] }
+      { "medium" [ 8 ] }
+      { "large" [ 10 ] }
+    } case ;
+
+:: limes-to-cut ( needed limes -- count )
+    limes :> rest!
+    0 :> running!
+    0
+    [ rest empty? running needed >= or ] 
+    [ rest unclip wedges-from-lime running + running! rest! 1 + ] 
+    until ;
+
+: order-times ( orders -- times )
+    [ time-to-mix-juice ] map ;
+
+:: remaining-orders ( time-left orders -- remaining )
+    time-left :> time-left!
+    orders
+    [ time-left 0 > over empty? not and ] 
+    [ unclip time-to-mix-juice time-left swap - time-left! ]
+    while ;

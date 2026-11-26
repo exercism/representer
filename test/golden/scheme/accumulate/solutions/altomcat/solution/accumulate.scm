@@ -1,0 +1,3 @@
+(define (accumulate f xs)
+  (if (null? xs) xs
+      (cons (f (car xs)) (accumulate f (cdr xs)))))

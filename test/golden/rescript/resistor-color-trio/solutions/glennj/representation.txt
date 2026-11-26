@@ -1,0 +1,46 @@
+(file "src/ResistorColor.res")
+let colors = [
+"\"black\"" ,
+"\"brown\"" ,
+"\"red\"" ,
+"\"orange\"" ,
+"\"yellow\"" ,
+"\"green\"" ,
+"\"blue\"" ,
+"\"violet\"" ,
+"\"grey\"" ,
+"\"white\"" ,
+]
+let colorCode = color => colors -> Array . indexOf ( color )
+(file "src/ResistorColor.resi")
+let colors : array < string >
+let colorCode : string => int
+(file "src/ResistorColorDuo.res")
+let value = colors =>
+colors
+-> Array . slice ( ~ end = 2 )
+-> Array . map ( ResistorColor . colorCode )
+-> Array . reduce ( 0 , ( sum , code ) => sum * 10 + code )
+(file "src/ResistorColorDuo.resi")
+let value : array < string > => int
+(file "src/ResistorColorTrio.res")
+let label = colors => {
+assertEqual ( Array . length ( colors ) >= 3 , true )
+let val = ref (
+BigInt . mul (
+BigInt . fromInt ( ResistorColorDuo . value ( Array . slice ( colors , ~ end = 2 ))) ,
+BigInt . fromInt ( 10 ** ResistorColor . colorCode ( Array . getUnsafe ( colors , 2 )))
+)
+)
+let i = ref ( 0 )
+if val . contents > 0 n {
+while val . contents -> BigInt . mod ( 1000 n ) == 0 n {
+val : = val . contents -> BigInt . div ( 1000 n )
+i : = i . contents + 1
+}
+}
+let prefix = [ "\"\"" , "\"kilo\"" , "\"mega\"" , "\"giga\"" ] -> Array . getUnsafe ( i . contents )
+` ${ val . contents -> BigInt . toString } " " ${ prefix } ohms`
+}
+(file "src/ResistorColorTrio.resi")
+let label : array < string > => string

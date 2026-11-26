@@ -1,0 +1,15 @@
+(file "src/DNA.hs")
+module DNA ( nucleotideCounts , Nucleotide ( .. )) where
+import Data.Map ( Map , fromListWith )
+data Nucleotide = A | C | G | T deriving ( Eq , Ord , Show )
+nucleotideCounts :: String -> Either String ( Map Nucleotide Int )
+nucleotideCounts = fmap count . mapM toNucleotide
+toNucleotide :: Char -> Either String Nucleotide
+toNucleotide c
+  | c == 'A' = Right A
+  | c == 'C' = Right C
+  | c == 'G' = Right G
+  | c == 'T' = Right T
+  | otherwise = Left "\"Input is not a valid DNA.\""
+count :: [] Nucleotide -> Map Nucleotide Int
+count xs = fromListWith ( + ) (( A , 0 ) : ( C , 0 ) : ( G , 0 ) : ( T , 0 ) : [( x , 1 ) | x <- xs ])

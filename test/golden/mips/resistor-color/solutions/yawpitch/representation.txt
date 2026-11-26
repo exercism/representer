@@ -1,0 +1,47 @@
+(file "impl.mips")
+# Return the color code for a given color name (ie "\"black\"" returns 0, "\"brown\"" returns 1, etc)
+.globl color_code
+# a0 - argument for input string, as starting address
+# v0 - result, as integer representing the color code as index into colors array
+# t1 - current color, as starting address
+# t2 - copy of the input string, as starting address
+# t3 - current color char, as char
+# t4 - current input string char, as char
+.data
+colors:
+.asciiz "\"black\""
+.asciiz "\"brown\""
+.asciiz "\"red\""
+.asciiz "\"orange\""
+.asciiz "\"yellow\""
+.asciiz "\"green\""
+.asciiz "\"blue\""
+.asciiz "\"violet\""
+.asciiz "\"grey\""
+.asciiz "\"white\""
+.text
+color_code:
+li $v0, 0 # starting color code is 0 (black)
+la $t1, colors # start t1 at the beginning of the colors table
+outer:
+move $t2, $a0 # (re)set t2 to the start of the input string
+inner:
+lb $t3, ($t1) # set t3 to the current char of the current color
+addi $t1, $t1, 1 # increment t1 to the next char in the current color
+lb $t4, ($t2) # load the current char of the input string
+addi $t2, $t2, 1 # increment t2 to the next char in the input
+bne $t3, $t4, next_color # if color != the input, seek to the next color
+beq $t4, 0, return # if end of the input, we've found the color code
+j inner # continue the inner loop
+next_color:
+addi $v0, $v0, 1 # increment the color code
+bgt $v0, 9, notfound # if we've exhausted the colors, return not found
+seek_next_color:
+lb $t3, ($t1) # set t3 to the next char of the current color
+addi $t1, $t1, 1 # increment t1 to the next char in the current color
+beq $t3, 0, outer # if end of the color t1 is the next color, continue the outer loop
+j seek_next_color # continue to seek the end of the current color
+notfound:
+li $v0, -1 # return -1 if the color was not found
+return:
+jr $ra

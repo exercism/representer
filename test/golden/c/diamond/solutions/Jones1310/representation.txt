@@ -1,0 +1,39 @@
+(file "diamond.c")
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include "\"diamond.h\""
+char ** make_diamond ( const char letter ) {
+assert ( letter >= 'A' && letter <= 'Z' );
+const int num_letters = letter - 'A' + 1 ;
+const int rows = num_letters + num_letters - 1 ;
+const int mid_row = num_letters - 1 ;
+const int string_length = rows + 1 ;
+char ** const result = malloc ( rows * sizeof ( char * ));
+for ( int row = 0 ; row < rows ; row ++ ) {
+const int row_offset = row <= mid_row ? row : ( rows - 1 ) - row ;
+const char c = 'A' + row_offset ;
+const int left = mid_row - row_offset ;
+const int right = mid_row + row_offset ;
+char * const s = malloc ( string_length * sizeof ( char ));
+s [ rows ] = '\0' ;
+for ( int i = 0 ; i < rows ; i ++ ) {
+s [ i ] = ( i == left || i == right ) ? c : "' '" ;
+}
+result [ row ] = s ;
+}
+return result ;
+}
+void free_diamond ( char ** diamond ) {
+const int size = strlen ( diamond [ 0 ]);
+for ( int i = 0 ; i < size ; i ++ ) {
+free ( diamond [ i ]);
+}
+free ( diamond );
+}
+(file "diamond.h")
+#ifndef DIAMOND_H
+#define DIAMOND_H
+char ** make_diamond ( const char letter );
+void free_diamond ( char ** diamond );
+#endif

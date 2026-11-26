@@ -1,0 +1,33 @@
+(file "rotational_cipher.asm")
+section .text
+global rotate
+rotate:
+mov rcx , rdx
+xor edx , edx
+mov al , 26
+movsx eax , al
+xchg eax , esi
+div esi
+.lp: mov al , [ rdi ]
+sub al , 'A'
+cmp al , 26
+jae .notupper
+call .rotate
+.notupper:
+sub al , 'a' - 'A'
+cmp al , 26
+jae .next
+call .rotate
+.next: add al , 'a'
+mov [ rcx ], al
+inc rdi
+inc rcx
+or al , al
+jnz .lp
+ret
+.rotate:
+add al , dl
+cmp al , 26
+jb .rdone
+sub al , 26
+.rdone: ret

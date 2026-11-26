@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+INPUT=$1
+OUTPUT=
+
+(( $INPUT % 3 )) || OUTPUT+="Pling" 
+(( $INPUT % 5 )) || OUTPUT+="Plang" 
+(( $INPUT % 7 )) || OUTPUT+="Plong" 
+
+echo ${OUTPUT:-$INPUT}

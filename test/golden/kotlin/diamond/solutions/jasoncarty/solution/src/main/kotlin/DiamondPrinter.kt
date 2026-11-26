@@ -1,0 +1,12 @@
+class DiamondPrinter {
+    fun printToList(c: Char): List<String> {
+        val verticals = ('A' until c) + (c downTo 'A')
+        val horizontals = (c downTo 'A') + ('B'..c)
+
+        return verticals.map { vertical ->
+            horizontals.map {
+                horizontal -> if (vertical == horizontal) horizontal else " "
+            }.joinToString("")
+        }
+    }
+}

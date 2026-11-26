@@ -1,0 +1,36 @@
+(file "src/MatchingBrackets.purs")
+module MatchingBrackets
+  ( isPaired
+  ) where
+import Prelude
+import Data.Array ( cons , drop , find , null , ( !! ))
+import Data.Maybe ( Maybe ( .. ))
+import Data.String.CodeUnits ( toCharArray )
+import Data.Tuple ( Tuple ( .. ), fst , snd )
+brackets :: Array ( Tuple Char Char )
+brackets = [ ( Tuple '(' ')' )
+  , ( Tuple '[' ']' )
+  , ( Tuple '{' '}' )
+  ]
+isPaired :: String -> Boolean
+isPaired str = null $ scanForClose [] $ toCharArray str
+scanForClose :: Array Char -> Array Char -> Array Char
+scanForClose closings [] = closings
+scanForClose closings arr =
+  let
+    head' = arr !! 0
+    rest = drop 1 arr
+    expClose = closings !! 0
+    expNewClose = findMatchingClose <$> head'
+  in case head' == expClose , isClose head' , expNewClose of
+    true , _ , _ -> scanForClose ( drop 1 closings ) rest
+    _ , Just closing , _ -> cons closing closings
+    _ , _ , Just ( Just newClose ) -> scanForClose ( cons newClose closings ) rest
+    _ , _ , _ -> scanForClose closings rest
+isClose :: Maybe Char -> Maybe Char
+isClose mc = do
+  c <- mc
+  _ <- find (( == ) c <<< snd ) brackets
+  mc
+findMatchingClose :: Char -> Maybe Char
+findMatchingClose a = snd <$> ( find (( == ) a <<< fst ) brackets )

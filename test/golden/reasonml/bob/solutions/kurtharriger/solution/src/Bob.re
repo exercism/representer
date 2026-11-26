@@ -1,0 +1,30 @@
+let sure = "Sure.";
+let chill = "Whoa, chill out!";
+let calm = "Calm down, I know what I'm doing!"
+let fine = "Fine. Be that way!";
+let whatever = "Whatever.";
+
+let isSome =
+  fun
+  | Some(_) => true
+  | _ => false;
+
+let reText = [%re "/[A-Za-z]/"]
+let reNothing = [%re "/^\\s*$/"];
+let reQuestion = [%re "/\\?\\s*$/"];
+let isQuestion = m => Js.Re.exec(m, reQuestion) |> isSome
+let isNothing = m => Js.Re.exec(m, reNothing) |> isSome;
+let isText = m => (Js.Re.exec(m, reText) |> isSome)
+let isYelling : string => bool = m => {
+  let u = Js.String.toUpperCase(m);
+  u == m && isText(m)
+};
+
+let hey = message =>
+  switch (isQuestion(message), isYelling(message), isNothing(message)) {
+  | (false, true, false) => chill
+  | (true, true, false) => calm
+  | (true, false, false) => sure
+  | (false, false, true) => fine
+  | _ => whatever
+  };

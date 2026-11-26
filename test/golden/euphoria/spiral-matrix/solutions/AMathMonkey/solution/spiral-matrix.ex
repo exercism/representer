@@ -1,0 +1,37 @@
+enum type direction UP, RIGHT, DOWN, LEFT end type
+
+public function spiralMatrix(integer size)
+  sequence grid = repeat(repeat(0, size), size)
+  direction dir = RIGHT
+  integer row = 1
+  integer col = 1
+  for i = 1 to size * size do
+    grid[row][col] = i
+    sequence a = advance(row, col, dir)
+    if a[1] < 1 or a[1] > size or a[2] < 1 or a[2] > size or grid[a[1]][a[2]] then
+      dir = rotate(dir)
+      a = advance(row, col, dir)
+    end if
+    row = a[1]
+    col = a[2]
+  end for
+  return grid
+end function
+
+function advance(integer row, integer col, direction dir)
+  switch dir do
+    case UP then return {row - 1, col}
+    case DOWN then return {row + 1, col}
+    case LEFT then return {row, col - 1}
+    case else return {row, col + 1}
+  end switch
+end function
+
+function rotate(direction dir)
+  switch dir do
+    case RIGHT then return DOWN
+    case DOWN then return LEFT
+    case LEFT then return UP
+    case else return RIGHT
+  end switch
+end function

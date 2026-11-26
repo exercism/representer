@@ -1,0 +1,42 @@
+(module
+    (func $digit_count (param $n i32) (result i32) (local $count i32)
+        (loop
+            (local.set $n (i32.div_u (local.get $n) (i32.const 10)))
+            (local.set $count (i32.add (local.get $count) (i32.const 1)))
+            (br_if 0 (i32.gt_u (local.get $n) (i32.const 0)))
+        )
+        (return (local.get $count))
+    )
+
+    (func $pow (param $n i32) (param $e i32) (result i32)
+        (local $res i32)
+        (local.set $res (i32.const 1))
+        (block $break (loop $continue
+            (br_if $break (i32.eqz (local.get $e)))
+            (if (i32.and (local.get $e) (i32.const 1))
+                (local.set $res (i32.mul (local.get $res) (local.get $n)))
+            )
+            (local.set $n (i32.mul (local.get $n) (local.get $n)))
+            (local.set $e (i32.shr_u (local.get $e) (i32.const 1)))
+            (br $continue)
+        ))
+        (local.get $res)
+    )
+
+    ;; returns 1 if armstrong number, 0 otherwise
+    (func (export "isArmstrongNumber") (param $num i32) (result i32)
+        (local $n i32)
+        (local $digit i32)
+        (local $sum i32)
+        (local $len i32)
+        (local.set $n (local.get $num))
+        (local.set $len (call $digit_count (local.get $n)))
+        (loop $continue
+            (local.set $digit (i32.rem_u (local.get $n) (i32.const 10)))
+            (local.set $n (i32.div_u (local.get $n) (i32.const 10)))
+            (local.set $sum (i32.add (local.get $sum) (call $pow (local.get $digit) (local.get $len))))
+            (br_if $continue (i32.gt_u (local.get $n) (i32.const 0)))
+        )
+        (i32.eq (local.get $sum) (local.get $num))
+    )
+)

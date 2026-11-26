@@ -1,0 +1,7 @@
+return function(array, operation)
+  local result = {}
+  for i = 1, #array do
+    table.insert(result, operation(array[i]))
+  end
+  return result
+end

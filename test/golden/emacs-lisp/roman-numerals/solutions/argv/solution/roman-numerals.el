@@ -1,0 +1,42 @@
+;;; roman-numerals.el --- roman-numerals Exercise (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+;;; Code:
+
+(defun fits? (a b)
+  "Is B - A >= 0."
+  (<= 0 (- b a)))
+
+(defun to-roman-helper (value numeral-mappings)
+  "Return a list with the roman numeral representation of VALUE.
+Use NUMERAL-MAPPINGS."
+  (if (= value 0)
+      ()
+    (if (fits? (cdr (seq-first numeral-mappings)) value)
+        (cons (car (seq-first numeral-mappings))
+              (to-roman-helper (- value (cdr (seq-first numeral-mappings)))
+                               numeral-mappings))
+      (to-roman-helper value (seq-rest numeral-mappings)))))
+
+(defun to-roman (value)
+  "Convert integer VALUE to a roman representation."
+  (let ((numeral-mappings
+         '(("M" . 1000)
+           ("CM" . 900)
+           ("D" . 500)
+           ("CD" . 400)
+           ("C" . 100)
+           ("XC" . 90)
+           ("L" . 50)
+           ("XL" . 40)
+           ("X" . 10)
+           ("IX" . 9)
+           ("V" . 5)
+           ("IV" . 4)
+           ("I" . 1))))
+    (apply #'concat (to-roman-helper
+                     value
+                     numeral-mappings))))
+
+(provide 'roman-numerals)
+;;; roman-numerals.el ends here

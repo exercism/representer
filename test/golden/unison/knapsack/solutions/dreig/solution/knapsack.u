@@ -1,0 +1,13 @@
+knapsack.maximumValue : Nat -> [(Nat, Nat)] -> Nat
+knapsack.maximumValue maxW items = 
+  List.foldLeft
+    (cases row, (w, v) ->
+      pre = maxW - w + 1
+      List.take pre row
+        |> List.map ((Nat.+) v)
+        |> (lst -> List.fill w 0 ++ lst)
+        |> List.zipWith Nat.max row)
+    (List.fill (maxW+1) 0)
+    (List.filter (cases (w,v) -> w <= maxW) items)
+    |> List.maximum
+    |> Optional.getOrElse 0

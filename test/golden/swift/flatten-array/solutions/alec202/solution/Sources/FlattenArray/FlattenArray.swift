@@ -1,0 +1,17 @@
+func flattenArray<T>(_ value: [Any]) -> [T] {
+    return unravel(value)
+        .compactMap { $0 }
+}
+
+
+func unravel<T>(_ value: [Any]) -> [T?] {
+    return value.map { a in
+        if let xs = a as? [Any] {
+            return unravel(xs)
+        }
+        else {
+            return [a as? T]
+        }
+    }
+    .reduce([], +)
+}

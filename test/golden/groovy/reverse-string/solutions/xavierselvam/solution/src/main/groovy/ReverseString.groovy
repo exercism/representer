@@ -1,0 +1,11 @@
+class ReverseString {
+
+    static reverse(String value) {
+        def newValue=""
+        for(int i=value.length();i>0;i--){
+            newValue= newValue+ value.charAt(i-1)
+        }
+        return newValue;
+    }
+
+}

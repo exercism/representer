@@ -1,0 +1,40 @@
+class Minesweeper {
+  List<String> annotated = [];
+  Minesweeper(List<String> minesweeperList) {
+    List<List<String>> SparatedminesweeperList =
+        minesweeperList.map((e) => e.split('')).toList();
+    List<List<int>> neighbors = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, 1],
+      [1, 1],
+      [1, 0],
+      [1, -1],
+      [0, -1],
+    ];
+    for (int i = 0; i < SparatedminesweeperList.length; i++) {
+      for (int j = 0; j < SparatedminesweeperList[i].length; j++) {
+        if (SparatedminesweeperList[i][j] == '*') {
+          continue;
+        }
+        int counter = 0;
+        neighbors.forEach((element) {
+          int nx = i + element[0];
+          int ny = j + element[1];
+          if (nx >= 0 &&
+              ny >= 0 &&
+              nx < SparatedminesweeperList.length &&
+              ny < SparatedminesweeperList[i].length &&
+              SparatedminesweeperList[nx][ny] == '*') {
+            counter++;
+          }
+        });
+        if (counter > 0) {
+          SparatedminesweeperList[i][j] = '$counter';
+        }
+      }
+    }
+    annotated = SparatedminesweeperList.map((r) => r.join('')).toList();
+  }
+}

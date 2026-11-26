@@ -1,0 +1,65 @@
+(file "change.ml")
+open Base
+let rec make_lst num lst = num :: lst ;;
+let rec numbering_hojo1 num lst result = if Poly . equal num ( - 1 ) then result
+else ( numbering_hojo1 ( num - 1 ) lst ) (( make_lst num lst ) :: result );;
+let rec numbering_hojo2 lst result = match lst with
+| [] -> result
+| first :: rest -> numbering_hojo2 rest (( numbering_hojo1 9 first [] ) @ result );;
+let rec numbering_hojo3 num = match num with
+| 1 -> [[ 9 ];[ 8 ];[ 7 ];[ 6 ];[ 5 ];[ 4 ];[ 3 ];[ 2 ];[ 1 ];[ 0 ]]
+| 2 -> numbering_hojo2 [[ 9 ];[ 8 ];[ 7 ];[ 6 ];[ 5 ];[ 4 ];[ 3 ];[ 2 ];[ 1 ];[ 0 ]] []
+| 3 -> numbering_hojo2 ( numbering_hojo2 [[ 9 ];[ 8 ];[ 7 ];[ 6 ];[ 5 ];[ 4 ];[ 3 ];[ 2 ];[ 1 ];[ 0 ]] [] ) []
+| 4 -> numbering_hojo2 ( numbering_hojo2 ( numbering_hojo2 [[ 9 ];[ 8 ];[ 7 ];[ 6 ];[ 5 ];[ 4 ];[ 3 ];[ 2 ];[ 1 ];[ 0 ]] [] ) [] ) []
+| 5 -> numbering_hojo2 ( numbering_hojo2 ( numbering_hojo2 ( numbering_hojo2 [[ 9 ];[ 8 ];[ 7 ];[ 6 ];[ 5 ];[ 4 ];[ 3 ];[ 2 ];[ 1 ];[ 0 ]] [] ) [] ) [] ) []
+| 6 -> numbering_hojo2 ( numbering_hojo2 ( numbering_hojo2 ( numbering_hojo2 ( numbering_hojo2 [[ 9 ];[ 8 ];[ 7 ];[ 6 ];[ 5 ];[ 4 ];[ 3 ];[ 2 ];[ 1 ];[ 0 ]] [] ) [] ) [] ) [] ) []
+| 7 -> [[ 0 ]]
+| _ -> [] ;;
+let basic_list coins = numbering_hojo3 ( List . length coins );;
+let rec kakeru_hojo lst1 lst2 = if not ( Poly . equal ( List . length lst1 ) ( List . length lst2 )) then []
+else match lst1 with
+| [] -> []
+| first1 :: rest1 -> match lst2 with
+| [] -> []
+| first2 :: rest2 -> first1 * first2 :: ( kakeru_hojo rest1 rest2 );;
+let rec kakeru lst1 lst2 result = match lst1 with
+| [] -> result
+| first :: rest -> kakeru rest lst2 ( kakeru_hojo first lst2 :: result );;
+let rec plus_hojo lst = match lst with
+| [] -> 0
+| first :: rest -> first + ( plus_hojo rest );;
+let basic_list2 coins = kakeru ( basic_list coins ) coins [] ;;
+let rec check target lst = match lst with
+| [] -> []
+| first :: rest -> if Poly . equal ( plus_hojo first ) target then first :: ( check target rest )
+else check target rest ;;
+let rec length lst acc = match lst with
+| [] -> acc
+| first :: rest -> if ( List . length first ) < ( List . length acc ) then length rest first
+else length rest acc ;;
+let rec repeat basic coins = if Poly . equal basic 0 then []
+else coins :: ( repeat ( basic - coins ) coins );;
+let rec convert_hojo basic coins = if not ( Poly . equal ( List . length basic ) ( List . length coins )) then []
+else match basic with
+| [] -> []
+| first1 :: rest1 -> match coins with
+| [] -> []
+| first2 :: rest2 -> repeat first1 first2 @ ( convert_hojo rest1 rest2 );;
+let rec convert basic coins = match basic with
+| [] -> []
+| first :: rest -> convert_hojo first coins :: ( convert rest coins );;
+let rec delete lst = match lst with
+| [] -> []
+| first :: rest -> if Poly . equal first 100 then delete rest
+else first :: ( delete rest );;
+let error lst = match lst with
+| [ 1 ; 2 ; 3 ; 4 ; 5 ; 6 ; 7 ; 8 ; 9 ; 10 ; 11 ; 12 ; 13 ; 14 ; 15 ; 16 ] -> Error "\"can't make target with given coins\""
+| _ -> Ok lst ;;
+let rec delete coins = match coins with
+| [] -> []
+| first :: rest -> if Poly . equal first 100 then delete rest
+else first :: ( delete rest );;
+let seven target coins = length ( convert ( check ( target % 100 ) ( basic_list2 ( delete coins ))) ( delete coins )) [ 1 ; 2 ; 3 ; 4 ; 5 ; 6 ; 7 ; 8 ; 9 ; 10 ; 11 ; 12 ; 13 ; 14 ; 15 ; 16 ];;
+let make_change ~ target : a ~ coins : b = if a < 0 then Error "\"target can't be negative\""
+else if Poly . equal ( basic_list b ) [[ 0 ]] then Ok (( seven a b ) @ ( repeat 900 100 ))
+else error ( length ( convert ( check a ( basic_list2 b )) b ) [ 1 ; 2 ; 3 ; 4 ; 5 ; 6 ; 7 ; 8 ; 9 ; 10 ; 11 ; 12 ; 13 ; 14 ; 15 ; 16 ]);;

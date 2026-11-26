@@ -1,0 +1,27 @@
+acronym.abbreviate : Text -> Text
+acronym.abbreviate phrase =
+  Text.toCharList phrase
+    |> List.filter (char -> isLetter char || (char === ?\s) || (char === ?-))
+    |> fromCharList
+    |> Text.segmentBy isLetter
+    |> List.map (word -> Text.take 1 word)
+    |> Text.join ""
+    |> Text.toUppercase
+
+---
+
+acronym.abbreviate : Text -> Text
+acronym.abbreviate phrase =
+  Pattern.run
+    (Pattern.join [capture patterns.letter, many anyChar])
+    phrase
+      |> ++ "NG"
+
+---
+
+acronym.abbreviate : Text -> Text
+acronym.abbreviate test =
+  Text.segmentBy isLetter test
+    |> List.map (word -> Text.take 1 word)
+    |> Text.join ""
+    |> Text.toUppercase

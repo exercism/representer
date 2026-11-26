@@ -1,0 +1,13 @@
+proc isIsogram {input} {
+    regsub -all {[^a-z]} [string tolower $input] {} input
+
+    set counttable [dict create ]
+    foreach c [split $input ""] {
+        dict incr counttable $c
+        if {[dict get $counttable $c] > 1 } {
+            return false
+        }
+    }
+
+    return true
+}

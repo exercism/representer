@@ -1,0 +1,30 @@
+module DNA
+  ( nucleotideCounts
+  , Nucleotide(..)
+  )
+where
+
+import           Data.Map                       ( Map )
+import qualified Data.Map                      as Map
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
+
+toNucleotide :: Char -> Either String Nucleotide
+toNucleotide c = case c of
+  'A' -> Right A
+  'C' -> Right C
+  'G' -> Right G
+  'T' -> Right T
+  _   -> Left "x"
+
+updateCount
+  :: Char
+  -> Either String (Map Nucleotide Int)
+  -> Either String (Map Nucleotide Int)
+updateCount c m = do
+  n <- toNucleotide c
+  Map.insertWith (+) n 1 <$> m
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts =
+  foldr updateCount (Right $ Map.fromList [(A, 0), (C, 0), (G, 0), (T, 0)])

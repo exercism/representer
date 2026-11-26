@@ -1,0 +1,25 @@
+/**
+* Your implmentation of the SumOfMultiples exercise
+*/
+component {
+	
+	/**
+	* @returns 
+	*/
+	function sum( array factors, limit ) {
+		if (len(factors)==0) {
+			return 0;
+		}
+		sum=0;
+		for (i = 1; i < limit; i++) {
+			for (n in factors) {
+				if (i%n==0){
+					sum+=i;
+					break;
+				}
+			}
+		}
+		return sum;
+	}
+	
+}

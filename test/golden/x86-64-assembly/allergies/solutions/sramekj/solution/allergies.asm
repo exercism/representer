@@ -1,0 +1,37 @@
+section .text
+global allergic_to
+allergic_to:
+    xor rax, rax
+    mov rdx, 1
+    mov rcx, rdi
+    shl rdx, cl
+    test rsi, rdx
+    jz done
+    mov rax, -1
+done:
+    ret
+global list
+list:
+    mov rbx, 1
+    and rdi, 0xff
+    popcnt rcx, rdi
+    mov dword [rsi], ecx
+    test rdi, rdi
+    jz done2
+    mov rcx, 8
+    mov rax, 1
+lp:
+    mov rdx, 8
+    test rdi, rax
+    jz next
+    sub rdx, rcx
+    mov dword [rsi + rbx * 4], edx
+    inc rbx
+next:
+    shl rax, 1
+    loop lp
+done2:
+    ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

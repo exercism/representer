@@ -1,0 +1,17 @@
+open Js;
+
+let hey = phrase => {
+  let phrase = String.trim(phrase);
+  let valid = phrase |> String.match([%re "/[a-zA-Z]/"]) |> Option.isSome;
+  let silence = phrase == "";
+  let yelling = valid && phrase == String.toUpperCase(phrase);
+  let asking = String.endsWith("?", phrase);
+
+  switch () {
+  | _ when silence => "Fine. Be that way!"
+  | _ when valid && yelling && asking => "Calm down, I know what I'm doing!"
+  | _ when asking => "Sure."
+  | _ when valid && yelling => "Whoa, chill out!"
+  | _ => "Whatever."
+  };
+};

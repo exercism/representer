@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+is_isogram() {
+  normalized_word=$(echo $1 | tr -d '[:space:]-' | tr '[:upper:]' '[:lower:]')
+  trimmed=$(echo "$normalized_word" | grep -o . | sort | uniq | tr -d "\n\r")
+  (( ${#normalized_word} == ${#trimmed} )) && echo "true" || echo "false"
+}
+is_isogram "$1"

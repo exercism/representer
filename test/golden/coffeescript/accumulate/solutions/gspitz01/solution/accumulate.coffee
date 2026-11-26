@@ -1,0 +1,2 @@
+Array::accumulate = (func) ->
+        func(item) for item in this

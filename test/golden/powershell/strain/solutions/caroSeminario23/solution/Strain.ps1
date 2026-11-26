@@ -1,0 +1,35 @@
+Function Invoke-Keep() {
+    [CmdletBinding()]
+    Param(
+        [Object[]]$Data,
+        [ScriptBlock]$Predicate
+    )
+    
+    $result = @()
+
+    foreach ($item in $Data) {
+        if (& $Predicate $item) {
+            $result += ,$item
+        }
+    }
+
+    return $result
+}
+
+Function Invoke-Discard() {
+    [CmdletBinding()]
+    Param(
+        [Object[]]$Data,
+        [ScriptBlock]$Predicate
+    )
+
+    $result = @()
+
+    foreach ($item in $Data) {
+        if (-not (& $Predicate $item)) {
+            $result += ,$item
+        }
+    }
+
+    return $result
+}

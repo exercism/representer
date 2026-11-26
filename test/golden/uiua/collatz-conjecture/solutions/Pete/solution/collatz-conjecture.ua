@@ -1,0 +1,15 @@
+# Calculate the number of steps of a number using the Collatz Conjecture
+# NumberOfSteps ? Number
+# Steps ← |1 ⊙◌ ⍢(⊓(+1|⨬(÷2|+₁×₃)◿₂.?)|≠₁⋅) 0 ⍤"only positive integers are allowed" >₀.
+Steps ← (
+  ⍤"only positive integers are allowed" >₀. # validate
+  0                                         # initial counter
+  ⍢(⊓(+1                                    # increment counter
+    | ⨬(÷2                                  # halve even numbers
+      | +₁×₃                                # odd numbers × 3 + 1
+      )◿₂.
+    )   # odd or even?
+  | ⋅≠₁ # terminate when value is 1
+  )
+  ⊙◌ # drop 2nd element on stack
+)

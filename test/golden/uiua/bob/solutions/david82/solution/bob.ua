@@ -1,0 +1,14 @@
+# Helper functions using regex for more reliable matching
+IsQuestionAtEnd ← ⍤. ⧻ regex "\\?$"                         # Checks if string ends with question mark
+IsYellingWithLetters ← ⍤. × (≥1⧻ regex "[A-Z]+") : (≍⌵) ..  # Checks if string is all caps and has letters
+IsEmptyOrWhitespace ← ⍤. ⧻ regex "[\\W]*"                   # Checks if string is empty or only whitespace
+
+# Respond to a phrase as Bob would
+# Response ? Phrase
+HeyBob ← |1 ⍣(
+  "Calm down, I know what I'm doing!" ⊃IsQuestionAtEnd IsYellingWithLetters  # For yelled questions
+| "Sure." IsQuestionAtEnd                                                    # For normal questions
+| "Whoa, chill out!" IsYellingWithLetters                                    # For yelling
+| "Fine. Be that way!" IsEmptyOrWhitespace                                   # For silence
+| "Whatever."                                                                # Default response
+)

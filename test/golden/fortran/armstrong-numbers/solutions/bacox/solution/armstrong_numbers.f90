@@ -1,0 +1,27 @@
+
+module armstrong_numbers
+   implicit none
+contains
+
+   logical function isArmstrongNumber(number)
+      integer, intent(in) :: number
+      character(10) :: digits
+      integer :: l, i, d, s
+      isArmstrongNumber = .false.
+      write(digits,"(i10)") number
+      digits = trim(adjustl(digits))
+      l = len_trim(digits)
+      s = 0
+      do i = 1, l
+         read(digits(i:i), *) d
+         s = s + d**l
+      end do
+
+      if(s == number) then
+         isArmstrongNumber = .true.
+      end if
+
+
+   end function
+
+end module

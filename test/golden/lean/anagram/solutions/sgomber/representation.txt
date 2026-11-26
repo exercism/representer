@@ -1,0 +1,19 @@
+(file "Anagram.lean")
+import Std . Data . HashMap
+open Std
+namespace Anagram
+def isAnagram ( string1 : String ) ( string2 : String ) : Bool :=
+  let lowerString1 := string1 . toLower
+  let lowerString2 := string2 . toLower
+  let hashMap1 := List . foldl
+    ( fun m char => m . insert char ( m . getD char 0 + 1 ))
+    ( ∅ : Std . HashMap Char Nat )
+    lowerString1 . toList
+  let hashMap2 := List . foldl
+    ( fun m char => m . insert char ( m . getD char 0 + 1 ))
+    ( ∅ : Std . HashMap Char Nat )
+    lowerString2 . toList
+  ( lowerString1 != lowerString2 ) && ( hashMap1 == hashMap2 )
+def findAnagrams ( subject : String ) ( candidates : List String ) : List String :=
+  List . foldr ( fun cand ans_list => if ( isAnagram subject cand ) then ans_list . insert cand else ans_list ) [] candidates
+end Anagram

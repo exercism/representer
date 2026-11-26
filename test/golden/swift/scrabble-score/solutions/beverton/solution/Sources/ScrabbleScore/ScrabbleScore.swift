@@ -1,0 +1,26 @@
+func score(_ input: String) -> Int {
+    let values: [[Character]: Int] = [
+        ["A", "E", "I", "O", "U", "L", "N", "R", "S", "T"]: 1,
+        ["D", "G"]: 2,
+        ["B", "C", "M", "P"]: 3,
+        ["F", "H", "V", "W", "Y"]: 4,
+        ["K"]: 5,
+        ["J", "X"]: 8,
+        ["Q", "Z"]: 10
+    ]
+    
+    func score(for letter: Character) -> Int {
+        for (letters, value) in values {
+            if letters.contains(letter) {
+                return value
+            }
+        }
+        return 0
+    }
+    
+    let totalScore = input.reduce(0) { (acc, letter) in
+        acc + score(for: Character(letter.uppercased()))
+    }
+    
+    return totalScore
+}

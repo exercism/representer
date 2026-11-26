@@ -1,0 +1,19 @@
+module Matrix
+  ( saddlePoints,
+  )
+where
+
+import Data.Array (Array, Ix)
+import qualified Data.Array as A
+
+saddlePoints :: (Enum i, Ix i, Ord e) => Array (i, i) e -> [(i, i)]
+saddlePoints matrix = map fst . filter isSaddlePoint . A.assocs $ matrix
+  where
+    ((row1, col1), (rows, cols)) = A.bounds matrix
+    rowMaxima = A.listArray (row1, rows) $ maximum . getRow <$> [row1 .. rows]
+    colMinima = A.listArray (col1, cols) $ minimum . getCol <$> [col1 .. cols]
+    getCol n = (A.!) matrix <$> A.range ((row1, n), (rows, n))
+    getRow n = (A.!) matrix <$> A.range ((n, col1), (n, cols))
+    isSaddlePoint ((r, c), e)
+      | rowMaxima A.! r == e && colMinima A.! c == e = True
+      | otherwise = False

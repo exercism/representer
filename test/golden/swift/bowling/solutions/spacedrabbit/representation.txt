@@ -1,0 +1,140 @@
+(file "Sources/Bowling/Bowling.swift")
+enum BowlingError : Error {
+case negativePins
+case tooManyPinsInFrame
+case gameInProgress
+case gameIsOver
+}
+class Bowling {
+private var throwScores : [ Int ] = []
+private var rounds : [ Round ] = []
+private var gameInProgress : Bool {
+guard let last = rounds . last else {
+return rounds . count > 0
+}
+return ! last . isLastRound || ! bonusScoresExist ( for : last )
+}
+private var gameIsComplete : Bool {
+guard rounds . last != nil else { return false }
+if let tenthFrame = rounds . first ( where : { $0 . roundNumber == 10 }) {
+if tenthFrame . isIncomplete {
+return false
+} else if tenthFrame . isOpenRound {
+return true
+} else if tenthFrame . isSpare || tenthFrame . isStrike {
+return bonusScoresExist ( for : tenthFrame )
+}
+}
+return false
+}
+init ( _ throwScores : [ Int ]) {
+self . throwScores = throwScores
+rounds = ( try ? buildRounds ( from : throwScores )) ?? []
+}
+func roll ( pins : Int ) throws {
+guard try checkValidThrowScore ( pins ) else { return }
+guard ! gameIsComplete else { throw BowlingError . gameIsOver }
+throwScores . append ( pins )
+rounds = try buildRounds ( from : throwScores )
+}
+func score () throws -> Int {
+guard gameIsComplete else { throw BowlingError . gameInProgress }
+return rounds . compactMap ({ score ( round : $0 ) }) . reduce ( 0 , + )
+}
+private func score ( round : Round ) -> Int ? {
+guard ! round . isLastFrameScoreRound else { return nil }
+guard ! round . isIncomplete else { return nil }
+guard ! round . isOpenRound else { return round . throwScores . reduce ( 0 , + ) }
+guard bonusScoresExist ( for : round ) else { return nil }
+let subsequentThrows = throwScores ( after : round )
+if round . isSpare , subsequentThrows . count > 0 {
+return ( round . throwScores + [ subsequentThrows [ 0 ]]) . reduce ( 0 , + )
+} else if round . isStrike , subsequentThrows . count > 1 {
+return ( round . throwScores + [ subsequentThrows [ 0 ], subsequentThrows [ 1 ]]) . reduce ( 0 , + )
+}
+return nil
+}
+private func bonusScoresExist ( for round : Round ) -> Bool {
+guard round . isStrike || round . isSpare else { return false }
+let subsequentThrows = throwScores ( after : round )
+if round . isSpare {
+return subsequentThrows . count > 0
+} else if round . isStrike {
+return subsequentThrows . count > 1
+}
+return false
+}
+private func throwScores ( after round : Round ) -> [ Int ] {
+var scores : [ Int ] = []
+for r in rounds . filter ({ $0 . roundNumber > round . roundNumber }) {
+scores . append ( contentsOf : r . throwScores )
+}
+return scores
+}
+private func checkValidThrowScore ( _ score : Int ) throws -> Bool {
+guard score >= 0 else { throw BowlingError . negativePins }
+guard score <= 10 else { throw BowlingError . tooManyPinsInFrame }
+if let last = rounds . last , last . isIncomplete , last . firstThrow + score > 10 {
+throw BowlingError . tooManyPinsInFrame
+}
+return true
+}
+private func buildRounds ( from throwScores : [ Int ]) throws -> [ Round ] {
+var rounds : [ Round ] = []
+var pendingRound : Round ?
+for throwScore in throwScores {
+if var pending = pendingRound , pending . isIncomplete {
+if pending . firstThrow + throwScore > 10 {
+throw BowlingError . tooManyPinsInFrame
+}
+pending . secondThrow = throwScore
+rounds . append ( pending )
+pendingRound = nil
+continue
+}
+let roundNumber = rounds . last == nil ? 1 : ( rounds . last ? . roundNumber ?? 0 ) + 1
+let round = Round ( firstThrow : throwScore , roundNumber : roundNumber )
+if round . isStrike {
+rounds . append ( round )
+} else if round . isIncomplete {
+pendingRound = round
+}
+}
+if let pending = pendingRound , pending . isIncomplete , pending . isLastFrameScoreRound {
+rounds . append ( pending )
+}
+return rounds
+}
+struct Round {
+let firstThrow : Int
+var secondThrow : Int ?
+var roundNumber : Int = 0
+var throwScores : [ Int ] {
+var scores = [ firstThrow ]
+if let secondThrow {
+scores . append ( secondThrow )
+}
+return scores
+}
+var isLastRound : Bool {
+return roundNumber == 10
+}
+var isLastFrameScoreRound : Bool {
+return roundNumber == 11 || roundNumber == 12
+}
+var isIncomplete : Bool {
+return firstThrow < 10 && secondThrow == nil
+}
+var isOpenRound : Bool {
+guard let secondThrow else { return false }
+return firstThrow + secondThrow < 10
+}
+var isSpare : Bool {
+guard let secondThrow else { return false }
+return firstThrow != 10 && ( firstThrow + secondThrow == 10 )
+}
+var isStrike : Bool {
+return firstThrow == 10 && secondThrow == nil
+}
+}
+}

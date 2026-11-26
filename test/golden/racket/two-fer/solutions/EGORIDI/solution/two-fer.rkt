@@ -1,0 +1,7 @@
+#lang racket
+
+(provide two-fer)
+
+(define two-fer
+  (lambda ( [person "you" ])
+    (string-append "One for " person ", one for me.")))

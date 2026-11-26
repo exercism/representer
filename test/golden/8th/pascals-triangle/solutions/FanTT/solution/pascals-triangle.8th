@@ -1,0 +1,32 @@
+: next-row  \ a -- a'
+  clone 0 a:push 0 a:slide
+  ( a:open n:+ ) 2 1 a:map+
+;
+
+: build-triangle  \ a1..aN -- a'
+  r> a:close
+;
+
+-- w: rows
+-- s: n -- a
+-- d: array triangle is build in data stack
+-- d: special case : n == 0
+-- d: primer: result for n == 1
+-- d: for 2 to n
+-- d:   next-row :
+-- d:     * add zero at both ends of the clone of the last result (array)
+-- d:     * sum items of each 2-item-slice of the array
+-- d:     * the result is stacked in data stack
+-- d:   build-triangle
+-- d:     * create array (pascal's triangle) with the results stored in data stack
+
+: rows \ n -- a
+  dup !if drop [] ;then     \ n == 0
+  >r                        \ n is pushed in rstack
+  [1]                       \ result for row 1
+  (
+    drop        \ remove the loop index
+    next-row    \ result is stored in data stack
+  ) 2 r@ loop
+  build-triangle
+;

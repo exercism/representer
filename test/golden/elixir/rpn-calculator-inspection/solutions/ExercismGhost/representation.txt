@@ -1,0 +1,125 @@
+(file "lib/rpn_calculator_inspection.ex"
+  (source
+    (call defmodule
+      (arguments RPNCalculatorInspection)
+      (do_block
+        (call def
+          (arguments
+            (call start_reliability_check
+              (arguments calculator input)))
+          (do_block
+            (binary_operator
+              (tuple :ok pid) =
+              (call
+                (dot Task . start_link)
+                (arguments
+                  (anonymous_function
+                    (stab_clause ->
+                      (body
+                        (call
+                          (dot calculator .)
+                          (arguments input))))))))
+            (map %
+              (map_content
+                (keywords
+                  (pair "input: " input)
+                  (pair "pid: " pid))))))
+        (call def
+          (arguments
+            (call await_reliability_check_result
+              (arguments
+                (map %
+                  (map_content
+                    (keywords
+                      (pair "input: " input)
+                      (pair "pid: " pid)))) (variable PLACEHOLDER_1))))
+          (do_block
+            (call receive
+              (do_block
+                (stab_clause
+                  (arguments
+                    (tuple :EXIT
+                      (unary_operator ^ pid) :normal)) ->
+                  (body
+                    (call
+                      (dot Map . put)
+                      (arguments PLACEHOLDER_1 input :ok))))
+                (stab_clause
+                  (arguments
+                    (tuple :EXIT
+                      (unary_operator ^ pid) (variable PLACEHOLDER_2))) ->
+                  (body
+                    (call
+                      (dot Map . put)
+                      (arguments PLACEHOLDER_1 input :error))))
+                (after_block
+                  (stab_clause
+                    (arguments 100) ->
+                    (body
+                      (call
+                        (dot Map . put)
+                        (arguments PLACEHOLDER_1 input :timeout)))))))))
+        (call def
+          (arguments
+            (call reliability_check
+              (arguments calculator inputs)))
+          (do_block
+            (binary_operator (variable PLACEHOLDER_3) =
+              (call
+                (dot Process . flag)
+                (arguments :trap_exit
+                  (boolean true))))
+            (binary_operator
+              (binary_operator
+                (binary_operator inputs |>
+                  (call
+                    (dot Enum . map)
+                    (arguments
+                      (unary_operator &
+                        (call start_reliability_check
+                          (arguments calculator
+                            (unary_operator & 1))))))) |>
+                (call
+                  (dot Enum . reduce)
+                  (arguments
+                    (map %)
+                    (unary_operator &
+                      (binary_operator await_reliability_check_result / 2))))) |>
+              (call tap
+                (arguments
+                  (anonymous_function
+                    (stab_clause
+                      (arguments _) ->
+                      (body
+                        (call
+                          (dot Process . flag)
+                          (arguments :trap_exit PLACEHOLDER_3))))))))))
+        (call def
+          (arguments
+            (call correctness_check
+              (arguments calculator inputs)))
+          (do_block
+            (binary_operator
+              (binary_operator inputs |>
+                (call
+                  (dot Enum . map)
+                  (arguments
+                    (unary_operator &
+                      (call
+                        (dot Task . async)
+                        (arguments
+                          (anonymous_function
+                            (stab_clause ->
+                              (body
+                                (call
+                                  (dot calculator .)
+                                  (arguments
+                                    (unary_operator & 1)))))))))))) |>
+              (call
+                (dot Enum . map)
+                (arguments
+                  (unary_operator &
+                    (call
+                      (dot Task . await)
+                      (arguments
+                        (unary_operator & 1) 100))))))))))))

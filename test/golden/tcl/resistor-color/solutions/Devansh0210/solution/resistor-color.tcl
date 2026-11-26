@@ -1,0 +1,11 @@
+namespace eval resistorColor {
+    proc colorCode {args} {
+        variable res [lsearch -exact [colors] $args]
+        if {$res == "-1"} {error "Invalid color: $args"}\
+        else {return $res}
+    }
+
+    proc colors {args} {
+        return {black brown red orange yellow green blue violet grey white}
+    }
+}

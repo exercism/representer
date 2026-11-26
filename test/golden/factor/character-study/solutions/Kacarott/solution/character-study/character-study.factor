@@ -1,0 +1,31 @@
+USING: kernel math.order combinators strings unicode ;
+IN: character-study
+
+SYMBOLS: less equal greater
+    big small no-size
+    alpha numeric space newline unknown ;
+
+: compare-chars ( c1 c2 -- symbol )
+    <=> {
+     { +lt+ [ less ] }
+     { +eq+ [ equal ] }
+     { +gt+ [ greater ] }
+    } case ;
+
+: size-of-char ( c -- symbol )
+    1string [ upper? ] [ lower? ] bi over and no-size big ? small ? ;
+
+: change-size-of-char ( c desired -- c' )
+    {
+      { big [ ch>upper ] }
+      { small [ ch>lower ] }
+    } case ;
+
+: type-of-char ( c -- symbol )
+    {
+      { [ dup digit? ] [ numeric ] }
+      { [ dup alpha? ] [ alpha ] }
+      { [ dup 32 = ] [ space ] }
+      { [ dup 10 = ] [ newline ] }
+      [ unknown ]
+    } cond nip ;

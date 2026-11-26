@@ -1,0 +1,38 @@
+;; Conway's
+
+nextval: $[M xint yint][
+            currval:  (M\[xint]\[yint])
+            nneigh: (countNeighbours M x y)-currval
+            ;    Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+            ;    Any live cell with two or three live neighbours lives on to the next generation.
+            ;    Any live cell with more than three live neighbours dies, as if by overpopulation.
+            ;    Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+            ;return currval
+            if all? @[(one? currval) nneigh<2]  -> return 0
+            if all? @[(one? currval) nneigh>3]  -> return 0
+            if (one? currval)                   -> return 1 ; two or 3 live neighbours = alive keep living
+            if all? @[(zero? currval) nneigh=3] -> return 1
+            if zero? currval                   ->  return 0 
+            return HaltAndCatchFire ; shouldnothappen
+            ]
+
+countNeighbours: $[matrix , posX ,posY ][
+
+    return sum map  matrix\[(clamp (dec posX) @[0 dec NROWS])..(clamp (inc posX) @[0 dec NROWS])] 'row [            
+            (sum row\[(clamp (dec posY) @[0 dec NCOLS])..(clamp (inc posY) @[0 dec NCOLS])]) ; slice coll from to
+            ]
+    ]
+
+
+tick: function [matrix][    
+    NROWS:  size matrix
+    if zero? NROWS -> return [] ; bail
+
+    NCOLS:  size (matrix\0)
+    return map.with:'x matrix 'cols [
+                map.with:'y cols 'elem [  
+                    nextval matrix  x y]  ; calculate next
+                ]
+]
+
+;print tick [[ 0 0 0] [ 0 1 0] [ 0 0 0]]

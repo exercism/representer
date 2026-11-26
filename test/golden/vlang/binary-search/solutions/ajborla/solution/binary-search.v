@@ -1,0 +1,21 @@
+// ---------------------------------------------------------------------------
+// exercism.org
+// V Track Exercise: binary-search
+// Contributed: Anthony J. Borla (ajborla@bigpond.com)
+// ---------------------------------------------------------------------------
+
+module main
+
+pub fn find(arr []int, value int) !int {
+   index := find_(arr, value, 0, arr.len - 1)
+   if index < 0 { return error('value not in array') }
+   return index
+}
+
+fn find_(arr []int, value int, left int, right int) int {
+   if left > right { return -1 }
+   mid := (left + right) / 2
+   if value < arr[mid] { return find_(arr, value, left, mid - 1) }
+   if value > arr[mid] { return find_(arr, value, mid + 1, right) }
+   return mid
+}

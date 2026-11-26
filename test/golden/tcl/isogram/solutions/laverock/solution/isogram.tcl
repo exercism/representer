@@ -1,0 +1,7 @@
+proc isIsogram {input} {
+    set res [regexp {([a-z]).*\1} [string tolower $input]]
+    if {$res == 1} {
+      return false
+    }
+    return true
+}

@@ -1,0 +1,50 @@
+(*
+    with string and slice
+    is length < 0? exit with a:new
+    is string's length < slice? exit with a:new
+    repeat
+        take the first slice characters
+        save slice
+        remove first char from front of string
+        if string's length < slice: exit with saves
+    while
+    get saved items
+*)
+
+: slice-too-small? \ s n -- T
+    1 n:< nip
+;
+
+: string-too-small? \ s n -- T 
+    swap s:len nip n:> 
+;
+
+: slice-string \ s n -- s n s
+    2dup 
+    0 swap s:slice   
+; 
+
+: shorten-string \ s n -- s n 
+    swap s:len 1 swap s:slice 
+    "" s:new ?: 
+    swap 
+;
+
+: (slices) \ s n --
+    repeat
+        slice-string 
+        r> a:push >r
+        shorten-string
+        2dup string-too-small?
+        if 2drop break then
+    while
+    
+;
+
+: slices \ s n -- a
+    a:new >r
+    2dup slice-too-small? if 2drop a:new ;then
+    2dup string-too-small? if 2drop a:new ;then
+    (slices)
+    r>   
+;

@@ -1,0 +1,11 @@
+pub fn reverse(string: ByteArray) -> ByteArray {
+    let mut reversed: ByteArray = Default::default();
+    let mut index = string.len();
+    
+    while index > 0 {
+        index -= 1;
+        reversed.append_byte(string[index]);
+    };
+    
+    reversed
+}

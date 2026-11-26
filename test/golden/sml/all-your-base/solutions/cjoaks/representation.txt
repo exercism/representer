@@ -1,0 +1,13 @@
+(file "all-your-base.sml")
+fun rebase (_, _, []) = NONE
+| rebase ( inBase : int , outBase : int , digits : int list ): int list option =
+let
+fun toBase ( sofar , 0 ) = SOME ( sofar )
+| toBase ( sofar , dec ) = toBase ( dec mod outBase :: sofar , dec div outBase )
+in
+if inBase <= 1 orelse outBase <= 1
+orelse List . exists ( fn d => d < 0 orelse d >= inBase ) digits
+orelse List . all ( fn d => d = 0 ) digits
+then NONE
+else toBase ([], foldl ( fn ( dec , digit ) => digit * inBase + dec ) 0 digits )
+end

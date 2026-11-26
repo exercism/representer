@@ -1,0 +1,10 @@
+fun isDivisible x y = (x mod y) = 0;
+
+fun isDivisibleBy4 x = isDivisible x 4;
+
+fun isDivisibleBy100 x = isDivisible x 100;
+
+fun isDivisibleBy400 x = isDivisible x 400;
+
+fun isLeapYear x = 
+    (isDivisibleBy4(x) andalso not(isDivisibleBy100(x))) orelse isDivisibleBy400(x);

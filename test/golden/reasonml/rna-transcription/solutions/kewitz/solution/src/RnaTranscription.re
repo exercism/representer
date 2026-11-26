@@ -1,0 +1,14 @@
+open List;
+
+type dna = A | C | G | T;
+type rna = A | C | G | U;
+
+let toRna = (strand: list(dna)): list(rna) =>
+  List.map((n: dna) => {
+    switch (n) {
+      | G => C
+      | C => G
+      | T => A
+      | A => U
+     }
+    }, strand)

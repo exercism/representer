@@ -1,0 +1,28 @@
+(file "nucleotide_count.ml")
+open Base
+open Result . Monad_infix
+let is_valid = function ' A' | ' C' | ' G' | ' T' -> true | _ -> false
+let count_nucleotide strain nuc =
+let rec count_nucleotide' acc = function
+| [] ->
+Ok acc
+| hd :: _ when not @@ is_valid hd ->
+Error hd
+| hd :: tl when Char . equal hd nuc ->
+count_nucleotide' ( acc + 1 ) tl
+| _ :: tl ->
+count_nucleotide' acc tl
+in
+if is_valid nuc then count_nucleotide' 0 @@ String . to_list strain
+else Error nuc
+let count_nucleotides strain =
+[ ' A' ; ' C' ; ' G' ; ' T' ]
+|> List . map ~ f : ( fun nuc -> count_nucleotide strain nuc >>| fun n -> ( nuc , n ))
+|> List . filter ~ f : ( function Ok ( _ , 0 ) -> false | _ -> true )
+|> List . fold_result ~ init : [] ~ f : ( fun acc result ->
+match result with
+| Ok pair ->
+Ok ( pair :: acc )
+| Error err ->
+Error err )
+>>| fun list -> Map . of_alist_exn ( module Char ) list

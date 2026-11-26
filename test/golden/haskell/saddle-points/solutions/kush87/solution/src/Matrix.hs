@@ -1,0 +1,28 @@
+module Matrix (saddlePoints) where
+
+import Data.Array (Array, bounds, (!))
+import Data.Maybe (catMaybes)
+
+type Index = (Int, Int)
+
+saddlePoints :: Array Index Integer -> [Index]
+saddlePoints matrix = catMaybes [saddlePoint (i, j) matrix | i <- [1 .. rows], j <- [1 .. cols]]
+  where
+    (_, (rows, cols)) = bounds matrix
+
+saddlePoint :: Index -> Array Index Integer -> Maybe Index
+saddlePoint ind arr
+  | isGreaterThanEqualToEveryElementInRow ind arr && isLessThanEqualToEveryElementInCol ind arr = Just ind
+  | otherwise = Nothing
+
+isGreaterThanEqualToEveryElementInRow :: Index -> Array Index Integer -> Bool
+isGreaterThanEqualToEveryElementInRow ind@(a, _) arr = all (<= element) [x | i' <- [1 .. cols], let x = arr ! (a, i'), x /= element]
+  where
+    element = arr ! ind
+    (_, (_, cols)) = bounds arr
+
+isLessThanEqualToEveryElementInCol :: Index -> Array Index Integer -> Bool
+isLessThanEqualToEveryElementInCol ind@(_, b) arr = all (>= element) [x | i <- [1 .. rows], let x = arr ! (i, b), x /= element]
+  where
+    element = arr ! ind
+    (_, (rows, _)) = bounds arr

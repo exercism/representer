@@ -1,0 +1,15 @@
+Class {
+	#name : #TwoFer,
+	#superclass : #Object,
+	#category : #'Exercise@TwoFer'
+}
+
+{ #category : #'#messaging' }
+TwoFer >> who [
+	^ 'One for you, one for me.'.
+]
+
+{ #category : #'#messaging' }
+TwoFer >> who: you [ 
+	^ 'One for ',you,', one for me.'.
+]

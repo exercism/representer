@@ -1,0 +1,11 @@
+module main
+
+// is_leap_year returns true if the given year is a leap year in the Gregorian calendar
+fn is_leap_year(year int) bool {
+	return match true {
+    year % 400 == 0 {true}
+    year % 100 == 0 {false}
+    year % 4 == 0 {true}
+    else {false}
+    }
+}

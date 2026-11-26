@@ -1,0 +1,14 @@
+module Leap where
+
+import Prelude
+
+isLeapYear ∷ Int → Boolean
+isLeapYear year = check
+ where
+    divides num = year `mod` num == 0
+
+    check | divides 400 = true
+          | divides 100 = false
+          | divides 4 = true
+          | otherwise = false
+ 

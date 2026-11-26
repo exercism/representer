@@ -1,0 +1,16 @@
+local 
+fun b (nil, nil) = true
+  | b (nil, bs) = false
+  | b (#"("::cs, bs) = b (cs, #"("::bs)
+  | b (#"["::cs, bs) = b (cs, #"["::bs)
+  | b (#"{"::cs, bs) = b (cs, #"{"::bs)
+  | b (#"]"::cs, #"["::bs) = b (cs, bs)
+  | b (#"]"::cs, bs) = false
+  | b (#"}"::cs, #"{"::bs) = b (cs, bs)
+  | b (#"}"::cs, bs) = false
+  | b (#")"::cs, #"("::bs) = b (cs, bs)
+  | b (#")"::cs, bs) = false
+  | b (_::cs, bs) = b (cs, bs)
+in
+  fun isBalanced s = b((explode s), nil)
+end

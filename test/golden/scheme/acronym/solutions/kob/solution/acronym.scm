@@ -1,0 +1,14 @@
+(define (acronym test)
+  (let* ((extra-breaks (string->char-set "-"))
+         (allowed-chars (char-set-union char-set:letter
+                                        char-set:digit
+                                        char-set:blank
+                                        extra-breaks))
+         (test (string-filter allowed-chars test))
+         (test (string-map (lambda (x)
+                             (if (char-set-contains? extra-breaks x)
+                                 #\space
+                                 x)) test))
+         (tokens (string-tokenize test))
+         (acronym (map (lambda (x) (char-upcase (string-ref x 0))) tokens)))
+    (list->string acronym)))

@@ -1,0 +1,216 @@
+(file "robot-simulator.ts"
+  (program
+    (export_statement
+      (class_declaration InvalidInputError
+        (class_heritage
+          (extends_clause extends Error))
+        (class_body
+          (method_definition constructor
+            (formal_parameters
+              (required_parameter message
+                (type_annotation
+                  (predefined_type string))))
+            (statement_block
+              (expression_statement
+                (call_expression super
+                  (arguments)))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this message) =
+                  (binary_expression message || "Invalid Input"))))))))
+    (type_alias_declaration type (type_identifier PLACEHOLDER_1) =
+      (union_type
+        (union_type
+          (union_type
+            (literal_type "north") |
+            (literal_type "east")) |
+          (literal_type "south")) |
+        (literal_type "west")))
+    (type_alias_declaration type (type_identifier PLACEHOLDER_2) =
+      (tuple_type
+        (predefined_type number)
+        (predefined_type number)))
+    (interface_declaration interface (type_identifier PLACEHOLDER_3)
+      (interface_body
+        (property_signature (property_identifier PLACEHOLDER_4)
+          (type_annotation (type_identifier PLACEHOLDER_1)))
+        (property_signature (property_identifier PLACEHOLDER_5)
+          (type_annotation (type_identifier PLACEHOLDER_1)))
+        (property_signature advance
+          (type_annotation
+            (array_type
+              (predefined_type number))))))
+    (interface_declaration interface (type_identifier PLACEHOLDER_6)
+      (interface_body
+        (index_signature PLACEHOLDER_7
+          (predefined_type string)
+          (type_annotation (type_identifier PLACEHOLDER_3)))))
+    (lexical_declaration const
+      (variable_declarator PLACEHOLDER_8
+        (type_annotation (type_identifier PLACEHOLDER_6)) =
+        (object
+          (pair "north"
+            (object
+              (pair (property_identifier PLACEHOLDER_4) "west")
+              (pair (property_identifier PLACEHOLDER_5) "east")
+              (pair advance
+                (array 0 1))))
+          (pair "south"
+            (object
+              (pair (property_identifier PLACEHOLDER_4) "east")
+              (pair (property_identifier PLACEHOLDER_5) "west")
+              (pair advance
+                (array 0
+                  (unary_expression - 1)))))
+          (pair "east"
+            (object
+              (pair (property_identifier PLACEHOLDER_4) "north")
+              (pair (property_identifier PLACEHOLDER_5) "south")
+              (pair advance
+                (array 1 0))))
+          (pair "west"
+            (object
+              (pair (property_identifier PLACEHOLDER_4) "south")
+              (pair (property_identifier PLACEHOLDER_5) "north")
+              (pair advance
+                (array
+                  (unary_expression - 1) 0)))))))
+    (export_statement
+      (class_declaration Robot
+        (class_body
+          (public_field_definition direction
+            (type_annotation (type_identifier PLACEHOLDER_1)))
+          (public_field_definition (property_identifier PLACEHOLDER_9)
+            (type_annotation (type_identifier PLACEHOLDER_2)))
+          (method_definition constructor
+            (formal_parameters)
+            (statement_block
+              (expression_statement
+                (assignment_expression
+                  (member_expression this direction) = "north"))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this (property_identifier PLACEHOLDER_9)) =
+                  (array 0 0)))))
+          (method_definition get bearing
+            (formal_parameters)
+            (type_annotation (type_identifier PLACEHOLDER_1))
+            (statement_block
+              (return_statement
+                (member_expression this direction))))
+          (method_definition get coordinates
+            (formal_parameters)
+            (type_annotation (type_identifier PLACEHOLDER_2))
+            (statement_block
+              (return_statement
+                (member_expression this (property_identifier PLACEHOLDER_9)))))
+          (method_definition place
+            (formal_parameters
+              (required_parameter PLACEHOLDER_10
+                (type_annotation
+                  (object_type
+                    (property_signature x
+                      (type_annotation
+                        (predefined_type number)))
+                    (property_signature y
+                      (type_annotation
+                        (predefined_type number)))
+                    (property_signature direction
+                      (type_annotation
+                        (predefined_type string)))))))
+            (statement_block
+              (if_statement
+                (unary_expression !
+                  (call_expression
+                    (member_expression
+                      (array "north" "east" "south" "west") includes)
+                    (arguments
+                      (member_expression PLACEHOLDER_10 direction))))
+                (throw_statement
+                  (new_expression InvalidInputError
+                    (arguments "invalid"))))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this direction) =
+                  (as_expression
+                    (member_expression PLACEHOLDER_10 direction) as (type_identifier PLACEHOLDER_1))))
+              (expression_statement
+                (assignment_expression
+                  (member_expression this (property_identifier PLACEHOLDER_9)) =
+                  (array
+                    (member_expression PLACEHOLDER_10 x)
+                    (member_expression PLACEHOLDER_10 y))))))
+          (method_definition evaluate
+            (formal_parameters
+              (required_parameter PLACEHOLDER_11
+                (type_annotation
+                  (predefined_type string))))
+            (statement_block
+              (variable_declaration var
+                (variable_declarator PLACEHOLDER_12 = this))
+              (expression_statement
+                (call_expression
+                  (member_expression
+                    (array
+                      (spread_element ... PLACEHOLDER_11)) forEach)
+                  (arguments
+                    (function_expression
+                      (formal_parameters
+                        (required_parameter PLACEHOLDER_13
+                          (type_annotation
+                            (predefined_type string))))
+                      (statement_block
+                        (expression_statement
+                          (call_expression
+                            (member_expression PLACEHOLDER_12 (property_identifier PLACEHOLDER_14))
+                            (arguments PLACEHOLDER_13))))))))))
+          (method_definition (property_identifier PLACEHOLDER_14)
+            (formal_parameters
+              (required_parameter PLACEHOLDER_15
+                (type_annotation
+                  (predefined_type string))))
+            (type_annotation
+              (predefined_type void))
+            (statement_block
+              (switch_statement PLACEHOLDER_15
+                (switch_body
+                  (switch_case "A"
+                    (expression_statement
+                      (call_expression
+                        (member_expression this move)
+                        (arguments)))
+                    (break_statement))
+                  (switch_case "L"
+                    (expression_statement
+                      (assignment_expression
+                        (member_expression this direction) =
+                        (member_expression
+                          (subscript_expression PLACEHOLDER_8
+                            (member_expression this direction)) (property_identifier PLACEHOLDER_4))))
+                    (break_statement))
+                  (switch_case "R"
+                    (expression_statement
+                      (assignment_expression
+                        (member_expression this direction) =
+                        (member_expression
+                          (subscript_expression PLACEHOLDER_8
+                            (member_expression this direction)) (property_identifier PLACEHOLDER_5))))
+                    (break_statement))))))
+          (method_definition move
+            (formal_parameters)
+            (statement_block
+              (lexical_declaration const
+                (variable_declarator PLACEHOLDER_16 =
+                  (member_expression
+                    (subscript_expression PLACEHOLDER_8
+                      (member_expression this direction)) advance)))
+              (expression_statement
+                (augmented_assignment_expression
+                  (subscript_expression
+                    (member_expression this (property_identifier PLACEHOLDER_9)) 0) +=
+                  (subscript_expression PLACEHOLDER_16 0)))
+              (expression_statement
+                (augmented_assignment_expression
+                  (subscript_expression
+                    (member_expression this (property_identifier PLACEHOLDER_9)) 1) +=
+                  (subscript_expression PLACEHOLDER_16 1))))))))))

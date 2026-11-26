@@ -1,0 +1,1 @@
+fun name (input: string option) = case input of NONE => "One for you, one for me." | SOME str => "One for " ^ str ^ ", one for me."

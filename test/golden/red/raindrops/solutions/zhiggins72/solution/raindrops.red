@@ -1,0 +1,16 @@
+Red [
+	description: {"Raindrops" exercise solution for exercism platform}
+	author: "" ; you can write your name here, in quotes
+]
+
+convert: function [
+	number
+] [
+	z: []
+	if (mod number 3) == 0 [append z "Pling"]
+	if (mod number 5) == 0 [append z "Plang"]
+	if (mod number 7) == 0 [append z "Plong"]
+	if empty? z [append z to-string number]
+	return rejoin z
+]
+

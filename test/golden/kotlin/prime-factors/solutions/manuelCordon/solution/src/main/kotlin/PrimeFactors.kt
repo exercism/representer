@@ -1,0 +1,22 @@
+object PrimeFactorCalculator {
+
+    fun primeFactors(int: Int): List<Int> {
+        return primeFactors(int.toLong())
+            .map { it.toInt() }
+    }
+
+    fun primeFactors(long: Long): List<Long> {
+        val factors = mutableListOf<Long>()
+        var n = long
+        var factor = 2L
+
+        while (factor <= n) {
+            while (n % factor == 0L) {
+                factors.add(factor)
+                n /= factor
+            }
+            factor += 1
+        }
+        return factors
+    }
+}

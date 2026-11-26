@@ -1,0 +1,40 @@
+(file "Allergies.vb")
+Public Class Allergies
+Private _allListAlergicItens As IList ( Of String ) = New List ( Of String )()
+Private _score As Integer
+Public Sub New ( score As Integer )
+_score = score
+AlergiesList ()
+End Sub
+Public Function AllergicTo ( allergy As String ) As Boolean
+Return _allListAlergicItens . Contains ( allergy )
+End Function
+Public Function RealScoreFunction ( realScore As Integer ) As Integer
+Dim AlergieScore As Integer = 0
+Dim bitShift As Integer = 0
+If realScore > 256 Then
+While Not AlergieScore >= realScore
+AlergieScore = 1 << bitShift
+bitShift += 1
+End While
+Dim resultRealScore As Integer = realScore - ( AlergieScore \ 2 )
+Return resultRealScore
+End If
+Return realScore
+End Function
+Public Function List () As IList ( Of String )
+Return If ( _allListAlergicItens . Count > 0 , _allListAlergicItens , New List ( Of String )())
+End Function
+Public Sub AlergiesList ()
+Dim alergenics As New List ( Of String )() From { "\"eggs\"" , "\"peanuts\"" , "\"shellfish\"" , "\"strawberries\"" , "\"tomatoes\"" , "\"chocolate\"" , "\"pollen\"" , "\"cats\"" }
+Dim realScore As Integer = RealScoreFunction ( _score )
+Dim currencyScore As Integer = 1
+Dim totalAlergicScore As Integer = 0
+For Each item As String In alergenics
+If ( currencyScore And realScore ) > 0 Then
+_allListAlergicItens . Add ( item )
+End If
+currencyScore *= 2
+Next
+End Sub
+End Class

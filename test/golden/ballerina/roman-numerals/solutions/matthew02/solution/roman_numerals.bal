@@ -1,0 +1,53 @@
+# Convert a decimal integer to a Roman numeral.
+#
+# + number - the decimal integer to convert
+# + return - the Roman numeral equivalent of the decimal value, as a string
+public function roman(int number) returns string|error {
+    if number < 1 || number > 3999 {
+        return error("out of range");
+    }
+
+    string result = "";
+    result += decimal_digit_to_roman(get_decimal_digit(number, 1000), "-", "-", "M");
+    result += decimal_digit_to_roman(get_decimal_digit(number, 100), "M", "D", "C");
+    result += decimal_digit_to_roman(get_decimal_digit(number, 10), "C", "L", "X");
+    result += decimal_digit_to_roman(get_decimal_digit(number, 1), "X", "V", "I");
+    return result;
+}
+
+# Convert a single decimal digit to a Roman number.
+#
+# Each positional decimal digit can be represented in Roman numerals using a
+# combination of three specific Latin alphabetic characters, each corresponding
+# to a different decimal value. This function takes the decimal digit and the
+# three matching letters and returns the combination of those letters which
+# represent the Roman numeral version of the decimal digit.
+#
+# + decimal_digit - the decimal digit to convert
+# + roman_high_digit - the Latin letter corresponding to the maximum possible value for the given decimal position, plus one
+# + roman_mid_digit - the Latin letter corresponding to the decimal value exactly midway between roman_high_digit and roman_low_digit
+# + roman_low_digit - the letter corresponding to the minimum possible value for the given decimal position, plus one
+# + return - the Roman numeral equivalent of the decimal digit, as a string of Latin letters
+function decimal_digit_to_roman(int decimal_digit, string:Char roman_high_digit, string:Char roman_mid_digit, string:Char roman_low_digit) returns string {
+    match decimal_digit {
+        9 => { return roman_low_digit + roman_high_digit; }
+        8 => { return roman_mid_digit + roman_low_digit + roman_low_digit + roman_low_digit; }
+        7 => { return roman_mid_digit + roman_low_digit + roman_low_digit; }
+        6 => { return roman_mid_digit + roman_low_digit; }
+        5 => { return roman_mid_digit; }
+        4 => { return roman_low_digit + roman_mid_digit; }
+        3 => { return roman_low_digit + roman_low_digit + roman_low_digit; }
+        2 => { return roman_low_digit + roman_low_digit; }
+        1 => { return roman_low_digit; }
+        _ => { return ""; }
+    }
+}
+
+# Return the digit at a specific position in a decimal number.
+#
+# + number - the decimal number from which to extract a digit
+# + position - the position of the digit to extract, should be a positive power of 10
+# + return - the digit at the given position in the number
+function get_decimal_digit(int number, int position) returns int {
+    return (number / position) % 10;
+}

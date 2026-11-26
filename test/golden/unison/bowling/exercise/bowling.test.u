@@ -1,0 +1,191 @@
+bowling.test.ex1 = verify do
+  labeled "should be able to score a game with all zeros" do
+    expected = Right (0)
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex2 = verify do
+  labeled "should be able to score a game with no strikes or spares" do
+    expected = Right (90)
+    actual = score [3,6,3,6,3,6,3,6,3,6,3,6,3,6,3,6,3,6,3,6]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex3 = verify do
+  labeled "a spare followed by zeros is worth ten points" do
+    expected = Right (10)
+    actual = score [6,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex4 = verify do
+  labeled "points scored in the roll after a spare are counted twice" do
+    expected = Right (16)
+    actual = score [6,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex5 = verify do
+  labeled "consecutive spares each get a one roll bonus" do
+    expected = Right (31)
+    actual = score [5,5,3,7,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex6 = verify do
+  labeled "a spare in the last frame gets a one roll bonus that is counted once" do
+    expected = Right (17)
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,3,7]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex7 = verify do
+  labeled "a strike earns ten points in a frame with a single roll" do
+    expected = Right (10)
+    actual = score [10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex8 = verify do
+  labeled "points scored in the two rolls after a strike are counted twice as a bonus" do
+    expected = Right (26)
+    actual = score [10,5,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex9 = verify do
+  labeled "consecutive strikes each get the two roll bonus" do
+    expected = Right (81)
+    actual = score [10,10,10,5,3,0,0,0,0,0,0,0,0,0,0,0,0]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex10 = verify do
+  labeled "a strike in the last frame gets a two roll bonus that is counted once" do
+    expected = Right (18)
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,7,1]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex11 = verify do
+  labeled "rolling a spare with the two roll bonus does not get a bonus roll" do
+    expected = Right (20)
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,7,3]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex12 = verify do
+  labeled "strikes with the two roll bonus do not get bonus rolls" do
+    expected = Right (30)
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,10]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex13 = verify do
+  labeled "last two strikes followed by only last bonus with non strike points" do
+    expected = Right (31)
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,0,1]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex14 = verify do
+  labeled "a strike with the one roll bonus after a spare in the last frame does not get a bonus" do
+    expected = Right (20)
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,3,10]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex15 = verify do
+  labeled "all strikes is a perfect game" do
+    expected = Right (300)
+    actual = score [10,10,10,10,10,10,10,10,10,10,10,10]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex16 = verify do
+  labeled "two bonus rolls after a strike in the last frame can score more than 10 points if one is a strike" do
+    expected = Right (26)
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10,6]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex17 = verify do
+  labeled "an unstarted game cannot be scored" do
+    expected = Left ( Error "Score cannot be taken until the end of the game")
+    actual = score []
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex18 = verify do
+  labeled "an incomplete game cannot be scored" do
+    expected = Left ( Error "Score cannot be taken until the end of the game")
+    actual = score [0,0]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex19 = verify do
+  labeled "bonus rolls for a strike in the last frame must be rolled before score can be calculated" do
+    expected = Left ( Error "Score cannot be taken until the end of the game")
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex20 = verify do
+  labeled "both bonus rolls for a strike in the last frame must be rolled before score can be calculated" do
+    expected = Left ( Error "Score cannot be taken until the end of the game")
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,10]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+bowling.test.ex21 = verify do
+  labeled "bonus roll for a spare in the last frame must be rolled before score can be calculated" do
+    expected = Left ( Error "Score cannot be taken until the end of the game")
+    actual = score [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,3]
+    label "expected" expected
+    label "actual" actual
+    ensureEqual expected actual
+
+test> bowling.tests = join [
+  bowling.test.ex1,
+  bowling.test.ex2,
+  bowling.test.ex3,
+  bowling.test.ex4,
+  bowling.test.ex5,
+  bowling.test.ex6,
+  bowling.test.ex7,
+  bowling.test.ex8,
+  bowling.test.ex9,
+  bowling.test.ex10,
+  bowling.test.ex11,
+  bowling.test.ex12,
+  bowling.test.ex13,
+  bowling.test.ex14,
+  bowling.test.ex15,
+  bowling.test.ex16,
+  bowling.test.ex17,
+  bowling.test.ex18,
+  bowling.test.ex19,
+  bowling.test.ex20,
+  bowling.test.ex21
+]

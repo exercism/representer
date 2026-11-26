@@ -1,0 +1,8 @@
+evenly_divides(Numerator, Denominator) :- 
+    0 =:= Numerator mod Denominator.
+
+leap(Year) :-
+    evenly_divides(Year, 4),
+    \+ evenly_divides(Year, 100), !;
+    evenly_divides(Year, 400).
+

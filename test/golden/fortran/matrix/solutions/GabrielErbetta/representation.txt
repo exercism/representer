@@ -1,0 +1,43 @@
+(file "matrix.f90")
+module matrix
+implicit none
+contains
+function to_array ( str , size ) result ( r )
+character ( * ), intent ( in ) :: str
+integer , intent ( in ) :: size
+integer , dimension ( size ) :: r
+integer :: i , j
+character ( 5 ) :: acc
+acc = "\"\""
+j = 1
+do i = 1 , LEN_TRIM ( str )
+if ( str ( i : i ) == "\",\"" ) then
+read ( acc , * ) r ( j )
+j = j + 1
+acc = "\"\""
+else if ( str ( i : i ) >= "\"0\"" .and. str ( i : i ) <= "\"9\"" ) then
+acc = TRIM ( acc ) // str ( i : i )
+end if
+end do
+read ( acc , * ) r ( j )
+end function
+function row ( matrix , dims , r_number ) result ( r )
+integer , dimension ( 2 ), intent ( in ) :: dims
+character ( len =* ), dimension ( dims ( 1 )), intent ( in ) :: matrix
+integer , intent ( in ) :: r_number
+integer , dimension ( dims ( 2 )) :: r
+r = to_array ( matrix ( r_number ), dims ( 2 ))
+end function
+function column ( matrix , dims , c_number ) result ( c )
+integer , dimension ( 2 ), intent ( in ) :: dims
+character ( len =* ), dimension ( dims ( 1 )), intent ( in ) :: matrix
+integer , intent ( in ) :: c_number
+integer , dimension ( dims ( 1 )) :: c
+integer :: i
+integer , dimension ( dims ( 2 )) :: row_array
+do i = 1 , dims ( 1 )
+row_array = to_array ( matrix ( i ), dims ( 2 ))
+c ( i ) = row_array ( c_number )
+end do
+end function
+end module

@@ -1,0 +1,40 @@
+(file "dnd_character.odin")
+package dnd_character
+import "\"core:math\""
+import "\"core:math/rand\""
+Character :: struct {
+strength: int,
+dexterity: int,
+constitution: int,
+intelligence: int,
+wisdom: int,
+charisma: int,
+hitpoints: int,
+}
+modifier :: proc(score: int) -> int {
+return math.floor_div(score - 10, 2);
+}
+NUMBERS := [6]int{ 1, 2, 3, 4, 5, 6 }
+ability :: proc() -> int {
+min, sum: int = 6, 0
+for _ in 0..<4 {
+rnd_num := rand.choice(NUMBERS[:]);
+if rnd_num < min {
+min = rnd_num
+}
+sum += rnd_num
+}
+return sum - min
+}
+character :: proc() -> Character {
+constitution := ability()
+return Character{
+strength = ability(),
+dexterity = ability(),
+constitution = constitution,
+intelligence = ability(),
+wisdom = ability(),
+charisma = ability(),
+hitpoints = 10 + modifier(constitution)
+}
+}

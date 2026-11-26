@@ -1,0 +1,14 @@
+public function roman(integer val)
+    sequence romanNumerals = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
+    sequence arabicNumbers = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
+    sequence result = ""
+
+    for i = 1 to length(arabicNumbers) do
+        while val >= arabicNumbers[i] do
+            result &= romanNumerals[i]
+            val -= arabicNumbers[i]
+        end while
+    end for
+
+    return result
+end function

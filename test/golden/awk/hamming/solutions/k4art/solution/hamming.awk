@@ -1,0 +1,22 @@
+NR == 1 { dna_1 = $0 }
+NR == 2 { dna_2 = $0 }
+
+function assert_input() {
+    if (length(dna_1) != length(dna_2)) {
+        print "strands must be of equal length";
+        exit 1;
+    }
+}
+
+END {
+    assert_input();
+
+    split(dna_1, dna_1_letters, "");
+    split(dna_2, dna_2_letters, "");
+
+    for (i = 1; i <= length(dna_1); i++) {
+        hamming += dna_1_letters[i] != dna_2_letters[i];
+    }
+
+    print int(hamming)
+}

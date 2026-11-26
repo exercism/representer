@@ -1,0 +1,22 @@
+/**
+* Your implementation of the Queen Attack exercise
+*/
+component {
+	
+	/**
+	* @returns
+	*/
+	function create(row, col) {
+		if (row >= 0 && row <= 7 && col >= 0 && col <= 7) {
+            return {row=row, col=col};
+        }
+        return false;
+	}
+
+	function canAttack(queen1, queen2) {
+        rowdiff = abs(queen1.row - queen2.row);
+        coldiff = abs(queen1.col - queen2.col);
+		return rowdiff == coldiff || rowdiff == 0 || coldiff == 0;
+	}
+
+}

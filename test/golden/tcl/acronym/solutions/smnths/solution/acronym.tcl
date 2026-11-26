@@ -1,0 +1,12 @@
+proc abbreviate {phrase} {
+    # substitute all characters but alpha-numeric ones and apostrophs by spaces
+    regsub -all {[^[:alnum:]\']} $phrase " " phrase
+
+    # concatenate the first letters of each word to the result variable
+    foreach word $phrase {
+        append result [string index $word 0]
+    }
+
+    # make the result upper-case
+    return [string toupper $result]
+}

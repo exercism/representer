@@ -1,0 +1,24 @@
+class DiamondPrinter {
+
+	fun printToList(c : Char) : List<String> {
+		val size = c.toUpperCase().toInt() - 'A'.toInt()
+		
+		return ArrayList<String>().apply {
+			for (i in 0..(size*2)) {
+				add( buildString {
+					val times = if (size < 1) 0 else Math.abs(size - i)
+					val charNo= size - times
+					repeat(times) { append(' ')}
+					if (i > 0 && i < size*2) {
+						append(getChar(charNo))
+						repeat((size - times) * 2 - 1) { append(' ')}
+					}
+					append(getChar(charNo))
+					repeat(times) { append(' ')}
+				})
+			}
+		}
+	}
+	
+	fun getChar(i : Int) = ('A'.toInt() + i).toChar()
+}

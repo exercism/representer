@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+(($1 % 2 != 0)) && exit
+a=1
+while true; do
+    if (($1 * ($1 - 2 * a) % (2 * ($1 - a)) == 0)); then
+        ((b = $1 * ($1 - 2 * a) / (2 * ($1 - a))))
+        ((a >= b)) && break
+        echo "$a,$b,$(($1 - a - b))"
+    fi
+    ((a++))
+done

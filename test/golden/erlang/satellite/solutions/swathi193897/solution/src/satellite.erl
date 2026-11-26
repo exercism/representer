@@ -1,0 +1,22 @@
+-module(satellite).
+
+-export([tree_from_traversals/2]).
+
+tree_from_traversals(PreOrder, InOrder) ->
+    true = lists:sort(PreOrder) == lists:usort(PreOrder),
+    true = lists:sort(InOrder) == lists:usort(InOrder),
+    tree_from_traversals1(PreOrder, InOrder).
+
+tree_from_traversals1([], []) ->
+    #{};
+tree_from_traversals1(PreOrder, InOrder) ->
+    [Root | PreOrder1] = PreOrder,
+    {LeftOfRoot, RightOfRoot} = split_at_root(InOrder, Root, []),
+    Left = tree_from_traversals1(PreOrder1 -- RightOfRoot, LeftOfRoot),
+    Right = tree_from_traversals1(PreOrder1 -- LeftOfRoot, RightOfRoot),
+    #{v => Root, l => Left, r => Right}.
+
+split_at_root([X | R], X, Acc) ->
+    {lists:reverse(Acc), R};
+split_at_root([X | R], Y, Acc) ->
+    split_at_root(R, Y, [X | Acc]).

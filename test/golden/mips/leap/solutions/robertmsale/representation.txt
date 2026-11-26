@@ -1,0 +1,32 @@
+(file "impl.mips")
+.globl is_leap_year
+.text
+# s7 = truth table
+is_leap_year:
+li $s7, 0
+rem $a3, $a0, 4
+bgt $a3, 0, skipa
+li $a3, 1
+la $a2, skipa
+j set_bit
+skipa: rem $a3, $a0, 100
+bgt $a3, 0, skipb
+li $a3, 2
+la $a2, skipb
+j set_bit
+skipb: rem $a3, $a0, 400
+bgt $a3, 0, skipc
+li $a3, 4
+la $a2, skipc
+j set_bit
+skipc: beq $s7, 0, notleap
+beq $s7, 3, notleap
+li $v0, 1
+li $s7, 0
+jr $ra
+notleap:li $v0, 0
+li $s7, 0
+jr $ra
+set_bit:
+or $s7, $s7, $a3
+jr $a2

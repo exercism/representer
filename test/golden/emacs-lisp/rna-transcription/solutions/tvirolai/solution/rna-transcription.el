@@ -1,0 +1,23 @@
+;;; rna-transcription.el -- RNA Transcription (exercism)
+
+;;; Commentary:
+
+
+
+;;; Code:
+
+(require 'cl-lib)
+
+(defun to-rna (dna)
+  "Convert DNA to rna."
+  (cl-map 'string #'(lambda (char)
+                      (cl-case char
+                        (?C ?G)
+                        (?G ?C)
+                        (?A ?U)
+                        (?T ?A)
+                        (t (error "Invalid input"))))
+          dna))
+
+(provide 'rna-transcription)
+;;; rna-transcription.el ends here

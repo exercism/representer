@@ -1,0 +1,52 @@
+CLASS zcl_itab_aggregation DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+  PUBLIC SECTION.
+    TYPES group TYPE c LENGTH 1.
+    TYPES: BEGIN OF initial_numbers_type,
+             group  TYPE group,
+             number TYPE i,
+           END OF initial_numbers_type,
+           initial_numbers TYPE STANDARD TABLE OF initial_numbers_type WITH EMPTY KEY.
+    TYPES: BEGIN OF aggregated_data_type,
+             group   TYPE group,
+             count   TYPE i,
+             sum     TYPE i,
+             min     TYPE i,
+             max     TYPE i,
+             average TYPE f,
+           END OF aggregated_data_type,
+           aggregated_data TYPE STANDARD TABLE OF aggregated_data_type WITH EMPTY KEY.
+    METHODS perform_aggregation
+      IMPORTING
+        initial_numbers        TYPE initial_numbers
+      RETURNING
+        VALUE(aggregated_data) TYPE aggregated_data.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+CLASS zcl_itab_aggregation IMPLEMENTATION.
+  METHOD perform_aggregation.
+    " add solution here
+    LOOP AT initial_numbers REFERENCE INTO DATA(work_data)
+              GROUP BY (  key   = work_data->group
+                          size  = GROUP SIZE )
+              ASCENDING
+              REFERENCE INTO DATA(group_data).
+      APPEND INITIAL LINE TO aggregated_data REFERENCE INTO DATA(l_item).
+      l_item->group = group_data->key.
+      l_item->count = group_data->size.
+      l_item->min = 9999999999.
+      l_item->max = 0.
+      LOOP AT GROUP group_data ASSIGNING FIELD-SYMBOL(<ls_number>).
+        l_item->sum = l_item->sum + <ls_number>-number.
+        l_item->min = nmin( val1 = l_item->min
+                            val2 = <ls_number>-number ).
+        l_item->max = nmax( val1 = l_item->max
+                            val2 = <ls_number>-number ).
+      ENDLOOP.
+      l_item->average = l_item->sum / group_data->size.
+    ENDLOOP.
+  ENDMETHOD.
+ENDCLASS.

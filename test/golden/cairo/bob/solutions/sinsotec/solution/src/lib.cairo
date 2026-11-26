@@ -1,0 +1,65 @@
+pub fn response(input: @ByteArray) -> ByteArray {
+    let mut res: ByteArray = "Fine. Be that way!";
+    let mut new = "";
+    let mut l = input.len();
+    let mut i = 0;
+    let mut flag: bool = true;
+    
+    while i < l { //  Fine. Be that way! (4)
+        if !(input.at(i).unwrap() == 32 ||
+            input.at(i).unwrap() == 10 ||
+            input.at(i).unwrap() == 9 ||    
+            input.at(i).unwrap() == 13) {
+                i = l;
+                res = "Whatever.";
+                flag = false;
+                break;
+        }
+        i += 1;
+    };
+
+    i = 0;
+    while i < l {
+        if input.at(i).unwrap() == 63 || 
+            (input.at(i).unwrap() >= 65 && input.at(i).unwrap() <= 90) || 
+            (input.at(i).unwrap() >= 97 && input.at(i).unwrap() <= 122) {
+                new.append_byte(input.at(i).unwrap());
+        };
+        i += 1;
+    };
+    
+    l = new.len();
+    i = 0;
+    if l > 0 {
+    if new.at(l - 1).unwrap() == 63 && !flag  {
+        while i < l  {
+            if !(new.at(i).unwrap() < 97) || l == 1 {
+                res = "Sure.";
+                flag = true;
+                i = l;
+                break;
+            } else {
+                res = "Calm down, I know what I'm doing!";
+            }
+            i += 1;
+        }
+    } else if !flag {
+        while i < l-1 {
+            if !(new.at(i).unwrap() < 97)  {
+                res = "Whatever.";
+                i = l;
+                break;
+            } else {
+                res = "Whoa, chill out!";
+            }
+            i += 1;
+        }
+    }
+    }
+    
+    
+    res
+    
+    
+    //panic!("implement `response`")
+}

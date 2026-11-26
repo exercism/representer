@@ -1,0 +1,18 @@
+package darts
+
+score :: proc(x, y: f64) -> int {
+	// Implement this procedure.
+
+    dist := x * x + y * y 
+
+    if dist > 10 * 10 {
+        return 0
+    } 
+    if dist > 5 * 5 {
+        return 1
+    }
+    if dist > 1 * 1 {
+        return 5 
+    }
+	return 10
+}

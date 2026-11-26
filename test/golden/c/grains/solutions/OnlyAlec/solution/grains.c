@@ -1,0 +1,18 @@
+#include "grains.h"
+
+uint64_t square(uint8_t index){
+  if(!index)
+    return 0;
+
+  uint64_t total=1;
+  for (short int i = 1; i < index; i++)
+    total*=2;
+  return total;
+}
+
+uint64_t total(void){
+  uint64_t total=1;
+  for (short int i = 1; i < 63; i++)
+    total*=2;
+  return total*total-1;
+}

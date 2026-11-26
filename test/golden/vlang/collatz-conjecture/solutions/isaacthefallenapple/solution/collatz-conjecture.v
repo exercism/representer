@@ -1,0 +1,18 @@
+module main
+
+fn collatz(number int) !int {
+    if number < 1 {
+        return error("number less than 0")
+    }
+
+    mut steps := 0
+    for n := number; n > 1; steps++ {
+        if n % 2 == 0 {
+            n /= 2
+        } else {
+            n = 3 * n + 1
+        }
+    }
+
+    return steps
+}

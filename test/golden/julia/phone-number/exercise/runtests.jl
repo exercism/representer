@@ -1,0 +1,81 @@
+# These tests are auto-generated with test data from:
+# https://github.com/exercism/problem-specifications/tree/main/exercises/phone-number/canonical-data.json
+# File last updated on 2026-10-24
+
+using Test
+
+include("phone-number.jl")
+
+@testset verbose = true "tests" begin
+    @testset "cleans the number" begin
+        @test clean("(223) 456-7890") == "2234567890"
+    end
+
+    @testset "cleans numbers with dots" begin
+        @test clean("223.456.7890") == "2234567890"
+    end
+
+    @testset "cleans numbers with multiple spaces" begin
+        @test clean("223 456   7890   ") == "2234567890"
+    end
+
+    @testset "invalid when 9 digits" begin
+        @test_throws ArgumentError clean("123456789")
+    end
+
+    @testset "invalid when 11 digits does not start with a 1" begin
+        @test_throws ArgumentError clean("22234567890")
+    end
+
+    @testset "valid when 11 digits and starting with 1" begin
+        @test clean("12234567890") == "2234567890"
+    end
+
+    @testset "valid when 11 digits and starting with 1 even with punctuation" begin
+        @test clean("+1 (223) 456-7890") == "2234567890"
+    end
+
+    @testset "invalid when more than 11 digits" begin
+        @test_throws ArgumentError clean("321234567890")
+    end
+
+    @testset "invalid with letters" begin
+        @test_throws ArgumentError clean("523-abc-7890")
+    end
+
+    @testset "invalid with punctuations" begin
+        @test_throws ArgumentError clean("523-@:!-7890")
+    end
+
+    @testset "invalid if area code starts with 0" begin
+        @test_throws ArgumentError clean("(023) 456-7890")
+    end
+
+    @testset "invalid if area code starts with 1" begin
+        @test_throws ArgumentError clean("(123) 456-7890")
+    end
+
+    @testset "invalid if exchange code starts with 0" begin
+        @test_throws ArgumentError clean("(223) 056-7890")
+    end
+
+    @testset "invalid if exchange code starts with 1" begin
+        @test_throws ArgumentError clean("(223) 156-7890")
+    end
+
+    @testset "invalid if area code starts with 0 on valid 11-digit number" begin
+        @test_throws ArgumentError clean("1 (023) 456-7890")
+    end
+
+    @testset "invalid if area code starts with 1 on valid 11-digit number" begin
+        @test_throws ArgumentError clean("1 (123) 456-7890")
+    end
+
+    @testset "invalid if exchange code starts with 0 on valid 11-digit number" begin
+        @test_throws ArgumentError clean("1 (223) 056-7890")
+    end
+
+    @testset "invalid if exchange code starts with 1 on valid 11-digit number" begin
+        @test_throws ArgumentError clean("1 (223) 156-7890")
+    end
+end

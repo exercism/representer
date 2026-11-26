@@ -1,0 +1,14 @@
+Red [
+	description: {"Reverse string" exercise solution for exercism platform}
+	author: "" ;
+]
+
+reverse: function [
+	"Reverses a string"
+	input [string!] "String to reverse"
+	return: [string!]
+] [
+	reversed: ""
+	foreach character input [reversed: rejoin [character reversed]]
+	return reversed
+]

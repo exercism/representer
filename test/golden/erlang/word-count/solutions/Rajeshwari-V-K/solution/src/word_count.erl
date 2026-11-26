@@ -1,0 +1,30 @@
+-module(word_count).
+-export([count_words/1]).
+count_words(_Sentence) -> count_words([[X] || X<-string:to_lower(_Sentence)],"",[]).
+count_words([H | T],R,Res) when H=/=[],hd(H)>=48,hd(H)=<57;hd(H)>=97,hd(H)=<122;hd(H)==39 ->
+if H=="'" -> if length(R)==0,hd(T)=/=" " -> count_words(T,R,Res);
+		length(R)>0,hd(T)==" ";T==[] -> count_words(T,R,Res);
+		true ->  count_words(T,R++H,Res)
+		end;
+	true ->
+    count_words(T,R++H,Res)
+    end;
+count_words([H | T],R,Res) when H=/=[] ->
+    count_words(T,"",[R | Res]);
+count_words(L,R,Res) ->
+    check(lists:sort([R | Res]),1,[]).
+check([H | T],A,Res) when H=/=[],length(T)>0 ->
+    case lists:member(H,T) of
+        true -> check(T,A+1,Res);
+        false -> A1={H,A},check(T,1,[A1 | Res])
+        end;
+check([H | T],A,Res) when H=/=[],length(T)==0 ->
+    case lists:member(H,T) of
+        true -> check(T,A+1,Res);
+        false -> A1={H,A},check(T,1,[A1 | Res])
+        end;
+ 
+check([H | T],A,Res) when H==[],length(T)>0 ->            
+	check(T,A,Res);     
+check(L,A,Res) ->
+    maps:from_list(Res).

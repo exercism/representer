@@ -1,0 +1,21 @@
+USING: fry kernel math math.parser ranges sequences strings ;
+IN: bunting-bonanza
+
+: alphabet-bunting ( n -- str )
+    CHAR: a tuck + [a..b) >string ;
+
+: counting-bunting ( n -- str )
+    <iota> [ 10 mod CHAR: 0 + ] "" map-as ;
+
+: bunting ( m n o p -- str )
+    [ <iota> ] 3dip '[ _ mod 0 = _ _ ? ] "" map-as ;
+
+: stripe-bunting ( n -- str )
+    2 CHAR: * CHAR: - bunting ;
+
+: marker-bunting ( n -- str )
+    5 CHAR: | CHAR: . bunting ;
+
+: valley-bunting ( -- str )
+    ! or just "5432101234" lol
+    -5 ..< 5 [ abs CHAR: 0 +  ] "" map-as ;

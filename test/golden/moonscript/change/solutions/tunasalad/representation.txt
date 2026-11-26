@@ -1,0 +1,23 @@
+(file "change.moon")
+{
+  make_change: ( t , cs ) ->
+    assert t >= 0 , "\"target can't be negative\""
+    if t == 0 then return {}
+    dp = {}
+    dp [ 0 ] = { 0 , nil }
+    for c in * cs
+      continue if c > t
+      for i = c , t
+        continue unless dp [ i - c ]
+        res = dp [ i - c ][ 1 ] + 1
+        if not dp [ i ] or dp [ i ][ 1 ] > res
+          dp [ i ] = { res , c }
+    assert dp [ t ], "\"can't make target with given coins\""
+    with res = {}
+      i = t
+      while i > 0
+        c = dp [ i ][ 2 ]
+        table.insert res , c
+        i -= c
+      table.sort res
+}

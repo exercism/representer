@@ -1,0 +1,22 @@
+section .text
+global allergic_to
+allergic_to:
+    xor eax, eax
+    bt esi, edi
+    setc al
+    ret
+
+global list
+list:
+    and edi, 0xff
+    xor rcx, rcx
+    jmp .cycle_enter
+.cycle:
+    btr edi, eax
+    mov [rsi + 4 + 4*rcx], eax
+    inc ecx
+.cycle_enter:
+    bsf eax, edi
+    jnz .cycle
+    mov [rsi], ecx
+    ret

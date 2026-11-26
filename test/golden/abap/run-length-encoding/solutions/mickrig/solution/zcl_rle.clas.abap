@@ -1,0 +1,94 @@
+CLASS zcl_rle DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    METHODS encode IMPORTING input         TYPE string
+                   RETURNING VALUE(result) TYPE string.
+
+    METHODS decode IMPORTING input         TYPE string
+                   RETURNING VALUE(result) TYPE string.
+
+ENDCLASS.
+
+
+CLASS zcl_rle IMPLEMENTATION.
+
+  METHOD encode.
+    DATA counter TYPE i.
+    DATA offset TYPE i.
+    DATA last_char TYPE string.
+    DATA current_char TYPE string.
+
+    IF input IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DO strlen( input ) TIMES.
+      current_char = input+offset(1).
+
+      IF sy-index = 1.
+        last_char = current_char.
+        counter = 1.
+        offset += 1.
+        CONTINUE.
+      ENDIF.
+
+      IF current_char EQ last_char.
+        counter += 1.
+        offset += 1.
+        CONTINUE.
+      ENDIF.
+
+      result = COND #(
+                 WHEN counter EQ 1
+                   THEN |{ result }{ last_char }|
+                 ELSE |{ result }{ counter }{ last_char }| ).
+
+      counter = 1.
+      last_char = current_char.
+      offset += 1.
+    ENDDO.
+
+    result = COND #(
+               WHEN counter EQ 1
+                 THEN |{ result }{ last_char }|
+               ELSE |{ result }{ counter }{ last_char }| ).
+  ENDMETHOD.
+
+
+  METHOD decode.
+    DATA offset TYPE i.
+    DATA current TYPE string.
+    DATA times TYPE i.
+
+    IF input IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DO strlen( input ) TIMES.
+      current = input+offset(1).
+
+      IF matches( val = current regex = '[0-9]' ).
+        times = |{ times }{ current }|.
+      ELSE.
+        IF times IS INITIAL.
+          result = |{ result }{ current }|.
+          offset += 1.
+          CONTINUE.
+        ENDIF.
+
+        DO times TIMES.
+          result = |{ result }{ current }|.
+        ENDDO.
+
+        CLEAR times.
+      ENDIF.
+
+      offset += 1.
+    ENDDO.
+  ENDMETHOD.
+
+ENDCLASS.

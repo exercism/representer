@@ -1,0 +1,14 @@
+(file "etl.sql")
+UPDATE etl
+SET result = (
+SELECT '{' || GROUP_CONCAT ( pair ) || '}'
+FROM (
+SELECT ( '"' || LOWER ( j . VALUE ) || '":' || t . KEY ) AS pair
+FROM (
+SELECT j . *
+FROM JSON_EACH ( input ) j
+) t , JSON_EACH ( t . VALUE ) j
+ORDER BY j . VALUE
+) t
+)
+;

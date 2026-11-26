@@ -1,0 +1,14 @@
+(file "src/DNA.hs")
+module DNA ( nucleotideCounts , Nucleotide ( .. )) where
+import Data.Map ( Map , fromList , fromListWith , unionWith )
+data Nucleotide = A | C | G | T deriving ( Eq , Ord , Show )
+convert :: Char -> Either String ( Nucleotide , Int )
+convert 'A' = Right ( A , 1 )
+convert 'C' = Right ( C , 1 )
+convert 'G' = Right ( G , 1 )
+convert 'T' = Right ( T , 1 )
+convert _ = Left "\"Not a Nucleotide\""
+base :: Map Nucleotide Int -> Map Nucleotide Int
+base mp = unionWith ( + ) ( fromList [( A , 0 ),( C , 0 ),( G , 0 ),( T , 0 )]) mp
+nucleotideCounts :: String -> Either String ( Map Nucleotide Int )
+nucleotideCounts xs = fmap ( base . fromListWith ( + )) ( mapM convert xs )

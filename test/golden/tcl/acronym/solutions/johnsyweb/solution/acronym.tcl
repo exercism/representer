@@ -1,0 +1,9 @@
+proc abbreviate {phrase} {
+    set initials ""
+    foreach word [split $phrase " -"] {
+        if {[regexp {[[:alpha:]]} $word letter]} {
+            append initials $letter
+        }
+    }
+    return [string toupper $initials]
+}

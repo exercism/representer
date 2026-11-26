@@ -1,0 +1,92 @@
+(file "circular-buffer.wren"
+  (source_file
+    (class_definition CircularBuffer
+      (constructor_definition new
+        (parameter_list PLACEHOLDER_1)
+        (method_body
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_2) = 0))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_3) = 0))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_4) = 0))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_5) = PLACEHOLDER_1))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_6) =
+              (call_expression
+                (method_call_expression List . filled)
+                (argument_list PLACEHOLDER_1 0))))))
+      (method_definition
+        (named_method write
+          (parameter_list PLACEHOLDER_7)
+          (method_body
+            (if_statement
+              (binary_expression (field PLACEHOLDER_4) == (field PLACEHOLDER_5))
+              (expression_statement
+                (call_expression
+                  (method_call_expression Fiber . abort)
+                  (argument_list BufferFullError))))
+            (expression_statement
+              (assignment_expression
+                (subscript_expression (field PLACEHOLDER_6)
+                  (argument_list (field PLACEHOLDER_3))) = PLACEHOLDER_7))
+            (expression_statement
+              (assignment_expression (field PLACEHOLDER_3) =
+                (binary_expression
+                  (binary_expression (field PLACEHOLDER_3) + 1) % (field PLACEHOLDER_5))))
+            (expression_statement
+              (assignment_expression (field PLACEHOLDER_4) =
+                (binary_expression (field PLACEHOLDER_4) + 1))))))
+      (method_definition
+        (named_method read
+          (parameter_list)
+          (method_body
+            (if_statement
+              (binary_expression (field PLACEHOLDER_4) == 0)
+              (expression_statement
+                (call_expression
+                  (method_call_expression Fiber . abort)
+                  (argument_list BufferEmptyError))))
+            (var_statement value =
+              (subscript_expression (field PLACEHOLDER_6)
+                (argument_list (field PLACEHOLDER_2))))
+            (expression_statement
+              (assignment_expression (field PLACEHOLDER_2) =
+                (binary_expression
+                  (binary_expression (field PLACEHOLDER_2) + 1) % (field PLACEHOLDER_5))))
+            (expression_statement
+              (assignment_expression (field PLACEHOLDER_4) =
+                (binary_expression (field PLACEHOLDER_4) - 1)))
+            (return_statement value))))
+      (method_definition
+        (named_method forceWrite
+          (parameter_list PLACEHOLDER_7)
+          (method_body
+            (expression_statement
+              (assignment_expression
+                (subscript_expression (field PLACEHOLDER_6)
+                  (argument_list (field PLACEHOLDER_3))) = PLACEHOLDER_7))
+            (expression_statement
+              (assignment_expression (field PLACEHOLDER_3) =
+                (binary_expression
+                  (binary_expression (field PLACEHOLDER_3) + 1) % (field PLACEHOLDER_5))))
+            (if_statement
+              (binary_expression (field PLACEHOLDER_4) == (field PLACEHOLDER_5))
+              (expression_statement
+                (assignment_expression (field PLACEHOLDER_2) =
+                  (binary_expression
+                    (binary_expression (field PLACEHOLDER_2) + 1) % (field PLACEHOLDER_5)))) else
+              (expression_statement
+                (assignment_expression (field PLACEHOLDER_4) =
+                  (binary_expression (field PLACEHOLDER_4) + 1)))))))
+      (method_definition
+        (named_method clear
+          (parameter_list)
+          (method_body
+            (expression_statement
+              (assignment_expression (field PLACEHOLDER_2) =
+                (assignment_expression (field PLACEHOLDER_3) =
+                  (assignment_expression (field PLACEHOLDER_4) = 0))))))))
+    (var_statement BufferFullError = "error message here")
+    (var_statement BufferEmptyError = "another error message here")))

@@ -1,0 +1,8 @@
+module main
+
+import encoding.utf8
+
+// reverse_string returns a given string in reverse order
+fn reverse_string(str string) string {
+	return utf8.reverse(str)
+}

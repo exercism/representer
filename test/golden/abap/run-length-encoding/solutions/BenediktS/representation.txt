@@ -1,0 +1,51 @@
+(file "zcl_rle.clas.abap")
+CLASS zcl_rle DEFINITION
+PUBLIC
+FINAL
+CREATE PUBLIC .
+PUBLIC SECTION .
+METHODS encode IMPORTING input TYPE string
+RETURNING VALUE ( result ) TYPE string .
+METHODS decode IMPORTING input TYPE string
+RETURNING VALUE ( result ) TYPE string .
+ENDCLASS .
+CLASS zcl_rle IMPLEMENTATION .
+METHOD encode .
+DATA : ch TYPE string ,
+prev_ch TYPE string ,
+n TYPE i .
+DO strlen ( input ) + 1 TIMES .
+ch = input ( 1 ).
+IF ch = prev_ch OR prev_ch = '' .
+n = n + 1 .
+ELSEIF n > 1 .
+result = result && "|{ n }{ prev_ch }|" .
+n = 1 .
+ELSEIF n = 1 .
+result = result && "|{ prev_ch }|" .
+ENDIF .
+prev_ch = ch .
+SHIFT input LEFT .
+ENDDO .
+ENDMETHOD .
+METHOD decode .
+DATA : n TYPE i VALUE 0 ,
+ch TYPE string .
+DO strlen ( input ) + 1 TIMES .
+ch = input + 0 ( 1 ).
+IF ch CA '123456789' .
+n = ( n * 10 ) + ch .
+ELSE .
+IF n = 0 .
+result = result && "|{ ch }|" .
+ELSE .
+DO n TIMES .
+result = result && "|{ ch }|" .
+ENDDO .
+ENDIF .
+n = 0 .
+ENDIF .
+SHIFT input LEFT .
+ENDDO .
+ENDMETHOD .
+ENDCLASS .

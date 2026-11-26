@@ -1,0 +1,1 @@
+pascal(NumRows, Rows).

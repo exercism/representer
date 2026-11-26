@@ -1,0 +1,90 @@
+(file "src/Bandwagoner.elm"
+  (file
+    (module_declaration module
+      (upper_case_qid Bandwagoner)
+      (exposing_list exposing ..))
+    (type_alias_declaration type alias Coach =
+      (type_expression
+        (record_type
+          (field_type name :
+            (type_expression
+              (type_ref
+                (upper_case_qid String))))
+          (field_type formerPlayer :
+            (type_expression
+              (type_ref
+                (upper_case_qid Bool)))))))
+    (type_alias_declaration type alias Stats =
+      (type_expression
+        (record_type
+          (field_type wins :
+            (type_expression
+              (type_ref
+                (upper_case_qid Int))))
+          (field_type losses :
+            (type_expression
+              (type_ref
+                (upper_case_qid Int)))))))
+    (type_alias_declaration type alias Team =
+      (type_expression
+        (record_type
+          (field_type name :
+            (type_expression
+              (type_ref
+                (upper_case_qid String))))
+          (field_type coach :
+            (type_expression
+              (type_ref
+                (upper_case_qid Coach))))
+          (field_type stats :
+            (type_expression
+              (type_ref
+                (upper_case_qid Stats)))))))
+    (value_declaration
+      (function_declaration_left replaceCoach
+        (lower_pattern newCoach)
+        (lower_pattern team)) =
+      (record_expr
+        (record_base_identifier team) |
+        (field coach =
+          (value_expr
+            (value_qid newCoach)))))
+    (value_declaration
+      (function_declaration_left createTeam
+        (lower_pattern name)
+        (lower_pattern stats)
+        (lower_pattern coach)) =
+      (function_call_expr
+        (value_expr
+          (upper_case_qid Team))
+        (value_expr
+          (value_qid name))
+        (value_expr
+          (value_qid coach))
+        (value_expr
+          (value_qid stats))))
+    (type_annotation rootForTeam :
+      (type_expression
+        (record_type
+          (record_base_identifier PLACEHOLDER_1) |
+          (field_type stats :
+            (type_expression
+              (type_ref
+                (upper_case_qid Stats))))) ->
+        (type_ref
+          (upper_case_qid Bool))))
+    (value_declaration
+      (function_declaration_left rootForTeam
+        (record_pattern
+          (lower_pattern stats))) =
+      (bin_op_expr
+        (field_access_expr
+          (value_expr
+            (value_qid stats))
+          (dot .) wins)
+        (operator
+          (operator_identifier >))
+        (field_access_expr
+          (value_expr
+            (value_qid stats))
+          (dot .) losses)))))

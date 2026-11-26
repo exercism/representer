@@ -1,0 +1,116 @@
+(file "affine-cipher.sml")
+type integers = { a : int , b : int }
+fun gcd ( a : int , 0 ): int = a
+| gcd ( a : int , b : int ): int =
+gcd ( b , a mod b )
+fun inverse ( a : int , n : int ): int =
+let
+fun inverse' ( t : int , t' : int , r : int , 0 ): ( int * int ) = ( r , t )
+| inverse' ( t : int , t' : int , r : int , r' : int ): ( int * int ) =
+let
+val quotient = r div r'
+in
+inverse' (
+t' ,
+t - quotient * t' ,
+r' ,
+r - quotient * r'
+)
+end
+val ( r , t ) = inverse' (
+0 , 1 , n , a
+)
+in
+if r > 1 then
+raise Fail "\"a is not invertible\""
+else if t < 0 then
+t + n
+else
+t
+end
+fun atoi ( phrase : string ): int list =
+map Char . ord ( explode phrase )
+fun itoa ( codes : int list ): string =
+implode ( map Char . chr codes )
+fun valid_code ( code : int ): bool =
+( code >= 48 andalso code <= 57 )
+orelse
+( code >= 65 andalso code <= 90 )
+orelse
+( code >= 97 andalso code <= 122 )
+fun encode ( key : integers , phrase : string ): string =
+let
+val { a : int , b : int } = key
+val m = 26
+fun encrypt ( i : int ) =
+( a * i + b ) mod m
+fun encode' ( code : int ): int =
+if ( code <= 57 ) then
+code
+else if ( code <= 90 ) then
+encrypt ( code - 65 ) + 97
+else if ( code <= 122 ) then
+encrypt ( code - 97 ) + 97
+else
+raise Fail ( "\"Invalid code: \"" ^ ( Int . toString code ))
+fun group ( value : string ): string =
+let
+val group_size = 5
+fun group' ([], _: int , acc : char list ) = acc
+| group' ( chr::rest , index : int , acc : char list ) =
+let
+val step = ( index + 1 )
+val chars =
+if ( step mod group_size ) = 0 andalso step <> ( size value ) then
+[ chr , "#\" \"" ]
+else
+[ chr ]
+in
+group' (
+rest ,
+index + 1 ,
+acc @ chars
+)
+end
+in
+implode (
+group' (( explode value ), 0 , [])
+)
+end
+in
+if gcd ( a , m ) <> 1 then
+raise Fail "\"a and m must be coprime.\""
+else
+( group
+( itoa
+( map encode'
+( List . filter valid_code ( atoi phrase ))
+)
+)
+)
+end
+fun decode ( key : integers , phrase : string ): string =
+let
+val { a : int , b : int } = key
+val m = 26
+fun decrypt ( i : int ) =
+inverse ( a , m ) * ( i - b ) mod m
+fun decode' ( code : int ): int =
+if ( code <= 57 ) then
+code
+else if ( code <= 90 ) then
+decrypt ( code - 65 ) + 97
+else if ( code <= 122 ) then
+decrypt ( code - 97 ) + 97
+else
+raise Fail ( "\"Invalid code: \"" ^ ( Int . toString code ))
+in
+if gcd ( a , m ) <> 1 then
+raise Fail "\"a and m must be coprime.\""
+else
+( itoa
+( map decode'
+( List . filter valid_code ( atoi phrase ))
+)
+)
+end

@@ -1,0 +1,20 @@
+class DiamondPrinter {
+
+    fun printToList(char: Char): List<String> {
+        val difference = char - 'A'
+        val emptyRow = {" ".repeat(difference * 2 + 1)}
+
+        val halfDiamond = (0..difference)
+                .map { emptyRow() }
+                .mapIndexed { index, row -> filledRow(row, difference, index) }
+        return halfDiamond + halfDiamond.dropLast(1).reversed()
+    }
+
+    fun filledRow(row: String, difference: Int, index: Int): String {
+        return row
+                .replaceCharAt(difference - index, 'A' + index)
+                .replaceCharAt(difference + index, 'A' + index)
+    }
+
+    fun String.replaceCharAt(position: Int, char: Char) = replaceRange(position, position + 1, char.toString())
+}

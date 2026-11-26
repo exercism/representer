@@ -1,0 +1,32 @@
+unit Pangram;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+function IsPangram(const sentence : string) : boolean;
+
+implementation
+
+uses SysUtils;
+
+type
+  Letters = Set of Char;
+
+function IsPangram(const sentence : string) : boolean;
+var
+  c: Char;
+  ls: Letters;
+
+begin
+  ls := ['A'..'Z'];
+  for c in sentence do
+  begin
+    if UpCase(c) in ls then Exclude(ls, UpCase(c));
+  end;
+  IsPangram := ls = [];
+end;
+
+
+
+end.

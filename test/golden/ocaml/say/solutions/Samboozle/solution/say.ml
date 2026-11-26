@@ -1,0 +1,103 @@
+let ( >> ) f g x = g(f(x))
+
+let explode =
+  String.to_seq >> List.of_seq
+
+let filter_empty =
+  List.filter (fun s -> not (s = ""))
+
+let rec filter_join acc words =
+  match filter_empty words with
+  | [] -> String.trim acc
+  | w :: ws -> filter_join (acc ^ " " ^ w) ws
+
+let unwords = filter_join ""
+
+let next = function
+  | "million" -> "billion"
+  | "thousand" -> "million"
+  | "" -> "thousand"
+  | _ -> invalid_arg "group"
+
+let groups acc el =
+  match acc with
+  | (g, h) as head :: tail when List.length h = 3 -> (next g, [el]) :: head :: tail
+  | (g, h) :: tail -> (g, el :: h) :: tail
+  | [] -> [("", [el])]
+
+let ones = function
+  | '1' -> "one"
+  | '2' -> "two"
+  | '3' -> "three"
+  | '4' -> "four"
+  | '5' -> "five"
+  | '6' -> "six"
+  | '7' -> "seven"
+  | '8' -> "eight"
+  | '9' -> "nine"
+  | _ -> invalid_arg "ones"
+
+let tens = function
+  | '0' -> (function
+            | '0' -> ""
+            | d -> ones d)
+  | '1' -> (function
+            | '0' -> "ten"
+            | '1' -> "eleven"
+            | '2' -> "twelve"
+            | '3' -> "thirteen"
+            | '4' -> "fourteen"
+            | '5' -> "fifteen"
+            | '6' -> "sixteen"
+            | '7' -> "seventeen"
+            | '8' -> "eighteen"
+            | '9' -> "nineteen"
+            | _ -> invalid_arg "teens")
+  | '2' -> (function
+           | '0' -> "twenty"
+           | d -> "twenty-" ^ (ones d))
+  | '3' -> (function
+           | '0' -> "thirty"
+           | d -> "thirty-" ^ (ones d))
+  | '4' -> (function
+           | '0' -> "forty"
+           | d -> "forty-" ^ (ones d))
+  | '5' -> (function
+           | '0' -> "fifty"
+           | d -> "fifty-" ^  (ones d))
+  | '6' -> (function
+           | '0' -> "sixty"
+           | d -> "sixty-" ^ (ones d))
+  | '7' -> (function
+           | '0' -> "seventy"
+           | d -> "seventy-" ^ (ones d))
+  | '8' -> (function
+           | '0' -> "eighty"
+           | d -> "eighty-" ^ (ones d))
+  | '9' -> (function
+           | '0' -> "ninety"
+           | d -> "ninety-" ^ (ones d))
+  | _ -> invalid_arg "tens outer"
+
+let hundreds = function
+  | '0' -> ""
+  | d -> unwords [ones d; "hundred"]
+
+let process (g, digits) =
+  match digits with
+  | '0' :: '0' :: '0' :: [] | '0' :: '0' :: [] | '0' :: [] -> ""
+  | h :: t :: o :: [] -> unwords [hundreds h; tens t o; g]
+  | t :: o :: [] -> unwords [tens t o; g] 
+  | o :: [] -> unwords [ones o; g] 
+  | _ -> ""
+
+let in_english i =
+  if i < 0L || i > 999_999_999_999L
+  then Error "input out of range"
+  else match Int64.to_string i |> explode |> List.rev with
+       | ['0'] -> Ok "zero"
+       | l ->
+         List.fold_left groups [] l
+         |> List.map process
+         |> (fun l -> Ok (unwords l))
+

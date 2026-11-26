@@ -1,0 +1,20 @@
+#!/bin/bash
+
+raindrops () {
+	output="$1"
+	if (( $1 % 3 == 0)); then
+		echo -ne "Pling"
+		output=""
+	fi
+	if (( $1 % 5 == 0)); then
+		echo -ne "Plang"
+		output=""
+	fi
+	if (( $1 % 7 == 0)); then
+		echo -ne "Plong"
+		output=""
+	fi
+	echo "$output"
+}
+
+raindrops "$@"

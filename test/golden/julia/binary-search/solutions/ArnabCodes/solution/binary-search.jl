@@ -1,0 +1,7 @@
+binarysearch(sortedlist, x) = isempty(sortedlist) ? (1:0) : binsearch(sortedlist, 1:length(sortedlist), x)
+
+function binsearch(li, r, x)
+    mid = (r[end] + r[1]) ÷ 2
+    r = li[mid]==x ? (return mid:mid) : (li[mid] < x ? (mid+1:r[end]) : (r[1]:mid-1))
+    isempty(r) ?  r  : binsearch(li, r, x)
+end

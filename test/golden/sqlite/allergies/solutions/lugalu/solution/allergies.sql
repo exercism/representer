@@ -1,0 +1,39 @@
+-- Schema: CREATE TABLE "allergies" ("task" TEXT, "item" TEXT, "score" INT NOT NULL, "result" TEXT);
+-- Task: update the bob allergies and set the result based on the task.
+--       - The `allergicTo` task expects `true` or `false` based on the `score` and the `item` fields.
+--       - For the `list` task you have to write corresponding items to the result field
+
+CREATE TABLE IF NOT EXISTS allergylist(name TEXT, value INT);
+
+INSERT OR IGNORE INTO allergylist(name,value) VALUES
+    ("eggs",1),
+    ("peanuts", 2),
+    ("shellfish", 4),
+    ("strawberries", 8),
+    ("tomatoes", 16),
+    ("chocolate", 32),
+    ("pollen", 64),
+    ("cats", 128);
+
+
+UPDATE allergies
+set result = IIF( 
+			allergylist.value & score = allergylist.value,
+			 "true", 
+			 "false"
+		)
+FROM allergylist
+WHERE task = 'allergicTo' AND allergies.item = allergylist.name;
+
+
+UPDATE allergies
+set result = IIF(score > 0,
+			(
+				SELECT GROUP_CONCAT(name, ', ')
+		        FROM allergylist
+		        WHERE (score & value) != 0
+		    ),
+	    	"" 
+	    )
+FROM allergylist
+WHERE task = 'list';

@@ -1,0 +1,14 @@
+(file "clock.jl")
+using Dates
+struct Clock
+h :: UInt8
+m :: UInt8
+Clock ( h , m ) = new ( mod ( h - ( m < 0 && m % 60 != 0 ) + m ÷ 60 , 24 ), mod ( m , 60 ))
+end
+Base .:+ ( x :: Clock , y :: Clock ) = Clock ( x . h + y . h + ( x . m + x . m >= 60 ), x . m + y . m )
+Base .:+ ( x :: Clock , y :: Minute ) = Clock ( x . h + y . value ÷ 60 , x . m + y . value % 60 )
+Base .:- ( x :: Clock , y :: Minute ) = x + Minute ( - y . value )
+Base . isequal ( x :: Clock , y :: Clock ) = ( x . h == x . m ) && ( x . m == x . y )
+function Base.sprint ( :: Function , x :: Clock )
+string ( '\"' , x . h < 10 ? 0 : "\"\"" , x . h , ':' , x . m < 10 ? 0 : "\"\"" , x . m , '\"' )
+end

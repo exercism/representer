@@ -1,0 +1,32 @@
+open Base
+
+let collapse = function
+  | [] -> ""
+  | [c] -> Char.to_string c
+  | (c::_) as cc -> Printf.sprintf "%d%c" (List.length cc) c
+
+let encode s =
+  String.to_list s
+  |> List.group ~break:Char.((<>))
+  |> List.map ~f:collapse
+  |> String.concat
+
+let decode s =
+  let num digits =
+    Int.max 1
+    @@ List.foldi digits
+      ~init:0
+      ~f:(fun i sum n -> n * 10 ** i + sum)
+  in
+  let _, res =
+    String.fold s
+      ~init:([], [])
+      ~f:(fun (digits, res) c ->
+          if Char.is_digit c then
+            (Char.get_digit_exn c) :: digits, res
+          else
+            [], (String.make (num digits) c) :: res
+        )
+  in
+  List.rev res
+  |> String.concat

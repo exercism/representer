@@ -1,0 +1,13 @@
+fun isLeapYear year =
+  let
+    fun isDivisibleBy4 n = n mod 4 = 0
+    fun isDivisibleBy100 n = n mod 100 = 0
+    fun isDivisibleBy400 n = n mod 400 = 0
+  in
+    case (isDivisibleBy4 year, isDivisibleBy100 year, isDivisibleBy400 year) of
+         (false, _, _) => false
+       | (true, true, true) => true
+       | (true, true, false) => false
+       | (true, _, _) => true
+  end
+

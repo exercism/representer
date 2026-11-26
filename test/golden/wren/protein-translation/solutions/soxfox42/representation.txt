@@ -1,0 +1,94 @@
+(file "protein-translation.wren"
+  (source_file
+    (class_definition Tools
+      (method_definition static
+        (getter_definition codons
+          (method_body
+            (if_statement
+              (binary_expression (static_field PLACEHOLDER_1) == null)
+              (block
+                (var_statement PLACEHOLDER_2 =
+                  (list_literal
+                    (list_literal
+                      (list_literal "AUG") "Methionine")
+                    (list_literal
+                      (list_literal "UUU" "UUC") "Phenylalanine")
+                    (list_literal
+                      (list_literal "UUA" "UUG") "Leucine")
+                    (list_literal
+                      (list_literal "UCU" "UCC" "UCA" "UCG") "Serine")
+                    (list_literal
+                      (list_literal "UAU" "UAC") "Tyrosine")
+                    (list_literal
+                      (list_literal "UGU" "UGC") "Cysteine")
+                    (list_literal
+                      (list_literal "UGG") "Tryptophan")
+                    (list_literal
+                      (list_literal "UAA" "UAG" "UGA") "STOP")))
+                (expression_statement
+                  (assignment_expression (static_field PLACEHOLDER_1) =
+                    (map_literal)))
+                (for_statement mapping PLACEHOLDER_2
+                  (for_statement codon
+                    (subscript_expression mapping
+                      (argument_list 0))
+                    (expression_statement
+                      (assignment_expression
+                        (subscript_expression (static_field PLACEHOLDER_1)
+                          (argument_list codon)) =
+                        (subscript_expression mapping
+                          (argument_list 1))))))))
+            (return_statement (static_field PLACEHOLDER_1)))))
+      (method_definition static
+        (named_method translate
+          (parameter_list)
+          (method_body
+            (return_statement
+              (list_literal)))))
+      (method_definition static
+        (named_method translate
+          (parameter_list PLACEHOLDER_3)
+          (method_body
+            (var_statement PLACEHOLDER_4 =
+              (list_literal))
+            (var_statement PLACEHOLDER_5 = 0)
+            (var_statement PLACEHOLDER_6 =
+              (method_call_expression PLACEHOLDER_3 . count))
+            (while_statement while
+              (binary_expression PLACEHOLDER_5 < PLACEHOLDER_6)
+              (block
+                (if_statement
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_5 + 3) > PLACEHOLDER_6)
+                  (expression_statement
+                    (call_expression
+                      (method_call_expression Fiber . abort)
+                      (argument_list "Invalid codon"))))
+                (var_statement codon =
+                  (subscript_expression PLACEHOLDER_3
+                    (argument_list
+                      (binary_expression PLACEHOLDER_5 ...
+                        (binary_expression PLACEHOLDER_5 + 3)))))
+                (if_statement
+                  (unary_expression !
+                    (call_expression
+                      (method_call_expression codons . containsKey)
+                      (argument_list codon)))
+                  (expression_statement
+                    (call_expression
+                      (method_call_expression Fiber . abort)
+                      (argument_list "Invalid codon"))))
+                (if_statement
+                  (binary_expression
+                    (subscript_expression codons
+                      (argument_list codon)) == "STOP") break)
+                (expression_statement
+                  (call_expression
+                    (method_call_expression PLACEHOLDER_4 . add)
+                    (argument_list
+                      (subscript_expression codons
+                        (argument_list codon)))))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_5 =
+                    (binary_expression PLACEHOLDER_5 + 3)))))
+            (return_statement PLACEHOLDER_4)))))))

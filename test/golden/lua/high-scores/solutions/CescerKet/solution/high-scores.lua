@@ -1,0 +1,22 @@
+return 
+    function(scores) 
+        local latest = scores[#scores]
+        local sorted = {}
+        table.move(scores, 1, #scores, 1, sorted)
+        table.sort(sorted)
+        local personal_best = sorted[#sorted]
+        local personal_top_three = {}
+        for i = #sorted, #sorted - 2, -1 do
+            if sorted[i] then
+                personal_top_three[#personal_top_three+1] = sorted[i]
+            end
+        end
+        
+        return { 
+            scores = function() return scores end,
+            latest = function() return latest end,
+            personal_best = function() return personal_best end,
+            personal_top_three = function() return personal_top_three end
+        }
+    end
+

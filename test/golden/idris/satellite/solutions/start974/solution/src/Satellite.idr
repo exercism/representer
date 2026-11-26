@@ -1,0 +1,22 @@
+module Satellite
+
+import Data.List
+
+public export
+data Tree : Type where
+    Leaf : Tree
+    Branch : Tree -> Char -> Tree -> Tree
+
+export
+treeFromTraversals : List Char -> List Char -> Maybe Tree
+treeFromTraversals [] [] = Just Leaf
+treeFromTraversals [] _  = Nothing
+treeFromTraversals _  [] = Nothing
+treeFromTraversals (x :: pre) ino = do
+    guard $ not (elem x pre)
+    let (lin, rin') = break (== x) ino
+        (lpre, rpre) = splitAt (length lin) pre
+    rin <- tail' rin'
+    tl <- treeFromTraversals lpre lin
+    tr <- treeFromTraversals rpre rin
+    pure (Branch tl x tr)

@@ -1,0 +1,14 @@
+module main
+
+const (
+    colors = ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"]
+)
+
+fn color_code(color string) int {
+    for i, v in colors {
+        if v == color {
+            return i
+        }
+    }
+    return 0
+}

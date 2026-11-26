@@ -1,0 +1,19 @@
+# Change any of the following NamedTuple values to true to 
+# enable testing different bonus tasks
+tested_benus_tasks = (rev = false, by = false, lt = false, multiple_matches = false)
+function binarysearch(list, key)
+    high = length(list)
+    low = 1
+    while high >= low
+        index = trunc(Int, (high + low/2))
+        if key > list[index]
+            low = index + 1
+        elseif key < list[index]
+            high = index - 1
+        else
+            return index:index
+        end
+    end
+ 
+    return low:high
+end

@@ -1,0 +1,16 @@
+namespace Raindrops
+
+def convert (number : Nat) : String := Id.run do
+  let mut result := ""
+  if number % 3 == 0 then
+    result := result.append "Pling"
+  if number % 5 == 0 then
+    result := result.append "Plang"
+  if number % 7 == 0 then
+    result := result.append "Plong"
+  if result.isEmpty then
+    toString number
+  else
+    result
+
+end Raindrops

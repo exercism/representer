@@ -1,0 +1,37 @@
+# submit
+mutable struct Clock
+    hour::Int
+    minute::Int
+    function Clock(hour::Int, minute::Int)
+        mhour, minute = divrem(minute, 60)
+        hour += mhour
+        if minute < 0
+            minute += 60
+            hour -= 1
+        end
+        mday, hour = divrem(hour, 24)
+        if hour < 0
+            hour += 24
+        end
+        return new(hour, minute)
+    end
+end
+
+import Base: ==, +, -
+function ==(x::Clock, y::Clock)
+    x.hour==y.hour && x.minute==y.minute
+end
+
+function +(x::Clock, y::Minute)
+    return Clock(x.hour, x.minute+y.value)
+end
+
+function -(x::Clock, y::Minute)
+    return Clock(x.hour, x.minute-y.value)
+end
+
+function Base.show(io::IO, z::Clock)
+    shour = z.hour < 10 ? join([0, z.hour]) : z.hour
+    smin = z.minute < 10 ? join([0, z.minute]) : z.minute
+    print(io, "\"", shour, ":", smin, "\"")
+end

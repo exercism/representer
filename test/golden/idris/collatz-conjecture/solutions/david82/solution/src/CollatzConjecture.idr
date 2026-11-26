@@ -1,0 +1,20 @@
+module CollatzConjecture
+
+-- Helper function to perform one step of the Collatz sequence
+step : Int -> Int
+step n = if n `mod` 2 == 0
+         then n `div` 2
+         else 3 * n + 1
+
+-- Helper function to count steps recursively
+countSteps : Int -> Int -> Int
+countSteps 1 acc = acc
+countSteps n acc = countSteps (step n) (acc + 1)
+
+export
+steps : Int -> Maybe Int
+steps number = 
+  if number <= 0
+  then Nothing
+  else Just (countSteps number 0)
+  

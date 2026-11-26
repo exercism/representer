@@ -1,0 +1,24 @@
+-module(simple_linked_list).
+-export([cons/2, count/1, empty/0, from_native_list/1,
+     head/1, reverse/1, tail/1, to_native_list/1]).
+empty() -> {}.
+cons(Elt, {}) -> {Elt};
+cons(Elt, List) -> {Elt, List}.
+head({}) -> error(badarg);
+head({Head}) -> Head;
+head({Head, _}) -> Head.
+tail({}) -> {};
+tail({_}) -> {};
+tail({_, Tail}) -> Tail.
+reverse(List) -> reverse(List, empty()).
+reverse({}, Result) -> Result;
+reverse(List, Result) -> reverse(tail(List), cons(head(List), Result)).
+count(List) -> count(List, 0).
+count({}, Count) -> Count;
+count(List, Count) -> count(tail(List), Count + 1).
+to_native_list(List) -> to_native_list(List, []).
+to_native_list({}, Result) -> lists:reverse(Result);
+to_native_list(List, Result) -> to_native_list(tail(List), [head(List) | Result]).
+from_native_list(Native_list) -> from_native_list(lists:reverse(Native_list), empty()).
+from_native_list([], Result) -> Result;
+from_native_list([H | T], Result) -> from_native_list(T, cons(H, Result)).

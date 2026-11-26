@@ -1,0 +1,32 @@
+-- Schema: CREATE TABLE "difference-of-squares" ("number" INT", property" TEXT, "result" INT);
+-- Task: update the difference-of-squares table and set the result based on the number and property fields.
+
+WITH RECURSIVE factorial_sum(n, result) AS (
+    SELECT 1, 1 * 1
+    UNION ALL
+    SELECT n + 1, (n + 1) * (n + 1) + result
+    FROM factorial_sum
+    WHERE n <= "difference-of-squares".number
+), 
+factorial_square(n, result) AS (
+    SELECT 1, 1
+    UNION ALL
+    SELECT n + 1, result + (n + 1)
+    FROM factorial_square
+    WHERE n < "difference-of-squares".number
+)
+
+UPDATE "difference-of-squares"
+SET result = (
+    CASE
+        WHEN property = "sumOfSquares" THEN (
+            SELECT result FROM factorial_sum WHERE n = "difference-of-squares".number
+        )
+        WHEN property = "squareOfSum" THEN (
+            SELECT result * result FROM factorial_square WHERE n = "difference-of-squares".number
+        )
+        WHEN property = "differenceOfSquares" THEN (SELECT result * result FROM factorial_square WHERE n = "difference-of-squares".number) - (SELECT result FROM factorial_sum WHERE n = "difference-of-squares".number) 
+    END
+);
+
+SELECT * FROM "difference-of-squares";

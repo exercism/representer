@@ -1,0 +1,243 @@
+(file "Direction.class.st")
+Class {
+#name : #Direction ,
+#superclass : #Object ,
+#classInstVars : [
+'directions'
+] ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'as yet unclassified'" }
+Direction class >> advanceFrom: aPosition [
+self subclassResponsibility
+]
+{ #category : #printing }
+Direction class >> asString [
+self subclassResponsibility
+]
+{ #category : # "'as yet unclassified'" }
+Direction class >> directionToLeft [
+self subclassResponsibility
+]
+{ #category : # "'as yet unclassified'" }
+Direction class >> directionToRight [
+self subclassResponsibility
+]
+{ #category : # "'instance creation'" }
+Direction class >> for: aDirection [
+^ directions at: aDirection
+]
+{ #category : #initialization }
+Direction class >> initialize [
+directions := Dictionary newFrom: {
+( 'north' -> North ).
+( 'east' -> East ).
+( 'south' -> South ).
+( 'west' -> West ) }
+]
+(file "East.class.st")
+Class {
+#name : #East ,
+#superclass : #Direction ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'as yet unclassified'" }
+East class >> advanceFrom: aPosition [
+^ Point x: aPosition x + 1 y: aPosition y
+]
+{ #category : #printing }
+East class >> asString [
+^ 'east'
+]
+{ #category : # "'as yet unclassified'" }
+East class >> directionToLeft [
+^ North
+]
+{ #category : # "'as yet unclassified'" }
+East class >> directionToRight [
+^ South
+]
+(file "North.class.st")
+Class {
+#name : #North ,
+#superclass : #Direction ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'as yet unclassified'" }
+North class >> advanceFrom: aPosition [
+^ Point x: aPosition x y: aPosition y + 1
+]
+{ #category : #printing }
+North class >> asString [
+^ 'north'
+]
+{ #category : # "'as yet unclassified'" }
+North class >> directionToLeft [
+^ West
+]
+{ #category : # "'as yet unclassified'" }
+North class >> directionToRight [
+^ East
+]
+(file "Robot.class.st")
+Class {
+#name : #Robot ,
+#superclass : #Object ,
+#instVars : [
+'direction' ,
+'position'
+] ,
+#classInstVars : [
+'pointZero'
+] ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'as yet unclassified'" }
+Robot class >> directions [
+^ Dictionary newFrom: {
+( 0 -> 'north' ).
+( 1 -> 'east' ).
+( 2 -> 'south' ).
+( 3 -> 'west' ) }
+]
+{ #category : #initialization }
+Robot class >> initialize [
+pointZero := Point x: 0 y: 0
+]
+{ #category : #accessing }
+Robot class >> pointZero [
+^ pointZero
+]
+{ #category : # "'instance creation'" }
+Robot class >> positioned: aPosition facing: aDirection [
+| robot |
+robot := self new .
+robot positioned: aPosition facing: aDirection .
+^ robot
+]
+{ #category : #initialization }
+Robot class >> setUp [
+| temporary variable names statements |
+statements
+]
+{ #category : #accessing }
+Robot >> advance [
+position := direction advanceFrom: position
+]
+{ #category : #accessing }
+Robot >> direction [
+^ direction
+]
+{ #category : #initialization }
+Robot >> initialize [
+position := self class pointZero .
+direction := North
+]
+{ #category : #accessing }
+Robot >> position [
+^ position
+]
+{ #category : # "'instance creation'" }
+Robot >> positioned: aPosition facing: aDirection [
+position := aPosition .
+direction := aDirection .
+]
+{ #category : #accessing }
+Robot >> turnLeft [
+direction := direction directionToLeft
+]
+{ #category : #accessing }
+Robot >> turnRight [
+direction := direction directionToRight
+]
+(file "RobotSimulator.class.st")
+Class {
+#name : #RobotSimulator ,
+#superclass : #Object ,
+#instVars : [
+'robot' ,
+'instructions'
+] ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'as yet unclassified'" }
+RobotSimulator >> dictionaryRepresentation: aRobot [
+^ Dictionary new
+at: 'direction' put: aRobot direction asString ;
+at: 'position' put: ( Dictionary new
+at: 'x' put: aRobot position x ;
+at: 'y' put: aRobot position y ;
+yourself );
+yourself
+]
+{ #category : #initialization }
+RobotSimulator >> initialize [
+instructions := Dictionary new
+at: $R put: [ robot turnRight ];
+at: $L put: [ robot turnLeft ];
+at: $A put: [ robot advance ];
+yourself
+]
+{ #category : # "'as yet unclassified'" }
+RobotSimulator >> sendInstructions: aString [
+aString do: [ : c | ( instructions at: c ) value ].
+^ self dictionaryRepresentation: robot
+]
+{ #category : # "'as yet unclassified'" }
+RobotSimulator >> startFacing: aDirection atPosition: aPosition [
+robot := Robot
+positioned:
+( Point x: ( aPosition at: 'x' ) y: ( aPosition at: 'y' ))
+facing: ( Direction for: aDirection ).
+^ self dictionaryRepresentation: robot
+]
+(file "South.class.st")
+Class {
+#name : #South ,
+#superclass : #Direction ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'as yet unclassified'" }
+South class >> advanceFrom: aPosition [
+^ Point x: aPosition x y: aPosition y - 1
+]
+{ #category : #printing }
+South class >> asString [
+^ 'south'
+]
+{ #category : # "'as yet unclassified'" }
+South class >> directionToLeft [
+^ East
+]
+{ #category : # "'as yet unclassified'" }
+South class >> directionToRight [
+^ West
+]
+(file "TestResults.txt")
+Tested on: 2022 - 05 - 10 18 : 36
+18 run, 18 passes, 0 skipped, 0 failures, 0 errors .
+Used OS/Platform: Mac OS 1000 arm64
+Image version: Pharo10 . 0.0 build: 518 ( 64 Bit )
+VM version: v9 . 0.14 - Commit: 93600e14 - Date: 2022 -03 - 30 16 : 40 : 05 + 0200
+(file "West.class.st")
+Class {
+#name : #West ,
+#superclass : #Direction ,
+#category : # 'Exercise@RobotSimulator'
+}
+{ #category : # "'as yet unclassified'" }
+West class >> advanceFrom: aPosition [
+^ Point x: aPosition x - 1 y: aPosition y
+]
+{ #category : #printing }
+West class >> asString [
+^ 'west'
+]
+{ #category : # "'as yet unclassified'" }
+West class >> directionToLeft [
+^ South
+]
+{ #category : # "'as yet unclassified'" }
+West class >> directionToRight [
+^ North
+]

@@ -1,0 +1,34 @@
+unit Acronym;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+function abbreviate(const phrase: string) : string;
+
+implementation
+
+uses SysUtils;
+
+function abbreviate(const phrase: string) : string;
+var
+   c       : char;
+   capture : boolean;
+   value   : String;
+begin
+   capture := True;
+   value := '';
+   for c in phrase do begin
+      case (c) of
+        ' ', '-' : capture := True;
+        '_': ;
+      else
+         if capture then
+           value := Concat(value, UpperCase(c));
+         capture := False;
+      end;
+   end;
+   Result := value;
+end;
+
+end.

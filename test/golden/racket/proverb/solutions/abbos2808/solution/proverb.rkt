@@ -1,0 +1,16 @@
+#lang racket
+
+(provide recite)
+
+(define (recite lst)
+  (define (iter items result)
+    (if (empty? items)
+        result
+        (if (empty? (rest items))
+            (append result
+                    (list (format "And all for the want of a ~a." (first lst))))
+            (iter (rest items) (append result (list (format "For want of a ~a the ~a was lost." 
+                                                            (first items) (second items))))))))
+  (iter lst empty))
+
+       

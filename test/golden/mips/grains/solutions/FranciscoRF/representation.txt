@@ -1,0 +1,28 @@
+(file "impl.mips")
+.globl square
+.data
+mask: .word 0x80000000 # bitmask to keep hsb
+.text
+# v0 low bits return
+# v1 high bits return
+# t0 helper for calculating low bits
+# t1 helper for calculating high bits
+# t2 bitmask to keep highest low bit
+square:
+li $v0, 0 # reset return (lows)
+li $v1, 0 # reset return (highs)
+li $t0, 1 # load starting point into $t0
+li $t1, 0 # reset $t1
+lw $t2, mask # load bitmask into $t2
+loop:
+ble $a0, $zero, return # return if argument variable is less than or equal to zero
+sll $v1, $v1, 1 # shift high bits in return register
+or $v1, $v1, $t1 # write lowest high bit into high bits
+add $v0, $t0, $zero # write low bits to return register
+addi $a0, $a0, -1 # decrement argument variable by 1
+and $t1, $t0, $t2 # save (low bits') hsb in temp register
+sne $t1, $t1, $zero # write hsb into temp register as lsb
+sll $t0, $t0, 1 # shift low bits in temp register
+j loop
+return:
+jr $ra # return after loop is done

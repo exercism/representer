@@ -1,0 +1,23 @@
+(import (rnrs))
+
+(define (complement dna)
+  (cond 
+    [(equal? dna "G") "C"]
+    [(equal? dna "C") "G"]
+    [(equal? dna "T") "A"]
+    [(equal? dna "A") "U"]
+    [else ""])
+)
+
+(define (complements seq)
+  (if (<= (string-length seq) 1)
+    (complement seq)
+    (string-append (complement (substring seq 0 1))
+      (complements (substring seq 1 (string-length seq))))
+  )
+)
+
+(define (dna->rna dna)
+  (complements dna)
+)
+

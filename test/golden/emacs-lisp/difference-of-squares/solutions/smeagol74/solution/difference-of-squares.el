@@ -1,0 +1,28 @@
+;;; difference-of-squares.el --- Difference of Squares (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+;;; Code:
+
+(defun sum-of-squares (n)
+  "Calculates sum of squares of numbers from 1 to N."
+  (let ((res 0))
+    (dotimes (i n)
+      (setq res (+ res (expt (1+ i) 2))))
+    res))
+
+(defun square-of-sum (n)
+  "Calculates square of sum of numbers from 1 to N."
+  (let ((res 0))
+    (dotimes (i n)
+      (setq res (+ res i 1)))
+    (expt res 2)))
+
+(defun difference (n)
+  "Calculates difference of square of sum and sum of squares of numbers from 1 to N."
+  (let ((sum-of-s (sum-of-squares n))
+        (square-of-s (square-of-sum n)))
+    (- square-of-s sum-of-s)))
+
+
+(provide 'difference-of-squares)
+;;; difference-of-squares.el ends here

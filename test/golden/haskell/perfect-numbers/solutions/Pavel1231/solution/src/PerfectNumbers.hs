@@ -1,0 +1,20 @@
+module PerfectNumbers
+  ( Classification(..)
+  , classify
+  ) where
+import Data.List ( nub )
+data Classification
+  = Abundant
+  | Deficient
+  | Perfect
+  deriving (Eq, Show)
+classify :: Int -> Maybe Classification
+classify n
+  | n <= 0       = Nothing
+  | aliquot  < n = Just Deficient
+  | aliquot  > n = Just Abundant
+  | aliquot == n = Just Perfect
+  where
+    aliquot  = sum . factors $ n
+    factors  = nub . filter factor . enumFromTo 1 . pred
+    factor x = n `mod` x == 0

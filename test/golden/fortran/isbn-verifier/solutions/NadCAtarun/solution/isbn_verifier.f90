@@ -1,0 +1,67 @@
+module isbn_verifier
+    implicit none
+
+contains
+
+    integer function value(char, index)
+        character, intent(in) :: char
+        integer, intent(in) :: index
+
+        select case (char)
+        case ('0')
+            value = 0
+        case ('1')
+            value = 1
+        case ('2')
+            value = 2
+        case ('3')
+            value = 3
+        case ('4')
+            value = 4
+        case ('5')
+            value = 5
+        case ('6')
+            value = 6
+        case ('7')
+            value = 7
+        case ('8')
+            value = 8
+        case ('9')
+            value = 9
+        case ('X')
+            if (index == 10) then
+                value = 10
+            else
+                value = -1
+            end if
+        case default
+            value = -1
+        end select
+    end function value
+
+    function isValid(isbn) result(valid)
+        character(*), intent(in) :: isbn
+        logical :: valid
+        integer :: i, d, sum, count
+
+        valid = .false.
+
+        count = 0
+        sum = 0
+        do i = 1, len(isbn)
+            if (isbn(i:i) /= '-') then
+                d = value(isbn(i:i), count + 1)
+
+                if (d == -1) then
+                    return
+                end if
+
+                sum = sum + d * (10 - count)
+                count = count + 1
+            end if
+        end do
+
+        valid = (count == 10 .and. mod(sum, 11) == 0)
+    end function isValid
+
+end module isbn_verifier

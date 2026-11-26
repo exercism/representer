@@ -1,0 +1,11 @@
+return function(dna)
+
+   local RNA = { G='C', C='G', T='A', A='U' }
+   local result = '';
+
+   for idx in dna:gmatch("[GCTA]") do
+      result = result .. RNA[idx]
+   end
+
+   return result
+end

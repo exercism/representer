@@ -1,0 +1,103 @@
+module Connect (Mark(..), winner)  where
+
+data Mark = Cross | Nought deriving (Eq, Show)
+
+type Spot = Maybe Mark
+type Line = [Spot]
+type Board = [Line]
+type Coord = (Int, Int)
+
+winner :: [String] -> Maybe Mark
+winner input
+  | isEmptyBoard board = Nothing
+  | is1x1Board board = head $ head board
+  | crossWon board = Just Cross
+  | noughtWon board = Just Nought
+  | otherwise = Nothing
+  where board = parseBoard input
+
+isEmptyBoard :: Board -> Bool
+isEmptyBoard = all $ all (==Nothing)
+
+is1x1Board :: Board -> Bool
+is1x1Board board = length board == 1 && length (head board) == 1
+
+crossWon :: Board -> Bool
+crossWon board = case crossesInFirstColumn of
+  [] -> False
+  xs -> connectsToRight xs
+  where
+  coords = coordsOfBoard board
+  boardLength = lengthOfBoard board
+  firstColumn = filter ((== 0) . fst) coords
+  lastColumn = filter ((== boardLength) . fst) coords
+  crossesInFirstColumn = filter ((== Just Cross) . pieceOnBoard board) firstColumn
+  connectsToRight [] = False
+  connectsToRight (c:cs) = continuesOnward c [] || connectsToRight cs
+  continuesOnward coord coordsVisited
+    | coord `elem` lastColumn = True
+    | coord `elem` coordsVisited = False
+    | otherwise = case filter isValidMove movements of
+        [] -> False
+        validMovements -> any keepsGoing validMovements
+    where
+    (x, y) = coord
+    isValidMove (a, b) = do
+      let ac = (x+a, y+b)
+      ac `elem` coords && pieceOnBoard board ac == Just Cross
+    keepsGoing (mx, my) = continuesOnward (x + mx, y + my) (coord : coordsVisited)
+
+noughtWon :: Board -> Bool
+noughtWon board = case noughtsInTopRow of
+  [] -> False
+  xs -> connectsToBottom xs
+  where
+  coords = coordsOfBoard board
+  boardHeight = heightOfBoard board
+  topRow = filter ((== 0) . snd) coords
+  bottomRow = filter ((== boardHeight) . snd) coords
+  noughtsInTopRow = filter ((== Just Nought) . pieceOnBoard board) topRow
+  connectsToBottom [] = False
+  connectsToBottom (c:cs) = continuesOnward c [] || connectsToBottom cs
+  continuesOnward coord coordsVisited
+    | coord `elem` bottomRow = True
+    | coord `elem` coordsVisited = False
+    | otherwise = case filter isValidMove movements of
+        [] -> False
+        validMovements -> any keepsGoing validMovements
+    where
+    (x, y) = coord
+    keepsGoing (mx, my) = continuesOnward (x + mx, y + my) (coord : coordsVisited)
+    isValidMove (a, b) = do
+      let ac = (x+a, y+b)
+      ac `elem` coords && pieceOnBoard board ac == Just Nought
+
+lengthOfBoard :: Board -> Int
+lengthOfBoard = foldr (\line acc -> max acc $ length line - 1) 0
+
+heightOfBoard :: Board -> Int
+heightOfBoard board = length board - 1
+
+coordsOfBoard :: Board -> [Coord]
+coordsOfBoard board = [c | c <- (,) <$> [0..lengthOfBoard board] <*> [0..heightOfBoard board]]
+
+movements :: [Coord]
+movements = [c | c <- (,) <$> [-1, 0, 1] <*> [-1, 0, 1], not $ c `elem` illegalMovements]
+
+illegalMovements :: [Coord]
+illegalMovements = [(1, 1), (-1, -1)]
+
+pieceOnBoard :: Board -> Coord -> Spot
+pieceOnBoard board (x, y) = board!!y!!x
+
+parseBoard :: [String] -> Board
+parseBoard = foldr (\line acc -> (parseLine line) : acc) []
+
+parseLine :: String -> Line
+parseLine = foldr (\spot acc -> parseSpot spot : acc) [] . filter (/=' ')
+
+parseSpot :: Char -> Spot
+parseSpot char = case char of
+  'X' -> Just Cross
+  'O' -> Just Nought
+  _ -> Nothing

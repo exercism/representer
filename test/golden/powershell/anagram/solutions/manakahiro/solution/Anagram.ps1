@@ -1,0 +1,12 @@
+Function Invoke-Anagram() {
+    [CmdletBinding()]
+    Param(
+        [string]$Subject,
+        [string[]]$Candidates
+    )
+    return $Candidates | where {
+        $a = (      ($_.ToLower()).ToCharArray() | Sort-Object) -join ""
+        $b = (($Subject.ToLower()).ToCharArray() | Sort-Object) -join ""
+        $_.Tolower() -ne $Subject.ToLower() -and $a -eq $b
+    }
+}

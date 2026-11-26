@@ -1,0 +1,37 @@
+class Luhn {
+
+    static boolean valid(String value) {
+        List list = []
+        value = value.replaceAll("\\s", '')
+        if (value.size() > 1 && value.matches('^[0-9]*$')) {
+            value = value.reverse()
+            return LunFormula(value)
+        } else {
+            return false;
+        }
+
+    }
+
+    static boolean LunFormula(String num) {
+        List list = []
+        list = num as List
+        for (int i = 1; i < list.size(); i += 2) {
+            int f = list.get(i);
+            //int r = f as Integer;
+            int m = list.get(i).toInteger() * 2;
+            m = m > 9 ? m - 9 : m
+            list.set(i, m);
+        }
+
+        int sum = 0
+        for (i in list) {
+            sum = sum + i.toInteger()
+        }
+        return sum % 10 == 0 ? true : false
+    }
+
+    /* void main(String a[]){
+         String v="055 444 285"
+         print valid(v)
+     }*/
+}

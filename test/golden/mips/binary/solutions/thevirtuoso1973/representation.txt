@@ -1,0 +1,36 @@
+(file "impl.mips")
+.data
+inp: .asciiz "\"10\""
+.text
+.globl binary_convert
+la $a0, inp
+jal binary_convert
+la $a0, ($v0)
+li $v0, 1
+syscall
+li $v0, 10
+syscall
+binary_convert: # $a0 contains the address of the string
+li $t1, 0 # init counter
+li $t9, 0
+findNull:
+lb $t0, ($a0)
+beq $t0, $zero, findNullEnd
+addi $a0, $a0, 1 # inc address
+addi $t1, $t1, 1 # inc count
+j findNull
+findNullEnd:
+li $t2, 1 # s2 will store the powers of two
+sum:
+subi $t1, $t1, 1 # dec count (i.e. index)
+subi $a0, $a0, 1 # dec address
+bltz $t1, sumEnd
+lb $t0, ($a0)
+beq $t0, '0', skipAdd
+add $t9, $t9, $t2 # add the current power of two
+skipAdd:
+mul $t2, $t2, 2
+j sum
+sumEnd:
+la $v0, ($t9) # we return the integer
+jr $ra

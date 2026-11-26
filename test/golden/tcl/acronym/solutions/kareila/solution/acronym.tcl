@@ -1,0 +1,12 @@
+proc abbreviate {phrase} {
+    regsub {\-} $phrase " " _phrase;  # treat hyphens as whitespace
+    set phrase [string toupper [string trim $_phrase]]
+    set acrochars {}
+
+    foreach word [split $phrase] {
+        if {$word eq ""} {continue}
+        regexp {[A-Z]} $word first;  # ignore other punctuation
+        lappend acrochars $first
+    }
+    join $acrochars ""
+}

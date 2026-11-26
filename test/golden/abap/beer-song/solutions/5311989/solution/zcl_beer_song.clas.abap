@@ -1,0 +1,62 @@
+CLASS zcl_beer_song DEFINITION
+CREATE PUBLIC.
+  PUBLIC SECTION.
+    METHODS recite
+      IMPORTING
+        !initial_bottles_count TYPE i
+        !take_down_count       TYPE i
+      RETURNING
+        VALUE(result)          TYPE string_table.
+
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+    METHODS verse
+      IMPORTING
+                !i_number       TYPE i
+      RETURNING VALUE(v_result) TYPE string_table.
+
+    METHODS bottle_phrase
+      IMPORTING
+        !i_number              TYPE i
+        !big_initial           TYPE clike default ' '
+      RETURNING VALUE(b_result) TYPE string.
+ENDCLASS.
+
+
+
+CLASS zcl_beer_song IMPLEMENTATION.
+
+  METHOD recite.
+    DATA last_wall_bottle type i.
+    last_wall_bottle = initial_bottles_count - take_down_count.
+    result = VALUE #(
+                        FOR i = initial_bottles_count THEN i - 1 WHILE i GT last_wall_bottle
+                        ( LINES OF verse( i_number = i ) )
+                        ( || )
+                     ).
+        delete result index lines(  result ).
+  ENDMETHOD.
+
+
+  METHOD verse.
+  v_result = value #(
+       ( |{ bottle_phrase( i_number = i_number big_initial = 'X' ) } on the wall, { bottle_phrase( i_number ) }.| )
+       ( switch string( i_number 
+                    when 0 then |Go to the store and buy some more, { bottle_phrase( 99 ) } on the wall.| 
+                    when 1 then |Take it down and pass it around, { bottle_phrase( 0 ) } on the wall.|
+                    else        |Take one down and pass it around, { bottle_phrase( i_number - 1 ) } on the wall.| )  )
+  ).
+  ENDMETHOD.
+
+
+  METHOD bottle_phrase.
+
+    b_result = |{ SWITCH string( i_number
+                         WHEN 0 THEN |{ switch #( big_initial when 'X' then `No` else `no` ) } more bottles|
+                         WHEN 1 THEN |1 bottle|
+                         ELSE |{ i_number } bottles|
+                  ) } of beer|.
+
+  ENDMETHOD.
+
+ENDCLASS.

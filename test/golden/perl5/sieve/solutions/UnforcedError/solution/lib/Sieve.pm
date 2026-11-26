@@ -1,0 +1,35 @@
+package Sieve;
+
+use v5.38;
+
+use Exporter qw<import>;
+our @EXPORT_OK = qw<find_primes>;
+
+sub find_primes ($limit) {
+    if ($limit > 1) {
+        our @out = 2..$limit;
+        my $upper_limit = int(sqrt($limit));
+        my %del_indeces;
+        foreach my $val1 (2..$upper_limit) {
+            my $val2 = 2;
+            my $val = $val1 * $val2;
+            while ($val < $limit) {
+                $val = $val1 * $val2;
+                my $index = ($val1 * $val2) - 2;
+                $del_indeces{$index} = 1;
+                $val2++;
+            }
+        }
+
+        # delete multiples
+        foreach my $index (reverse sort { $a <=> $b } keys %del_indeces) {
+            splice(@out, $index, 1);
+        }
+        
+        return [@out];
+    } else {
+        say "no primes";
+        return [];
+    }
+
+}

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+word=${1,,}
+
+for ((i = 0; i<((${#word} - 1)); i++)); do
+	char=${word:${i}:1}
+	sub=${word:((${i} + 1))}
+	[[ ${char} =~ [a-z] && ${sub} =~ ${char} ]] && echo "false" && exit 0
+done
+
+echo "true"

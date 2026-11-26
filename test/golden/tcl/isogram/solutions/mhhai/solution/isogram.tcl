@@ -1,0 +1,19 @@
+proc isIsogram {input} {
+    set str [string tolower $input]
+    array set hash ""
+    foreach a [split $str {}] {
+        set hash($a) 0
+    }
+    foreach a [split $str {}] {
+        if { $a == " " || $a == "-" } {
+            continue
+        } else {
+            if { $hash($a) == 1 } {
+                return false
+            } else {
+                set hash($a) 1 
+            }
+        }
+    }
+    return true
+}

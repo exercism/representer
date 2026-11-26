@@ -1,0 +1,15 @@
+import java.time.LocalDate
+import java.time.LocalDateTime
+
+class Gigasecond {
+
+    static long GIGASECOND = 1_000_000_000
+
+    static LocalDateTime add(LocalDate date) {
+        return LocalDateTime.of(date.year, date.month, date.dayOfMonth, 0,0, 0).plusSeconds(GIGASECOND)
+    }
+
+    static LocalDateTime add(LocalDateTime date) {
+        return date.plusSeconds(GIGASECOND)
+    }
+}

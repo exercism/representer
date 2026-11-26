@@ -1,0 +1,2 @@
+func label(colors):
+	pass

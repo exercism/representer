@@ -1,0 +1,41 @@
+(file "src/all_your_base.erl")
+- module ( all_your_base ).
+- export ([ rebase / 3 , decompose / 2 , largest_power / 2 ]).
+rebase (_, InputBase , _) when InputBase =< 1 ->
+{ error , "\"input base must be >= 2\"" };
+rebase (_, _, OutputBase ) when OutputBase =< 1 ->
+{ error , "\"output base must be >= 2\"" };
+rebase ( Digits , InputBase , OutputBase ) ->
+case recompose ( Digits , InputBase ) of
+{ error , Reason } -> { error , Reason };
+Number -> { ok , decompose ( Number , OutputBase )}
+end .
+recompose ( Digits , Base ) ->
+recompose ( Digits , Base , 0 ).
+recompose ([], _, Number ) ->
+round ( Number );
+recompose ([ H | _], Base , _) when H < 0 ; H >= Base ->
+{ error , "\"all digits must satisfy 0 <= d < input base\"" };
+recompose ([ H | Digits ], Base , Number ) ->
+recompose ( Digits , Base , Number + H * math : pow ( Base , length ( Digits ))).
+decompose ( Number , Base ) ->
+decompose ( Number , Base , largest_power ( Number , Base ), []).
+decompose (_, _, - 1 , Digits ) ->
+lists : reverse ( Digits );
+decompose ( Number , Base , Power , Digits ) ->
+{ Digit , PowerRaised } = next_digit ( Number , round ( math : pow ( Base , Power ))),
+decompose ( Number - PowerRaised , Base , Power - 1 , [ Digit | Digits ]).
+largest_power ( Number , Base ) ->
+largest_power ( Number , Base , 0 ).
+largest_power ( Number , Base , Power ) ->
+case round ( math : pow ( Base , Power + 1 )) of
+NextPowerRaised when NextPowerRaised > Number -> Power ;
+_ -> largest_power ( Number , Base , Power + 1 )
+end .
+next_digit ( Number , Power ) ->
+next_digit ( Number , Power , 0 ).
+next_digit ( Number , Power , Digit ) ->
+case ( Digit + 1 ) * Power of
+PowerRaised when PowerRaised > Number -> { Digit , Digit * Power };
+_ -> next_digit ( Number , Power , Digit + 1 )
+end .

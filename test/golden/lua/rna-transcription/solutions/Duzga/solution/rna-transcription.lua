@@ -1,0 +1,9 @@
+local dnaToRna = {
+    G = 'C',
+    C = 'G',
+    T = 'A',
+    A = 'U'
+}
+return function(dna)
+    return dna:gsub('.', dnaToRna)
+end

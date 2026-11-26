@@ -1,0 +1,7 @@
+#lang racket
+
+(provide armstrong-number?)
+
+(define (digits n) (if (= n 0) '() (let-values ([(q r) (quotient/remainder n 10)]) (cons r (digits q)))))
+(define (armstrong-sum d) (apply + (map (lambda (x) (expt x (length d))) d)))
+(define (armstrong-number? n) (= n (armstrong-sum (digits n))))

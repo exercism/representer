@@ -1,0 +1,25 @@
+module main
+
+fn sieve(limit int) []int {
+	mut sieve := map[int]bool
+	
+	//initialise
+	for i in 2..limit+1 {
+		sieve[i] = true
+	}
+	
+	//sieve
+	for i:=2; i<=limit; i++ {
+		if !sieve[i] { continue }
+		for j:=2*i; j<=limit; j+=i {
+			sieve[j] = false
+		}
+	}
+
+	//return
+	mut ret := []int{}
+	for i in 2..limit+1 {
+		if sieve[i] { ret << i }
+	}
+	return ret
+}

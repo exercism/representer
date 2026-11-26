@@ -1,0 +1,19 @@
+section .text
+global square
+square:
+    lea        rcx, [rdi-1]
+    xor        rdx, rdx
+    mov        rax, 1
+    shl        rax, cl
+    cmp        rcx, 64
+    cmovnb     rax, rdx
+    ret
+ 
+global total
+total:
+    mov        rax, -1
+    ret
+
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

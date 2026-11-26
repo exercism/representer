@@ -1,0 +1,4 @@
+let rec egg_count number =
+  match number with
+  | 0 -> 0
+  | _ -> number mod 2 + egg_count (number / 2)

@@ -1,0 +1,15 @@
+Class {
+	#name : #Leap,
+	#superclass : #Object,
+	#category : #'Exercise@Leap'
+}
+
+{ #category : #'as yet unclassified' }
+Leap >> leapYear: aYear [
+	aYear % 4 = 0
+		ifTrue: [ aYear % 100 ~= 0
+				ifTrue: [ ^ true ]
+				ifFalse: [ aYear % 400 = 0
+						ifTrue: [ ^ true ] ] ].
+	^ false
+]

@@ -1,0 +1,30 @@
+class BinarySearch {
+
+    List data
+
+    // You may assume for this exercise that the input data is sorted in ascending order.
+    BinarySearch(List data) {
+        this.data = data
+    }
+
+    int indexOf(item) {
+        if (data.isEmpty()) {
+            return -1
+        }
+        indexOf(item, 0, data.size() - 1)
+    }
+
+    int indexOf(item, startIdx, endIdx) {
+        int midIndex = (startIdx + endIdx) / 2
+        if (data[midIndex] == item) {
+            midIndex
+        } else if (startIdx >= endIdx) {
+            -1;
+        } else if (item < data[midIndex]) {
+            indexOf(item, startIdx, midIndex - 1)
+        } else {
+            indexOf(item, midIndex + 1, endIdx)
+        }
+    }
+
+}

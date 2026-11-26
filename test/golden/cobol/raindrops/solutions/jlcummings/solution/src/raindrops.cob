@@ -1,0 +1,46 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. raindrops.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-NUMBER PIC 9(4).
+       01 WS-RESULT PIC X(20).
+       01 WS-RESULT-INDEX PIC 99 VALUE 0.
+
+       01 WS-DIVISOR PIC 9.
+       01 WS-SOUND PIC X(9).
+       01 WS-REMAINDER PIC 9.
+           88 WS-IS-DIVISIBLE VALUE 0.
+
+
+       PROCEDURE DIVISION.
+       RAINDROPS.
+           MOVE 3 TO WS-DIVISOR 
+           MOVE "Pling" to WS-SOUND  
+           PERFORM CHECK-FOR-SOUND 
+
+           MOVE 5 TO WS-DIVISOR 
+           MOVE "Plang" to WS-SOUND  
+           PERFORM CHECK-FOR-SOUND 
+
+           MOVE 7 TO WS-DIVISOR 
+           MOVE "Plong" to WS-SOUND  
+           PERFORM CHECK-FOR-SOUND 
+
+           IF FUNCTION LENGTH (FUNCTION TRIM (WS-RESULT)) = 0 THEN
+              MOVE WS-NUMBER TO WS-RESULT 
+           END-IF
+           .
+
+       CHECK-FOR-SOUND.
+           MOVE FUNCTION MOD(WS-NUMBER, WS-DIVISOR) TO WS-REMAINDER
+           MOVE FUNCTION LENGTH (FUNCTION TRIM(WS-RESULT)) TO 
+              WS-RESULT-INDEX 
+           ADD 1 TO WS-RESULT-INDEX 
+
+           IF WS-IS-DIVISIBLE THEN
+             STRING WS-SOUND
+              DELIMITED BY SIZE 
+              INTO WS-RESULT 
+              WITH POINTER WS-RESULT-INDEX
+           END-IF
+           .

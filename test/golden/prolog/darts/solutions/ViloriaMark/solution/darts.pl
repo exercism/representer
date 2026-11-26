@@ -1,0 +1,16 @@
+score(X, Y, Score) :-
+    distance(X, Y, Distance),
+    distance_score(Distance, Score).
+
+distance(X, Y, Distance) :-
+    Distance is sqrt(X*X + Y*Y).
+
+distance_score(Distance, Score) :-
+    (   Distance > 10
+    ->  Score = 0
+    ;   Distance > 5
+    ->  Score = 1
+    ;   Distance > 1
+    ->  Score = 5
+    ;   Score = 10
+    ).

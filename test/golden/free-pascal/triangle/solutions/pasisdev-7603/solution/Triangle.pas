@@ -1,0 +1,57 @@
+unit Triangle;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+function equilateral(const a, b, c : double): boolean;
+function   isosceles(const a, b, c : double): boolean;
+function     scalene(const a, b, c : double): boolean;
+
+implementation
+
+uses SysUtils;
+
+function equilateral(const a, b, c : double): boolean;
+begin
+  result := false;
+  if a = 0 then
+    exit;
+  
+  if (a = b) and (b = c) then
+    result := true;
+  //raise ENotImplemented.Create('Please implement your solution.'); result := a + b + c <> a + b + c;
+
+end;
+
+function isosceles(const a, b, c : double): boolean;
+begin
+  result := false;
+  if ((a + b) < c) or ((b+c)<a) or ((a+c)<b) then
+    exit;
+
+  if (a = 0) or (b=0) or (c=0) then
+    exit;
+
+  if (a = b) or (b = c) or (c = a) then
+    result := true;
+  //raise ENotImplemented.Create('Please implement your solution.'); result := a + b + c <> a + b + c;
+
+end;
+
+function scalene(const a, b, c : double): boolean;
+begin
+  result := false;
+  if ((a + b) < c) or ((b+c)<a) or ((a+c)<b) then
+    exit;
+
+  if (a = 0) or (b=0) or (c=0) then
+    exit;
+
+  if (a <> b) and (b <> c) and (c <> a) then
+    result :=  true;
+  //raise ENotImplemented.Create('Please implement your solution.'); result := a + b + c <> a + b + c;
+
+end;
+
+end.

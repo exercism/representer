@@ -1,0 +1,28 @@
+object Transpose {
+
+    fun transpose(input: List<String>): List<String> {
+        val matrix: MutableList<String> = mutableListOf()
+        if (input.isEmpty()) {
+            return listOf()
+        }
+        val maxCols: Int = input.maxOf { it.length }
+        for (i in 0 until maxCols) {
+            matrix.add("")
+        }
+
+        for (r in input.indices) {
+            appendRowAsColumn(r, input[r], matrix)
+        }
+
+        return matrix
+    }
+
+    fun appendRowAsColumn(r: Int, row: String, matrix: MutableList<String>) {
+        for (c: Int in row.indices) {
+            while (matrix[c].length < r) {
+                matrix[c] += " "
+            }
+            matrix[c] += "" + row[c]
+        }
+    }
+}

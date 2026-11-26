@@ -1,0 +1,1 @@
+let isLeapYear = (int) => int mod 4 === 0 && ( int mod 100 != 0 || int mod 400 == 0 )

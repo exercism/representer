@@ -1,0 +1,38 @@
+unit PascalsTriangle;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+type
+  TIntArray2D = Array Of Array Of Integer;
+
+function rows(const count : integer) : TIntArray2D;
+
+implementation
+
+uses SysUtils;
+
+function rows(const count : integer) : TIntArray2D;
+var
+  i : integer;
+  j : integer;
+begin
+  result := [];
+  setlength(result, count);
+  if count = 0 then
+    exit;
+
+  for i := 0 to count - 1 do
+    begin
+    result[i] := [];
+    setlength(result[i], i + 1);
+
+    result[i][0] := 1;
+    result[i][i] := 1;
+    for j := 1 to i - 1 do
+      result[i][j] := result[i - 1][j - 1] + result[i - 1][j];
+    end;
+end;
+
+end.

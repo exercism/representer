@@ -1,0 +1,9 @@
+component {
+	function abbreviate( phrase ) {
+		return phrase
+			.listToArray( ' -' )
+			.map( function( word ) { return word.left( 1 ); } )
+			.toList( '' )
+			.uCase();			
+	}
+}

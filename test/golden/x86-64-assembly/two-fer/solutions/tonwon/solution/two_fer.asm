@@ -1,0 +1,23 @@
+default rel
+section .rodata
+you: db "you", 0
+
+section .text
+global two_fer
+two_fer:
+    xchg rsi, rdi
+    mov rax, 'One for '
+    stosq
+    lea rax, [you]
+    test rsi, rsi
+    cmovz rsi, rax
+loop:
+    lodsb
+    test al,al
+    stosb
+    jnz loop
+    mov rax, ', one fo'
+    mov [rdi-1], rax
+    mov rax, 'r me.'
+    mov [rdi+7], rax
+    ret

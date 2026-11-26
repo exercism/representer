@@ -1,0 +1,17 @@
+Red [
+	description: {"Darts" exercise solution for exercism platform}
+	author: "ryanplusplus"
+]
+
+score: function [
+	x
+	y
+] [
+	distance: square-root ((x * x) + (y * y))
+	case [
+		distance <= 1 [10]
+		distance <= 5 [5]
+		distance <= 10 [1]
+		true [0]
+	]
+]

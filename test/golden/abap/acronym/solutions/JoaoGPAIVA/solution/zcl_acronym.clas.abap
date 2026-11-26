@@ -1,0 +1,27 @@
+CLASS zcl_acronym DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS parse IMPORTING phrase         TYPE string
+                  RETURNING VALUE(acronym) TYPE string.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_acronym IMPLEMENTATION.
+  METHOD parse.
+DATA: lt_table TYPE TABLE OF string,
+      lv_aux TYPE string value ` `.
+    REPLACE ALL OCCURRENCES OF '-' IN phrase WITH ` `.
+    REPLACE ALL OCCURRENCES OF '_' IN phrase WITH ` `.
+    SPLIT phrase AT SPACE INTO TABLE lt_table.
+    LOOP AT lt_table INTO lv_aux.
+      acronym = acronym && lv_aux+0(1).
+    ENDLOOP.
+  TRANSLATE acronym TO UPPER CASE.
+  ENDMETHOD.
+ENDCLASS.

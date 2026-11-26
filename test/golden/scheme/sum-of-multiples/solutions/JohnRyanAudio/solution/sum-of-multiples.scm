@@ -1,0 +1,53 @@
+(import (rnrs))
+
+(define (is-multiple? little big)
+  (if (zero? little)
+      #f
+      (eq? (modulo big little) 0)))
+
+(define (get-multiples-for n max)
+  (if (> n max)
+      '()
+      (let rec ((x (+ n 1)) (l (list n)))
+        (cond ((eq? x max)
+               l)
+              ((is-multiple? n x)
+               (rec (+ x 1) (append l (list x))))
+              (#t
+               (rec (+ x 1) l))))))
+
+(define (list-contains? l item)
+  (if (eq? '() l)
+      #f
+      (let rec ((target (car l)) (rest (cdr l)))
+        (if (eq? '() rest)
+            (eq? target item)
+            (if (eq? target item)
+                #t
+                (rec (car rest) (cdr rest)))))))
+
+(define (make-list-unique l)
+  (if (eq? '() l)
+      l
+      (let rec ((head (car l)) (tail (cdr l)) (result '()))
+        (if (eq? '() tail)
+            (cond ((eq? '() result)
+                   (list head))
+                  ((list-contains? result head)
+                   result)
+                  (#t
+                   (append result (list head))))
+            (rec (car tail) (cdr tail) (cond ((eq? '() result)
+                                              (list head))
+                                             ((list-contains? result head)
+                                              result)
+                                             (#t
+                                              (append result (list head)))))))))
+
+(define (sum-of-multiples ints limit)
+  (if (eq? '() ints)
+      0
+      (let rec ((n (car ints)) (rest (cdr ints)) (result '()))
+        (if (eq? rest '())
+            (apply + (make-list-unique (append result (get-multiples-for n limit))))
+            (rec (car rest) (cdr rest) (append result (get-multiples-for n limit)))))))

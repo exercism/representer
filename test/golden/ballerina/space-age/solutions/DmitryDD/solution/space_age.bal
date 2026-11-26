@@ -1,0 +1,117 @@
+function age(string planet, int seconds) returns float|error {
+    int earthYearInSecond = 31557600;
+
+        
+
+          
+
+    if planet == "Mercury" {
+
+        
+
+          
+
+        return <float>seconds / (<float>earthYearInSecond * 0.2408467);
+
+        
+
+          
+
+    } else if planet == "Venus" {
+
+        
+
+          
+
+        return <float>seconds / (<float>earthYearInSecond * 0.61519726);
+
+        
+
+          
+
+    } else if planet == "Earth" {
+
+        
+
+          
+
+        return <float>(<int>((<float>seconds / (<float>earthYearInSecond)) * 100)) / 100.0;
+
+        
+
+          
+
+    } else if planet == "Mars" {
+
+        
+
+          
+
+        return <float>seconds / (<float>earthYearInSecond * 1.8808158);
+
+        
+
+          
+
+    } else if planet == "Jupiter" {
+
+        
+
+          
+
+        return <float>seconds / (<float>earthYearInSecond * 11.862615);
+
+        
+
+          
+
+    } else if planet == "Saturn" {
+
+        
+
+          
+
+        return <float>seconds / (<float>earthYearInSecond * 29.447498);
+
+        
+
+          
+
+    } else if planet == "Uranus" {
+
+        
+
+          
+
+        return <float>seconds / (<float>earthYearInSecond * 84.016846);
+
+        
+
+          
+
+    } else if planet == "Neptune" {
+
+        
+
+          
+
+        return <float>seconds / (<float>earthYearInSecond * 164.79132);
+
+        
+
+          
+
+    } else {
+
+        
+
+          
+
+        return error("unknown planet");
+
+        
+
+          
+
+    }
+}

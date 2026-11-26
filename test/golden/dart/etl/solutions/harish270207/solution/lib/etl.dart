@@ -1,0 +1,15 @@
+class Etl {
+  Map<String, int> transform(Map<String, List<String>> legacy) {
+    final result = <String, int>{};
+
+    legacy.forEach((score, letters) {
+      final value = int.parse(score);
+
+      for (final letter in letters) {
+        result[letter.toLowerCase()] = value;
+      }
+    });
+
+    return result;
+  }
+}

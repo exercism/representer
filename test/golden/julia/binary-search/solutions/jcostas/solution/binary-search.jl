@@ -1,0 +1,12 @@
+# Change any of the following NamedTuple values to true to 
+# enable testing different bonus tasks
+using Base
+
+tested_benus_tasks = (by=true, lt=true, rev = true,  multiple_matches = true)
+function binarysearch(v, item; rev = false, by = identity, lt = isless)
+    if  0 < length(v) 
+        return searchsorted(v, item; rev = rev, 
+          by = by, lt = lt)
+    end
+    return 1:0
+end

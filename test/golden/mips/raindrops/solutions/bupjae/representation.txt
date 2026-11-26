@@ -1,0 +1,68 @@
+(file "impl.mips")
+.text
+.globl raindrops
+raindrops:
+li $t9, 'P'
+li $t8, 'l'
+li $t7, 'i'
+li $t6, 'a'
+li $t5, 'o'
+li $t4, 'n'
+li $t3, 'g'
+li $t2, 10
+move $v0, $a1
+li $v1, 0
+remu $t0, $a0, 3
+bnez $t0, _skip1
+sb $t9, ($v0)
+sb $t8, 1($v0)
+sb $t7, 2($v0)
+sb $t4, 3($v0)
+sb $t3, 4($v0)
+addiu $v0, $v0, 5
+li $v1, 1
+_skip1:
+remu $t0, $a0, 5
+bnez $t0, _skip2
+sb $t9, ($v0)
+sb $t8, 1($v0)
+sb $t6, 2($v0)
+sb $t4, 3($v0)
+sb $t3, 4($v0)
+addiu $v0, $v0, 5
+li $v1, 1
+_skip2:
+remu $t0, $a0, 7
+bnez $t0, _skip3
+sb $t9, ($v0)
+sb $t8, 1($v0)
+sb $t5, 2($v0)
+sb $t4, 3($v0)
+sb $t3, 4($v0)
+addiu $v0, $v0, 5
+li $v1, 1
+_skip3:
+beqz $v1, _loop
+sb $0, ($v0)
+_done:
+jr $ra
+_loop:
+div $a0, $t2
+mfhi $t0
+addiu $t0, $t0, '0'
+sb $t0, ($v0)
+addiu $v0, $v0, 1
+mflo $a0
+bnez $a0, _loop
+sb $0, ($v0)
+addiu $v0, $v0, -1
+move $v1, $a1
+_loop2:
+bgeu $v1, $v0, _done
+lb $t0, ($v0)
+lb $t1, ($v1)
+sb $t0, ($v1)
+sb $t1, ($v0)
+addiu $v0, $v0, -1
+addiu $v1, $v1, 1
+b _loop2

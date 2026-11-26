@@ -1,0 +1,11 @@
+object Hamming {
+  def distance(strand1: String, strand2: String): Option[Int] = {
+    if(strand1.length != strand2.length)
+      None
+    else {
+      val bothStrands = strand1.toList.zip(strand2.toList)
+      Some(bothStrands.count(pair => pair._1 != pair._2))
+    }
+  }
+
+}

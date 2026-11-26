@@ -1,0 +1,13 @@
+object Hamming {
+  def distance(dnaStrandOne: String, dnaStrandTwo: String): Option[Int] = {
+    if (dnaStrandOne.length != dnaStrandTwo.length) {
+      return None
+    }
+
+    val result = dnaStrandOne
+      .zip(dnaStrandTwo)
+      .foldLeft(0)((acc, chars) => if (chars._1 == chars._2) acc else acc + 1)
+
+    Some(result)
+  }
+}

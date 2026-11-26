@@ -1,0 +1,19 @@
+# These variables are initialized on the command line (using '-v'):
+# - num
+
+END {
+    res=""
+    if (num%3 == 0) {
+        res=res "Pling"
+    }
+    if (num%5 == 0) {
+        res=res "Plang"
+    }
+    if (num%7 == 0) {
+        res=res "Plong"
+    }
+
+    if (length(res) == 0) {print num} else { print res}
+
+}
+

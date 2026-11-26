@@ -1,0 +1,73 @@
+include("permutations.jl")
+@enum sign addition
+
+function solve(input::String)
+	symbols = setdiff(unique(input), ['+', ' ', '='])
+	val = zeros(size(symbols))
+	eqDict = Dict(symbols .=> val)
+
+	inpSplit = split(input); 
+	filter!(e->e != "+", inpSplit);
+
+	eqPt = findall("==" .== inpSplit)[1]
+
+	RHS = inpSplit[eqPt+1:end];
+	LHS = inpSplit[1:eqPt - 1];
+	leadingDigits_LHS = simplify!(LHS, eqDict, true)
+	leadingDigits_RHS = simplify!(RHS, eqDict, false)
+
+	leadingDigits = cat(leadingDigits_LHS, leadingDigits_RHS; dims = 1)
+
+	listOfPerms = permutations(collect(0:9), length(symbols))
+	coeffs = collect(values(eqDict))
+	symbols = collect(keys(eqDict))
+
+	for currPerm in listOfPerms
+		if currPerm'*coeffs == 0
+			possibleAns = Dict(symbols .=> currPerm)
+			if checkSol(leadingDigits, possibleAns)
+				return possibleAns
+			end
+
+		end
+	end
+
+	nothing
+end
+
+function checkSol(leadingDigits, possibleAns)
+	for charVal in leadingDigits
+		if possibleAns[charVal] == 0
+			return false; 
+		end
+	end
+
+	return true;
+end
+
+
+function simplify!(LHS, eqDict, isLHS)
+	len = length(LHS)
+	leadingDigits = Vector{Char}(zeros(len)); lk = 0;
+	cnt = 0;
+	for ik = 1:len
+		currNum = LHS[ik]
+		lenCurrNum = length(currNum)
+		if lenCurrNum > 1
+			lk = lk + 1 
+			leadingDigits[lk] = currNum[1]; 
+		end
+		for jk = 1:lenCurrNum
+			digPos = lenCurrNum - jk 
+			if isLHS 
+				eqDict[currNum[jk]] += 10^digPos;
+			else
+				eqDict[currNum[jk]] -= 10^digPos;
+			end
+		end
+	end
+	leadingDigits[1:lk]
+end
+
+
+

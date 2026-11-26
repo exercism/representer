@@ -1,0 +1,60 @@
+(file "affine_cipher.sh")
+function die () {
+printf '%s\n' "\"" ${ 1 :- generic error } "\""
+exit 1
+}
+function coprime () {
+local -i x = $1 y = $2
+[[ $y -gt 0 ]] && coprime $y $(( x % y )) ||
+(( x == 1 )) && return 0 || return 1
+}
+function make_maps () {
+local -a alphabet
+for letter in { a..z } ; do
+alphabet+ =( $letter )
+done
+declare -i i j
+for i in { 0..25 } ; do
+j = $(( ( A * i + B ) % M ))
+TO_CIPH[ ${ alphabet [i] } ]= ${ alphabet [j] }
+TO_ALPH[ ${ alphabet [j] } ]= ${ alphabet [i] }
+done
+}
+function fmt () {
+while read -r -n5 chunk ; do
+[[ -z $chunk ]] && break
+output+ =( "\"" $chunk "\"" )
+done <<< "\"" $1 "\""
+printf '%s\n' "\"" ${ output [*] } "\""
+}
+function encode () {
+local trans
+while read -r -N1 char ; do
+trans+ = "\"" ${ char /[[ :alpha:]] } "\""
+trans+ = "\"" ${ TO_CIPH [ $char ] } "\""
+done <<< "\"" $TEXT "\""
+fmt "\"" $trans "\""
+}
+function decode () {
+while read -r -N1 char ; do
+printf '%s' "\"" ${ char /[[ :alpha:]] } "\""
+printf '%s' "\"" ${ TO_ALPH [ $char ] } "\""
+done <<< "\"" $TEXT "\""
+printf "\"\\n\""
+}
+function main () {
+declare -ri A = $2 B = $3 M = 26
+declare -rl ACTION = "\"" ${ 1 :- 0 } "\"" TEXT = "\"" ${ 4 //[![ :alpha:][:digit:]]/ } "\""
+coprime $A $M || die "'a and m must be coprime.'"
+declare -A TO_CIPH TO_ALPH
+make_maps
+declare -r TO_CIPH TO_ALPH
+case "\"" $ACTION "\"" in
+encode ) encode ;;
+decode ) decode ;;
+* )
+die "\"Usage: " ${ 0 } " <encode/decode> a b text\""
+;;
+esac
+}
+main "\"" $@ "\""

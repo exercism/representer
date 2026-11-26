@@ -1,0 +1,25 @@
+(defmodule anagram
+  (export (find 2))
+)
+
+(defun find
+  ((_word []) [])
+  ((word (cons w ws))
+    (if (and (is-anagram? w word) (is-different? w word)) 
+     (cons w (find word ws))
+     (find word ws)
+    )
+  )
+)
+
+(defun is-different? (w1 w2)
+  (=/= (string:to_lower w1) (string:to_lower w2))
+)
+
+(defun is-anagram? (w1 w2)
+  (=:= (normalize w1) (normalize w2))
+)
+
+(defun normalize (word)
+  (lists:sort (string:to_lower word))
+)

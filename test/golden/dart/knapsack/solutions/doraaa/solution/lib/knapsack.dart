@@ -1,0 +1,30 @@
+typedef Item = ({int weight, int value});
+
+class Knapsack {
+  final int maxWeight;
+
+  Knapsack({required this.maxWeight});
+
+  int maxValue(List<Item> items) {
+    final n = items.length;
+    final dp = List.generate(n + 1, (_) => List<int>.filled(maxWeight + 1, 0));
+
+    for (int i = 1; i <= n; i++) {
+      final weight = items[i - 1].weight;
+      final value = items[i - 1].value;
+
+      for (int w = 0; w <= maxWeight; w++) {
+        if (weight > w) {
+          dp[i][w] = dp[i - 1][w];
+        } else {
+          dp[i][w] = [
+            dp[i - 1][w],
+            dp[i - 1][w - weight] + value,
+          ].reduce((a, b) => a > b ? a : b);
+        }
+      }
+    }
+
+    return dp[n][maxWeight];
+  }
+}

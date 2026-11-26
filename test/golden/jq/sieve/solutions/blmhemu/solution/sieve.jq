@@ -1,0 +1,3 @@
+[range(2; .limit + 1)] as $nums
+| $nums
+| reduce .[] as $curr ($nums; map(select(. % $curr != 0 or . == $curr)))

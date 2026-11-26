@@ -1,0 +1,8 @@
+Public Module ReverseString
+    Public Function Reverse(ByVal inputString As String) As String
+        
+        Dim stRevString As String = StrReverse(inputString)
+        return stRevString
+    
+    End Function
+End Module

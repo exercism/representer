@@ -1,0 +1,33 @@
+namespace NucleotideCount
+
+inductive Nucleotide where
+  | A | T | C | G
+
+structure Counts where
+  a: Nat
+  t: Nat
+  c: Nat
+  g: Nat
+  deriving Repr
+
+def Counts.getElem (counts : Counts) (name : Nucleotide) : Nat :=
+  match name with
+  | .A => counts.a
+  | .T => counts.t
+  | .C => counts.c
+  | .G => counts.g
+
+instance : GetElem Counts Nucleotide Nat (fun _ _ => True) where
+  getElem counts name _ := Counts.getElem counts name
+
+def nucleotideCounts (s : String) : Option Counts :=
+  s.chars.foldM (init := ⟨0, 0, 0, 0⟩) (fun counts ch =>
+    match ch with
+    | 'A' => some {counts with a := counts.a + 1}
+    | 'T' => some {counts with t := counts.t + 1}
+    | 'C' => some {counts with c := counts.c + 1}
+    | 'G' => some {counts with g := counts.g + 1}
+    | _ => failure
+  )
+
+end NucleotideCount

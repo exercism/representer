@@ -1,0 +1,64 @@
+#lang racket
+
+(provide grep)
+
+(define (regexp-compile pattern [case-sensitive #f] [match-line #f])
+  (match (list case-sensitive match-line)
+    ['(#t #t) (format "^(?i:~a)$" pattern)]
+    ['(#t #f) (format "(?i:~a)"   pattern)]
+    ['(#f #t) (format "^~a$"      pattern)]
+    [_        pattern]))
+
+(define (lines-match filepath pattern [invert #f])
+  (call-with-input-file filepath
+    (lambda (file)
+      (for/list ([line (in-lines file)]
+                 [no   (in-naturals 1)]
+                 #:when (if (false? invert)
+                            (regexp-match? pattern line)
+                            (not (regexp-match? pattern line))))
+        (list line filepath no)))))
+
+(define (lines-match? filepath pattern)
+  (call-with-input-file filepath
+    (lambda (file)
+      (for/or ([line (in-lines file)])
+        (regexp-match? pattern line)))))
+
+(define (out-entry line [filename #f] [number #f])
+  (match (list (string? filename) (integer? number))
+    ['(#t #t) (format "~a:~a:~a" filename number line)]
+    ['(#t #f) (format "~a:~a"    filename line)]
+    ['(#f #t) (format "~a:~a"    number line)]
+    [_        line]))
+
+
+(define (grep flags pattern files)
+  (define (active-mode? flag)
+    (list? (member flag flags)))
+
+  (let ([print-line-no    (active-mode? "-n")]
+        [out-file-list    (active-mode? "-l")]
+        [out-not-matched  (active-mode? "-v")]
+        [regex            (regexp-compile pattern
+                                          (active-mode? "-i")
+                                          (active-mode? "-x"))])
+    (cond
+      [out-file-list
+       (for/list ([path (in-list files)]
+                  #:when (if (false? out-not-matched)
+                             (lines-match? path regex)
+                             (not (lines-match? path regex))))
+         path)
+       ]
+      [else
+       (flatten
+        (for/list ([path (in-list files)])
+          (map (λ (m)
+                 (define-values (line file index) (apply values m))
+                 (out-entry line
+                            (and (< 1 (length files)) file)
+                            (and print-line-no index)))
+               (lines-match path regex out-not-matched)
+               )))
+       ])))

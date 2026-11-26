@@ -1,0 +1,36 @@
+(file "clock.asm")
+section .text
+global create
+global add_minutes
+global subtract_minutes
+global equ al
+subtract_minutes:
+neg rdx
+add_minutes:
+add rsi , rdx
+create:
+mov rax , rsi
+mov r8 , 60
+cqo
+idiv r8
+add rax , rdi
+lea rdi , [ rax - 1 ]
+lea rcx , [ rdx + 60 ]
+cmp rdx , 0
+cmovge rcx , rdx
+cmovl rax , rdi
+mov r8 , 24
+cqo
+idiv r8
+lea rax , [ rdx + 24 ]
+cmp rdx , 0
+cmovge rax , rdx
+mov ah , cl
+ret
+equ al :
+cmp di , si
+sete al
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

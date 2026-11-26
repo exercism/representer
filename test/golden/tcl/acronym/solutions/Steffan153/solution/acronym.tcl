@@ -1,0 +1,3 @@
+proc abbreviate {phrase} {
+    join [lmap x [split $phrase " -_"] {string toupper [string index $x 0]}] ""
+}

@@ -1,0 +1,12 @@
+module Prime (nth) where
+
+nth :: Int -> Maybe Integer
+nth n
+  | n < 1 = Nothing
+  | otherwise = Just (primes !! (n - 1))
+
+primes :: [Integer]
+primes = sieve [2..]
+
+sieve :: [Integer] -> [Integer]
+sieve (p:xs) = p : sieve [x | x <- xs, x `mod` p /= 0]

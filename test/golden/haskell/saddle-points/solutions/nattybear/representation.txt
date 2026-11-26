@@ -1,0 +1,53 @@
+(file "package.yaml")
+name : saddle - points
+version : 1.5 . 0.8
+dependencies :
+  - array
+  - base
+library :
+  exposed - modules : Matrix
+  source - dirs : src
+  ghc - options : - Wall
+  # dependencies :
+  # - foo # List here the packages you
+  # - bar # want to use in your solution .
+tests :
+  test :
+    main : Tests . hs
+    source - dirs : test
+    dependencies :
+      - saddle - points
+      - hspec
+(file "src/Matrix.hs")
+module Matrix where
+import Data.Array
+import Data.List
+import Data.Ord
+type Assoc = [( Pos , Integer )]
+type Matrix = Array Pos Integer
+type Pair = ( Pos , Integer )
+type Pos = ( Int , Int )
+saddlePoints :: Matrix -> [ Pos ]
+saddlePoints m = map fst ps'
+  where
+    xs = assocs m
+    ps = candidates xs
+    ps' = filter ( answer xs ) ps
+candidates :: Assoc -> [ Pair ]
+candidates xs = concat ( map candidates' xs' )
+  where
+    xs' = groupBy ( \ x y -> f x == f y ) xs
+    f = fst . fst
+candidates' :: [ Pair ] -> [ Pair ]
+candidates' xs = filter (( == m ) . snd ) xs
+  where m = rowMax xs
+rowMax :: [ Pair ] -> Integer
+rowMax = snd . maximumBy ( comparing snd )
+columnMin :: Assoc -> Int -> Integer
+columnMin xs n = snd xs''
+  where
+    xs' = filter (( == n ) . snd . fst ) xs
+    xs'' = minimumBy ( comparing snd ) xs'
+answer :: Assoc -> Pair -> Bool
+answer xs (( _ , c ), x ) = x == m
+  where m = columnMin xs c

@@ -1,0 +1,9 @@
+create_clock(Hours, Minutes, Clock) :-
+  Clock is (Hours * 60 + Minutes) mod 1440.
+display(Clock, Time) :-
+  H is Clock // 60, M is Clock mod 60,
+  format(string(Time), "~|~`0t~d~2+:~|~`0t~d~2+", [H, M]).
+add_minutes(Clock, Minutes, NewClock) :-
+  M is Clock + Minutes, create_clock(0, M, NewClock).
+subtract_minutes(Clock, Minutes, NewClock) :-
+  M is -Minutes, add_minutes(Clock, M, NewClock).

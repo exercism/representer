@@ -1,0 +1,33 @@
+Red [
+	description: {"Triangle" exercise solution for exercism platform}
+	author: "goran77" ; you can write your name here, in quotes
+]
+
+check-sides: function [sides]
+[
+	(do reduce [(sides/1 > 0) and (sides/2 > 0) and (sides/3 > 0)])
+    and
+    (do reduce [(sides/1 + sides/2 >= sides/3) and 
+    		(sides/2 + sides/3 >= sides/1) and
+            (sides/1 + sides/3 >= sides/2)])
+]
+
+equilateral: function [sides] 
+[
+	if not check-sides sides [return false]
+    do reduce [(sides/1 = sides/2) and (sides/2 = sides/3)]
+]
+
+isosceles: function [sides] 
+[
+	if not check-sides sides [return false] 
+    do reduce [(sides/1 = sides/2) or (sides/1 = sides/3) or (sides/2 = sides/3)]
+]
+
+scalene: function [sides] 
+[
+	if not check-sides sides [return false]
+    do reduce [(sides/1 <> sides/2) and  (sides/2 <> sides/3) and (sides/1 <> sides/3)]
+
+]
+

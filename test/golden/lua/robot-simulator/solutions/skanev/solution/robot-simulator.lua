@@ -1,0 +1,50 @@
+local deltas = {
+  north = {0, 1},
+  east  = {1, 0},
+  south = {0, -1},
+  west  = {-1, 0},
+}
+
+local directions = {
+  [1] = 'north',
+  [2] = 'east',
+  [3] = 'south',
+  [4] = 'west',
+}
+
+local function index_of(direction)
+  for index, dir in pairs(directions) do
+    if dir == direction then
+      return index
+    end
+  end
+end
+
+local Robot = {}
+
+function Robot:new(x, y, heading)
+  local instance = {x = x, y = y, heading = heading}
+  self.__index = self
+
+  return setmetatable(instance, self)
+end
+
+function Robot:move(instructions)
+  for directive in instructions:gmatch('.') do
+    if directive == 'A' then
+      local dx, dy = table.unpack(deltas[self.heading])
+      self.x = self.x + dx
+      self.y = self.y + dy
+    elseif directive == 'L' then
+      self.heading = directions[(index_of(self.heading) - 1 + 3) % 4 + 1]
+    elseif directive == 'R' then
+      self.heading = directions[(index_of(self.heading) - 1 + 5) % 4 + 1]
+    else
+      error("unknown instruction: " .. directive)
+    end
+  end
+end
+
+return function(config)
+  return Robot:new(config.x, config.y, config.heading)
+end

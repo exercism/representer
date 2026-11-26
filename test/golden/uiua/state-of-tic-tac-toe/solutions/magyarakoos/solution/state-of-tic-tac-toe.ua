@@ -1,0 +1,7 @@
+WinCnts ↚ ≡/↥≡≡/↧⊞="OX"[⊓∩°⊟₃∩(⌝⤸⊚2)⊃⊸⍉⊸≡⇌]
+Diff    ↚ /-/+⍉⊞="OX"♭
+IsValid ↚ ↧⊃(
+  ∊⇡2Diff
+| ≤₁/+WinCnts
+)
+GameState ← ⨬"invalid"(⨬("win"|"lose"|⨬"draw""ongoing"±⧻⊚=@ )⨬∘≠⊸≤₁⊗1⊸⊃WinCnts Diff)⊸IsValid

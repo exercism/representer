@@ -1,0 +1,88 @@
+(file "lib/remote_control_car.ex"
+  (source
+    (call defmodule
+      (arguments RemoteControlCar)
+      (do_block
+        (unary_operator @
+          (call enforce_keys
+            (arguments
+              (list :nickname))))
+        (call defstruct
+          (arguments
+            (list :nickname
+              (keywords
+                (pair "battery_percentage: " 100)
+                (pair "distance_driven_in_meters: " 0)))))
+        (call def
+          (arguments
+            (call new
+              (arguments
+                (binary_operator nickname "\\\\" "none"))))
+          (do_block
+            (map %
+              (struct RemoteControlCar)
+              (map_content
+                (keywords
+                  (pair "nickname: " nickname))))))
+        (call def
+          (arguments
+            (call display_distance
+              (arguments
+                (binary_operator
+                  (map %
+                    (struct RemoteControlCar)) = (variable PLACEHOLDER_1)))))
+          (do_block
+            (string
+              (interpolation #{
+                (call
+                  (dot PLACEHOLDER_1 . distance_driven_in_meters))) " meters")))
+        (call def
+          (arguments
+            (call display_battery
+              (arguments
+                (map %
+                  (struct RemoteControlCar)
+                  (map_content
+                    (keywords
+                      (pair "battery_percentage: " (variable PLACEHOLDER_2))))))))
+          (do_block
+            (call case
+              (arguments PLACEHOLDER_2)
+              (do_block
+                (stab_clause
+                  (arguments 0) ->
+                  (body "Battery empty"))
+                (stab_clause
+                  (arguments _) ->
+                  (body
+                    (string "Battery at "
+                      (interpolation #{ PLACEHOLDER_2) "%")))))))
+        (call def
+          (arguments
+            (call drive
+              (arguments
+                (binary_operator car =
+                  (map %
+                    (struct RemoteControlCar)
+                    (map_content
+                      (keywords
+                        (pair "battery_percentage: " (variable PLACEHOLDER_2))
+                        (pair "distance_driven_in_meters: " (variable PLACEHOLDER_3)))))))))
+          (do_block
+            (call case
+              (arguments PLACEHOLDER_2)
+              (do_block
+                (stab_clause
+                  (arguments 0) ->
+                  (body car))
+                (stab_clause
+                  (arguments _) ->
+                  (body
+                    (map %
+                      (map_content
+                        (binary_operator car |
+                          (keywords
+                            (pair "battery_percentage: "
+                              (binary_operator PLACEHOLDER_2 - 1))
+                            (pair "distance_driven_in_meters: "
+                              (binary_operator PLACEHOLDER_3 + 20))))))))))))))))

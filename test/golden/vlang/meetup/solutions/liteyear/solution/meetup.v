@@ -1,0 +1,78 @@
+module main
+
+import time
+
+enum Descriptor {
+  first
+  second
+  third
+  fourth
+  last
+  teenth
+}
+
+fn date(phrase string) string {
+  desc, dow, month, year := phrase_to_descriptor_dow_month_year(phrase)
+
+  first_dow := time.day_of_week(year, month, 1)
+  dim := time.days_in_month(month, year) or { panic("Invalid month/year") }
+
+  mut day := 1 //one based
+  day += (7 + dow - first_dow) % 7 //advance to our target day of the week
+  match desc {
+    .first  {  } //already there
+    .second { day += 7 }  //add a week
+    .third  { day += 14 } //add two weeks
+    .fourth { day += 21 } //add three weeks
+    .last   { if day + 28 > dim { day += 21 } else { day += 28 } } //add four weeks, if possible
+    .teenth { for day < 13 { day += 7 } } //add as many weeks as necessary to make it a teenth
+  }
+
+  date := time.new_time(year: year, month: month, day: day)
+  //return date.custom_format("MMMM D, YYYY")  //format used by problem statement
+  //return date.custom_format(date.get_fmt_date_str(time.FormatDelimiter.slash,
+  //                                                time.FormatDate.yyyymmdd)) //so close
+  return date.custom_format("YYYY/M/D")
+}
+
+fn phrase_to_descriptor_dow_month_year(phrase string) (Descriptor, int, int, int) {
+  words := phrase.fields()
+  descriptor := str_to_descriptor(words[1])
+  dow := str_to_day_of_week(if descriptor == Descriptor.teenth { words[1] } else { words[2] })
+  month := str_to_month(words[words.len-2]) //no negative indices?
+  year := str_to_year(words[words.len-1])
+
+  return descriptor, dow, month, year
+}
+
+fn str_to_descriptor(str string) Descriptor {
+  if str.ends_with("teenth") {
+    return Descriptor.teenth
+  } else {
+    return match str {
+      "first"   { Descriptor.first }
+      "second"  { Descriptor.second }
+      "third"   { Descriptor.third }
+      "fourth"  { Descriptor.fourth }
+      "last"    { Descriptor.last }
+      else      { panic("Unexpected string") }
+    }
+  }
+}
+
+fn str_to_day_of_week(str string) int {
+  days_of_week := time.long_days.map(it.to_lower()[0..3])
+  i := days_of_week.index(str.to_lower()[0..3])
+  if i<0 { panic("Unexpected string") }
+  return i+1 //1-based days
+}
+
+fn str_to_month(str string) int {
+  i := time.long_months.index(str)
+  if i<0 { panic("Unexpected string") }
+  return i+1 //1-based months
+}
+
+fn str_to_year(str string) int {
+  return str.int()
+}

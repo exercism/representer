@@ -1,0 +1,31 @@
+BEGIN {
+  # Consider each letter to be a separate field
+  FS = ""
+  # Points for each letter group
+  points["AEIOULNRST"] = 1
+  points["DG"] = 2
+  points["BCMP"] = 3
+  points["FHVWY"] = 4
+  points["K"] = 5
+  points["JX"] = 8
+  points["QZ"] = 10
+
+  # Set the score for each individual letter
+  # E.g score["A"] = 1, score["E"] = 1, ..., score["Q"] = 10, score["Z"] = 10
+  for (letters in points) {
+    score_value = points[letters]
+    split(letters, separate, "")
+
+    for (letter in separate) {
+      score[separate[letter]] = score_value
+    }
+  }
+}
+
+{
+  total = 0
+  for (i = 1; i <= NF; i++) {
+    total = total + score[toupper($i)]
+  }
+  printf("%s,%d\n", toupper($0), total)
+}

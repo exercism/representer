@@ -1,0 +1,3 @@
+two_fer = (name) ->
+    'One for ' .. (name or 'you') .. ', one for me.'
+{ :two_fer }

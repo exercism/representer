@@ -1,0 +1,21 @@
+Red [
+	description: {"Collatz Conjecture" exercise solution for exercism platform}
+	author: "sabnocke"
+]
+
+steps: function [
+	number[integer!]
+] [
+    if number < 1 [ cause-error 'user 'message "Only positive integers are allowed" ]
+    steps: 0
+    while [number <> 1] [
+        steps: steps + 1
+        case [
+            even? number [number: number / 2]
+            odd? number [number: 3 * number + 1]
+        ]
+
+    ]
+    return steps
+]
+

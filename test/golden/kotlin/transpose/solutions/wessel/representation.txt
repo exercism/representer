@@ -1,0 +1,28 @@
+(file "src/main/kotlin/Transpose.kt")
+import java.util.Collections.max
+object Transpose {
+fun transpose ( input : List < String >): List < String > {
+return when {
+input . isEmpty () -> emptyList < String >()
+else -> getRectangularMatrix ( input ). map {
+mutableList -> mutableList . joinToString ( "\"\"" )
+. replace ( "\"\\\\**$\"" . toRegex (), "\"\"" )
+. replace ( "\"*\"" , "\" \"" )
+}
+}
+}
+fun getRectangularMatrix ( input : List < String >): MutableList < MutableList < Char >> {
+val maxLength = max ( input . map { it . length })
+var regularisedInput = input . map { ( it + "\"*\"" . repeat ( maxLength - it . length )). toList () }
+var rectangularMatrix = mutableListOf < MutableList < Char >>()
+for ( row in 0 until maxLength ) {
+rectangularMatrix . add ( "\" \"" . repeat ( input . size ). toMutableList ())
+}
+for ( row in regularisedInput . indices ) {
+for ( column in regularisedInput [ row ]. indices ) {
+rectangularMatrix [ column ][ row ] = regularisedInput [ row ][ column ]
+}
+}
+return rectangularMatrix
+}
+}

@@ -1,0 +1,82 @@
+(file "ObjectRelationalMapping.cs"
+  (compilation_unit
+    (class_declaration
+      (modifier public) Orm
+      (base_list IDisposable)
+      (declaration_list
+        (field_declaration
+          (modifier private)
+          (variable_declaration Database
+            (variable_declarator database)))
+        (constructor_declaration
+          (modifier public) Orm
+          (parameter_list
+            (parameter Database database))
+          (block
+            (expression_statement
+              (assignment_expression
+                (member_access_expression this database) = database))))
+        (method_declaration
+          (modifier public) void Begin
+          (parameter_list)
+          (block
+            (try_statement
+              (block
+                (expression_statement
+                  (invocation_expression
+                    (member_access_expression database BeginTransaction)
+                    (argument_list))))
+              (catch_clause
+                (catch_declaration Exception)
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression database Dispose)
+                      (argument_list))))))))
+        (method_declaration
+          (modifier public) void Write
+          (parameter_list
+            (parameter string PLACEHOLDER_1))
+          (block
+            (try_statement
+              (block
+                (expression_statement
+                  (invocation_expression
+                    (member_access_expression database Write)
+                    (argument_list
+                      (argument PLACEHOLDER_1)))))
+              (catch_clause
+                (catch_declaration InvalidOperationException)
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression database Dispose)
+                      (argument_list))))))))
+        (method_declaration
+          (modifier public) void Commit
+          (parameter_list)
+          (block
+            (try_statement
+              (block
+                (expression_statement
+                  (invocation_expression
+                    (member_access_expression database EndTransaction)
+                    (argument_list))))
+              (catch_clause
+                (catch_declaration InvalidOperationException)
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression database Dispose)
+                      (argument_list))))))))
+        (method_declaration
+          (modifier public) void Dispose
+          (parameter_list)
+          (block
+            (if_statement
+              (binary_expression database != null)
+              (block
+                (expression_statement
+                  (invocation_expression
+                    (member_access_expression database Dispose)
+                    (argument_list)))))))))))

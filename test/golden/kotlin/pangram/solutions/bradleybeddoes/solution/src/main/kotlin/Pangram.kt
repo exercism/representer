@@ -1,0 +1,7 @@
+object Pangram {
+    fun isPangram(s: String): Boolean = s
+            .toLowerCase()
+            .filter{ it in 'a'..'z' }
+            .toSet()
+            .size == 26
+}

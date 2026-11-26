@@ -1,0 +1,25 @@
+package clock
+
+import "core:fmt"
+
+Clock :: struct { hour, minute: int }
+
+create_clock :: proc(hour, minute: int) -> Clock {
+    time := (hour + 960) * 60 + minute
+    return Clock { hour = (time / 60) % 24, minute = time % 60 }
+}
+
+to_string :: proc(clock: Clock) -> string { return fmt.tprintf("%2d:%2d", clock.hour, clock.minute) }
+
+add :: proc(clock: ^Clock, minutes: int) {
+    time := (clock.hour + 960) * 60 + clock.minute + minutes
+    clock.hour = (time / 60) % 24
+    clock.minute = time % 60
+}
+
+subtract :: proc(clock: ^Clock, minutes: int) { add(clock, (0-minutes)) }
+
+equals :: proc(clock1, clock2: Clock) -> bool { return clock1.hour == clock2.hour && clock1.minute == clock2.minute }
+
+
+

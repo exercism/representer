@@ -1,0 +1,16 @@
+public function primes(integer limit)
+  sequence primes = {}
+  for cand = 2 to limit do
+    integer found = 1
+    for i = 1 to length(primes) do
+      if remainder(cand, primes[i]) = 0 then
+        found = 0
+        exit
+      end if
+    end for
+    if found then
+      primes &= cand
+    end if
+  end for
+  return primes
+end function

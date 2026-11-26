@@ -1,0 +1,14 @@
+import Base: +, -, show
+using Dates
+
+struct Clock
+    hours::Int64
+    minutes::Int64
+    Clock(h::Int64, m::Int64) = new(mod(h + fld(m,60), 24), mod(m, 60))
+end
+
++(c::Clock, m::Minute) = Clock(c.hours, c.minutes + m.value)
+-(c::Clock, m::Minute) = Clock(c.hours, c.minutes - m.value)
+show(c::Clock) = "\"" * (c.hours < 10 ? "0" : "") * string(c.hours) * ":" * (c.minutes < 10 ? "0" : "") * string(c.minutes) * "\""
+sprint(::Function, c::Clock) = show(c::Clock)
+    

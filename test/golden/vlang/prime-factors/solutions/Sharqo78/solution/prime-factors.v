@@ -1,0 +1,19 @@
+module main
+
+fn prime_factors(n i64) []i64 {
+	mut number := n
+	mut factors := []i64{}
+	
+	for i in 2..n+1 {
+		for number % i == 0 {
+			number /= i
+			factors << i
+		}
+		
+		if number == 1 {
+			break
+		}
+	}
+	
+	return factors
+}

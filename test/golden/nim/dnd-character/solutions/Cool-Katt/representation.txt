@@ -1,0 +1,128 @@
+(file "dnd_character.nim"
+  (source_file
+    (import_statement
+      (expression_list
+        (call
+          (accent_quoted /)
+          (argument_list std
+            (array_construction math random)))))
+    (type_section
+      (type_declaration
+        (type_symbol_declaration
+          (exported_symbol Character *)) =
+        (object_declaration object
+          (field_declaration_list
+            (field_declaration
+              (symbol_declaration_list
+                (symbol_declaration
+                  (exported_symbol strength *))) :
+              (type_expression int))
+            (field_declaration
+              (symbol_declaration_list
+                (symbol_declaration
+                  (exported_symbol dexterity *))) :
+              (type_expression int))
+            (field_declaration
+              (symbol_declaration_list
+                (symbol_declaration
+                  (exported_symbol wisdom *))) :
+              (type_expression int))
+            (field_declaration
+              (symbol_declaration_list
+                (symbol_declaration
+                  (exported_symbol charisma *))) :
+              (type_expression int))
+            (field_declaration
+              (symbol_declaration_list
+                (symbol_declaration
+                  (exported_symbol constitution *))) :
+              (type_expression int))
+            (field_declaration
+              (symbol_declaration_list
+                (symbol_declaration
+                  (exported_symbol intelligence *))) :
+              (type_expression int))
+            (field_declaration
+              (symbol_declaration_list
+                (symbol_declaration
+                  (exported_symbol hitpoints *))) :
+              (type_expression int))))))
+    (call randomize
+      (argument_list))
+    (proc_declaration
+      (exported_symbol ability *)
+      (parameter_declaration_list) :
+      (type_expression int) =
+      (statement_list
+        (var_section
+          (variable_declaration
+            (symbol_declaration_list
+              (symbol_declaration (local PLACEHOLDER_1))) =
+            (array_construction 0 0 0 0)))
+        (for for
+          (symbol_declaration_list
+            (symbol_declaration (local PLACEHOLDER_2))) in
+          (dot_expression PLACEHOLDER_1 . mitems) :
+          (statement_list
+            (assignment PLACEHOLDER_2 =
+              (call rand
+                (argument_list
+                  (call
+                    (accent_quoted ..)
+                    (argument_list 1 6)))))))
+        (call
+          (accent_quoted -)
+          (argument_list
+            (call sum
+              (argument_list PLACEHOLDER_1))
+            (call min
+              (argument_list PLACEHOLDER_1))))))
+    (func_declaration func
+      (exported_symbol modifier *)
+      (parameter_declaration_list
+        (parameter_declaration
+          (symbol_declaration_list
+            (symbol_declaration n)) :
+          (type_expression int))) :
+      (type_expression int) =
+      (statement_list
+        (call floordiv
+          (argument_list
+            (call
+              (accent_quoted -)
+              (argument_list n 10)) 2))))
+    (proc_declaration
+      (exported_symbol initcharacter *)
+      (parameter_declaration_list) :
+      (type_expression Character) =
+      (statement_list
+        (let_section
+          (variable_declaration
+            (symbol_declaration_list
+              (symbol_declaration constitution)) =
+            (call ability
+              (argument_list))))
+        (call Character
+          (argument_list
+            (colon_expression strength :
+              (call ability
+                (argument_list)))
+            (colon_expression dexterity :
+              (call ability
+                (argument_list)))
+            (colon_expression wisdom :
+              (call ability
+                (argument_list)))
+            (colon_expression charisma :
+              (call ability
+                (argument_list)))
+            (colon_expression intelligence :
+              (call ability
+                (argument_list)))
+            (colon_expression constitution : constitution)
+            (colon_expression hitpoints :
+              (call
+                (accent_quoted +)
+                (argument_list 10
+                  (call modifier
+                    (argument_list constitution)))))))))))

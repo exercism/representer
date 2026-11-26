@@ -1,0 +1,66 @@
+(file "src/isogram.gleam"
+  (source_file
+    (import gleam/string)
+    (function pub is_isogram
+      (function_parameters
+        (function_parameter phrase phrase :
+          (type String))) ->
+      (type Bool)
+      (block
+        (case
+          (case_subjects
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (binary_expression phrase |>
+                      (field_access string . trim)) |>
+                    (field_access string . lowercase)) |>
+                  (function_call
+                    (field_access string . replace)
+                    (arguments
+                      (argument " ")
+                      (argument "")))) |>
+                (function_call
+                  (field_access string . replace)
+                  (arguments
+                    (argument "-")
+                    (argument "")))) |>
+              (field_access string . pop_grapheme)))
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (record_pattern Error
+                    (record_pattern_arguments
+                      (record_pattern_argument _))))) ->
+              (record True))
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (record_pattern Ok
+                    (record_pattern_arguments
+                      (record_pattern_argument
+                        (tuple_pattern # (variable PLACEHOLDER_1) (variable PLACEHOLDER_2))))))) ->
+              (case
+                (case_subjects
+                  (function_call
+                    (field_access string . contains)
+                    (arguments
+                      (argument does : PLACEHOLDER_2)
+                      (argument contain : PLACEHOLDER_1))))
+                (case_clauses
+                  (case_clause
+                    (case_clause_patterns
+                      (case_clause_pattern
+                        (record_pattern True))) ->
+                    (record False))
+                  (case_clause
+                    (case_clause_patterns
+                      (case_clause_pattern
+                        (record_pattern False))) ->
+                    (binary_expression
+                      (record True) &&
+                      (function_call is_isogram
+                        (arguments
+                          (argument PLACEHOLDER_2))))))))))))))

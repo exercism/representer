@@ -1,0 +1,31 @@
+(file "isbn-verifier.jl")
+import Base : == , show
+struct ISBN { T <: AbstractString }
+s :: T
+"\"\"\"\n        ISBN(s)\n\n    An International Standard Book Number. Throws `DomainError` if `s` does not look like a valid 10-digit ISBN.\n    \"\"\""
+function ISBN ( s )
+acc = 0
+coeff = 10
+for c in s
+if c == '-'
+continue
+elseif isdigit ( c )
+acc += ( c - '0' ) * coeff
+coeff -= 1
+elseif c == 'X' && coeff == 1
+acc += 10
+coeff -= 1
+else
+throw ( DomainError ( s , "\"'$c' is not allowable at this location\"" ))
+end
+end
+coeff == 0 || throw ( DomainError ( s , "\"ISBNs must be 10 digits long\"" ))
+acc % 11 == 0 || throw ( DomainError ( s , "\"ISBN checksum failed\"" ))
+s′ = replace ( s , '-' => "\"\"" )
+new { typeof ( s′ )}( s′ )
+end
+end
+value ( x :: ISBN ) = x . s
+== ( a :: ISBN , b :: ISBN ) = value ( a ) == value ( b )
+macro isbn_str ( s ) ISBN ( s ) end
+show ( io :: IO , isbn :: ISBN ) = print ( io , "\"isbn\\\"\"" , value ( isbn ), '"' )

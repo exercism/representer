@@ -1,0 +1,10 @@
+-module(prime_factors).
+
+-export([factors/1]).
+
+
+factors(Value) -> factors(Value, 2).
+
+factors(1, _) -> [];
+factors(Value, Factor) when Value rem Factor =:= 0 -> [Factor | factors(Value div Factor, Factor)];
+factors(Value, Factor) -> factors(Value, Factor + 1).

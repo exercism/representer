@@ -1,0 +1,270 @@
+(file "src/list_ops.gleam"
+  (source_file
+    (function pub append
+      (function_parameters
+        (function_parameter first first :
+          (type List
+            (type_arguments
+              (type_argument a))))
+        (function_parameter second second :
+          (type List
+            (type_arguments
+              (type_argument a))))) ->
+      (type List
+        (type_arguments
+          (type_argument a)))
+      (block
+        (function_call PLACEHOLDER_1
+          (arguments
+            (argument
+              (function_call reverse
+                (arguments
+                  (argument first))))
+            (argument second)))))
+    (function PLACEHOLDER_1
+      (function_parameters
+        (function_parameter from)
+        (function_parameter PLACEHOLDER_2))
+      (block
+        (case
+          (case_subjects from)
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (list_pattern))) -> PLACEHOLDER_2)
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (list_pattern (variable PLACEHOLDER_3)
+                    (list_pattern_tail .. (variable PLACEHOLDER_4))))) ->
+              (function_call PLACEHOLDER_1
+                (arguments
+                  (argument PLACEHOLDER_4)
+                  (argument
+                    (list PLACEHOLDER_3 .. PLACEHOLDER_2)))))))))
+    (function pub concat
+      (function_parameters
+        (function_parameter PLACEHOLDER_5 :
+          (type List
+            (type_arguments
+              (type_argument
+                (type List
+                  (type_arguments
+                    (type_argument a)))))))) ->
+      (type List
+        (type_arguments
+          (type_argument a)))
+      (block
+        (function_call foldr
+          (arguments
+            (argument PLACEHOLDER_5)
+            (argument
+              (list))
+            (argument
+              (anonymous_function
+                (function_parameters
+                  (function_parameter acc)
+                  (function_parameter PLACEHOLDER_6))
+                (block
+                  (function_call PLACEHOLDER_1
+                    (arguments
+                      (argument
+                        (function_call reverse
+                          (arguments
+                            (argument PLACEHOLDER_6))))
+                      (argument acc))))))))))
+    (function pub filter
+      (function_parameters
+        (function_parameter PLACEHOLDER_6 :
+          (type List
+            (type_arguments
+              (type_argument a))))
+        (function_parameter PLACEHOLDER_7 :
+          (function_type
+            (function_parameter_types a) ->
+            (type Bool)))) ->
+      (type List
+        (type_arguments
+          (type_argument a)))
+      (block
+        (binary_expression
+          (binary_expression PLACEHOLDER_6 |>
+            (function_call foldl
+              (arguments
+                (argument
+                  (list))
+                (argument
+                  (anonymous_function
+                    (function_parameters
+                      (function_parameter acc)
+                      (function_parameter el))
+                    (block
+                      (case
+                        (case_subjects
+                          (function_call PLACEHOLDER_7
+                            (arguments
+                              (argument el))))
+                        (case_clauses
+                          (case_clause
+                            (case_clause_patterns
+                              (case_clause_pattern
+                                (record_pattern True))) ->
+                            (list el .. acc))
+                          (case_clause
+                            (case_clause_patterns
+                              (case_clause_pattern
+                                (record_pattern False))) -> acc))))))))) |>
+          (function_call reverse
+            (arguments)))))
+    (function pub length
+      (function_parameters
+        (function_parameter PLACEHOLDER_6 :
+          (type List
+            (type_arguments
+              (type_argument a))))) ->
+      (type Int)
+      (block
+        (function_call foldl
+          (arguments
+            (argument PLACEHOLDER_6)
+            (argument 0)
+            (argument
+              (anonymous_function
+                (function_parameters
+                  (function_parameter acc)
+                  (function_parameter _))
+                (block
+                  (binary_expression acc + 1))))))))
+    (function pub map
+      (function_parameters
+        (function_parameter PLACEHOLDER_6 :
+          (type List
+            (type_arguments
+              (type_argument a))))
+        (function_parameter PLACEHOLDER_7 :
+          (function_type
+            (function_parameter_types a) -> b))) ->
+      (type List
+        (type_arguments
+          (type_argument b)))
+      (block
+        (binary_expression
+          (binary_expression PLACEHOLDER_6 |>
+            (function_call foldl
+              (arguments
+                (argument
+                  (list))
+                (argument
+                  (anonymous_function
+                    (function_parameters
+                      (function_parameter acc)
+                      (function_parameter el))
+                    (block
+                      (list
+                        (function_call PLACEHOLDER_7
+                          (arguments
+                            (argument el))) .. acc))))))) |>
+          (function_call reverse
+            (arguments)))))
+    (function pub foldl
+      (function_parameters
+        (function_parameter over PLACEHOLDER_6 :
+          (type List
+            (type_arguments
+              (type_argument a))))
+        (function_parameter from PLACEHOLDER_8 : b)
+        (function_parameter with PLACEHOLDER_7 :
+          (function_type
+            (function_parameter_types b a) -> b))) -> b
+      (block
+        (case
+          (case_subjects PLACEHOLDER_6)
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (list_pattern))) -> PLACEHOLDER_8)
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (list_pattern (variable PLACEHOLDER_3)
+                    (list_pattern_tail .. (variable PLACEHOLDER_4))))) ->
+              (function_call foldl
+                (arguments
+                  (argument PLACEHOLDER_4)
+                  (argument
+                    (function_call PLACEHOLDER_7
+                      (arguments
+                        (argument PLACEHOLDER_8)
+                        (argument PLACEHOLDER_3))))
+                  (argument PLACEHOLDER_7))))))))
+    (function pub foldr
+      (function_parameters
+        (function_parameter over PLACEHOLDER_6 :
+          (type List
+            (type_arguments
+              (type_argument a))))
+        (function_parameter from PLACEHOLDER_8 : b)
+        (function_parameter with PLACEHOLDER_7 :
+          (function_type
+            (function_parameter_types b a) -> b))) -> b
+      (block
+        (case
+          (case_subjects PLACEHOLDER_6)
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (list_pattern))) -> PLACEHOLDER_8)
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (list_pattern (variable PLACEHOLDER_3)
+                    (list_pattern_tail .. (variable PLACEHOLDER_4))))) ->
+              (function_call PLACEHOLDER_7
+                (arguments
+                  (argument
+                    (function_call foldr
+                      (arguments
+                        (argument PLACEHOLDER_4)
+                        (argument PLACEHOLDER_8)
+                        (argument PLACEHOLDER_7))))
+                  (argument PLACEHOLDER_3))))))))
+    (function pub reverse
+      (function_parameters
+        (function_parameter PLACEHOLDER_6 :
+          (type List
+            (type_arguments
+              (type_argument a))))) ->
+      (type List
+        (type_arguments
+          (type_argument a)))
+      (block
+        (function_call PLACEHOLDER_9
+          (arguments
+            (argument PLACEHOLDER_6)
+            (argument
+              (list))))))
+    (function PLACEHOLDER_9
+      (function_parameters
+        (function_parameter PLACEHOLDER_6)
+        (function_parameter acc))
+      (block
+        (case
+          (case_subjects PLACEHOLDER_6)
+          (case_clauses
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (list_pattern))) -> acc)
+            (case_clause
+              (case_clause_patterns
+                (case_clause_pattern
+                  (list_pattern (variable PLACEHOLDER_3)
+                    (list_pattern_tail .. (variable PLACEHOLDER_4))))) ->
+              (function_call PLACEHOLDER_9
+                (arguments
+                  (argument PLACEHOLDER_4)
+                  (argument
+                    (list PLACEHOLDER_3 .. acc)))))))))))

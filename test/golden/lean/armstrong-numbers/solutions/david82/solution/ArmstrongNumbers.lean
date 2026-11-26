@@ -1,0 +1,24 @@
+namespace ArmstrongNumbers
+
+private def digitCount (n : Nat) : Nat :=
+  if n == 0 then 1
+  else
+    let rec go (n : Nat) (acc : Nat) : Nat :=
+      if n == 0 then acc else go (n / 10) (acc + 1)
+      termination_by n
+      decreasing_by simp_all; omega
+    go n 0
+
+private def digitPowerSum (n : Nat) (k : Nat) : Nat :=
+  let rec go (n : Nat) (acc : Nat) : Nat :=
+    if n == 0 then acc else go (n / 10) (acc + (n % 10) ^ k)
+    termination_by n
+    decreasing_by simp_all; omega
+  go n 0
+
+def isArmstrongNumber (number : Nat) : Bool :=
+  let k := digitCount number
+  digitPowerSum number k == number
+
+end ArmstrongNumbers
+             

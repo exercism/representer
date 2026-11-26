@@ -1,0 +1,38 @@
+.equ INVALID_NUMBER, -1
+
+.text
+.globl steps
+
+steps:
+        // sprawdzenie błędnych danych
+        cmp x0, #1
+        b.lt invalid        // x0 <= 0 → błąd
+
+        // licznik kroków
+        mov x1, #0
+
+loop:
+        cmp x0, #1
+        b.eq end
+loop1:
+        add x1, x1, #1      // krok++
+
+        tbz x0, #0, even    // parzysta?
+
+odd:
+        add x2, x0, x0      // x2 = 2*x0
+        add x0, x2, x0      // x0 = 3*x0
+        add x0, x0, #1      // x0 = 3*x0 + 1
+        b loop1
+
+even:
+        lsr x0, x0, #1      // x0 = x0 / 2
+        b loop
+
+end:
+        mov x0, x1          // zwróć liczbę kroków
+        ret
+
+invalid:
+        mov x0, #INVALID_NUMBER
+        ret

@@ -1,0 +1,11 @@
+object Hamming extends App {
+  def distance(A: String, B: String): Option[Int] = {
+    val hammingDistance =  A
+      .zip(B)
+      .foldLeft(0){(acc,chars) =>
+        if(chars._1==chars._2) acc else acc+1}
+
+    if(A.length != B.length) None
+    else Some(hammingDistance)
+  }
+}
