@@ -1,63 +1,140 @@
-#[derive(Debug, Drop, PartialEq)]
-pub enum Classification {
-Deficient,
-Perfect,
-Abundant,
-}
-pub fn classify(number: u64) -> Classification {
-if number == 0 {
-panic!("Classification is only possible for positive integers.");
-}
-if number == 1 {
-return Classification::Deficient;
-}
-let mut half: u64 = number;
-let mut aliquot_sum: u64 = 1;
-let mut index = 2;
-let sqrt_number = sqrt(number);
-loop {
-//For any large number NN, you must still check divisibility by smaller numbers (up to sqrt(N))to verify whether it's prime.
-if index > sqrt_number { //its a prime
-break;
-}
-if (number % index == 0) {
-half = (number / index);
-aliquot_sum += index;
-if (index == half ) {
-break;
-} else {
-aliquot_sum += half;
-}
-}
-index += 1;
-};
-if aliquot_sum < number {
-Classification::Deficient
-} else if aliquot_sum > number {
-Classification::Abundant
-} else {
-Classification::Perfect
-}
-}
-fn sqrt(n: u64) -> u64 {
-if n < 0 {
-return 0;
-}
-if n == 0 || n == 1 {
-return n;
-}
-let mut start: u64 = 1;
-let mut end: u64 = n;
-let mut mid: u64 = 0;
-while start < end {
-mid = (start + end) / 2;
-if mid * mid == n {
-start = mid + 1;
-} else if mid * mid < n {
-start = mid + 1;
-} else {
-end = mid
-}
-};
-return start - 1;
-}
+(source_file
+  (attribute_item #
+    (attribute derive
+      (token_tree Debug Drop PartialEq)))
+  (enum_item
+    (visibility_modifier) Classification
+    (enum_variant_list
+      (enum_variant Deficient)
+      (enum_variant Perfect)
+      (enum_variant Abundant)))
+  (function_item
+    (visibility_modifier)
+    (function classify
+      (parameters
+        (parameter PLACEHOLDER_1 :
+          (type_identifier u64))) -> Classification)
+    (block
+      (expression_statement
+        (if_expression
+          (binary_expression PLACEHOLDER_1 == 0)
+          (block
+            (expression_statement
+              (macro_invocation panic !
+                (token_tree "\"Classification is only possible for positive integers.\""))))))
+      (expression_statement
+        (if_expression
+          (binary_expression PLACEHOLDER_1 == 1)
+          (block
+            (expression_statement
+              (return_expression
+                (scoped_identifier Classification :: Deficient))))))
+      (let_declaration mut PLACEHOLDER_2 :
+        (type_identifier u64) = PLACEHOLDER_1)
+      (let_declaration mut PLACEHOLDER_3 :
+        (type_identifier u64) = 1)
+      (let_declaration mut PLACEHOLDER_4 = 2)
+      (let_declaration PLACEHOLDER_5 =
+        (call_expression sqrt
+          (arguments PLACEHOLDER_1)))
+      (expression_statement
+        (loop_expression
+          (block
+            (expression_statement
+              (if_expression
+                (binary_expression PLACEHOLDER_4 > PLACEHOLDER_5)
+                (block
+                  (expression_statement
+                    (break_expression)))))
+            (expression_statement
+              (if_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_1 % PLACEHOLDER_4) == 0)
+                (block
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_2 =
+                      (binary_expression PLACEHOLDER_1 / PLACEHOLDER_4)))
+                  (expression_statement
+                    (compound_assignment_expr PLACEHOLDER_3 += PLACEHOLDER_4))
+                  (expression_statement
+                    (if_expression
+                      (binary_expression PLACEHOLDER_4 == PLACEHOLDER_2)
+                      (block
+                        (expression_statement
+                          (break_expression)))
+                      (else_clause
+                        (block
+                          (expression_statement
+                            (compound_assignment_expr PLACEHOLDER_3 += PLACEHOLDER_2)))))))))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_4 += 1)))))
+      (expression_statement
+        (if_expression
+          (binary_expression PLACEHOLDER_3 < PLACEHOLDER_1)
+          (block
+            (scoped_identifier Classification :: Deficient))
+          (else_clause
+            (if_expression
+              (binary_expression PLACEHOLDER_3 > PLACEHOLDER_1)
+              (block
+                (scoped_identifier Classification :: Abundant))
+              (else_clause
+                (block
+                  (scoped_identifier Classification :: Perfect)))))))))
+  (function_item
+    (function sqrt
+      (parameters
+        (parameter PLACEHOLDER_6 :
+          (type_identifier u64))) ->
+      (type_identifier u64))
+    (block
+      (expression_statement
+        (if_expression
+          (binary_expression PLACEHOLDER_6 < 0)
+          (block
+            (expression_statement
+              (return_expression 0)))))
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_6 == 0) ||
+            (binary_expression PLACEHOLDER_6 == 1))
+          (block
+            (expression_statement
+              (return_expression PLACEHOLDER_6)))))
+      (let_declaration mut PLACEHOLDER_7 :
+        (type_identifier u64) = 1)
+      (let_declaration mut PLACEHOLDER_8 :
+        (type_identifier u64) = PLACEHOLDER_6)
+      (let_declaration mut PLACEHOLDER_9 :
+        (type_identifier u64) = 0)
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_7 < PLACEHOLDER_8)
+          (block
+            (expression_statement
+              (assignment_expression PLACEHOLDER_9 =
+                (binary_expression
+                  (binary_expression PLACEHOLDER_7 + PLACEHOLDER_8) / 2)))
+            (expression_statement
+              (if_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_9 * PLACEHOLDER_9) == PLACEHOLDER_6)
+                (block
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_7 =
+                      (binary_expression PLACEHOLDER_9 + 1))))
+                (else_clause
+                  (if_expression
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_9 * PLACEHOLDER_9) < PLACEHOLDER_6)
+                    (block
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_7 =
+                          (binary_expression PLACEHOLDER_9 + 1))))
+                    (else_clause
+                      (block
+                        (assignment_expression PLACEHOLDER_8 = PLACEHOLDER_9))))))))))
+      (expression_statement
+        (return_expression
+          (binary_expression PLACEHOLDER_7 - 1))))))

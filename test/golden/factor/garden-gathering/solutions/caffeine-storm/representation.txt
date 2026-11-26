@@ -1,25 +1,36 @@
-USING: accessors kernel locals math namespaces sequences ;
-IN: garden-gathering
-TUPLE: plot id registered-to ;
-SYMBOLS: registrations next-id not-found ;
-: open-garden ( -- )
-V{ } clone registrations set-global
-1 next-id set-global ;
-: list-registrations ( -- plots )
-registrations get-global ;
-: mint-id ( -- n )
-next-id get-global
-next-id [ 1 + ] change-global ;
-: register ( name -- plot )
-mint-id swap plot boa
-dup registrations get-global push
-;
-: release ( id -- )
-'[ [ id>> _ = ] reject ] registrations swap change-global ;
-: get-registration ( id -- plot/symbol )
-registrations get-global swap
-'[ id>> _ = ] find nip
-[ not-found ] unless* ;
-: find-by-name ( name -- plots )
-registrations get-global swap
-'[ registered-to>> _ = ] filter ;
+(source_file USING: accessors kernel locals math namespaces sequences ; IN: garden-gathering TUPLE: plot id registered-to ; SYMBOLS: registrations next-id not-found ;
+  (definition : open-garden
+    (effect)
+    (collection
+      (vector V{)) clone registrations set-global
+    (number
+      (integer 1)) next-id set-global)
+  (definition : list-registrations
+    (effect
+      (outputs PLACEHOLDER_1)) registrations get-global)
+  (definition : PLACEHOLDER_2
+    (effect
+      (outputs PLACEHOLDER_3)) next-id get-global next-id
+    (quote
+      (number
+        (integer 1)) +) change-global)
+  (definition : register
+    (effect
+      (inputs PLACEHOLDER_4)
+      (outputs plot)) PLACEHOLDER_2 swap plot boa dup registrations get-global push)
+  (definition : release
+    (effect
+      (inputs id))
+    (fry_quote '[
+      (quote id>> _ =) reject) registrations swap change-global)
+  (definition : get-registration
+    (effect
+      (inputs id)
+      (outputs PLACEHOLDER_5)) registrations get-global swap
+    (fry_quote '[ id>> _ =) find nip
+    (quote not-found) unless*)
+  (definition : find-by-name
+    (effect
+      (inputs PLACEHOLDER_4)
+      (outputs PLACEHOLDER_1)) registrations get-global swap
+    (fry_quote '[ registered-to>> _ =) filter))

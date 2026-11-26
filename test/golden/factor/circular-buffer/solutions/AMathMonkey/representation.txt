@@ -1,30 +1,61 @@
-USING: kernel math arrays accessors sequences ;
-IN: circular-buffer
-TUPLE: circular-buffer arr { head integer } { tail integer } ;
-: <circular-buffer> ( capacity -- buffer )
-f <array> [ circular-buffer new ] dip >>arr ;
-DEFER: overwrite
-: write ( item buffer -- )
-[ [ tail>> ] [ arr>> ] bi nth [ "\"buffer full\"" throw ] when ]
-[ overwrite ]
-bi ;
-: read ( buffer -- item )
-[
-[ head>> ] [ arr>> ] bi
-[ nth [ "\"buffer empty\"" throw ] unless* ] [ f -rot set-nth ] 2bi
-]
-[ [ arr>> length ] [ [ 1 + swap mod ] change-head drop ] bi ]
-bi ;
-: overwrite ( item buffer -- )
-[ nip [ tail>> ] [ arr>> ] bi nth ]
-[ [ tail>> ] [ arr>> ] bi set-nth ]
-[
-nip
-[ arr>> length ]
-[
-[ 1 + swap mod ] change-tail
-swap [ [ tail>> ] [ head<< ] bi ] [ drop ] if
-] bi
-] 2tri ;
-: clear-buffer ( buffer -- )
-[ [ drop f ] map! ] change-arr drop ;
+(source_file USING: kernel math arrays accessors sequences ; IN: circular-buffer TUPLE: circular-buffer arr
+  (collection
+    (array head integer))
+  (collection
+    (array tail integer)) ;
+  (definition : <circular-buffer>
+    (effect
+      (inputs PLACEHOLDER_1)
+      (outputs PLACEHOLDER_2))
+    (syntax f) <array>
+    (quote circular-buffer new) dip >>arr) DEFER: overwrite
+  (definition : write
+    (effect
+      (inputs PLACEHOLDER_3 PLACEHOLDER_2))
+    (quote
+      (quote tail>>)
+      (quote arr>>) bi nth
+      (quote "\"buffer full\"" throw) when)
+    (quote overwrite) bi)
+  (definition : read
+    (effect
+      (inputs PLACEHOLDER_2)
+      (outputs PLACEHOLDER_3))
+    (quote
+      (quote head>>)
+      (quote arr>>) bi
+      (quote nth
+        (quote "\"buffer empty\"" throw) unless*)
+      (quote
+        (syntax f) -rot set-nth) 2bi)
+    (quote
+      (quote arr>> length)
+      (quote
+        (quote
+          (number
+            (integer 1)) + swap mod) change-head drop) bi) bi)
+  (definition : overwrite
+    (effect
+      (inputs PLACEHOLDER_3 PLACEHOLDER_2))
+    (quote nip
+      (quote tail>>)
+      (quote arr>>) bi nth)
+    (quote
+      (quote tail>>)
+      (quote arr>>) bi set-nth)
+    (quote nip
+      (quote arr>> length)
+      (quote
+        (quote
+          (number
+            (integer 1)) + swap mod) change-tail swap
+        (quote
+          (quote tail>>)
+          (quote head<<) bi)
+        (quote drop) if) bi) 2tri)
+  (definition : clear-buffer
+    (effect
+      (inputs PLACEHOLDER_2))
+    (quote
+      (quote drop
+        (syntax f)) map!) change-arr drop))

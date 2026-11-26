@@ -1,83 +1,221 @@
-pub fn annotate(pieces: Span<ByteArray>) -> Array<ByteArray> {
-let mut result: Array<ByteArray> = array![];
-let rows = pieces.len();
-// Handle empty board
-if rows == 0 {
-return result;
-}
-// Process each row
-let mut row_idx = 0;
-loop {
-if row_idx >= rows {
-break;
-}
-let row = pieces[row_idx];
-let cols = row.len();
-let mut new_row = "\"\";"
-// Process each column in the row
-let mut col_idx = 0;
-loop {
-if col_idx >= cols {
-break;
-}
-let ch = row[col_idx];
-if ch == '*' {
-// Keep mines as is
-new_row.append_byte('*');
-} else if ch == ' ' {
-// Count adjacent mines for empty spaces
-let count = count_adjacent_mines(pieces, row_idx, col_idx, rows, cols);
-if count > 0 {
-// Convert count to ASCII digit
-new_row.append_byte('0' + count);
-} else {
-// Keep empty if no adjacent mines
-new_row.append_byte(' ');
-}
-}
-col_idx += 1;
-};
-result.append(new_row);
-row_idx += 1;
-};
-result
-}
-// Helper function to count adjacent mines
-fn count_adjacent_mines(
-pieces: Span<ByteArray>,
-row: u32,
-col: u32,
-rows: u32,
-cols: u32
-) -> u8 {
-let mut count: u8 = 0;
-// Check all 8 adjacent positions
-// Top-left, Top, Top-right
-if row > 0 && col > 0 && pieces[row - 1][col - 1] == '*' {
-count += 1;
-}
-if row > 0 && pieces[row - 1][col] == '*' {
-count += 1;
-}
-if row > 0 && col + 1 < cols && pieces[row - 1][col + 1] == '*' {
-count += 1;
-}
-// Left, Right
-if col > 0 && pieces[row][col - 1] == '*' {
-count += 1;
-}
-if col + 1 < cols && pieces[row][col + 1] == '*' {
-count += 1;
-}
-// Bottom-left, Bottom, Bottom-right
-if row + 1 < rows && col > 0 && pieces[row + 1][col - 1] == '*' {
-count += 1;
-}
-if row + 1 < rows && pieces[row + 1][col] == '*' {
-count += 1;
-}
-if row + 1 < rows && col + 1 < cols && pieces[row + 1][col + 1] == '*' {
-count += 1;
-}
-count
-}
+(source_file
+  (function_item
+    (visibility_modifier)
+    (function annotate
+      (parameters
+        (parameter PLACEHOLDER_1 :
+          (generic_type Span
+            (type_arguments <
+              (type_identifier ByteArray) >)))) ->
+      (generic_type Array
+        (type_arguments <
+          (type_identifier ByteArray) >)))
+    (block
+      (let_declaration mut PLACEHOLDER_2 :
+        (generic_type Array
+          (type_arguments <
+            (type_identifier ByteArray) >)) =
+        (macro_invocation array !
+          (token_tree)))
+      (let_declaration PLACEHOLDER_3 =
+        (call_expression
+          (field_expression PLACEHOLDER_1 . len)
+          (arguments)))
+      (expression_statement
+        (if_expression
+          (binary_expression PLACEHOLDER_3 == 0)
+          (block
+            (expression_statement
+              (return_expression PLACEHOLDER_2)))))
+      (let_declaration mut PLACEHOLDER_4 = 0)
+      (expression_statement
+        (loop_expression
+          (block
+            (expression_statement
+              (if_expression
+                (binary_expression PLACEHOLDER_4 >= PLACEHOLDER_3)
+                (block
+                  (expression_statement
+                    (break_expression)))))
+            (let_declaration PLACEHOLDER_5 =
+              (index_expression PLACEHOLDER_1 PLACEHOLDER_4))
+            (let_declaration PLACEHOLDER_6 =
+              (call_expression
+                (field_expression PLACEHOLDER_5 . len)
+                (arguments)))
+            (let_declaration mut PLACEHOLDER_7 = "\"\"")
+            (let_declaration mut PLACEHOLDER_8 = 0)
+            (expression_statement
+              (loop_expression
+                (block
+                  (expression_statement
+                    (if_expression
+                      (binary_expression PLACEHOLDER_8 >= PLACEHOLDER_6)
+                      (block
+                        (expression_statement
+                          (break_expression)))))
+                  (let_declaration PLACEHOLDER_9 =
+                    (index_expression PLACEHOLDER_5 PLACEHOLDER_8))
+                  (expression_statement
+                    (if_expression
+                      (binary_expression PLACEHOLDER_9 == '*')
+                      (block
+                        (expression_statement
+                          (call_expression
+                            (field_expression PLACEHOLDER_7 . append_byte)
+                            (arguments '*'))))
+                      (else_clause
+                        (if_expression
+                          (binary_expression PLACEHOLDER_9 == "' '")
+                          (block
+                            (let_declaration PLACEHOLDER_10 =
+                              (call_expression PLACEHOLDER_11
+                                (arguments PLACEHOLDER_1 PLACEHOLDER_4 PLACEHOLDER_8 PLACEHOLDER_3 PLACEHOLDER_6)))
+                            (expression_statement
+                              (if_expression
+                                (binary_expression PLACEHOLDER_10 > 0)
+                                (block
+                                  (expression_statement
+                                    (call_expression
+                                      (field_expression PLACEHOLDER_7 . append_byte)
+                                      (arguments
+                                        (binary_expression '0' + PLACEHOLDER_10)))))
+                                (else_clause
+                                  (block
+                                    (expression_statement
+                                      (call_expression
+                                        (field_expression PLACEHOLDER_7 . append_byte)
+                                        (arguments "' '"))))))))))))
+                  (expression_statement
+                    (compound_assignment_expr PLACEHOLDER_8 += 1)))))
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_2 . append)
+                (arguments PLACEHOLDER_7)))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_4 += 1))))) PLACEHOLDER_2))
+  (function_item
+    (function PLACEHOLDER_11
+      (parameters
+        (parameter PLACEHOLDER_1 :
+          (generic_type Span
+            (type_arguments <
+              (type_identifier ByteArray) >)))
+        (parameter PLACEHOLDER_5 :
+          (type_identifier u32))
+        (parameter PLACEHOLDER_12 :
+          (type_identifier u32))
+        (parameter PLACEHOLDER_3 :
+          (type_identifier u32))
+        (parameter PLACEHOLDER_6 :
+          (type_identifier u32))) ->
+      (type_identifier u8))
+    (block
+      (let_declaration mut PLACEHOLDER_10 :
+        (type_identifier u8) = 0)
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 > 0) &&
+              (binary_expression PLACEHOLDER_12 > 0)) &&
+            (binary_expression
+              (index_expression
+                (index_expression PLACEHOLDER_1
+                  (binary_expression PLACEHOLDER_5 - 1))
+                (binary_expression PLACEHOLDER_12 - 1)) == '*'))
+          (block
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_10 += 1)))))
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_5 > 0) &&
+            (binary_expression
+              (index_expression
+                (index_expression PLACEHOLDER_1
+                  (binary_expression PLACEHOLDER_5 - 1)) PLACEHOLDER_12) == '*'))
+          (block
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_10 += 1)))))
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 > 0) &&
+              (binary_expression
+                (binary_expression PLACEHOLDER_12 + 1) < PLACEHOLDER_6)) &&
+            (binary_expression
+              (index_expression
+                (index_expression PLACEHOLDER_1
+                  (binary_expression PLACEHOLDER_5 - 1))
+                (binary_expression PLACEHOLDER_12 + 1)) == '*'))
+          (block
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_10 += 1)))))
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_12 > 0) &&
+            (binary_expression
+              (index_expression
+                (index_expression PLACEHOLDER_1 PLACEHOLDER_5)
+                (binary_expression PLACEHOLDER_12 - 1)) == '*'))
+          (block
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_10 += 1)))))
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_12 + 1) < PLACEHOLDER_6) &&
+            (binary_expression
+              (index_expression
+                (index_expression PLACEHOLDER_1 PLACEHOLDER_5)
+                (binary_expression PLACEHOLDER_12 + 1)) == '*'))
+          (block
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_10 += 1)))))
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_5 + 1) < PLACEHOLDER_3) &&
+              (binary_expression PLACEHOLDER_12 > 0)) &&
+            (binary_expression
+              (index_expression
+                (index_expression PLACEHOLDER_1
+                  (binary_expression PLACEHOLDER_5 + 1))
+                (binary_expression PLACEHOLDER_12 - 1)) == '*'))
+          (block
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_10 += 1)))))
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 + 1) < PLACEHOLDER_3) &&
+            (binary_expression
+              (index_expression
+                (index_expression PLACEHOLDER_1
+                  (binary_expression PLACEHOLDER_5 + 1)) PLACEHOLDER_12) == '*'))
+          (block
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_10 += 1)))))
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_5 + 1) < PLACEHOLDER_3) &&
+              (binary_expression
+                (binary_expression PLACEHOLDER_12 + 1) < PLACEHOLDER_6)) &&
+            (binary_expression
+              (index_expression
+                (index_expression PLACEHOLDER_1
+                  (binary_expression PLACEHOLDER_5 + 1))
+                (binary_expression PLACEHOLDER_12 + 1)) == '*'))
+          (block
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_10 += 1))))) PLACEHOLDER_10)))

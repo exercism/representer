@@ -1,189 +1,638 @@
-use core::array::ArrayTrait;
-use core::dict::Felt252Dict;
-use core::option::{Option, OptionTrait};
-use core::traits::{Into, TryInto};
-pub type Domino = (u8, u8);
-/// Build a proper closed domino chain using all stones exactly once,
-/// or return None if impossible.
-pub fn chain(dominoes: @Array<Domino>) -> Option<Array<Domino>> {
-// Trivial case
-if dominoes.len() == 0 {
-return Option::Some(array![]);
-}
-// Build multigraph: edge counts, degree per vertex, and the set of used vertices.
-let mut edges: Felt252Dict<u32> = Default::default();
-let mut degree: Felt252Dict<u32> = Default::default();
-let mut seen: Felt252Dict<bool> = Default::default();
-let mut verts: Array<u8> = array![];
-let mut i: usize = 0;
-let n = dominoes.len();
-while i < n {
-let (a, b) = *dominoes.at(i);
-i += 1;
-// Count this undirected edge
-let (x, y) = norm_pair(a, b);
-let key = pack_pair(x, y);
-let c = edges.get(key);
-edges.insert(key, c + 1_u32);
-// Degrees (loop adds two)
-let da = degree.get(a.into());
-degree.insert(a.into(), da + 1_u32);
-let db = degree.get(b.into());
-degree.insert(b.into(), db + 1_u32);
-// Remember seen vertices
-if !seen.get(a.into()) {
-seen.insert(a.into(), true);
-verts.append(a);
-}
-if !seen.get(b.into()) {
-seen.insert(b.into(), true);
-verts.append(b);
-}
-};
-// Fast feasibility checks for a closed chain:
-if !all_even_degrees(@verts, ref degree) {
-return Option::None;
-}
-if !is_connected(@verts, ref edges) {
-return Option::None;
-}
-// Construct Eulerian circuit via Hierholzer
-let start = *verts.at(0);
-let mut circuit_vertices: Array<u8> = array![];
-hierholzer(start, @verts, ref edges, ref circuit_vertices);
-// Convert successive vertices into oriented dominoes
-let mut out: Array<Domino> = array![];
-let mut j: usize = 1;
-let m = circuit_vertices.len();
-while j < m {
-let u = *circuit_vertices.at(j - 1);
-let v = *circuit_vertices.at(j);
-out.append((u, v));
-j += 1;
-};
-Option::Some(out)
-}
-/// Recursive Hierholzer: consume all edges out of `v`, then append `v` (post-order).
-fn hierholzer(
-v: u8,
-verts: @Array<u8>,
-ref edges: Felt252Dict<u32>,
-ref circuit: Array<u8>,
-) {
-loop {
-match find_neighbor(v, verts, ref edges) {
-Option::Some(u) => {
-dec_edge(v, u, ref edges);
-hierholzer(u, verts, ref edges, ref circuit);
-},
-Option::None => {
-break;
-},
-}
-};
-circuit.append(v);
-}
-/// Find any neighbor `u` among seen vertices with a remaining edge (v,u).
-fn find_neighbor(
-v: u8,
-verts: @Array<u8>,
-ref edges: Felt252Dict<u32>,
-) -> Option<u8> {
-let mut i: usize = 0;
-let len = verts.len();
-let result = loop {
-if i >= len {
-break Option::None;
-}
-let u = *verts.at(i);
-let (x, y) = norm_pair(v, u);
-let key = pack_pair(x, y);
-if edges.get(key) > 0_u32 {
-break Option::Some(u);
-}
-i += 1;
-};
-result
-}
-/// Decrement one copy of the undirected edge (a,b)
-fn dec_edge(a: u8, b: u8, ref edges: Felt252Dict<u32>) {
-let (x, y) = norm_pair(a, b);
-let key = pack_pair(x, y);
-let cur = edges.get(key);
-edges.insert(key, cur - 1_u32);
-}
-/// All used vertices must have even degree.
-fn all_even_degrees(
-verts: @Array<u8>,
-ref degree: Felt252Dict<u32>,
-) -> bool {
-let mut i: usize = 0;
-let len = verts.len();
-let result = loop {
-if i >= len {
-break true;
-}
-let v = *verts.at(i);
-let d = degree.get(v.into());
-if (d % 2_u32) != 0_u32 {
-break false;
-}
-i += 1;
-};
-result
-}
-/// Connectivity among used vertices via BFS on remaining-edge presence.
-fn is_connected(
-verts: @Array<u8>,
-ref edges: Felt252Dict<u32>,
-) -> bool {
-if verts.len() == 0 {
-return true;
-}
-let start = *verts.at(0);
-let mut visited: Felt252Dict<bool> = Default::default();
-let mut q: Array<u8> = array![start];
-visited.insert(start.into(), true);
-let mut qi: usize = 0;
-while qi < q.len() {
-let v = *q.at(qi);
-qi += 1;
-let mut i: usize = 0;
-let n = verts.len();
-while i < n {
-let u = *verts.at(i);
-let (x, y) = norm_pair(v, u);
-let key = pack_pair(x, y);
-if edges.get(key) > 0_u32 && !visited.get(u.into()) {
-visited.insert(u.into(), true);
-q.append(u);
-}
-i += 1;
-}
-};
-let mut k: usize = 0;
-let n = verts.len();
-let all_visited = loop {
-if k >= n {
-break true;
-}
-let v = *verts.at(k);
-if !visited.get(v.into()) {
-break false;
-}
-k += 1;
-};
-all_visited
-}
-#[inline(always)]
-fn norm_pair(a: u8, b: u8) -> (u8, u8) {
-if a <= b {
-(a, b)
-} else {
-(b, a)
-}
-}
-#[inline(always)]
-fn pack_pair(x: u8, y: u8) -> felt252 {
-x.into() * 256 + y.into()
-}
+(source_file
+  (use_declaration
+    (scoped_identifier
+      (scoped_identifier core :: array) :: ArrayTrait))
+  (use_declaration
+    (scoped_identifier
+      (scoped_identifier core :: dict) :: Felt252Dict))
+  (use_declaration
+    (scoped_use_list
+      (scoped_identifier core :: option) ::
+      (use_list Option OptionTrait)))
+  (use_declaration
+    (scoped_use_list
+      (scoped_identifier core :: traits) ::
+      (use_list Into TryInto)))
+  (type_item
+    (visibility_modifier) Domino =
+    (tuple_type
+      (type_identifier u8)
+      (type_identifier u8)))
+  (function_item
+    (visibility_modifier)
+    (function chain
+      (parameters
+        (parameter dominoes :
+          (snapshot_type @
+            (generic_type Array
+              (type_arguments < Domino >))))) ->
+      (generic_type Option
+        (type_arguments <
+          (generic_type Array
+            (type_arguments < Domino >)) >)))
+    (block
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (call_expression
+              (field_expression dominoes . len)
+              (arguments)) == 0)
+          (block
+            (expression_statement
+              (return_expression
+                (call_expression
+                  (scoped_identifier Option :: Some)
+                  (arguments
+                    (macro_invocation array !
+                      (token_tree)))))))))
+      (let_declaration mut PLACEHOLDER_1 :
+        (generic_type Felt252Dict
+          (type_arguments <
+            (type_identifier u32) >)) =
+        (call_expression
+          (scoped_identifier Default :: default)
+          (arguments)))
+      (let_declaration mut PLACEHOLDER_2 :
+        (generic_type Felt252Dict
+          (type_arguments <
+            (type_identifier u32) >)) =
+        (call_expression
+          (scoped_identifier Default :: default)
+          (arguments)))
+      (let_declaration mut PLACEHOLDER_3 :
+        (generic_type Felt252Dict
+          (type_arguments <
+            (type_identifier bool) >)) =
+        (call_expression
+          (scoped_identifier Default :: default)
+          (arguments)))
+      (let_declaration mut PLACEHOLDER_4 :
+        (generic_type Array
+          (type_arguments <
+            (type_identifier u8) >)) =
+        (macro_invocation array !
+          (token_tree)))
+      (let_declaration mut i :
+        (type_identifier usize) = 0)
+      (let_declaration n =
+        (call_expression
+          (field_expression dominoes . len)
+          (arguments)))
+      (expression_statement
+        (while_expression
+          (binary_expression i < n)
+          (block
+            (let_declaration
+              (tuple_pattern PLACEHOLDER_5 PLACEHOLDER_6) =
+              (unary_expression *
+                (call_expression
+                  (field_expression dominoes . at)
+                  (arguments i))))
+            (expression_statement
+              (compound_assignment_expr i += 1))
+            (let_declaration
+              (tuple_pattern PLACEHOLDER_7 PLACEHOLDER_8) =
+              (call_expression PLACEHOLDER_9
+                (arguments PLACEHOLDER_5 PLACEHOLDER_6)))
+            (let_declaration PLACEHOLDER_10 =
+              (call_expression PLACEHOLDER_11
+                (arguments PLACEHOLDER_7 PLACEHOLDER_8)))
+            (let_declaration PLACEHOLDER_12 =
+              (call_expression
+                (field_expression PLACEHOLDER_1 . get)
+                (arguments PLACEHOLDER_10)))
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_1 . insert)
+                (arguments PLACEHOLDER_10
+                  (binary_expression PLACEHOLDER_12 + 1u32))))
+            (let_declaration PLACEHOLDER_13 =
+              (call_expression
+                (field_expression PLACEHOLDER_2 . get)
+                (arguments
+                  (call_expression
+                    (field_expression PLACEHOLDER_5 . into)
+                    (arguments)))))
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_2 . insert)
+                (arguments
+                  (call_expression
+                    (field_expression PLACEHOLDER_5 . into)
+                    (arguments))
+                  (binary_expression PLACEHOLDER_13 + 1u32))))
+            (let_declaration PLACEHOLDER_14 =
+              (call_expression
+                (field_expression PLACEHOLDER_2 . get)
+                (arguments
+                  (call_expression
+                    (field_expression PLACEHOLDER_6 . into)
+                    (arguments)))))
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_2 . insert)
+                (arguments
+                  (call_expression
+                    (field_expression PLACEHOLDER_6 . into)
+                    (arguments))
+                  (binary_expression PLACEHOLDER_14 + 1u32))))
+            (expression_statement
+              (if_expression
+                (unary_expression !
+                  (call_expression
+                    (field_expression PLACEHOLDER_3 . get)
+                    (arguments
+                      (call_expression
+                        (field_expression PLACEHOLDER_5 . into)
+                        (arguments)))))
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression PLACEHOLDER_3 . insert)
+                      (arguments
+                        (call_expression
+                          (field_expression PLACEHOLDER_5 . into)
+                          (arguments))
+                        (boolean_literal true))))
+                  (expression_statement
+                    (call_expression
+                      (field_expression PLACEHOLDER_4 . append)
+                      (arguments PLACEHOLDER_5))))))
+            (expression_statement
+              (if_expression
+                (unary_expression !
+                  (call_expression
+                    (field_expression PLACEHOLDER_3 . get)
+                    (arguments
+                      (call_expression
+                        (field_expression PLACEHOLDER_6 . into)
+                        (arguments)))))
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression PLACEHOLDER_3 . insert)
+                      (arguments
+                        (call_expression
+                          (field_expression PLACEHOLDER_6 . into)
+                          (arguments))
+                        (boolean_literal true))))
+                  (expression_statement
+                    (call_expression
+                      (field_expression PLACEHOLDER_4 . append)
+                      (arguments PLACEHOLDER_6)))))))))
+      (expression_statement
+        (if_expression
+          (unary_expression !
+            (call_expression PLACEHOLDER_15
+              (arguments
+                (unary_expression @ PLACEHOLDER_4) ref PLACEHOLDER_2)))
+          (block
+            (expression_statement
+              (return_expression
+                (scoped_identifier Option :: None))))))
+      (expression_statement
+        (if_expression
+          (unary_expression !
+            (call_expression PLACEHOLDER_16
+              (arguments
+                (unary_expression @ PLACEHOLDER_4) ref PLACEHOLDER_1)))
+          (block
+            (expression_statement
+              (return_expression
+                (scoped_identifier Option :: None))))))
+      (let_declaration PLACEHOLDER_17 =
+        (unary_expression *
+          (call_expression
+            (field_expression PLACEHOLDER_4 . at)
+            (arguments 0))))
+      (let_declaration mut PLACEHOLDER_18 :
+        (generic_type Array
+          (type_arguments <
+            (type_identifier u8) >)) =
+        (macro_invocation array !
+          (token_tree)))
+      (expression_statement
+        (call_expression PLACEHOLDER_19
+          (arguments PLACEHOLDER_17
+            (unary_expression @ PLACEHOLDER_4) ref PLACEHOLDER_1 ref PLACEHOLDER_18)))
+      (let_declaration mut PLACEHOLDER_20 :
+        (generic_type Array
+          (type_arguments < Domino >)) =
+        (macro_invocation array !
+          (token_tree)))
+      (let_declaration mut PLACEHOLDER_21 :
+        (type_identifier usize) = 1)
+      (let_declaration m =
+        (call_expression
+          (field_expression PLACEHOLDER_18 . len)
+          (arguments)))
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_21 < m)
+          (block
+            (let_declaration PLACEHOLDER_22 =
+              (unary_expression *
+                (call_expression
+                  (field_expression PLACEHOLDER_18 . at)
+                  (arguments
+                    (binary_expression PLACEHOLDER_21 - 1)))))
+            (let_declaration PLACEHOLDER_23 =
+              (unary_expression *
+                (call_expression
+                  (field_expression PLACEHOLDER_18 . at)
+                  (arguments PLACEHOLDER_21))))
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_20 . append)
+                (arguments
+                  (tuple_expression PLACEHOLDER_22 PLACEHOLDER_23))))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_21 += 1)))))
+      (call_expression
+        (scoped_identifier Option :: Some)
+        (arguments PLACEHOLDER_20))))
+  (function_item
+    (function PLACEHOLDER_19
+      (parameters
+        (parameter PLACEHOLDER_23 :
+          (type_identifier u8))
+        (parameter PLACEHOLDER_4 :
+          (snapshot_type @
+            (generic_type Array
+              (type_arguments <
+                (type_identifier u8) >))))
+        (parameter ref PLACEHOLDER_1 :
+          (generic_type Felt252Dict
+            (type_arguments <
+              (type_identifier u32) >)))
+        (parameter ref PLACEHOLDER_24 :
+          (generic_type Array
+            (type_arguments <
+              (type_identifier u8) >)))))
+    (block
+      (expression_statement
+        (loop_expression
+          (block
+            (expression_statement
+              (match_expression
+                (call_expression PLACEHOLDER_25
+                  (arguments PLACEHOLDER_23 PLACEHOLDER_4 ref PLACEHOLDER_1))
+                (match_block
+                  (match_arm
+                    (match_arm_content
+                      (match_pattern
+                        (tuple_enum_pattern
+                          (scoped_identifier Option :: Some) PLACEHOLDER_22)) =>
+                      (block
+                        (expression_statement
+                          (call_expression PLACEHOLDER_26
+                            (arguments PLACEHOLDER_23 PLACEHOLDER_22 ref PLACEHOLDER_1)))
+                        (expression_statement
+                          (call_expression PLACEHOLDER_19
+                            (arguments PLACEHOLDER_22 PLACEHOLDER_4 ref PLACEHOLDER_1 ref PLACEHOLDER_24))))))
+                  (match_arm
+                    (match_arm_content
+                      (match_pattern
+                        (scoped_identifier Option :: None)) =>
+                      (block
+                        (expression_statement
+                          (break_expression)))))))))))
+      (expression_statement
+        (call_expression
+          (field_expression PLACEHOLDER_24 . append)
+          (arguments PLACEHOLDER_23)))))
+  (function_item
+    (function PLACEHOLDER_25
+      (parameters
+        (parameter PLACEHOLDER_23 :
+          (type_identifier u8))
+        (parameter PLACEHOLDER_4 :
+          (snapshot_type @
+            (generic_type Array
+              (type_arguments <
+                (type_identifier u8) >))))
+        (parameter ref PLACEHOLDER_1 :
+          (generic_type Felt252Dict
+            (type_arguments <
+              (type_identifier u32) >)))) ->
+      (generic_type Option
+        (type_arguments <
+          (type_identifier u8) >)))
+    (block
+      (let_declaration mut i :
+        (type_identifier usize) = 0)
+      (let_declaration len =
+        (call_expression
+          (field_expression PLACEHOLDER_4 . len)
+          (arguments)))
+      (let_declaration PLACEHOLDER_27 =
+        (loop_expression
+          (block
+            (expression_statement
+              (if_expression
+                (binary_expression i >= len)
+                (block
+                  (expression_statement
+                    (break_expression
+                      (scoped_identifier Option :: None))))))
+            (let_declaration PLACEHOLDER_22 =
+              (unary_expression *
+                (call_expression
+                  (field_expression PLACEHOLDER_4 . at)
+                  (arguments i))))
+            (let_declaration
+              (tuple_pattern PLACEHOLDER_7 PLACEHOLDER_8) =
+              (call_expression PLACEHOLDER_9
+                (arguments PLACEHOLDER_23 PLACEHOLDER_22)))
+            (let_declaration PLACEHOLDER_10 =
+              (call_expression PLACEHOLDER_11
+                (arguments PLACEHOLDER_7 PLACEHOLDER_8)))
+            (expression_statement
+              (if_expression
+                (binary_expression
+                  (call_expression
+                    (field_expression PLACEHOLDER_1 . get)
+                    (arguments PLACEHOLDER_10)) > 0u32)
+                (block
+                  (expression_statement
+                    (break_expression
+                      (call_expression
+                        (scoped_identifier Option :: Some)
+                        (arguments PLACEHOLDER_22)))))))
+            (expression_statement
+              (compound_assignment_expr i += 1))))) PLACEHOLDER_27))
+  (function_item
+    (function PLACEHOLDER_26
+      (parameters
+        (parameter PLACEHOLDER_5 :
+          (type_identifier u8))
+        (parameter PLACEHOLDER_6 :
+          (type_identifier u8))
+        (parameter ref PLACEHOLDER_1 :
+          (generic_type Felt252Dict
+            (type_arguments <
+              (type_identifier u32) >)))))
+    (block
+      (let_declaration
+        (tuple_pattern PLACEHOLDER_7 PLACEHOLDER_8) =
+        (call_expression PLACEHOLDER_9
+          (arguments PLACEHOLDER_5 PLACEHOLDER_6)))
+      (let_declaration PLACEHOLDER_10 =
+        (call_expression PLACEHOLDER_11
+          (arguments PLACEHOLDER_7 PLACEHOLDER_8)))
+      (let_declaration PLACEHOLDER_28 =
+        (call_expression
+          (field_expression PLACEHOLDER_1 . get)
+          (arguments PLACEHOLDER_10)))
+      (expression_statement
+        (call_expression
+          (field_expression PLACEHOLDER_1 . insert)
+          (arguments PLACEHOLDER_10
+            (binary_expression PLACEHOLDER_28 - 1u32))))))
+  (function_item
+    (function PLACEHOLDER_15
+      (parameters
+        (parameter PLACEHOLDER_4 :
+          (snapshot_type @
+            (generic_type Array
+              (type_arguments <
+                (type_identifier u8) >))))
+        (parameter ref PLACEHOLDER_2 :
+          (generic_type Felt252Dict
+            (type_arguments <
+              (type_identifier u32) >)))) ->
+      (type_identifier bool))
+    (block
+      (let_declaration mut i :
+        (type_identifier usize) = 0)
+      (let_declaration len =
+        (call_expression
+          (field_expression PLACEHOLDER_4 . len)
+          (arguments)))
+      (let_declaration PLACEHOLDER_27 =
+        (loop_expression
+          (block
+            (expression_statement
+              (if_expression
+                (binary_expression i >= len)
+                (block
+                  (expression_statement
+                    (break_expression
+                      (boolean_literal true))))))
+            (let_declaration PLACEHOLDER_23 =
+              (unary_expression *
+                (call_expression
+                  (field_expression PLACEHOLDER_4 . at)
+                  (arguments i))))
+            (let_declaration d =
+              (call_expression
+                (field_expression PLACEHOLDER_2 . get)
+                (arguments
+                  (call_expression
+                    (field_expression PLACEHOLDER_23 . into)
+                    (arguments)))))
+            (expression_statement
+              (if_expression
+                (binary_expression
+                  (binary_expression d % 2u32) != 0u32)
+                (block
+                  (expression_statement
+                    (break_expression
+                      (boolean_literal false))))))
+            (expression_statement
+              (compound_assignment_expr i += 1))))) PLACEHOLDER_27))
+  (function_item
+    (function PLACEHOLDER_16
+      (parameters
+        (parameter PLACEHOLDER_4 :
+          (snapshot_type @
+            (generic_type Array
+              (type_arguments <
+                (type_identifier u8) >))))
+        (parameter ref PLACEHOLDER_1 :
+          (generic_type Felt252Dict
+            (type_arguments <
+              (type_identifier u32) >)))) ->
+      (type_identifier bool))
+    (block
+      (expression_statement
+        (if_expression
+          (binary_expression
+            (call_expression
+              (field_expression PLACEHOLDER_4 . len)
+              (arguments)) == 0)
+          (block
+            (expression_statement
+              (return_expression
+                (boolean_literal true))))))
+      (let_declaration PLACEHOLDER_17 =
+        (unary_expression *
+          (call_expression
+            (field_expression PLACEHOLDER_4 . at)
+            (arguments 0))))
+      (let_declaration mut visited :
+        (generic_type Felt252Dict
+          (type_arguments <
+            (type_identifier bool) >)) =
+        (call_expression
+          (scoped_identifier Default :: default)
+          (arguments)))
+      (let_declaration mut PLACEHOLDER_29 :
+        (generic_type Array
+          (type_arguments <
+            (type_identifier u8) >)) =
+        (macro_invocation array !
+          (token_tree PLACEHOLDER_17)))
+      (expression_statement
+        (call_expression
+          (field_expression visited . insert)
+          (arguments
+            (call_expression
+              (field_expression PLACEHOLDER_17 . into)
+              (arguments))
+            (boolean_literal true))))
+      (let_declaration mut PLACEHOLDER_30 :
+        (type_identifier usize) = 0)
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_30 <
+            (call_expression
+              (field_expression PLACEHOLDER_29 . len)
+              (arguments)))
+          (block
+            (let_declaration PLACEHOLDER_23 =
+              (unary_expression *
+                (call_expression
+                  (field_expression PLACEHOLDER_29 . at)
+                  (arguments PLACEHOLDER_30))))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_30 += 1))
+            (let_declaration mut i :
+              (type_identifier usize) = 0)
+            (let_declaration n =
+              (call_expression
+                (field_expression PLACEHOLDER_4 . len)
+                (arguments)))
+            (expression_statement
+              (while_expression
+                (binary_expression i < n)
+                (block
+                  (let_declaration PLACEHOLDER_22 =
+                    (unary_expression *
+                      (call_expression
+                        (field_expression PLACEHOLDER_4 . at)
+                        (arguments i))))
+                  (let_declaration
+                    (tuple_pattern PLACEHOLDER_7 PLACEHOLDER_8) =
+                    (call_expression PLACEHOLDER_9
+                      (arguments PLACEHOLDER_23 PLACEHOLDER_22)))
+                  (let_declaration PLACEHOLDER_10 =
+                    (call_expression PLACEHOLDER_11
+                      (arguments PLACEHOLDER_7 PLACEHOLDER_8)))
+                  (expression_statement
+                    (if_expression
+                      (binary_expression
+                        (binary_expression
+                          (call_expression
+                            (field_expression PLACEHOLDER_1 . get)
+                            (arguments PLACEHOLDER_10)) > 0u32) &&
+                        (unary_expression !
+                          (call_expression
+                            (field_expression visited . get)
+                            (arguments
+                              (call_expression
+                                (field_expression PLACEHOLDER_22 . into)
+                                (arguments))))))
+                      (block
+                        (expression_statement
+                          (call_expression
+                            (field_expression visited . insert)
+                            (arguments
+                              (call_expression
+                                (field_expression PLACEHOLDER_22 . into)
+                                (arguments))
+                              (boolean_literal true))))
+                        (expression_statement
+                          (call_expression
+                            (field_expression PLACEHOLDER_29 . append)
+                            (arguments PLACEHOLDER_22))))))
+                  (expression_statement
+                    (compound_assignment_expr i += 1))))))))
+      (let_declaration mut PLACEHOLDER_31 :
+        (type_identifier usize) = 0)
+      (let_declaration n =
+        (call_expression
+          (field_expression PLACEHOLDER_4 . len)
+          (arguments)))
+      (let_declaration PLACEHOLDER_32 =
+        (loop_expression
+          (block
+            (expression_statement
+              (if_expression
+                (binary_expression PLACEHOLDER_31 >= n)
+                (block
+                  (expression_statement
+                    (break_expression
+                      (boolean_literal true))))))
+            (let_declaration PLACEHOLDER_23 =
+              (unary_expression *
+                (call_expression
+                  (field_expression PLACEHOLDER_4 . at)
+                  (arguments PLACEHOLDER_31))))
+            (expression_statement
+              (if_expression
+                (unary_expression !
+                  (call_expression
+                    (field_expression visited . get)
+                    (arguments
+                      (call_expression
+                        (field_expression PLACEHOLDER_23 . into)
+                        (arguments)))))
+                (block
+                  (expression_statement
+                    (break_expression
+                      (boolean_literal false))))))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_31 += 1))))) PLACEHOLDER_32))
+  (attribute_item #
+    (attribute inline
+      (token_tree always)))
+  (function_item
+    (function PLACEHOLDER_9
+      (parameters
+        (parameter PLACEHOLDER_5 :
+          (type_identifier u8))
+        (parameter PLACEHOLDER_6 :
+          (type_identifier u8))) ->
+      (tuple_type
+        (type_identifier u8)
+        (type_identifier u8)))
+    (block
+      (expression_statement
+        (if_expression
+          (binary_expression PLACEHOLDER_5 <= PLACEHOLDER_6)
+          (block
+            (tuple_expression PLACEHOLDER_5 PLACEHOLDER_6))
+          (else_clause
+            (block
+              (tuple_expression PLACEHOLDER_6 PLACEHOLDER_5)))))))
+  (attribute_item #
+    (attribute inline
+      (token_tree always)))
+  (function_item
+    (function PLACEHOLDER_11
+      (parameters
+        (parameter PLACEHOLDER_7 :
+          (type_identifier u8))
+        (parameter PLACEHOLDER_8 :
+          (type_identifier u8))) ->
+      (type_identifier felt252))
+    (block
+      (binary_expression
+        (binary_expression
+          (call_expression
+            (field_expression PLACEHOLDER_7 . into)
+            (arguments)) * 256) +
+        (call_expression
+          (field_expression PLACEHOLDER_8 . into)
+          (arguments))))))

@@ -1,94 +1,242 @@
-// Returns a welcome message for the customer.
-pub fn welcome_message(customer: felt252) -> ByteArray {
-let mut result: ByteArray = "\"Welcome" to the Tech Palace, "\";"
-result += to_uppercase(customer.into());
-result
-}
-// Adds a border to a welcome message.
-pub fn add_border(welcome_msg: ByteArray, num_stars_per_line: u32) -> ByteArray {
-let mut stars: ByteArray = "\"\";"
-let mut i = 0;
-while i < num_stars_per_line {
-stars.append_byte('*');
-i += 1;
-}
-let mut result = stars.clone();
-result.append_byte('\n');
-result += welcome_msg;
-result.append_byte('\n');
-result += stars;
-result
-}
-// Cleans up an old marketing message.
-pub fn clean_up_message(old_msg: ByteArray) -> ByteArray {
-let mut no_stars: ByteArray = "\"\";"
-// Remove all stars.
-let mut i = 0;
-while i < old_msg.len() {
-let c = old_msg[i];
-if c != '*' {
-no_stars.append_byte(c);
-}
-i += 1;
-}
-// Remove leading whitespace.
-let mut start = 0;
-while start < no_stars.len() {
-if !is_whitespace(no_stars[start]) {
-break;
-}
-start += 1;
-}
-// Remove trailing whitespace.
-let mut end = no_stars.len();
-while end > start {
-if !is_whitespace(no_stars[end - 1]) {
-break;
-}
-end -= 1;
-}
-// Build the cleaned string.
-let mut result: ByteArray = "\"\";"
-let mut j = start;
-while j < end {
-result.append_byte(no_stars[j]);
-j += 1;
-}
-result
-}
-///////////////
-/// Helpers ///
-///////////////
-// Distance between a lowercase and uppercase representations
-// of the same character in the ASCII table
-const ASCII_CASE_OFFSET: u8 = 32;
-const BYTE_SIZE: u256 = 256; // 2^8, number of possible values in a byte
-const BYTE_MASK: u256 = 0xff; // Mask to extract the last byte (8 bits)
-fn to_uppercase(input: u256) -> ByteArray {
-let mut remaining_bytes = input;
-let mut uppercase_chars: ByteArray = "\"\";"
-while remaining_bytes != 0 {
-uppercase_chars.append_byte(char_to_uppercase(get_last_byte(remaining_bytes)));
-remaining_bytes = remove_last_byte(remaining_bytes);
-}
-uppercase_chars.rev()
-}
-fn get_last_byte(chars: u256) -> u8 {
-(chars & BYTE_MASK.into()).try_into().unwrap()
-}
-fn remove_last_byte(chars: u256) -> u256 {
-chars / BYTE_SIZE.into()
-}
-fn char_to_uppercase(c: u8) -> u8 {
-if is_lowercase(c) {
-c - ASCII_CASE_OFFSET
-} else {
-c
-}
-}
-fn is_lowercase(c: u8) -> bool {
-c >= 'a' && c <= 'z'
-}
-fn is_whitespace(chr: u8) -> bool {
-chr == ' ' || chr == '\t' || chr == '\n' || chr == '\r'
-}
+(source_file
+  (function_item
+    (visibility_modifier)
+    (function welcome_message
+      (parameters
+        (parameter customer :
+          (type_identifier felt252))) ->
+      (type_identifier ByteArray))
+    (block
+      (let_declaration mut PLACEHOLDER_1 :
+        (type_identifier ByteArray) = "\"Welcome to the Tech Palace, \"")
+      (expression_statement
+        (compound_assignment_expr PLACEHOLDER_1 +=
+          (call_expression to_uppercase
+            (arguments
+              (call_expression
+                (field_expression customer . into)
+                (arguments)))))) PLACEHOLDER_1))
+  (function_item
+    (visibility_modifier)
+    (function add_border
+      (parameters
+        (parameter welcome_msg :
+          (type_identifier ByteArray))
+        (parameter num_stars_per_line :
+          (type_identifier u32))) ->
+      (type_identifier ByteArray))
+    (block
+      (let_declaration mut PLACEHOLDER_2 :
+        (type_identifier ByteArray) = "\"\"")
+      (let_declaration mut PLACEHOLDER_3 = 0)
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_3 < num_stars_per_line)
+          (block
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_2 . append_byte)
+                (arguments '*')))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_3 += 1)))))
+      (let_declaration mut PLACEHOLDER_1 =
+        (call_expression
+          (field_expression PLACEHOLDER_2 . clone)
+          (arguments)))
+      (expression_statement
+        (call_expression
+          (field_expression PLACEHOLDER_1 . append_byte)
+          (arguments "'\\n'")))
+      (expression_statement
+        (compound_assignment_expr PLACEHOLDER_1 += welcome_msg))
+      (expression_statement
+        (call_expression
+          (field_expression PLACEHOLDER_1 . append_byte)
+          (arguments "'\\n'")))
+      (expression_statement
+        (compound_assignment_expr PLACEHOLDER_1 += PLACEHOLDER_2)) PLACEHOLDER_1))
+  (function_item
+    (visibility_modifier)
+    (function clean_up_message
+      (parameters
+        (parameter old_msg :
+          (type_identifier ByteArray))) ->
+      (type_identifier ByteArray))
+    (block
+      (let_declaration mut PLACEHOLDER_4 :
+        (type_identifier ByteArray) = "\"\"")
+      (let_declaration mut PLACEHOLDER_3 = 0)
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_3 <
+            (call_expression
+              (field_expression old_msg . len)
+              (arguments)))
+          (block
+            (let_declaration PLACEHOLDER_5 =
+              (index_expression old_msg PLACEHOLDER_3))
+            (expression_statement
+              (if_expression
+                (binary_expression PLACEHOLDER_5 != '*')
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression PLACEHOLDER_4 . append_byte)
+                      (arguments PLACEHOLDER_5))))))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_3 += 1)))))
+      (let_declaration mut PLACEHOLDER_6 = 0)
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_6 <
+            (call_expression
+              (field_expression PLACEHOLDER_4 . len)
+              (arguments)))
+          (block
+            (expression_statement
+              (if_expression
+                (unary_expression !
+                  (call_expression is_whitespace
+                    (arguments
+                      (index_expression PLACEHOLDER_4 PLACEHOLDER_6))))
+                (block
+                  (expression_statement
+                    (break_expression)))))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_6 += 1)))))
+      (let_declaration mut PLACEHOLDER_7 =
+        (call_expression
+          (field_expression PLACEHOLDER_4 . len)
+          (arguments)))
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_7 > PLACEHOLDER_6)
+          (block
+            (expression_statement
+              (if_expression
+                (unary_expression !
+                  (call_expression is_whitespace
+                    (arguments
+                      (index_expression PLACEHOLDER_4
+                        (binary_expression PLACEHOLDER_7 - 1)))))
+                (block
+                  (expression_statement
+                    (break_expression)))))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_7 -= 1)))))
+      (let_declaration mut PLACEHOLDER_1 :
+        (type_identifier ByteArray) = "\"\"")
+      (let_declaration mut PLACEHOLDER_8 = PLACEHOLDER_6)
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_8 < PLACEHOLDER_7)
+          (block
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_1 . append_byte)
+                (arguments
+                  (index_expression PLACEHOLDER_4 PLACEHOLDER_8))))
+            (expression_statement
+              (compound_assignment_expr PLACEHOLDER_8 += 1))))) PLACEHOLDER_1))
+  (const_item PLACEHOLDER_9 :
+    (type_identifier u8) = 32)
+  (const_item PLACEHOLDER_10 :
+    (type_identifier u256) = 256)
+  (const_item PLACEHOLDER_11 :
+    (type_identifier u256) = 0xff)
+  (function_item
+    (function to_uppercase
+      (parameters
+        (parameter PLACEHOLDER_12 :
+          (type_identifier u256))) ->
+      (type_identifier ByteArray))
+    (block
+      (let_declaration mut PLACEHOLDER_13 = PLACEHOLDER_12)
+      (let_declaration mut PLACEHOLDER_14 :
+        (type_identifier ByteArray) = "\"\"")
+      (expression_statement
+        (while_expression
+          (binary_expression PLACEHOLDER_13 != 0)
+          (block
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_14 . append_byte)
+                (arguments
+                  (call_expression char_to_uppercase
+                    (arguments
+                      (call_expression get_last_byte
+                        (arguments PLACEHOLDER_13)))))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_13 =
+                (call_expression remove_last_byte
+                  (arguments PLACEHOLDER_13)))))))
+      (call_expression
+        (field_expression PLACEHOLDER_14 . rev)
+        (arguments))))
+  (function_item
+    (function get_last_byte
+      (parameters
+        (parameter PLACEHOLDER_15 :
+          (type_identifier u256))) ->
+      (type_identifier u8))
+    (block
+      (call_expression
+        (field_expression
+          (call_expression
+            (field_expression
+              (binary_expression PLACEHOLDER_15 &
+                (call_expression
+                  (field_expression PLACEHOLDER_11 . into)
+                  (arguments))) . try_into)
+            (arguments)) . unwrap)
+        (arguments))))
+  (function_item
+    (function remove_last_byte
+      (parameters
+        (parameter PLACEHOLDER_15 :
+          (type_identifier u256))) ->
+      (type_identifier u256))
+    (block
+      (binary_expression PLACEHOLDER_15 /
+        (call_expression
+          (field_expression PLACEHOLDER_10 . into)
+          (arguments)))))
+  (function_item
+    (function char_to_uppercase
+      (parameters
+        (parameter PLACEHOLDER_5 :
+          (type_identifier u8))) ->
+      (type_identifier u8))
+    (block
+      (expression_statement
+        (if_expression
+          (call_expression is_lowercase
+            (arguments PLACEHOLDER_5))
+          (block
+            (binary_expression PLACEHOLDER_5 - PLACEHOLDER_9))
+          (else_clause
+            (block PLACEHOLDER_5))))))
+  (function_item
+    (function is_lowercase
+      (parameters
+        (parameter PLACEHOLDER_5 :
+          (type_identifier u8))) ->
+      (type_identifier bool))
+    (block
+      (binary_expression
+        (binary_expression PLACEHOLDER_5 >= 'a') &&
+        (binary_expression PLACEHOLDER_5 <= 'z'))))
+  (function_item
+    (function is_whitespace
+      (parameters
+        (parameter PLACEHOLDER_16 :
+          (type_identifier u8))) ->
+      (type_identifier bool))
+    (block
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_16 == "' '") ||
+            (binary_expression PLACEHOLDER_16 == "'\\t'")) ||
+          (binary_expression PLACEHOLDER_16 == "'\\n'")) ||
+        (binary_expression PLACEHOLDER_16 == "'\\r'")))))

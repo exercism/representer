@@ -1,58 +1,141 @@
-use core::dict::Felt252Dict;
-use core::to_byte_array::AppendFormattedToByteArray;
-#[derive(Drop, Copy)]
-pub struct VoteCounter {
-pub value: u32,
-}
-#[derive(Drop)]
-pub struct ElectionResult {
-pub name: ByteArray,
-pub vote_counter: @VoteCounter,
-}
-pub fn new_vote_counter(value: u32) -> @VoteCounter {
-@VoteCounter { value }
-}
-pub fn vote_count(vote_counter: @VoteCounter) -> u32 {
-*vote_counter.value
-}
-pub fn increment_vote_count(
-vote_counter: @VoteCounter,
-by: u32,
-) -> VoteCounter {
-VoteCounter {
-value: *vote_counter.value + by,
-}
-}
-pub fn new_election_result(
-name: ByteArray,
-votes: u32,
-) -> ElectionResult {
-ElectionResult {
-name,
-vote_counter: new_vote_counter(votes),
-}
-}
-pub fn display_result(
-election_result: @ElectionResult,
-) -> ByteArray {
-let mut result = election_result.name.clone();
-result += "\"" (";
-result += u32_to_bytearray(**election_result.vote_counter.value);
-result += "\")\";"
-result
-}
-pub fn decrement_votes_of_candidate(
-ref final_results: Felt252Dict<u32>,
-candidate: felt252,
-) {
-let votes = final_results.get(candidate);
-if votes > 0 {
-final_results.insert(candidate, votes - 1);
-}
-}
-// Helper function showing how integers can be converted into the ByteArray type
-fn u32_to_bytearray(v: u32) -> ByteArray {
-let mut result = "\"\";"
-v.append_formatted_to_byte_array(ref result, 10);
-result
-}
+(source_file
+  (use_declaration
+    (scoped_identifier
+      (scoped_identifier core :: dict) :: Felt252Dict))
+  (use_declaration
+    (scoped_identifier
+      (scoped_identifier core :: to_byte_array) :: AppendFormattedToByteArray))
+  (attribute_item #
+    (attribute derive
+      (token_tree Drop Copy)))
+  (struct_item
+    (visibility_modifier) (type_identifier PLACEHOLDER_1)
+    (field_declaration_list
+      (field_declaration
+        (visibility_modifier) value :
+        (type_identifier u32))))
+  (attribute_item #
+    (attribute derive
+      (token_tree Drop)))
+  (struct_item
+    (visibility_modifier) (type_identifier PLACEHOLDER_2)
+    (field_declaration_list
+      (field_declaration
+        (visibility_modifier) name :
+        (type_identifier ByteArray))
+      (field_declaration
+        (visibility_modifier) vote_counter :
+        (snapshot_type @ (type_identifier PLACEHOLDER_1)))))
+  (function_item
+    (visibility_modifier)
+    (function new_vote_counter
+      (parameters
+        (parameter value :
+          (type_identifier u32))) ->
+      (snapshot_type @ (type_identifier PLACEHOLDER_1)))
+    (block
+      (unary_expression @
+        (struct_expression (type_identifier PLACEHOLDER_1)
+          (field_initializer_list
+            (field_initializer value : value))))))
+  (function_item
+    (visibility_modifier)
+    (function vote_count
+      (parameters
+        (parameter vote_counter :
+          (snapshot_type @ (type_identifier PLACEHOLDER_1)))) ->
+      (type_identifier u32))
+    (block
+      (unary_expression *
+        (field_expression vote_counter . value))))
+  (function_item
+    (visibility_modifier)
+    (function increment_vote_count
+      (parameters
+        (parameter vote_counter :
+          (snapshot_type @ (type_identifier PLACEHOLDER_1)))
+        (parameter PLACEHOLDER_3 :
+          (type_identifier u32))) -> (type_identifier PLACEHOLDER_1))
+    (block
+      (struct_expression (type_identifier PLACEHOLDER_1)
+        (field_initializer_list
+          (field_initializer value :
+            (binary_expression
+              (unary_expression *
+                (field_expression vote_counter . value)) + PLACEHOLDER_3))))))
+  (function_item
+    (visibility_modifier)
+    (function new_election_result
+      (parameters
+        (parameter name :
+          (type_identifier ByteArray))
+        (parameter votes :
+          (type_identifier u32))) -> (type_identifier PLACEHOLDER_2))
+    (block
+      (struct_expression (type_identifier PLACEHOLDER_2)
+        (field_initializer_list
+          (field_initializer name : name)
+          (field_initializer vote_counter :
+            (call_expression new_vote_counter
+              (arguments votes)))))))
+  (function_item
+    (visibility_modifier)
+    (function display_result
+      (parameters
+        (parameter PLACEHOLDER_4 :
+          (snapshot_type @ (type_identifier PLACEHOLDER_2)))) ->
+      (type_identifier ByteArray))
+    (block
+      (let_declaration mut result =
+        (call_expression
+          (field_expression
+            (field_expression PLACEHOLDER_4 . name) . clone)
+          (arguments)))
+      (expression_statement
+        (compound_assignment_expr result += "\" (\""))
+      (expression_statement
+        (compound_assignment_expr result +=
+          (call_expression u32_to_bytearray
+            (arguments
+              (unary_expression *
+                (unary_expression *
+                  (field_expression
+                    (field_expression PLACEHOLDER_4 . vote_counter) . value)))))))
+      (expression_statement
+        (compound_assignment_expr result += "\")\"")) result))
+  (function_item
+    (visibility_modifier)
+    (function decrement_votes_of_candidate
+      (parameters
+        (parameter ref PLACEHOLDER_5 :
+          (generic_type Felt252Dict
+            (type_arguments <
+              (type_identifier u32) >)))
+        (parameter PLACEHOLDER_6 :
+          (type_identifier felt252))))
+    (block
+      (let_declaration votes =
+        (call_expression
+          (field_expression PLACEHOLDER_5 . get)
+          (arguments PLACEHOLDER_6)))
+      (expression_statement
+        (if_expression
+          (binary_expression votes > 0)
+          (block
+            (expression_statement
+              (call_expression
+                (field_expression PLACEHOLDER_5 . insert)
+                (arguments PLACEHOLDER_6
+                  (binary_expression votes - 1)))))))))
+  (function_item
+    (function u32_to_bytearray
+      (parameters
+        (parameter PLACEHOLDER_7 :
+          (type_identifier u32))) ->
+      (type_identifier ByteArray))
+    (block
+      (let_declaration mut result = "\"\"")
+      (expression_statement
+        (call_expression
+          (field_expression PLACEHOLDER_7 . append_formatted_to_byte_array)
+          (arguments ref result 10))) result)))

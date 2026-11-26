@@ -1,25 +1,35 @@
-USING: kernel math namespaces sequences accessors ;
-IN: garden-gathering
-TUPLE: plot id registered-to ;
-SYMBOLS: registrations next-id not-found ;
-: open-garden ( -- )
-V{ } clone registrations set-global
-1 next-id set-global ;
-: list-registrations ( -- plots )
-registrations get-global ;
-: register ( name -- plot )
-[ next-id get-global ] dip
-plot boa
-[ registrations get-global push ] keep
-next-id [ 1 + ] change-global ;
-: release ( id -- )
-registrations get-global
-[ id>> = ] with find
-[ registrations get-global remove-nth! ] when drop ;
-: get-registration ( id -- plot/symbol )
-registrations get-global
-[ id>> = ] with find nip
-[ not-found ] unless* ;
-: find-by-name ( name -- plots )
-registrations get-global
-[ registered-to>> = ] with filter ;
+(source_file USING: kernel math namespaces sequences accessors ; IN: garden-gathering TUPLE: plot id registered-to ; SYMBOLS: registrations next-id not-found ;
+  (definition : open-garden
+    (effect)
+    (collection
+      (vector V{)) clone registrations set-global
+    (number
+      (integer 1)) next-id set-global)
+  (definition : list-registrations
+    (effect
+      (outputs PLACEHOLDER_1)) registrations get-global)
+  (definition : register
+    (effect
+      (inputs PLACEHOLDER_2)
+      (outputs plot))
+    (quote next-id get-global) dip plot boa
+    (quote registrations get-global push) keep next-id
+    (quote
+      (number
+        (integer 1)) +) change-global)
+  (definition : release
+    (effect
+      (inputs id)) registrations get-global
+    (quote id>> =) with find
+    (quote registrations get-global remove-nth!) when drop)
+  (definition : get-registration
+    (effect
+      (inputs id)
+      (outputs PLACEHOLDER_3)) registrations get-global
+    (quote id>> =) with find nip
+    (quote not-found) unless*)
+  (definition : find-by-name
+    (effect
+      (inputs PLACEHOLDER_2)
+      (outputs PLACEHOLDER_1)) registrations get-global
+    (quote registered-to>> =) with filter))
