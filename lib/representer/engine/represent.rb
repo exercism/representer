@@ -33,6 +33,13 @@ module Representer
       private
       # Parses the source and applies the drop and rewrite rules.
       def prepare(source)
+        tree = parse(source)
+        @root_type = tree.type
+        drop(tree)
+        rewrite(tree)
+      end
+
+      def parse(source)
         source = Engine.clean(source)
         tree = Grammar[language.grammar].parse(
           source, skip_tokens: language.dropped_tokens, kept_tokens: language.kept_tokens,
@@ -42,9 +49,7 @@ module Representer
           problem = check.(source, tree)
           raise CannotRepresent.new("parse_error", problem) if problem
         end
-        @root_type = tree.type
-        drop(tree)
-        rewrite(tree)
+        tree
       end
 
       # The files' trees in an order that depends only on the code, so the
@@ -137,7 +142,9 @@ module Representer
 
       # Names that the exercise fixes: every name in the tests (and any other
       # exercise file that isn't the stub), and the members that the stub
-      # defines. Exercise files that don't parse are ignored.
+      # defines. Exercise files that don't parse are ignored. A test's names
+      # are read before the rules drop anything too, so a name that only
+      # appears in a test's import (`use TwoFer;`) still counts.
       #
       # A stub is a file that `.meta/config.json` lists as a solution file, or
       # that has the name of one of the student's files. So a student who
@@ -158,7 +165,7 @@ module Representer
           if stub?(filename)
             names.merge(Names.new(language, [tree], Set.new).member_defs)
           else
-            Names.each_name(language, tree) { |_leaf, name| names << name }
+            [tree, parse(source)].each { |names_tree| Names.each_name(language, names_tree) { |_leaf, name| names << name } }
           end
         end
         names

@@ -166,6 +166,20 @@ module Representer
         end
       end
 
+      # Writes every number leaf of these types in one canonical form. The
+      # block receives the number's text and returns its canonical text, or
+      # nil to keep the text as it is (see Engine::Numbers for readers). Only
+      # give two spellings one form if the language reads them as the same
+      # value of the same type.
+      def numbers(*types, &canonical)
+        types.each do |type|
+          rewrite("(#{type}) @number", where: ->(match) { match.node.leaf? }) do |match|
+            text = yield(match.node.text)
+            !text || text == match.node.text ? nil : leaf(match.node.type, text)
+          end
+        end
+      end
+
       ### Rename rules ###
       # Each pattern captures the name's leaf as @name.
 

@@ -68,6 +68,9 @@ end
 # - add / remove: names to add to or remove from the old mapping.
 # - unrepresentable: the input has a syntax error, so it gets no
 #   representation. The test checks that, and nothing else.
+# - merges_with: the names of other tests that this representer gives the
+#   same representation, although the old one kept them apart (such as two
+#   solutions that differ only in their imports).
 # - why: the reason, which every deviation must give.
 module UpstreamTests
   Case = Struct.new(:name, :solution_files, :equivalent, :key, :mapping_names, :deviation, keyword_init: true)
@@ -99,7 +102,7 @@ module UpstreamTests
 
       define_method("test_upstream_#{test_case.name}_mapping") do
         actual = Representer::RepresentSolution.(track, test_case.solution_files, {})
-        assert_equal test_case.mapping_names.sort, actual.mapping.values.sort
+        assert_equal test_case.mapping_names.uniq.sort, actual.mapping.values.uniq.sort
       end
     end
 
@@ -109,13 +112,17 @@ module UpstreamTests
         [test_case.name, Representer::RepresentSolution.(track, test_case.solution_files, {}).representation]
       end
       represented.combination(2).each do |a, b|
-        if a.key == b.key
+        if a.key == b.key || UpstreamTests.merged?(a, b)
           assert_equal representations[a.name], representations[b.name], "#{a.name} and #{b.name} should match"
         else
           refute_equal representations[a.name], representations[b.name], "#{a.name} and #{b.name} should differ"
         end
       end
     end
+  end
+
+  def self.merged?(first, second)
+    Array(first.deviation[:merges_with]).include?(second.name) || Array(second.deviation[:merges_with]).include?(first.name)
   end
 
   PLACEHOLDER_KEY = /\A@?(PLACEHOLDER|IDENTIFIER|IDENT|FUNCVAR|FUNC|fn|v|C|m)_?\d+@?\z/i

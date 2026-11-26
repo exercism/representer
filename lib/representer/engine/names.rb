@@ -3,8 +3,9 @@ module Representer
     # Decides which names to replace with placeholders, using a language's
     # rename and keep rules (see Language), and hands out the placeholders.
     #
-    # Renaming goes by name, not by scope: every use of a renamed name gets
-    # the same placeholder, as the old per-track representers did.
+    # Renaming goes by name: every use of a renamed name gets the same
+    # placeholder, as the old per-track representers did. The one exception
+    # is a local name that a language's rules have given a scope.
     class Names
       attr_reader :member_defs, :mapping
 
@@ -59,7 +60,7 @@ module Representer
         name = leaf.text.delete_prefix(prefix)
         return (@language.folds_names? ? "#{prefix}#{@fold.(name)}" : nil) unless rename?(leaf, name)
 
-        text = "#{prefix}#{blank ? '_' : placeholder(name)}"
+        text = "#{prefix}#{blank ? '_' : placeholder(name, leaf.scope)}"
         leaf.type == @language.names.keys.first ? text : "(#{leaf.type} #{text})"
       end
 
@@ -71,8 +72,12 @@ module Representer
         leaf.role != :member || @member_defs.include?(folded)
       end
 
-      def placeholder(name)
-        @placeholders[@fold.(name)] ||= "PLACEHOLDER_#{@placeholders.size + 1}".tap { |placeholder| @mapping[placeholder] = name }
+      # A local name in a scope (see Node#scope) gets a placeholder of its
+      # own, so the numbers don't depend on whether two methods happen to
+      # use the same name for their locals.
+      def placeholder(name, scope = nil)
+        @placeholders[[@fold.(name), scope&.object_id]] ||=
+          "PLACEHOLDER_#{@placeholders.size + 1}".tap { |placeholder| @mapping[placeholder] = name }
       end
 
       def collect(rules, node)

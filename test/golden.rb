@@ -148,8 +148,8 @@ module Golden
   end
 
   # Writes every solution's representation.txt and the track's
-  # differences.yml. A difference already recorded keeps its status and
-  # note. A new one is marked undecided, with a note that says where the
+  # differences.yml. A difference already recorded keeps its status, note
+  # and the reason for its status (why). A new one is marked undecided, with a note that says where the
   # solutions differ.
   def self.regenerate(track)
     solutions = solutions(track)
@@ -169,8 +169,9 @@ module Golden
       old = recorded[key(difference)]
       difference.merge(
         "status" => old ? old["status"] : "undecided",
+        "why" => old&.[]("why"),
         "note" => old ? old["note"] : difference["note"] || Notes.(track, difference, texts)
-      )
+      ).compact
     end
     File.write(differences_path(track), DIFFERENCES_HEADER + format_differences(differences))
   end
@@ -191,7 +192,7 @@ module Golden
     #   variant, a copy with one small change to its code (see variant.yml).
     #
     # status is undecided until iHiD decides whether the difference is right
-    # (accepted) or a bug to fix (rejected).
+    # (accepted) or a bug to fix (rejected), and why then says why.
   YAML
 
   def self.format_differences(differences)
@@ -202,6 +203,7 @@ module Golden
       difference["solutions"].each { |names| lines << "    - [#{names.map { |name| yaml_name(name) }.join(', ')}]" }
       lines << "  reason: #{difference['reason'].to_json}" if difference["reason"]
       lines << "  status: #{difference['status']}"
+      lines << "  why: #{difference['why'].to_json}" if difference["why"]
       lines << "  note: #{difference['note'].to_json}"
       lines.join("\n")
     end

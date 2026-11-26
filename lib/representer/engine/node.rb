@@ -16,8 +16,11 @@ module Representer
     #   contents), which the output always writes in quotes.
     # - role: set by the naming rules. :member for a name after a dot, which
     #   is only renamed if the solution defines a member with that name.
+    # - scope: set by a language's rules for a local name, to the node that
+    #   holds the name's declaration (such as a method). Two locals with the
+    #   same name in different scopes get different placeholders.
     class Node
-      attr_accessor :type, :text, :named, :field, :children, :quoted, :role
+      attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :scope
 
       def initialize(type, children = [], text: nil, named: true, field: nil, quoted: false)
         @type = type.to_s
@@ -27,6 +30,7 @@ module Representer
         @field = field&.to_s
         @quoted = quoted
         @role = nil
+        @scope = nil
       end
 
       def self.leaf(type, text, quoted: false) = new(type, [], text:, quoted:)

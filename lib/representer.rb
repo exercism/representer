@@ -42,6 +42,7 @@ module Representer
 end
 
 require_relative "representer/engine/node"
+require_relative "representer/engine/numbers"
 require_relative "representer/engine/pattern"
 require_relative "representer/engine/template"
 require_relative "representer/engine/grammar"
