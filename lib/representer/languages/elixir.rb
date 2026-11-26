@@ -24,8 +24,8 @@ module Representer
       ### Drop ###
 
       # Comments, and the documentation attributes (docstrings).
-      drop "(comment)"
-      drop "(unary_operator operator: \"@\" operand: (call target: (identifier /\\A(moduledoc|doc|typedoc)\\z/)))"
+      comments "(comment)"
+      comments "(unary_operator operator: \"@\" operand: (call target: (identifier /\\A(moduledoc|doc|typedoc)\\z/)))"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", "<<", ">>", ",", "do", "end", "fn", "else", "rescue", "catch", "after"

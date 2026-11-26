@@ -20,7 +20,7 @@ module Representer
       ### Drop ###
 
       # RemoveComments
-      drop "(comment)"
+      comments "(comment)"
 
       # RemoveUsingDirectives
       drop "(using_directive)"
@@ -32,6 +32,11 @@ module Representer
       # NormalizeWhiteSpace: the node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", ".", ":", "?", "=>", "\"",
         "new", "return", "if", "else", "class", "struct", "interface", "record", "enum", "namespace"
+
+      ### Snippet ###
+
+      # The snippet skips `using` directives at the top of the file.
+      snippet_header "(using_directive)"
 
       ### Rewrite ###
 

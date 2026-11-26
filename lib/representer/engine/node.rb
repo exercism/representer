@@ -16,10 +16,12 @@ module Representer
     #   contents), which the output always writes in quotes.
     # - role: set by the naming rules. :member for a name after a dot, which
     #   is only renamed if the solution defines a member with that name.
+    # - bytes: where the node is in the source, as a Range of byte offsets.
+    #   Only parsed nodes have it, and only snippets use it (see Snippet).
     class Node
-      attr_accessor :type, :text, :named, :field, :children, :quoted, :role
+      attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :bytes
 
-      def initialize(type, children = [], text: nil, named: true, field: nil, quoted: false)
+      def initialize(type, children = [], text: nil, named: true, field: nil, quoted: false, bytes: nil)
         @type = type.to_s
         @children = children
         @text = text
@@ -27,6 +29,7 @@ module Representer
         @field = field&.to_s
         @quoted = quoted
         @role = nil
+        @bytes = bytes
       end
 
       def self.leaf(type, text, quoted: false) = new(type, [], text:, quoted:)

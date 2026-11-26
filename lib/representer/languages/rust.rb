@@ -25,13 +25,19 @@ module Representer
       ### Drop ###
 
       # IgnoreComments, IgnoreDocComments
-      drop "[(line_comment) (block_comment) (empty_statement)]"
+      comments "[(line_comment) (block_comment)]"
+      drop "(empty_statement)"
 
       # The node types already say what these tokens say. A ";" is only
       # meaningful in `[x; 3]` and in a macro's tokens, so a rule below
       # removes the others.
       drop_tokens "(", ")", "{", "}", "[", "]", ",", "|", "=>", "fn", "let", "struct", "enum", "impl", "trait", "mod",
         "use", "type", "const", "static", "if", "else", "while", "loop", "match"
+
+      ### Snippet ###
+
+      # The snippet skips `use` declarations, `extern crate` and inner attributes at the top of the file.
+      snippet_header "(use_declaration)", "(extern_crate_declaration)", "(inner_attribute_item)"
 
       ### Rewrite ###
 

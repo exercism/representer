@@ -26,10 +26,15 @@ module Representer
 
       ### Drop ###
 
-      drop "[(comment) (block_comment)]"
+      comments "[(comment) (block_comment)]"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "'", "`", ",", ",@", "#'", ":", "::"
+
+      ### Snippet ###
+
+      # The snippet skips the package definition at the top of the file.
+      snippet_header '(list_lit value: (sym_lit /\A(?i:defpackage|in-package)\z/))'
 
       ### Rewrite ###
 

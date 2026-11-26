@@ -19,7 +19,8 @@ module Representer
 
       ### Drop ###
 
-      drop "[(line_comment) (block_comment) (package_declaration) (import_declaration)]"
+      comments "[(line_comment) (block_comment)]"
+      drop "[(package_declaration) (import_declaration)]"
 
       # The `;` after the constants of an enum with nothing after it.
       drop "(enum_body_declarations)", where: ->(match) { match.node.children.empty? }
@@ -27,6 +28,11 @@ module Representer
       # The node types already say what these tokens say. String quotes go
       # too, because a string's value doesn't depend on how it is written.
       drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", "\"", "if", "else", "for", "while", "do", "return", "new"
+
+      ### Snippet ###
+
+      # The snippet skips the package declaration and imports at the top of the file.
+      snippet_header "(package_declaration)", "(import_declaration)"
 
       ### Rewrite ###
 

@@ -22,10 +22,15 @@ module Representer
 
       ### Drop ###
 
-      drop "[(line_comment) (doc_comment) (container_doc_comment)]"
+      comments "[(line_comment) (doc_comment) (container_doc_comment)]"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", ",", ";"
+
+      ### Snippet ###
+
+      # The snippet skips imports at the top of the file.
+      snippet_header '(Decl (VarDecl (ErrorUnionExpr (SuffixExpr (BUILTINIDENTIFIER "@import")))))'
 
       ### Rewrite ###
 

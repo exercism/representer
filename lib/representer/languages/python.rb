@@ -38,7 +38,7 @@ module Representer
 
       ### Drop ###
 
-      drop "(comment)"
+      comments "(comment)"
       drop "(line_continuation)"
 
       # `if __name__ == "__main__":` blocks only run when the file is a script.
@@ -46,6 +46,11 @@ module Representer
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";"
+
+      ### Snippet ###
+
+      # The snippet skips imports and the module docstring at the top of the file.
+      snippet_header "(import_statement)", "(import_from_statement)", "(future_import_statement)", "(string)"
 
       ### Rewrite ###
 

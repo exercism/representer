@@ -50,10 +50,16 @@ module Representer
 
       # Comments, `#_` forms and metadata (`^:private`, `^String`), none of
       # which `macroexpand-all` printed.
-      drop "[(comment) (dis_expr) (meta_lit)]"
+      comments "[(comment) (dis_expr)]"
+      drop "(meta_lit)"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", "#", "'", "@", "#'"
+
+      ### Snippet ###
+
+      # The snippet skips the `ns` form at the top of the file.
+      snippet_header '(list_lit value: (sym_lit name: (sym_name "ns")))'
 
       ### Rewrite ###
 

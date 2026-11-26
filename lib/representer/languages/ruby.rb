@@ -10,7 +10,7 @@ module Representer
 
       ### Drop ###
 
-      drop "(comment)"
+      comments "(comment)"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", "\n", "|", "=>", ":", ".", "\#{",
@@ -18,6 +18,11 @@ module Representer
 
       # `def foo()` is `def foo`.
       drop "(method_parameters)", where: ->(match) { match.node.children.empty? }
+
+      ### Snippet ###
+
+      # The snippet skips requires at the top of the file.
+      snippet_header '(call !receiver method: (identifier /\Arequire(_relative)?\z/))'
 
       ### Rewrite ###
 

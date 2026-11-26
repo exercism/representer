@@ -12,13 +12,18 @@ module Representer
 
       ### Drop ###
 
-      drop "(comment)"
+      comments "(comment)"
       drop "(empty_statement)"
 
       # The node types already say what these tokens say. String quotes go
       # too, because a string's value doesn't depend on its quotes.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", ".", ":", "=>", "${",
         "\"", "'", "`", "return", "function", "class", "if", "else", "while", "for", "do", "new", "export"
+
+      ### Snippet ###
+
+      # The snippet skips the shebang, imports and directives such as "use strict" at the top of the file.
+      snippet_header "(hash_bang_line)", "(import_statement)", "(expression_statement (string))"
 
       ### Rewrite ###
 

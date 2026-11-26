@@ -1,0 +1,10 @@
+{
+  "track_slug": "common-lisp",
+  "exercise_slug": "isbn-verifier",
+  "solution_files": {
+    "isbn-verifier.lisp": "(defpackage :isbn-verifier\n  (:use :cl)\n  (:export :validp))\n\n(in-package :isbn-verifier)\n\n(defun char-to-num (input-char)\n  (if (char= #\\X input-char) 10 (digit-char-p input-char)))\n\n(defun validp (isbn)\n  (let ((cleaned (remove-if-not #'alphanumericp isbn)))\n    (when (= 10 (length cleaned)) ; Check isbn is 10 chars long\n      (let ((num-list (map 'list #'char-to-num cleaned))) ; Map chars to numbers (or nil)\n        ; Return nil if any nils in num-list or if any of the first 9 nums eql 10\n        (unless (or (some #'null num-list) (member 10 (butlast num-list)))\n          (zerop (mod (apply #'+ (mapcar #'* num-list '(10 9 8 7 6 5 4 3 2 1))) 11)))))))\n"
+  },
+  "exercise_files": {
+    ".meta/config.json": "{\n  \"files\": {\n    \"solution\": [\n      \"isbn-verifier.lisp\"\n    ]\n  }\n}\n"
+  }
+}

@@ -147,12 +147,9 @@ module Representer
         type = type_of(ts_node, source)
         # An empty file's root has no children and no text. It isn't a leaf.
         empty = ts_node.end_byte == ts_node.start_byte
-        if (ts_node.child_count.zero? && !empty) || !ts_node.named?
-          text = source.byteslice(ts_node.start_byte...ts_node.end_byte)
-          Node.new(type, [], text:, named: ts_node.named?, field:)
-        else
-          Node.new(type, [], named: true, field:)
-        end
+        bytes = ts_node.start_byte...ts_node.end_byte
+        text = source.byteslice(bytes) if (ts_node.child_count.zero? && !empty) || !ts_node.named?
+        Node.new(type, [], text:, named: ts_node.named?, field:, bytes:)
       end
     end
   end

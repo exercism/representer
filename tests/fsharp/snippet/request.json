@@ -1,0 +1,10 @@
+{
+  "track_slug": "fsharp",
+  "exercise_slug": "sgf-parsing",
+  "solution_files": {
+    "SgfParsing.fs": "module SgfParsing\n\nopen FParsec\n\ntype Data = Map<string, string list>\ntype Tree = Node of Data * Tree list\n\nlet mkTree node children = Node (node, children)\n\nlet rec nodesToTree (nodes, trees) = \n    match nodes with\n    | [] -> failwith \"Can only create tree from non-empty nodes list\"\n    | x::[] -> Node (x, trees)\n    | x::xs -> Node (x, [nodesToTree (xs, trees)])\n\n// We create a parser forwarder in order to allow us to \n// define a recursive parser later on\nlet expr, exprImpl = createParserForwardedToRef()\n\nlet normalChar = satisfy (fun c -> c <> '\\\\' && c <> ']')\nlet escapedChar = pchar '\\\\' >>. anyChar \nlet cValueType = manyChars (normalChar <|> escapedChar)\nlet propValue = between (pchar '[') (pchar ']') cValueType\nlet propIdent = asciiUpper\nlet property = (propIdent |>> string) .>>. many1 propValue\nlet node = (pchar ';') >>. many property |>> Map.ofList\nlet gameTree = (pchar '(') >>. (many1 node) .>>. (many expr) .>> (pchar ')') |>> nodesToTree\n\nexprImpl := gameTree\n\nlet parse (sgfLine: string) = \n    let sgf = sgfLine.Replace(\"\\t\", \" \")\n    match run gameTree sgf with\n    | Success (result, _, _) -> Some result\n    | Failure _ -> None"
+  },
+  "exercise_files": {
+    ".meta/config.json": "{\n  \"files\": {\n    \"solution\": [\n      \"SgfParsing.fs\"\n    ]\n  }\n}\n"
+  }
+}

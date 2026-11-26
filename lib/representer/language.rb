@@ -102,7 +102,8 @@ module Representer
         @gap_types = parent.gap_types.dup
         @kept_names = parent.kept_names.dup
         @library_names = parent.library.dup
-        %i[drop_rules rewrite_rules local_rules member_rules member_position_rules keep_rules].each do |rules|
+        %i[drop_rules rewrite_rules local_rules member_rules member_position_rules keep_rules comment_rules
+           header_rules container_rules].each do |rules|
           instance_variable_set("@#{rules}", parent.public_send(rules).dup)
         end
       end
@@ -125,6 +126,29 @@ module Representer
       # Leaves these anonymous tokens out of the tree, such as "(" or ";".
       # Only drop a token if the node type already says everything it says.
       def drop_tokens(*tokens) = dropped_tokens.merge(tokens)
+
+      ### Snippet rules ###
+      # The website shows a snippet of each solution (see Snippet).
+
+      # Comments, such as "(comment)". They are dropped from the
+      # representation, and removed from the snippet wherever they are.
+      def comments(pattern)
+        drop(pattern)
+        comment_rules << Rule.new(Engine::Pattern.parse(pattern))
+      end
+
+      # Boilerplate that the snippet skips at the top of the file, such as
+      # imports and package declarations. Only top-level nodes count, and only
+      # until the first node that is neither boilerplate nor a comment. The
+      # representation is not affected.
+      def snippet_header(*patterns)
+        patterns.each { |pattern| header_rules << Rule.new(Engine::Pattern.parse(pattern)) }
+      end
+
+      # A node that holds the rest of the file, such as F#'s named module
+      # (`module Leap` and everything after it). The snippet looks for
+      # boilerplate among its children as if they were at the top level.
+      def snippet_container(pattern) = container_rules << Rule.new(Engine::Pattern.parse(pattern))
 
       ### Rewrite rules ###
 
@@ -234,6 +258,9 @@ module Representer
       def member_rules = @member_rules ||= []
       def member_position_rules = @member_position_rules ||= []
       def keep_rules = @keep_rules ||= []
+      def comment_rules = @comment_rules ||= []
+      def header_rules = @header_rules ||= []
+      def container_rules = @container_rules ||= []
       def kept_names = @kept_names ||= Set.new
       def library = @library_names || Set.new
     end

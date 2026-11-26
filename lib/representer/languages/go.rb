@@ -61,7 +61,7 @@ module Representer
 
       ### Drop ###
 
-      drop "(comment)"
+      comments "(comment)"
 
       # The node types already say what these tokens say. A ";" is only
       # meaningful between the parts of a for loop, so a rule below removes
@@ -69,6 +69,11 @@ module Representer
       # them.
       drop_tokens "(", ")", "{", "}", "[", "]", ",", ".", "\"", "`", "import", "package", "func", "type", "struct",
         "interface", "map", "var", "const", "if", "else", "for", "switch", "select", "case", "default", "return"
+
+      ### Snippet ###
+
+      # The snippet skips the package clause and imports at the top of the file.
+      snippet_header "(package_clause)", "(import_declaration)"
 
       ### Rewrite ###
 

@@ -27,11 +27,16 @@ module Representer
 
       ### Drop ###
 
-      drop "[(comment) (documentation_comment) (block_comment) (block_documentation_comment)]"
+      comments "[(comment) (documentation_comment) (block_comment) (block_documentation_comment)]"
 
       # The node types already say what these tokens say. A call `f(x)` and a
       # command `f x` are the same, so the brackets of arguments go too.
       drop_tokens "(", ")", ",", ";", "`", "[", "]", "{", "}"
+
+      ### Snippet ###
+
+      # The snippet skips imports and includes at the top of the file.
+      snippet_header "(import_statement)", "(import_from_statement)", "(include_statement)"
 
       ### Rewrite ###
 

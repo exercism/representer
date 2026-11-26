@@ -7,7 +7,7 @@ module Representer
     initialize_with :event, :context
 
     def call
-      respond(200, represent)
+      respond(200, { **represent, snippet:, snippet_version: Snippet::VERSION })
     rescue BadRequest => e
       respond(400, error: e.message)
     end
@@ -37,6 +37,8 @@ module Representer
       body = { representation: result.representation, mapping: result.mapping, version: result.version }
       result.reason ? body.merge(reason: result.reason) : body
     end
+
+    def snippet = Snippet.(track_slug, solution_files, exercise_files)
 
     def track_slug
       slug = body["track_slug"]

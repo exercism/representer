@@ -28,13 +28,18 @@ module Representer
 
       ### Drop ###
 
-      drop "(comment)"
+      comments "(comment)"
 
       # Text outside <?php ... ?> is not code.
       drop "[(php_tag) (php_end_tag) (text) (text_interpolation) (empty_statement)]"
 
       # The node types already say what these tokens say. `array(1)` is `[1]`.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", "\"", "array", "list", "if", "else", "elseif"
+
+      ### Snippet ###
+
+      # The snippet skips the opening tag, `declare`, the namespace and `use` declarations at the top of the file.
+      snippet_header "(php_tag)", "(declare_statement)", "(namespace_definition !body)", "(namespace_use_declaration)"
 
       ### Rewrite ###
 

@@ -20,10 +20,15 @@ module Representer
 
       ### Drop ###
 
-      drop "[(comment) (statement_comment) (module_comment)]"
+      comments "[(comment) (statement_comment) (module_comment)]"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", "[", "]", ",", "fn", "let", "import", "type", "const", "case", "assert"
+
+      ### Snippet ###
+
+      # The snippet skips imports at the top of the file.
+      snippet_header "(import)"
 
       ### Rewrite ###
 

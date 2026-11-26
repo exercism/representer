@@ -1,0 +1,10 @@
+{
+  "track_slug": "gdscript",
+  "exercise_slug": "variable-length-quantity",
+  "solution_files": {
+    "variable_length_quantity.gd": "# Bit indicating there are more chunks to this number.\nconst MORE = 0b10000000\n# Mask used to access the number part of this chunk.\nconst MASK = 0b01111111\n\n\nfunc encode(numbers: Array) -> Array:\n\t\"\"\"Encode numbers.\"\"\"\n\tvar results = []\n\tfor number in numbers:\n\t\tvar encoded: Array = []\n\t\twhile number > 0:\n\t\t\t# Set the MORE bit on all chunks.\n\t\t\tencoded.append(MORE | (number & MASK))\n\t\t\tnumber >>= 7\n\t\tif not encoded:\n\t\t\tencoded.append(0)\n\t\t# Unset MORE on the last chunk.\n\t\tencoded[0] &= MASK\n\t\tencoded.reverse()\n\t\tfor i in encoded:\n\t\t\tresults.append(i)\n\treturn results\n\n\nfunc decode(encoded: Array):\n\t\"\"\"Decode numbers.\"\"\"\n\tif encoded[-1] & MORE:\n\t\treturn null\n\n\tvar decoded: Array = []\n\tvar num = 0\n\tfor chunk in encoded:\n\t\tnum = (num << 7) | (chunk & MASK)\n\t\tif not chunk & MORE:\n\t\t\tdecoded.append(num)\n\t\t\tnum = 0\n\treturn decoded\n"
+  },
+  "exercise_files": {
+    ".meta/config.json": "{\n  \"files\": {\n    \"solution\": [\n      \"variable_length_quantity.gd\"\n    ]\n  }\n}\n"
+  }
+}

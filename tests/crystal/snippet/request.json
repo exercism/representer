@@ -1,0 +1,10 @@
+{
+  "track_slug": "crystal",
+  "exercise_slug": "parallel-letter-frequency",
+  "solution_files": {
+    "src/parallel_letter_frequency.cr": "require \"sync/shared\"\n\nclass ParallelLetterFrequency\n  def self.calculate_frequencies(input : Array(String)) : Hash(String, Int32)\n    data : Sync::Shared(Hash(String, Int32)) = Sync::Shared.new({} of String => Int32)\n    channel = Channel(Nil).new\n    input.each do |text|\n      spawn do\n        local = Hash(String, Int32).new(0)\n\n        text.each_char do |char|\n          next unless char.letter?\n          local[char.downcase.to_s] += 1\n        end\n\n        data.replace do |shared_data|\n          local.each do |char, count|\n            shared_data[char] ||= 0\n            shared_data[char] += count\n          end\n          shared_data\n        end\n        channel.send(nil) # signal completion\n      end\n    end\n\n    input.size.times do\n      channel.receive\n    end\n\n    data.get\n  end\nend\n"
+  },
+  "exercise_files": {
+    ".meta/config.json": "{\n  \"files\": {\n    \"solution\": [\n      \"src/parallel_letter_frequency.cr\"\n    ]\n  }\n}\n"
+  }
+}

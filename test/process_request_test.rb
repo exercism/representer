@@ -43,7 +43,14 @@ class ProcessRequestTest < Minitest::Test
     response = request(track_slug: "ruby", solution_files: { "a.rb" => "def x(" })
     assert_equal 200, response[:statusCode]
     assert_equal({ "representation" => nil, "mapping" => {}, "version" => Representer::Languages::Ruby.version,
-                   "reason" => "parse_error" }, JSON.parse(response[:body]))
+                   "reason" => "parse_error", "snippet" => "def x(", "snippet_version" => Representer::Snippet::VERSION },
+      JSON.parse(response[:body]))
+  end
+
+  def test_returns_a_snippet
+    body = JSON.parse(request(track_slug: "ruby", solution_files: { "a.rb" => "require 'set'\n# A comment\nx = 1\n" })[:body])
+    assert_equal "x = 1\n", body["snippet"]
+    assert_equal Representer::Snippet::VERSION, body["snippet_version"]
   end
 
   def test_represented_solutions_have_no_reason
@@ -60,6 +67,7 @@ class ProcessRequestTest < Minitest::Test
       assert_nil body["representation"]
       assert_equal "too_large", body["reason"]
       assert_equal Representer::Languages.for(track_slug).version, body["version"]
+      assert_equal "x" * Representer::Snippet::MAX_LINE_LENGTH, body["snippet"]
     end
   end
 
@@ -71,5 +79,6 @@ class ProcessRequestTest < Minitest::Test
     tests = "x" * (Representer::MAX_EXERCISE_BYTES + 1)
     body = JSON.parse(request(track_slug: "ruby", solution_files: { "a.rb" => "x" }, exercise_files: { "t.rb" => tests })[:body])
     assert_equal "too_large", body["reason"]
+    assert_equal "x", body["snippet"]
   end
 end

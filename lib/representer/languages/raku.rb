@@ -22,8 +22,13 @@ module Representer
 
       ### Drop ###
 
-      drop "[(comment) (pod)]"
+      comments "[(comment) (pod)]"
       drop_tokens ";"
+
+      ### Snippet ###
+
+      # The snippet skips `use` statements and `unit module` at the top of the file.
+      snippet_header "(use_statement)", '(unit_declaration "module")', '";"'
 
       ### Rewrite ###
 

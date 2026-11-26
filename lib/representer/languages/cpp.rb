@@ -24,7 +24,7 @@ module Representer
       # line. Includes of the project's own headers and `#pragma` lines carry
       # no meaning for a mentor, so they go. Includes of standard headers
       # and `#define`s stay, because they show what the solution uses.
-      drop "(comment)"
+      comments "(comment)"
       drop "(preproc_include path: (string_literal))"
       drop '(preproc_call directive: (preproc_directive "#pragma"))'
 
@@ -32,6 +32,11 @@ module Representer
       drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", "::", "return", "if", "else", "while", "for", "do", "switch",
         "namespace", "class", "struct", "enum", "union", "using", "template", "typedef", "public", "private",
         "protected"
+
+      ### Snippet ###
+
+      # The snippet skips includes, `using` declarations and `#pragma once` at the top of the file.
+      snippet_header "(preproc_include)", "(using_declaration)", '(preproc_call directive: (preproc_directive "#pragma"))'
 
       ### Rewrite ###
 

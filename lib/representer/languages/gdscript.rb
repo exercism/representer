@@ -24,11 +24,17 @@ module Representer
 
       # Comments, #region markers, line continuations (a backslash at the end
       # of a line), and docstrings: a string on its own is never run.
-      drop "[(comment) (region_start) (region_end) (line_continuation)]"
+      comments "(comment)"
+      drop "[(region_start) (region_end) (line_continuation)]"
       drop "(expression_statement (string))", where: ->(match) { match.node.children.size == 1 }
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";"
+
+      ### Snippet ###
+
+      # The snippet skips the docstring at the top of the file.
+      snippet_header "(expression_statement (string))"
 
       ### Rewrite ###
 

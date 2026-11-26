@@ -65,6 +65,27 @@ module Representer
 
       def self.version = VERSION
 
+      # The byte ranges of the comments in the source, for its snippet (see
+      # Snippet). A track with no lexer has none.
+      def self.comments(track_slug, source)
+        lexer = lexer(track_slug)
+        return [] unless lexer
+
+        offset = 0
+        lexer.new.lex(source).filter_map do |token, text|
+          range = offset...(offset += text.bytesize)
+          range if comment?(token)
+        end
+      rescue StandardError
+        []
+      end
+
+      def self.lexer(track_slug) = Rouge::Lexer.find(LEXERS.fetch(track_slug, track_slug))
+
+      # Preprocessor lines (such as C's #include) are code, although Rouge
+      # calls them comments.
+      def self.comment?(token) = token.qualname.start_with?("Comment") && !token.qualname.start_with?("Comment.Preproc")
+
       private
       def represent(filename, source)
         lines = ["(file #{filename.dump})"]
@@ -106,15 +127,14 @@ module Representer
       # :gap (whitespace or a comment). Comments only count for their line
       # breaks.
       def each_token(source, &block)
-        lexer = Rouge::Lexer.find(LEXERS.fetch(track_slug, track_slug))
+        lexer = self.class.lexer(track_slug)
         return split_words(source, &block) unless lexer
 
         tokens = lexer.new.lex(source).to_a
         tokens.each do |token, text|
-          name = token.qualname
-          if name.start_with?("Literal.String")
+          if token.qualname.start_with?("Literal.String")
             yield :string, text
-          elsif name.start_with?("Comment") && !name.start_with?("Comment.Preproc")
+          elsif self.class.comment?(token)
             yield :gap, text.include?("\n") ? "\n" : " "
           else
             split_words(text, &block)

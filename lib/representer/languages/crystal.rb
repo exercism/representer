@@ -22,7 +22,7 @@ module Representer
 
       # The old representer dropped comments, because they aren't in the
       # compiler's tree.
-      drop "(comment)"
+      comments "(comment)"
 
       # `foo()` is `foo`.
       drop "(argument_list)", where: ->(match) { match.node.children.empty? }
@@ -31,6 +31,11 @@ module Representer
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", ".", "|", ":", "def", "class", "module", "struct", "enum",
         "if", "unless", "elsif", "else", "while", "until", "then", "do", "end", "begin", "return", "case", "when",
         "include", "extend", "alias"
+
+      ### Snippet ###
+
+      # The snippet skips requires at the top of the file.
+      snippet_header "(require)"
 
       ### Rewrite ###
 

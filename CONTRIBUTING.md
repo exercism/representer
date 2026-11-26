@@ -120,8 +120,10 @@ module Representer
 
       names :identifier
 
-      drop "(comment)"
+      comments "(comment)"
       drop_tokens "(", ")", ":", ","
+
+      snippet_header "(import_statement)", "(import_from_statement)"
 
       rewrite "(parenthesized_expression (_) @inner)", "@inner"
 
@@ -171,9 +173,21 @@ Patterns may span several lines (use a heredoc), and `;` starts a comment.
 
 ### Drop rules
 
-- `drop "(comment)"` removes every node that matches.
+- `comments "(comment)"` says which nodes are comments. They are dropped from the representation, and removed from the snippet (see below).
+- `drop "(line_continuation)"` removes every node that matches.
 - `drop "(method_parameters)", where: ->(match) { match.node.children.empty? }` removes only the matches that pass the check.
 - `drop_tokens "(", ")", ";"` leaves these anonymous tokens out of the tree. Only drop a token if the node's type already says everything the token says. For example, Ruby drops `"if"` (the node type is `if`) but keeps `"=="` and `"!="` (both are `binary` nodes).
+
+### Snippet rules
+
+The website shows a snippet of each solution, and the README explains how it is made.
+These rules only change the snippet, never the representation.
+
+- `snippet_header "(import_statement)", ...`: boilerplate that the snippet skips at the top of the file, such as imports and package declarations. The snippet skips top-level nodes that match these patterns or the `comments` patterns, until it reaches one that matches neither.
+- `snippet_container "(named_module)"`: a node that holds the rest of the file, such as F#'s `module Leap` and everything after it. The snippet looks for boilerplate among its children as if they were at the top level.
+
+Run `./bin/inspect <track> <file>` to see the snippet.
+If you change these rules, or a language's `comments`, bump `Snippet::VERSION` in [`lib/representer/snippet.rb`](./lib/representer/snippet.rb). Changing `comments` changes the representation too, so bump the language's version as well.
 
 ### Rewrite rules
 

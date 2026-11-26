@@ -17,10 +17,15 @@ module Representer
       ### Drop ###
 
       # RemoveComments
-      drop "[(line_comment) (block_comment)]"
+      comments "[(line_comment) (block_comment)]"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", "let", "in", "if", "then", "else"
+
+      ### Snippet ###
+
+      # The snippet skips the module declaration and imports at the top of the file.
+      snippet_header "(module_declaration)", "(import_clause)"
 
       ### Rewrite ###
 

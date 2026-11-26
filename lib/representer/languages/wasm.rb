@@ -20,7 +20,7 @@ module Representer
 
       ### Drop ###
 
-      drop "[(comment_line) (comment_block)]"
+      comments "[(comment_line) (comment_block)]"
 
       # The node types already say what these brackets say.
       drop_tokens "(", ")"

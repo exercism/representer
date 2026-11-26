@@ -21,11 +21,20 @@ module Representer
       ### Drop ###
 
       # RemoveComments (including XML documentation) and RemoveImports.
-      drop "[(line_comment) (block_comment) (xml_doc) (import_decl)]"
+      comments "[(line_comment) (block_comment) (xml_doc)]"
+      drop "(import_decl)"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", "[|", "|]", ";", ",", "let", "module", "namespace", "type", "fun",
         "function", "if", "then", "else", "elif", "match"
+
+      ### Snippet ###
+
+      # The snippet skips the `module` line and `open` declarations at the
+      # top of the file. A named module holds the rest of the file, so the
+      # snippet looks for them among its children.
+      snippet_container "(named_module)"
+      snippet_header '"module"', "(long_identifier)", "(import_decl)"
 
       ### Rewrite ###
 
