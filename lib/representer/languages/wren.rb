@@ -11,7 +11,7 @@ module Representer
     # output is a tree.
     class Wren < Language
       tracks "wren"
-      version 3
+      version 4
       grammar "wren"
       extensions ".wren"
 
@@ -25,7 +25,8 @@ module Representer
       drop "[(line_comment) (block_comment)]"
 
       # The node types already say what these tokens say.
-      drop_tokens "(", ")", "{", "}", "[", "]", ","
+      drop_tokens "(", ")", "{", "}", "[", "]", ",",
+        "class", "construct", "for", "in", "if", "import", "return", "var"
 
       ### Rewrite ###
 

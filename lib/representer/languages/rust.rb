@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Rust < Language
       tracks "rust"
-      version 3
+      version 4
       grammar "rust"
       extensions ".rs"
 
@@ -31,7 +31,8 @@ module Representer
       # meaningful in `[x; 3]` and in a macro's tokens, so a rule below
       # removes the others.
       drop_tokens "(", ")", "{", "}", "[", "]", ",", "|", "=>", "fn", "let", "struct", "enum", "impl", "trait", "mod",
-        "use", "type", "const", "static", "if", "else", "while", "loop", "match"
+        "use", "type", "const", "static", "if", "else", "while", "loop", "match",
+        "return", "break", "continue", "for", "in", "where", "union"
 
       ### Rewrite ###
 

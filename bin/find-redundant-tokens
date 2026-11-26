@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+
+# Synopsis:
+# List the anonymous tokens that survive in a language's trees, to find
+# tokens that drop_tokens could drop.
+
+# Arguments:
+# $1: track slug (optional, defaults to every language with a class)
+# $2...: extra source files to include
+
+# Output:
+# For each language, every anonymous token left in the trees of its test
+# fixtures and request tests, grouped by the type of the token's parent
+# node, with counts.
+
+# Example:
+# ./bin/find-redundant-tokens ruby
+# ./bin/find-redundant-tokens ruby extra_sample.rb
+
+require "json"
+require_relative "../lib/representer"
+
+root = File.expand_path("..", __dir__)
+only, *extra_files = ARGV
+
+languages = Representer::Languages.registry.reject { |_, language| language == Representer::Languages::Basic }
+languages = languages.select { |slug, _| slug == only } if only
+languages.group_by { |_, language| language }.each do |language, entries|
+  slugs = entries.map(&:first)
+  sources = []
+  slugs.each do |slug|
+    Dir[File.join(root, "test/fixtures", slug, "**/*")].each do |path|
+      sources << File.read(path) if File.file?(path) && language.extensions.any? { |ext| path.end_with?(ext) }
+    end
+    Dir[File.join(root, "tests", slug, "*/request.json")].each do |path|
+      request = JSON.parse(File.read(path))
+      request.values_at("solution_files", "exercise_files").compact.each do |files|
+        files.each { |name, source| sources << source if language.extensions.any? { |ext| name.end_with?(ext) } }
+      end
+    end
+  end
+
+  sources.concat(extra_files.select { |path| language.extensions.any? { |ext| path.end_with?(ext) } }.map { |path| File.read(path) })
+
+  counts = Hash.new(0)
+  instance = Representer::Engine::Represent.new(language, {}, {})
+  sources.each do |source|
+    tree = instance.send(:prepare, source)
+    stack = [tree]
+    until stack.empty?
+      node = stack.pop
+      node.children.each do |child|
+        counts[[node.type, child.type]] += 1 unless child.named?
+        stack << child
+      end
+    end
+  rescue Representer::CannotRepresent
+    next
+  end
+
+  puts "== #{language.name.split('::').last} (#{sources.size} sources)"
+  counts.sort_by { |(parent, token), n| [parent, -n, token] }.each do |(parent, token), n|
+    puts format("  %-40<parent>s %-14<token>s %<count>d", parent:, token: token.inspect, count: n)
+  end
+end

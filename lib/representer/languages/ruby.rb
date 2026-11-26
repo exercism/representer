@@ -2,7 +2,7 @@ module Representer
   module Languages
     class Ruby < Language
       tracks "ruby"
-      version 3
+      version 4
       grammar "ruby"
       extensions ".rb"
 
@@ -14,7 +14,9 @@ module Representer
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", "\n", "|", "=>", ":", ".", "\#{",
-        "def", "class", "module", "if", "unless", "while", "until", "then", "do", "end", "begin", "return"
+        "def", "class", "module", "if", "unless", "while", "until", "then", "do", "end", "begin", "return",
+        "case", "when", "else", "elsif", "rescue", "ensure", "yield", "for", "break", "next", "redo", "retry", "alias",
+        "undef", "BEGIN", "END", "nil", "->", "?"
 
       # `def foo()` is `def foo`.
       drop "(method_parameters)", where: ->(match) { match.node.children.empty? }

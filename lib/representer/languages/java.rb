@@ -6,7 +6,7 @@ module Representer
     # package.
     class Java < Language
       tracks "java"
-      version 3
+      version 4
       grammar "java"
       extensions ".java"
 
@@ -26,7 +26,9 @@ module Representer
 
       # The node types already say what these tokens say. String quotes go
       # too, because a string's value doesn't depend on how it is written.
-      drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", "\"", "if", "else", "for", "while", "do", "return", "new"
+      drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", "\"", "if", "else", "for", "while", "do", "return", "new",
+        "class", "enum", "record", "switch", "throw", "try", "catch", "finally", "break", "continue", "assert", "package",
+        "import", "interface"
 
       ### Rewrite ###
 

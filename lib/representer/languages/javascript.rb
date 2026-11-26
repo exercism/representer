@@ -2,7 +2,7 @@ module Representer
   module Languages
     class JavaScript < Language
       tracks "javascript"
-      version 3
+      version 4
       grammar "javascript"
       extensions ".js", ".mjs", ".cjs"
 
@@ -18,7 +18,8 @@ module Representer
       # The node types already say what these tokens say. String quotes go
       # too, because a string's value doesn't depend on its quotes.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", ".", ":", "=>", "${",
-        "\"", "'", "`", "return", "function", "class", "if", "else", "while", "for", "do", "new", "export"
+        "\"", "'", "`", "return", "function", "class", "if", "else", "while", "for", "do", "new", "export",
+        "break", "continue", "throw", "try", "catch", "finally", "switch", "case", "yield", "debugger"
 
       ### Rewrite ###
 

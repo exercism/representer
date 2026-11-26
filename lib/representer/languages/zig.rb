@@ -7,7 +7,7 @@ module Representer
     # the other languages.
     class Zig < Language
       tracks "zig"
-      version 3
+      version 4
       grammar "zig"
       extensions ".zig"
 
@@ -25,7 +25,8 @@ module Representer
       drop "[(line_comment) (doc_comment) (container_doc_comment)]"
 
       # The node types already say what these tokens say.
-      drop_tokens "(", ")", "{", "}", ",", ";"
+      drop_tokens "(", ")", "{", "}", ",", ";",
+        "fn", "test"
 
       ### Rewrite ###
 

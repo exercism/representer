@@ -7,7 +7,7 @@ module Representer
     # the student defines.
     class Raku < Language
       tracks "raku"
-      version 2
+      version 3
       grammar "raku"
       extensions ".rakumod", ".raku", ".rakutest", ".pm6", ".p6"
 
@@ -23,7 +23,8 @@ module Representer
       ### Drop ###
 
       drop "[(comment) (pod)]"
-      drop_tokens ";"
+      drop_tokens ";",
+        "use"
 
       ### Rewrite ###
 

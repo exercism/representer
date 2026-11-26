@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Elixir < Language
       tracks "elixir"
-      version 3
+      version 4
       grammar "elixir"
       extensions ".ex", ".exs"
 
@@ -28,7 +28,8 @@ module Representer
       drop "(unary_operator operator: \"@\" operand: (call target: (identifier /\\A(moduledoc|doc|typedoc)\\z/)))"
 
       # The node types already say what these tokens say.
-      drop_tokens "(", ")", "[", "]", "{", "}", "<<", ">>", ",", "do", "end", "fn", "else", "rescue", "catch", "after"
+      drop_tokens "(", ")", "[", "]", "{", "}", "<<", ">>", ",", "do", "end", "fn", "else", "rescue", "catch", "after",
+        "nil"
 
       ### Rewrite ###
 

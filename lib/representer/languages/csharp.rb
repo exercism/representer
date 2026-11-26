@@ -4,7 +4,7 @@ module Representer
     # rule's comment names the rewriter it replaces.
     class CSharp < Language
       tracks "csharp"
-      version 4
+      version 5
       grammar "c_sharp"
       extensions ".cs"
 
@@ -31,7 +31,9 @@ module Representer
 
       # NormalizeWhiteSpace: the node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", ".", ":", "?", "=>", "\"",
-        "new", "return", "if", "else", "class", "struct", "interface", "record", "enum", "namespace"
+        "new", "return", "if", "else", "class", "struct", "interface", "record", "enum", "namespace",
+        "var", "using", "for", "foreach", "while", "do", "switch", "break", "continue", "throw", "try", "catch",
+        "finally", "lock", "await", "typeof", "sizeof", "yield", "goto"
 
       ### Rewrite ###
 

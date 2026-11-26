@@ -4,7 +4,7 @@ module Representer
     # nikic/php-parser's tree and printed the tree back as code.
     class PHP < Language
       tracks "php"
-      version 3
+      version 4
       grammar "php"
       extensions ".php"
 
@@ -34,7 +34,10 @@ module Representer
       drop "[(php_tag) (php_end_tag) (text) (text_interpolation) (empty_statement)]"
 
       # The node types already say what these tokens say. `array(1)` is `[1]`.
-      drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", "\"", "array", "list", "if", "else", "elseif"
+      drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", "\"", "array", "list", "if", "else", "elseif",
+        "class", "function", "extends", "implements", "echo", "use", "new", "return", "require_once", "namespace", "declare",
+        "interface", "trait", "foreach", "for", "while", "do", "break", "continue", "throw", "try", "catch", "finally",
+        "switch", "case"
 
       ### Rewrite ###
 

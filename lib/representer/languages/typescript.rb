@@ -4,7 +4,7 @@ module Representer
   module Languages
     class TypeScript < Language
       tracks "typescript"
-      version 3
+      version 4
       grammar "typescript"
       extensions ".ts", ".mts", ".cts"
 

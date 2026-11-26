@@ -8,7 +8,7 @@ module Representer
     # equivalent.
     class Elm < Language
       tracks "elm"
-      version 3
+      version 4
       grammar "elm"
       extensions ".elm"
 
@@ -20,7 +20,8 @@ module Representer
       drop "[(line_comment) (block_comment)]"
 
       # The node types already say what these tokens say.
-      drop_tokens "(", ")", "[", "]", "{", "}", ",", "let", "in", "if", "then", "else"
+      drop_tokens "(", ")", "[", "]", "{", "}", ",", "let", "in", "if", "then", "else",
+        "case", "of", "module", "import", "type", "alias"
 
       ### Rewrite ###
 

@@ -7,7 +7,7 @@ module Representer
     # those too, because the student chooses all of those names.
     class GDScript < Language
       tracks "gdscript"
-      version 3
+      version 4
       grammar "gdscript"
       extensions ".gd"
 
@@ -28,7 +28,8 @@ module Representer
       drop "(expression_statement (string))", where: ->(match) { match.node.children.size == 1 }
 
       # The node types already say what these tokens say.
-      drop_tokens "(", ")", "[", "]", "{", "}", ",", ";"
+      drop_tokens "(", ")", "[", "]", "{", "}", ",", ";",
+        "func", "return", "var", "extends", "class", "pass", "break", "continue", "if", "elif", "else", "for", "while", "match"
 
       ### Rewrite ###
 

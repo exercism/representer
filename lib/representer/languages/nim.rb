@@ -8,7 +8,7 @@ module Representer
     # replaces.
     class Nim < Language
       tracks "nim"
-      version 3
+      version 4
       grammar "nim"
       extensions ".nim", ".nims"
 
@@ -31,7 +31,8 @@ module Representer
 
       # The node types already say what these tokens say. A call `f(x)` and a
       # command `f x` are the same, so the brackets of arguments go too.
-      drop_tokens "(", ")", ",", ";", "`", "[", "]", "{", "}"
+      drop_tokens "(", ")", ",", ";", "`", "[", "]", "{", "}",
+        "const", "discard", "distinct", "import", "let", "macro", "proc", "template", "type", "var"
 
       ### Rewrite ###
 

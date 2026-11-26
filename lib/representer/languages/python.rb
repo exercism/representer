@@ -5,7 +5,7 @@ module Representer
     # statements, `if __name__ == "__main__"` blocks and type hints.
     class Python < Language
       tracks "python"
-      version 3
+      version 4
       grammar "python"
       extensions ".py"
 
@@ -45,7 +45,9 @@ module Representer
       drop "(if_statement condition: (comparison_operator))", where: ->(match) { Python.main_guard?(match.node) }
 
       # The node types already say what these tokens say.
-      drop_tokens "(", ")", "[", "]", "{", "}", ",", ";"
+      drop_tokens "(", ")", "[", "]", "{", "}", ",", ";",
+        "class", "def", "lambda", "return", "pass", "break", "continue", "raise", "assert", "del", "try", "finally", "except",
+        "elif", "else", "while", "if", "for", "with", "import", "as", "match", "case", "await", "global", "nonlocal"
 
       ### Rewrite ###
 
@@ -104,9 +106,9 @@ module Representer
         children = match.node.children
         index = children.index { |child| child.type == "elif_clause" }
         elif = children[index]
-        nested = build(:if_statement, token("if"), { condition: elif["condition"] }, token(":"), { consequence: elif["consequence"] },
+        nested = build(:if_statement, { condition: elif["condition"] }, token(":"), { consequence: elif["consequence"] },
           *children[(index + 1)..])
-        otherwise = build(:else_clause, token("else"), token(":"), { body: build(:block, nested) })
+        otherwise = build(:else_clause, token(":"), { body: build(:block, nested) })
         otherwise.field = "alternative"
         children.slice!(index..)
         children << otherwise
@@ -198,7 +200,7 @@ module Representer
       }.freeze
 
       class << self
-        def pass_statement = build(:pass_statement, token("pass"))
+        def pass_statement = build(:pass_statement)
 
         def print_statement?(node)
           node.type == "call" && node["function"]&.type == "identifier" && node["function"].text == "print"

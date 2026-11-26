@@ -7,7 +7,7 @@ module Representer
     # here, because the tree has no layout.
     class Crystal < Language
       tracks "crystal"
-      version 4
+      version 5
       grammar "crystal"
       extensions ".cr"
 
@@ -30,7 +30,8 @@ module Representer
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";", ".", "|", ":", "def", "class", "module", "struct", "enum",
         "if", "unless", "elsif", "else", "while", "until", "then", "do", "end", "begin", "return", "case", "when",
-        "include", "extend", "alias"
+        "include", "extend", "alias",
+        "require"
 
       ### Rewrite ###
 

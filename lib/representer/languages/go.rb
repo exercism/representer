@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Go < Language
       tracks "go"
-      version 4
+      version 5
       grammar "go"
       extensions ".go"
       merge_files "solution.go"
@@ -68,7 +68,8 @@ module Representer
       # the others. The quotes go because a string's value doesn't depend on
       # them.
       drop_tokens "(", ")", "{", "}", "[", "]", ",", ".", "\"", "`", "import", "package", "func", "type", "struct",
-        "interface", "map", "var", "const", "if", "else", "for", "switch", "select", "case", "default", "return"
+        "interface", "map", "var", "const", "if", "else", "for", "switch", "select", "case", "default", "return",
+        "range", "go", "defer", "break", "continue", "goto", "fallthrough"
 
       ### Rewrite ###
 

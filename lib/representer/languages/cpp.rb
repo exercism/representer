@@ -7,7 +7,7 @@ module Representer
     # solution defines are renamed, so every library name stays.
     class Cpp < Language
       tracks "cpp"
-      version 3
+      version 4
       grammar "cpp"
       extensions ".cpp", ".h", ".hpp", ".cc", ".cxx", ".hh", ".hxx"
 
@@ -31,7 +31,8 @@ module Representer
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", "::", "return", "if", "else", "while", "for", "do", "switch",
         "namespace", "class", "struct", "enum", "union", "using", "template", "typedef", "public", "private",
-        "protected"
+        "protected",
+        "break", "continue", "goto", "try", "catch", "throw", "new", "delete", "sizeof", "static_assert"
 
       ### Rewrite ###
 
