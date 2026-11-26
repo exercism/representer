@@ -8,7 +8,7 @@ module Representer
     # chooses (written `$name`) is renamed.
     class Wasm < Language
       tracks "wasm"
-      version 5
+      version 6
       grammar "wat"
       extensions ".wat"
 
@@ -20,10 +20,13 @@ module Representer
 
       ### Drop ###
 
-      drop "[(comment_line) (comment_block)]"
+      drop "[(line_comment) (block_comment)]"
 
-      # The node types already say what these brackets say.
-      drop_tokens "(", ")"
+      # The node types already say what these tokens say. The grammar gives
+      # `(if c (then ...) (else ...))`, `if ... else ... end` and the
+      # shorthand `(if c t e)` the same node types, and they differ only in
+      # these tokens.
+      drop_tokens "(", ")", "then", "else", "end", "offset"
 
       ### Rewrite ###
 
@@ -31,16 +34,19 @@ module Representer
       # `local.get $a  local.get $b  i32.add`. A folded instruction is
       # replaced by the plain instructions that it stands for, in the list that
       # holds it.
-      rewrite "(_ (instr (expr))) @node" do |match|
+      rewrite "(_) @node" do |match|
         Wasm.unfold_children(match.node) ? match.node : nil
       end
-      rewrite "(offset_expr (expr)) @offset" do |match|
-        Wasm.unfold_offset(match.node) ? match.node : nil
+
+      # An `if` always has a "then" branch, and has an "else" branch only if
+      # that has instructions in it.
+      rewrite "(block_if) @if" do |match|
+        Wasm.normalise_if(match.node) ? match.node : nil
       end
 
       # `(param i32 i32)` is `(param i32) (param i32)`, and the same for
       # locals and results.
-      rewrite "(module_field_func) @func" do |match|
+      rewrite "(_) @node" do |match|
         Wasm.split_groups(match.node) ? match.node : nil
       end
 
@@ -62,7 +68,7 @@ module Representer
       end
 
       # 1_000 is 1000.
-      rewrite "[(dec_nat /_/) @number (hex_nat /_/) @number (dec_num /_/) @number]" do |match|
+      rewrite "[(integer /_/) @number (uinteger /_/) @number (float /_/) @number (mem_arg /_/) @number]" do |match|
         leaf(match.node.type, match.node.text.delete("_"))
       end
 
@@ -75,119 +81,73 @@ module Representer
       INSTRUCTION_KINDS = %w[func memory global table].freeze
       PLAIN_ESCAPES = { "n" => "\n", "t" => "\t", "r" => "\r", "\\" => "\\", "'" => "'", "\"" => "\"" }.freeze
 
+      # The nodes that are instructions. A folded instruction holds the
+      # instructions that it takes as operands.
+      INSTRUCTIONS = %w[plain_instr block_block block_loop block_if block_try_table].freeze
+      # The groups that can list several types at once.
+      GROUPS = %w[param result local].freeze
+
       class << self
-        def instr_with_expr?(node) = node.type == "instr" && node.children.any? { |child| child.type == "expr" }
+        def instruction?(node) = INSTRUCTIONS.include?(node.type)
+
+        # The operands of a folded instruction: its instruction children, and
+        # for an `if` only those before the branches, which are its condition.
+        def operands(node)
+          return [] unless %w[plain_instr block_if].include?(node.type)
+
+          node.children.select { |child| instruction?(child) }
+        end
 
         # Replaces each folded instruction among the node's children.
         def unfold_children(node)
-          return false unless node.children.any? { |child| instr_with_expr?(child) }
+          return false unless node.children.any? { |child| !operands(child).empty? }
 
-          node.children.replace(node.children.flat_map do |child|
-            instr_with_expr?(child) ? unfold(child.children.find { |part| part.type == "expr" }) : [child]
-          end)
+          node.children.replace(node.children.flat_map { |child| unfold(child) })
           true
         end
 
-        def unfold_offset(offset)
-          offset.children.replace(offset.children.flat_map { |child| child.type == "expr" ? unfold(child) : [child] })
-          true
-        end
-
-        # The plain instructions that a folded expression stands for: its
+        # The plain instructions that a folded instruction stands for: its
         # operands first, then the instruction.
-        def unfold(expr)
-          inner = expr.named_children.first&.named_children&.first
-          return [instruction(expr)] unless inner
+        def unfold(node)
+          found = operands(node)
+          return [node] if found.empty?
 
-          operands = inner.children.select { |child| child.type == "expr" }
-          rest = inner.children.reject { |child| child.type == "expr" }
-          case inner.type
-          when "expr1_plain" then unfold_all(operands) + rest.map { |plain| instruction(plain) }
-          when "expr1_block" then [instruction(block("block_block", rest))]
-          when "expr1_loop" then [instruction(block("block_loop", rest))]
-          when "expr1_if" then unfold_if(rest)
-          when "expr1_call" then unfold_all(operands) + [instruction(Engine::Node.new("instr_call", rest))]
-          else [instruction(expr)]
+          node.children.reject! { |child| found.any? { |operand| operand.equal?(child) } }
+          found + [node]
+        end
+
+        # A flat `if` has no "then" branch if that has no instructions, and
+        # the folded form `(then)` and `(else)` may be empty.
+        def normalise_if(node)
+          changed = node.children.reject! { |child| child.type == "block_if_else" && child.children.empty? }
+          unless node.children.any? { |child| child.type == "block_if_then" }
+            position = node.children.index { |child| child.type == "block_if_else" } || node.children.size
+            node.children.insert(position, Engine::Node.new("block_if_then", []))
+            changed = true
           end
-        end
-
-        def unfold_all(exprs) = exprs.flat_map { |expr| unfold(expr) }
-
-        def descendants(node)
-          found = []
-          node.each_descendant { |descendant| found << descendant }
-          found
-        end
-
-        def instruction(child) = Engine::Node.new("instr", [child])
-
-        def block(type, children)
-          Engine::Node.new("instr_block", [Engine::Node.new(type, children + [Engine::Node.token("end")])])
-        end
-
-        # `(if $l (result i32) (cond) (then ...) (else ...))` is the condition's
-        # instructions, then `if $l (result i32) ... else ... end`.
-        def unfold_if(rest)
-          body = rest.find { |child| child.type == "if_block" }
-          return [instruction(Engine::Node.new("expr1_if", rest))] unless body
-
-          # A branch with no instructions has no instr_list, so each list
-          # belongs to the "then" or "else" token before it.
-          lists = {}
-          branch = nil
-          body.children.each do |child|
-            branch = child.type if %w[then else].include?(child.type) && !child.named?
-            lists[branch] = child if child.type == "instr_list"
-          end
-          # The plain form `if else ... end` has no list for an empty "then"
-          # either.
-          branches = [lists["then"]].compact
-          branches += [Engine::Node.token("else"), lists["else"]] if lists["else"]
-          children = (rest - [body]) + body.children.select { |child| child.type == "func_type_results" } + branches
-          unfold_all(body.children.select { |child| child.type == "expr" }) + [instruction(block("block_if", children))]
+          changed ? true : false
         end
 
         ### Groups of parameters, results and locals ###
 
-        def split_groups(func)
-          changed = false
-          children = func.children.flat_map do |child|
-            parts = split_group(child)
-            changed ||= parts.size > 1
-            parts
-          end
-          func.children.replace(children) if changed
-          changed
+        def split_groups(node)
+          return false unless node.children.any? { |child| split?(child) }
+
+          node.children.replace(node.children.flat_map { |child| split?(child) ? split_group(child) : [child] })
+          true
         end
 
-        def split_group(child)
-          case child.type
-          when "func_type_params" then split_many(child, "func_type_params_many")
-          when "func_locals" then split_many(child, "func_locals_many")
-          when "func_type_results" then split_results(child)
-          else [child]
-          end
-        end
+        def split?(child) = GROUPS.include?(child.type) && group_types(child).size > 1
 
-        def split_many(group, inner_type)
-          many = group.children.find { |part| part.type == inner_type }
-          types = many ? many.children.select { |part| part.type == "value_type" } : []
-          return [group] if types.size < 2
+        def group_types(group) = group.children.select { |part| part.named? && part.type != "identifier" }
 
-          keywords = many.children.reject { |part| part.type == "value_type" }
+        # Each type gets its own copy of the group's keyword.
+        def split_group(group)
+          types = group_types(group)
+          keywords = group.children.reject { |part| types.include?(part) }
           types.map do |type|
-            Engine::Node.new(group.type, [Engine::Node.new(inner_type, keywords.map do |part|
-              Engine.deep_copy(part)
-            end + [Engine.deep_copy(type)])])
+            Engine::Node.new(group.type, keywords.map { |part| Engine.deep_copy(part) } + [Engine.deep_copy(type)])
           end
-        end
-
-        def split_results(group)
-          types = group.children.select { |part| part.type == "value_type" }
-          return [group] if types.size < 2
-
-          keywords = group.children.reject { |part| part.type == "value_type" }
-          types.map { |type| Engine::Node.new(group.type, keywords.map { |part| Engine.deep_copy(part) } + [Engine.deep_copy(type)]) }
         end
 
         ### Types ###
@@ -195,14 +155,27 @@ module Representer
         # Removes `(type (func ...))` fields, if no instruction or function
         # uses a type by number.
         def drop_anonymous_types(module_node)
-          return false if descendants(module_node).any? { |node| node.type == "type_use" }
+          return false if descendants(module_node).any? { |node| type_use?(node) }
 
           before = module_node.children.size
           module_node.children.reject! do |field|
-            inner = field.type == "module_field" ? field.children.first : field
-            inner&.type == "module_field_type" && inner.children.none? { |child| child.type == "identifier" }
+            field.type == "type_def" && field.children.none? { |child| child.type == "identifier" } &&
+              descendants(field).any? { |node| node.type == "func_type" } &&
+              descendants(field).none? { |node| %w[struct_type array_type cont_type].include?(node.type) }
           end
           module_node.children.size != before
+        end
+
+        # The grammar sometimes reads a flat `call_indirect (type 0)` as two
+        # instructions, the second one being `type`.
+        def type_use?(node)
+          node.type == "type_use" || (node.type == "instr_name" && node.text == "type")
+        end
+
+        def descendants(node)
+          found = []
+          node.each_descendant { |descendant| found << descendant }
+          found
         end
 
         ### Exports ###
@@ -230,29 +203,22 @@ module Representer
         # The fields that define something of this kind, in index order:
         # imports first, then definitions.
         def definitions(fields, kind)
-          fields.filter_map do |field|
-            inner = field.type == "module_field" ? field.children.first : field
-            next unless inner
-
-            inner if inner.type == "module_field_#{kind}" || import_of?(inner, kind)
-          end
+          fields.select { |field| field.type == "module_field_#{kind}" || import_of?(field, kind) }
         end
 
-        def import_of?(inner, kind)
-          inner.type == "module_field_import" && descendants(inner).any? { |node| node.type.start_with?("import_desc_#{kind}") }
+        def import_of?(field, kind)
+          field.type == "module_field_import" && field.children.any? { |child| child.type == "extern_type_#{kind}" }
         end
 
         # The definition that an export field points at, if it is in this
         # module and isn't an import.
         def export_target(field, kind, targets)
-          export = field.type == "module_field" ? field.children.first : field
-          return nil unless export&.type == "module_field_export"
+          return nil unless field.type == "module_field_export"
 
-          desc = export.children.find { |child| child.type == "export_desc" }&.children&.first
-          return nil unless desc&.type == "export_desc_#{kind}"
+          desc = field.children.find { |child| child.type == "extern_idx" }
+          return nil unless desc&.children&.first&.type == kind
 
-          index = desc.children.find { |child| child.type == "index" }&.children&.first
-          target = resolve(index, targets)
+          target = resolve(desc.children.find { |child| child.type == "index" }&.children&.first, targets)
           target&.type == "module_field_#{kind}" ? target : nil
         end
 
@@ -262,13 +228,12 @@ module Representer
           if index.type == "identifier"
             targets.find { |target| target.children.any? { |child| child.type == "identifier" && child.text == index.text } }
           else
-            targets[descendants(index).find { |node| node.type == "dec_nat" }&.text.to_i]
+            targets[index.text.delete("_").to_i]
           end
         end
 
         def attach_export(target, field)
-          export = field.type == "module_field" ? field.children.first : field
-          name = export.children.find { |child| child.type == "name" }
+          name = field.children.find { |child| %w[string literal].include?(child.type) }
           position = target.children.rindex do |child|
             %w[identifier export].include?(child.type) || INSTRUCTION_KINDS.include?(child.type)
           end

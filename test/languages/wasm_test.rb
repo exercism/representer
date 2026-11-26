@@ -109,4 +109,23 @@ class WasmTest < RepresenterTest
     assert_same_representation empty_then, "(module (func i32.const 1 if else nop end))"
     refute_same_representation empty_then, "(module (func (if (i32.const 1) (then (nop)))))"
   end
+
+  # wabt accepts `(if c t)` and `(if c t e)`, which mean `(if c (then t) (else e))`.
+  def test_the_shorthand_if_is_the_same_as_the_spec_form
+    assert_same_representation wrap("(if (local.get $a) (nop))"), wrap("(if (local.get $a) (then (nop)))")
+    assert_same_representation wrap("(if (local.get $a) (i32.const 1) (i32.const 2))"),
+      wrap("(if (local.get $a) (then (i32.const 1)) (else (i32.const 2)))")
+    assert_same_representation wrap("(if (result i32) (local.get $a) (i32.const 1) (i32.const 2))"),
+      wrap("local.get $a\nif (result i32)\ni32.const 1\nelse\ni32.const 2\nend")
+    refute_same_representation wrap("(if (local.get $a) (i32.const 1))"), wrap("(if (local.get $a) (i32.const 2))")
+  end
+
+  def test_an_if_with_an_empty_else
+    assert_same_representation wrap("(if (local.get $a) (then (nop)) (else))"), wrap("(if (local.get $a) (then (nop)))")
+  end
+
+  def test_a_folded_block_can_be_an_operand
+    assert_same_representation wrap("(i32.add (block (result i32) (i32.const 1)) (i32.const 2))"),
+      wrap("block (result i32)\ni32.const 1\nend\ni32.const 2\ni32.add")
+  end
 end
