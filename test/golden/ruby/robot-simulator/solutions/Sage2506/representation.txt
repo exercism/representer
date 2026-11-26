@@ -1,7 +1,7 @@
 (program
   (class Robot
     (body_statement
-      (assignment (constant PLACEHOLDER_1) =
+      (assignment INCREMENTS
         (hash
           (pair :north
             (array 0 1))
@@ -13,67 +13,67 @@
           (pair :west
             (array
               (unary - 1) 0))))
-      (assignment (constant PLACEHOLDER_2) =
-        (call (constant PLACEHOLDER_1) keys))
+      (assignment VALID_BEARINGS
+        (call INCREMENTS keys))
       (call attr_reader
         (argument_list :bearing :coordinates))
       (method orient
         (method_parameters direction)
         (body_statement
-          (unless
-            (call (constant PLACEHOLDER_2) include?
+          (if
+            (call VALID_BEARINGS include?
               (argument_list direction))
-            (then
+            (else
               (call raise
                 (argument_list ArgumentError))))
-          (assignment (instance_variable PLACEHOLDER_3) = direction)))
+          (assignment (instance_variable PLACEHOLDER_1) direction)))
       (method turn_right
         (body_statement
-          (assignment (instance_variable PLACEHOLDER_3) =
+          (assignment (instance_variable PLACEHOLDER_1)
             (binary
-              (element_reference (constant PLACEHOLDER_2)
+              (element_reference VALID_BEARINGS
                 (binary
-                  (call (constant PLACEHOLDER_2) index
-                    (argument_list (instance_variable PLACEHOLDER_3))) + 1)) || :north))))
+                  (call VALID_BEARINGS index
+                    (argument_list (instance_variable PLACEHOLDER_1))) + 1)) || :north))))
       (method turn_left
         (body_statement
-          (assignment (instance_variable PLACEHOLDER_3) =
-            (element_reference (constant PLACEHOLDER_2)
+          (assignment (instance_variable PLACEHOLDER_1)
+            (element_reference VALID_BEARINGS
               (binary
-                (call (constant PLACEHOLDER_2) index
-                  (argument_list (instance_variable PLACEHOLDER_3))) - 1)))))
+                (call VALID_BEARINGS index
+                  (argument_list (instance_variable PLACEHOLDER_1))) - 1)))))
       (method at
         (method_parameters
-          (splat_parameter * coordinates))
+          (splat_parameter coordinates))
         (body_statement
-          (assignment (instance_variable PLACEHOLDER_4) = coordinates)))
+          (assignment (instance_variable PLACEHOLDER_2) coordinates)))
       (method advance
         (body_statement
-          (assignment (instance_variable PLACEHOLDER_4) =
+          (assignment (instance_variable PLACEHOLDER_2)
             (call
-              (call (instance_variable PLACEHOLDER_4) zip
+              (call (instance_variable PLACEHOLDER_2) zip
                 (argument_list
-                  (element_reference (constant PLACEHOLDER_1) (instance_variable PLACEHOLDER_3)))) map
+                  (element_reference INCREMENTS (instance_variable PLACEHOLDER_1)))) map
               (block
-                (block_parameters PLACEHOLDER_5 PLACEHOLDER_6)
+                (block_parameters PLACEHOLDER_3 PLACEHOLDER_4)
                 (body_statement
-                  (binary PLACEHOLDER_5 + PLACEHOLDER_6)))))))))
+                  (binary PLACEHOLDER_3 + PLACEHOLDER_4)))))))))
   (class Simulator
     (body_statement
-      (assignment (constant PLACEHOLDER_7) =
+      (assignment COMMANDS
         (hash
           (pair "L" :turn_left)
           (pair "R" :turn_right)
           (pair "A" :advance)))
       (method instructions
-        (method_parameters PLACEHOLDER_8)
+        (method_parameters PLACEHOLDER_5)
         (body_statement
           (call
-            (call PLACEHOLDER_8 chars) map
+            (call PLACEHOLDER_5 chars) map
             (block
-              (block_parameters PLACEHOLDER_9)
+              (block_parameters PLACEHOLDER_6)
               (body_statement
-                (element_reference (constant PLACEHOLDER_7) PLACEHOLDER_9))))))
+                (element_reference COMMANDS PLACEHOLDER_6))))))
       (method place
         (method_parameters robot
           (keyword_parameter x 0)
@@ -85,13 +85,13 @@
           (call robot orient
             (argument_list direction))))
       (method evaluate
-        (method_parameters robot PLACEHOLDER_8)
+        (method_parameters robot PLACEHOLDER_5)
         (body_statement
           (call
             (call instructions
-              (argument_list PLACEHOLDER_8)) each
+              (argument_list PLACEHOLDER_5)) each
             (block
-              (block_parameters PLACEHOLDER_9)
+              (block_parameters PLACEHOLDER_6)
               (body_statement
                 (call robot send
-                  (argument_list PLACEHOLDER_9))))))))))
+                  (argument_list PLACEHOLDER_6))))))))))

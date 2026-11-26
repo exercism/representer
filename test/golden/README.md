@@ -216,7 +216,7 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | red | Red | 190 | 30 | 100 | 45 | 100 | 0 | 0 | 0 | 0 |
 | rescript | Basic | 45 | 1 | 42 | 22 | 39 | 1 | 0 | 0 | 0 |
 | roc | Basic | 36 | 1 | 33 | 28 | 32 | 1 | 0 | 0 | 0 |
-| ruby | Ruby | 379 | 93 | 100 | 85 | 100 | 8 | 0 | 0 | 2 |
+| ruby | Ruby | 379 | 93 | 100 | 85 | 100 | 7 | 0 | 0 | 2 |
 | rust | Rust | 394 | 98 | 100 | 76 | 99 | 8 | 0 | 0 | 0 |
 | scala | Basic | 362 | 89 | 100 | 59 | 97 | 32 | 1 | 0 | 0 |
 | scheme | Basic | 238 | 46 | 100 | 46 | 99 | 32 | 0 | 0 | 0 |

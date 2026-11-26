@@ -1,13 +1,13 @@
-# Keyword parameter names stay, because callers use them. That keeps
+# Keyword parameter names and constants stay. Callers use keyword names, and that keeps
 # actual_minutes_in_oven everywhere, since renaming goes by name.
 class Pasta
-  OVEN_MINUTES = 40
-  MINUTES_PER_LAYER = 2
+  EXPECTED_MINUTES_IN_OVEN = 40
+  PREPARATION_MINUTES_PER_LAYER = 2
 
-  def remaining(actual_minutes_in_oven) = OVEN_MINUTES - actual_minutes_in_oven
+  def remaining(actual_minutes_in_oven) = EXPECTED_MINUTES_IN_OVEN - actual_minutes_in_oven
 
   def prep_time(count)
-    count * MINUTES_PER_LAYER
+    count * PREPARATION_MINUTES_PER_LAYER
   end
 
   def total(number_of_layers:, actual_minutes_in_oven:) = prep_time(number_of_layers) + actual_minutes_in_oven

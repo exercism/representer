@@ -4,8 +4,8 @@
       (method initialize
         (method_parameters PLACEHOLDER_1 PLACEHOLDER_2)
         (body_statement
-          (assignment (instance_variable PLACEHOLDER_3) = PLACEHOLDER_2)
-          (assignment (instance_variable PLACEHOLDER_4) =
+          (assignment (instance_variable PLACEHOLDER_3) PLACEHOLDER_2)
+          (assignment (instance_variable PLACEHOLDER_4)
             (call PLACEHOLDER_1 sort))))
       (method score
         (body_statement
@@ -43,60 +43,64 @@
             (when
               (pattern "full house")
               (then
-                (case_match groups
-                  (in_clause in
+                (case_match PLACEHOLDER_6
+                  (in_clause
                     (array_pattern
                       (array_pattern _ _ _)
                       (array_pattern _ _))
                     (then
                       (call (instance_variable PLACEHOLDER_4) sum)))
-                  (in_clause in
+                  (in_clause
                     (array_pattern
                       (array_pattern _ _)
                       (array_pattern _ _ _))
                     (then
                       (call (instance_variable PLACEHOLDER_4) sum)))
-                  (in_clause in _
+                  (in_clause _
                     (then 0)))))
             (when
               (pattern "four of a kind")
               (then
-                (case_match groups
-                  (in_clause in
+                (case_match PLACEHOLDER_6
+                  (in_clause
                     (array_pattern
                       (array_pattern _ _ _ _ _))
                     (then
                       (call
                         (element_reference (instance_variable PLACEHOLDER_4)
                           (range 1 ..)) sum)))
-                  (in_clause in
+                  (in_clause
                     (array_pattern
                       (array_pattern _)
                       (as_pattern
                         (array_pattern _ _ _ _) values))
                     (then
                       (call values sum)))
-                  (in_clause in
+                  (in_clause
                     (array_pattern
                       (as_pattern
                         (array_pattern _ _ _ _) values)
                       (array_pattern _))
                     (then
                       (call values sum)))
-                  (in_clause in _
+                  (in_clause _
                     (then 0)))))
             (when
               (pattern "little straight")
               (then
-                (conditional
+                (if
                   (binary (instance_variable PLACEHOLDER_4) ==
-                    (array 1 2 3 4 5)) 30 0)))
+                    (array 1 2 3 4 5))
+                  (then 30)
+                  (else 0))))
             (when
               (pattern "big straight")
               (then
-                (conditional
+                (if
                   (binary (instance_variable PLACEHOLDER_4) ==
-                    (array 2 3 4 5 6)) 30 0)))
+                    (array 2 3 4 5 6))
+                  (then 30)
+                  (else 0))))
             (when
               (pattern "choice")
               (then
@@ -104,21 +108,25 @@
             (when
               (pattern "yacht")
               (then
-                (conditional
-                  (call groups one?) 50 0)))
+                (if
+                  (call PLACEHOLDER_6 one?)
+                  (then 50)
+                  (else 0))))
             (else 0)))) private
       (method PLACEHOLDER_5
-        (method_parameters PLACEHOLDER_6)
+        (method_parameters PLACEHOLDER_7)
         (body_statement
           (call (instance_variable PLACEHOLDER_4) sum
             (block
-              (block_parameters PLACEHOLDER_7)
+              (block_parameters PLACEHOLDER_8)
               (body_statement
-                (conditional
-                  (binary PLACEHOLDER_7 == PLACEHOLDER_6) PLACEHOLDER_7 0))))))
-      (method groups
+                (if
+                  (binary PLACEHOLDER_8 == PLACEHOLDER_7)
+                  (then PLACEHOLDER_8)
+                  (else 0)))))))
+      (method PLACEHOLDER_6
         (body_statement
           (call
             (call (instance_variable PLACEHOLDER_4) group_by
               (argument_list
-                (block_argument & :itself))) values))))))
+                (block_argument :itself))) values))))))

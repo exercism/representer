@@ -1,50 +1,50 @@
 (program
   (class PigLatin
     (body_statement
-      (assignment (constant PLACEHOLDER_1) =
-        (regex / a|e|i|o|u /))
-      (assignment (constant PLACEHOLDER_2) =
-        (regex / [^
-          (interpolation (constant PLACEHOLDER_1)) ] /))
+      (assignment VOWELS
+        (regex "a|e|i|o|u"))
+      (assignment CONSONANTS
+        (regex "[^"
+          (interpolation VOWELS) "]"))
       (singleton_method self translate
-        (method_parameters PLACEHOLDER_3)
+        (method_parameters PLACEHOLDER_1)
         (body_statement
           (call
             (call
-              (call PLACEHOLDER_3 split) map
+              (call PLACEHOLDER_1 split) map
               (block
-                (block_parameters PLACEHOLDER_4)
+                (block_parameters PLACEHOLDER_2)
                 (body_statement
-                  (call PLACEHOLDER_5
-                    (argument_list PLACEHOLDER_4))))) join
+                  (call translate_word
+                    (argument_list PLACEHOLDER_2))))) join
             (argument_list " "))))
-      (singleton_method self PLACEHOLDER_5
-        (method_parameters PLACEHOLDER_6)
+      (singleton_method self translate_word
+        (method_parameters PLACEHOLDER_3)
         (body_statement
-          (assignment PLACEHOLDER_7 =
+          (assignment PLACEHOLDER_4
             (call
-              (call PLACEHOLDER_6 partition
+              (call PLACEHOLDER_3 partition
                 (argument_list
-                  (regex /
-                    (interpolation (constant PLACEHOLDER_1)) |
-                    (interpolation (constant PLACEHOLDER_2)) *qu|xr|y /))) reject
+                  (regex
+                    (interpolation VOWELS) "|"
+                    (interpolation CONSONANTS) "*qu|xr|y"))) reject
               (argument_list
-                (block_argument & :empty?))))
-          (unless
+                (block_argument :empty?))))
+          (if
             (binary
               (binary
-                (element_reference PLACEHOLDER_7 0) =~
-                (regex / ^
-                  (interpolation (constant PLACEHOLDER_1)) "|(xr)" /)) ||
+                (element_reference PLACEHOLDER_4 0) =~
+                (regex "^"
+                  (interpolation VOWELS) "|(xr)")) ||
               (binary
                 (binary
-                  (element_reference PLACEHOLDER_7 0) == "y") &&
+                  (element_reference PLACEHOLDER_4 0) == "y") &&
                 (binary
-                  (element_reference PLACEHOLDER_7 1) =~
-                  (regex / ^
-                    (interpolation (constant PLACEHOLDER_2)) /))))
-            (then
-              (call PLACEHOLDER_7 rotate!
+                  (element_reference PLACEHOLDER_4 1) =~
+                  (regex "^"
+                    (interpolation CONSONANTS)))))
+            (else
+              (call PLACEHOLDER_4 rotate!
                 (argument_list 1))))
           (binary
-            (call PLACEHOLDER_7 join) << "ay"))))))
+            (call PLACEHOLDER_4 join) << "ay"))))))

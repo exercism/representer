@@ -12,4 +12,6 @@ group :development, :test do
   gem 'rake'
   gem 'rubocop', require: false
   gem 'rubocop-performance', require: false
+  # The Ruby GenerateAST tests compare its trees with the parser gem's.
+  gem 'parser', require: false
 end

@@ -8,10 +8,8 @@ class RubyTest < RepresenterTest
   DEVIATIONS = {
     "examples-lasagna" => {
       remove: ["actual_minutes_in_oven", "actual_minutes_in_oven:", "number_of_layers:"],
-      add: %w[EXPECTED_MINUTES_IN_OVEN PREPARATION_MINUTES_PER_LAYER],
       why: "Keyword parameter names stay, because callers use them (renaming goes by name, so that keeps " \
-           "actual_minutes_in_oven everywhere). Constants the solution defines are renamed. The old representer " \
-           "left constants, and renamed one keyword parameter but not the other."
+           "actual_minutes_in_oven everywhere). The old representer renamed one keyword parameter but not the other."
     },
     "mapping-attr_accessors" => {
       remove: %w[other1 other2],
@@ -26,68 +24,27 @@ class RubyTest < RepresenterTest
 
   upstream_tests ".rb", deviations: DEVIATIONS
 
-  ### Formatting and spelling ###
-
-  def test_modifier_if_is_block_if
-    assert_same_representation "return 1 if x", "if x\n  return 1\nend"
-    assert_same_representation "return 1 if x", "if x then return 1 end"
-  end
-
-  def test_modifier_unless_is_block_unless
-    assert_same_representation "y unless x", "unless x\n  y\nend"
-  end
-
-  def test_modifier_loops_are_block_loops
-    assert_same_representation "y while x", "while x\n  y\nend"
-    assert_same_representation "y until x", "until x do y end"
-  end
-
-  def test_begin_end_while_runs_first_so_stays_apart
-    refute_same_representation "begin\n  y\nend while x", "while x\n  y\nend"
-  end
-
-  def test_endless_methods_are_normal_methods
-    assert_same_representation "def two_fer(name = 'you') = \"One for \#{name}\"",
-      "def two_fer(name = 'you')\n  \"One for \#{name}\"\nend"
-    assert_same_representation "def self.x = 1", "def self.x\n  1\nend"
-  end
-
-  def test_empty_parameter_brackets
-    assert_same_representation "def x()\nend", "def x\nend"
-  end
-
-  def test_block_styles
-    assert_same_representation "xs.map { |x| x * 2 }", "xs.map do |x|\n  x * 2\nend"
-  end
-
-  def test_word_operators
-    assert_same_representation "a and b", "a && b"
-    assert_same_representation "not a", "!a"
-  end
-
-  def test_hash_key_styles
-    assert_same_representation "{ a: 1 }", "{ :a => 1 }"
-  end
-
-  def test_quotes
-    assert_same_representation "x = 'a b'", 'x = "a b"'
-    assert_same_representation "x = 'it\\'s'", 'x = "it\'s"'
-  end
+  # The tests in test/languages/ruby/ cover each stage on its own. These
+  # cover the whole representer.
 
   ### Must not merge ###
-
-  def test_strings_keep_their_spaces
-    refute_same_representation '"One for you"', '"Oneforyou"'
-  end
-
-  def test_escapes_differ_between_quote_styles
-    refute_same_representation "'a\\nb'", '"a\\nb"'
-  end
 
   def test_kinds_of_variable_stay_apart
     refute_same_representation "@x = 1", "$x = 1"
     refute_same_representation "@x = 1", "x = 1"
     refute_same_representation "X = 1", "x = 1"
+  end
+
+  def test_globals_that_ruby_defines_keep_their_names
+    refute_same_representation "x = $stdout", "x = $stderr"
+  end
+
+  def test_symbols_named_like_a_local_keep_their_names
+    refute_same_representation "count = 0\nxs.map(&:count)", "sum = 0\nxs.map(&:sum)"
+  end
+
+  def test_a_trailing_comma_in_block_parameters_is_kept
+    refute_same_representation "[[1, 2]].each { |a,| p a }", "[[1, 2]].each { |a| p a }"
   end
 
   def test_methods_named_after_library_methods_stay_apart
@@ -153,43 +110,11 @@ class RubyTest < RepresenterTest
   def test_deep_nesting_is_unrepresentable
     assert_unrepresentable("[" * 2_000 + "]" * 2_000, "too_deep")
   end
+  ### Spellings ###
 
-  # These tokens are the only difference between each pair.
-  def test_tokens_that_tell_programs_apart_are_kept
-    refute_same_representation "[1].each { |x; y| y = x }", "[1].each { |x, y| y = x }"
-    refute_same_representation "foo.(x)", "foo(x)"
-    refute_same_representation 'h = {"a": 1}', 'h = {"a" => 1}'
-    assert_same_representation "h = {a: 1}", "h = {:a => 1}"
-  end
-
-  def test_regex_options_are_kept
-    refute_same_representation "x = /a/i", "x = /a/"
-    refute_same_representation "x = /a/i", "x = /a/m"
-    refute_same_representation "x = %r{a}x", "x = %r{a}"
-    assert_same_representation "x = /a/mi", "x = /a/im"
-    assert_same_representation "x = /a/", "x = %r{a}"
-  end
-
-  def test_text_after_end_is_dropped_unless_the_program_reads_it
-    assert_same_representation "x = 1\n__END__\nsome data\n", "x = 1\n"
-    refute_same_representation "puts DATA.read\n__END__\na\n", "puts DATA.read\n__END__\nb\n"
-  end
-
-  def test_requires_are_dropped
-    assert_same_representation "require 'set'\nrequire_relative 'x'\nx = 1", "x = 1"
-    refute_same_representation "load 'x.rb'\nx = 1", "x = 1"
-  end
-
-  def test_double_colon_calls_are_calls
-    assert_same_representation "x = A::B::c", "x = A::B.c"
-    refute_same_representation "x = A::B::C", "x = A::B.c"
-  end
-
-  def test_numbers_are_their_values
-    assert_same_representation "x = 315_576_00.0", "x = 31_557_600.0"
-    assert_same_representation "x = 0x1F + 0b1 + 017 + 0o17 + 1_000", "x = 31 + 1 + 15 + 15 + 1000"
-    assert_same_representation "x = 1.50e1", "x = 15.0"
-    refute_same_representation "x = 1.0", "x = 1"
-    refute_same_representation "x = 1r", "x = 1"
+  def test_spellings_that_ruby_reads_the_same_are_the_same
+    assert_same_representation "def two_fer(name = 'you') = \"One for \#{name}\"",
+      "def two_fer(name = %q(you))\n  \"One for \#{name}\"\nend"
+    assert_same_representation "require 'set'\nx = <<~EOS\n  a\nEOS\n", "x = \"a\\n\""
   end
 end

@@ -1,56 +1,58 @@
 (program
   (module Luhn
     (body_statement
-      (assignment (constant PLACEHOLDER_1) = 2)
-      (assignment (constant PLACEHOLDER_2) = 10)
-      (assignment (constant PLACEHOLDER_3) =
-        (regex / [[:alpha:]] /))
+      (assignment MAN_VALID_LENGTH 2)
+      (assignment CHECKER 10)
+      (assignment ALPHA_REG
+        (regex "[[:alpha:]]"))
       (singleton_method self valid?
-        (method_parameters PLACEHOLDER_4)
+        (method_parameters PLACEHOLDER_1)
         (body_statement
-          (assignment PLACEHOLDER_5 =
+          (assignment PLACEHOLDER_2
             (call
-              (call PLACEHOLDER_4 chars) reject
+              (call PLACEHOLDER_1 chars) reject
               (block
                 (body_statement
                   (binary _1 == " ")))))
           (if
             (binary
-              (call PLACEHOLDER_5 count) < (constant PLACEHOLDER_1))
+              (call PLACEHOLDER_2 count) < MAN_VALID_LENGTH)
             (then
               (return
                 (argument_list false))))
           (if
-            (call PLACEHOLDER_5 any?
+            (call PLACEHOLDER_2 any?
               (block
                 (body_statement
                   (call _1 match?
-                    (argument_list (constant PLACEHOLDER_3))))))
+                    (argument_list ALPHA_REG)))))
             (then
               (return
                 (argument_list false))))
-          (assignment PLACEHOLDER_6 =
+          (assignment PLACEHOLDER_3
             (call
               (call
                 (call
-                  (call PLACEHOLDER_5 reverse) map
+                  (call PLACEHOLDER_2 reverse) map
                   (argument_list
-                    (block_argument & :to_i))) each_with_index) inject
+                    (block_argument :to_i))) each_with_index) inject
               (argument_list 0)
               (block
-                (block_parameters PLACEHOLDER_7
-                  (destructured_parameter PLACEHOLDER_8 PLACEHOLDER_9))
+                (block_parameters PLACEHOLDER_4
+                  (destructured_parameter PLACEHOLDER_5 PLACEHOLDER_6))
                 (body_statement
-                  (operator_assignment PLACEHOLDER_7 +=
+                  (operator_assignment PLACEHOLDER_4 +=
                     (if
-                      (call PLACEHOLDER_9 odd?)
+                      (call PLACEHOLDER_6 odd?)
                       (then
-                        (conditional
+                        (if
                           (binary
-                            (binary PLACEHOLDER_8 * 2) > 9)
-                          (binary
-                            (binary PLACEHOLDER_8 * 2) - 9)
-                          (binary PLACEHOLDER_8 * 2)))
-                      (else PLACEHOLDER_8)))))))
+                            (binary PLACEHOLDER_5 * 2) > 9)
+                          (then
+                            (binary
+                              (binary PLACEHOLDER_5 * 2) - 9))
+                          (else
+                            (binary PLACEHOLDER_5 * 2))))
+                      (else PLACEHOLDER_5)))))))
           (binary
-            (binary PLACEHOLDER_6 % (constant PLACEHOLDER_2)) == 0))))))
+            (binary PLACEHOLDER_3 % CHECKER) == 0))))))
