@@ -2,8 +2,9 @@ require "rouge"
 
 module Representer
   module Languages
-    # The representer for every track with no class of its own, and for any
-    # solution that its language's parser can't read.
+    # The representer for every track with no class of its own. A solution
+    # that its language's class can't parse gets no representation, and
+    # never falls back to Basic.
     #
     # It removes comments and formatting, and changes nothing else, so two
     # solutions only get the same representation if they differ in nothing
@@ -19,6 +20,8 @@ module Representer
     # - In indentation-sensitive languages, it also keeps each line's
     #   indentation depth (but not its width, so 2 and 4 spaces are the same).
     # - It renames nothing.
+    # - It writes no file names, and puts the files in the order of their
+    #   representations.
     #
     # A token is written as it is, or in double quotes (with escapes) if it
     # holds whitespace or starts with a double quote. So the output can only be
@@ -58,16 +61,49 @@ module Representer
 
       initialize_with :track_slug, :solution_files
 
+      # The source files' extensions, for tracks whose Rouge lexer doesn't
+      # list them or that have no lexer. Other tracks use the file names that
+      # their lexer lists.
+      EXTENSIONS = {
+        "8th" => %w[.8th], "arm64-assembly" => %w[.s], "arturo" => %w[.art], "awk" => %w[.awk .sh],
+        "ballerina" => %w[.bal], "cairo" => %w[.cairo], "euphoria" => %w[.ex .e], "futhark" => %w[.fut],
+        "jq" => %w[.jq], "lfe" => %w[.lfe], "mips" => %w[.mips .asm .s], "odin" => %w[.odin], "purescript" => %w[.purs],
+        "pyret" => %w[.arr], "red" => %w[.red], "roc" => %w[.roc], "uiua" => %w[.ua], "unison" => %w[.u],
+        "vlang" => %w[.v], "yamlscript" => %w[.ys]
+      }.freeze
+
+      # For a track that has neither, every file is code except these.
+      NOT_SOURCE = %w[.md .txt .json .yaml .yml .toml .lock .out].freeze
+
+      # The files are written one after another, in the order of their
+      # representations, so their names and order never matter. Files that
+      # aren't code, such as Haskell's package.yaml, are left out.
       def call
-        representation = solution_files.sort.map { |filename, source| represent(filename, Engine.clean(source)) }.join("\n")
+        sources = solution_files.select { |filename, _| source_file?(filename) }
+        raise CannotRepresent.new("no_source_files", "No solution file is a #{track_slug} source file") if sources.empty?
+
+        representation = sources.values.map { |source| represent(Engine.clean(source)) }.reject(&:empty?).sort.join("\n")
         Engine::Result.new(representation:, mapping: {}, version: VERSION, representer: self.class)
       end
 
       def self.version = VERSION
 
       private
-      def represent(filename, source)
-        lines = ["(file #{filename.dump})"]
+      def source_file?(filename)
+        return false if Engine.test_or_config_file?(filename)
+
+        name = File.basename(filename)
+        return EXTENSIONS[track_slug].any? { |extension| name.end_with?(extension) } if EXTENSIONS.key?(track_slug)
+        return lexer.filenames.any? { |glob| File.fnmatch(glob, name) } if lexer
+
+        NOT_SOURCE.none? { |extension| name.downcase.end_with?(extension) }
+      end
+
+      memoize
+      def lexer = Rouge::Lexer.find(LEXERS.fetch(track_slug, track_slug))
+
+      def represent(source)
+        lines = []
         indentation = [0]
         line_tokens(source).each do |indent, tokens|
           next if tokens.empty?
@@ -106,7 +142,6 @@ module Representer
       # :gap (whitespace or a comment). Comments only count for their line
       # breaks.
       def each_token(source, &block)
-        lexer = Rouge::Lexer.find(LEXERS.fetch(track_slug, track_slug))
         return split_words(source, &block) unless lexer
 
         lex(lexer, source).each do |name, text|
@@ -114,6 +149,8 @@ module Representer
             yield :string, text
           elsif name.start_with?("Comment") && !name.start_with?("Comment.Preproc")
             yield :gap, text.include?("\n") ? "\n" : " "
+          elsif name == "Comment.Preproc" && PREPROC_LINE_COMMENTS.include?(lexer.tag)
+            split_words(without_line_comments(text), &block)
           else
             split_words(text, &block)
           end
@@ -176,6 +213,16 @@ module Representer
 
         tokens.pop(count)
         ["Literal.String.Char", prefix + source[position], prefix.size]
+      end
+
+      # Lexers whose preprocessor lines can end with a `//` comment, which
+      # the lexer keeps as part of the line.
+      PREPROC_LINE_COMMENTS = %w[c cpp objective_c].freeze
+
+      # The text without its `//` comments. Strings and characters stay as
+      # they are, so `"a//b"` is not a comment.
+      def without_line_comments(text)
+        text.gsub(%r{"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|//[^\n]*}) { |piece| piece.start_with?("//") ? "" : piece }
       end
 
       def split_words(text)

@@ -8,7 +8,7 @@ module Representer
     # chooses (written `$name`) is renamed.
     class Wasm < Language
       tracks "wasm"
-      version 4
+      version 5
       grammar "wat"
       extensions ".wat"
 

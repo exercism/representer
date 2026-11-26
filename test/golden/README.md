@@ -70,28 +70,27 @@ A rejected difference stays listed until the fix lands, and the fix then removes
 ## The differences today
 
 The data holds 19,557 solutions in 82 tracks: 4,187 production groups of two or three solutions, and 7,017 solutions that were alone in their representation.
-Compared with production, today's representer makes 776 splits and 129 merges, and 77 solutions get no representation.
+Compared with production, today's representer makes 772 splits and 148 merges, and 77 solutions get no representation.
 Every difference is still `undecided`.
 
 ### The 59 tracks that use Basic
 
-These tracks have 597 splits and 41 merges.
+These tracks have 597 splits and 59 merges.
 Production's basic representer deleted all whitespace and kept comments.
 Today's Basic does the opposite: it keeps line breaks, the spaces between tokens and (in languages like Python) indentation, and it drops comments.
 
 - 478 splits come from line breaks, 108 from spaces between tokens or inside strings, and 11 from indentation.
   Some of these are right: in Scheme, `(1- n)` and `(1 - n)` mean different things, and so do strings with different spaces.
-- All 41 merges are solutions that differ only in comments and whitespace.
+- All 59 merges are solutions that differ only in comments and whitespace. For 18 Haskell merges, production split the solutions because some also held a `package.yaml` or had their file at another path. Basic now ignores files that aren't code, and writes no file names.
 
 ### The 23 tracks with a class of their own
 
-These tracks have 179 splits, 88 merges and 77 unrepresentable solutions.
+These tracks have 175 splits, 89 merges and 77 unrepresentable solutions.
 
 The main causes of splits are:
 
 - **Names used by the tests (49 splits).** The representer keeps every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Ruby (7), Rust (7) and PHP (5) have the most.
 - **Numbers (15 splits).** Numbers written differently stay different, such as Elixir's `41_000` and `41000`, or `0b10_000_000` and `128`.
-- **File names (8 splits).** The representation includes each file's name, so a solution submitted before an exercise was renamed (such as `pop-count` to `eliuds-eggs`) splits from a newer one.
 - **Elm parentheses (15 splits).** Elm keeps redundant parentheses, so `(modBy 2 n) + x` and `modBy 2 n + x` differ. A few more Elm splits come from the order of the names in `exposing`.
 - **C++ preprocessor lines (13 splits).** The representation keeps each `#include`, include guard and `using` line, in order.
 - **F# layout (about 10 splits).** The F# grammar builds a different tree for the same expression laid out differently, such as a pipeline split across lines.
@@ -101,6 +100,7 @@ The merges are:
 
 - 29 merges of solutions with the same code, or code that differs only in whitespace or comments. Production had them in separate groups, probably because they were represented by different versions.
 - 58 merges of solutions that differ in local names or formatting, which the language's class now normalises. Zig (13), Nim (9), Clojure (7), F# (6), Wren (5), Raku (4) and WebAssembly (4) have the most.
+- 1 GDScript merge of two solutions that differ only in type hints, which the old representer also removed.
 - 1 Zig merge of a solution that also holds a `HELP.md` and a `README.md`. The representer ignores files without one of the language's extensions, and the code is the same as the other group's apart from comments.
 
 The unrepresentable solutions are:
@@ -149,14 +149,14 @@ They look like representations made by a rerun of older submissions, which are n
 | free-pascal | Basic | 102 | 1 | 99 | 1 | 0 | 0 |
 | fsharp | FSharp | 393 | 99 | 96 | 16 | 8 | 7 |
 | futhark | Basic | 101 | 1 | 98 | 0 | 0 | 0 |
-| gdscript | GDScript | 99 | 1 | 96 | 0 | 0 | 8 |
+| gdscript | GDScript | 99 | 1 | 96 | 0 | 1 | 8 |
 | gleam | Gleam | 346 | 91 | 73 | 1 | 2 | 0 |
 | go | Go | 359 | 88 | 96 | 16 | 0 | 0 |
 | groovy | Basic | 227 | 45 | 92 | 13 | 0 | 0 |
-| haskell | Basic | 399 | 100 | 100 | 28 | 0 | 0 |
+| haskell | Basic | 399 | 100 | 100 | 28 | 18 | 0 |
 | idris | Basic | 114 | 11 | 82 | 2 | 1 | 0 |
 | java | Java | 298 | 96 | 10 | 4 | 0 | 0 |
-| javascript | JavaScript | 369 | 94 | 88 | 5 | 0 | 0 |
+| javascript | JavaScript | 369 | 94 | 88 | 4 | 0 | 0 |
 | jq | Basic | 392 | 100 | 92 | 69 | 0 | 0 |
 | julia | Basic | 392 | 98 | 100 | 6 | 0 | 0 |
 | kotlin | Basic | 372 | 96 | 84 | 25 | 0 | 0 |
@@ -191,13 +191,13 @@ They look like representations made by a rerun of older submissions, which are n
 | sqlite | Basic | 328 | 76 | 100 | 38 | 10 | 0 |
 | swift | Basic | 333 | 91 | 60 | 10 | 2 | 0 |
 | tcl | Basic | 366 | 90 | 96 | 5 | 0 | 0 |
-| typescript | TypeScript | 382 | 96 | 95 | 4 | 2 | 0 |
+| typescript | TypeScript | 382 | 96 | 95 | 3 | 2 | 0 |
 | uiua | Basic | 205 | 39 | 88 | 12 | 0 | 0 |
 | unison | Basic | 94 | 5 | 79 | 0 | 0 | 0 |
 | vbnet | Basic | 145 | 25 | 71 | 0 | 1 | 0 |
 | vimscript | Basic | 110 | 8 | 86 | 0 | 0 | 0 |
 | vlang | Basic | 188 | 31 | 95 | 11 | 0 | 0 |
-| wasm | Wasm | 282 | 63 | 93 | 9 | 4 | 42 |
+| wasm | Wasm | 282 | 63 | 93 | 7 | 4 | 42 |
 | wren | Wren | 207 | 39 | 90 | 2 | 11 | 0 |
 | x86-64-assembly | Basic | 293 | 66 | 95 | 0 | 5 | 0 |
 | yamlscript | Basic | 123 | 9 | 96 | 1 | 0 | 0 |

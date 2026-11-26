@@ -103,6 +103,16 @@ module Representer
         match.node
       end
 
+      # The text after `__END__` isn't code. It only matters if the program
+      # reads it through DATA.
+      rewrite "(program (uninterpreted) @data)" do |match|
+        uses_data = false
+        match.node.each_descendant { |node| uses_data ||= node.type == "constant" && node.text == "DATA" }
+        next nil if uses_data
+
+        match.node.tap { match.node.children.delete(match[:data]) }
+      end
+
       ### Rename and keep ###
 
       # Local variables and parameters.

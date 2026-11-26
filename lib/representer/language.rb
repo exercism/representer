@@ -12,6 +12,9 @@ module Representer
   #    and brackets (the tree's shape already says what they group).
   # 3. Rewrite: turn different spellings of the same code into one, such as
   #    `x if y` into a block `if`.
+  #    The files' trees are then joined into one, in an order that depends
+  #    only on their code, and the rewrite rules run again on the whole. A
+  #    file's name is never part of the representation.
   # 4. Rename: replace each name the student chose with a placeholder, and
   #    keep every name with a meaning outside the solution (library names,
   #    names the tests use, names the language calls itself).
@@ -64,20 +67,6 @@ module Representer
 
       def source_file?(filename) = extensions.any? { |extension| filename.downcase.end_with?(extension) }
 
-      # For a language where it doesn't matter which file code is in (Go). The
-      # solution's files are joined into one tree, and the rules for the whole
-      # file (such as one that sorts the declarations) then run on all of
-      # it, so splitting code across files doesn't change the representation.
-      # The representation is written under this file name, whatever the
-      # solution's files are called.
-      def merge_files(name = nil)
-        return @merged_file_name unless name
-
-        @merged_file_name = name
-      end
-
-      def merges_files? = !@merged_file_name.nil?
-
       # The leaf types that hold names, which the rename rules may rename.
       # A keyword gives a prefix that is not part of the name, such as Ruby's
       # `simple_symbol: ":"` for `:name`.
@@ -106,6 +95,7 @@ module Representer
         @gap_types = parent.gap_types.dup
         @kept_names = parent.kept_names.dup
         @library_names = parent.library.dup
+        @syntax_checks = parent.syntax_checks.dup
         %i[drop_rules rewrite_rules local_rules member_rules member_position_rules keep_rules].each do |rules|
           instance_variable_set("@#{rules}", parent.public_send(rules).dup)
         end
@@ -120,6 +110,12 @@ module Representer
       # text isn't made of child nodes. Gleam's module path `gleam/list` is
       # one, because the tree only has its slashes as children.
       def text_nodes(*types) = text_node_types.merge(types.map(&:to_s))
+
+      # Finds code that the grammar accepts but the language rejects, such as
+      # Python 2's `print "x"`. The block receives the source and the parsed
+      # tree (before any rules run), and returns a message if the code is
+      # invalid. The solution then gets no representation (parse_error).
+      def syntax_check(&block) = syntax_checks << block
 
       ### Drop rules ###
 
@@ -237,6 +233,7 @@ module Representer
 
       def gap_types = @gap_types ||= Set.new
       def text_node_types = @text_node_types ||= Set.new
+      def syntax_checks = @syntax_checks ||= []
       def drop_rules = @drop_rules ||= []
       def dropped_tokens = @dropped_tokens ||= Set.new
       def kept_tokens = @kept_tokens ||= {}

@@ -5,7 +5,14 @@ class BasicTest < RepresenterTest
 
   # Python has a class of its own, so the tests for indentation call Basic
   # directly.
-  def basic(code, track: "haskell") = Representer::Languages::Basic.(track, { "solution" => code })
+  def basic(code, track: "haskell") = Representer::Languages::Basic.(track, { FILENAMES.fetch(track) => code })
+  def default_filename = FILENAMES.fetch(track)
+
+  # Basic only reads a track's source files.
+  FILENAMES = {
+    "haskell" => "Main.hs", "python" => "main.py", "dart" => "main.dart", "8th" => "main.8th", "emacs-lisp" => "main.el",
+    "scheme" => "main.scm", "haxe" => "Main.hx", "c" => "main.c"
+  }.freeze
 
   def test_tracks_without_a_class_use_basic_and_its_version
     result = Representer::RepresentSolution.("haskell", { "Main.hs" => "main = print 1" }, {})
@@ -50,9 +57,11 @@ class BasicTest < RepresenterTest
     refute_equal basic("x = 1", track: "8th").representation, basic("x =1", track: "8th").representation
   end
 
-  def test_tokens_that_look_like_file_headers_are_quoted
-    refute_equal Representer::RepresentSolution.("dart", { "a" => "x\n(file \"b\")" }, {}).representation,
-      Representer::RepresentSolution.("dart", { "a" => "x", "b" => "" }, {}).representation
+  def test_file_names_and_order_do_not_matter
+    one = Representer::RepresentSolution.("dart", { "a.dart" => "x = 1;", "b.dart" => "y = 2;" }, {})
+    other = Representer::RepresentSolution.("dart", { "c.dart" => "y = 2;", "a.dart" => "x = 1;", "d.dart" => "" }, {})
+    assert_equal one.representation, other.representation
+    refute_includes one.representation, "a.dart"
   end
 
   # Rouge reads these literals as the start of a comment or string, which
@@ -72,5 +81,20 @@ class BasicTest < RepresenterTest
     refute_equal basic('var r = ~/\/\//; var x = 1;', track: "haxe").representation,
       basic('var r = ~/\/\//; var x = 2;', track: "haxe").representation
     assert_equal basic("var r = ~/a/g; // c", track: "haxe").representation, basic("var r = ~/a/g;", track: "haxe").representation
+  end
+
+  def test_a_line_comment_after_a_preprocessor_line_is_dropped
+    assert_equal basic("#define Y 2 // two\nint x;", track: "c").representation,
+      basic("#define Y 2\nint x;", track: "c").representation
+    refute_equal basic("#define Z \"a//b\"\n", track: "c").representation, basic("#define Z \"a\"\n", track: "c").representation
+  end
+
+  def test_files_that_are_not_code_are_ignored
+    code = { "src/Main.hs" => "main = print 1" }
+    with_config = code.merge("package.yaml" => "name: leap", "HELP.md" => "# Help", "test/LeapSpec_test.hs" => "x")
+    assert_equal Representer::RepresentSolution.("haskell", code, {}).representation,
+      Representer::RepresentSolution.("haskell", with_config, {}).representation
+    assert_equal "1", Representer::RepresentSolution.("jq", { "a.jq" => "1", "notes.txt" => "2" }, {}).representation
+    assert_equal "no_source_files", Representer::RepresentSolution.("haskell", { "package.yaml" => "x" }, {}).reason
   end
 end

@@ -1,50 +1,49 @@
-(file "lib/log_parser.ex"
-  (source
-    (call defmodule
-      (arguments LogParser)
-      (do_block
-        (call def
-          (arguments
-            (call valid_line?
-              (arguments (variable PLACEHOLDER_1))))
-          (do_block
-            (binary_operator PLACEHOLDER_1 =~
-              (sigil ~ r / ^ "\\[" "(DEBUG|INFO|WARNING|ERROR)" "\\]" /))))
-        (call def
-          (arguments
-            (call split_line
-              (arguments (variable PLACEHOLDER_1))))
-          (do_block
+(source
+  (call defmodule
+    (arguments LogParser)
+    (do_block
+      (call def
+        (arguments
+          (call valid_line?
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (binary_operator PLACEHOLDER_1 =~
+            (sigil ~ r / ^ "\\[" "(DEBUG|INFO|WARNING|ERROR)" "\\]" /))))
+      (call def
+        (arguments
+          (call split_line
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (call
+            (dot String . split)
+            (arguments PLACEHOLDER_1
+              (sigil ~ r / "\\<" [~ "\\*" =-]* "\\>" /)))))
+      (call def
+        (arguments
+          (call remove_artifacts
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (call
+            (dot String . replace)
+            (arguments PLACEHOLDER_1
+              (sigil ~ r / "end-of-line(" "\\d" "+)" / i) ""))))
+      (call def
+        (arguments
+          (call tag_with_user_name
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (binary_operator (variable PLACEHOLDER_2) =
             (call
-              (dot String . split)
-              (arguments PLACEHOLDER_1
-                (sigil ~ r / "\\<" [~ "\\*" =-]* "\\>" /)))))
-        (call def
-          (arguments
-            (call remove_artifacts
-              (arguments (variable PLACEHOLDER_1))))
-          (do_block
-            (call
-              (dot String . replace)
-              (arguments PLACEHOLDER_1
-                (sigil ~ r / "end-of-line(" "\\d" "+)" / i) ""))))
-        (call def
-          (arguments
-            (call tag_with_user_name
-              (arguments (variable PLACEHOLDER_1))))
-          (do_block
-            (binary_operator (variable PLACEHOLDER_2) =
-              (call
-                (dot Regex . run)
-                (arguments
-                  (sigil ~ r / User "\\s" "+(" "\\S" "+)" /) PLACEHOLDER_1)))
-            (call if
-              (arguments PLACEHOLDER_2)
-              (do_block
-                (binary_operator
-                  (string "[USER] "
-                    (interpolation #{
-                      (call
-                        (dot Enum . at)
-                        (arguments PLACEHOLDER_2 1))) " ") <> PLACEHOLDER_1)
-                (else_block PLACEHOLDER_1)))))))))
+              (dot Regex . run)
+              (arguments
+                (sigil ~ r / User "\\s" "+(" "\\S" "+)" /) PLACEHOLDER_1)))
+          (call if
+            (arguments PLACEHOLDER_2)
+            (do_block
+              (binary_operator
+                (string "[USER] "
+                  (interpolation #{
+                    (call
+                      (dot Enum . at)
+                      (arguments PLACEHOLDER_2 1))) " ") <> PLACEHOLDER_1)
+              (else_block PLACEHOLDER_1))))))))

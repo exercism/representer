@@ -169,4 +169,9 @@ class RubyTest < RepresenterTest
     assert_same_representation "x = /a/mi", "x = /a/im"
     assert_same_representation "x = /a/", "x = %r{a}"
   end
+
+  def test_text_after_end_is_dropped_unless_the_program_reads_it
+    assert_same_representation "x = 1\n__END__\nsome data\n", "x = 1\n"
+    refute_same_representation "puts DATA.read\n__END__\na\n", "puts DATA.read\n__END__\nb\n"
+  end
 end

@@ -88,4 +88,8 @@ class TypeScriptTest < RepresenterTest
     refute_same_representation "for (;; i++) {}", "for (i++;;) {}"
     refute_same_representation "for (; i++;) {}", "for (i++;;) {}"
   end
+
+  def test_a_hash_bang_line_is_dropped
+    assert_same_representation "#!/usr/bin/env node\nexport const a = 1;\n", "export const a = 1;\n"
+  end
 end

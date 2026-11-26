@@ -49,16 +49,6 @@ A keyword argument gives a prefix that isn't part of the name, such as the `:` i
 names :identifier, :constant, :instance_variable, :class_variable, :global_variable, simple_symbol: ":"
 ```
 
-### `merge_files(name)`
-
-This joins the solution's files into one tree before the rules run, so that splitting code across files doesn't change the representation.
-The representation is written under the given file name.
-Use it for a language where it doesn't matter which file code is in.
-
-```ruby
-merge_files "solution.go"
-```
-
 ### `fold_names { |name| ... }`
 
 The block returns one canonical spelling for a name.

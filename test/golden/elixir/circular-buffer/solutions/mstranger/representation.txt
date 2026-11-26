@@ -1,316 +1,315 @@
-(file "lib/circular_buffer.ex"
-  (source
-    (call defmodule
-      (arguments CircularBuffer)
-      (do_block
-        (call use
-          (arguments GenServer))
-        (unary_operator @
-          (call spec
-            (arguments
-              (binary_operator
-                (call new
-                  (arguments
-                    (binary_operator capacity :: integer))) ::
-                (tuple :ok pid)))))
-        (call def
+(source
+  (call defmodule
+    (arguments CircularBuffer)
+    (do_block
+      (call use
+        (arguments GenServer))
+      (unary_operator @
+        (call spec
           (arguments
-            (call new
-              (arguments capacity)))
-          (do_block
-            (call
-              (dot GenServer . start_link)
-              (arguments __MODULE__ capacity))))
-        (unary_operator @
-          (call spec
-            (arguments
-              (binary_operator
-                (call read
-                  (arguments
-                    (binary_operator buffer :: pid))) ::
-                (binary_operator
-                  (tuple :ok any) |
-                  (tuple :error atom))))))
-        (call def
+            (binary_operator
+              (call new
+                (arguments
+                  (binary_operator capacity :: integer))) ::
+              (tuple :ok pid)))))
+      (call def
+        (arguments
+          (call new
+            (arguments capacity)))
+        (do_block
+          (call
+            (dot GenServer . start_link)
+            (arguments __MODULE__ capacity))))
+      (unary_operator @
+        (call spec
           (arguments
-            (call read
-              (arguments buffer)))
-          (do_block
-            (call
-              (dot GenServer . call)
-              (arguments buffer :read))))
-        (unary_operator @
-          (call spec
-            (arguments
+            (binary_operator
+              (call read
+                (arguments
+                  (binary_operator buffer :: pid))) ::
               (binary_operator
-                (call write
-                  (arguments
-                    (binary_operator buffer :: pid)
-                    (binary_operator PLACEHOLDER_1 :: any))) ::
-                (binary_operator :ok |
-                  (tuple :error atom))))))
-        (call def
+                (tuple :ok any) |
+                (tuple :error atom))))))
+      (call def
+        (arguments
+          (call read
+            (arguments buffer)))
+        (do_block
+          (call
+            (dot GenServer . call)
+            (arguments buffer :read))))
+      (unary_operator @
+        (call spec
           (arguments
-            (call write
-              (arguments buffer (variable PLACEHOLDER_1))))
-          (do_block
-            (call
-              (dot GenServer . call)
-              (arguments buffer
-                (tuple :write PLACEHOLDER_1)))))
-        (unary_operator @
-          (call spec
+            (binary_operator
+              (call write
+                (arguments
+                  (binary_operator buffer :: pid)
+                  (binary_operator PLACEHOLDER_1 :: any))) ::
+              (binary_operator :ok |
+                (tuple :error atom))))))
+      (call def
+        (arguments
+          (call write
+            (arguments buffer (variable PLACEHOLDER_1))))
+        (do_block
+          (call
+            (dot GenServer . call)
+            (arguments buffer
+              (tuple :write PLACEHOLDER_1)))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call overwrite
+                (arguments
+                  (binary_operator buffer :: pid)
+                  (binary_operator PLACEHOLDER_1 :: any))) :: :ok))))
+      (call def
+        (arguments
+          (call overwrite
+            (arguments buffer (variable PLACEHOLDER_1))))
+        (do_block
+          (call case
             (arguments
-              (binary_operator
-                (call overwrite
-                  (arguments
-                    (binary_operator buffer :: pid)
-                    (binary_operator PLACEHOLDER_1 :: any))) :: :ok))))
-        (call def
+              (call write
+                (arguments buffer PLACEHOLDER_1)))
+            (do_block
+              (stab_clause
+                (arguments
+                  (tuple :error :full)) ->
+                (body
+                  (call
+                    (dot GenServer . call)
+                    (arguments buffer
+                      (tuple :overwrite PLACEHOLDER_1)))))
+              (stab_clause
+                (arguments :ok) ->
+                (body :ok))))))
+      (unary_operator @
+        (call spec
           (arguments
-            (call overwrite
-              (arguments buffer (variable PLACEHOLDER_1))))
-          (do_block
+            (binary_operator
+              (call clear
+                (arguments
+                  (binary_operator buffer :: pid))) :: :ok))))
+      (call def
+        (arguments
+          (call clear
+            (arguments buffer)))
+        (do_block
+          (call
+            (dot GenServer . cast)
+            (arguments buffer :clear))))
+      (unary_operator @
+        (call impl
+          (arguments
+            (boolean true))))
+      (call def
+        (arguments
+          (call init
+            (arguments capacity)))
+        (do_block
+          (binary_operator buffer =
+            (call for
+              (arguments
+                (binary_operator _ <-
+                  (binary_operator 1 .. capacity)))
+              (do_block
+                (list))))
+          (binary_operator (variable PLACEHOLDER_2) =
+            (map %
+              (map_content
+                (keywords
+                  (pair "buffer: " buffer)
+                  (pair "cap: " capacity)
+                  (pair "start: " 0)
+                  (pair "stop: " 0)))))
+          (tuple :ok PLACEHOLDER_2)))
+      (unary_operator @
+        (call impl
+          (arguments
+            (boolean true))))
+      (call def
+        (arguments
+          (call handle_call
+            (arguments :read (variable PLACEHOLDER_3) (variable PLACEHOLDER_2))))
+        (do_block
+          (binary_operator
+            (tuple (variable PLACEHOLDER_4) (variable PLACEHOLDER_2)) =
             (call case
               (arguments
-                (call write
-                  (arguments buffer PLACEHOLDER_1)))
+                (call
+                  (dot Enum . at)
+                  (arguments
+                    (call
+                      (dot PLACEHOLDER_2 . buffer))
+                    (call
+                      (dot PLACEHOLDER_2 . start)))))
               (do_block
                 (stab_clause
                   (arguments
-                    (tuple :error :full)) ->
+                    (list)) ->
                   (body
-                    (call
-                      (dot GenServer . call)
-                      (arguments buffer
-                        (tuple :overwrite PLACEHOLDER_1)))))
+                    (tuple
+                      (tuple :error :empty) PLACEHOLDER_2)))
                 (stab_clause
-                  (arguments :ok) ->
-                  (body :ok))))))
-        (unary_operator @
-          (call spec
-            (arguments
-              (binary_operator
-                (call clear
                   (arguments
-                    (binary_operator buffer :: pid))) :: :ok))))
-        (call def
+                    (list (variable PLACEHOLDER_5))) ->
+                  (body
+                    (binary_operator buffer =
+                      (call
+                        (dot List . update_at)
+                        (arguments
+                          (call
+                            (dot PLACEHOLDER_2 . buffer))
+                          (call
+                            (dot PLACEHOLDER_2 . start))
+                          (anonymous_function
+                            (stab_clause
+                              (arguments _) ->
+                              (body
+                                (list)))))))
+                    (binary_operator (variable PLACEHOLDER_2) =
+                      (map %
+                        (map_content
+                          (binary_operator PLACEHOLDER_2 |
+                            (keywords
+                              (pair "buffer: " buffer)
+                              (pair "start: "
+                                (call rem
+                                  (arguments
+                                    (binary_operator
+                                      (call
+                                        (dot PLACEHOLDER_2 . start)) + 1)
+                                    (call
+                                      (dot PLACEHOLDER_2 . cap))))))))))
+                    (tuple
+                      (tuple :ok PLACEHOLDER_5) PLACEHOLDER_2))))))
+          (tuple :reply PLACEHOLDER_4 PLACEHOLDER_2)))
+      (unary_operator @
+        (call impl
           (arguments
-            (call clear
-              (arguments buffer)))
-          (do_block
-            (call
-              (dot GenServer . cast)
-              (arguments buffer :clear))))
-        (unary_operator @
-          (call impl
+            (boolean true))))
+      (call def
+        (arguments
+          (call handle_call
             (arguments
-              (boolean true))))
-        (call def
+              (tuple :write (variable PLACEHOLDER_1)) (variable PLACEHOLDER_3) (variable PLACEHOLDER_2))))
+        (do_block
+          (binary_operator (variable PLACEHOLDER_5) =
+            (call
+              (dot Enum . at)
+              (arguments
+                (call
+                  (dot PLACEHOLDER_2 . buffer))
+                (call
+                  (dot PLACEHOLDER_2 . stop)))))
+          (binary_operator
+            (tuple (variable PLACEHOLDER_4) (variable PLACEHOLDER_2)) =
+            (call case
+              (arguments PLACEHOLDER_5)
+              (do_block
+                (stab_clause
+                  (arguments
+                    (list)) ->
+                  (body
+                    (binary_operator buffer =
+                      (call
+                        (dot List . update_at)
+                        (arguments
+                          (call
+                            (dot PLACEHOLDER_2 . buffer))
+                          (call
+                            (dot PLACEHOLDER_2 . stop))
+                          (anonymous_function
+                            (stab_clause
+                              (arguments _) ->
+                              (body
+                                (list PLACEHOLDER_1)))))))
+                    (binary_operator (variable PLACEHOLDER_2) =
+                      (map %
+                        (map_content
+                          (binary_operator PLACEHOLDER_2 |
+                            (keywords
+                              (pair "buffer: " buffer)
+                              (pair "stop: "
+                                (call rem
+                                  (arguments
+                                    (binary_operator
+                                      (call
+                                        (dot PLACEHOLDER_2 . stop)) + 1)
+                                    (call
+                                      (dot PLACEHOLDER_2 . cap))))))))))
+                    (tuple :ok PLACEHOLDER_2)))
+                (stab_clause
+                  (arguments
+                    (list _)) ->
+                  (body
+                    (tuple
+                      (tuple :error :full) PLACEHOLDER_2))))))
+          (tuple :reply PLACEHOLDER_4 PLACEHOLDER_2)))
+      (unary_operator @
+        (call impl
           (arguments
-            (call init
-              (arguments capacity)))
-          (do_block
-            (binary_operator buffer =
-              (call for
-                (arguments
-                  (binary_operator _ <-
-                    (binary_operator 1 .. capacity)))
-                (do_block
-                  (list))))
-            (binary_operator (variable PLACEHOLDER_2) =
-              (map %
-                (map_content
+            (boolean true))))
+      (call def
+        (arguments
+          (call handle_call
+            (arguments
+              (tuple :overwrite (variable PLACEHOLDER_1)) (variable PLACEHOLDER_3) (variable PLACEHOLDER_2))))
+        (do_block
+          (binary_operator buffer =
+            (call
+              (dot List . update_at)
+              (arguments
+                (call
+                  (dot PLACEHOLDER_2 . buffer))
+                (call
+                  (dot PLACEHOLDER_2 . stop))
+                (anonymous_function
+                  (stab_clause
+                    (arguments _) ->
+                    (body
+                      (list PLACEHOLDER_1)))))))
+          (binary_operator (variable PLACEHOLDER_6) =
+            (call rem
+              (arguments
+                (binary_operator
+                  (call
+                    (dot PLACEHOLDER_2 . stop)) + 1)
+                (call
+                  (dot PLACEHOLDER_2 . cap)))))
+          (binary_operator (variable PLACEHOLDER_7) =
+            (call rem
+              (arguments
+                (binary_operator
+                  (call
+                    (dot PLACEHOLDER_2 . start)) + 1)
+                (call
+                  (dot PLACEHOLDER_2 . cap)))))
+          (binary_operator (variable PLACEHOLDER_2) =
+            (map %
+              (map_content
+                (binary_operator PLACEHOLDER_2 |
                   (keywords
                     (pair "buffer: " buffer)
-                    (pair "cap: " capacity)
-                    (pair "start: " 0)
-                    (pair "stop: " 0)))))
-            (tuple :ok PLACEHOLDER_2)))
-        (unary_operator @
-          (call impl
-            (arguments
-              (boolean true))))
-        (call def
+                    (pair "start: " PLACEHOLDER_7)
+                    (pair "stop: " PLACEHOLDER_6))))))
+          (tuple :reply :ok PLACEHOLDER_2)))
+      (unary_operator @
+        (call impl
           (arguments
-            (call handle_call
-              (arguments :read (variable PLACEHOLDER_3) (variable PLACEHOLDER_2))))
-          (do_block
-            (binary_operator
-              (tuple (variable PLACEHOLDER_4) (variable PLACEHOLDER_2)) =
-              (call case
-                (arguments
-                  (call
-                    (dot Enum . at)
-                    (arguments
-                      (call
-                        (dot PLACEHOLDER_2 . buffer))
-                      (call
-                        (dot PLACEHOLDER_2 . start)))))
-                (do_block
-                  (stab_clause
-                    (arguments
-                      (list)) ->
-                    (body
-                      (tuple
-                        (tuple :error :empty) PLACEHOLDER_2)))
-                  (stab_clause
-                    (arguments
-                      (list (variable PLACEHOLDER_5))) ->
-                    (body
-                      (binary_operator buffer =
-                        (call
-                          (dot List . update_at)
-                          (arguments
-                            (call
-                              (dot PLACEHOLDER_2 . buffer))
-                            (call
-                              (dot PLACEHOLDER_2 . start))
-                            (anonymous_function
-                              (stab_clause
-                                (arguments _) ->
-                                (body
-                                  (list)))))))
-                      (binary_operator (variable PLACEHOLDER_2) =
-                        (map %
-                          (map_content
-                            (binary_operator PLACEHOLDER_2 |
-                              (keywords
-                                (pair "buffer: " buffer)
-                                (pair "start: "
-                                  (call rem
-                                    (arguments
-                                      (binary_operator
-                                        (call
-                                          (dot PLACEHOLDER_2 . start)) + 1)
-                                      (call
-                                        (dot PLACEHOLDER_2 . cap))))))))))
-                      (tuple
-                        (tuple :ok PLACEHOLDER_5) PLACEHOLDER_2))))))
-            (tuple :reply PLACEHOLDER_4 PLACEHOLDER_2)))
-        (unary_operator @
-          (call impl
-            (arguments
-              (boolean true))))
-        (call def
-          (arguments
-            (call handle_call
+            (boolean true))))
+      (call def
+        (arguments
+          (call handle_cast
+            (arguments :clear (variable PLACEHOLDER_2))))
+        (do_block
+          (binary_operator
+            (tuple :ok (variable PLACEHOLDER_8)) =
+            (call init
               (arguments
-                (tuple :write (variable PLACEHOLDER_1)) (variable PLACEHOLDER_3) (variable PLACEHOLDER_2))))
-          (do_block
-            (binary_operator (variable PLACEHOLDER_5) =
-              (call
-                (dot Enum . at)
-                (arguments
-                  (call
-                    (dot PLACEHOLDER_2 . buffer))
-                  (call
-                    (dot PLACEHOLDER_2 . stop)))))
-            (binary_operator
-              (tuple (variable PLACEHOLDER_4) (variable PLACEHOLDER_2)) =
-              (call case
-                (arguments PLACEHOLDER_5)
-                (do_block
-                  (stab_clause
-                    (arguments
-                      (list)) ->
-                    (body
-                      (binary_operator buffer =
-                        (call
-                          (dot List . update_at)
-                          (arguments
-                            (call
-                              (dot PLACEHOLDER_2 . buffer))
-                            (call
-                              (dot PLACEHOLDER_2 . stop))
-                            (anonymous_function
-                              (stab_clause
-                                (arguments _) ->
-                                (body
-                                  (list PLACEHOLDER_1)))))))
-                      (binary_operator (variable PLACEHOLDER_2) =
-                        (map %
-                          (map_content
-                            (binary_operator PLACEHOLDER_2 |
-                              (keywords
-                                (pair "buffer: " buffer)
-                                (pair "stop: "
-                                  (call rem
-                                    (arguments
-                                      (binary_operator
-                                        (call
-                                          (dot PLACEHOLDER_2 . stop)) + 1)
-                                      (call
-                                        (dot PLACEHOLDER_2 . cap))))))))))
-                      (tuple :ok PLACEHOLDER_2)))
-                  (stab_clause
-                    (arguments
-                      (list _)) ->
-                    (body
-                      (tuple
-                        (tuple :error :full) PLACEHOLDER_2))))))
-            (tuple :reply PLACEHOLDER_4 PLACEHOLDER_2)))
-        (unary_operator @
-          (call impl
-            (arguments
-              (boolean true))))
-        (call def
-          (arguments
-            (call handle_call
-              (arguments
-                (tuple :overwrite (variable PLACEHOLDER_1)) (variable PLACEHOLDER_3) (variable PLACEHOLDER_2))))
-          (do_block
-            (binary_operator buffer =
-              (call
-                (dot List . update_at)
-                (arguments
-                  (call
-                    (dot PLACEHOLDER_2 . buffer))
-                  (call
-                    (dot PLACEHOLDER_2 . stop))
-                  (anonymous_function
-                    (stab_clause
-                      (arguments _) ->
-                      (body
-                        (list PLACEHOLDER_1)))))))
-            (binary_operator (variable PLACEHOLDER_6) =
-              (call rem
-                (arguments
-                  (binary_operator
-                    (call
-                      (dot PLACEHOLDER_2 . stop)) + 1)
-                  (call
-                    (dot PLACEHOLDER_2 . cap)))))
-            (binary_operator (variable PLACEHOLDER_7) =
-              (call rem
-                (arguments
-                  (binary_operator
-                    (call
-                      (dot PLACEHOLDER_2 . start)) + 1)
-                  (call
-                    (dot PLACEHOLDER_2 . cap)))))
-            (binary_operator (variable PLACEHOLDER_2) =
-              (map %
-                (map_content
-                  (binary_operator PLACEHOLDER_2 |
-                    (keywords
-                      (pair "buffer: " buffer)
-                      (pair "start: " PLACEHOLDER_7)
-                      (pair "stop: " PLACEHOLDER_6))))))
-            (tuple :reply :ok PLACEHOLDER_2)))
-        (unary_operator @
-          (call impl
-            (arguments
-              (boolean true))))
-        (call def
-          (arguments
-            (call handle_cast
-              (arguments :clear (variable PLACEHOLDER_2))))
-          (do_block
-            (binary_operator
-              (tuple :ok (variable PLACEHOLDER_8)) =
-              (call init
-                (arguments
-                  (call
-                    (dot PLACEHOLDER_2 . cap)))))
-            (tuple :noreply PLACEHOLDER_8)))))))
+                (call
+                  (dot PLACEHOLDER_2 . cap)))))
+          (tuple :noreply PLACEHOLDER_8))))))

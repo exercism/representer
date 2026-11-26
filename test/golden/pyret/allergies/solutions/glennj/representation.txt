@@ -1,44 +1,3 @@
-(file "allergies.arr")
-use context starter2024
-provide-types *
-include file("bitwise-helpers.arr")
-include file("list-helpers.arr")
-data Allergies:
-| allergies(score :: Number)
-with:
-method allergicTo(self, allergen :: String) -> Boolean:
-self.list().member(allergen)
-end,
-method list(self) -> List<String>:
-with-index([list: 'eggs', 'peanuts', 'shellfish', 'strawberries', 'tomatoes', 'chocolate', 'pollen', 'cats'])
-.filter(lam(pair): num-and1(num-shr(self.score, pair.{0})) == 1 end)
-.map(lam(pair): pair.{1} end)
-end
-end
-(file "bitwise-helpers.arr")
-provide:
-num-shr,
-num-and1
-end
-fun num-shr(n :: NumNonNegative, bits :: NumNonNegative):
-doc: ```
-Shift number `n` right by `bits` places.
-```
-num-floor(n / (num-expt(2, bits)))
-where:
-num-shr(4, 1) is 2
-num-shr(15, 2) is 3
-end
-fun num-and1(n :: NumNonNegative):
-doc: ```
-Result of ANDing number `n` and `1`.
-```
-num-modulo(n, 2)
-where:
-num-and1(4) is 0
-num-and1(5) is 1
-end
-(file "list-helpers.arr")
 provide:
 index-of,
 with-index
@@ -68,4 +27,42 @@ map_n(lam(idx, elem): {idx; elem} end, 0, lst)
 where:
 with-index([list:]) is [list:]
 with-index([list: 11, 22, 33]) is [list: {0; 11}, {1; 22}, {2; 33}]
+end
+provide:
+num-shr,
+num-and1
+end
+fun num-shr(n :: NumNonNegative, bits :: NumNonNegative):
+doc: ```
+Shift number `n` right by `bits` places.
+```
+num-floor(n / (num-expt(2, bits)))
+where:
+num-shr(4, 1) is 2
+num-shr(15, 2) is 3
+end
+fun num-and1(n :: NumNonNegative):
+doc: ```
+Result of ANDing number `n` and `1`.
+```
+num-modulo(n, 2)
+where:
+num-and1(4) is 0
+num-and1(5) is 1
+end
+use context starter2024
+provide-types *
+include file("bitwise-helpers.arr")
+include file("list-helpers.arr")
+data Allergies:
+| allergies(score :: Number)
+with:
+method allergicTo(self, allergen :: String) -> Boolean:
+self.list().member(allergen)
+end,
+method list(self) -> List<String>:
+with-index([list: 'eggs', 'peanuts', 'shellfish', 'strawberries', 'tomatoes', 'chocolate', 'pollen', 'cats'])
+.filter(lam(pair): num-and1(num-shr(self.score, pair.{0})) == 1 end)
+.map(lam(pair): pair.{1} end)
+end
 end

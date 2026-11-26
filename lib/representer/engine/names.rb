@@ -49,14 +49,17 @@ module Representer
       # what kind of name it was (`@x` or `X` in Ruby). So a placeholder for
       # any type of name except the language's first is written with its
       # type: (instance_variable PLACEHOLDER_1).
-      def text_for(leaf)
+      #
+      # With blank: true, a name that would be renamed is written as `_`,
+      # and gets no placeholder.
+      def text_for(leaf, blank: false)
         prefix = @language.names[leaf.type] if leaf.named?
         return nil unless prefix
 
         name = leaf.text.delete_prefix(prefix)
         return (@language.folds_names? ? "#{prefix}#{@fold.(name)}" : nil) unless rename?(leaf, name)
 
-        text = "#{prefix}#{placeholder(name)}"
+        text = "#{prefix}#{blank ? '_' : placeholder(name)}"
         leaf.type == @language.names.keys.first ? text : "(#{leaf.type} #{text})"
       end
 
@@ -85,18 +88,19 @@ module Representer
 
     # Writes a tree as an indented s-expression. Leaves are written as their
     # text, quoted if they hold a literal value or anything that could be
-    # mistaken for the s-expression's own syntax.
+    # mistaken for the s-expression's own syntax. Names are written as names
+    # gives them (see Names#text_for), or as they are if names is nil.
     class Serialize
       include Mandate
 
       PLAIN = /\A[^\s()"\\]+\z/
 
-      initialize_with :tree, :names, :filename
+      initialize_with :tree, :names, blank: false
 
       def call
-        out = +"(file #{filename.dump}"
-        write_child(tree, 1, out)
-        out << ")"
+        out = +""
+        write(tree, 0, out)
+        out
       end
 
       private
@@ -116,7 +120,7 @@ module Representer
       end
 
       def leaf_text(node)
-        renamed = names.text_for(node)
+        renamed = names&.text_for(node, blank:)
         return renamed if renamed
 
         text = node.named? ? node.text : node.type

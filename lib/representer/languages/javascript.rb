@@ -12,7 +12,8 @@ module Representer
 
       ### Drop ###
 
-      drop "(comment)"
+      # A `#!` line only says how to run the file as a script.
+      drop "[(comment) (hash_bang_line)]"
       # An empty statement does nothing, except as the first or second part of
       # a `for`, where it shows which part is missing: `for (;; i++)` and
       # `for (i++;;)` are different loops.

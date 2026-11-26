@@ -20,7 +20,7 @@ module Representer
     # `doseq`, `case`, `condp` and `loop` destructuring stay as written.
     class Clojure < Language
       tracks "clojure"
-      version 5
+      version 6
       grammar "clojure"
       extensions ".clj", ".cljc", ".cljs"
 

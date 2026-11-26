@@ -4,10 +4,9 @@ module Representer
     # comment says which step it replaces.
     class Go < Language
       tracks "go"
-      version 6
+      version 7
       grammar "go"
       extensions ".go"
-      merge_files "solution.go"
 
       names :identifier, :field_identifier, :type_identifier, :label_name
 

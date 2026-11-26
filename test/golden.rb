@@ -191,9 +191,7 @@ module Golden
     def self.split(track, difference, texts)
       first, second = difference["solutions"].first(2).map { |names| texts.fetch("#{difference['exercise']}/#{names.first}") }
       a, b = first_difference(first.lines, second.lines)
-      if [a, b].all? { |line| line.to_s.start_with?("(file ") }
-        cause = "The solutions' files have different names."
-      elsif Representer::Languages.for(track) == Representer::Languages::Basic
+      if Representer::Languages.for(track) == Representer::Languages::Basic
         cause = basic_split_cause(a, b)
       else
         cause = split_cause(track, difference["exercise"], first, second)

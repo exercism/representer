@@ -49,10 +49,11 @@ For those, the response is still a `200`, with the language's version, but `repr
 - `too_deep`: the code nests deeper than 1,000 levels.
 - `too_large`: the solution files hold more than 200 KB, or the exercise files more than 500 KB. The load balancer limits bodies to 1 MB.
 - `too_complex`: the language's rules hit one of the representer's own limits. Either they changed one part of the tree more than 50 times, or they took more than 10 seconds. This usually means a rule is wrong, so the representer also writes the message to the log.
-- `no_source_files`: none of the solution's files has one of the language's extensions. The representer ignores files in other formats, such as Rust's `Cargo.toml` or a `HELP.md`.
+- `no_source_files`: none of the solution's files is a source file of the language. The representer ignores files in other formats, such as Rust's `Cargo.toml` or a `HELP.md`, and test and tool config files, such as `leap_test.go` or `babel.config.js`.
+- `internal_error`: one of the representer's rules raised an error. This is a bug in the representer, so it also writes the error to the log.
 
 The website then marks the submission as unrepresentable.
-Basic, which serves the tracks with no class of their own, can always represent a solution that isn't too large.
+Basic, which serves the tracks with no class of their own, can represent any solution that isn't too large and has a source file.
 
 The response is a `400` if the request is invalid.
 
@@ -60,13 +61,14 @@ The response is a `400` if the request is invalid.
 
 For a language with its own class, the representer:
 
-1. Parses each file with the language's tree-sitter grammar. It skips files without one of the language's extensions, and turns Windows line endings into plain line breaks.
+1. Parses each file with the language's tree-sitter grammar. It skips files without one of the language's extensions, and test and config files, and turns Windows line endings into plain line breaks.
 2. Drops what carries no meaning, such as comments and brackets.
 3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`.
-4. Replaces each name the student chose with a placeholder. It keeps every name with a meaning outside the solution: library names, names the tests use, and names the language calls itself (such as `initialize`).
-5. Writes the tree out as an indented s-expression.
+4. Joins the files into one tree, in an order that depends only on their code. A file's name is never part of the representation, so renaming or reordering files doesn't change it.
+5. Replaces each name the student chose with a placeholder. It keeps every name with a meaning outside the solution: library names, names the tests use, and names the language calls itself (such as `initialize`).
+6. Writes the tree out as an indented s-expression.
 
-Each language describes steps 2 to 4 as rules in its class in [`lib/representer/languages/`](./lib/representer/languages/).
+Each language describes steps 2, 3 and 5 as rules in its class in [`lib/representer/languages/`](./lib/representer/languages/).
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains the rules and how to add a language.
 
 Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments and spacing, and keeps everything else, including line breaks and (in languages like Python) indentation.

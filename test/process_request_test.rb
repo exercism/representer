@@ -72,4 +72,27 @@ class ProcessRequestTest < Minitest::Test
     body = JSON.parse(request(track_slug: "ruby", solution_files: { "a.rb" => "x" }, exercise_files: { "t.rb" => tests })[:body])
     assert_equal "too_large", body["reason"]
   end
+
+  # A rule with a bug.
+  class Raising < Representer::Language
+    version 2
+    grammar "ruby"
+    extensions ".rb"
+    names :identifier
+    rewrite("(integer) @number") { |match| match.node.nonexistent }
+  end
+
+  def test_an_error_in_a_rule_makes_the_solution_unrepresentable
+    Representer::Languages.register("raising", Raising)
+    body = nil
+    _, log = capture_io do
+      body = JSON.parse(request(track_slug: "raising", exercise_slug: "leap", solution_files: { "a.rb" => "x = 1" })[:body])
+    end
+    assert_nil body["representation"]
+    assert_equal "internal_error", body["reason"]
+    assert_equal 2, body["version"]
+    assert_includes log, "raising/leap: NoMethodError"
+  ensure
+    Representer::Languages.registry.delete("raising")
+  end
 end

@@ -1,264 +1,234 @@
-(file "src/forth.gleam"
-  (source_file
-    (import gleam/bool)
-    (import gleam/dict .
-      (unqualified_imports
-        (unqualified_import type Dict)))
-    (import gleam/int)
-    (import gleam/list)
-    (import gleam/result)
-    (import gleam/string)
-    (type_definition pub
-      (type_name (type_identifier PLACEHOLDER_1))
-      (data_constructors
-        (data_constructor (constructor_name PLACEHOLDER_1)
-          (data_constructor_arguments
-            (data_constructor_argument (label PLACEHOLDER_2) :
-              (type List
-                (type_arguments
-                  (type_argument
-                    (type Int)))))
-            (data_constructor_argument (label PLACEHOLDER_3) :
-              (type Dict
-                (type_arguments
-                  (type_argument
-                    (type String))
-                  (type_argument
-                    (type List
-                      (type_arguments
-                        (type_argument
-                          (type String))))))))))))
-    (type_definition pub
-      (type_name (type_identifier PLACEHOLDER_4))
-      (data_constructors
-        (data_constructor DivisionByZero)
-        (data_constructor StackUnderflow)
-        (data_constructor InvalidWord)
-        (data_constructor UnknownWord)))
-    (function pub new
-      (function_parameters) ->
-      (type (type_identifier PLACEHOLDER_1))
-      (block
-        (record (constructor_name PLACEHOLDER_1)
+(source_file
+  (import gleam/bool)
+  (import gleam/dict .
+    (unqualified_imports
+      (unqualified_import type Dict)))
+  (import gleam/int)
+  (import gleam/list)
+  (import gleam/result)
+  (import gleam/string)
+  (type_definition pub
+    (type_name (type_identifier PLACEHOLDER_1))
+    (data_constructors
+      (data_constructor (constructor_name PLACEHOLDER_1)
+        (data_constructor_arguments
+          (data_constructor_argument (label PLACEHOLDER_2) :
+            (type List
+              (type_arguments
+                (type_argument
+                  (type Int)))))
+          (data_constructor_argument (label PLACEHOLDER_3) :
+            (type Dict
+              (type_arguments
+                (type_argument
+                  (type String))
+                (type_argument
+                  (type List
+                    (type_arguments
+                      (type_argument
+                        (type String))))))))))))
+  (type_definition pub
+    (type_name (type_identifier PLACEHOLDER_4))
+    (data_constructors
+      (data_constructor DivisionByZero)
+      (data_constructor StackUnderflow)
+      (data_constructor InvalidWord)
+      (data_constructor UnknownWord)))
+  (function pub new
+    (function_parameters) ->
+    (type (type_identifier PLACEHOLDER_1))
+    (block
+      (record (constructor_name PLACEHOLDER_1)
+        (arguments
+          (argument (label PLACEHOLDER_2) :
+            (list))
+          (argument (label PLACEHOLDER_3) :
+            (function_call
+              (field_access dict . new)
+              (arguments)))))))
+  (function pub format_stack
+    (function_parameters
+      (function_parameter forth :
+        (type (type_identifier PLACEHOLDER_1)))) ->
+    (type String)
+    (block
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (field_access forth . (label PLACEHOLDER_2)) |>
+            (field_access list . reverse)) |>
+          (function_call
+            (field_access list . map)
+            (arguments
+              (argument
+                (field_access int . to_string))))) |>
+        (function_call
+          (field_access string . join)
           (arguments
-            (argument (label PLACEHOLDER_2) :
-              (list))
-            (argument (label PLACEHOLDER_3) :
-              (function_call
-                (field_access dict . new)
-                (arguments)))))))
-    (function pub format_stack
-      (function_parameters
-        (function_parameter forth :
-          (type (type_identifier PLACEHOLDER_1)))) ->
-      (type String)
-      (block
-        (binary_expression
-          (binary_expression
-            (binary_expression
-              (field_access forth . (label PLACEHOLDER_2)) |>
-              (field_access list . reverse)) |>
-            (function_call
-              (field_access list . map)
-              (arguments
-                (argument
-                  (field_access int . to_string))))) |>
-          (function_call
-            (field_access string . join)
-            (arguments
-              (argument " "))))))
-    (function pub eval
-      (function_parameters
-        (function_parameter forth :
+            (argument " "))))))
+  (function pub eval
+    (function_parameters
+      (function_parameter forth :
+        (type (type_identifier PLACEHOLDER_1)))
+      (function_parameter prog :
+        (type String))) ->
+    (type Result
+      (type_arguments
+        (type_argument
           (type (type_identifier PLACEHOLDER_1)))
-        (function_parameter prog :
-          (type String))) ->
-      (type Result
-        (type_arguments
-          (type_argument
-            (type (type_identifier PLACEHOLDER_1)))
-          (type_argument
-            (type (type_identifier PLACEHOLDER_4)))))
-      (block
-        (let (variable PLACEHOLDER_5) =
-          (binary_expression
-            (binary_expression prog |>
-              (field_access string . lowercase)) |>
-            (function_call
-              (field_access string . split)
-              (arguments
-                (argument " ")))))
-        (case
-          (case_subjects PLACEHOLDER_5)
-          (case_clauses
-            (case_clause
-              (case_clause_patterns
-                (case_clause_pattern
-                  (list_pattern ":" (variable PLACEHOLDER_6)
-                    (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-              (function_call PLACEHOLDER_8
-                (arguments
-                  (argument PLACEHOLDER_6)
-                  (argument on : forth)
-                  (argument with_items :
-                    (binary_expression PLACEHOLDER_7 |>
-                      (function_call
-                        (field_access list . take)
-                        (arguments
-                          (argument
-                            (binary_expression
-                              (function_call
-                                (field_access list . length)
-                                (arguments
-                                  (argument PLACEHOLDER_7))) - 1)))))))))
-            (case_clause
-              (case_clause_patterns
-                (case_clause_pattern _)) ->
-              (function_call
-                (field_access list . try_fold)
-                (arguments
-                  (argument PLACEHOLDER_5)
-                  (argument forth)
-                  (argument PLACEHOLDER_9))))))))
-    (function PLACEHOLDER_8
-      (function_parameters
-        (function_parameter PLACEHOLDER_6 :
-          (type String))
-        (function_parameter on forth :
-          (type (type_identifier PLACEHOLDER_1)))
-        (function_parameter with_items PLACEHOLDER_5 :
-          (type List
-            (type_arguments
-              (type_argument
-                (type String)))))) ->
-      (type Result
-        (type_arguments
-          (type_argument
-            (type (type_identifier PLACEHOLDER_1)))
-          (type_argument
-            (type (type_identifier PLACEHOLDER_4)))))
-      (block
-        (use use <-
-          (function_call
-            (field_access bool . guard)
-            (arguments
-              (argument when :
-                (binary_expression
-                  (binary_expression PLACEHOLDER_6 |>
-                    (field_access int . parse)) |>
-                  (field_access result . is_ok)))
-              (argument return :
-                (record Error
-                  (arguments
-                    (argument
-                      (record InvalidWord))))))))
+        (type_argument
+          (type (type_identifier PLACEHOLDER_4)))))
+    (block
+      (let (variable PLACEHOLDER_5) =
         (binary_expression
-          (binary_expression
+          (binary_expression prog |>
+            (field_access string . lowercase)) |>
+          (function_call
+            (field_access string . split)
+            (arguments
+              (argument " ")))))
+      (case
+        (case_subjects PLACEHOLDER_5)
+        (case_clauses
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern ":" (variable PLACEHOLDER_6)
+                  (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+            (function_call PLACEHOLDER_8
+              (arguments
+                (argument PLACEHOLDER_6)
+                (argument on : forth)
+                (argument with_items :
+                  (binary_expression PLACEHOLDER_7 |>
+                    (function_call
+                      (field_access list . take)
+                      (arguments
+                        (argument
+                          (binary_expression
+                            (function_call
+                              (field_access list . length)
+                              (arguments
+                                (argument PLACEHOLDER_7))) - 1)))))))))
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern _)) ->
             (function_call
-              (field_access list . flat_map)
+              (field_access list . try_fold)
               (arguments
                 (argument PLACEHOLDER_5)
-                (argument
-                  (anonymous_function
-                    (function_parameters
-                      (function_parameter PLACEHOLDER_10))
-                    (block
-                      (binary_expression
-                        (function_call
-                          (field_access dict . get)
-                          (arguments
-                            (argument
-                              (field_access forth . (label PLACEHOLDER_3)))
-                            (argument PLACEHOLDER_10))) |>
-                        (function_call
-                          (field_access result . unwrap)
-                          (arguments
-                            (argument
-                              (list PLACEHOLDER_10)))))))))) |>
-            (function_call
-              (field_access dict . insert)
-              (arguments
-                (argument
-                  (field_access forth . (label PLACEHOLDER_3)))
-                (argument PLACEHOLDER_6)
-                (argument _)))) |>
-          (anonymous_function
-            (function_parameters
-              (function_parameter PLACEHOLDER_3))
-            (block
-              (record Ok
+                (argument forth)
+                (argument PLACEHOLDER_9))))))))
+  (function PLACEHOLDER_8
+    (function_parameters
+      (function_parameter PLACEHOLDER_6 :
+        (type String))
+      (function_parameter on forth :
+        (type (type_identifier PLACEHOLDER_1)))
+      (function_parameter with_items PLACEHOLDER_5 :
+        (type List
+          (type_arguments
+            (type_argument
+              (type String)))))) ->
+    (type Result
+      (type_arguments
+        (type_argument
+          (type (type_identifier PLACEHOLDER_1)))
+        (type_argument
+          (type (type_identifier PLACEHOLDER_4)))))
+    (block
+      (use use <-
+        (function_call
+          (field_access bool . guard)
+          (arguments
+            (argument when :
+              (binary_expression
+                (binary_expression PLACEHOLDER_6 |>
+                  (field_access int . parse)) |>
+                (field_access result . is_ok)))
+            (argument return :
+              (record Error
                 (arguments
                   (argument
-                    (record_update (constructor_name PLACEHOLDER_1) .. forth
-                      (record_update_arguments
-                        (record_update_argument (label PLACEHOLDER_3) : PLACEHOLDER_3)))))))))))
-    (function PLACEHOLDER_9
-      (function_parameters
-        (function_parameter forth :
+                    (record InvalidWord))))))))
+      (binary_expression
+        (binary_expression
+          (function_call
+            (field_access list . flat_map)
+            (arguments
+              (argument PLACEHOLDER_5)
+              (argument
+                (anonymous_function
+                  (function_parameters
+                    (function_parameter PLACEHOLDER_10))
+                  (block
+                    (binary_expression
+                      (function_call
+                        (field_access dict . get)
+                        (arguments
+                          (argument
+                            (field_access forth . (label PLACEHOLDER_3)))
+                          (argument PLACEHOLDER_10))) |>
+                      (function_call
+                        (field_access result . unwrap)
+                        (arguments
+                          (argument
+                            (list PLACEHOLDER_10)))))))))) |>
+          (function_call
+            (field_access dict . insert)
+            (arguments
+              (argument
+                (field_access forth . (label PLACEHOLDER_3)))
+              (argument PLACEHOLDER_6)
+              (argument _)))) |>
+        (anonymous_function
+          (function_parameters
+            (function_parameter PLACEHOLDER_3))
+          (block
+            (record Ok
+              (arguments
+                (argument
+                  (record_update (constructor_name PLACEHOLDER_1) .. forth
+                    (record_update_arguments
+                      (record_update_argument (label PLACEHOLDER_3) : PLACEHOLDER_3)))))))))))
+  (function PLACEHOLDER_9
+    (function_parameters
+      (function_parameter forth :
+        (type (type_identifier PLACEHOLDER_1)))
+      (function_parameter PLACEHOLDER_10 :
+        (type String))) ->
+    (type Result
+      (type_arguments
+        (type_argument
           (type (type_identifier PLACEHOLDER_1)))
-        (function_parameter PLACEHOLDER_10 :
-          (type String))) ->
-      (type Result
-        (type_arguments
-          (type_argument
-            (type (type_identifier PLACEHOLDER_1)))
-          (type_argument
-            (type (type_identifier PLACEHOLDER_4)))))
-      (block
+        (type_argument
+          (type (type_identifier PLACEHOLDER_4)))))
+    (block
+      (binary_expression
         (binary_expression
           (binary_expression
             (binary_expression
-              (binary_expression
-                (function_call
-                  (field_access dict . get)
-                  (arguments
-                    (argument
-                      (field_access forth . (label PLACEHOLDER_3)))
-                    (argument PLACEHOLDER_10))) |>
-                (function_call
-                  (field_access result . replace_error)
-                  (arguments
-                    (argument
-                      (record UnknownWord))))) |>
               (function_call
-                (field_access result . try)
+                (field_access dict . get)
                 (arguments
                   (argument
-                    (function_call
-                      (field_access list . try_fold)
-                      (arguments
-                        (argument _)
-                        (argument forth)
-                        (argument PLACEHOLDER_9))))))) |>
+                    (field_access forth . (label PLACEHOLDER_3)))
+                  (argument PLACEHOLDER_10))) |>
+              (function_call
+                (field_access result . replace_error)
+                (arguments
+                  (argument
+                    (record UnknownWord))))) |>
             (function_call
-              (field_access result . try_recover)
+              (field_access result . try)
               (arguments
                 (argument
-                  (anonymous_function
-                    (function_parameters
-                      (function_parameter _))
-                    (block
-                      (binary_expression
-                        (function_call
-                          (field_access int . parse)
-                          (arguments
-                            (argument PLACEHOLDER_10))) |>
-                        (function_call
-                          (field_access result . try)
-                          (arguments
-                            (argument
-                              (anonymous_function
-                                (function_parameters
-                                  (function_parameter PLACEHOLDER_11))
-                                (block
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) :
-                                              (list PLACEHOLDER_11 ..
-                                                (field_access forth . (label PLACEHOLDER_2))))))))))))))))))))) |>
+                  (function_call
+                    (field_access list . try_fold)
+                    (arguments
+                      (argument _)
+                      (argument forth)
+                      (argument PLACEHOLDER_9))))))) |>
           (function_call
             (field_access result . try_recover)
             (arguments
@@ -267,143 +237,172 @@
                   (function_parameters
                     (function_parameter _))
                   (block
-                    (case
-                      (case_subjects PLACEHOLDER_10)
-                      (case_clauses
-                        (case_clause
-                          (case_clause_patterns
-                            (case_clause_pattern "+") |
-                            (case_clause_pattern "-") |
-                            (case_clause_pattern "*") |
-                            (case_clause_pattern "/") |
-                            (case_clause_pattern "drop") |
-                            (case_clause_pattern "dup") |
-                            (case_clause_pattern "over") |
-                            (case_clause_pattern "swap")) ->
-                          (block
-                            (case
-                              (case_subjects PLACEHOLDER_10
-                                (field_access forth . (label PLACEHOLDER_2)))
-                              (case_clauses
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "+"
-                                      (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
-                                        (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) :
-                                              (list
-                                                (binary_expression PLACEHOLDER_13 + PLACEHOLDER_12) .. PLACEHOLDER_7))))))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "-"
-                                      (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
-                                        (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) :
-                                              (list
-                                                (binary_expression PLACEHOLDER_13 - PLACEHOLDER_12) .. PLACEHOLDER_7))))))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "*"
-                                      (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
-                                        (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) :
-                                              (list
-                                                (binary_expression PLACEHOLDER_13 * PLACEHOLDER_12) .. PLACEHOLDER_7))))))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "/"
-                                      (list_pattern 0 _
-                                        (list_pattern_tail ..)))) ->
-                                  (record Error
-                                    (arguments
-                                      (argument
-                                        (record DivisionByZero)))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "/"
-                                      (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
-                                        (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) :
-                                              (list
-                                                (binary_expression PLACEHOLDER_13 / PLACEHOLDER_12) .. PLACEHOLDER_7))))))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "drop"
-                                      (list_pattern _
-                                        (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) : PLACEHOLDER_7)))))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "dup"
-                                      (list_pattern (variable PLACEHOLDER_12)
-                                        (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) :
-                                              (list PLACEHOLDER_12 PLACEHOLDER_12 .. PLACEHOLDER_7))))))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "over"
-                                      (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
-                                        (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) :
-                                              (list PLACEHOLDER_13 PLACEHOLDER_12 PLACEHOLDER_13 .. PLACEHOLDER_7))))))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern "swap"
-                                      (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
-                                        (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
-                                  (record Ok
-                                    (arguments
-                                      (argument
-                                        (record_update (constructor_name PLACEHOLDER_1) .. forth
-                                          (record_update_arguments
-                                            (record_update_argument (label PLACEHOLDER_2) :
-                                              (list PLACEHOLDER_13 PLACEHOLDER_12 .. PLACEHOLDER_7))))))))
-                                (case_clause
-                                  (case_clause_patterns
-                                    (case_clause_pattern _ _)) ->
-                                  (record Error
-                                    (arguments
-                                      (argument
-                                        (record StackUnderflow)))))))))
-                        (case_clause
-                          (case_clause_patterns
-                            (case_clause_pattern _)) ->
-                          (record Error
-                            (arguments
-                              (argument
-                                (record UnknownWord)))))))))))))))))
+                    (binary_expression
+                      (function_call
+                        (field_access int . parse)
+                        (arguments
+                          (argument PLACEHOLDER_10))) |>
+                      (function_call
+                        (field_access result . try)
+                        (arguments
+                          (argument
+                            (anonymous_function
+                              (function_parameters
+                                (function_parameter PLACEHOLDER_11))
+                              (block
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) :
+                                            (list PLACEHOLDER_11 ..
+                                              (field_access forth . (label PLACEHOLDER_2))))))))))))))))))))) |>
+        (function_call
+          (field_access result . try_recover)
+          (arguments
+            (argument
+              (anonymous_function
+                (function_parameters
+                  (function_parameter _))
+                (block
+                  (case
+                    (case_subjects PLACEHOLDER_10)
+                    (case_clauses
+                      (case_clause
+                        (case_clause_patterns
+                          (case_clause_pattern "+") |
+                          (case_clause_pattern "-") |
+                          (case_clause_pattern "*") |
+                          (case_clause_pattern "/") |
+                          (case_clause_pattern "drop") |
+                          (case_clause_pattern "dup") |
+                          (case_clause_pattern "over") |
+                          (case_clause_pattern "swap")) ->
+                        (block
+                          (case
+                            (case_subjects PLACEHOLDER_10
+                              (field_access forth . (label PLACEHOLDER_2)))
+                            (case_clauses
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "+"
+                                    (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
+                                      (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) :
+                                            (list
+                                              (binary_expression PLACEHOLDER_13 + PLACEHOLDER_12) .. PLACEHOLDER_7))))))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "-"
+                                    (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
+                                      (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) :
+                                            (list
+                                              (binary_expression PLACEHOLDER_13 - PLACEHOLDER_12) .. PLACEHOLDER_7))))))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "*"
+                                    (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
+                                      (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) :
+                                            (list
+                                              (binary_expression PLACEHOLDER_13 * PLACEHOLDER_12) .. PLACEHOLDER_7))))))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "/"
+                                    (list_pattern 0 _
+                                      (list_pattern_tail ..)))) ->
+                                (record Error
+                                  (arguments
+                                    (argument
+                                      (record DivisionByZero)))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "/"
+                                    (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
+                                      (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) :
+                                            (list
+                                              (binary_expression PLACEHOLDER_13 / PLACEHOLDER_12) .. PLACEHOLDER_7))))))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "drop"
+                                    (list_pattern _
+                                      (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) : PLACEHOLDER_7)))))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "dup"
+                                    (list_pattern (variable PLACEHOLDER_12)
+                                      (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) :
+                                            (list PLACEHOLDER_12 PLACEHOLDER_12 .. PLACEHOLDER_7))))))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "over"
+                                    (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
+                                      (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) :
+                                            (list PLACEHOLDER_13 PLACEHOLDER_12 PLACEHOLDER_13 .. PLACEHOLDER_7))))))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern "swap"
+                                    (list_pattern (variable PLACEHOLDER_12) (variable PLACEHOLDER_13)
+                                      (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+                                (record Ok
+                                  (arguments
+                                    (argument
+                                      (record_update (constructor_name PLACEHOLDER_1) .. forth
+                                        (record_update_arguments
+                                          (record_update_argument (label PLACEHOLDER_2) :
+                                            (list PLACEHOLDER_13 PLACEHOLDER_12 .. PLACEHOLDER_7))))))))
+                              (case_clause
+                                (case_clause_patterns
+                                  (case_clause_pattern _ _)) ->
+                                (record Error
+                                  (arguments
+                                    (argument
+                                      (record StackUnderflow)))))))))
+                      (case_clause
+                        (case_clause_patterns
+                          (case_clause_pattern _)) ->
+                        (record Error
+                          (arguments
+                            (argument
+                              (record UnknownWord))))))))))))))))

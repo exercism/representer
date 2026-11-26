@@ -213,4 +213,9 @@ class PHPTest < RepresenterTest
     assert_equal %w[A AΜΕΘΟΔΟΣ], represent("<?php\nclass A { public static function AΜΕΘΟΔΟΣ() {} }\nA::aΜΕΘΟΔΟΣ();\n").mapping.values
     refute_same_representation "<?php\nfunction ΛΕΙΤΟΥΡΓΙΑ() {}\nΛΕΙΤΟΥΡΓΙΑ();\n", "<?php\nfunction ΛΕΙΤΟΥΡΓΙΑ() {}\nλειτουργια();\n"
   end
+
+  def test_functions_of_the_extensions_in_the_old_image_are_library_names
+    refute_same_representation "<?php\nclass A { function gzcompress($x) { return gzcompress($x); } }\n",
+      "<?php\nclass A { function gzdeflate($x) { return gzdeflate($x); } }\n"
+  end
 end

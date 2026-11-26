@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Elixir < Language
       tracks "elixir"
-      version 5
+      version 6
       grammar "elixir"
       extensions ".ex", ".exs"
 

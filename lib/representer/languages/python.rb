@@ -29,12 +29,30 @@ module Representer
         classmethod compile complex delattr dict dir divmod enumerate eval exec filter float format frozenset getattr
         globals hasattr hash help hex id input int isinstance issubclass iter len list locals map max memoryview min
         next object oct open ord pow print property range repr reversed round set setattr slice sorted staticmethod
-        str sum super tuple type vars zip self _
+        str sum super tuple type vars zip self _ exit quit license copyright credits PythonFinalizationError
+        _IncompleteInputError
       ].freeze
 
       # Tree-sitter leaves the text between a string's escape sequences out
       # of its tree, so these types ask for it back.
       text_between_children :string_content, :format_specifier
+
+      ### Syntax checks ###
+
+      # The grammar accepts some code that Python rejects, which the old
+      # representer (using Python's own parser) never represented: Python 2's
+      # `print "x"` and `exec "x"`, a decimal number with a leading zero, and
+      # indentation that mixes tabs and spaces or dedents to a level that
+      # was never opened.
+      syntax_check do |_source, tree|
+        problem = nil
+        tree.each_descendant do |node|
+          problem ||= "Python 2's #{node.type}" if %w[print_statement exec_statement].include?(node.type)
+          problem ||= "A number with a leading zero" if node.type == "integer" && node.text.match?(/\A0[0-9_]*[1-9][0-9_]*\z/)
+        end
+        problem
+      end
+      syntax_check { |source, _tree| Python.indentation_problem(source) }
 
       ### Drop ###
 
@@ -207,6 +225,71 @@ module Representer
 
       class << self
         def pass_statement = build(:pass_statement)
+
+        # Python's own indentation check. It measures each line's indentation
+        # twice, with a tab as 8 columns and as 1, and both measures must
+        # agree about which lines are deeper (or it raises TabError). A
+        # dedent must return to a level that is open (or it raises
+        # IndentationError). Returns a message, or nil if the indentation is
+        # valid.
+        def indentation_problem(source)
+          levels = [[0, 0]]
+          each_line_indentation(source) do |indentation|
+            width = indentation.each_char.reduce(0) { |column, char| char == "\t" ? ((column / 8) + 1) * 8 : column + 1 }
+            other = indentation.size
+            if width > levels.last[0]
+              return "Inconsistent use of tabs and spaces" if other <= levels.last[1]
+
+              levels << [width, other]
+            else
+              levels.pop while levels.size > 1 && width < levels.last[0]
+              return "A dedent that matches no outer indentation level" if width != levels.last[0]
+              return "Inconsistent use of tabs and spaces" if other != levels.last[1]
+            end
+          end
+          nil
+        end
+
+        # Yields the indentation of each line that starts a statement: not a
+        # blank or comment line, and not a line inside brackets, a string or
+        # after a backslash.
+        def each_line_indentation(source)
+          depth = 0
+          quote = nil
+          continued = false
+          source.each_line do |line|
+            starts = depth.zero? && quote.nil? && !continued
+            continued = false
+            indentation = line[/\A[ \t\f]*/]
+            yield indentation.delete("\f") if starts && !line[indentation.size..].match?(/\A(#|\r?\n|\z)/)
+
+            index = starts ? indentation.size : 0
+            while index < line.size
+              char = line[index]
+              if quote
+                if char == "\\"
+                  index += 1
+                elsif line[index, quote.size] == quote
+                  index += quote.size - 1
+                  quote = nil
+                end
+              elsif char == "#"
+                break
+              elsif ["'", '"'].include?(char)
+                quote = line[index, 3] == char * 3 ? char * 3 : char
+                index += quote.size - 1
+              elsif char == "\\" && line[index + 1] == "\n"
+                continued = true
+              elsif "([{".include?(char)
+                depth += 1
+              elsif ")]}".include?(char)
+                depth = [depth - 1, 0].max
+              end
+              index += 1
+            end
+            quote = nil if quote&.size == 1
+          end
+        end
 
         def print_statement?(node)
           node.type == "call" && node["function"]&.type == "identifier" && node["function"].text == "print"

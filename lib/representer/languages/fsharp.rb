@@ -6,7 +6,7 @@ module Representer
     # makes layout irrelevant, so the printing step has no equivalent.
     class FSharp < Language
       tracks "fsharp"
-      version 4
+      version 5
       grammar "fsharp"
       extensions ".fs", ".fsx"
 

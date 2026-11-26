@@ -494,4 +494,24 @@ class PythonTest < RepresenterTest
     refute_same_representation "match x:\n    case 1,:\n        pass\n", "match x:\n    case 1:\n        pass\n"
     refute_same_representation "match x,:\n    case 1:\n        pass\n", "match x:\n    case 1:\n        pass\n"
   end
+
+  # Python rejects these, though the grammar accepts them.
+  def test_code_that_python_rejects_is_unrepresentable
+    assert_unrepresentable "print \"hi\"\n"
+    assert_unrepresentable "exec \"x = 1\"\n"
+    assert_unrepresentable "x = 08\n"
+    assert_unrepresentable "if x:\n        a = 1\n\tb = 2\n"
+    assert_unrepresentable "if x:\n    a = 1\n  b = 2\n"
+  end
+
+  def test_valid_indentation_is_represented
+    refute_nil represent("if x:\n\ta = 1\n\tif y:\n\t\tb = 2\nc = 3\n").representation
+    refute_nil represent("x = [\n  1,\n\t2]\ns = '''\n   a\n\tb'''\ny = (1 +\n  2)\n").representation
+    refute_nil represent("x = 0\ny = 00\nz = 0_0\nw = 1_000\nv = 09j\n").representation
+    refute_nil represent("def f(a):\n    if a: \\\n  pass\n    return a\n").representation
+  end
+
+  def test_site_builtins_are_kept
+    assert_equal ["x"], represent("def exit(x):\n    return quit(x)\n").mapping.values
+  end
 end

@@ -33,7 +33,7 @@ module Representer
         return { representation: nil, mapping: {}, version: Languages.for(track_slug).version, reason: "too_large" }
       end
 
-      result = RepresentSolution.(track_slug, solution_files, exercise_files)
+      result = RepresentSolution.(track_slug, solution_files, exercise_files, exercise_slug: body["exercise_slug"])
       body = { representation: result.representation, mapping: result.mapping, version: result.version }
       result.reason ? body.merge(reason: result.reason) : body
     end

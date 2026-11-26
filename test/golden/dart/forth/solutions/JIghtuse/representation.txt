@@ -1,4 +1,23 @@
-(file "lib/forth.dart")
+import 'dart:convert' ;
+import 'dart:io' ;
+import 'forth.dart' ;
+void main () {
+final forth = Forth ();
+stdout . writeln ( "'<Simple forth interpreter>'" );
+forth . evaluate ( '?' );
+stdin
+. transform ( utf8 . decoder )
+. transform ( const LineSplitter ())
+. listen (( final line ) {
+try {
+forth . evaluate ( line );
+} on Exception catch ( e ) {
+stderr . writeln ( e );
+} finally {
+stdout . writeln ( forth . stack );
+}
+});
+}
 import 'dart:io' ;
 enum _InterpreterState {
 waitingForToken ,
@@ -185,25 +204,4 @@ var _pendingUserCommandName = '' ;
 final _pendingUserCommandTokens = < String >[];
 final _userCommands = < String , List < String >>{};
 final stack = < int >[];
-}
-(file "lib/main.dart")
-import 'dart:convert' ;
-import 'dart:io' ;
-import 'forth.dart' ;
-void main () {
-final forth = Forth ();
-stdout . writeln ( "'<Simple forth interpreter>'" );
-forth . evaluate ( '?' );
-stdin
-. transform ( utf8 . decoder )
-. transform ( const LineSplitter ())
-. listen (( final line ) {
-try {
-forth . evaluate ( line );
-} on Exception catch ( e ) {
-stderr . writeln ( e );
-} finally {
-stdout . writeln ( forth . stack );
-}
-});
 }

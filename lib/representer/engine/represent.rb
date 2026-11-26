@@ -4,6 +4,8 @@ module Representer
     #
     # Only the solution files with one of the language's extensions are
     # represented, as the website also sends files such as Rust's Cargo.toml.
+    # The files are joined into one tree, and their names are never part of
+    # the representation.
     #
     # Raises CannotRepresent if the solution has no such file, if a file
     # can't be parsed, or if the rules hit one of the engine's limits (see
@@ -16,36 +18,57 @@ module Representer
 
       def call
         @deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + MAX_SECONDS
-        sources = solution_files.select { |filename, _| language.source_file?(filename) }
+        sources = solution_files.select { |filename, _| language.source_file?(filename) && !Engine.test_or_config_file?(filename) }
         if sources.empty?
           raise CannotRepresent.new("no_source_files", "No solution file has one of the extensions #{language.extensions.join(', ')}")
         end
 
-        trees = sources.sort.map { |filename, source| [filename, prepare(source)] }
-        trees = [[language.merge_files, merge(trees.map(&:last))]] if language.merges_files?
-        names = Names.new(language, trees.map(&:last), required_names)
-        representation = trees.map { |filename, tree| Serialize.(tree, names, filename) }.join("\n")
+        tree = merge(in_order(sources.values.map { |source| prepare(source) }))
+        names = Names.new(language, [tree], required_names)
 
-        Result.new(representation:, mapping: names.mapping, version: language.version, representer: language)
+        Result.new(representation: Serialize.(tree, names), mapping: names.mapping, version: language.version,
+          representer: language)
       end
 
       private
       # Parses the source and applies the drop and rewrite rules.
       def prepare(source)
+        source = Engine.clean(source)
         tree = Grammar[language.grammar].parse(
-          Engine.clean(source), skip_tokens: language.dropped_tokens, kept_tokens: language.kept_tokens,
+          source, skip_tokens: language.dropped_tokens, kept_tokens: language.kept_tokens,
           text_types: language.text_node_types, gap_types: language.gap_types
         )
+        language.syntax_checks.each do |check|
+          problem = check.(source, tree)
+          raise CannotRepresent.new("parse_error", problem) if problem
+        end
+        @root_type = tree.type
         drop(tree)
         rewrite(tree)
       end
 
+      # The files' trees in an order that depends only on the code, so the
+      # files' names and order never change the representation. Each tree is
+      # written out with every name that will be renamed left blank, and the
+      # trees are sorted by that. Trees that are the same apart from those
+      # names are sorted by the names as written.
+      def in_order(trees)
+        return trees if trees.one?
+
+        names = Names.new(language, trees, required_names)
+        trees.sort_by { |tree| [Serialize.(tree, names, blank: true), Serialize.(tree, nil)] }
+      end
+
       # Joins the files' trees into one and applies the rewrite rules to the
-      # whole.
+      # whole, so the rules for a whole file (such as one that sorts its
+      # declarations) run on all of the solution's code. Splitting code
+      # across files then changes the representation as little as possible.
+      # A rule may have replaced a file's root (Crystal unwraps a file that
+      # holds one class), so such a file joins as one child.
       def merge(trees)
         return trees.first if trees.one?
 
-        root = Node.new(trees.first.type, trees.flat_map(&:children))
+        root = Node.new(@root_type, trees.flat_map { |tree| tree.type == @root_type ? tree.children : [tree] })
         rewrite(root)
       end
 
@@ -115,6 +138,11 @@ module Representer
       # Names that the exercise fixes: every name in the tests (and any other
       # exercise file that isn't the stub), and the members that the stub
       # defines. Exercise files that don't parse are ignored.
+      #
+      # A stub is a file that `.meta/config.json` lists as a solution file, or
+      # that has the name of one of the student's files. So a student who
+      # names their file differently from the stub keeps only the stub's
+      # members, and not every name in it.
       memoize
       def required_names
         names = Set.new
@@ -127,13 +155,25 @@ module Representer
             next
           end
 
-          if solution_files.key?(filename)
+          if stub?(filename)
             names.merge(Names.new(language, [tree], Set.new).member_defs)
           else
             Names.each_name(language, tree) { |_leaf, name| names << name }
           end
         end
         names
+      end
+
+      def stub?(filename) = solution_files.key?(filename) || stub_names.include?(filename)
+
+      # The solution files listed in the exercise's config.
+      memoize
+      def stub_names
+        config = JSON.parse(exercise_files.fetch(".meta/config.json", "{}"))
+        listed = config.is_a?(Hash) && config["files"].is_a?(Hash) ? config["files"]["solution"] : nil
+        Array(listed).grep(String).to_set
+      rescue JSON::ParserError
+        Set.new
       end
     end
 
@@ -146,11 +186,29 @@ module Representer
     # line endings and a byte-order mark, so line endings become plain line
     # breaks and the mark goes. Otherwise they would end up in strings and in
     # other tokens (such as a C++ `#define`).
+    # An old Mac line ending (a carriage return on its own) is a line break
+    # too. A NUL byte is replaced like an invalid byte, as the website can't
+    # store it.
     def self.clean(source)
       source = source.dup.force_encoding(Encoding::UTF_8)
       source = source.scrub("�") unless source.valid_encoding?
-      source.delete_prefix("\uFEFF").gsub("\r\n", "\n")
+      source.delete_prefix("\uFEFF").gsub(/\r\n?/, "\n").tr("\0", "�")
     end
+
+    # Files that students submit alongside their solution but that aren't
+    # part of it: tests (`two_fer_test.rb`, `test_two_fer.py`, `leap.spec.js`,
+    # `LeapTest.java`, `LeapTests.cs`), Go's `embed.go`, and tool configs
+    # (`babel.config.js`, `.eslintrc.js`). The old representers ignored them.
+    TEST_OR_CONFIG_FILE = %r{
+      (\A|[_.])(test|spec)s?\.[^./]+\z |
+      \Atest_[^/]*\.py\z |
+      [a-z0-9]Tests?\.[^./]+\z |
+      \Aembed\.go\z |
+      \.config\.[cm]?[jt]s\z |
+      \A\.eslintrc
+    }x
+
+    def self.test_or_config_file?(filename) = File.basename(filename).match?(TEST_OR_CONFIG_FILE)
 
     # Whether a pattern could match a node of this type, judging only by
     # the type at the pattern's root.

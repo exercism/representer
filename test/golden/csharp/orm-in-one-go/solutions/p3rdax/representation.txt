@@ -1,54 +1,53 @@
-(file "OrmInOneGo.cs"
-  (compilation_unit
-    (class_declaration
-      (modifier public) Orm
-      (declaration_list
-        (field_declaration
-          (modifier private)
-          (variable_declaration Database
-            (variable_declarator database)))
-        (constructor_declaration
-          (modifier public) Orm
-          (parameter_list
-            (parameter Database database))
-          (block
-            (expression_statement
-              (assignment_expression
-                (member_access_expression this database) = database))))
-        (method_declaration
-          (modifier public) void Write
-          (parameter_list
-            (parameter string data))
-          (block
-            (using_statement using database
+(compilation_unit
+  (class_declaration
+    (modifier public) Orm
+    (declaration_list
+      (field_declaration
+        (modifier private)
+        (variable_declaration Database
+          (variable_declarator database)))
+      (constructor_declaration
+        (modifier public) Orm
+        (parameter_list
+          (parameter Database database))
+        (block
+          (expression_statement
+            (assignment_expression
+              (member_access_expression this database) = database))))
+      (method_declaration
+        (modifier public) void Write
+        (parameter_list
+          (parameter string data))
+        (block
+          (using_statement using database
+            (block
+              (expression_statement
+                (invocation_expression
+                  (member_access_expression database BeginTransaction)
+                  (argument_list)))
+              (expression_statement
+                (invocation_expression
+                  (member_access_expression database Write)
+                  (argument_list
+                    (argument data))))
+              (expression_statement
+                (invocation_expression
+                  (member_access_expression database EndTransaction)
+                  (argument_list)))))))
+      (method_declaration
+        (modifier public) bool WriteSafely
+        (parameter_list
+          (parameter string data))
+        (block
+          (try_statement
+            (block
+              (expression_statement
+                (invocation_expression Write
+                  (argument_list
+                    (argument data))))
+              (return_statement
+                (boolean_literal true)))
+            (catch_clause
               (block
-                (expression_statement
-                  (invocation_expression
-                    (member_access_expression database BeginTransaction)
-                    (argument_list)))
-                (expression_statement
-                  (invocation_expression
-                    (member_access_expression database Write)
-                    (argument_list
-                      (argument data))))
-                (expression_statement
-                  (invocation_expression
-                    (member_access_expression database EndTransaction)
-                    (argument_list)))))))
-        (method_declaration
-          (modifier public) bool WriteSafely
-          (parameter_list
-            (parameter string data))
-          (block
-            (try_statement
-              (block
-                (expression_statement
-                  (invocation_expression Write
-                    (argument_list
-                      (argument data))))
                 (return_statement
-                  (boolean_literal true)))
-              (catch_clause
-                (block
-                  (return_statement
-                    (boolean_literal false)))))))))))
+                  (boolean_literal false))))))))))
