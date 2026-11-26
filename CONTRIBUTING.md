@@ -1,15 +1,15 @@
 # Adding a language
 
-Every track gets the Basic representer until it has a class of its own.
+Every track gets the Basic representer until it has a representer of its own.
 This guide explains how to add one.
-The Ruby, JavaScript and C# classes in [`lib/representer/languages/`](./lib/representer/languages/) are worked examples, and the quickest way to start is to copy the one closest to your language.
+Ruby, in [`lib/representer/languages/ruby.rb`](./lib/representer/languages/ruby.rb) and [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/), is the worked example, and the quickest way to start is to copy it.
 
 The steps are:
 
 1. Pin and build the grammar.
 2. Port the old representer's tests.
-3. Write the language's class.
-4. Add tests for anything else the class does.
+3. Write the language's stages.
+4. Add tests for each stage.
 5. Set the version.
 
 ## The goal
@@ -109,138 +109,164 @@ DEVIATIONS = {
 The common deviations are library names (this representer keeps them; several old ones renamed them) and old outputs that weren't valid code.
 Never use a deviation to hide a merge that the old representer kept apart.
 
-## 3. Write the language's class
+## 3. Write the language's stages
 
-Create `lib/representer/languages/<track>.rb`.
-It is loaded automatically.
-Start the file with a comment that lists, in plain English and one bullet each, everything the class does to a solution's code: what it drops, what it rewrites and how, what it renames, what it keeps and why, and how it combines files.
-The list is for a maintainer who doesn't know the rules below, so update it whenever the class's rules change.
+A language is a module with four stages, each a [Mandate](https://github.com/iHiD/mandate) command class in its own file.
+Ruby is the worked example: [`lib/representer/languages/ruby.rb`](./lib/representer/languages/ruby.rb) and the files in [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/).
+The other languages still use the older rule DSL, described in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#the-rule-dsl), until they are moved to stages.
+
+### The rules for every language
+
+These rules decide what each stage may do:
+
+1. Every solution that the representer sees is valid code that passes its tests. A stage may throw away code that makes no difference to the solution working, but never adds code that only copes with invalid input.
+2. Some decisions apply to every language: drop imports, includes and export lists; leave file names out (the engine orders the files by their code); keep library names only where the choice of method is something a mentor comments on; and never represent invalid code.
+3. Within a language, match what the old representer (`exercism/<track>-representer`) did. A language-specific difference from the old behaviour only goes in if a human has decided it. List any other improvement you'd suggest in `test/golden/<track>/SUGGESTIONS.md` for the maintainers to discuss. Fix bugs, such as wrong merges and crashes.
+
+### The module
+
+`lib/representer/languages/<track>.rb` defines the module and its setup, and requires the stages:
 
 ```ruby
 module Representer
   module Languages
-    class Python < Language
-      tracks "python"
-      version 2
-      grammar "python"
-      extensions ".py"
+    module Ruby
+      extend StagedLanguage
 
-      names :identifier
+      tracks "ruby"
+      version 8
+      grammar "ruby"
+      extensions ".rb"
 
-      drop "(comment)"
-      drop_tokens "(", ")", ":", ","
+      names :identifier, :constant, :instance_variable, :class_variable, :global_variable, simple_symbol: ":"
 
-      rewrite "(parenthesized_expression (_) @inner)", "@inner"
+      library_names File.join(__dir__, "library_names", "ruby.txt")
+    end
+  end
+end
 
-      rename "(parameters (identifier)* @name)"
-      rename_member "(function_definition name: (identifier) @name)"
-      member "(attribute attribute: (identifier) @name)"
-      keep "__init__", "__str__"
+require_relative "ruby/generate_ast"
+require_relative "ruby/normalise"
+require_relative "ruby/rename"
+require_relative "ruby/reorder"
+```
+
+- `tracks`: the track slugs this module represents.
+- `version`: the representer version (see step 5).
+- `grammar`: the grammar's name in `grammars.yml`.
+- `extensions`: the language's file extensions. Solution and exercise files with other extensions are ignored.
+- `names`: the leaf types that hold names. Only these can be renamed. A keyword gives a prefix that isn't part of the name (Ruby's `simple_symbol: ":"` for `:name`).
+- `library_names`: a file of the library's method names, one per line (see "Library names" below).
+
+### The stages
+
+The engine runs the stages in this order:
+
+1. `GenerateAST` runs on each file. It turns tree-sitter's tree, which has every token and comment, into the tree that the language's own parser would give. It drops comments and the tokens the parser drops, unwraps brackets that only group, and turns spellings that the parser treats as one into one tree (for Ruby: heredocs and strings, `%w[]` and arrays, `do ... end` and braces, and so on).
+2. `Normalise` runs on each file. It applies the representer's own equivalences and removals: the global decisions, such as dropping imports, and any that a human has decided for the language.
+3. `Rename` runs on all the files together. It decides which names are the student's, and marks their leaves. It returns the names of the members that the files define, which the engine uses for the exercise's stub.
+4. The engine joins the files into one tree, in an order set by their code.
+5. `Reorder` runs on the joined tree. It sorts code whose order doesn't matter, by a key that ignores names.
+6. The engine numbers the placeholders, in the order the names appear, and writes the tree out as an s-expression.
+
+Each stage takes the tree (`Rename` takes the list of trees and the names that the exercise keeps) and returns it:
+
+```ruby
+module Representer
+  module Languages
+    module Ruby
+      class Normalise
+        include Mandate
+        include Engine::TreeHelpers
+
+        initialize_with :tree
+
+        def call
+          drop(tree, "(call !receiver method: (identifier /\\Arequire(_relative)?\\z/) arguments: (argument_list (literal)))")
+        end
+      end
     end
   end
 end
 ```
 
-Run `./bin/inspect <track> <file>` to see the tree that your rules work on, with each node's type, field names and tokens.
-Write the rules against that tree.
+Start each file with a comment that lists, in plain English and one bullet each, everything the stage does: what it drops, what it treats as the same, what it renames and keeps and why.
+The list is for a maintainer who doesn't know the code, so update it whenever the stage changes.
 
-### Setup
+Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's type, field names and tokens.
 
-- `tracks "python"`: the track slugs this class represents.
-- `version 2`: the representer version (see step 5).
-- `grammar "python"`: the grammar's name in `grammars.yml`.
-- `extensions ".py"`: the language's file extensions. Solution and exercise files with other extensions are ignored, so list every extension a student's code can have.
-- `names :identifier, ...`: the leaf types that hold names. Only these can be renamed. If a type's text includes a prefix that isn't part of the name, give it as a keyword (Ruby has `simple_symbol: ":"` for `:name`).
+### The helpers
 
-- `fold_names { |name| ... }`: for a language that treats some spellings of a name as one name (Nim ignores case after the first letter, and underscores). The block returns the name's canonical spelling. The representation then writes every name in that spelling, and the mapping keeps the student's first spelling.
+`Engine::TreeHelpers` has the operations that every stage needs.
+Each one visits a node once, so a rule can't loop on its own output.
+[REPRESENTER_DSL.md](./REPRESENTER_DSL.md#tree-helpers-for-stages) lists them all. The main ones are:
 
-### Patterns
+- `transform(tree, pattern, template)` or `transform(tree, pattern) { |match| ... }`: replaces each match, from the leaves up.
+- `drop(tree, pattern)`: removes each match.
+- `drop_tokens(tree, everywhere:, only_in:, kept_in:)`: removes anonymous tokens.
+- `unwrap(tree, pattern)`: replaces a match that has one named child with that child.
+- `each_node`, `find_all` and `captured`: walk the tree and find matches.
+- `build`, `leaf`, `literal`, `token` and `copy`: make nodes.
+- `names_in` and `mark_student_names`: collect names and mark the student's.
 
-Every rule takes a pattern, written in a subset of [tree-sitter's query syntax][queries]:
+Patterns and templates use the syntax in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#patterns).
 
-| Pattern | Matches |
-|---|---|
-| `(call)` | a node of type `call` |
-| `(_)` | any named node |
-| `_` | any node, including tokens |
-| `(call method: (identifier))` | a `call` whose `method` field is an `identifier` |
-| `(call !receiver)` | a `call` with no `receiver` field |
-| `(binary "==")` | a `binary` with an `==` token among its children |
-| `(identifier "String")` | an `identifier` whose text is `String` |
-| `(identifier /\Aattr_/)` | an `identifier` whose text matches the regular expression |
-| `[(class) (module)]` | either |
-| `(argument_list (symbol)* @name)` | every `symbol` child, captured as a list |
-| `(parameters (identifier)? @name)` | the child, if there is one |
-| `(method name: (_) @name)` | captures the name as `@name` |
+### GenerateAST's tokens
 
-Child patterns without a field match children in order, and other children may sit between them.
-Patterns may span several lines (use a heredoc), and `;` starts a comment.
+`GenerateAST` lists the tokens it drops explicitly.
+Draft the list from the grammar with:
 
-### Drop rules
+```shell
+./bin/draft-ast-tokens <grammar>
+```
 
-- `drop "(comment)"` removes every node that matches.
-- `drop "(method_parameters)", where: ->(match) { match.node.children.empty? }` removes only the matches that pass the check.
-- `drop_tokens "(", ")", ";"` leaves these anonymous tokens out of the tree. Only drop a token if the node's type already says everything the token says. For example, Ruby drops `"if"` (the node type is `if`) but keeps `"=="` and `"!="` (both are `binary` nodes).
-- `keep_tokens_in :delete_expression, "[", "]"` keeps dropped tokens in one node type. Use it where a token is the only difference between two programs: C++ drops brackets, but `delete[] p` and `delete p` are different. Check each token you drop against every node that can hold it, including optional tokens (`using var x` and `var x` in C#) and separators between optional parts (`for (;; i++)` and `for (i++;;)`).
+It lists the tokens that always sit in a fixed place in a node, which are safe to drop, and the tokens that are optional, one of a choice, or have text that varies, for a human to review.
+The ones to review often carry meaning (C++'s `delete[]`, Ruby's `&.`), but some are only layout (brackets around Ruby's arguments).
+Check each one, write the reviewed list into the class, and say in a comment why each group is dropped.
+Read a token's text before dropping it if its text varies (Ruby's string opener can be `'`, `"` or `%q(`), and check the grammar's extras, which can hold content (Ruby's heredoc bodies).
 
-### Rewrite rules
+### Strings and numbers
 
-Rewrite rules turn different spellings of the same code into one.
-They run from the leaves up, and run again on their own output.
+Turn each string into its value with `literal(value)`, so that `'a'` and `"a"` are the same.
+Read only the escapes that solutions use, and keep any other escape as a node of its own, so two different strings can never get the same value.
+Give two numbers one form only if the language reads them as the same value of the same type, using the readers in [`Engine::Numbers`](./lib/representer/engine/numbers.rb).
 
-- With a template: `rewrite "(if_modifier body: (_) @body condition: (_) @condition)", "(if condition: @condition consequence: (then @body))"`. A template uses the pattern syntax: `(type ...)` builds a node, `field:` sets a field, `@name` inserts a copy of a capture, and `"!"` adds a token. Check with `./bin/inspect` that the template builds exactly the tree that the grammar produces for the other spelling, including the order of children.
-- With a block, which receives the match and returns the replacement node, or nil to change nothing. `match.node` is the matched node and `match[:name]` a capture. The helpers `build(type, *children)`, `leaf(type, text)`, `literal(value)`, `token(text)` and `copy(node)` make new nodes. A block can also change `match.node` in place and return it.
-- `retype do_block: :block` gives nodes of one type another type.
-- `unwrap :parenthesized_expression` replaces a node that has one named child with that child.
+### Names
 
-A rule must not match its own output, or it will run forever.
-The engine stops after 50 rewrites of one node, and the solution then gets no representation (reason `too_complex`).
-For example, Ruby's string rule only matches strings that still have their quote token, and its output has none.
-A block that changes the node in place must return nil when it changes nothing.
-Watch out for a pattern such as `(_ ";")`: it also matches a leaf whose text is `;`, such as the contents of the string `";"`.
+Only rename a name if the solution gives it its whole meaning.
+`Rename` collects the names that the solution defines for locals and members, and the leaves where a name refers to another object's member (such as the name after a dot), then calls `mark_student_names`.
+A member use is only renamed if the solution defines a member with that name.
+Pass in, as kept names, the names the engine gives (every name in the tests, and the members of the stub), the names that callers use (such as keyword parameters), and the members the solution names after library methods.
 
-Numbers are another: `numbers :integer do |text| ... end` writes every number leaf of a type in one form, using the readers in [`Engine::Numbers`](./lib/representer/engine/numbers.rb).
-Only give two spellings the same form if the language reads them as the same value of the same type: `1_000` and `1000` are always the same, but `1` and `1.0` are only the same in languages such as JavaScript, which has one number type.
+### Library names
 
-Strings are a common rewrite: turn each string into its value with `literal(value)`, so that `'a'` and `"a"` are the same.
-Decode only the escapes you are sure of, and keep any other escape's source text, so two different strings can never get the same value.
+The library names list keeps a student's method that has a library method's name, so `def sum(a) = a.sum` and `def max(a) = a.max` stay apart.
+Only list methods where the choice of method is something a mentor comments on, and the methods the language calls itself (such as Ruby's `initialize`).
+Ruby's list is made from what the golden solutions call, by [`bin/draft-ruby-library-names`](./bin/draft-ruby-library-names).
 
-### Rename and keep rules
+## 4. Add tests for each stage
 
-Each of these patterns captures a name's leaf as `@name`.
-Renaming goes by name, not by scope: every use of a renamed name gets the same placeholder.
+Give each stage a test file of its own in `test/languages/<track>/`, which tests that stage's job.
+See [`test/languages/ruby/`](./test/languages/ruby/).
 
-- `rename`: a name the student defines for a local variable or parameter. It is renamed everywhere, except after a dot.
-- `rename_member`: a name the student defines for a method, function, property, field, class or constant. It is renamed everywhere, including after a dot, unless it is a library name.
-- `member`: a name used after a dot (`obj.name`), or anywhere else that refers to some other object's member. It is only renamed if the solution defines a member with that name, so `xs.count` keeps `count` even if the student has a local called `count`.
-- `keep "initialize", "to_s"`: names that are never renamed, such as methods the language calls itself.
-- `keep "(keyword_parameter name: (identifier) @name)"`: names that a pattern finds are never renamed, such as keyword parameters, which callers use.
-- `library_names File.join(__dir__, "library_names", "python.txt")`: a file of the language's core and standard-library names, one per line. A student's member with one of these names keeps it.
+Test `GenerateAST` against the language's own parser: for a set of snippets (from the tests and the golden data), check that two snippets get the same tree from `GenerateAST` exactly when the parser gives them the same tree, ignoring locations and names.
+Ruby's test uses the `parser` gem, which the old Ruby representer used, and lists each pair where `GenerateAST` deliberately differs, with the reason.
 
-Imports, includes and export lists only make names available, so drop them, and keep anything that does more (such as Python's `from __future__` or Go's `import _ "embed"`).
-If an import gives a name with `as`, write each use of that name as the name it stands for, as Python and Gleam do.
-A local name normally gets the same placeholder wherever it appears. A rule can give a leaf a scope (`node.scope = method`), and the local then gets a placeholder of its own in that scope, as Java does for each method's locals.
-
-Every name used in the exercise's test files is kept automatically, and so is every member defined in the exercise's stub.
-
-## 4. Add tests for anything else the class does
-
-Add tests to `test/languages/<track>_test.rb` for every rewrite rule, and for pairs of solutions that must stay apart.
+Keep the ported tests and the tests of the whole representer in `test/languages/<track>_test.rb`.
 `RepresenterTest` gives you `assert_same_representation`, `refute_same_representation` and `assert_unrepresentable` (which checks that a solution gets no representation, for a given reason).
-See [`test/languages/ruby_test.rb`](./test/languages/ruby_test.rb).
 
 Also add a request test: a `tests/<track>/<name>/request.json` with a typical solution and its tests, and an `expected_response.json` made by running `./bin/run.sh tests/<track>/<name>/request.json tests/<track>/<name>` and copying `response.json` after checking it.
 
 Run everything with `./bin/run-tests.sh`.
 
-If the track has golden data in [`test/golden/<track>/`](./test/golden/), run `./bin/regenerate-golden <track>` after changing the class, and review the diff.
+If the track has golden data in [`test/golden/<track>/`](./test/golden/), run `./bin/regenerate-golden <track>` after changing a stage, and review the diff.
 The golden tests fail if a change splits or merges any of the production groups, unless the difference is listed in the track's `differences.yml` (see [`test/golden/README.md`](./test/golden/README.md)).
 
 ## 5. Set the version
 
 A new language starts at version 2, because the old per-track representers all reported version 1.
 
-Bump a language's version whenever its output could change for any solution: a new or changed rule, a new library names list, or a new grammar commit.
+Bump a language's version whenever its output could change for any solution: a change to a stage or a rule, a new library names list, or a new grammar commit.
 The website will then represent the track's solutions again.
 
 Basic has its own version, which only covers the tracks with no class of their own.

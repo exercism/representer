@@ -68,8 +68,9 @@ For a language with its own class, the representer:
 5. Replaces each name the student chose with a placeholder. It keeps every name with a meaning outside the solution: library names, names the tests use, and names the language calls itself (such as `initialize`).
 6. Writes the tree out as an indented s-expression.
 
-Each language describes steps 2, 3 and 5 as rules in its class in [`lib/representer/languages/`](./lib/representer/languages/), and the comment at the top of each class lists what its rules do.
-[CONTRIBUTING.md](./CONTRIBUTING.md) explains the rules and how to add a language.
+Ruby describes steps 2, 3 and 5 in four stages (`GenerateAST`, `Normalise`, `Rename` and `Reorder`) in [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/), and the comment at the top of each stage lists what it does.
+The other languages describe them as rules in their class in [`lib/representer/languages/`](./lib/representer/languages/), until they are moved to stages, and the comment at the top of each class lists what its rules do.
+[CONTRIBUTING.md](./CONTRIBUTING.md) explains the stages and how to add a language.
 
 Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.
 It renames nothing, so it only merges solutions that differ in nothing but comments and formatting.

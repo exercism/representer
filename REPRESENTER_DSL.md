@@ -1,9 +1,40 @@
 # Representer DSL
 
-Each language class in `lib/representer/languages/` describes its language with the rules below.
-The engine parses the solution with the language's tree-sitter grammar, then applies the drop rules, then the rewrite rules, then the rename rules.
-[CONTRIBUTING.md](./CONTRIBUTING.md) explains how to write a new class.
-Every solution that the representer sees passes its tests, so the rules can drop any code that makes no difference to the solution working (see "The goal" in CONTRIBUTING.md).
+A language with its own representer is written in one of two ways:
+
+- **As four stages** (Ruby): a module that extends `StagedLanguage`, with the classes `GenerateAST`, `Normalise`, `Rename` and `Reorder`. Each stage works on the tree with the helpers in `Engine::TreeHelpers`. This is how every language should be written, and [CONTRIBUTING.md](./CONTRIBUTING.md) explains it.
+- **With the rule DSL** (every other language, until it is moved to stages): a class that inherits from `Language` and lists drop, rewrite and rename rules. The engine parses the solution with the language's tree-sitter grammar, then applies the drop rules, then the rewrite rules, then the rename rules.
+
+Both use the same setup, the same pattern syntax and the same templates.
+Every solution that the representer sees passes its tests, so a language can drop any code that makes no difference to the solution working (see "The goal" in CONTRIBUTING.md).
+
+## Tree helpers for stages
+
+A stage includes `Engine::TreeHelpers` and calls these methods on its tree.
+Each method visits a node once, so a rule can't match its own output and loop.
+A method that can replace the root returns the new root.
+
+| Helper | Does |
+|---|---|
+| `each_node(root) { \|node, parent\| }` | Visits every node and its parent, parents first, in source order. |
+| `find_all(root, pattern)` | Every match of the pattern, as `Match`es. |
+| `captured(root, pattern, name = :name)` | Every node captured as `@name`, with list captures flattened. |
+| `transform(root, pattern, template)` | Replaces each match with the template, from the leaves up. |
+| `transform(root, pattern) { \|match\| }` | Replaces each match with the block's result, from the leaves up. The block can return the matched node changed in place, or nil to leave it. |
+| `drop(root, pattern)` | Removes each match with its children. |
+| `drop_tokens(root, everywhere:, only_in:, kept_in:)` | Removes anonymous tokens: `everywhere` from every node apart from the types in `kept_in`, and `only_in` from the types it names. |
+| `unwrap(root, pattern)` | Replaces a match that has one named child with that child. |
+| `retype(root, from => to)` | Gives nodes of one type another type. |
+| `build`, `leaf`, `literal`, `token`, `copy` | Make nodes (see "Helpers for rewrite blocks" below). |
+| `text_of(node)` | The text of a node's leaves, joined. |
+| `names_in(trees, language, *patterns)` | The names held by the leaves that the patterns capture as `@name`. |
+| `mark_student_names(trees, language, names:, members:, member_uses:, kept:)` | Marks each leaf whose name is in `names` and not in `kept`. A leaf in `member_uses` is only marked if its name is also in `members`. The engine writes a placeholder for each marked leaf. |
+
+## The rule DSL
+
+The rest of this file describes the rule DSL, which the languages not yet moved to stages use.
+Each class in `lib/representer/languages/` describes its language with the rules below.
+The setup methods (`tracks` to `fold_names`) also work in a staged language's module.
 
 ## Setup
 
