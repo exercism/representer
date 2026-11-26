@@ -27,7 +27,7 @@ module Representer
     # the other languages.
     class Zig < Language
       tracks "zig"
-      version 7
+      version 8
       grammar "zig"
       extensions ".zig"
 
@@ -82,6 +82,7 @@ module Representer
       # not.
       rename_member "(Decl (VarDecl variable_type_function: (IDENTIFIER) @name))"
       rename "(Statement (VarDecl variable_type_function: (IDENTIFIER) @name))"
+      rename "(VarDeclProto variable_type_function: (IDENTIFIER) @name)"
       rename_member "(FnProto function: (IDENTIFIER) @name)"
       rename "(ParamDecl parameter: (IDENTIFIER) @name)"
       rename "[(PtrPayload (IDENTIFIER)* @name) (PtrListPayload (IDENTIFIER)* @name)]"
