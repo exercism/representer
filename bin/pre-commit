@@ -1,70 +1,91 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env bash
 
 # Synopsis:
-# The git pre-commit hook. If the commit changes a language's class, its
-# library names or its grammar's pin in grammars.yml, this regenerates that
-# language's golden data (see test/golden/README.md). If that changes any
-# golden files, it stops the commit, so that you can review and stage them.
+# The git pre-commit hook. It finds the Ruby named in .ruby-version and runs
+# bin/regenerate-staged-golden with it, which regenerates the golden data of
+# any language that the commit changes (see test/golden/README.md).
 # Run bin/setup-hooks to install it.
 
 # Output:
-# The tracks it regenerated, and the golden files that changed.
+# The tracks it regenerated, and the golden files that changed. If it can't
+# find a suitable Ruby, it says where it looked and stops the commit.
 
 # Notes:
-# It regenerates with the code in the working tree, which is the staged code
-# unless you only staged part of your changes. It doesn't look at changes to
-# the engine, which can change every language: run bin/regenerate-golden
-# for those (CI checks every track either way).
+# A hook runs with the shell's environment, which may have a different Ruby
+# on its PATH, so this looks for the right one:
+#
+# 1. The Ruby on the PATH, if its version is the one in .ruby-version.
+# 2. That exact version, installed by chruby (~/.rubies or /opt/rubies),
+#    rbenv, asdf, rvm or mise.
+# 3. Otherwise, the newest installed Ruby with the same major and minor
+#    version (such as 3.4.4 for 3.4.12), with a warning.
 
-require "bundler/setup"
-require "open3"
-require "yaml"
+set -euo pipefail
 
-ROOT = File.expand_path("..", __dir__)
-Dir.chdir(ROOT)
-require_relative "../test/golden"
+root="$(git rev-parse --show-toplevel)"
+wanted="$(tr -d '[:space:]' < "${root}/.ruby-version")"
+wanted="${wanted#ruby-}"
+minor="$(echo "${wanted}" | cut -d. -f1,2)"
 
-def git(*args) = Open3.capture2("git", *args).first
+# The folders where a Ruby version manager installs each version. Each
+# one holds bin/ruby.
+install_dirs() {
+  local version="$1"
+  echo "${HOME}/.rubies/ruby-${version}"
+  echo "/opt/rubies/ruby-${version}"
+  echo "${RBENV_ROOT:-${HOME}/.rbenv}/versions/${version}"
+  echo "${ASDF_DATA_DIR:-${HOME}/.asdf}/installs/ruby/${version}"
+  echo "${HOME}/.rvm/rubies/ruby-${version}"
+  echo "${HOME}/.local/share/mise/installs/ruby/${version}"
+}
 
-staged = git("diff", "--cached", "--name-only").lines(chomp: true)
-languages_dir = "lib/representer/languages/"
-languages = Representer::Languages.registry.values.uniq
+ruby_version() { "$1" -e 'print RUBY_VERSION' 2>/dev/null || true; }
 
-# The file that defines each language's class.
-class_files = languages.to_h { |language| [language, Object.const_source_location(language.name).first.delete_prefix("#{ROOT}/")] }
+ruby_bin=""
+if command -v ruby > /dev/null && [ "$(ruby_version ruby)" = "${wanted}" ]; then
+  ruby_bin="$(dirname "$(command -v ruby)")"
+else
+  for dir in $(install_dirs "${wanted}"); do
+    if [ -x "${dir}/bin/ruby" ]; then
+      ruby_bin="${dir}/bin"
+      break
+    fi
+  done
+fi
 
-changed_grammars = begin
-  old = YAML.safe_load(git("show", "HEAD:grammars.yml")) || {}
-  new = YAML.safe_load(git("show", ":grammars.yml")) || {}
-  (old.keys | new.keys).reject { |name| old[name] == new[name] }
-end
+if [ -z "${ruby_bin}" ]; then
+  # The newest installed patch release of the same minor version.
+  newest=""
+  for dir in $(install_dirs "${minor}.*"); do
+    [ -x "${dir}/bin/ruby" ] || continue
+    version="$(ruby_version "${dir}/bin/ruby")"
+    if [ -z "${newest}" ] || [ "$(printf '%s\n%s\n' "${newest}" "${version}" | sort -V | tail -1)" = "${version}" ]; then
+      newest="${version}"
+      ruby_bin="${dir}/bin"
+    fi
+  done
+  if [ -n "${ruby_bin}" ]; then
+    echo "pre-commit: Ruby ${wanted} (from .ruby-version) isn't installed, so this uses Ruby ${newest}." >&2
+  fi
+fi
 
-changed = languages.select do |language|
-  sources = [class_files[language]]
-  text = File.read(class_files[language])
-  text.scan(/inherit (\w+)/).flatten.each { |parent| sources << class_files[Representer::Languages.const_get(parent)] }
-  libraries = sources.flat_map { |file| File.read(file).scan(/"(\w+\.txt)"/).flatten }.
-    map { |name| "#{languages_dir}library_names/#{name}" }
+if [ -z "${ruby_bin}" ]; then
+  cat >&2 <<MESSAGE
+pre-commit: Can't find Ruby ${wanted}, which .ruby-version names.
+The Ruby on your PATH is $(ruby_version ruby || true), and no Ruby ${minor} is installed in:
+$(install_dirs "${minor}.*" | sed 's/^/  /')
+Install Ruby ${wanted} (for example with ruby-install or rbenv), run bundle install with it, and commit again.
+MESSAGE
+  exit 1
+fi
 
-  (staged & (sources + libraries)).any? || changed_grammars.include?(language.grammar)
-end
+# If this is a different Ruby from the shell's, the shell's gem settings
+# belong to the other Ruby, so they go.
+if [ "${ruby_bin}" != "$(dirname "$(command -v ruby 2>/dev/null || echo /none/ruby)")" ]; then
+  unset GEM_HOME GEM_PATH GEM_ROOT
+fi
+export PATH="${ruby_bin}:${PATH}"
 
-tracks = Golden.tracks.select do |track|
-  language = Representer::Languages.for(track)
-  changed.include?(language) || (language == Representer::Languages::Basic && staged.include?("#{languages_dir}basic.rb"))
-end
-exit 0 if tracks.empty?
-
-system("bin/build-grammars", *changed_grammars, exception: true, out: File::NULL) if changed_grammars.any?
-
-puts "Regenerating the golden data for #{tracks.join(', ')}"
-tracks.each { |track| Golden.regenerate(track) }
-
-modified = git("status", "--porcelain", "--", *tracks.map { |track| "test/golden/#{track}" }).lines(chomp: true)
-unstaged = modified.reject { |line| line.start_with?(/[MADR] /) }
-exit 0 if unstaged.empty?
-
-puts "The golden data changed. Review it, stage it and commit again:"
-puts unstaged.first(20)
-puts "... and #{unstaged.size - 20} more" if unstaged.size > 20
-exit 1
+cd "${root}"
+# The source files are UTF-8, whatever the shell's locale.
+exec "${ruby_bin}/ruby" -E UTF-8 bin/regenerate-staged-golden

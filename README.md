@@ -114,6 +114,7 @@ It checks that no request raises, and that the same request always gets the same
 It takes one solution per track by default. Set `FUZZ_SAMPLE` (and `FUZZ_TRACKS`) to run it over more.
 
 Run `./bin/setup-hooks` to install a pre-commit hook that regenerates them for you when you change a language.
+The hook runs with the Ruby named in `.ruby-version`, whatever Ruby your shell has.
 
 To run the request tests against the Docker image, which is how the representer runs in production, run `./bin/run-tests-in-docker.sh`.
 
