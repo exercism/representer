@@ -215,6 +215,9 @@ Also add a request test: a `tests/<track>/<name>/request.json` with a typical so
 
 Run everything with `./bin/run-tests.sh`.
 
+If the track has golden data in [`test/golden/<track>/`](./test/golden/), run `./bin/regenerate-golden <track>` after changing the class, and review the diff.
+The golden tests fail if a change splits or merges any of the production groups, unless the difference is listed in the track's `differences.yml` (see [`test/golden/README.md`](./test/golden/README.md)).
+
 ## 5. Set the version
 
 A new language starts at version 2, because the old per-track representers all reported version 1.

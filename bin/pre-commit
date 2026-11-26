@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+# Synopsis:
+# The git pre-commit hook. If the commit changes a language's class, its
+# library names or its grammar's pin in grammars.yml, this regenerates that
+# language's golden data (see test/golden/README.md). If that changes any
+# golden files, it stops the commit, so that you can review and stage them.
+# Run bin/setup-hooks to install it.
+
+# Output:
+# The tracks it regenerated, and the golden files that changed.
+
+# Notes:
+# It regenerates with the code in the working tree, which is the staged code
+# unless you only staged part of your changes. It doesn't look at changes to
+# the engine, which can change every language: run bin/regenerate-golden
+# for those (CI checks every track either way).
+
+require "bundler/setup"
+require "open3"
+require "yaml"
+
+ROOT = File.expand_path("..", __dir__)
+Dir.chdir(ROOT)
+require_relative "../test/golden"
+
+def git(*args) = Open3.capture2("git", *args).first
+
+staged = git("diff", "--cached", "--name-only").lines(chomp: true)
+languages_dir = "lib/representer/languages/"
+languages = Representer::Languages.registry.values.uniq
+
+# The file that defines each language's class.
+class_files = languages.to_h { |language| [language, Object.const_source_location(language.name).first.delete_prefix("#{ROOT}/")] }
+
+changed_grammars = begin
+  old = YAML.safe_load(git("show", "HEAD:grammars.yml")) || {}
+  new = YAML.safe_load(git("show", ":grammars.yml")) || {}
+  (old.keys | new.keys).reject { |name| old[name] == new[name] }
+end
+
+changed = languages.select do |language|
+  sources = [class_files[language]]
+  text = File.read(class_files[language])
+  text.scan(/inherit (\w+)/).flatten.each { |parent| sources << class_files[Representer::Languages.const_get(parent)] }
+  libraries = sources.flat_map { |file| File.read(file).scan(/"(\w+\.txt)"/).flatten }.
+    map { |name| "#{languages_dir}library_names/#{name}" }
+
+  (staged & (sources + libraries)).any? || changed_grammars.include?(language.grammar)
+end
+
+tracks = Golden.tracks.select do |track|
+  language = Representer::Languages.for(track)
+  changed.include?(language) || (language == Representer::Languages::Basic && staged.include?("#{languages_dir}basic.rb"))
+end
+exit 0 if tracks.empty?
+
+system("bin/build-grammars", *changed_grammars, exception: true, out: File::NULL) if changed_grammars.any?
+
+puts "Regenerating the golden data for #{tracks.join(', ')}"
+tracks.each { |track| Golden.regenerate(track) }
+
+modified = git("status", "--porcelain", "--", *tracks.map { |track| "test/golden/#{track}" }).lines(chomp: true)
+unstaged = modified.reject { |line| line.start_with?(/[MADR] /) }
+exit 0 if unstaged.empty?
+
+puts "The golden data changed. Review it, stage it and commit again:"
+puts unstaged.first(20)
+puts "... and #{unstaged.size - 20} more" if unstaged.size > 20
+exit 1

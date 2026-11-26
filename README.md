@@ -101,6 +101,11 @@ To see how a language's representer parses and represents a file, run:
 This runs the unit tests in `test/` (including every golden test ported from the old per-track representers), and then the request tests in `tests/`.
 Each request test runs `tests/<track>/<name>/request.json` and compares the response's body with `expected_response.json`.
 
+The unit tests also include the golden data tests in [`test/golden/`](./test/golden/), which run over about 20,000 real published solutions.
+They check that every solution keeps its representation, and that the solutions stay in the same groups as on production, apart from the differences listed for each track.
+[`test/golden/README.md`](./test/golden/README.md) explains them, and how to regenerate them with `./bin/regenerate-golden` after a deliberate change.
+Run `./bin/setup-hooks` to install a pre-commit hook that regenerates them for you when you change a language.
+
 To run the request tests against the Docker image, which is how the representer runs in production, run `./bin/run-tests-in-docker.sh`.
 
 ## Credit

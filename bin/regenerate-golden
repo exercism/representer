@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+# Synopsis:
+# Regenerate the golden data in test/golden/: each solution's
+# representation.txt, and each track's differences.yml.
+
+# Arguments:
+# $@: the track slugs to regenerate (optional, defaults to every track)
+
+# Output:
+# Each track with the number of solutions and differences. The files are
+# rewritten in place, so `git diff test/golden` shows what changed.
+
+# Example:
+# ./bin/regenerate-golden
+# ./bin/regenerate-golden ruby python
+
+require_relative "../test/golden"
+
+tracks = ARGV.empty? ? Golden.tracks : ARGV
+unknown = tracks - Golden.tracks
+abort "No golden data for: #{unknown.join(', ')}" if unknown.any?
+
+tracks.each do |track|
+  texts = Golden.regenerate(track)
+  counts = Golden.recorded_differences(track).map { |difference| difference["kind"] }.tally
+  summary = counts.empty? ? "no differences" : counts.sort.map { |kind, count| "#{count} #{kind}" }.join(", ")
+  puts "#{track}: #{texts.size} solutions, #{summary}"
+end
