@@ -8,7 +8,7 @@ The website groups solutions by their representation, and shows a mentor's feedb
 
 It runs as an AWS Lambda function behind Exercism's internal load balancer.
 One service handles every track.
-These languages have a class of their own, and the representer parses them with [tree-sitter][tree-sitter]: C#, C++, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, GDScript, Gleam, Go, Java, JavaScript, Nim, PHP, Python, Raku, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
+These languages have a class of their own, and the representer parses them with [tree-sitter][tree-sitter]: Ballerina, C#, C++, Cairo, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, Factor, GDScript, Gleam, Go, Java, JavaScript, Nim, PHP, Python, Raku, Red, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
 
 Every other track gets a simpler token-based representation called Basic.
 
@@ -62,16 +62,16 @@ The response is a `400` if the request is invalid.
 For a language with its own class, the representer:
 
 1. Parses each file with the language's tree-sitter grammar. It skips files without one of the language's extensions, and test and config files, and turns Windows line endings into plain line breaks.
-2. Drops what carries no meaning, such as comments and brackets.
-3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`.
+2. Drops what makes no difference to the solution working, such as comments, brackets that only group, and imports. Every solution that the representer sees passes its tests, so this code can't change what a mentor says about it.
+3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`, or `1_000` into `1000`.
 4. Joins the files into one tree, in an order that depends only on their code. A file's name is never part of the representation, so renaming or reordering files doesn't change it.
 5. Replaces each name the student chose with a placeholder. It keeps every name with a meaning outside the solution: library names, names the tests use, and names the language calls itself (such as `initialize`).
 6. Writes the tree out as an indented s-expression.
 
-Each language describes steps 2, 3 and 5 as rules in its class in [`lib/representer/languages/`](./lib/representer/languages/).
+Each language describes steps 2, 3 and 5 as rules in its class in [`lib/representer/languages/`](./lib/representer/languages/), and the comment at the top of each class lists what its rules do.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains the rules and how to add a language.
 
-Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments and spacing, and keeps everything else, including line breaks and (in languages like Python) indentation.
+Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.
 It renames nothing, so it only merges solutions that differ in nothing but comments and formatting.
 
 ## Set up

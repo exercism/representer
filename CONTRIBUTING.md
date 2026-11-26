@@ -14,11 +14,15 @@ The steps are:
 
 ## The goal
 
-Two solutions should get the same representation if a mentor would give them the same feedback, and different representations otherwise.
-The website only represents solutions that pass the tests, so a mentor's feedback is about the approach.
+Every solution that the representer sees passes its tests.
+So the representer can throw away any code that makes no difference to the solution working, such as comments, imports, brackets that only group, and the way a number or a string is written.
+Two solutions that differ only in such code would pass the same tests in the same way, and a mentor would give them the same feedback.
 
-That gives one firm rule: **only rename a name if the solution gives it its whole meaning.**
-If the language, a library, the tests or a protocol also gives the name a meaning, keep it.
+Two solutions should get the same representation if a mentor would give them the same feedback, and different representations otherwise.
+A merge is only harmful if a mentor would comment differently on the two solutions.
+
+Names follow from the same principle, and give one firm rule: **only rename a name if the solution gives it its whole meaning.**
+If the language, a library, the tests or a protocol also gives the name a meaning, renaming it could change what the code does, so keep it.
 For example, Ruby keeps `initialize` (Ruby calls it), every name the tests use, and a method called `sum` (so `def sum(a) = a.sum` and `def max(a) = a.max` stay apart).
 
 When in doubt, keep two solutions apart.
@@ -99,6 +103,7 @@ DEVIATIONS = {
 - `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that the old representer renamed but this one keeps.
 - `add` and `remove`: names to add to or remove from the old mapping.
 - `unrepresentable: true`: the input has a syntax error that tree-sitter rejects, so it gets no representation. The test checks that, and nothing else.
+- `merges_with`: other tests that this representer gives the same representation, although the old representer kept them apart. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
 - `why`: the reason. Every deviation needs one.
 
 The common deviations are library names (this representer keeps them; several old ones renamed them) and old outputs that weren't valid code.
@@ -108,6 +113,8 @@ Never use a deviation to hide a merge that the old representer kept apart.
 
 Create `lib/representer/languages/<track>.rb`.
 It is loaded automatically.
+Start the file with a comment that lists, in plain English and one bullet each, everything the class does to a solution's code: what it drops, what it rewrites and how, what it renames, what it keeps and why, and how it combines files.
+The list is for a maintainer who doesn't know the rules below, so update it whenever the class's rules change.
 
 ```ruby
 module Representer
@@ -192,6 +199,9 @@ For example, Ruby's string rule only matches strings that still have their quote
 A block that changes the node in place must return nil when it changes nothing.
 Watch out for a pattern such as `(_ ";")`: it also matches a leaf whose text is `;`, such as the contents of the string `";"`.
 
+Numbers are another: `numbers :integer do |text| ... end` writes every number leaf of a type in one form, using the readers in [`Engine::Numbers`](./lib/representer/engine/numbers.rb).
+Only give two spellings the same form if the language reads them as the same value of the same type: `1_000` and `1000` are always the same, but `1` and `1.0` are only the same in languages such as JavaScript, which has one number type.
+
 Strings are a common rewrite: turn each string into its value with `literal(value)`, so that `'a'` and `"a"` are the same.
 Decode only the escapes you are sure of, and keep any other escape's source text, so two different strings can never get the same value.
 
@@ -206,6 +216,10 @@ Renaming goes by name, not by scope: every use of a renamed name gets the same p
 - `keep "initialize", "to_s"`: names that are never renamed, such as methods the language calls itself.
 - `keep "(keyword_parameter name: (identifier) @name)"`: names that a pattern finds are never renamed, such as keyword parameters, which callers use.
 - `library_names File.join(__dir__, "library_names", "python.txt")`: a file of the language's core and standard-library names, one per line. A student's member with one of these names keeps it.
+
+Imports, includes and export lists only make names available, so drop them, and keep anything that does more (such as Python's `from __future__` or Go's `import _ "embed"`).
+If an import gives a name with `as`, write each use of that name as the name it stands for, as Python and Gleam do.
+A local name normally gets the same placeholder wherever it appears. A rule can give a leaf a scope (`node.scope = method`), and the local then gets a placeholder of its own in that scope, as Java does for each method's locals.
 
 Every name used in the exercise's test files is kept automatically, and so is every member defined in the exercise's stub.
 

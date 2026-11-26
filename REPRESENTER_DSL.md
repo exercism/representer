@@ -3,6 +3,7 @@
 Each language class in `lib/representer/languages/` describes its language with the rules below.
 The engine parses the solution with the language's tree-sitter grammar, then applies the drop rules, then the rewrite rules, then the rename rules.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains how to write a new class.
+Every solution that the representer sees passes its tests, so the rules can drop any code that makes no difference to the solution working (see "The goal" in CONTRIBUTING.md).
 
 ## Setup
 
@@ -134,6 +135,21 @@ rewrite "(if_modifier body: (_) @body condition: (_) @condition)",
 rewrite("(hash_key_symbol) @key") { |match| leaf(:simple_symbol, ":#{match[:key].text}") }
 ```
 
+### `numbers(*types) { |text| ... }`
+
+This writes every number leaf of these types in one form.
+The block receives the number's text and returns its canonical text, or `nil` to keep the text as it is.
+`Engine::Numbers` has readers for integers (with digit separators and base prefixes) and decimals, and writers for their values.
+Only give two spellings one form if the language reads them as the same value of the same type.
+
+```ruby
+numbers(:integer) { |text| Engine::Numbers.integer(text)&.to_s }
+numbers :float do |text|
+  value = Engine::Numbers.decimal(text)
+  value && Engine::Numbers.write_decimal(value)
+end
+```
+
 ### `retype(mapping)`
 
 This gives nodes of one type another type.
@@ -156,6 +172,7 @@ unwrap :parenthesized_statements
 
 Each rename pattern captures the name's leaf as `@name`.
 Renamed names become `PLACEHOLDER_1`, `PLACEHOLDER_2` and so on, in the order they first appear.
+A name gets the same placeholder everywhere, unless a rewrite has given its leaf a scope (`leaf.scope = node`). A local name in a scope gets a placeholder of its own there, so two methods that reuse a parameter's name number their placeholders the same way as two that don't.
 
 ### `rename(pattern)`
 
