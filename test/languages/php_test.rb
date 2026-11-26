@@ -218,4 +218,10 @@ class PHPTest < RepresenterTest
     refute_same_representation "<?php\nclass A { function gzcompress($x) { return gzcompress($x); } }\n",
       "<?php\nclass A { function gzdeflate($x) { return gzdeflate($x); } }\n"
   end
+
+  def test_use_and_includes_are_dropped
+    assert_same_representation "<?php\nuse A\\B;\nrequire_once 'x.php';\ninclude 'y.php';\n$x = 1;", "<?php\n$x = 1;"
+    assert_same_representation "<?php\nuse A\\B as C;\n$x = new C();", "<?php\nuse A\\B;\n$x = new B();"
+    refute_same_representation "<?php\ndeclare(strict_types=1);\n$x = 1;", "<?php\n$x = 1;"
+  end
 end

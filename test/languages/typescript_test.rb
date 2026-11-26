@@ -7,17 +7,14 @@ class TypeScriptTest < RepresenterTest
 
   LIBRARY_NAMES = "This representer never renames names from JavaScript's library (Math, abs, console, log...), " \
                   "so mentors' comments on different library calls stay apart. The old representer renamed them.".freeze
-  EXPORTS = "This representer keeps the names a solution exports, because the exercise's tests use them. " \
-            "The old representer renamed them.".freeze
 
   DEVIATIONS = {
     "clock-pass" => {
       remove: %w[length equals Math abs floor],
       why: "#{LIBRARY_NAMES} The student's equals method also keeps its name, because equals is a library name, " \
-           "and length is kept because JavaScript itself uses it. #{EXPORTS}"
+           "and length is kept because JavaScript itself uses it."
     },
-    "two-fer-pass" => { remove: ["twoFer"], why: EXPORTS },
-    "two-fer-fail" => { remove: %w[twoFer console debug log], why: "#{LIBRARY_NAMES} #{EXPORTS}" },
+    "two-fer-fail" => { remove: %w[console debug log], why: LIBRARY_NAMES },
     "two-fer-error-syntax" => {
       unrepresentable: true,
       why: "The solution has a syntax error, so it gets no representation. The old representer's test " \
@@ -60,9 +57,23 @@ class TypeScriptTest < RepresenterTest
       "class A { constructor(private sum: number) {} get() { return this.sum } }"
   end
 
-  def test_exported_types_and_exports_are_kept
-    refute_same_representation "export interface Shape { a: number }", "export interface Form { a: number }"
-    refute_same_representation "export function twoFer() {}", "export function twoMore() {}"
+  def test_exported_names_are_renamed_unless_the_tests_use_them
+    assert_same_representation "export interface Shape { a: number }", "export interface Form { a: number }"
+    assert_same_representation "export function twoFer() {}", "export function twoMore() {}"
+    tests = { "two-fer.test.ts" => "import { twoFer } from './two-fer'\ntwoFer()" }
+    refute_same_representation "export function twoFer() {}", "export function twoMore() {}", exercise_files: tests
+  end
+
+  def test_enum_names_are_renamed
+    assert_same_representation "export enum ResistorValues { black = 0, brown = 1 }\nconst x = ResistorValues.black",
+      "export enum ResistorBranding { black = 0, brown = 1 }\nconst x = ResistorBranding.black"
+    refute_same_representation "export enum A { black = 0 }\nconst x = A.black", "export enum A { black = 1 }\nconst x = A.black"
+  end
+
+  def test_imports_and_export_lists_are_dropped
+    assert_same_representation "import { a } from './b'\nimport type { T } from './t'\nconst x = a", "const x = a"
+    assert_same_representation "function f() {}\nexport { f }", "function f() {}"
+    refute_same_representation "import { a } from './b'\nconst x = a()", "import { b } from './b'\nconst x = b()"
   end
 
   def test_names_in_the_tests_are_kept

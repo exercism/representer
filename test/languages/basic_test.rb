@@ -97,4 +97,28 @@ class BasicTest < RepresenterTest
     assert_equal "1", Representer::RepresentSolution.("jq", { "a.jq" => "1", "notes.txt" => "2" }, {}).representation
     assert_equal "no_source_files", Representer::RepresentSolution.("haskell", { "package.yaml" => "x" }, {}).reason
   end
+
+  def test_imports_on_their_own_lines_are_dropped
+    kotlin = Representer::RepresentSolution.("kotlin", { "a.kt" => "import kotlin.math.abs\nfun f() = 1\n" }, {})
+    assert_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }, {}).representation, kotlin.representation
+    c = Representer::RepresentSolution.("c", { "a.c" => "#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n" }, {})
+    assert_equal Representer::RepresentSolution.("c", { "a.c" => "int f() { return 1; }\n" }, {}).representation, c.representation
+    haskell = "module A (a, b) where\nimport Data.List (sort,\n    nub)\na = 1\n"
+    assert_equal Representer::RepresentSolution.("haskell", { "A.hs" => "module A where\na = 1\n" }, {}).representation,
+      Representer::RepresentSolution.("haskell", { "A.hs" => haskell }, {}).representation
+  end
+
+  def test_erlang_and_prolog_directives_that_import_or_export_are_dropped
+    erlang = "-module(a).\n-export([f/1,\n  g/1]).\n-include_lib(\"eunit/include/eunit.hrl\").\nf(X) -> X.\n"
+    assert_equal Representer::RepresentSolution.("erlang", { "a.erl" => "-module(a).\nf(X) -> X.\n" }, {}).representation,
+      Representer::RepresentSolution.("erlang", { "a.erl" => erlang }, {}).representation
+    prolog = ":- use_module(library(lists)).\nf(X) :- X.\n"
+    assert_equal Representer::RepresentSolution.("prolog", { "a.pl" => "f(X) :- X.\n" }, {}).representation,
+      Representer::RepresentSolution.("prolog", { "a.pl" => prolog }, {}).representation
+  end
+
+  def test_a_line_that_only_starts_like_an_import_stays
+    with_call = Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = importer()\n" }, {})
+    refute_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }, {}).representation, with_call.representation
+  end
 end

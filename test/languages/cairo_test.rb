@@ -46,4 +46,13 @@ class CairoTest < RepresenterTest
   def test_a_method_named_like_a_library_method_keeps_its_name
     refute_same_representation "fn len(a: u32) -> u32 { a.len() }", "fn size(a: u32) -> u32 { a.len() }"
   end
+
+  def test_use_is_dropped
+    assert_same_representation "use core::array::ArrayTrait;\nfn f() -> u32 {\n    1\n}\n", "fn f() -> u32 {\n    1\n}\n"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("a + 1_000 + 0x1F + 10_u32"), wrap("a + 1000 + 31 + 10_u32")
+    refute_same_representation wrap("a + 10_u8"), wrap("a + 10")
+  end
 end

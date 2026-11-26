@@ -116,4 +116,13 @@ class WrenTest < RepresenterTest
   def test_a_syntax_error_is_unrepresentable
     assert_unrepresentable "class {"
   end
+
+  def test_imports_are_dropped
+    assert_same_representation "import \"random\" for Random\nvar x = 1", "var x = 1"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "var x = 1.0 + 0x1F + 1.50 + 1e3", "var x = 1 + 31 + 1.5 + 1000"
+    refute_same_representation "var x = 1.5", "var x = 1.6"
+  end
 end

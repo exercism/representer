@@ -1,3 +1,27 @@
+# What this class does to an F# solution's code to make its representation:
+#
+# - Drops comments, XML documentation and `open` declarations.
+# - Drops punctuation and keywords that the tree already shows.
+# - Drops brackets that only group, and brackets around an operator
+#   expression where no operator sits next to them.
+# - Drops the optional `|` before the first case of a match or a union type.
+# - Writes `let f (x) = ...` as `let f x = ...`, and a lone name in one
+#   form.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`,
+#   `1.50` is `1.5`), keeping any type suffix.
+# - Writes a string as its value, however it is quoted.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps the members that .NET itself calls, and `Some`, `None`, `Ok`
+#   and `Error`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/fsharp-representer is a rule here. The old
@@ -6,7 +30,7 @@ module Representer
     # makes layout irrelevant, so the printing step has no equivalent.
     class FSharp < Language
       tracks "fsharp"
-      version 5
+      version 6
       grammar "fsharp"
       extensions ".fs", ".fsx"
 
@@ -38,12 +62,39 @@ module Representer
 
       # `f (x)` is `f x`, and `(f x)` is `f x`. The grammar ignores operator
       # precedence (it reads `a + b * c` as `(a + b) * c`), so brackets around
-      # an operator expression stay, to keep those two apart.
+      # an operator expression stay here, to keep those two apart. The rule
+      # below drops them where no operator is next to them.
       rewrite "(paren_expression) @paren",
         where: ->(match) { FSharp.groups_one_thing?(match.node) } do |match|
         match.node.named_children.first
       end
       unwrap :paren_pattern
+
+      # Brackets around an operator expression are redundant where no
+      # operator sits next to them: as a function's argument, a binding's
+      # whole value, or an item in a list or tuple.
+      BRACKETLESS = %w[application_expression function_or_value_defn list_expression array_expression tuple_expression].freeze
+      rewrite "[#{BRACKETLESS.map { |type| "(#{type})" }.join(' ')}] @node" do |match|
+        brackets = match.node.children.select { |child| child.type == "paren_expression" && child.named_children.size == 1 }
+        next nil if brackets.empty?
+
+        brackets.each { |child| match.node.replace_child(child, child.named_children.first) }
+        match.node
+      end
+
+      # The `|` before the first case of a match or a union type is optional.
+      rewrite "[(rules) (union_type_cases)] @node" do |match|
+        match.node.children.reject! { |child| !child.named? && child.type == "|" } ? match.node : nil
+      end
+
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31`, and
+      # `1.50` is `1.5`. A number with a type suffix (such as `10L`) keeps it.
+      numbers(:int) { |text| Engine::Numbers.integer(text, prefixes: {})&.to_s }
+      numbers(:xint) { |text| Engine::Numbers.integer(text)&.to_s }
+      numbers :float do |text|
+        value = Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
+      end
 
       # The grammar writes a lone name as a long identifier in some places and
       # inside another node in others. A single name has one spelling.

@@ -174,4 +174,22 @@ class RubyTest < RepresenterTest
     assert_same_representation "x = 1\n__END__\nsome data\n", "x = 1\n"
     refute_same_representation "puts DATA.read\n__END__\na\n", "puts DATA.read\n__END__\nb\n"
   end
+
+  def test_requires_are_dropped
+    assert_same_representation "require 'set'\nrequire_relative 'x'\nx = 1", "x = 1"
+    refute_same_representation "load 'x.rb'\nx = 1", "x = 1"
+  end
+
+  def test_double_colon_calls_are_calls
+    assert_same_representation "x = A::B::c", "x = A::B.c"
+    refute_same_representation "x = A::B::C", "x = A::B.c"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "x = 315_576_00.0", "x = 31_557_600.0"
+    assert_same_representation "x = 0x1F + 0b1 + 017 + 0o17 + 1_000", "x = 31 + 1 + 15 + 15 + 1000"
+    assert_same_representation "x = 1.50e1", "x = 15.0"
+    refute_same_representation "x = 1.0", "x = 1"
+    refute_same_representation "x = 1r", "x = 1"
+  end
 end

@@ -49,7 +49,7 @@ After a change that is meant to change some representations, run:
 
 This rewrites each solution's `representation.txt` and the track's `differences.yml`.
 Then review `git diff test/golden`.
-A difference already listed in `differences.yml` keeps its status and note.
+A difference already listed in `differences.yml` keeps its status, `why` and note.
 A new one gets `status: undecided` and a note that says where the solutions differ.
 
 `./bin/setup-hooks` installs a pre-commit hook ([`bin/pre-commit`](../../bin/pre-commit)).
@@ -63,6 +63,7 @@ CI checks every track either way.
 
 Each difference in `differences.yml` has a `status`.
 It stays `undecided` until iHiD decides whether the difference is right (`accepted`) or a bug to fix (`rejected`).
+A decided difference also has a one-line `why`.
 A rejected difference stays listed until the fix lands, and the fix then removes it when the data is regenerated.
 
 - A **split** is a production group whose solutions now get different representations.
@@ -95,60 +96,52 @@ Within a kind, the script shuffles the candidates with a seed made from the solu
 For a language with its own class, it finds the candidates in the grammar's tree, and the variant must still parse and still get a representation, or it tries the next candidate.
 For a Basic track, it uses the track's lexer tokens (or, for a track with no lexer, a small lexer that knows the track's comments and strings).
 It never changes comments, docstrings, or the names in an import or include.
+It can change other parts of an import, such as a path, an Erlang export's arity or a Haskell import list, and those variants no longer compile.
 
 Of the 8,041 singles, 7,727 have a variant: 5,361 change an operator, 1,760 a number, 354 a string, 204 a library call and 48 a boolean.
 The other 314 have `mutation: none`. For 312 the code has nothing to change (Tcl has 46 of them, Prolog 19 and Factor 16), and for 2 no change left code that still parses.
 
 ### The near-miss merges today
 
-The variants found 3 wrong merges, all in Common Lisp.
-The Common Lisp class keeps only the variable of a `loop` clause such as `for x from 1 to n` or `with x = y`, and drops the rest.
-So `(loop for i from 1 to n ...)` and `(loop for i from 2 to n ...)` get the same representation:
+The variants find 32 near-miss merges, and all of them are accepted.
 
-- `binary`: `for e from 0` and `for e from 1`.
-- `rail-fence-cipher`: `for i from 1 to (length msg)` and `for i from 2 to (length msg)`.
-- `sieve`: `for j from (* 2 i) to n by i` and `for j from (/ 2 i) to n by i`.
+- 3 are in Common Lisp. The Common Lisp class keeps only the variable of a `loop` clause such as `for x from 1 to n`, so `(loop for i from 1 to n ...)` and `(loop for i from 2 to n ...)` get the same representation (in `binary`, `rail-fence-cipher` and `sieve`). Every solution that the representer sees passes its tests, so a loop bound that the representation leaves out can't matter to a mentor.
+- 29 change only an import, which the representer drops: a path in Ballerina (10), Odin (3) and Ruby (2), an arity in an Erlang `-export` (11), and a name in a Haskell (1) or PureScript (2) import list. Each of these variants would no longer compile or pass its tests, so no real solution can look like it.
 
 ## The differences today
 
 The data holds 20,581 solutions in 82 tracks: 4,187 production groups of two or three solutions, and 8,041 singles.
 Each track has between 33 and 100 singles (the median is 100), from between 22 and 100 exercises (the median is 69).
-Compared with production, today's representer makes 748 splits and 152 merges, 125 solutions get no representation, and 3 singles get the same representation as their variant.
-Every difference is still `undecided`.
+Compared with production, today's representer makes 685 splits and 160 merges, 48 solutions get no representation, and 32 singles get the same representation as their variant.
+All 160 merges, all 32 near-miss merges and 24 of the splits are accepted. The other splits and the unrepresentable solutions are still `undecided`.
 
 ### The 55 tracks that use Basic
 
-These tracks have 573 splits and 62 merges.
+These tracks have 568 splits and 63 merges.
 Production's basic representer deleted all whitespace and kept comments.
-Today's Basic does the opposite: it keeps line breaks, the spaces between tokens and (in languages like Python) indentation, and it drops comments.
+Today's Basic does the opposite: it keeps line breaks, the spaces between tokens and (in languages like Python) indentation, and it drops comments and, where it can find them reliably, imports.
 
-- 469 splits come from line breaks, 93 from spaces between tokens or inside strings, and 11 from indentation.
+- 464 splits come from line breaks, 93 from spaces between tokens or inside strings, and 11 from indentation.
   Some of these are right: in Scheme, `(1- n)` and `(1 - n)` mean different things, and so do strings with different spaces.
-- 61 merges are solutions that differ only in comments and whitespace. For 18 Haskell merges, production split the solutions because some also held a `package.yaml` or had their file at another path. Basic now ignores files that aren't code, and writes no file names.
+- 62 merges are solutions that differ only in comments, whitespace or imports. For 18 Haskell merges, production split the solutions because some also held a `package.yaml` or had their file at another path. Basic now ignores files that aren't code, and writes no file names.
 - 1 Pharo merge is of a solution that also holds a `TestResults.txt`. Basic ignores that file, and the code is the same as the other group's.
 
 ### The 27 tracks with a class of their own
 
-These tracks have 175 splits, 90 merges and 125 unrepresentable solutions.
+These tracks have 117 splits, 97 merges and 48 unrepresentable solutions.
 
 The main causes of splits are:
 
-- **Names used by the tests (49 splits).** The representer keeps every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Ruby (7), Rust (7) and PHP (5) have the most.
-- **Numbers (15 splits).** Numbers written differently stay different, such as Elixir's `41_000` and `41000`, or `0b10_000_000` and `128`.
-- **Elm parentheses (about 15 splits).** Elm keeps redundant parentheses, so `(modBy 2 n) + x` and `modBy 2 n + x` differ. A few more Elm splits come from the order of the names in `exposing`.
-- **C++ preprocessor lines (about 13 splits).** The representation keeps each `#include`, include guard and `using` line, in order.
-- **F# layout (about 10 splits).** The F# grammar builds a different tree for the same expression laid out differently, such as a pipeline split across lines.
-- The rest are mostly code that really differs, which an old representer treated as the same (such as PHP's `!==` and `!=`, or JavaScript's `toUpperCase` and `toLocaleUpperCase`).
+- **Names used by the tests (about 70 splits).** The representer keeps every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Common Lisp (9), Ruby (7), Rust (8) and PHP (5) have the most.
+- **F# layout (8 splits).** The F# grammar builds a different tree for the same expression laid out differently, such as a pipeline split across lines.
+- **C++ headers (7 splits).** One solution declares its functions in a header and defines them in a source file, and the other defines them in the header.
+- **Real differences (24 splits, accepted).** The solutions are different programs that an old representer treated as the same, such as PHP's `!==` and `!=`, JavaScript's `toUpperCase` and `toLocaleUpperCase`, or a solution with an extra file.
+- The rest are one-off cases, such as Elm's `100` and `100.0` (an Int and a Float) or Elixir code that uses a function from an `import` without its module's name.
 
-The merges are:
-
-- 29 merges of solutions with the same code, or code that differs only in whitespace or comments. Production had them in separate groups, probably because they were represented by different versions.
-- 61 merges of solutions with different code. Zig (14), Clojure (8), Nim (6), F# (5), Wren (4), WebAssembly (4), Ballerina (4) and Cairo (4) have the most. Each note shows the first line where the code differs. Many of these differ in local names or formatting, which the language's class normalises, but they still need a review.
+The merges are all accepted. They are solutions with the same code, code that differs only in comments, formatting or imports, or code that differs only in names or in spellings that mean the same.
 
 The unrepresentable solutions are all grammar gaps: the pinned grammar rejects code that the track's tests accept.
 
-- **Ballerina (41):** string and regex templates (``string `Hello, ${name}!` `` and ``re `\s` ``), and quoted names such as `'limit`.
-- **WebAssembly (36):** mostly a folded `if` with no `then`.
 - **C++ (13):** explicit template instantiations, and default arguments written as `{0, 0}`.
 - **Raku (10):** hyper operators and other Unicode operators, such as `»×»` and `Z×`.
 - **Common Lisp (8):** mostly `loop`.
@@ -165,37 +158,37 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | arm64-assembly | Basic | 111 | 4 | 100 | 70 | 98 | 0 | 0 | 0 | 0 |
 | arturo | Basic | 109 | 3 | 100 | 69 | 96 | 1 | 0 | 0 | 0 |
 | awk | Basic | 202 | 34 | 100 | 69 | 100 | 18 | 2 | 0 | 0 |
-| ballerina | Ballerina | 210 | 37 | 100 | 51 | 98 | 0 | 4 | 41 | 0 |
+| ballerina | Ballerina | 210 | 37 | 100 | 51 | 98 | 0 | 6 | 0 | 10 |
 | bash | Basic | 379 | 93 | 100 | 60 | 93 | 7 | 1 | 0 | 0 |
 | c | Basic | 394 | 98 | 100 | 69 | 100 | 10 | 1 | 0 | 0 |
 | cairo | Cairo | 112 | 4 | 100 | 52 | 90 | 0 | 4 | 0 | 0 |
 | cfml | Basic | 95 | 1 | 93 | 43 | 89 | 0 | 0 | 0 | 0 |
-| clojure | Clojure | 361 | 87 | 100 | 71 | 98 | 8 | 11 | 0 | 0 |
+| clojure | Clojure | 361 | 87 | 100 | 71 | 98 | 5 | 11 | 0 | 0 |
 | cobol | Basic | 193 | 31 | 100 | 42 | 100 | 10 | 0 | 0 | 0 |
 | coffeescript | Basic | 139 | 13 | 100 | 80 | 97 | 6 | 0 | 0 | 0 |
 | common-lisp | CommonLisp | 391 | 97 | 100 | 76 | 93 | 13 | 1 | 8 | 3 |
-| cpp | Cpp | 397 | 99 | 100 | 76 | 100 | 14 | 0 | 13 | 0 |
-| crystal | Crystal | 389 | 97 | 100 | 94 | 97 | 8 | 4 | 3 | 0 |
-| csharp | CSharp | 397 | 99 | 100 | 98 | 96 | 7 | 0 | 1 | 0 |
+| cpp | Cpp | 397 | 99 | 100 | 76 | 100 | 7 | 0 | 13 | 0 |
+| crystal | Crystal | 389 | 97 | 100 | 94 | 97 | 5 | 4 | 3 | 0 |
+| csharp | CSharp | 397 | 99 | 100 | 98 | 96 | 4 | 0 | 1 | 0 |
 | d | Basic | 127 | 9 | 100 | 62 | 100 | 5 | 0 | 0 | 0 |
 | dart | Basic | 394 | 98 | 100 | 50 | 98 | 9 | 0 | 0 | 0 |
-| elixir | Elixir | 397 | 99 | 100 | 100 | 96 | 15 | 0 | 0 | 0 |
-| elm | Elm | 400 | 100 | 100 | 74 | 96 | 21 | 13 | 0 | 0 |
+| elixir | Elixir | 397 | 99 | 100 | 100 | 96 | 7 | 0 | 0 | 0 |
+| elm | Elm | 400 | 100 | 100 | 74 | 96 | 5 | 14 | 0 | 0 |
 | emacs-lisp | Basic | 190 | 30 | 100 | 70 | 99 | 23 | 4 | 0 | 0 |
-| erlang | Basic | 397 | 99 | 100 | 63 | 100 | 30 | 1 | 0 | 0 |
+| erlang | Basic | 397 | 99 | 100 | 63 | 100 | 25 | 1 | 0 | 11 |
 | euphoria | Basic | 109 | 3 | 100 | 62 | 98 | 2 | 0 | 0 | 0 |
-| factor | Factor | 146 | 16 | 100 | 100 | 84 | 0 | 1 | 0 | 0 |
+| factor | Factor | 146 | 16 | 100 | 100 | 84 | 0 | 5 | 0 | 0 |
 | fortran | Basic | 130 | 10 | 100 | 38 | 100 | 1 | 0 | 0 | 0 |
 | free-pascal | Basic | 103 | 1 | 100 | 90 | 96 | 1 | 0 | 0 | 0 |
-| fsharp | FSharp | 397 | 99 | 100 | 87 | 94 | 16 | 7 | 6 | 0 |
+| fsharp | FSharp | 397 | 99 | 100 | 87 | 94 | 11 | 7 | 6 | 0 |
 | futhark | Basic | 103 | 1 | 100 | 80 | 100 | 0 | 0 | 0 | 0 |
 | gdscript | GDScript | 103 | 1 | 100 | 74 | 98 | 0 | 0 | 4 | 0 |
 | gleam | Gleam | 373 | 91 | 100 | 76 | 88 | 1 | 2 | 0 | 0 |
 | go | Go | 363 | 88 | 100 | 78 | 99 | 16 | 0 | 0 | 0 |
 | groovy | Basic | 235 | 45 | 100 | 57 | 94 | 13 | 1 | 0 | 0 |
-| haskell | Basic | 399 | 100 | 100 | 73 | 98 | 28 | 18 | 0 | 0 |
+| haskell | Basic | 399 | 100 | 100 | 73 | 98 | 28 | 18 | 0 | 1 |
 | idris | Basic | 132 | 11 | 100 | 53 | 92 | 2 | 1 | 0 | 0 |
-| java | Java | 388 | 96 | 100 | 80 | 98 | 4 | 0 | 0 | 0 |
+| java | Java | 388 | 96 | 100 | 80 | 98 | 3 | 0 | 0 | 0 |
 | javascript | JavaScript | 381 | 94 | 100 | 74 | 96 | 4 | 0 | 0 | 0 |
 | jq | Basic | 400 | 100 | 100 | 62 | 100 | 69 | 0 | 0 | 0 |
 | julia | Basic | 392 | 98 | 100 | 85 | 100 | 6 | 0 | 0 | 0 |
@@ -206,14 +199,14 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | mips | Basic | 124 | 8 | 100 | 52 | 100 | 2 | 0 | 0 | 0 |
 | moonscript | Basic | 100 | 0 | 100 | 99 | 98 | 0 | 0 | 0 | 0 |
 | nim | Nim | 256 | 52 | 100 | 64 | 98 | 1 | 6 | 0 | 0 |
-| ocaml | Basic | 244 | 48 | 100 | 48 | 100 | 23 | 0 | 0 | 0 |
-| odin | Basic | 160 | 20 | 100 | 65 | 100 | 3 | 0 | 0 | 0 |
+| ocaml | Basic | 244 | 48 | 100 | 48 | 100 | 23 | 1 | 0 | 0 |
+| odin | Basic | 160 | 20 | 100 | 65 | 100 | 3 | 0 | 0 | 3 |
 | perl5 | Basic | 151 | 17 | 100 | 75 | 100 | 5 | 0 | 0 | 0 |
 | pharo-smalltalk | Basic | 115 | 5 | 100 | 45 | 100 | 1 | 1 | 0 | 0 |
 | php | PHP | 352 | 84 | 100 | 68 | 99 | 11 | 4 | 0 | 0 |
 | powershell | Basic | 205 | 35 | 100 | 91 | 94 | 9 | 0 | 0 | 0 |
 | prolog | Basic | 400 | 100 | 100 | 73 | 81 | 22 | 1 | 0 | 0 |
-| purescript | Basic | 123 | 8 | 100 | 25 | 98 | 4 | 0 | 0 | 0 |
+| purescript | Basic | 123 | 8 | 100 | 25 | 98 | 4 | 0 | 0 | 2 |
 | pyret | Basic | 103 | 1 | 100 | 65 | 97 | 0 | 0 | 0 | 0 |
 | python | Python | 397 | 99 | 100 | 92 | 100 | 4 | 0 | 0 | 0 |
 | r | Basic | 391 | 97 | 100 | 71 | 98 | 10 | 1 | 0 | 0 |
@@ -223,22 +216,22 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | red | Red | 190 | 30 | 100 | 45 | 100 | 0 | 0 | 0 | 0 |
 | rescript | Basic | 45 | 1 | 42 | 22 | 39 | 1 | 0 | 0 | 0 |
 | roc | Basic | 36 | 1 | 33 | 28 | 32 | 1 | 0 | 0 | 0 |
-| ruby | Ruby | 379 | 93 | 100 | 85 | 100 | 10 | 0 | 0 | 0 |
-| rust | Rust | 394 | 98 | 100 | 76 | 99 | 10 | 0 | 0 | 0 |
+| ruby | Ruby | 379 | 93 | 100 | 85 | 100 | 8 | 0 | 0 | 2 |
+| rust | Rust | 394 | 98 | 100 | 76 | 99 | 8 | 0 | 0 | 0 |
 | scala | Basic | 362 | 89 | 100 | 59 | 97 | 32 | 1 | 0 | 0 |
 | scheme | Basic | 238 | 46 | 100 | 46 | 99 | 32 | 0 | 0 | 0 |
 | sml | Basic | 211 | 37 | 100 | 60 | 95 | 19 | 0 | 0 | 0 |
 | sqlite | Basic | 328 | 76 | 100 | 63 | 100 | 38 | 11 | 0 | 0 |
 | swift | Basic | 373 | 91 | 100 | 62 | 96 | 10 | 2 | 0 | 0 |
 | tcl | Basic | 370 | 90 | 100 | 91 | 54 | 5 | 0 | 0 | 0 |
-| typescript | TypeScript | 387 | 96 | 100 | 63 | 95 | 3 | 2 | 0 | 0 |
+| typescript | TypeScript | 387 | 96 | 100 | 63 | 95 | 2 | 2 | 0 | 0 |
 | uiua | Basic | 217 | 39 | 100 | 76 | 91 | 12 | 0 | 0 | 0 |
 | unison | Basic | 115 | 5 | 100 | 43 | 97 | 0 | 0 | 0 | 0 |
 | vbnet | Basic | 174 | 25 | 100 | 76 | 94 | 0 | 1 | 0 | 0 |
 | vimscript | Basic | 124 | 8 | 100 | 68 | 96 | 0 | 0 | 0 | 0 |
 | vlang | Basic | 193 | 31 | 100 | 83 | 98 | 11 | 0 | 0 | 0 |
-| wasm | Wasm | 289 | 63 | 100 | 59 | 100 | 7 | 4 | 36 | 0 |
+| wasm | Wasm | 289 | 63 | 100 | 59 | 100 | 0 | 2 | 0 | 0 |
 | wren | Wren | 217 | 39 | 100 | 82 | 99 | 2 | 9 | 0 | 0 |
 | x86-64-assembly | Basic | 298 | 66 | 100 | 71 | 100 | 0 | 4 | 0 | 0 |
 | yamlscript | Basic | 127 | 9 | 100 | 57 | 89 | 1 | 0 | 0 | 0 |
-| zig | Zig | 382 | 94 | 100 | 63 | 96 | 0 | 15 | 3 | 0 |
+| zig | Zig | 382 | 94 | 100 | 63 | 96 | 0 | 17 | 3 | 0 |

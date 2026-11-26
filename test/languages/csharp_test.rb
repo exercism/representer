@@ -118,4 +118,20 @@ class CSharpTest < RepresenterTest
     refute_same_representation "class A { object F() => typeof(D<,>); }", "class A { object F() => typeof(D<>); }"
     refute_same_representation "class A { object F() => new[,] { {1} }; }", "class A { object F() => new[] { {1} }; }"
   end
+
+  def test_own_members_need_no_qualifier
+    code = "public class A\n{\n    private int count;\n    public A(int start) { %s = start; }\n" \
+           "    public static int B() => 1;\n    public int C() => %s();\n}"
+    assert_same_representation format(code, "this.count", "B"), format(code, "count", "A.B")
+    assert_same_representation format(code, "this.count", "this.B"), format(code, "count", "B")
+    shadowed = "public class A\n{\n    private int count;\n    public A(int count) { %s = count; }\n}"
+    refute_same_representation format(shadowed, "this.count"), format(shadowed, "count")
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("return y == 1_000 + 0x1F;"), wrap("return y == 1000 + 31;")
+    assert_same_representation wrap("return 1.50 == 1.5f;").sub("1.5f", "1.50f"), wrap("return 1.5 == 1.5f;")
+    refute_same_representation wrap("return 1.50m == 1.5m;"), wrap("return 1.5m == 1.5m;")
+    refute_same_representation wrap("return 1.0 == 1;"), wrap("return 1 == 1;")
+  end
 end

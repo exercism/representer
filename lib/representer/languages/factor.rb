@@ -1,3 +1,21 @@
+# What this class does to a Factor solution's code to make its representation:
+#
+# - Drops comments (`! text` and `#! text`) before parsing.
+# - Drops `USING: ... ;` and `USE: word` declarations.
+# - Drops brackets and the stack effect's `--`, which the tree already
+#   shows.
+# - Writes numbers as their values (`1,000` is `1000`, `0x1F` is `31`,
+#   `1.50` is `1.5`).
+# - Renames the words defined with `:` or `::`, the names in their stack
+#   effects and the names bound with `:>`.
+# - Keeps the words in declarations such as `TUPLE:` and `CONSTANT:`, and
+#   `main`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Factor has no old representer, so there are no upstream tests to port.
@@ -18,7 +36,7 @@ module Representer
     # names.
     class Factor < Language
       tracks "factor"
-      version 2
+      version 3
       grammar "factor"
       extensions ".factor"
 
@@ -42,9 +60,22 @@ module Representer
 
       ### Rewrite ###
 
-      # 1,000 and 1_000 are 1000.
-      rewrite "(base10 /[,_]/) @number" do |match|
-        leaf("base10", match[:number].text.delete(",_"))
+      # `USING: kernel math ;` and `USE: io` only make words available. The
+      # grammar reads them as plain words, so this removes the words from
+      # `USING:` to its `;`, and `USE:` with the word after it.
+      rewrite("(source_file) @file") { |match| Factor.drop_imports(match.node) ? match.node : nil }
+
+      # Numbers are their values: `1,000` and `1_000` are `1000`, `0x1F` is
+      # `31`, and `1.50` is `1.5`.
+      { "base10" => {}, "base16" => { "0x" => 16 }, "base8" => { "0o" => 8 }, "base2" => { "0b" => 2 } }.each do |type, prefixes|
+        rewrite "(#{type}) @number", where: ->(match) { match.node.leaf? } do |match|
+          value = Engine::Numbers.integer(match.node.text.delete(","), prefixes:)
+          value && (type != "base10" || value.to_s != match.node.text) ? leaf("base10", value.to_s) : nil
+        end
+      end
+      numbers :float do |text|
+        value = Engine::Numbers.decimal(text.delete(","))
+        value && Engine::Numbers.write_decimal(value)
       end
 
       ### Rename and keep ###
@@ -57,6 +88,30 @@ module Representer
       rename "(var_binding (symbol)* @name)"
 
       keep "main", "?"
+
+      # Removes the `USING: ... ;` and `USE: word` declarations from a file.
+      # Returns whether anything changed.
+      def self.drop_imports(file)
+        children = file.children
+        kept = []
+        index = 0
+        while index < children.size
+          child = children[index]
+          if child.type == "symbol" && child.text == "USING:"
+            index += 1 until index >= children.size || (children[index].type == "symbol" && children[index].text == ";")
+            index += 1
+          elsif child.type == "symbol" && child.text == "USE:"
+            index += 2
+          else
+            kept << child
+            index += 1
+          end
+        end
+        return false if kept.size == children.size
+
+        file.children = kept
+        true
+      end
     end
   end
 end

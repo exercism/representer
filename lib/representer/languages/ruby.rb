@@ -1,8 +1,37 @@
+# What this class does to a Ruby solution's code to make its representation:
+#
+# - Drops comments, `require` and `require_relative` calls, and the text
+#   after `__END__` unless the code reads it.
+# - Drops punctuation and keywords that the tree already shows, except where
+#   they tell two programs apart.
+# - Drops empty parameter lists and brackets that only group.
+# - Writes `do ... end` blocks as `{ ... }` blocks, and `and`, `or` and
+#   `not` as `&&`, `||` and `!`.
+# - Writes `x if y` as an `if` block, and the same for `unless`, `while` and
+#   `until`.
+# - Writes an endless method as a normal one, `{a: 1}` as `{:a => 1}`, and
+#   `A::b` as `A.b`.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` and `037` are
+#   `31`, `1.50` is `1.5`).
+# - Writes a string as its value however it is quoted, and sorts a regex's
+#   options.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps keyword parameters and the methods that Ruby itself calls
+#   (`initialize`, `to_s` and so on).
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     class Ruby < Language
       tracks "ruby"
-      version 6
+      version 7
       grammar "ruby"
       extensions ".rb"
 
@@ -26,6 +55,9 @@ module Representer
       keep_tokens_in :block_parameters, ";"
       keep_tokens_in :call, "."
       keep_tokens_in :pair, ":"
+
+      # `require` and `require_relative` only make code available.
+      drop "(call !receiver method: (identifier /\\Arequire(_relative)?\\z/) arguments: (argument_list (string)))"
 
       # `def foo()` is `def foo`.
       drop "(method_parameters)", where: ->(match) { match.node.children.empty? }
@@ -75,6 +107,20 @@ module Representer
 
       # `a.b` is a call of b, which the method already shows.
       rewrite('(call method: (_) "." @dot)') { |match| match.node.tap { match.node.children.delete(match[:dot]) } }
+
+      # `A::b` calls b, as `A.b` does.
+      rewrite('(call method: (identifier) "::" @colons)') { |match| match.node.tap { match.node.children.delete(match[:colons]) } }
+
+      # Numbers are their values: `1_000` is `1000`, `0x1F` and `037` are
+      # `31`, and `1.50` and `15e-1` are `1.5`.
+      numbers :integer do |text|
+        text = "0o#{text[1..]}" if text.match?(/\A0[0-7_]/)
+        Engine::Numbers.integer(text, prefixes: Engine::Numbers::PREFIXES.merge("0d" => 10))&.to_s
+      end
+      numbers :float do |text|
+        value = Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
+      end
 
       # A string is its value: 'a', "a" and %q(a) are the same. Strings with
       # interpolation keep their structure, with each literal part as one value.

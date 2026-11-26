@@ -28,7 +28,21 @@ class ClojureTest < RepresenterTest
 
   track "clojure"
 
-  DEVIATIONS = {}.freeze
+  UNUSED_REQUIRE = "The two tests only differ in a `:require` that the code never uses. This representer drops the " \
+                   "`:require`, `:use` and `:import` clauses, which only make names available.".freeze
+
+  DEVIATIONS = {
+    "two-fer-148" => { merges_with: "two-fer-41", why: UNUSED_REQUIRE },
+    "two-fer-52" => { merges_with: "two-fer-2", why: UNUSED_REQUIRE },
+    "two-fer-390" => { merges_with: %w[two-fer-3 two-fer-464], why: UNUSED_REQUIRE },
+    "two-fer-464" => { merges_with: "two-fer-3", why: UNUSED_REQUIRE },
+    "two-fer-87" => { merges_with: "two-fer-40", why: UNUSED_REQUIRE },
+    "two-fer-345" => {
+      merges_with: "two-fer-327",
+      why: "The two tests only differ in whether the solution requires clojure.string in its `ns` or with a " \
+           "`require` form. This representer drops both."
+    }
+  }.freeze
 
   upstream_tests ".clj", deviations: DEVIATIONS
 
@@ -161,16 +175,37 @@ class ClojureTest < RepresenterTest
     refute_same_representation wrap("(for [i x j y] [i j])"), wrap("(for [j y i x] [i j])")
   end
 
-  def test_ns
+  def test_ns_drops_its_docstring_and_imports
     plain = "(ns app (:require [clojure.string :as str] [clojure.set :refer [union difference]]) (:import (java.util List Map)))"
-    assert_same_representation plain,
-      "(ns app \"Docs.\" {:doc 1} (:import java.util.Map [java.util List]) " \
-      "(:require [clojure.set :refer [difference union]]) (:require [clojure.string :as str]))"
-    assert_same_representation "(ns app (:require clojure.string))", "(ns app (:require [clojure.string]))"
-    assert_same_representation "(ns app (:require [clojure string set]))", "(ns app (:require [clojure.set] [clojure.string]))"
-    assert_same_representation "(ns app (:use [clojure.set :only [union]]))", "(ns app (:require [clojure.set :refer [union]]))"
-    refute_same_representation plain, plain.sub("clojure.set", "clojure.walk")
-    refute_same_representation plain, plain.sub("Map", "Set")
+    assert_same_representation plain, "(ns app \"Docs.\" {:doc 1})"
+    assert_same_representation "(ns app (:use [clojure.set :only [union]]))", "(ns app)"
+    assert_same_representation "(ns app (:gen-class) (:require [a]))", "(ns app (:gen-class))"
+    assert_same_representation "(ns app [:require [clojure.string :as str]])", "(ns app)"
+    refute_same_representation "(ns app (:refer-clojure :exclude [map]))", "(ns app)"
+  end
+
+  def test_require_import_and_use_forms_are_dropped
+    assert_same_representation "(ns a)\n(require '[clojure.string :as str])\n(defn f [x] (str/join x))",
+      "(ns a)\n(defn f [x] (str/join x))"
+    assert_same_representation "(ns a)\n(import java.util.Date)\n(use 'clojure.set)\n(def x 1)", "(ns a)\n(def x 1)"
+    refute_same_representation "(ns a (:require [clojure.string :as str]))\n(defn f [x] (str/upper-case x))",
+      "(ns a (:require [clojure.string :as str]))\n(defn f [x] (str/lower-case x))"
+    refute_same_representation "(ns a)\n(defn f [x] (clojure.set/union x))", "(ns a)\n(defn f [x] (clojure.set/difference x))"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "(def x 0.90)", "(def x 0.9)"
+    assert_same_representation "(def x 0x1F)", "(def x 31)"
+    refute_same_representation "(def x 1.0)", "(def x 1)"
+    refute_same_representation "(def x 1N)", "(def x 1)"
+    refute_same_representation "(def x 0.9)", "(def x 0.8)"
+  end
+
+  def test_sets_and_maps_of_literals_are_sorted
+    assert_same_representation '(def x #{\\A \\C \\G \\T})', '(def x #{\\A \\T \\C \\G})'
+    assert_same_representation '(def x {\\G \\C, \\A \\U})', '(def x {\\A \\U, \\G \\C})'
+    refute_same_representation '(def x {\\G \\C, \\A \\U})', '(def x {\\G \\U, \\A \\C})'
+    refute_same_representation "(def x [1 2])", "(def x [2 1])"
   end
 
   def test_let_destructuring
@@ -262,10 +297,5 @@ class ClojureTest < RepresenterTest
   def test_macros_are_never_run
     code = "(defmacro boom [] (System/exit 1)) (defn f [] (boom))"
     assert represent(code).representation.include?("boom") || represent(code).mapping.value?("boom")
-  end
-
-  def test_unusual_require_specs
-    refute_same_representation '(ns a (:require "foo"))', '(ns a (:require "bar"))'
-    refute_same_representation "(ns a (:require [foo :refer [[x] y]]))", "(ns a (:require [foo :refer [[x] z]]))"
   end
 end

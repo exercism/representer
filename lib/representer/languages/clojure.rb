@@ -1,3 +1,38 @@
+# What this class does to a Clojure solution's code to make its representation:
+#
+# - Drops comments, `#_` forms and metadata.
+# - Drops brackets and quote marks that the tree already shows.
+# - Writes `'x`, `@x` and `#'x` as `(quote x)`, `(deref x)` and `(var x)`,
+#   and `#(f %)` as an `fn` form.
+# - Expands the core macros (`->`, `->>`, `and`, `or`, `when`, `cond`,
+#   `if-let`, `for` and others) into the forms that `macroexpand-all` gives,
+#   with generated names numbered from `G__1`.
+# - Expands a macro that the solution defines with one syntax-quoted
+#   template wherever it is used.
+# - Drops `(comment ...)` forms at the top level.
+# - Writes `ns` in one form: without its docstring, attribute map and
+#   `:require`, `:use` and `:import` clauses, and with its other clauses
+#   merged and sorted.
+# - Drops `require`, `use` and `import` forms, which only make names
+#   available.
+# - Writes numbers as their values (`0x1F` is `31`, `0.90` is `0.9`), and
+#   keeps the text of ratios, radix numbers and numbers with a suffix.
+# - Sorts the items of a set, and the entries of a map, when they are all
+#   literal values.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Keeps every clojure.core name, even where the solution binds a local
+#   with the same name.
+# - Renames a name after a namespace, a method call or a constructor only if
+#   the solution defines it.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # The old clojure-representer ran `macroexpand-all` on the student's code
@@ -20,7 +55,7 @@ module Representer
     # `doseq`, `case`, `condp` and `loop` destructuring stay as written.
     class Clojure < Language
       tracks "clojure"
-      version 6
+      version 7
       grammar "clojure"
       extensions ".clj", ".cljc", ".cljs"
 
@@ -38,6 +73,8 @@ module Representer
       # student binds a local with the same name (such as `name` or `mod`).
       CORE_NAMES = File.readlines(File.join(__dir__, "library_names", "clojure.txt"), chomp: true).
         reject { |line| line.empty? || line.start_with?("#") }.freeze
+
+      IMPORT_CLAUSES = %w[:require :use :import].freeze
 
       # Forms whose first argument is a vector of bindings.
       BINDING_FORMS = %w[let loop with-open with-local-vars if-let when-let if-some when-some when-first for doseq dotimes].freeze
@@ -85,6 +122,35 @@ module Representer
       # The core macros, and the forms that define names.
       rewrite("(list_lit) @list") { |match| Clojure.expand(match.node) }
 
+      # Numbers are their values: `0x1F` is `31`, and `0.90` is `0.9`. A
+      # number with a suffix (`1N`, `1M`), a ratio or a radix keeps its text.
+      numbers :num_lit do |text|
+        value = Engine::Numbers.integer(text, separator: "", prefixes: { "0x" => 16 })
+        next value.to_s if value
+
+        value = text.match?(/[.eE]/) && Engine::Numbers.decimal(text, separator: "")
+        value && Engine::Numbers.write_decimal(value)
+      end
+
+      # The order of a set's items, or of a map's entries, doesn't change it.
+      # Only sets and maps of literal values (strings, characters, numbers
+      # and keywords) are sorted, because the order of other items can
+      # depend on the names that the solution chose.
+      rewrite "(set_lit) @set" do |match|
+        items = match.node.children
+        next nil unless items.all? { |item| Clojure.literal?(item) }
+
+        sorted = items.sort_by { |item| [item.type, item.text] }
+        sorted == items ? nil : build(:set_lit, *sorted)
+      end
+      rewrite "(map_lit) @map" do |match|
+        entries = match.node.children.each_slice(2).to_a
+        next nil unless entries.all? { |entry| entry.size == 2 && entry.all? { |item| Clojure.literal?(item) } }
+
+        sorted = entries.sort_by { |key, value| [key.type, key.text, value.type, value.text] }
+        sorted == entries ? nil : build(:map_lit, *sorted.flatten)
+      end
+
       ### Rename and keep ###
 
       rename "(local) @name"
@@ -131,6 +197,10 @@ module Representer
           end
         end
 
+        LITERALS = %w[str_lit char_lit num_lit kwd literal].freeze
+
+        def literal?(node) = node.leaf? && LITERALS.include?(node.type)
+
         def nil_form = leaf(:nil_lit, "nil")
         def symbol(text) = leaf(:sym, text)
         def sym?(node) = node&.type == "sym"
@@ -156,6 +226,7 @@ module Representer
           when "when-let" then when_let_form(args)
           when "for" then for_form(args)
           when "ns" then ns_form(node, args)
+          when "require", "use", "import" then import_form(head, args)
           when "let" then destructure_let(args) || bind_names(node, head, args)
           when "when" then when_form(args)
           when "when-not" then when_not_form(args)
@@ -385,11 +456,10 @@ module Representer
         ### Namespaces ###
 
         # `ns` becomes one canonical `ns`: the docstring and attribute map
-        # are dropped, each kind of clause is merged into one, and the
-        # clauses and the libraries in them are sorted. `:use` becomes a
-        # `:require` with `:refer`, a bare library name becomes a vector, a
-        # prefix list such as `[clojure string set]` becomes one vector for
-        # each library, and an `:import` becomes a list of full class names.
+        # are dropped, and so are the `:require`, `:use` and `:import`
+        # clauses, which only make names available. Each other kind of clause
+        # (such as `:refer-clojure` or `:gen-class`) is merged into one, and
+        # the clauses are sorted.
         def ns_form(node, args)
           name, *clauses = args
           return nil unless sym?(name)
@@ -398,74 +468,25 @@ module Representer
           clauses.shift if clauses.first&.type == "map_lit"
           groups = Hash.new { |hash, key| hash[key] = [] }
           clauses.each do |clause|
-            key = clause.children.first if clause.type == "list_lit"
+            key = clause.children.first if %w[list_lit vec_lit].include?(clause.type)
             return nil unless key&.type == "kwd"
 
-            groups[key.text].concat(clause.children.drop(1))
+            groups[key.text].concat(clause.children.drop(1)) unless IMPORT_CLAUSES.include?(key.text)
           end
 
-          requires = groups.delete(":require").to_a.flat_map { |spec| libspecs(spec) }
-          requires += groups.delete(":use").to_a.flat_map { |spec| libspecs(spec, use: true) }
-          imports = groups.delete(":import").to_a.flat_map { |spec| import_names(spec) }
-          groups[":require"] = sort_unique(requires) { |spec| sort_text(spec.children.first || spec) } unless requires.empty?
-          groups[":import"] = sort_unique(imports, &:text) unless imports.empty?
-
-          order = [":refer-clojure", ":require", ":import"]
-          keys = groups.keys.sort_by { |key| [order.index(key) || order.size, key] }
-          result = form("ns", name, *keys.map { |key| build(:list_lit, leaf(:kwd, key), *groups[key]) })
+          result = form("ns", name, *groups.keys.sort.map { |key| build(:list_lit, leaf(:kwd, key), *groups[key]) })
           result.children[0] = symbol("ns")
           result.inspect == node.inspect ? nil : result
         end
 
-        def sort_unique(nodes, &key)
-          nodes.uniq(&:inspect).sort_by(&key)
-        end
+        # `(require '[clojure.string :as str])`, `(use 'clojure.set)` and
+        # `(import 'java.util.Date)` only make names available, so they
+        # become nil, which goes away at the top level.
+        def import_form(kind, args)
+          return nil if args.empty?
 
-        # The text to sort a node by: a leaf's text, or the whole node's
-        # form, as a library spec can hold anything that parses.
-        def sort_text(node) = node.text || node.inspect
-
-        # The libraries that one `:require` argument names, each as a vector
-        # with its options sorted.
-        def libspecs(spec, use: false)
-          return libspecs(build(:vec_lit, spec), use:) if sym?(spec)
-          return [spec] unless spec.type == "vec_lit" && sym?(spec.children.first)
-
-          library, *options = spec.children
-          if !options.empty? && options.none? { |option| option.type == "kwd" } && options.all? do |option|
-            sym?(option) || option.type == "vec_lit"
-          end
-            return options.flat_map do |option|
-              parts = option.type == "vec_lit" ? option.children : [option]
-              next [] unless sym?(parts.first)
-
-              prefixed = leaf(:sym, "#{library.text}.#{parts.first.text}")
-              libspecs(build(:vec_lit, prefixed, *parts.drop(1)), use:)
-            end
-          end
-
-          options = options.each_slice(2).to_a
-          return [spec] if options.any? { |pair| pair.size != 2 || pair.first.type != "kwd" }
-
-          options << [leaf(:kwd, ":refer"), leaf(:kwd, ":all")] if use && options.empty?
-          options = options.map do |key, value|
-            key = leaf(:kwd, ":refer") if use && key.text == ":only"
-            if key.text == ":refer" && value.type == "vec_lit"
-              value = build(:vec_lit, *value.children.sort_by { |name| sort_text(name) })
-            end
-            [key, value]
-          end
-          [build(:vec_lit, library, *options.sort_by { |key, _| key.text }.flatten)]
-        end
-
-        # The class names that one `:import` argument names, such as
-        # `(java.util List Map)` for `java.util.List` and `java.util.Map`.
-        def import_names(spec)
-          return [spec] if sym?(spec)
-          return [] unless %w[list_lit vec_lit].include?(spec.type) && sym?(spec.children.first)
-
-          package, *classes = spec.children
-          classes.select { |klass| sym?(klass) }.map { |klass| leaf(:sym, "#{package.text}.#{klass.text}") }
+          libraries = args.all? { |arg| arg.type == "kwd" || head(arg) == "quote" || (kind == "import" && sym?(arg)) }
+          libraries ? nil_form : nil
         end
 
         ### Destructuring ###

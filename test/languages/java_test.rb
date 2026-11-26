@@ -55,7 +55,7 @@ class JavaTest < RepresenterTest
 
       actual = Representer::RepresentSolution.("java", inputs, {})
       assert_equal Representer::RepresentSolution.("java", equivalents, {}).representation, actual.representation
-      assert_equal mapping.values.uniq.sort, actual.mapping.values.sort
+      assert_equal mapping.values.uniq.sort, actual.mapping.values.uniq.sort
     end
   end
 
@@ -156,5 +156,18 @@ class JavaTest < RepresenterTest
     mapping.group_by { |_, original| original }.values.reduce(code) do |result, entries|
       entries.drop(1).reduce(result) { |text, (placeholder, _)| text.gsub(/\b#{placeholder}\b/, entries.first.first) }
     end
+  end
+
+  def test_placeholders_for_locals_are_numbered_by_method
+    shared = "class L {\n  int a(int x) { return x; }\n  int b(int y) { return y; }\n  int c(int x, int y) { return x + y; }\n}"
+    distinct = "class L {\n  int a(int x) { return x; }\n  int b(int y) { return y; }\n  int c(int p, int q) { return p + q; }\n}"
+    assert_same_representation shared, distinct
+    refute_same_representation "class L {\n  int a(int x, int y) { return x - y; }\n}",
+      "class L {\n  int a(int x, int y) { return y - x; }\n}"
+  end
+
+  def test_a_field_and_a_parameter_with_the_same_name_stay_apart
+    code = "class L {\n  int total;\n  L(int total) { this.total = %s; }\n}"
+    refute_same_representation format(code, "total"), format(code, "this.total")
   end
 end

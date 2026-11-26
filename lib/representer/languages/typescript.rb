@@ -1,10 +1,24 @@
+# What this class does to a TypeScript solution's code to make its representation:
+#
+# - Applies every JavaScript rule (see javascript.rb).
+# - Writes `(x: T) => x` with one plain parameter as `x => x`.
+# - Renames the types, interfaces, enums and type parameters that the
+#   solution defines, and their members, whether or not they are exported.
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 require_relative "javascript"
 
 module Representer
   module Languages
     class TypeScript < Language
       tracks "typescript"
-      version 6
+      version 7
       grammar "typescript"
       extensions ".ts", ".mts", ".cts", ".tsx"
 
@@ -53,17 +67,6 @@ module Representer
 
       # Names after a dot in a type, such as `Namespace.Type`.
       member "(nested_type_identifier name: (_) @name)"
-
-      # Exported types are part of the exercise's interface, like exported
-      # functions.
-      keep <<~PATTERN
-        (export_statement declaration: [
-          (interface_declaration name: (type_identifier) @name)
-          (type_alias_declaration name: (type_identifier) @name)
-          (enum_declaration name: (identifier) @name)
-          (abstract_class_declaration name: (type_identifier) @name)])
-      PATTERN
-      keep "(export_specifier name: (identifier) @name)"
 
       library_names File.join(__dir__, "library_names", "javascript.txt")
     end

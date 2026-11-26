@@ -111,4 +111,10 @@ class GDScriptTest < RepresenterTest
     refute_same_representation "extends Node\n", "extends Node2D\n"
     refute_same_representation "func f(a):\n\treturn a as int\n", "func f(a):\n\treturn a as float\n"
   end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("return a + 1_000 + 0x1F + 0b1"), wrap("return a + 1000 + 31 + 1")
+    assert_same_representation wrap("return a * 1.50"), wrap("return a * 1.5")
+    refute_same_representation wrap("return a * 1.0"), wrap("return a * 1")
+  end
 end

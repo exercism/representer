@@ -1,10 +1,42 @@
+# What this class does to a PHP solution's code to make its representation:
+#
+# - Drops comments, text outside `<?php ... ?>`, and statements that only
+#   include a file (`require_once 'x.php';`).
+# - Drops `use` statements, and writes each name that they give as its full
+#   name (`new C()` after `use A\B as C;` is `new A\B()`).
+# - Keeps `declare(strict_types=1)`.
+# - Drops punctuation and keywords that the tree already shows, and brackets
+#   that only group.
+# - Writes `exit;` as `exit()`, `new Foo` as `new Foo()`, `(integer)` as
+#   `(int)` and `TRUE` as `true`.
+# - Makes every method public, and drops `final` and `readonly` from methods
+#   and the types of class constants.
+# - Writes `elseif` as `else if`, and adds braces to the branches of an
+#   `if`.
+# - Writes numbers as their values (`1_000` is `1000`, `0x10` is `16`).
+# - Writes a string as its value, and a string with variables as a
+#   concatenation.
+# - Writes every spelling of a function, method or class name in one case,
+#   as PHP ignores case.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `$this`, `class`, the superglobals and names that start with
+#   `__`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Follows the old exercism/php-representer, which renamed names in
     # nikic/php-parser's tree and printed the tree back as code.
     class PHP < Language
       tracks "php"
-      version 6
+      version 7
       grammar "php"
       extensions ".php"
 
@@ -30,6 +62,11 @@ module Representer
 
       drop "(comment)"
 
+      # The statements that only include another file make names available.
+      # `declare(strict_types=1)` changes how the code runs, so it stays. A
+      # rule below removes `use`.
+      drop "(expression_statement [(require_expression) (require_once_expression) (include_expression) (include_once_expression)])"
+
       # Text outside <?php ... ?> is not code.
       drop "[(php_tag) (php_end_tag) (text) (text_interpolation) (empty_statement)]"
 
@@ -40,8 +77,9 @@ module Representer
         "switch", "case"
 
       # In these nodes, a dropped token is the only thing that tells two
-      # programs apart: `for (;; $i++)` and `for ($i++;;)`, and
-      # `use function A\b` and `use A\b`.
+      # programs apart: `for (;; $i++)` and `for ($i++;;)`. The rule that
+      # removes `use` needs `function` to tell `use function A\b` from
+      # `use A\b`.
       keep_tokens_in :for_statement, ";"
       keep_tokens_in :namespace_use_declaration, "function"
       keep_tokens_in :namespace_use_clause, "function"
@@ -143,15 +181,20 @@ module Representer
       # PHP ignores the case of function, method and class names, so every
       # spelling gets the one that the solution uses most. A function that PHP
       # provides gets its lower case name, and its main name if it is an alias.
+      # `use` only makes names available, so it goes, and each name that it
+      # gives becomes the full name it stands for: after `use A\B as C;`,
+      # `new C()` is `new A\B()`, and after `use function B\c;`, `c()` is
+      # `B\c()`.
+      rewrite("(program) @program") { |match| PHP.drop_uses(match.node) ? match.node : nil }
+
       rewrite "(program) @program" do |match|
         PHP.canonicalize_names(match.node) ? match.node : nil
       end
 
       ### Rename and keep ###
 
-      # Variables, including parameters, and names imported with an alias.
+      # Variables, including parameters.
       rename "(variable_name (name) @name)"
-      rename "(namespace_use_clause alias: (name) @name)"
 
       # Functions, methods, classes, constants and properties.
       rename_member "[(function_definition name: (name) @name) (method_declaration name: (name) @name)]"
@@ -183,7 +226,48 @@ module Representer
         "n" => "\n", "r" => "\r", "t" => "\t", "v" => "\v", "e" => "\e", "f" => "\f", "\\" => "\\", "$" => "$", "\"" => "\""
       }.freeze
 
+      # The places where a name refers to a class.
+      CLASS_POSITIONS = %w[object_creation_expression named_type scoped_call_expression class_constant_access_expression
+                           scoped_property_access_expression base_clause class_interface_clause type_list
+                           binary_expression].freeze
+
       class << self
+        # Removes the `use` statements, and writes each name that they give
+        # as its full name. Returns whether anything changed.
+        def drop_uses(program)
+          uses = program.children.select { |child| child.type == "namespace_use_declaration" }
+          return false if uses.empty?
+
+          functions = {}
+          classes = {}
+          uses.each do |use|
+            use.each_descendant do |clause|
+              next unless clause.type == "namespace_use_clause"
+
+              path = clause.children.find { |child| %w[qualified_name name].include?(child.type) && child.field != "alias" }
+              next unless path
+
+              parts = []
+              path.each_descendant { |node| parts << node.text if node.type == "name" }
+              short = (clause["alias"]&.text || parts.last).downcase
+              function = [clause, use].any? { |node| node.children.any? { |child| child.type == "function" } }
+              (function ? functions : classes)[short] = parts.join("\\")
+            end
+          end
+          program.children.reject! { |child| uses.include?(child) }
+          program.each_descendant do |node|
+            node.children.map! do |child|
+              next child unless child.type == "name" && child.leaf?
+
+              if node.type == "function_call_expression" && child.field == "function" then full = functions[child.text.downcase]
+              elsif CLASS_POSITIONS.include?(node.type) && child.field != "name" then full = classes[child.text.downcase]
+              end
+              full ? leaf(:name, full).tap { |name| name.field = child.field } : child
+            end
+          end
+          true
+        end
+
         def method_modifier?(node) = %w[visibility_modifier final_modifier readonly_modifier].include?(node.type)
 
         def integer_value(text)

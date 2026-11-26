@@ -39,19 +39,20 @@ class GleamTest < RepresenterTest
 
   ### Imports ###
 
-  def test_imports_are_sorted
-    assert_same_representation "import gleam/string\nimport gleam/list\n\npub fn f() { 1 }",
-      "import gleam/list\nimport gleam/string\n\npub fn f() { 1 }"
-    refute_same_representation "import gleam/string\n\npub fn f() { 1 }", "import gleam/list\n\npub fn f() { 1 }"
+  def test_imports_are_dropped
+    assert_same_representation "import gleam/string\nimport gleam/list\n\npub fn f() { 1 }", "pub fn f() { 1 }"
+    assert_same_representation "import gleam/list.{map, filter}\npub fn f() { 1 }", "pub fn f() { 1 }"
+    refute_same_representation "import gleam/string\npub fn f(x) { string.length(x) }",
+      "import gleam/list\npub fn f(x) { list.length(x) }"
   end
 
-  def test_unqualified_imports_are_sorted
-    assert_same_representation "import gleam/list.{map, filter}", "import gleam/list.{filter, map}"
-  end
-
-  def test_import_aliases_are_renamed
+  def test_import_aliases_are_the_names_they_stand_for
     assert_same_representation "import gleam/list as l\npub fn f() { l.length([]) }",
       "import gleam/list as m\npub fn f() { m.length([]) }"
+    assert_same_representation "import gleam/list as l\npub fn f() { l.length([]) }",
+      "import gleam/list\npub fn f() { list.length([]) }"
+    assert_same_representation "import gleam/int.{to_string as ts}\npub fn f(x) { ts(x) }",
+      "import gleam/int.{to_string}\npub fn f(x) { to_string(x) }"
   end
 
   ### Names ###
@@ -102,7 +103,10 @@ class GleamTest < RepresenterTest
     assert_unrepresentable "pub fn f( {"
   end
 
-  def test_importing_a_type_differs_from_importing_its_constructor
-    refute_same_representation "import a.{type Foo}\npub fn f(x: Foo) { x }\n", "import a.{Foo}\npub fn f(x: Foo) { x }\n"
+  def test_numbers_are_their_values
+    assert_same_representation wrap("1_000 + 0x1F + 0b1"), wrap("1000 + 31 + 1")
+    assert_same_representation wrap("1.50 +. 1.0e3"), wrap("1.5 +. 1000.0")
+    refute_same_representation wrap("1 + 2"), wrap("1 + 3")
+    refute_same_representation wrap("1.0"), wrap("1")
   end
 end

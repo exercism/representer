@@ -1,10 +1,38 @@
+# What this class does to a C# solution's code to make its representation:
+#
+# - Drops comments, `using` directives and `readonly`.
+# - Drops punctuation and keywords that the tree already shows, except where
+#   they tell two programs apart.
+# - Drops brackets that only group, `System.` before a name, and `()` in
+#   `new Foo() { ... }`.
+# - Writes .NET type names as their keywords (`String` is `string`).
+# - Writes `x != y ? a : b` as `x == y ? b : a`, and `x == true` as `x`.
+# - Adds braces to the branches of an `if`.
+# - Drops `this.` and the class's own name before one of the class's
+#   members, unless a parameter or local variable has the same name.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`,
+#   `1.50` is `1.5`), and keeps a decimal's digits and an integer's suffix.
+# - Writes a dictionary's `[k] = v` entries as `{ k, v }`, and a string as
+#   its value.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps the methods that .NET itself calls (`Main`, `ToString`,
+#   `Equals` and so on).
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every rewriter from exercism/csharp-representer is a rule here. Each
     # rule's comment names the rewriter it replaces.
     class CSharp < Language
       tracks "csharp"
-      version 7
+      version 8
       grammar "c_sharp"
       extensions ".cs"
 
@@ -105,6 +133,23 @@ module Representer
         match.node
       end
 
+      # Inside a class, `this.Name` and `ClassName.Name` are `Name`, when
+      # Name is one of the class's members and no parameter or local
+      # variable has the same name.
+      rewrite "[(class_declaration) (struct_declaration) (record_declaration)] @type" do |match|
+        CSharp.drop_own_qualifiers(match.node) ? match.node : nil
+      end
+
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31`, and
+      # `1.50` is `1.5`. A decimal (`1.50m`) keeps its digits, as .NET keeps
+      # a decimal's scale, and an integer with a suffix keeps its text.
+      numbers(:integer_literal) { |text| Engine::Numbers.integer(text)&.to_s }
+      numbers :real_literal do |text|
+        digits, suffix = text.match(/\A(.*?)([fFdD])?\z/).captures
+        value = Engine::Numbers.decimal(digits)
+        value && "#{Engine::Numbers.write_decimal(value)}#{suffix&.downcase}"
+      end
+
       # LowerCaseToUpperCaseExponentNotation: 1e7 is 1E7.
       rewrite "(real_literal /e/) @number" do |match|
         leaf(:real_literal, match[:number].text.tr("e", "E"))
@@ -189,6 +234,54 @@ module Representer
         "Current", "Reset", "Deconstruct", "Clone", "value"
 
       library_names File.join(__dir__, "library_names", "csharp.txt")
+
+      LOCAL_DECLARATIONS = %w[parameter variable_declarator foreach_statement catch_declaration declaration_expression
+                              declaration_pattern single_variable_designation].freeze
+      MEMBER_DECLARATIONS = %w[method_declaration property_declaration event_declaration].freeze
+
+      # Replaces `this.Name` and `ClassName.Name` with `Name`, for the
+      # class's own members. Returns whether anything changed.
+      def self.drop_own_qualifiers(type)
+        body = type["body"]
+        return false unless body
+
+        members = Set.new
+        fields = Set.new
+        body.children.each do |member|
+          members << member["name"].text if MEMBER_DECLARATIONS.include?(member.type) && member["name"]&.leaf?
+          next unless member.type == "field_declaration"
+
+          member.each_descendant do |node|
+            next unless node.type == "variable_declarator" && node["name"]&.leaf?
+
+            members << node["name"].text
+            fields << node.object_id
+          end
+        end
+        locals = Set.new
+        type.each_descendant do |node|
+          next unless LOCAL_DECLARATIONS.include?(node.type) && !fields.include?(node.object_id)
+
+          name = node["name"] || node["left"]
+          locals << name.text if name&.leaf? && name.type == "identifier"
+        end
+        own = members - locals
+        return false if own.empty?
+
+        changed = false
+        type.each_descendant do |node|
+          node.children.each do |child|
+            next unless child.type == "member_access_expression" && own.include?(child["name"]&.text)
+
+            qualifier = child["expression"]
+            next unless qualifier&.type == "this" || (qualifier&.type == "identifier" && qualifier.text == type["name"]&.text)
+
+            node.replace_child(child, child["name"])
+            changed = true
+          end
+        end
+        changed
+      end
 
       ESCAPES = {
         "n" => "\n", "t" => "\t", "r" => "\r", "0" => "\0", "a" => "\a", "b" => "\b", "f" => "\f",

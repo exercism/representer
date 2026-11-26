@@ -3,7 +3,6 @@ re :: Float64
 im :: Float64
 end
 ComplexNumber ( re :: Real , im :: Real ) = ComplexNumber ( float ( re ), float ( im ))
-import Base : == , + , - , * , / , abs , conj , real , imag , ^ , show , convert , promote_rule , exp
 == ( a :: ComplexNumber , b :: ComplexNumber ) = isapprox ( a . re , b . re ) && isapprox ( a . im , b . im )
 + ( a :: ComplexNumber , b :: ComplexNumber ) = ComplexNumber ( a . re + b . re , a . im + b . im )
 - ( a :: ComplexNumber , b :: ComplexNumber ) = ComplexNumber ( a . re - b . re , a . im - b . im )
@@ -30,7 +29,6 @@ convert ( :: Type { ComplexNumber }, x :: Real ) = ComplexNumber ( float ( x ), 
 promote_rule ( :: Type { ComplexNumber }, :: Type { T }) where { T <: Real } = ComplexNumber
 exp ( z :: ComplexNumber ) = ComplexNumber ( exp ( z . re ) * cos ( z . im ), exp ( z . re ) * sin ( z . im ))
 const jm = ComplexNumber ( 0.0 , 1.0 )
-import Base : +
 + ( x :: Real , y :: ComplexNumber ) = ComplexNumber ( float ( x ) + y . re , y . im )
 + ( x :: ComplexNumber , y :: Real ) = ComplexNumber ( x . re + float ( y ), x . im )
 - ( x :: Real , y :: ComplexNumber ) = ComplexNumber ( float ( x ) - y . re , - y . im )
@@ -39,10 +37,6 @@ import Base : +
 * ( x :: ComplexNumber , y :: Real ) = ComplexNumber ( x . re * float ( y ), x . im * float ( y ))
 / ( x :: Real , y :: ComplexNumber ) = ComplexNumber ( float ( x ), 0.0 ) / y
 / ( x :: ComplexNumber , y :: Real ) = ComplexNumber ( x . re / float ( y ), x . im / float ( y ))
-import Base : ^ , convert
-import Base : literal_pow
 literal_pow ( :: typeof ( ^ ), x :: ComplexNumber , :: Val { 2 }) = x * x
-import Base : promote
 promote ( x :: Real , y :: ComplexNumber ) = ( ComplexNumber ( float ( x ), 0.0 ), y )
 promote ( x :: ComplexNumber , y :: Real ) = ( x , ComplexNumber ( float ( y ), 0.0 ))
-import Base : parse

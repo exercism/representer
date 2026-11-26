@@ -1,10 +1,43 @@
+# What this class does to an Elixir solution's code to make its representation:
+#
+# - Drops comments, docstrings, `require` and `import` statements, and keeps
+#   `use`.
+# - Writes each alias as the full name of its module, and drops the `alias`
+#   statements.
+# - Drops punctuation and keywords that the tree already shows, and brackets
+#   that only group.
+# - Writes `do:` keyword blocks as `do ... end` blocks, and `a |> b` as `a
+#   |> b()`.
+# - Sorts the `use` statements at the start of each block, and the keys of
+#   maps and structs.
+# - Writes `%{:a => 1}` as `%{a: 1}`, and `''` as `[]`.
+# - Writes types without empty brackets (`integer()` is `integer`,
+#   `String.t()` is `String.t`).
+# - Writes numbers as their values (`41_000` is `41000`, `0b10` is `2`,
+#   `100.00` is `100.0`).
+# - Writes a string as its value, keeping interpolations, and splits a
+#   dotted module name into its parts.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps the attributes that Elixir reads (`moduledoc`, `spec`, `impl`
+#   and so on).
+# - Treats `user.name` as a field, so `name` is only renamed after a
+#   module's name.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/elixir-representer is a rule here. Each rule's
     # comment says which step it replaces.
     class Elixir < Language
       tracks "elixir"
-      version 6
+      version 7
       grammar "elixir"
       extensions ".ex", ".exs"
 
@@ -26,6 +59,12 @@ module Representer
       # Comments, and the documentation attributes (docstrings).
       drop "(comment)"
       drop "(unary_operator operator: \"@\" operand: (call target: (identifier /\\A(moduledoc|doc|typedoc)\\z/)))"
+
+      # `require` and `import` only make a module's names available. `use`
+      # stays, as it runs the module's code. A rule below replaces each
+      # `alias` with the full name of its module.
+      drop "(call target: (identifier /\\A(require|import)\\z/) (arguments) @arguments)",
+        where: ->(match) { %w[alias dot].include?(match[:arguments].named_children.first&.type) }
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", "<<", ">>", ",", "do", "end", "fn", "else", "rescue", "catch", "after",
@@ -56,10 +95,15 @@ module Representer
         match.node
       end
 
-      # SortImports and SortMapKeys, in one pass over the whole file, because
-      # the order must not depend on the names that the solution defines (see
-      # Elixir.organise).
+      # SortImports (only `use` is left by now) and SortMapKeys, in one pass
+      # over the whole file, because the order must not depend on the names
+      # that the solution defines (see Elixir.organise).
       rewrite("(source) @root") { |match| Elixir.organise(match.node) ? match.node : nil }
+
+      # `alias Foo.Bar` only lets the code write `Bar` for `Foo.Bar` (or `B`
+      # with `as: B`), so each alias's name becomes the module's full name,
+      # and the alias goes.
+      rewrite("(source) @root") { |match| Elixir.resolve_aliases(match.node) ? match.node : nil }
 
       # `@optional_callbacks foo: 1` names the function foo, so the name is
       # renamed with the function.
@@ -123,12 +167,29 @@ module Representer
         Elixir.mark_variables(match[:left]) ? match.node : nil
       end
 
+      # Numbers are their values: `41_000` is `41000`, `0b1010` is `10`, and
+      # `100.00` is `100.0`.
+      numbers(:integer) { |text| Engine::Numbers.integer(text)&.to_s }
+      numbers :float do |text|
+        value = Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
+      end
+
+      # `''` is the empty list.
+      rewrite "(charlist) @charlist", where: ->(match) { match.node.named_children.empty? } do
+        build(:list)
+      end
+
+      # `%{:black => 0}` is `%{black: 0}`.
+      rewrite "(map_content) @content" do |match|
+        Elixir.atom_keys_to_keywords(match.node) ? match.node : nil
+      end
+
       ### Rename and keep ###
 
       rename "(variable) @name"
       rename "(call target: (identifier /\\A(defmodule|defprotocol|defimpl)\\z/) (arguments (alias) @name))"
       rename "(call target: (identifier /\\A(defmodule|defprotocol|defimpl)\\z/) (arguments (alias (alias_part)* @name)))"
-      rename "(pair key: (keyword \"as: \") value: (alias) @name)"
       rename "(unary_operator operator: \"@\" operand: (call target: (identifier) @name))"
       rename <<~PATTERN
         (unary_operator operator: "@" operand: (call target: (identifier /#{TYPE_DEFINITIONS.source}/)
@@ -284,9 +345,9 @@ module Representer
         defined
       end
 
-      # Puts the alias, use, require and import statements at the start of
-      # each block in a fixed order, sorts the names in `alias X.{B, A}`, and
-      # sorts the keys of maps and structs. Returns whether anything changed.
+      # Puts the `use` statements at the start of each block in a fixed
+      # order, sorts the names in `alias X.{B, A}`, and sorts the keys of maps
+      # and structs. Returns whether anything changed.
       def self.organise(root)
         before = root.inspect
         defined = defined_modules(root)
@@ -325,6 +386,90 @@ module Representer
         end
       end
 
+      # Replaces every use of an alias with its module's full name, and
+      # removes the alias statements. An alias lasts from its statement to
+      # the end of the block that holds it, and can use an earlier alias.
+      # Returns whether anything changed.
+      def self.resolve_aliases(node, names = {})
+        names = names.dup if %w[source do_block].include?(node.type)
+        changed = false
+        node.children = node.children.filter_map do |child|
+          if alias_statement?(child)
+            alias_names(child, names).each { |short, parts| names[short] = parts }
+            changed = true
+            next nil
+          end
+
+          expanded = expand_alias(child, names)
+          changed = true if expanded
+          changed = resolve_aliases(child, names) || changed unless expanded
+          expanded || child
+        end
+        changed
+      end
+
+      def self.alias_statement?(node)
+        node.type == "call" && node["target"]&.text == "alias" && %w[alias
+                                                                     dot].include?(child_arguments(node).named_children.first&.type)
+      end
+
+      # The short names that an alias statement defines, each with the parts
+      # of the module's full name.
+      def self.alias_names(statement, names)
+        target, options = child_arguments(statement).named_children
+        as = options&.type == "keywords" && options.children.find { |pair| pair["key"]&.text == "as: " }&.[]("value")
+        if target.type == "dot" && target["right"]&.type == "tuple"
+          base = full_name(alias_parts(target["left"]), names)
+          return target["right"].named_children.map { |name| [alias_parts(name).first, base + alias_parts(name)] }
+        end
+
+        parts = full_name(alias_parts(target), names)
+        short = as ? alias_parts(as) : [parts.last]
+        short.size == 1 && parts.all? ? [[short.first, parts]] : []
+      end
+
+      def self.alias_parts(node)
+        return [node.text] if node&.type == "alias" && node.leaf?
+        return node.children.map(&:text) if node&.type == "alias"
+
+        [nil]
+      end
+
+      # The parts of a module's name, with an alias at the start replaced by
+      # the name it stands for.
+      def self.full_name(parts, names) = (names[parts.first] || parts.first(1)) + parts.drop(1)
+
+      # The full name for an alias that starts with a short name, or nil.
+      def self.expand_alias(node, names)
+        return nil unless node.type == "alias"
+
+        parts = alias_parts(node)
+        return nil unless names[parts.first] && parts.all?
+
+        build(:alias, *full_name(parts, names).map { |part| leaf(:alias_part, part) }).tap { |expanded| expanded.field = node.field }
+      end
+
+      SIMPLE_ATOM = /\A:([a-zA-Z_]\w*[?!]?)\z/
+
+      # Turns each `:key => value` entry of a map into a `key: value` pair.
+      # Returns whether anything changed.
+      def self.atom_keys_to_keywords(content)
+        entries = content.children.select do |child|
+          child.type == "binary_operator" && child["operator"]&.text == "=>" && child["left"]&.type == "atom" &&
+            child["left"].text.match?(SIMPLE_ATOM)
+        end
+        return false if entries.empty?
+
+        keywords = child(content, "keywords") || Engine::Node.new("keywords").tap { |list| content.children << list }
+        entries.each do |entry|
+          content.children.delete(entry)
+          key = leaf(:keyword, "#{entry['left'].text[SIMPLE_ATOM, 1]}: ").tap { |node| node.field = "key" }
+          keywords.children << build(:pair, key, entry["right"].tap { |node| node.field = "value" })
+        end
+        sort_map_content(content)
+        true
+      end
+
       # Gives the keys of `name: arity` pairs the identifier type. Returns
       # whether anything changed.
       def self.name_function_keys(node)
@@ -338,16 +483,17 @@ module Representer
         changed
       end
 
-      # `integer()` is `integer` in a type. A call to a module's function
-      # (`String.t()`) keeps its parentheses. Returns whether anything changed.
+      # `integer()` is `integer` and `String.t()` is `String.t` in a type.
+      # Returns whether anything changed.
       def self.strip_type_parentheses(node)
         changed = false
         node.children.map! do |child|
           changed = strip_type_parentheses(child) || changed
-          next child unless child.type == "call" && child["target"]&.type == "identifier" && child.children.size == 2
+          next child unless child.type == "call" && %w[identifier dot].include?(child["target"]&.type)
+          next child unless child.children.size == 2 || (child.children.size == 1 && child["target"].type == "dot")
 
           arguments = child_arguments(child)
-          next child unless arguments.type == "arguments" && arguments.children.empty?
+          next child unless child.children.size == 1 || (arguments.type == "arguments" && arguments.children.empty?)
 
           changed = true
           child["target"].tap { |target| target.field = child.field }

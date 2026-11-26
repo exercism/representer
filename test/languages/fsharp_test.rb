@@ -108,4 +108,25 @@ class FSharpTest < RepresenterTest
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "module M\nlet f = = =\n"
   end
+
+  def test_brackets_around_an_operator_expression_go_where_no_operator_is_next_to_them
+    assert_same_representation wrap("let r x y = sqrt (x * x + y * y)"), wrap("let r x y = sqrt(x * x + y * y)")
+    assert_same_representation wrap("let c x = (x + 1)"), wrap("let c x = x + 1")
+    assert_same_representation wrap("let d x = [ (x + 1); 2 ]"), wrap("let d x = [ x + 1; 2 ]")
+    refute_same_representation wrap("let e x = (x + 1) * 2"), wrap("let e x = x + 1 * 2")
+  end
+
+  def test_the_first_bar_is_optional
+    assert_same_representation wrap("type T =\n    | A\n    | B\nlet f x =\n    match x with\n    | A -> 1\n    | B -> 2"),
+      wrap("type T =\n    A\n    | B\nlet f x =\n    match x with\n    A -> 1\n    | B -> 2")
+    refute_same_representation wrap("let f x =\n    match x with\n    | A -> 1\n    | B -> 2"),
+      wrap("let f x =\n    match x with\n    | A -> 2\n    | B -> 1")
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("let x = 31_557_600.0 + 1.50"), wrap("let x = 31557600.0 + 1.5")
+    assert_same_representation wrap("let x = 1_000 + 0x1F + 0b1"), wrap("let x = 1000 + 31 + 1")
+    refute_same_representation wrap("let x = 10L"), wrap("let x = 10")
+    refute_same_representation wrap("let x = 1.0"), wrap("let x = 1")
+  end
 end

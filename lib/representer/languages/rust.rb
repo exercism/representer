@@ -1,10 +1,35 @@
+# What this class does to a Rust solution's code to make its representation:
+#
+# - Drops comments, doc comments, empty statements, `use` declarations and
+#   `extern crate`.
+# - Drops punctuation and keywords that the tree already shows, every `;`
+#   outside arrays and macros, and brackets that only group.
+# - Writes `x = y;` as a final `x = y`, as an assignment's value is always
+#   `()`.
+# - Writes a match arm's `{ y }` as `y`, and `{}` as `()`.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`,
+#   `1.50` is `1.5`), keeping any type suffix.
+# - Writes `Foo { x }` as `Foo { x: x }`, and a string as its value.
+# - Sorts the items of a file, impl, trait or module by kind and size.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `main`, `Some`, `None`, `Ok`, `Err`, `self`, `Self` and the
+#   standard traits' associated types.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/rust-representer is a rule here. Each rule's
     # comment says which step it replaces.
     class Rust < Language
       tracks "rust"
-      version 6
+      version 7
       grammar "rust"
       extensions ".rs"
 
@@ -14,7 +39,7 @@ module Representer
       # trait or a module. Items of the same kind are sorted by size, largest
       # first.
       ITEM_ORDER = {
-        "use_declaration" => 0, "extern_crate_declaration" => 0, "mod_item" => 1, "const_item" => 2, "static_item" => 2,
+        "mod_item" => 1, "const_item" => 2, "static_item" => 2,
         "type_item" => 3, "struct_item" => 4, "enum_item" => 4, "union_item" => 4, "trait_item" => 5, "impl_item" => 6,
         "function_item" => 7
       }.freeze
@@ -26,6 +51,9 @@ module Representer
 
       # IgnoreComments, IgnoreDocComments
       drop "[(line_comment) (block_comment) (empty_statement)]"
+
+      # `use` and `extern crate` only make names available.
+      drop "[(use_declaration) (extern_crate_declaration)]"
 
       # The node types already say what these tokens say. A ";" is only
       # meaningful in `[x; 3]` and in a macro's tokens, so a rule below
@@ -51,6 +79,36 @@ module Representer
 
       # (a + b) is a + b: the tree's shape already shows the grouping.
       unwrap :parenthesized_expression
+
+      # An assignment's value is always `()`, so `x = y;` is the same as a
+      # final `x = y` without the semicolon.
+      rewrite "(expression_statement [(assignment_expression) (compound_assignment_expr)] @assignment)", "@assignment"
+
+      # `x => {}` is `x => ()`.
+      rewrite "(match_arm value: (block) @block)", where: ->(match) { match[:block].children.empty? } do |match|
+        match.node.replace_child(match[:block], build(:unit_expression))
+        match.node
+      end
+
+      # `x => { y }` is `x => y`.
+      rewrite "(match_arm value: (block) @block)",
+        where: ->(match) { match[:block].children.size == 1 && match[:block].children.first.named? } do |match|
+        inner = match[:block].children.first
+        inner = inner.named_children.first if inner.type == "expression_statement" && inner.named_children.size == 1
+        match.node.replace_child(match[:block], inner)
+        match.node
+      end
+
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31`, and
+      # `1.50` is `1.5`. A type suffix stays, as in `1000u32`.
+      numbers :integer_literal do |text|
+        digits, suffix = text.match(/\A(.*?)_?([iu](?:8|16|32|64|128|size))?\z/).captures
+        Engine::Numbers.integer(digits)&.then { |value| "#{value}#{suffix}" }
+      end
+      numbers :float_literal do |text|
+        digits, suffix = text.match(/\A(.*?)_?(f32|f64)?\z/).captures
+        Engine::Numbers.decimal(digits)&.then { |value| "#{Engine::Numbers.write_decimal(value)}#{suffix}" }
+      end
 
       # `Foo { x }` is `Foo { x: x }`, in values and in patterns.
       rewrite "(shorthand_field_initializer (identifier) @name)" do |match|

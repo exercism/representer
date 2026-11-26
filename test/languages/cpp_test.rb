@@ -43,10 +43,23 @@ class CppTest < RepresenterTest
     assert_same_representation "int x;", "// a\nint x; /* b */\n"
   end
 
-  def test_pragma_and_local_includes_are_dropped_but_standard_includes_stay
+  def test_pragmas_includes_and_using_declarations_are_dropped
     assert_same_representation "int x;", "#pragma once\n#include \"x.h\"\nint x;"
-    refute_same_representation "int x;", "#include <vector>\nint x;"
-    refute_same_representation "#include <vector>\nint x;", "#include <map>\nint x;"
+    assert_same_representation "int x;", "#include <vector>\n#include <map>\nint x;"
+    assert_same_representation "int x;", "using namespace std;\nusing std::string;\nint x;"
+    assert_same_representation "int f() { return 1; }", "int f() { using namespace std; return 1; }"
+    refute_same_representation "struct B : A { using A::A; };", "struct B : A { };"
+    refute_same_representation "#define N 1\nint x = N;", "int x = N;"
+    refute_same_representation "#include <cmath>\ndouble f(double x) { return std::sqrt(x); }",
+      "#include <cmath>\ndouble f(double x) { return std::cbrt(x); }"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "int x = 1'000 + 0x1F + 017;", "int x = 1000 + 31 + 15;"
+    assert_same_representation "double x = 1.50;", "double x = 1.5;"
+    refute_same_representation "auto x = 0xFFFFFFFF;", "auto x = 4294967295;"
+    refute_same_representation "auto x = 1.0f;", "auto x = 1.0;"
+    refute_same_representation "auto x = 10u;", "auto x = 10;"
   end
 
   def test_an_include_guard_is_the_same_as_pragma_once
@@ -145,8 +158,7 @@ class CppTest < RepresenterTest
     refute_same_representation "class A { public: int x; };", "class A { private: int x; };"
     refute_same_representation "class A { protected: int x; };", "class A { private: int x; };"
     refute_same_representation "class B : public A {};", "class B : private A {};"
-    refute_same_representation "using namespace std::chrono;", "using std::chrono;"
-    refute_same_representation "using enum E;", "using E;"
+    refute_same_representation "struct S { using enum E; };", "struct S { using E; };"
     refute_same_representation "class A { friend class B; };", "class A { friend struct B; };"
     refute_same_representation wrap("for (;; a++) {} return a;"), wrap("for (a++;;) {} return a;")
     refute_same_representation "struct A { int operator()(int x); };", "struct A { int operator[](int x); };"

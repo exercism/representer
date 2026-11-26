@@ -1,3 +1,27 @@
+# What this class does to a WebAssembly solution's code to make its representation:
+#
+# - Drops comments, and the tokens that the tree already shows.
+# - Writes folded instructions as plain instructions, and writes every `if`
+#   with a `then` branch.
+# - Splits `(param i32 i32)` into one group for each type, and the same for
+#   locals and results.
+# - Moves `(export "f" (func $f))` into the function as `(func $f (export
+#   "f"))`.
+# - Drops function types without a name that nothing refers to by number.
+# - Writes a string as its bytes.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`),
+#   `f32.const 1` as `f32.const 1.0`, and `i32.const 4294967295` as
+#   `i32.const -1`.
+# - Writes a file without `(module ...)` the same as one with it.
+# - Keeps imports and exports, because they define what the module needs and
+#   offers, beyond making names available.
+# - Renames every `$name`, because the solution chooses all of them.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # The old representer (exercism/wasm-representer) ran wabt's `wat-desugar`
@@ -8,7 +32,7 @@ module Representer
     # chooses (written `$name`) is renamed.
     class Wasm < Language
       tracks "wasm"
-      version 6
+      version 7
       grammar "wat"
       extensions ".wat"
 
@@ -67,9 +91,29 @@ module Representer
         Wasm.decode(match.node.text[1...-1])
       end
 
-      # 1_000 is 1000.
-      rewrite "[(integer /_/) @number (uinteger /_/) @number (float /_/) @number (mem_arg /_/) @number]" do |match|
+      # Numbers are their values: `1_000` is `1000`, and `0x1F` is `31`.
+      numbers(:integer, :uinteger) { |text| Engine::Numbers.integer(text, prefixes: { "0x" => 16 })&.to_s }
+      numbers :float do |text|
+        value = Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
+      end
+      rewrite "(mem_arg /_/) @number" do |match|
         leaf(match.node.type, match.node.text.delete("_"))
+      end
+
+      # A constant is its value in its type: `f32.const 1` is `f32.const 1.0`,
+      # and `i32.const 4294967295` is `i32.const -1`, as both have the same
+      # bits.
+      rewrite '(plain_instr (instr_name /\A[if](32|64)\.const\z/) [(integer) (float)] @number)' do |match|
+        Wasm.normalise_constant(match.node, match[:number])
+      end
+
+      # A file can hold a module's fields without the `(module ...)` around
+      # them.
+      rewrite "(root (module) @module)", where: lambda { |match|
+        match.node.children.size == 1 && match[:module].children.none? { |child| child.type == "identifier" }
+      } do |match|
+        build(:root, *match[:module].named_children)
       end
 
       ### Rename ###
@@ -88,6 +132,28 @@ module Representer
       GROUPS = %w[param result local].freeze
 
       class << self
+        def normalise_constant(instruction, number)
+          kind, bits = instruction.children.find { |child| child.type == "instr_name" }.text.match(/\A([if])(\d+)/).captures
+          if kind == "f"
+            return nil unless number.type == "integer"
+
+            value = Engine::Numbers.integer(number.text)
+            return nil unless value
+
+            instruction.replace_child(number, leaf(:float, Engine::Numbers.write_decimal(value.to_r)))
+          else
+            return nil unless number.type == "integer" && number.text.match?(/\A-?\d+\z/)
+
+            size = 2**bits.to_i
+            value = number.text.to_i % size
+            value -= size if value >= size / 2
+            return nil if value.to_s == number.text
+
+            instruction.replace_child(number, leaf(:integer, value.to_s))
+          end
+          instruction
+        end
+
         def instruction?(node) = INSTRUCTIONS.include?(node.type)
 
         # The operands of a folded instruction: its instruction children, and

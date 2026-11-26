@@ -116,4 +116,17 @@ class RakuTest < RepresenterTest
     refute_same_representation "sub f {\n    my $x = q:to/END/;\n    hello\n      world\n    END\n    return $x;\n}\n",
       "sub f {\n    my $x = q:to/END/;\n    hello\n    world\n    END\n    return $x;\n}\n"
   end
+
+  def test_module_imports_are_dropped_and_pragmas_stay
+    assert_same_representation "use Test;\nuse JSON::Fast;\nneed Foo;\nsub f($x) { $x }", "sub f($x) { $x }"
+    refute_same_representation "use v6;\nsub f($x) { $x }", "sub f($x) { $x }"
+    refute_same_representation "use lib 'lib';\nsub f($x) { $x }", "sub f($x) { $x }"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("$x + 1_000 + 0x1F"), wrap("$x + 1000 + 31")
+    assert_same_representation wrap("$x * 1.50"), wrap("$x * 1.5")
+    refute_same_representation wrap("$x * 1e0"), wrap("$x * 1.0")
+    refute_same_representation wrap("$x * 1.0"), wrap("$x * 1")
+  end
 end

@@ -1,3 +1,23 @@
+# What this class does to a Zig solution's code to make its representation:
+#
+# - Drops comments and doc comments, and declarations of the form `const x =
+#   @import("...")`.
+# - Drops punctuation and keywords that the tree already shows, and brackets
+#   that only group.
+# - Writes a string as its value.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`,
+#   `1.50` is `1.5`).
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `main` and `_`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # The old zig-representer was the Exercism template: it joined the
@@ -7,7 +27,7 @@ module Representer
     # the other languages.
     class Zig < Language
       tracks "zig"
-      version 6
+      version 7
       grammar "zig"
       extensions ".zig"
 
@@ -24,6 +44,14 @@ module Representer
 
       drop "[(line_comment) (doc_comment) (container_doc_comment)]"
 
+      # `const std = @import("std");` only makes names available.
+      drop "[(Decl (VarDecl) @declaration) (Statement (VarDecl) @declaration)]", where: lambda { |match|
+        value = match[:declaration].named_children.find { |child| child.field.nil? }
+        first = value
+        first = first.children.first while first && !first.leaf?
+        first&.type == "BUILTINIDENTIFIER" && first.text == "@import"
+      }
+
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", ",", ";",
         "fn", "test"
@@ -39,12 +67,12 @@ module Representer
         literal(Zig.decode(match.node.text[1...-1]))
       end
 
-      # 1_000 is 1000.
-      rewrite "(INTEGER /_/) @number" do |match|
-        leaf(:INTEGER, match.node.text.delete("_"))
-      end
-      rewrite "(FLOAT /_/) @number" do |match|
-        leaf(:FLOAT, match.node.text.delete("_"))
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31`, and
+      # `1.50` is `1.5`.
+      numbers(:INTEGER) { |text| Engine::Numbers.integer(text)&.to_s }
+      numbers :FLOAT do |text|
+        value = Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
       end
 
       ### Rename and keep ###

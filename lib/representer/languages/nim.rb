@@ -1,3 +1,29 @@
+# What this class does to a Nim solution's code to make its representation:
+#
+# - Drops comments, and imports, includes and exports.
+# - Drops punctuation and keywords that the tree already shows, brackets
+#   that only group, and the brackets of arguments.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`,
+#   `1.50` is `1.5`), keeping any type suffix.
+# - Writes a string as its text, and `fmt"x {a}"` and `&"x {a}"` in one
+#   form.
+# - Writes operators as calls (`a + b` is `` `+`(a, b) ``).
+# - Writes `proc f(a, b: int)` as `proc f(a: int; b: int)`, and adds empty
+#   brackets to a routine without them.
+# - Sorts the exceptions that an `except` catches.
+# - Treats names that differ only in case after the first letter, or in
+#   underscores, as one name.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `result`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/nim-representer is a rule here. The old
@@ -8,7 +34,7 @@ module Representer
     # replaces.
     class Nim < Language
       tracks "nim"
-      version 6
+      version 7
       grammar "nim"
       extensions ".nim", ".nims"
 
@@ -29,19 +55,28 @@ module Representer
 
       drop "[(comment) (documentation_comment) (block_comment) (block_documentation_comment)]"
 
+      # Imports, includes and exports only make names available.
+      drop "[(import_statement) (import_from_statement) (include_statement) (export_statement)]"
+
       # The node types already say what these tokens say. A call `f(x)` and a
       # command `f x` are the same, so the brackets of arguments go too.
       drop_tokens "(", ")", ",", ";", "`", "[", "]", "{", "}",
-        "const", "discard", "distinct", "import", "let", "macro", "proc", "template", "type", "var"
+        "const", "discard", "distinct", "let", "macro", "proc", "template", "type", "var"
 
       ### Rewrite ###
 
       # (a + b) is a + b: the tree's shape already shows the grouping.
       unwrap :parenthesized
 
-      # 1_000 is 1000.
-      rewrite "[(integer_literal /_/) @number (float_literal /_/) @number]" do |match|
-        leaf(match[:number].type, match[:number].text.delete("_"))
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31`, and
+      # `1.50` is `1.5`. A type suffix stays, as in `1000'i64`.
+      numbers :integer_literal do |text|
+        digits, suffix = text.match(/\A(.*?)('?[iIuU](?:8|16|32|64)?)?\z/).captures
+        Engine::Numbers.integer(digits.sub(/\A0[cC]/, "0o"))&.then { |value| "#{value}#{suffix}" }
+      end
+      numbers :float_literal do |text|
+        digits, suffix = text.match(/\A(.*?)('?[fFdD](?:32|64|128)?)?\z/).captures
+        Engine::Numbers.decimal(digits)&.then { |value| "#{Engine::Numbers.write_decimal(value)}#{suffix}" }
       end
 
       # A string is its text.
@@ -74,12 +109,8 @@ module Representer
       # A routine without parentheses, `proc f = discard`, is `proc f() = discard`.
       rewrite("[#{ROUTINES.map { |kind| "(#{kind}) @routine" }.join(' ')}]") { |match| Nim.add_empty_parameters(match.node) }
 
-      # Imports are in alphabetical order.
-      rewrite("(import_statement) @statement") { |match| Nim.sort_imports(match.node) }
-      rewrite("(import_from_statement) @statement") { |match| Nim.sort_imports(match.node) }
-      rewrite("(export_statement) @statement") { |match| Nim.sort_imports(match.node) }
-      rewrite("(include_statement) @statement") { |match| Nim.sort_imports(match.node) }
-      rewrite("(except_clause) @statement") { |match| Nim.sort_imports(match.node) }
+      # The exceptions that an `except` catches are in alphabetical order.
+      rewrite("(except_clause) @statement") { |match| Nim.sort_names(match.node) }
 
       # Names that the student defines.
       rewrite("(variable_declaration) @declaration") do |match|
@@ -208,8 +239,8 @@ module Representer
           changed ? list : nil
         end
 
-        # Sorts the names in an import by their text.
-        def sort_imports(statement)
+        # Sorts the names in a list by their text.
+        def sort_names(statement)
           changed = false
           statement.each_descendant do |node|
             next unless %w[expression_list array_construction].include?(node.type)

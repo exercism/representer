@@ -1,3 +1,24 @@
+# What this class does to an Elm solution's code to make its representation:
+#
+# - Drops comments, imports and the list of what the module exposes.
+# - Drops punctuation and keywords that the tree already shows.
+# - Drops brackets that only group, except around an operator expression
+#   inside another one (`(a + b) * c`).
+# - Writes a string as its value, however it is quoted.
+# - Writes numbers as their values (`0x1F` is `31`, `1.50` is `1.5`), and
+#   keeps `1` and `1.0` apart.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps the module's name and the names that Elm imports into every
+#   module.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/elm-representer is a rule here. The old
@@ -8,7 +29,7 @@ module Representer
     # equivalent.
     class Elm < Language
       tracks "elm"
-      version 6
+      version 7
       grammar "elm"
       extensions ".elm"
 
@@ -18,6 +39,11 @@ module Representer
 
       # RemoveComments
       drop "[(line_comment) (block_comment)]"
+
+      # Imports, and the list of what the module exposes, only make names
+      # available. Every solution exposes what the tests use, so the lists
+      # can't change what a mentor says about the code.
+      drop "[(import_clause) (exposing_list)]"
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "[", "]", "{", "}", ",", "let", "in", "if", "then", "else",
@@ -32,6 +58,29 @@ module Representer
         next nil unless parts.all? { |part| STRING_PARTS.include?(part.type) }
 
         literal(parts.map { |part| part.type == "regular_string_part" ? part.text : Elm.decode(part.text) }.join)
+      end
+
+      # Brackets that only group. The tree's shape already shows the
+      # grouping, except for an operator expression inside another one: the
+      # grammar writes `a + b * c` as one flat list of parts, so the brackets
+      # in `(a + b) * c` stay.
+      rewrite "(_) @node" do |match|
+        node = match.node
+        brackets = node.children.select { |child| Elm.redundant_brackets?(node, child) }
+        next nil if brackets.empty?
+
+        brackets.each { |child| node.replace_child(child, child.named_children.first) }
+        node
+      end
+
+      # Numbers are their values: `0x1F` is `31`, and `1.50` is `1.5`. Elm
+      # reads `1` as any number and `1.0` as a Float, so they stay apart.
+      numbers :number_literal do |text|
+        value = Engine::Numbers.integer(text, separator: "", prefixes: { "0x" => 16 })
+        next value.to_s if value
+
+        value = Engine::Numbers.decimal(text, separator: "")
+        value && Engine::Numbers.write_decimal(value)
       end
 
       ### Rename and keep ###
@@ -60,11 +109,8 @@ module Representer
       member "[(value_qid (dot) (upper_case_identifier)* @name) (upper_case_qid (dot) (upper_case_identifier)* @name)]"
       member "[(field_access_expr (lower_case_identifier) @name) (field_accessor_function_expr (lower_case_identifier) @name)]"
 
-      # The names of the module and the things it exposes are the solution's
-      # interface, so they stay.
+      # The module's name is the solution's interface, so it stays.
       keep "(module_declaration name: (upper_case_qid (upper_case_identifier) @name))"
-      keep "(module_declaration exposing: (exposing_list (exposed_value (lower_case_identifier) @name)))"
-      keep "(module_declaration exposing: (exposing_list (exposed_type (upper_case_identifier) @name)))"
 
       # The names that Elm imports into every module.
       keep "Int", "Float", "toFloat", "round", "floor", "ceiling", "truncate", "max", "min", "compare", "Order", "GT",
@@ -75,6 +121,12 @@ module Representer
         "comparable", "appendable", "compappend", "main", "init", "update", "view", "subscriptions", "Msg", "Model"
 
       library_names File.join(__dir__, "library_names", "elm.txt")
+
+      def self.redundant_brackets?(parent, child)
+        return false unless child.type == "parenthesized_expr" && child.named_children.size == 1
+
+        !(parent.type == "bin_op_expr" && child.named_children.first.type == "bin_op_expr")
+      end
 
       STRING_PARTS = %w[regular_string_part string_escape invalid_string_escape].freeze
       ESCAPES = { "n" => "\n", "r" => "\r", "t" => "\t", "\\" => "\\", "\"" => "\"", "'" => "'" }.freeze

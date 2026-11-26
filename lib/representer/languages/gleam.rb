@@ -1,3 +1,23 @@
+# What this class does to a Gleam solution's code to make its representation:
+#
+# - Drops comments and imports, and writes each name that an import gives
+#   with `as` as the name it stands for.
+# - Drops punctuation and keywords that the tree already shows.
+# - Writes `f(age:)` as `f(age: age)`, and the same in patterns.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`,
+#   `1.50` is `1.5`).
+# - Writes a string as its value.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps labelled arguments' labels and `main`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # The old gleam-representer only removed blank lines and trailing
@@ -5,7 +25,7 @@ module Representer
     # class applies the same approach as the other languages.
     class Gleam < Language
       tracks "gleam"
-      version 5
+      version 6
       grammar "gleam"
       extensions ".gleam"
 
@@ -23,11 +43,7 @@ module Representer
       drop "[(comment) (statement_comment) (module_comment)]"
 
       # The node types already say what these tokens say.
-      drop_tokens "(", ")", "{", "}", "[", "]", ",", "fn", "let", "import", "type", "const", "case", "assert"
-
-      # `import a.{type Foo}` imports the type Foo, and `import a.{Foo}` its
-      # constructor.
-      keep_tokens_in :unqualified_import, "type"
+      drop_tokens "(", ")", "{", "}", "[", "]", ",", "fn", "let", "type", "const", "case", "assert"
 
       ### Rewrite ###
 
@@ -44,28 +60,18 @@ module Representer
         match.node
       end
 
-      # 1_000 is 1000.
-      rewrite "[(integer /_/) @number (float /_/) @number]" do |match|
-        leaf(match[:number].type, match[:number].text.delete("_"))
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31`, and
+      # `1.50` is `1.5`.
+      numbers(:integer) { |text| Engine::Numbers.integer(text)&.to_s }
+      numbers :float do |text|
+        value = Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
       end
 
-      # SortImports: the imports at the start of the file are in a fixed
-      # order, and so are the names in `import m.{b, a}`.
-      rewrite "(unqualified_imports) @imports" do |match|
-        sorted = match.node.children.sort_by.with_index { |child, index| [Gleam.import_key(child), index] }
-        next nil if sorted.map(&:inspect) == match.node.children.map(&:inspect)
-
-        match.node.children.replace(sorted)
-        match.node
-      end
-      rewrite "(source_file) @file" do |match|
-        run = match.node.children.take_while { |child| child.type == "import" }
-        sorted = run.sort_by.with_index { |child, index| [Gleam.import_key(child), index] }
-        next nil if sorted.map(&:inspect) == run.map(&:inspect)
-
-        match.node.children[0, run.size] = sorted
-        match.node
-      end
+      # Imports only make names available, so they go. A name that an import
+      # gives with `as` becomes the name it stands for: after
+      # `import gleam/list as l`, `l.length` is `list.length`.
+      rewrite("(source_file) @file") { |match| Gleam.drop_imports(match.node) ? match.node : nil }
 
       # A string is its value.
       rewrite '(string "\"") @string' do |match|
@@ -94,8 +100,6 @@ module Representer
       rename "(variable) @name"
       rename "(function_parameter name: (identifier) @name)"
       rename "[(function name: (identifier) @name) (constant name: (identifier) @name)]"
-      rename "(import alias: (identifier) @name)"
-      rename "(unqualified_import alias: (identifier) @name)"
       rename "[(type_name name: (type_identifier) @name) (data_constructor name: (constructor_name) @name)]"
 
       # A record's fields are reached through `record.field` and constructor
@@ -123,11 +127,27 @@ module Representer
         end
       end
 
-      # The text to sort an import by: the module path, then the alias.
-      def self.import_key(node)
-        parts = []
-        node.each_descendant { |descendant| parts << descendant.text.to_s if descendant.leaf? }
-        parts.join(" ")
+      # Removes the imports, and writes each alias as the name it stands
+      # for. Returns whether anything changed.
+      def self.drop_imports(file)
+        imports = file.children.select { |child| child.type == "import" }
+        return false if imports.empty?
+
+        aliases = {}
+        imports.each do |import|
+          aliases[import["alias"].text] = import["module"]&.text.to_s.split("/").last if import["alias"]
+          import.each_descendant do |node|
+            aliases[node["alias"].text] = node["name"].text if node.type == "unqualified_import" && node["alias"] && node["name"]
+          end
+        end
+        file.children.reject! { |child| imports.include?(child) }
+        file.each_descendant do |node|
+          node.children.map! do |child|
+            name = aliases[child.text] if %w[identifier type_identifier].include?(child.type) && child.leaf?
+            name ? leaf(child.type, name).tap { |expanded| expanded.field = child.field } : child
+          end
+        end
+        true
       end
 
       # Gives the names in a pattern the `variable` type. Returns whether

@@ -8,21 +8,31 @@ class JavaScriptTest < RepresenterTest
   LIBRARY_NAMES = "This representer never renames names from JavaScript's library (console, log, indexOf...), " \
                   "so mentors' comments on different library calls stay apart. The old representer renamed them.".freeze
 
+  EXPORTS = "The old representer kept the names that a solution exports. This representer renames them like any " \
+            "other name, and keeps the ones that the exercise's tests use. These tests have no test files, so the " \
+            "exported names are renamed.".freeze
+
   DEVIATIONS = {
     "general-normalize-quotes" => {
       restore: { "IDENTIFIER_11" => "indexOf" },
       remove: ["indexOf"],
-      why: LIBRARY_NAMES
+      add: %w[decodedValue],
+      why: "#{LIBRARY_NAMES} #{EXPORTS}"
     },
+    "general-remove-comments" => { add: %w[twoFer], why: EXPORTS },
+    "general-normalize-whitespace" => { add: %w[twoFer], why: EXPORTS },
+    "two-fer-pass" => { add: %w[twoFer], why: EXPORTS },
     "two-fer-fail" => {
       restore: { "IDENTIFIER_2" => "console", "IDENTIFIER_3" => "debug", "IDENTIFIER_4" => "log" },
       remove: %w[console debug log],
-      why: LIBRARY_NAMES
+      add: %w[twoFer],
+      why: "#{LIBRARY_NAMES} #{EXPORTS}"
     },
     "clock-pass" => {
       restore: { "IDENTIFIER_5" => "console", "IDENTIFIER_6" => "log", "IDENTIFIER_9" => "padStart", "IDENTIFIER_14" => "equals" },
       remove: %w[console log padStart equals],
-      why: "#{LIBRARY_NAMES} The student's equals method also keeps its name, because equals is a library name."
+      add: %w[Clock clockPad],
+      why: "#{LIBRARY_NAMES} The student's equals method also keeps its name, because equals is a library name. #{EXPORTS}"
     }
   }.freeze
 
@@ -88,5 +98,21 @@ class JavaScriptTest < RepresenterTest
 
   def test_a_hash_bang_line_is_dropped
     assert_same_representation "#!/usr/bin/env node\nexport const a = 1;\n", "export const a = 1;\n"
+  end
+
+  def test_imports_requires_and_export_lists_are_dropped
+    assert_same_representation "import { a } from './b'\nimport c from 'c'\nconst x = 1", "const x = 1"
+    assert_same_representation "const fs = require('fs')\nconst x = 1", "const x = 1"
+    assert_same_representation "function f() {}\nexport { f }", "function f() {}"
+    assert_same_representation "function f() {}\nmodule.exports = { f }", "function f() {}"
+    refute_same_representation "import './setup'\nconst x = 1", "const x = 1"
+    refute_same_representation "import { a } from './b'\nconst x = a()", "import { b } from './b'\nconst x = b()"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "const x = 1_000 + 0x1F + 1e3", "const x = 1000 + 31 + 1000"
+    assert_same_representation "const x = 1.0 + .5", "const x = 1 + 0.5"
+    refute_same_representation "const x = 1n", "const x = 1"
+    refute_same_representation "const x = 1.5", "const x = 1.6"
   end
 end

@@ -1,3 +1,33 @@
+# What this class does to a Common Lisp solution's code to make its representation:
+#
+# - Drops comments, docstrings and the quote marks that the tree already
+#   shows.
+# - Folds every symbol to lower case, because the reader does, unless it is
+#   written between bars.
+# - Writes `:common-lisp` as `:cl`, `#:name` as `:name`, `cl:car` as `car`,
+#   and `NIL`, `()` and `'()` as `nil`.
+# - Writes `(quote x)` as `'x`, `(function x)` as `#'x`, and `#'(lambda
+#   ...)` as `(lambda ...)`.
+# - Writes a string as its value.
+# - Writes numbers as their values (`#x1F` is `31`, `7.` is `7`, `2/4` is
+#   `1/2`, `1.50` is `1.5`), and keeps floats with exponent markers other
+#   than `e`.
+# - Drops `require`, `export`, `import` and `use-package` forms, and the
+#   `:use`, `:export` and `:import-from` options of `defpackage`.
+# - Sorts the remaining options of `defpackage`.
+# - Keeps only the variable of a `loop` clause such as `for x from 1 to n`.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps the lambda-list keywords (`&optional`, `&key` and so on).
+# - Renames a keyword only if the solution defines something with that name.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/common-lisp-representer is a rule here. The old
@@ -9,7 +39,7 @@ module Representer
     # case folding is applied to every name.
     class CommonLisp < Language
       tracks "common-lisp"
-      version 5
+      version 6
       grammar "common_lisp"
       extensions ".lisp"
 
@@ -30,6 +60,13 @@ module Representer
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "'", "`", ",", ",@", "#'", ":", "::"
+
+      # `require`, `export`, `import` and `use-package` only make names
+      # available.
+      drop "(list_lit) @list", where: lambda { |match|
+        first = match.node.named_children.first
+        first&.type == "sym_lit" && first.text.match?(/\A(require|export|import|use-package)\z/i)
+      }
 
       ### Rewrite ###
 
@@ -88,7 +125,14 @@ module Representer
         CommonLisp.drop_variable_docstring(match.node) ? match.node : nil
       end
 
-      # The options of `defpackage` can come in any order.
+      # Numbers are their values: `#x1F` is `31`, `+7` and `7.` are `7`,
+      # `2/4` is `1/2`, and `1.50` is `1.5`. A float with an exponent marker
+      # other than `e` (such as `1.0d0`) keeps its text.
+      numbers(:num_lit) { |text| CommonLisp.number(text) }
+
+      # The options of `defpackage` can come in any order. Its `:use`,
+      # `:export` and `:import-from` options only make names available, so
+      # they go.
       rewrite '(list_lit (sym_lit "defpackage")) @list' do |match|
         CommonLisp.sort_package_options(match.node) ? match.node : nil
       end
@@ -270,6 +314,31 @@ module Representer
 
         # Sorts the options by their keyword. Returns whether the order changed.
         def sort_package_options(list)
+          dropped = list.children.reject! { |child| child.type == "list_lit" && IMPORT_OPTIONS.include?(option_key(child)) }
+          sort_options(list) || !dropped.nil?
+        end
+
+        IMPORT_OPTIONS = %w[use export import-from].freeze
+        RADIXES = { "x" => 16, "o" => 8, "b" => 2 }.freeze
+
+        def number(text)
+          case text
+          when /\A#([xob])([-+]?\h+)\z/i
+            Integer(Regexp.last_match(2), RADIXES.fetch(Regexp.last_match(1).downcase), exception: false)&.to_s
+          when /\A([-+]?\d+)\.?\z/ then Regexp.last_match(1).to_i.to_s
+          when %r{\A([-+]?\d+)/(\d+)\z}
+            denominator = Regexp.last_match(2).to_i
+            return nil if denominator.zero?
+
+            value = Rational(Regexp.last_match(1).to_i, denominator)
+            value.denominator == 1 ? value.numerator.to_s : "#{value.numerator}/#{value.denominator}"
+          when /\A[-+]?(\d*\.\d+(e[-+]?\d+)?|\d+(\.\d*)?e[-+]?\d+)\z/i
+            value = Engine::Numbers.decimal(text.delete_prefix("+"), separator: "")
+            value && Engine::Numbers.write_decimal(value)
+          end
+        end
+
+        def sort_options(list)
           options = list.children.select { |child| child.type == "list_lit" && option_key(child) }
           sorted = options.sort_by.with_index { |option, index| [option_key(option), index] }
           return false if options.map(&:object_id) == sorted.map(&:object_id)

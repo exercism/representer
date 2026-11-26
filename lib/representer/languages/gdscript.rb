@@ -1,3 +1,24 @@
+# What this class does to a GDScript solution's code to make its representation:
+#
+# - Drops comments, region markers, line continuations and docstrings.
+# - Drops punctuation and keywords that the tree already shows, and brackets
+#   that only group.
+# - Writes `&&`, `||` and `!` as `and`, `or` and `not`.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`,
+#   `1.50` is `1.5`).
+# - Writes a string as its value, however it is quoted.
+# - Drops type hints.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `self`, `super` and `_`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # The old gdscript-representer parsed the code with gdtoolkit, dropped
@@ -7,7 +28,7 @@ module Representer
     # those too, because the student chooses all of those names.
     class GDScript < Language
       tracks "gdscript"
-      version 6
+      version 7
       grammar "gdscript"
       extensions ".gd"
 
@@ -41,9 +62,12 @@ module Representer
       rewrite('(binary_operator "||") @operator') { |match| GDScript.respell(match.node, "||", "or") }
       rewrite('(unary_operator "!") @operator') { |match| GDScript.respell(match.node, "!", "not") }
 
-      # 1_000 is 1000.
-      rewrite "[(integer /_/) @number (float /_/) @number]" do |match|
-        leaf(match[:number].type, match[:number].text.delete("_"))
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31`, and
+      # `1.50` is `1.5`.
+      numbers(:integer) { |text| Engine::Numbers.integer(text, prefixes: { "0x" => 16, "0b" => 2 })&.to_s }
+      numbers :float do |text|
+        value = Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
       end
 
       # 'a' and "a" are the same string.

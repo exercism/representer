@@ -23,7 +23,11 @@ class PythonTest < RepresenterTest
 
   def self.reasons(*keys) = keys.map { |key| REASONS.fetch(key) }.join(" ")
 
+  ALIASES = "This representer drops imports, and writes a name given with `as` as the name it stands for, so the " \
+            "alias isn't in the mapping.".freeze
+
   DEVIATIONS = {
+    "practice-wordy" => { restore: { "placeholder_0" => "truediv" }, remove: %w[div], why: ALIASES },
     "concept-ellens-alien-game" => {
       remove: %w[__init__],
       why: reasons(:called)
@@ -63,8 +67,8 @@ class PythonTest < RepresenterTest
       why: reasons(:kwargs)
     },
     "example-parencontext-normalization" => {
-      remove: %w[mode prec rounding],
-      why: reasons(:library, :stores)
+      remove: %w[mode prec rounding pd],
+      why: "#{reasons(:library, :stores)} #{ALIASES}"
     },
     "example-typehints-removal" => {
       add: %w[n],
@@ -463,10 +467,17 @@ class PythonTest < RepresenterTest
     refute_same_representation "x = sorted(a, key=len)", "x = sorted(a, reverse=len)"
   end
 
-  def test_imports
+  def test_imports_are_dropped
     assert_same_representation "import numpy as np\nx = np.pi", "import numpy as n\nx = n.pi"
+    assert_same_representation "import numpy as np\nx = np.pi", "import numpy\nx = numpy.pi"
+    assert_same_representation "from math import sqrt as s\nx = s(2)", "from math import sqrt\nx = sqrt(2)"
+    assert_same_representation "import math, re\nx = 1", "import re\nimport math\nx = 1"
+    assert_same_representation "def f():\n    import math\n    return math.pi", "def f():\n    return math.pi"
+    assert_same_representation "__all__ = ['f']\ndef f(): pass", "def f(): pass"
     refute_same_representation "import math\nx = math.pi", "import cmath\nx = cmath.pi"
-    refute_same_representation "from math import sqrt", "from math import floor"
+    refute_same_representation "import math\nx = math.sqrt(2)", "import math\nx = math.floor(2)"
+    refute_same_representation "from math import sqrt\nx = sqrt(2)", "from math import floor\nx = floor(2)"
+    refute_same_representation "from __future__ import annotations\nx = 1", "x = 1"
   end
 
   def test_match_captures_are_names

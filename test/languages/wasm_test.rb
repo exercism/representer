@@ -128,4 +128,19 @@ class WasmTest < RepresenterTest
     assert_same_representation wrap("(i32.add (block (result i32) (i32.const 1)) (i32.const 2))"),
       wrap("block (result i32)\ni32.const 1\nend\ni32.const 2\ni32.add")
   end
+
+  def test_constants_are_their_values_in_their_type
+    assert_same_representation wrap("(f32.const 1) (drop) (local.get $a)"), wrap("(f32.const 1.0) (drop) (local.get $a)")
+    assert_same_representation wrap("(f64.const 1.50) (drop) (local.get $a)"), wrap("(f64.const 1.5) (drop) (local.get $a)")
+    assert_same_representation wrap("(i64.const 18446744073709551615) (drop) (local.get $a)"),
+      wrap("(i64.const -1) (drop) (local.get $a)")
+    assert_same_representation wrap("(i32.const 0x1F)"), wrap("(i32.const 31)")
+    refute_same_representation wrap("(i32.const 4294967295)"), wrap("(i32.const 4294967294)")
+    refute_same_representation wrap("(i32.const 1)"), wrap("(i32.const 2)")
+  end
+
+  def test_fields_without_a_module_are_a_module
+    body = "(func $f (export \"f\") (param $a i32) (result i32) (local.get $a))"
+    assert_same_representation "(module #{body})", body
+  end
 end

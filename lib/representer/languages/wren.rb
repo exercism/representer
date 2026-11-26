@@ -1,3 +1,23 @@
+# What this class does to a Wren solution's code to make its representation:
+#
+# - Drops comments and imports.
+# - Drops punctuation and keywords that the tree already shows, and brackets
+#   that only group.
+# - Writes a string as its value, keeping interpolations.
+# - Writes numbers as their values: every Wren number is a double, so `1.0`
+#   is `1`, and `0x1F` is `31`.
+# - Writes `if (a) b` as `if (a) { b }`, and the same for loops.
+# - Sorts a map's entries when every key is a string.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # The old representer (exercism/wren-representer) walked the tree of the
@@ -11,7 +31,7 @@ module Representer
     # output is a tree.
     class Wren < Language
       tracks "wren"
-      version 6
+      version 7
       grammar "wren"
       extensions ".wren"
 
@@ -24,9 +44,12 @@ module Representer
 
       drop "[(line_comment) (block_comment)]"
 
+      # Imports only make names available.
+      drop "(import_statement)"
+
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", "[", "]", ",",
-        "class", "construct", "for", "in", "if", "import", "return", "var"
+        "class", "construct", "for", "in", "if", "return", "var"
 
       ### Rewrite ###
 
@@ -45,9 +68,12 @@ module Representer
         literal(match.node.text.delete_prefix('"""').delete_suffix('"""'))
       end
 
-      # 1.0 is 1, and 1.50 is 1.5.
-      rewrite '(number /\A\d+\.\d*0\z/) @number' do |match|
-        leaf(:number, match.node.text.sub(/0+\z/, "").delete_suffix("."))
+      # Numbers are their values. Every Wren number is a double, so `1.0` and
+      # `1e0` are `1`, `0x1F` is `31`, and `1.50` is `1.5`.
+      numbers :number do |text|
+        value = Engine::Numbers.integer(text, separator: "", prefixes: { "0x" => 16 }) ||
+                Engine::Numbers.decimal(text, separator: "")
+        value && Engine::Numbers.write_number(value.to_r)
       end
 
       # `if (a) b` is `if (a) { b }`, and the same for loops.
@@ -58,11 +84,6 @@ module Representer
       # The order of a map's entries doesn't change the map.
       rewrite "(map_literal) @map" do |match|
         Wren.sort_entries(match.node) ? match.node : nil
-      end
-
-      # The imports at the start of a file can come in any order.
-      rewrite "(source_file) @file" do |match|
-        Wren.sort_imports(match.node) ? match.node : nil
       end
 
       ### Rename and keep ###
@@ -128,22 +149,6 @@ module Representer
 
         map.children.replace(map.children.reject { |child| child.type == "map_entry" } + sorted)
         true
-      end
-
-      # Sorts the run of imports at the start of a file by the module's path.
-      def self.sort_imports(file)
-        run = file.children.take_while { |child| child.type == "import_statement" }
-        sorted = run.sort_by.with_index { |node, index| [import_key(node), index] }
-        return false if sorted.map(&:object_id) == run.map(&:object_id)
-
-        file.children[0, run.size] = sorted
-        true
-      end
-
-      def self.import_key(node)
-        parts = []
-        node.each_descendant { |descendant| parts << descendant.text.to_s if descendant.leaf? }
-        parts.join(" ")
       end
     end
   end

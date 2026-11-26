@@ -1,3 +1,28 @@
+# What this class does to a Python solution's code to make its representation:
+#
+# - Gives no representation to code that Python rejects, such as Python 2's
+#   `print "x"`.
+# - Drops comments, line continuations, docstrings, print statements and `if
+#   __name__ == "__main__":` blocks.
+# - Drops imports and `__all__`, keeps `from __future__` imports, and writes
+#   each name given with `as` as the name it stands for.
+# - Drops punctuation and keywords that the tree already shows, and brackets
+#   that only group.
+# - Drops type hints.
+# - Writes `elif` as `else` with an `if`, and `1, 2` as `(1, 2)`.
+# - Writes numbers as their values (`1_000` is `1000`, `0x10` is `16`).
+# - Writes a string as its value, joining adjacent strings.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps names that start and end with `__`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Follows the old exercism/python-representer, which renamed names in
@@ -5,7 +30,7 @@ module Representer
     # statements, `if __name__ == "__main__"` blocks and type hints.
     class Python < Language
       tracks "python"
-      version 6
+      version 7
       grammar "python"
       extensions ".py"
 
@@ -58,6 +83,10 @@ module Representer
 
       drop "(comment)"
       drop "(line_continuation)"
+
+      # The `__all__` list of what a module exports only makes names
+      # available. A rule below removes the imports.
+      drop '[(expression_statement (assignment left: (identifier "__all__"))) (assignment left: (identifier "__all__"))]'
 
       # `if __name__ == "__main__":` blocks only run when the file is a script.
       drop "(if_statement condition: (comparison_operator))", where: ->(match) { Python.main_guard?(match.node) }
@@ -156,6 +185,12 @@ module Representer
         match.node
       end
 
+      # Imports only make names available, so they go. A name that an import
+      # gives with `as` becomes the name it stands for: after
+      # `import numpy as np`, `np.pi` is `numpy.pi`. A `from __future__`
+      # import changes how the code runs, so it stays.
+      rewrite("[(module) (block)] @scope") { |match| Python.drop_imports(match.node) ? match.node : nil }
+
       # Numbers are their values: 1_000 is 1000, and 0x10 is 16.
       rewrite "(integer) @number" do |match|
         value = Python.integer_value(match.node.text)
@@ -195,7 +230,7 @@ module Representer
       rename "[(for_statement left: (identifier) @name) (for_in_clause left: (identifier) @name)]"
       rename "[(as_pattern alias: (as_pattern_target (identifier) @name)) (named_expression name: (identifier) @name)]"
       rename "[(global_statement (identifier)* @name) (nonlocal_statement (identifier)* @name)]"
-      rename "[(aliased_import alias: (identifier) @name) (splat_pattern (identifier) @name)]"
+      rename "(splat_pattern (identifier) @name)"
       rename "[(capture_pattern (identifier) @name) (case_pattern (as_pattern (identifier) @name))]"
 
       # Functions, classes, and the fields that a class defines.
@@ -405,6 +440,42 @@ module Representer
         def imaginary_value(text)
           number = Float(text.delete("_").chomp("j").chomp("J"), exception: false)
           number&.finite? ? "#{number}j" : text.delete("_").downcase
+        end
+
+        IMPORTS = %w[import_statement import_from_statement].freeze
+
+        # Removes the imports among a module's or block's statements, and
+        # writes each name given with `as` as the name it stands for, in the
+        # rest of the module or block. Returns whether anything changed.
+        def drop_imports(scope)
+          imports = scope.children.select { |child| IMPORTS.include?(child.type) }
+          return false if imports.empty?
+
+          aliases = {}
+          imports.each do |statement|
+            statement.each_descendant do |node|
+              next unless node.type == "aliased_import" && node["alias"] && node["name"]
+
+              parts = node["name"].children.select { |part| part.type == "identifier" }.map(&:text)
+              aliases[node["alias"].text] = statement.type == "import_statement" ? parts : [parts.last]
+            end
+          end
+          scope.children.reject! { |child| imports.include?(child) }
+          expand_aliases(scope, aliases) unless aliases.empty?
+          true
+        end
+
+        def expand_aliases(node, aliases)
+          node.children.map! do |child|
+            parts = aliases[child.text] if child.type == "identifier" && child.leaf? && child.field != "attribute"
+            next expand_aliases(child, aliases) || child unless parts
+
+            path = parts.drop(1).reduce(leaf(:identifier, parts.first)) do |object, part|
+              build(:attribute, { object: }, token("."), { attribute: leaf(:identifier, part) })
+            end
+            path.tap { |expanded| expanded.field = child.field }
+          end
+          node
         end
 
         def integer_value(text)

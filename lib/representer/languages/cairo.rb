@@ -1,3 +1,25 @@
+# What this class does to a Cairo solution's code to make its representation:
+#
+# - Drops comments, empty statements and `use` declarations.
+# - Drops punctuation and keywords that the tree already shows, and every
+#   `;`.
+# - Drops brackets that only group.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`),
+#   keeping any type suffix.
+# - Writes `P { x }` as `P { x: x }`.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `main`, `Some`, `None`, `Ok`, `Err`, `self` and `Self`.
+# - Renames functions, fields and enum variants after a dot or `::` too, but
+#   only if the solution defines them.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Cairo has no old representer, so there are no upstream tests to port.
@@ -9,7 +31,7 @@ module Representer
     # the rules follow the Rust class.
     class Cairo < Language
       tracks "cairo"
-      version 2
+      version 3
       grammar "cairo"
       extensions ".cairo"
 
@@ -22,6 +44,9 @@ module Representer
       ### Drop ###
 
       drop "[(line_comment) (empty_statement)]"
+
+      # `use` only makes names available.
+      drop "(use_declaration)"
 
       # The node types already say what these tokens say. A ";" is dropped
       # below, because a statement and a final expression are different nodes.
@@ -38,9 +63,11 @@ module Representer
       # (a + b) is a + b: the tree's shape already shows the grouping.
       unwrap :parenthesized_expression
 
-      # 1_000 is 1000.
-      rewrite "(numeric_literal /_/) @number" do |match|
-        leaf(:numeric_literal, match[:number].text.delete("_"))
+      # Numbers are their values: `1_000` is `1000`, and `0x1F` is `31`. A
+      # type suffix stays, as in `1000_u32`.
+      numbers :numeric_literal do |text|
+        digits, suffix = text.match(/\A(.*?)(_?(?:[iu](?:8|16|32|64|128|256)|felt252|usize))?\z/).captures
+        Engine::Numbers.integer(digits)&.then { |value| "#{value}#{suffix&.delete_prefix('_')&.prepend('_')}" }
       end
 
       # `P { x }` is `P { x: x }`, in values and in patterns.

@@ -115,4 +115,18 @@ class CommonLispTest < RepresenterTest
   def test_a_syntax_error_is_unrepresentable
     assert_unrepresentable "(defun f (x) (+ x 1)"
   end
+
+  def test_package_imports_and_exports_are_dropped
+    assert_same_representation "(defpackage :a (:use :cl) (:export :f))\n(in-package :a)\n(defun f () 1)",
+      "(defpackage :a)\n(in-package :a)\n(defun f () 1)"
+    assert_same_representation "(require :asdf)\n(export 'f)\n(defun f () 1)", "(defun f () 1)"
+    refute_same_representation "(defpackage :a (:shadow :x))\n(defun f () 1)", "(defpackage :a)\n(defun f () 1)"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "(defun f () (+ #x1F 1. +7 2/4 1.50))", "(defun f () (+ 31 1 7 1/2 1.5))"
+    assert_same_representation "(defun f () 4/2)", "(defun f () 2)"
+    refute_same_representation "(defun f () 1.0)", "(defun f () 1)"
+    refute_same_representation "(defun f () 1.0d0)", "(defun f () 1.0)"
+  end
 end

@@ -1,3 +1,30 @@
+# What this class does to a C++ solution's code to make its representation:
+#
+# - Drops comments, `#include` lines and `#pragma` lines, and keeps
+#   `#define`s.
+# - Drops an include guard around a whole file.
+# - Drops `using namespace` and `using` declarations at file, namespace and
+#   function level, and keeps them in a class.
+# - Drops punctuation and keywords that the tree already shows, except where
+#   they tell two programs apart (such as `delete[]` and `delete`).
+# - Writes `and`, `or` and the other operator words as `&&`, `||` and so on.
+# - Writes `template <class T>` as `template <typename T>`, and adds braces
+#   to a statement that controls another.
+# - Writes numbers as their values (`1'000` is `1000`, `0x1F` and `037` are
+#   `31`) when they fit in an int, and keeps any suffix.
+# - Writes a string as its value, joining adjacent strings.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `main`, and renames a name after `.`, `->` or `::` only if
+#   the solution defines it.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/cpp-representer is a rule here. The old
@@ -7,7 +34,7 @@ module Representer
     # solution defines are renamed, so every library name stays.
     class Cpp < Language
       tracks "cpp"
-      version 6
+      version 7
       grammar "cpp"
       extensions ".cpp", ".h", ".hpp", ".cc", ".cxx", ".hh", ".hxx"
 
@@ -20,12 +47,13 @@ module Representer
 
       ### Drop ###
 
-      # RemoveComments. The old representer also removed every preprocessor
-      # line. Includes of the project's own headers and `#pragma` lines carry
-      # no meaning for a mentor, so they go. Includes of standard headers
-      # and `#define`s stay, because they show what the solution uses.
+      # RemoveComments.
       drop "(comment)"
-      drop "(preproc_include path: (string_literal))"
+
+      # Includes only make names available, and every solution includes what
+      # it needs to pass the tests. `#pragma` lines carry no meaning for a
+      # mentor. `#define`s stay, because they change the code.
+      drop "(preproc_include)"
       drop '(preproc_call directive: (preproc_directive "#pragma"))'
 
       # The node types already say what these tokens say.
@@ -57,6 +85,20 @@ module Representer
         body = guard.children.reject { |child| child.equal?(guard.children[1]) || child.equal?(guard.children[2]) }
         build(:translation_unit, *body.select(&:named?))
       end
+
+      # `using namespace std;` and `using std::string;` only make names
+      # available. A `using` in a class (such as `using Base::Base;`) changes
+      # what the class has, so it stays.
+      USING_SCOPES = %w[translation_unit declaration_list compound_statement preproc_ifdef preproc_if preproc_else].freeze
+      rewrite "[#{USING_SCOPES.map { |type| "(#{type})" }.join(' ')}] @node" do |match|
+        match.node.children.reject! { |child| child.type == "using_declaration" } ? match.node : nil
+      end
+
+      # Numbers are their values: `1'000` is `1000`, and `0x1F` and `037`
+      # are `31`. An integer only changes if it fits in an int, because a
+      # large hexadecimal number can have a different type from the same
+      # decimal number. A number with a suffix keeps its text.
+      numbers(:number_literal) { |text| Cpp.number(text) }
 
       # `and` is `&&`, `or` is `||`, and so on.
       OPERATOR_WORDS.each do |word, symbol|
@@ -177,6 +219,18 @@ module Representer
         when /\Ax([0-7][0-9a-fA-F]?)\z/ then Regexp.last_match(1).to_i(16).chr
         else ESCAPES.fetch(code, escape)
         end
+      end
+
+      INT = (0...(2**31))
+
+      def self.number(text)
+        text = text.delete("'")
+        text = "0o#{text[1..]}" if text.match?(/\A0\d/)
+        value = Engine::Numbers.integer(text, separator: "")
+        return value.to_s if value && INT.cover?(value)
+
+        value = !text.match?(/\A0[xb]/i) && Engine::Numbers.decimal(text, separator: "")
+        value && Engine::Numbers.write_decimal(value)
       end
     end
   end

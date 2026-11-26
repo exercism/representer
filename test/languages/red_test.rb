@@ -32,4 +32,9 @@ class RedTest < RepresenterTest
   def test_main_and_return_names_are_kept
     refute_same_representation "main: does [1]", "other: does [1]"
   end
+
+  def test_numbers_are_their_values
+    assert_same_representation "Red []\nx: 1'000 + 1.50", "Red []\nx: 1000 + 1.5"
+    refute_same_representation "Red []\nx: 1.0", "Red []\nx: 1"
+  end
 end

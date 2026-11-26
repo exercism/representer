@@ -1,3 +1,27 @@
+# What Basic does to the code of a track with no class of its own:
+#
+# - Splits the code into tokens with the track's Rouge lexer, or at
+#   whitespace if the track has no lexer.
+# - Drops comments, blank lines and the spaces between tokens, and keeps
+#   every string as written.
+# - Keeps line breaks, and keeps each line's indentation depth in
+#   indentation-sensitive tracks.
+# - Drops lines that are whole imports in tracks where an import is always
+#   one line (such as Kotlin's `import`, OCaml's `open` and C's `#include`).
+# - Drops a Haskell, PureScript or Idris import together with the more
+#   indented lines that continue it.
+# - Drops Erlang's `-export`, `-import` and `-include` attributes and
+#   Prolog's `:- use_module` and `:- module` directives, up to the `.` that
+#   ends them.
+# - Drops the export list from a one-line Haskell or PureScript `module X
+#   (a, b) where`.
+# - Renames nothing.
+# - Ignores files that aren't source files, and test and config files.
+# - Writes the files one after another, sorted by their representations.
+#   File names never appear.
+#
+# Update this list whenever the class's rules change.
+
 require "rouge"
 
 module Representer
@@ -32,7 +56,7 @@ module Representer
       # The version for tracks with no class of their own. Bump it whenever
       # the output for any solution changes. Versions start at 2, because the
       # website's old basic representer reported 0.
-      VERSION = 4
+      VERSION = 5
 
       # Tracks whose slug is not the name of their Rouge lexer. Only map a
       # track to a lexer that knows its comment and string syntax exactly:
@@ -58,6 +82,33 @@ module Representer
       ].to_set.freeze
 
       PLAIN = /\A[^\s"]\S*\z/
+
+      # Statements that only make names available, by track: the first
+      # word of the line that each one is on. Only tracks whose imports are
+      # always one line long are listed, so a line that starts with the word
+      # is always a whole import. In Haskell, PureScript and Idris an import
+      # can go on over the lines below it, which are indented more.
+      IMPORT_WORDS = {
+        "c" => %w[#include], "d" => %w[import], "dart" => %w[import], "fortran" => %w[use USE], "groovy" => %w[import],
+        "haskell" => %w[import], "idris" => %w[import], "julia" => %w[import using], "kotlin" => %w[import],
+        "lean" => %w[import open], "ocaml" => %w[open], "odin" => %w[import], "purescript" => %w[import],
+        "r" => %w[library], "reasonml" => %w[open], "scala" => %w[import], "sml" => %w[open], "swift" => %w[import],
+        "vbnet" => %w[Imports], "vlang" => %w[import]
+      }.freeze
+      CONTINUED_BY_INDENTATION = %w[haskell idris purescript].to_set.freeze
+
+      # Imports and export lists that are written as attributes or
+      # directives, which end with a "." and can go on over several lines:
+      # Erlang's `-export([...]).` and Prolog's `:- use_module(...).`. Each
+      # starts with these two tokens.
+      DIRECTIVES = {
+        "erlang" => [%w[- export], %w[- export_type], %w[- import], %w[- include], %w[- include_lib]],
+        "prolog" => [%w[:- use_module], %w[:- ensure_loaded], %w[:- module]]
+      }.freeze
+
+      # Tracks whose module line can list what the module exports, as in
+      # `module Foo (bar, baz) where`.
+      EXPORT_LISTS = %w[haskell purescript].to_set.freeze
 
       initialize_with :track_slug, :solution_files
 
@@ -105,13 +156,43 @@ module Representer
       def represent(source)
         lines = []
         indentation = [0]
-        line_tokens(source).each do |indent, tokens|
+        without_imports(line_tokens(source)).each do |indent, tokens|
           next if tokens.empty?
 
           depth = INDENTATION_SENSITIVE.include?(track_slug) ? depth(indentation, indent) : 0
           lines << (("  " * depth) + tokens.map { |token| token.match?(PLAIN) ? token : token.dump }.join(" "))
         end
         lines.join("\n")
+      end
+
+      # The lines, without the imports and export lists listed above.
+      def without_imports(lines)
+        lines = lines.reject { |_, tokens| tokens.empty? }
+        kept = []
+        index = 0
+        while index < lines.size
+          indent, tokens = lines[index]
+          if IMPORT_WORDS.fetch(track_slug, []).include?(tokens.first)
+            index += 1
+            index += 1 while CONTINUED_BY_INDENTATION.include?(track_slug) && index < lines.size && lines[index][0] > indent
+          elsif DIRECTIVES.fetch(track_slug, []).include?(tokens.first(2))
+            index += 1 until index >= lines.size || lines[index][1].last.end_with?(".")
+            index += 1
+          else
+            kept << (EXPORT_LISTS.include?(track_slug) ? [indent, without_export_list(tokens)] : [indent, tokens])
+            index += 1
+          end
+        end
+        kept
+      end
+
+      # `module Foo (bar, baz) where` is `module Foo where`, if it is on one
+      # line.
+      def without_export_list(tokens)
+        return tokens unless tokens.first == "module" && tokens.last == "where" && tokens[2] == "("
+        return tokens unless tokens[-2] == ")"
+
+        tokens.first(2) + ["where"]
       end
 
       # Splits the source into lines of tokens. Each line comes with the width

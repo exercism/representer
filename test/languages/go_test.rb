@@ -130,10 +130,19 @@ class GoTest < RepresenterTest
       "package p\n\nfunc B() int { x := 1; return x }\n\nfunc A() int { return 1 }\n"
   end
 
-  def test_import_forms
-    assert_same_representation "package p\n\nimport \"a\"\n", "package p\n\nimport (\n\t\"a\"\n)\n"
-    assert_same_representation "package p\n\nimport \"a\"\nimport \"b\"\n", "package p\n\nimport (\n\t\"b\"\n\t\"a\"\n)\n"
-    refute_same_representation "package p\n\nimport \"a\"\n", "package p\n\nimport b \"a\"\n"
+  def test_imports_are_dropped_unless_they_run_code
+    assert_same_representation "package p\n\nimport \"a\"\n", "package p\n"
+    assert_same_representation "package p\n\nimport (\n\t\"b\"\n\tc \"a\"\n)\n", "package p\n"
+    refute_same_representation "package p\n\nimport _ \"embed\"\n", "package p\n"
+    refute_same_representation "package p\n\nimport \"strings\"\n\nfunc F(s string) string { return strings.ToUpper(s) }\n",
+      "package p\n\nimport \"strings\"\n\nfunc F(s string) string { return strings.ToLower(s) }\n"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "package p\n\nconst C = 1_000 + 0x1F + 0o17\n", "package p\n\nconst C = 1000 + 31 + 15\n"
+    assert_same_representation "package p\n\nconst C = 017\n", "package p\n\nconst C = 15\n"
+    assert_same_representation "package p\n\nconst C = 1.50\n", "package p\n\nconst C = 1.5\n"
+    refute_same_representation "package p\n\nconst C = 1.0\n", "package p\n\nconst C = 1\n"
   end
 
   def test_grouped_types_and_vars_are_separate_declarations

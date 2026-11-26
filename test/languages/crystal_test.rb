@@ -139,4 +139,22 @@ class CrystalTest < RepresenterTest
   def test_top_level_methods_are_sorted
     assert_same_representation "def a\n  1\nend\n\ndef b(x)\n  x + 1\nend\n", "def b(x)\n  x + 1\nend\n\ndef a\n  1\nend\n"
   end
+
+  def test_requires_are_dropped
+    assert_same_representation "require \"big\"\nclass C\nend", "class C\nend"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "X = 4400000000_i64", "X = 4400000000"
+    assert_same_representation "X = 1_000 + 0x1F + 1_i32", "X = 1000 + 31 + 1"
+    assert_same_representation "X = 1.50 + 2.0_f64", "X = 1.5 + 2.0"
+    refute_same_representation "X = 1_i64", "X = 1"
+    refute_same_representation "X = 1.0_f32", "X = 1.0"
+    refute_same_representation "X = 1.0", "X = 1"
+  end
+
+  def test_operator_methods_are_operators
+    assert_same_representation "X = (1..n).sum.**(2)", "X = (1..n).sum ** 2"
+    refute_same_representation "X = (1..n).sum ** 2", "X = (1..n).sum * 2"
+  end
 end

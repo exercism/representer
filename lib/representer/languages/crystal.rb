@@ -1,3 +1,32 @@
+# What this class does to a Crystal solution's code to make its representation:
+#
+# - Drops comments, `require` lines and empty argument lists (`foo()` is
+#   `foo`).
+# - Drops punctuation and keywords that the tree already shows, and brackets
+#   that only group.
+# - Writes `x if y` as an `if` block, and the same for `unless`.
+# - Writes `:"abc"` as `:abc`, `&.name` as a call to `name`, and `getter :x`
+#   as `getter x`.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`), and
+#   drops a type suffix that names the type the number has anyway
+#   (`4400000000_i64`).
+# - Writes `x.**(2)` as `x ** 2`.
+# - Splits `Foo::Bar` into a path of constants.
+# - Writes a string as its value, keeping interpolations.
+# - Sorts the methods in each class, module and struct, and at the top
+#   level, largest first.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps the methods that Crystal itself calls (`initialize`, `to_s`,
+#   `each` and so on).
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/crystal-representer is a rule here. The old
@@ -7,7 +36,7 @@ module Representer
     # here, because the tree has no layout.
     class Crystal < Language
       tracks "crystal"
-      version 7
+      version 8
       grammar "crystal"
       extensions ".cr"
 
@@ -23,6 +52,9 @@ module Representer
       # The old representer dropped comments, because they aren't in the
       # compiler's tree.
       drop "(comment)"
+
+      # `require` only makes a library's names available.
+      drop "(require)"
 
       # `foo()` is `foo`.
       drop "(argument_list)", where: ->(match) { match.node.children.empty? }
@@ -79,9 +111,18 @@ module Representer
         match.node
       end
 
-      # 1_000 is 1000.
-      rewrite "[(integer /\\d_\\d/) @number (float /\\d_\\d/) @number]" do |match|
-        leaf(match[:number].type, match[:number].text.gsub(/(?<=\d)_(?=\d)/, ""))
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31` and
+      # `1.50` is `1.5`. A suffix that names the type the number would have
+      # anyway goes, so `4400000000_i64` is `4400000000` (too big for an
+      # Int32), and `2.0_f64` is `2.0`.
+      numbers(:integer) { |text| Crystal.integer(text) }
+      numbers(:float) { |text| Crystal.float(text) }
+
+      # `x.**(2)` is `x ** 2`. The grammar writes the operator as a node in
+      # one and as a leaf in the other.
+      rewrite "(operator) @operator",
+        where: ->(match) { match.node.children.size == 1 && !match.node.children.first.named? } do |match|
+        leaf(:operator, match.node.children.first.type)
       end
 
       # `Foo::Bar` is a path of constants, and the `::` before a name is how
@@ -226,6 +267,26 @@ module Representer
 
       # Puts the methods of a body in order, each in a place where a method
       # was. A method with a visibility (`private def`) goes with the methods.
+      INT32 = (-(2**31)...(2**31))
+      INT64 = (-(2**63)...(2**63))
+
+      def self.integer(text)
+        digits, suffix = text.match(/\A(.*?)_?([iu](?:8|16|32|64|128))?\z/).captures
+        value = Engine::Numbers.integer(digits)
+        return nil unless value
+
+        default = INT32.cover?(value) ? "i32" : ("i64" if INT64.cover?(value))
+        suffix && suffix != default ? "#{value}_#{suffix}" : value.to_s
+      end
+
+      def self.float(text)
+        digits, suffix = text.match(/\A(.*?)_?(f32|f64)?\z/).captures
+        value = Engine::Numbers.decimal(digits)
+        return nil unless value
+
+        suffix == "f32" ? "#{Engine::Numbers.write_decimal(value)}_f32" : Engine::Numbers.write_decimal(value)
+      end
+
       def self.sort_methods(children)
         slots = children.each_index.select { |index| method?(children[index]) }
         return children if slots.size < 2

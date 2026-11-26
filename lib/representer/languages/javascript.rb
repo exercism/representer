@@ -1,8 +1,32 @@
+# What this class does to a JavaScript solution's code to make its representation:
+#
+# - Drops comments, `#!` lines and empty statements (except in a `for`).
+# - Drops imports, `require` declarations, export lists and `module.exports
+#   = { ... }`, and keeps an import with no names (`import "./setup"`).
+# - Drops punctuation, quotes and keywords that the tree already shows, and
+#   brackets that only group.
+# - Writes `(x) => x` as `x => x`.
+# - Writes a string as its value, however it is quoted.
+# - Writes numbers as their values: `1_000`, `1000.0` and `1e3` are `1000`,
+#   and `0x1F` is `31`.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps the methods that JavaScript itself calls (`constructor`,
+#   `toString` and so on).
+# - Keeps shorthand property names, because they are also property names.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     class JavaScript < Language
       tracks "javascript"
-      version 6
+      version 7
       grammar "javascript"
       extensions ".js", ".mjs", ".cjs", ".jsx"
 
@@ -18,6 +42,20 @@ module Representer
       # a `for`, where it shows which part is missing: `for (;; i++)` and
       # `for (i++;;)` are different loops.
       drop "(empty_statement)", where: ->(match) { !%w[initializer condition].include?(match.node.field) }
+
+      # Imports, `require` calls and export lists only make names available.
+      # Every solution exports what the tests use, and the tests' names are
+      # kept anyway. An import with no names (`import "./setup"`) runs code,
+      # so it stays.
+      drop "(import_statement (import_clause))"
+      drop "(export_statement (export_clause))"
+      drop "[(lexical_declaration) (variable_declaration)] @declaration", where: lambda { |match|
+        declarators = match.node.named_children.select { |child| child.type == "variable_declarator" }
+        declarators.any? && declarators.all? { |declarator| JavaScript.require_call?(declarator["value"]) }
+      }
+      drop "(expression_statement (assignment_expression) @assignment)", where: lambda { |match|
+        JavaScript.export_list?(match[:assignment])
+      }
 
       # The node types already say what these tokens say. String quotes go
       # too, because a string's value doesn't depend on its quotes.
@@ -52,6 +90,16 @@ module Representer
         build(:template_string, *pieces.map { |piece| piece.is_a?(String) ? literal(piece) : piece })
       end
 
+      # Numbers are their values. JavaScript has one number type, so `1_000`,
+      # `1000.0` and `1e3` are all `1000`, and `0x1F` is `31`. A BigInt
+      # (`10n`) and an old octal number (`017`) keep their text.
+      numbers :number do |text|
+        next nil if text.match?(/\A0\d|n\z/)
+
+        value = Engine::Numbers.integer(text) || Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_number(value.to_r)
+      end
+
       ### Rename and keep ###
 
       # Local variables, parameters, functions and classes.
@@ -75,21 +123,26 @@ module Representer
       member "(member_expression property: (_) @name)"
       member "(pair key: (property_identifier) @name)"
 
-      # The exercise's interface is what the solution exports.
-      keep <<~PATTERN
-        (export_statement declaration: [
-          (function_declaration name: (identifier) @name)
-          (generator_function_declaration name: (identifier) @name)
-          (class_declaration name: (identifier) @name)
-          (lexical_declaration (variable_declarator name: (identifier) @name)*)
-          (variable_declaration (variable_declarator name: (identifier) @name)*)])
-      PATTERN
-      keep "(export_specifier name: (identifier) @name)"
-
       # Methods that JavaScript itself calls.
       keep "constructor", "toString", "valueOf", "toJSON", "then", "next", "length", "default"
 
       library_names File.join(__dir__, "library_names", "javascript.txt")
+
+      # `require("fs")`.
+      def self.require_call?(node)
+        return false unless node&.type == "call_expression" && node["function"]&.text == "require"
+
+        arguments = node["arguments"]&.named_children || []
+        arguments.size == 1 && arguments.first.type == "string"
+      end
+
+      # `module.exports = { a, b }`.
+      def self.export_list?(assignment)
+        target = assignment["left"]
+        value = assignment["right"]
+        target&.type == "member_expression" && target["object"]&.text == "module" && target["property"]&.text == "exports" &&
+          value&.type == "object" && value.children.select(&:named?).all? { |child| child.type == "shorthand_property_identifier" }
+      end
 
       ESCAPES = {
         "n" => "\n", "t" => "\t", "r" => "\r", "b" => "\b", "f" => "\f", "v" => "\v", "0" => "\0",

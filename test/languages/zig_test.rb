@@ -93,4 +93,17 @@ class ZigTest < RepresenterTest
   def test_a_syntax_error_is_unrepresentable
     assert_unrepresentable "fn f( void {"
   end
+
+  def test_imports_are_dropped
+    assert_same_representation "const std = @import(\"std\");\nconst print = @import(\"std\").debug.print;\npub fn f() void {}",
+      "pub fn f() void {}"
+    refute_same_representation "const std = @import(\"std\");\npub fn f() void { std.debug.print(\"a\", .{}); }",
+      "const std = @import(\"std\");\npub fn f() void { std.log.info(\"a\", .{}); }"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("return 1_000 + 0x1F + 0o17 + x;"), wrap("return 1000 + 31 + 15 + x;")
+    assert_same_representation wrap("return @intFromFloat(1.50);"), wrap("return @intFromFloat(1.5);")
+    refute_same_representation wrap("return 1.0;"), wrap("return 1;")
+  end
 end

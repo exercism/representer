@@ -5,6 +5,9 @@ class ElixirTest < RepresenterTest
 
   track "elixir"
 
+  ALIASES = "This representer replaces each alias with the full name of its module, so an alias's own name never " \
+            "appears, and isn't in the mapping.".freeze
+
   DEVIATIONS = {
     "local_function_calls" => {
       restore: { "placeholder_4" => "reverse" },
@@ -18,12 +21,18 @@ class ElixirTest < RepresenterTest
            "representer only renames names the solution defines, so some_value keeps its name."
     },
     "modules" => {
-      why: "The old representer left the function name in Five.External.Seven.nine(), because the module isn't " \
+      restore: { "Placeholder_2" => "Two" },
+      remove: %w[Eight Twelve Thirteen Two],
+      why: "#{ALIASES} In the module Five.Six.Seven, `Two` names a module called Two, because the alias of that " \
+           "name is in the module One. The old representer replaced it all the same. " \
+           "The old representer left the function name in Five.External.Seven.nine(), because the module isn't " \
            "defined in the file. This representer renames nine wherever the solution defines a function called nine " \
            "in one of its own modules, so the equivalent has the placeholder. It also sorts the names in an alias " \
            "group without looking at names that the solution defines, so the group {Ten, Eleven} stays in its order " \
            "and the equivalent has it in that order, not sorted by the old names."
     },
+    "user_defined_structs" => { remove: %w[Automobile], why: ALIASES },
+    "import_order" => { remove: %w[Ba], why: ALIASES },
     "module_attributes" => {
       restore: {
         "placeholder_6" => "six", "placeholder_8" => "eight", "placeholder_9" => "nine", "placeholder_11" => "eleven",
@@ -100,13 +109,14 @@ class ElixirTest < RepresenterTest
       "defmodule M do\n  use D\n  alias A\n  require C\n  import B\nend"
   end
 
-  def test_grouped_alias_names_are_sorted
-    assert_same_representation "defmodule M do\n  alias X.{B, A}\nend", "defmodule M do\n  alias X.{A, B}\nend"
+  def test_grouped_aliases_are_the_modules_they_stand_for
+    assert_same_representation "defmodule M do\n  alias X.{B, A}\n  def f, do: A.g()\nend", "defmodule M do\n  def f, do: X.A.g()\nend"
   end
 
   def test_types_have_no_parentheses
     assert_same_representation "defmodule M do\n  @type t :: integer()\nend", "defmodule M do\n  @type t :: integer\nend"
-    refute_same_representation "defmodule M do\n  @type t :: String.t()\nend", "defmodule M do\n  @type t :: String.t\nend"
+    assert_same_representation "defmodule M do\n  @type t :: String.t()\nend", "defmodule M do\n  @type t :: String.t\nend"
+    refute_same_representation "defmodule M do\n  @type t :: String.t()\nend", "defmodule M do\n  @type t :: String.s()\nend"
   end
 
   ### Names ###
@@ -163,5 +173,37 @@ class ElixirTest < RepresenterTest
 
   def test_maps_with_quoted_keys
     refute_same_representation '%{"a b": 1, c: 2}', '%{"a c": 1, c: 2}'
+  end
+
+  def test_require_and_import_are_dropped_and_use_stays
+    assert_same_representation wrap("    Enum.sum(x)"),
+      "defmodule M do\n  require Logger\n  import Bitwise\n  def f(x) do\n    Enum.sum(x)\n  end\nend\n"
+    refute_same_representation wrap("    x"), "defmodule M do\n  use GenServer\n  def f(x) do\n    x\n  end\nend\n"
+    refute_same_representation "defmodule M do\n  import Enum\n  def f(x), do: sum(x)\nend",
+      "defmodule M do\n  import Enum\n  def f(x), do: max(x)\nend"
+  end
+
+  def test_aliases_are_the_modules_they_stand_for
+    assert_same_representation "defmodule M do\n  alias Foo.Bar\n  def f, do: Bar.x()\nend",
+      "defmodule M do\n  def f, do: Foo.Bar.x()\nend"
+    assert_same_representation "defmodule M do\n  alias Foo.Bar, as: B\n  def f, do: B.x()\nend",
+      "defmodule M do\n  def f, do: Foo.Bar.x()\nend"
+    refute_same_representation "defmodule M do\n  alias Foo.Bar\n  def f, do: Bar.x()\nend",
+      "defmodule M do\n  def f, do: Bar.x()\nend"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("    x + 41_000 + 0b10_000_000 + 0x1F"), wrap("    x + 41000 + 128 + 31")
+    assert_same_representation wrap("    x * 100.00"), wrap("    x * 100.0")
+    refute_same_representation wrap("    x * 1.0"), wrap("    x * 1")
+    refute_same_representation wrap("    x + 41_000"), wrap("    x + 41_001")
+  end
+
+  def test_equivalent_spellings
+    assert_same_representation wrap("    %{:black => 0, white: 1}"), wrap("    %{black: 0, white: 1}")
+    assert_same_representation wrap("    [x | '']"), wrap("    [x | []]")
+    assert_same_representation "defmodule M do\n  @spec f(String.t()) :: String.t()\n  def f(x), do: x\nend",
+      "defmodule M do\n  @spec f(String.t) :: String.t\n  def f(x), do: x\nend"
+    refute_same_representation wrap("    %{\"black\" => 0}"), wrap("    %{black: 0}")
   end
 end

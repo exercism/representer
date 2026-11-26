@@ -91,11 +91,19 @@ class NimTest < RepresenterTest
 
   ### Imports ###
 
-  def test_imports_are_sorted
-    assert_same_representation "import strutils, algorithm", "import algorithm, strutils"
-    assert_same_representation "import std/[strutils, sequtils]", "import std/[sequtils, strutils]"
-    assert_same_representation "from strutils import split, join", "from strutils import join, split"
-    refute_same_representation "import strutils", "import sequtils"
+  def test_imports_includes_and_exports_are_dropped
+    assert_same_representation "import strutils, algorithm\nlet x = 1", "let x = 1"
+    assert_same_representation "import std/[strutils, sequtils]\nfrom math import sqrt\ninclude foo\nexport foo\nlet x = 1",
+      "let x = 1"
+    refute_same_representation "import strutils\nlet x = \"a\".toUpper", "import strutils\nlet x = \"a\".toLower"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "let x = 1_000 + 0x1F", "let x = 1000 + 31"
+    assert_same_representation "let x = 1.50", "let x = 1.5"
+    assert_same_representation "let x = 1_000'i64", "let x = 1000'i64"
+    refute_same_representation "let x = 1'i64", "let x = 1"
+    refute_same_representation "let x = 1.0", "let x = 1"
   end
 
   ### Names ###

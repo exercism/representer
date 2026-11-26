@@ -33,4 +33,14 @@ class FactorTest < RepresenterTest
   def test_the_shape_of_the_stack_effect_matters
     refute_same_representation ": f ( a -- b ) ;", ": f ( a b -- ) ;"
   end
+
+  def test_using_and_use_are_dropped
+    assert_same_representation "USING: kernel math\n  sequences ;\nUSE: io\nIN: a\n: f ( x -- y ) 1 + ;", "IN: a\n: f ( x -- y ) 1 + ;"
+    refute_same_representation "IN: a\n: f ( x -- y ) 1 + ;", "IN: b\n: f ( x -- y ) 1 + ;"
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation "IN: a\n: f ( x -- y ) 1,000 + 0x1F + 1.50 + ;", "IN: a\n: f ( x -- y ) 1000 + 31 + 1.5 + ;"
+    refute_same_representation "IN: a\n: f ( x -- y ) 1.0 + ;", "IN: a\n: f ( x -- y ) 1 + ;"
+  end
 end

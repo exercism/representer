@@ -1,3 +1,29 @@
+# What this class does to a Java solution's code to make its representation:
+#
+# - Drops comments, the package declaration, imports and the empty `;` after
+#   enum constants.
+# - Drops punctuation and keywords that the tree already shows, except where
+#   they tell two programs apart.
+# - Drops brackets that only group, and writes `(x) -> x` as `x -> x`.
+# - Writes `else { if ... }` as `else if ...`, and adds braces to a
+#   statement that controls another.
+# - Writes `int a, b;` as two declarations, and `java.util.List` as `List`.
+# - Writes numbers as their values (`1_000` is `1000`, `0x10` is `16`), and
+#   a string as its value.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Gives each method's parameters and local variables placeholders of their
+#   own, so a name reused in two methods doesn't change the numbering.
+# - Also keeps the methods that Java itself calls (`main`, `toString`,
+#   `equals` and so on).
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Follows the old exercism/java-representer, which renamed types, methods,
@@ -6,7 +32,7 @@ module Representer
     # package.
     class Java < Language
       tracks "java"
-      version 6
+      version 7
       grammar "java"
       extensions ".java"
 
@@ -100,6 +126,14 @@ module Representer
         Java.string_value(match.node)
       end
 
+      # The parameters and local variables of each method, constructor and
+      # initializer get placeholders of their own, so two methods that reuse
+      # a name number their locals the same way as two that don't.
+      SCOPES = %w[method_declaration constructor_declaration compact_constructor_declaration static_initializer].freeze
+      rewrite "[#{SCOPES.map { |type| "(#{type})" }.join(' ')}] @scope" do |match|
+        Java.scope_locals(match.node) ? match.node : nil
+      end
+
       ### Rename and keep ###
 
       # Local variables, parameters, labels and type parameters.
@@ -129,7 +163,48 @@ module Representer
 
       library_names File.join(__dir__, "library_names", "java.txt")
 
+      LOCAL_DECLARATIONS = {
+        "formal_parameter" => "name", "catch_formal_parameter" => "name", "enhanced_for_statement" => "name",
+        "resource" => "name", "instanceof_expression" => "name", "lambda_expression" => "parameters"
+      }.freeze
+
       class << self
+        # Gives every use of a parameter or local variable in the scope the
+        # scope. A name after a dot is some object's member, so it is left
+        # alone. Returns whether anything changed.
+        def scope_locals(scope)
+          locals = local_names(scope)
+          changed = false
+          scope.each_descendant do |node|
+            node.children.each do |child|
+              next unless child.type == "identifier" && child.scope.nil? && locals.include?(child.text)
+              next if child.field == "field" && node.type == "field_access"
+              next if child.field == "name" && node.type == "method_invocation"
+
+              child.scope = scope
+              changed = true
+            end
+          end
+          changed
+        end
+
+        def local_names(scope)
+          names = Set.new
+          scope.each_descendant do |node|
+            if (field = LOCAL_DECLARATIONS[node.type])
+              name = node[field]
+              names << name.text if name&.type == "identifier"
+            end
+            if node.type == "inferred_parameters"
+              node.children.each { |child| names << child.text if child.type == "identifier" }
+            end
+            if %w[local_variable_declaration spread_parameter].include?(node.type)
+              node.children.each { |child| names << child["name"].text if child.type == "variable_declarator" && child["name"] }
+            end
+          end
+          names
+        end
+
         # Splits every declaration of several variables into one declaration
         # for each, in the children of a block or class body.
         def split_declarations(node)

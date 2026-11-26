@@ -149,4 +149,27 @@ class RustTest < RepresenterTest
     refute_same_representation "fn f(a: i32) -> Vec<i32> { vec![a - 1] }", "fn f(a: i32) -> Vec<i32> { vec![a, -1] }"
     refute_same_representation "fn f() { g(vec![[1, 2]]) }", "fn f() { g(vec![(1, 2)]) }"
   end
+
+  def test_use_and_extern_crate_are_dropped
+    assert_same_representation "use std::collections::HashMap;\nextern crate foo;\nfn f() {}", "fn f() {}"
+    refute_same_representation "fn f() { std::cmp::max(1, 2); }", "fn f() { std::cmp::min(1, 2); }"
+  end
+
+  def test_a_final_assignment_is_a_statement
+    assert_same_representation "fn f(x: &mut u32) { *x = 1 }", "fn f(x: &mut u32) { *x = 1; }"
+    assert_same_representation "fn f(x: &mut u32) { *x += 1 }", "fn f(x: &mut u32) { *x += 1; }"
+  end
+
+  def test_a_match_arm_block_with_one_expression_is_the_expression
+    assert_same_representation wrap("match 1 { 1 => { 2 }, _ => 3 };"), wrap("match 1 { 1 => 2, _ => 3 };")
+    refute_same_representation wrap("match 1 { 1 => { g(); 2 }, _ => 3 };"), wrap("match 1 { 1 => 2, _ => 3 };")
+    assert_same_representation wrap("match 1 { 1 => {}, _ => () };"), wrap("match 1 { 1 => (), _ => {} };")
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("let x = 1_000 + 0x1F + 1_000u32;"), wrap("let x = 1000 + 31 + 1000u32;")
+    assert_same_representation wrap("let x = 1.50 + 2.0_f64;"), wrap("let x = 1.5 + 2.0f64;")
+    refute_same_representation wrap("let x = 1u8;"), wrap("let x = 1;")
+    refute_same_representation wrap("let x = 1.0;"), wrap("let x = 1;")
+  end
 end

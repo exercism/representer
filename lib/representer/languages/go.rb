@@ -1,10 +1,35 @@
+# What this class does to a Go solution's code to make its representation:
+#
+# - Drops comments and imports, and keeps an import that runs a package's
+#   code (`import _ "embed"`).
+# - Drops punctuation and keywords that the tree already shows, and every
+#   `;` outside a `for` clause.
+# - Drops brackets that only group.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` and `037` are
+#   `31`, `1.50` is `1.5`).
+# - Sorts the declarations by kind and size, and splits grouped
+#   declarations.
+# - Writes `var a int` inside a function as `a := 0`.
+# - Writes a string as its value.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `main`, `init` and the methods that the standard library
+#   calls (`String`, `Error`, `Len` and so on).
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Every step of exercism/go-representer is a rule here. Each rule's
     # comment says which step it replaces.
     class Go < Language
       tracks "go"
-      version 7
+      version 8
       grammar "go"
       extensions ".go"
 
@@ -79,6 +104,17 @@ module Representer
         # block returns nil when it removes nothing, so the rule can't keep
         # matching its own output.
         match.node if match.node.children.reject! { |child| !child.named? && child.type == ";" }
+      end
+
+      # Numbers are their values: `1_000` is `1000`, `0x1F` and `037` are
+      # `31`, and `1.50` is `1.5`.
+      numbers :int_literal do |text|
+        text = "0o#{text[1..]}" if text.match?(/\A0[0-7_]/)
+        Engine::Numbers.integer(text)&.to_s
+      end
+      numbers :float_literal do |text|
+        value = Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
       end
 
       # (a + b) is a + b: the tree's shape already shows the grouping.
@@ -177,9 +213,10 @@ module Representer
 
       ### Helpers for the rules above ###
 
-      # The package clause, then one import declaration with its imports in
-      # order, then every other declaration by kind and then by size, largest
-      # first.
+      # The package clause, then one import declaration with the imports
+      # that run a package's code (`import _ "embed"`) in order, then every
+      # other declaration by kind and then by size, largest first. Other
+      # imports only make names available, so they go.
       def self.organise(children)
         head, rest = children.partition { |child| child.type == "package_clause" }
         head = head.uniq(&:inspect)
@@ -191,7 +228,7 @@ module Representer
             child.type == "import_spec_list" ? child.children : [child]
           end
         end
-        specs = specs.select { |child| child.type == "import_spec" }.uniq(&:inspect).sort_by { |spec| key(spec) }
+        specs = specs.select { |child| side_effect_import?(child) }.uniq(&:inspect).sort_by { |spec| key(spec) }
         import_declaration = specs.empty? ? [] : [Engine::Node.new("import_declaration",
           [Engine::Node.new("import_spec_list", specs)])]
 
@@ -200,6 +237,8 @@ module Representer
         end.map(&:first)
         head + import_declaration + others
       end
+
+      def self.side_effect_import?(spec) = spec.type == "import_spec" && spec["name"]&.type == "blank_identifier"
 
       # `type ( A int; B int )` is two type declarations, and so is a grouped
       # var. A const group stays whole, because `iota` and a repeated value

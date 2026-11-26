@@ -29,6 +29,16 @@ class ElmTest < RepresenterTest
     "type-alias-tuple-of-custom-types" => undefined("Identifier_2", "Name", "a type from elsewhere"),
     "type-alias-function" => undefined("Identifier_2", "Name", "a type from elsewhere"),
     "type-alias-record" => undefined("Identifier_3", "Name", "a type from elsewhere"),
+    "exports-module-name" => {
+      merges_with: "exports-exposed-things",
+      why: "The two tests only differ in what the module exposes. This representer drops the exposing list, as " \
+           "every solution exposes what the tests use."
+    },
+    "expression-parenthesized" => {
+      merges_with: "function-name-and-parameters",
+      why: "`(x)` and `x` are the same value. The old representer kept brackets that only group, and this one " \
+           "drops them."
+    },
     "pattern-uncons" => {
       unrepresentable: true,
       why: "`f x :: xs = ...` isn't valid Elm. The old parser accepted it, but tree-sitter rejects it, so this " \
@@ -66,11 +76,21 @@ class ElmTest < RepresenterTest
     assert_same_representation wrap("f x =\n    x"), wrap("-- a\n{- b -}\nf x =\n    -- c\n    x")
   end
 
-  def test_brackets_stay
+  def test_brackets_that_only_group_are_dropped
     assert_same_representation wrap("f x =\n    g (h x)"), wrap("f x =\n    g   (h  x)")
-    refute_same_representation wrap("f x =\n    (x)"), wrap("f x =\n    x")
+    assert_same_representation wrap("f x =\n    (x)"), wrap("f x =\n    x")
+    assert_same_representation wrap("f n =\n    (modBy 2 n) + g (n // 2)"), wrap("f n =\n    modBy 2 n + g (n // 2)")
+    assert_same_representation wrap("f n =\n    (n + 1)"), wrap("f n =\n    n + 1")
     refute_same_representation wrap("f x =\n    g (h x)"), wrap("f x =\n    g h x")
     refute_same_representation wrap("f a b c =\n    (a + b) * c"), wrap("f a b c =\n    a + b * c")
+    refute_same_representation wrap("f a b c =\n    a - (b - c)"), wrap("f a b c =\n    a - b - c")
+  end
+
+  def test_numbers_are_their_values
+    assert_same_representation wrap("f =\n    0x1F"), wrap("f =\n    31")
+    assert_same_representation wrap("f =\n    1.50"), wrap("f =\n    1.5")
+    refute_same_representation wrap("f =\n    1.0"), wrap("f =\n    1")
+    refute_same_representation wrap("f =\n    0x1F"), wrap("f =\n    0x1E")
   end
 
   def test_strings_are_their_values
@@ -101,8 +121,14 @@ class ElmTest < RepresenterTest
     refute_same_representation wrap("map xs =\n    List.map xs"), wrap("map xs =\n    List.filter xs")
   end
 
-  def test_exposed_names_are_kept
-    refute_same_representation "module M exposing (f)\n\nf x =\n    x\n", "module M exposing (g)\n\ng x =\n    x\n"
+  def test_imports_and_exposing_lists_are_dropped
+    assert_same_representation "module M exposing (f)\n\nf x =\n    x\n", "module M exposing (g)\n\ng x =\n    x\n"
+    assert_same_representation "module M exposing (a, b)\n\na =\n    1\n\nb =\n    2\n",
+      "module M exposing (b, a)\n\na =\n    1\n\nb =\n    2\n"
+    assert_same_representation "module M exposing (..)\n\nimport Dict exposing (Dict)\nimport List as L\n\nf =\n    1\n",
+      "module M exposing (f)\n\nf =\n    1\n"
+    refute_same_representation "module M exposing (f)\n\nimport Array\n\nf =\n    Array.map\n",
+      "module M exposing (f)\n\nimport List\n\nf =\n    List.map\n"
   end
 
   def test_names_the_tests_use_are_kept

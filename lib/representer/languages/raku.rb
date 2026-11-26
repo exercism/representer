@@ -1,3 +1,27 @@
+# What this class does to a Raku solution's code to make its representation:
+#
+# - Drops comments and Pod.
+# - Drops `use`, `need`, `require` and `import` of a module, and keeps
+#   pragmas such as `use v6` and `use lib`.
+# - Drops `;`, brackets that only group, and expression statement wrappers.
+# - Writes numbers as their values (`1_000` is `1000`, `0x1F` is `31`, the
+#   Rat `1.50` is `1.5`), and keeps a Num's text.
+# - Writes a string as its value however it is quoted, and removes a
+#   heredoc's indentation.
+# - Writes `say $x if $y` as an `if` block, and the same for `unless` and
+#   `for`.
+# - Gives each variable the type of its sigil.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, the members of the exercise's stub,
+#   and the language's library names.
+# - Also keeps `$_`, `@_`, `%_`, `$/`, `$!` and `self`.
+# - Ignores files with other extensions, and test and config files.
+# - Joins the files into one tree, in an order set by their code. File names
+#   never appear.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # The old raku-representer printed Rakudo's `.AST.raku` and replaced every
@@ -7,7 +31,7 @@ module Representer
     # the student defines.
     class Raku < Language
       tracks "raku"
-      version 5
+      version 6
       grammar "raku"
       extensions ".rakumod", ".raku", ".rakutest", ".pm6", ".p6"
 
@@ -23,6 +47,12 @@ module Representer
       ### Drop ###
 
       drop "[(comment) (pod)]"
+
+      # `use`, `need`, `require` and `import` of a module only make its names
+      # available. A pragma (`use v6`, `use lib`, `use MONKEY-SEE-NO-EVAL`)
+      # changes how the code runs, so it stays. Modules start with a capital
+      # letter, and pragmas don't (apart from the MONKEY ones).
+      drop "(use_statement module: (identifier /\\A[A-Z]/) @module)", where: ->(match) { !match[:module].text.start_with?("MONKEY") }
       drop_tokens ";",
         "use"
 
@@ -32,9 +62,12 @@ module Representer
       # tree's shape already shows both.
       unwrap :parenthesized_expression, :expression_statement
 
-      # 1_000 is 1000.
-      rewrite "(integer /_/) @number" do |match|
-        leaf(:integer, match[:number].text.delete("_"))
+      # Numbers are their values: `1_000` is `1000`, `0x1F` is `31`, and the
+      # Rat `1.50` is `1.5`. A Num such as `1e3` keeps its text.
+      numbers(:integer) { |text| Engine::Numbers.integer(text)&.to_s }
+      numbers :decimal do |text|
+        value = !text.match?(/[eE]/) && Engine::Numbers.decimal(text)
+        value && Engine::Numbers.write_decimal(value)
       end
 
       # 'a', ‘a’ and "a" are the same string. Strings with escapes or
