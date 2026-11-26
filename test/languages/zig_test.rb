@@ -106,4 +106,11 @@ class ZigTest < RepresenterTest
     assert_same_representation wrap("return @intFromFloat(1.50);"), wrap("return @intFromFloat(1.5);")
     refute_same_representation wrap("return 1.0;"), wrap("return 1;")
   end
+
+  def test_destructured_names_are_renamed
+    assert_same_representation wrap("const a, const b = .{ x, 2 }; return a + b;"),
+      wrap("const p, const q = .{ x, 2 }; return p + q;")
+    refute_same_representation wrap("const a, const b = .{ x, 2 }; return a + b;"),
+      wrap("const a, const b = .{ x, 2 }; return b + a;")
+  end
 end
