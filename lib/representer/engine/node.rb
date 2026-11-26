@@ -19,8 +19,10 @@ module Representer
     # - scope: set by a language's rules for a local name, to the node that
     #   holds the name's declaration (such as a method). Two locals with the
     #   same name in different scopes get different placeholders.
+    # - renamed: set by a staged language's Rename stage, to true for a leaf
+    #   that holds a name the student chose (see Placeholders).
     class Node
-      attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :scope
+      attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :scope, :renamed
 
       def initialize(type, children = [], text: nil, named: true, field: nil, quoted: false)
         @type = type.to_s
@@ -31,6 +33,7 @@ module Representer
         @quoted = quoted
         @role = nil
         @scope = nil
+        @renamed = false
       end
 
       def self.leaf(type, text, quoted: false) = new(type, [], text:, quoted:)

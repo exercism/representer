@@ -23,28 +23,44 @@ module Representer
           raise CannotRepresent.new("no_source_files", "No solution file has one of the extensions #{language.extensions.join(', ')}")
         end
 
-        tree = merge(in_order(sources.values.map { |source| prepare(source) }))
-        names = Names.new(language, [tree], required_names)
+        trees = sources.values.map { |source| prepare(source) }
+        return staged(trees) if language.staged?
 
-        Result.new(representation: Serialize.(tree, names), mapping: names.mapping, version: language.version,
-          representer: language)
+        tree = merge(in_order(trees))
+        names = Names.new(language, [tree], required_names)
+        result(tree, names)
       end
 
       private
-      # Parses the source and applies the drop and rewrite rules.
+      # Parses the source, and applies a staged language's GenerateAST and
+      # Normalise stages, or another language's drop and rewrite rules.
       def prepare(source)
         tree = parse(source)
         @root_type = tree.type
+        return language::Normalise.(language::GenerateAST.(tree)) if language.staged?
+
         drop(tree)
         rewrite(tree)
       end
 
+      # The rest of a staged language's stages (see StagedLanguage): Rename
+      # marks the student's names in every file, the files are joined,
+      # Reorder sorts the whole, and Placeholders numbers the names as the
+      # tree is written out.
+      def staged(trees)
+        language::Rename.(trees, required_names)
+        tree = language::Reorder.(join(in_order(trees)))
+        result(tree, Placeholders.new(language))
+      end
+
+      def result(tree, names)
+        Result.new(representation: Serialize.(tree, names), mapping: names.mapping, version: language.version,
+          representer: language)
+      end
+
       def parse(source)
         source = Engine.clean(source)
-        tree = Grammar[language.grammar].parse(
-          source, skip_tokens: language.dropped_tokens, kept_tokens: language.kept_tokens,
-          text_types: language.text_node_types, gap_types: language.gap_types
-        )
+        tree = Grammar[language.grammar].parse(source, **language.parse_options)
         language.syntax_checks.each do |check|
           problem = check.(source, tree)
           raise CannotRepresent.new("parse_error", problem) if problem
@@ -60,7 +76,7 @@ module Representer
       def in_order(trees)
         return trees if trees.one?
 
-        names = Names.new(language, trees, required_names)
+        names = language.staged? ? Placeholders.new(language) : Names.new(language, trees, required_names)
         trees.sort_by { |tree| [Serialize.(tree, names, blank: true), Serialize.(tree, nil)] }
       end
 
@@ -68,13 +84,15 @@ module Representer
       # whole, so the rules for a whole file (such as one that sorts its
       # declarations) run on all of the solution's code. Splitting code
       # across files then changes the representation as little as possible.
-      # A rule may have replaced a file's root (Crystal unwraps a file that
-      # holds one class), so such a file joins as one child.
-      def merge(trees)
+      def merge(trees) = trees.one? ? trees.first : rewrite(join(trees))
+
+      # Joins the files' trees into one. A rule may have replaced a file's
+      # root (Crystal unwraps a file that holds one class), so such a file
+      # joins as one child.
+      def join(trees)
         return trees.first if trees.one?
 
-        root = Node.new(@root_type, trees.flat_map { |tree| tree.type == @root_type ? tree.children : [tree] })
-        rewrite(root)
+        Node.new(@root_type, trees.flat_map { |tree| tree.type == @root_type ? tree.children : [tree] })
       end
 
       def drop(root)
@@ -163,7 +181,7 @@ module Representer
           end
 
           if stub?(filename)
-            names.merge(Names.new(language, [tree], Set.new).member_defs)
+            names.merge(language.staged? ? language::Rename.([tree], Set.new) : Names.new(language, [tree], Set.new).member_defs)
           else
             [tree, parse(source)].each { |names_tree| Names.each_name(language, names_tree) { |_leaf, name| names << name } }
           end

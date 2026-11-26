@@ -1,0 +1,174 @@
+#!/usr/bin/env ruby
+
+# Synopsis:
+# Draft the list of anonymous tokens (keywords and punctuation) that a
+# language's GenerateAST class drops, from the grammar's src/grammar.json.
+
+# Arguments:
+# $1: the grammar's name in grammars.yml
+
+# Output:
+# Every anonymous token that the grammar puts in a visible node, in three
+# lists:
+#
+# - Drop: tokens that always sit in a fixed place in every node that holds
+#   them. The node's type and its other children already say everything the
+#   token says, so dropping it loses nothing.
+# - Review: tokens that are optional, one of a choice, or only in some of
+#   the rules that build a node type. Each line says where. These often
+#   carry meaning (C++'s `delete[]`, Ruby's `&.`), but some are only layout
+#   (brackets around Ruby's arguments), so a human decides.
+# - Review, text varies: tokens that the grammar names with one type but
+#   whose text can differ, because an external scanner makes them (Ruby's
+#   string opener is `"` for `'`, `"` and `%q(`). Read their text before
+#   dropping them.
+#
+# The grammar's extras (such as comments) are listed at the end. A
+# GenerateAST class usually drops them, but some hold content (Ruby's
+# heredoc bodies).
+
+# Example:
+# ./bin/draft-ast-tokens ruby
+
+require "json"
+require "yaml"
+
+ROOT = File.expand_path("..", __dir__)
+
+# Reads a grammar.json and finds, for each visible node type, where each
+# anonymous token sits in the rules that build that type.
+class TokenDraft
+  # A token's place in one rule: fixed (always there, once), separator (in
+  # a repeat alongside a node, so the children say how many there are),
+  # optional, choice (one of several), or varies (its text varies).
+  PLACES = %w[fixed separator optional choice].freeze
+
+  def initialize(grammar)
+    @rules = grammar.fetch("rules")
+    @extras = grammar.fetch("extras", [])
+    @sources = Hash.new { |hash, type| hash[type] = [] }
+    @rules.each { |name, rule| @sources[name] << rule unless hidden?(name) }
+    @rules.each_value { |rule| find_aliases(rule) }
+    @sources.each_value(&:uniq!)
+  end
+
+  # { token => { node_type => Set of places } }, where a place is
+  # "absent" if one of the type's rules doesn't hold the token at all.
+  def places
+    result = Hash.new { |hash, token| hash[token] = Hash.new { |inner, type| inner[type] = Set.new } }
+    @varying = Set.new
+    @sources.each do |type, rules|
+      per_rule = rules.map { |rule| tokens_in(rule) }
+      per_rule.flat_map(&:keys).uniq.each do |token|
+        per_rule.each { |found| result[token][type].merge(found.fetch(token, ["absent"])) }
+      end
+    end
+    result
+  end
+
+  attr_reader :varying
+
+  def extras = @extras.select { |extra| extra["type"] == "SYMBOL" }.map { |extra| extra["name"] }
+
+  private
+  def hidden?(name) = name.start_with?("_")
+
+  # A named alias builds a node type from another rule, such as Ruby's
+  # `alias($.method_parameters, $.lambda_parameters)`.
+  def find_aliases(rule)
+    if rule["type"] == "ALIAS" && rule["named"]
+      content = rule["content"]
+      source = content["type"] == "SYMBOL" ? @rules.fetch(content["name"], { "type" => "BLANK" }) : content
+      @sources[rule["value"]] << source
+    end
+    Array(rule["members"]).each { |member| find_aliases(member) }
+    find_aliases(rule["content"]) if rule["content"].is_a?(Hash)
+  end
+
+  # { token => [places] } for the tokens in one rule, following hidden
+  # rules, which tree-sitter inlines into the node that uses them.
+  def tokens_in(rule)
+    found = Hash.new { |hash, token| hash[token] = [] }
+    walk(rule, "fixed", found, [])
+    found
+  end
+
+  def walk(rule, place, found, stack)
+    case rule["type"]
+    when "STRING" then found[rule["value"]] << place
+    when "TOKEN", "IMMEDIATE_TOKEN" then found[rule["content"]["value"]] << place if rule["content"]["type"] == "STRING"
+    when "ALIAS" then walk_alias(rule, place, found)
+    when "SYMBOL" then walk_symbol(rule["name"], place, found, stack)
+    when "SEQ" then rule["members"].each { |member| walk(member, place, found, stack) }
+    when "CHOICE" then walk_choice(rule, place, found, stack)
+    when "REPEAT", "REPEAT1" then walk(rule["content"], repeat_place(rule["content"], place), found, stack)
+    when "FIELD", "PREC", "PREC_LEFT", "PREC_RIGHT", "PREC_DYNAMIC", "RESERVED" then walk(rule["content"], place, found, stack)
+    end
+  end
+
+  # An anonymous alias gives a token a fixed type, but its text comes from
+  # the rule it aliases (often an external scanner's token).
+  def walk_alias(rule, place, found)
+    return if rule["named"]
+
+    found[rule["value"]] << place
+    @varying << rule["value"] unless rule["content"]["type"] == "STRING" && rule["content"]["value"] == rule["value"]
+  end
+
+  def walk_symbol(name, place, found, stack)
+    return unless hidden?(name) && @rules.key?(name) && !stack.include?(name)
+
+    walk(@rules[name], place, found, stack + [name])
+  end
+
+  def walk_choice(rule, place, found, stack)
+    options = rule["members"].reject { |member| member["type"] == "BLANK" }
+    blank = options.size < rule["members"].size
+    inner = place
+    inner = weaker(place, blank ? "optional" : "choice") unless options.one? && !blank
+    inner = weaker(place, "choice") if options.size > 1
+    options.each { |option| walk(option, inner, found, stack) }
+  end
+
+  # A token repeated alongside a node, such as the "," in
+  # `repeat(seq(",", $.argument))`, is a separator: the number of children
+  # says how many there are. A token repeated on its own isn't.
+  def repeat_place(content, place)
+    alongside_node = content["type"] == "SEQ" && content["members"].any? { |member| !%w[STRING BLANK].include?(member["type"]) }
+    weaker(place, alongside_node ? "separator" : "optional")
+  end
+
+  def weaker(place, other) = [place, other].max_by { |name| PLACES.index(name) }
+end
+
+name = ARGV.first or abort "usage: ./bin/draft-ast-tokens grammar-name"
+config = YAML.safe_load_file(File.join(ROOT, "grammars.yml")).fetch(name) { abort "#{name} is not listed in grammars.yml" }
+path = File.join(ROOT, "grammars", "src", name, config.fetch("src", "src"), "grammar.json")
+abort "#{path} doesn't exist. Run bin/build-grammars #{name}" unless File.exist?(path)
+
+draft = TokenDraft.new(JSON.parse(File.read(path)))
+places = draft.places
+droppable = ->(sets) { sets.values.all? { |set| set.subset?(Set["fixed", "separator"]) } }
+fixed, varying = places.keys.sort.partition { |token| droppable.(places[token]) }
+text_varies, review = varying.partition { |token| draft.varying.include?(token) }
+fixed -= draft.varying.to_a
+text_varies |= (places.keys & draft.varying.to_a)
+
+describe = lambda do |token|
+  places[token].group_by { |_, set| set.to_a.sort.join(" or ") }.sort.map do |set, types|
+    "#{set} in #{types.map(&:first).sort.join(', ')}"
+  end.join("; ")
+end
+
+puts "# Draft token list for the #{name} grammar, made by bin/draft-ast-tokens."
+puts "#"
+puts "# Drop: these tokens always sit in a fixed place in every node that holds them."
+fixed.each_slice(12) { |slice| puts "#   #{slice.map(&:inspect).join(' ')}" }
+puts "#"
+puts "# Review: each of these is optional, one of a choice, or only in some of the rules for a node type."
+review.each { |token| puts "#   #{token.inspect}: #{describe.(token)}" }
+puts "#"
+puts "# Review, text varies: the grammar gives each of these one type, but its text can differ."
+text_varies.uniq.sort.each { |token| puts "#   #{token.inspect}: #{describe.(token)}" }
+puts "#"
+puts "# Extras, which can appear anywhere: #{draft.extras.join(', ')}"
