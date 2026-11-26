@@ -487,4 +487,11 @@ class PythonTest < RepresenterTest
     assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::Python.version, result.version
   end
+
+  # A trailing comma makes a tuple in a subscript and in a match.
+  def test_a_trailing_comma_that_makes_a_tuple_is_kept
+    refute_same_representation "x = a[1,]\n", "x = a[1]\n"
+    refute_same_representation "match x:\n    case 1,:\n        pass\n", "match x:\n    case 1:\n        pass\n"
+    refute_same_representation "match x,:\n    case 1:\n        pass\n", "match x:\n    case 1:\n        pass\n"
+  end
 end

@@ -101,4 +101,8 @@ class GleamTest < RepresenterTest
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "pub fn f( {"
   end
+
+  def test_importing_a_type_differs_from_importing_its_constructor
+    refute_same_representation "import a.{type Foo}\npub fn f(x: Foo) { x }\n", "import a.{Foo}\npub fn f(x: Foo) { x }\n"
+  end
 end

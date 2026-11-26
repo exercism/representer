@@ -102,6 +102,7 @@ module Representer
       def inherit(parent)
         @names = parent.names.dup
         @dropped_tokens = parent.dropped_tokens.dup
+        @kept_tokens = parent.kept_tokens.transform_values(&:dup)
         @gap_types = parent.gap_types.dup
         @kept_names = parent.kept_names.dup
         @library_names = parent.library.dup
@@ -128,6 +129,12 @@ module Representer
       # Leaves these anonymous tokens out of the tree, such as "(" or ";".
       # Only drop a token if the node type already says everything it says.
       def drop_tokens(*tokens) = dropped_tokens.merge(tokens)
+
+      # Keeps some of the dropped tokens in nodes of one type, where they are
+      # the only thing that tells two programs apart. C++ drops "[" and "]",
+      # but keeps them in a delete_expression, as `delete[] p` and `delete p`
+      # are different.
+      def keep_tokens_in(type, *tokens) = (kept_tokens[type.to_s] ||= Set.new).merge(tokens)
 
       ### Rewrite rules ###
 
@@ -232,6 +239,7 @@ module Representer
       def text_node_types = @text_node_types ||= Set.new
       def drop_rules = @drop_rules ||= []
       def dropped_tokens = @dropped_tokens ||= Set.new
+      def kept_tokens = @kept_tokens ||= {}
       def rewrite_rules = @rewrite_rules ||= []
       def local_rules = @local_rules ||= []
       def member_rules = @member_rules ||= []

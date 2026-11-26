@@ -24,8 +24,12 @@ class RepresenterTest < Minitest::Test
     assert_equal represent(code, **options).representation, represent(other, **options).representation
   end
 
+  # Both solutions must get a representation, so a syntax error in one of
+  # them can't pass the test.
   def refute_same_representation(code, other, **options)
-    refute_equal represent(code, **options).representation, represent(other, **options).representation
+    representations = [code, other].map { |source| represent(source, **options).representation }
+    representations.each { |representation| refute_nil representation }
+    refute_equal(*representations)
   end
 
   # Checks that the solution gets no representation, with this reason.

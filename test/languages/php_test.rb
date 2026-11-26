@@ -198,4 +198,19 @@ class PHPTest < RepresenterTest
   def test_an_empty_heredoc
     refute_same_representation "<?php\n$a = <<<EOT\nEOT;\n", "<?php\n$a = <<<EOT\nb\nEOT;\n"
   end
+
+  # These semicolons and keywords are the only difference between each pair.
+  def test_tokens_that_tell_programs_apart_are_kept
+    refute_same_representation "<?php for (;; $i++) {}", "<?php for ($i++;;) {}"
+    refute_same_representation "<?php for (; $i++;) {}", "<?php for ($i++;;) {}"
+    refute_same_representation "<?php\nnamespace A;\nuse function B\\c;\necho c();", "<?php\nnamespace A;\nuse B\\c;\necho c();"
+  end
+
+  # From php-representer's mapping tests: PHP ignores the case of A to Z only.
+  def test_only_ascii_letters_are_case_insensitive
+    assert_equal ["AΛΕΙΤΟΥΡΓΙΑ"], represent("<?php\nfunction AΛΕΙΤΟΥΡΓΙΑ() {}\naΛΕΙΤΟΥΡΓΙΑ();\n").mapping.values
+    assert_equal %w[AΤΑΞΗ], represent("<?php\nclass AΤΑΞΗ {}\nnew aΤΑΞΗ();\n").mapping.values
+    assert_equal %w[A AΜΕΘΟΔΟΣ], represent("<?php\nclass A { public static function AΜΕΘΟΔΟΣ() {} }\nA::aΜΕΘΟΔΟΣ();\n").mapping.values
+    refute_same_representation "<?php\nfunction ΛΕΙΤΟΥΡΓΙΑ() {}\nΛΕΙΤΟΥΡΓΙΑ();\n", "<?php\nfunction ΛΕΙΤΟΥΡΓΙΑ() {}\nλειτουργια();\n"
+  end
 end

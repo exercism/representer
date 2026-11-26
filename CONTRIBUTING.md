@@ -174,6 +174,7 @@ Patterns may span several lines (use a heredoc), and `;` starts a comment.
 - `drop "(comment)"` removes every node that matches.
 - `drop "(method_parameters)", where: ->(match) { match.node.children.empty? }` removes only the matches that pass the check.
 - `drop_tokens "(", ")", ";"` leaves these anonymous tokens out of the tree. Only drop a token if the node's type already says everything the token says. For example, Ruby drops `"if"` (the node type is `if`) but keeps `"=="` and `"!="` (both are `binary` nodes).
+- `keep_tokens_in :delete_expression, "[", "]"` keeps dropped tokens in one node type. Use it where a token is the only difference between two programs: C++ drops brackets, but `delete[] p` and `delete p` are different. Check each token you drop against every node that can hold it, including optional tokens (`using var x` and `var x` in C#) and separators between optional parts (`for (;; i++)` and `for (i++;;)`).
 
 ### Rewrite rules
 

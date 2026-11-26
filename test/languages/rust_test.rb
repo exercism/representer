@@ -143,4 +143,10 @@ class RustTest < RepresenterTest
     assert_same_representation "fn f() -> &str {\n    \"a\n b\"\n}\n", "fn f() -> &str {\r\n    \"a\r\n b\"\r\n}\r\n"
     refute_same_representation 'fn f() -> &str { "a\\r\\nb" }', 'fn f() -> &str { "a\\nb" }'
   end
+
+  # A macro's tokens have no syntax tree, so commas and brackets count.
+  def test_every_token_in_a_macro_is_kept
+    refute_same_representation "fn f(a: i32) -> Vec<i32> { vec![a - 1] }", "fn f(a: i32) -> Vec<i32> { vec![a, -1] }"
+    refute_same_representation "fn f() { g(vec![[1, 2]]) }", "fn f() { g(vec![(1, 2)]) }"
+  end
 end

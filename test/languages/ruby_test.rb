@@ -153,4 +153,20 @@ class RubyTest < RepresenterTest
   def test_deep_nesting_is_unrepresentable
     assert_unrepresentable("[" * 2_000 + "]" * 2_000, "too_deep")
   end
+
+  # These tokens are the only difference between each pair.
+  def test_tokens_that_tell_programs_apart_are_kept
+    refute_same_representation "[1].each { |x; y| y = x }", "[1].each { |x, y| y = x }"
+    refute_same_representation "foo.(x)", "foo(x)"
+    refute_same_representation 'h = {"a": 1}', 'h = {"a" => 1}'
+    assert_same_representation "h = {a: 1}", "h = {:a => 1}"
+  end
+
+  def test_regex_options_are_kept
+    refute_same_representation "x = /a/i", "x = /a/"
+    refute_same_representation "x = /a/i", "x = /a/m"
+    refute_same_representation "x = %r{a}x", "x = %r{a}"
+    assert_same_representation "x = /a/mi", "x = /a/im"
+    assert_same_representation "x = /a/", "x = %r{a}"
+  end
 end

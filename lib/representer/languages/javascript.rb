@@ -2,7 +2,7 @@ module Representer
   module Languages
     class JavaScript < Language
       tracks "javascript"
-      version 5
+      version 6
       grammar "javascript"
       extensions ".js", ".mjs", ".cjs", ".jsx"
 
@@ -13,7 +13,10 @@ module Representer
       ### Drop ###
 
       drop "(comment)"
-      drop "(empty_statement)"
+      # An empty statement does nothing, except as the first or second part of
+      # a `for`, where it shows which part is missing: `for (;; i++)` and
+      # `for (i++;;)` are different loops.
+      drop "(empty_statement)", where: ->(match) { !%w[initializer condition].include?(match.node.field) }
 
       # The node types already say what these tokens say. String quotes go
       # too, because a string's value doesn't depend on its quotes.

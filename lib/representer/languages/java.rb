@@ -6,7 +6,7 @@ module Representer
     # package.
     class Java < Language
       tracks "java"
-      version 5
+      version 6
       grammar "java"
       extensions ".java"
 
@@ -29,6 +29,12 @@ module Representer
       drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", "\"", "if", "else", "for", "while", "do", "return", "new",
         "class", "enum", "record", "switch", "throw", "try", "catch", "finally", "break", "continue", "assert", "package",
         "import", "interface"
+
+      # In these nodes, a dropped token is the only thing that tells two
+      # programs apart: `int[]` and `int[][]`, and `for (;; i++)` and
+      # `for (i++;;)`.
+      keep_tokens_in :dimensions, "[", "]"
+      keep_tokens_in :for_statement, ";"
 
       ### Rewrite ###
 

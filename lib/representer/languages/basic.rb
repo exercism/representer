@@ -29,7 +29,7 @@ module Representer
       # The version for tracks with no class of their own. Bump it whenever
       # the output for any solution changes. Versions start at 2, because the
       # website's old basic representer reported 0.
-      VERSION = 3
+      VERSION = 4
 
       # Tracks whose slug is not the name of their Rouge lexer. Only map a
       # track to a lexer that knows its comment and string syntax exactly:
@@ -109,9 +109,7 @@ module Representer
         lexer = Rouge::Lexer.find(LEXERS.fetch(track_slug, track_slug))
         return split_words(source, &block) unless lexer
 
-        tokens = lexer.new.lex(source).to_a
-        tokens.each do |token, text|
-          name = token.qualname
+        lex(lexer, source).each do |name, text|
           if name.start_with?("Literal.String")
             yield :string, text
           elsif name.start_with?("Comment") && !name.start_with?("Comment.Preproc")
@@ -124,6 +122,60 @@ module Representer
         # A lexer that fails on unusual code leaves the code split at
         # whitespace instead.
         split_words(source, &block)
+      end
+
+      # Character literals that a track's Rouge lexer misreads as the start
+      # of a comment or a string: Emacs Lisp's `?;` and `?"`, and Scheme's
+      # `#\;`. Without this, the lexer would drop the rest of the line as a
+      # comment.
+      CHARACTER_PREFIXES = { "emacs-lisp" => "?", "scheme" => "#\\" }.freeze
+
+      # Lexes the source into [token name, text] pairs, and fixes the
+      # literals that the lexer misreads. After a fix, it lexes the rest of
+      # the source again, from just after the literal.
+      def lex(lexer, source)
+        tokens = []
+        position = 0
+        loop do
+          restart = nil
+          lexer.new.lex(source[position..]).each do |token, text|
+            name = token.qualname
+            literal = misread_literal(tokens, name, source, position)
+            if literal
+              literal_name, literal_text, lexed = literal
+              tokens << [literal_name, literal_text]
+              restart = position + literal_text.size - lexed
+              break
+            end
+
+            tokens << [name, text]
+            position += text.size
+          end
+          return tokens unless restart
+
+          position = restart
+        end
+      end
+
+      # The literal that starts at position, if the lexer has misread it as
+      # a token of this name. Returns [name, text, the characters of text
+      # already lexed], after removing those characters' tokens.
+      def misread_literal(tokens, name, source, position)
+        if track_slug == "haxe" && name == "Literal.String.Regex" && source[position, 2] == "~/"
+          # Rouge only marks a Haxe regex's `~/`, so its body is lexed as
+          # code, and `//` in it starts a comment.
+          regex = source[position..][%r{\A~/(?:\\.|[^\\/\n])*/[gimsu]*}]
+          return regex && ["Literal.String.Regex", regex, 0]
+        end
+
+        prefix = CHARACTER_PREFIXES[track_slug]
+        return nil unless prefix && name.start_with?("Comment", "Literal.String")
+
+        count = (1..prefix.size).find { |size| tokens.last(size).map(&:last).join == prefix }
+        return nil unless count && source[position]
+
+        tokens.pop(count)
+        ["Literal.String.Char", prefix + source[position], prefix.size]
       end
 
       def split_words(text)

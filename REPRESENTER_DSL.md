@@ -117,6 +117,15 @@ Only drop a token if the node around it already says everything the token says.
 drop_tokens "(", ")", ",", ";", "def", "end"
 ```
 
+### `keep_tokens_in(type, *tokens)`
+
+This keeps some of the dropped tokens in nodes of one type, where they are the only thing that tells two programs apart.
+Check every token you drop: if any node can hold it or leave it out, and the rest of the node can be the same either way, keep it in that node.
+
+```ruby
+keep_tokens_in :delete_expression, "[", "]"
+```
+
 ## Rewrite rules
 
 Rewrite rules apply from the leaves up, and again to their own results.

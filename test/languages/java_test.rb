@@ -145,6 +145,13 @@ class JavaTest < RepresenterTest
     assert_equal Representer::Languages::Java.version, result.version
   end
 
+  # These brackets and semicolons are the only difference between each pair.
+  def test_tokens_that_tell_programs_apart_are_kept
+    refute_same_representation "class A { int[] a; }", "class A { int[][] a; }"
+    refute_same_representation "class A { void f(int[] a) {} }", "class A { void f(int[][] a) {} }"
+    refute_same_representation "class A { void f(int i) { for (;; i++) {} } }", "class A { void f(int i) { for (i++;;) {} } }"
+  end
+
   def restore_repeated(code, mapping)
     mapping.group_by { |_, original| original }.values.reduce(code) do |result, entries|
       entries.drop(1).reduce(result) { |text, (placeholder, _)| text.gsub(/\b#{placeholder}\b/, entries.first.first) }

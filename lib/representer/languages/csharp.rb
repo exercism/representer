@@ -4,7 +4,7 @@ module Representer
     # rule's comment names the rewriter it replaces.
     class CSharp < Language
       tracks "csharp"
-      version 6
+      version 7
       grammar "c_sharp"
       extensions ".cs"
 
@@ -32,8 +32,21 @@ module Representer
       # NormalizeWhiteSpace: the node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", ".", ":", "?", "=>", "\"",
         "new", "return", "if", "else", "class", "struct", "interface", "record", "enum", "namespace",
-        "var", "using", "for", "foreach", "while", "do", "switch", "break", "continue", "throw", "try", "catch",
-        "finally", "lock", "await", "typeof", "sizeof", "yield", "goto"
+        "var", "for", "foreach", "while", "do", "switch", "break", "continue", "throw", "try", "catch",
+        "finally", "lock", "typeof", "sizeof", "yield", "goto"
+
+      # In these nodes, a dropped token is the only thing that tells two
+      # programs apart: `record struct` and `record class`, `where T : class`
+      # and `where T : struct?`, `int[,]` and `int[]`, `new[,]` and `new[]`,
+      # `Dictionary<,>` and `List<>`, and `for (;; i++)` and `for (i++;;)`.
+      # `using` and `await` are never dropped, as `using var x` and
+      # `await foreach` differ from `var x` and `foreach` only by them.
+      keep_tokens_in :record_declaration, "class", "struct"
+      keep_tokens_in :type_parameter_constraint, "class", "struct", "?"
+      keep_tokens_in :array_rank_specifier, ","
+      keep_tokens_in :implicit_array_creation_expression, ","
+      keep_tokens_in :type_argument_list, ","
+      keep_tokens_in :for_statement, ";"
 
       ### Rewrite ###
 

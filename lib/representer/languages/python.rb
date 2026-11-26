@@ -5,7 +5,7 @@ module Representer
     # statements, `if __name__ == "__main__"` blocks and type hints.
     class Python < Language
       tracks "python"
-      version 5
+      version 6
       grammar "python"
       extensions ".py"
 
@@ -48,6 +48,12 @@ module Representer
       drop_tokens "(", ")", "[", "]", "{", "}", ",", ";",
         "class", "def", "lambda", "return", "pass", "break", "continue", "raise", "assert", "del", "try", "finally", "except",
         "elif", "else", "while", "if", "for", "with", "import", "as", "match", "case", "await", "global", "nonlocal"
+
+      # In these nodes, a trailing comma makes a tuple: `a[1,]` is `a[(1,)]`,
+      # not `a[1]`, and `case 1,:` and `match x,:` match a one-item tuple.
+      keep_tokens_in :subscript, ","
+      keep_tokens_in :case_clause, ","
+      keep_tokens_in :match_statement, ","
 
       ### Rewrite ###
 

@@ -4,7 +4,7 @@ module Representer
     # nikic/php-parser's tree and printed the tree back as code.
     class PHP < Language
       tracks "php"
-      version 5
+      version 6
       grammar "php"
       extensions ".php"
 
@@ -38,6 +38,13 @@ module Representer
         "class", "function", "extends", "implements", "echo", "use", "new", "return", "require_once", "namespace", "declare",
         "interface", "trait", "foreach", "for", "while", "do", "break", "continue", "throw", "try", "catch", "finally",
         "switch", "case"
+
+      # In these nodes, a dropped token is the only thing that tells two
+      # programs apart: `for (;; $i++)` and `for ($i++;;)`, and
+      # `use function A\b` and `use A\b`.
+      keep_tokens_in :for_statement, ";"
+      keep_tokens_in :namespace_use_declaration, "function"
+      keep_tokens_in :namespace_use_clause, "function"
 
       ### Rewrite ###
 
@@ -292,15 +299,16 @@ module Representer
         # Gives every spelling of a user-defined function, method or class
         # name the one that the solution uses most, and lower-cases and
         # unaliases the functions that PHP provides. Returns whether it
-        # changed anything.
+        # changed anything. PHP only ignores the case of the ASCII letters A
+        # to Z, so `ΛΕΙΤΟΥΡΓΙΑ` and `λειτουργια` are different names.
         def canonicalize_names(program)
           positions = name_positions(program)
           defined = positions.select { |_, _, definition| definition }.group_by { |kind, _, _| kind }
           changed = false
 
-          positions.group_by { |kind, leaf, _| [kind, leaf.text.downcase] }.each do |(kind, lower), uses|
+          positions.group_by { |kind, leaf, _| [kind, leaf.text.downcase(:ascii)] }.each do |(kind, lower), uses|
             leaves = uses.map { |_, leaf, _| leaf }
-            defined_here = defined.fetch(kind, []).any? { |_, leaf, _| leaf.text.downcase == lower }
+            defined_here = defined.fetch(kind, []).any? { |_, leaf, _| leaf.text.downcase(:ascii) == lower }
             target = defined_here ? most_common(leaves.map(&:text)) : provided_name(kind, lower)
             next unless target
 

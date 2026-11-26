@@ -30,7 +30,8 @@ module Representer
       end
 
       # Parses the source and copies the tree into Engine::Nodes. Anonymous
-      # tokens listed in skip_tokens are left out. A node whose type is listed
+      # tokens listed in skip_tokens are left out, except in the node types
+      # that kept_tokens maps to them. A node whose type is listed
       # in text_types becomes a leaf that holds its whole source text, for
       # nodes whose text isn't made of child nodes (such as Gleam's
       # `gleam/list`, whose children are only the slashes).
@@ -43,18 +44,19 @@ module Representer
       # Raises CannotRepresent if the source has a syntax error (which
       # includes code too new for the grammar), or nests deeper than
       # max_depth.
-      def parse(source, skip_tokens: Set.new, text_types: Set.new, max_depth: MAX_DEPTH, gap_types: Set.new)
+      def parse(source, skip_tokens: Set.new, kept_tokens: {}, text_types: Set.new, max_depth: MAX_DEPTH, gap_types: Set.new)
         tree = @parser.parse_string(nil, source)
         raise CannotRepresent.new("parse_error", "The parser gave up") unless tree
         raise CannotRepresent.new("parse_error", "The code has a syntax error") if tree.root_node.has_error?
 
-        build(tree.root_node, source, skip_tokens, text_types, max_depth, gap_types)
+        skip = ->(token, parent) { skip_tokens.include?(token) && !kept_tokens[parent&.type]&.include?(token) }
+        build(tree.root_node, source, skip, text_types, max_depth, gap_types)
       end
 
       private
       # Walks the tree with a cursor, without recursion, so deep nesting can't
       # overflow the stack.
-      def build(ts_root, source, skip_tokens, text_types, max_depth, gap_types)
+      def build(ts_root, source, skip, text_types, max_depth, gap_types)
         cursor = TreeSitter::TreeCursor.new(ts_root)
         root = copy(cursor.current_node, nil, source)
         gaps = Gaps.new(source, gap_types)
@@ -76,7 +78,7 @@ module Representer
           ts_node = cursor.current_node
           parent = parents.last
           gaps.before_child(parent, ts_node)
-          if !ts_node.named? && skip_tokens.include?(type_of(ts_node, source))
+          if !ts_node.named? && skip.(type_of(ts_node, source), parent)
             parents << nil # A placeholder, so the pop when leaving this node is balanced.
             next
           end

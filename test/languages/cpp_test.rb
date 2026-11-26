@@ -134,4 +134,22 @@ class CppTest < RepresenterTest
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "int f( {"
   end
+
+  # These keywords and punctuation are the only difference between each pair.
+  def test_tokens_that_tell_programs_apart_are_kept
+    refute_same_representation "void f(int* p) { delete[] p; }", "void f(int* p) { delete p; }"
+    refute_same_representation "void f(int* p) { ::delete p; }", "void f(int* p) { delete p; }"
+    refute_same_representation "int* f() { return ::new int; }", "int* f() { return new int; }"
+    refute_same_representation "enum class E { A };", "enum E { A };"
+    refute_same_representation "enum struct E { A };", "enum E { A };"
+    refute_same_representation "class A { public: int x; };", "class A { private: int x; };"
+    refute_same_representation "class A { protected: int x; };", "class A { private: int x; };"
+    refute_same_representation "class B : public A {};", "class B : private A {};"
+    refute_same_representation "using namespace std::chrono;", "using std::chrono;"
+    refute_same_representation "using enum E;", "using E;"
+    refute_same_representation "class A { friend class B; };", "class A { friend struct B; };"
+    refute_same_representation wrap("for (;; a++) {} return a;"), wrap("for (a++;;) {} return a;")
+    refute_same_representation "struct A { int operator()(int x); };", "struct A { int operator[](int x); };"
+    refute_same_representation "struct A { void* operator new(size_t n); };", "struct A { void* operator delete(size_t n); };"
+  end
 end

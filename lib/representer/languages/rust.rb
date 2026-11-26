@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Rust < Language
       tracks "rust"
-      version 5
+      version 6
       grammar "rust"
       extensions ".rs"
 
@@ -34,9 +34,14 @@ module Representer
         "use", "type", "const", "static", "if", "else", "while", "loop", "match",
         "return", "break", "continue", "for", "in", "where", "union"
 
+      # A macro's tokens have no syntax tree, so every token in them counts:
+      # `vec![a - 1]` and `vec![a, -1]` differ only by the comma.
+      MACRO_TOKENS = %w[token_tree token_tree_pattern delim_token_tree token_repetition token_repetition_pattern].freeze
+      MACRO_TOKENS.each { |type| keep_tokens_in type, *dropped_tokens }
+
       ### Rewrite ###
 
-      rewrite '(_ ";")', where: ->(match) { !%w[array_expression token_tree].include?(match.node.type) } do |match|
+      rewrite '(_ ";")', where: ->(match) { !["array_expression", *MACRO_TOKENS].include?(match.node.type) } do |match|
         # The pattern also matches a leaf whose text is ";", such as the
         # contents of the string ";", which has no tokens to remove. The
         # block returns nil when it removes nothing, so the rule can't keep

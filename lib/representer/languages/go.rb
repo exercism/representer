@@ -366,7 +366,7 @@ module Representer
 
       # A node for a piece of Go code, made by parsing it.
       def self.parse_expression(code)
-        tree = Engine::Grammar[grammar].parse("package p\nvar _ = #{code}\n", skip_tokens: dropped_tokens,
+        tree = Engine::Grammar[grammar].parse("package p\nvar _ = #{code}\n", skip_tokens: dropped_tokens, kept_tokens:,
           text_types: text_node_types, gap_types: gap_types)
         found = nil
         tree.each_descendant { |node| found ||= node if %w[composite_literal call_expression].include?(node.type) }

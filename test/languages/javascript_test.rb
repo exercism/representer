@@ -78,4 +78,11 @@ class JavaScriptTest < RepresenterTest
     assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::JavaScript.version, result.version
   end
+
+  # The empty first or second part of a `for` shows which part is missing.
+  def test_the_parts_of_a_for_loop_stay_apart
+    refute_same_representation "for (;; i++) {}", "for (i++;;) {}"
+    refute_same_representation "for (; i++;) {}", "for (i++;;) {}"
+    refute_same_representation "for (i; i;) {}", "for (; i; i) {}"
+  end
 end

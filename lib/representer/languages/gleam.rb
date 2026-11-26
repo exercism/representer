@@ -5,7 +5,7 @@ module Representer
     # class applies the same approach as the other languages.
     class Gleam < Language
       tracks "gleam"
-      version 4
+      version 5
       grammar "gleam"
       extensions ".gleam"
 
@@ -24,6 +24,10 @@ module Representer
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", "[", "]", ",", "fn", "let", "import", "type", "const", "case", "assert"
+
+      # `import a.{type Foo}` imports the type Foo, and `import a.{Foo}` its
+      # constructor.
+      keep_tokens_in :unqualified_import, "type"
 
       ### Rewrite ###
 

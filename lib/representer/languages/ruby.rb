@@ -2,7 +2,7 @@ module Representer
   module Languages
     class Ruby < Language
       tracks "ruby"
-      version 5
+      version 6
       grammar "ruby"
       extensions ".rb"
 
@@ -17,6 +17,15 @@ module Representer
         "def", "class", "module", "if", "unless", "while", "until", "then", "do", "end", "begin", "return",
         "case", "when", "else", "elsif", "rescue", "ensure", "yield", "for", "break", "next", "redo", "retry", "alias",
         "undef", "BEGIN", "END", "nil", "->", "?"
+
+      # In these nodes, a dropped token can tell two programs apart:
+      # `|x; y|` makes y a block-local variable, and `|x, y|` a parameter.
+      # `f.(x)` calls f, and `f(x)` calls the method f. `{"a": 1}` has the
+      # key :a, and `{"a" => 1}` the key "a". Rules below drop "." and ":"
+      # where they don't.
+      keep_tokens_in :block_parameters, ";"
+      keep_tokens_in :call, "."
+      keep_tokens_in :pair, ":"
 
       # `def foo()` is `def foo`.
       drop "(method_parameters)", where: ->(match) { match.node.children.empty? }
@@ -62,6 +71,10 @@ module Representer
 
       # `{a: 1}` is `{:a => 1}`.
       rewrite("(hash_key_symbol) @key") { |match| leaf(:simple_symbol, ":#{match[:key].text}") }
+      rewrite('(pair key: (simple_symbol) ":" @colon)') { |match| match.node.tap { match.node.children.delete(match[:colon]) } }
+
+      # `a.b` is a call of b, which the method already shows.
+      rewrite('(call method: (_) "." @dot)') { |match| match.node.tap { match.node.children.delete(match[:dot]) } }
 
       # A string is its value: 'a', "a" and %q(a) are the same. Strings with
       # interpolation keep their structure, with each literal part as one value.
@@ -75,6 +88,19 @@ module Representer
         next literal(pieces.first || "") if pieces.size <= 1 && !pieces.first.is_a?(Engine::Node)
 
         build(:string, *pieces.map { |piece| piece.is_a?(String) ? literal(piece) : piece })
+      end
+
+      # A regex's options (`/a/i`) are part of its closing token, which the
+      # output writes by its type, so they become a leaf of their own. Their
+      # order doesn't matter.
+      rewrite "(regex) @regex" do |match|
+        close = match.node.children.last
+        options = close && !close.named? && close.text[/[a-z]+\z/]
+        next nil unless options
+
+        match.node.children[-1] = token("/")
+        match.node.children << leaf(:regex_options, options.chars.sort.uniq.join)
+        match.node
       end
 
       ### Rename and keep ###

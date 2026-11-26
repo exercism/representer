@@ -54,4 +54,23 @@ class BasicTest < RepresenterTest
     refute_equal Representer::RepresentSolution.("dart", { "a" => "x\n(file \"b\")" }, {}).representation,
       Representer::RepresentSolution.("dart", { "a" => "x", "b" => "" }, {}).representation
   end
+
+  # Rouge reads these literals as the start of a comment or string, which
+  # would drop the rest of the line.
+  def test_character_literals_that_look_like_comments_keep_the_rest_of_the_line
+    refute_equal basic("(insert ?;) (foo 1)", track: "emacs-lisp").representation,
+      basic("(insert ?;) (foo 2)", track: "emacs-lisp").representation
+    refute_equal basic("(insert ?\") (foo \"a\")", track: "emacs-lisp").representation,
+      basic("(insert ?\") (foo \"b\")", track: "emacs-lisp").representation
+    refute_equal basic('(display #\;) (foo 1)', track: "scheme").representation,
+      basic('(display #\;) (foo 2)', track: "scheme").representation
+    assert_equal basic('(insert ?\;) ; a comment', track: "emacs-lisp").representation,
+      basic('(insert ?\;)', track: "emacs-lisp").representation
+  end
+
+  def test_a_haxe_regex_with_slashes_is_not_a_comment
+    refute_equal basic('var r = ~/\/\//; var x = 1;', track: "haxe").representation,
+      basic('var r = ~/\/\//; var x = 2;', track: "haxe").representation
+    assert_equal basic("var r = ~/a/g; // c", track: "haxe").representation, basic("var r = ~/a/g;", track: "haxe").representation
+  end
 end

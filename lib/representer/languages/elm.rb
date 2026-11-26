@@ -8,7 +8,7 @@ module Representer
     # equivalent.
     class Elm < Language
       tracks "elm"
-      version 5
+      version 6
       grammar "elm"
       extensions ".elm"
 
@@ -73,6 +73,8 @@ module Representer
         "toPolar", "fromPolar", "isNaN", "isInfinite", "identity", "always", "Never", "never", "List", "Maybe", "Just",
         "Nothing", "Result", "Ok", "Err", "String", "Char", "Tuple", "Debug", "Program", "Cmd", "Sub", "number",
         "comparable", "appendable", "compappend", "main", "init", "update", "view", "subscriptions", "Msg", "Model"
+
+      library_names File.join(__dir__, "library_names", "elm.txt")
 
       STRING_PARTS = %w[regular_string_part string_escape invalid_string_escape].freeze
       ESCAPES = { "n" => "\n", "r" => "\r", "t" => "\t", "\\" => "\\", "\"" => "\"", "'" => "'" }.freeze

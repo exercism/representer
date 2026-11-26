@@ -7,7 +7,7 @@ module Representer
     # solution defines are renamed, so every library name stays.
     class Cpp < Language
       tracks "cpp"
-      version 5
+      version 6
       grammar "cpp"
       extensions ".cpp", ".h", ".hpp", ".cc", ".cxx", ".hh", ".hxx"
 
@@ -30,9 +30,22 @@ module Representer
 
       # The node types already say what these tokens say.
       drop_tokens "(", ")", "{", "}", "[", "]", ";", ",", "::", "return", "if", "else", "while", "for", "do", "switch",
-        "namespace", "class", "struct", "enum", "union", "using", "template", "typedef", "public", "private",
-        "protected",
+        "namespace", "class", "struct", "enum", "union", "using", "template", "typedef",
         "break", "continue", "goto", "try", "catch", "throw", "new", "delete", "sizeof", "static_assert"
+
+      # In these nodes, a dropped token is the only thing that tells two
+      # programs apart: `delete[] p` and `delete p`, `::new` and `new`,
+      # `enum class` and `enum`, `friend class` and `friend struct`,
+      # `using namespace A` and `using A`, `for (;; i++)` and `for (i++;;)`,
+      # and `operator()` and `operator[]`. The access specifiers (`public`,
+      # `private` and `protected`) are never dropped.
+      keep_tokens_in :delete_expression, "[", "]", "::"
+      keep_tokens_in :new_expression, "::"
+      keep_tokens_in :enum_specifier, "class", "struct"
+      keep_tokens_in :friend_declaration, "class", "struct", "union"
+      keep_tokens_in :using_declaration, "namespace", "enum"
+      keep_tokens_in :for_statement, ";"
+      keep_tokens_in :operator_name, "(", ")", "[", "]", ",", "new", "delete"
 
       ### Rewrite ###
 

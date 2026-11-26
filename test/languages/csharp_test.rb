@@ -102,4 +102,20 @@ class CSharpTest < RepresenterTest
     assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::CSharp.version, result.version
   end
+
+  # These keywords and punctuation are the only difference between each pair.
+  def test_tokens_that_tell_programs_apart_are_kept
+    refute_same_representation wrap("using var r = G(); return x;"), wrap("var r = G(); return x;")
+    refute_same_representation wrap("await foreach (var r in G()) {} return x;"), wrap("foreach (var r in G()) {} return x;")
+    refute_same_representation wrap("await using var r = G(); return x;"), wrap("using var r = G(); return x;")
+    refute_same_representation wrap("await using (G()) {} return x;"), wrap("using (G()) {} return x;")
+    refute_same_representation "class A<T> where T : class { }", "class A<T> where T : struct { }"
+    refute_same_representation "class A<T> where T : class { }", "class A<T> where T : class? { }"
+    refute_same_representation "class A { int[] b; }", "class A { int[,] b; }"
+    refute_same_representation "record struct R(int X);", "record class R(int X);"
+    refute_same_representation "record struct R(int X);", "record R(int X);"
+    refute_same_representation wrap("for (;; y++) {} return x;"), wrap("for (y++;;) {} return x;")
+    refute_same_representation "class A { object F() => typeof(D<,>); }", "class A { object F() => typeof(D<>); }"
+    refute_same_representation "class A { object F() => new[,] { {1} }; }", "class A { object F() => new[] { {1} }; }"
+  end
 end

@@ -83,4 +83,9 @@ class TypeScriptTest < RepresenterTest
     assert_same_representation "const y = (a * b) + c", "const y = a * b + c"
     refute_same_representation "export const f = (s: string) => s.toUpperCase()", "export const f = (s: string) => s.toLowerCase()"
   end
+
+  def test_the_parts_of_a_for_loop_stay_apart
+    refute_same_representation "for (;; i++) {}", "for (i++;;) {}"
+    refute_same_representation "for (; i++;) {}", "for (i++;;) {}"
+  end
 end
