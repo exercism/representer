@@ -57,9 +57,12 @@ module Representer
       # The grammar's name in grammars.yml.
       def grammar(name = nil) = name ? @grammar = name : @grammar
 
-      # The file extensions of the language's source files. Exercise files
-      # with other extensions (such as .meta/config.json) are ignored.
+      # The file extensions of the language's source files. Solution and
+      # exercise files with other extensions (such as Cargo.toml or
+      # .meta/config.json) are ignored.
       def extensions(*list) = list.empty? ? @extensions : @extensions = list
+
+      def source_file?(filename) = extensions.any? { |extension| filename.downcase.end_with?(extension) }
 
       # For a language where it doesn't matter which file code is in (Go). The
       # solution's files are joined into one tree, and the rules for the whole

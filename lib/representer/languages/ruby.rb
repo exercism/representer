@@ -2,7 +2,7 @@ module Representer
   module Languages
     class Ruby < Language
       tracks "ruby"
-      version 4
+      version 5
       grammar "ruby"
       extensions ".rb"
 

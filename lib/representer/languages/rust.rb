@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Rust < Language
       tracks "rust"
-      version 4
+      version 5
       grammar "rust"
       extensions ".rs"
 
@@ -37,8 +37,11 @@ module Representer
       ### Rewrite ###
 
       rewrite '(_ ";")', where: ->(match) { !%w[array_expression token_tree].include?(match.node.type) } do |match|
-        match.node.children.reject! { |child| !child.named? && child.type == ";" }
-        match.node
+        # The pattern also matches a leaf whose text is ";", such as the
+        # contents of the string ";", which has no tokens to remove. The
+        # block returns nil when it removes nothing, so the rule can't keep
+        # matching its own output.
+        match.node if match.node.children.reject! { |child| !child.named? && child.type == ";" }
       end
 
       # (a + b) is a + b: the tree's shape already shows the grouping.
@@ -69,7 +72,6 @@ module Representer
         next nil unless parts.all? { |part| STRING_PARTS.include?(part.type) }
 
         value = parts.map { |part| part.type == "escape_sequence" ? Rust.decode(part.text) : part.text }.join
-        value = value.gsub("\r\n", "\n") if match.node.type == "string_literal"
         string = literal(value)
         match.node.children.first&.text&.match?(/\A[bc]/) ? build(:byte_string, string) : string
       end

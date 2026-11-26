@@ -2,9 +2,9 @@ module Representer
   module Languages
     class JavaScript < Language
       tracks "javascript"
-      version 4
+      version 5
       grammar "javascript"
-      extensions ".js", ".mjs", ".cjs"
+      extensions ".js", ".mjs", ".cjs", ".jsx"
 
       # Shorthand properties ({ a } and const { a } = obj) are left out: their
       # name is also a property name, so renaming it would change the code.

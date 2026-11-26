@@ -29,7 +29,7 @@ module Representer
       # The version for tracks with no class of their own. Bump it whenever
       # the output for any solution changes. Versions start at 2, because the
       # website's old basic representer reported 0.
-      VERSION = 2
+      VERSION = 3
 
       # Tracks whose slug is not the name of their Rouge lexer. Only map a
       # track to a lexer that knows its comment and string syntax exactly:

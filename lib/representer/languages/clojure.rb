@@ -20,7 +20,7 @@ module Representer
     # `doseq`, `case`, `condp` and `loop` destructuring stay as written.
     class Clojure < Language
       tracks "clojure"
-      version 4
+      version 5
       grammar "clojure"
       extensions ".clj", ".cljc", ".cljs"
 
@@ -407,7 +407,7 @@ module Representer
           requires = groups.delete(":require").to_a.flat_map { |spec| libspecs(spec) }
           requires += groups.delete(":use").to_a.flat_map { |spec| libspecs(spec, use: true) }
           imports = groups.delete(":import").to_a.flat_map { |spec| import_names(spec) }
-          groups[":require"] = sort_unique(requires) { |spec| spec.children.first.text } unless requires.empty?
+          groups[":require"] = sort_unique(requires) { |spec| sort_text(spec.children.first || spec) } unless requires.empty?
           groups[":import"] = sort_unique(imports, &:text) unless imports.empty?
 
           order = [":refer-clojure", ":require", ":import"]
@@ -420,6 +420,10 @@ module Representer
         def sort_unique(nodes, &key)
           nodes.uniq(&:inspect).sort_by(&key)
         end
+
+        # The text to sort a node by: a leaf's text, or the whole node's
+        # form, as a library spec can hold anything that parses.
+        def sort_text(node) = node.text || node.inspect
 
         # The libraries that one `:require` argument names, each as a vector
         # with its options sorted.
@@ -446,7 +450,9 @@ module Representer
           options << [leaf(:kwd, ":refer"), leaf(:kwd, ":all")] if use && options.empty?
           options = options.map do |key, value|
             key = leaf(:kwd, ":refer") if use && key.text == ":only"
-            value = build(:vec_lit, *value.children.sort_by(&:text)) if key.text == ":refer" && value.type == "vec_lit"
+            if key.text == ":refer" && value.type == "vec_lit"
+              value = build(:vec_lit, *value.children.sort_by { |name| sort_text(name) })
+            end
             [key, value]
           end
           [build(:vec_lit, library, *options.sort_by { |key, _| key.text }.flatten)]

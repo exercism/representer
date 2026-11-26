@@ -5,7 +5,7 @@ module Representer
     # class applies the same approach as the other languages.
     class Gleam < Language
       tracks "gleam"
-      version 3
+      version 4
       grammar "gleam"
       extensions ".gleam"
 

@@ -120,4 +120,27 @@ class RustTest < RepresenterTest
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "fn f( {\n"
   end
+
+  # A rule that drops ";" tokens also matched the contents of the string ";",
+  # and kept matching it.
+  def test_a_string_holding_a_semicolon
+    refute_same_representation 'fn f() -> &str { ";" }', 'fn f() -> &str { ":" }'
+  end
+
+  def test_files_in_other_formats_are_ignored
+    code = "pub fn f() {}"
+    assert_equal represent(code, filename: "src/lib.rs").representation,
+      Representer::RepresentSolution.(track, { "src/lib.rs" => code, "Cargo.toml" => "[package]\nname = \"p\"\n" }, {}).representation
+  end
+
+  def test_a_solution_with_no_source_files
+    result = Representer::RepresentSolution.(track, { "Cargo.toml" => "[package]" }, {})
+    assert_nil result.representation
+    assert_equal "no_source_files", result.reason
+  end
+
+  def test_windows_line_endings_are_plain_line_breaks
+    assert_same_representation "fn f() -> &str {\n    \"a\n b\"\n}\n", "fn f() -> &str {\r\n    \"a\r\n b\"\r\n}\r\n"
+    refute_same_representation 'fn f() -> &str { "a\\r\\nb" }', 'fn f() -> &str { "a\\nb" }'
+  end
 end

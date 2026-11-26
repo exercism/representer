@@ -263,4 +263,9 @@ class ClojureTest < RepresenterTest
     code = "(defmacro boom [] (System/exit 1)) (defn f [] (boom))"
     assert represent(code).representation.include?("boom") || represent(code).mapping.value?("boom")
   end
+
+  def test_unusual_require_specs
+    refute_same_representation '(ns a (:require "foo"))', '(ns a (:require "bar"))'
+    refute_same_representation "(ns a (:require [foo :refer [[x] y]]))", "(ns a (:require [foo :refer [[x] z]]))"
+  end
 end

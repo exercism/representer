@@ -101,4 +101,12 @@ class WasmTest < RepresenterTest
   def test_a_syntax_error_is_unrepresentable
     assert_unrepresentable "(module (func"
   end
+
+  # The folded form's empty "then" has no list of instructions, so the else
+  # branch's list used to become the "then" branch.
+  def test_an_if_with_an_empty_then
+    empty_then = "(module (func (if (i32.const 1) (then) (else (nop)))))"
+    assert_same_representation empty_then, "(module (func i32.const 1 if else nop end))"
+    refute_same_representation empty_then, "(module (func (if (i32.const 1) (then (nop)))))"
+  end
 end

@@ -1,1 +1,53 @@
-unrepresentable: parse_error
+(file "src/lib.rs"
+  (source_file
+    (attribute_item #
+      (attribute derive
+        (token_tree Clone)))
+    (struct_item
+      (visibility_modifier pub) Item
+      (field_declaration_list
+        (field_declaration
+          (visibility_modifier pub) weight : u32)
+        (field_declaration
+          (visibility_modifier pub) value : u32)))
+    (function_item
+      (visibility_modifier pub) maximum_value
+      (parameters
+        (parameter max_weight : u32)
+        (parameter items :
+          (reference_type &
+            (array_type Item)))) -> u32
+      (block
+        (let_declaration mut PLACEHOLDER_1 = 0)
+        (let_declaration mut items =
+          (call_expression
+            (field_expression items . to_vec)
+            (arguments)))
+        (expression_statement
+          (while_expression
+            (let_condition
+              (tuple_struct_pattern Some PLACEHOLDER_2) =
+              (call_expression
+                (field_expression items . pop)
+                (arguments)))
+            (block
+              (let_declaration PLACEHOLDER_3 =
+                (if_expression
+                  (binary_expression
+                    (field_expression PLACEHOLDER_2 . weight) <= max_weight)
+                  (block
+                    (binary_expression
+                      (field_expression PLACEHOLDER_2 . value) +
+                      (call_expression maximum_value
+                        (arguments
+                          (binary_expression max_weight -
+                            (field_expression PLACEHOLDER_2 . weight))
+                          (reference_expression & items)))))
+                  (else_clause
+                    (block 0))))
+              (assignment_expression PLACEHOLDER_1 =
+                (if_expression
+                  (binary_expression PLACEHOLDER_3 > PLACEHOLDER_1)
+                  (block PLACEHOLDER_3)
+                  (else_clause
+                    (block PLACEHOLDER_1))))))) PLACEHOLDER_1))))

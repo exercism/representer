@@ -4,9 +4,9 @@ module Representer
   module Languages
     class TypeScript < Language
       tracks "typescript"
-      version 4
+      version 5
       grammar "typescript"
-      extensions ".ts", ".mts", ".cts"
+      extensions ".ts", ".mts", ".cts", ".tsx"
 
       # TypeScript is JavaScript plus types, so it starts from JavaScript's
       # rules and adds the rules for types, parameter properties and so on.

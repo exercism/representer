@@ -2,17 +2,26 @@ module Representer
   module Engine
     # Represents one solution with one language's rules (see Language).
     #
-    # Raises CannotRepresent if a solution file can't be parsed, and the
-    # solution then gets no representation.
+    # Only the solution files with one of the language's extensions are
+    # represented, as the website also sends files such as Rust's Cargo.toml.
+    #
+    # Raises CannotRepresent if the solution has no such file, if a file
+    # can't be parsed, or if the rules hit one of the engine's limits (see
+    # MAX_REWRITES_PER_NODE and MAX_SECONDS). The solution then gets no
+    # representation.
     class Represent
       include Mandate
-
-      MAX_REWRITES_PER_NODE = 50
 
       initialize_with :language, :solution_files, :exercise_files
 
       def call
-        trees = solution_files.sort.map { |filename, source| [filename, prepare(source)] }
+        @deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + MAX_SECONDS
+        sources = solution_files.select { |filename, _| language.source_file?(filename) }
+        if sources.empty?
+          raise CannotRepresent.new("no_source_files", "No solution file has one of the extensions #{language.extensions.join(', ')}")
+        end
+
+        trees = sources.sort.map { |filename, source| [filename, prepare(source)] }
         trees = [[language.merge_files, merge(trees.map(&:last))]] if language.merges_files?
         names = Names.new(language, trees.map(&:last), required_names)
         representation = trees.map { |filename, tree| Serialize.(tree, names, filename) }.join("\n")
@@ -51,22 +60,36 @@ module Representer
 
       # Applies the rewrite rules from the leaves up. When a rule replaces a
       # node, the rules run again on the replacement (and its children), so a
-      # rule's output is always fully rewritten.
-      def rewrite(node)
+      # rule's output is always fully rewritten. The rewrites of a node and
+      # of the nodes that replace it count together, so two rules that undo
+      # each other hit MAX_REWRITES_PER_NODE too.
+      def rewrite(node, rewrites = 0)
         node.children.map! do |child|
           rewritten = rewrite(child)
           rewritten.field = child.field
           rewritten
         end
 
-        MAX_REWRITES_PER_NODE.times do
+        loop do
+          check_time
           replacement = apply_first_rewrite(node)
           return node if replacement.nil?
 
+          rewrites += 1
+          if rewrites > MAX_REWRITES_PER_NODE
+            raise CannotRepresent.new("too_complex",
+              "Rewrite rules keep matching #{node.type} in #{language.name}. A rule's output must not match its own pattern.")
+          end
+
           replacement.field = node.field
-          node = replacement.equal?(node) ? node : rewrite(replacement)
+          return rewrite(replacement, rewrites) unless replacement.equal?(node)
         end
-        raise "Rewrite rules keep matching #{node.type} in #{language.name}. A rule's output must not match its own pattern."
+      end
+
+      def check_time
+        return if Process.clock_gettime(Process::CLOCK_MONOTONIC) < @deadline
+
+        raise CannotRepresent.new("too_complex", "The rules took more than #{MAX_SECONDS} seconds")
       end
 
       # Runs the first rule that matches the node and changes it (a rule's
@@ -96,8 +119,7 @@ module Representer
       def required_names
         names = Set.new
         exercise_files.each do |filename, source|
-          next if filename.start_with?(".")
-          next unless language.extensions.any? { |extension| filename.end_with?(extension) }
+          next if filename.start_with?(".") || !language.source_file?(filename)
 
           begin
             tree = prepare(source)
@@ -120,10 +142,14 @@ module Representer
     Result = Struct.new(:representation, :mapping, :version, :representer, :reason, keyword_init: true)
 
     # Source code arrives as JSON strings, which are UTF-8 but may hold
-    # invalid bytes from a student's editor.
+    # invalid bytes from a student's editor. The editor also chooses Windows
+    # line endings and a byte-order mark, so line endings become plain line
+    # breaks and the mark goes. Otherwise they would end up in strings and in
+    # other tokens (such as a C++ `#define`).
     def self.clean(source)
       source = source.dup.force_encoding(Encoding::UTF_8)
-      source.valid_encoding? ? source : source.scrub("�")
+      source = source.scrub("�") unless source.valid_encoding?
+      source.delete_prefix("\uFEFF").gsub("\r\n", "\n")
     end
 
     # Whether a pattern could match a node of this type, judging only by

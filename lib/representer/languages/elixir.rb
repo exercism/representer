@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Elixir < Language
       tracks "elixir"
-      version 4
+      version 5
       grammar "elixir"
       extensions ".ex", ".exs"
 
@@ -229,7 +229,8 @@ module Representer
       # out, because the solution's own names become placeholders, and two
       # solutions that only name things differently must be sorted the same.
       def self.key(node, defined = Set.new)
-        return node["key"].text.strip.chomp(":") if node.type == "pair" && node["key"]
+        # A quoted key (`"a b": 1`) isn't a leaf, so it is sorted by its parts below.
+        return node["key"].text.strip.chomp(":") if node.type == "pair" && node["key"]&.leaf?
 
         parts = []
         node.each_descendant do |descendant|

@@ -245,8 +245,11 @@ module Golden
     # comments or formatting, and otherwise shows the first line where it
     # differs.
     def self.merge(track, difference)
+      language = Representer::Languages.for(track)
       first, second = difference["solutions"].first(2).map do |names|
-        Solution.new(track:, exercise: difference["exercise"], name: names.first).files
+        files = Solution.new(track:, exercise: difference["exercise"], name: names.first).files
+        # The representer ignores files in other formats, such as a HELP.md.
+        language.respond_to?(:source_file?) ? files.select { |name, _| language.source_file?(name) } : files
       end
       return "The solutions have the same files." if first == second
 

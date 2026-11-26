@@ -4,7 +4,7 @@ module Representer
     # rule's comment names the rewriter it replaces.
     class CSharp < Language
       tracks "csharp"
-      version 5
+      version 6
       grammar "c_sharp"
       extensions ".cs"
 

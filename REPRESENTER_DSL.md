@@ -34,7 +34,7 @@ grammar "ruby"
 ### `extensions(*list)`
 
 This lists the file extensions of the language's source files.
-The engine ignores exercise files with any other extension.
+The engine ignores solution and exercise files with any other extension, such as Rust's `Cargo.toml`.
 
 ```ruby
 extensions ".rb"
@@ -126,6 +126,7 @@ Rewrite rules apply from the leaves up, and again to their own results.
 This replaces each node that matches the pattern.
 Give either a template or a block.
 The block receives the match and returns the replacement node, or `nil` to leave the node as it is.
+A block that changes the matched node in place returns that node, and must return `nil` if it changed nothing, or the rule will keep matching.
 
 ```ruby
 rewrite "(if_modifier body: (_) @body condition: (_) @condition)",

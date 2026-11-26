@@ -4,7 +4,7 @@ module Representer
     # nikic/php-parser's tree and printed the tree back as code.
     class PHP < Language
       tracks "php"
-      version 4
+      version 5
       grammar "php"
       extensions ".php"
 
@@ -215,7 +215,8 @@ module Representer
 
         # "text $a": the pieces, as a concatenation, or as a single value.
         def interpolated_value(node)
-          parts = node.type == "heredoc" ? node["value"].children : node.children
+          # An empty heredoc has no value.
+          parts = node.type == "heredoc" ? Array(node["value"]&.children) : node.children
           pieces = []
           parts.each do |part|
             case part.type

@@ -7,7 +7,7 @@ module Representer
     # the other languages.
     class Zig < Language
       tracks "zig"
-      version 4
+      version 5
       grammar "zig"
       extensions ".zig"
 

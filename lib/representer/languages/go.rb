@@ -4,7 +4,7 @@ module Representer
     # comment says which step it replaces.
     class Go < Language
       tracks "go"
-      version 5
+      version 6
       grammar "go"
       extensions ".go"
       merge_files "solution.go"
@@ -75,8 +75,11 @@ module Representer
 
       # A semicolon between statements or fields is the same as a new line.
       rewrite '(_ ";")', where: ->(match) { match.node.type != "for_clause" } do |match|
-        match.node.children.reject! { |child| !child.named? && child.type == ";" }
-        match.node
+        # The pattern also matches a leaf whose text is ";", such as the
+        # contents of the string ";", which has no tokens to remove. The
+        # block returns nil when it removes nothing, so the rule can't keep
+        # matching its own output.
+        match.node if match.node.children.reject! { |child| !child.named? && child.type == ";" }
       end
 
       # (a + b) is a + b: the tree's shape already shows the grouping.

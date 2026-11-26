@@ -142,7 +142,7 @@ Write the rules against that tree.
 - `tracks "python"`: the track slugs this class represents.
 - `version 2`: the representer version (see step 5).
 - `grammar "python"`: the grammar's name in `grammars.yml`.
-- `extensions ".py"`: the language's file extensions. Exercise files with other extensions are ignored.
+- `extensions ".py"`: the language's file extensions. Solution and exercise files with other extensions are ignored, so list every extension a student's code can have.
 - `names :identifier, ...`: the leaf types that hold names. Only these can be renamed. If a type's text includes a prefix that isn't part of the name, give it as a keyword (Ruby has `simple_symbol: ":"` for `:name`).
 
 - `fold_names { |name| ... }`: for a language that treats some spellings of a name as one name (Nim ignores case after the first letter, and underscores). The block returns the name's canonical spelling. The representation then writes every name in that spelling, and the mapping keeps the student's first spelling.
@@ -185,8 +185,11 @@ They run from the leaves up, and run again on their own output.
 - `retype do_block: :block` gives nodes of one type another type.
 - `unwrap :parenthesized_expression` replaces a node that has one named child with that child.
 
-A rule must not match its own output, or it will run forever (the engine raises an error after 50 rewrites of one node).
+A rule must not match its own output, or it will run forever.
+The engine stops after 50 rewrites of one node, and the solution then gets no representation (reason `too_complex`).
 For example, Ruby's string rule only matches strings that still have their quote token, and its output has none.
+A block that changes the node in place must return nil when it changes nothing.
+Watch out for a pattern such as `(_ ";")`: it also matches a leaf whose text is `;`, such as the contents of the string `";"`.
 
 Strings are a common rewrite: turn each string into its value with `literal(value)`, so that `'a'` and `"a"` are the same.
 Decode only the escapes you are sure of, and keep any other escape's source text, so two different strings can never get the same value.

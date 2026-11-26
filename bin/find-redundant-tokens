@@ -30,17 +30,17 @@ languages.group_by { |_, language| language }.each do |language, entries|
   sources = []
   slugs.each do |slug|
     Dir[File.join(root, "test/fixtures", slug, "**/*")].each do |path|
-      sources << File.read(path) if File.file?(path) && language.extensions.any? { |ext| path.end_with?(ext) }
+      sources << File.read(path) if File.file?(path) && language.source_file?(path)
     end
     Dir[File.join(root, "tests", slug, "*/request.json")].each do |path|
       request = JSON.parse(File.read(path))
       request.values_at("solution_files", "exercise_files").compact.each do |files|
-        files.each { |name, source| sources << source if language.extensions.any? { |ext| name.end_with?(ext) } }
+        files.each { |name, source| sources << source if language.source_file?(name) }
       end
     end
   end
 
-  sources.concat(extra_files.select { |path| language.extensions.any? { |ext| path.end_with?(ext) } }.map { |path| File.read(path) })
+  sources.concat(extra_files.select { |path| language.source_file?(path) }.map { |path| File.read(path) })
 
   counts = Hash.new(0)
   instance = Representer::Engine::Represent.new(language, {}, {})

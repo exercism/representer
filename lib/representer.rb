@@ -14,8 +14,18 @@ module Representer
   # (reason "too_deep").
   MAX_DEPTH = 1_000
 
+  # The most times the rewrite rules may change one node. A rule that keeps
+  # matching its own output would otherwise run forever. A solution that
+  # needs more can't be represented (reason "too_complex").
+  MAX_REWRITES_PER_NODE = 50
+
+  # The most seconds the rules may take over one solution. A slower solution
+  # can't be represented (reason "too_complex").
+  MAX_SECONDS = 10
+
   # The solution can't be represented. The reason is "parse_error",
-  # "too_deep" or "too_large", and the response gives it to the website.
+  # "too_deep", "too_large", "too_complex" or "no_source_files", and the
+  # response gives it to the website.
   class CannotRepresent < StandardError
     attr_reader :reason
 

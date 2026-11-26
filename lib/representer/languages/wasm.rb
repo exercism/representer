@@ -8,7 +8,7 @@ module Representer
     # chooses (written `$name`) is renamed.
     class Wasm < Language
       tracks "wasm"
-      version 3
+      version 4
       grammar "wat"
       extensions ".wat"
 
@@ -131,9 +131,18 @@ module Representer
           body = rest.find { |child| child.type == "if_block" }
           return [instruction(Engine::Node.new("expr1_if", rest))] unless body
 
-          lists = body.children.select { |child| child.type == "instr_list" }
-          branches = [lists.first]
-          branches += [Engine::Node.token("else"), lists[1]] if lists[1]
+          # A branch with no instructions has no instr_list, so each list
+          # belongs to the "then" or "else" token before it.
+          lists = {}
+          branch = nil
+          body.children.each do |child|
+            branch = child.type if %w[then else].include?(child.type) && !child.named?
+            lists[branch] = child if child.type == "instr_list"
+          end
+          # The plain form `if else ... end` has no list for an empty "then"
+          # either.
+          branches = [lists["then"]].compact
+          branches += [Engine::Node.token("else"), lists["else"]] if lists["else"]
           children = (rest - [body]) + body.children.select { |child| child.type == "func_type_results" } + branches
           unfold_all(body.children.select { |child| child.type == "expr" }) + [instruction(block("block_if", children))]
         end

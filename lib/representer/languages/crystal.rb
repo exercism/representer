@@ -7,7 +7,7 @@ module Representer
     # here, because the tree has no layout.
     class Crystal < Language
       tracks "crystal"
-      version 5
+      version 6
       grammar "crystal"
       extensions ".cr"
 

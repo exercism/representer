@@ -9,8 +9,15 @@ class RepresenterTest < Minitest::Test
   def self.track(slug = nil) = slug ? @track = slug : @track
   def track = self.class.track
 
-  def represent(code, filename: "solution", exercise_files: {})
+  def represent(code, filename: default_filename, exercise_files: {})
     Representer::RepresentSolution.(track, { filename => code }, exercise_files)
+  end
+
+  # A solution file with the language's first extension, as the engine
+  # ignores files with other extensions.
+  def default_filename
+    language = Representer::Languages.for(track)
+    language.respond_to?(:extensions) ? "solution#{language.extensions.first}" : "solution"
   end
 
   def assert_same_representation(code, other, **options)

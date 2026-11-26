@@ -3,10 +3,12 @@ require "test_helper"
 class BasicTest < RepresenterTest
   track "haskell"
 
-  def basic(code, track: "haskell") = Representer::RepresentSolution.(track, { "solution" => code }, {})
+  # Python has a class of its own, so the tests for indentation call Basic
+  # directly.
+  def basic(code, track: "haskell") = Representer::Languages::Basic.(track, { "solution" => code })
 
   def test_tracks_without_a_class_use_basic_and_its_version
-    result = basic("main = print 1")
+    result = Representer::RepresentSolution.("haskell", { "Main.hs" => "main = print 1" }, {})
     assert_equal Representer::Languages::Basic, result.representer
     assert_nil result.reason
     assert_equal Representer::Languages::Basic::VERSION, result.version

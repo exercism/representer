@@ -70,7 +70,7 @@ A rejected difference stays listed until the fix lands, and the fix then removes
 ## The differences today
 
 The data holds 19,557 solutions in 82 tracks: 4,187 production groups of two or three solutions, and 7,017 solutions that were alone in their representation.
-Compared with production, today's representer makes 774 splits and 128 merges, and 161 solutions get no representation.
+Compared with production, today's representer makes 776 splits and 129 merges, and 77 solutions get no representation.
 Every difference is still `undecided`.
 
 ### The 59 tracks that use Basic
@@ -85,11 +85,11 @@ Today's Basic does the opposite: it keeps line breaks, the spaces between tokens
 
 ### The 23 tracks with a class of their own
 
-These tracks have 177 splits, 87 merges and 161 unrepresentable solutions.
+These tracks have 179 splits, 88 merges and 77 unrepresentable solutions.
 
 The main causes of splits are:
 
-- **Names used by the tests (48 splits).** The representer keeps every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Ruby (7), Rust (6) and PHP (5) have the most.
+- **Names used by the tests (49 splits).** The representer keeps every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Ruby (7), Rust (7) and PHP (5) have the most.
 - **Numbers (15 splits).** Numbers written differently stay different, such as Elixir's `41_000` and `41000`, or `0b10_000_000` and `128`.
 - **File names (8 splits).** The representation includes each file's name, so a solution submitted before an exercise was renamed (such as `pop-count` to `eliuds-eggs`) splits from a newer one.
 - **Elm parentheses (15 splits).** Elm keeps redundant parentheses, so `(modBy 2 n) + x` and `modBy 2 n + x` differ. A few more Elm splits come from the order of the names in `exposing`.
@@ -101,13 +101,12 @@ The merges are:
 
 - 29 merges of solutions with the same code, or code that differs only in whitespace or comments. Production had them in separate groups, probably because they were represented by different versions.
 - 58 merges of solutions that differ in local names or formatting, which the language's class now normalises. Zig (13), Nim (9), Clojure (7), F# (6), Wren (5), Raku (4) and WebAssembly (4) have the most.
+- 1 Zig merge of a solution that also holds a `HELP.md` and a `README.md`. The representer ignores files without one of the language's extensions, and the code is the same as the other group's apart from comments.
 
 The unrepresentable solutions are:
 
-- **Rust (74), Zig (1) and WebAssembly (1).** These solutions include a file in another format (`Cargo.toml`, `HELP.md`, `README.md` or a `.txt` file). The website sends every solution file, and the representer parses all of them with the language's grammar, so the whole solution fails to parse.
-- **Rewrite errors (Go 3, Rust 6).** In some solutions to `tournament` and `forth`, a string rewrite rule keeps matching its own output, and the representer raises an error. On production, these requests will fail.
 - **C++ (2).** The stored file holds only the text `[Invalid Unicode]`.
-- **Grammar gaps (74).** The pinned grammar rejects code that the track's tests accept: WebAssembly (41, mostly a folded `if` with no `then`), C++ (11, such as explicit template instantiations), GDScript (8, mixed tabs and spaces), Common Lisp (7, mostly `loop`) and F# (7).
+- **Grammar gaps (75).** The pinned grammar rejects code that the track's tests accept: WebAssembly (42, mostly a folded `if` with no `then`), C++ (11, such as explicit template instantiations), GDScript (8, mixed tabs and spaces), Common Lisp (7, mostly `loop`) and F# (7).
 
 ### Java
 
@@ -152,7 +151,7 @@ They look like representations made by a rerun of older submissions, which are n
 | futhark | Basic | 101 | 1 | 98 | 0 | 0 | 0 |
 | gdscript | GDScript | 99 | 1 | 96 | 0 | 0 | 8 |
 | gleam | Gleam | 346 | 91 | 73 | 1 | 2 | 0 |
-| go | Go | 359 | 88 | 96 | 16 | 0 | 3 |
+| go | Go | 359 | 88 | 96 | 16 | 0 | 0 |
 | groovy | Basic | 227 | 45 | 92 | 13 | 0 | 0 |
 | haskell | Basic | 399 | 100 | 100 | 28 | 0 | 0 |
 | idris | Basic | 114 | 11 | 82 | 2 | 1 | 0 |
@@ -185,7 +184,7 @@ They look like representations made by a rerun of older submissions, which are n
 | rescript | Basic | 45 | 1 | 42 | 1 | 0 | 0 |
 | roc | Basic | 3 | 1 | 0 | 1 | 0 | 0 |
 | ruby | Ruby | 368 | 93 | 89 | 10 | 0 | 0 |
-| rust | Rust | 385 | 98 | 91 | 8 | 0 | 80 |
+| rust | Rust | 385 | 98 | 91 | 10 | 0 | 0 |
 | scala | Basic | 347 | 89 | 85 | 32 | 0 | 0 |
 | scheme | Basic | 230 | 46 | 92 | 32 | 0 | 0 |
 | sml | Basic | 211 | 37 | 100 | 19 | 0 | 0 |
@@ -202,4 +201,4 @@ They look like representations made by a rerun of older submissions, which are n
 | wren | Wren | 207 | 39 | 90 | 2 | 11 | 0 |
 | x86-64-assembly | Basic | 293 | 66 | 95 | 0 | 5 | 0 |
 | yamlscript | Basic | 123 | 9 | 96 | 1 | 0 | 0 |
-| zig | Zig | 362 | 94 | 80 | 0 | 14 | 1 |
+| zig | Zig | 362 | 94 | 80 | 0 | 15 | 0 |

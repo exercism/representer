@@ -8,7 +8,7 @@ module Representer
     # replaces.
     class Nim < Language
       tracks "nim"
-      version 4
+      version 5
       grammar "nim"
       extensions ".nim", ".nims"
 

@@ -194,4 +194,8 @@ class PHPTest < RepresenterTest
     assert_equal "parse_error", result.reason
     assert_equal Representer::Languages::PHP.version, result.version
   end
+
+  def test_an_empty_heredoc
+    refute_same_representation "<?php\n$a = <<<EOT\nEOT;\n", "<?php\n$a = <<<EOT\nb\nEOT;\n"
+  end
 end

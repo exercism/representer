@@ -236,4 +236,10 @@ class GoTest < RepresenterTest
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "package p\n\nfunc F( {\n"
   end
+
+  # A rule that drops ";" tokens also matched the contents of the string ";",
+  # and kept matching it.
+  def test_a_string_holding_a_semicolon
+    refute_same_representation "package p\n\nvar S = \";\"\n", "package p\n\nvar S = \":\"\n"
+  end
 end

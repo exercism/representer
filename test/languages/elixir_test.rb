@@ -160,4 +160,8 @@ class ElixirTest < RepresenterTest
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "defmodule M do\n  def f(\nend"
   end
+
+  def test_maps_with_quoted_keys
+    refute_same_representation '%{"a b": 1, c: 2}', '%{"a c": 1, c: 2}'
+  end
 end

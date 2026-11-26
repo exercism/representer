@@ -7,7 +7,7 @@ module Representer
     # the student defines.
     class Raku < Language
       tracks "raku"
-      version 3
+      version 4
       grammar "raku"
       extensions ".rakumod", ".raku", ".rakutest", ".pm6", ".p6"
 
