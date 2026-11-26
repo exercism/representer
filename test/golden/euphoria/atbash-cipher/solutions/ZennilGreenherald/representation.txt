@@ -1,0 +1,30 @@
+include std/search.e
+public function encode(sequence phrase)
+sequence acc = "\"\""
+integer copies = 0
+for i = 1 to length(phrase) do
+if phrase[i] >= 'a' and phrase[i] <= 'z' then
+if copies > 0 and remainder(copies, 5) = 0 then
+acc &= ' '
+end if
+acc &= 'a' + 26 - (phrase[i] - 'a') - 1
+copies += 1
+elsif phrase[i] >= 'A' and phrase[i] <= 'Z' then
+if copies > 0 and remainder(copies, 5) = 0 then
+acc &= ' '
+end if
+acc &= 'a' + 26 - (phrase[i] - 'A') - 1
+copies += 1
+elsif phrase[i] >= '0' and phrase[i] <= '9' then
+if copies > 0 and remainder(copies, 5) = 0 then
+acc &= ' '
+end if
+acc &= phrase[i]
+copies += 1
+end if
+end for
+return acc
+end function
+public function decode(sequence phrase)
+return match_replace(" "\"," encode(match_replace(" "\"," phrase, "\"\"))," "\"\")"
+end function

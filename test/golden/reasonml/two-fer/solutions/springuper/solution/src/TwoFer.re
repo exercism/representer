@@ -1,0 +1,8 @@
+let twoFer = (name) => {
+  let greet =
+    switch (name) {
+    | None => "you"
+    | Some(n) => n
+    };
+  "One for " ++ greet ++ ", one for me.";
+};

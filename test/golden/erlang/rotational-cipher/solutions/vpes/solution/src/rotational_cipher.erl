@@ -1,0 +1,18 @@
+-module(rotational_cipher).
+
+-export([decrypt/2, encrypt/2]).
+
+-spec decrypt(string(),pos_integer()) -> string().
+decrypt(String, Key) -> encrypt(String,-Key).
+
+-spec encrypt(string(),integer()) -> string().
+encrypt(String, Key) when Key > 26 -> encrypt(String,Key-26);
+encrypt(String, Key) when Key < 0 -> encrypt(String,Key+26);
+encrypt(String, Key) -> rot(String,Key).
+
+
+-spec rot(string(),pos_integer()) -> string().
+rot([], _) -> [];
+rot([H|T], Key) when H >= $a andalso H =< $z -> [$a + ((H-$a+Key)rem 26)|rot(T, Key)];
+rot([H|T], Key) when H >= $A andalso H =< $Z -> [$A + ((H-$A+Key)rem 26)|rot(T, Key)];
+rot([H|T], Key) -> [H|encrypt(T, Key)].

@@ -1,0 +1,69 @@
+CLASS zcl_kindergarten_garden DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+ PUBLIC SECTION.
+    METHODS plants
+      IMPORTING
+        diagram        TYPE string
+        student        TYPE string
+      RETURNING
+        VALUE(results) TYPE string_table.
+
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+    METHODS get_plant_name
+      IMPORTING
+        plant_code        TYPE string
+      RETURNING
+        VALUE(plant_name) TYPE string.
+
+ENDCLASS.
+
+
+CLASS zcl_kindergarten_garden IMPLEMENTATION.
+
+  METHOD plants.
+    FINAL(students) = VALUE string_table( ( `Alice` )
+                                         ( `Bob` )
+                                         ( `Charlie` )
+                                         ( `David` )
+                                         ( `Eve` )
+                                         ( `Fred` )
+                                         ( `Ginny` )
+                                         ( `Harriet` )
+                                         ( `Ileana` )
+                                         ( `Joseph` )
+                                         ( `Kincaid` )
+                                         ( `Larry` ) ).
+
+    SPLIT diagram AT `\n` INTO TABLE FINAL(diagram_lines).
+
+    DATA(student_idx) = line_index( students[ table_line = student ] ) - 1.
+
+    " TODO: variable is assigned but never used (ABAP cleaner)
+    LOOP AT diagram_lines INTO FINAL(diagram_line).
+
+      DO 2 TIMES.
+        FINAL(plant_line_idx) = ( student_idx * 2 ) + sy-index - 1.
+        DATA(pos_value) = diagram_line+plant_line_idx(1).
+        APPEND get_plant_name( pos_value ) TO results.
+      ENDDO.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD get_plant_name.
+    CASE plant_code.
+      WHEN `G`.
+        plant_name = `grass`.
+      WHEN `C`.
+        plant_name = `clover`.
+      WHEN `R`.
+        plant_name = `radishes`.
+      WHEN `V`.
+        plant_name = `violets`.
+    ENDCASE.
+  ENDMETHOD.
+
+ENDCLASS.

@@ -1,8 +1,0 @@
-use context essentials2020 # Don't delete this line when using Pyret on Exercism 
-
-provide: leap end
-
-fun leap(year):
-  (num-modulo(year, 4) < 1) and
-  ((num-modulo(year, 100) > 0) or (num-modulo(year, 400) < 1))
-end

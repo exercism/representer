@@ -1,0 +1,27 @@
+rotationalCipher.rotate : Text -> Nat -> Text
+rotationalCipher.rotate text shiftKey = 
+  Text.map (rotationalCipher.rotateChar shiftKey) text
+
+rotationalCipher.rotateChar : Nat -> Char -> Char
+rotationalCipher.rotateChar shiftKey ch =
+  Char.toNat ch 
+    |> rotationalCipher.rotateNat shiftKey 
+    |> Char.fromNat
+    |> Optional.getOrBug ""
+
+rotationalCipher.rotateNat : Nat -> Nat -> Nat
+rotationalCipher.rotateNat shiftKey code =
+  match code with
+    x
+      | (x >= 65) && (x <= 90) -> rotationalCipher.rotateUpper shiftKey x
+      | (x >= 97) && (x <= 122) -> rotationalCipher.rotateLower shiftKey x
+    _ -> code
+
+rotationalCipher.rotateUpper : Nat -> Nat -> Nat
+rotationalCipher.rotateUpper = rotationalCipher.rotateLetter 65
+
+rotationalCipher.rotateLower : Nat -> Nat -> Nat
+rotationalCipher.rotateLower = rotationalCipher.rotateLetter 97
+
+rotationalCipher.rotateLetter : Nat -> Nat -> Nat -> Nat
+rotationalCipher.rotateLetter lowerBound shiftKey code = mod (code - lowerBound + shiftKey) 26 + lowerBound

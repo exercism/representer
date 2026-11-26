@@ -1,0 +1,68 @@
+module main
+import math
+struct Rational {
+mut:
+n i64
+d i64
+}
+pub fn Rational.new(numerator i64, denominator i64) Rational {
+return Rational{
+n: numerator
+d: denominator
+}
+}
+pub fn (r Rational) abs() Rational {
+return Rational{
+n: math.abs(r.n)
+d: math.abs(r.d)
+}.reduce()
+}
+pub fn (r Rational) add(other Rational) Rational {
+return Rational{
+n: r.n * other.d + other.n * r.d
+d: r.d * other.d
+}.reduce()
+}
+pub fn (r Rational) div(other Rational) Rational {
+return Rational{
+n: r.n * other.d
+d: other.n * r.d
+}.reduce()
+}
+pub fn (r Rational) exprational(e i64) Rational {
+if e > 0 {
+return Rational{
+n: math.powi(r.n, e)
+d: math.powi(r.d, e)
+}.reduce()
+} else if e < 0 {
+return Rational{
+n: math.powi(r.d, math.abs(e))
+d: math.powi(r.n, math.abs(e))
+}.reduce()
+} else {
+return Rational{1, 1}
+}
+}
+pub fn (r Rational) expreal(e i64) f64 {
+return math.pow(e, f64(r.n) / f64(r.d))
+}
+pub fn (r Rational) mul(other Rational) Rational {
+return Rational{
+n: r.n * other.n
+d: r.d * other.d
+}.reduce()
+}
+pub fn (r Rational) reduce() Rational {
+gcd := if r.d < 0 { -math.gcd(r.n, r.d) } else { math.gcd(r.n, r.d) }
+return Rational{
+n: r.n / gcd
+d: r.d / gcd
+}
+}
+pub fn (r Rational) sub(other Rational) Rational {
+return Rational{
+n: r.n * other.d - other.n * r.d
+d: r.d * other.d
+}.reduce()
+}

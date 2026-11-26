@@ -1,0 +1,22 @@
+pascal ( 0 , []) :- !.
+pascal ( N , Rows ) :-
+N > 0 ,
+build_triangle ( N , [[ 1 ]], Rows ).
+build_triangle ( N , TriangleSoFar , TriangleSoFar ) :-
+length ( TriangleSoFar , N ), !.
+build_triangle ( N , TriangleSoFar , FinalTriangle ) :-
+last ( TriangleSoFar , CurrentRow ),
+next_row ( CurrentRow , NewRow ),
+append ( TriangleSoFar , [ NewRow ], UpdatedTriangle ),
+build_triangle ( N , UpdatedTriangle , FinalTriangle ).
+next_row ( PreviousRow , NewRow ) :-
+shift_left ( PreviousRow , LeftShifted ),
+shift_right ( PreviousRow , RightShifted ),
+sum_lists ( LeftShifted , RightShifted , NewRow ).
+shift_left ( List , [ 0 | List ]).
+shift_right ( List , Result ) :-
+append ( List , [ 0 ], Result ).
+sum_lists ([], [], []).
+sum_lists ([ A | RestA ], [ B | RestB ], [ Sum | RestSums ]) :-
+Sum is A + B ,
+sum_lists ( RestA , RestB , RestSums ).

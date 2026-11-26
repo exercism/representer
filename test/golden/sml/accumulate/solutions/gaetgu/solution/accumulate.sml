@@ -1,4 +1,0 @@
-fun accumulate (f, xs) =
-    case xs of
-        [] => []
-      | h :: t => f h :: accumulate (f, t)

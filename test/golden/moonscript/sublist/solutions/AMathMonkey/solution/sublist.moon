@@ -1,0 +1,16 @@
+is_sublist = (longer, shorter, offset) ->
+  for i = 1, #shorter
+    if longer[i + offset - 1] != shorter[i]
+      return false
+  true
+
+sublist: (list1, list2) ->
+  diff = #list1 - #list2
+  result = if diff == 0 then 'equal'
+  else if diff > 0 then 'superlist'
+  else
+    list1, list2 = list2, list1
+    'sublist'
+  for offset = 1, #list1 - #list2 + 1
+    return result if is_sublist list1, list2, offset
+  'unequal'

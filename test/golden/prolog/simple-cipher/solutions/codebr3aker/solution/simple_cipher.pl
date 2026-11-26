@@ -1,0 +1,59 @@
+generate_random_list(List) :- generate_random_list(100, List), !.
+generate_random_list(0, []) :- !.
+generate_random_list(N, [H|T]) :-
+    random_between(97, 122, H),
+    NewN is N - 1,
+    generate_random_list(NewN, T), !.
+    
+generate_key(Key) :-
+    generate_random_list(KeyCodes),
+    string_codes(Key, KeyCodes).
+
+substract_1(Number, Result) :-
+    Result is Number - 1.
+
+substract_97(Number, Result) :-
+    Result is Number - 97.
+
+add_97(Number, Result) :-
+    Result is Number + 97.
+
+change_sign(Number, Result) :-
+    Result is Number * (-1).
+
+string_to_codes(String, Codes) :-
+    string_codes(String, CodesTemp),
+    convlist(substract_97, CodesTemp, Codes).
+
+codes_to_string(Codes, String) :-
+    convlist(add_97, Codes, CodesRes),
+    string_codes(String, CodesRes).
+
+shift(By, Code, Shifted) :-
+    Temp is Code + By,
+    Shifted is Temp mod 26.
+
+shift_all(ByList, Codes, Shifted) :- 
+    shift_all(ByList, 0, Codes, Shifted), !.
+
+shift_all(_, _, [], []) :- !.
+shift_all(ByList, ByIndex, [CodesH|CodesT], [ShiftedH|ShiftedT]) :-
+    length(ByList, Length),
+    Index is ByIndex mod Length,
+    nth0(Index, ByList, ShiftBy),
+    shift(ShiftBy, CodesH, ShiftedH),
+    ByIndexNew is ByIndex + 1,
+    shift_all(ByList, ByIndexNew, CodesT, ShiftedT), !.
+    
+encode(Plaintext, Key, Ciphertext) :-
+    string_to_codes(Plaintext, PlainCodes),
+    string_to_codes(Key, KeyCodes),
+    shift_all(KeyCodes, PlainCodes, ShiftedCodes),
+    codes_to_string(ShiftedCodes, Ciphertext).
+
+decode(Ciphertext, Key, Plaintext) :-
+    string_to_codes(Ciphertext, CipherCodes),
+    string_to_codes(Key, KeyCodes),
+    convlist(change_sign, KeyCodes, NewKeyCodes),
+    shift_all(NewKeyCodes, CipherCodes, ShiftedCodes),
+    codes_to_string(ShiftedCodes, Plaintext).

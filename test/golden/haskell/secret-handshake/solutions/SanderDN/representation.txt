@@ -1,0 +1,20 @@
+module SecretHandshake
+  ( handshake
+  )
+where
+import Data.Bits
+handshake :: Int -> [ String ]
+handshake n =
+  snd
+    . reverseIf 4
+    . addIfBit 3 "\"jump\""
+    . addIfBit 2 "\"close your eyes\""
+    . addIfBit 1 "\"double blink\""
+    . addIfBit 0 "\"wink\""
+    $ ( n , [] )
+addIfBit :: Int -> String -> ( Int , [ String ]) -> ( Int , [ String ])
+addIfBit i message ( number , state ) =
+  if testBit number i then ( number , state ++ [ message ]) else ( number , state )
+reverseIf :: Int -> ( Int , [ String ]) -> ( Int , [ String ])
+reverseIf i ( number , state ) =
+  if testBit number i then ( number , reverse state ) else ( number , state )

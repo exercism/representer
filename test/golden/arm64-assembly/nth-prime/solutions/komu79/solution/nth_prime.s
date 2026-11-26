@@ -1,0 +1,102 @@
+.text
+.globl prime
+
+number  .req x0
+limit   .req x1
+p       .req x3
+m       .req x4
+step    .req x5
+idx     .req x6
+word    .req x7
+word32  .req w7
+bytes   .req x8
+one     .req x9
+base    .req x10
+ptr     .req x11
+end     .req x12
+tmp     .req x13
+
+prime:
+        cbz     number, .Lnone
+        mov     one, #1
+
+        clz     limit, number
+        neg     limit, limit
+        add     limit, limit, #64
+        mul     limit, number, limit    // n * bitlength(n)
+
+        add     limit, limit, #1023     // align
+        and     limit, limit, #-1024
+        lsr     bytes, limit, #3
+        
+        sub     sp, sp, bytes           // allocate buffer
+
+        // Bit i set <=> i is still a prime candidate: all odd numbers plus 2.
+        movi    v0.16b, #0xaa
+        mov     ptr, sp
+        add     end, sp, bytes
+.Lfill:
+        stp     q0, q0, [ptr]
+        stp     q0, q0, [ptr, #32]
+        stp     q0, q0, [ptr, #64]
+        stp     q0, q0, [ptr, #96]
+        add     ptr, ptr, #128
+        cmp     ptr, end
+        b.ne    .Lfill
+
+        mov     word32, #0xac           // low byte: clear bit 1, set bit 2
+        strb    word32, [sp]
+
+        // Sieve with odd p while p*p < limit, clearing odd multiples only.
+        mov     p, #3
+        b       .Lsieve_check
+.Lsieve_loop:
+        lsr     idx, p, #6
+        ldr     word, [sp, idx, lsl #3]
+        lsr     word, word, p           // implicit p mod 64
+        tbz     word, #0, .Lsieve_next  // p already composite
+        lsl     step, p, #1
+.Lmark:
+        lsr     idx, m, #6
+        ldr     word, [sp, idx, lsl #3]
+        lsl     tmp, one, m             // implicit m mod 64
+        bic     word, word, tmp
+        str     word, [sp, idx, lsl #3]
+        add     m, m, step
+        cmp     m, limit
+        b.lo    .Lmark
+.Lsieve_next:
+        add     p, p, #2
+.Lsieve_check:
+        mul     m, p, p
+        cmp     m, limit
+        b.lo    .Lsieve_loop
+
+        // Search the bits for nth set bit, one word at a time.
+        mov     base, #0
+        mov     ptr, sp
+.Lword_loop:
+        ldr     word, [ptr], #8
+        b       .Lbits_check
+.Lbit_loop:
+        subs    number, number, #1
+        b.eq    .Lfound
+        sub     tmp, word, #1
+        and     word, word, tmp         // clear lowest set bit
+.Lbits_check:
+        cbnz    word, .Lbit_loop
+        add     base, base, #64
+        cmp     base, limit
+        b.lo    .Lword_loop
+        mov     x0, #-1
+        b       .Lreturn
+.Lfound:
+        rbit    tmp, word
+        clz     tmp, tmp                // ctz
+        add     x0, tmp, base
+.Lreturn:
+        add     sp, sp, bytes
+        ret
+.Lnone:
+        mov     x0, #-1
+        ret

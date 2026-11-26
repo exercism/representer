@@ -1,0 +1,12 @@
+(defmodule allergies
+  (export (allergies 1)
+          (allergic-to? 2)))
+
+(defun allergies (n) (allergies n '() '(eggs peanuts shellfish strawberries tomatoes chocolate pollen cats)))
+
+(defun allergies
+  [(_ acc '()) (lists:reverse acc)]
+  [(n acc (cons hd rst)) (allergies (bsr n 1) (if (== 1 (band n 1)) (cons hd acc) acc) rst)])
+
+(defun allergic-to? (allergen n)
+  (lists:member allergen (allergies n)))

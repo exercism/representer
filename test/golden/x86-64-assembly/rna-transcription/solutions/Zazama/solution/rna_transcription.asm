@@ -1,0 +1,42 @@
+default rel
+
+section .text
+global to_rna
+to_rna:
+    mov r8, 0
+    jp compare
+
+compare_next:
+    inc r8
+    jp compare
+
+compare:
+    cmp byte [rdi+r8], 'G'
+    je replace_g
+    cmp byte [rdi+r8], 'C'
+    je replace_c
+    cmp byte [rdi+r8], 'T'
+    je replace_t
+    cmp byte [rdi+r8], 'A'
+    je replace_a
+    jp terminate_string
+
+replace_g:
+    mov byte [rsi+r8], 'C'
+    jp compare_next
+
+replace_c:
+    mov byte [rsi+r8], 'G'
+    jp compare_next
+
+replace_t:
+    mov byte [rsi+r8], 'A'
+    jp compare_next
+
+replace_a:
+    mov byte [rsi+r8], 'U'
+    jp compare_next
+
+terminate_string:
+    mov byte [rsi+r8], 0
+    ret

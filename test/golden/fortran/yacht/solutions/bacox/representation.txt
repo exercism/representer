@@ -1,0 +1,61 @@
+module yacht
+implicit none
+contains
+function count_dice ( dice ) result ( out )
+integer , dimension ( 5 ), intent ( in ) :: dice
+integer , dimension ( 6 ) :: out
+integer :: i
+out = 0
+do i = 1 , size ( dice )
+out ( dice ( i )) = out ( dice ( i )) + 1
+end do
+end function count_dice
+integer function score ( dice , yacht_type )
+integer , dimension ( 5 ), intent ( in ) :: dice
+character ( len =* ), intent ( in ) :: yacht_type
+integer , dimension ( 6 ) :: aux
+integer :: i
+aux = count_dice ( dice )
+score = 0
+select case ( yacht_type )
+case ( "\"ones\"" )
+score = aux ( 1 ) * 1
+case ( "\"twos\"" )
+score = aux ( 2 ) * 2
+case ( "\"threes\"" )
+score = aux ( 3 ) * 3
+case ( "\"fours\"" )
+score = aux ( 4 ) * 4
+case ( "\"fives\"" )
+score = aux ( 5 ) * 5
+case ( "\"sixes\"" )
+score = aux ( 6 ) * 6
+case ( "\"four of a kind\"" )
+do i = 1 , size ( aux )
+if ( aux ( i ) >= 4 ) then
+score = i * 4
+end if
+end do
+case ( "\"full house\"" )
+if ( any ( aux (:) == 2 ) .and. any ( aux (:) == 3 ) ) then
+score = sum ( dice )
+end if
+case ( "\"yacht\"" )
+if ( any ( aux == 5 ) ) then
+score = 50
+end if
+case ( "\"choice\"" )
+score = sum ( dice )
+case ( "\"little straight\"" )
+if ( all ( aux (: 5 ) == 1 ) ) then
+score = 30
+end if
+case ( "\"big straight\"" )
+if ( all ( aux ( 2 :) == 1 ) ) then
+score = 30
+end if
+case default
+score = 0
+end select
+end function
+end module

@@ -1,0 +1,91 @@
+module main
+const nums = {
+i64(0): 'zero'
+1: 'one'
+2: 'two'
+3: 'three'
+4: 'four'
+5: 'five'
+6: 'six'
+7: 'seven'
+8: 'eight'
+9: 'nine'
+10: 'ten'
+11: 'eleven'
+12: 'twelve'
+13: 'thirteen'
+14: 'fourteen'
+15: 'fifteen'
+16: 'sixteen'
+17: 'seventeen'
+18: 'eighteen'
+19: 'nineteen'
+20: 'twenty'
+30: 'thirty'
+40: 'forty'
+50: 'fifty'
+60: 'sixty'
+70: 'seventy'
+80: 'eighty'
+90: 'ninety'
+}
+const bigs = {
+i64(100): 'hundred'
+1000: 'thousand'
+1000000: 'million'
+1000000000: 'billion'
+}
+fn say(number i64) !string {
+if is_valid(number) {
+if number in nums { return nums[number] }
+else { return break_ns(number) }
+}
+else {
+return error('input out of range')
+}
+}
+fn break_ns (n i64) string {
+if n < 100 { return tens(n)}
+else if n < 1000 { return hunds(n)}
+else if n < 1000000 { return bigger(n, 1000)}
+else if n < 1000000000 { return bigger(n, 1000000)}
+else if n < 1000000000000 { return bigger(n, 1000000000)}
+else { return ''}
+}
+fn bigger (n i64, i i64) string {
+big := n / i
+rest := n % i
+mut ans := ''
+if big in nums { ans = nums[big] }
+else { ans = hunds(big)}
+ans += ' ${bigs[i]}'
+if rest != 0 {
+ans += ' '
+match i {
+1000 { ans += hunds(rest) }
+1000000 { ans += bigger(rest, 1000) }
+1000000000 { ans += bigger(rest, 1000000) }
+else { true }
+}
+}
+return ans
+}
+fn hunds (n i64) string {
+hund := n / 100
+rest := n % 100
+mut ans := '${nums[hund]} ${bigs[100]}'
+if rest != 0 {
+ans += ' '
+ans += tens(rest)
+}
+return ans
+}
+fn tens (n i64) string {
+tens := n / 10 * 10
+ones := n % 10
+return '${nums[tens]}-${nums[ones]}'
+}
+fn is_valid(n i64) bool {
+if n >= 0 && n < 1000000000000 { return true }
+else { return false }
+}

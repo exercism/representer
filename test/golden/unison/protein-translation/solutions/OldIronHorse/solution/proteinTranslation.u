@@ -1,0 +1,59 @@
+type proteinTranslation.Protein = Methionine
+              | Phenylalanine
+              | Leucine
+              | Serine
+              | Tyrosine
+              | Cysteine
+              | Tryptophan
+
+type proteinTranslation.Reason = Stop | InvalidCodon
+
+proteinTranslation.Protein.toText = cases
+  Methionine -> "Methionine"
+  Phenylalanine -> "Phenylalanine"
+  Leucine -> "Leucine"
+  Serine -> "Serine"
+  Tyrosine -> "Tyrosine"
+  Cysteine -> "Cysteine"
+  Tryptophan -> "Tryptophan"
+
+
+proteinTranslation.proteins : Text -> [Text]
+proteinTranslation.proteins rna =
+  rna
+    |> Text.toCharList
+    |> List.chunk 3
+    |> List.map Text.fromCharList
+    |> codonsToProteins []
+    |> List.map Protein.toText
+
+proteinTranslation.codonsToProteins : [Protein] -> [Text] -> [Protein]
+proteinTranslation.codonsToProteins = cases
+  proteins, [] -> proteins |> List.reverse
+  proteins, codon +: codons ->
+    match codonToProtein codon with
+      Right protein -> codons |> codonsToProteins (protein +: proteins)
+      Left Stop -> proteins |> List.reverse
+      Left InvalidCodon -> []
+
+proteinTranslation.codonToProtein : Text -> Either Reason Protein
+proteinTranslation.codonToProtein = cases
+  "AUG" -> Right Methionine
+  "UUU" -> Right Phenylalanine
+  "UUC" -> Right Phenylalanine
+  "UUA" -> Right Leucine
+  "UUG" -> Right Leucine
+  "UCU" -> Right Serine
+  "UCC" -> Right Serine
+  "UCA" -> Right Serine
+  "UCG" -> Right Serine
+  "UAU" -> Right Tyrosine
+  "UAC" -> Right Tyrosine
+  "UGU" -> Right Cysteine
+  "UGC" -> Right Cysteine
+  "UGG" -> Right Tryptophan
+  "UAA" -> Left Stop
+  "UAG" -> Left Stop
+  "UGA" -> Left Stop
+  codon -> Left InvalidCodon
+

@@ -1,0 +1,77 @@
+# | Register | Usage        | Type    | Description                             |
+# | -------- | ------------ | ------- | --------------------------------------- |
+# | `$a0`    | input        | address | null-terminated input string            |
+# | `$a1`    | input/output | address | null-terminated result string (4 words) |
+# | `$t0-9`  | temporary    | any     | for temporary storage                   |
+
+# $a1 is a pointer to an array of words
+# each index is at $a1 + 4*n as follows 
+# with the respective ascii value
+# A @ 0  == 65
+# C @ 4  == 67
+# G @ 8  == 71
+# T @ 12 == 84
+
+# macro for incrementing $a at the given offset
+.macro incr(%x)
+        lw   $t0 %x($a1)
+        add  $t0 $t0 1
+        sw   $t0 %x($a1)
+.end_macro
+
+.globl nucleotide_counts
+
+nucleotide_counts:
+        # init array to [0,0,0,0]
+        li   $t0 0
+        sw   $t0 0($a1)
+        sw   $t0 4($a1)
+        sw   $t0 8($a1)
+        sw   $t0 12($a1)
+
+        loop:
+                lb   $t0 ($a0)
+
+                # check what letter we're on
+                beq  $t0 'A' case_a
+                beq  $t0 'C' case_c
+                beq  $t0 'G' case_g
+                beq  $t0 'T' case_t
+
+                # handle end of string
+                beq  $t0 0 return
+
+                # if not handled it means we hit an error
+                j    error
+
+                # cases for each matched letter
+                case_a:
+                        incr(0)
+                        j    break
+                case_c:
+                        incr(4)
+                        j    break
+                case_g:
+                        incr(8)
+                        j    break
+                case_t:
+                        incr(12)
+                        j    break
+
+                # break cases and go to end of loop
+                break:
+                        add  $a0 $a0 1
+                        j    loop
+
+        error:
+                # set arr to [-1,-1,-1,-1]
+                li   $t0 -1
+                sw   $t0 0($a1)
+                sw   $t0 4($a1)
+                sw   $t0 8($a1)
+                sw   $t0 12($a1)
+
+        # return data currently in array
+        return:
+                jr  $ra
+                

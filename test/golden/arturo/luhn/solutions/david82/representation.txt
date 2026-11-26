@@ -1,0 +1,15 @@
+luhn?: function [value :string][
+; Remove spaces and validate input
+value: value -- ' '
+unless match? value "\"^\\d{2,}$\"" -> return false
+; Process digits from right to left using fold.right
+sum: fold.right.with:'i value [d acc][
+digit: sub to :integer d 48 ; convert ASCII char to digit
+if odd? i [
+digit: digit * 2
+if digit > 9 [digit: digit - 9]
+]
+acc + digit
+] .seed: 0
+zero? mod sum 10
+]

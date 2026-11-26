@@ -1,0 +1,86 @@
+(program
+  (export_statement
+    (function_declaration checkHumidityLevel
+      (formal_parameters PLACEHOLDER_1)
+      (statement_block
+        (if_statement
+          (binary_expression PLACEHOLDER_1 > 70)
+          (statement_block
+            (throw_statement
+              (new_expression Error
+                (arguments "Humidity too high!"))))))))
+  (export_statement
+    (class_declaration ArgumentError
+      (class_heritage extends Error)
+      (class_body)))
+  (export_statement
+    (class_declaration OverheatingError
+      (class_heritage extends Error)
+      (class_body
+        (method_definition constructor
+          (formal_parameters temperature)
+          (statement_block
+            (expression_statement
+              (call_expression super
+                (arguments
+                  (template_string "Machine overheating at "
+                    (template_substitution temperature) "\u00B0C"))))
+            (expression_statement
+              (assignment_expression
+                (member_expression this temperature) = temperature)))))))
+  (export_statement
+    (function_declaration reportOverheating
+      (formal_parameters temperature)
+      (statement_block
+        (if_statement
+          (binary_expression temperature === null)
+          (statement_block
+            (throw_statement
+              (new_expression ArgumentError
+                (arguments "Sensor is broken")))))
+        (if_statement
+          (binary_expression temperature > 500)
+          (statement_block
+            (throw_statement
+              (new_expression OverheatingError
+                (arguments temperature))))))))
+  (export_statement
+    (function_declaration monitorTheMachine
+      (formal_parameters actions)
+      (statement_block
+        (try_statement
+          (statement_block
+            (expression_statement
+              (call_expression
+                (member_expression actions check)
+                (arguments))))
+          (catch_clause error
+            (statement_block
+              (if_statement
+                (binary_expression error instanceof ArgumentError)
+                (statement_block
+                  (expression_statement
+                    (call_expression
+                      (member_expression actions alertDeadSensor)
+                      (arguments))))
+                (else_clause
+                  (if_statement
+                    (binary_expression error instanceof OverheatingError)
+                    (statement_block
+                      (if_statement
+                        (binary_expression
+                          (member_expression error temperature) < 600)
+                        (statement_block
+                          (expression_statement
+                            (call_expression
+                              (member_expression actions alertOverheating)
+                              (arguments))))
+                        (else_clause
+                          (statement_block
+                            (expression_statement
+                              (call_expression
+                                (member_expression actions shutdown)
+                                (arguments)))))))
+                    (else_clause
+                      (statement_block
+                        (throw_statement error)))))))))))))

@@ -1,0 +1,8 @@
+fun eggCount (number: int): int =
+  let
+    fun loop (0, result) = result
+      | loop (remaining, result) =
+          loop (remaining div 2, result + (remaining mod 2))
+  in
+    loop (number, 0)
+  end

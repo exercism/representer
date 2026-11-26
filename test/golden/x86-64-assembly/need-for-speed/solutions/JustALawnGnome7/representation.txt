@@ -1,0 +1,57 @@
+default rel
+section .rodata
+battery dd 100.0
+section .text
+global new_car
+new_car:
+lodsq
+mov edx , dword [ battery ]
+shl rdx , 16
+mov dx , di
+shl rdx , 16
+mov dx , word [ rsi ]
+ret
+global new_track
+new_track:
+mov eax , edi
+mov rdx , rsi
+ret
+global new_race
+new_race:
+mov rax , rdi
+mov dword [ rdi ], esi
+mov qword [ rdi + 0x08 ], rdx
+mov byte [ rdi + 0x10 ], cl
+mov byte [ rdi + 0x74 ], 0x0
+ret
+global add_participant
+add_participant:
+movzx eax , byte [ rdi + 0x74 ]
+cmp al , 0x06
+jz .return_false
+mov qword [ rsp + 0x18 ], rsi
+mov qword [ rsp + 0x20 ], rdx
+movdqu xmm0 , [ rsp + 0x18 ]
+movzx edx , al
+shl rdx , 0x4
+movups [ rdi + rdx + 0x14 ], xmm0
+inc byte [ rdi + 0x74 ]
+mov eax , 0x01
+ret
+.return_false:
+xor eax , eax
+ret
+global add_race
+add_race:
+lea rdx , [ rdi + ( 0x78 * 20 )]
+mov rcx , qword [ rdx ]
+imul rcx , rcx , 0x78
+add rdi , rcx
+lea rsi , [ rsp + 0x8 ]
+mov rcx , 0x1E
+rep movsd
+inc qword [ rdx ]
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

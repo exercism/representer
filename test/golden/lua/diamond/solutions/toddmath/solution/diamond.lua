@@ -1,0 +1,20 @@
+local function offset(character)
+	return character:byte() - ('A'):byte()
+end
+
+local function row(which, current)
+	local padding = (' '):rep(offset(which) - offset(current))
+	local r = (' '):rep(offset(which) * 2 + 1)
+	r = r:gsub('^' .. padding .. '.', padding .. current)
+	return r:gsub('.' .. padding .. '$', current .. padding) .. '\n'
+end
+
+return function(which)
+	local diamond = row(which, which)
+	for i = which:byte() - 1, ('A'):byte(), -1 do
+		local r = row(which, string.char(i))
+		diamond = r .. diamond .. r
+	end
+	return diamond
+end
+

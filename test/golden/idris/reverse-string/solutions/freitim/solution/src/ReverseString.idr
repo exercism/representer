@@ -1,0 +1,8 @@
+module ReverseString
+
+export
+rev : String -> String
+rev = pack . go Nil . unpack
+    where go : List Char -> List Char -> List Char
+          go ys []        = ys
+          go ys (x :: xs) = go (x :: ys) xs

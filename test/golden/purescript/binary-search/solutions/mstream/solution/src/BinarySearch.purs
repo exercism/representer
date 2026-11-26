@@ -1,0 +1,39 @@
+module BinarySearch
+  ( find
+  ) where
+
+import Prelude
+
+import Data.Array
+  ( length
+  , unsafeIndex
+  )
+import Data.Maybe
+  ( Maybe(..)
+  )
+import Partial.Unsafe
+  ( unsafePartial
+  )
+
+find :: forall a. Ord a => a -> Array a -> Maybe Int
+find _ [] = Nothing
+find x xs = findIndex 0 ((length xs) - 1)
+  where
+    findIndex :: Int -> Int -> Maybe Int
+    findIndex from to = 
+      case (compare pivotValue x) of
+        EQ -> Just pivot 
+        LT -> if from == to 
+                then Nothing 
+                else findIndex (pivot + 1) to
+        GT -> if from == to 
+                then Nothing 
+                else findIndex from (pivot - 1)
+      where
+        pivot :: Int
+        pivot = (from + to) / 2
+        pivotValue :: a
+        pivotValue = 
+          unsafePartial $ 
+          unsafeIndex xs pivot
+

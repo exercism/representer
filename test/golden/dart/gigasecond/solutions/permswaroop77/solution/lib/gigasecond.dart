@@ -1,0 +1,9 @@
+class Gigasecond {
+  static DateTime addGigasecondTo(DateTime moment) {
+    return moment.add(Duration(seconds: 1000000000));
+  }
+}
+
+DateTime addGigasecondTo(DateTime moment) {
+  return moment.add(Duration(seconds: 1000000000));
+}

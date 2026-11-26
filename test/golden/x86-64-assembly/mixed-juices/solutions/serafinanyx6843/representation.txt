@@ -1,0 +1,140 @@
+section .text
+global set_time
+set_time:
+mov eax , edi
+ret
+global time_to_make_juice
+time_to_make_juice:
+cmp edi , 1
+je id1
+cmp edi , 2
+je id2
+cmp edi , 3
+je id3
+cmp edi , 4
+je id4
+cmp edi , 5
+je id5
+cmp edi , 6
+je id6
+cmp edi , 7
+je id7
+cmp edi , 8
+je id8
+mov edi , 0
+call set_time
+ret
+id1:
+mov edi , 1
+call set_time
+ret
+id2:
+mov edi , 3
+call set_time
+ret
+id3:
+mov edi , 3
+call set_time
+ret
+id4:
+mov edi , 4
+call set_time
+ret
+id5:
+mov edi , 5
+call set_time
+ret
+id6:
+mov edi , 4
+call set_time
+ret
+id7:
+mov edi , 7
+call set_time
+ret
+id8:
+mov edi , 10
+call set_time
+ret
+global time_to_prepare
+time_to_prepare:
+xor rcx , rcx
+xor rdx , rdx
+mov rdx , rdi
+sum_label:
+xor rax , rax
+xor rdi , rdi
+mov edi , dword [ rdx ]
+call time_to_make_juice
+add ecx , eax
+add rdx , 4
+sub esi , 1
+cmp esi , 0
+jne sum_label
+mov eax , ecx
+ret
+global get_wedges_given_size
+get_wedges_given_size:
+cmp di l , 'S'
+je small
+cmp di l , 'M'
+je medium
+cmp di l , 'L'
+jmp large
+small:
+mov eax , 6
+ret
+medium:
+mov eax , 8
+ret
+large:
+mov eax , 10
+ret
+global limes_to_cut
+limes_to_cut:
+xor rcx , rcx
+xor r8 , r8
+xor r10 , r10
+mov r10d , edx
+mov r8d , edi
+sum_wedges:
+xor r9 , r9
+xor rdi , rdi
+xor rax , rax
+mov r9b , byte [ rsi ]
+mov di l , r9b
+call get_wedges_given_size
+add ecx , eax
+add rsi , 1
+sub edx , 1
+cmp ecx , r8d
+jge finish
+cmp edx , 0
+jne sum_wedges
+finish:
+xor rax , rax
+sub r10d , edx
+mov eax , r10d
+ret
+global remaining_orders
+remaining_orders:
+xor rax , rax
+xor rdx , rdx
+xor rcx , rcx
+mov edx , edi
+find_order:
+xor rdi , rdi
+xor rax , rax
+mov edi , dword [ rsi ]
+call time_to_make_juice
+sub edx , eax
+add ecx , 1
+add rsi , 4
+cmp edx , 0
+jg find_order
+xor rax , rax
+mov eax , ecx
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

@@ -1,0 +1,48 @@
+BottleSong :: {}.{
+	recite : U8, U8 -> Try(Str, _)
+	recite = |starting_number, number_of_verses| {
+		# ending_number = starting_number - number_of_verses
+		# var $result = ""
+		var $verses = []
+		var $n = starting_number
+		while $n > starting_number - number_of_verses {
+			$verses = $verses.append(verse($n))
+			$n = $n - 1
+		}
+		Ok(Str.join_with($verses, "\n\n"))
+	}
+
+	verse : U8 -> Str
+	verse = |number| {
+		s = number_to_word(number)
+		next = number_to_word(number - 1).with_ascii_lowercased()
+		verse =
+			\\${s} green bottle${number_suffix(number)} hanging on the wall,
+			\\${s} green bottle${number_suffix(number)} hanging on the wall,
+			\\And if one green bottle should accidentally fall,
+			\\There'll be ${next} green bottle${number_suffix(number - 1)} hanging on the wall.
+		verse
+	}
+
+	number_suffix : U8 -> Str
+	number_suffix = |number| {
+		if (number == 1) "" else "s"
+	}
+
+	number_to_word : U8 -> Str
+	number_to_word = |number| {
+		words = Dict.empty()
+			.insert(10, "Ten")
+			.insert(9, "Nine")
+			.insert(8, "Eight")
+			.insert(7, "Seven")
+			.insert(6, "Six")
+			.insert(5, "Five")
+			.insert(4, "Four")
+			.insert(3, "Three")
+			.insert(2, "Two")
+			.insert(1, "One")
+			.insert(0, "no")
+		words.get(number).ok_or("no")
+	}
+}

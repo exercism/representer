@@ -1,0 +1,29 @@
+# | Register | Usage | Type | Description |
+# | -------- | --------- | ------- | -------------------------- |
+# | `$a0` | input | integer | radicand |
+# | `$v0` | output | integer | square root |
+# | `$t0-9` | temporary | any | used for temporary storage |
+#binary search between 0 and $a0, for largest integer where mid*mimd <= $a0
+.globl square_root
+square_root:
+li $t0, 0
+move $t1, $a0
+binary_search:
+bgt $t0, $t1, done
+add $t2, $t0, $t1
+srl $t2, $t2, 1 #->mid = lo+hi / 2
+mul $t3, $t2, $t2
+beq $t3, $a0, exact #perfect square
+bgt $t3, $a0, too_high
+too_low:
+addi $t0, $t2, 1
+move $v0, $t2
+j binary_search
+too_high:
+addi $t1, $t2, -1
+j binary_search
+exact:
+move $v0, $t2
+jr $ra
+done:
+jr $ra

@@ -1,0 +1,16 @@
+Imports System
+Imports System.Collections.Generic
+
+Public Module ParallelLetterFrequency
+
+    Public Function Calculate(ByVal texts As IEnumerable(Of String)) As Dictionary(Of Char, Integer)
+
+        Return texts.AsParallel().
+            SelectMany(Function(text) text.ToLowerInvariant()).
+            Where(Function(c) Char.IsLetter(c)).
+            GroupBy(Function(c) c).
+            ToDictionary(Function(g) g.Key, Function(g) g.Count)
+
+    End Function
+
+End Module

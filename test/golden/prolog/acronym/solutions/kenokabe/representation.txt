@@ -1,0 +1,37 @@
+:- module ( acronym , [ abbreviate / 2 ]).
+abbreviate ( Phrase , Acronym ) :-
+string_chars ( Phrase , Chars ),
+acronym_from_chars ( Chars , AcronymChars ),
+string_chars ( Acronym , AcronymChars ).
+acronym_from_chars ([], []).
+acronym_from_chars ([ C | Cs ], Result ) :-
+( is_separator ( C ) ->
+acronym_from_chars ( Cs , Result )
+; char_type ( C , alpha ) ->
+to_upper_char ( C , U ),
+skip_to_separator ( Cs , Rest ),
+acronym_from_chars ( Rest , RestResult ),
+Result = [ U | RestResult ]
+;
+acronym_from_chars ( Cs , Result )
+).
+skip_to_separator ([], []).
+skip_to_separator ([ C | Cs ], Rest ) :-
+( is_separator ( C ) ->
+Rest = [ C | Cs ]
+;
+skip_to_separator ( Cs , Rest )
+).
+is_separator ( "' '" ).
+is_separator ( '-' ).
+is_separator ( '\t' ).
+is_separator ( '\n' ).
+is_separator ( '_' ).
+to_upper_char ( C , U ) :-
+( char_type ( C , lower ) ->
+char_code ( C , Code ),
+UpperCode is Code - 32 ,
+char_code ( U , UpperCode )
+;
+U = C
+).

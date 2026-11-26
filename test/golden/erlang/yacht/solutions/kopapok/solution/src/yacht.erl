@@ -1,0 +1,42 @@
+-module(yacht).
+
+-export([score/2]).
+
+score(Dice, Category) -> calc_score(lists:sort(Dice), Category).
+
+calc_score(Dice, ones) -> same_dice(Dice, 1);
+calc_score(Dice, twos) -> 2 * same_dice(Dice, 2);
+calc_score(Dice, threes) -> 3 * same_dice(Dice, 3);
+calc_score(Dice, fours) -> 4 * same_dice(Dice, 4);
+calc_score(Dice, fives) -> 5 * same_dice(Dice, 5);
+calc_score(Dice, sixes) -> 6 * same_dice(Dice, 6);
+calc_score(Dice, full_house) ->
+    Same_Dices = {same_dice(Dice, hd(Dice))
+                  , same_dice(Dice, lists:last(Dice))},
+    case Same_Dices of
+        {2, 3} -> hd(Dice) * 2 + lists:last(Dice) * 3;
+        {3, 2} -> hd(Dice) * 3 + lists:last(Dice) * 2;
+        _ -> 0
+    end;
+calc_score(Dice, four_of_a_kind) ->
+    Same_Dices = {same_dice(Dice, hd(Dice))
+                  , same_dice(Dice, lists:last(Dice))},
+    case Same_Dices of
+        {X, _Y} when X >= 4 -> 4 * hd(Dice);
+        {_X, Y} when Y =:= 4 -> 4 * lists:last(Dice);
+        _ -> 0
+    end;
+calc_score([1,2,3,4,5], little_straight) -> 30;
+calc_score(_, little_straight) -> 0;
+calc_score([2,3,4,5,6], big_straight) -> 30;
+calc_score(_, big_straight) -> 0;
+calc_score(Dice, choice) -> lists:sum(Dice);
+calc_score(Dice, yacht) ->
+    Same_Dices = same_dice(Dice, hd(Dice)),
+    case Same_Dices of
+        5 -> 50;
+        _ -> 0
+    end.
+
+same_dice(Dice, N) ->
+    string:length(lists:filter(fun(X) -> X =:= N end, Dice)).

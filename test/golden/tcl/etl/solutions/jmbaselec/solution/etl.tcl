@@ -1,0 +1,10 @@
+proc transform {origScore} {
+    if {([llength $origScore] % 2) != 0} {error "invalid input"}
+    set score [dict create]
+    foreach {num letters} $origScore {
+        foreach letter $letters {
+            dict set score [string tolower $letter] $num
+        }
+    }
+    return $score
+}

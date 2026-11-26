@@ -1,6 +1,0 @@
-#!/usr/bin/bash
-
-in=${1//[^[:alpha:]]/}
-[[ -z $in ]] && echo "true" && exit
-numc=$(echo $in | fold -w 1 | sort | uniq -i | wc -l)
-(( numc == ${#in} )) && echo "true" || echo "false"

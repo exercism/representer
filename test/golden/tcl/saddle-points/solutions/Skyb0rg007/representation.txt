@@ -1,0 +1,56 @@
+proc lscan { func lst } {
+set len [ llength $lst ]
+if { $len == 0 } { return {}}
+set acc [ lindex $lst 0 ]
+set res [ list $acc ]
+for { set i 1 } { $i < $len } { incr i } {
+lappend res [ set acc [ $func $acc [ lindex $lst $i ]]]
+}
+return $res
+}
+proc localExtrema { func lst } {
+set lex [ lscan $func $lst ]
+set rex [ lreverse [ lscan $func [ lreverse $lst ]]]
+set indices {}
+set i 1
+foreach x $lst l $lex r $rex {
+if {[ $func $x $l $r ] == $x } {
+lappend indices $i
+}
+incr i
+}
+return $indices
+}
+proc transpose { matrix } {
+set n [ llength $matrix ]
+set m [ llength [ lindex $matrix 0 ]]
+set cols {}
+for { set i 0 } { $i < $n } { incr i } {
+for { set j 0 } { $j < $m } { incr j } {
+lset cols $j $i [ lindex $matrix $i $j ]
+}
+}
+return $cols
+}
+proc saddlePoints { matrix } {
+set tallIndices {}
+set rowNum 1
+foreach row $matrix {
+foreach idx [ localExtrema ::tcl::mathfunc::max $row ] {
+lappend tallIndices [ list $rowNum $idx ]
+}
+incr rowNum
+}
+set indices {}
+set colNum 1
+foreach col [ transpose $matrix ] {
+foreach idx [ localExtrema ::tcl::mathfunc::min $col ] {
+set shortIndex [ list $idx $colNum ]
+if { $short Index in $tallIndices } {
+lappend indices $shortIndex
+}
+}
+incr colNum
+}
+return $indices
+}

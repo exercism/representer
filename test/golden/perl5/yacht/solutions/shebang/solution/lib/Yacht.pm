@@ -1,0 +1,44 @@
+package Yacht;
+
+use v5.40;
+
+use Exporter qw<import>;
+our @EXPORT_OK = qw<score>;
+
+use Yacht::Category;
+
+my %category = (
+  $Yacht::Category::ONES => sub ($dice) { return 1 * grep { $_ == 1 } @$dice },
+  $Yacht::Category::TWOS => sub ($dice) { return 2 * grep { $_ == 2 } @$dice },
+  $Yacht::Category::THREES => sub ($dice) { return 3 * grep { $_ == 3 } @$dice },
+  $Yacht::Category::FOURS => sub ($dice) { return 4 * grep { $_ == 4 } @$dice },
+  $Yacht::Category::FIVES => sub ($dice) { return 5 * grep { $_ == 5 } @$dice },
+  $Yacht::Category::SIXES => sub ($dice) { return 6 * grep { $_ == 6 } @$dice },
+  $Yacht::Category::FULL_HOUSE => sub ($dice) { # full house
+    my %dice; ++$dice{$_} for @$dice; my @keys = keys %dice;
+    return 0 if @keys != 2 or !($dice{$keys[0]} == 2 or $dice{$keys[1]} == 2);
+    return $keys[0] * $dice{$keys[0]} + $keys[1] * $dice{$keys[1]};
+  },
+  $Yacht::Category::FOUR_OF_A_KIND => sub ($dice) { # four of a kind
+    (join q{}, sort { $a <=> $b } @$dice) =~ m{(\d)\1{3}};
+    my $n = $1 || 0;
+    return $n * 4;
+  },
+  $Yacht::Category::LITTLE_STRAIGHT => sub ($dice) { # little straight
+    return ((join q{}, sort { $a <=> $b } @$dice) eq q{12345}) ? 30 : 0;
+  },
+  $Yacht::Category::BIG_STRAIGHT => sub ($dice) { # big straight
+    return ((join q{}, sort { $a <=> $b } @$dice) eq q{23456}) ? 30 : 0;
+  },
+  $Yacht::Category::YACHT => sub ($dice) { # yaught
+    return ((join q{}, sort { $a <=> $b } @$dice) =~ m{^(\d)\1{4}$}) ? 50 : 0;
+  },
+  $Yacht::Category::CHOICE => sub ($dice) { # choice
+    my $n = 0; $n += $_ for @$dice;
+    return $n;
+  },
+);
+
+sub score ( $dice, $category ) { return $category{$category}->($dice) }
+
+1;

@@ -1,0 +1,23 @@
+luhn . isValid : Text -> Boolean
+luhn . isValid string =
+  charlist = ( luhn . replaceAll "\" \"" "\"\"" >> toCharList ) string
+  ( List . map ( x -> isDigit x )
+    >> List . foldLeft ( acc x -> x && acc ) true ) charlist &&
+    ( size charlist > 1 ) &&
+    (( List . map ( x -> Char . toNat x - 48 )
+    >> List . reverse
+    >> List . indexed
+    >> List . map ( x -> if Nat . isEven ( at2 x ) == false then if 2 * ( at1 x ) > 9 then 2 * ( at1 x ) Nat .- 9 else 2 * ( at1 x ) else ( at1 x ))
+    >> Nat . sum
+    >> ( x -> mod x 10 == 0 )) charlist )
+luhn . replaceAll : Text -> Text -> Text -> Text
+luhn . replaceAll toFind replacement =
+  if Text . isEmpty toFind then id
+  else
+    go acc content = match Text . indexOf toFind content with
+      None -> acc ++ content
+      Some i ->
+        ( before , toFindAndRest ) = Text . splitAt i content
+        rest = Text . drop ( Text . size toFind ) toFindAndRest
+        go ( acc ++ before ++ replacement ) rest
+    go "\"\""

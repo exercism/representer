@@ -1,0 +1,48 @@
+-- Schema:
+-- CREATE TABLE "food-chain" (
+--   start_verse INTEGER NOT NULL,
+--   end_verse   INTEGER NOT NULL,
+--   result      TEXT
+-- );
+--
+-- Task: update the food-chain table and set the result column based on the start_verse and end_verse.
+
+WITH phrases(idx, intro, repeater) AS (VALUES
+    (1, "fly.", "I don't know why she swallowed the fly. Perhaps she'll die."),
+    (2, "spider." || char(10) || "It wriggled and jiggled and tickled inside her.",
+        "She swallowed the spider to catch the fly."),
+    (3, "bird." || char(10) || "How absurd to swallow a bird!",
+        "She swallowed the bird to catch the spider that wriggled and jiggled and tickled inside her."),
+    (4, "cat."||char(10)||"Imagine that, to swallow a cat!",
+        "She swallowed the cat to catch the bird."),
+    (5, "dog."||char(10)||"What a hog, to swallow a dog!",
+        "She swallowed the dog to catch the cat."),
+    (6, "goat."||char(10)||"Just opened her throat and swallowed a goat!",
+        "She swallowed the goat to catch the dog."),
+    (7, "cow."||char(10)||"I don't know how she swallowed a cow!",
+        "She swallowed the cow to catch the goat.")
+)
+UPDATE "food-chain"
+SET result = (WITH
+    verses(idx, s) AS (
+        SELECT P1.idx, (
+            SELECT "I know an old lady who swallowed a " ||
+                P1.intro || char(10) ||
+                group_concat(P2.repeater, char(10))
+            FROM (
+                SELECT * FROM
+                phrases AS P2
+                WHERE P2.idx BETWEEN 1 AND P1.idx
+                ORDER BY P2.idx DESC
+            ) AS P2
+        )
+        FROM phrases AS P1
+        UNION ALL
+        SELECT 8,
+            "I know an old lady who swallowed a horse."||char(10)||
+            "She's dead, of course!"
+    )
+    SELECT group_concat(s,char(10) || char(10))
+    FROM verses
+    WHERE idx BETWEEN start_verse AND end_verse
+);

@@ -1,0 +1,3 @@
+proc binarySearch {haystack needle} {
+    lsearch -integer -sorted -increasing $haystack $needle
+}

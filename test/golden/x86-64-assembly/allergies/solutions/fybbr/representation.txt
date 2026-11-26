@@ -1,0 +1,31 @@
+struc item_list
+.size resb 4
+.items resb 32
+endstruc
+section .text
+global al lergic_to
+allergic_to:
+mov rax , 1
+mov cl , di l
+shl rax , cl
+and rax , rsi
+ret
+global list
+list:
+mov dword [ rsi + item_list.size ], 0
+mov ecx , 8
+xor r9 , r9
+.loop:
+mov al , di l
+and al , 1
+cmp al , 1
+jne .continue
+mov eax , 8
+sub eax , ecx
+mov dword [ rsi + item_list.items + r9 ], eax
+add r9 , 4
+inc dword [ rsi + item_list.size ]
+.continue:
+shr di l , 1
+loop .loop
+ret

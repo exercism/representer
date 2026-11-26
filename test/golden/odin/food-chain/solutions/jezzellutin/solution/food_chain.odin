@@ -1,0 +1,72 @@
+package food_chain
+
+import "core:fmt"
+import "core:strings"
+Animal :: struct {
+	name:   string,
+	exclam: string,
+	extra:  string,
+}
+
+@(rodata)
+animals := [?]Animal {
+	{name = "fly", exclam = ""},
+	{
+		name   = "spider", //
+		exclam = "It wriggled and jiggled and tickled inside her.", //
+		extra  = " that wriggled and jiggled and tickled inside her", //
+	},
+	{name = "bird", exclam = "How absurd to swallow a bird!"},
+	{name = "cat", exclam = "Imagine that, to swallow a cat!"},
+	{name = "dog", exclam = "What a hog, to swallow a dog!"},
+	{name = "goat", exclam = "Just opened her throat and swallowed a goat!"},
+	{name = "cow", exclam = "I don't know how she swallowed a cow!"},
+	{name = "horse", exclam = "She's dead, of course!"},
+}
+
+appendVerse :: proc(sb: ^strings.Builder, i: int) {
+	animal := animals[i]
+
+	fmt.sbprintf(sb, "I know an old lady who swallowed a {}.\n", animal.name)
+	if len(animal.exclam) > 0 {
+		fmt.sbprintf(sb, "{}", animal.exclam)
+	}
+	if i < len(animals) - 1 {
+		if len(animal.exclam) > 0 {
+			fmt.sbprintf(sb, "\n")
+		}
+		if i > 0 {
+			for j := i; j > 0; j -= 1 {
+				fmt.sbprintf(
+					sb,
+					"She swallowed the {} to catch the {}{}.\n",
+					animals[j].name,
+					animals[j - 1].name,
+					animals[j - 1].extra,
+				)
+			}
+		}
+		fmt.sbprintf(
+			sb,
+			"I don't know why she swallowed the {}. Perhaps she'll die.",
+			animals[0].name,
+		)
+	}
+}
+
+recite :: proc(start, end: int) -> string {
+	// Implement this procedure.
+	sb := strings.builder_make()
+	for i := start; i <= end; i += 1 {
+		if i > start {
+			fmt.sbprintln(&sb, "")
+			fmt.sbprintln(&sb, "")
+		}
+		appendVerse(&sb, i - 1)
+	}
+	return strings.to_string(sb)
+}
+
+main :: proc() {
+	fmt.println(recite(3, 3))
+}

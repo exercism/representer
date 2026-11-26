@@ -1,0 +1,18 @@
+flatten_list([],[]).
+
+flatten_list([X|RestXs], XsFlattened) :-
+    flatten_list(RestXs, RestXsFlattened),
+    (
+        (
+            number(X), 
+            XsFlattened = [X|RestXsFlattened]
+        ,!);
+        (
+            is_list(X), 
+            flatten_list(X, XFlattened), 
+            append(XFlattened, RestXsFlattened, XsFlattened)
+        ,!);
+        (
+            XsFlattened = RestXsFlattened
+        )
+    ).

@@ -1,0 +1,28 @@
+# | Register | Usage | Type | Description |
+# | -------- | --------- | ------- | ------------------------------------------------- |
+# | `$a0` | input | integer | starting number |
+# | `$v0` | output | integer | expected number of steps, -1 if number is invalid |
+# | `$t0-9` | temporary | any | used for temporary storage |
+.globl steps
+steps:
+ble $a0, $zero, invalid
+li $v0, 0
+li $t2, 2
+stuck:
+beq $a0,1,finish
+div $a0, $t2
+mfhi $t0
+beq $t0, 0,vide
+mul $a0, $a0, 3
+addi $a0, $a0, 1
+addi $v0,$v0,1
+j stuck
+vide:
+mflo $a0
+addi $v0,$v0,1
+j stuck
+invalid:
+li $v0, -1
+jr $ra
+finish:
+jr $ra

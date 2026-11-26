@@ -1,0 +1,71 @@
+local function Set ( ... )
+local self = { items = { } }
+function self : add ( v )
+self . items [ v ] = true
+end
+function self : is_empty ()
+return # self . items == 0
+end
+function self : contains ( value )
+return self . items [ value ] or false
+end
+function self : is_subset ( set )
+if # self . items > # set . items then
+return false
+end
+for v in pairs ( self . items ) do
+if not set . items [ v ] then
+return false
+end
+end
+return true
+end
+function self : is_disjoint ( set )
+local a , b = self , set
+if # b . items < # a . items then
+a , b = b , a
+end
+for v in pairs ( a . items ) do
+if b . items [ v ] then
+return false
+end
+end
+return true
+end
+function self : equals ( set )
+return # self . items == # set . items and self : is_subset ( set )
+end
+function self : difference ( set )
+local items = {}
+for v in pairs ( self . items ) do
+if not set . items [ v ] then
+table.insert ( items , # items + 1 , v )
+end
+end
+return Set ( table.unpack ( items ))
+end
+function self : intersection ( set )
+local items = {}
+for v in pairs ( self . items ) do
+if set . items [ v ] then
+table.insert ( items , # items + 1 , v )
+end
+end
+return Set ( table.unpack ( items ))
+end
+function self : union ( set )
+local new = Set ()
+for v in pairs ( self . items ) do
+new : add ( v )
+end
+for v in pairs ( set . items ) do
+new : add ( v )
+end
+return new
+end
+for i = 1 , select ( "\"#\"" , ... ) do
+self : add ( select ( i , ... ))
+end
+return self
+end
+return Set

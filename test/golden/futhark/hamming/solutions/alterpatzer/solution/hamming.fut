@@ -1,3 +1,0 @@
-def distance [n] (strand1: [n]u8) (strand2: [n]u8): i32 =
-  assert (length strand1 == length strand2)
-         (loop d = 0 for i < length strand1 do if strand1[i] == strand2[i] then d else d + 1)

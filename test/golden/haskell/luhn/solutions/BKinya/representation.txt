@@ -1,0 +1,26 @@
+module Luhn ( isValid ) where
+import Data.Char ( isDigit )
+isValid :: String -> Bool
+isValid n
+  | ( length ( removeWhiteSpaces n ) <= 1 ) = False
+  | not ( all isDigit ( filter ( /= "' '" ) n )) = False
+  | sum ` mod ` 10 == 0 = True
+  | otherwise = False
+  where sum = helper n
+helper :: String -> Int
+helper = sum . doubleEverySecondNumber . reverse . stringToDigitList . removeWhiteSpaces
+removeWhiteSpaces :: String -> String
+removeWhiteSpaces = filter ( /= "' '" )
+doubleEverySecondNumber :: [ Int ] -> [ Int ]
+doubleEverySecondNumber ( x : y : xs ) = x : ( sumDigits ( 2 * y )) : doubleEverySecondNumber xs
+doubleEverySecondNumber a = a
+sumDigits :: Int -> Int
+sumDigits n
+  | n == 0 = 0
+  | n > 0 && n < 10 = n
+  | otherwise = ( mod n 10 ) + sumDigits ( div n 10 )
+stringToDigitList :: String -> [ Int ]
+stringToDigitList [] = []
+stringToDigitList ( x : xs )
+  | isDigit x = ( read [ x ] :: Int ) : stringToDigitList xs
+  | otherwise = stringToDigitList xs

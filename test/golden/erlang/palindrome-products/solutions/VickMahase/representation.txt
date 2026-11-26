@@ -1,0 +1,48 @@
+- module ( palindrome_products ).
+- export ([ largest / 2 , smallest / 2 ]).
+largest ( Min , Max ) when Min > Max ->
+error ( invalid_range );
+largest ( Min , Max ) ->
+find_palindromes ( Min , Max , largest ).
+smallest ( Min , Max ) when Min > Max ->
+error ( invalid_range );
+smallest ( Min , Max ) ->
+find_palindromes ( Min , Max , smallest ).
+find_palindromes ( Min , Max , Type ) ->
+Palindromes = find_all_palindromes ( Min , Max ),
+case Palindromes of
+[] -> undefined ;
+_ ->
+case Type of
+smallest -> lists : min ( Palindromes );
+largest -> lists : max ( Palindromes )
+end
+end .
+find_all_palindromes ( Min , Max ) ->
+PalindromeMap = collect_palindromes ( Min , Max , # {}),
+maps : fold ( fun ( Palindrome , Factors , Acc ) ->
+[{ Palindrome , Factors } | Acc ]
+end , [], PalindromeMap ).
+collect_palindromes ( Min , Max , PalindromeMap ) ->
+collect_palindromes_helper ( Min , Min , Max , PalindromeMap ).
+collect_palindromes_helper ( I , Min , Max , PalindromeMap ) when I > Max ->
+PalindromeMap ;
+collect_palindromes_helper ( I , Min , Max , PalindromeMap ) ->
+NewMap = collect_products_for_i ( I , I , Max , PalindromeMap ),
+collect_palindromes_helper ( I + 1 , Min , Max , NewMap ).
+collect_products_for_i ( I , J , Max , PalindromeMap ) when J > Max ->
+PalindromeMap ;
+collect_products_for_i ( I , J , Max , PalindromeMap ) ->
+Product = I * J ,
+case is_palindrome ( Product ) of
+true ->
+Factors = maps : get ( Product , PalindromeMap , []),
+NewFactors = [{ I , J } | Factors ],
+NewMap = maps : put ( Product , NewFactors , PalindromeMap ),
+collect_products_for_i ( I , J + 1 , Max , NewMap );
+false ->
+collect_products_for_i ( I , J + 1 , Max , PalindromeMap )
+end .
+is_palindrome ( N ) ->
+Str = integer_to_list ( N ),
+Str =:= lists : reverse ( Str ).

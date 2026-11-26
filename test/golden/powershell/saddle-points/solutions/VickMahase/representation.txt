@@ -1,0 +1,62 @@
+Class SaddlePoint {
+[ int ] $Row
+[ int ] $Column
+SaddlePoint ( $row , $col ) {
+$this . Row = $row
+$this . Column = $col
+}
+[ bool ] Equals ( $other ) {
+return $this . Row -eq $other . Row -and $this . Column -eq $other . Column
+}
+}
+Function Get-SaddlePoints () {
+[ CmdletBinding ()]
+Param (
+[ int [][]] $Matrix
+)
+if ( $Matrix . Count -eq 0 ) {
+return @()
+}
+$rowLength = $Matrix [ 0 ] . Length
+for ( $r = 0 ; $r -lt $Matrix . Count ; $r ++ ) {
+if ( $Matrix [ $r ] . Length -ne $rowLength ) {
+throw "\"Irregular matrix\""
+}
+}
+$saddlePoints = @()
+if ( $Matrix . Count -eq 1 ) {
+$maxValue = ( $Matrix [ 0 ] | Measure-Object -Maximum ) . Maximum
+for ( $col = 0 ; $col -lt $Matrix [ 0 ] . Length ; $col ++ ) {
+if ( $Matrix [ 0 ][ $col ] -eq $maxValue ) {
+$saddlePoints += [ SaddlePoint ]:: new ( 1 , $col + 1 )
+}
+}
+return $saddlePoints
+}
+if ( $rowLength -eq 1 ) {
+$minValue = ( $Matrix | ForEach-Object { $_ [ 0 ] } | Measure-Object -Minimum ) . Minimum
+for ( $row = 0 ; $row -lt $Matrix . Count ; $row ++ ) {
+if ( $Matrix [ $row ][ 0 ] -eq $minValue ) {
+$saddlePoints += [ SaddlePoint ]:: new ( $row + 1 , 1 )
+}
+}
+return $saddlePoints
+}
+for ( $rowIndex = 0 ; $rowIndex -lt $Matrix . Count ; $rowIndex ++ ) {
+$row = $Matrix [ $rowIndex ]
+$maxInRow = ( $row | Measure-Object -Maximum ) . Maximum
+for ( $colIndex = 0 ; $colIndex -lt $row . Length ; $colIndex ++ ) {
+if ( $row [ $colIndex ] -eq $maxInRow ) {
+$column = @()
+for ( $r = 0 ; $r -lt $Matrix . Count ; $r ++ ) {
+$column += $Matrix [ $r ][ $colIndex ]
+}
+$minInColumn = ( $column | Measure-Object -Minimum ) . Minimum
+if ( $row [ $colIndex ] -eq $minInColumn ) {
+$saddlePoints += [ SaddlePoint ]:: new ( $rowIndex + 1 , $colIndex + 1 )
+}
+}
+}
+}
+return $saddlePoints
+}

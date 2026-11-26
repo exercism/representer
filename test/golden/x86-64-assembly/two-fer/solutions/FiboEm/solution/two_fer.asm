@@ -1,0 +1,62 @@
+default rel
+
+section .data
+	msg1 db "One for ", 0
+	msg2 db "you", 0
+	msg3 db ", one for me.", 0
+
+section .text
+	global two_fer
+
+two_fer:
+	push rbx
+	lea rbx, [msg1]
+	buc1:
+		cmp byte [rbx], 0
+		jz ant
+		mov al, [rbx]
+		mov [rsi], al
+		inc rbx
+		inc rsi
+		jmp buc1
+	ant:
+		cmp rdi, 0
+		jnz put
+vac:
+	abuc2:
+		lea rbx, [msg2]
+	buc2:
+		cmp byte [rbx], 0
+		jz abuc3
+		mov al, [rbx]
+		mov [rsi], al
+		inc rbx
+		inc rsi
+		jmp buc2
+put:
+	buc4:
+		cmp byte [rdi], 0
+		jz abuc3
+		mov al, [rdi]
+		mov [rsi], al
+		inc rdi
+		inc rsi
+		jmp buc4
+
+	abuc3:
+		lea rbx, [msg3]
+	buc3:
+		cmp byte [rbx], 0
+		jz exit
+		mov al, [rbx]
+		mov [rsi], al
+		inc rbx
+		inc rsi
+		jmp buc3
+	exit:
+		mov byte [rsi], 0
+		mov rax, 1
+		pop rbx
+		ret	
+
+section .note.GNU-stack noalloc noexec nowrite progbits

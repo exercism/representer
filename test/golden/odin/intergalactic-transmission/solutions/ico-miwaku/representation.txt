@@ -1,0 +1,55 @@
+package intergalactic_transmission
+import "\"core:log\""
+transmit_sequence :: proc(msg: []u8) -> (seq: []u8) {
+result: [dynamic]u8
+for i := 0; i < bit_len(msg); i += 7 {
+buf: u8
+count: u8
+for j := i; j < i + 7; j += 1 {
+bit := nth_bit(msg, j)
+if bit == 1 do count += 1
+buf |= bit
+buf <<= 1
+}
+if (count & 1) == 1 do buf |= 1
+append(&result, buf)
+}
+return result[:]
+}
+decode_message :: proc(seq: []u8) -> (msg: []u8, okay: bool) {
+result: [dynamic]u8
+buf: u8
+bit_idx: u8
+for b in seq {
+b := b
+bit_count: u8
+for i := 0; i < 7; i += 1 {
+if b & 0x80 != 0 {
+buf |= 1
+bit_count += 1
+}
+b <<= 1
+bit_idx += 1
+if bit_idx == 8 {
+append(&result, buf)
+buf = 0
+bit_idx = 0
+}
+buf <<= 1
+}
+if (b & 0x80) != 0 && (bit_count & 1) == 0 || (b & 0x80) == 0 && (bit_count & 1) == 1 {
+return nil, false
+}
+}
+if buf != 0 do append(&result, buf)
+return result[:], true
+}
+bit_len :: proc(bytes: []u8) -> int {
+return len(bytes) * 8
+}
+nth_bit :: proc(bytes: []u8, n: int) -> u8 {
+if n < 0 || n >= bit_len(bytes) do return 0
+idx := n / 8
+if bytes[idx] & (1 << u8(7 - n % 8)) == 0 do return 0
+else do return 1
+}

@@ -1,0 +1,20 @@
+$ Global : Price = 8.0
+$ Global : Multipliers = @( 0.0 , 1.0 , ( 2 * 0.95 ), ( 3 * 0.9 ), ( 4 * 0.80 ), ( 5 * 0.75 ))
+Function Get-Total () {
+[ CmdletBinding ()]
+Param (
+[ ValidateRange ( 1 , 5 )]
+[ int []] $Books
+)
+$Counts = $Books | Group-Object | Sort-Object -Property Count -Descending | ForEach-Object { $_ . Count }
+Find-LowestPrice ( $Counts )
+}
+Function Find-LowestPrice ([ int []] $Counts ) {
+$lowestPrice = $ Global : Price * ( $Counts | Measure-Object -Sum ) . Sum
+$n = ( $Counts | Where-Object { $_ }) . Length
+for ( $i = 2 ; $i -le $n ; $i ++ ) {
+$newCounts = ( 0 .. ( $n - 1 ) | ForEach-Object { $Counts [ $_ ] - ( $_ -lt $i )} ) | Sort-Object -Descending
+$lowestPrice = [ Math ]:: Min ( $lowestPrice , ( $ Global : Price * $ Global : Multipliers [ $i ] + ( Find-LowestPrice $newCounts )))
+}
+$lowestPrice
+}

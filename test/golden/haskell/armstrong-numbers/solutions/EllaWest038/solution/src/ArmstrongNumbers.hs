@@ -1,0 +1,16 @@
+module ArmstrongNumbers (armstrong) where
+
+digits :: Integral a => a -> [a]
+digits 0 = []
+digits x = (++) [mod x 10] $ digits $ div x 10
+
+sumraiselist :: Integral a => [a] -> a -> a
+sumraiselist xs x
+  | length xs == 0 = 0
+  | otherwise      = (+) ((^) (head xs) x) $ sumraiselist (tail xs) x
+
+armstrong :: Integral a => a -> Bool
+armstrong 0 = True
+armstrong x
+  | x == sumraiselist (digits x) (fromIntegral $ length (digits x)) = True
+  | otherwise                                                       = False

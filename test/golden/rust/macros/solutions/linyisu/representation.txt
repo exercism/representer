@@ -1,0 +1,23 @@
+(source_file
+  (mod_item
+    (visibility_modifier pub) compile_fail_tests)
+  (attribute_item #
+    (attribute macro_export))
+  (macro_definition macro_rules! hashmap
+    (macro_rule
+      (token_tree_pattern "(" , ")")
+      (token_tree { compile_error !
+        (token_tree "(" "invalid syntax: lone comma" ")") ; }))
+    (macro_rule
+      (token_tree_pattern "("
+        (token_repetition_pattern $ "("
+          (token_binding_pattern $t1 :
+            (fragment_specifier expr)) =>
+          (token_binding_pattern $t2 :
+            (fragment_specifier expr)) ")" *)
+        (token_repetition_pattern $ "(" , ")" ?) ")")
+      (token_tree {
+        (token_tree { let mut hm = :: std :: collections :: HashMap :: new
+          (token_tree "(" ")") ;
+          (token_repetition $ "(" hm . insert
+            (token_tree "(" $t1 , $t2 ")") ; ")" *) hm }) }))))

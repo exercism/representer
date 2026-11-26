@@ -1,0 +1,42 @@
+{
+"\"AUG\":" "\"Methionine\","
+"\"UUU\":" "\"Phenylalanine\","
+"\"UUC\":" "\"Phenylalanine\","
+"\"UUA\":" "\"Leucine\","
+"\"UUG\":" "\"Leucine\","
+"\"UCU\":" "\"Serine\","
+"\"UCC\":" "\"Serine\","
+"\"UCA\":" "\"Serine\","
+"\"UCG\":" "\"Serine\","
+"\"UAU\":" "\"Tyrosine\","
+"\"UAC\":" "\"Tyrosine\","
+"\"UGU\":" "\"Cysteine\","
+"\"UGC\":" "\"Cysteine\","
+"\"UGG\":" "\"Tryptophan\","
+"\"UAA\":" "\"STOP\","
+"\"UAG\":" "\"STOP\","
+"\"UGA\":" "\"STOP\""
+} constant codon>protein
+: rna>codons \ s -- a
+s:len 3 < if drop [] ;then
+[3] s:/
+;
+: codons>proteins \ a -- a
+( codon>protein swap m:_@ ) a:map
+;
+: nullable-eq \ s1 s2 -- f
+null? rot null? rot or
+if 2drop false ;then
+s:=
+;
+: stop \ a -- a
+"\"STOP\"" ' nullable-eq a:indexof null;
+0 swap a:slice
+;
+: valid \ a -- a|null
+null ' same? a:indexof null;
+2drop null
+;
+: >proteins \ s -- a
+rna>codons codons>proteins stop valid
+;

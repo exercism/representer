@@ -1,0 +1,41 @@
+# | Register | Usage | Type | Description |
+# | -------- | ------------ | ------- | ------------------------------ |
+# | `$a0` | input | address | array elements |
+# | `$a1` | input | integer | size of array, in words |
+# | `$a2` | input | integer | value being searched for |
+# | `$v0` | output | integer | index of value in array, or -1 |
+# | `$t0-9` | temporary | any | for temporary storage |
+.globl find
+.eqv array $a0
+.eqv length $a1
+.eqv item $a2
+.eqv mid $v0
+.eqv array_ptr $t0
+.eqv found $t1
+.eqv array_index $t2
+.eqv low $t3
+.eqv high $t4
+find:
+li low, 0
+move high, length
+addi high, high, -1
+loop:
+bgt low, high, not_found
+add mid, low, high
+srl mid, mid, 1
+move array_index, mid
+sll array_index, array_index, 2
+add array_ptr, array, array_index
+lw found, (array_ptr)
+beq item, found, return
+blt item, found, ignore_next
+ignore_prev:
+addi low, mid, 1
+j loop
+ignore_next:
+addi high, mid, -1
+j loop
+not_found:
+li mid, -1
+return:
+jr $ra

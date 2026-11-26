@@ -1,0 +1,7 @@
+keep <- function(input, fun) {
+  return(Filter(fun, input))
+}
+
+discard <- function(input, fun) {
+  return(Filter(Negate(fun), input))
+}

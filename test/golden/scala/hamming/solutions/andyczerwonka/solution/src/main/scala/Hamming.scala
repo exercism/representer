@@ -1,8 +1,0 @@
-object Hamming {
-  def distance(dna1: String, dna2: String): Option[Int] = {
-    val pairs = dna1 zip dna2
-    if (pairs.length == dna1.length && pairs.length == dna2.length)
-      Some(pairs.filter(p => p._1 != p._2).length)
-    else None
-  }
-}

@@ -1,0 +1,16 @@
+public function is_armstrong_number(integer n)
+  integer acc, k, l
+  acc = 0
+  l = 0
+  k = n
+  while k > 0 do
+    k = floor(k / 10)
+    l += 1
+  end while
+  k = n
+  while k > 0 do
+    acc += power(remainder(k, 10), l)
+    k = floor(k / 10)
+  end while
+  return n = acc
+end function

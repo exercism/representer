@@ -1,0 +1,74 @@
+use Nat div
+use List head +: size -- listing these works, yet adding "sortDescending" or "sum" doesn't?
+use Optional getOrElse
+
+change.findFewestCoins : [Nat] -> Nat -> Optional [Nat]
+change.findFewestCoins inputCoins target =
+  inputCoinsSorted = sortDescending inputCoins
+  maxCoin = getOrElse 1 (head inputCoinsSorted)
+  incrementMaxCoinsUntilSomeUpToLimit maxCoins limit =  -- Without Haskell-like tools, this
+    if maxCoins > limit then None else                  -- feels worse than a loop.
+      res = findFewestCoinsGo [] inputCoinsSorted target maxCoins
+      if isSome res then res else incrementMaxCoinsUntilSomeUpToLimit (increment maxCoins) limit
+  incrementMaxCoinsUntilSomeUpToLimit (div target maxCoin) 15
+
+change.findFewestCoinsGo : [Nat] -> [Nat] -> Nat -> Nat -> Optional [Nat]
+change.findFewestCoinsGo change inputCoins target maxCoins = match inputCoins with
+  []                                          -> None -- bail out if there's no coins left
+  thisCoin +: rest  | sum change == target    -> Some change -- success!
+                    | sum change >  target    -> None -- bail out if we've overshot the target
+                    | size change == maxCoins -> None -- bail out if we've hit maxCoins
+                    | sum change + ((maxCoins - size change) * thisCoin) < target
+                                              -> None -- bail out if we can't possibly get there
+                    | otherwise               ->      -- otherwise, continue
+    -- this ugliness does same as orElse, but without evaluating the 2nd expression unnecessarily!
+    result = findFewestCoinsGo (thisCoin +: change) inputCoins target maxCoins -- use thisCoin
+    if isSome result then result
+    else     findFewestCoinsGo change               rest       target maxCoins -- or don't
+
+
+-- Just some of the effort that ended up on the cutting room floor.
+
+-- > findFewestCoins [10,5,2] 29
+-- > findFewestCoins [1,5,10,25] 1
+-- > findFewestCoins [1,5,10,25,100] 25
+-- > findFewestCoins [1,5,10,25,100] 15
+-- > findFewestCoins [1,4,15,20,50] 23
+-- > findFewestCoins [1,5,10,21,25] 63
+-- > findFewestCoins [1,2,5,10,20,50,100] 999
+-- > findFewestCoins [2,5,10,20,50] 21
+-- > findFewestCoins [4,5] 27
+-- > findFewestCoins [1,5,10,21,25] 0
+-- > findFewestCoins [5,10] 3
+-- > findFewestCoins [5,10] 94
+
+-- change.findFewestCoins : [Nat] -> Nat -> Optional [Nat]
+-- change.findFewestCoins inputCoins target =
+--   inputCoinsSorted = sortDescending inputCoins
+--   incrementDepthUntilSome depth =
+--     res = findFewestCoinsGo [] inputCoinsSorted target depth
+--     if isSome res then res else incrementDepthUntilSome (increment depth)
+--   incrementDepthUntilSome 1
+
+-- change.findFewestCoinsGo : [Nat] -> [Nat] -> Nat -> Nat -> Optional [Nat]
+-- change.findFewestCoinsGo change inputCoins target maxCoins = match target with
+--   t | sum change == t -> Some change
+--     | sum change >  t -> None
+--     | otherwise -> if size change == maxCoins then None else match inputCoins with
+--         coin1 +: rest -> getShortest (findFewestCoinsGo (coin1 +: change) (coin1 +: rest) target maxCoins)
+--                                      (findFewestCoinsGo change            (rest)          target maxCoins)
+--         []            -> None
+
+-- -- Feels like writing standard Haskell from scratch. Surely there's a better way.
+-- change.getShortest : Optional [Nat] -> Optional [Nat] -> Optional [Nat]
+-- change.getShortest = cases
+--   Some l1,   Some l2   -> if (size l1) < (size l2) then Some l1 else Some l2
+--   None,      Some l2   -> Some l2
+--   Some l1,   None      -> Some l1
+--   _, _                 -> None
+
+-- > getShortest (Some [1,2,3]) None
+-- > getShortest (Some [1,2,3]) (Some [1,2,3,4])
+-- > getShortest (Some [1,2,3,4,5]) (Some [1,2,3,4])
+-- > getShortest None (Some [1,2,3])
+-- > getShortest None None

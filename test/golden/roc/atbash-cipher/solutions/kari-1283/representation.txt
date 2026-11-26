@@ -1,0 +1,29 @@
+AtbashCipher :: {}.{
+  encode : Str -> Try(Str, _)
+  encode = |phrase| {
+    phrase
+    |> Str.with_ascii_lowercased
+    |> Str.to_utf8
+    |> List.keep_if(|x| (x >= 'a' and x <= 'z') or (x >= '0' and x <= '9'))
+    |> List.map(transpose)
+    |> List.chunks_of(5)
+    |> List.intersperse([' '])
+    |> List.join
+    |> Str.from_utf8
+  }
+  decode : Str -> Try(Str, _)
+  decode = |phrase| {
+    phrase
+    |> Str.to_utf8
+    |> List.drop_if(|l| l == ' ')
+    |> List.map(transpose)
+    |> Str.from_utf8
+  }
+  transpose : U8 -> U8
+  transpose = |byte| {
+    if byte >= 'a' and byte <= 'z'
+    'a' + 'z' - byte
+  else
+    byte
+  }
+}

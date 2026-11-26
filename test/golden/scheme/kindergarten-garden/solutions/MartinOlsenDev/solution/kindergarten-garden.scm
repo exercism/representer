@@ -1,0 +1,38 @@
+(import (scheme base)
+        (srfi 1))
+
+(define (plant-abbreviation->full-name abbreviation)
+  (case abbreviation
+    ((#\R #\r) "radishes")
+    ((#\C #\c) "clover")
+    ((#\V #\v) "violets")
+    ((#\G #\g) "grass")))
+
+(define (student-name->index student)
+  (- (char->integer (string-ref student 0))
+     (char->integer #\A)))
+
+(define (diagram-string->diagram-list diagram-string)
+  (let-values
+      (((row-1 row-2)
+        (span! (lambda (c) (not (char-ci=? #\NEWLINE c)))
+               (string->list diagram-string))))
+    (list row-1 (drop row-2 1))))
+
+(define (list-subseq lst . args)
+  (let ((start (if (< 0 (length args)) (list-ref args 0) 0))
+        (end (if (< 0 (length args)) (list-ref args 1) (length lst))))
+    (unless (>= end start)
+      (raise "end must not be less than start"))
+    (take (drop lst start)
+          (- end start))))
+
+(define (plants diagram-string student-name)
+  (let* ((list-diagram (diagram-string->diagram-list diagram-string))
+         (student-idx (student-name->index student-name))
+         (student-row-getter (lambda (row) (list-subseq (list-ref list-diagram row)
+                                                   (* 2 student-idx)
+                                                   (* 2 (+ 1 student-idx))))))
+    (map! plant-abbreviation->full-name
+          (append! (student-row-getter 0)
+                   (student-row-getter 1)))))

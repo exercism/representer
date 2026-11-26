@@ -1,0 +1,31 @@
+
+knight_awake=true
+archer_awake=true
+prisoner_awake=false
+dog_present=false
+
+function can_do_fast_attack(knight_awake)
+    !knight_awake
+end
+
+can_do_fast_attack(knight_awake)
+
+
+function can_spy(knight_awake, archer_awake, prisoner_awake)
+    knight_awake||archer_awake||prisoner_awake
+end
+
+can_spy(knight_awake, archer_awake, prisoner_awake)
+
+
+function can_signal_prisoner(archer_awake, prisoner_awake)
+    prisoner_awake&&(!archer_awake)
+end
+
+can_signal_prisoner(archer_awake, prisoner_awake)
+
+function can_free_prisoner(knight_awake, archer_awake, prisoner_awake, dog_present)
+    dog_present&&!archer_awake||(prisoner_awake&&!archer_awake&&!knight_awake)
+end
+
+can_free_prisoner(knight_awake, archer_awake, prisoner_awake, dog_present)

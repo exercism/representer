@@ -1,0 +1,58 @@
+default rel
+
+section .rodata
+d4:
+    dd 0, "M", "MM", "MMM"
+d3:
+    dd 0, "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"
+d2:
+    dd 0, "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"
+d1:
+    dd 0, "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"
+cnt:
+    dd 0, 1, 2, 3, 2, 1, 2, 3, 4, 2
+
+section .text
+global roman
+roman:
+    lea r8, [cnt]
+    mov eax, edi
+    mov rdi, rsi
+
+    xor edx, edx
+    mov esi, 1000
+    div esi
+    mov ecx, [r8+rax*4]
+    lea rsi, [d4]
+    lea rsi, [rsi+rax*4]
+    rep movsb
+
+    mov eax, edx
+    xor edx, edx
+    mov esi, 100
+    div esi
+    mov ecx, [r8+rax*4]
+    lea rsi, [d3]
+    lea rsi, [rsi+rax*4]
+    rep movsb
+
+    mov eax, edx
+    xor edx, edx
+    mov esi, 10
+    div esi
+    mov ecx, [r8+rax*4]
+    lea rsi, [d2]
+    lea rsi, [rsi+rax*4]
+    rep movsb
+
+    mov ecx, [r8+rdx*4]
+    lea rsi, [d1]
+    lea rsi, [rsi+rdx*4]
+    rep movsb
+
+    mov byte [rdi], 0
+    ret
+
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

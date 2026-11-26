@@ -1,0 +1,101 @@
+( import ( rnrs ))
+( define ( encode key text )
+"\"Encodes string TEXT via affine cypher using KEY pair.\""
+( validate-key-pair key )
+( list->string ( cypher-text 5 ( affine-encoder
+key
+( string->list ( string-downcase text ))))))
+( define ( decode key text )
+"\"Decodes string TEXT via affine cypher using KEY pair.\""
+( validate-key-pair key )
+( list->string ( affine-decoder
+key
+( string->list ( string-downcase text )))))
+( define affine-alphabet ' ( #\a #\b #\c #\d #\e #\f #\g #\h
+#\i #\j #\k #\l #\m #\n #\o #\p
+#\q #\r #\s #\t #\u #\v #\w #\x
+#\y #\z ))
+( define m ( length affine-alphabet ))
+( define ( affine-encoder key xs )
+"\"Encode a list of characters XS via the affine cypher using A and\nB as keys. Decimal digits are passed unaltered. Alphabetic characters\nin the affine-alphabet are encoded. All other characters are dropped.\""
+( let*
+(( a ( car key ))
+( b ( cdr key ))
+( r ' ())
+( x 0 )
+( e 0 )
+( c #\space ))
+( while ( not ( null? xs ))
+( set! c ( car xs ))
+( set! xs ( cdr xs ))
+( set! x ( index-into c affine-alphabet ))
+( if ( > x -1 )
+( begin
+( set! e ( modulo ( + ( * a x ) b ) m ))
+( set! r ( cons ( character-at e affine-alphabet ) r )))
+( if ( and ( char>=? c #\0 ) ( char<=? c #\9 ))
+( set! r ( cons c r )))))
+( reverse r )))
+( define ( affine-decoder key xs )
+"\"Decode a list of characters XS via the affine cypher using A and\nB as keys. Decimal digits are passed unaltered. Alphabetic characters\nin the affine-alphabet are decoded. All other characters are dropped.\""
+( let*
+(( a ( car key ))
+( b ( cdr key ))
+( r ' ())
+( n ( mmi a m ))
+( y 0 )
+( d 0 )
+( c #\space ))
+( while ( not ( null? xs ))
+( set! c ( car xs ))
+( set! xs ( cdr xs ))
+( set! y ( index-into c affine-alphabet ))
+( if ( > y -1 )
+( begin
+( set! d ( modulo ( * n ( - y b )) m ))
+( set! r ( cons ( character-at d affine-alphabet ) r )))
+( if ( and ( char>=? c #\0 ) ( char<=? c #\9 ))
+( set! r ( cons c r )))))
+( reverse r )))
+( define ( validate-key-pair key )
+"\"Is the first part of the KEY pair valid with regard to alphabet length\nM? If not throw an error back.\""
+( if ( or ( not ( pair? key )) ( not ( coprime? ( car key ) m )))
+( error 'encode "\"invalid key provided, part 1 must be coprime with m\"" key m )))
+( define ( cypher-text x xs )
+"\"Insert a character space every X elements into XS. Typically this\nwould be done for encrypted or decrypted text.\""
+( cond (( null? xs ) xs )
+(( < x 1 ) xs )
+( else
+( let (( r ' ()) ( tic x ))
+( while ( not ( null? xs ))
+( set! r ( cons ( car xs ) r ))
+( set! tic ( 1- tic ))
+( set! xs ( cdr xs ))
+( if ( and ( not ( null? xs )) ( < tic 1 ))
+( begin ( set! r ( cons #\space r ))
+( set! tic x ))))
+( reverse r )))))
+( define ( index-into x xs )
+"\"Returns position relative to 0 of X in list XS or -1 if not found.\nImplementing to use a list allows for discontiguous and/or shuffled\ncharacter sets.\""
+( cond (( null? xs ) -1 )
+( else ( let (( m ( member x xs )))
+( if ( list? m )
+( - ( length xs ) ( length m ))
+-1 )))))
+( define ( character-at x xs )
+"\"Returns the element at position X relative to 0 in list XS or '()\nif out of bounds.\""
+( cond (( null? xs ) ' ())
+(( zero? x ) ( car xs ))
+( else ( character-at ( 1- x ) ( cdr xs )))))
+( define ( coprime? a b )
+"\"Are integers A and B coprime?\""
+( cond (( or ( not ( integer? a )) ( not ( integer? b ))) #f )
+(( or ( zero? a ) ( zero? b )) #f )
+( else
+( = ( gcd a b ) 1 ))))
+( define ( mmi a m )
+"\"Return the modular multiplicative inverse (N) of A and M in\nthe relation AN mod M = 1 using a simple iterative solution\nfor the small values of M expected.\""
+( let (( n 1 ))
+( while ( not ( = 1 ( modulo ( * a n ) m )))
+( set! n ( 1+ n )))
+n ))

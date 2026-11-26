@@ -1,0 +1,94 @@
+module Counting (
+    Color(..),
+    territories,
+    territoryFor
+) where
+
+import Data.Set (Set)
+import qualified Data.Set as Set
+import Data.List 
+import Data.Maybe (fromMaybe)
+-- import Control.Monad ((>>), guard)
+
+data Color = Black | White deriving (Eq, Ord, Show)
+type Coord = (Int, Int)
+
+infixl 9 !!! -- unsafe
+(!!!) :: [String] -> Coord -> Char
+(!!!) board c = (board !! fst c) !! snd c 
+
+territoryFor :: [String] -> Coord -> Maybe (Set Coord, Maybe Color)
+territoryFor board coord 
+    | isValidTile board coord' &&  (( == ' ') . (board !!!)) coord'  
+             = find (Set.member coord . fst) (territories  board)  
+    | otherwise = Nothing
+    where coord' = (snd coord - 1, fst coord - 1 )
+
+territories :: [String] -> [(Set Coord, Maybe Color)] 
+territories board
+    | board == [] = [(Set.empty, Nothing)]
+    | otherwise = zip (map (Set.map (translateAndSwitch)) (islands board)) colors
+            where colors = map (getIslandColor board) (islands board)
+                  translateAndSwitch (x,y) = (y+1, x+1)
+                  
+islands :: [String] -> [Set Coord]
+islands board = foldl (analyseTile board) [] (coordinates board)
+
+coordinates :: [String] -> [Coord]
+coordinates board = let (xm,ym) = (length board, length (board !! 0)) -- unsafe 
+                    in zip (concat (map (replicate ym) [0..(xm-1)])) (concat (replicate xm [0..(ym-1)]))
+
+analyseTile :: [String] -> [Set Coord] -> Coord-> [Set Coord]
+analyseTile board previousIslands c 
+    | newIsland = island board (Set.fromList [c], Set.empty) : previousIslands
+    | otherwise = previousIslands
+    where newIsland = (not (Set.member c (Set.unions previousIslands)   )) 
+                        &&  (((' ' ==) . (board !!!)) c)
+				
+island :: [String] -> (Set Coord, Set Coord) -> Set Coord
+island board (candidates,visited) 
+    | candidates == Set.empty = visited
+    | otherwise = let candidates' = Set.filter (isValidIslandTile board visited) (makeNewcandidates candidates)
+                  in island board (candidates',Set.union visited candidates) 
+          
+
+makeNewcandidates :: Set Coord -> Set Coord
+makeNewcandidates cs = Set.fromList $ (Set.toList cs) >>= neighboors
+
+neighboors :: Coord -> [Coord]
+neighboors (x,y) = [(x+1,y),(x-1,y),(x,y+1),(x,y-1)] 
+
+isValidIslandTile :: [String] -> Set Coord -> Coord -> Bool                                 
+isValidIslandTile b visited c  = and $ [isValidTile b , not . flip Set.member visited , (' ' ==) . (b !!!)]  <*> [c]   
+
+isValidTile :: [String] -> Coord -> Bool   
+isValidTile b c = ((>=0) . fst) c &&  ((>=0) . snd) c &&  ((<xm) . fst) c && ((<ym) . snd) c
+                where xm = length b
+                      ym = length (b !! 0) -- unsafe
+
+getIslandColor :: [String] -> Set Coord -> Maybe Color -- color for whole island
+getIslandColor board cs  
+    | cs == Set.empty = Nothing
+    | allSameColor $ Just Black = Just Black
+    | allSameColor $ Just White = Just White
+    | otherwise = Nothing
+    where allSameColor p = and (map (== p) colors) && colors /= []
+          colors =  (Set.toList cs) >>= (hasNeighboorColors board) 
+
+hasNeighboorColors :: [String] -> Coord -> [Maybe Color] -- color for whole island
+hasNeighboorColors board c = filter (/= Nothing) (map (getColor board) (neighboors c)) 
+
+getColor :: [String] -> Coord -> Maybe Color
+getColor b (x,y) 
+  | isValidTile b (x,y) = case (b !! x) !! y of
+                            'B' -> Just Black
+                            'W' -> Just White
+                            otherwise -> Nothing 
+  | otherwise = Nothing
+
+
+
+
+
+
+

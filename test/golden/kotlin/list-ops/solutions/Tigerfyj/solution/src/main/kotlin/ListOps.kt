@@ -1,0 +1,59 @@
+fun <T> List<T>.customAppend(list: List<T>): List<T> {
+    val r = mutableListOf<T>()
+    r.addAll(this)
+    r.addAll(list)
+    return r
+}
+
+fun List<Any>.customConcat(): List<Any> {
+    val r = ArrayList<Any>()
+    for (v in this) {
+        when (v) {
+            is List<*> -> r.addAll(v.map{(it as Any)}.customConcat())
+            else -> r.add(v)
+        }
+    }
+    return r
+}
+
+fun <T> List<T>.customFilter(predicate: (T) -> Boolean): List<T> {
+    val r = mutableListOf<T>()
+    for (v in this) {
+        if (predicate(v))  r.add(v)
+    }
+    return r
+}
+
+val List<Any>.customSize: Int get() = this.size
+
+fun <T, U> List<T>.customMap(transform: (T) -> U): List<U> {
+    val r = mutableListOf<U>()
+    for (v in this) {
+        r.add(transform(v))
+    }
+    return r
+}
+
+fun <T, U> List<T>.customFoldLeft(initial: U, f: (U, T) -> U): U {
+    var r = initial
+    for (v in this) {
+        r = f(r, v)
+    }
+    return r
+}
+
+fun <T, U> List<T>.customFoldRight(initial: U, f: (T, U) -> U): U {
+    var r = initial
+    for (i in 0..(this.size-1)) {
+        r = f(this[this.size - i -1], r);
+    }
+    return r
+}
+
+fun <T> List<T>.customReverse(): List<T> {
+    val r  = mutableListOf<T>()
+    for (i in 0..(this.size-1)) {
+        r.add(this[this.size - i -1])
+    }
+    return r
+}

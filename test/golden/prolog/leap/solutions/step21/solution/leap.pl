@@ -1,2 +1,0 @@
-leap(X) :-
-    0 is mod(X, 4), (not(0 is mod(X, 100)) ; 0 is mod(X, 400)).

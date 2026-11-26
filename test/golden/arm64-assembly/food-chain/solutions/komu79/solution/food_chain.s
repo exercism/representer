@@ -1,0 +1,111 @@
+.section .rodata
+
+.balign 64
+rows:   .asciz "";                                                  .balign 64
+        .asciz "It wriggled and jiggled and tickled inside her.\n"; .balign 64
+        .asciz "How absurd to swallow a bird!\n";                   .balign 64
+        .asciz "Imagine that, to swallow a cat!\n";                 .balign 64
+        .asciz "What a hog, to swallow a dog!\n";                   .balign 64
+        .asciz "Just opened her throat and swallowed a goat!\n";    .balign 64
+        .asciz "I don't know how she swallowed a cow!\n";           .balign 64
+
+.balign 8
+animals: 
+        .asciz "fly";                                               .balign 8
+        .asciz "spider";                                            .balign 8
+        .asciz "bird";                                              .balign 8
+        .asciz "cat";                                               .balign 8
+        .asciz "dog";                                               .balign 8
+        .asciz "goat";                                              .balign 8
+        .asciz "cow";                                               .balign 8
+
+.text
+.globl recite
+
+buffer          .req x0
+start_verse     .req w1
+end_verse       .req w2
+verse_index     .req w3
+verse_index_x   .req x3
+index_down      .req w4
+src             .req x5
+animals_base    .req x6
+ch              .req w7
+t0              .req x8
+t1              .req x9
+
+.macro output_zero_terminated ptr
+.Loutput_loop\@:
+        ldrb    ch, [\ptr], #1
+        strb    ch, [buffer], #1
+        cbnz    ch, .Loutput_loop\@
+        sub     buffer, buffer, #1
+.endm
+
+.macro output_animal index
+        ldr     t0, [animals_base, \index, uxtw #3]  // whole 8-byte slot, zero padded
+        str     t0, [buffer]
+        clz     t1, t0                      // little-endian: leading zeros = unused high bytes
+        add     buffer, buffer, #8
+        sub     buffer, buffer, t1, lsr #3  // buffer += 8 - clz/8 = strlen
+.endm
+
+.macro output_str s
+.pushsection .rodata
+.balign 64
+.Lstr\@:        .ascii "\s"
+.set len\@, . - .Lstr\@
+.popsection
+.if len\@ > 64
+        .error "output_str: string longer than 64 bytes"
+.endif
+        // always copy 64 bytes from pointer, but advance pointer only by known length
+        adr     src, .Lstr\@
+        ld1     {v0.16b-v3.16b}, [src]
+        st1     {v0.16b-v3.16b}, [buffer]
+        add     buffer, buffer, len\@
+.endm
+
+recite:
+        adr     animals_base, animals
+        sub     verse_index, start_verse, #1
+.Lverse_loop:
+        cmp     verse_index, #7
+        b.eq    .Llast_verse
+
+        output_str "I know an old lady who swallowed a "
+        output_animal verse_index
+        output_str ".\n"
+
+        adr     src, rows               // e.g. "It wriggled and jiggled and tickled inside her."
+        add     src, src, verse_index_x, lsl #6
+        output_zero_terminated  src
+
+        mov     index_down, verse_index
+        b       .Linner_check
+.Linner_loop:
+        output_str "She swallowed the "
+        output_animal index_down
+        output_str " to catch the "
+        sub     index_down, index_down, #1
+        output_animal index_down
+        cmp     index_down, #1
+        b.ne    1f
+        output_str " that wriggled and jiggled and tickled inside her" // special handling for spider
+1:      output_str ".\n"
+.Linner_check:
+        cbnz    index_down, .Linner_loop
+        
+        output_str "I don't know why she swallowed the fly. Perhaps she'll die.\n\n"
+        add     verse_index, verse_index, #1
+        cmp     verse_index, end_verse
+        b.lo    .Lverse_loop
+
+        strb    wzr, [buffer, #-1]      // remove extra newline in the end
+        ret
+
+.Llast_verse:
+        output_str "I know an old lady who swallowed a horse.\n"
+        output_str "She's dead, of course!\n"
+        strb    wzr, [buffer]
+        ret

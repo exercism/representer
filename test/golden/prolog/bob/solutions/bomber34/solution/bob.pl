@@ -1,0 +1,42 @@
+hey(Sentence, Response):-
+    string_chars(Sentence, Chars),
+    exclude([C]>>(char_type(C, space)), Chars, Filtered),
+    string_chars(Filtered_Sentence, Filtered),
+    once(bob_responds(Filtered_Sentence, Response)).
+
+bob_responds(Sentence, Response):-
+    normal_question(Sentence, Response);
+    shouting(Sentence, Response);
+    shout_question(Sentence, Response);
+    silence(Sentence, Response);
+    whatever(Response).
+
+has_lower(Sentence):-
+    string_chars(Sentence, Chars),
+    member(C, Chars),
+    char_type(C, lower),
+    !.
+
+has_upper(Sentence):-
+    string_chars(Sentence, Chars),
+    member(C, Chars),
+    char_type(C, upper),
+    !.
+
+normal_question(Sentence, "Sure."):-
+    (has_lower(Sentence), !; \+ has_upper(Sentence)),
+    string_concat(_, "?", Sentence).
+
+shouting(Sentence, "Whoa, chill out!"):-
+    \+ has_lower(Sentence),
+    has_upper(Sentence),
+    \+ string_concat(_, "?", Sentence).
+
+shout_question(Sentence, "Calm down, I know what I'm doing!"):-
+    \+ has_lower(Sentence),
+    has_upper(Sentence),
+    string_concat(_, "?", Sentence).
+
+silence("", "Fine. Be that way!").
+
+whatever("Whatever.").

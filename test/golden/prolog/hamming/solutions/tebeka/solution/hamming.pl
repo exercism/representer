@@ -1,6 +1,0 @@
-hamming_distance(S1, S2, N) :- string_codes(S1, L1), string_codes(S2, L2), list_hamming_distance(L1, L2, N).
-list_hamming_distance([], [], 0).
-list_hamming_distance([X|T1], [X|T2], N) :- hamming_distance(T1, T2, N), !.
-list_hamming_distance([_|T1], [_|T2], N) :- hamming_distance(T1, T2, N1), N is N1 + 1.
-
-% vim: ft=prolog

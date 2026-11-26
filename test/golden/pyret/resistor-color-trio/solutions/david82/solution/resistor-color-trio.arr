@@ -1,0 +1,32 @@
+use context essentials2020 # Don't delete this line when using Pyret on Exercism 
+
+provide: label end
+
+fun resistorColors() -> List<String>:
+  [list: "black", "brown", "red", "orange", "yellow",
+         "green", "blue", "violet", "grey", "white"]
+end
+
+fun indexOfColor(colorList :: List<String>, targetColor :: String) -> Number:
+  rec findIndex = lam(currentIndex :: Number) -> Number:
+    ask:
+      | currentIndex == colorList.length() then: -1
+      | targetColor == colorList.get(currentIndex) then: currentIndex
+      | otherwise: findIndex(currentIndex + 1)
+    end
+  end
+  findIndex(0)
+end
+
+fun label(colors :: List<String>) -> String:
+  baseValue = (10 * indexOfColor(resistorColors(), colors.get(0))) + indexOfColor(resistorColors(), colors.get(1))
+  zeros = indexOfColor(resistorColors(), colors.get(2))
+  resistance = baseValue * num-expt(10, zeros)
+  
+  ask:
+    | resistance >= 1000000000 then: num-to-string(resistance / 1000000000) + " gigaohms"
+    | resistance >= 1000000 then: num-to-string(resistance / 1000000) + " megaohms"
+    | resistance >= 1000 then: num-to-string(resistance / 1000) + " kiloohms"
+    | otherwise: num-to-string(resistance) + " ohms"
+  end
+end

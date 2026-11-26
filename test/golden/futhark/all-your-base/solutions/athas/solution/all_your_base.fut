@@ -1,7 +1,0 @@
-def rebase (input_base: i32) (digits: []i32) (output_base: i32) : []i32 =
-  let x =
-    loop acc = 0
-    for i < length digits do
-      assert (digits[i] >= 0 && digits[i] < input_base) (acc * input_base + digits[i])
-  let output_digits = i64.max 1 (i64.f64 (1 + f64.log (f64.i32 x) / f64.log (f64.i32 output_base)))
-  in assert (input_base > 1 && output_base > 1) (reverse (tabulate output_digits (\i -> x / (output_base ** i32.i64 i) % output_base)))

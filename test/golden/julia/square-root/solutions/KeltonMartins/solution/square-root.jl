@@ -1,0 +1,26 @@
+function square_root(numero)
+    if numero < 0
+        throw(DomainError(numero, "A raiz quadrada não está definida para números negativos"))
+    end
+
+    if numero == 0
+        return 0
+    end
+
+    n_grande = BigInt(numero)
+    esquerda = BigInt(1)
+    direita = n_grande
+
+    while esquerda <= direita
+        meio = esquerda + (direita - esquerda) ÷ 2
+        quadrado = meio * meio
+
+        if quadrado == n_grande
+            return Int(meio)
+        elseif quadrado < n_grande
+            esquerda = meio + 1
+        else
+            direita = meio - 1
+        end
+    end
+end

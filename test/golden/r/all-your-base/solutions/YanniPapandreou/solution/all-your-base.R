@@ -1,0 +1,30 @@
+rebase <- function(from_base, digits, to_base) {
+  n <- tobase10(from_base, digits)
+  tobase(to_base, n)
+}
+
+tobase10 <- function(from_base, digits) {
+  stopifnot(
+    "input base must be >= 2" = from_base >= 2,
+    "all digits must satisfy 0 <= d < input base" = all(digits >= 0 & digits < from_base)
+  )
+  pows <- from_base ^ ((length(digits) - 1):0)
+  sum(digits * pows)
+}
+
+tobase <- function(to_base, n) {
+  stopifnot("output base must be >= 2" = to_base >= 2)
+  if (n == 0) {
+    return(0)
+  }
+
+  digits <- c()
+
+  while (n > 0) {
+    remainder <- n %% to_base
+    digits <- c(remainder, digits)
+    n <- n %/% to_base
+  }
+
+  as.integer(digits)
+}

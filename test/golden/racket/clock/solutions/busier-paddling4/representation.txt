@@ -1,0 +1,20 @@
+# lang racket
+( require racket/format )
+( provide clock
+add
+subtract
+clock->string )
+( struct wall-clock ( hours minutes ) #:transparent )
+( define ( clock hours minutes )
+( define total-minutes ( modulo ( + ( * hours 60 ) minutes )
+( * 24 60 )))
+( wall-clock ( quotient total-minutes 60 )
+( remainder total-minutes 60 )))
+( define ( clock->string c )
+( format "\"~a:~a\""
+( ~r ( wall-clock-hours c ) #:min-width 2 #:pad-string "\"0\"" )
+( ~r ( wall-clock-minutes c ) #:min-width 2 #:pad-string "\"0\"" )))
+( define ( add c minutes )
+( clock ( wall-clock-hours c ) ( + ( wall-clock-minutes c ) minutes )))
+( define ( subtract c minutes )
+( add c ( - minutes )))

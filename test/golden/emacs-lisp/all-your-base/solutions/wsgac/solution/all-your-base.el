@@ -1,0 +1,26 @@
+;;; all-your-base.el --- All Your Base (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;;; Code:
+
+(defun rebase (list-of-digits in-base out-base)
+  (if (or (< in-base 2)
+	  (< out-base 2))
+      (error "Both bases should be > 1"))
+  (unless (cl-every (lambda (d) (<= 0 d (1- in-base))) list-of-digits)
+      (error "Digits should span the range [0,in-base-1]"))
+  (dec-to-out out-base (in-to-dec in-base list-of-digits)))
+
+(defun in-to-dec (in-base digits)
+  (cl-reduce (lambda (acc d) (+ (* acc in-base) d)) digits :initial-value 0))
+
+(defun dec-to-out (out-base dec)
+  (cl-loop
+   for n = dec then (truncate n out-base)
+   while (cl-plusp n)
+   collect (mod n out-base) into digits
+   finally (return (or (nreverse digits) '(0)))))
+
+(provide 'all-your-base)
+;;; all-your-base.el ends here

@@ -1,0 +1,13 @@
+module Raindrops (convert) where
+
+png :: Int -> (Int, String) -> String
+png n (p, s)
+  | n `mod` p == 0 = s
+  | otherwise      = ""
+  
+convert :: Int -> String
+convert n
+  | null n'   = show n
+  | otherwise = n'
+  where
+    n' = concatMap (png n) [(3, "Pling"), (5, "Plang"), (7, "Plong")]

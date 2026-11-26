@@ -1,0 +1,111 @@
+unit Clock ;
+interface
+function create ( const hour , minute : integer ) : string ;
+function add ( const hour , minute , value : integer ) : string ;
+function subtract ( const hour , minute , value : integer ) : string ;
+function equal ( const hour1 , minute1 , hour2 , minute2 : integer ) : boolean ;
+implementation
+uses SysUtils , DateUtils ;
+function create ( const hour , minute : integer ) : string ;
+var
+i , m , h : integer ;
+begin
+m := minute ;
+h := hour ;
+i := 0 ;
+if m >= 0 then
+begin
+while m >= 60 do
+begin
+i := i + 1 ;
+m := m - 60 ;
+end ;
+h := i + h ;
+end
+else begin
+i := 1 ;
+while m <= - 60 do
+begin
+i := i + 1 ;
+m := m + 60 ;
+end ;
+if m = 0 then
+begin
+i := i - 1 ;
+end
+else
+begin
+m := m + 60 ;
+end ;
+h := h - ( i )
+end ;
+if h >= 0 then
+begin
+while h >= 24 do
+begin
+h := h - 24 ;
+end ;
+end
+else
+begin
+while h <= - 24 do
+begin
+h := h + 24 ;
+end ;
+h := h + 24 ;
+end ;
+result := format ( '%.2d:%.2d' ,[ h , m ]);
+end ;
+function add ( const hour , minute , value : integer ) : string ;
+var
+i , m , h : integer ;
+begin
+i := 0 ;
+m := minute + value ;
+while m >= 60 do
+begin
+i := i + 1 ;
+m := m - 60 ;
+end ;
+h := hour + i ;
+while h >= 24 do
+begin
+h := h - 24 ;
+end ;
+result := format ( '%.2d:%.2d' ,[ h , m ]);
+end ;
+function subtract ( const hour , minute , value : integer ) : string ;
+var
+i , h , m : integer ;
+begin
+i := 0 ;
+m := minute - value ;
+if m < 0 then
+begin
+i := 1 ;
+while m <= - 60 do
+begin
+i := i + 1 ;
+m := m + 60 ;
+end ;
+m := m + 60 ;
+end ;
+h := hour - i ;
+if h < 0 then
+begin
+if h <= - 24 then
+begin
+h := h + 24 ;
+end ;
+h := 24 + h
+end ;
+result := format ( '%.2d:%.2d' ,[ h , m ]);
+end ;
+function equal ( const hour1 , minute1 , hour2 , minute2 : integer ) : boolean ;
+begin
+if create ( hour1 , minute1 ) = create ( hour2 , minute2 ) then
+result := true
+else
+result := false ;
+end ;
+end .

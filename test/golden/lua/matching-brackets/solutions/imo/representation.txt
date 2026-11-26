@@ -1,0 +1,41 @@
+local bracket_push = {}
+local brackets = {
+{ '{' , '}' },
+{ '(' , ')' },
+{ '[' , ']' }
+}
+local function is_open_bracket ( char )
+for _ , bt in ipairs ( brackets ) do
+if bt [ 1 ] == char then
+return true
+end
+end
+return false
+end
+local function belong_together ( o_char , c_char )
+for _ , bt in ipairs ( brackets ) do
+if bt [ 1 ] == o_char then
+return bt [ 2 ] == c_char
+end
+end
+return false
+end
+function bracket_push . valid ( str )
+if str == '' then return true end
+local stack = {}
+for i = 1 , # str do
+local char = str : sub ( i , i )
+if char : find ( '[{}()%[%]]' ) then
+if is_open_bracket ( char ) then
+table.insert ( stack , char )
+else
+if # stack == 0
+or not belong_together ( table.remove ( stack , # stack ), char ) then
+return false
+end
+end
+end
+end
+return # stack == 0
+end
+return bracket_push

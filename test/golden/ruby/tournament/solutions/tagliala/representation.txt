@@ -1,0 +1,166 @@
+(program
+  (module Tournament
+    (body_statement
+      (assignment (constant PLACEHOLDER_1) = "Team                           | MP |  W |  D |  L |  P\n")
+      (assignment (constant PLACEHOLDER_2) = "%<team>-30s | %<played>2d | %<wins>2d | %<draws>2d | %<losses>2d | %<points>2d\n")
+      (assignment (constant PLACEHOLDER_3) =
+        (call
+          (hash
+            (pair :played 0)
+            (pair :wins 0)
+            (pair :draws 0)
+            (pair :losses 0)
+            (pair :points 0)) freeze))
+      (assignment (constant PLACEHOLDER_4) =
+        (call
+          (string_array "%w("
+            (bare_string win)
+            (bare_string draw)
+            (bare_string loss)) freeze))
+      (assignment (constant PLACEHOLDER_5) =
+        (call
+          (hash
+            (pair :home
+              (hash
+                (pair :win
+                  (hash
+                    (pair :wins 1)
+                    (pair :points 3)))
+                (pair :loss
+                  (hash
+                    (pair :losses 1)))))
+            (pair :away
+              (hash
+                (pair :win
+                  (hash
+                    (pair :losses 1)))
+                (pair :loss
+                  (hash
+                    (pair :wins 1)
+                    (pair :points 3)))))
+            (pair :draw
+              (hash
+                (pair :draws 1)
+                (pair :points 1)))) freeze))
+      (singleton_class << self
+        (body_statement private
+          (method PLACEHOLDER_6
+            (method_parameters PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10)
+            (body_statement
+              (operator_assignment
+                (element_reference PLACEHOLDER_7 PLACEHOLDER_8) ||=
+                (call (constant PLACEHOLDER_3) dup))
+              (operator_assignment
+                (element_reference PLACEHOLDER_7 PLACEHOLDER_9) ||=
+                (call (constant PLACEHOLDER_3) dup))
+              (operator_assignment
+                (element_reference
+                  (element_reference PLACEHOLDER_7 PLACEHOLDER_8) :played) += 1)
+              (operator_assignment
+                (element_reference
+                  (element_reference PLACEHOLDER_7 PLACEHOLDER_9) :played) += 1)
+              (call PLACEHOLDER_11
+                (argument_list PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10))))
+          (method PLACEHOLDER_11
+            (method_parameters PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10)
+            (body_statement
+              (assignment PLACEHOLDER_12 =
+                (call PLACEHOLDER_13
+                  (argument_list PLACEHOLDER_10 :home)))
+              (assignment PLACEHOLDER_14 =
+                (call PLACEHOLDER_13
+                  (argument_list PLACEHOLDER_10 :away)))
+              (call PLACEHOLDER_12 each
+                (block
+                  (block_parameters PLACEHOLDER_15 PLACEHOLDER_16)
+                  (body_statement
+                    (operator_assignment
+                      (element_reference
+                        (element_reference PLACEHOLDER_7 PLACEHOLDER_8) PLACEHOLDER_15) += PLACEHOLDER_16))))
+              (call PLACEHOLDER_14 each
+                (block
+                  (block_parameters PLACEHOLDER_15 PLACEHOLDER_16)
+                  (body_statement
+                    (operator_assignment
+                      (element_reference
+                        (element_reference PLACEHOLDER_7 PLACEHOLDER_9) PLACEHOLDER_15) += PLACEHOLDER_16))))))
+          (method PLACEHOLDER_13
+            (method_parameters PLACEHOLDER_10 PLACEHOLDER_17)
+            (body_statement
+              (case PLACEHOLDER_10
+                (when
+                  (pattern "win")
+                  (then
+                    (element_reference
+                      (element_reference (constant PLACEHOLDER_5) PLACEHOLDER_17) :win)))
+                (when
+                  (pattern "loss")
+                  (then
+                    (element_reference
+                      (element_reference (constant PLACEHOLDER_5) PLACEHOLDER_17) :loss)))
+                (when
+                  (pattern "draw")
+                  (then
+                    (element_reference (constant PLACEHOLDER_5) :draw))))))
+          (method PLACEHOLDER_18
+            (method_parameters PLACEHOLDER_7)
+            (body_statement
+              (assignment PLACEHOLDER_10 =
+                (array (constant PLACEHOLDER_1)))
+              (call
+                (call PLACEHOLDER_19
+                  (argument_list PLACEHOLDER_7)) each
+                (block
+                  (block_parameters PLACEHOLDER_20)
+                  (body_statement
+                    (binary PLACEHOLDER_10 <<
+                      (call format
+                        (argument_list (constant PLACEHOLDER_2)
+                          (pair :team
+                            (element_reference PLACEHOLDER_20 0))
+                          (hash_splat_argument **
+                            (element_reference PLACEHOLDER_20 1))))))))
+              (call PLACEHOLDER_10 join)))
+          (method PLACEHOLDER_19
+            (method_parameters PLACEHOLDER_7)
+            (body_statement
+              (call PLACEHOLDER_7 sort
+                (block
+                  (block_parameters PLACEHOLDER_21 PLACEHOLDER_22)
+                  (body_statement
+                    (binary
+                      (array
+                        (unary -
+                          (element_reference
+                            (element_reference PLACEHOLDER_21 1) :points))
+                        (element_reference PLACEHOLDER_21 0)) <=>
+                      (array
+                        (unary -
+                          (element_reference
+                            (element_reference PLACEHOLDER_22 1) :points))
+                        (element_reference PLACEHOLDER_22 0)))))))))) module_function
+      (method tally
+        (method_parameters input)
+        (body_statement
+          (assignment PLACEHOLDER_7 =
+            (hash))
+          (call input each_line
+            (block
+              (block_parameters PLACEHOLDER_23)
+              (body_statement
+                (assignment
+                  (left_assignment_list PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10) =
+                  (call
+                    (call PLACEHOLDER_23 split
+                      (argument_list ";")) map
+                    (argument_list
+                      (block_argument & :strip))))
+                (unless
+                  (call
+                    (array PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10) all?)
+                  (then
+                    (next)))
+                (call PLACEHOLDER_6
+                  (argument_list PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10)))))
+          (call PLACEHOLDER_18
+            (argument_list PLACEHOLDER_7)))))))

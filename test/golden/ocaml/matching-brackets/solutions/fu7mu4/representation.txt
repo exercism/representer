@@ -1,0 +1,20 @@
+let rec scan target stack =
+match ( target , stack ) with
+( [] , [] ) -> true
+| ( [] , s ) -> false
+| ( ' { ' :: t , s ) -> scan t ( ' { ' :: s )
+| ( ' [ ' :: t , s ) -> scan t ( ' [ ' :: s )
+| ( ' ( ' :: t , s ) -> scan t ( ' ( ' :: s )
+| ( ' } ' :: t , ' { ' :: s ) -> scan t s
+| ( ' } ' :: t , s ) -> false
+| ( ' ] ' :: t , ' [ ' :: s ) -> scan t s
+| ( ' ] ' :: t , s ) -> false
+| ( ' ) ' :: t , ' ( ' :: s ) -> scan t s
+| ( ' ) ' :: t , s ) -> false
+| ( _ :: t , s ) -> scan t s ;;
+let explode s =
+let rec exp i l =
+if i < 0 then l else exp ( i - 1 ) ( s . [ i ] :: l ) in
+exp ( String . length s - 1 ) [] ;;
+let are_balanced str =
+scan ( explode str ) [] ;;

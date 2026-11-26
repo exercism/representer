@@ -1,0 +1,22 @@
+chromatic : Text -> [ Text ]
+chromatic tonic =
+  useSharps = [ "\"a\"" , "\"C\"" , "\"G\"" , "\"D\"" , "\"A\"" , "\"E\"" , "\"B\"" , "\"F#\"" , "\"e\"" , "\"b\"" , "\"f#\"" , "\"c#\"" , "\"g#\"" , "\"d#\"" ]
+  useFlats = [ "\"F\"" , "\"Bb\"" , "\"Eb\"" , "\"Ab\"" , "\"Db\"" , "\"Gb\"" , "\"d\"" , "\"g\"" , "\"c\"" , "\"f\"" , "\"bb\"" , "\"eb\"" ]
+  sharps = [ "\"C\"" , "\"C#\"" , "\"D\"" , "\"D#\"" , "\"E\"" , "\"F\"" , "\"F#\"" , "\"G\"" , "\"G#\"" , "\"A\"" , "\"A#\"" , "\"B\"" ]
+  flats = [ "\"C\"" , "\"Db\"" , "\"D\"" , "\"Eb\"" , "\"E\"" , "\"F\"" , "\"Gb\"" , "\"G\"" , "\"Ab\"" , "\"A\"" , "\"Bb\"" , "\"B\"" ]
+  notes = if contains tonic useSharps then sharps else flats
+  notes ++ notes |> dropWhile ( c -> c Text .!= up tonic ) |> take 12
+Text . map f t = fromCharList ( List . map f ( toCharList t ))
+interval : Text -> Text -> [ Text ]
+interval tonic intervals =
+  notes = chromatic tonic
+  go acc notes' =
+    notes'' = if size notes' < 4 then notes' ++ notes else notes'
+    int n ints = go ( acc List .++ take 1 ( drop ( n - 1 ) notes'' )) ( drop n notes'' ) ints
+    cases
+      ? m +: x -> int 1 x
+      ? M +: x -> int 2 x
+      ? A +: x -> int 3 x
+      x -> List . map up acc
+  go [ tonic ] ( drop 1 notes ) ( toCharList intervals )
+up x = Text . map toUpper ( take 1 x ) ++ drop 1 x

@@ -1,0 +1,51 @@
+# | Register | Usage | Type | Description |
+# | -------- | --------- | ------- | ------------------------------------------------------------------------------------- |
+# | `$a0` | input | integer | number |
+# | `$v0` | output | integer | classification (`1` = `perfect`, `2` = `abundant`, `3` = `deficient`, `-1` = `error`) |
+# | `$t0-9` | temporary | any | used for temporary storage |
+.eqv PERFECT 1
+.eqv ABUNDANT 2
+.eqv DEFICIENT 3
+.eqv ERROR -1
+.globl classify
+.eqv input $a0
+.eqv sum $t1
+.eqv quotient $t2
+.eqv divisor $t3
+.eqv remainder $t4
+.eqv output $v0
+classify:
+blez input, invalid
+li divisor, 0
+li sum, 0
+sum_factors_loop:
+addi divisor, divisor, 1
+# Divide the number (input) by each of the counting numbers starting with 1 (divisor).
+# If the quotient is a whole number, the divisor and quotient are a pair of factors
+div input, divisor
+mfhi remainder
+mflo quotient
+# If the divisor is greater than quotient we can stop, as we would be adding duplicated factors
+bgt divisor, quotient, sum_factors_end
+bnez remainder, sum_factors_loop
+add sum, sum, divisor
+# Dont add the same factor twice if divisor and quotient are the same
+beq divisor, quotient, sum_factors_loop
+add sum, sum, quotient
+j sum_factors_loop
+sum_factors_end:
+# Remove the number itself
+sub sum, sum, input
+blt input, sum, abundant
+bgt input, sum, deficient
+li output, PERFECT
+jr $ra
+abundant:
+li output, ABUNDANT
+jr $ra
+deficient:
+li output, DEFICIENT
+jr $ra
+invalid:
+li output, ERROR
+jr $ra

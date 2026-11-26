@@ -1,0 +1,22 @@
+open Base
+let valid s =
+let int_from_digit c = Char . to_int c - Char . to_int ' 0 ' in
+let doublish idx n =
+if idx % 2 = 0 then n else if n > 4 then ( 2 * n ) - 9 else 2 * n
+in
+let luhn ns =
+Sequence . mapi ~ f : doublish ns
+|> Sequence . sum ( module Int ) ~ f : Fn . id
+|> Fn . flip ( % ) 10 |> ( = ) 0
+in
+let no_spaces = String . substr_replace_all ~ pattern : "\" \"" ~ with_ : "\"\"" s in
+let chars_rev =
+let f idx =
+if idx < 0 then None else Some ( String . get no_spaces idx , idx - 1 )
+in
+Sequence . unfold ~ init : ( String . length no_spaces - 1 ) ~ f
+in
+let not_zero = String .( <> ) no_spaces "\"0\"" in
+let is_all_digits = String . for_all ~ f : Char . is_digit no_spaces in
+let digits = Sequence . map ~ f : int_from_digit chars_rev in
+not_zero && is_all_digits && luhn digits

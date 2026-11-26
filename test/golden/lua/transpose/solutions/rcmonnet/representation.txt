@@ -1,0 +1,45 @@
+local function stringToMatrix ( s )
+local matrix = {}
+for line in s : gmatch ( '[^\n]*' ) do
+local row = {}
+table.insert ( matrix , row )
+for cell in line : gmatch ( '.' ) do
+table.insert ( row , cell )
+end
+end
+return matrix
+end
+local function maxRowSize ( matrix )
+local max = 0
+for _ , row in ipairs ( matrix ) do
+if # row > max then
+max = # row
+end
+end
+return max
+end
+local function transpose ( matrix )
+local transposed = {}
+local ncols = maxRowSize ( matrix )
+for r = 1 , ncols do
+transposed [ r ] = {}
+end
+max = 0
+for c = # matrix , 1 , - 1 do
+max = math.max ( max , # matrix [ c ])
+for r = 1 , max do
+transposed [ r ][ c ] = matrix [ c ][ r ] or "' '"
+end
+end
+return transposed
+end
+local function matrixToString ( matrix )
+local s = {}
+for _ , row in ipairs ( matrix ) do
+table.insert ( s , table.concat ( row ))
+end
+return table.concat ( s , '\n' )
+end
+return function ( s )
+return matrixToString ( transpose ( stringToMatrix ( s )))
+end

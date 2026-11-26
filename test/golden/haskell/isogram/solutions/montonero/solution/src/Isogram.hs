@@ -1,0 +1,9 @@
+module Isogram (isIsogram) where
+
+
+import Data.Char (isAlpha, isUpper, toLower)
+import Data.List (group, sort)
+import Data.Function (on)
+
+isIsogram :: String -> Bool
+isIsogram = all (\x -> length x == 1) . group . sort .  map toLower . filter isAlpha

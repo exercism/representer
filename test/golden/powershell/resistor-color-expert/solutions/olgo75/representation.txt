@@ -1,0 +1,69 @@
+$ResistorBands = @{
+"\"black\"" = 0
+"\"brown\"" = 1
+"\"red\"" = 2
+"\"orange\"" = 3
+"\"yellow\"" = 4
+"\"green\"" = 5
+"\"blue\"" = 6
+"\"violet\"" = 7
+"\"grey\"" = 8
+"\"white\"" = 9
+}
+$ToleranceBands = @{
+"\"brown\"" = "\"\u00B11%\""
+"\"red\"" = "\"\u00B12%\""
+"\"green\"" = "\"\u00B10.5%\""
+"\"blue\"" = "\"\u00B10.25%\""
+"\"violet\"" = "\"\u00B10.1%\""
+"\"grey\"" = "\"\u00B10.05%\""
+}
+$UnitBands = @{
+0 = "\"ohms\""
+1 = "\"kiloohms\""
+2 = "\"megaohms\""
+}
+Function Get-ResistorLabel () {
+[ CmdletBinding ()]
+Param (
+[ string []] $Colors
+)
+$result = "\"\""
+$milliMultiplier = 0
+switch ( $Colors . Count ) {
+1 {
+$result = "\"$(" $ResistorBands [ $Colors [ 0 ]] ") ohms\""
+}
+4 {
+$result = "\"$(" $ResistorBands [ $Colors [ 0 ]] )$( $ResistorBands [ $Colors [ 1 ]] )"
+$multiplier = $ResistorBands [ $Colors [ 2 ]]
+if ( $multiplier -gt 0 ) {
+$result = [ int ] $result * [ math ]:: Pow ( 10 , $multiplier )
+}
+if ([ int ] $result -ge 1000 ) {
+while ( $result -ge 1000 ) {
+$result = [ math ]:: Round ( $result / 1000 , 2 )
+$milliMultiplier ++
+}
+}
+$result = [ string ] $result + "\" $(" $UnitBands [ $milliMultiplier ] )"
+$result += "\" $(" $ToleranceBands [ $Colors [ 3 ]] )"
+}
+5 {
+$result = "\"$(" $ResistorBands [ $Colors [ 0 ]] )$( $ResistorBands [ $Colors [ 1 ]] )$( $ResistorBands [ $Colors [ 2 ]] )"
+$multiplier = $ResistorBands [ $Colors [ 3 ]]
+if ( $multiplier -gt 0 ) {
+$result = [ int ] $result * [ math ]:: Pow ( 10 , $multiplier )
+}
+if ([ int ] $result -ge 1000 ) {
+while ( $result -ge 1000 ) {
+$result = [ math ]:: Round ( $result / 1000 , 2 )
+$milliMultiplier ++
+}
+}
+$result = [ string ] $result + "\" $(" $UnitBands [ $milliMultiplier ] )"
+$result += "\" $(" $ToleranceBands [ $Colors [ 4 ]] )"
+}
+}
+return $result
+}

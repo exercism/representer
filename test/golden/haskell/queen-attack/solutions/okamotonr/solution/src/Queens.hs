@@ -1,0 +1,15 @@
+module Queens (boardString, canAttack) where
+
+boardString :: Maybe (Int, Int) -> Maybe (Int, Int) -> String
+boardString white black = unlines [unwords [piece c r | r <- [0 .. 7]] | c <- [0 .. 7]]
+  where
+    piece c r
+      | Just (c, r) == white = "W"
+      | Just (c, r) == black = "B"
+      | otherwise = "_"
+
+canAttack :: (Int, Int) -> (Int, Int) -> Bool
+canAttack (y1, x1) (y2, x2) = x1 == x2 || y1 == y2 || m == n
+  where
+    m = abs $ x1 - x2
+    n = abs $ y1 - y2

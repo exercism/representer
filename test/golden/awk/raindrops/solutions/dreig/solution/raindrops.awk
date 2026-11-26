@@ -1,9 +1,0 @@
-# These variables are initialized on the command line (using '-v'):
-# - num
-
-BEGIN {
-    out = out (num % 3 ? "" : "Pling")
-    out = out (num % 5 ? "" : "Plang")
-    out = out (num % 7 ? "" : "Plong")
-    print out ? out : num
-}

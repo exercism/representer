@@ -1,0 +1,94 @@
+module pythagorean_triplet ;
+import std . numeric : gcd ;
+import std . algorithm . sorting : sort ;
+struct Triplet {
+uint a ;
+uint b ;
+uint c ;
+}
+pure Triplet [] tripletsWithSum ( uint total )
+{
+Triplet [] triples ;
+for ( uint m = 2 ; 2 * m * ( m + 1 ) <= total ; ++ m ) {
+for ( uint n = 1 + m % 2 ; n < m ; n += 2 ) {
+if ( gcd ( m , n ) != 1 ) {
+continue ;
+}
+uint a = m * m - n * n ;
+uint b = 2 * m * n ;
+uint c = m * m + n * n ;
+uint p = a + b + c ;
+if ( total % p == 0 ) {
+uint q = total / p ;
+if ( a > b ) {
+uint t = a ;
+a = b ;
+b = t ;
+}
+triples ~= Triplet ( q * a , q * b , q * c );
+}
+}
+}
+triples . sort !( "\"a.a < b.a\"" );
+return triples ;
+}
+unittest
+{
+immutable int allTestsEnabled = 1 ;
+{
+Triplet [] expected = [
+Triplet ( 3 , 4 , 5 ),
+];
+assert ( tripletsWithSum ( 12 ) == expected );
+}
+static if ( allTestsEnabled )
+{
+{
+Triplet [] expected = [
+Triplet ( 27 , 36 , 45 ),
+];
+assert ( tripletsWithSum ( 108 ) == expected );
+}
+{
+Triplet [] expected = [
+Triplet ( 200 , 375 , 425 ),
+];
+assert ( tripletsWithSum ( 1000 ) == expected );
+}
+{
+Triplet [] expected = [
+];
+assert ( tripletsWithSum ( 1001 ) == expected );
+}
+{
+Triplet [] expected = [
+Triplet ( 9 , 40 , 41 ),
+Triplet ( 15 , 36 , 39 ),
+];
+assert ( tripletsWithSum ( 90 ) == expected );
+}
+{
+Triplet [] expected = [
+Triplet ( 40 , 399 , 401 ),
+Triplet ( 56 , 390 , 394 ),
+Triplet ( 105 , 360 , 375 ),
+Triplet ( 120 , 350 , 370 ),
+Triplet ( 140 , 336 , 364 ),
+Triplet ( 168 , 315 , 357 ),
+Triplet ( 210 , 280 , 350 ),
+Triplet ( 240 , 252 , 348 ),
+];
+assert ( tripletsWithSum ( 840 ) == expected );
+}
+{
+Triplet [] expected = [
+Triplet ( 1200 , 14375 , 14425 ),
+Triplet ( 1875 , 14000 , 14125 ),
+Triplet ( 5000 , 12000 , 13000 ),
+Triplet ( 6000 , 11250 , 12750 ),
+Triplet ( 7500 , 10000 , 12500 ),
+];
+assert ( tripletsWithSum ( 30000 ) == expected );
+}
+}
+}

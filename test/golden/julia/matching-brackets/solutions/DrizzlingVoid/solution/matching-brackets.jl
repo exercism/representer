@@ -1,0 +1,21 @@
+function matching_brackets(input::String)::Bool
+
+    filtered_input::String = filter(ch -> ch ∈ ['(', '[', '{', '}', ']', ')'], input)  
+    length(filtered_input) != 0 || return true 
+    filtered_input |> length |> isodd && return false
+   
+    checker::Vector = []
+    bracket_map::Dict = Dict(
+                            '(' => ')',
+                            '[' => ']',
+                            '{' => '}',
+                            )
+    for ch in filtered_input
+        if ch ∈ ['(', '[', '{']
+            push!(checker, bracket_map[ch])
+        elseif !isempty(checker) && ch == last(checker)
+            pop!(checker)
+        end
+    end
+    return isempty(checker)
+end

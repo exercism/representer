@@ -1,0 +1,45 @@
+module saddle_points
+implicit none
+type :: point_t
+integer :: row
+integer :: column
+end type point_t
+contains
+function saddlePoints ( matrix ) result ( points )
+integer , intent ( in ) :: matrix (:, :)
+type ( point_t ), allocatable :: points (:)
+type ( point_t ), dimension ( 10 ) :: tpoints
+integer :: i , j , k , m , mr , mi , np
+np = 0
+do i = 1 , size ( matrix , 1 )
+mr = matrix ( i , 1 )
+mi = 1
+do j = 2 , size ( matrix , 2 )
+if ( matrix ( i , j ) > mr ) then
+mi = j
+mr = matrix ( i , j )
+end if
+end do
+do k = 1 , size ( matrix , 1 )
+if ( matrix ( k , mi ) < mr ) exit
+end do
+if ( k > size ( matrix , 1 )) then
+np = np + 1
+tpoints ( np ) = point_t ( i , mi )
+end if
+do k = mi +1 , size ( matrix , 2 )
+if ( matrix ( i , k ) == mr ) then
+do m = 1 , size ( matrix , 1 )
+if ( matrix ( m , k ) < mr ) exit
+end do
+if ( m > size ( matrix , 1 )) then
+np = np + 1
+tpoints ( np ) = point_t ( i , k )
+end if
+end if
+end do
+end do
+allocate ( points ( np ))
+points ( 1 : np ) = tpoints ( 1 : np )
+end function saddlePoints
+end module saddle_points

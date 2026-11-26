@@ -1,0 +1,41 @@
+\ Convert string to array of numbers
+: s>arr \ s -- a
+  null s:/        \ Split string into character array
+  ' >n a:map      \ Convert each character to number
+;
+
+\ Generate array of indices [0, 1, 2, ..., n-1]
+: iota \ n -- a
+  a:new                    \ Create new array
+  ( I n:1- a:push )        \ Push decremented loop index to array
+  rot times                \ Execute n times
+;
+
+\ Check for invalid input conditions
+: invalid? \ s n -- T
+  s:len r@ n:<             \ Check if span > string length
+  r@ 0 n:< or              \ OR span is negative
+  over /[^[:digit:]]/ r:match nip 0 n:= not or  \ OR contains non-digits
+;
+
+\ Main function to find largest product of series
+: largest-product \ s n -- n|null
+  >r                       \ Save span on r-stack for easy access
+  
+  \ Validate input - return null for invalid cases
+  invalid? if drop rdrop null ;then
+  
+  \ Convert string to digit array
+  s>arr
+  
+  \ Generate starting indices for all possible series
+  a:len r@ n:1- n:- iota   \ Create indices [0, 1, ..., len-span]
+  
+  \ Calculate product for each series and find maximum
+  ( over swap r@ a:slice   \ Get slice of span length starting at index
+    ' n:* 1 a:reduce       \ Calculate product of digits in slice
+  ) a:map                  \ Apply to all indices, creating array of products
+  
+  ' n:max 0 a:reduce       \ Find maximum product
+  rdrop nip                \ Clean up r-stack and remove digit array
+;

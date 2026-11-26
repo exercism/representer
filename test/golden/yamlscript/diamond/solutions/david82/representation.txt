@@ -1,0 +1,17 @@
+!yamlscript/v0
+# Define the alphabet as a constant
+alphabet =:: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+defn rows(letter):
+  when empty?(letter):
+    "\"\""
+  do:
+    # Get substring up to target letter
+    letters-to-target =: alphabet.re-find(qr("^.*" + letter) _)
+    # Create reversed string for bottom half
+    reversed-letters =: letters-to-target.subs(1):reverse
+    # Create full pattern
+    diamond-pattern =: reversed-letters + letters-to-target
+    # Generate top rows
+    top-rows =: letters-to-target.map(\(diamond-pattern.replace(qr(str("[^" _ "\"]\"))" "\"" "\")" + "\"\\n\"))"
+    # Combine with bottom rows (excluding middle)
+    =>: join((top-rows + top-rows:reverse:rest) "\"\")"

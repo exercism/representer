@@ -1,0 +1,115 @@
+UPDATE diamond AS target
+SET result = (
+WITH RECURSIVE base_data AS (
+SELECT target . letter AS letter
+), clean_letter AS (
+SELECT
+UPPER ( letter ) AS letter ,
+UNICODE ( UPPER ( letter )) - 64 AS n
+FROM base_data
+WHERE UNICODE ( UPPER ( letter )) >= 65
+AND UNICODE ( UPPER ( letter )) <= 90
+), base_array_data AS (
+SELECT
+letter ,
+CAST (
+CASE
+WHEN n = 1 THEN 1
+ELSE n + n - 1
+END
+AS INTEGER
+) AS n
+FROM clean_letter
+), base_array_recursive ( letter_n , n , mid_column ) AS (
+SELECT
+CASE
+WHEN n = 1 THEN 'A'
+ELSE '-'
+END AS letter_n ,
+n ,
+( n + 1 ) / 2 AS mid_column
+FROM base_array_data
+UNION ALL
+SELECT
+CASE
+WHEN n - 1 = mid_column THEN 'A'
+ELSE '-'
+END AS letter_n ,
+n - 1 AS n ,
+mid_column
+FROM base_array_recursive
+WHERE n > 1
+), base_array AS (
+SELECT
+JSON_GROUP_ARRAY ( letter_n ORDER BY n ) AS arr ,
+'A' AS current_letter ,
+( SELECT n FROM clean_letter ) AS n ,
+mid_column - 1 AS left_pos ,
+mid_column + 1 AS right_pos
+FROM base_array_recursive
+GROUP BY mid_column
+), diamond_gen ( arr , current_letter , n , left_pos , right_pos ) AS (
+SELECT
+arr ,
+current_letter ,
+n ,
+left_pos ,
+right_pos
+FROM base_array
+UNION ALL
+SELECT
+(
+SELECT JSON_GROUP_ARRAY (
+CASE
+WHEN un . key + 1 = dg . left_pos
+OR un . key + 1 = dg . right_pos
+THEN CHAR ( UNICODE ( dg . current_letter ) + 1 )
+ELSE '-'
+END
+ORDER BY un . key
+)
+FROM JSON_EACH ( dg . arr ) AS un
+) AS arr ,
+CHAR ( UNICODE ( dg . current_letter ) + 1 ) AS current_letter ,
+dg . n - 1 AS n ,
+dg . left_pos - 1 AS left_pos ,
+dg . right_pos + 1 AS right_pos
+FROM diamond_gen AS dg
+WHERE dg . n > 1
+), diamond_top AS (
+SELECT
+(
+SELECT REPLACE (
+GROUP_CONCAT ( un . value , '' ORDER BY un . key ),
+'-' ,
+"' '"
+)
+FROM JSON_EACH ( dg . arr ) AS un
+) AS line ,
+0 AS section ,
+- dg . n AS row_order
+FROM diamond_gen AS dg
+WHERE dg . n > 1
+ORDER BY dg . n DESC
+), diamond_bottom AS (
+SELECT
+(
+SELECT REPLACE (
+GROUP_CONCAT ( un . value , '' ORDER BY un . key ),
+'-' ,
+"' '"
+)
+FROM JSON_EACH ( dg . arr ) AS un
+) AS line ,
+1 AS section ,
+dg . n AS row_order
+FROM diamond_gen AS dg
+ORDER BY dg . n ASC
+), diamond AS (
+SELECT * FROM diamond_top
+UNION ALL
+SELECT * FROM diamond_bottom
+)
+SELECT GROUP_CONCAT ( line , CHAR ( 10 ) ORDER BY section , row_order )
+FROM diamond
+);

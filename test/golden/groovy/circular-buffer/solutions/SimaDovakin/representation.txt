@@ -1,0 +1,46 @@
+class EmptyBufferException extends Exception {}
+class FullBufferException extends Exception {}
+class CircularBuffer {
+int size
+int readIndex
+int writeIndex
+Object [] buffer
+CircularBuffer ( int capacity ) {
+size = capacity
+readIndex = 0
+writeIndex = 0
+buffer = new Object [ size ]
+}
+def clear () {
+while ( buffer [ readIndex ] != null ) {
+buffer [ readIndex ] = null
+readIndex = ++ readIndex % size
+}
+}
+def read () {
+Object value = buffer [ readIndex ]
+if ( value == null ) {
+throw new EmptyBufferException ()
+}
+buffer [ readIndex ] = null
+readIndex = ++ readIndex % size
+return value
+}
+def write ( int item ) {
+if ( buffer [ writeIndex ] == null ) {
+buffer [ writeIndex ] = item
+writeIndex = ++ writeIndex % size
+return
+}
+throw new FullBufferException ()
+}
+def overwrite ( int item ) {
+if ( buffer [ writeIndex ] != null ) {
+buffer [ writeIndex ] = item
+writeIndex = ++ writeIndex % size
+readIndex = ++ readIndex % size
+return
+}
+write ( item )
+}
+}

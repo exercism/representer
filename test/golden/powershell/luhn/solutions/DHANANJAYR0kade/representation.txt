@@ -1,0 +1,27 @@
+Function Test-Luhn () {
+[ CmdletBinding ()]
+Param (
+[ string ] $Value
+)
+$number = $Value -replace "' '" , ''
+if ( $number . Length -le 1 ) {
+return $false
+}
+if ( $number -notmatch '^\d+$' ) {
+return $false
+}
+$sum = 0
+$double = $false
+for ( $i = $number . Length - 1 ; $i -ge 0 ; $i -- ) {
+$digit = [ int ]:: Parse ( $number [ $i ] . ToString ())
+if ( $double ) {
+$digit *= 2
+if ( $digit -gt 9 ) {
+$digit -= 9
+}
+}
+$sum += $digit
+$double = -not $double
+}
+return ( $sum % 10 -eq 0 )
+}

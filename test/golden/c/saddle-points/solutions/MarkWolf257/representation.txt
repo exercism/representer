@@ -1,0 +1,53 @@
+#ifndef SADDLE_POINTS_H
+#define SADDLE_POINTS_H
+#include <stdint.h>
+#include <stddef.h>
+#include <stdlib.h>
+typedef struct saddle_point_t {
+uint8_t row ;
+uint8_t column ;
+} saddle_point_t ;
+typedef struct saddle_points_t {
+size_t count ;
+saddle_point_t points [];
+} saddle_points_t ;
+saddle_points_t * saddle_points ( size_t rows , size_t columns , uint8_t matrix [ rows ][ columns ]);
+void free_saddle_points ( saddle_points_t * pointer );
+#endif
+#include "\"saddle_points.h\""
+saddle_points_t * saddle_points ( size_t rows , size_t columns , uint8_t matrix [ rows ][ columns ])
+{
+size_t n = rows > columns ? rows : columns ;
+saddle_points_t * points = malloc ( sizeof ( saddle_points_t ) + sizeof ( saddle_point_t ) * n );
+points -> count = 0 ;
+size_t row_max [ rows ];
+size_t col_min [ columns ];
+for ( size_t i = 0 ; i < columns ; ++ i )
+col_min [ i ] = matrix [ 0 ][ i ];
+for ( size_t i = 0 ; i < rows ; ++ i )
+{
+row_max [ i ] = matrix [ i ][ 0 ];
+for ( size_t j = 0 ; j < columns ; ++ j )
+{
+row_max [ i ] = matrix [ i ][ j ] > row_max [ i ] ? matrix [ i ][ j ] : row_max [ i ];
+col_min [ j ] = matrix [ i ][ j ] < col_min [ j ] ? matrix [ i ][ j ] : col_min [ j ];
+}
+}
+for ( size_t i = 0 ; i < rows ; ++ i )
+{
+for ( size_t j = 0 ; j < columns ; ++ j )
+{
+if ( row_max [ i ] == col_min [ j ])
+{
+points -> points [ points -> count ]. row = i + 1 ;
+points -> points [ points -> count ]. column = j + 1 ;
+++ points -> count ;
+}
+}
+}
+return points ;
+}
+void free_saddle_points ( saddle_points_t * pointer )
+{
+free ( pointer );
+}

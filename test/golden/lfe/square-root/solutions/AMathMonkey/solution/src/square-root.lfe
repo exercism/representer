@@ -1,0 +1,6 @@
+(defmodule square-root
+  (export (calculate 1)))
+
+(defun calculate (n)
+  (fletrec ((loop (i) (if (== (* i i) n) i (loop (+ 1 i)))))
+    (loop 1)))

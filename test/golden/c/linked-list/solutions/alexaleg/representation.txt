@@ -1,0 +1,152 @@
+#ifndef LINKED_LIST_H
+#define LINKED_LIST_H
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+typedef int ll_data_t ;
+struct list ;
+struct list * list_create ( void );
+size_t list_count ( const struct list * list );
+void list_push ( struct list * list , ll_data_t item_data );
+ll_data_t list_pop ( struct list * list );
+void list_unshift ( struct list * list , ll_data_t item_data );
+ll_data_t list_shift ( struct list * list );
+void list_delete ( struct list * list , ll_data_t data );
+void list_destroy ( struct list * list );
+void list_print ( struct list * list );
+#endif
+#include "\"linked_list.h\""
+struct list_node {
+struct list_node * prev , * next ;
+ll_data_t data ;
+};
+struct list {
+struct list_node * first , * last ;
+};
+struct list * list_create ( void )
+{
+return calloc ( 1 , sizeof ( struct list ));
+}
+void list_destroy ( struct list * list )
+{
+if ( ! list )
+{
+return ;
+}
+struct list_node * prev = list -> first ;
+while ( list -> first )
+{
+list -> first = list -> first -> next ;
+free ( prev );
+prev = list -> first ;
+}
+free ( list );
+}
+size_t list_count ( const struct list * list )
+{
+assert ( list );
+size_t count = 0 ;
+for ( struct list_node * p = list -> first ; p ; p = p -> next ){ count += 1 ;}
+return count ;
+}
+void list_delete ( struct list * list , ll_data_t data )
+{
+assert ( list && list -> first && list -> last );
+for ( struct list_node * p = list -> first ; p ; p = p -> next )
+{
+if ( p -> data == data )
+{
+if ( p == list -> first ){ list_shift ( list );}
+else if ( p == list -> last ){ list_pop ( list );}
+else
+{
+struct list_node * q = p ;
+p -> prev -> next = p -> next ;
+p -> next -> prev = p -> prev ;
+free ( q );
+}
+break ;
+}
+}
+}
+void list_print ( struct list * list )
+{
+assert ( list );
+printf ( "\"[ \"" );
+for ( struct list_node * p = list -> first ; p ; p = p -> next )
+{
+printf ( "\"%d \"" , p -> data );
+}
+printf ( "\"]\\n\"" );
+}
+void list_push ( struct list * list , ll_data_t item_data )
+{
+assert ( list );
+struct list_node * new_node = calloc ( 1 , sizeof ( struct list_node ));
+new_node -> data = item_data ;
+if ( ! list -> last && ! list -> first )
+{
+list -> first = new_node ;
+list -> last = new_node ;
+}
+else
+{
+list -> last -> next = new_node ;
+new_node -> prev = list -> last ;
+list -> last = new_node ;
+}
+}
+ll_data_t list_pop ( struct list * list )
+{
+assert ( list && list -> first && list -> last );
+ll_data_t temp = list -> last -> data ;
+if ( list -> last -> prev )
+{
+list -> last = list -> last -> prev ;
+free ( list -> last -> next );
+list -> last -> next = NULL ;
+}
+else
+{
+free ( list -> last );
+list -> last = NULL ;
+list -> first = NULL ;
+}
+return temp ;
+}
+ll_data_t list_shift ( struct list * list )
+{
+assert ( list && list -> first && list -> last );
+ll_data_t temp = ( list -> first ) -> data ;
+if ( list -> first -> next )
+{
+list -> first = list -> first -> next ;
+free ( list -> first -> prev );
+list -> first -> prev = NULL ;
+}
+else
+{
+free ( list -> first );
+list -> last = NULL ;
+list -> first = NULL ;
+}
+return temp ;
+}
+void list_unshift ( struct list * list , ll_data_t item_data )
+{
+assert ( list );
+struct list_node * new_node = calloc ( 1 , sizeof ( struct list_node ));
+new_node -> data = item_data ;
+if ( ! list -> last && ! list -> first )
+{
+list -> first = new_node ;
+list -> last = new_node ;
+}
+else
+{
+( list -> first ) -> prev = new_node ;
+new_node -> next = list -> first ;
+list -> first = new_node ;
+}
+}

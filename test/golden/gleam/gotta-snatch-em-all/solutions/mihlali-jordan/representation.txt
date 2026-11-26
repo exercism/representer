@@ -1,0 +1,216 @@
+(source_file
+  (import gleam/list)
+  (import gleam/set .
+    (unqualified_imports
+      (unqualified_import type Set)))
+  (import gleam/string)
+  (function pub new_collection
+    (function_parameters
+      (function_parameter PLACEHOLDER_1 :
+        (type String))) ->
+    (type Set
+      (type_arguments
+        (type_argument
+          (type String))))
+    (block
+      (binary_expression
+        (function_call
+          (field_access set . new)
+          (arguments)) |>
+        (function_call
+          (field_access set . insert)
+          (arguments
+            (argument PLACEHOLDER_1))))))
+  (function pub add_card
+    (function_parameters
+      (function_parameter PLACEHOLDER_2 :
+        (type Set
+          (type_arguments
+            (type_argument
+              (type String)))))
+      (function_parameter PLACEHOLDER_1 :
+        (type String))) ->
+    (tuple_type #
+      (type Bool)
+      (type Set
+        (type_arguments
+          (type_argument
+            (type String)))))
+    (block
+      (tuple #
+        (function_call
+          (field_access set . contains)
+          (arguments
+            (argument PLACEHOLDER_2)
+            (argument PLACEHOLDER_1)))
+        (function_call
+          (field_access set . insert)
+          (arguments
+            (argument PLACEHOLDER_2)
+            (argument PLACEHOLDER_1))))))
+  (function pub trade_card
+    (function_parameters
+      (function_parameter PLACEHOLDER_3 :
+        (type String))
+      (function_parameter PLACEHOLDER_4 :
+        (type String))
+      (function_parameter PLACEHOLDER_2 :
+        (type Set
+          (type_arguments
+            (type_argument
+              (type String)))))) ->
+    (tuple_type #
+      (type Bool)
+      (type Set
+        (type_arguments
+          (type_argument
+            (type String)))))
+    (block
+      (case
+        (case_subjects
+          (function_call
+            (field_access set . contains)
+            (arguments
+              (argument PLACEHOLDER_2)
+              (argument PLACEHOLDER_3)))
+          (function_call
+            (field_access set . contains)
+            (arguments
+              (argument PLACEHOLDER_2)
+              (argument PLACEHOLDER_4))))
+        (case_clauses
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (record_pattern True)
+                (record_pattern False))) ->
+            (tuple #
+              (record True)
+              (binary_expression
+                (function_call
+                  (field_access set . delete)
+                  (arguments
+                    (argument PLACEHOLDER_2)
+                    (argument PLACEHOLDER_3))) |>
+                (function_call
+                  (field_access set . insert)
+                  (arguments
+                    (argument PLACEHOLDER_4))))))
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (record_pattern True)
+                (record_pattern True))) ->
+            (tuple #
+              (record False)
+              (function_call
+                (field_access set . delete)
+                (arguments
+                  (argument PLACEHOLDER_2)
+                  (argument PLACEHOLDER_3)))))
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (record_pattern False) _)) ->
+            (tuple #
+              (record False)
+              (function_call
+                (field_access set . insert)
+                (arguments
+                  (argument PLACEHOLDER_2)
+                  (argument PLACEHOLDER_4)))))))))
+  (function pub boring_cards
+    (function_parameters
+      (function_parameter PLACEHOLDER_5 :
+        (type List
+          (type_arguments
+            (type_argument
+              (type Set
+                (type_arguments
+                  (type_argument
+                    (type String))))))))) ->
+    (type List
+      (type_arguments
+        (type_argument
+          (type String))))
+    (block
+      (case
+        (case_subjects PLACEHOLDER_5)
+        (case_clauses
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern))) ->
+            (list))
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern (variable PLACEHOLDER_6)
+                  (list_pattern_tail .. (variable PLACEHOLDER_7))))) ->
+            (block
+              (let (variable PLACEHOLDER_8) =
+                (binary_expression
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_7 |>
+                      (function_call
+                        (field_access list . fold)
+                        (arguments
+                          (argument PLACEHOLDER_6)
+                          (argument
+                            (field_access set . intersection))))) |>
+                    (field_access set . to_list)) |>
+                  (function_call
+                    (field_access list . sort)
+                    (arguments
+                      (argument
+                        (field_access string . compare)))))) PLACEHOLDER_8))))))
+  (function pub total_cards
+    (function_parameters
+      (function_parameter PLACEHOLDER_5 :
+        (type List
+          (type_arguments
+            (type_argument
+              (type Set
+                (type_arguments
+                  (type_argument
+                    (type String))))))))) ->
+    (type Int)
+    (block
+      (binary_expression
+        (binary_expression PLACEHOLDER_5 |>
+          (function_call
+            (field_access list . fold)
+            (arguments
+              (argument
+                (function_call
+                  (field_access set . new)
+                  (arguments)))
+              (argument
+                (field_access set . union))))) |>
+        (field_access set . size))))
+  (function pub shiny_cards
+    (function_parameters
+      (function_parameter PLACEHOLDER_2 :
+        (type Set
+          (type_arguments
+            (type_argument
+              (type String)))))) ->
+    (type Set
+      (type_arguments
+        (type_argument
+          (type String))))
+    (block
+      (binary_expression PLACEHOLDER_2 |>
+        (function_call
+          (field_access set . filter)
+          (arguments
+            (argument
+              (anonymous_function
+                (function_parameters
+                  (function_parameter PLACEHOLDER_1))
+                (block
+                  (function_call
+                    (field_access string . starts_with)
+                    (arguments
+                      (argument PLACEHOLDER_1)
+                      (argument "Shiny "))))))))))))

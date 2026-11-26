@@ -1,0 +1,62 @@
+$num0to9 = @( "\"zero\"" , "\"one\"" , "\"two\"" , "\"three\"" , "\"four\"" , "\"five\"" , "\"six\"" , "\"seven\"" , "\"eight\"" , "\"nine\"" );
+$num10to19 = @( "\"ten\"" , "\"eleven\"" , "\"twelve\"" , "\"thirteen\"" , "\"fourteen\"" , "\"fifteen\"" , "\"sixteen\"" , "\"seventeen\"" , "\"eighteen\"" , "\"nineteen\"" );
+$num20to90 = @( "\"twenty\"" , "\"thirty\"" , "\"forty\"" , "\"fifty\"" , "\"sixty\"" , "\"seventy\"" , "\"eighty\"" , "\"ninety\"" );
+Function checksubnum ([ int ] $Number ) {
+$s = "\"\"" ;
+if ( $Number -ge 100 ) {
+$s += $num0to9 [[ Math ]:: floor ( $Number / 100 )] + "\" hundred \"" ;
+$Number = $Number % 100 ;
+}
+if ( $Number -gt 0 ) {
+if ( $Number -ge 20 ) {
+$s += $num20to90 [[ Math ]:: floor ( $Number / 10 ) -2 ];
+$Number = $Number % 10 ;
+if ( $Number -ne 0 ) {
+$s += "\"-\"" + $num0to9 [ $Number ] + "\" \"" ;
+}
+} else {
+if ( $Number -ge 10 ) {
+$s += $num10to19 [ $Number % 10 ] + "\" \"" ;
+} else {
+$s += $num0to9 [ $Number ] + "\" \"" ;
+}
+}
+}
+return $s ;
+}
+Function Invoke -Say () {
+[ CmdletBinding ()]
+Param (
+[ int64 ] $Number
+)
+if ( $Number -eq 0 ) {
+return "\"zero\"" ;
+}
+if ( $Number -lt 0 ) {
+throw "\"*Cannot validate argument on parameter 'Number'*\"" ;
+}
+if ( $Number -gt 999999999999 ) {
+throw "\"*Cannot validate argument on parameter 'Number'\"" ;
+}
+$s = "\"\"" ;
+if ( $Number -ge 1000000000 ) {
+$s += checksubnum ([ Math ]:: floor ( $Number / 1000000000 ));
+$s += "\"billion \"" ;
+$Number = $Number % 1000000000 ;
+}
+if ( $Number -ge 1000000 ) {
+$s += checksubnum ([ Math ]:: floor ( $Number / 1000000 ));
+$s += "\"million \"" ;
+$Number = $Number % 1000000 ;
+}
+if ( $Number -ge 1000 ) {
+$s += checksubnum ([ Math ]:: floor ( $Number / 1000 ));
+$s += "\"thousand \"" ;
+$Number = $Number % 1000 ;
+}
+$s += checksubnum ([ Math ]:: floor ( $Number ));
+if ( $s . EndsWith ( "' '" )) {
+$s = $s . substring ( 0 , $s . Length-1 );
+}
+return $s ;
+}

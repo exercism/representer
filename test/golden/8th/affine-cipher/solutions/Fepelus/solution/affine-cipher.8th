@@ -1,0 +1,76 @@
+: >a "" s:/ ;
+: a> "" a:join ;
+
+: >charnum \ s -- n
+  0 s:@ 97 n:- nip
+;
+
+: charnum> \ n -- s
+  97 n:+ " " swap 0 swap s:!
+;
+
+: mmi \ n -- n
+  -1 true
+  repeat drop n:1+
+         2dup n:*
+         26 n:mod
+         1 n:= not
+  while  drop nip
+;
+
+: encodingmap \ n n a -- a
+  ( s:lc?
+    if    >charnum
+          3dup swap -rot
+          n:* n:+ 26 n:mod 
+          nip charnum>
+    then
+  ) a:map
+;
+
+: decodingmap \ n n a -- a
+  ( s:lc?
+    if    >charnum 3dup
+          swap n:-
+          swap mmi
+          n:* 26 n:mod
+          nip charnum>
+    then
+  ) a:map
+;
+
+: normalise \ a -- a
+  ( s:lc ) a:map
+  ( /[a-z0-9]/ r:match nip ) a:filter
+;
+
+: cipher-format \ s -- s
+  [5] s:/ " " a:join
+;
+
+: coprime? \ n n -- T
+  n:gcd 1 n:> not
+;
+
+: >code \ s n n -- s
+  over 26 coprime?
+  if   rot >a normalise 
+       encodingmap
+       a> nip nip
+       cipher-format
+  else 3drop null
+  then
+;
+
+: code> \ s n n -- s
+  over 26 coprime?
+  if   rot >a normalise 
+       decodingmap
+       a> nip nip
+  else 3drop null
+  then
+
+
+;
+
+

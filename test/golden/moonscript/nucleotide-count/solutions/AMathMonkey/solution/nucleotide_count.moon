@@ -1,6 +1,0 @@
-(strand) ->
-  counts = {A: 0, C: 0, G: 0, T: 0}
-  for c in strand\gmatch('.')
-    error('Invalid nucleotide in strand') unless counts[c]
-    counts[c] += 1
-  counts

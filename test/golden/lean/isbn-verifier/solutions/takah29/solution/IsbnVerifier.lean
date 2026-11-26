@@ -1,0 +1,19 @@
+namespace IsbnVerifier
+
+private def toNat? (c : Char) : Option Nat :=
+  if c.isDigit then some <| c.toNat - '0'.toNat
+  else if c == 'X' then some 10
+  else none
+
+def isValid (isbn : String) : Bool :=
+  let s := isbn.replace "-" ""
+  let normalizedIsbn? := do
+    guard (s.length == 10 && (s.take 9).all Char.isDigit)
+    s.toList.mapM toNat?
+
+  match normalizedIsbn? with
+  | none => false
+  | some normalizedIsbn =>
+    normalizedIsbn.zipWith (· * ·) (List.range' 1 10).reverse |> (·.sum % 11 == 0)
+
+end IsbnVerifier

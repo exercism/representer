@@ -1,0 +1,27 @@
+romanDigits : Char -> Char -> Char -> Nat -> [Char]
+romanDigits i v x c = 
+    match c with
+        0 -> []
+        1 -> [i]
+        2 -> [i, i]
+        3 -> [i, i, i]
+        4 -> [i, v]
+        5 -> [v]
+        6 -> [v, i]
+        7 -> [v, i, i]
+        8 -> [v, i, i, i]
+        9 -> [i, x]
+        _ -> [??]
+
+romanNumerals.toRoman : Nat -> Text
+romanNumerals.toRoman decimal =
+    List.foldLeft
+        (cases (acc, n) -> fn -> ((fn (Nat.mod n 10)) List.++ acc, Nat.div n 10))
+        ([], decimal)
+        [romanDigits ?I ?V ?X,
+         romanDigits ?X ?L ?C,
+         romanDigits ?C ?D ?M,
+         romanDigits ?M ?ↁ ?ↂ
+        ]
+        |> at1
+        |> fromCharList

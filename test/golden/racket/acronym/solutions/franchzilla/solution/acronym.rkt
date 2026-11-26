@@ -1,0 +1,10 @@
+#lang racket
+
+(provide acronym)
+
+(define (acronym string)
+  (list->string
+   (map char-upcase
+               (map car
+                    (map string->list
+                         (string-split string #px"[ _-]+"))))))

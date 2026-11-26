@@ -1,0 +1,44 @@
+(source_file
+  (unit_declaration unit module Matrix)
+  (subset_declaration subset StrictlyPositiveInteger
+    (trait of UInt) where
+    (binary_expression
+      (whatever *) != 0))
+  (subset_declaration subset StrOfDigits
+    (trait of Str) where
+    (unary_expression not
+      (regex "/<:!Number -:Separator -[\\R + -]>/")))
+  (routine_declaration sub extract-row
+    (signature "("
+      (parameter_list
+        (parameter
+          (type StrOfDigits) :$string) ,
+        (parameter
+          (type StrictlyPositiveInteger) :$index)) -->
+      (type Seq) ")")
+    (trait is export)
+    (block {
+      (method_call
+        (method_call
+          (method_call
+            (method_call $string . lines) . skip
+            (argument_list "("
+              (method_call $index . pred) ")")) . head) . words) }))
+  (routine_declaration sub extract-column
+    (signature "("
+      (parameter_list
+        (parameter
+          (type StrOfDigits) :$string) ,
+        (parameter
+          (type StrictlyPositiveInteger) :$index)) -->
+      (type Seq) ")")
+    (trait is export)
+    (block {
+      (method_listop_call
+        (method_call $string . lines) . map :
+        (method_call
+          (method_call
+            (method_call
+              (whatever *) . words) . skip
+            (argument_list "("
+              (method_call $index . pred) ")")) . head)) })))

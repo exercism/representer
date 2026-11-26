@@ -1,0 +1,49 @@
+(source_file
+  (unit_declaration unit module SumOfMultiples)
+  (routine_declaration sub sum-of-multiples
+    (signature "("
+      (parameter_list
+        (parameter :@factors) ,
+        (parameter :$limit)) ")")
+    (trait is export)
+    (block {
+      (if_statement if
+        (binary_expression
+          (binary_expression
+            (method_call @factors . elems) == 0) ||
+          (binary_expression $limit <= 1))
+        (block {
+          (listop_call return 0) }))
+      (assignment
+        (variable_declaration
+          (scope my) (local_array PLACEHOLDER_1)) =
+        (method_listop_call @factors . grep :
+          (binary_expression
+            (whatever *) > 0)))
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_2)) =
+        (listop_call SetHash
+          (topic_method_call . new)))
+      (for_statement for (array PLACEHOLDER_1)
+        (pointy_block ->
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_3)))
+          (block {
+            (assignment
+              (variable_declaration
+                (scope my) (local_scalar PLACEHOLDER_4)) =
+              (binary_expression
+                (binary_expression $limit - 1) div (scalar PLACEHOLDER_3)))
+            (for_statement for
+              (binary_expression 1 .. (scalar PLACEHOLDER_4))
+              (pointy_block ->
+                (parameter_list
+                  (parameter (local_scalar PLACEHOLDER_5)))
+                (block {
+                  (assignment
+                    (subscript (scalar PLACEHOLDER_2) {
+                      (binary_expression (scalar PLACEHOLDER_3) * (scalar PLACEHOLDER_5)) }) = True) }))) })))
+      (listop_call return
+        (method_call
+          (method_call (scalar PLACEHOLDER_2) . keys) . sum)) })))

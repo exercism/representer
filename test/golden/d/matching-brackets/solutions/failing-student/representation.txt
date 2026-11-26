@@ -1,0 +1,54 @@
+module matching_brackets ;
+bool
+isPaired ( in string expression ) {
+char [] stack = [ 0 ];
+foreach ( c ; expression ) {
+switch ( c ) {
+case '(' , '[' , '{' :
+stack ~= c ;
+break ;
+case ')' :
+if ( stack [$ - 1 ] != '(' )
+return 0 ;
+-- stack . length ;
+break ;
+case ']' :
+if ( stack [$ - 1 ] != '[' )
+return 0 ;
+-- stack . length ;
+break ;
+case '}' :
+if ( stack [$ - 1 ] != '{' )
+return 0 ;
+-- stack . length ;
+break ;
+default : break ;
+}
+}
+return stack . length == 1 ;
+}
+unittest
+{
+immutable int allTestsEnabled = 1 ;
+assert ( isPaired ( "\"[]\"" ));
+static if ( allTestsEnabled )
+{
+assert ( isPaired ( "\"\"" ));
+assert (! isPaired ( "\"[[\"" ));
+assert (! isPaired ( "\"}{\"" ));
+assert (! isPaired ( "\"{]\"" ));
+assert ( isPaired ( "\"{ }\"" ));
+assert (! isPaired ( "\"{[])\"" ));
+assert ( isPaired ( "\"{[]}\"" ));
+assert ( isPaired ( "\"{}[]\"" ));
+assert ( isPaired ( "\"([{}({}[])])\"" ));
+assert (! isPaired ( "\"{[)][]}\"" ));
+assert (! isPaired ( "\"([{])\"" ));
+assert (! isPaired ( "\"[({]})\"" ));
+assert (! isPaired ( "\"{}[\"" ));
+assert (! isPaired ( "\"[]]\"" ));
+assert ( isPaired ( "\"(((185 + 223.85) * 15) - 543)/2\"" ));
+assert ( isPaired (
+"\"\\\\left(\\\\begin{array}{cc} \\\\frac{1}{3} & x\\\\\\\\ \\\\mathrm{e}^{x} &... x^2 \\\\end{array}\\\\right)\"" ));
+}
+}

@@ -1,0 +1,89 @@
+(source_file
+  (class_definition CircularBuffer
+    (constructor_definition new
+      (parameter_list PLACEHOLDER_1)
+      (method_body
+        (expression_statement
+          (assignment_expression (field PLACEHOLDER_2) = PLACEHOLDER_1))
+        (expression_statement
+          (call_expression clear))))
+    (method_definition
+      (getter_definition PLACEHOLDER_3
+        (method_body
+          (expression_statement
+            (binary_expression (field PLACEHOLDER_4) >= (field PLACEHOLDER_2))))))
+    (method_definition
+      (getter_definition isEmpty
+        (method_body
+          (expression_statement
+            (binary_expression (field PLACEHOLDER_4) == 0)))))
+    (method_definition
+      (named_method write
+        (parameter_list value)
+        (method_body
+          (if_statement PLACEHOLDER_3
+            (expression_statement
+              (call_expression
+                (method_call_expression Fiber . abort)
+                (argument_list BufferFullError))))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression (field PLACEHOLDER_5)
+                (argument_list (field PLACEHOLDER_6))) = value))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_6) =
+              (conditional_expression
+                (binary_expression
+                  (binary_expression (field PLACEHOLDER_6) + 1) >= (field PLACEHOLDER_2)) ? 0 :
+                (binary_expression (field PLACEHOLDER_6) + 1))))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_4) =
+              (binary_expression (field PLACEHOLDER_4) + 1))))))
+    (method_definition
+      (named_method read
+        (parameter_list)
+        (method_body
+          (if_statement isEmpty
+            (expression_statement
+              (call_expression
+                (method_call_expression Fiber . abort)
+                (argument_list BufferEmptyError))))
+          (var_statement PLACEHOLDER_7 =
+            (subscript_expression (field PLACEHOLDER_5)
+              (argument_list (field PLACEHOLDER_8))))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_4) =
+              (binary_expression (field PLACEHOLDER_4) - 1)))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_8) =
+              (conditional_expression
+                (binary_expression
+                  (binary_expression (field PLACEHOLDER_8) + 1) >= (field PLACEHOLDER_2)) ? 0 :
+                (binary_expression (field PLACEHOLDER_8) + 1))))
+          (return_statement PLACEHOLDER_7))))
+    (method_definition
+      (named_method forceWrite
+        (parameter_list value)
+        (method_body
+          (if_statement PLACEHOLDER_3
+            (expression_statement
+              (call_expression read)))
+          (expression_statement
+            (call_expression write
+              (argument_list value))))))
+    (method_definition
+      (named_method clear
+        (parameter_list)
+        (method_body
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_5) =
+              (binary_expression
+                (list_literal null) * (field PLACEHOLDER_2))))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_4) = 0))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_6) = 0))
+          (expression_statement
+            (assignment_expression (field PLACEHOLDER_8) = 0))))))
+  (var_statement BufferFullError = "Buffer full")
+  (var_statement BufferEmptyError = "Buffer empty"))

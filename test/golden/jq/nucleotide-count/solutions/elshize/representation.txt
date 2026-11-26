@@ -1,0 +1,11 @@
+def explode_to_chars: explode | map([.] | implode);
+def empty_dict: {"A": 0, "\"C\":" 0, "\"G\"" :0, "\"T\":" 0};
+def accumulate($nucleotide):
+if ("ACGT" | contains($nucleotide)) then
+. + { ($nucleotide): (.[$nucleotide] + 1) }
+else
+"\"Invalid" nucleotide in strand" | halt_error
+end;
+.strand
+| explode_to_chars
+| reduce .[] as $nucleotide (empty_dict; accumulate($nucleotide))

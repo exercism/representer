@@ -1,0 +1,48 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DIAMOND.
+      
+       ENVIRONMENT DIVISION.
+      
+       DATA DIVISION.
+      
+       WORKING-STORAGE SECTION.
+       01 WS-INPUTVARS. 
+           05 WS-LETTER            PIC X.
+           05 WS-ROWS              PIC 99.
+      
+       01 WS-ALPHABET VALUE "ABCDEFGHIJKLMNOPQRSTUVWXYZ".
+         05 WS-ALPHA OCCURS 26 TIMES INDEXED BY WS-IDX PIC X.
+
+       01 WS-WRITEPOS                   PIC 99.
+      
+       01 WS-OUTPUTTABLE.
+           05 WS-TABLEROW OCCURS 1 TO 51 DEPENDING ON WS-ROWS.
+               10 WS-CHAR OCCURS 60 TIMES PIC X.
+
+       PROCEDURE DIVISION.
+       DIAMOND. 
+      * find WS-LETTER's position in alphabet
+       MOVE 1 TO WS-IDX
+       SEARCH WS-ALPHA VARYING WS-IDX
+         WHEN WS-ALPHA(WS-IDX) = WS-LETTER CONTINUE
+       END-SEARCH
+       MOVE WS-IDX TO WS-ROWS
+
+      * write top half of diamond; SPACES fill then insert char at index
+       PERFORM VARYING WS-IDX FROM 1 BY 1 UNTIL WS-IDX > WS-ROWS
+         MOVE SPACES TO WS-TABLEROW(WS-IDX)
+
+         COMPUTE WS-WRITEPOS = WS-ROWS - WS-IDX + 1
+         MOVE WS-ALPHA(WS-IDX) TO WS-CHAR(WS-IDX, WS-WRITEPOS)
+
+         COMPUTE WS-WRITEPOS = WS-WRITEPOS + 2 * (WS-IDX - 1)
+         MOVE WS-ALPHA(WS-IDX) TO WS-CHAR(WS-IDX, WS-WRITEPOS)
+       END-PERFORM
+
+      * copy top half to bottom half and set correct WS-ROWS value
+       SUBTRACT 1 FROM WS-IDX
+       PERFORM VARYING WS-IDX FROM WS-IDX BY -1 UNTIL WS-IDX = 0
+         MOVE WS-TABLEROW(WS-IDX) TO WS-TABLEROW(WS-ROWS)
+         ADD 1 TO WS-ROWS
+       END-PERFORM
+       .

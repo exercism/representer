@@ -1,0 +1,56 @@
+CLASS zcl_matrix DEFINITION
+PUBLIC
+FINAL
+CREATE PUBLIC .
+PUBLIC SECTION .
+TYPES integertab TYPE STANDARD TABLE OF i WITH EMPTY KEY .
+METHODS matrix_row
+IMPORTING
+string TYPE string
+index TYPE i
+RETURNING
+VALUE ( result ) TYPE integertab .
+METHODS matrix_column
+IMPORTING
+string TYPE string
+index TYPE i
+RETURNING
+VALUE ( result ) TYPE integertab .
+TYPES : begin of t_matrix ,
+row TYPE integertab ,
+end of t_matrix ,
+tt_matrix TYPE standard table of t_matrix with empty key .
+METHODS get_matrix_table
+IMPORTING
+! input TYPE string
+! i_row TYPE i optional
+! i_col TYPE i optional
+RETURNING
+VALUE ( result ) TYPE integertab .
+PROTECTED SECTION .
+PRIVATE SECTION .
+ENDCLASS .
+CLASS zcl_matrix IMPLEMENTATION .
+METHOD matrix_row .
+result = get_matrix_table ( input = string i_row = index ).
+ENDMETHOD .
+METHOD matrix_column .
+result = get_matrix_table ( input = string i_col = index ).
+ENDMETHOD .
+METHOD get_matrix_table .
+SPLIT input AT '\n' INTO TABLE DATA ( lt_input ).
+IF i_row IS NOT INITIAL AND line_exists ( lt_input [ i_row ] ).
+SPLIT lt_input [ i_row ] AT space INTO TABLE DATA ( ltrow ).
+result = VALUE # ( FOR i = 1 UNTIL i GT lines ( ltrow )
+( CONV i ( ltrow [ i ] ) )
+).
+ELSE .
+LOOP AT lt_input ASSIGNING FIELD-SYMBOL ( < line > ).
+SPLIT < line > AT space INTO TABLE DATA ( numbers ).
+IF i_col BETWEEN 1 AND lines ( numbers ).
+APPEND CONV i ( numbers [ i_col ] ) TO result .
+ENDIF .
+ENDLOOP .
+ENDIF .
+ENDMETHOD .
+ENDCLASS .

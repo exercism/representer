@@ -1,0 +1,84 @@
+(source_file
+  (unit_declaration unit module ProteinTranslation)
+  (assignment
+    (variable_declaration
+      (scope my) (local_hash PLACEHOLDER_1)) =
+    (list_expression
+      (assignment "AUG" => "Methionine") ,
+      (assignment "UUU" => "Phenylalanine") ,
+      (assignment "UUC" => "Phenylalanine") ,
+      (assignment "UUA" => "Leucine") ,
+      (assignment "UUG" => "Leucine") ,
+      (assignment "UCU" => "Serine") ,
+      (assignment "UCC" => "Serine") ,
+      (assignment "UCA" => "Serine") ,
+      (assignment "UCG" => "Serine") ,
+      (assignment "UAU" => "Tyrosine") ,
+      (assignment "UAC" => "Tyrosine") ,
+      (assignment "UGU" => "Cysteine") ,
+      (assignment "UGC" => "Cysteine") ,
+      (assignment "UGG" => "Tryptophan") ,
+      (assignment "UAA" => "STOP") ,
+      (assignment "UAG" => "STOP") ,
+      (assignment "UGA" => "STOP")))
+  (routine_declaration sub protein-translation
+    (signature "("
+      (parameter_list
+        (parameter
+          (type Str) (local_scalar PLACEHOLDER_2))) ")")
+    (trait is export)
+    (block {
+      (if_statement if
+        (binary_expression (scalar PLACEHOLDER_2) eq "")
+        (block {
+          (listop_call return
+            (parenthesized_expression "(" ")")) }))
+      (variable_declaration
+        (scope my) (local_array PLACEHOLDER_3))
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_4)) = 0)
+      (while_statement while
+        (binary_expression
+          (binary_expression (scalar PLACEHOLDER_4) + 3) <=
+          (method_call (scalar PLACEHOLDER_2) . chars))
+        (block {
+          (method_call (array PLACEHOLDER_3) . push
+            (argument_list "("
+              (method_call (scalar PLACEHOLDER_2) . substr
+                (argument_list "("
+                  (list_expression (scalar PLACEHOLDER_4) , 3) ")")) ")"))
+          (assignment (scalar PLACEHOLDER_4) 3) }))
+      (if_statement if
+        (binary_expression
+          (binary_expression (scalar PLACEHOLDER_4) <
+            (method_call (scalar PLACEHOLDER_2) . chars)) &&
+          (unary_expression !
+            (method_call (array PLACEHOLDER_3) . grep
+              (argument_list "("
+                (block {
+                  (binary_expression
+                    (subscript (hash PLACEHOLDER_1) { $_ }) eq "STOP") }) ")"))))
+        (block {
+          (listop_call die "Incomplete RNA sequence") }))
+      (variable_declaration
+        (scope my) (local_array PLACEHOLDER_5))
+      (for_statement for (array PLACEHOLDER_3)
+        (pointy_block ->
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_6)))
+          (block {
+            (unless_statement unless
+              (subscript (hash PLACEHOLDER_1) { (scalar PLACEHOLDER_6) } :exists)
+              (block {
+                (listop_call die
+                  (interpolated_string "Invalid codon: "
+                    (interpolation (scalar PLACEHOLDER_6)))) }))
+            (if_statement if
+              (binary_expression
+                (subscript (hash PLACEHOLDER_1) { (scalar PLACEHOLDER_6) }) eq "STOP")
+              (block { last }))
+            (method_call (array PLACEHOLDER_5) . push
+              (argument_list "("
+                (subscript (hash PLACEHOLDER_1) { (scalar PLACEHOLDER_6) }) ")")) })))
+      (listop_call return (array PLACEHOLDER_5)) })))

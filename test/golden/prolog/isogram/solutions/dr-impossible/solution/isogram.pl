@@ -1,0 +1,10 @@
+:- use_module(library(apply)).
+
+letter(A) :- char_type(A, alpha).
+
+isogram(Phrase) :- 
+    string_lower(Phrase, Lower),
+    string_chars(Lower, Chars),
+    include(letter, Chars, Letters),
+    msort(Letters, Sorted),
+    sort(Letters, Sorted).

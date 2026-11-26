@@ -1,0 +1,213 @@
+(source_file
+  (package_clause paasio)
+  (import_declaration
+    (import_spec_list
+      (import_spec "io")
+      (import_spec "sync")))
+  (type_declaration
+    (type_spec (type_identifier PLACEHOLDER_1)
+      (struct_type
+        (field_declaration_list
+          (field_declaration bytes int64)
+          (field_declaration (field_identifier PLACEHOLDER_2) int64)
+          (field_declaration
+            (qualified_type sync Mutex))))))
+  (type_declaration
+    (type_spec (type_identifier PLACEHOLDER_3)
+      (struct_type
+        (field_declaration_list
+          (field_declaration (type_identifier PLACEHOLDER_1))
+          (field_declaration w
+            (qualified_type io Writer))))))
+  (type_declaration
+    (type_spec (type_identifier PLACEHOLDER_4)
+      (struct_type
+        (field_declaration_list
+          (field_declaration (type_identifier PLACEHOLDER_1))
+          (field_declaration r
+            (qualified_type io Reader))))))
+  (type_declaration
+    (type_spec (type_identifier PLACEHOLDER_5)
+      (struct_type
+        (field_declaration_list
+          (field_declaration (type_identifier PLACEHOLDER_4))
+          (field_declaration (type_identifier PLACEHOLDER_3))))))
+  (method_declaration
+    (parameter_list
+      (parameter_declaration wc
+        (pointer_type * (type_identifier PLACEHOLDER_3)))) Write
+    (parameter_list
+      (parameter_declaration p
+        (slice_type byte)))
+    (parameter_list
+      (parameter_declaration n int)
+      (parameter_declaration err error))
+    (block
+      (statement_list
+        (assignment_statement
+          (expression_list n err) =
+          (expression_list
+            (call_expression
+              (selector_expression
+                (selector_expression wc w) Write)
+              (argument_list p))))
+        (if_statement
+          (binary_expression err == nil)
+          (block
+            (statement_list
+              (expression_statement
+                (call_expression
+                  (selector_expression wc Lock)
+                  (argument_list)))
+              (defer_statement
+                (call_expression
+                  (selector_expression wc Unlock)
+                  (argument_list)))
+              (inc_statement
+                (selector_expression wc (field_identifier PLACEHOLDER_2)) ++)
+              (assignment_statement
+                (expression_list
+                  (selector_expression wc bytes)) +=
+                (expression_list
+                  (call_expression int64
+                    (argument_list n)))))))
+        (return_statement))))
+  (method_declaration
+    (parameter_list
+      (parameter_declaration rc
+        (pointer_type * (type_identifier PLACEHOLDER_4)))) Read
+    (parameter_list
+      (parameter_declaration p
+        (slice_type byte)))
+    (parameter_list
+      (parameter_declaration n int)
+      (parameter_declaration err error))
+    (block
+      (statement_list
+        (assignment_statement
+          (expression_list n err) =
+          (expression_list
+            (call_expression
+              (selector_expression
+                (selector_expression rc r) Read)
+              (argument_list p))))
+        (if_statement
+          (binary_expression err == nil)
+          (block
+            (statement_list
+              (expression_statement
+                (call_expression
+                  (selector_expression rc Lock)
+                  (argument_list)))
+              (defer_statement
+                (call_expression
+                  (selector_expression rc Unlock)
+                  (argument_list)))
+              (inc_statement
+                (selector_expression rc (field_identifier PLACEHOLDER_2)) ++)
+              (assignment_statement
+                (expression_list
+                  (selector_expression rc bytes)) +=
+                (expression_list
+                  (call_expression int64
+                    (argument_list n)))))))
+        (return_statement))))
+  (method_declaration
+    (parameter_list
+      (parameter_declaration wc
+        (pointer_type * (type_identifier PLACEHOLDER_3)))) WriteCount
+    (parameter_list)
+    (parameter_list
+      (parameter_declaration n int64)
+      (parameter_declaration nops int))
+    (block
+      (statement_list
+        (expression_statement
+          (call_expression
+            (selector_expression wc Lock)
+            (argument_list)))
+        (defer_statement
+          (call_expression
+            (selector_expression wc Unlock)
+            (argument_list)))
+        (return_statement
+          (expression_list
+            (selector_expression wc bytes)
+            (call_expression int
+              (argument_list
+                (selector_expression wc (field_identifier PLACEHOLDER_2)))))))))
+  (method_declaration
+    (parameter_list
+      (parameter_declaration rc
+        (pointer_type * (type_identifier PLACEHOLDER_4)))) ReadCount
+    (parameter_list)
+    (parameter_list
+      (parameter_declaration n int64)
+      (parameter_declaration nops int))
+    (block
+      (statement_list
+        (expression_statement
+          (call_expression
+            (selector_expression rc Lock)
+            (argument_list)))
+        (defer_statement
+          (call_expression
+            (selector_expression rc Unlock)
+            (argument_list)))
+        (return_statement
+          (expression_list
+            (selector_expression rc bytes)
+            (call_expression int
+              (argument_list
+                (selector_expression rc (field_identifier PLACEHOLDER_2)))))))))
+  (function_declaration NewReadWriteCounter
+    (parameter_list
+      (parameter_declaration rw
+        (qualified_type io ReadWriter))) ReadWriteCounter
+    (block
+      (statement_list
+        (return_statement
+          (expression_list
+            (unary_expression &
+              (composite_literal (type_identifier PLACEHOLDER_5)
+                (literal_value
+                  (literal_element
+                    (composite_literal (type_identifier PLACEHOLDER_4)
+                      (literal_value
+                        (keyed_element
+                          (literal_element r) :
+                          (literal_element rw)))))
+                  (literal_element
+                    (composite_literal (type_identifier PLACEHOLDER_3)
+                      (literal_value
+                        (keyed_element
+                          (literal_element w) :
+                          (literal_element rw)))))))))))))
+  (function_declaration NewReadCounter
+    (parameter_list
+      (parameter_declaration r
+        (qualified_type io Reader))) ReadCounter
+    (block
+      (statement_list
+        (return_statement
+          (expression_list
+            (unary_expression &
+              (composite_literal (type_identifier PLACEHOLDER_4)
+                (literal_value
+                  (keyed_element
+                    (literal_element r) :
+                    (literal_element r))))))))))
+  (function_declaration NewWriteCounter
+    (parameter_list
+      (parameter_declaration w
+        (qualified_type io Writer))) WriteCounter
+    (block
+      (statement_list
+        (return_statement
+          (expression_list
+            (unary_expression &
+              (composite_literal (type_identifier PLACEHOLDER_3)
+                (literal_value
+                  (keyed_element
+                    (literal_element w) :
+                    (literal_element w)))))))))))

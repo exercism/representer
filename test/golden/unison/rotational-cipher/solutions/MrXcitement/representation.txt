@@ -1,0 +1,13 @@
+rotationalCipher . rotate : Text -> Nat -> Text
+rotationalCipher . rotate text shiftKey =
+  Text . map ( char -> rotateChar char shiftKey ) text
+rotateChar : Char -> Nat -> Char
+rotateChar char shiftKey =
+  match char with
+    c | Char . inRange ? a ? z c -> rotateInRange c ? a shiftKey |> getOrBug "\"Unable to rotate character!\""
+    c | Char . inRange ? A ? Z c -> rotateInRange c ? A shiftKey |> getOrBug "\"Unable to rotate character!\""
+    _ -> char
+rotateInRange : Char -> Char -> Nat -> Optional Char
+rotateInRange char base shiftKey =
+  natChar = Nat . mod ( Char . toNat char - Char . toNat base + shiftKey ) 26
+  Char . fromNat ( Char . toNat base + natChar )

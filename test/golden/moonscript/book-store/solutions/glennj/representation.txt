@@ -1,0 +1,64 @@
+contains = ( t , item ) ->
+  for elem in * t
+    return true if elem == item
+  false
+map = ( t , fn ) ->
+  result = {}
+  for i , elem in pairs t
+    result [ i ] = fn elem , i
+  result
+treverse = ( t ) ->
+  { i , j } = { 1 , # t }
+  while i < j
+    temp = t [ i ]
+    t [ i ] = t [ j ]
+    t [ j ] = temp
+    i += 1
+    j -= 1
+clone = ( t ) -> { table.unpack t }
+sorted = ( t ) ->
+  u = clone t
+  table.sort u
+  u
+{ :contains , :map , :treverse , :clone , :sorted }
+import contains , map from require 'lib/table'
+import sum from require 'lib/math'
+BookPrice = 800
+Discounted = {[ 0 ]: 1 . 0 , 1 . 0 , 0 . 95 , 0 . 90 , 0 . 80 , 0 . 75 }
+bundleBooks = ( basket ) ->
+  bundles = {{}}
+  local added
+  for book in * basket
+    added = false
+    for bundle in * bundles
+      if not contains bundle , book
+        table.insert bundle , book
+        added = true
+        break
+    if not added
+      table.insert bundles , { book }
+  bundles
+optimize = ( bundles ) ->
+  local b5 , b3
+  for bundle in * bundles
+    if # bundle == 5 then b5 = bundle
+    elseif # bundle == 3 then b3 = bundle
+  if not ( b5 and b3 ) then return bundles
+  for i , book in ipairs b5
+    if not contains b3 , book
+      table.insert b3 , book
+      table.remove b5 , i
+      break
+  optimize bundles
+total = ( basket ) ->
+  bundles = optimize bundleBooks basket
+  sum map bundles , ( bundle ) -> # bundle * BookPrice * Discounted [ # bundle ]
+{ :total }
+import fold from require 'moon'
+sum = ( t ) ->
+  fold { 0 , table.unpack t }, ( s , n ) -> s + n
+product = ( t ) ->
+  fold { 1 , table.unpack t }, ( prod , n ) -> prod * n
+gcd = ( a , b ) ->
+  b == 0 and a or gcd b , a % b
+{ :sum , :product , :gcd }

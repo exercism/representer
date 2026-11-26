@@ -1,0 +1,75 @@
+CLASS zcl_atbash_cipher DEFINITION PUBLIC FINAL CREATE PUBLIC .
+PUBLIC SECTION .
+DATA plain TYPE string VALUE 'abcdefghijklmnopqrstuvwxyz' .
+DATA cipher TYPE string VALUE 'zyxwvutsrqponmlkjihgfedcba' .
+DATA digits TYPE string VALUE '0123456789' .
+METHODS decode
+IMPORTING
+cipher_text TYPE string
+RETURNING
+VALUE ( plain_text ) TYPE string .
+METHODS encode
+IMPORTING
+plain_text TYPE string
+RETURNING
+VALUE ( cipher_text ) TYPE string .
+PROTECTED SECTION .
+PRIVATE SECTION .
+ENDCLASS .
+CLASS zcl_atbash_cipher IMPLEMENTATION .
+METHOD decode .
+DATA input TYPE string .
+DATA offset TYPE i .
+DATA pos TYPE i .
+DATA char TYPE string .
+DATA decoded TYPE string .
+input = cipher_text .
+TRANSLATE input TO LOWER CASE .
+DO strlen ( input ) TIMES .
+offset = sy-index - 1 .
+char = input + offset ( 1 ).
+FIND char IN plain MATCH OFFSET pos .
+IF sy-subrc = 0 .
+decoded = cipher + pos ( 1 ).
+ELSE .
+FIND char IN digits MATCH OFFSET pos .
+IF sy-subrc = 0 .
+decoded = char .
+ELSE .
+CONTINUE .
+ENDIF .
+ENDIF .
+plain_text = plain_text && decoded .
+ENDDO .
+ENDMETHOD .
+METHOD encode .
+DATA input TYPE string .
+DATA offset TYPE i .
+DATA pos TYPE i .
+DATA counter TYPE i .
+DATA char TYPE string .
+DATA encoded TYPE string .
+input = plain_text .
+TRANSLATE input TO LOWER CASE .
+DO strlen ( input ) TIMES .
+offset = sy-index - 1 .
+char = input + offset ( 1 ).
+FIND char IN plain MATCH OFFSET pos .
+IF sy-subrc = 0 .
+encoded = cipher + pos ( 1 ).
+ELSE .
+FIND char IN digits MATCH OFFSET pos .
+IF sy-subrc = 0 .
+encoded = char .
+ELSE .
+CONTINUE .
+ENDIF .
+ENDIF .
+IF counter > 0 AND counter MOD 5 = 0 .
+cipher_text = cipher_text && "` `" .
+ENDIF .
+cipher_text = cipher_text && encoded .
+counter = counter + 1 .
+ENDDO .
+ENDMETHOD .
+ENDCLASS .

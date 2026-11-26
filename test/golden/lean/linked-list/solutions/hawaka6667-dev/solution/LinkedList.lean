@@ -1,0 +1,135 @@
+import Std.Data.HashMap
+
+namespace LinkedList
+
+variable {α σ : Type} [BEq α]
+
+abbrev NodeSlot (α : Type) := Option (Option Nat × Option Nat × α)
+
+structure LinkedList (σ α : Type) where
+  head : ST.Ref σ (Option Nat)
+  tail : ST.Ref σ (Option Nat)
+  size : ST.Ref σ Nat
+  nodes : ST.Ref σ (Array (NodeSlot α))
+
+def LinkedList.empty : ST σ (LinkedList σ α) := do
+  let head : ST.Ref σ (Option Nat) ← ST.mkRef (none : Option Nat)
+  let tail : ST.Ref σ (Option Nat) ← ST.mkRef (none : Option Nat)
+  let size : ST.Ref σ Nat ← ST.mkRef 0
+  let nodes : ST.Ref σ (Array (NodeSlot α)) ← ST.mkRef (#[] : Array (NodeSlot α))
+  return { head, tail, size, nodes }
+
+def LinkedList.count (list : LinkedList σ α) : ST σ Nat :=
+  list.size.get
+
+def LinkedList.push (value : α) (list : LinkedList σ α) : ST σ Unit := do
+  let nodesArr : Array (NodeSlot α) ← list.nodes.get
+  let idx : Nat := nodesArr.size
+  let prevId : Option Nat ← list.tail.get
+  list.nodes.set (nodesArr.push (some (prevId, none, value)))
+  match prevId with
+  | some pid =>
+    let arr : Array (NodeSlot α) ← list.nodes.get
+    match arr[pid]? with
+    | some (some (p, _, v)) =>
+      list.nodes.set (arr.set! pid (some (p, some idx, v)))
+    | _ => pure ()
+  | none =>
+    list.head.set (some idx)
+  list.tail.set (some idx)
+  list.size.set ((← list.size.get) + 1)
+
+def LinkedList.unshift (value : α) (list : LinkedList σ α) : ST σ Unit := do
+  let nodesArr : Array (NodeSlot α) ← list.nodes.get
+  let idx : Nat := nodesArr.size
+  let nextId : Option Nat ← list.head.get
+  list.nodes.set (nodesArr.push (some (none, nextId, value)))
+  match nextId with
+  | some nid =>
+    let arr : Array (NodeSlot α) ← list.nodes.get
+    match arr[nid]? with
+    | some (some (_, n, v)) =>
+      list.nodes.set (arr.set! nid (some (some idx, n, v)))
+    | _ => pure ()
+  | none =>
+    list.tail.set (some idx)
+  list.head.set (some idx)
+  list.size.set ((← list.size.get) + 1)
+
+def LinkedList.pop (list : LinkedList σ α) : ST σ (Option α) := do
+  let tailId : Option Nat ← list.tail.get
+  match tailId with
+  | none => return none
+  | some tid =>
+    let arr : Array (NodeSlot α) ← list.nodes.get
+    match arr[tid]? with
+    | some (some (p, _, v)) =>
+      list.tail.set p
+      match p with
+      | some pid =>
+        let arr2 : Array (NodeSlot α) ← list.nodes.get
+        match arr2[pid]? with
+        | some (some (pp, _, pv)) =>
+          list.nodes.set (arr2.set! pid (some (pp, none, pv)))
+        | _ => pure ()
+      | none =>
+        list.head.set none
+      list.size.set ((← list.size.get) - 1)
+      return some v
+    | _ => return none
+
+def LinkedList.shift (list : LinkedList σ α) : ST σ (Option α) := do
+  let headId : Option Nat ← list.head.get
+  match headId with
+  | none => return none
+  | some hid =>
+    let arr : Array (NodeSlot α) ← list.nodes.get
+    match arr[hid]? with
+    | some (some (_, n, v)) =>
+      list.head.set n
+      match n with
+      | some nid =>
+        let arr2 : Array (NodeSlot α) ← list.nodes.get
+        match arr2[nid]? with
+        | some (some (_, nn, nv)) =>
+          list.nodes.set (arr2.set! nid (some (none, nn, nv)))
+        | _ => pure ()
+      | none =>
+        list.tail.set none
+      list.size.set ((← list.size.get) - 1)
+      return some v
+    | _ => return none
+
+partial def deleteGo (value : α) (list : LinkedList σ α) (cur : Option Nat) : ST σ Unit := do
+  match cur with
+  | none => return ()
+  | some id =>
+    let arr : Array (NodeSlot α) ← list.nodes.get
+    match arr[id]? with
+    | some (some (p, n, v)) =>
+      if v == value then
+        match p with
+        | some pid =>
+          let arr2 : Array (NodeSlot α) ← list.nodes.get
+          match arr2[pid]? with
+          | some (some (pp, _, pv)) =>
+            list.nodes.set (arr2.set! pid (some (pp, n, pv)))
+          | _ => pure ()
+        | none => list.head.set n
+        match n with
+        | some nid =>
+          let arr3 : Array (NodeSlot α) ← list.nodes.get
+          match arr3[nid]? with
+          | some (some (_, nn, nv)) =>
+            list.nodes.set (arr3.set! nid (some (p, nn, nv)))
+          | _ => pure ()
+        | none => list.tail.set p
+        list.size.set ((← list.size.get) - 1)
+      else
+        deleteGo value list n
+    | _ => return ()
+
+def LinkedList.delete (value : α) (list : LinkedList σ α) : ST σ Unit := do
+  deleteGo value list (← list.head.get)
+
+end LinkedList

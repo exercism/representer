@@ -1,0 +1,13 @@
+USING: kernel math math.bitwise ;
+IN: secrets
+
+: shift-back ( value amount -- result )
+    swap
+    32 bits swap neg shift
+    ;
+
+: set-bits ( value mask -- result ) bitor ;
+
+: flip-bits ( value mask -- result ) bitxor ;
+
+: clear-bits ( value mask -- result ) bitnot bitand ;

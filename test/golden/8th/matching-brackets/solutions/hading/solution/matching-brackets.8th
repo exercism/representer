@@ -1,0 +1,60 @@
+{ ")" : "(",
+  "]" : "[",
+  "}" : "{" }
+constant delimiters
+
+: normalize \ s -- s
+  /[^[\](){}]/ "" s:replace!
+;
+
+: add-to-stack \ a a -- a a
+  a:shift rot swap a:push swap
+ ;
+
+: closing-delimiter? \ a -- a T
+  0 a:@ delimiters swap m:exists? nip
+;
+
+: _empty? \ a -- T
+  a:_len 0 n:=
+;
+
+: empty? \ a -- a T
+  dup _empty?
+;
+
+\ stack chars -> stack chars delims-match
+: closes? \ a a -- a a T
+  over _empty? if false ;then
+  a:shift delimiters swap m:_@
+  rot a:pop \ at this point we have chars delim-from-chars stack delim-from-stack
+  rot s:= >r swap r>
+;
+
+\ first is stack, second is chars in string as strings
+: analyze \ a a -- T
+  empty?
+  if 
+    drop
+    _empty?
+  else
+    closing-delimiter?
+    if
+      closes?
+      if 
+        recurse
+      else
+        2drop
+        false
+      then
+    else \ opening 
+      add-to-stack
+      recurse
+    then
+  then
+;
+
+: paired? \ s -- T
+  normalize null s:/
+  a:new swap analyze
+;

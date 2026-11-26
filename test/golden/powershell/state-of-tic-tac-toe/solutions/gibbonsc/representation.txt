@@ -1,0 +1,70 @@
+enum GameStatus {
+ONGOING
+DRAW
+WIN
+}
+Function Get-StateOfTicTacToe () {
+[ CmdletBinding ()]
+Param (
+[ string []] $Board
+)
+$XMoves = @()
+$OMoves = @()
+$XRowWin , $ORowWin = $false , $false
+for ( $R = 0 ; $R -lt 3 ; $R ++ ) {
+if ( "\"XXX\"" -eq $Board [ $R ]) {
+$XRowWin = $true
+}
+elseif ( "\"OOO\"" -eq $Board [ $R ]) {
+$ORowWin = $true
+}
+for ( $C = 0 ; $C -lt 3 ; $C ++ ) {
+$Ch = $Board [ $R ] . Substring ( $C , 1 )
+switch ( $Ch ) {
+"\"X\"" { $XMoves += , "\"" $R , $C "\"" ; break }
+"\"O\"" { $OMoves += , "\"" $R , $C "\"" ; break }
+}
+}
+}
+if ( $XMoves . Count - $OMoves . Count -gt 1 ) {
+throw "\"Wrong turn order: X went twice\""
+}
+if ( $OMoves . Count - $XMoves . Count -gt 0 ) {
+throw "\"Wrong turn order: O started\""
+}
+$XColWin , $OColWin = $false , $false
+for ( $C = 0 ; $C -lt 3 ; $C ++ ) {
+if ( "\"0," $C "\"" -in $XMoves -and
+"\"1," $C "\"" -in $XMoves -and
+"\"2," $C "\"" -in $XMoves ) {
+$XColWin = $true
+}
+elseif ( "\"0," $C "\"" -in $OMoves -and
+"\"1," $C "\"" -in $OMoves -and
+"\"2," $C "\"" -in $OMoves ) {
+$OColWin = $true
+}
+}
+$XDiagWin , $ODiagWin = $false , $false
+if ( "\"1,1\"" -in $XMoves -and
+(( "\"0,0\"" -in $XMoves -and "\"2,2\"" -in $XMoves ) -or
+( "\"2,0\"" -in $XMoves -and "\"0,2\"" -in $XMoves ))) {
+$XDiagWin = $true
+}
+elseif ( "\"1,1\"" -in $OMoves -and
+(( "\"0,0\"" -in $OMoves -and "\"2,2\"" -in $OMoves ) -or
+( "\"2,0\"" -in $OMoves -and "\"0,2\"" -in $OMoves ))) {
+$ODiagWin = $true
+}
+if (( $XRowWin -and $ORowWin ) -or ( $XColWin -and $OColWin )) {
+throw "\"Impossible board: game should have ended after the game was won\""
+}
+if ( $XRowWin -or $XColWin -or $XDiagWin -or
+$ORowWin -or $OColWin -or $ODiagWin ) {
+return [ GameStatus ]:: WIN
+}
+elseif ( $XMoves . Count -eq 5 -and $OMoves . Count -eq 4 ) {
+return [ GameStatus ]:: DRAW
+}
+return [ GameStatus ]:: ONGOING
+}

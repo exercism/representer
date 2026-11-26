@@ -1,0 +1,52 @@
+Imports System
+
+Public Module RunLengthEncoding
+    Public Function Encode(ByVal input As String) As String
+        If String.IsNullOrEmpty(input)
+            return ""
+        End If
+        Dim count As Integer = 1
+        Dim result As String = ""
+        Dim pre As Char = input(0)
+        For i As Integer = 1 To input.Length-1
+            If input(i) = pre then
+                count += 1
+            Else
+                If count <> 1 Then
+                    result = result & Convert.ToString(count)
+                End If 
+                result = result & pre
+                count = 1
+            End If
+        pre = input(i)
+        Next i
+        If input(input.Length-1) = input(input.Length-2) Then
+            result = result & Convert.ToString(count)
+        End If
+        result = result & pre 
+        Return result
+    End Function
+
+    Public Function Decode(ByVal input As String) As String
+        If String.IsNullOrEmpty(input)
+            return ""
+        End If
+        Dim result As String = ""
+        Dim num As String = ""
+        For i As Integer = 0 To input.Length - 1
+            If Char.IsDigit(input(i)) Then 
+                num = num & input(i)
+            Elseif String.IsNullOrEmpty(num) Then
+                result = result & input(i)
+            Else 
+                Dim ind As Integer = Convert.ToInt32(num)-1
+                For j As Integer = 0 To ind
+                  result = result & input(i)
+                NEXT j
+                num=""
+            End If
+        Next i
+        Return result  
+              
+    End Function
+End Module

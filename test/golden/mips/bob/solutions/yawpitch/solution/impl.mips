@@ -1,0 +1,80 @@
+# | Register | Usage        | Type    | Description                   |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0`    | input        | address | null-terminated input string  |
+# | `$a1`    | input/output | address | null-terminated output string |
+# | `$t0`    | temporary    | address | required output message       |
+# | `$t1`    | temporary    | byte    | most recent non-WS character  |
+# | `$t2`    | temporary    | byte    | current character             |
+# | `$t3`    | flag         | boolean | contains upper case           |
+# | `$t4`    | flag         | boolean | contains lower case           |
+
+.globl response
+
+.data
+
+SILENCE:                .asciiz "Fine. Be that way!"
+YELLED:                 .asciiz "Whoa, chill out!"
+YELLED_QUESTION:        .asciiz "Calm down, I know what I'm doing!"
+QUIET:                  .asciiz "Whatever."
+QUIET_QUESTION:         .asciiz "Sure."
+
+.text
+
+response:
+        move    $t1, $zero              # zero non-WS character
+        move    $t3, $zero              # zero upper case flag
+        move    $t4, $zero              # zero lower case flag
+
+parse_loop:
+        lb      $t2, 0($a0)             # read character
+        addi    $a0, $a0, 1             # increment input pointer
+        beqz    $t2, select_response    # exit on NULL
+        ble     $t2, ' ', parse_loop    # skip WS
+        move    $t1, $t2                # store most recent non-WS character
+        blt     $t2, 'A', parse_loop    # skip punctuation < 'A'
+        ble     $t2, 'Z', parsed_upper
+        blt     $t2, 'a', parse_loop    # skip punctuation > 'Z' && < 'a'
+        bgt     $t2, 'z', parse_loop    # skip punctuation > 'z'
+
+parsed_lower:                           # input contains a lower case letter
+        li      $t4, 1
+        j       parse_loop
+
+parsed_upper:                           # input contains an upper case letter
+        li      $t3, 1
+        j       parse_loop
+
+select_response:
+        beqz    $t1, handle_silence     # if no input is present at all
+        bnez    $t4, handle_quiet       # if lower case letters are present
+        beqz    $t3, handle_quiet       # if no upper case letters are present
+
+handle_yelled:                          # respond to yelled inputs
+        beq     $t1, '?', handle_yelled_question
+        la      $t0, YELLED
+        j       strcopy
+
+handle_yelled_question:                 # respond to yelled questions
+        la      $t0, YELLED_QUESTION
+        j       strcopy
+
+handle_silence:                         # respond to silence
+        la      $t0, SILENCE
+        j       strcopy
+
+handle_quiet:                           # respond to quiet inputs
+        beq     $t1, '?', handle_quiet_question
+        la      $t0, QUIET
+        j       strcopy
+
+handle_quiet_question:                  # respond to quiet questions
+        la      $t0, QUIET_QUESTION
+        j       strcopy
+
+strcopy:
+        lb      $t2, 0($t0)             # load byte from src
+        sb      $t2, 0($a1)             # copy byte to dst
+        addi    $t0, $t0, 1             # increment src pointer
+        addi    $a1, $a1, 1             # increment dst pointer
+        bnez    $t2, strcopy            # repeat until NULL
+        jr      $ra

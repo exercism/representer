@@ -1,4 +1,0 @@
-fun accumulate (f, xs) =
-    case xs of
-        [] => []
-        | y :: ys' => f(y) :: accumulate (f, ys')

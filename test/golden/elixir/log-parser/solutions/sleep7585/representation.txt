@@ -1,0 +1,57 @@
+(source
+  (call defmodule
+    (arguments LogParser)
+    (do_block
+      (call def
+        (arguments
+          (call valid_line?
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (binary_operator PLACEHOLDER_1 =~
+            (sigil ~ r / ^ "\\[" "(DEBUG|INFO|WARNING|ERROR)" "\\]" /))))
+      (call def
+        (arguments
+          (call split_line
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (call
+            (dot Regex . split)
+            (arguments
+              (sigil ~ r / <[ "\\-" *=~]*> /) PLACEHOLDER_1))))
+      (call def
+        (arguments
+          (call remove_artifacts
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (call
+            (dot Regex . replace)
+            (arguments
+              (sigil ~ r / end-of-line "\\d" + / i) PLACEHOLDER_1 ""))))
+      (call def
+        (arguments
+          (call tag_with_user_name
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (call if
+            (arguments
+              (call
+                (dot Regex . match?)
+                (arguments
+                  (sigil ~ r / User /) PLACEHOLDER_1)))
+            (do_block
+              (binary_operator (variable PLACEHOLDER_2) =
+                (binary_operator
+                  (binary_operator
+                    (call
+                      (dot Regex . run)
+                      (arguments
+                        (sigil ~ r / "(?<=User" "\\s" ")" "\\s" "*(" "\\S" "+)" /) PLACEHOLDER_1)) |>
+                    (call
+                      (dot Enum . at)
+                      (arguments 1))) |>
+                  (call to_string
+                    (arguments))))
+              (string "[USER] "
+                (interpolation #{ PLACEHOLDER_2) " "
+                (interpolation #{ PLACEHOLDER_1))
+              (else_block PLACEHOLDER_1))))))))

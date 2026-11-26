@@ -1,0 +1,13 @@
+import Extra
+
+namespace ReverseList
+
+@[csimp]
+theorem custom_reverse_eq_spec_reverse : @Extra.custom_reverse = @List.reverse := by
+  funext α l
+  induction l with
+  | nil => rfl
+  | cons x xs ih =>
+    simp only [Extra.custom_reverse, ih, List.reverse_cons]
+
+end ReverseList

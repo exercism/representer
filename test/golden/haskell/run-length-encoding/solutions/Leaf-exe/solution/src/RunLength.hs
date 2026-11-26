@@ -1,0 +1,38 @@
+module RunLength (decode, encode) where
+
+import Data.Char
+
+decode :: String -> String
+decode = decodeH2 . decodeH1
+
+decodeH1 :: String -> [(Int,Char)]
+decodeH1 [] = []
+decodeH1 (x:xs) = if isNumber x then let num = toInt (takeWhile isNumber (x:xs))
+                                         fstlttr = dropWhile isNumber (x:xs) in
+                                     (num,head fstlttr) : decodeH1 (tail fstlttr)
+                  else (1,x) : decodeH1 xs
+
+decodeH2 :: [(Int,Char)] -> String
+decodeH2 [] = []
+decodeH2 ((n,c):xs) = replicate n c ++ decodeH2 xs
+
+
+toInt :: String -> Int
+toInt xs = read xs :: Int
+
+encode :: String -> String
+encode text = encodeH2 $ encodeH1 text 1
+
+encodeH1 :: String -> Int ->  [(Int,Char)]
+encodeH1 [] _  = []
+encodeH1 (x:xs) n = if length (x:xs) /= 1
+                     then
+                      if x == head xs 
+                      then encodeH1 xs (n+1) 
+                      else (n,x) : encodeH1 xs 1
+                     else [(n,x)]
+
+encodeH2 :: [(Int,Char)] -> String
+encodeH2 [] = []
+encodeH2 ((1,c):xs) = c : encodeH2 xs
+encodeH2 ((n,c):xs) = show n ++ [c] ++ encodeH2 xs 

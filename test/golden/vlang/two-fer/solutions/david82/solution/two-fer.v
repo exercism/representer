@@ -1,6 +1,0 @@
-module main
-
-fn two_fer(name string) string {
-	yourname := if name != '' { name } else { 'you' }
-	return 'One for ${yourname}, one for me.'
-}

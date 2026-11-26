@@ -1,0 +1,22 @@
+queenAttack.create : (Nat,Nat) -> {Abort} (Nat,Nat)
+queenAttack.create coordinates =
+  match coordinates with
+    (x,y)
+      | (x < 8 ) && (y < 8) -> (x,y)
+    _                       -> abort
+
+queenAttack.canAttack  : (Nat,Nat) -> (Nat,Nat) -> {Abort} Boolean
+queenAttack.canAttack whiteQ blackQ =
+  whiteQueen = create whiteQ
+  blackQueen = create blackQ
+  -- Simple function we are treating with naturals
+  dif_nat cw cb = if cw > cb then (cw - cb) else (cb - cw)
+  -- matching for the patterns
+  match (whiteQueen , blackQueen) with
+    ((rw,cw) , (rb,cb)) -> let 
+        dif_col = dif_nat cw cb 
+        dif_row = dif_nat rw rb 
+        same_col  = cw == cb
+        same_diag = dif_col ==  dif_row
+        same_row  = rw == rb
+        same_col || same_diag || same_row

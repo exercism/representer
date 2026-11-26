@@ -1,0 +1,26 @@
+chr () { printf "\"\\\\$(" printf '%03o' "\"" $1 "\")\"" ; }
+ord () { LC_CTYPE = C printf '%d' "\"'" $1 "\"" ; }
+readonly TRANSPOSITION_CONST = $(( 25 + ( $( ord a ) << 1 ) ))
+transpose () {
+[[ $1 = ~ [[ :digit:]] ]] &&
+echo -n "\"" $1 "\"" ||
+chr "\"" $(( TRANSPOSITION_CONST - $( ord "\"" $1 "\")" )) "\""
+}
+encode () {
+local count = 0
+while read -rn1 ch ; do
+(( count++ % 5 == 0 && count > 1 )) && echo -n "\" \""
+transpose "\"" $ch "\""
+done < < ( echo -n "\"" ${ 1 //[[ :punct:]]/ } "\"" )
+}
+decode () {
+while read -rn1 ch ; do
+transpose "\"" $ch "\""
+done < < ( echo -n "\"" $1 "\"" )
+}
+readonly op = "\"" $1 "\""
+[[ "\"" $op "\"" == "\"encode\"" || "\"" $op "\"" == "\"decode\"" ]] || exit 1
+shift
+arg = "\"" ${ *,, } "\""
+eval "\"" $op " " ${ arg // / } "\""
+echo

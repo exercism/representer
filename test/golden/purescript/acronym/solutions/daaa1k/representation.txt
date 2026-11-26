@@ -1,0 +1,24 @@
+module Acronym
+  ( abbreviate
+  ) where
+import Prelude
+import Data.Array ( foldl )
+import Data.Either ( Either ( .. ))
+import Data.String ( Pattern ( .. ), Replacement ( .. ), replace , split , toUpper )
+import Data.String.CodeUnits as CU
+import Data.String.Regex ( regex , replace ) as R
+import Data.String.Regex.Flags as F
+abbreviate :: String -> String
+abbreviate =
+  foldl f "\"\""
+  <<< split ( Pattern "\" \"" )
+  <<< splitPascal
+  <<< replace ( Pattern "\"-\"" ) ( Replacement "\" \"" )
+  where
+    f :: String -> String -> String
+    f acc s = acc <> ( toUpper $ ( CU . take 1 s ))
+splitPascal :: String -> String
+splitPascal s =
+  case R . regex "\"([A-Z])\"" F . global of
+    Right r -> R . replace r "\" $1\"" s
+    Left _ -> s

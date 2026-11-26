@@ -1,0 +1,56 @@
+CLASS zcl_matrix DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    TYPES integertab TYPE STANDARD TABLE OF i WITH EMPTY KEY.
+    METHODS matrix_row
+      IMPORTING
+        string        TYPE string
+        index         TYPE i
+      RETURNING
+        VALUE(result) TYPE integertab.
+    METHODS matrix_column
+      IMPORTING
+        string        TYPE string
+        index         TYPE i
+      RETURNING
+        VALUE(result) TYPE integertab.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+
+
+CLASS zcl_matrix IMPLEMENTATION.
+  METHOD matrix_row.
+    DATA: rows      TYPE string_table,
+          values    TYPE string_table,
+          value     TYPE string,
+          number    TYPE i.
+  
+    SPLIT string AT '\n' INTO TABLE rows.
+    SPLIT rows[ index ] AT space INTO TABLE values.
+  
+    LOOP AT values INTO value.
+      number = value.
+      APPEND number TO result.
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD matrix_column.
+    DATA: rows      TYPE string_table,
+          value     TYPE string,
+          values    TYPE string_table.
+  
+    SPLIT string AT '\n' INTO TABLE rows.
+  
+    LOOP AT rows INTO string.
+      SPLIT rows[ sy-tabix ] AT space INTO TABLE values.
+      
+      APPEND values[ index ] TO result.
+    ENDLOOP.
+  ENDMETHOD.
+ENDCLASS.

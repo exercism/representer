@@ -1,0 +1,26 @@
+package House;
+
+use v5.40;
+
+use Exporter qw<import>;
+our @EXPORT_OK = qw<recite>;
+
+my $x = [
+  [ q{house that Jack built.} ], [ q{malt}, q{lay in} ], [ q{rat}, q{ate} ],
+  [ q{cat}, q{killed} ], [ q{dog}, q{worried} ],
+  [ q{cow with the crumpled horn}, q{tossed} ],
+  [ q{maiden all forlorn}, q{milked} ],
+  [ q{man all tattered and torn}, q{kissed} ],
+  [ q{priest all shaven and shorn}, q{married} ],
+  [ q{rooster that crowed in the morn}, q{woke} ],
+  [ q{farmer sowing his corn}, q{kept} ],
+  [ q{horse and the hound and the horn}, q{belonged to} ],
+];
+
+sub recite ( $start, $end ) {
+  return join qq{\n}, map { qq{This is the $x->[$_]->[0]} . join q{},
+    map { qq{ that $x->[$_]->[1] the $x->[$_-1]->[0]} } reverse 1 .. $_ }
+      --$start .. --$end;
+}
+
+1;

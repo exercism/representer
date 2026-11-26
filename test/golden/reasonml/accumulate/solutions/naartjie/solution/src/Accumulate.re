@@ -1,0 +1,1 @@
+let accumulate = (fn, li) => li |> List.map(fn);

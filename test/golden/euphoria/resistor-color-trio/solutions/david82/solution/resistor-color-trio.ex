@@ -1,0 +1,31 @@
+global constant KILO = 1000,
+                MEGA = 1000000,
+                GIGA = 1000000000
+
+constant COLORS = {
+    "black", "brown", "red", "orange", "yellow",
+    "green", "blue", "violet", "grey", "white"
+}
+
+function color_code(sequence color)
+    return find(color, COLORS) - 1
+end function
+
+public function value(sequence colors)
+    atom d1 = color_code(colors[1])
+    atom d2 = color_code(colors[2])
+    atom d3 = color_code(colors[3])
+
+    -- 'atom' handles values exceeding 31-bit integer limits (e.g., 99 gigaohms)
+    atom total = (d1 * 10 + d2) * power(10, d3)
+
+    if total >= GIGA and remainder(total, GIGA) = 0 then
+        return sprintf("%d gigaohms", total / GIGA)
+    elsif total >= MEGA and remainder(total, MEGA) = 0 then
+        return sprintf("%d megaohms", total / MEGA)
+    elsif total >= KILO and remainder(total, KILO) = 0 then
+        return sprintf("%d kiloohms", total / KILO)
+    else
+        return sprintf("%d ohms", total)
+    end if
+end function

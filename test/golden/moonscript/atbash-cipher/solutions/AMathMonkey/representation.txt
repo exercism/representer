@@ -1,0 +1,19 @@
+encode_char = ( c ) ->
+  if c \ match '[A-Za-z]' then string.char 'z' \ byte ! - c \ lower !\ byte ! + 'a' \ byte !
+  else if c \ match '[0-9]' then c
+  else nil
+{
+  encode: ( phrase ) ->
+    res = {}
+    i = 0
+    for c in phrase \ gmatch '.'
+      if c1 = encode_char c
+        if i == 5
+          table.insert res , "' '"
+          i = 0
+        table.insert res , c1
+        i += 1
+    table.concat res
+  decode: ( phrase ) ->
+    table.concat [ encode_char ( c ) or '' for c in phrase \ gmatch '.' ]
+}

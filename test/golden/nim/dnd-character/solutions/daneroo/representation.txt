@@ -1,0 +1,129 @@
+(source_file
+  (import_statement
+    (expression_list
+      (call
+        (accent_quoted /)
+        (argument_list std
+          (array_construction algorithm math random)))))
+  (type_section
+    (type_declaration
+      (type_symbol_declaration
+        (exported_symbol Character *)) =
+      (object_declaration object
+        (field_declaration_list
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol strength *))
+              (symbol_declaration
+                (exported_symbol dexterity *))
+              (symbol_declaration
+                (exported_symbol constitution *))
+              (symbol_declaration
+                (exported_symbol intelligence *))
+              (symbol_declaration
+                (exported_symbol wisdom *))
+              (symbol_declaration
+                (exported_symbol charisma *))
+              (symbol_declaration
+                (exported_symbol hitpoints *))) :
+            (type_expression int))))))
+  (proc_declaration
+    (exported_symbol modifier *)
+    (parameter_declaration_list
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration score)) :
+        (type_expression int))) :
+    (type_expression int) =
+    (statement_list
+      (dot_expression
+        (call floor
+          (argument_list
+            (call
+              (accent_quoted /)
+              (argument_list
+                (call
+                  (accent_quoted -)
+                  (argument_list
+                    (dot_expression score . float) 10)) 2)))) . int)))
+  (proc_declaration
+    (exported_symbol ability *)
+    (parameter_declaration_list) :
+    (type_expression int) =
+    (statement_list
+      (var_section
+        (variable_declaration
+          (symbol_declaration_list
+            (symbol_declaration (local PLACEHOLDER_1))) :
+          (type_expression
+            (bracket_expression array
+              (argument_list 4 int)))))
+      (for for
+        (symbol_declaration_list
+          (symbol_declaration i)) in
+        (call
+          (accent_quoted ..)
+          (argument_list 0 3)) :
+        (statement_list
+          (assignment
+            (bracket_expression PLACEHOLDER_1
+              (argument_list i)) =
+            (call rand
+              (argument_list
+                (call
+                  (accent_quoted ..)
+                  (argument_list 1 6)))))))
+      (call
+        (dot_expression PLACEHOLDER_1 . sort)
+        (argument_list
+          (equal_expression order = Descending)))
+      (assignment result =
+        (call
+          (accent_quoted +)
+          (argument_list
+            (call
+              (accent_quoted +)
+              (argument_list
+                (bracket_expression PLACEHOLDER_1
+                  (argument_list 0))
+                (bracket_expression PLACEHOLDER_1
+                  (argument_list 1))))
+            (bracket_expression PLACEHOLDER_1
+              (argument_list 2)))))))
+  (proc_declaration
+    (exported_symbol initcharacter *)
+    (parameter_declaration_list) :
+    (type_expression Character) =
+    (statement_list
+      (call randomize
+        (argument_list))
+      (assignment result =
+        (call Character
+          (argument_list
+            (colon_expression strength :
+              (call ability
+                (argument_list)))
+            (colon_expression dexterity :
+              (call ability
+                (argument_list)))
+            (colon_expression constitution :
+              (call ability
+                (argument_list)))
+            (colon_expression intelligence :
+              (call ability
+                (argument_list)))
+            (colon_expression wisdom :
+              (call ability
+                (argument_list)))
+            (colon_expression charisma :
+              (call ability
+                (argument_list))))))
+      (assignment
+        (dot_expression result . hitpoints) =
+        (call
+          (accent_quoted +)
+          (argument_list 10
+            (call modifier
+              (argument_list
+                (dot_expression result . constitution)))))))))

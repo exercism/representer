@@ -1,0 +1,66 @@
+type direction =
+| Top
+| TopRight
+| Right
+| BottomRight
+| Bottom
+| BottomLeft
+| Left
+| TopLeft ;
+let calculate = ( map , direction , ( x , y )) => {
+let width = String . length ( map [ 0 ]);
+let height = Array . length ( map );
+switch ( direction ) {
+| Top => y > 0 ? map [ y - 1 ] . [ x ] == '*' ? 1 : 0 : 0
+| TopRight => y > 0 && x < width - 1 ? map [ y - 1 ] . [ x + 1 ] == '*' ? 1 : 0 : 0
+| Right => x < width - 1 ? map [ y ] . [ x + 1 ] == '*' ? 1 : 0 : 0
+| BottomRight =>
+y < height - 1 && x < width - 1 ? map [ y + 1 ] . [ x + 1 ] == '*' ? 1 : 0 : 0
+| Bottom => y < height - 1 ? map [ y + 1 ] . [ x ] == '*' ? 1 : 0 : 0
+| BottomLeft =>
+y < height - 1 && x > 0 ? map [ y + 1 ] . [ x - 1 ] == '*' ? 1 : 0 : 0
+| Left => x > 0 ? map [ y ] . [ x - 1 ] == '*' ? 1 : 0 : 0
+| TopLeft => y > 0 && x > 0 ? map [ y - 1 ] . [ x - 1 ] == '*' ? 1 : 0 : 0
+};
+};
+let annotate = map =>
+if ( Array . length ( map ) == 0 ) {
+[ || ];
+} else {
+let width = String . length ( map [ 0 ]);
+let height = Array . length ( map );
+let initMap = Array . make ( height , Array . make ( width , 0 ));
+let count =
+Array . fold_left (
+( acc , dir ) =>
+Array . mapi (
+( i , r ) =>
+Array . mapi (( j , s ) => s + calculate ( map , dir , ( j , i )) , r ) ,
+acc ,
+) ,
+initMap ,
+[ |
+Top ,
+TopRight ,
+Right ,
+BottomRight ,
+Bottom ,
+BottomLeft ,
+Left ,
+TopLeft ,
+| ] ,
+);
+Array . mapi (
+( i , r ) =>
+String . mapi (
+( j , c ) =>
+if ( c == '*' ) {
+c ;
+} else {
+count [ i ][ j ] != 0 ? string_of_int ( count [ i ][ j ]) . [ 0 ] : "' '" ;
+} ,
+r ,
+) ,
+map ,
+);
+};

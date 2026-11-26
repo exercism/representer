@@ -1,0 +1,100 @@
+Public Class SimpleLinkedList(Of T)
+    Implements IEnumerable(Of T)
+
+    Private Class Node
+        Public Property Value As T
+        Public Property NextNode As Node
+        Public Sub New(ByVal value As T)
+            Me.Value = value
+        End Sub
+    End Class
+
+    Private _head As Node
+    Private _count As Integer
+
+    Public Sub New()
+    End Sub
+
+    Public Sub New(ByVal ParamArray values As T())
+        For i = 0 To UBound(values)
+            Push(values(i))
+        Next
+    End Sub
+
+    Public Property Count As Integer
+        Get
+            Return _count
+        End Get
+        Private Set(value As Integer)
+            _count = value
+        End Set
+    End Property
+
+    Public Sub Push(ByVal value As T)
+
+        Dim node As New Node(value) With {.NextNode = _head}
+        _head = node
+        _count += 1
+
+    End Sub
+
+    Public Function Pop() As T
+        If _head Is Nothing Then
+            Throw New InvalidOperationException()
+        End If
+
+        Dim value As T = _head.Value
+        _head = _head.NextNode
+        _count -= 1
+
+        Return value
+    End Function
+
+    Public Function Peek() As T
+        If _head Is Nothing Then
+            Throw New InvalidOperationException("")
+        End If
+
+        Return _head.Value
+    End Function
+
+    Public Function ToList() As List(Of T)
+        Dim result As New List(Of T)
+        Dim current = _head
+
+        While current IsNot Nothing
+            result.Add(current.Value)
+            current = current.NextNode
+        End While
+
+        Return result
+    End Function
+
+    Public Sub Reverse()
+        Dim prev As Node = Nothing
+        Dim current As Node = _head
+        Dim nextNode As Node
+
+        While current IsNot Nothing
+            nextNode = current.NextNode
+            current.NextNode = prev
+            prev = current
+            current = nextNode
+        End While
+
+        _head = prev
+    End Sub
+
+    Public Iterator Function GetEnumerator() As IEnumerator(Of T) Implements IEnumerable(Of T).GetEnumerator
+        Dim current = _head
+
+        While current IsNot Nothing
+            Yield current.Value
+            current = current.NextNode
+        End While
+    End Function
+
+    Private Function IEnumerable_GetEnumerator() As IEnumerator Implements IEnumerable.GetEnumerator
+        Return GetEnumerator()
+    End Function
+End Class

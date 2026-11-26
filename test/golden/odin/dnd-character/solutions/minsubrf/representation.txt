@@ -1,0 +1,41 @@
+package dnd_character
+import "\"core:math/rand\""
+import "\"core:slice\""
+Character :: struct {
+strength: int,
+dexterity: int,
+constitution: int,
+intelligence: int,
+wisdom: int,
+charisma: int,
+hitpoints: int,
+}
+modifier :: proc(score: int) -> int {
+if (score %% 2 == 0) {
+return (score - 10) / 2
+} else {
+return (score - 11) / 2
+}
+}
+ability :: proc() -> int {
+dies: [4]int = {
+rand.int_range(1, 7),
+rand.int_range(1, 7),
+rand.int_range(1, 7),
+rand.int_range(1, 7),
+}
+slice.sort(dies[:])
+return dies[1] + dies[2] + dies[3]
+}
+character :: proc() -> Character {
+constitution := ability()
+return Character {
+strength = ability(),
+dexterity = ability(),
+constitution = constitution,
+intelligence = ability(),
+wisdom = ability(),
+charisma = ability(),
+hitpoints = 10 + modifier(constitution),
+}
+}

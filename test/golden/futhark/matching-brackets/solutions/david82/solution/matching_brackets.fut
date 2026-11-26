@@ -1,0 +1,66 @@
+-- Helper function to check if a character is an opening bracket
+def is_opening_bracket (c: u8): bool =
+  c == '(' || c == '[' || c == '{'
+
+-- Helper function to check if a character is a closing bracket
+def is_closing_bracket (c: u8): bool =
+  c == ')' || c == ']' || c == '}'
+
+-- Helper function to get the matching opening bracket for a closing bracket
+def get_matching_opening (c: u8): u8 =
+  if c == ')' then '('
+  else if c == ']' then '['
+  else if c == '}' then '{'
+  else 0u8
+
+-- Helper function to check if a character is a bracket
+def is_bracket (c: u8): bool =
+  is_opening_bracket c || is_closing_bracket c
+
+-- Convert character to bracket value for stack operations
+-- Returns: 1 for (, 2 for [, 3 for {, -1 for ), -2 for ], -3 for }, 0 for non-bracket
+def bracket_value (c: u8): i32 =
+  if c == '(' then 1
+  else if c == '[' then 2
+  else if c == '{' then 3
+  else if c == ')' then -1
+  else if c == ']' then -2
+  else if c == '}' then -3
+  else 0
+
+-- Check if two bracket values match (opening and closing)
+def brackets_match (open_val: i32) (close_val: i32): bool =
+  (open_val == 1 && close_val == -1) ||  -- () 
+  (open_val == 2 && close_val == -2) ||  -- []
+  (open_val == 3 && close_val == -3)     -- {}
+
+-- Process brackets using a proper stack simulation
+-- We'll use a fixed-size array to simulate the stack
+def is_paired (value: []u8): bool =
+  let bracket_values = map bracket_value value
+  let max_stack_size = length bracket_values
+  let (stack, stack_size, is_valid) =
+    loop (s, size, valid) = (replicate max_stack_size 0, 0, true) for i < length bracket_values do
+      if !valid then (s, size, false)
+      else
+        let v = bracket_values[i]
+        in if v > 0 then
+          -- Opening bracket - push to stack
+          let new_stack = scatter (copy s) [size] [v]
+          in (new_stack, size + 1, true)
+        else if v < 0 then
+          -- Closing bracket - check if it matches
+          if size == 0 then
+            (s, size, false)  -- No opening bracket to match
+          else
+            let last_open = s[size - 1]
+            in if brackets_match last_open v then
+              let new_stack = scatter (copy s) [size - 1] [0]
+              in (new_stack, size - 1, true)
+            else
+              (s, size, false)  -- Mismatched brackets
+        else
+          -- Non-bracket character - ignore
+          (s, size, true)
+  in is_valid && stack_size == 0
+   

@@ -1,0 +1,113 @@
+(source_file
+  (package_declaration
+    (scope my) class X::BankAccount::Closed
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "account not open" })) }))
+  (package_declaration
+    (scope my) class X::BankAccount::AlreadyOpen
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "account already open" })) }))
+  (package_declaration
+    (scope my) class X::BankAccount::AmountNotPositive
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "amount must be greater than 0" })) }))
+  (package_declaration
+    (scope my) class X::BankAccount::NoOverdraft
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "amount must be less than balance" })) }))
+  (package_declaration class BankAccount
+    (block {
+      (assignment
+        (variable_declaration
+          (scope has) (local_scalar PLACEHOLDER_1)) = 0)
+      (assignment
+        (variable_declaration
+          (scope has) (local_scalar PLACEHOLDER_2)) = False)
+      (assignment
+        (variable_declaration
+          (scope has) (local_scalar PLACEHOLDER_3)) =
+        (listop_call Lock
+          (topic_method_call . new)))
+      (routine_declaration method open
+        (block {
+          (method_listop_call (scalar PLACEHOLDER_3) . protect :
+            (block {
+              (if_statement if (scalar PLACEHOLDER_2)
+                (block {
+                  (listop_call die
+                    (listop_call X::BankAccount::AlreadyOpen
+                      (topic_method_call . new))) }))
+              (assignment (scalar PLACEHOLDER_2) = True)
+              (assignment (scalar PLACEHOLDER_1) = 0) })) }))
+      (routine_declaration method close
+        (block {
+          (method_listop_call (scalar PLACEHOLDER_3) . protect :
+            (block {
+              (unless_statement unless (scalar PLACEHOLDER_2)
+                (block {
+                  (listop_call die
+                    (listop_call X::BankAccount::Closed
+                      (topic_method_call . new))) }))
+              (assignment (scalar PLACEHOLDER_2) = False) })) }))
+      (routine_declaration method balance
+        (block {
+          (method_listop_call (scalar PLACEHOLDER_3) . protect :
+            (block {
+              (unless_statement unless (scalar PLACEHOLDER_2)
+                (block {
+                  (listop_call die
+                    (listop_call X::BankAccount::Closed
+                      (topic_method_call . new))) }))
+              (listop_call return (scalar PLACEHOLDER_1)) })) }))
+      (routine_declaration method withdraw
+        (signature "("
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_4))) ")")
+        (block {
+          (if_statement if
+            (binary_expression (scalar PLACEHOLDER_4) <= 0)
+            (block {
+              (listop_call die
+                (listop_call X::BankAccount::AmountNotPositive
+                  (topic_method_call . new))) }))
+          (method_listop_call (scalar PLACEHOLDER_3) . protect :
+            (block {
+              (unless_statement unless (scalar PLACEHOLDER_2)
+                (block {
+                  (listop_call die
+                    (listop_call X::BankAccount::Closed
+                      (topic_method_call . new))) }))
+              (if_statement if
+                (binary_expression (scalar PLACEHOLDER_4) > (scalar PLACEHOLDER_1))
+                (block {
+                  (listop_call die
+                    (listop_call X::BankAccount::NoOverdraft
+                      (topic_method_call . new))) }))
+              (assignment (scalar PLACEHOLDER_1) (scalar PLACEHOLDER_4)) })) }))
+      (routine_declaration method deposit
+        (signature "("
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_4))) ")")
+        (block {
+          (if_statement if
+            (binary_expression (scalar PLACEHOLDER_4) <= 0)
+            (block {
+              (listop_call die
+                (listop_call X::BankAccount::AmountNotPositive
+                  (topic_method_call . new))) }))
+          (method_listop_call (scalar PLACEHOLDER_3) . protect :
+            (block {
+              (unless_statement unless (scalar PLACEHOLDER_2)
+                (block {
+                  (listop_call die
+                    (listop_call X::BankAccount::Closed
+                      (topic_method_call . new))) }))
+              (assignment (scalar PLACEHOLDER_1) (scalar PLACEHOLDER_4)) })) })) })))

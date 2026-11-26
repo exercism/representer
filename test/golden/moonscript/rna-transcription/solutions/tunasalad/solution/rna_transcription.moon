@@ -1,8 +1,0 @@
-map =
-  A: "U"
-  C: "G"
-  G: "C"
-  T: "A"
-
-(dna) ->
-  table.concat [ map[dna\sub i, i] for i = 1, dna\len! ]

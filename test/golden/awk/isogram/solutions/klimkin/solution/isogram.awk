@@ -1,0 +1,20 @@
+BEGIN {
+    FS=""
+    is_isogram = 1
+}
+{
+    for (i = 1; i <= NF; i++) {
+        c = tolower($i)
+        if (c ~ /[^a-z]/) {
+            continue
+        }
+        if (seen[c]) {
+            is_isogram = 0
+            exit 0
+        }
+        seen[c] = 1
+    }
+}
+END {
+    print(is_isogram ? "true" : "false")
+}

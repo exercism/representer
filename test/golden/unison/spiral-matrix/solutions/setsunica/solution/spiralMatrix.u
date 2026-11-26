@@ -1,0 +1,31 @@
+next : ((Int, Int), (Int, Int))
+  -> (Int, Int)
+  -> (Int, Int)
+  -> (((Int, Int), (Int, Int)), (Int, Int), (Int, Int))
+next lim pos vel =
+  match (lim, pos, vel) with
+    (limx@(_, ux), (ly, uy)), (px, py), (+1, +0)
+      | px == ux -> ((limx, ((ly + +1), uy)), (px, py + +1), (+0, +1))
+    ((lx, ux), limy@(_, uy)), (px, py), (+0, +1)
+      | py == uy -> (((lx, (ux - +1)), limy), (px - +1, py), (-1, +0))
+    (limx@(lx, _), (ly, uy)), (px, py), (-1, +0)
+      | px == lx -> ((limx, (ly, (uy - +1))), (px, py - +1), (+0, -1))
+    ((lx, ux), limy@(ly, _)), (px, py), (+0, -1)
+      | py == ly -> ((((lx + +1), ux), limy), (px + +1, py), (+1, +0))
+    _, (px, py), (vx, vy) -> (lim, (px + vx, py + vy), vel)
+
+spiralMatrix.spiralMatrix : Nat -> [[Nat]]
+spiralMatrix.spiralMatrix n =
+  len = n Nat.* n
+  n' = toInt n
+  data.Array.new! 0 len (ma -> let
+    l0 = ((+0, (n' - +1)), (+0, (n' - +1)))
+    p0 = (+0, +0)
+    v0 = (+1, +0)
+    List.rangeClosed 1 len |> List.foldLeft_ (l0, p0, v0) (s i -> match s with
+      l, p, v ->
+        j = p |> cases (x, y) -> n' * y + x |> toNat |> Optional.getOrBug "invalid index"
+        Array.write ma j i
+        next l p v
+    ) |> ignore
+  ) |> Array.toList |> List.chunk n

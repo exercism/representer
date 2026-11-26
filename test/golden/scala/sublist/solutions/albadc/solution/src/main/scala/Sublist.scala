@@ -1,0 +1,26 @@
+abstract class Sublist {
+  def sublist(first: List[Int], second: List[Int]): Sublist.Compared
+
+}
+
+object Sublist extends Sublist{
+
+  sealed trait Compared
+
+  case object Equal extends Compared
+
+  case object Sublist extends Compared
+
+  case object Superlist extends Compared
+
+  case object Unequal extends Compared
+
+  def sublist(first: List[Int], second: List[Int]): Compared = (first, second) match {
+    case (f,s) if f.equals(s) => Equal
+    case (f,s) if f.containsSlice(s) => Superlist
+    case (f,s) if s.containsSlice(f) => Sublist
+    case _ => Unequal
+  }
+
+
+}

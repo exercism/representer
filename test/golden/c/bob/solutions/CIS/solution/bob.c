@@ -1,0 +1,40 @@
+#include <ctype.h>
+#include <stdbool.h>
+#include "bob.h"
+
+char *hey_bob(char *greeting) {
+    bool has_lower = false;
+    bool has_upper = false;
+    bool is_question = false;
+    bool is_silence = true;
+    int end = 0;
+    int i = 0;
+    while (greeting[i] != '\0') {
+        char curr = greeting[i];
+        if (isspace(curr)) {
+            ++i;
+            continue;
+        }
+        if (isalnum(curr)) {
+            if (!has_lower && islower(curr)) {
+                has_lower = true;
+            }
+            if (!has_upper && isupper(curr)) {
+                has_upper = true;
+            }
+        }
+        if (is_silence) {
+            is_silence = false;
+        }
+        end = i;
+        ++i;
+    }
+    if (greeting[end] == '?') {
+        is_question = true;
+    }
+    if (is_silence) return "Fine. Be that way!";
+    if (!has_lower && has_upper && is_question) return "Calm down, I know what I'm doing!";
+    if (!has_lower && has_upper) return "Whoa, chill out!";
+    if (is_question) return "Sure.";
+    return "Whatever.";
+}

@@ -1,0 +1,37 @@
+module Diamond (rows) where
+
+import Prelude
+
+import Data.Array (length, reverse, init, zip)
+import Data.Enum (enumFromTo)
+import Data.Maybe (fromMaybe)
+import Data.String.CodeUnits (fromCharArray)
+import Data.Tuple (Tuple(..))
+import Data.Unfoldable (replicate)
+
+rows :: Char -> Array String
+rows = toCharrArray >>> withIndex >>> firstQuadrant >>> mirrorVertically >>> mirrorHorizontally >>> map fromCharArray
+  where
+    toCharrArray :: Char -> Array Char 
+    toCharrArray c = enumFromTo 'A' c
+
+    withIndex :: Array Char -> Array (Tuple Char Int)
+    withIndex cs = zip cs $ enumFromTo 1 $ length cs
+
+    firstQuadrant :: Array (Tuple Char Int) -> Array (Array Char)
+    firstQuadrant ts = map (expandIndexedCharToRow $ length ts) ts
+
+    expandIndexedCharToRow :: Int -> Tuple Char Int -> Array Char
+    expandIndexedCharToRow n (Tuple c i) = replicate (n - i) space <> [c] <> replicate (i - 1) space 
+
+    mirrorVertically :: Array (Array Char) -> Array (Array Char)
+    mirrorVertically xs = mirror <$> xs
+
+    mirrorHorizontally :: Array (Array Char) -> Array (Array Char)
+    mirrorHorizontally xs = mirror $ xs
+
+    mirror :: ∀ a. Array a -> Array a
+    mirror cs = cs <> fromMaybe [] (reverse <$> init cs)
+
+    space :: Char
+    space = ' '

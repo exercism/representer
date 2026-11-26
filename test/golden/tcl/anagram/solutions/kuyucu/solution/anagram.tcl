@@ -1,0 +1,25 @@
+proc findAnagrams {subject candidates} {
+
+    set subjChars [lsort [split [string tolower $subject] {}]]
+    set validCand {}
+    foreach candidate $candidates {
+        set candChars [lsort [split [string tolower $candidate] {}]]
+        set cond 1
+        if {[string tolower $candidate] == [string tolower $subject]} {
+            set cond 0
+        }
+        if { [llength $subjChars] == [llength $candChars] } {
+            for { set i 0 } { $i < [llength $subjChars] } { incr i } {
+                if { [lindex $subjChars $i] != [lindex $candChars $i] } {
+                    set cond 0
+                }
+            }
+        } else {
+            set cond 0
+        }
+        if {$cond == 1} {
+            lappend validCand $candidate
+        }
+    }
+    return $validCand
+}

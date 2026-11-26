@@ -1,0 +1,7 @@
+class TwoFer {
+
+    static String twoFer(String name) {
+        name = name ?: "you"
+        "One for ${name}, one for me."
+    }
+}

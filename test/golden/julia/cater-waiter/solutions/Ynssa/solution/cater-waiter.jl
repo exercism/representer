@@ -1,0 +1,51 @@
+function clean_ingredients(dish_name, dish_ingredients)
+    return (dish_name,Set(dish_ingredients))
+end
+
+function check_drinks(drink_name, drink_ingredients)
+    ing= Set(drink_ingredients)
+    drink_type=isdisjoint(ing,ALCOHOLS) ? "Mocktail" : "Cocktail"
+    return drink_name *" "*drink_type
+    
+end
+
+function categorize_dish(dish_name, dish_ingredients)
+    if issubset(dish_ingredients,VEGAN) 
+        return dish_name*": "* "VEGAN"
+    elseif  issubset(dish_ingredients,VEGETARIAN)
+        return dish_name*": "* "VEGETARIAN"
+    elseif  issubset(dish_ingredients,PALEO)
+        return dish_name*": "* "PALEO"
+    elseif  issubset(dish_ingredients,KETO)
+        return dish_name*": "* "KETO"
+    else
+        return dish_name* ": "* "OMNIVORE"
+    end
+        
+    
+end
+
+function tag_special_ingredients(dish)
+    return(dish[1],Set(intersect(dish[2],SPECIAL_INGREDIENTS)))
+    
+end
+
+function compile_ingredients(dishes)
+    ing=Set()
+    for dish in dishes
+        union!(ing,dish)
+    end 
+    return ing
+end
+
+function separate_appetizers(dishes, appetizers)
+    return setdiff(dishes,appetizers)
+end
+
+function singleton_ingredients(dishes, intersection)
+    all_ingredients = Set()
+    for dish in dishes
+        union!(all_ingredients, dish)
+    end
+    return setdiff(all_ingredients, intersection)
+end

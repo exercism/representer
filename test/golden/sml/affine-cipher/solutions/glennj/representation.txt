@@ -1,0 +1,51 @@
+fun mmi ( a : int , m : int ): int =
+let fun mmi' ( a , m , x ) =
+if m = x then 0
+else if ( a * x ) mod m = 1 then x
+else mmi' ( a , m , x + 1 )
+in mmi' ( a , m , 0 )
+end
+fun gcd ( a : int , b : int ): int =
+if b = 0 then a else gcd ( b , a mod b )
+fun hypot ( x : real , y : real ): real =
+Math . sqrt ( x * x + y * y )
+fun factorial 0 = 1
+| factorial n = n * factorial ( n - 1 )
+fun choose ( n , k ) = ( factorial n ) div ( factorial k * factorial ( n - k ))
+infix choose
+fun log ( n : real , base : int ): real =
+( Math . ln n ) / ( Math . ln ( real base ))
+fun stringSubstrings ( len : int ) ( s : string ): string list =
+if s = "\"\"" then []
+else if size s < len then [ s ]
+else ( String . substring ( s , 0 , len )) :: ( stringSubstrings len ( String . extract ( s , len , NONE )))
+fun addSpaces ( chunkSize : int ) ( word : string ): string =
+String . concatWith "\" \"" ( stringSubstrings chunkSize word )
+use "\"math-utils.sml\"" ;
+use "\"string-utils.sml\"" ;
+local
+val m = 26
+val A = Char . ord #"a"
+fun encipher ( phrase : string ) ( a : int ) ( f : int -> int ): string =
+if gcd ( a , m ) <> 1
+then raise Fail "\"a and m must be coprime.\""
+else let val cs = ( ( List . map Char . toLower )
+o ( List . filter Char . isAlphaNum )
+o explode
+) phrase
+fun translate c = if Char . isAlpha c
+then Char . chr ( A + f ( Char . ord c - A ))
+else c
+in implode ( List . map translate cs )
+end
+in
+fun encode ( key : { a : int , b : int }, phrase : string ): string =
+let fun encoder x = (( #a key ) * x + ( #b key )) mod m
+in addSpaces 5 ( encipher phrase ( #a key ) encoder )
+end
+fun decode ( key : { a : int , b : int }, phrase : string ): string =
+let val a' = mmi (( #a key ), m )
+fun decoder y = ( a' * ( y - ( #b key ))) mod m
+in encipher phrase ( #a key ) decoder
+end
+end

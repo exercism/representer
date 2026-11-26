@@ -1,0 +1,78 @@
+#include <stddef.h>
+
+#include "intergalactic_transmission.h"
+
+int getparity(int b) {
+    int parity = 0;
+    for (int j=1;j<8;j++) {
+       if ((b & (1 << j))>0) {
+          if (parity==0) 
+             parity = 1;
+          else
+             parity = 0;
+       }
+    }
+    return parity;
+}
+
+bool checkparity(int b) {
+    int parity = 0;
+    for (int j=1;j<8;j++) {
+       if ((b & (1 << j))>0) {
+          if (parity==0) 
+             parity = 1;
+          else
+             parity = 0;
+       }
+    }
+    if (parity==(b&1))
+        return true;
+    return false;
+}
+
+int transmit_sequence(uint8_t *buffer, const uint8_t *message,
+                      int message_length) {
+    if (message==NULL) {
+        return 0;
+    }
+    int maxbits = message_length*8;
+    int maxmsg = (message_length*8+6)/7;
+    int i = 0;
+    int bitsi = 0;
+    while (bitsi<maxbits) {
+        int b = (message[bitsi/8] << (bitsi%8));
+        if ((bitsi%8>=2) && (i<maxmsg-1))
+            b += (message[(bitsi+7)/8] >> (8-(bitsi%8)));
+        b &= 0xfe;
+        b |= getparity(b);
+        buffer[i] = b;
+        bitsi += 7;
+        i++;
+    }
+    return i;
+}
+
+int decode_message(uint8_t *buffer, const uint8_t *message, int message_length) {
+    if (message==NULL) {
+        return 0;
+    }
+    int maxbits = (message_length*7/8)*8;
+    int i = 0;
+    int bitsi = 0;
+    while (bitsi<maxbits) {
+        int btmp = message[bitsi/7];
+        if (checkparity(btmp)==false) {
+            return WRONG_PARITY;
+        }
+        btmp = message[(bitsi+7)/7];
+        if (checkparity(btmp)==false) {
+            return WRONG_PARITY;
+        }
+        int b = ((message[bitsi/7] &0xfe) << (bitsi%7));
+        b += (message[(bitsi+7)/7] >> (7-(bitsi%7)));         
+        buffer[i] = b;
+        bitsi += 8;
+        i++;
+    }
+    return i;
+}

@@ -1,0 +1,22 @@
+let string_to_list = (str) => {
+  let rec str_to_l = (s, acc) => {
+    switch s {
+    | "" => acc
+    | n => str_to_l(String.sub(s, 1, String.length(s) - 1), List.cons(String.get(n, 0), acc))
+    }
+  };
+  str_to_l(str, []);
+};
+
+let is_anagrams = (str1, str2) => {
+  let lowered_str1 = String.lowercase_ascii(str1);
+  let lowered_str2 = String.lowercase_ascii(str2);
+
+  if (lowered_str1 == lowered_str2) {
+    false;
+  } else {
+    List.sort(Char.compare, string_to_list(lowered_str1)) == List.sort(Char.compare, string_to_list(lowered_str2));
+  }
+}
+
+let anagrams = (subject, candidates) => List.filter((c) => is_anagrams(c, subject), candidates)

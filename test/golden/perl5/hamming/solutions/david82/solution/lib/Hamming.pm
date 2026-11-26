@@ -1,0 +1,27 @@
+package Hamming;
+
+use v5.42;
+
+use Exporter qw<import>;
+our @EXPORT_OK = qw<hamming_distance>;
+
+sub hamming_distance ( $strand1, $strand2 ) {
+    # 1. Enforce length constraints: Hamming distance requires equal lengths
+    if ( length($strand1) != length($strand2) ) {
+        die "strands must be of equal length";
+    }
+
+    my $distance = 0;
+    my $len      = length($strand1);
+
+    # 2. Iterate index by index comparing matching characters
+    for ( my $i = 0; $i < $len; $i++ ) {
+        if ( substr($strand1, $i, 1) ne substr($strand2, $i, 1) ) {
+            $distance++;
+        }
+    }
+
+    return $distance;
+}
+
+1;

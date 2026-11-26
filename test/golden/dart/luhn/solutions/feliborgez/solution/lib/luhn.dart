@@ -1,0 +1,27 @@
+class Luhn {
+  bool valid(String input) {
+    final rgx = RegExp(r'^([0-9]\s*){2,}$');
+    if (!rgx.hasMatch(input)) return false;
+    input = input.replaceAll(' ', '');
+
+    return
+        input
+        .split('')
+        .map(int.parse)
+        .mapIndexed((i, e) {
+          if ((i + 1).isEven == input.length.isEven) return e;
+          final doubled = e * 2;
+          return (doubled >= 10) ? doubled - 9 : doubled;
+        })
+        .reduce((v, e) => v + e) % 10 == 0;
+  }
+}
+
+extension ExtendedIterable<E> on Iterable<E> {
+  Iterable<T> mapIndexed<T>(T Function(int i, E e) f) sync* {
+    var i = 0;
+    for (var e in this) {
+      yield f(i++, e);
+    }
+  }
+}

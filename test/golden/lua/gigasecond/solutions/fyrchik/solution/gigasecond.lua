@@ -1,5 +1,0 @@
-return {
-    anniversary = function (n)
-        return os.date('%x', n + 10^9)
-    end
-}

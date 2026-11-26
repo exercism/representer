@@ -1,0 +1,39 @@
+Function Invoke-Encode () {
+[ CmdletBinding ()]
+Param (
+[ string ] $Phrase
+)
+$Phrase , $abc , $cba = set-variables -Phrase $Phrase
+$output = ''
+foreach ( $letter in $Phrase . ToLower () . ToCharArray ()) {
+if ( $letter -match '[0-9]' ) {
+$output += $letter
+} else {
+$output += $cba [ $abc . IndexOf ( $letter )]
+}
+}
+return (( $output -split '(.{5})' -ne '' ) -join "' '" )
+}
+Function Invoke -Decode (){
+[ CmdletBinding ()]
+Param (
+[ string ] $Phrase
+)
+$Phrase , $abc , $cba = set-variables -Phrase $Phrase
+$output = ''
+foreach ( $letter in $Phrase . ToLower () . ToCharArray ()) {
+if ( $letter -match '[0-9]' ) {
+$output += $letter
+} else {
+$output += $abc [ $cba . IndexOf ( $letter )]
+}
+}
+return $output
+}
+function set -variables ( $Phrase ) {
+$abc = $cba = @()
+97 .. 122 | ForEach-Object { $abc += [ char ] $_ }
+122 .. 97 | ForEach -Object { $cba += [ char ] $_ }
+return ( $Phrase -replace "\"\\W\"" ), $abc , $cba
+}
+Invoke -Encode -Phrase "\"Testing,1 2 3, testing.\""

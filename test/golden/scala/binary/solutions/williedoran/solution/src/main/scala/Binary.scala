@@ -1,0 +1,23 @@
+/**
+ * Created by doranw on 15/03/2016.
+ */
+case class Binary(value:String) {
+  val Pattern = "(^[01]+$)".r
+
+  private def calculateDecimalValue(number: String): Int = {
+    number.reverse.zipWithIndex.foldLeft(0){
+      case (currentTotal, (char, currentIndex)) => {
+        currentTotal + char.asDigit * Math.pow(2, currentIndex).toInt
+      }
+    }
+
+  }
+
+  lazy val toDecimal: Int = {
+    value match {
+      case Pattern(number) => calculateDecimalValue(number)
+      case _ => 0
+    }
+  }
+
+}

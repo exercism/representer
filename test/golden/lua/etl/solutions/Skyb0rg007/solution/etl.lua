@@ -1,0 +1,12 @@
+
+local function transform(dataset)
+    local t = {}
+    for k, v in pairs(dataset) do
+        for _, x in ipairs(v) do
+            t[string.lower(x)] = k
+        end
+    end
+    return t
+end
+    
+return { transform = transform }

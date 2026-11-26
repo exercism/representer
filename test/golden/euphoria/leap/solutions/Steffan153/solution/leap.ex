@@ -1,5 +1,0 @@
-include std/math.e
-
-public function leap(integer year) 
-  return mod(year, 4) = 0 and mod(year, 100) > 0 or mod(year, 400) = 0    
-end function

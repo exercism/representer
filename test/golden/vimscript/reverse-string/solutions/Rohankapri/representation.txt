@@ -1,0 +1,37 @@
+function ! IsCombining ( c ) abort
+let l : val = char2nr ( a:c )
+if l : val >= 0 x 0300 && l : val <= 0 x 036 F | return 1
+elseif l : val >= 0 x 1 AB 0 && l : val <= 0 x 1 AFF | return 1
+elseif l : val >= 0 x 1 DC 0 && l : val <= 0 x 1 DFF | return 1
+elseif l : val >= 0 x 20 D 0 && l : val <= 0 x 20 FF | return 1
+elseif l : val >= 0 x 2 DE 0 && l : val <= 0 x 2 DFF | return 1
+elseif l : val >= 0 xFE 20 && l : val <= 0 xFE 2 F | return 1
+else
+return l : val >= 0 x 0 E 31 && l : val <= 0 x 0 E 3 A || l : val >= 0 x 0 E 47 && l : val <= 0 x 0 E 4 E
+endif
+endfunction
+function ! UnicodeSplit ( s ) abort
+let l : grp = [] | let l : tmp = []
+for l : idx in range ( strchars ( a:s ))
+let l : ch = strcharpart ( a:s , l : idx , 1 )
+if IsCombining ( l : ch )
+call add ( l : tmp , l : ch )
+continue
+endif
+if len ( l : tmp )
+call add ( l : grp , join ( l : tmp , '' ))
+let l : tmp = []
+endif
+call add ( l : tmp , l : ch )
+endfor
+if len ( l : tmp ) | call add ( l : grp , join ( l : tmp , '' )) | endif
+return l : grp
+endfunction
+function ! Reverse ( text ) abort
+let l : blk = UnicodeSplit ( a:text )
+let l : rev = []
+for l : step in range ( len ( l : blk ) - 1 , 0 , -1 )
+call add ( l : rev , l : blk [ l : step ])
+endfor
+return join ( l : rev , '' )
+endfunction

@@ -1,0 +1,16 @@
+UPDATE acronym SET result = (
+	WITH chars(i, c, clean, grp) AS (
+		SELECT 2, substr(phrase, 1, 1), '', 0
+  		UNION
+  		SELECT i + 1, substr(phrase, i, 1),
+      		   CASE
+      		      WHEN c GLOB '[a-zA-Z]' THEN upper(c)
+      			  WHEN c in (' ', '-') THEN ' '
+      			  ELSE ''
+      		   END,
+      		   iif(c in (' ', '-'), grp + 1, grp)
+  	    FROM chars WHERE i <= length(phrase) + 1
+	)
+	SELECT group_concat(clean, '')
+	FROM (SELECT clean FROM chars WHERE clean NOT IN (' ', '') GROUP BY grp)
+)

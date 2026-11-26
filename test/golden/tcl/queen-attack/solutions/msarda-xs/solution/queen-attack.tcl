@@ -1,0 +1,73 @@
+oo::class create Queen {
+    variable r
+    variable c 
+
+    constructor {row col} {
+        # Validate row and col        
+        my assert {$col < 8} {column not on board}
+        my assert {$col >= 0} {column not positive}
+        my assert {$row < 8} {row not on board}
+        my assert {$row >= 0} {row not positive}  
+
+        set r $row   
+        set c $col 
+    }
+
+    method row {} {
+        return $r        
+    }
+
+    method col {} {
+        return $c        
+    }
+
+    method canAttack {other} {
+        # Check row
+        if {[my row] == [$other row]} {
+            return true
+        }
+
+        if {[my col] == [$other col]} {
+            return true
+        }
+
+        # Column
+        if {[my col] < [$other col]} {
+            # left -> right
+            set col_dir {$c+1}
+            set col_update 1
+        } else {
+            # right -> left
+            set col_dir {$c-1}
+            set col_update -1
+        }
+
+        # Row
+        if {[my row] < [$other row]} {
+            # top -> bottom
+            set row_dir {$r+1}
+            set condition {$j < 8}
+            set row_update 1
+        } else {
+            # bottom -> top
+            set row_dir {$r-1}
+            set condition {$j > 0}
+            set row_update -1
+        }
+
+        # Scan diagonally
+        for {set i [expr $col_dir]; set j [expr $row_dir]} {[expr $condition]} {incr i $col_update; incr j $row_update} {
+            if {$i == [$other col] && $j == [$other row]} {
+                   return true
+            }
+        }                 
+    
+        return false
+    }
+
+    method assert {condition errorMsg} {
+        if {![uplevel 1 [list expr $condition]]} {
+            error $errorMsg
+        }
+    }
+}

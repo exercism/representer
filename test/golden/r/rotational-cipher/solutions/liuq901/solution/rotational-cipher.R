@@ -1,0 +1,17 @@
+require(tidyverse)
+
+rotate <- function(text, key) {
+  result = ""
+  a = utf8ToInt("a")
+  A = utf8ToInt("A")
+  for (i in 1:nchar(text)) {
+    ch = substring(text, i, i)
+    if (str_detect(ch, "[a-z]"))
+      result = paste0(result, intToUtf8(a + (utf8ToInt(ch) - a + key) %% 26))
+    else if (str_detect(ch, "[A-Z]"))
+      result = paste0(result, intToUtf8(A + (utf8ToInt(ch) - A + key) %% 26))
+    else
+      result = paste0(result, ch)
+  }
+  return(result)
+}

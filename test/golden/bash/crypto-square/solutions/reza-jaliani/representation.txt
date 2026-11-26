@@ -1,0 +1,41 @@
+set -euo pipefail
+main () {
+local input = "\"" ${ 1 :-} "\""
+local cleaned
+cleaned = "\"$(" printf "\"%s\"" "\"" $input "\"" \
+| tr '[:upper:]' '[:lower:]' \
+| sed 's/[^a-z0-9]//g')"
+if [[ -z "\"" $cleaned "\"" ]] ; then
+printf "\"\\n\""
+exit 0
+fi
+local n = "\"" ${# cleaned } "\""
+local c r
+local sqrt
+sqrt = $( printf "\"%s\"" "\"" $n "\"" | awk "'{printf \"%.0f\", sqrt($1)}')"
+c = $sqrt
+if (( c * c < n )) ; then
+(( c++ ))
+fi
+r = $(( ( n + c - 1 ) / c ))
+local -a rows =()
+local i row
+for (( i = 0 ; i<r ; i++ )) ; do
+row = "\"" ${ cleaned :i *c :c } "\""
+while (( ${# row } < c )) ; do
+row = "\"" $row " \""
+done
+rows+ =( "\"" $row "\"" )
+done
+local -a chunks =()
+local col j chunk
+for (( col = 0 ; col<c ; col++ )) ; do
+chunk = "\"\""
+for (( j = 0 ; j<r ; j++ )) ; do
+chunk = "\"" ${ chunk }${ rows [j] :col:1 } "\""
+done
+chunks+ =( "\"" $chunk "\"" )
+done
+printf "\"%s\\n\"" "\"" ${ chunks [*] } "\""
+}
+main "\"" $@ "\""

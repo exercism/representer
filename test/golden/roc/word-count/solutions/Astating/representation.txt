@@ -1,0 +1,30 @@
+WordCount :: {}.{
+  count_words : Str -> Dict(Str, U64)
+  count_words = |sentence| sentence
+  .with_ascii_lowercased()
+  .to_utf8()
+  .split_if(|c|
+    (c < 'a' or c > 'z') and
+    (c < '0' or c > '9') and
+    c != '\''
+  )
+  .keep_oks(|chars| {
+    word_with_trimmed_apostrophes =
+      chars
+      .split_on('\'')
+      .keep_oks(|word_part|
+        if word_part.is_empty() Err(Empty)
+        else Ok(Str.from_utf8_lossy(word_part))
+      )
+      |> Str.join_with("'")
+    if word_with_trimmed_apostrophes.is_empty()
+      Err(Empty)
+    else Ok(word_with_trimmed_apostrophes)
+  })
+  .fold(Dict.empty(), |tally, word|
+    tally.update(word, |value| match value {
+      Ok(v) => Ok(v + 1)
+      Err(Missing) => Ok(1)
+    })
+  )
+}

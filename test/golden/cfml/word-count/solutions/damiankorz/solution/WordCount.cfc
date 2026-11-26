@@ -1,0 +1,24 @@
+component {
+	/**
+	* @returns
+	*/
+	public struct function countwords( required string sentence ) {
+		wordStruct = {};
+		sentence = reReplace(sentence, "[^0-9A-Za-z' ]", "", "all");
+		sentence = sentence.split(" ");
+		for( word in sentence ){
+			if( word != "" ){
+				var quote = "'";
+				if(word[1] == quote && word[len(quote)] == quote){
+					word = replace(word, quote, "", "all");
+				}
+				if( !structKeyExists( wordStruct, word ) ){
+					wordStruct[word] = 1;
+				}else{
+					wordStruct[word] += 1;
+				}
+			}
+		}
+		return wordStruct;
+	}
+}

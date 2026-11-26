@@ -1,0 +1,27 @@
+awk '
+BEGIN { FS = "\":\"" }
+{ print $1 }
+' . / passwd
+awk '
+{ print NR }
+' . / passwd
+awk '
+function startsWith ( text , prefix ) {
+return text ~ "\"^\"" prefix
+}
+function homeDirectoryIsValid ( homeDirectory ) {
+return startsWith ( homeDirectory , "\"/home\"" ) || startsWith ( homeDirectory , "\"/root\"" )
+}
+BEGIN { FS = "\":\"" }
+! homeDirectoryIsValid ( $6 ) { print }
+' . / passwd
+awk '
+function startsWith ( text , prefix ) {
+return text ~ "\"^\"" prefix
+}
+function homeDirectoryIsValid ( homeDirectory ) {
+return startsWith ( homeDirectory , "\"/home\"" ) || startsWith ( homeDirectory , "\"/root\"" )
+}
+BEGIN { FS = "\":\"" }
+homeDirectoryIsValid ( $6 ) && $7 == "\"/bin/bash\"" { print }
+' . / passwd

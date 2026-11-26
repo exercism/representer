@@ -1,0 +1,54 @@
+CLASS zcl_line_up DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    METHODS format IMPORTING name          TYPE string
+                             number        TYPE i
+                   RETURNING VALUE(result) TYPE string.
+
+  PRIVATE SECTION.
+    METHODS construct_string IMPORTING iv_name          TYPE string
+                                       iv_place         TYPE string
+                             RETURNING VALUE(rv_string) TYPE string.
+ENDCLASS.
+
+CLASS zcl_line_up IMPLEMENTATION.
+  METHOD format.
+    CONSTANTS: BEGIN OF lc_s_endings,
+                 one      TYPE string VALUE 'st',
+                 two      TYPE string VALUE 'nd',
+                 three    TYPE string VALUE 'rd',
+                 fallback TYPE string VALUE 'th',
+               END OF lc_s_endings.
+
+    DATA(lv_number_string) = condense( |{ number }| ).
+    DATA(lv_string_length) = strlen( lv_number_string ).
+    DATA(lv_last_digit) = substring( val = lv_number_string
+                                     off = lv_string_length - 1
+                                     len = 1 ).
+    DATA(lv_ending) = lc_s_endings-fallback.
+    IF lv_last_digit CA '123'.
+      DATA(lv_second_to_last_digit) = '0'.
+      IF lv_string_length > 1.
+        lv_second_to_last_digit = substring( val = lv_number_string
+                                             off = lv_string_length - 2
+                                             len = 1 ).
+      ENDIF.
+      IF lv_second_to_last_digit <> '1'.
+        lv_ending = SWITCH #( lv_last_digit
+                              WHEN '1' THEN lc_s_endings-one
+                              WHEN '2' THEN lc_s_endings-two
+                              WHEN '3' THEN lc_s_endings-three ).
+      ENDIF.
+    ENDIF.
+    result = construct_string( iv_name  = name
+                               iv_place = |{ number }{ lv_ending }| ).
+  ENDMETHOD.
+
+
+  METHOD construct_string.
+    rv_string = |{ iv_name }, you are the { iv_place } customer we serve today. Thank you!|.
+  ENDMETHOD.
+ENDCLASS.

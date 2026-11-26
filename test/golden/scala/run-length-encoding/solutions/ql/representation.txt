@@ -1,0 +1,35 @@
+object RunLengthEncoding {
+  def encode ( str : String ) : String = {
+    def toSeq ( str : String ) : List [ String ] = {
+      str . foldLeft ( List [ String ]()) { ( list , char ) =>
+        if ( list . isEmpty || ( list . last . last != char )) {
+          list :+ char . toString
+        } else {
+          list . dropRight ( 1 ) :+ ( list . last + char )
+        }
+      }
+    }
+    def countSeq ( strings : List [ String ]) : String = {
+      strings . foldLeft ( "\"\"" ) { ( result , string ) =>
+        if ( string . size == 1 ) {
+          result + string
+        } else {
+          result + string . size + string . take ( 1 )
+        }
+      }
+    }
+    countSeq ( toSeq ( str ))
+  }
+  def decode ( encoded : String ) : String = {
+    def toSeq ( str : String ) : List [ String ] = {
+      str . foldLeft ( List [ String ]()) { ( list , char ) =>
+        if ( list . isEmpty || ! list . last . last . isDigit ) {
+          list :+ char . toString
+        } else {
+          list . dropRight ( 1 ) :+ ( list . last + char )
+        }
+      }
+    }
+    toSeq ( encoded ). foldLeft ( "\"\"" ) { ( z , part ) => z + ( if ( part . size == 1 ) part else part . takeRight ( 1 ) * part . dropRight ( 1 ). toInt ) }
+  }
+}

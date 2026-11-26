@@ -1,0 +1,28 @@
+let decimalToRoman d =
+match d with
+| 1 -> "\"I\""
+| 4 -> "\"IV\""
+| 5 -> "\"V\""
+| 9 -> "\"IX\""
+| 10 -> "\"X\""
+| 40 -> "\"XL\""
+| 50 -> "\"L\""
+| 90 -> "\"XC\""
+| 100 -> "\"C\""
+| 400 -> "\"CD\""
+| 500 -> "\"D\""
+| 900 -> "\"CM\""
+| 1000 -> "\"M\""
+| _ -> "\"Error\""
+;;
+let getBase n =
+let smallerOrEqual initial replacement = if n >= replacement then replacement else initial in
+List . fold_left smallerOrEqual 1 [ 1 ; 4 ; 5 ; 9 ; 10 ; 40 ; 50 ; 90 ; 100 ; 400 ; 500 ; 900 ; 1000 ]
+;;
+let string_repeat s n = String . concat "\"\"" ( Array . to_list ( Array . make n s ))
+;;
+let rec to_roman d =
+if d = 0 then "\"\"" else
+let base = getBase d in
+let quotient = d / base and remainder = d mod base in
+String . concat "\"\"" (( string_repeat ( decimalToRoman base ) quotient ) :: ( to_roman remainder ) :: [] )

@@ -1,0 +1,19 @@
+# | Register | Usage | Type | Description |
+# | -------- | --------- | ------- | --------------------------------------- |
+# | `$a0` | input | address | null-terminated string of trinary chars |
+# | `$v0` | output | integer | decimal value of input string |
+# | `$t0-9` | temporary | any | used for temporary storage |
+.globl trinary_convert
+trinary_convert:
+move $v0, $zero # init $v0 (output) to 0
+move $t0, $a0 # copy $a0 (input, str header) to local $t0 (str pointer)
+loop:
+lb $t1, 0($t0) # load current char into $t1
+beq $t1, $zero, done # while we haven't reached the end of the null-terminated string
+mul $v0, $v0, 3 # multiply $v0 by three
+subi $t1, $t1, 48 # get numeric value of character
+add $v0, $v0, $t1 # add new bit to running total
+addi $t0, $t0, 1 # advance string pointer
+j loop
+done:
+jr $ra

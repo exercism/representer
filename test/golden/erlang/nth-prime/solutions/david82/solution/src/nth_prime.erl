@@ -1,0 +1,20 @@
+-module(nth_prime).
+
+-export([prime/1]).
+
+
+prime(N) when N > 0 -> nth_prime(N, 2, 0).
+
+nth_prime(N, P, Count) when Count < N ->
+    case is_prime(P, 2) of
+        true -> nth_prime(N, P + 1, Count + 1);
+        false -> nth_prime(N, P + 1, Count)
+    end;
+nth_prime(_, P, _) -> P - 1.
+
+is_prime(P, I) when I * I =< P -> 
+    case P rem I of
+        0 -> false;
+        _ -> is_prime(P, I + 1)
+    end;
+is_prime(_, _) -> true.

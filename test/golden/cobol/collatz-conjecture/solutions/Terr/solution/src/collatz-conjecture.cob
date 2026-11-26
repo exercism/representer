@@ -1,0 +1,32 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. collatz-conjecture.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-NUMBER PIC S9(8).
+       01 WS-STEPS PIC 9(4).
+       01 WS-ERROR PIC X(35).
+       01 WS-IS-ODD PIC 9.
+       01 WS-QUOTIENT PIC 9(8).
+
+       PROCEDURE DIVISION.
+       COLLATZ-CONJECTURE.
+       IF WS-NUMBER <= 0
+           MOVE "Only positive integers are allowed" TO WS-ERROR
+       ELSE
+           PERFORM UNTIL WS-NUMBER = 1
+               PERFORM IS-ODD
+               
+               IF WS-IS-ODD = 1
+                   COMPUTE WS-NUMBER = WS-NUMBER * 3 + 1
+               ELSE
+                   COMPUTE WS-NUMBER = WS-NUMBER / 2
+               END-IF
+
+               ADD 1 TO WS-STEPS
+           END-PERFORM
+       END-IF.
+
+       IS-ODD.
+       DIVIDE WS-NUMBER BY 2 GIVING WS-QUOTIENT REMAINDER WS-IS-ODD.
+           

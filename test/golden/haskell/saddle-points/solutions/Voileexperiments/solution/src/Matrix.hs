@@ -1,7 +1,0 @@
-module Matrix (saddlePoints) where
-
-import Data.Array (Array, Ix, assocs)
-
-saddlePoints :: (Ix i, Ord e) => Array (i, i) e -> [(i, i)]
-saddlePoints matrix = saddlePoints' $ assocs matrix where
-  saddlePoints' arr = map fst $ filter (\((i,j), v) -> all (\((k,l), x) -> (i /= k || v >= x) && (j /= l || v <= x)) arr) arr

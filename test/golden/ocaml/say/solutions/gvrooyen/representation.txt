@@ -1,0 +1,71 @@
+open Base
+open Int64
+let lt20 = function
+| 0 L -> "\"\""
+| 1 L -> "\"one\""
+| 2 L -> "\"two\""
+| 3 L -> "\"three\""
+| 4 L -> "\"four\""
+| 5 L -> "\"five\""
+| 6 L -> "\"six\""
+| 7 L -> "\"seven\""
+| 8 L -> "\"eight\""
+| 9 L -> "\"nine\""
+| 10 L -> "\"ten\""
+| 11 L -> "\"eleven\""
+| 12 L -> "\"twelve\""
+| 13 L -> "\"thirteen\""
+| 14 L -> "\"fourteen\""
+| 15 L -> "\"fifteen\""
+| 16 L -> "\"sixteen\""
+| 17 L -> "\"seventeen\""
+| 18 L -> "\"eighteen\""
+| 19 L -> "\"nineteen\""
+| _ -> raise ( Invalid_argument "\"Argument must be less than 20\"" )
+let tenty x y =
+if y = 0 L then x else x ^ "\"-\"" ^ ( lt20 y )
+let lt100 x =
+let tens = x / 10 L in
+let ones = x % 10 L in
+match tens with
+| 0 L | 1 L -> lt20 x
+| 2 L -> tenty "\"twenty\"" ones
+| 3 L -> tenty "\"thirty\"" ones
+| 4 L -> tenty "\"forty\"" ones
+| 5 L -> tenty "\"fifty\"" ones
+| 6 L -> tenty "\"sixty\"" ones
+| 7 L -> tenty "\"seventy\"" ones
+| 8 L -> tenty "\"eighty\"" ones
+| 9 L -> tenty "\"ninety\"" ones
+| _ -> raise ( Invalid_argument "\"Argument must be less than 100\"" )
+let lt1000 x =
+match ( x / 100 L , x % 100 L ) with
+| ( 0 L , t ) -> lt100 t
+| ( h , 0 L ) -> ( lt20 h ) ^ "\" hundred\""
+| ( h , t ) -> ( lt20 h ) ^ "\" hundred \"" ^ ( lt100 t )
+let rec split_1000s x =
+if x < 1000 L then [ x ]
+else [ x % 1000 L ] @ split_1000s ( x / 1000 L )
+let scale = function
+| 0 -> "\"\""
+| 1 -> "\"thousand\""
+| 2 -> "\"million\""
+| 3 -> "\"billion\""
+| 4 -> "\"trillion\""
+| _ -> raise ( Invalid_argument "\"Argument must be less than 5\"" )
+let in_english x =
+if ( x < 0 L ) || ( x > 999_999_999_999 L ) then
+Error "\"input out of range\""
+else if x = 0 L then Ok "\"zero\""
+else
+Ok (
+split_1000s x
+|> List . mapi ~ f : ( fun i y ->
+if y = 0 L then "\"\""
+else match i with
+| 0 -> ( lt1000 y )
+| _ -> ( lt1000 y ) ^ "\" \"" ^ ( scale i ))
+|> List . rev
+|> String . concat ~ sep : "\" \""
+|> String . strip
+)

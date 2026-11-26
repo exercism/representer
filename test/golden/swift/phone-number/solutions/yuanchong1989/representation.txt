@@ -1,0 +1,32 @@
+enum PhoneNumberError : Error {
+case invalidPhoneNumber
+}
+class PhoneNumber {
+let text : String
+init ( _ text : String ) {
+self . text = text
+}
+func clean () throws -> String {
+var result = [ Int ]()
+for char in text {
+if let num = Int ( String ( char )) {
+result . append ( num )
+}
+}
+if result . count > 0 && result [ 0 ] == 1 {
+result . removeFirst ()
+}
+guard result . count == 10 else {
+throw PhoneNumberError . invalidPhoneNumber ;
+}
+guard result [ 0 ] >= 2 && result [ 3 ] >= 2 else {
+throw PhoneNumberError . invalidPhoneNumber ;
+}
+var text = "\"\""
+text . reserveCapacity ( 10 )
+for v in result {
+text . append ( "\"\\(" v )" )
+}
+return text
+}
+}

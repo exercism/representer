@@ -1,0 +1,82 @@
+- module ( bank_account ).
+- export ([ balance / 1 , charge / 2 , close / 1 , create / 0 , deposit / 2 , withdraw / 2 ]).
+create () ->
+spawn ( fun () -> account_loop ( 0 , open ) end ).
+balance ( Pid ) ->
+Pid ! { balance , self ()},
+receive
+{ ok , Balance } -> Balance ;
+{ error , _} = Error -> Error
+after 100 ->
+{ error , account_closed }
+end .
+deposit ( Pid , Amount ) when Amount > 0 ->
+Pid ! { deposit , Amount },
+ok ;
+deposit (_ Pid , _ Amount ) ->
+ok .
+withdraw ( Pid , Amount ) when Amount > 0 ->
+Pid ! { withdraw , Amount , self ()},
+receive
+{ ok , Withdrawn } -> Withdrawn
+after 100 ->
+0
+end ;
+withdraw (_ Pid , _ Amount ) ->
+0 .
+charge ( Pid , Amount ) when Amount > 0 ->
+Pid ! { charge , Amount , self ()},
+receive
+{ ok , Charged } -> Charged
+after 100 ->
+0
+end ;
+charge (_ Pid , _ Amount ) ->
+0 .
+close ( Pid ) ->
+Pid ! { close , self ()},
+receive
+{ ok , Balance } -> Balance
+after 100 ->
+0
+end .
+account_loop ( Balance , State ) ->
+receive
+{ balance , From } when State =:= open ->
+From ! { ok , Balance },
+account_loop ( Balance , State );
+{ balance , From } ->
+From ! { error , account_closed },
+account_loop ( Balance , State );
+{ deposit , Amount } when State =:= open ->
+account_loop ( Balance + Amount , State );
+{ deposit , _} ->
+account_loop ( Balance , State );
+{ withdraw , Amount , From } when State =:= open ->
+Withdrawn = min ( Amount , Balance ),
+From ! { ok , Withdrawn },
+account_loop ( Balance - Withdrawn , State );
+{ withdraw , _, From } ->
+From ! { ok , 0 },
+account_loop ( Balance , State );
+{ charge , Amount , From } when State =:= open ->
+case Balance >= Amount of
+true ->
+From ! { ok , Amount },
+account_loop ( Balance - Amount , State );
+false ->
+From ! { ok , 0 },
+account_loop ( Balance , State )
+end ;
+{ charge , _, From } ->
+From ! { ok , 0 },
+account_loop ( Balance , State );
+{ close , From } when State =:= open ->
+From ! { ok , Balance },
+account_loop ( Balance , closed );
+{ close , From } ->
+From ! { ok , Balance },
+account_loop ( Balance , State );
+_ ->
+account_loop ( Balance , State )
+end .

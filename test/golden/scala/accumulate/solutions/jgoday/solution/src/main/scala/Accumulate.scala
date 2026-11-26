@@ -1,0 +1,11 @@
+class Accumulate {
+  def accumulate[A, B](f: (A) => B, list : List[A]): List[B] = {
+    def accumulateAgg(list: List[A], agg: List[B]): List[B] =
+      list match {
+        case x :: tail => accumulateAgg(tail, f(x) +: agg)
+        case _ => agg.reverse
+      }
+
+    accumulateAgg(list, List())
+  }
+}

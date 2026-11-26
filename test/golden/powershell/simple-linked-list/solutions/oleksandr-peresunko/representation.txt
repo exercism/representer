@@ -1,0 +1,91 @@
+Class Node {
+[ object ] $Data
+[ Node ] $Next
+Node () {
+$this . Data = $null
+$this . Next = $null
+}
+Node ([ object ] $data ) {
+$this . Data = $data
+$this . Next = $null
+}
+}
+Class LinkedList {
+[ Node ] $ListHead
+[ Node ] $ListTail
+[ int ] $Count
+LinkedList () {
+$this . ListHead = $null
+$this . ListTail = $null
+$this . Count = 0
+}
+LinkedList ([ object ] $arg ) {
+$this . ListHead = $null
+$this . ListTail = $null
+$this . Count = 0
+if ( $null -ne $arg ) {
+if ( $arg -is [ array ]) {
+foreach ( $value in $arg ) {
+$this . Push ( $value )
+}
+}
+else {
+$this . Push ( $arg )
+}
+}
+}
+[ int ] Size () {
+return $this . Count
+}
+[ Node ] Head () {
+if ( $this . Count -eq 0 ) {
+throw "\"The list is empty\""
+}
+return $this . ListHead
+}
+Push ( $value ) {
+$this . Count ++
+$current_head = $this . ListHead
+$new_node = [ Node ]:: new ()
+$new_node . Data = $value
+$new_node . Next = $current_head
+$this . ListHead = $new_node
+if ( $this . Count -eq 1 ) {
+$this . ListTail = $new_node
+}
+}
+[ object ] Pop () {
+if ( $this . Count -eq 0 ) {
+throw "\"The list is empty\""
+}
+$current_head = $this . ListHead
+$second_node = $this . ListHead . Next
+$this . ListHead = $second_node
+if ( $this . Count -eq 1 ) {
+$this . ListTail = $this . ListHead
+}
+$this . Count--
+return $current_head . Data
+}
+Reverse () {
+$current_node = $this . ListHead
+$prev_node = $null
+$this . ListTail = $this . ListHead
+while ( $null -ne $current_node ) {
+$next_node = $current_node . Next
+$current_node . Next = $prev_node
+$prev_node = $current_node
+$current_node = $next_node
+}
+$this . ListHead = $prev_node
+}
+[ array ] ToArray () {
+$arr = @()
+$current_node = $this . ListHead
+while ( $null -ne $current_node ) {
+$arr += $current_node . Data
+$current_node = $current_node . Next
+}
+return $arr
+}
+}

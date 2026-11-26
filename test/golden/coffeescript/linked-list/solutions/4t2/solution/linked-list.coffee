@@ -1,0 +1,43 @@
+class LinkedList
+  constructor: (@value = null) ->
+    @next = undefined
+    @count = 0
+
+  pushNode: (n) ->
+    @count++
+    @next?.pushNode(n) || @next = new LinkedList(n)
+
+  popNode: ->
+    return undefined if @next == undefined
+    @count--
+    if @next.next
+      return @next.popNode()
+    else
+      value = @next.value
+      @next = undefined
+      return value
+
+  deleteNode: (n) ->
+    return undefined if @next == undefined
+    @count--
+    if @next.value == n
+      @next = @next.next
+    else
+      @next.deleteNode(n)
+
+  shiftNode: ->
+    return undefined if @next == undefined
+    @count--
+    value = @next.value
+    @next = @next.next
+    return value
+
+  unshiftNode: (n) ->
+    @count++
+    node = new LinkedList(n)
+    node.next = @next
+    @next = node
+
+  countNodes: -> @count
+
+module.exports = LinkedList

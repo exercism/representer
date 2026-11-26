@@ -1,0 +1,118 @@
+(program
+  (class Robot
+    (body_statement private
+      (assignment (constant PLACEHOLDER_1) =
+        (symbol_array "%i("
+          (bare_symbol north)
+          (bare_symbol east)
+          (bare_symbol south)
+          (bare_symbol west)))
+      (assignment (constant PLACEHOLDER_2) =
+        (hash
+          (pair :north :east)
+          (pair :east :south)
+          (pair :south :west)
+          (pair :west :north)))
+      (method initialize
+        (body_statement
+          (assignment
+            (call self bearing) = bearing)
+          (assignment
+            (call self x) = x)
+          (assignment
+            (call self y) = y))) public
+      (call attr_accessor
+        (argument_list :bearing :x :y))
+      (method advance
+        (body_statement
+          (case bearing
+            (when
+              (pattern :north)
+              (then
+                (operator_assignment
+                  (call self y) += 1)))
+            (when
+              (pattern :south)
+              (then
+                (operator_assignment
+                  (call self y) -= 1)))
+            (when
+              (pattern :east)
+              (then
+                (operator_assignment
+                  (call self x) += 1)))
+            (when
+              (pattern :west)
+              (then
+                (operator_assignment
+                  (call self x) -= 1))))))
+      (method at
+        (method_parameters x y)
+        (body_statement
+          (assignment
+            (call self x) = x)
+          (assignment
+            (call self y) = y)))
+      (method coordinates
+        (body_statement
+          (array x y)))
+      (method orient
+        (method_parameters direction)
+        (body_statement
+          (unless
+            (call (constant PLACEHOLDER_1) include?
+              (argument_list direction))
+            (then
+              (call raise
+                (argument_list ArgumentError))))
+          (assignment
+            (call self bearing) = direction)))
+      (method turn_right
+        (body_statement
+          (assignment
+            (call self bearing) =
+            (element_reference (constant PLACEHOLDER_2) bearing))))
+      (method turn_left
+        (body_statement
+          (assignment
+            (call self bearing) =
+            (element_reference
+              (call (constant PLACEHOLDER_2) invert) bearing))))))
+  (class Simulator
+    (body_statement
+      (assignment (constant PLACEHOLDER_3) =
+        (hash
+          (pair "L" :turn_left)
+          (pair "R" :turn_right)
+          (pair "A" :advance)))
+      (method instructions
+        (method_parameters PLACEHOLDER_4)
+        (body_statement
+          (call
+            (call PLACEHOLDER_4 chars) map
+            (block
+              (block_parameters PLACEHOLDER_5)
+              (body_statement
+                (element_reference (constant PLACEHOLDER_3) PLACEHOLDER_5))))))
+      (method evaluate
+        (method_parameters robot PLACEHOLDER_4)
+        (body_statement
+          (assignment instructions =
+            (call instructions
+              (argument_list PLACEHOLDER_4)))
+          (call instructions each
+            (block
+              (block_parameters PLACEHOLDER_6)
+              (body_statement
+                (call robot send
+                  (argument_list PLACEHOLDER_6)))))))
+      (method place
+        (method_parameters robot
+          (keyword_parameter x)
+          (keyword_parameter y)
+          (keyword_parameter direction))
+        (body_statement
+          (call robot at
+            (argument_list x y))
+          (assignment
+            (call robot bearing) = direction))))))

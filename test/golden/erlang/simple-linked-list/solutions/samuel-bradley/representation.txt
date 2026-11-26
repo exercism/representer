@@ -1,0 +1,19 @@
+- module ( simple_linked_list ).
+- export ([ cons / 2 , count / 1 , empty / 0 , from_native_list / 1 ,
+head / 1 , reverse / 1 , tail / 1 , to_native_list / 1 ]).
+- record ( elem , { value , next }).
+empty () -> undefined .
+cons ( Elem , List ) -> #elem { value = Elem , next = List }.
+head ( List ) -> List #elem.value .
+tail ( List ) -> List #elem.next .
+reverse ( List ) -> reverse ( List , undefined ).
+reverse ( undefined , Acc ) -> Acc ;
+reverse ( #elem { value = V , next = N }, Acc ) -> reverse ( N , cons ( V , Acc )).
+count ( List ) -> count ( List , 0 ).
+count ( undefined , Acc ) -> Acc ;
+count ( #elem { next = Next }, Count ) -> count ( Next , Count + 1 ).
+to_native_list ( List ) -> to_native_list ( List , []).
+to_native_list ( undefined , Acc ) -> lists : reverse ( Acc );
+to_native_list ( List , Acc ) -> to_native_list ( List #elem.next , [ List #elem.value | Acc ]).
+from_native_list ([]) -> undefined ;
+from_native_list ([ H | T ]) -> #elem { value = H , next = from_native_list ( T )}.

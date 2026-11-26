@@ -1,0 +1,156 @@
+(source
+  (call defmodule
+    (arguments RPNCalculatorInspection)
+    (do_block
+      (call def
+        (arguments
+          (call start_reliability_check
+            (arguments calculator input)))
+        (do_block
+          (map %
+            (map_content
+              (keywords
+                (pair "input: " input)
+                (pair "pid: "
+                  (call spawn_link
+                    (arguments
+                      (anonymous_function
+                        (stab_clause ->
+                          (body
+                            (call
+                              (dot calculator .)
+                              (arguments input)))))))))))))
+      (call def
+        (arguments
+          (call await_reliability_check_result
+            (arguments
+              (map %
+                (map_content
+                  (keywords
+                    (pair "input: " input)
+                    (pair "pid: " pid)))) (variable PLACEHOLDER_1))))
+        (do_block
+          (call receive
+            (do_block
+              (stab_clause
+                (arguments
+                  (tuple :EXIT
+                    (unary_operator ^ pid) :normal)) ->
+                (body
+                  (call
+                    (dot Map . put)
+                    (arguments PLACEHOLDER_1 input :ok))))
+              (stab_clause
+                (arguments
+                  (tuple :EXIT
+                    (unary_operator ^ pid) _)) ->
+                (body
+                  (call
+                    (dot Map . put)
+                    (arguments PLACEHOLDER_1 input :error))))
+              (after_block
+                (stab_clause
+                  (arguments 100) ->
+                  (body
+                    (call
+                      (dot Map . put)
+                      (arguments PLACEHOLDER_1 input :timeout)))))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call reliability_check
+                (arguments function
+                  (call list
+                    (arguments
+                      (call
+                        (dot String . t)
+                        (arguments)))))) ::
+              (map %
+                (map_content
+                  (binary_operator
+                    (binary_operator
+                      (call
+                        (dot String . t)
+                        (arguments)) => :ok) |
+                    (binary_operator :error | :timeout))))))))
+      (call def
+        (arguments
+          (call reliability_check
+            (arguments calculator inputs)))
+        (do_block
+          (binary_operator old_value =
+            (call
+              (dot Process . flag)
+              (arguments :trap_exit
+                (boolean true))))
+          (binary_operator
+            (binary_operator
+              (binary_operator inputs |>
+                (call
+                  (dot Enum . map)
+                  (arguments
+                    (unary_operator &
+                      (call start_reliability_check
+                        (arguments calculator
+                          (unary_operator & 1))))))) |>
+              (call
+                (dot Enum . reduce)
+                (arguments
+                  (map %)
+                  (unary_operator &
+                    (call await_reliability_check_result
+                      (arguments
+                        (unary_operator & 1)
+                        (unary_operator & 2))))))) |>
+            (call tap
+              (arguments
+                (anonymous_function
+                  (stab_clause
+                    (arguments _) ->
+                    (body
+                      (call
+                        (dot Process . flag)
+                        (arguments :trap_exit old_value))))))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call correctness_check
+                (arguments function
+                  (call list
+                    (arguments
+                      (call
+                        (dot String . t)
+                        (arguments)))))) ::
+              (call list
+                (arguments float))))))
+      (call def
+        (arguments
+          (call correctness_check
+            (arguments calculator inputs)))
+        (do_block
+          (binary_operator
+            (binary_operator inputs |>
+              (call
+                (dot Enum . map)
+                (arguments
+                  (unary_operator &
+                    (call
+                      (dot Task . async)
+                      (arguments
+                        (anonymous_function
+                          (stab_clause ->
+                            (body
+                              (call
+                                (dot calculator .)
+                                (arguments
+                                  (unary_operator & 1)))))))))))) |>
+            (call
+              (dot Enum . map)
+              (arguments
+                (unary_operator &
+                  (call
+                    (dot Task . await)
+                    (arguments
+                      (unary_operator & 1) 100)))))))))))

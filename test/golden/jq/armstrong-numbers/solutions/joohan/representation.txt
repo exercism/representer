@@ -1,0 +1,8 @@
+.number as $number
+| ($number | tostring | length) as $exp
+| $number
+| tostring
+| split("")
+| map(tonumber | pow(.; $exp))
+| add
+| . == $number

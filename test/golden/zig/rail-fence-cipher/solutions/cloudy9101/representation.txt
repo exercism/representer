@@ -1,0 +1,289 @@
+(source_file
+  (Decl
+    (VarDecl const std =
+      (SuffixExpr @import
+        (FnCallArguments "std"))))
+  (Decl
+    (VarDecl const mem =
+      (SuffixExpr std
+        (FieldOrFnCall . mem)))) pub
+  (Decl
+    (FnProto encode
+      (ParamDeclList
+        (ParamDecl allocator :
+          (ParamType
+            (SuffixExpr mem
+              (FieldOrFnCall . Allocator))))
+        (ParamDecl msg :
+          (ParamType
+            (PrefixTypeOp
+              (SliceTypeStart [ ]) const) u8))
+        (ParamDecl rails :
+          (ParamType u3)))
+      (ErrorUnionExpr
+        (SuffixExpr mem
+          (FieldOrFnCall . Allocator)
+          (FieldOrFnCall . Error)) !
+        (PrefixTypeOp
+          (SliceTypeStart [ ])) u8))
+    (Block
+      (Statement
+        (VarDecl var PLACEHOLDER_1 :
+          (PrefixTypeOp
+            (SliceTypeStart [ ])) u8 =
+          (UnaryExpr
+            (PrefixOp try)
+            (SuffixExpr allocator
+              (FieldOrFnCall . alloc
+                (FnCallArguments u8
+                  (BinaryExpr
+                    (SuffixExpr msg
+                      (FieldOrFnCall . len))
+                    (MultiplyOp *) rails)))))))
+      (Statement defer
+        (BlockExprStatement
+          (AssignExpr
+            (SuffixExpr allocator
+              (FieldOrFnCall . free
+                (FnCallArguments PLACEHOLDER_1))))))
+      (Statement
+        (AssignExpr
+          (SuffixExpr @memset
+            (FnCallArguments PLACEHOLDER_1 0))))
+      (Statement
+        (VarDecl var PLACEHOLDER_2 : u3 = 0))
+      (Statement
+        (VarDecl var PLACEHOLDER_3 =
+          (SuffixExpr true)))
+      (Statement
+        (LabeledStatement
+          (LoopStatement
+            (ForStatement
+              (ForPrefix for
+                (ForArgumentsList
+                  (ForItem msg)
+                  (ForItem 0 ..))
+                (PtrListPayload | PLACEHOLDER_4 PLACEHOLDER_5 |))
+              (BlockExpr
+                (Block
+                  (Statement
+                    (IfStatement
+                      (IfPrefix if
+                        (BinaryExpr PLACEHOLDER_2
+                          (CompareOp ==) 0))
+                      (BlockExpr
+                        (Block
+                          (Statement
+                            (AssignExpr PLACEHOLDER_3
+                              (AssignOp =)
+                              (SuffixExpr false)))))))
+                  (Statement
+                    (IfStatement
+                      (IfPrefix if
+                        (BinaryExpr PLACEHOLDER_2
+                          (CompareOp ==)
+                          (BinaryExpr rails
+                            (AdditionOp -) 1)))
+                      (BlockExpr
+                        (Block
+                          (Statement
+                            (AssignExpr PLACEHOLDER_3
+                              (AssignOp =)
+                              (SuffixExpr true)))))))
+                  (Statement
+                    (AssignExpr
+                      (SuffixExpr PLACEHOLDER_1
+                        (SuffixOp [
+                          (BinaryExpr PLACEHOLDER_5
+                            (AdditionOp +)
+                            (BinaryExpr PLACEHOLDER_2
+                              (MultiplyOp *)
+                              (SuffixExpr msg
+                                (FieldOrFnCall . len)))) ]))
+                      (AssignOp =) PLACEHOLDER_4))
+                  (Statement
+                    (IfStatement
+                      (IfPrefix if
+                        (UnaryExpr
+                          (PrefixOp !) PLACEHOLDER_3))
+                      (BlockExpr
+                        (Block
+                          (Statement
+                            (AssignExpr PLACEHOLDER_2
+                              (AssignOp +=) 1)))) else
+                      (Statement
+                        (LabeledStatement
+                          (Block
+                            (Statement
+                              (AssignExpr PLACEHOLDER_2
+                                (AssignOp -=) 1)))))))))))))
+      (Statement
+        (VarDecl var PLACEHOLDER_5 : usize = 0))
+      (Statement
+        (VarDecl var PLACEHOLDER_6 :
+          (PrefixTypeOp
+            (SliceTypeStart [ ])) u8 =
+          (UnaryExpr
+            (PrefixOp try)
+            (SuffixExpr allocator
+              (FieldOrFnCall . alloc
+                (FnCallArguments u8
+                  (SuffixExpr msg
+                    (FieldOrFnCall . len))))))))
+      (Statement errdefer
+        (BlockExprStatement
+          (AssignExpr
+            (SuffixExpr allocator
+              (FieldOrFnCall . free
+                (FnCallArguments PLACEHOLDER_6))))))
+      (Statement
+        (LabeledStatement
+          (LoopStatement
+            (ForStatement
+              (ForPrefix for
+                (ForArgumentsList
+                  (ForItem PLACEHOLDER_1))
+                (PtrListPayload | PLACEHOLDER_4 |))
+              (BlockExpr
+                (Block
+                  (Statement
+                    (IfStatement
+                      (IfPrefix if
+                        (BinaryExpr PLACEHOLDER_4
+                          (CompareOp !=) 0))
+                      (BlockExpr
+                        (Block
+                          (Statement
+                            (AssignExpr
+                              (SuffixExpr PLACEHOLDER_6
+                                (SuffixOp [ PLACEHOLDER_5 ]))
+                              (AssignOp =) PLACEHOLDER_4))
+                          (Statement
+                            (AssignExpr PLACEHOLDER_5
+                              (AssignOp +=) 1))))))))))))
+      (Statement
+        (AssignExpr return PLACEHOLDER_6)))) pub
+  (Decl
+    (FnProto decode
+      (ParamDeclList
+        (ParamDecl allocator :
+          (ParamType
+            (SuffixExpr mem
+              (FieldOrFnCall . Allocator))))
+        (ParamDecl msg :
+          (ParamType
+            (PrefixTypeOp
+              (SliceTypeStart [ ]) const) u8))
+        (ParamDecl rails :
+          (ParamType u3)))
+      (ErrorUnionExpr
+        (SuffixExpr mem
+          (FieldOrFnCall . Allocator)
+          (FieldOrFnCall . Error)) !
+        (PrefixTypeOp
+          (SliceTypeStart [ ])) u8))
+    (Block
+      (Statement
+        (VarDecl var PLACEHOLDER_1 :
+          (PrefixTypeOp
+            (SliceTypeStart [ ])) u8 =
+          (UnaryExpr
+            (PrefixOp try)
+            (SuffixExpr allocator
+              (FieldOrFnCall . alloc
+                (FnCallArguments u8
+                  (SuffixExpr msg
+                    (FieldOrFnCall . len))))))))
+      (Statement errdefer
+        (BlockExprStatement
+          (AssignExpr
+            (SuffixExpr allocator
+              (FieldOrFnCall . free
+                (FnCallArguments PLACEHOLDER_1))))))
+      (Statement
+        (VarDecl const PLACEHOLDER_7 : usize =
+          (BinaryExpr
+            (SuffixExpr @as
+              (FnCallArguments usize
+                (BinaryExpr rails
+                  (AdditionOp -) 1)))
+            (MultiplyOp *) 2)))
+      (Statement
+        (VarDecl var PLACEHOLDER_8 : usize = 0))
+      (Statement
+        (LabeledStatement
+          (LoopStatement
+            (ForStatement
+              (ForPrefix for
+                (ForArgumentsList
+                  (ForItem 0 .. rails))
+                (PtrListPayload | PLACEHOLDER_5 |))
+              (BlockExpr
+                (Block
+                  (Statement
+                    (VarDecl var PLACEHOLDER_9 : usize = 0))
+                  (Statement
+                    (VarDecl const PLACEHOLDER_10 =
+                      (BinaryExpr PLACEHOLDER_7
+                        (AdditionOp -)
+                        (BinaryExpr
+                          (BinaryExpr PLACEHOLDER_5
+                            (MultiplyOp %)
+                            (BinaryExpr rails
+                              (AdditionOp -) 1))
+                          (MultiplyOp *) 2))))
+                  (Statement
+                    (VarDecl var PLACEHOLDER_11 : usize = PLACEHOLDER_10))
+                  (Statement
+                    (VarDecl var PLACEHOLDER_4 : usize = 0))
+                  (Statement
+                    (LabeledStatement
+                      (LoopStatement
+                        (WhileStatement
+                          (WhilePrefix while
+                            (BinaryExpr
+                              (BinaryExpr PLACEHOLDER_5
+                                (AdditionOp +) PLACEHOLDER_9)
+                              (CompareOp <)
+                              (SuffixExpr msg
+                                (FieldOrFnCall . len)))
+                            (WhileContinueExpr :
+                              (AssignExpr PLACEHOLDER_9
+                                (AssignOp +=) PLACEHOLDER_11)))
+                          (BlockExpr
+                            (Block
+                              (Statement
+                                (AssignExpr PLACEHOLDER_4
+                                  (AssignOp +=) 1))
+                              (Statement
+                                (AssignExpr
+                                  (SuffixExpr PLACEHOLDER_1
+                                    (SuffixOp [
+                                      (BinaryExpr PLACEHOLDER_5
+                                        (AdditionOp +) PLACEHOLDER_9) ]))
+                                  (AssignOp =)
+                                  (SuffixExpr msg
+                                    (SuffixOp [ PLACEHOLDER_8 ]))))
+                              (Statement
+                                (AssignExpr PLACEHOLDER_11
+                                  (AssignOp =)
+                                  (IfExpr
+                                    (IfPrefix if
+                                      (BinaryExpr
+                                        (BinaryExpr
+                                          (BinaryExpr PLACEHOLDER_5
+                                            (MultiplyOp %)
+                                            (BinaryExpr rails
+                                              (AdditionOp -) 1))
+                                          (CompareOp !=) 0) and
+                                        (BinaryExpr
+                                          (BinaryExpr PLACEHOLDER_4
+                                            (MultiplyOp %) 2)
+                                          (CompareOp ==) 0)))
+                                    (BinaryExpr PLACEHOLDER_7
+                                      (AdditionOp -) PLACEHOLDER_10) else PLACEHOLDER_10)))
+                              (Statement
+                                (AssignExpr PLACEHOLDER_8
+                                  (AssignOp +=) 1))))))))))))))
+      (Statement
+        (AssignExpr return PLACEHOLDER_1)))))

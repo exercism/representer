@@ -1,0 +1,197 @@
+(source_file
+  (Decl
+    (VarDecl const std =
+      (SuffixExpr @import
+        (FnCallArguments "std"))))
+  (Decl
+    (VarDecl const mem =
+      (SuffixExpr std
+        (FieldOrFnCall . mem))))
+  (Decl
+    (VarDecl const PLACEHOLDER_1 =
+      (SuffixExpr std
+        (FieldOrFnCall . PLACEHOLDER_1)))) pub
+  (Decl
+    (FnProto rows
+      (ParamDeclList
+        (ParamDecl allocator :
+          (ParamType
+            (SuffixExpr mem
+              (FieldOrFnCall . Allocator))))
+        (ParamDecl count :
+          (ParamType usize)))
+      (ErrorUnionExpr
+        (SuffixExpr mem
+          (FieldOrFnCall . Allocator)
+          (FieldOrFnCall . Error)) !
+        (PrefixTypeOp
+          (SliceTypeStart [ ]))
+        (PrefixTypeOp
+          (SliceTypeStart [ ])) u128))
+    (Block
+      (Statement
+        (VarDecl var PLACEHOLDER_2 =
+          (UnaryExpr
+            (PrefixOp try)
+            (SuffixExpr PLACEHOLDER_1
+              (FieldOrFnCall . Aligned
+                (FnCallArguments
+                  (PrefixTypeOp
+                    (SliceTypeStart [ ])) u128
+                  (SuffixExpr null)))
+              (FieldOrFnCall . initCapacity
+                (FnCallArguments allocator count))))))
+      (Statement errdefer
+        (BlockExprStatement
+          (AssignExpr
+            (SuffixExpr deinit
+              (FnCallArguments allocator
+                (UnaryExpr
+                  (PrefixOp &) PLACEHOLDER_2))))))
+      (Statement
+        (IfStatement
+          (IfPrefix if
+            (BinaryExpr count
+              (CompareOp ==) 0))
+          (AssignExpr return
+            (UnaryExpr
+              (PrefixOp try)
+              (SuffixExpr PLACEHOLDER_2
+                (FieldOrFnCall . toOwnedSlice
+                  (FnCallArguments allocator)))))))
+      (Statement
+        (LabeledStatement
+          (LoopStatement
+            (ForStatement
+              (ForPrefix for
+                (ForArgumentsList
+                  (ForItem 0 .. count))
+                (PtrListPayload | PLACEHOLDER_3 |))
+              (BlockExpr
+                (Block
+                  (Statement
+                    (AssignExpr
+                      (UnaryExpr
+                        (PrefixOp try)
+                        (SuffixExpr PLACEHOLDER_2
+                          (FieldOrFnCall . append
+                            (FnCallArguments allocator
+                              (UnaryExpr
+                                (PrefixOp try)
+                                (SuffixExpr allocator
+                                  (FieldOrFnCall . alloc
+                                    (FnCallArguments u128
+                                      (BinaryExpr PLACEHOLDER_3
+                                        (AdditionOp +) 1)))))))))))
+                  (Statement
+                    (AssignExpr
+                      (SuffixExpr PLACEHOLDER_2
+                        (FieldOrFnCall . items)
+                        (SuffixOp [ PLACEHOLDER_3 ])
+                        (SuffixOp [ 0 ]))
+                      (AssignOp =) 1))
+                  (Statement
+                    (AssignExpr
+                      (SuffixExpr PLACEHOLDER_2
+                        (FieldOrFnCall . items)
+                        (SuffixOp [ PLACEHOLDER_3 ])
+                        (SuffixOp [ PLACEHOLDER_3 ]))
+                      (AssignOp =) 1))
+                  (Statement
+                    (IfStatement
+                      (IfPrefix if
+                        (BinaryExpr PLACEHOLDER_3
+                          (CompareOp <) 2))
+                      (AssignExpr continue)))
+                  (Statement
+                    (VarDecl const PLACEHOLDER_4 =
+                      (SuffixExpr PLACEHOLDER_2
+                        (FieldOrFnCall . items)
+                        (SuffixOp [
+                          (BinaryExpr PLACEHOLDER_3
+                            (AdditionOp -) 1) ]))))
+                  (Statement
+                    (VarDecl var PLACEHOLDER_5 =
+                      (SuffixExpr PLACEHOLDER_2
+                        (FieldOrFnCall . items)
+                        (SuffixOp [ PLACEHOLDER_3 ])
+                        (SuffixOp [ 1 .. PLACEHOLDER_3 ]))))
+                  (Statement
+                    (VarDecl var PLACEHOLDER_6 : usize = 0))
+                  (Statement
+                    (VarDecl var PLACEHOLDER_7 : usize = 1))
+                  (Statement
+                    (VarDecl var PLACEHOLDER_8 : usize = 0))
+                  (Statement
+                    (LabeledStatement
+                      (LoopStatement
+                        (WhileStatement
+                          (WhilePrefix while
+                            (BinaryExpr PLACEHOLDER_7
+                              (CompareOp <) PLACEHOLDER_3)
+                            (WhileContinueExpr :
+                              (AssignExpr PLACEHOLDER_8
+                                (AssignOp +=) 1)))
+                          (BlockExpr
+                            (Block
+                              (Statement
+                                (AssignExpr
+                                  (SuffixExpr PLACEHOLDER_5
+                                    (SuffixOp [ PLACEHOLDER_8 ]))
+                                  (AssignOp =)
+                                  (BinaryExpr
+                                    (SuffixExpr PLACEHOLDER_4
+                                      (SuffixOp [ PLACEHOLDER_6 ]))
+                                    (AdditionOp +)
+                                    (SuffixExpr PLACEHOLDER_4
+                                      (SuffixOp [ PLACEHOLDER_7 ])))))
+                              (Statement
+                                (AssignExpr PLACEHOLDER_6
+                                  (AssignOp +=) 1))
+                              (Statement
+                                (AssignExpr PLACEHOLDER_7
+                                  (AssignOp +=) 1))))))))))))))
+      (Statement
+        (AssignExpr return
+          (UnaryExpr
+            (PrefixOp try)
+            (SuffixExpr PLACEHOLDER_2
+              (FieldOrFnCall . toOwnedSlice
+                (FnCallArguments allocator))))))))
+  (Decl
+    (FnProto deinit
+      (ParamDeclList
+        (ParamDecl allocator :
+          (ParamType
+            (SuffixExpr mem
+              (FieldOrFnCall . Allocator))))
+        (ParamDecl PLACEHOLDER_2 :
+          (ParamType
+            (PrefixTypeOp
+              (PtrTypeStart *))
+            (SuffixExpr PLACEHOLDER_1
+              (FieldOrFnCall . Aligned
+                (FnCallArguments
+                  (PrefixTypeOp
+                    (SliceTypeStart [ ])) u128
+                  (SuffixExpr null))))))) void)
+    (Block
+      (Statement
+        (LabeledStatement
+          (LoopStatement
+            (ForStatement
+              (ForPrefix for
+                (ForArgumentsList
+                  (ForItem
+                    (SuffixExpr PLACEHOLDER_2
+                      (FieldOrFnCall . items))))
+                (PtrListPayload | PLACEHOLDER_5 |))
+              (AssignExpr
+                (SuffixExpr allocator
+                  (FieldOrFnCall . free
+                    (FnCallArguments PLACEHOLDER_5))))))))
+      (Statement
+        (AssignExpr
+          (SuffixExpr PLACEHOLDER_2
+            (FieldOrFnCall . deinit
+              (FnCallArguments allocator))))))))

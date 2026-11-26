@@ -1,0 +1,17 @@
+module DNA (nucleotideCounts, Nucleotide(..)) where
+
+import Data.Map as M
+import Data.List
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
+
+countElem :: (Eq a) => a -> [a] -> Int
+countElem x [] = 0
+countElem x (y:ys) | x == y = 1 + countElem x ys
+                   | otherwise = countElem x ys
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts xs | all (`elem` "AGCT") xs = Right $ M.fromList [(A, countElem 'A' xs), (C, countElem 'C' xs),
+                                                                     (G, countElem 'G' xs), (T, countElem 'T' xs)]
+                    | otherwise = Left "Something"
+

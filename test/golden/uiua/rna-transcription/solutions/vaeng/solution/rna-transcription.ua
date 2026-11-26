@@ -1,5 +1,0 @@
-Translation = map "GCTA" "CGAU"
-
-# Convert a DNA strand to its RNA complement
-# RNA ? DNA
-ToRna ← |1 ∵(get : Translation)

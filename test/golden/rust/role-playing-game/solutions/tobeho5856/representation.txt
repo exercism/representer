@@ -1,0 +1,85 @@
+(source_file
+  (inner_attribute_item # !
+    (attribute allow
+      (token_tree "(" unused ")")))
+  (struct_item
+    (visibility_modifier pub) Player
+    (field_declaration_list
+      (field_declaration
+        (visibility_modifier pub) health : u32)
+      (field_declaration
+        (visibility_modifier pub) mana :
+        (generic_type Option
+          (type_arguments < u32 >)))
+      (field_declaration
+        (visibility_modifier pub) level : u32)))
+  (impl_item Player
+    (declaration_list
+      (function_item
+        (visibility_modifier pub) cast_spell
+        (parameters
+          (self_parameter & mut self)
+          (parameter PLACEHOLDER_1 : u32)) -> u32
+        (block
+          (expression_statement
+            (match_expression
+              (field_expression self . mana)
+              (match_block
+                (match_arm
+                  (match_pattern None)
+                  (block
+                    (expression_statement
+                      (assignment_expression
+                        (field_expression self . health) =
+                        (call_expression
+                          (field_expression
+                            (call_expression
+                              (field_expression
+                                (field_expression self . health) . checked_sub)
+                              (arguments PLACEHOLDER_1)) . unwrap_or)
+                          (arguments 0)))) 0))
+                (match_arm
+                  (match_pattern
+                    (tuple_struct_pattern Some PLACEHOLDER_2)
+                    (binary_expression PLACEHOLDER_2 < PLACEHOLDER_1)) 0)
+                (match_arm
+                  (match_pattern
+                    (tuple_struct_pattern Some PLACEHOLDER_2))
+                  (block
+                    (expression_statement
+                      (assignment_expression
+                        (field_expression self . mana) =
+                        (call_expression Some
+                          (arguments
+                            (binary_expression PLACEHOLDER_2 - PLACEHOLDER_1)))))
+                    (binary_expression 2 * PLACEHOLDER_1))))))))
+      (function_item
+        (visibility_modifier pub) revive
+        (parameters
+          (self_parameter & self)) ->
+        (generic_type Option
+          (type_arguments < Player >))
+        (block
+          (expression_statement
+            (if_expression
+              (binary_expression
+                (field_expression self . health) > 0)
+              (block
+                (expression_statement
+                  (return_expression None)))))
+          (call_expression Some
+            (arguments
+              (struct_expression Player
+                (field_initializer_list
+                  (field_initializer health : 100)
+                  (field_initializer mana :
+                    (if_expression
+                      (binary_expression
+                        (field_expression self . level) < 10)
+                      (block None)
+                      (else_clause
+                        (block
+                          (call_expression Some
+                            (arguments 100))))))
+                  (base_field_initializer ..
+                    (unary_expression * self)))))))))))

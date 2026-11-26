@@ -1,4 +1,0 @@
-Array::accumulate = (f) ->
-  return [] if @length is 0
-  [head, tail...] = @
-  [f(head)].concat tail.accumulate(f)

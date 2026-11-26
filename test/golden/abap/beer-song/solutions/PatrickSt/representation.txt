@@ -1,0 +1,56 @@
+CLASS zcl_beer_song DEFINITION
+PUBLIC
+FINAL
+CREATE PUBLIC .
+PUBLIC SECTION .
+METHODS recite
+IMPORTING
+! initial_bottles_count TYPE i
+! take_down_count TYPE i
+RETURNING
+VALUE ( result ) TYPE string_table .
+PROTECTED SECTION .
+PRIVATE SECTION .
+ENDCLASS .
+CLASS zcl_beer_song IMPLEMENTATION .
+METHOD recite .
+DATA : index type i value 0 ,
+new_bottles_count type i ,
+lt_result type table of string .
+new_bottles_count = initial_bottles_count .
+DO take_down_count times .
+IF new_bottles_count > 2 .
+new_bottles_count = initial_bottles_count - index .
+lt_result = value # ( base lt_result ( "|{ new_bottles_count } bottles of beer on the wall, { new_bottles_count } bottles of beer.|" )
+( "|Take one down and pass it around, { new_bottles_count - 1 } bottles of beer on the wall.|" ) ).
+index = index + 1 .
+IF sy-index NE take_down_count .
+APPEND INITIAL LINE TO lt_result .
+ENDIF .
+ELSEIF new_bottles_count = 2 .
+new_bottles_count = initial_bottles_count - index .
+lt_result = value # ( base lt_result ( "|{ new_bottles_count } bottles of beer on the wall, { new_bottles_count } bottles of beer.|" )
+( "|Take one down and pass it around, { new_bottles_count - 1 } bottle of beer on the wall.|" ) ).
+index = index + 1 .
+new_bottles_count = initial_bottles_count - index .
+IF sy-index NE take_down_count .
+APPEND INITIAL LINE TO lt_result .
+ENDIF .
+ELSEIF new_bottles_count = 1 .
+new_bottles_count = initial_bottles_count - index .
+lt_result = value # ( base lt_result ( "|{ new_bottles_count } bottle of beer on the wall, { new_bottles_count } bottle of beer.|" )
+( "|Take it down and pass it around, no more bottles of beer on the wall.|" ) ).
+index = index + 1 .
+new_bottles_count = initial_bottles_count - index .
+IF sy-index NE take_down_count .
+APPEND INITIAL LINE TO lt_result .
+ENDIF .
+ELSEIF new_bottles_count = 0 .
+lt_result = value # ( base lt_result ( "|No more bottles of beer on the wall, no more bottles of beer.|" )
+( "|Go to the store and buy some more, 99 bottles of beer on the wall.|" ) ).
+EXIT .
+ENDIF .
+ENDDO .
+result = lt_result .
+ENDMETHOD .
+ENDCLASS .

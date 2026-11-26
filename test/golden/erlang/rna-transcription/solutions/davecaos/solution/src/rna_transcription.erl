@@ -1,0 +1,11 @@
+-module(rna_transcription).
+
+-export([to_rna/1]).
+
+dna_to_rna($G) -> $C;
+dna_to_rna($C) -> $G;
+dna_to_rna($T) -> $A;
+dna_to_rna($A) -> $U.
+
+to_rna(Strand) ->
+    lists:map(fun dna_to_rna/1, Strand).

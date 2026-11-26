@@ -1,0 +1,25 @@
+Public Class Anagram
+    Private ReadOnly _inputWord As String
+    Private ReadOnly _sortedInputCharArray As Char()
+
+    Public Sub New(word As String)
+        _inputWord = word.ToLower()
+        _sortedInputCharArray = _inputWord.ToCharArray().OrderBy(Function(letter) letter).ToArray()
+    End Sub
+
+    Public Function Match(strings As String()) As String()
+        Dim matches = strings.Where(Function(blah) IsAnagram(blah)).ToArray()
+        Array.Sort(matches)
+        Return matches
+    End Function
+
+    Private Function IsAnagram(testString As String) As Boolean
+        testString = testString.ToLower()
+        If testString = _inputWord Then
+            Return False
+        End If
+        Dim testStringCharacterArray = testString.ToCharArray()
+        Array.Sort(testStringCharacterArray)
+        Return testStringCharacterArray.SequenceEqual(_sortedInputCharArray)
+    End Function
+End Class

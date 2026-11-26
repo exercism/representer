@@ -1,0 +1,243 @@
+module zebra_puzzle;
+
+import std.algorithm.iteration : fold, filter;
+import std.algorithm.setops : cartesianProduct;
+import std.algorithm.searching : all;
+import std.range : iota;
+import std.array : array;
+
+enum Nationality
+{
+    englishman,
+    japanese,
+    norwegian,
+    spaniard,
+    ukrainian
+}
+
+enum {
+    FIRST = 1 << 0,
+    SECOND = 1 << 1,
+    THIRD = 1 << 2,
+    FOURTH = 1 << 3,
+    FIFTH = 1 << 4,
+
+    ENGLISH = 1 << 5,
+    JAPANESE = 1 << 6,
+    NORWEGIAN = 1 << 7,
+    SPANISH = 1 << 8,
+    UKRAINIAN = 1 << 9,
+
+    RED = 1 << 10,
+    GREEN = 1 << 11,
+    IVORY = 1 << 12,
+    YELLOW = 1 << 13,
+    BLUE = 1 << 14,
+
+    DOG = 1 << 15,
+    FOX = 1 << 16,
+    SNAILS = 1 << 17,
+    HORSE = 1 << 18,
+    ZEBRA = 1 << 19,
+
+    COFFEE = 1 << 20,
+    TEA = 1 << 21,
+    MILK = 1 << 22,
+    OJ = 1 << 23,
+    WATER = 1 << 24,
+
+    // No smokes -- what would Mrs. Grundy say?
+    DANCE = 1 << 25,
+    PAINT = 1 << 26,
+    READ = 1 << 27,
+    FOOTBALL = 1 << 28,
+    CHESS = 1 << 29,
+};
+
+alias house = int;
+alias street = house[5];
+
+pure bool has(house h, int attribute)
+{
+    return (h & attribute) != 0;
+}
+
+pure bool right_of(house h1, house h2)
+{
+    return (h1 & 0x1f) == 2 * (h2 & 0x1f);
+}
+
+pure bool next_to(house h1, house h2)
+{
+    return h1.right_of(h2) || h2.right_of(h1);
+}
+
+pure bool feasible_house(house h)
+{
+    return h.has(ENGLISH) == h.has(RED) &&
+            h.has(SPANISH) == h.has(DOG) &&
+            h.has(GREEN) == h.has(COFFEE) &&
+            h.has(UKRAINIAN) == h.has(TEA) &&
+            !(h.has(IVORY) && h.has(FIFTH)) &&
+            !(h.has(GREEN) && h.has(FIRST)) &&
+            h.has(SNAILS) == h.has(DANCE) &&
+            h.has(YELLOW) == h.has(PAINT) &&
+            h.has(THIRD) == h.has(MILK) &&
+            h.has(NORWEGIAN) == h.has(FIRST) &&
+            !(h.has(READ) && h.has(FOX)) &&
+            !(h.has(PAINT) && h.has(HORSE)) &&
+            h.has(FOOTBALL) == h.has(OJ) &&
+            h.has(JAPANESE) == h.has(CHESS) &&
+           !(h.has(NORWEGIAN) && h.has(BLUE));
+}
+
+pure bool implies(bool p, bool q)
+{
+    return !p || q;
+}
+
+pure bool feasible_pair(house h1, house h2)
+{
+    return implies(h1.has(GREEN) && h2.has(IVORY), h1.right_of(h2)) &&
+            implies(h1.has(READ) && h2.has(FOX), h1.next_to(h2)) &&
+            implies(h1.has(PAINT) && h2.has(HORSE), h1.next_to(h2)) &&
+            implies(h1.has(NORWEGIAN) && h2.has(BLUE), h1.next_to(h2));
+}
+
+pure bool feasible_street(street s)
+{
+    return cartesianProduct(s[], s[]).all!(h => feasible_pair(h[0], h[1]));
+}
+
+struct housemaker {
+    enum HOUSE_TOTAL = 5^^6;
+    int made = 0;
+    int[] index = [0, 0, 0, 0, 0, 0];
+
+    bool empty() {
+        return made == HOUSE_TOTAL;
+    }
+
+    house front() {
+        return iota(6).fold!((a, i) => a + (1 << (5 * i + index[i])))(0);
+    }
+
+    void popFront() {
+        ++made;
+        int i = 0;
+        while (i != index.length && index[i] == 4) {
+            index[i] = 0;
+            ++i;
+        }
+        if (i != index.length) {
+            ++index[i];
+        }
+    }
+};
+
+struct streetmaker {
+    house[][5] hs;
+    street[] streets;
+    int index;
+
+    this(ref const house[] houses)
+    {
+        foreach (h; houses) {
+            int i = 0;
+            while (((1 << i) & h) == 0) {
+                ++i;
+            }
+            hs[i] ~= h;
+        }
+        street s;
+        build_streets(0, 0, s);
+    }
+
+    void build_streets(int i, int used, street partial)
+    {
+        if (i == 5) {
+            streets ~= partial;
+            return;
+        }
+        foreach (h; hs[i]) {
+            if ((h & used) == 0) {
+                partial[i] = h;
+                build_streets(i + 1, used | h, partial);
+            }
+        }
+    }
+
+    bool empty()
+    {
+        return index == streets.length;
+    }
+
+    street front()
+    {
+        return streets[index];
+    }
+
+    void popFront()
+    {
+        ++index;
+    }
+}
+
+pure Nationality nation(house h)
+{
+    final switch (h & 0x1e0) {
+    case ENGLISH:
+        return Nationality.englishman;
+    case JAPANESE:
+        return Nationality.japanese;
+    case NORWEGIAN:
+        return Nationality.norwegian;
+    case SPANISH:
+        return Nationality.spaniard;
+    case UKRAINIAN:
+        return Nationality.ukrainian;
+    }
+}
+
+class ZebraPuzzle
+{
+    street solution;
+
+    this()
+    {
+        // implement this function
+        house[] houses = housemaker().filter!feasible_house.array;
+        street[] streets = streetmaker(houses).filter!feasible_street.array;
+        assert(streets.length == 1);
+        solution = streets[0];
+    }
+
+    pure Nationality findOwner(int attribute)
+    {
+        foreach (house; solution) {
+            if (house.has(attribute)) {
+                return house.nation;
+            }
+        }
+        assert(false, "not reachable");
+    }
+
+    Nationality drinksWater()
+    {
+        // implement this function
+        return findOwner(WATER);
+    }
+
+    Nationality ownsZebra()
+    {
+        // implement this function
+        return findOwner(ZEBRA);
+    }
+}
+
+unittest
+{
+    ZebraPuzzle zebraPuzzle = new ZebraPuzzle();
+    assert(zebraPuzzle.drinksWater() == Nationality.norwegian);
+    assert(zebraPuzzle.ownsZebra() == Nationality.japanese);
+}

@@ -1,0 +1,41 @@
+# | Register | Usage     | Type    | Description                                                                        |
+# | -------- | --------- | ------- | ---------------------------------------------------------------------------------- |
+# | `$a0`    | input     | integer | side a                                                                             |
+# | `$a1`    | input     | integer | side b                                                                             |
+# | `$a2`    | input     | integer | side c                                                                             |
+# | `$v0`    | output    | integer | type of triangle (`0` = scalene, `1` = isoceles, `2` = equilateral, `3` = invalid) |
+# | `$t0-9`  | temporary | any     | used for temporary storage                                                         |
+
+.globl triangle
+
+triangle:
+        blez $a0, invalid
+        blez $a1, invalid
+        blez $a2, invalid
+        add $t0, $a0, $a1
+        blt $t0, $a2, invalid
+        add $t0, $a1, $a2
+        blt $t0, $a0, invalid
+        add $t0, $a0, $a2
+        blt $t0, $a1, invalid
+        seq $t0, $a0, $a1
+        seq $t1, $a1, $a2
+        seq $t2, $a0, $a2
+        add $t3, $t0, $t1
+        add $t3, $t3, $t2
+        beq $t3, 3, equilateral
+        beq $t3, 1, isosceles
+        j scalene
+equilateral:
+        li $v0, 2
+        j return
+isosceles:
+        li $v0, 1
+        j return
+scalene: 
+        li $v0, 0
+        j return
+invalid:
+        li $v0, 3
+return:
+        jr $ra

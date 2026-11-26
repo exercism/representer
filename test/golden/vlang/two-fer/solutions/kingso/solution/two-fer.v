@@ -1,9 +1,0 @@
-module main
-
-fn two_fer(name string) string {
-    mut str := 'you'
-    if name != '' {
-        str = name
-    }
-    return "One for ${str}, one for me."
-}

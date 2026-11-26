@@ -1,0 +1,21 @@
+module Etl
+  ( transform
+  ) where
+import Prelude
+import Data.Array ( concatMap )
+import Data.Array as A
+import Data.Map ( Map , empty , fromFoldable , keys , lookup , toUnfoldable , union )
+import Data.Maybe ( Maybe ( .. ))
+import Data.String ( toLower )
+import Data.String.CodeUnits ( fromCharArray , toCharArray )
+import Data.Tuple ( Tuple ( .. ))
+transform :: Map Int ( Array Char ) -> Map Char Int
+transform ary =
+  fromFoldable $
+    concatMap convertOne $
+      toUnfoldable ary
+  where
+    convertOne :: Tuple Int ( Array Char ) -> Array ( Tuple Char Int )
+    convertOne ( Tuple i cs ) = map ( \ c -> Tuple c i ) ( charArrayToLower cs )
+charArrayToLower :: Array Char -> Array Char
+charArrayToLower = toCharArray <<< toLower <<< fromCharArray

@@ -1,0 +1,29 @@
+module ArmstrongNumbers
+import Data.List
+import Data.Nat
+toDigits : Integer -> List Integer
+toDigits n =
+  if n < 0
+    then []
+    else if n < 10
+      then [ n ]
+      else ( n ` mod ` 10 ) :: toDigits ( n ` div ` 10 )
+power : Integer -> Integer -> Integer
+power base 0 = 1
+power base exp =
+  if exp < 0
+    then 0
+    else base * power base ( exp - 1 )
+armstrongSum : List Integer -> Integer
+armstrongSum digits =
+  let numDigits = cast ( length digits )
+  in sum ( map ( \ d => power d numDigits ) digits )
+export
+isArmstrongNumber : Integer -> Bool
+isArmstrongNumber number =
+  if number < 0
+    then False
+    else
+      let digits = toDigits number
+        calculatedSum = armstrongSum digits
+      in number == calculatedSum

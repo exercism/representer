@@ -1,7 +1,0 @@
-Object::accumulate = (accumulator)->
-  result = []
-  for entry in @
-    result.push(accumulator entry)
-  return result
-
-module.exports = accumulate

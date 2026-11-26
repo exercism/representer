@@ -1,0 +1,51 @@
+: >sorted-3array \ x y z -- a
+3 a:close ' n:cmp a:sort
+;
+: all-greater-than-zero? \ a -- T a
+0 a:@ 0 n:> swap
+;
+: triangle-inequality? \ a -- T a
+2 a:@ >r
+1 a:@ >r
+0 a:@ r> n:+
+r> n:- 0 n:< not
+swap
+;
+: valid?
+dup
+all-greater-than-zero?
+triangle-inequality?
+drop and swap
+;
+: count-equal-sides
+dup
+2 a:@ >r
+1 a:@ >r
+1 a:@ >r
+0 a:@ r> n:=
+if 2
+else 1
+then r> r> n:=
+if 1 n:+
+then swap drop swap drop
+;
+: equilateral? \ n n n -- T
+>sorted-3array
+valid?
+count-equal-sides 3 n:=
+and
+;
+: isosceles? \ n n n -- T
+>sorted-3array
+valid?
+count-equal-sides 1 n:>
+and
+;
+: scalene? \ n n n -- T
+>sorted-3array
+valid?
+count-equal-sides 1 n:=
+and
+;
+\ "\"t.8th\"" f:include
+\ G:reset

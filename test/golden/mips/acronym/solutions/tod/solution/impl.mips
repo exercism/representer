@@ -1,0 +1,38 @@
+# | Register | Usage        | Type    | Description                   |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0`    | input        | address | null-terminated input string  |
+# | `$a1`    | input/output | address | null-terminated output string |
+# | `$t0-9`  | temporary    | any     | used for temporary storage    |
+
+.globl abbreviate
+
+abbreviate:
+        li $t1, 0
+        loop: lb $t0, 0($a0)
+        beqz $t0, finish
+        beqz $t1, store
+        beq $t0, ' ', nextW
+        beq $t0, '-', nextW
+        beq $t0, '_', nextW
+        addi $a0, $a0, 1
+        j loop
+       
+nextW:
+        addi $a0, $a0, 1
+        lb $t0, 0($a0)
+        beq $t0, ' ', nextW
+        beq $t0, '-', nextW
+        beq $t0, '_', nextW
+        ble $t0, 'Z', store
+        addi $t0, $t0, -32
+        j store
+
+store:
+        add $a1, $a1, $t1
+        sb $t0, 0($a1) 
+        li $t1, 1 
+        addi $a0, $a0, 1
+        j loop
+
+finish:
+        jr $ra

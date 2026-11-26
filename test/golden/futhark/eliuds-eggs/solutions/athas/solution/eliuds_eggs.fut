@@ -1,0 +1,4 @@
+-- Best solution
+-- def egg_count = i32.popc
+
+def egg_count (x: i32) = loop y = 0 for i < 32 do y + i32.get_bit i x

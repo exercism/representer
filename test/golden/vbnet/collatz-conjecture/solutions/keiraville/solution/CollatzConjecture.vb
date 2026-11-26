@@ -1,0 +1,20 @@
+Imports System
+
+Public Module CollatzConjecture
+    Public Function Steps(ByVal number As Integer) As Integer
+        If number <= 0 Then
+            Throw New ArgumentOutOfRangeException("Steps called with non-positive number")
+        End If
+        Dim result As Integer
+        result = 0
+        While number > 1
+            If number Mod 2 = 0 Then
+                number = number \ 2
+            Else
+                number = 3 * number + 1
+            End If
+            result = result + 1
+        End While
+        Return result
+    End Function
+End Module

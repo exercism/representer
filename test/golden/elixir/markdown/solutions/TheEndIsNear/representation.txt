@@ -1,0 +1,267 @@
+(source
+  (call defmodule
+    (arguments Markdown)
+    (do_block
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call parse
+                (arguments
+                  (call
+                    (dot String . t)
+                    (arguments)))) ::
+              (call
+                (dot String . t)
+                (arguments))))))
+      (call def
+        (arguments
+          (call parse
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (binary_operator
+            (binary_operator
+              (binary_operator
+                (binary_operator PLACEHOLDER_1 |>
+                  (call
+                    (dot String . split)
+                    (arguments "\n"))) |>
+                (call
+                  (dot Enum . map)
+                  (arguments
+                    (unary_operator &
+                      (binary_operator process / 1))))) |>
+              (call
+                (dot Enum . join)
+                (arguments))) |>
+            (call patch
+              (arguments)))))
+      (call defp
+        (arguments
+          (call process
+            (arguments (variable PLACEHOLDER_2))))
+        (do_block
+          (call if
+            (arguments
+              (binary_operator
+                (binary_operator
+                  (call
+                    (dot String . starts_with?)
+                    (arguments PLACEHOLDER_2 "#")) &&
+                  (unary_operator !
+                    (call
+                      (dot String . starts_with?)
+                      (arguments PLACEHOLDER_2 "#######")))) ||
+                (call
+                  (dot String . starts_with?)
+                  (arguments PLACEHOLDER_2 "*"))))
+            (do_block
+              (call if
+                (arguments
+                  (call
+                    (dot String . starts_with?)
+                    (arguments PLACEHOLDER_2 "#")))
+                (do_block
+                  (call enclose_with_header_tag
+                    (arguments
+                      (call parse_header_md_level
+                        (arguments PLACEHOLDER_2))))
+                  (else_block
+                    (call parse_list_md_level
+                      (arguments PLACEHOLDER_2)))))
+              (else_block
+                (call enclose_with_paragraph_tag
+                  (arguments
+                    (call
+                      (dot String . split)
+                      (arguments PLACEHOLDER_2)))))))))
+      (call defp
+        (arguments
+          (call parse_header_md_level
+            (arguments (variable PLACEHOLDER_3))))
+        (do_block
+          (binary_operator
+            (list
+              (binary_operator (variable PLACEHOLDER_4) | (variable PLACEHOLDER_2))) =
+            (call
+              (dot String . split)
+              (arguments PLACEHOLDER_3)))
+          (tuple
+            (call to_string
+              (arguments
+                (call
+                  (dot String . length)
+                  (arguments PLACEHOLDER_4))))
+            (call
+              (dot Enum . join)
+              (arguments PLACEHOLDER_2 " ")))))
+      (call defp
+        (arguments
+          (call parse_list_md_level
+            (arguments (variable PLACEHOLDER_5))))
+        (do_block
+          (binary_operator (variable PLACEHOLDER_2) =
+            (binary_operator
+              (binary_operator PLACEHOLDER_5 |>
+                (call
+                  (dot String . trim_leading)
+                  (arguments "* "))) |>
+              (call
+                (dot String . split)
+                (arguments))))
+          (binary_operator "<li>" <>
+            (binary_operator
+              (call join_words_with_tags
+                (arguments PLACEHOLDER_2)) <> "</li>"))))
+      (call defp
+        (arguments
+          (call enclose_with_header_tag
+            (arguments
+              (tuple (variable PLACEHOLDER_6) (variable PLACEHOLDER_7)))))
+        (do_block
+          (binary_operator "<h" <>
+            (binary_operator PLACEHOLDER_6 <>
+              (binary_operator ">" <>
+                (binary_operator PLACEHOLDER_7 <>
+                  (binary_operator "</h" <>
+                    (binary_operator PLACEHOLDER_6 <> ">"))))))))
+      (call defp
+        (arguments
+          (call enclose_with_paragraph_tag
+            (arguments (variable PLACEHOLDER_2))))
+        (do_block
+          (string "<p>"
+            (interpolation #{
+              (call join_words_with_tags
+                (arguments PLACEHOLDER_2))) "</p>")))
+      (call defp
+        (arguments
+          (call join_words_with_tags
+            (arguments (variable PLACEHOLDER_2))))
+        (do_block
+          (binary_operator
+            (binary_operator PLACEHOLDER_2 |>
+              (call
+                (dot Enum . map)
+                (arguments
+                  (unary_operator &
+                    (binary_operator replace_md_with_tag / 1))))) |>
+            (call
+              (dot Enum . join)
+              (arguments " ")))))
+      (call defp
+        (arguments
+          (call replace_md_with_tag
+            (arguments (variable PLACEHOLDER_8))))
+        (do_block
+          (binary_operator
+            (binary_operator PLACEHOLDER_8 |>
+              (call replace_prefix_md
+                (arguments))) |>
+            (call replace_suffix_md
+              (arguments)))))
+      (call defp
+        (arguments
+          (call replace_prefix_md
+            (arguments (variable PLACEHOLDER_8))))
+        (do_block
+          (call cond
+            (do_block
+              (stab_clause
+                (arguments
+                  (binary_operator (variable PLACEHOLDER_8) =~
+                    (sigil ~ r / ^
+                      (interpolation #{ "__") {1} /))) ->
+                (body
+                  (call
+                    (dot String . replace)
+                    (arguments PLACEHOLDER_8
+                      (sigil ~ r / ^
+                        (interpolation #{ "__") {1} /) "<strong>"
+                      (keywords
+                        (pair "global: "
+                          (boolean false)))))))
+              (stab_clause
+                (arguments
+                  (binary_operator (variable PLACEHOLDER_8) =~
+                    (sigil ~ r / ^[
+                      (interpolation #{ "_") {1}][^
+                      (interpolation #{ "_") +] /))) ->
+                (body
+                  (call
+                    (dot String . replace)
+                    (arguments PLACEHOLDER_8
+                      (sigil ~ r / _ /) "<em>"
+                      (keywords
+                        (pair "global: "
+                          (boolean false)))))))
+              (stab_clause
+                (arguments
+                  (boolean true)) ->
+                (body PLACEHOLDER_8))))))
+      (call defp
+        (arguments
+          (call replace_suffix_md
+            (arguments (variable PLACEHOLDER_8))))
+        (do_block
+          (call cond
+            (do_block
+              (stab_clause
+                (arguments
+                  (binary_operator (variable PLACEHOLDER_8) =~
+                    (sigil ~ r /
+                      (interpolation #{ "__") {1}$ /))) ->
+                (body
+                  (call
+                    (dot String . replace)
+                    (arguments PLACEHOLDER_8
+                      (sigil ~ r /
+                        (interpolation #{ "__") {1}$ /) "</strong>"))))
+              (stab_clause
+                (arguments
+                  (binary_operator (variable PLACEHOLDER_8) =~
+                    (sigil ~ r / [^
+                      (interpolation #{ "_") {1}] /))) ->
+                (body
+                  (call
+                    (dot String . replace)
+                    (arguments PLACEHOLDER_8
+                      (sigil ~ r / _ /) "</em>"))))
+              (stab_clause
+                (arguments
+                  (boolean true)) ->
+                (body PLACEHOLDER_8))))))
+      (call defp
+        (arguments
+          (call patch
+            (arguments (variable PLACEHOLDER_5))))
+        (do_block
+          (binary_operator
+            (binary_operator
+              (binary_operator
+                (binary_operator PLACEHOLDER_5 |>
+                  (call
+                    (dot String . replace)
+                    (arguments "<li>"
+                      (binary_operator "<ul>" <> "<li>")
+                      (keywords
+                        (pair "global: "
+                          (boolean false)))))) |>
+                (call
+                  (dot String . reverse)
+                  (arguments))) |>
+              (call
+                (dot String . replace)
+                (arguments
+                  (call
+                    (dot String . reverse)
+                    (arguments "</li>"))
+                  (call
+                    (dot String . reverse)
+                    (arguments "</li></ul>"))
+                  (keywords
+                    (pair "global: "
+                      (boolean false)))))) |>
+            (call
+              (dot String . reverse)
+              (arguments))))))))

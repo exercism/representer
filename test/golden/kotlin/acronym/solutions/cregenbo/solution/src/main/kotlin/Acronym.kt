@@ -1,0 +1,7 @@
+object Acronym {
+    fun generate(phrase: String) : String = phrase
+        .split("(\\s|-)+".toRegex())
+        .joinToString(separator = "") {
+            it.first(Char::isLetterOrDigit).uppercase()
+        }
+}

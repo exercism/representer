@@ -1,0 +1,39 @@
+module nth_prime ;
+uint [] primes ;
+void sieve ()
+{
+bool [ 200000 ] isPrime = true ;
+for ( int p = 2 ; p * p < 200_000 ; p ++)
+{
+if ( isPrime [ p ] == true )
+{
+for ( int i = p * p ; i < 200_000 ; i += p )
+{
+isPrime [ i ] = false ;
+}
+}
+}
+for ( int p = 2 ; p < 200_000 ; p ++)
+{
+if ( isPrime [ p ]) primes ~= p ;
+}
+}
+uint prime ( uint index )
+{
+if ( index == 0 ) throw new Exception ( "\"No zeroth prime number\"" );
+if ( primes . length == 0 ) sieve ();
+return primes [ index - 1 ];
+}
+unittest
+{
+import std . exception : assertThrown ;
+immutable int allTestsEnabled = 1 ;
+assert ( prime ( 1 ) == 2 );
+static if ( allTestsEnabled )
+{
+assert ( prime ( 2 ) == 3 );
+assert ( prime ( 6 ) == 13 );
+assert ( prime ( 10_001 ) == 10_4743 );
+assertThrown ( prime ( 0 ));
+}
+}

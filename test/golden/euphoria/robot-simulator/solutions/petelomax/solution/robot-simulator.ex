@@ -1,0 +1,18 @@
+constant dstr = {"north","east","south","west"},
+         dxy = { {0,1},  {1,0}, {0,-1}, {-1,0}},
+         dright = {2,3,4,1}, dleft = {4,1,2,3}
+
+public function move(sequence robot, sequence commands)
+    integer x = robot[1],
+            y = robot[2],
+            d = find(robot[3],dstr)
+    for i=1 to length(commands) do
+        switch commands[i] do
+            case 'R' then d = dright[d]
+            case 'L' then d = dleft[d]
+            case 'A' then x += dxy[d][1]
+                          y += dxy[d][2]
+        end switch
+    end for
+    return {x,y,dstr[d]}
+end function

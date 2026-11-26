@@ -1,0 +1,5 @@
+local leap_year = function(number)
+  return (math.fmod(number, 400) == 0) or (math.fmod(number, 100) ~= 0 and math.fmod(number, 4) == 0)
+end
+
+return leap_year

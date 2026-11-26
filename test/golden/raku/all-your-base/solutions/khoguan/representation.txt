@@ -1,0 +1,78 @@
+(source_file
+  (unit_declaration unit module AllYourBase)
+  (constant_declaration constant @errors =
+    (list_expression "input base must be >= 2" , "output base must be >= 2" , "all digits must satisfy 0 <= d < input base" ,))
+  (routine_declaration sub convert-base
+    (signature "("
+      (parameter_list
+        (parameter :%bases !) ,
+        (parameter :@digits !)) ")")
+    (trait is export)
+    (block {
+      (assignment
+        (variable_declaration
+          (scope my) "(" (local_scalar PLACEHOLDER_1) , (local_scalar PLACEHOLDER_2) ")") =
+        (list_expression
+          (subscript %bases < from >) ,
+          (subscript %bases < to >)))
+      (if_statement if
+        (binary_expression (scalar PLACEHOLDER_1) < 2)
+        (block {
+          (listop_call die
+            (subscript @errors [ 0 ])) }))
+      (if_statement if
+        (binary_expression (scalar PLACEHOLDER_2) < 2)
+        (block {
+          (listop_call die
+            (subscript @errors [ 1 ])) }))
+      (for_statement for @digits
+        (pointy_block ->
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_3)))
+          (block {
+            (if_statement if
+              (unary_expression not
+                (binary_expression
+                  (binary_expression 0 <= (scalar PLACEHOLDER_3)) < (scalar PLACEHOLDER_1)))
+              (block {
+                (listop_call die
+                  (subscript @errors [ 2 ])) })) })))
+      (list_expression
+        (assignment
+          (variable_declaration
+            (scope my) (local_scalar PLACEHOLDER_4)) :=
+          (list_expression
+            (binary_expression (scalar PLACEHOLDER_1) ** 0) ,
+            (binary_expression (scalar PLACEHOLDER_1) ** 1))) ,
+        (binary_expression
+          (binary_expression (scalar PLACEHOLDER_1) ** 2) ...
+          (whatever *)))
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_5)) =
+        (call_expression sum
+          (argument_list "("
+            (binary_expression
+              (method_call @digits . reverse) (scalar PLACEHOLDER_4)) ")")))
+      (if_statement if
+        (binary_expression (scalar PLACEHOLDER_5) == 0)
+        (block {
+          (listop_call return
+            (list_expression 0 ,)) }))
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_6)) = (scalar PLACEHOLDER_5))
+      (variable_declaration
+        (scope my) (local_array PLACEHOLDER_7))
+      (while_statement while
+        (binary_expression (scalar PLACEHOLDER_6) >= (scalar PLACEHOLDER_2))
+        (block {
+          (method_listop_call (array PLACEHOLDER_7) . unshift :
+            (binary_expression (scalar PLACEHOLDER_6) mod (scalar PLACEHOLDER_2)))
+          (assignment (scalar PLACEHOLDER_6) (scalar PLACEHOLDER_2)) }))
+      (if_statement if
+        (binary_expression (scalar PLACEHOLDER_6) > 0)
+        (block {
+          (method_listop_call (array PLACEHOLDER_7) . unshift : (scalar PLACEHOLDER_6)) }))
+      (listop_call return
+        (method_call (array PLACEHOLDER_7) . List)) })))

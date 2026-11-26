@@ -1,0 +1,14 @@
+
+binary_ls([], Acc, Acc).
+
+binary_ls(['0'|Rest], Acc, Dec) :-
+    NewAcc is 2 * Acc,
+    binary_ls(Rest, NewAcc, Dec).
+
+binary_ls(['1'|Rest], Acc, Dec) :-
+    NewAcc is 1 + 2 * Acc,
+    binary_ls(Rest, NewAcc, Dec).
+
+binary(Str, Dec) :-
+    string_chars(Str, Chars),
+    binary_ls(Chars, 0, Dec).

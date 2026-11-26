@@ -1,0 +1,55 @@
+# | Register | Usage        | Type    | Description                                  |
+# | -------- | ------------ | ------- | -------------------------------------------- |
+# | `$a0`    | input        | integer | N, sum of sides of triangle                  |
+# | `$a1`    | input/output | address | a values                                     |
+# | `$a2`    | input/output | address | b values                                     |
+# | `$a3`    | input/output | address | c values                                     |
+# | `$v0`    | output       | integer | number of triplets                           |
+# | `$t0-9`  | temporary    | any     | for temporary storage                        |
+
+.globl triplets_with_sum
+
+# solution to the equations a+b+c==N, a^2+b^2=c^2
+# is given by b = N*(N-2*a)/(2*(N-a))
+#             c = N - a - b
+# so 2*(N-a) should divide N*(N-2*a) evenly
+
+
+triplets_with_sum:
+        li $v0, 0
+        li $t0, 0               # $t0: value of a
+        
+__loop_a:
+        addiu $t0, $t0, 1
+        
+        sll $t4, $t0, 1         # loop can be stopped of 2*a >= N
+        bge $t4, $a0, __end
+
+        sub $t4, $a0, $t4       # $t4 = N - 2*a
+        mul $t4, $a0, $t4       # $t4 = N*(N-2*a)
+
+        sub $t5, $a0, $t0       # $t5 = N-a
+        sll $t5, $t5, 1         # $t5 = 2*(N-a)
+
+        div $t4, $t5
+        mfhi $t4
+        bnez $t4, __loop_a      # does not divide evenly
+
+        mflo $t1                # $t1: value of b
+        ble $t1, $t0, __end     # if b <= a then done
+        
+        add $t2, $t0, $t1       # $t2: a+b
+        sub $t2, $a0, $t2       # $t2: value of c
+       
+# found solution
+        sw $t0, ($a1)
+        addiu $a1, $a1, 4
+        sw $t1, ($a2)
+        addiu $a2, $a2, 4
+        sw $t2, ($a3)
+        addiu $a3, $a3, 4
+        addiu $v0, $v0, 1
+        j __loop_a
+
+__end:
+        jr $ra

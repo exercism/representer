@@ -1,0 +1,18 @@
+-module(rna_transcription).
+
+-export([to_rna/1, test_version/0]).
+
+
+to_rna(Strand) -> to_rna(Strand, "").
+
+
+to_rna([], Acc) -> Acc;
+to_rna([H|T], Acc) when H == 71 -> to_rna(T, string:join([Acc, "C"], ""));
+to_rna([H|T], Acc) when H == 67 -> to_rna(T, string:join([Acc, "G"], ""));
+to_rna([H|T], Acc) when H == 84 -> to_rna(T, string:join([Acc, "A"], ""));
+to_rna([H|T], Acc) when H == 65 -> to_rna(T, string:join([Acc, "U"], ""));
+to_rna([H|_], _) ->
+  io:format("~p ", [H]),
+  error. 
+
+test_version() -> 2.

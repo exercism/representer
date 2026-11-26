@@ -1,0 +1,57 @@
+section .text
+global rebase
+rebase:
+cmp edx , 2
+jl bad_input_base
+cmp r8d , 2
+jl bad_input_base
+jmp continue
+bad_input_base:
+mov eax , - 1
+ret
+bad_digit:
+mov rbx , r11
+mov rax , - 2
+ret
+continue:
+mov r11 , rbx
+xchg rsi , rcx
+mov r9 , rdx
+xchg rdi , rsi
+mov r10 , rdi
+read_N:
+xor ebx , ebx
+.loop:
+test cl , cl
+jz .done
+lodsd
+cmp eax , r9d
+jae bad_digit
+xchg eax , ebx
+mul r9w
+add ebx , eax
+dec cl
+jmp .loop
+.done:
+mov eax , ebx
+write_base:
+mov rcx , rsp
+.loop:
+xor edx , edx
+div r8d
+push rdx
+test eax , eax
+jne .loop
+sub rcx , rsp
+shr rcx , 3
+mov rdx , rcx
+.write_loop:
+pop rax
+stosd
+loop .write_loop
+mov rbx , r11
+mov eax , edx
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

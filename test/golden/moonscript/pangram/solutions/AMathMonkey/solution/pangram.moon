@@ -1,8 +1,0 @@
-is_pangram = (sentence) ->
-  letters = {letter, true for letter in sentence\lower!\gmatch('[a-z]')}
-  26 == do 
-    count = 0
-    for _ in pairs(letters) do count += 1
-    count
-  
-return is_pangram

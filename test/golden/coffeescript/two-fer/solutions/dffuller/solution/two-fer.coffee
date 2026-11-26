@@ -1,0 +1,6 @@
+class TwoFer
+  @twoFer: (name) ->
+    name = "you" if not name
+    return "One for #{name}, one for me."
+
+module.exports = TwoFer

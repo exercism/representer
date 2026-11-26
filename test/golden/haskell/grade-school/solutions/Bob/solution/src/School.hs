@@ -1,0 +1,20 @@
+module School (School, add, empty, grade, sorted) where
+
+data School = School [(Int, [String])] deriving (Show)
+
+filterByGrade :: (Int -> Bool) -> [(Int, [String])] -> [(Int, [String])]
+filterByGrade gradeCondition = filter (gradeCondition <$> fst)
+
+add :: Int -> String -> School -> School
+add gradeNum student school = School $ insert filterByGrade gradeNum (gradeNum, insert filter student student $ grade gradeNum school) $ sorted school
+  where insert f k v xs = f (< k) xs ++ v:f (> k) xs
+
+empty :: School
+empty = School []
+
+grade :: Int -> School -> [String]
+grade gradeNum school = if length found > 0 then snd . head $ found else []
+  where found = filterByGrade (== gradeNum) $ sorted school
+
+sorted :: School -> [(Int, [String])]
+sorted (School grades) = grades

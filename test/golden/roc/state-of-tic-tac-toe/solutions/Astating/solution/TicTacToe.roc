@@ -1,0 +1,60 @@
+TicTacToe :: {
+    board : Board,
+    turn: Player,
+    state: State
+}.{
+    Player : [O, X]
+	Cell : [O, X, Empty]
+	Row : (Cell, Cell, Cell)
+	Board : (Row, Row, Row)
+	State : [Win, Draw, Ongoing]
+
+	create : Board -> Try(TicTacToe, [PlayerDidNotRespectTurn(Player), GameContinuedAfterWin])
+	create = |((a1, a2, a3), (b1, b2, b3), (c1, c2, c3)) as board| {
+        {o, x, empty} = 
+            [
+                a1, a2, a3,
+                b1, b2, b3,
+                c1, c2, c3,
+            ].fold({o: 0.U8, x: 0.U8, empty: 0.U8}, |count, cell| match cell {
+                O => {..count, o: count.o + 1}
+                X => {..count, x: count.x + 1}
+                Empty => {..count, empty: count.empty + 1}
+            })
+
+        diff = x.minus_try(o) ? |_| PlayerDidNotRespectTurn(O)
+    
+        turn = match diff {
+            0 => X
+            1 => O
+            _ => return Err(PlayerDidNotRespectTurn(X))
+        }
+
+        is_x_winning = is_winning(board, X)
+        is_o_winning = is_winning(board, O)
+        is_draw = !is_x_winning and !is_o_winning and empty == 0
+
+        if is_x_winning and is_o_winning
+        or is_x_winning and turn == X
+        or is_o_winning and turn == O
+            return Err(GameContinuedAfterWin)
+
+        state =
+            if (is_x_winning or is_o_winning) Win
+            else if is_draw Draw
+            else Ongoing
+            
+        Ok({board, turn, state})        
+	}
+
+	state : TicTacToe -> State
+	state = |tic_tac_toe| tic_tac_toe.state
+}
+
+is_winning = |((a1, a2, a3), (b1, b2, b3), (c1, c2, c3)), player|
+    [
+        [a1, a2, a3], [b1, b2, b3], [c1, c2, c3],
+        [a1, b1, c1], [a2, b2, c2], [a3, b3, c3],
+        [a1, b2, c3], [a3, b2, c1]
+    ]
+    .any(|line| line.all(|cell| cell == player))

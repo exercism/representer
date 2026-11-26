@@ -1,0 +1,31 @@
+planet2units: #["earth": `earthYear,"mercury": `mercuryYear, ,"venus": `venusYear, ,"mars": `marsYear, , "jupiter": `jupiterYear,"saturn": `saturnYear, "uranus": `uranusYear,"neptune": `neptuneYear]
+SecondsinPlanetYear: [1.0,0.2408467 0.61519726 1.8808158, 11.862615, 29.447498, 84.016846, 164.79132]
+
+;loop.with:'idx (values planet2units) 'newunits [
+    ;specify (newunits) :quantity @[(SecondsinPlanetYear\(idx)) `earthYear] 
+;]
+    ; define earth
+    specify 'second   1.0`seconds;
+    specify 'earthYear  31557600.00`seconds ;
+    ; define others
+    specify 'mercuryYear  0.2408467`earthYear  	
+    specify 'venusYear 0.61519726`earthYear   	
+    specify 'marsYear  1.8808158`earthYear  	 	
+    specify 'jupiterYear  11.862615`earthYear  	
+    specify 'saturnYear 29.447498`earthYear  	
+    specify 'uranusYear  84.016846`earthYear  	
+    specify 'neptuneYear 164.79132`earthYear  	
+
+ageOn: function [planet :literal seconds :quantity][
+    
+    print @[(planet) (keys planet2units)]
+    print (in? (to :string planet) (keys planet2units))
+    unless (in? (to :string planet) (keys planet2units)) [return null]
+    
+    newunits: planet2units\[planet]
+    theage: convert seconds newunits
+    
+    ;return (to :string round.to: 2 scalar theage)  ++"`"++ to :string (units theage) ; to :floating (scalar theage)  (units theage))
+    newage: to :quantity @[(round.to: 2 scalar theage)  newunits]
+    return newage
+]

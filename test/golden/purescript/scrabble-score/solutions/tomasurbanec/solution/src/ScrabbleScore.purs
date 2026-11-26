@@ -1,0 +1,24 @@
+module ScrabbleScore
+  ( scoreWord
+  ) where
+
+import Data.Array
+import Data.String.CodePoints
+import Data.String
+import Prelude
+import Data.Maybe
+import Data.Tuple
+import Data.Traversable
+import Data.Foldable
+
+scoreWord :: String -> Int
+scoreWord word = case scoreLetters word # filter isJust # sequence <#> sum
+                 of
+                    (Just score) -> score
+                    Nothing -> 0
+
+scores :: Array (Tuple CodePoint Int)
+scores = zip (toCodePointArray "aeioulnrstdgbcmpfhvwykjxqz") [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 8, 8, 10, 10]
+
+scoreLetters :: String -> Array (Maybe Int)
+scoreLetters = map ((flip lookup) scores) <<< toCodePointArray <<< toLower

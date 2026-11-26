@@ -1,0 +1,23 @@
+vim9script
+
+class Scores
+  this.scores: list<number>
+  this.PersonalTopThree: func(): list<number>
+  this.PersonalBest: func(): number
+  this.Scores: func(): list<number>
+
+  def new(this.scores)
+    const top3: list<number> = this.scores->copy()->sort('n')->slice(-3)->reverse()
+    this.PersonalTopThree = () => top3
+    this.PersonalBest = () => top3[0]
+    this.Scores = () => this.scores
+  enddef
+
+  def Latest(): number
+    return this.scores->get(-1)
+  enddef
+endclass
+
+def g:HighScores(scores: list<number>): Scores
+  return Scores.new(scores)
+enddef

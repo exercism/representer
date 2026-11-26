@@ -1,0 +1,33 @@
+module PhoneNumber ( phoneNumber ) where
+import Prelude
+import Data.List ( List , filter , fromFoldable , toUnfoldable , ( : ), length , index )
+import Data.Maybe ( Maybe ( .. ))
+import Data.Foldable ( foldl )
+import Data.String ( split , Pattern ( .. ), contains )
+isNumber :: String -> Boolean
+isNumber n = contains ( Pattern n ) "\"0123456789\""
+filterDigits :: List String -> List String
+filterDigits = filter isNumber
+filterAreaCode :: Maybe ( List String ) -> Maybe ( List String )
+filterAreaCode ss = fac <$> ss
+  where fac ( "\"1\"" : tail ) = tail
+    fac s = s
+validate :: List String -> Maybe ( List String )
+validate ss = validateLength ( length ss ) ss
+  where validateLength 11 _ =
+    if ( isOne 0 ) && ( isOverOne 1 ) && ( isOverOne 4 )
+    then Just ss
+    else Nothing
+    validateLength 10 _ =
+      if ( isOverOne 0 ) && ( isOverOne 3 )
+      then Just ss
+      else Nothing
+    validateLength _ _ = Nothing
+    isOne idx = ( index ss idx ) == ( Just "\"1\"" )
+    isOverOne idx = ( index ss idx ) /= ( Just "\"0\"" ) && ( index ss idx ) /= ( Just "\"1\"" )
+toList :: String -> List String
+toList = fromFoldable <<< split ( Pattern "\"\"" )
+fromList :: Maybe ( List String ) -> Maybe String
+fromList mls = ( foldl ( <> ) "\"\"" ) <$> mls
+phoneNumber :: String -> Maybe String
+phoneNumber = fromList <<< filterAreaCode <<< validate <<< filterDigits <<< toList

@@ -1,0 +1,35 @@
+% Define the 'chatty' fact
+
+% Define the 'likes' fact
+
+% Define the 'pairing' rule
+
+% Define the 'seating' rule
+
+chatty(gustavo).
+
+chatty(valeria).
+
+likes(esteban, malena).
+likes(malena, esteban).
+likes(gustavo, valeria).
+
+pairing(X, Y) :- likes(X, Y), likes(Y, X).
+pairing(X, Y) :- chatty(X); chatty(Y).
+
+seating(A,B,C,D,E) :-
+    pairing(A,B),
+    pairing(B,C),
+    pairing(C,D),
+    pairing(D,E),
+    pairing(E,A).
+
+
+
+
+
+
+
+
+
+

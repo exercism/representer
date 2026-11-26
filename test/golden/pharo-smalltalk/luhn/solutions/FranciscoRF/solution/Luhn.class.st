@@ -1,0 +1,31 @@
+Class {
+	#name : #Luhn,
+	#superclass : #Object,
+	#category : #'Exercise@Luhn'
+}
+
+{ #category : #class }
+Luhn >> luhnDouble: aNumber [
+			
+	^( aNumber * 2 > 9 ) ifTrue: [ 2 * aNumber - 9 ] ifFalse: [ 2 * aNumber ]
+]
+
+{ #category : #class }
+Luhn >> validValue: aString [
+	
+	| digits |
+	
+	digits := aString select: [ :character | character isDigit ].
+	
+	(aString anySatisfy: [ :character | character isDigit not and: character ~= Character space ])
+		ifTrue: [ ^ false ].
+	
+	digits size <= 1
+		ifTrue: [ ^ false ].
+	
+	^ ((digits reversed asArray withIndexCollect: [ :number :index | 
+			(index % 2) isZero
+				ifTrue: [ self luhnDouble: ( number digitValue ) ]
+				ifFalse: [ number digitValue ] ]) 
+		sum % 10) isZero
+]

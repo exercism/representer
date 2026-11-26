@@ -1,0 +1,82 @@
+.text
+.globl sieve
+.equ SIEVE_BYTES, 128 // 1024 bits => limit <= 1023
+primes .req x0
+limit .req x1
+start .req x2
+p .req x3
+m .req x4
+step .req x5
+idx .req x6
+word .req x7
+word32 .req w7
+bit .req x8
+one .req x9
+mask .req x10
+base .req x11
+sieve:
+sub sp, sp, #SIEVE_BYTES
+mov start, primes
+mov one, #1
+// Bit i set <=> i is still a prime candidate: all odd numbers plus 2.
+movi v0.16b, #0xaa
+stp q0, q0, [sp]
+stp q0, q0, [sp, #32]
+stp q0, q0, [sp, #64]
+stp q0, q0, [sp, #96]
+mov word32, #0xac // low byte: clear bit 1, set bit 2
+strb word32, [sp]
+// Sieve with odd p while p*p <= limit, clearing odd multiples only.
+mov p, #3
+b .Lsieve_check
+.Lsieve_loop:
+lsr idx, p, #6
+ldr word, [sp, idx, lsl #3]
+lsr word, word, p // implicit p mod 64
+tbz word, #0, .Lsieve_next // p already composite
+lsl step, p, #1
+.Lmark:
+lsr idx, m, #6
+ldr word, [sp, idx, lsl #3]
+lsl bit, one, m // implicit m mod 64
+bic word, word, bit
+str word, [sp, idx, lsl #3]
+add m, m, step
+cmp m, limit
+b.ls .Lmark
+.Lsieve_next:
+add p, p, #2
+.Lsieve_check:
+mul m, p, p
+cmp m, limit
+b.ls .Lsieve_loop
+// Drop bits above limit from the last word.
+lsr idx, limit, #6
+mvn bit, limit // (~limit) mod 64 == 63 - limit mod 64
+mov mask, #-1
+lsr mask, mask, bit
+ldr word, [sp, idx, lsl #3]
+and word, word, mask
+str word, [sp, idx, lsl #3]
+// Emit the set bits, one word at a time.
+mov base, #0
+.Lword_loop:
+lsr idx, base, #3 // byte offset of the word
+ldr word, [sp, idx]
+b .Lbits_check
+.Lbit_loop:
+rbit bit, word
+clz bit, bit // count trailing zeros
+add bit, bit, base
+str bit, [primes], #8
+sub bit, word, #1
+and word, word, bit // clear lowest set bit
+.Lbits_check:
+cbnz word, .Lbit_loop
+add base, base, #64
+cmp base, limit
+b.ls .Lword_loop
+sub x0, primes, start
+lsr x0, x0, #3
+add sp, sp, #SIEVE_BYTES
+ret

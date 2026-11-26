@@ -1,0 +1,45 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QUEEN-ATTACK.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+      *Inputs
+       01 WS-QUEEN PIC X(9).
+       01 WS-WHITE_QUEEN PIC X(9).
+       01 WS-BLACK_QUEEN PIC X(9).
+       01 WS-PROPERTY PIC X(11).
+       01 X-W         PIC S9.
+       01 X-B         PIC S9.
+       01 Y-W         PIC S9.
+       01 Y-B         PIC S9.
+       01 AUX-Y       PIC S9.
+       01 AUX-X       PIC S9.
+      *Outputs
+       01 WS-RESULT PIC 9.
+
+       PROCEDURE DIVISION.
+       QUEEN-ATTACK.
+         MOVE ZERO TO WS-RESULT X-W Y-W
+         EVALUATE WS-PROPERTY
+            WHEN "create"
+               UNSTRING WS-QUEEN DELIMITED BY "," INTO X-W Y-W 
+               IF X-W > 0 AND X-W < 8 AND Y-W > 0 AND Y-W < 8
+                  MOVE 1 TO WS-RESULT
+               END-IF
+            WHEN "canAttack"
+               UNSTRING WS-WHITE_QUEEN DELIMITED BY "," INTO X-W Y-W
+               UNSTRING WS-BLACK_QUEEN DELIMITED BY "," INTO X-B Y-B 
+               IF (X-W = X-B OR Y-W = Y-B) AND 
+                            NOT (X-W = X-B AND Y-W = Y-B)
+                  MOVE 1 TO WS-RESULT
+               ELSE 
+                  PERFORM SHARE-DIAGONAL
+               END-IF
+         END-EVALUATE.
+       SHARE-DIAGONAL. 
+         COMPUTE AUX-X = FUNCTION ABS(X-W - X-B)
+         COMPUTE AUX-Y = FUNCTION ABS(Y-W - Y-B)
+         IF AUX-X = AUX-Y AND NOT AUX-Y = 0 AND NOT AUX-X = 0
+            MOVE 1 TO WS-RESULT
+         END-IF.
+         

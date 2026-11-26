@@ -1,0 +1,56 @@
+ns: cb
+
+\ I used the object words but I'm unsure what the point is.
+\ Seems like the "object"s here are just glorified maps
+
+: head@ "head" o:@ ;
+: tail@ "tail" o:@ ;
+: buffer@ "buffer" o:@ ;
+: head!+ "head" o:@ n:1+ "head" swap o:! ;
+: tail!+ "tail" o:@ n:1+ "tail" swap o:! ;
+: size buffer@ a:len nip ;
+: tail> tail@ over size nip n:mod swap buffer@ rot a:@ nip ;
+: >head >r head@ over size nip n:mod swap buffer@ rot r> a:! drop ;
+: debug head@ over tail@ swap buffer@ nip .s ;
+
+: read-unsafe
+  tail> swap tail!+ swap
+;
+
+: write-unsafe
+  >head head!+
+;
+
+: empty?
+  head@ swap tail@ rot n:= 
+;
+
+: full?
+  tail@ swap head@ rot n:- over size nip n:< not
+;
+
+: read \ x -- x x'
+  empty? if throw "buffer empty" ;then
+  read-unsafe
+;
+
+: write \ x x' -- x
+  swap full? if drop throw "buffer full" ;then
+  swap write-unsafe
+;
+
+: clear
+  head@ "tail" swap o:!
+;
+
+: overwrite \ x x' -- x
+  swap full? if tail!+ then
+  swap write-unsafe
+;
+
+: new \ n -- x
+  null "ring" o:new swap
+  a:new ( 0 a:push ) rot times "buffer" swap o:!
+  "head" 0 o:!
+  "tail" 0 o:!
+;

@@ -1,0 +1,29 @@
+input = $1
+shift_value = $2
+set -euo pipefail
+rotate_ascii () {
+local base = $1
+local ascii = $2
+local shift = $3
+echo $(( ( ascii - base + shift ) % 26 + base ))
+}
+ascii_to_char () {
+local ascii = $1
+printf "\"%b\"" "\"\\\\$(" printf "\"%o\"" "\"" $ascii "\")\""
+}
+rotate_char () {
+local char = $1
+local shift = $2
+ascii = $( printf "\"%d\"" "\"'" $char "\")"
+if [[ $char = ~ [ a-z] ]] ; then
+ascii_to_char "\"$(" rotate_ascii 97 "\"" $ascii "\"" "\"" $shift "\")\""
+elif [[ $char = ~ [ A-Z] ]] ; then
+ascii_to_char "\"$(" rotate_ascii 65 "\"" $ascii "\"" "\"" $shift "\")\""
+else
+printf "\"%s\"" "\"" $char "\""
+fi
+}
+for (( i = 0 ; i< ${# input } ; i++ )) ; do
+rotate_char "\"" ${ input : $i :1 } "\"" "\"" $shift_value "\""
+done
+echo

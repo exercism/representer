@@ -1,0 +1,50 @@
+section .text
+global add_bonus
+add_bonus:
+lea rax , [ rdi + rsi ]
+mov edi , 999999
+cmp rax , rdi
+cmovg rax , rdi
+ret
+global compare_scores
+compare_scores:
+xor eax , eax
+xor edx , edx
+cmp rdi , rsi
+setg al
+setl dl
+sub rax , rdx
+ret
+global validate_score
+validate_score:
+mov rax , rdi
+cmp rax , rsi
+cmovl rax , rsi
+cmp rax , rdx
+cmovg rax , rdx
+ret
+global top_two
+top_two:
+xor r8d , r8d
+xor r9d , r9d
+xor ecx , ecx
+test rdx , rdx
+jz .done
+.loop:
+mov rax , qword [ rsi + 8 * rcx ]
+inc rcx
+cmp r9 , rax
+cmovl r9 , rax
+mov rax , r8
+cmp r8 , r9
+cmovl r8 , r9
+cmovl r9 , rax
+dec rdx
+jnz .loop
+.done:
+mov qword [ rdi ], r8
+mov qword [ rdi + 8 ], r9
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

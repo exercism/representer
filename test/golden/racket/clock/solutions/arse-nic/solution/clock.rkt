@@ -1,0 +1,19 @@
+#lang racket
+
+(provide clock
+         add
+         subtract
+         clock->string)
+
+(define (clock h m)
+  (modulo (+ (* 60 h) m) 1440))
+
+(define (clock->string c)
+  (let-values ([(h m) (quotient/remainder c 60)])
+    (~a (~a h #:min-width 2 #:align 'right #:left-pad-string "0") ":" (~a m #:min-width 2 #:align 'right #:left-pad-string "0"))))
+
+(define (add c minutes)
+  (modulo (+ c minutes) 1440))
+
+(define (subtract c minutes)
+  (modulo (- c minutes) 1440))

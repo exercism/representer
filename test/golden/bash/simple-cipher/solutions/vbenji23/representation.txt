@@ -1,0 +1,66 @@
+char_to_val () {
+printf '%d' "\"'" $1 "\"" | awk "'{print $1 - 97}'"
+}
+val_to_char () {
+printf "\"\\\\$(" printf '%03o' $(( $1 + 97 )) )"
+}
+generate_key () {
+local key = "\"\""
+local i
+for (( i = 0 ; i < 100 ; i++ )) ; do
+key+ = "\"" ${ alphabet : $(( RANDOM % 26 )) :1 } "\""
+done
+echo "\"" $key "\""
+}
+alphabet = "\"abcdefghijklmnopqrstuvwxyz\""
+main () {
+local key = "\"\""
+while getopts "\"k:\"" opt ; do
+case "\"" $opt "\"" in
+k ) key = "\"" $OPTARG "\"" ;;
+* ) exit 1 ;;
+esac
+done
+shift $(( OPTIND - 1 ))
+local mode = "\"" $1 "\""
+local text = "\"" $2 "\""
+if [[ "\"" $mode "\"" == "\"key\"" ]] ; then
+generate_key
+return 0
+fi
+if [[ -z "\"" $key "\"" ]] ; then
+key = $( generate_key )
+fi
+if [[ ! "\"" $key "\"" = ~ ^[a-z]+ $ ]] ; then
+echo "\"invalid key\"" > &2
+exit 1
+fi
+text = "\"" ${ text ,, } "\""
+local key_len = ${# key }
+local result = "\"\""
+local i
+for (( i = 0 ; i < ${# text } ; i++ )) ; do
+local char = "\"" ${ text :i:1 } "\""
+if [[ ! "\"" $char "\"" = ~ [ a-z] ]] ; then
+result+ = "\"" $char "\""
+continue
+fi
+local text_val
+text_val = $( char_to_val "\"" $char "\")"
+local key_char = "\"" ${ key : $(( i % key_len )) :1 } "\""
+local key_val
+key_val = $( char_to_val "\"" $key_char "\")"
+local new_val
+if [[ "\"" $mode "\"" == "\"encode\"" ]] ; then
+new_val = $(( ( text_val + key_val ) % 26 ))
+elif [[ "\"" $mode "\"" == "\"decode\"" ]] ; then
+new_val = $(( ( text_val - key_val + 26 ) % 26 ))
+else
+echo "\"invalid mode\"" > &2
+exit 1
+fi
+result+ = $( val_to_char "\"" $new_val "\")"
+done
+echo "\"" $result "\""
+}
+main "\"" $@ "\""

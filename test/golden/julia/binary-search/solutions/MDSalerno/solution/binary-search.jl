@@ -1,0 +1,27 @@
+# Change any of the following NamedTuple values to true to 
+# enable testing different bonus tasks
+tested_bonus_tasks = (rev = true, by = true, lt = true, multiple_matches = true)
+
+# Binary Search
+
+function binarysearch(list, target; by = identity, rev = false, lt = <)
+    (l, r) = (1, length(list))
+    if rev
+        lt = >
+    end
+    while l ≤ r
+        mid = (l+r) ÷ 2
+        if lt(by(list[mid]), by(target))
+            l = mid + 1
+        elseif lt(by(target), by(list[mid]))
+            r = mid - 1
+        else
+            (l, r) = list |>
+                     xs -> map(x -> x == xs[mid], xs) |>
+                     xs -> filter(i -> xs[i], 1:length(list)) |>
+                     xs -> (minimum(xs), maximum(xs))
+            break
+        end 
+    end
+    l:r
+end

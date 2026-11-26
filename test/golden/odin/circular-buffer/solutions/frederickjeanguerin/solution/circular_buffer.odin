@@ -1,0 +1,65 @@
+package circular_buffer
+
+TypedBuffer :: struct($T:typeid) {
+    data : []T,
+    next_pos: int,
+    last_pos: int,
+}
+
+Buffer :: TypedBuffer(int)
+
+Error :: enum {
+	None,
+	BufferEmpty,
+	BufferFull,
+}
+
+new_buffer :: proc {new_int_buffer, new_typed_buffer}
+
+new_typed_buffer :: proc(capacity: int, $T: typeid) -> TypedBuffer(T) {
+	assert(capacity > 0)
+    return TypedBuffer(T){make([]T, capacity + 1), 0, 0}
+}
+
+new_int_buffer :: proc(capacity: int) -> Buffer {
+    return new_typed_buffer(capacity, int)
+}
+
+destroy_buffer :: proc(b: ^TypedBuffer($T)) {
+	delete(b.data)
+}
+
+clear :: proc(b: ^TypedBuffer($T)) {
+	b.next_pos, b.last_pos = 0, 0
+}
+
+is_empty :: proc(b: ^TypedBuffer($T)) -> bool {
+    return b.next_pos == b.last_pos
+}
+
+is_full :: proc(b: ^TypedBuffer($T)) -> bool {
+    return inc_pos(b, b.next_pos) == b.last_pos
+}
+
+inc_pos :: proc(b: ^TypedBuffer($T), pos: int) -> int {
+    return (pos + 1) % len(b.data)
+} 
+
+read :: proc(b: ^TypedBuffer($T)) -> (T, Error) {
+	if is_empty(b) do return 0, .BufferEmpty
+	defer b.last_pos = inc_pos(b, b.last_pos)
+    return b.data[b.last_pos], .None
+}
+
+write :: proc(b: ^TypedBuffer($T), value: T) -> Error {
+	if is_full(b) do return .BufferFull
+    defer b.next_pos = inc_pos(b, b.next_pos)
+    b.data[b.next_pos] = value
+	return .None
+}
+
+overwrite :: proc(b: ^TypedBuffer($T), value: T) {
+	if is_full(b) do read(b)
+    write(b, value)
+}
+

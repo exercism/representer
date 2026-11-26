@@ -1,0 +1,10 @@
+class CollatzConjecture
+  @steps: (number) ->
+    throw new Error "Only positive integers are allowed" if number < 1
+    count = 0
+    while number > 1
+      number = if number % 2 is 0 then number / 2 else 3 * number + 1
+      count += 1
+    count
+
+module.exports = CollatzConjecture

@@ -1,0 +1,78 @@
+# | Register | Usage | Type | Description |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0` | input | address | null-terminated input string |
+# | `$a1` | input/output | address | null-terminated output string |
+# | `$t0-9` | temporary | any | for temporary storage |
+.globl annotate
+# macro that increases mine count at
+# position $t1
+# uses: $t9
+.macro inc_mine
+lb $t9, ($t1)
+beq $t9, '\n', __end # skip for '\n'
+beq $t9, '*', __end # skip for '*'
+bne $t9, ' ', __inc
+li $t9, '0' # replace ' ' with '0'
+__inc:
+addiu $t9, $t9, 1
+sb $t9, ($t1)
+__end:
+.end_macro
+# macro that loops through the input and checks for mines
+# input:
+# $t0 initial pointer in input
+# $t1 initial pointer in output
+# we keep the distance between $t0 and $t1 fixed to check
+# in a specific "\"direction\""
+#
+# the register %reg is $t0, $t1 and %offset denotes the positive offset
+#
+# uses: $t9
+.macro check_mines (%reg, %offset)
+ble $t3, %offset, __end # start point beyond board size
+move $t0, $a0
+move $t1, $a1
+addu %reg, %reg, %offset # adjust %reg by offset
+__loop:
+lb $t9, (%reg)
+beqz $t9, __end # end of board
+lb $t9, ($t0)
+bne $t9, '*', __next
+inc_mine # found a mine
+__next:
+addiu $t0, $t0, 1
+addiu $t1, $t1, 1
+j __loop
+__end:
+.end_macro
+annotate:
+move $t0, $a0
+move $t1, $a1
+__copy: # copy the input to the output
+lb $t2, ($t0)
+sb $t2, ($t1)
+addiu $t0, $t0, 1
+addiu $t1, $t1, 1
+bnez $t2, __copy
+sub $t3, $t0, $a0 # $t3: size of board (in bytes)
+addi $t0, $t0, -1
+beq $t0, $a0, __end # empty board?
+move $t1, $a1
+__find_width: # find width of board -> $t2
+lb $t2, ($t1)
+addiu $t1, $t1, 1
+bne $t2, '\n', __find_width # loop until '\n' found
+sub $t2, $t1, $a1 # calculate $t2 = $t1 - $a1 -1
+addi $t2, $t2, -1
+check_mines($t1, 1) # check mines to the left
+check_mines($t0, 1) # check mines to the right
+check_mines($t1, $t2) # check mines on bottom-left
+check_mines($t0, $t2) # check mines on top-right
+addiu $t2, $t2, 1 # inc $t2
+check_mines($t1, $t2) # check mines on bottom
+check_mines($t0, $t2) # check mines on top
+addiu $t2, $t2, 1 # inc $t2
+check_mines($t1, $t2) # check mines on bottom-right
+check_mines($t0, $t2) # check mines on top-left
+__end:
+jr $ra

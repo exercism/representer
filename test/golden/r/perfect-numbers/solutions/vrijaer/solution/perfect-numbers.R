@@ -1,0 +1,9 @@
+number_type <- function(n) {
+  if (n <= 0) stop("Can only deal with positive numbers.")
+  sum <- 0
+  for (d in 1:sqrt(n)) {
+    p <- n %/% d
+    if (d * p == n && d < n) sum <- sum + if (d < p && p < n) d + p else d
+  }
+  c("deficient", "perfect", "abundant")[sign(sum - n) + 2]
+}

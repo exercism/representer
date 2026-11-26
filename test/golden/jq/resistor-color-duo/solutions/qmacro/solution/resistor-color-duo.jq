@@ -1,5 +1,0 @@
-["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"] as $colors
-| .colors[:2]
-| map(. as $c | $colors | index($c) | tostring)
-| add
-| ltrimstr("0")

@@ -1,0 +1,50 @@
+Enum Status {
+WIN
+LOSE
+ONGOING
+}
+Class Hangman {
+[ int ] $RemainingGuesses
+[ Status ] $Status
+[ array ] $CharsUsed
+hidden [ array ] $Word
+hidden [ array ] $Chars
+Hangman ([ string ] $word ) {
+$this . Word = $this . Chars = $this . CharsUsed = @()
+for ( $i = 0 ; $i -lt $word . Length ; $i ++ ) {
+$this . Chars += '_'
+$this . Word += $word . Substring ( $i , 1 )
+}
+$this . Status = [ Status ]:: ONGOING
+$this . RemainingGuesses = 9
+}
+[ void ]
+Guess ( $char ) {
+if ( $this . Status -ne [ status ]:: ONGOING ) {
+throw "'The game has already ended.'"
+}
+if ( $char -notin $this . CharsUsed -and $char -in $this . Word ) {
+for ( $i = 0 ; $i -lt $this . Word . Count ; $i ++ ) {
+if ( $this . Word [ $i ] -eq $char ) {
+$this . Chars [ $i ] = $this . Word [ $i ]
+}
+}
+$this . CharsUsed += $char
+if ( -join ( $this . Chars ) -eq -join ( $this . Word )) {
+$this . Status = [ Status ]:: WIN
+}
+}
+else { $this . RemainingGuesses-- }
+if ( $this . RemainingGuesses -lt 0 ) {
+$this . Status = [ Status ]:: LOSE
+}
+}
+[ string ]
+Display () {
+return -join ( $this . Chars )
+}
+[ Status ]
+GetStatus () {
+return $this . Status
+}
+}

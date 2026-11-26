@@ -1,0 +1,19 @@
+
+module grains
+
+  implicit none
+
+contains
+
+  double precision function square(n)
+    integer :: n
+    square = -1.d0
+    if (n <= 0 .or. n>=65) return
+    square = (2.0D0)**(n-1)
+  end function
+
+  double precision function total()
+    total = 18446744073709551615.d0
+  end function
+
+end module

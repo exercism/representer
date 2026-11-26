@@ -1,0 +1,71 @@
+WITH RECURSIVE
+word_bank ( synonym , standard_op ) AS (
+VALUES
+( 'plus' , 'add' ),
+( 'add' , 'add' ),
+( 'minus' , 'subtract' ),
+( 'subtracted' , 'subtract' ),
+( 'multiplied' , 'multiply' ),
+( 'times' , 'multiply' ),
+( 'divided' , 'divide' ),
+( 'over' , 'divide' )
+),
+parser AS (
+SELECT
+rowid ,
+CASE
+WHEN question = "'What is?'" THEN "'syntax error'"
+WHEN question NOT LIKE "'What is %?'" THEN "'unknown operation'"
+ELSE NULL
+END as err ,
+CASE
+WHEN question LIKE "'What is %?'" AND question != "'What is?'" THEN
+REPLACE ( REPLACE ( SUBSTR ( question , 9 , LENGTH ( question ) - 9 ), "'multiplied by'" , 'multiplied' ), "'divided by'" , 'divided' ) || "' '"
+ELSE ''
+END as remain ,
+0 as val ,
+'add' as current_op ,
+'num' as expected
+FROM wordy
+UNION ALL
+SELECT
+rowid ,
+CASE
+WHEN expected = 'num' AND ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) = '' OR CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER ) || '' != SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 )) THEN "'syntax error'"
+WHEN expected = 'op' AND CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER ) || '' = SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) THEN "'syntax error'"
+WHEN expected = 'op' AND SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) NOT IN ( SELECT synonym FROM word_bank ) THEN "'unknown operation'"
+ELSE NULL
+END as err ,
+SUBSTR ( remain , INSTR ( remain , "' '" ) + 1 ) as remain ,
+CASE
+WHEN expected = 'num' AND ( CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER ) || '' = SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 )) THEN
+CASE current_op
+WHEN 'add' THEN val + CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER )
+WHEN 'subtract' THEN val - CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER )
+WHEN 'multiply' THEN val * CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER )
+WHEN 'divide' THEN val / CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER )
+END
+ELSE val
+END as val ,
+CASE
+WHEN expected = 'op' THEN ( SELECT standard_op FROM word_bank WHERE synonym = SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ))
+ELSE current_op
+END as current_op ,
+CASE WHEN expected = 'num' THEN 'op' ELSE 'num' END as expected
+FROM parser
+WHERE remain != '' AND err IS NULL
+),
+terminal AS (
+SELECT
+rowid ,
+CASE
+WHEN err IS NULL AND expected = 'num' THEN "'syntax error'"
+ELSE err
+END as final_err ,
+val as final_val
+FROM parser
+WHERE remain = '' OR err IS NOT NULL
+)
+UPDATE wordy
+SET result = ( SELECT final_val FROM terminal WHERE terminal . rowid = wordy . rowid AND final_err IS NULL ),
+error = ( SELECT final_err FROM terminal WHERE terminal . rowid = wordy . rowid AND final_err IS NOT NULL );

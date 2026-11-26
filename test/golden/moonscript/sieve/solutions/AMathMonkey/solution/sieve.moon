@@ -1,8 +1,0 @@
-{
-  primes: (limit) ->
-    marks = {}
-    return for i = 2, limit
-      continue if marks[i]
-      for j = i * 2, limit, i do marks[j] = true
-      i
-}

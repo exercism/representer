@@ -1,0 +1,86 @@
+package bank_account
+
+import "core:sync"
+
+TransactionResult :: enum {
+	Success,
+	Account_Not_Open,
+	Account_Already_Open,
+	Invalid_Amount,
+	Not_Enough_Balance,
+	Unimplemented,
+}
+
+Account :: struct {
+	open:    bool,
+	balance: u32,
+	lock:    sync.Mutex,
+}
+
+open :: proc(self: ^Account) -> TransactionResult {
+	sync.mutex_lock(&self.lock)
+	defer sync.mutex_unlock(&self.lock)
+
+	if self.open {
+		return .Account_Already_Open
+	}
+
+	self.open = true
+	return .Success
+}
+
+close :: proc(self: ^Account) -> TransactionResult {
+	sync.mutex_lock(&self.lock)
+	defer sync.mutex_unlock(&self.lock)
+
+	if !self.open {
+		return .Account_Not_Open
+	}
+
+	self.open = false
+	self.balance = 0
+	return .Success
+}
+
+read_balance :: proc(self: ^Account) -> (u32, TransactionResult) {
+	sync.mutex_lock(&self.lock)
+	defer sync.mutex_unlock(&self.lock)
+
+	if !self.open {
+		return 0, .Account_Not_Open
+	}
+	return self.balance, .Success
+}
+
+deposit :: proc(self: ^Account, amount: u32) -> TransactionResult {
+	if amount == 0 do return .Invalid_Amount
+
+	sync.mutex_lock(&self.lock)
+	defer sync.mutex_unlock(&self.lock)
+
+	if !self.open {
+		return .Account_Not_Open
+	}
+
+	if amount > max(u32) - self.balance {
+		return .Invalid_Amount
+	}
+	self.balance += amount
+	return .Success
+}
+
+withdraw :: proc(self: ^Account, amount: u32) -> TransactionResult {
+	if amount == 0 do return .Invalid_Amount
+
+	sync.mutex_lock(&self.lock)
+	defer sync.mutex_unlock(&self.lock)
+
+	if !self.open {
+		return .Account_Not_Open
+	}
+	if self.balance < amount {
+		return .Not_Enough_Balance
+	}
+	self.balance -= amount
+	return .Success
+}

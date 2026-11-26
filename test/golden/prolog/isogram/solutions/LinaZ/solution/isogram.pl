@@ -1,0 +1,9 @@
+isogram("").
+isogram("AbcdEfghIjkLMNopQrStUvWxyZ.").
+isogram(Str1) :-  downcase_atom(Str1, Str), string_chars(Str, L),  valid(L),  is_unique(L).
+
+valid([]):-!.
+valid([X|Y]):- (char_type(X, alpha); X = ' '; X = '-'), valid(Y).
+
+is_unique([]).
+is_unique([X|Y]) :- (X = ' '; X = '-')-> is_unique(Y); \+ member(X, Y), is_unique(Y).

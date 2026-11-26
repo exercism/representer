@@ -1,0 +1,41 @@
+gamestate = (board) ->
+  # Count X and O pieces
+  xCount = 0
+  oCount = 0
+  for row in board
+    for cell in row
+      xCount++ if cell == 'X'
+      oCount++ if cell == 'O'
+
+  # Check invalid turn orders
+  if oCount > xCount
+    throw new Error('Wrong turn order: O started')
+  if xCount > oCount + 1
+    throw new Error('Wrong turn order: X went twice')
+
+  # Helper to check if a player has won
+  hasWon = (player) ->
+    # Check rows and columns
+    for i in [0..2]
+      return true if (board[i][0] == player and board[i][1] == player and board[i][2] == player)
+      return true if (board[0][i] == player and board[1][i] == player and board[2][i] == player)
+
+    # Check diagonals
+    return true if (board[0][0] == player and board[1][1] == player and board[2][2] == player)
+    return true if (board[0][2] == player and board[1][1] == player and board[2][0] == player)
+
+    false
+
+  xWin = hasWon('X')
+  oWin = hasWon('O')
+
+  # Check invalid state: continued playing after a win or both won
+  if (xWin and oWin) or (xWin and xCount == oCount) or (oWin and xCount > oCount)
+    throw new Error('Impossible board: game should have ended after the game was won')
+
+  # Return valid game states
+  return 'win' if xWin or oWin
+  return 'draw' if xCount + oCount == 9
+  'ongoing'
+
+module.exports = gamestate

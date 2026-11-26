@@ -1,0 +1,27 @@
+let remove_char = ( str : string , ch : char ) : string => {
+switch ( String . index_opt ( str , ch )) {
+| Some ( index ) =>
+String . sub ( str , 0 , index ) ++
+String . sub ( str , index + 1 , String . length ( str ) - index - 1 );
+| None => str
+};
+};
+let contains_all_chars = ( strA : string , strB : string ) : bool => {
+let remainingStr = ref ( strB );
+String . iter ( ch =>
+switch ( String . contains ( remainingStr ^, ch )) {
+| true => { remainingStr := remove_char ( remainingStr ^, ch ); }
+| false => ()
+} , strA );
+String . length ( remainingStr ^ ) == 0 ;
+}
+let is_anagram = ( wordA : string , wordB : string ) : bool => {
+let wordBLower = String . lowercase_ascii ( wordB );
+! String . equal ( wordA , wordBLower ) &&
+String . length ( wordA ) == String . length ( wordB ) &&
+contains_all_chars ( wordA , wordBLower ) &&
+contains_all_chars ( wordBLower , wordA );
+}
+let anagrams = ( word : string , candidates : list ( string )) : list ( string ) => {
+List . filter ( is_anagram ( String . lowercase_ascii ( word )) , candidates );
+}

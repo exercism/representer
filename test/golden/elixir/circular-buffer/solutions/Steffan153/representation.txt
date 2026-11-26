@@ -1,0 +1,157 @@
+(source
+  (call defmodule
+    (arguments CircularBuffer)
+    (do_block
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call new
+                (arguments
+                  (binary_operator capacity :: integer))) ::
+              (tuple :ok pid)))))
+      (call def
+        (arguments
+          (call new
+            (arguments capacity)))
+        (do_block
+          (call
+            (dot Agent . start_link)
+            (arguments
+              (anonymous_function
+                (stab_clause ->
+                  (body
+                    (tuple
+                      (list) capacity))))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call read
+                (arguments
+                  (binary_operator buffer :: pid))) ::
+              (binary_operator
+                (tuple :ok any) |
+                (tuple :error atom))))))
+      (call def
+        (arguments
+          (call read
+            (arguments buffer)))
+        (do_block
+          (call
+            (dot Agent . get_and_update)
+            (arguments buffer
+              (anonymous_function
+                (stab_clause
+                  (arguments
+                    (tuple (variable PLACEHOLDER_1) (variable PLACEHOLDER_2))) ->
+                  (body
+                    (call if
+                      (arguments
+                        (binary_operator PLACEHOLDER_1 ==
+                          (list)))
+                      (do_block
+                        (tuple
+                          (tuple :error :empty)
+                          (tuple PLACEHOLDER_1 PLACEHOLDER_2))
+                        (else_block
+                          (tuple
+                            (tuple :ok
+                              (call hd
+                                (arguments PLACEHOLDER_1)))
+                            (tuple
+                              (call tl
+                                (arguments PLACEHOLDER_1)) PLACEHOLDER_2))))))))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call write
+                (arguments
+                  (binary_operator buffer :: pid)
+                  (binary_operator PLACEHOLDER_3 :: any))) ::
+              (binary_operator :ok |
+                (tuple :error atom))))))
+      (call def
+        (arguments
+          (call write
+            (arguments buffer (variable PLACEHOLDER_3))))
+        (do_block
+          (call
+            (dot Agent . get_and_update)
+            (arguments buffer
+              (anonymous_function
+                (stab_clause
+                  (arguments
+                    (tuple (variable PLACEHOLDER_1) (variable PLACEHOLDER_2))) ->
+                  (body
+                    (call if
+                      (arguments
+                        (binary_operator
+                          (call length
+                            (arguments PLACEHOLDER_1)) == PLACEHOLDER_2))
+                      (do_block
+                        (tuple
+                          (tuple :error :full)
+                          (tuple PLACEHOLDER_1 PLACEHOLDER_2))
+                        (else_block
+                          (tuple :ok
+                            (tuple
+                              (binary_operator PLACEHOLDER_1 ++
+                                (list PLACEHOLDER_3)) PLACEHOLDER_2))))))))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call overwrite
+                (arguments
+                  (binary_operator buffer :: pid)
+                  (binary_operator PLACEHOLDER_3 :: any))) :: :ok))))
+      (call def
+        (arguments
+          (call overwrite
+            (arguments buffer (variable PLACEHOLDER_3))))
+        (do_block
+          (call
+            (dot Agent . update)
+            (arguments buffer
+              (anonymous_function
+                (stab_clause
+                  (arguments
+                    (tuple (variable PLACEHOLDER_1) (variable PLACEHOLDER_2))) ->
+                  (body
+                    (binary_operator (variable PLACEHOLDER_4) =
+                      (call if
+                        (arguments
+                          (binary_operator
+                            (call length
+                              (arguments PLACEHOLDER_1)) == PLACEHOLDER_2))
+                        (do_block
+                          (call tl
+                            (arguments PLACEHOLDER_1))
+                          (else_block PLACEHOLDER_1))))
+                    (tuple
+                      (binary_operator PLACEHOLDER_4 ++
+                        (list PLACEHOLDER_3)) PLACEHOLDER_2))))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call clear
+                (arguments
+                  (binary_operator buffer :: pid))) :: :ok))))
+      (call def
+        (arguments
+          (call clear
+            (arguments buffer)))
+        (do_block
+          (call
+            (dot Agent . update)
+            (arguments buffer
+              (anonymous_function
+                (stab_clause
+                  (arguments
+                    (tuple _ (variable PLACEHOLDER_2))) ->
+                  (body
+                    (tuple
+                      (list) PLACEHOLDER_2)))))))))))

@@ -1,0 +1,9 @@
+BEGIN {
+  FS="[- ]"
+}
+
+{
+    gsub(/[^-a-zA-Z0-9 ]/,"",$0)
+    for (i=1;i<=NF;i++)
+        printf("%s",toupper(substr($i,1,1)))
+}

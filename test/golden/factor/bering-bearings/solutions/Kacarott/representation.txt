@@ -1,0 +1,77 @@
+(source_file USING: kernel combinators pair-rocket accessors math math.functions namespaces ; IN: bering-bearings TUPLE: cardinal direction ; TUPLE: polar magnitude bearing ; TUPLE: relative distance bearing ; SYMBOLS: north east south west ahead starboard behind port heading ; GENERIC: >cartesian
+  (effect
+    (inputs direction)
+    (outputs PLACEHOLDER_1 PLACEHOLDER_2)) GENERIC: flip
+  (effect
+    (inputs direction)
+    (outputs PLACEHOLDER_3)) M: cardinal >cartesian direction>>
+  (collection
+    (array north =>
+      (quote
+        (number
+          (integer 0))
+        (number
+          (integer 1))) south =>
+      (quote
+        (number
+          (integer 0))
+        (number
+          (integer -1))) east =>
+      (quote
+        (number
+          (integer 1))
+        (number
+          (integer 0))) west =>
+      (quote
+        (number
+          (integer -1))
+        (number
+          (integer 0))))) case ; M: polar >cartesian
+  (quote magnitude>>)
+  (quote bearing>> deg>rad) bi
+  (quote sin *)
+  (quote cos *) 2bi ; M: relative >cartesian
+  (quote distance>>)
+  (quote bearing>>
+    (collection
+      (array ahead =>
+        (quote
+          (number
+            (integer 0))) starboard =>
+        (quote
+          (number
+            (integer 90))) behind =>
+        (quote
+          (number
+            (integer 180))) port =>
+        (quote
+          (number
+            (integer 270))))) case heading get + deg>rad) bi
+  (quote sin *)
+  (quote cos *) 2bi ; M: cardinal flip direction>>
+  (collection
+    (array north =>
+      (quote south) south =>
+      (quote north) east =>
+      (quote west) west =>
+      (quote east))) case cardinal boa ; M: polar flip
+  (quote magnitude>>)
+  (quote bearing>>
+    (number
+      (integer 180)) +
+    (number
+      (integer 360)) rem) bi polar boa ; M: relative flip
+  (quote distance>>)
+  (quote bearing>>) bi
+  (collection
+    (array ahead =>
+      (quote behind) starboard =>
+      (quote port) behind =>
+      (quote ahead) port =>
+      (quote starboard))) case relative boa ;
+  (definition : add-bearings
+    (effect
+      (inputs PLACEHOLDER_4 PLACEHOLDER_5)
+      (outputs PLACEHOLDER_1 PLACEHOLDER_2))
+    (quote >cartesian) bi@ swapd
+    (quote +) 2bi@))

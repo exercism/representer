@@ -1,0 +1,41 @@
+#include "largest_series_product.h"
+#include <ctype.h>
+#include <string.h>
+
+int64_t largest_series_product(char *digits, size_t span)
+{
+        if (!digits) return -1;
+
+        size_t len = strlen(digits);
+        if (span > len) return -1;
+
+        // Validation - digits only
+        for (size_t i = 0; i < len; i++) {
+                if (!isdigit((unsigned char)digits[i]))
+                        return -1;
+        }
+
+        if (span == 0) return 1;
+
+        int64_t max_product = 0;
+
+        for (size_t i = 0; i <= len - span; i++) {
+                int64_t current = 1;
+
+                for (size_t j = 0; j < span; j++) {
+                        if (digits[i + j] == '0') {
+                                current = 0;
+                                // Zero-skip: Move the outer index to the zero
+                                i = i + j;
+                                break;
+                        }
+                        current *= (digits[i + j] - '0');
+                }
+
+                if (current > max_product) {
+                        max_product = current;
+                }
+        }
+
+        return max_product;
+}

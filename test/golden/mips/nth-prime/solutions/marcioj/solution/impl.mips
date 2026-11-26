@@ -1,0 +1,33 @@
+# | Register | Usage     | Type    | Description                |
+# | -------- | --------- | ------- | -------------------------- |
+# | `$a0`    | input     | integer | prime index                |
+# | `$v0`    | output    | integer | nth prime value            |
+# | `$t0-9`  | temporary | any     | used for temporary storage |
+
+.globl  nth_prime
+
+.eqv pindex $a0
+.eqv result $v0
+.eqv remainder $t0
+.eqv factor $t1
+.eqv factor_sqr $t2
+
+nth_prime:
+	li result, 2
+	beq pindex, 1, return
+	li result, 1
+next_possible_prime:
+	addi result, result, 2
+	li factor, 3
+check_prime:
+	mul factor_sqr, factor, factor
+	bgt factor_sqr, result, is_prime
+	rem remainder, result, factor
+	beqz remainder, next_possible_prime
+	addi factor, factor, 2
+	j check_prime
+is_prime:
+	addi pindex, pindex, -1
+	bne pindex, 1, next_possible_prime
+return:
+	jr $ra

@@ -1,0 +1,22 @@
+unique type dndCharacter . Character =
+  { strength : Nat
+  , dexterity : Nat
+  , constitution : Nat
+  , intelligence : Nat
+  , wisdom : Nat
+  , charisma : Nat
+  , hitpoints : Nat
+  }
+dndCharacter . modifier : Nat -> Int
+dndCharacter . modifier score = ( subtractToInt score 10 ) / + 2
+dndCharacter . ability_ : ' { Random } Nat
+dndCharacter . ability_ = do
+  throws = Random . listOf ( do Random . natIn 1 7 ) do 4
+  best = throws |> List . sort |> List . drop 1
+  best |> List . foldLeft ( Nat .+ ) 0
+dndCharacter . character : ' { Random } Character
+dndCharacter . character = do
+  constitution = ! ability_
+  constitutionModifier = dndCharacter . modifier constitution
+  hitpoints = + 10 + constitutionModifier |> truncate0
+  Character ! ability_ ! ability_ constitution ! ability_ ! ability_ ! ability_ hitpoints

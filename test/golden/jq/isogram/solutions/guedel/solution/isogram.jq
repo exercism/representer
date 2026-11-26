@@ -1,9 +1,0 @@
-# see dbalmain's solution which I find very elegant
-# https://exercism.org/tracks/jq/exercises/isogram/solutions/dbalmain
-.phrase
-| ascii_downcase
-| gsub("[ -]"; "")
-| . / ""
-| reduce .[] as $letter ({}; .[$letter] += 1)
-| map(select(. > 1))
-| length <= 0

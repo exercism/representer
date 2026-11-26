@@ -1,0 +1,41 @@
+module isogram
+    implicit none
+
+contains
+
+    integer function convert(char)
+        character, intent(in) :: char
+        integer :: code
+
+        code = iachar(char)
+        if (code >= iachar('A') .and. code <= iachar('Z')) then
+            convert = code - iachar('A') + 1
+        else if (code >= iachar('a') .and. code <= iachar('z')) then
+            convert = code - iachar('a') + 1
+        else
+            convert = -1
+        end if
+    end function convert
+
+    function isIsogram(phrase) result(no_repeats)
+        character(len = *), intent(in) :: phrase
+        logical :: no_repeats, seen(26)
+        integer :: index, letter
+
+        seen = .false.
+
+        do index = 1, len(phrase)
+            letter = convert(phrase(index:index))
+            if (letter /= -1) then
+                if (seen(letter)) then
+                    no_repeats = .false.
+                    return
+                else
+                    seen(letter) = .true.
+                end if
+            end if
+        end do
+
+        no_repeats = .true.
+    end function isIsogram
+end module isogram

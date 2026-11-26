@@ -1,5 +1,0 @@
-USING: ascii assocs kernel sequences ;
-IN: etl
-
-: transform ( legacy -- new )
-    [ H{ } clone ] dip [ [ >lower pick set-at ] with each ] assoc-each ;

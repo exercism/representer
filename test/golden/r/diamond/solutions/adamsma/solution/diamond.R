@@ -1,0 +1,34 @@
+diamond <- function(letter) {
+ 
+  ind <- which(LETTERS == letter)
+  
+  lttrSet <- LETTERS[seq(ind)]
+  
+  dTxt <- character(ind)
+  
+  for(i in seq_along(lttrSet)){
+    
+    outWS <- genWS(ind - i)
+    inWS <- genWS(2*(i-1) - 1)
+    
+    if(i == 1){
+      dTxt[i] <- paste0(outWS, lttrSet[i], outWS)
+    } else {
+      dTxt[i] <-paste0(outWS, lttrSet[i], inWS, lttrSet[i], outWS)
+    }
+    
+  }
+  
+  dTxt <- c(dTxt, dTxt |> head(-1) |> rev())
+  
+  paste0(dTxt, collapse = "\n")
+  
+}
+
+genWS <- function(n) {
+  
+  if(n < 1) return("")
+  
+  paste0(rep(" ", n), collapse = "")
+  
+}

@@ -1,0 +1,20 @@
+module PascalsTriangle (rows) where
+
+import Prelude
+import Data.Maybe
+import Data.Array
+
+rows :: Maybe Int -> Maybe (Array (Array Int))
+rows Nothing = Nothing 
+rows (Just 0) = Just []
+rows (Just n) 
+  | n < 0 = Nothing
+  | otherwise = Just $ rows' (n-1) [1]
+
+rows' :: Int -> Array Int -> Array (Array Int)
+rows' n row
+  | n > 0 = row : (rows' (n-1) (nextRow row))
+  | otherwise = [row]
+
+nextRow :: Array Int -> Array Int
+nextRow row = 1:(mapWithIndex (\i x -> maybe x (add x) (index row (i+1))) row)

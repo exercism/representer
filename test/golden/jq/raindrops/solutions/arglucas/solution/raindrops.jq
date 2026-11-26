@@ -1,0 +1,5 @@
+{ n: .number, s: "" }
+| if .n % 3 == 0 then .s  = "Pling" else . end
+| if .n % 5 == 0 then .s += "Plang" else . end
+| if .n % 7 == 0 then .s += "Plong" else . end
+| if .s == "" then "\(.n)" else .s end

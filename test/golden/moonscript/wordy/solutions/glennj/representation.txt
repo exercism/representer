@@ -1,0 +1,19 @@
+re = require 're'
+wordy = re . compile "[[\n  wordy      <- 'What is ' {| expression |} '?'\n  expression <- { number } (ss { operation } ss { number })*\n  number     <- '-'? %d+\n  operation  <- 'plus' / 'minus' / 'multiplied by' / 'divided by'\n  ss         <- %s+\n]]"
+syntaxError = re . compile "[[\n  err       <- no_expr / two_ops / two_nums / ending_op\n  no_expr   <- 'What is' s '?'\n  two_ops   <- ss op ss op\n  two_nums  <- ss num ss num\n  ending_op <- ss op '?'\n  num       <- '-'? %d+\n  op        <- 'plus' / 'minus' / 'multiplied by' / 'divided by'\n  s         <- %s*\n  ss        <- %s+ \n]]"
+evaluate = ( tokens ) ->
+  result = tonumber tokens [ 1 ]
+  for i = 2 , # tokens , 2
+    result = switch tokens [ i ]
+      when 'plus' then result + tonumber tokens [ i + 1 ]
+      when 'minus' then result - tonumber tokens [ i + 1 ]
+      when "'multiplied by'" then result * tonumber tokens [ i + 1 ]
+      when "'divided by'" then result // tonumber tokens [ i + 1 ]
+  result
+{
+  answer: ( question ) ->
+    tokens = re . match question , wordy
+    return evaluate tokens if tokens
+    error "'syntax error'" if re . find question , syntaxError
+    error "'unknown operation'"
+}

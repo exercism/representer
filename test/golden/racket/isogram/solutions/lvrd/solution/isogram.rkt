@@ -1,7 +1,0 @@
-#lang racket
-
-(provide isogram?)
-
-(define (isogram? s)
-  (let ([lst (filter char-alphabetic? (string->list (string-upcase s)))])
-    (= (set-count (list->set lst)) (length lst))))

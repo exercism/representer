@@ -1,0 +1,56 @@
+# | Register | Usage        | Type    | Description                                  |
+# | -------- | ------------ | ------- | -------------------------------------------- |
+# | `$a0`    | input        | integer | number of input digits                       |
+# | `$a1`    | input        | integer | base for input digits                        |
+# | `$a2`    | input        | integer | base for output digits                       |
+# | `$a3`    | input/output | address | overwritable array of digit words            |
+# | `$v0`    | output       | integer | number of output digits, -1 if input invalid |
+# | `$t0-9`  | temporary    | any     | used for temporary storage                   |
+
+.globl rebase
+
+rebase:
+        addi $t0, $a1, -2
+        bltz $t0, _invalid
+        addi $t0, $a2, -2
+        bltz $t0, _invalid
+        move $t9, $a3
+        li $t1, 0
+        beqz $a0, _next
+
+_loop1:
+        lw $t0, ($a3)
+        addi $a3, $a3, 4
+        addi $a0, $a0, -1
+        bgeu $t0, $a1, _invalid
+        mul $t1, $t1, $a1
+        add $t1, $t1, $t0
+        bnez $a0, _loop1
+
+_next:
+        move $a3, $t9
+        li $v0, 0
+
+_loop2:
+        div $t1, $a2
+        mfhi $t0
+        sw $t0, ($a3)
+        addi $a3, $a3, 4
+        addi $v0, $v0, 1
+        mflo $t1
+        bnez $t1, _loop2
+
+        addi $a3, $a3, -4
+_loop3:
+        lw $t0, ($a3)
+        lw $t1, ($t9)
+        sw $t0, ($t9)
+        sw $t1, ($a3)
+        addi $a3, $a3, -4
+        addi $t9, $t9, 4
+        blt $t9, $a3, _loop3
+        jr $ra
+
+_invalid:
+        li $v0, -1
+        jr $ra

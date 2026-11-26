@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+
+gen_modifier() {
+  n=$(echo "scale=1; ($1 - 10) / 2" | bc -l)
+  # echo "n: $n"
+  modifier=$(echo "
+  define floor(x) {
+    if (x >= 0) return x - (x % 1);
+    return x - (x % 1) - (x % 1 != 0);
+  }
+  scale=0;
+  floor($n)
+  " | bc -l)
+  echo $modifier
+}
+random() {
+  echo $(( RANDOM % 6 + 1 ))
+}
+
+select_score() {
+    rolls=()
+    for (( i=0;i<4;i++ )); do
+      rolls+=($(random))
+    done
+    # echo "${rolls[@]}"
+    rolls=($(printf "%s\n" "${rolls[@]}" | sort -n))
+    score=0
+    for (( i=1;i<4;i++ )); do
+      (( score=score + rolls[i] ))
+    done
+    echo $score
+}
+
+main() {
+  if [[ $1 == 'modifier' ]]; then
+    modifier=$(gen_modifier $2)
+    echo ${modifier%.*}
+    exit 0
+  fi
+  strength=$(select_score)
+  dextrity=$(select_score)
+  constitution=$(select_score)
+  intelligence=$(select_score)
+  wisdom=$(select_score)
+  charisma=$(select_score)
+  constitution_modifier=$(gen_modifier $constitution)
+  # echo $constitution_modifier
+  # echo "error is here"
+  hitpoints=$(echo "scale=0; 10 + $constitution_modifier" | bc -l)
+  
+  echo "strength ${strength%.*}"
+  echo "dexterity ${dextrity%.*}"
+  echo "constitution ${constitution%.*}"
+  echo "intelligence ${intelligence%.*}"
+  echo "wisdom ${wisdom%.*}"
+  echo "charisma ${charisma%.*}"
+  echo "hitpoints ${hitpoints%.*}"
+}
+
+
+main "$@"

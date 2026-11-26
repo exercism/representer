@@ -1,1 +1,0 @@
-ReverseString ← |1 ⍣(⊂ReverseString:°⊂)∘

@@ -1,0 +1,33 @@
+Class {
+	#name : #Raindrops,
+	#superclass : #Object,
+	#instVars : [
+		'subDictionary'
+	],
+	#category : #'Exercise@Raindrops'
+}
+
+{ #category : #'as yet unclassified' }
+Raindrops >> convertNumber: anInteger [
+	| output |
+	output := WriteStream on: String new.
+	#(3 5 7)
+		do: [ :divisor | 
+			(anInteger isDivisibleBy: divisor)
+				ifTrue: [ output nextPutAll: (self replace: divisor) ] ].
+	output isEmpty
+		ifTrue: [ output nextPutAll: anInteger asString ].
+	^ output contents
+]
+
+{ #category : #initialization }
+Raindrops >> initialize [
+	subDictionary := { 3 -> 'Pling'.
+							5 -> 'Plang'.
+							7 -> 'Plong'.  } asDictionary.
+]
+
+{ #category : #enumerating }
+Raindrops >> replace: anInteger [
+	^ subDictionary at: anInteger 
+]

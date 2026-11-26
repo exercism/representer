@@ -1,0 +1,13 @@
+#include "hamming.h"
+#include <string.h>
+
+int compute(const char *lhs, const char *rhs){
+    if (!lhs || !rhs || (strlen(lhs) != strlen(rhs))) return -1;
+    int hdist = 0;
+	for (; (*lhs != '\0') && (*rhs != '\0'); ++lhs, ++rhs) {
+		if (*lhs != *rhs) hdist++;
+	}
+	return hdist;
+}
+
+    

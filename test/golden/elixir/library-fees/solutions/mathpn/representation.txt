@@ -1,0 +1,104 @@
+(source
+  (call defmodule
+    (arguments LibraryFees)
+    (do_block
+      (call def
+        (arguments
+          (call datetime_from_string
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (call
+            (dot NaiveDateTime . from_iso8601!)
+            (arguments PLACEHOLDER_1))))
+      (call def
+        (arguments
+          (call before_noon?
+            (arguments (variable PLACEHOLDER_2))))
+        (do_block
+          (binary_operator (variable PLACEHOLDER_3) =
+            (call
+              (dot NaiveDateTime . to_time)
+              (arguments PLACEHOLDER_2)))
+          (binary_operator
+            (call
+              (dot Time . diff)
+              (arguments PLACEHOLDER_3
+                (sigil ~ T 12:00:00))) < 0)))
+      (call def
+        (arguments
+          (call return_date
+            (arguments (variable PLACEHOLDER_4))))
+        (do_block
+          (binary_operator (variable PLACEHOLDER_5) =
+            (call before_noon?
+              (arguments PLACEHOLDER_4)))
+          (binary_operator (variable PLACEHOLDER_6) =
+            (call
+              (dot NaiveDateTime . to_date)
+              (arguments PLACEHOLDER_4)))
+          (binary_operator (variable PLACEHOLDER_7) =
+            (call if
+              (arguments PLACEHOLDER_5)
+              (do_block 28
+                (else_block 29))))
+          (call
+            (dot Date . add)
+            (arguments PLACEHOLDER_6 PLACEHOLDER_7))))
+      (call def
+        (arguments
+          (call days_late
+            (arguments (variable PLACEHOLDER_8) (variable PLACEHOLDER_9))))
+        (do_block
+          (binary_operator (variable PLACEHOLDER_10) =
+            (call
+              (dot NaiveDateTime . to_date)
+              (arguments PLACEHOLDER_9)))
+          (binary_operator (variable PLACEHOLDER_11) =
+            (call
+              (dot Date . diff)
+              (arguments PLACEHOLDER_10 PLACEHOLDER_8)))
+          (call max
+            (arguments 0 PLACEHOLDER_11))))
+      (call def
+        (arguments
+          (call monday?
+            (arguments (variable PLACEHOLDER_2))))
+        (do_block
+          (binary_operator (variable PLACEHOLDER_12) =
+            (call
+              (dot NaiveDateTime . to_date)
+              (arguments PLACEHOLDER_2)))
+          (binary_operator
+            (call
+              (dot Date . day_of_week)
+              (arguments PLACEHOLDER_12)) == 1)))
+      (call def
+        (arguments
+          (call calculate_late_fee
+            (arguments (variable PLACEHOLDER_13) (variable PLACEHOLDER_14) (variable PLACEHOLDER_15))))
+        (do_block
+          (binary_operator (variable PLACEHOLDER_4) =
+            (call datetime_from_string
+              (arguments PLACEHOLDER_13)))
+          (binary_operator (variable PLACEHOLDER_16) =
+            (call datetime_from_string
+              (arguments PLACEHOLDER_14)))
+          (binary_operator days_late =
+            (binary_operator
+              (binary_operator PLACEHOLDER_4 |>
+                (call return_date
+                  (arguments))) |>
+              (call days_late
+                (arguments PLACEHOLDER_16))))
+          (call if
+            (arguments
+              (call monday?
+                (arguments PLACEHOLDER_16)))
+            (do_block
+              (call
+                (dot Kernel . floor)
+                (arguments
+                  (binary_operator
+                    (binary_operator PLACEHOLDER_15 * days_late) / 2)))
+              (else_block
+                (binary_operator PLACEHOLDER_15 * days_late)))))))))

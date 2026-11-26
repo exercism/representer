@@ -1,0 +1,34 @@
+type bowling.Error = Error Text
+
+bowling.score : [Nat] -> Either Error Nat
+bowling.score rolls =
+  go : Nat -> [Nat] -> Either Error Nat
+  go frame rolls =
+    use Either mapRight
+    use List +: head
+    use Nat + ==
+    error = Left (Error "Score cannot be taken until the end of the game")
+    match (frame, rolls) with
+      (10, _) -> Right 0
+      (_, [roll1, roll2] ++ rolls)
+        | roll1 == 10          ->
+          ignore "Strike"
+          match head rolls with
+            Some roll3 ->
+              extra = roll2 + roll3
+              mapRight
+                (score -> score + roll1 + extra)
+                (go (frame + 1) (roll2 +: rolls))
+            None -> error
+        | roll1 + roll2 == 10  ->
+          ignore "Spare"
+          match head rolls with
+            Some roll3 ->
+              extra = roll3
+              mapRight (score -> score + 10 + extra) (go (frame + 1) rolls)
+            None       -> error
+        | otherwise            ->
+          ignore "Open frame"
+          mapRight (score -> score + roll1 + roll2) (go (frame + 1) rolls)
+      _ -> error
+  go 0 rolls

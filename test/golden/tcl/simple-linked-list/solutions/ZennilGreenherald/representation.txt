@@ -1,0 +1,75 @@
+oo::class create Node {
+variable _datum
+variable _next
+constructor { value } {
+set _next "\"\""
+set _datum $value
+}
+method clear_next {} {
+set _next "\"\""
+}
+method next { { node "\"\"" } } {
+if { $node eq "\"\"" } {
+return $_next
+} else {
+set _next $node
+}
+}
+method datum {} {
+return $_datum
+}
+}
+oo::class create SimpleLinkedList {
+variable _head
+constructor {{ values {}}} {
+set _head "\"\""
+foreach v $values {
+my push [ Node new $v ]
+}
+}
+method push { node } {
+if { $_head eq "\"\"" } {
+set _head $node
+} else {
+$node next $_head
+set _head $node
+}
+return [ self ]
+}
+method pop {} {
+set x $_head
+if { $_head ne "\"\"" } {
+set _head [ $_head next ]
+}
+if { "\"\"" ne $x } { $x clear_next }
+return $x
+}
+method foreach { varname body } {
+upvar 1 $varname myvar
+set x $_head
+while { $x ne "\"\"" } {
+set myvar $x
+uplevel 1 $body
+set x [ $x next ]
+}
+}
+method toList {} {
+set acc {}
+set x $_head
+while { $x ne "\"\"" } {
+lappend acc [ $x datum ]
+set x [ $x next ]
+}
+return $acc
+}
+method reverse {} {
+set ls {}
+while { $_head ne "\"\"" } {
+lappend ls $_head
+set _head [ $_head next ]
+[ lindex $ls end ] clear_next
+}
+foreach x $ls { my push $x }
+return [ self ]
+}
+}

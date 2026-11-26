@@ -1,0 +1,15 @@
+;;; sum-of-multiples.el --- Sum of Multiples (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;;; Code:
+
+(defun sum (factors limit)
+  (cl-loop with factors = (seq-filter (lambda (n) (not (zerop n)))
+                                      factors)
+           for i from 1 below limit by 1
+           if (cl-member-if (lambda (n) (zerop (% i n))) factors)
+           sum i))
+
+(provide 'sum-of-multiples)
+;;; sum-of-multiples.el ends here

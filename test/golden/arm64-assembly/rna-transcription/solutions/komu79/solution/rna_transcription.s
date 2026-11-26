@@ -1,0 +1,25 @@
+.text
+.globl to_rna
+
+// x0 = output buffer
+// x1 = input buffer
+to_rna:
+        mov w4, #'C'
+        mov w5, #'G'
+        mov w6, #'A'
+        mov w7, #'U'
+.Lloop:
+        ldrb w2, [x1], #1
+        
+        cmp w2, #'G'
+        csel w3, w4, w2, eq
+        cmp w2, #'C'
+        csel w3, w5, w3, eq
+        cmp w2, #'T'
+        csel w3, w6, w3, eq
+        cmp w2, #'A'
+        csel w3, w7, w3, eq
+
+        strb w3, [x0], #1
+        cbnz w2, .Lloop
+        ret

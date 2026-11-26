@@ -1,0 +1,16 @@
+import Foundation
+
+func isArmstrongNumber(_ number: Int) -> Bool {
+    let stringNum = String(number)
+    let digitCount = stringNum.count
+    var sum = 0
+    
+    for i in stringNum {
+        if let digit = i.wholeNumberValue {
+            sum += Int(pow(Double(digit), Double(digitCount)))
+        }
+    }
+    
+    return sum == number
+}
+

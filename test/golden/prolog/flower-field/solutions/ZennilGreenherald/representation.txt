@@ -1,0 +1,23 @@
+annotate ([], []) :- !.
+annotate ([ "\"\"" ], [ "\"\"" ]) :- !.
+annotate ( Board , AnnotatedBoard ) :-
+maplist ( string_codes , Board , Grid ),
+length ( Board , Height ),
+succ ( H1 , Height ),
+numlist ( 0 , H1 , RowNums ),
+maplist ( foo ( Grid ), RowNums , NewBoard ),
+maplist ([ X , Y ] >> ( string_codes ( Y , X )), NewBoard , AnnotatedBoard ), !.
+foo ( Grid , RowNum , NewRow ) :-
+nth0 ( RowNum , Grid , Row ),
+length ( Row , Len ),
+succ ( Len1 , Len ),
+numlist ( 0 , Len1 , ColNums ),
+maplist ( baz ( Grid , Row , RowNum ), ColNums , NewRow ).
+baz ( _Grid , Row , _RowNum , ColNum , 0 "'*) :- nth0(ColNum, Row, 0'" * ).
+baz ( Grid , Row , RowNum , ColNum , NewValue ) :-
+nth0 ( ColNum , Row , OldValue ),
+OldValue \ = 0 "'*,\n    aggregate_all(\n        sum(X),\n        (\n            R1 is RowNum - 1,\n            R2 is RowNum + 1,\n            between(R1, R2, R3),\n            C1 is ColNum - 1,\n            C2 is ColNum + 1,\n            between(C1, C2, C3),\n            nth0(R3, Grid, MyRow),\n            nth0(C3, MyRow, MyValue),\n            score(MyValue, X)\n        ),\n        Sum\n    ),\n    count_to_code(Sum, NewValue).\n\nscore(0'" *, 1 ).
+score ( 0 "' , 0).\n\ncount_to_code(0, 0'" ).
+count_to_code ( N , C ) :-
+N > 0 ,
+number_codes ( N , [ C ]).

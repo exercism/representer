@@ -1,0 +1,50 @@
+Imports System
+Public Class BowlingGame
+Private Const FramesPerGame As Integer = 10
+Private Const PinsPerFrame As Integer = 10
+Private _score As Integer
+Private _framesCompleted As Integer
+Private _pinsRemaining As Integer = PinsPerFrame
+Private _rollInFrame As Integer
+Private _bonus1 As Integer
+Private _bonus2 As Integer
+Public Sub Roll ( ByVal pins As Integer )
+If IsComplete () Then
+Throw New ArgumentException ()
+End If
+If pins < 0 OrElse pins > _pinsRemaining Then
+Throw New ArgumentException ()
+End If
+Dim isBonusRoll = _framesCompleted >= FramesPerGame
+_score += pins * ( If ( isBonusRoll , 0 , 1 ) + _bonus1 + _bonus2 )
+_bonus1 = _bonus2
+_bonus2 = 0
+_pinsRemaining -= pins
+_rollInFrame += 1
+If _pinsRemaining > 0 AndAlso _rollInFrame = 1 Then
+Return
+End If
+If Not isBonusRoll AndAlso _pinsRemaining = 0 Then
+If _rollInFrame = 2 Then
+_bonus1 += 1
+Else
+_bonus2 += 1
+End If
+End If
+EndFrame ()
+End Sub
+Public Function Score () As Integer
+If Not IsComplete () Then
+Throw New ArgumentException ()
+End If
+Return _score
+End Function
+Private Function IsComplete () As Boolean
+Return _framesCompleted >= FramesPerGame AndAlso _bonus1 = 0 AndAlso _bonus2 = 0
+End Function
+Private Sub EndFrame ()
+_rollInFrame = 0
+_pinsRemaining = PinsPerFrame
+_framesCompleted += 1
+End Sub
+End Class

@@ -1,0 +1,20 @@
+import "lib/github.com/diku-dk/sorts/merge_sort"
+
+def rail_cipher (msg: []u8) (rails: i64) (is_encode: bool): []u8 =
+  if rails <= 1 then msg
+  else
+    let seq = (iota rails) ++ (iota (rails - 2) |> map (+1) |> reverse)
+    let positions = map (\i -> (seq[i % length seq], i)) (iota (length msg))
+    let sorted = merge_sort (\(r1, p1) (r2, p2) -> if r1 == r2 then p1 <= p2 else r1 <= r2) positions
+    in if is_encode then
+         map (\(_, pos) -> msg[pos]) sorted
+       else
+         let pos_to_char = replicate (length msg) 0
+         let pos_to_char = loop pos_to_char for i < length msg do
+           let (_, pos) = sorted[i]
+           in pos_to_char with [pos] = msg[i]
+         in map (\i -> let (_, pos) = positions[i] in pos_to_char[pos]) (iota (length msg))
+
+def encode (msg: []u8) (rails: i64): []u8 = rail_cipher msg rails true
+def decode (msg: []u8) (rails: i64): []u8 = rail_cipher msg rails false
+     

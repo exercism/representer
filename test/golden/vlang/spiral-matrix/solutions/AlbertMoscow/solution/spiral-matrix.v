@@ -1,0 +1,30 @@
+module main
+
+fn spiral_matrix(size int) [][]int {
+    mut matrix := [][]int{len: size, init: []int{len: size, init: 0}}
+    mut row_offset := 0
+    mut column_offset := 0
+    total_numbers := size * size
+    mut current_number := 1
+    for current_number <= total_numbers {
+        for top_column := column_offset; top_column < size - column_offset; top_column++ {
+            matrix[row_offset][top_column] = current_number
+            current_number++
+        }
+        for right_row := row_offset + 1; right_row < size - row_offset; right_row++ {
+            matrix[right_row][size - column_offset - 1] = current_number
+            current_number++
+        }
+        for bottom_column := size - column_offset - 2; bottom_column >= column_offset; bottom_column-- {
+            matrix[size - row_offset - 1][bottom_column] = current_number
+            current_number++
+        }
+        for left_row := size - row_offset - 2; left_row >= row_offset + 1; left_row-- {
+            matrix[left_row][column_offset] = current_number
+            current_number++
+        }
+        row_offset++
+        column_offset++
+    }
+    return matrix
+}

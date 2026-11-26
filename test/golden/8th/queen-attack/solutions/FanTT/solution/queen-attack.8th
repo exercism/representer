@@ -1,0 +1,30 @@
+: <0-7> 0 7 n:between ;
+
+: positions-invalid?   \ x x -- a a | false
+    null? rot null? rot or if 2drop false ;; then
+;
+
+: regroup  \ [x1,y1] [x2,y2] -- x2 x1 y1 y2
+    a:open rot a:open rot
+;
+
+: diff-abs  \ n -- n
+    n:- n:abs
+;
+
+: create   \ n n -- a
+    2dup
+    <0-7> swap <0-7>
+    and
+    if   2 a:close
+    else 2drop null
+    then
+;
+
+: can-attack?  \ a a -- T
+    positions-invalid?
+    regroup
+    diff-abs -rot diff-abs  \ -- n n
+    2dup
+    xor -rot n:=  or
+;

@@ -1,0 +1,28 @@
+include ( "\"permutations.jl\"" )
+function solve ( puzzle :: AbstractString )
+lhs , rhs = split ( puzzle , "\"==\"" )
+word_rhs = strip ( rhs )
+words = strip . ( split ( lhs , '+' ))
+characters = collect ( Set ( ch for ch in puzzle if isletter ( ch )))
+isinitial = map ( characters ) do character
+any ( word -> startswith ( word , character ), [ words ; word_rhs ])
+end
+idx_char = Dict ( c => i for ( i , c ) in enumerate ( characters ))
+weights = zeros ( Int , length ( characters ))
+for word in words
+for ( i , char ) in enumerate ( reverse ( word ))
+weights [ idx_char [ char ]] += 10 ^ ( i - 1 )
+end
+end
+for ( i , char ) in enumerate ( reverse ( word_rhs ))
+weights [ idx_char [ char ]] -= 10 ^ ( i - 1 )
+end
+results = []
+for permutation in permutations ( 0 : 9 , length ( characters ))
+any ( isinitial .&& ( permutation .== 0 )) && continue
+if sum ( weights .* permutation ) == 0
+push! ( results , Dict ( zip ( characters , permutation )))
+end
+end
+length ( results ) == 1 ? results [ 1 ] : nothing
+end

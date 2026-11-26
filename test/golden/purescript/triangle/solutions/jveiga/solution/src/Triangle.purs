@@ -1,0 +1,40 @@
+module Triangle
+  ( Triangle(Equilateral, Isosceles, Scalene)
+  , triangleKind
+  ) where
+
+import Prelude
+import Data.Either (Either(Left, Right))
+
+data Triangle = Equilateral | Isosceles | Scalene
+
+instance eqTriangle :: Eq Triangle where
+  eq Equilateral Equilateral = true
+  eq Isosceles Isosceles = true
+  eq Scalene Scalene = true
+  eq _ _ = false
+
+instance showTriangle :: Show Triangle where
+  show Equilateral = "Equilateral"
+  show Isosceles = "Isosceles"
+  show Scalene =  "Scalene"
+
+triangleEquality :: Int -> Int -> Int -> Boolean
+triangleEquality a b c =
+  let
+      ab = a + b
+      bc = b + c
+      ac = a + c
+  in
+      ab > c && bc > a && ac > b
+
+triangleLength :: Int -> Int -> Int -> Boolean
+triangleLength a b c = a <= 0 || b <= 0 || c <= 0
+
+triangleKind :: Int -> Int -> Int -> Either String Triangle
+triangleKind a b c | triangleLength a b c = Left "Invalid lengths"
+                   | not $ triangleEquality a b c = Left "Violates inequality"
+                   | a == b && b == c =  Right Equilateral
+                   | a == b || b == c =  Right Isosceles
+                   | a == c || a == b = Right Isosceles
+                   | otherwise = Right Scalene

@@ -1,0 +1,135 @@
+(source_file
+  (package_clause parsinglogfiles)
+  (import_declaration
+    (import_spec_list
+      (import_spec "regexp")))
+  (function_declaration TagWithUserName
+    (parameter_list
+      (parameter_declaration lines
+        (slice_type string)))
+    (slice_type string)
+    (block
+      (statement_list
+        (short_var_declaration
+          (expression_list PLACEHOLDER_1) :=
+          (expression_list
+            (call_expression
+              (selector_expression regexp MustCompile)
+              (argument_list "(User[\\s]{1,}(\\w)*)"))))
+        (short_var_declaration
+          (expression_list PLACEHOLDER_2) :=
+          (expression_list
+            (call_expression
+              (selector_expression regexp MustCompile)
+              (argument_list "(User[\\s]{1,})"))))
+        (for_statement
+          (range_clause
+            (expression_list PLACEHOLDER_3 PLACEHOLDER_4) := lines)
+          (block
+            (statement_list
+              (if_statement
+                (short_var_declaration
+                  (expression_list PLACEHOLDER_5) :=
+                  (expression_list
+                    (call_expression
+                      (selector_expression PLACEHOLDER_1 FindString)
+                      (argument_list PLACEHOLDER_4))))
+                (binary_expression PLACEHOLDER_5 != "")
+                (block
+                  (statement_list
+                    (assignment_statement
+                      (expression_list
+                        (index_expression lines PLACEHOLDER_3)) =
+                      (expression_list
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression "[USR] " +
+                              (call_expression
+                                (selector_expression PLACEHOLDER_2 ReplaceAllString)
+                                (argument_list PLACEHOLDER_5 ""))) + " ") + PLACEHOLDER_4)))))))))
+        (return_statement
+          (expression_list lines)))))
+  (function_declaration CountQuotedPasswords
+    (parameter_list
+      (parameter_declaration lines
+        (slice_type string))) int
+    (block
+      (statement_list
+        (short_var_declaration
+          (expression_list PLACEHOLDER_6) :=
+          (expression_list
+            (call_expression
+              (selector_expression regexp MustCompile)
+              (argument_list "(?mi)(\".*(password).*\")"))))
+        (short_var_declaration
+          (expression_list PLACEHOLDER_7) :=
+          (expression_list 0))
+        (for_statement
+          (range_clause
+            (expression_list _ PLACEHOLDER_4) := lines)
+          (block
+            (statement_list
+              (if_statement
+                (short_var_declaration
+                  (expression_list PLACEHOLDER_5) :=
+                  (expression_list
+                    (call_expression
+                      (selector_expression PLACEHOLDER_6 MatchString)
+                      (argument_list PLACEHOLDER_4)))) PLACEHOLDER_5
+                (block
+                  (statement_list
+                    (assignment_statement
+                      (expression_list PLACEHOLDER_7) +=
+                      (expression_list 1))))))))
+        (return_statement
+          (expression_list PLACEHOLDER_7)))))
+  (function_declaration SplitLogLine
+    (parameter_list
+      (parameter_declaration text string))
+    (slice_type string)
+    (block
+      (statement_list
+        (short_var_declaration
+          (expression_list PLACEHOLDER_6) :=
+          (expression_list
+            (call_expression
+              (selector_expression regexp MustCompile)
+              (argument_list "(<(\\*|~|=|-)*>)"))))
+        (return_statement
+          (expression_list
+            (call_expression
+              (selector_expression PLACEHOLDER_6 Split)
+              (argument_list text
+                (unary_expression - 1))))))))
+  (function_declaration RemoveEndOfLineText
+    (parameter_list
+      (parameter_declaration text string)) string
+    (block
+      (statement_list
+        (short_var_declaration
+          (expression_list PLACEHOLDER_6) :=
+          (expression_list
+            (call_expression
+              (selector_expression regexp MustCompile)
+              (argument_list "(end-of-line[\\d]*)"))))
+        (return_statement
+          (expression_list
+            (call_expression
+              (selector_expression PLACEHOLDER_6 ReplaceAllString)
+              (argument_list text "")))))))
+  (function_declaration IsValidLine
+    (parameter_list
+      (parameter_declaration text string)) bool
+    (block
+      (statement_list
+        (short_var_declaration
+          (expression_list PLACEHOLDER_6) :=
+          (expression_list
+            (call_expression
+              (selector_expression regexp MustCompile)
+              (argument_list "^\\[TRC\\]|^\\[DBG]|^\\[INF\\]|^\\[WRN\\]|^\\[ERR\\]|^\\[FTL\\]"))))
+        (return_statement
+          (expression_list
+            (call_expression
+              (selector_expression PLACEHOLDER_6 MatchString)
+              (argument_list text))))))))

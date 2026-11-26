@@ -1,0 +1,74 @@
+# Convert a number into a string that contains raindrop sounds corresponding to
+# certain potential factors: 'Pling' for 3, 'Plang' for 5 and 'Plong' for 7.
+.text
+.globl raindrops
+raindrops:
+move $t4, $ra # save return address
+li $t0, 3
+div $a0, $t0
+mfhi $t3 # n % 3
+li $t0, 5
+div $a0, $t0
+mfhi $t5 # n % 5
+li $t0, 7
+div $a0, $t0
+mfhi $t7 # n % 7
+beqz $t3, do_pling # if n % 3 == 0 then goto pling
+beqz $t5, do_plang # if n % 5 == 0 then goto plang
+beqz $t7, do_plong # if n % 7 == 0 then goto plong
+b stringify # if none of the three, stringify the number
+do_raindrop:
+# Copy the string in $a2 (a raindrop) to $a1 (the output)
+lb $t1, 0($a2)
+beqz $t1, raindrop_done
+sb $t1, 0($a1)
+addi $a1, $a1, 1
+addi $a2, $a2, 1
+b do_raindrop
+raindrop_done:
+jr $ra
+do_pling:
+la $a2, pling
+jal do_raindrop
+beqz $t5, do_plang # if n % 5 == 0, do plang
+beqz $t7, do_plong # if n % 7 == 0, do plong
+b done
+do_plang:
+la $a2, plang
+jal do_raindrop
+beqz $t7, do_plong # if n % 7 == 0, do plong
+b done
+do_plong:
+la $a2, plong
+jal do_raindrop
+b done
+stringify:
+la $a2, string
+li $t0, 10
+li $t2, 0 # string length
+loop:
+beqz $a0, reverse
+div $a0, $t0 # divide number by 10
+mfhi $t1 # remainder, the digit to stringify
+mflo $a0 # quotient, the next number to divide
+addi $t3, $t1, 0x30 # convert the digit to the char representing it
+sb $t3, 0($a2) # write it to the result
+addi $a2, $a2, 1 # advance string pointer
+addi $t2, $t2, 1 # length++
+b loop
+reverse:
+addi $a2, $a2, -1 # it had overshot in the loop above
+beqz $t2, done
+lb $t1, 0($a2)
+sb $t1, 0($a1)
+addi $a1, $a1, 1
+addi $t2, $t2, -1
+b reverse
+done:
+move $ra, $t4
+jr $ra
+.data
+pling: .asciiz "\"Pling\""
+plang: .asciiz "\"Plang\""
+plong: .asciiz "\"Plong\""
+string: .space 16

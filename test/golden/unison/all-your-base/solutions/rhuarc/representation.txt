@@ -1,0 +1,42 @@
+allYourBase . validate : [ Int ] -> Int -> Boolean
+allYourBase . validate digits base =
+  truncate0 base > 1 && List . all ( d -> ( d < base ) && ( d >= + 0 )) digits
+allYourBase . fromDigits : Int -> [ Int ] -> Optional Int
+allYourBase . fromDigits base digits =
+  match validate digits base with
+    true -> Some ( List . foldRight ( d -> sum -> ( base * sum ) Int .+ d ) + 0 digits )
+    false -> None
+> fromDigits + 2 ( List . reverse [ + 1 , + 0 , + 1 , + 0 , + 1 , + 0 ])
+allYourBase . toBase : Int -> Int -> [ Int ]
+allYourBase . toBase number base =
+  use List ++
+  match number with
+    + 0 -> []
+    _ -> toBase ( number / base ) base ++ [( Int . mod number base )]
+allYourBase . rebase : Int -> [ Int ] -> Int -> Optional [ Int ]
+allYourBase . rebase inputBase inputDigits outputBase =
+  if inputBase < + 2 || ( outputBase < + 2 ) || ( Boolean . not ( validate inputDigits inputBase )) then None
+  else
+    inputDigits
+      |> List . reverse
+      |> fromDigits inputBase
+      |> Optional . map ( num -> toBase num outputBase )
+      |> Optional . map ( digits -> if ( List . isEmpty digits ) then [ + 0 ] else digits )
+> rebase + 2 [ + 1 , + 0 , + 1 , + 0 , + 1 , + 0 ] + 10
+> rebase + 10 [ + 4 , + 2 ] + 2
+> rebase + 3 [ + 1 , + 1 , + 2 , + 0 ] + 16
+> rebase + 16 [ + 2 , + 10 ] + 3
+> rebase + 97 [ + 3 , + 46 , + 60 ] + 73
+> rebase + 2 [] + 10
+> rebase + 10 [ + 0 ] + 2
+> rebase + 10 [ + 0 , + 0 , + 0 ] + 2
+> rebase + 7 [ + 0 , + 6 , + 0 ] + 10
+> rebase + 1 [ + 0 ] + 10
+> rebase + 0 [ + 0 ] + 10
+> rebase - 2 [ + 1 ] + 10
+> rebase + 2 [ + 1 , - 1 , + 1 , + 0 ] + 10
+> rebase + 2 [ + 1 , + 2 , + 1 , + 0 ] + 10
+> rebase + 2 [ + 1 , + 2 , + 1 , + 0 ] + 1
+> rebase + 2 [ + 1 , + 0 , + 1 , + 0 ] + 0
+> rebase + 2 [ + 1 , + 0 , + 1 , + 0 ] - 7
+> rebase - 2 [ + 1 , + 0 , + 1 , + 0 ] - 7

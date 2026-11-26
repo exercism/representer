@@ -1,0 +1,8 @@
+def steps:
+  . as $n
+  | if $n == 1 then 0
+    elif $n < 1 then
+      "Only positive integers are allowed" | halt_error
+    elif $n % 2 == 0 then 1 + ($n / 2 | steps)
+    else 1 + (3 * $n + 1 | steps)
+    end;

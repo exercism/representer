@@ -1,0 +1,13 @@
+package EliudsEggs;
+
+use v5.40;
+
+use Exporter qw<import>;
+our @EXPORT_OK = qw<egg_count>;
+
+sub egg_count ($n) {
+    return 0 unless $n;
+    return egg_count($n >> 1) + ($n & 1);
+}
+
+1;

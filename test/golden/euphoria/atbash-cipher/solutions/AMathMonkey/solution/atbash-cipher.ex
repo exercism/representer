@@ -1,0 +1,28 @@
+include std/sequence.e
+include std/text.e
+
+public function encode(sequence phrase)
+  sequence result = ""
+  for i = 1 to length(phrase) do
+    integer char = lower(phrase[i])
+    if char >= 'a' and char <= 'z' then
+      result = append(result, 'a' + 'z' - char)
+    elsif char >= '0' and char <= '9' then
+      result = append(result, char)
+    end if
+  end for
+  return join(breakup(result, 5))
+end function
+
+public function decode(sequence phrase)
+  sequence result = ""
+  for i = 1 to length(phrase) do
+    integer char = phrase[i]
+    if char >= '0' and char <= '9' then
+      result = append(result, char)
+    elsif char != ' ' then
+      result = append(result, 'a' + 'z' - char)
+    end if
+  end for
+  return result
+end function

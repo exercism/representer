@@ -1,0 +1,32 @@
+component {
+function valid ( value ) {
+local.safeValue = replace ( arguments . value , "' '" , '' , 'all' );
+local.valueLen = len ( local.safeValue );
+if ( local.valueLen <= 1 ) {
+return false ;
+}
+local.luhnDigits = listToArray ( local.safeValue , '' );
+for ( local.idx = 1 ; local.idx <= local.valueLen ; local.idx ++ ) {
+if ( ! isNumeric ( local.safeValue [ local.idx ])) {
+return false ;
+}
+}
+local.STEP2GETSECONDDIGIT = 2 ;
+for ( local.idx = local.valueLen ; local.idx >= 1 ; local.idx -= local.STEP2GETSECONDDIGIT ) {
+local.pointer = local.idx - 1 ;
+if ( local.pointer == 0 ) {
+break ;
+}
+local.element = local.luhnDigits [ local.pointer ] * 2 ;
+if ( local.element > 9 ) {
+local.element -= 9 ;
+}
+local.luhnDigits [ local.pointer ] = local.element ;
+}
+local.sumOfDigits = 0 ;
+for ( local.idx = 1 ; local.idx <= local.valueLen ; local.idx ++ ) {
+local.sumOfDigits += local.luhnDigits [ local.idx ];
+}
+return (( local.sumOfDigits % 10 ) == 0 );
+}
+}

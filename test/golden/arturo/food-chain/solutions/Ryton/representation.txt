@@ -1,0 +1,46 @@
+whattoswallow: split.words "\"fly" spider bird cat dog goat cow horse"
+bigspider: "\"spider" that wriggled and jiggled and tickled inside her"
+c1: ["I know an old lady who swallowed a "\"" "\".\"]"
+c2: ["I don't know why she swallowed the "\"" "\".\"]"
+cn: ["She swallowed the "\"" "\"" to catch the "\"" "\".\"" ]
+interjections: [ "\"\""
+"\"It" wriggled and jiggled and tickled inside her."
+"\"How" absurd to swallow a bird!"
+"\"Imagine" that, to swallow a cat!"
+"\"What" a hog, to swallow a dog!"
+"\"Just" opened her throat and swallowed a goat!"
+"\"I" don't know how she swallowed a cow!"
+"\"\"]"
+end: "\"I" don't know why she swallowed the fly. Perhaps she'll die."
+singleverse: function [VERSE_N][
+lyrics: "\"\""
+if ((VERSE_N)= dec size whattoswallow) [return "\"I" know an old lady who swallowed a horse.\nShe's dead, of course!"]
+what: whattoswallow\[(0 .. VERSE_N)]
+'lyrics ++ c1\0 ++ (last what) ++ c1\1
+;; if (VERSE_N > 1) [ 'lyrics ++ "\"\\n\"" ++ c2\0 ++ (last what) ++ c2\1] ;; i don know why she swallowed a ...
+nmeals: size what
+inter: (interjections\[(dec nmeals)])
+if (not? zero? size inter) [ 'lyrics ++"\n"++ inter] ; intermezzo
+if (not? one? (nmeals)) [
+loop reverse 1..dec nmeals 'idx[
+;print [nmeals idx]
+eater:(what\[(idx)])
+eaten: (what\[dec idx])
+;print [eater eaten]
+if (eaten="spider") [eaten:bigspider]
+'lyrics ++ "\"\\n\"" ++ (cn\0) ++ eater ++ (cn\1) ++ eaten ++ (cn\2)
+]
+]
+'lyrics++"\n"++ end
+return lyrics
+]
+recite: function [startVerse endVerse][
+return join.with:"\n\n" map (dec startVerse)..(dec endVerse) => singleverse &
+]
+;inspect recite 1 1
+;print express split recite 1 1
+;print express split {
+; I know an old lady who swallowed a fly.
+; I don't know why she swallowed the fly. Perhaps she'll die.
+; }
+;print recite 1 8

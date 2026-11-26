@@ -1,0 +1,62 @@
+normalize : Text -> Text
+normalize t = 
+  special : Char -> Boolean
+  special c =
+    List.any (x -> x == c) [?\s, ?., ??, ?!, ?,, ?;, ?:, ?-, ?_, ?[, ?], ?(, ?), ?{, ?}, ?\', ?\", ?@, ?%]
+  Text.fromCharList (List.map ascii.toLower (List.filter (not << special) (Text.toCharList t)))
+
+optimize : Text -> (Nat, Nat)
+optimize t =
+  length = Text.size t
+  loop c r = match (c * r) with
+    x | x < length -> if r < c then loop c (r + 1) else loop (c + 1) r
+      | otherwise  -> (c, r)
+  loop 1 1
+
+square : Text -> [Text]
+square t = 
+  (c, _) = optimize t
+  loop : List Text -> List Char -> List Text
+  loop acc = cases
+    []    -> acc
+    rest  -> 
+      (first, second) = (take c rest, drop c rest)
+      length = size first
+      new = if length < c then first ++ (List.fill (c - length) ?\s) else first
+      loop ((Text.fromCharList new) +: acc) second 
+  List.reverse (loop [] (Text.toCharList t))
+
+sequence : [Optional a] -> Optional [a]
+sequence l = 
+  f a acc = match a with
+    Some x -> Optional.map (l -> x List.+: l) acc
+    _      -> None
+  List.foldRight f (Some []) l 
+
+heads : [Text] -> Optional Text
+heads = cases
+  [] -> None
+  ts -> map fromCharList (sequence (map (head << toCharList) ts))
+
+tails : [Text] -> [Text]
+tails ts = 
+  List.map (Text.fromCharList << (Optional.getOrElse []) << List.tail << Text.toCharList) ts
+
+pack : [Text] -> [Text]
+pack ts =
+  loop acc rest = match (heads rest) with
+    Some t -> 
+      loop (t List.+: acc) (tails rest) 
+    _      -> acc
+  reverse (loop [] ts) 
+
+mkText : Char -> [Text] -> Text
+mkText sep ts =
+  f t = cases
+    []  -> Text.toCharList t
+    acc -> (Text.toCharList t) ++ [sep] ++ acc
+  Text.fromCharList (List.foldRight f [] ts)
+
+ciphertext : Text -> Text
+ciphertext inputText = 
+  ((mkText ?\s) << pack << square << normalize) inputText

@@ -1,0 +1,15 @@
+module main
+
+import toml.input
+
+fn collatz(number int) !int {
+  if number <= 0 { return error("Number less or equal zero") }
+  return collatz_with_steps(number, 0)
+}
+
+fn collatz_with_steps(number int, steps int) !int {
+  if number == 1 { return steps }
+
+  next_number := if number % 2 == 0 { number / 2 } else { 3 * number + 1 }
+  return collatz_with_steps(next_number, steps + 1)
+}

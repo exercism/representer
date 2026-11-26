@@ -1,0 +1,93 @@
+(source
+  (call defmodule
+    (arguments CaptainsLog)
+    (do_block
+      (unary_operator @
+        (call planetary_classes
+          (arguments
+            (list "D" "H" "J" "K" "L" "M" "N" "R" "T" "Y"))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator random_planet_class ::
+              (call
+                (dot String . t))))))
+      (call def
+        (arguments
+          (call random_planet_class
+            (arguments)))
+        (do_block
+          (call
+            (dot Enum . random)
+            (arguments
+              (unary_operator @ planetary_classes)))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator random_ship_registry_number ::
+              (call
+                (dot Integer . t))))))
+      (call def
+        (arguments
+          (call random_ship_registry_number
+            (arguments)))
+        (do_block
+          (string "NCC-"
+            (interpolation #{
+              (call
+                (dot Enum . random)
+                (arguments
+                  (binary_operator 1000 .. 9999)))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator random_stardate :: float))))
+      (call def
+        (arguments
+          (call random_stardate
+            (arguments)))
+        (do_block
+          (binary_operator
+            (binary_operator
+              (call
+                (dot :rand . uniform)) * 1000) + 41000)))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call format_stardate
+                (arguments
+                  (call
+                    (dot Float . t)))) ::
+              (call
+                (dot String . t))))))
+      (call def
+        (arguments
+          (call format_stardate
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (call case
+            (arguments
+              (call is_float
+                (arguments PLACEHOLDER_1)))
+            (do_block
+              (stab_clause
+                (arguments
+                  (boolean true)) ->
+                (body
+                  (binary_operator
+                    (binary_operator "~.1f" |>
+                      (call
+                        (dot :io_lib . format)
+                        (arguments
+                          (list PLACEHOLDER_1)))) |>
+                    (call to_string
+                      (arguments)))))
+              (stab_clause
+                (arguments
+                  (boolean false)) ->
+                (body
+                  (call raise
+                    (arguments ArgumentError
+                      (keywords
+                        (pair "message: " "stardate must be a float")))))))))))))

@@ -1,0 +1,42 @@
+.text
+.globl is_isogram
+
+is_isogram:
+        stp     x29, x30, [sp, #-16]!
+        mov     x29, sp
+        sub     sp, sp, #32
+        mov     x1, x0
+        mov     x2, #1
+        stp     xzr, xzr, [sp]
+        stp     xzr, xzr, [sp, #16]
+loop:
+        ldrb    w3, [x1], #1
+        cbz     w3, rettrue
+        sub     w4, w3, #'A'
+        cmp     w4, #25
+        b.ls    check
+        sub     w4, w3, #'a'
+        cmp     w4, #25
+        b.hi    no_letter
+check:
+        ldrb    w5, [sp, w4, uxtw]
+        cbnz    w5, retfalse
+        strb    w2, [sp, w4, uxtw]
+        b       loop
+no_letter:
+        cmp     w3, #32
+        b.eq    loop
+        cmp     w3, #45
+        b.eq    loop
+        mov     x0, #-1
+        b       cleanup
+retfalse:
+        mov     x0, #0
+        b       cleanup
+rettrue:
+        mov     x0, #1
+        b       cleanup
+cleanup:
+        add     sp, sp, #32
+        ldp     x29, x30, [sp], #16
+        ret

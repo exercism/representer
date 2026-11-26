@@ -1,0 +1,238 @@
+Imports System
+Imports System.Collections.Generic
+
+Public Module Poker
+
+    Private Structure PokerHand
+        Public hand As String
+        Public cards As List(Of Integer)
+        Public suits As List(Of Char)
+        Public rank As Integer
+        Public points As Integer
+        Public cards_remaining As List(Of Integer)
+    End Structure
+
+    Private Enum Play
+        StraightFlush = 800
+        FourOfAKind = 700
+        FullHouse = 600
+        Flush = 500
+        Straight = 400
+        ThreeOfAKind = 300
+        TwoPair = 200
+        OnePair = 100
+        HighCard = 0
+    End Enum
+
+    Public Function BestHands(ByVal hands As IEnumerable(Of String)) As IEnumerable(Of String)
+
+        If hands.Count = 1 Then Return hands
+
+        Dim game(hands.Count - 1) As PokerHand
+        Dim result As New List(Of String)
+
+        For i As Integer = 0 To game.Length - 1
+            game(i).hand = hands(i)
+            Parsehand(game(i))
+            SetRank(game(i))
+            game(i).cards_remaining.Sort()
+        Next
+
+        Dim sortedGame = game.OrderByDescending(Function(n) n.points).ToList
+
+        If sortedGame(0).points > sortedGame(1).points Then
+            result.Add(sortedGame(0).hand)
+            Return result
+        End If
+
+        Dim tiedGames = sortedGame.TakeWhile(Function(n) n.points = sortedGame(0).points).ToList
+
+        For i As Integer = 0 To tiedGames.Count - 1
+            For j As Integer = i + 1 To tiedGames.Count - 1
+                Dim t = BreakTie(sortedGame(i), sortedGame(j))
+                If t = 1 Then
+                    result.Add(sortedGame(i).hand)
+                ElseIf t = -1 Then
+                    result.Add(sortedGame(j).hand)
+                ElseIf t = 0 Then
+                    result.Add(sortedGame(i).hand)
+                    result.Add(sortedGame(j).hand)
+                End If
+            Next
+        Next
+
+        Return result.Distinct
+
+    End Function
+
+    Private Sub Parsehand(ByRef pkhand As PokerHand)
+
+        pkhand.cards = New List(Of Integer)
+        pkhand.suits = New List(Of Char)
+        pkhand.cards_remaining = New List(Of Integer)
+
+        pkhand.suits = Strings.StrReverse(pkhand.hand).Split.Select(Function(st) st(0)).ToList
+
+        For Each c In Strings.StrReverse(pkhand.hand).Split.Select(Function(st) st(1))
+            Select Case c
+                Case "0" : pkhand.cards.Add(10)
+                Case "J" : pkhand.cards.Add(11)
+                Case "Q" : pkhand.cards.Add(12)
+                Case "K" : pkhand.cards.Add(13)
+                Case "A" : pkhand.cards.Add(14)
+                Case Else : pkhand.cards.Add(Integer.Parse(c))
+            End Select
+        Next
+
+        pkhand.cards.Sort()
+
+    End Sub
+
+    Private Sub SetRank(ByRef pkhand As PokerHand)
+
+        Dim aux As New List(Of Integer) From {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 2, 3, 4, 5, 14}
+
+        For i As Integer = 0 To aux.Count - 5
+            If aux.Skip(i).Take(5).SequenceEqual(pkhand.cards) Then
+                If pkhand.suits.Distinct.Count = 1 Then
+                    pkhand.rank = Play.StraightFlush
+                Else
+                    pkhand.rank = Play.Straight
+                End If
+                'In case straight is A,2,3,4,5
+                If pkhand.cards(0) = 2 And pkhand.cards(4) = 14 Then
+                    pkhand.points = pkhand.rank + pkhand.cards(3)
+                Else
+                    pkhand.points = pkhand.rank + pkhand.cards(4)
+                End If
+                Exit Sub
+            End If
+        Next
+
+        If pkhand.suits.Distinct.Count = 1 Then
+            pkhand.rank = Play.Flush
+            pkhand.points = pkhand.rank + pkhand.cards(4)
+            pkhand.cards_remaining.Add(pkhand.cards(3))
+            pkhand.cards_remaining.Add(pkhand.cards(2))
+            pkhand.cards_remaining.Add(pkhand.cards(1))
+            pkhand.cards_remaining.Add(pkhand.cards(0))
+            Exit Sub
+        End If
+
+        Dim dict = pkhand.cards.GroupBy(Function(n) n).ToDictionary(Function(n) n.Key, Function(x) x.Count)
+
+        If dict.ContainsValue(4) Then
+            For Each d In dict
+                If d.Value = 4 Then
+                    pkhand.points = d.Key
+                Else
+                    pkhand.cards_remaining.Add(d.Key)
+                End If
+            Next
+            pkhand.rank = Play.FourOfAKind
+            pkhand.points += pkhand.rank
+            Exit Sub
+
+        ElseIf dict.ContainsValue(3) And dict.ContainsValue(2) Then
+            For Each d In dict
+                If d.Value = 3 Then
+                    pkhand.points = d.Key
+                Else
+                    pkhand.cards_remaining.Add(d.Key)
+                End If
+            Next
+            pkhand.rank = Play.FullHouse
+            pkhand.points += pkhand.rank
+            Exit Sub
+
+        ElseIf dict.ContainsValue(3) Then
+            For Each d In dict
+                If d.Value = 3 Then
+                    pkhand.points = d.Key
+                Else
+                    pkhand.cards_remaining.Add(d.Key)
+                End If
+            Next
+            pkhand.rank = Play.ThreeOfAKind
+            pkhand.points += pkhand.rank
+            Exit Sub
+
+        ElseIf dict.ContainsValue(2) And dict.Count = 3 Then
+            Dim pairs As New List(Of Integer)
+            For Each d In dict
+                If d.Value = 2 Then
+                    pairs.Add(d.Key)
+                Else
+                    pkhand.cards_remaining.Add(d.Key)
+                End If
+            Next
+            pkhand.points = pairs.Max
+            pkhand.cards_remaining.Add(pairs.Min)
+            pkhand.rank = Play.TwoPair
+            pkhand.points += pkhand.rank
+            Exit Sub
+
+        ElseIf dict.ContainsValue(2) And dict.Count = 4 Then
+            For Each d In dict
+                If d.Value = 2 Then
+                    pkhand.points = d.Key
+                Else
+                    pkhand.cards_remaining.Add(d.Key)
+                End If
+            Next
+            pkhand.rank = Play.OnePair
+            pkhand.points += pkhand.rank
+            Exit Sub
+
+        Else
+            pkhand.rank = Play.HighCard
+            pkhand.points = pkhand.rank + pkhand.cards(4)
+            pkhand.cards_remaining.Add(pkhand.cards(3))
+            pkhand.cards_remaining.Add(pkhand.cards(2))
+            pkhand.cards_remaining.Add(pkhand.cards(1))
+            pkhand.cards_remaining.Add(pkhand.cards(0))
+            Exit Sub
+
+        End If
+
+    End Sub
+
+    Private Function BreakTie(ByVal x As PokerHand, ByVal y As PokerHand) As Integer
+
+        Select Case x.rank
+
+            Case Play.FourOfAKind
+                Return x.cards_remaining(0).CompareTo(y.cards_remaining(0))
+            Case Play.FullHouse
+                Return x.cards_remaining(0).CompareTo(y.cards_remaining(0))
+            Case Play.Flush
+                Return addCardsRemaining(x, y, 3)
+            Case Play.ThreeOfAKind
+                Return addCardsRemaining(x, y, 1)
+            Case Play.TwoPair
+                Return addCardsRemaining(x, y, 1)
+            Case Play.OnePair
+                Return addCardsRemaining(x, y, 2)
+            Case Play.HighCard
+                Return addCardsRemaining(x, y, 3)
+            Case Else
+
+       End Select
+
+    End Function
+
+    Private Function addCardsRemaining(ByVal x As PokerHand, ByVal y As PokerHand, ByVal number As Integer) As Integer
+
+        For i As Integer = number To 0 Step -1
+            If x.cards_remaining(i) > y.cards_remaining(i) Then
+                Return 1
+            ElseIf x.cards_remaining(i) < y.cards_remaining(i) Then
+                Return -1
+            End If
+        Next
+        Return 0
+
+    End Function
+
+End Module
+              

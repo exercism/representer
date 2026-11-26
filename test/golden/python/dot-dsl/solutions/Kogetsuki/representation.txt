@@ -1,0 +1,156 @@
+(module
+  (assignment
+    (tuple_pattern NODE EDGE ATTR) =
+    (call range
+      (argument_list 3)))
+  (class_definition Node :
+    (block
+      (function_definition __init__
+        (parameters self name attrs) :
+        (block
+          (assignment
+            (attribute self . name) = name)
+          (assignment
+            (attribute self . attrs) = attrs)))
+      (function_definition __eq__
+        (parameters self PLACEHOLDER_1) :
+        (block
+          (return_statement
+            (boolean_operator
+              (comparison_operator
+                (attribute self . name) ==
+                (attribute PLACEHOLDER_1 . name)) and
+              (comparison_operator
+                (attribute self . attrs) ==
+                (attribute PLACEHOLDER_1 . attrs))))))))
+  (class_definition Edge :
+    (block
+      (function_definition __init__
+        (parameters self src dst attrs) :
+        (block
+          (assignment
+            (attribute self . src) = src)
+          (assignment
+            (attribute self . dst) = dst)
+          (assignment
+            (attribute self . attrs) = attrs)))
+      (function_definition __eq__
+        (parameters self PLACEHOLDER_1) :
+        (block
+          (return_statement
+            (boolean_operator
+              (boolean_operator
+                (comparison_operator
+                  (attribute self . src) ==
+                  (attribute PLACEHOLDER_1 . src)) and
+                (comparison_operator
+                  (attribute self . dst) ==
+                  (attribute PLACEHOLDER_1 . dst))) and
+              (comparison_operator
+                (attribute self . attrs) ==
+                (attribute PLACEHOLDER_1 . attrs))))))))
+  (class_definition Graph :
+    (block
+      (function_definition __init__
+        (parameters self
+          (default_parameter PLACEHOLDER_2 = None)) :
+        (block
+          (assignment
+            (attribute self . nodes) =
+            (list))
+          (assignment
+            (attribute self . edges) =
+            (list))
+          (assignment
+            (attribute self . attrs) =
+            (dictionary))
+          (if_statement
+            (comparison_operator PLACEHOLDER_2 is None) :
+            (block
+              (return_statement)))
+          (if_statement
+            (not_operator not
+              (call isinstance
+                (argument_list PLACEHOLDER_2 list))) :
+            (block
+              (raise_statement
+                (call TypeError
+                  (argument_list "Graph data malformed")))))
+          (for_statement PLACEHOLDER_3 in PLACEHOLDER_2 :
+            (block
+              (if_statement
+                (boolean_operator
+                  (not_operator not
+                    (call isinstance
+                      (argument_list PLACEHOLDER_3 tuple))) or
+                  (comparison_operator
+                    (call len
+                      (argument_list PLACEHOLDER_3)) < 2)) :
+                (block
+                  (raise_statement
+                    (call TypeError
+                      (argument_list "Graph item incomplete")))))
+              (assignment type =
+                (subscript PLACEHOLDER_3 0))
+              (if_statement
+                (comparison_operator type == NODE) :
+                (block
+                  (if_statement
+                    (comparison_operator
+                      (call len
+                        (argument_list PLACEHOLDER_3)) != 3) :
+                    (block
+                      (raise_statement
+                        (call ValueError
+                          (argument_list "Node is malformed")))))
+                  (call
+                    (attribute
+                      (attribute self . nodes) . append)
+                    (argument_list
+                      (call Node
+                        (argument_list
+                          (subscript PLACEHOLDER_3 1)
+                          (subscript PLACEHOLDER_3 2))))))
+                (else_clause :
+                  (block
+                    (if_statement
+                      (comparison_operator type == EDGE) :
+                      (block
+                        (if_statement
+                          (comparison_operator
+                            (call len
+                              (argument_list PLACEHOLDER_3)) != 4) :
+                          (block
+                            (raise_statement
+                              (call ValueError
+                                (argument_list "Edge is malformed")))))
+                        (call
+                          (attribute
+                            (attribute self . edges) . append)
+                          (argument_list
+                            (call Edge
+                              (argument_list
+                                (subscript PLACEHOLDER_3 1)
+                                (subscript PLACEHOLDER_3 2)
+                                (subscript PLACEHOLDER_3 3))))))
+                      (elif_clause
+                        (comparison_operator type == ATTR) :
+                        (block
+                          (if_statement
+                            (comparison_operator
+                              (call len
+                                (argument_list PLACEHOLDER_3)) != 3) :
+                            (block
+                              (raise_statement
+                                (call ValueError
+                                  (argument_list "Attribute is malformed")))))
+                          (assignment
+                            (subscript
+                              (attribute self . attrs)
+                              (subscript PLACEHOLDER_3 1)) =
+                            (subscript PLACEHOLDER_3 2))))
+                      (else_clause :
+                        (block
+                          (raise_statement
+                            (call ValueError
+                              (argument_list "Unknown item"))))))))))))))))

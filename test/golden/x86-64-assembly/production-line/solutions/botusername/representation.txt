@@ -1,0 +1,58 @@
+default rel
+section .text
+global sum_yields
+sum_yields:
+movaps xmm0 , oword [ rdi ]
+movaps xmm1 , oword [ rsi ]
+addps xmm0 , xmm1
+movaps [ rdx ], xmm0
+ret
+global scaled_deviation
+scaled_deviation:
+movupd xmm0 , oword [ rdi ]
+movupd xmm1 , oword [ rsi ]
+movupd xmm2 , oword [ rdx ]
+subpd xmm0 , xmm1
+mulpd xmm0 , xmm2
+movupd [ rcx ], xmm0
+ret
+section .rodata
+align 16
+conv_factor dq 0.5 , 0.5
+section .text
+global calibrate_batch
+calibrate_batch:
+movups xmm0 , oword [ rdi ]
+cvtps2pd xmm10 , xmm0
+movupd xmm2 , [ rdx ]
+mov r8 , 2
+.loop:
+subpd xmm10 , xmm2
+movupd xmm1 , [ rsi ]
+divpd xmm1 , xmm10
+mulpd xmm1 , [ conv_factor ]
+movupd [ rcx ], xmm1
+add rcx , 16
+movhlps xmm0 , xmm0
+cvtps2pd xmm10 , xmm0
+dec r8
+test r8 , r8
+jnz .loop
+ret
+global normalize_scores
+normalize_scores:
+movupd xmm2 , [ rdx ]
+.loop:
+movupd xmm1 , [ rsi ]
+movupd xmm0 , oword [ rdi ]
+mulpd xmm0 , xmm1
+divpd xmm0 , xmm2
+movupd [ rdi ], xmm0
+add rdi , 16
+add rsi , 16
+sub rcx , 2
+test rcx , rcx
+jg .loop
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

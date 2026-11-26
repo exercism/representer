@@ -1,0 +1,97 @@
+proc add_days {dt n} {
+    expr {$dt + $n * 24 * 60 * 60}
+}
+
+proc dow {dt} {
+    clock format $dt -format %a
+}
+
+proc is_weekday {dt} {
+    set day [dow $dt]
+    expr {!($day eq "Sun" || $day eq "Sat")}
+}
+
+proc quarter {dt} {
+    expr {([clock format $dt -format %m] - 1) / 3 + 1}
+}
+
+proc with_hour {dt hour} {
+    return "[clock format $dt -format %Y-%m-%dT]$hour:00:00"
+}
+
+proc deliveryDate {timestamp target} {
+    const iso_date_format "%Y-%m-%dT%H:%M:%S"
+    set dt [clock scan $timestamp -format $iso_date_format]
+    switch $target {
+        "NOW" {
+            return [clock format [expr {$dt + 2 * 60 * 60}] -format $iso_date_format]
+        }
+        "ASAP" {
+            set hour [clock format $dt -format %H]
+            if {$hour < 13} {
+                return [with_hour $dt 17]
+            } else {
+                return [with_hour [add_days $dt 1] 13]
+            }
+        }
+        "EOW" {
+            if {[lsearch {Mon Tue Wed} [dow $dt]] > -1} {
+                while {[clock format $dt -format %a] ne "Fri"} {
+                    set dt [add_days $dt 1]
+                }
+                return [with_hour $dt 17]
+            } elseif {[lsearch {Thu Fri} [dow $dt]] > -1} {
+                # thu or fri -> sun at 20
+                while {[dow $dt] ne "Sun"} {
+                    set dt [add_days $dt 1]
+                }
+                return [with_hour $dt 20]
+            }
+        }
+        default {
+            if {[string index $target end] eq "M"} {
+                set month_num [string range $target 0 end-1]
+                if {[clock format $dt -format %m] < $month_num} {
+                    while {[clock format $dt -format %m] != $month_num} {
+                        set dt [add_days $dt 7]
+                    }
+                } else {
+                    set dt [add_days $dt 365]
+                    while {[clock format $dt -format %m] != $month_num} {
+                        set dt [add_days $dt -7]
+                    }
+                }
+                while {[clock format $dt -format %d] > 1} {
+                    set dt [add_days $dt -1]
+                }
+                while {![is_weekday $dt]} {
+                    set dt [add_days $dt 1]
+                }
+                return [with_hour $dt 08]
+            } elseif {[string index $target 0] eq "Q"} {
+                set q_num [string range $target 1 end]
+                set this_q [quarter $dt]
+                if {$this_q > $q_num} {
+                    set dt [add_days $dt 365]
+                }
+                while {$this_q < $q_num} {
+                    set dt [add_days $dt 7]
+                    set this_q [quarter $dt]
+                }
+                while {$this_q > $q_num} {
+                    set dt [add_days $dt -7]
+                    set this_q [quarter $dt]
+                }
+                while {$this_q == $q_num} {
+                    set dt [add_days $dt 1]
+                    set this_q [quarter $dt]
+                }
+                set dt [add_days $dt -1]
+                while {![is_weekday $dt]} {
+                    set dt [add_days $dt -1]
+                }
+                return [with_hour $dt 08]
+            }
+        }
+    }
+}

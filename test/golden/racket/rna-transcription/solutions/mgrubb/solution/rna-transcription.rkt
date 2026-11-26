@@ -1,0 +1,11 @@
+#lang racket
+
+(provide to-rna)
+
+(define (to-rna dna)
+  (list->string
+    (map (λ (d) (cond
+                   [(eq? d #\G) #\C]
+                   [(eq? d #\C) #\G]
+                   [(eq? d #\T) #\A]
+                   [(eq? d #\A) #\U])) (string->list dna))))

@@ -1,0 +1,29 @@
+import Extra
+open Lean Syntax Macro
+namespace ResistorColorTrio
+structure ResistorValue where
+  text : String
+instance : Repr ResistorValue where
+  reprPrec v _ := f ! "\"{v.text}\""
+macro_rules
+  | ` ( * [[ $ colors , * ]]) => do
+    match colors . getElems . take 3 with
+    | # [ c ₁ , c ₂ , c ₃ ] =>
+      match c ₁ , c ₂ , c ₃ with
+      | ` ( ident | $ v ₁ ), ` ( ident | $ v ₂ ), ` ( ident | $ v ₃ ) =>
+        let str ← ` (
+          let total := (( 10 * ↑$ v ₁ ) + ↑$ v ₂ ) * ( 10 ^ ↑$ v ₃ )
+          if total >= 1 _000_000_000 then
+            let resistance := total / 1 _000_000_000
+            s ! "\"{resistance} G\u2126\""
+          else if total >= 1 _000_000 then
+            let resistance := total / 1 _000_000
+            s ! "\"{resistance} M\u2126\""
+          else if total >= 1 _000 then
+            let resistance := total / 1 _000
+            s ! "\"{resistance} k\u2126\""
+          else s ! "\"{total} \u2126\""
+        )
+        ` ( ResistorValue . mk $ str )
+    | _ => Lean . Macro . throwUnsupported
+end ResistorColorTrio

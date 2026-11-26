@@ -1,0 +1,12 @@
+public function sum_of_multiples(sequence f, integer lim)
+  integer sum = 0
+  for i = 1 to lim - 1 do
+    for k = 1 to length(f) do
+      if f[k] > 0 and remainder(i, f[k]) = 0 then
+        sum += i
+        exit 1
+      end if
+    end for
+  end for
+  return sum
+end function

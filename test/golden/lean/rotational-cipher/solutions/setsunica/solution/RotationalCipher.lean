@@ -1,0 +1,12 @@
+namespace RotationalCipher
+
+def rotate (shiftKey : UInt32) (text : String) : String := text.map shift where
+  upperBase := 'A'.ordinal
+  lowerBase := 'a'.ordinal
+  shiftKeyFin := ⟨shiftKey.toNat % 26, by grind⟩
+  shift (c : Char) : Char :=
+    if !c.isAlpha then c else
+    let base := if c.isUpper then upperBase else lowerBase
+    c.ordinal.sub base |>.add shiftKeyFin |> (· % 26 |>.add base) |> .ofOrdinal
+
+end RotationalCipher

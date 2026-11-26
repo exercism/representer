@@ -1,0 +1,92 @@
+module Spiral
+  ( spiral ) where
+
+import Prelude
+import Data.Array (replicate, index, updateAt) as Array
+import Data.Array ((!!))
+import Data.List (List, fromFoldable)
+import Data.Maybe (Maybe(..), fromMaybe) as Maybe
+
+type Matrix   = Array (Array Int)
+type Position = { row :: Int, col :: Int }
+type Range    = { min :: Int, max :: Int }
+
+spiral :: Int -> List (List Int)
+spiral size =
+  let
+    matrix = Array.replicate size (Array.replicate size 0)
+    range  = {min:0, max:size-1}
+    delta  = {row:0, col:1}
+    pos    = {row:0, col:0}
+    result = strideRow matrix range range delta pos 1
+  in
+    toList result
+
+strideRow :: Matrix -> Range -> Range -> Position -> Position -> Int -> Matrix
+strideRow matrix rows cols delta pos stepNo
+  | inRange pos rows cols =
+    let
+      newMatrix = matrixWithValueAt pos stepNo matrix
+      newPos    = adjustPosition pos delta
+    in
+      strideRow newMatrix rows cols delta newPos (stepNo + 1)
+  | canShrinkRange rows =
+    let
+      new = adjustStrideDirection delta rows cols
+    in
+      strideColumn matrix new.rows new.cols new.delta new.pos stepNo
+  | otherwise = matrix
+
+strideColumn :: Matrix -> Range -> Range -> Position -> Position -> Int -> Matrix
+strideColumn matrix rows cols delta pos stepNo
+  | inRange pos rows cols =
+    let
+      newMatrix = matrixWithValueAt pos stepNo matrix
+      newPos    = adjustPosition pos delta
+    in
+      strideColumn newMatrix rows cols delta newPos (stepNo + 1)
+  | canShrinkRange cols =
+    let
+      new = adjustStrideDirection delta rows cols
+    in
+      strideRow matrix new.rows new.cols new.delta new.pos stepNo
+  | otherwise = matrix
+
+
+inRange :: Position -> Range -> Range -> Boolean
+inRange pos row col =
+  pos.row >= row.min && pos.row <= row.max && pos.col >= col.min && pos.col <= col.max
+
+canShrinkRange :: Range -> Boolean
+canShrinkRange range = range.min < range.max
+
+adjustPosition :: Position -> Position -> Position
+adjustPosition pos delta = { row: pos.row + delta.row, col: pos.col + delta.col }
+
+adjustStrideDirection :: Position -> Range -> Range -> {delta :: Position, rows :: Range, cols :: Range, pos :: Position}
+adjustStrideDirection delta rows cols
+  | delta == {row:0,col:1} =
+    {delta:{row:1,col:0}, rows:{min:rows.min+1,max:rows.max}, cols, pos:{row:rows.min+1,col:cols.max}}
+  | delta == {row:1,col:0} =
+    {delta:{row:0,col:(-1)}, rows, cols:{min:cols.min,max:cols.max-1}, pos:{row:rows.max,col:cols.max-1}}
+  | delta == {row:0,col:(-1)} =
+    {delta:{row:(-1),col:0}, rows:{min:rows.min,max:rows.max-1}, cols, pos:{row:rows.max-1,col:cols.min}}
+  | delta == {row:(-1),col:0} =
+    {delta:{row:0,col:1}, rows, cols:{min:cols.min+1,max:cols.max}, pos:{row:rows.min,col:cols.min+1}}
+  | otherwise =
+    {delta:{row:0,col:1}, rows, cols, pos:{row:rows.min,col:cols.min}}
+
+matrixWithValueAt :: Position -> Int -> Array (Array Int) -> Array (Array Int)
+matrixWithValueAt pos value matrix =
+  let
+    row        = Maybe.fromMaybe [] $ matrix !! pos.row
+    updatedRow = arrayWithValueAt pos.col value row
+  in
+    arrayWithValueAt pos.row updatedRow matrix
+
+arrayWithValueAt :: forall a. Int -> a -> Array a -> Array a
+arrayWithValueAt idx value array =
+  Maybe.fromMaybe array $ Array.updateAt idx value array
+
+toList :: forall a. Array (Array a) -> List (List a)
+toList = fromFoldable <<< map fromFoldable

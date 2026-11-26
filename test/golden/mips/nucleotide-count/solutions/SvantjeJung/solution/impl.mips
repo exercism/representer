@@ -1,0 +1,41 @@
+.globl nucleotide_counts
+
+nucleotide_counts:
+	lb	    $t0, 0($a0)
+	addi 	$a0, $a0, 1 		 # move input address one byte forward
+    beq 	$t0, $zero, done	 # if input is zero byte, counting done
+	
+# switch-case
+case_a:
+	bne	    $t0, 'A', case_c
+	addi	$t2, $t2, 1		
+	b	    nucleotide_counts	# loop through input
+case_c:
+	bne	    $t0, 'C', case_g
+	addi	$t3, $t3, 1
+	b	    nucleotide_counts	# loop through input
+case_g:
+	bne	    $t0, 'G', case_t
+	addi	$t4, $t4, 1
+	b	    nucleotide_counts	# loop through input
+case_t:
+	bne	    $t0, 'T', default
+	addi	$t5, $t5, 1
+	b	    nucleotide_counts	# loop through input
+default:
+	li    	$t2, -1			    # encountered unknown character
+	li	    $t3, -1
+	li	    $t4, -1
+	li	    $t5, -1
+	b	    done
+
+done:
+    sw	    $t2, 0($a1)		    # A's
+    sw	    $t3, 4($a1)		    # C's
+    sw	    $t4, 8($a1)		    # G's
+    sw	    $t5, 12($a1)		# T's
+    move	$t2, $zero		    # clear all temporary registers
+    move	$t3, $zero
+    move	$t4, $zero
+    move	$t5, $zero
+    jr 	    $ra

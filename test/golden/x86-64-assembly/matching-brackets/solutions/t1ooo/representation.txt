@@ -1,0 +1,48 @@
+%macro save_stack_pointer 0
+mov rcx , rsp
+%endmacro
+%macro is_stack_empty 0
+cmp rcx , rsp
+%endmacro
+%macro restore_stack_poiter 0
+mov rsp , rcx
+%endmacro
+%macro process 2
+mov r10b , % 2
+cmp r9b , % 1
+je push
+cmp r9b , % 2
+je ch eck
+%endmacro
+section .text
+global is_paired
+is_paired:
+mov rax , 0
+save_stack_pointer
+mov r8 , 0
+loop:
+mov r9b , byte [ rdi + r8 ]
+cmp r9b , 0
+je break
+process '[' , ']'
+process '{' , '}'
+process '(' , ')'
+jmp continue
+push:
+push r10
+jmp continue
+check:
+is_stack_empty
+je return
+pop r11
+cmp r11b , r9b
+jne return
+continue:
+inc r8
+jmp loop
+break:
+is_stack_empty
+sete al
+return:
+rest ore_stack_poiter
+ret

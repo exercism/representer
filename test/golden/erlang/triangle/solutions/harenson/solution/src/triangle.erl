@@ -1,0 +1,36 @@
+-module(triangle).
+
+-export([kind/3]).
+
+
+-define(ANY_ZERO(A, B, C)
+       ,A =:= 0
+        orelse B =:= 0
+        orelse C =:= 0
+       ).
+-define(IS_IN_GOOD_SHAPE(A, B, C)
+       ,A+B >= C
+        andalso B+C >= A
+        andalso C+A >= B
+       ).
+
+-type response() :: equilateral | isosceles | scalene | {error, string()}.
+
+%%========================================================================================
+%% API
+%%========================================================================================
+-spec kind(A::pos_integer(), B::pos_integer(), C::pos_integer()) -> response().
+kind(A, B, C) when ?ANY_ZERO(A, B, C) ->
+  {error, "all side lengths must be positive"};
+kind(A, B, C) when not (?IS_IN_GOOD_SHAPE(A, B, C)) ->
+  {error, "side lengths violate triangle inequality"};
+kind(A, A, A) ->
+  equilateral;
+kind(A, A, _) ->
+  isosceles;
+kind(A, _, A) ->
+  isosceles;
+kind(_, A, A) ->
+  isosceles;
+kind(_A, _B, _C) ->
+  scalene.

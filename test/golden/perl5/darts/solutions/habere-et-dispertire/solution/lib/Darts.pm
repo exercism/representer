@@ -1,0 +1,15 @@
+package Darts;
+
+use v5.44;
+use feature "switch";
+use Exporter     qw < import     >;
+our @EXPORT_OK = qw < score_dart >;
+
+sub score_dart ( $x, $y ) {
+    given (sqrt($x**2 + $y**2)) {
+        when ($_ <=  1) { return 10 }
+        when ($_ <=  5) { return  5 }
+        when ($_ <= 10) { return  1 }
+        default         { return  0 }
+    }
+}

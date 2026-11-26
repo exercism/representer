@@ -1,0 +1,49 @@
+# | Register | Usage | Type | Description |
+# | -------- | ------------ | ------- | ----------------------------------- |
+# | `$a0` | input | integer | limit |
+# | `$a1` | input/output | address | destination array for prime numbers |
+# | `$v0` | output | integer | number of primes |
+# | `$t0-9` | temporary | any | used for temporary storage |
+.globl primes
+primes:
+li $v0, 0
+move $t9, $a1
+subi $t0, $a0, 2
+blt $t0, $zero, exit # ($a0 - 2) < 0 = $a0 < 2 then goto exit
+li $t0, 2 # $t0 <- current number to check
+sw $t0, 0($t9)
+addi $v0, $v0, 1
+addi $t9, $t9, 4
+li $t1, 0 # $t1 <- max prime index
+loop1:
+# any number smaller than the square of a prime need only to check against it or smaller primes
+sll $t2, $t1, 2
+add $t2, $t2, $a1
+lw $t2, 0($t2)
+mult $t2, $t2
+mflo $t2 # $t2 <- $a1[$t1]²
+loop2:
+bgt $t0, $t2, loop2_end
+li $t3, 0 # $t3 <- index up to $t1
+loop3:
+sll $t4, $t3, 2
+add $t4, $t4, $a1
+lw $t4, 0($t4)
+div $t0, $t4
+mfhi $t4 # $t4 <- $t0 % $a1[$t3]
+beq $t4, $zero, loop3_end
+addi $t3, $t3, 1
+ble $t3, $t1, loop3
+# success
+sw $t0, 0($t9)
+addi $v0, $v0, 1
+addi $t9, $t9, 4
+loop3_end:
+addi $t0, $t0, 1
+bgt $t0, $a0, exit
+j loop2
+loop2_end:
+addi $t1, $t1, 1
+j loop1
+exit:
+jr $ra

@@ -1,0 +1,25 @@
+package series
+
+Error :: enum {
+	None,
+	Invalid_Series_Length_Too_Large,
+	Invalid_Series_Length_Zero,
+	Invalid_Series_Length_Negative,
+	Invalid_Sequence_Empty,
+	Unimplemented,
+}
+
+series :: proc(sequence: string, series_len: int) -> ([]string, Error) {
+    if len(sequence) == 0 do return []string{}, .Invalid_Sequence_Empty
+    if series_len < 0 do return []string{}, .Invalid_Series_Length_Negative
+    if series_len == 0 do return []string{}, .Invalid_Series_Length_Zero
+    if len(sequence) < series_len do return []string{}, .Invalid_Series_Length_Too_Large
+
+    num_subs := len(sequence) - series_len + 1
+    substrings := make([]string, num_subs)
+    for i in 0..<num_subs {
+        substrings[i] = sequence[i:i+series_len]
+    }
+    
+	return substrings, .None
+}

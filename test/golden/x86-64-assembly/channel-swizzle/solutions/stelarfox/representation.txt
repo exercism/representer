@@ -1,0 +1,56 @@
+section .rodata
+align 16
+RGBA2BGRA db 2 , 1 , 0 , 3 , 6 , 5 , 4 , 7 , 10 , 9 , 8 , 11 , 14 , 13 , 12 , 15
+section .text
+global to_display_order
+to_display_order:
+movdqa xmm1 , [ rel RGBA2BGRA ]
+.loop:
+movdqa xmm0 , [ rsi ]
+lea rsi ,[ rsi + 16 ]
+pshufb xmm0 , xmm1
+movdqa [ rdi ], xmm0
+lea rdi ,[ rdi + 16 ]
+dec rdx
+jnz .loop
+ret
+global fill_region
+fill_region:
+movdqa xmm1 , [ rsi ]
+pshufd xmm0 , xmm1 , 0
+.loop:
+movdqa [ rdi ], xmm0
+lea rdi ,[ rdi + 16 ]
+dec rdx
+jnz .loop
+ret
+global weave_scanlines
+weave_scanlines:
+movdqa xmm1 , [ rsi ]
+movdqa xmm2 , [ rdx ]
+movdqa xmm0 , xmm1
+punpcklbw xmm0 , xmm2
+punpckhbw xmm1 , xmm2
+movdqa [ rdi ], xmm0
+movdqa [ rdi + 16 ], xmm1
+ret
+global pack_samples
+pack_samples:
+movdqa xmm0 , [ rsi ]
+movdqa xmm1 , [ rdx ]
+packuswb xmm0 , xmm1
+movdqa [ rdi ], xmm0
+ret
+global sp lit_coordinates
+split_coordinates:
+movdqa xmm0 , [ rdx ]
+movdqa xmm2 , [ rcx ]
+movdqa xmm1 , xmm0
+shufps xmm0 , xmm2 , 0x88
+shufps xmm1 , xmm2 , 0xDD
+movdqa [ rdi ], xmm0
+movdqa [ rsi ], xmm1
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

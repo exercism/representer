@@ -1,0 +1,29 @@
+Imports System
+Imports System.Collections.Generic
+Public Module BookStore
+Dim groupMultiplier () As Decimal = { 0D , 8D , 15.2 D , 21.6 D , 25.6 D , 30D }
+Public Function Total ( ByVal books As IEnumerable ( Of Integer )) As Decimal
+Dim bookList = books . GroupBy ( Function ( n ) n ). Select ( Function ( x ) x . Count ). ToList
+Dim prices As New List ( Of Decimal )
+Dim totalize , amount As Decimal
+If bookList . Count = 1 Then
+Return CDec ( bookList ( 0 ) * 8D )
+End If
+While bookList . Count > 1
+totalize = 0
+amount = 0
+bookList . Sort ()
+For j As Integer = 0 To bookList . Count - 1
+totalize += ( bookList ( j ) - amount ) * groupMultiplier ( bookList . Count - j )
+If bookList ( j ) > amount Then
+amount = bookList ( j )
+End If
+Next
+prices . Add ( totalize )
+bookList ( 0 ) -= 1
+bookList ( 1 ) += 1
+bookList . Remove ( 0 )
+End While
+Return If ( prices . Count > 0 , prices . Min , 0D )
+End Function
+End Module

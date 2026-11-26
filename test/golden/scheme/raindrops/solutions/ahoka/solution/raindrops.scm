@@ -1,0 +1,8 @@
+(import (rnrs))
+
+(define (convert number)
+  (let ([sounds
+         (filter identity (list (if (integer? (/ number 3)) "Pling" #f)
+                                (if (integer? (/ number 5)) "Plang" #f)
+                                (if (integer? (/ number 7)) "Plong" #f)))])
+    (if (null? sounds) (number->string number) (apply string-append sounds))))

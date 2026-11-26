@@ -1,0 +1,180 @@
+(file
+  (module_declaration module
+    (upper_case_qid RolePlayingGame)
+    (exposing_list exposing
+      (exposed_type Player)
+      (exposed_value castSpell)
+      (exposed_value introduce)
+      (exposed_value revive)))
+  (type_alias_declaration type alias Player =
+    (type_expression
+      (record_type
+        (field_type name :
+          (type_expression
+            (type_ref
+              (upper_case_qid Maybe)
+              (type_ref
+                (upper_case_qid String)))))
+        (field_type level :
+          (type_expression
+            (type_ref
+              (upper_case_qid Int))))
+        (field_type health :
+          (type_expression
+            (type_ref
+              (upper_case_qid Int))))
+        (field_type mana :
+          (type_expression
+            (type_ref
+              (upper_case_qid Maybe)
+              (type_ref
+                (upper_case_qid Int))))))))
+  (type_annotation introduce :
+    (type_expression
+      (type_ref
+        (upper_case_qid Player)) ->
+      (type_ref
+        (upper_case_qid String))))
+  (value_declaration
+    (function_declaration_left introduce
+      (record_pattern
+        (lower_pattern name))) =
+    (function_call_expr
+      (value_expr
+        (value_qid Maybe
+          (dot .) withDefault)) "Mighty Magician"
+      (value_expr
+        (value_qid name))))
+  (type_annotation revive :
+    (type_expression
+      (type_ref
+        (upper_case_qid Player)) ->
+      (type_ref
+        (upper_case_qid Maybe)
+        (type_ref
+          (upper_case_qid Player)))))
+  (value_declaration
+    (function_declaration_left revive
+      (lower_pattern PLACEHOLDER_1)) =
+    (if_else_expr
+      (bin_op_expr
+        (field_access_expr
+          (value_expr
+            (value_qid PLACEHOLDER_1))
+          (dot .) health)
+        (operator
+          (operator_identifier >))
+        (number_constant_expr 0))
+      (value_expr
+        (upper_case_qid Nothing))
+      (function_call_expr
+        (value_expr
+          (upper_case_qid Just))
+        (record_expr
+          (record_base_identifier PLACEHOLDER_1) |
+          (field health =
+            (number_constant_expr 100))
+          (field mana =
+            (if_else_expr
+              (bin_op_expr
+                (field_access_expr
+                  (value_expr
+                    (value_qid PLACEHOLDER_1))
+                  (dot .) level)
+                (operator
+                  (operator_identifier >=))
+                (number_constant_expr 10))
+              (function_call_expr
+                (value_expr
+                  (upper_case_qid Just))
+                (number_constant_expr 100))
+              (value_expr
+                (upper_case_qid Nothing))))))))
+  (type_annotation castSpell :
+    (type_expression
+      (type_ref
+        (upper_case_qid Int)) ->
+      (type_ref
+        (upper_case_qid Player)) ->
+      (tuple_type
+        (type_expression
+          (type_ref
+            (upper_case_qid Player)))
+        (type_expression
+          (type_ref
+            (upper_case_qid Int))))))
+  (value_declaration
+    (function_declaration_left castSpell
+      (lower_pattern PLACEHOLDER_2)
+      (lower_pattern PLACEHOLDER_1)) =
+    (case_of_expr case
+      (field_access_expr
+        (value_expr
+          (value_qid PLACEHOLDER_1))
+        (dot .) mana) of
+      (case_of_branch
+        (pattern
+          (union_pattern
+            (upper_case_qid Just)
+            (lower_pattern PLACEHOLDER_3))) ->
+        (if_else_expr
+          (bin_op_expr
+            (value_expr
+              (value_qid PLACEHOLDER_3))
+            (operator
+              (operator_identifier >=))
+            (value_expr
+              (value_qid PLACEHOLDER_2)))
+          (tuple_expr
+            (record_expr
+              (record_base_identifier PLACEHOLDER_1) |
+              (field mana =
+                (function_call_expr
+                  (value_expr
+                    (upper_case_qid Just))
+                  (parenthesized_expr
+                    (bin_op_expr
+                      (value_expr
+                        (value_qid PLACEHOLDER_3))
+                      (operator
+                        (operator_identifier -))
+                      (value_expr
+                        (value_qid PLACEHOLDER_2)))))))
+            (bin_op_expr
+              (value_expr
+                (value_qid PLACEHOLDER_2))
+              (operator
+                (operator_identifier *))
+              (number_constant_expr 2)))
+          (tuple_expr
+            (value_expr
+              (value_qid PLACEHOLDER_1))
+            (number_constant_expr 0))))
+      (case_of_branch
+        (pattern
+          (union_pattern
+            (upper_case_qid Nothing))) ->
+        (let_in_expr
+          (value_declaration
+            (function_declaration_left PLACEHOLDER_4) =
+            (function_call_expr
+              (value_expr
+                (value_qid max))
+              (number_constant_expr 0)
+              (parenthesized_expr
+                (bin_op_expr
+                  (field_access_expr
+                    (value_expr
+                      (value_qid PLACEHOLDER_1))
+                    (dot .) health)
+                  (operator
+                    (operator_identifier -))
+                  (value_expr
+                    (value_qid PLACEHOLDER_2))))))
+          (tuple_expr
+            (record_expr
+              (record_base_identifier PLACEHOLDER_1) |
+              (field health =
+                (value_expr
+                  (value_qid PLACEHOLDER_4))))
+            (number_constant_expr 0)))))))

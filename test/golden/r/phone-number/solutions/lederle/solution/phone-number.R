@@ -1,6 +1,0 @@
-parse_phone_number <- function(number_string) {
-  parsed <- gsub("\\D", "", number_string)
-  pattern <- "^1?[2-9]\\d{2}[2-9]\\d{6}$"
-  if (!grepl(pattern, parsed)) return(NULL)
-  gsub("^1", "", parsed)
-}

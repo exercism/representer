@@ -1,0 +1,37 @@
+Function Invoke-BafflingBirthdays {
+[ CmdletBinding ()]
+Param (
+[ int ] $People
+)
+$runs = 110
+$shared = 0
+for ( $x = $runs ; $x -gt 0 ; $x -- ){
+if ( Test-SharedBirthday -BirthDates ( Get-RandomBirthdates -People $people )){ $shared += 1 }
+}
+return ( $shared / $runs ) * 100
+}
+Function Get-RandomBirthdates {
+[ CmdletBinding ()]
+Param (
+[ int ] $People
+)
+$birthdates = @()
+$year = 0 .. 3000 | get-random
+if ( $year % 4 -eq 0 ){ $year += 1 }
+for ( $x = 0 ; $x -lt $people ; $x ++ ){
+$birthdates += ,([ datetime ]:: New ( $year ,( 1 .. 12 | get-random ), 1 )) . adddays (( 0..31 | get-random ))
+}
+return $birthdates
+}
+Function Test-SharedBirthday {
+[ CmdletBinding ()]
+Param (
+[ DateTime []] $Birthdates
+)
+for ( $d1 = 0 ; $d1 -lt $birthdates . count ; $d1 ++ ){
+for ( $d2 = 0 ; $d2 -lt $birthdates . count ; $d2 ++ ){
+if ( $d1 -ne $d2 ){ if ( $birthdates [ $d1 ] . day -eq $birthdates [ $d2 ] . day -and $birthdates [ $d1 ] . month -eq $birthdates [ $d2 ] . month ){ return $true } }
+}
+}
+return $false
+}

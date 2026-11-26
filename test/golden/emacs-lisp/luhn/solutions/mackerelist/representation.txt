@@ -1,0 +1,14 @@
+( require 'subr-x )
+( defun luhn-p ( str )
+( let (( normalized ( string-reverse ( replace-regexp-in-string "\" \"" "\"\"" str )))
+( sum 0 ))
+( when ( string-match "\"[^0-9 ]\"" str ) ( error "\"invalid input\"" ))
+( when ( > ( length normalized ) 1 )
+( progn
+( dotimes ( i ( length normalized ))
+( let* (( digit ( - ( aref normalized i ) ?0 ))
+( doubled ( * digit 2 )))
+( setq sum ( + sum ( if ( zerop ( % i 2 )) digit
+( if ( > doubled 9 ) ( - doubled 9 ) doubled ))))))
+( zerop ( % sum 10 ))))))
+( provide 'luhn )

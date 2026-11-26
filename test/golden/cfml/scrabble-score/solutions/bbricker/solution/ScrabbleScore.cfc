@@ -1,0 +1,26 @@
+/**
+* Your implmentation of the ScrabbleScore exercise
+*/
+component {
+	
+	/**
+	* @returns 
+	*/
+	function score( word ) {
+		word = UCase(word)
+		points = 0
+		pointGroups = [["AEIOULNRST", 1], ["DG", 2], ["BCMP", 3],
+		["FHVWY", 4], ["K", 5], ["JX", 8], ["QZ", 10]]
+
+		for ( letter in ListToArray(word, "") ) {
+			for( letterGroup in pointGroups ){
+			
+			    if( letterGroup[1].contains(letter) ) {
+			        points += letterGroup[2];
+			    }
+			}
+		}
+		return points;
+	}
+	
+}

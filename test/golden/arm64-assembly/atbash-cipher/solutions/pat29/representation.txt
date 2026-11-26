@@ -1,0 +1,107 @@
+.macro PROLOGUE
+str lr, [sp, #-16]!
+.endm
+.macro EPILOGUE
+ldr lr, [sp], #16
+.endm
+.text
+.globl encode, _encode
+.globl decode, _decode
+//------------------------------------------------------
+// input: x0 = *buffer, x1 = *phrase
+//------------------------------------------------------
+encode:
+_encode:
+PROLOGUE
+mov x6, xzr
+mov x10, x0
+mov x11, x1
+mov x12, xzr
+.encode_loop:
+ldrb w6, [x11], #1
+cbz w6, .end_encode
+cmp w6, #'A'
+blo .no_upper
+cmp w6, #'Z'
+bhi .no_upper
+add w6, w6, #32
+.no_upper:
+cmp w6, #'a'
+blo .no_letter
+cmp w6, #'z'
+bhi .no_letter
+mov x0, x6
+bl cipher
+mov x6, x0
+strb w6, [x10], #1
+add x12, x12, #1
+b .no_number
+.no_letter:
+cmp w6, #'0'
+blo .no_number
+cmp w6, #'9'
+bhi .no_number
+strb w6, [x10], #1
+add x12, x12, #1
+.no_number:
+cmp x12, #5
+bne .no_space
+mov w6, #' '
+strb w6, [x10], #1
+mov x12, xzr
+.no_space:
+b .encode_loop
+.end_encode:
+mov x11, x10
+sub x11, x11, #1
+ldrb w6, [x11]
+cmp w6, #' '
+bne .done_encode
+strb wzr, [x11]
+EPILOGUE
+ret
+.done_encode:
+strb wzr, [x10]
+EPILOGUE
+ret
+//------------------------------------------------------
+// input: x0 = *buffer, x1 = *phrase
+//------------------------------------------------------
+decode:
+_decode:
+PROLOGUE
+mov x6, xzr
+mov x10, x0
+mov x11, x1
+.decode_loop:
+ldrb w6, [x11], #1
+cbz w6, .end_encode
+cmp w6, #' '
+beq .decode_loop
+mov x0, x6
+bl decipher
+mov x6, x0
+strb w6, [x10], #1
+b .decode_loop
+.end_decode:
+strb wzr, [x10]
+EPILOGUE
+ret
+//------------------------------------------------------
+// input: x0 = initial char
+// output: x0 = decoded/encoded char
+// decode/encode a char
+//------------------------------------------------------
+decipher:
+cmp x0, #'0'
+cset x1, hs
+cmp x0, #'9'
+cset x2, ls
+and x1, x2, x1
+cbnz x1, .done
+cipher:
+mov x2, #'z'
+sub x0, x2, x0
+add x0, x0, #'a'
+.done:
+ret

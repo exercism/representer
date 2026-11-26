@@ -1,0 +1,84 @@
+BEGIN {
+if (( getline ) <= 0 ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+n = split ( $0 , rolls , "\" \"" )
+if ( n == 0 ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+for ( i = 1 ; i <= n ; i ++ ) {
+if ( rolls [ i ] < 0 ) {
+error ( "\"Negative roll is invalid\"" )
+}
+if ( rolls [ i ] > 10 ) {
+error ( "\"Pin count exceeds pins on the lane\"" )
+}
+}
+idx = 1
+score = 0
+for ( frame = 1 ; frame <= 10 ; frame ++ ) {
+if ( idx > n ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+if ( frame < 10 ) {
+if ( rolls [ idx ] == 10 ) {
+if ( idx + 2 > n ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+score += 10 + rolls [ idx + 1 ] + rolls [ idx + 2 ]
+idx ++
+} else {
+if ( idx + 1 > n ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+if ( rolls [ idx ] + rolls [ idx + 1 ] > 10 ) {
+error ( "\"Pin count exceeds pins on the lane\"" )
+}
+if ( rolls [ idx ] + rolls [ idx + 1 ] == 10 ) {
+if ( idx + 2 > n ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+score += 10 + rolls [ idx + 2 ]
+} else {
+score += rolls [ idx ] + rolls [ idx + 1 ]
+}
+idx += 2
+}
+} else {
+if ( idx + 1 > n ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+if ( rolls [ idx ] == 10 ) {
+if ( idx + 2 > n ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+if ( rolls [ idx + 1 ] != 10 && rolls [ idx + 1 ] + rolls [ idx + 2 ] > 10 ) {
+error ( "\"Pin count exceeds pins on the lane\"" )
+}
+score += rolls [ idx ] + rolls [ idx + 1 ] + rolls [ idx + 2 ]
+idx += 3
+} else if ( rolls [ idx ] + rolls [ idx + 1 ] == 10 ) {
+if ( idx + 2 > n ) {
+error ( "\"Score cannot be taken until the end of the game\"" )
+}
+score += rolls [ idx ] + rolls [ idx + 1 ] + rolls [ idx + 2 ]
+idx += 3
+} else {
+if ( rolls [ idx ] + rolls [ idx + 1 ] > 10 ) {
+error ( "\"Pin count exceeds pins on the lane\"" )
+}
+score += rolls [ idx ] + rolls [ idx + 1 ]
+idx += 2
+}
+}
+}
+if ( idx <= n ) {
+error ( "\"Cannot roll after game is over\"" )
+}
+print score
+}
+function error ( msg )
+{
+print ( msg ) > "\"/dev/stderr\""
+exit 1
+}

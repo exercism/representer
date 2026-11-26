@@ -1,0 +1,29 @@
+CLASS zcl_hamming DEFINITION PUBLIC .
+PUBLIC SECTION .
+METHODS hamming_distance
+IMPORTING
+first_strand TYPE string
+second_strand TYPE string
+RETURNING
+VALUE ( result ) TYPE i
+RAISING
+cx_parameter_invalid .
+ENDCLASS .
+CLASS zcl_hamming IMPLEMENTATION .
+METHOD hamming_distance .
+DATA : lv_first_len type i ,
+lv_second_len type i .
+lv_first_len = strlen ( first_strand ).
+lv_second_len = strlen ( second_strand ).
+if lv_first_len NE lv_second_len .
+RAISE EXCEPTION TYPE cx_parameter_invalid .
+endif .
+result = 0 .
+WHILE lv_first_len GT 0 .
+lv_first_len -= 1 .
+if first_strand + lv_first_len ( 1 ) NE second_strand + lv_first_len ( 1 ).
+result += 1 .
+endif .
+ENDWHILE .
+ENDMETHOD .
+ENDCLASS .

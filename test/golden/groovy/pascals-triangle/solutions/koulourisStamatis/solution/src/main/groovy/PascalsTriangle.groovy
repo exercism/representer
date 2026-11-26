@@ -1,0 +1,22 @@
+class PascalsTriangle {
+
+    static rows(count) {
+            List<List<Integer>> pascal = []
+            (0..< count).each { row ->
+                List<Integer> currentRow = [1]
+            
+                if (row > 0) {
+                    List<Integer> prevRow = pascal[row - 1]
+            
+                    (1..<row).each { col ->
+                        currentRow << (prevRow[col - 1] + prevRow[col])
+                    }
+            
+                    currentRow << 1
+                }
+        
+            pascal << currentRow
+        }
+        return pascal
+    }
+}

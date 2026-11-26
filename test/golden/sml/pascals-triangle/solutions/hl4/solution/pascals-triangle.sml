@@ -1,0 +1,8 @@
+fun rows (n: int): int list list =
+  let 
+    fun next xs = ListPair.map op+ (0 :: xs, xs @ [0])
+    fun acc 0 _  = []
+      | acc n xs = xs :: acc (n - 1) (next xs)  
+  in
+    acc n [1]
+  end

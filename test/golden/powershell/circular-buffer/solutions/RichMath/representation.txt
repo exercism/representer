@@ -1,0 +1,73 @@
+Class CircularBuffer {
+[ array ] $buffer
+[ int ] $head
+[ int ] $next
+[ int ] $ItemCount = 0
+[ bool ] $BufferEmpty = $true
+[ bool ] $BufferFull = $false
+[ int ] $UpperBound
+[ int ] $Capacity
+CircularBuffer ([ int32 ] $capacity ) {
+if ( $capacity -lt 1 ){
+Throw "\"Capacity must be a positive number\""
+}
+$this . buffer = [ object []]:: new ( $capacity )
+$this . UpperBound = $this . buffer . GetUpperBound ( 0 )
+$this . Capacity = $capacity
+}
+[ void ] Write ([ object ] $val ) {
+if ( $this . BufferFull ){
+Throw "\"BufferError: Circular buffer is full\""
+}
+$this . buffer [ $this . next ] = $val
+$this . next ++
+$this . ItemCount ++
+if ( $this . ItemCount -eq $this . Capacity ){
+$this . BufferFull = $true
+}
+if ( $this . next -gt $this . UpperBound ){
+$this . next = 0
+}
+$this . BufferEmpty = $false
+}
+[ void ] Overwrite ([ object ] $val ) {
+if ( -NOT $this . BufferFull ){
+$this . Write ( $val )
+}
+else {
+$this . buffer [ $this . head ] = $val
+$this . head ++
+if ( $this . head -gt $this . UpperBound ){
+$this . head = 0
+}
+}
+return
+}
+[ void ] Clear () {
+$this . buffer . Clear ()
+$this . head = 0
+$this . next = 0
+$this . ItemCount = 0
+$this . BufferEmpty = $true
+$this . BufferFull = $false
+}
+[ object ] Read () {
+if ( $this . BufferEmpty ){
+Throw "\"BufferError: Circular buffer is empty\""
+}
+$item = $this . buffer [ $this . head ]
+$this . buffer [ $this . head ] = $null
+$this . head ++
+$this . ItemCount--
+$this . BufferFull = $false
+if ( $this . head -gt $this . UpperBound ){
+$this . head = 0
+}
+if ( $this . ItemCount -eq 0 ){
+$this . BufferEmpty = $true
+$this . head = 0
+$this . next = 0
+}
+return $item
+}
+}

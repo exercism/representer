@@ -1,0 +1,51 @@
+(source_file
+  (unit_declaration unit class Clock)
+  (variable_declaration
+    (scope has)
+    (type Int) $.hour)
+  (variable_declaration
+    (scope has)
+    (type Int) $.minute)
+  (routine_declaration method time
+    (block {
+      (list_expression
+        (listop_call sprintf
+          (list_expression "%02d:%02d" , $!hour)) , $!minute) }))
+  (routine_declaration method add
+    (signature "("
+      (parameter_list
+        (parameter :$minutes)) -->
+      (type Clock) ")")
+    (block {
+      (method_listop_call self . new :
+        (list_expression
+          (colonpair :hour
+            (argument_list "(" $.hour ")")) ,
+          (colonpair :minute
+            (argument_list "("
+              (binary_expression $.minute + $minutes) ")")))) }))
+  (routine_declaration method subtract
+    (signature "("
+      (parameter_list
+        (parameter :$minutes)) -->
+      (type Clock) ")")
+    (block {
+      (method_listop_call self . new :
+        (list_expression
+          (colonpair :hour
+            (argument_list "(" $.hour ")")) ,
+          (colonpair :minute
+            (argument_list "("
+              (binary_expression $.minute - $minutes) ")")))) }))
+  (routine_declaration submethod TWEAK
+    (block {
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_1)) =
+        (binary_expression
+          (binary_expression $!hour * 60) + $!minute))
+      (assignment $!hour =
+        (binary_expression
+          (binary_expression (scalar PLACEHOLDER_1) div 60) % 24))
+      (assignment $!minute =
+        (binary_expression (scalar PLACEHOLDER_1) % 60)) })))

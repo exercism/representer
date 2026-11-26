@@ -1,0 +1,37 @@
+getOrUpdate : k -> ' { Store ( Map k v )} v -> { Store ( Map k v )} v
+getOrUpdate k ifEmpty =
+  match Map . lookup k get with
+    Some v -> v
+    None ->
+      v = ! ifEmpty
+      modify ( Map . insert k v )
+      v
+Set . isEmpty : Set a -> Boolean
+Set . isEmpty s = Map . isEmpty ( underlying s )
+findFewestCoins : [ Nat ] -> Nat -> Optional [ Nat ]
+findFewestCoins inputCoins target =
+  use Optional map
+  coinSet = Set . delete 0 ( Set . fromList inputCoins )
+  go : Nat -> { Store ( Map Nat ( Optional ( Bag Nat )))} Optional ( Bag Nat )
+  go t =
+    match t with
+      0 -> Some Bag . empty
+      _ ->
+        f c bag =
+          use Nat <=
+          if c <= t then
+            recur =
+              use Nat -
+              getOrUpdate ( t - c ) ' ( go ( t - c ))
+            match recur with
+              Some b ->
+                use Bag size
+                use Nat <
+                Optional . orElse
+                  ( map ( acc -> ( if size b Nat .+ 1 < size acc then add c b else acc )) bag )
+                  ( Some ( add c b ))
+              None -> bag
+          else bag
+        List . foldRight f None ( Set . toList coinSet )
+  if Set . isEmpty coinSet then None
+  else map Bag . toList ( withInitialValue Map . empty ' ( go target ))

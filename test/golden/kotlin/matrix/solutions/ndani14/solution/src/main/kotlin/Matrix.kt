@@ -1,0 +1,23 @@
+import java.util.regex.Pattern
+
+class Matrix(
+    matrixAsString: String
+) {
+    private val whitespacePattern = Pattern.compile("\\s+")
+    private val rows: List<List<Int>> =
+        matrixAsString
+            .split("\n")
+            .map { row ->
+                row.split(whitespacePattern)
+                    .filter { it.isNotBlank() }
+                    .map { col -> Integer.parseInt(col) }
+            }
+
+    fun column(colNr: Int): List<Int> {
+        return rows.map { row -> row[colNr - 1] }
+    }
+
+    fun row(rowNr: Int): List<Int> {
+        return rows[rowNr - 1]
+    }
+}

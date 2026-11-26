@@ -1,0 +1,21 @@
+# As far as I understand it, using a module like this
+# would be most idiomatic to Uiua
+┌─╴Character
+  ~ [Strength Dexterity Constitution Intelligence Wisdom Charisma]
+  D₆        ↚ (+₁⌊×₆⚂)
+  Ability   ← (/+↘₁⍆[D₆ D₆ D₆ D₆])
+  New       ← (Character Ability Ability Ability Ability Ability Ability)
+  Modifier  ← ⌊÷₂-₁₀
+  Hitpoints ← +₁₀ Modifier Constitution
+└─╴
+
+# Exporting all functions since it wants them at top level
+Ability      ← (Character~Ability)
+Modifier     ← Character~Modifier
+Hitpoints    ← Character~Hitpoints
+Strength     ← Character~Strength
+Dexterity    ← Character~Dexterity
+Constitution ← Character~Constitution
+Intelligence ← Character~Intelligence
+Wisdom       ← Character~Wisdom
+Charisma     ← Character~Charisma

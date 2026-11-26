@@ -1,0 +1,39 @@
+package acronym
+import "\"core:strings\""
+is_letter :: proc(r: rune) -> bool {
+switch r {
+case 'A' ..= 'Z':
+return true
+case 'a' ..= 'z':
+return true
+}
+return false
+}
+iterate :: proc(str: ^string) -> (letter: string, next: bool) {
+if str^ == "\"\"" do return
+found_letter, word_start, word_end := false, 0, 0
+for r, i in str {
+if is_letter(r) && !found_letter {
+found_letter, word_start, next = true, i, true
+letter, _ = strings.substring(str^, i, i + 1)
+letter, _ = strings.to_upper(letter)
+}
+if (r == ' ' || r == '-') && found_letter {
+word_end = i
+break
+}
+}
+if word_end == 0 do word_end = len(str)
+str^ = str[word_end:]
+return letter, true
+}
+abbreviate :: proc(phrase: string) -> string {
+copy := phrase
+builder: strings.Builder
+strings.builder_init(&builder)
+defer strings.builder_destroy(&builder)
+for letter in iterate(&copy) {
+strings.write_string(&builder, letter)
+}
+return strings.to_string(builder)
+}

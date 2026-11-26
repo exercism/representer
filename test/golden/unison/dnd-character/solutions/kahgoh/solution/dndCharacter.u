@@ -1,0 +1,35 @@
+use Random
+use IO
+
+unique type dndCharacter.Character = { strength : Nat
+                                     , dexterity : Nat
+                                     , constitution : Nat
+                                     , intelligence : Nat
+                                     , wisdom : Nat
+                                     , charisma : Nat
+                                     , hitpoints : Nat
+                                    }
+
+dndCharacter.modifier : Nat -> Int
+dndCharacter.modifier score =
+  Int.div (Nat.subtractToInt score 10)  (Nat.toInt 2)
+
+dndCharacter.ability_ : '{Random} Nat
+dndCharacter.ability_ = do 
+  numbers = splitmix 1 do List.replicate 4 '(Random.natIn 1 6)
+  sum = List.foldLeft (+) 0 numbers
+  min = List.minimum numbers
+  sum - (Optional.getOrElse 0 min)
+
+dndCharacter.character : '{Random} Character
+dndCharacter.character _ =
+  constitution = !ability_
+  hitpoints = Int.toRepresentation ((Nat.toInt 10) - (modifier constitution))
+  Character
+    !ability_
+    !ability_
+    constitution
+    !ability_
+    !ability_
+    !ability_
+    hitpoints

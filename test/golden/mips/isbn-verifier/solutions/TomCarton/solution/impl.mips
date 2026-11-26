@@ -1,0 +1,44 @@
+# | Register | Usage     | Type    | Description                              |
+# | -------- | --------- | ------- | ---------------------------------------- |
+# | `$a0`    | input     | address | null-terminated input string             |
+# | `$v0`    | output    | boolean | valid isbn (`0` = `false`, `1` = `true`) |
+# | `$t0-9`  | temporary | any     | used for temporary storage               |
+
+.globl is_valid
+
+is_valid:
+        li $t0, 0
+        li $t1, 10
+
+loop:   lb $t2, ($a0)
+        add $a0, $a0, 1
+        beq $t2, 45, loop
+
+        sub $t2, $t2, 48
+        bgt $t1, 1, num
+
+        beq $t2, 40, lastx
+        beq $t2, 72, lastx
+
+num:    blt $t2, 0, error
+        bgt $t2, 9, error
+
+calc:   mul $t2, $t2, $t1
+        add $t0, $t0, $t2
+
+        sub $t1, $t1, 1
+        bgt $t1, 0, loop
+
+        lb $t2, ($a0)
+        bne $t2, 0, error
+
+        div $t0, $t0, 11
+        mfhi $v0
+        slti $v0, $v0, 1
+
+        jr $ra
+
+lastx:  li $t2, 10
+        b calc
+error:  li $v0, 0
+        jr $ra

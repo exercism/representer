@@ -1,0 +1,236 @@
+(file
+  (module_declaration module
+    (upper_case_qid GradeSchool)
+    (exposing_list exposing
+      (exposed_type Grade)
+      (exposed_type Result
+        (exposed_union_constructors ..))
+      (exposed_type School)
+      (exposed_type Student)
+      (exposed_value addStudent)
+      (exposed_value allStudents)
+      (exposed_value emptySchool)
+      (exposed_value studentsInGrade)))
+  (import_clause import
+    (upper_case_qid Dict)
+    (exposing_list exposing ..))
+  (type_alias_declaration type alias Grade =
+    (type_expression
+      (type_ref
+        (upper_case_qid Int))))
+  (type_alias_declaration type alias Student =
+    (type_expression
+      (type_ref
+        (upper_case_qid String))))
+  (type_alias_declaration type alias School =
+    (type_expression
+      (type_ref
+        (upper_case_qid Dict)
+        (type_ref
+          (upper_case_qid Int))
+        (type_expression
+          (type_ref
+            (upper_case_qid List)
+            (type_ref
+              (upper_case_qid Student)))))))
+  (type_declaration type Result =
+    (union_variant Added) |
+    (union_variant Duplicate))
+  (type_annotation emptySchool :
+    (type_expression
+      (type_ref
+        (upper_case_qid School))))
+  (value_declaration
+    (function_declaration_left emptySchool) =
+    (value_expr
+      (value_qid Dict
+        (dot .) empty)))
+  (type_annotation addStudent :
+    (type_expression
+      (type_ref
+        (upper_case_qid Grade)) ->
+      (type_ref
+        (upper_case_qid Student)) ->
+      (type_ref
+        (upper_case_qid School)) ->
+      (tuple_type
+        (type_expression
+          (type_ref
+            (upper_case_qid Result)))
+        (type_expression
+          (type_ref
+            (upper_case_qid School))))))
+  (value_declaration
+    (function_declaration_left addStudent
+      (lower_pattern grade)
+      (lower_pattern student)
+      (lower_pattern school)) =
+    (let_in_expr
+      (value_declaration
+        (function_declaration_left PLACEHOLDER_1) =
+        (bin_op_expr
+          (function_call_expr
+            (value_expr
+              (value_qid List
+                (dot .) member))
+            (value_expr
+              (value_qid student)))
+          (operator
+            (operator_identifier <|))
+          (function_call_expr
+            (value_expr
+              (value_qid allStudents))
+            (value_expr
+              (value_qid school)))))
+      (value_declaration
+        (function_declaration_left PLACEHOLDER_2) =
+        (function_call_expr
+          (value_expr
+            (value_qid Dict
+              (dot .) get))
+          (value_expr
+            (value_qid grade))
+          (value_expr
+            (value_qid school))))
+      (case_of_expr case
+        (tuple_expr
+          (value_expr
+            (value_qid PLACEHOLDER_1))
+          (value_expr
+            (value_qid PLACEHOLDER_2))) of
+        (case_of_branch
+          (pattern
+            (tuple_pattern
+              (pattern
+                (union_pattern
+                  (upper_case_qid True)))
+              (pattern
+                (anything_pattern _)))) ->
+          (tuple_expr
+            (value_expr
+              (upper_case_qid Duplicate))
+            (value_expr
+              (value_qid school))))
+        (case_of_branch
+          (pattern
+            (tuple_pattern
+              (pattern
+                (union_pattern
+                  (upper_case_qid False)))
+              (pattern
+                (union_pattern
+                  (upper_case_qid Nothing))))) ->
+          (tuple_expr
+            (value_expr
+              (upper_case_qid Added))
+            (function_call_expr
+              (value_expr
+                (value_qid Dict
+                  (dot .) insert))
+              (value_expr
+                (value_qid grade))
+              (list_expr
+                (value_expr
+                  (value_qid student)))
+              (value_expr
+                (value_qid school)))))
+        (case_of_branch
+          (pattern
+            (tuple_pattern
+              (pattern
+                (union_pattern
+                  (upper_case_qid False)))
+              (pattern
+                (union_pattern
+                  (upper_case_qid Just)
+                  (anything_pattern _))))) ->
+          (tuple_expr
+            (value_expr
+              (upper_case_qid Added))
+            (function_call_expr
+              (value_expr
+                (value_qid Dict
+                  (dot .) update))
+              (value_expr
+                (value_qid grade))
+              (parenthesized_expr
+                (function_call_expr
+                  (value_expr
+                    (value_qid Maybe
+                      (dot .) map))
+                  (parenthesized_expr
+                    (anonymous_function_expr "\\"
+                      (pattern
+                        (lower_pattern PLACEHOLDER_3)) ->
+                      (bin_op_expr
+                        (value_expr
+                          (value_qid PLACEHOLDER_3))
+                        (operator
+                          (operator_identifier ++))
+                        (list_expr
+                          (value_expr
+                            (value_qid student))))))))
+              (value_expr
+                (value_qid school))))))))
+  (type_annotation studentsInGrade :
+    (type_expression
+      (type_ref
+        (upper_case_qid Grade)) ->
+      (type_ref
+        (upper_case_qid School)) ->
+      (type_ref
+        (upper_case_qid List)
+        (type_ref
+          (upper_case_qid Student)))))
+  (value_declaration
+    (function_declaration_left studentsInGrade
+      (lower_pattern grade)
+      (lower_pattern school)) =
+    (bin_op_expr
+      (function_call_expr
+        (value_expr
+          (value_qid Dict
+            (dot .) get))
+        (value_expr
+          (value_qid grade))
+        (value_expr
+          (value_qid school)))
+      (operator
+        (operator_identifier |>))
+      (function_call_expr
+        (value_expr
+          (value_qid Maybe
+            (dot .) withDefault))
+        (list_expr))
+      (operator
+        (operator_identifier |>))
+      (value_expr
+        (value_qid List
+          (dot .) sort))))
+  (type_annotation allStudents :
+    (type_expression
+      (type_ref
+        (upper_case_qid School)) ->
+      (type_ref
+        (upper_case_qid List)
+        (type_ref
+          (upper_case_qid Student)))))
+  (value_declaration
+    (function_declaration_left allStudents
+      (lower_pattern school)) =
+    (bin_op_expr
+      (function_call_expr
+        (value_expr
+          (value_qid Dict
+            (dot .) values))
+        (value_expr
+          (value_qid school)))
+      (operator
+        (operator_identifier |>))
+      (function_call_expr
+        (value_expr
+          (value_qid List
+            (dot .) concatMap))
+        (value_expr
+          (value_qid List
+            (dot .) sort))))))

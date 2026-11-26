@@ -1,0 +1,93 @@
+Class {
+#name : #Tournament ,
+#superclass : #Object ,
+#instVars : [ 'teams' ] ,
+#classVars : [ ] ,
+#category : # 'Exercise@Tournament'
+}
+{ #category : #constants }
+Tournament class >> pointsForResult [
+^ Dictionary newFromPairs: {
+'win' . 3 .
+'draw' . 1 .
+'loss' . 0
+}
+]
+{ #category : #constants }
+Tournament class >> oppositeResult: result [
+^ ( Dictionary newFromPairs: {
+'win' . 'loss' .
+'loss' . 'win' .
+'draw' . 'draw'
+}) at: result
+]
+{ #category : #initialization }
+Tournament >> initialize [
+super initialize .
+teams := Dictionary new
+]
+{ #category : # "'private - parsing'" }
+Tournament >> parseMatch: matchString [
+| parts team1 team2 result |
+parts := matchString substrings: ';' .
+team1 := parts at: 1 .
+team2 := parts at: 2 .
+result := parts at: 3 .
+self updateTeam: team1 withResult: result .
+self updateTeam: team2 withResult: ( self class oppositeResult: result )
+]
+{ #category : # "'private - updating'" }
+Tournament >> updateTeam: teamName withResult: result [
+| teamKey stats |
+teamKey := teamName padRightTo: 30 .
+teams at: teamKey ifAbsentPut: [ Array new: 5 withAll: 0 ].
+stats := teams at: teamKey .
+stats at: 1 put: ( stats at: 1 ) + 1 .
+self updateStatsArray: stats forResult: result
+]
+{ #category : # "'private - updating'" }
+Tournament >> updateStatsArray: statsArray forResult: result [
+| resultIndex points resultMapping |
+resultMapping := Dictionary newFromPairs: {
+'win' . 2 .
+'draw' . 3 .
+'loss' . 4
+}.
+resultIndex := resultMapping at: result .
+statsArray at: resultIndex put: ( statsArray at: resultIndex ) + 1 .
+points := self class pointsForResult at: result .
+statsArray at: 5 put: ( statsArray at: 5 ) + points
+]
+{ #category : # "'private - formatting'" }
+Tournament >> formatTeamRow: teamName withStats: stats [
+| formattedStats |
+formattedStats := stats collect: [ : value | value asString padLeftTo: 2 ].
+^ "' | '" join: ( Array with: teamName ) , formattedStats
+]
+{ #category : # "'private - sorting'" }
+Tournament >> sortedTeamEntries [
+^ teams associations sorted: [ : a : b |
+| pointsA pointsB |
+pointsA := a value at: 5 .
+pointsB := b value at: 5 .
+pointsA = pointsB
+ifTrue: [ a key <= b key ]
+ifFalse: [ pointsA > pointsB ]
+]
+]
+{ #category : # "'private - constants'" }
+Tournament >> tableHeader [
+^ "'Team                           | MP |  W |  D |  L |  P'"
+]
+{ #category : #api }
+Tournament >> tallyRows: matchResults [
+| result |
+self initialize .
+matchResults do: [ : match | self parseMatch: match ].
+result := OrderedCollection new .
+result add: self tableHeader .
+self sortedTeamEntries do: [ : teamEntry |
+result add: ( self formatTeamRow: teamEntry key withStats: teamEntry value )
+].
+^ result asArray
+]

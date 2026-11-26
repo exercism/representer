@@ -1,0 +1,11 @@
+#include "gigasecond.h"
+
+#define GIGASECOND 1000000000ULL
+
+void gigasecond(time_t input, char *output, size_t size)
+{
+    time_t target = input + (time_t)GIGASECOND;
+    struct tm *utc_time = gmtime(&target);
+
+    strftime(output, size, "%Y-%m-%d %H:%M:%S", utc_time);
+}

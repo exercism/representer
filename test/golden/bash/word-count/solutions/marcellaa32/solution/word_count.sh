@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+sent1="${1,,}"
+
+declare -A counts
+
+while read -r word; do   
+    (( counts["$word"]++ ))
+    
+counts["$word"]=$(( counts["$word"]++ ))   
+
+done < <(echo "$sent1" | grep -oE "[[:alnum:]]+('[[:alnum:]]+)?")
+
+keys=("${!counts[@]}")
+
+for (( i=0; i<${#keys[@]};i++ )); do
+    for(( j=0; j<${#keys[@]}-1-i;j++ )); do
+        if [[ "$keys[i+1]}" < "{keys[i]}" ]]; then
+            temp="${keys[i]}"
+            keys[i]="${keys[i+1]}"
+            keys[i+1]="$temp"
+        fi
+    done
+done
+
+for key in "${keys[@]}"; do
+    echo "$key: ${counts[$key]}"
+done

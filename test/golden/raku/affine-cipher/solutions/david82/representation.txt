@@ -1,0 +1,95 @@
+(source_file
+  (unit_declaration unit class AffineCipher)
+  (constant_declaration constant @alphabet =
+    (binary_expression "a" .. "z"))
+  (constant_declaration constant $m =
+    (method_call @alphabet . elems))
+  (variable_declaration
+    (scope has) $.a)
+  (variable_declaration
+    (scope has) $.b)
+  (variable_declaration
+    (scope has) (local_scalar PLACEHOLDER_1))
+  (routine_declaration submethod TWEAK
+    (block {
+      (unless_statement unless
+        (binary_expression
+          (binary_expression $!a gcd $m) == 1)
+        (block {
+          (listop_call die "a and m must be coprime") }))
+      (assignment (scalar PLACEHOLDER_1) =
+        (method_call
+          (binary_expression 1 ..^ $m) . first
+          (argument_list "("
+            (block {
+              (binary_expression
+                (binary_expression
+                  (binary_expression $!a * $_) % $m) == 1) }) ")"))) }))
+  (routine_declaration method encode
+    (signature "("
+      (parameter_list
+        (parameter (local_scalar PLACEHOLDER_2))) ")")
+    (block {
+      (method_call
+        (method_call
+          (method_call
+            (method_call
+              (method_call
+                (method_call (scalar PLACEHOLDER_2) . lc) . comb
+                (argument_list "("
+                  (regex /<[a..z0..9]>/) ")")) . map
+              (argument_list "("
+                (pointy_block ->
+                  (parameter_list
+                    (parameter (local_scalar PLACEHOLDER_3)))
+                  (block {
+                    (if_statement if
+                      (binary_expression (scalar PLACEHOLDER_3) ~~
+                        (regex /<[a..z]>/))
+                      (block {
+                        (assignment
+                          (variable_declaration
+                            (scope my) (local_scalar PLACEHOLDER_4)) =
+                          (binary_expression
+                            (method_call (scalar PLACEHOLDER_3) . ord) -
+                            (method_call "a" . ord)))
+                        (subscript @alphabet [
+                          (binary_expression
+                            (binary_expression
+                              (binary_expression $!a * (scalar PLACEHOLDER_4)) + $!b) % $m) ]) })
+                      (else_clause else
+                        (block { (scalar PLACEHOLDER_3) }))) })) ")")) . join) . comb
+          (argument_list "(" 5 ")")) . join
+        (argument_list "(" " " ")")) }))
+  (routine_declaration method decode
+    (signature "("
+      (parameter_list
+        (parameter (local_scalar PLACEHOLDER_2))) ")")
+    (block {
+      (method_call
+        (method_call
+          (method_call
+            (method_call (scalar PLACEHOLDER_2) . lc) . comb
+            (argument_list "("
+              (regex /<[a..z0..9]>/) ")")) . map
+          (argument_list "("
+            (pointy_block ->
+              (parameter_list
+                (parameter (local_scalar PLACEHOLDER_3)))
+              (block {
+                (if_statement if
+                  (binary_expression (scalar PLACEHOLDER_3) ~~
+                    (regex /<[a..z]>/))
+                  (block {
+                    (assignment
+                      (variable_declaration
+                        (scope my) (local_scalar PLACEHOLDER_5)) =
+                      (binary_expression
+                        (method_call (scalar PLACEHOLDER_3) . ord) -
+                        (method_call "a" . ord)))
+                    (subscript @alphabet [
+                      (binary_expression
+                        (binary_expression (scalar PLACEHOLDER_1) *
+                          (binary_expression (scalar PLACEHOLDER_5) - $!b)) % $m) ]) })
+                  (else_clause else
+                    (block { (scalar PLACEHOLDER_3) }))) })) ")")) . join) })))

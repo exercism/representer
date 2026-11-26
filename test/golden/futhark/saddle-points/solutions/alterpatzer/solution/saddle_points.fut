@@ -1,0 +1,27 @@
+def cmin [m] [n] (matrix: [m][n]i32) (c: i64): i32 =
+  map (\r -> matrix[r][c]) (0..<m) |> i32.minimum
+
+def rmax [m] [n] (matrix: [m][n]i32) (r: i64): i32 =
+    i32.maximum matrix[r]
+
+def minmax [n] (row: [n]i32): i32 =
+  i32.minimum row
+
+def saddle_points [m] [n] (matrix: [m][n]i32): [][2]i32 = 
+  if m == 0 || n == 0 then []
+  else
+    let rmx = map (rmax matrix) (0..<m)
+    let s = minmax rmx
+    let cmn = map (cmin matrix) (0..<n)
+    in
+      loop coords = []
+      for i < m do
+        if rmx[i] != s then
+          coords
+        else
+          loop newcoords = coords
+          for j < n do
+            if cmn[j] == s && matrix[i][j] == s then
+              newcoords ++ [[i32.i64 (i + 1), i32.i64 (j + 1)]]
+            else
+              newcoords

@@ -1,0 +1,30 @@
+def has_bomb [m] [n] (field: [m][n]u8) (i: i64) (j: i64): bool =
+  i >= 0 && i < m && j >= 0 && j < n && field[i][j] == '*'
+
+def bomb_at [m] [n] (field: [m][n]u8) (i: i64) (j: i64): i32 =
+  if has_bomb field i j then 1 else 0
+
+def surrounding [m] [n] (field: [m][n]u8) (r: i64) (c: i64): i32 =
+  let adjacent =
+    loop sum = 0
+    for i in [r - 1, r, r + 1] do
+      let rsum = map (bomb_at field i) [c - 1, c, c + 1]
+                 |> i32.sum
+      in sum + rsum
+  in adjacent - bomb_at field r c
+
+def mark [n] (row: [n]u8) (count: [n]i32) (c: i64): u8 =
+  if row[c] == '*'
+  then '*'
+  else if count[c] == 0
+  then ' '
+  else (u8.i32 count[c]) + '0'
+
+def annotate [m] [n] (garden: [m][n]u8): [m][n]u8 = 
+  let grid =
+    loop grid = []
+    for i < m do
+      let count = tabulate n (surrounding garden i)
+      let row = tabulate n (mark garden[i] count)
+      in grid ++ [row]
+   in grid :> [m][n]u8

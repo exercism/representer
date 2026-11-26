@@ -1,0 +1,23 @@
+module DNA (nucleotideCounts, Nucleotide(..), fromChar) where
+
+import Data.Map (Map, fromList)
+import Data.List (group, sort)
+
+data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
+
+fromChar :: Char -> Maybe Nucleotide
+fromChar 'A' = Just A
+fromChar 'C' = Just C
+fromChar 'G' = Just G
+fromChar 'T' = Just T
+fromChar _ = Nothing
+
+fromChar' :: Char -> Either String Nucleotide
+fromChar' c = case fromChar c of
+    Just n -> Right n
+    Nothing -> Left "error"
+
+nucleotideCounts :: String -> Either String (Map Nucleotide Int)
+nucleotideCounts xs = do
+    nucleotides <- traverse fromChar' xs
+    pure $ fromList $ map (\ns -> (head ns, length ns)) $ group $ sort nucleotides

@@ -1,0 +1,84 @@
+(source_file
+  (import gleam/int)
+  (type_definition pub
+    (type_name Item)
+    (data_constructors
+      (data_constructor Item
+        (data_constructor_arguments
+          (data_constructor_argument value :
+            (type Int))
+          (data_constructor_argument weight :
+            (type Int))))))
+  (function pub maximum_value
+    (function_parameters
+      (function_parameter PLACEHOLDER_1 :
+        (type List
+          (type_arguments
+            (type_argument
+              (type Item)))))
+      (function_parameter PLACEHOLDER_2 :
+        (type Int))) ->
+    (type Int)
+    (block
+      (function_call knapsack
+        (arguments
+          (argument 0)
+          (argument PLACEHOLDER_1)
+          (argument PLACEHOLDER_2)))))
+  (function knapsack
+    (function_parameters
+      (function_parameter value :
+        (type Int))
+      (function_parameter PLACEHOLDER_1 :
+        (type List
+          (type_arguments
+            (type_argument
+              (type Item)))))
+      (function_parameter PLACEHOLDER_2 :
+        (type Int))) ->
+    (type Int)
+    (block
+      (case
+        (case_subjects PLACEHOLDER_1)
+        (case_clauses
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern))) -> value)
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern (variable PLACEHOLDER_3)
+                  (list_pattern_tail .. (variable PLACEHOLDER_4)))))
+            (case_clause_guard if
+              (binary_expression
+                (field_access PLACEHOLDER_3 . weight) > PLACEHOLDER_2)) ->
+            (function_call knapsack
+              (arguments
+                (argument value)
+                (argument PLACEHOLDER_4)
+                (argument PLACEHOLDER_2))))
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern (variable PLACEHOLDER_3)
+                  (list_pattern_tail .. (variable PLACEHOLDER_4))))) ->
+            (function_call
+              (field_access int . max)
+              (arguments
+                (argument
+                  (function_call knapsack
+                    (arguments
+                      (argument value)
+                      (argument PLACEHOLDER_4)
+                      (argument PLACEHOLDER_2))))
+                (argument
+                  (function_call knapsack
+                    (arguments
+                      (argument
+                        (binary_expression value +
+                          (field_access PLACEHOLDER_3 . value)))
+                      (argument PLACEHOLDER_4)
+                      (argument
+                        (binary_expression PLACEHOLDER_2 -
+                          (field_access PLACEHOLDER_3 . weight))))))))))))))

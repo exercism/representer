@@ -1,0 +1,13 @@
+function message(msg)
+    split(msg, ": ", limit=2)[2] |> strip
+end
+
+function log_level(msg)
+    s = split(msg, "]", limit=2)[1]
+    lowercase(s[2:end])
+end
+
+function reformat(msg)
+    string(message(msg), " (", log_level(msg), ")")
+end
+

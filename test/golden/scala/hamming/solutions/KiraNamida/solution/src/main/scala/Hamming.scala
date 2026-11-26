@@ -1,9 +1,0 @@
-object Hamming {
-  def distance(first: String, second: String): Option[Int] = {
-    if(first.length != second.length) None
-    else {
-      val matches = for ((f, s) <- first zip second) yield f == s
-      Some(matches.filter(x => !x).size)
-    }
-  }
-}

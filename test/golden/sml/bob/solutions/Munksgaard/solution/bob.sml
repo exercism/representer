@@ -1,0 +1,23 @@
+val emptyResponse = "Fine. Be that way!"
+
+val calmResponse = "Calm down, I know what I'm doing!"
+
+val chillResponse = "Whoa, chill out!"
+
+val sureResponse = "Sure."
+
+val whateverResponse = "Whatever."
+
+fun response s =
+    let val s = Substring.dropr Char.isSpace (Substring.dropl Char.isSpace (Substring.full s))
+        val s' = Substring.explode s
+    in if Substring.size s = 0 then emptyResponse else
+       let val endsWithQuestionMark = Substring.sub (s, Substring.size s - 1) = #"?"
+           val isAllCaps = not (List.exists Char.isLower s') andalso List.exists Char.isUpper s'
+       in case (endsWithQuestionMark, isAllCaps) of
+              (true, true) => calmResponse
+            | (true, false) => sureResponse
+            | (false, true) => chillResponse
+            | (false, false) => whateverResponse
+       end
+    end

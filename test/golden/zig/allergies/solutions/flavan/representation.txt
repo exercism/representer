@@ -1,0 +1,59 @@
+(source_file
+  (Decl
+    (VarDecl const std =
+      (SuffixExpr @import
+        (FnCallArguments "std"))))
+  (Decl
+    (VarDecl const EnumSet =
+      (SuffixExpr std
+        (FieldOrFnCall . EnumSet)))) pub
+  (Decl
+    (VarDecl const Allergen =
+      (ContainerDecl
+        (ContainerDeclType enum u8)
+        (ContainerField eggs = 1)
+        (ContainerField peanuts = 2)
+        (ContainerField shellfish = 4)
+        (ContainerField strawberries = 8)
+        (ContainerField tomatoes = 16)
+        (ContainerField chocolate = 32)
+        (ContainerField pollen = 64)
+        (ContainerField cats = 128)))) pub
+  (Decl
+    (FnProto isAllergicTo
+      (ParamDeclList
+        (ParamDecl PLACEHOLDER_1 :
+          (ParamType u8))
+        (ParamDecl PLACEHOLDER_2 :
+          (ParamType Allergen))) bool)
+    (Block
+      (Statement
+        (AssignExpr return
+          (BinaryExpr
+            (BinaryExpr PLACEHOLDER_1
+              (BitwiseOp &)
+              (SuffixExpr @intFromEnum
+                (FnCallArguments PLACEHOLDER_2)))
+            (CompareOp !=) 0))))) pub
+  (Decl
+    (FnProto initAllergenSet
+      (ParamDeclList
+        (ParamDecl PLACEHOLDER_1 :
+          (ParamType usize)))
+      (SuffixExpr EnumSet
+        (FnCallArguments Allergen)))
+    (Block
+      (Statement
+        (AssignExpr return
+          (SuffixExpr EnumSet
+            (FnCallArguments Allergen))
+          (InitList
+            (FieldInit . bits =
+              (SuffixExpr std
+                (FieldOrFnCall . bit_set)
+                (FieldOrFnCall . IntegerBitSet
+                  (FnCallArguments 8)))
+              (InitList
+                (FieldInit . mask =
+                  (SuffixExpr @truncate
+                    (FnCallArguments PLACEHOLDER_1)))))))))))

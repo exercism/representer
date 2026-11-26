@@ -1,0 +1,21 @@
+/**
+* Your implmentation of the Pangram exercise
+*/
+component {
+	
+	/**
+	* @returns 
+	*/
+	 function isPangram( sentence ) {
+		alph=listToArray("abcdefghijklmnopqrstuvwxyz",'');
+		senAlph="";
+		sentence=lCase(rereplace(sentence,"[^A-Za-z]","","all"));
+		for (az in alph) {
+			if (find(az,sentence)==0) {
+				return false;
+			}
+		}
+	return true;
+	}
+	
+}

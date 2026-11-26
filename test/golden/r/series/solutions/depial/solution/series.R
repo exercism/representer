@@ -1,0 +1,5 @@
+slices <- function(series, slice_length) {
+  if (nchar(series) < slice_length | slice_length < 1) 
+    stop() 
+  substring(series, 1:(nchar(series)-slice_length+1), slice_length:nchar(series))
+}

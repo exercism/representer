@@ -1,9 +1,0 @@
--- Schema: CREATE TABLE "rna-transcription" ("dna" TEXT, "result" TEXT);
--- Task: update the rna-transcription table and set the result based on the dna field.
-
-update "rna-transcription"
-set result = (with
-    at_ua(r1) as (select replace(replace(dna, 'A', 'U'), 'T', 'A')),
-    gc_cg(r2) as (select upper(replace(replace(r1, 'C', 'g'), 'G', 'c')) from at_ua)
-    select r2 from gc_cg
-)

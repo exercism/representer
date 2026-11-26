@@ -1,0 +1,33 @@
+include std/text.e 
+include std/types.e 
+
+function is_silence(sequence s)
+    return length(trim(s)) = 0
+end function
+
+function is_question(sequence s)
+    return equal(tail(trim(s), 1),"?")
+end function
+
+function is_yelling(sequence s)
+    atom upperCount = 0
+    atom lowerCount = 0
+    for i = 1 to length(s) do
+        if t_lower(s[i]) then lowerCount += 1 end if
+        if t_upper(s[i]) then upperCount += 1 end if
+    end for
+    return upperCount > 0 and lowerCount = 0
+end function 
+
+public function hey(sequence s)
+    if is_silence(s) then return "Fine. Be that way!" end if
+    if is_yelling(s) then
+        if is_question(s) then
+            return "Calm down, I know what I'm doing!"
+        else
+            return "Whoa, chill out!"
+        end if
+    end if
+    if is_question(s) then return "Sure." end if
+    return "Whatever."
+end function

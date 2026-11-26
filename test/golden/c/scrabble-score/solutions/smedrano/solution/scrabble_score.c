@@ -1,0 +1,34 @@
+#include "scrabble_score.h"
+
+#include <ctype.h>
+
+const char ALPHABET[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+void setup_tiles_score(unsigned int scores[sizeof(ALPHABET)],
+                       const char* tiles, unsigned int score);
+
+unsigned int score(const char *word) {
+  unsigned int tile_scores[sizeof(ALPHABET)];
+  setup_tiles_score(tile_scores, "AEIOULNRST", 1);
+  setup_tiles_score(tile_scores, "DG", 2);
+  setup_tiles_score(tile_scores, "BCMP", 3);
+  setup_tiles_score(tile_scores, "FHVWY", 4);
+  setup_tiles_score(tile_scores, "K", 5);
+  setup_tiles_score(tile_scores, "JX", 8);
+  setup_tiles_score(tile_scores, "QZ", 10);
+
+  unsigned int sum = 0;
+  for (const char* tile = word; *tile != '\0'; tile++) {
+    if (!isalpha(*tile)) return 0;
+
+    sum += tile_scores[toupper(*tile) - 'A'];
+  }
+  return sum;
+}
+
+void setup_tiles_score(unsigned int scores[sizeof(ALPHABET)],
+                       const char* tiles, unsigned int score) {
+  for (const char* tile = tiles; *tile != '\0'; tile++) {
+    scores[*tile - 'A'] = score;
+  }
+}

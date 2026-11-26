@@ -1,0 +1,30 @@
+define :clock [
+init: method [hour :quantity, minute :quantity][
+this\minute: mod scalar minute 60
+this\hour: mod add div scalar minute 60 scalar hour 24
+if this\hour < 0 -> this\hour: 24 + this\hour
+if this\minute < 0 [
+this\minute: 60 + this\minute
+dec 'this\hour
+]
+]
+increment: method [time :quantity][
+c: to :clock [this\hour --> `hr, time + this\minute --> `min]
+this\hour: c\hour
+this\minute: c\minute
+]
+decrement: method [time :quantity][
+c: to :clock [this\hour --> `hr, (this\minute --> `min) - time]
+this\hour: c\hour
+this\minute: c\minute
+if this\hour < 0 -> this\hour: 24 + this\hour
+]
+equal?: method [that][
+and? this\hour = that\hour, this\minute = that\minute
+]
+string: method [][
+hh: pad.with:'0' to :string this\hour 2
+mm: pad.with:'0' to :string this\minute 2
+~"|hh|:|mm|"
+]
+]

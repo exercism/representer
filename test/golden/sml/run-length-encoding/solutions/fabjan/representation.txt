@@ -1,0 +1,35 @@
+infix |>
+fun x | > f = f x
+type runlength = ( char * int ) list ;
+fun compress ( c , 0 ) = "\"\""
+| compress ( c , 1 ) = Char . toString c
+| compress ( c , n ) = ( Int . toString n ) ^ ( Char . toString c )
+fun expand ( c , n ) = List . tabulate ( n , fn _ => c ) | > String . implode
+fun render toString runlengths =
+List . foldl ( fn ( next , acc ) => ( toString next ) ::acc ) [] runlengths | > String . concat
+local
+fun unpack s acc =
+let
+val ( nums , rest ) = Substring . splitl Char . isDigit s
+val count = Int . fromString ( Substring . string nums )
+in
+case ( count , Substring . getc rest ) of
+( NONE , NONE ) => acc
+| ( NONE , SOME ( c , more )) => unpack more (( c , 1 ) ::acc )
+| ( SOME n , SOME ( c , more )) => unpack more (( c , n ) ::acc )
+| ( SOME _, NONE ) => raise Fail "\"cannot uncompress digits only\""
+end
+in
+fun decode ( phrase : string ): string =
+unpack ( Substring . full phrase ) [] | > render expand
+end
+local
+fun pack ( next , []) = ( next , 1 ) :: []
+| pack ( next , ( current , count ) ::acc ) =
+if next = current
+then ( next , count+ 1 ) ::acc
+else ( next , 1 ) :: ( current , count ) ::acc
+in
+fun encode ( phrase : string ): string =
+Substring . foldl pack [] ( Substring . full phrase ) | > render compress
+end

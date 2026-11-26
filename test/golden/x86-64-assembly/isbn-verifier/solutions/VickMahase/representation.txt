@@ -1,0 +1,66 @@
+section .text
+global is_valid
+is_valid:
+push rbx
+push r12
+push r13
+push r14
+push r15
+xor r12 , r12
+mov r13 , 10
+xor r14 , r14
+mov r15 , rdi
+cmp byte [ r15 ], 0
+je .invalid
+.process_loop:
+movzx ebx , byte [ r15 ]
+test ebx , ebx
+jz .check_sum
+cmp ebx , '-'
+je .next_char
+cmp r12 , 10
+jge .invalid
+cmp ebx , '0'
+jl .check_for_X
+cmp ebx , '9'
+jg .check_for_X
+sub ebx , '0'
+jmp .process_digit
+.check_for_X:
+cmp ebx , 'X'
+jne .invalid
+cmp r12 , 9
+jne .invalid
+mov ebx , 10
+.process_digit:
+mov eax , ebx
+imul eax , r13d
+add r14d , eax
+inc r12
+dec r13
+.next_char:
+inc r15
+jmp .process_loop
+.check_sum:
+cmp r12 , 10
+jne .invalid
+mov eax , r14d
+xor edx , edx
+mov ecx , 11
+div ecx
+test edx , edx
+jnz .invalid
+mov eax , 1
+jmp .done
+.invalid:
+xor eax , eax
+.done:
+pop r15
+pop r14
+pop r13
+pop r12
+pop rbx
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

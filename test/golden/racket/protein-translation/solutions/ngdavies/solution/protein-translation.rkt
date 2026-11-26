@@ -1,0 +1,36 @@
+#lang racket
+
+(provide proteins)
+
+(define (decode codon)
+  ;;; (displayln (format "Codon: ~s, AUG?: ~s, length: ~s" codon (string=? codon "AUG") (string-length codon)))
+  (cond 
+    ((string=? codon "AUG") "Methionine")
+    ((string=? codon "UUU") "Phenylalanine")
+    ((string=? codon "UUC") "Phenylalanine")
+    ((string=? codon "UUA") "Leucine")
+    ((string=? codon "UUG") "Leucine")
+    ((string=? codon "UCU") "Serine")
+    ((string=? codon "UCC") "Serine")
+    ((string=? codon "UCA") "Serine")
+    ((string=? codon "UCG") "Serine")
+    ((string=? codon "UAU") "Tyrosine")
+    ((string=? codon "UAC") "Tyrosine")
+    ((string=? codon "UGU") "Cysteine")
+    ((string=? codon "UGC") "Cysteine")
+    ((string=? codon "UGG") "Tryptophan")
+    ((string=? codon "UAA") "")
+    ((string=? codon "UAG") "")
+    ((string=? codon "UGA") "")
+    (else (raise-argument-error 'decode "Invalid Codon sequence" codon))))
+
+(define (proteins strand)
+  (define (iter result remaining)
+    (if (zero? (string-length remaining))
+        (reverse result)
+        (let ([translation (decode (substring remaining 0 3))])
+          (if (zero? (string-length translation))
+              (reverse result)
+              (iter (cons translation result) (substring remaining 3))))))
+  (iter '() strand))
+

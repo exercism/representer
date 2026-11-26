@@ -1,0 +1,39 @@
+Public Class DndCharacter
+    Public ReadOnly Property Strength As Integer
+    Public ReadOnly Property Dexterity As Integer
+    Public ReadOnly Property Constitution As Integer
+    Public ReadOnly Property Intelligence As Integer
+    Public ReadOnly Property Wisdom As Integer
+    Public ReadOnly Property Charisma As Integer
+    Public ReadOnly Property Hitpoints As Integer
+
+    Private Sub New(strength As Integer, dexterity As Integer, constitution As Integer, intelligence As Integer, wisdom As Integer, charisma As Integer)
+        Me.Strength = strength
+        Me.Dexterity = dexterity
+        Me.Constitution = constitution
+        Me.Intelligence = intelligence
+        Me.Wisdom = wisdom
+        Me.Charisma = charisma
+        Hitpoints = 10 + Modifier(constitution)
+    End Sub
+
+    Public Shared Function Modifier(ByVal score As Integer) As Integer
+        Return Math.Floor((score - 10) / 2)
+    End Function
+
+    Public Shared Function Ability() As Integer
+        Return (From p In DiceRolls() Take 4 Order By p Skip 1).Sum()
+    End Function
+
+    Public Shared Function Generate() As DndCharacter
+        Return New DndCharacter(Ability(), Ability(), Ability(), Ability(), Ability(), Ability())
+    End Function
+
+    Private Shared ReadOnly _random As New Random()
+
+    Public Shared Iterator Function DiceRolls() As IEnumerable(Of Integer)
+        While True
+            Yield _random.Next(1, 7)
+        End While
+    End Function
+End Class

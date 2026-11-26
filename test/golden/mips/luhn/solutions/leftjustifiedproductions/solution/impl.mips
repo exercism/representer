@@ -1,0 +1,179 @@
+# | Register | Usage     | Type    | Description                                            |
+# | -------- | --------- | ------- | ------------------------------------------------------ |
+# | `$a0`    | input     | address | null-terminated input string                           |
+# | `$v0`    | output    | boolean | validity of input string (`0` = `false`, `1` = `true`) |
+# | `$t0-9`  | temporary | any     | used for temporary storage                             |
+#.include "impl.mips"
+.globl valid
+
+valid:
+    li $v0, 1
+    addi $sp, $sp, -8
+    sw $ra, 4($sp)
+    sw $v1, 0($sp)
+
+    jal copy_to_buffer
+
+    jal strip_chars
+
+    li $t5, 1
+    sgt $v0, $t0, $t5
+    ble $t0, $t5, valid_exit
+
+    jal double_digits
+    jal sum_and_mod
+
+valid_exit:
+    jal clear_buffer
+    
+    lw $v1, 0($sp)
+    lw $ra, 4($sp)
+    addi $sp, $sp, 8    
+    jr $ra
+
+strip_chars:
+    li $t0, 0
+    la $t1, num_buffer
+    move $t2, $t1
+    li $v1, 1
+
+    addi $sp, $sp, -8
+    sw $ra, 4($sp)
+    sw $v1, 0($sp)
+
+char_loop:
+    lb $t3, 0($t1)
+    beq $t3, $zero, strip_chars_success
+    jal is_valid_character
+    beq $v1, $zero, strip_chars_failure
+    
+    li $t4, 0x20 #' '
+    bne $t3, $t4, char_loop_continue
+handle_space:
+    addi $sp, $sp, -16
+    sw $t3, -16($sp)
+    sw $t1, -12($sp)
+    sw $t2, -8($sp)
+    sw $ra, -4($sp)
+    jal shift_chars_left
+    lw $ra, -4($sp)
+    lw $t2, -8($sp)
+    lw $t1, -12($sp)
+    lw $t3, -16($sp)
+    addi $sp, $sp, 16
+char_loop_continue:
+    addi $t0, $t0, 1
+    addi $t1, $t1, 1
+    move $t2, $t1
+    j char_loop
+    
+strip_chars_failure:
+    lw $v1, 0($sp)
+    lw $ra, 4($sp)
+    addi $sp, $sp, 8
+    li $v1, 0
+    jr $ra
+
+strip_chars_success:
+    lw $v1, 0($sp)
+    lw $ra, 4($sp)
+    addi $sp, $sp, 8
+    jr $ra
+
+is_valid_character:
+    li $t4, 0x20 #' '
+    seq $t6, $t3, $t4    
+    li $t5, 10
+    add $t7, $t3, -0x30
+    sltu $t7, $t7, $t5
+    or $t7, $t7, $t6
+    sne $v1, $t7, $zero
+    jr $ra
+
+shift_chars_left:
+    move $t2, $t1
+    addi $t3, $t2, 1
+shift_chars_left_loop:
+    lb $t6, 0($t3)
+    sb $t6, 0($t2)
+    beq $t6, $zero, shift_chars_left_exit
+    
+    addi $t2, $t2, 1
+    addi $t3, $t3, 1
+    j shift_chars_left_loop
+shift_chars_left_exit:
+    sb $zero, 0($t2)
+    jr $ra
+
+double_digits:   
+    li $t5, 10
+    li $t7, 1
+    li $t8, 2
+    addi $t1, $t1, -1
+double_digit_loop:
+    lb $t3, 0($t1)
+    beq $t0, $zero, double_digits_exit
+    div $t7, $t8
+    mfhi $t9
+    bne $t9, $zero, skip_all
+    addi $t4, $t3, -0x30
+    sll $t4, $t4, 1
+    blt $t4, $t5, skip_subtract_nine
+    addi $t4, $t4, -9
+skip_subtract_nine:
+    addi $t3, $t4, 0x30
+    sb $t3, 0($t1)
+skip_all:
+    addi $t1, $t1, -1
+    addi $t7, $t7, 1
+    addi $t0, $t0, -1
+    j double_digit_loop
+double_digits_exit:
+    jr $ra
+
+sum_and_mod:
+    la $t1, num_buffer
+    li $t4, 0
+sum_loop:
+    lb $t3, 0($t1)
+    beq $t3, $zero, mod_sum
+    addi $t3, $t3, -0x30
+    add $t4, $t4, $t3
+
+    addi $t1, $t1, 1
+    j sum_loop
+mod_sum:
+    li $t5, 10
+    div $t4, $t5
+    mfhi $t3
+    seq $v0, $t3, $zero
+    jr $ra
+
+copy_to_buffer:
+    la $t0, num_buffer
+    move $t2, $a0
+copy_to_buffer_loop:
+    lb $t1, 0($t2)
+    beq $t1, $zero, copy_to_buffer_exit
+    sb $t1, 0($t0)
+    addi, $t0, $t0, 1
+    addi, $t2, $t2, 1
+    j copy_to_buffer_loop
+copy_to_buffer_exit:
+    sb $zero, 0($t0)
+    jr $ra
+
+clear_buffer:
+    la $t0, num_buffer
+    li $t1, 44
+clear_buffer_loop:
+    beq $t1, $zero, clear_buffer_exit
+    sb $zero, 0($t0)
+    addi $t0, $t0, 1
+    addi $t1, $t1, -1
+    j clear_buffer_loop
+clear_buffer_exit:
+    jr $ra
+
+.data
+    num_buffer: .space 44

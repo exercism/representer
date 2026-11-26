@@ -1,0 +1,24 @@
+bool isValid(String isbn) {
+  final cleanedIsbn = isbn.replaceAll('-', '');
+
+  if (cleanedIsbn.length != 10) return false;
+
+  final regex = RegExp(r'^\d{9}[0-9X]$');
+  if (!regex.hasMatch(cleanedIsbn)) return false;
+
+  int sum = 0;
+  for (int i = 0; i < 10; i++) {
+    final char = cleanedIsbn[i];
+    int value;
+
+    if (i == 9 && char == 'X') {
+      value = 10;
+    } else {
+      value = int.tryParse(char) ?? 0;
+    }
+
+    sum += value * (10 - i);
+  }
+
+  return sum % 11 == 0;
+}

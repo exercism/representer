@@ -1,0 +1,16 @@
+proc clean {s} {
+    regsub -all {[\+\-\(\)\s\.]} $s {} s
+	if [regexp -- {[a-zA-Z]} $s] {error "letters not permitted"}
+	if [regexp -- {\D} $s] {error "punctuations not permitted"}
+	set l [string length $s]
+	if {$l<10} {error "must not be fewer than 10 digits"}
+	if {$l>11} {error "must not be greater than 11 digits"}
+	if {$l==11} {
+		if {[string index $s 0] != 1} {error "11 digits must start with 1"}
+		set s [string range $s 1 end]
+	}
+	lassign [lmap d {0 3} {string index $s $d}] a x
+	if {$a<2} {error "area code cannot start with [expr {$a?"one":"zero"}]"}
+	if {$x<2} {error "exchange code cannot start with [expr {$x?"one":"zero"}]"}
+	return $s
+}

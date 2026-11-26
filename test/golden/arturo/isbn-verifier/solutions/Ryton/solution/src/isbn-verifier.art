@@ -1,0 +1,21 @@
+;ISBN
+valid?: function [isbn][
+    nrs_string: isbn | replace ["-"," "] ""  ; clean spaces and -
+    nrs:  (split.every:1 nrs_string)
+
+    ; safety exits
+    HasLetter?: match.count nrs_string {/[A-W,Y-Z]+/}
+    unless (zero? HasLetter?)  [return false] ; bail if non letter except for X
+    unless (10=size nrs_string) [return false] ; bail if not exactly len 10 (can include X)
+    
+    ; calc
+    isbn_calc_result:   (reverse nrs)
+                            | map.with:'i 'v [
+                                    ;print ~"debug |to :integer v|*|(express inc i)|= | (to :integer v)*(inc i)|"
+                                    if all? @[zero? i equal? v "X"] [v: "10"] ; replace the right X with 10.
+                                    if (equal? v "X") [return false]  ;any other X is fake.
+                                    (to :integer v)*(inc i)
+                                    ]
+                            | sum
+    return  zero? (mod isbn_calc_result 11 )
+]

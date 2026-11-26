@@ -1,0 +1,13 @@
+proc matrixFrom {inputString} {
+    set rows [split $inputString "\n"]
+    set matrix [lmap r $rows {split $r}]
+    return $matrix
+}
+
+proc row {matrix n} {
+    return [lindex $matrix $n-1 ]
+}
+
+proc column {matrix n} {
+    return [lmap r $matrix { lindex $r $n-1 }]
+}

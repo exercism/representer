@@ -1,0 +1,35 @@
+CLASS zcl_darts DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS score
+      IMPORTING
+        x             TYPE f
+        y             TYPE f
+      RETURNING
+        VALUE(result) TYPE i.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+
+CLASS zcl_darts IMPLEMENTATION.
+  METHOD score.
+
+    DATA val TYPE f.  
+    val = sqrt( x * x + y * y ).
+    IF val <= 1.
+      result = 10.
+    ELSEIF val <= 5.
+      result = 5.
+    ELSEIF val <= 10.
+      result = 1.
+    ELSE.
+      result = 0.
+    ENDIF.
+
+  ENDMETHOD.
+ENDCLASS.

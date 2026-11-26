@@ -1,0 +1,19 @@
+(import (rnrs))
+
+(define (char-octal? c)
+    (char<=? #\0 c #\7))
+
+(define (char->decimal c)
+    (- (char->integer c) (char->integer #\0)))
+
+(define (to-decimal s)
+    (letrec (
+        (loop (lambda (digits acc)
+            (if (null? digits)
+                acc
+                (if (char-octal? (car digits))
+                    (loop (cdr digits) (+ (* acc 8) (char->decimal (car digits))))
+                    0))))
+    )
+    (loop (string->list s) 0)
+))

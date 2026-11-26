@@ -1,0 +1,53 @@
+module matrix
+implicit none
+contains
+function row ( matrix , dims , i ) result ( r )
+integer , dimension ( 2 ), intent ( in ) :: dims
+character ( len =* ), dimension ( dims ( 1 )), intent ( in ) :: matrix
+integer , intent ( in ) :: i
+integer , dimension ( dims ( 2 )) :: r
+integer :: j , start_pos , end_pos , k
+start_pos = 1
+do j = 1 , dims ( 2 )
+end_pos = index ( matrix ( i )( start_pos :), "' '" )
+if ( end_pos == 0 ) then
+read ( matrix ( i )( start_pos :), * ) r ( j )
+else
+end_pos = start_pos + end_pos - 2
+read ( matrix ( i )( start_pos : end_pos ), * ) r ( j )
+start_pos = end_pos + 2
+end if
+end do
+end function
+function column ( matrix , dims , j ) result ( c )
+integer , dimension ( 2 ), intent ( in ) :: dims
+character ( len =* ), dimension ( dims ( 1 )), intent ( in ) :: matrix
+integer , intent ( in ) :: j
+integer , dimension ( dims ( 1 )) :: c
+integer :: i , k , start_pos , current_col , pos
+character ( len = :), allocatable :: temp_str
+do i = 1 , dims ( 1 )
+temp_str = trim ( adjustl ( matrix ( i )))
+current_col = 1
+start_pos = 1
+do while ( current_col < j )
+pos = index ( temp_str ( start_pos :), "' '" )
+if ( pos == 0 ) then
+exit
+end if
+start_pos = start_pos + pos
+current_col = current_col + 1
+end do
+if ( current_col == j ) then
+pos = index ( temp_str ( start_pos :), "' '" )
+if ( pos == 0 ) then
+read ( temp_str ( start_pos :), * ) c ( i )
+else
+read ( temp_str ( start_pos : start_pos + pos -2 ), * ) c ( i )
+end if
+else
+c ( i ) = 0
+end if
+end do
+end function
+end module

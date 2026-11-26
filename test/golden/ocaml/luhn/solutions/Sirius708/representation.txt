@@ -1,0 +1,17 @@
+open Base
+let valid s =
+let digits = String . to_list s
+|> List . filter ~ f : Char . is_digit
+|> List . map ~ f : ( fun c -> Char . to_int c - Char . to_int ' 0 ' ) in
+String . for_all s ~ f : ( fun c -> Char . is_digit c || Char . is_whitespace c )
+&& List . length digits > 1
+&& List . rev digits
+|> List . mapi ~ f : ( fun i d -> (
+if i % 2 = 1 then begin
+let double = d * 2 in
+if double > 9 then double - 9
+else double
+end else d
+))
+|> List . fold_left ~ init : 0 ~ f : ( + )
+|> ( fun sum -> sum % 10 = 0 )

@@ -1,0 +1,38 @@
+"
+Implementation
+"
+Class {
+	#name : #Allergies,
+	#superclass : #Object,
+	#instVars : [
+		'allergyMap'
+	],
+	#category : #'Exercise@Allergies'
+}
+
+{ #category : #implementation }
+Allergies >> allergicToItem: anItem forScore: aScore [
+	(aScore between: 1 and: 255) ifFalse: [ ^ false ].
+	^ (aScore & (self allergyMap keyAtValue: anItem)) > 0.
+]
+
+{ #category : #implementation }
+Allergies >> allergyListForScore: aNumber [
+	^ (self allergyMap keys select: [ :k | k = (k & aNumber) ] thenCollect: [ :k | self allergyMap at: k ]) .
+]
+
+{ #category : #accessing }
+Allergies >> allergyMap [
+	allergyMap ifNil: [ 
+		allergyMap := OrderedDictionary newFrom: { 
+			1 -> 'eggs' . 
+			2 -> 'peanuts' . 
+			4 -> 'shellfish' . 
+			8 -> 'strawberries' .
+			16 -> 'tomatoes' .
+			32 -> 'chocolate' .
+			64 -> 'pollen' .
+			128 -> 'cats' }
+	].
+	^ allergyMap.
+]

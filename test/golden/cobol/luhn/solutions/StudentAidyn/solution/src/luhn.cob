@@ -1,0 +1,59 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. luhn.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       REPOSITORY. FUNCTION ALL INTRINSIC.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-CARD-NUMBER PIC X(32).
+       01 WS-CARD-DIGITS PIC 9(32).
+       01 WS-CHECKSUM PIC 9(2).
+       01 WS-VALID PIC X(5).
+       01 WS-INDEX PIC 9(2).
+       01 WS-LEN PIC 9(2).
+       01 WS-DOUBLE PIC 9(2).
+       
+       PROCEDURE DIVISION.
+       LUHN.
+         DISPLAY WS-CARD-NUMBER
+         MOVE "VALID" TO WS-VALID
+         MOVE FUNCTION REVERSE(FUNCTION TRIM(WS-CARD-NUMBER)) 
+         TO WS-CARD-NUMBER
+         MOVE ZERO TO WS-INDEX, WS-DOUBLE
+         MOVE LENGTH OF FUNCTION TRIM(WS-CARD-NUMBER) TO WS-LEN
+         DISPLAY WS-LEN
+         DISPLAY WS-CARD-NUMBER         
+         PERFORM UNTIL WS-INDEX > WS-LEN
+            ADD 1 TO WS-INDEX
+      * IF The current value is NOT a number add 1 to the counter
+            PERFORM UNTIL 
+            FUNCTION TEST-NUMVAL(WS-CARD-NUMBER(WS-INDEX:1)) = 0
+            OR WS-INDEX > WS-LEN
+               IF WS-CARD-NUMBER(WS-INDEX:1) =  SPACE
+                  DISPLAY WS-INDEX
+               ELSE
+                  DISPLAY WS-CARD-NUMBER(WS-INDEX:1)
+                  MOVE "FALSE" TO WS-VALID
+               END-IF
+               ADD 1 TO WS-INDEX
+            END-PERFORM
+      * IF it is a double number then DOUBLE ELSE JUST ADD
+            ADD 1 TO WS-DOUBLE
+            MOVE WS-CARD-NUMBER(WS-INDEX:1) TO WS-CHECKSUM
+            IF WS-DOUBLE = 2
+               MOVE ZERO TO WS-DOUBLE
+               COMPUTE WS-CHECKSUM = WS-CHECKSUM + WS-CHECKSUM
+               IF WS-CHECKSUM > 9
+                  SUBTRACT 9 FROM WS-CHECKSUM
+               END-IF
+            END-IF
+            DISPLAY  WS-CARD-DIGITS,  " + ", WS-CHECKSUM
+            ADD WS-CHECKSUM TO WS-CARD-DIGITS
+         END-PERFORM
+         MOVE FUNCTION TRIM(WS-CARD-DIGITS) TO WS-CARD-DIGITS
+         DISPLAY "CARD DIGITS: ", WS-CARD-DIGITS
+         IF FUNCTION MOD(WS-CARD-DIGITS, 10) > 0 OR 
+         (WS-LEN = 1)
+            MOVE "FALSE" TO WS-VALID
+         END-IF.
+

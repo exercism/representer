@@ -1,0 +1,22 @@
+/**
+* Your implmentation of the SumOfMultiples exercise
+*/
+component {
+
+	/**
+	* @returns
+	*/
+	function sum( array factors, limit ) {
+		var list = '';
+		for (i = 1; i < limit; i++) {
+			arrayEach(factors, function(factor) {
+				if ( i mod factor eq 0 ) {
+					list = listAppend(list, i);
+				}
+			})
+		}
+		list = listRemoveDuplicates(list);
+		return arraySum(listToArray(list));
+	}
+
+}

@@ -1,0 +1,24 @@
+section .text
+global egg_count
+egg_count:
+    xor rax, rax
+    mov rbx, rdi
+
+.count:
+    cmp rbx, 0 
+    jle .return
+
+    mov rdx, rbx
+    shr ebx, 1
+    test rdx, 1
+    jz .count
+    inc rax
+
+    jmp .count
+
+.return:
+    ret
+
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

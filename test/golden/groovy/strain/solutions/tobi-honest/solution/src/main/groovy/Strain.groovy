@@ -1,0 +1,14 @@
+class Strain {
+
+     static Collection keep(Collection collection, Closure predicate) {
+        Collection result = []
+        collection.each { if(predicate.call(it)){result.add(it)}}
+        return result
+    }
+
+    static Collection discard(Collection collection, Closure predicate) {
+        Collection result = []
+        collection.each { if(!predicate.call(it)){result.add(it)}}
+        return result
+    }
+}

@@ -1,0 +1,46 @@
+import Foundation
+enum Week : String {
+case first , second , third , fourth , last , teenth
+func findNext ( day : String , from : Date ) -> Date {
+let c = Calendar . current
+var curr = from
+while true {
+let comp = c . component ( . weekday , from : curr )
+if c . weekdaySymbols [ comp - 1 ] == day { break }
+curr = c . date ( byAdding : . day , value : 1 , to : curr ) !
+}
+return curr
+}
+func find ( day : String , in month : Int , of year : Int ) -> String {
+let fmt = DateFormatter ()
+fmt . dateFormat = "\"yyyy-MM-dd\""
+let c = Calendar . current
+var currDate = fmt . date ( from : "\"\\(" year )-\( month < 10 ? "\"0\"" : "\"\")\\(" month )-01" ) !
+currDate = findNext ( day : day , from : currDate )
+if self == . first { return fmt . string ( from : currDate ) }
+currDate = findNext ( day : day , from : c . date ( byAdding : . day , value : 1 , to : currDate ) ! )
+if self == . second { return fmt . string ( from : currDate ) }
+if self == . teenth && ( 13 ... 19 ) . contains ( c . component ( . day , from : currDate )) {
+return fmt . string ( from : currDate )
+}
+currDate = findNext ( day : day , from : c . date ( byAdding : . day , value : 1 , to : currDate ) ! )
+if self == . third { return fmt . string ( from : currDate ) }
+if self == . teenth && ( 13 ... 19 ) . contains ( c . component ( . day , from : currDate )) {
+return fmt . string ( from : currDate )
+}
+currDate = findNext ( day : day , from : c . date ( byAdding : . day , value : 1 , to : currDate ) ! )
+if self == . fourth { return fmt . string ( from : currDate ) }
+let fourthCopy = currDate
+currDate = findNext ( day : day , from : c . date ( byAdding : . day , value : 1 , to : currDate ) ! )
+if c . component ( . month , from : currDate ) != c . component ( . month , from : fourthCopy ) {
+return fmt . string ( from : fourthCopy )
+}
+return fmt . string ( from : currDate )
+}
+}
+class Meetup {
+let description : String
+init ( year : Int , month : Int , week : String , weekday : String ) {
+description = Week ( rawValue : week ) !. find ( day : weekday , in : month , of : year )
+}
+}

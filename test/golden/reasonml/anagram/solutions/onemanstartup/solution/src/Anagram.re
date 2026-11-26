@@ -1,0 +1,10 @@
+let normalize = str =>
+  str |> Js.String.split("") |> Js.Array.sortInPlace |> Js.Array.join;
+
+let isAnagramOf = (word, candidate) => {
+  let word = String.lowercase(word);
+  let candidate = String.lowercase(candidate);
+  word != candidate && normalize(word) == normalize(candidate);
+};
+
+let anagrams = (word, strList) => List.filter(isAnagramOf(word), strList);

@@ -1,0 +1,36 @@
+-- local dbg = require("debugger")
+-- dbg.auto_where = 2
+
+
+local SpaceAge = {}
+
+local Seconds = 31557600
+local Years = {
+  mercury = 0.2408467,
+  venus = 0.61519726,
+  earth = 1.0,
+  mars = 1.8808158,
+  jupiter = 11.862615,
+  saturn = 29.447498,
+  uranus = 84.016846,
+  neptune = 164.79132,
+}
+
+local function two(n)
+  return tonumber(string.format("%.2f", n))
+end
+
+function SpaceAge:new(secs)
+  local secs = secs/Seconds
+  local object = {}
+  for planet, factor in pairs(Years) do
+    object['on_' .. planet] = function()
+      return two(secs / factor)
+    end
+  end
+  return setmetatable(object, {
+    __index = function() error('not a planet') end
+  })
+end
+
+return SpaceAge

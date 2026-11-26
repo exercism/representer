@@ -1,0 +1,38 @@
+section .text
+section .text
+global find
+find:
+mov r11 , rdx
+xor rdx , rdx
+xor r8 , r8
+mov r10 , rsi
+.loop:
+cmp r8 , r10
+jge .not_found
+mov rax , r10
+sub rax , r8
+shr rax , 1
+add rax , r8
+mov r9 , rax
+mov eax , dword [ rdi + 4 * r9 ]
+cmp rax , r11
+jz .found
+jg .move_left
+mov r8 , r9
+inc r8
+jmp .loop
+.move_left:
+mov r10 , r9
+jmp .loop
+.found:
+mov rax , r9
+ret
+.not_found:
+mov rax , - 1
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

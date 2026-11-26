@@ -1,0 +1,142 @@
+#ifndef SAY_H
+#define SAY_H
+#include <stdint.h>
+int say ( int64_t input , char ** ans );
+#endif
+#include "\"say.h\""
+#include "\"say.h\""
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define ENGLISH
+#if defined(ENGLISH)
+const char * MINUS = "\"minus\"" ;
+const char * ONES [] = { "\"zero\"" , "\"one\"" , "\"two\"" , "\"three\"" , "\"four\"" ,
+"\"five\"" , "\"six\"" , "\"seven\"" , "\"eight\"" , "\"nine\"" };
+const char * TEENS [] = { "\"ten\"" , "\"eleven\"" , "\"twelve\"" , "\"thirteen\"" ,
+"\"fourteen\"" , "\"fifteen\"" , "\"sixteen\"" , "\"seventeen\"" ,
+"\"eighteen\"" , "\"nineteen\"" };
+const char * TWENTEENS [] = { NULL };
+const char * TENS [] = { "\"ten\"" , "\"twenty\"" , "\"thirty\"" , "\"forty\"" , "\"fifty\"" ,
+"\"sixty\"" , "\"seventy\"" , "\"eighty\"" , "\"ninety\"" };
+const char * HUNDREDS [] = { NULL };
+const char * THOUSANDS [] = { NULL };
+const char * MILLIONS [] = { NULL };
+const char * BILLIONS [] = { NULL };
+const char * HUNDRED = "\"hundred\"" ;
+const char * THOUSAND = "\"thousand\"" ;
+const char * MILLION = "\"million\"" ;
+const char * BILLION = "\"billion\"" ;
+const char * DEC_SEP = "\"-\"" ;
+#elif defined(SPANISH)
+const char * MINUS = "\"menos\"" ;
+const char * ONES [] = { "\"cero\"" , "\"uno\"" , "\"dos\"" , "\"tres\"" , "\"cuatro\"" ,
+"\"cinco\"" , "\"seis\"" , "\"siete\"" , "\"ocho\"" , "\"nueve\"" };
+const char * TEENS [] = { "\"diez\"" , "\"once\"" , "\"doce\"" , "\"trece\"" ,
+"\"catorce\"" , "\"quince\"" , "\"diecis\u00E9is\"" , "\"diecisiete\"" ,
+"\"dieciocho\"" , "\"diecinueve\"" };
+const char * TWENTEENS [] = {
+"\"veinte\"" , "\"veintiuno\"" , "\"veintid\u00F3s\"" , "\"veintitres\"" , "\"veinticuatro\"" ,
+"\"veinticinco\"" , "\"veintiseis\"" , "\"veintisiete\"" , "\"veintiocho\"" , "\"veintinueve\"" };
+const char * TENS [] = { "\"diez\"" , "\"veinte\"" , "\"treinta\"" , "\"cuarenta\"" , "\"cincuenta\"" ,
+"\"sesenta\"" , "\"setenta\"" , "\"ochenta\"" , "\"noventa\"" };
+const char * HUNDREDS [] = {
+"\"cien\"" , "\"doscientos\"" , "\"trescientos\"" , "\"cuatrocientos\"" , "\"quinientos\"" ,
+"\"seiscientos\"" , "\"setecientos\"" , "\"ochocientos\"" , "\"novecientos\"" ,
+};
+const char * THOUSANDS [] = { "\"mil\"" };
+const char * MILLIONS [] = { "\"un mill\u00F3n\"" };
+const char * BILLIONS [] = { "\"mil mill\u00F3n\"" };
+const char * HUNDRED = "\"cien\"" ;
+const char * THOUSAND = "\"mil\"" ;
+const char * MILLION = "\"mill\u00F3nes\"" ;
+const char * BILLION = "\"mil mill\u00F3nes\"" ;
+const char * DEC_SEP = "\" y \"" ;
+#endif
+const int64_t MAX = 999999999999 ;
+#if defined(NEGATIVE_NUMBERS)
+const int64_t MIN = - MAX ;
+#else
+const int64_t MIN = 0 ;
+#endif
+static size_t inner ( const char * sep , int64_t input , char * result );
+static size_t convert ( const char * sep , int64_t prefix , const char * with ,
+const char * next_sep , int64_t next , char * result );
+int say ( int64_t input , char ** ans ) {
+if ( input < MIN || input > MAX ) {
+return - 1 ;
+}
+size_t len = inner ( NULL , input , NULL );
+* ans = malloc (( len + 1 ) * sizeof ( char ));
+inner ( NULL , input , * ans );
+return 0 ;
+}
+static size_t inner ( const char * sep , int64_t input , char * result ) {
+if ( input < 0 ) {
+return convert ( sep , 0 , MINUS , "\" \"" , - input , result );
+} else if ( input == 0 ) {
+return convert ( sep , 0 , sep ? "\"\"" : ONES [ 0 ], NULL , 0 , result );
+} else if ( input < 10 ) {
+return convert ( sep , 0 , ONES [ input ], NULL , 0 , result );
+} else if ( input < 20 ) {
+return convert ( sep , 0 , TEENS [ input - 10 ], NULL , 0 , result );
+} else if ( input < 30 && TWENTEENS [ 0 ]) {
+return convert ( sep , 0 , TWENTEENS [ input - 20 ], NULL , 0 , result );
+} else if ( input < 100 ) {
+return convert ( sep , 0 , TENS [ input / 10 - 1 ], DEC_SEP , input % 10 , result );
+} else if ( input < 1000 && HUNDREDS [ 0 ]) {
+return convert ( sep , 0 , HUNDREDS [ input / 100 - 1 ], "\" \"" , input % 100 , result );
+} else if ( input < 1000 ) {
+return convert ( sep , input / 100 , HUNDRED , "\" \"" , input % 100 , result );
+} else if ( input < 2000 && THOUSANDS [ 0 ]) {
+return convert ( sep , 0 , THOUSANDS [ 0 ], "\" \"" , input % 1000 , result );
+} else if ( input < 1000000 ) {
+return convert ( sep , input / 1000 , THOUSAND , "\" \"" , input % 1000 , result );
+} else if ( input < 2000000 && MILLIONS [ 0 ]) {
+return convert ( sep , 0 , MILLIONS [ 0 ], "\" \"" , input % 1000000 , result );
+} else if ( input < 1000000000 ) {
+return convert ( sep , input / 1000000 , MILLION , "\" \"" , input % 1000000 , result );
+} else if ( input < 2000000000 && BILLIONS [ 0 ]) {
+return convert ( sep , 0 , BILLIONS [ 0 ], "\" \"" , input % 1000000000 , result );
+} else if ( input < 1000000000000 ) {
+return convert ( sep , input / 1000000000 , BILLION , "\" \"" , input % 1000000000 ,
+result );
+} else {
+return 0 ;
+}
+}
+static size_t convert ( const char * sep , int64_t prefix , const char * with ,
+const char * next_sep , int64_t next , char * result ) {
+size_t len = 0 ;
+if ( prefix ) {
+len += inner ( sep , prefix , result );
+sep = NULL ;
+if ( result ) {
+result += len ;
+}
+}
+if ( prefix ) {
+len += 1 ;
+if ( result ) {
+sprintf ( result , "\" \"" );
+result += 1 ;
+}
+}
+if ( sep ) {
+len += strlen ( sep );
+if ( result ) {
+sprintf ( result , "\"%s\"" , sep );
+result += strlen ( sep );
+}
+}
+len += strlen ( with );
+if ( result ) {
+sprintf ( result , "\"%s\"" , with );
+result += strlen ( with );
+}
+if ( next ) {
+return inner ( next_sep , next , result ) + len ;
+} else {
+return len ;
+}
+}

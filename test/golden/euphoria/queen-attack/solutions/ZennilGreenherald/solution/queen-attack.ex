@@ -1,0 +1,13 @@
+include std/math.e
+
+public type queen(sequence pos)
+  return pos[1] >= 0 and pos[2] >= 0 and pos[1] < 8 and pos[2] < 8 and sequence(pos) and length(pos) = 2
+end type
+
+public function can_attack(queen wq, queen bq)
+  return bq[1] = wq[1] or bq[2] = wq[2] or is_on_diagonal(wq, bq)
+end function
+
+function is_on_diagonal(queen wq, queen bq)
+  return abs(wq[1] - bq[1]) = abs(wq[2] - bq[2])
+end function

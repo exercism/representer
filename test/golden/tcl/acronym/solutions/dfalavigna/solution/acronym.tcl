@@ -1,7 +1,0 @@
-proc abbreviate {phrase} {
-	set res {}
-	foreach word [regexp -all -inline {[A-Za-z][\w\']*} $phrase] {
-        lappend res [string trim [string toupper [string index $word 0]]]
-	}
-   	return [join $res ""]
-}

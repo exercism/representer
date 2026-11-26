@@ -1,0 +1,6 @@
+let rec accumulate = (f, list) => {
+  switch (list) {
+  | [head, ...tail] => [f(head), ...accumulate(f, tail)]
+  | [] => []
+  };
+};

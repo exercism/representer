@@ -1,0 +1,50 @@
+oo::class create Rational {
+# a: numerator, b: denominator
+variable a 0 b 1
+constructor { x y } {
+lassign [ lmap n [ list $x $y ] { expr $n }] x y
+set f [ expr { gcd ( $x , $y )}]
+lassign [ lmap n [ list $x $y ] { expr { $n / $f }}] a b
+}
+method numerator {} { return $a }
+method denominator {} { return $b }
+method negative {} { [ self class ] new $a -$b }
+method toString {} {
+format %d/%d $a $b
+}
+method recip {} {
+[ self class ] new $b $a
+}
+method add { other } {
+lassign [ lmap m { numerator denominator } { $other $m }] x y
+[ self class ] new $a*$y+$b*$x $b*$y
+}
+method sub { other } {
+tailcall my add [ $other negative ]
+}
+method mul { other } {
+lassign [ lmap m { numerator denominator } { $other $m }] x y
+[ self class ] new $a*$x $b*$y
+}
+method div { other } {
+tailcall my mul [ $other recip ]
+}
+method abs {} {
+[ self class ] new abs ( $a ) abs ( $b )
+}
+method pow { i } {
+set i [ expr $i ]
+if { $i >=0 } {
+[ self class ] new $a**$i $b**$i
+} else {
+tailcall [ my recip ] pow -$i
+}
+}
+method exprational { i } {
+expr { ( $i ** ( $a *1.0 )) ** ( 1.0/$b ) }
+}
+}
+proc tcl::mathfunc::gcd { a b } {
+if { $b ==0 } { return $a }
+tailcall gcd $b [ expr { $a %$b }]
+}

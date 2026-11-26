@@ -1,0 +1,9 @@
+object ETL {
+    fun transform(source: Map<Int, Collection<Char>>): Map<Char, Int> = buildMap() {
+        source.forEach { (score, letters) ->
+            letters.forEach { letter ->
+                put(letter.lowercaseChar(), score)
+            }
+        }
+    }
+}

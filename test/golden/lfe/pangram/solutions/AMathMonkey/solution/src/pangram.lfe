@@ -1,0 +1,7 @@
+(defmodule pangram
+  (export (pangram? 1)))
+
+(defun pangram? (s)
+  (== 26 
+    (length (lists:usort
+      (lc ((<- c (string:lowercase s)) (>= c #\a) (=< c #\z)) c)))))

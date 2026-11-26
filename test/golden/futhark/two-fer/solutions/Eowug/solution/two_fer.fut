@@ -1,1 +1,0 @@
-def two_fer: []u8 -> []u8 = \name -> "One for " ++ (if null name then "you" else name) ++ ", one for me."

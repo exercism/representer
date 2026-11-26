@@ -1,0 +1,53 @@
+(source_file
+  (package_declaration
+    (scope my) class X::CircularBuffer::BufferIsEmpty
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "Buffer is empty" })) }))
+  (package_declaration
+    (scope my) class X::CircularBuffer::BufferIsFull
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "Buffer is full" })) }))
+  (package_declaration class CircularBuffer
+    (block {
+      (variable_declaration
+        (scope has) $.capacity)
+      (variable_declaration
+        (scope has) (local_array PLACEHOLDER_1))
+      (routine_declaration method read
+        (signature "(" ")")
+        (block {
+          (unless_statement unless (array PLACEHOLDER_1)
+            (block {
+              (method_call
+                (method_call X::CircularBuffer::BufferIsEmpty . new) . throw) }))
+          (method_call (array PLACEHOLDER_1) . shift) }))
+      (routine_declaration method write
+        (signature "("
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_2))) ")")
+        (block {
+          (if_statement if
+            (binary_expression (array PLACEHOLDER_1) == $!capacity)
+            (block {
+              (method_call
+                (method_call X::CircularBuffer::BufferIsFull . new) . throw) }))
+          (method_listop_call (array PLACEHOLDER_1) . push : (scalar PLACEHOLDER_2)) }))
+      (routine_declaration method clear
+        (signature "(" ")")
+        (block {
+          (assignment (array PLACEHOLDER_1) =
+            (parenthesized_expression "(" ")")) }))
+      (routine_declaration method overwrite
+        (signature "("
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_2))) ")")
+        (block {
+          (if_statement if
+            (binary_expression (array PLACEHOLDER_1) == $!capacity)
+            (block {
+              (method_call self . read) }))
+          (method_listop_call self . write : (scalar PLACEHOLDER_2)) })) })))

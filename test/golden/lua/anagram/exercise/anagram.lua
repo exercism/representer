@@ -1,3 +1,0 @@
-local Anagram = {}
-
-return Anagram

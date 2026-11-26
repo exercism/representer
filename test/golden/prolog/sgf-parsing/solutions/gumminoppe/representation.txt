@@ -1,0 +1,26 @@
+:- use_module ( library ( dcg / basics )).
+sgf_tree ( Tree ) --> ` ( ` , sgf_node ( Tree ), ` ) ` .
+sgf_node ( sgf_tree ( properties ( Properties ), children ( Children ))) -->
+` ; ` , properties ( Properties ), children ( Children ).
+properties ([ Property | Properties ]) -->
+property ( Property ), properties ( Properties ).
+properties ([]) --> [].
+property ( Key - Values ) --> key ( Key ), values ( Values ).
+key ( Key ) --> keychars ( Cs ), { string_codes ( Key , Cs ) }.
+keychars ([ C | Cs ]) --> keychar ( C ), keychars ( Cs ).
+keychars ([ C ]) --> keychar ( C ).
+keychar ( C ) --> [ C ], { between ( 65 , 90 , C ) }.
+values ([ Value | Values ]) --> value ( Value ), values ( Values ).
+values ([ Value ]) --> value ( Value ).
+value ( Value ) --> ` [ ` , valuechars ( Cs ), ` ] ` , { string_codes ( Value , Cs ) }.
+valuechars ( Cs ) --> `\\\ n ` , valuechars ( Cs ).
+valuechars ([ C | Cs ]) --> `\\` , valuechar ( C ), valuechars ( Cs ).
+valuechars ([ C | Cs ]) --> valuechar ( C ), { C = \ = 93 }, valuechars ( Cs ).
+valuechars ([]) --> [].
+valuechar ( 32 ) --> `\ t ` .
+valuechar ( C ) --> [ C ].
+children ([ Child | Children ]) --> sgf_tree ( Child ), children ( Children ).
+children ([ Child ]) --> sgf_node ( Child ).
+children ([]) --> [].
+parse ( Input , Tree ) :-
+string_codes ( Input , Codes ), phrase ( sgf_tree ( Tree ), Codes ), !.

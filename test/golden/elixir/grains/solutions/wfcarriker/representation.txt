@@ -1,0 +1,73 @@
+(source
+  (call defmodule
+    (arguments Grains)
+    (do_block
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call square
+                (arguments pos_integer)) ::
+              (binary_operator
+                (tuple :ok pos_integer) |
+                (tuple :error
+                  (call
+                    (dot String . t)
+                    (arguments))))))))
+      (call def
+        (arguments
+          (binary_operator
+            (call square
+              (arguments (variable PLACEHOLDER_1))) when
+            (binary_operator
+              (binary_operator PLACEHOLDER_1 < 1) or
+              (binary_operator PLACEHOLDER_1 > 64))))
+        (do_block
+          (tuple :error "The requested square must be between 1 and 64 (inclusive)")))
+      (call def
+        (arguments
+          (call square
+            (arguments 1)))
+        (do_block
+          (tuple :ok 1)))
+      (call def
+        (arguments
+          (call square
+            (arguments (variable PLACEHOLDER_1))))
+        (do_block
+          (binary_operator square =
+            (call
+              (dot Enum . reduce)
+              (arguments
+                (binary_operator 2 .. PLACEHOLDER_1) 1
+                (anonymous_function
+                  (stab_clause
+                    (arguments _ square) ->
+                    (body
+                      (binary_operator square * 2)))))))
+          (tuple :ok square)))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator total ::
+              (tuple :ok pos_integer)))))
+      (call def
+        (arguments total)
+        (do_block
+          (binary_operator
+            (tuple _ total) =
+            (call
+              (dot Enum . reduce)
+              (arguments
+                (binary_operator 2 .. 64)
+                (tuple 1 1)
+                (anonymous_function
+                  (stab_clause
+                    (arguments _
+                      (tuple square total)) ->
+                    (body
+                      (tuple
+                        (binary_operator square * 2)
+                        (binary_operator total +
+                          (binary_operator square * 2)))))))))
+          (tuple :ok total))))))

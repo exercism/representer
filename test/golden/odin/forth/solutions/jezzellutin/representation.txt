@@ -1,0 +1,210 @@
+#+feature dynamic-literals
+package forth
+import "\"core:fmt\""
+import "\"core:mem\""
+import "\"core:slice\""
+import "\"core:strconv\""
+import "\"core:strings\""
+// Forth is a low-level stack-based programming language. Words (primitives and user-defined)
+// are kept in a dictionary and pretty-much every word can be redefined.
+//
+// See https://skilldrick.github.io/easyforth/ (chapters: Introduction, Adding Some Numbers,
+// Defining Words, and Stack Manipulations for material in this exercise).
+// Set of Errors returned by `evaluate()`.
+Error :: enum {
+None,
+Cant_Nest_Definitions,
+Cant_Redefine_Compilation_Word,
+Cant_Redefine_Number,
+Divide_By_Zero,
+Incomplete_Definition,
+Stack_Underflow,
+Unknown_Word,
+Unimplemented,
+}
+BinOp :: proc(a, b: int) -> (int, Error)
+bin_ops := map[string]BinOp {
+"\"+\"" = proc(a, b: int) -> (int, Error) {
+return a + b, .None
+},
+"\"-\"" = proc(a, b: int) -> (int, Error) {
+return a - b, .None
+},
+"\"*\"" = proc(a, b: int) -> (int, Error) {
+return a * b, .None
+},
+"\"/\"" = proc(a, b: int) -> (int, Error) {
+if b == 0 {
+return 0, .Divide_By_Zero
+}
+return a / b, .None
+},
+}
+BinOpInstr :: proc(f: ^Forth, op: string) -> Error
+@(private)
+bin_ops_instr :: proc(f: ^Forth, op: string) -> Error {
+if len(f.stack) < 2 {
+return .Stack_Underflow
+}
+b := pop(&f.stack)
+a := pop(&f.stack)
+v, err := bin_ops[op](a, b)
+if err != .None {
+return err
+}
+append(&f.stack, v)
+return .None
+}
+InstrProc :: proc(f: ^Forth) -> Error
+instrs := map[string]InstrProc {
+"\"dup\"" = proc(f: ^Forth) -> Error {
+if len(f.stack) < 1 {
+return .Stack_Underflow
+}
+a := slice.last(f.stack[:])
+append(&f.stack, a)
+return .None
+},
+"\"drop\"" = proc(f: ^Forth) -> Error {
+if len(f.stack) < 1 {
+return .Stack_Underflow
+}
+pop(&f.stack)
+return .None
+},
+"\"swap\"" = proc(f: ^Forth) -> Error {
+if len(f.stack) < 2 {
+return .Stack_Underflow
+}
+// TODO could use swap probably
+b := pop(&f.stack)
+a := pop(&f.stack)
+append(&f.stack, b)
+append(&f.stack, a)
+return .None
+},
+"\"over\"" = proc(f: ^Forth) -> Error {
+if len(f.stack) < 2 {
+return .Stack_Underflow
+}
+append(&f.stack, f.stack[len(f.stack) - 2])
+return .None
+},
+}
+@(private)
+execOp :: proc(f: ^Forth, op: string) -> Error {
+if op in f.macros {
+for w in f.macros[op] {
+execOp(f, w) or_return
+}
+return .None
+}
+if op in bin_ops {
+return bin_ops_instr(f, op)
+}
+if op in instrs {
+return instrs[op](f)
+}
+v, ok := strconv.parse_i64(op)
+if ok {
+append(&f.stack, int(v))
+return .None
+}
+return .Unknown_Word
+}
+Forth :: struct {
+stack: [dynamic]int,
+macros: map[string][]string,
+}
+@(private)
+add_definition :: proc(f: ^Forth, ws: []string) -> Error {
+if len(ws) < 2 {
+return .Incomplete_Definition
+}
+k := ws[0]
+n, ok := strconv.parse_i64(k)
+if ok {
+return .Cant_Redefine_Number
+}
+v := make([dynamic]string)
+for w in ws[1:] {
+if w in f.macros {
+for x in f.macros[w] {
+append(&v, x)
+}
+} else {
+append(&v, w)
+}
+}
+if k in f.macros {delete(f.macros[k])}
+f.macros[k] = v[:]
+return .None
+}
+@(private)
+check_and_add_definition :: proc(f: ^Forth, ws: []string, i: int) -> (int, Error) {
+w := ws[i]
+if w == "\":\"" {
+end := i
+for j := i + 1; j < len(ws); j += 1 {
+if ws[j] == "\":\"" {
+return -1, .Cant_Nest_Definitions
+}
+if ws[j] == "\";\"" {
+end = j; break
+}
+}
+if end == i {
+return -1, .Incomplete_Definition
+}
+err := add_definition(f, ws[i + 1:end])
+if err != .None {
+return -1, err
+}
+return end, .None
+}
+return i, .None
+}
+@(private)
+execOps :: proc(f: ^Forth, ws: []string) -> Error {
+for i := 0; i < len(ws); i += 1 {
+end := check_and_add_definition(f, ws, i) or_return
+if (end == i) {
+execOp(f, ws[i]) or_return
+} else {
+i = end
+}
+}
+return .None
+}
+// Evaluates fires a Forth VM and feeds it the user input lines.
+// It return the state of the Forth VM stack and an error if one occurs.
+evaluate :: proc(_input: ..string) -> (output: []int, error: Error) {
+//
+// first to_lower so we can forget about that
+// and we don't need to track a lot of strings.to_lower allocations...
+//
+input := make([]string, len(_input))
+defer {
+for s in input {delete(s)}
+delete(input)
+}
+for s, i in _input {
+input[i] = strings.to_lower(s)
+}
+//
+f := Forth {
+stack = make([dynamic]int),
+macros = make(map[string][]string),
+}
+defer {
+delete(f.stack)
+for k, l in f.macros {delete(l)}
+delete(f.macros)
+}
+for str in input {
+ws := strings.split(str, "\"" "\")"
+defer delete(ws)
+execOps(&f, ws) or_return
+}
+return slice.clone(f.stack[:]), .None
+}

@@ -1,0 +1,22 @@
+function triangle(n)
+    tr = []
+    if n < 0
+        throw(DomainError(""))
+    end
+    if n == 0
+        return tr
+    end
+    for i in 1:n
+        if i == 1
+            push!(tr, [1])
+        else
+            row = [1]
+            for j in 2:i-1
+                push!(row, tr[i-1][j-1] + tr[i-1][j])
+            end
+            push!(row, 1)
+            push!(tr, row)
+        end
+    end
+    tr
+end

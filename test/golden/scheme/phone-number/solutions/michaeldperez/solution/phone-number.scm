@@ -1,0 +1,47 @@
+(import (rnrs))
+
+(define (phone-digits phone-number)
+  (string-filter char-numeric? phone-number))
+
+(define (starts-with ch str)
+  (eq? ch (string-ref str 0)))
+
+(define (valid-country-code phone-number)
+  (let ((len (string-length phone-number)))
+    (if (= 11 len)
+        (starts-with #\1 phone-number)
+        #t)))
+
+(define (valid-length phone-number)
+  (let ((len (string-length phone-number)))
+    (or (= 10 len)
+        (= 11 len))))
+
+(define (valid-area-code phone-number)
+  (let* ((len (string-length phone-number))
+         (idx (if (= len 10) 0 1))
+         (area-code (string-ref phone-number idx)))
+    (and (not (eq? #\0 area-code))
+         (not (eq? #\1 area-code)))))
+
+(define (valid-exchange phone-number)
+  (let* ((len (string-length phone-number))
+         (idx (if (= len 10) 3 4))
+         (exchange (string-ref phone-number idx)))
+    (and (not (eq? #\0 exchange))
+         (not (eq? #\1 exchange)))))
+
+(define (valid phone-number)
+  (let ((pn (phone-digits phone-number)))
+    (and (valid-length pn)
+         (valid-country-code pn)
+         (valid-area-code pn)
+         (valid-exchange pn))))
+
+(define (process-phone-number phone-number)
+  (let ((len (string-length phone-number)))
+    (substring phone-number (if (= 11 len) 1 0))))
+
+(define (clean phone-number)
+  (assert (valid phone-number))
+  (process-phone-number (phone-digits phone-number)))

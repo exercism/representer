@@ -1,0 +1,49 @@
+;;; meetup.el --- Meetup (exercism)  -*- lexical-binding: t; -*-
+
+(require 'time-date)
+
+(defun day-of-week (dow)
+  (cl-case dow
+    (:sunday 0)
+    (:monday 1)
+    (:tuesday 2)
+    (:wednesday 3)
+    (:thursday 4)
+    (:friday 5)
+    (:saturday 6)
+    (otherwise (error "invalid day-of-week"))))
+
+(defun days-of-week-in-that-month-and-year (year month dayofweek-kw)
+  (let* ((dow-target (day-of-week dayofweek-kw))
+         (fdom (decode-time (encode-time (list 0 0 12 1 month year 0 nil 0))
+                            0))
+         (dow (decoded-time-weekday fdom))
+         (day (1+ (mod (- dow-target dow) 7)))
+         (dim (date-days-in-month year month)))
+    (cl-loop for i from day to dim by 7
+             collect i)))
+
+(defun meetup (year month dayofweek-kw schedule-kw)
+  (let* ((matching-days (days-of-week-in-that-month-and-year
+                         year month dayofweek-kw))
+         (which-fn (cl-case schedule-kw
+                     (:first  0)
+                     (:second 1)
+                     (:third  2)
+                     (:fourth 3)
+                     (:last (lambda (days)
+                              (car (last days))))
+                     (:teenth (lambda (days)
+                                (cl-find-if (lambda (x) (<= 13 x 19))
+                                            days)))
+                     (otherwise (error "invalid schedule"))))
+         (day (if (functionp which-fn)
+                  (funcall which-fn matching-days)
+                (nth which-fn matching-days))))
+    (list year month day)))
+
+(byte-compile #'day-of-week)
+(byte-compile #'days-of-week-in-that-month-and-year)
+(byte-compile #'meetup)
+
+(provide 'meetup)

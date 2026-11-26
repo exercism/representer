@@ -1,0 +1,12 @@
+function sortquantity!(qty)
+    idx = sortperm(qty, rev=true)
+    permute!(qty, idx)
+    idx
+end
+
+sortcustomer(cust, srtperm) = cust[srtperm]
+
+function production_schedule!(cust, qty)
+    idx = sortquantity!(qty)
+    sortcustomer(cust, idx), invperm(idx)
+end

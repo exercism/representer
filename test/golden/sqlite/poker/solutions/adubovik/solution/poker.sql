@@ -1,0 +1,77 @@
+-- Schema:
+-- CREATE TABLE poker (
+--   hands  TEXT NOT NULL,   -- json array
+--   result TEXT             -- json array
+-- );
+--
+-- Task: update the poder table and set the result column based on the hands.
+
+WITH
+    card_ranks(c,n) AS (VALUES
+        ("2",2),("3",3),("4",4),("5",5),("6",6),("7",7),("8",8),("9",9),("10",10),("J",11),("Q",12),("K",13),("A",14))
+UPDATE poker
+SET result = (WITH
+    ranks(idx,hand,category) AS (
+        SELECT h.key, h.value, (WITH
+            val_suit(val,orig_val,suit) AS (
+                SELECT
+                    (SELECT n FROM card_ranks WHERE c=substr(value,1,length(value)-1)) AS val,
+                    substr(value,1,length(value)-1) AS orig_val,
+                    substr(value,length(value)) AS suit
+                FROM json_each('["'||replace(h.value,' ','","')||'"]')
+                ORDER BY val DESC
+            ),
+            orig_vals_str(s) AS (
+                SELECT group_concat(orig_val) FROM val_suit
+            ),
+            n_suits(n) AS (
+                SELECT COUNT(DISTINCT suit) FROM val_suit
+            ),
+            max_val(n) AS (
+                SELECT max(val) FROM val_suit
+            ),
+            min_val(n) AS (
+                SELECT min(val) FROM val_suit
+            ),
+            val_count(val,cnt) AS (
+                SELECT val, count(1) AS cnt FROM val_suit GROUP BY val ORDER BY cnt DESC
+            ),
+            suit_count(s) AS (
+                SELECT group_concat(cnt) FROM val_count
+            ),
+            is_weak_straight(b) AS (
+                SELECT orig_vals_str.s = 'A,5,4,3,2' FROM n_suits, orig_vals_str
+            ),
+            sorted_vals(val) AS (
+                SELECT val FROM (
+                    SELECT
+                        IIF(is_weak_straight.b AND v1.val=14, 1, v1.val) as val,
+                        (SELECT COUNT(1) FROM val_suit AS v2 WHERE v1.val = v2.val) as cnt
+                    FROM val_suit AS v1, is_weak_straight
+                )
+                ORDER BY cnt DESC, val DESC
+            )
+            SELECT CASE
+                WHEN n_suits.n = 1 AND min_val.n = 10 AND max_val.n = 14 THEN '9' -- 'royal-flush'
+                WHEN n_suits.n = 1 AND max_val.n - min_val.n = 4 THEN '8' -- 'straight-flush'
+                WHEN n_suits.n = 1 AND orig_vals_str.s = 'A,5,4,3,2' THEN '8' -- 'straight-flush'
+                WHEN suit_count.s = '4,1' THEN '7' -- 'four-of-a-kind'
+                WHEN suit_count.s = '3,2' THEN '6' -- 'full-house'
+                WHEN n_suits.n = 1 THEN '5' -- 'flush'
+                WHEN (SELECT COUNT(DISTINCT val) FROM val_suit) = 5 AND max_val.n - min_val.n = 4 THEN '4' -- 'straight'
+                WHEN orig_vals_str.s = 'A,5,4,3,2' THEN '4' -- 'straight'
+                WHEN suit_count.s = '3,1,1' THEN '3' -- 'three-of-a-kind'
+                WHEN suit_count.s = '2,2,1' THEN '2' -- 'two-pairs'
+                WHEN suit_count.s = '2,1,1,1' THEN '1' -- 'one-pairs'
+                ELSE '0' -- 'high-card'
+            END || (SELECT group_concat(printf(":%02d",val),'') FROM sorted_vals)
+            FROM n_suits, max_val, min_val, suit_count, orig_vals_str
+        )
+        FROM json_each(hands) AS h
+    )
+
+    SELECT '["' || group_concat(hand, '","') || '"]'
+    FROM ranks
+    WHERE category = (SELECT max(category) FROM ranks)
+    ORDER BY idx
+);

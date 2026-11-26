@@ -1,0 +1,46 @@
+# | Register | Usage     | Type    | Description                                                                        |
+# | -------- | --------- | ------- | ---------------------------------------------------------------------------------- |
+# | `$a0`    | input     | integer | side a                                                                             |
+# | `$a1`    | input     | integer | side b                                                                             |
+# | `$a2`    | input     | integer | side c                                                                             |
+# | `$v0`    | output    | integer | type of triangle (`0` = scalene, `1` = isoceles, `2` = equilateral, `3` = invalid) |
+# | `$t0-9`  | temporary | any     | used for temporary storage                                                         |
+
+.globl triangle
+
+triangle:
+        li $t3, 0
+        li $t4, 1
+        li $t5, 2
+        li $t6, 3
+        add $t0, $a0, $a1        #a + b
+        add $t1, $a0, $a2        #a + c
+        add $t2, $a1, $a2        #b + c
+        bgt $a2, $t0, invalid        #if c > a + b -> invalid triangle
+        bgt $a1, $t1, invalid        #if b > a + c -> invalid triangle
+        bgt $a0, $t2, invalid        #if a > b + c -> invalid triangle
+        beq $a0, $0, invalid
+        beq $a1, $0, invalid
+        beq $a2, $0, invalid
+        beq $a0, $a1, isocelesab        #a == b ?
+        beq $a0, $a2, isoceles        #a == c ?
+        beq $a1, $a2, isoceles        #b == c ?
+        move $v0, $t3
+        jr $ra
+
+isocelesab:
+        beq $a0, $a2, equilateral        #a == c ?
+        move $v0, $t4
+        jr $ra
+
+isoceles:
+        move $v0, $t4
+        jr $ra
+
+equilateral:
+        move $v0, $t5
+        jr $ra
+
+invalid:
+        move $v0, $t6
+        jr $ra

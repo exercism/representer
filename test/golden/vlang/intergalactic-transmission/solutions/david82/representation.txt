@@ -1,0 +1,85 @@
+module main
+fn transmit_sequence(data []u8) []u8 {
+if data.len == 0 {
+return []u8{}
+}
+mut result := []u8{}
+mut bit_buffer := []u8{}
+// Convert bytes to bits
+for byte_val in data {
+for i := 7; i >= 0; i-- {
+bit_buffer << u8((byte_val >> i) & 1)
+}
+}
+// Process in groups of 7 bits
+mut i := 0
+for i < bit_buffer.len {
+mut group := [8]u8{}
+// Take up to 7 bits
+for j := 0; j < 7; j++ {
+if i + j < bit_buffer.len {
+group[j] = bit_buffer[i + j]
+} else {
+group[j] = 0 // Pad with 0s
+}
+}
+// Count 1s in the 7 data bits
+mut ones := u8(0)
+for j := 0; j < 7; j++ {
+if group[j] == 1 {
+ones++
+}
+}
+// Add parity bit (1 if odd number of 1s, 0 if even)
+group[7] = ones % 2
+// Convert 8 bits to byte
+mut byte_val := u8(0)
+for k := 0; k < 8; k++ {
+byte_val = u8((byte_val << 1) | group[k])
+}
+result << byte_val
+i += 7
+}
+return result
+}
+fn decode_message(received []u8) ![]u8 {
+if received.len == 0 {
+return []u8{}
+}
+mut result := []u8{}
+mut bit_buffer := []u8{}
+// Check parity and extract data bits
+for byte_val in received {
+// Count 1s in the byte
+mut ones := u8(0)
+mut temp := byte_val
+for temp > 0 {
+if temp & 1 != 0 {
+ones++
+}
+temp >>= 1
+}
+// Check if even parity
+if ones % 2 != 0 {
+return error('wrong parity')
+}
+// Extract 7 data bits (ignore rightmost parity bit)
+for i := 6; i >= 0; i-- {
+bit_buffer << u8((byte_val >> (i + 1)) & 1)
+}
+}
+// Convert bits back to bytes
+mut i := 0
+for i < bit_buffer.len {
+if i + 7 >= bit_buffer.len {
+break // Not enough bits for a full byte
+}
+mut byte_val := u8(0)
+for j := 0; j < 8; j++ {
+byte_val = u8((byte_val << 1) | bit_buffer[i + j])
+}
+result << byte_val
+i += 8
+}
+return result
+}

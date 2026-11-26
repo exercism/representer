@@ -1,0 +1,25 @@
+
+module armstrong_numbers
+  implicit none
+contains
+
+  logical function isArmstrongNumber(i)
+    integer, intent(in) :: i
+    integer :: digits
+    integer :: sum
+    integer :: r
+  
+    digits = int(floor(log10(real(i)))) + 1
+    sum = 0
+    r = i
+
+    do while (r > 0)
+      sum = sum + (mod(r, 10) ** digits)
+      r = r / 10
+    end do
+
+    isArmstrongNumber = sum == i
+
+  end function
+
+end module

@@ -1,0 +1,18 @@
+(import (rnrs))
+
+(define (nucleotide-count dna)
+    (let loop
+      ((index (string-length dna))
+       (a 0)
+       (c 0)
+       (g 0)
+       (t 0))
+      (if (zero? index)
+        (list (cons #\A a) (cons #\C c) (cons #\G g) (cons #\T t))
+        (let ((index (- index 1)))
+          (case (string-ref dna index)
+            ((#\A) (loop index (+ a 1) c g t))
+            ((#\C) (loop index a (+ c 1) g t))
+            ((#\G) (loop index a c (+ g 1) t))
+            ((#\T) (loop index a c g (+ t 1)))
+            (else (error 'nucleotide-count "Invalid nucleotide in strand")))))))

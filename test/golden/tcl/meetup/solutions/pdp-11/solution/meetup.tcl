@@ -1,0 +1,23 @@
+proc meetup {Y m i A} {
+	set dd 1
+    switch -- $i {
+		first {set d 1}
+		second {set d 8}
+		third {set d 15}
+		fourth {set d 22}
+		last {
+			set dd -1
+			set d [clock format [clock add [clock scan $Y-$m-01] 1 month -1 day] -format %d]
+		}
+		teenth {set d 13}
+		default {error "unknown index $i"}
+	}
+	while {[weekday $Y $m $d] ne $A} {
+		incr d $dd
+	}
+	format %04d-%02d-%02d $Y $m $d
+}
+
+proc weekday {Y m d} {
+	clock format [clock scan $Y-$m-$d] -format %A
+}

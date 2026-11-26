@@ -1,0 +1,358 @@
+module ZebraData
+import public Data . Vect
+import public Data . Fin
+import public Data . List
+import public Data . Maybe
+public export data UniqueNothing a = Yes a | No | NoNothing a
+public export data Nationality = Spaniard | Norwegian | Englishman | Japanese | Ukrainian
+public export data Color = Blue | Yellow | Red | Ivory | Green
+public export data Pet = Dog | Snail | Zebra | Fox | Horse
+public export data Beverage = Tea | Coffee | Juice | Water | Milk
+public export data Hobby = Chess | Dancing | Painter | Reading | Football
+public export data Parameter = MC ( Maybe Color )
+  | MN ( Maybe Nationality )
+  | MP ( Maybe Pet )
+  | MB ( Maybe Beverage )
+  | MH ( Maybe Hobby )
+public export
+record Solution where
+  constructor MkSolution
+  drinksWater : Nationality
+  ownsZebra : Nationality
+public export
+Len : Nat
+Len = 5
+data IsHabitant : Vect Len Parameter -> Type where
+  ItIsHabitant : IsHabitant ( MC c :: MN n :: MP p :: MB b :: MH h :: Nil )
+public export
+Habitant : Type
+Habitant = DPair ( Vect Len Parameter ) ( \ v => IsHabitant v )
+public export
+Parameters : Type
+Parameters =
+  let p := ( Parameter , Fin Len )
+    in ( p , p )
+public export
+Correlated : Type
+Correlated = ( Parameters , Maybe Parameters )
+public export
+Neighborhood : Type
+Neighborhood = Vect Len Habitant
+mkHabitant : Maybe Color
+  -> Maybe Nationality
+  -> Maybe Pet
+  -> Maybe Beverage
+  -> Maybe Hobby
+  -> Habitant
+mkHabitant mc mn mp mb mh =
+  ([ MC mc , MN mn , MP mp , MB mb , MH mh ] ** ItIsHabitant )
+mkCorrelated : Parameter
+  -> Fin Len
+  -> Parameter
+  -> Fin Len
+  -> ( isSymmetric : Bool )
+  -> Correlated
+mkCorrelated p i p' i' isSymmetric =
+  let ps := (( p , i ), ( p' , i' ))
+    s := (( p' , i' ), ( p , i ))
+    in ( ps , toMaybe isSymmetric s )
+public export
+empty : Habitant
+empty = mkHabitant Nothing Nothing Nothing Nothing Nothing
+export
+replace : Parameter -> Habitant -> Habitant
+replace param ([ MC c , MN n , MP p , MB b , MH h ] ** _ ) =
+  case param of
+    MC c' => mkHabitant c' n p b h
+    MN n' => mkHabitant c n' p b h
+    MP p' => mkHabitant c n p' b h
+    MB b' => mkHabitant c n p b' h
+    MH h' => mkHabitant c n p b h'
+export
+isJust : Parameter -> Bool
+isJust p =
+  case p of
+    MC c => Maybe . isJust c
+    MB b => Maybe . isJust b
+    MN n => Maybe . isJust n
+    MH h => Maybe . isJust h
+    MP p => Maybe . isJust p
+S2_The_Englishman_lives_in_the_red_house : Habitant
+S2_The_Englishman_lives_in_the_red_house =
+  mkHabitant ( Just Red ) ( Just Englishman ) Nothing Nothing Nothing
+S3_The_Spaniard_owns_the_dog : Habitant
+S3_The_Spaniard_owns_the_dog =
+  mkHabitant Nothing ( Just Spaniard ) ( Just Dog ) Nothing Nothing
+S4_The_person_in_the_green_house_drinks_coffee : Habitant
+S4_The_person_in_the_green_house_drinks_coffee =
+  mkHabitant ( Just Green ) Nothing Nothing ( Just Coffee ) Nothing
+S5_The_Ukrainian_drinks_tea : Habitant
+S5_The_Ukrainian_drinks_tea =
+  mkHabitant Nothing ( Just Ukrainian ) Nothing ( Just Tea ) Nothing
+S6_The_green_house_is_immediately_to_the_right_of_ivory_house : Correlated
+S6_The_green_house_is_immediately_to_the_right_of_ivory_house =
+  mkCorrelated ( MC $ Just Ivory ) 0 ( MC $ Just Green ) 0 False
+S7_The_snail_owner_likes_to_go_dancing : Habitant
+S7_The_snail_owner_likes_to_go_dancing =
+  mkHabitant Nothing Nothing ( Just Snail ) Nothing ( Just Dancing )
+S8_The_person_in_the_yellow_house_is_a_painter : Habitant
+S8_The_person_in_the_yellow_house_is_a_painter =
+  mkHabitant ( Just Yellow ) Nothing Nothing Nothing ( Just Painter )
+S9_The_person_in_the_middle_house_drinks_milk : Habitant
+S9_The_person_in_the_middle_house_drinks_milk =
+  mkHabitant Nothing Nothing Nothing ( Just Milk ) Nothing
+S10_The_Norwegian_lives_in_the_first_house : Habitant
+S10_The_Norwegian_lives_in_the_first_house =
+  mkHabitant Nothing ( Just Norwegian ) Nothing Nothing Nothing
+S11_The_person_who_enjoys_reading_lives_in_the_house_next_to_the_person_with_the_fox :
+  Correlated
+S11_The_person_who_enjoys_reading_lives_in_the_house_next_to_the_person_with_the_fox =
+  mkCorrelated ( MH $ Just Reading ) 4 ( MP $ Just Fox ) 2 True
+S12_The_painter's_house_is_next_to_the_house_with_the_horse : Correlated
+S12_The_painter's_house_is_next_to_the_house_with_the_horse =
+  mkCorrelated ( MH $ Just Painter ) 4 ( MP $ Just Horse ) 2 True
+S13_The_person_who_plays_football_drinks_orange_juice : Habitant
+S13_The_person_who_plays_football_drinks_orange_juice =
+  mkHabitant Nothing Nothing Nothing ( Just Juice ) ( Just Football )
+S14_The_Japanese_person_play_chess : Habitant
+S14_The_Japanese_person_play_chess =
+  mkHabitant Nothing ( Just Japanese ) Nothing Nothing ( Just Chess )
+S15_The_norwegian_lives_next_to_the_blue_house : Correlated
+S15_The_norwegian_lives_next_to_the_blue_house =
+  mkCorrelated ( MN $ Just Norwegian ) 1 ( MC $ Just Blue ) 0 True
+public export
+habitants : List Habitant
+habitants =
+  [ S2_The_Englishman_lives_in_the_red_house
+  , S3_The_Spaniard_owns_the_dog
+  , S4_The_person_in_the_green_house_drinks_coffee
+  , S5_The_Ukrainian_drinks_tea
+  , S7_The_snail_owner_likes_to_go_dancing
+  , S8_The_person_in_the_yellow_house_is_a_painter
+  , S13_The_person_who_plays_football_drinks_orange_juice
+  , S14_The_Japanese_person_play_chess
+  ]
+public export
+correlated : List Correlated
+correlated =
+  [ S6_The_green_house_is_immediately_to_the_right_of_ivory_house
+  , S11_The_person_who_enjoys_reading_lives_in_the_house_next_to_the_person_with_the_fox
+  , S12_The_painter's_house_is_next_to_the_house_with_the_horse
+  , S15_The_norwegian_lives_next_to_the_blue_house
+  ]
+public export
+neighborhood : Neighborhood
+neighborhood =
+  [ S10_The_Norwegian_lives_in_the_first_house
+  , empty
+  , S9_The_person_in_the_middle_house_drinks_milk
+  , empty
+  , empty
+  ]
+module ZebraImplementation
+import ZebraData
+export
+Eq Color where
+  Blue == Blue = True
+  Yellow == Yellow = True
+  Red == Red = True
+  Ivory == Ivory = True
+  Green == Green = True
+  _ == _ = False
+export
+Eq Nationality where
+  Spaniard == Spaniard = True
+  Norwegian == Norwegian = True
+  Englishman == Englishman = True
+  Japanese == Japanese = True
+  Ukrainian == Ukrainian = True
+  _ == _ = False
+export
+Eq Pet where
+  Dog == Dog = True
+  Snail == Snail = True
+  Zebra == Zebra = True
+  Fox == Fox = True
+  Horse == Horse = True
+  _ == _ = False
+export
+Eq Beverage where
+  Tea == Tea = True
+  Coffee == Coffee = True
+  Water == Water = True
+  Juice == Juice = True
+  Milk == Milk = True
+  _ == _ = False
+export
+Eq Hobby where
+  Football == Football = True
+  Chess == Chess = True
+  Painter == Painter = True
+  Dancing == Dancing = True
+  Reading == Reading = True
+  _ == _ = False
+public export
+Eq Parameter where
+  MC c == MC c' = c == c'
+  MB b == MB b' = b == b'
+  MN n == MN n' = n == n'
+  MH h == MH h' = h == h'
+  MP p == MP p' = p == p'
+  _ == _ = False
+export
+Eq Habitant where ( h ** _ ) == ( h' ** _ ) = h == h'
+module ZebraPuzzle
+import public ZebraData
+import ZebraImplementation
+fitParameter : Parameter
+  -> ( parameterIndex : Fin Len )
+  -> Habitant
+  -> ( neighborhood : UniqueNothing ( Vect k Habitant ))
+  -> UniqueNothing $ Vect ( S k ) Habitant
+fitParameter p pi h @ ( h' ** _ ) sh =
+  case ( isJust ( index pi h' ), sh ) of
+    ( False , NoNothing sh' ) => Yes $ replace p h :: sh'
+    ( True , NoNothing sh' ) => NoNothing $ h :: sh'
+    ( True , Yes sh' ) => Yes $ h :: sh'
+    ( False , Yes sh' ) => No
+    ( _ , No ) => No
+foldFit : Parameter
+  -> ( parameterIndex : Fin Len )
+  -> ( neighborhood : Vect l Habitant )
+  -> UniqueNothing $ Vect l Habitant
+foldFit p pi Nil = NoNothing []
+foldFit p pi ( h :: hs ) = fitParameter p pi h $ foldFit p pi hs
+succFit : ( Parameter , Fin Len )
+  -> Neighborhood
+  -> Maybe Neighborhood
+  -> Maybe Neighborhood
+succFit ( p , pIndex ) n mn =
+  case ( foldFit p pIndex ( fromMaybe n mn ), mn ) of
+    ( Yes n' , _ ) => Just n'
+    ( _ , Just n' ) => Just n'
+    ( _ , _ ) => Nothing
+fitCorrelated : List Correlated -> Neighborhood -> Maybe Neighborhood
+fitCorrelated Nil _ = Nothing
+fitCorrelated (( params , _ ) :: cs ) n =
+  let ( p , p' ) := params
+    in succFit p n $ succFit p' n $ fitCorrelated cs n
+connectParameters : Parameters
+  -> ( neighborhood : Vect ( S n ) Habitant )
+  -> Maybe $ Vect ( S n ) Habitant
+connectParameters _ ( _ :: Nil ) = Nothing
+connectParameters ( pi1 , pi2 ) n @ ( h1 :: h2 :: hs ) =
+  let ( p1 , index1 ) := pi1
+    ( p2 , index2 ) := pi2
+    ( h1' ** _ ) := h1
+    ( h2' ** _ ) := h2
+    p1' := index index1 h1'
+    p2' := index index2 h2'
+    allready := p1' == p1 && p2' == p2
+    connect1 := isJust p1' == False && p2 == p2'
+    connect2 := p1' == p1 && isJust p2' == False
+    in ( toMaybe allready n )
+  <|> ( toMaybe connect1 $ replace p1 h1 :: h2 :: hs )
+  <|> ( toMaybe connect2 $ h1 :: replace p2 h2 :: hs )
+  <|> [ | Just h1 :: connectParameters ( pi1 , pi2 ) ( h2 :: hs ) | ]
+connectCorrelated' : List Correlated
+  -> List Correlated
+  -> Neighborhood
+  -> List ( List Correlated , Neighborhood )
+connectCorrelated' Nil _ _ = []
+connectCorrelated' ( c @ ( params , symParams ) :: cs ) sc n =
+  let cs' := sc ++ cs
+    in recConnect cs' params ++ recConnectSym cs' symParams
+  where
+    recConnect : List Correlated
+      -> Parameters
+      -> List ( List Correlated , Neighborhood )
+    recConnect cs' ps =
+      case connectParameters ps n of
+        Nothing => connectCorrelated' cs ( c :: sc ) n
+        Just nps => ( cs' , nps ) :: connectCorrelated' cs sc nps
+    recConnectSym : List Correlated
+      -> Maybe Parameters
+      -> List ( List Correlated , Neighborhood )
+    recConnectSym cs' sps =
+      fromMaybe [] $
+        do sps' <- sps
+          nsps <- connectParameters sps' n
+          Just $ ( cs' , nsps ) :: connectCorrelated' cs sc nsps
+connectCorrelated : List Correlated
+  -> Neighborhood
+  -> List ( List Correlated , Neighborhood )
+connectCorrelated c n = connectCorrelated' c [] n
+tryUnifyParameters : Parameter -> Parameter -> Habitant -> Maybe Habitant
+tryUnifyParameters p p' h =
+  case ( isJust p , isJust p' ) of
+    ( True , False ) => Just $ replace p h
+    ( False , True ) => Just h
+    ( False , False ) => Just h
+    ( True , True ) => Nothing
+foldApp2 : Applicative f => Monad f => ( a -> a -> b -> f b ) -> Vect n a -> Vect n a -> b -> f b
+foldApp2 fn Nil Nil z = pure z
+foldApp2 fn ( x :: xs ) ( y :: ys ) z = fn x y z >>= foldApp2 fn xs ys
+plusAssociativeSucc : ( n : Nat ) -> ( m : Nat ) -> n + ( S m ) === nm -> ( S n ) + m === nm
+plusAssociativeSucc n m p =
+  rewrite plusCommutative ( S n ) m
+  in rewrite sym ( plusSuccRightSucc m n )
+    in rewrite cong S ( plusCommutative m n )
+      in rewrite plusSuccRightSucc n m
+        in p
+fitHabitant' : { ln : Nat }
+  -> { nl : Nat }
+  -> { auto prf : nl + ln === Len }
+  -> Habitant
+  -> Vect ln Habitant
+  -> Vect nl Habitant
+  -> List Neighborhood
+fitHabitant' { ln = Z } _ Nil _ = []
+fitHabitant' { ln = S ln' } h1 ( h2 :: hs ) sh =
+  let ( h1' ** _ ) := h1
+    ( h2' ** _ ) := h2
+    prf' := plusAssociativeSucc nl ln' prf
+    rec := fitHabitant' { prf = prf' } h1 hs ( h2 :: sh )
+    f := replace { p = \ len => Vect len Habitant } prf
+    in case foldApp2 tryUnifyParameters h1' h2' h2 of
+      Nothing => rec
+      Just h3 => ( f $ reverse sh ++ ( h3 :: hs )) :: rec
+fitHabitant : Habitant -> Neighborhood -> List Neighborhood
+fitHabitant h n = fitHabitant' h n []
+untilJust : ( a -> Maybe b ) -> List a -> Maybe b
+untilJust f Nil = Nothing
+untilJust f ( x :: xs ) =
+  case f x of
+    Nothing => untilJust f xs
+    Just y => Just y
+solve : List Habitant -> List Correlated -> Neighborhood -> Maybe Neighborhood
+solve Nil Nil n = pure n
+solve hs cs n = ( recCorrelated $ connectCorrelated cs n )
+  <|> ( recHabitants hs )
+  <|> ( fitCorrelated cs n >>= solve hs cs )
+  where
+  recCorrelated : List ( List Correlated , Neighborhood ) -> Maybe Neighborhood
+  recCorrelated Nil = Nothing
+  recCorrelated csn = untilJust ( \ ( c' , n' ) => solve hs c' n' ) csn
+  recHabitants : List Habitant -> Maybe Neighborhood
+  recHabitants Nil = Nothing
+  recHabitants ( h' :: hs' ) =
+    case fitHabitant h' n of
+      Nil => Nothing
+      ns => untilJust ( solve hs' cs ) ns
+isNothing : Fin Len -> Habitant -> Bool
+isNothing i ( h ** _ ) = not $ isJust $ index i h
+getNationality : Habitant -> Maybe Nationality
+getNationality (( _ :: MN n :: _ ) ** _ ) = n
+findMissing : Fin Len -> Neighborhood -> Maybe Nationality
+findMissing i n =
+  do habitant <- find ( isNothing i ) n
+    nationality <- getNationality habitant
+    pure nationality
+export
+solution : Solution
+solution =
+  fromMaybe solution $
+    do neighborhood' <- solve habitants correlated neighborhood
+      solution1 <- findMissing 3 neighborhood'
+      solution2 <- findMissing 2 neighborhood'
+      pure $ MkSolution solution1 solution2

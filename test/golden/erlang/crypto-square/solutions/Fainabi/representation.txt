@@ -1,0 +1,20 @@
+- module ( crypto_square ).
+- export ([ ciphertext / 1 ]).
+ciphertext ([]) -> [];
+ciphertext ( PlainText ) ->
+Normalized = re : replace ( string : to_lower ( PlainText ), "\"[^a-z0-9]\"" , "\"\"" , [ global ,{ return , list }]),
+Len = length ( Normalized ),
+Column = ceil ( math : sqrt ( Len )),
+Row = ceil ( Len / Column ),
+Filled_with_space = Normalized ++ lists : flatten ( lists : duplicate ( Row * Column - Len , "\" \"" )),
+lists : flatten (
+[
+[
+case { X - 1 , Y } of
+{ Row , Column } -> "\"\"" ;
+{ Row , _} -> "\" \"" ;
+_ -> lists : nth (( X - 1 ) * Column + Y , Filled_with_space )
+end
+|| X <- lists : seq ( 1 , Row + 1 )]
+|| Y <- lists : seq ( 1 , Column )]
+).

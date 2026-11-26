@@ -1,0 +1,49 @@
+Function Get-Rectangles () {
+[ CmdletBinding ()]
+Param (
+[ string []] $Strings
+)
+if ( $null -eq $Strings -or $Strings . Count -lt 2 ) {
+return 0
+}
+$rows = $Strings . Count
+$cols = $Strings [ 0 ] . Length
+if ( $cols -lt 2 ) {
+return 0
+}
+$count = 0
+for ( $r1 = 0 ; $r1 -lt $rows - 1 ; $r1 ++ ) {
+for ( $c1 = 0 ; $c1 -lt $cols - 1 ; $c1 ++ ) {
+if ( $Strings [ $r1 ][ $c1 ] -ne '+' ) {
+continue
+}
+for ( $c2 = $c1 + 1 ; $c2 -lt $cols ; $c2 ++ ) {
+$topChar = $Strings [ $r1 ][ $c2 ]
+if ( $topChar -notmatch '^[+-]$' ) {
+break
+}
+if ( $topChar -ne '+' ) {
+continue
+}
+$topSegment = $Strings [ $r1 ] . Substring ( $c1 , $c2 - $c1 + 1 )
+if ( $topSegment -notmatch '^[+-]+$' ) {
+continue
+}
+for ( $r2 = $r1 + 1 ; $r2 -lt $rows ; $r2 ++ ) {
+$leftChar = [ string ] $Strings [ $r2 ][ $c1 ]
+$rightChar = [ string ] $Strings [ $r2 ][ $c2 ]
+if ( $leftChar -notmatch '^[+|]$' -or $rightChar -notmatch '^[+|]$' ) {
+break
+}
+if ( $leftChar -eq '+' -and $rightChar -eq '+' ) {
+$bottomSegment = $Strings [ $r2 ] . Substring ( $c1 , $c2 - $c1 + 1 )
+if ( $bottomSegment -match '^[+-]+$' ) {
+$count ++
+}
+}
+}
+}
+}
+}
+return $count
+}

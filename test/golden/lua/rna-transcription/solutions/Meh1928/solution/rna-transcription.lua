@@ -1,9 +1,0 @@
-return function(dna)
-    local swapG = dna:gsub("G", "c")
-    local swapC = swapG:gsub("C", "g")
-    local swapT = swapC:gsub("T", "a")
-    local swapA = swapT:gsub("A", "u")
-    local final = swapA:upper()
-
-    return final
-end

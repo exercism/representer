@@ -1,0 +1,15 @@
+mappings =
+  '}': '{'
+  ']': '['
+  ')': '('
+
+{
+  is_paired: (input) ->
+    stack = {}
+    for c in input\gmatch '.'
+      if c == '{' or c == '[' or c == '(' 
+        table.insert stack, c
+      elseif paired = mappings[c]
+        return false unless (table.remove stack) == paired
+    #stack == 0
+}

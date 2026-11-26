@@ -1,0 +1,50 @@
+CLASS zcl_rle DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    METHODS encode IMPORTING input         TYPE string
+                   RETURNING VALUE(result) TYPE string.
+
+    METHODS decode IMPORTING input         TYPE string
+                   RETURNING VALUE(result) TYPE string.
+
+ENDCLASS.
+
+
+CLASS zcl_rle IMPLEMENTATION.
+
+  METHOD encode.
+
+    DATA: char2      TYPE string,
+          duplicates TYPE string.
+    WHILE input IS NOT INITIAL.
+      FIND REGEX '([\w|\s])(\1*)(.*)' IN input SUBMATCHES char2 duplicates input  ##SUBRC_OK.
+      IF duplicates IS NOT INITIAL.
+        result = |{ result }{ strlen( duplicates ) + 1 }{ char2 }|.
+      ELSE.
+        result = |{ result }{ char2 }|.
+      ENDIF.
+    ENDWHILE.
+
+  ENDMETHOD.
+
+
+  METHOD decode.
+
+    DATA: char2 TYPE string,
+          reps  TYPE string.
+    WHILE input IS NOT INITIAL.
+      FIND REGEX '(\d*)([\w|\s])(.*)' IN input SUBMATCHES reps char2 input  ##SUBRC_OK.
+      IF reps IS NOT INITIAL.
+        result = |{ result }{ repeat( val = char2 occ = reps ) }|.
+      ELSE.
+        result = |{ result }{ char2 }|.
+      ENDIF.
+    ENDWHILE.
+
+  ENDMETHOD.
+
+ENDCLASS.

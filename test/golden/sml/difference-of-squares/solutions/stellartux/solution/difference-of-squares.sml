@@ -1,9 +1,0 @@
-fun sumBelow 1 = 1
-  | sumBelow n = n + sumBelow(n - 1)
-
-fun squareOfSum n = let val x = sumBelow n in x * x end
-
-fun sumOfSquares 1 = 1
-  | sumOfSquares n = n * n + sumOfSquares(n - 1)
-
-fun differenceOfSquares n = squareOfSum n - sumOfSquares n;

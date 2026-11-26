@@ -1,0 +1,17 @@
+# Collatz Conjecture - how many steps for any positive integer to reach to 1 
+# Only positive integers are to be given
+
+$1 !~ /^[1-9][0-9]*$/	{ print("Error: Only positive integers are allowed"); exit 1 }
+
+{
+	n = $1
+	step = 0
+	while (n > 1) {
+		++step
+		if (n % 2 == 0)
+			n /= 2
+		else
+			n = n * 3 + 1
+	}
+	print(step)
+}

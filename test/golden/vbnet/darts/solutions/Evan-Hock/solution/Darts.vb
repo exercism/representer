@@ -1,0 +1,17 @@
+Imports System
+
+Public Module Darts
+    Public Function Score(x As Double, y As Double) As Integer
+        Dim distance = Double.Hypot(x, y)
+        Select distance
+            Case Is > 10.0
+                Return 0
+            Case Is > 5.0
+                Return 1
+            Case Is > 1.0
+                Return 5
+            Case Else
+                Return 10
+        End Select
+    End Function
+End Module

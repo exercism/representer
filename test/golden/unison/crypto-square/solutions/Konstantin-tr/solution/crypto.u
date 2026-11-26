@@ -1,0 +1,46 @@
+ciphertext : Text -> Text
+use Text
+use List
+ciphertext inputText = 
+    normalized = ciphertext.normalize (toCharList inputText)
+    column = findSquare (size normalized) |> cases (col, row) -> col
+    ciphertext.group column normalized |>
+    ciphertext.readColumns column |>
+    map (fromCharList) |>
+    Text.join " "
+
+
+
+ciphertext.findSquare : Nat -> (Nat, Nat)
+use Nat
+ciphertext.findSquare total = 
+    go =
+        cases 
+            col
+                | col Nat.* col Nat.== total -> (col, col)
+                | col Nat.* col Nat.> total -> (col, col Nat.- 1)
+                | otherwise -> go (col Nat.+ 1)
+    go 1
+
+ciphertext.group : Nat -> [Char] -> [[Char]]
+ciphertext.group column =
+    go acc curr = cases
+        h +: t
+            | (size curr) Nat.== column -> go (acc :+ curr) [h] t
+            | otherwise -> go acc (curr :+ h) t
+        [] -> curr |> cases
+            h +: t -> (acc :+ curr)
+            [] -> acc
+    go [] []
+    
+ciphertext.readColumns : Nat -> [[Char]] -> [[Char]]
+ciphertext.readColumns size columns =
+    final = List.replicate size (_ -> [])
+    mapIndexed (c x -> map (y -> Optional.getOrElse ?\s (List.at c y)) columns) final
+
+ciphertext.normalize : [Char] -> [Char]
+use Char
+ciphertext.normalize = filterMap (cases 
+        x
+            | (ascii.isBlank x) || (ascii.isPunct x) -> Optional.None
+            | otherwise -> Some (ascii.toLower x))

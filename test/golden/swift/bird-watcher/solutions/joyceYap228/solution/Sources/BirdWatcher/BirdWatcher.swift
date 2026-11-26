@@ -1,0 +1,26 @@
+func totalBirdCount(_ birdsPerDay: [Int]) -> Int {
+  var sum = 0
+  for birds in birdsPerDay {
+    sum += birds
+  }
+  return sum
+}
+
+func birdsInWeek(_ birdsPerDay: [Int], weekNumber: Int) -> Int {
+  let daysInWeek = weekNumber * 7
+  
+  let start = weekNumber == 1 ? 0 : daysInWeek - 6
+  let end = daysInWeek
+
+  let newBirdsPerDay = Array(birdsPerDay[start..<end])
+  return totalBirdCount(newBirdsPerDay)
+}
+
+func fixBirdCountLog(_ birdsPerDay: [Int]) -> [Int] {
+    var copy = birdsPerDay
+    // iterate every 2nd day (indices 0, 2, 4, ...) — use 'to' so we don't hit copy.count
+    for i in stride(from: 0, to: copy.count, by: 2) {
+        copy[i] += 1
+    }
+    return copy
+}

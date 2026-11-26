@@ -1,0 +1,21 @@
+class Matrix {
+
+    int[][] matrix;
+
+    Matrix(String asString) {  
+    parseMatrixString(asString)
+        }
+
+    int[] row(int rowNumber) {
+        matrix[rowNumber]
+    }
+
+    int[] column(int columnNumber) {
+        (0..<matrix.size()).collect { matrix[it][columnNumber] }
+    }
+
+
+     private parseMatrixString(String matrixAsString) {
+        matrix = matrixAsString.split('\n').collect { it.split().collect { it as int } }
+    }
+}

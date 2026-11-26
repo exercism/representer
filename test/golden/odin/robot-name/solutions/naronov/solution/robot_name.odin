@@ -1,0 +1,59 @@
+package robotname
+
+import "core:math/rand"
+import "core:strings"
+
+Robot_Storage :: map[string]struct {} 
+
+Robot :: struct {
+	name: string,
+}
+
+Error :: enum {
+	None,
+	Could_Not_Create_Name,
+	Unimplemented,
+}
+
+make_storage :: proc() -> Robot_Storage {
+	return make(Robot_Storage) 
+}
+
+delete_storage :: proc(storage: ^Robot_Storage) {
+	for k in storage do delete(k) 
+	delete(storage^)
+}
+
+new_robot :: proc(storage: ^Robot_Storage) -> (Robot, Error) {
+	buf: [5]u8 
+	attempts := 0
+    
+	for {
+		for i in 0..<2 do buf[i] = 'A' + u8(rand.uint32()) % 26
+		for i in 2..<5 do buf[i] = '0' + u8(rand.uint32()) % 10
+        
+	    if string(buf[:]) not_in storage^ do break
+        
+	   	if attempts >= 26*26*10*10*10 do return Robot{""}, .Could_Not_Create_Name      
+	    attempts += 1
+	}
+    
+	s := strings.clone(string(buf[:]))
+    
+    storage^[s] = {}
+	return Robot{ s }, .None
+}
+
+reset :: proc(storage: ^Robot_Storage, r: ^Robot) {
+    old_name := r^.name
+    
+    new_bot, err := new_robot(storage)
+    if err != .None do return
+    
+    r^ = new_bot
+    
+    if old_name != "" {
+        delete_key(storage, old_name)
+        delete(old_name)
+    }
+}

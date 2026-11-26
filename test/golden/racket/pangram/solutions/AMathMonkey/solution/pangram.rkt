@@ -1,0 +1,9 @@
+#lang racket
+
+(provide pangram?)
+
+(define (pangram? sentence)
+  (= 26 
+    (length 
+      (remove-duplicates 
+        (filter char-lower-case? (string->list (string-downcase sentence)))))))

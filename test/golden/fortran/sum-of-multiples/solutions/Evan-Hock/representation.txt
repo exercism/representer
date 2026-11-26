@@ -1,0 +1,70 @@
+module sum_of_multiples
+implicit none
+private
+public :: sum_multiples
+contains
+integer function sum_multiples ( base_values , limit )
+integer , intent ( in ) :: base_values (:)
+integer , intent ( in ) :: limit
+integer , allocatable :: multiples (:, :)
+integer , allocatable :: unique_multiples (:)
+integer :: min_base
+integer :: i , j
+sum_multiples = 0
+min_base = minval ( base_values , mask = base_values > 0 )
+if ( min_base == huge ( base_values )) return
+i = ( limit - 1 ) / min_base
+j = size ( base_values )
+if ( i == 0 .or. j == 0 ) return
+allocate ( multiples ( i , j ), source = 0 )
+where ( base_values <= limit )
+multiples ( 1 , :) = base_values
+elsewhere
+multiples ( 1 , :) = 0
+end where
+do i = 1 , size ( multiples , dim = 2 )
+do j = 2 , size ( multiples , dim = 1 )
+if ( j * multiples ( 1 , i ) >= limit ) exit
+multiples ( j , i ) = j * multiples ( 1 , i )
+end do
+end do
+call unique ( pack ( multiples , mask = multiples / = 0 ), unique_multiples )
+sum_multiples = sum ( unique_multiples )
+end function sum_multiples
+subroutine unique ( xs , xs_unique )
+integer , intent ( in ) :: xs (:)
+integer , allocatable , intent ( out ) :: xs_unique (:)
+integer , allocatable :: buf (:)
+integer :: unique_size
+integer :: i
+allocate ( buf ( size ( xs )))
+buf = xs
+call sort ( buf )
+allocate ( xs_unique ( size ( buf )))
+unique_size = 0
+do i = 1 , size ( buf ) - 1
+if ( buf ( i ) / = buf ( i + 1 )) then
+unique_size = unique_size + 1
+xs_unique ( unique_size ) = buf ( i )
+end if
+end do
+unique_size = unique_size + 1
+xs_unique ( unique_size ) = buf ( size ( buf ))
+call move_alloc ( from = xs_unique , to = buf )
+allocate ( xs_unique ( unique_size ))
+xs_unique = buf (: unique_size )
+end subroutine unique
+subroutine sort ( xs )
+integer , intent ( in out ) :: xs (:)
+integer :: temp
+integer :: i , j
+do i = 2 , size ( xs )
+do j = i - 1 , 1 , -1
+if ( xs ( j ) <= xs ( j + 1 )) exit
+temp = xs ( j )
+xs ( j ) = xs ( j + 1 )
+xs ( j + 1 ) = temp
+end do
+end do
+end subroutine sort
+end module sum_of_multiples

@@ -1,0 +1,4 @@
+# Generate a random name for a robot
+# Name
+GenerateName ← |0 ⊂ +@A ⌊× [⚂⚂] 26 ⇌↙3⇌ ⊂"000" °⋕ ⌊× ⚂ 1000
+

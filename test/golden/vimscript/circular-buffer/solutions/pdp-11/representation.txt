@@ -1,0 +1,33 @@
+function ! s:Read () dict
+let l : r = self . buffer [ self . rPtr ]
+if l : r is v : null | throw "\"Empty buffer\"" | endif
+let self . buffer [ self . rPtr ] = v : null
+let self . rPtr = ( self . rPtr + 1 ) % self . capacity
+return l : r
+endfunction
+function ! s:Write ( el ) dict
+if self . buffer [ self . wPtr ] != v : null
+if self . wPtr != self . rPtr
+while self . buffer [ self . wPtr ] != v : null
+let self . wPtr += 1
+endwhile
+else | throw "'Full buffer'" | endif
+endif
+let self . buffer [ self . wPtr ] = a:el
+let self . wPtr = ( self . wPtr + 1 ) % self . capacity
+endfunction
+function ! s:Clear () dict
+let [ self . buffer , self . rPtr , self . wPtr ] = [ repeat ([ v : null ], self . capacity ), 0 , 0 ]
+endfunction
+function ! s:Overwrite ( el ) dict
+try
+call self . Write ( a:el )
+catch "/Full buffer/"
+let self . buffer [ self . wPtr ] = a:el
+let [ self . wPtr , self . rPtr ] += [ 1 , 1 ]
+let [ self . wPtr , self . rPtr ] % = [ self . capacity , self . capacity ]
+endtry
+endfunction
+function ! CircularBuffer ( capacity ) abort
+return [ 'Read' , 'Write' , 'Clear' , 'Overwrite' ]-> reduce ({ r , k -> extend ( r , { k : function ( 's:' .. k )})}, { 'capacity' : a:capacity , 'buffer' : repeat ([ v : null ], a:capacity ), 'rPtr' : 0 , 'wPtr' : 0 })
+endfunction

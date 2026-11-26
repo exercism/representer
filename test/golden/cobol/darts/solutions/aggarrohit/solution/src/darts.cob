@@ -1,0 +1,22 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DARTS.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-X PIC 99V9.
+       01 WS-Y PIC 99V9.
+       01 WS-RESULT PIC 99.
+       01 WS-SQUARE PIC 999V9.
+       
+       PROCEDURE DIVISION.
+       DARTS.
+         COMPUTE WS-SQUARE = WS-X * WS-X + WS-Y * WS-Y
+         IF 100 < WS-SQUARE
+            MOVE 0 TO WS-RESULT
+         ELSE IF 25 < WS-SQUARE
+            MOVE 1 TO WS-RESULT
+         ELSE IF 1 < WS-SQUARE
+            MOVE 5 TO WS-RESULT
+         ELSE 
+            MOVE 10 TO WS-RESULT
+         END-IF.

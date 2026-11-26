@@ -1,8 +1,0 @@
-return function(dna)
-    local temp = dna:gsub('G','X')
-    temp = temp:gsub('C','G')
-    temp = temp:gsub('X','C')
-    temp = temp:gsub('A','U')
-    temp = temp:gsub('T','A')
-    return temp
-end

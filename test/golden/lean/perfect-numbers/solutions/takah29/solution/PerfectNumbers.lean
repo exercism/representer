@@ -1,0 +1,21 @@
+namespace PerfectNumbers
+
+def Positive := { x : Nat // x > 0 }
+
+inductive Classification where
+  | perfect
+  | abundant
+  | deficient
+  deriving Repr, BEq
+
+def classify (number : Positive) : Classification :=
+  let n := number.val
+  let aliquotSum :=
+    List.range' 1 (n / 2) |>.filter (n % · == 0) |>.sum
+
+  match compare aliquotSum n with
+  | .eq => .perfect
+  | .gt => .abundant
+  | .lt => .deficient
+
+end PerfectNumbers

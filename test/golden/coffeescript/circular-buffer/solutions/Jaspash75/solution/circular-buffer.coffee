@@ -1,0 +1,34 @@
+class CircularBuffer
+  constructor: (@capacity) ->
+    @buffer = new Array(@capacity)
+    @start = 0
+    @count = 0
+
+  write: (value) ->
+    throw new Error("full buffer") if @count is @capacity
+
+    idx = (@start + @count) % @capacity
+    @buffer[idx] = value
+    @count++
+
+  read: ->
+    throw new Error("empty buffer") if @count is 0
+
+    value = @buffer[@start]
+    @start = (@start + 1) % @capacity
+    @count--
+    value
+
+  overwrite: (value) ->
+    if @count < @capacity
+      @write(value)
+    else
+      @buffer[@start] = value
+      @start = (@start + 1) % @capacity
+
+  clear: ->
+    @buffer = new Array(@capacity)
+    @start = 0
+    @count = 0
+
+module.exports = CircularBuffer

@@ -1,7 +1,0 @@
-let isLeapYear = (year) =>
-  switch (year mod 400, year mod 100, year mod 4) {
-    | (0, _, 0) => true
-    | (_, 0, 0) => false
-    | (_, _, 0) => true
-    | _ => false
-  }

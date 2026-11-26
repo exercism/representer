@@ -1,0 +1,12 @@
+module main
+
+import strconv
+
+fn raindrops(nb int) string {
+	mut r := ""
+	if nb%3 == 0 {r += "Pling"}
+	if nb%5 == 0 {r += "Plang"}
+	if nb%7 == 0 {r += "Plong"}
+	if nb%3 != 0 && nb%5 != 0 && nb%7 != 0 {r = strconv.format_int(nb, 10)}
+	return r
+}

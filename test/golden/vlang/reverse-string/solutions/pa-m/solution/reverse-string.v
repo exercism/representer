@@ -1,0 +1,10 @@
+module main
+
+// reverse_string returns a given string in reverse order
+fn reverse_string(str string) string {
+  mut r:=''
+  for c in str.runes() {
+    r=c.str()+r
+  }
+  return r
+}

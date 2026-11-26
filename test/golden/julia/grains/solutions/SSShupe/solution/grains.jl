@@ -1,0 +1,17 @@
+"""Calculate the number of grains on square `square`."""
+function on_square(square)
+    if square <  1 || square > 64
+        throw(DomainError(square, "Square must be within the range 1 - 64 inclusive."))
+    else
+        return getindex(map(x -> BigInt(2)^x, range(0, length=64)), square)
+    end
+end
+
+"""Calculate the total number of grains after square `square`."""
+function total_after(square)
+    if square <  1 || square > 64
+        throw(DomainError(square, "Square must be within the range 1 - 64 inclusive."))
+    else
+        return sum([on_square(i) for i in 1:square])
+    end
+end

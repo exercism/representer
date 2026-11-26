@@ -1,0 +1,70 @@
+section .text
+global is_paired
+is_paired:
+lea rsi , [ rel pairs ]
+add rsi , ')'
+mov byte [ rsi ], '('
+lea rsi , [ rel pairs ]
+add rsi , '}'
+mov byte [ rsi ], '{'
+lea rsi , [ rel pairs ]
+add rsi , ']'
+mov byte [ rsi ], '['
+xor rcx , rcx
+.proc_char:
+xor rax , rax
+mov al , [ rdi ]
+test al , al
+jz .check_success
+cmp al , ')'
+je .pop_pair
+cmp al , '}'
+je .pop_pair
+cmp al , ']'
+je .pop_pair
+cmp al , '('
+je .push_pair
+cmp al , '{'
+je .push_pair
+cmp al , '['
+je .push_pair
+.next_char:
+inc rdi
+jmp .proc_char
+.push_pair:
+push ax
+inc rcx
+jmp .next_char
+.pop_pair:
+test rcx , rcx
+jz .failure
+dec rcx
+xor r8 , r8
+pop r8w
+lea rsi , [ rel pairs ]
+add rsi , rax
+mov r9b , byte [ rsi ]
+cmp r9b , r8b
+jne .failure
+jmp .next_char
+.check_success:
+test rcx , rcx
+jz .success
+jmp .failure
+.success:
+mov rax , 1
+jmp .unwind
+.failure:
+xor rax , rax
+jmp .unwind
+.finish:
+.unwind:
+test rcx , rcx
+jz .unwind_done
+pop r9w
+dec rcx
+jmp .unwind
+.unwind_done:
+ret
+section .data
+pairs times 256 db 0

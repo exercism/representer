@@ -1,0 +1,25 @@
+Class {
+	#name : #Luhn,
+	#superclass : #Object,
+	#instVars : [
+		'luhnCalculator'
+	],
+	#category : #'Exercise@Luhn'
+}
+
+{ #category : #'as yet unclassified' }
+Luhn >> validValue: aString [
+	| d sum s doubles |
+	s := aString reject: #isSpaceSeparator.
+	(s select: #isDigit) size = s size ifFalse: [ ^ false ].
+	s size >= 2 ifFalse: [ ^ false ].
+	d := s asOrderedCollection  collect: [ :c | c digitValue ].
+	doubles := d reversed collectWithIndex: [ :e :i | 
+		i isEven ifTrue: [ 
+			e >= 5 ifTrue:[ e * 2 - 9] ifFalse: [e * 2]
+			] 
+		ifFalse: [e]].	
+	sum := doubles inject: 0 into: [ :a :c | a + c ]. 
+	^ sum isDivisibleBy: 10.
+
+]

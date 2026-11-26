@@ -1,0 +1,73 @@
+module Poker ( bestHands ) where
+import Data.Char
+import Data.Function
+import Data.List
+import Data.Ord
+bestHands :: [ String ] -> Maybe [ String ]
+bestHands = ( map ( unwords . map showCard ) . head . groupBy (( == ) ` on ` hand ) . sortBy ( comparing hand ) <$> ) . map' ( readCards 5 . words )
+map' :: ( a -> Maybe b ) -> [ a ] -> Maybe [ b ]
+map' f [] = Just []
+map' f ( x : xs ) = ( : ) <$> ( f x ) <*> map' f xs
+data Suit = C | D | H | S deriving ( Eq , Ord , Enum , Show , Read )
+type Rank = Int
+data Card = Card { rank_ :: Rank , suit_ :: Suit } deriving ( Eq , Ord )
+newtype Hand = Hand ( Int , [ Rank ])
+instance Eq Hand where
+  Hand x == Hand y = x == y
+instance Ord Hand where
+  compare ( Hand x @ ( p , q )) ( Hand y @ ( r , s ))
+    | straight q && straight s = res
+    | otherwise = flip compare x y
+    where res = flip compare q s
+showCard :: Card -> String
+showCard ( Card 14 s ) = 'A' : show s
+showCard ( Card 11 s ) = 'J' : show s
+showCard ( Card 12 s ) = 'Q' : show s
+showCard ( Card 13 s ) = 'K' : show s
+showCard ( Card r s ) = show r ++ show s
+readCard :: String -> Maybe Card
+readCard ( 'A' : s @ [ c ])
+  | c ` elem ` "\"CDHS\"" = Just $ Card 14 ( read s )
+readCard ( '1' : '0' : s @ [ c ])
+  | c ` elem ` "\"CDHS\"" = Just $ Card 10 ( read s )
+readCard ( 'J' : s @ [ c ])
+  | c ` elem ` "\"CDHS\"" = Just $ Card 11 ( read s )
+readCard ( 'Q' : s @ [ c ])
+  | c ` elem ` "\"CDHS\"" = Just $ Card 12 ( read s )
+readCard ( 'K' : s @ [ c ])
+  | c ` elem ` "\"CDHS\"" = Just $ Card 13 ( read s )
+readCard ( r : s @ [ c ])
+  | r ` elem ` "\"23456789\"" && c ` elem ` "\"CDHS\"" = Just $ Card ( digitToInt r ) ( read s )
+readCard _ = Nothing
+readCards :: Int -> [ String ] -> Maybe [ Card ]
+readCards 0 [] = Just []
+readCards n ( s : ss ) = ( : ) <$> readCard s <*> readCards ( n - 1 ) ss
+readCards _ _ = Nothing
+hand :: [ Card ] -> Hand
+hand cs
+  | length css == 2 = Hand $ if 4 ` elem ` map length css then ( fcSc , rs' ) else ( fhSc , rs' )
+  | length css == 3 = Hand $ if 3 ` elem ` map length css then ( tcSc , rs ) else ( tpSc , rs )
+  | length css == 4 = Hand ( opSc , rs )
+  | flush cs' = Hand $ if straight rs then ( sfSc , if rs == [ 14 , 5 , 4 , 3 , 2 ] then [ 5 , 4 , 3 , 2 , 1 ] else rs ) else ( flSc , rs )
+  | straight rs = Hand ( stSc , if rs == [ 14 , 5 , 4 , 3 , 2 ] then [ 5 , 4 , 3 , 2 , 1 ] else rs )
+  | otherwise = Hand ( hcSc , rs )
+  where
+    cs' = sortBy ( flip compare ) cs
+    css = groupBy (( == ) ` on ` rank_ ) cs'
+    rs = map rank_ cs'
+    rs' = map rank_ $ concat $ sortBy ( flip ( comparing length )) css
+    flush = and . ( zipWith ( == ) <*> tail ) . map suit_
+straight :: [ Rank ] -> Bool
+straight = (` elem ` flushpat )
+flushpat :: [[ Int ]]
+flushpat = [ 14 , 5 , 4 , 3 , 2 ] : take 9 ( map ( take 5 ) ( tails [ 14 , 13 .. ]))
+sfSc , fcSc , fhSc , flSc , stSc , tcSc , tpSc , opSc , hcSc :: Int
+sfSc = - 40
+fcSc = - 624
+fhSc = - 3744
+flSc = - 5108
+stSc = - 10200
+tcSc = - 54912
+tpSc = - 123552
+opSc = - 1098240
+hcSc = - 1302540

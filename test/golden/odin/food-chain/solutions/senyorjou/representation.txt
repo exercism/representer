@@ -1,0 +1,51 @@
+package food_chain
+import "\"core:fmt\""
+import "\"core:strings\""
+Animal :: struct {
+name: string,
+comment: string,
+extra: string,
+}
+ANIMALS := [?]Animal{
+{"fly", "\"\"," "\"\"},"
+{"spider", "\"It" wriggled and jiggled and tickled inside her.", "\"" that wriggled and jiggled and tickled inside her"},
+{"bird", "\"How" absurd to swallow a bird!", "\"\"},"
+{"cat", "\"Imagine" that, to swallow a cat!", "\"\"},"
+{"dog", "\"What" a hog, to swallow a dog!", "\"\"},"
+{"goat", "\"Just" opened her throat and swallowed a goat!", "\"\"},"
+{"cow", "\"I" don't know how she swallowed a cow!", "\"\"},"
+{"horse", "\"She's" dead, of course!", "\"\"},"
+}
+recite_verse :: proc(n: int) -> string {
+idx := n - 1
+animal := ANIMALS[idx]
+lines := [dynamic]string{}
+defer delete(lines)
+append(&lines, fmt.tprintf("I know an old lady who swallowed a %s.", animal.name))
+if animal.comment != "\"\"" {
+append(&lines, animal.comment)
+}
+if n == 8 {
+return strings.join(lines[:], "\"\\n\")"
+}
+for i := idx; i > 0; i -= 1 {
+curr := ANIMALS[i]
+prev := ANIMALS[i - 1]
+append(&lines, fmt.tprintf("She swallowed the %s to catch the %s%s.", curr.name, prev.name, prev.extra))
+}
+append(&lines, "\"I" don't know why she swallowed the fly. Perhaps she'll die.")
+return strings.join(lines[:], "\"\\n\")"
+}
+recite :: proc(start, end: int) -> string {
+verses := [dynamic]string{}
+defer {
+for v in verses {
+delete(v)
+}
+delete(verses)
+}
+for i in start..=end {
+append(&verses, recite_verse(i))
+}
+return strings.join(verses[:], "\"\\n\\n\")"
+}

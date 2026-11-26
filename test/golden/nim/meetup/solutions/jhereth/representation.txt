@@ -1,0 +1,166 @@
+(source_file
+  (import_statement
+    (expression_list strformat))
+  (import_statement
+    (expression_list times))
+  (type_section
+    (type_declaration
+      (type_symbol_declaration
+        (exported_symbol Schedule *)) =
+      (enum_declaration enum
+        (enum_field_declaration
+          (symbol_declaration Teenth))
+        (enum_field_declaration
+          (symbol_declaration First))
+        (enum_field_declaration
+          (symbol_declaration Second))
+        (enum_field_declaration
+          (symbol_declaration Third))
+        (enum_field_declaration
+          (symbol_declaration Fourth))
+        (enum_field_declaration
+          (symbol_declaration Last)))))
+  (proc_declaration (definition PLACEHOLDER_1)
+    (parameter_declaration_list
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_2))) :
+        (type_expression Datetime))
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_3))) :
+        (type_expression Weekday))) :
+    (type_expression Datetime) =
+    (statement_list
+      (let_section
+        (variable_declaration
+          (symbol_declaration_list
+            (symbol_declaration (local PLACEHOLDER_4))) =
+          (call initduration
+            (argument_list
+              (equal_expression days =
+                (call
+                  (accent_quoted mod)
+                  (argument_list
+                    (call
+                      (accent_quoted -)
+                      (argument_list
+                        (call
+                          (accent_quoted +)
+                          (argument_list 7
+                            (dot_expression PLACEHOLDER_3 . int)))
+                        (dot_expression
+                          (dot_expression PLACEHOLDER_2 . weekday) . int))) 7)))))))
+      (call
+        (accent_quoted +)
+        (argument_list PLACEHOLDER_2 PLACEHOLDER_4))))
+  (proc_declaration
+    (exported_symbol meetup *)
+    (parameter_declaration_list
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_5))) :
+        (type_expression int))
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_6))) :
+        (type_expression int))
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_7))) :
+        (type_expression Schedule))
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_8))) :
+        (type_expression Weekday))) :
+    (type_expression string) =
+    (statement_list
+      (if if
+        (call
+          (accent_quoted ==)
+          (argument_list PLACEHOLDER_7 Teenth)) :
+        (statement_list
+          (return_statement return
+            (call format
+              (argument_list
+                (call
+                  (dot_expression
+                    (call datetime
+                      (argument_list PLACEHOLDER_5
+                        (dot_expression PLACEHOLDER_6 . Month) 13)) . PLACEHOLDER_1)
+                  (argument_list PLACEHOLDER_8)) "yyyy-MM-dd")))))
+      (if if
+        (call
+          (accent_quoted ==)
+          (argument_list PLACEHOLDER_7 Last)) :
+        (statement_list
+          (var_section
+            (variable_declaration
+              (symbol_declaration_list
+                (symbol_declaration (local PLACEHOLDER_9))) =
+              (call datetime
+                (argument_list PLACEHOLDER_5
+                  (dot_expression PLACEHOLDER_6 . Month)
+                  (call getdaysinmonth
+                    (argument_list
+                      (dot_expression PLACEHOLDER_6 . Month) PLACEHOLDER_5))))))
+          (if if
+            (call
+              (accent_quoted ==)
+              (argument_list
+                (dot_expression PLACEHOLDER_9 . weekday) PLACEHOLDER_8)) :
+            (statement_list
+              (return_statement return
+                (call format
+                  (argument_list PLACEHOLDER_9 "yyyy-MM-dd"))))
+            (else_branch else :
+              (statement_list
+                (return_statement return
+                  (call format
+                    (argument_list
+                      (call
+                        (accent_quoted +)
+                        (argument_list
+                          (call
+                            (dot_expression PLACEHOLDER_9 . PLACEHOLDER_1)
+                            (argument_list PLACEHOLDER_8))
+                          (call initduration
+                            (argument_list
+                              (equal_expression days = -7))))) "yyyy-MM-dd"))))))))
+      (var_section
+        (variable_declaration
+          (symbol_declaration_list
+            (symbol_declaration (local PLACEHOLDER_9))) =
+          (call
+            (dot_expression
+              (call datetime
+                (argument_list PLACEHOLDER_5
+                  (dot_expression PLACEHOLDER_6 . Month) 1)) . PLACEHOLDER_1)
+            (argument_list PLACEHOLDER_8))))
+      (for for
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_10))) in
+        (array_construction First Second Third Fourth) :
+        (statement_list
+          (if if
+            (call
+              (accent_quoted ==)
+              (argument_list PLACEHOLDER_10 PLACEHOLDER_7)) :
+            (statement_list
+              (return_statement return
+                (call format
+                  (argument_list PLACEHOLDER_9 "yyyy-MM-dd")))))
+          (call
+            (accent_quoted +=)
+            (argument_list PLACEHOLDER_9
+              (call initduration
+                (argument_list
+                  (equal_expression days = 7)))))))
+      (raise_statement raise
+        (call newexception
+          (argument_list Valueerror
+            (format_string "nothing found for year="
+              (interpolation PLACEHOLDER_5) ", month="
+              (interpolation PLACEHOLDER_6) ", schedule="
+              (interpolation PLACEHOLDER_7) ", day="
+              (interpolation PLACEHOLDER_8))))))))

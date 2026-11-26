@@ -1,0 +1,22 @@
+Class {
+#name : #WordCount ,
+#superclass : #Object ,
+#instVars : [
+'wordCounts'
+] ,
+#category : # 'Exercise@WordCount'
+}
+{ #category : # 'string-testing' }
+WordCount >> countWordsSentence: inputString [
+| countableWords |
+countableWords := ( inputString splitOn: '\s|,' asRegex )
+collect: [ : eachString | ( self getCountableWordFrom: eachString ) ]
+thenSelect: [ : wordCandidate | wordCandidate isNotEmpty ].
+^ ( Bag newFrom: countableWords ) valuesAndCounts
+]
+{ #category : #private }
+WordCount >> getCountableWordFrom: wordString [
+^ ( wordString
+select: [ : aLetter | aLetter isAlphaNumeric or: [ aLetter = $' ] ])
+asLowercase withoutQuoting
+]

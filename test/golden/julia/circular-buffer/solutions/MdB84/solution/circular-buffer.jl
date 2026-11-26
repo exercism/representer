@@ -1,0 +1,41 @@
+#nable_bonus_tests = true
+
+mutable struct CircularBuffer{T} 
+    contents::Array{T}
+    dataStored::Int
+
+    function CircularBuffer{T}(capacity::Integer) where {T}
+        new{T}(Array{T}(undef,capacity),0)
+    end
+end
+
+function Base.push!(cb::CircularBuffer{T}, item; overwrite::Bool=false) where {T}
+    item isa T || throw(ErrorException(item))
+    numElements = length(cb.contents)
+    
+    if !overwrite 
+        cb.dataStored == numElements && throw(BoundsError(cb.contents))
+    else
+        cb.dataStored == numElements && popfirst!(cb)
+    end
+
+    cb.dataStored += 1
+    cb.contents[cb.dataStored] = item
+    cb
+end 
+
+function Base.popfirst!(cb::CircularBuffer)
+    cb.dataStored == 0 && throw(BoundsError(cb.contents))
+    readData = cb.contents[1]
+    #cb.contents[1] = undef
+    circshift!(cb.contents,-1)
+    cb.dataStored -= 1
+    readData
+end
+
+function Base.empty!(cb::CircularBuffer{T}) where {T}
+    numElements = length(cb.contents)
+    cb.contents = Array{T}(undef,numElements)
+    cb.dataStored = 0
+    cb
+end

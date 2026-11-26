@@ -1,0 +1,37 @@
+module ProteinTranslation ( proteins ) where
+import Control.Monad ( liftM )
+data Protein = Methionine
+  | Phenylalanine
+  | Leucine
+  | Serine
+  | Tyrosine
+  | Cysteine
+  | Tryptophan
+  | STOP
+  deriving ( Show , Eq )
+sequences :: [( String , Protein )]
+sequences = [ ( "\"AUG\"" , Methionine )
+  , ( "\"UUU\"" , Phenylalanine )
+  , ( "\"UUC\"" , Phenylalanine )
+  , ( "\"UUA\"" , Leucine )
+  , ( "\"UUG\"" , Leucine )
+  , ( "\"UCU\"" , Serine )
+  , ( "\"UCC\"" , Serine )
+  , ( "\"UCA\"" , Serine )
+  , ( "\"UCG\"" , Serine )
+  , ( "\"UAU\"" , Tyrosine )
+  , ( "\"UAC\"" , Tyrosine )
+  , ( "\"UGU\"" , Cysteine )
+  , ( "\"UGC\"" , Cysteine )
+  , ( "\"UGG\"" , Tryptophan )
+  , ( "\"UAA\"" , STOP )
+  , ( "\"UAG\"" , STOP )
+  , ( "\"UGA\"" , STOP )
+  ]
+takeBy :: Int -> [ a ] -> [[ a ]]
+takeBy 0 _ = []
+takeBy _ [] = []
+takeBy n xs = let ( i , t ) = splitAt n xs
+  in i : takeBy n t
+proteins :: String -> Maybe [ String ]
+proteins = liftM ( map show ) . liftM ( takeWhile ( /= STOP )) . mapM ( flip lookup sequences ) . takeBy 3

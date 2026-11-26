@@ -1,0 +1,26 @@
+UPDATE collatz
+SET steps = (
+WITH RECURSIVE
+contexto AS (
+SELECT
+number AS num_alvo
+FROM collatz AS sub
+WHERE sub . rowid = collatz . rowid
+),
+sequencia ( passo , valor_corrente ) AS (
+SELECT 0 , num_alvo
+FROM contexto
+WHERE num_alvo > 0
+UNION ALL
+SELECT
+passo + 1 ,
+IIF ( valor_corrente % 2 = 0 , valor_corrente / 2 , ( valor_corrente * 3 ) + 1 )
+FROM sequencia
+WHERE valor_corrente > 1
+)
+SELECT
+CASE
+WHEN ( SELECT num_alvo FROM contexto ) <= 0 THEN 1 / 0
+ELSE ( SELECT passo FROM sequencia ORDER BY passo DESC LIMIT 1 )
+END
+);

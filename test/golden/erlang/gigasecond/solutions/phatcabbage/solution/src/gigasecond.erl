@@ -1,0 +1,13 @@
+-module(gigasecond).
+
+-export([from/1]).
+
+
+extract_birth({BirthDate, BirthTime}) -> {BirthDate, BirthTime};
+extract_birth(BirthDate) -> {BirthDate, {0,0,0}}.
+
+from(From) -> 
+  BirthDateTime = extract_birth(From),
+  BirthSeconds = calendar:datetime_to_gregorian_seconds(BirthDateTime),
+  calendar:gregorian_seconds_to_datetime(BirthSeconds + 1000000000).
+

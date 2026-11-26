@@ -1,0 +1,21 @@
+open Base
+let empty : int Map . M ( Char ) . t = Map . empty ( module Char )
+let nucleotides = [ ' A' ; ' C' ; ' G' ; ' T' ]
+let is_valid_nucleotide ( nucleotide : char ) : bool =
+nucleotides |> List . exists ~ f : ( equal_char nucleotide )
+let count_nucleotide ( sequence : string ) ( nucleotide : char ) :
+( int , char ) Result . t =
+if not ( is_valid_nucleotide nucleotide ) then Result . fail nucleotide
+else
+String . fold_result sequence ~ init : 0 ~ f : ( fun acc nuc ->
+if not ( is_valid_nucleotide nuc ) then Result . fail nuc
+else
+( if equal_char nuc nucleotide then acc + 1 else acc ) |> Result . return )
+let count_nucleotides ( sequence : string ) : ( int Map . M ( Char ) . t , char ) Result . t =
+nucleotides
+|> List . fold_result ~ init : empty ~ f : ( fun acc nucleotide ->
+match count_nucleotide sequence nucleotide with
+| Result . Ok 0 -> Result . return acc
+| Result . Ok count ->
+acc |> Map . add_exn ~ key : nucleotide ~ data : count |> Result . return
+| Result . Error err -> Result . fail err )

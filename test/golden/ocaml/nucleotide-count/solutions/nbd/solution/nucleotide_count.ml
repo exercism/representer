@@ -1,0 +1,32 @@
+open Base
+
+exception Bad_nucleotide of char
+
+let check_nucleotide c =
+  match c with
+  | 'G' | 'A' | 'T' | 'C' -> ()
+  | _ -> raise (Bad_nucleotide c)
+
+let count_nucleotide' s c =
+  check_nucleotide c;
+  let count1 total c2 =
+      check_nucleotide c2;
+      if Char.(=) c c2 then total + 1 else total
+  in
+  String.fold s ~init:0 ~f:count1
+
+let count_nucleotide s c =
+  try Ok (count_nucleotide' s c)
+with Bad_nucleotide x -> Error x
+
+let count_nucleotides s =
+  try
+    let empty = Map.empty (module Char)
+    and count1 m c =
+      match count_nucleotide' s c with
+      | 0 -> m
+      | n -> Map.set m ~key:c ~data:n
+    in
+    Ok (List.fold ['G';'A';'T';'C'] ~init:empty ~f:count1)
+  with Bad_nucleotide x -> Error x
+  

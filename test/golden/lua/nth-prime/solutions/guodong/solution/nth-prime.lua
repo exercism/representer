@@ -1,0 +1,33 @@
+function isprime(n)
+  if n == 2 or n == 3 then return true end
+  if n % 2 == 0 then return false end
+  
+  for i = 2, math.floor(math.sqrt(n)) + 1 do
+    if n % i == 0 then return false end 
+  end
+
+  return true
+end
+
+function myGenerator()
+  local i = 2
+  repeat
+    if isprime(i) then coroutine.yield(i) end
+    i = i + 1
+  until false
+end
+
+
+return function(n)
+  if n <= 0 then
+    error('n <= 0 is error')
+  end
+  
+  local co = coroutine.create(myGenerator)
+  local result
+  for i = 1, n do
+    _, result = coroutine.resume(co)
+  end
+
+  return result
+end

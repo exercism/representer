@@ -1,0 +1,23 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. rotational-cipher.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-KEY PIC 9(2).
+       01 WS-TEXT PIC X(128).
+       01 WS-CIPHER PIC X(128).
+       01 I PIC 999.
+       01 TEMP-ORD PIC 99.
+       PROCEDURE DIVISION.
+       ROTATIONAL-CIPHER.
+           MOVE FUNCTION UPPER-CASE(WS-TEXT) TO WS-TEXT
+           PERFORM VARYING I FROM 1 BY 1 UNTIL I > 128
+               COMPUTE TEMP-ORD = FUNCTION ORD(WS-TEXT(I:1))
+               IF TEMP-ORD >= 66 AND TEMP-ORD <= 91
+                   COMPUTE TEMP-ORD =
+                       FUNCTION MOD(TEMP-ORD - 66 + WS-KEY, 26) + 66
+                   MOVE FUNCTION CHAR(TEMP-ORD) TO WS-CIPHER(I:1)
+               ELSE
+                   MOVE WS-TEXT(I:1) TO WS-CIPHER(I:1)
+               END-IF
+           END-PERFORM
+           .

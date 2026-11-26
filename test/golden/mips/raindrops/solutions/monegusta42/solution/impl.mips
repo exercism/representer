@@ -1,0 +1,80 @@
+# | Register | Usage        | Type    | Description                   |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0`    | input        | integer | given number                  |
+# | `$a1`    | input/output | address | null-terminated result string |
+# | `$t0-9`  | temporary    | any     | for temporary storage         |
+
+.globl raindrops
+
+# writes "Pl%ng" to output str (from $t0)
+# uses $t9
+.macro plng(%l)
+        li   $t9, 'P'
+        sb   $t9, 0($t0)
+        li   $t9, 'l'
+        sb   $t9, 1($t0)
+        add  $t9, $zero, %l
+        sb   $t9, 2($t0)
+        li   $t9, 'n'
+        sb   $t9, 3($t0)
+        li   $t9, 'g'
+        sb   $t9, 4($t0)
+        addi $t0, $t0, 5
+.end_macro
+
+raindrops:
+        move $t0, $a1
+        
+        li   $t1, 3          # check if divisible by 3
+        div  $a0, $t1
+        mfhi $t1
+        bnez $t1, chk5       # skip if not divisible by 3
+        plng('i')            # write "Pling"
+chk5:
+        li   $t1, 5          # check if divisible by 5
+        div  $a0, $t1
+        mfhi $t1
+        bnez $t1, chk7       # skip if not divisible by 5
+        plng('a')            # write "Plang"
+chk7:
+        li   $t1, 7          # check if divisible by 7
+        div  $a0, $t1
+        mfhi $t1
+        bnez $t1, chk0       # skip if not divisible by 7
+        plng('o')            # write "Plong"
+chk0:
+        bne  $a1, $t0, done  # if we wrote anything to output, we are done
+
+        bnez $a0, to_str     # special case if input was 0
+        li   $t1, '0'
+        sb   $t1, 0($t0)     # write '0' to output string
+        addi $t0, $t0, 1     # adv str pointer
+        j    done
+
+to_str:
+        move $t1, $sp        # store stack pointer
+        move $t2, $a0        # copy input
+        li   $t3, 10         # divisor
+        li   $t8, '0'
+
+pshdig:
+        beqz $t2, write
+        div  $t2, $t3        # div by 10 to get quo ($lo) and rem ($hi)
+        mflo $t2
+        mfhi $t9
+        add  $t9, $t9, $t8   # convert to char
+        addi $sp, $sp, -1    # make space on stack
+        sb   $t9, 0($sp)     # push char onto stack
+        j    pshdig
+
+write:
+        beq  $sp, $t1, done  # if back to original $sp, done
+        lb   $t9, 0($sp)     # load char from stack
+        subi $sp, $sp, -1    # dec stack pointer
+        sb   $t9, 0($t0)     # add char to output str
+        addi $t0, $t0, 1     # adv output str pointer
+        j    write
+
+done:
+        sb   $zero, 0($t0)   # cap output str with \0
+        jr   $ra

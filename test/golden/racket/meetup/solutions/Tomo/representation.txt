@@ -1,0 +1,29 @@
+# lang racket
+( require racket/date )
+( provide meetup-day )
+( define ( make-date year month day )
+( seconds->date ( find-seconds 0 0 0 day month year #f ) #f ))
+( define ( get-dom which )
+( case which
+[ 'first ( values 1 8 )]
+[ 'second ( values 8 15 )]
+[ 'third ( values 15 22 )]
+[ 'fourth ( values 22 29 )]
+[ 'last ( values 25 32 )]
+[ 'teenth ( values 13 20 )]))
+( define ( dow->week-day dow )
+( case dow
+[ 'Monday 1 ]
+[ 'Tuesday 2 ]
+[ 'Wednesday 3 ]
+[ 'Thursday 4 ]
+[ 'Friday 5 ]
+[ 'Saturday 6 ]
+[ 'Sunday 0 ]))
+( define ( is-dow date dow )
+( = ( date-week-day date ) ( dow->week-day dow )))
+( define ( meetup-day year month dow which )
+( let-values ([( start finish ) ( get-dom which )])
+( for/first ([ day ( range start finish )]
+#:when ( is-dow ( make-date year month day ) dow ))
+( make-date year month day ))))

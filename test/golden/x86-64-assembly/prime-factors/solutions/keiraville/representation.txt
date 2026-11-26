@@ -1,0 +1,38 @@
+section .text
+global factors
+factors:
+cld
+mov r8 , 2
+mov r9 , 1
+mov rcx , rdi
+jmp .square
+.next_candidate:
+add r8 , r9
+mov r9 , 2
+.square:
+mov rax , r8
+mul r8
+cmp rsi , rax
+jl .break
+mov rax , rsi
+xor rdx , rdx
+div r8
+test rdx , rdx
+jnz .next_candidate
+mov rsi , rax
+mov rax , r8
+stosq
+jmp .square
+.break:
+cmp rsi , 1
+je .report
+mov rax , rsi
+stosq
+.report:
+mov rax , rdi
+sub rax , rcx
+shr rax , 3
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

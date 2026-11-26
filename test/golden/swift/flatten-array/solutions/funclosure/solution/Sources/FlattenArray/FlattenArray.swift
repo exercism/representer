@@ -1,0 +1,15 @@
+// // Write your code for the 'Flatten-Array' exercise in this file.
+
+func flattenArray(_ array: [Any?]) -> [Int] {
+    guard !array.isEmpty else { return [] }
+    var result: [Int] = []
+    for element in array {
+        if let int = element as? Int {
+            result.append(int)                          
+        } else if let list = element as? [Any?],
+            !list.isEmpty {
+            result.append(contentsOf: flattenArray(list))
+        }
+    }
+    return result
+}

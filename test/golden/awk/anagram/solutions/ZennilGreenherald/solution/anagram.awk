@@ -1,0 +1,12 @@
+# These variables are initialized on the command line (using '-v'):
+# - key
+
+function sort_word(w) {
+    split(w, word_ls, "")
+    asort(word_ls, sorted_ls)
+    res = ""
+    for (k in sorted_ls) res = res sorted_ls[k]
+    return res
+}
+BEGIN { sorted_key = sort_word(tolower(key)) }
+tolower($1) != tolower(key) && sort_word(tolower($1)) == sorted_key { print $1 }

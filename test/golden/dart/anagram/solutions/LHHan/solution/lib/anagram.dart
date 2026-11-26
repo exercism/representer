@@ -1,0 +1,17 @@
+class Anagram {
+  List<String> findAnagrams(String word, List<String> candidates) {
+    List listWord = word.toLowerCase().split('')..sort();
+
+    Iterable<String> result = candidates.where((element) {
+      if (element.toLowerCase() == word.toLowerCase()) {
+        return false;
+      }
+
+      List listElement = element.toLowerCase().split('')..sort();
+
+      return listElement.join() == listWord.join();
+    });
+
+    return result.toList();
+  }
+}

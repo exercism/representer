@@ -1,0 +1,105 @@
+
+{{Which resident owns the Zebra?}}
+zebraPuzzle.ownsZebra : Text
+zebraPuzzle.ownsZebra = Text.join "" (map at1 solve)
+
+{{Which resident drinks Water?}}
+zebraPuzzle.drinksWater : Text
+zebraPuzzle.drinksWater = Text.join "" (map at2 solve)
+
+zebraPuzzle.eachHouse : '{Each} Nat
+zebraPuzzle.eachHouse = do each [0x10, 0x08, 0x04, 0x02, 0x01]
+
+zebraPuzzle.nextTo a b =
+  guard   (a == Nat.shiftRight b 1 || (a == Nat.shiftLeft b 1))
+
+
+zebraPuzzle.solve = Each.toList do
+  norwegian = 0x10
+  englishman = !eachHouse
+  guard (englishman != norwegian)
+  spaniard = !eachHouse
+  guard (englishman != spaniard)
+  guard (norwegian != spaniard)
+  ukrainian = !eachHouse
+  guard (norwegian != ukrainian)
+  guard (spaniard != ukrainian)
+  guard (englishman != ukrainian)
+  japanese = !eachHouse
+  guard (englishman + spaniard + ukrainian + japanese + norwegian == 0x1f)
+  milk = 0x04
+  coffee = !eachHouse
+  tea = !eachHouse
+  guard (ukrainian == tea)
+  water = !eachHouse
+  juice = !eachHouse
+  guard (coffee + tea + milk + water + juice == 0x1f)
+  red = !eachHouse
+  guard (englishman == red)
+  blue = !eachHouse
+  nextTo norwegian blue
+  green = !eachHouse
+  guard (coffee == green)
+  ivory = !eachHouse
+  guard (green == Nat.shiftRight ivory 1)
+  yellow = !eachHouse
+  guard (red + blue + green + ivory + yellow == 0x1f)
+  parliaments = !eachHouse
+  guard (japanese == parliaments)
+  luckyStrike = !eachHouse
+  guard (luckyStrike == juice)
+  dog = !eachHouse
+  guard (spaniard == dog)
+  snails = !eachHouse
+  oldGold = !eachHouse
+  guard (oldGold == snails)
+  fox = !eachHouse
+  chesterfields = !eachHouse
+  nextTo chesterfields fox
+  kools = !eachHouse
+  guard (oldGold + chesterfields + parliaments + luckyStrike + kools == 0x1f)
+  horse = !eachHouse
+  nextTo kools horse
+  guard (kools == yellow)
+  zebra = !eachHouse
+  guard (dog + snails + fox + horse + zebra == 0x1f)
+
+  nationalities = NatMap.fromList [
+    (englishman, "Englishman"),
+    (spaniard, "Spaniard"),
+    (ukrainian, "Ukrainian"),
+    (japanese, "Japanese"),
+    (norwegian, "Norwegian")
+  ]
+  colors = NatMap.fromList [
+    (red, "Red"),
+    (blue, "Blue"),
+    (green, "Green"),
+    (ivory, "Ivory"),
+    (yellow, "Yellow")
+  ]
+  drinks = NatMap.fromList [
+    (coffee, "Coffee"),
+    (tea, "Tea"),
+    (milk, "Milk"),
+    (water, "Water"),
+    (juice, "Orange Juice")
+  ]
+  smokes = NatMap.fromList [
+    (oldGold, "Old Gold"),
+    (chesterfields, "Chesterfields"),
+    (parliaments, "Parliaments"),
+    (luckyStrike, "Lucky Strike"),
+    (kools, "Kools")
+  ]
+  pets = NatMap.fromList [
+    (dog, "Dog"),
+    (snails, "Snails"),
+    (fox, "Fox"),
+    (horse, "Horse"),
+    (zebra, "Zebra")
+  ]
+
+  zebraOwner = each (toList (NatMap.get zebra nationalities))
+  waterDrinker = each (toList (NatMap.get water nationalities))
+  (zebraOwner, waterDrinker)

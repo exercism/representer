@@ -1,0 +1,36 @@
+module AllYourBase
+  ( rebase ,
+    toInt ,
+    toArray
+  ) where
+import Data.Array ( any , mapWithIndex , reverse , uncons , ( : ))
+import Data.Foldable ( sum )
+import Data.Int ( pow )
+import Data.Maybe ( Maybe ( .. ))
+import Prelude
+toInt ∷ Int → Array Int → Int
+toInt base a =
+  sum $ mapWithIndex ( \ i x → ( base ` pow ` i ) * x ) $ reverse a
+toArray ∷ Int → Int → Array Int
+toArray b n =
+  reverse $ toArray' b n []
+  where
+    toArray' ∷ Int → Int → Array Int → Array Int
+    toArray' base x a =
+      if rest == 0 then
+        digit : a
+      else
+        digit : ( toArray' base rest a )
+      where
+        digit = x ` mod ` base
+        rest = x ` div ` base
+rebase ∷ Int → Int → Array Int → Maybe ( Array Int )
+rebase fromBase toBase a
+  | fromBase < 2 = Nothing
+  | toBase < 2 = Nothing
+  | any ( _ < 0 ) a = Nothing
+  | any ( _ >= fromBase ) a = Nothing
+  | otherwise = case uncons a of
+    Just { head : 0 , tail : _ } → Nothing
+    Nothing → Nothing
+    Just _ → Just $ toArray toBase $ toInt fromBase a

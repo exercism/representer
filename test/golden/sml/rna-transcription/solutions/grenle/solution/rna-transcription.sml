@@ -1,0 +1,24 @@
+val validate = let
+  fun charIsValid c = c = #"G"
+    orelse c = #"C"
+    orelse c = #"T"
+    orelse c = #"A"
+in
+  (List.all charIsValid) o explode
+end
+
+fun translator c =
+  if c = #"G"
+  then #"C"
+  else if c = #"C"
+  then #"G"
+  else if c = #"T"
+  then #"A"
+  else if c = #"A"
+  then #"U"
+  else #"X"
+
+fun toRna (dna: string): string option =
+  if validate dna
+  then SOME (String.map translator dna)
+  else NONE

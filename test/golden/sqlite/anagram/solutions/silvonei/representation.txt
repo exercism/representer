@@ -1,0 +1,56 @@
+UPDATE anagram
+SET result = (
+WITH RECURSIVE
+contexto AS (
+SELECT
+UPPER ( subject ) AS alvo_upper ,
+candidates AS cand_json
+FROM anagram AS a
+WHERE a . rowid = anagram . rowid
+),
+lista_candidatas AS (
+SELECT
+CAST ( c . key AS INT ) AS cand_idx ,
+c . value AS cand_original ,
+UPPER ( c . value ) AS cand_upper
+FROM contexto , json_each ( contexto . cand_json ) AS c
+),
+indices ( idx ) AS (
+SELECT 1
+UNION ALL
+SELECT idx + 1 FROM indices WHERE idx < 50
+),
+letras_alvo AS (
+SELECT
+SUBSTR ( alvo_upper , idx , 1 ) AS letra ,
+COUNT ( * ) AS qtd
+FROM contexto , indices
+WHERE idx <= LENGTH ( alvo_upper )
+GROUP BY SUBSTR ( alvo_upper , idx , 1 )
+),
+letras_candidatas AS (
+SELECT
+cand_idx ,
+SUBSTR ( cand_upper , idx , 1 ) AS letra ,
+COUNT ( * ) AS qtd
+FROM lista_candidatas , indices
+WHERE idx <= LENGTH ( cand_upper )
+GROUP BY cand_idx , SUBSTR ( cand_upper , idx , 1 )
+),
+candidatos_validos AS (
+SELECT lc . cand_idx , lc . cand_original
+FROM lista_candidatas lc , contexto ctx
+WHERE LENGTH ( lc . cand_upper ) = LENGTH ( ctx . alvo_upper )
+AND lc . cand_upper != ctx . alvo_upper
+AND NOT EXISTS (
+SELECT 1
+FROM letras_candidatas l_c
+LEFT JOIN letras_alvo l_a ON l_c . letra = l_a . letra
+WHERE l_c . cand_idx = lc . cand_idx
+AND ( l_a . letra IS NULL OR l_c . qtd != l_a . qtd )
+)
+ORDER BY lc . cand_idx ASC
+)
+SELECT COALESCE ( json_group_array ( cand_original ), '[]' )
+FROM candidatos_validos
+);

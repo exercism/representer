@@ -1,0 +1,7 @@
+namespace TwoFer
+
+def twoFer (name : Option String) : String :=
+  let name := name.getD "you"
+  s!"One for {name}, one for me."
+
+end TwoFer

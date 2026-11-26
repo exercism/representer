@@ -1,0 +1,56 @@
+000001 IDENTIFICATION DIVISION.
+       PROGRAM-ID. ROMAN-NUMERALS.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-NUMBER PIC 9999.
+       01 WS-RESULT PIC X(20).
+       01 WS-ROMAN.
+         05 WS-LETTER PIC X.
+         05 WS-VALUE PIC 9999.
+         05 WS-LOWER-LETTER PIC X.
+         05 WS-LOWER-VALUE PIC 999.
+       PROCEDURE DIVISION.
+       ROMAN-NUMERALS.
+         MOVE SPACE TO WS-RESULT
+         PERFORM SUB-NUM UNTIL WS-NUMBER = 0.
+       SUB-NUM.
+         EVALUATE TRUE
+            WHEN WS-NUMBER >= 900
+               MOVE 'M1000C100' TO WS-ROMAN
+               PERFORM TO-ROMAN
+            WHEN WS-NUMBER >= 400
+               MOVE 'D0500C100' TO WS-ROMAN
+               PERFORM TO-ROMAN
+            WHEN WS-NUMBER >= 90
+               MOVE 'C0100X010' TO WS-ROMAN
+               PERFORM TO-ROMAN
+            WHEN WS-NUMBER >= 40
+               MOVE 'L0050X010' TO WS-ROMAN
+               PERFORM TO-ROMAN
+            WHEN WS-NUMBER >= 9
+               MOVE 'X0010I001' TO WS-ROMAN
+               PERFORM TO-ROMAN
+            WHEN WS-NUMBER >= 4
+               MOVE 'V0005I001' TO WS-ROMAN
+               PERFORM TO-ROMAN
+            WHEN WS-NUMBER >= 1
+               SUBTRACT 1 FROM WS-NUMBER
+               STRING WS-RESULT DELIMITED BY SPACE
+                  'I' DELIMITED BY SIZE
+                  INTO WS-RESULT
+               END-STRING.
+       TO-ROMAN.
+         IF WS-NUMBER < WS-VALUE
+            ADD WS-LOWER-VALUE TO WS-NUMBER
+            STRING WS-RESULT DELIMITED BY SPACE
+               WS-LOWER-LETTER DELIMITED BY SIZE
+               INTO WS-RESULT
+            END-STRING
+         ELSE
+            SUBTRACT WS-VALUE FROM WS-NUMBER
+            STRING WS-RESULT DELIMITED BY SPACE
+               WS-LETTER DELIMITED BY SIZE
+               INTO WS-RESULT
+            END-STRING
+         END-IF.

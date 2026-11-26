@@ -1,0 +1,65 @@
+;;; parallel-letter-frequency.el --- Parallel Letter Frequency (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;;; Code:
+
+
+(defvar parallel-countp t)
+
+(defun single-calculate-frequencies (texts)
+  (let* ((freq (make-hash-table :test 'equal)))
+    (mapc (lambda (s)
+            (mapc (lambda (c)
+                    (when (memq (get-char-code-property c 'general-category)
+                              '(Ll Lu Lo Lt Lm Mn Mc Me Nl))
+                      (puthash (downcase c) (1+ (gethash (downcase c) freq 0)) freq)))
+                  s))
+          (if (listp texts) texts (list texts)))
+    freq))
+
+(defun calculate-frequencies (texts)
+  (if (not parallel-countp)
+      (single-calculate-frequencies texts)
+    (let* ((freq (make-hash-table :test 'equal)))
+      (with-temp-buffer
+        (parallel-run '("emacs" "-Q" "--batch" "-l" "parallel-letter-frequency.el" "--eval")
+                      (mapcar (lambda (v) (format "(print (single-calculate-frequencies %S))" v)) texts)
+                      (current-buffer))
+        (goto-char (point-min))
+        (while (re-search-forward "^#s" nil t)
+          (maphash (lambda (key value)
+                     (puthash key (+ value (gethash key freq 0)) freq))
+                   (car (read-from-string (buffer-substring-no-properties (line-beginning-position)
+                                                                          (line-end-position)))))))
+      freq)))
+
+(defun parallel--wait (name count)
+  "Wait for the number of processes with base name NAME to be less than COUNT."
+  (while (< count (seq-count (lambda (p)
+                               (string-match-p (format "^%s\\(<[0-9]+>\\)*" name) (process-name p)))
+                             (process-list)))
+    (sleep-for 0.001)))
+
+(defun parallel-run (cmd args output-buffer &optional num-procs)
+  "Run CMD with ARGS in NUM-PROCS parallel processes and return output in OUTPUT-BUFFER."
+  (let* ((num-procs (or num-procs (num-processors)))
+         (outputs)
+         (stderr (generate-new-buffer "*parallel-errors*"))
+         (proc-name "*parallelproc*"))
+    (dolist (arg args)
+      (parallel--wait proc-name num-procs)
+      (make-process :name proc-name :buffer (car (push (generate-new-buffer proc-name t) outputs))
+                    :stderr stderr
+                    :sentinel #'ignore
+                    :command (append cmd (list arg))))
+    (parallel--wait proc-name 1)
+    (with-current-buffer output-buffer
+      (dolist (buf (reverse outputs))
+        (insert (with-current-buffer buf
+                  (buffer-string)))
+        (kill-buffer buf)))))
+
+
+(provide 'parallel-letter-frequency)
+;;; parallel-letter-frequency.el ends here

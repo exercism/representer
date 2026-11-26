@@ -1,0 +1,27 @@
+module BinarySearch
+  ( find
+  ) where
+
+import Prelude
+
+import Data.Array (length, slice, (!!))
+import Data.Maybe (Maybe(..), fromJust)
+import Partial.Unsafe (unsafePartial)
+
+find :: forall a. Ord a => a -> Array a -> Maybe Int
+find = find' 0
+
+find' :: forall a. Ord a => Int -> a -> Array a -> Maybe Int
+find' _ _ [] = Nothing
+find' offset needle [ x ]
+  | x == needle = Just offset
+  | otherwise = Nothing
+find' offset needle haystack = case compare needle elem of
+  EQ -> Just (offset + middle)
+  LT -> find' offset needle (slice 0 middle haystack)
+  GT -> find' (offset + middle + 1) needle (slice (middle + 1) len haystack)
+  where
+  len = length haystack :: Int
+  middle = len / 2 :: Int
+  elem = unsafePartial $ fromJust $ haystack !! middle
+

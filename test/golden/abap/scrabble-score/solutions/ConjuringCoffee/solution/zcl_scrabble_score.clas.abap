@@ -1,0 +1,71 @@
+CLASS zcl_scrabble_score DEFINITION PUBLIC.
+
+  PUBLIC SECTION.
+    METHODS constructor.
+
+    METHODS score
+      IMPORTING
+        !input        TYPE string OPTIONAL
+      RETURNING
+        VALUE(result) TYPE i.
+
+  PRIVATE SECTION.
+    TYPES: BEGIN OF gy_s_letter_value,
+             letter TYPE c LENGTH 1,
+             value  TYPE i,
+           END OF gy_s_letter_value.
+    TYPES gy_t_letter_value TYPE SORTED TABLE OF gy_s_letter_value WITH UNIQUE KEY letter.
+
+    DATA mt_letter_value TYPE gy_t_letter_value.
+ENDCLASS.
+
+
+CLASS zcl_scrabble_score IMPLEMENTATION.
+  METHOD constructor.
+    mt_letter_value = VALUE #( ( letter = 'A' value = 1 )
+                               ( letter = 'B' value = 3 )
+                               ( letter = 'C' value = 3 )
+                               ( letter = 'D' value = 2 )
+                               ( letter = 'E' value = 1 )
+                               ( letter = 'F' value = 4 )
+                               ( letter = 'G' value = 2 )
+                               ( letter = 'H' value = 4 )
+                               ( letter = 'I' value = 1 )
+                               ( letter = 'J' value = 8 )
+                               ( letter = 'K' value = 5 )
+                               ( letter = 'L' value = 1 )
+                               ( letter = 'M' value = 3 )
+                               ( letter = 'N' value = 1 )
+                               ( letter = 'O' value = 1 )
+                               ( letter = 'P' value = 3 )
+                               ( letter = 'Q' value = 10 )
+                               ( letter = 'R' value = 1 )
+                               ( letter = 'S' value = 1 )
+                               ( letter = 'T' value = 1 )
+                               ( letter = 'U' value = 1 )
+                               ( letter = 'V' value = 4 )
+                               ( letter = 'W' value = 4 )
+                               ( letter = 'X' value = 8 )
+                               ( letter = 'Y' value = 4 )
+                               ( letter = 'Z' value = 10 ) ).
+  ENDMETHOD.
+
+  METHOD score.
+    DATA(lv_sanatized_input) = to_upper( input ).
+
+    DATA(lv_index) = 0.
+    DATA(lv_length) = strlen( lv_sanatized_input ).
+
+    WHILE lv_index < lv_length.
+      DATA(lv_letter) = lv_sanatized_input+lv_index(1).
+
+      READ TABLE mt_letter_value
+           WITH KEY letter = lv_letter
+           BINARY SEARCH
+           ASSIGNING FIELD-SYMBOL(<ls_letter_value>).
+
+      result += <ls_letter_value>-value.
+      lv_index += 1.
+    ENDWHILE.
+  ENDMETHOD.
+ENDCLASS.

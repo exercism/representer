@@ -1,0 +1,51 @@
+# Determine if a list of YYYY-MM-DD birthdates contains
+# any shared birthdays.
+
+proc sharedBirthday {birthdays} {
+    set birthdays [lmap b $birthdays { string range $b 5 end }]
+    return [expr {[llength [lsort -unique $birthdays]] != [llength $birthdays] && [llength $birthdays] > 1}]
+}
+
+# Generate a list of $count random dates in YYYY-MM-DD form.
+# Do not include leap years.
+
+proc rand_int_plus {n k} {
+    expr {int(rand() * $n) + $k}
+}
+
+proc randomBirthdates {count} {
+    set acc {}
+    for {set i 0} {$i < $count} {incr i} {
+        set year [rand_int_plus 100 1900]
+        if {$year % 4 == 0} {
+            incr year [rand_int_plus 3 1]
+        }
+        set month [rand_int_plus 12 1]
+        if {$month == 2} {
+            set days [expr {int(rand() * 28) + 1}]
+        } elseif {$month in {1 3 5 7 8 10 12}} {
+            set days [rand_int_plus 31 1]
+        } else {
+            set days [rand_int_plus 30 1]
+        }
+        if {$month < 10} {
+            set month "0$month"
+        }
+        if {$days < 10} {
+            set days "0$days"
+        }
+        lappend acc "$year-$month-$days"
+    }
+    return $acc
+}
+
+# Estimate the probability that 2 people in a group of given size
+# have the same birthday.
+
+proc estimatedProbabilityOfSharedBirthday {size} {
+    set prob_unique 1.0
+    for {set i 2} {$i <= $size} {incr i} {
+        set prob_unique [expr {$prob_unique * (365 - $i + 1) / 365}]
+    }
+    expr {(1.0 - $prob_unique) * 100.0}
+}

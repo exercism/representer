@@ -1,0 +1,258 @@
+(source
+  (call defmodule
+    (arguments TakeANumberDeluxe)
+    (do_block
+      (call use
+        (arguments GenServer))
+      (unary_operator @
+        (call PLACEHOLDER_1
+          (arguments 1)))
+      (unary_operator @
+        (call PLACEHOLDER_2
+          (arguments 100)))
+      (unary_operator @
+        (call PLACEHOLDER_3
+          (arguments :infinity)))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call start_link
+                (arguments keyword)) ::
+              (binary_operator
+                (tuple :ok pid) |
+                (tuple :error atom))))))
+      (call def
+        (arguments
+          (call start_link
+            (arguments (variable PLACEHOLDER_4))))
+        (do_block
+          (call
+            (dot GenServer . start_link)
+            (arguments __MODULE__ PLACEHOLDER_4))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call report_state
+                (arguments pid)) ::
+              (call
+                (dot
+                  (alias TakeANumberDeluxe State) . t)
+                (arguments))))))
+      (call def
+        (arguments
+          (call report_state
+            (arguments (variable PLACEHOLDER_5))))
+        (do_block
+          (call
+            (dot GenServer . call)
+            (arguments PLACEHOLDER_5 :report_state))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call queue_new_number
+                (arguments pid)) ::
+              (binary_operator
+                (tuple :ok integer) |
+                (tuple :error atom))))))
+      (call def
+        (arguments
+          (call queue_new_number
+            (arguments (variable PLACEHOLDER_5))))
+        (do_block
+          (call
+            (dot GenServer . call)
+            (arguments PLACEHOLDER_5 :queue_new_number))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call serve_next_queued_number
+                (arguments pid
+                  (binary_operator integer |
+                    (nil)))) ::
+              (binary_operator
+                (tuple :ok integer) |
+                (tuple :error atom))))))
+      (call def
+        (arguments
+          (call serve_next_queued_number
+            (arguments (variable PLACEHOLDER_5)
+              (binary_operator priority_number "\\\\"
+                (nil)))))
+        (do_block
+          (call
+            (dot GenServer . call)
+            (arguments PLACEHOLDER_5
+              (tuple :serve_next_queued_number priority_number)))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call reset_state
+                (arguments pid)) :: :ok))))
+      (call def
+        (arguments
+          (call reset_state
+            (arguments (variable PLACEHOLDER_5))))
+        (do_block
+          (call
+            (dot GenServer . cast)
+            (arguments PLACEHOLDER_5 :reset_state))))
+      (unary_operator @
+        (call impl
+          (arguments GenServer)))
+      (call def
+        (arguments
+          (call init
+            (arguments (variable PLACEHOLDER_4))))
+        (do_block
+          (binary_operator min_number =
+            (call
+              (dot Keyword . get)
+              (arguments PLACEHOLDER_4 :min_number
+                (unary_operator @ PLACEHOLDER_1))))
+          (binary_operator max_number =
+            (call
+              (dot Keyword . get)
+              (arguments PLACEHOLDER_4 :max_number
+                (unary_operator @ PLACEHOLDER_2))))
+          (binary_operator auto_shutdown_timeout =
+            (call
+              (dot Keyword . get)
+              (arguments PLACEHOLDER_4 :auto_shutdown_timeout
+                (unary_operator @ PLACEHOLDER_3))))
+          (call case
+            (arguments
+              (call
+                (dot
+                  (alias TakeANumberDeluxe State) . new)
+                (arguments min_number max_number auto_shutdown_timeout)))
+            (do_block
+              (stab_clause
+                (arguments
+                  (tuple :ok state)) ->
+                (body
+                  (tuple :ok state
+                    (call
+                      (dot state . auto_shutdown_timeout)))))
+              (stab_clause
+                (arguments
+                  (tuple :error (variable PLACEHOLDER_6))) ->
+                (body
+                  (tuple :stop PLACEHOLDER_6)))))))
+      (unary_operator @
+        (call impl
+          (arguments GenServer)))
+      (call def
+        (arguments
+          (call handle_call
+            (arguments :report_state (variable PLACEHOLDER_7) state)))
+        (do_block
+          (tuple :reply state state
+            (call
+              (dot state . auto_shutdown_timeout)))))
+      (unary_operator @
+        (call impl
+          (arguments GenServer)))
+      (call def
+        (arguments
+          (call handle_call
+            (arguments :queue_new_number (variable PLACEHOLDER_7) state)))
+        (do_block
+          (call case
+            (arguments
+              (call
+                (dot
+                  (alias TakeANumberDeluxe State) . queue_new_number)
+                (arguments state)))
+            (do_block
+              (stab_clause
+                (arguments
+                  (tuple :ok (variable PLACEHOLDER_8) (variable PLACEHOLDER_9))) ->
+                (body
+                  (tuple :reply
+                    (tuple :ok PLACEHOLDER_8) PLACEHOLDER_9
+                    (call
+                      (dot PLACEHOLDER_9 . auto_shutdown_timeout)))))
+              (stab_clause
+                (arguments error) ->
+                (body
+                  (tuple :reply error state
+                    (call
+                      (dot state . auto_shutdown_timeout)))))))))
+      (unary_operator @
+        (call impl
+          (arguments GenServer)))
+      (call def
+        (arguments
+          (call handle_call
+            (arguments
+              (tuple :serve_next_queued_number priority_number) (variable PLACEHOLDER_7) state)))
+        (do_block
+          (call case
+            (arguments
+              (call
+                (dot
+                  (alias TakeANumberDeluxe State) . serve_next_queued_number)
+                (arguments state priority_number)))
+            (do_block
+              (stab_clause
+                (arguments
+                  (tuple :ok (variable PLACEHOLDER_10) (variable PLACEHOLDER_9))) ->
+                (body
+                  (tuple :reply
+                    (tuple :ok PLACEHOLDER_10) PLACEHOLDER_9
+                    (call
+                      (dot PLACEHOLDER_9 . auto_shutdown_timeout)))))
+              (stab_clause
+                (arguments error) ->
+                (body
+                  (tuple :reply error state
+                    (call
+                      (dot state . auto_shutdown_timeout)))))))))
+      (unary_operator @
+        (call impl
+          (arguments GenServer)))
+      (call def
+        (arguments
+          (call handle_cast
+            (arguments :reset_state state)))
+        (do_block
+          (binary_operator
+            (tuple :ok (variable PLACEHOLDER_9)) =
+            (call
+              (dot
+                (alias TakeANumberDeluxe State) . new)
+              (arguments
+                (call
+                  (dot state . min_number))
+                (call
+                  (dot state . max_number))
+                (call
+                  (dot state . auto_shutdown_timeout)))))
+          (tuple :noreply PLACEHOLDER_9
+            (call
+              (dot PLACEHOLDER_9 . auto_shutdown_timeout)))))
+      (unary_operator @
+        (call impl
+          (arguments GenServer)))
+      (call def
+        (arguments
+          (call handle_info
+            (arguments :timeout state)))
+        (do_block
+          (tuple :stop :normal state)))
+      (unary_operator @
+        (call impl
+          (arguments GenServer)))
+      (call def
+        (arguments
+          (call handle_info
+            (arguments (variable PLACEHOLDER_11) state)))
+        (do_block
+          (tuple :noreply state
+            (call
+              (dot state . auto_shutdown_timeout))))))))

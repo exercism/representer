@@ -1,0 +1,6 @@
+# Encode (key, plaintext) = cyphertext
+Encode ← +@a ◿26 + ↯ ⊃([⋅⧻]|-@a|-@a⋅∘)
+# Decode (key, cypertext) = plaintext
+Decode ← +@a ◿26 +26 - ↯ ⊃([⋅⧻]|-@a|-@a⋅∘)
+# RandomKey is niladic
+RandomKey ← + @a ⍥(⚂₂₆)100

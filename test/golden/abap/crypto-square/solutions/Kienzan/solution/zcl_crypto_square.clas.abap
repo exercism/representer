@@ -1,0 +1,64 @@
+CLASS zcl_crypto_square DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    METHODS encode IMPORTING plain_text         TYPE string
+                   RETURNING VALUE(crypto_text) TYPE string.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_crypto_square IMPLEMENTATION.
+  METHOD encode.
+    DATA(normalized) = replace( val  = to_lower( plain_text )
+                                regex = '[\s\W]'
+                                with = ''
+                                occ  = 0 ).
+
+    DATA(normalized_len) = strlen( normalized ).
+    IF normalized_len = 0.
+      RETURN.
+    ENDIF.
+
+    DATA(c) = ceil( sqrt( normalized_len ) ).
+    DATA(r) = ceil( normalized_len / c ).
+
+    TYPES: stringtab TYPE TABLE OF string WITH EMPTY KEY. 
+    DATA tab    TYPE stringtab.
+    DATA offset TYPE i VALUE IS INITIAL.
+
+    WHILE offset + c < normalized_len.
+      DATA(word) = normalized+offset(c).
+      APPEND word TO tab.
+      offset += c.
+    ENDWHILE.
+    DATA(rest_len) = normalized_len - offset.
+    DATA(rest) = normalized+offset(rest_len).
+    rest = rest && repeat( val = ` `
+                           occ = c - rest_len ).
+    APPEND rest TO tab.
+
+    CLEAR offset.
+    DATA encoded_line TYPE string.
+
+    WHILE offset < c.
+      LOOP AT tab ASSIGNING FIELD-SYMBOL(<line>).
+        DATA(char) = <line>+offset(1).
+        encoded_line &&= char.
+      ENDLOOP.
+      crypto_text &&= |{ encoded_line } |.
+      CLEAR encoded_line.
+      offset += 1.
+    ENDWHILE.
+
+    DATA(last_char) = strlen( crypto_text ) - 1.
+    IF crypto_text+last_char(1) = ` `.
+      crypto_text = substring( val = crypto_text
+                               len = strlen( crypto_text ) - 1  ).
+    ENDIF.
+  ENDMETHOD.
+ENDCLASS.

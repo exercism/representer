@@ -1,0 +1,24 @@
+module main
+
+fn is_paired(input string) bool {
+	match_for := {
+		`)`: `(`
+		`]`: `[`
+		`}`: `{`
+	}
+	mut stack := []u8{cap: input.len / 2}
+	for ch in input {
+		match ch {
+			`(`, `[`, `{` {
+				stack << ch
+			}
+			`)`, `]`, `}` {
+				if stack.len == 0 || stack.pop() != match_for[ch] {
+					return false
+				}
+			}
+			else {} // skip other chars
+		}
+	}
+	return stack.len == 0
+}

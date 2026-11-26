@@ -1,0 +1,16 @@
+if (.digits | length) < (.span) then
+  "span must not exceed string length" | halt_error
+elif .digits | test("\\D") then
+  "digits input must only contain digits" | halt_error
+elif .span < 0 then
+  "span must not be negative" | halt_error
+else
+  (.digits / "" | map(tonumber)) as $digits
+  | .span as $span
+  | [
+     range(($digits | length) - $span + 1)
+     | $digits[. : . + $span]
+     | reduce .[] as $n (1; . * $n)
+    ]
+  | max // 1
+end

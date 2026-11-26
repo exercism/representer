@@ -1,0 +1,258 @@
+Class {
+#name : #Bowling ,
+#superclass : #Object ,
+#instVars : [
+'rolls'
+] ,
+#category : # 'Exercise@Bowling'
+}
+{ #category : #initialization }
+Bowling >> initialize [
+super initialize .
+rolls := OrderedCollection new
+]
+{ #category : #private }
+Bowling >> isStrike: rollIndex [
+rollIndex + 1 <= rolls size ifFalse: [ ^ false ].
+^ ( rolls at: rollIndex + 1 ) = 10
+]
+{ #category : #private }
+Bowling >> isSpare: rollIndex [
+rollIndex + 2 <= rolls size ifFalse: [ ^ false ].
+^ ( rolls at: rollIndex + 1 ) + ( rolls at: rollIndex + 2 ) = 10
+]
+{ #category : #private }
+Bowling >> scoreFrame: frameIndex [
+| score |
+score := 0 .
+( self isStrike: frameIndex ) ifTrue: [
+score := 10 + ( rolls at: frameIndex + 2 ) + ( rolls at: frameIndex + 3 ).
+^ score
+].
+( self isSpare: frameIndex ) ifTrue: [
+score := 10 + ( rolls at: frameIndex + 3 ).
+^ score
+].
+score := ( rolls at: frameIndex + 1 ) + ( rolls at: frameIndex + 2 ).
+^ score
+]
+{ #category : #private }
+Bowling >> nextRollIndex: frameIndex [
+( self isStrike: frameIndex )
+ifTrue: [ ^ frameIndex + 1 ]
+ifFalse: [ ^ frameIndex + 2 ]
+]
+{ #category : #private }
+Bowling >> isGameComplete [
+rolls size = 0 ifTrue: [ ^ false ].
+^ self canScoreAllFrames
+]
+{ #category : #private }
+Bowling >> canScoreAllFrames [
+| rollIndex frame |
+rollIndex := 0 .
+frame := 1 .
+[ frame <= 10 ] whileTrue: [
+frame = 10 ifTrue: [
+^ self canScore10thFrame: rollIndex
+].
+( self canScoreFrame: rollIndex ) ifFalse: [ ^ false ].
+rollIndex := self nextRollIndex: rollIndex .
+frame := frame + 1
+].
+^ true
+]
+{ #category : #private }
+Bowling >> canScoreFrame: frameIndex [
+frameIndex + 1 > rolls size ifTrue: [ ^ false ].
+( self isStrike: frameIndex ) ifTrue: [
+^ frameIndex + 3 <= rolls size
+].
+frameIndex + 2 > rolls size ifTrue: [ ^ false ].
+( self isSpare: frameIndex ) ifTrue: [
+^ frameIndex + 3 <= rolls size
+].
+^ true
+]
+{ #category : #private }
+Bowling >> canScore10thFrame: frameIndex [
+| rollCount firstRoll secondRoll |
+rollCount := rolls size .
+frameIndex + 1 > rollCount ifTrue: [ ^ false ].
+firstRoll := rolls at: frameIndex + 1 .
+firstRoll = 10 ifTrue: [
+^ frameIndex + 3 <= rollCount
+].
+frameIndex + 2 > rollCount ifTrue: [ ^ false ].
+secondRoll := rolls at: frameIndex + 2 .
+( firstRoll + secondRoll = 10 ) ifTrue: [
+^ frameIndex + 3 <= rollCount
+].
+^ true
+]
+{ #category : #private }
+Bowling >> find10thFrameStart: rollsArray [
+| rollIndex frame |
+rollIndex := 0 .
+frame := 1 .
+[ frame < 10 ] whileTrue: [
+rollIndex + 1 <= rollsArray size ifTrue: [
+( rollsArray at: rollIndex + 1 ) = 10
+ifTrue: [ rollIndex := rollIndex + 1 ]
+ifFalse: [ rollIndex := rollIndex + 2 ]
+] ifFalse: [
+rollIndex := rollIndex + 1
+].
+frame := frame + 1
+].
+^ rollIndex
+]
+{ #category : #private }
+Bowling >> isGameCompleteWithRolls: rollsArray [
+| tempRolls result |
+tempRolls := rolls .
+rolls := rollsArray asOrderedCollection .
+result := self isGameComplete .
+rolls := tempRolls .
+^ result
+]
+{ #category : #private }
+Bowling >> validatePinCount: pins afterRolls: rollsArray [
+| rollCount tenthFrameStart |
+rollCount := rollsArray size .
+tenthFrameStart := self find10thFrameStart: rollsArray .
+rollCount > tenthFrameStart ifTrue: [
+self validate10thFramePinCount: pins afterRolls: rollsArray
+] ifFalse: [
+self validateRegularFramePinCount: pins afterRolls: rollsArray
+]
+]
+{ #category : #private }
+Bowling >> validateRegularFramePinCount: pins afterRolls: rollsArray [
+| rollCount rollIndex frame |
+rollCount := rollsArray size .
+rollIndex := 0 .
+frame := 1 .
+[ frame <= 9 and: [ rollIndex < rollCount - 1 ] ] whileTrue: [
+rollIndex + 1 <= rollsArray size ifTrue: [
+( rollsArray at: rollIndex + 1 ) = 10
+ifTrue: [
+rollIndex := rollIndex + 1 .
+frame := frame + 1
+]
+ifFalse: [
+rollIndex + 2 <= rollsArray size ifTrue: [
+| firstRoll secondRoll |
+firstRoll := rollsArray at: rollIndex + 1 .
+secondRoll := rollsArray at: rollIndex + 2 .
+( firstRoll + secondRoll > 10 ) ifTrue: [
+Error signal: "'Pin count exceeds pins on the lane'"
+].
+rollIndex := rollIndex + 2 .
+frame := frame + 1
+] ifFalse: [
+| firstRoll |
+firstRoll := rollsArray at: rollIndex + 1 .
+( firstRoll + pins > 10 ) ifTrue: [
+Error signal: "'Pin count exceeds pins on the lane'"
+].
+^ self
+]
+]
+] ifFalse: [
+^ self
+]
+]
+]
+{ #category : #private }
+Bowling >> validate10thFramePinCount: pins afterRolls: rollsArray [
+| rollCount tenthFrameStart frameRollIndex firstRoll secondRoll |
+rollCount := rollsArray size .
+tenthFrameStart := self find10thFrameStart: rollsArray .
+frameRollIndex := rollCount - tenthFrameStart .
+frameRollIndex = 1 ifTrue: [
+^ self
+].
+firstRoll := rollsArray at: tenthFrameStart + 1 .
+frameRollIndex = 2 ifTrue: [
+( firstRoll ~= 10 and: [ firstRoll + pins > 10 ]) ifTrue: [
+Error signal: "'Pin count exceeds pins on the lane'"
+]
+].
+frameRollIndex = 3 ifTrue: [
+secondRoll := rollsArray at: tenthFrameStart + 2 .
+firstRoll = 10 ifTrue: [
+( secondRoll ~= 10 and: [ secondRoll + pins > 10 ]) ifTrue: [
+Error signal: "'Pin count exceeds pins on the lane'"
+]
+] ifFalse: [
+]
+]
+]
+{ #category : #private }
+Bowling >> maxRollsForGame: rollsArray [
+| tenthFrameStart firstRoll secondRoll |
+tenthFrameStart := self find10thFrameStart: rollsArray .
+tenthFrameStart + 1 > rollsArray size ifTrue: [ ^ 21 ].
+firstRoll := rollsArray at: tenthFrameStart + 1 .
+firstRoll = 10 ifTrue: [ ^ tenthFrameStart + 3 ].
+tenthFrameStart + 2 > rollsArray size ifTrue: [ ^ 21 ].
+secondRoll := rollsArray at: tenthFrameStart + 2 .
+( firstRoll + secondRoll = 10 ) ifTrue: [ ^ tenthFrameStart + 3 ].
+^ tenthFrameStart + 2
+]
+{ #category : #api }
+Bowling >> scoreAfterRolling: rollsArray [
+| totalScore rollIndex |
+rolls := rollsArray asOrderedCollection .
+( self isGameComplete ) ifFalse: [
+Error signal: "'Score cannot be taken until the end of the game'"
+].
+totalScore := 0 .
+rollIndex := 0 .
+1 to: 9 do: [ : frame |
+totalScore := totalScore + ( self scoreFrame: rollIndex ).
+rollIndex := self nextRollIndex: rollIndex
+].
+rollIndex + 1 to: rolls size do: [ : index |
+totalScore := totalScore + ( rolls at: index )
+].
+^ totalScore
+]
+{ #category : #private }
+Bowling >> validateFramePinCount: pins afterRolls: rollsArray [
+| rollCount |
+rollCount := rollsArray size .
+rollCount <= 2 ifTrue: [
+rollCount = 2 ifTrue: [
+| firstRoll secondRoll |
+firstRoll := rollsArray at: 1 .
+secondRoll := rollsArray at: 2 .
+( firstRoll + secondRoll > 10 ) ifTrue: [
+Error signal: "'Pin count exceeds pins on the lane'"
+]
+].
+^ self
+].
+self validatePinCount: pins afterRolls: rollsArray
+]
+{ #category : #api }
+Bowling >> scoreRolling: pins after: previousRolls [
+| newRolls |
+pins < 0 ifTrue: [
+Error signal: "'Negative roll is invalid'"
+].
+pins > 10 ifTrue: [
+Error signal: "'Pin count exceeds pins on the lane'"
+].
+newRolls := previousRolls asOrderedCollection copy .
+newRolls add: pins .
+( self isGameCompleteWithRolls: previousRolls ) ifTrue: [
+Error signal: "'Cannot roll after game is over'"
+].
+newRolls size > ( self maxRollsForGame: newRolls ) ifTrue: [
+Error signal: "'Cannot roll after game is over'"
+].
+self validateFramePinCount: pins afterRolls: newRolls .
+^ self scoreAfterRolling: newRolls
+]

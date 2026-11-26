@@ -1,0 +1,21 @@
+#!/usr/bin/env tclsh
+
+# ----------------------------------------------------------------------------
+# exercism.org
+# Tcl Track Exercise: darts
+# Contributed: Anthony J. Borla (ajborla@bigpond.com)
+# ----------------------------------------------------------------------------
+
+proc score {x y} {
+    # Use simplified Distance Formula to determine radius of dart landing
+    #  point from board centre
+    set radius [expr {sqrt($x * $x + $y * $y)}]
+
+    # Return score based on radius
+    if {$radius <= 1} { return 10 }
+    if {$radius <= 5} { return 5 }
+    if {$radius <= 10} { return 1 }
+
+    # Oops, missed - too many drinks maybe ;)
+    return 0
+}

@@ -1,0 +1,30 @@
+oo::class create Clock {
+    variable new_hour new_minute mins
+    constructor {hour minute} {
+        set mins [expr $hour* 60 + $minute]
+    }
+
+    method toString {} {
+        set new_minute [expr $mins%60 ]
+        set new_hour [expr $mins/60%24]
+        return "[format %02d $new_hour]:[format %02d $new_minute]"
+    }
+
+    method add {minutes} {
+        set mins [expr $mins+$minutes]
+        return [self]
+    }
+
+    method subtract {minutes} {
+        set mins [expr $mins-$minutes]
+        return [self]
+    }
+
+    method equals {other} {
+        expr {[my toString ] eq [$other toString]}
+    }
+
+    forward "==" my equals
+    export "=="
+
+}

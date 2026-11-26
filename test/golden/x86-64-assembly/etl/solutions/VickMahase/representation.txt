@@ -1,0 +1,49 @@
+section .text
+global transform
+transform:
+sub rsp , 104
+mov r10 , rdi
+mov rdi , rsp
+mov eax , - 1
+mov rcx , 26
+rep stosd
+mov rdi , r10
+test rdx , rdx
+jz .generate_output
+.input_loop:
+mov eax , [ rsi ]
+movzx ecx , byte [ rsi + 4 ]
+lea r8 , [ rsi + 5 ]
+test ecx , ecx
+jz .next_struct
+.letter_loop:
+movzx r9d , byte [ r8 ]
+or r9b , 0x20
+sub r9b , 'a'
+mov [ rsp + r9 * 4 ], eax
+inc r8
+dec ecx
+jnz .letter_loop
+.next_struct:
+add rsi , 32
+dec rdx
+jnz .input_loop
+.generate_output:
+xor rax , rax
+xor rcx , rcx
+.output_loop:
+mov r8d , [ rsp + rcx * 4 ]
+cmp r8d , - 1
+je .skip_write
+lea r9d , [ rcx + 'a' ]
+shl r8 , 32
+or r8 , r9
+mov [ rdi ], r8
+add rdi , 8
+inc rax
+.skip_write:
+inc rcx
+cmp rcx , 26
+jne .output_loop
+add rsp , 104
+ret

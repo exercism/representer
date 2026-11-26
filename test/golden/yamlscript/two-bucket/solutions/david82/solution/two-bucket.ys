@@ -1,0 +1,40 @@
+!yamlscript/v0
+
+defn measure(bucket-one bucket-two goal start-bucket):
+  defn gcd(a b): if b.? gcd(b (a.mod(b))) a
+
+  cond:
+    start-bucket < 1: die('impossible')
+    start-bucket > 2: die('impossible')
+    goal > max(bucket-one bucket-two): die('impossible')
+  
+  if start-bucket == 1:
+    find-solution(bucket-one bucket-two goal [[bucket-one 0 1]] [[0 bucket-two]])
+    find-solution(bucket-one bucket-two goal [[0 bucket-two 1]] [[bucket-one 0]])
+    
+defn find-solution(bucket-one-capacity bucket-two-capacity target queue visited):
+  when queue.!: die('impossible')
+  
+  -[current-state *remaining-states] =: queue
+  -[bucket-one-level bucket-two-level move-count] =: current-state
+  
+  cond:
+    visited.has?([bucket-one-level bucket-two-level]): 
+      find-solution(bucket-one-capacity bucket-two-capacity target remaining-states visited)
+    target == bucket-one-level: 
+      -{'moves' move-count 'goalBucket' 1 'otherBucket' bucket-two-level}
+    target == bucket-two-level: 
+      -{'moves' move-count 'goalBucket' 2 'otherBucket' bucket-one-level}
+    else:
+      find-solution(bucket-one-capacity bucket-two-capacity target ((remaining-states || []) + [
+        [bucket-one-capacity bucket-two-level move-count.++]
+        [bucket-one-level bucket-two-capacity move-count.++]
+        [min((bucket-one-level + bucket-two-level) bucket-one-capacity) 
+         ((bucket-two-level - min((bucket-one-level + bucket-two-level) bucket-one-capacity)) + bucket-one-level) 
+         move-count.++]
+        [((bucket-one-level - min((bucket-one-level + bucket-two-level) bucket-two-capacity)) + bucket-two-level)
+         min((bucket-one-level + bucket-two-level) bucket-two-capacity)
+         move-count.++]
+        [0 bucket-two-level move-count.++]
+        [bucket-one-level 0 move-count.++]
+      ]) conj(visited [bucket-one-level bucket-two-level]))

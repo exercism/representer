@@ -1,0 +1,11 @@
+let evenlyDivisibleBy = (divisor, num) => num mod divisor == 0;
+let isLeapYear = year => {
+  let by400 = evenlyDivisibleBy(400, year);
+  let by100 = evenlyDivisibleBy(100, year);
+  let by4 = evenlyDivisibleBy(4, year);
+  if (by100) {
+    by400;
+  } else {
+    !by100 && by4;
+  };
+};

@@ -1,0 +1,90 @@
+(import (rnrs))
+
+(define alphabet "abcdefghijklmnopqrstuvwxyz0123456789")
+(define alphabet-li (string->list alphabet))
+(define cipher "zyxwvutsrqponmlkjihgfedcba0123456789")
+(define cipher-li (string->list cipher))
+(define remove-chr-li (list #\space #\. #\,))
+
+(define (nnull? li)
+  (not (null? li)))
+
+(define (multof testnum num)
+  (if (eq? (mod num testnum) 0)
+      #t
+      #f))
+
+(define (insert-chr-every str chr num)
+  (list->string (insert-chr-every-li (string->list str) #\space 5 '() 1)))
+
+(define (insert-chr-every-li chr-li chr num acc inc)
+  (if (not (null? chr-li))
+      (let ((head (car chr-li)) (tail (cdr chr-li)))
+          (if (multof num inc)
+            (insert-chr-every-li tail chr num (cons chr (cons head acc)) (+ 1 inc))
+            (insert-chr-every-li tail chr num (cons head acc) (+ 1 inc))))
+      (reverse acc)))
+
+(define (list-parse li acc)
+  (if (not (null? li))
+      (begin
+        (display (list->string li))
+        (display "\n")
+      (list-parse (cdr li) (cons (car li) acc)))
+      (begin
+        (display "second branch")
+      (reverse acc))))
+
+(define (remove-whitespace str)
+  (string-concatenate (string-split str #\space)))
+
+(define (remove-chars-from-string str chr-li)
+  (list->string (remove-chars-from-chr-li (string->list str) chr-li '())))
+
+(define (remove-chars-from-chr-li inp-chr-li chr-li acc)
+  (if (nnull? inp-chr-li)
+      (let ((head (car inp-chr-li)) (tail (cdr inp-chr-li)))
+        (if (chr-in-li? head chr-li)
+            (remove-chars-from-chr-li tail chr-li acc)
+            (remove-chars-from-chr-li tail chr-li (cons head acc))))
+      (reverse acc)))
+
+(define (chr-in-li? el li)
+  (if (nnull? li)
+      (let ((head (car li)) (tail (cdr li)))
+        (if (eqv? el head)
+            #t
+            (chr-in-li? el tail)))
+      #f))
+
+(define (nth num li)
+  (if (not (null? li))
+      (if (> num 0)
+          (nth (- num 1) (cdr li))
+          (car li)
+          )))
+
+(define (find-pos-st inp-chr li incr)
+  (if (not (null? li))
+      (let ((head (car li)) (tail (cdr li)))
+        (if (eqv? head inp-chr)
+            incr
+            (find-pos-st inp-chr tail (+ 1 incr))))
+      incr))
+
+(define (find-pos inp-chr li)
+  (find-pos-st inp-chr li 0)
+  )
+
+(define (translate inp-chr)
+  (nth (find-pos inp-chr alphabet-li) cipher-li))
+
+(define (translate-back inp-chr)
+  (nth (find-pos inp-chr cipher-li) alphabet-li))
+
+(define (encode phrase)
+  (string-trim-right (insert-chr-every (string-map translate (string-downcase (remove-chars-from-string phrase remove-chr-li))) #\space 5) #\space))
+
+(define (decode phrase)
+  (string-map translate-back (remove-whitespace phrase)))
+

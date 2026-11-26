@@ -1,0 +1,47 @@
+BOARD_SIZE equ 8
+section .text
+%macro ABS 2
+mov % 2 , % 1
+neg % 2
+cmovl % 2 , % 1
+%endmacro
+global can_create
+can_create:
+%define row edi
+%define col esi
+xor eax , eax
+cmp row , BOARD_SIZE
+jae .false
+cmp col , BOARD_SIZE
+jae .false
+.true:
+inc eax
+.false:
+ret
+global can_attack
+can_attack:
+%define white_row edi
+%define white_col esi
+%define black_row edx
+%define black_col ecx
+%define delta_row edi
+%define delta_col esi
+xor eax , eax
+sub bl ack_row , white_row
+ABS bl ack_row , delta_row
+sub bl ack_col , white_col
+ABS bl ack_col , delta_col
+test delta_row , delta_row
+jz .true
+test delta_col , delta_col
+jz .true
+cmp delta_col , delta_row
+je .true
+.false:
+ret
+.true:
+inc eax
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

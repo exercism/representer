@@ -1,0 +1,50 @@
+fun mkBetweenSpace ( rowLetter : char ): char list option =
+if not ( Char . isAscii rowLetter andalso Char . isUpper rowLetter ) then NONE
+else if rowLetter = #"A" then SOME []
+else let val width = 2 * ( ord rowLetter - ord #"A" ) - 1
+fun go n = if n <= 0 then [] else "#\" \"" :: go ( n - 1 )
+in SOME ( go width )
+end
+fun mkRow ( rowLetter : char ) ( beforeSpace : char list ) ( betweenSpace : char list ): string option =
+if not ( Char . isAscii rowLetter andalso Char . isUpper rowLetter ) then NONE
+else if rowLetter = #"A" then SOME ( implode ( beforeSpace @ ( rowLetter :: beforeSpace )))
+else SOME ( implode ( beforeSpace @ ( rowLetter :: betweenSpace ) @ ( rowLetter :: beforeSpace )))
+fun mkDescendingRows ( rowLetter : char ) ( beforeSpace : char list ) ([]: char list ): string list option =
+( case mkRow rowLetter beforeSpace [] of
+SOME newRow => SOME [ newRow ]
+| NONE => NONE )
+| mkDescendingRows ( rowLetter : char ) ( beforeSpace : char list ) ( b0:: []: char list ) =
+let val newBeforeSpace = "#\" \"" :: beforeSpace
+in
+case mkRow rowLetter beforeSpace ( b0:: []) of
+SOME newRow =>
+( case mkDescendingRows ( Char . pred rowLetter ) newBeforeSpace [] of
+SOME otherRows => SOME ( newRow :: otherRows )
+| NONE => NONE )
+| NONE => NONE
+end
+| mkDescendingRows ( rowLetter : char ) ( beforeSpace : char list ) ( b0::b1::betweenSpace : char list ) =
+let val newBeforeSpace = "#\" \"" :: beforeSpace
+in
+case mkRow rowLetter beforeSpace ( b0::b1::betweenSpace ) of
+SOME newRow =>
+( case mkDescendingRows ( Char . pred rowLetter ) newBeforeSpace betweenSpace of
+SOME otherRows => SOME ( newRow :: otherRows )
+| NONE => NONE )
+| NONE => NONE
+end
+fun rows ( input : string ): string list =
+let val cs = explode input
+in
+if length cs = 0 orelse length cs >= 2 then []
+else if not ( Char . isAscii ( hd cs ) andalso Char . isUpper ( hd cs )) then []
+else
+case mkBetweenSpace ( hd cs ) of
+NONE => []
+| SOME betweenSpace =>
+( case mkDescendingRows ( hd cs ) [] betweenSpace of
+NONE => []
+| SOME [] => []
+| SOME ( r:: []) => [ r ]
+| SOME ( r::rs ) => ( rev rs ) @ ( r::rs ))
+end

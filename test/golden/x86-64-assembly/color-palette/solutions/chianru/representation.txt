@@ -1,0 +1,37 @@
+section .data
+global RED
+RED dd 0xFF000000
+global GREEN
+GREEN dd 0x00FF0000
+global BL UE
+BLUE dd 0x0000FF00
+global base_color
+base_color dd 0xFFFFFF00
+global SECONDARY_COLOR_ADDRESS
+SECONDARY_COLOR_ADDRESS dq 1
+global COMBINED_COLOR_ADDRESS
+COMBINED_COLOR_ADDRESS dq 1
+section .text
+global get_color_value
+get_color_value:
+mov rax , [ rdi ]
+ret
+global add_base_color :
+add_base_color:
+mov edx , dword [ rdi ]
+mov [ rel base_color ], edx
+ret
+global make_color_combination
+extern combining_function
+make_color_combination:
+mov qword [ rel COMBINED_COLOR_ADDRESS ], rdi
+mov qword [ rel SECONDARY_COLOR_ADDRESS ], rsi
+mov edi , dword [ rel base_color ]
+mov esi , dword [ rsi ]
+call combining_function
+mov rdx , qword [ rel COMBINED_COLOR_ADDRESS ]
+mov [ rdx ], eax
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

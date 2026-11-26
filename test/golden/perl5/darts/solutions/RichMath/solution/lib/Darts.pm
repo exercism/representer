@@ -1,0 +1,40 @@
+package Darts;
+
+use v5.40;
+use strict;
+use warnings;
+
+use Exporter qw<import>;
+our @EXPORT_OK = qw<score_dart>;
+
+sub score_dart ( $x, $y ) {
+
+# points based on distances from center
+    my $points1    = 1;
+    my $points5    = 5;
+    my $points10   = 10;
+    my $distance_inner  = 1.0;
+    my $distance_middle = 5.0;
+    my $distance_outter = 10.0;
+    
+    
+
+    my $center_h = 0.0;
+    my $center_k = 0.0;
+    
+    my $points = 0;
+    
+    #(x - h)^2 + (y - k)^2 = r^2
+    my $radius_squared = ( ($x - $center_h)**2 ) + ( ($y - $center_k)**2 );
+    my $radius = sqrt($radius_squared);
+
+#    Switch ($Radius){
+    if    ($radius <= $distance_inner)  { $points = $points10;}
+    elsif ($radius <= $distance_middle) { $points = $points5;}
+    elsif ($radius <= $distance_outter) { $points = $points1;}
+    else {                                $points = 0;}
+
+    return $points;
+}
+
+1;

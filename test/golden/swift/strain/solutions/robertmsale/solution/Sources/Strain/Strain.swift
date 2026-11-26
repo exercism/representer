@@ -1,0 +1,14 @@
+extension Array {
+    func keep(_ pred: @escaping (Self.Element) -> Bool) -> Self {
+        var result: [Self.Element] = []
+        for item in self {
+            if pred(item) {
+                result.append(item)
+            }
+        }
+        return result
+    }
+    func discard(_ pred: @escaping (Self.Element) -> Bool) -> Self {
+        return keep({!pred($0)})
+    }
+}

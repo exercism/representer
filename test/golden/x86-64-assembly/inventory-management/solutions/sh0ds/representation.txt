@@ -1,0 +1,49 @@
+%include "\"debug.mac\""
+WEIGHT_OF_EMPTY_BOX equ 500
+TRUCK_HEIGHT equ 300
+PAY_PER_BOX equ 5
+PAY_PER_TRUCK_TRIP equ 220
+section .text
+global get_box_weight
+get_box_weight:
+mov r8 , WEIGHT_OF_EMPTY_BOX
+imul rdi , rsi
+add r8 , rdi
+imul rdx , rcx
+add r8 , rdx
+mov rax , r8
+ret
+global max_number_of_boxes
+max_number_of_boxes:
+movzx bx , di l
+mov ax , TRUCK_HEIGHT
+mov dx , 0
+div bx
+ret
+global items_to_be_moved
+items_to_be_moved:
+sub edi , esi
+mov eax , edi
+ret
+global calculate_payment
+calculate_payment:
+movsxd rsi , esi
+imul rsi , PAY_PER_BOX
+movsxd rax , edx
+imul rax , PAY_PER_TRUCK_TRIP
+add rsi , rax
+sub rsi , rdi
+movsxd rcx , ecx
+imul rcx , r8
+sub rsi , rcx
+movzx rax , r9b
+inc rax
+mov rcx , rax
+mov rax , rsi
+cqo
+idiv rcx
+add rax , rdx
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

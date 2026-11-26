@@ -1,0 +1,22 @@
+open Base
+
+let decode str =
+  let encode_letter c =
+    let open Char in
+    if is_alpha c
+    then of_int_exn (to_int 'z' + to_int 'a' - to_int c)
+    else c
+  in
+  str
+  |> String.filter ~f:(Char.is_alphanum)
+  |> String.map ~f:encode_letter
+
+let encode ?block_size:(block_size = 5) str =
+  let open String in
+  str
+  |> lowercase
+  |> decode
+  |> to_list
+  |> List.chunks_of ~length:block_size
+  |> List.map ~f:of_char_list
+  |> concat ~sep:" "

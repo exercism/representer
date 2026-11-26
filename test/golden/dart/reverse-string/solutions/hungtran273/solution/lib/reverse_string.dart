@@ -1,0 +1,6 @@
+String reverse(String original) {
+  List<int> code = original.runes.toList();
+
+  Iterable<int> reversedCode = code.reversed;
+  return String.fromCharCodes(reversedCode);
+}

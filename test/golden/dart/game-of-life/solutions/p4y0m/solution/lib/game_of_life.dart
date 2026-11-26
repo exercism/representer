@@ -1,0 +1,85 @@
+class GameOfLife {
+
+  List<List<int>> mtx;
+
+  // کانتراکتور مقدار را می‌گیرد و در متغیر بالا ذخیره می‌کند
+  GameOfLife(this.mtx);
+
+  List<List<int>> tick(){
+    return mtx;
+  }
+
+  List<List<int>> matrix() {
+
+    bool indexChecker(int i, int j){
+      bool inRange = true;
+
+      if (i < 0 || j < 0){
+        return false;
+      }
+      if (i >= mtx.length){
+        return false;
+      }
+
+      if(j >= mtx[i].length){
+        return false;
+      }
+
+      return inRange;
+    }
+
+    // List<List<int>> newmtx = mtx;
+    List<List<int>> newmtx = mtx.map((row) => List<int>.from(row)).toList();
+
+    for (int i = 0; i < mtx.length ; i++){
+      for (int j = 0; j < mtx[i].length; j++){
+
+        List<int> neighbors = [];
+        
+        // 1. Up-Left (نمونه خودت)
+        if (indexChecker(i - 1, j - 1)) neighbors.add(mtx[i - 1][j - 1]);
+
+        // 2. Up-Right
+        if (indexChecker(i - 1, j + 1)) neighbors.add(mtx[i - 1][j + 1]);
+
+        // 3. Down-Left
+        if (indexChecker(i + 1, j - 1)) neighbors.add(mtx[i + 1][j - 1]);
+
+        // 4. Down-Right
+        if (indexChecker(i + 1, j + 1)) neighbors.add(mtx[i + 1][j + 1]);
+
+        // 5. Up
+        if (indexChecker(i - 1, j)) neighbors.add(mtx[i - 1][j]);
+        
+
+        // 6. Down
+        if (indexChecker(i + 1, j)) neighbors.add(mtx[i + 1][j]);
+
+        // 7. Left
+        if (indexChecker(i, j - 1)) neighbors.add(mtx[i][j - 1]);
+
+        // 8. Right
+        if (indexChecker(i, j + 1)) neighbors.add(mtx[i][j + 1]);
+
+
+
+      int liveNeighbor = 0;
+      for(int neighbor in neighbors){
+        if (neighbor == 1) liveNeighbor++;
+      }
+
+      // print("the live neighbors is: $liveNeighbor");
+      
+      if (liveNeighbor == 3) newmtx[i][j] = 1;
+      else if (liveNeighbor == 2 && mtx[i][j] == 1) newmtx[i][j] = mtx[i][j];
+      else newmtx[i][j] = 0;
+
+      }
+    }
+
+    return newmtx;
+
+  }
+}
+
+

@@ -1,0 +1,16 @@
+(import (rnrs))
+
+(define (response-for message)
+  (let loop ((last-vis #\space) (non-ws #f) (has-cap #f) (has-lower #f) (i 0))
+      (if (>= i (string-length message))
+        (cond ((and (eqv? last-vis #\?) (not has-lower) has-cap) "Calm down, I know what I'm doing!")
+              ((and (eqv? last-vis #\?) (or has-lower (not has-cap))) "Sure.")
+              ((and (not (eqv? last-vis #\?)) (not has-lower) has-cap) "Whoa, chill out!")
+              ((not non-ws) "Fine. Be that way!")
+              (else "Whatever."))
+        (let ((c (string-ref message i)))
+          (cond ((char-upper-case? c) (loop c #t #t has-lower (+ i 1)))
+                 ((char-lower-case? c) (loop c #t has-cap #t (+ i 1)))
+                 ((not (char-whitespace? c)) (loop c #t has-cap has-lower (+ i 1)))
+                 (else (loop last-vis non-ws has-cap has-lower (+ i 1))))))))
+

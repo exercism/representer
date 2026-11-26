@@ -1,0 +1,242 @@
+(compilation_unit
+  (class_declaration
+    (modifier public) WeatherStation
+    (declaration_list
+      (field_declaration
+        (modifier private)
+        (variable_declaration Reading
+          (variable_declarator reading)))
+      (field_declaration
+        (modifier private)
+        (variable_declaration
+          (generic_name List
+            (type_argument_list < DateTime >))
+          (variable_declarator recordDates =
+            (object_creation_expression
+              (generic_name List
+                (type_argument_list < DateTime >))
+              (argument_list)))))
+      (field_declaration
+        (modifier private)
+        (variable_declaration
+          (generic_name List
+            (type_argument_list < decimal >))
+          (variable_declarator temperatures =
+            (object_creation_expression
+              (generic_name List
+                (type_argument_list < decimal >))
+              (argument_list)))))
+      (method_declaration
+        (modifier public) void AcceptReading
+        (parameter_list
+          (parameter Reading reading))
+        (block
+          (expression_statement
+            (assignment_expression
+              (member_access_expression this reading) = reading))
+          (expression_statement
+            (invocation_expression
+              (member_access_expression recordDates Add)
+              (argument_list
+                (argument
+                  (member_access_expression DateTime Now)))))
+          (expression_statement
+            (invocation_expression
+              (member_access_expression temperatures Add)
+              (argument_list
+                (argument
+                  (member_access_expression reading Temperature)))))))
+      (method_declaration
+        (modifier public) void ClearAll
+        (parameter_list)
+        (block
+          (expression_statement
+            (assignment_expression reading =
+              (object_creation_expression Reading
+                (argument_list))))
+          (expression_statement
+            (invocation_expression
+              (member_access_expression recordDates Clear)
+              (argument_list)))
+          (expression_statement
+            (invocation_expression
+              (member_access_expression temperatures Clear)
+              (argument_list)))))
+      (property_declaration
+        (modifier public) decimal LatestTemperature
+        (accessor_list
+          (accessor_declaration get
+            (block
+              (return_statement
+                (member_access_expression reading Temperature))))))
+      (property_declaration
+        (modifier public) decimal LatestPressure
+        (accessor_list
+          (accessor_declaration get
+            (block
+              (return_statement
+                (member_access_expression reading Pressure))))))
+      (property_declaration
+        (modifier public) decimal LatestRainfall
+        (accessor_list
+          (accessor_declaration get
+            (block
+              (return_statement
+                (member_access_expression reading Rainfall))))))
+      (property_declaration
+        (modifier public) bool HasHistory
+        (accessor_list
+          (accessor_declaration get
+            (block
+              (return_statement
+                (conditional_expression
+                  (binary_expression
+                    (member_access_expression recordDates Count) > 1)
+                  (boolean_literal true)
+                  (boolean_literal false)))))))
+      (property_declaration
+        (modifier public) Outlook ShortTermOutlook
+        (accessor_list
+          (accessor_declaration get
+            (block
+              (if_statement
+                (invocation_expression
+                  (member_access_expression reading Equals)
+                  (argument_list
+                    (argument
+                      (object_creation_expression Reading
+                        (argument_list)))))
+                (block
+                  (throw_statement
+                    (object_creation_expression ArgumentException
+                      (argument_list)))))
+              (local_declaration_statement
+                (variable_declaration Outlook
+                  (variable_declarator PLACEHOLDER_1 =
+                    (switch_expression
+                      (member_access_expression reading Temperature)
+                      (switch_expression_arm
+                        (declaration_pattern decimal PLACEHOLDER_2)
+                        (when_clause when
+                          (binary_expression
+                            (binary_expression PLACEHOLDER_2 < 30m) &&
+                            (binary_expression
+                              (member_access_expression reading Pressure) < 10m)))
+                        (member_access_expression Outlook Cool))
+                      (switch_expression_arm
+                        (declaration_pattern decimal PLACEHOLDER_2)
+                        (when_clause when
+                          (binary_expression PLACEHOLDER_2 > 50))
+                        (member_access_expression Outlook Good))
+                      (switch_expression_arm _
+                        (member_access_expression Outlook Warm))))))
+              (return_statement PLACEHOLDER_1)))))
+      (property_declaration
+        (modifier public) Outlook LongTermOutlook
+        (accessor_list
+          (accessor_declaration get
+            (block
+              (local_declaration_statement
+                (variable_declaration Outlook
+                  (variable_declarator PLACEHOLDER_1 =
+                    (switch_expression
+                      (member_access_expression reading WindDirection)
+                      (switch_expression_arm
+                        (constant_pattern
+                          (member_access_expression WindDirection Southerly))
+                        (member_access_expression Outlook Good))
+                      (switch_expression_arm
+                        (constant_pattern
+                          (member_access_expression WindDirection Easterly))
+                        (when_clause when
+                          (binary_expression
+                            (member_access_expression reading Temperature) > 20))
+                        (member_access_expression Outlook Good))
+                      (switch_expression_arm
+                        (constant_pattern
+                          (member_access_expression WindDirection Northerly))
+                        (member_access_expression Outlook Cool))
+                      (switch_expression_arm
+                        (constant_pattern
+                          (member_access_expression WindDirection Easterly))
+                        (when_clause when
+                          (binary_expression
+                            (member_access_expression reading Temperature) <= 20))
+                        (member_access_expression Outlook Warm))
+                      (switch_expression_arm
+                        (constant_pattern
+                          (member_access_expression WindDirection Westerly))
+                        (member_access_expression Outlook Rainy))
+                      (switch_expression_arm _
+                        (throw_expression
+                          (object_creation_expression ArgumentException
+                            (argument_list))))))))
+              (return_statement PLACEHOLDER_1)))))
+      (method_declaration
+        (modifier public) State RunSelfTest
+        (parameter_list)
+        (arrow_expression_clause
+          (conditional_expression
+            (invocation_expression
+              (member_access_expression reading Equals)
+              (argument_list
+                (argument
+                  (object_creation_expression Reading
+                    (argument_list)))))
+            (member_access_expression State Bad)
+            (member_access_expression State Good))))))
+  (struct_declaration
+    (modifier public) Reading
+    (declaration_list
+      (property_declaration
+        (modifier public) decimal Temperature
+        (accessor_list
+          (accessor_declaration get)))
+      (property_declaration
+        (modifier public) decimal Pressure
+        (accessor_list
+          (accessor_declaration get)))
+      (property_declaration
+        (modifier public) decimal Rainfall
+        (accessor_list
+          (accessor_declaration get)))
+      (property_declaration
+        (modifier public) WindDirection WindDirection
+        (accessor_list
+          (accessor_declaration get)))
+      (constructor_declaration
+        (modifier public) Reading
+        (parameter_list
+          (parameter decimal PLACEHOLDER_3)
+          (parameter decimal PLACEHOLDER_4)
+          (parameter decimal PLACEHOLDER_5)
+          (parameter WindDirection PLACEHOLDER_6))
+        (block
+          (expression_statement
+            (assignment_expression Temperature = PLACEHOLDER_3))
+          (expression_statement
+            (assignment_expression Pressure = PLACEHOLDER_4))
+          (expression_statement
+            (assignment_expression Rainfall = PLACEHOLDER_5))
+          (expression_statement
+            (assignment_expression WindDirection = PLACEHOLDER_6))))))
+  (enum_declaration
+    (modifier public) State
+    (enum_member_declaration_list
+      (enum_member_declaration Good)
+      (enum_member_declaration Bad)))
+  (enum_declaration
+    (modifier public) Outlook
+    (enum_member_declaration_list
+      (enum_member_declaration Cool)
+      (enum_member_declaration Rainy)
+      (enum_member_declaration Warm)
+      (enum_member_declaration Good)))
+  (enum_declaration
+    (modifier public) WindDirection
+    (enum_member_declaration_list
+      (enum_member_declaration Unknown)
+      (enum_member_declaration Northerly)
+      (enum_member_declaration Easterly)
+      (enum_member_declaration Southerly)
+      (enum_member_declaration Westerly))))

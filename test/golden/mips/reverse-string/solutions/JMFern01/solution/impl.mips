@@ -1,0 +1,58 @@
+# String Reversal in MIPS Assembly
+# Reverses a null-terminated string
+#
+## Registers
+# | Register | Usage        | Type    | Description                   |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0`    | input        | address | null-terminated input string  |
+# | `$a1`    | input/output | address | null-terminated output string |
+# | `$t0-9`  | temporary    | any     | used for temporary storage    |
+
+.globl reverse
+reverse:
+    # First, find the length of the string
+    move $t0, $a0           # Copy input address to $t0 (our pointer)
+    li $t1, 0               # Initialize counter to 0 (length)
+    
+find_length:
+    lb $t2, 0($t0)          # Load Byte: read character at address $t0
+    beqz $t2, start_reverse # If character is '\0' (null), we're done counting
+    addi $t0, $t0, 1        # Increment pointer (move to next character)
+    addi $t1, $t1, 1        # Increment counter (length++)
+    j find_length           # Jump back to continue loop
+    
+start_reverse:
+    # $t1 now contains the length of the string
+    beqz $t1, empty_string  # If length is 0, handle empty string
+    
+    # Calculate address of last character
+    # last_char_address = input_address + (length - 1)
+    move $t0, $a0           # Reset $t0 to start of input string
+    add $t0, $t0, $t1       # Add length to get past last char
+    addi $t0, $t0, -1       # Subtract 1 to point to last char (not null)
+    
+    move $t3, $a1           # $t3 = pointer to output string (where we write)
+    move $t4, $a0           # $t4 = pointer to start of input (for comparison)
+    
+copy_loop:
+    lb $t2, 0($t0)          # Load byte from input (reading backwards)
+    sb $t2, 0($t3)          # Store byte to output (writing forwards)
+    
+    addi $t3, $t3, 1        # Move output pointer forwards
+    
+    # Check if we've processed all characters
+    # Stop when $t0 reaches the start of the input string
+    beq $t0, $t4, finish    # If we're at the first character, we're done after this
+    
+    addi $t0, $t0, -1       # Move input pointer backwards (only if not done)
+    j copy_loop             # Continue loop
+    
+finish:
+    # Add null terminator to output string
+    sb $zero, 0($t3)        # Store '\0' at end of output
+    jr $ra                  # Return
+    
+empty_string:
+    # Handle empty string (just copy null terminator)
+    sb $zero, 0($a1)        # Store '\0' at start of output
+    jr $ra                  # Return

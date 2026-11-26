@@ -1,0 +1,83 @@
+#!/usr/bin/env raku
+use Test;
+use lib $?FILE.IO.parent(2).add('lib');
+use FlattenArray;
+
+cmp-ok( # begin: 8c71dabd-da60-422d-a290-4a571471fb14
+    flatten-array([]),
+    "eqv",
+    [],
+    "empty",
+); # end: 8c71dabd-da60-422d-a290-4a571471fb14
+
+cmp-ok( # begin: d268b919-963c-442d-9f07-82b93f1b518c
+    flatten-array([0, 1, 2]),
+    "eqv",
+    [0, 1, 2],
+    "no nesting",
+); # end: d268b919-963c-442d-9f07-82b93f1b518c
+
+cmp-ok( # begin: 3f15bede-c856-479e-bb71-1684b20c6a30
+    flatten-array([[[],],]),
+    "eqv",
+    [],
+    "flattens a nested array",
+); # end: 3f15bede-c856-479e-bb71-1684b20c6a30
+
+cmp-ok( # begin: c84440cc-bb3a-48a6-862c-94cf23f2815d
+    flatten-array([1, [2, 3, 4, 5, 6, 7], 8]),
+    "eqv",
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    "flattens array with just integers present",
+); # end: c84440cc-bb3a-48a6-862c-94cf23f2815d
+
+cmp-ok( # begin: d3d99d39-6be5-44f5-a31d-6037d92ba34f
+    flatten-array([0, 2, [[2, 3], 8, 100, 4, [[[50],],]], -2]),
+    "eqv",
+    [0, 2, 2, 3, 8, 100, 4, 50, -2],
+    "5 level nesting",
+); # end: d3d99d39-6be5-44f5-a31d-6037d92ba34f
+
+cmp-ok( # begin: d572bdba-c127-43ed-bdcd-6222ac83d9f7
+    flatten-array([1, [2, [[3],], [4, [[5],]], 6, 7], 8]),
+    "eqv",
+    [1, 2, 3, 4, 5, 6, 7, 8],
+    "6 level nesting",
+); # end: d572bdba-c127-43ed-bdcd-6222ac83d9f7
+
+cmp-ok( # begin: 0705a8e5-dc86-4cec-8909-150c5e54fa9c
+    flatten-array([1, 2, Any]),
+    "eqv",
+    [1, 2],
+    "null values are omitted from the final result",
+); # end: 0705a8e5-dc86-4cec-8909-150c5e54fa9c
+
+cmp-ok( # begin: bc72da10-5f55-4ada-baf3-50e4da02ec8e
+    flatten-array([Any, Any, 3]),
+    "eqv",
+    [3],
+    "consecutive null values at the front of the array are omitted from the final result",
+); # end: bc72da10-5f55-4ada-baf3-50e4da02ec8e
+
+cmp-ok( # begin: 6991836d-0d9b-4703-80a0-3f1f23eb5981
+    flatten-array([1, Any, Any, 4]),
+    "eqv",
+    [1, 4],
+    "consecutive null values in the middle of the array are omitted from the final result",
+); # end: 6991836d-0d9b-4703-80a0-3f1f23eb5981
+
+cmp-ok( # begin: dc90a09c-5376-449c-a7b3-c2d20d540069
+    flatten-array([0, 2, [[2, 3], 8, [[100],], Any, [[Any],]], -2]),
+    "eqv",
+    [0, 2, 2, 3, 8, 100, -2],
+    "6 level nested array with null values",
+); # end: dc90a09c-5376-449c-a7b3-c2d20d540069
+
+cmp-ok( # begin: 51f5d9af-8f7f-4fb5-a156-69e8282cb275
+    flatten-array([Any, [[[Any],],], Any, Any, [[Any, Any], Any], Any]),
+    "eqv",
+    [],
+    "all values in nested array are null",
+); # end: 51f5d9af-8f7f-4fb5-a156-69e8282cb275
+
+done-testing;

@@ -1,0 +1,30 @@
+.text
+.globl square_of_sum
+.globl sum_of_squares
+.globl difference_of_squares
+square_of_sum:
+        madd x0, x0, x0, x0
+        lsr x0, x0, #1
+        mul x0, x0, x0
+        ret
+sum_of_squares:
+        add x1, x0, #1
+        add x2, x1, x0
+        mul x0, x0, x1
+        mul x0, x0, x2
+        mov x3, #6
+        sdiv x0, x0, x3
+        ret
+difference_of_squares:
+        madd x10, x0, x0, x0
+        lsr x10, x10, #1
+        add x0, x0, x0
+        add x0, x0, #1
+        mul x0, x0, x10
+        mov x3, #3
+        sdiv x0, x0, x3
+        mul x10, x10, x10
+        sub x0, x10, x0
+        ret
+
+        

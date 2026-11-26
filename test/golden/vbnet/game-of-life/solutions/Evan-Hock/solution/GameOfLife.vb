@@ -1,0 +1,116 @@
+Imports System
+Imports System.Collections.Generic
+
+Public Class GameOfLife
+    Enum Cell As Byte
+        Dead
+        Alive
+    End Enum
+
+    Private grid(,) As Cell
+
+    Public Sub New(matrix As List(Of List(Of Integer)))
+        Dim m = matrix.Count - 1
+        Dim n As Integer
+        If matrix.Count = 0 Then
+            n = -1
+        Else
+            n = matrix(0).Count - 1
+        End If
+
+        ReDim grid(m, n)
+        For i = 0 To grid.GetUpperBound(0)
+            For j = 0 To grid.GetUpperBound(1)
+                grid(i, j) = CType(matrix(i)(j) And 1, Cell)
+            Next j
+        Next i
+    End Sub
+
+    Private Function LivingNeighbourCount(i As Integer, j As Integer) As Integer
+        Dim nLivingNeighbours = 0
+
+        Dim onTopBorder = i = 0
+        Dim onBottomBorder = i = grid.GetUpperBound(0)
+        Dim onLeftBorder = j = 0
+        Dim onRightBorder = j = grid.GetUpperBound(1)
+
+        If Not onTopBorder Then
+            If Not onLeftBorder AndAlso grid(i - 1, j - 1) = Cell.Alive Then
+                nLivingNeighbours += 1
+            End If
+
+            If grid(i - 1, j) = Cell.Alive Then
+                nLivingNeighbours += 1
+            End If
+
+            If Not onRightBorder AndAlso grid(i - 1, j + 1) = Cell.Alive Then
+                nLivingNeighbours += 1
+            End If
+        End If
+
+        If Not onLeftBorder AndAlso grid(i, j - 1) = Cell.Alive Then
+            nLivingNeighbours += 1
+        End If
+
+        If Not onRightBorder AndAlso grid(i, j + 1) = Cell.Alive Then
+            nLivingNeighbours += 1
+        End if
+
+        If Not onBottomBorder Then 
+            If Not onLeftBorder AndAlso grid(i + 1, j - 1) = Cell.Alive Then
+                nLivingNeighbours += 1
+            End if
+
+            If grid(i + 1, j) = Cell.Alive Then
+                nLivingNeighbours += 1
+            End if
+
+            If Not onRightBorder AndAlso grid(i + 1, j + 1) = Cell.Alive Then
+                nLivingNeighbours += 1
+            End If
+        End If
+
+        Return nLivingNeighbours
+    End Function
+
+    Private Function TickCell(i As Integer, j As Integer) As Cell
+        Dim nLivingNeighbours = LivingNeighbourCount(i, j)
+        Select grid(i, j)
+            Case Cell.Dead
+                Select nLivingNeighbours
+                    Case 3
+                        Return Cell.Alive
+                End Select
+            Case Cell.Alive
+                Select nLivingNeighbours
+                    Case 2 To 3
+                        Return Cell.Alive
+                End Select 
+        End Select
+
+        Return Cell.Dead
+    End Function
+
+    Public Sub Tick()
+        Dim newGrid(grid.GetUpperBound(0), grid.GetUpperBound(1)) As Cell
+        For i = 0 To grid.GetUpperBound(0)
+            For j = 0 To grid.GetUpperBound(1)
+                newGrid(i, j) = TickCell(i, j)
+            Next j
+        Next i
+
+        grid = newGrid
+    End Sub
+
+    Public Function Matrix() As List(Of List(Of Integer))
+        Dim jaggedMatrix As New List(Of List (Of Integer))(grid.GetLength(0))
+        For i = 0 To grid.GetUpperBound(0)
+            jaggedMatrix.Add(New List(Of Integer)(grid.GetLength(1)))
+            For j = 0 To grid.GetUpperBound(1)
+                jaggedMatrix(i).Add(grid(i, j))
+            Next j
+        Next i
+
+        Return jaggedMatrix
+    End Function
+End Class

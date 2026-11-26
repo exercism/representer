@@ -1,0 +1,35 @@
+module main
+
+import math
+
+fn ciphertext(plaintext string) string {
+	normalized := plaintext.bytes().filter(it.is_alnum()).bytestr().to_lower()
+
+	match true {
+		normalized == '' { return '' }
+		normalized.len == 1 { return normalized }
+		else {}
+	}
+
+	r := int(math.round(math.sqrtf(normalized.len)))
+	c := if normalized.len <= r * r { r } else { r + 1 }
+
+	mut rect := []string{cap: r}
+	for i := 0; i < normalized.len; i += c {
+		match true {
+			i + c < normalized.len { rect << normalized[i..i + c] }
+			else { rect << normalized[i..] }
+		}
+	}
+	rect[r - 1] += ' '.repeat(c - rect[r - 1].len)
+
+	mut rs := ''
+	for i := 0; i < rect[0].len; i++ {
+		for j := 0; j < rect.len; j++ {
+			rs += rect[j][i].ascii_str()
+		}
+		rs += ' '
+	}
+
+	return rs#[..-1]
+}

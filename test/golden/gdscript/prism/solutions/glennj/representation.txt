@@ -1,0 +1,133 @@
+(source
+  (class_definition (name PLACEHOLDER_1) :
+    (class_body
+      (variable_statement (name PLACEHOLDER_2))
+      (variable_statement angle)
+      (variable_statement (name PLACEHOLDER_3))
+      (function_definition _init
+        (parameters (local PLACEHOLDER_2) angle) :
+        (body
+          (expression_statement
+            (assignment
+              (attribute self . (member_name PLACEHOLDER_2)) = PLACEHOLDER_2))
+          (expression_statement
+            (assignment
+              (attribute self . angle) =
+              (call fmod
+                (arguments angle 360))))
+          (expression_statement
+            (assignment
+              (attribute self . (member_name PLACEHOLDER_3)) =
+              (call deg_to_rad
+                (arguments
+                  (attribute self . angle)))))))
+      (function_definition has
+        (parameters (local PLACEHOLDER_4)) :
+        (body
+          (variable_statement (name PLACEHOLDER_5) =
+            (binary_operator
+              (binary_operator
+                (binary_operator
+                  (attribute
+                    (subscript PLACEHOLDER_4
+                      (subscript_arguments 1)) . x) -
+                  (attribute PLACEHOLDER_2 . x)) *
+                (call sin
+                  (arguments PLACEHOLDER_3))) -
+              (binary_operator
+                (binary_operator
+                  (attribute
+                    (subscript PLACEHOLDER_4
+                      (subscript_arguments 1)) . y) -
+                  (attribute PLACEHOLDER_2 . y)) *
+                (call cos
+                  (arguments PLACEHOLDER_3)))))
+          (return_statement
+            (binary_operator
+              (call absf
+                (arguments PLACEHOLDER_5)) <= 0.0011))))
+      (function_definition (name PLACEHOLDER_6)
+        (parameters prisms) :
+        (body
+          (variable_statement (name PLACEHOLDER_7) = null)
+          (variable_statement min =
+            (call float
+              (arguments INT64_MAX)))
+          (for_statement (local PLACEHOLDER_4) in prisms :
+            (body
+              (variable_statement (name PLACEHOLDER_8) =
+                (binary_operator
+                  (binary_operator
+                    (binary_operator
+                      (attribute
+                        (subscript PLACEHOLDER_4
+                          (subscript_arguments 1)) . x) -
+                      (attribute PLACEHOLDER_2 . x)) *
+                    (call cos
+                      (arguments PLACEHOLDER_3))) +
+                  (binary_operator
+                    (binary_operator
+                      (attribute
+                        (subscript PLACEHOLDER_4
+                          (subscript_arguments 1)) . y) -
+                      (attribute PLACEHOLDER_2 . y)) *
+                    (call sin
+                      (arguments PLACEHOLDER_3)))))
+              (if_statement
+                (binary_operator
+                  (binary_operator PLACEHOLDER_8 > 0) and
+                  (binary_operator PLACEHOLDER_8 < min)) :
+                (body
+                  (expression_statement
+                    (assignment min = PLACEHOLDER_8))
+                  (expression_statement
+                    (assignment PLACEHOLDER_7 = PLACEHOLDER_4))))))
+          (return_statement PLACEHOLDER_7)))))
+  (function_definition find_sequence
+    (parameters position angle prisms) :
+    (body
+      (variable_statement (name PLACEHOLDER_9) =
+        (attribute PLACEHOLDER_1 .
+          (attribute_call new
+            (arguments position angle))))
+      (variable_statement (name PLACEHOLDER_10) =
+        (array))
+      (while_statement true :
+        (body
+          (variable_statement (name PLACEHOLDER_11) =
+            (attribute prisms .
+              (attribute_call filter
+                (arguments
+                  (lambda
+                    (parameters (local PLACEHOLDER_4)) :
+                    (body
+                      (return_statement
+                        (attribute PLACEHOLDER_9 .
+                          (attribute_call has
+                            (arguments PLACEHOLDER_4))))))))))
+          (variable_statement (name PLACEHOLDER_4) =
+            (attribute PLACEHOLDER_9 .
+              (attribute_call (member_name PLACEHOLDER_6)
+                (arguments PLACEHOLDER_11))))
+          (if_statement
+            (unary_operator not PLACEHOLDER_4) :
+            (body
+              (break_statement)))
+          (expression_statement
+            (attribute PLACEHOLDER_10 .
+              (attribute_call append
+                (arguments
+                  (subscript PLACEHOLDER_4
+                    (subscript_arguments 0))))))
+          (expression_statement
+            (assignment PLACEHOLDER_9 =
+              (attribute PLACEHOLDER_1 .
+                (attribute_call new
+                  (arguments
+                    (subscript PLACEHOLDER_4
+                      (subscript_arguments 1))
+                    (binary_operator
+                      (attribute PLACEHOLDER_9 . angle) +
+                      (subscript PLACEHOLDER_4
+                        (subscript_arguments 2))))))))))
+      (return_statement PLACEHOLDER_10))))

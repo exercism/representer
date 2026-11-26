@@ -1,7 +1,0 @@
-# Convert a DNA strand to its RNA complement
-# RNA ? DNA
-ToRna ← /↥[⊃(
-    ⨬@\s@U⌕@A
-  | ⨬@\s@G⌕@C
-  | ⨬@\s@C⌕@G
-  | ⨬@\s@A⌕@T)]

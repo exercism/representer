@@ -1,0 +1,122 @@
+default rel
+struc Node
+.Prev: resq 1
+.Next: resq 1
+.Data: resd 1
+.Index: resd 1
+.Padding: resq 1
+endstruc
+struc List
+.First resq 1
+.Last resq 1
+endstruc
+section .bss
+list:
+resb List_size
+nodes:
+resb 0x10 * Node_size
+currnodeidx:
+resq 1
+section .text
+remove_node:
+lea rcx , currnodeidx
+mov edx , [ rcx ]
+mov [ rdi + Node.Data ], edx
+mov edx , [ rdi + Node.Index ]
+mov [ rcx ], edx
+mov rdx , [ rdi + Node.Next ]
+mov rcx , [ rdi + Node.Prev ]
+mov [ rcx + Node.Next ], rdx
+mov [ rdx + Node.Prev ], rcx
+ret
+allocate_node:
+lea r8 , nodes
+lea r9 , currnodeidx
+xor rdx , rdx
+mov edx , [ r9 ]
+mov rax , Node_size
+mul rdx
+add rax , r8
+mov edx , [ rax + Node.Data ]
+mov [ r9 ], edx
+ret
+global list_create
+list_create:
+lea r8 , nodes
+mov [ r8 + Node.Prev ], r8
+mov [ r8 + Node.Next ], r8
+mov edx , 1
+.loop_list_create:
+add r8 , Node_size
+mov [ r8 + Node.Index ], edx
+inc edx
+mov [ r8 + Node.Data ], edx
+cmp edx , 16
+jnz .loop_list_create
+lea r9 , currnodeidx
+mov [ r9 ], dword 1
+ret
+global list_count
+list_count:
+mov rax , - 1
+lea r8 , nodes
+mov rcx , r8
+.list_count_loop:
+inc rax
+mov rcx , [ rcx + Node.Next ]
+cmp rcx , r8
+jnz .list_count_loop
+.list_count_return:
+ret
+global list_push
+list_push:
+call al locate_node
+lea r8 , nodes
+mov r9 , [ r8 + Node.Prev ]
+mov [ r9 + Node.Next ], rax
+mov [ rax + Node.Prev ], r9
+mov [ rax + Node.Next ], r8
+mov dword [ rax + Node.Data ], edi
+mov [ r8 + Node.Prev ], rax
+ret
+global list_pop
+list_pop:
+lea r8 , nodes
+mov rdi , [ r8 + Node.Prev ]
+mov eax , dword [ rdi + Node.Data ]
+jmp remove_node
+global list_unshift
+list_unshift:
+call al locate_node
+lea r8 , nodes
+mov r9 , [ r8 + Node.Next ]
+mov [ r9 + Node.Prev ], rax
+mov [ rax + Node.Next ], r9
+mov [ rax + Node.Prev ], r8
+mov dword [ rax + Node.Data ], edi
+mov [ r8 + Node.Next ], rax
+ret
+global list_shift
+list_shift:
+lea r8 , nodes
+mov rdi , [ r8 + Node.Next ]
+mov eax , dword [ rdi + Node.Data ]
+jmp remove_node
+global list_delete
+list_delete:
+mov rax , rdi
+lea r8 , nodes
+mov rdi , r8
+.list_delete_loop:
+mov rdi , [ rdi + Node.Next ]
+cmp rdi , r8
+jz .list_delete_return
+mov edx , dword [ rdi + Node.Data ]
+cmp edx , eax
+jnz .list_delete_loop
+jmp remove_node
+.list_delete_return:
+ret
+global list_destroy
+list_destroy:
+ret

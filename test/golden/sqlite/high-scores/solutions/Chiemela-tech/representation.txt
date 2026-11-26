@@ -1,0 +1,36 @@
+UPDATE results
+SET result = (
+SELECT GROUP_CONCAT ( score , ',' )
+FROM scores AS s
+WHERE s . game_id = results . game_id
+ORDER BY ROWID
+)
+WHERE property = 'scores' ;
+UPDATE results
+SET result = (
+SELECT CAST ( score AS TEXT )
+FROM scores AS s
+WHERE s . game_id = results . game_id
+ORDER BY ROWID DESC
+LIMIT 1
+)
+WHERE property = 'latest' ;
+UPDATE results
+SET result = (
+SELECT CAST ( MAX ( score ) AS TEXT )
+FROM scores AS s
+WHERE s . game_id = results . game_id
+)
+WHERE property = 'personalBest' ;
+UPDATE results
+SET result = (
+SELECT GROUP_CONCAT ( score , ',' )
+FROM (
+SELECT score
+FROM scores AS s
+WHERE s . game_id = results . game_id
+ORDER BY score DESC
+LIMIT 3
+)
+)
+WHERE property = 'personalTopThree' ;

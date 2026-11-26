@@ -1,2 +1,0 @@
-leap(N) :- N rem 4 =:= 0, N rem 100 =\= 0.
-leap(N) :- N rem 400 =:= 0.

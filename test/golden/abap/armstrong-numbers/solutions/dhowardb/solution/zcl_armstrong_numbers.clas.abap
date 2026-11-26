@@ -1,0 +1,34 @@
+CLASS zcl_armstrong_numbers DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    METHODS is_armstrong_number IMPORTING num           TYPE i
+                                RETURNING VALUE(result) TYPE abap_bool.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_armstrong_numbers IMPLEMENTATION.
+  METHOD is_armstrong_number.
+    "Implement solution
+    DATA(string_num) = CONV string( num ).
+    DATA(offset) = 0.
+    DATA(sum) = 0.
+    DATA(number_of_digits) = strlen( string_num ) - 1.
+    DO number_of_digits TIMES.
+      DATA(target_digit) = string_num+offset(1).
+      DATA(power_result) = CONV i( ipow( base = target_digit
+                                         exp  = number_of_digits ) ).
+      sum += power_result.
+      offset += 1.
+    ENDDO.
+
+    result = COND #( WHEN sum = num THEN abap_true ELSE abap_false ).
+  ENDMETHOD.
+ENDCLASS.
+

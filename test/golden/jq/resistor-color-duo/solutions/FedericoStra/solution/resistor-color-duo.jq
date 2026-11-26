@@ -1,4 +1,0 @@
-def colors: ["black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "grey", "white"];
-def value: . as $c | colors | index($c);
-
-.colors | 10*(.[0]|value) + (.[1]|value)

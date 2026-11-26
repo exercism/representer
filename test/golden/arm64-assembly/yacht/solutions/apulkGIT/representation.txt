@@ -1,0 +1,162 @@
+.equ CHOICE, 0
+.equ ONES, 1
+.equ TWOS, 2
+.equ THREES, 3
+.equ FOURS, 4
+.equ FIVES, 5
+.equ SIXES, 6
+.equ LITTLE_STRAIGHT, 7
+.equ BIG_STRAIGHT, 8
+.equ FULL_HOUSE, 9
+.equ FOUR_OF_A_KIND, 10
+.equ YACHT, 11
+.section .bss
+numbs: .byte 0,0,0,0,0,0
+.text
+.globl score
+score:
+mov x2,#6
+eor x6,x6,x6
+ldr x4,=numbs
+eor x3,x3,x3
+eor x7,x7,x7
+mov x5,#0
+numbloopnull:
+cbz x2,numbloopstart
+strb w5,[x4,x3]
+sub x2,x2,#1
+add x3,x3,#1
+b.al numbloopnull
+numbloopstart:
+mov x2,#5
+numbloop:
+cbz x2,jyacht
+ldrsh w3,[x1],#2
+sub w3,w3,#1
+ldrb w5,[x4,x3]
+add w5,w5,#1
+strb w5,[x4,x3]
+sub x2,x2,#1
+b.al numbloop
+jyacht:
+cmp x0,YACHT
+b.ne jones
+mov x2,#0
+yachtloop:
+cmp x2,#6
+b.eq zeropoints
+ldrb w3,[x4,x2]
+cmp w3,#5
+b.ne yachtinner
+mov x0,#50
+ret
+yachtinner:
+add x2,x2,#1
+b.al yachtloop
+jones:
+cmp x0,#1
+b.lt jlittles
+cmp x0,#6
+b.gt jlittles
+sub x5,x0,#1
+ldrb w3,[x4,x5]
+mul x0,x3,x0
+ret
+jlittles:
+cmp x0,LITTLE_STRAIGHT
+b.ne jbigs
+mov x2,#0
+littlesloop:
+cmp x2,#5
+b.eq littles
+ldrb w3,[x4,x2]
+cmp w3,#1
+b.ne zeropoints
+add x2,x2,#1
+b.al littlesloop
+littles:
+mov x0,#30
+ret
+jbigs:
+cmp x0,BIG_STRAIGHT
+b.ne jfullhouse
+mov x2,#1
+bigsloop:
+cmp x2,#6
+b.eq bigs
+ldrb w3,[x4,x2]
+cmp w3,#1
+b.ne zeropoints
+add x2,x2,#1
+b.al bigsloop
+bigs:
+mov x0,#30
+ret
+jfullhouse:
+cmp x0,FULL_HOUSE
+b.ne jfourofakind
+mov x2,#0
+fullhouseloop:
+cmp x2,#6
+b.eq zeropoints
+ldrb w3,[x4,x2]
+cmp w3,#3
+b.ne fullhouseinner
+mov x5,#0
+fullhouseloop2:
+cmp x5,#6
+b.eq zeropoints
+ldrb w6,[x4,x5]
+cmp w6,#2
+b.ne fullhouseinner2
+add x2,x2,#1
+mul x2,x2,x3
+add x5,x5,#1
+mul x5,x5,x6
+add x0,x2,x5
+ret
+fullhouseinner2:
+add x5,x5,#1
+b.al fullhouseloop2
+fullhouseinner:
+add x2,x2,#1
+b.al fullhouseloop
+jfourofakind:
+cmp x0,FOUR_OF_A_KIND
+b.ne jchoice
+mov x2,#0
+fourofloop:
+cmp x2,#6
+b.eq zeropoints
+ldrb w3,[x4,x2]
+cmp w3,#4
+b.eq fouroffour
+cmp w3,#5
+b.ne fourofinner
+mov w3,#4
+fouroffour:
+add x2,x2,#1
+mul x0,x2,x3
+ret
+fourofinner:
+add x2,x2,#1
+b.al fourofloop
+jchoice:
+cmp x0,CHOICE
+b.ne zeropoints
+mov x5,#0
+mov x2,#0
+choiceloop:
+cmp x2,#6
+b.eq choiceend
+ldrb w3,[x4,x2]
+add x2,x2,#1
+madd x5,x3,x2,x5
+b.al choiceloop
+ret
+choiceend:
+mov x0,x5
+ret
+zeropoints:
+mov x0,#0
+ret

@@ -1,0 +1,16 @@
+module Pangram ( isPangram ) where
+import Data.Array ( all , ( .. ))
+import Data.String.Common ( toLower )
+import Data.Char ( fromCharCode )
+import Data.Traversable ( traverse )
+import Data.Maybe ( Maybe ( .. ), fromMaybe )
+import Data.String.CodeUnits ( contains , singleton )
+import Data.String.Pattern ( Pattern ( Pattern ))
+import Data.Functor (( <#> ), ( <$> ))
+import Data.Function ( flip , ( $ ))
+import Control.Semigroupoid (( <<< ))
+isPangram :: String -> Boolean
+isPangram str = fromMaybe false $ allLetters <#> ( all $ flip contains normalizedStr )
+  where
+    normalizedStr = toLower str
+    allLetters = ( traverse fromCharCode $ 97 .. 122 ) <#> (( <$> )( Pattern <<< singleton ))

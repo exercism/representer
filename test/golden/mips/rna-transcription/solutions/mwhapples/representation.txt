@@ -1,0 +1,33 @@
+# | Register | Usage | Type | Description |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0` | input | address | null-terminated input string |
+# | `$a1` | input/output | address | null-terminated result string |
+# | `$t0-9` | temporary | any | for temporary storage |
+.globl transcribe_rna
+transcribe_rna:
+move $t1, $a1
+loop:
+lb $t0, 0($a0)
+beqz $t0, end
+bne $t0, 65, check_c
+li $t0, 85
+j continue_loop
+check_c:
+bne $t0, 67, check_g
+li $t0, 71
+j continue_loop
+check_g:
+bne $t0, 71, check_t
+li $t0, 67
+j continue_loop
+check_t:
+bne $t0, 84, continue_loop
+li $t0, 65
+continue_loop:
+sb $t0, 0($t1)
+addi $a0, $a0, 1
+addi $t1, $t1, 1
+j loop
+end:
+sb $zero, 0($t1)
+jr $ra

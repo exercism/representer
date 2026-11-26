@@ -1,0 +1,58 @@
+module FoodChain (song) where
+
+data Animal = Animal { name :: String
+                     , reaction :: String
+                     , preySuffix :: String
+                     , prev :: Animal
+                 }
+
+animals :: [Animal]
+animals = [fly, spider, bird, cat, dog, goat, cow, horse]
+  where
+    fly    = Animal  "fly" "" "" undefined
+    spider = Animal  "spider" "It wriggled and jiggled and tickled inside her.\n"
+                     " that wriggled and jiggled and tickled inside her" fly
+    bird   = Animal  "bird" "How absurd to swallow a bird!\n" "" spider
+    cat    = Animal  "cat" "Imagine that, to swallow a cat!\n" "" bird
+    dog    = Animal  "dog" "What a hog, to swallow a dog!\n" "" cat
+    goat   = Animal  "goat" "Just opened her throat and swallowed a goat!\n" "" dog
+    cow    = Animal  "cow" "I don't know how she swallowed a cow!\n" "" goat
+    horse  = Animal  "horse" "" "" cow
+
+firstLinePrefix :: String
+firstLinePrefix = "I know an old lady who swallowed a "
+
+chorusPrefix :: String
+chorusPrefix = "She swallowed the "
+
+chorusSuffix :: String
+chorusSuffix = " to catch the "
+
+lastLine :: String
+lastLine = "I don't know why she swallowed the fly. Perhaps she'll die.\n\n"
+
+closingLine :: String
+closingLine = "She's dead, of course!\n"
+
+buildStanza :: Animal -> String
+buildStanza animal = firstLinePrefix ++ name animal ++ ".\n" ++ reaction animal
+    
+buildChorus :: Animal -> String
+buildChorus animal
+  | name animal == "fly" = ""
+  | otherwise = whatSheSwallowed ++ extra ++ ".\n" 
+                  ++ buildChorus (prev animal)
+  where
+    prey     = prev animal
+    extra    = preySuffix prey
+    whatSheSwallowed = chorusPrefix ++ name animal
+                         ++ chorusSuffix ++ name prey 
+
+verse :: Animal -> String
+verse animal =
+  buildStanza animal
+  ++ buildChorus animal
+  ++ lastLine
+
+song :: String
+song = concatMap verse (init animals)  ++ buildStanza (last animals) ++ closingLine

@@ -1,0 +1,77 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TRIANGLE.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+      *Incoming
+       01 WS-SIDES          PIC X(20).
+       01 WS-PROPERTY       PIC X(11).
+      *Outgoing
+       01 WS-RESULT         PIC 9.
+       
+       01 WS-SIDES-NUMERIC.
+             05 WS-SIDEA             PIC 99V9.              
+             05 WS-SIDEB             PIC 99V9.
+             05 WS-SIDEC             PIC 99V9.
+       01 WS-SUM-OF-SIDES.
+             05 WS-SUM-SIDEAB        PIC 999V9.
+             05 WS-SUM-SIDEBC        PIC 999V9.
+             05 WS-SUM-SIDEAC        PIC 999V9.
+       01 WS-DETERMINED-PROPERTY     PIC X(20).
+          88 ISOSCELES         VALUE "isosceles".
+          88 EQUILATERAL-AND-ISOSCELES 
+                               VALUE "equilateralisosceles".       
+          88 SCALENE           VALUE "scalene".    
+       77 WS-PROPERTY-MATCH          PIC 9.   
+      
+       PROCEDURE DIVISION.
+       TRIANGLE.
+      *Step 1: Initialize fields
+          PERFORM INITIALIZE-PARAGRAPH.
+      *Step 2: extract numeric values for sides from input
+          UNSTRING FUNCTION TRIM(WS-SIDES) DELIMITED BY "," 
+              INTO WS-SIDEA WS-SIDEB WS-SIDEC    
+      *Step 3: check if sides form triangle and 
+      *        if sum of 2 sides > 3rd side
+          COMPUTE WS-SUM-SIDEAB = WS-SIDEA + WS-SIDEB 
+          COMPUTE WS-SUM-SIDEBC = WS-SIDEB + WS-SIDEC
+          COMPUTE WS-SUM-SIDEAC = WS-SIDEA + WS-SIDEC
+          IF WS-SIDEA > 0 AND WS-SIDEB > 0 AND 
+             WS-SIDEC > 0 THEN
+              IF (WS-SUM-SIDEAB > WS-SIDEC) AND
+                 (WS-SUM-SIDEBC > WS-SIDEA) AND
+                 (WS-SUM-SIDEAC > WS-SIDEB) THEN
+                 MOVE 1 TO WS-RESULT
+              ELSE 
+                  MOVE 0 TO WS-RESULT
+              END-IF
+          ELSE 
+              MOVE 0 TO WS-RESULT
+          END-IF      
+      *Step 4: determine type of triangle from given sides 
+          IF WS-RESULT = 1 THEN 
+              IF WS-SIDEA = WS-SIDEB AND WS-SIDEB = WS-SIDEC AND   
+                 WS-SIDEC = WS-SIDEA THEN
+                   SET EQUILATERAL-AND-ISOSCELES TO TRUE
+              ELSE    
+                  IF  WS-SIDEA = WS-SIDEB OR 
+                      WS-SIDEB = WS-SIDEC OR   
+                      WS-SIDEA = WS-SIDEC  THEN
+                      SET ISOSCELES TO TRUE
+                  ELSE
+                      SET SCALENE TO TRUE
+                  END-IF 
+             END-IF 
+          END-IF.
+      *Step 5: check if entered type of triangle is equal to 
+      *        determined type of of triangle        
+          INSPECT FUNCTION TRIM(WS-DETERMINED-PROPERTY) TALLYING 
+                  WS-PROPERTY-MATCH FOR ALL 
+                  FUNCTION TRIM(WS-PROPERTY).           
+          MOVE WS-PROPERTY-MATCH TO WS-RESULT.
+       INITIALIZE-PARAGRAPH.
+          INITIALIZE WS-SIDEA WS-SIDEB WS-SIDEC 
+                     WS-SUM-SIDEAB WS-SUM-SIDEAC WS-SUM-SIDEBC 
+                     WS-PROPERTY-MATCH 
+                     WS-DETERMINED-PROPERTY.
+      

@@ -1,0 +1,5 @@
+sublist(A, B, Q) :-
+  length(A, N), length(B, M),
+  (N =:= M -> (A = B -> Q = equal; Q = unequal);
+   N < M -> (append([_, A, _], B) -> Q = sublist; Q = unequal);
+   append([_, B, _], A) -> Q = superlist; Q = unequal).

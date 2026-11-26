@@ -1,0 +1,41 @@
+.text
+
+.globl nth_prime
+
+nth_prime:
+    # First prime is 2. Now we can start at 3 and add 2
+    bne $a0, 1, n_NE_1
+        li $v0, 2
+        jr $ra
+    n_NE_1:
+
+    sub $t0, $a0, 1
+    li $v0, 3
+
+    count_start:
+        li $t1, 3
+
+        prime_check:
+            # Check divisibility up to sqrt
+            mul $t2, $t1, $t1
+            bgt $t2, $v0, is_prime
+
+            # If divides $v0, $v0 not prime
+            rem $t2, $v0, $t1
+            beq $t2, 0, not_prime
+
+            add $t1, $t1, 2
+            j prime_check
+
+        is_prime:
+            # 1 step closer to nth prime
+            sub $t0, $t0, 1
+            beq $t0, 0, count_end
+
+        not_prime:
+            add $v0, $v0, 2
+            j count_start
+    count_end:
+
+    jr $ra
+

@@ -1,0 +1,32 @@
+function translate ( phrase )
+if isempty ( phrase )
+return phrase
+end
+words = split ( phrase , "' '" )
+result = "\"\""
+rule_1 = [ 'a' , 'e' , 'i' , 'o' , 'u' , "\"xr\"" , "\"yt\"" ]
+rule_2 = [ 'b' , 'c' , 'd' , 'f' , 'g' , 'h' , 'j' , 'k' , 'l' , 'm' , 'n' , 'p' , 'q' , 'r' , 's' , 't' , 'v' , 'w' , 'x' , 'y' , 'z' ]
+for w in words
+if w [ 1 ] in rule_1 || w [ 1 : 2 ] in rule_1
+eval = applyRule1 ( w )
+elseif w [ 1 ] in rule_2
+eval = applyRule234 ( w )
+end
+result = result * eval * "\" \""
+end
+return rstrip ( result )
+end
+function applyRule1 ( word )
+return word * "\"ay\""
+end
+function applyRule234 ( word )
+vowels = [ 'a' , 'e' , 'i' , 'o' , 'u' , 'y' ]
+idx = 1
+while ! ( word [ idx + 1 ] in vowels )
+idx += 1
+end
+if word [ idx ] == 'q' && word [ idx + 1 ] == 'u'
+idx += 1
+end
+return word [ idx + 1 : lastindex ( word )] * word [ 1 : idx ] * "\"ay\""
+end

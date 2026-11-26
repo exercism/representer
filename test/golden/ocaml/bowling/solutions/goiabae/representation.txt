@@ -1,0 +1,77 @@
+open Base
+type state =
+| FrameStart
+| FrameOneMore of int
+| BonusFills of int * int
+| GameEnded
+type frame =
+| Strike
+| Spare
+| Open
+type t =
+{ rolls : int list ;
+state : state ;
+frames : frame list ;
+}
+let roll ( pins : int ) ( game : t ) : ( t , string ) Result . t =
+let is_last_frame = ( List . length game . frames + 1 ) = 10 in
+if pins < 0 then
+Error "\"Negative roll is invalid\""
+else if pins > 10 then
+Error "\"Pin count exceeds pins on the lane\""
+else match game . state with
+| FrameOneMore in_lane
+| BonusFills ( _ , in_lane ) when pins > in_lane ->
+Error "\"Pin count exceeds pins on the lane\""
+| FrameStart when pins < 10 ->
+Ok {
+rolls = game . rolls @ [ pins ];
+state = FrameOneMore ( 10 - pins );
+frames = game . frames ;
+}
+| FrameStart when pins = 10 ->
+Ok {
+rolls = game . rolls @ [ pins ];
+state = if is_last_frame then BonusFills ( 2 , 10 ) else FrameStart ;
+frames = game . frames @ [ Strike ];
+}
+| FrameOneMore in_lane when pins = in_lane ->
+Ok {
+rolls = game . rolls @ [ pins ];
+state = if is_last_frame then BonusFills ( 1 , 10 ) else FrameStart ;
+frames = game . frames @ [ Spare ];
+}
+| FrameOneMore in_lane when pins < in_lane ->
+Ok {
+rolls = game . rolls @ [ pins ];
+state = if is_last_frame then GameEnded else FrameStart ;
+frames = game . frames @ [ Open ];
+}
+| BonusFills ( fills_left , in_lane ) ->
+Ok {
+rolls = game . rolls @ [ pins ];
+state = if fills_left = 1 then GameEnded else BonusFills ( fills_left - 1 , if pins = 10 then 10 else in_lane - pins );
+frames = game . frames ;
+}
+| GameEnded ->
+Error "\"Cannot roll after game is over\""
+| _ -> failwith "\"unreachable\""
+let new_game : t =
+{ rolls = [] ;
+state = FrameStart ;
+frames = [] ;
+}
+let rec score_aux acc frames rolls : ( int , string ) Result . t =
+match frames , rolls with
+| ( Open :: more_frames , r1 :: r2 :: more_rolls ) ->
+score_aux ( acc + r1 + r2 ) more_frames more_rolls
+| ( Spare :: more_frames , _ :: _ :: r3 :: more_rolls ) ->
+score_aux ( acc + 10 + r3 ) more_frames ( r3 :: more_rolls )
+| ( Strike :: more_frames , _ :: r2 :: r3 :: more_rolls ) ->
+score_aux ( acc + 10 + r2 + r3 ) more_frames ( r2 :: r3 :: more_rolls )
+| ( _ :: _ , _ ) -> Error "\"\""
+| ([] , _ ) -> Ok acc
+let score ( game : t ) : ( int , string ) Result . t =
+match game . state with
+| GameEnded -> score_aux 0 game . frames game . rolls
+| _ -> Error "\"Score cannot be taken until the end of the game\""

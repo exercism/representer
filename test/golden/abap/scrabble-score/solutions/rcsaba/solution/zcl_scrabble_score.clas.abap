@@ -1,0 +1,76 @@
+CLASS zcl_scrabble_score DEFINITION PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS score
+      IMPORTING
+        input         TYPE string OPTIONAL
+      RETURNING
+        VALUE(result) TYPE i.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+
+CLASS zcl_scrabble_score IMPLEMENTATION.
+  METHOD score.
+    DATA: 
+      length     TYPE i,
+      input_char TYPE c,
+      counter    TYPE i VALUE 0.
+
+  TYPES:
+    BEGIN OF st_lvalue,
+      letter TYPE c,
+      val    TYPE i,
+    END OF  st_lvalue.
+
+  DATA: itab_lvalue TYPE STANDARD TABLE OF st_lvalue WITH EMPTY KEY,
+        itab_line   LIKE LINE OF itab_lvalue.
+  itab_lvalue = VALUE #(
+  ( letter = 'A' val = 1 )
+  ( letter = 'E' val = 1 )
+  ( letter = 'I' val = 1 )
+  ( letter = 'O' val = 1 )
+  ( letter = 'U' val = 1 )
+  ( letter = 'L' val = 1 )
+  ( letter = 'N' val = 1 )
+  ( letter = 'R' val = 1 )
+  ( letter = 'S' val = 1 )
+  ( letter = 'T' val = 1 )
+  ( letter = 'D' val = 2 )
+  ( letter = 'G' val = 2 )
+  ( letter = 'B' val = 3 )
+  ( letter = 'C' val = 3 )
+  ( letter = 'M' val = 3 )
+  ( letter = 'P' val = 3 )
+  ( letter = 'F' val = 4 )
+  ( letter = 'H' val = 4 )
+  ( letter = 'V' val = 4 )
+  ( letter = 'W' val = 4 )
+  ( letter = 'Y' val = 4 )
+  ( letter = 'K' val = 5 )
+  ( letter = 'J' val = 8 )
+  ( letter = 'X' val = 8 )
+  ( letter = 'Q' val = 10 )
+  ( letter = 'Z' val = 10 )
+  ).
+
+  
+  length = strlen( input ).
+  input = to_upper( input ).
+  result = 0.
+  WRITE length.
+  DO length TIMES.
+    input_char = input+counter(1).
+    LOOP AT itab_lvalue INTO itab_line.
+      IF itab_line-letter = input_char.
+        result += itab_line-val.
+      ENDIF.
+    ENDLOOP.
+    counter += 1.
+  ENDDO.
+    
+  ENDMETHOD.
+
+ENDCLASS.

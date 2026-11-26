@@ -1,0 +1,22 @@
+WITH RECURSIVE
+root_finder ( radicand , current_guess ) AS (
+SELECT radicand , 1
+FROM "\"square-root\""
+UNION ALL
+SELECT radicand , current_guess + 1
+FROM root_finder
+WHERE ( current_guess * current_guess ) < radicand
+),
+matched_roots AS (
+SELECT
+radicand ,
+current_guess AS root
+FROM root_finder
+WHERE current_guess * current_guess = radicand
+)
+UPDATE "\"square-root\""
+SET result = (
+SELECT mr . root
+FROM matched_roots mr
+WHERE mr . radicand = "\"square-root\"" . radicand
+);

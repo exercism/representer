@@ -1,0 +1,126 @@
+(source_file
+  (Decl
+    (VarDecl const std =
+      (SuffixExpr @import
+        (FnCallArguments "std")))) pub
+  (Decl
+    (VarDecl const HighScores =
+      (ContainerDecl
+        (ContainerDeclType struct)
+        (ContainerField scores :
+          (PrefixTypeOp
+            (SliceTypeStart [ ]) const) i32) pub
+        (Decl
+          (FnProto init
+            (ParamDeclList
+              (ParamDecl scores :
+                (ParamType
+                  (PrefixTypeOp
+                    (SliceTypeStart [ ]) const) i32))) HighScores)
+          (Block
+            (Statement
+              (AssignExpr return HighScores
+                (InitList
+                  (FieldInit . scores = scores)))))) pub
+        (Decl
+          (FnProto latest
+            (ParamDeclList
+              (ParamDecl PLACEHOLDER_1 :
+                (ParamType
+                  (PrefixTypeOp
+                    (PtrTypeStart *) const) HighScores)))
+            (PrefixTypeOp ?) i32)
+          (Block
+            (Statement
+              (AssignExpr return
+                (SuffixExpr PLACEHOLDER_1
+                  (FieldOrFnCall . scores)
+                  (SuffixOp [
+                    (BinaryExpr
+                      (SuffixExpr PLACEHOLDER_1
+                        (FieldOrFnCall . scores)
+                        (FieldOrFnCall . len))
+                      (AdditionOp -) 1) ])))))) pub
+        (Decl
+          (FnProto personalBest
+            (ParamDeclList
+              (ParamDecl PLACEHOLDER_1 :
+                (ParamType
+                  (PrefixTypeOp
+                    (PtrTypeStart *) const) HighScores)))
+            (PrefixTypeOp ?) i32)
+          (Block
+            (Statement
+              (IfStatement
+                (IfPrefix if
+                  (BinaryExpr
+                    (SuffixExpr PLACEHOLDER_1
+                      (FieldOrFnCall . scores)
+                      (FieldOrFnCall . len))
+                    (CompareOp ==) 0))
+                (AssignExpr return
+                  (SuffixExpr null))))
+            (Statement
+              (VarDecl var PLACEHOLDER_2 : i32 =
+                (SuffixExpr PLACEHOLDER_1
+                  (FieldOrFnCall . scores)
+                  (SuffixOp [ 0 ]))))
+            (Statement
+              (LabeledStatement
+                (LoopStatement
+                  (ForStatement
+                    (ForPrefix for
+                      (ForArgumentsList
+                        (ForItem
+                          (SuffixExpr PLACEHOLDER_1
+                            (FieldOrFnCall . scores)
+                            (SuffixOp [ 1 .. ]))))
+                      (PtrListPayload | PLACEHOLDER_3 |))
+                    (BlockExpr
+                      (Block
+                        (Statement
+                          (IfStatement
+                            (IfPrefix if
+                              (BinaryExpr PLACEHOLDER_3
+                                (CompareOp >) PLACEHOLDER_2))
+                            (AssignExpr PLACEHOLDER_2
+                              (AssignOp =) PLACEHOLDER_3)))))))))
+            (Statement
+              (AssignExpr return PLACEHOLDER_2)))) pub
+        (Decl
+          (FnProto personalTopThree
+            (ParamDeclList
+              (ParamDecl PLACEHOLDER_1 :
+                (ParamType
+                  (PrefixTypeOp
+                    (PtrTypeStart *) const) HighScores)))
+            (PrefixTypeOp
+              (SliceTypeStart [ ]) const) i32)
+          (Block
+            (Statement
+              (VarDecl var scores :
+                (PrefixTypeOp
+                  (SliceTypeStart [ ])) i32 =
+                (SuffixExpr @constCast
+                  (FnCallArguments
+                    (SuffixExpr PLACEHOLDER_1
+                      (FieldOrFnCall . scores))))))
+            (Statement
+              (AssignExpr
+                (SuffixExpr std
+                  (FieldOrFnCall . sort)
+                  (FieldOrFnCall . block
+                    (FnCallArguments i32 scores
+                      (Block) comptime
+                      (SuffixExpr std
+                        (FieldOrFnCall . sort)
+                        (FieldOrFnCall . desc
+                          (FnCallArguments i32))))))))
+            (Statement
+              (AssignExpr return
+                (SuffixExpr scores
+                  (SuffixOp [ 0 ..
+                    (SuffixExpr @min
+                      (FnCallArguments 3
+                        (SuffixExpr scores
+                          (FieldOrFnCall . len)))) ]))))))))))

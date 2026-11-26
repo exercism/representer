@@ -1,0 +1,100 @@
+Function Is-Workday ([ datetime ] $date ) {
+return $date . DayOfWeek -ge [ DayOfWeek ]:: Monday -and $date . DayOfWeek -le [ DayOfWeek ]:: Friday
+}
+Function Get-FirstWorkday ([ datetime ] $startDate ) {
+$currentDate = $startDate
+while ( -not ( Is-Workday $currentDate )) {
+$currentDate = $currentDate . AddDays ( 1 )
+}
+return $currentDate
+}
+Function Get-LastWorkday ([ datetime ] $endDate ) {
+$currentDate = $endDate
+while ( -not ( Is-Workday $currentDate )) {
+$currentDate = $currentDate . AddDays ( -1 )
+}
+return $currentDate
+}
+Function Invoke-SwiftScheduling () {
+[ CmdletBinding ()]
+Param (
+[ Parameter ( Mandatory = $true )]
+[ datetime ] $MeetingStart ,
+[ Parameter ( Mandatory = $true )]
+[ string ] $Description
+)
+$deliveryDate = $null
+switch -Regex ( $Description ) {
+"\"NOW\"" {
+$deliveryDate = $MeetingStart . AddHours ( 2 )
+}
+"\"ASAP\"" {
+if ( $MeetingStart . Hour -lt 13 ) {
+$deliveryDate = $MeetingStart . Date . AddHours ( 17 )
+} else {
+$deliveryDate = $MeetingStart . Date . AddDays ( 1 ) . AddHours ( 13 )
+}
+}
+"\"EOW\"" {
+$startDay = $MeetingStart . DayOfWeek
+if ( $startDay -ge [ DayOfWeek ]:: Monday -and $startDay -le [ DayOfWeek ]:: Wednesday ) {
+$daysUntilFriday = [ int ][ DayOfWeek ]:: Friday - [ int ] $startDay
+$deliveryDate = $MeetingStart . Date . AddDays ( $daysUntilFriday ) . AddHours ( 17 )
+} else {
+$daysUntilSunday = switch ( $startDay ) {
+([ DayOfWeek ]:: Thursday ) { 3 }
+([ DayOfWeek ]:: Friday ) { 2 }
+([ DayOfWeek ]:: Saturday ) { 1 }
+([ DayOfWeek ]:: Sunday ) { 0 }
+}
+if ( $daysUntilSunday -eq $null ) {
+throw "\"Internal error: Could not determine days until Sunday for EOW rule.\""
+}
+$deliveryDate = $MeetingStart . Date . AddDays ( $daysUntilSunday ) . AddHours ( 20 )
+}
+}
+"\"^(\\d{1,2})M$\"" {
+$targetMonth = [ int ] $matches [ 1 ]
+if ( $targetMonth -lt 1 -or $targetMonth -gt 12 ) {
+throw "\"Invalid month number specified in '" $Description '"
+}
+$targetYear = $MeetingStart . Year
+if ( $MeetingStart . Month -ge $targetMonth ) {
+$targetYear ++
+}
+$firstDayOfMonth = try {
+[ datetime ]:: new ( $targetYear , $targetMonth , 1 , 8 , 0 , 0 )
+} catch {
+throw "\"Failed to construct date for " $targetYear - $targetMonth "-01. Error: $(" $_ . Exception . Message )"
+}
+$deliveryDate = Get-FirstWorkday $firstDayOfMonth
+}
+"\"^Q([1-4])$\"" {
+$targetQuarter = [ int ] $matches [ 1 ]
+$currentQuarter = [ math ]:: Ceiling ( $MeetingStart . Month / 3.0 )
+$targetYear = $MeetingStart . Year
+if ( $currentQuarter -gt $targetQuarter ) {
+$targetYear ++
+}
+$lastMonthOfQuarter = $targetQuarter * 3
+$lastDayOfMonth = try {
+[ datetime ]:: DaysInMonth ( $targetYear , $lastMonthOfQuarter )
+} catch {
+throw "\"Failed to get days in month for " $targetYear - $lastMonthOfQuarter ". Error: $(" $_ . Exception . Message )"
+}
+$lastDayOfQuarterTarget = try {
+[ datetime ]:: new ( $targetYear , $lastMonthOfQuarter , $lastDayOfMonth , 8 , 0 , 0 )
+} catch {
+throw "\"Failed to construct date for " $targetYear - $lastMonthOfQuarter - $lastDayOfMonth ". Error: $(" $_ . Exception . Message )"
+}
+$deliveryDate = Get-LastWorkday $lastDayOfQuarterTarget
+}
+Default {
+throw "\"Invalid description format provided: '" $Description '"
+}
+}
+if ( $deliveryDate -eq $null ) {
+throw "\"Failed to calculate delivery date for '" $Description "' - internal logic error.\""
+}
+return $deliveryDate
+}

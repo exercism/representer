@@ -1,0 +1,46 @@
+# | Register | Usage | Type | Description |
+# | -------- | ------------ | ------- | ------------------------------ |
+# | `$a0` | input | address | null-terminated series string |
+# | `$a1` | input | integer | slice length |
+# | `$a2` | input/output | address | null-terminated output string |
+# | `$t0-9` | temporary | any | used for temporary storage |
+.globl slices
+.eqv span $a1
+.eqv output $a2
+.eqv char $t0
+.eqv counter $t1
+.eqv input $t2
+.eqv input_len $t3
+slices:
+blez span, end
+move input, $a0
+strlen:
+lb char, (input)
+addi input, input, 1
+bnez char, strlen
+sub input_len, input, $a0
+bge span, input_len, end
+move input, $a0
+j loop
+next_span:
+lb char, (input)
+beqz char, end
+sub input, input, span
+addi input, input, 1
+li char, ','
+sb char, (output)
+li char, ' '
+sb char, 1(output)
+addi output, output, 2
+loop:
+move counter, span
+next_char:
+lb char, (input)
+addi input, input, 1
+sb char, (output)
+addi output, output, 1
+addi counter, counter, -1
+beqz counter, next_span
+j next_char
+end:
+jr $ra

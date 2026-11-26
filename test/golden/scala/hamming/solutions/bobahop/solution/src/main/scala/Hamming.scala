@@ -1,7 +1,0 @@
-object Hamming {
-  def distance(strand1: String, strand2: String): Option[Int] = 
-    if (strand1.length() == strand2.length())
-      Some(strand1 zip strand2 count (strand => strand._1 != strand._2))
-    else
-      None
-}

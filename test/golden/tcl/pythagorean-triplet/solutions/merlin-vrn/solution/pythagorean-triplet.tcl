@@ -1,0 +1,13 @@
+proc tripletsWithSum {perimeter} {
+    if {$perimeter%2} { return {} } ;# Pythagorean triplets always have even perimeter
+    set p [expr $perimeter/2]
+    set found {}
+    for {set m2 [expr {$p-1}]} {$m2>[expr {$p/2}]} {incr m2 -1} {
+        if {$p*$p % $m2 == 0} {
+            set d [expr {$p*$p/$m2}]
+            lappend found [lsort -integer [list [expr {$perimeter-$d}] [expr {$perimeter-2*$m2}] [expr {2*$m2+$d-$perimeter}]]]
+        }
+
+    }
+    return [lsort -uniq $found]
+}

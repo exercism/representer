@@ -1,0 +1,20 @@
+import 'dart:math';
+
+class DifferenceOfSquares {
+  int squareOfSum(int number) {
+    List<int> listOfNumbers = List<int>.generate(number, (index) => index + 1);
+    final sum = listOfNumbers.fold<int>(
+        0, (previousValue, element) => previousValue + element);
+    return pow(sum, 2).toInt();
+  }
+
+  int sumOfSquares(int number) {
+    List<int> listOfNumbers = List<int>.generate(number, (index) => index + 1);
+    return listOfNumbers.fold<int>(
+        0, (previousValue, element) => previousValue + pow(element, 2).toInt());
+  }
+
+  int differenceOfSquares(int number) {
+    return squareOfSum(number) - sumOfSquares(number);
+  }
+}

@@ -1,0 +1,78 @@
+namespace eval ::seq {
+namespace export seq
+# Generate a sequence of numbers
+#
+# seq -to 10 ;
+# seq -to 10 -from 14 -by -2 ;
+# seq -from 1 -to 5 -by -2 ;
+# seq -from 1 -to 5 -by 0 ;
+#
+proc seq { args } {
+set len [ llength $args ]
+if { $len == 0 || ( $len % 2 ) == 1 } {
+error { usage: seq [ -from A ] [ -to B ] [ -by C ]}
+}
+array set arg [ list -from 0 -to 0 -by 1 {*} $args ]
+set from $arg ( -from )
+set to $arg ( -to )
+set step $arg ( -by )
+if { $step == 0
+|| ( $step > 0 && $from > $to )
+|| ( $step < 0 && $from < $to )
+} {
+error "\"invalid step\""
+}
+if { $step > 0 } {
+proc ::tcl::mathfunc::seq_cmp_ { a b } { expr $a <= $b }
+} else {
+proc ::tcl::mathfunc::seq_cmp_ { a b } { expr $a >= $b }
+}
+set seq {}
+for {} { seq_cmp_ ( $from , $to )} { incr from $step } {
+lappend seq $from
+}
+rename ::tcl::mathfunc::seq_cmp_ "\"\""
+return $seq
+}
+}
+source seq.tcl
+namespace eval TwelveDays {
+namespace import ::seq::seq
+namespace export verse sing
+variable ordinal {
+"\"--zero--\""
+first second third fourth fifth sixth
+seventh eighth ninth tenth eleventh twelfth
+}
+variable gifts {
+"\"--zero--\""
+"\"a Partridge in a Pear Tree\""
+"\"two Turtle Doves\""
+"\"three French Hens\""
+"\"four Calling Birds\""
+"\"five Gold Rings\""
+"\"six Geese-a-Laying\""
+"\"seven Swans-a-Swimming\""
+"\"eight Maids-a-Milking\""
+"\"nine Ladies Dancing\""
+"\"ten Lords-a-Leaping\""
+"\"eleven Pipers Piping\""
+"\"twelve Drummers Drumming\""
+}
+variable fmt { On the %s day of Christmas my true love gave to me: %s. }
+proc verse { n } {
+variable ordinal
+variable gifts
+variable fmt
+set presents [ lreverse [ lrange $gifts 1 $n ]]
+if { $n > 1 } {
+lset presents end "\"and " [ lindex $presents end ] "\""
+}
+format $fmt [ lindex $ordinal $n ] [ join $presents "\", \"" ]
+}
+proc sing { from to } {
+set days [ lmap i [ seq -from $from -to $to ] { verse $i }]
+return [ join $days \n ]
+}
+}
+namespace import TwelveDays::*

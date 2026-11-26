@@ -1,0 +1,17 @@
+UPDATE diamond SET result = (
+    WITH ls(n, stop, s, line) AS (
+    	SELECT 1, unicode(letter) - 65, unicode(letter) - 65 - 1,
+      		   format('%*sA%*s',
+                      unicode(letter) - 65, '', unicode(letter) - 65, '')
+      	UNION ALL
+      	SELECT n + 1, stop, s - 1,
+      		   format('%*s%s%*s%s%*s',
+                      s, '', char(n + 65), 2 * n - 1, '', char(n + 65), s, '')
+      	FROM ls WHERE n <= stop
+     )
+     SELECT group_concat(line, char(10))
+     FROM (SELECT line FROM ls
+           UNION ALL
+           SELECT line
+           FROM (SELECT line FROM ls WHERE n <= stop ORDER BY n DESC)) 
+)

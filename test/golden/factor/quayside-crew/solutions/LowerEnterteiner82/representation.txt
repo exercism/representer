@@ -1,0 +1,33 @@
+(source_file USING: kernel sequences concurrency.combinators concurrency.locks locals accessors math concurrency.promises threads ; IN: quayside-crew
+  (definition : weigh-crate
+    (effect
+      (inputs PLACEHOLDER_1)
+      (outputs PLACEHOLDER_2)) sum)
+  (definition : weigh-all
+    (effect
+      (inputs crates)
+      (outputs PLACEHOLDER_3))
+    (quote sum) parallel-map) TUPLE: crane lock PLACEHOLDER_4 ;
+  (definition : <crane>
+    (effect
+      (outputs crane)) <lock>
+    (number
+      (integer 0)) crane boa)
+  (definition :: hoist-crate
+    (effect
+      (inputs PLACEHOLDER_2 crane)) crane lock>>
+    (quote crane dup tonnage>> PLACEHOLDER_2 + >>tonnage drop) with-lock) inline
+  (definition : crane-tonnage
+    (effect
+      (inputs crane)
+      (outputs PLACEHOLDER_4)) tonnage>>)
+  (definition :: load-cargo
+    (effect
+      (inputs crates crane))
+    (collection
+      (vector V{)) clone
+    (var_binding :> PLACEHOLDER_5) crates [| PLACEHOLDER_1 | <promise>
+    (var_binding :> PLACEHOLDER_6)
+    (quote PLACEHOLDER_1 weigh-crate crane hoist-crate
+      (syntax t) PLACEHOLDER_6 fulfill) "\"dockhand\"" spawn drop PLACEHOLDER_6 PLACEHOLDER_5 push ] each PLACEHOLDER_5
+    (quote ?promise drop) each))

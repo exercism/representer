@@ -1,0 +1,62 @@
+let getRealIndex = (index, cellindex) => {
+  switch (index) {
+        | 0 => cellindex - 1
+        | 2 => cellindex + 1
+        | _ => cellindex
+      }
+}
+
+let getMatrixValue = (matrix, coord: (int, int)) => {
+  let (x, y) = coord
+
+  let row = try (Array.get(matrix, y)) {
+  | _ => [||]
+  }
+
+  try (Array.get(row, x)) {
+  | _ => false 
+  }
+}
+
+let getAdjacentCellsValue = (matrix: array(array(bool)), cell: (int, int)) => {
+  let (cellX, cellY) = cell
+  Array.make(3, Array.make(3, false))
+  ->Js.Array2.reducei((rowAcc, rowData, rowIndex) => {
+    Js.Array2.reducei(rowData, (cellAcc, _, cellIndex) => {
+      let realX = getRealIndex(cellIndex, cellX)
+      let realY = getRealIndex(rowIndex, cellY)
+      let value = switch ((cellIndex, rowIndex)) {
+      | (1, 1) => false /* avoid current cell */
+      | _ => getMatrixValue(matrix, (realX, realY))
+      }
+
+      if (value) {
+        cellAcc + 1
+      } else {
+        cellAcc
+      }
+    }, 0) + rowAcc
+  }, 0)
+}
+
+let annotate = (tab: array(string)) => {
+  let matrix = Js.Array2.map(tab, (cell) => {
+    cell->Js.String2.split("")->Js.Array2.map((data) => {
+      data === "*"
+    })
+  })
+
+  matrix->Js.Array2.mapi((rowData, rowIndex) => {
+    rowData->Js.Array2.reducei((acc, cellData, cellIndex) => {
+      if (cellData) {
+        acc ++ "*"
+      } else {
+        let adjacent = getAdjacentCellsValue(matrix, (cellIndex, rowIndex))
+        switch(adjacent) {
+        | 0 => acc ++ " "
+        | _ => acc ++ adjacent->string_of_int
+        }
+      }
+    }, "")
+  })
+};

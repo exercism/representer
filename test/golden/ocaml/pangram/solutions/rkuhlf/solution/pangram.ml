@@ -1,0 +1,12 @@
+module CharSet = Set.Make(Char)
+
+let is_pangram (word: string) =
+  let chars = List.init
+    (String.length word)
+    (fun i -> String.get word i |> Char.lowercase_ascii)
+  in let letter_count =
+    chars
+      |> List.filter (fun c -> 'a' <= c && c <= 'z')
+      |> CharSet.of_list
+      |> CharSet.cardinal
+  in letter_count = 26;; 

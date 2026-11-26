@@ -1,0 +1,26 @@
+- module ( pascals_triangle ).
+- export ([ rows / 1 ]).
+rows ( N ) ->
+generate_rows ( 1 , N , []).
+generate_rows ( Current , N , Acc ) when Current =< N ->
+NewRow = the_row ( Current ),
+generate_rows ( Current + 1 , N , [ NewRow | Acc ]);
+generate_rows (_, _, Acc ) ->
+lists : reverse ( Acc ).
+the_row ( 1 ) ->
+[ 1 ];
+the_row ( N ) when N > 1 andalso N rem 2 =:= 0 ->
+OnePart = the_row ( N , N - 1 , 1 , 1 , [ 1 ]),
+TwoPart = lists : reverse ( OnePart ),
+Final = lists : append ( TwoPart , OnePart ),
+Final ;
+the_row ( N ) when N rem 2 =/= 0 ->
+OnePart = the_row ( N , N - 1 , 1 , 1 , [ 1 ]),
+TwoPart = lists : sublist ( lists : reverse ( OnePart ), length ( OnePart ) - 1 ),
+Final = lists : append ( TwoPart , OnePart ),
+Final .
+the_row ( OriginalN , Denominator , _, _, Acc ) when Denominator =< OriginalN div 2 ->
+Acc ;
+the_row ( OriginalN , Denominator , Counter , LastNum , Acc ) ->
+NewNum = LastNum * Denominator div Counter ,
+the_row ( OriginalN , Denominator - 1 , Counter + 1 , NewNum , [ NewNum | Acc ]).

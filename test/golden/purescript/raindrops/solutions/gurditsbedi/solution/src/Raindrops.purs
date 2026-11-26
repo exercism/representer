@@ -1,0 +1,13 @@
+module Raindrops
+  ( raindrops
+  ) where
+
+import Prelude
+import Data.Array
+{--import Math--}
+
+raindrops input = if q == "" then show input else q
+    where
+          q = falana 3 "Pling" <> falana 5 "Plang" <> falana 7 "Plong"
+          falana n s | input `mod` n == 0 = s
+                     | otherwise = ""

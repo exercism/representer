@@ -1,0 +1,55 @@
+func sliceSize(diameter: Double?, slices: Int?) -> Double? {
+  var sliceDouble: Double
+  var area: Double
+  var result: Double?
+  
+  if let diam = diameter {
+    if diam >= 0 {
+    area = (diam / 2) * (diam / 2) * 3.1416
+      if let slice = slices {
+        sliceDouble = Double(slice)
+        if sliceDouble > 0 {
+          result = area / sliceDouble
+        }
+      } else {
+        result = nil
+      }
+    } else {
+      result = nil
+    }
+  }
+  return result
+}
+
+func biggestSlice(
+  diameterA: String, slicesA: String,
+  diameterB: String, slicesB: String
+) -> String {
+  var diamA = Double(diameterA)
+  var diamB = Double(diameterB)
+  var sliceA = Int(slicesA)
+  var sliceB = Int(slicesB)
+  var result = ""
+
+  let a = sliceSize(diameter: diamA, slices: sliceA)
+  let b = sliceSize(diameter: diamB, slices: sliceB)
+
+  if a == b {
+    result = "Neither slice is bigger"
+  }
+  else if a != nil && b != nil {
+    if a! > b! {
+      result = "Slice A is bigger"
+    } else {
+      result = "Slice B is bigger"
+    }
+  }
+  else if a == nil && b != nil {
+    result = "Slice B is bigger"
+  }
+  else {
+    result = "Slice A is bigger"
+  }
+
+  return result
+}

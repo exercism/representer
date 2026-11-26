@@ -1,0 +1,56 @@
+default rel
+section .text
+global mix_tracks
+mix_tracks:
+movdqa xmm0 , [ rsi ]
+paddsw xmm0 , [ rdx ]
+movdqa [ rdi ], xmm0
+ret
+global remove_bleed
+remove_bleed:
+movdqa xmm0 , [ rsi ]
+movdqu xmm1 , [ rdx ]
+psubsw xmm0 , xmm1
+movdqu [ rdi ], xmm0
+ret
+global combine_meters
+combine_meters:
+movdqa xmm0 , [ rsi ]
+paddusb xmm0 , [ rdx ]
+movdqa [ rdi ], xmm0
+ret
+global apply_fade
+apply_fade:
+.loop:
+sub rcx , 8
+movdqa xmm0 , [ rsi + 2 * rcx ]
+pmulhw xmm0 , [ rdx + 2 * rcx ]
+movdqa [ rdi + 2 * rcx ], xmm0
+jg .loop
+ret
+section .bss
+saved_mxcsr resd 1
+temp_mxcsr resd 1
+section .text
+global attenuate_track
+attenuate_track:
+movdqa xmm0 , [ rdx ]
+cvtdq2ps xmm0 , xmm0
+stmxcsr [ saved_mxcsr ]
+mov eax , [ saved_mxcsr ]
+or eax , 0x6000
+mov [ temp_mxcsr ], eax
+ldmxcsr [ temp_mxcsr ]
+.loop:
+sub rcx , 4
+pmovsxwd xmm1 , [ rsi + 2 * rcx ]
+cvtdq2ps xmm2 , xmm1
+divps xmm2 , xmm0
+cvtps2dq xmm3 , xmm2
+movdqa [ rdi + 4 * rcx ], xmm3
+jg .loop
+ldmxcsr [ saved_mxcsr ]
+ret
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU - stack noalloc noexec nowrite progbits
+%endif

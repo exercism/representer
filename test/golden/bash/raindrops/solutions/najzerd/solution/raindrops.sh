@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+main () {
+    (( $1 % 3 )) || output+=Pling
+    (( $1 % 5 )) || output+=Plang
+    (( $1 % 7 )) || output+=Plong
+    echo "${output-$1}"
+}
+
+main "$@"

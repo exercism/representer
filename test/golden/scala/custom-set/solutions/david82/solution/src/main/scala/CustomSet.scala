@@ -1,0 +1,42 @@
+class CustomSet[+A](val set: Set[Any]) {
+
+  def isEmpty: Boolean = set.isEmpty
+
+  def contains[B >: A](elem: B): Boolean = set.contains(elem)
+
+  def isSubsetOf[B >: A](other: CustomSet[B]): Boolean = set.forall(other.contains)
+
+  def isDisjointFrom[B >: A](other: CustomSet[B]): Boolean = !set.exists(other.contains)
+
+  def isEqual[B >: A](other: CustomSet[B]): Boolean = set == other.set
+
+  def insert[B >: A](elem: B): CustomSet[B] = new CustomSet(set + elem)
+
+  def intersection[B >: A](other: CustomSet[B]): CustomSet[A] = new CustomSet(set.filter(other.contains))
+
+  def difference[B >: A](other: CustomSet[B]): CustomSet[A] = new CustomSet(set.filterNot(other.contains))
+
+  def union[B >: A](other: CustomSet[B]): CustomSet[B] = new CustomSet(set ++ other.set)
+}
+
+object CustomSet {
+  def fromList[A](list: List[A]): CustomSet[A] = new CustomSet(list.toSet)
+
+  def empty[A](set: CustomSet[A]): Boolean = set.isEmpty
+
+  def member[A](set: CustomSet[A], elem: A): Boolean = set.contains(elem)
+
+  def isSubsetOf[A](set: CustomSet[A], other: CustomSet[A]): Boolean = set.isSubsetOf(other)
+
+  def isDisjointFrom[A](set: CustomSet[A], other: CustomSet[A]): Boolean = set.isDisjointFrom(other)
+
+  def isEqual[A](set: CustomSet[A], other: CustomSet[A]): Boolean = set.isEqual(other)
+
+  def insert[A](set: CustomSet[A], elem: A): CustomSet[A] = set.insert(elem)
+
+  def intersection[A](set: CustomSet[A], other: CustomSet[A]): CustomSet[A] = set.intersection(other)
+
+  def difference[A](set: CustomSet[A], other: CustomSet[A]): CustomSet[A] = set.difference(other)
+
+  def union[A](set: CustomSet[A], other: CustomSet[A]): CustomSet[A] = set.union(other)
+}

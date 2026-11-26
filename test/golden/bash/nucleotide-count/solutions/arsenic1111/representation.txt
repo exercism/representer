@@ -1,0 +1,29 @@
+function validate-input {
+if (( $# != 1 )) ; then
+echo "\"Usage: nucleotide_count <nucleotide-str>\""
+exit 1
+fi ;
+pattern = "\"[^ACTG]\""
+if [[ ${ 1 ^^ } = ~ $pattern ]] ; then
+echo "\"Invalid nucleotide in strand\""
+exit 1
+fi ;
+}
+function char-counts {
+for (( i = 0 ; i < ${# 1 } ; i++ )) ; do
+(( ++counts[ ${ 1 : $i :1 } ] ))
+done
+}
+function print-counts {
+for char in "\"" ${ ordering [@] } "\"" ; do
+echo "\"" $char ": " ${ counts [ $char ] } "\""
+done
+}
+function main {
+declare -Ai counts =([ A] = 0 [ C] = 0 [ G] = 0 [ T] = 0 )
+declare -a ordering =( A C G T )
+validate-input "\"" $@ "\""
+char-counts "\"" ${ 1 ^^ } "\""
+print-counts
+}
+main "\"" $@ "\""

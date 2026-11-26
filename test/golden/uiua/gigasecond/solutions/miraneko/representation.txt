@@ -1,0 +1,1 @@
+Gigasecond ← datetime +₁₀₀₀₀₀₀₀₀₀ °datetime

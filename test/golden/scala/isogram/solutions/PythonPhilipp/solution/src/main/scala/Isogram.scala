@@ -1,0 +1,10 @@
+object Isogram {
+  def isIsogram(input: String): Boolean = {
+    val lit: String = input.replaceAll("[^a-zA-Z]", "").toUpperCase()
+    val litCount = lit.length
+    val litCountDistinct = lit.toSet.size
+
+    litCount == litCountDistinct
+  }
+
+}

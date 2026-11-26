@@ -1,0 +1,53 @@
+-module(atbash_cipher).
+
+-export([decode/1, encode/1]).
+
+-define(ENGLISH_ALPHABETH, "abcdefghijklmnopqrstuvwxyz").
+-define(DELETABLE, ",. ").
+
+decode(Phrase) ->
+  LowerPhrase = string:to_lower(Phrase),
+  Changed = letter_changer(?ENGLISH_ALPHABETH, LowerPhrase, []),
+  letter_deleter(?DELETABLE, Changed, []).
+
+encode(Phrase) ->
+  LowerPhrase = string:to_lower(Phrase),
+  Changed = letter_changer(?ENGLISH_ALPHABETH, LowerPhrase, []),
+  Deleted = letter_deleter(?DELETABLE, Changed, []),
+  grouping(Deleted, 1, []).
+
+letter_changer(Alphabeth, [H | T], Accumulator) ->
+  Contains = lists:any(fun(Element) -> H == Element end, Alphabeth),
+  case Contains of
+       true ->
+       FirstChar = lists:nth(string:length(Alphabeth) -
+         (first_occarance(Alphabeth, H , 0)), Alphabeth),
+       letter_changer(Alphabeth, T, Accumulator ++ [FirstChar]);
+       false -> letter_changer(Alphabeth, T, Accumulator ++ [H])
+  end;
+  letter_changer(_Alphabeth, [], Accumulator) -> lists:flatten(Accumulator).
+
+letter_deleter(Deletable, [H | T], Accumulator) ->
+  Contains = lists:any(fun(Element) -> H == Element end, Deletable),
+  case Contains of
+    true ->
+    letter_deleter(Deletable, T, Accumulator);
+    false -> letter_deleter(Deletable, T, Accumulator ++ [H])
+  end;
+letter_deleter(_, [], Accumulator) ->lists:flatten(Accumulator).
+
+grouping([H | T], Counter, Accumulator) ->
+  GroupedText =Accumulator ++ [H],
+  case Counter rem 5 == 0 andalso T /=[] of
+    true -> grouping(T, 1,  GroupedText ++ [" "]);
+    false -> grouping(T, Counter + 1, GroupedText)
+  end;
+grouping([], _Counter, Accumulator) -> lists:flatten(Accumulator).
+
+first_occarance([], _, _) -> false;
+
+first_occarance([H | T], Letter, Counter) ->
+case H == Letter of
+    true -> Counter;
+    false -> first_occarance(T, Letter, Counter + 1)
+end.

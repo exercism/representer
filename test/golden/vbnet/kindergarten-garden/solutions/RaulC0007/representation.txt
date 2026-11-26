@@ -1,0 +1,46 @@
+Public Enum Plant
+Clover
+Grass
+Radishes
+Violets
+End Enum
+Public Class KindergartenGarden
+Private ReadOnly _diagram As String
+Private ReadOnly _students As String () = {
+"\"Alice\"" , "\"Bob\"" , "\"Charlie\"" , "\"David\"" , "\"Eve\"" , "\"Fred\"" ,
+"\"Ginny\"" , "\"Harriet\"" , "\"Ileana\"" , "\"Joseph\"" , "\"Kincaid\"" , "\"Larry\""
+}
+Public Sub New ( ByVal diagram As String )
+_diagram = diagram
+End Sub
+Public Function Plants ( ByVal student As String ) As IEnumerable ( Of Plant )
+Dim studentIndex As Integer = Array . IndexOf ( _students , student )
+If studentIndex < 0 Then
+Return New List ( Of Plant )()
+End If
+Dim rows As String () = _diagram . Split ({ ControlChars . Lf , ControlChars . CrLf }, StringSplitOptions . RemoveEmptyEntries )
+Dim row1 As String = rows ( 0 )
+Dim row2 As String = rows ( 1 )
+Dim startIndex As Integer = studentIndex * 2
+Dim result As New List ( Of Plant )()
+result . Add ( GetPlant ( row1 ( startIndex )))
+result . Add ( GetPlant ( row1 ( startIndex + 1 )))
+result . Add ( GetPlant ( row2 ( startIndex )))
+result . Add ( GetPlant ( row2 ( startIndex + 1 )))
+Return result
+End Function
+Private Function GetPlant ( ByVal code As Char ) As Plant
+Select Case code
+Case "\"C\"" c
+Return Plant . Clover
+Case "\"G\"" c
+Return Plant . Grass
+Case "\"R\"" c
+Return Plant . Radishes
+Case "\"V\"" c
+Return Plant . Violets
+Case Else
+Throw New ArgumentException ( $ "\"Unknown plant code: {code}\"" )
+End Select
+End Function
+End Class

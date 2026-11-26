@@ -1,0 +1,28 @@
+Imports System
+Imports System.Collections
+
+Public Module FlattenArray
+
+    Public Iterator Function Flatten(input As IEnumerable) As IEnumerable
+
+        For Each element As Object In input
+
+            If element Is Nothing Then
+                Continue For
+            End If
+
+            Dim enumerable = TryCast(element, IEnumerable)
+
+            If enumerable IsNot Nothing Then
+                For Each item In Flatten(enumerable)
+                    Yield item
+                Next
+            Else
+                Yield element
+            End If
+
+        Next
+
+    End Function
+
+End Module

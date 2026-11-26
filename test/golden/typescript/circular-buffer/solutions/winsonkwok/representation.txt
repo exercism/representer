@@ -1,0 +1,169 @@
+(program
+  (export_statement default
+    (class_declaration CircularBuffer
+      (type_parameters <
+        (type_parameter (type_identifier PLACEHOLDER_1)) >)
+      (class_body
+        (public_field_definition buffer
+          (type_annotation
+            (array_type (type_identifier PLACEHOLDER_1))))
+        (public_field_definition (property_identifier PLACEHOLDER_2)
+          (type_annotation
+            (predefined_type number)))
+        (method_definition constructor
+          (formal_parameters
+            (required_parameter PLACEHOLDER_3
+              (type_annotation
+                (predefined_type number))))
+          (statement_block
+            (expression_statement
+              (assignment_expression
+                (member_expression this buffer) =
+                (new_expression Array
+                  (arguments PLACEHOLDER_3))))
+            (expression_statement
+              (assignment_expression
+                (member_expression this (property_identifier PLACEHOLDER_2)) = 0))))
+        (method_definition write
+          (formal_parameters
+            (required_parameter PLACEHOLDER_4
+              (type_annotation (type_identifier PLACEHOLDER_1))))
+          (type_annotation
+            (predefined_type void))
+          (statement_block
+            (if_statement
+              (binary_expression
+                (member_expression this (property_identifier PLACEHOLDER_2)) ==
+                (member_expression
+                  (member_expression this buffer) length))
+              (statement_block
+                (throw_statement
+                  (new_expression BufferFullError
+                    (arguments "Full"))))
+              (else_clause
+                (statement_block
+                  (expression_statement
+                    (assignment_expression
+                      (subscript_expression
+                        (member_expression this buffer)
+                        (update_expression
+                          (member_expression this (property_identifier PLACEHOLDER_2)) ++)) = PLACEHOLDER_4)))))))
+        (method_definition read
+          (formal_parameters)
+          (type_annotation (type_identifier PLACEHOLDER_1))
+          (statement_block
+            (if_statement
+              (binary_expression
+                (member_expression this (property_identifier PLACEHOLDER_2)) == 0)
+              (statement_block
+                (throw_statement
+                  (new_expression BufferEmptyError
+                    (arguments "Empty"))))
+              (else_clause
+                (statement_block
+                  (lexical_declaration let
+                    (variable_declarator PLACEHOLDER_5
+                      (type_annotation (type_identifier PLACEHOLDER_1)) =
+                      (subscript_expression
+                        (member_expression this buffer) 0)))
+                  (lexical_declaration let
+                    (variable_declarator PLACEHOLDER_6 =
+                      (call_expression Array
+                        (arguments
+                          (member_expression
+                            (member_expression this buffer) length)))))
+                  (expression_statement
+                    (call_expression
+                      (member_expression
+                        (call_expression
+                          (member_expression
+                            (member_expression this buffer) slice)
+                          (arguments 1
+                            (member_expression
+                              (member_expression this buffer) length))) map)
+                      (arguments
+                        (arrow_function
+                          (formal_parameters
+                            (required_parameter PLACEHOLDER_7)
+                            (required_parameter PLACEHOLDER_8))
+                          (assignment_expression
+                            (subscript_expression PLACEHOLDER_6 PLACEHOLDER_8) = PLACEHOLDER_7)))))
+                  (expression_statement
+                    (update_expression
+                      (member_expression this (property_identifier PLACEHOLDER_2)) --))
+                  (expression_statement
+                    (assignment_expression
+                      (member_expression this buffer) = PLACEHOLDER_6))
+                  (return_statement PLACEHOLDER_5))))))
+        (method_definition forceWrite
+          (formal_parameters
+            (required_parameter PLACEHOLDER_4
+              (type_annotation (type_identifier PLACEHOLDER_1))))
+          (type_annotation
+            (predefined_type void))
+          (statement_block
+            (if_statement
+              (binary_expression
+                (member_expression this (property_identifier PLACEHOLDER_2)) <
+                (member_expression
+                  (member_expression this buffer) length))
+              (statement_block
+                (expression_statement
+                  (call_expression
+                    (member_expression this write)
+                    (arguments PLACEHOLDER_4))))
+              (else_clause
+                (statement_block
+                  (lexical_declaration let
+                    (variable_declarator PLACEHOLDER_5
+                      (type_annotation (type_identifier PLACEHOLDER_1)) =
+                      (call_expression
+                        (member_expression this read)
+                        (arguments))))
+                  (expression_statement
+                    (call_expression
+                      (member_expression this write)
+                      (arguments PLACEHOLDER_4))))))))
+        (method_definition clear
+          (formal_parameters)
+          (type_annotation
+            (predefined_type void))
+          (statement_block
+            (expression_statement
+              (assignment_expression
+                (member_expression this buffer) =
+                (new_expression Array
+                  (arguments
+                    (member_expression
+                      (member_expression this buffer) length)))))
+            (expression_statement
+              (assignment_expression
+                (member_expression this (property_identifier PLACEHOLDER_2)) = 0)))))))
+  (export_statement
+    (class_declaration BufferFullError
+      (class_heritage
+        (extends_clause extends Error))
+      (class_body
+        (method_definition constructor
+          (formal_parameters
+            (required_parameter PLACEHOLDER_9
+              (type_annotation
+                (predefined_type string))))
+          (statement_block
+            (expression_statement
+              (call_expression super
+                (arguments PLACEHOLDER_9))))))))
+  (export_statement
+    (class_declaration BufferEmptyError
+      (class_heritage
+        (extends_clause extends Error))
+      (class_body
+        (method_definition constructor
+          (formal_parameters
+            (required_parameter PLACEHOLDER_9
+              (type_annotation
+                (predefined_type string))))
+          (statement_block
+            (expression_statement
+              (call_expression super
+                (arguments PLACEHOLDER_9)))))))))

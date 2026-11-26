@@ -1,0 +1,40 @@
+hassomething?: $[fieldchar][return (not? equal? fieldchar ' ')]
+FlowerCount: $[garden fromrow torow fromcol tocol] 
+[ 
+        Flowercountperrow: map (slice garden fromrow torow ) 
+            'patch [match.in: fromcol..tocol patch {/[A]/} ]
+        return sum (map Flowercountperrow [subcounts]  [size subcounts]) 
+]
+
+annotate: function [garden][
+    annotatedgarden: map garden 'patch [replace patch "*" "A"]
+    nrows: size annotatedgarden
+    ncols: size first annotatedgarden
+    if any? @[zero? nrows zero? ncols] -> return annotatedgarden
+    countarray: []
+    total: 0
+    loop 0..(nrows-1) [row] [    
+        countrow: []
+        loop 0..(ncols-1)  [col] [
+            thisrow: (get annotatedgarden (row))
+            value: (get thisrow (col))
+            
+            if? (hassomething? value) ['countrow ++ 'A']
+            else [ 
+                fromrow: new (max @[0 row-1])
+                torow: new(min @[(nrows - 1) row+1])
+                fromcol: new(max @[0 (col-1)])
+                tocol: new (min @[(ncols - 1) (col+1)])
+                count: (FlowerCount annotatedgarden fromrow torow fromcol tocol)
+                'total + count
+                if zero? count -> count: " "
+                'countrow ++ @[to :string count]
+                ]
+                    ]
+
+    'countarray ++ join countrow
+            ]
+    if zero? total   -> return garden 
+    
+    return map countarray 'patch [replace patch "A" "*" ]
+]

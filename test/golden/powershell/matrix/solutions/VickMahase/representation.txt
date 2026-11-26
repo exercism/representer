@@ -1,0 +1,29 @@
+Function Invoke-Row () {
+[ CmdletBinding ()]
+Param (
+[ string ] $String ,
+[ int ] $Index
+)
+$rows = $String -split '\r?\n'
+if ( $Index -lt 1 -or $Index -gt $rows . Count ) {
+throw "\"Invalid row index\""
+}
+return ( $rows [ $Index - 1 ] -split '\s+' | Where-Object { $_ -ne '' } | ForEach-Object { [ int ]:: Parse ( $_ ) })
+}
+Function Invoke-Column () {
+[ CmdletBinding ()]
+Param (
+[ string ] $String ,
+[ int ] $Index
+)
+$rows = $String -split '\r?\n'
+$columnNumbers = @()
+foreach ( $row in $rows ) {
+$rowNumbers = $row -split '\s+' | Where-Object { $_ -ne '' }
+if ( $Index -lt 1 -or $Index -gt $rowNumbers . Count ) {
+throw "\"Invalid column index\""
+}
+$columnNumbers += [ int ]:: Parse ( $rowNumbers [ $Index - 1 ])
+}
+return $columnNumbers
+}

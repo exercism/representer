@@ -1,0 +1,11 @@
+Public Module Leap
+    Public Function IsLeapYear(ByVal year As Integer) As Boolean
+    If year mod  4 = 0 and year mod 100  <> 0 Then 
+    return True
+    End If
+    if year  mod 400  = 0 Then 
+    return True
+    End If
+    Return False
+    End Function
+End Module

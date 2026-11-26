@@ -1,0 +1,343 @@
+(source_file
+  (import gleam/dict .
+    (unqualified_imports
+      (unqualified_import type Dict)))
+  (import gleam/int)
+  (import gleam/list)
+  (import gleam/string)
+  (constant PLACEHOLDER_1 = "abcdefghijklmnopqrstuvwxyz")
+  (type_definition
+    (type_name (type_identifier PLACEHOLDER_2))
+    (data_constructors
+      (data_constructor (constructor_name PLACEHOLDER_2)
+        (data_constructor_arguments
+          (data_constructor_argument (label PLACEHOLDER_3) :
+            (type List
+              (type_arguments
+                (type_argument
+                  (type Int)))))
+          (data_constructor_argument (label PLACEHOLDER_4) :
+            (type Dict
+              (type_arguments
+                (type_argument
+                  (type String))
+                (type_argument
+                  (type Int)))))
+          (data_constructor_argument (label PLACEHOLDER_5) :
+            (type Dict
+              (type_arguments
+                (type_argument
+                  (type Int))
+                (type_argument
+                  (type String)))))))))
+  (function pub encode
+    (function_parameters
+      (function_parameter plaintext plaintext :
+        (type String))
+      (function_parameter key key :
+        (type String))) ->
+    (type String)
+    (block
+      (binary_expression
+        (function_call PLACEHOLDER_6
+          (arguments
+            (argument key)
+            (argument forward :
+              (record True)))) |>
+        (function_call PLACEHOLDER_7
+          (arguments
+            (argument plaintext))))))
+  (function pub decode
+    (function_parameters
+      (function_parameter ciphertext ciphertext :
+        (type String))
+      (function_parameter key key :
+        (type String))) ->
+    (type String)
+    (block
+      (binary_expression
+        (function_call PLACEHOLDER_6
+          (arguments
+            (argument key)
+            (argument forward :
+              (record False)))) |>
+        (function_call PLACEHOLDER_7
+          (arguments
+            (argument ciphertext))))))
+  (function PLACEHOLDER_7
+    (function_parameters
+      (function_parameter PLACEHOLDER_8 :
+        (type (type_identifier PLACEHOLDER_2)))
+      (function_parameter PLACEHOLDER_9 :
+        (type String))) ->
+    (type String)
+    (block
+      (case
+        (case_subjects
+          (field_access PLACEHOLDER_8 . (label PLACEHOLDER_3)))
+        (case_clauses
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern))) -> PLACEHOLDER_9)
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern _)) ->
+            (function_call PLACEHOLDER_10
+              (arguments
+                (argument PLACEHOLDER_8)
+                (argument
+                  (function_call
+                    (field_access string . to_graphemes)
+                    (arguments
+                      (argument PLACEHOLDER_9))))
+                (argument
+                  (field_access PLACEHOLDER_8 . (label PLACEHOLDER_3)))
+                (argument ""))))))))
+  (function PLACEHOLDER_10
+    (function_parameters
+      (function_parameter PLACEHOLDER_8 :
+        (type (type_identifier PLACEHOLDER_2)))
+      (function_parameter PLACEHOLDER_11 :
+        (type List
+          (type_arguments
+            (type_argument
+              (type String)))))
+      (function_parameter PLACEHOLDER_3 :
+        (type List
+          (type_arguments
+            (type_argument
+              (type Int)))))
+      (function_parameter PLACEHOLDER_12 :
+        (type String))) ->
+    (type String)
+    (block
+      (case
+        (case_subjects PLACEHOLDER_11 PLACEHOLDER_3)
+        (case_clauses
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern) _)) -> PLACEHOLDER_12)
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern _
+                (list_pattern))) ->
+            (function_call PLACEHOLDER_10
+              (arguments
+                (argument PLACEHOLDER_8)
+                (argument PLACEHOLDER_11)
+                (argument
+                  (field_access PLACEHOLDER_8 . (label PLACEHOLDER_3)))
+                (argument PLACEHOLDER_12))))
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (list_pattern (variable PLACEHOLDER_13)
+                  (list_pattern_tail .. (variable PLACEHOLDER_11)))
+                (list_pattern (variable PLACEHOLDER_14)
+                  (list_pattern_tail .. (variable PLACEHOLDER_3))))) ->
+            (block
+              (let (variable PLACEHOLDER_12) =
+                (binary_expression PLACEHOLDER_12 <>
+                  (function_call PLACEHOLDER_15
+                    (arguments
+                      (argument PLACEHOLDER_8)
+                      (argument PLACEHOLDER_13)
+                      (argument PLACEHOLDER_14)))))
+              (function_call PLACEHOLDER_10
+                (arguments
+                  (argument PLACEHOLDER_8)
+                  (argument PLACEHOLDER_11)
+                  (argument PLACEHOLDER_3)
+                  (argument PLACEHOLDER_12)))))))))
+  (function PLACEHOLDER_15
+    (function_parameters
+      (function_parameter PLACEHOLDER_8 :
+        (type (type_identifier PLACEHOLDER_2)))
+      (function_parameter PLACEHOLDER_16 :
+        (type String))
+      (function_parameter PLACEHOLDER_14 :
+        (type Int))) ->
+    (type String)
+    (block
+      (case
+        (case_subjects
+          (function_call
+            (field_access dict . get)
+            (arguments
+              (argument
+                (field_access PLACEHOLDER_8 . (label PLACEHOLDER_4)))
+              (argument PLACEHOLDER_16))))
+        (case_clauses
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (record_pattern Ok
+                  (record_pattern_arguments
+                    (record_pattern_argument (variable PLACEHOLDER_17)))))) ->
+            (block
+              (let_assert
+                (record_pattern Ok
+                  (record_pattern_arguments
+                    (record_pattern_argument (variable PLACEHOLDER_18)))) =
+                (function_call
+                  (field_access dict . get)
+                  (arguments
+                    (argument
+                      (field_access PLACEHOLDER_8 . (label PLACEHOLDER_5)))
+                    (argument
+                      (binary_expression
+                        (block
+                          (binary_expression
+                            (binary_expression PLACEHOLDER_17 + PLACEHOLDER_14) + 26)) % 26))))) PLACEHOLDER_18))
+          (case_clause
+            (case_clause_patterns
+              (case_clause_pattern
+                (record_pattern Error
+                  (record_pattern_arguments
+                    (record_pattern_argument _))))) -> PLACEHOLDER_16)))))
+  (function pub generate_key
+    (function_parameters) ->
+    (type String)
+    (block
+      (let (variable PLACEHOLDER_19) =
+        (function_call
+          (field_access string . length)
+          (arguments
+            (argument PLACEHOLDER_1))))
+      (function_call
+        (field_access list . fold)
+        (arguments
+          (argument
+            (function_call
+              (field_access list . range)
+              (arguments
+                (argument 1)
+                (argument 100))))
+          (argument "")
+          (argument
+            (anonymous_function
+              (function_parameters
+                (function_parameter PLACEHOLDER_20)
+                (function_parameter _))
+              (block
+                (binary_expression PLACEHOLDER_20 <>
+                  (function_call
+                    (field_access string . slice)
+                    (arguments
+                      (argument PLACEHOLDER_1)
+                      (argument
+                        (function_call
+                          (field_access int . random)
+                          (arguments
+                            (argument PLACEHOLDER_19))))
+                      (argument 1)))))))))))
+  (function PLACEHOLDER_6
+    (function_parameters
+      (function_parameter key :
+        (type String))
+      (function_parameter forward forward :
+        (type Bool))) ->
+    (type (type_identifier PLACEHOLDER_2))
+    (block
+      (let (variable PLACEHOLDER_4) =
+        (function_call
+          (field_access list . index_fold)
+          (arguments
+            (argument
+              (function_call
+                (field_access string . to_graphemes)
+                (arguments
+                  (argument PLACEHOLDER_1))))
+            (argument
+              (function_call
+                (field_access dict . new)
+                (arguments)))
+            (argument
+              (anonymous_function
+                (function_parameters
+                  (function_parameter PLACEHOLDER_20)
+                  (function_parameter PLACEHOLDER_21)
+                  (function_parameter PLACEHOLDER_22))
+                (block
+                  (function_call
+                    (field_access dict . insert)
+                    (arguments
+                      (argument PLACEHOLDER_20)
+                      (argument PLACEHOLDER_21)
+                      (argument PLACEHOLDER_22)))))))))
+      (let (variable PLACEHOLDER_5) =
+        (function_call
+          (field_access list . index_fold)
+          (arguments
+            (argument
+              (function_call
+                (field_access string . to_graphemes)
+                (arguments
+                  (argument PLACEHOLDER_1))))
+            (argument
+              (function_call
+                (field_access dict . new)
+                (arguments)))
+            (argument
+              (anonymous_function
+                (function_parameters
+                  (function_parameter PLACEHOLDER_20)
+                  (function_parameter PLACEHOLDER_21)
+                  (function_parameter PLACEHOLDER_22))
+                (block
+                  (function_call
+                    (field_access dict . insert)
+                    (arguments
+                      (argument PLACEHOLDER_20)
+                      (argument PLACEHOLDER_22)
+                      (argument PLACEHOLDER_21)))))))))
+      (let (variable PLACEHOLDER_3) =
+        (function_call
+          (field_access list . (label PLACEHOLDER_4))
+          (arguments
+            (argument
+              (function_call
+                (field_access string . to_graphemes)
+                (arguments
+                  (argument key))))
+            (argument
+              (anonymous_function
+                (function_parameters
+                  (function_parameter PLACEHOLDER_16))
+                (block
+                  (case
+                    (case_subjects
+                      (function_call
+                        (field_access dict . get)
+                        (arguments
+                          (argument PLACEHOLDER_4)
+                          (argument PLACEHOLDER_16))) forward)
+                    (case_clauses
+                      (case_clause
+                        (case_clause_patterns
+                          (case_clause_pattern
+                            (record_pattern Ok
+                              (record_pattern_arguments
+                                (record_pattern_argument (variable PLACEHOLDER_17))))
+                            (record_pattern True))) -> PLACEHOLDER_17)
+                      (case_clause
+                        (case_clause_patterns
+                          (case_clause_pattern
+                            (record_pattern Ok
+                              (record_pattern_arguments
+                                (record_pattern_argument (variable PLACEHOLDER_17))))
+                            (record_pattern False))) ->
+                        (integer_negation - PLACEHOLDER_17))
+                      (case_clause
+                        (case_clause_patterns
+                          (case_clause_pattern
+                            (record_pattern Error
+                              (record_pattern_arguments
+                                (record_pattern_argument _))) _)) -> 0)))))))))
+      (record (constructor_name PLACEHOLDER_2)
+        (arguments
+          (argument (label PLACEHOLDER_3) : PLACEHOLDER_3)
+          (argument (label PLACEHOLDER_4) : PLACEHOLDER_4)
+          (argument (label PLACEHOLDER_5) : PLACEHOLDER_5))))))

@@ -1,0 +1,53 @@
+BEGINFILE { mode = "immediate"; scope = depth = 0 }
+function fail(error) { print error; exit 1 }
+function find(name, i) { for (; i > 0; --i) if (Vocab[i] == name) return i }
+function push(value) { Stack[++depth] = value }
+function pop(n) {
+  if (depth < n) fail(depth ? "only one value on the stack" : "empty stack")
+  x = Stack[depth--]; if (n > 1) y = Stack[depth--]
+}
+function exec(word, scope, i) {
+  if (word ~ /^-?[0-9]+$/) push(int(word))
+  else if (scope = find(word, scope))
+    for (i in Defns[scope]) exec(Defns[scope][i], scope - 1, 0)
+  else switch (word) {
+    case "DROP": pop(1); break
+    case "DUP": pop(1); push(x); push(x); break
+    case "OVER": pop(2); push(y); push(x); push(y); break
+    case "SWAP": pop(2); push(x); push(y); break
+    case "+": pop(2); push(y + x); break
+    case "-": pop(2); push(y - x); break
+    case "*": pop(2); push(y * x); break
+    case "/": pop(2); if (!x) fail("divide by zero"); push(int(y / x)); break
+    default: fail("undefined operation")
+  }
+}
+{
+  for (n = 1; n <= NF; ++n) {
+    word = toupper($n)
+    switch (mode) {
+      case "immediate":
+        if (word == ";") fail("illegal operation")
+        if (word == ":") mode = "defining"
+        else exec(word, scope, 0)
+        break
+      case "defining":
+        if (word ~ /^([:;]|-?[0-9]+)$/) fail("illegal operation")
+        Vocab[++scope] = word; count = 0; mode = "compiling"
+        break
+      case "compiling":
+        if (word == ":") fail("illegal operation")
+        if (word == ";" && !count) fail("empty macro definition")
+        if (word == ";") mode = "immediate"
+        else Defns[scope][++count] = word
+        break
+    }
+  }
+}
+ENDFILE {
+  if (mode != "immediate") fail("macro not terminated with semicolon")
+  stack = ""
+  for (i = 1; i <= depth; ++i) stack = stack " " Stack[i]
+  print substr(stack, 2)
+}
+

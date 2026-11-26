@@ -1,0 +1,61 @@
+local class_metatable = {}
+
+function class_metatable:__call(...)
+    return self:new(...)
+end
+
+local function class(initialize)
+    local new_class = {}
+    local instance_metatable = {}
+    setmetatable(new_class, class_metatable)
+    function instance_metatable:__index(key)
+        return new_class[key]
+    end
+    function new_class:new(...)
+        local instance = {}
+        setmetatable(instance, instance_metatable)
+        initialize(instance, ...)
+        return instance
+    end
+    return new_class
+end
+
+local HighScores = class(function(self, values)
+    self.values = values
+    self.length = #values
+end)
+
+function HighScores:scores()
+    return self.values
+end
+
+function HighScores:latest()
+    return self.values[self.length]
+end
+
+function HighScores:personal_best()
+    return math.max( table.unpack(self.values) )
+end
+
+function HighScores:personal_top_three()
+    local top = {}
+    for i = 1, 3 do
+        top[i] = self.values[i]
+    end
+    for i = 4, self.length do
+        local value = self.values[i]
+        local third_best = math.min( table.unpack(top) )
+        if value > third_best then
+            local third_best_index =
+                    (top[1] == third_best) and 1 or
+                    (top[2] == third_best) and 2 or
+                    (top[3] == third_best) and 3
+            table.remove(top, third_best_index)
+            table.insert(top, value)
+        end
+    end
+    table.sort(top, function(a, b) return a > b end)
+    return top
+end
+
+return HighScores

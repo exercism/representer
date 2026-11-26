@@ -1,0 +1,35 @@
+WITH RECURSIVE
+max_limit_finder AS (
+SELECT COALESCE ( MAX ( "\"limit\"" ), 0 ) AS max_l FROM sieve
+),
+tally ( val ) AS (
+SELECT 2 WHERE ( SELECT max_l FROM max_limit_finder ) >= 2
+UNION ALL
+SELECT val + 1 FROM tally WHERE val < ( SELECT max_l FROM max_limit_finder )
+),
+composites AS (
+SELECT DISTINCT t1 . val AS comp_val
+FROM tally t1
+JOIN tally t2 ON t2 . val * t2 . val <= t1 . val
+WHERE t1 . val % t2 . val = 0
+),
+primes AS (
+SELECT val FROM tally
+WHERE val NOT IN ( SELECT comp_val FROM composites )
+),
+ordered_results AS (
+SELECT DISTINCT
+s . rowid AS r_id ,
+group_concat ( p . val , "', '" ) OVER (
+PARTITION BY s . rowid
+ORDER BY p . val ASC
+ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+) AS prime_string
+FROM sieve s
+JOIN primes p ON p . val <= s . "\"limit\""
+)
+UPDATE sieve
+SET result = COALESCE (
+( SELECT o . prime_string FROM ordered_results o WHERE o . r_id = sieve . rowid ),
+''
+);

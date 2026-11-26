@@ -1,0 +1,28 @@
+CLASS zcl_phone_number DEFINITION
+PUBLIC
+FINAL
+CREATE PUBLIC .
+PUBLIC SECTION .
+METHODS clean
+IMPORTING
+! number TYPE string
+RETURNING
+VALUE ( result ) TYPE string
+RAISING
+cx_parameter_invalid .
+PROTECTED SECTION .
+PRIVATE SECTION .
+ENDCLASS .
+CLASS zcl_phone_number IMPLEMENTATION .
+METHOD clean .
+IF number CN "'0123456789 +().-'" .
+raise exception type cx_parameter_invalid .
+ENDIF .
+result = reduce # ( INIT r = ||
+FOR index = 0 WHILE index < strlen ( number )
+NEXT r = r && cond # ( when number + index ( 1 ) CO '0123456789' AND ( r IS NOT INITIAL OR number + index ( 1 ) NE '1' ) then number + index ( 1 ) ) ).
+IF STRLEN ( result ) LE 9 OR STRLEN ( result ) GT 10 OR result ( 1 ) EQ '0' OR result + 3 ( 1 ) CO '01' .
+raise exception type cx_parameter_invalid .
+ENDIF .
+ENDMETHOD .
+ENDCLASS .

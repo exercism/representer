@@ -1,0 +1,14 @@
+vim9script
+
+def g:Darts(x: any, y: any): number
+  const r2 = x * x + y * y
+  if r2 > 100
+    return 0
+  elseif r2 > 25
+    return 1
+  elseif r2 > 1
+    return 5
+  else
+    return 10
+  endif
+enddef

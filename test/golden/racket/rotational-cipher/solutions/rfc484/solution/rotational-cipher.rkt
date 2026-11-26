@@ -1,0 +1,12 @@
+#lang racket
+
+(provide rotate)
+
+(define (char-rotate char key)
+  (if (char-alphabetic? char)
+      (let ([base (if (char-lower-case? char) (char->integer #\a) (char->integer #\A))])
+        (integer->char (+ base (remainder (+ (- (char->integer char) base) key) 26))))
+      char)) 
+  
+(define (rotate text key)
+  (list->string (map (λ (ch) (char-rotate ch key)) (string->list text))))

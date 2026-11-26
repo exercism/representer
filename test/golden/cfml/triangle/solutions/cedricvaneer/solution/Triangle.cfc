@@ -1,0 +1,36 @@
+component {
+
+	
+	public boolean function isTriangle( required array sides ) {
+		if (sides[1] == 0 OR sides[2] == 0 OR sides[3] == 0) {
+			return false;
+		}
+		if (sides[1] > sides[2]+sides[3] OR sides[2] > sides[1]+sides[3] OR sides[3] > sides[1]+sides[2]) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean function equilateral( required array sides ) {
+		if (sides[1] == sides[2] AND sides[2] == sides [3] AND sides[1] != 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean function isosceles( required array sides ) {
+		var isoscele = false;
+		if (sides[1] == sides[2] OR sides[1] == sides[3] OR sides[2] == sides[3]) {
+			isoscele = true;
+		}
+		return isTriangle(arguments.sides) AND isoscele;
+	}
+	
+	public boolean function scalene( required array sides ) {
+		if (sides[1] == sides[2] OR sides[1] == sides[3] OR sides[2] == sides[3]) {
+			return false;
+		}
+		return isTriangle(arguments.sides);
+	}
+	
+}

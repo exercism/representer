@@ -1,0 +1,14 @@
+let leap_year input = 
+  let retval = 
+    if input mod 4 = 0 then
+      if input mod 100 = 0 then
+        if input mod 400 = 0 then
+          true
+        else
+          false
+      else
+        true
+    else
+      false
+  in
+  retval

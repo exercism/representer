@@ -1,9 +1,0 @@
-fun collatz n =
-  let
-    fun collatz' 1 steps = steps
-      | collatz' x steps = if x mod 2 = 0 then collatz' (x div 2) (steps + 1)
-                           else collatz' (3 * x + 1) (steps + 1)
-  in
-    if n <= 0 then NONE
-    else SOME (collatz' n 0)
-  end

@@ -1,0 +1,95 @@
+#include "roman_numerals.h"
+#include <stdlib.h>
+
+char *to_roman_numeral(unsigned int number)
+{
+// 1000 (M), 100 (C), 10 (X) and 1 (I) can be repeated more than once in a row, for loop is needed.
+    
+    char *romanNumeral = calloc(15, sizeof(char));
+    int position = 0;
+
+    /*
+    int M = "1000";
+    int CM = "900"
+    int D = "500";
+    int CD = "400";
+    int C = "100";
+    int XC = "90";
+    int L = "50";
+    int XL = "40";
+    int X = "10";
+    int IX = "9";
+    int V = "5";
+    int IV = "4";
+    int I = "1";
+    */
+    
+    if (number >= 1000) {
+        unsigned int count = number / 1000;
+        for (unsigned int i = 0; i < count; i++) {
+            romanNumeral[position++] = 'M';
+            number -=1000;
+        }
+        } if (number >= 900) {
+            romanNumeral[position++] = 'C';
+            romanNumeral[position++] = 'M';
+            number -=900;
+        
+        } if (number >= 500) {
+            romanNumeral[position++] = 'D';
+            number -=500;
+        
+        } if (number >= 400) {
+            romanNumeral[position++] = 'C';
+            romanNumeral[position++] = 'D';
+            number -=400;
+        
+        } if (number >= 100) {
+            unsigned int count = number / 100;
+            for (unsigned int i = 0; i < count; i++) {
+                romanNumeral[position++] = 'C';
+                number -=100;
+        }
+        } if (number >= 90) {
+            romanNumeral[position++] = 'X';
+            romanNumeral[position++] = 'C';
+            number -=90;
+        
+        } if (number >= 50) {
+            romanNumeral[position++] = 'L';
+            number -=50;
+        
+        } if (number >= 40) {
+            romanNumeral[position++] = 'X';
+            romanNumeral[position++] = 'L';
+            number -=40;
+        
+        } if (number >= 10) {
+            unsigned int count = number / 10;
+            for (unsigned int i = 0; i < count; i++) {
+                romanNumeral[position++] = 'X';
+                number -=10;
+        }
+        } if (number >= 9) {
+            romanNumeral[position++] = 'I';
+            romanNumeral[position++] = 'X';
+            number -=9;
+        
+        } if (number >= 5) {
+            romanNumeral[position++] = 'V';
+            number -=5;
+        
+        } if (number >= 4) {
+            romanNumeral[position++] = 'I';
+            romanNumeral[position++] = 'V';
+            number -=4;
+        }
+        if (number >= 1) {
+            unsigned int count = number; 
+            for (unsigned int i = 0; i < count; i++) {
+                romanNumeral[position++] = 'I';
+            } 
+        number -= count;
+        }
+    return romanNumeral;
+}

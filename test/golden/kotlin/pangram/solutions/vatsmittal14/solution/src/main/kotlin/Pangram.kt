@@ -1,0 +1,12 @@
+object Pangram {
+
+    fun isPangram(input: String): Boolean {
+        var alphabets ="abcdefghijklmnopqrstuvwxyz"
+
+        for(str in input.toLowerCase()) {
+
+            alphabets = alphabets.replace(str,'a',true)
+        }
+
+    return (alphabets == "aaaaaaaaaaaaaaaaaaaaaaaaaa")
+}}

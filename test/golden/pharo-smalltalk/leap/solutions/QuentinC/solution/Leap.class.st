@@ -1,0 +1,10 @@
+Class {
+	#name : #Leap,
+	#superclass : #Object,
+	#category : #'Exercise@Leap'
+}
+
+{ #category : #computer }
+Leap >> leapYear: anInteger [ 
+	^ ((anInteger % 4 = 0) and: (anInteger % 100 ~= 0 or: anInteger % 400 = 0))
+]

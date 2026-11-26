@@ -1,0 +1,50 @@
+package Minesweeper ;
+use v5 . 38 ;
+use Exporter qw<import> ;
+our @EXPORT_OK = qw<annotate> ;
+sub annotate ($minefield) {
+my @grid = split ( // , $minefield );
+my $len = scalar ( @grid );
+my $ans = "\"\";"
+if ( $len == 0 ){ return $ans ;}
+my $col = $len ;
+foreach my $r ( 0 .. $len - 1 ){
+if ( $grid [ $r ] eq "\"" \n "\"){"
+$col = $r ;
+last ;
+}
+}
+my $row = ( $len + 1 ) / ( $col + 1 );
+foreach my $cellidx ( 0 .. $len - 1 ){
+if ( $cellidx % ( $col + 1 ) != $col ){
+if ( $grid [ $cellidx ] eq ' * '){ $ans = $ans . ' * ';}
+else {
+my $tot = 0 ;
+my %dir ;
+$dir { above } = ( $cellidx > $col );
+$dir { left } = ( $cellidx % ( $col + 1 ) != 0 );
+$dir { right } = ( $cellidx % ( $col + 1 ) != ( $col - 1 ));
+$dir { below } = ( $cellidx < $len - $col );
+if ( $dir { above }){
+if ( $grid [ $cellidx - $col - 1 ] eq ' * '){ $tot += 1 ;}}
+if ( $dir { below }){
+if ( $grid [ $cellidx + $col + 1 ] eq ' * '){ $tot += 1 }}
+if ( $dir { left }){
+if ( $grid [ $cellidx - 1 ] eq ' * '){ $tot += 1 ;}}
+if ( $dir { right }){
+if ( $grid [ $cellidx + 1 ] eq ' * '){ $tot += 1 ;}}
+if ( $dir { above } && $dir { left }){
+if ( $grid [ $cellidx - $col - 1 - 1 ] eq ' * '){ $tot += 1 ;}}
+if ( $dir { above } && $dir { right }){
+if ( $grid [ $cellidx - $col ] eq ' * '){ $tot += 1 ;}}
+if ( $dir { below } && $dir { left }){
+if ( $grid [ $cellidx + $col ] eq ' * '){ $tot += 1 ;}}
+if ( $dir { below } && $dir { right }){
+if ( $grid [ $cellidx + $col + 1 + 1 ] eq ' * '){ $tot += 1 ;}}
+if ( $tot > 0 ){ $ans = $ans . $tot ;}
+else { $ans = $ans . "\"" " " "\";}"
+}
+} else { $ans = $ans . $grid [ $cellidx ];}
+}
+return $ans ;
+}

@@ -1,0 +1,15 @@
+:- use_module(library(clpfd)).
+
+latest(Scores, Latest) :- 
+    last(Scores, Latest).
+
+personal_best(Scores, Best) :- 
+    max_list(Scores, Best).
+
+personal_top_three(Scores, TopThree) :-
+    sort(0, @>=, Scores, Sorted),
+    (   append(TopThree, _, Sorted),
+        length(TopThree, 3)
+    ->  true
+    ;   TopThree = Sorted
+    ).

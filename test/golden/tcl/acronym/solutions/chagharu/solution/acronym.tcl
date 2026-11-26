@@ -1,8 +1,0 @@
-proc abbreviate {phrase} {
-  set wordList [split $phrase "- _"]
-  set retVal ""
-  foreach x $wordList {
-    append retVal [string index $x 0]
-  }
-  return [string toupper $retVal]
-}

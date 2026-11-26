@@ -1,0 +1,40 @@
+BEGIN {
+if ( dir == "\"\"" ) dir = "\"north\""
+if ( dir !~ /north|east|south|west/ ) {
+print "\"invalid direction\""
+exit 1
+}
+if ( x == "\"\"" ) x = "\"0\""
+if ( y == "\"\"" ) y = "\"0\""
+RS = "\"^$\""
+FS = "\"\""
+res = getline
+gsub ( "\"[ \\n]\"" , "\"\"" )
+for ( i = 1 ; i <= NF ; i ++ ) {
+if ( $i ~ /R/ ) rotate ( "\"r\"" )
+else if ( $i ~ /L/ ) rotate ( "\"l\"" )
+else if ( $i ~ /A/ ) advance ()
+else {
+print "\"invalid instruction\""
+exit 1
+}
+}
+print x , y , dir
+}
+function rotate ( to ) {
+r [ "\"north\"" ] = "\"east\""
+r [ "\"east\"" ] = "\"south\""
+r [ "\"south\"" ] = "\"west\""
+r [ "\"west\"" ] = "\"north\""
+l [ "\"east\"" ] = "\"north\""
+l [ "\"south\"" ] = "\"east\""
+l [ "\"west\"" ] = "\"south\""
+l [ "\"north\"" ] = "\"west\""
+dir = to == "\"r\"" ? r [ dir ] : l [ dir ]
+}
+function advance () {
+if ( dir == "\"north\"" ) y ++
+if ( dir == "\"east\"" ) x ++
+if ( dir == "\"south\"" ) y --
+if ( dir == "\"west\"" ) x --
+}

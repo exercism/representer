@@ -1,8 +1,0 @@
-local gigasecond = {}
-
-function gigasecond.anniversary(time)
-    local gigasec = 1000000000
-    return os.date("%x", time + gigasec)
-end
-
-return gigasecond

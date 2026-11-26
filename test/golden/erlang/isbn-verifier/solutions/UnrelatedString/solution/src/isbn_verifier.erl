@@ -1,0 +1,44 @@
+-module(isbn_verifier).
+
+-export([is_valid/1, test_version/0]).
+
+purge_hyphens([], O) -> O;
+purge_hyphens([H | T], O) ->
+    case H == $- of
+        false ->
+            purge_hyphens(T, [H | O]);
+        true ->
+            purge_hyphens(T, O)
+    end.
+
+validate_length([], N) -> N == 0;
+validate_length([H | T], N) ->
+    validate_length(T, N - 1).
+
+to_int(Digit) ->
+    case Digit of
+        $X ->
+            10;
+        _ ->
+            Digit - $0
+    end.
+
+isbn_sum(L) -> isbn_sum(L, 1).
+isbn_sum([], 11) -> 0;
+isbn_sum([H | T], N) ->
+    case (H /= $X) orelse validate_length(T, 9) of
+        true -> to_int(H) * N + isbn_sum(T, N + 1);
+        false -> throw(false)
+    end.
+
+is_valid(Isbn) ->
+    Ns = purge_hyphens(Isbn, []),
+    case validate_length(Ns, 10) of
+        false ->
+            false;
+        true ->
+            catch isbn_sum(Ns) rem 11 == 0
+    end.
+
+
+test_version() -> 1.

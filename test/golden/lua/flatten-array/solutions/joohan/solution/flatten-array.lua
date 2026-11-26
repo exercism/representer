@@ -1,0 +1,15 @@
+local function flatten(input)
+    local result = {}
+    for _, v in pairs(input) do
+        if type(v) == "table" then
+            for _, vv in pairs(flatten(v)) do
+                table.insert(result, vv)
+            end
+        else
+            table.insert(result, v)
+        end
+    end
+    return result
+end
+
+return flatten

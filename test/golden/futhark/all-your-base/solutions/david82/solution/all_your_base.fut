@@ -1,0 +1,14 @@
+def represent (base: i32) (number: i32): []i32 =
+  if number == 0 then [0]
+  else
+    let max_digits = 32
+    let (buffer, digit_count, _) = 
+      loop (buf, count, n) = (replicate max_digits 0, 0, number) 
+      while n != 0 do
+        (buf with [max_digits - 1 - count] = n % base, count + 1, n / base)
+    in buffer[max_digits - digit_count : max_digits]
+
+def rebase (input_base: i32) (digits: []i32) (output_base: i32): []i32 =
+  assert (input_base > 1 && output_base > 1 && all (\d -> d >= 0 && d < input_base) digits)
+  (represent output_base (foldl (\acc d -> acc * input_base + d) 0 digits))
+  

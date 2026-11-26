@@ -1,0 +1,21 @@
+Imports System.Text
+
+Public Module RnaTranscription
+    Public Function ToRna(dna As String) As String
+        Dim rna As New StringBuilder(Len(dna))
+        For Each dnaCodon In dna
+            Select dnaCodon
+                Case "A"c
+                    rna.Append("U"c)
+                Case "C"c
+                    rna.Append("G"c)
+                Case "G"c
+                    rna.Append("C"c)
+                Case "T"c
+                    rna.Append("A"c)
+            End Select
+        Next
+
+        Return rna.ToString()
+    End Function
+End Module

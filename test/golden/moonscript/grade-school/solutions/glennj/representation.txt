@@ -1,0 +1,61 @@
+School = require './lib/school'
+{
+  roster: ( list ) ->
+    school = School !
+    school \ addAll list
+    school \ roster !
+  add: ( list ) ->
+    School !\ addAll list
+  grade: ( list , grade ) ->
+    school = School !
+    school \ addAll list
+    school \ grade grade
+}
+Student = require './lib/student'
+BST = require './lib/binary_search_tree'
+class School
+  new: =>
+    @students = BST !
+  addAll: ( list ) =>
+    [ @add Student tuple for tuple in * list ]
+  add: ( student ) =>
+    return false if @seen student . name
+    @students \ add student
+    true
+  seen: ( name ) =>
+    @students \ reduce false , ( seen , student ) ->
+      seen or student . name == name
+  grade: ( wanted ) =>
+    @students \ reduce {}, ( names , student ) ->
+      if student . grade == wanted
+        table.insert names , student . name
+      names
+  roster: =>
+    @students \ reduce {}, ( names , student ) ->
+      table.insert names , student . name
+      names
+class BST
+  new: =>
+    @value = nil
+  add: ( value ) =>
+    if @value == nil
+      @value = value
+    else if value < @value
+      @left = @left or BST !
+      @left \ add value
+    else if value > @value
+      @right = @right or BST !
+      @right \ add value
+  foreach: ( fn ) =>
+    if @value != nil
+      @left \ foreach fn if @left
+      fn @value
+      @right \ foreach fn if @right
+  reduce: ( acc , fn ) =>
+    @foreach ( value ) -> acc = fn acc , value
+    acc
+class Student
+  new: ( pair ) =>
+    { @name , @grade } = pair
+  __lt: ( other ) =>
+    @grade < other . grade or ( @grade == other . grade and @name < other . name )

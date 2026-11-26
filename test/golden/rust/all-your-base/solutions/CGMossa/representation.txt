@@ -1,0 +1,155 @@
+(source_file
+  (attribute_item #
+    (attribute derive
+      (token_tree "(" Debug , PartialEq ")")))
+  (enum_item
+    (visibility_modifier pub) Error
+    (enum_variant_list
+      (enum_variant InvalidInputBase)
+      (enum_variant InvalidOutputBase)
+      (enum_variant InvalidDigit
+        (ordered_field_declaration_list u32))))
+  (function_item
+    (visibility_modifier pub) convert
+    (parameters
+      (parameter PLACEHOLDER_1 :
+        (reference_type &
+          (array_type u32)))
+      (parameter PLACEHOLDER_2 : u32)
+      (parameter PLACEHOLDER_3 : u32)) ->
+    (generic_type Result
+      (type_arguments <
+        (generic_type Vec
+          (type_arguments < u32 >)) Error >))
+    (block
+      (expression_statement
+        (if_expression
+          (binary_expression PLACEHOLDER_2 <= 1)
+          (block
+            (expression_statement
+              (return_expression
+                (call_expression Err
+                  (arguments
+                    (scoped_identifier Error :: InvalidInputBase))))))
+          (else_clause
+            (if_expression
+              (binary_expression PLACEHOLDER_3 <= 1)
+              (block
+                (expression_statement
+                  (return_expression
+                    (call_expression Err
+                      (arguments
+                        (scoped_identifier Error :: InvalidOutputBase))))))))))
+      (expression_statement
+        (if_expression
+          (let_condition
+            (tuple_struct_pattern Some
+              (reference_pattern & PLACEHOLDER_4)) =
+            (call_expression
+              (field_expression
+                (call_expression
+                  (field_expression
+                    (call_expression
+                      (field_expression PLACEHOLDER_1 . iter)
+                      (arguments)) . skip_while)
+                  (arguments
+                    (closure_expression
+                      (closure_parameters PLACEHOLDER_5)
+                      (call_expression
+                        (field_expression
+                          (range_expression 0 .. PLACEHOLDER_2) . contains)
+                        (arguments PLACEHOLDER_5))))) . next)
+              (arguments)))
+          (block
+            (expression_statement
+              (return_expression
+                (call_expression Err
+                  (arguments
+                    (call_expression
+                      (scoped_identifier Error :: InvalidDigit)
+                      (arguments PLACEHOLDER_4)))))))))
+      (let_declaration PLACEHOLDER_6 =
+        (call_expression
+          (field_expression
+            (call_expression
+              (field_expression
+                (call_expression
+                  (field_expression PLACEHOLDER_1 . iter)
+                  (arguments)) . take_while)
+              (arguments
+                (closure_expression
+                  (closure_parameters PLACEHOLDER_5)
+                  (binary_expression
+                    (unary_expression *
+                      (unary_expression * PLACEHOLDER_5)) == 0)))) . count)
+          (arguments)))
+      (let_declaration
+        (tuple_pattern _ PLACEHOLDER_6) =
+        (call_expression
+          (field_expression PLACEHOLDER_1 . split_at)
+          (arguments PLACEHOLDER_6)))
+      (let_declaration mut PLACEHOLDER_7 =
+        (call_expression
+          (field_expression
+            (call_expression
+              (field_expression
+                (call_expression
+                  (field_expression
+                    (call_expression
+                      (field_expression PLACEHOLDER_6 . into_iter)
+                      (arguments)) . rev)
+                  (arguments)) . enumerate)
+              (arguments)) . fold)
+          (arguments 0
+            (closure_expression
+              (closure_parameters PLACEHOLDER_8
+                (tuple_pattern PLACEHOLDER_9 PLACEHOLDER_5))
+              (binary_expression PLACEHOLDER_8 +
+                (binary_expression
+                  (call_expression
+                    (field_expression PLACEHOLDER_2 . pow)
+                    (arguments
+                      (type_cast_expression PLACEHOLDER_9 as u32))) *
+                  (unary_expression * PLACEHOLDER_5)))))))
+      (let_declaration PLACEHOLDER_10 =
+        (binary_expression
+          (type_cast_expression
+            (call_expression
+              (field_expression
+                (call_expression
+                  (field_expression
+                    (type_cast_expression PLACEHOLDER_7 as f64) . log)
+                  (arguments
+                    (type_cast_expression PLACEHOLDER_3 as f64))) . floor)
+              (arguments)) as u32) + 1))
+      (call_expression Ok
+        (arguments
+          (call_expression
+            (field_expression
+              (call_expression
+                (field_expression
+                  (range_expression 0 .. PLACEHOLDER_10) . rev)
+                (arguments)) . fold)
+            (arguments
+              (call_expression
+                (scoped_identifier Vec :: new)
+                (arguments))
+              (closure_expression
+                (closure_parameters
+                  (mut_pattern mut PLACEHOLDER_8) PLACEHOLDER_5)
+                (block
+                  (let_declaration
+                    (tuple_pattern PLACEHOLDER_11 PLACEHOLDER_12) =
+                    (call_expression
+                      (scoped_identifier
+                        (scoped_identifier num :: integer) :: div_rem)
+                      (arguments PLACEHOLDER_7
+                        (call_expression
+                          (field_expression PLACEHOLDER_3 . pow)
+                          (arguments PLACEHOLDER_5)))))
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_7 = PLACEHOLDER_12))
+                  (expression_statement
+                    (call_expression
+                      (field_expression PLACEHOLDER_8 . push)
+                      (arguments PLACEHOLDER_11))) PLACEHOLDER_8)))))))))

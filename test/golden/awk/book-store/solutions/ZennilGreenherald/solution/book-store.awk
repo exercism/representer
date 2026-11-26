@@ -1,0 +1,64 @@
+{ counts[$0]++ }
+END {
+    total = 0
+    for (i in counts) {
+        if (counts[i] == 0) delete counts[i]
+    }
+    asort(counts)
+    while (length(counts)) {
+        if (length(counts) == 1) {
+            total += counts[1] * 800
+            delete counts[1]
+        } else if (length(counts) == 2) {
+            total += 1600 * 0.95
+            counts[1] -= 1
+            counts[2] -= 1
+        } else if (length(counts) == 3) {
+            total += 2400 * 0.90
+            counts[1] -= 1
+            counts[2] -= 1
+            counts[3] -= 1
+        } else if (length(counts) == 4) {
+            total += 3200 * 0.80
+            counts[1] -= 1
+            counts[2] -= 1
+            counts[3] -= 1
+            counts[4] -= 1
+        } else if (length(counts) == 5) {
+            if (counts[2] == 1 && counts[3] == 2) {
+                total += 2 * 3200 * 0.80
+                counts[1] -= 1
+                counts[2] -= 1
+                counts[3] -= 2
+                counts[4] -= 2
+                counts[5] -= 2
+            } else if (counts[2] == 2 && counts[3] >= 4) {
+                total += 4 * 3200 * 0.80
+                counts[1] -= 2
+                counts[2] -= 2
+                counts[3] -= 4
+                counts[4] -= 4
+                counts[5] -= 4
+            } else if (counts[2] == 2 && counts[3] >= 3) {
+                total += 3 * 3200 * 0.80
+                counts[1] -= 1
+                counts[2] -= 2
+                counts[3] -= 3
+                counts[4] -= 3
+                counts[5] -= 3
+            } else {
+                total += 4000 * 0.75
+                counts[1] -= 1
+                counts[2] -= 1
+                counts[3] -= 1
+                counts[4] -= 1
+                counts[5] -= 1
+            }
+        }
+        for (i in counts) {
+            if (counts[i] == 0) delete counts[i]
+        }
+        asort(counts)
+    }
+    print total
+}

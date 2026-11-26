@@ -1,0 +1,158 @@
+(source_file
+  (import_statement
+    (expression_list sequtils))
+  (import_statement
+    (expression_list
+      (call
+        (accent_quoted /)
+        (argument_list std algorithm))))
+  (type_section
+    (type_declaration
+      (type_symbol_declaration
+        (exported_symbol Student *)) =
+      (object_declaration object
+        (field_declaration_list
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol name *))) :
+            (type_expression string))
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol grade *))) :
+            (type_expression int)))))
+    (type_declaration
+      (type_symbol_declaration
+        (exported_symbol School *)) =
+      (object_declaration object
+        (field_declaration_list
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol students *))) :
+            (type_expression
+              (bracket_expression seq
+                (argument_list Student))))))))
+  (proc_declaration (definition PLACEHOLDER_1)
+    (parameter_declaration_list
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_2))) :
+        (type_expression Student))
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration (local PLACEHOLDER_3))) :
+        (type_expression Student))) :
+    (type_expression int) =
+    (statement_list
+      (let_section
+        (variable_declaration
+          (symbol_declaration_list
+            (symbol_declaration result)) =
+          (call cmp
+            (argument_list
+              (dot_expression PLACEHOLDER_2 . grade)
+              (dot_expression PLACEHOLDER_3 . grade)))))
+      (if if
+        (call
+          (accent_quoted ==)
+          (argument_list result 0)) :
+        (statement_list
+          (return_statement return
+            (call cmp
+              (argument_list
+                (dot_expression PLACEHOLDER_2 . name)
+                (dot_expression PLACEHOLDER_3 . name)))))) result))
+  (proc_declaration
+    (exported_symbol roster *)
+    (parameter_declaration_list
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration school)) :
+        (type_expression School))) :
+    (type_expression
+      (bracket_expression seq
+        (argument_list string))) =
+    (statement_list
+      (call
+        (dot_expression
+          (call
+            (dot_expression
+              (dot_expression school . students) . sortedbyit)
+            (argument_list
+              (tuple_construction
+                (dot_expression it . grade)
+                (dot_expression it . name)))) . mapit)
+        (argument_list
+          (dot_expression it . name)))))
+  (proc_declaration
+    (exported_symbol addstudent *)
+    (parameter_declaration_list
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration school)) :
+        (type_expression
+          (var_type
+            (type_expression School))))
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration name)) :
+        (type_expression string))
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration grade)) :
+        (type_expression int))) =
+    (statement_list
+      (if if
+        (call
+          (dot_expression
+            (dot_expression school . students) . anyit)
+          (argument_list
+            (call
+              (accent_quoted ==)
+              (argument_list
+                (dot_expression it . name) name)))) :
+        (statement_list
+          (raise_statement raise
+            (call newexception
+              (argument_list Valueerror "the student already exists")))))
+      (call
+        (dot_expression
+          (dot_expression school . students) . add)
+        (argument_list
+          (call Student
+            (argument_list
+              (colon_expression name : name)
+              (colon_expression grade : grade)))))))
+  (proc_declaration
+    (exported_symbol grade *)
+    (parameter_declaration_list
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration school)) :
+        (type_expression School))
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration grade)) :
+        (type_expression int))) :
+    (type_expression
+      (bracket_expression seq
+        (argument_list string))) =
+    (statement_list
+      (call
+        (dot_expression
+          (call
+            (dot_expression
+              (call
+                (dot_expression
+                  (dot_expression school . students) . filterit)
+                (argument_list
+                  (call
+                    (accent_quoted ==)
+                    (argument_list
+                      (dot_expression it . grade) grade)))) . sortedbyit)
+            (argument_list
+              (dot_expression it . name))) . mapit)
+        (argument_list
+          (dot_expression it . name))))))

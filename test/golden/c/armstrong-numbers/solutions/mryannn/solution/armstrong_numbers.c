@@ -1,0 +1,29 @@
+#include "armstrong_numbers.h"
+
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+
+bool is_armstrong_number(int candidate)
+{
+    int totalSum = 0;
+    int intPos = 0;
+    int inputVal = candidate;
+
+    int length =  ( candidate==0 ) ? 1 : (int)log10(candidate)+1;
+    
+    while (candidate > 0)
+    {
+        intPos = candidate % 10;
+        totalSum += pow(intPos, length);
+        candidate /= 10;
+        
+    }
+
+    if (totalSum == inputVal){
+        return true;
+    }
+
+    return false;
+        
+}

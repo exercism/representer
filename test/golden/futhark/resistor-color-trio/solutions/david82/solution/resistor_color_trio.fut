@@ -1,0 +1,85 @@
+type resistance = { value: [3]u8, unit: [8]u8 }
+
+def strings_equal [m] [n] (a: [m]u8) (b: [n]u8): bool =
+  if m != n then false
+  else all (\i -> a[i] == b[i]) (iota m)
+
+def label (first: []u8) (second: []u8) (third: []u8): resistance =
+  let to_digit (c: []u8): u8 =
+    if strings_equal c "black" then 0
+    else if strings_equal c "brown" then 1
+    else if strings_equal c "red" then 2
+    else if strings_equal c "orange" then 3
+    else if strings_equal c "yellow" then 4
+    else if strings_equal c "green" then 5
+    else if strings_equal c "blue" then 6
+    else if strings_equal c "violet" then 7
+    else if strings_equal c "grey" then 8
+    else 9
+
+  let d1: u8 = to_digit first
+  let d2: u8 = to_digit second
+  let zeros: i64 = i64.u8 (to_digit third)
+
+  let ascii_0: u8 = 48
+  let ascii_dot: u8 = 46
+  let ascii_space: u8 = 32
+  let char_of_digit (d: u8): u8 = ascii_0 + d
+
+  let tens_char: u8 = char_of_digit d1
+  let ones_char: u8 = char_of_digit d2
+
+  -- Calculate base value: d1*10 + d2
+  let base_value: i64 = i64.u8 d1 * 10 + i64.u8 d2
+  
+  -- Total value with zeros
+  let total_value: i64 = base_value * (10 ** zeros)
+  
+  -- Determine unit and scaling
+  let (k, divisor): (i64, i64) = 
+    if total_value >= 1000000000 then (3, 1000000000)  -- gigaohms
+    else if total_value >= 1000000 then (2, 1000000)   -- megaohms
+    else if total_value >= 1000 then (1, 1000)         -- kiloohms
+    else (0, 1)                                        -- ohms
+
+  let units: [4][8]u8 = [
+    [111, 104, 109, 115, 32, 32, 32, 32],         -- "ohms    "
+    [107, 105, 108, 111, 111, 104, 109, 115],     -- "kiloohms"
+    [109, 101, 103, 97, 111, 104, 109, 115],      -- "megaohms"
+    [103, 105, 103, 97, 111, 104, 109, 115]       -- "gigaohms"
+  ]
+  let unit_str: [8]u8 = units[k]
+
+  -- Calculate the displayed value
+  let scaled_value: i64 = total_value / divisor
+  let remainder_value: i64 = total_value % divisor
+  
+  -- Check if we need decimal format
+  let needs_decimal: bool = remainder_value != 0 && divisor > 1
+  
+  -- Format the value
+  let value_str: [3]u8 =
+    if needs_decimal then
+      -- Decimal value (x.y format)
+      -- Calculate decimal digit: (remainder * 10) / divisor
+      let decimal_digit: i64 = (remainder_value * 10) / divisor
+      let int_part = u8.i64 scaled_value
+      let dec_part = u8.i64 decimal_digit
+      in [char_of_digit int_part, ascii_dot, char_of_digit dec_part]
+    else
+      -- Integer value
+      if scaled_value >= 100 then
+        let h = u8.i64 (scaled_value / 100)
+        let t = u8.i64 ((scaled_value / 10) % 10)
+        let o = u8.i64 (scaled_value % 10)
+        in [char_of_digit h, char_of_digit t, char_of_digit o]
+      else if scaled_value >= 10 then
+        let t = u8.i64 (scaled_value / 10)
+        let o = u8.i64 (scaled_value % 10)
+        in [ascii_space, char_of_digit t, char_of_digit o]
+      else
+        let o = u8.i64 scaled_value
+        in [ascii_space, ascii_space, char_of_digit o]
+
+  in { value = value_str, unit = unit_str }
+                 

@@ -1,0 +1,43 @@
+# State: 5x5 mat [Colors, Nationality, Pets, Drinks, Hobbies] (all ran5, inf means unassigned)
+Colors  ← {"red" "green" "yellow" "ivory" "blue"}
+Nations ← {"english" "spanish" "ukrainian" "norwegian" "japanese"}
+Pets    ← {"dog" "snail" "fox" "horse" "zebra"}
+Drinks  ← {"coffee" "tea" "water" "orange" "milk"}
+Hobbies ← {"dance" "paint" "reading" "chess" "football"}
+Values  ← [Colors Nations Pets Drinks Hobbies]
+
+I      ← memo(⊢⊚=Values □) # [Row Val] ? name
+Decode ← ⍉ ≡⍣⊏⋅⋅"-" ⊙Values
+
+Location ← ⊢⊚ =⊡ ⊙: °⊟                    # ? [Row Val] grid
+Same     ← |3 ⍣(⍩(∊0_∞ -) ∩Location ⊙,|1) # ? [RowA ValA] [RowB ValB] grid
+LeftOf   ← |3 ⍣(⍩(∊1_∞ -) ∩Location ⊙,|1) # ? [RowA ValA] [RowB ValB] grid
+NextTo   ← |3 ⍣(⍩(∊1_∞⌵-) ∩Location ⊙,|1) # ? [RowA ValA] [RowB ValB] grid
+
+S₁  ← |1 /×≡(/×◰▽⊸≠∞) # No repeats, five houses
+S₂  ← |1 Same ∩I "english" "red"
+S₃  ← |1 Same ∩I "spanish" "dog"
+S₄  ← |1 Same ∩I "green" "coffee"
+S₅  ← |1 Same ∩I "ukrainian" "tea"
+S₇  ← |1 Same ∩I "snail" "dance"
+S₈  ← |1 Same ∩I "yellow" "paint"
+S₁₃ ← |1 Same ∩I "orange" "football"
+S₁₄ ← |1 Same ∩I "japanese" "chess"
+S₆  ← |1 LeftOf ∩I "green" "ivory"
+S₁₁ ← |1 NextTo ∩I "reading" "fox"
+S₁₂ ← |1 NextTo ∩I "paint" "horse"
+S₁₅ ← |1 NextTo ∩I "norwegian" "blue"
+S₉  ← |1 ∊⊃(⊟∞ ⋅⊣|⊡ ⊂:2 ⊙⋅⊙) °⊟ I"milk"      # middle house has milk
+S₁₀ ← |1 ∊⊃(⊟∞ ⋅⊣|⊡ ⊂:0 ⊙⋅⊙) °⊟ I"norwegian" # first house is norwegian
+
+Start      ← ↯5_5 ∞
+ValidP     ← /×[⊃(S₁|S₂|S₃|S₄|S₅|S₆|S₇|S₈|S₉|S₁₀|S₁₁|S₁₂|S₁₃|S₁₄|S₁₅)]
+Candidates ← ▽⊸≡ValidP ≡⍜⊡◌ ⊃(¤⊢⊚=∞|¤) ⊙(⇡5)
+Advance    ← ∧(⊂Candidates) ⊙[]
+
+WhoHas        ← ⊢⊚=⊃(⋅⊙|⊡⊙⋅⊙) °⊟ I    # houseindex ? prop sol
+NationalityOf ← °□ ⊏⊙Nations⊡⊓(⊂:1|⍉) # nation ? houseindex sol
+
+Solution    ← memo(⍥₂₅Advance ¤Start)
+DrinksWater ← ⍜⊢⌵ NationalityOf ⊸(WhoHas"water") °¤ Solution
+OwnsZebra   ← ⍜⊢⌵ NationalityOf ⊸(WhoHas"zebra") °¤ Solution

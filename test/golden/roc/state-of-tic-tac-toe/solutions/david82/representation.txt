@@ -1,0 +1,56 @@
+TicTacToe :: {
+  game_state : [Win, Draw, Ongoing],
+}.{
+  Cell : [O, X, Empty]
+  Row : (Cell, Cell, Cell)
+  Board : (Row, Row, Row)
+  State : [Win, Draw, Ongoing]
+  create : Board -> Try(TicTacToe, [InvalidBoard])
+  create = |board| {
+    num_x = count_cell(X, board)
+    num_o = count_cell(O, board)
+    num_empty = count_cell(Empty, board)
+    x_won = has_won(X, board)
+    o_won = has_won(O, board)
+    # X starts, so turn counts must alternate: num_x == num_o or num_x == num_o + 1
+    if num_x < num_o or num_x > num_o + 1 {
+      Err(InvalidBoard)
+    } else if x_won and o_won {
+      Err(InvalidBoard)
+    } else if x_won and num_x != num_o + 1 {
+      # O played after X already won
+      Err(InvalidBoard)
+    } else if o_won and num_x != num_o {
+      # X played after O already won
+      Err(InvalidBoard)
+    } else if x_won or o_won {
+      Ok({ game_state: Win })
+    } else if num_empty == 0 {
+      Ok({ game_state: Draw })
+    } else {
+      Ok({ game_state: Ongoing })
+    }
+  }
+  state : TicTacToe -> State
+  state = |tic_tac_toe| tic_tac_toe.game_state
+  count_cell : Cell, Board -> U8
+  count_cell = |target, ((c00, c01, c02), (c10, c11, c12), (c20, c21, c22))| {
+    val = |c| if c == target { 1 } else { 0 }
+    val(c00) + val(c01) + val(c02) + val(c10) + val(c11) + val(c12) + val(c20) + val(c21) + val(c22)
+  }
+  line_wins : Cell, Cell, Cell, Cell -> Bool
+  line_wins = |player, a, b, c| {
+    a == player and b == player and c == player
+  }
+  has_won : Cell, Board -> Bool
+  has_won = |player, ((c00, c01, c02), (c10, c11, c12), (c20, c21, c22))| {
+    line_wins(player, c00, c01, c02)
+    or line_wins(player, c10, c11, c12)
+    or line_wins(player, c20, c21, c22)
+    or line_wins(player, c00, c10, c20)
+    or line_wins(player, c01, c11, c21)
+    or line_wins(player, c02, c12, c22)
+    or line_wins(player, c00, c11, c22)
+    or line_wins(player, c02, c11, c20)
+  }
+}

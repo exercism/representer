@@ -1,0 +1,24 @@
+module eliuds_eggs
+
+  implicit none
+
+contains
+
+  integer function eggCount(number)
+    integer, intent(in) :: number
+    integer :: n
+    n = number
+    eggCount = 0
+    if (n > 0) then
+      do
+        if (n == 1) then
+          eggCount = eggCount + 1
+          exit
+        end if
+        eggCount = eggCount + modulo(n,2)
+        n = n/2
+      end do
+    end if
+  end function
+
+end module

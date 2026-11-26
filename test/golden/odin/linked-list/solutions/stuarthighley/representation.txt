@@ -1,0 +1,92 @@
+package linked_list
+// Doubly linked list backed by a contiguous node pool with a circular sentinel.
+List :: struct {
+nodes: [dynamic]Node,
+free_head, len: u32,
+}
+// Node storing a value with indices to adjacent nodes or freelist links.
+Node :: struct {
+value: int,
+next, prev: u32,
+}
+// Error returned when attempting to pop or shift from an empty list.
+Error :: enum {
+None,
+Empty_List,
+}
+// Create a new list containing 'elements'.
+new_list :: proc(elements: ..int) -> List {
+list: List
+if len(elements) > 0 do list.nodes = make([dynamic]Node, 1, 1 + len(elements))
+for e in elements do push(&list, e)
+return list
+}
+// Deallocate the list and reset its state.
+destroy_list :: proc(l: ^List) {
+delete_dynamic_array(l.nodes)
+l^ = {}
+}
+// Insert a new node with value between prev_id and next_id.
+link :: proc(l: ^List, prev_id, next_id: u32, value: int) -> u32 {
+if len(l.nodes) == 0 do append(&l.nodes, Node{})
+node := Node{value = value, prev = prev_id, next = next_id}
+id: u32
+if l.free_head != 0 {
+id = l.free_head
+l.free_head = l.nodes[id].next
+l.nodes[id] = node
+} else {
+id = u32(len(l.nodes))
+append(&l.nodes, node)
+}
+l.nodes[prev_id].next = id
+l.nodes[next_id].prev = id
+l.len += 1
+return id
+}
+// Remove node id from the list, recycle its slot, and return its value.
+unlink :: proc(l: ^List, id: u32) -> (value: int, err: Error) {
+if id == 0 do return 0, .Empty_List
+node := l.nodes[id]
+l.nodes[node.prev].next = node.next
+l.nodes[node.next].prev = node.prev
+l.nodes[id] = Node {
+next = l.free_head,
+}
+l.free_head = id
+l.len -= 1
+return node.value, .None
+}
+// Return the index of the first element, or 0 if empty.
+head :: proc(l: ^List) -> u32 {return len(l.nodes) > 0 ? l.nodes[0].next : 0}
+// Return the index of the last element, or 0 if empty.
+tail :: proc(l: ^List) -> u32 {return len(l.nodes) > 0 ? l.nodes[0].prev : 0}
+// Insert a value at the head of the list.
+unshift :: proc(l: ^List, value: int) {link(l, 0, head(l), value)}
+// Add a value to the tail of the list.
+push :: proc(l: ^List, value: int) {link(l, tail(l), 0, value)}
+// Remove and return the value at the head of the list.
+shift :: proc(l: ^List) -> (int, Error) {return unlink(l, head(l))}
+// Remove and return the value at the tail of the list.
+pop :: proc(l: ^List) -> (int, Error) {return unlink(l, tail(l))}
+// Return the number of elements in the list.
+count :: proc(l: List) -> int {return int(l.len)}
+// Reverse the elements in the list in-place.
+reverse :: proc(l: ^List) {
+if len(l.nodes) == 0 do return
+for curr: u32 = 0; true; {
+next := l.nodes[curr].next
+l.nodes[curr].next, l.nodes[curr].prev = l.nodes[curr].prev, l.nodes[curr].next
+curr = next
+if curr == 0 do break
+}
+}
+// Delete the first element with the given value, doing nothing if not found.
+delete :: proc(l: ^List, value: int) {
+for id := head(l); id != 0; id = l.nodes[id].next {
+if l.nodes[id].value == value {
+unlink(l, id)
+return
+}
+}
+}

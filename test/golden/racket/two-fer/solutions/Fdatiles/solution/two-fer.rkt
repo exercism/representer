@@ -1,8 +1,0 @@
-#lang typed/racket
-
-(provide two-fer)
-
-(: two-fer (case-> [-> String]
-                   [-> String String]))
-(define (two-fer [name "you"])
-    (string-append "One for " name ", one for me."))

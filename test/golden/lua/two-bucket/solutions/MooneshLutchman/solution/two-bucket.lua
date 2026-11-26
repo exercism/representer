@@ -1,0 +1,24 @@
+return {
+  measure = function( args )
+    local gv, b1c, b2c, sb = args.goal_volume, args.bucket_one_capacity, args.bucket_two_capacity, args.start_bucket
+    if gv > b1c and gv > b2c then error( '' ) end
+    if gv == b1c then
+      if 1 == sb then return { moves = 1, other_bucket_volume = 0, goal_bucket_number = 1 }
+      else return { moves = 2, other_bucket_volume = b2c, goal_bucket_number = 1 } end
+    elseif gv == b2c then
+      if 2 == sb then return { moves = 1, other_bucket_volume = 0, goal_bucket_number = 2 }
+      else return { moves = 2, other_bucket_volume = b1c, goal_bucket_number = 2 } end
+    end
+    local bAC, bBC, bAV, bBV, m = b1c, b2c, 0, 0, 0
+    if 2 == sb then bAC, bBC = b2c, b1c end
+    while bAV ~= gv and bBV ~= gv do
+      if m > 0 and 0 == bAV and bBC == bBV then error( '' )
+      elseif 0 == bAV then bAV = bAC
+      elseif bBC == bBV then bBV = 0
+      elseif bAV <= bBC - bBV then bBV, bAV = bBV + bAV, 0
+      elseif bAV > bBC - bBV then bAV, bBV = bAV - ( bBC - bBV ), bBC end
+      m = m + 1 
+    end
+    return { moves = m, other_bucket_volume = bBV == gv and bAV or bBV, goal_bucket_number = bAV == args.goal_volume and 1 == sb and 1 or 2 }
+    end
+}

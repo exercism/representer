@@ -1,9 +1,0 @@
-fun squareOfSum n =
-    (n * n * (n + 1) * (n + 1)) div 4
-
-fun sumOfSquares n =
-  if n = 1 then 1 else
-  n * n + sumOfSquares (n - 1)
-
-fun differenceOfSquares n =
-  (squareOfSum n) - (sumOfSquares n)

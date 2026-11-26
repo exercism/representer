@@ -1,0 +1,26 @@
+function Test-Isbn {
+    param(
+        [string]$Isbn
+    )
+    $isbn = $Isbn -replace '-', ''
+    if ($isbn.Length -ne 10) {
+        return $false
+    }
+    $chars = $isbn.ToCharArray()
+    $sum = 0
+    for ($i = 0; $i -lt 10; $i++) {
+        $c = $chars[$i]
+        if ($c -ge '0' -and $c -le '9') {
+            $value = [int][string]$c
+        }
+        elseif ($i -eq 9 -and $c -eq 'X') {
+            $value = 10
+        }
+        else {
+            return $false
+        }
+        $weight = 10 - $i
+        $sum += $value * $weight
+    }
+    return ($sum % 11 -eq 0)
+}

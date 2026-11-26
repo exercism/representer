@@ -1,0 +1,43 @@
+//Solution goes in Sources
+
+
+struct Robot{
+    var name:String
+    
+    init(){
+        self.name = ""
+        let randomName = randomName()
+        self.name = randomName
+    }
+    
+    mutating func resetName(){
+        let newName = randomName()
+        self.name = newName
+    }
+    
+    func randomName() -> String{
+        let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        var genName:[Character] = []
+        
+        for _ in 1 ... 2 {
+            let letter = letters.randomElement()
+            if let letter = letter {
+                genName.append(letter)
+            }
+        }
+        
+        for _ in 1 ... 3 {
+            let numberAscii = Int.random(in: 48...57)
+            let numberUnicode = UnicodeScalar(numberAscii)
+            if let numberChar = numberUnicode{
+                genName.append(Character(numberChar))
+            }
+        }
+        
+        let result = String(genName)
+        return result
+    }
+    
+    
+    
+}

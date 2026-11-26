@@ -1,8 +1,0 @@
-
-object Hamming {
-  def distance(s1: String, s2: String): Option[Int] = Some(s1)
-    .filter(s => s.length == s2.length)
-    .map(_ => (s1, s2))
-    .map(t => t.zipped)
-    .map(t => t.count(t => t._1 != t._2))
-}

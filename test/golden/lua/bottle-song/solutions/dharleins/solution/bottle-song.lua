@@ -1,0 +1,45 @@
+local subs = {
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+}
+
+local BottleSong = {}
+
+function BottleSong.recite(start_bottles, take_down)
+    local finalsong = {}
+    local object
+    local last_verse
+    local target = start_bottles - take_down + 1
+    for i = start_bottles, target, -1 do
+        local next_bottles = i - 1
+        if i == 1 then
+            object = "bottle"
+            last_verse = "There'll be no green bottles hanging on the wall.\n"
+        else
+            object = "bottles"
+            local target_object
+            if next_bottles == 1 then target_object = "bottle" else target_object = "bottles" end
+            if take_down == 1 or i == target then
+                last_verse = "There'll be "..string.lower(subs[next_bottles]).." green "..target_object.." hanging on the wall.\n"
+            else
+                last_verse = "There'll be "..string.lower(subs[next_bottles]).." green "..target_object.." hanging on the wall.\n\n"
+            end
+        end
+        table.insert(finalsong,
+            subs[i].." green "..object.." hanging on the wall,\n"..
+            subs[i].." green "..object.." hanging on the wall,\n"..
+            "And if one green bottle should accidentally fall,\n"..
+            last_verse
+        )
+    end
+    return table.concat(finalsong)
+end
+        return BottleSong

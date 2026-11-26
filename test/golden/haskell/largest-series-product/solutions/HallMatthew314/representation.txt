@@ -1,0 +1,22 @@
+module Series ( Error ( .. ), largestProduct ) where
+import Data.Char ( isDigit , digitToInt )
+data Error = InvalidSpan | InvalidDigit Char deriving ( Show , Eq )
+largestProduct :: Int -> String -> Either Error Integer
+largestProduct size digits
+  | size > length digits || size < 0 = Left $ InvalidSpan
+  | otherwise = largest size <$> extractDigits digits
+extractDigits :: String -> Either Error [ Integer ]
+extractDigits = sequence . map go
+  where
+    go c
+      | isDigit c = Right $ toInteger $ digitToInt c
+      | otherwise = Left $ InvalidDigit c
+largest :: Int -> [ Integer ] -> Integer
+largest size nums = maximum $ map product $ chunks size nums
+chunks :: Int -> [ a ] -> [[ a ]]
+chunks n xs
+  | n < 0 = error "\"Chunk size too small\""
+  | otherwise = case compare n $ length xs of
+    GT -> error "\"Chunk size too big\""
+    EQ -> [ xs ]
+    LT -> take n xs : chunks n ( tail xs )

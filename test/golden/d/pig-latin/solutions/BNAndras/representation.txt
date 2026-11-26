@@ -1,0 +1,49 @@
+module pig_latin ;
+import std . array : join , split ;
+import std . regex ;
+string translate ( immutable string input )
+{
+string [] results ;
+string [] words = input . split ( "\" \"" );
+auto vowelSound = regex ( "\"^([aeiou]|xr|yt)\"" );
+auto consonantSound = regex ( "\"^([^aeiou]+(?=y)|[^aeiou]?qu|[^aeiou]+)([a-z]+)\"" );
+foreach ( word ; words )
+{
+if (! word . matchFirst ( vowelSound ))
+{
+auto m = word . matchAll ( consonantSound );
+word = m . captures [ 2 ] ~ m . captures [ 1 ];
+}
+results ~= word ~ "\"ay\"" ;
+}
+return results . join ( "\" \"" );
+}
+unittest
+{
+immutable int allTestsEnabled = 0 ;
+assert ( translate ( "\"apple\"" ) == "\"appleay\"" );
+static if ( allTestsEnabled )
+{
+assert ( translate ( "\"ear\"" ) == "\"earay\"" );
+assert ( translate ( "\"igloo\"" ) == "\"iglooay\"" );
+assert ( translate ( "\"object\"" ) == "\"objectay\"" );
+assert ( translate ( "\"under\"" ) == "\"underay\"" );
+assert ( translate ( "\"equal\"" ) == "\"equalay\"" );
+assert ( translate ( "\"pig\"" ) == "\"igpay\"" );
+assert ( translate ( "\"koala\"" ) == "\"oalakay\"" );
+assert ( translate ( "\"xenon\"" ) == "\"enonxay\"" );
+assert ( translate ( "\"qat\"" ) == "\"atqay\"" );
+assert ( translate ( "\"chair\"" ) == "\"airchay\"" );
+assert ( translate ( "\"queen\"" ) == "\"eenquay\"" );
+assert ( translate ( "\"square\"" ) == "\"aresquay\"" );
+assert ( translate ( "\"therapy\"" ) == "\"erapythay\"" );
+assert ( translate ( "\"thrush\"" ) == "\"ushthray\"" );
+assert ( translate ( "\"school\"" ) == "\"oolschay\"" );
+assert ( translate ( "\"yttria\"" ) == "\"yttriaay\"" );
+assert ( translate ( "\"xray\"" ) == "\"xrayay\"" );
+assert ( translate ( "\"yellow\"" ) == "\"ellowyay\"" );
+assert ( translate ( "\"rhythm\"" ) == "\"ythmrhay\"" );
+assert ( translate ( "\"my\"" ) == "\"ymay\"" );
+assert ( translate ( "\"quick fast run\"" ) == "\"ickquay astfay unray\"" );
+}
+}

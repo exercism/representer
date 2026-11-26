@@ -1,0 +1,74 @@
+# | Register | Usage | Type | Description |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0` | input | address | null-terminated input string |
+# | `$a1` | input/output | address | null-terminated output string |
+# | `$t0-9` | temporary | any | used for temporary storage |
+.globl proteins
+proteins:
+move $t9, $a1
+li $t8, '\n'
+j _loop
+_strcat:
+lb $t0, ($t1)
+sb $t0, ($a1)
+addi $t1, $t1, 1
+addi $a1, $a1, 1
+bne $t0, $t8, _strcat
+_loop:
+lb $t0, ($a0)
+beqz $t0, _done
+lb $t1, 1($a0)
+beqz $t1, _fail
+lb $t2, 2($a0)
+beqz $t2, _fail
+addi $a0, $a0, 3
+sll $t1, $t1, 8
+or $t0, $t0, $t1
+sll $t2, $t2, 16
+or $t0, $t0, $t2
+la $t1, _met
+beq $t0, 0x475541, _strcat
+la $t1, _phe
+beq $t0, 0x555555, _strcat
+beq $t0, 0x435555, _strcat
+la $t1, _leu
+beq $t0, 0x415555, _strcat
+beq $t0, 0x475555, _strcat
+la $t1, _ser
+beq $t0, 0x554355, _strcat
+beq $t0, 0x434355, _strcat
+beq $t0, 0x414355, _strcat
+beq $t0, 0x474355, _strcat
+la $t1, _tyr
+beq $t0, 0x554155, _strcat
+beq $t0, 0x434155, _strcat
+la $t1, _cys
+beq $t0, 0x554755, _strcat
+beq $t0, 0x434755, _strcat
+la $t1, _try
+beq $t0, 0x474755, _strcat
+# stop
+beq $t0, 0x414155, _done
+beq $t0, 0x474155, _done
+beq $t0, 0x414755, _done
+_fail:
+sb $0, ($t9)
+jr $ra
+_done:
+sb $0, ($a1)
+jr $ra
+.data
+_met:
+.asciiz "\"Methionine\\n\""
+_phe:
+.asciiz "\"Phenylalanine\\n\""
+_leu:
+.asciiz "\"Leucine\\n\""
+_ser:
+.asciiz "\"Serine\\n\""
+_tyr:
+.asciiz "\"Tyrosine\\n\""
+_cys:
+.asciiz "\"Cysteine\\n\""
+_try:
+.asciiz "\"Tryptophan\\n\""

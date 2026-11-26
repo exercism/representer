@@ -1,7 +1,0 @@
--module(queen_attack).
-
--export([can_attack/2]).
-
-
-can_attack({X1, Y1}, {X2, Y2}) ->
-    (X1 =:= X2) or (Y1 =:= Y2) or (abs(X1 - X2) =:= abs(Y1 - Y2)).

@@ -1,0 +1,18 @@
+set -o errexit
+set -o nounset
+PROGNAME = $( basename "\"" $0 "\")"
+error_exit () {
+printf "'Usage: %s \"sentence\"\\n'" "\"" ${ PROGNAME } "\"" 1>&2
+exit 1
+}
+pangram () {
+sentence = "\"" ${ 1 ^^ } "\""
+printf -v offset '%d' "\"'A\""
+used = 0
+for (( i = 0 ; i< ${# sentence } ; i++ ))
+do
+char = "\"" ${ sentence : $i :1 } "\""
+if [[ $char = [ A-Z] ]]
+then
+printf -v ord '%d' "\"'" $char "\""
+(( used | = 1 << ord " - offset ))\n    fi\n  done\n\n  # check if a bit is set for every letter\n  if (( used == 2#11111111111111111111111111 ))\n  then\n     printf 'true\\n'\n  else\n     printf 'false\\n'\n  fi\n}\n\nmain() {\n  # handle wrong number of inputs\n  if [ \"" $#" " -ne 1 ]\n  then\n    error_exit\n  fi\n  pangram \"" $1 "\"\n}\n\nmain \"" $@ "\"\n"

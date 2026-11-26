@@ -1,0 +1,20 @@
+change . findFewestCoins : [ Nat ] -> Nat -> Optional [ Nat ]
+change . findFewestCoins = findBest maxNat
+findBest : Nat -> [ Nat ] -> Nat -> Optional [ Nat ]
+findBest = cases
+  _ , _ , 0 -> Some []
+  _ , [] , _ -> None
+  count , _ , _ | count <= 0 -> None
+  count , ( _ :+ c ), amount | c * count < amount -> None
+  _ , ( _ :+ c ), amount | mod amount c == 0 -> Some ( fill ( amount / c ) c )
+  count , ( cs :+ c ), amount ->
+    go : Optional [ Nat ] -> Nat -> Optional [ Nat ]
+    go best x =
+      ans = match best with
+        None -> findBest ( count - x ) cs ( amount - ( x * c ))
+        Some ns -> findBest ( size ns - x ) cs ( amount - ( x * c ))
+      match ans with
+        None -> best
+        Some ns -> Some ( ns ++ fill x c )
+    xs = rangeClosed 0 ( amount / c ) |> reverse
+    List . foldLeft go None xs

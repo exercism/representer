@@ -1,0 +1,29 @@
+Function Get-Annotate () {
+[ CmdletBinding ()]
+Param (
+[ string []] $Minefield
+)
+if ( $Minefield -replace "'[ *]'" -ne '' ) {
+throw "\"Error: allowed characters are ' ' and '*'\""
+}
+$mfNumbers = @()
+foreach ( $row in $Minefield ) {
+$mfNumbers += ,( $row -replace "' '" , '0' -split '(.)' -ne '' )
+}
+$maxR = $Minefield . Count - 1
+$MaxC = $Minefield [ 0 ] . Length - 1
+for ( $i = 0 ; $i -le $maxR ; $i ++ ) {
+for ( $j = 0 ; $j -le $maxC ; $j ++ ) {
+if ( $mfNumbers [ $i ][ $j ] -eq '*' ) {
+for ( $i2 = [ Math ]:: Max ( 0 , $i - 1 ); $i2 -le [ Math ]:: Min ( $maxR , $i + 1 ); $i2 ++ ) {
+for ( $j2 = [ Math ]:: Max ( 0 , $j - 1 ); $j2 -le [ Math ]:: Min ( $maxC , $j + 1 ); $j2 ++ ) {
+if ( $mfNumbers [ $i2 ][ $j2 ] -ne '*' ) {
+([ int ] $mfNumbers [ $i2 ][ $j2 ]) ++
+}
+}
+}
+}
+}
+}
+$mfNumbers | Foreach-Object { ( -join $_ ) -replace '0' , "' '" }
+}

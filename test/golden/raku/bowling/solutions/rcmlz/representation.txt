@@ -1,0 +1,242 @@
+(source_file
+  (package_declaration
+    (scope my) class X::Bowling::GameOver
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "Cannot roll after game is over" })) }))
+  (package_declaration
+    (scope my) class X::Bowling::GameInProgress
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "Score cannot be taken until the end of the game" })) }))
+  (package_declaration
+    (scope my) class X::Bowling::TooManyPins
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "Pin count exceeds pins on the lane" })) }))
+  (package_declaration
+    (scope my) class X::Bowling::NegativePins
+    (trait is Exception)
+    (block {
+      (routine_declaration method message
+        (block { "Negative roll is invalid" })) }))
+  (package_declaration class (definition PLACEHOLDER_1)
+    (block {
+      (variable_declaration
+        (scope has)
+        (type UInt) $.ball-throw-one)
+      (variable_declaration
+        (scope has)
+        (type UInt) $.ball-throw-two
+        (trait is rw))
+      (variable_declaration
+        (scope has)
+        (type UInt) $.value
+        (trait is rw))
+      (routine_declaration method (definition PLACEHOLDER_2)
+        (block {
+          (binary_expression $!ball-throw-one +
+            (binary_expression $!ball-throw-two or 0)) }))
+      (routine_declaration method (definition PLACEHOLDER_3)
+        (block {
+          (binary_expression
+            (method_call self . PLACEHOLDER_2) < 10) }))
+      (routine_declaration method (definition PLACEHOLDER_4)
+        (block {
+          (binary_expression $!ball-throw-one == 10) }))
+      (routine_declaration method (definition PLACEHOLDER_5)
+        (block {
+          (unary_expression not
+            (binary_expression
+              (method_call self . PLACEHOLDER_4) &&
+              (binary_expression
+                (method_call self . PLACEHOLDER_2) == 10))) })) }))
+  (package_declaration class Bowling
+    (block {
+      (variable_declaration
+        (scope has) (local_array PLACEHOLDER_6))
+      (assignment
+        (variable_declaration
+          (scope has)
+          (type Bool) (local_scalar PLACEHOLDER_7)) = False)
+      (routine_declaration method roll
+        (signature "("
+          (parameter_list
+            (parameter $pins)) ")")
+        (block {
+          (if_statement if
+            (binary_expression $pins < 0)
+            (block {
+              (method_call
+                (method_call X::Bowling::NegativePins . new) . throw) }))
+          (if_statement if
+            (binary_expression $pins > 10)
+            (block {
+              (method_call
+                (method_call X::Bowling::TooManyPins . new) . throw) }))
+          (if_statement if (scalar PLACEHOLDER_7)
+            (block {
+              (method_call
+                (method_call X::Bowling::GameOver . new) . throw) }))
+          (assignment
+            (variable_declaration
+              (scope my) (local_scalar PLACEHOLDER_8)) =
+            (listop_call PLACEHOLDER_1
+              (topic_method_call . new
+                (argument_list "("
+                  (assignment ball-throw-one => $pins) ")"))))
+          (unless_statement unless
+            (binary_expression
+              (method_call (array PLACEHOLDER_6) . tail) ~~ PLACEHOLDER_1)
+            (block {
+              (listop_call return
+                (method_call (array PLACEHOLDER_6) . push
+                  (argument_list "(" (scalar PLACEHOLDER_8) ")"))) }))
+          (if_statement if
+            (binary_expression
+              (method_call
+                (method_call
+                  (method_call (array PLACEHOLDER_6) . tail) . ball-throw-two) . defined) or
+              (method_call
+                (method_call (array PLACEHOLDER_6) . tail) . PLACEHOLDER_4))
+            (block {
+              (method_listop_call (array PLACEHOLDER_6) . push : (scalar PLACEHOLDER_8)) })
+            (else_clause else
+              (block {
+                (if_statement if
+                  (binary_expression
+                    (binary_expression
+                      (method_call
+                        (method_call (array PLACEHOLDER_6) . tail) . ball-throw-one) + $pins) > 10)
+                  (block {
+                    (method_call
+                      (method_call X::Bowling::TooManyPins . new) . throw) }))
+                (assignment
+                  (method_call
+                    (method_call (array PLACEHOLDER_6) . tail) . ball-throw-two) = $pins) })))
+          (method_call self ! PLACEHOLDER_9) }))
+      (routine_declaration method ! (definition PLACEHOLDER_9)
+        (block {
+          (if_statement if
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression 10 ==
+                        (method_call (array PLACEHOLDER_6) . elems)) and
+                      (method_call
+                        (method_call
+                          (method_call (array PLACEHOLDER_6) . tail) . ball-throw-two) . defined)) and
+                    (method_call
+                      (method_call (array PLACEHOLDER_6) . tail) . PLACEHOLDER_3)) or
+                  (binary_expression
+                    (binary_expression 11 ==
+                      (method_call (array PLACEHOLDER_6) . elems)) and
+                    (method_call
+                      (method_call
+                        (subscript (array PLACEHOLDER_6) [
+                          (binary_expression
+                            (whatever *) - 2) ]) . tail) . PLACEHOLDER_5))) or
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression 11 ==
+                        (method_call (array PLACEHOLDER_6) . elems)) and
+                      (method_call
+                        (subscript (array PLACEHOLDER_6) [
+                          (binary_expression
+                            (whatever *) - 2) ]) . PLACEHOLDER_4)) and
+                    (unary_expression not
+                      (method_call
+                        (method_call (array PLACEHOLDER_6) . tail) . PLACEHOLDER_4))) and
+                  (method_call
+                    (method_call
+                      (method_call (array PLACEHOLDER_6) . tail) . ball-throw-two) . defined))) or
+              (binary_expression
+                (binary_expression
+                  (binary_expression 12 ==
+                    (method_call (array PLACEHOLDER_6) . elems)) and
+                  (method_call
+                    (subscript (array PLACEHOLDER_6) [
+                      (binary_expression
+                        (whatever *) - 2) ]) . PLACEHOLDER_4)) and
+                (method_call
+                  (method_call
+                    (method_call (array PLACEHOLDER_6) . tail) . ball-throw-one) . defined)))
+            (block {
+              (assignment (scalar PLACEHOLDER_7) = True) })) (scalar PLACEHOLDER_7) }))
+      (routine_declaration method ! (definition PLACEHOLDER_10)
+        (block {
+          (for_statement for
+            (method_call
+              (subscript (array PLACEHOLDER_6) [
+                (unary_expression ^ 10) ]) . kv)
+            (pointy_block ->
+              (parameter_list
+                (parameter (local_scalar PLACEHOLDER_11)) ,
+                (parameter (local_scalar PLACEHOLDER_12)))
+              (block {
+                (variable_declaration
+                  (scope my)
+                  (type UInt) (local_scalar PLACEHOLDER_13))
+                (if_statement if
+                  (method_call (scalar PLACEHOLDER_12) . PLACEHOLDER_3)
+                  (block {
+                    (assignment (scalar PLACEHOLDER_13) =
+                      (method_call (scalar PLACEHOLDER_12) . PLACEHOLDER_2)) })
+                  (elsif_clause elsif
+                    (method_call (scalar PLACEHOLDER_12) . PLACEHOLDER_5)
+                    (block {
+                      (assignment (scalar PLACEHOLDER_13) =
+                        (binary_expression 10 +
+                          (method_call
+                            (subscript (array PLACEHOLDER_6) [
+                              (binary_expression (scalar PLACEHOLDER_11) + 1) ]) . ball-throw-one))) }))
+                  (elsif_clause elsif
+                    (method_call (scalar PLACEHOLDER_12) . PLACEHOLDER_4)
+                    (block {
+                      (if_statement if
+                        (method_call
+                          (subscript (array PLACEHOLDER_6) [
+                            (binary_expression (scalar PLACEHOLDER_11) + 1) ]) . PLACEHOLDER_4)
+                        (block {
+                          (if_statement if
+                            (method_call
+                              (subscript (array PLACEHOLDER_6) [
+                                (binary_expression (scalar PLACEHOLDER_11) + 2) ]) . PLACEHOLDER_4)
+                            (block {
+                              (assignment (scalar PLACEHOLDER_13) = 30) })
+                            (else_clause else
+                              (block {
+                                (assignment (scalar PLACEHOLDER_13) =
+                                  (binary_expression 20 +
+                                    (method_call
+                                      (subscript (array PLACEHOLDER_6) [
+                                        (binary_expression (scalar PLACEHOLDER_11) + 2) ]) . ball-throw-one))) }))) })
+                        (else_clause else
+                          (block {
+                            (assignment (scalar PLACEHOLDER_13) =
+                              (binary_expression 10 +
+                                (method_call
+                                  (subscript (array PLACEHOLDER_6) [
+                                    (binary_expression (scalar PLACEHOLDER_11) + 1) ]) . PLACEHOLDER_2))) }))) })))
+                (assignment
+                  (method_call
+                    (subscript (array PLACEHOLDER_6) [ (scalar PLACEHOLDER_11) ]) . value) = (scalar PLACEHOLDER_13)) }))) }))
+      (routine_declaration method score
+        (block {
+          (unless_statement unless (scalar PLACEHOLDER_7)
+            (block {
+              (method_call
+                (method_call X::Bowling::GameInProgress . new) . throw) }))
+          (method_call self ! PLACEHOLDER_10)
+          (reduce_expression [+]
+            (method_listop_call
+              (subscript (array PLACEHOLDER_6) [
+                (unary_expression ^ 10) ]) . map :
+              (method_call
+                (whatever *) . value))) })) })))

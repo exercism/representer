@@ -1,0 +1,50 @@
+Function Invoke-PigLatin () {
+[ CmdletBinding ()]
+Param (
+[ string ] $Text
+)
+$vowels = 'aeiou'
+$consonants = 'bcdfghjklmnprstvwxz'
+$letterclusters = "\"ch|qu|[$(" $consonants )]+qu|thr|th|sch"
+$specialletterclusters = "\"yt|xr\""
+[ array ] $results = @()
+$Words = $Text -split "\"\\s+\""
+foreach ( $word in $words ){
+Switch -regex ( $word ) {
+"\"^([" $vowels ]| $specialletterclusters )(.+)\b" { Write-Verbose "\"Rule 1: " $word "\""
+$results += "\"{0}{1}ay\"" -f $matches [ 1 ], $matches [ 2 ]
+break
+}
+"\"^([" $consonants ]+)(y.+)\b" { Write-Verbose "\"Rule 4a: " $word "\""
+$results += "\"{0}{1}ay\"" -f $matches [ 2 ], $matches [ 1 ]
+break
+}
+"\"^(" $letterclusters +)(.+)\b" {
+Write-Verbose "\"Rule 3: " $word "\""
+$results += "\"{0}{1}ay\"" -f $matches [ 2 ], $matches [ 1 ]
+break
+}
+"\"^([" $consonants ])(.+)\b" { Write-Verbose "\"Rule 2: " $word "\""
+$results += "\"{0}{1}ay\"" -f $matches [ 2 ], $matches [ 1 ]
+break
+}
+"\"^(.)y\\b\"" { Write-Verbose "\"Rule 4b: " $word "\""
+$results += "\"y{0}ay\"" -f $matches [ 1 ]
+$break
+}
+"\"^(q)([^u].+)\\b\"" {
+Write-Verbose "\"Rule 5: " $word "\""
+$results += "\"{0}{1}ay\"" -f $Matches [ 2 ], $matches [ 1 ]
+break
+}
+"\"^y(.+)\\b\"" { Write-Verbose "\"Rule 6: " $word "\""
+$results += "\"{0}yay\"" -f $matches [ 1 ]
+break
+}
+default { Write-Verbose "\"EXCEPTION: " $word "\""
+break
+}
+}
+}
+$results -join "\" \""
+}

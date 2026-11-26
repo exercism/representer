@@ -1,5 +1,0 @@
-object Hamming {
-    def distance(s1: String, s2: String): Option[Int] =
-        if (s1.size == s2.size) Some((for ((x, y) <- s1 zip s2 if x != y) yield (x, y)).size)
-        else None
-}

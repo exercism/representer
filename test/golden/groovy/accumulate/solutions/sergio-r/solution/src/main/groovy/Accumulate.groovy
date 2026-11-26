@@ -1,0 +1,7 @@
+class Accumulate {
+
+    static Collection accumulate(Collection collection, Closure func) {
+        return collection.collect { i -> func(i) }
+    }
+
+}

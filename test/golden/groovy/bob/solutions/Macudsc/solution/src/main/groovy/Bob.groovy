@@ -1,0 +1,5 @@
+class Bob {
+    static response(input) {
+      (input==input.toUpperCase()&&input!=input.toLowerCase()&&input.endsWith("?"))?"Calm down, I know what I'm doing!":(input==input.toUpperCase()&&input!=input.toLowerCase())?"Whoa, chill out!":(input.trim().endsWith("?"))?"Sure.":(input.trim()==''||input=='')?"Fine. Be that way!":"Whatever."
+    }
+}

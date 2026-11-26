@@ -1,3 +1,0 @@
-# Determine a sentence's acronym
-# Acronym ? Sentence
-Acronym  ← ⊜⊢¬⊸∊"_- "⌵

@@ -1,0 +1,70 @@
+# | Register | Usage | Type | Description |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0` | input | integer | number between 1 and 31 |
+# | `$a1` | input/output | address | null-terminated output string |
+# | `$t0-9` | temporary | any | used for temporary storage |
+.globl commands
+commands:
+move $t9, $a1
+move $t8, $ra
+andi $t0, $a0, 16
+bnez $t0, _reverse
+andi $t0, $a0, 1
+subi $t0, $t0, 1
+la $t1, _wink
+bgezal $t0, _strcat
+andi $t0, $a0, 2
+subi $t0, $t0, 2
+la $t1, _blink
+bgezal $t0, _strcat
+andi $t0, $a0, 4
+subi $t0, $t0, 4
+la $t1, _eyes
+bgezal $t0, _strcat
+andi $t0, $a0, 8
+subi $t0, $t0, 8
+la $t1, _jump
+bgezal $t0, _strcat
+beq $t9, $a1, _empty
+sb $0, -2($a1)
+jr $t8
+_empty:
+sb $0, ($a1)
+jr $t8
+_reverse:
+andi $t0, $a0, 8
+subi $t0, $t0, 8
+la $t1, _jump
+bgezal $t0, _strcat
+andi $t0, $a0, 4
+subi $t0, $t0, 4
+la $t1, _eyes
+bgezal $t0, _strcat
+andi $t0, $a0, 2
+subi $t0, $t0, 2
+la $t1, _blink
+bgezal $t0, _strcat
+andi $t0, $a0, 1
+subi $t0, $t0, 1
+la $t1, _wink
+bgezal $t0, _strcat
+beq $t9, $a1, _empty
+sb $0, -2($a1)
+jr $t8
+_strcat_loop:
+sb $t0, ($a1)
+addi $a1, $a1, 1
+_strcat:
+lb $t0, ($t1)
+addi $t1, $t1, 1
+bnez $t0, _strcat_loop
+jr $ra
+.data
+_wink:
+.asciiz "\"wink," "\""
+_blink:
+.asciiz "\"double" blink, "\""
+_eyes:
+.asciiz "\"close" your eyes, "\""
+_jump:
+.asciiz "\"jump," "\""

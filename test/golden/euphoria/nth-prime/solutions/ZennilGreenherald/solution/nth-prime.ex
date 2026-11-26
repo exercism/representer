@@ -1,0 +1,18 @@
+public function prime(integer numPrimes)
+  sequence primes = {}
+  for cand = 2 to 1000000000 do
+    atom found = 1
+    for i = 1 to length(primes) do
+      if remainder(cand, primes[i]) = 0 then
+        found = 0
+      end if
+    end for
+    if found then
+      primes &= cand
+    end if
+    if length(primes) = numPrimes then
+      exit
+    end if
+  end for
+  return primes[$]
+end function

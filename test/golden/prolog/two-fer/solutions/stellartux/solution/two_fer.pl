@@ -1,6 +1,0 @@
-two_fer(Dialogue) :-
-    two_fer("you", Dialogue).
-
-two_fer(Name, Dialogue) :-
-    string_concat("One for ", Name, FirstHalf),
-    string_concat(FirstHalf, ", one for me.", Dialogue).

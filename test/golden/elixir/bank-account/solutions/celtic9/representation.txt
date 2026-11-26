@@ -1,0 +1,187 @@
+(source
+  (call defmodule
+    (arguments BankAccount)
+    (do_block
+      (unary_operator @
+        (call opaque
+          (arguments
+            (binary_operator account :: pid))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator open :: account))))
+      (call def
+        (arguments
+          (call open
+            (arguments)))
+        (do_block
+          (binary_operator
+            (tuple :ok account) =
+            (call
+              (dot Agent . start)
+              (arguments
+                (anonymous_function
+                  (stab_clause ->
+                    (body 0)))))) account))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call close
+                (arguments account)) :: any))))
+      (call def
+        (arguments
+          (call close
+            (arguments account)))
+        (do_block
+          (call
+            (dot Agent . stop)
+            (arguments account))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call balance
+                (arguments account)) :: integer))))
+      (call def
+        (arguments
+          (call balance
+            (arguments account)))
+        (do_block
+          (call with
+            (arguments
+              (binary_operator
+                (tuple :ok balance) <-
+                (call PLACEHOLDER_1
+                  (arguments account))))
+            (do_block balance
+              (else_block
+                (stab_clause
+                  (arguments (variable PLACEHOLDER_2)) ->
+                  (body PLACEHOLDER_2)))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call deposit
+                (arguments account integer)) ::
+              (binary_operator :ok |
+                (tuple :error
+                  (binary_operator :account_closed | :amount_must_be_positive)))))))
+      (call def
+        (arguments
+          (call deposit
+            (arguments account (variable PLACEHOLDER_3))))
+        (do_block
+          (call with
+            (arguments
+              (binary_operator
+                (tuple :ok _) <-
+                (call PLACEHOLDER_1
+                  (arguments account)))
+              (binary_operator
+                (tuple :ok _) <-
+                (call PLACEHOLDER_4
+                  (arguments PLACEHOLDER_3))))
+            (do_block
+              (call
+                (dot Agent . update)
+                (arguments account
+                  (anonymous_function
+                    (stab_clause
+                      (arguments balance) ->
+                      (body
+                        (binary_operator balance + PLACEHOLDER_3))))))
+              (else_block
+                (stab_clause
+                  (arguments (variable PLACEHOLDER_2)) ->
+                  (body PLACEHOLDER_2)))))))
+      (unary_operator @
+        (call spec
+          (arguments
+            (binary_operator
+              (call withdraw
+                (arguments account integer)) ::
+              (binary_operator :ok |
+                (tuple :error
+                  (binary_operator :account_closed |
+                    (binary_operator :amount_must_be_positive | :not_enough_balance))))))))
+      (call def
+        (arguments
+          (call withdraw
+            (arguments account (variable PLACEHOLDER_3))))
+        (do_block
+          (call with
+            (arguments
+              (binary_operator
+                (tuple :ok balance) <-
+                (call PLACEHOLDER_1
+                  (arguments account)))
+              (binary_operator
+                (tuple :ok _) <-
+                (call PLACEHOLDER_4
+                  (arguments PLACEHOLDER_3)))
+              (binary_operator
+                (tuple :ok _) <-
+                (call PLACEHOLDER_5
+                  (arguments balance PLACEHOLDER_3))))
+            (do_block
+              (call
+                (dot Agent . update)
+                (arguments account
+                  (anonymous_function
+                    (stab_clause
+                      (arguments balance) ->
+                      (body
+                        (binary_operator balance - PLACEHOLDER_3))))))
+              (else_block
+                (stab_clause
+                  (arguments (variable PLACEHOLDER_2)) ->
+                  (body PLACEHOLDER_2)))))))
+      (call defp
+        (arguments
+          (call PLACEHOLDER_1
+            (arguments account)))
+        (do_block
+          (call if
+            (arguments
+              (call
+                (dot Process . alive?)
+                (arguments account)))
+            (do_block
+              (tuple :ok
+                (call
+                  (dot Agent . get)
+                  (arguments account
+                    (unary_operator &
+                      (unary_operator & 1)))))
+              (else_block
+                (tuple :error :account_closed))))))
+      (call defp
+        (arguments
+          (binary_operator
+            (call PLACEHOLDER_4
+              (arguments (variable PLACEHOLDER_3))) when
+            (binary_operator PLACEHOLDER_3 <= 0)))
+        (do_block
+          (tuple :error :amount_must_be_positive)))
+      (call defp
+        (arguments
+          (call PLACEHOLDER_4
+            (arguments (variable PLACEHOLDER_3))))
+        (do_block
+          (tuple :ok PLACEHOLDER_3)))
+      (call defp
+        (arguments
+          (binary_operator
+            (call PLACEHOLDER_5
+              (arguments balance (variable PLACEHOLDER_3))) when
+            (binary_operator PLACEHOLDER_3 > balance)))
+        (do_block
+          (tuple :error :not_enough_balance)))
+      (call defp
+        (arguments
+          (call PLACEHOLDER_5
+            (arguments (variable PLACEHOLDER_6) (variable PLACEHOLDER_3))))
+        (do_block
+          (tuple :ok PLACEHOLDER_3))))))

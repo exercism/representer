@@ -1,0 +1,69 @@
+Class {
+#name : #Minefield ,
+#superclass : #Object ,
+#instVars : [
+'rows' ,
+'cols' ,
+'neighborDeltas' ,
+'cells'
+] ,
+#classInstVars : [
+'rows' ,
+'cols' ,
+'coords' ,
+'mines'
+] ,
+#category : # 'Exercise@Minesweeper'
+}
+{ #category : #accessing }
+Minefield >> cols [
+^ cols
+]
+{ #category : # "'instance creation'" }
+Minefield >> fromLines: lines [
+rows := lines size .
+cols := lines ifEmpty: [ 0 ] ifNotEmpty: [ lines first size ].
+cells := OrderedDictionary new .
+lines withIndexDo: [ : line : row |
+line withIndexDo: [ : c : col | cells at: col @ row put: c ] ]
+]
+{ #category : #initialization }
+Minefield >> initialize [
+neighborDeltas := ( OrderedCollection new )
+add: -1 @ 0 ; add: -1 @ ( -1 ); add: -1 @ 1 ; add: 0 @ ( -1 ); add: 0 @ 1 ; add: 1 @ 0 ; add: 1 @ ( -1 ); add: 1 @ 1 ;
+yourself
+]
+{ #category : #testing }
+Minefield >> isMine: coord [
+^ ( cells at: coord ) = $*
+]
+{ #category : # "'as yet unclassified'" }
+Minefield >> neighboringMines: coord [
+^ neighborDeltas count: [ : delta | ( cells at: ( coord + delta ) ifAbsent: [ "$ " ]) = $* ]
+]
+{ #category : #accessing }
+Minefield >> rows [
+^ rows
+]
+Class {
+#name : #Minesweeper ,
+#superclass : #Object ,
+#category : # 'Exercise@Minesweeper'
+}
+{ #category : # "'as yet unclassified'" }
+Minesweeper >> annotateMinefield: lines [
+| minefield |
+minefield := Minefield new fromLines: lines .
+^ ( 1 to: minefield rows ) collect: [ : row |
+(( 1 to: minefield cols ) collect: [ : col |
+| coord mines |
+coord := col @ row .
+( minefield isMine: coord )
+ifTrue: [ $* ]
+ifFalse: [
+mines := minefield neighboringMines: coord .
+mines isZero ifTrue: [ "$ " ] ifFalse: [ mines asCharacterDigit ]
+]
+]) joinUsing: ''
+]
+]

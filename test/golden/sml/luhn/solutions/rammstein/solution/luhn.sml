@@ -1,0 +1,21 @@
+fun valid (value: string) =
+  let 
+    fun toInt c = Char.ord c - 48
+    fun getDigits (xs, digs, i) =
+      case xs 
+        of [] => if i < 2 then [] else digs
+        | x::xs' => if Char.isDigit x
+                    then getDigits (xs', digs@[toInt x], i+1)
+                    else if x = #" " then getDigits (xs', digs, i) else []
+    val digits = getDigits (explode value, [], 0)
+    val sum = foldr (fn (x, (even, acc)) => 
+        if even
+        then (not even, acc + (if x < 5 then x*2 else x*2 - 9))
+        else (not even, acc + x)) (false, 0)
+  in
+    case digits
+      of [] => false
+      |  ds  => if #2 (sum ds) mod 10 = 0
+               then true
+               else false
+  end

@@ -1,0 +1,53 @@
+local Robot = {}
+Robot.__index = Robot
+
+local function generateName()
+    local name = ""
+    local chars = "ABCDEFGHIJKLKMNOPQRSTUVWXYZ"
+    local digits = "0123456789"
+
+    local function getRand(str)
+		return math.random(#str)
+	end
+
+    local function getRandoms(str, amount)
+        local rands = {}
+        
+        for i = 1, amount do
+            rands[i] = getRand(str)
+        end
+
+        return table.unpack(rands)
+    end
+
+    local function subSame(mainStr, str)
+        return mainStr:sub(str, str)
+    end
+	
+	local rand1, rand2 = getRandoms(chars, 2)
+    local rand3, rand4, rand5 = getRandoms(digits, 3)
+	
+	local char1 = subSame(chars, rand1)
+	local char2 = subSame(chars, rand2)
+	
+	local digit1 = subSame(digits, rand3)
+	local digit2 = subSame(digits, rand4)
+	local digit3 = subSame(digits, rand5)
+	
+	name = char1 .. char2 .. digit1 .. digit2 .. digit3
+
+    return name
+end
+    
+function Robot.new()
+    local newRobot = setmetatable({}, Robot)
+    newRobot.name = generateName()
+
+    return newRobot
+end
+
+function Robot:reset()
+    self.name = generateName()
+end
+
+return Robot

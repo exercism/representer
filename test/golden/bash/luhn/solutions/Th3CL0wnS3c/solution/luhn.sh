@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+regex="^([0-9]|[[:space:]])+$"
+str=$1
+sum=0
+str=${str// /}
+
+if (( $# != 1 || ${#str} == 1 )) || ! [[ "$str" =~ $regex ]];then
+	echo false
+else
+	(( c = ${#str} % 2 ))
+	for ((i=0; i<${#str}; i++));do
+		(( i%2 != c)) &&((sum += ${str:i:1}))
+		(( i%2 == c)) && { ((r = ${str:i:1} * 2 - 9 * (${str:i:1} > 4))); (( sum += r )); }
+	done
+	((sum % 10)) && echo false || echo true
+fi
+
+

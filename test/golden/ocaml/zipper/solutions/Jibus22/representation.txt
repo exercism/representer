@@ -1,0 +1,26 @@
+open Base
+type ' a t = T of ' a Tree . t | L of ( ' a Tree . t * ' a t ) | R of ( ' a Tree . t * ' a t )
+[ @@ deriving sexp ]
+let rec equal veq a b =
+match ( a , b ) with
+| T node1 , T node2 -> Tree . equal veq node1 node2
+| L ( na , za ) , L ( nb , zb ) | R ( na , za ) , R ( nb , zb ) ->
+Tree . equal veq na nb && equal veq za zb
+| _ , _ -> false
+let of_tree node = T node
+let unwrap = function T node | L ( node , _ ) | R ( node , _ ) -> node
+let map ~ f = function
+| T node -> T ( f node )
+| L ( node , z ) -> L ( f node , z )
+| R ( node , z ) -> R ( f node , z )
+let set_value value = map ~ f : ( fun node -> { node with value })
+let set_left left = map ~ f : ( fun node -> { node with left })
+let set_right right = map ~ f : ( fun node -> { node with right })
+let up = function
+| T _ -> None
+| L ( node , z ) -> Some ( set_left ( Some node ) z )
+| R ( node , z ) -> Some ( set_right ( Some node ) z )
+let rec to_tree z = match up z with None -> unwrap z | Some z -> to_tree z
+let value z = ( unwrap z ) . value
+let left z = Option . map ( unwrap z ) . left ~ f : ( fun node -> L ( node , z ))
+let right z = Option . map ( unwrap z ) . right ~ f : ( fun node -> R ( node , z ))

@@ -1,0 +1,17 @@
+import Foundation
+
+func isIsogram(_ word: String) -> Bool {
+    var seenLetters = Set<Character>()
+    
+    for char in word.lowercased() {
+        if char == " " || char == "-" {
+            continue
+        }
+        if seenLetters.contains(char) {
+            return false
+        }
+        seenLetters.insert(char)
+    }
+    
+    return true
+}

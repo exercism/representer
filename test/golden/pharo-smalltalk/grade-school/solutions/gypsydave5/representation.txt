@@ -1,0 +1,69 @@
+Class {
+#name : #GradeSchool ,
+#superclass : #Object ,
+#instVars : [
+'roster'
+] ,
+#category : # 'Exercise@GradeSchool'
+}
+{ #category : #adding }
+GradeSchool >> addStudents: aCollection [
+roster addAll: ( aCollection collect: [ : p | Student fromPair: p ])
+]
+{ #category : #accessing }
+GradeSchool >> desiredGrade: anInteger [
+^ ( roster select: [ : s | s grade = anInteger ] thenCollect: #name ) asArray
+]
+{ #category : #adding }
+GradeSchool >> initialize [
+roster := SortedCollection new
+]
+{ #category : #accessing }
+GradeSchool >> roster [
+^ ( roster collect: #name ) asArray
+]
+Class {
+#name : #Student ,
+#superclass : #Object ,
+#traits : 'TComparable' ,
+#classTraits : "'TComparable classTrait'" ,
+#instVars : [
+'name' ,
+'grade'
+] ,
+#category : # 'Exercise@GradeSchool'
+}
+{ #category : #initializing }
+Student class >> fromPair: pair [
+^ self new name: ( pair at: 1 ) grade: ( pair at: 2 ).
+]
+{ #category : #initializing }
+Student class >> withName: aString andGrade: anInteger [
+^ self new name: aString grade: anInteger .
+]
+{ #category : #comparing }
+Student >> < aStudent [
+^ self grade < aStudent grade
+or: [ self grade = aStudent grade and: [ self name < aStudent name ] ]
+]
+{ #category : #comparing }
+Student >> = aStudent [
+^ self grade = aStudent grade and: [ self name = aStudent name ]
+]
+{ #category : #accessing }
+Student >> grade [
+^ grade
+]
+{ #category : #comparing }
+Student >> hash [
+^ ( grade hash hashMultiply + name hash ) hashMultiply
+]
+{ #category : #accessing }
+Student >> name [
+^ name
+]
+{ #category : #initializing }
+Student >> name: aString grade: anInteger [
+name := aString .
+grade := anInteger
+]

@@ -1,0 +1,52 @@
+Class {
+#name : #SimpleCipher ,
+#superclass : #Object ,
+#instVars : [
+'key'
+] ,
+#category : # 'Exercise@SimpleCipher'
+}
+SimpleCipher >> key: aKey [
+key := aKey .
+]
+SimpleCipher >> key [
+key = nil ifTrue: [
+self genKey .
+].
+^ ( key as: String )
+]
+SimpleCipher >> encode: text [
+| char keyIdx keyChar res|
+key = nil
+ifTrue: [
+self genKey .
+].
+res := ( 1 to: ( text size )) collect: [
+: i |
+char := ( text at: i ) asciiValue .
+keyIdx := (( i - 1 ) \\\ ( key size )) + 1 .
+keyChar := (( key at: keyIdx ) asciiValue ) - 97 .
+( 97 + (( char + keyChar - 97 ) \\\ ( 123 - 97 ))) asCharacter .
+].
+^ ( res as: String )
+]
+SimpleCipher >> decode: text [
+| char keyIdx keyChar res|
+key = nil
+ifTrue: [
+self genKey .
+].
+res := ( 1 to: ( text size )) collect: [
+: i |
+char := ( text at: i ) asciiValue .
+keyIdx := (( i - 1 ) \\\ ( key size )) + 1 .
+keyChar := (( key at: keyIdx ) asciiValue ) - 97 .
+( 97 + (( char - keyChar - 97 ) \\\ ( 123 - 97 ))) asCharacter .
+].
+^ ( res as: String )
+]
+SimpleCipher >> genKey [
+key := (( 1 to: 100 ) collect: [ : i |
+(( 97 to: 122 ) atRandom ) asCharacter
+]).
+]

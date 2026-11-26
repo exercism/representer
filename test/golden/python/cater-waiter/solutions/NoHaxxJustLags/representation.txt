@@ -1,0 +1,118 @@
+(module
+  (import_from_statement from
+    (dotted_name sets_categories_data)
+    (dotted_name VEGAN)
+    (dotted_name VEGETARIAN)
+    (dotted_name KETO)
+    (dotted_name PALEO)
+    (dotted_name OMNIVORE)
+    (dotted_name ALCOHOLS)
+    (dotted_name SPECIAL_INGREDIENTS))
+  (function_definition clean_ingredients
+    (parameters PLACEHOLDER_1 PLACEHOLDER_2) :
+    (block
+      (return_statement
+        (tuple PLACEHOLDER_1
+          (call set
+            (argument_list PLACEHOLDER_2))))))
+  (function_definition check_drinks
+    (parameters PLACEHOLDER_3 PLACEHOLDER_4) :
+    (block
+      (if_statement
+        (comparison_operator
+          (call len
+            (argument_list
+              (binary_operator
+                (call set
+                  (argument_list PLACEHOLDER_4)) & ALCOHOLS))) > 0) :
+        (block
+          (return_statement
+            (fstring
+              (interpolation PLACEHOLDER_3) " Cocktail"))))
+      (return_statement
+        (fstring
+          (interpolation PLACEHOLDER_3) " Mocktail"))))
+  (function_definition categorize_dish
+    (parameters PLACEHOLDER_1 PLACEHOLDER_2) :
+    (block
+      (assignment ingredients =
+        (call set
+          (argument_list PLACEHOLDER_2)))
+      (if_statement
+        (call
+          (attribute ingredients . issubset)
+          (argument_list VEGAN)) :
+        (block
+          (assignment PLACEHOLDER_5 = "VEGAN"))
+        (else_clause :
+          (block
+            (if_statement
+              (call
+                (attribute ingredients . issubset)
+                (argument_list VEGETARIAN)) :
+              (block
+                (assignment PLACEHOLDER_5 = "VEGETARIAN"))
+              (elif_clause
+                (call
+                  (attribute ingredients . issubset)
+                  (argument_list PALEO)) :
+                (block
+                  (assignment PLACEHOLDER_5 = "PALEO")))
+              (elif_clause
+                (call
+                  (attribute ingredients . issubset)
+                  (argument_list KETO)) :
+                (block
+                  (assignment PLACEHOLDER_5 = "KETO")))
+              (else_clause :
+                (block
+                  (assignment PLACEHOLDER_5 = "OMNIVORE")))))))
+      (return_statement
+        (fstring
+          (interpolation PLACEHOLDER_1) ": "
+          (interpolation PLACEHOLDER_5)))))
+  (function_definition tag_special_ingredients
+    (parameters PLACEHOLDER_6) :
+    (block
+      (assignment
+        (tuple_pattern PLACEHOLDER_1 ingredients) = PLACEHOLDER_6)
+      (return_statement
+        (tuple PLACEHOLDER_1
+          (binary_operator
+            (call set
+              (argument_list ingredients)) & SPECIAL_INGREDIENTS)))))
+  (function_definition compile_ingredients
+    (parameters PLACEHOLDER_7) :
+    (block
+      (assignment PLACEHOLDER_8 =
+        (call set
+          (argument_list)))
+      (for_statement PLACEHOLDER_6 in PLACEHOLDER_7 :
+        (block
+          (assignment PLACEHOLDER_8 =
+            (binary_operator PLACEHOLDER_8 | PLACEHOLDER_6))))
+      (return_statement PLACEHOLDER_8)))
+  (function_definition separate_appetizers
+    (parameters PLACEHOLDER_7 PLACEHOLDER_9) :
+    (block
+      (return_statement
+        (call sorted
+          (argument_list
+            (binary_operator
+              (call set
+                (argument_list PLACEHOLDER_7)) -
+              (call set
+                (argument_list PLACEHOLDER_9))))))))
+  (function_definition singleton_ingredients
+    (parameters PLACEHOLDER_7 PLACEHOLDER_10) :
+    (block
+      (assignment all =
+        (call set
+          (argument_list)))
+      (for_statement PLACEHOLDER_6 in PLACEHOLDER_7 :
+        (block
+          (call
+            (attribute all . update)
+            (argument_list PLACEHOLDER_6))))
+      (return_statement
+        (binary_operator all - PLACEHOLDER_10)))))

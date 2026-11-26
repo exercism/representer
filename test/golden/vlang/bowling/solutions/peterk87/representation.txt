@@ -1,0 +1,94 @@
+module main
+import arrays { sum }
+struct Game {
+pub mut:
+frames [][]int
+}
+// build a new Game
+fn Game.new() Game {
+return Game{
+frames: [][]int{}
+}
+}
+const (
+too_many_pins_msg ='Pin count exceeds pins on the lane'
+neg_roll_msg = 'Negative roll is invalid'
+gameover_msg = 'Cannot roll after game is over'
+cannot_score_msg = 'Score cannot be taken until the end of the game'
+)
+pub fn (mut g Game) roll(pins int) ! {
+if pins > 10 {
+return error(too_many_pins_msg)
+}
+if pins < 0 {
+return error(neg_roll_msg)
+}
+if g.frames.len == 0 {
+g.frames << [pins]
+return
+}
+mut last_frame := g.frames.last()
+if g.frames.len == 10 {
+if last_frame.len == 2 {
+a := last_frame[0]
+b := last_frame[1]
+if a == 10 || a + b == 10 {
+if a == 10 && b < 10 && b + pins > 10 {
+return error(too_many_pins_msg)
+}
+last_frame << pins
+g.frames[g.frames.len - 1] = last_frame
+return
+}
+return error(gameover_msg)
+}
+if last_frame.len == 3 {
+return error(gameover_msg)
+}
+last_frame << pins
+g.frames[g.frames.len - 1] = last_frame
+return
+}
+if last_frame.len == 2 || (last_frame.len == 1 && last_frame[0] == 10) {
+g.frames << [pins]
+} else {
+if last_frame[0] + pins > 10 {
+return error(too_many_pins_msg)
+}
+last_frame << pins
+g.frames[g.frames.len - 1] = last_frame
+}
+}
+pub fn (g Game) score() !int {
+if g.frames.len < 10 {
+return error(cannot_score_msg)
+}
+mut frame_scores := []int{len: 10}
+for i := g.frames.len - 1; i >= 0; i-- {
+frame := g.frames[i]
+frame_sum := sum(frame) or { 0 }
+if i == g.frames.len - 1 {
+if frame == [10, 10, 10] {
+frame_scores[i] = 30
+} else if frame == [10] || (frame.len == 2 && (frame_sum == 10 || frame_sum == 20)) {
+return error(cannot_score_msg)
+} else {
+frame_scores[i] = frame_sum
+}
+} else if frame == [10] {
+frame_p1 := g.frames[i + 1] or { [0] }
+if frame_p1.len >= 2 {
+frame_scores[i] = 10 + frame_p1[0] + frame_p1[1]
+} else {
+frame_p2 := g.frames[i + 2] or { [0] }
+frame_scores[i] = 10 + frame_p1[0] + frame_p2[0]
+}
+} else if frame_sum == 10 {
+frame_p1 := g.frames[i + 1] or { [0] }
+frame_scores[i] = 10 + frame_p1[0]
+} else {
+frame_scores[i] += frame_sum
+}
+}
+return sum(frame_scores)
+}

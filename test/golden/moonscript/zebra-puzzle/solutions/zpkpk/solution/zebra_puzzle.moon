@@ -1,0 +1,6 @@
+{
+    drinksWater: ->
+        'Norwegian'
+    ownsZebra: ->
+        'Japanese'
+}

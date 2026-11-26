@@ -1,0 +1,62 @@
+class GameOfLife {
+  List<List<int>> _grid;
+
+  GameOfLife(this._grid);
+
+  void tick() {
+    // Return early if matrix is empty or has no columns
+    if (_grid.isEmpty || _grid[0].isEmpty) {
+      return;
+    }
+
+    final rows = _grid.length;
+    final cols = _grid[0].length;
+
+    List<List<int>> nextGen = List.generate(
+      rows,
+      (_) => List.filled(cols, 0),
+    );
+
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        int liveNeighbors = _countLiveNeighbors(i, j);
+        int current = _grid[i][j];
+
+        if (current == 1 && (liveNeighbors == 2 || liveNeighbors == 3)) {
+          nextGen[i][j] = 1;
+        } else if (current == 0 && liveNeighbors == 3) {
+          nextGen[i][j] = 1;
+        }
+      }
+    }
+
+    _grid = nextGen;
+  }
+
+  List<List<int>> matrix() {
+    return _grid;
+  }
+
+  int _countLiveNeighbors(int row, int col) {
+    final directions = [
+      [-1, -1], [-1, 0], [-1, 1],
+      [ 0, -1],          [ 0, 1],
+      [ 1, -1], [ 1, 0], [ 1, 1],
+    ];
+
+    int count = 0;
+    final rows = _grid.length;
+    final cols = _grid[0].length;
+
+    for (final dir in directions) {
+      final newRow = row + dir[0];
+      final newCol = col + dir[1];
+
+      if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
+        count += _grid[newRow][newCol];
+      }
+    }
+
+    return count;
+  }
+}

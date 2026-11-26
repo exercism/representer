@@ -1,0 +1,38 @@
+module Anagram (anagramsFor) where
+
+import Data.Char (toUpper)
+
+-- this could deal with lists of anything instead...
+removeFirstChar :: Char -> String -> String
+removeFirstChar _ "" = ""
+removeFirstChar c (x:xs) =
+  if c == x
+  then xs
+  else x:(removeFirstChar c xs)
+
+isAnagram :: String -> String -> Bool
+isAnagram "" "" = True
+
+isAnagram (x:xs) (y:ys) =
+  if (length xs) /= (length ys)
+  then False
+  else
+    if (x == y)
+    then (isAnagram xs ys)
+    else
+      if x `elem` ys
+      then isAnagram xs (y:(removeFirstChar x ys))
+      else False
+
+makeAnaFilter :: String -> (String -> Bool)
+makeAnaFilter thingToMatch candidateMatch =
+  if ((map toUpper candidateMatch) /= (map toUpper thingToMatch) &&
+      (isAnagram (map toUpper candidateMatch) (map toUpper thingToMatch)))
+  then True
+  else False
+
+anagramsFor :: String -> [String] -> [String]
+anagramsFor _ [] = []
+
+anagramsFor xs xss =
+  filter (makeAnaFilter xs) xss

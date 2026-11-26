@@ -1,0 +1,112 @@
+Class {
+#name : #Bowling ,
+#superclass : #Object ,
+#instVars : [
+'frames' ,
+'frameIndex'
+] ,
+#category : # 'Exercise@Bowling'
+}
+{ #category : #computing }
+Bowling >> endGame [
+^ (( frameIndex > 10 ) and: (( frames select: [ : frame | frame needExtras ]) isEmpty ))
+]
+{ #category : #computing }
+Bowling >> initialize [
+super initialize .
+frames := OrderedCollection new .
+10 timesRepeat: [ frames add: BowlingFrame new ].
+frameIndex := 1
+]
+{ #category : #computing }
+Bowling >> roll: anInteger [
+| currentFrame antePreviousFrame |
+self endGame ifTrue: [ self error: "'Cannot roll after game is over'" ].
+frameIndex <= 10 ifTrue: [
+currentFrame := frames at: frameIndex .
+currentFrame add: anInteger ].
+frameIndex >= 2 ifTrue: [
+| previousFrame |
+previousFrame := frames at: frameIndex - 1 .
+previousFrame needExtras ifTrue: [
+previousFrame addExtra: anInteger ] ].
+frameIndex >= 3 ifTrue: [
+antePreviousFrame := frames at: frameIndex - 2 .
+antePreviousFrame needExtras ifTrue: [
+antePreviousFrame addExtra: anInteger ] ].
+currentFrame ifNotNil: [
+currentFrame endFrame ifTrue: [ frameIndex := frameIndex + 1 ] ]
+]
+{ #category : #scoring }
+Bowling >> scoreAfterRolling: aCollection [
+aCollection do: [ : throw | self roll: throw ].
+(( frameIndex < 10 ) or: (( frames select: [ : frame | frame needExtras ]) isNotEmpty )) ifTrue: [
+self error: "'Score cannot be taken until the end of the game'" ].
+^ ( frames collect: [ : frame | frame score ]) sum
+]
+{ #category : #computing }
+Bowling >> scoreRolling: anInteger after: aCollection [
+| pinsCountExceededMessage scoreAfterRolling allRolls |
+pinsCountExceededMessage := "'Pin count exceeds pins on the lane'" .
+anInteger < 0 ifTrue: [ self error: "'Negative roll is invalid'" ].
+anInteger > 10 ifTrue: [ self error: pinsCountExceededMessage ].
+anInteger + ( aCollection at: ( 1 max: aCollection size - 1 )) > 10
+ifTrue: [ self error: pinsCountExceededMessage ].
+allRolls := aCollection asOrderedCollection .
+allRolls add: anInteger .
+scoreAfterRolling := self scoreAfterRolling: allRolls .
+]
+Class {
+#name : #BowlingFrame ,
+#superclass : #Object ,
+#instVars : [
+'rolls' ,
+'endFrame' ,
+'extras'
+] ,
+#category : # 'Exercise@Bowling'
+}
+{ #category : #adding }
+BowlingFrame >> add: anInteger [
+rolls add: anInteger .
+( anInteger = 10 or: rolls size = 2 ) ifTrue: [ endFrame := true ]
+]
+{ #category : #adding }
+BowlingFrame >> addExtra: anInteger [
+extras add: anInteger
+]
+{ #category : #adding }
+BowlingFrame >> endFrame [
+^ endFrame
+]
+{ #category : #adding }
+BowlingFrame >> initialize [
+super initialize .
+rolls := OrderedCollection new .
+endFrame := false .
+extras := OrderedCollection new .
+]
+{ #category : #adding }
+BowlingFrame >> isSpare [
+rolls ifEmpty: [ ^ false ].
+^ rolls sum = 10
+]
+{ #category : #adding }
+BowlingFrame >> isStrike [
+rolls ifEmpty: [ ^ false ].
+^ ( rolls at: 1 ) = 10
+]
+{ #category : #adding }
+BowlingFrame >> needExtras [
+^ ( self isStrike and: extras size < 2 ) or:
+( self isSpare and: extras size < 1 )
+]
+{ #category : #adding }
+BowlingFrame >> score [
+^ rolls sum + ( self sumExtras )
+]
+{ #category : #adding }
+BowlingFrame >> sumExtras [
+extras ifEmpty: [ ^ 0 ].
+^ extras sum
+]

@@ -1,0 +1,53 @@
+CLASS zcl_crypto_square DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    METHODS encode IMPORTING plain_text         TYPE string
+                   RETURNING VALUE(crypto_text) TYPE string.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_crypto_square IMPLEMENTATION.
+  METHOD encode.
+
+    DATA(normalized_text) = to_lower( plain_text ).
+
+    DATA(column_num) = 0.
+    DATA(row_num) = 0.
+    REPLACE ALL OCCURRENCES OF REGEX '[^a-z0-9]' IN normalized_text WITH ''.
+
+    DATA(len) = strlen( normalized_text ).
+
+    WHILE column_num * row_num < len.
+      column_num = column_num + 1.
+      row_num = row_num + 1.
+    ENDWHILE.
+
+    IF column_num * ( row_num - 1 ) >= len.
+      row_num = row_num - 1.
+    ENDIF.
+
+    DO column_num * row_num TIMES.
+      DATA(current_column) = ( sy-index - 1 ) DIV row_num.
+      DATA(current_row) = ( sy-index - 1 ) * column_num.
+      DATA(current) = ( current_column + current_row ) MOD ( row_num * column_num ) .
+
+      IF ( sy-index - 1 ) MOD row_num = 0 AND ( sy-index - 1 ) <> 0.
+        CONCATENATE crypto_text ' ' INTO crypto_text RESPECTING BLANKS.
+      ENDIF.
+
+      IF current < len.
+        CONCATENATE crypto_text normalized_text+current(1) INTO crypto_text.
+      ELSE.
+        CONCATENATE crypto_text ' ' INTO crypto_text RESPECTING BLANKS.
+      ENDIF.
+    ENDDO.
+
+
+  ENDMETHOD.
+ENDCLASS.

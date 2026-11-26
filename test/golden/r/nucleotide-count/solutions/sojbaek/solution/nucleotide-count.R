@@ -1,0 +1,13 @@
+nucleotide_count <- function(input) {
+  nucleotides = c('A','C','G','T');
+  counts=as.list(rep(0,length(nucleotides))); names(counts) = nucleotides; 
+  bases = unlist(strsplit(input,""));
+  for (b in bases) { 
+    if (b %in% nucleotides) { 
+        counts[[b]] = counts[[b]]+1;
+    } else {
+        stop('invalid nucleotides');   
+    }
+  }
+  counts;
+}

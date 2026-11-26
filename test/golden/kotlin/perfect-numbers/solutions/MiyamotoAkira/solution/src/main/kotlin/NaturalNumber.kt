@@ -1,0 +1,15 @@
+enum class Classification {
+    DEFICIENT, PERFECT, ABUNDANT
+}
+
+fun classify(naturalNumber: Int): Classification {
+    require(naturalNumber > 0) {"Not a natural number"}
+    val aliquotSum = (1..naturalNumber / 2).filter { naturalNumber % it == 0 }.sum()
+    return naturalNumber.compareTo(aliquotSum).let {
+        when {
+            it < 0 -> Classification.ABUNDANT
+            it == 0 -> Classification.PERFECT
+            else -> Classification.DEFICIENT
+        }
+    }
+}

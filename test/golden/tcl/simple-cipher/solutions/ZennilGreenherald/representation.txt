@@ -1,0 +1,36 @@
+oo::class create SimpleCipher {
+variable _key
+constructor { args } {
+lassign $args k
+const alpha "\"abcdefghijklmnopqrstuvwxyz\""
+if {[ string length $k ] < 1 } {
+set k "\"\""
+for { set i 0 } { $i < 100 } { incr i } {
+append k [ string index $alpha [ expr { int ( rand () * 26 )}]]
+}
+}
+set _key $k
+}
+method key {} {
+return $_key
+}
+method encode { phrase } {
+return [ my both $phrase 1 ]
+}
+method decode { phrase } {
+return [ my both $phrase -1 ]
+}
+method both { phrase mag } {
+const alpha "\"abcdefghijklmnopqrstuvwxyz\""
+set acc "\"\""
+for { set i 0 } { $i < [ string length $phrase ]} { incr i } {
+set phrase_letter [ string index $phrase $i ]
+set key_letter [ string index $_key [ expr { $i % [ string length $_key ]}]]
+set shift_dist [ string first $key_letter $alpha ]
+set phrase_letter_index [ string first $phrase_letter $alpha ]
+set encoded_letter [ string index $alpha [ expr { ( $phrase _letter_index + $mag * $shift_dist + 26 ) % 26 }]]
+append acc $encoded_letter
+}
+return $acc
+}
+}

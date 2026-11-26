@@ -1,0 +1,31 @@
+package rna_transcription
+import "\"core:fmt\""
+import "\"core:strings\""
+to_rna :: proc(dna: string) -> (string, bool) {
+m := make(map[rune]rune)
+defer delete(m)
+m['G'] = 'C'
+m['C'] = 'G'
+m['T'] = 'A'
+m['A'] = 'U'
+ok := true
+sb := strings.builder_make_len_cap(0, len(dna))
+// [SAME builder init but weird]
+// sb := strings.builder_make_len(len(dna))
+// strings.builder_reset(&sb)
+for c in dna {
+v := m[c]
+if v == 0 {
+ok = false; break
+}
+fmt.sbprintf(&sb, "\"%c\"," v)
+}
+// return strings.clone_from(strings.to_string(sb)), ok
+return strings.to_string(sb), ok
+}
+main :: proc() {
+a := "\"G\""
+v, ok := to_rna(a)
+defer delete(v)
+fmt.printfln("|{}| |{}| |{}| |{}|", ok, a, v, "\"C\"" == v)
+}

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-INPUT=$(sed -e "s/[^a-z]//g" <<< ${1,,})
-TEST=$(printf "%s" $(echo $INPUT | grep -o [a-z] | sort | uniq))
-(( ${#TEST} == ${#INPUT} )) && echo "true" || echo "false"
-
-

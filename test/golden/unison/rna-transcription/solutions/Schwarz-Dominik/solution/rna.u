@@ -1,0 +1,26 @@
+rna.toRNA : Text -> Optional (Text)
+rna.toRNA dna = 
+    go : [Char] -> [Text] -> Optional (Text)             
+    go list transformed = 
+        match list with
+        [] -> Some (
+            transformed
+                |> Text.join ""
+            )       
+        x +: xs -> 
+            match rna.getComplement x with
+                None -> None
+                Some c -> go xs (transformed ++ [(Char.toText c)])
+    
+    go (Text.toCharList dna) []
+
+rna.getComplement : Char -> Optional Char
+rna.getComplement = cases
+    ?A -> Some ?U
+    ?C -> Some ?G
+    ?G -> Some ?C
+    ?T -> Some ?A
+    _ -> None
+
+> toRNA "ACGTGGTCTTAA"
+> toRNA "ACGTXXXCTTAA"

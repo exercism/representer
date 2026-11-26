@@ -1,0 +1,77 @@
+Class {
+#name : #Die ,
+#superclass : #Object ,
+#instVars : [
+'faces'
+] ,
+#category : # 'Exercise@Die'
+}
+{ #category : #initialization }
+Die class >> withFaces: anInteger [
+^ self new faces: anInteger .
+]
+{ #category : #accessing }
+Die >> faces [
+^ faces .
+]
+{ #category : #initialization }
+Die >> faces: anInteger [
+faces := anInteger .
+]
+{ #category : #initialization }
+Die >> initialize [
+faces := 6 .
+]
+{ #category : #operating }
+Die >> roll [
+^ ( 1 to: faces ) atRandom
+]
+Class {
+#name : #DieHandle ,
+#superclass : #Object ,
+#instVars : [
+'dice'
+] ,
+#category : # 'Exercise@Die'
+}
+{ #category : # "'as yet unclassified'" }
+DieHandle class >> ofCount: count withFace: faces [
+^ self new addCollection: (( 1 to: count ) asBag collect: [ : each | Die withFaces: faces ])
+]
+{ #category : #adding }
+DieHandle >> + aDieHandle [
+^ self class new addCollection: self ; addCollection: aDieHandle
+]
+{ #category : #adding }
+DieHandle >> addCollection: aCollection [
+aCollection do: [ : each | self addDie: each ]
+]
+{ #category : #adding }
+DieHandle >> addDie: aDie [
+dice add: aDie .
+]
+{ #category : #accessing }
+DieHandle >> diceNumber [
+^ dice size .
+]
+{ #category : #iterating }
+DieHandle >> do: aBlockClosure [
+dice do: aBlockClosure .
+]
+{ #category : #initialization }
+DieHandle >> initialize [
+dice := Bag new .
+]
+{ #category : #operating }
+DieHandle >> roll [
+^ ( dice collect: #roll ) sum .
+]
+Extension { #name : #SmallInteger }
+{ #category : # '*Exercise@Die' }
+SmallInteger >> d10 [
+^ DieHandle ofCount: self withFace: 10 .
+]
+{ #category : # '*Exercise@Die' }
+SmallInteger >> d20 [
+^ DieHandle ofCount: self withFace: 20 .
+]

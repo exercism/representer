@@ -1,0 +1,17 @@
+binary={}
+
+function binary.to_decimal(str)
+	local decimal=0
+	for i=1,#str do
+		local char=str:sub(#str+1-i,#str+1-i)
+		if not (char=='1' or char=='0') then
+		return 0
+		elseif char=='1' then
+			decimal = decimal + 2^(i-1)
+		end
+	end
+	return decimal
+end
+
+return binary
+

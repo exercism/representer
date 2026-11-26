@@ -1,0 +1,15 @@
+namespace Sublist
+inductive Classification where
+  | sublist | superlist | equal | unequal
+  deriving BEq , Repr
+def sublist ( listOne listTwo : List Nat ) : Classification :=
+  if listOne . length == listTwo . length then if listOne == listTwo then . equal else . unequal
+  else if listOne . length < listTwo . length then
+    if isInfixOf listOne listTwo then . sublist else . unequal
+  else
+    if isInfixOf listTwo listOne then . superlist else . unequal
+  where
+    isInfixOf ( l ₁ l ₂ : List Nat ) : Bool := l ₁ . isPrefixOf l ₂ || match l ₂ with
+      | [] => false
+      | _ :: xs => isInfixOf l ₁ xs
+end Sublist

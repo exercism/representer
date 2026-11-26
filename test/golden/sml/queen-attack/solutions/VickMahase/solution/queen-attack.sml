@@ -1,0 +1,17 @@
+(* queen-attack.sml *)
+
+(* 
+   Row and column are zero-indexed (from 0 to 7)
+   Raises Fail if invalid.
+*)
+fun create (row, col) =
+  if row < 0 then raise Fail "row not positive"
+  else if row > 7 then raise Fail "row not on board"
+  else if col < 0 then raise Fail "column not positive"
+  else if col > 7 then raise Fail "column not on board"
+  else (row, col)
+
+fun canAttack (q1 as (r1, c1)) (q2 as (r2, c2)) =
+  r1 = r2 orelse
+  c1 = c2 orelse
+  abs (r1 - r2) = abs (c1 - c2)

@@ -1,8 +1,0 @@
-proc score {x y} {
-    set hyp [tcl::mathfunc::hypot $x $y]
-    if {$hyp > 10} {return 0}
-    if {$hyp > 5} {return 1}
-    if {$hyp > 1} {return 5}
-    return 10
-}
-

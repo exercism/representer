@@ -1,0 +1,11 @@
+function combinations_in_cage(cagesum, cagesize, restrictions=[])
+    cagesize == 1 && return cagesum ∈ restrictions ? [[]] : [[cagesum]]
+    result = []
+    for i in setdiff(1:min(9, cagesum-(cagesize*(cagesize+1))÷2)+1, restrictions)
+        for c in combinations_in_cage(cagesum-i, cagesize-1, vcat([i], restrictions))
+            isempty(c) && continue
+            push!(result, sort(vcat([i], c)))
+        end
+    end
+    return result |> unique
+end

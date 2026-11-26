@@ -1,0 +1,90 @@
+# | Register | Usage | Type | Description |
+# | -------- | ------------ | ------- | ----------------------------- |
+# | `$a0` | input | address | null-terminated phrase |
+# | `$a1` | input/output | address | null-terminated result string |
+# | `$t0` | temporary | address | pos. in input string |
+# | `$t1` | temporary | address | pos. in output string |
+# | `$t2` | temporary | byte | current character |
+# | `$t3` | temporary | byte | next character |
+# | `$t4` | temporary | address | start of curren word |
+# | `$t9` | temporary | byte | temp storage in macro |
+.globl translate
+.macro copy_end(%inp, %out) # copy chars from %inp to %out until end of word (uses $t9)
+__loop:
+lb $t9, (%inp)
+beqz $t9, __end
+beq $t9, ' ', __end
+sb $t9, (%out)
+addiu %inp, %inp, 1
+addiu %out, %out, 1
+j __loop
+__end:
+.end_macro
+.macro copy(%inp1, %inp2, %out) # copy chars between %inp1 and %inp2 to %out (uses $t9)
+__loop:
+lb $t9, (%inp1)
+sb $t9, (%out)
+addiu %inp1, %inp1, 1
+addiu %out, %out, 1
+blt %inp1, %inp2, __loop
+.end_macro
+translate:
+move $t0, $a0 # input pntr
+move $t1, $a1 # output pntr
+__next_word:
+move $t4, $t0 # save start of present word in $t4
+lb $t2, ($t0) # first char
+# check if vowel
+beq $t2, 'a', __vowel
+beq $t2, 'e', __vowel
+beq $t2, 'i', __vowel
+beq $t2, 'o', __vowel
+beq $t2, 'u', __vowel
+lb $t3, 1($t0) # get next char
+__check_xr:
+bne $t2, 'x', __check_yt
+bne $t3, 'r', __check_yt
+j __vowel # xr treated as vowel
+__check_yt:
+bne $t2, 'y', __cons
+bne $t3, 't', __cons
+j __vowel # yt treated as vowel
+__cons:
+add $t0, $t0, 1 # check next char
+lb $t2, ($t0)
+beq $t2, 'a', __after_cons # stop at vowls or y
+beq $t2, 'e', __after_cons
+beq $t2, 'i', __after_cons
+beq $t2, 'o', __after_cons
+beq $t2, 'u', __check_qu
+beq $t2, 'y', __after_cons
+j __cons
+__check_qu:
+# we come here from u
+# check if q is before
+lb $t2, -1($t0)
+bne $t2, 'q', __after_cons # should be treated by the generic method
+addiu $t0, $t0, 1 # found qu
+__after_cons:
+move $t2, $t0
+copy_end($t0, $t1)
+copy($t4, $t2, $t1)
+j __add_ay
+__vowel:
+copy_end($t0, $t1)
+__add_ay:
+li $t2, 'a'
+sb $t2, ($t1)
+li $t2, 'y'
+sb $t2, 1($t1)
+addiu $t1, $t1, 2
+lb $t2, ($t0)
+beqz $t2, __end # last word?
+addiu $t0, $t0, 1 # next word
+li $t2, ' '
+sb $t2, ($t1) # add space
+addiu $t1, $t1, 1
+j __next_word
+__end: # end of string
+sb $zero, ($t1)
+jr $ra

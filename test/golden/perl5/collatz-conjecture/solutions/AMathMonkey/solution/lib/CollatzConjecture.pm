@@ -1,0 +1,22 @@
+package CollatzConjecture;
+
+use v5.40;
+
+use Exporter qw<import>;
+our @EXPORT_OK = qw<steps>;
+
+sub steps($number) {
+    die "Only positive integers are allowed. Got $number" unless $number >= 1;
+    my $result = 0;
+    while ($number > 1) {
+        if ($number % 2 == 0) {
+            $number /= 2;
+        } else {
+            $number = $number * 3 + 1;
+        }
+        ++$result;
+    }
+    $result
+}
+
+1;

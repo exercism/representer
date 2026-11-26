@@ -1,0 +1,58 @@
+.text
+.globl maximum_value
+
+maximum_weight  .req x0
+items           .req x1
+item_count      .req x2
+allocation      .req x3
+best            .req x4
+ptr             .req x5
+hi              .req x6
+lo              .req x7
+count           .req x8
+weight          .req w9
+value           .req w10
+best1           .req w11
+best2           .req w12
+
+// uint32_t maximum_value(uint32_t maximum_weight, const item_t *items, size_t item_count);
+maximum_value:
+        mov     w0, w0                          // upper 32 bits of a uint32_t argument are unspecified
+
+        // allocate an array of best values of each possible weight
+        add     allocation, maximum_weight, #4
+        lsr     allocation, allocation, #2
+        lsl     allocation, allocation, #4      // 4 * (max + 1) rounded up to 16 bytes
+        sub     sp, sp, allocation
+        mov     best, sp
+
+        add     ptr, best, allocation           // zero the table (allocation >= 16)
+.Lzero:
+        stp     xzr, xzr, [ptr, #-16]!
+        cmp     ptr, best
+        b.hi    .Lzero
+
+        cbz     item_count, .Ldone
+.Litem:
+        ldp     weight, value, [items], #8
+        subs    count, maximum_weight, weight, uxtw     // C clear => item too heavy
+        b.lo    .Lnext
+        add     hi, best, maximum_weight, lsl #2        // &best[w]
+        add     lo, best, count, lsl #2                 // &best[w - weight]
+.Lweight:                                               // count + 1 iterations, w descending
+        ldr     best1, [hi]
+        ldr     best2, [lo], #-4
+        add     best2, best2, value
+        cmp     best1, best2
+        csel    best1, best1, best2, hi                 // unsigned max
+        str     best1, [hi], #-4
+        subs    count, count, #1
+        b.hs    .Lweight
+.Lnext:
+        subs    item_count, item_count, #1
+        b.ne    .Litem
+
+.Ldone:
+        ldr     w0, [best, maximum_weight, lsl #2]
+        add     sp, sp, allocation
+        ret

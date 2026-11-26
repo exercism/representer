@@ -1,0 +1,31 @@
+include "\"std/search.e\""
+include "\"std/sequence.e\""
+include "\"std/math.e\""
+constant VOWELS = {"a", "\"e\"," "\"i\"," "\"o\"," "\"u\"," "\"xr\"," "\"yt\"}"
+public function translate(sequence phrase)
+sequence words = split(phrase)
+for i = 1 to length(words) do
+words[i] = translate_word(words[i])
+end for
+return join(words)
+end function
+function translate_word(sequence word)
+if starts_with_vowel(word) then return word & "\"ay\"" end if
+integer c = starting_consonants(word)
+return word[c + 1 .. $] & word[1 .. c] & "\"ay\""
+end function
+function starts_with_vowel(sequence word)
+for i = 1 to length(VOWELS) do
+if begins(VOWELS[i], word) then return 1 end if
+end for
+return 0
+end function
+function starting_consonants(sequence word)
+integer last_consonant = min(remove_all(0, find_each("aeiou", word) & find('y', word, 2))) - 1
+if last_consonant + 1 <= length(word) and equal(word[last_consonant .. last_consonant + 1], "\"qu\")" then
+last_consonant += 1
+elsif last_consonant > 1 and word[last_consonant] = 'y' then
+last_consonant -= 1
+end if
+return last_consonant
+end function

@@ -1,0 +1,36 @@
+CLASS zcl_word_count DEFINITION
+PUBLIC
+FINAL
+CREATE PUBLIC .
+PUBLIC SECTION .
+TYPES :
+BEGIN OF return_structure ,
+word TYPE string ,
+count TYPE i ,
+END OF return_structure ,
+return_table TYPE STANDARD TABLE OF return_structure WITH KEY word .
+METHODS count_words
+IMPORTING
+! phrase TYPE string
+RETURNING
+VALUE ( result ) TYPE return_table .
+PROTECTED SECTION .
+PRIVATE SECTION .
+ENDCLASS .
+CLASS zcl_word_count IMPLEMENTATION .
+METHOD count_words .
+DATA lt_string TYPE string_table .
+DATA lt_string_single TYPE string_table .
+DATA lv_count TYPE i .
+TRANSLATE phrase TO lower case .
+REPLACE ALL OCCURRENCES OF ',' in phrase WITH "` `" .
+REPLACE ALL OCCURRENCES OF ':' in phrase WITH '' .
+REPLACE ALL OCCURRENCES OF '!' in phrase WITH '' .
+REPLACE ALL OCCURRENCES OF '&' in phrase WITH '' .
+REPLACE ALL OCCURRENCES OF '@' in phrase WITH '' .
+REPLACE ALL OCCURRENCES OF '^' in phrase WITH '' .
+REPLACE ALL OCCURRENCES OF '%' in phrase WITH '' .
+REPLACE ALL OCCURRENCES OF '$' in phrase WITH '' .
+REPLACE ALL OCCURRENCES OF '.' in phrase WITH '' .
+REPLACE ALL OCCURRENCES OF '\n' in phrase WITH "` `" .
+replace all occurrences of "`'` in phrase with ``.\n    CONDENSE phrase.\n\n    SPLIT phrase AT '" "' INTO table lt_string.\n    lt_string_single = lt_string.\n    SORT lt_string_single.\n    DELETE ADJACENT DUPLICATES FROM lt_string_single.\n\n    LOOP AT lt_string_single into DATA(ls_word).\n        lv_count = 0.\n        LOOP AT lt_string into DATA(compare_word).\n            IF compare_word = ls_word.\n              lv_count += 1.\n            ENDIF.\n        ENDLOOP.\n        APPEND VALUE #( count = lv_count\n                        word = ls_word\n        ) TO result.\n    ENDLOOP.\n  ENDMETHOD.\nENDCLASS.\n"

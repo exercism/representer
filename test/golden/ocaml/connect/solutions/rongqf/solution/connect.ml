@@ -1,0 +1,84 @@
+open Base
+
+type player = O | X
+
+
+module Int_map = Map.M(Int)
+let pos_test = Map.empty (module Int)
+
+let get_h m = List.length m
+let get_w m = if List.length m = 0 then 0 else List.length @@ List.nth_exn m 0
+let get_p m x y = List.nth_exn (List.nth_exn m y) x
+let add_test xy ps = Map.set ps ~key:xy ~data:true 
+let has_test xy ps = 
+    match Map.find ps xy with
+    |None->false
+    |_->true
+    
+    
+let prt1 b= Stdlib.print_int @@ Bool.to_int b
+let prt2 _ = Stdlib.print_string ","
+let prt3 _ = Stdlib.print_endline "c"
+
+let byeyond_border m c x y ps = 
+    let w = get_w m in
+    let h = get_h m in
+    let err = x < 0 || y < 0 || x >= w || y >= h in
+    if err then err
+    else begin
+(*         prt1 @@ has_test (w*y + x) ps; 
+        prt2 ();
+        prt1 @@ not(Char.(get_p m x y = c)); 
+        prt3 (); *)
+        has_test (w*y + x) ps || not(Char.(get_p m x y = c))
+    end
+
+let play1 m _ y = (y + 1 = get_h m)
+let play2 m x _ = (x + 1 = get_w m)
+
+let rec connect_test m c x y f ps=
+(*     Stdlib.print_char c; Stdlib.print_string ",";
+    Stdlib.print_int x; Stdlib.print_string ",";
+    Stdlib.print_int y; Stdlib.print_string ",";
+    Stdlib.print_endline "  a"; *)
+    if byeyond_border m c x y ps then false
+    else
+        if f m x y then true
+        else
+            let w = get_w m in
+            let newps = add_test (w * y + x) ps in
+            connect_test m c (x-1) y f newps ||
+            connect_test m c (x-1) (y+1) f newps ||
+            connect_test m c x (y-1) f newps ||
+            connect_test m c x (y+1) f newps ||
+            connect_test m c (x+1) y f newps ||
+            connect_test m c (x+1) (y-1) f newps
+            
+            
+let connect_test_1 m = 
+    List.init (get_w m) ~f:(fun i->i)
+    |> List.fold_until 
+        ~init:false
+        ~f:(fun _ x-> if connect_test m 'O' x 0 play1 pos_test then Stop true else Continue false)
+        ~finish: (fun x->x)
+        
+let connect_test_2 m = 
+    List.init (get_w m) ~f:(fun i->i)
+    |> List.fold_until 
+        ~init:false
+        ~f:(fun _ x-> if connect_test m 'X' 0 x play2 pos_test then Stop true else Continue false)
+        ~finish: (fun x->x)
+        
+        
+
+let connect ls =
+    ls
+    |> List.map ~f:String.to_list
+    |> List.map ~f:(List.filter ~f:(fun x-> not(Char.(x = ' '))))
+    |> fun x->(connect_test_1 x, connect_test_2 x) 
+    |> fun x->
+        match x with
+        |(true,_)->Some O
+        |(_,true)->Some X
+        |(_,_)->None
+    

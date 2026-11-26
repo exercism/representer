@@ -1,0 +1,11 @@
+class Hexadecimal
+  constructor: (@hex) ->
+
+  toDecimal: () ->
+    return 0 if @hex.match(/[^0-9a-f]/i)
+    decimal = 0
+    for digit, index in @hex.split('').reverse()
+      decimal += parseInt(digit, 16) * Math.pow(16, index)
+    decimal
+
+module.exports = Hexadecimal

@@ -1,0 +1,46 @@
+module luhn ;
+bool valid ( string s ) {
+import std . algorithm : all , filter , map , sum , count ;
+import std . ascii : isDigit , isWhite ;
+import std . conv : to ;
+import std . range : retro , enumerate ;
+import std . array : array ;
+if (! s . all !( c => isWhite ( c ) || isDigit ( c ))) {
+return false ;
+}
+auto digits = s . filter ! isDigit . array ;
+if ( digits . length <= 1 ) {
+return false ;
+}
+int checksum = digits
+. retro
+. map !( c => c - '0' )
+. enumerate
+. map !( pair => ( pair . index % 2 == 0 ) ? pair . value :
+( pair . value * 2 > 9 ? pair . value * 2 - 9 : pair . value * 2 ))
+. sum ;
+return checksum % 10 == 0 ;
+}
+unittest {
+immutable int allTestsEnabled = 1 ;
+assert (! valid ( "\"1\"" ));
+static if ( allTestsEnabled )
+{
+assert (! valid ( "\"0\"" ));
+assert ( valid ( "\"059\"" ));
+assert ( valid ( "\"59\"" ));
+assert ( valid ( "\"055 444 285\"" ));
+assert (! valid ( "\"055 444 286\"" ));
+assert (! valid ( "\"8273 1232 7352 0569\"" ));
+assert ( valid ( "\"095 245 88\"" ));
+assert ( valid ( "\"234 567 891 234\"" ));
+assert (! valid ( "\"059a\"" ));
+assert (! valid ( "\"055-444-285\"" ));
+assert (! valid ( "\"055# 444$ 285\"" ));
+assert (! valid ( "\" 0\"" ));
+assert ( valid ( "\"0000 0\"" ));
+assert ( valid ( "\"091\"" ));
+assert (! valid ( "\"055b 444 285\"" ));
+assert (! valid ( "\":9\"" ));
+}
+}

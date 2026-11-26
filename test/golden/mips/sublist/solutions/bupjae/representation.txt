@@ -1,0 +1,77 @@
+# | Register | Usage | Type | Description |
+# | -------- | --------- | ------- | ---------------------------------------------------------- |
+# | `$a0` | input | address | array one elements |
+# | `$a1` | input | integer | size of array one, in words |
+# | `$a2` | input | address | array two elements |
+# | `$a3` | input | integer | size of array two, in words |
+# | `$v0` | output | integer | `0` = equal, `1` = unequal, `2` = sublist, `3` = superlist |
+# | `$t0-9` | temporary | any | used for temporary storage |
+.eqv UNEQUAL 0
+.eqv EQUAL 1
+.eqv SUBLIST 2
+.eqv SUPERLIST 3
+.globl sublist
+sublist:
+li $v0, UNEQUAL
+sub $t0, $a1, $a3
+bgtz $t0, _issuper
+bltz $t0, _issub
+beqz $a1, _isequal_done
+_isequal_loop:
+lw $t0, ($a0)
+lw $t1, ($a2)
+bne $t0, $t1, _fail
+addi $a0, $a0, 4
+addi $a2, $a2, 4
+addi $a1, $a1, -1
+bnez $a1, _isequal_loop
+_isequal_done:
+li $v0, EQUAL
+_fail:
+jr $ra
+_issuper:
+beqz $a3, _issuper_done
+sub $a1, $a1, $a3
+_issuper_x:
+move $t2, $a0
+move $t3, $a2
+move $t9, $a3
+_issuper_loop:
+lw $t0, ($t2)
+lw $t1, ($t3)
+bne $t0, $t1, _issuper_retry
+addi $t2, $t2, 4
+addi $t3, $t3, 4
+addi $t9, $t9, -1
+bnez $t9, _issuper_loop
+_issuper_done:
+li $v0, SUPERLIST
+jr $ra
+_issuper_retry:
+addi $a1, $a1, -1
+addi $a0, $a0, 4
+bgez $a1, _issuper_x
+jr $ra
+_issub:
+beqz $a1, _issub_done
+sub $a3, $a3, $a1
+_issub_x:
+move $t2, $a0
+move $t3, $a2
+move $t9, $a1
+_issub_loop:
+lw $t0, ($t2)
+lw $t1, ($t3)
+bne $t0, $t1, _issub_retry
+addi $t2, $t2, 4
+addi $t3, $t3, 4
+addi $t9, $t9, -1
+bnez $t9, _issub_loop
+_issub_done:
+li $v0, SUBLIST
+jr $ra
+_issub_retry:
+addi $a3, $a3, -1
+addi $a2, $a2, 4
+bgez $a3, _issub_x
+jr $ra

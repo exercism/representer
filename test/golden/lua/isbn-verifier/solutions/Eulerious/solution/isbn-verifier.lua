@@ -1,0 +1,10 @@
+return {
+  valid = function(isbn)
+    local isbn_pattern = "^(%d)-?(%d)(%d)(%d)-?(%d)(%d)(%d)(%d)(%d)-?([%d|X])$"
+    local a, b, c, d, e, f, g, h, i, check = string.match(isbn, isbn_pattern)
+    if a == nil then return false end
+    if check == 'X' then check = 10 end
+    local res = (a * 10 + b * 9 + c * 8 + d * 7 + e * 6 + f * 5 + g * 4 + h * 3 + i * 2 + check) % 11
+    return res == 0
+  end
+}

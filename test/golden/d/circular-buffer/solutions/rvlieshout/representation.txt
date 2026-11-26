@@ -1,0 +1,141 @@
+module circular ;
+class Buffer ( T ) {
+import std . exception : enforce ;
+public :
+this ( size_t size ) {
+_buf = new T [ size ];
+}
+T pop () {
+enforce (! _empty , "\"Buffer is empty\"" );
+T val = _buf [ _begin ];
+_begin = ( _begin + 1 ) % _buf . length ;
+_empty = _begin == _end ;
+return val ;
+}
+void push ( T val ) {
+enforce (! isFull , "\"Buffer is full\"" );
+_buf [ _end ] = val ;
+_end = ( _end + 1 ) % _buf . length ;
+_empty = false ;
+}
+void clear () {
+_empty = true ;
+_begin = _end = 0 ;
+}
+void forcePush ( T val ) {
+if ( isFull ()) {
+pop ();
+}
+push ( val );
+}
+private :
+T [] _buf ;
+size_t _begin , _end = 0 ;
+bool _empty = true ;
+bool isFull () { return ! _empty && _begin == _end ; }
+}
+unittest
+{
+import std . exception : assertThrown ;
+{
+auto myBuffer = new Buffer !( int )( 1U L );
+assertThrown ( myBuffer . pop (), "\"Empty buffer should throw exception if popped!\"" );
+}
+{
+auto myBuffer = new Buffer !( char )( 1 );
+myBuffer . push ( '1' );
+assert ( myBuffer . pop () == '1' );
+}
+{
+auto myBuffer = new Buffer !( char )( 1 );
+myBuffer . push ( '1' );
+assert ( myBuffer . pop () == '1' );
+assertThrown ( myBuffer . pop (), "\"Empty buffer should throw exception if popped!\"" );
+}
+{
+auto myBuffer = new Buffer !( char )( 2 );
+myBuffer . push ( '1' );
+myBuffer . push ( '2' );
+assert ( myBuffer . pop () == '1' );
+assert ( myBuffer . pop () == '2' );
+}
+{
+auto myBuffer = new Buffer !( char )( 1 );
+myBuffer . push ( '1' );
+assertThrown ( myBuffer . push ( '2' ),
+"\"Full buffer should throw exception if new element pushed!\"" );
+}
+{
+auto myBuffer = new Buffer !( char )( 1 );
+myBuffer . push ( '1' );
+assert ( myBuffer . pop () == '1' );
+myBuffer . push ( '2' );
+assert ( myBuffer . pop () == '2' );
+}
+{
+auto myBuffer = new Buffer !( char )( 3 );
+myBuffer . push ( '1' );
+myBuffer . push ( '2' );
+assert ( myBuffer . pop () == '1' );
+myBuffer . push ( '3' );
+assert ( myBuffer . pop () == '2' );
+assert ( myBuffer . pop () == '3' );
+}
+{
+auto myBuffer = new Buffer !( char )( 1 );
+myBuffer . push ( '1' );
+myBuffer . clear ();
+assertThrown ( myBuffer . pop (), "\"Empty buffer should throw exception if popped!\"" );
+}
+{
+auto myBuffer = new Buffer !( char )( 1 );
+myBuffer . push ( '1' );
+myBuffer . clear ();
+myBuffer . push ( '2' );
+assert ( myBuffer . pop () == '2' );
+}
+{
+auto myBuffer = new Buffer !( char )( 1 );
+myBuffer . clear ();
+myBuffer . push ( '1' );
+assert ( myBuffer . pop () == '1' );
+}
+{
+auto myBuffer = new Buffer !( char )( 2 );
+myBuffer . push ( '1' );
+myBuffer . forcePush ( '2' );
+assert ( myBuffer . pop () == '1' );
+assert ( myBuffer . pop () == '2' );
+}
+{
+auto myBuffer = new Buffer !( char )( 2 );
+myBuffer . push ( '1' );
+myBuffer . push ( '2' );
+myBuffer . forcePush ( '3' );
+assert ( myBuffer . pop () == '2' );
+assert ( myBuffer . pop () == '3' );
+}
+{
+auto myBuffer = new Buffer !( char )( 3 );
+myBuffer . push ( '1' );
+myBuffer . push ( '2' );
+myBuffer . push ( '3' );
+assert ( myBuffer . pop () == '1' );
+myBuffer . push ( '4' );
+myBuffer . forcePush ( '5' );
+assert ( myBuffer . pop () == '3' );
+assert ( myBuffer . pop () == '4' );
+assert ( myBuffer . pop () == '5' );
+}
+{
+auto myBuffer = new Buffer !( char )( 2 );
+myBuffer . clear ();
+myBuffer . push ( '1' );
+myBuffer . push ( '2' );
+myBuffer . forcePush ( '3' );
+myBuffer . forcePush ( '4' );
+assert ( myBuffer . pop () == '3' );
+assert ( myBuffer . pop () == '4' );
+assertThrown ( myBuffer . pop (), "\"Empty buffer should throw exception if popped!\"" );
+}
+}

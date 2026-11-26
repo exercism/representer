@@ -1,0 +1,44 @@
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. ISOGRAM.
+        ENVIRONMENT DIVISION.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+      
+        01 WS-PHRASE PIC X(60).
+        01 WS-RESULT PIC 99.
+
+        01 WS-I PIC 99.
+        01 WS-J PIC 99.
+        01 WS-K PIC 99.
+      
+        PROCEDURE DIVISION.
+        ISOGRAM.
+
+         MOVE 1 TO WS-RESULT
+
+            MOVE FUNCTION LOWER-CASE(WS-PHRASE) TO WS-PHRASE
+      
+               PERFORM 100-VALIDA-ISOGRAMA.
+
+                  100-VALIDA-ISOGRAMA.
+
+                     PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 60
+
+                        IF WS-PHRASE(WS-I:1) NOT = SPACE
+                           AND WS-PHRASE(WS-I:1) NOT = '-'
+
+                              COMPUTE WS-K = WS-I + 1
+                                 PERFORM VARYING WS-J FROM WS-K BY 1 UNTIL WS-J > 60 
+
+                                    IF WS-PHRASE(WS-J:1) NOT = SPACE
+                                       AND WS-PHRASE(WS-J:1) NOT = '-'
+
+                                       IF WS-PHRASE(WS-I:1) = WS-PHRASE(WS-J:1)
+                                          MOVE 0 TO WS-RESULT
+                                       END-IF
+                                    END-IF
+                                 END-PERFORM
+                        END-IF
+                     END-PERFORM
+            
+            

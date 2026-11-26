@@ -1,0 +1,22 @@
+struct FoodChain {
+    static func song(start: Int, end: Int) -> String {
+        let nameArray = ["fly", "spider", "bird", "cat", "dog", "goat", "cow", "horse"]
+        let songArray = ["I don't know why she swallowed the fly. Perhaps she'll die.", "It wriggled and jiggled and tickled inside her.",
+        "How absurd to swallow a bird!", "Imagine that, to swallow a cat!", "What a hog, to swallow a dog!",
+        "Just opened her throat and swallowed a goat!", "I don't know how she swallowed a cow!", "She's dead, of course!"]
+        var result = [String]()
+        for i in start...end {
+            var count = i - 1
+            result.append("I know an old lady who swallowed a \(nameArray[count]).")
+            if count != 0 && count != 7 {
+                result.append(songArray[count])
+            }
+            while count != 0 && i != 8 {
+                result.append("She swallowed the \(nameArray[count]) to catch the \(count == 2 ? "spider that wriggled and jiggled and tickled inside her" : nameArray[count - 1]).")
+                count -= 1
+            }
+            i == 8 ? result.append(songArray[7]) : i != end ? result.append(songArray[0] + "\n") : result.append(songArray[0])
+        }
+        return result.joined(separator: "\n")
+    }
+}

@@ -1,0 +1,15 @@
+;;; trinary.el --- Trinary (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+(defun trinary-to-decimal (string)
+  (catch 'invalid
+         (let ((num 0)) 
+              (dotimes (i (length string))
+                (if (not (<= ?0 (aref string i) ?3))
+                    (throw 'invalid 0)
+                    (setq num (+ (* 3 num) (- (aref string i) ?0)))))
+              num)))
+
+(provide 'trinary)
+;;; trinary.el ends here

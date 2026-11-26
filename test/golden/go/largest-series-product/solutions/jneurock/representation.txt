@@ -1,0 +1,188 @@
+(source_file
+  (package_clause lsproduct)
+  (import_declaration
+    (import_spec_list
+      (import_spec "errors")
+      (import_spec "regexp")
+      (import_spec "strconv")))
+  (function_declaration LargestSeriesProduct
+    (parameter_list
+      (parameter_declaration digits string)
+      (parameter_declaration span int))
+    (parameter_list
+      (parameter_declaration int64)
+      (parameter_declaration error))
+    (block
+      (statement_list
+        (short_var_declaration
+          (expression_list err) :=
+          (expression_list
+            (call_expression PLACEHOLDER_1
+              (argument_list digits span))))
+        (if_statement
+          (binary_expression err != nil)
+          (block
+            (statement_list
+              (return_statement
+                (expression_list 0 err)))))
+        (if_statement
+          (binary_expression
+            (binary_expression span == 0) ||
+            (binary_expression
+              (call_expression len
+                (argument_list digits)) == 0))
+          (block
+            (statement_list
+              (return_statement
+                (expression_list 1 nil)))))
+        (short_var_declaration
+          (expression_list PLACEHOLDER_2) :=
+          (expression_list
+            (call_expression int64
+              (argument_list 0))))
+        (short_var_declaration
+          (expression_list PLACEHOLDER_3) :=
+          (expression_list
+            (call_expression PLACEHOLDER_4
+              (argument_list digits))))
+        (for_statement
+          (for_clause
+            (short_var_declaration
+              (expression_list PLACEHOLDER_5) :=
+              (expression_list 0)) ;
+            (binary_expression PLACEHOLDER_5 <=
+              (binary_expression
+                (call_expression len
+                  (argument_list PLACEHOLDER_3)) - span)) ;
+            (inc_statement PLACEHOLDER_5 ++))
+          (block
+            (statement_list
+              (short_var_declaration
+                (expression_list PLACEHOLDER_6) :=
+                (expression_list
+                  (call_expression PLACEHOLDER_7
+                    (argument_list
+                      (slice_expression PLACEHOLDER_3 PLACEHOLDER_5 :
+                        (binary_expression PLACEHOLDER_5 + span))))))
+              (if_statement
+                (binary_expression PLACEHOLDER_6 > PLACEHOLDER_2)
+                (block
+                  (statement_list
+                    (assignment_statement
+                      (expression_list PLACEHOLDER_2) =
+                      (expression_list PLACEHOLDER_6))))))))
+        (return_statement
+          (expression_list PLACEHOLDER_2 nil)))))
+  (function_declaration PLACEHOLDER_1
+    (parameter_list
+      (parameter_declaration digits string)
+      (parameter_declaration span int))
+    (parameter_list
+      (parameter_declaration err error))
+    (block
+      (statement_list
+        (short_var_declaration
+          (expression_list PLACEHOLDER_8) :=
+          (expression_list
+            (call_expression
+              (selector_expression regexp MustCompile)
+              (argument_list "^[0-9]+$"))))
+        (expression_switch_statement
+          (expression_case
+            (expression_list
+              (binary_expression span < 0)) :
+            (statement_list
+              (assignment_statement
+                (expression_list err) =
+                (expression_list
+                  (call_expression
+                    (selector_expression errors New)
+                    (argument_list "span cannot be less than 0"))))))
+          (expression_case
+            (expression_list
+              (binary_expression span >
+                (call_expression len
+                  (argument_list digits)))) :
+            (statement_list
+              (assignment_statement
+                (expression_list err) =
+                (expression_list
+                  (call_expression
+                    (selector_expression errors New)
+                    (argument_list "span must be smaller than string length"))))))
+          (expression_case
+            (expression_list
+              (binary_expression
+                (binary_expression
+                  (call_expression len
+                    (argument_list digits)) > 0) &&
+                (unary_expression !
+                  (call_expression
+                    (selector_expression PLACEHOLDER_8 MatchString)
+                    (argument_list digits))))) :
+            (statement_list
+              (assignment_statement
+                (expression_list err) =
+                (expression_list
+                  (call_expression
+                    (selector_expression errors New)
+                    (argument_list "digits input must only contain digits")))))))
+        (return_statement))))
+  (function_declaration PLACEHOLDER_7
+    (parameter_list
+      (parameter_declaration digits
+        (slice_type int64))) int64
+    (block
+      (statement_list
+        (short_var_declaration
+          (expression_list PLACEHOLDER_6) :=
+          (expression_list
+            (call_expression int64
+              (argument_list 0))))
+        (assignment_statement
+          (expression_list PLACEHOLDER_6) =
+          (expression_list 1))
+        (for_statement
+          (for_clause
+            (short_var_declaration
+              (expression_list PLACEHOLDER_5) :=
+              (expression_list 0)) ;
+            (binary_expression PLACEHOLDER_5 <
+              (call_expression len
+                (argument_list digits))) ;
+            (inc_statement PLACEHOLDER_5 ++))
+          (block
+            (statement_list
+              (assignment_statement
+                (expression_list PLACEHOLDER_6) *=
+                (expression_list
+                  (index_expression digits PLACEHOLDER_5))))))
+        (return_statement
+          (expression_list PLACEHOLDER_6)))))
+  (function_declaration PLACEHOLDER_4
+    (parameter_list
+      (parameter_declaration digits string))
+    (parameter_list
+      (parameter_declaration PLACEHOLDER_9
+        (slice_type int64)))
+    (block
+      (statement_list
+        (for_statement
+          (range_clause
+            (expression_list _ PLACEHOLDER_10) := digits)
+          (block
+            (statement_list
+              (short_var_declaration
+                (expression_list PLACEHOLDER_11 _) :=
+                (expression_list
+                  (call_expression
+                    (selector_expression strconv ParseInt)
+                    (argument_list
+                      (call_expression string
+                        (argument_list PLACEHOLDER_10)) 0 64))))
+              (assignment_statement
+                (expression_list PLACEHOLDER_9) =
+                (expression_list
+                  (call_expression append
+                    (argument_list PLACEHOLDER_9 PLACEHOLDER_11)))))))
+        (return_statement)))))

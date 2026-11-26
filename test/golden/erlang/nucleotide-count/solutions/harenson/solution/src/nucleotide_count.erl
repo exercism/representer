@@ -1,0 +1,39 @@
+-module(nucleotide_count).
+
+-export([count/2, nucleotide_counts/1]).
+
+
+%%========================================================================================
+%% API
+%%========================================================================================
+-spec count(Strand::string(), Nucleotide::string()) -> integer().
+count(Strand, Nucleotide) ->
+  case is_valid_strand(Strand) of
+    true -> count(Strand, Nucleotide, 0);
+    false -> error(invalid_strand_msg())
+  end.
+
+-spec nucleotide_counts(Strand::string()) -> [{string(), integer()}].
+nucleotide_counts(Strand) ->
+  [{N, count(Strand, N)} || N <- ["A", "C", "G", "T"]].
+
+%%========================================================================================
+%% Helpers (Internal functions)
+%%========================================================================================
+-spec count(Strand::string(), Nucleotide::string(), Counter::integer()) -> integer().
+count([], _, Counter) ->
+  Counter;
+count([N | T], [N | _] = Nucleotide, Counter) ->
+  % `[H | T] = String' behaves like hd/1 and returns the char code instead of the char
+  % itself so `hd("A")' is different than `"A"'.
+  count(T, Nucleotide, Counter + 1);
+count([_H | T], Nucleotide, Counter) ->
+  count(T, Nucleotide, Counter).
+
+-spec is_valid_strand(Strand::string()) -> boolean().
+is_valid_strand(Strand) ->
+  [] =:= string:tokens(Strand, "ACGT").
+
+-spec invalid_strand_msg() -> {error, string()}.
+invalid_strand_msg() ->
+  {error, "Strand has invalid nucleotides"}.

@@ -1,0 +1,19 @@
+module WordCount
+  ( wordCount
+  ) where
+import Data.Map ( Map )
+import Data.Map as Map
+import Data.Tuple ( Tuple )
+import Prelude
+import Record.Unsafe ( unsafeGet )
+import Unsafe.Coerce ( unsafeCoerce )
+import Effect.Unsafe ( unsafePerformEffect )
+wordCount :: String -> Map String Int
+wordCount str = do
+  let constructor = unsafeCoerce unsafeGet "\"constructor\"" unsafeGet
+  let eval = unsafeCoerce unsafePerformEffect $ constructor "\"return eval\""
+  let script = "\"\\\n  \\  ()=>{\\\n  \\    let m =(''+(()=>{/*\"" <> unsafeCoerce str <> "\"*/})).slice(7,-3);\\\n  \\    const map = new Map();\\\n  \\    for (const word of m.match(/[a-z0-9]+(?:'[a-z0-9]+)*/gi) ?? []) {\\\n  \\      const w = word.toLowerCase();\\\n  \\      map.set(w,(map.get(w)||0)+1);\\\n  \\    }\\\n  \\    return [...map.entries()].map(([k,v])=>({value0:k,value1:v}));\\\n  \\  }\""
+  let entries :: Array ( Tuple String Int )
+    entries = unsafeCoerce unsafePerformEffect $ eval script
+    result = Map . fromFoldable entries
+  result

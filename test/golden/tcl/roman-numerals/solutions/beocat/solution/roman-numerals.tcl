@@ -1,0 +1,13 @@
+proc toroman {n} {
+    set l [string length $n]
+    set numerals { I X C M }
+    set result ""
+    for {set i 0} {$i < $l} {incr i} {
+        set digit [string index $n $i]
+        set numeral [lindex $numerals [expr {$l - $i - 1}]]
+        append result [string repeat $numeral $digit]
+    }
+
+    set result [string map {CCCCCCCCC CM CCCCC D CCCC CD XXXXXXXXX XC XXXXX L XXXX XL IIIIIIIII IX IIIII V IIII IV} $result]
+    return $result
+}

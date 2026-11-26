@@ -1,0 +1,22 @@
+let offsets = [ - 1 , - 1 ; 0 , - 1 ; 1 , - 1 ;
+- 1 , 0 ; 1 , 0 ;
+- 1 , 1 ; 0 , 1 ; 1 , 1 ; ]
+let annotate board_list =
+let height = List . length board_list in
+let width = if height = 0 then 0 else String . length ( List . hd board_list ) in
+let board = Array . of_list board_list in
+List . mapi
+( fun y row ->
+String . mapi
+( fun x ch ->
+if ch = ' ' then
+let count =
+List . map ( fun ( dx , dy ) -> ( dx + x , dy + y )) offsets
+|> List . filter ( fun ( x , y ) -> x >= 0 && x < width && y >= 0 && y < height )
+|> List . fold_left ( fun count ( x , y ) -> count + ( if board . ( y ) . [ x ] = ' * ' then 1 else 0 )) 0 in
+if count = 0 then ' ' else ( Char . chr (( Char . code ' 0 ' ) + count ))
+else ch
+)
+row
+)
+board_list

@@ -1,0 +1,17 @@
+module Diamond ( diamond ) where
+import Data.Char
+diamond :: Char -> Maybe [ String ]
+diamond c
+  | not ( isUpper c ) = Nothing
+  | otherwise = Just ( helper l 'A' [] )
+    where
+      l = ( ord c ) - 64
+helper :: Int -> Char -> [ String ] -> [ String ]
+helper l c acc
+  | c == 'A' && l == 1 = [ "\"A\"" ]
+  | c == 'A' = helper l 'B' [( replicate ( l - 1 ) "' '" ) ++ [ 'A' ] ++ ( replicate ( l - 1 ) "' '" )]
+  | l' == l = ( reverse acc ) ++ [[ c ] ++ ( replicate ( 2 * l - 3 ) "' '" ) ++ [ c ]] ++ acc
+  | otherwise = helper l ( chr (( ord c ) + 1 )) ( nline : acc )
+    where
+      l' = ( ord c ) - 64
+      nline = ( replicate ( l - l' ) "' '" ) ++ [ c ] ++ ( replicate ( 2 * l' - 3 ) "' '" ) ++ [ c ] ++ ( replicate ( l - l' ) "' '" )

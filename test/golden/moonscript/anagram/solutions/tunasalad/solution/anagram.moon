@@ -1,0 +1,13 @@
+(subject, candidates) ->
+  fn = (word) ->
+    lower = word\lower!
+    tmp = { lower\byte(1, #word) }
+    table.sort tmp
+    sorted = string.char table.unpack tmp
+    lower, sorted
+
+  s_lower, s_sorted = fn subject
+  return for c in *candidates
+    c_lower, c_sorted = fn c
+    continue if s_lower == c_lower or s_sorted != c_sorted
+    c

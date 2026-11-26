@@ -1,9 +1,0 @@
-function! EvenlyDivisible(numerator, denominator)
-    return a:numerator % a:denominator == 0
-endfunction
-
-function! LeapYear(year) abort
-    return EvenlyDivisible(a:year, 4)
-                \ && !(EvenlyDivisible(a:year, 100)
-                \  && !EvenlyDivisible(a:year, 400))
-endfunction

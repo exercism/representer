@@ -1,9 +1,0 @@
-# Calculate the sum of multiples for a set of factors up to a limit
-# Sum ? Factors Limit
-SumOfMultiples ← |2 (
-  ⊙⇡      # range to the level
-  ⊸⊞(=₀◿) # flag all multiples below level
-  ≡/↥⍉    # combine them to a mask
-  ▽       # keep only the multiples
-  /+      # and sum them
-)

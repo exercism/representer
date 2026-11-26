@@ -1,0 +1,33 @@
+cipher () {
+input = $( cat )
+alphabet = $( echo { a..z } { 0..9 } | tr -d "' ')"
+zetabet = $( echo { z..a } { 0..9 } | tr -d "' ')"
+echo "\"" $input "\"" | tr "\"" $alphabet "\"" "\"" $zetabet "\""
+}
+normalize () {
+input = $( cat )
+input = ${ input //[ .,]/ }
+input = ${ input ,, }
+echo "\"" $input "\""
+}
+group () {
+input = $( cat )
+l = ${# input }
+format = "\"\""
+for (( i = 0 ; i < l ; i++ )) ; do
+if [[ $(( ( i + 1 ) % 5 )) -eq 0 && $(( i + 1 )) -ne l ]] ; then
+format+ = ${ input :i:1 } "\" \""
+else
+format+ = ${ input :i:1 }
+fi
+done
+echo "\"" $format "\""
+}
+main () {
+case "\"" $1 "\"" in
+encode ) echo "\"" $2 "\"" | normalize | cipher | group ;;
+decode ) echo "\"" $2 "\"" | normalize | cipher ;;
+* ) echo "\"Usage: " $0 " encode|decode 'text'\"" ;;
+esac
+}
+main "\"" $@ "\""

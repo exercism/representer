@@ -1,0 +1,16 @@
+(import (rnrs))
+
+(use-modules (srfi srfi-1))
+
+(define (keep pred seq)
+  (fold (lambda (el acc)
+          (if (pred el) (append acc (list el)) acc))
+        '()
+        seq))
+
+(define (discard pred seq)
+  (fold (lambda (el acc)
+          (if (pred el) acc (append acc (list el))))
+        '()
+        seq))
+

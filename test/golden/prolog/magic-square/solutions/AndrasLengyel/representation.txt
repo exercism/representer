@@ -1,0 +1,20 @@
+:- use_module ( library ( clpfd )).
+magic_square ( Rows ) :-
+rows_sum ( Rows , Sum ),
+diagonal ( Rows , Diagonal ),
+sum ( Diagonal , #=, Sum ),
+matrix_rotate ( Rows , Columns ),
+rows_sum ( Columns , Sum ),
+diagonal ( Columns , RotatedDiagonal ),
+sum ( RotatedDiagonal , #=, Sum ).
+rows_sum ([], _ ).
+rows_sum ([ Row | Rest ], Sum ) :-
+sum ( Row , #=, Sum ),
+rows_sum ( Rest , Sum ).
+matrix_rotate ( Matrix , Rotated ) :-
+transpose ( Matrix , Transposed ),
+maplist ( reverse , Transposed , Rotated ).
+diagonal ([], []).
+diagonal ([[ Item | _ ]| Rows ], [ Item | Diagonal ]) :-
+maplist ([[ _ | Items ], Items ] >> true , Rows , RestOfRows ),
+diagonal ( RestOfRows , Diagonal ).

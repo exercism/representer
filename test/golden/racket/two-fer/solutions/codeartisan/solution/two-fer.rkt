@@ -1,5 +1,0 @@
-#lang racket
-
-(provide two-fer)
-
-(define (two-fer [a "you"] [b "me"]) (~a "One for " a ", one for " b "."))

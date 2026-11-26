@@ -1,9 +1,0 @@
-local days = { Sunday = 1, Monday = 2, Tuesday = 3, Wednesday = 4, Thursday = 5, Friday = 6, Saturday = 7 }
-
-return function(config)
-    local t = os.date('*t', os.time{year = config.year, month = config.month, day = ({
-        first = 1, second = 8, teenth = 13, third = 15, fourth = 22,
-        last = os.date('*t', os.time{year = config.year, month = config.month + 1, day = 0 }).day - 6
-    })[config.week]})
-    return t.day + (days[config.day] - t.wday) % 7
-end

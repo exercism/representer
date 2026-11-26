@@ -1,0 +1,22 @@
+module Bob
+  ( hey
+  ) where
+
+import Data.String (toUpper, toLower, trim, null)
+import Data.String.CodeUnits (takeRight)
+import Prelude
+
+hey :: String -> String
+hey str
+  | null (trim str) = "Fine. Be that way!"
+  | isQuestion str && isYelling str = "Calm down, I know what I'm doing!"
+  | isQuestion str = "Sure."
+  | isYelling str = "Whoa, chill out!"
+  | otherwise = "Whatever."
+
+
+isQuestion :: String -> Boolean
+isQuestion s = takeRight 1 s == "?"
+
+isYelling :: String -> Boolean
+isYelling s = toUpper s == s && toLower s /= s

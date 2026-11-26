@@ -1,0 +1,25 @@
+unit SquareRoot;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+function SquareRoot(const radicand : integer) : integer;
+
+implementation
+
+uses SysUtils;
+
+function SquareRoot(const radicand : integer) : integer;
+var
+ i : integer;
+begin
+  i := 1;
+  while i*i<> radicand do 
+  begin
+    inc(i);
+  end;
+  result := i;
+end;
+
+end.

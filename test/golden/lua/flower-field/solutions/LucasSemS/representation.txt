@@ -1,0 +1,37 @@
+local function annotate ( garden )
+local annotatedGarden = {}
+for _ , line in ipairs ( garden ) do
+table.insert ( annotatedGarden , line )
+end
+local height = # garden
+if height == 0 then
+return annotatedGarden
+end
+local width = # garden [ 1 ]
+for y = 1 , height do
+for x = 1 , width do
+if annotatedGarden [ y ]: sub ( x , x ) == "' '" then
+local flowerCount = 0
+for dy = - 1 , 1 do
+for dx = - 1 , 1 do
+if not ( dx == 0 and dy == 0 ) then
+local ny = y + dy
+local nx = x + dx
+if ny >= 1 and ny <= height and nx >= 1 and nx <= width then
+if garden [ ny ]: sub ( nx , nx ) == '*' then
+flowerCount = flowerCount + 1
+end
+end
+end
+end
+end
+if flowerCount > 0 then
+local line = annotatedGarden [ y ]
+annotatedGarden [ y ] = line : sub ( 1 , x - 1 ) .. tostring ( flowerCount ) .. line : sub ( x + 1 )
+end
+end
+end
+end
+return annotatedGarden
+end
+return { annotate = annotate }

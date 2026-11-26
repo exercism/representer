@@ -1,0 +1,28 @@
+def word (vocab: []u8) (brk: []i64) (w: i64): []u8 =
+ let start = if w == 0 then 0 else brk[w - 1] + 1
+ let stop = brk[w]
+ in vocab[start:stop]
+
+def line (first: []u8) (second: []u8): []u8 =
+  "For want of a " ++ first ++ " the " ++ second ++ " was lost.\n"
+
+def close (first: []u8): []u8 =
+  "And all for the want of a " ++ first ++ ".\n"
+
+def make_poem(strings: []u8) (n: i64): []u8 =
+  let brk = filter (\i -> strings[i] == '\n') (iota n)
+  let poem = 
+    loop poem = ""
+    for i < length brk do
+      if i == 0 then poem
+      else
+        let first = word strings brk (i - 1)
+        let second = word strings brk i
+        in poem ++ line first second
+  in
+    poem ++ close (word strings brk 0)
+
+def recite (strings: []u8): []u8 =
+  let n = length strings
+  in
+    if n == 0 then "" else make_poem strings n

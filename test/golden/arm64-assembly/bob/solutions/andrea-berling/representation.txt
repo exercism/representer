@@ -1,0 +1,173 @@
+.data
+sure: .string "\"Sure.\""
+chill: .string "\"Whoa," chill out!"
+calm_down: .string "\"Calm" down, I know what I'm doing!"
+fine: .string "\"Fine." Be that way!"
+whatever: .string "\"Whatever.\""
+.text
+.globl response
+is_whitespace:
+str lr, [sp, #-0x10]!
+mov x12, #1
+cmp x0, ' '
+beq 1f
+cmp x0, '\t'
+beq 1f
+cmp x0, '\r'
+beq 1f
+cmp x0, '\n'
+beq 1f
+mov x12, #0
+1:
+mov x0, x12
+ldr lr, [sp], #0x10
+ret
+is_all_whitespace:
+str lr, [sp, #-0x10]!
+mov x9, x0
+mov x10, #1
+1:
+mov x0, x10
+cbz x0, 2f
+ldrb w11, [x9], #1
+cbz x11, 2f
+mov x0, x11
+bl is_whitespace
+cbnz x0, 1b
+mov x10, #0
+b 1b
+2:
+ldr lr, [sp], #0x10
+ret
+is_alpha_upper:
+str lr, [sp, #-0x10]!
+mov x9, x0
+mov x0, #0
+mov x10, 'A'
+cmp x9, x10
+blt 1f
+mov x0, #1
+mov x10, 'Z'
+cmp x9, x10
+ble 1f
+mov x0, #0
+1:
+ldr lr, [sp], #0x10
+ret
+is_alpha:
+str lr, [sp, #-0x10]!
+bl is_alpha_upper
+cbnz x0, 1f
+mov x10, 'a'
+cmp x9, x10
+blt 1f
+mov x0, 1
+mov x10, 'z'
+cmp x9, x10
+ble 1f
+mov x0, 0
+1:
+ldr lr, [sp], #0x10
+ret
+is_all_caps:
+str lr, [sp, #-0x10]!
+mov x12, x0
+mov x13, #1
+mov x14, #0
+1:
+ldrb w11, [x12], #1
+mov x0, x13
+cbz x11, 2f
+mov x0, x11
+bl is_alpha
+cbz x0, 1b
+mov x14, #1
+mov x0, x11
+bl is_alpha_upper
+cbz x0, 2f
+b 1b
+2:
+and x0, x0, x14
+ldr lr, [sp], #0x10
+ret
+get_last_nonwhite_char:
+str lr, [sp, #-0x10]!
+mov x9, x0
+mov x11, x0
+mov x0, #0 // prev_char
+ldrb w10, [x9], #1 // cur_char
+cbz x10, 4f
+1:
+mov x0, x10
+ldrb w10, [x9], #1
+cbz x10, 2f
+b 1b
+2:
+sub x9, x9, #2
+cmp x9, x11
+beq 4f
+3:
+ldrb w10, [x9], #-1
+mov x0, x10
+bl is_whitespace
+cmp x0, #0
+mov x0, x10
+beq 4f
+cmp x9, x11
+beq 4f
+b 3b
+4:
+ldr lr, [sp], #0x10
+ret
+is_question:
+str lr, [sp, #-0x10]!
+bl get_last_nonwhite_char
+cmp x0, '?'
+mov x0, #1
+beq 1f
+mov x0, #0
+1:
+ldr lr, [sp], #0x10
+ret
+response:
+stp fp, lr, [sp, #-0x20]!
+mov fp, sp
+str x19, [fp, #0x10]
+mov x19, x0
+// Fine
+bl is_all_whitespace
+cmp x0, #1
+adrp x0, fine
+add x0, x0, #:lo12:fine
+beq 4f
+mov x0, x19
+bl is_all_caps
+mov x9, x0
+str x9, [fp, #0x18]
+mov x0, x19
+bl is_question
+cbz x0, 2f
+ldr x9, [fp, #0x18]
+cbz x9, 1f
+// Screaming question
+adrp x0, calm_down
+add x0, x0, #:lo12:calm_down
+b 4f
+1: // Calm question
+adrp x0, sure
+add x0, x0, #:lo12:sure
+b 4f
+2: // No question
+ldr x9, [fp, #0x18]
+cbz x9, 3f
+// Chill out
+adrp x0, chill
+add x0, x0, #:lo12:chill
+b 4f
+3: // whatever
+adrp x0, whatever
+add x0, x0, #:lo12:whatever
+4:
+ldr x19, [sp, #0x10]
+ldp fp, lr, [sp], #0x20
+ret

@@ -1,0 +1,101 @@
+.text
+.globl translate
+buffer .req x0
+phrase .req x1
+ch .req w2
+ch2 .req w3
+src .req x4
+suffix .req x5
+rest .req x6
+tmp .req w7
+const_u .req w8
+const_xr .req w9
+const_yt .req w10
+const_vowels .req w11 // bit (c - 'a') set for a, e, i, o, u
+const_vowels_y .req w12 // ... and y
+const_ay .req w13
+const_qu .req w14
+// Input is assumed to be lower-case ASCII letters separated by spaces.
+// branch if ch is a vowel
+.macro b_vowel ch, label
+sub tmp, \ch, #'a'
+lsr tmp, const_vowels, tmp // shift amount is taken mod 32
+tst tmp, #1
+b.ne \label
+.endm
+// branch if ch is a vowel, a 'y', a space or a nul
+.macro b_cluster_end ch, label
+sub tmp, \ch, #'a'
+lsr tmp, const_vowels_y, tmp
+and tmp, tmp, #1
+cmp \ch, #' '
+ccmp tmp, #1, #4, hi // ch <= ' ' (space or nul) forces eq
+b.ne \label
+.endm
+// copies a string which is terminated either by ' ' or a null
+.macro copy_str s
+mov src, \s
+.Lcopy_str\@:
+ldrb ch, [src], #1
+strb ch, [buffer], #1
+cmp ch, #' '
+b.hi .Lcopy_str\@
+sub buffer, buffer, #1
+.endm
+// copies bytes from start until end (exclusive)
+.macro copy_until start end
+mov src, \start
+b .Lcopy_until_check\@
+.Lcopy_until\@:
+ldrb ch, [src], #1
+strb ch, [buffer], #1
+.Lcopy_until_check\@:
+cmp src, \end
+b.ne .Lcopy_until\@
+.endm
+translate:
+mov const_u, #'u'
+mov const_xr, #0x7278 // xr
+mov const_yt, #0x7479 // yt
+mov const_vowels, #0x4111
+movk const_vowels, #0x10, lsl #16
+orr const_vowels_y, const_vowels, #(1 << 24)
+mov const_ay, #0x7961 // ay
+mov const_qu, 0x7571 // qu
+.Lword:
+ldrb ch, [phrase]
+cbz ch, .Ldone
+// starts with [aeiou]|xr|yt: the cluster is empty
+b_vowel ch, .Lstarts_with_vowel
+ldrh ch2, [phrase]
+cmp ch2, const_xr
+ccmp ch2, const_yt, #4, ne
+b.eq .Lstarts_with_vowel
+// The first letter is always part of the cluster (a leading 'y' is a
+// consonant). After that the cluster ends at a vowel, a 'y' or the
+// end of the word.
+add suffix, phrase, #1
+.Lscan:
+ldrb ch, [suffix], #1
+b_cluster_end ch, .Lscan
+sub suffix, suffix, #1
+// "\"qu\"" belongs to the cluster
+ldurh ch2, [suffix, #-1]
+cmp ch2, const_qu
+cinc suffix, suffix, eq
+.Lemit:
+copy_str suffix
+mov rest, src
+copy_until phrase, suffix
+strh const_ay, [buffer], #2
+ldurb ch, [rest, #-1] // what ended the word: ' ' or nul
+cbz ch, .Ldone
+strb ch, [buffer], #1
+mov phrase, rest
+b .Lword
+.Lstarts_with_vowel:
+mov suffix, phrase
+b .Lemit
+.Ldone:
+strb wzr, [buffer]
+ret

@@ -1,0 +1,27 @@
+def encode1 (n: u32): []i32 =
+if n == 0
+then [0]
+else
+let (digits, _) =
+loop (digits, m) = ([], n)
+while m != 0 do
+let r = m % 128
+let q = m / 128
+let d = if m == n then r else (r | 0x80)
+in ([i32.u32 d] ++ digits, q)
+in digits
+def encode (integers: []u32): []i32 =
+loop code = [] for i in integers do concat code (encode1 i)
+def decode1 (text: []u32, partial: i32) (c: i32): ([]u32, i32) =
+let d = c & 0x7f
+let part = partial * 128 + d
+in
+if d == c
+then (text ++ [u32.i32 part], 0)
+else (text, part)
+def decode (integers: []i32): []u32 =
+let (text, _) =
+loop (text, partial) =
+([], 0)
+for i in integers do decode1 (text, partial) i
+in assert (last integers & 0x80 == 0) text

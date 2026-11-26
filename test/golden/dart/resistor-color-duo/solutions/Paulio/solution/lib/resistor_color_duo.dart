@@ -1,0 +1,17 @@
+class ResistorColorDuo {
+  final _colours = [
+    'black',
+    'brown',
+    'red',
+    'orange',
+    'yellow',
+    'green',
+    'blue',
+    'violet',
+    'grey',
+    'white',
+  ];
+
+  int value(List<String> colours) =>
+      _colours.indexOf(colours[0]) * 10 + _colours.indexOf(colours[1]);
+}

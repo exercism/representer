@@ -1,0 +1,58 @@
+func timeToPrepare ( drinks : [ String ]) -> Double {
+let drinksTimes : [ String : Double ] = [ "\"beer\"" : 0.5 , "\"soda\"" : 0.5 , "\"water\"" : 0.5 , "\"shot\"" : 1.0 , "\"mixed drink\"" : 1.5 , "\"fancy drink\"" : 2.5 , "\"frozen drink\"" : 3.0 ]
+var timeToPrepare : Double = 0
+for drink in drinks {
+timeToPrepare += drinksTimes [ drink ] ?? 0.0
+}
+return timeToPrepare
+}
+func makeWedges ( needed : Int , limes : [ String ]) -> Int {
+let limeWedges = [ "\"small\"" : 6 , "\"medium\"" : 8 , "\"large\"" : 10 ]
+var limesToCut : [ Int ] = []
+var wedges : Int = 0
+for lime in limes {
+limesToCut . append ( limeWedges [ lime ] ! )
+}
+if limes . count == 0 || needed == 0 { return 0 }
+for pieces in limesToCut [ 0 ..< limesToCut . count - 1 ]{
+wedges += pieces
+if wedges >= needed {
+wedges -= limesToCut . first !
+limesToCut . removeFirst ()
+}
+}
+return limesToCut . count
+}
+func finishShift ( minutesLeft : Int , remainingOrders : [[ String ]]) -> [[ String ]] {
+var drinksToPrepare : [[ String ]] = remainingOrders
+var minutesOfWork : Double = 0
+repeat {
+if drinksToPrepare . isEmpty { break }
+minutesOfWork += timeToPrepare ( drinks : drinksToPrepare [ 0 ])
+drinksToPrepare . removeFirst ()
+} while minutesOfWork < Double ( minutesLeft )
+return drinksToPrepare
+}
+func orderTracker ( orders : [( drink : String , time : String )]) -> (
+beer : ( first : String , last : String , total : Int )?, soda : ( first : String , last : String , total : Int )?
+) {
+var beerInfo : ( first : String , last : String , total : Int )?
+var sodaInfo : ( first : String , last : String , total : Int )?
+for ( drink , time ) in orders {
+switch ( drink ){
+case "\"beer\"" :
+if (( beerInfo ? . first ) == nil ) {
+beerInfo = ( time , time , beerInfo ? . total ?? 0 )
+}
+beerInfo = ( beerInfo ? . first ?? time , time , ( beerInfo ? . total ?? 0 ) + 1 )
+case "\"soda\"" :
+if (( sodaInfo ? . first ) == nil ) {
+sodaInfo = ( time , time , sodaInfo ? . total ?? 0 )
+}
+sodaInfo = ( sodaInfo ? . first ?? time , time , ( sodaInfo ? . total ?? 0 ) + 1 )
+default :
+break
+}
+}
+return ( beerInfo , sodaInfo )
+}

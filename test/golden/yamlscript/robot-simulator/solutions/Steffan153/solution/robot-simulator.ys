@@ -1,0 +1,23 @@
+!yamlscript/v0
+
+next-direction =::
+  north: east
+  east: south
+  south: west
+  west: north
+
+directions =: -{'north' \(update _ 'y' inc)
+                'east'  \(update _ 'x' inc)
+                'south' \(update _ 'y' dec)
+                'west'  \(update _ 'x' dec)}
+
+defn create(position direction):
+  -{'position' position 'direction' direction}
+
+defn move(position direction instructions):
+  reduce _ create(position direction) instructions:
+    fn(robot command):
+      case command:
+        \\A: update(robot 'position' directions(robot.direction))
+        \\R: update(robot 'direction' next-direction)
+        \\L: update(robot 'direction' set/map-invert(next-direction))

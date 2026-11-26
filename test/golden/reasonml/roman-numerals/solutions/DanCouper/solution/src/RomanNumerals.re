@@ -1,0 +1,17 @@
+let arabicNumbers = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+let romanNumerals = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+
+let toRoman = (num) => {
+  let buf = Buffer.create(16);
+
+  let rec loop = (numbers, numerals, numToConvert) => switch (numbers, numerals) {
+    | ([], []) => Buffer.contents(buf)
+    | ([n, ...ns], [_rn, ...rns]) when numToConvert < n  => loop(ns, rns, numToConvert);
+    | ([n, ..._ns], [rn, ..._rns]) => {
+        Buffer.add_string(buf, rn);
+        loop(numbers, numerals, numToConvert - n);
+    }
+  }
+  
+  loop(arabicNumbers, romanNumerals, num);
+}

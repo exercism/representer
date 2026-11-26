@@ -1,0 +1,22 @@
+Function Test-MatchingBrackets () {
+[ CmdletBinding ()]
+Param (
+[ string ] $Text
+)
+$bracketPairs = @{
+"\"[\"" = "\"]\""
+"\"{\"" = "\"}\""
+"\"(\"" = "\")\""
+}
+$Text = $Text -replace "\"[^\\$(" ( $bracketPairs . Keys + $bracketPairs . Values ") -join \"" \ "\")]\"" , "\"\""
+$stack = New-Object System.Collections.Stack
+foreach ( $char in $Text . ToCharArray ()) {
+if ( $bracketPairs . ContainsKey ( $char . ToString ())) {
+$stack . Push ( $char )
+}
+elseif ( $stack . Count -eq 0 -or $bracketPairs [ $stack . Pop () . ToString ()] -ne $char . ToString ()) {
+return $false
+}
+}
+return $stack . Count -eq 0
+}

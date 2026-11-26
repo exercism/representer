@@ -1,8 +1,0 @@
-module.exports = class Bob
-  hey: (message) ->
-    return 'Whoa, chill out!' if message is 'WHAT THE HELL WERE YOU THINKING?'
-    return "Fine. Be that way!" unless m = message.replace(/\s/g, "")
-    if /[a-z]|(^[^a-zA-Z]+$)/.test m
-      return if /\?$/.test m then "Sure." else "Whatever."
-    else
-      return if /\?$/.test m then "Calm down, I know what I'm doing!" else "Whoa, chill out!"

@@ -1,0 +1,21 @@
+use v5 . 40 ;
+use experimental qw<class> ;
+class DndCharacter ;
+use POSIX qw<floor> ;
+use List:: Util "qw<sum min>" ;
+sub modifier {
+my ( $class , $score ) = @_ ;
+return floor (( $score - 10 ) / 2 );
+}
+sub ability {
+my @rolls = map { int ( rand ( 6 )) + 1 } 1 .. 4 ;
+return sum ( @rolls ) - min ( @rolls );
+}
+field $strength : reader = ability ();
+field $dexterity : reader = ability ();
+field $constitution : reader = ability ();
+field $intelligence : reader = ability ();
+field $wisdom : reader = ability ();
+field $charisma : reader = ability ();
+field $hitpoints : reader = 10 + DndCharacter -> modifier ( $constitution );
+1 ;

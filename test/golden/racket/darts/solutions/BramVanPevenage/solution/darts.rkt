@@ -1,0 +1,15 @@
+#lang racket
+
+(provide score)
+
+
+(define (calc-radius x y)
+  (sqrt (+ (sqr x) (sqr y))))
+
+(define (score x y)
+    (let ((radius (calc-radius x y)))
+      (cond ((> radius 10) 0)
+            ((> radius 5) 1)
+            ((> radius 1) 5)
+            (else 10))))
+  

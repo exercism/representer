@@ -1,0 +1,17 @@
+let string_to_list s = String . to_seq s |> List . of_seq
+let list_to_string xs = List . to_seq xs |> String . of_seq
+let eq x y = x == y
+let has x xs = List . find_opt ( eq x ) xs |> Option . is_some
+let acronym s =
+let tokens = [ ' , ' ; ' - ' ; ' _' ; ' ' ] in
+let chars = string_to_list s in
+let rec f xs acc flag =
+match xs with
+| [] -> acc
+| hd :: [] when flag && ( has hd tokens ) -> f [] acc true
+| hd :: [] when flag -> f [] ( acc @ [ Char . uppercase_ascii hd ]) false
+| hd :: [] -> f [] acc ( has hd tokens )
+| hd :: tl when flag && ( has hd tokens ) -> f tl acc true
+| hd :: tl when flag -> f tl ( acc @ [ Char . uppercase_ascii hd ]) false
+| hd :: tl -> f tl acc ( has hd tokens )
+in list_to_string ( f chars [] true )

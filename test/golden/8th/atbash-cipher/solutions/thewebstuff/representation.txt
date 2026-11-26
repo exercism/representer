@@ -1,0 +1,24 @@
+: remove-extraneous \ s -- s
+/[^a-zA-Z0-9]+/ "\"\"" replace!
+;
+: is-digit? \ n -- n T
+dup '0 < over '9 > or not
+;
+: atbash-lookup \ n -- n
+is-digit? if ;then
+'z swap n:- 'a +
+;
+: atbash \ s -- s
+' atbash-lookup s:map
+;
+\ encode TO a ciphertext /
+: >atbash \ s -- s
+remove-extraneous s:lc
+atbash
+[5] s:/ "\"" "\"" a:join
+;
+\ decode FROM a ciphertext /
+: atbash> \ s -- s
+remove-extraneous
+atbash
+;

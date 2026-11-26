@@ -1,0 +1,27 @@
+CLASS zcl_acronym DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS parse IMPORTING phrase         TYPE string
+                  RETURNING VALUE(acronym) TYPE string.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_acronym IMPLEMENTATION.
+  METHOD parse.
+    "bereinigen
+    DATA(bereinigt) = to_upper( phrase ).
+    bereinigt = replace( val = bereinigt regex = `[^A-Z0-9_\s-]` with = `` occ = 0 ).
+    bereinigt = replace( val = bereinigt regex = `[^A-Z0-9]` with = ` ` occ = 0 ).
+    CONDENSE bereinigt.
+    SPLIT bereinigt AT ` ` INTO TABLE DATA(lt_bereinigt).
+    LOOP AT lt_bereinigt INTO DATA(lv_bereinigt).
+      acronym = acronym && lv_bereinigt(1).
+    ENDLOOP.
+  ENDMETHOD.
+ENDCLASS.

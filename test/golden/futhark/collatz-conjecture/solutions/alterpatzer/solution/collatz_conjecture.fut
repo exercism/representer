@@ -1,7 +1,0 @@
-def do_steps(number: i32): i32 =
-  let (s, _) = loop (s, n) = (0, number)
-    while n != 1 do (s + 1, if n % 2 == 0 then n / 2 else 3 * n + 1)
-  in s
-  
-def steps (number: i32): i32 =
-  assert (number > 0) (do_steps number)

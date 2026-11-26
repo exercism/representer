@@ -1,0 +1,28 @@
+module main
+
+pub fn rows(height int) [][]int {
+	mut res := [][]int{}
+	mut row := []int{}
+	for line := 0; line < height; line++ {
+		for i := 0; i <= line; i++ {
+            row << binomial_coeff(line, i) 
+		}
+		res << row
+		row = []
+	}
+	return res
+}
+
+fn binomial_coeff(n int, m int) int {
+	mut res := 1
+	mut k := m
+	if k > (n - k) {
+        k = n - k
+	}
+	for i := 0; i < k; i++ {
+		res *= (n - i)
+		res /= (i + 1)
+	}
+	return res
+}
+

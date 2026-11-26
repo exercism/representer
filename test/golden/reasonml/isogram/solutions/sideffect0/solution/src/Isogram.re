@@ -1,7 +1,0 @@
-let is_isogram = (sentence):bool => {
-  let normalized = sentence |> String.lowercase_ascii
-                            |> Js.String.split("")
-                            |> Array.to_list
-                            |> List.filter((s) => (Char.code(s.[0]) >= 97 && Char.code(s.[0]) <= 122));
-  (normalized |> List.length) == (normalized |> List.sort_uniq(String.compare) |> List.length);
-};

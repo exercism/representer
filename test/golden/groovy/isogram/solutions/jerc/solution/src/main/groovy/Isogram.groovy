@@ -1,0 +1,10 @@
+class Isogram {
+    static boolean isIsogram(String phrase) {
+
+        def sanitized = phrase.toLowerCase()
+            .replaceAll(~/[\s-]/, "")
+            .collect { c -> c}
+
+        sanitized.size() == sanitized.unique().size()
+    }
+}

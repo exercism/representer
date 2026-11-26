@@ -1,0 +1,32 @@
+USING: exercism-tools io kernel rail-fence-cipher tools.test unicode ;
+IN: rail-fence-cipher.tests
+
+"encode with two rails" description
+{ "XXXXXXXXXOOOOOOOOO" }
+[ "XOXOXOXOXOXOXOXOXO" 2 encode ] unit-test
+
+STOP-HERE
+
+"encode with three rails" description
+{ "WECRLTEERDSOEEFEAOCAIVDEN" }
+[ "WEAREDISCOVEREDFLEEATONCE" 3 encode ] unit-test
+
+"encode with ending in the middle" description
+{ "ESXIEECSR" }
+[ "EXERCISES" 4 encode ] unit-test
+
+"decode with three rails" description
+{ "THEDEVILISINTHEDETAILS" }
+[ "TEITELHDVLSNHDTISEIIEA" 3 decode ] unit-test
+
+"decode with five rails" description
+{ "EXERCISMISAWESOME" }
+[ "EIEXMSMESAORIWSCE" 5 decode ] unit-test
+
+"decode with six rails" description
+{ "112358132134558914423337761098715972584418167651094617711286" }
+[ "133714114238148966225439541018335470986172518171757571896261" 6 decode ] unit-test
+
+"decode with seven rails" description
+{ "ANANCIENTADAGEWARNSNEVERGOTOSEAWITHTWOCHRONOMETERSTAKEONEORTHREE" }
+[ "AGGWRHNAEROTOESTRADWETHCTTRENAAVOTHEAOECTRESIRMKEINNNEWOOENESANO" 7 decode ] unit-test

@@ -1,6 +1,0 @@
-END {
-    split($0, chars, "")
-    for(i = length($0); i > 0 ; --i) {
-        printf "%s", chars[i]
-    }
-}

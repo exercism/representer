@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-output=""
-[ $(($1 % 3)) -eq 0 ] && output+="Pling"
-[ $(($1 % 5)) -eq 0 ] && output+="Plang"
-[ $(($1 % 7)) -eq 0 ] && output+="Plong"
-
-echo ${output:-$1}

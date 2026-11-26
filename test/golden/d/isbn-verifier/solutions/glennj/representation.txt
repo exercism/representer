@@ -1,0 +1,39 @@
+module isbn_verifier ;
+import std . ascii : isDigit ;
+pure bool isValid ( immutable string isbn ) {
+int sum = 0 , idx = 0 ;
+foreach ( c ; isbn ) {
+if ( c == '-' ) continue ;
+else if ( c . isDigit ) sum += ( 10 - idx ) * ( c - '0' );
+else if ( c == 'X' && idx == 9 ) sum += 10 ;
+else return false ;
+idx ++;
+}
+return idx == 10 && sum % 11 == 0 ;
+}
+unittest
+{
+immutable int allTestsEnabled = 0 ;
+assert ( isValid ( "\"3-598-21508-8\"" ));
+static if ( allTestsEnabled )
+{
+assert (! isValid ( "\"3-598-21508-9\"" ));
+assert ( isValid ( "\"3-598-21507-X\"" ));
+assert (! isValid ( "\"3-598-21507-A\"" ));
+assert (! isValid ( "\"4-598-21507-B\"" ));
+assert (! isValid ( "\"3-598-P1581-X\"" ));
+assert (! isValid ( "\"3-598-2X507-9\"" ));
+assert ( isValid ( "\"3598215088\"" ));
+assert ( isValid ( "\"359821507X\"" ));
+assert (! isValid ( "\"359821507\"" ));
+assert (! isValid ( "\"3598215078X\"" ));
+assert (! isValid ( "\"00\"" ));
+assert (! isValid ( "\"3-598-21507\"" ));
+assert (! isValid ( "\"3-598-21515-X\"" ));
+assert (! isValid ( "\"\"" ));
+assert (! isValid ( "\"134456729\"" ));
+assert (! isValid ( "\"3132P34035\"" ));
+assert (! isValid ( "\"3598P215088\"" ));
+assert (! isValid ( "\"98245726788\"" ));
+}
+}

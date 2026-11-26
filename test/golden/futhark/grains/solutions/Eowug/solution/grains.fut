@@ -1,3 +1,0 @@
-def square: i32 -> u64 = \n -> assert (n > 0 && n <= 64) (2 ** (u64.i32 n - 1))
-
-def total(): u64 = 2 ** 64 - 1

@@ -1,0 +1,136 @@
+( use-modules ( srfi srfi-9 ))
+( define-record-type <defn>
+( make-defn word word-list )
+defn?
+( word defn-word )
+( word-list defn-list ))
+( define-record-type <forth-interpreter>
+( make-frth stack defs )
+frth?
+( stack frth-stack )
+( defs frth-defs ))
+( define ( pop-stack frth )
+( let (( s ( frth-stack frth )))
+( if ( null? s )
+( throw 'misc-error "\"stack underflow\"" )
+( values ( make-frth ( cdr s ) ( frth-defs frth ))
+( car s )))))
+( define ( peek-stack frth )
+( if ( null? ( frth-stack frth ))
+( throw 'misc-error "\"stack underflow\"" )
+( car ( frth-stack frth ))))
+( define ( push-stack frth val )
+( make-frth ( cons val ( frth-stack frth )) ( frth-defs frth )))
+( define ( push-defn frth new-def )
+( make-frth ( frth-stack frth ) ( cons new-def ( frth-defs frth ))))
+( define ( parse-token token )
+( let (( read-tok ( call-with-input-string token read )))
+( if ( integer? read-tok ) read-tok token )))
+( define ( parse-defn accum left )
+( cond
+(( null? left )
+( throw 'misc-error "\"input ended mid-definition\"" ))
+(( equal? "\";\"" ( car left ))
+( let (( words ( reverse accum )))
+( cond
+(( = 0 ( length words ))
+( throw 'misc-error "\"zero-length definition\"" ))
+(( integer? ( car words ))
+( throw 'misc-erro "\"redefinition of number\"" ))
+( else ( values ( make-defn ( car words ) ( cdr words ))
+( cdr left ))))))
+( else ( parse-defn ( cons ( parse-token ( car left )) accum ) ( cdr left )))))
+( define ( parse-aux accum left )
+( cond
+(( null? left ) ( reverse accum ))
+(( equal? "\":\"" ( car left ))
+( call-with-values
+( lambda () ( parse-defn ' () ( cdr left )))
+( lambda ( new-def new-left )
+( parse-aux ( cons new-def accum ) new-left ))))
+( else
+( guard ( ex ( else
+( throw 'misc-error
+( string-append "\"illegal token in input: \"" ( car left )))))
+( parse-aux ( cons ( parse-token ( car left )) accum ) ( cdr left ))))))
+( define ( parse program-line )
+( parse-aux ' () ( filter ( lambda ( x ) ( < 0 ( string-length x )))
+( string-split ( string-upcase program-line )
+char-whitespace? ))))
+( define base-arith-words ( list "\"+\"" "\"-\"" "\"*\"" "\"/\"" ))
+( define ( arithmetic frth op )
+( call-with-values
+( lambda () ( pop-stack frth ))
+( lambda ( next-frth y )
+( call-with-values
+( lambda () ( pop-stack next-frth ))
+( lambda ( next-frth x )
+( cond
+(( equal? op "\"+\"" ) ( push-stack next-frth ( + x y )))
+(( equal? op "\"-\"" ) ( push-stack next-frth ( - x y )))
+(( equal? op "\"*\"" ) ( push-stack next-frth ( * x y )))
+(( equal? op "\"/\"" )
+( if ( = y 0 )
+( throw 'misc-error "\"division by zero\"" )
+( push-stack next-frth ( quotient x y ))))
+( else ( throw 'misc-error
+( string-append
+"\"not an arithmetic operator: \""
+op )))))))))
+( define ( eval-base-word frth word )
+( cond
+(( member word base-arith-words ) ( arithmetic frth word ))
+(( equal? "\"DUP\"" word )
+( push-stack frth ( peek-stack frth )))
+(( equal? "\"DROP\"" word )
+( call-with-values
+( lambda () ( pop-stack frth ))
+( lambda ( next-frth x ) next-frth )))
+(( equal? "\"SWAP\"" word )
+( call-with-values
+( lambda () ( pop-stack frth ))
+( lambda ( next-frth y )
+( call-with-values
+( lambda () ( pop-stack next-frth ))
+( lambda ( next-frth x )
+( push-stack ( push-stack next-frth y ) x ))))))
+(( equal? "\"OVER\"" word )
+( call-with-values
+( lambda () ( pop-stack frth ))
+( lambda ( next-frth y )
+( let (( x ( peek-stack next-frth )))
+( push-stack ( push-stack next-frth y ) x )))))
+( else ( throw 'misc-error
+( string-append "\"undefined word: \"" word )))))
+( define ( eval-word frth word )
+( cond
+(( null? ( frth-defs frth )) ( eval-base-word frth word ))
+(( equal? word ( defn-word ( car ( frth-defs frth ))))
+( frth-eval ( make-frth ( frth-stack frth )
+( cdr ( frth-defs frth )))
+( defn-list ( car ( frth-defs frth )))))
+( else ( eval-word ( make-frth ( frth-stack frth )
+( cdr ( frth-defs frth )))
+word ))))
+( define ( frth-eval frth token-list )
+( cond
+(( null? token-list ) frth )
+(( integer? ( car token-list ))
+( frth-eval ( push-stack frth ( car token-list )) ( cdr token-list )))
+(( defn? ( car token-list ))
+( frth-eval ( push-defn frth ( car token-list )) ( cdr token-list )))
+( else ( call-with-values
+( lambda () ( values ( eval-word frth ( car token-list ))
+( frth-defs frth )))
+( lambda ( next-frth old-defs )
+( frth-eval ( make-frth ( frth-stack next-frth ) old-defs )
+( cdr token-list )))))))
+( define ( forth-aux frth prog-left )
+( if ( null? prog-left )
+( frth-stack frth )
+( forth-aux
+( frth-eval frth ( parse ( car prog-left )))
+( cdr prog-left ))))
+( define ( forth program )
+( let (( frth ( make-frth ' () ' ())))
+( forth-aux frth program )))

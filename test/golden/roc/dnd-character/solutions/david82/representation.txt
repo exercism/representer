@@ -1,0 +1,87 @@
+import random.Random
+DndCharacter := {
+  strength : U8,
+  dexterity : U8,
+  constitution : U8,
+  intelligence : U8,
+  wisdom : U8,
+  charisma : U8,
+  hitpoints : U8,
+}.{
+  modifier : U8 -> I8
+  modifier = |constitution| {
+    if constitution >= 10 {
+      pos = (constitution - 10) / 2
+      match pos {
+        0 => 0
+        1 => 1
+        2 => 2
+        3 => 3
+        4 => 4
+        5 => 5
+        6 => 6
+        7 => 7
+        8 => 8
+        9 => 9
+        _ => 10
+      }
+    } else {
+      neg = (11 - constitution) / 2
+      match neg {
+        1 => -1
+        2 => -2
+        3 => -3
+        4 => -4
+        _ => -5
+      }
+    }
+  }
+  ability : Random.Generator(U8)
+  ability = |state0| {
+    { value: d1, state: state1 } = Random.step(state0, Random.bounded_u8(1, 6))
+    { value: d2, state: state2 } = Random.step(state1, Random.bounded_u8(1, 6))
+    { value: d3, state: state3 } = Random.step(state2, Random.bounded_u8(1, 6))
+    { value: d4, state: state4 } = Random.step(state3, Random.bounded_u8(1, 6))
+    min1 = if d1 < d2 { d1 } else { d2 }
+    min2 = if d3 < d4 { d3 } else { d4 }
+    min_d = if min1 < min2 { min1 } else { min2 }
+    sum = d1 + d2 + d3 + d4 - min_d
+    { value: sum, state: state4 }
+  }
+  generate : Random.Generator(DndCharacter)
+  generate = |state0| {
+    { value: strength, state: state1 } = ability(state0)
+    { value: dexterity, state: state2 } = ability(state1)
+    { value: constitution, state: state3 } = ability(state2)
+    { value: intelligence, state: state4 } = ability(state3)
+    { value: wisdom, state: state5 } = ability(state4)
+    { value: charisma, state: state6 } = ability(state5)
+    mod = modifier(constitution)
+    hitpoints =
+      match mod {
+        -5 => 5
+        -4 => 6
+        -3 => 7
+        -2 => 8
+        -1 => 9
+        0 => 10
+        1 => 11
+        2 => 12
+        3 => 13
+        4 => 14
+        5 => 15
+        _ => 10
+      }
+    character : DndCharacter
+    character = {
+      strength: strength,
+      dexterity: dexterity,
+      constitution: constitution,
+      intelligence: intelligence,
+      wisdom: wisdom,
+      charisma: charisma,
+      hitpoints: hitpoints,
+    }
+    { value: character, state: state6 }
+  }
+}

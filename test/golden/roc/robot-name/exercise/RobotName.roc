@@ -1,0 +1,42 @@
+import random.Random
+
+RobotName :: {}.{
+
+	Factory :: {
+		# TODO: change this opaque type however you need
+	}.{
+		create : { seed : U32 } -> Factory
+		create = |{ seed }| {
+			crash "Please implement the 'Factory.create' function"
+		}
+
+		build_robot : Factory -> Robot
+		build_robot = |factory| {
+			crash "Please implement the 'Factory.build_robot' function"
+		}
+	}
+
+	Robot :: {
+		# TODO: change this opaque type however you need
+	}.{
+		boot : Robot -> Robot
+		boot = |robot| {
+			crash "Please implement the 'boot' function"
+		}
+
+		factory_reset : Robot -> Robot
+		factory_reset = |robot| {
+			crash "Please implement the 'factory_reset' function"
+		}
+
+		get_name : Robot -> [Name(Str), NoName]
+		get_name = |robot| {
+			crash "Please implement the 'get_name' function"
+		}
+
+		get_factory : Robot -> Factory
+		get_factory = |robot| {
+			crash "Please implement the 'get_factory' function"
+		}
+	}
+}

@@ -1,0 +1,34 @@
+CLASS zcl_eliuds_eggs DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    METHODS egg_count IMPORTING number       TYPE i
+                      RETURNING VALUE(count) TYPE i.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_eliuds_eggs IMPLEMENTATION.
+  METHOD egg_count.
+
+    DATA(lv_decimal) = number.
+    DATA(lv_count) = 0.
+
+    WHILE lv_decimal <> 0.
+
+      IF lv_decimal MOD 2 = 1.
+        lv_count += 1.
+      ENDIF.
+
+      lv_decimal = lv_decimal DIV 2.
+
+    ENDWHILE.
+
+    count = lv_count.
+
+  ENDMETHOD.
+ENDCLASS.

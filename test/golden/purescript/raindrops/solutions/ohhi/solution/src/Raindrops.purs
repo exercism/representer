@@ -1,0 +1,12 @@
+module Raindrops (raindrops) where
+
+import Prelude (mod, otherwise, show, (<>), (==))
+import Data.Maybe (Maybe(..), fromMaybe)
+
+raindrops :: Int -> String
+raindrops x = fromMaybe (show x) (f 3 "Pling" <> f 5 "Plang" <> f 7 "Plong")
+  where
+    f :: Int -> String -> Maybe String
+    f m s 
+      | mod x m == 0 = Just s
+      | otherwise    = Nothing

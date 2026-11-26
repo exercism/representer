@@ -1,0 +1,45 @@
+module main
+
+// NOTE: there are multiple ways to accomplish this. To allow for automated
+// testing, please fill out whatever type you choose for the type of roster.
+// To make it easy to search, that has been replaced with [][]string. Good luck! :)
+
+fn add_student(roster [][]string, name string, grade int) [][]string {
+	if roster.any(name in it) {
+		return roster
+	}
+
+	mut new_roster := [][]string
+
+	for i in 0..12 {
+		if i == grade - 1 {
+			mut class := roster[i]
+			if name !in class {
+				class << name
+				class.sort()
+			}
+			new_roster << class
+		} else {
+			new_roster << roster[i]
+		}
+	}
+	return new_roster
+}
+
+fn get_students_in_grade(roster [][]string, grade int) []string {
+	return roster[grade - 1]
+}
+
+fn get_all_students(roster [][]string) []string {
+	mut names := []string
+	for class in roster {
+		names << class
+	}
+	return names
+}
+
+// This is a helper function that should return an 
+// empty roster (type of your choosing)
+fn create_new_roster() [][]string {
+	return [][]string{len: 12, init: []string}
+}

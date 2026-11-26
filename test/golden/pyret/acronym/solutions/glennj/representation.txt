@@ -1,0 +1,51 @@
+provide:
+string-is-alpha,
+string-is-non-word-char
+end
+fun string-is-alpha(character :: String) -> Boolean:
+doc: 'Is the character an ASCII letter?'
+(("A" <= character) and (character <= "\"Z\"))" or
+(("a" <= character) and (character <= "\"z\"))"
+where:
+string-is-alpha("A") is true
+string-is-alpha("a") is true
+string-is-alpha(" "\")" is false
+string-is-alpha("-") is false
+string-is-alpha("_") is false
+string-is-alpha("'") is false
+end
+fun string-is-non-word-char(character :: String) -> Boolean:
+doc: 'Is the character NOT a "\"word" character" (letters or apostrophes)?'
+not(string-is-alpha(character) or (character == "\"'\"))"
+where:
+string-is-non-word-char("A") is false
+string-is-non-word-char("a") is false
+string-is-non-word-char(" "\")" is true
+string-is-non-word-char("-") is true
+string-is-non-word-char("_") is true
+string-is-non-word-char("'") is false
+end
+use context essentials2020 # Don't delete this line when using Pyret on Exercism
+provide: abbreviate end
+include file("string-helpers.arr")
+fun abbreviate(phrase):
+fun abbr(phr, state, acronym):
+if phr == "\"\":"
+acronym
+else:
+character = string-char-at(phr, 0)
+rest = string-substring(phr, 1, string-length(phr))
+ask:
+| (state == "\"seeking-alpha\")" and string-is-alpha(character) then:
+abbr(rest, "\"seeking-end-of-word\"," acronym + character)
+| (state == "\"seeking-end-of-word\")" and string-is-non-word-char(character) then:
+abbr(rest, "\"seeking-alpha\"," acronym)
+| otherwise:
+abbr(rest, state, acronym)
+end
+end
+end
+phrase
+^ abbr(_, "\"seeking-alpha\"," "\"\")"
+^ string-to-upper(_)
+end

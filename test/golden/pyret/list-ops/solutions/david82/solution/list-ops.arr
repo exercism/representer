@@ -1,0 +1,56 @@
+use context essentials2020 # Don't delete this line when using Pyret on Exercism 
+
+provide:
+  my-append, 
+  my-concatenate,
+  my-filter,
+  my-length,
+  my-map,
+  my-foldl,
+  my-foldr,
+  my-reverse
+end
+
+fun my-append(lst1 :: List<Any>, lst2 :: List<Any>) -> List<Any>:
+  my-foldr(lst1, {(elem, acc): link(elem, acc)}, lst2)
+end
+
+fun my-concatenate(lst :: List<List<Any>>) -> List<Any>:
+  my-foldr(lst, {(concat, elem): my-append(concat, elem)}, [list:])
+end
+
+fun my-filter(lst :: List<Any>, f :: (Any -> Boolean)) -> List<Any>:
+  my-foldl(
+    lst,
+    lam(folded, elem):
+      folded + (if f(elem): [list: elem] else: [list:] end)
+    end,
+    [list:])
+end
+
+fun my-length(lst :: List<Any>) -> Number:
+  my-foldl(lst, {(len, _): len + 1}, 0)
+end
+
+fun my-map(lst :: List<Any>, f :: (Any -> Any)) -> List<Any>:
+  my-foldl(lst, {(mapped, elem): mapped + [list: f(elem)]}, [list:])
+end
+
+fun my-foldl(lst :: List<Any>, f :: (Any, Any -> Any), initial :: Any) -> Any:
+  rec helper = lam(xs, acc):
+    cases(List) xs:
+      | empty => acc
+      | link(first, rest) => helper(rest, f(acc, first))
+    end
+  end
+  
+  helper(lst, initial)
+end
+
+fun my-foldr(lst :: List<Any>, f :: (Any, Any -> Any), initial :: Any) -> Any:
+  my-foldl(my-reverse(lst), {(acc, elem): f(elem, acc)}, initial)
+end
+
+fun my-reverse(lst :: List<Any>) -> List<Any>:
+  my-foldl(lst, {(reversed, elem): link(elem, reversed)}, [list:])
+end

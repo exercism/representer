@@ -1,0 +1,12 @@
+#include "armstrong_numbers.h"
+#include<math.h>
+bool is_armstrong_number(int candidate){
+    int temp = candidate;
+    int sum=0;
+    int power = floor(log10(temp)+1);
+    while(temp!=0){
+        sum += pow(temp%10,power);
+        temp = temp/10;
+    }
+    return sum==candidate;
+}

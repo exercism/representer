@@ -1,0 +1,14 @@
+rotationalCipher . rotate : Text -> Nat -> Text
+rotationalCipher . rotate text shiftKey =
+  upperASCII = Char . inRange ? A ? Z
+  lowerASCII = Char . inRange ? a ? z
+  upperA = Char . toNat ? A
+  lowerA = Char . toNat ? a
+  alphabetSize = 26
+  convertOrd f c = Char . toNat c |> f |> Char . fromNat |> Optional . getOrElse ??
+  rotateWithBase base o = ( mod ( o + shiftKey - base ) alphabetSize ) + base
+  rotate = cases
+    c | upperASCII c -> convertOrd ( rotateWithBase upperA ) c
+      | lowerASCII c -> convertOrd ( rotateWithBase lowerA ) c
+      | otherwise -> c
+  toCharList text |> map rotate |> fromCharList

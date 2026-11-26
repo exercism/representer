@@ -1,0 +1,126 @@
+import kotlin.math.abs
+enum class Color { RED , GREEN , IVORY , YELLOW , BLUE }
+enum class Nationality { ENGLISHMAN , SPANIARD , UKRAINIAN , NORWEGIAN , JAPANESE }
+enum class Pet { DOG , SNAILS , FOX , HORSE , ZEBRA }
+enum class Drink { COFFEE , TEA , MILK , ORANGE_JUICE , WATER }
+enum class Hobby { DANCING , PAINTER , READING , FOOTBALL , CHESS }
+private val allColors = Color . values (). toList ()
+private val allNationalities = Nationality . values (). toList ()
+private val allPets = Pet . values (). toList ()
+private val allDrinks = Drink . values (). toList ()
+private val allHobbies = Hobby . values (). toList ()
+private fun < T > List < T >. permutations (): List < List < T >> {
+if ( this . isEmpty ()) return listOf ( emptyList ())
+val result = mutableListOf < List < T >>()
+for ( i in this . indices ) {
+val element = this [ i ]
+val rest = this . filterIndexed { index , _ -> index != i }
+rest . permutations (). forEach { perm ->
+result . add ( listOf ( element ) + perm )
+}
+}
+return result
+}
+private fun < T > generatePermutationsWithFixed (
+allItems : List < T >,
+fixedPositions : Map < Int , T >
+): List < List < T >> {
+val numItems = allItems . size
+val itemsToPermute = allItems . filterNot { fixedPositions . values . contains ( it ) }
+val results = mutableListOf < List < T >>()
+itemsToPermute . permutations (). forEach { perm ->
+val currentArrangement = MutableList < T ?>( numItems ) { null }
+fixedPositions . forEach { ( idx , item ) -> currentArrangement [ idx ] = item }
+var permIdx = 0
+for ( i in 0 until numItems ) {
+if ( currentArrangement [ i ] == null ) {
+currentArrangement [ i ] = perm [ permIdx ++]
+}
+}
+results . add ( currentArrangement . map { it !! })
+}
+return results
+}
+class ZebraPuzzle {
+private var solutionColors : List < Color >? = null
+private var solutionNationalities : List < Nationality >? = null
+private var solutionPets : List < Pet >? = null
+private var solutionDrinks : List < Drink >? = null
+private var solutionHobbies : List < Hobby >? = null
+init {
+solve ()
+}
+private fun < T > findHouse ( value : T , attributeList : List < T >): Int {
+val index = attributeList . indexOf ( value )
+return index
+}
+private fun solve () {
+val colorPermutations = generatePermutationsWithFixed ( allColors , mapOf ( 1 to Color . BLUE ))
+val nationalityPermutations = generatePermutationsWithFixed ( allNationalities , mapOf ( 0 to Nationality . NORWEGIAN ))
+val drinkPermutations = generatePermutationsWithFixed ( allDrinks , mapOf ( 2 to Drink . MILK ))
+val petPermutations = allPets . permutations ()
+val hobbyPermutations = allHobbies . permutations ()
+for ( colors in colorPermutations ) {
+val greenHouse = findHouse ( Color . GREEN , colors )
+val ivoryHouse = findHouse ( Color . IVORY , colors )
+if ( greenHouse != ivoryHouse + 1 ) continue
+for ( nationalities in nationalityPermutations ) {
+val englishmanHouse = findHouse ( Nationality . ENGLISHMAN , nationalities )
+if ( colors [ englishmanHouse ] != Color . RED ) continue
+for ( drinks in drinkPermutations ) {
+if ( drinks [ greenHouse ] != Drink . COFFEE ) continue
+val ukrainianHouse = findHouse ( Nationality . UKRAINIAN , nationalities )
+if ( drinks [ ukrainianHouse ] != Drink . TEA ) continue
+for ( pets in petPermutations ) {
+val spaniardHouse = findHouse ( Nationality . SPANIARD , nationalities )
+if ( pets [ spaniardHouse ] != Pet . DOG ) continue
+for ( hobbies in hobbyPermutations ) {
+val snailOwnerHouse = findHouse ( Pet . SNAILS , pets )
+if ( hobbies [ snailOwnerHouse ] != Hobby . DANCING ) continue
+val yellowHouse = findHouse ( Color . YELLOW , colors )
+if ( hobbies [ yellowHouse ] != Hobby . PAINTER ) continue
+val horseHouse = findHouse ( Pet . HORSE , pets )
+if ( abs ( yellowHouse - horseHouse ) != 1 ) continue
+val footballPlayerHouse = findHouse ( Hobby . FOOTBALL , hobbies )
+if ( drinks [ footballPlayerHouse ] != Drink . ORANGE_JUICE ) continue
+val japaneseHouse = findHouse ( Nationality . JAPANESE , nationalities )
+if ( hobbies [ japaneseHouse ] != Hobby . CHESS ) continue
+val readingHouse = findHouse ( Hobby . READING , hobbies )
+val foxHouse = findHouse ( Pet . FOX , pets )
+if ( abs ( readingHouse - foxHouse ) != 1 ) continue
+solutionColors = colors
+solutionNationalities = nationalities
+solutionPets = pets
+solutionDrinks = drinks
+solutionHobbies = hobbies
+return
+}
+}
+}
+}
+}
+throw IllegalStateException ( "\"Zebra Puzzle solution not found.\"" )
+}
+fun drinksWater (): String {
+val currentSolutionDrinks = solutionDrinks
+?: throw IllegalStateException ( "\"Puzzle solution not available for drinks.\"" )
+val currentSolutionNationalities = solutionNationalities
+?: throw IllegalStateException ( "\"Puzzle solution not available for nationalities.\"" )
+val waterDrinkerHouse = findHouse ( Drink . WATER , currentSolutionDrinks )
+if ( waterDrinkerHouse == - 1 ) {
+throw IllegalStateException ( "\"Water not found in the solution's drink assignments.\"" )
+}
+return currentSolutionNationalities [ waterDrinkerHouse ]. name . toLowerCase (). capitalize ()
+}
+fun ownsZebra (): String {
+val currentSolutionPets = solutionPets
+?: throw IllegalStateException ( "\"Puzzle solution not available for pets.\"" )
+val currentSolutionNationalities = solutionNationalities
+?: throw IllegalStateException ( "\"Puzzle solution not available for nationalities.\"" )
+val zebraOwnerHouse = findHouse ( Pet . ZEBRA , currentSolutionPets )
+if ( zebraOwnerHouse == - 1 ) {
+throw IllegalStateException ( "\"Zebra not found in the solution's pet assignments.\"" )
+}
+return currentSolutionNationalities [ zebraOwnerHouse ]. name . toLowerCase (). capitalize ()
+}
+}

@@ -1,0 +1,87 @@
+import Note.Type.FLAT
+import Note.Type.SHARP
+class Scale ( private val tonic : String ) {
+private val firstNote by lazy { Note . from ( tonic ) }
+fun chromatic (): List < String > {
+val allNotes = Note . values ()
+val result = mutableListOf < String >()
+var lastNote : Note ? = null
+for ( noteIndex in allNotes . indices ) {
+val currentNoteIndex = ( firstNote . ordinal + noteIndex ) % allNotes . size
+val currentNote = allNotes [ currentNoteIndex ]
+if ( lastNote ?. isEquivalentTo ( currentNote ) != true ) {
+result . add ( currentNote . toString ())
+}
+lastNote = currentNote
+}
+return result
+}
+fun interval ( intervals : String ): List < String > {
+val result = mutableListOf < String >()
+result . add ( firstNote . toString ())
+var currentNote = firstNote
+intervals . dropLast ( 1 ). forEach { currentChar ->
+currentNote = when ( currentChar ) {
+'m' -> currentNote . nextNote ()
+'M' -> currentNote . nextNote (). nextNote ()
+'A' -> currentNote . nextNote (). nextNote (). nextNote ()
+else -> throw IllegalArgumentException ( "\"Unknown interval: $currentChar\"" )
+}
+result . add ( currentNote . toString ())
+}
+return result
+}
+}
+enum class Note ( private val type : Type ? = null ) {
+A ,
+As ( SHARP ),
+Bb ( FLAT ),
+B ,
+C ,
+Cs ( SHARP ),
+Db ( FLAT ),
+D ,
+Ds ( SHARP ),
+Eb ( FLAT ),
+E ,
+F ,
+Fs ( SHARP ),
+Gb ( FLAT ),
+G ,
+Gs ( SHARP ),
+Ab ( FLAT );
+companion object {
+fun from ( string : String ): Note {
+return values (). firstOrNull { note -> note . toString (). equals ( string , ignoreCase = true ) } ?:
+throw java . lang . IllegalArgumentException ( "\"Cannot find note for: $string\"" )
+}
+}
+val isSharp : Boolean by lazy { type == SHARP }
+val isFlat : Boolean by lazy { type == FLAT }
+fun isEquivalentTo ( otherNote : Note ): Boolean {
+return ( this . ordinal == otherNote . ordinal ) ||
+( this . ordinal + 1 == otherNote . ordinal && this . isSharp && otherNote . isFlat ) ||
+( this . ordinal - 1 == otherNote . ordinal && this . isFlat && otherNote . isSharp )
+}
+fun previousNote (): Note {
+if ( ordinal == 0 ) return values (). last ()
+val note = values ()[ ordinal - 1 ]
+if ( note . isEquivalentTo ( this )) return note . previousNote ()
+return note
+}
+fun nextNote (): Note {
+if ( ordinal == values (). size - 1 ) return values ()[ 0 ]
+val note = values ()[ ordinal + 1 ]
+if ( note . isEquivalentTo ( this )) return note . nextNote ()
+return note
+}
+override fun toString () = type ?. let { name . take ( 1 ) + type . toString () } ?: run { name }
+private enum class Type {
+SHARP ,
+FLAT ;
+override fun toString () = when ( this ) {
+SHARP -> "\"#\""
+FLAT -> "\"b\""
+}
+}
+}

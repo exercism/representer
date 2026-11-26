@@ -1,0 +1,48 @@
+module BST
+    ( BST
+    , bstLeft
+    , bstRight
+    , bstValue
+    , empty
+    , fromList
+    , insert
+    , singleton
+    , toList
+    ) where
+
+import Data.List (foldl')
+
+data BST a = Node (BST a) a (BST a) | Empty
+    deriving (Show, Eq)
+
+bstLeft :: BST a -> Maybe (BST a)
+bstLeft (Node l _ _) = Just l
+bstLeft _ = Nothing
+
+bstRight :: BST a -> Maybe (BST a)
+bstRight (Node _ _ r) = Just r
+bstRight Empty = Nothing
+
+bstValue :: BST a -> Maybe a
+bstValue (Node _ v _) = Just v
+bstValue Empty = Nothing
+
+empty :: BST a
+empty = Empty
+
+fromList :: (Ord a) => [a] -> BST a
+fromList = foldl' (flip insert) Empty
+
+insert :: (Ord a) => a -> BST a -> BST a
+insert x Empty = Node Empty x Empty
+insert x tree@(Node l v r)
+    | x > v = Node l v (insert x r)
+    | x <= v = Node (insert x l) v r
+    | otherwise = tree
+
+singleton :: a -> BST a
+singleton x = Node Empty x Empty
+
+toList :: BST a -> [a]
+toList Empty = []
+toList (Node l v r) = toList l ++ [v] ++ toList r

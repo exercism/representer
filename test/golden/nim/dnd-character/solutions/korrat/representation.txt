@@ -1,0 +1,156 @@
+(source_file
+  (import_statement
+    (expression_list
+      (call
+        (accent_quoted /)
+        (argument_list std math))))
+  (import_statement
+    (expression_list
+      (call
+        (accent_quoted /)
+        (argument_list std random))))
+  (import_statement
+    (expression_list
+      (call
+        (accent_quoted /)
+        (argument_list std sequtils))))
+  (type_section
+    (type_declaration
+      (type_symbol_declaration
+        (exported_symbol Character *)) =
+      (object_declaration object
+        (field_declaration_list
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol strength *))) :
+            (type_expression int))
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol dexterity *))) :
+            (type_expression int))
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol constitution *))) :
+            (type_expression int))
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol intelligence *))) :
+            (type_expression int))
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol wisdom *))) :
+            (type_expression int))
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol charisma *))) :
+            (type_expression int))
+          (field_declaration
+            (symbol_declaration_list
+              (symbol_declaration
+                (exported_symbol hitpoints *))) :
+            (type_expression int))))))
+  (call randomize
+    (argument_list))
+  (proc_declaration
+    (exported_symbol ability *)
+    (parameter_declaration_list) :
+    (type_expression int) =
+    (statement_list
+      (let_section
+        (variable_declaration
+          (symbol_declaration_list
+            (symbol_declaration (local PLACEHOLDER_1))) =
+          (array_construction
+            (call rand
+              (argument_list 5))
+            (call rand
+              (argument_list 5))
+            (call rand
+              (argument_list 5))
+            (call rand
+              (argument_list 5)))))
+      (let_section
+        (variable_declaration
+          (symbol_declaration_list
+            (tuple_deconstruct_declaration
+              (symbol_declaration (local PLACEHOLDER_2))
+              (symbol_declaration _))) =
+          (call minmax
+            (argument_list PLACEHOLDER_1))))
+      (assignment result =
+        (call
+          (accent_quoted +)
+          (argument_list
+            (call
+              (accent_quoted -)
+              (argument_list
+                (call foldl
+                  (argument_list PLACEHOLDER_1
+                    (call
+                      (accent_quoted +)
+                      (argument_list a b)))) PLACEHOLDER_2)) 3)))))
+  (proc_declaration
+    (exported_symbol modifier *)
+    (parameter_declaration_list
+      (parameter_declaration
+        (symbol_declaration_list
+          (symbol_declaration n)) :
+        (type_expression int))) :
+    (type_expression int) =
+    (statement_list
+      (assignment result =
+        (dot_expression
+          (call floor
+            (argument_list
+              (call
+                (accent_quoted /)
+                (argument_list
+                  (call
+                    (accent_quoted -)
+                    (argument_list n 10)) 2)))) . toint))))
+  (proc_declaration
+    (exported_symbol initcharacter *)
+    (parameter_declaration_list) :
+    (type_expression Character) =
+    (statement_list
+      (let_section
+        (variable_declaration
+          (symbol_declaration_list
+            (symbol_declaration constitution)) =
+          (call ability
+            (argument_list))))
+      (let_section
+        (variable_declaration
+          (symbol_declaration_list
+            (symbol_declaration hitpoints)) =
+          (call
+            (accent_quoted +)
+            (argument_list 10
+              (call modifier
+                (argument_list constitution))))))
+      (assignment result =
+        (call Character
+          (argument_list
+            (colon_expression strength :
+              (call ability
+                (argument_list)))
+            (colon_expression dexterity :
+              (call ability
+                (argument_list)))
+            (colon_expression constitution : constitution)
+            (colon_expression intelligence :
+              (call ability
+                (argument_list)))
+            (colon_expression wisdom :
+              (call ability
+                (argument_list)))
+            (colon_expression charisma :
+              (call ability
+                (argument_list)))
+            (colon_expression hitpoints : hitpoints)))))))

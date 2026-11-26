@@ -1,0 +1,110 @@
+#ifndef RATIONAL_NUMBERS_H
+#define RATIONAL_NUMBERS_H
+#include <stdint.h>
+typedef struct rational
+{
+int16_t numerator ;
+int16_t denominator ;
+} rational_t ;
+rational_t reduce ( rational_t r );
+rational_t add ( rational_t r1 , rational_t r2 );
+rational_t subtract ( rational_t r1 , rational_t r2 );
+rational_t multiply ( rational_t r1 , rational_t r2 );
+rational_t divide ( rational_t r1 , rational_t r2 );
+rational_t absolute ( rational_t r );
+rational_t exp_rational ( rational_t r , int16_t exp );
+float exp_real ( float base , rational_t r );
+#endif
+#include "\"rational_numbers.h\""
+#include <assert.h>
+#include <math.h>
+#include <stdlib.h>
+static int16_t pow_int16 ( int16_t base , int16_t exp )
+{
+assert ( exp >= 0 );
+int16_t result = 1 ;
+while ( exp )
+{
+if ( exp % 2 == 1 )
+result *= base ;
+exp /= 2 ;
+base *= base ;
+}
+return result ;
+}
+static int16_t gcd ( int16_t a , int16_t b )
+{
+while ( b != 0 )
+{
+int16_t tmp = b ;
+b = a % b ;
+a = tmp ;
+}
+return a ;
+}
+static rational_t reduce2 ( int16_t numerator , int16_t denominator )
+{
+int16_t gcd_ = gcd ( numerator , denominator );
+numerator /= gcd_ ;
+denominator /= gcd_ ;
+if ( denominator < 0 )
+{
+numerator = - numerator ;
+denominator = - denominator ;
+}
+return ( rational_t ){ numerator , denominator };
+}
+static rational_t inverse ( rational_t r )
+{
+return ( rational_t ){ r . denominator , r . numerator };
+}
+rational_t reduce ( rational_t r )
+{
+return reduce2 ( r . numerator , r . denominator );
+}
+rational_t add ( rational_t r1 , rational_t r2 )
+{
+return reduce2 (
+r1 . numerator * r2 . denominator + r2 . numerator * r1 . denominator ,
+r1 . denominator * r2 . denominator );
+}
+rational_t subtract ( rational_t r1 , rational_t r2 )
+{
+return reduce2 (
+r1 . numerator * r2 . denominator - r2 . numerator * r1 . denominator ,
+r1 . denominator * r2 . denominator );
+}
+rational_t multiply ( rational_t r1 , rational_t r2 )
+{
+return reduce2 (
+r1 . numerator * r2 . numerator ,
+r1 . denominator * r2 . denominator );
+}
+rational_t divide ( rational_t r1 , rational_t r2 )
+{
+return reduce2 (
+r1 . numerator * r2 . denominator ,
+r1 . denominator * r2 . numerator );
+}
+rational_t absolute ( rational_t r )
+{
+return reduce2 (
+abs ( r . numerator ),
+abs ( r . denominator ));
+}
+rational_t exp_rational ( rational_t r , int16_t exp )
+{
+if ( exp < 0 )
+{
+r = inverse ( r );
+exp = - exp ;
+}
+r = reduce ( r );
+return ( rational_t ){
+pow_int16 ( r . numerator , exp ),
+pow_int16 ( r . denominator , exp )};
+}
+float exp_real ( float base , rational_t r )
+{
+return powf ( base , ( float ) r . numerator / r . denominator );
+}

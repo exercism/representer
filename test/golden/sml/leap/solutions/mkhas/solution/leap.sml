@@ -1,6 +1,0 @@
-fun isLeapYear year = let val divByHun = (year mod 100) =0
-val divByFHun = (year mod 400)=0
-val divByFour = (year mod 4)=0 in
-if(divByHun) then
-divByFHun
-else divByFour end;

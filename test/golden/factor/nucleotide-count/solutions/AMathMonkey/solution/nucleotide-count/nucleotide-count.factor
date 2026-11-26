@@ -1,8 +1,0 @@
-USING: kernel assocs math sequences unicode strings ;
-IN: nucleotide-count
-
-ERROR: invalid-nucleotide ;
-
-: nucleotide-counts ( strand -- counts )
-    [ "ACGT" [ 1string 0 ] H{ } map>assoc ] dip
-    [ 1string over [ [ invalid-nucleotide ] unless* 1 + ] change-at ] each ;

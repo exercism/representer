@@ -1,0 +1,11 @@
+variable nmap {
+	G C
+	C G
+	T A
+	A U
+}
+
+proc to-rna {dna} {
+	variable nmap
+	string map $nmap $dna
+}

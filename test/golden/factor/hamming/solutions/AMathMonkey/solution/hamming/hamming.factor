@@ -1,6 +1,0 @@
-USING: kernel sequences sequences.extras ;
-IN: hamming
-
-: distance ( strand1 strand2 -- n )
-    [ [ length ] same? ] [ "strands must be of equal length" throw ] 2unless 
-    [ = not ] 2count ;

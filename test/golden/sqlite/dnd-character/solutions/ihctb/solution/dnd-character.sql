@@ -1,0 +1,17 @@
+UPDATE "dnd-character"
+SET (strength, dexterity, constitution, intelligence, wisdom, charisma) = (
+    ABS(random() % 16) + 3, ABS(random() % 16) + 3, ABS(random() % 16) + 3,
+    ABS(random() % 16) + 3, ABS(random() % 16) + 3, ABS(random() % 16) + 3)
+WHERE input = 'random';
+
+UPDATE "dnd-character"
+SET (strength, dexterity, constitution, intelligence, wisdom, charisma) = (
+    SELECT strength, dexterity, constitution, intelligence, wisdom, charisma 
+    FROM "dnd-character" WHERE input = 'random' LIMIT 1)
+WHERE property = 'character';
+
+UPDATE "dnd-character"
+SET modifier = FLOOR((constitution - 10) / 2.0);
+
+UPDATE "dnd-character"
+SET hitpoints = 10 + modifier;

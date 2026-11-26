@@ -1,0 +1,67 @@
+contains = ( t , item ) ->
+  for elem in * t
+    return true if elem == item
+  false
+distinct = ( t ) ->
+  seen = {}
+  result = {}
+  for elem in * t
+    if not seen [ elem ]
+      seen [ elem ] = true
+      table.insert result , elem
+  result
+map = ( t , fn ) ->
+  result = {}
+  for i , elem in pairs t
+    result [ i ] = fn elem , i
+  result
+treverse = ( t ) ->
+  { i , j } = { 1 , # t }
+  while i < j
+    temp = t [ i ]
+    t [ i ] = t [ j ]
+    t [ j ] = temp
+    i += 1
+    j -= 1
+clone = ( t ) -> { table.unpack t }
+sorted = ( t ) ->
+  u = clone t
+  table.sort u
+  u
+intersection = ( t1 , t2 ) ->
+  result = {}
+  for elem in * t1
+    if contains t2 , elem
+      table.insert result , elem
+  result
+{
+  :clone ,
+  :contains ,
+  :distinct ,
+  :intersection ,
+  :map ,
+  :sorted ,
+  :treverse ,
+}
+import distinct , intersection from require 'lib/table'
+tree = ( preorder , inorder ) ->
+  assert # preorder == # inorder , "'traversals must have the same length'"
+  assert # preorder == # distinct ( preorder ), "'traversals must contain unique items'"
+  assert # preorder == # intersection ( preorder , inorder ), "'traversals must have the same elements'"
+  if # preorder == 0 then return {}
+  root = preorder [ 1 ]
+  local idx
+  for i , elem in ipairs inorder
+    if elem == root
+      idx = i
+      break
+  left_in = { table.unpack inorder , 1 , idx - 1 }
+  right_in = { table.unpack inorder , idx + 1 , # inorder }
+  left_pre = { table.unpack preorder , 2 , idx }
+  right_pre = { table.unpack preorder , idx + 1 , # preorder }
+  {
+    v: root ,
+    l: tree left_pre , left_in ,
+    r: tree right_pre , right_in ,
+  }
+{ :tree }

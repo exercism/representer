@@ -1,0 +1,94 @@
+{{ Which resident owns the Zebra ? }}
+zebraPuzzle . ownsZebra : Text
+zebraPuzzle . ownsZebra = at1 cache
+{{ Which resident drinks Water ? }}
+zebraPuzzle . drinksWater : Text
+zebraPuzzle . drinksWater = at2 cache
+zebraPuzzle . cache : ( Text , Text )
+zebraPuzzle . cache =
+  house = do Each . range 1 6
+  valid = Nat . inRange 1 6
+  notIn x xs = NatSet . contains x xs |> not
+  Optional . getOrBug "\"!\"" <| Each . observe do
+    milk = 3
+    norwegian = 1
+    blue = norwegian + 1
+    ds1 = NatSet . empty |> insert milk
+    ns1 = NatSet . empty |> insert norwegian
+    cs1 = NatSet . empty |> insert blue
+    ss0 = NatSet . empty
+    ps0 = NatSet . empty
+    ivory = Each . range 1 5
+    guard ( notIn ivory cs1 )
+    green = ivory + 1
+    guard ( notIn green cs1 )
+    cs3 = cs1 |> insert ivory |> insert green
+    coffee = green
+    guard ( notIn coffee ds1 )
+    ds2 = ds1 |> insert coffee
+    red = ! house
+    guard ( notIn red cs3 )
+    cs4 = cs3 |> insert red
+    englishman = red
+    guard ( notIn englishman ns1 )
+    ns2 = ns1 |> insert englishman
+    yellow = ! house
+    guard ( notIn yellow cs4 )
+    kools = yellow
+    horse = each [ kools - 1 , kools + 1 ]
+    guard ( valid horse )
+    ss1 = ss0 |> insert kools
+    ps1 = ps0 |> insert horse
+    tea = ! house
+    guard ( notIn tea ds2 )
+    ds3 = ds2 |> insert tea
+    ukrainian = tea
+    guard ( notIn ukrainian ns2 )
+    ns3 = ns2 |> insert ukrainian
+    parliaments = ! house
+    guard ( notIn parliaments ss1 )
+    ss2 = ss1 |> insert parliaments
+    japanese = parliaments
+    guard ( notIn japanese ns3 )
+    ns4 = ns2 |> insert japanese
+    fox = ! house
+    guard ( notIn fox ps1 )
+    ps2 = ps1 |> insert fox
+    chesterfields = each [ fox - 1 , fox + 1 ]
+    guard ( valid chesterfields && notIn chesterfields ss2 )
+    ss3 = ss2 |> insert chesterfields
+    orange_juice = ! house
+    guard ( notIn orange_juice ds3 )
+    ds4 = ds3 |> insert orange_juice
+    lucky_strike = orange_juice
+    guard ( notIn lucky_strike ss3 )
+    ss4 = ss3 |> insert lucky_strike
+    snails = ! house
+    guard ( notIn snails ps2 )
+    ps3 = ps2 |> insert snails
+    old_gold = snails
+    guard ( notIn old_gold ss4 )
+    dog = ! house
+    guard ( notIn dog ps3 )
+    ps4 = ps3 |> insert dog
+    spaniard = dog
+    guard ( notIn spaniard ns4 )
+    zebra = ! house
+    guard ( notIn zebra ps4 )
+    water = ! house
+    guard ( notIn water ds4 )
+    ans =
+      List . fill 5 "\"\""
+        |> replace englishman "\"Englishman\""
+        |> replace japanese "\"Japanese\""
+        |> replace norwegian "\"Norwegian\""
+        |> replace spaniard "\"Spaniard\""
+        |> replace ukrainian "\"Ukrainian\""
+    Abort . toBug do ( at ! zebra ans , at ! water ans )
+{{ # hr6lajvej }}
+Each . observe : ' { g , Each } a -> { g } Optional a
+Each . observe c =
+  h = cases
+    { emit a -> _ } -> Some a
+    { _ } -> None
+  handle ! ( Each . toStream c ) with h

@@ -1,0 +1,19 @@
+object Darts {
+
+    fun score(xI: Number, yI: Number): Int {
+
+        val x = xI.toDouble()
+        val y = yI.toDouble()
+
+        var dist:Double = kotlin.math.sqrt((x*x) + (y*y))
+
+        when{
+            dist <= 1 -> return 10
+            dist <= 5 -> return 5
+            dist <= 10 -> return 1
+            else -> return 0
+
+        }
+    }
+
+}

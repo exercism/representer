@@ -1,0 +1,17 @@
+Class {
+	#name : #Raindrops,
+	#superclass : #Object,
+	#category : #'Exercise@Raindrops'
+}
+
+{ #category : #'as yet unclassified' }
+Raindrops >> convertNumber: number [
+	| output |
+	output := '' .
+	(number % 3 = 0) ifTrue: [ output := output , 'Pling' ] .
+	(number % 5 = 0) ifTrue: [ output := output , 'Plang' ] .
+	(number % 7 = 0) ifTrue: [ output := output , 'Plong' ] .
+	output = '' ifTrue: [ ^ number asString ] .
+	^ output
+	
+]

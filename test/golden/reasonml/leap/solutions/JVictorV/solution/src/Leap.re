@@ -1,9 +1,0 @@
-let isDivisibleBy = (divisor, n) => n mod divisor == 0;
-
-let isLeapYear = year =>
-  switch (year) {
-  | n when isDivisibleBy(400, n) => true
-  | n when isDivisibleBy(100, n) => false
-  | n when isDivisibleBy(4, n) => true
-  | _ => false
-  };

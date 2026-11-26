@@ -1,0 +1,44 @@
+namespace eval say {
+namespace export say
+variable DIGITS {
+zero one two three four five
+six seven eight nine
+} TEENS {
+ten eleven twelve thirteen fourteen fifteen
+sixteen seventeen eighteen nineteen
+} TENS {
+_ _ twenty thirty forty fifty
+sixty seventy eighty ninety
+}
+# Note: this functions returns 2 levels
+# It is used to implement early returns
+proc sayBranch { lim denom name n { sep "\" \"" }} {
+variable TENS
+if { $n >= $lim } { return }
+set head [ expr { $n / $denom }]
+set tail [ expr { $n % $denom }]
+if { $name eq "\"tens\"" } {
+set str "\"" [ lindex $TENS $head ] "\""
+} else {
+set str "\"" [ say $head ] " " $name "\""
+}
+if { $tail != 0 } { append str "\"" $sep [ say $tail ] "\"" }
+return -level 2 $str
+}
+proc say { n } {
+variable DIGITS
+variable TEENS
+if { $n < 0 } {
+return -code error "\"input out of range\""
+}
+if { $n < 10 } { return [ lindex $DIGITS $n ]}
+if { $n < 20 } { return [ lindex $TEENS $n-10 ]}
+sayBranch 100 10 tens $n "\"-\""
+sayBranch 1000 100 hundred $n
+sayBranch 1000000 1000 thousand $n
+sayBranch 1000000000 1000000 million $n
+sayBranch 1000000000000 1000000000 billion $n
+return -code error "\"input out of range\""
+}
+}
+interp alias {} say {} ::say::say

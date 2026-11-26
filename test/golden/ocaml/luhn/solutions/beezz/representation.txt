@@ -1,0 +1,26 @@
+open Base
+let valid ( s : string ) : bool =
+let digits =
+String . fold_result s ~ init : [] ~ f : ( fun init c ->
+match c with
+| ' ' -> Ok init
+| c -> (
+let digit = Char . get_digit c in
+match digit with
+| Some d -> Ok ( d :: init )
+| None -> Error "\"non digit\"" ) )
+in
+match digits with
+| Ok l ->
+if List . length l < 2 then false
+else
+let sum , _ =
+List . fold l ~ init : ( 0 , 1 ) ~ f : ( fun ( acc , index ) digit ->
+if index % 2 = 0 then
+let ds = 2 * digit in
+if ds > 9 then ( ds - 9 + acc , Int . succ index )
+else ( ds + acc , Int . succ index )
+else ( digit + acc , Int . succ index ) )
+in
+sum % 10 = 0
+| Error _ -> false

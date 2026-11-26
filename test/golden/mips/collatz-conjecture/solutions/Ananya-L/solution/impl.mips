@@ -1,0 +1,39 @@
+# | Register | Usage     | Type    | Description                                       |
+# | -------- | --------- | ------- | ------------------------------------------------- |
+# | `$a0`    | input     | integer | starting number                                   |
+# | `$v0`    | output    | integer | expected number of steps, -1 if number is invalid |
+# | `$t0-9`  | temporary | any     | used for temporary storage                        |
+
+.globl  steps
+
+steps:
+        blez $a0, return_invalid  # If $a0 <= 0, return -1
+        li $t0, 0 # steps are stored in $t0
+        li $t1, 1  # stores 1
+        move $t2, $a0 # the number 
+        loop:
+        beq $t2, $t1, exit
+        andi $t3, $t2, 1
+        beqz $t3, even
+        j odd
+
+        even:
+        srl $t2, $t2, 1
+        addi $t0, $t0, 1
+        j loop
+
+        odd:
+        li $t4, 3
+        mul $t2, $t2, $t4
+        addi $t2, $t2, 1
+        addi $t0, $t0, 1
+        j loop
+        
+
+        exit:
+        move $v0, $t0
+        jr      $ra
+        
+        return_invalid:
+        li $v0, -1
+        jr $ra

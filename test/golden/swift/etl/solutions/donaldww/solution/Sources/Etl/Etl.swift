@@ -1,0 +1,8 @@
+class ETL {
+  static func transform(_ old: [String: [String]]) -> [String: Int?] {
+    let result = old.flatMap { kv in
+      kv.value.map { ($0.lowercased(), Int(kv.key)) }
+    }
+    return Dictionary(uniqueKeysWithValues: result)
+  }
+}

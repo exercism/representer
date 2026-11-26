@@ -1,0 +1,12 @@
+(import (rnrs))
+
+(define (binary-search vector target)
+  (define (find-target-index start end)
+    (let* ((middle-index (floor (/ (+ start end) 2))))
+      (cond ((>= start end) 'not-found)
+            ((= target (vector-ref vector middle-index))
+             middle-index)
+            ((< target (vector-ref vector middle-index))
+             (find-target-index start middle-index))
+            (else (find-target-index (+ middle-index 1) end)))))
+  (find-target-index 0 (vector-length vector)))

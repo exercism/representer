@@ -1,0 +1,136 @@
+(compilation_unit
+  (class_declaration
+    (modifier public) RemoteControlCar
+    (declaration_list
+      (field_declaration
+        (modifier private)
+        (variable_declaration int
+          (variable_declarator PLACEHOLDER_1 = 100)))
+      (field_declaration
+        (modifier private)
+        (variable_declaration int
+          (variable_declarator PLACEHOLDER_2 = 0)))
+      (field_declaration
+        (modifier private)
+        (variable_declaration
+          (array_type string
+            (array_rank_specifier))
+          (variable_declarator PLACEHOLDER_3 =
+            (array_creation_expression
+              (array_type string
+                (array_rank_specifier 0))))))
+      (field_declaration
+        (modifier private)
+        (variable_declaration int
+          (variable_declarator PLACEHOLDER_4 = 0)))
+      (method_declaration
+        (modifier public) void Drive
+        (parameter_list)
+        (block
+          (if_statement
+            (binary_expression PLACEHOLDER_1 > 0)
+            (block
+              (expression_statement
+                (assignment_expression PLACEHOLDER_1 -= 10))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_2 += 2))))))
+      (method_declaration
+        (modifier public) void SetSponsors
+        (parameter_list params
+          (array_type string
+            (array_rank_specifier)) sponsors)
+        (block
+          (expression_statement
+            (assignment_expression PLACEHOLDER_3 = sponsors))))
+      (method_declaration
+        (modifier public) string DisplaySponsor
+        (parameter_list
+          (parameter int sponsorNum))
+        (block
+          (return_statement
+            (element_access_expression PLACEHOLDER_3
+              (bracketed_argument_list
+                (argument sponsorNum))))))
+      (method_declaration
+        (modifier public) bool GetTelemetryData
+        (parameter_list
+          (parameter ref int serialNum)
+          (parameter out int batteryPercentage)
+          (parameter out int distanceDrivenInMeters))
+        (block
+          (if_statement
+            (binary_expression serialNum < PLACEHOLDER_4)
+            (block
+              (expression_statement
+                (assignment_expression serialNum = PLACEHOLDER_4))
+              (expression_statement
+                (assignment_expression batteryPercentage =
+                  (prefix_unary_expression - 1)))
+              (expression_statement
+                (assignment_expression distanceDrivenInMeters =
+                  (prefix_unary_expression - 1)))
+              (return_statement
+                (boolean_literal false))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 = serialNum))
+          (expression_statement
+            (assignment_expression batteryPercentage = PLACEHOLDER_1))
+          (expression_statement
+            (assignment_expression distanceDrivenInMeters = PLACEHOLDER_2))
+          (return_statement
+            (boolean_literal true))))
+      (method_declaration
+        (modifier public)
+        (modifier static) RemoteControlCar Buy
+        (parameter_list)
+        (block
+          (return_statement
+            (object_creation_expression RemoteControlCar
+              (argument_list)))))))
+  (class_declaration
+    (modifier public) TelemetryClient
+    (declaration_list
+      (field_declaration
+        (modifier private)
+        (variable_declaration RemoteControlCar
+          (variable_declarator car)))
+      (constructor_declaration
+        (modifier public) TelemetryClient
+        (parameter_list
+          (parameter RemoteControlCar car))
+        (block
+          (expression_statement
+            (assignment_expression
+              (member_access_expression this car) = car))))
+      (method_declaration
+        (modifier public) string GetBatteryUsagePerMeter
+        (parameter_list
+          (parameter int serialNum))
+        (block
+          (local_declaration_statement
+            (variable_declaration int
+              (variable_declarator batteryPercentage)))
+          (local_declaration_statement
+            (variable_declaration int
+              (variable_declarator distanceDrivenInMeters)))
+          (local_declaration_statement
+            (variable_declaration
+              (implicit_type)
+              (variable_declarator PLACEHOLDER_5 =
+                (invocation_expression
+                  (member_access_expression car GetTelemetryData)
+                  (argument_list
+                    (argument ref serialNum)
+                    (argument out batteryPercentage)
+                    (argument out distanceDrivenInMeters))))))
+          (if_statement
+            (binary_expression
+              (prefix_unary_expression ! PLACEHOLDER_5) ||
+              (binary_expression distanceDrivenInMeters == 0))
+            (block
+              (return_statement "no data")))
+          (return_statement
+            (interpolated_string_expression $ usage-per-meter=
+              (interpolation {
+                (binary_expression
+                  (binary_expression 100 - batteryPercentage) / distanceDrivenInMeters) }))))))))

@@ -1,0 +1,183 @@
+(source_file
+  (unit_declaration unit class AffineCipher)
+  (constant_declaration constant @alphabet =
+    (binary_expression "a" .. "z"))
+  (constant_declaration constant (scalar PLACEHOLDER_1) =
+    (method_call @alphabet . elems))
+  (variable_declaration
+    (scope has) $.a)
+  (variable_declaration
+    (scope has) $.b)
+  (routine_declaration submethod TWEAK
+    (signature "(" ")")
+    (block {
+      (unless_statement unless
+        (binary_expression
+          (call_expression gcd
+            (argument_list "("
+              (list_expression $!a , (scalar PLACEHOLDER_1)) ")")) == 1)
+        (block {
+          (listop_call die "Error: 'a' and 'm' must be coprime") })) }))
+  (routine_declaration method encode
+    (signature "("
+      (parameter_list
+        (parameter (local_scalar PLACEHOLDER_2))) ")")
+    (block {
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_3)) =
+        (method_call
+          (method_call
+            (method_call (scalar PLACEHOLDER_2) . lc) . comb
+            (argument_list "("
+              (regex "/\\w/") ")")) . join))
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_4)) = "")
+      (for_statement for
+        (method_call (scalar PLACEHOLDER_3) . comb)
+        (pointy_block ->
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_5)))
+          (block {
+            (if_statement if
+              (binary_expression (scalar PLACEHOLDER_5) ~~
+                (regex "/\\d/"))
+              (block {
+                (assignment (scalar PLACEHOLDER_4) (scalar PLACEHOLDER_5)) next }))
+            (assignment
+              (variable_declaration
+                (scope my) (local_scalar PLACEHOLDER_6)) =
+              (method_call @alphabet . first
+                (argument_list "("
+                  (list_expression (scalar PLACEHOLDER_5) ,
+                    (colonpair :k)) ")")))
+            (assignment
+              (variable_declaration
+                (scope my) (local_scalar PLACEHOLDER_7)) =
+              (binary_expression
+                (binary_expression
+                  (binary_expression $!a * (scalar PLACEHOLDER_6)) + $!b) % (scalar PLACEHOLDER_1)))
+            (assignment (scalar PLACEHOLDER_4)
+              (subscript @alphabet [ (scalar PLACEHOLDER_7) ])) })))
+      (assignment
+        (variable_declaration
+          (scope my) (local_array PLACEHOLDER_8)) =
+        (method_call (scalar PLACEHOLDER_4) . comb
+          (argument_list "(" 5 ")")))
+      (listop_call return
+        (method_call (array PLACEHOLDER_8) . join
+          (argument_list "(" " " ")"))) }))
+  (routine_declaration method decode
+    (signature "("
+      (parameter_list
+        (parameter (local_scalar PLACEHOLDER_2))) ")")
+    (block {
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_3)) =
+        (method_call
+          (method_call
+            (method_call (scalar PLACEHOLDER_2) . lc) . comb
+            (argument_list "("
+              (regex "/\\w/") ")")) . join))
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_9)) =
+        (call_expression PLACEHOLDER_10
+          (argument_list "("
+            (list_expression $!a , (scalar PLACEHOLDER_1)) ")")))
+      (assignment
+        (variable_declaration
+          (scope my) (local_scalar PLACEHOLDER_11)) = "")
+      (for_statement for
+        (method_call (scalar PLACEHOLDER_3) . comb)
+        (pointy_block ->
+          (parameter_list
+            (parameter (local_scalar PLACEHOLDER_5)))
+          (block {
+            (if_statement if
+              (binary_expression (scalar PLACEHOLDER_5) ~~
+                (regex "/\\d/"))
+              (block {
+                (assignment (scalar PLACEHOLDER_11) (scalar PLACEHOLDER_5)) next }))
+            (assignment
+              (variable_declaration
+                (scope my) (local_scalar PLACEHOLDER_6)) =
+              (method_call @alphabet . first
+                (argument_list "("
+                  (list_expression (scalar PLACEHOLDER_5) ,
+                    (colonpair :k)) ")")))
+            (assignment
+              (variable_declaration
+                (scope my) (local_scalar PLACEHOLDER_12)) =
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (binary_expression (scalar PLACEHOLDER_9) *
+                      (binary_expression (scalar PLACEHOLDER_6) -
+                        (binary_expression $!b % (scalar PLACEHOLDER_1)))) % (scalar PLACEHOLDER_1)) + (scalar PLACEHOLDER_1)) % (scalar PLACEHOLDER_1)))
+            (assignment (scalar PLACEHOLDER_11)
+              (subscript @alphabet [ (scalar PLACEHOLDER_12) ])) })))
+      (listop_call return (scalar PLACEHOLDER_11)) }))
+  (routine_declaration sub gcd
+    (signature "("
+      (parameter_list
+        (parameter (local_scalar PLACEHOLDER_13)) ,
+        (parameter (local_scalar PLACEHOLDER_14))) ")")
+    (block {
+      (assignment
+        (variable_declaration
+          (scope my) "(" (local_scalar PLACEHOLDER_15) , (local_scalar PLACEHOLDER_16) ")") =
+        (list_expression (scalar PLACEHOLDER_13) , (scalar PLACEHOLDER_14)))
+      (while_statement while (scalar PLACEHOLDER_16)
+        (block {
+          (assignment
+            (list_expression (scalar PLACEHOLDER_15) , (scalar PLACEHOLDER_16)) =
+            (list_expression (scalar PLACEHOLDER_16) ,
+              (binary_expression (scalar PLACEHOLDER_15) % (scalar PLACEHOLDER_16)))) }))
+      (listop_call return (scalar PLACEHOLDER_15)) }))
+  (routine_declaration sub (definition PLACEHOLDER_10)
+    (signature "("
+      (parameter_list
+        (parameter (local_scalar PLACEHOLDER_13)) ,
+        (parameter (local_scalar PLACEHOLDER_1))) ")")
+    (block {
+      (assignment
+        (variable_declaration
+          (scope my) "(" (local_scalar PLACEHOLDER_17) , (local_scalar PLACEHOLDER_18) , (local_scalar PLACEHOLDER_19) ")") =
+        (list_expression 1 , 0 , (scalar PLACEHOLDER_13)))
+      (assignment
+        (variable_declaration
+          (scope my) "(" (local_scalar PLACEHOLDER_20) , (local_scalar PLACEHOLDER_21) , (local_scalar PLACEHOLDER_22) ")") =
+        (list_expression 0 , 1 , (scalar PLACEHOLDER_1)))
+      (while_statement while
+        (binary_expression (scalar PLACEHOLDER_22) != 0)
+        (block {
+          (assignment
+            (variable_declaration
+              (scope my) (local_scalar PLACEHOLDER_23)) =
+            (binary_expression (scalar PLACEHOLDER_19) div (scalar PLACEHOLDER_22)))
+          (assignment
+            (list_expression (scalar PLACEHOLDER_19) , (scalar PLACEHOLDER_22)) =
+            (list_expression (scalar PLACEHOLDER_22) ,
+              (binary_expression (scalar PLACEHOLDER_19) -
+                (binary_expression (scalar PLACEHOLDER_23) * (scalar PLACEHOLDER_22)))))
+          (assignment
+            (list_expression (scalar PLACEHOLDER_17) , (scalar PLACEHOLDER_20)) =
+            (list_expression (scalar PLACEHOLDER_20) ,
+              (binary_expression (scalar PLACEHOLDER_17) -
+                (binary_expression (scalar PLACEHOLDER_23) * (scalar PLACEHOLDER_20)))))
+          (assignment
+            (list_expression (scalar PLACEHOLDER_18) , (scalar PLACEHOLDER_21)) =
+            (list_expression (scalar PLACEHOLDER_21) ,
+              (binary_expression (scalar PLACEHOLDER_18) -
+                (binary_expression (scalar PLACEHOLDER_23) * (scalar PLACEHOLDER_21))))) }))
+      (if_statement if
+        (binary_expression (scalar PLACEHOLDER_19) > 1)
+        (block {
+          (listop_call die "Error: 'a' is not invertible modulo 'm'") }))
+      (listop_call return
+        (binary_expression
+          (binary_expression
+            (binary_expression (scalar PLACEHOLDER_17) % (scalar PLACEHOLDER_1)) + (scalar PLACEHOLDER_1)) % (scalar PLACEHOLDER_1))) })))

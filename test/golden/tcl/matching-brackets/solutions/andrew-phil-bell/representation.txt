@@ -1,0 +1,25 @@
+proc bracketsMatch { input } {
+set stack {}
+set openers [ list "\"\\{\"" "\"(\"" "\"\\[\"" ]
+set closers [ list "\"\\}\"" "\")\"" "\"\\]\"" ]
+foreach c [ split $input "\"\"" ] {
+if { $c in $openers } {
+lappend stack $c
+} elseif { $c in $closers } {
+# can only pull off the same opener
+set cidx [ lsearch -exact $closers $c ]
+set oval [ lindex $openers $cidx ]
+if { $oval eq [ lindex $stack end ] } {
+# pop this off and continue
+set stack [ lrange $stack 0 end-1 ]
+} else {
+# unbalanced, return false
+return false
+}
+}
+}
+if { [ llength $stack ] == 0 } {
+return true
+}
+return false
+}

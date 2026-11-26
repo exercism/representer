@@ -1,0 +1,23 @@
+runLengthEncoding . encode : Text -> Text
+runLengthEncoding . encode =
+  toText : List . Nonempty Char -> Text
+  toText l =
+    use List . Nonempty size head
+    c = head l |> Char . toText
+    match size l with
+      1 -> c
+      n -> Nat . toText n ++ c
+  toCharList
+    >> groupConsecutive
+    >> foldMap toText ( ++ ) "\"\""
+runLengthEncoding . decode : Text -> Text
+runLengthEncoding . decode input =
+  if Text . isEmpty input then "\"\""
+  else
+    match break ( not << isDigit ) input with
+      ( "\"\"" , _ ) ->
+        ( cs , rest ) = break isDigit input
+        cs ++ decode rest
+      ( k , input' ) ->
+        n = Nat . fromText k |> getOrBug ( k ++ "\" must be [0-9]+\"" )
+        repeat n ( take 1 input' ) ++ decode ( drop 1 input' )
