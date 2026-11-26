@@ -1,45 +1,100 @@
-(file "src/lib.cairo")
-/// Types of pastries available in the bakery
-#[derive(Drop, PartialEq)]
-pub enum Pastry {
-Croissant,
-Muffin,
-Cookie,
-}
-/// Calculate the total cost of an order
-pub fn calculate_total(pastry: Pastry, quantity: u32) -> u32 {
-let price = match pastry {
-Pastry::Croissant => 3,
-Pastry::Muffin => 2,
-Pastry::Cookie => 1,
-};
-price * quantity
-}
-/// Apply discount based on order size
-pub fn apply_discount(total: u32) -> u32 {
-if total >= 20 {
-total * 90 / 100
-} else if total >= 10 {
-total * 95 / 100
-} else {
-total
-}
-}
-/// Generate the daily baking schedule
-pub fn baking_schedule(total_orders: u32) -> Array<u32> {
-let mut schedule = ArrayTrait::new();
-let mut remaining = total_orders;
-loop {
-if remaining == 0 {
-break;
-}
-if remaining >= 5 {
-schedule.append(5);
-remaining -= 5;
-} else {
-schedule.append(remaining);
-break;
-}
-};
-schedule
-}
+(file "src/lib.cairo"
+  (source_file
+    (attribute_item #
+      (attribute derive
+        (token_tree Drop PartialEq)))
+    (enum_item
+      (visibility_modifier) Pastry
+      (enum_variant_list
+        (enum_variant Croissant)
+        (enum_variant Muffin)
+        (enum_variant Cookie)))
+    (function_item
+      (visibility_modifier)
+      (function calculate_total
+        (parameters
+          (parameter PLACEHOLDER_1 : Pastry)
+          (parameter PLACEHOLDER_2 :
+            (type_identifier u32))) ->
+        (type_identifier u32))
+      (block
+        (let_declaration PLACEHOLDER_3 =
+          (match_expression PLACEHOLDER_1
+            (match_block
+              (match_arm
+                (match_arm_content
+                  (match_pattern
+                    (scoped_identifier Pastry :: Croissant)) => 3))
+              (match_arm
+                (match_arm_content
+                  (match_pattern
+                    (scoped_identifier Pastry :: Muffin)) => 2))
+              (match_arm
+                (match_arm_content
+                  (match_pattern
+                    (scoped_identifier Pastry :: Cookie)) => 1)))))
+        (binary_expression PLACEHOLDER_3 * PLACEHOLDER_2)))
+    (function_item
+      (visibility_modifier)
+      (function apply_discount
+        (parameters
+          (parameter PLACEHOLDER_4 :
+            (type_identifier u32))) ->
+        (type_identifier u32))
+      (block
+        (expression_statement
+          (if_expression
+            (binary_expression PLACEHOLDER_4 >= 20)
+            (block
+              (binary_expression
+                (binary_expression PLACEHOLDER_4 * 90) / 100))
+            (else_clause
+              (if_expression
+                (binary_expression PLACEHOLDER_4 >= 10)
+                (block
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_4 * 95) / 100))
+                (else_clause
+                  (block PLACEHOLDER_4))))))))
+    (function_item
+      (visibility_modifier)
+      (function baking_schedule
+        (parameters
+          (parameter PLACEHOLDER_5 :
+            (type_identifier u32))) ->
+        (generic_type Array
+          (type_arguments <
+            (type_identifier u32) >)))
+      (block
+        (let_declaration mut PLACEHOLDER_6 =
+          (call_expression
+            (scoped_identifier ArrayTrait :: new)
+            (arguments)))
+        (let_declaration mut PLACEHOLDER_7 = PLACEHOLDER_5)
+        (expression_statement
+          (loop_expression
+            (block
+              (expression_statement
+                (if_expression
+                  (binary_expression PLACEHOLDER_7 == 0)
+                  (block
+                    (expression_statement
+                      (break_expression)))))
+              (expression_statement
+                (if_expression
+                  (binary_expression PLACEHOLDER_7 >= 5)
+                  (block
+                    (expression_statement
+                      (call_expression
+                        (field_expression PLACEHOLDER_6 . append)
+                        (arguments 5)))
+                    (expression_statement
+                      (compound_assignment_expr PLACEHOLDER_7 -= 5)))
+                  (else_clause
+                    (block
+                      (expression_statement
+                        (call_expression
+                          (field_expression PLACEHOLDER_6 . append)
+                          (arguments PLACEHOLDER_7)))
+                      (expression_statement
+                        (break_expression))))))))) PLACEHOLDER_6))))

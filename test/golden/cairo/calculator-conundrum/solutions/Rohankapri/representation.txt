@@ -1,21 +1,72 @@
-(file "src/lib.cairo")
-#[generate_trait]
-pub impl SimpleCalculatorImpl of SimpleCalculatorTrait {
-fn calculate(a: i32, b: i32, operation: ByteArray) -> Result<ByteArray, ByteArray> {
-if operation.len() == 0 {
-panic!("Operation cannot be an empty string");
-}
-if operation == "\"+\"" {
-Result::Ok(format!("{a} + {b} = {}", a + b))
-} else if operation == "\"*\"" {
-Result::Ok(format!("{a} * {b} = {}", a * b))
-} else if operation == "\"/\"" {
-if b == 0 {
-panic(array!['Division by zero is not allowed']);
-}
-Result::Ok(format!("{a} / {b} = {}", a / b))
-} else {
-Result::Err("Operation is out of range")
-}
-}
-}
+(file "src/lib.cairo"
+  (source_file
+    (attribute_item #
+      (attribute generate_trait))
+    (impl_item
+      (visibility_modifier) PLACEHOLDER_1 of SimpleCalculatorTrait
+      (declaration_list
+        (function_item
+          (function calculate
+            (parameters
+              (parameter PLACEHOLDER_2 :
+                (type_identifier i32))
+              (parameter PLACEHOLDER_3 :
+                (type_identifier i32))
+              (parameter PLACEHOLDER_4 :
+                (type_identifier ByteArray))) ->
+            (generic_type Result
+              (type_arguments <
+                (type_identifier ByteArray)
+                (type_identifier ByteArray) >)))
+          (block
+            (expression_statement
+              (if_expression
+                (binary_expression
+                  (call_expression
+                    (field_expression PLACEHOLDER_4 . len)
+                    (arguments)) == 0)
+                (block
+                  (expression_statement
+                    (macro_invocation panic !
+                      (token_tree "\"Operation cannot be an empty string\""))))))
+            (expression_statement
+              (if_expression
+                (binary_expression PLACEHOLDER_4 == "\"+\"")
+                (block
+                  (call_expression
+                    (scoped_identifier Result :: Ok)
+                    (arguments
+                      (macro_invocation format !
+                        (token_tree "\"{a} + {b} = {}\"" PLACEHOLDER_2 + PLACEHOLDER_3)))))
+                (else_clause
+                  (if_expression
+                    (binary_expression PLACEHOLDER_4 == "\"*\"")
+                    (block
+                      (call_expression
+                        (scoped_identifier Result :: Ok)
+                        (arguments
+                          (macro_invocation format !
+                            (token_tree "\"{a} * {b} = {}\"" PLACEHOLDER_2 * PLACEHOLDER_3)))))
+                    (else_clause
+                      (if_expression
+                        (binary_expression PLACEHOLDER_4 == "\"/\"")
+                        (block
+                          (expression_statement
+                            (if_expression
+                              (binary_expression PLACEHOLDER_3 == 0)
+                              (block
+                                (expression_statement
+                                  (call_expression panic
+                                    (arguments
+                                      (macro_invocation array !
+                                        (token_tree "'Division by zero is not allowed'"))))))))
+                          (call_expression
+                            (scoped_identifier Result :: Ok)
+                            (arguments
+                              (macro_invocation format !
+                                (token_tree "\"{a} / {b} = {}\"" PLACEHOLDER_2 / PLACEHOLDER_3)))))
+                        (else_clause
+                          (block
+                            (call_expression
+                              (scoped_identifier Result :: Err)
+                              (arguments "\"Operation is out of range\""))))))))))))))))

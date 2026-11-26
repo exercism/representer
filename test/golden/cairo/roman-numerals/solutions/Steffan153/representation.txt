@@ -1,37 +1,122 @@
-(file "src/lib.cairo")
-use core::fmt::{Display, Error, Formatter};
-#[derive(Drop)]
-pub struct Roman {
-num: u32,
-}
-impl U32IntoRoman of Into<u32, Roman> {
-#[must_use]
-fn into(self: u32) -> Roman {
-Roman { num: self }
-}
-}
-impl RomanDisplay of Display<Roman> {
-fn fmt(self: @Roman, ref f: Formatter) -> Result<(), Error> {
-let mut r = *self.num;
-let mut idx = 0;
-let mut res: ByteArray = "\"\";"
-while r > 0 {
-let romans =
-match idx {
-0 => array!['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'],
-1 => array!['', 'X', 'XX', 'XXX', 'XL', 'L', 'LX', 'LXX', 'LXXX', 'XC'],
-2 => array!['', 'C', 'CC', 'CCC', 'CD', 'D', 'DC', 'DCC', 'DCCC', 'CM'],
-_ => array!['', 'M', 'MM', 'MMM', '--', '-', '--', '---', '----', '--'],
-};
-let mut roman: u64 = (*romans[r % 10]).try_into().unwrap();
-while roman > 0 {
-res.append_byte((roman % 256).try_into().unwrap());
-roman /= 256;
-};
-idx += 1;
-r /= 10;
-};
-f.buffer.append(@res.rev());
-Result::Ok(())
-}
-}
+(file "src/lib.cairo"
+  (source_file
+    (use_declaration
+      (scoped_use_list
+        (scoped_identifier core :: fmt) ::
+        (use_list Display Error Formatter)))
+    (attribute_item #
+      (attribute derive
+        (token_tree Drop)))
+    (struct_item
+      (visibility_modifier) Roman
+      (field_declaration_list
+        (field_declaration (field_identifier PLACEHOLDER_1) :
+          (type_identifier u32))))
+    (impl_item PLACEHOLDER_2 of
+      (generic_type Into
+        (type_arguments <
+          (type_identifier u32) Roman >))
+      (declaration_list
+        (attribute_item #
+          (attribute must_use))
+        (function_item
+          (function into
+            (parameters
+              (parameter self :
+                (type_identifier u32))) -> Roman)
+          (block
+            (struct_expression Roman
+              (field_initializer_list
+                (field_initializer (field_identifier PLACEHOLDER_1) : self)))))))
+    (impl_item PLACEHOLDER_3 of
+      (generic_type Display
+        (type_arguments < Roman >))
+      (declaration_list
+        (function_item
+          (function fmt
+            (parameters
+              (parameter self :
+                (snapshot_type @ Roman))
+              (parameter ref PLACEHOLDER_4 : Formatter)) ->
+            (generic_type Result
+              (type_arguments <
+                (unit_type) Error >)))
+          (block
+            (let_declaration mut PLACEHOLDER_5 =
+              (unary_expression *
+                (field_expression self . (field_identifier PLACEHOLDER_1))))
+            (let_declaration mut PLACEHOLDER_6 = 0)
+            (let_declaration mut PLACEHOLDER_7 :
+              (type_identifier ByteArray) = "\"\"")
+            (expression_statement
+              (while_expression
+                (binary_expression PLACEHOLDER_5 > 0)
+                (block
+                  (let_declaration PLACEHOLDER_8 =
+                    (match_expression PLACEHOLDER_6
+                      (match_block
+                        (match_arm
+                          (match_arm_content
+                            (match_pattern 0) =>
+                            (macro_invocation array !
+                              (token_tree '' 'I' 'II' 'III' 'IV' 'V' 'VI' 'VII' 'VIII' 'IX'))))
+                        (match_arm
+                          (match_arm_content
+                            (match_pattern 1) =>
+                            (macro_invocation array !
+                              (token_tree '' 'X' 'XX' 'XXX' 'XL' 'L' 'LX' 'LXX' 'LXXX' 'XC'))))
+                        (match_arm
+                          (match_arm_content
+                            (match_pattern 2) =>
+                            (macro_invocation array !
+                              (token_tree '' 'C' 'CC' 'CCC' 'CD' 'D' 'DC' 'DCC' 'DCCC' 'CM'))))
+                        (match_arm
+                          (match_arm_content
+                            (match_pattern _) =>
+                            (macro_invocation array !
+                              (token_tree '' 'M' 'MM' 'MMM' '--' '-' '--' '---' '----' '--')))))))
+                  (let_declaration mut PLACEHOLDER_9 :
+                    (type_identifier u64) =
+                    (call_expression
+                      (field_expression
+                        (call_expression
+                          (field_expression
+                            (unary_expression *
+                              (index_expression PLACEHOLDER_8
+                                (binary_expression PLACEHOLDER_5 % 10))) . try_into)
+                          (arguments)) . unwrap)
+                      (arguments)))
+                  (expression_statement
+                    (while_expression
+                      (binary_expression PLACEHOLDER_9 > 0)
+                      (block
+                        (expression_statement
+                          (call_expression
+                            (field_expression PLACEHOLDER_7 . append_byte)
+                            (arguments
+                              (call_expression
+                                (field_expression
+                                  (call_expression
+                                    (field_expression
+                                      (binary_expression PLACEHOLDER_9 % 256) . try_into)
+                                    (arguments)) . unwrap)
+                                (arguments)))))
+                        (expression_statement
+                          (compound_assignment_expr PLACEHOLDER_9 /= 256)))))
+                  (expression_statement
+                    (compound_assignment_expr PLACEHOLDER_6 += 1))
+                  (expression_statement
+                    (compound_assignment_expr PLACEHOLDER_5 /= 10)))))
+            (expression_statement
+              (call_expression
+                (field_expression
+                  (field_expression PLACEHOLDER_4 . buffer) . append)
+                (arguments
+                  (unary_expression @
+                    (call_expression
+                      (field_expression PLACEHOLDER_7 . rev)
+                      (arguments))))))
+            (call_expression
+              (scoped_identifier Result :: Ok)
+              (arguments
+                (unit_expression)))))))))

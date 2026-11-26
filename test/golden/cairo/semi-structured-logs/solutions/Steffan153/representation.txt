@@ -1,29 +1,79 @@
-(file "src/lib.cairo")
-/// various log levels
-#[derive(Drop)]
-pub enum LogLevel {
-Info,
-Warning,
-Error,
-Debug
-}
-/// primary function for emitting logs
-pub fn log(level: LogLevel, message: ByteArray) -> ByteArray {
-let mut s: ByteArray = match level {
-LogLevel::Error => "\"[ERROR]:" "\","
-LogLevel::Info => "\"[INFO]:" "\","
-LogLevel::Warning => "\"[WARNING]:" "\","
-LogLevel::Debug => "\"[DEBUG]:" "\","
-};
-s.append(@message);
-s
-}
-pub fn info(message: ByteArray) -> ByteArray {
-log(LogLevel::Info, message)
-}
-pub fn warn(message: ByteArray) -> ByteArray {
-log(LogLevel::Warning, message)
-}
-pub fn error(message: ByteArray) -> ByteArray {
-log(LogLevel::Error, message)
-}
+(file "src/lib.cairo"
+  (source_file
+    (attribute_item #
+      (attribute derive
+        (token_tree Drop)))
+    (enum_item
+      (visibility_modifier) LogLevel
+      (enum_variant_list
+        (enum_variant Info)
+        (enum_variant Warning)
+        (enum_variant Error)
+        (enum_variant Debug)))
+    (function_item
+      (visibility_modifier)
+      (function log
+        (parameters
+          (parameter PLACEHOLDER_1 : LogLevel)
+          (parameter PLACEHOLDER_2 :
+            (type_identifier ByteArray))) ->
+        (type_identifier ByteArray))
+      (block
+        (let_declaration mut PLACEHOLDER_3 :
+          (type_identifier ByteArray) =
+          (match_expression PLACEHOLDER_1
+            (match_block
+              (match_arm
+                (match_arm_content
+                  (match_pattern
+                    (scoped_identifier LogLevel :: Error)) => "\"[ERROR]: \""))
+              (match_arm
+                (match_arm_content
+                  (match_pattern
+                    (scoped_identifier LogLevel :: Info)) => "\"[INFO]: \""))
+              (match_arm
+                (match_arm_content
+                  (match_pattern
+                    (scoped_identifier LogLevel :: Warning)) => "\"[WARNING]: \""))
+              (match_arm
+                (match_arm_content
+                  (match_pattern
+                    (scoped_identifier LogLevel :: Debug)) => "\"[DEBUG]: \"")))))
+        (expression_statement
+          (call_expression
+            (field_expression PLACEHOLDER_3 . append)
+            (arguments
+              (unary_expression @ PLACEHOLDER_2)))) PLACEHOLDER_3))
+    (function_item
+      (visibility_modifier)
+      (function info
+        (parameters
+          (parameter PLACEHOLDER_2 :
+            (type_identifier ByteArray))) ->
+        (type_identifier ByteArray))
+      (block
+        (call_expression log
+          (arguments
+            (scoped_identifier LogLevel :: Info) PLACEHOLDER_2))))
+    (function_item
+      (visibility_modifier)
+      (function warn
+        (parameters
+          (parameter PLACEHOLDER_2 :
+            (type_identifier ByteArray))) ->
+        (type_identifier ByteArray))
+      (block
+        (call_expression log
+          (arguments
+            (scoped_identifier LogLevel :: Warning) PLACEHOLDER_2))))
+    (function_item
+      (visibility_modifier)
+      (function error
+        (parameters
+          (parameter PLACEHOLDER_2 :
+            (type_identifier ByteArray))) ->
+        (type_identifier ByteArray))
+      (block
+        (call_expression log
+          (arguments
+            (scoped_identifier LogLevel :: Error) PLACEHOLDER_2))))))

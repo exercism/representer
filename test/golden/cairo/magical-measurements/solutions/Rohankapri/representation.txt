@@ -1,32 +1,70 @@
-(file "src/lib.cairo")
-use core::traits::{Into, TryInto};
-/// Essence - a rare magical ingredient with potency
-#[derive(Drop)]
-pub struct Essence {
-pub potency: u16,
-}
-/// Elixir - a refined magical ingredient with strength
-#[derive(Drop)]
-pub struct Elixir {
-pub strength: u16,
-}
-/// Convert signed integer to unsigned integer (if possible)
-pub fn convert_signed_to_unsigned(value: i32) -> Option<u16> {
-value.try_into()
-}
-/// Convert unsigned integer to signed integer
-pub fn convert_unsigned_to_signed(value: u16) -> i32 {
-value.into()
-}
-/// Convert Essence to Elixir using the Into trait
-pub fn convert_essence_to_elixir(essence: Essence) -> Elixir {
-essence.into()
-}
-/// Implement the Into trait for Essence -> Elixir conversion
-impl EssenceIntoElixir of Into<Essence, Elixir> {
-fn into(self: Essence) -> Elixir {
-Elixir {
-strength: self.potency,
-}
-}
-}
+(file "src/lib.cairo"
+  (source_file
+    (use_declaration
+      (scoped_use_list
+        (scoped_identifier core :: traits) ::
+        (use_list Into TryInto)))
+    (attribute_item #
+      (attribute derive
+        (token_tree Drop)))
+    (struct_item
+      (visibility_modifier) Essence
+      (field_declaration_list
+        (field_declaration
+          (visibility_modifier) potency :
+          (type_identifier u16))))
+    (attribute_item #
+      (attribute derive
+        (token_tree Drop)))
+    (struct_item
+      (visibility_modifier) Elixir
+      (field_declaration_list
+        (field_declaration
+          (visibility_modifier) strength :
+          (type_identifier u16))))
+    (function_item
+      (visibility_modifier)
+      (function convert_signed_to_unsigned
+        (parameters
+          (parameter PLACEHOLDER_1 :
+            (type_identifier i32))) ->
+        (generic_type Option
+          (type_arguments <
+            (type_identifier u16) >)))
+      (block
+        (call_expression
+          (field_expression PLACEHOLDER_1 . try_into)
+          (arguments))))
+    (function_item
+      (visibility_modifier)
+      (function convert_unsigned_to_signed
+        (parameters
+          (parameter PLACEHOLDER_1 :
+            (type_identifier u16))) ->
+        (type_identifier i32))
+      (block
+        (call_expression
+          (field_expression PLACEHOLDER_1 . into)
+          (arguments))))
+    (function_item
+      (visibility_modifier)
+      (function convert_essence_to_elixir
+        (parameters
+          (parameter essence : Essence)) -> Elixir)
+      (block
+        (call_expression
+          (field_expression essence . into)
+          (arguments))))
+    (impl_item PLACEHOLDER_2 of
+      (generic_type Into
+        (type_arguments < Essence Elixir >))
+      (declaration_list
+        (function_item
+          (function into
+            (parameters
+              (parameter self : Essence)) -> Elixir)
+          (block
+            (struct_expression Elixir
+              (field_initializer_list
+                (field_initializer strength :
+                  (field_expression self . potency))))))))))

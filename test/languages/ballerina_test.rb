@@ -1,0 +1,46 @@
+require "test_helper"
+
+# Ballerina has no old representer, so there are no upstream tests to port.
+class BallerinaTest < RepresenterTest
+  track "ballerina"
+
+  def wrap(body) = "function f(int a, int b) returns int {\n#{body}\n}\n"
+
+  def test_comments_are_dropped
+    assert_same_representation "// c\n# doc\nfunction f() { }", "function f() { }"
+  end
+
+  def test_formatting
+    assert_same_representation wrap("return a+b;"), wrap("return   a + b ;")
+    refute_same_representation wrap("return (a + b) * a;"), wrap("return a + b * a;")
+  end
+
+  def test_names_the_solution_defines_are_renamed
+    assert_same_representation wrap("int total = a + b;\nreturn total;"), wrap("int sum = a + b;\nreturn sum;")
+    assert_same_representation "function add(int x) returns int { return x; }\nfunction g() returns int { return add(1); }",
+      "function plus(int y) returns int { return y; }\nfunction g() returns int { return plus(1); }"
+    assert_same_representation "type P record {| int x; |};\nfunction f(P p) { }", "type Q record {| int x; |};\nfunction f(Q q) { }"
+  end
+
+  def test_lambda_parameters_are_renamed
+    assert_same_representation wrap("var g = (m, n) => m + n;\nreturn g(a, b);"), wrap("var h = (p, q) => p + q;\nreturn h(a, b);")
+  end
+
+  def test_record_fields_keep_their_names
+    refute_same_representation "type P record {| int x; |};", "type P record {| int y; |};"
+  end
+
+  def test_main_and_library_calls_are_kept
+    refute_same_representation "public function main() { }", "public function other() { }"
+    refute_same_representation wrap("io:println(a);"), wrap("io:print(a);")
+    refute_same_representation wrap("return a.length();"), wrap("return a.size();")
+  end
+
+  def test_strings_keep_their_text
+    refute_same_representation wrap("string s = \"a\";"), wrap("string s = \"b\";")
+  end
+
+  def test_string_templates_cant_be_represented
+    assert_unrepresentable "function f() { string s = `a`; }"
+  end
+end

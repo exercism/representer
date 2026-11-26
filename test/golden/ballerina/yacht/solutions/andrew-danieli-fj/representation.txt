@@ -1,196 +1,622 @@
-(file "yacht.bal")
-import ballerina/io;
-# Determine the score of a set of dice against a Yacht category.
-#
-# + dice - an array of 5 integers
-# + category - the name of a combination of dice
-# + return - the score
-enum eCategory {
-Ones = "\"Ones\","
-Twos = "\"Twos\","
-Threes = "\"Threes\","
-Fours = "\"Fours\","
-Fives = "\"Fives\","
-Sixes = "\"Sixes\","
-FullHouse = "\"Full" House",
-FourOfaKind = "\"Four" of a Kind",
-LittleStraight = "\"Little" Straight",
-BigStraight = "\"Big" Straight",
-Choice = "\"Choice\","
-Yacht = "\"Yacht\""
-}
-map<eCategory> categoryMap = {
-"\"ones\":" Ones,
-"\"twos\":" Twos,
-"\"threes\":" Threes,
-"\"fours\":" Fours,
-"\"fives\":" Fives,
-"\"sixes\":" Sixes,
-"\"full" house": FullHouse,
-"\"four" of a kind": FourOfaKind,
-"\"little" straight": LittleStraight,
-"\"big" straight": BigStraight,
-"\"choice\":" Choice,
-"\"yacht\":" Yacht
-};
-function scoreSingles(int[] dice, int value) returns int {
-int count = 0;
-foreach int die in dice {
-count += (die == value) ? 1 : 0;
-}
-return (value * count);
-}
-function scoreYacht(int[] dice) returns int {
-foreach int value in 1...6 {
-if ( dice.every(n => n == value) ) {
-return 50;
-}
-}
-return 0;
-}
-function scoreLittleStraight(int[] dice) returns int {
-map<boolean> map_match = {
-"\"1\"" : false,
-"\"2\"" : false,
-"\"3\"" : false,
-"\"4\"" : false,
-"\"5\"" : false
-};
-// loop through all dice and update the map when a match is found.
-foreach int die in dice {
-if (die < 6)
-{
-map_match[die.toString()] = true;
-}
-}
-// then check that all entries in the map are true.
-map<boolean> littleStraight = { "\"1\":" true, "\"2\":" true, "\"3\":" true, "\"4\":" true, "\"5\":" true};
-if (map_match != littleStraight) {
-return 0;
-}
-return 30;
-}
-function scoreBigStraight(int[] dice) returns int {
-map<boolean> map_match = {
-"\"2\"" : false,
-"\"3\"" : false,
-"\"4\"" : false,
-"\"5\"" : false,
-"\"6\"" : false
-};
-// loop through all dice and update the map when a match is found.
-foreach int die in dice {
-if (die > 1)
-{
-map_match[die.toString()] = true;
-}
-}
-// then check that all entries in the map are true.
-map<boolean> bigStraight = { "\"2\":" true, "\"3\":" true, "\"4\":" true, "\"5\":" true, "\"6\":" true};
-if (map_match != bigStraight) {
-return 0;
-}
-return 30;
-}
-function scoreChoice(int[] dice) returns int {
-int count = 0;
-foreach int die in dice {
-count += die;
-}
-return count;
-}
-function scoreFourOfAKind(int[] dice) returns int {
-map<int> map_fourOfAKind = {
-"\"1\":" 0,
-"\"2\":" 0,
-"\"3\":" 0,
-"\"4\":" 0,
-"\"5\":" 0,
-"\"6\":" 0
-};
-// loop through all dice and increment the map[die] value when a match is found.
-foreach int die in dice {
-map_fourOfAKind[die.toString()] = map_fourOfAKind.get(die.toString()) + 1;
-}
-// now loop through the map and return if any of the keys >= 4 (i.e a real four of a kind or a yacht scored
-// as a four of a kind).
-foreach string key in map_fourOfAKind.keys() {
-if (map_fourOfAKind[key] >= 4) {
-int|error y = int:fromString(key);
-if (y is int)
-{
-return (y * 4);
-}
-}
-}
-return 0;
-}
-function scoreFullHouse(int[] dice) returns int {
-map<int> map_match = {
-"\"1\":" 0,
-"\"2\":" 0,
-"\"3\":" 0,
-"\"4\":" 0,
-"\"5\":" 0,
-"\"6\":" 0
-};
-// loop through all dice and increment the map[die] value when a match is found.
-foreach int die in dice {
-map_match[die.toString()] = map_match.get(die.toString()) + 1;
-}
-// now filter the map to return only those results that are 2 or 3
-map<int> map_filtered = map_match.filter(m => m == 2 || m == 3);
-// check that there are 2 candidate die values and that their counts sum to 5. e.g 11666 or 11166
-if (map_filtered.length() == 2 &&
-map_filtered.reduce(isolated function (int total, int next) returns int => total + next, 0) == 5)
-{
-return scoreChoice(dice); // its a full house so return the sum of all the dice
-}
-return 0;
-}
-public function score(int[] dice, string category) returns int {
-// need to sort the dice then match against the sorted array.
-int[] sortedDice = dice.sort();
-eCategory? matchCategory = categoryMap[category];
-int result = 0;
-io:println(matchCategory);
-match matchCategory {
-Ones => {
-result = scoreSingles(sortedDice, 1);
-}
-Twos => {
-result = scoreSingles(sortedDice, 2);
-}
-Threes => {
-result = scoreSingles(sortedDice, 3);
-}
-Fours => {
-result = scoreSingles(sortedDice, 4);
-}
-Fives => {
-result = scoreSingles(sortedDice, 5);
-}
-Sixes => {
-result = scoreSingles(sortedDice, 6);
-}
-Yacht => {
-result = scoreYacht(sortedDice);
-}
-FullHouse => {
-result = scoreFullHouse(sortedDice);
-}
-FourOfaKind => {
-result = scoreFourOfAKind(sortedDice);
-}
-LittleStraight => {
-result = scoreLittleStraight(sortedDice);
-}
-BigStraight => {
-result = scoreBigStraight(sortedDice);
-}
-Choice => {
-result = scoreChoice(sortedDice);
-}
-}
-return result;
-}
+(file "yacht.bal"
+  (source_file
+    (keyword import) ballerina
+    (punctuation /) io
+    (punctuation ;)
+    (keyword enum) (defined PLACEHOLDER_1)
+    (punctuation {) PLACEHOLDER_2
+    (punctuation =) "\"Ones\""
+    (punctuation ,) PLACEHOLDER_3
+    (punctuation =) "\"Twos\""
+    (punctuation ,) PLACEHOLDER_4
+    (punctuation =) "\"Threes\""
+    (punctuation ,) PLACEHOLDER_5
+    (punctuation =) "\"Fours\""
+    (punctuation ,) PLACEHOLDER_6
+    (punctuation =) "\"Fives\""
+    (punctuation ,) PLACEHOLDER_7
+    (punctuation =) "\"Sixes\""
+    (punctuation ,) PLACEHOLDER_8
+    (punctuation =) "\"Full House\""
+    (punctuation ,) PLACEHOLDER_9
+    (punctuation =) "\"Four of a Kind\""
+    (punctuation ,) PLACEHOLDER_10
+    (punctuation =) "\"Little Straight\""
+    (punctuation ,) PLACEHOLDER_11
+    (punctuation =) "\"Big Straight\""
+    (punctuation ,) PLACEHOLDER_12
+    (punctuation =) "\"Choice\""
+    (punctuation ,) PLACEHOLDER_13
+    (punctuation =) "\"Yacht\""
+    (punctuation })
+    (type_keyword map)
+    (punctuation <) PLACEHOLDER_1
+    (punctuation >) categoryMap
+    (punctuation =)
+    (punctuation {) "\"ones\""
+    (punctuation :) PLACEHOLDER_2
+    (punctuation ,) "\"twos\""
+    (punctuation :) PLACEHOLDER_3
+    (punctuation ,) "\"threes\""
+    (punctuation :) PLACEHOLDER_4
+    (punctuation ,) "\"fours\""
+    (punctuation :) PLACEHOLDER_5
+    (punctuation ,) "\"fives\""
+    (punctuation :) PLACEHOLDER_6
+    (punctuation ,) "\"sixes\""
+    (punctuation :) PLACEHOLDER_7
+    (punctuation ,) "\"full house\""
+    (punctuation :) PLACEHOLDER_8
+    (punctuation ,) "\"four of a kind\""
+    (punctuation :) PLACEHOLDER_9
+    (punctuation ,) "\"little straight\""
+    (punctuation :) PLACEHOLDER_10
+    (punctuation ,) "\"big straight\""
+    (punctuation :) PLACEHOLDER_11
+    (punctuation ,) "\"choice\""
+    (punctuation :) PLACEHOLDER_12
+    (punctuation ,) "\"yacht\""
+    (punctuation :) PLACEHOLDER_13
+    (punctuation })
+    (punctuation ;)
+    (keyword function) (defined PLACEHOLDER_14)
+    (punctuation "(")
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_15)
+    (punctuation ,)
+    (type_keyword int) (local PLACEHOLDER_16)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation {)
+    (type_keyword int) (local PLACEHOLDER_17)
+    (punctuation =) 0
+    (punctuation ;)
+    (keyword foreach)
+    (type_keyword int) (local PLACEHOLDER_18)
+    (keyword in) PLACEHOLDER_15
+    (punctuation {) PLACEHOLDER_17
+    (punctuation +=)
+    (punctuation "(") PLACEHOLDER_18
+    (punctuation ==) PLACEHOLDER_16
+    (punctuation ")")
+    (punctuation ?) 1
+    (punctuation :) 0
+    (punctuation ;)
+    (punctuation })
+    (keyword return)
+    (punctuation "(") PLACEHOLDER_16
+    (punctuation *) PLACEHOLDER_17
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation })
+    (keyword function) (defined PLACEHOLDER_19)
+    (punctuation "(")
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_15)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation {)
+    (keyword foreach)
+    (type_keyword int) (local PLACEHOLDER_16)
+    (keyword in) 1
+    (punctuation ...) 6
+    (punctuation {)
+    (keyword if)
+    (punctuation "(") PLACEHOLDER_15
+    (punctuation .) every
+    (punctuation "(") (local PLACEHOLDER_20)
+    (punctuation =>) PLACEHOLDER_20
+    (punctuation ==) PLACEHOLDER_16
+    (punctuation ")")
+    (punctuation ")")
+    (punctuation {)
+    (keyword return) 50
+    (punctuation ;)
+    (punctuation })
+    (punctuation })
+    (keyword return) 0
+    (punctuation ;)
+    (punctuation })
+    (keyword function) (defined PLACEHOLDER_21)
+    (punctuation "(")
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_15)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation {)
+    (type_keyword map)
+    (punctuation <)
+    (type_keyword boolean)
+    (punctuation >) map_match
+    (punctuation =)
+    (punctuation {) "\"1\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation ,) "\"2\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation ,) "\"3\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation ,) "\"4\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation ,) "\"5\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation })
+    (punctuation ;)
+    (keyword foreach)
+    (type_keyword int) (local PLACEHOLDER_18)
+    (keyword in) PLACEHOLDER_15
+    (punctuation {)
+    (keyword if)
+    (punctuation "(") PLACEHOLDER_18
+    (punctuation <) 6
+    (punctuation ")")
+    (punctuation {) map_match
+    (punctuation [) PLACEHOLDER_18
+    (punctuation .) toString
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation ])
+    (punctuation =)
+    (boolean_literal true)
+    (punctuation ;)
+    (punctuation })
+    (punctuation })
+    (type_keyword map)
+    (punctuation <)
+    (type_keyword boolean)
+    (punctuation >) littleStraight
+    (punctuation =)
+    (punctuation {) "\"1\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation ,) "\"2\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation ,) "\"3\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation ,) "\"4\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation ,) "\"5\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation })
+    (punctuation ;)
+    (keyword if)
+    (punctuation "(") map_match
+    (punctuation !=) littleStraight
+    (punctuation ")")
+    (punctuation {)
+    (keyword return) 0
+    (punctuation ;)
+    (punctuation })
+    (keyword return) 30
+    (punctuation ;)
+    (punctuation })
+    (keyword function) (defined PLACEHOLDER_22)
+    (punctuation "(")
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_15)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation {)
+    (type_keyword map)
+    (punctuation <)
+    (type_keyword boolean)
+    (punctuation >) map_match
+    (punctuation =)
+    (punctuation {) "\"2\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation ,) "\"3\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation ,) "\"4\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation ,) "\"5\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation ,) "\"6\""
+    (punctuation :)
+    (boolean_literal false)
+    (punctuation })
+    (punctuation ;)
+    (keyword foreach)
+    (type_keyword int) (local PLACEHOLDER_18)
+    (keyword in) PLACEHOLDER_15
+    (punctuation {)
+    (keyword if)
+    (punctuation "(") PLACEHOLDER_18
+    (punctuation >) 1
+    (punctuation ")")
+    (punctuation {) map_match
+    (punctuation [) PLACEHOLDER_18
+    (punctuation .) toString
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation ])
+    (punctuation =)
+    (boolean_literal true)
+    (punctuation ;)
+    (punctuation })
+    (punctuation })
+    (type_keyword map)
+    (punctuation <)
+    (type_keyword boolean)
+    (punctuation >) bigStraight
+    (punctuation =)
+    (punctuation {) "\"2\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation ,) "\"3\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation ,) "\"4\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation ,) "\"5\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation ,) "\"6\""
+    (punctuation :)
+    (boolean_literal true)
+    (punctuation })
+    (punctuation ;)
+    (keyword if)
+    (punctuation "(") map_match
+    (punctuation !=) bigStraight
+    (punctuation ")")
+    (punctuation {)
+    (keyword return) 0
+    (punctuation ;)
+    (punctuation })
+    (keyword return) 30
+    (punctuation ;)
+    (punctuation })
+    (keyword function) (defined PLACEHOLDER_23)
+    (punctuation "(")
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_15)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation {)
+    (type_keyword int) (local PLACEHOLDER_17)
+    (punctuation =) 0
+    (punctuation ;)
+    (keyword foreach)
+    (type_keyword int) (local PLACEHOLDER_18)
+    (keyword in) PLACEHOLDER_15
+    (punctuation {) PLACEHOLDER_17
+    (punctuation +=) PLACEHOLDER_18
+    (punctuation ;)
+    (punctuation })
+    (keyword return) PLACEHOLDER_17
+    (punctuation ;)
+    (punctuation })
+    (keyword function) (defined PLACEHOLDER_24)
+    (punctuation "(")
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_15)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation {)
+    (type_keyword map)
+    (punctuation <)
+    (type_keyword int)
+    (punctuation >) map_fourOfAKind
+    (punctuation =)
+    (punctuation {) "\"1\""
+    (punctuation :) 0
+    (punctuation ,) "\"2\""
+    (punctuation :) 0
+    (punctuation ,) "\"3\""
+    (punctuation :) 0
+    (punctuation ,) "\"4\""
+    (punctuation :) 0
+    (punctuation ,) "\"5\""
+    (punctuation :) 0
+    (punctuation ,) "\"6\""
+    (punctuation :) 0
+    (punctuation })
+    (punctuation ;)
+    (keyword foreach)
+    (type_keyword int) (local PLACEHOLDER_18)
+    (keyword in) PLACEHOLDER_15
+    (punctuation {) map_fourOfAKind
+    (punctuation [) PLACEHOLDER_18
+    (punctuation .) toString
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation ])
+    (punctuation =) map_fourOfAKind
+    (punctuation .) get
+    (punctuation "(") PLACEHOLDER_18
+    (punctuation .) toString
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation ")")
+    (punctuation +) 1
+    (punctuation ;)
+    (punctuation })
+    (keyword foreach)
+    (type_keyword string)
+    (keyword key)
+    (keyword in) map_fourOfAKind
+    (punctuation .) keys
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation {)
+    (keyword if)
+    (punctuation "(") map_fourOfAKind
+    (punctuation [)
+    (keyword key)
+    (punctuation ])
+    (punctuation >=) 4
+    (punctuation ")")
+    (punctuation {)
+    (type_keyword int)
+    (punctuation |)
+    (type_keyword error) (local PLACEHOLDER_25)
+    (punctuation =)
+    (type_keyword int)
+    (punctuation :) fromString
+    (punctuation "(")
+    (keyword key)
+    (punctuation ")")
+    (punctuation ;)
+    (keyword if)
+    (punctuation "(") PLACEHOLDER_25
+    (keyword is)
+    (type_keyword int)
+    (punctuation ")")
+    (punctuation {)
+    (keyword return)
+    (punctuation "(") PLACEHOLDER_25
+    (punctuation *) 4
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation })
+    (punctuation })
+    (punctuation })
+    (keyword return) 0
+    (punctuation ;)
+    (punctuation })
+    (keyword function) (defined PLACEHOLDER_26)
+    (punctuation "(")
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_15)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation {)
+    (type_keyword map)
+    (punctuation <)
+    (type_keyword int)
+    (punctuation >) map_match
+    (punctuation =)
+    (punctuation {) "\"1\""
+    (punctuation :) 0
+    (punctuation ,) "\"2\""
+    (punctuation :) 0
+    (punctuation ,) "\"3\""
+    (punctuation :) 0
+    (punctuation ,) "\"4\""
+    (punctuation :) 0
+    (punctuation ,) "\"5\""
+    (punctuation :) 0
+    (punctuation ,) "\"6\""
+    (punctuation :) 0
+    (punctuation })
+    (punctuation ;)
+    (keyword foreach)
+    (type_keyword int) (local PLACEHOLDER_18)
+    (keyword in) PLACEHOLDER_15
+    (punctuation {) map_match
+    (punctuation [) PLACEHOLDER_18
+    (punctuation .) toString
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation ])
+    (punctuation =) map_match
+    (punctuation .) get
+    (punctuation "(") PLACEHOLDER_18
+    (punctuation .) toString
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation ")")
+    (punctuation +) 1
+    (punctuation ;)
+    (punctuation })
+    (type_keyword map)
+    (punctuation <)
+    (type_keyword int)
+    (punctuation >) map_filtered
+    (punctuation =) map_match
+    (punctuation .) filter
+    (punctuation "(") (local PLACEHOLDER_27)
+    (punctuation =>) PLACEHOLDER_27
+    (punctuation ==) 2
+    (punctuation ||) PLACEHOLDER_27
+    (punctuation ==) 3
+    (punctuation ")")
+    (punctuation ;)
+    (keyword if)
+    (punctuation "(") map_filtered
+    (punctuation .) length
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation ==) 2
+    (punctuation &&) map_filtered
+    (punctuation .) reduce
+    (punctuation "(")
+    (keyword isolated)
+    (keyword function)
+    (punctuation "(")
+    (type_keyword int) (local PLACEHOLDER_28)
+    (punctuation ,)
+    (type_keyword int) (local PLACEHOLDER_29)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation =>) PLACEHOLDER_28
+    (punctuation +) PLACEHOLDER_29
+    (punctuation ,) 0
+    (punctuation ")")
+    (punctuation ==) 5
+    (punctuation ")")
+    (punctuation {)
+    (keyword return) PLACEHOLDER_23
+    (punctuation "(") PLACEHOLDER_15
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation })
+    (keyword return) 0
+    (punctuation ;)
+    (punctuation })
+    (keyword public)
+    (keyword function) score
+    (punctuation "(")
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_15)
+    (punctuation ,)
+    (type_keyword string) (local PLACEHOLDER_30)
+    (punctuation ")")
+    (keyword returns)
+    (type_keyword int)
+    (punctuation {)
+    (type_keyword int)
+    (punctuation [)
+    (punctuation ]) (local PLACEHOLDER_31)
+    (punctuation =) PLACEHOLDER_15
+    (punctuation .) sort
+    (punctuation "(")
+    (punctuation ")")
+    (punctuation ;) PLACEHOLDER_1
+    (punctuation ?) matchCategory
+    (punctuation =) categoryMap
+    (punctuation [) PLACEHOLDER_30
+    (punctuation ])
+    (punctuation ;)
+    (type_keyword int) result
+    (punctuation =) 0
+    (punctuation ;) io
+    (punctuation :) println
+    (punctuation "(") matchCategory
+    (punctuation ")")
+    (punctuation ;)
+    (keyword match) matchCategory
+    (punctuation {) (local PLACEHOLDER_2)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_14
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ,) 1
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_3)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_14
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ,) 2
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_4)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_14
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ,) 3
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_5)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_14
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ,) 4
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_6)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_14
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ,) 5
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_7)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_14
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ,) 6
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_13)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_19
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_8)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_26
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_9)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_24
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_10)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_21
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_11)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_22
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation }) (local PLACEHOLDER_12)
+    (punctuation =>)
+    (punctuation {) result
+    (punctuation =) PLACEHOLDER_23
+    (punctuation "(") PLACEHOLDER_31
+    (punctuation ")")
+    (punctuation ;)
+    (punctuation })
+    (punctuation })
+    (keyword return) result
+    (punctuation ;)
+    (punctuation })))

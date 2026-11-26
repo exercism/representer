@@ -1,40 +1,33 @@
-(file "quayside-crew/quayside-crew.factor")
-USING: accessors concurrency.combinators concurrency.locks concurrency.promises fry kernel locals math sequences threads ;
-IN: quayside-crew
-: weigh-crate ( crate -- weight )
-sum ;
-: weigh-all ( crates -- weights )
-[ weigh-crate ] parallel-map ;
-TUPLE: crane lock tonnage ;
-: <crane> ( -- crane )
-<lock> 0 crane boa ;
-:: hoist-crate ( weight crane -- )
-crane lock>>
-[
-crane [ weight + ] change-tonnage drop
-]
-with-lock ;
-:: crane-tonnage ( crane -- tonnage )
-crane lock>>
-[
-crane tonnage>>
-]
-with-lock ;
-:: load-cargo ( crates crane -- )
-crates
-[| crate |
-<promise>
-[
-'[
-crate sum crane hoist-crate t
-_ fulfill
-]
-"\"answer\"" spawn drop
-]
-keep
-]
-map
-[
-?promise drop
-]
-each ;
+(file "quayside-crew/quayside-crew.factor"
+  (source_file USING: accessors concurrency.combinators concurrency.locks concurrency.promises fry kernel locals math sequences threads ; IN: quayside-crew
+    (definition : weigh-crate
+      (effect
+        (inputs PLACEHOLDER_1)
+        (outputs PLACEHOLDER_2)) sum)
+    (definition : weigh-all
+      (effect
+        (inputs crates)
+        (outputs PLACEHOLDER_3))
+      (quote weigh-crate) parallel-map) TUPLE: crane lock PLACEHOLDER_4 ;
+    (definition : <crane>
+      (effect
+        (outputs crane)) <lock>
+      (number
+        (integer 0)) crane boa)
+    (definition :: hoist-crate
+      (effect
+        (inputs PLACEHOLDER_2 crane)) crane lock>>
+      (quote crane
+        (quote PLACEHOLDER_2 +) change-tonnage drop) with-lock)
+    (definition :: crane-tonnage
+      (effect
+        (inputs crane)
+        (outputs PLACEHOLDER_4)) crane lock>>
+      (quote crane tonnage>>) with-lock)
+    (definition :: load-cargo
+      (effect
+        (inputs crates crane)) crates [| PLACEHOLDER_1 | <promise>
+      (quote
+        (fry_quote '[ PLACEHOLDER_1 sum crane hoist-crate
+          (syntax t) _ fulfill) "\"answer\"" spawn drop) keep ] map
+      (quote ?promise drop) each)))

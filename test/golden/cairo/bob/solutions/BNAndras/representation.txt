@@ -1,85 +1,282 @@
-(file "src/lib.cairo")
-pub fn response(input: @ByteArray) -> ByteArray {
-if is_silent(input) {
-return "\"Fine." Be that way!";
-}
-if is_loud_question(input) {
-return "\"Calm" down, I know what I'm doing!";
-}
-if is_loud_statement(input) {
-return "\"Whoa," chill out!";
-}
-if is_question(input) {
-return "\"Sure.\";"
-}
-return "\"Whatever.\";"
-}
-fn is_loud_question(input: @ByteArray) -> bool {
-return is_question(input) && is_loud(input);
-}
-fn is_loud_statement(input: @ByteArray) -> bool {
-return is_loud(input);
-}
-fn is_loud(input: @ByteArray) -> bool {
-let mut has_letter = false;
-let mut uppercased = "\"\";"
-let mut i = 0;
-while i < input.len() {
-let c = input[i];
-if !has_letter && is_letter(c) {
-has_letter = true;
-}
-uppercased.append_byte(to_uppercase(c));
-i += 1;
-};
-return has_letter && @uppercased == input;
-}
-fn is_question(input: @ByteArray) -> bool {
-let trimmed = trim(input);
-let last = trimmed[trimmed.len() - 1];
-return last == '?';
-}
-fn is_silent(input: @ByteArray) -> bool {
-return trim(input) == "\"\";"
-}
-fn is_letter(c: u8) -> bool {
-return is_uppercase(c) || is_lowercase(c);
-}
-fn is_lowercase(c: u8) -> bool {
-return c >= 'a' && c <= 'z';
-}
-fn is_uppercase(c: u8) -> bool {
-return c >= 'A' && c <= 'Z';
-}
-fn to_uppercase(c: u8) -> u8 {
-if is_lowercase(c) {
-return c - 32;
-}
-return c;
-}
-fn is_whitespace(c: u8) -> bool {
-return c == ' ' || c == '\t' || c == '\n' || c == '\r';
-}
-fn trim(input: @ByteArray) -> ByteArray {
-if input.len() == 0 {
-return "\"\";"
-}
-let mut result = "\"\";"
-let mut start = 0;
-while start < input.len() && is_whitespace(input[start]) {
-start += 1;
-};
-let mut end = input.len() - 1;
-while end >= start {
-if !is_whitespace(input[end]) {
-break;
-}
-end -= 1;
-};
-let mut j = start;
-while j <= end {
-result.append_byte(input[j]);
-j += 1;
-};
-return result;
-}
+(file "src/lib.cairo"
+  (source_file
+    (function_item
+      (visibility_modifier)
+      (function response
+        (parameters
+          (parameter input :
+            (snapshot_type @
+              (type_identifier ByteArray)))) ->
+        (type_identifier ByteArray))
+      (block
+        (expression_statement
+          (if_expression
+            (call_expression PLACEHOLDER_1
+              (arguments input))
+            (block
+              (expression_statement
+                (return_expression "\"Fine. Be that way!\"")))))
+        (expression_statement
+          (if_expression
+            (call_expression PLACEHOLDER_2
+              (arguments input))
+            (block
+              (expression_statement
+                (return_expression "\"Calm down, I know what I'm doing!\"")))))
+        (expression_statement
+          (if_expression
+            (call_expression PLACEHOLDER_3
+              (arguments input))
+            (block
+              (expression_statement
+                (return_expression "\"Whoa, chill out!\"")))))
+        (expression_statement
+          (if_expression
+            (call_expression PLACEHOLDER_4
+              (arguments input))
+            (block
+              (expression_statement
+                (return_expression "\"Sure.\"")))))
+        (expression_statement
+          (return_expression "\"Whatever.\""))))
+    (function_item
+      (function PLACEHOLDER_2
+        (parameters
+          (parameter input :
+            (snapshot_type @
+              (type_identifier ByteArray)))) ->
+        (type_identifier bool))
+      (block
+        (expression_statement
+          (return_expression
+            (binary_expression
+              (call_expression PLACEHOLDER_4
+                (arguments input)) &&
+              (call_expression PLACEHOLDER_5
+                (arguments input)))))))
+    (function_item
+      (function PLACEHOLDER_3
+        (parameters
+          (parameter input :
+            (snapshot_type @
+              (type_identifier ByteArray)))) ->
+        (type_identifier bool))
+      (block
+        (expression_statement
+          (return_expression
+            (call_expression PLACEHOLDER_5
+              (arguments input))))))
+    (function_item
+      (function PLACEHOLDER_5
+        (parameters
+          (parameter input :
+            (snapshot_type @
+              (type_identifier ByteArray)))) ->
+        (type_identifier bool))
+      (block
+        (let_declaration mut PLACEHOLDER_6 =
+          (boolean_literal false))
+        (let_declaration mut PLACEHOLDER_7 = "\"\"")
+        (let_declaration mut PLACEHOLDER_8 = 0)
+        (expression_statement
+          (while_expression
+            (binary_expression PLACEHOLDER_8 <
+              (call_expression
+                (field_expression input . len)
+                (arguments)))
+            (block
+              (let_declaration PLACEHOLDER_9 =
+                (index_expression input PLACEHOLDER_8))
+              (expression_statement
+                (if_expression
+                  (binary_expression
+                    (unary_expression ! PLACEHOLDER_6) &&
+                    (call_expression PLACEHOLDER_10
+                      (arguments PLACEHOLDER_9)))
+                  (block
+                    (expression_statement
+                      (assignment_expression PLACEHOLDER_6 =
+                        (boolean_literal true))))))
+              (expression_statement
+                (call_expression
+                  (field_expression PLACEHOLDER_7 . append_byte)
+                  (arguments
+                    (call_expression PLACEHOLDER_11
+                      (arguments PLACEHOLDER_9)))))
+              (expression_statement
+                (compound_assignment_expr PLACEHOLDER_8 += 1)))))
+        (expression_statement
+          (return_expression
+            (binary_expression PLACEHOLDER_6 &&
+              (binary_expression
+                (unary_expression @ PLACEHOLDER_7) == input))))))
+    (function_item
+      (function PLACEHOLDER_4
+        (parameters
+          (parameter input :
+            (snapshot_type @
+              (type_identifier ByteArray)))) ->
+        (type_identifier bool))
+      (block
+        (let_declaration PLACEHOLDER_12 =
+          (call_expression PLACEHOLDER_13
+            (arguments input)))
+        (let_declaration PLACEHOLDER_14 =
+          (index_expression PLACEHOLDER_12
+            (binary_expression
+              (call_expression
+                (field_expression PLACEHOLDER_12 . len)
+                (arguments)) - 1)))
+        (expression_statement
+          (return_expression
+            (binary_expression PLACEHOLDER_14 == '?')))))
+    (function_item
+      (function PLACEHOLDER_1
+        (parameters
+          (parameter input :
+            (snapshot_type @
+              (type_identifier ByteArray)))) ->
+        (type_identifier bool))
+      (block
+        (expression_statement
+          (return_expression
+            (binary_expression
+              (call_expression PLACEHOLDER_13
+                (arguments input)) == "\"\"")))))
+    (function_item
+      (function PLACEHOLDER_10
+        (parameters
+          (parameter PLACEHOLDER_9 :
+            (type_identifier u8))) ->
+        (type_identifier bool))
+      (block
+        (expression_statement
+          (return_expression
+            (binary_expression
+              (call_expression PLACEHOLDER_15
+                (arguments PLACEHOLDER_9)) ||
+              (call_expression PLACEHOLDER_16
+                (arguments PLACEHOLDER_9)))))))
+    (function_item
+      (function PLACEHOLDER_16
+        (parameters
+          (parameter PLACEHOLDER_9 :
+            (type_identifier u8))) ->
+        (type_identifier bool))
+      (block
+        (expression_statement
+          (return_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_9 >= 'a') &&
+              (binary_expression PLACEHOLDER_9 <= 'z'))))))
+    (function_item
+      (function PLACEHOLDER_15
+        (parameters
+          (parameter PLACEHOLDER_9 :
+            (type_identifier u8))) ->
+        (type_identifier bool))
+      (block
+        (expression_statement
+          (return_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_9 >= 'A') &&
+              (binary_expression PLACEHOLDER_9 <= 'Z'))))))
+    (function_item
+      (function PLACEHOLDER_11
+        (parameters
+          (parameter PLACEHOLDER_9 :
+            (type_identifier u8))) ->
+        (type_identifier u8))
+      (block
+        (expression_statement
+          (if_expression
+            (call_expression PLACEHOLDER_16
+              (arguments PLACEHOLDER_9))
+            (block
+              (expression_statement
+                (return_expression
+                  (binary_expression PLACEHOLDER_9 - 32))))))
+        (expression_statement
+          (return_expression PLACEHOLDER_9))))
+    (function_item
+      (function PLACEHOLDER_17
+        (parameters
+          (parameter PLACEHOLDER_9 :
+            (type_identifier u8))) ->
+        (type_identifier bool))
+      (block
+        (expression_statement
+          (return_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_9 == "' '") ||
+                  (binary_expression PLACEHOLDER_9 == "'\\t'")) ||
+                (binary_expression PLACEHOLDER_9 == "'\\n'")) ||
+              (binary_expression PLACEHOLDER_9 == "'\\r'"))))))
+    (function_item
+      (function PLACEHOLDER_13
+        (parameters
+          (parameter input :
+            (snapshot_type @
+              (type_identifier ByteArray)))) ->
+        (type_identifier ByteArray))
+      (block
+        (expression_statement
+          (if_expression
+            (binary_expression
+              (call_expression
+                (field_expression input . len)
+                (arguments)) == 0)
+            (block
+              (expression_statement
+                (return_expression "\"\"")))))
+        (let_declaration mut PLACEHOLDER_18 = "\"\"")
+        (let_declaration mut PLACEHOLDER_19 = 0)
+        (expression_statement
+          (while_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_19 <
+                (call_expression
+                  (field_expression input . len)
+                  (arguments))) &&
+              (call_expression PLACEHOLDER_17
+                (arguments
+                  (index_expression input PLACEHOLDER_19))))
+            (block
+              (expression_statement
+                (compound_assignment_expr PLACEHOLDER_19 += 1)))))
+        (let_declaration mut PLACEHOLDER_20 =
+          (binary_expression
+            (call_expression
+              (field_expression input . len)
+              (arguments)) - 1))
+        (expression_statement
+          (while_expression
+            (binary_expression PLACEHOLDER_20 >= PLACEHOLDER_19)
+            (block
+              (expression_statement
+                (if_expression
+                  (unary_expression !
+                    (call_expression PLACEHOLDER_17
+                      (arguments
+                        (index_expression input PLACEHOLDER_20))))
+                  (block
+                    (expression_statement
+                      (break_expression)))))
+              (expression_statement
+                (compound_assignment_expr PLACEHOLDER_20 -= 1)))))
+        (let_declaration mut PLACEHOLDER_21 = PLACEHOLDER_19)
+        (expression_statement
+          (while_expression
+            (binary_expression PLACEHOLDER_21 <= PLACEHOLDER_20)
+            (block
+              (expression_statement
+                (call_expression
+                  (field_expression PLACEHOLDER_18 . append_byte)
+                  (arguments
+                    (index_expression input PLACEHOLDER_21))))
+              (expression_statement
+                (compound_assignment_expr PLACEHOLDER_21 += 1)))))
+        (expression_statement
+          (return_expression PLACEHOLDER_18))))))

@@ -1,40 +1,131 @@
-(file "src/lib.cairo")
-#[generate_trait]
-pub impl DivmodImpl of DivmodTrait {
-fn divmod(self: @u16, divisor: u16) -> (u16, u16) {
-(*self / divisor, *self % divisor)
-}
-}
-#[generate_trait]
-pub impl EvensImpl<T, +Drop<T>, +Copy<T>> of EvensTrait<T> {
-fn evens(self: @Array<T>) -> Array<T> {
-let mut result = ArrayTrait::new();
-let mut i = 0;
-while i < self.len() {
-result.append(*self.at(i));
-i += 2;
-}
-result
-}
-}
-pub type Position = (i16, i16);
-#[generate_trait]
-pub impl PositionImpl of PositionTrait {
-fn manhattan(self: @Position) -> i16 {
-let (x, y) = *self;
-(x.abs() + y.abs()).try_into().unwrap()
-}
-}
-// The below trait enables calling `abs` on an i16 variable
-// to get the absolute value
-#[generate_trait]
-impl AbsImpl of AbsTrait {
-fn abs(self: @i16) -> u16 {
-let val = if *self < 0 {
--*self
-} else {
-*self
-};
-val.try_into().unwrap()
-}
-}
+(file "src/lib.cairo"
+  (source_file
+    (attribute_item #
+      (attribute generate_trait))
+    (impl_item
+      (visibility_modifier) PLACEHOLDER_1 of DivmodTrait
+      (declaration_list
+        (function_item
+          (function divmod
+            (parameters
+              (parameter self :
+                (snapshot_type @
+                  (type_identifier u16)))
+              (parameter PLACEHOLDER_2 :
+                (type_identifier u16))) ->
+            (tuple_type
+              (type_identifier u16)
+              (type_identifier u16)))
+          (block
+            (tuple_expression
+              (binary_expression
+                (unary_expression * self) / PLACEHOLDER_2)
+              (binary_expression
+                (unary_expression * self) % PLACEHOLDER_2))))))
+    (attribute_item #
+      (attribute generate_trait))
+    (impl_item
+      (visibility_modifier) PLACEHOLDER_3
+      (type_parameters < (type_identifier PLACEHOLDER_4)
+        (constrained_type_parameter +
+          (generic_type Drop
+            (type_arguments < (type_identifier PLACEHOLDER_4) >)))
+        (constrained_type_parameter +
+          (generic_type Copy
+            (type_arguments < (type_identifier PLACEHOLDER_4) >))) >) of
+      (generic_type EvensTrait
+        (type_arguments < (type_identifier PLACEHOLDER_4) >))
+      (declaration_list
+        (function_item
+          (function evens
+            (parameters
+              (parameter self :
+                (snapshot_type @
+                  (generic_type Array
+                    (type_arguments < (type_identifier PLACEHOLDER_4) >))))) ->
+            (generic_type Array
+              (type_arguments < (type_identifier PLACEHOLDER_4) >)))
+          (block
+            (let_declaration mut PLACEHOLDER_5 =
+              (call_expression
+                (scoped_identifier ArrayTrait :: new)
+                (arguments)))
+            (let_declaration mut PLACEHOLDER_6 = 0)
+            (expression_statement
+              (while_expression
+                (binary_expression PLACEHOLDER_6 <
+                  (call_expression
+                    (field_expression self . len)
+                    (arguments)))
+                (block
+                  (expression_statement
+                    (call_expression
+                      (field_expression PLACEHOLDER_5 . append)
+                      (arguments
+                        (unary_expression *
+                          (call_expression
+                            (field_expression self . at)
+                            (arguments PLACEHOLDER_6))))))
+                  (expression_statement
+                    (compound_assignment_expr PLACEHOLDER_6 += 2))))) PLACEHOLDER_5))))
+    (type_item
+      (visibility_modifier) Position =
+      (tuple_type
+        (type_identifier i16)
+        (type_identifier i16)))
+    (attribute_item #
+      (attribute generate_trait))
+    (impl_item
+      (visibility_modifier) PLACEHOLDER_7 of PositionTrait
+      (declaration_list
+        (function_item
+          (function manhattan
+            (parameters
+              (parameter self :
+                (snapshot_type @ Position))) ->
+            (type_identifier i16))
+          (block
+            (let_declaration
+              (tuple_pattern PLACEHOLDER_8 PLACEHOLDER_9) =
+              (unary_expression * self))
+            (call_expression
+              (field_expression
+                (call_expression
+                  (field_expression
+                    (binary_expression
+                      (call_expression
+                        (field_expression PLACEHOLDER_8 . abs)
+                        (arguments)) +
+                      (call_expression
+                        (field_expression PLACEHOLDER_9 . abs)
+                        (arguments))) . try_into)
+                  (arguments)) . unwrap)
+              (arguments))))))
+    (attribute_item #
+      (attribute generate_trait))
+    (impl_item PLACEHOLDER_10 of AbsTrait
+      (declaration_list
+        (function_item
+          (function abs
+            (parameters
+              (parameter self :
+                (snapshot_type @
+                  (type_identifier i16)))) ->
+            (type_identifier u16))
+          (block
+            (let_declaration PLACEHOLDER_11 =
+              (if_expression
+                (binary_expression
+                  (unary_expression * self) < 0)
+                (block
+                  (unary_expression -
+                    (unary_expression * self)))
+                (else_clause
+                  (block
+                    (unary_expression * self)))))
+            (call_expression
+              (field_expression
+                (call_expression
+                  (field_expression PLACEHOLDER_11 . try_into)
+                  (arguments)) . unwrap)
+              (arguments))))))))

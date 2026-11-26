@@ -1,29 +1,89 @@
-(file "src/lib.cairo")
-use core::box::BoxTrait;
-#[derive(Copy, Drop)]
-pub enum ChronoChain {
-End,
-Link: (u32, Box<ChronoChain>),
-}
-#[generate_trait]
-pub impl ChronoChainImpl of ChronoChainTrait {
-fn build(mut arr: Array<u32>) -> ChronoChain {
-match arr.pop_front() {
-Option::Some(value) => {
-ChronoChain::Link((
-value,
-BoxTrait::new(Self::build(arr)),
-))
-},
-Option::None => ChronoChain::End,
-}
-}
-fn sum(self: ChronoChain) -> u64 {
-match self {
-ChronoChain::End => 0,
-ChronoChain::Link((value, next)) => {
-value.try_into().unwrap() + Self::sum(*next)
-},
-}
-}
-}
+(file "src/lib.cairo"
+  (source_file
+    (use_declaration
+      (scoped_identifier
+        (scoped_identifier core :: box) :: BoxTrait))
+    (attribute_item #
+      (attribute derive
+        (token_tree Copy Drop)))
+    (enum_item
+      (visibility_modifier) ChronoChain
+      (enum_variant_list
+        (enum_variant End)
+        (enum_variant
+          (field_declaration Link :
+            (tuple_type
+              (type_identifier u32)
+              (generic_type Box
+                (type_arguments < ChronoChain >)))))))
+    (attribute_item #
+      (attribute generate_trait))
+    (impl_item
+      (visibility_modifier) PLACEHOLDER_1 of ChronoChainTrait
+      (declaration_list
+        (function_item
+          (function build
+            (parameters
+              (parameter mut arr :
+                (generic_type Array
+                  (type_arguments <
+                    (type_identifier u32) >)))) -> ChronoChain)
+          (block
+            (expression_statement
+              (match_expression
+                (call_expression
+                  (field_expression arr . pop_front)
+                  (arguments))
+                (match_block
+                  (match_arm
+                    (match_arm_content
+                      (match_pattern
+                        (tuple_enum_pattern
+                          (scoped_identifier Option :: Some) value)) =>
+                      (block
+                        (call_expression
+                          (scoped_identifier ChronoChain :: Link)
+                          (arguments
+                            (tuple_expression value
+                              (call_expression
+                                (scoped_identifier BoxTrait :: new)
+                                (arguments
+                                  (call_expression
+                                    (scoped_identifier Self :: build)
+                                    (arguments arr))))))))))
+                  (match_arm
+                    (match_arm_content
+                      (match_pattern
+                        (scoped_identifier Option :: None)) =>
+                      (scoped_identifier ChronoChain :: End))))))))
+        (function_item
+          (function sum
+            (parameters
+              (parameter self : ChronoChain)) ->
+            (type_identifier u64))
+          (block
+            (expression_statement
+              (match_expression self
+                (match_block
+                  (match_arm
+                    (match_arm_content
+                      (match_pattern
+                        (scoped_identifier ChronoChain :: End)) => 0))
+                  (match_arm
+                    (match_arm_content
+                      (match_pattern
+                        (tuple_enum_pattern
+                          (scoped_identifier ChronoChain :: Link)
+                          (tuple_pattern value next))) =>
+                      (block
+                        (binary_expression
+                          (call_expression
+                            (field_expression
+                              (call_expression
+                                (field_expression value . try_into)
+                                (arguments)) . unwrap)
+                            (arguments)) +
+                          (call_expression
+                            (scoped_identifier Self :: sum)
+                            (arguments
+                              (unary_expression * next))))))))))))))))
