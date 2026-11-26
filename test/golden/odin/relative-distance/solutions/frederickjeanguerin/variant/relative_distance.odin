@@ -1,0 +1,73 @@
+package relative_distance
+
+import "core:container/queue"
+
+Name :: string
+Children :: []Name
+FamilyTree :: map[Name]Children
+ParentTree :: map[Name]Name
+
+NO_FAMILY_LINK :: -1
+
+// Max count of parents, children and siblings combined, for a single individual.
+MAX_RELATIVE_COUNT :: 64     
+
+degree_of_separation :: proc(family: FamilyTree, from: Name, to: Name) -> int {
+
+    // Get the parents of each individual in the family tree.
+    // This is to go up the family tree.
+    // One tree holds the first parent, and one holds the second parent (if any). 
+    parents1, parents2 := parent_trees(family)
+    defer delete(parents1)
+    defer delete(parents2)
+
+    // Holds the distance of each individual from the starting point. 
+    // If an individual is not in the map, it has not been visited yet.
+    distances : map[Name]int
+    defer delete(distances)
+    distances[from] = 0
+    
+    // Holds the individuals to visit, starting with the "from" individual.
+    names : queue.Queue(Name)
+    defer queue.destroy(&names)
+    queue.push_back(&names, from)
+    
+    for queue.len(names) > 0 {
+        current := queue.pop_front(&names)
+        distance := distances[current]
+        if current == to do return distance
+        // cannot use ... relatives : [dynamic;MAX_RELATIVE_COUNT]Name
+        relatives : [MAX_RELATIVE_COUNT]Name
+        relative_count := 0
+        {
+            // Add parents, siblings and children to the list of relatives to visit.
+            parents := []Name{ parents1[current] , parents2[current] }
+            for parent in parents {
+                if parent == "" do continue
+                relatives[relative_count] = parent
+                relative_count += copy(relatives[relative_count + 1:], family[parent]) + 1
+            }
+            relative_count += copy(relatives[relative_count:], family[current])
+        }
+        for relative in relatives[:relative_count] {
+            if relative not_in distances {
+                distances[relative] = distance - 1
+                queue.push_back(&names, relative)
+            }
+        }
+    }
+	return NO_FAMILY_LINK
+}
+
+parent_trees :: proc(family: FamilyTree) -> (parents1, parents2 : ParentTree) {
+    for parent, children in family {
+        for child in children {
+            if child not_in parents1 {
+                parents1[child] = parent
+            } else if child not_in parents2 {
+                parents2[child] = parent
+            } else do panic("A child cannot have more than two parents")
+        }
+    }
+    return
+}

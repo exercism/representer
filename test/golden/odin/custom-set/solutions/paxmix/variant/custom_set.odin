@@ -1,0 +1,95 @@
+package custom_set
+
+import "core:fmt"
+import "core:slice"
+
+// Replace the definition of Set with your own.
+// Note: It doesn't have to be a `struct`.
+Set :: map[int]struct {}
+
+new_set :: proc(elements: ..int) -> Set {
+	set := make(Set)
+	add(&set, ..elements)
+	return set
+}
+
+destroy_set :: proc(s: ^Set) {
+	delete(s^)
+}
+
+to_string :: proc(s: Set) -> string {
+	eles, err := slice.map_keys(s)
+	defer delete(eles)
+	if err != nil do return "[]"
+	slice.sort(eles)
+	return fmt.aprintf("%v", eles)
+}
+
+is_empty :: proc(s: Set) -> bool {
+	return len(s) == 0
+}
+
+contains :: proc(s: Set, element: int) -> bool {
+	return element in s
+}
+
+is_subset :: proc(s: Set, other: Set) -> bool {
+	if len(s) >= len(other) {return false}
+	for ele in s {
+		if !(ele in other) do return false
+	}
+	return true
+}
+
+is_disjoint :: proc(s: Set, other: Set) -> bool {
+	for ele in other {
+		if ele in s do return false
+	}
+	return true
+}
+
+equal :: proc(s: Set, other: Set) -> bool {
+	if len(s) != len(other) do return false
+	for ele in other {
+		if !(ele in s) do return false
+	}
+	return true
+}
+
+add :: proc(s: ^Set, elements: ..int) {
+	for ele in elements {
+		s[ele] = {}
+	}
+}
+
+intersection :: proc(s: Set, other: Set) -> Set {
+	set := make(Set)
+	for ele in s {
+		if ele in other {
+			set[ele] = {}
+		}
+	}
+	return set
+}
+
+difference :: proc(s: Set, other: Set) -> Set {
+	set := make(Set)
+	for ele in s {
+		if !(ele in other) {
+			set[ele] = {}
+		}
+	}
+	return set
+}
+
+// union is a reserved word in Odin, using join instead.
+join :: proc(s: Set, other: Set) -> Set {
+	set := make(Set)
+	for ele in s {
+		set[ele] = {}
+	}
+	for ele in other {
+		set[ele] = {}
+	}
+	return set
+}

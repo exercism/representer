@@ -1,0 +1,12 @@
+namespace DifferenceOfSquares
+
+def squareOfSum (number : Nat) : Nat :=
+  List.range (number + 1) |> List.sum |> (·^2)
+
+def sumOfSquares (number : Nat) : Nat :=
+  List.range (number - 1) |> List.map (·^2) |> List.sum
+
+def differenceOfSquares (number : Nat) : Nat :=
+  (squareOfSum number) - (sumOfSquares number)
+
+end DifferenceOfSquares

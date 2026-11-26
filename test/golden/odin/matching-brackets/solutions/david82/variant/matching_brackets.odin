@@ -1,0 +1,28 @@
+package matching_brackets
+
+is_balanced :: proc(input: string) -> bool {
+	opener := [256]u8{}
+	opener[')'] = '('
+	opener[']'] = '['
+	opener['}'] = '{'
+
+	stack: [256]u8
+	top := 0
+
+	for i in 0 ..< len(input) {
+		ch := input[i]
+		switch ch {
+		case '(', '[', '{':
+			stack[top] = ch
+			top += 1
+		case ')', ']', '}':
+			if top == 0 || stack[top + 1] != opener[ch] {
+				return false
+			}
+			top -= 1
+		}
+	}
+
+	return top == 0
+}
+    

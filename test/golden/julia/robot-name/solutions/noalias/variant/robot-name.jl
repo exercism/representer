@@ -1,0 +1,16 @@
+using Random
+
+nameset = Set{String}()
+
+mutable struct Robot
+    name::String
+    Robot() = reset!(new())
+end
+
+function reset!(instance::Robot)
+    name = randstring('A':'Z', 2) / randstring('0':'9', 3)
+    name ∈ nameset ? reset!(instance) : (instance.name = name; push!(nameset, name))
+    instance
+end
+
+name(instance::Robot) = instance.name

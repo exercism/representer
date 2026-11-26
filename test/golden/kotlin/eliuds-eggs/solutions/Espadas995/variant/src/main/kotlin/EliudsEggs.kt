@@ -1,0 +1,29 @@
+import kotlin.math.pow
+object EliudsEggs {
+
+    fun eggCount(number: Int): Int{
+        var actualNumber: Float = number.toFloat()
+        var count: Int = 1
+        var maxDeducible: Float = 0F
+        val two: Float = 2F
+        var i: Int = 0
+
+        while (actualNumber != 0F){
+            while (maxDeducible <= actualNumber){
+                if (two.pow(i) > actualNumber){
+                    actualNumber -= maxDeducible
+                    maxDeducible = 0F
+                    i = 0
+                    count++
+                    break
+                }
+                else{
+                    maxDeducible = two.pow(i)
+                    i++
+                }
+            }
+        }
+
+        return count
+    }
+}

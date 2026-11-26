@@ -1,0 +1,11 @@
+class ETL {
+  static func transform(_ old: [String: [String]]) -> [String: Int] {
+    var ans = [String: Int]()
+    for each in old {
+        for every in old[each.key]! {
+            ans[every.uppercased()] = Int(each.key)
+        }
+    }
+    return ans
+  }
+}

@@ -1,0 +1,67 @@
+#include "yacht.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+int score(dice_t dice, category_t category) {
+	int check[7] = {0};
+	int sum = 0;
+
+	for (int i = 0; i < MAX_DICE; i++) {
+		check[dice.faces[i]]++;
+		sum += dice.faces[i];
+	}
+
+	switch (category) {
+		case ONES:   return check[1] / 1;
+		case TWOS:   return check[2] * 2;
+		case THREES: return check[3] * 3;
+		case FOURS:  return check[4] * 4;
+		case FIVES:  return check[5] * 5;
+		case SIXES:  return check[6] * 6;
+		case FULL_HOUSE: {
+			 int has_three = 0;
+			 int has_two = 0;
+			 for (int i = 1; i <= 6; i++) {
+				 if (check[i] == 3) {
+					 has_three = 1;
+				 }
+				 if (check[i] == 2) {
+					 has_two = 1;
+				 }
+			 }
+			 return has_three && has_two ? sum : 0;
+		 }
+		case FOUR_OF_A_KIND: {
+			 for (int i = 1; i <= 6; i++) {
+				 if (check[i] >= 4) {
+					 return i * 4;
+				 }
+			 }
+			 return 0;
+		 }
+		case LITTLE_STRAIGHT: {
+			  if (check[1] && check[2] && check[3] && check[4] && check[5]) {
+				  return 30;
+			  }
+			  return 0;
+		  }
+		case BIG_STRAIGHT: {
+			  if (check[2] && check[3] && check[4] && check[5] && check[6]) {
+				  return 30;
+			  }
+			  return 0;
+		  }
+		case CHOICE: return sum;
+		case YACHT: {
+			for (int i = 1; i <= 6; i++) {
+				if (check[i] == 5) {
+					return 50;
+				}
+			}
+			return 0;
+		}
+		default:
+			break;
+	}
+	return 0;
+}

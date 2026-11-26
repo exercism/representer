@@ -1,0 +1,1 @@
+.phrase | gsub("[^a-zA-Z-\\s]"; "") | split("[\\s-]"; "x") | reduce .[] as $word (""; . + $word[0:2] | ascii_upcase)

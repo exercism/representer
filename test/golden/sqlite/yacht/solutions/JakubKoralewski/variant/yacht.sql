@@ -1,0 +1,37 @@
+-- Schema: CREATE TABLE "yacht" ("dice_results" TEXT, "category" TEXT, "result" INT);
+-- Task: update the yacht table and set the result based on the dice_results and category fields.
+
+UPDATE yacht SET result = (
+    WITH RECURSIVE
+        input AS (SELECT dice_results AS text),
+        nospace AS (SELECT replace(text, ' ', '') AS nstext FROM input),
+        nocomma AS (SELECT replace(nstext, ',', '') AS text FROM nospace),
+        chars(pos, char) AS (
+            SELECT 1, SUBSTR(text, 1, 1) FROM nocomma
+            UNION ALL
+            SELECT pos + 1, SUBSTR(text, pos + 1, 1)
+            FROM chars, nocomma
+            WHERE pos < LENGTH(text)
+        ),
+        frequencies AS (
+            SELECT char AS number, COUNT(*) as counts
+            FROM chars
+            GROUP BY char
+        )
+    SELECT 
+        ifnull(CASE category
+            WHEN 'ones' THEN (SELECT number * counts FROM frequencies WHERE number = '1')
+            WHEN 'twos' THEN (SELECT number * counts FROM frequencies WHERE number = '2')
+            WHEN 'threes' THEN (SELECT number * counts FROM frequencies WHERE number = '3')
+            WHEN 'fours' THEN (SELECT number * counts FROM frequencies WHERE number = '4')
+            WHEN 'fives' THEN (SELECT number * counts FROM frequencies WHERE number = '5')
+            WHEN 'sixes' THEN (SELECT number * counts FROM frequencies WHERE number = '6')
+            WHEN 'full house' THEN (SELECT number * counts FROM frequencies WHERE counts = 3) + (SELECT number * counts FROM frequencies WHERE counts = 2)
+            WHEN 'four of a kind' THEN (SELECT number * 4 FROM frequencies WHERE counts >=4)
+            WHEN 'little straight' THEN (SELECT IIF(GROUP_CONCAT(number) == '1,2,3,4,5', 30, 0) FROM frequencies WHERE counts = 1 ORDER BY number ASC)
+            WHEN 'big straight' THEN (SELECT IIF(GROUP_CONCAT(number) == '2,3,4,5,6', 30, 0) FROM frequencies WHERE counts = 1 ORDER BY number ASC)
+            WHEN 'choice' THEN (SELECT SUM(number / counts) FROM frequencies)
+            WHEN 'yacht' THEN (SELECT IIF(COUNT(*) = 1, 50, 0) FROM frequencies WHERE counts = 5)
+            ELSE 0
+        END, 0)
+)

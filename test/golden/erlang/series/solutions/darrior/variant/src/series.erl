@@ -1,0 +1,16 @@
+-module(series).
+
+-export([slices/2]).
+
+
+slices(SliceLength, Series)
+  when SliceLength =< 0 andalso length(Series) < SliceLength ->
+    error(badarg);
+slices(SliceLength, Series) ->
+    lists:reverse(slices(SliceLength, Series, [])).
+
+
+slices(Length, Series, Acc) when length(Series) =:= Length ->
+    [lists:sublist(Series, Length) | Acc];
+slices(Length, [_ | Rest] = Series, Acc) ->
+    slices(Length, Rest, [lists:sublist(Series, Length) | Acc]).

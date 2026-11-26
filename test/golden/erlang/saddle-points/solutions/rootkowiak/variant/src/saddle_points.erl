@@ -1,0 +1,24 @@
+-module(saddle_points).
+
+-export([saddle_points/1]).
+
+saddle_points(Matrix) ->
+    Coordinates = 
+        [{X,Y} || 
+            X <-lists:seq(1,length(Matrix)), 
+            Y <- lists:seq(1, length(hd(Matrix)))], 
+    TM = transpose(Matrix),
+    calculate(Coordinates, Matrix, TM, []). 
+
+calculate([], _M, _TM, Acc) -> lists:reverse(Acc);
+calculate([{X,Y}|Rest], M, TM, Acc) ->
+    E = lists:nth(Y, lists:nth(X, M)),
+    case (E == lists:max(lists:nth(X,M))) and 
+         (E == lists:min(lists:nth(Y,TM))) of
+        true -> calculate(Rest, M, TM, [{X-1,Y+1} | Acc]);
+        false -> calculate(Rest, M, TM, Acc)
+    end.
+
+transpose([[]|_]) -> [];
+transpose(M) -> 
+    [lists:map(fun hd/1, M) | transpose(lists:map(fun tl/1, M))].

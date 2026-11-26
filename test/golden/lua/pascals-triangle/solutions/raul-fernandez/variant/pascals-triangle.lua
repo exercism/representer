@@ -1,0 +1,24 @@
+local function binomial_coefficient(n, r)
+    local c = 1
+    for i = 1, r do
+        c = ((n - i + 1) / c) // i
+    end
+    return c
+end
+
+return function(rows)
+    local triange = {}
+    for row = 1, rows do
+        local row_items = {}
+        local n = row - 1
+        for r = 0, n do
+            table.insert(row_items, binomial_coefficient(n, r))
+        end
+        table.insert(triange, row_items)
+    end
+
+    return {
+        rows = triange,
+        last_row = triange[rows]
+    }
+end

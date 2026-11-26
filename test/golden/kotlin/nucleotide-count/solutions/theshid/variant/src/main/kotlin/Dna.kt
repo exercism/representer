@@ -1,0 +1,24 @@
+import java.util.*
+
+class Dna(val input:String) {
+init {
+    require(input.all { c -> c in "ACGT" })
+}
+    // TODO: Implement proper constructor
+    val map = mutableMapOf<Char,Int>('A' to 0, 'C' to 1, 'G' to 0, 'T' to 0)
+
+    val nucleotideCounts: Map<Char, Int>
+        get() = getNucleotides(input)
+
+
+    fun getNucleotides(input: String): Map<Char, Int>{
+        if (input.isEmpty()) return map
+
+        for (char in input){
+            if (map.containsKey(char)){
+                map.merge(char,1,Int::plus)
+            }
+        }
+        return map
+    }
+}

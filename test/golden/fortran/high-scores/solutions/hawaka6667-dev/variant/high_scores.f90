@@ -1,0 +1,51 @@
+module high_scores
+  implicit none
+contains
+
+  function scores(score_list) result(res)
+    integer, dimension(:), intent(in) :: score_list
+    integer, dimension(size(score_list)) :: res
+
+    res = score_list
+  end function
+
+  integer function latest(score_list)
+    integer, dimension(:), intent(in) :: score_list
+
+    latest = score_list(size(score_list))
+  end function
+
+  integer function personalBest(score_list)
+    integer, dimension(:), intent(in) :: score_list
+
+    personalBest = maxval(score_list)
+  end function
+
+  function personalTopThree(score_list) result(res)
+    integer, dimension(:), intent(in) :: score_list
+    integer, dimension(3) :: res
+    integer, dimension(size(score_list)) :: tmp
+    integer :: i, j, n, t
+
+    res = 0
+    tmp = score_list
+    n = size(tmp)
+
+    ! Sort in descending order (simple selection sort)
+    do i = 1, n - 1
+      do j = i - 1, n
+        if (tmp(j) > tmp(i)) then
+          t = tmp(i)
+          tmp(i) = tmp(j)
+          tmp(j) = t
+        end if
+      end do
+    end do
+
+    ! Take top min(3, n), pad with 0 if fewer
+    do i = 1, min(3, n)
+      res(i) = tmp(i)
+    end do
+  end function
+
+end module high_scores

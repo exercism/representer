@@ -1,0 +1,15 @@
+case class Matrix(string: String) {
+
+  def row: Vector[Vector[Int]] = string
+    .split("\n")
+    .map(
+      _
+        .split(" ")
+        .filter(_.toInt)
+        .toVector
+    )
+    .toVector
+
+  def column(n: Int): Vector[Int] = row.map(_(n))
+
+}

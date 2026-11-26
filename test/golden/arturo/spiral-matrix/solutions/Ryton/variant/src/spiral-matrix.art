@@ -1,0 +1,41 @@
+directions: @[[0 1] [1 0]  @[0 (neg 1)] @[(neg 1) 0] ]    ; right, down, left, up
+
+
+rectangularSpiralMatrix: function [ncols nrows startvalue] [
+    if all? @[(nrows = 0) (ncols = 0)] [ return [] ] ; handle edge case of non-positive dimensions
+    matrix: array.of: @[ncols nrows] "."
+    currpos: @[0 neg 1]
+    currdiridx: 0
+    
+    visited: []loop 0..dec  ncols*nrows 'idx [
+            currdir: (directions\[currdiridx])
+            nextpos: @[( currdir\0 + currpos\0), (currdir\1 + currpos\1)]
+
+            ; check if feasible; if not, change direction and recalculate nextpos
+            isPosFeasible?: all? @[
+                ((clamp (nextpos\0) @[0 dec ncols]) = (nextpos\0)) 
+                ((clamp (nextpos\1) @[0 dec nrows]) = (nextpos\1))
+                (not? in? nextpos visited) ]
+            if isPosFeasible? [  ; assign the value to the matrix and mark as visited
+                ; move along this direction
+                currpos: nextpos
+                ]
+            if not? isPosFeasible? [; else, change direction
+                currdiridx: (currdiridx + 1) % 4
+                currdir: directions\[(currdiridx)]
+                currpos: @[(first currpos)+ (first currdir) , (last currpos) - (last currdir)]
+                ]
+            ; assign the value to the matrix and mark as visited
+            matrix\[first currpos ]\[last currpos ]: idx + startvalue
+            'visited ++ @[currpos]
+    ]
+    return matrix   
+]
+
+spiralMatrix: function [size] [
+    startvalue: 1
+    return rectangularSpiralMatrix size size startvalue
+]
+
+
+;inspect spiralMatrix 0

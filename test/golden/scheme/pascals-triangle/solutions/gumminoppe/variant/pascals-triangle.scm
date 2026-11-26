@@ -1,0 +1,14 @@
+(import (rnrs))
+
+(define (next xs)
+  (let ((ys (cons 1 xs))) (map + (reverse ys) ys)))
+
+(define (rev-pascals-triangle n)
+  (let ((m (1- n)))
+    (if (zero? m) '((1))
+      (let ((triangle (rev-pascals-triangle m)))
+        (cons (next (car triangle)) triangle)))))
+
+(define (pascals-triangle n)
+  (if (zero? n) '() (reverse (rev-pascals-triangle n))))
+

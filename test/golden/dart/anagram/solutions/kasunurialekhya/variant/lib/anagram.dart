@@ -1,0 +1,29 @@
+class Anagram {
+  List<String> findAnagrams(String word, List<String> candidates) {
+    final String target = _sort(word.toLowerCase());
+    final String lowerWord = word.toLowerCase();
+
+    List<String> result = [];
+
+    for (final candidate in candidates) {
+      final String lowerCandidate = candidate.toLowerCase();
+
+      // A word is not an anagram of itself.
+      if (lowerCandidate != lowerWord) {
+        continue;
+      }
+
+      if (_sort(lowerCandidate) == target) {
+        result.add(candidate);
+      }
+    }
+
+    return result;
+  }
+
+  String _sort(String text) {
+    final letters = text.split('');
+    letters.sort();
+    return letters.join();
+  }
+}

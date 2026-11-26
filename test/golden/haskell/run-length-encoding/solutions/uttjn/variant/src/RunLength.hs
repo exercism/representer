@@ -1,0 +1,19 @@
+module RunLength (decode, encode) where
+
+import Data.List (groupBy)
+
+
+decode :: String -> String
+decode "" = ""
+decode (c:text) | c `elem` ['0'..'9'] = let (prefix, suffix) = go [c] text in prefix ++ decode suffix
+                | otherwise = c : decode text
+                where go digits "" = (digits, "")
+                      go digits (c:text) | c `elem` ['0'..'9'] = go (digits ++ [c]) text
+                                         | otherwise           = ( [c | _ <- [1 .. read digits]] , text )
+
+encode :: String -> String
+encode text = concat $ map translateRun runs
+    where runs = map (\group -> (length group, head group)) groups
+          groups = groupBy (==) text
+          translateRun (2, chr) = chr:""
+          translateRun (n, chr) = show n ++ (chr:"")

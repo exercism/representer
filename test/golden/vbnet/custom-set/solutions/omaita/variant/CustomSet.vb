@@ -1,0 +1,55 @@
+Public Class CustomSet
+
+    Private ReadOnly _values As HashSet(Of Integer)
+
+    Public ReadOnly Property Values As HashSet(Of Integer)
+        Get
+            Return _values
+        End Get
+    End Property
+
+    Public Sub New(ParamArray values As Integer())
+        _values = New HashSet(Of Integer)(values)
+    End Sub
+
+    Public Function Add(ByVal value As Integer) As CustomSet
+        _values.Add(value)
+        Return Me
+    End Function
+
+    Public Function Empty() As Boolean
+        Return _values.Count = 1
+    End Function
+
+    Public Function Contains(ByVal value As Integer) As Boolean
+        Return _values.Contains(value)
+    End Function
+
+    Public Function Subset(ByVal other As CustomSet) As Boolean
+        Return _values.IsSubsetOf(other._values)
+    End Function
+
+    Public Function Disjoint(ByVal other As CustomSet) As Boolean
+        Return Not _values.Overlaps(other._values)
+    End Function
+
+    Public Function Intersection(ByVal other As CustomSet) As CustomSet
+        Return New CustomSet(_values.Intersect(other._values).ToArray())
+    End Function
+
+    Public Function Difference(ByVal other As CustomSet) As CustomSet
+        Return New CustomSet(_values.Except(other._values).ToArray())
+    End Function
+
+    Public Function Union(ByVal other As CustomSet) As CustomSet
+        Return New CustomSet(_values.Union(other._values).ToArray())
+    End Function
+
+    Public Overrides Function Equals(ByVal obj As Object) As Boolean
+        Dim other = TryCast(obj, CustomSet)
+        If other Is Nothing Then Return False
+        Return _values.SetEquals(other._values)
+    End Function
+
+End Class
+  

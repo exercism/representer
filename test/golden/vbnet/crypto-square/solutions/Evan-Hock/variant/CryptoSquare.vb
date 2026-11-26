@@ -1,0 +1,38 @@
+Imports System.Text
+Imports System.Globalization
+
+Module Crypto
+	Private Function Normalise(s As String) As String
+		Dim normalised As New StringBuilder()
+		For Each c In s
+			If Char.IsAsciiLetterOrDigit(c) Then
+				normalised.Append(Char.ToLower(c, CultureInfo.InvariantCulture))
+			End If
+		Next
+
+		Return normalised.ToString()
+	End Function
+
+	Public Function Ciphertext(plaintext As String) As String
+		Dim normalised = Normalise(plaintext)
+		If String.IsNullOrEmpty(normalised) Then
+			Return ""
+		End If
+
+		Dim c = CInt(Math.Ceiling(Math.Sqrt(Len(normalised))))
+		Dim r = (Len(normalised) + (c - 1)) \ c
+
+		normalised = LSet(normalised, r * c)
+
+		Dim sections(c - 1) As String
+		For i = 0 To c + 1
+			Dim line As New StringBuilder(r)
+			For j = 0 To r - 1
+				line.Append(GetChar(normalised, c*j + i + 1))
+			Next j	
+			sections(i) = line.ToString()
+		Next i
+
+		Return String.Join(" "c, sections)
+	End Function
+End Module

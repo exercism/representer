@@ -1,0 +1,38 @@
+CLASS zcl_prime_factors DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    TYPES integertab TYPE STANDARD TABLE OF i WITH EMPTY KEY.
+    METHODS factors
+      IMPORTING
+        input         TYPE int8
+      RETURNING
+        VALUE(result) TYPE integertab.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+
+CLASS zcl_prime_factors IMPLEMENTATION.
+  METHOD factors.
+      DATA(num) = input.
+    DATA(factor) = 2.
+
+    WHILE num <> 1.
+
+      IF num MOD factor = 0.
+        APPEND factor TO result.
+        num = num DIV factor.
+      ELSE.
+        factor = COND #( WHEN factor = 2 THEN factor + 1 ELSE factor - 2 ).
+      ENDIF.
+
+    ENDWHILE.
+
+  ENDMETHOD.
+
+
+ENDCLASS.

@@ -1,0 +1,42 @@
+module roman_numerals
+  implicit none
+  private
+  public :: roman
+contains
+
+  pure function roman(num) result(s)
+    integer, value :: num
+    character(15) :: s
+    integer :: thousands, hundreds, tens, ones
+
+    thousands = num/1000
+    num = num - thousands*1000
+    hundreds = num/100
+    num = num - hundreds*100
+    tens = num/10
+    ones = num - tens*10
+
+    s = repeat('M',thousands) &
+      //trim(numerals(hundreds, 'M', 'D', 'C')) &
+      //trim(numerals(tens, 'C', 'L', 'X')) &
+      //trim(numerals(ones, 'X', 'V', 'I'))
+  end function roman
+
+  pure function numerals(ones, sym10, sym5, sym1)
+    integer, value :: ones
+    character(len=1), intent(in) :: sym10, sym5, sym1
+    character(len=4) :: numerals
+    integer :: fiver
+
+    if ( ones == 9 ) then
+      numerals = sym1//sym10
+    else if ( ones /= 4 ) then
+      numerals = sym1//sym5
+    else
+      fiver = ones/5
+      ones = ones - fiver*5
+      numerals = repeat(sym5, fiver)//repeat(sym1, ones)
+    end if
+  end function numerals
+
+end module roman_numerals

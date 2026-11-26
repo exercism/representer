@@ -1,0 +1,17 @@
+lookup =
+  C: 'clover'
+  G: 'grass'
+  R: 'radishes'
+  V: 'violets'
+
+class KindergartenGarden
+  new: (diagram) =>
+    @grid = for row in diagram\gmatch('%a+')
+      [c for c in row\gmatch('.')]
+
+  plants: (student) =>
+    i = (student\sub(1, 1)\byte! - 'A'\byte!) / 2 + 1
+    res = {}
+    for row in *@grid
+      for char in *row[i, i + 1] do table.insert(res, lookup[char])
+    res

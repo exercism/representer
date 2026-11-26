@@ -1,0 +1,24 @@
+-module(secret_handshake).
+
+-export([commands/1]).
+
+
+commands(Number) when Number > 16 ->
+    lists:reverse(commands(Number - 16));
+commands(Number) ->
+    BinString = erlang:integer_to_list(Number, 2),
+    lists:reverse(handshake(BinString)).
+
+handshake([$1,_,_,_]=[_|Rs]) ->
+    ["jump"] ++ handshake(Rs);
+handshake([$1,_,_]=[_|Rs]) ->
+    ["close your eyes"] ++ handshake(Rs);
+handshake([$1,_]=[_|Rs]) ->
+    ["double blink"] ++ handshake(Rs);
+handshake([$1]) ->
+    ["wink"] ++ handshake([]);
+handshake([$0|Rs]) ->
+    handshake(Rs);
+handshake([]) ->
+    [].
+

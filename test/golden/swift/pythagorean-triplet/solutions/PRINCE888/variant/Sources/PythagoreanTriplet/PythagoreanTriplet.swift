@@ -1,0 +1,10 @@
+func tripletsWithSum(_ sum: Int) -> [[Int]] {
+    var result = [[Int]]()
+    for a in 3...(sum - 9) {
+        for b in (a + 1)...(sum - 1) {
+                guard a * a + b * b == (sum - a - b) * (sum - a + b) else { continue }
+                result.append([a, b, sum - a - b])
+        }
+    }
+    return result
+}

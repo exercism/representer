@@ -1,0 +1,23 @@
+module BinarySearch
+  ( find
+  ) where
+
+
+import Data.Array (length, (!!))
+import Data.Maybe (Maybe(..))
+import Prelude
+
+
+find ∷ ∀ a. Ord a ⇒ a → Array a → Maybe Int
+find x xs = find' 0 (length xs)
+  where
+    find' ∷ Int → Int → Maybe Int
+    find' lo hi
+      | lo >= hi = Nothing
+      | otherwise = do
+         let mid = div (lo + hi) 2
+         ord ← compare x <$> (xs !! mid)
+         case ord of
+           EQ → Just mid
+           LT → find' lo (mid - 1)
+           GT → find' (mid + 1) hi

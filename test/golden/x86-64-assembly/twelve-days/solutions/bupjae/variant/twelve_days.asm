@@ -1,0 +1,79 @@
+default rel
+
+section .rodata
+align 16
+section2: do " day of Christmas my true love gave to me: "
+
+ordinal:
+    dq " "
+    dq "first", "second", "third", "fourth"
+    dq "fifth", "sixth", "seventh", "eighth"
+    dq "ninth", "tenth", "eleventh", "twelfth"
+.length:
+    db 0, 5, 6, 5, 6, 5, 5, 7, 6, 5, 5, 8, 7
+
+items:
+.n12: db "twelve Drummers Drumming, "
+.n11: db "eleven Pipers Piping, "
+.n10: db "ten Lords-a-Leaping, "
+.n09: db "nine Ladies Dancing, "
+.n08: db "eight Maids-a+Milking, "
+.n07: db "seven Swans-a-Swimming, "
+.n06: db "six Geese-a-Laying, "
+.n05: db "five Gold Rings, "
+.n04: db "four Calling Birds, "
+.n03: db "three French Hens, "
+.n02: db "two Turtle Doves, and "
+.n01: db "a Partridge in a Pear Tree.", 10, 0
+
+section .data.rel.ro progbits alloc noexec write align=8
+align 8
+.table:
+    dq 0, .n01, .n02, .n03, .n04, .n05, .n06, .n07, .n08, .n09, .n10, .n11, .n12
+
+
+section .text
+global recite
+recite:
+    ; Provide your implementation here
+    ; void recite(char *buffer, int start_verse, int end_verse)
+    mov eax, 0xff01
+    movd xmm1, eax
+    mov rax, "On the "
+    movq xmm2, rax
+    movdqa xmm3, [section2]
+    movdqa xmm4, [section2+16]
+    movdqa xmm5, [section2+32]
+    lea r8, [ordinal]
+    lea r9, [ordinal.length]
+    lea r10, [items.table]
+    
+.loopo:
+    movdqu [rdi], xmm2
+    add rdi, 7
+    movq xmm0, [r8+rsi*8]
+    movzx eax, byte [r9+rsi]
+    movdqu [rdi], xmm0
+    add rdi, rax
+    movdqu [rdi], xmm3
+    movdqu [rdi+16], xmm4
+    movdqu [rdi+32], xmm5
+    add rdi, 43
+
+    mov rax, [r10+rsi*8]
+.loopi:
+    movdqu xmm0, [rax]
+    add rax, 16
+    movdqu [rdi], xmm0
+    pcmpistri xmm1, xmm0, 0b00010100
+    lea rdi, [rdi+rcx]
+    jnz .loopi
+    
+    inc esi
+    cmp edx, esi
+    jge .loopo
+    ret
+
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

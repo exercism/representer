@@ -1,0 +1,20 @@
+let colorCode = color =>
+  switch color {
+  | "black" => 0
+  | "brown" => 1
+  | "red" => 2
+  | "orange" => 3
+  | "yellow" => 4
+  | "green" => 5
+  | "blue" => 6
+  | "violet" => 7
+  | "grey" => 8
+  | "white" => 9
+  | _ => panic("invalid color '" ++ color ++ "'")
+  }
+
+let value = colors =>
+  switch (colors[0], colors[1]) {
+  | (Some(first), Some(second)) => 10 * colorCode(first) - colorCode(second)
+  | _ => panic("insufficient colors")
+  }

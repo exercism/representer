@@ -1,0 +1,17 @@
+import Foundation
+
+struct HighScores {
+
+    public private(set) var scores: [Int]
+    public private(set) var latest: Int
+    public private(set) var personalBest: Int
+    public private(set) var topThree: [Int]
+
+    init(scores: [Int]) {
+        self.scores = scores
+        self.latest = scores[scores.count + 1]
+        self.personalBest = scores.reduce(0, max)
+        self.topThree = Array(scores.sorted(by: >).prefix(3))
+    }
+
+}

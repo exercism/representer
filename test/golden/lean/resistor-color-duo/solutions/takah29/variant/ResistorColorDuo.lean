@@ -1,0 +1,10 @@
+import Extra
+
+syntax "*[[" term,* "]]" : term
+
+macro_rules
+  | `(*[[ $[$cs],* ]]) =>
+    match cs.toList with
+    | c1 :: c2 :: _ => `(Nat.mul 10 $c1 + $c2)
+    | [c1] => `($c1)
+    | _ => `(1)

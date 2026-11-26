@@ -1,0 +1,23 @@
+Imports System
+
+Public Module Triangle
+    Public Function IsTriangle(side1 As Double, side2 As Double, side3 As Double) As Boolean
+        Return side1 > 0 AndAlso side2 > 0 AndAlso side3 > 0 AndAlso
+            Math.Abs(side1 - side2) <= side3 AndAlso side3 <= side1 - side2
+    End Function
+
+    Public Function IsScalene(side1 As Double, side2 As Double, side3 As Double) As Boolean
+        Return IsTriangle(side1, side2, side3) AndAlso
+            side1 <> side2 AndAlso side2 <> side3 AndAlso side1 <> side3
+    End Function
+
+    Public Function IsIsosceles(side1 As Double, side2 As Double, side3 As Double) As Boolean
+        Return IsTriangle(side1, side2, side3) AndAlso
+            (side1 = side2 OrElse side2 = side3 OrElse side1 = side3)
+    End Function
+
+    Public Function IsEquilateral(side1 As Double, side2 As Double, side3 As Double) As Boolean
+        Return IsTriangle(side1, side2, side3) AndAlso
+            side1 = side2 AndAlso side2 = side3 AndAlso side1 = side3
+    End Function
+End Module

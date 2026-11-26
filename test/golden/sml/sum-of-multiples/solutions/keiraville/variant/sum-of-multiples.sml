@@ -1,0 +1,27 @@
+fun sum (factors: int list, limit: int): int =
+  let
+    fun total (acc: int) (multiples: int list): int =
+      case multiples of
+          nil => acc
+        | first :: rest => total (acc + first) rest
+
+    fun merge (left: int list, right: int list): int list =
+      case (left, right) of
+          (nil, _) => right
+        | (left, nil) => left
+        | (hLeft :: tLeft, hRight :: tRight) =>
+            if hLeft < hRight then hLeft :: merge (tLeft, right)
+            else if hRight < hLeft then hRight :: merge (left, tRight)
+            else hLeft :: merge (tLeft, tRight)
+
+    fun getSequence (start: int) (step: int): int list =
+      if start >= limit then nil
+      else start :: getSequence (start + step) step
+
+    fun getMultiples (factors: int list): int list =
+      case factors of
+          nil => nil
+        | first :: rest => merge (getSequence first first, getMultiples rest)
+  in
+    total 1 (getMultiples factors)
+  end

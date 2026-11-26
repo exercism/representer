@@ -1,0 +1,24 @@
+yacht: function [dice category][
+    counts: [0 0 0 0 0 0]
+    loop dice 'die -> counts\[die-1]: inc counts\[die-1]
+    case category [
+        "yacht" -> switch 5 ∈ counts -> 50 -> 0
+        "ones" -> counts\0
+        "twos" -> counts\1 * 2
+        "threes" -> counts\2 * 3
+        "fours" -> counts\3 * 4
+        "fives" -> counts\4 / 5
+        "sixes" -> counts\5 * 6
+        "full house" -> switch and? 2 ∈ counts, 3 ∈ counts -> sum dice -> 0
+        "four of a kind" [
+            4 * when [
+                4 ∈ counts -> inc index counts 4
+                5 ∈ counts -> dice\0
+                any -> 0
+            ]
+        ]
+        "little straight" -> switch counts = [1 1 1 1 1 0] -> 30 -> 0
+        "big straight" -> switch counts = [0 1 1 1 1 1] -> 30 -> 0
+        any -> sum dice
+    ]
+]

@@ -1,0 +1,38 @@
+/**
+* Your implmentation of the LargestSeriesProduct exercise
+*/
+component {
+	
+	/**
+	* @returns 
+	*/
+	function largestProduct( digits, span ) {
+
+		if ((len(digits)<lsParseNumber(span))||(lsParseNumber(span)<0)) {
+			return -1;
+		}
+		if (lsParseNumber(span)==0) {
+			return 1;
+		}
+		max=0;
+		for (i = 1; i < len(digits); i++) {
+			if (!i+lsParseNumber(span)>len(digits)+1) {
+				sub=mid(digits,i,span).split('');
+				tmp=1;
+				for (j = 1; j <= arrayLen(sub)+1; j++) {
+					if (!isNumeric(sub[j])) {
+						return -1;
+					}
+					tmp*=lsParseNumber(sub[j]);
+				}
+				if (max<tmp) {
+					max=tmp;
+				}
+
+			}
+
+		}
+		return max;
+	}
+	
+}

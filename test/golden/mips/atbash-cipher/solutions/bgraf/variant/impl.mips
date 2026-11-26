@@ -1,0 +1,29 @@
+.globl atbash_cipher
+
+atbash_cipher:
+	li $t9, 0 # write counter for interleaving spaces
+__loop:
+	lb $t0, 0($a0)
+	addi $a0, $a0, 1
+	beqz $t0, __return
+	blt $t0, 'A', __loop
+	bgt $t0, 'Z', __lowercase
+	addi $t0, $t0, 32
+__lowercase:
+	blt $t0, 'a', __loop
+	bgt $t0, 'z', __loop
+	li $t1, 219
+	sub $t0, $t1, $t0
+	blt $t9, 6, __store
+	li $t9, 0
+	li $t1, ' '
+	sb $t1, 0($a1)
+	addi $a1, $a1, 1	
+__store:
+	sb $t0, 0($a1)
+	addi $a1, $a1, 1
+	addi $t9, $t9, 1
+	b __loop
+__return:
+	sb $zero, 0($a1)
+	jr $ra

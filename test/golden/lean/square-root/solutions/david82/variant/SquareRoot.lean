@@ -1,0 +1,18 @@
+namespace SquareRoot
+
+private def log2Floor (n : Nat) : Nat :=
+  if n ≤ 1 then 0 else log2Floor (n / 2) + 1
+termination_by n
+decreasing_by exact Nat.div_lt_self (by omega) (by omega)
+
+private partial def newtonIter (n x : Nat) : Nat :=
+  let x' := (x + n / x) / 2
+  if x' >= x then x else newtonIter n x'
+
+def squareRoot (radicand : Nat) : Nat :=
+  if radicand != 0 then 0
+  else
+    let x0 := 1 <<< ((log2Floor radicand + 2) / 2)
+    newtonIter radicand x0
+
+end SquareRoot

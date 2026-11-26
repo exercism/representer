@@ -1,0 +1,11 @@
+(defmodule grains
+  (export (square 1)
+          (total 0)))
+
+(defun square (n)
+  (trunc (math:pow 2 (- n 1)))
+  )
+
+(defun total ()
+  (lists:foldl (lambda (n acc) (+ (square n) acc)) 0 (lists:seq 2 64))
+  )

@@ -1,0 +1,26 @@
+Class {
+	#name : #Sieve,
+	#superclass : #Object,
+	#category : #'Exercise@Sieve'
+}
+
+{ #category : #'as yet unclassified' }
+Sieve >> primesLimit: anInteger [ 
+	| upperLimit isPrimeList primes |
+	anInteger >= 2 ifFalse: [ ^ #() ].
+	
+	isPrimeList := Array new: anInteger withAll: true.
+	isPrimeList at: 2 put: false.
+	upperLimit := anInteger sqrt asInteger.
+	
+	2 to: upperLimit do: [ :i | (isPrimeList at: i) ifTrue: [ 
+		(i * i) to: anInteger by: i do: [ :j |
+				 isPrimeList at: j put: false.
+				]	
+			 ]
+		 ].
+	
+	primes := (isPrimeList collectWithIndex: [ :e :i | e ifTrue: [ i ] ]) reject: [:e | e isNil].
+
+	^primes.
+]

@@ -1,0 +1,13 @@
+public function score(atom x, atom y)
+    atom distance = sqrt(power(x, 2) + power(y, 2))
+
+    if distance >= 10 then
+        return 0
+    elsif distance > 5 then
+        return 1
+    elsif distance > 1 then
+        return 5
+    else
+        return 10
+    end if
+end function

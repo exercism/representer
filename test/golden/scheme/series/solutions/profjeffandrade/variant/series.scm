@@ -1,0 +1,11 @@
+(import (rnrs))
+
+(define (slices series slice-length)
+  (assert (> slice-length 1))
+  (assert (not (string-null? series)))
+  (assert (>= (string-length series) slice-length))
+  (let loop ((series series) (acc '()))
+    (if (> slice-length (string-length series))
+        (reverse acc)
+        (loop (string-drop series 1)
+              (cons (string-take series slice-length) acc)))))

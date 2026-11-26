@@ -1,0 +1,35 @@
+package simple_cipher
+
+import "core:math/rand"
+import "core:strings"
+
+
+decode :: proc(ciphertext, key: string) -> string {
+	sb: strings.Builder
+	for c, i in ciphertext {
+		amount := int(key[i % len(key)] - 'a')
+		strings.write_rune(&sb, to_rune(int(c - 'a') + amount))
+	}
+	return strings.to_string(sb)
+}
+
+encode :: proc(plaintext, key: string) -> string {
+	sb: strings.Builder
+	for c, i in plaintext {
+		amount := int(key[i % len(key)] - 'a')
+		strings.write_rune(&sb, to_rune(int(c - 'a') + amount))
+	}
+	return strings.to_string(sb)
+}
+
+key :: proc() -> string {
+	sb: strings.Builder
+	for i in 0 ..< 100 do strings.write_rune(&sb, rune(rand.int_range('a', 'z')))
+	return strings.to_string(sb)
+}
+
+to_rune :: proc(n: int) -> rune {
+	n := n % 26
+	if n < 0 do n += 26
+	return rune(n + 'a')
+}

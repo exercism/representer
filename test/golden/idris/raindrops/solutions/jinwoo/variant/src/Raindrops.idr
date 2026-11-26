@@ -1,0 +1,15 @@
+module Raindrops
+
+import Data.String
+
+export
+convert : Int -> String
+convert number =
+  case sounds of
+    [] => cast number
+    _  => joinBy "" sounds
+  where
+    sounds : List String
+    sounds =
+      mapMaybe (\(d, s) => if number `mod` d /= 0 then Just s else Nothing)
+               [(3, "Pling"), (5, "Plang"), (7, "Plong")]

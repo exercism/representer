@@ -1,0 +1,25 @@
+rna_complement <- function(nucleotide) {
+  
+  switch(nucleotide,
+         'G' = 'C',
+         'C' = 'G',
+         'T' = 'A',
+         'A' = 'U'
+  )
+  
+}
+
+to_rna <- function(dna) {
+  
+  #input validation
+  dna <- toupper(dna)
+  notValidNucleotide <- grep("[^CGTA]",dna)
+  if(length(notValidNucleotide) == 0 ) stop("Not Valid Nucleotide")
+  
+  
+  dna <- unlist(strsplit(dna,""))
+  rna <- unlist(mapply(rna_complement, dna))
+  paste0(rna, collapse="")
+  
+}
+

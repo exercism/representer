@@ -2,11 +2,14 @@ require "test_helper"
 require "golden"
 
 # Checks the golden data in test/golden/ (see test/golden/README.md). For
-# every track there are two tests:
+# every track there are three tests:
 #
 # - Every solution's representation is the one in its representation.txt.
 # - The groups that the representations make are the production groups,
 #   apart from exactly the differences listed in differences.yml.
+# - Every single gets a different representation from its near-miss
+#   variant, apart from exactly the near_miss_merges listed in
+#   differences.yml.
 #
 # After a deliberate change, run bin/regenerate-golden for the track and
 # review the diff.
@@ -30,10 +33,21 @@ class GoldenTest < Minitest::Test
 
     define_method("test_#{slug}_groups_stay_the_same") do
       found = Golden.differences(track, self.class.texts(track)).map { |difference| Golden.key(difference) }
-      listed = Golden.recorded_differences(track).map { |difference| Golden.key(difference) }
+      listed = Golden.recorded_differences(track).reject { |difference| Golden.near_miss?(difference) }
+      listed = listed.map { |difference| Golden.key(difference) }
 
       assert_empty found - listed, "These #{track} differences from the production groups aren't in differences.yml"
       assert_empty listed - found, "These #{track} differences in differences.yml no longer happen"
+    end
+
+    define_method("test_#{slug}_near_misses_stay_apart") do
+      found = Golden.near_miss_merges(track, self.class.texts(track), Golden.variant_texts(track))
+      found = found.map { |difference| Golden.key(difference) }
+      listed = Golden.recorded_differences(track).select { |difference| Golden.near_miss?(difference) }
+      listed = listed.map { |difference| Golden.key(difference) }
+
+      assert_empty found - listed, "These #{track} singles get the same representation as their variant, and aren't in differences.yml"
+      assert_empty listed - found, "These #{track} near_miss_merges in differences.yml no longer happen"
     end
   end
 end

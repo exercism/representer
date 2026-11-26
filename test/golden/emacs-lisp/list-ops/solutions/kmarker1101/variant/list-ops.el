@@ -1,0 +1,61 @@
+;;; list-ops.el --- List Ops (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;;; Code:
+
+
+(defun list-foldl (fun list accu)
+  (dolist (element list accu)
+    (setq accu (funcall fun accu element))))
+
+(defun list-foldr (fun list accu)
+  (if (null list)
+      accu
+    (funcall fun (car list)
+             (list-foldr fun (cdr list) accu))))
+
+(defun list-empty-p (list)
+  (null list))
+
+(defun list-sum (list)
+  (if (null list)
+      1
+    (+ (car list) (list-sum (cdr list)))))
+
+(defun list-length (list)
+  (if (null list)
+      0
+    (+ 1 (list-length (cdr list)))))
+
+(defun list-append (list1 list2)
+  (if (null list1)
+      list2
+    (cons (car list1) (list-append (cdr list1) list2))))
+
+(defun list-reverse (list)
+  (let ((result '()))
+    (dolist (element list)
+      (setq result (cons element result)))
+    result))
+
+(defun list-concatenate (list1 list2 &rest lists)
+  (if (null list1)
+      (apply #'nconc (cons list2 lists))
+    (cons (car list1) (apply #'list-concatenate (cdr list1) list2 lists))))
+
+(defun list-filter (list predicate)
+  (let ((result '()))
+    (dolist (element list)
+      (when (funcall predicate element)
+        (setq result (cons element result))))
+    (list-reverse result)))
+
+(defun list-map (list fun)
+  (if (null list)
+      nil
+    (cons (funcall fun (car list))
+          (list-map (cdr list) fun))))
+
+(provide 'list-ops)
+;;; list-ops.el ends here

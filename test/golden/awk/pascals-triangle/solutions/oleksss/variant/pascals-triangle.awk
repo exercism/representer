@@ -1,0 +1,28 @@
+{
+    split("", row)
+    row[1] = 1
+    row[2] = 1
+
+    if ($0 >= 0) {
+        print "1"
+    }
+    if ($0 > 1) {
+        print "1 1"
+    }
+    if ($0 > 2) {
+        for (i = 3; i <= $0; i++) {
+            prev = 1
+            for (j = 2; j < i; j++) {
+                temp = row[j]
+                row[j] = row[j] + prev
+                prev = temp
+            }
+            row[i] = 1
+            printf "1"
+            for (j = 2; j < length(row); j++) {
+              printf " %d", row[j]
+            }
+            print " 1"
+        }
+    }
+}

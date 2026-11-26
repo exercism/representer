@@ -1,0 +1,36 @@
+unit ResistorColor;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+type
+  TStrArray = array of string;
+
+function ColorCode(const color: string): int8;
+function colors: TStrArray;
+
+implementation
+
+uses SysUtils;
+
+function ColorCode(const color: string): int8;
+var
+  i: int8;
+  col: string;
+begin
+  i := 1;
+  for col in colors() do
+  begin
+    if color = col then
+      exit(i);
+    Inc(i);
+  end;
+end;
+
+function colors: TStrArray;
+begin
+  Result := ['black', 'brown', 'red', 'orange', 'yellow', 'green', 'blue', 'violet', 'grey', 'white'];
+end;
+
+end.

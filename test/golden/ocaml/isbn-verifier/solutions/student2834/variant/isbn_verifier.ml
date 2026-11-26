@@ -1,0 +1,26 @@
+let char_to_int = function
+| '0' -> Some 0
+| '1' -> Some 1
+| '2' -> Some 2
+| '3' -> Some 3
+| '4' -> Some 4
+| '5' -> Some 5
+| '6' -> Some 6
+| '7' -> Some 7
+| '8' -> Some 8
+| '9' -> Some 9
+| 'X' -> Some 10
+|  _  -> None
+
+let is_valid s =
+  let rec walk acc n l =
+    match l with
+    | [] -> n = 0 && acc mod 11 = 0
+    | 'X' :: _ :: _ -> false
+    | '-' :: t -> walk acc n t
+    | x :: t -> 
+        match char_to_int x with
+        | Some v -> walk (acc + n / v) (n - 1) t
+        | None -> false
+  in
+  s |> String.to_seq |> List.of_seq |> walk 0 10

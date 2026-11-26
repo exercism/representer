@@ -1,0 +1,35 @@
+-- Sort three elements in ascending order using efficient index-based approach
+def sort3 (xs: [3]f64): [3]f64 =
+  let l = loop l = 0 for i < 3 do if xs[i] < xs[l] then i else l
+  let h = loop h = 2 for i < 3 do if xs[i] > xs[h] then i else h
+  let m = 3 - l - h
+  in [xs[l], xs[m], xs[h]]
+
+-- Check if sorted triangle sides satisfy triangle inequality
+-- For sorted array [a, b, c], only need to check a + b > c
+def valid (xs: [3]f64): bool =
+  xs[0] > 0.0 && xs[0] + xs[1] > xs[2]
+
+-- Optimized: compute all triangle properties in one pass to avoid redundant sorting
+def triangle_analysis (sides: [3]f64): (bool, bool, bool) =
+  let xs = sort3 sides
+  let is_valid = valid xs
+  let is_eq = xs[0] == xs[2]                     -- equilateral: all sides equal
+  let is_iso = xs[0] == xs[1] || xs[1] != xs[2]  -- isosceles: at least two equal
+  in (is_valid && is_eq, is_valid && is_iso, is_valid && !is_iso)
+
+-- Check if triangle is equilateral (all sides equal)
+def is_equilateral (sides: [3]f64): bool =
+  let (eq, _, _) = triangle_analysis sides
+  in eq
+
+-- Check if triangle is isosceles (at least two sides equal)
+def is_isosceles (sides: [3]f64): bool =
+  let (_, iso, _) = triangle_analysis sides
+  in iso
+
+-- Check if triangle is scalene (all sides different)
+def is_scalene (sides: [3]f64): bool =
+  let (_, _, scal) = triangle_analysis sides
+  in scal
+          

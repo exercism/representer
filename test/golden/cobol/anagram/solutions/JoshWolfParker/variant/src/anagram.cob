@@ -1,0 +1,116 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ANAGRAM.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-SUBJECT PIC X(20).
+       01 WS-L-SUBJECT PIC X(20).
+       01 WS-SUBJECT-LENGTH PIC 99.
+       01 WS-CANDIDATES-COUNT PIC 9.
+       01 WS-I PIC 99.
+       01 WS-J PIC 99.
+       01 WS-CANDIDATES-TABLE.
+           02 WS-CANDIDATES OCCURS 1 TO 20
+                            DEPENDING ON WS-CANDIDATES-COUNT.
+              05 WS-CANDIDATE PIC X(20).
+       01 WS-CUR PIC X(20).
+       01 WS-L-CAN PIC X(20).
+       01 WS-CL PIC 99.
+       01 WS-RESULT-LIST PIC X(48).
+       01 WS-COUNTS-TABLE.
+           02 WS-COUNT PIC S99 OCCURS 26 TIMES.
+       01 WS-COPIED-COUNTS-TABLE.
+           02 WS-COPIED-COUNT PIC S99 OCCURS 26 TIMES.
+       01 WS-C PIC X.
+       01 WS-ORD-BIG-A PIC 999.
+       01 WS-ORD-SMALL-A PIC 999.
+       01 WS-CC PIC 999.
+       01 WS-RP PIC 99.
+       01 WS-ISANAGRAM PIC 9.
+
+       PROCEDURE DIVISION.
+
+       FIND-ANAGRAMS.
+           COMPUTE WS-SUBJECT-LENGTH = LENGTH OF WS-SUBJECT.
+           COMPUTE WS-ORD-BIG-A = FUNCTION ORD('A').
+           COMPUTE WS-ORD-SMALL-A = FUNCTION ORD('a').
+           MOVE 1 TO WS-I.
+           MOVE 1 TO WS-RP.
+           PERFORM 48 TIMES
+               MOVE ' ' TO WS-RESULT-LIST(WS-I:1)
+               ADD 1 TO WS-I
+           END-PERFORM.
+           MOVE 1 TO WS-I.
+           PERFORM 26 TIMES
+               MOVE 0 TO WS-COUNT (WS-I)
+               ADD 1 TO WS-I
+           END-PERFORM.
+           MOVE 1 TO WS-I.
+           PERFORM WS-SUBJECT-LENGTH TIMES
+               MOVE WS-SUBJECT(WS-I:1) TO WS-C
+               COMPUTE WS-CC = FUNCTION ORD(WS-C)
+               IF (WS-CC >= WS-ORD-BIG-A) AND (WS-CC <= 25 +
+                   WS-ORD-BIG-A) THEN
+                   ADD 1 TO WS-COUNT(WS-CC - WS-ORD-BIG-A + 1)
+               END-IF
+               IF (WS-CC >= WS-ORD-SMALL-A) AND (WS-CC < 25 +
+                   WS-ORD-SMALL-A) THEN
+                   ADD 1 TO WS-COUNT(WS-CC - WS-ORD-SMALL-A + 1)
+               END-IF
+               ADD 1 TO WS-I
+           END-PERFORM.
+           MOVE 1 TO WS-I.
+           PERFORM WS-CANDIDATES-COUNT TIMES
+               MOVE WS-CANDIDATES(WS-I) TO WS-CUR
+               COMPUTE WS-CL = LENGTH OF WS-CUR
+               MOVE 1 TO WS-J
+               PERFORM 26 TIMES
+                   MOVE WS-COUNT(WS-J) TO WS-COPIED-COUNT(WS-J)
+                   ADD 1 TO WS-J
+               END-PERFORM
+               MOVE 1 TO WS-J
+               MOVE WS-CUR(1:1) TO WS-C
+               PERFORM UNTIL (WS-C = ' ') OR (WS-J >
+                   WS-CL)
+                   MOVE WS-CUR(WS-J:1) TO WS-C
+                   COMPUTE WS-CC = FUNCTION ORD(WS-C)
+                   IF (WS-CC >= WS-ORD-BIG-A) AND (WS-CC <= 25 +
+                       WS-ORD-BIG-A) THEN
+                       SUBTRACT 1 FROM WS-COPIED-COUNT(WS-CC -
+                       WS-ORD-BIG-A + 1)
+                   END-IF
+                   IF (WS-CC >= WS-ORD-SMALL-A) AND (WS-CC <= 25 +
+                       WS-ORD-SMALL-A) THEN
+                       SUBTRACT 1 FROM WS-COPIED-COUNT(WS-CC -
+                       WS-ORD-SMALL-A + 1)
+                   END-IF
+                   ADD 1 TO WS-J
+               END-PERFORM
+               IF WS-C = ' ' THEN
+                   MOVE WS-J TO WS-CL
+                   SUBTRACT 2 FROM WS-CL
+               END-IF
+               MOVE 1 TO WS-J
+               MOVE 1 TO WS-ISANAGRAM
+               PERFORM 26 TIMES
+                   IF WS-COPIED-COUNT(WS-J) NOT = 0 THEN
+                       MOVE 0 TO WS-ISANAGRAM
+                   END-IF
+                   ADD 1 TO WS-J
+               END-PERFORM
+               MOVE FUNCTION LOWER-CASE(WS-SUBJECT) TO WS-L-SUBJECT
+               MOVE FUNCTION LOWER-CASE(WS-CUR) TO WS-L-CAN
+               IF WS-L-CAN = WS-L-SUBJECT
+                   MOVE 0 TO WS-ISANAGRAM
+               END-IF
+               IF WS-ISANAGRAM = 1
+                   IF WS-RP > 1 THEN
+                       MOVE "," TO WS-RESULT-LIST(WS-RP:1)
+                       ADD 1 TO WS-RP
+                   END-IF
+                   MOVE WS-CUR TO WS-RESULT-LIST(WS-RP:WS-CL)
+                   ADD WS-CL TO WS-RP
+               END-IF
+               ADD 1 TO WS-I
+           END-PERFORM.
+

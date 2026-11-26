@@ -1,0 +1,26 @@
+UPDATE "pig-latin"
+SET result = (
+  WITH split(word, s) AS (
+    VALUES('', phrase || ' ')
+    UNION ALL
+    SELECT substr(s, 0, instr(s, ' ')), substr(s, instr(s, ' ') + 1)
+    FROM split
+    WHERE s != ''
+  )
+  SELECT
+    trim(group_concat(
+      CASE
+      WHEN word REGEXP '^([aeiou]|xr|yt)' THEN word || 'ay'
+      WHEN word REGEXP '^[^aeiou]*qu' THEN substr(word, instr(word, 'qu') + 2) || substr(word, 1, instr(word, 'qu') + 1) || 'ay'
+      WHEN word REGEXP '^[^aeiouy]+y' THEN substr(word, instr(word, 'y')) || substr(word, 1, instr(word, 'y') - 1) || 'ay'
+      WHEN word REGEXP '^[^aeiou]+a' THEN substr(word, instr(word, 'a')) || substr(word, 1, instr(word, 'a') - 1) || 'ay'
+      WHEN word REGEXP '^[^aeiou]+i' THEN substr(word, instr(word, 'i')) || substr(word, 1, instr(word, 'i') - 1) || 'ay'
+      WHEN word REGEXP '^[^aeiou]+e' THEN substr(word, instr(word, 'e')) || substr(word, 1, instr(word, 'e') - 1) || 'ay'
+      WHEN word REGEXP '^[^aeiou]+o' THEN substr(word, instr(word, 'o')) || substr(word, 1, instr(word, 'o') + 1) || 'ay'
+      WHEN word REGEXP '^[^aeiou]+u' THEN substr(word, instr(word, 'u')) || substr(word, 1, instr(word, 'u') - 1) || 'ay'
+      ELSE word
+      END,
+      ' '
+    ))
+  FROM split
+)

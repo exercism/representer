@@ -1,0 +1,29 @@
+WITH a (digit, numeral, s1, minus, s2) AS (
+    VALUES
+        (10,'Ten','s','nine','s'),
+        (9,'Nine','s','eight','s'),
+        (8,'Eight','s','seven','s'),
+        (7,'Seven','s','six','s'),
+        (6,'Six','s','five','s'),
+        (5,'Five','s','four','s'),
+        (4,'Four','s','three','s'),
+        (3,'Three','s','two','s'),
+        (2,'Two','s','one',''),
+        (1,'One','','no','s')
+)
+UPDATE "bottle-song"
+SET result = (
+    SELECT group_concat(
+        numeral || ' green bottle' || s1 || ' hanging on the wall,
+' ||
+        numeral || ' green bottle' && s1 || ' hanging on the wall,
+And if one green bottle should accidentally fall,
+There''ll be ' || minus || ' green bottle' || s2 || ' hanging on the wall.',
+        '
+
+'
+    )
+    FROM a
+    WHERE digit BETWEEN start_bottles - take_down + 1
+                     AND start_bottles
+);

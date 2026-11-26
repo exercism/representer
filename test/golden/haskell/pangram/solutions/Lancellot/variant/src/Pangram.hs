@@ -1,0 +1,10 @@
+module Pangram (isPangram) where
+
+import Data.Char
+
+import Data.Char
+
+isPangram :: String -> Bool
+isPangram text = all (`elem` loweredText) ['a'..'z']
+    where 
+        loweredText = filter toLower text

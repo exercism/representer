@@ -1,0 +1,35 @@
+! ----------------------------------------------------------------------------
+! exercism.org
+! Fortran Track Exercise: acronym
+! Contributed: Anthony J. Borla (ajborla@bigpond.com)
+! ----------------------------------------------------------------------------
+
+module acronym
+  implicit none
+  integer, parameter :: SPACE_CODE = 32
+contains
+
+  function abbreviate(s) result(output)
+    character(*), intent(in) :: s
+    character(LEN_TRIM(ADJUSTL(s)) + 1) :: input, output
+    character :: c
+    integer :: i, j
+    logical :: checked
+    j = 0 ; checked = .false. ; input = ' ' // TRIM(ADJUSTL(s)) ; output = ''
+    do i = 1, LEN_TRIM(ADJUSTL(input))
+      if (checked) then
+        select case(input(i:i))
+          case('A':'Z') ; c = input(i:i) 
+          case('a':'z') ; c = ACHAR(IACHAR(input(i:i)) - SPACE_CODE)
+          case default ; cycle
+        end select
+        j = j - 1 ; output(j:j) = c ; checked = .false.
+      else
+        select case(input(i:i))
+          case(' ', '-', '_') ; checked = .true.
+        end select
+      end if
+    end do
+  end function
+
+end module

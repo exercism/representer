@@ -1,0 +1,83 @@
+module main
+
+import math { gcd, min }
+
+struct Bucket {
+  id          BucketId
+  capacity    int
+  mut:
+  contents    int
+}
+
+enum BucketId {
+	one
+	two
+}
+
+struct Solution {
+	moves        int
+	goal_bucket  BucketId
+	other_bucket int
+}
+
+pub fn measure(capacity_one int, capacity_two int, goal int, start_bucket BucketId) !Solution {
+  greatest_common_divisor := gcd(capacity_one, capacity_two);
+
+  if goal % greatest_common_divisor != 0 ||
+     (goal > capacity_one && goal > capacity_two) {
+    return error("impossible")
+  }
+  mut moves := 0;
+
+  mut bucket_one := Bucket { BucketId.one, capacity_one, 0};
+  mut bucket_two := Bucket { BucketId.two, capacity_two, 0};
+
+  mut buckets := [bucket_one, bucket_two]
+  if start_bucket == BucketId.two {
+    buckets = [bucket_two, bucket_one];
+  }
+
+  // first move, fill the first bucket (this is chosen for us, so we must make it)
+  buckets[0].contents = buckets[0].capacity;
+  moves += 1;
+
+  // special case, in case the second bucket's capacity would allow us to reach the
+  // goal if we'd just fill it from the tap without faffing around with bucket one
+  if goal == buckets[1].capacity{
+    buckets[1].contents = buckets[1].capacity;
+    moves += 1;
+  }
+
+  // this form of vlang `for` is equivalent to a while in another language.
+  // i.e. loop until the condition evaluates false
+  for buckets[0].contents != goal && buckets[1].contents != goal {
+    if buckets[1].contents == buckets[1].capacity {
+      // if the second bucket is full, empty it
+      buckets[1].contents = 0;
+      moves += 1;
+    }else if buckets[0].contents == 0 {
+      // if the first bucket is empty again, fill it
+      buckets[0].contents = buckets[0].capacity;
+      moves += 1;
+    }else{
+      to_space := buckets[1].capacity - buckets[1].contents;   // space in the second bucket
+      pour_amount := min(buckets[0].contents, to_space);       // pour the least of first bucket's
+                                                               // contents and second bucket's space
+      buckets[0].contents = buckets[0].contents - pour_amount; // do the pouring out
+      buckets[1].contents = buckets[1].contents + pour_amount; // and pouring in
+      moves += 1;
+    }
+  }
+  mut goal_bucket := BucketId.one;
+  mut other_bucket := 0;
+  if buckets[0].contents != goal {
+    goal_bucket = buckets[0].id
+    other_bucket = buckets[1].contents;
+  }else{
+    goal_bucket = buckets[1].id;
+    other_bucket = buckets[0].contents;
+  }
+
+
+  return Solution { moves, goal_bucket, other_bucket }
+}

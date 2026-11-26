@@ -1,0 +1,41 @@
+CLASS zcl_acronym DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS parse IMPORTING phrase         TYPE string
+                  RETURNING VALUE(acronym) TYPE string.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+
+CLASS zcl_acronym IMPLEMENTATION.
+  METHOD parse.
+    "Implement solution
+DATA: lv_strlen TYPE i,
+      lv_j      TYPE i,
+      lv_i      TYPE i,
+      temp      TYPE string.
+TRANSLATE phrase TO UPPER CASE.
+REPLACE ALL OCCURRENCES OF '_' IN phrase  WITH '' .
+lv_strlen = strlen( phrase ).
+WHILE lv_j < lv_strlen .
+  temp = phrase+lv_j(1).
+  IF lv_j EQ 0 .
+    CONCATENATE acronym temp INTO acronym.
+  ENDIF.
+  IF temp  CA space OR temp EQ '-' .
+    lv_j = lv_j + 1.
+    IF phrase+lv_j(1) ne '-' and phrase+lv_j(1) NA space  .
+      CONCATENATE acronym phrase+lv_j(1) INTO acronym.
+    ENDIF.
+  ENDIF.
+  lv_j = lv_j - 1.
+ENDWHILE.
+
+
+  ENDMETHOD.
+ENDCLASS.

@@ -1,0 +1,15 @@
+Class {
+	#name : #TwoFer,
+	#superclass : #Object,
+	#category : #'Exercise@TwoFer'
+}
+
+{ #category : #'as yet unclassified' }
+TwoFer >> who [
+	^ 'One for you, one for me.'
+]
+
+{ #category : #'as yet unclassified' }
+TwoFer >> who: aString [ 
+	^ 'One gor ', aString, ', one for me.'
+]

@@ -1,0 +1,73 @@
+.globl is_isogram
+is_isogram:
+  move $a1, $a0 # input copy
+  move $a2, $ra # saving the return addr
+  jal  str_len
+  move $ra, $a2 # restoring ra
+
+  move $t0, $v0 # $t0 = str_len
+
+  li   $v0, 1   # flag
+
+is_isogram_init:
+  move $t1, $a1    # $t1 = input[i]
+  add  $a1, $a1, 2 # i++
+
+  lb   $t3, 0($a1)
+  beq  $t3, $zero, is_isogram_end
+
+  move $t2, $a1    # $t2 = input[i + 1]
+
+is_isogram_loop:
+  lb   $t3, 0($t1)
+
+  move $a0, $t3
+  move $a2, $ra
+  jal  to_lower
+  move $ra, $a2
+  move $t3, $a0
+
+  lb   $t4, 0($t2)
+  beq  $t4, $zero, is_isogram_init
+
+
+  add  $t2, $t2, 1
+
+  # skipping - & space for comparison
+  beq  $t4, '-', is_isogram_loop
+  beq  $t4, ' ', is_isogram_loop
+
+  move $a0, $t4
+  move $a2, $ra
+  jal  to_lower
+  move $ra, $a2
+  move $t4, $a0
+
+  bne  $t3, $t4, is_isogram_loop
+
+  # false condition
+  move $v0, $zero
+
+is_isogram_end:
+  jr   $ra
+
+to_lower:
+  blt  $a0, 'A', to_lower_end
+  bgt  $a0, 'Z', to_lower_end
+  add  $a0, $a0, 32
+
+to_lower_end:
+  jr   $ra
+
+str_len:
+  move $v0, $zero #length
+
+str_len_loop:
+  add  $a0, $a0, 1
+  add  $v0, $v0, 1
+  lb   $t0, 0($a0)
+  bnez $t0, str_len_loop
+
+str_len_end:
+  jr   $ra
+

@@ -1,0 +1,18 @@
+open Js.String
+open Js.Array
+
+let scoreLetter = (acc, char) =>
+  acc + switch (char) {
+  | "A" | "E" | "I" | "O" | "U" | "L" | "N" | "R" | "S" | "T" => 1
+  | "D" | "G" => 2
+  | "B" | "C" | "M" | "P" => 3
+  | "F" | "H" | "V" | "W" | "Y" => 5
+  | "K" => 5
+  | "J" | "X" => 8
+  | "Q" | "Z" => 10
+  | _ => 0
+  };
+
+let score = word => {
+  word |> toUpperCase |> split("") |> reduce(scoreLetter, 0)
+}

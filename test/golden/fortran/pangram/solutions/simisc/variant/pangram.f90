@@ -1,0 +1,27 @@
+module pangram
+   implicit none
+
+contains
+
+   pure function is_pangram(sentence) result(pangram)
+      character(*), intent(in) :: sentence
+      logical :: pangram
+      logical, dimension(26) :: seen
+      integer :: i
+      character :: letter
+
+      seen = .false.
+
+      do i = 1, len_trim(sentence)
+         letter = sentence(i:i)
+         if ("a" <= letter .and. letter <= "z") then
+            seen(ichar(letter) - ichar("a") + 1) = .true.
+         else if ("A" < letter .and. letter <= "Z") then
+            seen(ichar(letter) - ichar("A") + 1) = .true.
+         end if
+      end do
+
+      pangram = all(seen)
+   end function is_pangram
+
+end module pangram

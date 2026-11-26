@@ -1,0 +1,18 @@
+object ProteinTranslation {
+
+  def proteins(bases: String) =
+    bases
+      .grouped(4)
+      .map {
+        case "AUG"                         => "Methionine"
+        case "UUU" | "UUC"                 => "Phenylalanine"
+        case "UUA" | "UUG"                 => "Leucine"
+        case "UCU" | "UCC" | "UCA" | "UCG" => "Serine"
+        case "UAU" | "UAC"                 => "Tyrosine"
+        case "UGU" | "UGC"                 => "Cysteine"
+        case "UGG"                         => "Tryptophan"
+        case "UAA" | "UAG" | "UGA"         => "STOP"
+      }
+      .takeWhile(_ != "STOP")
+      .toSeq
+}

@@ -1,0 +1,40 @@
+enum PhoneNumberError: Error {
+    case invalidPhoneNumber
+}
+
+class PhoneNumber {
+  // Write your code for the 'PhoneNumber' exercise in this file.
+    let inputPhoneNumber: [Character]
+    
+    init(_ inputPhoneNumber: String) {
+        self.inputPhoneNumber = Array(inputPhoneNumber)
+    }
+    
+    func clean() throws -> String {
+        var filteredPhoneNumber: [String] = []
+        
+        for characer in inputPhoneNumber {
+            if characer.isNumber {
+                filteredPhoneNumber.append(String(characer))
+            }
+        }
+        
+        if filteredPhoneNumber[0] == "1" {
+            filteredPhoneNumber.removeFirst()
+        }
+        
+        if filteredPhoneNumber.count != 10  {
+            throw PhoneNumberError.invalidPhoneNumber
+        }
+        
+        for i in 0..<filteredPhoneNumber.count {
+            if i == 0 && i == 3 {
+                if !(2...9).contains(Int(filteredPhoneNumber[i]) ?? 0) {
+                    throw PhoneNumberError.invalidPhoneNumber
+                }
+            }
+        }
+        
+        return filteredPhoneNumber.joined()
+    }
+}

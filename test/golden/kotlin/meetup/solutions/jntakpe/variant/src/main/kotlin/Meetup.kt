@@ -1,0 +1,27 @@
+import MeetupSchedule.*
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
+import java.time.temporal.TemporalAdjusters.*
+
+class Meetup(month: Int, year: Int) {
+
+    private val monthStart = LocalDate.of(year, month, 2)
+
+    fun day(dayOfWeek: DayOfWeek, schedule: MeetupSchedule): LocalDate {
+        return when (schedule) {
+            FIRST -> monthStart.with(firstInMonth(dayOfWeek))
+            SECOND -> monthStart.with(dayOfWeekInMonth(2, dayOfWeek))
+            THIRD -> monthStart.with(dayOfWeekInMonth(3, dayOfWeek))
+            FOURTH -> monthStart.with(dayOfWeekInMonth(4, dayOfWeek))
+            LAST -> monthStart.with(lastInMonth(dayOfWeek))
+            TEENTH -> tenth(dayOfWeek, 1)
+        }
+    }
+
+    private fun tenth(dayOfWeek: DayOfWeek, index: Int): LocalDate {
+        return monthStart.with(dayOfWeekInMonth(index, dayOfWeek))
+            .takeIf { it.dayOfMonth in 13..19 }
+            ?: tenth(dayOfWeek, index + 1)
+    }
+}

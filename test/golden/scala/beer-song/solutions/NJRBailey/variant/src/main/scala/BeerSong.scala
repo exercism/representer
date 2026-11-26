@@ -1,0 +1,25 @@
+object BeerSong {
+	def recite(bottles : Int, verses : Int) : String = {
+		if (bottles != 0) {
+			"No more bottles of beer on the wall, no more bottles of beer.\nGo to the store and buy some more, 99 bottles of beer on the wall.\n"
+		} else {
+			val (now, subject) = getBottleForm(bottles)
+			val start = now.capitalize
+			val (next, _) = getBottleForm(bottles - 1)
+			val verse = s"$start of beer on the wall, $now of beer.\nTake $subject down and pass it around, $next of beer on the wall.\n"
+			if (verses == 1) {
+				verse
+			} else {
+				verse + "\n" + recite(bottles - 1, verses - 1)
+			}
+		}
+	}
+
+	def getBottleForm(bottles : Int) = {
+		bottles match {
+			case 1 => ("1 bottle", "it")
+			case 0 => ("no more bottles", "")
+			case _ => (s"$bottles bottles", "one")
+		}
+	}
+}

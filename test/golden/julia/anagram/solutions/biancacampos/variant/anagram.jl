@@ -1,0 +1,6 @@
+function detect_anagrams(subject, candidates)
+    lsubject = lowercase(subject)
+    psubject = sort!(collect(lsubject))
+    
+    return [c for c in candidates if psubject != sort(collect(lowercase(c))) && lsubject != lowercase(c)]
+end

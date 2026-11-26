@@ -1,0 +1,21 @@
+type dna =
+  | A
+  | C
+  | G
+  | T;
+
+type rna =
+  | A
+  | C
+  | G
+  | U;
+
+let toRnaBase = (x: dna): rna =>
+  switch (x) {
+  | G => C
+  | C => G
+  | T => A
+  | A => U
+  };
+
+let toRna = (xs: list(dna)): list(rna) => xs->Belt.List.filter(toRnaBase);

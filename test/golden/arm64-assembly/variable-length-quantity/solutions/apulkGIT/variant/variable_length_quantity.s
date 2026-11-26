@@ -1,0 +1,87 @@
+.data
+bits28: .dword 0x10000000
+bits21: .dword 0x200000
+bits14: .dword 0x4000
+
+.text
+.globl encode
+.globl decode
+
+encode:
+        eor x3,x3,x3
+        mov x6,#0
+encodeloop:
+        cbz x2,endencode 
+        ldr w3,[x1],#4
+        
+        ldr x4,=bits28
+        ldr x4,[x4]
+        cmp x3,x4
+        b.lt jbits21
+        lsr w5,w3,#28
+        orr w5,w5,#0x80
+        strb w5,[x0],#1
+        add x6,x6,#1
+jbits21:
+        ldr x4,=bits21
+        ldr x4,[x4]
+        cmp x3,x4
+        b.lt jbits14
+        lsr w5,w3,#21
+        and w5,w5,#0x7f
+        orr w5,w5,#0x80
+        strb w5,[x0],#1
+        add x6,x6,#1
+jbits14:
+        ldr x4,=bits14
+        ldr x4,[x4]
+        cmp x3,x4
+        b.lt jbits7
+        lsr w5,w3,#15
+        and w5,w5,#0x7f
+        orr w5,w5,#0x80
+        strb w5,[x0],#1
+        add x6,x6,#1
+jbits7:
+        cmp x3,#0x80
+        b.lt jbits0
+        lsr w5,w3,#7
+        and w5,w5,#0x7f
+        orr w5,w5,#0x80
+        strb w5,[x0],#1
+        add x6,x6,#1
+jbits0:
+        and w5,w3,#0x7f
+        strb w5,[x0],#1
+        add x6,x6,#1
+        
+        sub x2,x2,#1
+        b.al encodeloop
+endencode:
+        mov x0,x6
+        ret
+
+decode:
+        eor x3,x3,x3
+        mov x6,#0
+        mov x5,#128
+decodeloop:
+        cbz x2,enddecode 
+        mov x4,#0
+decodeinner:
+        ldrb w3,[x1],#1
+        cmp x3,#0x80
+        b.lt exitinnerloop
+        and w3,w3,#0x7f
+        madd x4,x4,x5,x3
+        sub x2,x2,#1
+        b.al decodeinner
+exitinnerloop:
+        madd x4,x4,x5,x3
+        str w4,[x0],#4
+        sub x2,x2,#1
+        add x6,x6,#1
+        b.al decodeloop
+enddecode:
+        mov x0,x6
+        ret

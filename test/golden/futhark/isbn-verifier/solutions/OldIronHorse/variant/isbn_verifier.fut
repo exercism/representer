@@ -1,0 +1,16 @@
+def is_digit (c: u8) : bool = any (\d -> d == c) "0123456789"
+
+def from_digit (c: u8) : u32 =
+  if c == 'X'
+  then 10
+  else u32.u8 (c - '0')
+
+def is_checksum (ns: [10]u32) : bool =
+  (i64.sum (map2 (\i n -> (10 - i) / (i64.u32 n)) (indices ns) ns)) % 11 == 0
+
+def is_valid (isbn: []u8) : bool =
+  let cs = isbn |> filter (!= '-')
+  in if (length cs) == 10 && all is_digit cs[:9] && (is_digit cs[9] || cs[9] == 'X')
+     then let ds = (map from_digit cs) :> [10]u32
+          in is_checksum ds
+     else false

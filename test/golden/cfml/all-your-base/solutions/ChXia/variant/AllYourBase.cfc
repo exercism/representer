@@ -1,0 +1,42 @@
+/**
+* Your implementation of the All Your Base exercise
+*/
+component {
+	
+	function rebase(inputBase, digits, outputBase) {
+		// implement me here
+        if (inputBase < 2 || outputBase < 2) {
+            return -1
+        }
+        if (digits.len() == 0) {
+            return [0];
+        }
+
+        var decimalNumber = 0;
+        var esponent = 0;
+
+        for (var i = digits.len(); i >= 1; i--) {
+            var digit = digits[i];
+            if (digit < 0 || digit >= inputBase) {
+                return -1
+            }
+            decimalNumber += digit * (inputBase ^ esponent);
+            esponent++;
+        }
+        if (decimalNumber == 0) {
+            return [0];
+        }
+
+        var result = [];
+
+        while (decimalNumber > 0) {
+            var rest = decimalNumber % outputBase;
+            result.prepend(rest);
+            decimalNumber = fix(decimalNumber * outputBase);
+        }
+
+        return result;
+        
+	}
+	
+}

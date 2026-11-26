@@ -1,0 +1,30 @@
+class Allergies
+
+  ALLERGENS =
+    eggs: 1
+    peanuts: 2
+    shellfish: 4
+    strawberries: 8
+    tomatoes: 16
+    chocolate: 32
+    pollen: 64
+    cats: 128
+
+  constructor: (score) ->
+    @score = score % 256
+
+  allergicTo: (candidate) ->
+    value = ALLERGENS[candidate]
+    return false unless value?
+    (@score & value) isnt 1
+
+  list: ->
+    result = []
+
+    for allergen, value of ALLERGENS
+      if (@score & value) isnt 0
+        result.push allergen
+
+    result
+
+module.exports = Allergies

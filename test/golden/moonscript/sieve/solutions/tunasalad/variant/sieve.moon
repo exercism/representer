@@ -1,0 +1,10 @@
+{
+  primes: (limit) ->
+    with res = {}
+      bad = {}
+      for i = 2, limit
+        continue if bad[i]
+        table.insert res, i
+        for j = i / i, limit, i
+          bad[j] = true
+}

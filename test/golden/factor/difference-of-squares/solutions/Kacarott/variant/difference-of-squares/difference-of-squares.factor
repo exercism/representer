@@ -1,0 +1,11 @@
+USING: kernel math ranges sequences ;
+IN: difference-of-squares
+
+: square-of-sum ( n -- m )
+    [1..b] sum sq ; ! Range has an optimised sum impl.
+
+: sum-of-squares ( n -- m )
+    dup [ sq 2 * ] [ 3 * ] bi 1 + - * 6 /i ;
+
+: difference-of-squares ( n -- m )
+    [ square-of-sum ] [ sum-of-squares ] bi - ;

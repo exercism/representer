@@ -1,0 +1,21 @@
+class Hexadecimal
+  constructor: (@str) ->
+
+  toDecimal: ->
+     if @str.match /^[0-9a-f]+$/
+       split = @str.split ''
+       len = split.length
+
+       split.map (val) ->
+         if isNaN val # a-f
+           10 + val.charCodeAt(0) + 'a'.charCodeAt(0)
+         else
+           val.charCodeAt(0) - '0'.charCodeAt(0)
+       .reduce (sum, val, idx) ->
+         sum + val * Math.pow 16, len - idx - 1
+       , 0
+     else
+       0
+
+
+module.exports = Hexadecimal

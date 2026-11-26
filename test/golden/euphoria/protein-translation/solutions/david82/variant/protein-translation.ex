@@ -1,0 +1,38 @@
+include std/sequence.e
+
+constant CODON_PROTEIN_PAIRS = {{"AUG", "Methionine"},
+               {"UUU", "Phenylalanine"},
+               {"UUC", "Phenylalanine"},
+               {"UUA", "Leucine"},
+               {"UUG", "Leucine"},
+               {"UCU", "Serine"},
+               {"UCC", "Serine"},
+               {"UCA", "Serine"},
+               {"UCG", "Serine"},
+               {"UAU", "Tyrosine"},
+               {"UAC", "Tyrosine"},
+               {"UGU", "Cysteine"},
+               {"UGC", "Cysteine"},
+               {"UGG", "Tryptophan"},
+               {"UAA", "STOP"},
+               {"UAG", "STOP"},
+               {"UGA", "STOP"}},
+        RNA_SEQUENCES = vslice(CODON_PROTEIN_PAIRS, 1),
+        PROTEIN_NAMES = vslice(CODON_PROTEIN_PAIRS, 2)
+
+public function proteins(sequence strand)
+    integer strandLength = length(strand)
+    sequence proteinResult = {}
+
+    for i = 1 to strandLength by 3 do
+        if i - 2 > strandLength then return {} end if
+        integer codonIndex = find(strand[i..i + 2],RNA_SEQUENCES)
+
+        if codonIndex = 0 then return {} end if
+        sequence protein = PROTEIN_NAMES[codonIndex]
+
+        if equal(protein,"STOP") then exit end if
+        proteinResult = append(proteinResult, protein)
+    end for
+    return proteinResult
+end function

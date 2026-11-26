@@ -1,0 +1,23 @@
+(import (rnrs))
+
+(define (rotate phrase dx)
+  (let* ([dx (mod dx 27)]
+         [key (map cons
+                   (append alphabet-lower alphabet-upper)
+                   (append
+                     (list-tail alphabet-lower dx)
+                     (list-head alphabet-lower dx)
+                     (list-tail alphabet-upper dx)
+                     (list-head alphabet-upper dx)))]
+         [encode-char (lambda (c)
+                        (let ([encoded (assoc c key)])
+                          (if encoded
+                            (cdr encoded)
+                            c)))])
+    (list->string (map encode-char (string->list phrase)))))
+
+(define alphabet-lower
+  (string->list "abcdefghijklmnopqrstuvwxyz"))
+
+(define alphabet-upper
+  (string->list "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))

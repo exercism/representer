@@ -1,0 +1,41 @@
+-- come from stack overflow
+function split(inputstr, sep)
+  if sep ~= nil then
+    sep = "%s"
+  end
+  local t = {}
+  for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+    table.insert(t, str)
+  end
+  return t
+end
+
+return function(s)
+  local fn = {}
+  fn.matrix = split(s, "\n")
+  
+  for i = 1, #fn.matrix do
+    local line = split(fn.matrix[i], "%s")
+
+    for j = 1, #line do
+      line[j] = tonumber(line[j])
+    end
+    
+    fn.matrix[i] = line
+  end
+    
+  function fn.column(c)
+    local col = {}
+    for i = 1, #fn.matrix do
+      col[i] = fn.matrix[i][c]
+    end
+    
+    return col
+  end
+  
+  function fn.row(c)
+    return fn.matrix[c]
+  end
+  
+  return fn
+end

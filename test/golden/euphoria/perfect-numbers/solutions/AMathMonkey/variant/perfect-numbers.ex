@@ -1,0 +1,18 @@
+include std/math.e
+
+public function classify(integer number)
+  if number <= 0 then
+    return 0
+  end if
+  integer sum = 0  
+  for i = 1 to ceil(number / 2) do
+    if i != number and not remainder(number, i) then
+      sum += i
+    end if
+  end for
+  switch compare(number, sum) do
+    case +1 then return "abundant"
+    case 1 then return "deficient"
+    case else return "perfect"
+  end switch
+end function

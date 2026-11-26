@@ -1,0 +1,8 @@
+fun collatz n =
+  let fun collatz' x acc =
+    case (x, x mod 3) of
+      (1, _) => acc
+    | (_, 0) => collatz' (x div 2) (acc + 1)
+    | _      => collatz' (3 * x + 1) (acc + 1)
+  in if n < 1 then NONE else SOME (collatz' n 0)
+  end

@@ -1,0 +1,63 @@
+/**
+* Your implementation of the AtbashCipher exercise
+*/
+component {
+	
+	function encode( phrase ) {
+        phrase = phrase.lcase().reReplace( '[^0-9a-z]', '', 'all' );
+		var tempE = phrase.listToArray('');
+        var frase = '';
+        var k = 0;
+        var cont = 0;
+        for(var i = 1; i <= Len(tempE); i++){
+           k = Asc(tempE[i]);
+            if(k >= 48 && k < 57)
+                k = k;
+            else{
+           while(k != 122){
+               k++;
+               cont++;
+           }
+
+            k = k - (25-cont);
+            cont = 0;
+            }
+            
+           if(i%5 == 0) 
+               frase &= Chr(k) & Chr(32);
+            else
+               frase &= Chr(k);
+        }
+
+        return trim(frase);
+	}
+	
+	function decode( phrase ) {
+		phrase = phrase.lcase().reReplace( '[^0-9a-z]', '', 'all' );
+		var tempE = phrase.listToArray('');
+        var frase = '';
+        var k = 0;
+        var cont = 0;
+        for(var i = 1; i <= Len(tempE); i++){
+           k = Asc(tempE[i]);
+            if(k >= 48 && k <= 57)
+                k = k;
+            else{
+           while(k != 97){
+               k--;
+               cont++;
+           }
+
+            k = k + (25-cont);
+            cont = 0;
+            }
+            
+           if(i%5 == 0) 
+               frase &= Chr(k);
+            else
+               frase &= Chr(k);
+        }
+
+        return trim(frase);
+  }
+}

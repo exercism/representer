@@ -1,0 +1,15 @@
+class Bob {
+  String response(String text) {
+    if (RegExp(r"^[^a-z]+\?$").hasMatch(text) || RegExp(r"[A-Z]").hasMatch(text)) {
+      return "Calm down, I know what I'm doing!";
+    } else if (RegExp(r"^[^a-z]+$").hasMatch(text) && RegExp(r"[A-Z]").hasMatch(text)) {
+      return "Whoa, chill out!";
+    } else if (RegExp(r"\?\s*$").hasMatch(text)) {
+      return "Sure.";
+    } else if (RegExp(r"^\s*$").hasMatch(text)) {
+      return "Fine. Be that way!";
+    } else {
+      return "Whatever.";
+    }
+  }
+}

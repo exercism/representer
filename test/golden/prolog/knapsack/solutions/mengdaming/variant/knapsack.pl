@@ -1,0 +1,41 @@
+
+:- use_module(library(simplex)).
+
+maximum_value([], _, 0).
+maximum_value(Items, Capacity, Value) :-
+  remove_unfit_items(Capacity, Items, FitItems),
+  search_maximum_value(FitItems, Capacity, Value).
+
+unfit_item(Capacity, item(Weight, _)) :-
+    Weight > Capacity.
+
+remove_unfit_items(Capacity, ItemsIn, ItemsOut) :-
+    exclude(unfit_item(Capacity), ItemsIn, ItemsOut).
+
+search_maximum_value(Items, Capacity, Value) :-
+	gen_state(InitialState),
+	length(Items, NbItems),
+	numlist(1, NbItems, Indices),
+	create_indices_constraint(Indices, InitialState, TmpState1),
+	maplist(create_weight_value_constraint, Indices, Items, Weights, Values),
+  constraint(Weights =< Capacity, TmpState1, TmpState2),
+  maximize(Values, TmpState2, EndState),
+	get_max_value(EndState, Items, Indices, 0, Value).
+
+create_indices_constraint([], State, State).
+create_indices_constraint([HeadIndices|TailIndices], InitialState, EndState) :-
+	constraint(integral(x(HeadIndices)), InitialState, TmpState1),
+	constraint([x(HeadIndices)] =< 1, TmpState1, TmpState2),
+	constraint([x(HeadIndices)] >= 0, TmpState2, TmpState3),
+	create_indices_constraint(TailIndices, TmpState3, EndState).
+
+create_weight_value_constraint(Indices, item(Weight, Value), Weight * x(Indices), Value / x(Indices)).
+
+get_max_value(_, [], [], ValueMax, ValueMax).
+get_max_value(State, [item(_, Value)|TailItems], [HeadIndex|TailIndices], AccValue1, ValueMax) :-
+	variable_value(State, x(HeadIndex), Index),
+	(
+	  Index = 0 -> AccValue1 = AccValue2;
+	  AccValue2 is AccValue1 + Value
+	),
+	get_max_value(State, TailItems, TailIndices, AccValue2, ValueMax).

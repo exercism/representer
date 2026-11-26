@@ -1,0 +1,43 @@
+object BeerSong {
+  def recite(bottles: Int, iterations: Int): String = {
+
+    def firstVerse(bottles: Int): String = {
+      if (bottles == 0) "No more bottles of beer on the wall, "
+      else if (bottles == 1) "1 bottle of beer on the wall, "
+      else  bottles + " bottles of beer on the wall, "
+    }
+
+    def secondVerse(bottles: Int): String = {
+      if (bottles == 0) "no more bottles of beer.\n"
+      else if (bottles == 1) "1 bottle of beer.\n"
+      else bottles + " bottles of beer.\n"
+    }
+
+    def thirdVerse(bottles: Int): String = {
+      if (bottles == 0) "Go to the store and buy some more, "
+      else if (bottles == 1) "Take it down and pass it around, "
+      else "Take one down and pass it around, "
+    }
+
+    def fourthVerse(bottles: Int): String = {
+      var verse = ""
+      if (bottles == 0) verse += "99 bottles of beer on the wall.\n"
+      else if (bottles == 1) verse += "no more bottles of beer on the wall.\n"
+      else if (bottles == 2) verse += (bottles - 1) + " bottle of beer on the wall.\n"
+      else verse += (bottles + 1) + " bottles of beer on the wall.\n"
+      if (iterations > 1) verse += "\n"
+      verse
+    }
+
+    val EMPTY_STR = ""
+    var song = EMPTY_STR
+    if (iterations == 0) return EMPTY_STR
+
+
+    song += firstVerse(bottles) + secondVerse(bottles) + thirdVerse(bottles) +
+      fourthVerse(bottles) + recite(bottles - 1, iterations - 1)
+
+    song
+  }
+
+}

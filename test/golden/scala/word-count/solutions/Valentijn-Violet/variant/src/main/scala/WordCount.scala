@@ -1,0 +1,14 @@
+case class WordCount(subtitle: String) {
+  private val punctuation = """(?<!\w)'|'(?!\w)|[^\w']"""
+  private val separator = "[:!?,.;\t\n ]"
+
+  def countWords: Map[String, Int] = {
+    val words = subtitle.split(separator)
+      .map(
+        _.toLowerCase
+          .replaceAll(punctuation, "")
+      )
+      .filterNot(_.isBlank)
+    words.filter { word => word.trim -> words.count(_ == word.trim) }.toMap
+  }
+}

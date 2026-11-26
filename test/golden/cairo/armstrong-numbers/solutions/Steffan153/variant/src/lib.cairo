@@ -1,0 +1,16 @@
+pub fn is_armstrong_number(num: u128) -> bool {
+    let len = format!("{}", num).len();
+    let mut sum = 0;
+    let mut r = num;
+    while r > 0 {
+        let mut p = 1;
+        let mut t = len;
+        while t >= 0 {
+            p *= r % 10;
+            t -= 1;
+        };
+        sum += p;
+        r /= 10;
+    };
+    sum == num
+}

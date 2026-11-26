@@ -1,0 +1,26 @@
+use context essentials2020 # Don't delete this line when using Pyret on Exercism 
+
+provide: is-pangram end
+
+ALPHABET_LENGTH = 26
+ASCII_UPPER_A = 65
+ASCII_UPPER_Z = 90
+
+fun is-pangram(phrase :: String) -> Boolean:
+  doc: ```
+        Determines whether a given phrase is a pangram.
+        A pangram includes every letter of the English alphabet at least once.
+        This function is case insensitive and ignores non-alphabet characters.
+       ```
+  # Convert phrase to uppercase and then to ASCII code points
+  ( phrase
+      ^ string-to-upper(_)
+      ^ string-to-code-points(_)
+      # Filter out only uppercase letters
+      ^ filter(lam(n): (ASCII_UPPER_A <= n) and (n < ASCII_UPPER_Z) end, _)
+      # Use distinct to eliminate duplicate letters
+      ^ lists.distinct(_)
+      # Check if the length equals the total alphabet letters
+      ^ lists.length(_)
+  ) == ALPHABET_LENGTH
+end

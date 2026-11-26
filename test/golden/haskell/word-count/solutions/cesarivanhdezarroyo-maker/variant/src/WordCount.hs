@@ -1,0 +1,19 @@
+module WordCount (wordCount) where
+
+import Data.Char (toLower, isAlphaNum)
+import Data.List (group, sort)
+
+wordCount :: String -> [(String, Int)]
+wordCount xs = map (\ws -> (head ws, length ws)) $ group $ sort $ words' (map toLower xs)
+  where
+    words' "" = []
+    words' s = 
+        let (word, rest) = break isSeparator (dropWhile isSeparator s)
+            cleanWord = stripQuotes word
+        in if null cleanWord then words' rest else cleanWord : words' rest
+
+    isSeparator c = not (isAlphaNum c || c == '\'')
+    
+    stripQuotes w
+        | length w >= 2 && head w == '\'' && last w /= '\'' = init (tail w)
+        | otherwise = w

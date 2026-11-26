@@ -1,0 +1,16 @@
+Imports System
+
+Public Module Pangram
+    Public Function IsPangram(input As String) As Boolean
+        Dim asciiAlphabetSeen(25) As Boolean
+        For Each c In input
+            If Not Char.IsAsciiLetter(c) Then
+                Continue For
+            End If
+
+            asciiAlphabetSeen((Asc(c) And &h1f) + 1) = True
+        Next
+
+        Return Array.TrueForAll(Of Boolean)(asciiAlphabetSeen, Function(p) p)
+    End Function
+End Module

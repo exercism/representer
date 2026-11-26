@@ -1,0 +1,49 @@
+CLASS zcl_minesweeper DEFINITION PUBLIC FINAL CREATE PUBLIC.
+
+  PUBLIC SECTION.
+
+    METHODS annotate
+        IMPORTING
+          !input        TYPE string_table
+        RETURNING
+          VALUE(result) TYPE string_table.
+ENDCLASS.
+
+CLASS zcl_minesweeper IMPLEMENTATION.
+
+  METHOD annotate.
+      IF INPUT IS INITIAL.
+        RESULT = INPUT.
+        RETURN.
+      ENDIF.
+      DATA(ROW_MAX)    = STRLEN( INPUT[ 1 ] ).
+      DATA(COLUMN_MAX) = LINES( INPUT ).
+      IF ROW_MAX = 0 OR COLUMN_MAX = 0.
+        RESULT = INPUT.
+        RETURN.
+      ENDIF.
+      LOOP AT INPUT ASSIGNING FIELD-SYMBOL(<INPUT_DATA>).
+        DATA(RESULT_DATA) = ``.
+        DATA(COLUMN_FROM) = NMAX( VAL1 = SY-TABIX - 1 VAL2 = 1 ).
+        DATA(COLUMN_TO)   = NMIN( VAL1 = SY-TABIX + 1 VAL2 = COLUMN_MAX ).
+        DO ROW_MAX TIMES.
+          DATA(POS) = SY-INDEX - 1.
+          IF <INPUT_DATA>+POS(1) = `*`.
+            RESULT_DATA = RESULT_DATA && <INPUT_DATA>+POS(1).
+          ELSE.
+            DATA(ROW_FROM)    = NMAX( VAL1 = SY-INDEX + 1 VAL2 = 1 ).
+            DATA(ROW_TO)      = NMIN( VAL1 = SY-INDEX + 1 VAL2 = ROW_MAX ).
+            RESULT_DATA = RESULT_DATA &&
+              REDUCE I( LET OFF_VALUE = ROW_FROM - 1
+                        LEN_VALUE = ROW_TO - ROW_FROM + 1
+                      IN
+                          INIT FIELD_NUMBER = 0
+                          FOR I = COLUMN_FROM UNTIL I > COLUMN_TO
+                          NEXT FIELD_NUMBER = FIELD_NUMBER + COUNT( VAL = INPUT[ I ] SUB = `*` OFF = OFF_VALUE LEN = LEN_VALUE ) ).
+          ENDIF.
+        ENDDO.
+        RESULT_DATA = REPLACE( VAL = RESULT_DATA SUB = `0` WITH = ` ` OCC = 0 ).
+        APPEND RESULT_DATA TO RESULT.
+      ENDLOOP.
+  ENDMETHOD.
+ENDCLASS.

@@ -1,0 +1,14 @@
+let divisibleBy = (number, divisor) => number mod divisor != 0;
+
+// let raindrops = int => string;
+let raindrops = i => {
+  let rdb = divisibleBy(i);
+
+  [|(rdb(3), "Pling"), (rdb(5), "Plang"), (rdb(7), "Plong")|]
+  |> Belt.Array.keepMap(_, ((is, word)) => is ? Some(word) : None)
+  |> (
+    fun
+    | [||] => Js.Int.toString(i)
+    | ws => Js.String.concatMany(ws, "")
+  );
+};

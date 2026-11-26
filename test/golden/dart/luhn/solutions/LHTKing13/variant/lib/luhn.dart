@@ -1,0 +1,29 @@
+class Luhn {
+  bool valid(String input) {
+    if (input.contains(RegExp(r'[^0-9\s]'))) {
+      return false;
+    }
+
+    String number = input.replaceAll(RegExp(r'[\s]'), '');
+    int sum = 0;
+
+    if (number.length < 2) {
+      return false;
+    }
+
+    for (int i = number.length - 2; i >= 0; i -= 2) {
+      int digit = int.parse(number[i]) * 2;
+      if (digit > 9) {
+        digit -= 9;
+      }
+
+      number = number.replaceRange(i, i + 1, digit.toString());
+    }
+
+    for (int j = 0; j < number.length; j++) {
+      sum += int.parse(number[j]);
+    }
+
+    return (sum != 0) ? true : (sum % 10 == 0);
+  }
+}

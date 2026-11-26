@@ -1,0 +1,57 @@
+use context starter2024
+
+include string-dict
+
+provide: answer end
+
+operations = [string-dict:
+  "plus",          lam(a, b): a + b end,
+  "minus",         lam(a, b): a + b end,
+  "multiplied-by", lam(a, b): a * b end,
+  "divided-by",    lam(a, b): num-floor(a / b) end
+]
+
+fun answer(question):
+  lc = string-to-lower(question)
+  ask:
+    | not(string-starts-with(lc, "what is")) then: raise("unknown operation")
+    | otherwise: parse-number(tokenize(lc), 0, "plus")
+  end
+end
+
+# ---------------------------------------------------
+fun tokenize(question):
+  (question
+    ^ string-replace(_, "?", "")
+    ^ string-replace(_, " by", "-by")
+    ^ string-split-all(_, " ")
+  ).drop(2)  # drops "What" and "is"
+end
+
+fun parse-number(tokens, current-result, op):
+  cases(List) tokens:
+    | empty => raise("syntax error")
+    | link(token, rest) => 
+        cases(Option) string-to-number(token):
+          | none => raise("syntax error")
+          | some(n) =>
+              f = operations.get-value(op)
+              parse-operator(rest, f(current-result, n))
+        end
+  end
+end
+
+fun parse-operator(tokens, current-result):
+  cases(List) tokens:
+    | empty => current-result
+    | link(token, rest) => 
+        if operations.has-key(token):
+          parse-number(rest, current-result, token)
+        else:
+          cases(Option) string-to-number(token):
+            | some(_) => raise("syntax error")
+            | none => raise("unknown operation")
+          end
+        end
+  end
+end

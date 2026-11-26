@@ -1,0 +1,16 @@
+-module(darts).
+
+-export([score/2]).
+
+
+score(X, Y) ->
+        case {X, Y} of
+            {X, Y} when abs(X)*abs(X) + abs(Y)*abs(Y) < 100, abs(X)*abs(X) + abs(Y)*abs(Y) > 25 ->
+                                                        1;
+            {X, Y} when abs(X)*abs(X) + abs(Y)*abs(Y) =< 25, abs(X)*abs(X) + abs(Y)*abs(Y) > 1 ->
+                                                        5;
+            {X, Y} when abs(X)*abs(X) + abs(Y)*abs(Y) =< 1, abs(X)*abs(X) + abs(Y)*abs(Y) >= 0 ->
+                                                    10;
+              _ ->
+                0
+        end.

@@ -1,0 +1,10 @@
+proc two-fer {{name "ypu"}} {
+        return "One for $name, one for me."
+    throw {NOT_IMPLEMENTED} "Implement this procedure."
+}
+
+proc two-fer2 {name} {
+    [expr {[string length $name]>0} ? {"One for you, one for me." }: {"One for $name, one for me."} ]
+    throw {NOT_IMPLEMENTED} "Implement this procedure."
+}
+puts [two-fer]

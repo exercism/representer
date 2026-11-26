@@ -1,0 +1,66 @@
+: valid-side? \ a b c T -- b c a T (where T is cleared if a is not valid)
+if
+  rot
+  dup 0 >=
+  if
+    dup 2over n:+ >
+    if
+      0
+    else
+      1
+    then
+  else
+    0
+  then
+else
+  rot 0
+then ;
+
+
+: valid? \ a b c -- a b c T
+1 valid-side? valid-side? valid-side? ;
+
+
+: equal-side? \ a b c T -- b c a T (where T is cleared if a,c are not equal)
+if
+  rot
+  2dup n:=
+else
+  rot 0
+then ;
+
+
+: equilateral? \ a b c -- T
+valid?
+if
+  1 equal-side? equal-side? equal-side? nip nip nip
+else
+  2drop drop 0
+then ;
+
+
+: unequal-side? \ a b c T -- b c a T (where T is cleared if a,c are equal)
+if
+  rot
+  2dup n:= not
+else
+  rot 0
+then ;
+
+
+: scalene? \ a b c -- T
+valid?
+if
+  1 unequal-side? unequal-side? unequal-side? nip nip nip
+else
+  2drop drop 0
+then ;
+
+
+: isosceles? \ a b c -- T
+valid?
+if
+  scalene? not
+else
+  2drop drop 0
+then ;

@@ -1,0 +1,15 @@
+type plant = #grass | #clover | #radishes | #violets
+
+def name (p: u8): plant =
+  match p
+  case 'G' -> #grass
+  case 'C' -> #clover
+  case 'R' -> #radishes
+  case 'V' -> #violets
+  case _ -> assert false #grass
+  
+def plants (diagram: []u8) (student: []u8): [4]plant =
+  let s = i64.u8 (student[0] - 'A')
+  let row = length diagram / 2
+  let pots = [2 * s, 2 * s + 1, 2 * s - row + 1, 2 * s + row + 2]
+  in map (\i -> diagram[i]) pots |> map name

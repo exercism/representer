@@ -1,0 +1,43 @@
+module LinkedList
+    ( LinkedList
+    , datum
+    , fromList
+    , isNil
+    , new
+    , next
+    , nil
+    , reverseLinkedList
+    , toList
+    ) where
+
+data LinkedList a = Nil | Datum (Maybe a) (LinkedList a) deriving (Eq, Show)
+
+datum :: LinkedList a -> a
+datum (Datum (Just x) _) = x
+datum Nil = error "Tried to accets empty datum."
+
+fromList :: [a] -> LinkedList a
+fromList = foldr (\x acc -> Datum (Just x) acc) Nil 
+
+isNil :: LinkedList a -> Bool
+isNil Nil               = True
+isNil _                 = False
+
+new :: a -> LinkedList a -> LinkedList a
+new x linkedList = Datum (Just x) linkedList
+
+next :: LinkedList a -> LinkedList a
+next (Datum (Just _) x) = x
+next Nil = Nil
+
+nil :: LinkedList a
+nil = Nil
+
+reverseLinkedList :: LinkedList a -> LinkedList a
+-- Is...is this cheating?
+reverseLinkedList linkedList = fromList $ reverse (toList linkedList)
+
+toList :: LinkedList a -> [a]
+toList linkedList
+  | isNil linkedList = []
+  | otherwise = (datum linkedList) : toList ((next linkedList))

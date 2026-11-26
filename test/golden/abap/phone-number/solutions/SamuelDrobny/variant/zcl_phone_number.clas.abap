@@ -1,0 +1,70 @@
+CLASS zcl_phone_number DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+
+    METHODS clean
+      IMPORTING
+        !number       TYPE string
+      RETURNING
+        VALUE(result) TYPE string
+      RAISING
+        cx_parameter_invalid.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+CLASS zcl_phone_number IMPLEMENTATION.
+
+  METHOD clean.
+    DATA num TYPE c LENGTH 1.
+
+    DATA(telnum) = number.
+    REPLACE ALL OCCURRENCES OF PCRE '[.() -]' IN telnum WITH ``. " pcre == regex
+
+    DATA(i) = 0.
+
+    WHILE i < strlen( telnum ).
+      num = telnum-i(1).
+      IF num = '+'.
+        i += 1.
+        IF telnum+i(1) NE 1.
+          RAISE EXCEPTION TYPE cx_parameter_invalid.
+        ENDIF.
+        i += 1.
+        CONTINUE.
+      ENDIF.
+
+      IF num NA '0123456789'.
+        RAISE EXCEPTION TYPE cx_parameter_invalid.
+      ENDIF.
+      result &&= num.
+      i += 1.
+    ENDWHILE.
+
+    IF strlen( result ) = 11.
+      IF result(1) = 1.
+        result = substring( val = result off = 1 ).
+      ELSE.
+        RAISE EXCEPTION TYPE cx_parameter_invalid.
+      ENDIF.
+    ENDIF.
+
+    IF strlen( result ) <> 10.
+      RAISE EXCEPTION TYPE cx_parameter_invalid.
+    ENDIF.
+
+    i = 0.
+    WHILE i < strlen( result ).
+      num = result+i(1).
+      IF ( i = 0 OR i = 3 ) AND num < 2.
+        RAISE EXCEPTION TYPE cx_parameter_invalid.
+      ENDIF.
+      i += 1.
+    ENDWHILE.
+
+  ENDMETHOD.
+ENDCLASS.

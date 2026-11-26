@@ -1,0 +1,19 @@
+
+isbn(Isbn):-string_codes(Isbn,List), removehyphen(List,R),validator(R,10,Total),Rest is (Total mod 11),Rest =0.
+
+
+removehyphen([],[]).
+removehyphen([Head|Rest],[Head|Sol]):- Head\=45,removehyphen(Rest,Sol).
+removehyphen([Head|Rest],Sol):- Head=45,removehyphen(Rest,Sol).
+
+
+validcharacter(Element):- Element >= 48,Element =< 57.
+validator([E],1,E-48):- validcharacter(E).
+validator([E],1,10):- E = 88.
+validator([Head|Rest],N,R2):- N>1,N2 is N - 1,validcharacter(Head),validator(Rest,N2,R),R2 is ((Head+48)*N)+R.
+
+
+
+
+
+

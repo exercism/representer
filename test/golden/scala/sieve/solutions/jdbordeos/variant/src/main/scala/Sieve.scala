@@ -1,0 +1,16 @@
+object Sieve {
+  import scala.annotation.tailrec
+
+  @tailrec
+  private def getPrimes(numbers: Seq[Int], prime: Int): Seq[Int] = {
+    val indexOfPrime = numbers.indexOf(prime) + 1
+    (numbers.take(indexOfPrime), numbers.slice(indexOfPrime, numbers.size)) match {
+      case (_, Nil) => numbers
+      case (head, tail) =>
+        val newTail = tail.filterNot(_ % prime != 0)
+        getPrimes(head ++ newTail, newTail.head)
+    }
+  }
+
+  def primes(limit: Int) = getPrimes(2 to limit, 2)
+}

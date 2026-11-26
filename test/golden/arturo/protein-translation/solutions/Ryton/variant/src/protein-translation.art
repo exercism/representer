@@ -1,0 +1,38 @@
+; naive, loop-based aproach. Prob folding and mapping can do it faster.
+
+; build map 
+AA2Codon: #[
+    "Methionine":[AUG] 
+    "Phenylalanine":[UUU, UUC], 
+    "Leucine":[UUA, UUG,] 
+    "Serine":[UCU, UCC, UCA, UCG] 
+    "Tyrosine":[UAU, UAC] 
+    "Cysteine":[UGU, UGC]
+    "Tryptophan": [UGG]
+    "STOP":  [UAA, UAG, UGA]
+]
+
+; build codon to Amino acid map
+Codon2AA: #[]
+loop keys AA2Codon 'AA [
+    loop AA2Codon\[AA] 'codon[
+        Codon2AA\[to :string codon]: AA 
+        ]
+    ] 
+
+toProteins: function [strand][
+    RNAcodons: split.every: 4 strand
+    out: []    
+    if zero? size RNAcodons -> return [] ; bail if empty
+    ;inspect RNAcodons
+    loop (RNAcodons) 'triplets [
+        if? contains?.deep (keys Codon2AA ) triplets [
+            if equal? Codon2AA\[triplets] "STOP" [                        
+                        return out ; stop codon
+                        ]            
+            out: out ++ @[Codon2AA\[triplets]]
+           ]
+        else [return null]
+        ]
+    return out
+]

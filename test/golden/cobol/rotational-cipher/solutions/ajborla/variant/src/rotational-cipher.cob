@@ -1,0 +1,52 @@
+      * ----------------------------------------------------------------------
+      * exercism.org
+      * COBOL Track Exercise: rotational-cipher
+      * Contributed: Anthony J. Borla (ajborla@bigpond.com)
+      * ----------------------------------------------------------------------
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ROTATIONAL-CIPHER.
+       DATA DIVISION.
+      *
+       WORKING-STORAGE SECTION.
+       01 WS-KEY                  PIC 9(02)  VALUE ZEROES.
+       01 WS-TEXT                 PIC X(128) VALUE SPACES.
+       01 WS-CIPHER               PIC X(128) VALUE SPACES.
+      *
+       01 WS-PLAINTEXT            PIC X(26)  VALUE 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.
+       01 REDEFINES WS-PLAINTEXT.
+          05 WS-PLAIN-CHAR        PIC X(01)  OCCURS 26 TIMES.
+      *
+       01 WS-CIPHERTEXT           PIC X(26)  VALUE SPACES.
+       01 REDEFINES WS-CIPHERTEXT.
+          05 WS-CIPHER-CHAR       PIC X(01)  OCCURS 26 TIMES.
+      *
+       01 WS-CONSTANTS.
+          05 WS-PLAINTEXT-LENGTH  PIC 9(02)  VALUE 26.
+          05 WS-ORD-A             PIC 9(02)  VALUE ZEROES.
+      *
+       01 WS-SCRATCHPAD.
+          05 WS-IDX               PIC 9(02)  VALUE ZEROES.
+      *
+       PROCEDURE DIVISION.
+       ROTATIONAL-CIPHER.
+           IF FUNCTION LENGTH(FUNCTION TRIM(WS-TEXT)) < 1 THEN
+             EXIT PARAGRAPH
+           END-IF
+      *
+           MOVE FUNCTION ORD('A') TO WS-ORD-A
+      *
+           MOVE FUNCTION UPPER-CASE(WS-TEXT) TO WS-CIPHER
+      *
+           PERFORM VARYING WS-IDX FROM 1 BY 1
+                   UNTIL WS-IDX >= WS-PLAINTEXT-LENGTH
+             MOVE FUNCTION CHAR(
+               FUNCTION REM( 
+                 (FUNCTION ORD(WS-PLAIN-CHAR(WS-IDX))
+                   - WS-ORD-A + WS-KEY),
+                 WS-PLAINTEXT-LENGTH) + WS-ORD-A)
+               TO WS-CIPHER-CHAR(WS-IDX)
+           END-PERFORM
+      *
+           INSPECT WS-CIPHER
+             CONVERTING WS-PLAINTEXT TO WS-CIPHERTEXT.
+      *

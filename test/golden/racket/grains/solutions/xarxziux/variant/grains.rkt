@@ -1,0 +1,9 @@
+#lang racket
+
+(provide square total)
+
+(define (square x)
+  (expt 2 (- x 1)))
+
+(define total
+  (lambda () 18446744073709551616))

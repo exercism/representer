@@ -1,0 +1,15 @@
+(defmodule luhn
+  (export (valid? 2)))
+
+(defun valid? (s)
+  (fletrec ((loop (s sum double digits)
+              (case s
+                ('() (andalso (> digits 1) (=:= 0 (rem sum 10))))
+                ((list* char rest) 
+                  (case char
+                    (d-char (when (and (>= d-char #\0) (=< d-char #\9)))
+                      (let ((d (* (if double 2 1) (- d-char #\0))))
+                        (loop rest (+ sum (if (> d 9) (- d 9) d)) (not double) (+ 1 digits))))
+                    (#\  (loop rest sum double digits))
+                    (_ 'false))))))
+    (loop (lists:reverse s) 0 'false 0)))

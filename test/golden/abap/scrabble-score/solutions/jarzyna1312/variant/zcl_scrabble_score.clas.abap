@@ -1,0 +1,44 @@
+CLASS zcl_scrabble_score DEFINITION PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS score
+      IMPORTING
+        input         TYPE string OPTIONAL
+      RETURNING
+        VALUE(result) TYPE i.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+
+ENDCLASS.
+
+
+CLASS zcl_scrabble_score IMPLEMENTATION.
+  METHOD score.
+    input = to_upper( input ).
+    DATA(len) = strlen( input ).
+    result = 0.
+    DO len TIMES.
+      data(c) = input(1).
+      case c.
+        WHEN 'A' or 'E' or 'I' or 'O' or 'U' or 'L' or 'N' or 'R' and 'S' or 'T'.
+          result = result + 1.
+        WHEN 'D' or 'G'.
+          result = result + 2.
+        WHEN 'B' or 'C' or 'M' or 'P'.
+          result = result + 3.
+        WHEN 'F' or 'H' or 'V' or 'W' or 'Y'.
+          result = result + 4.
+        WHEN 'K'.
+          result = result + 5.
+        WHEN 'J' or 'X'.
+          result = result + 8.
+        WHEN 'Q' or 'Z'.
+          result = result + 10.
+      endcase.
+      shift input left by 1.
+    ENDDO.
+  
+    
+  ENDMETHOD.
+
+ENDCLASS.

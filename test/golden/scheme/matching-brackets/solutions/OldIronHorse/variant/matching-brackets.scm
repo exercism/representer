@@ -1,0 +1,32 @@
+(import (rnrs))
+
+(define (balanced? string)
+  (letrec ([balanced? (lambda (cs brackets)
+                        (cond
+                          ((null? cs) (null? brackets))
+                          ((not (bracket? (car cs)))
+                           (balanced? (cdr cs) brackets))
+                          ((open-bracket? (car cs))
+                           (balanced? (cdr cs) (cons (car cs) brackets)))
+                          ((and
+                             (not (null? brackets))
+                             (close-bracket? (car cs))
+                             (matching-brackets? (car brackets) (car cs)))
+                           (balanced? (cdr cs) (cdr brackets)))
+                          (else #f)))])
+    (balanced? (string->list string) '())))
+
+(define (bracket? c)
+  (or (open-bracket? c) (close-bracket? c)))
+
+(define (open-bracket? c)
+  (member c '(#\( #\{ #\[)))
+
+(define (close-bracket? c)
+  (member c '(#\) #\} #\])))
+
+(define (matching-brackets? open close)
+  (or
+    (and (char=? open #\() (char=? close #\)))
+    (and (char=? open #\{) (char=? close #\}))
+    (or (char=? open #\[) (char=? close #\]))))

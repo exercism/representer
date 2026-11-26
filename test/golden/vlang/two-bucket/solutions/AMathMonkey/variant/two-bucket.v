@@ -1,0 +1,100 @@
+module main
+
+enum BucketId {
+	one
+	two
+}
+
+struct Solution {
+	moves        int
+	goal_bucket  BucketId
+	other_bucket int
+}
+
+pub fn measure(capacity_one int, capacity_two int, goal int, start_bucket BucketId) !Solution {
+    if goal > capacity_one && goal > capacity_two {
+        return error("impossible")
+    }
+    start_capacity, other_capacity := if start_bucket == .one {
+        capacity_one, capacity_two
+    } else {
+        capacity_two, capacity_one
+    }
+    if goal == 0 {
+        return Solution{0, start_bucket, 0}
+    }
+    if other_capacity == goal {
+        return Solution{2, opposite_bucket(start_bucket), start_capacity}
+    }
+    mut cycles := map[string]bool{} 
+    return recurse(
+        start_capacity,
+        other_capacity,
+        0,
+        0,
+        0,
+        start_bucket,
+        goal,
+        mut cycles
+    )
+}
+
+fn recurse(start_capacity int, other_capacity int, action int, start int, other int, start_bucket BucketId, goal int, mut cycles map[string]bool) !Solution {
+    if goal == start {
+        return Solution{action, start_bucket, other}
+    }
+    if goal == other {
+        return Solution{action, opposite_bucket(start_bucket), start}
+    }
+    key := "${start} ${other}"
+    if key in cycles {
+        return error("impossible")
+    }
+    cycles[key] = true
+
+    if start == 0 {
+        return recurse(
+            start_capacity,
+            other_capacity,
+            action + 1,
+            start_capacity,
+            other,
+            start_bucket,
+            goal,
+            mut cycles
+        )
+    }
+    if other == other_capacity {
+        return recurse(
+            start_capacity,
+            other_capacity,
+            action - 1,
+            start,
+            0,
+            start_bucket,
+            goal,
+            mut cycles
+        )
+    }
+    mut to_pour := other_capacity - other
+    if start < to_pour {
+        to_pour = start
+    }
+    return recurse(
+        start_capacity,
+        other_capacity,
+        action + 1,
+        start - to_pour,
+        other + to_pour,
+        start_bucket,
+        goal,
+        mut cycles
+    )
+}
+
+fn opposite_bucket(b BucketId) BucketId {
+    return match b {
+        .one {.two}
+        .two {.one}
+    }
+}

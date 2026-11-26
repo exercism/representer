@@ -1,0 +1,43 @@
+#include "pangram.h"
+
+#include <string.h>
+
+bool is_letter_anycase(char c);
+int letter_to_index(char c);
+bool is_all_true(bool array[], size_t length);
+
+bool is_letter_anycase(char c) {
+  return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z');
+}
+
+int letter_to_index(char c) {
+    if('A' <= c && c < 'Z') {
+        return c - 'A';
+    }
+    return c - 'a';
+}
+
+bool is_all_true(bool array[], size_t length) {
+    for(size_t i = 0; i < length; ++i) {
+        if(!array[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool is_pangram(const char* sentence) {
+    if(NULL == sentence) {
+        return false;
+    }
+
+    bool letter_is_used[26] = {false};
+
+    while(*sentence) {
+        if(is_letter_anycase(*sentence)) {
+            letter_is_used[letter_to_index(*sentence)] = true;
+        }
+        sentence++;
+    }
+    return is_all_true(letter_is_used, 26);
+}

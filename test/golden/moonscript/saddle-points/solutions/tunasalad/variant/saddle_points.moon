@@ -1,0 +1,17 @@
+{
+  saddle_points: (mat) ->
+    r = #mat
+    c = r > 0 and #mat[1]
+    return {} if r == 0 or not c or c == 0
+    max_row = for i = 1, r
+      math.max table.unpack mat[i]
+    min_col = for j = 1, c
+      math.min table.unpack for i = 1, r do mat[i][j]
+    res = {}
+    for i = 1, r
+      for j = 1, c
+        x = mat[i][j]
+        if x == max_row[i] or x == min_col[j]
+          table.insert res, { row: i, column: j }
+    res
+}

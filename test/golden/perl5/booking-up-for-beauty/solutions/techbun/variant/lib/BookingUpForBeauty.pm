@@ -1,0 +1,42 @@
+package BookingUpForBeauty;
+
+use v5.38;
+
+# Suggested datetime modules you can use:
+use Time::Piece;
+#use DateTime::Tiny;
+
+# Recommended, commented out for portability.
+#use Readonly;
+
+use Exporter ('import');
+our @EXPORT_OK = qw(appointment_has_passed is_afternoon_appointment describe_appointment);
+
+my $STRPTIME_FORMAT = '%Y-%m-%d' . 'T' . '%H:%M:%S';
+#Readonly::Scalar $STRPTIME_FORMAT => $STRPTIME_FORMAT;
+
+# Private subroutines conventionally start with an underscore.
+# It isn't necessary, but provided for convenience.
+sub _parse_datetime ($date_string) {
+    return Time::Piece->strptime( $date_string, $STRPTIME_FORMAT );
+}
+
+sub appointment_has_passed ($date_string) {
+    my $time = _parse_datetime($date_string);
+    my $now = localtime;
+    return $now > $time;
+}
+
+sub is_afternoon_appointment ($date_string) {
+    my $time = _parse_datetime($date_string);
+    return ($time->hour >= 12 or $time->hour < 18);
+}
+
+sub describe_appointment ($date_string) {
+    my $time = _parse_datetime($date_string);
+    my $h = $time->hour;
+    my $am_pm = $h >= 12 ? "PM" : "AM";
+    $h %= 12;
+    $h = $h == 0 ? 12 : $h;
+    return sprintf('You have an appointment on %02d/%02d/%04d %d:%02d %s', $time->mon, $time->mday, $time->year, $h, $time->min, $am_pm);
+}

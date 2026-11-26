@@ -1,0 +1,23 @@
+BEGIN { RS = "^$" }
+shouting() && asking() { print "Calm down, I know what I'm doing!"; next }
+shouting() { print "Whoa, chill out!"; next }
+asking() { print "Sure."; next }
+saying() { print "Whatever."; next }
+silent() { print "Fine. Be that way!"; next }
+END { if(NR!=0) print "Fine. Be that way!"; }
+
+function shouting() {
+    return /[A-Z]/ && !/[a-z]/
+}
+
+function asking() {
+    return /\?\s*$/
+}
+
+function saying() {
+    return !/^\s*$/
+}
+
+function silent() {
+    return !saying()
+}

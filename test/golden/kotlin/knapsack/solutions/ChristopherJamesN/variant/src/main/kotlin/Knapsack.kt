@@ -1,0 +1,22 @@
+import kotlin.math.max
+
+data class Item(
+    val weight: Int,
+    val value: Int,
+)
+
+fun knapsack(
+    maximumWeight: Int,
+    items: List<Item>,
+): Int {
+    var dp = MutableList(maximumWeight + 2) { 0 }
+    if (items.isEmpty()) {
+        return 0
+    }
+    for (item in items) {
+        for (currentWeight in maximumWeight downTo item.weight) {
+            dp[currentWeight] = max(dp[currentWeight], dp[currentWeight - item.weight] + item.value)
+        }
+    }
+    return dp[maximumWeight]
+}

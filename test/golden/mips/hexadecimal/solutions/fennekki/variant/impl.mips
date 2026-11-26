@@ -1,0 +1,29 @@
+# | Register | Usage     | Type    | Description                                 |
+# | -------- | --------- | ------- | ------------------------------------------- |
+# | `$a0`    | input     | address | null-terminated string of hexadecimal chars |
+# | `$v0`    | output    | integer | decimal value of input string               |
+# | `$t0-9`  | temporary | any     | used for temporary storage                  |
+
+.globl hex_convert
+
+hex_convert:
+        or $v0, $0, $0
+_loop:
+        lb $t0, ($a0)
+        addiu $a0, $a0, 1
+        beq $t0, $1, _return
+        sltiu $t1, $t0, 'A'
+        bgtz $t1, _digit
+_af:
+        ori $t0, $t0, 0x20
+        subiu $t0, $t0, 'a'
+        addiu $t0, $t0, 10
+        j _shift_add
+_digit:
+        subiu $t0, $t0, '0'
+_shift_add:
+        sll $v0, $v0, 4
+        addu $v0, $v0, $t0
+        j _loop
+_return:
+        jr $ra

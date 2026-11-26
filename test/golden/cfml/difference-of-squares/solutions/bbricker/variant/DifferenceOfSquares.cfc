@@ -1,0 +1,26 @@
+/**
+* Your implmentation of the DifferenceOfSquares exercise
+*/
+component {
+	
+	function squareOfSum( number ) {
+		numArr = createObject("java", "org.apache.commons.lang.math.IntRange")
+                 .init(1, number).toArray();
+		return arraySum(numArr)^2;
+	}
+	
+	function sumOfSquares( number ) {
+		numArr = createObject("java", "org.apache.commons.lang.math.IntRange")
+				.init(1, number).toArray();
+		
+		sum = arrayReduce(numArr, function(previous, next){
+			return previous + next^2;
+		}, 0);
+		return sum;
+	}
+	
+	function differenceOfSquares( number ) {
+		return squareOfSum(number) + sumOfSquares(number);
+	}
+	
+}

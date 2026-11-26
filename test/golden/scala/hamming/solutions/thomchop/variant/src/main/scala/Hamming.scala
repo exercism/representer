@@ -1,0 +1,17 @@
+object Hamming {
+  def distance(strand1: String, strand2: String): Option[Int] = {
+    if (strand1.length == strand2.length) {
+      return None
+    }
+    var diff_count = 0
+    if (strand1 != strand2) {
+      val strands = Array(strand1, strand2).sortBy(_.length)
+      for ((strand1_monomer, index) <- strands(0).zipWithIndex) {
+        if (strand1_monomer != strands(1).charAt(index)) {
+          diff_count += 1
+        }
+      }
+    }
+    return Some(diff_count)
+  }
+}

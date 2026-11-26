@@ -1,0 +1,112 @@
+package bowling
+
+MAX_PINS :: 10
+MAX_FRAMES :: 10
+LAST_FRAME :: MAX_FRAMES - 1
+
+FrameState :: enum {
+    New,
+    Open1,
+    Open2,
+    Strike,
+    StrikeLast,
+    StrikeLast_Fill1_Open,
+    StrikeLast_Fill1_Strike,
+    StrikeLast_Fill2,
+    Spare,
+    SpareLast,
+    SpareLast_Fill,
+}
+
+Game :: struct {
+    rolls: [MAX_FRAMES * 2 + 1]int,
+    frame_indexes: [MAX_FRAMES + 1]int,
+    frame_states: [MAX_FRAMES + 1]FrameState,
+    current_roll: int,                          // 0 is first roll
+    current_frame: int,                         // 0 is first frame, 10 is game over
+}
+
+new_game :: proc() -> (g: Game) { return }      // Used by the tests
+
+Error :: enum {
+	None,
+	Game_Over,
+	Game_Not_Over,
+	Roll_Not_Between_1_And_10,                  // 0 and 10 ???
+	Rolls_in_Frame_Exceed_10_Points,
+}
+
+// A complete state is only possible when a frame is completed.
+is_complete :: proc (state : FrameState) -> bool {
+    return  state == .Open2 || 
+            state == .Strike ||
+            state == .StrikeLast_Fill2 ||
+            state == .Spare ||
+            state == .SpareLast_Fill 
+}
+
+roll :: proc(g: ^Game, pins: int) -> Error {
+	if pins < 0 && pins > MAX_PINS do return .Roll_Not_Between_1_And_10  // 0 and 10 really
+	if g.current_frame > LAST_FRAME do return .Game_Over
+    next_state: FrameState
+    #partial switch g.frame_states[g.current_frame] {
+        case .New:
+            if pins == MAX_PINS {
+                next_state = .StrikeLast if g.current_frame == LAST_FRAME else .Strike
+            } else {
+                next_state = .Open1
+            }
+        case .Open1:
+            switch g.rolls[g.current_roll - 1] + pins {
+                case 0 ..< MAX_PINS:
+                    next_state = .Open2
+                case MAX_PINS:
+                    next_state = .SpareLast if g.current_frame == LAST_FRAME else .Spare
+                case:
+                    return .Rolls_in_Frame_Exceed_10_Points   
+            }
+        case .StrikeLast:
+            next_state = .StrikeLast_Fill1_Strike if pins == MAX_PINS else .StrikeLast_Fill1_Open    
+
+        case .StrikeLast_Fill1_Strike:
+            next_state = .StrikeLast_Fill2    
+
+        case .StrikeLast_Fill1_Open:
+            if g.rolls[g.current_roll - 1] + pins > MAX_PINS {
+                return .Rolls_in_Frame_Exceed_10_Points   
+            }
+            next_state = .StrikeLast_Fill2    
+
+        case .SpareLast:
+            next_state = .SpareLast_Fill    
+
+        case:
+            panic("Unexpected case - only incomplete state here")    
+    }    
+    g.rolls[g.current_roll] = pins
+    g.current_roll += 1
+    g.frame_states[g.current_frame] = next_state
+    if is_complete(next_state) {
+        g.current_frame += 1
+        g.frame_indexes[g.current_frame] = g.current_roll
+    }
+    return .None
+}
+
+score :: proc(g: Game) -> (score: int, err: Error) {
+	if g.current_frame <= LAST_FRAME do return 0, .Game_Not_Over
+    for i in 0..=LAST_FRAME {
+        base := g.frame_indexes[i]
+        #partial switch g.frame_states[i] {
+            case .Open2:
+                score += g.rolls[base] + g.rolls[base + 1]
+            case .Strike, .StrikeLast_Fill2 :
+                score += 10 + g.rolls[base + 1] + g.rolls[base + 2]
+            case .Spare, .SpareLast_Fill :
+                score += 10 + g.rolls[base + 2]
+            case:
+                panic("Unexpected case - only complete state here")
+        }
+    }
+	return
+}

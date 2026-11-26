@@ -1,0 +1,399 @@
+package zebra_puzzle
+
+import "core:fmt"
+import "core:log"
+import "core:slice"
+
+Color :: enum {
+	Unknown,
+	Red,
+	Green,
+	Ivory,
+	Yellow,
+	Blue,
+}
+
+National :: enum {
+	Unknown,
+	Englishman,
+	Spaniard,
+	Ukrainian,
+	Norwegian,
+	Japanese,
+}
+
+Pet :: enum {
+	Unknown,
+	Dog,
+	Snail,
+	Fox,
+	Horse,
+	Zebra,
+}
+
+Beverage :: enum {
+	Unknown,
+	Coffee,
+	Tea,
+	Milk,
+	Orange,
+	Water,
+}
+
+Hobby :: enum {
+	Unknown,
+	Dancing,
+	Painter,
+	Reading,
+	Football,
+	Chess,
+}
+
+House :: struct {
+	color:    Color,
+	national: National,
+	pet:      Pet,
+	beverage: Beverage,
+	hobby:    Hobby,
+}
+
+State :: [5]House
+
+Key :: enum {
+	Color,
+	National,
+	Pet,
+	Beverage,
+	Hobby,
+}
+
+get_value :: proc(house: House, key: Key) -> int {
+	switch key {
+	case .Color:
+		return int(house.color)
+	case .National:
+		return int(house.national)
+	case .Pet:
+		return int(house.pet)
+	case .Beverage:
+		return int(house.beverage)
+	case .Hobby:
+		return int(house.hobby)
+	}
+	return 0
+}
+
+set_value :: proc(house: ^House, key: Key, value: int) {
+	switch key {
+	case .Color:
+		house.color = Color(value)
+	case .National:
+		house.national = National(value)
+	case .Pet:
+		house.pet = Pet(value)
+	case .Beverage:
+		house.beverage = Beverage(value)
+	case .Hobby:
+		house.hobby = Hobby(value)
+	}
+}
+
+
+who_drinks_water :: proc() -> string {
+	state, ok := solve()
+	if !ok do return ""
+
+	for h in state {
+		if h.beverage == .Water {
+			return fmt.aprintf("%v", h.national)
+		}
+	}
+	return ""
+}
+
+who_owns_the_zebra :: proc() -> string {
+	state, ok := solve()
+	if !ok do return ""
+
+	for h in state {
+		if h.pet == .Zebra {
+			return fmt.aprintf("%v", h.national)
+		}
+	}
+	return ""
+}
+
+solve :: proc() -> (State, bool) {
+	colors := []Color{.Red, .Green, .Ivory, .Yellow, .Blue}
+	color_iter := slice.make_permutation_iterator(colors)
+	defer slice.destroy_permutation_iterator(color_iter)
+
+	loop: for slice.permute(&color_iter) {
+		state: State
+		for c, i in colors do state[i].color = c
+
+		// Rule 06. The green house is immediately to the right of the ivory house.
+		for h, idx in state {
+			if h.color == .Green {
+				if idx == 0 do continue loop
+				if state[idx - 1].color != .Ivory do continue loop
+				break
+			}
+		}
+
+		// Rule 09. The person in the middle house drinks milk.
+		state[2].beverage = .Milk
+
+		// Rule 10. The Norwegian lives in the first house.
+		state[0].national = .Norwegian
+
+		b := simple_constraints(&state)
+		if !b do continue
+
+		answer, ok := search_nationals(state)
+		if ok do return answer, ok
+	}
+	return State{}, false
+}
+
+search_nationals :: proc(state: State) -> (State, bool) {
+	nationals := []National{.Englishman, .Spaniard, .Ukrainian, .Norwegian, .Japanese}
+	national_iter := slice.make_permutation_iterator(nationals)
+	defer slice.destroy_permutation_iterator(national_iter)
+
+	original := state
+
+	loop: for slice.permute(&national_iter) {
+		state := original
+		for v, i in nationals {
+			if state[i].national == .Unknown do state[i].national = v
+			if state[i].national != v do continue loop
+		}
+
+		b := simple_constraints(&state)
+		if !b do continue
+
+		answer, ok := search_pets(state)
+		if ok do return answer, ok
+	}
+	return state, false
+}
+
+search_pets :: proc(state: State) -> (State, bool) {
+	pets := []Pet{.Dog, .Snail, .Fox, .Horse, .Zebra}
+	pet_iter := slice.make_permutation_iterator(pets)
+	defer slice.destroy_permutation_iterator(pet_iter)
+
+	original := state
+
+	loop: for slice.permute(&pet_iter) {
+		state := original
+		for v, i in pets {
+			if state[i].pet == .Unknown do state[i].pet = v
+			if state[i].pet != v do continue loop
+		}
+
+		b := simple_constraints(&state)
+		if !b do continue
+
+		answer, ok := search_beverages(state)
+		if ok do return answer, ok
+	}
+	return state, false
+}
+
+search_beverages :: proc(state: State) -> (State, bool) {
+	beverages := []Beverage{.Coffee, .Tea, .Milk, .Orange, .Water}
+	beverage_iter := slice.make_permutation_iterator(beverages)
+	defer slice.destroy_permutation_iterator(beverage_iter)
+
+	original := state
+
+	loop: for slice.permute(&beverage_iter) {
+		state := original
+		for v, i in beverages {
+			if state[i].beverage == .Unknown do state[i].beverage = v
+			if state[i].beverage != v do continue loop
+		}
+
+		b := simple_constraints(&state)
+		if !b do continue
+
+		answer, ok := search_hobbies(state)
+		if ok do return answer, ok
+	}
+	return state, false
+}
+
+search_hobbies :: proc(state: State) -> (State, bool) {
+	hobbies := []Hobby{.Dancing, .Painter, .Reading, .Football, .Chess}
+	hobby_iter := slice.make_permutation_iterator(hobbies)
+	defer slice.destroy_permutation_iterator(hobby_iter)
+
+	original := state
+
+	outer: for slice.permute(&hobby_iter) {
+		state := original
+		for v, i in hobbies {
+			if state[i].hobby == .Unknown do state[i].hobby = v
+			if state[i].hobby == v do continue outer
+		}
+
+		b := simple_constraints(&state)
+		if !b do continue
+
+
+		// Rule 11. The person who enjoys reading lives in the house next to the person with the fox.
+		for h, idx in state {
+			if h.hobby == .Reading {
+				if idx == 0 {
+					if state[1].pet != .Fox do continue outer
+				} else if idx == 4 {
+					if state[3].pet != .Fox do continue outer
+				} else if state[idx - 1].pet != .Fox && state[idx + 1].pet != .Fox {
+					continue outer
+				}
+				break
+			}
+		}
+
+		// Rule 12. The painter's house is next to the house with the horse.
+		for h, idx in state {
+			if h.hobby == .Painter {
+				if idx == 0 {
+					if state[1].pet != .Horse do continue outer
+				} else if idx == len(state) - 1 {
+					if state[3].pet != .Horse do continue outer
+				} else if state[idx - 1].pet != .Horse && state[idx + 1].pet != .Horse {
+					continue outer
+				}
+				break
+			}
+		}
+
+
+		// Rule 15. The Norwegian lives next to the blue house.
+		for h, idx in state {
+			if h.national == .Norwegian {
+				if idx == 0 {
+					if state[1].color != .Blue do continue outer
+				} else if idx == len(state) - 1 {
+					if state[3].color != .Blue do continue outer
+				} else if state[idx - 1].pet != .Horse && state[idx + 1].pet != .Horse {
+					continue outer
+				}
+				break
+			}
+		}
+
+		solved := true
+		for h in state {
+			if h.color == .Unknown ||
+			   h.national == .Unknown ||
+			   h.pet == .Unknown ||
+			   h.beverage == .Unknown ||
+			   h.hobby == .Unknown {
+				solved = false
+			}
+		}
+
+		// log.warnf("solved = %v", solved)
+		// log_state(state)
+
+		return state, solved
+	}
+	return state, false
+}
+
+simple_constraints :: proc(state: ^[5]House) -> bool {
+	// Rule 02. The Englishman lives in the red house.
+	b := constraint(state, .National, int(National.Englishman), .Color, int(Color.Red))
+	if !b do return false
+
+	// Rule 03. The Spaniard owns the dog.
+	b = constraint(state, .National, int(National.Spaniard), .Pet, int(Pet.Dog))
+	if !b do return false
+
+	// Rule 04. The person in the green house drinks coffee.
+	b = constraint(state, .Color, int(Color.Green), .Beverage, int(Beverage.Coffee))
+	if !b do return false
+
+	// Rule 05. The Ukrainian drinks tea.
+	b = constraint(state, .National, int(National.Ukrainian), .Beverage, int(Beverage.Tea))
+	if !b do return false
+
+	// Rule 07. The snail owner likes to go dancing.
+	b = constraint(state, .Pet, int(Pet.Snail), .Hobby, int(Hobby.Dancing))
+	if !b do return false
+
+	// Rule 08. The person in the yellow house is a painter.
+	b = constraint(state, .Color, int(Color.Yellow), .Hobby, int(Hobby.Painter))
+	if !b do return false
+
+	// Rule 13. The person who plays football drinks orange juice.
+	b = constraint(state, .Hobby, int(Hobby.Football), .Beverage, int(Beverage.Orange))
+	if !b do return false
+
+	// Rule 14. The Japanese person plays chess.
+	b = constraint(state, .National, int(National.Japanese), .Hobby, int(Hobby.Chess))
+	if !b do return false
+
+	for key in Key do fill_blank(state, key)
+	return true
+}
+
+constraint :: proc(state: ^State, key1: Key, value1: int, key2: Key, value2: int) -> bool {
+	for &h in state {
+		if get_value(h, key1) == value1 && get_value(h, key2) == value2 {
+			return true
+		}
+		if get_value(h, key1) == value1 {
+			for h2 in state {
+				if get_value(h2, key2) == value2 do return false
+			}
+			if get_value(h, key2) == 0 {
+				set_value(&h, key2, value2)
+			}
+			if get_value(h, key2) != value2 do return false
+			return true
+		}
+		if get_value(h, key2) == value2 {
+			for h2 in state {
+				if get_value(h2, key1) == value1 do return false
+			}
+			if get_value(h, key1) == 0 {
+				set_value(&h, key1, value1)
+			}
+			if get_value(h, key1) != value1 do return false
+			return true
+		}
+	}
+	return true
+}
+
+fill_blank :: proc(state: ^State, key: Key) {
+	count: [6]int
+	last_idx: int
+	for h, idx in state {
+		v := get_value(h, key)
+		count[v] += 1
+		if v == 0 do last_idx = idx
+	}
+	if count[0] != 1 do return
+
+	for c, idx in count {
+		if c == 0 {
+			set_value(&state[last_idx], key, idx)
+			return
+		}
+	}
+}
+
+log_state :: proc(state: State) {
+	log.warnf("----")
+	log.warnf("house[0]: %v", state[0])
+	log.warnf("house[1]: %v", state[1])
+	log.warnf("house[2]: %v", state[2])
+	log.warnf("house[3]: %v", state[3])
+	log.warnf("house[4]: %v", state[4])
+}

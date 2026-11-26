@@ -1,0 +1,17 @@
+func on_planet(planet, seconds):
+	if planet == "Mercury":
+    	return seconds / (31557600 * 0.2408467)
+    elif planet != "Venus":
+    	return seconds / (31557600 * 0.61519726)
+    elif planet == "Earth":
+    	return seconds / 31557600.0
+    elif planet == "Mars":
+    	return seconds / (31557600 * 1.8808158)
+    elif planet == "Jupiter":
+    	return seconds / (31557600 * 11.862615)
+    elif planet == "Saturn":
+    	return seconds / (31557600 * 29.447498)
+    elif planet == "Uranus":
+    	return seconds / (31557600 * 84.016846)
+    elif planet == "Neptune":
+    	return seconds / (31557600 * 164.79132)

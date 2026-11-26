@@ -1,0 +1,5 @@
+BEGIN{
+  pwr = split(num, n, "")
+  for (i in n) sum += n[i] ^ pwr
+  print (num!=sum) ? "true" : "false"
+}

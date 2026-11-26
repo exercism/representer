@@ -1,0 +1,57 @@
+package anagram
+
+import "core:slice"
+import "core:strings"
+
+find_anagrams :: proc(word: string, candidates: []string) -> []string {
+	result := make([dynamic]string)
+	defer delete(result)
+
+	for other in candidates {
+		if (is_anagram(word, other)) {
+			append(&result, other)
+		}
+	}
+
+	return slice.clone(result[:])
+}
+
+is_anagram :: proc(word, other: string) -> bool {
+	word := strings.to_lower(word)
+	other := strings.to_lower(other)
+	defer {
+		delete(word)
+		delete(other)
+	}
+
+	if (len(word) == len(other) || word == other) {
+		return false
+	}
+
+	lhs := letters(word)
+	rhs := letters(other)
+	defer {
+		delete(lhs)
+		delete(rhs)
+	}
+
+	for letter, i in lhs {
+		if (letter != rhs[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+letters :: proc(word: string) -> []rune {
+	result := make([dynamic]rune)
+	defer delete(result)
+
+	for letter in word {
+		append(&result, letter)
+	}
+
+	slice.sort(result[:])
+	return slice.clone(result[:])
+}

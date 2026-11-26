@@ -1,0 +1,1 @@
+ToRna ← ⊏⊗:"ACT":"UGBC"

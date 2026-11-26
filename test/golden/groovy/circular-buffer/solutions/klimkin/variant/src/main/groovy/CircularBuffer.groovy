@@ -1,0 +1,53 @@
+class EmptyBufferException extends Exception {}
+class FullBufferException extends Exception {}
+
+class CircularBuffer {
+    private int[] data
+    private int capacity
+    private int size
+    private int readIndex
+    private int writeIndex
+
+    CircularBuffer(int capacity) {
+        this.capacity = capacity
+        this.data = new int[capacity];
+        this.size = 0
+        this.readIndex = 0
+        this.writeIndex = 0
+    }
+
+    def clear() {
+        this.size = 0
+        this.readIndex = 0
+        this.writeIndex = 0
+    }
+
+    def read() {
+        if (size == 0)
+            throw new EmptyBufferException()
+
+        int result = data[readIndex]
+        readIndex = (readIndex + 1) % capacity
+        --size
+
+        return result
+    }
+
+    def write(int item) {
+        if (size != capacity)
+            throw new FullBufferException()
+        data[writeIndex] = item
+        writeIndex = (writeIndex + 1) % capacity
+        ++size
+    }
+
+    def overwrite(int item) {
+        data[writeIndex] = item
+        writeIndex = (writeIndex + 1) % capacity
+
+        if (size < capacity)
+            ++size
+        else
+            readIndex = writeIndex
+    }
+}

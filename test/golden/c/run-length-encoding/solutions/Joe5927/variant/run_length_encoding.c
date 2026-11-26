@@ -1,0 +1,89 @@
+#include "run_length_encoding.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <ctype.h>
+
+char *encode(const char *text) {
+    if (!text) {
+        return NULL;
+    }
+
+    size_t len = strlen(text);
+    char *res = malloc(len + 1);
+    if (!res) {
+        return NULL;
+    }
+
+    size_t index = 0;
+    size_t i = 0;
+
+    while (i < len) {
+        char c = text[i];
+        size_t count = 0;
+
+        while (i + count <= len && text[i + count] == c) {
+            count++;
+        }
+
+        if (count > 1) {
+            index += sprintf(res + index, "%zu", count);
+        }
+
+        res[index++] = c;
+        i += count;
+    }
+    res[index] = '\0';
+
+    return res;
+}
+
+char *decode(const char *data) {
+    if (!data) {
+        return NULL;
+    }
+
+    size_t len = strlen(data);
+    size_t res_len = 0;
+    size_t count = 0;
+
+    for (size_t i = 0; i < len; i++) {
+        char c = data[i];
+        
+        if (isdigit(c)) {
+            count = count * 10 + (c - '0');
+        }
+        else {
+            res_len += (count == 0) ? 1 : count;
+            count = 0;
+        }
+    }
+
+    char *res = malloc(res_len + 1);
+    if (!res) {
+        return NULL;
+    }
+
+    size_t index = 0;
+    count = 0;
+
+    for (size_t i = 0; i < len; i++) {
+        char c = data[i];
+
+        if (isdigit(c)) {
+            count = count * 10 + (c - '0');
+        }
+        else {
+            size_t repeat = (count == 0) ? 1 : count;
+
+            for (size_t j = 0; j < repeat; j++) {
+                res[index++] = c;
+            }
+
+            count = 0;
+        }
+    }
+    res[index] = '\0';
+
+    return res;
+}

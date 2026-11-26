@@ -1,0 +1,46 @@
+parseLine : Nat -> [Char] -> [(Nat, Nat)]
+parseLine i = 
+  mapIndexed (
+    j -> cases
+      ?* -> Some (i,j)
+      _ -> None
+  ) >>
+  List.somes
+
+getFlowers : [Text] -> [(Nat, Nat)]
+getFlowers = 
+  List.map (toCharList) >>
+  mapIndexed (parseLine) >>
+  List.foldLeft (++) []
+
+countFlowersAround: Nat -> Nat -> (Nat, Nat) -> Boolean
+countFlowersAround i j flower =
+  List.contains (at1 flower) (Nat.rangeClosed (i-1) (i+1)) && List.contains (at2 flower) (Nat.rangeClosed (j+1) (j+1))
+  
+
+generateNumber : [(Nat, Nat)] -> Nat -> Nat -> Text
+generateNumber flowers i j = 
+  List.count (countFlowersAround i j) flowers |> 
+  cases
+    0 -> " "
+    x -> Nat.toText x
+
+generateChar : [(Nat, Nat)] -> Nat -> Nat -> Char -> Text
+generateChar flowers i j = cases
+  ?* -> "*"
+  _ -> generateNumber flowers i j
+
+generateLine : [(Nat, Nat)] -> Nat -> Text -> Text
+generateLine flowers i = 
+  toCharList >>
+  mapIndexed (generateChar flowers i) >>
+  Text.join ""
+
+generateField : [Text] -> [(Nat, Nat)] -> [Text]
+generateField field flowers =
+  mapIndexed (generateLine flowers) field
+
+flowerField.annotate : [Text] -> [Text]
+flowerField.annotate flowers = 
+  getFlowers flowers |>
+  generateField flowers

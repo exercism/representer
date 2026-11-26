@@ -1,0 +1,62 @@
+Imports System
+
+Public Enum Schedule
+    Teenth
+    First
+    Second
+    Third
+    Fourth
+    Last
+End Enum
+
+Public Class Meetup
+
+    Private ReadOnly _month As Integer
+    Private ReadOnly _year As Integer
+
+    Public Sub New(month As Integer, year As Integer)
+        _month = month
+        _year = year
+    End Sub
+
+    Public Function Day(dayOfWeek As DayOfWeek, schedule As Schedule) As Date
+
+        If schedule = Schedule.Last Then
+            Dim mtDay As New Date(_year, _month, Date.DaysInMonth(_year, _month))
+
+            While mtDay.DayOfWeek <> dayOfWeek
+                mtDay = mtDay.AddDays(-1)
+            End While
+
+            Return mtDay
+        End If
+
+        Dim meetupDay As New Date(_year, _month, 1)
+
+        While meetupDay.DayOfWeek <> dayOfWeek
+            meetupDay = meetupDay.AddDays(1)
+        End While
+
+        Select Case schedule
+            Case Schedule.Teenth
+                While meetupDay.Day <= 13
+                    meetupDay = meetupDay.AddDays(7)
+                End While
+
+            Case Schedule.First
+
+            Case Schedule.Second
+                meetupDay = meetupDay.AddDays(7)
+
+            Case Schedule.Third
+                meetupDay = meetupDay.AddDays(14)
+
+            Case Schedule.Fourth
+                meetupDay = meetupDay.AddDays(21)
+        End Select
+
+        Return meetupDay
+
+    End Function
+
+End Class

@@ -1,0 +1,76 @@
+open Base
+
+type 'a _callback_map = (int, 'a -> unit, Int.comparator_witness) Map.t
+
+type 'a _cell_type =
+  | Input
+  | Compute_1 of 'a cell * ('a -> 'a)
+  | Compute_2 of 'a cell * 'a cell * ('a -> 'a -> 'a)
+
+and 'a cell =
+  { mutable value : 'a
+  ; mutable children : 'a cell list
+  ; mutable callbacks : 'a _callback_map
+  ; eq : 'a -> 'a -> bool
+  ; cell_type : 'a _cell_type }
+
+type callback_id = int
+
+let _callback_counter = ref 0
+
+let rec value_of cell =
+  match cell.cell_type with
+  | Input -> cell.value
+  | Compute_1 (parent, f) -> f (value_of parent)
+  | Compute_2 (parent_1, parent_2, f) -> f (value_of parent_1) (value_of parent_2)
+;;
+
+let _create value eq cell_type =
+  {value; children = []; callbacks = Map.empty (module Int); eq; cell_type}
+;;
+
+let _add_child parent child = parent.children <- child :: parent.children
+let create_input_cell ~value ~eq = _create value eq Input
+
+let create_compute_cell_1 parent ~f ~eq =
+  let new_cell = _create (f (value_of parent)) eq (Compute_1 (parent, f)) in
+  _add_child parent new_cell;
+  new_cell
+;;
+
+let create_compute_cell_2 parent_1 parent_2 ~f ~eq =
+  let new_cell =
+    _create
+      (f (value_of parent_1) (value_of parent_2))
+      eq
+      (Compute_2 (parent_1, parent_2, f))
+  in
+  _add_child parent_1 new_cell;
+  _add_child parent_2 new_cell;
+  new_cell
+;;
+
+let rec set_value cell value =
+  if cell.eq cell.value value
+  then ()
+  else (
+    cell.value <- value;
+    Map.iter cell.callbacks ~f:(fun callback -> callback value);
+    List.iter cell.children ~f:_update )
+
+and _update cell =
+  let new_value = value_of cell in
+  set_value cell new_value
+;;
+
+let add_callback cell ~k =
+  let next_callback_id = !_callback_counter in
+  _callback_counter := next_callback_id - 1;
+  cell.callbacks <- Map.set cell.callbacks ~key:next_callback_id ~data:k;
+  next_callback_id
+;;
+
+let remove_callback cell callback_id =
+  cell.callbacks <- Map.remove cell.callbacks callback_id;
+  ()
+;;

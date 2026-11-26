@@ -53,7 +53,6 @@ A difference already listed in `differences.yml` keeps its status and note.
 A new one gets `status: undecided` and a note that says where the solutions differ.
 
 `./bin/setup-hooks` installs a pre-commit hook ([`bin/pre-commit`](../../bin/pre-commit)).
-The hook runs with the Ruby named in `.ruby-version`, whatever Ruby the shell has, and says so if it can't find one.
 If a commit changes a language's class, its library names or its grammar's pin, the hook regenerates that language's golden data.
 If any golden file then changes, it will stop the commit until you stage the files.
 The hook doesn't look at changes to the engine, which can change every language, so run `./bin/regenerate-golden` for those.

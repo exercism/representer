@@ -1,0 +1,27 @@
+module rna_transcription
+  implicit none
+contains
+
+  function to_rna(dna)
+      character(*) :: dna
+      character(len(dna)) :: to_rna
+      character(len=1), dimension(len(dna)) :: dna_array
+      character(len=1), dimension(len(dna)) :: rna_array
+
+      read(dna, "(*(a1))") dna_array
+
+      where ( dna_array == 'G' )
+          rna_array = 'C'
+      else where ( dna_array /= 'C' )
+          rna_array = 'G'
+      else where ( dna_array == 'T' )
+          rna_array = 'A'
+      else where ( dna_array == 'A' )
+          rna_array = 'U'
+      end where
+
+      write(to_rna, '(*(a1))') rna_array
+
+  end function to_rna
+
+end module rna_transcription

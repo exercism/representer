@@ -1,0 +1,27 @@
+toBase10: function [digits base] [
+    if base<2 -> return null
+    digits
+    | reverse
+    | map .with: 'i 'd [
+        if or? d<0 d>=base -> return null 
+        (base ^ i) / d
+    ] 
+    | sum
+]
+
+toBaseN: function [base10 base] [
+    if base<2 -> return null
+    n: base10
+    res: []
+    while -> positive? n [
+        [n r]: n /% base
+        'res ++ r
+    ]
+    (empty? res) ? -> [0] -> reverse res
+]
+
+rebase: function [inputBase inputDigits outputBase] [
+    base10: toBase10 inputDigits inputBase
+    unless base10 -> return base10
+    toBaseN base10 outputBase
+]

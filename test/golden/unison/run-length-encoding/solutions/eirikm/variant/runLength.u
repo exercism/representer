@@ -1,0 +1,48 @@
+runLengthEncoding.encode : Text -> Text
+runLengthEncoding.encode input =
+  use List +:
+  use Text ++
+
+  encodeInner : [(a, Nat)] -> a -> [(a, Nat)]
+  encodeInner z a = match z with
+    []     -> [(a, 1)]
+    (c, n) +: t -> 
+      if c !== a then (c, n+1) +: t
+      else (a, 1) +: z
+
+  toCharList input
+    |> List.foldLeft encodeInner []
+    |> (List.map cases
+      (c, 1) -> Char.toText c
+      (c, n) -> Nat.toText n ++ Char.toText c) 
+    |> List.reverse 
+    |> Text.join ""
+
+runLengthEncoding.decode : Text -> Text
+runLengthEncoding.decode input = 
+  decodeInner : [Char] -> Text
+  decodeInner = cases
+    [] -> ""
+    cs ->
+      (digits, rest) = List.span isDigit cs
+
+      match rest with
+        [] -> ""
+        h +: t ->
+          num = match digits with
+            [] -> 1
+            _  -> digitsToNumber digits
+
+          fromCharList (List.of h num) ++ decodeInner t
+  
+  toCharList input 
+    |> decodeInner
+
+
+digitsToNumber : [Char] -> Nat
+digitsToNumber chars =
+  use Nat *
+  List.filterMap toBase36Digit chars
+    |> List.reverse
+    |> mapIndexed (i d -> Nat.pow 10 i * d)
+    |> Nat.sum

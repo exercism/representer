@@ -1,0 +1,20 @@
+sieve <- function(limit) {
+  if(limit==1){
+    return(c())
+  }
+  my_array <- seq(2, limit)
+  counter <- 1
+  while(counter < length(my_array)){
+    val <- my_array[counter]
+    counter_2 <- counter + 1
+    while(counter_2 < length(my_array)){
+      i <- counter_2
+      if(my_array[i] %% val == 0){
+        my_array <- my_array[my_array != my_array[i]]
+      }
+      counter_2 <- counter_2 + 1
+    }
+    counter <- counter + 1
+  }
+  return(my_array)
+}

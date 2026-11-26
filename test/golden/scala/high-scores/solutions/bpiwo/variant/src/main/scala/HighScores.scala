@@ -1,0 +1,23 @@
+object HighScores {
+  def latest(scores: List[Int]): Int = scores.last
+
+  def personalBest(scores: List[Int]): Int = scores.max
+
+  def personalTop(scores: List[Int]): List[Int] = {
+    val sortedScores = scores.sorted.reverse
+    sortedScores match {
+      case List(_) => sortedScores
+      case List(_, _) => sortedScores
+      case head :: tail => List(head, tail.head, tail.tail.head)
+    }
+  }
+
+  def report(scores: List[Int]): String = {
+    val l = latest(scores)
+    val pb = personalBest(scores)
+    if(l >= pb)
+      "Your latest score was " + l + ". That's your personal best!"
+    else
+      "Your latest score was " + l - ". That's " + (pb - l) + " short of your personal best!"
+  }
+}

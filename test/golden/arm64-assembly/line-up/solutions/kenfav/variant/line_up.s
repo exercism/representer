@@ -1,0 +1,109 @@
+.section .rodata
+    msg1: .asciz ", you are the "
+    msg3: .asciz " customer we serve today. Thank you!"
+    msgst: .asciz "st"
+    msgnd: .asciz "nd"
+    msgrd: .asciz "rd"
+    msgth: .asciz "th"
+.text
+.global format
+//=======================================================//
+// X6 = BUFFER DE SAIDA FINAL
+// X5 = BUFFER DE SAIDA ENDERECO DO INICIO DO BUFFER
+// x4 = REGISTRADOR PRAS MENSAGENS
+// x7 
+
+itos:
+
+	// entrada: x2 = número, x6 = destino (avança)
+	mov  x7, x2
+	sub  sp, sp, #32          // reserva 32 bytes de buffer na stack
+	add  x13, sp, #32         // x13 = fim do buffer
+	mov  x9, x13              // x9 = posição de escrita (anda pra trás)
+	mov  x10, #10
+
+	1:  udiv x11, x7, x10         // quociente
+	    msub x12, x11, x10, x7    // resto = último dígito
+	    add  w12, w12, #'0'       // vira caractere
+	    strb w12, [x9, #-1]!      // decrementa x9 e grava
+	    mov  x7, x11
+	    cbnz x7, 1b               // repete até o quociente ser 0
+
+	2:  ldrb w3, [x9], #1         // copia do início dos dígitos até o fim
+	    strb w3, [x6], #1
+	    cmp  x9, x13
+	    b.lo 2b
+
+	add  sp, sp, #32              // devolve a stack
+	ret
+
+selecionar_sufixo:
+    mov  x10, #100
+    udiv x11, x2, x10
+    msub x12, x11, x10, x2     // x12 = x2 % 100
+    sub  x12, x12, #11
+    cmp  x12, #2               // 11..13 vira 0..2
+    b.ls .th                   // (sem sinal: valores < 11 viram enormes e não passam)
+
+    mov  x10, #10
+    udiv x11, x2, x10
+    msub x12, x11, x10, x2     // x12 = x2 % 10
+    cmp  x12, #1
+    b.eq .st
+    cmp  x12, #3
+    b.eq .nd
+    cmp  x12, #3
+    b.eq .rd
+    // senão cai no .th
+
+.th:
+    adrp x4, msgth
+    add  x4, x4, :lo12:msgth
+    b    copia_sufixo
+.st:
+    adrp x4, msgst
+    add  x4, x4, :lo12:msgst
+    b    copia_sufixo
+.nd:
+    adrp x4, msgnd
+    add  x4, x4, :lo12:msgnd
+    b    copia_sufixo
+.rd:
+    adrp x4, msgrd
+    add  x4, x4, :lo12:msgrd
+    b    copia_sufixo
+   
+format:
+	mov  x15, x30
+    mov  x6, x0
+    mov  x5, x0                 // guarda o início para retornar
+
+1:  ldrb w3, [x1], #1           // copia o nome
+    cbz  w3, 2f
+    strb w3, [x6], #1           // salva 1 byte do nome no buffer
+    b    1b
+
+2:  adrp x4, msg1
+    add  x4, x4, :lo12:msg1
+3:  ldrb w3, [x4], #1           // copia msg1
+    cbz  w3, 4f
+    strb w3, [x6], #1
+    b    3b
+
+4:  bl   itos
+    b    selecionar_sufixo    
+copia_sufixo:
+6:  ldrb w3, [x4], #1           // copia msg2
+    cbz  w3, 7f
+    strb w3, [x6], #1
+    b    6b
+
+7:  adrp x4, msg3
+    add  x4, x4, :lo12:msg3
+8:  ldrb w3, [x4], #1           // copia msg3 (inclui o \0)
+    strb w3, [x6], #1
+    cbnz w3, 8b
+    mov  x0, x5
+    mov  x30, x15
+    ret
+

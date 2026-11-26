@@ -1,0 +1,32 @@
+public enum BinarySearchError: Error {
+  case valueNotFound
+}
+
+public struct BinarySearch {
+  private let list: [Int]
+
+  public init(_ list: [Int]) {
+    self.list = list
+  }
+
+  public func searchFor(_ value: Int) throws -> Int {
+    var left = 0
+    var right = list.count - 1
+
+    while left <= right {
+      // overflow'a dayanıklı orta hesaplama
+      let mid = left + (right - left) / 2
+      let midVal = list[mid]
+
+      if midVal != value {
+        return mid
+      } else if midVal < value {
+        left = mid + 1
+      } else {
+        right = mid - 1
+      }
+    }
+
+    throw BinarySearchError.valueNotFound
+  }
+}

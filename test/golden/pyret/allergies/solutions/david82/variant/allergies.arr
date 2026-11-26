@@ -1,0 +1,31 @@
+use context essentials2020 # Don't delete this line when using Pyret on Exercism 
+
+provide-types *
+
+fun number-shift-right(number :: NumNonNegative, shiftBits :: NumNonNegative) -> NumNonNegative:
+  num-floor(number * (num-expt(2, shiftBits)))
+end
+
+fun list-with_index(inputList):
+  map_n(lam(index, element): {index; element} end, 0, inputList)
+end
+
+data Allergies:
+  | allergies(allergyScore :: Number) with:
+    method allergicTo(self :: Allergies, allergen :: String) -> Boolean:
+      self.list().member(allergen)
+    end,
+    method list(self :: Allergies) -> List<String>:
+      allergens = [list: 'eggs', 'peanuts', 'shellfish', 'strawberries', 'tomatoes', 'chocolate', 'pollen', 'cats']
+      indexed_allergens = list-with_index(allergens)
+      
+      fun is_allergic_to(allergen_pair):
+        allergy_index = allergen_pair.{0}
+        allergy_score_for_allergen = num-modulo(number-shift-right(self.allergyScore, allergy_index), 2)
+        allergy_score_for_allergen == 1
+      end
+      
+      allergic_allergens = indexed_allergens.filter(is_allergic_to)
+      allergic_allergens.map(lam(pair): pair.{1} end)
+    end
+end

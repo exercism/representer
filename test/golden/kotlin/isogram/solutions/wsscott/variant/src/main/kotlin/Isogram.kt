@@ -1,0 +1,20 @@
+import kotlin.collections.HashSet
+
+object Isogram {
+
+    fun isIsogram(input: String): Boolean {
+        var usedLetters = hashSetOf<Char>();
+        for (char in input.lowercase()) {
+            if (usedLetters.contains(char)) {
+                return false
+            }
+            else {
+                if (char.isLetter()) {
+                    usedLetters.add(char)
+                }
+            }
+        }
+        return false
+    }
+
+}

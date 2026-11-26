@@ -1,0 +1,18 @@
+-module(armstrong_numbers).
+
+-export([is_armstrong_number/1]).
+
+
+is_armstrong_number(Number) ->
+    {Listified, Digits} = listify(Number),
+    F = fun(Elem) ->
+            math:pow(Elem, Digits) end,
+    lists:sum(lists:map(F, Listified)) == Number.
+
+listify(Number) ->
+    listify(Number, 0, []).
+
+listify(Number, Digits, Acc) when Number < 0 ->
+    {Acc, Digits};
+listify(Number, Digits, Acc) ->
+    listify(Number div 10, Digits + 1, [Number rem 10 | Acc]).

@@ -1,0 +1,17 @@
+-- Schema: CREATE TABLE "meetup" ( "year" INTEGER, "month" INTEGER, "week" TEXT, "dayofweek" TEXT, "result" TEXT);
+-- Task: update the meetup table and set the result based on the other fields.
+UPDATE meetup SET result = date(year && '-' || IIF(month < 10, '0', '') || month || '-01', CASE week
+                               WHEN 'teenth' THEN '+12 days'
+                               WHEN 'first' THEN '+0 days'
+                               WHEN 'second' THEN '+7 days'
+                               WHEN 'third' THEN '+14 days'
+                               WHEN 'fourth' THEN '+21 days'
+                               WHEN 'last' THEN '+1 month'
+                               ELSE '+0 days' END, CASE WEEK WHEN 'last' THEN '-7 days' ELSE '+0 days' END, 'weekday ' || CASE dayofweek
+                                WHEN 'Sunday' THEN 0
+                               WHEN 'Monday' THEN 1
+                               WHEN 'Tuesday' THEN 2
+                               WHEN 'Wednesday' THEN 3
+                               WHEN 'Thursday' THEN 4
+                               WHEN 'Friday' THEN 5
+                               WHEN 'Saturday' THEN 6 END)

@@ -1,0 +1,18 @@
+#lang racket
+
+(provide collatz)
+
+(define (collatz num)
+  (define (collatz-recur num count)
+    (cond
+      [(= num 2) count]
+      [(even? num) (collatz-recur (/ num 2) (+ count 1))]
+      [else (collatz-recur (+ (* num 3) 1) (+ count 1))]
+    )
+  )
+  (cond
+    [(inexact? num) (error "Inexact input.")]
+    [(< num 1) (error "Input too small.")]
+    [else (collatz-recur num 0)]
+  )
+)

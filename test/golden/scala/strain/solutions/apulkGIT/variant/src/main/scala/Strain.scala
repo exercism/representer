@@ -1,0 +1,4 @@
+object Strain {
+  def keep[T](l:Seq[T],t : T => Boolean) : Seq[T] = l.filter(t);
+  def discard[T](l:Seq[T],t : T => Boolean) : Seq[T] = l.filter(t(_)!=false);
+}

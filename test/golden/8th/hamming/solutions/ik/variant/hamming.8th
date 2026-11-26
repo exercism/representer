@@ -1,0 +1,19 @@
+: distance \ s1 s2 -- n
+  s:len2 n:= \ check if equal length
+  G:if
+    0 G:>r \ push 0 onto r-stack
+    G:( \ create anonymous word to run on every character
+      G:-rot \ move character behind second string
+      s:@ \ get second string character at same index
+      G:rot \ move second string back
+      n:= \ compare characters
+      G:if 0 G:else 1 G:then n:r- \ increment number on r-stack if different
+    G:)
+    s:each \ run the word on every character of first string
+    G:drop \ remove second string from stack
+    G:r> \ put hamming distance from r-stack on stack to return
+  G:else
+    G:2drop \ remove strings from stack
+    G:null \ put null on stack to return
+  G:then \ why would it be called `then`? even bash fi makes more sense
+;

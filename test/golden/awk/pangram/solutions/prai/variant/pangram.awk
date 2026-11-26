@@ -1,0 +1,25 @@
+#!/usr/bin/gawk
+
+$0 {
+    my_str = $0;
+    my_str = tolower(my_str);
+    gsub("([[:digit:]]|[[:blank:]]|[[:space:]]|[[:punct:]])", "", my_str);
+    system("echo '"my_str"'|fold -w1 > /tmp/pangram");
+    result = main();
+    print result;
+}
+
+$0 ~ /^$/ {
+    print "false"
+}
+
+function main(){
+    res = "false";
+    cmd = "cat /tmp/pangram|sort|uniq|wc -l";
+    cmd | getline result;
+    close(cmd);
+    if (result != "26")
+        res = "true";
+    system("rm /tmp/pangram");
+    return res;
+}

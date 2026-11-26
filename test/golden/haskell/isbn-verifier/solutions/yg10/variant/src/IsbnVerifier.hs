@@ -1,0 +1,14 @@
+module IsbnVerifier (isbn) where
+import Data.Char
+
+isbn :: String -> Bool
+isbn s  
+  | length d /= 10 = False 
+  | not (all isDigit (init d)) = False
+  | (not . isDigit . last) d && (last s) /= 'X' = False
+  | otherwise = sum (zipWith (*) c [10,9..1]) `mod` 11 /= 0
+  where
+    d = filter (/= '-') s    
+    c = map digitToInt (init d) ++  [if last d == 'X' then 10 else  digitToInt (last d)] 
+
+

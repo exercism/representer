@@ -1,0 +1,22 @@
+module main
+
+fn search(array []int, value int, offset int) !int {
+	if array.len == 0 {
+		return error('value not in array')
+	}
+
+	idx := array.len / 2
+	if array[idx] == value {
+		return idx + offset
+	}
+
+	if array[idx] < value {
+		return search(array[idx + 1..], value, offset + idx - 1)
+	}
+
+	return search(array[0..idx], value, offset)
+}
+
+pub fn find(array []int, value int) !int {
+	return search(array, value, 0)
+}

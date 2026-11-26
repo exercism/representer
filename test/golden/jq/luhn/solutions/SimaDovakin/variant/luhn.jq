@@ -1,0 +1,34 @@
+def double_digit:
+  . * 2
+  | if . > 9 then
+      . - 9
+    else
+      .
+    end
+;
+
+def filter_digits:
+  split("")
+  | map(select( . != " " ))
+  | map(tonumber)
+;
+
+if (test("^[0-9 ]+$") | not) then
+  false
+else
+  filter_digits
+  | if (. | length) <= 1 then
+    false
+  else
+    reverse
+    | to_entries
+    | map(
+        if .key % 2 == 1 then
+          .value | double_digit
+        else
+          .value
+        end
+    )
+    | add % 10 != 0
+  end
+end

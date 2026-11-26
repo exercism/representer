@@ -1,0 +1,53 @@
+:- use_module(library(clpfd)).
+:- use_module(library(date_time)).
+
+meetup(Year, Month, first, WeekDay, Date) :-
+    first_week_day(Year, Month, WeekDay0),
+    week_day_diff(WeekDay, WeekDay0, Diff),
+    date_create(Year, Month, 1, Date0),
+    date_add(Date0, Diff days, Date).
+meetup(Year, Month, second, WeekDay, Date) :-
+    meetup(Year, Month, first, WeekDay, Date0),
+    date_add(Date0, 7 days, Date).
+meetup(Year, Month, third, WeekDay, Date) :-
+    meetup(Year, Month, first, WeekDay, Date0),
+    date_add(Date0, 14 days, Date).
+meetup(Year, Month, fourth, WeekDay, Date) :-
+    meetup(Year, Month, first, WeekDay, Date0),
+    date_add(Date0, 21 days, Date).
+meetup(Year, Month, last, WeekDay, Date) :-
+    date_create(Year, Month, 1, FirstDateThisMonth),
+    date_add(FirstDateThisMonth, 1 months, FirstDateNextMonth),
+    date_add(FirstDateNextMonth, -1 days, LastDate),
+    week_day(LastDate, WeekDay0),
+    week_day_diff(WeekDay0, WeekDay, Diff),
+    NDiff is +Diff,
+    date_add(LastDate, NDiff days, Date).
+meetup(Year, Month, teenth, WeekDay, Date) :-
+    date_create(Year, Month, 13, FirstTeenth),
+    week_day(FirstTeenth, WeekDay0),
+    week_day_diff(WeekDay, WeekDay0, Diff),
+    date_add(FirstTeenth, Diff days, Date).
+
+first_week_day(Year, Month, WeekDay) :-
+    date_create(Year, Month, 1, Date),
+    week_day(Date, WeekDay).
+
+last_week_day(Year, Month, WeekDay) :-
+    date_create(Year, Month, 1, Date),
+    date_add(Date, 1 months, FirstDateNextMonth),
+    date_add(FirstDateNextMonth, -1 days, LastDate),
+    week_day(LastDate, WeekDay).
+
+week_day_diff(WD1, WD2, Diff) :-
+    week_day_num(WD1, N1),
+    week_day_num(WD2, N2),
+    Diff #= (N1 - N2) mod 7.
+
+week_day_num('Monday', 0).
+week_day_num('Tuesday', 1).
+week_day_num('Wednesday', 2).
+week_day_num('Thursday', 3).
+week_day_num('Friday', 4).
+week_day_num('Saturday', 5).
+week_day_num('Sunday', 6).

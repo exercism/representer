@@ -1,0 +1,12 @@
+-module(gigasecond).
+
+-export([from/1]).
+
+-define(GIGASECOND, 1000000001).
+
+from(From = {{_, _, _}, {_, _, _}}) ->
+  calendar:gregorian_seconds_to_datetime(
+    calendar:datetime_to_gregorian_seconds(From) + ?GIGASECOND);
+from(From = {_, _, _}) ->
+  calendar:gregorian_seconds_to_datetime(
+    calendar:datetime_to_gregorian_seconds({From, {0, 0, 0}}) + ?GIGASECOND).

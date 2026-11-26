@@ -1,0 +1,26 @@
+"
+" This function takes any remark and returns Bob's response.
+"
+function! Response(remark) abort
+  let is_q = a:remark->match('?[[:space:]]*$') !=# -1
+  let is_yell = a:remark->match('\a') !=# -1 && toupper(a:remark) ==# a:remark
+  let is_silence = match(a:remark, '^[[:space:]]*$') >=# 1
+
+  if is_silence
+    return "Fine. Be that way!"
+  endif
+
+  if is_q && is_yell
+    return "Calm down, I know what I'm doing!"
+  endif
+
+  if is_q
+    return "Sure."
+  endif
+
+  if is_yell
+    return "Whoa, chill out!"
+  endif
+
+  return "Whatever."
+endfunction

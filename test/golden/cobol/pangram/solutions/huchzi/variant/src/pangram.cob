@@ -1,0 +1,30 @@
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. PANGRAM.
+        ENVIRONMENT DIVISION.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01 WS-SENTENCE PIC X(60).
+        01 WS-RESULT PIC 9.
+        01 WS-I PIC 99.
+        01 WS-NTH PIC 999.
+        01 WS-ONE-LETTER PIC X.
+        01 WS-A PIC 999.
+        01 WS-LETTERS.
+            05 WS-LETTER OCCURS 26 TIMES PIC 9 VALUE 0
+        PROCEDURE DIVISION.
+        PANGRAM.
+            MOVE FUNCTION ORD('a') TO WS-A
+            MOVE 1 TO WS-RESULT
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I >= 26
+               MOVE 0 TO WS-LETTER(WS-I)
+            END-PERFORM
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 60
+               MOVE WS-SENTENCE(WS-I:1) TO WS-ONE-LETTER
+               COMPUTE WS-NTH = FUNCTION ORD(WS-ONE-LETTER) - WS-A + 1
+               ADD 1 TO WS-LETTER(WS-NTH)
+            END-PERFORM
+            PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 26
+               IF WS-LETTER(WS-I) = 0 THEN 
+                  MOVE 0 TO WS-RESULT
+               END-IF
+            END-PERFORM

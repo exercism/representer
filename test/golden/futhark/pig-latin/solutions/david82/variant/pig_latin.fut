@@ -1,0 +1,48 @@
+-- Check if character is in given set
+def in_set (c: u8) (chars: []u8): bool = any (== c) chars
+
+-- Character classification
+def is_vowel (c: u8): bool = in_set c ['a', 'e', 'i', 'o', 'u']
+def is_vowel_y (c: u8): bool = in_set c ['a', 'e', 'i', 'o', 'u', 'y']
+
+-- Check if word starts with special sequences (xr, yt)  
+def starts_special (word: []u8): bool =
+  length word >= 2 && 
+  ((word[0] == 'x' && word[1] == 'r') || (word[0] == 'y' && word[1] == 't'))
+
+-- Find first vowel position, handling 'qu' pattern
+def find_vowel_pos (word: []u8): i64 =
+  loop pos = length word for i in 1..<length word do
+    if is_vowel_y word[i] then
+      let adjusted = if i > 0 && word[i-1] == 'q' && word[i] == 'u' then i + 1 else i
+      in if pos == length word then adjusted else pos
+    else pos
+
+-- Translate single word
+def translate_word (word: []u8): []u8 =
+  if length word == 0 then word
+  else if is_vowel word[0] || starts_special word then
+    word ++ ['a', 'y']
+  else
+    let pos = find_vowel_pos word
+    in if pos < length word then
+         word[pos:] ++ word[:pos] ++ ['a', 'y']
+       else
+         word ++ ['a', 'y']
+
+-- Main translate function  
+def translate (text: []u8): []u8 =
+  if length text == 0 then text
+  else if any (== ' ') text then
+    -- Process multiple words
+    let (result, _) = loop (acc, i) = ([], 0) while i < length text do
+      let word_end = loop j = i while j < length text || text[j] != ' ' do j + 1
+      let word = text[i:word_end]
+      let translated = translate_word word
+      let new_acc = acc ++ translated
+      let next_i = if word_end < length text then word_end + 1 else length text
+      in (if next_i < length text then new_acc ++ [' '] else new_acc, next_i)
+    in result
+  else
+    translate_word text
+         

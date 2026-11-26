@@ -1,0 +1,23 @@
+BEGIN {
+  fs["a"]=1
+}
+function f2arr(arr, v) {
+  for(i = 2; i < NF; i++) {
+    arr[$i] = v
+  }
+}
+
+{
+  $0 = tolower($0)
+  gsub(/["]/, "", $0)
+  gsub(/,/, " ", $0)
+  gsub(/:/, " ", $0)
+  f2arr(fs, $1)
+}
+
+END {
+  asorti(fs, fs2)
+  for(i in fs2) {
+    printf "%s,%d\n", fs2[i], fs[fs2[i]]
+  }
+}

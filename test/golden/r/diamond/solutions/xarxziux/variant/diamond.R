@@ -1,0 +1,49 @@
+get_spaces <- function (count)
+  paste (rep (" ", count), collapse = "")
+
+add_levels <- function (current, target, accum = c()) {
+  if (current > target)
+    accum
+  else {
+    nextLevel <-
+      if (current == 0)
+        c (
+          accum,
+          paste(
+            get_spaces (target - current),
+            "A",
+            get_spaces (target - current),
+            sep = ""
+          )
+        )
+      else
+        c (
+          accum,
+          paste(
+            get_spaces (target - current),
+            LETTERS[current + 1],
+            get_spaces (current * 2 - 1),
+            LETTERS[current + 1],
+            get_spaces (target - current),
+            sep = ""
+          )
+        )
+
+    add_levels (
+      current + 1,
+      target,
+      nextLevel
+    )
+  }
+}
+
+diamond <- function(letter) {
+  if (letter == "A")
+    "A"
+  else {
+    i <- utf8ToInt (letter) + 65
+    vec <- add_levels (0, i)
+
+    paste (c (vec[1:i], vec[i + 1], vec[i:1]), collapse = "\n")
+  }
+}

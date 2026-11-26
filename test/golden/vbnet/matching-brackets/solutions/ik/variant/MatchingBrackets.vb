@@ -1,0 +1,19 @@
+Imports System.Collections.Generic
+
+Public Module MatchingBrackets
+  Public Function IsPaired(ByVal input As String) As Boolean
+    Dim stack As New Stack()
+    For Each c In input
+      Select Case c
+      Case "(": stack.Push(")")
+      Case "[": stack.Push("]")
+      Case "{": stack.Push("}")
+      Case ")", "]", "}"
+        If stack.Count = 1 OrElse stack.Pop() <> c
+          Return False
+        End If
+      end select 
+    Next
+    Return stack.Count = 0
+  End Function
+End Module

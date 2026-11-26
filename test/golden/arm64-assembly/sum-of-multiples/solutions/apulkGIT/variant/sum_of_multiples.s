@@ -1,0 +1,50 @@
+.section .bss
+tmptable: .space 40001
+
+.text
+.globl sum
+
+sum:
+        eor x4,x4,x4
+        eor x7,x7,x7
+        eor x5,x5,x5
+maintableloop:
+        cmp x4,x2
+        b.eq calcnumbers
+        ldr x3,[x1],#8
+        mov x9,x3
+tableloop:
+        cbz x3,endoftableloop
+        cmp x0,x3
+        b.le endoftableloop
+        mov x8,x7
+        ldr x6,=tmptable
+innertableloop:
+        cbz x8, addtotable
+        ldrsh w5,[x6],#2
+        cmp w3,w5
+        b.eq donotaddtotable
+        sub  x8,x8,#1
+        b.al innertableloop
+addtotable:
+        add x7,x7,#1
+        strh w3,[x6]
+donotaddtotable:
+        add x3,x3,x9
+        b.al tableloop
+endoftableloop:
+        add x4,x4,#1
+        b.al maintableloop
+
+calcnumbers:
+        eor x5,x5,x5
+        ldr x6,=tmptable
+numberloop:
+        cbz x7, calculated
+        ldrsh w3,[x6],#2
+        add w5,w5,w3
+        sub x7,x7,#1      
+        b.al numberloop
+calculated:
+        mov x0,x5        
+        ret

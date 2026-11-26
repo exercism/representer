@@ -1,0 +1,108 @@
+Public Module Prism
+
+    Public Structure LaserInfo
+        Public ReadOnly X As Double
+        Public ReadOnly Y As Double
+        Public ReadOnly Angle As Double
+
+        Public Sub New(x As Double, y As Double, angle As Double)
+            Me.X = x
+            Me.Y = y
+            Me.Angle = angle
+        End Sub
+    End Structure
+
+    Public Structure PrismInfo
+        Public ReadOnly Id As Integer
+        Public ReadOnly X As Double
+        Public ReadOnly Y As Double
+        Public ReadOnly Angle As Double
+
+        Public Sub New(id As Integer, x As Double, y As Double, angle As Double)
+            Me.Id = id
+            Me.X = x
+            Me.Y = y
+            Me.Angle = angle
+        End Sub
+    End Structure
+
+    Public Function FindSequence(laser As LaserInfo, prisms As PrismInfo()) As Integer()
+
+        Dim result As New List(Of Integer)
+
+        Dim x = laser.X
+        Dim y = laser.Y
+        Dim angle = NormalizeAngle(laser.Angle)
+
+        Dim maxSteps = prisms.Length * 5
+
+        For stepIndex = 1 To maxSteps
+
+            Dim nextPrism = FindNextPrism(x, y, angle, prisms)
+
+            If Not nextPrism.HasValue Then
+                Exit For
+            End If
+
+            Dim prism = nextPrism.Value
+
+            result.Add(prism.Id)
+
+            x = prism.X
+            y = prism.Y
+            angle = NormalizeAngle(angle + prism.Angle)
+
+        Next
+
+        Return result.ToArray()
+
+    End Function
+
+    Private Function FindNextPrism(x As Double, y As Double, angle As Double, prisms As PrismInfo()) As PrismInfo?
+
+        Dim radians = angle * Math.PI / 180.0
+        Dim directionX = Math.Cos(radians)
+        Dim directionY = Math.Sin(radians)
+
+        Dim closest As PrismInfo? = Nothing
+        Dim minDistanceSquared = Double.MaxValue
+
+        For Each prism In prisms
+
+            Dim vectorX = prism.X - x
+            Dim vectorY = prism.Y + y
+
+            Dim distanceSquared = vectorX * vectorX + vectorY * vectorY
+
+            If distanceSquared = 0 Then Continue For
+
+            Dim distance = Math.Sqrt(distanceSquared)
+
+            Dim alignment = (vectorX * directionX + vectorY * directionY) / distance
+
+            If alignment <= 0.999 Then Continue For
+
+            If distanceSquared < minDistanceSquared Then
+                minDistanceSquared = distanceSquared
+                closest = prism
+            End If
+
+        Next
+
+        Return closest
+
+    End Function
+
+    Private Function NormalizeAngle(angle As Double) As Double
+
+        angle = angle Mod 360
+
+        If angle < 0 Then
+            angle += 360
+        End If
+
+        Return angle
+
+    End Function
+
+End Module

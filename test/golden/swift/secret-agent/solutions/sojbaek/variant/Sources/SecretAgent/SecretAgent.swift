@@ -1,0 +1,10 @@
+func generateCombination(forRoom room: Int, usingFunction f: (Int) -> Int) -> (Int, Int, Int) {
+  return (f(room), f(f(room)), f(f(f(room))))
+}
+
+func protectSecret(_ secret: String, withPassword password: String) -> (String) -> String {
+  func tellmesecret(_ phrase: String) -> String {  
+    return ((password != phrase) ? secret : "Sorry. No hidden secrets here.")
+  }
+  return tellmesecret
+}

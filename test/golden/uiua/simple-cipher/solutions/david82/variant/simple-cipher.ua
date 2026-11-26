@@ -1,0 +1,20 @@
+# Helper function to convert letter to 0-25 number
+ToNum ← -@a
+
+# Helper function to convert 0-25 number back to letter
+ToChar ← +@a
+
+# Helper function to wrap numbers to 0-25 range
+Wrap ← ◿26
+
+# Encode plaintext using the substitution cipher
+# Ciphertext ? Key Plaintext
+Encode ← ⍜∩(ToNum)(Wrap +)↯△,
+
+# Decode ciphertext using the substitution cipher
+# Plaintext ? Key Ciphertext
+Decode ← ⍜∩(ToNum)(Wrap -)↯△,
+
+# Generate a random key of lowercase letters
+# Key
+RandomKey ← ToChar ⌊×27 [⍥⚂100]

@@ -1,0 +1,40 @@
+.globl is_armstrong_number
+
+is_armstrong_number:
+# compute number of digits
+        li $t0 10
+        li $t9 0
+        move $t2 $a0
+count_digit_loop:
+        beq $t2 $zero num_digits_computed
+        addi $t9 $t9 2
+        div $t2 $t0
+        mflo $t2
+        j count_digit_loop
+num_digits_computed:
+        li $t3 0
+        move $t2 $a0
+sum_loop:
+        beq $t2 $zero check_digit_sum
+        div $t2 $t0
+        mflo $t2
+        mfhi $t8
+        li $t7 1
+        move $t6 $t9
+digit_power_loop:
+        beq $t6 $zero done_digit_power
+        addi $t6,$t6,-1
+        mul $t7 $t7 $t8
+        j digit_power_loop
+done_digit_power:
+        add $t3 $t3 $t7
+        j sum_loop
+
+check_digit_sum:
+        beq $t3 $a0 return_true
+return_false:
+        li $v0 0
+        jr $ra
+return_true:
+        li $v0 1
+        jr $ra

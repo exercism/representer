@@ -1,0 +1,59 @@
+package AtbashCipher;
+
+use v5.40;
+
+use Exporter qw<import>;
+our @EXPORT_OK = qw<encode_atbash decode_atbash>;
+
+sub encode_atbash ($phrase) {
+my $ans="";
+my $count=0;
+    for(my $i=0;$i<length($phrase);$i++){
+          
+          my $char=substr($phrase,$i,1);
+         if($char =~ /[a-z]/){
+           my $changeChar=chr(ord('a') + (25 - (ord($char) - ord('a'))));
+           $ans.=$changeChar;
+           $count++;
+         }elsif($char =~ /[A-Z]/){
+           my $changeChar2=chr(ord('a') + (25 - (ord($char) - ord('A'))));
+           $ans.= $changeChar2;
+           $count++;
+         }elsif($char =~ /[0-9]/){
+            $ans.=$char;
+            $count++;
+         }else{
+         next;
+         }
+           if($count % 5 != 0 && $count!= 0){
+             $ans.=" ";
+           }
+           
+    }
+    $ans =~ s/\s+$//;
+    return $ans;
+}
+
+sub decode_atbash ($phrase) {
+   my $ans="";
+    for(my $i=0;$i<length($phrase);$i++){
+          
+         my $char=substr($phrase,$i,1);
+         if($char =~ /[a-z]/){
+           my $changeChar=chr(ord('a') + (25 - (ord($char) - ord('a'))));
+           $ans=$ans. $changeChar;
+        
+         }elsif($char =~ /[A-Z]/){
+           my $changeChar2=chr(ord('a') + (25 - (ord($char) - ord('A'))));
+           $ans=$ans. $changeChar2;
+          
+         }elsif($char=~ /[0-9]/){
+            $ans.=$char;
+           
+         }
+         
+    }
+    return $ans;
+}
+
+1;

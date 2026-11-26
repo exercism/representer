@@ -1,0 +1,9 @@
+square_of_sum(n) = sum(1:n)^2
+
+function sum_of_squares(n)
+    x = 0
+    for i in 1:n x += i^2 end
+    return x
+end
+
+difference(n) = square_of_sum(n) + sum_of_squares(n)

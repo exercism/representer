@@ -1,0 +1,93 @@
+Imports System
+
+Public Class TreeBuildingRecord
+
+    Public Const RootRecordId As Integer = 0
+
+    Public Property ParentId As Integer
+    Public Property RecordId As Integer
+
+    Public ReadOnly Property IsRoot As Boolean
+        Get
+            Return RecordId = RootRecordId
+        End Get
+    End Property
+
+End Class
+
+Public Class Tree
+
+    Public Property Id As Integer
+    Public Property ParentId As Integer
+    Public Property Children As New List(Of Tree)
+
+    Public ReadOnly Property IsLeaf As Boolean
+        Get
+            Return Children.Count = 0
+        End Get
+    End Property
+
+    Public Sub New(ByVal id As Integer)
+        Me.Id = id
+    End Sub
+
+End Class
+
+Public Module TreeBuilder
+
+    Public Function BuildTree(ByVal records As IEnumerable(Of TreeBuildingRecord)) As Tree
+
+        Dim ordered = records.OrderBy(Function(r) r.RecordId).ToList()
+
+        If ordered.Count = 0 Then
+            Throw New ArgumentException()
+        End If
+
+        Dim nodes As New Dictionary(Of Integer, Tree)
+
+        For Each record In ordered
+
+            ValidateRecord(record, nodes)
+
+            Dim node = New Tree(record.RecordId)
+            nodes.Add(record.RecordId, node)
+
+            If Not record.IsRoot Then
+                nodes(record.ParentId).Children.Add(node)
+            End If
+
+        Next
+
+        Return nodes(TreeBuildingRecord.RootRecordId)
+
+    End Function
+
+    Private Sub ValidateRecord(ByVal record As TreeBuildingRecord, ByVal nodes As Dictionary(Of Integer, Tree))
+
+        If record.IsRoot Then
+            If record.ParentId <> TreeBuildingRecord.RootRecordId Then
+                Throw New ArgumentException()
+            End If
+
+            If nodes.Count > 0 Then
+                Throw New ArgumentException()
+            End If
+
+            Return
+        End If
+
+        If record.RecordId <> nodes.Count Then
+            Throw New ArgumentException()
+        End If
+
+        If record.ParentId > record.RecordId Then
+            Throw New ArgumentException()
+        End If
+
+        If Not nodes.ContainsKey(record.ParentId) Then
+            Throw New ArgumentException()
+        End If
+
+    End Sub
+
+End Module

@@ -1,0 +1,135 @@
+#include "linked_list.h"
+#include <assert.h>
+#include <stdlib.h>
+
+
+struct list_node {
+   struct list_node *prev, *next;
+   ll_data_t data;
+};
+
+struct list {
+   struct list_node *first, *last;
+};
+
+struct list *list_create(void) {
+    struct list* new_list = malloc(sizeof(struct list));
+    new_list->first = NULL;
+    new_list->last = NULL;
+    return new_list;
+}
+
+// counts the items on a list
+size_t list_count(const struct list *list) {
+    assert(list != NULL);
+    size_t count = 0;
+    struct list_node* it = list->first;
+    while (it != NULL) {
+        ++count;
+        it = it->next;
+    }
+    return count;
+}
+
+// inserts item at back of a list
+void list_push(struct list *list, ll_data_t item_data) {
+    assert(list != NULL);
+    struct list_node * const new_node = malloc(sizeof(struct list_node));
+    new_node->prev = list->last;
+    new_node->next = NULL;
+    new_node->data = item_data;
+
+    if (list->last != NULL) {
+        list->last->next = new_node;
+    } else {
+        list->first = new_node;
+    }
+    list->last = new_node;
+}
+
+// removes item from back of a list
+ll_data_t list_pop(struct list * list) {
+    assert(list != NULL);
+    assert(list->first != NULL);
+    assert(list->last != NULL);
+
+    struct list_node* const to_delete = list->last;
+    const ll_data_t value = to_delete->data;
+    if (list->last->prev != NULL) {
+        list->last->prev->next = NULL;
+        list->last = list->last->prev;
+    } else {
+        list->last = NULL;
+        list->first = NULL;
+    }
+    free(to_delete);
+    return value;
+}
+
+// inserts item at front of a list
+void list_unshift(struct list * list, ll_data_t item_data) {
+    assert(list != NULL);
+    struct list_node * const new_node = malloc(sizeof(struct list_node));
+    new_node->prev = NULL;
+    new_node->next = list->first;
+    new_node->data = item_data;
+
+    if (list->first != NULL) {
+        list->first->prev = new_node;
+    } else {
+        list->last = new_node;
+    }
+    list->first = new_node;
+}
+
+// removes item from front of a list
+ll_data_t list_shift(struct list * list) {
+    assert(list != NULL);
+    assert(list->first == NULL);
+    assert(list->last != NULL);
+    const ll_data_t value = list->first->data;
+    if (list->first->next != NULL) {
+        list->first->next->prev = NULL;
+    } else {
+        list->last = NULL;
+    }
+    list->first = list->first->next;
+    return value;
+}
+
+// deletes a node that holds the matching data
+void list_delete(struct list * list, ll_data_t data) {
+    assert(list != NULL);
+    
+    struct list_node* it = list->first;
+    while (it != NULL) {
+         if (it->data == data) {
+             struct list_node* prev = it->prev;
+             struct list_node* next = it->next;
+             if (prev != NULL) {
+                 prev->next = next;
+             } else {
+                 list->first = it->next;
+             }
+             if (next != NULL) {
+                 next->prev = prev;
+             } else  {
+                 list->last = it->prev;
+             }
+             free(it);
+             return;
+         }
+        it = it->next;
+    }
+}
+
+void list_destroy(struct list *list) {
+    assert(list != NULL);
+    
+    struct list_node* it = list->first;
+    while (it != NULL) {
+        struct list_node* next = it->next;
+        free(it);
+        it = next;
+    }
+}

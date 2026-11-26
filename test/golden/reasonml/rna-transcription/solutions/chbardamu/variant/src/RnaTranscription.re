@@ -1,0 +1,13 @@
+type dna = A | C | G | T;
+type rna = A | C | G | U;
+
+let toRna = (dna: list(dna)): list(rna) => {
+    List.filter(nucl => {
+        switch (nucl: dna) {
+        | A => U
+        | C => G
+        | T => A
+        | G => C
+        };
+    }, dna);
+};

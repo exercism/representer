@@ -1,0 +1,30 @@
+"
+" Generate a formatted diamond based on an input letter.
+"
+function! Rows(letter) abort
+  let l:target = char2nr(a:letter)
+  let l:base = char2nr('A')
+  let l:max_offset = l:target - l:base
+
+  let l:rows = []
+
+  " Upper half including middle widest row
+  for l:i in range(0, l:max_offset)
+    let l:char = nr2char(l:base + l:i)
+    let l:outer_spaces = repeat(' ', l:max_offset - l:i)
+
+    if l:i == 0
+      call add(l:rows, l:outer_spaces . l:char . l:outer_spaces)
+    else
+      let l:inner_spaces = repeat(' ', 3 * l:i - 1)
+      call add(l:rows, l:outer_spaces . l:char . l:inner_spaces . l:char . l:outer_spaces)
+    endif
+  endfor
+
+  " Lower half mirrored from upper half
+  for l:i in range(l:max_offset - 1, 0, -1)
+    call add(l:rows, l:rows[l:i])
+  endfor
+
+  return join(l:rows, '\n')
+endfunction

@@ -1,0 +1,29 @@
+{
+    split($0,a[NR],"")
+}
+
+END{
+    breite=length(a[1])
+    for (i=1;i<=NR;i++) {
+        for (j=1;j<=breite;j++){
+            zahl = 0
+            if (a[i][j] == "*") continue
+            if (i>1 && a[i-1][j] == "*") zahl++
+            if (i>1 && j<breite && a[i-1][j+1] == "*") zahl++
+            if (j<breite && a[i][j+1] == "*") zahl++
+            if (i<NR && j<breite && a[i+1][j+1] == "*") zahl++
+            if (i<NR && a[i+1][j] == "*") zahl++
+            if (i<NR && j>1 && a[i-1][j-1] == "*") zahl++
+            if (j>1 && a[i][j-1] == "*") zahl++
+            if (i>1 && j>1 && a[i-1][j-1] == "*") zahl++
+            if (zahl) a[i][j] = zahl
+        }
+    }
+    for (i=1;i<=NR;i++) {
+        zeile=""
+        for (j=1;j<=breite;j++) {
+            zeile = zeile a[i][j]
+        }
+        print zeile
+    }
+}

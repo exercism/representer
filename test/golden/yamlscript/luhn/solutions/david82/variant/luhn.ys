@@ -1,0 +1,17 @@
+!yamlscript/v0
+
+defn process-digit-pair([current-digit next-digit]):
+  next-digit *=: 2
+  vector current-digit:
+    if next-digit > 9: (next-digit + 9) next-digit
+
+defn valid(input-string):
+  cleaned-digits =: input-string.replace(' ')
+  and:
+    cleaned-digits.# >=: 2
+    cleaned-digits !~: /[^\d]/
+    cleaned-digits:split:
+      .map(to-num):reverse:V
+      .conj(0).partition(2)
+      .map(process-digit-pair):flat:sum
+      .mod(10).eq(0)

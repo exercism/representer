@@ -1,0 +1,93 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. HIGH-SCORES.
+
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-PROPERTY       PIC A(20).
+       01 WS-SCORES.
+           02 SCORES        PIC X(3) OCCURS 20 TIMES
+                            INDEXED BY IDX.
+       01 WS-RESULT-STRING PIC X(60).
+       01 WS-RESULT-VALUE   PIC 999.
+       01 WS-CUR-SCORE PIC 999 BINARY.
+       01 WS-BEST-SCORE PIC 999 BINARY.
+       01 WS-TOP-SCORE-NAMES.
+          05 WS-FIRST PIC S999 BINARY.
+          05 WS-SECOND PIC S999 BINARY.
+          05 WS-THIRD PIC S999 BINARY.
+       01  WS-TOP-ARRAY REDEFINES WS-TOP-SCORE-NAMES.
+          05 WS-TOP-SCORE PIC S999 BINARY OCCURS 3 TIMES.
+       01 WS-SCORE-DISPLAY PIC ZZ9.
+       01 WS-COUNT PIC 99 BINARY.
+       01 I PIC 9 BINARY.
+       01 K PIC 9 BINARY.
+       PROCEDURE DIVISION.
+       TEST-PARAGRAPH.
+           MOVE " 10 30 90 30100 20 10  0 30 40 40 70 70" TO WS-SCORES
+           DISPLAY 'WS-SCORES = "' WS-SCORES '"'
+           MOVE "personalTopThree" TO WS-PROPERTY
+           PERFORM HIGH-SCORES
+           DISPLAY 'WS-RESULT-STRING = "' WS-RESULT-STRING '"'.
+       TEST-PARAGRAPH-END.
+           STOP RUN.
+       HIGH-SCORES.
+           EVALUATE WS-PROPERTY 
+              WHEN "scores"
+                 PERFORM LIST-SCORES
+              WHEN "latest"
+                 PERFORM GET-LATEST-SCORE
+              WHEN "personalBest"
+                 PERFORM GET-BEST-SCORE
+              WHEN "personalTopThree"
+                 PERFORM GET-BEST-THREE-SCORES
+           END-EVALUATE.
+       LIST-SCORES.
+           MOVE WS-SCORES TO WS-RESULT-STRING.
+       GET-LATEST-SCORE.
+           MOVE 0 TO WS-RESULT-VALUE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL SCORES(IDX) = SPACE
+              MOVE SCORES(IDX) TO WS-RESULT-VALUE
+           END-PERFORM.
+       GET-BEST-SCORE.
+           MOVE 0 TO WS-BEST-SCORE
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL SCORES(IDX) = SPACE
+              MOVE SCORES(IDX) TO WS-CUR-SCORE
+              IF WS-CUR-SCORE > WS-BEST-SCORE
+                 MOVE WS-CUR-SCORE TO WS-BEST-SCORE
+              END-IF
+              MOVE WS-BEST-SCORE TO WS-RESULT-VALUE
+           END-PERFORM.
+       GET-BEST-THREE-SCORES.
+           MOVE -999 TO WS-FIRST
+           MOVE -999 TO WS-SECOND
+           MOVE -999 TO WS-THIRD
+           MOVE 0 TO WS-COUNT
+           PERFORM VARYING IDX FROM 1 BY 1 UNTIL SCORES(IDX) = SPACE
+              MOVE SCORES(IDX) TO WS-CUR-SCORE
+              ADD 1 TO WS-COUNT
+              EVALUATE TRUE 
+              WHEN WS-CUR-SCORE <= WS-THIRD
+                 CONTINUE
+              WHEN WS-CUR-SCORE < WS-SECOND
+                 MOVE WS-CUR-SCORE TO WS-THIRD
+              WHEN WS-CUR-SCORE <= WS-FIRST
+                 MOVE WS-SECOND TO WS-THIRD
+                 MOVE WS-CUR-SCORE TO WS-SECOND
+              WHEN OTHER
+                 MOVE WS-SECOND TO WS-THIRD
+                 MOVE WS-FIRST TO WS-SECOND
+                 MOVE WS-CUR-SCORE TO WS-FIRST
+              END-EVALUATE
+           END-PERFORM
+           IF WS-COUNT > 3 THEN 
+              MOVE 3 TO WS-COUNT
+           END-IF
+           MOVE SPACE TO WS-RESULT-STRING
+           IF WS-COUNT = 0 THEN 
+              EXIT PARAGRAPH
+           END-IF        
+           PERFORM VARYING I FROM 1 BY 1 UNTIL I > WS-COUNT
+              MOVE WS-TOP-SCORE(I) TO WS-SCORE-DISPLAY
+              MOVE WS-SCORE-DISPLAY TO WS-RESULT-STRING(3 * I - 2: 3)
+           END-PERFORM.
+       END PROGRAM HIGH-SCORES.

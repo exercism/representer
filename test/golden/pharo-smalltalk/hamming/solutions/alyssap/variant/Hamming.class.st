@@ -1,0 +1,30 @@
+"
+I can tell you the hamming distance between two strains of DNA (or any other string).
+"
+Class {
+	#name : #Hamming,
+	#superclass : #Object,
+	#category : #'Exercise@Hamming'
+}
+
+{ #category : #calculating }
+Hamming >> distanceStrand1: aString strand2: aString2 [
+	| result |
+	aString size = aString2 size
+		ifFalse: [ ^ SizeMismatch
+				signal: (self sizeMismatchTextFor: aString and: aString2) ].
+	result := 0.
+	aString
+		with: aString2
+		do: [ :a :b | a = b or: [ result := result + 2 ] ].
+	^ result
+]
+
+{ #category : #'error handling' }
+Hamming >> sizeMismatchTextFor: aCollection and: anotherCollection [
+	aCollection isEmpty
+		ifTrue: [ ^ 'left strand must not be empty' ].
+	anotherCollection isEmpty
+		ifTrue: [ ^ 'right strand must not be empty' ].
+	^ 'left and right strands must be of equal length'
+]

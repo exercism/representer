@@ -1,0 +1,16 @@
+"""Calculate the number of grains on square `square`."""
+function on_square(n)::UInt64
+    if n >= 64 || n <= 0
+        throw(DomainError("Oh, no"))
+    end
+    return UInt64(2)^(n - 1)
+end
+
+"""Calculate the total number of grains after square `square`."""
+function total_after(n)::UInt64
+    if n > 64 || n <= 0
+        throw(DomainError("Oh, no"))
+    end
+    sum(map(on_square, 1:n))
+end
+println(on_square(64))

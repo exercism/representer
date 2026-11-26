@@ -1,0 +1,27 @@
+#!/bin/bash
+set -ue
+
+remainder="${1:?ERROR: Positive number between 1 and 3999 to convert to roman is required.}"
+roman=""
+
+while (( remainder > 0 ))
+do
+  case "$remainder" in
+    [1-3])                roman+='I';  let remainder-=1 || :;;
+    4)                    roman+='IV'; let remainder-=4 || :;;
+    [5-8])                roman+='V';  let remainder-=5 || :;;
+    9)                    roman+='IX'; let remainder-=9 || :;;
+    [1-3][0-9])           roman+='X';  let remainder-=10 || :;;
+    4[0-9])               roman+='XL'; let remainder-=40 || :;;
+    [5-8][0-9])           roman+='L';  let remainder-=50 || :;;
+    9[0-9])               roman+='XC'; let remainder-=90 || :;;
+    [1-3][0-9][0-9])      roman+='C';  let remainder-=100 || :;;
+    4[0-9][0-9])          roman+='CE'; let remainder-=400 || :;;
+    [5-8][0-9][0-9])      roman+='D';  let remainder-=500 || :;;
+    9[0-9][0-9])          roman+='CM'; let remainder-=900 || :;;
+    [1-3][0-9][0-9][0-9]) roman+='M';  let remainder-=1000 || : ;;
+    *) echo "ERROR: Cannot represent number $remainder in Roman."; exit 1 ;;
+  esac
+done
+
+echo "$roman"

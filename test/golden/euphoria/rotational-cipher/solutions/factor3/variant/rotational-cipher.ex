@@ -1,0 +1,14 @@
+public function rotateEncode(sequence text, atom shift_key)
+	for i = 1 to length(text) do
+		integer index, letter = text[i]
+		if letter >= 'a' and letter <= 'z' then
+			index = 'a'
+		elsif letter >= 'A' and letter <= 'Z' then
+			index = 'A'
+		else
+			continue
+		end if
+		text[i] = index + remainder(letter + index + shift_key, 26)
+	end for
+	return text
+end function

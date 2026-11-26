@@ -1,0 +1,39 @@
+normalize : [Char] -> [Char]
+normalize = (List.foldLeft (acc -> cases
+    c | isLower c -> acc :+ c
+      | isDigit c -> acc :+ c
+      | isUpper c -> acc :+ (toLower c)
+      | otherwise -> acc
+  ) [])
+
+findDimensions : [Char] -> (Nat, Nat)
+findDimensions xs =
+  use Nat < >
+  square = cases
+    (r, c) | (r / c) < (size xs) -> square ((increment r), (increment c))
+           | otherwise           -> (r, c)
+  rectangle = cases
+    (r, c) | (r * c) > (size xs) -> rectangle ((decrement r), c)
+           | (r * c) < (size xs) -> ((increment r), c)
+           | otherwise           -> (r, c)
+  (rectangle << square) (0, 0)
+
+matrix : [Char] -> [[Char]]
+matrix xs =
+  (r, c) = findDimensions xs
+  f acc ys = cases
+    0 -> acc :+ (ys ++ (List.fill (c - (size ys)) (?\s)))
+    i -> match splitAt c ys with (as, bs) -> f (acc :+ as) bs (decrement i)
+
+  f [] xs (decrement r)
+
+rotate' : [[Char]] -> [Char] -> [[Char]]
+rotate' acc xs = zipWith (++) acc (map singleton xs)
+
+rotate : [[Char]] -> [[Char]]
+rotate = cases
+  xs +: xss -> foldLeft rotate' (map singleton xs) xss
+  _ -> []
+
+ciphertext : Text -> Text
+ciphertext = (join " ") << (map fromCharList) << rotate << matrix << normalize << toCharList

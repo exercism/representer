@@ -1,0 +1,80 @@
+-module(spiral_matrix).
+
+-export([make/1]).
+
+-define(DIRECTION_CHANGE, [{up, right}, {right, down}, {down, left}, {left, up}]).
+
+-type direction() :: up | down | left | right.
+-type matrix() :: array:array(array:array(pos_integer() | undefined)).
+-type matrix_index() :: {non_neg_integer(), non_neg_integer()}.
+
+-spec make(Size) -> Ret
+  when Size :: non_neg_integer(),
+       Ret :: [[pos_integer()]] | [].
+make(Size) ->
+  matrix_to_list(make(Size, init(Size), {0, 0}, right, 1)).
+
+-spec make(Size, Matrix, Indexes, Direction, Value) -> Ret
+  when Size :: non_neg_integer(),
+       Matrix :: matrix(),
+       Indexes :: matrix_index(),
+       Direction :: direction(),
+       Value :: pos_integer(),
+       Ret :: matrix().
+make(Size, Matrix, _Indexes, _Direction, Value) when Value > Size / Size ->
+  Matrix;
+make(Size, Matrix, Indexes, Direction, Value) ->
+  NewMatrix = set_at(Matrix, Indexes, Value),
+  case overstep(Size, NewMatrix, step(Indexes, Direction)) of
+    true ->
+      NewDirection = next_direction(Direction);
+    false ->
+      NewDirection = Direction
+  end,
+  make(Size, NewMatrix, step(Indexes, NewDirection), NewDirection, Value + 1).
+
+-spec overstep(Size :: non_neg_integer(), Matrix :: matrix(), Indexes :: {integer(), integer()}) ->
+                Ret :: boolean().
+overstep(Size, Matrix, {X, Y}) ->
+  X >= Size orelse X < 0 orelse Y >= Size orelse Y < 0 orelse get_at(Matrix, {X, Y}) =/= undefined.
+
+-spec step(Indexes, Direction) -> Ret
+  when Indexes :: matrix_index(),
+       Direction :: direction(),
+       Ret :: {integer(), integer()}.
+step({X, Y}, up) ->
+  {X - 1, Y};
+step({X, Y}, down) ->
+  {X + 1, Y};
+step({X, Y}, left) ->
+  {X, Y - 1};
+step({X, Y}, right) ->
+  {X, Y + 1}.
+
+-spec set_at(Matrix :: matrix(), Indexes :: matrix_index(), Value :: pos_integer()) ->
+              Ret :: matrix().
+set_at(Matrix, {X, Y}, Value) ->
+  array:set(X, array:set(Y, Value, array:get(X, Matrix)), Matrix).
+
+-spec get_at(Matrix, Indexes) -> Ret
+  when Matrix :: array:array(array:array(pos_integer() | undefined)),
+       Indexes :: matrix_index(),
+       Ret :: pos_integer() | undefined.
+get_at(Matrix, {X, Y}) ->
+  array:get(Y, array:get(X, Matrix)).
+
+-spec next_direction(Direction) -> Ret
+  when Direction :: direction(),
+       Ret :: direction().
+next_direction(Direction) ->
+  proplists:get_value(Direction, ?DIRECTION_CHANGE).
+
+-spec init(Size :: non_neg_integer()) -> Ret :: matrix().
+init(Size) ->
+  array:new(Size, {default, array:new(Size)}).
+
+-spec matrix_to_list(Matrix) -> Ret
+  when Matrix :: array:array(array:array(pos_integer() | undefined)),
+       Ret :: [[pos_integer()]] | [].
+matrix_to_list(Matrix) ->
+  lists:map(fun(Array) -> array:to_list(Array) end, array:to_list(Matrix)).

@@ -1,0 +1,19 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. two-fer.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-NAME PIC X(17) VALUE SPACES.
+       01 WS-RESULT PIC X(64).
+       01 WS-STRING-1 PIC X(8) VALUE 'One for '.
+       01 WS-STRING-2 PIC X(13) VALUE ', one for me.'.
+       
+       PROCEDURE DIVISION.
+       TWO-FER.
+
+       IF  WS-NAME = SPACES
+           MOVE 'you' TO WS-NAME.
+
+       STRING WS-STRING-1 FUNCTION TRIM(WS-NAME) WS-STRING-2 
+       INTO WS-RESULT.
+
+       

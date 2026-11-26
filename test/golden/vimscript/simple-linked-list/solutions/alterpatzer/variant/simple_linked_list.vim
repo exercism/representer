@@ -1,0 +1,60 @@
+"
+" Creates a singly linked list that can only be traversed from head to tail.
+" Each element points to the next element in the list.
+"
+function s:length() dict abort
+   return len(self.stack)
+endfunction
+
+function s:head() dict abort
+   if self.Length() == 0
+      throw "The list is empty"
+   endif
+   return self
+endfunction
+
+function s:push(x) dict abort
+   return add(self.stack, a:x)
+endfunction
+
+function s:pop() dict abort
+   if self.Length() == 1
+      throw "The list is empty"
+   endif
+   return remove(self.stack, -1)
+endfunction
+
+function s:value() dict abort
+   if self.Length() == 0
+      throw "The list is empty"
+   endif
+   return self.stack[-1]
+endfunction
+
+function s:as_list() dict abort
+   return reverse(copy(self.stack))
+endfunction
+
+function s:reversed() dict abort
+    return SimpleLinkedList(self.AsList())
+endfunction
+
+function s:next() dict abort
+    if len(self.stack) == 1
+       return v:null
+    endif
+    return SimpleLinkedList(self.stack[:-2])
+endfunction
+
+function! SimpleLinkedList(values) abort
+  return #{
+    \stack: a:values,
+    \Length: function("s:length"),
+    \Head: function("s:head"),
+    \Push: function("s:push"),
+    \Pop: function("s:pop"),
+    \Value: function("s:value"),
+    \AsList: function("s:as_list"),
+    \Next: function("s:next"),
+    \Reversed: function("s:reversed")}
+endfunction

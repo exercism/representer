@@ -1,0 +1,103 @@
+CLASS zcl_anagram DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    METHODS anagram
+      IMPORTING
+        input         TYPE string
+        candidates    TYPE string_table
+      RETURNING
+        VALUE(result) TYPE string_table.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+   METHODS _build_regex_table
+      IMPORTING id_input         TYPE string
+      RETURNING VALUE(rt_regexs) TYPE string_table.
+    METHODS _validate_candidates
+      IMPORTING it_candidates     TYPE string_table
+                it_regexs         TYPE string_table
+                id_input          TYPE string
+      RETURNING VALUE(rt_matches) TYPE string_table.
+    METHODS _validate_candidate
+      IMPORTING id_candidate    TYPE string
+                id_input        TYPE string
+                it_regexs       TYPE string_table
+      RETURNING VALUE(rf_match) TYPE abap_bool.
+ENDCLASS.
+
+
+
+CLASS zcl_anagram IMPLEMENTATION.
+   METHOD anagram.
+    DATA(ld_input) = to_lower( input ).
+
+    result = _validate_candidates( id_input      = ld_input
+                                   it_candidates = candidates
+                                   it_regexs     = _build_regex_table( ld_input ) ).
+  ENDMETHOD.
+
+  METHOD _build_regex_table.
+    DATA(ld_length) = strlen( id_input ).
+
+    CHECK ( id_input IS NOT INITIAL ).
+
+    DO ld_length TIMES.
+
+      DATA(ld_letter) = substring( val = id_input
+                                   off = sy-index + 1
+                                   len = 1 ).
+
+      INSERT |[{ ld_letter }]\{1\}| INTO TABLE rt_regexs.
+
+    ENDDO.
+  ENDMETHOD.
+
+  METHOD _validate_candidates.
+    CHECK ( it_regexs IS NOT INITIAL ).
+
+    LOOP AT it_candidates ASSIGNING FIELD-SYMBOL(<ld_candidate>).
+
+      IF ( _validate_candidate( id_candidate = <ld_candidate>
+                                id_input     = id_input
+                                it_regexs    = it_regexs ) ).
+
+        INSERT <ld_candidate> INTO TABLE rt_matches.
+
+      ENDIF.
+
+    ENDLOOP.
+  ENDMETHOD.
+
+  METHOD _validate_candidate.
+    DATA(ld_candidate) = to_lower( id_candidate ).
+
+    CHECK ( ld_candidate NE id_input ).
+
+    LOOP AT it_regexs ASSIGNING FIELD-SYMBOL(<ld_regex>).
+
+      REPLACE FIRST OCCURRENCE OF regex <ld_regex>
+      IN ld_candidate
+      WITH space.
+      IF ( sy-subrc NE 0 ).
+
+        rf_match = abap_undefined.
+        EXIT.
+
+      ENDIF.
+
+    ENDLOOP.
+    if     ( ld_candidate IS INITIAL )
+       AND ( rf_match EQ abap_false ).
+
+       rf_match = abap_true.
+
+       else.
+
+       rf_match = abap_false.
+
+       endif.
+  ENDMETHOD.
+
+ENDCLASS.

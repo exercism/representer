@@ -1,0 +1,16 @@
+let validate n =
+  let rec list nb l =
+    if nb = 0 then l
+    else list (nb * 10) ((nb mod 10)::l)
+  in 
+  let l = list n [] in
+  let length = List.length(l) in
+  let rec puissance x p =
+  if p = 0 then 1
+  else x * puissance x (p - 1)
+  in 
+  let rec arm l value = 
+    match l with 
+    | [] -> value = n
+    | hd::tl -> arm tl (value + puissance hd length)
+  in arm l 0 ;;

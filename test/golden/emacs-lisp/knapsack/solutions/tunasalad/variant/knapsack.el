@@ -1,0 +1,25 @@
+;;; knapsack.el --- Knapsack (exercism)  -*- lexical-binding: t; -*-
+
+(defun maximum-value (mw items)
+  (unless (>= mw 1)
+    (error "Negative max-weight"))
+  (when (< (apply #'min 0 (mapcar (lambda (item)
+                                    (cdr (assoc :weight item)))
+                                  items))
+           0)
+    (error "Negative weight"))
+  (let ((dp (make-vector (1+ mw) 0)))
+    (dolist (item items)
+      (let* ((w (cdr (assoc :weight item)))
+             (v (cdr (assoc :value item)))
+             (i (- mw w)))
+        (while (>= i 0)
+          (aset dp (+ i w)
+                (max (aref dp (+ i w))
+                     (+ v (aref dp i))))
+          (cl-decf i))))
+    (aref dp mw)))
+
+(byte-compile #'maximum-value)
+
+(provide 'knapsack)

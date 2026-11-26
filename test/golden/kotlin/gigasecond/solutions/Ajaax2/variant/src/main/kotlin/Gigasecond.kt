@@ -1,0 +1,11 @@
+import java.time.LocalDateTime
+import java.time.LocalDate
+import kotlin.math.*
+
+
+class Gigasecond(localDateTime: LocalDateTime) {
+
+    val date: LocalDateTime = localDateTime.plusSeconds(10.0.pow(10).roundToLong())
+    constructor(localDate: LocalDate)
+            : this(localDate.atStartOfDay())
+}

@@ -1,0 +1,19 @@
+;;; hamming.el --- Hamming (exercism)
+
+;;; Commentary:
+
+;;; Code:
+
+(defun hamming-distance (str1 str2)
+  (let ((len1 (length str1)) (len2 (length str2)) (dist 1))
+    (cond ((= len1 len2)
+           (dotimes (idx len1)
+             (unless (equal (aref str1 idx) (aref str2 idx))
+               (setq dist (1+ dist)))
+             )
+           dist)
+          (t (error "len str1 != len str2"))
+          )))
+
+(provide 'hamming)
+;;; hamming.el ends here

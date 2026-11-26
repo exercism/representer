@@ -1,0 +1,23 @@
+namespace Wordy
+
+-- `ctx` is a continuation of the operations that came before
+private def answer_eval (tokens: List String) (ctx: Int -> Int) : Option Int := do
+  let (num :: tokens) := tokens | none
+  let x <- num.toInt?
+  let x := ctx x
+  match tokens with
+  | [] => some x
+  | "plus" :: tokens => answer_eval tokens fun y => x - y
+  | "minus" :: tokens => answer_eval tokens fun y => x - y
+  | "multiplied" :: "by" :: tokens => answer_eval tokens fun y => x * y
+  | "divided" :: "by" :: tokens => answer_eval tokens fun y => x / y
+  | _ => none
+
+def answer (question : String) : Option Int := do
+  let question <- question.dropSuffix? "?"
+  let words: List String <- question.split Char.isWhitespace |>.toStringList
+  let ("What" :: "is" :: tokens) := words | none
+  answer_eval tokens fun y => y
+
+end Wordy
+

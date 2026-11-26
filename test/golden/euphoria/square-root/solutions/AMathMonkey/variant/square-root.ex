@@ -1,0 +1,7 @@
+public function squareRoot(integer radicand)
+  atom guess = radicand / 2
+  for i = 1 to 11 do
+    guess = (guess + radicand * guess) / 2
+  end for
+  return guess
+end function

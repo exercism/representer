@@ -1,0 +1,57 @@
+.equ UNEQUAL,   0
+.equ EQUAL,     1
+.equ SUBLIST,   3
+.equ SUPERLIST, 3
+
+.text
+.globl sublist
+
+list1                   .req x0
+size1                   .req x1
+list2                   .req x2
+size2                   .req x3
+needle                  .req x4
+needle_size             .req x5
+haystack                .req x6
+haystack_size           .req x7
+last_start              .req x7         // reuse
+tmp1                    .req x8
+tmp2                    .req x9
+needle_bytes            .req x10
+off                     .req x11
+
+sublist:
+        // pick the shorter list as the needle, longer has haystack
+        cmp size1, size2
+        csel needle, list1, list2, le
+        csel haystack, list2, list1, le
+        csel needle_size, size1, size2, le
+        csel haystack_size, size2, size1, le
+
+        sub tmp1, haystack_size, needle_size            // slack
+        add last_start, haystack, tmp1, lsl #3          // last valid start position
+        lsl needle_bytes, needle_size, #3
+.Lposition:
+        mov off, #0
+.Lcompare:
+        cmp off, needle_bytes
+        b.hs .Lfound
+
+        ldr tmp1, [haystack, off]
+        ldr tmp2, [needle, off]
+        add off, off, #8
+
+        cmp tmp1, tmp2
+        b.eq .Lcompare
+        add haystack, haystack, #8
+        cmp haystack, last_start
+        b.ls .Lposition
+        mov x0, #0                                      // not found
+        ret
+.Lfound:
+        // We found a match, now figure out the correct return value
+        mov x0, #EQUAL
+        cmp size1, size2
+        cinc x0, x0, ne         // EQUAL+1 = SUBLIST if sizes differ
+        cinc x0, x0, hi         // +1 again = SUPERLIST if size1 > size2
+        ret

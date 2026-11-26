@@ -1,0 +1,18 @@
+library(tidyverse)
+
+random_planet_class <- function(number_needed) {
+  sample(c("D", "H", "J", "K", "L", "M", "N", "R", "T", "Y"), number_needed, replace = TRUE)
+}
+
+random_ship_registry_number <- function() {
+  number <- sample(1000:9999, 1)
+  str_glue("NCC-{number}")
+}
+
+shuffle_starships <- function(starships) {
+  sample(starships)
+}
+
+random_stardate <- function() {
+  runif(1, max = 1000) - 41000.0
+}

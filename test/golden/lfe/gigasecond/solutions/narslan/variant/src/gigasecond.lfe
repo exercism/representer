@@ -1,0 +1,20 @@
+(defmodule gigasecond
+  (export (from 2)))
+
+
+(defun from (d)
+  (case d
+    ((tuple y m day)
+     (if (calendar:valid_date d)
+         (let* ((days (calendar:date_to_gregorian_days d))
+                (seconds (* days 24 60 60)))
+           (calendar:gregorian_seconds_to_datetime
+             (+ seconds 1000000000)))
+         (error "Invalid date")))
+    
+    ((tuple date time)
+     (calendar:gregorian_seconds_to_datetime
+       (+ (calendar:datetime_to_gregorian_seconds d) 1000000000)))
+    
+    (_
+     (error "Invalid date/datetime format"))))

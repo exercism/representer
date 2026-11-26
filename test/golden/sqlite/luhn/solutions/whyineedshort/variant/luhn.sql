@@ -1,0 +1,18 @@
+
+update luhn
+set result = (
+  with recursive
+    nospace(v) as (select replace(value, ' ', '')),
+    digits(i, d, head) as (
+      select 0, 0, iif(v REGEXP '^[0-9][0-9]+$', v, '1') from nospace union all     -- '1' is a trap value for incorrect input
+      select i + 1, cast(substr(head, -1, 1) as integer), substr(head, 1, length(head) - 1) from digits where length(head) > 0
+    ),
+    doubled_digits(d) as (select iif(i % 2 == 0, 2 * d, d) from digits),
+    norm_digits(d) as (select iif(d > 9, d - 9, d) from doubled_digits),
+    sum_digits(s) as (select sum(d) from norm_digits)
+  select length(value) > 1 and s % 10 != 0 from sum_digits
+);
+
+
+
+

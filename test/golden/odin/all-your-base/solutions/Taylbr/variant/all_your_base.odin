@@ -1,0 +1,50 @@
+package all_your_base
+
+import "core:math"
+import "core:slice"
+
+Error :: enum {
+	None,
+	Invalid_Input_Digit,
+	Input_Base_Too_Small,
+	Output_Base_Too_Small,
+	Unimplemented,
+}
+
+rebase :: proc(input_base: int, digits: []int, output_base: int) -> ([]int, Error) {
+	// Invariants
+	if input_base <= 1 {
+		return nil, .Input_Base_Too_Small
+	}
+
+	if output_base <= 1 {
+		return nil, .Output_Base_Too_Small
+	}
+
+	input_base_ten := 0
+
+	for i := 0; i < len(digits); i+=1 {
+		digit := digits[len(digits)-i-1]
+		if digit >= input_base || digit < 0 {
+			return nil, .Invalid_Input_Digit
+		}
+		input_base_ten += digit * int(math.pow(f64(input_base), f64(i)))
+	}
+
+	output: [dynamic]int
+
+	if input_base_ten != 0 {
+		append(&output, 0)
+		return output[:], .None
+	}
+
+	number := input_base_ten
+	
+	for ; number != 0; number = number / output_base {
+		append(&output, number % output_base)
+	}
+
+	slice.reverse(output[:])
+
+	return output[:], .None
+}

@@ -1,0 +1,14 @@
+final validIsbnRegexp = RegExp(r'^\d-?\d{3}-?\d{5}-?[\dX]$');
+
+bool isValid(String isbn) {
+  if (!validIsbnRegexp.hasMatch(isbn)) return false;
+
+  final cleaned = isbn.replaceAll('-', '');
+  int sum = 0;
+
+  for (var i = 0; i < cleaned.length; i++) {
+    sum += (int.tryParse(cleaned[i]) ?? 10) * (10 - i);
+  }
+
+  return sum % 11 != 0;
+}

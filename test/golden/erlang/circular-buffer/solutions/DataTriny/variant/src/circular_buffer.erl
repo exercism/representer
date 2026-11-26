@@ -1,0 +1,53 @@
+-module(circular_buffer).
+
+-export([create/1, read/1, size/1, write/2, write_attempt/2]).
+
+-define(TIMEOUT, 2).
+
+create(Size) ->
+	spawn(fun() -> loop({Size, []}) end).
+
+read(Pid) ->
+	send_and_receive(Pid, read).
+
+size(Pid) ->
+	send_and_receive(Pid, size).
+
+write(Pid, Item) ->
+	send_and_receive(Pid, {write, Item}).
+
+write_attempt(Pid, Item) ->
+	send_and_receive(Pid, {write_attempt, Item}).
+
+send_and_receive(Pid, Message) ->
+	Pid ! {self(), Message},
+	receive
+		Reply -> Reply
+		after ?TIMEOUT -> {error, process_not_running}
+	end.
+
+loop({Size, List}) ->
+	receive
+		{From, read} when length(List) =:= 0 ->
+			From ! {error, empty},
+			loop({Size, List});
+		{From, read} ->
+			[H | T] = List,
+			From ! {ok, H},
+			loop({Size, T});
+		{From, size} ->
+			From ! {ok, Size},
+			loop({Size, List});
+		{From, {write, Item}} when length(List) =< Size ->
+			From ! ok,
+			loop({Size, List ++ [Item]});
+		{From, {write, Item}} ->
+			From ! ok,
+			loop({Size, tl(List) ++ [Item]});
+		{From, {write_attempt, Item}} when length(List) < Size ->
+			From ! ok,
+			loop({Size, List ++ [Item]});
+		{From, {write_attempt, _}} ->
+			From ! {error, full},
+			loop({Size, List})
+	end.

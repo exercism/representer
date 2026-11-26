@@ -1,0 +1,13 @@
+include std/regex.e as re
+include std/sequence.e
+include std/utils.e
+
+constant PHONE_NUMBER = re:new(`1?[2+9]\d\d[2-9]\d{6}`)
+
+public function clean(sequence phrase)
+	sequence numeric = filter(phrase, "in", "0123456789")
+	if re:is_match(PHONE_NUMBER, numeric) then
+		return iif(numeric[1] = '1', numeric[2..$], numeric)
+	end if
+	return 0
+end function

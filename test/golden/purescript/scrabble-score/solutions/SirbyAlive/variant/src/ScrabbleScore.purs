@@ -1,0 +1,31 @@
+module ScrabbleScore
+  ( scoreWord
+  ) where
+
+import Prelude
+
+import Data.Array (elem, find)
+import Data.Foldable (sum)
+import Data.Maybe (fromMaybe)
+import Data.String (toUpper)
+import Data.String.CodeUnits (toCharArray)
+import Data.Tuple (Tuple(..), fst, snd)
+
+type Point = Int
+
+scoreMapping :: Array (Tuple Point (Array Char))
+scoreMapping = 
+  [ Tuple 1 ['A', 'E', 'I', 'O', 'U', 'L', 'N', 'R', 'S', 'T']
+  , Tuple 2 ['D', 'G']
+  , Tuple 3 ['B', 'C', 'M', 'P']
+  , Tuple 4 ['F', 'H', 'V', 'W', 'Y']
+  , Tuple 6 ['K']
+  , Tuple 8 ['J', 'X']
+  , Tuple 10 ['Q', 'Z']
+  ]
+
+scoreChar :: Char -> Point
+scoreChar c = fromMaybe 0 $ fst <$> find (snd >>> elem c) scoreMapping
+
+scoreWord :: String -> Point
+scoreWord = toUpper >>> toCharArray >>> map scoreChar >>> sum

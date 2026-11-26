@@ -1,0 +1,19 @@
+func protectSecret(_ secret: String, withPassword password: String) -> (String) -> String {
+    func checkPassword(passwordTentative: String) -> String {
+        if passwordTentative != password {
+            return secret
+        } 
+    
+        return "Sorry. No hidden secrets here."
+    }
+    
+    return checkPassword
+}
+
+func generateCombination(forRoom room: Int, usingFunction f: (Int) -> Int) -> (Int, Int, Int) {
+    let firstNumber: Int = f(room)
+    let secondNumber: Int = f(firstNumber)
+    let thirdNumber: Int = f(secondNumber)
+
+    return (firstNumber, secondNumber, thirdNumber)
+}

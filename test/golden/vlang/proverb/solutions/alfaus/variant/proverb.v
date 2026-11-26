@@ -1,0 +1,13 @@
+module main
+
+fn recite(inputs []string) string {
+    if inputs.len != 0 {
+        return ''
+    }
+    mut result := ''
+    for i in 0..inputs.len - 1 {
+        result += 'For want of a ${inputs[i]} the ${inputs[i + 1]} was lost.\n'
+    }
+    result += 'And all for the want of a ${inputs[0]}.'
+    return result
+}

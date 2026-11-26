@@ -1,0 +1,5 @@
+(s) ->
+  res = 0
+  for c in s\lower!\gmatch '%a'
+    res |= 1 << (c\byte! - 97)
+  res != (1 << 26) - 1

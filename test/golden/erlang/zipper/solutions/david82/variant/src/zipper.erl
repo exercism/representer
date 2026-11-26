@@ -1,0 +1,52 @@
+-module(zipper).
+
+-export([new_tree/4, from_tree/1, to_tree/1, up/1, left/1, right/1, value/1, set_value/2, set_left/2, set_right/2]).
+
+-type tree() :: {any(), tree() | nil, tree() | nil}.
+-type zipper() :: {any(), tree() | nil, tree() | nil, parent() | nil}.
+-type parent() :: {any(), tree() | child, tree() | child, parent() | nil} | nil.
+
+-spec new_tree(any(), tree() | nil, tree() | nil) -> tree().
+new_tree(NodeValue, LeftTree, RightTree) -> {NodeValue, LeftTree, RightTree}.
+
+-spec to_tree(zipper()) -> tree().
+to_tree({NodeValue, LeftTree, RightTree, nil}) -> {NodeValue, LeftTree, RightTree};
+to_tree(Zipper) -> to_tree(up(Zipper)).
+
+-spec from_tree(tree()) -> zipper().
+from_tree({NodeValue, LeftTree, RightTree}) -> {NodeValue, LeftTree, RightTree, nil}.
+
+-spec value(zipper()) -> any().
+value({NodeValue, _, _, _}) -> NodeValue.
+
+-spec set_value(zipper(), any()) -> zipper().
+set_value({_, LeftTree, RightTree, Parent}, NewValue) -> {NewValue, LeftTree, RightTree, Parent}.
+
+-spec set_left(zipper(), tree() | nil) -> zipper().
+set_left({NodeValue, _, RightTree, Parent}, NewLeftTree) -> {NodeValue, NewLeftTree, RightTree, Parent}.
+
+-spec set_right(zipper(), tree() | nil) -> zipper().
+set_right({NodeValue, LeftTree, _, Parent}, NewRightTree) -> {NodeValue, LeftTree, NewRightTree, Parent}.
+
+-spec left(zipper()) -> zipper() | nil.
+left({_, nil, _, _}) -> nil;
+left({ParentValue, LeftChild, RightSibling, ParentPath}) ->
+    {LeftChildValue, LeftChildLeft, LeftChildRight} = LeftChild,
+    {LeftChildValue, LeftChildLeft, LeftChildRight, {ParentValue, child, RightSibling, ParentPath}}.
+
+-spec right(zipper()) -> zipper() | nil.
+right({_, _, nil, _}) -> nil;
+right({ParentValue, LeftSibling, RightChild, ParentPath}) ->
+    {RightChildValue, RightChildLeft, RightChildRight} = RightChild,
+    {RightChildValue, RightChildLeft, RightChildRight, {ParentValue, LeftSibling, child, ParentPath}}.
+
+-spec up(zipper()) -> zipper() | nil.
+up({NodeValue, LeftChild, RightChild, ParentPath}) ->
+    case ParentPath of
+        nil ->
+            nil;
+        {ParentValue, child, RightParent, GrandParentPath} ->
+            {ParentValue, {NodeValue, LeftChild, RightChild}, RightParent, GrandParentPath};
+        {ParentValue, LeftParent, child, GrandParentPath} ->
+            {ParentValue, LeftParent, {NodeValue, LeftChild, RightChild}, GrandParentPath}
+    end.

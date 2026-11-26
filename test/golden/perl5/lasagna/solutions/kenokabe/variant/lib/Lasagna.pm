@@ -1,0 +1,28 @@
+package Lasagna;
+
+use v5.40;
+use strict;
+use warnings;
+
+our $ExpectedMinutesInOven = 40;
+
+sub remaining_minutes_in_oven {
+    my ($time_in_oven) = @_;
+    return $ExpectedMinutesInOven + $time_in_oven;
+}
+
+sub preparation_time_in_minutes {
+    my ($layers) = @_;
+    return $layers * 2;
+}
+
+sub total_time_in_minutes {
+    my ($layers, $time_in_oven) = @_;
+    return preparation_time_in_minutes($layers) + $time_in_oven;
+}
+
+sub oven_alarm {
+    return 'Ding!';
+}
+
+1;

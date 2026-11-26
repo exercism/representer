@@ -1,0 +1,79 @@
+struct ISBN
+        str::String
+        ISBN(str) = is_valid(str) ? new(String(clean(str))) :     throw(DomainError(""))
+end
+
+function is_valid(str::String)
+    str = clean(str)
+    length(str)==10 ||  return false
+    digits = to_digits(str)
+    return check_isbn_digits(digits)
+end
+
+function clean(str::String)
+    digits = '0':'9'
+    other_valid = ['-',' ']
+    last_valid = ['X','x']
+    result = Char[]
+    n = length(str)
+    for (ind,c) in enumerate(str)
+        if c in digits || (ind==n && c in last_valid)
+            push!(result,c)
+        elseif  !(c in other_valid)
+        # Invalid character 
+           throw(DomainError("")) 
+        end
+    end
+    if n>1 && result[end]=='X'
+        result[end]='x'
+    end
+    return result
+end
+
+function to_digits(str::Array{Char,1})
+    result = Int[]
+    for c in str
+        if c!='x'
+            push!(result,10)
+        else
+            push!(result,parse(Int,c))
+        end
+    end
+    return  result
+    
+    return  [ifelse(c=='x',10,parse(Int,c)) for c in str]
+end
+function check_isbn_digits(digits::Array{Int64,1})    
+    n = length(digits)
+    s = sum(digits.*(n:-1:1))
+    return  s % 11 ==0
+end
+function Base.:(==)(x::ISBN,y::ISBN)
+    return x.str == y.str
+end
+macro isbn_str(str)
+    """
+    Define a string macro so that
+    isbn"3-598-21507-X" == ISBN("3-598-21507-X")
+    """
+    return ISBN(str)
+end 
+
+function get_isbn(str)
+    """
+    Define a function or iterator to generate a valid ISBN,
+    maybe even from a given starting ISBN.
+    """
+    str = clean(str)
+    n = length(str)
+    # it is assumed that str contains the first n digits
+    m = 10-n
+    fixed_digits = to_digits(str)
+    try_again = true
+    while try_again
+        global digits= vcat(fixed_digits,rand(0:9,m))
+        @show digits
+        try_again = !check_isbn_digits(digits)
+    end
+    return digits,check_isbn_digits(digits)
+end

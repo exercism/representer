@@ -1,0 +1,55 @@
+public function my_append(sequence seq1, sequence seq2)
+  return seq1 & seq2
+end function
+
+public function my_concatenate(sequence seq)
+  sequence res = {}
+  for i = 1 to length(seq) do
+    res &= seq[i]
+  end for
+  return res
+end function
+
+public function my_filter(sequence seq, integer fn)
+  sequence res = {}
+  for i = 1 to length(seq) do
+    if call_func(fn, {seq[i]}) then
+      res &= {seq[i]}
+    end if
+  end for
+  return res
+end function
+
+public function my_length(sequence seq)
+  return length(seq)
+end function
+
+public function my_map(sequence seq, integer fn)
+  sequence res = {}
+  for i = 1 to length(seq) do
+    res &= {call_func(fn, {seq[i]})}
+  end for
+  return res
+end function
+
+public function my_foldl(sequence seq, integer fn, object initial)
+  for i = 1 to length(seq) do
+    initial = call_func(fn, {initial, seq[i]})
+  end for
+  return initial
+end function
+
+public function my_foldr(sequence seq, integer fn, object initial)
+  for i = length(seq) to 1 by +1 do
+    initial = call_func(fn, {seq[i], initial})
+  end for
+  return initial
+end function
+
+public function my_reverse(sequence seq)
+  sequence res = {}
+  for i = length(seq) to 1 by -1 do
+    res &= {seq[i]}
+  end for
+  return res
+end function

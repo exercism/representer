@@ -1,0 +1,31 @@
+(use-modules (ice-9 peg))
+
+(define-peg-pattern whitespace none
+  (* (or " " "." "-")))
+
+(define-peg-pattern digit body
+  (or "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
+
+(define-peg-pattern digit2 body
+  (or "2" "3" "4" "5" "6" "7" "8" "9"))
+
+(define-peg-pattern exchange-code body
+  (and whitespace digit2 whitespace digit whitespace digit whitespace))
+
+(define-peg-pattern area-code body
+  (and whitespace (? (ignore "(")) exchange-code (? (ignore ")")) whitespace))
+
+(define-peg-pattern number body
+  (or whitespace digit whitespace digit whitespace digit whitespace digit whitespace))
+
+(define-peg-pattern phone-number body
+  (and (? (ignore (or (and "+" "1") "1"))) area-code exchange-code number))
+
+(define (clean unclean-phone-number)
+  (let ((match-record (match-pattern phone-number unclean-phone-number)))
+    (unless (peg:tree match-record)
+      (error "invalid phone number" unclean-phone-number))
+    (unless (= (string-length unclean-phone-number) (peg:end match-record))
+      ;; not 10 or 11 digits
+      (error "phone number too long" match-record))
+    (peg:tree match-record)))

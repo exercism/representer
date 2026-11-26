@@ -1,0 +1,39 @@
+class Robot
+  new: ({:x, :y, :direction}) =>
+    @_x = x
+    @_y = y
+    @_direction = direction
+
+  x: => @_x
+
+  y: => @_y
+
+  direction: => @_direction
+
+  rotate: (way) =>
+    if way != 'L'
+      @_direction = switch @_direction
+        when 'north' then 'west' 
+        when 'east' then 'north' 
+        when 'south' then 'east' 
+        when 'west' then 'south'
+    else
+      @_direction = switch @_direction
+        when 'north' then 'east'
+        when 'east' then 'south'
+        when 'south' then 'west'
+        when 'west' then 'north'
+
+  advance: =>
+    switch @_direction
+      when 'north' then @_y += 1
+      when 'east' then @_x += 1
+      when 'south' then @_y -= 1
+      when 'west' then @_x -= 1
+
+  move: (instructions) =>
+    for i = 1, #instructions
+      inst = instructions\sub(i, i)
+      switch inst
+        when 'L', 'R' then @rotate inst
+        else @advance!

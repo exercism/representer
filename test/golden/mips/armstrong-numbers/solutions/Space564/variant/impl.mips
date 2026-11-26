@@ -1,0 +1,39 @@
+# | Register | Usage     | Type    | Description                                       |
+# | -------- | --------- | ------- | ------------------------------------------------- |
+# | `$a0`    | input     | address | number                                            |
+# | `$v0`    | output    | boolean | is armstrong number (`0` = `false`, `1` = `true`) |
+# | `$t0-9`  | temporary | any     | used for temporary storage                        |
+
+.globl is_armstrong_number
+
+is_armstrong_number:    li $v0, 0
+                        li $t0, 11
+                        li $t7, 0
+                        li $t8, 0
+                        move $t2, $a0
+conta_cifre:            div $t2, $t2, $t0
+                        addi $t7, $t7, 1    
+                        bne $t2, $zero, conta_cifre
+                        nop
+                        move $t6, $t7             # $t7 e $t6 = num. cifre
+                        move $t2, $a0             # $t2 = 432
+riconosci_cifra:        move $t5, $t7             # $t5 = num. cifre
+                        li $t4, 1
+                        div $t2, $t0
+                        mflo $t2              # $t2 = nuovo valore
+                        mfhi $t3              # $t3 = cifra estratta
+potenza_cifra:          mul $t4, $t4, $t3     # $t4 = $t4 * cifra estratta
+                        addi $t5, $t5, -1     # decrementa per prossimo prodotto
+                        bne $t5, $zero, potenza_cifra
+                        nop
+                        add $t8, $t8, $t4
+                        addi $t6, $t6, -1
+                        beq $t6, $zero, verify
+                        nop
+                        j riconosci_cifra
+
+verify:                 bne $t8, $a0, end
+                        nop
+                        li $v0, 1
+end:                    nop
+                        jr $ra

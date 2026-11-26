@@ -1,0 +1,40 @@
+-module(atbash_cipher).
+-export([decode/1, encode/1]).
+
+-define(alphabet, lists:seq($a, $z)).
+-define(alphanumeric, ?alphabet ++ lists:seq($0, $9)).
+
+decode(Phrase) ->
+    seq([fun filter_alphanumeric/1,
+         fun complement/1],
+        Phrase).
+
+encode(Phrase) ->
+    seq([fun string:to_lower/1,
+         fun filter_alphanumeric/1,
+         fun complement/1,
+         fun insert_spaces_every_5_letters/1],
+        Phrase).
+
+filter_alphanumeric(Text) ->
+    [X || X <- Text, lists:member(X, ?alphanumeric)].
+
+complement(Text) ->
+    [proplists:get_value(X, complements(), X) || X <- Text].
+
+complements() ->
+    lists:zip(?alphabet, lists:reverse(?alphabet)).
+
+insert_spaces_every_5_letters(Text) ->
+    lists:flatten(lists:join(" ", chunks(5, Text))).
+
+chunks(_, []) ->
+    [];
+chunks(N, L) when N =< length(L) ->
+    Remainder = lists:nthtail(N, L),
+    [lists:sublist(L, N) | chunks(N, Remainder)];
+chunks(_, L) ->
+    [L].
+
+seq([], D) -> D;
+seq([F | R], D) -> seq(R, F(D)).

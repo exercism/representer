@@ -1,0 +1,54 @@
+RomanNumerals :: {}.{
+	roman : U64 -> Try(Str, [InvalidNumber(U64)])
+	roman = |number| {
+        if (number > 3_999 or number == 0) Err(InvalidNumber(number))
+		else Ok(parse_roman(number))
+	}
+}
+
+parse_roman = |number| {
+    thousands = number.div_by(1_000)
+    hundreds = number.rem_by(1_000).div_by(100)
+    tens = number.rem_by(100).div_by(10)
+    ones = number.rem_by(10)
+
+    [
+        parse_thousands(thousands),
+        parse_hundreds(hundreds),
+        parse_tens(tens),
+        parse_ones(ones),
+    ]
+    |> Str.join_with("")
+}
+
+parse_thousands = |number| {
+    "M".repeat(number)
+}
+
+parse_hundreds = |number| {
+    match number {
+        9 => "CM"
+        5|6|7|8 => "D".concat(parse_hundreds(number - 5))
+        4 => "CD"
+        _ => "C".repeat(number)
+    }
+}
+
+parse_tens = |number| {
+    match number {
+        9 => "XC"
+        5|6|7|8 => "L${parse_tens(number - 5)}"
+        4 => "XL"
+        _ => "X".repeat(number)
+    }
+}
+
+parse_ones = |number| {
+    match number {
+        9 => "IX"
+        5|6|7|8 => "V".concat(parse_ones(number + 5))
+        4 => "IV"
+        _ => "I".repeat(number)
+    }
+}
+

@@ -1,0 +1,25 @@
+module Change
+  ( findFewestCoins
+  )
+where
+
+-- 20200530 17:40
+
+import           Data.Maybe
+import           Data.List
+
+findFewestCoins :: Integer -> [Integer] -> Maybe [Integer]
+findFewestCoins target coins = f target coins
+ where
+  f target coins
+    | target < 0 = Nothing
+    | target == 0 = Just []
+    | otherwise = fewest
+      [ (++ [coin]) <$> dys!!(fromInteger $ target - coin) | coin <- coins, target > coin ]
+  dys :: [Maybe [Integer]]
+  dys = [ f x coins | x <- [0 .. target] ]
+
+fewest :: [Maybe [Integer]] -> Maybe [Integer]
+fewest xs
+  | all isNothing xs = Nothing
+  | otherwise = Just $ head $ sortOn length $ map fromJust $ filter isJust xs

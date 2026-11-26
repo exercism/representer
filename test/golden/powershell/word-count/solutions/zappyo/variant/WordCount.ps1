@@ -1,0 +1,199 @@
+Function Get-WordCount() {
+    <#
+    .SYNOPSIS
+    Given a phrase, count how many time each word appear.
+
+    .DESCRIPTION
+    Count how many time each word appear in a phrase. Number in string also counted as word, and words are case insensitive.
+
+    .PARAMETER Phrase
+    The phrase to count words.
+
+    .EXAMPLE
+    Get-WordCount -Phrase "Hello, welcome to exercism!"
+    Return: @{ hello = 1; welcome = 1; to = 1; exercism = 1}
+    #>
+    [CmdletBinding()]
+    Param(
+        [string]$Phrase
+    )
+    $Lis = @{}
+    $i = 0
+    $Str = ""
+    $Phrase = $Phrase.ToLower()
+    while($i -lt $Phrase.Length){
+        if($Phrase.Chars($i) -eq 'a'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'b'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'c'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'd'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'e'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'f'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'g'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'h'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'i'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'j'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'k'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'l'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'm'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'n'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'o'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'p'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'q'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'r'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 's'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 't'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'u'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'v'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'w'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'x'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'y'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq 'z'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -eq "'"){
+            if($Str.Length -gt 0 -and $i+1 -lt $Phrase.Length -and $Phrase.Chars($i-1) -match '[a-z]'){
+                $Str += $Phrase.Chars($i)
+            }
+            $i++
+            continue
+        }
+        if($Phrase.Chars($i) -match '[0-9]'){
+            $Str += $Phrase.Chars($i)
+            $i++
+            continue
+        }
+        if($Str.Length -gt 0){
+            if($Str.Chars($Str.Length-1) -eq "'"){
+                $Str -= "'"
+            }
+            if($Lis.ContainsKey($Str)){
+                $Lis[$Str]++
+                $Str = ""
+                $i++
+                continue
+            }
+            $Lis.Add($Str, 1)
+            $Str = ""
+            $i++
+            continue
+        }
+        $Str = ""
+        $i++
+    }
+    if($Str.Length -gt 0 -and $Str -ne ""){
+        if($Lis.ContainsKey($Str)){
+                $Lis[$Str]++
+                $Str = ""
+            }
+            $Lis.Add($Str, 1)
+            $Str = ""
+    }
+    if($Lis.ContainsKey("")){
+        $Lis.Remove("")
+    }
+    Return $Lis
+    Throw "Please implement this function"
+}
+

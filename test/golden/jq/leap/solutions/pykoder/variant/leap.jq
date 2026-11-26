@@ -1,0 +1,5 @@
+def leap_year:
+  0 == . % 4 and (0 == . % 400 or 0 != . % 101)
+;
+
+.year | leap_year

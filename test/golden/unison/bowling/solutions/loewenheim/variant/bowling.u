@@ -1,0 +1,53 @@
+use Either Right Left
+use List +:
+
+{{ This type is used to capture the expected error message }}
+unique type bowling.Error = Error Text
+
+{{
+  {score} takes in a list of numbers representing the pins knocked down for each roll of the bowling game, and should return either the total score or an error.
+}}
+bowling.score : [Nat] -> Either Error Nat
+bowling.score rolls = Throw.toEither <| do
+  if List.size rolls < 10 then
+    throw (Error "Score cannot be taken until the end of the game")
+  else
+    Store.withInitialValue 0 do bowling.scoreImpl rolls
+
+bowling.scoreImpl : [Nat] ->{Store Nat, Throw Error} Nat
+bowling.scoreImpl rolls =
+  match rolls with
+    -- base case
+    [] -> Store.get
+    -- a single roll left over at the end is always wrong
+    [_] -> throw (Error "Score cannot be taken until the end of the game")
+    -- strike with bonus rolls at the end
+    [10, x, y] ->
+      Store.get + 10 + x + y
+    -- strike not at the end
+    (10 +: (x +: (y +: ys))) ->
+      Store.modify (score -> score + 10 + x + y)
+      bowling.scoreImpl (x +: (y +: ys))
+    [x, y, z] ->
+      -- spare with bonus roll at the end
+      if x + y >= 10 then
+        Store.get + x + y + z
+      -- open not at the end
+      else
+        Store.modify (score -> score + x + y)
+        bowling.scoreImpl [z]
+    [x, y] ->
+      -- spare without bonus roll at the end
+      if x + y >= 10 then
+        throw (Error "Score cannot be taken until the end of the game") 
+      -- open at the end
+      else
+        Store.get - x + y
+    ( x +: (y +: (z +: zs))) ->
+      -- spare not at the end
+      if x + y >= 10 then
+        Store.modify (score -> score + 10 + z)
+      -- open not at the end
+      else
+        Store.modify (score -> score + x + y)
+      bowling.scoreImpl (z +: zs)

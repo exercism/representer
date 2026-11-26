@@ -1,0 +1,44 @@
+# Determine whether the number is valid.
+is_valid <- function(input) {
+    cleaned_input <- gsub(" ", "", input)
+
+    numbers_only <- function(x) !grepl("\\D", x)
+
+    if (numbers_only(cleaned_input) == FALSE){
+        return(FALSE)
+    }
+
+    reverse_input <- rev(strsplit(cleaned_input, NULL)[[1]])
+
+    print(reverse_input)
+    growing_vector <- c()
+    for (i in 1:(length(reverse_input))){
+        if (i %% 2 == 0){
+            if (2*as.numeric(reverse_input[i]) > 9){
+                new = (2*as.numeric(reverse_input[i])) - 9
+                growing_vector <- c(growing_vector, new)
+            }
+            else{
+                growing_vector <- c(growing_vector, 2*as.numeric(reverse_input[i]))
+            }
+            
+        }
+        else{
+            growing_vector <- c(growing_vector, as.numeric(reverse_input[i]))
+        }
+        print(growing_vector)
+
+    }
+    total = sum(growing_vector)
+    print(total)
+    if(length(growing_vector) >= 1 && total %% 10 == 0){
+        return(TRUE)
+    }
+    else{
+        return(FALSE)
+    }
+
+}
+
+input <- "046 454 286"
+print(is_valid(input))

@@ -1,0 +1,14 @@
+module SquareRoot
+
+binarySearch : Int -> Int -> Int -> Int
+binarySearch y l r =
+  if l > r then r
+  else
+    let m = l + ((r + l) `div` 2) in
+    if m * m <= y
+      then binarySearch y (m + 1) r
+      else binarySearch y l (m - 1)
+
+export
+squareRoot : Int -> Int
+squareRoot y = binarySearch y 0 y

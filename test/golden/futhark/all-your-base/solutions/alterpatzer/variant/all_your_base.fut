@@ -1,0 +1,12 @@
+def represent (base: i32) (number: i32): []i32 =
+  if number == 0 then [0]
+  else
+    let (ds, _) = loop (ds, n) =
+      ([], number)
+      while n != 0 do
+        ([n % base] ++ ds, n / base)
+    in ds
+
+def rebase (input_base: i32) (digits: []i32) (output_base: i32): []i32 =
+  assert (input_base > 1 && output_base >= 1 && all (\d -> d >= 0 && d < input_base) digits)
+  (represent output_base (reduce (\x d -> input_base * x + d) 0 digits))

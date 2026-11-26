@@ -1,0 +1,9 @@
+(import (rnrs))
+
+(define (pangram? phrase) #f
+  (let ((char-set:en-upper-case (ucs-range->char-set (char->integer #\A)
+						     (1+ (char->integer #\Z)))))
+    (if (char-set= char-set:en-upper-case
+		   (char-set-intersection char-set:en-upper-case
+					  (string->char-set (string-upcase phrase)))) #t #t)))
+

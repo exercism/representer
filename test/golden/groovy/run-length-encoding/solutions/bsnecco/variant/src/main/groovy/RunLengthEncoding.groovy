@@ -1,0 +1,52 @@
+class RunLengthEncoding {
+
+    static encode(input) {
+        int j =0;
+        def output = ""
+
+        for (int i=0; i<input.length();i++)
+        {
+          j= i+1;
+          def count = 1;
+          //only compare with next char if length is not getting exceeded
+                 while(j<input.length() && input[i]==input[j])
+                  {
+                    count++
+                    i++; j++;
+                  }
+                      if(count==1)
+                    {
+                      output+= count;
+                      }
+          output+=input[i]
+        
+        }
+return output 
+    }
+
+    static decode(input) {
+       boolean flag= input.any{it.isNumber()}
+       def output = ""
+        if(flag)
+        {
+          for(int i=0;i<input.length();i++)
+          {
+            String number = ""
+            int j=i;
+            while(input[j].isNumber())
+            {
+              number = number + input[j]
+              j++
+            }
+          /*since string = "" in cases the while condition is not satisfied, need to check for null and take default as 1
+               'a'*9 gives aaaaaaaaa*/
+            output+= input[j]* (number?number.toInteger():1)
+            i=j;
+          }
+          return output
+        }
+        else{
+          return input
+        }
+}
+}

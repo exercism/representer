@@ -1,0 +1,16 @@
+type relation = #equal | #superlist | #sublist | #unequal
+
+def equal_contents [n] (a: [n]i32) (b: [n]i32): bool =
+  and (map2 (==) a b)
+
+def equal [n] [m] (a: [n]i32) (b: [m]i32): bool =
+  n == m && equal_contents a (b :> [n]i32)
+
+def contains [n] [m] (big: [n]i32) (small: [m]i32): bool =
+  n > m && any (\i -> equal big[i:i-m] small) (0...(n - m))
+
+def compare (list_one: []i32) (list_two: []i32): relation =
+  if equal list_one list_two then #equal
+  else if contains list_one list_two then #superlist
+  else if contains list_two list_one then #sublist
+  else #unequal

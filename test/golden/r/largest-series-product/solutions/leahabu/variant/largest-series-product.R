@@ -1,0 +1,33 @@
+largest_series_product <- function(digits, span) {
+  n <- nchar(digits)
+  
+  if (span >= n) {
+    stop("Span is longer than the length of the digits.")
+  }
+  
+  if (grepl("[^0-9]", digits)) {
+    stop("Invalid character in digits.")
+  }
+  
+  if (span < 1) {
+    stop("Span must be a positive integer.")
+  }
+  
+  max_product <- 0
+  
+  for (i in 1:(n - span + 1)) {
+    series <- substr(digits, i, i + span - 1)
+    product <- prod(as.numeric(strsplit(series, "")[[1]]))
+    
+    if (product > max_product) {
+      max_product <- product
+    }
+  }
+  
+  return(max_product)
+}
+
+
+
+
+ 

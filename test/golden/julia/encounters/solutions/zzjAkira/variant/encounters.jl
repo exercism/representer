@@ -1,0 +1,36 @@
+
+# Define an abstract type Pet
+abstract type Pet end
+# Define concrete types Dog and Cat
+struct Cat <: Pet 
+    name :: String
+end
+struct Dog <: Pet
+    name :: String
+end
+# Define a name() function
+name(p::Pet) = p.name# Implement this
+
+# Define multiple methods for meets(a, b)
+# Only the first one is stubbed
+
+meets(a::Dog, b::Dog) = "sniffs"
+meets(a::Cat, b::Dog) = "hisses"
+meets(a::Dog, b::Cat) = "chates"
+meets(a::Cat, b::Cat) = "slinks"# Implement this
+
+# Implement the encounter(a, b) function
+
+encounter(a, b) = "$(name(a)) meets $(name(b)) and $(meets(a, b))."# Implement this
+
+# Define three fallback methods for meets(a, b)
+meets(a:: Pet ,b:: Pet) = "is cautious"
+meets(a::Pet,b::T) where {T}="runs away"
+meets(a::Any,b::Any)="nothing happens"
+# Stubs are not provided for these, but look at the hints if necessary
+struct Horse <: Pet
+    name::String
+end
+struct Car
+    license_plate::String
+end

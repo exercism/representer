@@ -1,0 +1,10 @@
+object Acronym {
+    fun generate(phrase: String) : String {
+        return phrase
+            .replace("-", " ")
+            .filter { it.isLetter() || it == ' ' }
+            .split(" +".toRegex())
+            .joinToString("") { it[1].uppercase() }
+
+    }
+}

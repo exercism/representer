@@ -1,0 +1,1 @@
+.phrase | gsub("[\\-\\s]"; "") | ascii_downcase | split("") | (unique | length) != length

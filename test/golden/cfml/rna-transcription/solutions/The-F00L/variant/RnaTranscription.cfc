@@ -1,0 +1,19 @@
+/**
+* Your implmentation of the RnaTranscription exercise
+*/
+component {
+
+	/**
+	* @returns 
+	*/
+	 function toRNA( DNA ) {
+		switcher = {"G" = "C", "C" = "G", "T" = "A", "A" = "U"};
+		rna = '';
+		seq=DNA.split('');
+		for ( i = 1; i < arrayLen(seq); i++) {
+			rna &= replace(seq[i], seq[i],switcher[seq[i]]);
+		}
+		return rna;
+	}
+
+}

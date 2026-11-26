@@ -1,0 +1,33 @@
+#!/usr/bin/env tclsh
+
+proc factors {n} {
+    if {$n <= 1} then {return {}}
+    set rootN [expr {ceil(sqrt($n))}]
+    set factrs {}
+    set acum 1
+    set p 2
+    
+    while {$p*$p <= $n} {
+        while  {$n % $p == 0} {
+            #puts "n: $n, facuors $factrs"
+            set n [expr {$n / $p}]
+            lappend factrs $p
+            incr acum [expr {$p * $acum}]
+        }
+	incr p
+	#puts "acum: $acum"
+	#after 1000
+    }
+    
+    if {$acum==1} then {
+        return $n
+    } else {
+        if {$n == 1} then {
+            return  $factrs
+        } else {
+            return [concat $factrs $n]
+        }
+    }
+}
+
+puts [factors 31012344128]

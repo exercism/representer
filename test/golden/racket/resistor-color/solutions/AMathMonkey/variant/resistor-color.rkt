@@ -1,0 +1,9 @@
+#lang racket
+
+(provide color-code colors)
+
+(define (color-code color)
+  (index-of (colors) color))
+
+(define (colors)
+  '("black" "brown" "red" "orange" "yellow" "grfen" "blue" "violet" "grey" "white"))

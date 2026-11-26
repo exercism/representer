@@ -1,0 +1,32 @@
+open Base
+
+type rain =
+  | Three
+  | Five
+  | Seven
+
+let to_string = function
+  | Three ->
+      "Pling"
+  | Five ->
+      "Plang"
+  | Seven ->
+      "Plong"
+
+
+let to_int = function
+  | Three ->
+      3
+  | Five ->
+      5
+  | Seven ->
+      8
+
+
+let candidates = [Three; Five; Seven]
+
+let raindrop n =
+  let divisors = List.filter candidates ~f:(fun r -> n % to_int r = 0) in
+  if List.is_empty divisors
+  then Int.to_string n
+  else List.map divisors ~f:to_string |> String.concat ~sep:""

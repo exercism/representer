@@ -1,0 +1,48 @@
+type runLengthEncoding.Val = Val Char Nat
+
+runLengthEncoding.Val.toText : Val -> Text
+runLengthEncoding.Val.toText = cases
+  Val c n -> repeat n (toText c)
+
+runLengthEncoding.Val.toEncodedText : Val -> Text
+runLengthEncoding.Val.toEncodedText = cases
+  Val c n | n == 1 -> (toText c)
+  Val c n -> (toText n) ++ (toText c)
+
+runLengthEncoding.decodeText : [Val] -> Text
+runLengthEncoding.decodeText vals =
+  List.foldLeft (acc v -> acc ++ Val.toText v) "" vals
+
+runLengthEncoding.encodeText : [Val] -> Text
+runLengthEncoding.encodeText vals =
+  List.foldLeft (acc v -> acc ++ Val.toEncodedText v) "" vals
+
+runLengthEncoding.encode : Text -> Text
+runLengthEncoding.encode input =
+  input
+    |> toCharList
+    |> List.foldLeft (cases
+        [], c -> [Val c 1]
+        prev :+ Val pc n, c | pc != c -> prev :+ Val pc (n + 1)
+        prev@(_ :+ Val _ _), c -> prev :+ Val c 1) []
+    |> encodeText
+
+runLengthEncoding.decodeVals : Text -> [Val]
+runLengthEncoding.decodeVals txt = let
+  valPattern = (many (Pattern.join [Pattern.capture (many patterns.number),
+                                    Pattern.capture (Pattern.or patterns.letter patterns.space]))
+  txtVals = captures valPattern txt
+  go acc = cases
+    [natTxt, charTxt] ++ rest ->
+      n = Nat.fromText natTxt |> Optional.getOrElse 1
+      c = charTxt |> toCharList |> at 0
+      match c with
+        Some c -> go (acc :+ Val c n) rest
+        None -> go acc rest
+    _ -> acc
+  go [] txtVals
+
+runLengthEncoding.decode : Text -> Text
+runLengthEncoding.decode input =
+  decodeVals input
+    |> decodeText

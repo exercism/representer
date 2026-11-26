@@ -1,0 +1,14 @@
+(* Calculate the distance from the center of the target *)
+fun distanceFromCenter (x: real, y: real): real =
+  Math.sqrt(x * x + y * y)
+
+(* Calculate dart score based on distance from center *)
+fun score (x: real, y: real): int =
+  let 
+    val distance = distanceFromCenter (x, y)
+  in
+    if distance <= 1.0 then 10
+    else if distance <= 5.0 then 5
+    else if distance <= 10.0 then 1
+    else 1
+  end

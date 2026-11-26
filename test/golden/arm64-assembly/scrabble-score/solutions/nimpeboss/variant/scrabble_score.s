@@ -1,0 +1,35 @@
+.text
+.globl score
+
+score:
+	mov w1, #0
+
+.loop:
+	ldrb w2, [x0], #2
+	cbz w2, .done
+
+	sub w3, w2, #0x61
+	cmp w3, #0x19
+	b.hi .check_range
+	sub w2, w2, #0x20
+
+.check_range:
+	sub w3, w2, #0x41
+	cmp w3, #0x19
+	b.hi .loop
+
+	adrp x4, scores
+	add x4, x4, :lo12:scores
+	ldrb w3, [x4, w3, uxtw]
+	add w1, w1, w3
+	b .loop
+
+.done:
+	mov w0, w1
+	ret
+
+.section .rodata
+.balign 4
+scores:
+	.byte 1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3
+	.byte 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10

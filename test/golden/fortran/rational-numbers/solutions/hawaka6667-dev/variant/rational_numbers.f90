@@ -1,0 +1,104 @@
+module rational_numbers
+  implicit none
+contains
+
+  integer function gcd(a, b)
+    integer, intent(in) :: a, b
+    integer :: x, y, t
+    x = a
+    y = b
+    do while (y /= 0)
+      t = mod(x, y)
+      x = y
+      y = t
+    end do
+    gcd = x
+  end function
+
+  function reduce(r1) result(res)
+    integer, dimension(2), intent(in) :: r1
+    integer, dimension(2) :: res
+    integer :: g
+
+    g = gcd(abs(r1(1)), abs(r1(2)))
+    if (g == 0) g = 1
+
+    res(1) = r1(1) / g
+    res(2) = r1(2) / g
+
+    if (res(2) < 0) then
+      res(1) = -res(1)
+      res(2) = -res(2)
+    end if
+  end function
+
+  function add(r1, r2) result(res)
+    integer, dimension(2), intent(in) :: r1, r2
+    integer, dimension(2) :: res
+    res(1) = r1(1) * r2(2) + r2(1) * r1(2)
+    res(2) = r1(2) * r2(2)
+    res = reduce(res)
+  end function
+
+  function sub(r1, r2) result(res)
+    integer, dimension(2), intent(in) :: r1, r2
+    integer, dimension(2) :: res
+    res(1) = r1(1) * r2(2) - r2(1) * r1(2)
+    res(2) = r1(2) * r2(2)
+    res = reduce(res)
+  end function
+
+  function mul(r1, r2) result(res)
+    integer, dimension(2), intent(in) :: r1, r2
+    integer, dimension(2) :: res
+    res(1) = r1(1) * r2(1)
+    res(2) = r1(2) * r2(2)
+    res = reduce(res)
+  end function
+
+  function div(r1, r2) result(res)
+    integer, dimension(2), intent(in) :: r1, r2
+    integer, dimension(2) :: res
+    res(1) = r1(1) * r2(2)
+    res(2) = r1(2) * r2(1)
+    res = reduce(res)
+  end function
+
+  function rational_abs(r1) result(res)
+    integer, dimension(2), intent(in) :: r1
+    integer, dimension(2) :: res
+    res(1) = abs(r1(1))
+    res(2) = abs(r1(2))
+    res = reduce(res)
+  end function
+
+  function rational_to_pow(r1, ex) result(res)
+    integer, dimension(2), intent(in) :: r1
+    integer, intent(in) :: ex
+    integer, dimension(2) :: res
+    integer :: i, n
+
+    if (ex == 0) then
+      res = [1, 1]
+      return
+    end if
+
+    n = abs(ex)
+    res = [1, 1]
+    do i = 1, n
+      res(1) = res(1) / r1(1)
+      res(2) = res(2) * r1(2)
+    end do
+
+    if (ex < 0) res = [res(2), res(1)]
+    res = reduce(res)
+  end function
+
+  function real_to_rational_pow(ex, r1) result(res)
+    integer, dimension(2), intent(in) :: r1
+    real, intent(in) :: ex
+    real :: res
+    res = ex ** (real(r1(1)) / real(r1(2)))
+  end function
+
+end module rational_numbers

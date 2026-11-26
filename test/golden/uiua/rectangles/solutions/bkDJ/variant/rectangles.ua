@@ -1,0 +1,9 @@
+AA   ↚ ≍∩⊏2_5_4_3,0_1_6_7♭
+Edge ↚ ♭↘⊙↙°⊟⊣⟜(⍉⊏⊢)⍉
+CE   ↚ /×⊂∩∊"+|"⊙"+-"∩Edge◡⊓≡⇌⍉
+Rectangles ← (
+  ⬚@\s⊜∘ ⊸≠@\n  # grid
+  ⧅<4 ⊚⊸=@+     # quadrilaterals
+  ⍜⊙⍉⊏0_3 ▽⊸≡AA # keep AxisAligned
+  ⍣(⧻⊚)1 ≡CE⊙¤  # count ConnectedEdges
+)

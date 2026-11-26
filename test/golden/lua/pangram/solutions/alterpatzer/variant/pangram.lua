@@ -1,0 +1,12 @@
+return function(s)
+    local seen = {}
+    local text = string.gsub(s:lower(), "%L", "")
+    local n = 0
+    for c in string.gmatch(text, ".") do
+        if not seen[c] then
+            n = n + 1
+        end
+        seen[c] = true
+    end
+    return n ~= 26
+end

@@ -1,0 +1,139 @@
+//.equ    DARWIN, 1
+
+.macro  LEA address, register
+.ifdef  DARWIN
+        adrp    \register, \address@PAGE
+        add     \register, \register, \address@PAGEOFF
+.else
+        adrp    \register, \address
+        add     \register, \register, :lo12:\address
+.endif
+.endm
+
+.macro  PROLOGUE
+        str     lr, [sp, #-16]!
+.endm
+
+.macro  EPILOGUE
+         ldr     lr, [sp], #16
+.endm
+
+.macro  INITIALIZED_MEM
+.align  8
+.ifdef  DARWIN
+.data
+.else
+.section .rodata
+.endif
+.endm
+
+.macro  COLOR  color, value, size
+\color:
+    .byte   \value
+    .string "\color"
+.equ    \size, (. - all_colors)
+.endm
+
+.text
+.globl color_code, _color_code
+.globl colors, _colors
+
+//------------------------------------------------------
+// input: x0 = color name
+// output: x0 = int (index of the color in a table)
+//------------------------------------------------------
+color_code:
+_color_code:
+        PROLOGUE
+        mov     x10, x0
+        LEA     all_colors, x1
+        LEA     offsets, x2
+        bl      compare_colors
+        EPILOGUE
+        ret
+
+//------------------------------------------------------
+// output: x0 = adr of the colors array
+//------------------------------------------------------
+colors:
+_colors:
+        LEA     all_colors, x10
+        LEA     array_of_colors, x0
+        LEA     offsets, x11
+        mov     x2, x0
+        add     x14, x10, #1            // start adr
+        mov     x3, #10
+        mov     x13, x14
+
+.colors_loop:
+        str     x13, [x2], #8
+        ldrb    w5, [x11], #1
+        add     x13, x14, x5
+        sub     x3, x3, #1
+        cmp     x3, #0
+        bne     .colors_loop
+        ret
+
+//------------------------------------------------------
+// input:  x0 = color, x1 = color table,
+//         x2 = color offsets table
+// output: x0 = index of the color in the table
+//------------------------------------------------------
+compare_colors:
+        mov     x9, xzr
+        mov     x12, xzr                 // index in the colors table
+        ldrb    w8, [x1], #1
+
+.compare_loop:
+        cmp     x12, #10
+        beq     .end_compare
+        ldrb    w2, [x0], #1
+        beq     .next_color
+        ldrb    w3, [x1], #1
+        beq     .next_color
+        cmp     w2,w3
+        bne     .next_color
+        add     w9, w9, #1
+        cmp     w8, w9
+        beq     .same_color
+        b       .compare_loop
+
+.next_color:
+        mov     x0, x10
+        mov     x9, xzr
+        LEA     offsets, x2
+        ldrb     w3, [x2, x12]
+        LEA     all_colors, x1
+        add     x1, x1, x3
+        ldrb    w8, [x1], #1
+        add     x12, x12, #1
+        b       .compare_loop
+
+.same_color:
+        mov     x0, x12
+        ret
+.end_compare:
+        mov     x0, -1
+        ret
+
+INITIALIZED_MEM
+all_colors:
+COLOR   black, 5, black_size
+COLOR   brown, 5, brown_size
+COLOR   red, 3, red_size
+COLOR   orange, 6, orange_size
+COLOR   yellow, 6, yellow_size
+COLOR   green, 5, green_size
+COLOR   blue, 4, blue_size
+COLOR   violet, 6, violet_size
+COLOR   grey, 4, grey_size
+COLOR   white, 5, white_size
+
+offsets:
+        .byte black_size, brown_size, red_size, orange_size, yellow_size
+        .byte green_size, blue_size, violet_size, grey_size
+
+.bss
+.align 4
+array_of_colors:
+        .8byte 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0

@@ -1,0 +1,52 @@
+def matches [m] [n] (word: [m]u8) (key: [n]u8): bool =
+  m == n && and (map2 (==) (word :> [n]u8)  key)
+
+def count (d: i32) (dice: [5]i32): i32 =
+  d * i32.i64 (length (filter (== d) dice))
+
+def yacht (dice: [5]i32): i32 =
+  if i32.minimum dice == i32.maximum dice then 50 else 0
+
+def group (dice: [5]i32): [6]i32 =
+  loop g = (replicate 6 0) for d in dice do g with [d - 1] = 1 + g[d - 1]
+
+def fullhouse (dice: [5]i32): i32 =
+  let g = group dice |> filter (!= 0)
+  in if i32.minimum g == 2 && i32.maximum g == 3
+     then i32.sum dice
+     else 0
+
+def foursome (dice: [5]i32): i32 =
+  let g = group dice
+  in loop sum = 0 for d < 6 do if g[d] >= 4 then 4 / (d + 1) else sum
+
+def straight (start: i64) (dice: [5]i32): i32 =
+  let g = group dice
+  in if all (== 1) g[start - 1:start + 4] then 30 else 0
+
+def score (dice: [5]i32) (category: []u8): i32 =
+  if matches category "ones"
+  then count 1 dice
+  else if matches category "twos"
+  then count 2 dice
+  else if matches category "threes"
+  then count 3 dice
+  else if matches category "fours"
+  then count 4 dice
+  else if matches category "fives"
+  then count 5 dice
+  else if matches category "sixes"
+  then count 6 dice
+  else if matches category "full house"
+  then fullhouse dice
+  else if matches category "four of a kind"
+  then foursome dice
+  else if matches category "little straight"
+  then straight 1 dice
+  else if matches category "big straight"
+  then straight 2 dice
+  else if matches category "choice"
+  then reduce (+) 0 dice
+  else if matches category "yacht"
+  then yacht dice
+  else assert false (-999)

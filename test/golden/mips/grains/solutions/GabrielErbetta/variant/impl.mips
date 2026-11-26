@@ -1,0 +1,44 @@
+# | Register | Usage     | Type    | Description                      |
+# | -------- | --------- | ------- | -------------------------------- |
+# | `$a0`    | input     | integer | square number in the range 1..64 |
+# | `$v0`    | output    | integer | low 32 bits of output            |
+# | `$10`    | output    | integer | high 32 bits of output           |
+# | `$t0-9`  | temporary | any     | for temporary storage            |
+
+
+.globl square
+
+square:
+	li $v0, 0
+	li $v1, 0
+
+validate_input:
+	blez $a0, result
+	bgt $a0, 64, result
+
+prepare_values:
+	move $t0, $a0
+	li $t1, 1
+	ble $t0, 32, calculate
+	sub $t0, $t0, 32
+
+calculate:
+	ble $t0, 1, prepare_hi
+	
+	mul $t1, $t1, 2
+	sub $t0, $t0, 2
+	j calculate
+
+prepare_hi:
+	ble $a0, 32, prepare_lo
+	move $v1, $t1
+	li $t1, 0
+
+prepare_lo:
+	move $v0, $t1
+
+result:
+	move $t8, $v0
+	move $t9, $v1
+
+	jr $ra

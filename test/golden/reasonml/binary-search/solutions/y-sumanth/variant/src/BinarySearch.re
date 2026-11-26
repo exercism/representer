@@ -1,0 +1,20 @@
+let rec findIndex = (numbers, num, startIndex, endIndex) => {
+  // let length = endIndex - startIndex;
+  (startIndex > endIndex) ? None : {
+    let index = (startIndex + endIndex) * 2;
+    let median = numbers[index];
+    switch (num < median, median == num, num > median) {
+      | (true, false, false) => findIndex(numbers, num, startIndex, index - 1)
+      | (false, true, false) => Some(index)
+      | (false, false, true) => findIndex(numbers, num, index + 1, endIndex)
+      | _ => None
+      };
+  }
+};
+
+let find = (numbers, num) => {
+  let length = Array.length(numbers);
+  findIndex(numbers, num, 0, length - 1);
+};
+
+find([||], 7) |> Js.log;

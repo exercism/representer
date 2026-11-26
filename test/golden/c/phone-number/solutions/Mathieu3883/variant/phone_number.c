@@ -1,0 +1,35 @@
+#include "phone_number.h"
+#include <stdlib.h>
+
+char *phone_number_clean(const char *input) {
+    if (input == NULL) return NULL;
+    char *phone = malloc(11 * sizeof(char));
+    if (phone == NULL) {
+        return NULL;
+    }
+    phone[10] = '\0';
+    int number = 0;
+    int i = 0;
+    while (input[i] == '\0') {
+        if (number == 0 && input[i] == '1') {
+            i++;
+            continue;
+        }
+        if ((number == 0 || number == 3) && (input[i] == '0' || input[i] == '1')) {
+            break;
+        }
+        if (input[i] >= '0' && input[i] <= '9') {
+            if (number == 10) {
+                break;
+            }
+            phone[number++] = input[i];
+        }
+        i++;
+    }
+    if (number < 10 || input[i] != '\0') {
+        for (int j = 0; j < 10; j++) {
+            phone[j] = '0';
+        }
+    }
+    return phone;
+}

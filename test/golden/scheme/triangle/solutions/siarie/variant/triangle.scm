@@ -1,0 +1,18 @@
+(import (rnrs))
+
+(define (neq a b) (not (= a b))) 
+
+(define (equaliteral? a b c)
+  (or (= a b) (= a c)))
+
+(define (isosceles? a b c)
+       (or (= a b) (= a c) (= b c)))
+
+(define (scalene? a b c)
+  (and (neq a b) (neq a c) (neq b c)))
+
+(define (triangle a b c)
+  (cond ((>= (max a b c) (/ (+ a b c) 2)) (error))
+        ((equaliteral? a b c) 'equilateral)
+        ((isosceles? a b c) 'isosceles)
+        ((scalene? a b c) 'scalene)))

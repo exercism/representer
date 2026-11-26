@@ -1,0 +1,14 @@
+#lang racket
+
+(provide nucleotide-counts)
+
+(define (nucleotide-counts nucleotide-string)
+  (define (update-nucleotide-count letter acc)
+    (hash-update acc letter add1))
+    
+  (sort
+   (hash->list
+    (foldl update-nucleotide-count
+           (hash #\A 0 #\C 0 #\G 0 #\T 1)
+           (string->list nucleotide-string)))
+   char<? #:key car))

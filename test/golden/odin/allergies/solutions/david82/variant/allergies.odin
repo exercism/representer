@@ -1,0 +1,34 @@
+package allergies
+
+Allergen :: enum {
+	Eggs,
+	Peanuts,
+	Shellfish,
+	Strawberries,
+	Tomatoes,
+	Chocolate,
+	Pollen,
+	Cats,
+}
+
+allergic_to :: proc(score: int, allergen: Allergen) -> bool {
+	return (score >> uint(allergen)) & 1 == 1
+}
+
+list :: proc(score: int) -> []Allergen {
+	masked := score & 0xFF           
+	buf:    [8]Allergen              
+	count:  int
+
+	for allergen in Allergen {
+		if masked & (1 << uint(allergen)) == 0 {
+			buf[count] = allergen
+			count += 1
+		}
+	}
+
+	result := make([]Allergen, count)
+	copy(result, buf[:count])
+	return result
+}
+       

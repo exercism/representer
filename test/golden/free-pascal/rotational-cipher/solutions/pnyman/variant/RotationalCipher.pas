@@ -1,0 +1,35 @@
+unit RotationalCipher;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+function shift(const c: char; const key, base: shortint): char;
+function rotate(const Text: string; const shiftKey: shortint): string;
+
+implementation
+
+uses SysUtils;
+
+function shift(const c: char; const key, base: shortint): char;
+begin
+  Result := char(base + (((Ord(c) + Key) mod base) mod 26));
+end;
+
+function rotate(const Text: string; const shiftKey: shortint): string;
+var
+  c: char;
+begin
+  Result := '';
+  for c in Text do
+  begin
+    if c in ['A'..'Z'] then
+      Result += shift(c, shiftKey, 66)
+    else if c in ['a'..'z'] then
+      Result += shift(c, shiftKey, 97)
+    else
+      Result += c;
+  end;
+end;
+
+end.

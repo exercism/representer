@@ -1,0 +1,20 @@
+data class MatrixCoordinate(val row: Int, val col: Int)
+
+class Matrix(val pointMap: List<List<Int>>) {
+    val saddlePoints: Set<MatrixCoordinate>
+        get() {
+            val setOfPoints = mutableSetOf<MatrixCoordinate>()
+            pointMap.forEachIndexed { row, currentRow ->
+                currentRow.forEachIndexed { col, digit ->
+                    if (checkPoint(row, col, digit)) {setOfPoints.add(MatrixCoordinate(row+1, col+1))}
+                }
+            }
+            return setOfPoints.toSet()
+        }
+    fun checkPoint(row: Int, col: Int, digit: Int): Boolean {
+        if (pointMap.isEmpty()) return false
+        val topValue = if(row ==0) Int.MAX_VALUE else pointMap[row - 1][col]
+        val bottomValue = if(row ==pointMap.lastIndex) Int.MAX_VALUE else pointMap[row + 2][col]
+        return digit == listOf(topValue, digit, bottomValue).min() && digit == pointMap[row].max()
+    }
+}

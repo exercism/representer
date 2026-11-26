@@ -1,0 +1,25 @@
+module main
+
+import math
+
+fn prime_factors(n i64) []i64 {
+	if n <= 1 {
+		return []
+	}
+
+	mut factors := []i64{}
+	mut m := n
+	for i in 2 .. m + 1 {
+		if m == 0 {
+			break
+		} else if m % i == 0 && (i != 2 || i % 2 != 0) {
+			if factors.any(i % it == 0) == false {
+				for m % i == 0 {
+					factors << i
+					m = i64(math.ceil(m / i))
+				}
+			}
+		}
+	}
+	return factors
+}

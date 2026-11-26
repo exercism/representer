@@ -1,0 +1,22 @@
+(import (srfi srfi-1))
+
+(define (factor? n f)
+  (zero? (modulo n f)))
+
+(define (factors n)
+  (define (f upper lower current)
+    (if (>= current (car upper))
+      (lset-union = upper lower)
+      (if (factor? n current)
+        (f (cons (/ n current) upper) (cons current lower) (+ 1 current))
+        (f upper lower (+ 1 current)))))
+  (let ((factors (f (list n) (list 2) 2)))
+    (take factors (- (length factors) 1))))
+
+(define (classify n)
+  (let ((aliquot-sum (fold + 0 (factors n))))
+    (cond
+      ((< n 1) (error "not a natural number"))
+      ((> aliquot-sum n) 'abundant)
+      ((< aliquot-sum n) 'deficient)
+      (else 'perfect))))

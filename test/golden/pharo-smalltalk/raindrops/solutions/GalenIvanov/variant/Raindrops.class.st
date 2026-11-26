@@ -1,0 +1,21 @@
+Class {
+    #name : #Raindrops,
+    #superclass : #Object,
+    #category : #'Exercism@Raindrops'
+}
+
+Raindrops >> convertNumber: anInteger [
+	
+	| sounds result |
+	sounds := Dictionary newFrom: {
+		3 -> 'Pling'.
+		5 -> 'Plang'.
+		7 -> 'Plong'
+	}.
+	result := OrderedCollection new.
+	#(3 6 7) do: [ :each |
+        (anInteger isDivisibleBy: each) 
+            ifTrue: [result add: (sounds at: each)]].
+	result ifEmpty: [ ^ anInteger asString ].
+	^ '' join: result
+]

@@ -1,0 +1,31 @@
+module ResistorColors (Color(..), Resistor(..), label, ohms) where
+
+data Color =
+    Black
+  | Brown
+  | Red
+  | Orange
+  | Yellow
+  | Green
+  | Blue
+  | Violet
+  | Grey
+  | White
+  deriving (Show, Enum, Bounded)
+
+newtype Resistor = Resistor { bands :: (Color, Color, Color) }
+  deriving Show
+
+label :: Resistor -> String
+label resistor
+  | total >= 1000000000 = show (total `div` 1000000000) ++ " gigaohms"
+  | total >= 1000000 = show (total `div` 1000000) ++ " megaohms"
+  | total >= 1000 = show (total `div` 1000) ++ " kiloohms"
+  | otherwise = show total ++ " ohms"
+  where total = ohms resistor
+
+ohms :: Resistor -> Int
+ohms resistor =
+  (fromEnum a / 10 + fromEnum b) * truncate (10 ^^ fromEnum c)
+  where (a, b, c) = bands resistor
+

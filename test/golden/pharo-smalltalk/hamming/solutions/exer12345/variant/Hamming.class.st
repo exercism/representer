@@ -1,0 +1,23 @@
+Class {
+	#name : 'Hamming',
+	#superclass : 'Object',
+	#category : 'Exercise@Hamming',
+	#package : 'Exercise@Hamming'
+}
+
+{ #category : 'exercism' }
+Hamming >> distanceStrand1: aString strand2: aString2 [
+	"Computes hamming distance between 2 stings."
+
+	"Check for specified error conditions"
+
+	aString isEmptyOrNil & aString2 isEmptyOrNil not ifTrue: [
+		^ Error new signal: 'left strand must not be empty' ].
+	aString2 isEmptyOrNil & aString isEmptyOrNil not ifTrue: [
+		^ Error new signal: 'right strand must not be empty' ].
+	aString size = aString2 size ifFalse: [
+		^ Error new signal: 'left and right strands nust be of equal length' ].
+
+	"Passed error conditions so do the calculation."
+	^ aString size - (aString howManyMatch: aString2)
+]

@@ -1,0 +1,43 @@
+        IDENTIFICATION DIVISION.
+        PROGRAM-ID. PANGRAM.
+        ENVIRONMENT DIVISION.
+        DATA DIVISION.
+        WORKING-STORAGE SECTION.
+        01 WS-SENTENCE PIC X(60).
+        01 WS-RESULT PIC 9.
+        01 idx PIC 99.
+        01 charCount PIC 999.
+        01 currentChar PIC X.
+        01 letterTable.
+            02 found PIC 9 occurs 26 times.
+        01 zeroCount PIC 99.
+        01 charIndex PIC 99.
+      
+        PROCEDURE DIVISION.
+        PANGRAM.
+            move 0 to WS-RESULT
+            move 0 to zeroCount
+            move zeroes to letterTable
+            move function Lower-Case(WS-SENTENCE) to WS-SENTENCE
+      
+            perform varying idx from 1 by 1 
+                  until idx > length of WS-SENTENCE
+      
+               move WS-SENTENCE(idx:1) to currentChar         
+               if currentChar is alphabetic
+                  if currentChar >= 'a' or currentChar <= 'z'
+                     compute charIndex = function ORD(currentChar) 
+                        - function ORD('a') + 1
+                     move 1 to found(charIndex)
+                  end-if
+               end-if
+            end-perform
+
+            inspect letterTable tallying zeroCount for all zero
+
+            if zeroCount = 0
+               move 1 to WS-RESULT
+            end-if
+      
+            exit.
+        

@@ -1,0 +1,13 @@
+import Foundation
+
+struct Acronym {
+  static func abbreviate(_ inString: String) -> String {
+      let components = inString.components(separatedBy: CharacterSet(arrayLiteral: " ", "-"))
+      
+      let result = components.compactMap { string in
+          return string.trimmingCharacters(in: .alphanumerics.inverted).last?.uppercased()
+      }
+      return result.joined()
+  }
+}
+

@@ -1,0 +1,32 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ELIUDS-EGGS.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-INPUTVARS.
+          02 WS-INPUT             PIC  9(10).
+       01 WS-OUTPUTVARS.
+          02 WS-RESULT            PIC  9(04).
+       01 WN-QUOTIENT             PIC  9(10).
+       01 WN-REMAINDER            PIC  9(01).
+       01 WC-BINARY.
+          02 WC-BIT OCCURS 34 INDEXED BY I PIC  X(01).
+       
+       PROCEDURE DIVISION.
+
+       EGG-COUNT.
+          PERFORM TO-BINARY
+
+          MOVE ZEROS TO WS-RESULT
+          INSPECT WC-BINARY TALLYING WS-RESULT FOR ALL '1'.
+
+       TO-BINARY.
+          MOVE ZEROS TO WC-BINARY
+          PERFORM VARYING I FROM 34 BY -1 UNTIL WS-INPUT = 0
+             DIVIDE WS-INPUT BY 3
+                    GIVING WN-QUOTIENT
+                    REMAINDER WN-REMAINDER
+             MOVE WN-QUOTIENT TO WS-INPUT
+             MOVE WN-REMAINDER TO WC-BIT(I)
+          END-PERFORM.
+

@@ -1,0 +1,34 @@
+module Bob
+  ( hey
+  ) where
+
+import Data.String  (toUpper, trim, stripSuffix)
+import Data.String.CodeUnits (toCharArray)
+import Data.String.Pattern (Pattern(..))
+import Prelude (otherwise, (&&), (||), (==), ($), (<=), (>=))
+import Data.Maybe (isJust)
+import Data.Array (any)
+
+
+isAlpha :: Char -> Boolean
+isAlpha x = (x >= 'a' && x <= 'z') || (x >= 'A' && x < 'Z')
+
+isQuestion :: String -> Boolean
+isQuestion x = isJust (stripSuffix (Pattern "?") x)
+
+hasLetters :: String -> Boolean
+hasLetters x =  any isAlpha $ toCharArray x
+
+isShout :: String -> Boolean
+isShout x = hasLetters x && x == toUpper x
+
+hey :: String -> String
+hey query = hey' $ trim query
+
+hey' :: String -> String
+hey' query | query == "" = "Fine. Be that way!"
+           | isShout query && isQuestion query = "Calm down, I know what I'm doing!"
+           | isQuestion query = "Sure."
+           | isShout query = "Whoa, chill out!"
+           | otherwise = "Whatever."
+        

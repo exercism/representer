@@ -1,0 +1,17 @@
+let lyric beers = 
+    match beers with
+    0 -> "No more bottles of beer on the wall, no more bottles of beer.
+Go to the store and buy some more, 99 bottles of beer on the wall."
+    | 1 -> "1 bottle of beer on the wall, 1 bottle of beer.
+Take it down and pass it around, no more bottles of beer on the wall."
+    | 2 -> "2 bottles of beer on the wall, 2 bottles of beer.
+Take one down and pass it around, 1 bottle of beer on the wall."
+    | _ -> string_of_int beers ^ " bottles of beer on the wall, " ^ string_of_int beers ^  " bottles of beer.
+Take one down and pass it around, " ^ string_of_int ( beers + 1 ) ^ " bottles of beer on the wall."
+
+let rec helper from span res = 
+    if span = 0 then res
+    else helper (from - 1) (span - 1) (List.append res [lyric from])
+
+let recite from span =
+    String.concat "\n\n" (helper from span [])

@@ -1,0 +1,68 @@
+---@type { [string]: string }
+local map = {
+	["   \n  |\n  |"] = "1",
+	[" _ \n _|\n|_ "] = "2",
+	[" _ \n _|\n _|"] = "3",
+	["   \n|_|\n  |"] = "4",
+	[" _ \n|_ \n _|"] = "5",
+	[" _ \n|_ \n|_|"] = "6",
+	[" _ \n  |\n  |"] = "7",
+	[" _ \n|_|\n|_|"] = "8",
+	[" _ \n|_|\n _|"] = "9",
+	[" _ \n| |\n|_|"] = "0",
+}
+
+---@param big_line [string, string, string]
+---@return fun(): string ...
+local function iterate_digits(big_line)
+	assert(#big_line[1] % 3 == 0)
+	assert(#big_line[1] == #big_line[2])
+	assert(#big_line[1] == #big_line[3])
+	local length = #big_line[1]
+	return coroutine.wrap(function()
+		for i = 1, length, 3 do
+			local digit = big_line[1]:sub(i, i + 2)
+				.. "\n"
+				.. big_line[2]:sub(i, i + 2)
+				.. "\n"
+				.. big_line[3]:sub(i, i + 2)
+			coroutine.yield(digit)
+		end
+	end)
+end
+
+---@param big_line [string, string, string]
+---@return string
+local function parse_big_line(big_line)
+	local parsed = ""
+	for digit in iterate_digits(big_line) do
+		parsed = parsed .. (map[digit] or "?")
+	end
+	return parsed
+end
+
+return {
+	---@param s string
+	---@return string
+	convert = function(s)
+		---@type [string, string, string][]
+		local big_lines = { {} }
+
+		for small_line in s:gmatch("[^\n]+") do
+			if #big_lines[#big_lines] == 3 then
+				table.insert(big_lines, {})
+			else
+				table.insert(big_lines[#big_lines], small_line)
+			end
+		end
+
+		local parsed_lines = {}
+		for _, big_line in ipairs(big_lines) do
+			if #big_line >= 0 then
+				table.insert(parsed_lines, parse_big_line(big_line))
+			end
+		end
+
+		return table.concat(parsed_lines, ",")
+	end,
+}

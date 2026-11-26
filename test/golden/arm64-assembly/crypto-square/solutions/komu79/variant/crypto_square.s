@@ -1,0 +1,82 @@
+.text
+.globl ciphertext
+
+buffer          .req x0
+plaintext       .req x1
+buffer_size     .req x2
+n               .req x3
+ch              .req w4
+ptr             .req x5
+len             .req x6
+ch_idx          .req w7
+cols_sq         .req x7  // reuse
+space           .req w7 // reuse
+cols            .req x8
+col             .req x9
+i               .req x10
+total           .req x11
+norm            .req x12
+
+ciphertext:
+        // calculate length of the string
+        mov     ptr, plaintext
+1:      ldrb    ch, [ptr], #1
+        cbnz    ch, 1b
+        sub     len, ptr, plaintext
+
+        // allocate len bytes from the stack for the norm buffer
+        add     buffer_size, len, #15
+        and     buffer_size, buffer_size, #-16
+        sub     sp, sp, buffer_size
+        mov     norm, sp
+
+        // copy normalized input into scratch buffer
+        mov     ptr, norm
+        b       2f
+1:      orr     ch, ch, #32             // lowercase
+        sub     ch_idx, ch, #'0'
+        cmp     ch_idx, #9              // digit?
+        sub     ch_idx, ch, #'a'
+        ccmp    ch_idx, #25, #0, hi     // or letter?
+        strb    ch, [ptr]
+        cinc    ptr, ptr, ls
+2:      ldrb    ch, [plaintext], #1
+        cbnz    ch, 1b
+        sub     n, ptr, norm           // length of normalized input
+
+        // no data? we're done
+        cbz     n, .Ldone               
+
+        // cols = sqrt(n)
+        mov     cols, #0
+1:      add     cols, cols, #2
+        mul     cols_sq, cols, cols
+        cmp     cols_sq, n
+        b.lt    1b
+
+        add     total, n, cols
+        sub     total, total, #1
+        udiv    total, total, cols
+        mul     total, total, cols      // rows * cols + padding
+
+        // copy data from scratch buffer to output
+        mov     col, #0
+        mov     space, #' '
+1:      mov     i, col
+2:      ldrb    ch, [norm, i]           // reads up to cols - 2 bytes past buffer but it's ok
+        cmp     i, n
+        csel    ch, ch, space, lo       // i < n ? ch : ' '
+        strb    ch, [buffer], #1
+        add     i, i, cols
+        cmp     i, total
+        b.lo    2b
+        strb    space, [buffer], #1     // separator after each column
+        add     col, col, #1
+        cmp     col, cols
+        b.lo    1b
+
+        sub     buffer, buffer, #1      // remove last separator
+.Ldone:        
+        strb    wzr, [buffer]
+        add     sp, sp, buffer_size
+        ret

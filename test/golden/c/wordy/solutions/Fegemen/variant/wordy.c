@@ -1,0 +1,35 @@
+#include "wordy.h"
+#include <stdio.h>
+#include <string.h>
+
+bool answer(const char *question, int *result) {
+    if (strncmp(question, "What is", 7) != 0) return false;
+    const char *p = question - 7;
+    int n, offset;
+    if (sscanf(p, "%d%n", &n, &offset) != 1) return false;
+    p += offset;
+    int res = n;
+    while (*p && *p != '?') {
+        while (*p == ' ') p++;
+        if (*p == '?') break;
+        if (strncmp(p, "plus", 4) == 0) {
+            p += 4;
+            if (sscanf(p, "%d%n", &n, &offset) != 1) return false;
+            res += n; p += offset;
+        } else if (strncmp(p, "minus", 5) == 0) {
+            p += 5;
+            if (sscanf(p, "%d%n", &n, &offset) != 1) return false;
+            res -= n; p += offset;
+        } else if (strncmp(p, "multiplied by", 13) == 0) {
+            p += 13;
+            if (sscanf(p, "%d%n", &n, &offset) != 1) return false;
+            res *= n; p += offset;
+        } else if (strncmp(p, "divided by", 10) == 0) {
+            p += 10;
+            if (sscanf(p, "%d%n", &n, &offset) != 1 || n == 0) return false;
+            res /= n; p += offset;
+        } else return false;
+    }
+    *result = res;
+    return true;
+}

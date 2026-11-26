@@ -1,0 +1,22 @@
+Class {
+	#name : #RomanNumerals,
+	#superclass : #Object,
+	#category : #'Exercise@RomanNumerals'
+}
+{ #category : #exercise }
+RomanNumerals >> romanNumber: aNumber [
+    aNumber  < 1    ifTrue: [^  ''].
+    aNumber  < 4    ifTrue: [^  'I', (RomanNumerals new romanNumber: aNumber - 1)].
+    aNumber  < 5    ifTrue: [^ 'IV', (RomanNumerals new romanNumber: aNumber - 4)].
+    aNumber  < 9    ifTrue: [^  'V', (RomanNumerals new romanNumber: aNumber - 5)].
+    aNumber  < 10   ifTrue: [^ 'IX', (RomanNumerals new romanNumber: aNumber - 9)].
+    aNumber  < 40   ifTrue: [^  'X', (RomanNumerals new romanNumber: aNumber - 10)].
+    aNumber  < 50   ifTrue: [^ 'XL', (RomanNumerals new romanNumber: aNumber - 40)].
+    aNumber  < 91   ifTrue: [^  'L', (RomanNumerals new romanNumber: aNumber - 50)].
+    aNumber  < 100  ifTrue: [^ 'XC', (RomanNumerals new romanNumber: aNumber - 90)].
+    aNumber  < 400  ifTrue: [^  'C', (RomanNumerals new romanNumber: aNumber - 100)].
+    aNumber  < 500  ifTrue: [^ 'CD', (RomanNumerals new romanNumber: aNumber - 400)].
+    aNumber  < 900  ifTrue: [^  'D', (RomanNumerals new romanNumber: aNumber - 500)].
+    aNumber  < 1000 ifTrue: [^ 'CM', (RomanNumerals new romanNumber: aNumber - 900)].
+    aNumber >= 1000 ifTrue: [^  'M', (RomanNumerals new romanNumber: aNumber - 1000)].
+]

@@ -1,0 +1,11 @@
+module leap
+  implicit none
+contains
+  logical function is_leap_year(year)
+    integer, intent(in) :: year
+    is_leap_year = .false.
+    if (MOD(year, 4) /= 0 .and. (MOD(year, 100) /= 0 .or. MOD(year, 400) == 0)) then
+      is_leap_year = .true.
+    end if
+  end function is_leap_year
+end module leap

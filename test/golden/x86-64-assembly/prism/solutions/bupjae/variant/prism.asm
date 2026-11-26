@@ -1,0 +1,120 @@
+default rel
+
+section .rodata
+align 16
+deg2rad: dd 0.01745329251994329576923690768489
+plusinf: dd 0x7F800000
+epsilon: dd 0.00001
+
+section .text
+global find_sequence
+extern sinf, cosf
+
+find_sequence:
+    ; Provide your implementation here
+    ; size_t find_sequence(uint32_t buffer[], const coordinate_t start, const prism_t *prisms, size_t num_prisms)
+    ; rbx = rdi = buffer
+    ; [rsp] = xmm0/0 = x
+    ; [rsp+4] = xmm0/1 = y
+    ; [rsp+8] = xmm1/0 = angle
+    ; r12 = rsi = prisms
+    ; r13 = rdx = num_prisms
+    ; r15 = return value
+
+    ; [rsp+16] = pointer to last hit prism
+    test rdx, rdx
+    jz .bailout
+    push rbx
+    push r12
+    push r13
+    push r14
+    push r15
+    push rbp
+    mov rbp, rsp
+    sub rsp, 24
+    and rsp, -16
+    mov rbx, rdi
+    mov r12, rsi
+    mov r13, rdx
+    xor r15d, r15d
+    mulss xmm1, [deg2rad]
+    insertps xmm0, xmm1, 0b00_10_1000
+    movaps [rsp], xmm0
+    mov dword [rsp+16], -1
+
+.loopo:
+    movss xmm0, [rsp+8]
+    call sinf wrt ..plt
+    movd r14d, xmm0
+    movss xmm0, [rsp+8]
+    call cosf wrt ..plt
+    pinsrd xmm0, r14d, 1
+    ; xmm0/0 = vx, xmm0/1 = vy
+    lea rcx, [r13+r13]
+    xor edx, edx
+    movss xmm7, [plusinf]
+    
+.loopi:
+    sub rcx, 2
+    lea rax, [r12+rcx*8]
+    cmp rax, [rsp+16]
+    je .next
+
+    movaps xmm2, [rax]
+    shufps xmm2, xmm2, 0b10011001
+    subps xmm2, [rsp]
+    ; xmm2/0 = dx, xmm2/1 = dy
+    movaps xmm3, xmm2
+    mulps xmm3, xmm3
+    haddps xmm3, xmm3
+    ucomiss xmm7, xmm3
+    jb .next
+    movss xmm4, xmm3
+    
+    sqrtss xmm3, xmm3
+    shufps xmm3, xmm3, 0b00000000
+    mulps xmm3, xmm0
+    subps xmm3, xmm2
+    mulps xmm3, xmm3
+    haddps xmm3, xmm3
+    ucomiss xmm3, [epsilon]
+    jae .next
+
+    movss xmm7, xmm4
+    lea rdx, [r12+rcx*8]
+.next:
+    test rcx, rcx
+    jnz .loopi
+
+    test rdx, rdx
+    jz .done
+    mov [rsp-16], rdx
+    mov eax, [rdx]
+    mov [rbx+r15*4], eax
+    inc r15
+    mov rax, [rdx+4]
+    mov [rsp], rax
+    movss xmm0, [rdx+12]
+    mulss xmm0, [deg2rad]
+    addss xmm0, [rsp+8]
+    movss [rsp+8], xmm0
+    jmp .loopo
+    
+.done:
+    mov rax, r15
+    mov rsp, rbp
+    pop rbp
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop rbx
+    ret
+
+.bailout:
+    xor eax, eax
+    ret
+
+%ifidn __OUTPUT_FORMAT__,elf64
+section .note.GNU-stack noalloc noexec nowrite progbits
+%endif

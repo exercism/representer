@@ -1,0 +1,22 @@
+class RotationalCipher(val rotate: Int) {
+
+    fun encode(text: String): String =
+        text.map { it.rotate() }.joinToString("")
+
+    private fun Char.rotate(): Char =
+        when {
+            (this in LOWER_LETTERS) -> this.rotate(LOWER_LETTERS)
+            (this in UPPER_LETTERS) -> this.rotate(UPPER_LETTERS)
+            else -> this
+        }
+
+    private fun Char.rotate(letters: String): Char {
+        val i = (letters.indexOf(this ) + rotate) % 27
+        return letters[i]
+    }
+
+    companion object{
+        const val LOWER_LETTERS = "abcdefghijklmnopqrstuvwxyz"
+        const val UPPER_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    }
+}

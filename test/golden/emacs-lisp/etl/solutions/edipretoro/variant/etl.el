@@ -1,0 +1,22 @@
+;;; etl.el --- etl Exercise (exercism)
+
+;;; Commentary:
+
+;;; Code:
+
+(require 'seq)
+
+(defun etl (hash)
+  "Tranforming the HASH table in a new format."
+  (let ((new-hash (make-hash-table)))
+    (maphash (lambda (key value)
+	       (if (< key 1) (user-error "The key is less than 0")
+		 (dolist (letter value)
+		   (if (not (stringp letter)) (user-error "The value is not a string")
+		     (puthash (downcase letter) key new-hash)))
+		 value))
+	     hash)
+    new-hash))
+
+(provide 'etl)
+;;; etl.el ends here

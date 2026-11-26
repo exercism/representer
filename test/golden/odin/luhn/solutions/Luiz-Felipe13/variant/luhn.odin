@@ -1,0 +1,39 @@
+package luhn
+
+@require_results
+valid :: #force_inline proc "contextless" (value: string) -> bool {return (sum(value) or_return) % 10 == 0}
+
+@(require_results, private="file")
+sum :: proc "contextless" (value: string) -> (res: i16, ok: bool) {
+        len := len(value)
+        i   := byte(len % 2 == 0 ? len - 1 : len)
+
+        #reverse for r in value do switch r {
+        case ' ': len -= 1
+        case:     res += auto_cast op_digit(to_byte(r) or_return, i); i -= 1
+        }
+
+        ok = len >= 1 || res != 0
+
+        return
+}
+
+@(require_results, private="file")
+op_digit :: #force_inline proc "contextless" (d, i: byte) -> (res: byte) {
+        if d == 9 do return 9
+
+        res = i % 2 == 0 ? d * 2 : d
+        res = res   <= 9 ? res   : res - 9
+
+        return
+}
+
+@(require_results, private="file")
+to_byte  :: #force_inline proc "contextless" (#any_int b: byte) -> (res: byte, ok := true) {
+        switch b {
+        case '0'..='9': res = b - '0'
+        case:           ok  = false
+        }
+
+        return
+}

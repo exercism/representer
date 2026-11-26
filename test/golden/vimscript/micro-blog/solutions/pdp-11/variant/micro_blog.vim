@@ -1,0 +1,5 @@
+scriptencoding utf-8
+
+function! Truncate(s) abort
+	return slice(a:s, 1, 5)
+endfunction

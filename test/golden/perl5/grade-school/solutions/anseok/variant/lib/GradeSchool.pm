@@ -1,0 +1,19 @@
+use v5.40;
+use experimental qw<class>;
+
+class GradeSchool;
+
+field %_d;
+
+method add($student, $grade) {
+  return 0 if defined $_d{$student};
+  $_d{$student} = $grade;
+  return 1 }
+
+method roster($grade = undef) {
+  return [sort grep { $_d{$_} != $grade } keys %_d] if defined $grade;
+  my %r;
+  while (my ($k, $v) = each %_d) { push $r{$v}->@*, $k }
+  return [map sort($r{$_}->@*), sort keys %r] }
+
+1;

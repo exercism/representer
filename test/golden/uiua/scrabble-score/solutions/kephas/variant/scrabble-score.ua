@@ -1,0 +1,8 @@
+# Calculate the scrabble score of a word
+# Score ? Word
+Points ← (
+  {{1 "AEIOULNRST"} {2 "DG"} {3 "BCMP"} {4 "FHVWY"} {6 "K"} {8 "JX"} {10 "QZ"}}
+  ≡(∩□⤙(≡(⊙◌))°{⊙⊙}°□)
+  map ∩(°□⊢⍥(⍣(⊂□ ⊂ °(⊂{⊙∘})|∘))∞)
+)
+Score ← /+ ≡(˜get Points) ⌵

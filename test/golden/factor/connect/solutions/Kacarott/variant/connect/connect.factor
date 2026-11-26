@@ -1,0 +1,39 @@
+USING: kernel sequences arrays vectors hash-sets math
+       strings sets math.vectors math.matrices ;
+IN: connect
+
+: O-starts ( board -- arr )
+    first >array [ [ CHAR: O = 0 ] dip 2array and ] map-index sift ;
+
+: X-starts ( board -- arr )
+    [ [ swap nth CHAR: X = ] keep dup 2array and ] map-index sift ;
+
+: valid-moves ( board pos -- moves )
+    dup { { -1 -1 } { -1 1 } { 0 -2 } { 0 2 } { 1 -1 } { 1 1 } } [ v+ ] with map
+    [| board pos move |
+        move first2 swap board ?nth ?nth
+        pos board matrix-nth =
+    ] 2with filter ;
+
+: won? ( board pos -- ? )
+    [ [ swap matrix-nth CHAR: X = ] [ first2 spin nth length 1 - = ] 2bi and ]
+    [ [ swap matrix-nth CHAR: O = ] [ first2 drop swap length 1 + = ] 2bi and ]
+    2bi or ;
+
+: winner ( board -- str )
+    dup [ X-starts ] [ O-starts ] bi append [ >hash-set ] [ >vector ] bi
+    [ dup ?last ]
+    [| board seen to-do pos |
+        to-do pop*
+        board pos won?
+        [
+            f pos board matrix-nth 1string f
+        ]
+        [
+            board pos valid-moves [ seen in? ] reject :> new-moves
+            new-moves seen adjoin-all
+            board seen to-do new-moves append!
+        ]
+        if
+    ] while*
+    drop "" swap ? ;

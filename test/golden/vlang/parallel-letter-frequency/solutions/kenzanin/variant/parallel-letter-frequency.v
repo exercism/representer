@@ -1,0 +1,29 @@
+module main
+
+import encoding.utf8
+
+fn count(in1 []rune) map[rune]int {
+	mut data := map[rune]int{}
+	for _, e in in1 {
+		if utf8.is_letter(e) {
+			data[e]++
+		}
+	}
+	return data
+}
+
+fn calculate_frequencies(texts []string) map[rune]int {
+	// Please implement the `calculate_frequencies` function
+	mut ret := map[rune]int{}
+	mut threads := []thread filter[rune]int{}
+	for _, e in texts {
+		threads << spawn count(e.to_lower().runes())
+	}
+	data := threads.wait()
+	for _, e in data {
+		for k, v in e {
+			ret[k] += v
+		}
+	}
+	return ret
+}

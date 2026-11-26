@@ -107,6 +107,7 @@ Each request test runs `tests/<track>/<name>/request.json` and compares the resp
 
 The unit tests also include the golden data tests in [`test/golden/`](./test/golden/), which run over about 20,000 real published solutions.
 They check that every solution keeps its representation, and that the solutions stay in the same groups as on production, apart from the differences listed for each track.
+Each solution that was alone in its production representation also has a near-miss variant, a copy with one small change to its code, and the tests check that the two get different representations.
 [`test/golden/README.md`](./test/golden/README.md) explains them, and how to regenerate them with `./bin/regenerate-golden` after a deliberate change.
 [`test/fuzz_test.rb`](./test/fuzz_test.rb) runs every track over golden solutions and fixtures with simple changes, such as Windows line endings, a byte-order mark, invalid UTF-8, empty files and files cut short.
 It checks that no request raises, and that the same request always gets the same response.

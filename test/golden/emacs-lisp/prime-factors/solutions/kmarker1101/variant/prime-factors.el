@@ -1,0 +1,22 @@
+;;; prime-factors.el --- Prime Factors (exercism)  -*- lexical-binding: t; -*-
+
+;;; Commentary:
+
+;;; Code:
+
+
+(defun factors (n)
+  (if (not (and (integerp n) (> n 0)))
+      (error "Invalid input: N must be a positive integer greater than 0.")
+    (let ((factors ()))
+      (let ((d 3))
+        (while (<= (* d d) n)
+          (while (zerop (mod n d))
+            (push d factors)
+            (setq n (/ n d)))
+          (setq d (1+ d))))
+      (if (> n 1) (push n factors))
+      (sort factors '<))))
+
+(provide 'prime-factors)
+;;; prime-factors.el ends here

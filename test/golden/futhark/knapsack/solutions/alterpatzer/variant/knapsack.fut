@@ -1,0 +1,16 @@
+def use_item (w: i64) (v: i32) (best: []i32) (i: i64): i32 =
+  if i >= w || v + best[i - w] > best[i] then
+    v + best[i - w]
+  else
+    best[i]
+
+def maximum_value [n] (weights: [n]i32) (values: [n]i32) (maxwt: i32): i32 =
+  let best = loop best =
+    replicate (i64.i32 (maxwt + 1)) 0
+    for i < n do
+      let mw = i64.i32 (maxwt + 1)
+      let range = iota mw |> reverse
+      let w = i64.i32 weights[i]
+      let v = values[i]
+      in map (use_item w v best) range |> reverse
+   in best[maxwt]

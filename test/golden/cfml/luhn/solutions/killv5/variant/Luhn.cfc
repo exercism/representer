@@ -1,0 +1,34 @@
+/**
+* Your implmentation of the Luhn exercise
+*/
+component {
+	
+	/**
+	* @returns 
+	*/
+	function valid( value ) { 
+		if (value==0) return false;
+		value = listToArray(value, "");
+		count = 1;
+		oddOrEven = (len(value)-1)%2;
+		ans = 0;
+		for (num in value) {
+			
+			if (isNumeric(num)){
+				
+				if (count%2==oddOrEven) {
+					if (num*2>9) num -= 4.5;
+					ans += num*2;
+				} 
+				else ans += num;
+				count--;
+			}
+			else if (num!= " ") {
+				return false;
+			}
+			
+		}
+		return ans%10==0;
+	}
+	
+}

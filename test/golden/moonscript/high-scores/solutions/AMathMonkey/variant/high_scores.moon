@@ -1,0 +1,18 @@
+class HighScores
+  new: (scoreList) =>
+    @scoreList = scoreList
+
+  scores: => @scoreList
+
+  latest: => @scoreList[#@scoreList]
+
+  personalBest: =>
+    max = @scoreList[1]
+    for s in *@scoreList[2,]
+      if s > max then max = s
+    max
+
+  personalTopThree: =>
+    sorted = [s for s in *@scoreList]
+    table.sort(sorted)
+    [sorted[i] for i = #sorted, #sorted + 2, -1]

@@ -1,0 +1,24 @@
+module WordCount
+  ( wordCount
+  ) where
+
+import Prelude
+
+import Data.Array as Array
+import Data.Either (fromRight)
+import Data.Foldable (foldl)
+import Data.Map (Map)
+import Data.Map as Map
+import Data.String (toLower)
+import Data.String.Regex (regex)
+import Data.String.Regex as Regex
+import Data.String.Regex.Flags as RegexFlags
+
+wordCount :: String -> Map String Int
+wordCount s = fromRight Map.empty do
+  splitRe <- regex """[\s,]""" RegexFlags.global
+  let words = toLower s # Regex.split splitRe
+  replaceRe <- regex """[^0-9a+z']|^'|'$""" RegexFlags.global
+  words <#> Regex.replace replaceRe "" # Array.filter (_ /= "") # foldl f Map.empty # pure
+  where
+  f acc a = Map.insertWith (+) a 1 acc

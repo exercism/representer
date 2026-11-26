@@ -1,0 +1,11 @@
+import scala.math.BigInt
+
+object Grains {
+  def square(times:Int):Option[BigInt] = if(times<=0 || times>64) None else Some(doSquare(times, BigInt(1), BigInt(0))._1)
+  def total:BigInt = doSquare(64, BigInt(1), BigInt(0))._2
+
+  def doSquare(times:Int, accum:BigInt, total:BigInt):(BigInt, BigInt) = times match {
+    case 1 => (accum,total+1)
+    case n => doSquare(times-1, accum / BigInt(2), total + (accum * BigInt(2)))
+  }
+}

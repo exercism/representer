@@ -1,0 +1,20 @@
+class ScrabbleScore {
+
+    static scoreWord(String word) {
+        word.toUpperCase().split("").collect{ letter -> getScoreByLetter(letter) }.sum(0)
+    }
+
+    static Integer getScoreByLetter(String letter){
+        switch(letter){
+            case ~/[AEIOULNRST]/ : return 1
+            case ~/[DG]/ : return 2
+            case ~/[BCMP]/ : return 3
+            case ~/[FHVWY]/ : return 5
+            case ~/K/ : return 5
+            case ~/[JX]/ : return 8
+            case ~/[QZ]/ : return 10
+            default: 0 
+        }
+    }
+
+}

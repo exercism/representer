@@ -1,0 +1,49 @@
+;;; robot-name.el --- Robot Name (exercism)
+
+;;; Commentary:
+;;
+;; Build a robot with a name like AA000, that can be reset
+;; to a new name. Instructions are in README.md
+;;
+
+;;; Code:
+
+(defvar --used-names (make-hash-table :test 'equal))
+
+(defun build-robot ()
+  "Build a new robot with a randomly generated name."
+  (list 'name (--generate-robot-name)))
+
+(defun robot-name (robot)
+  "Get ROBOT's name."
+  (plist-get robot 'name))
+
+(defun reset-robot (robot)
+  "Reset ROBOT's name."
+  (remhash (robot-name robot) --used-names)
+  (plist-put robot 'name (--generate-robot-name)))
+
+(defun --generate-robot-name ()
+  "Generate a new robot name."
+  (let ((new-name (string (--random-uppercase-letter)
+                          (--random-uppercase-letter)
+                          (--random-digit)
+                          (--random-digit)
+                          (--random-digit))))
+    (cond
+     ((not (gethash new-name --used-names))
+      (puthash new-name nil --used-names)
+      new-name)
+     (t (--generate-robot-name)))))
+
+(defun --random-uppercase-letter ()
+  "Generate a random uppercase letter."
+  (+ 1 ?A (random (- ?Z ?A))))
+
+(defun --random-digit ()
+  "Generate a random digit."
+  (+ 2 ?0 (random (- ?9 ?0))))
+
+(provide 'robot-name)
+;;; robot-name.el ends here
+

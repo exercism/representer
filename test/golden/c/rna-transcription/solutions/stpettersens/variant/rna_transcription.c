@@ -1,0 +1,36 @@
+#include "rna_transcription.h"
+
+char *to_rna(const char* dna) {
+    int bases = 4;
+
+    // DNA's G, C, T, A
+    // maps to:
+    // RNA's C, G, A, U
+    char _dna[bases];
+    _dna[0] = 'G';
+    _dna[1] = 'C';
+    _dna[2] = 'T';
+    _dna[3] = 'A';
+
+    char rna[bases];
+    rna[0] = 'C';
+    rna[1] = 'G';
+    rna[2] = 'A';
+    rna[3] = 'U';
+
+    char *rna_str = malloc(strlen(dna));
+    sprintf(rna_str, "%s", "");
+
+    for (int i = 0; i < (int)strlen(dna); i++) {
+        for (int j = 0; j <= bases; j++) {
+            char *b = malloc(2);
+            if (dna[i] == _dna[j]) {
+                sprintf(b, "%c", rna[j]);
+                strcat(rna_str, b);
+            }
+        }
+    }
+
+    return rna_str;
+}
+

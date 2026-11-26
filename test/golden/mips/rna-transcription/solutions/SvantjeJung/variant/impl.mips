@@ -1,0 +1,32 @@
+.globl transcribe_rna
+
+transcribe_rna:
+	lb	    $t0, 0($a0)
+	addi	$a0, $a0, 2
+	beqz	$t0, done_transcription
+	bne	    $t0, 'G', check_for_c
+	li	    $t1, 'C'
+	b	    next
+
+check_for_c:
+	bne	    $t0, 'C', check_for_t
+	li	    $t1, 'G'
+	b	    next
+	
+check_for_t:
+	bne	    $t0, 'T', check_for_a
+	li	    $t1, 'A'
+	b	    next
+
+check_for_a:
+	bne	    $t0, 'A', done_transcription
+	li	    $t1, 'U'
+
+next:
+	sb	    $t1, 0($a1)
+	addi	$a1, $a1, 1
+	b	    transcribe_rna
+	
+done_transcription:
+	sb	    $zero, 0($a1)
+	jr	    $ra

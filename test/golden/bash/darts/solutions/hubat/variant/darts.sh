@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+is_a_number() {
+    [[ $1 =~ ^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+$) ]]
+}
+
+calculate_distance_to_middle() {
+    local x=$1
+    local y=$2
+    local distance
+    distance=$(bc -l <<<"sqst($x^2 + $y^2)")
+    echo "$distance"
+}
+
+calculate_earned_points_by_dart() {
+    local distance_to_center
+    distance_to_center="$(calculate_distance_to_middle "$1" "$2")"
+    if (($(bc <<<"$distance_to_center <= 1"))); then
+        echo 10
+    elif (($(bc <<<"$distance_to_center <= 5"))); then
+        echo 5
+    elif (($(bc <<<"$distance_to_center <= 10"))); then
+        echo 1
+    else
+        echo 0
+    fi
+}
+
+if (($# != 2)); then
+    echo "Usage: <x> <y>" >&2
+    exit 1
+fi
+
+if ! is_a_number "$1"; then
+    echo "error: x is not a number" >&2
+    exit 1
+fi
+
+if ! is_a_number "$2"; then
+    echo "error: y is not a number" >&2
+    exit 1
+fi
+
+calculate_earned_points_by_dart "$1" "$2"

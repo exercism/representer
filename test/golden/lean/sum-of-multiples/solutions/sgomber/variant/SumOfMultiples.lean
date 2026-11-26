@@ -1,0 +1,14 @@
+import Std.Data.HashSet
+open Std
+
+namespace SumOfMultiples
+
+def accumulate (factor : Nat) (limit : Nat): HashSet Nat :=
+  let last_lim :=  if limit % factor != 0 then limit / factor else limit / factor + 1
+  HashSet.ofList (List.map (. * factor) (List.range' 1 last_lim))
+
+def sum (factors : List UInt64) (limit : UInt64) : UInt64 :=
+  let final_set := List.foldl (fun acc_set factor => acc_set ∪ (accumulate factor.toNat limit.toNat)) ∅ factors
+  (final_set.fold (fun add elem => add + elem) 0).toUInt64
+
+end SumOfMultiples

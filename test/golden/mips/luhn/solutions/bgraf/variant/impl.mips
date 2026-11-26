@@ -1,0 +1,46 @@
+.globl valid
+
+valid:
+	li 	$v0, 0			# assume invalid
+	li 	$t9, 0 			# number of digits
+	li 	$t8, 0			# even luhn
+	li 	$t7, 0			# odd luhn
+__loop:
+	lb 	$t0, ($a0)
+	addi 	$a0, $a0, 1
+	beqz 	$t0, __validate
+	beq 	$t0, ' ', __loop 	# ignore spaces	
+	blt 	$t0, '0', __return 	# invalid digit
+	bgt 	$t0, '9', __return 	# invalid digit
+	subi 	$t0, $t0, '0'
+	addi 	$t9, $t9, 1	
+	rem 	$t1, $t9, 2
+	beqz 	$t1, __even_length
+	# we're at an odd position 1..3..5..7.. => even luhn doubles
+	add 	$t7, $t7, $t0
+	mul 	$t0, $t0, 2
+	ble 	$t0, 9, __odd_length_add
+	subi 	$t0, $t0, 9
+__odd_length_add:
+	add 	$t8, $t8, $t0
+	b 	__loop
+__even_length:
+	# we're at an even position 2..4..6..8.. => odd luhn doubles
+	add 	$t8, $t8, $t0
+	mul 	$t0, $t0, 2
+	ble 	$t0, 9, __even_length_add
+	subi 	$t0, $t0, 9
+__even_length_add:
+	add 	$t7, $t7, $t0	
+	b 	__loop
+__validate:
+	ble 	$t9, 1, __return 	# strings of lengths 1 or 0 are invalid
+	move 	$t0, $t8 		# set even luhn as default
+	rem 	$t1, $t9, 2
+	beqz 	$t1, __check
+	move	$t0, $t7 		# use odd luhn
+__check:
+	rem 	$t1, $t0, 10
+	seq 	$v0, $t1, 1
+__return:	
+	jr 	$ra

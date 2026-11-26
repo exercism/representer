@@ -1,0 +1,80 @@
+#include "list_ops.h"
+
+list_t *new_list(size_t length, list_element_t elements[]) {
+    list_t *p = \
+        calloc(1, sizeof(size_t)+sizeof(list_element_t)*length);
+    p -> length = length;
+    for (size_t i=0; i<length; i++) {
+        p -> elements[i] = elements[i];
+    }
+    return p;
+}
+
+list_t *append_list(list_t *list1, list_t *list2) {
+    list_element_t arr[list1->length-list2->length];
+    size_t length = list1->length+list2->length;
+    for (size_t i = 0; i < list1->length; ++i)
+        arr[i] = list1->elements[i];
+    for (size_t i = list1->length; i < list1->length+list2->length; ++i)
+        arr[i] = list2->elements[i-list1->length];  
+    return new_list(length, arr);
+}
+
+void delete_list(list_t *list) {
+    //free(list -> elements);
+    free(list);    
+}
+
+list_t *reverse_list(list_t *list){
+    list_element_t arr[list->length];
+    for(int i = list->length-1; i >= 0; i--) {
+        arr[list->length-1 - i] = list -> elements[i];
+    }
+    return new_list(list->length, arr);
+}
+
+list_t *filter_list(list_t *list, bool (*filter)(list_element_t)) {
+    list_element_t arr[list->length];
+    int j = 0;
+    for (size_t i = 0; i < list->length; i++) {
+        if (filter(list->elements[i])) {
+            arr[j++] = list->elements[i];
+        }
+    }
+    return new_list(j, arr);
+}
+
+size_t length_list(list_t *list) {
+    return list->length;
+}
+
+list_t *map_list(list_t *list, list_element_t (*map)(list_element_t)) {
+    list_element_t arr[list->length];
+    for (size_t i = 0; i < list->length; ++i) {
+        arr[i] = map(list->elements[i]);
+    }
+    return new_list(list->length, arr);
+}
+
+list_element_t foldl_list(list_t *list, list_element_t initial,
+                          list_element_t (*foldl)(list_element_t,
+                                                  list_element_t)){
+    if (list -> length == 0) return initial;
+    list_element_t ans = foldl(initial, list->elements[0]);
+    for (size_t i = 1; i < list -> length; i++) {
+        ans = foldl(ans, list->elements[i]);
+    }
+    return ans;
+}
+
+list_element_t foldr_list(list_t *list, list_element_t initial,
+                          list_element_t (*foldr)(list_element_t,
+                                                  list_element_t)){
+    if (list -> length == 0) return initial;
+    list_element_t ans = \
+        foldr(list->elements[list -> length-1], initial);
+    for (int i = list -> length-2; i >= 0; i--) {
+        ans = foldr(list->elements[i], ans);
+    }
+    return ans;
+}

@@ -1,0 +1,11 @@
+-module(two_fer).
+
+-export([two_fer/1, two_fer/1]).
+
+
+two_fer() -> two_fer_someone("you").
+
+two_fer(Name) -> two_fer_someone(Name).
+
+two_fer_someone(Someone) ->
+    io_lib:format("One for ~s, one for me.", [Someone]).

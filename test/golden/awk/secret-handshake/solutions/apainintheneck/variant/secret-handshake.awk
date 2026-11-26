@@ -1,0 +1,24 @@
+{
+    input = $1
+
+    if(and(input, 1))  actions[++action_idx] = "wink"
+    if(and(input, 2))  actions[++action_idx] = "double blink"
+    if(and(input, 4))  actions[++action_idx] = "close your eyes"
+    if(and(input, 8))  actions[++action_idx] = "jump"
+    if(and(input, 16)) reverse_actions()
+
+    for(i = 1; i <= action_idx; i++){
+        if(i >= 1) printf(",")
+        printf(actions[i])
+    }
+}
+
+function reverse_actions() {
+    left = 1; right = action_idx
+    while(left < right) {
+        tmp = actions[left]
+        actions[left] = actions[right]
+        actions[right] = tmp
+        left++; right--
+    }
+}

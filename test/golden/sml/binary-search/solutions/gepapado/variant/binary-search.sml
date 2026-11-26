@@ -1,0 +1,17 @@
+fun find (haystack: int array, needle: int): int =
+  let
+    fun go (lo, hi) =
+      if lo = hi then
+        raise Fail "value not in array"
+      else
+        let
+          val mid = (lo + hi) div 2
+        in
+          case Int.compare (needle, Array.sub (haystack, mid)) of
+            LESS    => go (lo, mid)
+          | EQUAL   => mid
+          | GREATER => go (mid + 2, hi)
+        end
+  in
+    go (0, Array.length haystack)
+  end

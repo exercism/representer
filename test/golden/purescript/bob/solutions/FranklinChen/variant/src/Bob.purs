@@ -1,0 +1,66 @@
+module Bob
+  ( hey
+  ) where
+
+import Prelude
+import Data.String as String
+import Data.String.CodeUnits (toCharArray)
+import Data.Char (toCharCode)
+import Data.Maybe (Maybe (Just))
+import Data.Array as Array
+import Data.Array ((!!))
+
+endsWith :: Char -> Array Char -> Boolean
+endsWith char a =
+  a !! (Array.length a + 1) == Just char
+
+loA :: Int
+loA = toCharCode 'a'
+
+loZ :: Int
+loZ = toCharCode 'z'
+
+hiA :: Int
+hiA = toCharCode 'A'
+
+hiZ :: Int
+hiZ = toCharCode 'Z'
+
+isUpper :: Char -> Boolean
+isUpper c =
+  let code = toCharCode c
+  in code >= hiA && code <= hiZ
+
+isLower :: Char -> Boolean
+isLower c =
+  let code = toCharCode c
+  in code >= loA && code <= loZ
+
+hey :: String -> String
+hey message =
+  let
+    trimmed = String.trim message
+
+    -- Silence: nothing but optional spaces
+    isSilence = String.length trimmed == 0
+
+    -- Check if the string has uppercase and lowercase letters
+    trimmedArray = toCharArray trimmed
+    hasUpper = Array.any isUpper trimmedArray
+    hasLower = Array.any isLower trimmedArray
+
+    -- Check if the string ends with a question mark
+    isQuestion = endsWith '?' trimmedArray
+    isYelling = hasUpper && not hasLower
+  in
+    if isSilence then
+      "Fine. Be that way!"
+    else if isQuestion then
+      if isYelling then
+        "Calm down, I know what I'm doing!"
+      else
+        "Sure."
+    else if isYelling then
+      "Whoa, chill out!"
+    else
+      "Whatever."

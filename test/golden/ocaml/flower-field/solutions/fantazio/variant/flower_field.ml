@@ -1,0 +1,41 @@
+(* Raises an Invalid arg on empty garden or inconsistent row size *)
+let annotate : string array -> string array = fun garden ->
+  let rows = Array.length garden in
+  let columns = String.length garden.(0) in
+  let count_adjacent_flowers i j =
+    let is_valid_idx i max = i > 0 && i < max in
+    let is_flower i j = garden.(i).[j] = '*' in
+    let count = ref 0 in
+    (* check all cells adjacent horizontally, vertically and diagonally *)
+    for r = i - 1 to i + 1 do
+      for c = j - 1 to j + 1 do
+        if is_valid_idx r rows && is_valid_idx c columns && is_flower r c
+        then incr count
+      done
+    done;
+    !count
+  in
+  (* replace ' ' by the corresponding adjacent flowers count if > 0*)
+  let replace_with_count i j c =
+    if c <> ' ' then c
+    else match count_adjacent_flowers i j with
+      | 0 -> c
+      | n -> Char.chr (n + Char.code '0')
+  in
+  let check_row_size row =
+    if String.length row <> columns
+    then raise_notrace (Invalid_argument "Inconsistent row size")
+  in
+  Array.mapi
+    (fun i row ->
+      check_row_size row;
+      String.mapi (fun j c -> replace_with_count i j c) row
+    )
+    garden
+
+let annotate : string list -> string list = fun orig_garden ->
+  try
+    Array.of_list orig_garden
+    |> annotate (* may raise Invalid_argument *)
+    |> Array.to_list
+  with Invalid_argument _ -> orig_garden

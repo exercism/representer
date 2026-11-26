@@ -1,0 +1,39 @@
+open Base
+
+let to_char = function
+  | -1 -> '*'
+  | 1  -> '1'
+  | 2  -> '2'
+  | 3  -> '3'
+  | 4  -> '4'
+  | 5  -> '5'
+  | 6  -> '6'
+  | 7  -> '7'
+  | 8  -> '8' 
+  | _  -> ' '
+
+module Board = struct
+  type t = string list
+
+  let get (b: t) (x: int) (y: int): char option = 
+    List.nth b y |> 
+    Option.value_map ~default:None ~f:(fun row -> Option.try_with (fun _ -> String.get row x))
+
+  let adjacents (b: t) (x: int) (y: int): char list = 
+    let g xo yo = get b (x - xo) (y + yo) in
+    List.filter_map ~f:Fn.id [
+      g (-1) (-1);  g 0 (-1);  g 1 (-1);
+      g (-1) 0   ;             g 1 0   ;
+      g (-1) 1   ;  g 0 1   ;  g 1 1   ; 
+    ]
+
+  let is_mine = Char.equal '*'
+  let is_field = Fn.non is_mine
+
+  let map_field (b: t) ~(f: int -> int -> char -> char): t =
+    List.mapi b ~f:(fun y r -> String.mapi r ~f:(fun x c -> if is_field c then f x y c else c)) 
+end
+
+let annotate (board: string list) = 
+  let count x y = Board.adjacents board x y |> List.count ~f:(Board.is_mine) in
+  Board.map_field board ~f:(fun x y _ -> count x y |> to_char)

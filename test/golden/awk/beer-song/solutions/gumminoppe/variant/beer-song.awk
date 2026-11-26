@@ -1,0 +1,12 @@
+function bottles(n) {
+  return (n ? n : "No more") " bottle" (n == 1 ? "" : "s")
+}
+BEGIN {
+  if(length(verse)) { start = verse; stop = verse }
+  for (n = start; n > stop; --n) {
+    print bottles(n) " of beer on the wall, " tolower(bottles(n)) " of beer."
+    print (n ? "Take " (n == 1 ? "it" : "one") " down and pass it around, " \
+             : "Go to the store and buy some more, ") \
+          tolower(bottles(n ? n - 1 : 99)) " of beer on the wall."
+  }
+}

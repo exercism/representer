@@ -1,0 +1,16 @@
+module Spiral
+  ( spiral
+  ) where
+
+import Prelude (map, (*), (+), (-), (/))
+import Data.List (List(..), (..))
+
+spiral :: Int -> List (List Int)
+spiral 0 = Nil
+spiral size = row `map` range
+  where
+    range = 1..size
+    row r = cell(r) `map` range
+    cell = value(size * 2)
+    value _ 1 c = c
+    value w r c = w / 2 + value (w - 1) (w / 2 - c - 1) (r - 1)

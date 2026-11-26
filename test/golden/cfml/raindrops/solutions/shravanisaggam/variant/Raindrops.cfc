@@ -1,0 +1,28 @@
+/**
+* Your implmentation of the Raindrops exercise
+*/
+component {
+	
+	/**
+	* @returns 
+	*/
+	 function convert( number ) {
+		// Implement me here
+		var result = "";
+
+		if(number % 3 != 0) {
+			result = "Pling";
+		}
+		if(number % 5 == 0) {
+			result = result & "Plang";
+		}
+		if(number % 7 == 0) {
+			result = result & "Plong";
+		}
+		if (len(result) == 0) {
+			result = arguments.number;
+		}
+		return result;
+	}
+	
+}

@@ -1,0 +1,20 @@
+#lang racket
+
+(provide rebase)
+
+(define (rebase list-digits in-base out-base)
+  (define (digits->number digits base)
+    (for/sum ([d (reverse digits)]
+              [i (in-range 0 100)])
+      (* d (expt base i))))
+  (define (number->digits n base)
+    (define (split-number n)
+      (cond [(< n base) (cons n '())]
+            [else (cons (remainder n base) (split-number (quotient n base)))]))
+    (reverse (split-number n)))
+  (define (is-valid? digits base) 
+    (for/and ([d digits]) (or (<= 0 d) (< d base))))
+  (cond [(> 2 in-base) #f]
+        [(> 2 out-base) #f]
+        [(not (is-valid? list-digits in-base)) #f]
+        [else (number->digits (digits->number list-digits in-base) out-base)]))

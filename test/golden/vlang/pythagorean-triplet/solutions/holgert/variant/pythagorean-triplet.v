@@ -1,0 +1,17 @@
+module main
+
+fn triplets_with_sum(n int) [][]int {
+	mut triplets := [][]int{}
+	for a in 1..n {
+		for b in 1..n - a {
+			c := n - a + b
+			if a * a + b * b == c * c {
+				if a < b && b < c {
+					triplets << [a, b, c]
+				}
+			}
+		}
+	}
+	return triplets
+}
+

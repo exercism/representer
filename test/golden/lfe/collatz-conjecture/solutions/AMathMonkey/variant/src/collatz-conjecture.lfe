@@ -1,0 +1,11 @@
+(defmodule collatz-conjecture
+  (export (steps 1)))
+
+(defun steps 
+  ((n) (when (>= n 1))
+    (fletrec ((loop (n acc) 
+                (case n 
+                  (1 acc) 
+                  (x (when (== 0 (rem x 2))) (loop (div x 2) (+ 1 acc)))
+                  (x (loop (+ 1 (* 3 x)) (+ 2 acc)))))) 
+      (loop n 0))))

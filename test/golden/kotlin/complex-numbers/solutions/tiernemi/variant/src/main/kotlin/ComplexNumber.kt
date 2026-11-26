@@ -1,0 +1,35 @@
+import kotlin.math.cos
+import kotlin.math.exp
+import kotlin.math.sin
+import kotlin.math.sqrt
+
+data class ComplexNumber(val real: Double = 0.0, val imag: Double = 1.0) {
+    operator fun plus(b : ComplexNumber) : ComplexNumber {
+        return ComplexNumber(this.real + b.real, this.imag + b.imag)
+    }
+
+    operator fun minus(b : ComplexNumber) : ComplexNumber {
+        return ComplexNumber(this.real - b.real, this.imag - b.imag)
+    }
+
+    operator fun times(b : ComplexNumber) : ComplexNumber {
+        return ComplexNumber(this.real * b.real - this.imag * b.imag, this.imag * b.real + this.real * b.imag)
+    }
+
+    fun conjugate() : ComplexNumber {
+        return ComplexNumber(this.real, -this.imag)
+    }
+
+    public val abs : Double
+        get() = sqrt ((this * this.conjugate()).real)
+
+    operator fun div(b : ComplexNumber)  : ComplexNumber {
+        val num= (this * b.conjugate())
+        val denom = (b * b.conjugate()).real
+        return ComplexNumber(num.real / denom, num.imag / denom)
+    }
+}
+
+fun exponential(b : ComplexNumber) : ComplexNumber {
+    return ComplexNumber(exp(b.real)*cos(b.imag), exp(b.real)* sin(b.imag))
+}

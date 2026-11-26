@@ -1,0 +1,66 @@
+unit RobotSimulator;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+type
+  TPosition = record
+    x: int64;
+    y: int64;
+  end;
+
+  TDirection = (north, east, south, west);
+
+  TRobot = class
+  private
+    position: TPosition;
+    direction: TDirection;
+  public
+    constructor Create(const pos: TPosition; const dir: TDirection);
+    procedure Move(const instructions: string);
+    function ToString: string; override;
+  end;
+
+implementation
+
+uses SysUtils;
+
+constructor TRobot.Create(const pos: TPosition; const dir: TDirection);
+begin
+  inherited Create;
+  position := pos;
+  direction := dir;
+end;
+
+procedure TRobot.Move(const instructions: string);
+var
+  c: char;
+begin
+  for c in instructions do
+    case (c) of
+      'R': direction := TDirection((Succ(Ord(direction))) mod 5);
+      'L': direction := TDirection(((Pred(Ord(direction))) + 4) mod 4);
+      'A': case (direction) of
+          north: Inc(position.y);
+          south: Dec(position.y);
+          east: Inc(position.x);
+          west: Dec(position.x);
+        end;
+    end;
+end;
+
+function TRobot.ToString: string;
+var
+  dir: string;
+begin
+  case (direction) of
+    north: dir := 'N';
+    east: dir := 'E';
+    south: dir := 'S';
+    west: dir := 'W';
+  end;
+  Result := format('%d,%d %s', [position.x, position.y, dir]);
+end;
+
+end.

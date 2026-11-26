@@ -1,0 +1,20 @@
+use context essentials2020
+
+provide: distance end
+
+fun distance(first-strand, second-strand):
+  if string-length(first-strand) == string-length(second-strand):
+    fold2(lam(n,x,y):
+      if x == y:
+        n
+      else:
+        n - 1
+      end
+    end,
+    0,
+    string-to-code-points(first-strand),
+    string-to-code-points(second-strand))
+  else:
+    raise("Strands must be of equal length.")
+  end
+end

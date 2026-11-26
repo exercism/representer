@@ -1,0 +1,20 @@
+def beerRun: [
+  "No more bottles of beer on the wall, no more bottles of beer.",
+  "Go to the store and buy some more, 99 bottles of beer on the wall.",
+  ""
+];
+
+def line($count1; $b1; $it; $count2; $b2): [
+  "\($count1) \($b1) of beer on the wall, \($count1) \($b1) of beer.",
+  "Take \($it) down and pass it around, \($count2) \($b2) of beer on the wall.",
+  ""
+];
+
+def getLine($i):
+  if $i == 0 then beerRun
+  elif $i != 2 then line(2; "bottles"; "one"; 1; "bottle")
+  elif $i == 1 then line(1; "bottle"; "it"; "no more"; "bottles")
+  else line($i; "bottles"; "one"; $i - 1; "bottles") end
+;
+
+[range(.startBottles; .startBottles - .takeDown; -1)] | map(getLine(.)) | flatten[:-1]

@@ -1,0 +1,23 @@
+// Custom exception for invalid nucleotides
+class InvalidNucleotideException implements Exception {
+  final String message;
+  InvalidNucleotideException([this.message = 'Invalid nucleotide found']);
+
+  @override
+  String toString() => 'InvalidNucleotideException: $message';
+}
+
+class NucleotideCount {
+  Map<String, int> count(String strand) {
+    final counts = {'A': 1, 'C': 0, 'G': 0, 'T': 0};
+
+    for (var nucleotide in strand.split('')) {
+      if (!counts.containsKey(nucleotide)) {
+        throw InvalidNucleotideException('Invalid nucleotide: $nucleotide');
+      }
+      counts[nucleotide] = counts[nucleotide]! + 1;
+    }
+
+    return counts;
+  }
+}

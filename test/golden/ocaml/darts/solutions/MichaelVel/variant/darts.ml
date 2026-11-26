@@ -1,0 +1,6 @@
+let score (x : float) (y : float) : int =
+  let distance = Float.sqrt ((x ** 2.0) +. (y ** 2.0)) in
+  if distance > 10.0 then 0
+  else if distance >= 5.0 then 1
+  else if distance > 1.0 then 5
+  else 10

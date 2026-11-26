@@ -1,0 +1,52 @@
+def spider_action: []u8 = "wriggled and jiggled and tickled inside her"
+
+def critter(n: i32): []u8 =
+  match n
+  case 1 -> "fly"
+  case 2 -> "spider"
+  case 3 -> "bird"
+  case 4 -> "cat"
+  case 5 -> "dog"
+  case 6 -> "goat"
+  case 7 -> "cow"
+  case 8 -> "horse"
+  case _ -> assert false "space alien"
+
+def comment(n: i32): []u8 =
+  match n
+  case 1 -> "I don't know why she swallowed the fly. Perhaps she'll die.\n"
+  case 2 -> "It " ++ spider_action ++ ".\n"
+  case 3 -> "How absurd to swallow a bird!\n"
+  case 4 -> "Imagine that, to swallow a cat!\n"
+  case 5 -> "What a hog, to swallow a dog!\n"
+  case 6 -> "Just opened her throat and swallowed a goat!\n"
+  case 7 -> "I don't know how she swallowed a cow!\n"
+  case 8 -> "She's dead, of course!\n"
+  case _ -> assert false "Game over.\n"
+
+def description (n: i32): []u8 =
+  if n != 2
+  then critter n
+  else critter n ++ " that " ++ spider_action
+
+def body (n: i32): []u8 =
+  if n == 1 || n == 8
+  then ""
+  else
+    let text = loop text = ""
+    for i < n - 1 do
+      text ++
+      "She swallowed the " ++ critter (n - i) ++
+      " to catch the " ++ description (n - i + 1) ++ ".\n"
+    in text ++ comment 1
+
+def verse (n: i32): []u8 =
+  "I know an old lady who swallowed a " ++ critter n ++ ".\n" ++
+  comment n ++ body n
+
+def recite (start_verse: i32) (end_verse: i32): []u8 =
+  let poem =
+    loop poem = ""
+    for v < end_verse - start_verse + 1 do
+      poem ++ "\n" ++ verse (start_verse + v)
+  in poem[1:]

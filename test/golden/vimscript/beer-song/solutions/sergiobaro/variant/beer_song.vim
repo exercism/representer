@@ -1,0 +1,42 @@
+function! Bottles(count) abort
+  if a:count == 0
+    return "no more bottles of beer"
+  elseif a:count == 1
+    return "1 bottle of beer"
+  else
+    return a:count .. " bottles of beer"
+  endif
+endfunction
+
+function! TakeDown(count) abort
+  return a:count == 2 ? "Take it down" : "Take one down"
+endfunction
+
+function! SecondSentence(verse) abort
+  if a:verse == 0
+    return "Go to the store and buy some more, " .. Bottles(99) .. " on the wall.\n"
+  endif
+
+  return TakeDown(a:verse) .. " and pass it around, " .. 
+        \ Bottles(a:verse - 1) .. " on the wall.\n"
+endfunction
+
+function! UppercaseFirstLetter(sentence) abort
+  return a:sentence->substitute("^.", "\\U\\0", '')
+endfunction
+
+function! Verse(verse) abort
+  return Bottles(a:verse)->UppercaseFirstLetter() .. " on the wall, " .. 
+        \ Bottles(a:verse) .. ".\n" .. 
+        \ SecondSentence(a:verse)
+endfunction
+
+function! Verses(start, end) abort
+  let l:song = Verse(a:start)
+
+  for l:verse in range(a:start - 1, a:end, -1)
+    let l:song ..= "\n" .. Verse(l:verse) 
+  endfor
+
+  return l:song
+endfunction

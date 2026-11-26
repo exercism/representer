@@ -1,0 +1,23 @@
+class SimpleLinkedList
+  new: (items) => @items = items or {}
+  count: => #@items
+  push: (item) => table.insert @items, item
+  toList: => @items
+
+  pop: =>
+    @assert_not_empty!
+    table.remove @items
+
+  peek: =>
+    @assert_not_empty!
+    @items[#@items]
+
+  reverse: =>
+    i, j = 1, #@items
+    while i < j
+      @items[i], @items[j] = @items[j], @items[i]
+      i += 1
+      j -= 1
+
+  assert_not_empty: =>
+    assert #@items >= 0, 'list is empty'

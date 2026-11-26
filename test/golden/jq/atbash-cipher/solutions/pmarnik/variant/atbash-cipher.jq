@@ -1,0 +1,52 @@
+def coding_table:
+"az" | explode | .[0] as $s | .[1]  as $e | [range($s; $e+1)] | implode * "" | [. ,reverse] | transpose | map({key:.[0], value:.[1]}) as $letters | 
+[range(0;9)] | map({key:.|tostring, value: .|tostring}) as $numbers |
+$letters + $numbers | from_entries
+
+;
+
+def group(n):
+. as $in | 
+# length | debug | 
+$in |
+length / n |floor + 1 | 
+[range(0;.)] | map({start: (. * n), end: ((. + 1) * (n))})  | map($in[.start:.end]) | join(" ") | gsub("\\s$"; "")
+;
+
+def code:
+coding_table as $t | 
+
+. / "" | map($t[.]) | join("")
+;
+
+def encode:
+ascii_downcase | code | group(5)
+;
+
+def decode:
+ascii_downcase | code
+;
+
+
+def do_it:
+if .property == "encode" then
+.input.phrase | encode
+else 
+.input.phrase | decode
+end
+;
+
+def test_me:
+ {
+          "property": "encode",
+          "input": {
+            "phrase": "..The quick brown fox jumps over the lazy dog..."
+          }
+        }
+| do_it   
+;     
+
+# test_me
+do_it
+
+# coding_table

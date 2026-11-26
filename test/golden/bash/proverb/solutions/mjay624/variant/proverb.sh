@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+args=("$@")
+
+if [[ ${#args[@]} -gt 0 ]]; then
+        for ((i=1; i<=${#args[@]}-1; i++)); do
+                echo "For want of a ${args[i-1]} tie ${args[i]}" was lost.
+        done
+        echo "And all for the want of a ${args[0]}."
+else
+        echo ""
+fi

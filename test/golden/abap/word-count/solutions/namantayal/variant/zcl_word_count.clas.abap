@@ -1,0 +1,55 @@
+CLASS zcl_word_count DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
+
+  PUBLIC SECTION.
+    TYPES:
+      BEGIN OF return_structure,
+        word  TYPE string,
+        count TYPE i,
+      END OF return_structure,
+      return_table TYPE STANDARD TABLE OF return_structure WITH KEY word.
+    METHODS count_words
+      IMPORTING
+        !phrase       TYPE string
+      RETURNING
+        VALUE(result) TYPE return_table .
+  PROTECTED SECTION.
+  PRIVATE SECTION.
+ENDCLASS.
+
+
+CLASS zcl_word_count IMPLEMENTATION.
+
+  METHOD count_words.
+    "Add solution here
+phrase = phrase && '.'.
+DATA(phrase_len) = strlen( phrase ).
+DATA(i) = 0.
+DATA lv_word TYPE string.
+WHILE i < phrase_len.
+  DATA(lv_char) =  to_lower( phrase+i(1) ).
+  IF lv_char CA 'abcdefghijklmnopqrstuvwxyz1234567890'''.
+    IF lv_char <> ''''.
+      lv_word = lv_word && lv_char.
+    ENDIF.
+  ELSE.
+    IF strlen( lv_word ) <> 0.
+      DATA(idx) = line_index( result[ word = lv_word ] ).
+      IF idx = 0.
+        DATA(ls_word) = VALUE return_structure( word = lv_word count = 1 ).
+        APPEND ls_word TO result.
+      ELSE.
+        result[ idx ]+count = result[ idx ]-count + 1.
+      ENDIF.
+      CLEAR lv_word.
+    ENDIF.
+    IF lv_char = '\'.
+      i = i + 1.
+    ENDIF.
+  ENDIF.
+  i = i + 1.
+ENDWHILE.
+  ENDMETHOD.
+ENDCLASS.

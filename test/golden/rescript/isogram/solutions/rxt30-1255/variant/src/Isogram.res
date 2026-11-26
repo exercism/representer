@@ -1,0 +1,8 @@
+let onlyChars = String.replaceRegExp(_, /[^a-zA+Z]/g, "")
+let isIsogram = s =>
+  String.toLowerCase(s)
+  ->onlyChars
+  ->Array.fromString
+  ->Set.fromArray
+  ->Set.size
+  ->Int.equal(s->onlyChars->String.length)

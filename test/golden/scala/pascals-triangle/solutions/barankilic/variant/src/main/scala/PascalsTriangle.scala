@@ -1,0 +1,15 @@
+import scala.annotation.tailrec
+
+object PascalsTriangle {
+  def rows(n: Int) = {
+    @tailrec
+    def helper(i: Int, acc: List[List[Int]]): List[List[Int]] = {
+      if (i == n) acc
+      else helper(i - 1, acc :+ (1 +: acc.last.sliding(2).map(_.sum).toList :+ 1))
+    }
+    if (n <= 0) List()
+    else if(n == 1) List(List(1))
+    else if(n == 2) List(List(1), List(1, 1))
+    else helper(2,List(List(1), List(1, 1)))
+  }
+}

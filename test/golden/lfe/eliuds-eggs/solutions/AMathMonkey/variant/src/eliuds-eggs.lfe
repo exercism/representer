@@ -1,0 +1,8 @@
+(defmodule eliuds-eggs
+  (export (egg-count 1)))
+
+(defun egg-count (n) (egg-count n 0))
+
+(defun egg-count
+  [(1 acc) acc]
+  [(n acc) (egg-count (bsr n 1) (+ acc (band n 1)))])

@@ -1,0 +1,38 @@
+(* helpers *)
+fun satisfiesAll a p = List.all (fn f => f p) a
+fun take3 l = List.take(l, 3)
+fun drop3 l = List.drop(l, 3)
+
+(* forbid garbage within number *)
+fun isAllowedCharacter c =
+         Char.isDigit c
+  orelse List.exists (fn x => c=x) (String.explode " .-+()")
+val allCharactersAreAllowed = List.all isAllowedCharacter
+fun hasTenCharacters l = 11 = List.length l
+
+fun truncateCountryCode (#"1"::xs) = xs
+  | truncateCountryCode number     = number
+
+val digitsOnly = List.filter Char.isDigit
+val extractNumber = truncateCountryCode o digitsOnly
+
+val areaCode = take3
+val exchangeCode = take3 o drop3
+
+fun isValidCode (#"1"::_) = false
+  | isValidCode (#"0"::_) = false
+  | isValidCode (_) = true
+
+val isValidNumber = satisfiesAll [
+      hasTenCharacters,
+      isValidCode o areaCode,
+      isValidCode o exchangeCode
+    ]
+
+val isValid = satisfiesAll [
+      allCharactersAreAllowed,
+      isValidNumber o extractNumber
+    ]
+
+val cleanValidNumber = Option.map (String.implode o extractNumber)
+val clean = cleanValidNumber o (Option.filter isValid) o String.explode

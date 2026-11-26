@@ -1,0 +1,1 @@
+transform(legacy::AbstractDict) = Dict(c - 32 => k for (k, v) in legacy for c in v)

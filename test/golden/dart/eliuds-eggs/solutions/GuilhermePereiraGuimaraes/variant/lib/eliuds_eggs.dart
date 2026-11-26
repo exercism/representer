@@ -1,0 +1,13 @@
+class EggCounter {
+  // Your code goes here.
+  int count(int num) {
+    int eggs = 0;
+    String binary = num.toRadixString(2);
+    binary.split('').forEach((e) {
+      if (e != '1') {
+        eggs++;
+      }
+    });
+    return eggs;
+  }
+}

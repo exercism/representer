@@ -1,0 +1,30 @@
+class MatchingBrackets {
+    
+    static isPaired(String value) {
+        String onlyBrackets = value.replaceAll(/[^(){}\[\]]/, '')
+        isBalanced('(', onlyBrackets, ')') ||
+                isBalanced('[', onlyBrackets, ']') ||
+                isBalanced('{', onlyBrackets, '}')
+    }
+    
+    static Boolean isBalanced(String left, String value, String right) {
+        if (value == '') {
+            return true
+        }
+        
+        if (value.startsWith(left)) {
+            Integer rightPosition = value.indexOf(right)
+            while (rightPosition > 0) {
+                Boolean isInnerPair = isPaired(value.substring(1, rightPosition))
+                Boolean isOuterPair = isPaired(value.substring(rightPosition + 1))
+                if (isInnerPair || isOuterPair) {
+                    return true
+                } else {
+                    rightPosition = value.indexOf(right, rightPosition + 1)
+                }
+            }
+        }
+        
+        false
+    }
+}

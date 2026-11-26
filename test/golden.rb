@@ -17,6 +17,18 @@ module Golden
     def files = Golden.read_files(File.join(dir, "solution"))
     def representation_path = File.join(dir, "representation.txt")
     def recorded_representation = File.exist?(representation_path) ? File.read(representation_path) : nil
+
+    # A single's near-miss variant (see variant.yml): the change it makes,
+    # or nil if the solution has none.
+    def variant
+      path = File.join(dir, "variant.yml")
+      meta = File.exist?(path) ? YAML.safe_load_file(path) : nil
+      meta && meta["mutation"] != "none" ? meta : nil
+    end
+
+    # The variant's files: the solution's files, with the changed file from
+    # variant/ in place of the original.
+    def variant_files = files.merge(Golden.read_files(File.join(dir, "variant")))
   end
 
   def self.tracks = Dir.children(ROOT).select { |name| File.directory?(File.join(ROOT, name)) }.sort
@@ -43,10 +55,10 @@ module Golden
 
   # The text of a solution's representation.txt. It sends the request that
   # the website sends, so it gets exactly the response the website gets.
-  def self.representation(solution)
+  def self.representation(solution, files = solution.files)
     body = {
       track_slug: solution.track, exercise_slug: solution.exercise,
-      solution_files: solution.files, exercise_files: exercise_files(solution.track, solution.exercise)
+      solution_files: files, exercise_files: exercise_files(solution.track, solution.exercise)
     }
     response = JSON.parse(Representer.process(event: { "body" => body.to_json }, context: {})[:body])
     response["representation"] ? "#{response['representation']}\n" : "unrepresentable: #{response['reason']}\n"
@@ -99,6 +111,29 @@ module Golden
     end
   end
 
+  # The representation of each single's variant, keyed by the single's id.
+  def self.variant_texts(track)
+    solutions(track).filter_map { |solution| [solution.id, representation(solution, solution.variant_files)] if solution.variant }.to_h
+  end
+
+  # The singles whose variant gets the same representation as the single
+  # itself (a near_miss_merge). Each variant changes one operator, number,
+  # string, boolean or library call, so a mentor's feedback on one wouldn't
+  # fit the other. A single with no representation is left out.
+  def self.near_miss_merges(track, texts, variant_texts)
+    solutions(track).filter_map do |solution|
+      text = texts.fetch(solution.id)
+      next unless variant_texts.key?(solution.id) && representable?(text) && variant_texts[solution.id] == text
+
+      {
+        "exercise" => solution.exercise, "kind" => "near_miss_merge", "solutions" => [[solution.name]],
+        "note" => "The variant gets the same representation. #{solution.variant['change']}"
+      }
+    end
+  end
+
+  def self.near_miss?(difference) = difference["kind"] == "near_miss_merge"
+
   def self.sort_parts(parts) = parts.map(&:sort).sort_by { |names| [-names.size, names] }
 
   # The identity of a difference, which stays the same while the same
@@ -123,7 +158,8 @@ module Golden
       File.write(solution.representation_path, text) unless solution.recorded_representation == text
       [solution.id, text]
     end
-    write_differences(track, differences(track, texts), texts)
+    found = differences(track, texts) + near_miss_merges(track, texts, variant_texts(track))
+    write_differences(track, found, texts)
     texts
   end
 
@@ -133,7 +169,7 @@ module Golden
       old = recorded[key(difference)]
       difference.merge(
         "status" => old ? old["status"] : "undecided",
-        "note" => old ? old["note"] : Notes.(track, difference, texts)
+        "note" => old ? old["note"] : difference["note"] || Notes.(track, difference, texts)
       )
     end
     File.write(differences_path(track), DIFFERENCES_HEADER + format_differences(differences))
@@ -151,6 +187,8 @@ module Golden
     # - merge: solutions from different production groups that now get the
     #   same representation. The solutions are listed by production group.
     # - unrepresentable: a solution that now gets no representation.
+    # - near_miss_merge: a single that gets the same representation as its
+    #   variant, a copy with one small change to its code (see variant.yml).
     #
     # status is undecided until iHiD decides whether the difference is right
     # (accepted) or a bug to fix (rejected).

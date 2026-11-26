@@ -1,0 +1,17 @@
+use context essentials2020 # Don't delete this line when using Pyret on Exercism 
+
+provide: to-rna end
+
+fun to-rna(dna :: String) -> String:
+  rnaList = string-explode(dna)
+    .map(lam(dnaNucleotide):
+      ask:
+        | dnaNucleotide == "G" then: "C"
+        | dnaNucleotide == "C" then: "G"
+        | dnaNucleotide == "T" then: "A"
+        | dnaNucleotide == "A" then: "U"
+        | otherwise: raise("Invalid DNA nucleotide: " - dnaNucleotide)
+      end
+    end)
+  rnaList.join-str("")
+end

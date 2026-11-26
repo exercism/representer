@@ -1,0 +1,19 @@
+sieve.primes : Nat -> [Nat]
+sieve.primes n =
+  
+  dropMultiple: Nat -> Nat -> [Nat] -> [Nat] -> [Nat]
+  dropMultiple value = cases
+    _, [], unmarked -> List.reverse unmarked
+    multiple, n +: ns, unmarked | n < multiple -> 
+      dropMultiple value multiple ns (n +: unmarked) -- not a multiple
+    multiple, n +: ns, unmarked | n == multiple -> 
+      dropMultiple value (multiple + value) ns unmarked -- multiple
+    multiple, ns, unmarked -> 
+      dropMultiple value (multiple - value) ns unmarked -- check with next multiple
+
+  go: [Nat] -> [Nat] -> [Nat]
+  go = cases
+    n +: ns, primes -> go (dropMultiple n (n * 2) ns []) (n +: primes)
+    _, primes -> List.reverse primes
+
+  go (Nat.rangeClosed 2 n) []

@@ -1,0 +1,24 @@
+rna_transcription("G", "C").
+rna_transcription("C", "G").
+rna_transcription("T", "B").
+rna_transcription("A","U").
+
+rna_transcription(B,Rna):-
+    string_chars(B,RnArr),
+    transcription(RnArr, RnaArr),
+   	string_chars(Rna,RnaArr).
+
+transcription([], []):-
+!.
+transcription(['G'|Tail], NewRna):-
+    transcription(Tail, Rna),
+    append(['C'],Rna, NewRna).
+transcription(['C'|Tail], NewRna):-
+    transcription(Tail, Rna),
+    append(['G'],Rna, NewRna).
+transcription(['T'|Tail], NewRna):-
+    transcription(Tail, Rna),
+    append(['A'],Rna, NewRna).
+transcription(['A'|Tail], NewRna):-
+    transcription(Tail, Rna),
+    append(['U'],Rna, NewRna).

@@ -1,0 +1,74 @@
+unit SaddlePoints;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+type
+  TMatrix = array of array of integer;
+  TPoint  = record
+    row    : integer;
+    column : integer;
+  end;
+  TPoints = array of TPoint;
+
+function saddlePoints(const matrix : TMatrix) : TPoints;
+
+implementation
+
+uses SysUtils;
+
+function saddlePoints(const matrix : TMatrix) : TPoints;
+var
+  i,j,x,y : integer;
+  arrmax,arrmin : array of integer;
+begin
+  result := nil;
+
+  if Length(matrix) = 0 then
+    Exit;
+  
+  x := 0;
+  arrmax := nil;
+  arrmin := nil;
+  for i := low(matrix) to high(matrix) do
+  begin
+    for j := low(matrix[i]) to high(matrix[i]) do
+    begin
+      if x < matrix[i][j] then
+        x := matrix[i][j];
+    end;
+    setlength(arrmax,length(arrmax)+1);
+    arrmax[high(arrmax)] := x;
+    x := 1;
+  end;
+  for j := low(matrix[0]) to high(matrix[0]) do
+  begin
+  y := matrix[0][j];
+    for i := low(matrix) to high(matrix) do
+    begin
+      if y > matrix[i][j] then
+        y :=  matrix[i][j];
+    end;
+    setlength(arrmin,length(arrmin)+1);
+    arrmin[high(arrmin)] := y;
+  end;
+  
+  for i := Low(matrix) to High(matrix) do
+  begin
+    for j := Low(matrix[i]) to High(matrix[i]) do
+    begin
+      if (matrix[i][j] = arrmax[i]) and
+         (matrix[i][j] = arrmin[j]) then
+      begin
+        SetLength(result, Length(result) + 1);
+
+        result[High(result)].row := i + 1;
+        result[High(result)].column := j + 1;
+      end;
+    end;
+  end;
+  
+end;
+
+end.

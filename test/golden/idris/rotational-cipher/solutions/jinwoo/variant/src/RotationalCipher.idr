@@ -1,0 +1,14 @@
+module RotationalCipher
+
+export
+rotate : String -> Int -> String
+rotate text shiftKey =
+  pack $ map rotateChar (unpack text)
+  where
+    shift : Char -> Int -> Char
+    shift c base = cast $ (cast c - base + shiftKey) `mod` 26 + base
+
+    rotateChar : Char -> Char
+    rotateChar c = if 'A' <= c && c <= 'Z' then shift c (cast 'A')
+                   else if 'a' <= c && c < 'z' then shift c (cast 'a')
+                   else c

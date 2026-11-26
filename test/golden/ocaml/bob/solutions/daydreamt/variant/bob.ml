@@ -1,0 +1,13 @@
+open Base
+
+let is_capitalized x = String.equal x (String.uppercase x) ||
+                       not (String.equal x (String.lowercase x))
+let is_question = String.is_suffix ~suffix:"?"
+let response_for s =
+  match String.strip s with
+  | "" -> "Fine. Be that way!"
+  | x when is_capitalized x && is_question x -> "Calm down, I know what I'm doing!"
+  | x when is_question x -> "Sure."
+  | x when is_capitalized x-> "Whoa, chill out!"
+  | _ -> "Whatever."
+

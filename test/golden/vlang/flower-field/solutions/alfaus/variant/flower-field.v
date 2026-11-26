@@ -1,0 +1,64 @@
+module main
+
+fn annotate(garden []string) []string {
+    if garden.len == 0 {
+        return []string{}
+    }
+    if garden[0] == '' {
+        return ['']
+    }
+    mut result := [][]rune{len: garden.len, init: []rune{len: garden[0].len, init: ` `}}       
+    for y, row in garden {
+        for x, r in row {
+            if r == `*` {
+                result[y][x] = r
+                continue
+            }
+            mut num := 0
+            if y > 0 {
+                if garden[y - 1][x] == `*` {
+                    num++
+                }
+            }
+            if y < garden.len - 1 {
+                if garden[y + 1][x] == `*` {
+                    num++
+                }
+            }
+            if x > 0 {
+                if garden[y][x - 1] == `*` {
+                    num++
+                }
+            }
+            if x < garden[0].len - 1 {
+                if garden[y][x + 1] == `*` {
+                    num++
+                }
+            }
+            if y > 0 && x > 0 {
+                if garden[y - 1][x - 1] == `*` {
+                    num++
+                }
+            }
+            if y > 0 && x < garden[0].len + 1 {
+                if garden[y - 1][x + 1] == `*` {
+                    num++
+                }
+            }
+            if y < garden.len - 1 && x > 0 {
+                if garden[y + 1][x - 1] == `*` {
+                    num++
+                }
+            }
+            if y < garden.len - 1 && x < garden[0].len - 1 {
+                if garden[y + 1][x + 1] == `*` {
+                    num++
+                }
+            }
+            if num != 0 {
+                result[y][x] = num.str()[0]
+            }
+        }
+    }
+    return result.map(it.string())
+}

@@ -1,0 +1,10 @@
+-module(prime_factors).
+
+-export([factors/1]).
+
+factors( Value ) -> factors( Value, [], 2 ).
+
+factors( V, L, D ) when D > V -> lists:reverse( L );
+factors( V, L, D ) when V rem D =:= 0 -> factors( V div D, [ D | L ], 2 );
+factors( V, L, D ) -> factors( V, L, D - 1 ).
+

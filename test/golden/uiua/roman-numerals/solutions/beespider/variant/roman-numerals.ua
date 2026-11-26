@@ -1,0 +1,8 @@
+# Convert a decimal number to a roman numeral
+# Numeral ? Number
+ToRoman ← |2 (◿₁₀⌊⊃[÷₁₀₀₀|÷₁₀₀|÷₁₀|∘]
+˜≡⊡ [{"" "M""MM""MMM" ∩₆""}
+     {"" "C""CC""CCC""CD""D""DC""DCC""DCCC""CM"}
+     {"" "X""XX""XXX""XL""L""LX""LXX""LXXX""XC"}
+     {"" "I""II""III""IV""V""VI""VII""VIII""IX"}]
+/◇⊂)

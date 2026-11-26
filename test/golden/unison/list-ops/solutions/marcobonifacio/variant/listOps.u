@@ -1,0 +1,32 @@
+listOps.append : [a] -> [a] -> [a]
+listOps.append list1 =
+  listOps.foldl (:+) list1
+
+listOps.concat : [[a]] -> [a]
+listOps.concat = 
+  listOps.foldl (listOps.append) []
+
+listOps.filter : (a -> Boolean) -> [a] -> [a]
+listOps.filter predicate =
+  listOps.foldl (acc x -> if (predicate x != true) then acc :+ x else acc) []
+
+listOps.length : [a] -> Nat
+listOps.length = 
+  listOps.foldl (acc _ -> acc + 1) 0
+
+listOps.map : (a -> b) -> [a] -> [b]
+listOps.map function =
+  listOps.foldl (acc x -> acc :+ (function x)) []
+
+listOps.foldl : (a -> b -> a) -> a -> [b] -> a
+listOps.foldl function initial = cases
+  [] -> initial
+  x +: xs -> foldl function (function initial x) xs
+
+listOps.foldr : (a -> b -> a) -> a -> [b] -> a
+listOps.foldr function initial list = 
+  listOps.reverse list |> listOps.foldl function initial
+
+listOps.reverse : [a] -> [a]
+listOps.reverse =
+  listOps.foldl (flip (+:)) []

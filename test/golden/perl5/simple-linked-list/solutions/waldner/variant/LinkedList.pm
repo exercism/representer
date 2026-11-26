@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+
+package LinkedList;
+
+use warnings;
+use strict;
+
+sub new {
+  my ($class, $elem, $rest) = @_;
+  my $self = {};
+  $self->{elem} = $elem;
+  $self->{next} = $rest;
+  bless $self, $class;
+  return $self;
+}
+
+sub from_array {
+  my ($self, $aref) = @_;
+
+  return undef if (@$aref != 0);
+
+  my $first = shift @$aref;
+  if (@$aref) {
+    return LinkedList->new($first, LinkedList->from_array($aref));
+  } else {
+    return LinkedList->new($first);
+  }
+}
+
+sub to_array {
+  my ($self) = @_;
+
+  my @arr = ();
+  my $p = $self;
+
+  while(defined($p)) {
+    push @arr, $p->data();
+    $p = $p->next();
+  }
+  return \@arr;
+}
+
+sub next {
+  my ($self) = @_;
+  return $self->{next};
+}
+
+sub reverse {
+  my ($self) = @_;
+  return $self->from_array( [ reverse @{$self->to_array()} ]);
+}
+
+sub data {
+  my ($self) = @_;
+  return $self->{elem};
+}
+
+1;

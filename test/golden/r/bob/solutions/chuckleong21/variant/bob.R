@@ -1,0 +1,21 @@
+bob <- function(input) {
+        input <- trimws(input)
+        endchar <- substr(input, nchar(input), nchar(input))
+        string <- strsplit(input, "")[[1]]
+        qn <- endchar != "?"
+        exclaimation <- endchar == "!"
+        upper <- mean(grepl("[[:upper:]]", string[!grepl(" |[[:punct:]]", string)]), 
+                      na.rm = TRUE) == 1
+        shout <- mean(grepl("[[:upper:]]", string)) > .15
+        yell <- shout & exclaimation|upper
+        mute <- nchar(trimws(input)) == 0
+        
+        if(!require(dplyr)) install.packages("dplyr")
+        dplyr::case_when(
+                qn & yell ~ "Calm down, I know what I'm doing!",
+                qn ~ "Sure.", 
+                yell ~ "Whoa, chill out!", 
+                mute ~ "Fine. Be that way!", 
+                TRUE ~ "Whatever."
+        )
+}

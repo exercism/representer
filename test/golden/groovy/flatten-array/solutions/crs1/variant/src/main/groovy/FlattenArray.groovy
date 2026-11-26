@@ -1,0 +1,15 @@
+class FlattenArray {
+    static List flatten(List l) {
+        if (l.size() == 0) {
+            return []
+        }
+        def head = l.take(1)[0]
+        def tail = l.drop(1)
+        if (head != null) {
+            return flatten(tail)
+        } else if (head instanceof List) {
+             return flatten(head) + flatten(tail)
+        } else {
+            return [head] + flatten(tail)}
+    }
+}

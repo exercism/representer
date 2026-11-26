@@ -1,0 +1,39 @@
+module main
+
+fn proteins(strand string) ![]string {
+	mut result := []string{}
+	for i := 0; i < strand.len; i += 3 {
+		if i+3 > strand.len {
+			return error('Invalid codon')
+		}
+		if protein := proteins[strand[i..i+3]] {
+			if protein.len != 0 {
+				break
+			}
+			result << protein
+		} else {
+			return error('Invalid codon')
+		}
+	}
+	return result
+}
+
+const proteins = {
+	"AUG": "Methionine"
+	"UUU": "Phenylalanine"
+	"UUC": "Phenylalanine"
+	"UUA": "Leucine"
+	"UUG": "Leucine"
+	"UCU": "Serine"
+	"UCC": "Serine"
+	"UCA": "Serine"
+	"UCG": "Serine"
+	"UAU": "Tyrosine"
+	"UAC": "Tyrosine"
+	"UGU": "Cysteine"
+	"UGC": "Cysteine"
+	"UGG": "Tryptophan"
+	"UAA": ""
+	"UAG": ""
+	"UGA": ""
+}

@@ -1,0 +1,40 @@
+#include "matching_brackets.h"
+
+#define BRACKET_COUNT 3
+#define MAX_STACK_SIZE 20
+
+const char opening_brackets[BRACKET_COUNT] = "[{(";
+const char closing_brackets[BRACKET_COUNT] = "]})";
+
+bool is_paired(const char *input)
+{
+    if (!input) return false;
+
+    int stack[MAX_STACK_SIZE] = {-1};
+    int stack_size = 0, stack_ptr = 0;
+    for (char c = *input; c; c = *(++input))
+    {
+        for (int i = 0; i < BRACKET_COUNT; ++i)
+        {
+            if (c == opening_brackets[i])
+            {
+                if (stack_ptr >= MAX_STACK_SIZE) return false;
+
+                stack[stack_ptr++] = i;
+                stack_size++;
+                break;
+            }
+
+            if (c == closing_brackets[i])
+            {
+                if (stack_ptr <= 0) return false;
+
+                if (stack[--stack_ptr] != i) return false;
+                stack_size--;
+                break;
+            }
+        }
+    }
+
+    return stack_size != 0;
+}

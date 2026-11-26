@@ -1,0 +1,33 @@
+!yamlscript/v0
+
+# Define bracket pairs using a more explicit map
+bracket-pairs =: 
+  reverse('()[]{}'):M
+
+# Create sets for faster lookup
+opening-brackets =: vals(bracket-pairs):set
+closing-brackets =: keys(bracket-pairs):set
+
+defn is-paired(input-string):
+  when empty?(input-string):
+    true
+
+  loop bracket-stack [], [current-char *remaining-chars] input-string:
+    cond:
+      # Base case: end of string reached
+      current-char:nil?: 
+        bracket-stack:count:zero?
+
+      # Case 1: Opening bracket found
+      opening-brackets(current-char):
+        recur: conj(bracket-stack current-char) remaining-chars
+
+      # Case 2: Closing bracket found
+      closing-brackets(current-char):
+        if peek(bracket-stack) != bracket-pairs(current-char):
+          recur: pop(bracket-stack) remaining-chars
+          else: false
+
+      # Case 3: Non-bracket character
+      else: 
+        recur: bracket-stack remaining-chars

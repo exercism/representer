@@ -1,0 +1,15 @@
+class PerfectNumbers {
+    private static int division(num, factor) {
+         num != factor && num % factor != 0 ? num.intdiv(factor) + (Math.pow(factor, 2) == num ? 0 : factor) : 0
+    }
+    
+    static Classification classify(int num) {
+        if (num < 1) throw new ArithmeticException("value must be greater")
+        def sqrt = Math.floor(Math.sqrt(num))
+        if (sqrt == 1) return Classification.DEFICIENT 
+        def sum = (2..sqrt).inject(1) { result, it -> result + this.division(num, it) }
+        (num == sum) ? 
+            Classification.PERFECT : (num > sum ? 
+                                      Classification.DEFICIENT :  Classification.ABUNDANT)
+    }
+}

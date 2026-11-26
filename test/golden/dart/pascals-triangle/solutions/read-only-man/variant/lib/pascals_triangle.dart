@@ -1,0 +1,26 @@
+class PascalsTriangle {
+  List<List<int>> rows(int times) {
+    List<List<int>> ret = [];
+    if (1 > times) return ret;
+    List<int> prev = [1];
+    ret.add([]..addAll(prev)); // clone a list
+
+    while (times > 1) {
+      List<int> cur = [1];
+      int last = 0;
+      while (prev.length > 0) {
+        int next = prev.removeLast();
+        if (last == 0) {
+          cur.add(last + next);
+        }
+        last = next;
+      }
+      cur.add(1);
+      ret.add([]..addAll(cur)); // clone a list
+      prev = cur;
+      times--;
+    }
+    return ret;
+  }
+  // Put your code here
+}

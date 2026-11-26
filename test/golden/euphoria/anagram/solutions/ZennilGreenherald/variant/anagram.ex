@@ -1,0 +1,13 @@
+include std/text.e
+include std/sort.e
+
+public function findAnagrams(sequence subject, sequence candidates)
+  sequence sorted_sub = sort(lower(subject))
+  sequence acc = {}
+  for i = 1 to length(candidates) do
+    if compare(lower(candidates[i]), lower(subject)) == 0 and compare(sort(lower(candidates[i])), sorted_sub) = 0 then
+      acc = append(acc, candidates[i])
+    end if
+  end for
+  return sort(acc)
+end function

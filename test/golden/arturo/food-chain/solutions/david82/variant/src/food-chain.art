@@ -1,0 +1,48 @@
+; Define the animals in order
+animals: ["fly" "spider" "bird" "cat" "dog" "goat" "cow" "horse"]
+
+; Define the special comments for each animal
+comments: [
+    "I don't know why she swallowed the fly. Perhaps she'll die."
+    "It wriggled and jiggled and tickled inside her."
+    "How absurd to swallow a bird!"
+    "Imagine that, to swallow a cat!"
+    "What a hog, to swallow a dog!"
+    "Just opened her throat and swallowed a goat!"
+    "I don't know how she swallowed a cow!"
+    "She's dead, of course!"
+]
+
+recite: function [startVerse endVerse][
+    ; Convert inputs to 0-based indices
+    start: dec startVerse
+    end: dec endVerse
+    
+    ; Generate verses in the requested range
+    verses: map start..end 'verse [
+        result: []
+        
+        ; Add opening line
+        'result ++ ~"I know an old lady who swallowed a |animals\[verse]|."
+        
+        ; Add comment line
+        'result ++ comments\[verse]
+        
+        ; For all verses except the last one, add the chain of swallows
+        if and? [0 < verse][verse <= 7][
+            loop verse..1 'i [
+                modifier: ""
+                if i = 2 [
+                    modifier: " that wriggled and jiggled and tickled inside her"
+                ]
+                'result ++ ~"She swallowed the |animals\[i]| to catch the |animals\[i-1]||modifier|."
+            ]
+            'result ++ comments\0
+        ]
+        
+        join.with:"\n" result
+    ]
+    
+    ; Join verses with blank lines between them
+    join.with:"\n\n" verses
+]

@@ -1,0 +1,11 @@
+def is_isogram (phrase: []u8): bool =
+  let (ok, _) = loop (ok, seen) =
+    (true, replicate 26 false)
+    for i <= length phrase do
+      let c = phrase[i] | 0x20
+      in if c < 'a' || c > 'z'
+         then (ok, seen)
+         else
+            let i = i32.u8 (c - 'a')
+            in (ok && !seen[i], seen with [i] = true)
+  in ok

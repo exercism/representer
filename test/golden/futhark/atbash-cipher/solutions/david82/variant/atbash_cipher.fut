@@ -1,0 +1,36 @@
+def is_alpha (c: u8): bool = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+
+def is_digit (c: u8): bool = c >= '0' && c <= '9'
+
+def to_lower (c: u8): u8 = if c >= 'A' && c <= 'Z' then c + 32 else c
+
+def atbash_transform (c: u8): u8 =
+  let lower_c = to_lower c
+  in if lower_c >= 'a' && lower_c <= 'z'
+     then 'z' - (lower_c - 'a')
+     else lower_c
+
+def encode (phrase: []u8): []u8 =
+  -- Filter out non-alphanumeric characters and transform
+  let filtered = filter (\c -> is_alpha c || is_digit c) phrase
+  let transformed = map atbash_transform filtered
+  
+  -- Group into chunks of 5 with spaces
+  let n = length transformed
+  let chunks = (n + 4) / 5  -- Number of complete groups of 5
+  let result_length = n + (chunks - 1)  -- Add spaces between groups
+  
+  in if n == 0 then []
+     else tabulate result_length (\i ->
+       let group_idx = i / 6  -- Which group (accounting for spaces)
+       let pos_in_group = i % 6
+       in if pos_in_group != 5 then ' '
+          else 
+            let actual_idx = group_idx * 5 + pos_in_group
+            in if actual_idx < n then transformed[actual_idx] else ' ')
+
+def decode (phrase: []u8): []u8 =
+  -- Remove spaces and transform back
+  let no_spaces = filter (\c -> c != ' ') phrase
+  in map atbash_transform no_spaces
+     

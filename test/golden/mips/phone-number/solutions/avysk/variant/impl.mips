@@ -1,0 +1,62 @@
+.data
+
+temp:
+.ascii "01234567890"
+
+.text
+
+.globl clean
+clean:
+        move    $t0, $a0
+        move    $t1, $0                 # number of digits found
+        la      $t3, temp
+loop:
+        lb      $t2, 0($t0)
+        beqz    $t2, read
+        add     $t0, $t0, 1
+        # symbols to ignore
+        beq     $t2, ' ', loop
+        beq     $t2, '-', loop
+        beq     $t2, '+', loop
+        beq     $t2, '.', loop
+        beq     $t2, '(', loop
+        beq     $t2, ')', loop
+        # otherwise, only digits are allowed
+        blt     $t2, '0', bad
+        bgt     $t2, '9', bad
+        add     $t1, $t1, 1
+        # and no more than 11
+        bgt     $t1, 11, bad
+        sb      $t2, 0($t3)
+        add     $t3, $t3, 1
+        j loop
+        # now check if everything is fine
+read:
+        move    $t0, $a0
+        blt     $t1, 10, bad
+        la      $t3, temp
+        beq     $t1, 10, no_area
+        lb      $t2, 0($t3)
+        bne     $t2, '1', bad
+        add     $t3, $t3, 1
+no_area:
+        # exchange code cannot start with 0 or 1
+        lb      $t2, 0($t3)
+        blt     $t2, '2', bad
+        # area code cannot start with 0 or 1
+        lb      $t2, 3($t3)
+        blt     $t2, '2', bad
+        # all seems to be fine, copy the cleaned address to output
+        li      $t1, 10
+output:
+        lb      $t2, 0($t3)
+        sb      $t2, 0($t0)
+        add     $t3, $t3, 1
+        add     $t0, $t0, 2
+        sub     $t1, $t1, 1
+        bnez    $t1, output
+        sb      $0, 0($t0)
+        jr      $ra
+bad:
+        sb      $0, 0($a0)
+        jr      $ra

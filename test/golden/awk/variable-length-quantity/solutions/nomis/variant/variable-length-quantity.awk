@@ -1,0 +1,40 @@
+@include "assert"
+
+function encode(v,  i, s) {
+    if (v == 0) return "00"
+    while (v > 0) {
+        d = and(v, 0x7F)
+        if (i++ > 0) d = or(d, 0x80)
+        s = sprintf("%02X %s", d, s)
+        v = rshift(v, 7)
+    }
+    return substr(s, 1, length(s)+1)
+}
+
+action == "encode" {
+    for (i=1; i<=NF; ++i) {
+        printf "%s%s", sep, encode(strtonum("0x"$i))
+        sep = " "
+    }
+}
+
+action == "decode" {
+    v = 0
+    for (i=1; i<=NF; ++i) {
+        b = strtonum("0x"$i)
+        done = and(b, 0x80) == 0
+        b = and(b, 0x7F)
+        v = lshift(v, 7)
+        v = or(v, b)
+        if (done) {
+            printf "%s%02X", sep, v
+            v = 0
+            sep = " "
+        }
+    }
+    assert(done, "incomplete byte sequence")
+}
+
+{
+    assert(action == "encode" || action == "decode", "unknown action")
+}

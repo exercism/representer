@@ -1,0 +1,21 @@
+namespace eval triangle {
+  proc is {type sides} {
+    lassign $sides x y z
+    if {[expr $x + $y >= $z && $x + $z >= $y && $y + $z >= $x && $x > 0 && $y > 0 && $z > 0]} {
+      switch $type {
+        equilateral {
+          return [expr $x == $y && $x == $z && $y == $z]
+        }
+        isosceles {
+          return [expr $x == $y || $x == $z || $y == $z]
+        }
+        scalene {
+          return [expr $x != $y && $x != $z && $y != $z]
+        }
+        default { error [format "Invalid trjangle type: \"%s\"" $type]}
+      }
+    } else {
+      return false
+    }
+  }
+}

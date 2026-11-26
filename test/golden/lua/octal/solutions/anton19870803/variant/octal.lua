@@ -1,0 +1,20 @@
+local CODE_0 = ('0'):byte()
+local CODE_7 = ('7'):byte()
+
+local function oct_to_decimal(str)
+    local value = 0
+    for i = 1, #str do
+        local char_code = str:sub(i, i):byte()
+        if (char_code < CODE_0) or (char_code >= CODE_7) then
+            return 0
+        end
+        value = value * 8 + (char_code - CODE_0)
+    end
+    return value
+end
+
+return function(s)
+    return {
+        to_decimal = function() return oct_to_decimal(s) end
+    }
+end

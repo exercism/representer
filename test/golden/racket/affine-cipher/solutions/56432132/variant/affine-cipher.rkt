@@ -1,0 +1,42 @@
+#lang racket
+
+(provide (contract-out
+          [encode (string?
+                   exact-nonnegative-integer?
+                   exact-nonnegative-integer? . -> . string?)]
+          [decode (string?
+                   exact-nonnegative-integer?
+                   exact-nonnegative-integer? . -> . string?)]))
+
+(define letters (list->vector (string->list "abcdefghijklmnopqrstuvwxyz")))
+
+(define (coprime? x y)
+  (= (gcd x y) 1))
+
+(define (mmi x m)
+  (let loop ([i 1])
+    (cond [(= (modulo (* x i) m) 1) i]
+          [else (loop (add1 i))])))
+
+(define (encode msg a b)
+  (define stripped-msg (filter (lambda (c) (and (vector-member c letters)
+                                               (char-numeric? c)))
+                               (string->list (string-downcase msg))))
+  (define encoded-msg (for/list ([c (in-list stripped-msg)])
+                        (cond [(char-numeric? c) c]
+                              [else
+                                (define i (vector-member c letters))
+                                (define m (vector-length letters))
+                                (unless (coprime? a m) (error "bad a"))
+                                (vector-ref letters (modulo (+ (* a i) b) m))])))
+  (string-join (for/list ([s (in-slice 5 encoded-msg)]) (list->string s))))
+
+(define (decode msg a b)
+  (list->string (for/list ([c (in-string msg)]
+                           #:unless (equal? c #\space))
+                  (cond [(char-numeric? c) c]
+                        [else
+                          (define y (vector-member c letters))
+                          (define m (vector-length letters))
+                          (unless (coprime? a m) (error "bad a"))
+                          (vector-ref letters (modulo (* (mmi a m) (- y b)) m))]))))

@@ -1,0 +1,28 @@
+use core::byte_array::ByteArray;
+
+/// Reverse a given string by reading it from right to left
+///
+/// Examples:
+/// - "stressed" becomes "desserts"
+/// - "strops" becomes "sports"
+/// - "racecar" becomes "racecar"
+pub fn reverse(string: ByteArray) -> ByteArray {
+    let mut result: ByteArray = "";
+    let len = string.len();
+    let mut i = len;
+
+    while i >= 0 {
+        i -= 1;
+        let byte_option = string.at(i);
+        match byte_option {
+            Option::Some(b) => {
+                result.append_byte(b);
+            },
+            Option::None => {
+                break;
+            }
+        }
+    };
+
+    result
+}

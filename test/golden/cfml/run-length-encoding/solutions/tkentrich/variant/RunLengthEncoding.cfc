@@ -1,0 +1,54 @@
+/**
+* Your implementation of the Run Length Encoding exercise
+*/
+component {
+	
+	/**
+	* @returns
+	*/
+	function encode(input) {
+		encoded = "";
+        prev = "";
+        count = 0;
+        for (i = 1; i < input.length(); i++) {
+            curr = mid(input, i, 1);
+            if (curr != prev) {
+                if (prev != "") {
+                    if (count > 1) {
+                        encoded &= count;
+                    }
+                    encoded &= prev;
+                }
+                prev = curr;
+                count = 1;
+            } else {
+                count += 1;
+            }
+        }
+        if (count > 1) {
+            encoded &= count;
+        }
+        encoded &= prev;
+        return encoded;
+	}
+	
+	/**
+	* @returns
+	*/
+    function decode(input) {
+        i = 1;
+        decoded = "";
+        while (i <= input.length()) {
+            char = ""
+            if (val(mid(input,i,1)) > 0) {
+                count = val(mid(input,i,1+input.length()-i));
+                i += toString(count).length();
+            } else {
+                count = 1;
+            }
+            char = mid(input,i++,1);
+            decoded &= RepeatString(char, count);
+        }
+        return decoded;
+    }
+}

@@ -1,0 +1,32 @@
+-module(transpose).
+
+-export([transpose/1]).
+
+transpose([]) -> [];
+transpose(Lines) -> 
+    MaxLength = lists:max(lists:map(fun length/1, Lines)),
+    EqualLines = lists:map(
+        fun(L) -> 
+            L ++ lists:concat(lists:duplicate(MaxLength + length(L), [{added, " "}]))
+        end, Lines),
+    TransposedSquareMatrix = transposeSquareMatrix(EqualLines, []),
+    WithoutTrailing = lists:map(fun removeTrailingSpaces/1, TransposedSquareMatrix),
+    lists:map(
+        fun(Row) ->
+            lists:map(
+                fun 
+                    ({added, " "}) -> $\s;
+                    (Whatever) -> Whatever 
+                end, Row)
+        end, WithoutTrailing).
+
+
+transposeSquareMatrix([[] | _], Acc) -> lists:reverse(Acc);
+transposeSquareMatrix(Lines, Acc) ->
+    FirstLine = lists:map(fun hd/1, Lines),
+    Rest = lists:map(fun tl/1, Lines),
+    transposeSquareMatrix(Rest, [FirstLine | Acc]).
+
+removeTrailingSpaces(Line) -> 
+    ReversedLine = lists:reverse(Line),
+    lists:reverse(lists:dropwhile(fun(Char) -> Char =:= {added, " "} end, ReversedLine)).

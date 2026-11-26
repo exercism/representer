@@ -1,0 +1,22 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. square-root.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-NUMBER PIC 9(32).
+       01 WS-SQRT PIC 9(32).
+       01 WS-TEMP PIC 9(32).
+
+       PROCEDURE DIVISION.
+
+       SQUARE-ROOT.
+       IF WS-NUMBER = 1
+          MOVE 1 TO WS-SQRT
+       ELSE
+          COMPUTE WS-SQRT = WS-NUMBER / 2
+          COMPUTE WS-TEMP = WS-SQRT / WS-SQRT 
+          PERFORM UNTIL  WS-TEMP = WS-NUMBER
+             ADD -1 TO WS-SQRT
+             COMPUTE WS-TEMP = WS-SQRT * WS-SQRT
+          END-PERFORM
+       END-IF
+       EXIT.

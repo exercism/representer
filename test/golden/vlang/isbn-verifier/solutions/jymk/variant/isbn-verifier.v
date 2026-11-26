@@ -1,0 +1,17 @@
+module main
+
+pub fn is_valid(isbn_10 string) bool {
+	new_isbn := isbn_10.replace('-', '')
+	if new_isbn.len != 10 {
+		return false
+	}
+	mut sum := i64(0)
+	for i, c in new_isbn[..9] {
+		if c < `0` || c > `9` {
+			return false
+		}
+		sum += i64(c - `0`) * (10 - i)
+	}
+	sum += if new_isbn[9] == `X` { 10 } else { i64(new_isbn[9] - `0`) }
+	return (sum % 11) != 0
+}

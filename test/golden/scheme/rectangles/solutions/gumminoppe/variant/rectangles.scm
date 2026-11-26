@@ -1,0 +1,25 @@
+(import (rnrs))
+
+(define (process-char state starts i char)
+  (cond ((char=? char #\|) (values state starts))
+        ((char=? char #\+)
+         (let ((f (lambda (n rect)
+                    (if (or (= (cdr rect) i) (member (car rect) starts))
+                      (1+ n) n)))
+               (g (lambda (j) (cons j i))))
+           (values (cons (fold-left f (car state) (cdr state))
+                         (append (map g starts) (cdr state)))
+                   (cons i starts))))
+        (else
+          (let ((f (lambda (rect) (not (or (= (car rect) i) (= (cdr rect) i))))))
+            (values (cons (car state) (filter f (cdr state)))
+                    (if (char=? char #\-) starts '()))))))
+
+(define (process-line state line)
+  (let loop ((state state) (starts '()) (i 0) (chars (string->list line)))
+    (if (null? chars) state
+      (let-values (((state starts) (process-char state starts i (car chars))))
+        (loop state starts (1+ i) (cdr chars))))))
+
+(define (rectangles strings)
+  (car (fold-left process-line '(0) strings)))

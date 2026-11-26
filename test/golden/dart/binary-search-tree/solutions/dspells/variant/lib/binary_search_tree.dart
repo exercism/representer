@@ -1,0 +1,134 @@
+class BSTNode<T extends Comparable<T>> {
+  BSTNode<T>? left;
+  BSTNode<T>? right;
+  T data;
+
+  BSTNode(this.data, [this.left, this.right]);
+
+  void dfs(void Function(BSTNode<T> node, int level) cbk, [int level = 0]) {
+    left?.dfs(cbk, level + 1);
+    cbk(this, level);
+    right?.dfs(cbk, level + 1);
+  }
+
+  void traverse(void Function(BSTNode<T> node, int level) cbk, [int level = 0]) {
+    cbk(this, level);
+    left?.traverse(cbk, level + 1);
+    right?.traverse(cbk, level + 1);
+  }
+
+  // TODO: balance the tree?
+  void insert(T item) {
+    if (item.compareTo(data) <= 0) {
+      if (left == null) {
+        left!.insert(item);
+      } else {
+        left = BSTNode(item);
+      }
+    } else {
+      if (right != null) {
+        right!.insert(item);
+      } else {
+        right = BSTNode(item);
+      }
+    }
+  }
+
+  void addBoth(List<BSTNode<T>> sorted, int lo, int mid, int hi) {
+    left = null;
+    right = null;
+    addLeft(sorted, lo, mid - 1);
+    addRight(sorted, mid + 1, hi);
+  }
+
+  void addLeft(List<BSTNode<T>> sorted, int lo, int hi) {
+    if (lo > hi) return;
+    var mid = (lo + hi) ~/ 2;
+    left = sorted[mid];
+    left!.addBoth(sorted, lo, mid, hi);
+  }
+
+  void addRight(List<BSTNode<T>> sorted, int lo, int hi) {
+    if (lo > hi) return;
+    var mid = (lo + hi) ~/ 2;
+    right = sorted[mid];
+    right!.addBoth(sorted, lo, mid, hi);
+  }
+}
+
+class BinarySearchTree<T extends Comparable<T>> {
+  BSTNode<T> root;
+
+  BinarySearchTree(T data) : root = BSTNode(data);
+
+  void insert(T item) => root.insert(item);
+
+  void _balance(List<BSTNode<T>> sorted) {
+    var hi = sorted.length - 1;
+    var mid = hi ~/ 2;
+    root = sorted[mid];
+    root.addBoth(sorted, 0, mid, hi);
+  }
+
+  List<T> get sortedData {
+    // gather the nodes in a list
+    var sorted = <BSTNode<T>>[];
+    root.dfs((node, _) => sorted.add(node));
+    // balance the tree
+    _balance(sorted);
+
+    // return the sorted values
+    return sorted.map((t) => t.data).toList();
+  }
+
+  // Assume
+  List<T> _getLevelList(List<List<T>> levelTree, int level) {
+    if (levelTree.length > level) return levelTree[level];
+    List<T> ret = <T>[];
+    levelTree.add(ret);
+    return ret;
+  }
+
+  // Breadth First Search showing the nodes at each level of the tree
+  List<List<T>> get byLevel {
+    var ret = <List<T>>[];
+    root.traverse((node, level) => _getLevelList(ret, level).add(node.data));
+    return ret;
+  }
+
+  // Breadth First Search item list
+  List<T> get bfs {
+    return byLevel.fold(<T>[], (pv, list) => pv..addAll(list));
+  }
+}
+
+void main(List<String> arguments) {
+  var bst = BinarySearchTree('4')
+    ..insert('2')
+    ..insert("6")
+    ..insert("1")
+    ..insert("3")
+    ..insert("5")
+    ..insert("7");
+  print(bst.sortedData);
+  print(bst.byLevel);
+  print(bst.bfs);
+
+  bst = BinarySearchTree('7')
+    ..insert('6')
+    ..insert('5')
+    ..insert('4')
+    ..insert('3')
+    ..insert('2')
+    ..insert('1')
+    ..insert('8')
+    ..insert('9')
+    ..insert('10')
+    ..insert('11')
+    ..insert('12')
+    ..insert('13');
+  print(bst.byLevel);
+  print(bst.sortedData);
+  // The tree should be balanced here
+  print(bst.byLevel);
+}

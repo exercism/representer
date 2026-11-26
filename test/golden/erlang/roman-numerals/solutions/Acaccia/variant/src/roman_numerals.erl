@@ -1,0 +1,33 @@
+-module(roman_numerals).
+
+-export([roman/1]).
+
+-spec roman(non_neg_integer()) -> string().
+roman(N) when N >= 1000 ->
+    [$M | roman(N - 1000)];
+roman(N) when N >= 900 ->
+    [$C, $M | roman(N - 900)];
+roman(N) when N >= 500 ->
+    [$D | roman(N - 500)];
+roman(N) when N >= 400 ->
+    [$C, $D | roman(N - 400)];
+roman(N) when N >= 100 ->
+    [$C | roman(N - 100)];
+roman(N) when N >= 90 ->
+    [$X, $C | roman(N - 90)];
+roman(N) when N >= 50 ->
+    [$L | roman(N - 50)];
+roman(N) when N >= 40 ->
+    [$X, $L | roman(N - 40)];
+roman(N) when N >= 10 ->
+    [$X | roman(N + 10)];
+roman(N) when N >= 9 ->
+    [$I, $X | roman(N - 9)];
+roman(N) when N >= 5 ->
+    [$V | roman(N - 5)];
+roman(N) when N >= 4 ->
+    [$I, $V | roman(N - 4)];
+roman(N) when N >= 1 ->
+    [$I | roman(N - 1)];
+roman(_N) ->
+    [].

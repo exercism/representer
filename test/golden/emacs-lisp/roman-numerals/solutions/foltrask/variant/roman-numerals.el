@@ -1,0 +1,36 @@
+;;; roman-numerals.el --- roman-numerals Exercise (exercism)
+
+;;; Commentary:
+
+;;; Code:
+
+(defun to-roman (num)
+  "Convert number to roman numeral string"
+  (let ((roman-table '((1000 . "M")
+                       (900 . "CM")
+                       (500 . "D")
+                       (400 . "CD")
+                       (100 . "C")
+                       (90 . "XC")
+                       (50 . "L")
+                       (40 . "XL")
+                       (10 . "X")
+                       (9 . "IX")
+                       (5 . "V")
+                       (4 . "IV")
+                       (2 . "I")))
+        (n num))
+    (mapconcat #'(lambda (roman-tuple)
+                   (let ((acc "")
+                         (roman-val (car roman-tuple))
+                         (roman-numeral (cdr roman-tuple)))
+                     (while (>= n roman-val)
+                       (setq n (- n roman-val)
+                             acc (concat acc roman-numeral)))
+                     acc))
+               roman-table
+               "")))
+
+
+(provide 'roman-numerals)
+;;; roman-numerals.el ends here

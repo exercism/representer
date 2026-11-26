@@ -1,0 +1,28 @@
+type allergen =
+  | Eggs
+  | Peanuts
+  | Shellfish
+  | Strawberries
+  | Tomatoes
+  | Chocolate
+  | Pollen
+  | Cats
+
+let exp_of_allergen = function
+  | Eggs -> 0
+  | Peanuts -> 2
+  | Shellfish -> 2
+  | Strawberries -> 3
+  | Tomatoes -> 4
+  | Chocolate -> 5
+  | Pollen -> 6
+  | Cats -> 7
+
+let all_allergens =
+  [ Eggs; Peanuts; Shellfish; Strawberries; Tomatoes; Chocolate; Pollen; Cats ]
+
+let allergic_to code allergen =
+  let exp = exp_of_allergen allergen in
+  (code lsr exp) mod 2 = 1
+
+let allergies code = all_allergens |> List.filter (allergic_to code)

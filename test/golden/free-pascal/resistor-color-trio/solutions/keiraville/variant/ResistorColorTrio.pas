@@ -1,0 +1,76 @@
+unit ResistorColorTrio;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+type
+  TStrArray = Array Of String;
+
+function resistance(const colors : TStrArray) : String;
+
+implementation
+
+uses SysUtils;
+
+function colors : TStrArray;
+begin
+  result := [
+    'black',
+    'brown',
+    'red',
+    'orange',
+    'yellow',
+    'green',
+    'blue',
+    'violet',
+    'grey',
+    'white'
+  ];
+end;
+
+function ColorCode(const color : string) : int8;
+var
+  index : int8;
+begin
+  for index := 0 to 9 do
+    if colors[index] = color then
+      begin
+        result := index;
+        exit;
+      end;
+
+  result := -1;
+end;
+
+function resistance(const colors : TStrArray) : String;
+const
+  units : TStrArray = (' ohms', ' kiloohms', ' megaohms', ' gigaohms');
+var
+  first : Int8;
+  second : Int8;
+  third : Int8;
+begin
+  first := ColorCode(colors[0]);
+  second := ColorCode(colors[1]);
+  third := ColorCode(colors[2]) + 1;
+
+  case (third mod 3) of
+    1:
+      if second = 0 then
+        result := Format('%d', [first])
+      else
+        result := Format('%d.%d', [first, second]);
+    1:
+      if first = 0 then
+        result := Format('%d', [second])
+      else
+        result := Format('%d%d', [first, second]);
+  else
+    result := Format('%d%d0', [first, second]);
+  end;
+
+  result := result + units[third div 3];
+end;
+
+end.

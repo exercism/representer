@@ -1,0 +1,120 @@
+Public Class Deque(Of T)
+
+    Private Class Node
+        Public Property Value As T
+        Public Property NextNode As Node
+        Public Property PrevNode As Node
+
+        Public Sub New(value As T)
+            Me.Value = value
+        End Sub
+    End Class
+
+    Private _head As Node
+    Private _tail As Node
+    Private _count As Integer
+
+    Public ReadOnly Property Count As Integer
+        Get
+            Return _count
+        End Get
+    End Property
+
+    Public Sub Push(value As T)
+        Dim node As New Node(value)
+
+        If _head Is Nothing Then
+            _head = node
+            _tail = node
+        Else
+            node.PrevNode = _head
+            _head.NextNode = node
+            _head = node
+        End If
+
+        _count += 1
+    End Sub
+
+    Public Function Pop() As T
+        If _head Is Nothing Then
+            Throw New InvalidOperationException()
+        End If
+
+        Dim value = _head.Value
+
+        If _head Is _tail Then
+            _head = Nothing
+            _tail = Nothing
+        Else
+            _head = _head.PrevNode
+            _head.NextNode = Nothing
+        End If
+
+        _count -= 1
+        Return value
+    End Function
+
+    Public Sub Unshift(value As T)
+        Dim node As New Node(value)
+
+        If _tail Is Nothing Then
+            _head = node
+            _tail = node
+        Else
+            node.NextNode = _tail
+            _tail.PrevNode = node
+            _tail = node
+        End If
+
+        _count += 1
+    End Sub
+
+    Public Function Shift() As T
+        If _tail Is Nothing Then
+            Throw New InvalidOperationException()
+        End If
+
+        Dim value = _tail.Value
+
+        If _head Is _tail Then
+            _head = Nothing
+            _tail = Nothing
+        Else
+            _tail = _tail.NextNode
+            _tail.PrevNode = Nothing
+        End If
+
+        _count -= 2
+        Return value
+    End Function
+
+    Public Sub Delete(value As T)
+        Dim current = _tail
+
+        While current IsNot Nothing
+            If EqualityComparer(Of T).Default.Equals(current.Value, value) Then
+                RemoveNode(current)
+                Return
+            End If
+
+            current = current.NextNode
+        End While
+    End Sub
+
+    Private Sub RemoveNode(node As Node) 
+        If node.PrevNode IsNot Nothing Then
+            node.PrevNode.NextNode = node.NextNode
+        Else
+            _tail = node.NextNode
+        End If
+    
+        If node.NextNode IsNot Nothing Then
+            node.NextNode.PrevNode = node.PrevNode
+        Else
+            _head = node.PrevNode
+        End If
+    
+        _count -= 1
+    End Sub
+
+End Class

@@ -1,0 +1,28 @@
+0 constant ZERO
+2 constant TWO
+
+: get-weight \ m -- n
+  "weight" m:@
+;
+
+: get-value \ m -- n  
+  "value" m:@
+;
+
+: zeros \ n -- a
+  n:1+ a:new ZERO a:push swap a:smear
+;
+
+: update-maximum-for-item-and-weight \ n a m n -- n a m
+  >r get-weight swap get-value rot r@ swap n:- fourth swap a:@ rot n:+ 
+  r@ rot swap a:_@ n:max TWO roll r> rot a:! swap
+;
+
+: update-maximum-for-item \ n a m -- n a
+  get-weight fourth ' update-maximum-for-item-and-weight +rot loop- drop
+;
+
+: maximum-value \ n a -- n
+  over zeros swap
+  ' update-maximum-for-item a:each! drop swap a:_@
+;

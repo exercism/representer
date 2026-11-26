@@ -1,0 +1,20 @@
+# These variables are initialized on the command line (using '-v'):
+# -direction
+
+BEGIN {
+    abc_forward = "abcdefghijklmnopqrstuvwxyz1234567890"
+    abc_backward = "zyxwvutsrqponmlkjihgfedcba1234567890"
+    split(abc_backward, encode, "")
+    FS = ""
+}
+
+{
+    gsub(/[ .,]/, "")
+    $0 = tolower($0);
+    for (i = 1; i <= NF; i++) {
+        pos = index(abc_forward, $i)
+        printf encode[pos]
+        if( direction == "encode" || i % 5 == 0 && i != NF)
+            printf " "
+    }
+}

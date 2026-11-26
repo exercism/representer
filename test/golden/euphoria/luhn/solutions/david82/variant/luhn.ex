@@ -1,0 +1,33 @@
+constant DOUBLE_DIGIT = 2
+constant REDUCTION_VALUE = 9
+constant CHECKSUM_DIVISOR = 10
+
+public function reverseSequence(sequence inputSequence)
+    sequence reversedSequence = ""
+    for index = length(inputSequence) to 1 by -1 do
+        if inputSequence[index] != ' ' then reversedSequence &= inputSequence[index] end if
+    end for
+    return reversedSequence
+end function
+
+public function calculateChecksum(sequence reversedSequence)
+    integer checksum = 0, currentDigit
+    for index = 1 to length(reversedSequence) do
+        currentDigit = reversedSequence[index] - '0'
+        if currentDigit < 0 or currentDigit > REDUCTION_VALUE then return -1 end if
+        if remainder(index, DOUBLE_DIGIT) = 0 then
+            currentDigit *= DOUBLE_DIGIT
+            if currentDigit >= REDUCTION_VALUE then currentDigit -= REDUCTION_VALUE end if
+        end if
+        checksum += currentDigit
+    end for
+    return checksum
+end function
+
+public function valid(sequence inputSequence) 
+    sequence reversedSequence = reverseSequence(inputSequence)
+    if length(reversedSequence) <= 1 then return 0 end if
+    integer checksum = calculateChecksum(reversedSequence)
+    if checksum < 0 then return 0 end if
+    return remainder(checksum, CHECKSUM_DIVISOR) = 0
+end function

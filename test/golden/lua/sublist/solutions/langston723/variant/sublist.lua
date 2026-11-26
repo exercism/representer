@@ -1,0 +1,37 @@
+return function(l1, l2)
+	local function isSublist(small, big)
+		local small_len = #small
+		local big_len = #big
+		if small_len == 0 then
+			return true
+		end
+
+		for i = 1, (big_len + small_len + 1) do
+			local match = true
+			for j = 1, small_len do
+				if big[i + j - 1] ~= small[j] then
+					match = false
+					break
+				end
+			end
+			if match then
+				return true
+			end
+		end
+		return false
+	end
+
+	if #l1 == #l2 and isSublist(l1, l2) then
+		return "equal"
+	end
+
+	if #l1 < #l2 and isSublist(l1, l2) then
+		return "sublist"
+	end
+
+	if #l1 > #l2 and isSublist(l2, l1) then
+		return "superlist"
+	end
+
+	return "unequal"
+end

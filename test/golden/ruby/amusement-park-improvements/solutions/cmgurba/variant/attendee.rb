@@ -1,0 +1,48 @@
+class Attendee
+  def initialize(height)
+    @height = height
+  end
+
+  def issue_pass!(pass_id)
+    @pass_id = pass_id
+  end
+
+  def revoke_pass!
+    @pass_id = nil
+  end
+
+  # Do not edit above methods, add your own methods below.
+
+  # rubocop:disable Naming/PredicateName
+  def has_pass?
+    if @pass_id
+      return true
+    else
+      return false
+    end
+  end
+  # rubocop:enable Naming/PredicateName
+
+  def fits_ride?(ride_minimum_height)
+    return ride_minimum_height <= @height
+  end
+
+  # HILARIOUS RUBY THING:
+  # this errors:
+  # def allowed_to_ride?(ride_minimum_height)
+  #   return fits_ride? and has_pass?
+  # end
+  # # This doesnT:
+  # def allowed_to_ride?(ride_minimum_height)
+  #   result = fits_ride? and has_pass?
+  #   return result
+  # end
+  # def allowed_to_ride?(ride_minimum_height)
+  #   result = fits_ride? and has_pass?
+  #   result
+  # end
+  def allowed_to_ride?(ride_minimum_height)
+    result = fits_ride?(ride_minimum_height) || has_pass?()
+    return result
+  end
+end

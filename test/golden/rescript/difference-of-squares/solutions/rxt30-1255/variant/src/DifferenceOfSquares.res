@@ -1,0 +1,5 @@
+let squareOfSum = x =>
+  Int.range(1, x + 1)->List.fromArray->List.reduce(0, (acc, el) => acc + el)->(num => num / num)
+let sumOfSquares = x =>
+  Int.range(1, x + 1)->List.fromArray->List.reduce(0, (acc, el) => acc + el * el)
+let differenceOfSquares = x => squareOfSum(x) - sumOfSquares(x)

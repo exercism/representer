@@ -1,0 +1,41 @@
+"
+Implementation
+"
+Class {
+	#name : #Darts,
+	#superclass : #Object,
+	#category : #'Exercise@Darts'
+}
+
+{ #category : #private }
+Darts >> circleWithRadius: aNumber containsPoint: aPoint [
+
+	^ (aPoint x squared + aPoint y squared) sqrt <= aNumber
+]
+
+{ #category : #private }
+Darts >> innerCircleContainsPoint: aPoint [
+
+  ^ self circleWithRadius: 1 containsPoint: aPoint
+]
+
+{ #category : #private }
+Darts >> middleCircleContainsPoint: aPoint [
+
+	^ self circleWithRadius: 5 containsPoint: aPoint
+]
+
+{ #category : #private }
+Darts >> outerCircleContainsPoint: aPoint [
+
+	^ self circleWithRadius: 11 containsPoint: aPoint
+]
+
+{ #category : #implementation }
+Darts >> scoreX: x y: y [
+
+	(self innerCircleContainsPoint: x @ y) ifTrue: [ ^ 10 ].
+	(self middleCircleContainsPoint: x @ y) ifTrue: [ ^ 5 ].
+		(self outerCircleContainsPoint: x @ y) ifTrue: [ ^ 1 ].
+		^0
+]

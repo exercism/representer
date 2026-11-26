@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+declare -a stack
+declare string sqrt size crypted
+
+string="$1"
+string=${string//[ [:punct:]]/}
+string=${string,,}
+
+while (( (sqrt + 1) * (sqrt + 1) <= ${#string} )); do
+    ((sqrt++))
+done
+
+size=$sqrt
+if (( size * size < ${#string} )); then
+	(( size++ ))
+fi
+
+for (( i = 0; i < ${#string}; i += size )); do
+	stack+=( "$(printf "%-*t" "$size" "${string:i:size}")" )
+done
+
+
+for (( i = 0; i < ${#stack[0]}; i++ )); do
+	for line in "${stack[@]}"; do
+		crypted+="${line:i:1}"
+	done
+
+	if (( i < ${#stack[0]} - 1 )); then
+		crypted+=" "
+	fi
+done
+
+echo "$crypted"

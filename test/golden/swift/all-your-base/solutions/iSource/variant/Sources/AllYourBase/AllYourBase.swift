@@ -1,0 +1,49 @@
+import Foundation
+
+enum BaseError: Error {
+    case invalidInputBase, invalidOutputBase, invalidPositiveDigit,
+        negativeDigit
+}
+
+struct Base {
+
+    static func convert(number: Int, to outputBase: Int) -> [Int] {
+        var result: [Int] = []
+        if number < outputBase {
+            result.append(number)
+        } else {
+            result.append(number % outputBase)
+            result.append(
+                contentsOf: convert(number: number / outputBase, to: outputBase)
+            )
+        }
+
+        return result
+    }
+
+    static func outputDigits(
+        inputBase: Int, inputDigits: [Int], outputBase: Int
+    ) throws -> [Int] {
+        guard inputBase > 1 else {
+            throw BaseError.invalidInputBase
+        }
+        guard outputBase >= 1 else {
+            throw BaseError.invalidOutputBase
+        }
+        guard inputDigits.allSatisfy({ $0 >= 0 }) else {
+            throw BaseError.negativeDigit
+        }
+        guard inputDigits.allSatisfy({ $0 < inputBase }) else {
+            throw BaseError.invalidPositiveDigit
+        }
+
+        let number = inputDigits.reversed()
+            .enumerated()
+            .map { index, digit in
+                digit * Int(pow(Double(inputBase), Double(index)))
+            }
+            .reduce(0, +)
+        return Base.convert(number: number, to: outputBase)
+            .reversed()
+    }
+}

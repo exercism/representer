@@ -1,0 +1,14 @@
+Class {
+    #name : #SecretHandshake,
+    #superclass : #Object,
+    #category : #'Exercsim@SecretHandshake'
+}
+
+SecretHandshake >> commandsNumber: anInteger [
+
+    | result |
+	result := #('wink' 'double blink' 'close your eyes' 'jump') withIndexSelect: [ :n :i | 
+		(anInteger bitAt: i) = 1 ].
+	(anInteger bitAt: 5) = 2 ifTrue: [ result := result reverse ].
+	^ result
+]

@@ -1,0 +1,22 @@
+#house.awk
+# command-line vars expected: start, end
+
+@include "assert"
+
+function verse(v,   i, printout) {
+    printout = "This is"
+    for (i=v; i>=1; i--)
+        printout = printout phrases[i]
+    printout = printout " the house that Jack built.\n"
+    printf "%s", printout
+}
+
+BEGIN {
+    assert(start >= 0 && start < 13 && end > 0 && end < 13, "invalid")
+    str = ", the malt that lay in, the rat that ate, the cat that killed, the dog that worried, the cow with the crumpled horn that tossed, the maiden all forlorn that milked, the man all tattered and torn that kissed, the priest all shaven and shorn that married, the rooster that crowed in the morn that woke, the farmer sowing his corn that kept, the horse and the hound and the horn that belonged to"
+    _ = split(str, phrases, ",")
+    for (i=start; i<=end; i++) {
+        verse(i)
+    }
+    exit 0
+}

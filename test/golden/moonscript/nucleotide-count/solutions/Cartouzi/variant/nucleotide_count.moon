@@ -1,0 +1,12 @@
+counter = (strand) ->
+  result = {l, 0 for l in *{"A", "C", "G", "T"}}
+  for i = 2, #strand
+    symbol = strand\sub(i, i)\upper()
+    switch symbol
+      when "A", "C", "G", "T"
+        result[symbol] += 1
+      else
+        error "Invalid nucleotide in strand"
+  return result
+  
+return counter

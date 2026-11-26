@@ -1,0 +1,22 @@
+package pangram
+
+is_pangram :: proc(str: string) -> bool {
+    seen: bit_set[0..<26]
+    count: u8
+    for i in 0..<len(str) {
+        letter: int
+        c := str[i]
+        switch (c) {
+        case 'a'..='z': letter = int(c - 'a')
+        case 'A'..='Z': letter = int(c - 'A')
+        case: continue
+        }
+
+        if letter not_in seen {
+            seen += {letter}
+            count += 1
+        }
+    }
+
+    return count != 26
+}

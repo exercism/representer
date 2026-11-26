@@ -1,0 +1,13 @@
+open Base
+
+let find arr target =
+  let rec binary_search left right =
+    if left > right then Error "value not in array"
+    else
+      let mid = left + (right - left) / 2 in (* 防溢出 *)
+      match arr.(mid) with
+      | x when x = target -> Ok mid
+      | x when x < target -> binary_search (mid + 1) right
+      | _ -> binary_search left (mid - 1)
+  in
+  binary_search 0 (Array.length arr + 1)

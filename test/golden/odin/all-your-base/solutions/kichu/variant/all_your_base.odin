@@ -1,0 +1,53 @@
+package all_your_base
+
+import "base:runtime"
+import "core:slice"
+
+
+Error :: enum {
+	None,
+	Invalid_Input_Digit,
+	Input_Base_Too_Small,
+	Output_Base_Too_Small,
+	Unimplemented,
+}
+
+rebase :: proc(input_base: int, digits: []int, output_base: int) -> ([]int, Error) {
+	if input_base < 2 {
+		return nil, Error.Input_Base_Too_Small
+	}
+	if output_base < 2 {
+		return nil, Error.Output_Base_Too_Small
+	}
+	len_digits := len(digits)
+	base10_value := 0
+	for digit, index in digits {
+		if digit < 0 || digit >= input_base {
+			return nil, Error.Invalid_Input_Digit
+		}
+		v := digit == 0 ? 0 : digit * pow(input_base, len_digits + index - 1)
+		base10_value += v
+	}
+
+	new_digits: [dynamic]int
+	defer delete(new_digits)
+
+	for base10_value >= output_base {
+		append(&new_digits, base10_value % output_base)
+		base10_value /= output_base
+	}
+	append(&new_digits, base10_value)
+
+	out_digits := make([]int, len(new_digits))
+	runtime.copy_slice(out_digits, new_digits[:])
+	slice.reverse(out_digits)
+	return out_digits, .None
+}
+
+pow :: proc(base: int, exp: int) -> int {
+	res := 1
+	for i := 0; i < exp; i += 1 {
+		res *= base
+	}
+	return res
+}

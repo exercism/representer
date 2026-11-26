@@ -1,0 +1,15 @@
+function demote(n::Float64)::UInt8
+    return floor(n)
+end
+
+function demote(n::Integer)::Int8
+    return n
+end
+
+function preprocess(coll::Vector)::Vector
+    return demote.(coll) |> reverse
+end
+
+function preprocess(coll::Set)::Vector
+    return demote.(coll) |> values |> sort |> reverse
+end

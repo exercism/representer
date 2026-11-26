@@ -1,0 +1,125 @@
+module triangle
+   implicit none
+
+   interface equilateral
+      module procedure equilateral_real
+      module procedure equilateral_int
+   end interface
+
+   interface scalene
+      module procedure scalene_real
+      module procedure scalene_int
+   end interface
+
+   interface isosceles
+      module procedure isosceles_real
+      module procedure isosceles_int
+   end interface
+
+   private
+
+   public equilateral, isosceles, scalene
+
+contains
+
+   pure integer function in_range(n)
+      integer, intent(in) :: n
+      in_range = mod(n, 3)
+      if (in_range == 0) then
+         in_range = 3
+      end if
+   end function
+
+   pure logical function valid_triangle_real(edges)
+      real, dimension(3), intent(in) :: edges
+      integer :: i
+
+      do i = 1, 3
+         if (edges(i) > edges(in_range(i + 1)) + edges(in_range(i + 2))) then
+            valid_triangle_real = .false.
+            return
+         end if
+      end do
+
+      valid_triangle_real = all(edges > 0)
+
+   end function
+
+   pure logical function valid_triangle_int(edges)
+      integer, dimension(3), intent(in) :: edges
+      integer :: i
+
+      do i = 1, 3
+         if (edges(i) >= edges(in_range(i + 1)) + edges(in_range(i + 2))) then
+            valid_triangle_int = .false.
+            return
+         end if
+      end do
+
+      valid_triangle_int = all(edges > 0)
+
+   end function
+
+   pure logical function equilateral_real(edges)
+      real, dimension(3), intent(in) :: edges
+      equilateral_real = ( &
+                         valid_triangle_real(edges) .and. &
+                         ( &
+                         (edges(1) == edges(2)) .and. &
+                         (edges(2) == edges(3)) &
+                         ) &
+                         )
+   end function
+
+   pure logical function equilateral_int(edges)
+      integer, dimension(3), intent(in) :: edges
+      equilateral_int = ( &
+                        valid_triangle_int(edges) .and. &
+                        ( &
+                        (edges(1) == edges(2)) .and. &
+                        (edges(2) == edges(3)) &
+                        ) &
+                        )
+   end function
+
+   pure logical function isosceles_real(edges)
+      real, dimension(3), intent(in) :: edges
+      isosceles_real = ( &
+                       valid_triangle_real(edges) .and. &
+                       ( &
+                       (edges(1) == edges(2)) .or. &
+                       (edges(2) == edges(3)) .or. &
+                       (edges(1) == edges(3)) &
+                       ) &
+                       )
+   end function
+
+   pure logical function isosceles_int(edges)
+      integer, dimension(3), intent(in) :: edges
+      isosceles_int = ( &
+                      valid_triangle_int(edges) .and. &
+                      ( &
+                      (edges(1) == edges(2)) .or. &
+                      (edges(2) == edges(3)) .or. &
+                      (edges(1) == edges(3)) &
+                      ) &
+                      )
+   end function
+
+   pure logical function scalene_real(edges)
+      real, dimension(3), intent(in) :: edges
+      scalene_real = ( &
+                     valid_triangle_real(edges) .and. &
+                     (.not. isosceles_real(edges)) &
+                     )
+   end function
+
+   pure logical function scalene_int(edges)
+      integer, dimension(3), intent(in) :: edges
+      scalene_int = ( &
+                    valid_triangle_int(edges) .and. &
+                    (.not. isosceles_int(edges)) &
+                    )
+   end function
+
+end module

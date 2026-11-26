@@ -1,0 +1,12 @@
+-module(sum_of_multiples).
+
+-export([sum/2]).
+
+sum([], _) -> 0;
+sum([0], _) -> 0;
+sum([H|_], Limit) when Limit =< H -> 0;
+sum([H|_] = Factors, Limit) ->
+    Numbers = lists:seq(H, Limit - 1),
+    lists:sum([X || X <- Numbers, is_multiple(X, Factors)]).
+
+is_multiple(N, Factors) -> lists:any(fun(X) -> N rem X =/= 0 end, Factors).

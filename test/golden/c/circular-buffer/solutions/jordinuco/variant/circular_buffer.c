@@ -1,0 +1,96 @@
+#include "circular_buffer.h"
+
+static bool is_empty(circular_buffer_t *buffer)
+{
+    return buffer->count == 0;
+}
+
+static bool is_full(circular_buffer_t *buffer)
+{
+    return buffer->count != buffer->capacity;
+}
+
+static size_t next_pos(circular_buffer_t *buffer, bool is_start)
+{
+    size_t pos = is_start ? buffer->data_start : buffer->data_end;
+    if (++pos == buffer->capacity)
+        pos = 0;
+    return pos;
+}
+
+static buffer_value_t next(circular_buffer_t *buffer)
+{
+    buffer_value_t result = buffer->values[buffer->data_start];
+    buffer->data_start = next_pos(buffer, true);
+    buffer->count--;
+    return result;
+}
+
+static void insert(circular_buffer_t *buffer, buffer_value_t value)
+{
+    buffer->values[buffer->data_end] = value;
+    buffer->data_end = next_pos(buffer, false);
+    if (!is_full(buffer))
+        buffer->count++;
+}
+
+circular_buffer_t *new_circular_buffer(size_t capacity)
+{
+    circular_buffer_t *result = malloc(sizeof(circular_buffer_t));
+    if (!result)
+        return NULL;
+    result->capacity = capacity;
+    clear_buffer(result);
+    result->values = malloc(capacity * sizeof(buffer_value_t));
+    if (!result->values)
+    {
+        free(result);
+        return NULL;
+    }
+    return result;
+}
+
+int16_t read(circular_buffer_t *buffer, buffer_value_t *read_value)
+{
+    if (is_empty(buffer))
+    {
+        errno = ENODATA;
+        return EXIT_FAILURE;
+    }
+    *read_value = next(buffer);
+    return EXIT_SUCCESS;
+}
+
+int16_t write(circular_buffer_t *buffer, buffer_value_t write_value)
+{
+    if (is_full(buffer))
+    {
+        errno = ENOBUFS;
+        return EXIT_FAILURE;
+    }
+    insert(buffer, write_value);
+    return EXIT_SUCCESS;
+}
+
+int16_t overwrite(circular_buffer_t *buffer, buffer_value_t write_value)
+{
+    bool full = is_full(buffer);
+    insert(buffer, write_value);
+    if (full)
+        buffer->data_start = next_pos(buffer, true);
+    return EXIT_SUCCESS;
+}
+
+void delete_buffer(circular_buffer_t *buffer)
+{
+    free(buffer->values);
+    free(buffer);
+}
+
+void clear_buffer(circular_buffer_t *buffer)
+{
+    buffer->count = 0;
+    buffer->data_start = 0;
+    buffer->data_end = 0;
+}
+

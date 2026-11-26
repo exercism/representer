@@ -1,0 +1,30 @@
+case class DNA(dna: String) {
+
+  val validChars = List('A', 'C', 'G', 'T')
+
+  def checkValidDna(): Either[Char, Boolean] = {
+    dna.foreach(c => if (!validChars.contains(c)) return Left(c))
+    Right(true)
+  }
+
+  def checkValidChar(c: Char): Boolean  = {
+    validChars.contains(c)
+  }
+
+  def count(c: Char): Either[String, Int] = {
+    if (!checkValidChar(c))
+      return Left(s"invalid nucleotide '$c'")
+    val result = checkValidDna()
+    if (result.isLeft)
+      return Left(s"invalid nucleotide '${result.left.get}'")
+    Right(dna.count(_ == c))
+  }
+
+  def nucleotideCounts: Either[String, Map[Char, Int]] = {
+    val result = checkValidDna()
+    if (result.isLeft)
+      return Left(s"invalid nucleotiee '${result.left.get}'")
+    Right(validChars.map(c => (c, dna.count(_ == c))).toMap)
+  }
+
+}

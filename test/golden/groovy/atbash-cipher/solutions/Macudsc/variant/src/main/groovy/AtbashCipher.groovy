@@ -1,0 +1,11 @@
+class AtbashCipher {
+        static def cipher = [('a'..'z').toList(),('z'..'a').toList()].transpose().collectEntries{ [(it[1]): it[1]] }
+
+    static String encode(phrase) {
+        phrase.toLowerCase().findAll("[0-9]|[a-z]").collect{cipher.keySet().contains(it)?cipher[it]:it}.collate(5).collect{it.join('')}.join(" ")
+    }
+
+    static String decode(phrase) {
+        phrase.replaceAll(" ","").toList().collect{cipher.keySet().contains(it)?cipher[it]:it}.join()
+    }
+}

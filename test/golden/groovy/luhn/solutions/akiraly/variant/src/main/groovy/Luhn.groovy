@@ -1,0 +1,24 @@
+import static java.lang.Character.getNumericValue
+
+class Luhn {
+
+  static boolean valid(String value) {
+    value = value.replace(' ', '')
+
+    if (value.length() <= 1) return false
+
+    def chars = value.getChars()
+
+    def sum = 0
+
+    for (int i = chars.length - 1; i >= 0; i--) {
+      if (!chars[i].isDigit()) return false
+      def n = getNumericValue(chars[i])
+      if ((chars.length - i) % 2 == 1) sum += n
+      else sum += n <= 5 ? 2 * n : 2 * n - 9
+    }
+
+    sum % 10 == 0
+  }
+
+}

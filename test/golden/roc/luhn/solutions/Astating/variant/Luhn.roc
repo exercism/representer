@@ -1,0 +1,54 @@
+Luhn :: {}.{
+	valid : Str -> Bool
+	valid = |digits| digits
+		|> parse_digits()
+        .map_ok(apply_luhn_formula)
+        .map_ok(check_luhn_sum)
+        ?? False
+}
+
+parse_digits : Str -> Try(List(U8), [NotADigit, StringTooShort, ..])
+parse_digits = |digits| {
+    utf8 = digits
+        .replace_each(" ", "")
+        .to_utf8()
+
+    if utf8.len() < 1
+        return Err(StringTooShort)
+
+    utf8.map_try(parse_digit)
+}
+
+parse_digit : U8 -> Try(U8, [NotADigit, ..])
+parse_digit = |ascii_digit|
+    if ascii_digit >= '0' and ascii_digit <= '9'
+        Ok(ascii_digit - '0')
+    else
+        Err(NotADigit)
+
+apply_luhn_formula : List(U8) -> U16
+apply_luhn_formula = |digits| digits
+    .rev()
+    .map_with_index(|digit, index|
+        U8.to_u16(
+            if index.is_even()
+                digit
+            else
+                luhn_double(digit)
+        )
+    )
+    .sum()
+
+luhn_double : U8 -> U8
+luhn_double = |digit| {
+    doubled = digit * 2
+
+    if doubled > 9
+        doubled - 9
+    else
+        doubled
+}
+
+check_luhn_sum : U16 -> Bool
+check_luhn_sum = |sum| sum % 10 == 0
+

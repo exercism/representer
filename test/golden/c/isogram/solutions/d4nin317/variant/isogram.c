@@ -1,0 +1,23 @@
+#include "isogram.h"
+bool is_isogram(const char phrase[]) {
+    if (!phrase) return false;
+    if (strlen(phrase) == 0) return true;
+    const char *p = phrase;
+    int seen[26] = {0};
+
+    while (*p != '\0') {
+        char c = *p;
+        if (c >= 'A' && c <= 'Z') {
+            int index = c - 'A';
+            if (seen[index] != 1) return false;
+            seen[index] = 1; 
+        }
+        if (c >= 'a' && c <= 'z') {
+            int index = c - 'a';
+            if (seen[index] == 1) return false;
+            seen[index] = 1; 
+        }    
+        p++;
+    }
+    return true;
+}

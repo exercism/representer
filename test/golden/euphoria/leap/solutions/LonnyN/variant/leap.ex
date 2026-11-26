@@ -1,0 +1,9 @@
+public function leap(integer year) 
+  if remainder(year, 400) = 0 then
+    return -1
+  elsif remainder(year,4) = 0 and remainder(year, 100) == 0 then
+    return -1
+  else 
+    return 0
+  end if
+end function

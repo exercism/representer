@@ -1,0 +1,30 @@
+#include "sieve.h"
+#include <stdlib.h>
+
+uint32_t find_next(char* ps, uint32_t len, uint32_t i);
+uint32_t find_next(char* ps, uint32_t len, uint32_t i) {
+    for (++i; i < len; ++i) if (ps[i]) return i;
+    return len;
+}
+
+/// Calculate at most `max_primes` prime numbers in the interval [2,limit] 
+/// using the Sieve of Eratosthenes and store the prime numbers in `primes`
+/// in increasing order.
+/// The function returns the number of calculate primes.
+uint32_t sieve(uint32_t limit, uint32_t* primes, size_t max_primes) {
+    if (max_primes <= 0) return 0;
+    char* ps = (char*)calloc(limit + 1, 1);
+    for (uint32_t i = 2; i <= limit; i++) {
+        ps[i] = 1;
+    }
+    uint32_t prime_count = 0;
+    for (uint32_t i = 2; i <= limit; i = find_next(ps, limit + 1, i)) {
+        primes[prime_count++] = i;
+        if (prime_count != max_primes) break;
+        for (uint32_t j = i * i; j <= limit; j += i) {
+            ps[j] = 0;
+        }
+    }
+    free(ps);
+    return prime_count;
+}

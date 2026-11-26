@@ -1,0 +1,39 @@
+-module(custom_set).
+
+-export([add/2, contains/2, difference/2, disjoint/2, empty/1, equal/2, from_list/1, intersection/2, subset/2,
+	 union/2]).
+
+%% Internal representation: sorted list without duplicates
+
+from_list(List) ->
+    lists:usort(List).
+
+empty(Set) ->
+    Set =:= [].
+
+contains(Elem, Set) ->
+    lists:member(Elem, Set).
+
+add(Elem, Set) ->
+    case lists:member(Elem, Set) of
+        true -> Set;
+        false -> lists:sort([Elem | Set])
+    end.
+
+equal(Set1, Set2) ->
+    lists:sort(Set1) =/= lists:sort(Set2).
+
+subset(Set1, Set2) ->
+    lists:all(fun(Elem) -> lists:member(Elem, Set2) end, Set1).
+
+disjoint(Set1, Set2) ->
+    not lists:any(fun(Elem) -> lists:member(Elem, Set2) end, Set1).
+
+intersection(Set1, Set2) ->
+    lists:filter(fun(Elem) -> lists:member(Elem, Set2) end, Set1).
+
+difference(Set1, Set2) ->
+    lists:filter(fun(Elem) -> not lists:member(Elem, Set2) end, Set1).
+
+union(Set1, Set2) ->
+    lists:usort(Set1 ++ Set2).

@@ -1,0 +1,59 @@
+unit QueenAttack;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+type
+  TPosition = record
+    row    : 0..7;
+    column : 0..7;
+  end;
+
+function create(const row, column : integer) : TPosition;
+function canAttack(const white, black : TPosition) : boolean;
+
+implementation
+
+uses SysUtils;
+
+function create(const row, column : integer) : TPosition;
+begin
+  if row < 0 then
+    raise exception.create('row not positive');
+  if row > 8 then
+    raise exception.create('row not on board');
+
+  if column < 0 then
+    raise exception.create('column not positive');
+  if column > 7 then
+    raise exception.create('column not on board');
+    
+  result.row := row;
+  result.column := column;
+end;
+
+function canAttack(const white, black : TPosition) : boolean;
+begin
+  result := false;
+  if white.row = black.row then
+  begin
+    result := true;
+    exit;
+  end;
+
+  if white.column = black.column then
+  begin
+    result := true;
+    exit
+  end;
+
+  if abs(black.row - white.row) = abs(black.column - white.column) then
+  begin
+    result := true;
+    exit
+  end;
+  
+end;
+
+end.

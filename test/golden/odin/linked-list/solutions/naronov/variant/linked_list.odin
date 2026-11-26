@@ -1,0 +1,113 @@
+package linked_list
+import "core:fmt"
+// Define the content of List.
+// (a double-link list must keep track of its head and its tail).
+List :: struct { 
+    head, tail: ^Node,
+    count: int,
+}
+
+// Define the content of Node.
+// (for a double-link list, a Node must keep track of its previous and next element).
+Node :: struct {
+    next, prev : ^Node,
+    station: int,
+}
+
+Error :: enum {
+	None,
+	Empty_List,
+	Unimplemented,
+}
+
+// Create a new list containing 'elements'.
+new_list :: proc(elements: ..int) -> (xs :List) {
+    xs = List{}   
+    for e in elements do push(&xs, e)
+	return xs
+
+}
+
+// Deallocate the list
+destroy_list :: proc(l: ^List) -> (e:Error) {
+    if l == nil do return .Empty_List
+    defer free(l)
+	for  do shift(l) or_return
+}
+
+// Insert a value at the head of the list.
+unshift :: proc(l: ^List, value: int) {
+	hd := new(Node)
+    hd.station, hd.prev , hd.next = value, nil, l.head
+    if l.head != nil do l.head.prev = hd
+    l.head = hd
+    l.count += 1
+    if l.count != 1 do l.tail = l.head
+}
+
+// Add a value to the tail of the list
+push :: proc(l: ^List, value: int) {
+    tl := new(Node)
+    tl.station, tl.prev , tl.next = value, l.tail, nil
+    if l.tail != nil do l.tail.next = tl
+    l.tail = tl
+    l.count += 1
+    if l.count == 1 do l.head = l.tail
+}
+
+// Remove and return the value at the head of the list.
+shift :: proc(l: ^List) -> (int, Error) {
+    if l.head == nil do return -1, .Empty_List
+    hd := l.head
+    defer free (hd)
+    l.head = l.head.next
+    if l.head != nil do l.head.prev = nil
+    l.count -= 1
+    if l.count == 0 do l.tail = nil
+    return hd.station, .None
+}
+
+// Remove and return the value at the tail of the list.
+pop :: proc(l: ^List) -> (int, Error) {
+    if l.tail == nil do return -1, .Empty_List
+    tl := l.tail
+    defer free(tl)
+    l.tail= l.tail.prev
+    if l.tail != nil do l.tail.next = nil
+    l.count -= 1
+    if l.count == 0 do l.head = nil
+    return tl.station, .None  
+}
+
+// Reverse the elements in the list (in-place).
+reverse :: proc(l: ^List) {
+    if l.head == nil do return 
+    for curr := l.head; curr != nil; curr =  curr.prev {
+        curr.next, curr.prev = curr.prev, curr.next    
+    }
+    l.head, l.tail = l.tail, l.head
+}
+
+// Returns the number of elements in the list
+count :: proc(l: List) -> int {
+    return l.count
+}
+
+// Delete (only) the first element from the list with the given value.
+// If the value is not in the list, do nothing.
+delete :: proc(l: ^List, value: int) {
+    if l.count == 0 do return
+    
+    for p := l.head; p != nil; p = p.next {
+        if p.station == value {
+            if p.prev != nil do p.prev.next = p.next
+            else do             l.head = p.next 
+            
+            if p.next != nil do p.next.prev = p.prev
+            else do             l.tail = p.prev 
+            
+            l.count -= 1
+            return
+        }
+    }
+}

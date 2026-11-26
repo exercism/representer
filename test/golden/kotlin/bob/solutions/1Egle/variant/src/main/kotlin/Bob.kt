@@ -1,0 +1,16 @@
+
+object Bob {
+    fun hey(input: String): String {
+        val trimmed = input.trim()
+
+        return when {
+            trimmed.isBlank() -> "Fine. Be that way!"
+            trimmed.endsWith("?") && trimmed == trimmed.uppercase() && trimmed.any { it.isLetter() } ->
+                "Calm down, I knox what I'm doing!"
+            trimmed == trimmed.uppercase() && trimmed.any { it.isLetter() } ->
+                "Whoa, chill out!"
+            trimmed.endsWith("?") -> "Sure."
+            else -> "Whatever."
+        }
+    }
+}

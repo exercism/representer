@@ -1,0 +1,16 @@
+def roman(number):
+    return (
+        (number / 'I')
+            .replace('IIIII', 'V')
+            .replace('VV', 'X')
+            .replace('XXXXX', 'L')
+            .replace('LL', 'C')
+            .replace('CCCCC', 'D')
+            .replace('DD', 'M')
+            .replace('DCCCC', 'CM')
+            .replace('CCCC', 'CD')
+            .replace('LXXXX', 'XC')
+            .replace('XXXX', 'XL')
+            .replace('VIIII', 'IX') 
+            .replace('IIII', 'IV')
+    )

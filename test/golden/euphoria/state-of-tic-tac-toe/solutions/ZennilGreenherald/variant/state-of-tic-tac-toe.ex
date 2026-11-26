@@ -1,0 +1,56 @@
+include std/sequence.e
+
+sequence win_indexes = {
+  {1, 2, 3},
+  {4, 5, 6},
+  {7, 8, 9},
+  {1, 4, 7},
+  {2, 5, 8},
+  {3, 6, 9},
+  {1, 5, 9},
+  {7, 5, 3}
+}
+
+public function gamestate(sequence board)
+  sequence flat_board = flatten(board)
+  integer x_wins = 0, o_wins = 0
+
+  for i = 1 to length(win_indexes) do
+    if is_win('X', win_indexes[i], flat_board) then
+      x_wins += 1
+    elsif is_win('O', win_indexes[i], flat_board) then
+      o_wins += 1
+    end if
+  end for
+
+  printf(1, "x_wins %d, o_wins %d\n", {x_wins, o_wins})
+
+  atom num_xs = length(retain_all("X", flat_board))
+  atom num_os = length(retain_all("O", flat_board))
+
+  if num_xs >= num_os + 1 then
+    return "Wrong turn order: X went twice"
+  elsif num_os > num_xs then
+    return "Wrong turn order: O started"
+  elsif x_wins > 0 and o_wins = 0 then
+    return "win"
+  elsif x_wins = 0 and o_wins > 0 then
+    return "win"
+  elsif x_wins > 0 and o_wins > 0 then
+    return "Impossible board: game should have ended after the game was won"
+  elsif find(' ', flat_board) > 0 then
+    return "ongoing"
+  else
+    return "draw"
+  end if
+end function
+
+function is_win(atom ch, sequence indexes, sequence grid)
+  atom a, b, c
+  {a, b, c} = indexes
+  if grid[a] = ch and grid[b] = ch and grid[c] = ch then
+    return 1
+  else
+    return 0
+  end if
+end function

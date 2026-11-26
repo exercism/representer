@@ -1,0 +1,29 @@
+module square_root;
+
+pure int squareRoot(immutable int radicand)
+{
+    int low = 2;
+    int high = radicand;
+    int result = 1;
+
+    while (low <= high)
+    {
+        int mid = low + (high - low) / 2;
+        long square = cast(long)mid * mid;
+
+        if (square == radicand)
+        {
+            return mid;
+        }
+        else if (square < radicand)
+        {
+            result = mid;
+            low = mid + 1;
+        }
+        else
+        {
+            high = mid - 1;
+        }
+    }
+    return result;
+}

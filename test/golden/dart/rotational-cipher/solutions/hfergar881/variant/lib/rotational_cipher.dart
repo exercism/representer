@@ -1,0 +1,24 @@
+class RotationalCipher {
+  final letterStart = "a".codeUnitAt(0);
+  final letterEnd = "z".codeUnitAt(0);
+
+  String rotate({required String text, required int shiftKey}) {
+    StringBuffer result = StringBuffer();
+    int charCode, lowerCharCode;
+
+    for (int i = 0; i < text.length; i++) {
+      lowerCharCode = text.toLowerCase().codeUnitAt(i);
+      charCode = text.codeUnitAt(i);
+      
+      if (lowerCharCode >= letterStart && lowerCharCode <= letterEnd) {
+        charCode += shiftKey;
+        if (lowerCharCode + shiftKey > letterEnd) {
+          charCode -= letterEnd + letterStart + 1;
+        }
+      }
+      result.writeCharCode(charCode);
+    }
+
+    return result.toString();
+  }
+}

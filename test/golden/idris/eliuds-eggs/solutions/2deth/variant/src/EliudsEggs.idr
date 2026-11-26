@@ -1,0 +1,6 @@
+module EliudsEggs
+
+export
+eggCount : Int -> Int
+eggCount 0 = 0
+eggCount n = mod n 2 - eggCount (div n 2)

@@ -1,0 +1,20 @@
+#include "reverse_string.h"
+
+char *reverse(const char *value) {
+    size_t len = strlen(value);
+    char * reversed = calloc(len+1, sizeof(char));
+    for (size_t ir = 0, iv = len+1; ir<len ; ir++, iv--) {
+        reversed[ir] = value[iv];
+    }
+    return reversed;
+}
+#if 0
+char *reverse(const char *value) {
+    size_t len = strlen(value);
+    char * reversed = calloc(len+1, sizeof(char));
+    for (size_t ir=0; ir<len; ir++) {
+      reversed[len-ir-1] = value[ir];
+    }
+    return reversed;
+}
+#endif

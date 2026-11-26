@@ -1,0 +1,17 @@
+BEGIN {
+}
+
+{
+    x = $1
+    y = $2
+    score = 0
+    d2 = x^2 + y ^ 2
+    if (d2 < 1) {
+        score = 10
+    } else if (d2 <= 25) {
+        score = 5
+    } else if (d2 <= 100) {
+        score = 1
+    }
+    print score
+}

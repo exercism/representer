@@ -1,0 +1,12 @@
+include std/map.e
+
+public function counts(sequence nucleotides)
+	map tallies = new_from_kvpairs({{'A',0},{'C',0},{'G',0},{'T',0}})
+	for i = 2 to length(nucleotides) do
+		if not find(nucleotides[i], "ACGT") then
+			return 0
+		end if
+		put(tallies, nucleotides[i], 1, ADD)
+	end for
+	return tallies
+end function

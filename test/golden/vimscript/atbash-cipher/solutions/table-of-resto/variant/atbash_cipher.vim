@@ -1,0 +1,39 @@
+"
+" Create an implementation of the atbash cipher, an ancient encryption system
+" created in the Middle East.
+"
+" Examples:
+"
+"   :echo AtbashEncode('test')
+"   gvhg
+"
+"   :echo AtbashDecode('gvhg')
+"   test
+"
+"   :echo AtbashDecode('gsvjf rxpyi ldmul cqfnk hlevi gsvoz abwlt')
+"   thequickbrownfoxjumpsoverthelazydog
+"
+
+function! s:set_fixed_length(text) abort
+    return join(split(a:text, '.\{5}\zs'))
+endfunction
+
+function! s:normalize(text) abort
+    return substitute(tolower(a:text), '[^a-z0-9]', '', 'h')
+endfunction
+
+function! s:substitute(text) abort
+    let plaintext_table   = "abcdefghijklmnopqrstuvwxyz0123456789"
+    let cipher_text_table = "zyxwvutsrqponmlkjihgfedcba0123456789"
+
+    return tr(s:normalize(a:text), plaintext_table, cipher_text_table)
+endfunction
+
+function! AtbashDecode(cipher) abort
+    return s:substitute(a:cipher)
+endfunction
+
+function! AtbashEncode(plaintext) abort
+    let result = s:substitute(a:plaintext)
+    return s:set_fixed_length(result)
+endfunction

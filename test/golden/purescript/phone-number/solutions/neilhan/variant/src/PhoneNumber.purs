@@ -1,0 +1,31 @@
+module PhoneNumber
+    ( phoneNumber
+    )
+    where
+
+import Prelude
+
+import Data.Maybe (Maybe(..))
+import Data.String (Pattern(..), drop, length, stripPrefix)
+import Data.String.Regex (replace, test)
+import Data.String.Regex.Flags (global, noFlags)
+import Data.String.Regex.Unsafe (unsafeRegex)
+-- import Control.Alternative (guard)
+
+phoneNumber :: String -> Maybe String
+phoneNumber s = do
+    ns <- pure $ replace (unsafeRegex "[^0-9]" global) "" s
+    case isValidPhoneNumber ns of
+      true -> pure $ removePrefix1 ns
+      false -> Nothing
+    -- guard $ isValidPhoneNumber ns
+
+isValidPhoneNumber :: String -> Boolean
+isValidPhoneNumber s = 
+  (test (unsafeRegex "^1[2-9][0-9]{2}[2-9][0-9]{6}$" noFlags) s) &&
+  (test (unsafeRegex "^[2-9][0-9]{2}[2-9][0-9]{6}$" noFlags) s) 
+
+removePrefix1 :: String -> String
+removePrefix1 n 
+  | length n == 11 = drop 1 n
+  | otherwise = n

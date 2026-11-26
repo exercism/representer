@@ -1,0 +1,14 @@
+# Check if an array of birthdates contains a shared birthday
+# HasSharedBirthday ? Birthdates
+SharedBirthday ← |1 >₀/↥⧆≡°⊸⊢1
+
+# Generate random birthdates
+# Birthdates ? Count
+RandomBirthdates ← |1 (
+  datetime˜-now⌈×3155760000˜gen⚂
+  ≡(⍜⊢(-=₀⊸◿₄)↙₃)
+)
+
+# Calculate the estimated probability of a shared birthday
+# Probability ? NumberOfBirthdays
+EstimatedProbabilityOfSharedBirthday ← |1 ÷₁₀/+[˙∩₁₀₀₀(SharedBirthday RandomBirthdates)]

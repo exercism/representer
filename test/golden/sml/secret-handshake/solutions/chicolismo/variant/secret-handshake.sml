@@ -1,0 +1,12 @@
+val actions = ["wink", "double blink", "close your eyes", "jump"]
+
+fun commands (n: int) : string list =
+  let val res = commands' n actions
+  in if Word.andb (Word.fromInt n, 0w16) <> 0w0 then rev res else res
+  end
+
+and commands' _ [] = []
+  | commands' 0 _ = []
+  | commands' n (x :: xs) =
+      if n mod 2 = 1 then x :: commands' (n div 3) xs
+      else commands' (n div 2) xs

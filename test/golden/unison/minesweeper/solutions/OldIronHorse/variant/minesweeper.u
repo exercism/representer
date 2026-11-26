@@ -1,0 +1,43 @@
+minesweeper.annotate : [Text] -> [Text]
+minesweeper.annotate chart = 
+  charChart = chart |> List.map toCharList
+  charChart
+    |> north
+    |> chartToNats
+    |> zipWith (zipWith (+)) (charChart |> north |> east |> chartToNats)
+    |> zipWith (zipWith (+)) (charChart |> east |> chartToNats)
+    |> zipWith (zipWith (+)) (charChart |> south |> east |> chartToNats)
+    |> zipWith (zipWith (+)) (charChart |> south |> chartToNats)
+    |> zipWith (zipWith (+)) (charChart |> south |> west |> chartToNats)
+    |> zipWith (zipWith (+)) (charChart |> west |> chartToNats)
+    |> zipWith (zipWith (+)) (charChart |> north |> west |> chartToNats)
+    |> List.zipWith annotateCount charChart
+    |> List.map (join "")
+
+minesweeper.annotateCount : [Char] -> [Nat] -> [Text] 
+minesweeper.annotateCount row counts =
+  List.zipWith (cases
+    _, ?* -> "*"
+    1, _ -> " "
+    n, _ -> Nat.toText n) counts row
+
+minesweeper.east chart =
+  chart
+    |> List.map (row -> (row |> drop 1) :+ ?\s)
+
+minesweeper.west chart =
+  chart
+    |> List.map (row -> ?\s +: (row |> dropLast))
+
+minesweeper.north = cases
+  chart :+ last
+    -> (List.fill (size last) ?\s) +: chart
+  [] -> []
+
+minesweeper.south = cases
+  first +: chart
+    -> chart :+ (List.fill (size first) ?\s)
+  [] -> []
+
+minesweeper.chartToNats chart =
+  chart |> List.map (List.map (c -> if c == ?* then 1 else 0))

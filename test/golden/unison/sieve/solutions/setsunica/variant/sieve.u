@@ -1,0 +1,24 @@
+sieve.primes : Nat -> [Nat]
+sieve.primes = cases
+  n
+    | n Nat.< 2  -> []
+    | otherwise  ->
+      Scope.run do
+        use Array write
+        use List foreach
+        use Nat * + / rangeClosed
+        arr = mutable.Array.fromList (List.replicate (n + 1) do true)
+        unsafeRun! do
+          write arr 0 false
+          write arr 1 false
+          rangeClosed 2 n
+            |> foreach
+              (i ->
+                when (mutable.Array.read arr i) do
+                  rangeClosed 2 (n * i)
+                    |> foreach (j -> write arr (i * j) false))
+        Array.freeze! arr
+          |> Array.toList
+          |> List.indexed
+          |> List.filter at1
+          |> List.map at2

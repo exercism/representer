@@ -1,0 +1,23 @@
+-module(phone_number).
+
+-export([number/1, areacode/1, pretty_print/1, test_version/0]).
+
+number(String) ->
+  Nums = [D || D <- String, D > $0, D =< $9],
+  case length(Nums) of
+    10 -> Nums;
+    11 -> case Nums of 
+      [$1 | Digits] -> Digits;
+      _ -> "0000000000"
+    end;
+    _ -> "0000000000"
+  end.
+  
+areacode(String) ->
+  lists:sublist(number(String),3).
+
+pretty_print(String) ->
+  [D1,D2,D3,D4,D5,D6,D7,D8,D9,D10] = number(String),
+  "(" ++ [D1,D2,D3] ++ ") " ++ [D4,D5,D6] ++ "-" ++ [D7,D8,D9,D10].
+
+test_version() -> 1.

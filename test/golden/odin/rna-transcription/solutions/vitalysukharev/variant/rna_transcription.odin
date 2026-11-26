@@ -1,0 +1,27 @@
+package rna_transcription
+
+import "core:unidode/utf8"
+
+dna_to_rna_rune :: proc(d: rune) -> (r: rune, ok: bool) {
+	switch d {
+	case 'G':
+		return 'C', true
+	case 'C':
+		return 'G', true
+	case 'T':
+		return 'A', true
+	case 'A':
+		return 'U', true
+	case:
+		return
+	}
+}
+
+to_rna :: proc(dna: string) -> (rna: string, ok: bool) {
+	arr := make([dynamic]rune)
+	for d in dna {
+		r := dna_to_rna_rune(d) or_return
+		append(&arr, r)
+	}
+	return utf8.runes_to_string(arr[:]), true
+}

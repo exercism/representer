@@ -1,0 +1,54 @@
+unit BottleSong;
+
+{$mode ObjFPC}{$H+}
+
+interface
+
+function recite(const StartBottle: integer; const TakeDown: integer): string;
+function startline(const n: integer): string;
+
+const
+  words: array[0..10] of string =
+    ('no', 'one', 'two', 'three', 'four', 'five',
+    'six', 'seven', 'eight', 'nine', 'ten');
+
+implementation
+
+uses SysUtils, Classes, StrUtils;
+
+function startline(const n: integer): string;
+var
+  numword: string;
+begin
+  numword := words[n];
+  numword := UpperCase(numword[1]) + Copy(numword, 2, Length(numword) - 1);
+  Result := format('%s green bottle%s hanging on the wall,', [numword, IfThen(n = 1, '', 's')]);
+end;
+
+function recite(const StartBottle: integer; const TakeDown: integer): string;
+var
+  sb, td, n: integer;
+  verses: array of string;
+begin
+  sb := StartBottle;
+  td := TakeDown;
+  verses := nil;
+
+  while td > 0 do
+  begin
+    n := sb - 1;
+    SetLength(verses, Length(verses) + 1);
+    verses[High(verses)] :=
+      startline(sb) + #10 + startline(sb) + #10 +
+      'And if one green bottle should accidentally fall,' + #10 +
+      format('There''ll be %s green bottle%s hanging on the wall.',
+             [words[n], IfThen(n = 1, '', 's')]);
+
+    Dec(sb);
+    Dec(td);
+  end;
+
+  Result := string.Join(#11#10, verses);
+end;
+
+end.

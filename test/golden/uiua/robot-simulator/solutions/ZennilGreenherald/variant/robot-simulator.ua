@@ -1,0 +1,25 @@
+# Create a robot
+# RobotPosition | X Y Cardinal
+Create ← {⊙⊙∘}
+
+Dirs ← {"north" "east" "south" "west"}
+
+# Move a robot
+# RobotPosition | RobotPosition Instructions
+Move ← (
+  ≡°□ ⍜⊣(where not⊗ Dirs)
+  ⊃(⋅∘|∘)
+  ∧(
+    ⍣(⍜(⊣|◿4+1) °@R
+    | ⍜(⊣|◿4-3) °@L
+    | ⍣(⍜(⊡1|+1) °0
+      | ⍜(⊡0|+1) °1
+      | ⍜(⊡1|-1) °2
+      | ⍜(⊡0|-1) °3
+      | ∘ ◌
+      ) ⊸⊡2 °@A
+    )
+  )
+  ≡□
+  ⍜(⊡2|˜⊡ Dirs°□)
+)

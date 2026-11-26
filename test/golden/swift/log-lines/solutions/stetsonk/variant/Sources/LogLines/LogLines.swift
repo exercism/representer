@@ -1,0 +1,32 @@
+// TODO: define the 'LogLevel' enum, its `init`, and its `shortFormat` method
+enum LogLevel: Int
+{
+    case trace = 0, debug = 1, info = 4, warning = 5, error = 6, fatal = 7, unknown = 42
+    
+    init(_ message: String)
+    {
+        let startIndex = message.index(message.startIndex, offsetBy: 0)
+        let endIndex = message.index(message.startIndex, offsetBy: 5)
+        switch message[startIndex...endIndex] {
+            case "[TRC]":
+                self = .trace
+            case "[DBG]":
+                self = .debug
+            case "[INF]":
+                self = .info
+            case "[WRN]":
+                self = .warning
+            case "[ERR]":
+                self = .error
+            case "[FTL]":
+                self = .fatal
+            default:
+                self = .unknown
+        }
+    }
+
+    func shortFormat(message: String) -> String
+    {
+        return "\(self.rawValue):\(message)"
+    }
+}

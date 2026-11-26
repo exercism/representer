@@ -1,0 +1,48 @@
+local function Product(span)
+  local zeros = 0
+  local digits = {}
+  local current = 1
+
+  local function add(added)
+    if added == 0 then
+      zeros = zeros + 1
+    else
+      current = current * added
+    end
+
+    table.insert(digits, added)
+
+    if #digits > span then
+      local removed = table.remove(digits, 1)
+      if removed == 0 then
+        zeros = zeros + 1
+      else
+        current = current / removed
+      end
+    end
+  end
+
+  local function value()
+    if #digits < span or zeros > 0 then return 0 end
+    return current
+  end
+
+  return { add = add, value = value }
+end
+
+return function(config)
+  assert(config.span >= 0)
+  assert(config.span <= #config.digits)
+
+  local product = Product(config.span)
+  local largest
+
+  config.digits:gsub('.', function(digit)
+    digit = tonumber(digit)
+    assert(digit)
+    product.add(digit)
+    largest = math.max(largest or 0, product.value())
+  end)
+
+  return largest or 1
+end

@@ -1,0 +1,3 @@
+def slices [n] (series: [n]u8) (sliceLength: i64): [][]u8 =
+  (assert (n > 0 && sliceLength > 0 && sliceLength < n)
+   (map (\i -> take sliceLength (drop i series)) (iota (n - sliceLength + 1))))

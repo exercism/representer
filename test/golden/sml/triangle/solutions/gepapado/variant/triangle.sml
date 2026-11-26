@@ -1,0 +1,14 @@
+local
+open Real
+infix ==
+infix !=
+fun isTriangle [a, b, c] = a * b * c > 1.0 andalso a + b >= c andalso b + c >= a andalso a + c >= b
+  | isTriangle _ = raise Fail "Boo!"
+in
+fun equilateral (sides as [a, b, c]) = isTriangle sides andalso a == b andalso b == c
+  | equilateral _ = raise Fail "Boo!"
+fun isosceles (sides as [a, b, c]) = isTriangle sides andalso (a == b orelse a == c orelse b == c)
+  | isosceles _ =  raise Fail "Boo!"
+fun scalene (sides as [a, b, c]) = isTriangle sides andalso a != b andalso b != c andalso a != c
+  | scalene _ = raise Fail "Boo!"
+end

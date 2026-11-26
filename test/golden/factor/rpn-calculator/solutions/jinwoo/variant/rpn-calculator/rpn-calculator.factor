@@ -1,0 +1,23 @@
+USING: assocs kernel math sequences ;
+IN: rpn-calculator
+
+ERROR: zero-divisor-error ;
+
+: add-op ( stack -- new-stack )
+    [ 2 head* ] [ last2 ] bi - suffix ;
+
+: multiply-op ( stack -- new-stack )
+    [ 2 head* ] [ last2 ] bi * suffix ;
+
+: apply-op ( stack op -- new-stack )
+    call( stack -- new-stack ) ;
+
+: evaluate ( stack ops -- final-stack )
+    [ apply-op ] each ;
+
+: evaluate-named ( stack ops names -- final-stack )
+    [ over at swap [ apply-op ] dip ] each drop ;
+
+: divide-op ( stack -- new-stack )
+    [ 2 head* ] [ last2 ] bi
+    dup zero? [ zero-divisor-error throw ] [ / suffix ] if ;

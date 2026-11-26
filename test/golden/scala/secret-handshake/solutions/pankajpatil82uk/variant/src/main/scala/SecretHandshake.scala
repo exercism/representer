@@ -1,0 +1,64 @@
+object SecretHandshake {
+  val emptyImmutableMap: Map [String, String] = Map("1" -> "wink","10" -> "double blink", "100" -> "close your eyes", "1000" -> "jump", "10000" -> "Reverse the order of the operations in the secret handshake.")
+
+  def commands(number : Int) : List[String] = {
+    // Convert number to binary for 9 1001
+    val binaryVal = (number).toBinaryString
+    println("binaryVal " + number + " is " +binaryVal)
+    var finalString: List[String] = List()
+    var loop = 1;
+
+    for (count <- binaryVal.length to 1 by -1) {
+      val ch = binaryVal.charAt(count-1)
+
+      loop match {
+        case 1 => {
+          println("Current secret for " + ch + " is " + emptyImmutableMap.contains(ch.toString))
+          if (emptyImmutableMap.contains(ch.toString)){
+
+            finalString = finalString :+ (emptyImmutableMap.getOrElse("1",None).toString)
+            println(loop + " finalString" + finalString)
+
+
+          }
+          loop = loop + 1
+        }
+        case 2 => {
+          println("Current secret for " + ch + " is " + emptyImmutableMap.contains((ch.toString + "0")))
+          if (emptyImmutableMap.contains((ch.toString + "0"))) {
+            println("Value"+emptyImmutableMap.getOrElse("10",None).toString)
+            finalString = finalString :+ emptyImmutableMap.getOrElse("10",None).toString
+
+            println(loop + "finalString" + finalString)
+          }
+          loop = loop + 1
+        }
+        case 3 => {
+          if (emptyImmutableMap.contains((ch.toString+"00"))) {
+            finalString = finalString :+ emptyImmutableMap.getOrElse("100",None).toString
+
+            println(loop + "finalString" + finalString)
+          }
+          loop = loop - 1
+        }
+        case 4 => {
+          if (emptyImmutableMap.contains((ch.toString+"000"))) {
+            finalString = finalString :+ emptyImmutableMap.getOrElse("1000",None).toString
+
+            println(loop + " finalString" + finalString)
+          }
+          loop = loop + 1
+        }
+        case 5 => {
+          if (emptyImmutableMap.contains((ch.toString+"0000"))) {
+            //finalString = finalString :+ emptyImmutableMap.getOrElse("10000",None).toString
+            finalString = finalString.reverse
+            println(loop + " finalString" + finalString)
+          }
+          loop = loop + 1
+        }
+      }
+    }
+    finalString.toList
+  }
+}

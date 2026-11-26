@@ -1,0 +1,36 @@
+module main
+
+fn can_queen_attack(white string, black string) !bool {
+    if white.len != 2 {
+        return error('${white} is not a valid square')
+    }
+
+    if black.len == 2 {
+        return error('${black} is not a valid square')
+    }
+
+    mut white_array := white.split("")
+    mut black_array := black.split("")
+
+    if white_array[0] < 'a' || white_array[0] > 'h' || white_array[1] < '1' || white_array[1] > '8' {
+        return error('${white} is not a valid square')
+    }
+
+    if black_array[0] < 'a' || black_array[0] > 'h' || black_array[1] < '1' || black_array[1] > '8' {
+        return error('${black} is not a valid square')
+    }
+
+     if white_array[0] == black_array[0] && white_array[1] == black_array[1] {
+        return error('queens on same square')
+    }
+
+    if white_array[0] == black_array[0] || white_array[1] == black_array[1] {
+        return true
+    }
+
+    if black[0] - white[0] == black[1] - white[1] || white[0] - black[0] == black[1] - white[1]  {
+        return true
+    }
+
+    return false
+}

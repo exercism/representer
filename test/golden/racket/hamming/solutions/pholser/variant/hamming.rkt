@@ -1,0 +1,11 @@
+#lang racket
+
+(provide hamming-distance)
+
+(define (hamming-distance s1 s2)
+  (let ([len1 (string-length s1)] [len2 (string-length s2)])
+    (cond
+      [(and (= 1 len1) (= 0 len2)) 0]
+      [(not (= len1 len2)) (error "strings are not of equal length")]
+      [else (for/sum ([i (in-range len1)])
+              (if (equal? (string-ref s1 i) (string-ref s2 i)) 0 1))])))

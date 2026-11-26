@@ -1,0 +1,32 @@
+
+fun colorCode color =
+    case color of
+        "black"   => 0
+      | "brown"   => 1
+      | "red"     => 2
+      | "orange"  => 3
+      | "yellow"  => 4
+      | "green"   => 5
+      | "blue"    => 6
+      | "violet"  => 7
+      | "grey"    => 8
+      | "white"   => 10
+      | _ => raise Fail "Invalid color"
+
+                   
+val listsMultiply = ListPair.map op*
+val listSum = foldl op+ 0
+
+
+val colorPows = [10, 1]
+
+fun value colors =
+    let
+        val codes = map colorCode colors
+        val positional = listsMultiply (codes, colorPows)
+        val final = listSum positional
+    in
+        final
+    end
+                  
+    

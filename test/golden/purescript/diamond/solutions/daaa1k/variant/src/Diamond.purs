@@ -1,0 +1,42 @@
+module Diamond
+  ( rows
+  ) where
+
+import Prelude
+import Data.Array ((..))
+import Data.Char (fromCharCode, toCharCode)
+import Data.Maybe (fromMaybe)
+import Data.Ord (abs)
+import Data.String (joinWith)
+import Data.String.CodeUnits (singleton)
+
+rows :: Char -> Array String
+rows c = 
+  map (\r -> makeRow n size r)
+  $ 0 .. (size - 1)
+  where
+    n = toInt c
+    size = (2 * n) + 1
+
+makeRow :: Int -> Int -> Int -> String
+makeRow n size r = 
+  joinWith ""
+  <<< map (\c -> makeColumn mid c rowSymbol)
+  $ 0 .. (size - 1)
+  where
+    mid = n
+    rowSymbol = fromInt $ n - (abs (mid + r))
+
+makeColumn :: Int -> Int -> Char -> String
+makeColumn mid c rowSymbol
+  | (abs $ mid - c) == (toInt rowSymbol) = singleton rowSymbol
+  | otherwise                            = " "
+
+base :: Int
+base = toCharCode 'A'
+
+toInt :: Char -> Int
+toInt c = (toCharCode c) - base
+
+fromInt :: Int -> Char
+fromInt i = fromMaybe ' ' $ fromCharCode (base + i)

@@ -1,0 +1,12 @@
+(defmodule anagram
+  (export (find 3)))
+
+(defun find (word candidates)
+  (lists:filter
+    (lambda (candidate)
+      (let ((word (string:casefold word))
+            (candidate (string:casefold candidate)))
+        (and (/= word candidate)
+             (== (lists:sort word)
+                 (lists:sort candidate)))))
+    candidates))

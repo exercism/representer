@@ -1,0 +1,43 @@
+-module(complex_numbers).
+
+-compile({no_auto_import,[abs/1]}).
+
+-export([abs/1, add/2, conjugate/1, divide/2, equal/2, exp/1, imaginary/1, mul/2, new/2,
+	 real/1, sub/2, test_version/0]).
+
+
+abs({R, I}) ->
+	math:pow((R*R)+(I*I), 0.5).
+
+add({R1, I1}, {R2, I2}) ->
+	{R1 + R2, I1 + I2}.
+
+conjugate({R, I}) ->
+	{R, -I}.
+
+divide(Z1, Z2) ->
+	{Cr, Ci} = conjugate(Z2),
+	{A, 0} = mul(Z2, {Cr, Ci}),
+	mul(Z1, {Cr/A, Ci/A}).
+
+equal(Z1, Z2) ->
+	{Rd, Id} = sub(Z1, Z2),
+	(0.005 >= Rd) andalso (0.005 >= Id) orelse
+	(-0.005 =< Rd) andalso (-0.005 =< Id).
+
+exp({R, I}) ->
+	{math:exp(R) * math:cos(I), math:exp(R) * math:sin(I)}.
+
+imaginary({_, I}) -> I.
+
+mul({R1, I1}, {R2, I2}) ->
+	{(R1*R2) - (I1*I2), (R1*I2) + (R2*I1)}.
+
+new(R, I) -> {R, I}.
+
+real({R, _}) -> R.
+
+sub(Z1, {R, I}) ->
+	add(Z1, {-R, -I}).
+
+test_version() -> 1.

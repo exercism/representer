@@ -1,0 +1,87 @@
+(import (rnrs))
+(use-modules (ice-9 receive))
+
+(define (%strs->ra strs)
+  (list->array 2 (map string->list strs)))
+
+(define (indices->key rowi coli)
+  (make-rectangular rowi coli))
+
+(define (key->indices key)
+  (values (inexact->exact (real-part key))
+          (inexact->exact (imag-part key))))
+
+(define (%get-right ht key)
+  (car (hashv-ref ht key '(#f . #f))))
+
+(define (%set-right! ht key val)
+  (set-car! (hashv-ref ht key) val))
+
+(define (%get-down ht key)
+  (cdr (hashv-ref ht key '(#f . #f))))
+
+(define (%set-down! ht key val)
+  (set-cdr! (hashv-ref ht key) val))
+
+(define (%scan-row i ra ht pt conn keyf setf)
+  (define row (array-slice ra i))
+  (define prev #f)
+  (do ((j 0 (1+ j)))
+      ((not (array-in-bounds? row j)) ht)
+    (let ((c (array-ref row j)))
+      (cond ((eqv? c pt)
+             (let ((key (keyf i j)))
+               (when prev (setf ht prev key))
+               (unless (hashv-ref ht key)
+                 (hashv-set! ht key (cons #f #f)))
+               (set! prev key)))
+            ((not (eqv? c conn))
+             (when prev (set! prev #f)))))))
+
+(define (%scan-rows ra ht pt conn keyf setf)
+  (do ((i 0 (1+ i)))
+      ((<= (array-length ra) i) ht)
+    (%scan-row i ra ht pt conn keyf setf)))
+
+(define (%scan-ra ra)
+  (define ra* (transpose-array ra 1 0))
+  (define ht (make-hash-table))
+  (%scan-rows ra ht #\+ #\- indices->key %set-right!)
+  (%scan-rows ra* ht #\+ #\|
+              (lambda (j i) (indices->key i j)) %set-down!))
+
+(define (%conn? ht left up key)
+  (or (hashv-ref ht key)
+       (let loop-right ((right (%get-right ht left)))
+         (cond ((not right) #f)
+               ((eqv? right key) #t)
+               (else (loop-right (%get-right ht right)))))
+       (let loop-down ((down (%get-down ht up)))
+         (cond ((not down) #f)
+               ((eqv? down key) #t)
+               (else (loop-down (%get-down ht down)))))))
+
+(define (%count-rect key ht rect-ht)
+  (when (and (hashv-ref ht key)
+             (not (hashv-ref rect-ht key)))
+    (hashv-set! rect-ht key 0)
+    (let loop-down ((down (%get-down ht key)))
+      (when down
+        (let loop-right ((right (%get-right ht key)))
+          (if right
+              (receive (down-rowi _) (key->indices down)
+                (receive (_ right-coli) (key->indices right)
+                  (when (%conn?
+                         ht down right
+                         (indices->key down-rowi right-coli))
+                    (hashv-set!
+                     rect-ht key (1+ (hashv-ref rect-ht key))))
+                  (loop-right (%get-right ht right))))
+              (loop-down (%get-down ht down))))))))
+
+(define (rectangles strs)
+  (define ra (%strs->ra strs))
+  (define ht (%scan-ra ra))
+  (define rect-ht (make-hash-table))
+  (hash-for-each (lambda (key _) (%count-rect key ht rect-ht)) ht)
+  (hash-fold (lambda (_ val sum) (+ val sum)) 0 rect-ht))

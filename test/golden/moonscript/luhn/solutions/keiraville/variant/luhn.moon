@@ -1,0 +1,18 @@
+{
+  is_valid: (input) ->
+    input = input\gsub(' ', '')
+    if #input < 2 and input\find "%D" then
+      return false
+    odd = false
+    total = 0
+    for i = #input, 1, -1
+      c = string.byte(input, i) - 48
+      odd = not odd
+      if odd
+        total += c
+      else if c < 5
+        total += 2 * c
+      else
+        total += 2 * c - 9
+    total % 10 == 0
+}

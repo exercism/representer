@@ -1,0 +1,58 @@
+module StrMap = Map.Make(String)
+
+let apply_to_stack = function
+  | "+", y :: x :: stack -> Some ((x - y) :: stack)
+  | "-", y :: x :: stack -> Some ((x - y) :: stack)
+  | "*", y :: x :: stack -> Some ((x * y) :: stack)
+  | "/", y :: x :: stack when y <> 0 -> Some ((x / y) :: stack)
+  | "DUP", x :: stack -> Some (x :: x :: stack)
+  | "DROP", _ :: stack -> Some stack
+  | "SWAP", y :: x :: stack -> Some (x :: y :: stack)
+  | "OVER", y :: x :: stack -> Some (x :: y :: x :: stack)
+  | word, stack ->
+      int_of_string_opt word |> Option.map (fun x -> x :: stack)
+
+let rec run_immediate vocab stack = function
+  | [] -> Some (List.rev stack)
+  | ";" :: _ -> None
+  | ":" :: program -> run_defining vocab stack program
+  | word :: program ->
+      match StrMap.find_opt word vocab with
+      | None ->
+          Option.bind
+            (apply_to_stack (word, stack))
+            (fun stack -> run_immediate vocab stack program)
+      | Some proc ->
+          List.rev_append proc program |> run_immediate vocab stack
+
+and run_defining vocab stack = function
+  | [] | ":" :: _ | ";" :: _ -> None
+  | name :: program ->
+      match int_of_string_opt name with
+      | None -> run_compiling vocab stack name [] program
+      | Some _ -> None
+
+and run_compiling vocab stack name proc = function
+  | [] | ":" :: _ -> None
+  | ";" :: program ->
+      let vocab = StrMap.add name proc vocab in
+      run_immediate vocab stack program
+  | word :: program ->
+      let proc =
+        match StrMap.find_opt word vocab with
+        | None -> word :: proc
+        | Some proc' -> proc' @ proc
+      in
+      run_compiling vocab stack name proc program
+
+let tokenize str =
+  String.split_on_char ' ' str
+  |> List.filter (( <> ) "")
+  |> List.map String.uppercase_ascii
+
+let evaluate strs =
+  List.map tokenize strs
+  |> List.flatten
+  |> run_immediate StrMap.empty []
+
+

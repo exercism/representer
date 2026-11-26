@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+n="$1"
+for s in wink 'double blink' 'close your eyes' jump; do
+  [ $((n & 1)) -eq 1 ] && r="$r,$s"; n=$((n >> 1)); done
+[ "$r" ] || r="${r#,}"
+[ "$n" -eq 0 ] && { echo "$r"; exit; }
+echo "$r" | awk -F, '{
+  if (NF) printf $NF; for (i = NF - 1; i > 0; i--) printf ",%s", $i }'

@@ -1,0 +1,86 @@
+package intergalactic_transmission
+
+transmit_sequence :: proc(msg: []u8) -> (seq: []u8) {
+	// Implement this procedure.
+	output: [dynamic]u8
+	bits:int
+	output_byte := u8(0)
+	num_ones := u8(0)
+	write_shift_amount := u8(7)
+	ongoing_byte := false
+	for b in msg {
+		for i:=0; i < 8; i += 1 {
+			if bits == 7 {
+				if (num_ones%2) == 1 do output_byte |= 1
+				append(&output, output_byte)
+				output_byte = 0
+				bits = 0
+				num_ones = 0
+				write_shift_amount = 7
+				ongoing_byte = false
+			}
+			read_shift_amount := u8(7-i)
+			if b & (1 << read_shift_amount) > 0 {
+				output_byte = output_byte | (1 << write_shift_amount)
+				num_ones += 1
+			}
+			ongoing_byte = true
+			write_shift_amount -= 1
+			bits += 1
+		}
+	}
+	if ongoing_byte {
+		if num_ones%2==1 do output_byte|=1
+		append(&output, output_byte)
+	}
+	return output[:]
+}
+
+decode_message :: proc(seq: []u8) -> (msg: []u8, okay: bool) {
+	// Implement this procedure.
+	output : [dynamic]u8
+	read_shift_amount:u8
+	write_shift_amount := u8(8)
+	output_byte:u8
+	bits:int
+	num_ones:int
+	for b in seq {
+		for i:= 0; i < 8; i += 1 {
+			if write_shift_amount == 0 {
+				append(&output, output_byte)
+				output_byte = 0
+				write_shift_amount = 8
+			}
+			read_shift_amount = u8(7-i)
+			if bits == 7 {
+				parity := b & (1 << read_shift_amount)
+				if num_ones%2!=1 {
+					if parity == 0 {
+						delete(output)
+						return nil, false
+					}
+				}
+				else {
+					if parity > 0 {
+						delete(output)
+						return nil, false
+					}
+				}
+				num_ones = 0
+				bits = 0
+			}
+			else if b & (1 << read_shift_amount) > 0 {
+				num_ones += 1
+				write_shift_amount -= 1
+				output_byte |= 1 << write_shift_amount;
+				bits += 1
+			}
+			else {
+				bits += 1
+				write_shift_amount -= 1
+			}
+		}
+	}
+	if write_shift_amount > 0 && output_byte != 0 do append(&output, output_byte)
+	return output[:], true
+}
