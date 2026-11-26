@@ -1,85 +1,76 @@
-(file "save_the_cow.gd"
-  (source
-    (class_definition SaveTheCow :
-      (class_body
-        (variable_statement state
-          (inferred_type :=) "Ongoing")
-        (variable_statement (name PLACEHOLDER_1) :
-          (type String))
-        (variable_statement masked_word :
-          (type String))
-        (variable_statement remaining_failures
-          (inferred_type :=) 9)
-        (variable_statement error = null)
-        (function_definition _init
-          (parameters
-            (typed_parameter (local PLACEHOLDER_1) :
-              (type String))) :
-          (body
-            (expression_statement
-              (assignment
-                (attribute self . (member_name PLACEHOLDER_1)) = PLACEHOLDER_1))
-            (expression_statement
-              (assignment
-                (attribute self . masked_word) =
-                (attribute "_" .
-                  (attribute_call repeat
-                    (arguments
-                      (call len
-                        (arguments PLACEHOLDER_1)))))))))
-        (function_definition guess
-          (parameters
-            (typed_parameter letter :
-              (type String))) :
-          (body
-            (if_statement
-              (binary_operator state == "Lose") :
+(source
+  (class_definition SaveTheCow :
+    (class_body
+      (variable_statement state = "Ongoing")
+      (variable_statement (name PLACEHOLDER_1))
+      (variable_statement masked_word)
+      (variable_statement remaining_failures = 9)
+      (variable_statement error = null)
+      (function_definition _init
+        (parameters (local PLACEHOLDER_1)) :
+        (body
+          (expression_statement
+            (assignment
+              (attribute self . (member_name PLACEHOLDER_1)) = PLACEHOLDER_1))
+          (expression_statement
+            (assignment
+              (attribute self . masked_word) =
+              (attribute "_" .
+                (attribute_call repeat
+                  (arguments
+                    (call len
+                      (arguments PLACEHOLDER_1)))))))))
+      (function_definition guess
+        (parameters letter) :
+        (body
+          (if_statement
+            (binary_operator state == "Lose") :
+            (body
+              (expression_statement
+                (assignment error = "cannot guess after the game is lost"))
+              (return_statement))
+            (elif_clause
+              (binary_operator state == "Win") :
               (body
                 (expression_statement
-                  (assignment error = "cannot guess after the game is lost"))
-                (return_statement))
-              (elif_clause
-                (binary_operator state == "Win") :
-                (body
-                  (expression_statement
-                    (assignment error = "cannot guess after the game is won"))
-                  (return_statement))))
-            (if_statement
-              (binary_operator
-                (attribute PLACEHOLDER_1 .
+                  (assignment error = "cannot guess after the game is won"))
+                (return_statement))))
+          (if_statement
+            (binary_operator
+              (attribute PLACEHOLDER_1 .
+                (attribute_call contains
+                  (arguments letter))) and
+              (unary_operator not
+                (attribute masked_word .
                   (attribute_call contains
-                    (arguments letter))) and
-                (unary_operator not
-                  (attribute masked_word .
-                    (attribute_call contains
-                      (arguments letter))))) :
-              (body
-                (for_statement (local PLACEHOLDER_2) in
-                  (call len
-                    (arguments PLACEHOLDER_1)) :
-                  (body
-                    (if_statement
-                      (binary_operator
-                        (subscript PLACEHOLDER_1
-                          (subscript_arguments PLACEHOLDER_2)) == letter) :
-                      (body
-                        (expression_statement
-                          (assignment
-                            (subscript masked_word
-                              (subscript_arguments PLACEHOLDER_2)) = letter))))))
-                (if_statement
-                  (binary_operator PLACEHOLDER_1 == masked_word) :
-                  (body
-                    (expression_statement
-                      (assignment state = "Win")))))
-              (else_clause :
+                    (arguments letter))))) :
+            (body
+              (for_statement (local PLACEHOLDER_2) in
+                (call len
+                  (arguments PLACEHOLDER_1)) :
                 (body
                   (if_statement
-                    (binary_operator remaining_failures == 0) :
+                    (binary_operator
+                      (subscript PLACEHOLDER_1
+                        (subscript_arguments PLACEHOLDER_2)) == letter) :
                     (body
                       (expression_statement
-                        (assignment state = "Lose")))
-                    (else_clause :
-                      (body
-                        (expression_statement
-                          (augmented_assignment remaining_failures -= 1))))))))))))))
+                        (assignment
+                          (subscript masked_word
+                            (subscript_arguments PLACEHOLDER_2)) = letter))))))
+              (if_statement
+                (binary_operator PLACEHOLDER_1 == masked_word) :
+                (body
+                  (expression_statement
+                    (assignment state = "Win")))))
+            (else_clause :
+              (body
+                (if_statement
+                  (binary_operator remaining_failures == 0) :
+                  (body
+                    (expression_statement
+                      (assignment state = "Lose")))
+                  (else_clause :
+                    (body
+                      (expression_statement
+                        (augmented_assignment remaining_failures -= 1)))))))))))))

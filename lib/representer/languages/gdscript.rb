@@ -7,7 +7,7 @@ module Representer
     # those too, because the student chooses all of those names.
     class GDScript < Language
       tracks "gdscript"
-      version 5
+      version 6
       grammar "gdscript"
       extensions ".gd"
 
@@ -49,6 +49,14 @@ module Representer
       # 'a' and "a" are the same string.
       rewrite("(string) @string") { |match| GDScript.string_value(match[:string].text) }
 
+      # Type hints go, as the old representer removed them: `a: int`,
+      # `-> String`, `var x: int = 1` and `var x := 1` are the same as `a`,
+      # no return type, and `var x = 1`.
+      rewrite "[(typed_parameter) (typed_default_parameter) (variable_statement) (const_statement) (for_statement) " \
+              "(function_definition) (lambda)] @node" do |match|
+        GDScript.drop_type_hint(match.node)
+      end
+
       # The names that functions and loops define for their parameters and
       # variables.
       rewrite("(parameters) @parameters") { |match| GDScript.name_parameters(match.node) ? match.node : nil }
@@ -65,6 +73,9 @@ module Representer
       member "(member_name) @name"
 
       keep "self", "super", "_"
+
+      TYPE_HINT_FIELDS = %w[type return_type].freeze
+      TYPE_HINTS = %w[type inferred_type].freeze
       library_names File.join(__dir__, "library_names", "gdscript.txt")
 
       class << self
@@ -85,6 +96,27 @@ module Representer
           return build(:multiline_string, literal(text[3...-3])) if text.start_with?(quote * 3) && text.length >= 6
 
           literal(text[1...-1].gsub(/\\(.)/m) { Regexp.last_match(1) == quote ? quote : Regexp.last_match(0) })
+        end
+
+        # Removes the node's first type hint, and the `:` or `->` before it.
+        # `:=` becomes `=`. A typed parameter becomes its name, and a typed
+        # parameter with a default becomes a default parameter. Returns nil if
+        # the node has no type hint.
+        def drop_type_hint(node)
+          index = node.children.index { |child| TYPE_HINT_FIELDS.include?(child.field) && TYPE_HINTS.include?(child.type) }
+          return nil unless index
+
+          if node.children[index].type == "inferred_type"
+            node.children[index] = token("=")
+          else
+            node.children.delete_at(index)
+            marker = node.children[index - 1] if index.positive?
+            node.children.delete_at(index - 1) if marker && !marker.named? && [":", "->"].include?(marker.type)
+          end
+          return node.children.first if node.type == "typed_parameter"
+
+          node.type = "default_parameter" if node.type == "typed_default_parameter"
+          node
         end
 
         # Parameters are plain names, `a: int`, `a = 1`, or `a := 1`: the

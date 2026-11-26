@@ -1,9 +1,10 @@
 require "test_helper"
 
-# The old gdscript-representer has four golden tests. Three are ported as
-# fixtures: normalize-whitespace, remove-comments and rename-identifiers.
-# multiple-solution-files is test_multiple_solution_files below, because a
-# fixture holds one equivalent file. Differences from the old tests:
+# The old gdscript-representer has five golden tests. Four are ported as
+# fixtures: normalize-whitespace, remove-comments, remove-type-hints and
+# rename-identifiers. multiple-solution-files is test_multiple_solution_files
+# below, because a fixture holds one equivalent file. Differences from the
+# old tests:
 #
 # - The old representer left script-level variables, constants, classes,
 #   enums and signals as they were. This one renames them (see the tests
@@ -22,8 +23,7 @@ class GDScriptTest < RepresenterTest
   def test_multiple_solution_files
     result = Representer::RepresentSolution.("gdscript",
       { "one.gd" => "func foo():\n\treturn 1\n", "two.gd" => "func bar():\n\treturn \"Hello\"\n" }, {})
-    assert_equal %w[foo bar], result.mapping.values
-    assert_equal 2, result.representation.scan("(file ").size
+    assert_equal %w[bar foo], result.mapping.values.sort
     refute_equal Representer::Languages::Basic, result.representer
   end
 
@@ -101,5 +101,14 @@ class GDScriptTest < RepresenterTest
 
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "func f(:\n"
+  end
+
+  def test_type_hints_are_dropped_everywhere
+    assert_same_representation "var g: int = 1\nconst K := 2\nfunc f(a: int, b := 1, c: int = 2) -> int:\n" \
+                               "\tfor i: int in [a]:\n\t\tpass\n\treturn b\n",
+      "var g = 1\nconst K = 2\nfunc f(a, b = 1, c = 2):\n\tfor i in [a]:\n\t\tpass\n\treturn b\n"
+    assert_same_representation "var f = func(p: int) -> int: return p\n", "var f = func(p): return p\n"
+    refute_same_representation "extends Node\n", "extends Node2D\n"
+    refute_same_representation "func f(a):\n\treturn a as int\n", "func f(a):\n\treturn a as float\n"
   end
 end

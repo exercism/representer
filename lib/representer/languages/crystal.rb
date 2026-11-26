@@ -7,7 +7,7 @@ module Representer
     # here, because the tree has no layout.
     class Crystal < Language
       tracks "crystal"
-      version 6
+      version 7
       grammar "crystal"
       extensions ".cr"
 
@@ -64,6 +64,21 @@ module Representer
         match.node
       end
 
+      # `getter :x` is `getter x` (and the same for property and setter), so
+      # the method's name can be renamed.
+      rewrite <<~'PATTERN' do |match|
+        (call !receiver
+          method: (identifier /\A(class_)?(property|getter|setter)[?!]?\z/)
+          arguments: (argument_list (symbol)* @symbols))
+      PATTERN
+        names = Array(match[:symbols]).select { |symbol| symbol.children.map(&:type) == ["literal_content"] }
+        next nil if names.empty?
+
+        arguments = match.node["arguments"]
+        names.each { |symbol| arguments.replace_child(symbol, leaf(:identifier, symbol.children.first.text)) }
+        match.node
+      end
+
       # 1_000 is 1000.
       rewrite "[(integer /\\d_\\d/) @number (float /\\d_\\d/) @number]" do |match|
         leaf(match[:number].type, match[:number].text.gsub(/(?<=\d)_(?=\d)/, ""))
@@ -104,6 +119,17 @@ module Representer
         next nil if sorted.map(&:object_id) == body.children.map(&:object_id)
 
         body.children = sorted
+        match.node
+      end
+
+      # So are the methods at the top level of a file, as the old
+      # representer did. The file is the only `expressions` node with no
+      # field.
+      rewrite "(expressions) @file", where: ->(match) { match.node.field.nil? } do |match|
+        sorted = Crystal.sort_methods(match.node.children)
+        next nil if sorted.map(&:object_id) == match.node.children.map(&:object_id)
+
+        match.node.children = sorted
         match.node
       end
 

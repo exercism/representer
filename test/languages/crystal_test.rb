@@ -129,4 +129,14 @@ class CrystalTest < RepresenterTest
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "def f(\n"
   end
+
+  def test_getter_and_property_symbols_are_renamed
+    assert_same_representation "class A\n  getter :alpha\n  def initialize(@alpha : Int32); end\n  def f\n    alpha\n  end\nend\n",
+      "class A\n  getter :beta\n  def initialize(@beta : Int32); end\n  def f\n    beta\n  end\nend\n"
+    assert_same_representation "class A\n  property :alpha\nend\n", "class A\n  property alpha\nend\n"
+  end
+
+  def test_top_level_methods_are_sorted
+    assert_same_representation "def a\n  1\nend\n\ndef b(x)\n  x + 1\nend\n", "def b(x)\n  x + 1\nend\n\ndef a\n  1\nend\n"
+  end
 end

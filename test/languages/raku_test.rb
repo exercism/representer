@@ -109,4 +109,11 @@ class RakuTest < RepresenterTest
   def test_unbalanced_code_is_unrepresentable
     assert_unrepresentable "sub f($x) { $x "
   end
+
+  def test_heredoc_indentation_is_removed
+    assert_same_representation "sub f {\n    my $x = q:to/END/;\n        hello\n          world\n        END\n    return $x;\n}\n",
+      "sub f {\n    my $x = q:to/END/;\n    hello\n      world\n    END\n    return $x;\n}\n"
+    refute_same_representation "sub f {\n    my $x = q:to/END/;\n    hello\n      world\n    END\n    return $x;\n}\n",
+      "sub f {\n    my $x = q:to/END/;\n    hello\n    world\n    END\n    return $x;\n}\n"
+  end
 end

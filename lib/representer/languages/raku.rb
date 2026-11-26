@@ -7,7 +7,7 @@ module Representer
     # the student defines.
     class Raku < Language
       tracks "raku"
-      version 4
+      version 5
       grammar "raku"
       extensions ".rakumod", ".raku", ".rakutest", ".pm6", ".p6"
 
@@ -64,6 +64,17 @@ module Representer
       rewrite "[(unit_declaration name: (identifier) @name) (constant_declaration name: (identifier) @name)]" do |match|
         match[:name].type = "definition"
         match.node
+      end
+
+      # Raku removes a heredoc's indentation, up to the indentation of its
+      # closing line, so a heredoc indented differently is the same text.
+      rewrite "(heredoc_body) @body" do |match|
+        *lines, closing = match.node.text.split("\n", -1)
+        indentation = closing.to_s[/\A[ \t]+/]
+        next nil if lines.empty? || indentation.nil?
+
+        body = lines.map { |line| line.delete_prefix(indentation) }
+        leaf(:heredoc_body, [*body, closing.delete_prefix(indentation)].join("\n"))
       end
 
       ### Rename and keep ###
