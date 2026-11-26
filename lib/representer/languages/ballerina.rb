@@ -1,9 +1,35 @@
+# What this class does to a Ballerina solution's code to make its representation:
+#
+# - Reads the code as a flat list of tokens, because the grammar has no tree
+#   for declarations or expressions.
+# - Drops comments and doc comments, and every `import` statement.
+# - Keeps all punctuation, because without a tree the brackets are the only
+#   record of grouping.
+# - Reads a quoted name (`'limit`) as the plain name (`limit`).
+# - Writes the text of a backtick template as its value, like a string, and
+#   keeps its interpolations.
+# - Writes each float in one form (`1.50` is `1.5`), but keeps a decimal's
+#   digits (`1.50d`).
+# - Finds the names that the solution defines from the tokens around them:
+#   after `function`, `type`, `class` or `enum`, after a type in a
+#   declaration, and the parameters of a lambda.
+# - Keeps the fields of a record and the names in a resource function's
+#   path, and treats a name after `.` or `->` as a member.
+# - Replaces each name that the solution defines with a placeholder
+#   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
+# - Keeps every name used in the tests, `main`, `init` and the HTTP method
+#   names.
+#
+# Update this list whenever the class's rules change.
+
 module Representer
   module Languages
     # Ballerina has no old representer, so there are no upstream tests to
-    # port. The grammar is David-Stephenson/tree-sitter-ballerina (MIT). It is
-    # only a tokeniser: its tree is a flat list of keywords, identifiers,
-    # literals and punctuation, with no declarations or expressions. So this
+    # port. The grammar is Exercism's fork of
+    # David-Stephenson/tree-sitter-ballerina (MIT), which adds quoted
+    # identifiers and backtick templates. It is only a tokeniser: its tree is
+    # a flat list of keywords, identifiers, literals, punctuation and
+    # templates, with no declarations or expressions. So this
     # class works on that list. It removes comments, keeps all punctuation
     # (without a tree, brackets are the only record of grouping), and renames
     # the names that tokens before and after show to be defined by the
@@ -17,13 +43,9 @@ module Representer
     # - The parameters of a lambda such as `(a, b) => a + b`.
     #
     # A name after `.` or `->` is a member of some other value.
-    #
-    # The grammar can't read quoted identifiers (`'limit`) or string
-    # templates (`re `...``), so a solution that uses one gets no
-    # representation.
     class Ballerina < Language
       tracks "ballerina"
-      version 2
+      version 3
       grammar "ballerina"
       extensions ".bal"
 
@@ -37,6 +59,21 @@ module Representer
       drop "[(line_comment) (doc_comment)]"
 
       ### Rewrite ###
+
+      # `'limit` is the name `limit`: the quote only lets a name be a
+      # keyword.
+      rewrite("(quoted_identifier) @name") { |match| leaf(:identifier, match.node.text.delete_prefix("'")) }
+
+      # The text of a template (`` `Hello, ${name}!` ``) is its value, like
+      # a string's.
+      rewrite("(template_text) @text") { |match| literal(match.node.text) }
+
+      # Imports only make names available, so the tokens from `import` to
+      # its `;` go. A float is its value: `1.50` is `1.5`. A decimal
+      # (`1.50d`) keeps its digits.
+      rewrite("(source_file) @file") do |match|
+        Ballerina.drop_imports(match.node) | Ballerina.normalise_floats(match.node) ? match.node : nil
+      end
 
       rewrite("(source_file) @file") { |match| Ballerina.classify_names(match.node) ? match.node : nil }
 
@@ -54,6 +91,42 @@ module Representer
       CLOSERS = ["}", "|}"].freeze
 
       class << self
+        # Removes each `import a/b;`. Returns whether any went.
+        def drop_imports(file)
+          tokens = file.children
+          kept = []
+          skipping = false
+          tokens.each do |token|
+            text = text_of(token)
+            skipping = true if token.type == "keyword" && text == "import"
+            kept << token unless skipping
+            skipping = false if skipping && token.type == "punctuation" && text == ";"
+          end
+          return false if kept.size == tokens.size
+
+          file.children = kept
+          true
+        end
+
+        # Writes each float in one form. Returns whether any changed.
+        def normalise_floats(file)
+          changed = false
+          file.children.each_with_index do |token, index|
+            next unless token.type == "float_literal" && token.leaf?
+
+            suffix = file.children[index + 1]
+            next if suffix&.type == "identifier" && suffix.text.match?(/\A[dDfF]\z/)
+
+            value = Engine::Numbers.decimal(token.text, separator: "")
+            text = value && Engine::Numbers.write_decimal(value)
+            next if text.nil? || text == token.text
+
+            token.text = text
+            changed = true
+          end
+          changed
+        end
+
         # Gives each identifier in the file's token list the type that
         # shows what it is. Returns whether any changed.
         def classify_names(file)

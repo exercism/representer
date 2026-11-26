@@ -1,1 +1,518 @@
-unrepresentable: parse_error
+(source_file
+  (keyword configurable)
+  (type_keyword int) port
+  (punctuation =) 8080
+  (punctuation ;)
+  (keyword enum) CakeKind
+  (punctuation {) BUTTER_CAKE
+  (punctuation =) "\"Butter Cake\""
+  (punctuation ,) CHOCOLATE_CAKE
+  (punctuation =) "\"Chocolate Cake\""
+  (punctuation ,) TRES_LECHES
+  (punctuation =) "\"Tres Leches\""
+  (punctuation })
+  (keyword const)
+  (type_keyword map)
+  (punctuation <)
+  (type_keyword int)
+  (punctuation >) PLACEHOLDER_1
+  (punctuation =)
+  (punctuation {) "\"Butter Cake\""
+  (punctuation :) 15
+  (punctuation ,) "\"Chocolate Cake\""
+  (punctuation :) 20
+  (punctuation ,) "\"Tres Leches\""
+  (punctuation :) 25
+  (punctuation })
+  (punctuation ;)
+  (keyword enum) OrderStatus
+  (punctuation {) PENDING
+  (punctuation =) "\"pending\""
+  (punctuation ,) IN_PROGRESS
+  (punctuation =) "\"in progress\""
+  (punctuation ,) COMPLETED
+  (punctuation =) "\"completed\""
+  (punctuation })
+  (keyword type) OrderDetail
+  (keyword record)
+  (punctuation {|) CakeKind item
+  (punctuation ;)
+  (type_keyword int) quantity
+  (punctuation ;)
+  (punctuation |})
+  (punctuation ;)
+  (keyword type) Order
+  (keyword record)
+  (punctuation {|)
+  (type_keyword string) username
+  (punctuation ;) OrderDetail
+  (punctuation [)
+  (punctuation ]) order_items
+  (punctuation ;)
+  (punctuation |})
+  (punctuation ;)
+  (keyword type) OrderUpdate
+  (keyword record)
+  (punctuation {|) OrderDetail
+  (punctuation [)
+  (punctuation ]) order_items
+  (punctuation ;)
+  (punctuation |})
+  (punctuation ;)
+  (type_keyword map)
+  (punctuation <) Order
+  (punctuation >) orders
+  (punctuation =)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (type_keyword map)
+  (punctuation <) OrderStatus
+  (punctuation >) orderStatus
+  (punctuation =)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (keyword service)
+  (keyword on)
+  (keyword new) http
+  (punctuation :) Listener
+  (punctuation "(") port
+  (punctuation ")")
+  (punctuation {)
+  (keyword resource)
+  (keyword function) get menu
+  (punctuation "(")
+  (punctuation ")")
+  (keyword returns) (local PLACEHOLDER_1)
+  (punctuation =>) PLACEHOLDER_1
+  (punctuation ;)
+  (keyword resource)
+  (keyword function) post order
+  (punctuation "(")
+  (punctuation @) http
+  (punctuation :) Payload Order
+  (punctuation &)
+  (keyword readonly) newOrder
+  (punctuation ")")
+  (keyword returns) http
+  (punctuation :) Created
+  (punctuation |) http
+  (punctuation :) BadRequest
+  (punctuation |)
+  (type_keyword error)
+  (punctuation {)
+  (type_keyword string) order_id
+  (punctuation =)
+  (keyword check) generateOrderId
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ;)
+  (type_keyword var) total
+  (punctuation =) computeSum
+  (punctuation "(") newOrder
+  (punctuation .) order_items
+  (punctuation ")")
+  (punctuation ;)
+  (keyword if)
+  (punctuation !)
+  (punctuation "(") total
+  (keyword is)
+  (type_keyword int)
+  (punctuation ")")
+  (punctuation {)
+  (keyword return) total
+  (punctuation ;)
+  (punctuation })
+  (keyword if) newOrder
+  (punctuation .) username
+  (punctuation ==) "\"\""
+  (punctuation {)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) BadRequest
+  (punctuation >)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation }) orders
+  (punctuation [) order_id
+  (punctuation ])
+  (punctuation =)
+  (keyword check) newOrder
+  (punctuation .) cloneWithType
+  (punctuation "(") Order
+  (punctuation ")")
+  (punctuation ;) orderStatus
+  (punctuation [) order_id
+  (punctuation ])
+  (punctuation =) PENDING
+  (punctuation ;)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) Created
+  (punctuation >)
+  (punctuation {) body
+  (punctuation :)
+  (punctuation {) order_id
+  (punctuation ,) total
+  (punctuation })
+  (punctuation ,) mediaType
+  (punctuation :) mime
+  (punctuation :) APPLICATION_JSON
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword resource)
+  (keyword function) get order
+  (punctuation /)
+  (punctuation [)
+  (type_keyword string) orderId
+  (punctuation ])
+  (punctuation "(")
+  (punctuation ")")
+  (keyword returns) http
+  (punctuation :) Ok
+  (punctuation |) http
+  (punctuation :) NotFound
+  (punctuation {)
+  (type_keyword var) status
+  (punctuation =) orderStatus
+  (punctuation [) orderId
+  (punctuation ])
+  (punctuation ;)
+  (keyword if) status
+  (keyword is)
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation {)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) NotFound
+  (punctuation >)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) Ok
+  (punctuation >)
+  (punctuation {) body
+  (punctuation :)
+  (punctuation {) order_id
+  (punctuation :) orderId
+  (punctuation ,) status
+  (punctuation })
+  (punctuation ,) mediaType
+  (punctuation :) mime
+  (punctuation :) APPLICATION_JSON
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword resource)
+  (keyword function) put order
+  (punctuation /)
+  (punctuation [)
+  (type_keyword string) orderId
+  (punctuation ])
+  (punctuation "(")
+  (punctuation @) http
+  (punctuation :) Payload OrderUpdate
+  (punctuation &)
+  (keyword readonly) updatedOrder
+  (punctuation ")")
+  (keyword returns) http
+  (punctuation :) Ok
+  (punctuation |) http
+  (punctuation :) BadRequest
+  (punctuation |) http
+  (punctuation :) Forbidden
+  (punctuation |) http
+  (punctuation :) NotFound
+  (punctuation {)
+  (type_keyword var) status
+  (punctuation =) orderStatus
+  (punctuation [) orderId
+  (punctuation ])
+  (punctuation ;)
+  (keyword if) status
+  (keyword is)
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation {)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) NotFound
+  (punctuation >)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword if) status
+  (punctuation !=) PENDING
+  (punctuation {)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) Forbidden
+  (punctuation >)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (type_keyword var) total
+  (punctuation =) computeSum
+  (punctuation "(") updatedOrder
+  (punctuation .) order_items
+  (punctuation ")")
+  (punctuation ;)
+  (keyword if)
+  (punctuation !)
+  (punctuation "(") total
+  (keyword is)
+  (type_keyword int)
+  (punctuation ")")
+  (punctuation {)
+  (keyword return) total
+  (punctuation ;)
+  (punctuation }) orders
+  (punctuation [) orderId
+  (punctuation ])
+  (punctuation .) order_items
+  (punctuation =) updatedOrder
+  (punctuation .) order_items
+  (punctuation ;)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) Ok
+  (punctuation >)
+  (punctuation {) body
+  (punctuation :)
+  (punctuation {) order_id
+  (punctuation :) orderId
+  (punctuation ,) total
+  (punctuation })
+  (punctuation ,) mediaType
+  (punctuation :) mime
+  (punctuation :) APPLICATION_JSON
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword resource)
+  (keyword function) delete order
+  (punctuation /)
+  (punctuation [)
+  (type_keyword string) orderId
+  (punctuation ])
+  (punctuation "(")
+  (punctuation ")")
+  (keyword returns) http
+  (punctuation :) Ok
+  (punctuation |) http
+  (punctuation :) Forbidden
+  (punctuation |) http
+  (punctuation :) NotFound
+  (punctuation {)
+  (type_keyword var) status
+  (punctuation =) orderStatus
+  (punctuation [) orderId
+  (punctuation ])
+  (punctuation ;)
+  (keyword if) status
+  (keyword is)
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation {)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) NotFound
+  (punctuation >)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword if) status
+  (punctuation !=) PENDING
+  (punctuation {)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) Forbidden
+  (punctuation >)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (type_keyword var) (local PLACEHOLDER_2)
+  (punctuation =) orderStatus
+  (punctuation .) remove
+  (punctuation "(") orderId
+  (punctuation ")")
+  (punctuation ;)
+  (type_keyword var) (local PLACEHOLDER_2)
+  (punctuation =) orders
+  (punctuation .) remove
+  (punctuation "(") orderId
+  (punctuation ")")
+  (punctuation ;)
+  (keyword return)
+  (punctuation <) http
+  (punctuation :) Ok
+  (punctuation >)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (punctuation })
+  (keyword function) generateOrderId
+  (punctuation "(")
+  (punctuation ")")
+  (keyword returns)
+  (type_keyword string)
+  (punctuation |)
+  (type_keyword error)
+  (punctuation {)
+  (type_keyword int) id
+  (punctuation =)
+  (keyword check) random
+  (punctuation :) createIntInRange
+  (punctuation "(") 0
+  (punctuation ,) 1000
+  (punctuation ")")
+  (punctuation ;)
+  (keyword if)
+  (punctuation !)
+  (punctuation "(") orders
+  (punctuation [) id
+  (punctuation .) toString
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ])
+  (keyword is)
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ")")
+  (punctuation {)
+  (keyword return) generateOrderId
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ;)
+  (punctuation })
+  (keyword return) id
+  (punctuation .) toString
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ;)
+  (punctuation })
+  (keyword function) computeSum
+  (punctuation "(") OrderDetail
+  (punctuation [)
+  (punctuation ]) (local PLACEHOLDER_3)
+  (punctuation ")")
+  (keyword returns)
+  (type_keyword int)
+  (punctuation |)
+  (punctuation "(") http
+  (punctuation :) BadRequest
+  (punctuation &)
+  (keyword readonly)
+  (punctuation ")")
+  (punctuation {)
+  (type_keyword map)
+  (punctuation <)
+  (type_keyword int)
+  (punctuation >) quantityPerCake
+  (punctuation =)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (keyword foreach)
+  (type_keyword var) (local PLACEHOLDER_4)
+  (keyword in) PLACEHOLDER_3
+  (punctuation {)
+  (keyword if)
+  (punctuation !)
+  (punctuation "(") quantityPerCake
+  (punctuation [) PLACEHOLDER_4
+  (punctuation .) item
+  (punctuation ])
+  (keyword is)
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ")")
+  (punctuation {)
+  (keyword return)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword else)
+  (punctuation {) quantityPerCake
+  (punctuation [) PLACEHOLDER_4
+  (punctuation .) item
+  (punctuation ])
+  (punctuation =) PLACEHOLDER_4
+  (punctuation .) quantity
+  (punctuation ;)
+  (punctuation })
+  (punctuation })
+  (type_keyword int) total
+  (punctuation =) 0
+  (punctuation ;)
+  (keyword if) quantityPerCake
+  (punctuation .) length
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ==) 0
+  (punctuation {)
+  (keyword return)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword foreach)
+  (type_keyword string) (local PLACEHOLDER_4)
+  (keyword in) quantityPerCake
+  (punctuation .) keys
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation {)
+  (type_keyword int)
+  (punctuation ?) price
+  (punctuation =) PLACEHOLDER_1
+  (punctuation [) PLACEHOLDER_4
+  (punctuation ])
+  (punctuation ;)
+  (type_keyword int)
+  (punctuation ?) quantity
+  (punctuation =) quantityPerCake
+  (punctuation [) PLACEHOLDER_4
+  (punctuation ])
+  (punctuation ;)
+  (keyword if) quantity
+  (punctuation <) 1
+  (punctuation {)
+  (keyword return)
+  (punctuation {)
+  (punctuation })
+  (punctuation ;)
+  (punctuation })
+  (keyword if)
+  (punctuation !)
+  (punctuation "(") price
+  (keyword is)
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ||) quantity
+  (keyword is)
+  (punctuation "(")
+  (punctuation ")")
+  (punctuation ")")
+  (punctuation {) total
+  (punctuation +=) price
+  (punctuation *) quantity
+  (punctuation ;)
+  (punctuation })
+  (punctuation })
+  (keyword return) total
+  (punctuation ;)
+  (punctuation }))

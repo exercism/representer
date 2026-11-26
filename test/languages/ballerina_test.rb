@@ -40,7 +40,26 @@ class BallerinaTest < RepresenterTest
     refute_same_representation wrap("string s = \"a\";"), wrap("string s = \"b\";")
   end
 
-  def test_string_templates_cant_be_represented
-    assert_unrepresentable "function f() { string s = `a`; }"
+  def test_string_templates_are_their_text
+    assert_same_representation wrap("string s = string `Hello, ${a}!`;"), wrap("string t = string `Hello, ${a}!`;")
+    refute_same_representation wrap("string s = string `Hello, ${a}!`;"), wrap("string s = string `Hi, ${a}!`;")
+    refute_same_representation wrap("string s = string `a`;"), wrap("string s = \"a\";")
+  end
+
+  def test_quoted_names_are_names
+    assert_same_representation wrap("int 'limit = 1;\nreturn 'limit;"), wrap("int total = 1;\nreturn total;")
+  end
+
+  def test_imports_are_dropped
+    assert_same_representation "import ballerina/io;\nimport ballerina/http as h;\npublic function main() { }",
+      "public function main() { }"
+    refute_same_representation "import ballerina/io;\npublic function main() { io:println(1); }",
+      "import ballerina/log;\npublic function main() { log:println(1); }"
+  end
+
+  def test_floats_are_their_values
+    assert_same_representation wrap("float x = 1.50;"), wrap("float x = 1.5;")
+    refute_same_representation wrap("decimal x = 1.50d;"), wrap("decimal x = 1.5d;")
+    refute_same_representation wrap("float x = 1.5;"), wrap("float x = 1.6;")
   end
 end
