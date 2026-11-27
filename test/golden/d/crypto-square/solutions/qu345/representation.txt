@@ -1,112 +1,378 @@
-module crypto ;
-class Cipher {
-string plain ;
-bool normalized ;
-this ( in string s ) {
-this ( s , false );
-}
-private this ( in string s , bool normalized ) {
-this . plain = s ;
-this . normalized = normalized ;
-}
-pure string normalizePlainText () {
-return to ! string ( this . plain . filter !( c => isAlphaNum ( c ))). toLower ;
-}
-pure ulong size () {
-ulong cols , rows ;
-string s = this . normalizePlainText ();
-while ( cols * rows < s . length ) {
-++ cols ;
-if ( cols * rows >= s . length )
-break ;
-else
-++ rows ;
-}
-return cols ;
-}
-string [] plainTextSegments () {
-return normalizePlainText ()
-. chunks ( size ())
-. map !( chunk => chunk . to ! string )
-. array ;
-}
-string cipherText () {
-return this . plainTextSegments (). transposed
-. join ( normalized ? "\" \"" : "\"\"" ). to ! string ;
-}
-Cipher normalize () {
-return new Cipher ( cipherText (), true );
-}
-}
-unittest
-{
-immutable int allTestsEnabled = 0 ;
-{
-auto theCipher = new Cipher ( "\"s\#$%^&plunk\"" );
-assert ( "\"splunk\"" == theCipher . normalizePlainText ());
-}
-{
-auto theCipher = new Cipher ( "\"1, 2, 3 GO!\"" );
-assert ( "\"123go\"" == theCipher . normalizePlainText ());
-}
-{
-auto theCipher = new Cipher ( "\"1234\"" );
-assert ( 2U == theCipher . size ());
-}
-{
-auto theCipher = new Cipher ( "\"123456789\"" );
-assert ( 3U == theCipher . size ());
-}
-{
-auto theCipher = new Cipher ( "\"123456789abc\"" );
-assert ( 4U == theCipher . size ());
-}
-{
-auto theCipher = new Cipher ( "\"zomgzombies\"" );
-assert ( 4U == theCipher . size ());
-}
-{
-const string [] expected = [
-"\"neverv\"" , "\"exthin\"" , "\"eheart\"" , "\"withid\"" , "\"lewoes\""
-];
-auto theCipher = new Cipher ( "\"Never vex thine heart with idle woes\"" );
-const auto actual = theCipher . plainTextSegments ();
-assert ( expected == actual );
-}
-{
-const string [] expected = [ "\"zomg\"" , "\"zomb\"" , "\"ies\"" ];
-auto theCipher = new Cipher ( "\"ZOMG! ZOMBIES!!!\"" );
-const auto actual = theCipher . plainTextSegments ();
-assert ( expected == actual );
-}
-{
-const string [] expected = [ "\"ifmanwas\"" , "\"meanttos\"" , "\"tayonthe\"" ,
-"\"groundgo\"" , "\"dwouldha\"" , "\"vegivenu\"" ,
-"\"sroots\"" ];
-auto theCipher = new Cipher ( "\"If man was meant to stay on the ground, god would have given us roots.\"" );
-const auto actual = theCipher . plainTextSegments ();
-assert ( expected == actual );
-}
-{
-const string [] expected = [ "\"timeis\"" , "\"anillu\"" , "\"sionlu\"" , "\"nchtim\"" ,
-"\"edoubl\"" , "\"yso\"" ];
-auto theCipher = new Cipher ( "\"Time is an illusion. Lunchtime doubly so.\"" );
-const auto actual = theCipher . plainTextSegments ();
-assert ( expected == actual );
-}
-{
-auto theCipher = new Cipher ( "\"Time is an illusion. Lunchtime doubly so.\"" );
-assert ( "\"tasneyinicdsmiohooelntuillibsuuml\"" == theCipher . cipherText ());
-}
-{
-auto theCipher = new Cipher ( "\"We all know interspecies romance is weird.\"" );
-assert ( "\"wneiaweoreneawssciliprerlneoidktcms\"" == theCipher . cipherText ());
-}
-{
-auto theCipher = new Cipher ( "\"Madness, and then illumination.\"" );
-assert ( "\"msemoaanindninndlaetltshui\"" == theCipher . cipherText ());
-}
-static if ( allTestsEnabled )
-{
-}
-}
+(source_file
+  (module_declaration
+    (module_fqn PLACEHOLDER_1))
+  (class_declaration PLACEHOLDER_2
+    (aggregate_body
+      (variable_declaration
+        (type string)
+        (declarator PLACEHOLDER_3))
+      (variable_declaration
+        (type bool)
+        (declarator PLACEHOLDER_4))
+      (constructor this
+        (parameters
+          (parameter
+            (parameter_attribute in)
+            (type string) PLACEHOLDER_5))
+        (function_body
+          (block_statement
+            (expression_statement
+              (call_expression this
+                (named_arguments PLACEHOLDER_5 false))))))
+      (constructor private this
+        (parameters
+          (parameter
+            (parameter_attribute in)
+            (type string) PLACEHOLDER_5)
+          (parameter
+            (type bool) PLACEHOLDER_4))
+        (function_body
+          (block_statement
+            (expression_statement
+              (assignment_expression
+                (property_expression this . PLACEHOLDER_3) = PLACEHOLDER_5))
+            (expression_statement
+              (assignment_expression
+                (property_expression this . PLACEHOLDER_4) = PLACEHOLDER_4)))))
+      (function_declaration pure
+        (type string) PLACEHOLDER_6
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (property_expression
+                (call_expression
+                  (type
+                    (template_instance to
+                      (template_arguments
+                        (template_argument
+                          (type string)))))
+                  (named_arguments
+                    (property_expression
+                      (property_expression this . PLACEHOLDER_3) .
+                      (template_instance filter
+                        (template_arguments
+                          (template_argument
+                            (function_literal
+                              (parameters
+                                (parameter PLACEHOLDER_7))
+                              (block_statement
+                                (return_statement
+                                  (call_expression isAlphaNum
+                                    (named_arguments PLACEHOLDER_7))))))))))) . toLower)))))
+      (function_declaration pure
+        (type ulong) PLACEHOLDER_8
+        (parameters)
+        (function_body
+          (block_statement
+            (variable_declaration
+              (type ulong)
+              (declarator PLACEHOLDER_9)
+              (declarator PLACEHOLDER_10))
+            (variable_declaration
+              (type string)
+              (declarator PLACEHOLDER_5
+                (call_expression
+                  (property_expression this . PLACEHOLDER_6)
+                  (named_arguments))))
+            (while_statement
+              (rel_expression
+                (mul_expression PLACEHOLDER_9 * PLACEHOLDER_10) <
+                (property_expression PLACEHOLDER_5 . length))
+              (block_statement
+                (expression_statement
+                  (unary_expression ++ PLACEHOLDER_9))
+                (if_statement
+                  (rel_expression
+                    (mul_expression PLACEHOLDER_9 * PLACEHOLDER_10) >=
+                    (property_expression PLACEHOLDER_5 . length))
+                  (break_statement)
+                  (expression_statement
+                    (unary_expression ++ PLACEHOLDER_10)))))
+            (return_statement PLACEHOLDER_9))))
+      (function_declaration
+        (type string [ ]) PLACEHOLDER_11
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (property_expression
+                (property_expression
+                  (call_expression
+                    (property_expression
+                      (call_expression PLACEHOLDER_6
+                        (named_arguments)) . chunks)
+                    (named_arguments
+                      (call_expression PLACEHOLDER_8
+                        (named_arguments)))) .
+                  (template_instance map
+                    (template_arguments
+                      (template_argument
+                        (property_expression
+                          (function_literal
+                            (parameters
+                              (parameter PLACEHOLDER_12))
+                            (block_statement
+                              (return_statement PLACEHOLDER_12))) .
+                          (template_instance to
+                            (template_arguments
+                              (template_argument
+                                (type string))))))))) . array)))))
+      (function_declaration
+        (type string) PLACEHOLDER_13
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (property_expression
+                (call_expression
+                  (property_expression
+                    (property_expression
+                      (call_expression
+                        (property_expression this . PLACEHOLDER_11)
+                        (named_arguments)) . transposed) . join)
+                  (named_arguments
+                    (ternary_expression PLACEHOLDER_4 " " ""))) .
+                (template_instance to
+                  (template_arguments
+                    (template_argument
+                      (type string)))))))))
+      (function_declaration
+        (type PLACEHOLDER_2) PLACEHOLDER_14
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (call_expression
+                (new_expression
+                  (type PLACEHOLDER_2))
+                (named_arguments
+                  (call_expression PLACEHOLDER_13
+                    (named_arguments)) true))))))))
+  (unittest_declaration
+    (block_statement
+      (variable_declaration
+        (type
+          (type_ctor immutable) int)
+        (declarator PLACEHOLDER_15 0))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "s\#$%^&plunk")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression "splunk" ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_6)
+                  (named_arguments)))))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "1, 2, 3 GO!")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression "123go" ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_6)
+                  (named_arguments)))))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "1234")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression 2U ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_8)
+                  (named_arguments)))))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "123456789")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression 3U ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_8)
+                  (named_arguments)))))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "123456789abc")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression 4U ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_8)
+                  (named_arguments)))))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "zomgzombies")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression 4U ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_8)
+                  (named_arguments)))))))
+      (block_statement
+        (variable_declaration
+          (type
+            (type_ctor const) string [ ])
+          (declarator PLACEHOLDER_17
+            (array_literal "neverv" "exthin" "eheart" "withid" "lewoes")))
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "Never vex thine heart with idle woes")))
+        (auto_declaration
+          (storage_class
+            (type_ctor const))
+          (storage_class auto) PLACEHOLDER_18
+          (call_expression
+            (type PLACEHOLDER_16 . PLACEHOLDER_11)
+            (named_arguments)))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression PLACEHOLDER_17 == PLACEHOLDER_18)))))
+      (block_statement
+        (variable_declaration
+          (type
+            (type_ctor const) string [ ])
+          (declarator PLACEHOLDER_17
+            (array_literal "zomg" "zomb" "ies")))
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "ZOMG! ZOMBIES!!!")))
+        (auto_declaration
+          (storage_class
+            (type_ctor const))
+          (storage_class auto) PLACEHOLDER_18
+          (call_expression
+            (type PLACEHOLDER_16 . PLACEHOLDER_11)
+            (named_arguments)))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression PLACEHOLDER_17 == PLACEHOLDER_18)))))
+      (block_statement
+        (variable_declaration
+          (type
+            (type_ctor const) string [ ])
+          (declarator PLACEHOLDER_17
+            (array_literal "ifmanwas" "meanttos" "tayonthe" "groundgo" "dwouldha" "vegivenu" "sroots")))
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "If man was meant to stay on the ground, god would have given us roots.")))
+        (auto_declaration
+          (storage_class
+            (type_ctor const))
+          (storage_class auto) PLACEHOLDER_18
+          (call_expression
+            (type PLACEHOLDER_16 . PLACEHOLDER_11)
+            (named_arguments)))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression PLACEHOLDER_17 == PLACEHOLDER_18)))))
+      (block_statement
+        (variable_declaration
+          (type
+            (type_ctor const) string [ ])
+          (declarator PLACEHOLDER_17
+            (array_literal "timeis" "anillu" "sionlu" "nchtim" "edoubl" "yso")))
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "Time is an illusion. Lunchtime doubly so.")))
+        (auto_declaration
+          (storage_class
+            (type_ctor const))
+          (storage_class auto) PLACEHOLDER_18
+          (call_expression
+            (type PLACEHOLDER_16 . PLACEHOLDER_11)
+            (named_arguments)))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression PLACEHOLDER_17 == PLACEHOLDER_18)))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "Time is an illusion. Lunchtime doubly so.")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression "tasneyinicdsmiohooelntuillibsuuml" ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_13)
+                  (named_arguments)))))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "We all know interspecies romance is weird.")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression "wneiaweoreneawssciliprerlneoidktcms" ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_13)
+                  (named_arguments)))))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_16
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_2))
+            (named_arguments "Madness, and then illumination.")))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression "msemoaanindninndlaetltshui" ==
+                (call_expression
+                  (type PLACEHOLDER_16 . PLACEHOLDER_13)
+                  (named_arguments)))))))
+      (conditional_declaration
+        (condition
+          (static_if_condition PLACEHOLDER_15))))))

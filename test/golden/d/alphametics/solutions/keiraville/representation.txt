@@ -1,126 +1,418 @@
-module alphametics ;
-pure string solve ( immutable string puzzle )
-{
-struct Letter
-{
-char ch ;
-int rank ;
-int [] weight ;
-bool leading ;
-int digit ;
-}
-enum int maxRank = int . max ;
-Letter [ 26 ] table ;
-foreach ( i ; 0 .. 26 )
-{
-table [ i ]. ch = cast ( char )( i + 'A' );
-table [ i ]. rank = maxRank ;
-}
-int sign = - 1 ;
-int place = 0 ;
-int prev = 0 ;
-for ( int i = cast ( int ) puzzle . length - 1 ; i >= 0 ; i --)
-{
-int c = puzzle [ i ] - 'A' ;
-if ( c >= 0 && c < 26 )
-{
-if ( place < table [ c ]. rank )
-table [ c ]. rank = place ;
-while ( table [ c ]. weight . length <= place )
-table [ c ]. weight ~= 0 ;
-table [ c ]. weight [ place ] += sign ;
-prev = c ;
-place ++;
-}
-else
-{
-if ( puzzle [ i ] == '=' )
-sign = 1 ;
-if ( place > 0 )
-table [ prev ]. leading = true ;
-place = 0 ;
-}
-}
-if ( place > 0 )
-table [ prev ]. leading = true ;
-int nColumns = 0 ;
-Letter [] letters ;
-foreach ( i ; 0 .. 26 )
-{
-if ( table [ i ]. rank == maxRank )
-continue ;
-if ( table [ i ]. weight . length > nColumns )
-nColumns = cast ( int ) table [ i ]. weight . length ;
-size_t j = letters . length ;
-letters ~= table [ i ];
-while ( j > 0 && letters [ j - 1 ]. rank > table [ i ]. rank )
-{
-letters [ j ] = letters [ j - 1 ];
-j --;
-}
-letters [ j ] = table [ i ];
-}
-bool search ( int index , int claimed , int col , int carry )
-{
-if ( index == letters . length || letters [ index ]. rank > col )
-{
-int colSum = carry ;
-foreach ( k ; 0 .. index )
-{
-if ( col < letters [ k ]. weight . length )
-colSum += letters [ k ]. weight [ col ] * letters [ k ]. digit ;
-}
-if ( colSum % 10 == 0 )
-{
-if ( col + 1 < nColumns )
-return search ( index , claimed , col + 1 , colSum / 10 );
-else if ( colSum / 10 == 0 )
-return true ;
-}
-return false ;
-}
-int start = letters [ index ]. leading ? 1 : 0 ;
-foreach ( digit ; start .. 10 )
-{
-if ( claimed & ( 1 << digit ))
-continue ;
-letters [ index ]. digit = digit ;
-if ( search ( index + 1 , claimed | ( 1 << digit ), col , carry ))
-return true ;
-}
-return false ;
-}
-if (! search ( 0 , 0 , 0 , 0 ))
-throw new Exception ( "\"no solution\"" );
-char [ 26 ] lookup ;
-foreach ( ref letter ; letters )
-lookup [ letter . ch - 'A' ] = cast ( char )( letter . digit + '0' );
-char [] result ;
-result . length = puzzle . length ;
-foreach ( i ; 0 .. puzzle . length )
-{
-char ch = puzzle [ i ];
-if ( ch >= 'A' && ch <= 'Z' )
-result [ i ] = lookup [ ch - 'A' ];
-else
-result [ i ] = ch ;
-}
-return cast ( string ) result ;
-}
-unittest
-{
-immutable int allTestsEnabled = 0 ;
-assert ( solve ( "\"I + BB == ILL\"" ) == "\"1 + 99 == 100\"" );
-static if ( allTestsEnabled )
-{
-assertThrown ( solve ( "\"A == B\"" ));
-assertThrown ( solve ( "\"ACA + DD == BD\"" ));
-assert ( solve ( "\"A + A + A + A + A + A + A + A + A + A + A + B == BCC\"" ) == "\"9 + 9 + 9 + 9 + 9 + 9 + 9 + 9 + 9 + 9 + 9 + 1 == 100\"" );
-assert ( solve ( "\"AS + A == MOM\"" ) == "\"92 + 9 == 101\"" );
-assert ( solve ( "\"NO + NO + TOO == LATE\"" ) == "\"74 + 74 + 944 == 1092\"" );
-assert ( solve ( "\"HE + SEES + THE == LIGHT\"" ) == "\"54 + 9449 + 754 == 10257\"" );
-assert ( solve ( "\"SEND + MORE == MONEY\"" ) == "\"9567 + 1085 == 10652\"" );
-assert ( solve ( "\"AND + A + STRONG + OFFENSE + AS + A + GOOD == DEFENSE\"" ) == "\"503 + 5 + 691208 + 2774064 + 56 + 5 + 8223 == 3474064\"" );
-assert ( solve ( "\"THIS + A + FIRE + THEREFORE + FOR + ALL + HISTORIES + I + TELL + A + TALE + THAT + FALSIFIES + ITS + TITLE + TIS + A + LIE + THE + TALE + OF + THE + LAST + FIRE + HORSES + LATE + AFTER + THE + FIRST + FATHERS + FORESEE + THE + HORRORS + THE + LAST + FREE + TROLL + TERRIFIES + THE + HORSES + OF + FIRE + THE + TROLL + RESTS + AT + THE + HOLE + OF + LOSSES + IT + IS + THERE + THAT + SHE + STORES + ROLES + OF + LEATHERS + AFTER + SHE + SATISFIES + HER + HATE + OFF + THOSE + FEARS + A + TASTE + RISES + AS + SHE + HEARS + THE + LEAST + FAR + HORSE + THOSE + FAST + HORSES + THAT + FIRST + HEAR + THE + TROLL + FLEE + OFF + TO + THE + FOREST + THE + HORSES + THAT + ALERTS + RAISE + THE + STARES + OF + THE + OTHERS + AS + THE + TROLL + ASSAILS + AT + THE + TOTAL + SHIFT + HER + TEETH + TEAR + HOOF + OFF + TORSO + AS + THE + LAST + HORSE + FORFEITS + ITS + LIFE + THE + FIRST + FATHERS + HEAR + OF + THE + HORRORS + THEIR + FEARS + THAT + THE + FIRES + FOR + THEIR + FEASTS + ARREST + AS + THE + FIRST + FATHERS + RESETTLE + THE + LAST + OF + THE + FIRE + HORSES + THE + LAST + TROLL + HARASSES + THE + FOREST + HEART + FREE + AT + LAST + OF + THE + LAST + TROLL + ALL + OFFER + THEIR + FIRE + HEAT + TO + THE + ASSISTERS + FAR + OFF + THE + TROLL + FASTS + ITS + LIFE + SHORTER + AS + STARS + RISE + THE + HORSES + REST + SAFE + AFTER + ALL + SHARE + HOT + FISH + AS + THEIR + AFFILIATES + TAILOR + A + ROOFS + FOR + THEIR + SAFE == FORTRESSES\"" ) == "\"9874 + 1 + 5730 + 980305630 + 563 + 122 + 874963704 + 7 + 9022 + 1 + 9120 + 9819 + 512475704 + 794 + 97920 + 974 + 1 + 270 + 980 + 9120 + 65 + 980 + 2149 + 5730 + 863404 + 2190 + 15903 + 980 + 57349 + 5198034 + 5630400 + 980 + 8633634 + 980 + 2149 + 5300 + 93622 + 903375704 + 980 + 863404 + 65 + 5730 + 980 + 93622 + 30494 + 19 + 980 + 8620 + 65 + 264404 + 79 + 74 + 98030 + 9819 + 480 + 496304 + 36204 + 65 + 20198034 + 15903 + 480 + 419745704 + 803 + 8190 + 655 + 98640 + 50134 + 1 + 91490 + 37404 + 14 + 480 + 80134 + 980 + 20149 + 513 + 86340 + 98640 + 5149 + 863404 + 9819 + 57349 + 8013 + 980 + 93622 + 5200 + 655 + 96 + 980 + 563049 + 980 + 863404 + 9819 + 120394 + 31740 + 980 + 491304 + 65 + 980 + 698034 + 14 + 980 + 93622 + 1441724 + 19 + 980 + 96912 + 48759 + 803 + 90098 + 9013 + 8665 + 655 + 96346 + 14 + 980 + 2149 + 86340 + 56350794 + 794 + 2750 + 980 + 57349 + 5198034 + 8013 + 65 + 980 + 8633634 + 98073 + 50134 + 9819 + 980 + 57304 + 563 + 98073 + 501494 + 133049 + 14 + 980 + 57349 + 5198034 + 30409920 + 980 + 2149 + 65 + 980 + 5730 + 863404 + 980 + 2149 + 93622 + 81314404 + 980 + 563049 + 80139 + 5300 + 19 + 2149 + 65 + 980 + 2149 + 93622 + 122 + 65503 + 98073 + 5730 + 8019 + 96 + 980 + 144749034 + 513 + 655 + 980 + 93622 + 51494 + 794 + 2750 + 4863903 + 14 + 49134 + 3740 + 980 + 863404 + 3049 + 4150 + 15903 + 122 + 48130 + 869 + 5748 + 14 + 98073 + 1557271904 + 917263 + 1 + 36654 + 563 + 98073 + 4150 == 5639304404\"" );
-}
-}
+(source_file
+  (module_declaration
+    (module_fqn PLACEHOLDER_1))
+  (function_declaration pure
+    (type string) PLACEHOLDER_2
+    (parameters
+      (parameter
+        (type
+          (type_ctor immutable) string) PLACEHOLDER_3))
+    (function_body
+      (block_statement
+        (struct_declaration PLACEHOLDER_4
+          (aggregate_body
+            (variable_declaration
+              (type char)
+              (declarator PLACEHOLDER_5))
+            (variable_declaration
+              (type int)
+              (declarator PLACEHOLDER_6))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_7))
+            (variable_declaration
+              (type bool)
+              (declarator PLACEHOLDER_8))
+            (variable_declaration
+              (type int)
+              (declarator PLACEHOLDER_9))))
+        (manifest_constant
+          (type int)
+          (manifest_declarator PLACEHOLDER_10
+            (primary_expression int . max)))
+        (variable_declaration
+          (type PLACEHOLDER_4 [ 26 ])
+          (declarator PLACEHOLDER_11))
+        (foreach_statement foreach
+          (foreach_type PLACEHOLDER_12) 0 .. 26
+          (block_statement
+            (expression_statement
+              (assignment_expression
+                (property_expression
+                  (index_expression PLACEHOLDER_11
+                    (index PLACEHOLDER_12)) . PLACEHOLDER_5) =
+                (cast_expression
+                  (type char)
+                  (add_expression PLACEHOLDER_12 + 'A'))))
+            (expression_statement
+              (assignment_expression
+                (property_expression
+                  (index_expression PLACEHOLDER_11
+                    (index PLACEHOLDER_12)) . PLACEHOLDER_6) = PLACEHOLDER_10))))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_13
+            (unary_expression - 1)))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_14 0))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_15 0))
+        (for_statement
+          (variable_declaration
+            (type int)
+            (declarator PLACEHOLDER_12
+              (add_expression
+                (cast_expression
+                  (type int)
+                  (property_expression PLACEHOLDER_3 . length)) - 1)))
+          (rel_expression PLACEHOLDER_12 >= 0) ;
+          (postfix_expression PLACEHOLDER_12 --)
+          (block_statement
+            (variable_declaration
+              (type int)
+              (declarator PLACEHOLDER_16
+                (add_expression
+                  (index_expression PLACEHOLDER_3
+                    (index PLACEHOLDER_12)) - 'A')))
+            (if_statement
+              (logical_and_expression
+                (rel_expression PLACEHOLDER_16 >= 0) &&
+                (rel_expression PLACEHOLDER_16 < 26))
+              (block_statement
+                (if_statement
+                  (rel_expression PLACEHOLDER_14 <
+                    (property_expression
+                      (index_expression PLACEHOLDER_11
+                        (index PLACEHOLDER_16)) . PLACEHOLDER_6))
+                  (expression_statement
+                    (assignment_expression
+                      (property_expression
+                        (index_expression PLACEHOLDER_11
+                          (index PLACEHOLDER_16)) . PLACEHOLDER_6) = PLACEHOLDER_14)))
+                (while_statement
+                  (rel_expression
+                    (property_expression
+                      (property_expression
+                        (index_expression PLACEHOLDER_11
+                          (index PLACEHOLDER_16)) . PLACEHOLDER_7) . length) <= PLACEHOLDER_14)
+                  (expression_statement
+                    (assignment_expression
+                      (property_expression
+                        (index_expression PLACEHOLDER_11
+                          (index PLACEHOLDER_16)) . PLACEHOLDER_7) ~= 0)))
+                (expression_statement
+                  (assignment_expression
+                    (index_expression
+                      (property_expression
+                        (index_expression PLACEHOLDER_11
+                          (index PLACEHOLDER_16)) . PLACEHOLDER_7)
+                      (index PLACEHOLDER_14)) += PLACEHOLDER_13))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_15 = PLACEHOLDER_16))
+                (expression_statement
+                  (postfix_expression PLACEHOLDER_14 ++)))
+              (block_statement
+                (if_statement
+                  (equal_expression
+                    (index_expression PLACEHOLDER_3
+                      (index PLACEHOLDER_12)) == '=')
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_13 = 1)))
+                (if_statement
+                  (rel_expression PLACEHOLDER_14 > 0)
+                  (expression_statement
+                    (assignment_expression
+                      (property_expression
+                        (index_expression PLACEHOLDER_11
+                          (index PLACEHOLDER_15)) . PLACEHOLDER_8) = true)))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_14 = 0))))))
+        (if_statement
+          (rel_expression PLACEHOLDER_14 > 0)
+          (expression_statement
+            (assignment_expression
+              (property_expression
+                (index_expression PLACEHOLDER_11
+                  (index PLACEHOLDER_15)) . PLACEHOLDER_8) = true)))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_17 0))
+        (variable_declaration
+          (type PLACEHOLDER_4 [ ])
+          (declarator PLACEHOLDER_18))
+        (foreach_statement foreach
+          (foreach_type PLACEHOLDER_12) 0 .. 26
+          (block_statement
+            (if_statement
+              (equal_expression
+                (property_expression
+                  (index_expression PLACEHOLDER_11
+                    (index PLACEHOLDER_12)) . PLACEHOLDER_6) == PLACEHOLDER_10)
+              (continue_statement))
+            (if_statement
+              (rel_expression
+                (property_expression
+                  (property_expression
+                    (index_expression PLACEHOLDER_11
+                      (index PLACEHOLDER_12)) . PLACEHOLDER_7) . length) > PLACEHOLDER_17)
+              (expression_statement
+                (assignment_expression PLACEHOLDER_17 =
+                  (cast_expression
+                    (type int)
+                    (property_expression
+                      (property_expression
+                        (index_expression PLACEHOLDER_11
+                          (index PLACEHOLDER_12)) . PLACEHOLDER_7) . length)))))
+            (variable_declaration
+              (type size_t)
+              (declarator PLACEHOLDER_19
+                (property_expression PLACEHOLDER_18 . length)))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_18 ~=
+                (index_expression PLACEHOLDER_11
+                  (index PLACEHOLDER_12))))
+            (while_statement
+              (logical_and_expression
+                (rel_expression PLACEHOLDER_19 > 0) &&
+                (rel_expression
+                  (property_expression
+                    (index_expression PLACEHOLDER_18
+                      (index
+                        (add_expression PLACEHOLDER_19 - 1))) . PLACEHOLDER_6) >
+                  (property_expression
+                    (index_expression PLACEHOLDER_11
+                      (index PLACEHOLDER_12)) . PLACEHOLDER_6)))
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (index_expression PLACEHOLDER_18
+                      (index PLACEHOLDER_19)) =
+                    (index_expression PLACEHOLDER_18
+                      (index
+                        (add_expression PLACEHOLDER_19 - 1)))))
+                (expression_statement
+                  (postfix_expression PLACEHOLDER_19 --))))
+            (expression_statement
+              (assignment_expression
+                (index_expression PLACEHOLDER_18
+                  (index PLACEHOLDER_19)) =
+                (index_expression PLACEHOLDER_11
+                  (index PLACEHOLDER_12))))))
+        (function_declaration
+          (type bool) PLACEHOLDER_20
+          (parameters
+            (parameter
+              (type int) PLACEHOLDER_21)
+            (parameter
+              (type int) PLACEHOLDER_22)
+            (parameter
+              (type int) PLACEHOLDER_23)
+            (parameter
+              (type int) PLACEHOLDER_24))
+          (function_body
+            (block_statement
+              (if_statement
+                (logical_or_expression
+                  (equal_expression PLACEHOLDER_21 ==
+                    (property_expression PLACEHOLDER_18 . length)) ||
+                  (rel_expression
+                    (property_expression
+                      (index_expression PLACEHOLDER_18
+                        (index PLACEHOLDER_21)) . PLACEHOLDER_6) > PLACEHOLDER_23))
+                (block_statement
+                  (variable_declaration
+                    (type int)
+                    (declarator PLACEHOLDER_25 PLACEHOLDER_24))
+                  (foreach_statement foreach
+                    (foreach_type PLACEHOLDER_26) 0 .. PLACEHOLDER_21
+                    (block_statement
+                      (if_statement
+                        (rel_expression PLACEHOLDER_23 <
+                          (property_expression
+                            (property_expression
+                              (index_expression PLACEHOLDER_18
+                                (index PLACEHOLDER_26)) . PLACEHOLDER_7) . length))
+                        (expression_statement
+                          (assignment_expression PLACEHOLDER_25 +=
+                            (mul_expression
+                              (index_expression
+                                (property_expression
+                                  (index_expression PLACEHOLDER_18
+                                    (index PLACEHOLDER_26)) . PLACEHOLDER_7)
+                                (index PLACEHOLDER_23)) *
+                              (property_expression
+                                (index_expression PLACEHOLDER_18
+                                  (index PLACEHOLDER_26)) . PLACEHOLDER_9)))))))
+                  (if_statement
+                    (equal_expression
+                      (mul_expression PLACEHOLDER_25 % 10) == 0)
+                    (block_statement
+                      (if_statement
+                        (rel_expression
+                          (add_expression PLACEHOLDER_23 + 1) < PLACEHOLDER_17)
+                        (return_statement
+                          (call_expression PLACEHOLDER_20
+                            (named_arguments PLACEHOLDER_21 PLACEHOLDER_22
+                              (add_expression PLACEHOLDER_23 + 1)
+                              (mul_expression PLACEHOLDER_25 / 10))))
+                        (if_statement
+                          (equal_expression
+                            (mul_expression PLACEHOLDER_25 / 10) == 0)
+                          (return_statement true)))))
+                  (return_statement false)))
+              (variable_declaration
+                (type int)
+                (declarator PLACEHOLDER_27
+                  (ternary_expression
+                    (property_expression
+                      (index_expression PLACEHOLDER_18
+                        (index PLACEHOLDER_21)) . PLACEHOLDER_8) 1 0)))
+              (foreach_statement foreach
+                (foreach_type PLACEHOLDER_9) PLACEHOLDER_27 .. 10
+                (block_statement
+                  (if_statement
+                    (and_expression PLACEHOLDER_22 &
+                      (shift_expression 1 << PLACEHOLDER_9))
+                    (continue_statement))
+                  (expression_statement
+                    (assignment_expression
+                      (property_expression
+                        (index_expression PLACEHOLDER_18
+                          (index PLACEHOLDER_21)) . PLACEHOLDER_9) = PLACEHOLDER_9))
+                  (if_statement
+                    (call_expression PLACEHOLDER_20
+                      (named_arguments
+                        (add_expression PLACEHOLDER_21 + 1)
+                        (or_expression PLACEHOLDER_22 |
+                          (shift_expression 1 << PLACEHOLDER_9)) PLACEHOLDER_23 PLACEHOLDER_24))
+                    (return_statement true))))
+              (return_statement false))))
+        (if_statement
+          (unary_expression !
+            (call_expression PLACEHOLDER_20
+              (named_arguments 0 0 0 0)))
+          (expression_statement
+            (call_expression
+              (throw_expression
+                (new_expression
+                  (type Exception)))
+              (named_arguments "no solution"))))
+        (variable_declaration
+          (type char [ 26 ])
+          (declarator PLACEHOLDER_28))
+        (foreach_statement foreach
+          (foreach_type ref PLACEHOLDER_29) PLACEHOLDER_18
+          (expression_statement
+            (assignment_expression
+              (index_expression PLACEHOLDER_28
+                (index
+                  (add_expression
+                    (property_expression PLACEHOLDER_29 . PLACEHOLDER_5) - 'A'))) =
+              (cast_expression
+                (type char)
+                (add_expression
+                  (property_expression PLACEHOLDER_29 . PLACEHOLDER_9) + '0')))))
+        (variable_declaration
+          (type char [ ])
+          (declarator PLACEHOLDER_30))
+        (expression_statement
+          (assignment_expression
+            (property_expression PLACEHOLDER_30 . length) =
+            (property_expression PLACEHOLDER_3 . length)))
+        (foreach_statement foreach
+          (foreach_type PLACEHOLDER_12) 0 ..
+          (property_expression PLACEHOLDER_3 . length)
+          (block_statement
+            (variable_declaration
+              (type char)
+              (declarator PLACEHOLDER_5
+                (index_expression PLACEHOLDER_3
+                  (index PLACEHOLDER_12))))
+            (if_statement
+              (logical_and_expression
+                (rel_expression PLACEHOLDER_5 >= 'A') &&
+                (rel_expression PLACEHOLDER_5 <= 'Z'))
+              (expression_statement
+                (assignment_expression
+                  (index_expression PLACEHOLDER_30
+                    (index PLACEHOLDER_12)) =
+                  (index_expression PLACEHOLDER_28
+                    (index
+                      (add_expression PLACEHOLDER_5 - 'A')))))
+              (expression_statement
+                (assignment_expression
+                  (index_expression PLACEHOLDER_30
+                    (index PLACEHOLDER_12)) = PLACEHOLDER_5)))))
+        (return_statement
+          (cast_expression
+            (type string) PLACEHOLDER_30)))))
+  (unittest_declaration
+    (block_statement
+      (variable_declaration
+        (type
+          (type_ctor immutable) int)
+        (declarator PLACEHOLDER_31 0))
+      (expression_statement
+        (assert_expression
+          (assert_arguments
+            (equal_expression
+              (call_expression PLACEHOLDER_2
+                (named_arguments "I + BB == ILL")) == "1 + 99 == 100"))))
+      (conditional_statement
+        (condition
+          (static_if_condition PLACEHOLDER_31))
+        (block_statement
+          (expression_statement
+            (call_expression assertThrown
+              (named_arguments
+                (call_expression PLACEHOLDER_2
+                  (named_arguments "A == B")))))
+          (expression_statement
+            (call_expression assertThrown
+              (named_arguments
+                (call_expression PLACEHOLDER_2
+                  (named_arguments "ACA + DD == BD")))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments "A + A + A + A + A + A + A + A + A + A + A + B == BCC")) == "9 + 9 + 9 + 9 + 9 + 9 + 9 + 9 + 9 + 9 + 9 + 1 == 100"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments "AS + A == MOM")) == "92 + 9 == 101"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments "NO + NO + TOO == LATE")) == "74 + 74 + 944 == 1092"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments "HE + SEES + THE == LIGHT")) == "54 + 9449 + 754 == 10257"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments "SEND + MORE == MONEY")) == "9567 + 1085 == 10652"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments "AND + A + STRONG + OFFENSE + AS + A + GOOD == DEFENSE")) == "503 + 5 + 691208 + 2774064 + 56 + 5 + 8223 == 3474064"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments "THIS + A + FIRE + THEREFORE + FOR + ALL + HISTORIES + I + TELL + A + TALE + THAT + FALSIFIES + ITS + TITLE + TIS + A + LIE + THE + TALE + OF + THE + LAST + FIRE + HORSES + LATE + AFTER + THE + FIRST + FATHERS + FORESEE + THE + HORRORS + THE + LAST + FREE + TROLL + TERRIFIES + THE + HORSES + OF + FIRE + THE + TROLL + RESTS + AT + THE + HOLE + OF + LOSSES + IT + IS + THERE + THAT + SHE + STORES + ROLES + OF + LEATHERS + AFTER + SHE + SATISFIES + HER + HATE + OFF + THOSE + FEARS + A + TASTE + RISES + AS + SHE + HEARS + THE + LEAST + FAR + HORSE + THOSE + FAST + HORSES + THAT + FIRST + HEAR + THE + TROLL + FLEE + OFF + TO + THE + FOREST + THE + HORSES + THAT + ALERTS + RAISE + THE + STARES + OF + THE + OTHERS + AS + THE + TROLL + ASSAILS + AT + THE + TOTAL + SHIFT + HER + TEETH + TEAR + HOOF + OFF + TORSO + AS + THE + LAST + HORSE + FORFEITS + ITS + LIFE + THE + FIRST + FATHERS + HEAR + OF + THE + HORRORS + THEIR + FEARS + THAT + THE + FIRES + FOR + THEIR + FEASTS + ARREST + AS + THE + FIRST + FATHERS + RESETTLE + THE + LAST + OF + THE + FIRE + HORSES + THE + LAST + TROLL + HARASSES + THE + FOREST + HEART + FREE + AT + LAST + OF + THE + LAST + TROLL + ALL + OFFER + THEIR + FIRE + HEAT + TO + THE + ASSISTERS + FAR + OFF + THE + TROLL + FASTS + ITS + LIFE + SHORTER + AS + STARS + RISE + THE + HORSES + REST + SAFE + AFTER + ALL + SHARE + HOT + FISH + AS + THEIR + AFFILIATES + TAILOR + A + ROOFS + FOR + THEIR + SAFE == FORTRESSES")) == "9874 + 1 + 5730 + 980305630 + 563 + 122 + 874963704 + 7 + 9022 + 1 + 9120 + 9819 + 512475704 + 794 + 97920 + 974 + 1 + 270 + 980 + 9120 + 65 + 980 + 2149 + 5730 + 863404 + 2190 + 15903 + 980 + 57349 + 5198034 + 5630400 + 980 + 8633634 + 980 + 2149 + 5300 + 93622 + 903375704 + 980 + 863404 + 65 + 5730 + 980 + 93622 + 30494 + 19 + 980 + 8620 + 65 + 264404 + 79 + 74 + 98030 + 9819 + 480 + 496304 + 36204 + 65 + 20198034 + 15903 + 480 + 419745704 + 803 + 8190 + 655 + 98640 + 50134 + 1 + 91490 + 37404 + 14 + 480 + 80134 + 980 + 20149 + 513 + 86340 + 98640 + 5149 + 863404 + 9819 + 57349 + 8013 + 980 + 93622 + 5200 + 655 + 96 + 980 + 563049 + 980 + 863404 + 9819 + 120394 + 31740 + 980 + 491304 + 65 + 980 + 698034 + 14 + 980 + 93622 + 1441724 + 19 + 980 + 96912 + 48759 + 803 + 90098 + 9013 + 8665 + 655 + 96346 + 14 + 980 + 2149 + 86340 + 56350794 + 794 + 2750 + 980 + 57349 + 5198034 + 8013 + 65 + 980 + 8633634 + 98073 + 50134 + 9819 + 980 + 57304 + 563 + 98073 + 501494 + 133049 + 14 + 980 + 57349 + 5198034 + 30409920 + 980 + 2149 + 65 + 980 + 5730 + 863404 + 980 + 2149 + 93622 + 81314404 + 980 + 563049 + 80139 + 5300 + 19 + 2149 + 65 + 980 + 2149 + 93622 + 122 + 65503 + 98073 + 5730 + 8019 + 96 + 980 + 144749034 + 513 + 655 + 980 + 93622 + 51494 + 794 + 2750 + 4863903 + 14 + 49134 + 3740 + 980 + 863404 + 3049 + 4150 + 15903 + 122 + 48130 + 869 + 5748 + 14 + 98073 + 1557271904 + 917263 + 1 + 36654 + 563 + 98073 + 4150 == 5639304404")))))))))

@@ -1,201 +1,653 @@
-module zebra_puzzle ;
-enum Nationality
-{
-englishman ,
-japanese ,
-norwegian ,
-spaniard ,
-ukrainian
-}
-enum {
-FIRST = 1 << 0 ,
-SECOND = 1 << 1 ,
-THIRD = 1 << 2 ,
-FOURTH = 1 << 3 ,
-FIFTH = 1 << 4 ,
-ENGLISH = 1 << 5 ,
-JAPANESE = 1 << 6 ,
-NORWEGIAN = 1 << 7 ,
-SPANISH = 1 << 8 ,
-UKRAINIAN = 1 << 9 ,
-RED = 1 << 10 ,
-GREEN = 1 << 11 ,
-IVORY = 1 << 12 ,
-YELLOW = 1 << 13 ,
-BLUE = 1 << 14 ,
-DOG = 1 << 15 ,
-FOX = 1 << 16 ,
-SNAILS = 1 << 17 ,
-HORSE = 1 << 18 ,
-ZEBRA = 1 << 19 ,
-COFFEE = 1 << 20 ,
-TEA = 1 << 21 ,
-MILK = 1 << 22 ,
-OJ = 1 << 23 ,
-WATER = 1 << 24 ,
-DANCE = 1 << 25 ,
-PAINT = 1 << 26 ,
-READ = 1 << 27 ,
-FOOTBALL = 1 << 28 ,
-CHESS = 1 << 29 ,
-};
-alias house = int ;
-alias street = house [ 5 ];
-pure bool has ( house h , int attribute )
-{
-return ( h & attribute ) != 0 ;
-}
-pure bool right_of ( house h1 , house h2 )
-{
-return ( h1 & 0x1f ) == 2 * ( h2 & 0x1f );
-}
-pure bool next_to ( house h1 , house h2 )
-{
-return h1 . right_of ( h2 ) || h2 . right_of ( h1 );
-}
-pure bool feasible_house ( house h )
-{
-return h . has ( ENGLISH ) == h . has ( RED ) &&
-h . has ( SPANISH ) == h . has ( DOG ) &&
-h . has ( GREEN ) == h . has ( COFFEE ) &&
-h . has ( UKRAINIAN ) == h . has ( TEA ) &&
-!( h . has ( IVORY ) && h . has ( FIFTH )) &&
-!( h . has ( GREEN ) && h . has ( FIRST )) &&
-h . has ( SNAILS ) == h . has ( DANCE ) &&
-h . has ( YELLOW ) == h . has ( PAINT ) &&
-h . has ( THIRD ) == h . has ( MILK ) &&
-h . has ( NORWEGIAN ) == h . has ( FIRST ) &&
-!( h . has ( READ ) && h . has ( FOX )) &&
-!( h . has ( PAINT ) && h . has ( HORSE )) &&
-h . has ( FOOTBALL ) == h . has ( OJ ) &&
-h . has ( JAPANESE ) == h . has ( CHESS ) &&
-!( h . has ( NORWEGIAN ) && h . has ( BLUE ));
-}
-pure bool implies ( bool p , bool q )
-{
-return ! p || q ;
-}
-pure bool feasible_pair ( house h1 , house h2 )
-{
-return implies ( h1 . has ( GREEN ) && h2 . has ( IVORY ), h1 . right_of ( h2 )) &&
-implies ( h1 . has ( READ ) && h2 . has ( FOX ), h1 . next_to ( h2 )) &&
-implies ( h1 . has ( PAINT ) && h2 . has ( HORSE ), h1 . next_to ( h2 )) &&
-implies ( h1 . has ( NORWEGIAN ) && h2 . has ( BLUE ), h1 . next_to ( h2 ));
-}
-pure bool feasible_street ( street s )
-{
-return cartesianProduct ( s [], s []). all !( h => feasible_pair ( h [ 0 ], h [ 1 ]));
-}
-struct housemaker {
-enum HOUSE_TOTAL = 5 ^^ 6 ;
-int made = 0 ;
-int [] index = [ 0 , 0 , 0 , 0 , 0 , 0 ];
-bool empty () {
-return made == HOUSE_TOTAL ;
-}
-house front () {
-return iota ( 6 ). fold !(( a , i ) => a + ( 1 << ( 5 * i + index [ i ])))( 0 );
-}
-void popFront () {
-++ made ;
-int i = 0 ;
-while ( i != index . length && index [ i ] == 4 ) {
-index [ i ] = 0 ;
-++ i ;
-}
-if ( i != index . length ) {
-++ index [ i ];
-}
-}
-};
-struct streetmaker {
-house [][ 5 ] hs ;
-street [] streets ;
-int index ;
-this ( ref const house [] houses )
-{
-foreach ( h ; houses ) {
-int i = 0 ;
-while ((( 1 << i ) & h ) == 0 ) {
-++ i ;
-}
-hs [ i ] ~= h ;
-}
-street s ;
-build_streets ( 0 , 0 , s );
-}
-void build_streets ( int i , int used , street partial )
-{
-if ( i == 5 ) {
-streets ~= partial ;
-return ;
-}
-foreach ( h ; hs [ i ]) {
-if (( h & used ) == 0 ) {
-partial [ i ] = h ;
-build_streets ( i + 1 , used | h , partial );
-}
-}
-}
-bool empty ()
-{
-return index == streets . length ;
-}
-street front ()
-{
-return streets [ index ];
-}
-void popFront ()
-{
-++ index ;
-}
-}
-pure Nationality nation ( house h )
-{
-final switch ( h & 0x1e0 ) {
-case ENGLISH :
-return Nationality . englishman ;
-case JAPANESE :
-return Nationality . japanese ;
-case NORWEGIAN :
-return Nationality . norwegian ;
-case SPANISH :
-return Nationality . spaniard ;
-case UKRAINIAN :
-return Nationality . ukrainian ;
-}
-}
-class ZebraPuzzle
-{
-street solution ;
-this ()
-{
-house [] houses = housemaker (). filter ! feasible_house . array ;
-street [] streets = streetmaker ( houses ). filter ! feasible_street . array ;
-assert ( streets . length == 1 );
-solution = streets [ 0 ];
-}
-pure Nationality findOwner ( int attribute )
-{
-foreach ( house ; solution ) {
-if ( house . has ( attribute )) {
-return house . nation ;
-}
-}
-assert ( false , "\"not reachable\"" );
-}
-Nationality drinksWater ()
-{
-return findOwner ( WATER );
-}
-Nationality ownsZebra ()
-{
-return findOwner ( ZEBRA );
-}
-}
-unittest
-{
-ZebraPuzzle zebraPuzzle = new ZebraPuzzle ();
-assert ( zebraPuzzle . drinksWater () == Nationality . norwegian );
-assert ( zebraPuzzle . ownsZebra () == Nationality . japanese );
-}
+(source_file
+  (module_declaration
+    (module_fqn PLACEHOLDER_1))
+  (enum_declaration PLACEHOLDER_2
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_4)
+    (enum_member PLACEHOLDER_5)
+    (enum_member PLACEHOLDER_6)
+    (enum_member PLACEHOLDER_7))
+  (anonymous_enum_declaration
+    (enum_member PLACEHOLDER_8
+      (shift_expression 1 << 0))
+    (enum_member PLACEHOLDER_9
+      (shift_expression 1 << 1))
+    (enum_member PLACEHOLDER_10
+      (shift_expression 1 << 2))
+    (enum_member PLACEHOLDER_11
+      (shift_expression 1 << 3))
+    (enum_member PLACEHOLDER_12
+      (shift_expression 1 << 4))
+    (enum_member PLACEHOLDER_13
+      (shift_expression 1 << 5))
+    (enum_member PLACEHOLDER_14
+      (shift_expression 1 << 6))
+    (enum_member PLACEHOLDER_15
+      (shift_expression 1 << 7))
+    (enum_member PLACEHOLDER_16
+      (shift_expression 1 << 8))
+    (enum_member PLACEHOLDER_17
+      (shift_expression 1 << 9))
+    (enum_member PLACEHOLDER_18
+      (shift_expression 1 << 10))
+    (enum_member PLACEHOLDER_19
+      (shift_expression 1 << 11))
+    (enum_member PLACEHOLDER_20
+      (shift_expression 1 << 12))
+    (enum_member PLACEHOLDER_21
+      (shift_expression 1 << 13))
+    (enum_member PLACEHOLDER_22
+      (shift_expression 1 << 14))
+    (enum_member PLACEHOLDER_23
+      (shift_expression 1 << 15))
+    (enum_member PLACEHOLDER_24
+      (shift_expression 1 << 16))
+    (enum_member PLACEHOLDER_25
+      (shift_expression 1 << 17))
+    (enum_member PLACEHOLDER_26
+      (shift_expression 1 << 18))
+    (enum_member PLACEHOLDER_27
+      (shift_expression 1 << 19))
+    (enum_member PLACEHOLDER_28
+      (shift_expression 1 << 20))
+    (enum_member PLACEHOLDER_29
+      (shift_expression 1 << 21))
+    (enum_member PLACEHOLDER_30
+      (shift_expression 1 << 22))
+    (enum_member PLACEHOLDER_31
+      (shift_expression 1 << 23))
+    (enum_member PLACEHOLDER_32
+      (shift_expression 1 << 24))
+    (enum_member PLACEHOLDER_33
+      (shift_expression 1 << 25))
+    (enum_member PLACEHOLDER_34
+      (shift_expression 1 << 26))
+    (enum_member PLACEHOLDER_35
+      (shift_expression 1 << 27))
+    (enum_member PLACEHOLDER_36
+      (shift_expression 1 << 28))
+    (enum_member PLACEHOLDER_37
+      (shift_expression 1 << 29)))
+  (alias_declaration
+    (alias_initializer PLACEHOLDER_38
+      (type int)))
+  (alias_declaration
+    (alias_initializer PLACEHOLDER_39
+      (type PLACEHOLDER_38 [ 5 ])))
+  (function_declaration pure
+    (type bool) PLACEHOLDER_40
+    (parameters
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_41)
+      (parameter
+        (type int) PLACEHOLDER_42))
+    (function_body
+      (block_statement
+        (return_statement
+          (equal_expression
+            (and_expression PLACEHOLDER_41 & PLACEHOLDER_42) != 0)))))
+  (function_declaration pure
+    (type bool) PLACEHOLDER_43
+    (parameters
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_44)
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_45))
+    (function_body
+      (block_statement
+        (return_statement
+          (equal_expression
+            (and_expression PLACEHOLDER_44 & 31) ==
+            (mul_expression 2 *
+              (and_expression PLACEHOLDER_45 & 31)))))))
+  (function_declaration pure
+    (type bool) PLACEHOLDER_46
+    (parameters
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_44)
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_45))
+    (function_body
+      (block_statement
+        (return_statement
+          (logical_or_expression
+            (call_expression
+              (type PLACEHOLDER_44 . PLACEHOLDER_43)
+              (named_arguments PLACEHOLDER_45)) ||
+            (call_expression
+              (type PLACEHOLDER_45 . PLACEHOLDER_43)
+              (named_arguments PLACEHOLDER_44)))))))
+  (function_declaration pure
+    (type bool) PLACEHOLDER_47
+    (parameters
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_41))
+    (function_body
+      (block_statement
+        (return_statement
+          (logical_and_expression
+            (logical_and_expression
+              (logical_and_expression
+                (logical_and_expression
+                  (logical_and_expression
+                    (logical_and_expression
+                      (logical_and_expression
+                        (logical_and_expression
+                          (logical_and_expression
+                            (logical_and_expression
+                              (logical_and_expression
+                                (logical_and_expression
+                                  (logical_and_expression
+                                    (logical_and_expression
+                                      (equal_expression
+                                        (call_expression
+                                          (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                          (named_arguments PLACEHOLDER_13)) ==
+                                        (call_expression
+                                          (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                          (named_arguments PLACEHOLDER_18))) &&
+                                      (equal_expression
+                                        (call_expression
+                                          (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                          (named_arguments PLACEHOLDER_16)) ==
+                                        (call_expression
+                                          (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                          (named_arguments PLACEHOLDER_23)))) &&
+                                    (equal_expression
+                                      (call_expression
+                                        (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                        (named_arguments PLACEHOLDER_19)) ==
+                                      (call_expression
+                                        (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                        (named_arguments PLACEHOLDER_28)))) &&
+                                  (equal_expression
+                                    (call_expression
+                                      (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                      (named_arguments PLACEHOLDER_17)) ==
+                                    (call_expression
+                                      (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                      (named_arguments PLACEHOLDER_29)))) &&
+                                (unary_expression !
+                                  (logical_and_expression
+                                    (call_expression
+                                      (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                      (named_arguments PLACEHOLDER_20)) &&
+                                    (call_expression
+                                      (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                      (named_arguments PLACEHOLDER_12))))) &&
+                              (unary_expression !
+                                (logical_and_expression
+                                  (call_expression
+                                    (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                    (named_arguments PLACEHOLDER_19)) &&
+                                  (call_expression
+                                    (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                    (named_arguments PLACEHOLDER_8))))) &&
+                            (equal_expression
+                              (call_expression
+                                (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                (named_arguments PLACEHOLDER_25)) ==
+                              (call_expression
+                                (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                                (named_arguments PLACEHOLDER_33)))) &&
+                          (equal_expression
+                            (call_expression
+                              (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                              (named_arguments PLACEHOLDER_21)) ==
+                            (call_expression
+                              (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                              (named_arguments PLACEHOLDER_34)))) &&
+                        (equal_expression
+                          (call_expression
+                            (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                            (named_arguments PLACEHOLDER_10)) ==
+                          (call_expression
+                            (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                            (named_arguments PLACEHOLDER_30)))) &&
+                      (equal_expression
+                        (call_expression
+                          (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                          (named_arguments PLACEHOLDER_15)) ==
+                        (call_expression
+                          (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                          (named_arguments PLACEHOLDER_8)))) &&
+                    (unary_expression !
+                      (logical_and_expression
+                        (call_expression
+                          (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                          (named_arguments PLACEHOLDER_35)) &&
+                        (call_expression
+                          (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                          (named_arguments PLACEHOLDER_24))))) &&
+                  (unary_expression !
+                    (logical_and_expression
+                      (call_expression
+                        (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                        (named_arguments PLACEHOLDER_34)) &&
+                      (call_expression
+                        (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                        (named_arguments PLACEHOLDER_26))))) &&
+                (equal_expression
+                  (call_expression
+                    (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                    (named_arguments PLACEHOLDER_36)) ==
+                  (call_expression
+                    (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                    (named_arguments PLACEHOLDER_31)))) &&
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                  (named_arguments PLACEHOLDER_14)) ==
+                (call_expression
+                  (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                  (named_arguments PLACEHOLDER_37)))) &&
+            (unary_expression !
+              (logical_and_expression
+                (call_expression
+                  (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                  (named_arguments PLACEHOLDER_15)) &&
+                (call_expression
+                  (type PLACEHOLDER_41 . PLACEHOLDER_40)
+                  (named_arguments PLACEHOLDER_22)))))))))
+  (function_declaration pure
+    (type bool) PLACEHOLDER_48
+    (parameters
+      (parameter
+        (type bool) PLACEHOLDER_49)
+      (parameter
+        (type bool) PLACEHOLDER_50))
+    (function_body
+      (block_statement
+        (return_statement
+          (logical_or_expression
+            (unary_expression ! PLACEHOLDER_49) || PLACEHOLDER_50)))))
+  (function_declaration pure
+    (type bool) PLACEHOLDER_51
+    (parameters
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_44)
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_45))
+    (function_body
+      (block_statement
+        (return_statement
+          (logical_and_expression
+            (logical_and_expression
+              (logical_and_expression
+                (call_expression PLACEHOLDER_48
+                  (named_arguments
+                    (logical_and_expression
+                      (call_expression
+                        (type PLACEHOLDER_44 . PLACEHOLDER_40)
+                        (named_arguments PLACEHOLDER_19)) &&
+                      (call_expression
+                        (type PLACEHOLDER_45 . PLACEHOLDER_40)
+                        (named_arguments PLACEHOLDER_20)))
+                    (call_expression
+                      (type PLACEHOLDER_44 . PLACEHOLDER_43)
+                      (named_arguments PLACEHOLDER_45)))) &&
+                (call_expression PLACEHOLDER_48
+                  (named_arguments
+                    (logical_and_expression
+                      (call_expression
+                        (type PLACEHOLDER_44 . PLACEHOLDER_40)
+                        (named_arguments PLACEHOLDER_35)) &&
+                      (call_expression
+                        (type PLACEHOLDER_45 . PLACEHOLDER_40)
+                        (named_arguments PLACEHOLDER_24)))
+                    (call_expression
+                      (type PLACEHOLDER_44 . PLACEHOLDER_46)
+                      (named_arguments PLACEHOLDER_45))))) &&
+              (call_expression PLACEHOLDER_48
+                (named_arguments
+                  (logical_and_expression
+                    (call_expression
+                      (type PLACEHOLDER_44 . PLACEHOLDER_40)
+                      (named_arguments PLACEHOLDER_34)) &&
+                    (call_expression
+                      (type PLACEHOLDER_45 . PLACEHOLDER_40)
+                      (named_arguments PLACEHOLDER_26)))
+                  (call_expression
+                    (type PLACEHOLDER_44 . PLACEHOLDER_46)
+                    (named_arguments PLACEHOLDER_45))))) &&
+            (call_expression PLACEHOLDER_48
+              (named_arguments
+                (logical_and_expression
+                  (call_expression
+                    (type PLACEHOLDER_44 . PLACEHOLDER_40)
+                    (named_arguments PLACEHOLDER_15)) &&
+                  (call_expression
+                    (type PLACEHOLDER_45 . PLACEHOLDER_40)
+                    (named_arguments PLACEHOLDER_22)))
+                (call_expression
+                  (type PLACEHOLDER_44 . PLACEHOLDER_46)
+                  (named_arguments PLACEHOLDER_45)))))))))
+  (function_declaration pure
+    (type bool) PLACEHOLDER_52
+    (parameters
+      (parameter
+        (type PLACEHOLDER_39) PLACEHOLDER_53))
+    (function_body
+      (block_statement
+        (return_statement
+          (property_expression
+            (call_expression cartesianProduct
+              (named_arguments
+                (index_expression PLACEHOLDER_53)
+                (index_expression PLACEHOLDER_53))) .
+            (template_instance all
+              (template_arguments
+                (template_argument
+                  (function_literal
+                    (parameters
+                      (parameter PLACEHOLDER_41))
+                    (block_statement
+                      (return_statement
+                        (call_expression PLACEHOLDER_51
+                          (named_arguments
+                            (index_expression PLACEHOLDER_41
+                              (index 0))
+                            (index_expression PLACEHOLDER_41
+                              (index 1)))))))))))))))
+  (struct_declaration PLACEHOLDER_54
+    (aggregate_body
+      (manifest_constant
+        (manifest_declarator PLACEHOLDER_55
+          (power_expression 5 ^^ 6)))
+      (variable_declaration
+        (type int)
+        (declarator PLACEHOLDER_56 0))
+      (variable_declaration
+        (type int [ ])
+        (declarator PLACEHOLDER_57
+          (array_literal 0 0 0 0 0 0)))
+      (function_declaration
+        (type bool) PLACEHOLDER_58
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (equal_expression PLACEHOLDER_56 == PLACEHOLDER_55)))))
+      (function_declaration
+        (type PLACEHOLDER_38) PLACEHOLDER_59
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (call_expression
+                (property_expression
+                  (call_expression iota
+                    (named_arguments 6)) .
+                  (template_instance fold
+                    (template_arguments
+                      (template_argument
+                        (function_literal
+                          (parameters
+                            (parameter PLACEHOLDER_60)
+                            (parameter PLACEHOLDER_61))
+                          (block_statement
+                            (return_statement
+                              (add_expression PLACEHOLDER_60 +
+                                (shift_expression 1 <<
+                                  (add_expression
+                                    (mul_expression 5 * PLACEHOLDER_61) +
+                                    (index_expression PLACEHOLDER_57
+                                      (index PLACEHOLDER_61))))))))))))
+                (named_arguments 0))))))
+      (function_declaration
+        (type void) PLACEHOLDER_62
+        (parameters)
+        (function_body
+          (block_statement
+            (expression_statement
+              (unary_expression ++ PLACEHOLDER_56))
+            (variable_declaration
+              (type int)
+              (declarator PLACEHOLDER_61 0))
+            (while_statement
+              (logical_and_expression
+                (equal_expression PLACEHOLDER_61 !=
+                  (property_expression PLACEHOLDER_57 . length)) &&
+                (equal_expression
+                  (index_expression PLACEHOLDER_57
+                    (index PLACEHOLDER_61)) == 4))
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (index_expression PLACEHOLDER_57
+                      (index PLACEHOLDER_61)) = 0))
+                (expression_statement
+                  (unary_expression ++ PLACEHOLDER_61))))
+            (if_statement
+              (equal_expression PLACEHOLDER_61 !=
+                (property_expression PLACEHOLDER_57 . length))
+              (block_statement
+                (expression_statement
+                  (unary_expression ++
+                    (index_expression PLACEHOLDER_57
+                      (index PLACEHOLDER_61)))))))))))
+  (struct_declaration PLACEHOLDER_63
+    (aggregate_body
+      (variable_declaration
+        (type PLACEHOLDER_38 [ ] [ 5 ])
+        (declarator PLACEHOLDER_64))
+      (variable_declaration
+        (type PLACEHOLDER_39 [ ])
+        (declarator PLACEHOLDER_65))
+      (variable_declaration
+        (type int)
+        (declarator PLACEHOLDER_57))
+      (constructor this
+        (parameters
+          (parameter
+            (parameter_attribute ref)
+            (type
+              (type_ctor const) PLACEHOLDER_38 [ ]) PLACEHOLDER_66))
+        (function_body
+          (block_statement
+            (foreach_statement foreach
+              (foreach_type PLACEHOLDER_41) PLACEHOLDER_66
+              (block_statement
+                (variable_declaration
+                  (type int)
+                  (declarator PLACEHOLDER_61 0))
+                (while_statement
+                  (equal_expression
+                    (and_expression
+                      (shift_expression 1 << PLACEHOLDER_61) & PLACEHOLDER_41) == 0)
+                  (block_statement
+                    (expression_statement
+                      (unary_expression ++ PLACEHOLDER_61))))
+                (expression_statement
+                  (assignment_expression
+                    (index_expression PLACEHOLDER_64
+                      (index PLACEHOLDER_61)) ~= PLACEHOLDER_41))))
+            (variable_declaration
+              (type PLACEHOLDER_39)
+              (declarator PLACEHOLDER_53))
+            (expression_statement
+              (call_expression PLACEHOLDER_67
+                (named_arguments 0 0 PLACEHOLDER_53))))))
+      (function_declaration
+        (type void) PLACEHOLDER_67
+        (parameters
+          (parameter
+            (type int) PLACEHOLDER_61)
+          (parameter
+            (type int) PLACEHOLDER_68)
+          (parameter
+            (type PLACEHOLDER_39) PLACEHOLDER_69))
+        (function_body
+          (block_statement
+            (if_statement
+              (equal_expression PLACEHOLDER_61 == 5)
+              (block_statement
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_65 ~= PLACEHOLDER_69))
+                (return_statement)))
+            (foreach_statement foreach
+              (foreach_type PLACEHOLDER_41)
+              (index_expression PLACEHOLDER_64
+                (index PLACEHOLDER_61))
+              (block_statement
+                (if_statement
+                  (equal_expression
+                    (and_expression PLACEHOLDER_41 & PLACEHOLDER_68) == 0)
+                  (block_statement
+                    (expression_statement
+                      (assignment_expression
+                        (index_expression PLACEHOLDER_69
+                          (index PLACEHOLDER_61)) = PLACEHOLDER_41))
+                    (expression_statement
+                      (call_expression PLACEHOLDER_67
+                        (named_arguments
+                          (add_expression PLACEHOLDER_61 + 1)
+                          (or_expression PLACEHOLDER_68 | PLACEHOLDER_41) PLACEHOLDER_69))))))))))
+      (function_declaration
+        (type bool) PLACEHOLDER_58
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (equal_expression PLACEHOLDER_57 ==
+                (property_expression PLACEHOLDER_65 . length))))))
+      (function_declaration
+        (type PLACEHOLDER_39) PLACEHOLDER_59
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (index_expression PLACEHOLDER_65
+                (index PLACEHOLDER_57))))))
+      (function_declaration
+        (type void) PLACEHOLDER_62
+        (parameters)
+        (function_body
+          (block_statement
+            (expression_statement
+              (unary_expression ++ PLACEHOLDER_57)))))))
+  (function_declaration pure
+    (type PLACEHOLDER_2) PLACEHOLDER_70
+    (parameters
+      (parameter
+        (type PLACEHOLDER_38) PLACEHOLDER_41))
+    (function_body
+      (block_statement
+        (final_switch_statement
+          (switch_statement
+            (and_expression PLACEHOLDER_41 & 480)
+            (block_statement
+              (case_statement PLACEHOLDER_13
+                (return_statement
+                  (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)))
+              (case_statement PLACEHOLDER_14
+                (return_statement
+                  (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)))
+              (case_statement PLACEHOLDER_15
+                (return_statement
+                  (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)))
+              (case_statement PLACEHOLDER_16
+                (return_statement
+                  (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)))
+              (case_statement PLACEHOLDER_17
+                (return_statement
+                  (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)))))))))
+  (class_declaration PLACEHOLDER_71
+    (aggregate_body
+      (variable_declaration
+        (type PLACEHOLDER_39)
+        (declarator PLACEHOLDER_72))
+      (constructor this
+        (parameters)
+        (function_body
+          (block_statement
+            (variable_declaration
+              (type PLACEHOLDER_38 [ ])
+              (declarator PLACEHOLDER_66
+                (property_expression
+                  (property_expression
+                    (call_expression PLACEHOLDER_54
+                      (named_arguments)) .
+                    (template_instance filter
+                      (template_arguments
+                        (template_argument PLACEHOLDER_47)))) . array)))
+            (variable_declaration
+              (type PLACEHOLDER_39 [ ])
+              (declarator PLACEHOLDER_65
+                (property_expression
+                  (property_expression
+                    (call_expression PLACEHOLDER_63
+                      (named_arguments PLACEHOLDER_66)) .
+                    (template_instance filter
+                      (template_arguments
+                        (template_argument PLACEHOLDER_52)))) . array)))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_65 . length) == 1))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_72 =
+                (index_expression PLACEHOLDER_65
+                  (index 0)))))))
+      (function_declaration pure
+        (type PLACEHOLDER_2) PLACEHOLDER_73
+        (parameters
+          (parameter
+            (type int) PLACEHOLDER_42))
+        (function_body
+          (block_statement
+            (foreach_statement foreach
+              (foreach_type PLACEHOLDER_38) PLACEHOLDER_72
+              (block_statement
+                (if_statement
+                  (call_expression
+                    (type PLACEHOLDER_38 . PLACEHOLDER_40)
+                    (named_arguments PLACEHOLDER_42))
+                  (block_statement
+                    (return_statement
+                      (property_expression PLACEHOLDER_38 . PLACEHOLDER_70))))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments false "not reachable"))))))
+      (function_declaration
+        (type PLACEHOLDER_2) PLACEHOLDER_74
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (call_expression PLACEHOLDER_73
+                (named_arguments PLACEHOLDER_32))))))
+      (function_declaration
+        (type PLACEHOLDER_2) PLACEHOLDER_75
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (call_expression PLACEHOLDER_73
+                (named_arguments PLACEHOLDER_27))))))))
+  (unittest_declaration
+    (block_statement
+      (variable_declaration
+        (type PLACEHOLDER_71)
+        (declarator PLACEHOLDER_76
+          (call_expression
+            (new_expression
+              (type PLACEHOLDER_71))
+            (named_arguments))))
+      (expression_statement
+        (assert_expression
+          (assert_arguments
+            (equal_expression
+              (call_expression
+                (type PLACEHOLDER_76 . PLACEHOLDER_74)
+                (named_arguments)) ==
+              (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)))))
+      (expression_statement
+        (assert_expression
+          (assert_arguments
+            (equal_expression
+              (call_expression
+                (type PLACEHOLDER_76 . PLACEHOLDER_75)
+                (named_arguments)) ==
+              (property_expression PLACEHOLDER_2 . PLACEHOLDER_4))))))))
