@@ -1,54 +1,143 @@
-package intergalactic_transmission
-transmit_sequence :: proc(msg: []u8) -> (seq: []u8) {
-result: [dynamic]u8
-for i := 0; i < bit_len(msg); i += 7 {
-buf: u8
-count: u8
-for j := i; j < i + 7; j += 1 {
-bit := nth_bit(msg, j)
-if bit == 1 do count += 1
-buf |= bit
-buf <<= 1
-}
-if (count & 1) == 1 do buf |= 1
-append(&result, buf)
-}
-return result[:]
-}
-decode_message :: proc(seq: []u8) -> (msg: []u8, okay: bool) {
-result: [dynamic]u8
-buf: u8
-bit_idx: u8
-for b in seq {
-b := b
-bit_count: u8
-for i := 0; i < 7; i += 1 {
-if b & 0x80 != 0 {
-buf |= 1
-bit_count += 1
-}
-b <<= 1
-bit_idx += 1
-if bit_idx == 8 {
-append(&result, buf)
-buf = 0
-bit_idx = 0
-}
-buf <<= 1
-}
-if (b & 0x80) != 0 && (bit_count & 1) == 0 || (b & 0x80) == 0 && (bit_count & 1) == 1 {
-return nil, false
-}
-}
-if buf != 0 do append(&result, buf)
-return result[:], true
-}
-bit_len :: proc(bytes: []u8) -> int {
-return len(bytes) * 8
-}
-nth_bit :: proc(bytes: []u8, n: int) -> u8 {
-if n < 0 || n >= bit_len(bytes) do return 0
-idx := n / 8
-if bytes[idx] & (1 << u8(7 - n % 8)) == 0 do return 0
-else do return 1
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (procedure_declaration PLACEHOLDER_2
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_3 :
+          (array_type u8)))
+      (named_type PLACEHOLDER_4
+        (array_type u8))
+      (block
+        (var_declaration PLACEHOLDER_5 :
+          (array_type dynamic u8))
+        (for_statement
+          (assignment_statement PLACEHOLDER_6 := 0) ;
+          (binary_expression PLACEHOLDER_6 <
+            (call_expression PLACEHOLDER_7 PLACEHOLDER_3)) ;
+          (update_statement PLACEHOLDER_6 += 7)
+          (block
+            (var_declaration PLACEHOLDER_8 : u8)
+            (var_declaration PLACEHOLDER_9 : u8)
+            (for_statement
+              (assignment_statement PLACEHOLDER_10 := PLACEHOLDER_6) ;
+              (binary_expression PLACEHOLDER_10 <
+                (binary_expression PLACEHOLDER_6 + 7)) ;
+              (update_statement PLACEHOLDER_10 += 1)
+              (block
+                (assignment_statement PLACEHOLDER_11 :=
+                  (call_expression PLACEHOLDER_12 PLACEHOLDER_3 PLACEHOLDER_10))
+                (if_statement
+                  (binary_expression PLACEHOLDER_11 == 1)
+                  (block
+                    (update_statement PLACEHOLDER_9 += 1)))
+                (update_statement PLACEHOLDER_8 |= PLACEHOLDER_11)
+                (update_statement PLACEHOLDER_8 <<= 1)))
+            (if_statement
+              (binary_expression
+                (binary_expression PLACEHOLDER_9 & 1) == 1)
+              (block
+                (update_statement PLACEHOLDER_8 |= 1)))
+            (call_expression append
+              (unary_expression & PLACEHOLDER_5) PLACEHOLDER_8)))
+        (return_statement
+          (slice_expression PLACEHOLDER_5 :)))))
+  (procedure_declaration PLACEHOLDER_13
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_4 :
+          (array_type u8)))
+      (tuple_type
+        (named_type PLACEHOLDER_3
+          (array_type u8))
+        (named_type PLACEHOLDER_14 bool))
+      (block
+        (var_declaration PLACEHOLDER_5 :
+          (array_type dynamic u8))
+        (var_declaration PLACEHOLDER_8 : u8)
+        (var_declaration PLACEHOLDER_15 : u8)
+        (for_statement PLACEHOLDER_16 in PLACEHOLDER_4
+          (block
+            (assignment_statement PLACEHOLDER_16 := PLACEHOLDER_16)
+            (var_declaration PLACEHOLDER_17 : u8)
+            (for_statement
+              (assignment_statement PLACEHOLDER_6 := 0) ;
+              (binary_expression PLACEHOLDER_6 < 7) ;
+              (update_statement PLACEHOLDER_6 += 1)
+              (block
+                (if_statement
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_16 & 128) != 0)
+                  (block
+                    (update_statement PLACEHOLDER_8 |= 1)
+                    (update_statement PLACEHOLDER_17 += 1)))
+                (update_statement PLACEHOLDER_16 <<= 1)
+                (update_statement PLACEHOLDER_15 += 1)
+                (if_statement
+                  (binary_expression PLACEHOLDER_15 == 8)
+                  (block
+                    (call_expression append
+                      (unary_expression & PLACEHOLDER_5) PLACEHOLDER_8)
+                    (assignment_statement PLACEHOLDER_8 = 0)
+                    (assignment_statement PLACEHOLDER_15 = 0)))
+                (update_statement PLACEHOLDER_8 <<= 1)))
+            (if_statement
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_16 & 128) != 0) &&
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_17 & 1) == 0)) ||
+                (binary_expression
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_16 & 128) == 0) &&
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_17 & 1) == 1)))
+              (block
+                (return_statement nil
+                  (boolean false))))))
+        (if_statement
+          (binary_expression PLACEHOLDER_8 != 0)
+          (block
+            (call_expression append
+              (unary_expression & PLACEHOLDER_5) PLACEHOLDER_8)))
+        (return_statement
+          (slice_expression PLACEHOLDER_5 :)
+          (boolean true)))))
+  (procedure_declaration PLACEHOLDER_7
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_18 :
+          (array_type u8))) int
+      (block
+        (return_statement
+          (binary_expression
+            (call_expression len PLACEHOLDER_18) * 8)))))
+  (procedure_declaration PLACEHOLDER_12
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_18 :
+          (array_type u8))
+        (parameter PLACEHOLDER_19 : int)) u8
+      (block
+        (if_statement
+          (binary_expression
+            (binary_expression PLACEHOLDER_19 < 0) ||
+            (binary_expression PLACEHOLDER_19 >=
+              (call_expression PLACEHOLDER_7 PLACEHOLDER_18)))
+          (block
+            (return_statement 0)))
+        (assignment_statement PLACEHOLDER_20 :=
+          (binary_expression PLACEHOLDER_19 / 8))
+        (if_statement
+          (binary_expression
+            (binary_expression
+              (index_expression PLACEHOLDER_18 PLACEHOLDER_20) &
+              (binary_expression 1 <<
+                (call_expression u8
+                  (binary_expression 7 -
+                    (binary_expression PLACEHOLDER_19 % 8))))) == 0)
+          (block
+            (return_statement 0))
+          (else_clause
+            (block
+              (return_statement 1))))))))

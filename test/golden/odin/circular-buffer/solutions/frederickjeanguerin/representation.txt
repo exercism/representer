@@ -1,50 +1,163 @@
-package circular_buffer
-TypedBuffer :: struct($T:typeid) {
-data : []T,
-next_pos: int,
-last_pos: int,
-}
-Buffer :: TypedBuffer(int)
-Error :: enum {
-None,
-BufferEmpty,
-BufferFull,
-}
-new_buffer :: proc {new_int_buffer, new_typed_buffer}
-new_typed_buffer :: proc(capacity: int, $T: typeid) -> TypedBuffer(T) {
-assert(capacity > 0)
-return TypedBuffer(T){make([]T, capacity + 1), 0, 0}
-}
-new_int_buffer :: proc(capacity: int) -> Buffer {
-return new_typed_buffer(capacity, int)
-}
-destroy_buffer :: proc(b: ^TypedBuffer($T)) {
-delete(b.data)
-}
-clear :: proc(b: ^TypedBuffer($T)) {
-b.next_pos, b.last_pos = 0, 0
-}
-is_empty :: proc(b: ^TypedBuffer($T)) -> bool {
-return b.next_pos == b.last_pos
-}
-is_full :: proc(b: ^TypedBuffer($T)) -> bool {
-return inc_pos(b, b.next_pos) == b.last_pos
-}
-inc_pos :: proc(b: ^TypedBuffer($T), pos: int) -> int {
-return (pos + 1) % len(b.data)
-}
-read :: proc(b: ^TypedBuffer($T)) -> (T, Error) {
-if is_empty(b) do return 0, .BufferEmpty
-defer b.last_pos = inc_pos(b, b.last_pos)
-return b.data[b.last_pos], .None
-}
-write :: proc(b: ^TypedBuffer($T), value: T) -> Error {
-if is_full(b) do return .BufferFull
-defer b.next_pos = inc_pos(b, b.next_pos)
-b.data[b.next_pos] = value
-return .None
-}
-overwrite :: proc(b: ^TypedBuffer($T), value: T) {
-if is_full(b) do read(b)
-write(b, value)
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (struct_declaration PLACEHOLDER_2
+    (polymorphic_parameters $ PLACEHOLDER_3 typeid)
+    (field PLACEHOLDER_4
+      (array_type PLACEHOLDER_3))
+    (field PLACEHOLDER_5 int)
+    (field PLACEHOLDER_6 int))
+  (const_declaration PLACEHOLDER_7
+    (call_expression PLACEHOLDER_2 int))
+  (enum_declaration PLACEHOLDER_8
+    (enum_member PLACEHOLDER_9)
+    (enum_member PLACEHOLDER_10)
+    (enum_member PLACEHOLDER_11))
+  (overloaded_procedure_declaration PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14)
+  (procedure_declaration PLACEHOLDER_14
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_15 : int)
+        (parameter $ PLACEHOLDER_3 : typeid))
+      (polymorphic_type PLACEHOLDER_2 PLACEHOLDER_3)
+      (block
+        (call_expression assert
+          (binary_expression PLACEHOLDER_15 > 0))
+        (return_statement
+          (struct
+            (call_expression PLACEHOLDER_2 PLACEHOLDER_3)
+            (struct_field
+              (call_expression make
+                (array_type PLACEHOLDER_3)
+                (binary_expression PLACEHOLDER_15 + 1)))
+            (struct_field 0)
+            (struct_field 0))))))
+  (procedure_declaration PLACEHOLDER_13
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_15 : int)) PLACEHOLDER_7
+      (block
+        (return_statement
+          (call_expression PLACEHOLDER_14 PLACEHOLDER_15 int)))))
+  (procedure_declaration PLACEHOLDER_16
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_17 :
+          (polymorphic_type
+            (pointer_type ^ PLACEHOLDER_2)
+            (constant_type $ PLACEHOLDER_3))))
+      (block
+        (call_expression delete
+          (member_expression PLACEHOLDER_17 PLACEHOLDER_4)))))
+  (procedure_declaration PLACEHOLDER_18
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_17 :
+          (polymorphic_type
+            (pointer_type ^ PLACEHOLDER_2)
+            (constant_type $ PLACEHOLDER_3))))
+      (block
+        (assignment_statement
+          (member_expression PLACEHOLDER_17 PLACEHOLDER_5)
+          (member_expression PLACEHOLDER_17 PLACEHOLDER_6) = 0 0))))
+  (procedure_declaration PLACEHOLDER_19
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_17 :
+          (polymorphic_type
+            (pointer_type ^ PLACEHOLDER_2)
+            (constant_type $ PLACEHOLDER_3)))) bool
+      (block
+        (return_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_5) ==
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_6))))))
+  (procedure_declaration PLACEHOLDER_20
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_17 :
+          (polymorphic_type
+            (pointer_type ^ PLACEHOLDER_2)
+            (constant_type $ PLACEHOLDER_3)))) bool
+      (block
+        (return_statement
+          (binary_expression
+            (call_expression PLACEHOLDER_21 PLACEHOLDER_17
+              (member_expression PLACEHOLDER_17 PLACEHOLDER_5)) ==
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_6))))))
+  (procedure_declaration PLACEHOLDER_21
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_17 :
+          (polymorphic_type
+            (pointer_type ^ PLACEHOLDER_2)
+            (constant_type $ PLACEHOLDER_3)))
+        (parameter PLACEHOLDER_22 : int)) int
+      (block
+        (return_statement
+          (binary_expression
+            (binary_expression PLACEHOLDER_22 + 1) %
+            (call_expression len
+              (member_expression PLACEHOLDER_17 PLACEHOLDER_4)))))))
+  (procedure_declaration PLACEHOLDER_23
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_17 :
+          (polymorphic_type
+            (pointer_type ^ PLACEHOLDER_2)
+            (constant_type $ PLACEHOLDER_3))))
+      (tuple_type PLACEHOLDER_3 PLACEHOLDER_8)
+      (block
+        (if_statement
+          (call_expression PLACEHOLDER_19 PLACEHOLDER_17)
+          (block
+            (return_statement 0
+              (member_expression PLACEHOLDER_10))))
+        (defer_statement
+          (assignment_statement
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_6) =
+            (call_expression PLACEHOLDER_21 PLACEHOLDER_17
+              (member_expression PLACEHOLDER_17 PLACEHOLDER_6))))
+        (return_statement
+          (index_expression
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_4)
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_6))
+          (member_expression PLACEHOLDER_9)))))
+  (procedure_declaration PLACEHOLDER_24
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_17 :
+          (polymorphic_type
+            (pointer_type ^ PLACEHOLDER_2)
+            (constant_type $ PLACEHOLDER_3)))
+        (parameter PLACEHOLDER_25 : PLACEHOLDER_3)) PLACEHOLDER_8
+      (block
+        (if_statement
+          (call_expression PLACEHOLDER_20 PLACEHOLDER_17)
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_11))))
+        (defer_statement
+          (assignment_statement
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_5) =
+            (call_expression PLACEHOLDER_21 PLACEHOLDER_17
+              (member_expression PLACEHOLDER_17 PLACEHOLDER_5))))
+        (assignment_statement
+          (index_expression
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_4)
+            (member_expression PLACEHOLDER_17 PLACEHOLDER_5)) = PLACEHOLDER_25)
+        (return_statement
+          (member_expression PLACEHOLDER_9)))))
+  (procedure_declaration PLACEHOLDER_26
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_17 :
+          (polymorphic_type
+            (pointer_type ^ PLACEHOLDER_2)
+            (constant_type $ PLACEHOLDER_3)))
+        (parameter PLACEHOLDER_25 : PLACEHOLDER_3))
+      (block
+        (if_statement
+          (call_expression PLACEHOLDER_20 PLACEHOLDER_17)
+          (block
+            (call_expression PLACEHOLDER_23 PLACEHOLDER_17)))
+        (call_expression PLACEHOLDER_24 PLACEHOLDER_17 PLACEHOLDER_25)))))

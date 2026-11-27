@@ -1,84 +1,156 @@
-package intergalactic_transmission
-transmit_sequence :: proc(msg: []u8) -> (seq: []u8) {
-// Implement this procedure.
-output: [dynamic]u8
-bits:int
-output_byte := u8(0)
-num_ones := u8(0)
-write_shift_amount := u8(7)
-ongoing_byte := false
-for b in msg {
-for i:=0; i < 8; i += 1 {
-if bits == 7 {
-if (num_ones%2) == 1 do output_byte |= 1
-append(&output, output_byte)
-output_byte = 0
-bits = 0
-num_ones = 0
-write_shift_amount = 7
-ongoing_byte = false
-}
-read_shift_amount := u8(7-i)
-if b & (1 << read_shift_amount) > 0 {
-output_byte = output_byte | (1 << write_shift_amount)
-num_ones += 1
-}
-ongoing_byte = true
-write_shift_amount -= 1
-bits += 1
-}
-}
-if ongoing_byte {
-if num_ones%2==1 do output_byte|=1
-append(&output, output_byte)
-}
-return output[:]
-}
-decode_message :: proc(seq: []u8) -> (msg: []u8, okay: bool) {
-// Implement this procedure.
-output : [dynamic]u8
-read_shift_amount:u8
-write_shift_amount := u8(8)
-output_byte:u8
-bits:int
-num_ones:int
-for b in seq {
-for i:= 0; i < 8; i += 1 {
-if write_shift_amount == 0 {
-append(&output, output_byte)
-output_byte = 0
-write_shift_amount = 8
-}
-read_shift_amount = u8(7-i)
-if bits == 7 {
-parity := b & (1 << read_shift_amount)
-if num_ones%2==1 {
-if parity == 0 {
-delete(output)
-return nil, false
-}
-}
-else {
-if parity > 0 {
-delete(output)
-return nil, false
-}
-}
-num_ones = 0
-bits = 0
-}
-else if b & (1 << read_shift_amount) > 0 {
-num_ones += 1
-write_shift_amount -= 1
-output_byte |= 1 << write_shift_amount;
-bits += 1
-}
-else {
-bits += 1
-write_shift_amount -= 1
-}
-}
-}
-if write_shift_amount > 0 && output_byte != 0 do append(&output, output_byte)
-return output[:], true
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (procedure_declaration PLACEHOLDER_2
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_3 :
+          (array_type u8)))
+      (named_type PLACEHOLDER_4
+        (array_type u8))
+      (block
+        (var_declaration PLACEHOLDER_5 :
+          (array_type dynamic u8))
+        (var_declaration PLACEHOLDER_6 : int)
+        (assignment_statement PLACEHOLDER_7 :=
+          (call_expression u8 0))
+        (assignment_statement PLACEHOLDER_8 :=
+          (call_expression u8 0))
+        (assignment_statement PLACEHOLDER_9 :=
+          (call_expression u8 7))
+        (assignment_statement PLACEHOLDER_10 :=
+          (boolean false))
+        (for_statement PLACEHOLDER_11 in PLACEHOLDER_3
+          (block
+            (for_statement
+              (assignment_statement PLACEHOLDER_12 := 0) ;
+              (binary_expression PLACEHOLDER_12 < 8) ;
+              (update_statement PLACEHOLDER_12 += 1)
+              (block
+                (if_statement
+                  (binary_expression PLACEHOLDER_6 == 7)
+                  (block
+                    (if_statement
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_8 % 2) == 1)
+                      (block
+                        (update_statement PLACEHOLDER_7 |= 1)))
+                    (call_expression append
+                      (unary_expression & PLACEHOLDER_5) PLACEHOLDER_7)
+                    (assignment_statement PLACEHOLDER_7 = 0)
+                    (assignment_statement PLACEHOLDER_6 = 0)
+                    (assignment_statement PLACEHOLDER_8 = 0)
+                    (assignment_statement PLACEHOLDER_9 = 7)
+                    (assignment_statement PLACEHOLDER_10 =
+                      (boolean false))))
+                (assignment_statement PLACEHOLDER_13 :=
+                  (call_expression u8
+                    (binary_expression 7 - PLACEHOLDER_12)))
+                (if_statement
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_11 &
+                      (binary_expression 1 << PLACEHOLDER_13)) > 0)
+                  (block
+                    (assignment_statement PLACEHOLDER_7 =
+                      (binary_expression PLACEHOLDER_7 |
+                        (binary_expression 1 << PLACEHOLDER_9)))
+                    (update_statement PLACEHOLDER_8 += 1)))
+                (assignment_statement PLACEHOLDER_10 =
+                  (boolean true))
+                (update_statement PLACEHOLDER_9 -= 1)
+                (update_statement PLACEHOLDER_6 += 1)))))
+        (if_statement PLACEHOLDER_10
+          (block
+            (if_statement
+              (binary_expression
+                (binary_expression PLACEHOLDER_8 % 2) == 1)
+              (block
+                (update_statement PLACEHOLDER_7 |= 1)))
+            (call_expression append
+              (unary_expression & PLACEHOLDER_5) PLACEHOLDER_7)))
+        (return_statement
+          (slice_expression PLACEHOLDER_5 :)))))
+  (procedure_declaration PLACEHOLDER_14
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_4 :
+          (array_type u8)))
+      (tuple_type
+        (named_type PLACEHOLDER_3
+          (array_type u8))
+        (named_type PLACEHOLDER_15 bool))
+      (block
+        (var_declaration PLACEHOLDER_5 :
+          (array_type dynamic u8))
+        (var_declaration PLACEHOLDER_13 : u8)
+        (assignment_statement PLACEHOLDER_9 :=
+          (call_expression u8 8))
+        (var_declaration PLACEHOLDER_7 : u8)
+        (var_declaration PLACEHOLDER_6 : int)
+        (var_declaration PLACEHOLDER_8 : int)
+        (for_statement PLACEHOLDER_11 in PLACEHOLDER_4
+          (block
+            (for_statement
+              (assignment_statement PLACEHOLDER_12 := 0) ;
+              (binary_expression PLACEHOLDER_12 < 8) ;
+              (update_statement PLACEHOLDER_12 += 1)
+              (block
+                (if_statement
+                  (binary_expression PLACEHOLDER_9 == 0)
+                  (block
+                    (call_expression append
+                      (unary_expression & PLACEHOLDER_5) PLACEHOLDER_7)
+                    (assignment_statement PLACEHOLDER_7 = 0)
+                    (assignment_statement PLACEHOLDER_9 = 8)))
+                (assignment_statement PLACEHOLDER_13 =
+                  (call_expression u8
+                    (binary_expression 7 - PLACEHOLDER_12)))
+                (if_statement
+                  (binary_expression PLACEHOLDER_6 == 7)
+                  (block
+                    (assignment_statement PLACEHOLDER_16 :=
+                      (binary_expression PLACEHOLDER_11 &
+                        (binary_expression 1 << PLACEHOLDER_13)))
+                    (if_statement
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_8 % 2) == 1)
+                      (block
+                        (if_statement
+                          (binary_expression PLACEHOLDER_16 == 0)
+                          (block
+                            (call_expression delete PLACEHOLDER_5)
+                            (return_statement nil
+                              (boolean false)))))
+                      (else_clause
+                        (block
+                          (if_statement
+                            (binary_expression PLACEHOLDER_16 > 0)
+                            (block
+                              (call_expression delete PLACEHOLDER_5)
+                              (return_statement nil
+                                (boolean false)))))))
+                    (assignment_statement PLACEHOLDER_8 = 0)
+                    (assignment_statement PLACEHOLDER_6 = 0))
+                  (else_if_clause
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_11 &
+                        (binary_expression 1 << PLACEHOLDER_13)) > 0)
+                    (block
+                      (update_statement PLACEHOLDER_8 += 1)
+                      (update_statement PLACEHOLDER_9 -= 1)
+                      (update_statement PLACEHOLDER_7 |=
+                        (binary_expression 1 << PLACEHOLDER_9))
+                      (update_statement PLACEHOLDER_6 += 1)))
+                  (else_clause
+                    (block
+                      (update_statement PLACEHOLDER_6 += 1)
+                      (update_statement PLACEHOLDER_9 -= 1))))))))
+        (if_statement
+          (binary_expression
+            (binary_expression PLACEHOLDER_9 > 0) &&
+            (binary_expression PLACEHOLDER_7 != 0))
+          (block
+            (call_expression append
+              (unary_expression & PLACEHOLDER_5) PLACEHOLDER_7)))
+        (return_statement
+          (slice_expression PLACEHOLDER_5 :)
+          (boolean true))))))

@@ -220,27 +220,27 @@ class SnippetTest < Minitest::Test
   end
 
   def test_finds_comments_by_their_markers_for_a_track_with_no_lexer
-    code = <<~ODIN
-      package leap
+    code = <<~PHIX
+      include builtins/timedate.e
 
       // A comment
       /*
         A block
       */
-      is_leap :: proc(year: int) -> bool { // Is it?
-        return "a // b" == "a" // Never
-      }
-    ODIN
-    expected = <<~ODIN
-      is_leap :: proc(year: int) -> bool {
-        return "a // b" == "a"
-      }
-    ODIN
-    assert_equal expected, snippet(code, track: "odin")
+      function is_leap(integer year) // Is it?
+        return "a // b" = "a" // Never
+      end function
+    PHIX
+    expected = <<~PHIX
+      function is_leap(integer year)
+        return "a // b" = "a"
+      end function
+    PHIX
+    assert_equal expected, snippet(code, track: "phix")
   end
 
   def test_keeps_a_marker_that_might_be_in_a_string
-    assert_equal "x = \"a // b\n", snippet("x = \"a // b\n", track: "odin")
+    assert_equal "x = \"a // b\n", snippet("x = \"a // b\n", track: "phix")
   end
 
   def test_a_track_with_no_lexer_and_no_rules_gets_its_first_lines_with_blank_lines_tidied

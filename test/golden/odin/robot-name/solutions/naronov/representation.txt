@@ -1,41 +1,117 @@
-package robotname
-Robot_Storage :: map[string]struct {}
-Robot :: struct {
-name: string,
-}
-Error :: enum {
-None,
-Could_Not_Create_Name,
-Unimplemented,
-}
-make_storage :: proc() -> Robot_Storage {
-return make(Robot_Storage)
-}
-delete_storage :: proc(storage: ^Robot_Storage) {
-for k in storage do delete(k)
-delete(storage^)
-}
-new_robot :: proc(storage: ^Robot_Storage) -> (Robot, Error) {
-buf: [5]u8
-attempts := 0
-for {
-for i in 0..<2 do buf[i] = 'A' + u8(rand.uint32()) % 26
-for i in 2..<5 do buf[i] = '0' + u8(rand.uint32()) % 10
-if string(buf[:]) not_in storage^ do break
-if attempts >= 26*26*10*10*10 do return Robot{""}, .Could_Not_Create_Name
-attempts += 1
-}
-s := strings.clone(string(buf[:]))
-storage^[s] = {}
-return Robot{ s }, .None
-}
-reset :: proc(storage: ^Robot_Storage, r: ^Robot) {
-old_name := r^.name
-new_bot, err := new_robot(storage)
-if err != .None do return
-r^ = new_bot
-if old_name != "\"\"" {
-delete_key(storage, old_name)
-delete(old_name)
-}
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (const_declaration PLACEHOLDER_2
+    (map_type string
+      (struct_type)))
+  (struct_declaration PLACEHOLDER_3
+    (field PLACEHOLDER_4 string))
+  (enum_declaration PLACEHOLDER_5
+    (enum_member PLACEHOLDER_6)
+    (enum_member PLACEHOLDER_7)
+    (enum_member PLACEHOLDER_8))
+  (procedure_declaration PLACEHOLDER_9
+    (procedure
+      (parameters) PLACEHOLDER_2
+      (block
+        (return_statement
+          (call_expression make PLACEHOLDER_2)))))
+  (procedure_declaration PLACEHOLDER_10
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_11 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (block
+        (for_statement PLACEHOLDER_12 in PLACEHOLDER_11
+          (block
+            (call_expression delete PLACEHOLDER_12)))
+        (call_expression delete
+          (address PLACEHOLDER_11 ^)))))
+  (procedure_declaration PLACEHOLDER_13
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_11 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (tuple_type PLACEHOLDER_3 PLACEHOLDER_5)
+      (block
+        (var_declaration PLACEHOLDER_14 :
+          (array_type 5 u8))
+        (assignment_statement PLACEHOLDER_15 := 0)
+        (for_statement
+          (block
+            (for_statement PLACEHOLDER_16 in
+              (range_expression 0 ..< 2)
+              (block
+                (assignment_statement
+                  (index_expression PLACEHOLDER_14 PLACEHOLDER_16) =
+                  (binary_expression 'A' +
+                    (binary_expression
+                      (call_expression u8
+                        (call_expression
+                          (member_expression rand uint32))) % 26)))))
+            (for_statement PLACEHOLDER_16 in
+              (range_expression 2 ..< 5)
+              (block
+                (assignment_statement
+                  (index_expression PLACEHOLDER_14 PLACEHOLDER_16) =
+                  (binary_expression '0' +
+                    (binary_expression
+                      (call_expression u8
+                        (call_expression
+                          (member_expression rand uint32))) % 10)))))
+            (if_statement
+              (in_expression
+                (call_expression string
+                  (slice_expression PLACEHOLDER_14 :)) not_in
+                (address PLACEHOLDER_11 ^))
+              (block
+                (break_statement)))
+            (if_statement
+              (binary_expression PLACEHOLDER_15 >=
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression 26 * 26) * 10) * 10) * 10))
+              (block
+                (return_statement
+                  (struct PLACEHOLDER_3
+                    (struct_field ""))
+                  (member_expression PLACEHOLDER_7))))
+            (update_statement PLACEHOLDER_15 += 1)))
+        (assignment_statement PLACEHOLDER_17 :=
+          (call_expression
+            (member_expression strings clone)
+            (call_expression string
+              (slice_expression PLACEHOLDER_14 :))))
+        (assignment_statement
+          (index_expression
+            (address PLACEHOLDER_11 ^) PLACEHOLDER_17) =
+          (struct))
+        (return_statement
+          (struct PLACEHOLDER_3
+            (struct_field PLACEHOLDER_17))
+          (member_expression PLACEHOLDER_6)))))
+  (procedure_declaration PLACEHOLDER_18
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_11 :
+          (pointer_type ^ PLACEHOLDER_2))
+        (parameter PLACEHOLDER_19 :
+          (pointer_type ^ PLACEHOLDER_3)))
+      (block
+        (assignment_statement PLACEHOLDER_20 :=
+          (member_expression
+            (address PLACEHOLDER_19 ^) PLACEHOLDER_4))
+        (assignment_statement PLACEHOLDER_21 PLACEHOLDER_22 :=
+          (call_expression PLACEHOLDER_13 PLACEHOLDER_11))
+        (if_statement
+          (binary_expression PLACEHOLDER_22 !=
+            (member_expression PLACEHOLDER_6))
+          (block
+            (return_statement)))
+        (assignment_statement
+          (address PLACEHOLDER_19 ^) = PLACEHOLDER_21)
+        (if_statement
+          (binary_expression PLACEHOLDER_20 != "")
+          (block
+            (call_expression delete_key PLACEHOLDER_11 PLACEHOLDER_20)
+            (call_expression delete PLACEHOLDER_20)))))))

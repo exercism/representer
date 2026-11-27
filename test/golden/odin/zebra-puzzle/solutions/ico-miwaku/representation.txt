@@ -1,333 +1,898 @@
-package zebra_puzzle
-Color :: enum {
-Unknown,
-Red,
-Green,
-Ivory,
-Yellow,
-Blue,
-}
-National :: enum {
-Unknown,
-Englishman,
-Spaniard,
-Ukrainian,
-Norwegian,
-Japanese,
-}
-Pet :: enum {
-Unknown,
-Dog,
-Snail,
-Fox,
-Horse,
-Zebra,
-}
-Beverage :: enum {
-Unknown,
-Coffee,
-Tea,
-Milk,
-Orange,
-Water,
-}
-Hobby :: enum {
-Unknown,
-Dancing,
-Painter,
-Reading,
-Football,
-Chess,
-}
-House :: struct {
-color: Color,
-national: National,
-pet: Pet,
-beverage: Beverage,
-hobby: Hobby,
-}
-State :: [5]House
-Key :: enum {
-Color,
-National,
-Pet,
-Beverage,
-Hobby,
-}
-get_value :: proc(house: House, key: Key) -> int {
-switch key {
-case .Color:
-return int(house.color)
-case .National:
-return int(house.national)
-case .Pet:
-return int(house.pet)
-case .Beverage:
-return int(house.beverage)
-case .Hobby:
-return int(house.hobby)
-}
-return 0
-}
-set_value :: proc(house: ^House, key: Key, value: int) {
-switch key {
-case .Color:
-house.color = Color(value)
-case .National:
-house.national = National(value)
-case .Pet:
-house.pet = Pet(value)
-case .Beverage:
-house.beverage = Beverage(value)
-case .Hobby:
-house.hobby = Hobby(value)
-}
-}
-who_drinks_water :: proc() -> string {
-state, ok := solve()
-if !ok do return "\"\""
-for h in state {
-if h.beverage == .Water {
-return fmt.aprintf("%v", h.national)
-}
-}
-return "\"\""
-}
-who_owns_the_zebra :: proc() -> string {
-state, ok := solve()
-if !ok do return "\"\""
-for h in state {
-if h.pet == .Zebra {
-return fmt.aprintf("%v", h.national)
-}
-}
-return "\"\""
-}
-solve :: proc() -> (State, bool) {
-colors := []Color{.Red, .Green, .Ivory, .Yellow, .Blue}
-color_iter := slice.make_permutation_iterator(colors)
-defer slice.destroy_permutation_iterator(color_iter)
-loop: for slice.permute(&color_iter) {
-state: State
-for c, i in colors do state[i].color = c
-// Rule 06. The green house is immediately to the right of the ivory house.
-for h, idx in state {
-if h.color == .Green {
-if idx == 0 do continue loop
-if state[idx - 1].color != .Ivory do continue loop
-break
-}
-}
-// Rule 09. The person in the middle house drinks milk.
-state[2].beverage = .Milk
-// Rule 10. The Norwegian lives in the first house.
-state[0].national = .Norwegian
-b := simple_constraints(&state)
-if !b do continue
-answer, ok := search_nationals(state)
-if ok do return answer, ok
-}
-return State{}, false
-}
-search_nationals :: proc(state: State) -> (State, bool) {
-nationals := []National{.Englishman, .Spaniard, .Ukrainian, .Norwegian, .Japanese}
-national_iter := slice.make_permutation_iterator(nationals)
-defer slice.destroy_permutation_iterator(national_iter)
-original := state
-loop: for slice.permute(&national_iter) {
-state := original
-for v, i in nationals {
-if state[i].national == .Unknown do state[i].national = v
-if state[i].national != v do continue loop
-}
-b := simple_constraints(&state)
-if !b do continue
-answer, ok := search_pets(state)
-if ok do return answer, ok
-}
-return state, false
-}
-search_pets :: proc(state: State) -> (State, bool) {
-pets := []Pet{.Dog, .Snail, .Fox, .Horse, .Zebra}
-pet_iter := slice.make_permutation_iterator(pets)
-defer slice.destroy_permutation_iterator(pet_iter)
-original := state
-loop: for slice.permute(&pet_iter) {
-state := original
-for v, i in pets {
-if state[i].pet == .Unknown do state[i].pet = v
-if state[i].pet != v do continue loop
-}
-b := simple_constraints(&state)
-if !b do continue
-answer, ok := search_beverages(state)
-if ok do return answer, ok
-}
-return state, false
-}
-search_beverages :: proc(state: State) -> (State, bool) {
-beverages := []Beverage{.Coffee, .Tea, .Milk, .Orange, .Water}
-beverage_iter := slice.make_permutation_iterator(beverages)
-defer slice.destroy_permutation_iterator(beverage_iter)
-original := state
-loop: for slice.permute(&beverage_iter) {
-state := original
-for v, i in beverages {
-if state[i].beverage == .Unknown do state[i].beverage = v
-if state[i].beverage != v do continue loop
-}
-b := simple_constraints(&state)
-if !b do continue
-answer, ok := search_hobbies(state)
-if ok do return answer, ok
-}
-return state, false
-}
-search_hobbies :: proc(state: State) -> (State, bool) {
-hobbies := []Hobby{.Dancing, .Painter, .Reading, .Football, .Chess}
-hobby_iter := slice.make_permutation_iterator(hobbies)
-defer slice.destroy_permutation_iterator(hobby_iter)
-original := state
-outer: for slice.permute(&hobby_iter) {
-state := original
-for v, i in hobbies {
-if state[i].hobby == .Unknown do state[i].hobby = v
-if state[i].hobby != v do continue outer
-}
-b := simple_constraints(&state)
-if !b do continue
-// Rule 11. The person who enjoys reading lives in the house next to the person with the fox.
-for h, idx in state {
-if h.hobby == .Reading {
-if idx == 0 {
-if state[1].pet != .Fox do continue outer
-} else if idx == 4 {
-if state[3].pet != .Fox do continue outer
-} else if state[idx - 1].pet != .Fox && state[idx + 1].pet != .Fox {
-continue outer
-}
-break
-}
-}
-// Rule 12. The painter's house is next to the house with the horse.
-for h, idx in state {
-if h.hobby == .Painter {
-if idx == 0 {
-if state[1].pet != .Horse do continue outer
-} else if idx == len(state) - 1 {
-if state[3].pet != .Horse do continue outer
-} else if state[idx - 1].pet != .Horse && state[idx + 1].pet != .Horse {
-continue outer
-}
-break
-}
-}
-// Rule 15. The Norwegian lives next to the blue house.
-for h, idx in state {
-if h.national == .Norwegian {
-if idx == 0 {
-if state[1].color != .Blue do continue outer
-} else if idx == len(state) - 1 {
-if state[3].color != .Blue do continue outer
-} else if state[idx - 1].pet != .Horse && state[idx + 1].pet != .Horse {
-continue outer
-}
-break
-}
-}
-solved := true
-for h in state {
-if h.color == .Unknown ||
-h.national == .Unknown ||
-h.pet == .Unknown ||
-h.beverage == .Unknown ||
-h.hobby == .Unknown {
-solved = false
-}
-}
-// log.warnf("solved = %v", solved)
-// log_state(state)
-return state, solved
-}
-return state, false
-}
-simple_constraints :: proc(state: ^[5]House) -> bool {
-// Rule 02. The Englishman lives in the red house.
-b := constraint(state, .National, int(National.Englishman), .Color, int(Color.Red))
-if !b do return false
-// Rule 03. The Spaniard owns the dog.
-b = constraint(state, .National, int(National.Spaniard), .Pet, int(Pet.Dog))
-if !b do return false
-// Rule 04. The person in the green house drinks coffee.
-b = constraint(state, .Color, int(Color.Green), .Beverage, int(Beverage.Coffee))
-if !b do return false
-// Rule 05. The Ukrainian drinks tea.
-b = constraint(state, .National, int(National.Ukrainian), .Beverage, int(Beverage.Tea))
-if !b do return false
-// Rule 07. The snail owner likes to go dancing.
-b = constraint(state, .Pet, int(Pet.Snail), .Hobby, int(Hobby.Dancing))
-if !b do return false
-// Rule 08. The person in the yellow house is a painter.
-b = constraint(state, .Color, int(Color.Yellow), .Hobby, int(Hobby.Painter))
-if !b do return false
-// Rule 13. The person who plays football drinks orange juice.
-b = constraint(state, .Hobby, int(Hobby.Football), .Beverage, int(Beverage.Orange))
-if !b do return false
-// Rule 14. The Japanese person plays chess.
-b = constraint(state, .National, int(National.Japanese), .Hobby, int(Hobby.Chess))
-if !b do return false
-for key in Key do fill_blank(state, key)
-return true
-}
-constraint :: proc(state: ^State, key1: Key, value1: int, key2: Key, value2: int) -> bool {
-for &h in state {
-if get_value(h, key1) == value1 && get_value(h, key2) == value2 {
-return true
-}
-if get_value(h, key1) == value1 {
-for h2 in state {
-if get_value(h2, key2) == value2 do return false
-}
-if get_value(h, key2) == 0 {
-set_value(&h, key2, value2)
-}
-if get_value(h, key2) != value2 do return false
-return true
-}
-if get_value(h, key2) == value2 {
-for h2 in state {
-if get_value(h2, key1) == value1 do return false
-}
-if get_value(h, key1) == 0 {
-set_value(&h, key1, value1)
-}
-if get_value(h, key1) != value1 do return false
-return true
-}
-}
-return true
-}
-fill_blank :: proc(state: ^State, key: Key) {
-count: [6]int
-last_idx: int
-for h, idx in state {
-v := get_value(h, key)
-count[v] += 1
-if v == 0 do last_idx = idx
-}
-if count[0] != 1 do return
-for c, idx in count {
-if c == 0 {
-set_value(&state[last_idx], key, idx)
-return
-}
-}
-}
-log_state :: proc(state: State) {
-log.warnf("----")
-log.warnf("house[0]: %v", state[0])
-log.warnf("house[1]: %v", state[1])
-log.warnf("house[2]: %v", state[2])
-log.warnf("house[3]: %v", state[3])
-log.warnf("house[4]: %v", state[4])
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (enum_declaration PLACEHOLDER_2
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_4)
+    (enum_member PLACEHOLDER_5)
+    (enum_member PLACEHOLDER_6)
+    (enum_member PLACEHOLDER_7)
+    (enum_member PLACEHOLDER_8))
+  (enum_declaration PLACEHOLDER_9
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_10)
+    (enum_member PLACEHOLDER_11)
+    (enum_member PLACEHOLDER_12)
+    (enum_member PLACEHOLDER_13)
+    (enum_member PLACEHOLDER_14))
+  (enum_declaration PLACEHOLDER_15
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_16)
+    (enum_member PLACEHOLDER_17)
+    (enum_member PLACEHOLDER_18)
+    (enum_member PLACEHOLDER_19)
+    (enum_member PLACEHOLDER_20))
+  (enum_declaration PLACEHOLDER_21
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_22)
+    (enum_member PLACEHOLDER_23)
+    (enum_member PLACEHOLDER_24)
+    (enum_member PLACEHOLDER_25)
+    (enum_member PLACEHOLDER_26))
+  (enum_declaration PLACEHOLDER_27
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_28)
+    (enum_member PLACEHOLDER_29)
+    (enum_member PLACEHOLDER_30)
+    (enum_member PLACEHOLDER_31)
+    (enum_member PLACEHOLDER_32))
+  (struct_declaration PLACEHOLDER_33
+    (field PLACEHOLDER_34 PLACEHOLDER_2)
+    (field PLACEHOLDER_35 PLACEHOLDER_9)
+    (field PLACEHOLDER_36 PLACEHOLDER_15)
+    (field PLACEHOLDER_37 PLACEHOLDER_21)
+    (field PLACEHOLDER_38 PLACEHOLDER_27))
+  (const_declaration PLACEHOLDER_39
+    (array_type 5 PLACEHOLDER_33))
+  (enum_declaration PLACEHOLDER_40
+    (enum_member PLACEHOLDER_2)
+    (enum_member PLACEHOLDER_9)
+    (enum_member PLACEHOLDER_15)
+    (enum_member PLACEHOLDER_21)
+    (enum_member PLACEHOLDER_27))
+  (procedure_declaration PLACEHOLDER_41
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_42 : PLACEHOLDER_33)
+        (parameter PLACEHOLDER_43 : PLACEHOLDER_40)) int
+      (block
+        (switch_statement PLACEHOLDER_43
+          (switch_case
+            (member_expression PLACEHOLDER_2) :
+            (return_statement
+              (call_expression int
+                (member_expression PLACEHOLDER_42 PLACEHOLDER_34))))
+          (switch_case
+            (member_expression PLACEHOLDER_9) :
+            (return_statement
+              (call_expression int
+                (member_expression PLACEHOLDER_42 PLACEHOLDER_35))))
+          (switch_case
+            (member_expression PLACEHOLDER_15) :
+            (return_statement
+              (call_expression int
+                (member_expression PLACEHOLDER_42 PLACEHOLDER_36))))
+          (switch_case
+            (member_expression PLACEHOLDER_21) :
+            (return_statement
+              (call_expression int
+                (member_expression PLACEHOLDER_42 PLACEHOLDER_37))))
+          (switch_case
+            (member_expression PLACEHOLDER_27) :
+            (return_statement
+              (call_expression int
+                (member_expression PLACEHOLDER_42 PLACEHOLDER_38)))))
+        (return_statement 0))))
+  (procedure_declaration PLACEHOLDER_44
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_42 :
+          (pointer_type ^ PLACEHOLDER_33))
+        (parameter PLACEHOLDER_43 : PLACEHOLDER_40)
+        (parameter PLACEHOLDER_45 : int))
+      (block
+        (switch_statement PLACEHOLDER_43
+          (switch_case
+            (member_expression PLACEHOLDER_2) :
+            (assignment_statement
+              (member_expression PLACEHOLDER_42 PLACEHOLDER_34) =
+              (call_expression PLACEHOLDER_2 PLACEHOLDER_45)))
+          (switch_case
+            (member_expression PLACEHOLDER_9) :
+            (assignment_statement
+              (member_expression PLACEHOLDER_42 PLACEHOLDER_35) =
+              (call_expression PLACEHOLDER_9 PLACEHOLDER_45)))
+          (switch_case
+            (member_expression PLACEHOLDER_15) :
+            (assignment_statement
+              (member_expression PLACEHOLDER_42 PLACEHOLDER_36) =
+              (call_expression PLACEHOLDER_15 PLACEHOLDER_45)))
+          (switch_case
+            (member_expression PLACEHOLDER_21) :
+            (assignment_statement
+              (member_expression PLACEHOLDER_42 PLACEHOLDER_37) =
+              (call_expression PLACEHOLDER_21 PLACEHOLDER_45)))
+          (switch_case
+            (member_expression PLACEHOLDER_27) :
+            (assignment_statement
+              (member_expression PLACEHOLDER_42 PLACEHOLDER_38) =
+              (call_expression PLACEHOLDER_27 PLACEHOLDER_45)))))))
+  (procedure_declaration PLACEHOLDER_46
+    (procedure
+      (parameters) string
+      (block
+        (assignment_statement PLACEHOLDER_47 PLACEHOLDER_48 :=
+          (call_expression PLACEHOLDER_49))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_48)
+          (block
+            (return_statement "")))
+        (for_statement PLACEHOLDER_50 in PLACEHOLDER_47
+          (block
+            (if_statement
+              (binary_expression
+                (member_expression PLACEHOLDER_50 PLACEHOLDER_37) ==
+                (member_expression PLACEHOLDER_26))
+              (block
+                (return_statement
+                  (call_expression
+                    (member_expression fmt aprintf) "%v"
+                    (member_expression PLACEHOLDER_50 PLACEHOLDER_35)))))))
+        (return_statement ""))))
+  (procedure_declaration PLACEHOLDER_51
+    (procedure
+      (parameters) string
+      (block
+        (assignment_statement PLACEHOLDER_47 PLACEHOLDER_48 :=
+          (call_expression PLACEHOLDER_49))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_48)
+          (block
+            (return_statement "")))
+        (for_statement PLACEHOLDER_50 in PLACEHOLDER_47
+          (block
+            (if_statement
+              (binary_expression
+                (member_expression PLACEHOLDER_50 PLACEHOLDER_36) ==
+                (member_expression PLACEHOLDER_20))
+              (block
+                (return_statement
+                  (call_expression
+                    (member_expression fmt aprintf) "%v"
+                    (member_expression PLACEHOLDER_50 PLACEHOLDER_35)))))))
+        (return_statement ""))))
+  (procedure_declaration PLACEHOLDER_49
+    (procedure
+      (parameters)
+      (tuple_type PLACEHOLDER_39 bool)
+      (block
+        (assignment_statement PLACEHOLDER_52 :=
+          (struct
+            (array_type PLACEHOLDER_2)
+            (struct_field
+              (member_expression PLACEHOLDER_4))
+            (struct_field
+              (member_expression PLACEHOLDER_5))
+            (struct_field
+              (member_expression PLACEHOLDER_6))
+            (struct_field
+              (member_expression PLACEHOLDER_7))
+            (struct_field
+              (member_expression PLACEHOLDER_8))))
+        (assignment_statement PLACEHOLDER_53 :=
+          (call_expression
+            (member_expression slice make_permutation_iterator) PLACEHOLDER_52))
+        (defer_statement
+          (call_expression
+            (member_expression slice destroy_permutation_iterator) PLACEHOLDER_53))
+        (label_statement PLACEHOLDER_54
+          (for_statement
+            (call_expression
+              (member_expression slice permute)
+              (unary_expression & PLACEHOLDER_53))
+            (block
+              (var_declaration PLACEHOLDER_47 : PLACEHOLDER_39)
+              (for_statement PLACEHOLDER_55 PLACEHOLDER_56 in PLACEHOLDER_52
+                (block
+                  (assignment_statement
+                    (member_expression
+                      (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_34) = PLACEHOLDER_55)))
+              (for_statement PLACEHOLDER_50 PLACEHOLDER_57 in PLACEHOLDER_47
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_expression PLACEHOLDER_50 PLACEHOLDER_34) ==
+                      (member_expression PLACEHOLDER_5))
+                    (block
+                      (if_statement
+                        (binary_expression PLACEHOLDER_57 == 0)
+                        (block
+                          (continue_statement PLACEHOLDER_54)))
+                      (if_statement
+                        (binary_expression
+                          (member_expression
+                            (index_expression PLACEHOLDER_47
+                              (binary_expression PLACEHOLDER_57 - 1)) PLACEHOLDER_34) !=
+                          (member_expression PLACEHOLDER_6))
+                        (block
+                          (continue_statement PLACEHOLDER_54)))
+                      (break_statement)))))
+              (assignment_statement
+                (member_expression
+                  (index_expression PLACEHOLDER_47 2) PLACEHOLDER_37) =
+                (member_expression PLACEHOLDER_24))
+              (assignment_statement
+                (member_expression
+                  (index_expression PLACEHOLDER_47 0) PLACEHOLDER_35) =
+                (member_expression PLACEHOLDER_13))
+              (assignment_statement PLACEHOLDER_58 :=
+                (call_expression PLACEHOLDER_59
+                  (unary_expression & PLACEHOLDER_47)))
+              (if_statement
+                (unary_expression ! PLACEHOLDER_58)
+                (block
+                  (continue_statement)))
+              (assignment_statement PLACEHOLDER_60 PLACEHOLDER_48 :=
+                (call_expression PLACEHOLDER_61 PLACEHOLDER_47))
+              (if_statement PLACEHOLDER_48
+                (block
+                  (return_statement PLACEHOLDER_60 PLACEHOLDER_48))))))
+        (return_statement
+          (struct PLACEHOLDER_39)
+          (boolean false)))))
+  (procedure_declaration PLACEHOLDER_61
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_47 : PLACEHOLDER_39))
+      (tuple_type PLACEHOLDER_39 bool)
+      (block
+        (assignment_statement PLACEHOLDER_62 :=
+          (struct
+            (array_type PLACEHOLDER_9)
+            (struct_field
+              (member_expression PLACEHOLDER_10))
+            (struct_field
+              (member_expression PLACEHOLDER_11))
+            (struct_field
+              (member_expression PLACEHOLDER_12))
+            (struct_field
+              (member_expression PLACEHOLDER_13))
+            (struct_field
+              (member_expression PLACEHOLDER_14))))
+        (assignment_statement PLACEHOLDER_63 :=
+          (call_expression
+            (member_expression slice make_permutation_iterator) PLACEHOLDER_62))
+        (defer_statement
+          (call_expression
+            (member_expression slice destroy_permutation_iterator) PLACEHOLDER_63))
+        (assignment_statement PLACEHOLDER_64 := PLACEHOLDER_47)
+        (label_statement PLACEHOLDER_54
+          (for_statement
+            (call_expression
+              (member_expression slice permute)
+              (unary_expression & PLACEHOLDER_63))
+            (block
+              (assignment_statement PLACEHOLDER_47 := PLACEHOLDER_64)
+              (for_statement PLACEHOLDER_65 PLACEHOLDER_56 in PLACEHOLDER_62
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_expression
+                        (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_35) ==
+                      (member_expression PLACEHOLDER_3))
+                    (block
+                      (assignment_statement
+                        (member_expression
+                          (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_35) = PLACEHOLDER_65)))
+                  (if_statement
+                    (binary_expression
+                      (member_expression
+                        (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_35) != PLACEHOLDER_65)
+                    (block
+                      (continue_statement PLACEHOLDER_54)))))
+              (assignment_statement PLACEHOLDER_58 :=
+                (call_expression PLACEHOLDER_59
+                  (unary_expression & PLACEHOLDER_47)))
+              (if_statement
+                (unary_expression ! PLACEHOLDER_58)
+                (block
+                  (continue_statement)))
+              (assignment_statement PLACEHOLDER_60 PLACEHOLDER_48 :=
+                (call_expression PLACEHOLDER_66 PLACEHOLDER_47))
+              (if_statement PLACEHOLDER_48
+                (block
+                  (return_statement PLACEHOLDER_60 PLACEHOLDER_48))))))
+        (return_statement PLACEHOLDER_47
+          (boolean false)))))
+  (procedure_declaration PLACEHOLDER_66
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_47 : PLACEHOLDER_39))
+      (tuple_type PLACEHOLDER_39 bool)
+      (block
+        (assignment_statement PLACEHOLDER_67 :=
+          (struct
+            (array_type PLACEHOLDER_15)
+            (struct_field
+              (member_expression PLACEHOLDER_16))
+            (struct_field
+              (member_expression PLACEHOLDER_17))
+            (struct_field
+              (member_expression PLACEHOLDER_18))
+            (struct_field
+              (member_expression PLACEHOLDER_19))
+            (struct_field
+              (member_expression PLACEHOLDER_20))))
+        (assignment_statement PLACEHOLDER_68 :=
+          (call_expression
+            (member_expression slice make_permutation_iterator) PLACEHOLDER_67))
+        (defer_statement
+          (call_expression
+            (member_expression slice destroy_permutation_iterator) PLACEHOLDER_68))
+        (assignment_statement PLACEHOLDER_64 := PLACEHOLDER_47)
+        (label_statement PLACEHOLDER_54
+          (for_statement
+            (call_expression
+              (member_expression slice permute)
+              (unary_expression & PLACEHOLDER_68))
+            (block
+              (assignment_statement PLACEHOLDER_47 := PLACEHOLDER_64)
+              (for_statement PLACEHOLDER_65 PLACEHOLDER_56 in PLACEHOLDER_67
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_expression
+                        (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_36) ==
+                      (member_expression PLACEHOLDER_3))
+                    (block
+                      (assignment_statement
+                        (member_expression
+                          (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_36) = PLACEHOLDER_65)))
+                  (if_statement
+                    (binary_expression
+                      (member_expression
+                        (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_36) != PLACEHOLDER_65)
+                    (block
+                      (continue_statement PLACEHOLDER_54)))))
+              (assignment_statement PLACEHOLDER_58 :=
+                (call_expression PLACEHOLDER_59
+                  (unary_expression & PLACEHOLDER_47)))
+              (if_statement
+                (unary_expression ! PLACEHOLDER_58)
+                (block
+                  (continue_statement)))
+              (assignment_statement PLACEHOLDER_60 PLACEHOLDER_48 :=
+                (call_expression PLACEHOLDER_69 PLACEHOLDER_47))
+              (if_statement PLACEHOLDER_48
+                (block
+                  (return_statement PLACEHOLDER_60 PLACEHOLDER_48))))))
+        (return_statement PLACEHOLDER_47
+          (boolean false)))))
+  (procedure_declaration PLACEHOLDER_69
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_47 : PLACEHOLDER_39))
+      (tuple_type PLACEHOLDER_39 bool)
+      (block
+        (assignment_statement PLACEHOLDER_70 :=
+          (struct
+            (array_type PLACEHOLDER_21)
+            (struct_field
+              (member_expression PLACEHOLDER_22))
+            (struct_field
+              (member_expression PLACEHOLDER_23))
+            (struct_field
+              (member_expression PLACEHOLDER_24))
+            (struct_field
+              (member_expression PLACEHOLDER_25))
+            (struct_field
+              (member_expression PLACEHOLDER_26))))
+        (assignment_statement PLACEHOLDER_71 :=
+          (call_expression
+            (member_expression slice make_permutation_iterator) PLACEHOLDER_70))
+        (defer_statement
+          (call_expression
+            (member_expression slice destroy_permutation_iterator) PLACEHOLDER_71))
+        (assignment_statement PLACEHOLDER_64 := PLACEHOLDER_47)
+        (label_statement PLACEHOLDER_54
+          (for_statement
+            (call_expression
+              (member_expression slice permute)
+              (unary_expression & PLACEHOLDER_71))
+            (block
+              (assignment_statement PLACEHOLDER_47 := PLACEHOLDER_64)
+              (for_statement PLACEHOLDER_65 PLACEHOLDER_56 in PLACEHOLDER_70
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_expression
+                        (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_37) ==
+                      (member_expression PLACEHOLDER_3))
+                    (block
+                      (assignment_statement
+                        (member_expression
+                          (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_37) = PLACEHOLDER_65)))
+                  (if_statement
+                    (binary_expression
+                      (member_expression
+                        (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_37) != PLACEHOLDER_65)
+                    (block
+                      (continue_statement PLACEHOLDER_54)))))
+              (assignment_statement PLACEHOLDER_58 :=
+                (call_expression PLACEHOLDER_59
+                  (unary_expression & PLACEHOLDER_47)))
+              (if_statement
+                (unary_expression ! PLACEHOLDER_58)
+                (block
+                  (continue_statement)))
+              (assignment_statement PLACEHOLDER_60 PLACEHOLDER_48 :=
+                (call_expression PLACEHOLDER_72 PLACEHOLDER_47))
+              (if_statement PLACEHOLDER_48
+                (block
+                  (return_statement PLACEHOLDER_60 PLACEHOLDER_48))))))
+        (return_statement PLACEHOLDER_47
+          (boolean false)))))
+  (procedure_declaration PLACEHOLDER_72
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_47 : PLACEHOLDER_39))
+      (tuple_type PLACEHOLDER_39 bool)
+      (block
+        (assignment_statement PLACEHOLDER_73 :=
+          (struct
+            (array_type PLACEHOLDER_27)
+            (struct_field
+              (member_expression PLACEHOLDER_28))
+            (struct_field
+              (member_expression PLACEHOLDER_29))
+            (struct_field
+              (member_expression PLACEHOLDER_30))
+            (struct_field
+              (member_expression PLACEHOLDER_31))
+            (struct_field
+              (member_expression PLACEHOLDER_32))))
+        (assignment_statement PLACEHOLDER_74 :=
+          (call_expression
+            (member_expression slice make_permutation_iterator) PLACEHOLDER_73))
+        (defer_statement
+          (call_expression
+            (member_expression slice destroy_permutation_iterator) PLACEHOLDER_74))
+        (assignment_statement PLACEHOLDER_64 := PLACEHOLDER_47)
+        (label_statement PLACEHOLDER_75
+          (for_statement
+            (call_expression
+              (member_expression slice permute)
+              (unary_expression & PLACEHOLDER_74))
+            (block
+              (assignment_statement PLACEHOLDER_47 := PLACEHOLDER_64)
+              (for_statement PLACEHOLDER_65 PLACEHOLDER_56 in PLACEHOLDER_73
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_expression
+                        (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_38) ==
+                      (member_expression PLACEHOLDER_3))
+                    (block
+                      (assignment_statement
+                        (member_expression
+                          (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_38) = PLACEHOLDER_65)))
+                  (if_statement
+                    (binary_expression
+                      (member_expression
+                        (index_expression PLACEHOLDER_47 PLACEHOLDER_56) PLACEHOLDER_38) != PLACEHOLDER_65)
+                    (block
+                      (continue_statement PLACEHOLDER_75)))))
+              (assignment_statement PLACEHOLDER_58 :=
+                (call_expression PLACEHOLDER_59
+                  (unary_expression & PLACEHOLDER_47)))
+              (if_statement
+                (unary_expression ! PLACEHOLDER_58)
+                (block
+                  (continue_statement)))
+              (for_statement PLACEHOLDER_50 PLACEHOLDER_57 in PLACEHOLDER_47
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_expression PLACEHOLDER_50 PLACEHOLDER_38) ==
+                      (member_expression PLACEHOLDER_30))
+                    (block
+                      (if_statement
+                        (binary_expression PLACEHOLDER_57 == 0)
+                        (block
+                          (if_statement
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47 1) PLACEHOLDER_36) !=
+                              (member_expression PLACEHOLDER_18))
+                            (block
+                              (continue_statement PLACEHOLDER_75))))
+                        (else_if_clause
+                          (binary_expression PLACEHOLDER_57 == 4)
+                          (block
+                            (if_statement
+                              (binary_expression
+                                (member_expression
+                                  (index_expression PLACEHOLDER_47 3) PLACEHOLDER_36) !=
+                                (member_expression PLACEHOLDER_18))
+                              (block
+                                (continue_statement PLACEHOLDER_75)))))
+                        (else_if_clause
+                          (binary_expression
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47
+                                  (binary_expression PLACEHOLDER_57 - 1)) PLACEHOLDER_36) !=
+                              (member_expression PLACEHOLDER_18)) &&
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47
+                                  (binary_expression PLACEHOLDER_57 + 1)) PLACEHOLDER_36) !=
+                              (member_expression PLACEHOLDER_18)))
+                          (block
+                            (continue_statement PLACEHOLDER_75))))
+                      (break_statement)))))
+              (for_statement PLACEHOLDER_50 PLACEHOLDER_57 in PLACEHOLDER_47
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_expression PLACEHOLDER_50 PLACEHOLDER_38) ==
+                      (member_expression PLACEHOLDER_29))
+                    (block
+                      (if_statement
+                        (binary_expression PLACEHOLDER_57 == 0)
+                        (block
+                          (if_statement
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47 1) PLACEHOLDER_36) !=
+                              (member_expression PLACEHOLDER_19))
+                            (block
+                              (continue_statement PLACEHOLDER_75))))
+                        (else_if_clause
+                          (binary_expression PLACEHOLDER_57 ==
+                            (binary_expression
+                              (call_expression len PLACEHOLDER_47) - 1))
+                          (block
+                            (if_statement
+                              (binary_expression
+                                (member_expression
+                                  (index_expression PLACEHOLDER_47 3) PLACEHOLDER_36) !=
+                                (member_expression PLACEHOLDER_19))
+                              (block
+                                (continue_statement PLACEHOLDER_75)))))
+                        (else_if_clause
+                          (binary_expression
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47
+                                  (binary_expression PLACEHOLDER_57 - 1)) PLACEHOLDER_36) !=
+                              (member_expression PLACEHOLDER_19)) &&
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47
+                                  (binary_expression PLACEHOLDER_57 + 1)) PLACEHOLDER_36) !=
+                              (member_expression PLACEHOLDER_19)))
+                          (block
+                            (continue_statement PLACEHOLDER_75))))
+                      (break_statement)))))
+              (for_statement PLACEHOLDER_50 PLACEHOLDER_57 in PLACEHOLDER_47
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_expression PLACEHOLDER_50 PLACEHOLDER_35) ==
+                      (member_expression PLACEHOLDER_13))
+                    (block
+                      (if_statement
+                        (binary_expression PLACEHOLDER_57 == 0)
+                        (block
+                          (if_statement
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47 1) PLACEHOLDER_34) !=
+                              (member_expression PLACEHOLDER_8))
+                            (block
+                              (continue_statement PLACEHOLDER_75))))
+                        (else_if_clause
+                          (binary_expression PLACEHOLDER_57 ==
+                            (binary_expression
+                              (call_expression len PLACEHOLDER_47) - 1))
+                          (block
+                            (if_statement
+                              (binary_expression
+                                (member_expression
+                                  (index_expression PLACEHOLDER_47 3) PLACEHOLDER_34) !=
+                                (member_expression PLACEHOLDER_8))
+                              (block
+                                (continue_statement PLACEHOLDER_75)))))
+                        (else_if_clause
+                          (binary_expression
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47
+                                  (binary_expression PLACEHOLDER_57 - 1)) PLACEHOLDER_36) !=
+                              (member_expression PLACEHOLDER_19)) &&
+                            (binary_expression
+                              (member_expression
+                                (index_expression PLACEHOLDER_47
+                                  (binary_expression PLACEHOLDER_57 + 1)) PLACEHOLDER_36) !=
+                              (member_expression PLACEHOLDER_19)))
+                          (block
+                            (continue_statement PLACEHOLDER_75))))
+                      (break_statement)))))
+              (assignment_statement PLACEHOLDER_76 :=
+                (boolean true))
+              (for_statement PLACEHOLDER_50 in PLACEHOLDER_47
+                (block
+                  (if_statement
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (member_expression PLACEHOLDER_50 PLACEHOLDER_34) ==
+                              (member_expression PLACEHOLDER_3)) ||
+                            (binary_expression
+                              (member_expression PLACEHOLDER_50 PLACEHOLDER_35) ==
+                              (member_expression PLACEHOLDER_3))) ||
+                          (binary_expression
+                            (member_expression PLACEHOLDER_50 PLACEHOLDER_36) ==
+                            (member_expression PLACEHOLDER_3))) ||
+                        (binary_expression
+                          (member_expression PLACEHOLDER_50 PLACEHOLDER_37) ==
+                          (member_expression PLACEHOLDER_3))) ||
+                      (binary_expression
+                        (member_expression PLACEHOLDER_50 PLACEHOLDER_38) ==
+                        (member_expression PLACEHOLDER_3)))
+                    (block
+                      (assignment_statement PLACEHOLDER_76 =
+                        (boolean false))))))
+              (return_statement PLACEHOLDER_47 PLACEHOLDER_76))))
+        (return_statement PLACEHOLDER_47
+          (boolean false)))))
+  (procedure_declaration PLACEHOLDER_59
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_47 :
+          (pointer_type ^
+            (array_type 5 PLACEHOLDER_33)))) bool
+      (block
+        (assignment_statement PLACEHOLDER_58 :=
+          (call_expression PLACEHOLDER_77 PLACEHOLDER_47
+            (member_expression PLACEHOLDER_9)
+            (call_expression int
+              (member_expression PLACEHOLDER_9 PLACEHOLDER_10))
+            (member_expression PLACEHOLDER_2)
+            (call_expression int
+              (member_expression PLACEHOLDER_2 PLACEHOLDER_4))))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_58)
+          (block
+            (return_statement
+              (boolean false))))
+        (assignment_statement PLACEHOLDER_58 =
+          (call_expression PLACEHOLDER_77 PLACEHOLDER_47
+            (member_expression PLACEHOLDER_9)
+            (call_expression int
+              (member_expression PLACEHOLDER_9 PLACEHOLDER_11))
+            (member_expression PLACEHOLDER_15)
+            (call_expression int
+              (member_expression PLACEHOLDER_15 PLACEHOLDER_16))))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_58)
+          (block
+            (return_statement
+              (boolean false))))
+        (assignment_statement PLACEHOLDER_58 =
+          (call_expression PLACEHOLDER_77 PLACEHOLDER_47
+            (member_expression PLACEHOLDER_2)
+            (call_expression int
+              (member_expression PLACEHOLDER_2 PLACEHOLDER_5))
+            (member_expression PLACEHOLDER_21)
+            (call_expression int
+              (member_expression PLACEHOLDER_21 PLACEHOLDER_22))))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_58)
+          (block
+            (return_statement
+              (boolean false))))
+        (assignment_statement PLACEHOLDER_58 =
+          (call_expression PLACEHOLDER_77 PLACEHOLDER_47
+            (member_expression PLACEHOLDER_9)
+            (call_expression int
+              (member_expression PLACEHOLDER_9 PLACEHOLDER_12))
+            (member_expression PLACEHOLDER_21)
+            (call_expression int
+              (member_expression PLACEHOLDER_21 PLACEHOLDER_23))))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_58)
+          (block
+            (return_statement
+              (boolean false))))
+        (assignment_statement PLACEHOLDER_58 =
+          (call_expression PLACEHOLDER_77 PLACEHOLDER_47
+            (member_expression PLACEHOLDER_15)
+            (call_expression int
+              (member_expression PLACEHOLDER_15 PLACEHOLDER_17))
+            (member_expression PLACEHOLDER_27)
+            (call_expression int
+              (member_expression PLACEHOLDER_27 PLACEHOLDER_28))))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_58)
+          (block
+            (return_statement
+              (boolean false))))
+        (assignment_statement PLACEHOLDER_58 =
+          (call_expression PLACEHOLDER_77 PLACEHOLDER_47
+            (member_expression PLACEHOLDER_2)
+            (call_expression int
+              (member_expression PLACEHOLDER_2 PLACEHOLDER_7))
+            (member_expression PLACEHOLDER_27)
+            (call_expression int
+              (member_expression PLACEHOLDER_27 PLACEHOLDER_29))))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_58)
+          (block
+            (return_statement
+              (boolean false))))
+        (assignment_statement PLACEHOLDER_58 =
+          (call_expression PLACEHOLDER_77 PLACEHOLDER_47
+            (member_expression PLACEHOLDER_27)
+            (call_expression int
+              (member_expression PLACEHOLDER_27 PLACEHOLDER_31))
+            (member_expression PLACEHOLDER_21)
+            (call_expression int
+              (member_expression PLACEHOLDER_21 PLACEHOLDER_25))))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_58)
+          (block
+            (return_statement
+              (boolean false))))
+        (assignment_statement PLACEHOLDER_58 =
+          (call_expression PLACEHOLDER_77 PLACEHOLDER_47
+            (member_expression PLACEHOLDER_9)
+            (call_expression int
+              (member_expression PLACEHOLDER_9 PLACEHOLDER_14))
+            (member_expression PLACEHOLDER_27)
+            (call_expression int
+              (member_expression PLACEHOLDER_27 PLACEHOLDER_32))))
+        (if_statement
+          (unary_expression ! PLACEHOLDER_58)
+          (block
+            (return_statement
+              (boolean false))))
+        (for_statement PLACEHOLDER_43 in PLACEHOLDER_40
+          (block
+            (call_expression PLACEHOLDER_78 PLACEHOLDER_47 PLACEHOLDER_43)))
+        (return_statement
+          (boolean true)))))
+  (procedure_declaration PLACEHOLDER_77
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_47 :
+          (pointer_type ^ PLACEHOLDER_39))
+        (parameter PLACEHOLDER_79 : PLACEHOLDER_40)
+        (parameter PLACEHOLDER_80 : int)
+        (parameter PLACEHOLDER_81 : PLACEHOLDER_40)
+        (parameter PLACEHOLDER_82 : int)) bool
+      (block
+        (for_statement
+          (unary_expression & PLACEHOLDER_50) in PLACEHOLDER_47
+          (block
+            (if_statement
+              (binary_expression
+                (binary_expression
+                  (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_79) == PLACEHOLDER_80) &&
+                (binary_expression
+                  (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_81) == PLACEHOLDER_82))
+              (block
+                (return_statement
+                  (boolean true))))
+            (if_statement
+              (binary_expression
+                (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_79) == PLACEHOLDER_80)
+              (block
+                (for_statement PLACEHOLDER_83 in PLACEHOLDER_47
+                  (block
+                    (if_statement
+                      (binary_expression
+                        (call_expression PLACEHOLDER_41 PLACEHOLDER_83 PLACEHOLDER_81) == PLACEHOLDER_82)
+                      (block
+                        (return_statement
+                          (boolean false))))))
+                (if_statement
+                  (binary_expression
+                    (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_81) == 0)
+                  (block
+                    (call_expression PLACEHOLDER_44
+                      (unary_expression & PLACEHOLDER_50) PLACEHOLDER_81 PLACEHOLDER_82)))
+                (if_statement
+                  (binary_expression
+                    (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_81) != PLACEHOLDER_82)
+                  (block
+                    (return_statement
+                      (boolean false))))
+                (return_statement
+                  (boolean true))))
+            (if_statement
+              (binary_expression
+                (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_81) == PLACEHOLDER_82)
+              (block
+                (for_statement PLACEHOLDER_83 in PLACEHOLDER_47
+                  (block
+                    (if_statement
+                      (binary_expression
+                        (call_expression PLACEHOLDER_41 PLACEHOLDER_83 PLACEHOLDER_79) == PLACEHOLDER_80)
+                      (block
+                        (return_statement
+                          (boolean false))))))
+                (if_statement
+                  (binary_expression
+                    (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_79) == 0)
+                  (block
+                    (call_expression PLACEHOLDER_44
+                      (unary_expression & PLACEHOLDER_50) PLACEHOLDER_79 PLACEHOLDER_80)))
+                (if_statement
+                  (binary_expression
+                    (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_79) != PLACEHOLDER_80)
+                  (block
+                    (return_statement
+                      (boolean false))))
+                (return_statement
+                  (boolean true))))))
+        (return_statement
+          (boolean true)))))
+  (procedure_declaration PLACEHOLDER_78
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_47 :
+          (pointer_type ^ PLACEHOLDER_39))
+        (parameter PLACEHOLDER_43 : PLACEHOLDER_40))
+      (block
+        (var_declaration PLACEHOLDER_84 :
+          (array_type 6 int))
+        (var_declaration PLACEHOLDER_85 : int)
+        (for_statement PLACEHOLDER_50 PLACEHOLDER_57 in PLACEHOLDER_47
+          (block
+            (assignment_statement PLACEHOLDER_65 :=
+              (call_expression PLACEHOLDER_41 PLACEHOLDER_50 PLACEHOLDER_43))
+            (update_statement
+              (index_expression PLACEHOLDER_84 PLACEHOLDER_65) += 1)
+            (if_statement
+              (binary_expression PLACEHOLDER_65 == 0)
+              (block
+                (assignment_statement PLACEHOLDER_85 = PLACEHOLDER_57)))))
+        (if_statement
+          (binary_expression
+            (index_expression PLACEHOLDER_84 0) != 1)
+          (block
+            (return_statement)))
+        (for_statement PLACEHOLDER_55 PLACEHOLDER_57 in PLACEHOLDER_84
+          (block
+            (if_statement
+              (binary_expression PLACEHOLDER_55 == 0)
+              (block
+                (call_expression PLACEHOLDER_44
+                  (unary_expression &
+                    (index_expression PLACEHOLDER_47 PLACEHOLDER_85)) PLACEHOLDER_43 PLACEHOLDER_57)
+                (return_statement))))))))
+  (procedure_declaration PLACEHOLDER_86
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_47 : PLACEHOLDER_39))
+      (block
+        (call_expression
+          (member_expression log warnf) "----")
+        (call_expression
+          (member_expression log warnf) "house[0]: %v"
+          (index_expression PLACEHOLDER_47 0))
+        (call_expression
+          (member_expression log warnf) "house[1]: %v"
+          (index_expression PLACEHOLDER_47 1))
+        (call_expression
+          (member_expression log warnf) "house[2]: %v"
+          (index_expression PLACEHOLDER_47 2))
+        (call_expression
+          (member_expression log warnf) "house[3]: %v"
+          (index_expression PLACEHOLDER_47 3))
+        (call_expression
+          (member_expression log warnf) "house[4]: %v"
+          (index_expression PLACEHOLDER_47 4))))))

@@ -1,102 +1,239 @@
-package custom_set
-Set :: map[int]struct{}
-new_set :: proc(elements: ..int) -> Set {
-set := make(Set, len(elements))
-for el in elements {
-set[el] = struct{}{}
-}
-return set
-}
-destroy_set :: proc(s: ^Set) {
-delete(s^)
-}
-to_string :: proc(s: Set) -> string {
-keys := make([]int, len(s))
-defer delete(keys)
-{
-i := 0
-for k in s {
-keys[i] = k
-i += 1
-}
-}
-slice.sort(keys)
-sb := strings.builder_make()
-strings.write_rune(&sb, '[')
-{
-size := len(keys)
-if size > 0 {
-strings.write_int(&sb, keys[0])
-}
-if size > 1 {
-for key in keys[1:] {
-strings.write_string(&sb, "\"," "\")"
-strings.write_int(&sb, key)
-}
-}
-}
-strings.write_rune(&sb, ']')
-return strings.to_string(sb)
-}
-is_empty :: proc(s: Set) -> bool {
-return len(s) == 0
-}
-contains :: proc(s: Set, element: int) -> bool {
-return element in s
-}
-is_subset :: proc(s: Set, other: Set) -> bool {
-if len(s) > len(other) { return false }
-for el in s {
-if el not_in other { return false }
-}
-return true
-}
-is_disjoint :: proc(s: Set, other: Set) -> bool {
-for el in s {
-if el in other { return false }
-}
-for el in other {
-if el in s { return false }
-}
-return true
-}
-equal :: proc(s: Set, other: Set) -> bool {
-if len(s) != len(other) { return false }
-for el in s {
-if el not_in other { return false }
-}
-return true
-}
-add :: proc(s: ^Set, elements: ..int) {
-for el in elements {
-s[el] = struct{}{}
-}
-}
-intersection :: proc(s: Set, other: Set) -> Set {
-res := new_set()
-for el in s {
-if el in other {
-res[el] = struct{}{}
-}
-}
-return res
-}
-difference :: proc(s: Set, other: Set) -> Set {
-set := new_set()
-for el in s {
-if el not_in other {
-set[el] = struct{}{}
-}
-}
-return set
-}
-join :: proc(s: Set, other: Set) -> Set {
-set := make(Set, max(len(s), len(other)))
-for el in s {
-set[el] = struct{}{}
-}
-for el in other {
-set[el] = struct{}{}
-}
-return set
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (const_declaration PLACEHOLDER_2
+    (map_type int
+      (struct_type)))
+  (procedure_declaration PLACEHOLDER_3
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_4 :
+          (variadic_type int))) PLACEHOLDER_2
+      (block
+        (assignment_statement PLACEHOLDER_5 :=
+          (call_expression make PLACEHOLDER_2
+            (call_expression len PLACEHOLDER_4)))
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_4
+          (block
+            (assignment_statement
+              (index_expression PLACEHOLDER_5 PLACEHOLDER_6) =
+              (struct
+                (struct_type)))))
+        (return_statement PLACEHOLDER_5))))
+  (procedure_declaration PLACEHOLDER_7
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (block
+        (call_expression delete
+          (address PLACEHOLDER_8 ^)))))
+  (procedure_declaration PLACEHOLDER_9
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)) string
+      (block
+        (assignment_statement PLACEHOLDER_10 :=
+          (call_expression make
+            (array_type int)
+            (call_expression len PLACEHOLDER_8)))
+        (defer_statement
+          (call_expression delete PLACEHOLDER_10))
+        (block
+          (assignment_statement PLACEHOLDER_11 := 0)
+          (for_statement PLACEHOLDER_12 in PLACEHOLDER_8
+            (block
+              (assignment_statement
+                (index_expression PLACEHOLDER_10 PLACEHOLDER_11) = PLACEHOLDER_12)
+              (update_statement PLACEHOLDER_11 += 1))))
+        (call_expression
+          (member_expression slice sort) PLACEHOLDER_10)
+        (assignment_statement PLACEHOLDER_13 :=
+          (call_expression
+            (member_expression strings builder_make)))
+        (call_expression
+          (member_expression strings write_rune)
+          (unary_expression & PLACEHOLDER_13) '[')
+        (block
+          (assignment_statement PLACEHOLDER_14 :=
+            (call_expression len PLACEHOLDER_10))
+          (if_statement
+            (binary_expression PLACEHOLDER_14 > 0)
+            (block
+              (call_expression
+                (member_expression strings write_int)
+                (unary_expression & PLACEHOLDER_13)
+                (index_expression PLACEHOLDER_10 0))))
+          (if_statement
+            (binary_expression PLACEHOLDER_14 > 1)
+            (block
+              (for_statement PLACEHOLDER_15 in
+                (slice_expression PLACEHOLDER_10 1 :)
+                (block
+                  (call_expression
+                    (member_expression strings write_string)
+                    (unary_expression & PLACEHOLDER_13) ", ")
+                  (call_expression
+                    (member_expression strings write_int)
+                    (unary_expression & PLACEHOLDER_13) PLACEHOLDER_15))))))
+        (call_expression
+          (member_expression strings write_rune)
+          (unary_expression & PLACEHOLDER_13) ']')
+        (return_statement
+          (call_expression
+            (member_expression strings PLACEHOLDER_9) PLACEHOLDER_13)))))
+  (procedure_declaration PLACEHOLDER_16
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)) bool
+      (block
+        (return_statement
+          (binary_expression
+            (call_expression len PLACEHOLDER_8) == 0)))))
+  (procedure_declaration PLACEHOLDER_17
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)
+        (parameter PLACEHOLDER_18 : int)) bool
+      (block
+        (return_statement
+          (in_expression PLACEHOLDER_18 in PLACEHOLDER_8)))))
+  (procedure_declaration PLACEHOLDER_19
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_2)) bool
+      (block
+        (if_statement
+          (binary_expression
+            (call_expression len PLACEHOLDER_8) >
+            (call_expression len PLACEHOLDER_20))
+          (block
+            (return_statement
+              (boolean false))))
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_8
+          (block
+            (if_statement
+              (in_expression PLACEHOLDER_6 not_in PLACEHOLDER_20)
+              (block
+                (return_statement
+                  (boolean false))))))
+        (return_statement
+          (boolean true)))))
+  (procedure_declaration PLACEHOLDER_21
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_2)) bool
+      (block
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_8
+          (block
+            (if_statement
+              (in_expression PLACEHOLDER_6 in PLACEHOLDER_20)
+              (block
+                (return_statement
+                  (boolean false))))))
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_20
+          (block
+            (if_statement
+              (in_expression PLACEHOLDER_6 in PLACEHOLDER_8)
+              (block
+                (return_statement
+                  (boolean false))))))
+        (return_statement
+          (boolean true)))))
+  (procedure_declaration PLACEHOLDER_22
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_2)) bool
+      (block
+        (if_statement
+          (binary_expression
+            (call_expression len PLACEHOLDER_8) !=
+            (call_expression len PLACEHOLDER_20))
+          (block
+            (return_statement
+              (boolean false))))
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_8
+          (block
+            (if_statement
+              (in_expression PLACEHOLDER_6 not_in PLACEHOLDER_20)
+              (block
+                (return_statement
+                  (boolean false))))))
+        (return_statement
+          (boolean true)))))
+  (procedure_declaration PLACEHOLDER_23
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 :
+          (pointer_type ^ PLACEHOLDER_2))
+        (parameter PLACEHOLDER_4 :
+          (variadic_type int)))
+      (block
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_4
+          (block
+            (assignment_statement
+              (index_expression PLACEHOLDER_8 PLACEHOLDER_6) =
+              (struct
+                (struct_type))))))))
+  (procedure_declaration PLACEHOLDER_24
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_2)) PLACEHOLDER_2
+      (block
+        (assignment_statement PLACEHOLDER_25 :=
+          (call_expression PLACEHOLDER_3))
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_8
+          (block
+            (if_statement
+              (in_expression PLACEHOLDER_6 in PLACEHOLDER_20)
+              (block
+                (assignment_statement
+                  (index_expression PLACEHOLDER_25 PLACEHOLDER_6) =
+                  (struct
+                    (struct_type)))))))
+        (return_statement PLACEHOLDER_25))))
+  (procedure_declaration PLACEHOLDER_26
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_2)) PLACEHOLDER_2
+      (block
+        (assignment_statement PLACEHOLDER_5 :=
+          (call_expression PLACEHOLDER_3))
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_8
+          (block
+            (if_statement
+              (in_expression PLACEHOLDER_6 not_in PLACEHOLDER_20)
+              (block
+                (assignment_statement
+                  (index_expression PLACEHOLDER_5 PLACEHOLDER_6) =
+                  (struct
+                    (struct_type)))))))
+        (return_statement PLACEHOLDER_5))))
+  (procedure_declaration PLACEHOLDER_27
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 : PLACEHOLDER_2)
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_2)) PLACEHOLDER_2
+      (block
+        (assignment_statement PLACEHOLDER_5 :=
+          (call_expression make PLACEHOLDER_2
+            (call_expression max
+              (call_expression len PLACEHOLDER_8)
+              (call_expression len PLACEHOLDER_20))))
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_8
+          (block
+            (assignment_statement
+              (index_expression PLACEHOLDER_5 PLACEHOLDER_6) =
+              (struct
+                (struct_type)))))
+        (for_statement PLACEHOLDER_6 in PLACEHOLDER_20
+          (block
+            (assignment_statement
+              (index_expression PLACEHOLDER_5 PLACEHOLDER_6) =
+              (struct
+                (struct_type)))))
+        (return_statement PLACEHOLDER_5)))))
