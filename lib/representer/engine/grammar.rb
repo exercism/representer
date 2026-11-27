@@ -38,10 +38,16 @@ module Representer::Engine
     # With spans: true, each node also gets its byte range in the source
     # (Node#span), which CodePattern uses to find a pattern in its context.
     #
+    # comment_text gives the pattern of the comments that the grammar
+    # doesn't know, and the pattern of the code they can't be inside (see
+    # BlankComments).
+    #
     # Raises CannotRepresent if the source has a syntax error (which
     # includes code too new for the grammar), or nests deeper than
     # max_depth.
-    def parse(source, text_types: Set.new, max_depth: Representer::MAX_DEPTH, gap_types: Set.new, spans: false)
+    def parse(source, text_types: Set.new, max_depth: Representer::MAX_DEPTH, gap_types: Set.new, spans: false,
+              comment_text: nil)
+      source = BlankComments.(source, comment_text[:pattern], outside: comment_text[:outside]) if comment_text
       tree = @parser.parse_string(nil, source)
       raise Representer::CannotRepresent.new("parse_error", "The parser gave up") unless tree
       raise Representer::CannotRepresent.new("parse_error", "The code has a syntax error") if tree.root_node.has_error?

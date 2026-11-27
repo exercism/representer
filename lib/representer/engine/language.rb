@@ -80,7 +80,16 @@ module Representer::Engine
       def text_between_children(*types) = (@text_between_children ||= Set.new).merge(types.map(&:to_s))
 
       # How Grammar#parse copies a tree for this language.
-      def parse_options = { text_types: text_nodes, gap_types: text_between_children }
+      # The text of the comments that the grammar doesn't know, as a regular
+      # expression, and the code that a comment can't be inside, such as a
+      # string (see REPRESENTER_DSL.md). The engine blanks them out before
+      # parsing.
+      def comment_text(pattern, outside: nil) = @comment_text = { pattern:, outside: }
+
+      def parse_options
+        options = { text_types: text_nodes, gap_types: text_between_children }
+        @comment_text ? options.merge(comment_text: @comment_text) : options
+      end
 
       # The language's representation output, such as Ruby::Representation,
       # or nil if it has none.

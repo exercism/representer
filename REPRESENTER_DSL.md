@@ -110,6 +110,17 @@ The engine drops them before `GenerateAST`, and the snippet removes them.
 comments_are :line_comment, :block_comment
 ```
 
+### comment_text
+
+Some grammars don't know the language's comments, as Factor's reads `! The answer` as words.
+A language gives the comments' text as a regular expression, and the engine replaces each match with spaces before it parses a file.
+`outside:` gives the code that a comment can't be inside, such as a string, so a comment marker in it stays.
+
+```ruby
+comment_text(/(?<!\S)#?!(?=\s|\z)[^\n]*/,
+             outside: /"(?:\\.|[^"\\])*"/m)
+```
+
 ### docstrings_are
 
 A language lists the code that counts as a docstring, as code patterns.
