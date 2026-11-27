@@ -1,6 +1,6 @@
 # Suggestions for the F# representer
 
-The F# representer matches what the old representer (`exercism/fsharp-representer`) did, apart from the decisions that apply to every language.
+[`transition.md`](../../../lib/representer/languages/fsharp/transition.md) says how the F# representer differs from the old one.
 These are changes that could improve it.
 None of them is made, because a change to F#'s own behaviour needs the maintainers to decide it.
 
@@ -14,6 +14,6 @@ The F# compiler's parser gives each of these pairs the same tree, but the gramma
 
 ## Sorting
 
-The old representer sorted nothing, so Reorder doesn't exist for F#:
+F# has no Reorder stage yet:
 
 4. **Sort the fields of a record expression.** `{ Name = n; Age = a }` and `{ Age = a; Name = n }` build the same record. F# runs each field's code in the order written, so the two only mean the same when that code has no side effects. The fields of a record type and the cases of a union stay in order, because F# compares records and unions in that order.

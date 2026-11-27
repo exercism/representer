@@ -98,7 +98,12 @@ For a language with its own class, the representer:
 5. Replaces each name the student chose with a placeholder. For C#, Elixir, F# and Ruby, this is every name the solution defines, wherever it appears. The other languages also keep the names used in the tests.
 6. Writes the tree out as an indented s-expression.
 
-C#, Elixir, F# and Ruby each have a folder: [`csharp/`](./lib/representer/languages/csharp/), [`elixir/`](./lib/representer/languages/elixir/), [`fsharp/`](./lib/representer/languages/fsharp/) and [`ruby/`](./lib/representer/languages/ruby/). Each folder's `spec.rb` declares the language's names and imports, and its stage files describe steps 2 and 3. A comment above each declaration and method says what it does.
+C#, Elixir, F# and Ruby each have a folder: [`csharp/`](./lib/representer/languages/csharp/), [`elixir/`](./lib/representer/languages/elixir/), [`fsharp/`](./lib/representer/languages/fsharp/) and [`ruby/`](./lib/representer/languages/ruby/).
+In each folder, `spec.rb` says what the language is and how its files are read, including its comments and docstrings.
+`representation.rb` and `snippet.rb` declare the settings of each output, such as the representation's version, names and imports.
+The stages that describe steps 2 and 3 sit in `common/`, for the stages that every output needs, and `representation/`, for the stages that only the representation needs.
+`transition.md` says how the language differs from the tools it replaces.
+A comment above each declaration and method says what it does.
 The other languages describe these steps as rules in their class in [`lib/representer/languages/`](./lib/representer/languages/), until they are moved to stages, and the comment at the top of each class lists what its rules do.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains the stages and how to add a language.
 

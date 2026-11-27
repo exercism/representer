@@ -3,16 +3,36 @@
 Run `./bin/inspect <track> <file>` to see the node types and field names to use in your patterns.
 It prints tree-sitter's tree for the file, with each node's type, field names and tokens.
 
-`GenerateAST` is the first stage of a staged language (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md)).
+`GenerateAST` is the first stage of a staged language (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md)), in the language's `common/generate_ast.rb`.
 It turns tree-sitter's tree into the tree that the language's own parser would give, such as Ruby's `parser` gem or Elixir's `Code.string_to_quoted`.
 Later stages then see the same tree for the same meaning.
+
+## Declarations and steps
+
+The engine drops the comments declared in `spec.rb` before `GenerateAST` starts.
+The top of the class lists the steps that every language needs, as declarations: `strip_tokens`, `keep_tokens`, `unwrap` and `numbers_are` (see "GenerateAST's declarations" in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#generateasts-declarations)).
+The engine writes the numbers before the language's own steps, and unwraps the brackets and strips the tokens after them.
+
+The language's `call` method lists its own steps, starting from `tree.tap`:
+
+```ruby
+def call
+  tree.tap do
+    turn_heredocs_into_strings!
+    write_strings_symbols_and_word_lists_as_values!
+  end
+end
+```
+
+A step can still read the brackets and tokens that the declarations remove, as Ruby's hash keys read their `:`.
+If a step needs the brackets gone before it runs, unwrap them in a step of its own at that point, with the `unwrap` helper below, instead of declaring `unwrap`.
 
 ## Tree helpers
 
 `GenerateAST` changes the tree with the helpers in `Engine::TreeHelpers`, which every stage includes.
 Each helper visits a node once, so a rule can't loop on its own output.
 A helper that can replace the root returns the new root.
-The helpers take a tree pattern (see "Tree patterns" below), they also accept a code pattern (see "Code patterns" in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md)).
+The helpers take a tree pattern (see "Tree patterns" below), and they also accept a code pattern (see "Code patterns" in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md)).
 
 | Helper | What it does | Example |
 |---|---|---|
@@ -21,7 +41,7 @@ The helpers take a tree pattern (see "Tree patterns" below), they also accept a 
 | `captured` | Returns every node captured as `@name`. | `captured(tree, "(class body: (_) @name)")` |
 | `transform` | Replaces each match with a template or the block's result. It starts with the innermost code and works outwards. The block can return nil to leave the node as it is. | `transform(tree, "(do_block) @b") { \|match\| ... }` |
 | `drop` | Removes each match with its children. | `drop(tree, "(comment)")` |
-| `drop_tokens` | Removes anonymous tokens (keywords and punctuation). `everywhere` removes them from every node except the types in `kept_in`, and `only_in` removes them from the types it names. | `drop_tokens(tree, everywhere: %w[( )])` |
+| `drop_tokens` | Removes anonymous tokens (keywords and punctuation). `everywhere` removes them from every node except the types in `kept_in`, and `only_in` removes them from the types it names. | `drop_tokens(tree, everywhere: ["(", ")"])` |
 | `unwrap` | Replaces a match that has one named child with that child. | `unwrap(tree, "(parenthesized_statements)")` |
 | `retype` | Gives nodes of one type another type. | `retype(tree, do_block: :block)` |
 | `attach` | Adds children to the end of a node, without field names, so they move with it. | `attach(method, mark)` |

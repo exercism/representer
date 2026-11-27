@@ -122,42 +122,72 @@ These rules decide what a language may do:
 
 1. Every solution that the representer sees is valid code that passes its tests. A stage may throw away code that makes no difference to the solution working, but it never adds code that only copes with invalid input.
 2. The engine makes the decisions that apply to every language (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#what-the-engine-does-for-every-language)). A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of the engine's decisions.
-3. Within a language, match what the old representer (`exercism/<track>-representer`) did. A language-specific difference from the old behaviour only goes in if a human has decided it. List any other improvement you'd suggest in `test/golden/<track>/SUGGESTIONS.md` for the maintainers to discuss. Fix bugs, such as wrong merges and crashes.
+3. Within a language, match what the old representer (`exercism/<track>-representer`) did. A language-specific difference from the old behaviour only goes in if a human has decided it, and the language's `transition.md` records it. List any other improvement you'd suggest in `test/golden/<track>/SUGGESTIONS.md` for the maintainers to discuss. Fix bugs, such as wrong merges and crashes.
 
 ### The language's folder
 
 Each language has a folder of its own, named after it, such as `lib/representer/languages/ruby/`.
-The folder holds all the language's files:
+The folder holds all the language's files, and splits its stages by the outputs that need them:
 
-- `spec.rb` defines `Ruby::Spec`, which declares the language's setup, names and imports.
-- `generate_ast.rb`, `normalise.rb` and `reorder.rb` each define one stage, such as `Ruby::GenerateAST`.
-- `snippet.rb` defines `Ruby::Snippet`, which says what to leave out of the solution's snippet (see step 5).
+```text
+languages/ruby/
+  spec.rb                       Ruby::Spec
+  representation.rb             Ruby::Representation
+  snippet.rb                    Ruby::Snippet
+  common/generate_ast.rb        Ruby::Common::GenerateAST
+  common/normalise.rb           Ruby::Common::Normalise
+  representation/normalise.rb   Ruby::Representation::Normalise
+  representation/reorder.rb     Ruby::Representation::Reorder
+```
 
-Every file uses the compact module form, and each stage is a class beside `Spec` in the same module:
+- `spec.rb` says what the language is and how its files are read: its `tracks`, `extensions` and `grammar`, which code is a comment (`comments_are`) and which code is a docstring (`docstrings_are`). A grammar that needs `text_nodes` or `text_between_children` declares them here too.
+- `representation.rb` declares the representation's settings: its `version`, `names_are`, `names_are_defined_by`, `imports` and `pattern_contexts`.
+- `snippet.rb` declares the snippet's `version` and what to leave out of it (see step 5).
+- `common/` holds the stages that every output needs. Today only the representation uses them, and the analysis will use them too.
+- `representation/` holds the stages that only the representation needs.
+
+A rewrite goes in `common/normalise.rb` only if it hides no spelling that an analysis rule would need. If you aren't sure, put it in `representation/normalise.rb`.
+Every `Reorder` goes in `representation/`, and so does dropping docstrings, as the analysis may read them.
+
+Every file uses the compact module form:
 
 ```ruby
 module Representer::Languages::Ruby
   class Spec < Representer::Engine::Language
     tracks "ruby"
-    version 11
     grammar "ruby"
     extensions ".rb"
 
-    # A symbol such as `:count` names `count`, so the colon isn't part of it.
-    names_are :simple_symbol, without_prefix: ":" # :«count»
+    # Treat these as comments.
+    comments_are :comment # x = 1 «# The answer»
   end
 end
 ```
 
 ```ruby
 module Representer::Languages::Ruby
-  class Reorder < Representer::Engine::Reorder
-    sort :class_body, :module_body, :hash
+  class Representation < Representer::Engine::Representation
+    version 12
+
+    # Rename a symbol such as `:count` as the name `count`, without the colon.
+    names_are :simple_symbol, without_prefix: ":" # :«count»
   end
 end
 ```
 
-When a language defines its `Spec`, the engine finds the stage files in the language's folder, and loads each one the first time it needs that stage.
+A stage in `representation/` is a class inside the output's class:
+
+```ruby
+class Representer::Languages::Ruby::Representation
+  class Reorder < Representer::Engine::Reorder
+    # Reorder manually written hash keys.
+    # {"a": 1, "b": 2} == {"b": 2, "a": 1}
+    sort :hash
+  end
+end
+```
+
+When a language defines its `Spec`, the engine finds the outputs and the stage files in the language's folder, and loads each one the first time it needs it.
 If a file doesn't exist, the language doesn't run that stage, so a language only has the files it needs, and never needs `require` lines for them.
 
 Give `names_are` and `names_are_defined_by` the node types that `GenerateAST` leaves.
@@ -167,31 +197,33 @@ Check the grammar's `queries/locals.scm` and `queries/tags.scm`, which mark the 
 
 The engine runs the stages and its own steps in this order:
 
-1. `GenerateAST` runs on each file. It turns tree-sitter's tree, which has every token and comment, into the tree given by the language's own parser. It drops comments and the tokens dropped by the parser, unwraps brackets that only group, and turns spellings that the parser treats as one into one tree (for Ruby, these include heredocs and strings, `%w[]` and arrays, and `do ... end` and braces).
-2. The engine drops the imports from each file.
-3. `Normalise` runs on each file. It applies any equivalences and removals that a human has decided for the language.
-4. The engine renames every name the solution defines, in all the files together (see "Names" below).
-5. The engine joins the files into one tree, in an order set by their code.
-6. `Reorder` runs on the joined tree. It sorts code if its order makes no difference, by a key that ignores names.
-7. The engine numbers the placeholders, in the order the names appear, and writes the tree out as an s-expression.
+1. The engine drops the comments declared in `spec.rb` from each file.
+2. `common/generate_ast.rb` runs on each file. It turns tree-sitter's tree, which has every token, into the tree given by the language's own parser. It turns spellings that the parser treats as one into one tree (for Ruby, these include heredocs and strings, `%w[]` and arrays, and `do ... end` and braces). The declarations at the top of the class strip tokens, unwrap brackets that only group and write numbers as their values (see "GenerateAST's declarations" below).
+3. `common/normalise.rb` runs on each file. It applies the equivalences that a human has decided for the language and that every output wants.
+4. The engine drops the imports from each file.
+5. `representation/normalise.rb` runs on each file. It applies the equivalences and removals that only the representation wants.
+6. The engine renames every name the solution defines, in all the files together (see "Names" below).
+7. The engine joins the files into one tree, in an order set by their code.
+8. `representation/reorder.rb` runs on the joined tree. It sorts code if its order makes no difference, by a key that ignores names.
+9. The engine numbers the placeholders, in the order the names appear, and writes the tree out as an s-expression.
+
+The snippet works on tree-sitter's own tree, before any of these steps.
 
 `GenerateAST` works on the tree with the tree helpers, because it has to know the grammar's tree in detail.
-`Normalise` lists its rules with verbs such as `drop`, `rewrite` and `attach_to_next`, and their arguments are code patterns: code in the language itself, with `{{word}}` placeholders.
-`Reorder` lists the node types it sorts with `sort`.
+A `Normalise` stage lists its rules with verbs such as `drop`, `rewrite`, `attach_to_next` and `add_braces_to`, and their arguments are code patterns: code in the language itself, with `{{word}}` placeholders.
+Use a verb wherever one fits, and write a method only when no verb can say the rule.
+A `Reorder` stage lists the node types it sorts with `sort`.
 Only sort containers of definitions or entries, such as a class's body or a hash, and never a block of statements.
 If the grammar gives a container the same type as a block of statements, give it a type of its own in `GenerateAST` before sorting it, as Ruby's `class_body` does.
 If a rule genuinely needs logic, write it as a small, clearly named Ruby method.
-Each step in a stage is a bang method named for what it does to the tree, such as `add_braces_to_if_and_else_bodies!`.
+Each step in a stage is a bang method named for what it does to the tree, such as `write_every_dictionary_initialiser_the_same_way!`.
 A stage's `call` method is only a series of these steps, written with `super.tap`, so any direct call to `drop`, `unwrap`, `transform` or `drop_tokens` goes in a bang method of its own.
 A `GenerateAST` stage has no `super`, so it starts from `tree.tap` instead.
 
 ```ruby
 def call
   super.tap do |root|
-    drop_this_and_class_name_before_own_members!(root)
     drop_empty_brackets_from_new_with_initializer!(root)
-    drop_readonly_from_ref_readonly!(root)
-    add_braces_to_if_and_else_bodies!(root)
     write_every_dictionary_initialiser_the_same_way!(root)
   end
 end
@@ -201,44 +233,115 @@ Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's t
 
 ### Comments in language files
 
-Each language file follows the style of Ruby's [`normalise.rb`](./lib/representer/languages/ruby/normalise.rb) and [`reorder.rb`](./lib/representer/languages/ruby/reorder.rb).
+Each language file follows the style of Ruby's [`common/normalise.rb`](./lib/representer/languages/ruby/common/normalise.rb) and [`representation/reorder.rb`](./lib/representer/languages/ruby/representation/reorder.rb).
 The comment at the top of a file says briefly why the stage exists.
 For example, all solutions pass the tests and the code is never run, so reordering only exists to group students who list things in a different order.
 The comment above each rule or method is an instruction that says what to do, such as "Mark each method..." or "Reorder the methods and other code inside classes and modules".
-Add the reason only if it isn't obvious.
-Then show an example of the effect.
-Use one line for a small one (`# {"a": 1, "b": 2} == {"b": 2, "a": 1}`).
+Add the reason only if it isn't obvious, usually because the difference can't change whether a passing solution works, or because the language's parser treats the two spellings as one.
+Then show an example of the effect, in the comment block above the rule.
+Write one example per line, and use `->` for a rule that changes code from one form to another (`# if (a) return 1;  ->  if (a) { return 1; }`).
+Use `==` only where two spellings end up the same and neither is the form that the rule writes, mainly for sorting (`# {"a": 1, "b": 2} == {"b": 2, "a": 1}`).
 For anything bigger, write "e.g. We convert:" followed by the code, then "internally into:" followed by the result.
 Keep the examples short, and check each one against what the code does.
 Leave no blank line between a comment and the code it describes.
-In `spec.rb` and `snippet.rb`, each item in a `names_are`, `names_are_defined_by`, `imports`, `skip_at_top` or similar list has a short example of the code it matches at the end of its line, with «» around the name or code it matches.
+
+A declaration list is different: each item in a `names_are`, `names_are_defined_by`, `imports`, `pattern_contexts`, `comments_are`, `docstrings_are`, `skip_at_top` or similar list goes on its own line, with a short example of the code it matches at the end of the line, and «» around the name or code it matches.
 The examples in a list line up in one column.
 The line above each declaration is an instruction, such as "Rename the names of classes and modules."
+A rule never has an example at the end of its line.
+
+When a call spans several lines, lay it out like this:
+
+- Each positional item, such as a name in `names_are_defined_by` or a pattern given to `drop` or `add_braces_to`, lines up with the first item.
+- Each keyword argument, such as `as:` or `within:`, goes on a line of its own, four spaces in from the call, so the string after a `rewrite`'s `as:` starts in the same column as the pattern.
+- A short `rewrite` goes on one line. In a run of one-line rewrites, the `as:` keywords line up in one column. Split a rewrite onto several lines only when it has another keyword, such as `within:`, or won't fit comfortably.
+
+```ruby
+rewrite "{{x}} == true",  as: "{{x}}"
+rewrite "{{x}} != false", as: "{{x}}"
+
+rewrite "{{type}}.{{name}}",
+    as: "{{name}}",
+    within: ["class {{type}} {}", "struct {{type}} {}"]
+
+add_braces_to "if ({{...}}) {{body}}",
+              "if ({{...}}) { } else {{body}}"
+```
+
+In a language file, a string is always code (a pattern, a token or an example), and a symbol is always a node type from the grammar.
+Write every list out in full, such as `[:int, :xint]` or `["f", "d"]`, and never use `%i[]` or `%w[]`.
+So `strip_tokens` and `keep_tokens` take strings, and their `only_in:` and `in:` take symbols.
+When a declaration has several keyword arguments on several lines, they line up with the first:
+
+```ruby
+numbers_are integer: [:int, :xint],
+            decimal: :float
+```
+
+Code comments and docs never mention the old representers, analyzers or `exercism/snippet-extractor`.
+Each comment explains its rule on its own terms.
+Instead, each language has a `transition.md` in its folder, with three sections: "Representation", "Analysis" and "Snippet".
+Each section says how this service differs from the tool it replaces (the language's old representer, its old analyzer and snippet-extractor) and why.
+If there is nothing to say for a section yet, it says so in one sentence.
+
 Update a comment whenever the code below it changes.
 Write every comment by the rules in "Writing comments and docs" below.
 
 Put a blank line above a comment that describes the code below it, so each comment and its code read as one unit. The comment needs no blank line when it's the first thing in a method, class, module or block, follows another comment, or follows `private`. Rubocop checks this with `Representer/EmptyLineBeforeComment` (in `rubocop/cop/representer/`) and can fix it with `bundle exec rubocop -a`.
 
-### GenerateAST's tokens
+### GenerateAST's declarations
 
-`GenerateAST` lists the tokens it drops explicitly.
+The top of `GenerateAST` lists the steps that every language needs, as declarations.
+The engine applies them around the language's own steps:
+
+```ruby
+module Representer::Languages::Ruby::Common
+  class GenerateAST < Representer::Engine::GenerateAST
+    # Strip the keywords that sit in a fixed place, because the node types
+    # already show them.
+    strip_tokens "def", "end", "if", "then"
+
+    # Strip these tokens only from block parameters, because elsewhere they are operators.
+    strip_tokens "|", only_in: :block_parameters
+
+    # Keep the `;` in block parameters, because `|a; b|` makes b a block-local variable.
+    keep_tokens ";", in: :block_parameters
+
+    # Unwrap brackets that only group, because the tree's shape shows the grouping.
+    # (1 + 2)  ->  1 + 2
+    unwrap :parenthesized_statements
+
+    # Write each number as its value.
+    # 1_000  ->  1000
+    numbers_are integer: :integer, decimal: :float
+  end
+end
+```
+
+The engine writes the numbers before the language's own steps.
+The language's steps can still read the tokens and the brackets, so the engine unwraps the brackets and strips the tokens after them.
+If one of the language's steps needs the brackets gone, unwrap them in a step of its own instead, at the right point (as Elixir and F# do).
+[REPRESENTER_DSL.md](./REPRESENTER_DSL.md#generateasts-declarations) explains each declaration.
+
+`strip_tokens` lists the tokens to strip explicitly.
 To draft the list from the grammar, run:
 
 ```shell
 ./bin/draft-ast-tokens <grammar>
 ```
 
-It lists the tokens that always sit in a fixed place in a node, which are safe to drop.
+It lists the tokens that always sit in a fixed place in a node, which are safe to strip.
 It also lists the tokens that are optional, one of a choice, or have text that varies, for a human to review.
 The ones to review often carry meaning (C++'s `delete[]`, Ruby's `&.`), but some are only layout (brackets around Ruby's arguments).
-Check each one, write the reviewed list into the class, and say in a comment why each group is dropped.
-Read a token's text before dropping it if its text varies (Ruby's string opener can be `'`, `"` or `%q(`), and check the grammar's extras, which can hold content (Ruby's heredoc bodies).
+Check each one, write the reviewed list into the class in a few grouped lines, and say in a comment why each group is stripped.
+Read a token's text before stripping it if its text varies (Ruby's string opener can be `'`, `"` or `%q(`), and check the grammar's extras, which can hold content (Ruby's heredoc bodies).
 
 ### Strings and numbers
 
 Turn each string into its value with `literal(value)`, so that `'a'` and `"a"` are the same.
 Read only the escapes used in solutions, and keep any other escape as a node of its own, so two different strings can never get the same value.
-Give two numbers one form only if the language reads them as the same value of the same type, using the readers in [`Engine::Numbers`](./lib/representer/engine/numbers.rb).
+Give two numbers one form only if the language reads them as the same value of the same type.
+`numbers_are` does this with the readers in [`Engine::Numbers`](./lib/representer/engine/numbers.rb), and takes the prefixes and suffixes that the language reads.
 
 ### Names
 
@@ -274,6 +377,9 @@ Create `snippet.rb` in the language's folder, and list what to leave out, such a
 ```ruby
 module Representer::Languages::Ruby
   class Snippet < Representer::Engine::Snippet
+    # Bump the version whenever the snippet of any solution could change.
+    version 1
+
     # Remove every comment, wherever it is.
     remove :comments # x = 1 «# The answer»
 
@@ -284,21 +390,23 @@ module Representer::Languages::Ruby
 end
 ```
 
+A staged language's snippet reads the comments and docstrings declared in `spec.rb`, so `remove :comments, :docstrings` needs nothing else.
 [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#snippets) explains every declaration.
-To choose the words, look at the start of the track's example solutions and the track's file in `exercism/snippet-extractor`.
+To choose the words, look at the start of the track's example solutions.
 Add a test to [`test/engine/snippet_test.rb`](./test/engine/snippet_test.rb) for anything unusual, and run the track's request tests, whose expected responses include the snippet.
 If Rouge has no lexer for the language, add `comment_lines`, so a file that doesn't parse still loses its comments.
 
 A track with no representer of its own can have a snippet too.
 Its folder holds only `snippet.rb`, which starts with `tracks "<slug>"`, and its rules apply to lines.
 
-Bump the snippet's version whenever its snippets could change. The snippet's version is separate from the language's version.
+Bump the snippet's version whenever its snippets could change. The snippet's version is separate from the representation's version.
 
 ## 6. Set the version
 
+The representation's version is in `representation.rb`.
 A new language starts at version 2, because the old per-track representers all reported version 1.
 
-Bump a language's version whenever its output could change for any solution: a change to a stage, a rule or the names, or a new grammar commit.
+Bump the representation's version whenever its output could change for any solution: a change to a stage, a rule or the names, or a new grammar commit.
 The website will then represent the track's solutions again.
 
 Basic has its own version, which only covers the tracks with no class of their own.
