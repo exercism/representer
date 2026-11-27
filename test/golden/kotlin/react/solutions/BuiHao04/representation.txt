@@ -1,52 +1,260 @@
-class Reactor < T >() {
-interface Subscription {
-fun cancel ()
-}
-interface Cell < T > {
-val value : T
-fun addCallback ( fn : ( T ) -> Unit ): Subscription
-}
-inner class InputCell ( private val initialValue : T ) : Cell < T > {
-private val callbacks = mutableSetOf <( T ) -> Unit >()
-override var value = initialValue
-set ( newValue ) {
-if ( field != newValue ) {
-field = newValue
-callbacks . forEach { it ( newValue ) }
-}
-}
-override fun addCallback ( fn : ( T ) -> Unit ): Subscription {
-callbacks . add ( fn )
-return object : Subscription {
-override fun cancel () {
-callbacks . remove ( fn )
-}
-}
-}
-}
-inner class ComputeCell ( private vararg val inputCells : Cell < T >, val fn : ( List < T >) -> T ) : Cell < T > {
-override val value
-get () = fn ( inputCells . map { it . value })
-private var lastValue = value
-private val callbacks = mutableSetOf <() -> Unit >()
-init {
-inputCells . forEach { cell ->
-cell . addCallback {
-if ( value != lastValue ) {
-lastValue = value
-callbacks . forEach { it () }
-}
-}
-}
-}
-override fun addCallback ( fn : ( T ) -> Unit ): Subscription {
-val callback = { fn ( value ) }
-callbacks . add ( callback )
-return object : Subscription {
-override fun cancel () {
-callbacks . remove ( callback )
-}
-}
-}
-}
-}
+(source_file
+  (class_declaration class (type_identifier PLACEHOLDER_1)
+    (type_parameters
+      (type_parameter (type_identifier PLACEHOLDER_2)))
+    (primary_constructor)
+    (class_body
+      (class_declaration interface (type_identifier PLACEHOLDER_3)
+        (class_body
+          (function_declaration PLACEHOLDER_4
+            (function_value_parameters))))
+      (class_declaration interface (type_identifier PLACEHOLDER_5)
+        (type_parameters
+          (type_parameter (type_identifier PLACEHOLDER_2)))
+        (class_body
+          (property_declaration
+            (binding_pattern_kind val)
+            (variable_declaration PLACEHOLDER_6 :
+              (user_type (type_identifier PLACEHOLDER_2))))
+          (function_declaration PLACEHOLDER_7
+            (function_value_parameters
+              (parameter PLACEHOLDER_8 :
+                (function_type
+                  (function_type_parameters
+                    (user_type (type_identifier PLACEHOLDER_2)))
+                  (user_type Unit)))) :
+            (user_type (type_identifier PLACEHOLDER_3)))))
+      (class_declaration
+        (modifiers
+          (class_modifier inner)) class (type_identifier PLACEHOLDER_9)
+        (primary_constructor
+          (class_parameter
+            (modifiers
+              (visibility_modifier private))
+            (binding_pattern_kind val) PLACEHOLDER_10 :
+            (user_type (type_identifier PLACEHOLDER_2)))) :
+        (delegation_specifier
+          (user_type (type_identifier PLACEHOLDER_5)
+            (type_arguments
+              (type_projection
+                (user_type (type_identifier PLACEHOLDER_2))))))
+        (class_body
+          (property_declaration
+            (modifiers
+              (visibility_modifier private))
+            (binding_pattern_kind val)
+            (variable_declaration PLACEHOLDER_11) =
+            (call_expression mutableSetOf
+              (call_suffix
+                (type_arguments
+                  (type_projection
+                    (function_type
+                      (function_type_parameters
+                        (user_type (type_identifier PLACEHOLDER_2)))
+                      (user_type Unit))))
+                (value_arguments))))
+          (property_declaration
+            (modifiers
+              (member_modifier override))
+            (binding_pattern_kind var)
+            (variable_declaration PLACEHOLDER_6) = PLACEHOLDER_10)
+          (setter
+            (parameter_with_optional_type PLACEHOLDER_12)
+            (function_body
+              (statements
+                (if_expression
+                  (equality_expression field != PLACEHOLDER_12)
+                  (control_structure_body
+                    (statements
+                      (assignment
+                        (directly_assignable_expression field) = PLACEHOLDER_12)
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_11
+                          (navigation_suffix . forEach))
+                        (call_suffix
+                          (annotated_lambda
+                            (lambda_literal
+                              (statements
+                                (call_expression it
+                                  (call_suffix
+                                    (value_arguments
+                                      (value_argument PLACEHOLDER_12)))))))))))))))
+          (function_declaration
+            (modifiers
+              (member_modifier override)) PLACEHOLDER_7
+            (function_value_parameters
+              (parameter PLACEHOLDER_8 :
+                (function_type
+                  (function_type_parameters
+                    (user_type (type_identifier PLACEHOLDER_2)))
+                  (user_type Unit)))) :
+            (user_type (type_identifier PLACEHOLDER_3))
+            (function_body
+              (statements
+                (call_expression
+                  (navigation_expression PLACEHOLDER_11
+                    (navigation_suffix . add))
+                  (call_suffix
+                    (value_arguments
+                      (value_argument PLACEHOLDER_8))))
+                (jump_expression return
+                  (object_literal :
+                    (delegation_specifier
+                      (user_type (type_identifier PLACEHOLDER_3)))
+                    (class_body
+                      (function_declaration
+                        (modifiers
+                          (member_modifier override)) PLACEHOLDER_4
+                        (function_value_parameters)
+                        (function_body
+                          (statements
+                            (call_expression
+                              (navigation_expression PLACEHOLDER_11
+                                (navigation_suffix . remove))
+                              (call_suffix
+                                (value_arguments
+                                  (value_argument PLACEHOLDER_8)))))))))))))))
+      (class_declaration
+        (modifiers
+          (class_modifier inner)) class (type_identifier PLACEHOLDER_13)
+        (primary_constructor
+          (class_parameter
+            (modifiers
+              (visibility_modifier private)
+              (parameter_modifier vararg))
+            (binding_pattern_kind val) PLACEHOLDER_14 :
+            (user_type (type_identifier PLACEHOLDER_5)
+              (type_arguments
+                (type_projection
+                  (user_type (type_identifier PLACEHOLDER_2))))))
+          (class_parameter
+            (binding_pattern_kind val) PLACEHOLDER_8 :
+            (function_type
+              (function_type_parameters
+                (user_type List
+                  (type_arguments
+                    (type_projection
+                      (user_type (type_identifier PLACEHOLDER_2))))))
+              (user_type (type_identifier PLACEHOLDER_2))))) :
+        (delegation_specifier
+          (user_type (type_identifier PLACEHOLDER_5)
+            (type_arguments
+              (type_projection
+                (user_type (type_identifier PLACEHOLDER_2))))))
+        (class_body
+          (property_declaration
+            (modifiers
+              (member_modifier override))
+            (binding_pattern_kind val)
+            (variable_declaration PLACEHOLDER_6))
+          (getter
+            (function_body =
+              (call_expression PLACEHOLDER_8
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_14
+                          (navigation_suffix . map))
+                        (call_suffix
+                          (annotated_lambda
+                            (lambda_literal
+                              (statements
+                                (navigation_expression it
+                                  (navigation_suffix . PLACEHOLDER_6)))))))))))))
+          (property_declaration
+            (modifiers
+              (visibility_modifier private))
+            (binding_pattern_kind var)
+            (variable_declaration PLACEHOLDER_15) = PLACEHOLDER_6)
+          (property_declaration
+            (modifiers
+              (visibility_modifier private))
+            (binding_pattern_kind val)
+            (variable_declaration PLACEHOLDER_11) =
+            (call_expression mutableSetOf
+              (call_suffix
+                (type_arguments
+                  (type_projection
+                    (function_type
+                      (function_type_parameters)
+                      (user_type Unit))))
+                (value_arguments))))
+          (anonymous_initializer
+            (statements
+              (call_expression
+                (navigation_expression PLACEHOLDER_14
+                  (navigation_suffix . forEach))
+                (call_suffix
+                  (annotated_lambda
+                    (lambda_literal
+                      (lambda_parameters
+                        (variable_declaration PLACEHOLDER_16)) ->
+                      (statements
+                        (call_expression
+                          (navigation_expression PLACEHOLDER_16
+                            (navigation_suffix . PLACEHOLDER_7))
+                          (call_suffix
+                            (annotated_lambda
+                              (lambda_literal
+                                (statements
+                                  (if_expression
+                                    (equality_expression PLACEHOLDER_6 != PLACEHOLDER_15)
+                                    (control_structure_body
+                                      (statements
+                                        (assignment
+                                          (directly_assignable_expression PLACEHOLDER_15) = PLACEHOLDER_6)
+                                        (call_expression
+                                          (navigation_expression PLACEHOLDER_11
+                                            (navigation_suffix . forEach))
+                                          (call_suffix
+                                            (annotated_lambda
+                                              (lambda_literal
+                                                (statements
+                                                  (call_expression it
+                                                    (call_suffix
+                                                      (value_arguments)))))))))))))))))))))))
+          (function_declaration
+            (modifiers
+              (member_modifier override)) PLACEHOLDER_7
+            (function_value_parameters
+              (parameter PLACEHOLDER_8 :
+                (function_type
+                  (function_type_parameters
+                    (user_type (type_identifier PLACEHOLDER_2)))
+                  (user_type Unit)))) :
+            (user_type (type_identifier PLACEHOLDER_3))
+            (function_body
+              (statements
+                (property_declaration
+                  (binding_pattern_kind val)
+                  (variable_declaration PLACEHOLDER_17) =
+                  (lambda_literal
+                    (statements
+                      (call_expression PLACEHOLDER_8
+                        (call_suffix
+                          (value_arguments
+                            (value_argument PLACEHOLDER_6)))))))
+                (call_expression
+                  (navigation_expression PLACEHOLDER_11
+                    (navigation_suffix . add))
+                  (call_suffix
+                    (value_arguments
+                      (value_argument PLACEHOLDER_17))))
+                (jump_expression return
+                  (object_literal :
+                    (delegation_specifier
+                      (user_type (type_identifier PLACEHOLDER_3)))
+                    (class_body
+                      (function_declaration
+                        (modifiers
+                          (member_modifier override)) PLACEHOLDER_4
+                        (function_value_parameters)
+                        (function_body
+                          (statements
+                            (call_expression
+                              (navigation_expression PLACEHOLDER_11
+                                (navigation_suffix . remove))
+                              (call_suffix
+                                (value_arguments
+                                  (value_argument PLACEHOLDER_17))))))))))))))))))

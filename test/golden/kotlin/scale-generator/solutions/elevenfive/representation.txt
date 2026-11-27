@@ -1,85 +1,512 @@
-class Scale ( private val tonic : String ) {
-private val firstNote by lazy { Note . from ( tonic ) }
-fun chromatic (): List < String > {
-val allNotes = Note . values ()
-val result = mutableListOf < String >()
-var lastNote : Note ? = null
-for ( noteIndex in allNotes . indices ) {
-val currentNoteIndex = ( firstNote . ordinal + noteIndex ) % allNotes . size
-val currentNote = allNotes [ currentNoteIndex ]
-if ( lastNote ?. isEquivalentTo ( currentNote ) != true ) {
-result . add ( currentNote . toString ())
-}
-lastNote = currentNote
-}
-return result
-}
-fun interval ( intervals : String ): List < String > {
-val result = mutableListOf < String >()
-result . add ( firstNote . toString ())
-var currentNote = firstNote
-intervals . dropLast ( 1 ). forEach { currentChar ->
-currentNote = when ( currentChar ) {
-'m' -> currentNote . nextNote ()
-'M' -> currentNote . nextNote (). nextNote ()
-'A' -> currentNote . nextNote (). nextNote (). nextNote ()
-else -> throw IllegalArgumentException ( "\"Unknown interval: $currentChar\"" )
-}
-result . add ( currentNote . toString ())
-}
-return result
-}
-}
-enum class Note ( private val type : Type ? = null ) {
-A ,
-As ( SHARP ),
-Bb ( FLAT ),
-B ,
-C ,
-Cs ( SHARP ),
-Db ( FLAT ),
-D ,
-Ds ( SHARP ),
-Eb ( FLAT ),
-E ,
-F ,
-Fs ( SHARP ),
-Gb ( FLAT ),
-G ,
-Gs ( SHARP ),
-Ab ( FLAT );
-companion object {
-fun from ( string : String ): Note {
-return values (). firstOrNull { note -> note . toString (). equals ( string , ignoreCase = true ) } ?:
-throw java . lang . IllegalArgumentException ( "\"Cannot find note for: $string\"" )
-}
-}
-val isSharp : Boolean by lazy { type == SHARP }
-val isFlat : Boolean by lazy { type == FLAT }
-fun isEquivalentTo ( otherNote : Note ): Boolean {
-return ( this . ordinal == otherNote . ordinal ) ||
-( this . ordinal + 1 == otherNote . ordinal && this . isSharp && otherNote . isFlat ) ||
-( this . ordinal - 1 == otherNote . ordinal && this . isFlat && otherNote . isSharp )
-}
-fun previousNote (): Note {
-if ( ordinal == 0 ) return values (). last ()
-val note = values ()[ ordinal - 1 ]
-if ( note . isEquivalentTo ( this )) return note . previousNote ()
-return note
-}
-fun nextNote (): Note {
-if ( ordinal == values (). size - 1 ) return values ()[ 0 ]
-val note = values ()[ ordinal + 1 ]
-if ( note . isEquivalentTo ( this )) return note . nextNote ()
-return note
-}
-override fun toString () = type ?. let { name . take ( 1 ) + type . toString () } ?: run { name }
-private enum class Type {
-SHARP ,
-FLAT ;
-override fun toString () = when ( this ) {
-SHARP -> "\"#\""
-FLAT -> "\"b\""
-}
-}
-}
+(source_file
+  (class_declaration class (type_identifier PLACEHOLDER_1)
+    (primary_constructor
+      (class_parameter
+        (modifiers
+          (visibility_modifier private))
+        (binding_pattern_kind val) PLACEHOLDER_2 :
+        (user_type String)))
+    (class_body
+      (property_declaration
+        (modifiers
+          (visibility_modifier private))
+        (binding_pattern_kind val)
+        (variable_declaration PLACEHOLDER_3)
+        (property_delegate
+          (call_expression lazy
+            (call_suffix
+              (annotated_lambda
+                (lambda_literal
+                  (statements
+                    (call_expression
+                      (navigation_expression PLACEHOLDER_4
+                        (navigation_suffix . PLACEHOLDER_5))
+                      (call_suffix
+                        (value_arguments
+                          (value_argument PLACEHOLDER_2)))))))))))
+      (function_declaration PLACEHOLDER_6
+        (function_value_parameters) :
+        (user_type List
+          (type_arguments
+            (type_projection
+              (user_type String))))
+        (function_body
+          (statements
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_7) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . values))
+                (call_suffix
+                  (value_arguments))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_8) =
+              (call_expression mutableListOf
+                (call_suffix
+                  (type_arguments
+                    (type_projection
+                      (user_type String)))
+                  (value_arguments))))
+            (property_declaration
+              (binding_pattern_kind var)
+              (variable_declaration PLACEHOLDER_9 :
+                (nullable_type
+                  (user_type (type_identifier PLACEHOLDER_4)) ?)) = null)
+            (for_statement
+              (variable_declaration PLACEHOLDER_10)
+              (navigation_expression PLACEHOLDER_7
+                (navigation_suffix . indices))
+              (control_structure_body
+                (statements
+                  (property_declaration
+                    (binding_pattern_kind val)
+                    (variable_declaration PLACEHOLDER_11) =
+                    (multiplicative_expression
+                      (additive_expression
+                        (navigation_expression PLACEHOLDER_3
+                          (navigation_suffix . ordinal)) + PLACEHOLDER_10) %
+                      (navigation_expression PLACEHOLDER_7
+                        (navigation_suffix . size))))
+                  (property_declaration
+                    (binding_pattern_kind val)
+                    (variable_declaration PLACEHOLDER_12) =
+                    (indexing_expression PLACEHOLDER_7
+                      (indexing_suffix PLACEHOLDER_11)))
+                  (if_expression
+                    (equality_expression
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_9
+                          (navigation_suffix ?. PLACEHOLDER_13))
+                        (call_suffix
+                          (value_arguments
+                            (value_argument PLACEHOLDER_12)))) !=
+                      (boolean_literal true))
+                    (control_structure_body
+                      (statements
+                        (call_expression
+                          (navigation_expression PLACEHOLDER_8
+                            (navigation_suffix . add))
+                          (call_suffix
+                            (value_arguments
+                              (value_argument
+                                (call_expression
+                                  (navigation_expression PLACEHOLDER_12
+                                    (navigation_suffix . PLACEHOLDER_14))
+                                  (call_suffix
+                                    (value_arguments))))))))))
+                  (assignment
+                    (directly_assignable_expression PLACEHOLDER_9) = PLACEHOLDER_12))))
+            (jump_expression return PLACEHOLDER_8))))
+      (function_declaration PLACEHOLDER_15
+        (function_value_parameters
+          (parameter PLACEHOLDER_16 :
+            (user_type String))) :
+        (user_type List
+          (type_arguments
+            (type_projection
+              (user_type String))))
+        (function_body
+          (statements
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_8) =
+              (call_expression mutableListOf
+                (call_suffix
+                  (type_arguments
+                    (type_projection
+                      (user_type String)))
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_8
+                (navigation_suffix . add))
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (call_expression
+                      (navigation_expression PLACEHOLDER_3
+                        (navigation_suffix . PLACEHOLDER_14))
+                      (call_suffix
+                        (value_arguments)))))))
+            (property_declaration
+              (binding_pattern_kind var)
+              (variable_declaration PLACEHOLDER_12) = PLACEHOLDER_3)
+            (call_expression
+              (navigation_expression
+                (call_expression
+                  (navigation_expression PLACEHOLDER_16
+                    (navigation_suffix . dropLast))
+                  (call_suffix
+                    (value_arguments
+                      (value_argument 1))))
+                (navigation_suffix . forEach))
+              (call_suffix
+                (annotated_lambda
+                  (lambda_literal
+                    (lambda_parameters
+                      (variable_declaration PLACEHOLDER_17)) ->
+                    (statements
+                      (assignment
+                        (directly_assignable_expression PLACEHOLDER_12) =
+                        (when_expression
+                          (when_subject PLACEHOLDER_17)
+                          (when_entry
+                            (when_condition
+                              (character_literal "m"))
+                            (control_structure_body
+                              (call_expression
+                                (navigation_expression PLACEHOLDER_12
+                                  (navigation_suffix . PLACEHOLDER_18))
+                                (call_suffix
+                                  (value_arguments)))))
+                          (when_entry
+                            (when_condition
+                              (character_literal "M"))
+                            (control_structure_body
+                              (call_expression
+                                (navigation_expression
+                                  (call_expression
+                                    (navigation_expression PLACEHOLDER_12
+                                      (navigation_suffix . PLACEHOLDER_18))
+                                    (call_suffix
+                                      (value_arguments)))
+                                  (navigation_suffix . PLACEHOLDER_18))
+                                (call_suffix
+                                  (value_arguments)))))
+                          (when_entry
+                            (when_condition
+                              (character_literal "A"))
+                            (control_structure_body
+                              (call_expression
+                                (navigation_expression
+                                  (call_expression
+                                    (navigation_expression
+                                      (call_expression
+                                        (navigation_expression PLACEHOLDER_12
+                                          (navigation_suffix . PLACEHOLDER_18))
+                                        (call_suffix
+                                          (value_arguments)))
+                                      (navigation_suffix . PLACEHOLDER_18))
+                                    (call_suffix
+                                      (value_arguments)))
+                                  (navigation_suffix . PLACEHOLDER_18))
+                                (call_suffix
+                                  (value_arguments)))))
+                          (when_entry
+                            (control_structure_body
+                              (jump_expression throw
+                                (call_expression IllegalArgumentException
+                                  (call_suffix
+                                    (value_arguments
+                                      (value_argument
+                                        (string_literal "Unknown interval: "
+                                          (interpolation PLACEHOLDER_17)))))))))))
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_8
+                          (navigation_suffix . add))
+                        (call_suffix
+                          (value_arguments
+                            (value_argument
+                              (call_expression
+                                (navigation_expression PLACEHOLDER_12
+                                  (navigation_suffix . PLACEHOLDER_14))
+                                (call_suffix
+                                  (value_arguments))))))))))))
+            (jump_expression return PLACEHOLDER_8))))))
+  (class_declaration enum class (type_identifier PLACEHOLDER_4)
+    (primary_constructor
+      (class_parameter
+        (modifiers
+          (visibility_modifier private))
+        (binding_pattern_kind val) PLACEHOLDER_19 :
+        (nullable_type
+          (user_type (type_identifier PLACEHOLDER_20)) ?) = null))
+    (enum_class_body
+      (enum_entry PLACEHOLDER_21)
+      (enum_entry PLACEHOLDER_22
+        (value_arguments
+          (value_argument PLACEHOLDER_23)))
+      (enum_entry PLACEHOLDER_24
+        (value_arguments
+          (value_argument PLACEHOLDER_25)))
+      (enum_entry PLACEHOLDER_26)
+      (enum_entry PLACEHOLDER_27)
+      (enum_entry PLACEHOLDER_28
+        (value_arguments
+          (value_argument PLACEHOLDER_23)))
+      (enum_entry PLACEHOLDER_29
+        (value_arguments
+          (value_argument PLACEHOLDER_25)))
+      (enum_entry PLACEHOLDER_30)
+      (enum_entry PLACEHOLDER_31
+        (value_arguments
+          (value_argument PLACEHOLDER_23)))
+      (enum_entry PLACEHOLDER_32
+        (value_arguments
+          (value_argument PLACEHOLDER_25)))
+      (enum_entry PLACEHOLDER_33)
+      (enum_entry PLACEHOLDER_34)
+      (enum_entry PLACEHOLDER_35
+        (value_arguments
+          (value_argument PLACEHOLDER_23)))
+      (enum_entry PLACEHOLDER_36
+        (value_arguments
+          (value_argument PLACEHOLDER_25)))
+      (enum_entry PLACEHOLDER_37)
+      (enum_entry PLACEHOLDER_38
+        (value_arguments
+          (value_argument PLACEHOLDER_23)))
+      (enum_entry PLACEHOLDER_39
+        (value_arguments
+          (value_argument PLACEHOLDER_25)))
+      (companion_object
+        (class_body
+          (function_declaration PLACEHOLDER_5
+            (function_value_parameters
+              (parameter PLACEHOLDER_40 :
+                (user_type String))) :
+            (user_type (type_identifier PLACEHOLDER_4))
+            (function_body
+              (statements
+                (jump_expression return
+                  (elvis_expression
+                    (call_expression
+                      (navigation_expression
+                        (call_expression values
+                          (call_suffix
+                            (value_arguments)))
+                        (navigation_suffix . firstOrNull))
+                      (call_suffix
+                        (annotated_lambda
+                          (lambda_literal
+                            (lambda_parameters
+                              (variable_declaration PLACEHOLDER_41)) ->
+                            (statements
+                              (call_expression
+                                (navigation_expression
+                                  (call_expression
+                                    (navigation_expression PLACEHOLDER_41
+                                      (navigation_suffix . PLACEHOLDER_14))
+                                    (call_suffix
+                                      (value_arguments)))
+                                  (navigation_suffix . equals))
+                                (call_suffix
+                                  (value_arguments
+                                    (value_argument PLACEHOLDER_40)
+                                    (value_argument ignoreCase =
+                                      (boolean_literal true)))))))))) ?:
+                    (jump_expression throw
+                      (call_expression
+                        (navigation_expression
+                          (navigation_expression java
+                            (navigation_suffix . lang))
+                          (navigation_suffix . IllegalArgumentException))
+                        (call_suffix
+                          (value_arguments
+                            (value_argument
+                              (string_literal "Cannot find note for: "
+                                (interpolation PLACEHOLDER_40))))))))))))))
+      (property_declaration
+        (binding_pattern_kind val)
+        (variable_declaration PLACEHOLDER_42 :
+          (user_type Boolean))
+        (property_delegate
+          (call_expression lazy
+            (call_suffix
+              (annotated_lambda
+                (lambda_literal
+                  (statements
+                    (equality_expression PLACEHOLDER_19 == PLACEHOLDER_23))))))))
+      (property_declaration
+        (binding_pattern_kind val)
+        (variable_declaration PLACEHOLDER_43 :
+          (user_type Boolean))
+        (property_delegate
+          (call_expression lazy
+            (call_suffix
+              (annotated_lambda
+                (lambda_literal
+                  (statements
+                    (equality_expression PLACEHOLDER_19 == PLACEHOLDER_25))))))))
+      (function_declaration PLACEHOLDER_13
+        (function_value_parameters
+          (parameter PLACEHOLDER_44 :
+            (user_type (type_identifier PLACEHOLDER_4)))) :
+        (user_type Boolean)
+        (function_body
+          (statements
+            (jump_expression return
+              (disjunction_expression
+                (disjunction_expression
+                  (equality_expression
+                    (navigation_expression
+                      (this_expression this)
+                      (navigation_suffix . ordinal)) ==
+                    (navigation_expression PLACEHOLDER_44
+                      (navigation_suffix . ordinal))) ||
+                  (conjunction_expression
+                    (conjunction_expression
+                      (equality_expression
+                        (additive_expression
+                          (navigation_expression
+                            (this_expression this)
+                            (navigation_suffix . ordinal)) + 1) ==
+                        (navigation_expression PLACEHOLDER_44
+                          (navigation_suffix . ordinal))) &&
+                      (navigation_expression
+                        (this_expression this)
+                        (navigation_suffix . PLACEHOLDER_42))) &&
+                    (navigation_expression PLACEHOLDER_44
+                      (navigation_suffix . PLACEHOLDER_43)))) ||
+                (conjunction_expression
+                  (conjunction_expression
+                    (equality_expression
+                      (additive_expression
+                        (navigation_expression
+                          (this_expression this)
+                          (navigation_suffix . ordinal)) - 1) ==
+                      (navigation_expression PLACEHOLDER_44
+                        (navigation_suffix . ordinal))) &&
+                    (navigation_expression
+                      (this_expression this)
+                      (navigation_suffix . PLACEHOLDER_43))) &&
+                  (navigation_expression PLACEHOLDER_44
+                    (navigation_suffix . PLACEHOLDER_42))))))))
+      (function_declaration PLACEHOLDER_45
+        (function_value_parameters) :
+        (user_type (type_identifier PLACEHOLDER_4))
+        (function_body
+          (statements
+            (if_expression
+              (equality_expression ordinal == 0)
+              (control_structure_body
+                (jump_expression return
+                  (call_expression
+                    (navigation_expression
+                      (call_expression values
+                        (call_suffix
+                          (value_arguments)))
+                      (navigation_suffix . last))
+                    (call_suffix
+                      (value_arguments))))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_41) =
+              (indexing_expression
+                (call_expression values
+                  (call_suffix
+                    (value_arguments)))
+                (indexing_suffix
+                  (additive_expression ordinal - 1))))
+            (if_expression
+              (call_expression
+                (navigation_expression PLACEHOLDER_41
+                  (navigation_suffix . PLACEHOLDER_13))
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (this_expression this)))))
+              (control_structure_body
+                (jump_expression return
+                  (call_expression
+                    (navigation_expression PLACEHOLDER_41
+                      (navigation_suffix . PLACEHOLDER_45))
+                    (call_suffix
+                      (value_arguments))))))
+            (jump_expression return PLACEHOLDER_41))))
+      (function_declaration PLACEHOLDER_18
+        (function_value_parameters) :
+        (user_type (type_identifier PLACEHOLDER_4))
+        (function_body
+          (statements
+            (if_expression
+              (equality_expression ordinal ==
+                (additive_expression
+                  (navigation_expression
+                    (call_expression values
+                      (call_suffix
+                        (value_arguments)))
+                    (navigation_suffix . size)) - 1))
+              (control_structure_body
+                (jump_expression return
+                  (indexing_expression
+                    (call_expression values
+                      (call_suffix
+                        (value_arguments)))
+                    (indexing_suffix 0)))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_41) =
+              (indexing_expression
+                (call_expression values
+                  (call_suffix
+                    (value_arguments)))
+                (indexing_suffix
+                  (additive_expression ordinal + 1))))
+            (if_expression
+              (call_expression
+                (navigation_expression PLACEHOLDER_41
+                  (navigation_suffix . PLACEHOLDER_13))
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (this_expression this)))))
+              (control_structure_body
+                (jump_expression return
+                  (call_expression
+                    (navigation_expression PLACEHOLDER_41
+                      (navigation_suffix . PLACEHOLDER_18))
+                    (call_suffix
+                      (value_arguments))))))
+            (jump_expression return PLACEHOLDER_41))))
+      (function_declaration
+        (modifiers
+          (member_modifier override)) PLACEHOLDER_14
+        (function_value_parameters)
+        (function_body =
+          (elvis_expression
+            (call_expression
+              (navigation_expression PLACEHOLDER_19
+                (navigation_suffix ?. let))
+              (call_suffix
+                (annotated_lambda
+                  (lambda_literal
+                    (statements
+                      (additive_expression
+                        (call_expression
+                          (navigation_expression name
+                            (navigation_suffix . take))
+                          (call_suffix
+                            (value_arguments
+                              (value_argument 1)))) +
+                        (call_expression
+                          (navigation_expression PLACEHOLDER_19
+                            (navigation_suffix . PLACEHOLDER_14))
+                          (call_suffix
+                            (value_arguments))))))))) ?:
+            (call_expression run
+              (call_suffix
+                (annotated_lambda
+                  (lambda_literal
+                    (statements name))))))))
+      (class_declaration
+        (modifiers
+          (visibility_modifier private)) enum class (type_identifier PLACEHOLDER_20)
+        (enum_class_body
+          (enum_entry PLACEHOLDER_23)
+          (enum_entry PLACEHOLDER_25)
+          (function_declaration
+            (modifiers
+              (member_modifier override)) PLACEHOLDER_14
+            (function_value_parameters)
+            (function_body =
+              (when_expression
+                (when_subject
+                  (this_expression this))
+                (when_entry
+                  (when_condition PLACEHOLDER_23)
+                  (control_structure_body "#"))
+                (when_entry
+                  (when_condition PLACEHOLDER_25)
+                  (control_structure_body "b"))))))))))
