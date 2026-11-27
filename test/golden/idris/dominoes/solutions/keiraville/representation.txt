@@ -1,35 +1,343 @@
-module Dominoes
-vmap : ( a -> b ) -> Vect n a -> Vect n b
-vmap _ [] = []
-vmap f ( first :: rest ) = ( f first ) :: ( vmap f rest )
-computeTally : List ( Vect 2 ( Fin 7 )) -> Vect 7 Nat
-computeTally = loop ( replicate 7 ( the Nat 0 ))
-  where loop : Vect 7 Nat -> List ( Vect 2 ( Fin 7 )) -> Vect 7 Nat
-loop tally [] = tally
-  loop tally (( left :: right :: [] ) :: rest ) = loop ( updateAt left S ( updateAt right S tally )) rest
-root : Vect 7 ( Fin 7 ) -> Fin 7 -> Fin 7
-root table i = if parent == i then i
-  else root table parent
-  where parent : Fin 7
-    parent = index i table
-parents : List ( Vect 2 ( Fin 7 )) -> Vect 7 ( Fin 7 )
-parents dominoes = loop [ 0 , 1 , 2 , 3 , 4 , 5 , 6 ] dominoes
-  where loop : Vect 7 ( Fin 7 ) -> List ( Vect 2 ( Fin 7 )) -> Vect 7 ( Fin 7 )
-    loop table [] = table
-    loop table (( left :: right :: [] ) :: rest ) = loop ( replaceAt ( root table right ) ( root table left ) table ) rest
-initial : List ( Vect 2 ( Fin 7 )) -> Fin 7
-initial [] = 0
-initial (( left :: right :: [] ) :: rest ) = left
-export
-canChain : List ( Vect 2 ( Fin 7 )) -> Bool
-canChain dominoes = ( isNil dominoes ) || ( tallyAllEven && allConnected )
-  where tally : Vect 7 Nat
-tally = computeTally dominoes
-  onlyEven : Vect n Nat -> Bool
-onlyEven [] = True
-  onlyEven ( first :: rest ) = ( first ` mod ` 2 == 0 ) && ( onlyEven rest )
-  tallyAllEven = onlyEven tally
-  dominoParents = parents dominoes
-  dominoRoots = vmap ( root dominoParents ) dominoParents
-  initialRoot = root dominoParents ( initial dominoes )
-  allConnected = find ( \ element => (( index element tally > 0 ) && ( index element dominoRoots ) /= initialRoot )) ( the ( List ( Fin 7 )) [ 0 , 1 , 2 , 3 , 4 , 5 , 6 ]) == Nothing
+(idris
+  (module (caname PLACEHOLDER_1))
+  (signature PLACEHOLDER_2
+    (exp_parens
+      (type_variable PLACEHOLDER_3)
+      (arrow_separator ->)
+      (type_variable PLACEHOLDER_4))
+    (arrow_separator ->)
+    (exp_name Vect)
+    (type_variable PLACEHOLDER_5)
+    (type_variable PLACEHOLDER_3)
+    (arrow_separator ->)
+    (exp_name Vect)
+    (type_variable PLACEHOLDER_5)
+    (type_variable PLACEHOLDER_4))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_2
+        (patterns _
+          (pat_list))))
+    (rhs
+      (exp_list)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_2
+        (patterns
+          (pat_name PLACEHOLDER_6)
+          (pat_parens
+            (pat_name PLACEHOLDER_7) ::
+            (pat_name PLACEHOLDER_8)))))
+    (rhs
+      (exp_parens
+        (exp_name PLACEHOLDER_6)
+        (exp_name PLACEHOLDER_7)) ::
+      (exp_parens
+        (exp_name PLACEHOLDER_2)
+        (exp_name PLACEHOLDER_6)
+        (exp_name PLACEHOLDER_8))))
+  (signature PLACEHOLDER_9
+    (exp_name List)
+    (exp_parens
+      (exp_name Vect) 2
+      (exp_parens
+        (exp_name Fin) 7))
+    (arrow_separator ->)
+    (exp_name Vect) 7
+    (exp_name Nat))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_9))
+    (rhs
+      (exp_name PLACEHOLDER_10)
+      (exp_parens
+        (exp_name replicate) 7
+        (exp_parens
+          (exp_name the)
+          (exp_name Nat) 0)))
+    (declarations
+      (signature PLACEHOLDER_10
+        (exp_name Vect) 7
+        (exp_name Nat)
+        (arrow_separator ->)
+        (exp_name List)
+        (exp_parens
+          (exp_name Vect) 2
+          (exp_parens
+            (exp_name Fin) 7))
+        (arrow_separator ->)
+        (exp_name Vect) 7
+        (exp_name Nat))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_10
+            (patterns
+              (pat_name PLACEHOLDER_11)
+              (pat_list))))
+        (rhs
+          (exp_name PLACEHOLDER_11)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_10
+            (patterns
+              (pat_name PLACEHOLDER_11)
+              (pat_parens
+                (pat_parens
+                  (pat_name PLACEHOLDER_12) ::
+                  (pat_name PLACEHOLDER_13) ::
+                  (pat_list)) ::
+                (pat_name PLACEHOLDER_8)))))
+        (rhs
+          (exp_name PLACEHOLDER_10)
+          (exp_parens
+            (exp_name updateAt)
+            (exp_name PLACEHOLDER_12)
+            (exp_name S)
+            (exp_parens
+              (exp_name updateAt)
+              (exp_name PLACEHOLDER_13)
+              (exp_name S)
+              (exp_name PLACEHOLDER_11)))
+          (exp_name PLACEHOLDER_8)))))
+  (signature PLACEHOLDER_14
+    (exp_name Vect) 7
+    (exp_parens
+      (exp_name Fin) 7)
+    (arrow_separator ->)
+    (exp_name Fin) 7
+    (arrow_separator ->)
+    (exp_name Fin) 7)
+  (function
+    (lhs
+      (funvar PLACEHOLDER_14
+        (patterns
+          (pat_name PLACEHOLDER_15)
+          (pat_name PLACEHOLDER_16))))
+    (rhs
+      (exp_if
+        (exp_name PLACEHOLDER_17) ==
+        (exp_name PLACEHOLDER_16)
+        (exp_then
+          (exp_name PLACEHOLDER_16))
+        (exp_else
+          (exp_name PLACEHOLDER_14)
+          (exp_name PLACEHOLDER_15)
+          (exp_name PLACEHOLDER_17))))
+    (declarations
+      (signature PLACEHOLDER_17
+        (exp_name Fin) 7)
+      (function
+        (lhs
+          (funvar PLACEHOLDER_17))
+        (rhs
+          (exp_name index)
+          (exp_name PLACEHOLDER_16)
+          (exp_name PLACEHOLDER_15)))))
+  (signature PLACEHOLDER_18
+    (exp_name List)
+    (exp_parens
+      (exp_name Vect) 2
+      (exp_parens
+        (exp_name Fin) 7))
+    (arrow_separator ->)
+    (exp_name Vect) 7
+    (exp_parens
+      (exp_name Fin) 7))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_18
+        (patterns
+          (pat_name PLACEHOLDER_19))))
+    (rhs
+      (exp_name PLACEHOLDER_10)
+      (exp_list 0 , 1 , 2 , 3 , 4 , 5 , 6)
+      (exp_name PLACEHOLDER_19))
+    (declarations
+      (signature PLACEHOLDER_10
+        (exp_name Vect) 7
+        (exp_parens
+          (exp_name Fin) 7)
+        (arrow_separator ->)
+        (exp_name List)
+        (exp_parens
+          (exp_name Vect) 2
+          (exp_parens
+            (exp_name Fin) 7))
+        (arrow_separator ->)
+        (exp_name Vect) 7
+        (exp_parens
+          (exp_name Fin) 7))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_10
+            (patterns
+              (pat_name PLACEHOLDER_15)
+              (pat_list))))
+        (rhs
+          (exp_name PLACEHOLDER_15)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_10
+            (patterns
+              (pat_name PLACEHOLDER_15)
+              (pat_parens
+                (pat_parens
+                  (pat_name PLACEHOLDER_12) ::
+                  (pat_name PLACEHOLDER_13) ::
+                  (pat_list)) ::
+                (pat_name PLACEHOLDER_8)))))
+        (rhs
+          (exp_name PLACEHOLDER_10)
+          (exp_parens
+            (exp_name replaceAt)
+            (exp_parens
+              (exp_name PLACEHOLDER_14)
+              (exp_name PLACEHOLDER_15)
+              (exp_name PLACEHOLDER_13))
+            (exp_parens
+              (exp_name PLACEHOLDER_14)
+              (exp_name PLACEHOLDER_15)
+              (exp_name PLACEHOLDER_12))
+            (exp_name PLACEHOLDER_15))
+          (exp_name PLACEHOLDER_8)))))
+  (signature PLACEHOLDER_20
+    (exp_name List)
+    (exp_parens
+      (exp_name Vect) 2
+      (exp_parens
+        (exp_name Fin) 7))
+    (arrow_separator ->)
+    (exp_name Fin) 7)
+  (function
+    (lhs
+      (funvar PLACEHOLDER_20
+        (patterns
+          (pat_list))))
+    (rhs 0))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_20
+        (patterns
+          (pat_parens
+            (pat_parens
+              (pat_name PLACEHOLDER_12) ::
+              (pat_name PLACEHOLDER_13) ::
+              (pat_list)) ::
+            (pat_name PLACEHOLDER_8)))))
+    (rhs
+      (exp_name PLACEHOLDER_12)))
+  (signature
+    (visibility export) PLACEHOLDER_21
+    (exp_name List)
+    (exp_parens
+      (exp_name Vect) 2
+      (exp_parens
+        (exp_name Fin) 7))
+    (arrow_separator ->)
+    (exp_name Bool))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_21
+        (patterns
+          (pat_name PLACEHOLDER_19))))
+    (rhs
+      (exp_parens
+        (exp_name isNil)
+        (exp_name PLACEHOLDER_19)) ||
+      (exp_parens
+        (exp_name PLACEHOLDER_22) &&
+        (exp_name PLACEHOLDER_23)))
+    (declarations
+      (signature PLACEHOLDER_11
+        (exp_name Vect) 7
+        (exp_name Nat))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_11))
+        (rhs
+          (exp_name PLACEHOLDER_9)
+          (exp_name PLACEHOLDER_19)))
+      (signature PLACEHOLDER_24
+        (exp_name Vect)
+        (type_variable PLACEHOLDER_5)
+        (exp_name Nat)
+        (arrow_separator ->)
+        (exp_name Bool))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_24
+            (patterns
+              (pat_list))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_24
+            (patterns
+              (pat_parens
+                (pat_name PLACEHOLDER_7) ::
+                (pat_name PLACEHOLDER_8)))))
+        (rhs
+          (exp_parens
+            (exp_name PLACEHOLDER_7)
+            (exp_ticked
+              (exp_name mod)) 2 == 0) &&
+          (exp_parens
+            (exp_name PLACEHOLDER_24)
+            (exp_name PLACEHOLDER_8))))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_22))
+        (rhs
+          (exp_name PLACEHOLDER_24)
+          (exp_name PLACEHOLDER_11)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_25))
+        (rhs
+          (exp_name PLACEHOLDER_18)
+          (exp_name PLACEHOLDER_19)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_26))
+        (rhs
+          (exp_name PLACEHOLDER_2)
+          (exp_parens
+            (exp_name PLACEHOLDER_14)
+            (exp_name PLACEHOLDER_25))
+          (exp_name PLACEHOLDER_25)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_27))
+        (rhs
+          (exp_name PLACEHOLDER_14)
+          (exp_name PLACEHOLDER_25)
+          (exp_parens
+            (exp_name PLACEHOLDER_20)
+            (exp_name PLACEHOLDER_19))))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_23))
+        (rhs
+          (exp_name find)
+          (exp_lambda
+            (lambda_args
+              (pat_name PLACEHOLDER_28))
+            (lambda_exp
+              (exp_parens
+                (exp_name index)
+                (exp_name PLACEHOLDER_28)
+                (exp_name PLACEHOLDER_11) > 0) &&
+              (exp_parens
+                (exp_name index)
+                (exp_name PLACEHOLDER_28)
+                (exp_name PLACEHOLDER_26)) /=
+              (exp_name PLACEHOLDER_27)))
+          (exp_parens
+            (exp_name the)
+            (exp_parens
+              (exp_name List)
+              (exp_parens
+                (exp_name Fin) 7))
+            (exp_list 0 , 1 , 2 , 3 , 4 , 5 , 6)) ==
+          (exp_name Nothing))))))

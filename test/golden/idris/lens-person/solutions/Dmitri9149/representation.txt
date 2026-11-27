@@ -1,59 +1,292 @@
-module LensPerson
-public export
-record Lens s a b t where
-  constructor MkLens
-  view : s -> a
-  update : s -> b -> t
-public export
-compose : Lens s a0 b0 t -> Lens a0 a1 b1 b0 -> Lens s a1 b1 t
-compose ( MkLens view0 update0 ) ( MkLens view1 update1 ) =
-  MkLens ( view1 . view0 ) ( \ s , b1 => update0 s ( update1 ( view0 s ) b1 ))
-public export
-record Address where
-  constructor MkAddress
-  street : String
-  houseNumber : Int
-  place : String
-  country : String
-public export
-record Born where
-  constructor MkBorn
-  bornAt : Address
-  bornOn : String
-public export
-record Person where
-  constructor MkPerson
-  name : String
-  born : Born
-  address : Address
-public export
-bornAtAddressLens : Lens Born Address Address Born
-bornAtAddressLens = MkLens bornAt ( \ s , b => ( { bornAt := b } s ) )
-public export
-personBornLens : Lens Person Born Born Person
-personBornLens = MkLens born (( \ s , b => { born := b } s ))
-public export
-personCurrentAddressLens : Lens Person Address Address Person
-personCurrentAddressLens = MkLens address ( \ s , b => ( { address := b } s ) )
-public export
-addressStreetLens : Lens Address String String Address
-addressStreetLens = MkLens street ( \ s , b => ( { street := b } s ) )
-public export
-personStreetLens : Lens Person String String Person
-personStreetLens = personCurrentAddressLens ` compose ` addressStreetLens
-export
-personBornStreetLens : Lens Person String String Person
-personBornStreetLens = personBornLens ` compose ` ( bornAtAddressLens ` compose ` addressStreetLens )
-export
-bornStreet : Born -> String
-bornStreet = ( bornAtAddressLens ` compose ` addressStreetLens ) . view
-export
-setCurrentStreet : String -> Person -> Person
-setCurrentStreet = flip personStreetLens . update
-export
-renameStreets : ( String -> String ) -> Person -> Person
-renameStreets f person =
-  let updateCurrentStreet = personStreetLens . update person ( f $ personStreetLens . view person )
-    in
-      let updateBornStreet = personBornStreetLens . update updateCurrentStreet ( f $ personBornStreetLens . view updateCurrentStreet )
-        in updateBornStreet
+(idris
+  (module (caname PLACEHOLDER_1))
+  (record
+    (visibility public export) (caname PLACEHOLDER_2)
+    (exp_name PLACEHOLDER_3)
+    (exp_name a)
+    (exp_name PLACEHOLDER_4)
+    (exp_name PLACEHOLDER_5)
+    (record_body
+      (constructor (caname PLACEHOLDER_6))
+      (record_field PLACEHOLDER_7
+        (exp_name PLACEHOLDER_3)
+        (arrow_separator ->)
+        (exp_name a))
+      (record_field PLACEHOLDER_8
+        (exp_name PLACEHOLDER_3)
+        (arrow_separator ->)
+        (exp_name PLACEHOLDER_4)
+        (arrow_separator ->)
+        (exp_name PLACEHOLDER_5))))
+  (signature
+    (visibility public export) PLACEHOLDER_9
+    (exp_name (caname PLACEHOLDER_2))
+    (type_variable PLACEHOLDER_3)
+    (type_variable PLACEHOLDER_10)
+    (type_variable PLACEHOLDER_11)
+    (type_variable PLACEHOLDER_5)
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_2))
+    (type_variable PLACEHOLDER_10)
+    (type_variable PLACEHOLDER_12)
+    (type_variable PLACEHOLDER_13)
+    (type_variable PLACEHOLDER_11)
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_2))
+    (type_variable PLACEHOLDER_3)
+    (type_variable PLACEHOLDER_12)
+    (type_variable PLACEHOLDER_13)
+    (type_variable PLACEHOLDER_5))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_9
+        (patterns
+          (pat_parens
+            (pat_constructor (caname PLACEHOLDER_6))
+            (pat_name PLACEHOLDER_14)
+            (pat_name PLACEHOLDER_15))
+          (pat_parens
+            (pat_constructor (caname PLACEHOLDER_6))
+            (pat_name PLACEHOLDER_16)
+            (pat_name PLACEHOLDER_17)))))
+    (rhs
+      (exp_name (caname PLACEHOLDER_6))
+      (exp_parens
+        (exp_name PLACEHOLDER_16) .
+        (exp_name PLACEHOLDER_14))
+      (exp_lambda
+        (lambda_args
+          (pat_name PLACEHOLDER_3) ,
+          (pat_name PLACEHOLDER_13))
+        (lambda_exp
+          (exp_name PLACEHOLDER_15)
+          (exp_name PLACEHOLDER_3)
+          (exp_parens
+            (exp_name PLACEHOLDER_17)
+            (exp_parens
+              (exp_name PLACEHOLDER_14)
+              (exp_name PLACEHOLDER_3))
+            (exp_name PLACEHOLDER_13))))))
+  (record
+    (visibility public export) (caname PLACEHOLDER_18)
+    (record_body
+      (constructor (caname PLACEHOLDER_19))
+      (record_field PLACEHOLDER_20
+        (exp_name String))
+      (record_field PLACEHOLDER_21
+        (exp_name Int))
+      (record_field PLACEHOLDER_22
+        (exp_name String))
+      (record_field PLACEHOLDER_23
+        (exp_name String))))
+  (record
+    (visibility public export) (caname PLACEHOLDER_24)
+    (record_body
+      (constructor (caname PLACEHOLDER_25))
+      (record_field PLACEHOLDER_26
+        (exp_name (caname PLACEHOLDER_18)))
+      (record_field PLACEHOLDER_27
+        (exp_name String))))
+  (record
+    (visibility public export) (caname PLACEHOLDER_28)
+    (record_body
+      (constructor (caname PLACEHOLDER_29))
+      (record_field PLACEHOLDER_30
+        (exp_name String))
+      (record_field PLACEHOLDER_31
+        (exp_name (caname PLACEHOLDER_24)))
+      (record_field PLACEHOLDER_32
+        (exp_name (caname PLACEHOLDER_18)))))
+  (signature
+    (visibility public export) PLACEHOLDER_33
+    (exp_name (caname PLACEHOLDER_2))
+    (exp_name (caname PLACEHOLDER_24))
+    (exp_name (caname PLACEHOLDER_18))
+    (exp_name (caname PLACEHOLDER_18))
+    (exp_name (caname PLACEHOLDER_24)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_33))
+    (rhs
+      (exp_name (caname PLACEHOLDER_6))
+      (exp_name PLACEHOLDER_26)
+      (exp_lambda
+        (lambda_args
+          (pat_name PLACEHOLDER_3) ,
+          (pat_name PLACEHOLDER_4))
+        (lambda_exp
+          (record_update (field_name PLACEHOLDER_26) :=
+            (exp_name PLACEHOLDER_4))
+          (exp_name PLACEHOLDER_3)))))
+  (signature
+    (visibility public export) PLACEHOLDER_34
+    (exp_name (caname PLACEHOLDER_2))
+    (exp_name (caname PLACEHOLDER_28))
+    (exp_name (caname PLACEHOLDER_24))
+    (exp_name (caname PLACEHOLDER_24))
+    (exp_name (caname PLACEHOLDER_28)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_34))
+    (rhs
+      (exp_name (caname PLACEHOLDER_6))
+      (exp_name PLACEHOLDER_31)
+      (exp_lambda
+        (lambda_args
+          (pat_name PLACEHOLDER_3) ,
+          (pat_name PLACEHOLDER_4))
+        (lambda_exp
+          (record_update (field_name PLACEHOLDER_31) :=
+            (exp_name PLACEHOLDER_4))
+          (exp_name PLACEHOLDER_3)))))
+  (signature
+    (visibility public export) PLACEHOLDER_35
+    (exp_name (caname PLACEHOLDER_2))
+    (exp_name (caname PLACEHOLDER_28))
+    (exp_name (caname PLACEHOLDER_18))
+    (exp_name (caname PLACEHOLDER_18))
+    (exp_name (caname PLACEHOLDER_28)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_35))
+    (rhs
+      (exp_name (caname PLACEHOLDER_6))
+      (exp_name PLACEHOLDER_32)
+      (exp_lambda
+        (lambda_args
+          (pat_name PLACEHOLDER_3) ,
+          (pat_name PLACEHOLDER_4))
+        (lambda_exp
+          (record_update (field_name PLACEHOLDER_32) :=
+            (exp_name PLACEHOLDER_4))
+          (exp_name PLACEHOLDER_3)))))
+  (signature
+    (visibility public export) PLACEHOLDER_36
+    (exp_name (caname PLACEHOLDER_2))
+    (exp_name (caname PLACEHOLDER_18))
+    (exp_name String)
+    (exp_name String)
+    (exp_name (caname PLACEHOLDER_18)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_36))
+    (rhs
+      (exp_name (caname PLACEHOLDER_6))
+      (exp_name PLACEHOLDER_20)
+      (exp_lambda
+        (lambda_args
+          (pat_name PLACEHOLDER_3) ,
+          (pat_name PLACEHOLDER_4))
+        (lambda_exp
+          (record_update (field_name PLACEHOLDER_20) :=
+            (exp_name PLACEHOLDER_4))
+          (exp_name PLACEHOLDER_3)))))
+  (signature
+    (visibility public export) PLACEHOLDER_37
+    (exp_name (caname PLACEHOLDER_2))
+    (exp_name (caname PLACEHOLDER_28))
+    (exp_name String)
+    (exp_name String)
+    (exp_name (caname PLACEHOLDER_28)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_37))
+    (rhs
+      (exp_name PLACEHOLDER_35)
+      (exp_ticked
+        (exp_name PLACEHOLDER_9))
+      (exp_name PLACEHOLDER_36)))
+  (signature
+    (visibility export) PLACEHOLDER_38
+    (exp_name (caname PLACEHOLDER_2))
+    (exp_name (caname PLACEHOLDER_28))
+    (exp_name String)
+    (exp_name String)
+    (exp_name (caname PLACEHOLDER_28)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_38))
+    (rhs
+      (exp_name PLACEHOLDER_34)
+      (exp_ticked
+        (exp_name PLACEHOLDER_9))
+      (exp_parens
+        (exp_name PLACEHOLDER_33)
+        (exp_ticked
+          (exp_name PLACEHOLDER_9))
+        (exp_name PLACEHOLDER_36))))
+  (signature
+    (visibility export) PLACEHOLDER_39
+    (exp_name (caname PLACEHOLDER_24))
+    (arrow_separator ->)
+    (exp_name String))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_39))
+    (rhs
+      (exp_parens
+        (exp_name PLACEHOLDER_33)
+        (exp_ticked
+          (exp_name PLACEHOLDER_9))
+        (exp_name PLACEHOLDER_36)) .
+      (exp_name PLACEHOLDER_7)))
+  (signature
+    (visibility export) PLACEHOLDER_40
+    (exp_name String)
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_28))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_28)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_40))
+    (rhs
+      (exp_name flip)
+      (exp_name PLACEHOLDER_37) .
+      (exp_name PLACEHOLDER_8)))
+  (signature
+    (visibility export) PLACEHOLDER_41
+    (exp_parens
+      (exp_name String)
+      (arrow_separator ->)
+      (exp_name String))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_28))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_28)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_41
+        (patterns
+          (pat_name PLACEHOLDER_42)
+          (pat_name PLACEHOLDER_43))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_name PLACEHOLDER_44))
+          (rhs
+            (exp_name PLACEHOLDER_37) .
+            (exp_name PLACEHOLDER_8)
+            (exp_name PLACEHOLDER_43)
+            (exp_parens
+              (exp_name PLACEHOLDER_42) $
+              (exp_name PLACEHOLDER_37) .
+              (exp_name PLACEHOLDER_7)
+              (exp_name PLACEHOLDER_43))))
+        (in
+          (exp_let_in
+            (declarations
+              (lhs
+                (pat_name PLACEHOLDER_45))
+              (rhs
+                (exp_name PLACEHOLDER_38) .
+                (exp_name PLACEHOLDER_8)
+                (exp_name PLACEHOLDER_44)
+                (exp_parens
+                  (exp_name PLACEHOLDER_42) $
+                  (exp_name PLACEHOLDER_38) .
+                  (exp_name PLACEHOLDER_7)
+                  (exp_name PLACEHOLDER_44))))
+            (in
+              (exp_name PLACEHOLDER_45))))))))
