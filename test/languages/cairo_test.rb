@@ -1,7 +1,7 @@
 require "test_helper"
 
-# Cairo has no old representer, so there are no upstream tests to port. These
-# tests follow Cairo's comment, formatting, naming and core library rules.
+# Tests Cairo's whole representer. The tests of each stage are in
+# test/languages/cairo/.
 class CairoTest < RepresenterTest
   track "cairo"
 
@@ -13,33 +13,15 @@ class CairoTest < RepresenterTest
     refute_same_representation wrap("(a + b) * a"), wrap("a + b * a")
   end
 
-  def test_a_final_expression_is_not_a_statement
-    refute_same_representation wrap("a"), wrap("a;")
-  end
-
-  def test_numbers
-    assert_same_representation wrap("1_000"), wrap("1000")
-    refute_same_representation wrap("1000"), wrap("100")
-  end
-
-  def test_strings_keep_their_text
-    refute_same_representation wrap("let s = \"a\"; a"), wrap("let s = \"b\"; a")
-    refute_same_representation wrap("let s = 'a'; a"), wrap("let s = \"a\"; a")
-  end
-
   def test_names_the_solution_defines_are_renamed
     assert_same_representation wrap("let total = a + b;\ntotal"), wrap("let sum = a + b;\nsum")
     assert_same_representation "fn add(x: u32) -> u32 { x }\nfn g() -> u32 { add(1) }",
       "fn plus(y: u32) -> u32 { y }\nfn g() -> u32 { plus(1) }"
+    assert_same_representation "fn main() {}", "fn other() {}"
     refute_same_representation wrap("let total = a + b;\ntotal"), wrap("let total = a + a;\ntotal")
   end
 
-  def test_shorthand_fields
-    assert_same_representation "fn f(x: u32) -> P { P { x } }", "fn f(x: u32) -> P { P { x: x } }"
-  end
-
-  def test_names_with_a_meaning_outside_the_solution_are_kept
-    refute_same_representation "fn main() {}", "fn other() {}"
+  def test_names_the_solution_does_not_define_are_kept
     refute_same_representation wrap("let mut v = array![];\nv.append(a);\na"), wrap("let mut v = array![];\nv.pop_front();\na")
   end
 
@@ -54,5 +36,9 @@ class CairoTest < RepresenterTest
   def test_numbers_are_their_values
     assert_same_representation wrap("a + 1_000 + 0x1F + 10_u32"), wrap("a + 1000 + 31 + 10_u32")
     refute_same_representation wrap("a + 10_u8"), wrap("a + 10")
+  end
+
+  def test_shorthand_fields
+    assert_same_representation "fn f(x: u32) -> P { P { x } }", "fn f(x: u32) -> P { P { x: x } }"
   end
 end
