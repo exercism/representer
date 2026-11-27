@@ -11,7 +11,7 @@ module Representer::Engine
     initialize_with :language, :source
 
     def call
-      tree = Grammar[language.grammar].parse(Representer::Engine.clean(source))
+      tree = Grammar[language.grammar].parse(Representer::Engine.clean(source), **language.parse_options)
       tree = language.run_stage(:GenerateAST, tree)
       tree = DropImports.(tree, language)
       language.run_stage(:Normalise, tree)

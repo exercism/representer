@@ -28,7 +28,7 @@ The website POSTs JSON like this:
 
 - `outputs` lists what to generate, as one or more of `representation`, `snippet` and `analysis`. The representer only runs the steps needed for these outputs.
 - `solution_files` are the student's files.
-- `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. C#, Elixir and Ruby, which are written with stages, ignore them.
+- `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. C#, Elixir, F# and Ruby, which are written with stages, ignore them.
 
 It responds with `200` and one key for each output asked for:
 
@@ -88,10 +88,10 @@ For a language with its own class, the representer:
 2. Drops what makes no difference to the solution working, such as comments, brackets that only group, and imports. Every solution that the representer sees passes its tests, so this code can't change what a mentor says about it.
 3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`, or `1_000` into `1000`.
 4. Joins the files into one tree, in an order that depends only on their code. A file's name is never part of the representation, so renaming or reordering files doesn't change it.
-5. Replaces each name the student chose with a placeholder. For C#, Elixir and Ruby, this is every name the solution defines, wherever it appears. The other languages also keep the names used in the tests.
+5. Replaces each name the student chose with a placeholder. For C#, Elixir, F# and Ruby, this is every name the solution defines, wherever it appears. The other languages also keep the names used in the tests.
 6. Writes the tree out as an indented s-expression.
 
-C#, Elixir and Ruby each have a folder, [`csharp/`](./lib/representer/languages/csharp/), [`elixir/`](./lib/representer/languages/elixir/) and [`ruby/`](./lib/representer/languages/ruby/). Each folder's `spec.rb` declares the language's names and imports, and its stage files describe steps 2 and 3. A comment above each declaration and method says what it does.
+C#, Elixir, F# and Ruby each have a folder: [`csharp/`](./lib/representer/languages/csharp/), [`elixir/`](./lib/representer/languages/elixir/), [`fsharp/`](./lib/representer/languages/fsharp/) and [`ruby/`](./lib/representer/languages/ruby/). Each folder's `spec.rb` declares the language's names and imports, and its stage files describe steps 2 and 3. A comment above each declaration and method says what it does.
 The other languages describe these steps as rules in their class in [`lib/representer/languages/`](./lib/representer/languages/), until they are moved to stages, and the comment at the top of each class lists what its rules do.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains the stages and how to add a language.
 

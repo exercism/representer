@@ -23,6 +23,21 @@ class PrepareFileTest < Minitest::Test
     assert_equal "(program\n  (assignment x = 1))", prepare(WithGenerateAST::Spec, "require 'set'\nx = 1")
   end
 
+  # A language that keeps the whole text of a string, and the text between
+  # the children of an array.
+  module WithText
+    class Spec < Representer::Engine::Language
+      grammar "ruby"
+      text_nodes :string
+      text_between_children :array
+    end
+  end
+
+  def test_keeps_the_text_the_language_asks_for
+    assert_equal "(program\n  (assignment x = 'a'))", prepare(WithText::Spec, "x = 'a'")
+    assert_equal "(program\n  (assignment x =\n    (array [ 1 , \"   \" 2 ])))", prepare(WithText::Spec, "x = [1,   2]")
+  end
+
   def test_refuses_code_that_does_not_parse
     error = assert_raises(Representer::CannotRepresent) { prepare(ToyLanguage::Spec, "def x(") }
     assert_equal "parse_error", error.reason

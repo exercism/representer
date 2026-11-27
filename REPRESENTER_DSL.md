@@ -88,6 +88,24 @@ It ignores other files, such as Rust's `Cargo.toml`.
 extensions ".rb"
 ```
 
+### text_nodes
+
+Some grammars give a node's quotes or marks as its children, and leave its text out, such as F#'s `1.5` and `@"a\b"`.
+A language lists these node types, and the engine turns each such node into a leaf that holds its whole source text.
+
+```ruby
+text_nodes :float, :verbatim_string
+```
+
+### text_between_children
+
+Some grammars leave the text between a node's children out of the tree, such as the text of an F# string.
+A language lists these node types, and the engine keeps each stretch of that text as a "fragment" leaf.
+
+```ruby
+text_between_children :string
+```
+
 ## Names and imports
 
 In the inline examples in each `spec.rb`, «» marks the captured name: the part of the code that the item on that line matches.
