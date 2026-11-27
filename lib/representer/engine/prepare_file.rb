@@ -1,6 +1,7 @@
 module Representer::Engine
   # Turns one file of a staged language into the tree seen by
-  # RenameUserDefinedNodes. It parses the source, runs the language's
+  # RenameUserDefinedNodes. It parses the source (unless it is given the
+  # tree already made from it by the grammar), runs the language's
   # GenerateAST stage, drops the imports, and runs the language's
   # Normalise stage. A language that doesn't define a stage skips it.
   #
@@ -8,10 +9,10 @@ module Representer::Engine
   class PrepareFile
     include Mandate
 
-    initialize_with :language, :source
+    initialize_with :language, :source, tree: nil
 
     def call
-      tree = Grammar[language.grammar].parse(Representer::Engine.clean(source), **language.parse_options)
+      tree = self.tree || Grammar[language.grammar].parse(Representer::Engine.clean(source), **language.parse_options)
       tree = language.run_stage(:GenerateAST, tree)
       tree = DropImports.(tree, language)
       language.run_stage(:Normalise, tree)

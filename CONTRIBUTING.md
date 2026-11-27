@@ -10,7 +10,8 @@ The steps are:
 2. Port the old representer's tests.
 3. Declare the language's names and write its stages.
 4. Add tests for each stage.
-5. Set the version.
+5. Write the snippet.
+6. Set the version.
 
 ## The goal
 
@@ -130,6 +131,7 @@ The folder holds all the language's files:
 
 - `spec.rb` defines `Ruby::Spec`, which declares the language's setup, names and imports.
 - `generate_ast.rb`, `normalise.rb` and `reorder.rb` each define one stage, such as `Ruby::GenerateAST`.
+- `snippet.rb` defines `Ruby::Snippet`, which says what to leave out of the solution's snippet (see step 5).
 
 Every file uses the compact module form, and each stage is a class beside `Spec` in the same module:
 
@@ -209,7 +211,7 @@ Use one line for a small one (`# {"a": 1, "b": 2} == {"b": 2, "a": 1}`).
 For anything bigger, write "e.g. We convert:" followed by the code, then "internally into:" followed by the result.
 Keep the examples short, and check each one against what the code does.
 Leave no blank line between a comment and the code it describes.
-In `spec.rb`, each item in a `names_are`, `names_are_defined_by` or `imports` list has a short example of the code it matches at the end of its line, with «» around the name or code it matches.
+In `spec.rb` and `snippet.rb`, each item in a `names_are`, `names_are_defined_by`, `imports`, `skip_at_top` or similar list has a short example of the code it matches at the end of its line, with «» around the name or code it matches.
 The examples in a list line up in one column.
 The line above each declaration is an instruction, such as "Rename the names of classes and modules."
 Update a comment whenever the code below it changes.
@@ -264,7 +266,35 @@ Run the tests as "Running the tests" below says.
 If the track has golden data in [`test/golden/<track>/`](./test/golden/), run `./bin/regenerate-golden <track>` after changing a stage, and review the diff.
 The golden tests fail if a change splits or merges any of the production groups, unless the difference is listed in the track's `differences.yml` (see [`test/golden/README.md`](./test/golden/README.md)).
 
-## 5. Set the version
+## 5. Write the snippet
+
+The website shows the first 15 lines of each solution on its card.
+Create `snippet.rb` in the language's folder, and list what to leave out, such as comments and the imports at the top of the file:
+
+```ruby
+module Representer::Languages::Ruby
+  class Snippet < Representer::Engine::Snippet
+    # Remove every comment, wherever it is.
+    remove :comments # x = 1 «# The answer»
+
+    # Skip the requires at the top of the file, up to the first other statement.
+    skip_at_top :require,          # «require "set"»
+                :require_relative  # «require_relative "helpers"»
+  end
+end
+```
+
+[REPRESENTER_DSL.md](./REPRESENTER_DSL.md#snippets) explains every declaration.
+To choose the words, look at the start of the track's example solutions and the track's file in `exercism/snippet-extractor`.
+Add a test to [`test/engine/snippet_test.rb`](./test/engine/snippet_test.rb) for anything unusual, and run the track's request tests, whose expected responses include the snippet.
+If Rouge has no lexer for the language, add `comment_lines`, so a file that doesn't parse still loses its comments.
+
+A track with no representer of its own can have a snippet too.
+Its folder holds only `snippet.rb`, which starts with `tracks "<slug>"`, and its rules apply to lines.
+
+Bump the snippet's version whenever its snippets could change. The snippet's version is separate from the language's version.
+
+## 6. Set the version
 
 A new language starts at version 2, because the old per-track representers all reported version 1.
 

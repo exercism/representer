@@ -14,7 +14,9 @@ module Representer::Engine
   class Represent
     include Mandate
 
-    initialize_with :language, :solution_files, :exercise_files
+    # trees holds files already parsed by the grammar, by filename (see
+    # RepresentSolution). Only a staged language uses them.
+    initialize_with :language, :solution_files, :exercise_files, trees: {}
 
     def call
       @deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + Representer::MAX_SECONDS
@@ -24,7 +26,7 @@ module Representer::Engine
           "No solution file has one of the extensions #{language.extensions.join(', ')}")
       end
 
-      return RepresentWithStages.(language, sources.values) if language.staged?
+      return RepresentWithStages.(language, sources.values, parsed: trees.values_at(*sources.keys)) if language.staged?
 
       trees = sources.values.map { |source| prepare(source) }
       tree = merge(trees)

@@ -6,8 +6,9 @@ module Representer::Engine
   class Language
     extend Representer::LanguageSetup
 
-    # Each stage lives in a file named after it, in the language's folder.
-    STAGE_FILES = { GenerateAST: "generate_ast", Normalise: "normalise", Reorder: "reorder" }.freeze
+    # Each stage lives in a file named after it, in the language's folder,
+    # and so does the language's snippet (see Engine::Snippet).
+    STAGE_FILES = { GenerateAST: "generate_ast", Normalise: "normalise", Reorder: "reorder", Snippet: "snippet" }.freeze
 
     class << self
       # Ruby calls this when a language defines its Spec. If the language's
@@ -25,7 +26,7 @@ module Representer::Engine
       end
 
       # Called by Representer when it picks a language for a track.
-      def call(solution_files, exercise_files) = Represent.(self, solution_files, exercise_files)
+      def call(solution_files, exercise_files, trees: {}) = Represent.(self, solution_files, exercise_files, trees:)
 
       def staged? = true
 

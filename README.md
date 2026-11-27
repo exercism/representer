@@ -40,10 +40,16 @@ It responds with `200` and one key for each output asked for:
     "version": 12
   },
   "snippet": {
-    "error": "not_supported",
-    "message": "The representer doesn't make snippets yet"
+    "snippet": "def two_fer(name = 'you')\n ...",
+    "version": 1
   }
 }
+```
+
+The `snippet` output holds the start of the solution, which the website shows on the solution's card, and the snippet's version:
+
+```json
+{ "snippet": { "snippet": "def two_fer(name = 'you')\n ...", "version": 1 } }
 ```
 
 The `representation` output has these fields:
@@ -57,7 +63,8 @@ Each output has its own version, so a change to one output never makes the websi
 If the representer can't generate an output, that output holds an error instead, and the other outputs still come back.
 An error has the same shape for every output: `error` gives the reason, `message` says what went wrong, and `version` is the output's version for the track, if it has one.
 If a track doesn't support an output yet, the error is `not_supported`.
-The representer doesn't make snippets or analyses yet, so these outputs always get `not_supported`.
+The representer doesn't make analyses yet, so the `analysis` output always gets `not_supported`.
+Every track gets a snippet, even when its solution can't be represented. If one of the snippet's rules raises an error, the snippet gets the error `internal_error`.
 
 Some solutions can't be represented.
 For those, the `representation` output is an error with the language's version, and `error` is one of these reasons:
@@ -98,6 +105,10 @@ The other languages describe these steps as rules in their class in [`lib/repres
 Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.
 It renames nothing, so it only merges solutions that differ in nothing but comments and formatting.
 
+Every track also gets a snippet: the first 15 lines of the solution's main file, without its comments or the boilerplate at its top, such as imports.
+Each track's `snippet.rb` in its folder in [`lib/representer/languages/`](./lib/representer/languages/) says what to leave out, and [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#snippets) explains the rules.
+For a language with a grammar, the snippet works on the grammar's tree, before any of the steps above change it.
+
 ## Set up
 
 You need Ruby 3.4, git and a C compiler.
@@ -114,7 +125,7 @@ To represent a solution, write a request body to a file (see [`tests/`](./tests/
 ./bin/run.sh path/to/request.json
 ```
 
-To see how a language's representer parses and represents a file, run:
+To see how a language's representer parses and represents a file, and the file's snippet, run:
 
 ```shell
 ./bin/inspect ruby path/to/two_fer.rb

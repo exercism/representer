@@ -26,16 +26,17 @@ class FuzzTest < Minitest::Test
   BAD_CHARACTER = "\u0001INVALID\u0001".freeze
 
   # An editor chooses these, not the student, so they must not change the
-  # representation.
+  # response. Each one replaces the source's own line endings or mark, if it
+  # has any.
   SAME_AS_UNCHANGED = %w[crlf bom].freeze
 
   MUTATIONS = {
     "unchanged" => ->(source, _random) { source },
     "no_line_endings" => ->(source, _random) { source.delete("\n") },
     "double_line_endings" => ->(source, _random) { source.gsub("\n", "\n\n") },
-    "crlf" => ->(source, _random) { source.gsub("\n", "\r\n") },
+    "crlf" => ->(source, _random) { source.gsub(/\r?\n/, "\r\n") },
     "cr_only" => ->(source, _random) { source.tr("\n", "\r") },
-    "bom" => ->(source, _random) { "﻿#{source}" },
+    "bom" => ->(source, _random) { "﻿#{source.delete_prefix('﻿')}" },
     "nul" => ->(source, random) { source.dup.insert(random.rand(source.size + 1), "\0") },
     "invalid_utf8" => ->(source, random) { source.dup.insert(random.rand(source.size + 1), BAD_CHARACTER) },
     "truncated" => ->(source, random) { source[0, random.rand(source.size + 1)] },
