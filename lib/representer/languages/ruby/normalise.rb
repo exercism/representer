@@ -27,7 +27,11 @@ module Representer::Languages::Ruby
         "attr_accessor {{names}}"
       ]
 
-    def call = attach_visibility_to_the_def_it_wraps!(super)
+    def call
+      super.tap do |root|
+        attach_visibility_to_the_def_it_wraps!(root)
+      end
+    end
 
     private
     # Mark a method defined inside `private`, `protected` or `public` with that modifier.

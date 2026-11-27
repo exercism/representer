@@ -180,6 +180,20 @@ Only sort containers of definitions or entries, such as a class's body or a hash
 If the grammar gives a container the same type as a block of statements, give it a type of its own in `GenerateAST` before sorting it, as Ruby's `class_body` does.
 If a rule genuinely needs logic, write it as a small, clearly named Ruby method.
 Each step in a stage is a bang method named for what it does to the tree, such as `add_braces_to_if_and_else_bodies!`.
+A stage's `call` method is only a series of these steps, written with `super.tap`, so any direct call to `drop`, `unwrap`, `transform` or `drop_tokens` goes in a bang method of its own.
+A `GenerateAST` stage has no `super`, so it starts from `tree.tap` instead.
+
+```ruby
+def call
+  super.tap do |root|
+    drop_this_and_class_name_before_own_members!(root)
+    drop_empty_brackets_from_new_with_initializer!(root)
+    drop_readonly_from_ref_readonly!(root)
+    add_braces_to_if_and_else_bodies!(root)
+    write_every_dictionary_initialiser_the_same_way!(root)
+  end
+end
+```
 
 Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's type, field names and tokens.
 

@@ -30,22 +30,38 @@ module Representer::Languages::FSharp
     Numbers = Representer::Engine::Numbers
 
     def call
-      # Drop comments and XML documentation.
-      drop(tree, "[(line_comment) (block_comment) (xml_doc)]")
-      write_strings_as_their_values!
-      write_numbers_as_their_values!
-      write_every_operator_as_a_leaf!
-      regroup_operators_and_calls!(tree)
-
-      # Unwrap brackets that only group, because the tree's shape now shows the grouping.
-      # a + (b * c) == a + b * c
-      unwrap(tree, "[(paren_expression) (paren_pattern)]")
-      drop_bars_between_match_union_and_enum_cases!
-      mark_the_code_that_defines_names!
-      drop_tokens(tree, everywhere: TOKENS)
+      tree.tap do
+        drop_comments_and_xml_documentation!
+        write_strings_as_their_values!
+        write_numbers_as_their_values!
+        write_every_operator_as_a_leaf!
+        regroup_operators_and_calls!(tree)
+        unwrap_brackets_that_only_group!
+        drop_bars_between_match_union_and_enum_cases!
+        mark_the_code_that_defines_names!
+        drop_tokens_that_the_node_types_already_show!
+      end
     end
 
     private
+    ### Comments, brackets and tokens ###
+
+    # Drop comments and XML documentation.
+    def drop_comments_and_xml_documentation!
+      drop(tree, "[(line_comment) (block_comment) (xml_doc)]")
+    end
+
+    # Unwrap brackets that only group, because the tree's shape now shows the grouping.
+    # a + (b * c) == a + b * c
+    def unwrap_brackets_that_only_group!
+      unwrap(tree, "[(paren_expression) (paren_pattern)]")
+    end
+
+    # Drop the tokens listed in TOKENS from every node.
+    def drop_tokens_that_the_node_types_already_show!
+      drop_tokens(tree, everywhere: TOKENS)
+    end
+
     ### Strings and numbers ###
 
     # Turn each string into its value, however it is quoted, and read its

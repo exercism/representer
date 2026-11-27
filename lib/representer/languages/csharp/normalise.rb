@@ -46,19 +46,22 @@ module Representer::Languages::CSharp
     MEMBERS = %w[method_declaration property_declaration event_declaration].freeze
 
     def call
-      root = super
-      drop_this_and_class_name_before_own_members!(root)
-      drop_empty_brackets_from_new_with_initializer!(root)
-
-      # Drop the `readonly` of a `ref readonly` too, which isn't a modifier.
-      # ref readonly int F() == ref int F()
-      drop_tokens(root, everywhere: %w[readonly])
-      add_braces_to_if_and_else_bodies!(root)
-      write_every_dictionary_initialiser_the_same_way!(root)
-      root
+      super.tap do |root|
+        drop_this_and_class_name_before_own_members!(root)
+        drop_empty_brackets_from_new_with_initializer!(root)
+        drop_readonly_from_ref_readonly!(root)
+        add_braces_to_if_and_else_bodies!(root)
+        write_every_dictionary_initialiser_the_same_way!(root)
+      end
     end
 
     private
+    # Drop the `readonly` of a `ref readonly` too, which isn't a modifier.
+    # ref readonly int F() == ref int F()
+    def drop_readonly_from_ref_readonly!(root)
+      drop_tokens(root, everywhere: %w[readonly])
+    end
+
     # Drop `this.` and the class's own name before one of the class's members,
     # as Roslyn's simplifier does, unless a parameter or local variable has
     # the same name.

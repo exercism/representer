@@ -43,20 +43,37 @@ module Representer::Languages::CSharp
     Numbers = Representer::Engine::Numbers
 
     def call
-      # Drop comments.
-      drop(tree, "(comment)")
-      write_strings_as_their_values!
-      write_numbers_as_their_values!
-      add_parameter_node_to_bare_lambda_parameters!
-      mark_let_and_join_variables_as_names!
-      drop_tokens(tree, everywhere: TOKENS, kept_in: TOKENS_KEPT_IN)
-
-      # Unwrap brackets that only group, because the tree's shape shows the grouping.
-      # (1 + 2) * 3 keeps its shape, and (a) == a
-      unwrap(tree, "(parenthesized_expression)")
+      tree.tap do
+        drop_comments!
+        write_strings_as_their_values!
+        write_numbers_as_their_values!
+        add_parameter_node_to_bare_lambda_parameters!
+        mark_let_and_join_variables_as_names!
+        drop_tokens_that_the_node_types_already_show!
+        unwrap_brackets_that_only_group!
+      end
     end
 
     private
+    ### Comments, brackets and tokens ###
+
+    # Drop comments.
+    def drop_comments!
+      drop(tree, "(comment)")
+    end
+
+    # Drop the tokens listed in TOKENS from every node, apart from the node
+    # types listed in TOKENS_KEPT_IN.
+    def drop_tokens_that_the_node_types_already_show!
+      drop_tokens(tree, everywhere: TOKENS, kept_in: TOKENS_KEPT_IN)
+    end
+
+    # Unwrap brackets that only group, because the tree's shape shows the grouping.
+    # (1 + 2) * 3 keeps its shape, and (a) == a
+    def unwrap_brackets_that_only_group!
+      unwrap(tree, "(parenthesized_expression)")
+    end
+
     ### Values ###
 
     # Turn each regular and verbatim string into its value, and read its

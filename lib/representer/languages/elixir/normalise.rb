@@ -19,10 +19,10 @@ module Representer::Languages::Elixir
     TYPES = /\A(spec|callback|macrocallback|type|typep|opaque)\z/
 
     def call
-      root = super
-      add_empty_brackets_to_function_after_pipe!(root)
-      drop_empty_brackets_from_types!(root)
-      root
+      super.tap do |root|
+        add_empty_brackets_to_function_after_pipe!(root)
+        drop_empty_brackets_from_types!(root)
+      end
     end
 
     private

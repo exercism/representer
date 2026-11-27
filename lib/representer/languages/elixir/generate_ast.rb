@@ -22,31 +22,50 @@ module Representer::Languages::Elixir
     DEFINITIONS = /\A(def|defp|defmacro|defmacrop|defguard|defguardp|defdelegate)\z/
 
     def call
-      # Drop comments.
+      tree.tap do
+        drop_comments!
+        write_numbers_strings_atoms_and_charlists_as_values!
+        unwrap_brackets_that_only_group!
+        turn_do_and_else_keywords_into_a_do_block!
+        write_keyword_lists_and_map_entries_in_one_shape!
+        drop_empty_brackets_from_calls_on_a_module_or_value!
+        mark_the_code_that_defines_names!
+        mark_module_bodies_and_map_updates!
+        wrap_bound_variables_in_variable_nodes!
+        drop_tokens_that_the_node_types_already_show!
+      end
+    end
+
+    private
+    ### Comments, brackets and tokens ###
+
+    # Drop comments.
+    def drop_comments!
       drop(tree, "(comment)")
-      write_numbers_strings_atoms_and_charlists_as_values!
+    end
 
-      # Unwrap brackets that only group, because the tree's shape shows the grouping.
-      # (1 + 2) == 1 + 2
+    # Unwrap brackets that only group, because the tree's shape shows the grouping.
+    # (1 + 2) == 1 + 2
+    def unwrap_brackets_that_only_group!
       unwrap(tree, "(block)")
-      turn_do_and_else_keywords_into_a_do_block!
-      write_keyword_lists_and_map_entries_in_one_shape!
+    end
 
-      # Drop empty brackets from a call on a module or value. Leave `f()` alone,
-      # because the parser reads a bare `f` as a variable.
-      # Mod.f() == Mod.f
-      # x.f() == x.f
+    # Drop empty brackets from a call on a module or value. Leave `f()` alone,
+    # because the parser reads a bare `f` as a variable.
+    # Mod.f() == Mod.f
+    # x.f() == x.f
+    def drop_empty_brackets_from_calls_on_a_module_or_value!
       transform(tree, "(call target: (dot right: (_)) (arguments) @arguments)") do |match|
         match.node.children.delete(match[:arguments]) if match[:arguments].named_children.empty?
         match.node
       end
-      mark_the_code_that_defines_names!
-      mark_module_bodies_and_map_updates!
-      wrap_bound_variables_in_variable_nodes!
+    end
+
+    # Drop the tokens listed in TOKENS from every node.
+    def drop_tokens_that_the_node_types_already_show!
       drop_tokens(tree, everywhere: TOKENS)
     end
 
-    private
     ### Values ###
 
     # Turn each number, string, atom and charlist into its value, and read the

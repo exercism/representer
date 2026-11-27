@@ -54,23 +54,39 @@ module Representer::Languages::Ruby
     MARK = "\0".freeze
 
     def call
-      # Drop comments, empty statements and the text after `__END__`.
-      drop(tree, "[(comment) (uninterpreted) (empty_statement)]")
-      turn_heredocs_into_strings!
-      write_strings_symbols_and_word_lists_as_values!
-      write_numbers_as_their_values!
-      write_conditions_and_loops_in_one_shape!
-      write_blocks_and_lambdas_in_one_shape!
-      write_methods_and_calls_in_one_shape!
-      mark_class_and_module_bodies!
-      drop_tokens(tree, everywhere: TOKENS, only_in: TOKENS_IN, kept_in: TOKENS_KEPT_IN)
-
-      # Unwrap brackets that only group, because the tree's shape shows the grouping.
-      # (1 + 2) == 1 + 2
-      unwrap(tree, "(parenthesized_statements)")
+      tree.tap do
+        drop_comments_empty_statements_and_text_after_end!
+        turn_heredocs_into_strings!
+        write_strings_symbols_and_word_lists_as_values!
+        write_numbers_as_their_values!
+        write_conditions_and_loops_in_one_shape!
+        write_blocks_and_lambdas_in_one_shape!
+        write_methods_and_calls_in_one_shape!
+        mark_class_and_module_bodies!
+        drop_tokens_that_the_node_types_already_show!
+        unwrap_brackets_that_only_group!
+      end
     end
 
     private
+    ### Comments, brackets and tokens ###
+
+    # Drop comments, empty statements and the text after `__END__`.
+    def drop_comments_empty_statements_and_text_after_end!
+      drop(tree, "[(comment) (uninterpreted) (empty_statement)]")
+    end
+
+    # Drop the tokens listed in TOKENS, TOKENS_IN and TOKENS_KEPT_IN.
+    def drop_tokens_that_the_node_types_already_show!
+      drop_tokens(tree, everywhere: TOKENS, only_in: TOKENS_IN, kept_in: TOKENS_KEPT_IN)
+    end
+
+    # Unwrap brackets that only group, because the tree's shape shows the grouping.
+    # (1 + 2) == 1 + 2
+    def unwrap_brackets_that_only_group!
+      unwrap(tree, "(parenthesized_statements)")
+    end
+
     ### Heredocs ###
 
     # Turn each heredoc into a string with the same value. Remove the indentation
