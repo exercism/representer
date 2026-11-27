@@ -9,8 +9,8 @@ module Representer::Engine
   # marks those names on the leaves (see RenameUserDefinedNodes), and
   # another language gives them as names (see Names).
   #
-  # A rule may have replaced a file's root (Crystal unwraps a file that
-  # holds one class), so such a file joins as one child.
+  # A rule may have replaced a file's root, so such a file joins as one
+  # child.
   class JoinFiles
     include Mandate
 
