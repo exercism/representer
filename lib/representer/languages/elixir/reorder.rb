@@ -1,12 +1,13 @@
 # REPRESENTER_DSL.md defines the verbs in this file.
+# Remember that all solutions pass the tests and we don't need to run the code,
+# so reordering only exists to group students who list things in a different order.
 module Representer::Languages::Elixir
   class Reorder < Representer::Engine::Reorder
-    # The order of the code in a module's body makes no difference, and nor
-    # does the order of a map's or a struct's entries, including the ones
-    # after the `|` in `%{map | a: 1}`. The old representer sorted the `use`
-    # lines and the entries, and this also sorts the functions. Normalise
-    # has already moved each `@spec` into its function, so a spec moves
-    # with its function.
+    # Reorder the functions and other code inside modules, and the entries of
+    # maps and structs, including the ones after the `|` in `%{map | a: 1}`.
+    # Normalise has already attached each `@spec` to its function, so a spec
+    # moves with its function.
+    # %{a: 1, b: 2} == %{b: 2, a: 1}
     sort :module_body, :map_content, :map_update
   end
 end

@@ -182,13 +182,21 @@ If a rule genuinely needs logic, write it as a small, clearly named Ruby method.
 
 Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's type, field names and tokens.
 
-### Comments
+### Comments in language files
 
-The comment at the top of each file only says, in one or two sentences, that [REPRESENTER_DSL.md](./REPRESENTER_DSL.md) defines its declarations or verbs.
-Each rule and each method then has a short comment directly above it, which says what it means for this language.
+Each language file follows the style of Ruby's [`normalise.rb`](./lib/representer/languages/ruby/normalise.rb) and [`reorder.rb`](./lib/representer/languages/ruby/reorder.rb).
+The comment at the top of a file says briefly why the stage exists.
+For example, all solutions pass the tests and the code is never run, so reordering only exists to group students who list things in a different order.
+The comment above each rule or method is an instruction that says what to do, such as "Mark each method..." or "Reorder the methods and other code inside classes and modules".
+Add the reason only if it isn't obvious.
+Then show an example of the effect.
+Use one line for a small one (`# {"a": 1, "b": 2} == {"b": 2, "a": 1}`).
+For anything bigger, write "e.g. We convert:" followed by the code, then "internally into:" followed by the result.
+Keep the examples short, and check each one against what the code does.
+Leave no blank line between a comment and the code it describes.
 In `spec.rb`, each item in a `names_are`, `names_are_defined_by` or `imports` list has a short example of the code it matches at the end of its line, with «» around the name or code it matches.
 The examples in a list line up in one column.
-A declaration only has a comment above it if the comment says something the examples don't show, in one short line, such as "A symbol such as `:count` names `count`, so the colon isn't part of it."
+The line above each declaration is an instruction, such as "Rename the names of classes and modules."
 Update a comment whenever the code below it changes.
 Write every comment by the rules in "Writing comments and docs" below.
 

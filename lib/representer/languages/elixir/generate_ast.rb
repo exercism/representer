@@ -1,15 +1,17 @@
-# REPRESENTER_DSL.md defines the helpers in this file. The comment above
-# each method says what it does to Elixir's code.
+# REPRESENTER_DSL.md defines the helpers in this file.
+# Tree-sitter's tree keeps every token and spelling, but a mentor would give
+# the same feedback however a solution is written. So this stage turns it into
+# the simpler tree that Elixir's own parser (`Code.string_to_quoted`) gives, as
+# the old representer used.
 module Representer::Languages::Elixir
-  # The old representer used Elixir's own parser (`Code.string_to_quoted`).
-  # This stage turns tree-sitter's tree into the tree given by that parser.
   class GenerateAST < Representer::Engine::GenerateAST
-    # Punctuation and keywords that sit in a fixed place, so the node
-    # types already show them. Without its brackets, `IO.puts(x)` is
-    # `IO.puts x`.
+    # Drop these tokens from every node, because the node types already show
+    # them. They are keywords and punctuation that sit in a fixed place.
+    #
+    # IO.puts(x) == IO.puts x
     TOKENS = %w[( ) [ ] { } << >> , ; % do end fn else rescue catch after nil #{].freeze
 
-    # The escapes that a string reads.
+    # The escapes that a string reads, and the text each one stands for.
     ESCAPES = {
       "n" => "\n", "t" => "\t", "r" => "\r", "s" => " ", "e" => "\e", "0" => "\0",
       "\\" => "\\", '"' => '"', "'" => "'", "#" => "#"
@@ -20,16 +22,18 @@ module Representer::Languages::Elixir
     DEFINITIONS = /\A(def|defp|defmacro|defmacrop|defguard|defguardp|defdelegate)\z/
 
     def call
-      # Comments make no difference to the code.
+      # Drop comments.
       drop(tree, "(comment)")
       values
-      # The tree's shape already shows what brackets group, so `(1 + 2)` is
-      # `1 + 2`.
+      # Unwrap brackets that only group, because the tree's shape shows the grouping.
+      # (1 + 2) == 1 + 2
       unwrap(tree, "(block)")
       do_keywords
       keyword_lists
-      # `Mod.f` is `Mod.f()`, and `x.f` is `x.f()`. `f` and `f()` stay
-      # apart, because the parser reads `f` as a variable.
+      # Drop empty brackets from a call on a module or value. Leave `f()` alone,
+      # because the parser reads a bare `f` as a variable.
+      # Mod.f() == Mod.f
+      # x.f() == x.f
       transform(tree, "(call target: (dot right: (_)) (arguments) @arguments)") do |match|
         match.node.children.delete(match[:arguments]) if match[:arguments].named_children.empty?
         match.node
@@ -43,16 +47,17 @@ module Representer::Languages::Elixir
     private
     ### Values ###
 
-    # A value is the same however it is written:
+    # Turn each number, string, atom and charlist into its value, and read the
+    # escapes of a string. Keep any other escape as it is written, so it can't
+    # make two different strings the same.
     #
-    # - Numbers with the same value are the same, so `1_000` is `1000`,
-    #   `0x1F` and `0b11111` are `31`, `1.50` is `1.5`, and `?a` is `97`.
-    # - Strings with the same value are the same, so `"a\nb"` is the same
-    #   as a heredoc that holds the same two lines. This reads the escapes
-    #   `\n`, `\t`, `\r`, `\s`, `\e`, `\0`, `\\`, `\"`, `\'` and `\#`. Any
-    #   other escape stays as it is written, so it can't make two different
-    #   strings the same.
-    # - `:"a"` is `:a`, and `''` is `[]`.
+    # 1_000 == 1000
+    # 0x1F == 0b11111 == 31
+    # 1.50 == 1.5
+    # ?a == 97
+    # "a\nb" == a heredoc that holds the same two lines
+    # :"a" == :a
+    # '' == []
     def values
       transform(tree, '(string quoted_start: /\A"("")?\z/ @quote)') do |match|
         parts = match.node.named_children
@@ -74,8 +79,8 @@ module Representer::Languages::Elixir
       end
     end
 
-    # A heredoc's value starts on the line after its opening `"""`, and
-    # loses the indentation of its closing `"""` from every line.
+    # Start a heredoc's value on the line after its opening `"""`, and remove
+    # the indentation of its closing `"""` from every line.
     def heredoc(parts)
       indent = parts.last.text[/[ \t]*\z/].size
       parts.each_with_index do |part, index|
@@ -86,8 +91,10 @@ module Representer::Languages::Elixir
       end
     end
 
-    # A string's value, from its parts: a literal if it is all text, or
-    # a string of literals and interpolations. Neighbouring text joins up.
+    # Build a string's value from its parts: a literal if it is all text, or a
+    # string of literals and interpolations. Join neighbouring text.
+    #
+    # "a\nb" is one literal, and "a#{x}b" is a string of "a", x and "b".
     def string_node(parts)
       pieces = parts.map do |part|
         case part.type
@@ -104,7 +111,9 @@ module Representer::Languages::Elixir
       build(:string, *nodes)
     end
 
-    # `?a` is the integer 97, and `?\s` is 32.
+    # Turn a character literal into the integer of its code.
+    # ?a == 97
+    # ?\s == 32
     def character(node)
       char = node.text.delete_prefix("?")
       char = ESCAPES[char[1..]] if char.start_with?("\\") && char.size > 1
@@ -116,7 +125,8 @@ module Representer::Languages::Elixir
 
     ### Keyword lists ###
 
-    # `f x, do: a, else: b` is `f x do a else b end`.
+    # Turn the `do:` and `else:` keywords of a call into a `do` block.
+    # f x, do: a, else: b == f x do a else b end
     def do_keywords
       each_node(tree) do |call, _|
         next unless call.type == "call" && call.children.none? { |child| child.type == "do_block" }
@@ -138,10 +148,12 @@ module Representer::Languages::Elixir
 
     def statements(value) = value.type == "block" ? value.named_children : [value]
 
-    # A keyword is a tuple of an atom and a value, and a map entry is a
-    # tuple of its key and value. So `[a: 1]` is `[{:a, 1}]`, and
-    # `%{a: 1}` is `%{:a => 1}`. A keyword list outside a list or a map
-    # is a list of its own, so `f(x, a: 1)` is `f(x, [a: 1])`.
+    # Turn each keyword and map entry into a tuple of its key and value, and
+    # wrap a keyword list that sits outside a list or a map in a list of its own.
+    #
+    # [a: 1] == [{:a, 1}]
+    # %{a: 1} == %{:a => 1}
+    # f(x, a: 1) == f(x, [a: 1])
     def keyword_lists
       transform(tree, "(pair key: (keyword) @key value: (_) @value)") do |match|
         build(:tuple, leaf(:atom, ":#{match[:key].text.strip.delete_suffix(':')}"), match[:value])
@@ -162,17 +174,16 @@ module Representer::Languages::Elixir
 
     ### Definitions ###
 
-    # The code that defines a name gets a node type of its own, so that
-    # spec.rb can list it in names_are_defined_by:
+    # Give the code that defines a name a node type of its own, so that spec.rb
+    # can list it in names_are_defined_by.
     #
-    # - The name of a `defmodule` or `defprotocol` becomes a `module_name`.
-    #   Every module name is split into its parts, so `Foo.Bar` defines
-    #   both `Foo` and `Bar`.
-    # - The head of a `def`, `defp`, `defmacro`, `defmacrop`, `defguard`,
-    #   `defguardp` or `defdelegate` becomes a `function_head`.
-    # - The `t :: ...` of `@type`, `@typep` and `@opaque` becomes a
+    # - Mark the name of a `defmodule` or `defprotocol` as a `module_name`, and
+    #   split it into its parts, so `Foo.Bar` defines both `Foo` and `Bar`.
+    # - Mark the head of a `def`, `defp`, `defmacro`, `defmacrop`, `defguard`,
+    #   `defguardp` or `defdelegate` as a `function_head`.
+    # - Mark the `t :: ...` of `@type`, `@typep` and `@opaque` as a
     #   `type_definition`.
-    # - `@name` with no value (reading an attribute) becomes an `attribute`.
+    # - Mark `@name` with no value (reading an attribute) as an `attribute`.
     def definitions
       transform(tree, "(alias) @alias") do |match|
         build(:aliases, *match.node.text.split(".").map { |part| leaf(:alias, part) })
@@ -190,8 +201,9 @@ module Representer::Languages::Elixir
       transform(tree, '(unary_operator operator: "@" operand: (identifier) @name)') { |match| build(:attribute, match[:name]) }
     end
 
-    # The head is the definition's first argument, or the left of its
-    # `when`. A head with no brackets, as in `def f do`, is a bare name.
+    # Mark the head of a definition as a `function_head`. The head is the first
+    # argument, or the left of its `when`. A head with no brackets, as in
+    # `def f do`, is a bare name.
     def function_head(arguments)
       parent = arguments
       head = arguments.named_children.first
@@ -209,11 +221,12 @@ module Representer::Languages::Elixir
 
     ### Containers ###
 
-    # Two containers get a node type of their own, so that Normalise and
-    # Reorder can tell them apart. The body of a `defmodule`, `defprotocol`
-    # or `defimpl` becomes a `module_body`, so it differs from a function's
-    # `do_block`, and the entries after the `|` of `%{map | a: 1}` become a
-    # `map_update`.
+    # Give two containers a node type of their own, so that Normalise and
+    # Reorder can tell them apart.
+    #
+    # - Mark the body of a `defmodule`, `defprotocol` or `defimpl` as a
+    #   `module_body`, so it differs from a function's `do_block`.
+    # - Mark the entries after the `|` of `%{map | a: 1}` as a `map_update`.
     def containers
       captured(tree, "(call target: (identifier /\\A(defmodule|defprotocol|defimpl)\\z/) (do_block) @name)").each do |body|
         body.type = "module_body"
@@ -225,10 +238,10 @@ module Representer::Languages::Elixir
 
     ### Variables ###
 
-    # Each variable bound by a pattern is wrapped in a `variable` node, so
-    # that spec.rb can list it in names_are_defined_by. The patterns are a
-    # function's parameters and the left of `=`, `<-` and `->`. A pinned
-    # `^x` binds nothing, and neither does `_`.
+    # Wrap each variable bound by a pattern in a `variable` node, so that
+    # spec.rb can list it in names_are_defined_by. The patterns are a
+    # function's parameters and the left of `=`, `<-` and `->`. A pinned `^x`
+    # binds nothing, and neither does `_`.
     def variables
       each_node(tree) do |node, _|
         if node.type == "function_head"
@@ -239,9 +252,9 @@ module Representer::Languages::Elixir
       end
     end
 
-    # Returns the pattern with each name bound by it wrapped in a
-    # `variable` node. A function called in a pattern, the type in
-    # `x::binary` and the default in `x \\ 1` bind nothing.
+    # Return the pattern with each name bound by it wrapped in a `variable`
+    # node. A function called in a pattern, the type in `x::binary` and the
+    # default in `x \\ 1` bind nothing.
     def bind(pattern)
       return pattern if %w[variable dot].include?(pattern.type) || pinned?(pattern)
       return variable(pattern) if pattern.type == "identifier"

@@ -8,31 +8,30 @@ module Representer::Languages::Elixir
     grammar "elixir"
     extensions ".ex", ".exs"
 
-    # The grammar calls each part of a module name an alias, such as `Shop` and
-    # `Counter` in `Shop.Counter`.
+    # Rename identifiers and aliases. The grammar calls each part of a module
+    # name an alias, such as `Shop` and `Counter` in `Shop.Counter`.
     names_are :identifier,  # «count»
               :alias        # «Enum»
 
-    # A module name defines each of its parts, so `defmodule Shop.Counter`
-    # defines both `Shop` and `Counter`.
+    # Rename each part of a module name, so `defmodule Shop.Counter` renames
+    # both `Shop` and `Counter`.
     names_are_defined_by :module_name # defmodule «Shop».«Counter» do ... end
 
-    # A function head defines the function's name, and a type definition
-    # defines the type's name.
+    # Rename the names of functions and types.
     names_are_defined_by function_head: :target,  # def «area»(width, height) do ... end
                          type_definition: :left   # @type «count» :: integer
 
-    # Every variable in a pattern, such as the left of `=`, is a definition.
+    # Rename every variable in a pattern, such as the left of `=`.
     names_are_defined_by :variable # «total» = price * 2
 
-    # Elixir's own attributes, such as `@impl`, are always set with a value.
-    # An attribute that is read without a value, such as `@limit`, must be
-    # one that the solution set itself, so reading it counts as a definition.
+    # Rename an attribute that is read without a value. Elixir's own attributes,
+    # such as `@impl`, are always set with a value, so this one must be set by
+    # the solution itself.
     names_are_defined_by :attribute # @«limit»
 
-    # A solution that passes its tests has already made every module it
-    # needs available, so the engine drops these imports. The engine keeps
-    # `use`, because it runs code from the module.
+    # Drop these imports, because a solution that passes its tests has already
+    # made every module it needs available. Keep `use`, because it runs code
+    # from the module.
     imports "alias {{module}}",   # «alias Shop.Counter»
             "import {{module}}",  # «import Enum»
             "require {{module}}"  # «require Logger»
