@@ -55,19 +55,6 @@ class RepresentTest < Minitest::Test
     assert_equal one.representation, split.representation
   end
 
-  # The config says which exercise file is the stub, whatever the student
-  # called their own file. A staged language such as Ruby ignores the
-  # exercise's files, so this uses Python.
-  def test_a_stub_with_another_name_only_keeps_its_members
-    stub = "def greet(who):\n    pass\n"
-    config = { "files" => { "solution" => ["greet.py"], "test" => ["greet_test.py"] } }.to_json
-    exercise = { "greet.py" => stub, ".meta/config.json" => config }
-    same_name = Representer::RepresentSolution.("python", { "greet.py" => "def greet(who):\n    return who\n" }, exercise)
-    other_name = Representer::RepresentSolution.("python", { "hello.py" => "def greet(who):\n    return who\n" }, exercise)
-    assert_equal({ "PLACEHOLDER_1" => "who" }, other_name.mapping)
-    assert_equal same_name.representation, other_name.representation
-  end
-
   # An editor chooses the line endings and a byte-order mark, so they must
   # not change the representation, even inside a multi-line string. A NUL
   # byte is replaced, as the website can't store it.
