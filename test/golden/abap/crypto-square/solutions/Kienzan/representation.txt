@@ -1,53 +1,138 @@
-CLASS zcl_crypto_square DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS encode IMPORTING plain_text TYPE string
-RETURNING VALUE ( crypto_text ) TYPE string .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_crypto_square IMPLEMENTATION .
-METHOD encode .
-DATA ( normalized ) = replace ( val = to_lower ( plain_text )
-regex = '[\s\W]'
-with = ''
-occ = 0 ).
-DATA ( normalized_len ) = strlen ( normalized ).
-IF normalized_len = 0 .
-RETURN .
-ENDIF .
-DATA ( c ) = ceil ( sqrt ( normalized_len ) ).
-DATA ( r ) = ceil ( normalized_len / c ).
-TYPES : stringtab TYPE TABLE OF string WITH EMPTY KEY .
-DATA tab TYPE stringtab .
-DATA offset TYPE i VALUE IS INITIAL .
-WHILE offset + c < normalized_len .
-DATA ( word ) = normalized + offset ( c ).
-APPEND word TO tab .
-offset += c .
-ENDWHILE .
-DATA ( rest_len ) = normalized_len - offset .
-DATA ( rest ) = normalized + offset ( rest_len ).
-rest = rest && repeat ( val = "` `"
-occ = c - rest_len ).
-APPEND rest TO tab .
-CLEAR offset .
-DATA encoded_line TYPE string .
-WHILE offset < c .
-LOOP AT tab ASSIGNING FIELD-SYMBOL ( < line > ).
-DATA ( char ) = < line >+ offset ( 1 ).
-encoded_line &&= char .
-ENDLOOP .
-crypto_text &&= "|{ encoded_line } |" .
-CLEAR encoded_line .
-offset += 1 .
-ENDWHILE .
-DATA ( last_char ) = strlen ( crypto_text ) - 1 .
-IF crypto_text + last_char ( 1 ) = "` `" .
-crypto_text = substring ( val = crypto_text
-len = strlen ( crypto_text ) - 1 ).
-ENDIF .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_5) =
+          (function_call replace
+            (call_argument_list
+              (argument_list
+                (named_argument val =
+                  (function_call to_lower
+                    (call_argument_list
+                      (positional_argument PLACEHOLDER_3))))
+                (named_argument regex =
+                  (text_literal "[\\s\\W]"))
+                (named_argument with =
+                  (text_literal ""))
+                (named_argument occ = 0)))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_6) =
+          (function_call strlen
+            (call_argument_list
+              (positional_argument PLACEHOLDER_5))))
+        (if_statement
+          (comparison_expression PLACEHOLDER_6 = 0)
+          (statement_block
+            (return_statement)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_7) =
+          (function_call ceil
+            (call_argument_list
+              (positional_argument
+                (function_call sqrt
+                  (call_argument_list
+                    (positional_argument PLACEHOLDER_6)))))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_8) =
+          (function_call ceil
+            (call_argument_list
+              (positional_argument
+                (arithmetic_expression PLACEHOLDER_6 / PLACEHOLDER_7)))))
+        (types_declaration
+          (types_spec PLACEHOLDER_9
+            (table_type type
+              (standard_table table) of string
+              (with_key_spec with
+                (empty_key key)))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_10
+            (referred_type type PLACEHOLDER_9)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_11
+            (referred_type type i
+              (initial_value_spec is initial))))
+        (while_statement
+          (comparison_expression
+            (arithmetic_expression PLACEHOLDER_11 + PLACEHOLDER_7) < PLACEHOLDER_6)
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_12) =
+              (substring_access PLACEHOLDER_5 + PLACEHOLDER_11 PLACEHOLDER_7))
+            (append_statement PLACEHOLDER_12 to PLACEHOLDER_10)
+            (calculation_assignment PLACEHOLDER_11 += PLACEHOLDER_7)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_13) =
+          (arithmetic_expression PLACEHOLDER_6 - PLACEHOLDER_11))
+        (assignment
+          (declaration_expression data PLACEHOLDER_14) =
+          (substring_access PLACEHOLDER_5 + PLACEHOLDER_11 PLACEHOLDER_13))
+        (assignment PLACEHOLDER_14 =
+          (string_concatenation PLACEHOLDER_14 &&
+            (function_call repeat
+              (call_argument_list
+                (argument_list
+                  (named_argument val = " ")
+                  (named_argument occ =
+                    (arithmetic_expression PLACEHOLDER_7 - PLACEHOLDER_13)))))))
+        (append_statement PLACEHOLDER_14 to PLACEHOLDER_10)
+        (clear_statement clear
+          (clear_spec PLACEHOLDER_11))
+        (data_declaration data
+          (data_spec PLACEHOLDER_15
+            (referred_type type string)))
+        (while_statement
+          (comparison_expression PLACEHOLDER_11 < PLACEHOLDER_7)
+          (statement_block
+            (loop_at_statement PLACEHOLDER_10
+              (assigning_spec
+                (declaration_expression field-symbol (field_symbol PLACEHOLDER_16)))
+              (loop_at_body
+                (assignment
+                  (declaration_expression data PLACEHOLDER_17) =
+                  (substring_access (field_symbol PLACEHOLDER_16) + PLACEHOLDER_11 1))
+                (calculation_assignment PLACEHOLDER_15 &&= PLACEHOLDER_17)))
+            (calculation_assignment PLACEHOLDER_4 &&=
+              (string_template
+                (embedded_expression PLACEHOLDER_15) " "))
+            (clear_statement clear
+              (clear_spec PLACEHOLDER_15))
+            (calculation_assignment PLACEHOLDER_11 += 1)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_18) =
+          (arithmetic_expression
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_4))) - 1))
+        (if_statement
+          (comparison_expression
+            (substring_access PLACEHOLDER_4 + PLACEHOLDER_18 1) = " ")
+          (statement_block
+            (assignment PLACEHOLDER_4 =
+              (function_call substring
+                (call_argument_list
+                  (argument_list
+                    (named_argument val = PLACEHOLDER_4)
+                    (named_argument len =
+                      (arithmetic_expression
+                        (function_call strlen
+                          (call_argument_list
+                            (positional_argument PLACEHOLDER_4))) - 1))))))))))))

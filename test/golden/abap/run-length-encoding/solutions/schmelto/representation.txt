@@ -1,36 +1,99 @@
-CLASS zcl_rle DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS encode IMPORTING input TYPE string
-RETURNING VALUE ( result ) TYPE string .
-METHODS decode IMPORTING input TYPE string
-RETURNING VALUE ( result ) TYPE string .
-ENDCLASS .
-CLASS zcl_rle IMPLEMENTATION .
-METHOD encode .
-DATA : char2 TYPE string ,
-duplicates TYPE string .
-WHILE input IS NOT INITIAL .
-FIND REGEX '([\w|\s])(\1*)(.*)' IN input SUBMATCHES char2 duplicates input ## SUBRC_OK .
-IF duplicates IS NOT INITIAL .
-result = "|{ result }{ strlen( duplicates ) + 1 }{ char2 }|" .
-ELSE .
-result = "|{ result }{ char2 }|" .
-ENDIF .
-ENDWHILE .
-ENDMETHOD .
-METHOD decode .
-DATA : char2 TYPE string ,
-reps TYPE string .
-WHILE input IS NOT INITIAL .
-FIND REGEX '(\d*)([\w|\s])(.*)' IN input SUBMATCHES reps char2 input ## SUBRC_OK .
-IF reps IS NOT INITIAL .
-result = "|{ result }{ repeat( val = char2 occ = reps ) }|" .
-ELSE .
-result = "|{ result }{ char2 }|" .
-ENDIF .
-ENDWHILE .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_5 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string)))))))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_6
+            (referred_type type string)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_7
+            (referred_type type string)))
+        (while_statement
+          (initial_predicate PLACEHOLDER_3 is not initial)
+          (statement_block
+            (find_statement
+              (regex_spec
+                (text_literal "([\\w|\\s])(\\1*)(.*)")) in PLACEHOLDER_3
+              (submatches_spec PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_3)
+              (pragma ## subrc_ok
+                (identifier)
+                (identifier)))
+            (if_statement
+              (initial_predicate PLACEHOLDER_7 is not initial)
+              (statement_block
+                (assignment PLACEHOLDER_4 =
+                  (string_template
+                    (embedded_expression PLACEHOLDER_4)
+                    (embedded_expression
+                      (arithmetic_expression
+                        (function_call strlen
+                          (call_argument_list
+                            (positional_argument PLACEHOLDER_7))) + 1))
+                    (embedded_expression PLACEHOLDER_6))))
+              (else_clause
+                (statement_block
+                  (assignment PLACEHOLDER_4 =
+                    (string_template
+                      (embedded_expression PLACEHOLDER_4)
+                      (embedded_expression PLACEHOLDER_6))))))))))
+    (method_implementation PLACEHOLDER_5
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_6
+            (referred_type type string)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_8
+            (referred_type type string)))
+        (while_statement
+          (initial_predicate PLACEHOLDER_3 is not initial)
+          (statement_block
+            (find_statement
+              (regex_spec
+                (text_literal "(\\d*)([\\w|\\s])(.*)")) in PLACEHOLDER_3
+              (submatches_spec PLACEHOLDER_8 PLACEHOLDER_6 PLACEHOLDER_3)
+              (pragma ## subrc_ok
+                (identifier)
+                (identifier)))
+            (if_statement
+              (initial_predicate PLACEHOLDER_8 is not initial)
+              (statement_block
+                (assignment PLACEHOLDER_4 =
+                  (string_template
+                    (embedded_expression PLACEHOLDER_4)
+                    (embedded_expression
+                      (function_call repeat
+                        (call_argument_list
+                          (argument_list
+                            (named_argument val = PLACEHOLDER_6)
+                            (named_argument occ = PLACEHOLDER_8))))))))
+              (else_clause
+                (statement_block
+                  (assignment PLACEHOLDER_4 =
+                    (string_template
+                      (embedded_expression PLACEHOLDER_4)
+                      (embedded_expression PLACEHOLDER_6))))))))))))

@@ -1,38 +1,114 @@
-CLASS zcl_word_count DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES :
-BEGIN OF return_structure ,
-word TYPE string ,
-count TYPE i ,
-END OF return_structure ,
-return_table TYPE STANDARD TABLE OF return_structure WITH KEY word .
-METHODS count_words
-IMPORTING
-! phrase TYPE string
-RETURNING
-VALUE ( result ) TYPE return_table .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_word_count IMPLEMENTATION .
-METHOD count_words .
-phrase = to_lower ( phrase ).
-phrase = replace ( val = phrase sub = '\n' with = "| |" occ = 0 ).
-phrase = replace ( val = phrase sub = '\t' with = "| |" occ = 0 ).
-phrase = replace ( val = phrase sub = ',' with = "| |" occ = 0 ).
-phrase = replace ( val = phrase regex = "'[^a-z0-9 ]'" with = '' occ = 0 ).
-SPLIT phrase AT "' '" INTO TABLE DATA ( words ).
-LOOP AT words ASSIGNING FIELD-SYMBOL ( < word > ).
-CHECK < word > IS NOT INITIAL .
-READ TABLE result ASSIGNING FIELD-SYMBOL ( < res > ) WITH KEY word = < word > .
-IF sy-subrc EQ 0 .
-< res >- count += 1 .
-ELSE .
-APPEND VALUE # ( word = < word > count = 1 ) TO result .
-ENDIF .
-ENDLOOP .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_2))
+        (types_declaration
+          (types_spec PLACEHOLDER_3
+            (referred_type type string)))
+        (types_declaration
+          (types_spec PLACEHOLDER_4
+            (referred_type type i)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_2))
+        (types_declaration
+          (types_spec PLACEHOLDER_5
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_2
+              (with_key_spec with
+                (table_key_definition_spec key
+                  (key_components_spec PLACEHOLDER_3))))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_6 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_7)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_8)
+              (referred_type type PLACEHOLDER_5)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_6
+      (method_body
+        (assignment PLACEHOLDER_7 =
+          (function_call to_lower
+            (call_argument_list
+              (positional_argument PLACEHOLDER_7))))
+        (assignment PLACEHOLDER_7 =
+          (function_call replace
+            (call_argument_list
+              (argument_list
+                (named_argument val = PLACEHOLDER_7)
+                (named_argument sub =
+                  (text_literal "\\n"))
+                (named_argument with =
+                  (string_template " "))
+                (named_argument occ = 0)))))
+        (assignment PLACEHOLDER_7 =
+          (function_call replace
+            (call_argument_list
+              (argument_list
+                (named_argument val = PLACEHOLDER_7)
+                (named_argument sub =
+                  (text_literal "\\t"))
+                (named_argument with =
+                  (string_template " "))
+                (named_argument occ = 0)))))
+        (assignment PLACEHOLDER_7 =
+          (function_call replace
+            (call_argument_list
+              (argument_list
+                (named_argument val = PLACEHOLDER_7)
+                (named_argument sub =
+                  (text_literal ","))
+                (named_argument with =
+                  (string_template " "))
+                (named_argument occ = 0)))))
+        (assignment PLACEHOLDER_7 =
+          (function_call replace
+            (call_argument_list
+              (argument_list
+                (named_argument val = PLACEHOLDER_7)
+                (named_argument regex =
+                  (text_literal "[^a-z0-9 ]"))
+                (named_argument with =
+                  (text_literal ""))
+                (named_argument occ = 0)))))
+        (split_statement PLACEHOLDER_7
+          (split_at_spec
+            (text_literal " "))
+          (into_spec into
+            (split_table_result table
+              (declaration_expression data PLACEHOLDER_9))))
+        (loop_at_statement PLACEHOLDER_9
+          (assigning_spec
+            (declaration_expression field-symbol (field_symbol PLACEHOLDER_10)))
+          (loop_at_body
+            (check_statement
+              (initial_predicate (field_symbol PLACEHOLDER_10) is not initial))
+            (read_table_statement table PLACEHOLDER_8
+              (assigning_spec
+                (declaration_expression field-symbol (field_symbol PLACEHOLDER_11)))
+              (free_key_spec with key
+                (key_component_list
+                  (itab_comp_spec PLACEHOLDER_3 = (field_symbol PLACEHOLDER_10)))))
+            (if_statement
+              (comparison_expression
+                (component_selection sy - subrc) = 0)
+              (statement_block
+                (calculation_assignment
+                  (component_selection (field_symbol PLACEHOLDER_11) - PLACEHOLDER_4) += 1))
+              (else_clause
+                (statement_block
+                  (append_statement
+                    (value_expression #
+                      (argument_list
+                        (named_argument PLACEHOLDER_3 = (field_symbol PLACEHOLDER_10))
+                        (named_argument PLACEHOLDER_4 = 1))) to PLACEHOLDER_8))))))))))

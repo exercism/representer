@@ -3,7 +3,9 @@
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
 module Representer::Languages::Abap
   class Snippet < Representer::Engine::Snippet
-    tracks "abap"
+    # Work on lines, because the snippet skips the class's DEFINITION as a
+    # block of lines.
+    lines_only
 
     # Remove every comment, wherever it is.
     remove :comments # DATA x TYPE i. «" The answer»

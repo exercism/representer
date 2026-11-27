@@ -1,62 +1,173 @@
-CLASS zcl_itab_combination DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES : BEGIN OF alphatab_type ,
-cola TYPE string ,
-colb TYPE string ,
-colc TYPE string ,
-END OF alphatab_type .
-TYPES alphas TYPE STANDARD TABLE OF alphatab_type .
-TYPES : BEGIN OF numtab_type ,
-col1 TYPE string ,
-col2 TYPE string ,
-col3 TYPE string ,
-END OF numtab_type .
-TYPES nums TYPE STANDARD TABLE OF numtab_type .
-TYPES : BEGIN OF combined_data_type ,
-colx TYPE string ,
-coly TYPE string ,
-colz TYPE string ,
-END OF combined_data_type .
-TYPES combined_data TYPE STANDARD TABLE OF combined_data_type WITH EMPTY KEY .
-METHODS perform_combination
-IMPORTING
-alphas TYPE alphas
-nums TYPE nums
-RETURNING
-VALUE ( combined_data ) TYPE combined_data .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_itab_combination IMPLEMENTATION .
-METHOD perform_combination .
-DATA ( length_alpha ) = lines ( alphas ).
-DATA ( length_nums ) = lines ( nums ).
-DATA ( loop_len ) = COND # ( WHEN length_alpha > length_nums THEN length_nums ELSE length_alpha ).
-DO loop_len TIMES .
-DATA ( alp ) = alphas [ sy-index ].
-DATA ( num ) = nums [ sy-index ].
-APPEND VALUE combined_data_type ( colx = "|{ alp-cola }{ num-col1 }|"
-coly = "|{ alp-colb }{ num-col2 }|"
-colz = "|{ alp-colc }{ num-col3 }|" ) TO combined_data .
-ENDDO .
-IF length_alpha <> length_nums .
-DATA ( diff ) = ABS ( length_alpha - length_nums ).
-DO diff TIMES .
-IF ( length_alpha > length_nums ).
-alp = alphas [ loop_len + sy-index ].
-APPEND VALUE combined_data_type ( colx = alp-cola
-coly = alp-colb
-colz = alp-colc ) TO combined_data .
-ELSE .
-num = nums [ loop_len + sy-index ].
-APPEND VALUE combined_data_type ( colx = num-col1
-coly = num-col2
-colz = num-col3 ) TO combined_data .
-ENDIF .
-ENDDO .
-ENDIF .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_2))
+        (types_declaration
+          (types_spec PLACEHOLDER_3
+            (referred_type type string)))
+        (types_declaration
+          (types_spec PLACEHOLDER_4
+            (referred_type type string)))
+        (types_declaration
+          (types_spec PLACEHOLDER_5
+            (referred_type type string)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_2))
+        (types_declaration
+          (types_spec PLACEHOLDER_6
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_2)))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_7))
+        (types_declaration
+          (types_spec PLACEHOLDER_8
+            (referred_type type string)))
+        (types_declaration
+          (types_spec PLACEHOLDER_9
+            (referred_type type string)))
+        (types_declaration
+          (types_spec PLACEHOLDER_10
+            (referred_type type string)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_7))
+        (types_declaration
+          (types_spec PLACEHOLDER_11
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_7)))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_12))
+        (types_declaration
+          (types_spec PLACEHOLDER_13
+            (referred_type type string)))
+        (types_declaration
+          (types_spec PLACEHOLDER_14
+            (referred_type type string)))
+        (types_declaration
+          (types_spec PLACEHOLDER_15
+            (referred_type type string)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_12))
+        (types_declaration
+          (types_spec PLACEHOLDER_16
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_12
+              (with_key_spec with
+                (empty_key key)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_17 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_6)
+                (referred_type type PLACEHOLDER_6))
+              (parameter
+                (implicit_reference PLACEHOLDER_11)
+                (referred_type type PLACEHOLDER_11))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_16)
+              (referred_type type PLACEHOLDER_16)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_17
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_18) =
+          (function_call lines
+            (call_argument_list
+              (positional_argument PLACEHOLDER_6))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_19) =
+          (function_call lines
+            (call_argument_list
+              (positional_argument PLACEHOLDER_11))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_20) =
+          (cond_expression #
+            (case
+              (comparison_expression PLACEHOLDER_18 > PLACEHOLDER_19) PLACEHOLDER_19)
+            (else_case PLACEHOLDER_18)))
+        (do_statement
+          (times_spec PLACEHOLDER_20)
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_21) =
+              (table_expression PLACEHOLDER_6
+                (index_read
+                  (component_selection sy - index))))
+            (assignment
+              (declaration_expression data PLACEHOLDER_22) =
+              (table_expression PLACEHOLDER_11
+                (index_read
+                  (component_selection sy - index))))
+            (append_statement
+              (value_expression PLACEHOLDER_12
+                (argument_list
+                  (named_argument PLACEHOLDER_13 =
+                    (string_template
+                      (embedded_expression
+                        (component_selection PLACEHOLDER_21 - PLACEHOLDER_3))
+                      (embedded_expression
+                        (component_selection PLACEHOLDER_22 - PLACEHOLDER_8))))
+                  (named_argument PLACEHOLDER_14 =
+                    (string_template
+                      (embedded_expression
+                        (component_selection PLACEHOLDER_21 - PLACEHOLDER_4))
+                      (embedded_expression
+                        (component_selection PLACEHOLDER_22 - PLACEHOLDER_9))))
+                  (named_argument PLACEHOLDER_15 =
+                    (string_template
+                      (embedded_expression
+                        (component_selection PLACEHOLDER_21 - PLACEHOLDER_5))
+                      (embedded_expression
+                        (component_selection PLACEHOLDER_22 - PLACEHOLDER_10)))))) to PLACEHOLDER_16)))
+        (if_statement
+          (comparison_expression PLACEHOLDER_18 <> PLACEHOLDER_19)
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_23) =
+              (function_call abs
+                (call_argument_list
+                  (positional_argument
+                    (arithmetic_expression PLACEHOLDER_18 - PLACEHOLDER_19)))))
+            (do_statement
+              (times_spec PLACEHOLDER_23)
+              (statement_block
+                (if_statement
+                  (comparison_expression PLACEHOLDER_18 > PLACEHOLDER_19)
+                  (statement_block
+                    (assignment PLACEHOLDER_21 =
+                      (table_expression PLACEHOLDER_6
+                        (index_read
+                          (arithmetic_expression PLACEHOLDER_20 +
+                            (component_selection sy - index)))))
+                    (append_statement
+                      (value_expression PLACEHOLDER_12
+                        (argument_list
+                          (named_argument PLACEHOLDER_13 =
+                            (component_selection PLACEHOLDER_21 - PLACEHOLDER_3))
+                          (named_argument PLACEHOLDER_14 =
+                            (component_selection PLACEHOLDER_21 - PLACEHOLDER_4))
+                          (named_argument PLACEHOLDER_15 =
+                            (component_selection PLACEHOLDER_21 - PLACEHOLDER_5)))) to PLACEHOLDER_16))
+                  (else_clause
+                    (statement_block
+                      (assignment PLACEHOLDER_22 =
+                        (table_expression PLACEHOLDER_11
+                          (index_read
+                            (arithmetic_expression PLACEHOLDER_20 +
+                              (component_selection sy - index)))))
+                      (append_statement
+                        (value_expression PLACEHOLDER_12
+                          (argument_list
+                            (named_argument PLACEHOLDER_13 =
+                              (component_selection PLACEHOLDER_22 - PLACEHOLDER_8))
+                            (named_argument PLACEHOLDER_14 =
+                              (component_selection PLACEHOLDER_22 - PLACEHOLDER_9))
+                            (named_argument PLACEHOLDER_15 =
+                              (component_selection PLACEHOLDER_22 - PLACEHOLDER_10)))) to PLACEHOLDER_16))))))))))))

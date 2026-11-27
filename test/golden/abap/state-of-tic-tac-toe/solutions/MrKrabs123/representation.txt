@@ -1,55 +1,199 @@
-CLASS zcl_state_of_tic_tac_toe DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES player_type TYPE c LENGTH 1 .
-TYPES board_type TYPE TABLE OF string INITIAL SIZE 3 .
-CONSTANTS : BEGIN OF player_enum ,
-one TYPE player_type VALUE 'X' ,
-two TYPE player_type VALUE 'O' ,
-END OF player_enum .
-CONSTANTS : BEGIN OF state_enum ,
-ongoing_game TYPE string VALUE "`Ongoing game`" ,
-draw TYPE string VALUE `Draw` ,
-win TYPE string VALUE `Win` ,
-END OF state_enum .
-METHODS get_state
-IMPORTING board TYPE board_type
-RETURNING VALUE ( state ) TYPE string
-RAISING cx_parameter_invalid .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_state_of_tic_tac_toe IMPLEMENTATION .
-METHOD get_state .
-DATA ( b ) = concat_lines_of ( table = board ).
-DATA ( one ) = count ( val = b sub = player_enum-one ).
-DATA ( two ) = count ( val = b sub = player_enum-two ).
-IF strlen ( b ) <> 9 OR b NA "`XO `" OR NOT one - two BETWEEN 0 AND 1 .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-DATA ( w ) = VALUE string_table ( ( `012` ) ( `345` ) ( `678` ) ( `246` ) ( `036` ) ( `147` ) ( `258` ) ( `048` ) ).
-state = state_enum-ongoing_game .
-DO lines ( w ) TIMES .
-DATA ( wi ) = w [ sy-index ].
-DATA ( x ) = CONV i ( wi + 0 ( 1 ) ).
-DATA ( y ) = CONV i ( wi + 1 ( 1 ) ).
-DATA ( z ) = CONV i ( wi + 2 ( 1 ) ).
-DO 2 TIMES .
-DATA ( p ) = COND # ( WHEN sy-index = 1 THEN player_enum-one ELSE player_enum-two ).
-IF b + x ( 1 ) = p AND b + y ( 1 ) = p AND b + z ( 1 ) = p .
-IF state <> state_enum-ongoing_game AND state <> p .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-state = p .
-ENDIF .
-ENDDO .
-ENDDO .
-IF state = player_enum-one OR state = player_enum-two .
-state = state_enum-win .
-ELSEIF one + two = 9 .
-state = state_enum-draw .
-ENDIF .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (builtin_type_spec type c
+              (type_length_spec 1))))
+        (types_declaration
+          (types_spec PLACEHOLDER_3
+            (table_type type
+              (standard_table table) of string
+              (initial_size_spec initial 3))))
+        (constants_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_4))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_5
+            (referred_type type PLACEHOLDER_2
+              (default_data_value_spec
+                (text_literal "X")))))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_6
+            (referred_type type PLACEHOLDER_2
+              (default_data_value_spec
+                (text_literal "O")))))
+        (constants_declaration
+          (end_of_struct_spec end of PLACEHOLDER_4))
+        (constants_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_7))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_8
+            (referred_type type string
+              (default_data_value_spec "Ongoing game"))))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_9
+            (referred_type type string
+              (default_data_value_spec "Draw"))))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_10
+            (referred_type type string
+              (default_data_value_spec "Win"))))
+        (constants_declaration
+          (end_of_struct_spec end of PLACEHOLDER_7))
+        (methods_declaration
+          (method_spec PLACEHOLDER_11 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_12)
+                (referred_type type PLACEHOLDER_3))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_13)
+              (referred_type type string)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_11
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_14) =
+          (function_call concat_lines_of
+            (call_argument_list
+              (argument_list
+                (named_argument table = PLACEHOLDER_12)))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_5) =
+          (function_call count
+            (call_argument_list
+              (argument_list
+                (named_argument val = PLACEHOLDER_14)
+                (named_argument sub =
+                  (component_selection PLACEHOLDER_4 - PLACEHOLDER_5))))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_6) =
+          (function_call count
+            (call_argument_list
+              (argument_list
+                (named_argument val = PLACEHOLDER_14)
+                (named_argument sub =
+                  (component_selection PLACEHOLDER_4 - PLACEHOLDER_6))))))
+        (if_statement
+          (logical_expression
+            (logical_expression
+              (comparison_expression
+                (function_call strlen
+                  (call_argument_list
+                    (positional_argument PLACEHOLDER_14))) <> 9) or
+              (comparison_expression PLACEHOLDER_14 na "XO ")) or
+            (logical_expression not
+              (comparison_expression
+                (arithmetic_expression PLACEHOLDER_5 - PLACEHOLDER_6)
+                (between_spec between 0 and 1))))
+          (statement_block
+            (raise_exception_statement
+              (new_exception_spec type cx_parameter_invalid))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_15) =
+          (value_expression string_table
+            (table_comprehension
+              (line_spec
+                (argument_list
+                  (positional_argument "012")))
+              (line_spec
+                (argument_list
+                  (positional_argument "345")))
+              (line_spec
+                (argument_list
+                  (positional_argument "678")))
+              (line_spec
+                (argument_list
+                  (positional_argument "246")))
+              (line_spec
+                (argument_list
+                  (positional_argument "036")))
+              (line_spec
+                (argument_list
+                  (positional_argument "147")))
+              (line_spec
+                (argument_list
+                  (positional_argument "258")))
+              (line_spec
+                (argument_list
+                  (positional_argument "048"))))))
+        (assignment PLACEHOLDER_13 =
+          (component_selection PLACEHOLDER_7 - PLACEHOLDER_8))
+        (do_statement
+          (times_spec
+            (function_call lines
+              (call_argument_list
+                (positional_argument PLACEHOLDER_15))))
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_16) =
+              (table_expression PLACEHOLDER_15
+                (index_read
+                  (component_selection sy - index))))
+            (assignment
+              (declaration_expression data PLACEHOLDER_17) =
+              (conv_expression i
+                (substring_access PLACEHOLDER_16 + 0 1)))
+            (assignment
+              (declaration_expression data PLACEHOLDER_18) =
+              (conv_expression i
+                (substring_access PLACEHOLDER_16 + 1 1)))
+            (assignment
+              (declaration_expression data PLACEHOLDER_19) =
+              (conv_expression i
+                (substring_access PLACEHOLDER_16 + 2 1)))
+            (do_statement
+              (times_spec 2)
+              (statement_block
+                (assignment
+                  (declaration_expression data PLACEHOLDER_20) =
+                  (cond_expression #
+                    (case
+                      (comparison_expression
+                        (component_selection sy - index) = 1)
+                      (component_selection PLACEHOLDER_4 - PLACEHOLDER_5))
+                    (else_case
+                      (component_selection PLACEHOLDER_4 - PLACEHOLDER_6))))
+                (if_statement
+                  (logical_expression
+                    (logical_expression
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_14 + PLACEHOLDER_17 1) = PLACEHOLDER_20) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_14 + PLACEHOLDER_18 1) = PLACEHOLDER_20)) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_14 + PLACEHOLDER_19 1) = PLACEHOLDER_20))
+                  (statement_block
+                    (if_statement
+                      (logical_expression
+                        (comparison_expression PLACEHOLDER_13 <>
+                          (component_selection PLACEHOLDER_7 - PLACEHOLDER_8)) and
+                        (comparison_expression PLACEHOLDER_13 <> PLACEHOLDER_20))
+                      (statement_block
+                        (raise_exception_statement
+                          (new_exception_spec type cx_parameter_invalid))))
+                    (assignment PLACEHOLDER_13 = PLACEHOLDER_20)))))))
+        (if_statement
+          (logical_expression
+            (comparison_expression PLACEHOLDER_13 =
+              (component_selection PLACEHOLDER_4 - PLACEHOLDER_5)) or
+            (comparison_expression PLACEHOLDER_13 =
+              (component_selection PLACEHOLDER_4 - PLACEHOLDER_6)))
+          (statement_block
+            (assignment PLACEHOLDER_13 =
+              (component_selection PLACEHOLDER_7 - PLACEHOLDER_10)))
+          (elseif_clause
+            (comparison_expression
+              (arithmetic_expression PLACEHOLDER_5 + PLACEHOLDER_6) = 9)
+            (statement_block
+              (assignment PLACEHOLDER_13 =
+                (component_selection PLACEHOLDER_7 - PLACEHOLDER_9)))))))))

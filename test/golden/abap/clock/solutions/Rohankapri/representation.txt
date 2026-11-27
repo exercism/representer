@@ -1,65 +1,183 @@
-CLASS zcl_clock DEFINITION PUBLIC CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS constructor
-IMPORTING
-! hours TYPE i
-! minutes TYPE i DEFAULT 0 .
-METHODS get
-RETURNING
-VALUE ( result ) TYPE string .
-METHODS add
-IMPORTING
-! minutes TYPE i .
-METHODS sub
-IMPORTING
-! minutes TYPE i .
-PRIVATE SECTION .
-TYPES :
-type_dec TYPE p LENGTH 15 DECIMALS 5 ,
-BEGIN OF type_s_time ,
-hours TYPE i ,
-minutes TYPE i ,
-END OF type_s_time .
-DATA _time TYPE i .
-METHODS :
-_convert_in
-IMPORTING
-is_time TYPE type_s_time
-RETURNING
-VALUE ( rv_time ) TYPE i ,
-_convert_out
-IMPORTING
-iv_time TYPE i
-RETURNING
-VALUE ( rs_time ) TYPE type_s_time .
-ENDCLASS .
-CLASS zcl_clock IMPLEMENTATION .
-METHOD add .
-_time = _convert_in ( VALUE # ( minutes = _time + minutes ) ).
-ENDMETHOD .
-METHOD constructor .
-_time = _convert_in ( VALUE # ( hours = hours
-minutes = minutes ) ).
-ENDMETHOD .
-METHOD get .
-DATA ( ls_time ) = _convert_out ( _time ).
-result = "|{ ls_time-hours PAD = '0' WIDTH = 2 ALIGN = RIGHT }:{ ls_time-minutes PAD = '0' WIDTH = 2 ALIGN = RIGHT }|" .
-ENDMETHOD .
-METHOD sub .
-_time = _convert_in ( VALUE # ( minutes = _time - minutes ) ).
-ENDMETHOD .
-METHOD _convert_in .
-DATA ( temp_time ) = is_time .
-IF temp_time-hours < 0 .
-temp_time-hours = 24 + frac ( CONV type_dec ( temp_time-hours / 24 ) ) * 24 .
-ENDIF .
-IF temp_time-minutes < 0 .
-temp_time-minutes = 1440 + frac ( CONV type_dec ( temp_time-minutes / 1440 ) ) * 1440 .
-ENDIF .
-rv_time = CONV type_dec ( frac ( ( temp_time-hours * 60 + temp_time-minutes ) / 1440 ) ) * 1440 .
-ENDMETHOD .
-METHOD _convert_out .
-rs_time-hours = trunc ( CONV type_dec ( iv_time / 60 ) ).
-rs_time-minutes = CONV type_dec ( frac ( iv_time / 60 ) ) * 60 .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (constructor_spec importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_2)
+                (referred_type type i))
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type i)
+                (parameter_default_spec default 0)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_4 returning
+            (return_value
+              (explicit_value PLACEHOLDER_5)
+              (referred_type type string))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_6 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type i)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_7 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type i))))))
+      (private_section private section
+        (types_declaration
+          (types_spec PLACEHOLDER_8
+            (builtin_type_spec type p
+              (type_length_spec 15)
+              (type_decimals_spec 5))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_9))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_3
+            (referred_type type i)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_9))
+        (data_declaration data
+          (data_spec PLACEHOLDER_10
+            (referred_type type i)))
+        (methods_declaration
+          (method_spec PLACEHOLDER_11 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_12)
+                (referred_type type PLACEHOLDER_9))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_13)
+              (referred_type type i))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_14 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_15)
+                (referred_type type i))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_16)
+              (referred_type type PLACEHOLDER_9)))))))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_6
+      (method_body
+        (assignment PLACEHOLDER_10 =
+          (function_call PLACEHOLDER_11
+            (call_argument_list
+              (positional_argument
+                (value_expression #
+                  (argument_list
+                    (named_argument PLACEHOLDER_3 =
+                      (arithmetic_expression PLACEHOLDER_10 + PLACEHOLDER_3))))))))))
+    (method_implementation PLACEHOLDER_17
+      (method_body
+        (assignment PLACEHOLDER_10 =
+          (function_call PLACEHOLDER_11
+            (call_argument_list
+              (positional_argument
+                (value_expression #
+                  (argument_list
+                    (named_argument PLACEHOLDER_2 = PLACEHOLDER_2)
+                    (named_argument PLACEHOLDER_3 = PLACEHOLDER_3)))))))))
+    (method_implementation PLACEHOLDER_4
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_18) =
+          (function_call PLACEHOLDER_14
+            (call_argument_list
+              (positional_argument PLACEHOLDER_10))))
+        (assignment PLACEHOLDER_5 =
+          (string_template
+            (embedded_expression
+              (component_selection PLACEHOLDER_18 - PLACEHOLDER_2)
+              (format_option pad =
+                (text_literal "0"))
+              (format_option width = 2)
+              (format_option align = right)) ":"
+            (embedded_expression
+              (component_selection PLACEHOLDER_18 - PLACEHOLDER_3)
+              (format_option pad =
+                (text_literal "0"))
+              (format_option width = 2)
+              (format_option align = right))))))
+    (method_implementation PLACEHOLDER_7
+      (method_body
+        (assignment PLACEHOLDER_10 =
+          (function_call PLACEHOLDER_11
+            (call_argument_list
+              (positional_argument
+                (value_expression #
+                  (argument_list
+                    (named_argument PLACEHOLDER_3 =
+                      (arithmetic_expression PLACEHOLDER_10 - PLACEHOLDER_3))))))))))
+    (method_implementation PLACEHOLDER_11
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_19) = PLACEHOLDER_12)
+        (if_statement
+          (comparison_expression
+            (component_selection PLACEHOLDER_19 - PLACEHOLDER_2) < 0)
+          (statement_block
+            (assignment
+              (component_selection PLACEHOLDER_19 - PLACEHOLDER_2) =
+              (arithmetic_expression 24 +
+                (arithmetic_expression
+                  (function_call frac
+                    (call_argument_list
+                      (positional_argument
+                        (conv_expression PLACEHOLDER_8
+                          (arithmetic_expression
+                            (component_selection PLACEHOLDER_19 - PLACEHOLDER_2) / 24))))) * 24)))))
+        (if_statement
+          (comparison_expression
+            (component_selection PLACEHOLDER_19 - PLACEHOLDER_3) < 0)
+          (statement_block
+            (assignment
+              (component_selection PLACEHOLDER_19 - PLACEHOLDER_3) =
+              (arithmetic_expression 1440 +
+                (arithmetic_expression
+                  (function_call frac
+                    (call_argument_list
+                      (positional_argument
+                        (conv_expression PLACEHOLDER_8
+                          (arithmetic_expression
+                            (component_selection PLACEHOLDER_19 - PLACEHOLDER_3) / 1440))))) * 1440)))))
+        (assignment PLACEHOLDER_13 =
+          (arithmetic_expression
+            (conv_expression PLACEHOLDER_8
+              (function_call frac
+                (call_argument_list
+                  (positional_argument
+                    (arithmetic_expression
+                      (arithmetic_expression
+                        (arithmetic_expression
+                          (component_selection PLACEHOLDER_19 - PLACEHOLDER_2) * 60) +
+                        (component_selection PLACEHOLDER_19 - PLACEHOLDER_3)) / 1440))))) * 1440))))
+    (method_implementation PLACEHOLDER_14
+      (method_body
+        (assignment
+          (component_selection PLACEHOLDER_16 - PLACEHOLDER_2) =
+          (function_call trunc
+            (call_argument_list
+              (positional_argument
+                (conv_expression PLACEHOLDER_8
+                  (arithmetic_expression PLACEHOLDER_15 / 60))))))
+        (assignment
+          (component_selection PLACEHOLDER_16 - PLACEHOLDER_3) =
+          (arithmetic_expression
+            (conv_expression PLACEHOLDER_8
+              (function_call frac
+                (call_argument_list
+                  (positional_argument
+                    (arithmetic_expression PLACEHOLDER_15 / 60))))) * 60))))))

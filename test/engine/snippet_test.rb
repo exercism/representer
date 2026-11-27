@@ -192,6 +192,12 @@ class SnippetTest < Minitest::Test
     assert_equal "pub fn f() void {}\n", snippet("const std = @import(\"std\");\n\npub fn f() void {}\n", track: "zig")
   end
 
+  def test_a_language_that_works_on_lines_skips_a_block_at_the_top
+    code = "CLASS zcl_leap DEFINITION PUBLIC.\n  PUBLIC SECTION.\nENDCLASS.\n\n" \
+           "CLASS zcl_leap IMPLEMENTATION.\n  METHOD leap.\n  ENDMETHOD.\n"
+    assert_equal "  METHOD leap.\n  ENDMETHOD.\n", snippet(code, track: "abap")
+  end
+
   ### Tracks with no language of their own ###
 
   def test_removes_the_comments_found_by_the_lexer
@@ -202,12 +208,6 @@ class SnippetTest < Minitest::Test
   def test_skips_the_lines_that_continue_a_skipped_line
     code = "module Zipper (\n    BinTree(..),\n\n    fromTree\n) where\n\nimport Data.List\n  (sort)\n\nzipper = 1\n  where x = 2\n"
     assert_equal "zipper = 1\n  where x = 2\n", snippet(code, track: "haskell")
-  end
-
-  def test_skips_a_block_at_the_top
-    code = "CLASS zcl_leap DEFINITION PUBLIC.\n  PUBLIC SECTION.\nENDCLASS.\n\n" \
-           "CLASS zcl_leap IMPLEMENTATION.\n  METHOD leap.\n  ENDMETHOD.\n"
-    assert_equal "  METHOD leap.\n  ENDMETHOD.\n", snippet(code, track: "abap")
   end
 
   def test_removes_lines_that_start_with_a_word_wherever_they_are

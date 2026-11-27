@@ -1,75 +1,167 @@
-CLASS zcl_atbash_cipher DEFINITION PUBLIC FINAL CREATE PUBLIC .
-PUBLIC SECTION .
-DATA plain TYPE string VALUE 'abcdefghijklmnopqrstuvwxyz' .
-DATA cipher TYPE string VALUE 'zyxwvutsrqponmlkjihgfedcba' .
-DATA digits TYPE string VALUE '0123456789' .
-METHODS decode
-IMPORTING
-cipher_text TYPE string
-RETURNING
-VALUE ( plain_text ) TYPE string .
-METHODS encode
-IMPORTING
-plain_text TYPE string
-RETURNING
-VALUE ( cipher_text ) TYPE string .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_atbash_cipher IMPLEMENTATION .
-METHOD decode .
-DATA input TYPE string .
-DATA offset TYPE i .
-DATA pos TYPE i .
-DATA char TYPE string .
-DATA decoded TYPE string .
-input = cipher_text .
-TRANSLATE input TO LOWER CASE .
-DO strlen ( input ) TIMES .
-offset = sy-index - 1 .
-char = input + offset ( 1 ).
-FIND char IN plain MATCH OFFSET pos .
-IF sy-subrc = 0 .
-decoded = cipher + pos ( 1 ).
-ELSE .
-FIND char IN digits MATCH OFFSET pos .
-IF sy-subrc = 0 .
-decoded = char .
-ELSE .
-CONTINUE .
-ENDIF .
-ENDIF .
-plain_text = plain_text && decoded .
-ENDDO .
-ENDMETHOD .
-METHOD encode .
-DATA input TYPE string .
-DATA offset TYPE i .
-DATA pos TYPE i .
-DATA counter TYPE i .
-DATA char TYPE string .
-DATA encoded TYPE string .
-input = plain_text .
-TRANSLATE input TO LOWER CASE .
-DO strlen ( input ) TIMES .
-offset = sy-index - 1 .
-char = input + offset ( 1 ).
-FIND char IN plain MATCH OFFSET pos .
-IF sy-subrc = 0 .
-encoded = cipher + pos ( 1 ).
-ELSE .
-FIND char IN digits MATCH OFFSET pos .
-IF sy-subrc = 0 .
-encoded = char .
-ELSE .
-CONTINUE .
-ENDIF .
-ENDIF .
-IF counter > 0 AND counter MOD 5 = 0 .
-cipher_text = cipher_text && "` `" .
-ENDIF .
-cipher_text = cipher_text && encoded .
-counter = counter + 1 .
-ENDDO .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (data_declaration data
+          (data_spec PLACEHOLDER_2
+            (referred_type type string
+              (default_data_value_spec
+                (text_literal "abcdefghijklmnopqrstuvwxyz")))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_3
+            (referred_type type string
+              (default_data_value_spec
+                (text_literal "zyxwvutsrqponmlkjihgfedcba")))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_4
+            (referred_type type string
+              (default_data_value_spec
+                (text_literal "0123456789")))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_5 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_6)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_7)
+              (referred_type type string))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_8 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_7)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_6)
+              (referred_type type string)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_5
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_9
+            (referred_type type string)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_10
+            (referred_type type i)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_11
+            (referred_type type i)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_12
+            (referred_type type string)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_13
+            (referred_type type string)))
+        (assignment PLACEHOLDER_9 = PLACEHOLDER_6)
+        (translate_statement PLACEHOLDER_9
+          (to_lower_case_spec to))
+        (do_statement
+          (times_spec
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_9))))
+          (statement_block
+            (assignment PLACEHOLDER_10 =
+              (arithmetic_expression
+                (component_selection sy - index) - 1))
+            (assignment PLACEHOLDER_12 =
+              (substring_access PLACEHOLDER_9 + PLACEHOLDER_10 1))
+            (find_statement
+              (substring_spec PLACEHOLDER_12) in PLACEHOLDER_2
+              (match_offset_spec PLACEHOLDER_11))
+            (if_statement
+              (comparison_expression
+                (component_selection sy - subrc) = 0)
+              (statement_block
+                (assignment PLACEHOLDER_13 =
+                  (substring_access PLACEHOLDER_3 + PLACEHOLDER_11 1)))
+              (else_clause
+                (statement_block
+                  (find_statement
+                    (substring_spec PLACEHOLDER_12) in PLACEHOLDER_4
+                    (match_offset_spec PLACEHOLDER_11))
+                  (if_statement
+                    (comparison_expression
+                      (component_selection sy - subrc) = 0)
+                    (statement_block
+                      (assignment PLACEHOLDER_13 = PLACEHOLDER_12))
+                    (else_clause
+                      (statement_block
+                        (continue_statement)))))))
+            (assignment PLACEHOLDER_7 =
+              (string_concatenation PLACEHOLDER_7 && PLACEHOLDER_13))))))
+    (method_implementation PLACEHOLDER_8
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_9
+            (referred_type type string)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_10
+            (referred_type type i)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_11
+            (referred_type type i)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_14
+            (referred_type type i)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_12
+            (referred_type type string)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_15
+            (referred_type type string)))
+        (assignment PLACEHOLDER_9 = PLACEHOLDER_7)
+        (translate_statement PLACEHOLDER_9
+          (to_lower_case_spec to))
+        (do_statement
+          (times_spec
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_9))))
+          (statement_block
+            (assignment PLACEHOLDER_10 =
+              (arithmetic_expression
+                (component_selection sy - index) - 1))
+            (assignment PLACEHOLDER_12 =
+              (substring_access PLACEHOLDER_9 + PLACEHOLDER_10 1))
+            (find_statement
+              (substring_spec PLACEHOLDER_12) in PLACEHOLDER_2
+              (match_offset_spec PLACEHOLDER_11))
+            (if_statement
+              (comparison_expression
+                (component_selection sy - subrc) = 0)
+              (statement_block
+                (assignment PLACEHOLDER_15 =
+                  (substring_access PLACEHOLDER_3 + PLACEHOLDER_11 1)))
+              (else_clause
+                (statement_block
+                  (find_statement
+                    (substring_spec PLACEHOLDER_12) in PLACEHOLDER_4
+                    (match_offset_spec PLACEHOLDER_11))
+                  (if_statement
+                    (comparison_expression
+                      (component_selection sy - subrc) = 0)
+                    (statement_block
+                      (assignment PLACEHOLDER_15 = PLACEHOLDER_12))
+                    (else_clause
+                      (statement_block
+                        (continue_statement)))))))
+            (if_statement
+              (logical_expression
+                (comparison_expression PLACEHOLDER_14 > 0) and
+                (comparison_expression
+                  (arithmetic_expression PLACEHOLDER_14 mod 5) = 0))
+              (statement_block
+                (assignment PLACEHOLDER_6 =
+                  (string_concatenation PLACEHOLDER_6 && " "))))
+            (assignment PLACEHOLDER_6 =
+              (string_concatenation PLACEHOLDER_6 && PLACEHOLDER_15))
+            (assignment PLACEHOLDER_14 =
+              (arithmetic_expression PLACEHOLDER_14 + 1))))))))

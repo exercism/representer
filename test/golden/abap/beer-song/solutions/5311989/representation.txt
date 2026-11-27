@@ -1,46 +1,143 @@
-CLASS zcl_beer_song DEFINITION
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS recite
-IMPORTING
-! initial_bottles_count TYPE i
-! take_down_count TYPE i
-RETURNING
-VALUE ( result ) TYPE string_table .
-PROTECTED SECTION .
-PRIVATE SECTION .
-METHODS verse
-IMPORTING
-! i_number TYPE i
-RETURNING VALUE ( v_result ) TYPE string_table .
-METHODS bottle_phrase
-IMPORTING
-! i_number TYPE i
-! big_initial TYPE clike default "' '"
-RETURNING VALUE ( b_result ) TYPE string .
-ENDCLASS .
-CLASS zcl_beer_song IMPLEMENTATION .
-METHOD recite .
-DATA last_wall_bottle type i .
-last_wall_bottle = initial_bottles_count - take_down_count .
-result = VALUE # (
-FOR i = initial_bottles_count THEN i - 1 WHILE i GT last_wall_bottle
-( LINES OF verse ( i_number = i ) )
-( || )
-).
-delete result index lines ( result ).
-ENDMETHOD .
-METHOD verse .
-v_result = value # (
-( "|{ bottle_phrase( i_number = i_number big_initial = 'X' ) } on the wall, { bottle_phrase( i_number ) }.|" )
-( switch string ( i_number
-when 0 then "|Go to the store and buy some more, { bottle_phrase( 99 ) } on the wall.|"
-when 1 then "|Take it down and pass it around, { bottle_phrase( 0 ) } on the wall.|"
-else "|Take one down and pass it around, { bottle_phrase( i_number - 1 ) } on the wall.|" ) )
-).
-ENDMETHOD .
-METHOD bottle_phrase .
-b_result = "|{ SWITCH string( i_number\n                         WHEN 0 THEN |{ switch #( big_initial when 'X' then `No` else `no` ) } more bottles|"
-WHEN 1 THEN "|1 bottle|"
-ELSE "|{ i_number } bottles|"
-) } of beer "|.\n\n  ENDMETHOD.\n\nENDCLASS."
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type PLACEHOLDER_4))
+              (parameter
+                (implicit_reference PLACEHOLDER_5)
+                (referred_type type PLACEHOLDER_4))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_6)
+              (referred_type type string_table)))))
+      (protected_section protected section)
+      (private_section private section
+        (methods_declaration
+          (method_spec PLACEHOLDER_7 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_8)
+                (referred_type type PLACEHOLDER_4))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_9)
+              (referred_type type string_table))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_10 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_8)
+                (referred_type type PLACEHOLDER_4))
+              (parameter
+                (implicit_reference PLACEHOLDER_11)
+                (referred_type type clike)
+                (parameter_default_spec default
+                  (text_literal " ")))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_12)
+              (referred_type type string)))))))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_13
+            (referred_type type PLACEHOLDER_4)))
+        (assignment PLACEHOLDER_13 =
+          (arithmetic_expression PLACEHOLDER_3 - PLACEHOLDER_5))
+        (assignment PLACEHOLDER_6 =
+          (value_expression #
+            (table_comprehension
+              (conditional_iteration for
+                (assignment PLACEHOLDER_4 = PLACEHOLDER_3)
+                (then_spec
+                  (arithmetic_expression PLACEHOLDER_4 - 1))
+                (iteration_condition
+                  (while_spec
+                    (comparison_expression PLACEHOLDER_4 > PLACEHOLDER_13))))
+              (line_spec
+                (lines_of_spec of
+                  (function_call PLACEHOLDER_7
+                    (call_argument_list
+                      (argument_list
+                        (named_argument PLACEHOLDER_8 = PLACEHOLDER_4))))))
+              (line_spec
+                (argument_list
+                  (positional_argument
+                    (string_template)))))))
+        (delete_statement
+          (delete_itab_index_spec PLACEHOLDER_6
+            (index_spec index
+              (function_call lines
+                (call_argument_list
+                  (positional_argument PLACEHOLDER_6))))))))
+    (method_implementation PLACEHOLDER_7
+      (method_body
+        (assignment PLACEHOLDER_9 =
+          (value_expression #
+            (table_comprehension
+              (line_spec
+                (argument_list
+                  (positional_argument
+                    (string_template
+                      (embedded_expression
+                        (function_call PLACEHOLDER_10
+                          (call_argument_list
+                            (argument_list
+                              (named_argument PLACEHOLDER_8 = PLACEHOLDER_8)
+                              (named_argument PLACEHOLDER_11 =
+                                (text_literal "X")))))) " on the wall, "
+                      (embedded_expression
+                        (function_call PLACEHOLDER_10
+                          (call_argument_list
+                            (positional_argument PLACEHOLDER_8)))) "."))))
+              (line_spec
+                (argument_list
+                  (positional_argument
+                    (switch_expression string PLACEHOLDER_8
+                      (case
+                        (case_operand_list 0)
+                        (string_template "Go to the store and buy some more, "
+                          (embedded_expression
+                            (function_call PLACEHOLDER_10
+                              (call_argument_list
+                                (positional_argument 99)))) " on the wall."))
+                      (case
+                        (case_operand_list 1)
+                        (string_template "Take it down and pass it around, "
+                          (embedded_expression
+                            (function_call PLACEHOLDER_10
+                              (call_argument_list
+                                (positional_argument 0)))) " on the wall."))
+                      (else_case
+                        (string_template "Take one down and pass it around, "
+                          (embedded_expression
+                            (function_call PLACEHOLDER_10
+                              (call_argument_list
+                                (positional_argument
+                                  (arithmetic_expression PLACEHOLDER_8 - 1))))) " on the wall.")))))))))))
+    (method_implementation PLACEHOLDER_10
+      (method_body
+        (assignment PLACEHOLDER_12 =
+          (string_template
+            (embedded_expression
+              (switch_expression string PLACEHOLDER_8
+                (case
+                  (case_operand_list 0)
+                  (string_template
+                    (embedded_expression
+                      (switch_expression # PLACEHOLDER_11
+                        (case
+                          (case_operand_list
+                            (text_literal "X")) "No")
+                        (else_case "no"))) " more bottles"))
+                (case
+                  (case_operand_list 1)
+                  (string_template "1 bottle"))
+                (else_case
+                  (string_template
+                    (embedded_expression PLACEHOLDER_8) " bottles")))) " of beer"))))))

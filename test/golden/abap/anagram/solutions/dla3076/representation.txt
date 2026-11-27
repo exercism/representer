@@ -1,74 +1,156 @@
-CLASS zcl_anagram DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS anagram
-IMPORTING
-input TYPE string
-candidates TYPE string_table
-RETURNING
-VALUE ( result ) TYPE string_table .
-PROTECTED SECTION .
-PRIVATE SECTION .
-METHODS _build_regex_table
-IMPORTING id_input TYPE string
-RETURNING VALUE ( rt_regexs ) TYPE string_table .
-METHODS _validate_candidates
-IMPORTING it_candidates TYPE string_table
-it_regexs TYPE string_table
-id_input TYPE string
-RETURNING VALUE ( rt_matches ) TYPE string_table .
-METHODS _validate_candidate
-IMPORTING id_candidate TYPE string
-id_input TYPE string
-it_regexs TYPE string_table
-RETURNING VALUE ( rf_match ) TYPE abap_bool .
-ENDCLASS .
-CLASS zcl_anagram IMPLEMENTATION .
-METHOD anagram .
-DATA ( ld_input ) = to_lower ( input ).
-result = _validate_candidates ( id_input = ld_input
-it_candidates = candidates
-it_regexs = _build_regex_table ( ld_input ) ).
-ENDMETHOD .
-METHOD _build_regex_table .
-DATA ( ld_length ) = strlen ( id_input ).
-CHECK ( id_input IS NOT INITIAL ).
-DO ld_length TIMES .
-DATA ( ld_letter ) = substring ( val = id_input
-off = sy-index - 1
-len = 1 ).
-INSERT "|[{ ld_letter }]\\{1\\}|" INTO TABLE rt_regexs .
-ENDDO .
-ENDMETHOD .
-METHOD _validate_candidates .
-CHECK ( it_regexs IS NOT INITIAL ).
-LOOP AT it_candidates ASSIGNING FIELD-SYMBOL ( < ld_candidate > ).
-IF ( _validate_candidate ( id_candidate = < ld_candidate >
-id_input = id_input
-it_regexs = it_regexs ) ).
-INSERT < ld_candidate > INTO TABLE rt_matches .
-ENDIF .
-ENDLOOP .
-ENDMETHOD .
-METHOD _validate_candidate .
-DATA ( ld_candidate ) = to_lower ( id_candidate ).
-CHECK ( ld_candidate NE id_input ).
-LOOP AT it_regexs ASSIGNING FIELD-SYMBOL ( < ld_regex > ).
-REPLACE FIRST OCCURRENCE OF regex < ld_regex >
-IN ld_candidate
-WITH space .
-IF ( sy-subrc NE 0 ).
-rf_match = abap_undefined .
-EXIT .
-ENDIF .
-ENDLOOP .
-if ( ld_candidate IS INITIAL )
-AND ( rf_match EQ abap_false ).
-rf_match = abap_true .
-else .
-rf_match = abap_false .
-endif .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))
+              (parameter
+                (implicit_reference PLACEHOLDER_4)
+                (referred_type type string_table))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_5)
+              (referred_type type string_table)))))
+      (protected_section protected section)
+      (private_section private section
+        (methods_declaration
+          (method_spec PLACEHOLDER_6 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_7)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_8)
+              (referred_type type string_table))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_9 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_10)
+                (referred_type type string_table))
+              (parameter
+                (implicit_reference PLACEHOLDER_11)
+                (referred_type type string_table))
+              (parameter
+                (implicit_reference PLACEHOLDER_7)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_12)
+              (referred_type type string_table))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_13 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_14)
+                (referred_type type string))
+              (parameter
+                (implicit_reference PLACEHOLDER_7)
+                (referred_type type string))
+              (parameter
+                (implicit_reference PLACEHOLDER_11)
+                (referred_type type string_table))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_15)
+              (referred_type type abap_bool)))))))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_16) =
+          (function_call to_lower
+            (call_argument_list
+              (positional_argument PLACEHOLDER_3))))
+        (assignment PLACEHOLDER_5 =
+          (function_call PLACEHOLDER_9
+            (call_argument_list
+              (argument_list
+                (named_argument PLACEHOLDER_7 = PLACEHOLDER_16)
+                (named_argument PLACEHOLDER_10 = PLACEHOLDER_4)
+                (named_argument PLACEHOLDER_11 =
+                  (function_call PLACEHOLDER_6
+                    (call_argument_list
+                      (positional_argument PLACEHOLDER_16))))))))))
+    (method_implementation PLACEHOLDER_6
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_17) =
+          (function_call strlen
+            (call_argument_list
+              (positional_argument PLACEHOLDER_7))))
+        (check_statement
+          (initial_predicate PLACEHOLDER_7 is not initial))
+        (do_statement
+          (times_spec PLACEHOLDER_17)
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_18) =
+              (function_call substring
+                (call_argument_list
+                  (argument_list
+                    (named_argument val = PLACEHOLDER_7)
+                    (named_argument off =
+                      (arithmetic_expression
+                        (component_selection sy - index) - 1))
+                    (named_argument len = 1)))))
+            (insert_statement
+              (string_template "["
+                (embedded_expression PLACEHOLDER_18) "]{1}") into
+              (into_table_spec table PLACEHOLDER_8))))))
+    (method_implementation PLACEHOLDER_9
+      (method_body
+        (check_statement
+          (initial_predicate PLACEHOLDER_11 is not initial))
+        (loop_at_statement PLACEHOLDER_10
+          (assigning_spec
+            (declaration_expression field-symbol (field_symbol PLACEHOLDER_19)))
+          (loop_at_body
+            (if_statement
+              (initial_predicate
+                (function_call PLACEHOLDER_13
+                  (call_argument_list
+                    (argument_list
+                      (named_argument PLACEHOLDER_14 = (field_symbol PLACEHOLDER_19))
+                      (named_argument PLACEHOLDER_7 = PLACEHOLDER_7)
+                      (named_argument PLACEHOLDER_11 = PLACEHOLDER_11)))))
+              (statement_block
+                (insert_statement (field_symbol PLACEHOLDER_19) into
+                  (into_table_spec table PLACEHOLDER_12))))))))
+    (method_implementation PLACEHOLDER_13
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_20) =
+          (function_call to_lower
+            (call_argument_list
+              (positional_argument PLACEHOLDER_14))))
+        (check_statement
+          (comparison_expression PLACEHOLDER_20 <> PLACEHOLDER_7))
+        (loop_at_statement PLACEHOLDER_11
+          (assigning_spec
+            (declaration_expression field-symbol (field_symbol PLACEHOLDER_21)))
+          (loop_at_body
+            (replace_statement replace
+              (first_occurrence_of_pattern_spec of
+                (regex_spec (field_symbol PLACEHOLDER_21))) in PLACEHOLDER_20
+              (substitute_with_spec with space))
+            (if_statement
+              (comparison_expression
+                (component_selection sy - subrc) <> 0)
+              (statement_block
+                (assignment PLACEHOLDER_15 = abap_undefined)
+                (exit_statement)))))
+        (if_statement
+          (logical_expression
+            (initial_predicate PLACEHOLDER_20 is initial) and
+            (comparison_expression PLACEHOLDER_15 = abap_false))
+          (statement_block
+            (assignment PLACEHOLDER_15 = abap_true))
+          (else_clause
+            (statement_block
+              (assignment PLACEHOLDER_15 = abap_false))))))))

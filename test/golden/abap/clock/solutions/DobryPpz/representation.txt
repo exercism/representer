@@ -1,78 +1,187 @@
-CLASS zcl_clock DEFINITION
-PUBLIC
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS constructor
-IMPORTING
-! hours TYPE i
-! minutes TYPE i DEFAULT 0 .
-METHODS get
-RETURNING
-VALUE ( result ) TYPE string .
-METHODS add
-IMPORTING
-! minutes TYPE i .
-METHODS sub
-IMPORTING
-! minutes TYPE i .
-PRIVATE SECTION .
-DATA :
-hours TYPE I ,
-minutes TYPE I .
-ENDCLASS .
-CLASS zcl_clock IMPLEMENTATION .
-METHOD add .
-DATA :
-new_minutes TYPE I ,
-additional_hour TYPE I VALUE 0 .
-new_minutes = me -> minutes .
-new_minutes = new_minutes + minutes .
-additional_hour = floor ( new_minutes / 60 ).
-new_minutes = new_minutes MOD 60 .
-me -> hours = me -> hours + additional_hour .
-me -> hours = me -> hours MOD 24 .
-me -> minutes = new_minutes .
-ENDMETHOD .
-METHOD constructor .
-DATA :
-additional_hour TYPE I VALUE 0 ,
-new_minutes TYPE I VALUE 0 .
-additional_hour = floor ( minutes / 60 ).
-new_minutes = minutes MOD 60 .
-me -> hours = ( hours + additional_hour ) MOD 24 .
-me -> minutes = new_minutes .
-ENDMETHOD .
-METHOD get .
-DATA :
-str_hours TYPE string ,
-str_minutes TYPE string .
-str_hours = hours .
-str_minutes = minutes .
-CONDENSE str_hours .
-CONDENSE str_minutes .
-IF strlen ( str_hours ) < 2 .
-str_hours = '0' && str_hours .
-ENDIF .
-IF strlen ( str_minutes ) < 2 .
-str_minutes = '0' && str_minutes .
-ENDIF .
-CONCATENATE str_hours str_minutes INTO result SEPARATED BY ':' .
-ENDMETHOD .
-METHOD sub .
-DATA :
-new_minutes TYPE I ,
-additional_hour TYPE I VALUE 0 ,
-hours_to_sub TYPE I VALUE 0 ,
-days_to_sub TYPE I VALUE 0 .
-me -> minutes = me -> minutes - minutes .
-IF me -> minutes < 0 .
-hours_to_sub = ceil ( me -> minutes / - 60 ).
-ENDIF .
-me -> minutes = ( me -> minutes + 60 * hours_to_sub ) MOD 60 .
-me -> hours = me -> hours - hours_to_sub .
-IF me -> hours < 0 .
-days_to_sub = ceil ( me -> hours / - 24 ).
-ENDIF .
-me -> hours = ( me -> hours + 24 * days_to_sub ) MOD 24 .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (constructor_spec importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_2)
+                (referred_type type i))
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type i)
+                (parameter_default_spec default 0)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_4 returning
+            (return_value
+              (explicit_value PLACEHOLDER_5)
+              (referred_type type string))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_6 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type i)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_7 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type i))))))
+      (private_section private section
+        (data_declaration data
+          (data_spec PLACEHOLDER_2
+            (referred_type type i)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_3
+            (referred_type type i))))))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_6
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_8
+            (referred_type type i)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_9
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (assignment PLACEHOLDER_8 =
+          (component_selection me -> PLACEHOLDER_3))
+        (assignment PLACEHOLDER_8 =
+          (arithmetic_expression PLACEHOLDER_8 + PLACEHOLDER_3))
+        (assignment PLACEHOLDER_9 =
+          (function_call floor
+            (call_argument_list
+              (positional_argument
+                (arithmetic_expression PLACEHOLDER_8 / 60)))))
+        (assignment PLACEHOLDER_8 =
+          (arithmetic_expression PLACEHOLDER_8 mod 60))
+        (assignment
+          (component_selection me -> PLACEHOLDER_2) =
+          (arithmetic_expression
+            (component_selection me -> PLACEHOLDER_2) + PLACEHOLDER_9))
+        (assignment
+          (component_selection me -> PLACEHOLDER_2) =
+          (arithmetic_expression
+            (component_selection me -> PLACEHOLDER_2) mod 24))
+        (assignment
+          (component_selection me -> PLACEHOLDER_3) = PLACEHOLDER_8)))
+    (method_implementation PLACEHOLDER_10
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_9
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_8
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (assignment PLACEHOLDER_9 =
+          (function_call floor
+            (call_argument_list
+              (positional_argument
+                (arithmetic_expression PLACEHOLDER_3 / 60)))))
+        (assignment PLACEHOLDER_8 =
+          (arithmetic_expression PLACEHOLDER_3 mod 60))
+        (assignment
+          (component_selection me -> PLACEHOLDER_2) =
+          (arithmetic_expression
+            (arithmetic_expression PLACEHOLDER_2 + PLACEHOLDER_9) mod 24))
+        (assignment
+          (component_selection me -> PLACEHOLDER_3) = PLACEHOLDER_8)))
+    (method_implementation PLACEHOLDER_4
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_11
+            (referred_type type string)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_12
+            (referred_type type string)))
+        (assignment PLACEHOLDER_11 = PLACEHOLDER_2)
+        (assignment PLACEHOLDER_12 = PLACEHOLDER_3)
+        (condense_statement PLACEHOLDER_11)
+        (condense_statement PLACEHOLDER_12)
+        (if_statement
+          (comparison_expression
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_11))) < 2)
+          (statement_block
+            (assignment PLACEHOLDER_11 =
+              (string_concatenation
+                (text_literal "0") && PLACEHOLDER_11))))
+        (if_statement
+          (comparison_expression
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_12))) < 2)
+          (statement_block
+            (assignment PLACEHOLDER_12 =
+              (string_concatenation
+                (text_literal "0") && PLACEHOLDER_12))))
+        (concatenate_statement
+          (operand_list PLACEHOLDER_11 PLACEHOLDER_12)
+          (into_spec into PLACEHOLDER_5)
+          (separated_by_spec
+            (text_literal ":")))))
+    (method_implementation PLACEHOLDER_7
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_8
+            (referred_type type i)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_9
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_13
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_14
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (assignment
+          (component_selection me -> PLACEHOLDER_3) =
+          (arithmetic_expression
+            (component_selection me -> PLACEHOLDER_3) - PLACEHOLDER_3))
+        (if_statement
+          (comparison_expression
+            (component_selection me -> PLACEHOLDER_3) < 0)
+          (statement_block
+            (assignment PLACEHOLDER_13 =
+              (function_call ceil
+                (call_argument_list
+                  (positional_argument
+                    (arithmetic_expression
+                      (component_selection me -> PLACEHOLDER_3) / -60)))))))
+        (assignment
+          (component_selection me -> PLACEHOLDER_3) =
+          (arithmetic_expression
+            (arithmetic_expression
+              (component_selection me -> PLACEHOLDER_3) +
+              (arithmetic_expression 60 * PLACEHOLDER_13)) mod 60))
+        (assignment
+          (component_selection me -> PLACEHOLDER_2) =
+          (arithmetic_expression
+            (component_selection me -> PLACEHOLDER_2) - PLACEHOLDER_13))
+        (if_statement
+          (comparison_expression
+            (component_selection me -> PLACEHOLDER_2) < 0)
+          (statement_block
+            (assignment PLACEHOLDER_14 =
+              (function_call ceil
+                (call_argument_list
+                  (positional_argument
+                    (arithmetic_expression
+                      (component_selection me -> PLACEHOLDER_2) / -24)))))))
+        (assignment
+          (component_selection me -> PLACEHOLDER_2) =
+          (arithmetic_expression
+            (arithmetic_expression
+              (component_selection me -> PLACEHOLDER_2) +
+              (arithmetic_expression 24 * PLACEHOLDER_14)) mod 24))))))
