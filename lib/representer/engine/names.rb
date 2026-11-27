@@ -93,8 +93,12 @@ module Representer
 
     # Writes a tree as an indented s-expression. Leaves are written as their
     # text, quoted if they hold a literal value or anything that could be
-    # mistaken for the s-expression's own syntax. Names are written as names
-    # gives them (see Names#text_for), or as they are if names is nil.
+    # mistaken for the s-expression's own syntax.
+    #
+    # A staged language's names are written as their placeholders (see
+    # NumberPlaceholders). Another language's names are written as names
+    # gives them (see Names#text_for). With blank: true, every name that
+    # will be renamed is written as `_`.
     class Serialize
       include Mandate
 
@@ -125,6 +129,9 @@ module Representer
       end
 
       def leaf_text(node)
+        return "_" if blank && node.renamed
+        return node.placeholder if node.placeholder
+
         renamed = names&.text_for(node, blank:)
         return renamed if renamed
 

@@ -50,12 +50,7 @@
 module Representer
   module Languages
     module Ruby
-      class GenerateAST
-        include Mandate
-        include Engine::TreeHelpers
-
-        initialize_with :tree
-
+      class GenerateAST < Engine::GenerateAST
         # The tokens that the node types already show. bin/draft-ast-tokens
         # drafted this list from tree-sitter-ruby's grammar, and each token
         # it marked for review was checked by hand.

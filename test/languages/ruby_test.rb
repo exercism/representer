@@ -7,14 +7,15 @@ class RubyTest < RepresenterTest
 
   DEVIATIONS = {
     "examples-lasagna" => {
-      remove: ["actual_minutes_in_oven", "actual_minutes_in_oven:", "number_of_layers:"],
-      why: "Keyword parameter names stay, because callers use them (renaming goes by name, so that keeps " \
-           "actual_minutes_in_oven everywhere). The old representer renamed one keyword parameter but not the other."
+      add: %w[EXPECTED_MINUTES_IN_OVEN PREPARATION_MINUTES_PER_LAYER number_of_layers],
+      remove: ["actual_minutes_in_oven:", "number_of_layers:"],
+      why: "Constants and keyword parameters are names the solution defines, so they are renamed. The old " \
+           "representer kept constants, and listed keyword parameters with their colon."
     },
     "mapping-attr_accessors" => {
-      remove: %w[other1 other2],
-      why: "Strings keep their values, so attr_reader \"other1\" leaves \"other1\" as it is. The old representer " \
-           "listed other1 in its mapping, but also left the string as it was."
+      remove: %w[foobar barfood misc other1 other2],
+      why: "A call to attr_reader, attr_writer or attr_accessor defines no name for this representer, so its " \
+           "symbols keep their names. Strings keep their values, so attr_reader \"other1\" leaves \"other1\" as it is."
     },
     "naming_normalisation-complex_method" => {
       remove: ["initialize"],
@@ -39,8 +40,9 @@ class RubyTest < RepresenterTest
     refute_same_representation "x = $stdout", "x = $stderr"
   end
 
-  def test_symbols_named_like_a_local_keep_their_names
+  def test_library_names_keep_their_names_even_if_the_solution_defines_them
     refute_same_representation "count = 0\nxs.map(&:count)", "sum = 0\nxs.map(&:sum)"
+    refute_same_representation "def f(name) = name", "def f(who) = who"
   end
 
   def test_a_trailing_comma_in_block_parameters_is_kept
@@ -65,28 +67,26 @@ class RubyTest < RepresenterTest
     refute_same_representation "s.upcase", "s.downcase"
   end
 
-  def test_local_named_like_a_method_after_a_dot
-    assert_equal "PLACEHOLDER_1", represent("count = xs.count").mapping.keys.first
-    assert_includes represent("count = xs.count").representation, "(call xs count)"
+  def test_a_defined_name_is_renamed_after_a_dot_too
+    result = represent("total = xs.total")
+    assert_equal({ "PLACEHOLDER_1" => "total" }, result.mapping)
+    assert_includes result.representation, "(call xs PLACEHOLDER_1)"
   end
 
   ### Names ###
 
   def test_student_names_are_renamed
-    assert_same_representation "def two_fer(name = 'you') = name", "def two_fer(who = 'you') = who"
+    assert_same_representation "def two_fer(person = 'you') = person", "def hello(who = 'you') = who"
+    assert_same_representation "def f(a:) = a\nf(a: 1)", "def g(b:) = b\ng(b: 1)"
+    assert_same_representation "total = 0\nxs.map(&:total)", "acc = 0\nxs.map(&:acc)"
   end
 
-  def test_names_in_the_tests_are_kept
+  def test_the_exercise_files_make_no_difference
     tests = { "two_fer_test.rb" => "class TwoFerTest\n  def test_x\n    assert_equal 'x', TwoFer.two_fer\n  end\nend" }
-    result = represent("class TwoFer\n  def self.two_fer(name) = name\nend", filename: "two_fer.rb", exercise_files: tests)
-    assert_equal ["name"], result.mapping.values
-    assert_includes result.representation, "two_fer"
-  end
-
-  def test_stub_names_are_kept_but_not_its_parameters
-    stub = { "two_fer.rb" => "class TwoFer\n  def self.two_fer(name)\n  end\nend" }
-    result = represent("class TwoFer\n  def self.two_fer(name) = name\nend", filename: "two_fer.rb", exercise_files: stub)
-    assert_equal ["name"], result.mapping.values
+    source = "class TwoFer\n  def self.two_fer(who) = who\nend"
+    result = represent(source, filename: "two_fer.rb", exercise_files: tests)
+    assert_equal %w[TwoFer two_fer who], result.mapping.values
+    assert_equal represent(source, filename: "two_fer.rb").representation, result.representation
   end
 
   ### Unrepresentable solutions ###

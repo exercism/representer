@@ -1,20 +1,20 @@
 module Representer
   module Engine
     # A code pattern is a pattern written as code in the language itself,
-    # such as Ruby's `def $method($name)`. The rules of a staged language's
-    # Normalise, Rename and Reorder stages are code patterns, so each rule
-    # reads as the code it is about.
+    # such as Ruby's `require "{{file}}"`. A staged language lists its
+    # imports and its Normalise rules as code patterns, so each one reads as
+    # the code it is about.
     #
-    # A `$word` in the code is a placeholder:
+    # A `{{word}}` in the code is a placeholder:
     #
-    # - `$name` marks the name that the rule is about. It matches a name of
-    #   the kind written there, so `@$name` matches an instance variable and
-    #   `$name = $value` matches an assignment to a local variable.
-    # - Any other `$word` matches any code. In a list, such as a method's
-    #   parameters, it matches any number of items, including none.
-    # - If the grammar reads a `$word` as something other than a name, the
-    #   placeholder matches one node of that kind. So `"$file"` (in quotes)
-    #   matches one string without interpolation.
+    # - It matches any code. In a list, such as a method's parameters, it
+    #   matches any number of items, including none.
+    # - If the grammar reads a `{{word}}` as something other than a name,
+    #   the placeholder matches one node of that kind. So `"{{file}}"` (in
+    #   quotes) matches one string without interpolation.
+    #
+    # A `$word` is real code in Ruby, PHP, Perl, Bash, jq and JavaScript
+    # templates, so placeholders use braces.
     #
     # The engine parses the code with the language's grammar and runs the
     # language's GenerateAST stage on it, so the pattern has the same shape
@@ -22,34 +22,30 @@ module Representer
     # pattern's children match the node's children in order. The node may
     # have more children between and after them (such as a method's body),
     # but nothing with a field name before them (such as a call's receiver).
-    # So `require "$file"` matches `require "set"`, and it doesn't match
+    # So `require "{{file}}"` matches `require "set"`, and it doesn't match
     # `Kernel.require "set"`.
     #
-    # Some code doesn't parse on its own, such as Ruby's `{ |$name| }`, or
-    # `def $method($name)` without its `end`. The engine then tries the code
-    # in each of the language's pattern contexts (see
+    # Some code doesn't parse on its own, such as Ruby's `{ |{{x}}| }`, or
+    # `def {{method}}({{x}})` without its `end`. The engine then tries the
+    # code in each of the language's pattern contexts (see
     # StagedLanguage#pattern_contexts). A rule can also give its own context
     # with `inside:`. A context marks the code's place with `...`. The
     # pattern is the smallest node that holds all of the code, and it
-    # matches that node wherever it appears. So `"*$name"` inside
+    # matches that node wherever it appears. So `"*{{x}}"` inside
     # `"def f(...) end"` matches a splat parameter in a method, a block or a
     # lambda.
     #
     # If one of the grammar's keywords comes out as a name, the engine
     # rejects that parse and tries the next context. So Ruby's
-    # `rescue => $name` can't become a pattern match on a variable called
+    # `rescue => {{x}}` can't become a pattern match on a variable called
     # `rescue`. If the code doesn't parse in any context, the engine tries
     # every context again with each placeholder capitalised, as Ruby's
-    # `class $name` needs.
+    # `class {{x}}` needs.
     class CodePattern
-      PLACEHOLDER = /\$([A-Za-z_]\w*)/
-      SUBJECT = "name".freeze
+      PLACEHOLDER = /\{\{([A-Za-z_]\w*)\}\}/
       MARK = "...".freeze
 
-      # A Subject is the `$name` placeholder, and matches a name leaf of its
-      # type.
-      Subject = Struct.new(:type)
-      # An Any is any other placeholder. It matches any node if its type is
+      # An Any is a placeholder. It matches any node if its type is
       # nil, and otherwise a leaf of its type.
       Any = Struct.new(:word, :type)
       # A Leaf matches a token, or a named leaf with the same text.
@@ -75,9 +71,6 @@ module Representer
 
       # The type of node that the pattern matches, or nil for any type.
       def type = @root.type
-
-      # Whether the pattern has a `$name`.
-      def subject? = @words.value?(SUBJECT)
 
       # Returns every way the pattern matches the node. Each is a Hash from
       # each placeholder's word to its match. A placeholder in a list matches
@@ -135,7 +128,7 @@ module Representer
         node = smallest_node_holding(tree, from, to)
         return nil if misread_keyword?(node)
 
-        tree = @language::GenerateAST.(tree)
+        tree = @language.run_stage(:GenerateAST, tree)
         contains?(tree, node) ? node : node_after_generate_ast(tree, from, to)
       rescue CannotRepresent
         nil
@@ -156,13 +149,13 @@ module Representer
         raise ArgumentError, "#{@language.name}'s GenerateAST leaves too little of the code pattern #{code.inspect} to match"
       end
 
-      # Writes each placeholder as a name that the grammar accepts: `$name`
-      # becomes `name__`, or `Name__` when capitalised.
+      # Writes each placeholder as a name that the grammar accepts: `{{file}}`
+      # becomes `file__`, or `File__` when capitalised.
       def spell(text, capitalised)
         text.gsub(PLACEHOLDER) do
           word = Regexp.last_match(1)
           spelling = "#{capitalised ? word[0].upcase + word[1..] : word}__"
-          @words[spelling] = word.casecmp?(SUBJECT) ? SUBJECT : word
+          @words[spelling] = word
           spelling
         end
       end
@@ -192,7 +185,7 @@ module Representer
       end
 
       # Returns the placeholder's word if the leaf is a placeholder, such as
-      # `name` for `@name__` or `:name__`.
+      # `x` for `@x__` or `:x__`.
       def placeholder_word(node)
         return nil unless node.named? && node.leaf?
 
@@ -202,8 +195,6 @@ module Representer
       def compile(node)
         word = placeholder_word(node)
         if word
-          return Subject.new(node.type) if word == SUBJECT
-
           return Any.new(word, @language.names.key?(node.type) ? nil : node.type)
         end
         return Leaf.new(node.type, node.named? ? node.text : nil, node.named?) if node.leaf?
@@ -215,8 +206,6 @@ module Representer
 
       def match_element(element, node, bindings, &found)
         case element
-        when Subject
-          yield(bindings.merge(SUBJECT => node)) if node.named? && node.leaf? && node.type == element.type
         when Any
           yield(bindings.merge(element.word => node)) if element.type.nil? || (node.leaf? && node.type == element.type)
         when Leaf
@@ -267,7 +256,7 @@ module Representer
       def build_node(node, bindings)
         word = placeholder_word(node)
         if word
-          raise ArgumentError, "$#{word} in #{code.inspect} matched nothing" unless bindings.key?(word)
+          raise ArgumentError, "{{#{word}}} in #{code.inspect} matched nothing" unless bindings.key?(word)
 
           bound = bindings[word]
           return bound.map { |child| Engine.deep_copy(child) } if bound.is_a?(Array)

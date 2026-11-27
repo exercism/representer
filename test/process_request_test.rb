@@ -10,14 +10,13 @@ class ProcessRequestTest < Minitest::Test
 
   def test_represents_a_solution
     response = request(track_slug: "ruby", exercise_slug: "two-fer",
-      solution_files: { "two_fer.rb" => "def two_fer(name) = name" },
+      solution_files: { "two_fer.rb" => "def two_fer(who) = who" },
       exercise_files: { "two_fer_test.rb" => "two_fer('x')", ".meta/config.json" => "{}" })
 
     assert_equal 200, response[:statusCode]
     body = JSON.parse(response[:body])
-    assert_equal({ "PLACEHOLDER_1" => "name" }, body["mapping"])
+    assert_equal({ "PLACEHOLDER_1" => "two_fer", "PLACEHOLDER_2" => "who" }, body["mapping"])
     assert_equal Representer::Languages::Ruby.version, body["version"]
-    assert_includes body["representation"], "two_fer"
   end
 
   def test_reads_base64_bodies

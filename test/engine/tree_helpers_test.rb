@@ -1,13 +1,12 @@
 require "test_helper"
 
-# Checks the tree operations that staged languages use, and the numbering
-# of the names they mark.
+# Checks the tree operations that staged languages use.
 class TreeHelpersTest < Minitest::Test
   include Representer::Engine::TreeHelpers
 
   Node = Representer::Engine::Node
 
-  # A language with names, as Placeholders and mark_student_names need.
+  # A language with names, as names_in needs.
   module Names
     extend Representer::StagedLanguage
 
@@ -37,15 +36,6 @@ class TreeHelpersTest < Minitest::Test
   def test_unwrap_only_takes_a_single_named_child
     tree = build(:program, build(:group, leaf(:a, "1")), build(:group, leaf(:a, "1"), leaf(:a, "2")))
     assert_equal "(program 1\n  (group 1 2))", write(unwrap(tree, "(group)"))
-  end
-
-  def test_marked_names_get_placeholders_in_order
-    tree = build(:program, leaf(:identifier, "b"), leaf(:identifier, "a"), leaf(:constant, "X"), leaf(:identifier, "b"))
-    member_uses = [tree.children[1]]
-    mark_student_names([tree], Names, names: Set["a", "b", "X"], members: Set.new, member_uses:, kept: Set["X"])
-    placeholders = Representer::Engine::Placeholders.new(Names)
-    assert_equal "(program PLACEHOLDER_1 a X PLACEHOLDER_1)", Representer::Engine::Serialize.(tree, placeholders)
-    assert_equal({ "PLACEHOLDER_1" => "b" }, placeholders.mapping)
   end
 
   def test_names_in_reads_the_captured_names

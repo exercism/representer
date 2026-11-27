@@ -19,12 +19,14 @@ module Representer
     # - scope: set by a language's rules for a local name, to the node that
     #   holds the name's declaration (such as a method). Two locals with the
     #   same name in different scopes get different placeholders.
-    # - renamed: set by a staged language's Rename stage, to true for a leaf
-    #   that holds a name the student chose (see Placeholders).
+    # - renamed: set by RenameUserDefinedNodes, to true for a leaf that
+    #   holds a name the solution defines.
+    # - placeholder: set by NumberPlaceholders on each renamed leaf, to the
+    #   text that Serialize writes in its place.
     # - span: the node's byte range in the source. Grammar#parse only sets it
     #   when asked to, because only CodePattern needs it.
     class Node
-      attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :scope, :renamed, :span
+      attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :scope, :renamed, :placeholder, :span
 
       def initialize(type, children = [], text: nil, named: true, field: nil, quoted: false)
         @type = type.to_s
@@ -36,6 +38,7 @@ module Representer
         @role = nil
         @scope = nil
         @renamed = false
+        @placeholder = nil
       end
 
       def self.leaf(type, text, quoted: false) = new(type, [], text:, quoted:)

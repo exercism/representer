@@ -1,6 +1,7 @@
 module Representer
   module Engine
-    # Represents one solution with one language's rules (see Language).
+    # Represents one solution with one language's rules (see Language). A
+    # staged language's solution goes to RepresentWithStages instead.
     #
     # Only the solution files with one of the language's extensions are
     # represented, as the website also sends files such as Rust's Cargo.toml.
@@ -23,35 +24,21 @@ module Representer
           raise CannotRepresent.new("no_source_files", "No solution file has one of the extensions #{language.extensions.join(', ')}")
         end
 
-        trees = sources.values.map { |source| prepare(source) }
-        return staged(trees) if language.staged?
+        return RepresentWithStages.(language, sources.values) if language.staged?
 
-        tree = merge(in_order(trees))
+        trees = sources.values.map { |source| prepare(source) }
+        tree = merge(trees)
         names = Names.new(language, [tree], required_names)
         result(tree, names)
       end
 
       private
-      # Parses the source, and applies a staged language's GenerateAST and
-      # Normalise stages (see StagedLanguage#prepare), or another language's
-      # drop and rewrite rules.
+      # Parses the source and applies the language's drop and rewrite rules.
       def prepare(source)
         tree = parse(source)
         @root_type = tree.type
-        return language.prepare(tree) if language.staged?
-
         drop(tree)
         rewrite(tree)
-      end
-
-      # The rest of a staged language's stages (see StagedLanguage): Rename
-      # marks the student's names in every file, the files are joined,
-      # Reorder sorts the whole, and Placeholders numbers the names as the
-      # tree is written out.
-      def staged(trees)
-        language::Rename.(trees, required_names)
-        tree = language::Reorder.(join(in_order(trees)))
-        result(tree, Placeholders.new(language))
       end
 
       def result(tree, names)
@@ -69,31 +56,15 @@ module Representer
         tree
       end
 
-      # The files' trees in an order that depends only on the code, so the
-      # files' names and order never change the representation. Each tree is
-      # written out with every name that will be renamed left blank, and the
-      # trees are sorted by that. Trees that are the same apart from those
-      # names are sorted by the names as written.
-      def in_order(trees)
-        return trees if trees.one?
-
-        names = language.staged? ? Placeholders.new(language) : Names.new(language, trees, required_names)
-        trees.sort_by { |tree| [Serialize.(tree, names, blank: true), Serialize.(tree, nil)] }
-      end
-
-      # Joins the files' trees into one and applies the rewrite rules to the
-      # whole, so the rules for a whole file (such as one that sorts its
-      # declarations) run on all of the solution's code. Splitting code
-      # across files then changes the representation as little as possible.
-      def merge(trees) = trees.one? ? trees.first : rewrite(join(trees))
-
-      # Joins the files' trees into one. A rule may have replaced a file's
-      # root (Crystal unwraps a file that holds one class), so such a file
-      # joins as one child.
-      def join(trees)
+      # Joins the files' trees into one (see JoinFiles) and applies the
+      # rewrite rules to the whole, so the rules for a whole file (such as
+      # one that sorts its declarations) run on all of the solution's code.
+      # Splitting code across files then changes the representation as
+      # little as possible.
+      def merge(trees)
         return trees.first if trees.one?
 
-        Node.new(@root_type, trees.flat_map { |tree| tree.type == @root_type ? tree.children : [tree] })
+        rewrite(JoinFiles.(trees, @root_type, Names.new(language, trees, required_names)))
       end
 
       def drop(root)
@@ -182,7 +153,7 @@ module Representer
           end
 
           if stub?(filename)
-            names.merge(language.staged? ? language::Rename.([tree], Set.new) : Names.new(language, [tree], Set.new).member_defs)
+            names.merge(Names.new(language, [tree], Set.new).member_defs)
           else
             [tree, parse(source)].each { |names_tree| Names.each_name(language, names_tree) { |_leaf, name| names << name } }
           end

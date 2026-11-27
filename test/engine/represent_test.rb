@@ -56,14 +56,15 @@ class RepresentTest < Minitest::Test
   end
 
   # The config says which exercise file is the stub, whatever the student
-  # called their own file.
+  # called their own file. A staged language such as Ruby ignores the
+  # exercise's files, so this uses Python.
   def test_a_stub_with_another_name_only_keeps_its_members
-    stub = "def greet(name)\nend\n"
-    config = { "files" => { "solution" => ["greet.rb"], "test" => ["greet_test.rb"] } }.to_json
-    exercise = { "greet.rb" => stub, ".meta/config.json" => config }
-    same_name = Representer::RepresentSolution.("ruby", { "greet.rb" => "def greet(name) = name\n" }, exercise)
-    other_name = Representer::RepresentSolution.("ruby", { "hello.rb" => "def greet(name) = name\n" }, exercise)
-    assert_equal({ "PLACEHOLDER_1" => "name" }, other_name.mapping)
+    stub = "def greet(who):\n    pass\n"
+    config = { "files" => { "solution" => ["greet.py"], "test" => ["greet_test.py"] } }.to_json
+    exercise = { "greet.py" => stub, ".meta/config.json" => config }
+    same_name = Representer::RepresentSolution.("python", { "greet.py" => "def greet(who):\n    return who\n" }, exercise)
+    other_name = Representer::RepresentSolution.("python", { "hello.py" => "def greet(who):\n    return who\n" }, exercise)
+    assert_equal({ "PLACEHOLDER_1" => "who" }, other_name.mapping)
     assert_equal same_name.representation, other_name.representation
   end
 

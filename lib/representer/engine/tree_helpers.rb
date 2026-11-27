@@ -1,7 +1,7 @@
 module Representer
   module Engine
     # Operations on a syntax tree, for the stage classes of a staged language
-    # (see StagedLanguage). Each class includes this module, and calls these
+    # (see Engine::Stage). Each stage includes this module, and calls these
     # methods in its own order.
     #
     # Methods that take a pattern accept the pattern syntax in
@@ -146,22 +146,6 @@ module Representer
       end
 
       ### Names ###
-
-      # Marks each leaf that holds a name the student chose, so the engine
-      # writes a placeholder for it (see Placeholders). A name is the
-      # student's if it is in `names`, and isn't in `kept`. A leaf in
-      # `member_uses` (such as the name after a dot) refers to some other
-      # object's member, so it is only marked if the name is also in
-      # `members`, the members the solution defines.
-      def mark_student_names(trees, language, names:, members:, member_uses:, kept:)
-        renamed = names - kept
-        member_uses = member_uses.to_set.compare_by_identity
-        trees.each do |tree|
-          Names.each_name(language, tree) do |leaf, name|
-            leaf.renamed = renamed.include?(name) && (!member_uses.include?(leaf) || members.include?(name))
-          end
-        end
-      end
 
       # The names held by the leaves captured as @name by the patterns.
       def names_in(trees, language, *pattern_sources)
