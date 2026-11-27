@@ -44,7 +44,7 @@ module Representer::Languages::CSharp::Common
                 decimal: :real_literal,
                 suffixes: ["f", "d"]
 
-    # The escapes that a string reads, and the text each one stands for.
+    # "a\tb"  ->  a, a tab character, then b
     ESCAPES = {
       "n" => "\n", "t" => "\t", "r" => "\r", "0" => "\0", "a" => "\a", "b" => "\b", "f" => "\f",
       "v" => "\v", "e" => "\e", "\\" => "\\", '"' => '"', "'" => "'"

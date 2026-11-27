@@ -189,7 +189,6 @@ class Representer::Language
       Representer::Engine::Node.new(type, nodes.compact)
     end
 
-    # A named leaf, such as an identifier.
     def leaf(type, text) = Representer::Engine::Node.leaf(type, text)
 
     # A literal value (such as a string's contents), which the output
@@ -197,7 +196,6 @@ class Representer::Language
     # a rule that matches the grammar's string type won't match it again.
     def literal(value) = Representer::Engine::Node.leaf("literal", value, quoted: true)
 
-    # An anonymous token, such as "!".
     def token(text) = Representer::Engine::Node.token(text)
 
     def copy(node) = Representer::Engine.deep_copy(node)

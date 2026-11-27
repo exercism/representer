@@ -7,8 +7,6 @@ module Representer::Engine
   # classes inside it, such as Ruby::Representation::Reorder, in the
   # language's `representation/` folder.
   class Representation
-    # Each stage that only the representation needs lives in a file named
-    # after it, in the language's `representation/` folder.
     STAGE_FILES = { Normalise: "normalise", Reorder: "reorder" }.freeze
 
     class << self
@@ -51,10 +49,8 @@ module Representer::Engine
         @definitions = (@definitions || {}).merge(added)
       end
 
-      # Whether the node is a name: a leaf of one of the types in names_are.
       def name?(node) = node.named? && node.leaf? && names.key?(node.type)
 
-      # The name held by a name's leaf, without its prefix.
       def name_text(leaf) = leaf.text.delete_prefix(names[leaf.type])
 
       # The leaves of the names defined by the node (see names_are_defined_by).

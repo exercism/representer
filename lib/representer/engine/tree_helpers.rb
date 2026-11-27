@@ -29,7 +29,6 @@ module Representer::Engine
       end
     end
 
-    # Every match of the pattern, in source order.
     def find_all(root, pattern_source)
       pattern = pattern(pattern_source)
       matches = []
@@ -133,19 +132,16 @@ module Representer::Engine
       Node.new(type, nodes.compact)
     end
 
-    # A named leaf, such as an identifier, with a field name if given.
     def leaf(type, text, field: nil) = Node.leaf(type, text).tap { |node| node.field = field&.to_s }
 
     # A literal value (such as a string's contents), which the output
     # always writes in quotes.
     def literal(value) = Node.leaf("literal", value, quoted: true)
 
-    # An anonymous token, such as "!".
     def token(text) = Node.token(text)
 
     def copy(node) = Representer::Engine.deep_copy(node)
 
-    # The text of a node's leaves, joined.
     def text_of(node)
       return node.text if node.leaf?
 

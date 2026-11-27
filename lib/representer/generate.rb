@@ -76,7 +76,6 @@ module Representer
       nil
     end
 
-    # The trees parsed so far, by filename.
     memoize
     def trees = {}
 

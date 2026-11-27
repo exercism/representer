@@ -1,5 +1,3 @@
-# This file declares the settings of F#'s representation.
-# REPRESENTER_DSL.md explains each declaration.
 module Representer::Languages::FSharp
   class Representation < Representer::Engine::Representation
     version 9

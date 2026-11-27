@@ -8,11 +8,8 @@ module Representer::Engine
   class Language
     extend Representer::LanguageSetup
 
-    # Each output lives in a file named after it, in the language's folder.
     OUTPUT_FILES = { Representation: "representation", Snippet: "snippet" }.freeze
 
-    # Each stage that every output needs lives in a file named after it, in
-    # the language's `common/` folder.
     COMMON_FILES = { GenerateAST: "generate_ast", Normalise: "normalise" }.freeze
 
     class << self

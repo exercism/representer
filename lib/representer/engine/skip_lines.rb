@@ -13,7 +13,8 @@ module Representer::Engine
 
     initialize_with :rules, :lines
 
-    # The start of a line that continues a skipped line at the top.
+    # A line that continues the skipped line above it is skipped too:
+    # `  .map(&:x)` and `)`.
     CONTINUATION = /\A[ \t]+\S|\A[)\]}]/
 
     def call = skip_bottom(lines.drop(top_count))

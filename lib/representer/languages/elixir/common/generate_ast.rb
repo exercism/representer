@@ -23,7 +23,7 @@ module Representer::Languages::Elixir::Common
     numbers_are integer: :integer,
                 decimal: :float
 
-    # The escapes that a string reads, and the text each one stands for.
+    # "a\tb"  ->  a, a tab character, then b
     ESCAPES = {
       "n" => "\n", "t" => "\t", "r" => "\r", "s" => " ", "e" => "\e", "0" => "\0",
       "\\" => "\\", '"' => '"', "'" => "'", "#" => "#"

@@ -245,6 +245,16 @@ For anything bigger, write "e.g. We convert:" followed by the code, then "intern
 Keep the examples short, and check each one against what the code does.
 Leave no blank line between a comment and the code it describes.
 
+A comment must tell the reader something the code doesn't, either why it is done or an example of the effect.
+Never describe a constant, list or variable in words, and never write a fragment that only names a thing.
+If there is nothing to add, write no comment.
+
+```ruby
+# Don't write this. It only restates the code.
+# The escapes that a string reads, and the text each one stands for.
+ESCAPES = { "n" => "\n", "t" => "\t" }
+```
+
 A declaration list is different: each item in a `names_are`, `names_are_defined_by`, `imports`, `pattern_contexts`, `comments_are`, `docstrings_are`, `skip_at_top` or similar list goes on its own line, with a short example of the code it matches at the end of the line, and «» around the name or code it matches.
 The examples in a list line up in one column.
 The line above each declaration is an instruction, such as "Rename the names of classes and modules."

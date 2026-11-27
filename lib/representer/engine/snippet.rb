@@ -33,7 +33,6 @@ module Representer::Engine
     MAX_LINES = 15
     MAX_LINE_LENGTH = 200
 
-    # The things that `remove` can remove.
     REMOVABLE = %i[comments docstrings].freeze
 
     initialize_with :track_slug, :source, :tree
@@ -115,7 +114,6 @@ module Representer::Engine
       # snippet.
       def tracks(*slugs) = slugs.each { |slug| Representer::Languages.register_snippet(slug, self) }
 
-      # Whether `remove` removes the node, which sits in the parent.
       def removes?(node, parent)
         (removed.include?(:comments) && comment?(node)) || (removed.include?(:docstrings) && docstring?(node, parent))
       end

@@ -10,8 +10,8 @@ module Representer::Engine
     PREFIXES = { "0x" => 16, "0o" => 8, "0b" => 2 }.freeze
     DIGITS = { 2 => /\A[01]+\z/, 8 => /\A[0-7]+\z/, 10 => /\A\d+\z/, 16 => /\A\h+\z/ }.freeze
 
-    # The largest exponent worth writing out in full. A longer number keeps
-    # its own text.
+    # `1e400` is written out as a 1 and 400 zeros. A larger exponent keeps its
+    # own text, so a huge number can't use up the memory.
     MAX_EXPONENT = 400
 
     # An integer literal's value, or nil. separator is the digit separator

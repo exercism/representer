@@ -1,6 +1,3 @@
-# This file declares the settings of Ruby's representation.
-# REPRESENTER_DSL.md explains each declaration, and the stages that only
-# the representation needs are in `representation/`.
 module Representer::Languages::Ruby
   class Representation < Representer::Engine::Representation
     version 12

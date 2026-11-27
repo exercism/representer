@@ -1,6 +1,3 @@
-# This file declares the settings of C#'s representation.
-# REPRESENTER_DSL.md explains each declaration, and the stages that only
-# the representation needs are in `representation/`.
 module Representer::Languages::CSharp
   class Representation < Representer::Engine::Representation
     version 11

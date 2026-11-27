@@ -48,15 +48,14 @@ module Representer::Engine
     PLACEHOLDER = /\{\{([A-Za-z_]\w*|\.\.\.)\}\}/
     MARK = "{{pattern}}".freeze
 
-    # The word that each `{{...}}` gets inside the engine, with a number.
-    # Nothing can refer to it.
+    # Each `{{...}}` becomes `anything1__`, `anything2__` and so on, so that no
+    # `as:` code can copy what it matched.
     ANONYMOUS = "anything".freeze
 
     # An Any is a placeholder. It matches any node if its type is
     # nil, and otherwise a leaf of its type.
     Any = Struct.new(:word, :type)
 
-    # A Leaf matches a token, or a named leaf with the same text.
     Leaf = Struct.new(:type, :text, :named)
 
     # A Branch matches a node whose children match its children, which are
@@ -80,7 +79,6 @@ module Representer::Engine
       @root = compile(@node)
     end
 
-    # The type of node that the pattern matches, or nil for any type.
     def type = @root.type
 
     # Returns every way the pattern matches the node. Each is a Hash from
@@ -93,7 +91,6 @@ module Representer::Engine
       found
     end
 
-    # Returns the first way the pattern matches the node, or nil.
     def match(node, bindings = {})
       match_element(@root, node, bindings) { |matched| return matched }
       nil

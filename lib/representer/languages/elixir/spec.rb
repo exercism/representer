@@ -1,7 +1,3 @@
-# This file says what Elixir is and how the representer reads its files.
-# REPRESENTER_DSL.md explains each declaration. representation.rb and
-# snippet.rb hold the settings of each output, and the folders hold
-# Elixir's stages.
 module Representer::Languages::Elixir
   class Spec < Representer::Engine::Language
     tracks "elixir"

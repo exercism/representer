@@ -25,7 +25,7 @@ module Representer::Languages::FSharp::Common
     numbers_are integer: [:int, :xint],
                 decimal: :float
 
-    # The escapes that a string reads, and the text each one stands for.
+    # "a\tb"  ->  a, a tab character, then b
     ESCAPES = {
       "n" => "\n", "t" => "\t", "r" => "\r", "b" => "\b", "a" => "\a", "f" => "\f", "v" => "\v", "0" => "\0",
       "\\" => "\\", '"' => '"', "'" => "'"

@@ -5,7 +5,6 @@
 module Representer::LanguageSetup
   IDENTITY_FOLD = ->(name) { name }
 
-  # The track slugs this language represents.
   def tracks(*slugs)
     return @tracks || [] if slugs.empty?
 
@@ -23,7 +22,6 @@ module Representer::LanguageSetup
     @version = number
   end
 
-  # The grammar's name in grammars.yml.
   def grammar(name = nil) = name ? @grammar = name : @grammar
 
   # The file extensions of the language's source files. Solution and

@@ -165,7 +165,6 @@ module Representer::Engine
 
     def stub?(filename) = solution_files.key?(filename) || stub_names.include?(filename)
 
-    # The solution files listed in the exercise's config.
     memoize
     def stub_names
       config = JSON.parse(exercise_files.fetch(".meta/config.json", "{}"))
@@ -195,10 +194,9 @@ module Representer::Engine
     source.delete_prefix("\uFEFF").gsub(/\r\n?/, "\n").tr("\0", "�")
   end
 
-  # Files that students submit alongside their solution but that aren't
-  # part of it: tests (`two_fer_test.rb`, `test_two_fer.py`, `leap.spec.js`,
-  # `LeapTest.java`, `LeapTests.cs`), Go's `embed.go`, and tool configs
-  # (`babel.config.js`, `.eslintrc.js`). The old representers ignored them.
+  # Ignore files that students submit but that aren't part of the solution, so
+  # they can't change the representation.
+  # two_fer_test.rb, test_two_fer.py, leap.spec.js, LeapTests.cs, embed.go, babel.config.js
   TEST_OR_CONFIG_FILE = %r{
     (\A|[_.])(test|spec)s?\.[^./]+\z |
     \Atest_[^/]*\.py\z |

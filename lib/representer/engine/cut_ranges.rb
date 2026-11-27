@@ -34,7 +34,6 @@ module Representer::Engine
       end
     end
 
-    # The parts of the line outside the cuts.
     def keep(line, span, cuts)
       kept = +""
       position = span.begin

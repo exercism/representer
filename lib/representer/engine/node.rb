@@ -51,7 +51,6 @@ module Representer::Engine
     def leaf? = !text.nil?
     def named_children = children.select(&:named?)
 
-    # The first child with this field name.
     def [](field)
       field = field.to_s
       children.find { |child| child.field == field }

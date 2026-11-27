@@ -1,7 +1,3 @@
-# This file says what F# is and how the representer reads its files.
-# REPRESENTER_DSL.md explains each declaration. representation.rb and
-# snippet.rb hold the settings of each output, and the folders hold F#'s
-# stages.
 module Representer::Languages::FSharp
   class Spec < Representer::Engine::Language
     tracks "fsharp"

@@ -30,7 +30,6 @@ module Representer::Engine
     # the element before it.
     def self.parse(source, template: false) = Parser.new(source, template:).parse
 
-    # The common parts of every kind of pattern element.
     class Element
       attr_accessor :captures, :optional, :many
 
