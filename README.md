@@ -28,7 +28,7 @@ The website POSTs JSON like this:
 
 - `outputs` lists what to generate, as one or more of `representation`, `snippet` and `analysis`. The representer only runs the steps needed for these outputs.
 - `solution_files` are the student's files.
-- `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. C#, Elixir, F# and Ruby, which are written with stages, ignore them.
+- `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. The languages written with stages ignore them.
 
 It responds with `200` and one key for each output asked for:
 
@@ -112,10 +112,10 @@ For a language with its own class, the representer:
 2. Drops what makes no difference to the solution working, such as comments, brackets that only group, and imports. Every solution that the representer sees passes its tests, so this code can't change what a mentor says about it.
 3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`, or `1_000` into `1000`.
 4. Joins the files into one tree, in an order that depends only on their code. A file's name is never part of the representation, so renaming or reordering files doesn't change it.
-5. Replaces each name the student chose with a placeholder. For C#, Elixir, F# and Ruby, this is every name the solution defines, wherever it appears. The other languages also keep the names used in the tests.
+5. Replaces each name the student chose with a placeholder. For the languages written with stages, this is every name the solution defines, wherever it appears. The other languages also keep the names used in the tests.
 6. Writes the tree out as an indented s-expression.
 
-C#, Elixir, F# and Ruby each have a folder: [`csharp/`](./lib/representer/languages/csharp/), [`elixir/`](./lib/representer/languages/elixir/), [`fsharp/`](./lib/representer/languages/fsharp/) and [`ruby/`](./lib/representer/languages/ruby/).
+Each language written with stages has a folder in [`lib/representer/languages/`](./lib/representer/languages/) that holds a `spec.rb`, such as [`ruby/`](./lib/representer/languages/ruby/).
 In each folder, `spec.rb` says what the language is and how its files are read, including its comments and docstrings.
 `representation.rb`, `analysis.rb` and `snippet.rb` declare the settings of each output, such as the representation's version, names and imports.
 The stages that describe steps 2 and 3 sit in `common/`, for the stages that every output needs, and `representation/`, for the stages that only the representation needs.

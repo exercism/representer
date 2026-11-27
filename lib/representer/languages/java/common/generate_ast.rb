@@ -1,4 +1,3 @@
-# rubocop:disable Style/SymbolArray, Style/WordArray
 # REPRESENTER_DSL.md and WRITING_GENERATE_AST.md define the declarations and
 # helpers in this file.
 # Tree-sitter's tree keeps every token and spelling, but a mentor would give
@@ -165,5 +164,3 @@ module Representer::Languages::Java::Common
     end
   end
 end
-
-# rubocop:enable Style/SymbolArray, Style/WordArray
