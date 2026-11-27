@@ -1,194 +1,471 @@
-module wordy ;
-pure long answer ( immutable string question )
-{
-if (! question . startsWith ( "\"What is \"" ) || ! question . endsWith ( "\"?\"" ))
-{
-throw new Exception ( "\"Invalid question format\"" );
-}
-string content = question [ 8 .. $ - 1 ];
-auto tokens = content . split ();
-if ( tokens . empty )
-{
-throw new Exception ( "\"No tokens found\"" );
-}
-long result ;
-size_t i = 0 ;
-try
-{
-result = tokens [ i ]. to ! long ;
-i ++;
-}
-catch ( ConvException )
-{
-throw new Exception ( "\"First token is not a valid number\"" );
-}
-while ( i < tokens . length )
-{
-string op = tokens [ i ];
-i ++;
-if ( op == "\"multiplied\"" || op == "\"divided\"" )
-{
-if ( i >= tokens . length || tokens [ i ] != "\"by\"" )
-{
-throw new Exception ( "\"Invalid syntax for multi-word operation\"" );
-}
-op ~= "\" by\"" ;
-i ++;
-}
-if ( i >= tokens . length )
-{
-throw new Exception ( "\"Missing operand after operation\"" );
-}
-long operand ;
-try
-{
-operand = tokens [ i ]. to ! long ;
-i ++;
-}
-catch ( ConvException )
-{
-throw new Exception ( "\"Expected a number after operation\"" );
-}
-switch ( op )
-{
-case "\"plus\"" :
-result += operand ;
-break ;
-case "\"minus\"" :
-result -= operand ;
-break ;
-case "\"multiplied by\"" :
-result *= operand ;
-break ;
-case "\"divided by\"" :
-result /= operand ;
-break ;
-default :
-throw new Exception ( "\"Unknown operation: \"" ~ op );
-}
-}
-return result ;
-}
-unittest
-{
-immutable int allTestsEnabled = 1 ;
-{
-immutable question = "\"What is 5?\"" ;
-assert ( answer ( question ) == 5 );
-}
-static if ( allTestsEnabled )
-{
-{
-immutable question = "\"What is 0?\"" ;
-assert ( answer ( question ) == 0 );
-}
-{
-immutable question = "\"What is -123?\"" ;
-assert ( answer ( question ) == - 123 );
-}
-{
-immutable question = "\"What is 1 plus 1?\"" ;
-assert ( answer ( question ) == 2 );
-}
-{
-immutable question = "\"What is 0 plus 2?\"" ;
-assert ( answer ( question ) == 2 );
-}
-{
-immutable question = "\"What is 3 plus 0?\"" ;
-assert ( answer ( question ) == 3 );
-}
-{
-immutable question = "\"What is 53 plus 2?\"" ;
-assert ( answer ( question ) == 55 );
-}
-{
-immutable question = "\"What is -1 plus -10?\"" ;
-assert ( answer ( question ) == - 11 );
-}
-{
-immutable question = "\"What is 123 plus 45678?\"" ;
-assert ( answer ( question ) == 45801 );
-}
-{
-immutable question = "\"What is 4 minus -12?\"" ;
-assert ( answer ( question ) == 16 );
-}
-{
-immutable question = "\"What is -3 multiplied by 25?\"" ;
-assert ( answer ( question ) == - 75 );
-}
-{
-immutable question = "\"What is 33 divided by -3?\"" ;
-assert ( answer ( question ) == - 11 );
-}
-{
-immutable question = "\"What is 1 plus 1 plus 1?\"" ;
-assert ( answer ( question ) == 3 );
-}
-{
-immutable question = "\"What is 1 plus 5 minus -2?\"" ;
-assert ( answer ( question ) == 8 );
-}
-{
-immutable question = "\"What is 20 minus 4 minus 13?\"" ;
-assert ( answer ( question ) == 3 );
-}
-{
-immutable question = "\"What is 17 minus 6 plus 3?\"" ;
-assert ( answer ( question ) == 14 );
-}
-{
-immutable question = "\"What is 2 multiplied by -2 multiplied by 3?\"" ;
-assert ( answer ( question ) == - 12 );
-}
-{
-immutable question = "\"What is -3 plus 7 multiplied by -2?\"" ;
-assert ( answer ( question ) == - 8 );
-}
-{
-immutable question = "\"What is -12 divided by 2 divided by -3?\"" ;
-assert ( answer ( question ) == 2 );
-}
-{
-immutable question = "\"What is 52 cubed?\"" ;
-assertThrown ( answer ( question ));
-}
-{
-immutable question = "\"Who is the President of the United States?\"" ;
-assertThrown ( answer ( question ));
-}
-{
-immutable question = "\"What is 1 plus?\"" ;
-assertThrown ( answer ( question ));
-}
-{
-immutable question = "\"What is?\"" ;
-assertThrown ( answer ( question ));
-}
-{
-immutable question = "\"What is 1 plus plus 2?\"" ;
-assertThrown ( answer ( question ));
-}
-{
-immutable question = "\"What is 1 plus 2 1?\"" ;
-assertThrown ( answer ( question ));
-}
-{
-immutable question = "\"What is 1 2 plus?\"" ;
-assertThrown ( answer ( question ));
-}
-{
-immutable question = "\"What is plus 1 2?\"" ;
-assertThrown ( answer ( question ));
-}
-{
-immutable question = "\"What is 342668567865 multiplied by 348 plus 6576456942334?\"" ;
-assert ( answer ( question ) == 125825118559354L );
-}
-{
-immutable question = "\"What is 6548074074001254 divided by 654 minus 9876543210001?\"" ;
-assert ( answer ( question ) == 135802468900L );
-}
-}
-}
+(source_file
+  (module_declaration
+    (module_fqn PLACEHOLDER_1))
+  (function_declaration pure
+    (type long) PLACEHOLDER_2
+    (parameters
+      (parameter
+        (type
+          (type_ctor immutable) string) PLACEHOLDER_3))
+    (function_body
+      (block_statement
+        (if_statement
+          (logical_or_expression
+            (unary_expression !
+              (call_expression
+                (type PLACEHOLDER_3 . startsWith)
+                (named_arguments "What is "))) ||
+            (unary_expression !
+              (call_expression
+                (type PLACEHOLDER_3 . endsWith)
+                (named_arguments "?"))))
+          (block_statement
+            (expression_statement
+              (call_expression
+                (throw_expression
+                  (new_expression
+                    (type Exception)))
+                (named_arguments "Invalid question format")))))
+        (variable_declaration
+          (type string)
+          (declarator PLACEHOLDER_4
+            (index_expression PLACEHOLDER_3
+              (index 8 ..
+                (add_expression
+                  (dollar $) - 1)))))
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_5
+          (call_expression
+            (type PLACEHOLDER_4 . split)
+            (named_arguments)))
+        (if_statement
+          (property_expression PLACEHOLDER_5 . empty)
+          (block_statement
+            (expression_statement
+              (call_expression
+                (throw_expression
+                  (new_expression
+                    (type Exception)))
+                (named_arguments "No tokens found")))))
+        (variable_declaration
+          (type long)
+          (declarator PLACEHOLDER_6))
+        (variable_declaration
+          (type size_t)
+          (declarator PLACEHOLDER_7 0))
+        (try_statement
+          (block_statement
+            (expression_statement
+              (assignment_expression PLACEHOLDER_6 =
+                (property_expression
+                  (index_expression PLACEHOLDER_5
+                    (index PLACEHOLDER_7)) .
+                  (template_instance to
+                    (template_arguments
+                      (template_argument
+                        (type long)))))))
+            (expression_statement
+              (postfix_expression PLACEHOLDER_7 ++)))
+          (catch_statement
+            (type ConvException)
+            (block_statement
+              (expression_statement
+                (call_expression
+                  (throw_expression
+                    (new_expression
+                      (type Exception)))
+                  (named_arguments "First token is not a valid number"))))))
+        (while_statement
+          (rel_expression PLACEHOLDER_7 <
+            (property_expression PLACEHOLDER_5 . length))
+          (block_statement
+            (variable_declaration
+              (type string)
+              (declarator PLACEHOLDER_8
+                (index_expression PLACEHOLDER_5
+                  (index PLACEHOLDER_7))))
+            (expression_statement
+              (postfix_expression PLACEHOLDER_7 ++))
+            (if_statement
+              (logical_or_expression
+                (equal_expression PLACEHOLDER_8 == "multiplied") ||
+                (equal_expression PLACEHOLDER_8 == "divided"))
+              (block_statement
+                (if_statement
+                  (logical_or_expression
+                    (rel_expression PLACEHOLDER_7 >=
+                      (property_expression PLACEHOLDER_5 . length)) ||
+                    (equal_expression
+                      (index_expression PLACEHOLDER_5
+                        (index PLACEHOLDER_7)) != "by"))
+                  (block_statement
+                    (expression_statement
+                      (call_expression
+                        (throw_expression
+                          (new_expression
+                            (type Exception)))
+                        (named_arguments "Invalid syntax for multi-word operation")))))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_8 ~= " by"))
+                (expression_statement
+                  (postfix_expression PLACEHOLDER_7 ++))))
+            (if_statement
+              (rel_expression PLACEHOLDER_7 >=
+                (property_expression PLACEHOLDER_5 . length))
+              (block_statement
+                (expression_statement
+                  (call_expression
+                    (throw_expression
+                      (new_expression
+                        (type Exception)))
+                    (named_arguments "Missing operand after operation")))))
+            (variable_declaration
+              (type long)
+              (declarator PLACEHOLDER_9))
+            (try_statement
+              (block_statement
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_9 =
+                    (property_expression
+                      (index_expression PLACEHOLDER_5
+                        (index PLACEHOLDER_7)) .
+                      (template_instance to
+                        (template_arguments
+                          (template_argument
+                            (type long)))))))
+                (expression_statement
+                  (postfix_expression PLACEHOLDER_7 ++)))
+              (catch_statement
+                (type ConvException)
+                (block_statement
+                  (expression_statement
+                    (call_expression
+                      (throw_expression
+                        (new_expression
+                          (type Exception)))
+                      (named_arguments "Expected a number after operation"))))))
+            (switch_statement PLACEHOLDER_8
+              (block_statement
+                (case_statement "plus"
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_6 += PLACEHOLDER_9))
+                  (break_statement))
+                (case_statement "minus"
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_6 -= PLACEHOLDER_9))
+                  (break_statement))
+                (case_statement "multiplied by"
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_6 *= PLACEHOLDER_9))
+                  (break_statement))
+                (case_statement "divided by"
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_6 /= PLACEHOLDER_9))
+                  (break_statement))
+                (case_statement default
+                  (expression_statement
+                    (call_expression
+                      (throw_expression
+                        (new_expression
+                          (type Exception)))
+                      (named_arguments
+                        (add_expression "Unknown operation: " ~ PLACEHOLDER_8)))))))))
+        (return_statement PLACEHOLDER_6))))
+  (unittest_declaration
+    (block_statement
+      (variable_declaration
+        (type
+          (type_ctor immutable) int)
+        (declarator PLACEHOLDER_10 1))
+      (block_statement
+        (auto_declaration
+          (storage_class
+            (type_ctor immutable)) PLACEHOLDER_3 "What is 5?")
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression PLACEHOLDER_2
+                  (named_arguments PLACEHOLDER_3)) == 5)))))
+      (conditional_statement
+        (condition
+          (static_if_condition PLACEHOLDER_10))
+        (block_statement
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 0?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 0)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is -123?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) ==
+                    (unary_expression - 123))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 1 plus 1?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 2)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 0 plus 2?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 2)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 3 plus 0?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 3)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 53 plus 2?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 55)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is -1 plus -10?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) ==
+                    (unary_expression - 11))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 123 plus 45678?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 45801)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 4 minus -12?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 16)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is -3 multiplied by 25?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) ==
+                    (unary_expression - 75))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 33 divided by -3?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) ==
+                    (unary_expression - 11))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 1 plus 1 plus 1?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 3)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 1 plus 5 minus -2?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 8)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 20 minus 4 minus 13?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 3)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 17 minus 6 plus 3?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 14)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 2 multiplied by -2 multiplied by 3?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) ==
+                    (unary_expression - 12))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is -3 plus 7 multiplied by -2?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) ==
+                    (unary_expression - 8))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is -12 divided by 2 divided by -3?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 2)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 52 cubed?")
+            (expression_statement
+              (call_expression assertThrown
+                (named_arguments
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments PLACEHOLDER_3))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "Who is the President of the United States?")
+            (expression_statement
+              (call_expression assertThrown
+                (named_arguments
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments PLACEHOLDER_3))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 1 plus?")
+            (expression_statement
+              (call_expression assertThrown
+                (named_arguments
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments PLACEHOLDER_3))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is?")
+            (expression_statement
+              (call_expression assertThrown
+                (named_arguments
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments PLACEHOLDER_3))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 1 plus plus 2?")
+            (expression_statement
+              (call_expression assertThrown
+                (named_arguments
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments PLACEHOLDER_3))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 1 plus 2 1?")
+            (expression_statement
+              (call_expression assertThrown
+                (named_arguments
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments PLACEHOLDER_3))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 1 2 plus?")
+            (expression_statement
+              (call_expression assertThrown
+                (named_arguments
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments PLACEHOLDER_3))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is plus 1 2?")
+            (expression_statement
+              (call_expression assertThrown
+                (named_arguments
+                  (call_expression PLACEHOLDER_2
+                    (named_arguments PLACEHOLDER_3))))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 342668567865 multiplied by 348 plus 6576456942334?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 125825118559354L)))))
+          (block_statement
+            (auto_declaration
+              (storage_class
+                (type_ctor immutable)) PLACEHOLDER_3 "What is 6548074074001254 divided by 654 minus 9876543210001?")
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3)) == 135802468900L))))))))))

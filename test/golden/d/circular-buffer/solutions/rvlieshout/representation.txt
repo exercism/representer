@@ -1,139 +1,571 @@
-module circular ;
-class Buffer ( T ) {
-public :
-this ( size_t size ) {
-_buf = new T [ size ];
-}
-T pop () {
-enforce (! _empty , "\"Buffer is empty\"" );
-T val = _buf [ _begin ];
-_begin = ( _begin + 1 ) % _buf . length ;
-_empty = _begin == _end ;
-return val ;
-}
-void push ( T val ) {
-enforce (! isFull , "\"Buffer is full\"" );
-_buf [ _end ] = val ;
-_end = ( _end + 1 ) % _buf . length ;
-_empty = false ;
-}
-void clear () {
-_empty = true ;
-_begin = _end = 0 ;
-}
-void forcePush ( T val ) {
-if ( isFull ()) {
-pop ();
-}
-push ( val );
-}
-private :
-T [] _buf ;
-size_t _begin , _end = 0 ;
-bool _empty = true ;
-bool isFull () { return ! _empty && _begin == _end ; }
-}
-unittest
-{
-{
-auto myBuffer = new Buffer !( int )( 1U L );
-assertThrown ( myBuffer . pop (), "\"Empty buffer should throw exception if popped!\"" );
-}
-{
-auto myBuffer = new Buffer !( char )( 1 );
-myBuffer . push ( '1' );
-assert ( myBuffer . pop () == '1' );
-}
-{
-auto myBuffer = new Buffer !( char )( 1 );
-myBuffer . push ( '1' );
-assert ( myBuffer . pop () == '1' );
-assertThrown ( myBuffer . pop (), "\"Empty buffer should throw exception if popped!\"" );
-}
-{
-auto myBuffer = new Buffer !( char )( 2 );
-myBuffer . push ( '1' );
-myBuffer . push ( '2' );
-assert ( myBuffer . pop () == '1' );
-assert ( myBuffer . pop () == '2' );
-}
-{
-auto myBuffer = new Buffer !( char )( 1 );
-myBuffer . push ( '1' );
-assertThrown ( myBuffer . push ( '2' ),
-"\"Full buffer should throw exception if new element pushed!\"" );
-}
-{
-auto myBuffer = new Buffer !( char )( 1 );
-myBuffer . push ( '1' );
-assert ( myBuffer . pop () == '1' );
-myBuffer . push ( '2' );
-assert ( myBuffer . pop () == '2' );
-}
-{
-auto myBuffer = new Buffer !( char )( 3 );
-myBuffer . push ( '1' );
-myBuffer . push ( '2' );
-assert ( myBuffer . pop () == '1' );
-myBuffer . push ( '3' );
-assert ( myBuffer . pop () == '2' );
-assert ( myBuffer . pop () == '3' );
-}
-{
-auto myBuffer = new Buffer !( char )( 1 );
-myBuffer . push ( '1' );
-myBuffer . clear ();
-assertThrown ( myBuffer . pop (), "\"Empty buffer should throw exception if popped!\"" );
-}
-{
-auto myBuffer = new Buffer !( char )( 1 );
-myBuffer . push ( '1' );
-myBuffer . clear ();
-myBuffer . push ( '2' );
-assert ( myBuffer . pop () == '2' );
-}
-{
-auto myBuffer = new Buffer !( char )( 1 );
-myBuffer . clear ();
-myBuffer . push ( '1' );
-assert ( myBuffer . pop () == '1' );
-}
-{
-auto myBuffer = new Buffer !( char )( 2 );
-myBuffer . push ( '1' );
-myBuffer . forcePush ( '2' );
-assert ( myBuffer . pop () == '1' );
-assert ( myBuffer . pop () == '2' );
-}
-{
-auto myBuffer = new Buffer !( char )( 2 );
-myBuffer . push ( '1' );
-myBuffer . push ( '2' );
-myBuffer . forcePush ( '3' );
-assert ( myBuffer . pop () == '2' );
-assert ( myBuffer . pop () == '3' );
-}
-{
-auto myBuffer = new Buffer !( char )( 3 );
-myBuffer . push ( '1' );
-myBuffer . push ( '2' );
-myBuffer . push ( '3' );
-assert ( myBuffer . pop () == '1' );
-myBuffer . push ( '4' );
-myBuffer . forcePush ( '5' );
-assert ( myBuffer . pop () == '3' );
-assert ( myBuffer . pop () == '4' );
-assert ( myBuffer . pop () == '5' );
-}
-{
-auto myBuffer = new Buffer !( char )( 2 );
-myBuffer . clear ();
-myBuffer . push ( '1' );
-myBuffer . push ( '2' );
-myBuffer . forcePush ( '3' );
-myBuffer . forcePush ( '4' );
-assert ( myBuffer . pop () == '3' );
-assert ( myBuffer . pop () == '4' );
-assertThrown ( myBuffer . pop (), "\"Empty buffer should throw exception if popped!\"" );
-}
-}
+(source_file
+  (module_declaration
+    (module_fqn PLACEHOLDER_1))
+  (class_declaration PLACEHOLDER_2
+    (template_parameters
+      (template_parameter PLACEHOLDER_3))
+    (aggregate_body
+      (attribute_declaration public :)
+      (constructor this
+        (parameters
+          (parameter
+            (type size_t) PLACEHOLDER_4))
+        (function_body
+          (block_statement
+            (expression_statement
+              (assignment_expression PLACEHOLDER_5 =
+                (new_expression
+                  (type PLACEHOLDER_3 [ PLACEHOLDER_4 ])))))))
+      (function_declaration
+        (type PLACEHOLDER_3) PLACEHOLDER_6
+        (parameters)
+        (function_body
+          (block_statement
+            (expression_statement
+              (call_expression enforce
+                (named_arguments
+                  (unary_expression ! PLACEHOLDER_7) "Buffer is empty")))
+            (variable_declaration
+              (type PLACEHOLDER_3)
+              (declarator PLACEHOLDER_8
+                (index_expression PLACEHOLDER_5
+                  (index PLACEHOLDER_9))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_9 =
+                (mul_expression
+                  (add_expression PLACEHOLDER_9 + 1) %
+                  (property_expression PLACEHOLDER_5 . length))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_7 =
+                (equal_expression PLACEHOLDER_9 == PLACEHOLDER_10)))
+            (return_statement PLACEHOLDER_8))))
+      (function_declaration
+        (type void) PLACEHOLDER_11
+        (parameters
+          (parameter
+            (type PLACEHOLDER_3) PLACEHOLDER_8))
+        (function_body
+          (block_statement
+            (expression_statement
+              (call_expression enforce
+                (named_arguments
+                  (unary_expression ! PLACEHOLDER_12) "Buffer is full")))
+            (expression_statement
+              (assignment_expression
+                (index_expression PLACEHOLDER_5
+                  (index PLACEHOLDER_10)) = PLACEHOLDER_8))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_10 =
+                (mul_expression
+                  (add_expression PLACEHOLDER_10 + 1) %
+                  (property_expression PLACEHOLDER_5 . length))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_7 = false)))))
+      (function_declaration
+        (type void) PLACEHOLDER_13
+        (parameters)
+        (function_body
+          (block_statement
+            (expression_statement
+              (assignment_expression PLACEHOLDER_7 = true))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_9 =
+                (assignment_expression PLACEHOLDER_10 = 0))))))
+      (function_declaration
+        (type void) PLACEHOLDER_14
+        (parameters
+          (parameter
+            (type PLACEHOLDER_3) PLACEHOLDER_8))
+        (function_body
+          (block_statement
+            (if_statement
+              (call_expression PLACEHOLDER_12
+                (named_arguments))
+              (block_statement
+                (expression_statement
+                  (call_expression PLACEHOLDER_6
+                    (named_arguments)))))
+            (expression_statement
+              (call_expression PLACEHOLDER_11
+                (named_arguments PLACEHOLDER_8))))))
+      (attribute_declaration private :)
+      (variable_declaration
+        (type PLACEHOLDER_3 [ ])
+        (declarator PLACEHOLDER_5))
+      (variable_declaration
+        (type size_t)
+        (declarator PLACEHOLDER_9)
+        (declarator PLACEHOLDER_10 0))
+      (variable_declaration
+        (type bool)
+        (declarator PLACEHOLDER_7 true))
+      (function_declaration
+        (type bool) PLACEHOLDER_12
+        (parameters)
+        (function_body
+          (block_statement
+            (return_statement
+              (logical_and_expression
+                (unary_expression ! PLACEHOLDER_7) &&
+                (equal_expression PLACEHOLDER_9 == PLACEHOLDER_10))))))))
+  (unittest_declaration
+    (block_statement
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int))))))
+            (named_arguments 1UL)))
+        (expression_statement
+          (call_expression assertThrown
+            (named_arguments
+              (call_expression
+                (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                (named_arguments)) "Empty buffer should throw exception if popped!"))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 1)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '1')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 1)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '1'))))
+        (expression_statement
+          (call_expression assertThrown
+            (named_arguments
+              (call_expression
+                (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                (named_arguments)) "Empty buffer should throw exception if popped!"))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 2)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '2')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '1'))))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '2')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 1)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression assertThrown
+            (named_arguments
+              (call_expression
+                (type PLACEHOLDER_15 . PLACEHOLDER_11)
+                (named_arguments '2')) "Full buffer should throw exception if new element pushed!"))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 1)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '1'))))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '2')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '2')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 3)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '2')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '1'))))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '3')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '2'))))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '3')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 1)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_13)
+            (named_arguments)))
+        (expression_statement
+          (call_expression assertThrown
+            (named_arguments
+              (call_expression
+                (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                (named_arguments)) "Empty buffer should throw exception if popped!"))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 1)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_13)
+            (named_arguments)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '2')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '2')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 1)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_13)
+            (named_arguments)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '1')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 2)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_14)
+            (named_arguments '2')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '1'))))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '2')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 2)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '2')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_14)
+            (named_arguments '3')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '2'))))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '3')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 3)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '2')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '3')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '1'))))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '4')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_14)
+            (named_arguments '5')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '3'))))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '4'))))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '5')))))
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_15
+          (call_expression
+            (new_expression
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type char))))))
+            (named_arguments 2)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_13)
+            (named_arguments)))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '1')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_11)
+            (named_arguments '2')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_14)
+            (named_arguments '3')))
+        (expression_statement
+          (call_expression
+            (type PLACEHOLDER_15 . PLACEHOLDER_14)
+            (named_arguments '4')))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '3'))))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (call_expression
+                  (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                  (named_arguments)) == '4'))))
+        (expression_statement
+          (call_expression assertThrown
+            (named_arguments
+              (call_expression
+                (type PLACEHOLDER_15 . PLACEHOLDER_6)
+                (named_arguments)) "Empty buffer should throw exception if popped!")))))))

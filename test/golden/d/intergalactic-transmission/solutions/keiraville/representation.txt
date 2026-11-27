@@ -1,52 +1,158 @@
-module intergalactic_transmission ;
-pure ubyte parity ( ubyte data )
-{
-ubyte result = 0 ;
-while ( data != 0 ) {
-data ^= ( data & (- data ));
-result = cast ( ubyte )( 1 - result );
-}
-return result ;
-}
-pure ubyte [] transmitSequence ( immutable ubyte [] message )
-{
-auto result = new ubyte [ ( message . length * 8 + 6 ) / 7 ];
-int messageIndex = 0 ;
-int resultIndex = 0 ;
-int pendingCount = 0 ;
-uint pendingData = 0 ;
-while ( resultIndex < result . length ) {
-if ( pendingCount != 7 ) {
-if ( messageIndex < message . length ) {
-pendingData = ( pendingData << 8 ) | message [ messageIndex ++];
-pendingCount += 8 ;
-} else {
-pendingData <<= ( 7 - pendingCount );
-pendingCount = 7 ;
-}
-}
-pendingCount -= 7 ;
-ubyte data = ( pendingData >> pendingCount ) & 127 ;
-result [ resultIndex ++] = cast ( ubyte )(( data << 1 ) | parity ( data ));
-}
-return result ;
-}
-pure ubyte [] decodeMessage ( immutable ubyte [] message )
-{
-auto result = new ubyte [ message . length * 7 / 8 ];
-int resultIndex = 0 ;
-int pendingCount = 0 ;
-uint pendingData = 0 ;
-foreach ( ubyte data ; message ) {
-if ( parity ( data )) {
-throw new Exception ( "\"wrong parity\"" );
-}
-pendingData = ( pendingData << 7 ) | ( data >> 1 );
-pendingCount += 7 ;
-if ( pendingCount >= 8 ) {
-pendingCount -= 8 ;
-result [ resultIndex ++] = cast ( ubyte )( pendingData >> pendingCount );
-}
-}
-return result ;
-}
+(source_file
+  (module_declaration
+    (module_fqn PLACEHOLDER_1))
+  (function_declaration pure
+    (type ubyte) PLACEHOLDER_2
+    (parameters
+      (parameter
+        (type ubyte) PLACEHOLDER_3))
+    (function_body
+      (block_statement
+        (variable_declaration
+          (type ubyte)
+          (declarator PLACEHOLDER_4 0))
+        (while_statement
+          (equal_expression PLACEHOLDER_3 != 0)
+          (block_statement
+            (expression_statement
+              (assignment_expression PLACEHOLDER_3 ^=
+                (and_expression PLACEHOLDER_3 &
+                  (unary_expression - PLACEHOLDER_3))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_4 =
+                (cast_expression
+                  (type ubyte)
+                  (add_expression 1 - PLACEHOLDER_4))))))
+        (return_statement PLACEHOLDER_4))))
+  (function_declaration pure
+    (type ubyte [ ]) PLACEHOLDER_5
+    (parameters
+      (parameter
+        (type
+          (type_ctor immutable) ubyte [ ]) PLACEHOLDER_6))
+    (function_body
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_4
+          (new_expression
+            (type ubyte [
+              (mul_expression
+                (add_expression
+                  (mul_expression
+                    (property_expression PLACEHOLDER_6 . length) * 8) + 6) / 7) ])))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_7 0))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_8 0))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_9 0))
+        (variable_declaration
+          (type uint)
+          (declarator PLACEHOLDER_10 0))
+        (while_statement
+          (rel_expression PLACEHOLDER_8 <
+            (property_expression PLACEHOLDER_4 . length))
+          (block_statement
+            (if_statement
+              (equal_expression PLACEHOLDER_9 != 7)
+              (block_statement
+                (if_statement
+                  (rel_expression PLACEHOLDER_7 <
+                    (property_expression PLACEHOLDER_6 . length))
+                  (block_statement
+                    (expression_statement
+                      (assignment_expression PLACEHOLDER_10 =
+                        (or_expression
+                          (shift_expression PLACEHOLDER_10 << 8) |
+                          (index_expression PLACEHOLDER_6
+                            (index
+                              (postfix_expression PLACEHOLDER_7 ++))))))
+                    (expression_statement
+                      (assignment_expression PLACEHOLDER_9 += 8)))
+                  (block_statement
+                    (expression_statement
+                      (assignment_expression PLACEHOLDER_10 <<=
+                        (add_expression 7 - PLACEHOLDER_9)))
+                    (expression_statement
+                      (assignment_expression PLACEHOLDER_9 = 7))))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_9 -= 7))
+            (variable_declaration
+              (type ubyte)
+              (declarator PLACEHOLDER_3
+                (and_expression
+                  (shift_expression PLACEHOLDER_10 >> PLACEHOLDER_9) & 127)))
+            (expression_statement
+              (assignment_expression
+                (index_expression PLACEHOLDER_4
+                  (index
+                    (postfix_expression PLACEHOLDER_8 ++))) =
+                (cast_expression
+                  (type ubyte)
+                  (or_expression
+                    (shift_expression PLACEHOLDER_3 << 1) |
+                    (call_expression PLACEHOLDER_2
+                      (named_arguments PLACEHOLDER_3))))))))
+        (return_statement PLACEHOLDER_4))))
+  (function_declaration pure
+    (type ubyte [ ]) PLACEHOLDER_11
+    (parameters
+      (parameter
+        (type
+          (type_ctor immutable) ubyte [ ]) PLACEHOLDER_6))
+    (function_body
+      (block_statement
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_4
+          (new_expression
+            (type ubyte [
+              (mul_expression
+                (mul_expression
+                  (property_expression PLACEHOLDER_6 . length) * 7) / 8) ])))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_8 0))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_9 0))
+        (variable_declaration
+          (type uint)
+          (declarator PLACEHOLDER_10 0))
+        (foreach_statement foreach
+          (foreach_type
+            (type ubyte) PLACEHOLDER_3) PLACEHOLDER_6
+          (block_statement
+            (if_statement
+              (call_expression PLACEHOLDER_2
+                (named_arguments PLACEHOLDER_3))
+              (block_statement
+                (expression_statement
+                  (call_expression
+                    (throw_expression
+                      (new_expression
+                        (type Exception)))
+                    (named_arguments "wrong parity")))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_10 =
+                (or_expression
+                  (shift_expression PLACEHOLDER_10 << 7) |
+                  (shift_expression PLACEHOLDER_3 >> 1))))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_9 += 7))
+            (if_statement
+              (rel_expression PLACEHOLDER_9 >= 8)
+              (block_statement
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_9 -= 8))
+                (expression_statement
+                  (assignment_expression
+                    (index_expression PLACEHOLDER_4
+                      (index
+                        (postfix_expression PLACEHOLDER_8 ++))) =
+                    (cast_expression
+                      (type ubyte)
+                      (shift_expression PLACEHOLDER_10 >> PLACEHOLDER_9))))))))
+        (return_statement PLACEHOLDER_4)))))

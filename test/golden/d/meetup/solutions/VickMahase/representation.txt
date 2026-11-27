@@ -1,153 +1,968 @@
-module meetup ;
-enum Week {
-first ,
-second ,
-third ,
-fourth ,
-teenth ,
-last ,
-}
-pure string meetup ( ushort year , Month month , Week week , DayOfWeek day )
-{
-int startDay ;
-int endDay ;
-final switch ( week )
-{
-case Week . first :
-startDay = 1 ;
-endDay = 7 ;
-break ;
-case Week . second :
-startDay = 8 ;
-endDay = 14 ;
-break ;
-case Week . third :
-startDay = 15 ;
-endDay = 21 ;
-break ;
-case Week . fourth :
-startDay = 22 ;
-endDay = 28 ;
-break ;
-case Week . teenth :
-startDay = 13 ;
-endDay = 19 ;
-break ;
-case Week . last :
-int monthEnd = Date ( year , month , 1 ). daysInMonth ;
-startDay = monthEnd - 6 ;
-endDay = monthEnd ;
-break ;
-}
-for ( int d = startDay ; d <= endDay ; d ++)
-{
-Date dt = Date ( year , month , d );
-if ( dt . dayOfWeek == day )
-{
-return format ( "\"%04d-%02d-%02d\"" , year , cast ( int ) month , d );
-}
-}
-return "\"\"" ;
-}
-unittest
-{
-immutable int allTestsEnabled = 1 ;
-assert ( meetup ( 2013 , Month . may , Week . teenth , DayOfWeek . mon ) == "\"2013-05-13\"" );
-static if ( allTestsEnabled )
-{
-assert ( meetup ( 2013 , Month . aug , Week . teenth , DayOfWeek . mon ) == "\"2013-08-19\"" );
-assert ( meetup ( 2013 , Month . sep , Week . teenth , DayOfWeek . mon ) == "\"2013-09-16\"" );
-assert ( meetup ( 2013 , Month . mar , Week . teenth , DayOfWeek . tue ) == "\"2013-03-19\"" );
-assert ( meetup ( 2013 , Month . apr , Week . teenth , DayOfWeek . tue ) == "\"2013-04-16\"" );
-assert ( meetup ( 2013 , Month . aug , Week . teenth , DayOfWeek . tue ) == "\"2013-08-13\"" );
-assert ( meetup ( 2013 , Month . jan , Week . teenth , DayOfWeek . wed ) == "\"2013-01-16\"" );
-assert ( meetup ( 2013 , Month . feb , Week . teenth , DayOfWeek . wed ) == "\"2013-02-13\"" );
-assert ( meetup ( 2013 , Month . jun , Week . teenth , DayOfWeek . wed ) == "\"2013-06-19\"" );
-assert ( meetup ( 2013 , Month . may , Week . teenth , DayOfWeek . thu ) == "\"2013-05-16\"" );
-assert ( meetup ( 2013 , Month . jun , Week . teenth , DayOfWeek . thu ) == "\"2013-06-13\"" );
-assert ( meetup ( 2013 , Month . sep , Week . teenth , DayOfWeek . thu ) == "\"2013-09-19\"" );
-assert ( meetup ( 2013 , Month . apr , Week . teenth , DayOfWeek . fri ) == "\"2013-04-19\"" );
-assert ( meetup ( 2013 , Month . aug , Week . teenth , DayOfWeek . fri ) == "\"2013-08-16\"" );
-assert ( meetup ( 2013 , Month . sep , Week . teenth , DayOfWeek . fri ) == "\"2013-09-13\"" );
-assert ( meetup ( 2013 , Month . feb , Week . teenth , DayOfWeek . sat ) == "\"2013-02-16\"" );
-assert ( meetup ( 2013 , Month . apr , Week . teenth , DayOfWeek . sat ) == "\"2013-04-13\"" );
-assert ( meetup ( 2013 , Month . oct , Week . teenth , DayOfWeek . sat ) == "\"2013-10-19\"" );
-assert ( meetup ( 2013 , Month . may , Week . teenth , DayOfWeek . sun ) == "\"2013-05-19\"" );
-assert ( meetup ( 2013 , Month . jun , Week . teenth , DayOfWeek . sun ) == "\"2013-06-16\"" );
-assert ( meetup ( 2013 , Month . oct , Week . teenth , DayOfWeek . sun ) == "\"2013-10-13\"" );
-assert ( meetup ( 2013 , Month . mar , Week . first , DayOfWeek . mon ) == "\"2013-03-04\"" );
-assert ( meetup ( 2013 , Month . apr , Week . first , DayOfWeek . mon ) == "\"2013-04-01\"" );
-assert ( meetup ( 2013 , Month . may , Week . first , DayOfWeek . tue ) == "\"2013-05-07\"" );
-assert ( meetup ( 2013 , Month . jun , Week . first , DayOfWeek . tue ) == "\"2013-06-04\"" );
-assert ( meetup ( 2013 , Month . jul , Week . first , DayOfWeek . wed ) == "\"2013-07-03\"" );
-assert ( meetup ( 2013 , Month . aug , Week . first , DayOfWeek . wed ) == "\"2013-08-07\"" );
-assert ( meetup ( 2013 , Month . sep , Week . first , DayOfWeek . thu ) == "\"2013-09-05\"" );
-assert ( meetup ( 2013 , Month . oct , Week . first , DayOfWeek . thu ) == "\"2013-10-03\"" );
-assert ( meetup ( 2013 , Month . nov , Week . first , DayOfWeek . fri ) == "\"2013-11-01\"" );
-assert ( meetup ( 2013 , Month . dec , Week . first , DayOfWeek . fri ) == "\"2013-12-06\"" );
-assert ( meetup ( 2013 , Month . jan , Week . first , DayOfWeek . sat ) == "\"2013-01-05\"" );
-assert ( meetup ( 2013 , Month . feb , Week . first , DayOfWeek . sat ) == "\"2013-02-02\"" );
-assert ( meetup ( 2013 , Month . mar , Week . first , DayOfWeek . sun ) == "\"2013-03-03\"" );
-assert ( meetup ( 2013 , Month . apr , Week . first , DayOfWeek . sun ) == "\"2013-04-07\"" );
-assert ( meetup ( 2013 , Month . mar , Week . second , DayOfWeek . mon ) == "\"2013-03-11\"" );
-assert ( meetup ( 2013 , Month . apr , Week . second , DayOfWeek . mon ) == "\"2013-04-08\"" );
-assert ( meetup ( 2013 , Month . may , Week . second , DayOfWeek . tue ) == "\"2013-05-14\"" );
-assert ( meetup ( 2013 , Month . jun , Week . second , DayOfWeek . tue ) == "\"2013-06-11\"" );
-assert ( meetup ( 2013 , Month . jul , Week . second , DayOfWeek . wed ) == "\"2013-07-10\"" );
-assert ( meetup ( 2013 , Month . aug , Week . second , DayOfWeek . wed ) == "\"2013-08-14\"" );
-assert ( meetup ( 2013 , Month . sep , Week . second , DayOfWeek . thu ) == "\"2013-09-12\"" );
-assert ( meetup ( 2013 , Month . oct , Week . second , DayOfWeek . thu ) == "\"2013-10-10\"" );
-assert ( meetup ( 2013 , Month . nov , Week . second , DayOfWeek . fri ) == "\"2013-11-08\"" );
-assert ( meetup ( 2013 , Month . dec , Week . second , DayOfWeek . fri ) == "\"2013-12-13\"" );
-assert ( meetup ( 2013 , Month . jan , Week . second , DayOfWeek . sat ) == "\"2013-01-12\"" );
-assert ( meetup ( 2013 , Month . feb , Week . second , DayOfWeek . sat ) == "\"2013-02-09\"" );
-assert ( meetup ( 2013 , Month . mar , Week . second , DayOfWeek . sun ) == "\"2013-03-10\"" );
-assert ( meetup ( 2013 , Month . apr , Week . second , DayOfWeek . sun ) == "\"2013-04-14\"" );
-assert ( meetup ( 2013 , Month . mar , Week . third , DayOfWeek . mon ) == "\"2013-03-18\"" );
-assert ( meetup ( 2013 , Month . apr , Week . third , DayOfWeek . mon ) == "\"2013-04-15\"" );
-assert ( meetup ( 2013 , Month . may , Week . third , DayOfWeek . tue ) == "\"2013-05-21\"" );
-assert ( meetup ( 2013 , Month . jun , Week . third , DayOfWeek . tue ) == "\"2013-06-18\"" );
-assert ( meetup ( 2013 , Month . jul , Week . third , DayOfWeek . wed ) == "\"2013-07-17\"" );
-assert ( meetup ( 2013 , Month . aug , Week . third , DayOfWeek . wed ) == "\"2013-08-21\"" );
-assert ( meetup ( 2013 , Month . sep , Week . third , DayOfWeek . thu ) == "\"2013-09-19\"" );
-assert ( meetup ( 2013 , Month . oct , Week . third , DayOfWeek . thu ) == "\"2013-10-17\"" );
-assert ( meetup ( 2013 , Month . nov , Week . third , DayOfWeek . fri ) == "\"2013-11-15\"" );
-assert ( meetup ( 2013 , Month . dec , Week . third , DayOfWeek . fri ) == "\"2013-12-20\"" );
-assert ( meetup ( 2013 , Month . jan , Week . third , DayOfWeek . sat ) == "\"2013-01-19\"" );
-assert ( meetup ( 2013 , Month . feb , Week . third , DayOfWeek . sat ) == "\"2013-02-16\"" );
-assert ( meetup ( 2013 , Month . mar , Week . third , DayOfWeek . sun ) == "\"2013-03-17\"" );
-assert ( meetup ( 2013 , Month . apr , Week . third , DayOfWeek . sun ) == "\"2013-04-21\"" );
-assert ( meetup ( 2013 , Month . mar , Week . fourth , DayOfWeek . mon ) == "\"2013-03-25\"" );
-assert ( meetup ( 2013 , Month . apr , Week . fourth , DayOfWeek . mon ) == "\"2013-04-22\"" );
-assert ( meetup ( 2013 , Month . may , Week . fourth , DayOfWeek . tue ) == "\"2013-05-28\"" );
-assert ( meetup ( 2013 , Month . jun , Week . fourth , DayOfWeek . tue ) == "\"2013-06-25\"" );
-assert ( meetup ( 2013 , Month . jul , Week . fourth , DayOfWeek . wed ) == "\"2013-07-24\"" );
-assert ( meetup ( 2013 , Month . aug , Week . fourth , DayOfWeek . wed ) == "\"2013-08-28\"" );
-assert ( meetup ( 2013 , Month . sep , Week . fourth , DayOfWeek . thu ) == "\"2013-09-26\"" );
-assert ( meetup ( 2013 , Month . oct , Week . fourth , DayOfWeek . thu ) == "\"2013-10-24\"" );
-assert ( meetup ( 2013 , Month . nov , Week . fourth , DayOfWeek . fri ) == "\"2013-11-22\"" );
-assert ( meetup ( 2013 , Month . dec , Week . fourth , DayOfWeek . fri ) == "\"2013-12-27\"" );
-assert ( meetup ( 2013 , Month . jan , Week . fourth , DayOfWeek . sat ) == "\"2013-01-26\"" );
-assert ( meetup ( 2013 , Month . feb , Week . fourth , DayOfWeek . sat ) == "\"2013-02-23\"" );
-assert ( meetup ( 2013 , Month . mar , Week . fourth , DayOfWeek . sun ) == "\"2013-03-24\"" );
-assert ( meetup ( 2013 , Month . apr , Week . fourth , DayOfWeek . sun ) == "\"2013-04-28\"" );
-assert ( meetup ( 2013 , Month . mar , Week . last , DayOfWeek . mon ) == "\"2013-03-25\"" );
-assert ( meetup ( 2013 , Month . apr , Week . last , DayOfWeek . mon ) == "\"2013-04-29\"" );
-assert ( meetup ( 2013 , Month . may , Week . last , DayOfWeek . tue ) == "\"2013-05-28\"" );
-assert ( meetup ( 2013 , Month . jun , Week . last , DayOfWeek . tue ) == "\"2013-06-25\"" );
-assert ( meetup ( 2013 , Month . jul , Week . last , DayOfWeek . wed ) == "\"2013-07-31\"" );
-assert ( meetup ( 2013 , Month . aug , Week . last , DayOfWeek . wed ) == "\"2013-08-28\"" );
-assert ( meetup ( 2013 , Month . sep , Week . last , DayOfWeek . thu ) == "\"2013-09-26\"" );
-assert ( meetup ( 2013 , Month . oct , Week . last , DayOfWeek . thu ) == "\"2013-10-31\"" );
-assert ( meetup ( 2013 , Month . nov , Week . last , DayOfWeek . fri ) == "\"2013-11-29\"" );
-assert ( meetup ( 2013 , Month . dec , Week . last , DayOfWeek . fri ) == "\"2013-12-27\"" );
-assert ( meetup ( 2013 , Month . jan , Week . last , DayOfWeek . sat ) == "\"2013-01-26\"" );
-assert ( meetup ( 2013 , Month . feb , Week . last , DayOfWeek . sat ) == "\"2013-02-23\"" );
-assert ( meetup ( 2013 , Month . mar , Week . last , DayOfWeek . sun ) == "\"2013-03-31\"" );
-assert ( meetup ( 2013 , Month . apr , Week . last , DayOfWeek . sun ) == "\"2013-04-28\"" );
-assert ( meetup ( 2012 , Month . feb , Week . last , DayOfWeek . wed ) == "\"2012-02-29\"" );
-assert ( meetup ( 2014 , Month . dec , Week . last , DayOfWeek . wed ) == "\"2014-12-31\"" );
-assert ( meetup ( 2015 , Month . feb , Week . last , DayOfWeek . sun ) == "\"2015-02-22\"" );
-assert ( meetup ( 2012 , Month . dec , Week . first , DayOfWeek . fri ) == "\"2012-12-07\"" );
-}
-}
+(source_file
+  (module_declaration
+    (module_fqn PLACEHOLDER_1))
+  (enum_declaration PLACEHOLDER_2
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_4)
+    (enum_member PLACEHOLDER_5)
+    (enum_member PLACEHOLDER_6)
+    (enum_member PLACEHOLDER_7)
+    (enum_member PLACEHOLDER_8))
+  (function_declaration pure
+    (type string) PLACEHOLDER_1
+    (parameters
+      (parameter
+        (type ushort) PLACEHOLDER_9)
+      (parameter
+        (type Month) PLACEHOLDER_10)
+      (parameter
+        (type PLACEHOLDER_2) PLACEHOLDER_11)
+      (parameter
+        (type DayOfWeek) PLACEHOLDER_12))
+    (function_body
+      (block_statement
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_13))
+        (variable_declaration
+          (type int)
+          (declarator PLACEHOLDER_14))
+        (final_switch_statement
+          (switch_statement PLACEHOLDER_11
+            (block_statement
+              (case_statement
+                (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_13 = 1))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_14 = 7))
+                (break_statement))
+              (case_statement
+                (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_13 = 8))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_14 = 14))
+                (break_statement))
+              (case_statement
+                (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_13 = 15))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_14 = 21))
+                (break_statement))
+              (case_statement
+                (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_13 = 22))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_14 = 28))
+                (break_statement))
+              (case_statement
+                (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_13 = 13))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_14 = 19))
+                (break_statement))
+              (case_statement
+                (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                (variable_declaration
+                  (type int)
+                  (declarator PLACEHOLDER_15
+                    (property_expression
+                      (call_expression Date
+                        (named_arguments PLACEHOLDER_9 PLACEHOLDER_10 1)) . daysInMonth)))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_13 =
+                    (add_expression PLACEHOLDER_15 - 6)))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_14 = PLACEHOLDER_15))
+                (break_statement)))))
+        (for_statement
+          (variable_declaration
+            (type int)
+            (declarator PLACEHOLDER_16 PLACEHOLDER_13))
+          (rel_expression PLACEHOLDER_16 <= PLACEHOLDER_14) ;
+          (postfix_expression PLACEHOLDER_16 ++)
+          (block_statement
+            (variable_declaration
+              (type Date)
+              (declarator PLACEHOLDER_17
+                (call_expression Date
+                  (named_arguments PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_16))))
+            (if_statement
+              (equal_expression
+                (property_expression PLACEHOLDER_17 . dayOfWeek) == PLACEHOLDER_12)
+              (block_statement
+                (return_statement
+                  (call_expression format
+                    (named_arguments "%04d-%02d-%02d" PLACEHOLDER_9
+                      (cast_expression
+                        (type int) PLACEHOLDER_10) PLACEHOLDER_16)))))))
+        (return_statement ""))))
+  (unittest_declaration
+    (block_statement
+      (variable_declaration
+        (type
+          (type_ctor immutable) int)
+        (declarator PLACEHOLDER_18 1))
+      (expression_statement
+        (assert_expression
+          (assert_arguments
+            (equal_expression
+              (call_expression PLACEHOLDER_1
+                (named_arguments 2013
+                  (property_expression Month . may)
+                  (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                  (property_expression DayOfWeek . mon))) == "2013-05-13"))))
+      (conditional_statement
+        (condition
+          (static_if_condition PLACEHOLDER_18))
+        (block_statement
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . aug)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . mon))) == "2013-08-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . sep)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . mon))) == "2013-09-16"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . tue))) == "2013-03-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . tue))) == "2013-04-16"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . aug)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . tue))) == "2013-08-13"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jan)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . wed))) == "2013-01-16"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . wed))) == "2013-02-13"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jun)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . wed))) == "2013-06-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . may)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . thu))) == "2013-05-16"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jun)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . thu))) == "2013-06-13"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . sep)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . thu))) == "2013-09-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . fri))) == "2013-04-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . aug)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . fri))) == "2013-08-16"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . sep)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . fri))) == "2013-09-13"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . sat))) == "2013-02-16"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . sat))) == "2013-04-13"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . oct)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . sat))) == "2013-10-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . may)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . sun))) == "2013-05-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jun)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . sun))) == "2013-06-16"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . oct)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_7)
+                      (property_expression DayOfWeek . sun))) == "2013-10-13"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . mon))) == "2013-03-04"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . mon))) == "2013-04-01"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . may)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . tue))) == "2013-05-07"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jun)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . tue))) == "2013-06-04"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jul)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . wed))) == "2013-07-03"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . aug)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . wed))) == "2013-08-07"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . sep)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . thu))) == "2013-09-05"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . oct)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . thu))) == "2013-10-03"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . nov)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . fri))) == "2013-11-01"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . dec)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . fri))) == "2013-12-06"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jan)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . sat))) == "2013-01-05"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . sat))) == "2013-02-02"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . sun))) == "2013-03-03"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . sun))) == "2013-04-07"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . mon))) == "2013-03-11"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . mon))) == "2013-04-08"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . may)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . tue))) == "2013-05-14"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jun)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . tue))) == "2013-06-11"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jul)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . wed))) == "2013-07-10"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . aug)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . wed))) == "2013-08-14"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . sep)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . thu))) == "2013-09-12"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . oct)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . thu))) == "2013-10-10"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . nov)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . fri))) == "2013-11-08"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . dec)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . fri))) == "2013-12-13"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jan)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . sat))) == "2013-01-12"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . sat))) == "2013-02-09"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . sun))) == "2013-03-10"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_4)
+                      (property_expression DayOfWeek . sun))) == "2013-04-14"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . mon))) == "2013-03-18"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . mon))) == "2013-04-15"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . may)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . tue))) == "2013-05-21"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jun)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . tue))) == "2013-06-18"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jul)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . wed))) == "2013-07-17"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . aug)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . wed))) == "2013-08-21"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . sep)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . thu))) == "2013-09-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . oct)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . thu))) == "2013-10-17"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . nov)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . fri))) == "2013-11-15"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . dec)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . fri))) == "2013-12-20"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jan)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . sat))) == "2013-01-19"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . sat))) == "2013-02-16"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . sun))) == "2013-03-17"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_5)
+                      (property_expression DayOfWeek . sun))) == "2013-04-21"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . mon))) == "2013-03-25"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . mon))) == "2013-04-22"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . may)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . tue))) == "2013-05-28"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jun)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . tue))) == "2013-06-25"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jul)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . wed))) == "2013-07-24"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . aug)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . wed))) == "2013-08-28"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . sep)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . thu))) == "2013-09-26"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . oct)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . thu))) == "2013-10-24"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . nov)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . fri))) == "2013-11-22"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . dec)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . fri))) == "2013-12-27"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jan)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . sat))) == "2013-01-26"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . sat))) == "2013-02-23"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . sun))) == "2013-03-24"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_6)
+                      (property_expression DayOfWeek . sun))) == "2013-04-28"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . mon))) == "2013-03-25"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . mon))) == "2013-04-29"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . may)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . tue))) == "2013-05-28"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jun)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . tue))) == "2013-06-25"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jul)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . wed))) == "2013-07-31"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . aug)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . wed))) == "2013-08-28"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . sep)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . thu))) == "2013-09-26"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . oct)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . thu))) == "2013-10-31"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . nov)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . fri))) == "2013-11-29"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . dec)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . fri))) == "2013-12-27"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . jan)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . sat))) == "2013-01-26"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . sat))) == "2013-02-23"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . mar)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . sun))) == "2013-03-31"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2013
+                      (property_expression Month . apr)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . sun))) == "2013-04-28"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2012
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . wed))) == "2012-02-29"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2014
+                      (property_expression Month . dec)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . wed))) == "2014-12-31"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2015
+                      (property_expression Month . feb)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_8)
+                      (property_expression DayOfWeek . sun))) == "2015-02-22"))))
+          (expression_statement
+            (assert_expression
+              (assert_arguments
+                (equal_expression
+                  (call_expression PLACEHOLDER_1
+                    (named_arguments 2012
+                      (property_expression Month . dec)
+                      (property_expression PLACEHOLDER_2 . PLACEHOLDER_3)
+                      (property_expression DayOfWeek . fri))) == "2012-12-07")))))))))

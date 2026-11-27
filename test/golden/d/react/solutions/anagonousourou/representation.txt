@@ -1,308 +1,1311 @@
-module react ;
-class Reactor ( T )
-{
-abstract class Cell
-{
-protected T pvalue ;
-protected ComputeCell [] dependents ;
-@property
-public T value ()
-{
-return this . pvalue ;
-}
-@property
-void value ( T v )
-{
-this . changeAndForward ( v , this );
-}
-void changeAndForward ( T v , Cell originalSource )
-{
-this . pvalue = v ;
-foreach ( outputCell ; dependents )
-{
-outputCell . changeEvent ( v , this , originalSource );
-}
-}
-protected void registerComputeCell ( ComputeCell cell )
-{
-this . dependents ~= cell ;
-}
-Cell [] getDependencies ()
-{
-return [];
-}
-}
-class InputCell : Cell
-{
-alias value = Cell . value ;
-this ( T value )
-{
-this . pvalue = value ;
-}
-}
-class ComputeCell : Cell
-{
-int arity ;
-T function ( T ) applyFn1 ;
-T function ( T , T ) applyFn2 ;
-bool [ void delegate ( T )] callbacks ;
-private bool modificationOngoing = false ;
-private bool [] dependenciesChanged ;
-private Cell [] dependencies ;
-private T [] dependenciesValues ;
-this ( Cell dependency , T function ( T ) fun )
-{
-this . arity = 1 ;
-this . applyFn1 = fun ;
-this . pvalue = fun ( dependency . value ());
-dependency . registerComputeCell ( this );
-dependencies ~= dependency ;
-}
-this ( Cell dependency , Cell otherDependency , T function ( T , T ) fun )
-{
-this . arity = 2 ;
-this . applyFn2 = fun ;
-this . pvalue = fun ( dependency . value (), otherDependency . value ());
-dependency . registerComputeCell ( this );
-otherDependency . registerComputeCell ( this );
-dependencies ~= dependency ;
-dependencies ~= otherDependency ;
-dependenciesValues ~= dependency . value ();
-dependenciesValues ~= otherDependency . value ();
-dependenciesChanged ~= false ;
-dependenciesChanged ~= false ;
-}
-auto addCallback ( void delegate ( T ) callback ) nothrow @safe
-{
-callbacks [ callback ] = true ;
-return () { callbacks . remove ( callback ); return ; };
-}
-void changeEvent ( T newValue , Cell inputCell , Cell originalSource )
-{
-if ( this . arity == 1 )
-{
-T previousValue = this . value ;
-T newComputedValue = this . applyFn1 ( newValue );
-if ( previousValue != newComputedValue )
-{
-foreach ( callback , _ ; this . callbacks )
-{
-callback ( newComputedValue );
-}
-}
-this . changeAndForward ( newComputedValue , originalSource );
-}
-else if ( this . arity == 2 )
-{
-long depPos = countUntil ( this . dependencies , inputCell );
-dependenciesValues [ depPos ] = newValue ;
-dependenciesChanged [ depPos ] = true ;
-bool independentDepencies = ! this . dependencies . all !( dep => dep . getDependencies ()
-. canFind ( originalSource ));
-if ( independentDepencies || ( modificationOngoing && all ( dependenciesChanged )))
-{
-modificationOngoing = false ;
-dependenciesChanged = [ false , false ];
-T previousValue = this . value ;
-T newComputedValue = this . applyFn2 ( dependenciesValues [ 0 ], dependenciesValues [ 1 ]);
-if ( previousValue != newComputedValue )
-{
-foreach ( callback , _ ; this . callbacks )
-{
-callback ( newComputedValue );
-}
-}
-this . changeAndForward ( newComputedValue , originalSource );
-}
-else
-{
-modificationOngoing = true ;
-}
-}
-else
-{
-assert ( 0 );
-}
-}
-override Cell [] getDependencies ()
-{
-Cell [] dependenciesResult ;
-foreach ( depency ; this . dependencies )
-{
-dependenciesResult ~= depency ;
-dependenciesResult ~= depency . getDependencies ();
-}
-return dependenciesResult ;
-}
-}
-}
-unittest
-{
-const int allTestsEnabled = 1 ;
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 10 );
-assert ( input . value == 10 );
-}
-static if ( allTestsEnabled )
-{
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 4 );
-input . value = 20 ;
-assert ( input . value == 20 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 1 );
-auto output = r . new ComputeCell ( input , ( int x ) => x + 1 );
-assert ( output . value == 2 );
-}
-{
-Reactor !( int ) r ;
-auto one = r . new InputCell ( 1 );
-auto two = r . new InputCell ( 2 );
-auto output = r . new ComputeCell ( one , two , ( int x , int y ) => x + y * 10 );
-assert ( output . value == 21 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 1 );
-auto output = r . new ComputeCell ( input , ( int x ) => x + 1 );
-input . value = 3 ;
-assert ( output . value == 4 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 1 );
-auto timesTwo = r . new ComputeCell ( input , ( int x ) => x * 2 );
-auto timesThirty = r . new ComputeCell ( input , ( int x ) => x * 30 );
-auto output = r . new ComputeCell ( timesTwo , timesThirty , ( int x , int y ) => x + y );
-assert ( output . value == 32 );
-input . value = 3 ;
-assert ( output . value == 96 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 1 );
-auto output = r . new ComputeCell ( input , ( int x ) => x + 1 );
-int [] vals ;
-output . addCallback (( int x ) { vals ~= [ x ]; return ; });
-input . value = 3 ;
-assert ( vals . length == 1 );
-assert ( vals [ 0 ] == 4 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 1 );
-auto output = r . new ComputeCell ( input , ( int x ) => x < 3 ? 111 : 222 );
-int [] vals ;
-output . addCallback (( int x ) { vals ~= [ x ]; return ; });
-input . value = 2 ;
-assert ( vals . length == 0 );
-input . value = 3 ;
-assert ( vals . length == 1 );
-assert ( vals [ 0 ] == 222 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 11 );
-auto output = r . new ComputeCell ( input , ( int x ) => x + 1 );
-int [] vals1 ;
-int [] vals2 ;
-int [] vals3 ;
-void delegate () cancel1 = output . addCallback (( int x ) {
-vals1 ~= [ x ];
-return ;
-});
-output . addCallback (( int x ) { vals2 ~= [ x ]; return ; });
-input . value = 31 ;
-cancel1 ();
-output . addCallback (( int x ) { vals3 ~= [ x ]; return ; });
-input . value = 41 ;
-assert ( vals1 . length == 1 );
-assert ( vals1 [ 0 ] == 32 );
-assert ( vals2 . length == 2 );
-assert ( vals2 [ 0 ] == 32 );
-assert ( vals2 [ 1 ] == 42 );
-assert ( vals3 . length == 1 );
-assert ( vals3 [ 0 ] == 42 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 1 );
-auto output = r . new ComputeCell ( input , ( int x ) => x + 1 );
-int [] vals1 ;
-int [] vals2 ;
-void delegate () cancel1 = output . addCallback (( int x ) {
-vals1 ~= [ x ];
-return ;
-});
-output . addCallback (( int x ) { vals2 ~= [ x ]; return ; });
-foreach ( i ; 0 .. 10 )
-{
-cancel1 ();
-}
-input . value = 2 ;
-assert ( vals1 . length == 0 );
-assert ( vals2 . length == 1 );
-assert ( vals2 [ 0 ] == 3 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 1 );
-auto plusOne = r . new ComputeCell ( input , ( int x ) => x + 1 );
-auto minusOne1 = r . new ComputeCell ( input , ( int x ) => x - 1 );
-auto minusOne2 = r . new ComputeCell ( minusOne1 , ( int x ) => x - 1 );
-auto output = r . new ComputeCell ( plusOne , minusOne2 , ( int x , int y ) => x * y );
-int [] vals ;
-output . addCallback (( int x ) { vals ~= [ x ]; return ; });
-input . value = 4 ;
-assert ( vals . length == 1 );
-assert ( vals [ 0 ] == 10 );
-}
-{
-Reactor !( int ) r ;
-auto input = r . new InputCell ( 1 );
-auto plusOne = r . new ComputeCell ( input , ( int x ) => x + 1 );
-auto minusOne = r . new ComputeCell ( input , ( int x ) => x - 1 );
-auto alwaysTwo = r . new ComputeCell ( plusOne , minusOne , ( int x , int y ) => x - y );
-int [] vals ;
-alwaysTwo . addCallback (( int x ) { vals ~= [ x ]; return ; });
-foreach ( i ; 0 .. 10 )
-{
-input . value = i ;
-}
-assert ( vals . length == 0 );
-}
-{
-Reactor !( bool ) r ;
-auto a = r . new InputCell ( false );
-auto b = r . new InputCell ( false );
-auto carryIn = r . new InputCell ( false );
-auto aXorB = r . new ComputeCell ( a , b , ( bool x , bool y ) => x != y );
-auto sum = r . new ComputeCell ( aXorB , carryIn , ( bool x , bool y ) => x != y );
-auto aXorBAndCin = r . new ComputeCell ( aXorB , carryIn , ( bool x , bool y ) => x && y );
-auto aAndB = r . new ComputeCell ( a , b , ( bool x , bool y ) => x && y );
-auto carryOut = r . new ComputeCell ( aXorBAndCin , aAndB , ( bool x , bool y ) => x || y );
-bool [ 5 ][] tests = [
-[ false , false , false , false , false ],
-[ false , false , true , false , true ],
-[ false , true , false , false , true ], [
-false , true , true , true , false
-], [ true , false , false , false , true ],
-[ true , false , true , true , false ], [
-true , true , false , true , false
-], [ true , true , true , true , true ],
-];
-foreach ( test ; tests )
-{
-a . value = test [ 0 ];
-b . value = test [ 1 ];
-carryIn . value = test [ 2 ];
-assert ( carryOut . value == test [ 3 ]);
-assert ( sum . value == test [ 4 ]);
-}
-}
-}
-}
+(source_file
+  (module_declaration
+    (module_fqn PLACEHOLDER_1))
+  (class_declaration PLACEHOLDER_2
+    (template_parameters
+      (template_parameter PLACEHOLDER_3))
+    (aggregate_body
+      (class_declaration abstract PLACEHOLDER_4
+        (aggregate_body
+          (variable_declaration protected
+            (type PLACEHOLDER_3)
+            (declarator PLACEHOLDER_5))
+          (variable_declaration protected
+            (type PLACEHOLDER_6 [ ])
+            (declarator PLACEHOLDER_7))
+          (function_declaration
+            (at_attribute @ property) public
+            (type PLACEHOLDER_3) PLACEHOLDER_8
+            (parameters)
+            (function_body
+              (block_statement
+                (return_statement
+                  (property_expression this . PLACEHOLDER_5)))))
+          (function_declaration
+            (at_attribute @ property)
+            (type void) PLACEHOLDER_8
+            (parameters
+              (parameter
+                (type PLACEHOLDER_3) PLACEHOLDER_9))
+            (function_body
+              (block_statement
+                (expression_statement
+                  (call_expression
+                    (property_expression this . PLACEHOLDER_10)
+                    (named_arguments PLACEHOLDER_9 this))))))
+          (function_declaration
+            (type void) PLACEHOLDER_10
+            (parameters
+              (parameter
+                (type PLACEHOLDER_3) PLACEHOLDER_9)
+              (parameter
+                (type PLACEHOLDER_4) PLACEHOLDER_11))
+            (function_body
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_5) = PLACEHOLDER_9))
+                (foreach_statement foreach
+                  (foreach_type PLACEHOLDER_12) PLACEHOLDER_7
+                  (block_statement
+                    (expression_statement
+                      (call_expression
+                        (type PLACEHOLDER_12 . PLACEHOLDER_13)
+                        (named_arguments PLACEHOLDER_9 this PLACEHOLDER_11))))))))
+          (function_declaration protected
+            (type void) PLACEHOLDER_14
+            (parameters
+              (parameter
+                (type PLACEHOLDER_6) PLACEHOLDER_15))
+            (function_body
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_7) ~= PLACEHOLDER_15)))))
+          (function_declaration
+            (type PLACEHOLDER_4 [ ]) PLACEHOLDER_16
+            (parameters)
+            (function_body
+              (block_statement
+                (return_statement
+                  (array_literal)))))))
+      (class_declaration PLACEHOLDER_17
+        (base_class PLACEHOLDER_4)
+        (aggregate_body
+          (alias_declaration
+            (alias_initializer PLACEHOLDER_8
+              (type PLACEHOLDER_4 . PLACEHOLDER_8)))
+          (constructor this
+            (parameters
+              (parameter
+                (type PLACEHOLDER_3) PLACEHOLDER_8))
+            (function_body
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_5) = PLACEHOLDER_8)))))))
+      (class_declaration PLACEHOLDER_6
+        (base_class PLACEHOLDER_4)
+        (aggregate_body
+          (variable_declaration
+            (type int)
+            (declarator PLACEHOLDER_18))
+          (variable_declaration
+            (type PLACEHOLDER_3 function
+              (parameters
+                (parameter
+                  (type PLACEHOLDER_3))))
+            (declarator PLACEHOLDER_19))
+          (variable_declaration
+            (type PLACEHOLDER_3 function
+              (parameters
+                (parameter
+                  (type PLACEHOLDER_3))
+                (parameter
+                  (type PLACEHOLDER_3))))
+            (declarator PLACEHOLDER_20))
+          (variable_declaration
+            (type bool [
+              (type void delegate
+                (parameters
+                  (parameter
+                    (type PLACEHOLDER_3)))) ])
+            (declarator PLACEHOLDER_21))
+          (variable_declaration private
+            (type bool)
+            (declarator PLACEHOLDER_22 false))
+          (variable_declaration private
+            (type bool [ ])
+            (declarator PLACEHOLDER_23))
+          (variable_declaration private
+            (type PLACEHOLDER_4 [ ])
+            (declarator PLACEHOLDER_24))
+          (variable_declaration private
+            (type PLACEHOLDER_3 [ ])
+            (declarator PLACEHOLDER_25))
+          (constructor this
+            (parameters
+              (parameter
+                (type PLACEHOLDER_4) PLACEHOLDER_26)
+              (parameter
+                (type PLACEHOLDER_3 function
+                  (parameters
+                    (parameter
+                      (type PLACEHOLDER_3)))) PLACEHOLDER_27))
+            (function_body
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_18) = 1))
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_19) = PLACEHOLDER_27))
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_5) =
+                    (call_expression PLACEHOLDER_27
+                      (named_arguments
+                        (call_expression
+                          (type PLACEHOLDER_26 . PLACEHOLDER_8)
+                          (named_arguments))))))
+                (expression_statement
+                  (call_expression
+                    (type PLACEHOLDER_26 . PLACEHOLDER_14)
+                    (named_arguments this)))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_24 ~= PLACEHOLDER_26)))))
+          (constructor this
+            (parameters
+              (parameter
+                (type PLACEHOLDER_4) PLACEHOLDER_26)
+              (parameter
+                (type PLACEHOLDER_4) PLACEHOLDER_28)
+              (parameter
+                (type PLACEHOLDER_3 function
+                  (parameters
+                    (parameter
+                      (type PLACEHOLDER_3))
+                    (parameter
+                      (type PLACEHOLDER_3)))) PLACEHOLDER_27))
+            (function_body
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_18) = 2))
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_20) = PLACEHOLDER_27))
+                (expression_statement
+                  (assignment_expression
+                    (property_expression this . PLACEHOLDER_5) =
+                    (call_expression PLACEHOLDER_27
+                      (named_arguments
+                        (call_expression
+                          (type PLACEHOLDER_26 . PLACEHOLDER_8)
+                          (named_arguments))
+                        (call_expression
+                          (type PLACEHOLDER_28 . PLACEHOLDER_8)
+                          (named_arguments))))))
+                (expression_statement
+                  (call_expression
+                    (type PLACEHOLDER_26 . PLACEHOLDER_14)
+                    (named_arguments this)))
+                (expression_statement
+                  (call_expression
+                    (type PLACEHOLDER_28 . PLACEHOLDER_14)
+                    (named_arguments this)))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_24 ~= PLACEHOLDER_26))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_24 ~= PLACEHOLDER_28))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_25 ~=
+                    (call_expression
+                      (type PLACEHOLDER_26 . PLACEHOLDER_8)
+                      (named_arguments))))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_25 ~=
+                    (call_expression
+                      (type PLACEHOLDER_28 . PLACEHOLDER_8)
+                      (named_arguments))))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_23 ~= false))
+                (expression_statement
+                  (assignment_expression PLACEHOLDER_23 ~= false)))))
+          (function_declaration
+            (storage_class auto) PLACEHOLDER_29
+            (parameters
+              (parameter
+                (type void delegate
+                  (parameters
+                    (parameter
+                      (type PLACEHOLDER_3)))) PLACEHOLDER_30))
+            (member_function_attribute nothrow)
+            (member_function_attribute
+              (at_attribute @ safe))
+            (function_body
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (index_expression PLACEHOLDER_21
+                      (index PLACEHOLDER_30)) = true))
+                (return_statement
+                  (function_literal
+                    (parameters)
+                    (block_statement
+                      (expression_statement
+                        (call_expression
+                          (type PLACEHOLDER_21 . remove)
+                          (named_arguments PLACEHOLDER_30)))
+                      (return_statement)))))))
+          (function_declaration
+            (type void) PLACEHOLDER_13
+            (parameters
+              (parameter
+                (type PLACEHOLDER_3) PLACEHOLDER_31)
+              (parameter
+                (type PLACEHOLDER_4) PLACEHOLDER_32)
+              (parameter
+                (type PLACEHOLDER_4) PLACEHOLDER_11))
+            (function_body
+              (block_statement
+                (if_statement
+                  (equal_expression
+                    (property_expression this . PLACEHOLDER_18) == 1)
+                  (block_statement
+                    (variable_declaration
+                      (type PLACEHOLDER_3)
+                      (declarator PLACEHOLDER_33
+                        (property_expression this . PLACEHOLDER_8)))
+                    (variable_declaration
+                      (type PLACEHOLDER_3)
+                      (declarator PLACEHOLDER_34
+                        (call_expression
+                          (property_expression this . PLACEHOLDER_19)
+                          (named_arguments PLACEHOLDER_31))))
+                    (if_statement
+                      (equal_expression PLACEHOLDER_33 != PLACEHOLDER_34)
+                      (block_statement
+                        (foreach_statement foreach
+                          (foreach_type PLACEHOLDER_30)
+                          (foreach_type PLACEHOLDER_35)
+                          (property_expression this . PLACEHOLDER_21)
+                          (block_statement
+                            (expression_statement
+                              (call_expression PLACEHOLDER_30
+                                (named_arguments PLACEHOLDER_34)))))))
+                    (expression_statement
+                      (call_expression
+                        (property_expression this . PLACEHOLDER_10)
+                        (named_arguments PLACEHOLDER_34 PLACEHOLDER_11))))
+                  (if_statement
+                    (equal_expression
+                      (property_expression this . PLACEHOLDER_18) == 2)
+                    (block_statement
+                      (variable_declaration
+                        (type long)
+                        (declarator PLACEHOLDER_36
+                          (call_expression countUntil
+                            (named_arguments
+                              (property_expression this . PLACEHOLDER_24) PLACEHOLDER_32))))
+                      (expression_statement
+                        (assignment_expression
+                          (index_expression PLACEHOLDER_25
+                            (index PLACEHOLDER_36)) = PLACEHOLDER_31))
+                      (expression_statement
+                        (assignment_expression
+                          (index_expression PLACEHOLDER_23
+                            (index PLACEHOLDER_36)) = true))
+                      (variable_declaration
+                        (type bool)
+                        (declarator PLACEHOLDER_37
+                          (unary_expression !
+                            (property_expression
+                              (property_expression this . PLACEHOLDER_24) .
+                              (template_instance all
+                                (template_arguments
+                                  (template_argument
+                                    (call_expression
+                                      (property_expression
+                                        (call_expression
+                                          (property_expression
+                                            (function_literal
+                                              (parameters
+                                                (parameter PLACEHOLDER_38))
+                                              (block_statement
+                                                (return_statement PLACEHOLDER_38))) . PLACEHOLDER_16)
+                                          (named_arguments)) . canFind)
+                                      (named_arguments PLACEHOLDER_11)))))))))
+                      (if_statement
+                        (logical_or_expression PLACEHOLDER_37 ||
+                          (logical_and_expression PLACEHOLDER_22 &&
+                            (call_expression all
+                              (named_arguments PLACEHOLDER_23))))
+                        (block_statement
+                          (expression_statement
+                            (assignment_expression PLACEHOLDER_22 = false))
+                          (expression_statement
+                            (assignment_expression PLACEHOLDER_23 =
+                              (array_literal false false)))
+                          (variable_declaration
+                            (type PLACEHOLDER_3)
+                            (declarator PLACEHOLDER_33
+                              (property_expression this . PLACEHOLDER_8)))
+                          (variable_declaration
+                            (type PLACEHOLDER_3)
+                            (declarator PLACEHOLDER_34
+                              (call_expression
+                                (property_expression this . PLACEHOLDER_20)
+                                (named_arguments
+                                  (index_expression PLACEHOLDER_25
+                                    (index 0))
+                                  (index_expression PLACEHOLDER_25
+                                    (index 1))))))
+                          (if_statement
+                            (equal_expression PLACEHOLDER_33 != PLACEHOLDER_34)
+                            (block_statement
+                              (foreach_statement foreach
+                                (foreach_type PLACEHOLDER_30)
+                                (foreach_type PLACEHOLDER_35)
+                                (property_expression this . PLACEHOLDER_21)
+                                (block_statement
+                                  (expression_statement
+                                    (call_expression PLACEHOLDER_30
+                                      (named_arguments PLACEHOLDER_34)))))))
+                          (expression_statement
+                            (call_expression
+                              (property_expression this . PLACEHOLDER_10)
+                              (named_arguments PLACEHOLDER_34 PLACEHOLDER_11))))
+                        (block_statement
+                          (expression_statement
+                            (assignment_expression PLACEHOLDER_22 = true)))))
+                    (block_statement
+                      (expression_statement
+                        (assert_expression
+                          (assert_arguments 0)))))))))
+          (function_declaration override
+            (type PLACEHOLDER_4 [ ]) PLACEHOLDER_16
+            (parameters)
+            (function_body
+              (block_statement
+                (variable_declaration
+                  (type PLACEHOLDER_4 [ ])
+                  (declarator PLACEHOLDER_39))
+                (foreach_statement foreach
+                  (foreach_type PLACEHOLDER_40)
+                  (property_expression this . PLACEHOLDER_24)
+                  (block_statement
+                    (expression_statement
+                      (assignment_expression PLACEHOLDER_39 ~= PLACEHOLDER_40))
+                    (expression_statement
+                      (assignment_expression PLACEHOLDER_39 ~=
+                        (call_expression
+                          (type PLACEHOLDER_40 . PLACEHOLDER_16)
+                          (named_arguments))))))
+                (return_statement PLACEHOLDER_39))))))))
+  (unittest_declaration
+    (block_statement
+      (variable_declaration
+        (type
+          (type_ctor const) int)
+        (declarator PLACEHOLDER_41 1))
+      (block_statement
+        (variable_declaration
+          (type
+            (template_instance PLACEHOLDER_2
+              (template_arguments
+                (template_argument
+                  (type int)))))
+          (declarator PLACEHOLDER_42))
+        (auto_declaration
+          (storage_class auto) PLACEHOLDER_43
+          (call_expression
+            (property_expression PLACEHOLDER_42 .
+              (new_expression
+                (type PLACEHOLDER_17)))
+            (named_arguments 10)))
+        (expression_statement
+          (assert_expression
+            (assert_arguments
+              (equal_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) == 10)))))
+      (conditional_statement
+        (condition
+          (static_if_condition PLACEHOLDER_41))
+        (block_statement
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 4)))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 20))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) == 20)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 + 1)))))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_44 . PLACEHOLDER_8) == 2)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_46
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_47
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 2)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_46 PLACEHOLDER_47
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45)
+                      (parameter
+                        (type int) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 +
+                          (mul_expression PLACEHOLDER_48 * 10))))))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_44 . PLACEHOLDER_8) == 21)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 + 1)))))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 3))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_44 . PLACEHOLDER_8) == 4)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_49
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (mul_expression PLACEHOLDER_45 * 2)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_50
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (mul_expression PLACEHOLDER_45 * 30)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_49 PLACEHOLDER_50
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45)
+                      (parameter
+                        (type int) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 + PLACEHOLDER_48)))))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_44 . PLACEHOLDER_8) == 32))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 3))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_44 . PLACEHOLDER_8) == 96)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 + 1)))))))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_51))
+            (expression_statement
+              (call_expression
+                (type PLACEHOLDER_44 . PLACEHOLDER_29)
+                (named_arguments
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_51 ~=
+                          (array_literal PLACEHOLDER_45)))
+                      (return_statement))))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 3))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_51 . length) == 1))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (index_expression PLACEHOLDER_51
+                      (index 0)) == 4)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (ternary_expression
+                          (rel_expression PLACEHOLDER_45 < 3) 111 222)))))))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_51))
+            (expression_statement
+              (call_expression
+                (type PLACEHOLDER_44 . PLACEHOLDER_29)
+                (named_arguments
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_51 ~=
+                          (array_literal PLACEHOLDER_45)))
+                      (return_statement))))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 2))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_51 . length) == 0))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 3))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_51 . length) == 1))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (index_expression PLACEHOLDER_51
+                      (index 0)) == 222)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 11)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 + 1)))))))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_52))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_53))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_54))
+            (variable_declaration
+              (type void delegate
+                (parameters))
+              (declarator PLACEHOLDER_55
+                (call_expression
+                  (type PLACEHOLDER_44 . PLACEHOLDER_29)
+                  (named_arguments
+                    (function_literal
+                      (parameters
+                        (parameter
+                          (type int) PLACEHOLDER_45))
+                      (block_statement
+                        (expression_statement
+                          (assignment_expression PLACEHOLDER_52 ~=
+                            (array_literal PLACEHOLDER_45)))
+                        (return_statement)))))))
+            (expression_statement
+              (call_expression
+                (type PLACEHOLDER_44 . PLACEHOLDER_29)
+                (named_arguments
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_53 ~=
+                          (array_literal PLACEHOLDER_45)))
+                      (return_statement))))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 31))
+            (expression_statement
+              (call_expression PLACEHOLDER_55
+                (named_arguments)))
+            (expression_statement
+              (call_expression
+                (type PLACEHOLDER_44 . PLACEHOLDER_29)
+                (named_arguments
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_54 ~=
+                          (array_literal PLACEHOLDER_45)))
+                      (return_statement))))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 41))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_52 . length) == 1))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (index_expression PLACEHOLDER_52
+                      (index 0)) == 32))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_53 . length) == 2))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (index_expression PLACEHOLDER_53
+                      (index 0)) == 32))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (index_expression PLACEHOLDER_53
+                      (index 1)) == 42))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_54 . length) == 1))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (index_expression PLACEHOLDER_54
+                      (index 0)) == 42)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 + 1)))))))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_52))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_53))
+            (variable_declaration
+              (type void delegate
+                (parameters))
+              (declarator PLACEHOLDER_55
+                (call_expression
+                  (type PLACEHOLDER_44 . PLACEHOLDER_29)
+                  (named_arguments
+                    (function_literal
+                      (parameters
+                        (parameter
+                          (type int) PLACEHOLDER_45))
+                      (block_statement
+                        (expression_statement
+                          (assignment_expression PLACEHOLDER_52 ~=
+                            (array_literal PLACEHOLDER_45)))
+                        (return_statement)))))))
+            (expression_statement
+              (call_expression
+                (type PLACEHOLDER_44 . PLACEHOLDER_29)
+                (named_arguments
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_53 ~=
+                          (array_literal PLACEHOLDER_45)))
+                      (return_statement))))))
+            (foreach_statement foreach
+              (foreach_type PLACEHOLDER_56) 0 .. 10
+              (block_statement
+                (expression_statement
+                  (call_expression PLACEHOLDER_55
+                    (named_arguments)))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 2))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_52 . length) == 0))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_53 . length) == 1))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (index_expression PLACEHOLDER_53
+                      (index 0)) == 3)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_57
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 + 1)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_58
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 - 1)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_59
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_58
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 - 1)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_44
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_57 PLACEHOLDER_59
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45)
+                      (parameter
+                        (type int) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (mul_expression PLACEHOLDER_45 * PLACEHOLDER_48)))))))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_51))
+            (expression_statement
+              (call_expression
+                (type PLACEHOLDER_44 . PLACEHOLDER_29)
+                (named_arguments
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_51 ~=
+                          (array_literal PLACEHOLDER_45)))
+                      (return_statement))))))
+            (expression_statement
+              (assignment_expression
+                (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = 4))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_51 . length) == 1))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (index_expression PLACEHOLDER_51
+                      (index 0)) == 10)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type int)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_43
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments 1)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_57
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 + 1)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_60
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_43
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 - 1)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_61
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_57 PLACEHOLDER_60
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45)
+                      (parameter
+                        (type int) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (add_expression PLACEHOLDER_45 - PLACEHOLDER_48)))))))
+            (variable_declaration
+              (type int [ ])
+              (declarator PLACEHOLDER_51))
+            (expression_statement
+              (call_expression
+                (type PLACEHOLDER_61 . PLACEHOLDER_29)
+                (named_arguments
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type int) PLACEHOLDER_45))
+                    (block_statement
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_51 ~=
+                          (array_literal PLACEHOLDER_45)))
+                      (return_statement))))))
+            (foreach_statement foreach
+              (foreach_type PLACEHOLDER_56) 0 .. 10
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (property_expression PLACEHOLDER_43 . PLACEHOLDER_8) = PLACEHOLDER_56))))
+            (expression_statement
+              (assert_expression
+                (assert_arguments
+                  (equal_expression
+                    (property_expression PLACEHOLDER_51 . length) == 0)))))
+          (block_statement
+            (variable_declaration
+              (type
+                (template_instance PLACEHOLDER_2
+                  (template_arguments
+                    (template_argument
+                      (type bool)))))
+              (declarator PLACEHOLDER_42))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_62
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments false)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_63
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments false)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_64
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_17)))
+                (named_arguments false)))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_65
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_62 PLACEHOLDER_63
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type bool) PLACEHOLDER_45)
+                      (parameter
+                        (type bool) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (equal_expression PLACEHOLDER_45 != PLACEHOLDER_48)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_66
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_65 PLACEHOLDER_64
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type bool) PLACEHOLDER_45)
+                      (parameter
+                        (type bool) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (equal_expression PLACEHOLDER_45 != PLACEHOLDER_48)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_67
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_65 PLACEHOLDER_64
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type bool) PLACEHOLDER_45)
+                      (parameter
+                        (type bool) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (logical_and_expression PLACEHOLDER_45 && PLACEHOLDER_48)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_68
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_62 PLACEHOLDER_63
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type bool) PLACEHOLDER_45)
+                      (parameter
+                        (type bool) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (logical_and_expression PLACEHOLDER_45 && PLACEHOLDER_48)))))))
+            (auto_declaration
+              (storage_class auto) PLACEHOLDER_69
+              (call_expression
+                (property_expression PLACEHOLDER_42 .
+                  (new_expression
+                    (type PLACEHOLDER_6)))
+                (named_arguments PLACEHOLDER_67 PLACEHOLDER_68
+                  (function_literal
+                    (parameters
+                      (parameter
+                        (type bool) PLACEHOLDER_45)
+                      (parameter
+                        (type bool) PLACEHOLDER_48))
+                    (block_statement
+                      (return_statement
+                        (logical_or_expression PLACEHOLDER_45 || PLACEHOLDER_48)))))))
+            (variable_declaration
+              (type bool [ 5 ] [ ])
+              (declarator PLACEHOLDER_70
+                (array_literal
+                  (array_literal false false false false false)
+                  (array_literal false false true false true)
+                  (array_literal false true false false true)
+                  (array_literal false true true true false)
+                  (array_literal true false false false true)
+                  (array_literal true false true true false)
+                  (array_literal true true false true false)
+                  (array_literal true true true true true))))
+            (foreach_statement foreach
+              (foreach_type PLACEHOLDER_71) PLACEHOLDER_70
+              (block_statement
+                (expression_statement
+                  (assignment_expression
+                    (property_expression PLACEHOLDER_62 . PLACEHOLDER_8) =
+                    (index_expression PLACEHOLDER_71
+                      (index 0))))
+                (expression_statement
+                  (assignment_expression
+                    (property_expression PLACEHOLDER_63 . PLACEHOLDER_8) =
+                    (index_expression PLACEHOLDER_71
+                      (index 1))))
+                (expression_statement
+                  (assignment_expression
+                    (property_expression PLACEHOLDER_64 . PLACEHOLDER_8) =
+                    (index_expression PLACEHOLDER_71
+                      (index 2))))
+                (expression_statement
+                  (assert_expression
+                    (assert_arguments
+                      (equal_expression
+                        (property_expression PLACEHOLDER_69 . PLACEHOLDER_8) ==
+                        (index_expression PLACEHOLDER_71
+                          (index 3))))))
+                (expression_statement
+                  (assert_expression
+                    (assert_arguments
+                      (equal_expression
+                        (property_expression PLACEHOLDER_66 . PLACEHOLDER_8) ==
+                        (index_expression PLACEHOLDER_71
+                          (index 4))))))))))))))
