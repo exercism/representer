@@ -65,7 +65,7 @@ Each stage is a Mandate command that takes one tree and returns the new tree, an
 
 - `GenerateAST < Engine::GenerateAST` writes its own `call` with the tree helpers below.
 - `Normalise < Engine::Normalise` lists its rules with the verbs below.
-- `Reorder < Engine::Reorder` writes its own `call`. It sorts code if its order makes no difference, by a key that ignores names. No language needs one yet.
+- `Reorder < Engine::Reorder` lists the containers to sort with the verb below. It sorts code if its order makes no difference, by a key that ignores names.
 
 ### Normalise verbs
 
@@ -84,8 +84,40 @@ The engine compiles the rules the first time the stage runs.
 | `drop "code", ...` | Removes every piece of code that matches one of the patterns. |
 | `drop_calls_to :name, ...` | Removes every call to these methods. The engine writes each call as `name({{arguments}})`. |
 | `rewrite "code", as: "code"` | Turns each match into the code given in `as:`, from the leaves up. Each placeholder in `as:` becomes a copy of its match. |
+| `attach_to_next "code", ...` | Moves each statement that matches one of the patterns into the statement after it, as its last child, so the two move together when Reorder sorts them. If several matches come one after the other, they all move into the next statement. |
+| `attach_to_each_following "code", ..., to: ["code", ...]` | Removes each line that matches one of the patterns, and gives a copy of it, as a last child, to every definition after it that matches one of the patterns in `to:`, up to the next of these lines or the end of the container. So each definition keeps the line's meaning wherever it moves. |
 
 Each verb also takes `inside:`.
+A statement or a line is a child with no field name, so the `private` of Ruby's `private def x` isn't a line.
+
+Elixir keeps each `@spec` with its function, and Ruby marks each method with its visibility:
+
+```ruby
+attach_to_next "@spec {{spec}}"
+
+attach_to_each_following "private", "protected", "public",
+  to: ["def {{name}}\nend", "attr_reader {{names}}"]
+```
+
+[`Engine::AttachToNext`](./lib/representer/engine/attach_to_next.rb) and [`Engine::AttachToEachFollowing`](./lib/representer/engine/attach_to_each_following.rb) do the work.
+
+### The Reorder verb
+
+```ruby
+class Reorder < Engine::Reorder
+  sort :class_body, :module_body, :hash
+end
+```
+
+| Verb | Does |
+|---|---|
+| `sort :type, ...` | Sorts the children of every node of these types by their code, written with every renamed name as `_`. Children with the same code keep their order. Inner nodes are sorted before the nodes around them. |
+
+Reorder runs after the engine renames the names, so the order never depends on the names a student chose.
+Only list containers of definitions or entries, such as a class's body or a map, where the order makes no difference to the solution working.
+Never list a block of statements, which runs in order.
+If the language's tree gives such a container the same type as a block of statements, give it a type of its own in `GenerateAST`, as Ruby's `class_body` and Elixir's `module_body` do.
+[`Engine::SortChildren`](./lib/representer/engine/sort_children.rb) does the work.
 
 ### Setup for a staged language
 
@@ -112,6 +144,7 @@ Their patterns use the syntax in "Patterns" below, and they also accept a code p
 | `drop_tokens(root, everywhere:, only_in:, kept_in:)` | Removes anonymous tokens: `everywhere` from every node apart from the types in `kept_in`, and `only_in` from the types it names. |
 | `unwrap(root, pattern)` | Replaces a match that has one named child with that child. |
 | `retype(root, from => to)` | Gives nodes of one type another type. |
+| `attach(node, *children)` | Adds the children to the end of the node's children, without field names, so that they move with the node. |
 | `build`, `leaf`, `literal`, `token`, `copy` | These make nodes (see "Helpers for rewrite blocks" below). |
 | `text_of(node)` | Returns the text of a node's leaves, joined. |
 

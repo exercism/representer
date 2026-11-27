@@ -2,9 +2,10 @@
 #
 # - GenerateAST turns tree-sitter's tree into the tree given by Elixir's
 #   own parser.
-# - Normalise drops documentation, and keeps two spellings of the old
-#   representer (exercism/elixir-representer) the same.
-# - Reorder sorts the `use` statements and the entries of maps.
+# - Normalise drops documentation, keeps two spellings of the old
+#   representer (exercism/elixir-representer) the same, and moves each
+#   `@spec` into its function.
+# - Reorder sorts the code in each module's body and the entries of maps.
 #
 # The comment at the top of each file lists everything it does.
 #
@@ -27,7 +28,7 @@ module Representer
       extend StagedLanguage
 
       tracks "elixir"
-      version 8
+      version 9
       grammar "elixir"
       extensions ".ex", ".exs"
 

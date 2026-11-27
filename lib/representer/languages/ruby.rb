@@ -1,7 +1,12 @@
-# Ruby's representer has one stage of its own, GenerateAST, in
-# ruby/generate_ast.rb. It turns tree-sitter's tree into the tree given by
-# Ruby's own parser, and the comment at the top of that file lists
-# everything it does.
+# Ruby's representer has three stages of its own, each in ruby/:
+#
+# - GenerateAST turns tree-sitter's tree into the tree given by Ruby's own
+#   parser.
+# - Normalise marks each method with its visibility, such as `private`.
+# - Reorder sorts the code in each class's and module's body, and the
+#   entries of hashes.
+#
+# The comment at the top of each file lists everything it does.
 #
 # This file declares Ruby's names and imports, and the engine does the rest:
 #
@@ -23,7 +28,7 @@ module Representer
       extend StagedLanguage
 
       tracks "ruby"
-      version 10
+      version 11
       grammar "ruby"
       extensions ".rb"
 

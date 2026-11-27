@@ -1,8 +1,10 @@
 # Elixir's Normalise stage keeps three rules of the old representer
-# (exercism/elixir-representer):
+# (exercism/elixir-representer), and keeps each spec with its function:
 #
 # - It drops `@moduledoc`, `@doc` and `@typedoc`, because documentation
 #   makes no difference to the solution working.
+# - Each `@spec` moves into the definition after it, so the two stay
+#   together when Reorder sorts the module's body.
 # - `a |> f` gets the tree of `a |> f()`. Elixir's parser reads the first
 #   `f` as a variable, but a pipe always calls it.
 # - In `@spec`, `@callback`, `@macrocallback`, `@type`, `@typep` and
@@ -15,6 +17,7 @@ module Representer
     module Elixir
       class Normalise < Engine::Normalise
         drop "@moduledoc {{text}}", "@doc {{text}}", "@typedoc {{text}}"
+        attach_to_next "@spec {{spec}}"
 
         TYPES = /\A(spec|callback|macrocallback|type|typep|opaque)\z/
 

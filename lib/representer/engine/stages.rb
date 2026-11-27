@@ -47,25 +47,61 @@ module Representer
       # call as a call to `size`. The rule works from the leaves up.
       def self.rewrite(code, as:, inside: nil) = rules << [:rewrite, [code], inside, as]
 
+      # Moves each statement that matches one of the patterns into the
+      # definition after it, so the two move together (see AttachToNext).
+      # So `attach_to_next "@spec {{spec}}"` keeps each Elixir spec with its
+      # function.
+      def self.attach_to_next(*codes, inside: nil) = rules << [:attach_to_next, codes, inside]
+
+      # Removes each line that matches one of the patterns, and marks every
+      # definition after it with the line, up to the next of these lines
+      # (see AttachToEachFollowing). A definition is code that matches one
+      # of the patterns in to:. So
+      # `attach_to_each_following "private", to: "def {{name}}\nend"` marks
+      # each Ruby method after a `private` line as private.
+      def self.attach_to_each_following(*codes, to:, inside: nil)
+        rules << [:attach_to_each_following, codes, inside, Array(to)]
+      end
+
       def self.rules = @rules ||= []
 
-      def call
-        self.class.rules.reduce(tree) do |root, (verb, codes, inside, template)|
-          patterns = codes.map { |code| CodePattern[self.class.language, code, inside:] }
-          case verb
-          when :drop
-            patterns.each { |pattern| drop(root, pattern) }
-            root
-          when :rewrite
-            replacement = CodePattern[self.class.language, template, inside:]
-            transform(root, patterns.first) { |match| replacement.build(match.captures) }
-          end
+      def call = self.class.rules.reduce(tree) { |root, rule| apply(root, *rule) }
+
+      private
+      def apply(root, verb, codes, inside, option = nil)
+        patterns = codes.map { |code| code_pattern(code, inside) }
+        case verb
+        when :drop
+          patterns.each { |pattern| drop(root, pattern) }
+          root
+        when :rewrite
+          replacement = code_pattern(option, inside)
+          transform(root, patterns.first) { |match| replacement.build(match.captures) }
+        when :attach_to_next
+          AttachToNext.(root, patterns)
+        when :attach_to_each_following
+          AttachToEachFollowing.(root, patterns, option.map { |code| code_pattern(code, inside) })
         end
       end
+
+      def code_pattern(code, inside) = CodePattern[self.class.language, code, inside:]
     end
 
     # A Reorder stage sorts code if its order makes no difference, by a key
-    # that ignores names. Each language writes its own call method.
-    class Reorder < Stage; end
+    # that ignores names. It lists the node types to sort with `sort`:
+    #
+    #   class Reorder < Engine::Reorder
+    #     sort :class_body, :hash
+    #   end
+    #
+    # A language that needs more can add its own call method.
+    class Reorder < Stage
+      # Sorts the children of every node of these types (see SortChildren).
+      def self.sort(*types) = sorted_types.concat(types)
+
+      def self.sorted_types = @sorted_types ||= []
+
+      def call = SortChildren.(tree, self.class.sorted_types)
+    end
   end
 end

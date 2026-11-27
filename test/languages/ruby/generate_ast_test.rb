@@ -47,6 +47,11 @@ class RubyGenerateASTTest < Minitest::Test
     refute_same "a&.b", "a.b"
   end
 
+  def test_class_and_module_bodies_get_their_own_types
+    assert_includes ast("class A\n  def f\n    1\n  end\nend"), "(class_body\n      (method f\n        (body_statement 1)))"
+    assert_includes ast("module M\n  X = 1\nend"), "(module_body"
+  end
+
   def test_word_operators
     assert_same "a and b", "a && b"
     assert_same "not a", "!a"

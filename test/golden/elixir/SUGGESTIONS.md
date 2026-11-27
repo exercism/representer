@@ -23,3 +23,10 @@ Elixir's parser gives each of these pairs the same tree. No golden solution writ
 ## Spellings that are merged today
 
 9. `Mod.f` and `Mod.f()` get the same tree, because Elixir's parser gives them one. A mentor might suggest the brackets, which the formatter adds.
+
+## Sorting module bodies
+
+Reorder sorts each module's body, and Normalise moves each `@spec` into its function first:
+
+10. **Move `@impl` with its function.** `@impl true` stays a statement of its own, so sorting can move it away from its function. A `@spec` before an `@impl` moves into the `@impl`, not the function.
+11. **Keep the clauses of a function in order.** Elixir tries a function's clauses in order, and sorting can reorder them. Both orders must pass the tests, so a merge can only join solutions that behave the same in the tests, such as one with an unreachable clause.

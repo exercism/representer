@@ -22,6 +22,13 @@
 #   the same.
 # - `''` gets the tree of `[]`.
 #
+# It also gives two containers a node type of their own, so that Normalise
+# and Reorder can tell them apart:
+#
+# - The body of a `defmodule`, `defprotocol` or `defimpl` becomes a
+#   `module_body`, so it differs from a function's `do_block`.
+# - The entries after the `|` of `%{map | a: 1}` become a `map_update`.
+#
 # It also gives the code that defines a name a node type of its own, so
 # that elixir.rb can list it in names_are_defined_by:
 #
@@ -67,6 +74,7 @@ module Representer
             match.node
           end
           definitions
+          containers
           variables
           drop_tokens(tree, everywhere: TOKENS)
         end
@@ -213,6 +221,17 @@ module Representer
           elsif head.type == "identifier"
             field = head.field
             parent.replace_child(head, build(:function_head, { target: head }).tap { |node| node.field = field })
+          end
+        end
+
+        ### Containers ###
+
+        def containers
+          captured(tree, "(call target: (identifier /\\A(defmodule|defprotocol|defimpl)\\z/) (do_block) @name)").each do |body|
+            body.type = "module_body"
+          end
+          captured(tree, '(map_content (binary_operator operator: "|" right: (list) @name))').each do |entries|
+            entries.type = "map_update"
           end
         end
 

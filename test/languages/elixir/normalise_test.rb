@@ -1,7 +1,7 @@
 require_relative "stage_helper"
 
 # Tests Elixir's Normalise stage, which keeps three rules of the old
-# representer.
+# representer and moves each spec into its function.
 class ElixirNormaliseTest < Minitest::Test
   include ElixirStages
 
@@ -9,6 +9,11 @@ class ElixirNormaliseTest < Minitest::Test
     assert_same "@moduledoc \"m\"\n@doc \"\"\"\nd\n\"\"\"\n@typedoc \"t\"\ndef f, do: 1", "def f, do: 1"
     assert_same "@doc false\ndef f, do: 1", "def f, do: 1"
     refute_same "@deprecated \"d\"\ndef f, do: 1", "def f, do: 1"
+  end
+
+  def test_a_spec_moves_into_the_function_after_it
+    assert_includes tree("@spec f() :: integer\ndef f, do: 1"), "(do_block 1)\n    (unary_operator @"
+    assert_includes tree("def f, do: 1\n@spec g() :: integer"), "(do_block 1))\n  (unary_operator @"
   end
 
   def test_a_pipe_into_a_name_calls_it

@@ -70,6 +70,13 @@ class ElixirGenerateASTTest < Minitest::Test
     assert_includes ast("x = @a"), "(attribute a)"
   end
 
+  def test_module_bodies_and_map_updates_get_their_own_types
+    assert_includes ast("defmodule M do\n  def f, do: 1\nend"), "(module_body\n      (call def"
+    assert_includes ast("defimpl P, for: M do\n  def f(_), do: 1\nend"), "(module_body"
+    refute_includes ast("def f do\n  1\nend"), "module_body"
+    assert_includes ast("%{x | a: 1}"), "(map_update"
+  end
+
   def test_variables_bound_by_patterns
     assert_includes ast("{:ok, v} = x"), "(variable v)"
     assert_includes ast("for v <- x, do: v"), "(variable v)"

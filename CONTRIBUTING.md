@@ -182,7 +182,16 @@ The engine runs the steps in this order:
 `GenerateAST` works on the tree with the helpers in `Engine::TreeHelpers`, because it has to know the grammar's tree in detail.
 `Normalise` is a list of rules.
 Each rule is a plain verb, such as `drop` or `rewrite`, and its arguments are code patterns: code in the language itself, with `{{word}}` placeholders.
+`Reorder` lists the node types it sorts with one verb, `sort`.
 [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#stages) lists the verbs and explains code patterns.
+
+Three verbs let a language sort code whose order makes no difference:
+
+- `sort :type, ...` (in `Reorder`) sorts the children of those node types by their code, with every renamed name left blank. Children with the same code keep their order. Use it only for containers of definitions or entries, such as a class's body or a hash, and never for a block of statements.
+- `attach_to_next "code"` (in `Normalise`) moves each statement that matches the pattern into the definition after it, so the two move together. Elixir uses it to keep each `@spec` with its function.
+- `attach_to_each_following "a", "b", to: [...]` (in `Normalise`) removes each of these lines and marks every definition after it with the line, up to the next of these lines or the end of the container. Ruby uses it for `private`, so each method carries its own visibility wherever it moves.
+
+If the grammar gives a container the same type as a block of statements, give it a type of its own in `GenerateAST` before sorting it, as Ruby's `class_body` does.
 If a rule genuinely needs logic, write it as a small, clearly named Ruby method with a plain comment above it.
 
 Start each file with a comment that lists, in plain English and one bullet each, everything it does: what it drops, what it treats as the same, what it renames and keeps, and why.

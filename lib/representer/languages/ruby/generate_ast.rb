@@ -39,6 +39,10 @@
 #   `[:a, :b]`.
 # - `/a/` gets the tree of `%r{a}`, and a regex's options get one order.
 #
+# It also gives a class's body the type `class_body`, and a module's body
+# the type `module_body`, so that later stages can tell them apart from a
+# method's body. Normalise and Reorder work on these bodies.
+#
 # This stage keeps these apart, although the parser gives them the same
 # tree:
 #
@@ -105,6 +109,7 @@ module Representer
           conditionals
           blocks
           methods_and_calls
+          class_and_module_bodies
           drop_tokens(tree, everywhere: TOKENS, only_in: TOKENS_IN, kept_in: TOKENS_KEPT_IN)
           unwrap(tree, "(parenthesized_statements)")
         end
@@ -345,6 +350,13 @@ module Representer
             match.node
           end
           transform(tree, "(call !receiver !arguments !block method: (identifier) @name)") { |match| match[:name] }
+        end
+
+        ### Classes and modules ###
+
+        def class_and_module_bodies
+          captured(tree, "(class body: (body_statement) @name)").each { |body| body.type = "class_body" }
+          captured(tree, "(module body: (body_statement) @name)").each { |body| body.type = "module_body" }
         end
       end
     end

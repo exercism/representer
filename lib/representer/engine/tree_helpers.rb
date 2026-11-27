@@ -113,6 +113,14 @@ module Representer
         root
       end
 
+      # Adds the nodes to the end of a node's children, without field
+      # names, so that they move with the node. Returns the node.
+      def attach(node, *children)
+        children.each { |child| child.field = nil }
+        node.children.concat(children)
+        node
+      end
+
       ### Building nodes ###
 
       # A new node. Children can be nodes, or field: node pairs, and nils
