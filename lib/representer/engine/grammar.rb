@@ -1,6 +1,3 @@
-# ruby_tree_sitter uses Pathname without requiring it. Bundler loads it
-# locally, but the Lambda runtime doesn't.
-require "pathname"
 require "tree_sitter"
 require "yaml"
 require "rbconfig"
@@ -116,9 +113,14 @@ module Representer
 
       # The node's type as a String. The tree-sitter binding can't turn a type
       # with non-ASCII characters into a Symbol (such as a Unicode minus sign).
-      # An anonymous token's type is its text, so the source gives it.
+      # An anonymous token's type is its text, so the source gives it. Under
+      # Ruby 4.0 the binding returns such a type as US-ASCII text with invalid
+      # bytes, instead of raising, so this checks for that too.
       def type_of(ts_node, source)
-        ts_node.type.to_s
+        type = ts_node.type.to_s
+        return type if type.valid_encoding?
+
+        source.byteslice(ts_node.start_byte...ts_node.end_byte).force_encoding(Encoding::UTF_8)
       rescue EncodingError
         source.byteslice(ts_node.start_byte...ts_node.end_byte).force_encoding(Encoding::UTF_8)
       end

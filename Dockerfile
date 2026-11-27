@@ -1,4 +1,4 @@
-FROM public.ecr.aws/lambda/ruby:3.4.2026.11.13.17 AS build
+FROM public.ecr.aws/lambda/ruby:4.0.2026.11.24.13 AS build
 
 # The build stage also installs node and the tree-sitter CLI, for grammars that
 # don't commit their parser.c (marked `generate: true` in grammars.yml). The
@@ -18,12 +18,14 @@ COPY grammars.yml ./
 COPY bin/build-grammars bin/
 RUN ruby bin/build-grammars && rm -rf grammars/src bin
 
-FROM public.ecr.aws/lambda/ruby:3.4.2026.11.13.17 AS runtime
+FROM public.ecr.aws/lambda/ruby:4.0.2026.11.24.13 AS runtime
 
 ENV GEM_HOME=${LAMBDA_TASK_ROOT}
 WORKDIR ${LAMBDA_TASK_ROOT}
 
 COPY --from=build ${LAMBDA_TASK_ROOT}/ ${LAMBDA_TASK_ROOT}/
 COPY lib/ lib/
+
+ENV RUBY_YJIT_ENABLE=1
 
 CMD [ "lib/representer.Representer.process" ]
