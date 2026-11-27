@@ -1,48 +1,174 @@
-let is_non_zero_factor =
-( <> ) 0
-let remove_zero_factors factors =
-factors
-|> List . filter ~ f : is_non_zero_factor
-let rec greatest_common_divisor left right =
-if right = 0
-then left
-else greatest_common_divisor right ( left % right )
-let least_common_multiple left right =
-let greatest_common_divisor_of_operands = greatest_common_divisor left right in
-left / greatest_common_divisor_of_operands * right
-let sum_of_multiples_of_factor upper_bound factor =
-let max_inclusive = upper_bound - 1 in
-let number_of_multiples = max_inclusive / factor in
-let successor_count = number_of_multiples + 1 in
-factor * number_of_multiples * successor_count / 2
-let prepend_to_subset head element_subset =
-head :: element_subset
-let build_subsets_with_head non_empty_subsets head tail =
-let subsets_of_tail = non_empty_subsets tail in
-[ [ head ] ]
-@ subsets_of_tail
-@ List . map subsets_of_tail ~ f : ( prepend_to_subset head )
-let rec non_empty_subsets = function
-| [] ->
-[]
-| head :: tail ->
-build_subsets_with_head non_empty_subsets head tail
-let sum_for_factor_subset upper_bound factor_subset =
-factor_subset
-|> List . reduce_exn ~ f : least_common_multiple
-|> sum_of_multiples_of_factor upper_bound
-let has_odd_cardinality factor_subset =
-let subset_cardinality_parity = List . length factor_subset % 2 in
-subset_cardinality_parity = 1
-let inclusion_exclusion_accumulator upper_bound =
-fun accumulated_sum factor_subset ->
-let subset_contribution = sum_for_factor_subset upper_bound factor_subset in
-let is_odd_cardinality = has_odd_cardinality factor_subset in
-if is_odd_cardinality
-then accumulated_sum + subset_contribution
-else accumulated_sum - subset_contribution
-let sum factors limit =
-factors
-|> remove_zero_factors
-|> non_empty_subsets
-|> List . fold ~ init : 0 ~ f : ( inclusion_exclusion_accumulator limit )
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (application_expression <> 0)))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_2)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (infix_expression PLACEHOLDER_3 |>
+        (application_expression
+          (value_path List filter)
+          (labeled_argument f PLACEHOLDER_1)))))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_4)
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (if_expression
+        (infix_expression PLACEHOLDER_6 = 0)
+        (then_clause PLACEHOLDER_5)
+        (else_clause
+          (application_expression PLACEHOLDER_4 PLACEHOLDER_6
+            (infix_expression PLACEHOLDER_5 % PLACEHOLDER_6))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_7)
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_8)
+            (application_expression PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6)))
+        (infix_expression
+          (infix_expression PLACEHOLDER_5 / PLACEHOLDER_8) * PLACEHOLDER_6))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_9)
+      (parameter
+        (value_pattern PLACEHOLDER_10))
+      (parameter
+        (value_pattern PLACEHOLDER_11))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_12)
+            (infix_expression PLACEHOLDER_10 - 1)))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_13)
+              (infix_expression PLACEHOLDER_12 / PLACEHOLDER_11)))
+          (let_expression
+            (value_definition
+              (let_binding
+                (value_pattern PLACEHOLDER_14)
+                (infix_expression PLACEHOLDER_13 + 1)))
+            (infix_expression
+              (infix_expression
+                (infix_expression PLACEHOLDER_11 * PLACEHOLDER_13) * PLACEHOLDER_14) / 2))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_15)
+      (parameter
+        (value_pattern PLACEHOLDER_16))
+      (parameter
+        (value_pattern PLACEHOLDER_17))
+      (cons_expression PLACEHOLDER_16 PLACEHOLDER_17)))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_18)
+      (parameter
+        (value_pattern PLACEHOLDER_19))
+      (parameter
+        (value_pattern PLACEHOLDER_16))
+      (parameter
+        (value_pattern PLACEHOLDER_20))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_21)
+            (application_expression PLACEHOLDER_19 PLACEHOLDER_20)))
+        (infix_expression
+          (list_expression
+            (list_expression PLACEHOLDER_16)) @
+          (infix_expression PLACEHOLDER_21 @
+            (application_expression
+              (value_path List map) PLACEHOLDER_21
+              (labeled_argument f
+                (application_expression PLACEHOLDER_15 PLACEHOLDER_16))))))))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_19)
+      (function_expression
+        (match_case
+          (empty_list)
+          (empty_list))
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_16)
+            (value_pattern PLACEHOLDER_20))
+          (application_expression PLACEHOLDER_18 PLACEHOLDER_19 PLACEHOLDER_16 PLACEHOLDER_20)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_22)
+      (parameter
+        (value_pattern PLACEHOLDER_10))
+      (parameter
+        (value_pattern PLACEHOLDER_23))
+      (infix_expression
+        (infix_expression PLACEHOLDER_23 |>
+          (application_expression
+            (value_path List reduce_exn)
+            (labeled_argument f PLACEHOLDER_7))) |>
+        (application_expression PLACEHOLDER_9 PLACEHOLDER_10))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_24)
+      (parameter
+        (value_pattern PLACEHOLDER_23))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_25)
+            (infix_expression
+              (application_expression
+                (value_path List length) PLACEHOLDER_23) % 2)))
+        (infix_expression PLACEHOLDER_25 = 1))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_26)
+      (parameter
+        (value_pattern PLACEHOLDER_10))
+      (fun_expression
+        (parameter
+          (value_pattern PLACEHOLDER_27))
+        (parameter
+          (value_pattern PLACEHOLDER_23))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_28)
+              (application_expression PLACEHOLDER_22 PLACEHOLDER_10 PLACEHOLDER_23)))
+          (let_expression
+            (value_definition
+              (let_binding
+                (value_pattern PLACEHOLDER_29)
+                (application_expression PLACEHOLDER_24 PLACEHOLDER_23)))
+            (if_expression PLACEHOLDER_29
+              (then_clause
+                (infix_expression PLACEHOLDER_27 + PLACEHOLDER_28))
+              (else_clause
+                (infix_expression PLACEHOLDER_27 - PLACEHOLDER_28))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_30)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (parameter
+        (value_pattern PLACEHOLDER_31))
+      (infix_expression
+        (infix_expression
+          (infix_expression PLACEHOLDER_3 |> PLACEHOLDER_2) |> PLACEHOLDER_19) |>
+        (application_expression
+          (value_path List fold)
+          (labeled_argument init 0)
+          (labeled_argument f
+            (application_expression PLACEHOLDER_26 PLACEHOLDER_31)))))))

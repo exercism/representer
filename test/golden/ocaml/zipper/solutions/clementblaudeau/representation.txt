@@ -1,44 +1,412 @@
-type ' a path =
-| Top
-| L of ' a path * ' a * ( ' a Tree . t ) option
-| R of ' a path * ' a * ( ' a Tree . t ) option
-[ @@ deriving sexp ]
-type ' a t = ' a path * ' a Tree . t
-[ @@ deriving sexp ]
-let equal fv ( z1 : ' a t ) ( z2 : ' a t ) =
-let ft = Tree . equal fv in
-let rec equal_path ( p1 : ' a path ) ( p2 : ' a path ) =
-match ( p1 , p2 ) with
-| ( Top , Top ) -> true
-| ( R ( p1 , v1 , None ) , R ( p2 , v2 , None )) -> ( equal_path p1 p2 ) && ( fv v1 v2 )
-| ( R ( p1 , v1 , Some t1 ) , R ( p2 , v2 , Some t2 )) -> ( equal_path p1 p2 ) && ( ft t1 t2 ) && ( fv v1 v2 )
-| ( L ( p1 , v1 , None ) , L ( p2 , v2 , None )) -> ( equal_path p1 p2 ) && ( fv v1 v2 )
-| ( L ( p1 , v1 , Some t1 ) , L ( p2 , v2 , Some t2 )) -> ( equal_path p1 p2 ) && ( fv v1 v2 ) && ( ft t1 t2 )
-| ( _ , _ ) -> false
-in match ( z1 , z2 ) with | (( p1 , t1 ) , ( p2 , t2 )) -> ( ft t1 t2 ) && ( equal_path p1 p2 )
-let of_tree t = ( Top , t )
-let rec to_tree ( z : ' a t ) = match z with
-| ( Top , t ) -> t
-| ( L ( p , v , t ) , tr ) -> to_tree ( p , { value = v ; left = Some tr ; right = t })
-| ( R ( p , v , t ) , tl ) -> to_tree ( p , { value = v ; left = t ; right = Some tl })
-let value ( z : ' a t ) = match z with
-| ( _ , t ) -> t . value
-let left ( z : ' a t ) =
-match z with
-| ( _ , { value =_; left = None ; _ }) -> None
-| ( p , { value ; left = Some t ; right }) -> Some ( L ( p , value , right ) , t )
-let right ( z : ' a t ) =
-match z with
-| ( _ , { value =_; right = None ; _ }) -> None
-| ( p , { value ; right = Some t ; left }) -> Some ( R ( p , value , left ) , t )
-let up ( z : ' a t ) : ( ' a t ) option =
-match z with
-| ( Top , _ ) -> None
-| ( R ( p , v , tl ) , t ) -> Some ( p , { value = v ; left = tl ; right = Some t })
-| ( L ( p , v , tr ) , t ) -> Some ( p , { value = v ; left = Some t ; right = tr })
-let set_value v ( z : ' a t ) : ' a t =
-match z with | ( p , { value =_; left = l ; right = r }) -> ( p , { value = v ; left = l ; right = r })
-let set_left t ( z : ' a t ) : ' a t =
-match z with | ( p , { value = v ; left =_; right = r }) -> ( p , { value = v ; left = t ; right = r })
-let set_right t ( z : ' a t ) : ' a t =
-match z with | ( p , { value = v ; left = l ; right =_ }) -> ( p , { value = v ; left = l ; right = t })
+(compilation_unit
+  (type_definition
+    (type_binding
+      (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_2)
+      (variant_declaration
+        (constructor_declaration (constructor_name PLACEHOLDER_3))
+        (constructor_declaration (constructor_name PLACEHOLDER_4) of
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_2))
+          (type_variable (type_variable_name PLACEHOLDER_1))
+          (constructed_type
+            (constructed_type
+              (type_variable (type_variable_name PLACEHOLDER_1))
+              (type_constructor_path Tree (type_constructor PLACEHOLDER_5))) option))
+        (constructor_declaration (constructor_name PLACEHOLDER_6) of
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_2))
+          (type_variable (type_variable_name PLACEHOLDER_1))
+          (constructed_type
+            (constructed_type
+              (type_variable (type_variable_name PLACEHOLDER_1))
+              (type_constructor_path Tree (type_constructor PLACEHOLDER_5))) option)))
+      (item_attribute [@@ deriving
+        (attribute_payload
+          (expression_item sexp)))))
+  (type_definition
+    (type_binding
+      (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5)
+      (tuple_type
+        (constructed_type
+          (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_2))
+        (constructed_type
+          (type_variable (type_variable_name PLACEHOLDER_1))
+          (type_constructor_path Tree (type_constructor PLACEHOLDER_5))))
+      (item_attribute [@@ deriving
+        (attribute_payload
+          (expression_item sexp)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_7)
+      (parameter
+        (value_pattern PLACEHOLDER_8))
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_9)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_10)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_11)
+            (application_expression
+              (value_path Tree PLACEHOLDER_7) PLACEHOLDER_8)))
+        (let_expression
+          (value_definition rec
+            (let_binding
+              (value_pattern PLACEHOLDER_12)
+              (parameter
+                (typed_pattern
+                  (value_pattern PLACEHOLDER_13)
+                  (constructed_type
+                    (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_2))))
+              (parameter
+                (typed_pattern
+                  (value_pattern PLACEHOLDER_14)
+                  (constructed_type
+                    (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_2))))
+              (match_expression
+                (tuple_expression PLACEHOLDER_13 PLACEHOLDER_14)
+                (match_case
+                  (tuple_pattern (constructor_name PLACEHOLDER_3) (constructor_name PLACEHOLDER_3))
+                  (boolean true))
+                (match_case
+                  (tuple_pattern
+                    (constructor_pattern (constructor_name PLACEHOLDER_6)
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_13)
+                        (value_pattern PLACEHOLDER_15) None))
+                    (constructor_pattern (constructor_name PLACEHOLDER_6)
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_14)
+                        (value_pattern PLACEHOLDER_16) None)))
+                  (infix_expression
+                    (application_expression PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14) &&
+                    (application_expression PLACEHOLDER_8 PLACEHOLDER_15 PLACEHOLDER_16)))
+                (match_case
+                  (tuple_pattern
+                    (constructor_pattern (constructor_name PLACEHOLDER_6)
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_13)
+                        (value_pattern PLACEHOLDER_15)
+                        (constructor_pattern Some
+                          (value_pattern PLACEHOLDER_17))))
+                    (constructor_pattern (constructor_name PLACEHOLDER_6)
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_14)
+                        (value_pattern PLACEHOLDER_16)
+                        (constructor_pattern Some
+                          (value_pattern PLACEHOLDER_18)))))
+                  (infix_expression
+                    (application_expression PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14) &&
+                    (infix_expression
+                      (application_expression PLACEHOLDER_11 PLACEHOLDER_17 PLACEHOLDER_18) &&
+                      (application_expression PLACEHOLDER_8 PLACEHOLDER_15 PLACEHOLDER_16))))
+                (match_case
+                  (tuple_pattern
+                    (constructor_pattern (constructor_name PLACEHOLDER_4)
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_13)
+                        (value_pattern PLACEHOLDER_15) None))
+                    (constructor_pattern (constructor_name PLACEHOLDER_4)
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_14)
+                        (value_pattern PLACEHOLDER_16) None)))
+                  (infix_expression
+                    (application_expression PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14) &&
+                    (application_expression PLACEHOLDER_8 PLACEHOLDER_15 PLACEHOLDER_16)))
+                (match_case
+                  (tuple_pattern
+                    (constructor_pattern (constructor_name PLACEHOLDER_4)
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_13)
+                        (value_pattern PLACEHOLDER_15)
+                        (constructor_pattern Some
+                          (value_pattern PLACEHOLDER_17))))
+                    (constructor_pattern (constructor_name PLACEHOLDER_4)
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_14)
+                        (value_pattern PLACEHOLDER_16)
+                        (constructor_pattern Some
+                          (value_pattern PLACEHOLDER_18)))))
+                  (infix_expression
+                    (application_expression PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14) &&
+                    (infix_expression
+                      (application_expression PLACEHOLDER_8 PLACEHOLDER_15 PLACEHOLDER_16) &&
+                      (application_expression PLACEHOLDER_11 PLACEHOLDER_17 PLACEHOLDER_18))))
+                (match_case
+                  (tuple_pattern
+                    (any_pattern)
+                    (any_pattern))
+                  (boolean false)))))
+          (match_expression
+            (tuple_expression PLACEHOLDER_9 PLACEHOLDER_10)
+            (match_case
+              (tuple_pattern
+                (tuple_pattern
+                  (value_pattern PLACEHOLDER_13)
+                  (value_pattern PLACEHOLDER_17))
+                (tuple_pattern
+                  (value_pattern PLACEHOLDER_14)
+                  (value_pattern PLACEHOLDER_18)))
+              (infix_expression
+                (application_expression PLACEHOLDER_11 PLACEHOLDER_17 PLACEHOLDER_18) &&
+                (application_expression PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_19)
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (tuple_expression (constructor_name PLACEHOLDER_3) PLACEHOLDER_5)))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_20)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_21)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (match_expression PLACEHOLDER_21
+        (match_case
+          (tuple_pattern (constructor_name PLACEHOLDER_3)
+            (value_pattern PLACEHOLDER_5)) PLACEHOLDER_5)
+        (match_case
+          (tuple_pattern
+            (constructor_pattern (constructor_name PLACEHOLDER_4)
+              (tuple_pattern
+                (value_pattern PLACEHOLDER_22)
+                (value_pattern PLACEHOLDER_23)
+                (value_pattern PLACEHOLDER_5)))
+            (value_pattern PLACEHOLDER_24))
+          (application_expression PLACEHOLDER_20
+            (tuple_expression PLACEHOLDER_22
+              (record_expression
+                (field_expression (field_name PLACEHOLDER_25) PLACEHOLDER_23)
+                (field_expression (field_name PLACEHOLDER_26)
+                  (application_expression Some PLACEHOLDER_24))
+                (field_expression (field_name PLACEHOLDER_27) PLACEHOLDER_5)))))
+        (match_case
+          (tuple_pattern
+            (constructor_pattern (constructor_name PLACEHOLDER_6)
+              (tuple_pattern
+                (value_pattern PLACEHOLDER_22)
+                (value_pattern PLACEHOLDER_23)
+                (value_pattern PLACEHOLDER_5)))
+            (value_pattern PLACEHOLDER_28))
+          (application_expression PLACEHOLDER_20
+            (tuple_expression PLACEHOLDER_22
+              (record_expression
+                (field_expression (field_name PLACEHOLDER_25) PLACEHOLDER_23)
+                (field_expression (field_name PLACEHOLDER_26) PLACEHOLDER_5)
+                (field_expression (field_name PLACEHOLDER_27)
+                  (application_expression Some PLACEHOLDER_28)))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_25)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_21)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (match_expression PLACEHOLDER_21
+        (match_case
+          (tuple_pattern
+            (any_pattern)
+            (value_pattern PLACEHOLDER_5))
+          (field_get_expression PLACEHOLDER_5 (field_name PLACEHOLDER_25))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_26)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_21)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (match_expression PLACEHOLDER_21
+        (match_case
+          (tuple_pattern
+            (any_pattern)
+            (record_pattern
+              (field_pattern (field_name PLACEHOLDER_25)
+                (any_pattern))
+              (field_pattern (field_name PLACEHOLDER_26) None) _)) None)
+        (match_case
+          (tuple_pattern
+            (value_pattern PLACEHOLDER_22)
+            (record_pattern
+              (field_pattern (field_name PLACEHOLDER_25)
+                (value_pattern PLACEHOLDER_25))
+              (field_pattern (field_name PLACEHOLDER_26)
+                (constructor_pattern Some
+                  (value_pattern PLACEHOLDER_5)))
+              (field_pattern (field_name PLACEHOLDER_27)
+                (value_pattern PLACEHOLDER_27))))
+          (application_expression Some
+            (tuple_expression
+              (application_expression (constructor_name PLACEHOLDER_4)
+                (tuple_expression PLACEHOLDER_22 PLACEHOLDER_25 PLACEHOLDER_27)) PLACEHOLDER_5))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_27)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_21)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (match_expression PLACEHOLDER_21
+        (match_case
+          (tuple_pattern
+            (any_pattern)
+            (record_pattern
+              (field_pattern (field_name PLACEHOLDER_25)
+                (any_pattern))
+              (field_pattern (field_name PLACEHOLDER_27) None) _)) None)
+        (match_case
+          (tuple_pattern
+            (value_pattern PLACEHOLDER_22)
+            (record_pattern
+              (field_pattern (field_name PLACEHOLDER_25)
+                (value_pattern PLACEHOLDER_25))
+              (field_pattern (field_name PLACEHOLDER_27)
+                (constructor_pattern Some
+                  (value_pattern PLACEHOLDER_5)))
+              (field_pattern (field_name PLACEHOLDER_26)
+                (value_pattern PLACEHOLDER_26))))
+          (application_expression Some
+            (tuple_expression
+              (application_expression (constructor_name PLACEHOLDER_6)
+                (tuple_expression PLACEHOLDER_22 PLACEHOLDER_25 PLACEHOLDER_26)) PLACEHOLDER_5))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_29)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_21)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (constructed_type
+        (constructed_type
+          (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5)) option)
+      (match_expression PLACEHOLDER_21
+        (match_case
+          (tuple_pattern (constructor_name PLACEHOLDER_3)
+            (any_pattern)) None)
+        (match_case
+          (tuple_pattern
+            (constructor_pattern (constructor_name PLACEHOLDER_6)
+              (tuple_pattern
+                (value_pattern PLACEHOLDER_22)
+                (value_pattern PLACEHOLDER_23)
+                (value_pattern PLACEHOLDER_28)))
+            (value_pattern PLACEHOLDER_5))
+          (application_expression Some
+            (tuple_expression PLACEHOLDER_22
+              (record_expression
+                (field_expression (field_name PLACEHOLDER_25) PLACEHOLDER_23)
+                (field_expression (field_name PLACEHOLDER_26) PLACEHOLDER_28)
+                (field_expression (field_name PLACEHOLDER_27)
+                  (application_expression Some PLACEHOLDER_5))))))
+        (match_case
+          (tuple_pattern
+            (constructor_pattern (constructor_name PLACEHOLDER_4)
+              (tuple_pattern
+                (value_pattern PLACEHOLDER_22)
+                (value_pattern PLACEHOLDER_23)
+                (value_pattern PLACEHOLDER_24)))
+            (value_pattern PLACEHOLDER_5))
+          (application_expression Some
+            (tuple_expression PLACEHOLDER_22
+              (record_expression
+                (field_expression (field_name PLACEHOLDER_25) PLACEHOLDER_23)
+                (field_expression (field_name PLACEHOLDER_26)
+                  (application_expression Some PLACEHOLDER_5))
+                (field_expression (field_name PLACEHOLDER_27) PLACEHOLDER_24))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_30)
+      (parameter
+        (value_pattern PLACEHOLDER_23))
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_21)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (constructed_type
+        (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))
+      (match_expression PLACEHOLDER_21
+        (match_case
+          (tuple_pattern
+            (value_pattern PLACEHOLDER_22)
+            (record_pattern
+              (field_pattern (field_name PLACEHOLDER_25)
+                (any_pattern))
+              (field_pattern (field_name PLACEHOLDER_26)
+                (value_pattern PLACEHOLDER_31))
+              (field_pattern (field_name PLACEHOLDER_27)
+                (value_pattern PLACEHOLDER_32))))
+          (tuple_expression PLACEHOLDER_22
+            (record_expression
+              (field_expression (field_name PLACEHOLDER_25) PLACEHOLDER_23)
+              (field_expression (field_name PLACEHOLDER_26) PLACEHOLDER_31)
+              (field_expression (field_name PLACEHOLDER_27) PLACEHOLDER_32)))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_33)
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_21)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (constructed_type
+        (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))
+      (match_expression PLACEHOLDER_21
+        (match_case
+          (tuple_pattern
+            (value_pattern PLACEHOLDER_22)
+            (record_pattern
+              (field_pattern (field_name PLACEHOLDER_25)
+                (value_pattern PLACEHOLDER_23))
+              (field_pattern (field_name PLACEHOLDER_26)
+                (any_pattern))
+              (field_pattern (field_name PLACEHOLDER_27)
+                (value_pattern PLACEHOLDER_32))))
+          (tuple_expression PLACEHOLDER_22
+            (record_expression
+              (field_expression (field_name PLACEHOLDER_25) PLACEHOLDER_23)
+              (field_expression (field_name PLACEHOLDER_26) PLACEHOLDER_5)
+              (field_expression (field_name PLACEHOLDER_27) PLACEHOLDER_32)))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_34)
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_21)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))))
+      (constructed_type
+        (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_5))
+      (match_expression PLACEHOLDER_21
+        (match_case
+          (tuple_pattern
+            (value_pattern PLACEHOLDER_22)
+            (record_pattern
+              (field_pattern (field_name PLACEHOLDER_25)
+                (value_pattern PLACEHOLDER_23))
+              (field_pattern (field_name PLACEHOLDER_26)
+                (value_pattern PLACEHOLDER_31))
+              (field_pattern (field_name PLACEHOLDER_27)
+                (any_pattern))))
+          (tuple_expression PLACEHOLDER_22
+            (record_expression
+              (field_expression (field_name PLACEHOLDER_25) PLACEHOLDER_23)
+              (field_expression (field_name PLACEHOLDER_26) PLACEHOLDER_31)
+              (field_expression (field_name PLACEHOLDER_27) PLACEHOLDER_5))))))))

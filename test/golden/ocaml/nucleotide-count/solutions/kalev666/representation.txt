@@ -1,20 +1,78 @@
-let is_nucl = function
-| ' A' | ' C' | ' G' | ' T' -> true
-| _ -> false
-let empty = Map . empty ( module Char )
-let count_nucleotide s c =
-match String . find s ~ f : ( Fn . non is_nucl ) with
-| None ->
-if is_nucl c
-then Ok ( String . count s ~ f : ( Char . equal c ))
-else Error c
-| Some c' -> Error c'
-let count_nucleotides s =
-String . fold_result s
-~ init : empty
-~ f : ( fun m c ->
-if is_nucl c
-then Ok ( Map . update m c
-~ f : ( Option . value_map ~ f : (( + ) 1 ) ~ default : 1 ))
-else Error c
-)
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (function_expression
+        (match_case
+          (or_pattern
+            (character "A")
+            (character "C")
+            (character "G")
+            (character "T"))
+          (boolean true))
+        (match_case
+          (any_pattern)
+          (boolean false)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_2)
+      (application_expression
+        (value_path Map PLACEHOLDER_2)
+        (package_expression Char))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_3)
+      (parameter
+        (value_pattern PLACEHOLDER_4))
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (match_expression
+        (application_expression
+          (value_path String find) PLACEHOLDER_4
+          (labeled_argument f
+            (application_expression
+              (value_path Fn non) PLACEHOLDER_1)))
+        (match_case None
+          (if_expression
+            (application_expression PLACEHOLDER_1 PLACEHOLDER_5)
+            (then_clause
+              (application_expression Ok
+                (application_expression
+                  (value_path String count) PLACEHOLDER_4
+                  (labeled_argument f
+                    (application_expression
+                      (value_path Char equal) PLACEHOLDER_5)))))
+            (else_clause
+              (application_expression Error PLACEHOLDER_5))))
+        (match_case
+          (constructor_pattern Some
+            (value_pattern PLACEHOLDER_6))
+          (application_expression Error PLACEHOLDER_6)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_7)
+      (parameter
+        (value_pattern PLACEHOLDER_4))
+      (application_expression
+        (value_path String fold_result) PLACEHOLDER_4
+        (labeled_argument init PLACEHOLDER_2)
+        (labeled_argument f
+          (fun_expression
+            (parameter
+              (value_pattern PLACEHOLDER_8))
+            (parameter
+              (value_pattern PLACEHOLDER_5))
+            (if_expression
+              (application_expression PLACEHOLDER_1 PLACEHOLDER_5)
+              (then_clause
+                (application_expression Ok
+                  (application_expression
+                    (value_path Map update) PLACEHOLDER_8 PLACEHOLDER_5
+                    (labeled_argument f
+                      (application_expression
+                        (value_path Option value_map)
+                        (labeled_argument f
+                          (application_expression + 1))
+                        (labeled_argument default 1))))))
+              (else_clause
+                (application_expression Error PLACEHOLDER_5)))))))))

@@ -1,10 +1,47 @@
-let is_capitalized x = String . equal x ( String . uppercase x ) &&
-not ( String . equal x ( String . lowercase x ))
-let is_question = String . is_suffix ~ suffix : "\"?\""
-let response_for s =
-match String . strip s with
-| "\"\"" -> "\"Fine. Be that way!\""
-| x when is_capitalized x && is_question x -> "\"Calm down, I know what I'm doing!\""
-| x when is_question x -> "\"Sure.\""
-| x when is_capitalized x -> "\"Whoa, chill out!\""
-| _ -> "\"Whatever.\""
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (parameter
+        (value_pattern PLACEHOLDER_2))
+      (infix_expression
+        (application_expression
+          (value_path String equal) PLACEHOLDER_2
+          (application_expression
+            (value_path String uppercase) PLACEHOLDER_2)) &&
+        (application_expression not
+          (application_expression
+            (value_path String equal) PLACEHOLDER_2
+            (application_expression
+              (value_path String lowercase) PLACEHOLDER_2))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_3)
+      (application_expression
+        (value_path String is_suffix)
+        (labeled_argument suffix "?"))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_4)
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (match_expression
+        (application_expression
+          (value_path String strip) PLACEHOLDER_5)
+        (match_case "" "Fine. Be that way!")
+        (match_case
+          (value_pattern PLACEHOLDER_2)
+          (guard
+            (infix_expression
+              (application_expression PLACEHOLDER_1 PLACEHOLDER_2) &&
+              (application_expression PLACEHOLDER_3 PLACEHOLDER_2))) "Calm down, I know what I'm doing!")
+        (match_case
+          (value_pattern PLACEHOLDER_2)
+          (guard
+            (application_expression PLACEHOLDER_3 PLACEHOLDER_2)) "Sure.")
+        (match_case
+          (value_pattern PLACEHOLDER_2)
+          (guard
+            (application_expression PLACEHOLDER_1 PLACEHOLDER_2)) "Whoa, chill out!")
+        (match_case
+          (any_pattern) "Whatever.")))))

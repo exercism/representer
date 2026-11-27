@@ -1,61 +1,240 @@
-type ' a _callback_map = ( int , ' a -> unit , Int . comparator_witness ) Map . t
-type ' a _cell_type =
-| Input
-| Compute_1 of ' a cell * ( ' a -> ' a )
-| Compute_2 of ' a cell * ' a cell * ( ' a -> ' a -> ' a )
-and ' a cell =
-{ mutable value : ' a
-; mutable children : ' a cell list
-; mutable callbacks : ' a _callback_map
-; eq : ' a -> ' a -> bool
-; cell_type : ' a _cell_type }
-type callback_id = int
-let _callback_counter = ref 0
-let rec value_of cell =
-match cell . cell_type with
-| Input -> cell . value
-| Compute_1 ( parent , f ) -> f ( value_of parent )
-| Compute_2 ( parent_1 , parent_2 , f ) -> f ( value_of parent_1 ) ( value_of parent_2 )
-;;
-let _create value eq cell_type =
-{ value ; children = [] ; callbacks = Map . empty ( module Int ); eq ; cell_type }
-;;
-let _add_child parent child = parent . children <- child :: parent . children
-let create_input_cell ~ value ~ eq = _create value eq Input
-let create_compute_cell_1 parent ~ f ~ eq =
-let new_cell = _create ( f ( value_of parent )) eq ( Compute_1 ( parent , f )) in
-_add_child parent new_cell ;
-new_cell
-;;
-let create_compute_cell_2 parent_1 parent_2 ~ f ~ eq =
-let new_cell =
-_create
-( f ( value_of parent_1 ) ( value_of parent_2 ))
-eq
-( Compute_2 ( parent_1 , parent_2 , f ))
-in
-_add_child parent_1 new_cell ;
-_add_child parent_2 new_cell ;
-new_cell
-;;
-let rec set_value cell value =
-if cell . eq cell . value value
-then ()
-else (
-cell . value <- value ;
-Map . iter cell . callbacks ~ f : ( fun callback -> callback value );
-List . iter cell . children ~ f :_ update )
-and _update cell =
-let new_value = value_of cell in
-set_value cell new_value
-;;
-let add_callback cell ~ k =
-let next_callback_id = !_ callback_counter in
-_callback_counter := next_callback_id + 1 ;
-cell . callbacks <- Map . set cell . callbacks ~ key : next_callback_id ~ data : k ;
-next_callback_id
-;;
-let remove_callback cell callback_id =
-cell . callbacks <- Map . remove cell . callbacks callback_id ;
-()
-;;
+(compilation_unit
+  (type_definition
+    (type_binding
+      (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_2)
+      (constructed_type int
+        (function_type
+          (type_variable (type_variable_name PLACEHOLDER_1)) unit)
+        (type_constructor_path Int comparator_witness)
+        (type_constructor_path Map t))))
+  (type_definition
+    (type_binding
+      (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_3)
+      (variant_declaration
+        (constructor_declaration (constructor_name PLACEHOLDER_4))
+        (constructor_declaration (constructor_name PLACEHOLDER_5) of
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_6))
+          (parenthesized_type
+            (function_type
+              (type_variable (type_variable_name PLACEHOLDER_1))
+              (type_variable (type_variable_name PLACEHOLDER_1)))))
+        (constructor_declaration (constructor_name PLACEHOLDER_7) of
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_6))
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_6))
+          (parenthesized_type
+            (function_type
+              (type_variable (type_variable_name PLACEHOLDER_1))
+              (function_type
+                (type_variable (type_variable_name PLACEHOLDER_1))
+                (type_variable (type_variable_name PLACEHOLDER_1))))))))
+    (type_binding
+      (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_6)
+      (record_declaration
+        (field_declaration mutable (field_name PLACEHOLDER_8)
+          (type_variable (type_variable_name PLACEHOLDER_1)))
+        (field_declaration mutable (field_name PLACEHOLDER_9)
+          (constructed_type
+            (constructed_type
+              (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_6)) list))
+        (field_declaration mutable (field_name PLACEHOLDER_10)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_2)))
+        (field_declaration (field_name PLACEHOLDER_11)
+          (function_type
+            (type_variable (type_variable_name PLACEHOLDER_1))
+            (function_type
+              (type_variable (type_variable_name PLACEHOLDER_1)) bool)))
+        (field_declaration (field_name PLACEHOLDER_12)
+          (constructed_type
+            (type_variable (type_variable_name PLACEHOLDER_1)) (type_constructor PLACEHOLDER_3))))))
+  (type_definition
+    (type_binding (type_constructor PLACEHOLDER_13) int))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_14)
+      (application_expression ref 0)))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_15)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (match_expression
+        (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_12))
+        (match_case (constructor_name PLACEHOLDER_4)
+          (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_8)))
+        (match_case
+          (constructor_pattern (constructor_name PLACEHOLDER_5)
+            (tuple_pattern
+              (value_pattern PLACEHOLDER_16)
+              (value_pattern PLACEHOLDER_17)))
+          (application_expression PLACEHOLDER_17
+            (application_expression PLACEHOLDER_15 PLACEHOLDER_16)))
+        (match_case
+          (constructor_pattern (constructor_name PLACEHOLDER_7)
+            (tuple_pattern
+              (value_pattern PLACEHOLDER_18)
+              (value_pattern PLACEHOLDER_19)
+              (value_pattern PLACEHOLDER_17)))
+          (application_expression PLACEHOLDER_17
+            (application_expression PLACEHOLDER_15 PLACEHOLDER_18)
+            (application_expression PLACEHOLDER_15 PLACEHOLDER_19))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_20)
+      (parameter
+        (value_pattern PLACEHOLDER_8))
+      (parameter
+        (value_pattern PLACEHOLDER_11))
+      (parameter
+        (value_pattern PLACEHOLDER_12))
+      (record_expression
+        (field_expression (field_name PLACEHOLDER_8) PLACEHOLDER_8)
+        (field_expression (field_name PLACEHOLDER_9)
+          (empty_list))
+        (field_expression (field_name PLACEHOLDER_10)
+          (application_expression
+            (value_path Map empty)
+            (package_expression Int)))
+        (field_expression (field_name PLACEHOLDER_11) PLACEHOLDER_11)
+        (field_expression (field_name PLACEHOLDER_12) PLACEHOLDER_12))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_21)
+      (parameter
+        (value_pattern PLACEHOLDER_16))
+      (parameter
+        (value_pattern PLACEHOLDER_22))
+      (set_expression
+        (field_get_expression PLACEHOLDER_16 (field_name PLACEHOLDER_9))
+        (cons_expression PLACEHOLDER_22
+          (field_get_expression PLACEHOLDER_16 (field_name PLACEHOLDER_9))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_23)
+      (parameter (label_name PLACEHOLDER_8)
+        (value_pattern PLACEHOLDER_8))
+      (parameter (label_name PLACEHOLDER_11)
+        (value_pattern PLACEHOLDER_11))
+      (application_expression PLACEHOLDER_20 PLACEHOLDER_8 PLACEHOLDER_11 (constructor_name PLACEHOLDER_4))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_24)
+      (parameter
+        (value_pattern PLACEHOLDER_16))
+      (parameter (label_name PLACEHOLDER_17)
+        (value_pattern PLACEHOLDER_17))
+      (parameter (label_name PLACEHOLDER_11)
+        (value_pattern PLACEHOLDER_11))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_25)
+            (application_expression PLACEHOLDER_20
+              (application_expression PLACEHOLDER_17
+                (application_expression PLACEHOLDER_15 PLACEHOLDER_16)) PLACEHOLDER_11
+              (application_expression (constructor_name PLACEHOLDER_5)
+                (tuple_expression PLACEHOLDER_16 PLACEHOLDER_17)))))
+        (sequence_expression
+          (application_expression PLACEHOLDER_21 PLACEHOLDER_16 PLACEHOLDER_25) PLACEHOLDER_25))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_26)
+      (parameter
+        (value_pattern PLACEHOLDER_18))
+      (parameter
+        (value_pattern PLACEHOLDER_19))
+      (parameter (label_name PLACEHOLDER_17)
+        (value_pattern PLACEHOLDER_17))
+      (parameter (label_name PLACEHOLDER_11)
+        (value_pattern PLACEHOLDER_11))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_25)
+            (application_expression PLACEHOLDER_20
+              (application_expression PLACEHOLDER_17
+                (application_expression PLACEHOLDER_15 PLACEHOLDER_18)
+                (application_expression PLACEHOLDER_15 PLACEHOLDER_19)) PLACEHOLDER_11
+              (application_expression (constructor_name PLACEHOLDER_7)
+                (tuple_expression PLACEHOLDER_18 PLACEHOLDER_19 PLACEHOLDER_17)))))
+        (sequence_expression
+          (application_expression PLACEHOLDER_21 PLACEHOLDER_18 PLACEHOLDER_25)
+          (application_expression PLACEHOLDER_21 PLACEHOLDER_19 PLACEHOLDER_25) PLACEHOLDER_25))))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_27)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (parameter
+        (value_pattern PLACEHOLDER_8))
+      (if_expression
+        (application_expression
+          (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_11))
+          (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_8)) PLACEHOLDER_8)
+        (then_clause
+          (unit))
+        (else_clause
+          (sequence_expression
+            (set_expression
+              (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_8)) PLACEHOLDER_8)
+            (application_expression
+              (value_path Map iter)
+              (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_10))
+              (labeled_argument (label_name PLACEHOLDER_17)
+                (fun_expression
+                  (parameter
+                    (value_pattern PLACEHOLDER_28))
+                  (application_expression PLACEHOLDER_28 PLACEHOLDER_8))))
+            (application_expression
+              (value_path List iter)
+              (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_9))
+              (labeled_argument (label_name PLACEHOLDER_17) PLACEHOLDER_29))))))
+    (let_binding
+      (value_pattern PLACEHOLDER_29)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_30)
+            (application_expression PLACEHOLDER_15 PLACEHOLDER_6)))
+        (application_expression PLACEHOLDER_27 PLACEHOLDER_6 PLACEHOLDER_30))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_31)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (parameter (label_name PLACEHOLDER_32)
+        (value_pattern PLACEHOLDER_32))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_33)
+            (prefix_expression ! PLACEHOLDER_14)))
+        (sequence_expression
+          (infix_expression PLACEHOLDER_14 :=
+            (infix_expression PLACEHOLDER_33 + 1))
+          (set_expression
+            (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_10))
+            (application_expression
+              (value_path Map set)
+              (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_10))
+              (labeled_argument key PLACEHOLDER_33)
+              (labeled_argument data PLACEHOLDER_32))) PLACEHOLDER_33))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_34)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (parameter
+        (value_pattern PLACEHOLDER_13))
+      (sequence_expression
+        (set_expression
+          (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_10))
+          (application_expression
+            (value_path Map remove)
+            (field_get_expression PLACEHOLDER_6 (field_name PLACEHOLDER_10)) PLACEHOLDER_13))
+        (unit)))))

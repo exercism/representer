@@ -1,26 +1,139 @@
-let rec has_qmark lst =
-match lst with
-| [] -> false
-| h :: t -> (
-match h with
-| ' ? ' -> true
-| '\t' | '\n' | '\r' | ' ' -> has_qmark t
-| _ -> false )
-let is_uppercase s =
-String . equal ( String . uppercase_ascii s ) s
-&& String . exists ( fun x -> match x with ' A' .. ' Z' -> true | _ -> false ) s
-let tran x = match x with '\t' | '\n' | '\r' | ' ' -> ' ' | _ -> ' a'
-let whitespace x =
-String . equal ( String . map tran x ) ( String . make ( String . length x ) ' ' )
-let response_for s =
-let question =
-has_qmark @@ List . rev @@ List . init ( String . length s ) ( fun i -> s . [ i ])
-in
-let upper = is_uppercase s in
-let ws = whitespace s in
-match ( question , upper , ws ) with
-| true , true , _ -> "\"Calm down, I know what I'm doing!\""
-| true , false , _ -> "\"Sure.\""
-| false , true , false -> "\"Whoa, chill out!\""
-| _ , _ , true -> "\"Fine. Be that way!\""
-| _ , _ , _ -> "\"Whatever.\""
+(compilation_unit
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (parameter
+        (value_pattern PLACEHOLDER_2))
+      (match_expression PLACEHOLDER_2
+        (match_case
+          (empty_list)
+          (boolean false))
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_3)
+            (value_pattern PLACEHOLDER_4))
+          (match_expression PLACEHOLDER_3
+            (match_case
+              (character "?")
+              (boolean true))
+            (match_case
+              (or_pattern
+                (character "\\t")
+                (character "\\n")
+                (character "\\r")
+                (character " "))
+              (application_expression PLACEHOLDER_1 PLACEHOLDER_4))
+            (match_case
+              (any_pattern)
+              (boolean false)))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_5)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (infix_expression
+        (application_expression
+          (value_path String equal)
+          (application_expression
+            (value_path String uppercase_ascii) PLACEHOLDER_6) PLACEHOLDER_6) &&
+        (application_expression
+          (value_path String exists)
+          (fun_expression
+            (parameter
+              (value_pattern PLACEHOLDER_7))
+            (match_expression PLACEHOLDER_7
+              (match_case
+                (range_pattern
+                  (character "A") ..
+                  (character "Z"))
+                (boolean true))
+              (match_case
+                (any_pattern)
+                (boolean false)))) PLACEHOLDER_6))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_8)
+      (parameter
+        (value_pattern PLACEHOLDER_7))
+      (match_expression PLACEHOLDER_7
+        (match_case
+          (or_pattern
+            (character "\\t")
+            (character "\\n")
+            (character "\\r")
+            (character " "))
+          (character " "))
+        (match_case
+          (any_pattern)
+          (character "a")))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_9)
+      (parameter
+        (value_pattern PLACEHOLDER_7))
+      (application_expression
+        (value_path String equal)
+        (application_expression
+          (value_path String map) PLACEHOLDER_8 PLACEHOLDER_7)
+        (application_expression
+          (value_path String make)
+          (application_expression
+            (value_path String length) PLACEHOLDER_7)
+          (character " ")))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_10)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_11)
+            (infix_expression PLACEHOLDER_1 @@
+              (infix_expression
+                (value_path List rev) @@
+                (application_expression
+                  (value_path List init)
+                  (application_expression
+                    (value_path String length) PLACEHOLDER_6)
+                  (fun_expression
+                    (parameter
+                      (value_pattern PLACEHOLDER_12))
+                    (string_get_expression PLACEHOLDER_6 PLACEHOLDER_12)))))))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_13)
+              (application_expression PLACEHOLDER_5 PLACEHOLDER_6)))
+          (let_expression
+            (value_definition
+              (let_binding
+                (value_pattern PLACEHOLDER_14)
+                (application_expression PLACEHOLDER_9 PLACEHOLDER_6)))
+            (match_expression
+              (tuple_expression PLACEHOLDER_11 PLACEHOLDER_13 PLACEHOLDER_14)
+              (match_case
+                (tuple_pattern
+                  (boolean true)
+                  (boolean true)
+                  (any_pattern)) "Calm down, I know what I'm doing!")
+              (match_case
+                (tuple_pattern
+                  (boolean true)
+                  (boolean false)
+                  (any_pattern)) "Sure.")
+              (match_case
+                (tuple_pattern
+                  (boolean false)
+                  (boolean true)
+                  (boolean false)) "Whoa, chill out!")
+              (match_case
+                (tuple_pattern
+                  (any_pattern)
+                  (any_pattern)
+                  (boolean true)) "Fine. Be that way!")
+              (match_case
+                (tuple_pattern
+                  (any_pattern)
+                  (any_pattern)
+                  (any_pattern)) "Whatever."))))))))

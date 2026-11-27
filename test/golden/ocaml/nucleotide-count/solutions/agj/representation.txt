@@ -1,20 +1,117 @@
-let empty : int Map . M ( Char ) . t = Map . empty ( module Char )
-let nucleotides = [ ' A' ; ' C' ; ' G' ; ' T' ]
-let is_valid_nucleotide ( nucleotide : char ) : bool =
-nucleotides |> List . exists ~ f : ( equal_char nucleotide )
-let count_nucleotide ( sequence : string ) ( nucleotide : char ) :
-( int , char ) Result . t =
-if not ( is_valid_nucleotide nucleotide ) then Result . fail nucleotide
-else
-String . fold_result sequence ~ init : 0 ~ f : ( fun acc nuc ->
-if not ( is_valid_nucleotide nuc ) then Result . fail nuc
-else
-( if equal_char nuc nucleotide then acc + 1 else acc ) |> Result . return )
-let count_nucleotides ( sequence : string ) : ( int Map . M ( Char ) . t , char ) Result . t =
-nucleotides
-|> List . fold_result ~ init : empty ~ f : ( fun acc nucleotide ->
-match count_nucleotide sequence nucleotide with
-| Result . Ok 0 -> Result . return acc
-| Result . Ok count ->
-acc |> Map . add_exn ~ key : nucleotide ~ data : count |> Result . return
-| Result . Error err -> Result . fail err )
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (constructed_type int
+        (type_constructor_path
+          (extended_module_path
+            (extended_module_path Map M) Char) t))
+      (application_expression
+        (value_path Map PLACEHOLDER_1)
+        (package_expression Char))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_2)
+      (list_expression
+        (character "A")
+        (character "C")
+        (character "G")
+        (character "T"))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_3)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_4) char)) bool
+      (infix_expression PLACEHOLDER_2 |>
+        (application_expression
+          (value_path List exists)
+          (labeled_argument f
+            (application_expression equal_char PLACEHOLDER_4))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_5)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_6) string))
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_4) char))
+      (constructed_type int char
+        (type_constructor_path Result t))
+      (if_expression
+        (application_expression not
+          (application_expression PLACEHOLDER_3 PLACEHOLDER_4))
+        (then_clause
+          (application_expression
+            (value_path Result fail) PLACEHOLDER_4))
+        (else_clause
+          (application_expression
+            (value_path String fold_result) PLACEHOLDER_6
+            (labeled_argument init 0)
+            (labeled_argument f
+              (fun_expression
+                (parameter
+                  (value_pattern PLACEHOLDER_7))
+                (parameter
+                  (value_pattern PLACEHOLDER_8))
+                (if_expression
+                  (application_expression not
+                    (application_expression PLACEHOLDER_3 PLACEHOLDER_8))
+                  (then_clause
+                    (application_expression
+                      (value_path Result fail) PLACEHOLDER_8))
+                  (else_clause
+                    (infix_expression
+                      (if_expression
+                        (application_expression equal_char PLACEHOLDER_8 PLACEHOLDER_4)
+                        (then_clause
+                          (infix_expression PLACEHOLDER_7 + 1))
+                        (else_clause PLACEHOLDER_7)) |>
+                      (value_path Result return)))))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_9)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_6) string))
+      (constructed_type
+        (constructed_type int
+          (type_constructor_path
+            (extended_module_path
+              (extended_module_path Map M) Char) t)) char
+        (type_constructor_path Result t))
+      (infix_expression PLACEHOLDER_2 |>
+        (application_expression
+          (value_path List fold_result)
+          (labeled_argument init PLACEHOLDER_1)
+          (labeled_argument f
+            (fun_expression
+              (parameter
+                (value_pattern PLACEHOLDER_7))
+              (parameter
+                (value_pattern PLACEHOLDER_4))
+              (match_expression
+                (application_expression PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_4)
+                (match_case
+                  (constructor_pattern
+                    (constructor_path Result Ok) 0)
+                  (application_expression
+                    (value_path Result return) PLACEHOLDER_7))
+                (match_case
+                  (constructor_pattern
+                    (constructor_path Result Ok)
+                    (value_pattern PLACEHOLDER_10))
+                  (infix_expression
+                    (infix_expression PLACEHOLDER_7 |>
+                      (application_expression
+                        (value_path Map add_exn)
+                        (labeled_argument key PLACEHOLDER_4)
+                        (labeled_argument data PLACEHOLDER_10))) |>
+                    (value_path Result return)))
+                (match_case
+                  (constructor_pattern
+                    (constructor_path Result Error)
+                    (value_pattern PLACEHOLDER_11))
+                  (application_expression
+                    (value_path Result fail) PLACEHOLDER_11))))))))))

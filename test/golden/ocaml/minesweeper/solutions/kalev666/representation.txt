@@ -1,48 +1,191 @@
-type cell =
-| Mine
-| Count of int
-let succ_cell = function
-| Mine -> Mine
-| Count n -> Count ( n + 1 )
-let char_of_cell = function
-| Mine -> ' * '
-| Count 0 -> ' '
-| Count n ->
-Char . of_int_exn ( Char . to_int ' 0 ' + n )
-let cell_of_char = function
-| ' * ' -> Mine
-| ' ' -> Count 0
-| _ ->
-invalid_arg "\"invalid input\""
-let annotate lines =
-let height = List . length lines in
-if height = 0 then
-[]
-else
-let width = String . length ( List . hd_exn lines ) in
-let line_of_string line =
-Array . init ( width + 2 ) ~ f : ( fun i ->
-if i = 0 || i = width + 1 then
-Count 0
-else
-cell_of_char line . [ i - 1 ]) in
-let string_of_line line =
-String . init width ~ f : ( fun i -> char_of_cell line . ( i + 1 )) in
-let board =
-let board = Array . create ~ len : ( height + 2 ) [ || ] in
-board . ( 0 ) <- Array . create ~ len : ( width + 2 ) ( Count 0 );
-board . ( height + 1 ) <- Array . create ~ len : ( width + 2 ) ( Count 0 );
-List . iteri lines ~ f : ( fun i l -> board . ( i + 1 ) <- line_of_string l );
-board in
-for i = 1 to height do
-for j = 1 to width do
-if Poly .( board . ( i ) . ( j ) = Mine ) then
-if j > 0 then
-for k = i - 1 to i + 1 do
-for l = j - 1 to j + 1 do
-board . ( k ) . ( l ) <- succ_cell board . ( k ) . ( l )
-done
-done
-done
-done ;
-List . init height ~ f : ( fun i -> string_of_line board . ( i + 1 ))
+(compilation_unit
+  (type_definition
+    (type_binding (type_constructor PLACEHOLDER_1)
+      (variant_declaration
+        (constructor_declaration (constructor_name PLACEHOLDER_2))
+        (constructor_declaration (constructor_name PLACEHOLDER_3) of int))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_4)
+      (function_expression
+        (match_case (constructor_name PLACEHOLDER_2) (constructor_name PLACEHOLDER_2))
+        (match_case
+          (constructor_pattern (constructor_name PLACEHOLDER_3)
+            (value_pattern PLACEHOLDER_5))
+          (application_expression (constructor_name PLACEHOLDER_3)
+            (infix_expression PLACEHOLDER_5 + 1))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_6)
+      (function_expression
+        (match_case (constructor_name PLACEHOLDER_2)
+          (character "*"))
+        (match_case
+          (constructor_pattern (constructor_name PLACEHOLDER_3) 0)
+          (character " "))
+        (match_case
+          (constructor_pattern (constructor_name PLACEHOLDER_3)
+            (value_pattern PLACEHOLDER_5))
+          (application_expression
+            (value_path Char of_int_exn)
+            (infix_expression
+              (application_expression
+                (value_path Char to_int)
+                (character "0")) + PLACEHOLDER_5))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_7)
+      (function_expression
+        (match_case
+          (character "*") (constructor_name PLACEHOLDER_2))
+        (match_case
+          (character " ")
+          (application_expression (constructor_name PLACEHOLDER_3) 0))
+        (match_case
+          (any_pattern)
+          (application_expression invalid_arg "invalid input")))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_8)
+      (parameter
+        (value_pattern PLACEHOLDER_9))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_10)
+            (application_expression
+              (value_path List length) PLACEHOLDER_9)))
+        (if_expression
+          (infix_expression PLACEHOLDER_10 = 0)
+          (then_clause
+            (empty_list))
+          (else_clause
+            (let_expression
+              (value_definition
+                (let_binding
+                  (value_pattern PLACEHOLDER_11)
+                  (application_expression
+                    (value_path String length)
+                    (application_expression
+                      (value_path List hd_exn) PLACEHOLDER_9))))
+              (let_expression
+                (value_definition
+                  (let_binding
+                    (value_pattern PLACEHOLDER_12)
+                    (parameter
+                      (value_pattern PLACEHOLDER_13))
+                    (application_expression
+                      (value_path Array init)
+                      (infix_expression PLACEHOLDER_11 + 2)
+                      (labeled_argument f
+                        (fun_expression
+                          (parameter
+                            (value_pattern PLACEHOLDER_14))
+                          (if_expression
+                            (infix_expression
+                              (infix_expression PLACEHOLDER_14 = 0) ||
+                              (infix_expression PLACEHOLDER_14 =
+                                (infix_expression PLACEHOLDER_11 + 1)))
+                            (then_clause
+                              (application_expression (constructor_name PLACEHOLDER_3) 0))
+                            (else_clause
+                              (application_expression PLACEHOLDER_7
+                                (string_get_expression PLACEHOLDER_13
+                                  (infix_expression PLACEHOLDER_14 - 1))))))))))
+                (let_expression
+                  (value_definition
+                    (let_binding
+                      (value_pattern PLACEHOLDER_15)
+                      (parameter
+                        (value_pattern PLACEHOLDER_13))
+                      (application_expression
+                        (value_path String init) PLACEHOLDER_11
+                        (labeled_argument f
+                          (fun_expression
+                            (parameter
+                              (value_pattern PLACEHOLDER_14))
+                            (application_expression PLACEHOLDER_6
+                              (array_get_expression PLACEHOLDER_13
+                                (infix_expression PLACEHOLDER_14 + 1))))))))
+                  (let_expression
+                    (value_definition
+                      (let_binding
+                        (value_pattern PLACEHOLDER_16)
+                        (let_expression
+                          (value_definition
+                            (let_binding
+                              (value_pattern PLACEHOLDER_16)
+                              (application_expression
+                                (value_path Array create)
+                                (labeled_argument len
+                                  (infix_expression PLACEHOLDER_10 + 2))
+                                (array_expression))))
+                          (sequence_expression
+                            (set_expression
+                              (array_get_expression PLACEHOLDER_16 0)
+                              (application_expression
+                                (value_path Array create)
+                                (labeled_argument len
+                                  (infix_expression PLACEHOLDER_11 + 2))
+                                (application_expression (constructor_name PLACEHOLDER_3) 0)))
+                            (set_expression
+                              (array_get_expression PLACEHOLDER_16
+                                (infix_expression PLACEHOLDER_10 + 1))
+                              (application_expression
+                                (value_path Array create)
+                                (labeled_argument len
+                                  (infix_expression PLACEHOLDER_11 + 2))
+                                (application_expression (constructor_name PLACEHOLDER_3) 0)))
+                            (application_expression
+                              (value_path List iteri) PLACEHOLDER_9
+                              (labeled_argument f
+                                (fun_expression
+                                  (parameter
+                                    (value_pattern PLACEHOLDER_14))
+                                  (parameter
+                                    (value_pattern PLACEHOLDER_17))
+                                  (set_expression
+                                    (array_get_expression PLACEHOLDER_16
+                                      (infix_expression PLACEHOLDER_14 + 1))
+                                    (application_expression PLACEHOLDER_12 PLACEHOLDER_17))))) PLACEHOLDER_16))))
+                    (sequence_expression
+                      (for_expression
+                        (value_pattern PLACEHOLDER_14) 1 to PLACEHOLDER_10
+                        (do_clause
+                          (for_expression
+                            (value_pattern PLACEHOLDER_18) 1 to PLACEHOLDER_11
+                            (do_clause
+                              (if_expression
+                                (local_open_expression Poly
+                                  (infix_expression
+                                    (array_get_expression
+                                      (array_get_expression PLACEHOLDER_16 PLACEHOLDER_14) PLACEHOLDER_18) = (constructor_name PLACEHOLDER_2)))
+                                (then_clause
+                                  (if_expression
+                                    (infix_expression PLACEHOLDER_18 > 0)
+                                    (then_clause
+                                      (for_expression
+                                        (value_pattern PLACEHOLDER_19)
+                                        (infix_expression PLACEHOLDER_14 - 1) to
+                                        (infix_expression PLACEHOLDER_14 + 1)
+                                        (do_clause
+                                          (for_expression
+                                            (value_pattern PLACEHOLDER_17)
+                                            (infix_expression PLACEHOLDER_18 - 1) to
+                                            (infix_expression PLACEHOLDER_18 + 1)
+                                            (do_clause
+                                              (set_expression
+                                                (array_get_expression
+                                                  (array_get_expression PLACEHOLDER_16 PLACEHOLDER_19) PLACEHOLDER_17)
+                                                (application_expression PLACEHOLDER_4
+                                                  (array_get_expression
+                                                    (array_get_expression PLACEHOLDER_16 PLACEHOLDER_19) PLACEHOLDER_17)))))))))))))))
+                      (application_expression
+                        (value_path List init) PLACEHOLDER_10
+                        (labeled_argument f
+                          (fun_expression
+                            (parameter
+                              (value_pattern PLACEHOLDER_14))
+                            (application_expression PLACEHOLDER_15
+                              (array_get_expression PLACEHOLDER_16
+                                (infix_expression PLACEHOLDER_14 + 1)))))))))))))))))

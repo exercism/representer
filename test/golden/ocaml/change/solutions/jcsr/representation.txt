@@ -1,21 +1,113 @@
-let rec do_change target change = function
-| [] -> []
-| h :: t when h > target -> do_change target change t
-| h :: _ when target - h = 0 -> h :: change
-| h :: t as coins ->
-match do_change ( target - h ) ( h :: change ) coins with
-| [] -> do_change target change t
-| chg -> chg
-let rec do_changes target = function
-| [] -> []
-| _ :: t as coins -> ( do_change target [] coins ) :: ( do_changes target t )
-let make_change ~ target ~ coins =
-if target < 0 then Error "\"target can't be negative\""
-else
-match do_changes target ( List . rev coins )
-|> List . filter ( fun l -> List . length l > 0 )
-|> List . sort ( fun a b -> compare ( List . length a ) ( List . length b ))
-with
-| [] when target = 0 -> Ok []
-| [] -> Error "\"can't make target with given coins\""
-| chg :: _ -> Ok chg
+(compilation_unit
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (parameter
+        (value_pattern PLACEHOLDER_2))
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (function_expression
+        (match_case
+          (empty_list)
+          (empty_list))
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_4)
+            (value_pattern PLACEHOLDER_5))
+          (guard
+            (infix_expression PLACEHOLDER_4 > PLACEHOLDER_2))
+          (application_expression PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_5))
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_4)
+            (any_pattern))
+          (guard
+            (infix_expression
+              (infix_expression PLACEHOLDER_2 - PLACEHOLDER_4) = 0))
+          (cons_expression PLACEHOLDER_4 PLACEHOLDER_3))
+        (match_case
+          (alias_pattern
+            (cons_pattern
+              (value_pattern PLACEHOLDER_4)
+              (value_pattern PLACEHOLDER_5))
+            (value_pattern PLACEHOLDER_6))
+          (match_expression
+            (application_expression PLACEHOLDER_1
+              (infix_expression PLACEHOLDER_2 - PLACEHOLDER_4)
+              (cons_expression PLACEHOLDER_4 PLACEHOLDER_3) PLACEHOLDER_6)
+            (match_case
+              (empty_list)
+              (application_expression PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_5))
+            (match_case
+              (value_pattern PLACEHOLDER_7) PLACEHOLDER_7))))))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_8)
+      (parameter
+        (value_pattern PLACEHOLDER_2))
+      (function_expression
+        (match_case
+          (empty_list)
+          (empty_list))
+        (match_case
+          (alias_pattern
+            (cons_pattern
+              (any_pattern)
+              (value_pattern PLACEHOLDER_5))
+            (value_pattern PLACEHOLDER_6))
+          (cons_expression
+            (application_expression PLACEHOLDER_1 PLACEHOLDER_2
+              (empty_list) PLACEHOLDER_6)
+            (application_expression PLACEHOLDER_8 PLACEHOLDER_2 PLACEHOLDER_5))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_9)
+      (parameter (label_name PLACEHOLDER_2)
+        (value_pattern PLACEHOLDER_2))
+      (parameter (label_name PLACEHOLDER_6)
+        (value_pattern PLACEHOLDER_6))
+      (if_expression
+        (infix_expression PLACEHOLDER_2 < 0)
+        (then_clause
+          (application_expression Error "target can't be negative"))
+        (else_clause
+          (match_expression
+            (infix_expression
+              (infix_expression
+                (application_expression PLACEHOLDER_8 PLACEHOLDER_2
+                  (application_expression
+                    (value_path List rev) PLACEHOLDER_6)) |>
+                (application_expression
+                  (value_path List filter)
+                  (fun_expression
+                    (parameter
+                      (value_pattern PLACEHOLDER_10))
+                    (infix_expression
+                      (application_expression
+                        (value_path List length) PLACEHOLDER_10) > 0)))) |>
+              (application_expression
+                (value_path List sort)
+                (fun_expression
+                  (parameter
+                    (value_pattern PLACEHOLDER_11))
+                  (parameter
+                    (value_pattern PLACEHOLDER_12))
+                  (application_expression compare
+                    (application_expression
+                      (value_path List length) PLACEHOLDER_11)
+                    (application_expression
+                      (value_path List length) PLACEHOLDER_12)))))
+            (match_case
+              (empty_list)
+              (guard
+                (infix_expression PLACEHOLDER_2 = 0))
+              (application_expression Ok
+                (empty_list)))
+            (match_case
+              (empty_list)
+              (application_expression Error "can't make target with given coins"))
+            (match_case
+              (cons_pattern
+                (value_pattern PLACEHOLDER_7)
+                (any_pattern))
+              (application_expression Ok PLACEHOLDER_7))))))))
