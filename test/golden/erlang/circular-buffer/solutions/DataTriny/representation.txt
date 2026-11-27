@@ -1,43 +1,225 @@
-- module ( circular_buffer ).
-- define ( TIMEOUT , 2 ).
-create ( Size ) ->
-spawn ( fun () -> loop ({ Size , []}) end ).
-read ( Pid ) ->
-send_and_receive ( Pid , read ).
-size ( Pid ) ->
-send_and_receive ( Pid , size ).
-write ( Pid , Item ) ->
-send_and_receive ( Pid , { write , Item }).
-write_attempt ( Pid , Item ) ->
-send_and_receive ( Pid , { write_attempt , Item }).
-send_and_receive ( Pid , Message ) ->
-Pid ! { self (), Message },
-receive
-Reply -> Reply
-after ? TIMEOUT -> { error , process_not_running }
-end .
-loop ({ Size , List }) ->
-receive
-{ From , read } when length ( List ) =:= 0 ->
-From ! { error , empty },
-loop ({ Size , List });
-{ From , read } ->
-[ H | T ] = List ,
-From ! { ok , H },
-loop ({ Size , T });
-{ From , size } ->
-From ! { ok , Size },
-loop ({ Size , List });
-{ From , { write , Item }} when length ( List ) < Size ->
-From ! ok ,
-loop ({ Size , List ++ [ Item ]});
-{ From , { write , Item }} ->
-From ! ok ,
-loop ({ Size , tl ( List ) ++ [ Item ]});
-{ From , { write_attempt , Item }} when length ( List ) < Size ->
-From ! ok ,
-loop ({ Size , List ++ [ Item ]});
-{ From , { write_attempt , _}} ->
-From ! { error , full },
-loop ({ Size , List })
-end .
+(source_file
+  (module_attribute (atom PLACEHOLDER_1))
+  (export_attribute
+    (fa (atom PLACEHOLDER_2)
+      (arity 1))
+    (fa (atom PLACEHOLDER_3)
+      (arity 1))
+    (fa (atom PLACEHOLDER_4)
+      (arity 1))
+    (fa (atom PLACEHOLDER_5)
+      (arity 2))
+    (fa (atom PLACEHOLDER_6)
+      (arity 2)))
+  (pp_define
+    (macro_lhs PLACEHOLDER_7) 2)
+  (function
+    (function_clause (atom PLACEHOLDER_2)
+      (expr_args
+        (variable PLACEHOLDER_8))
+      (clause_body
+        (call spawn
+          (expr_args
+            (anonymous_fun
+              (fun_clause
+                (expr_args)
+                (clause_body
+                  (call (atom PLACEHOLDER_9)
+                    (expr_args
+                      (tuple
+                        (variable PLACEHOLDER_8)
+                        (list))))))))))))
+  (function
+    (function_clause (atom PLACEHOLDER_3)
+      (expr_args
+        (variable PLACEHOLDER_10))
+      (clause_body
+        (call (atom PLACEHOLDER_11)
+          (expr_args
+            (variable PLACEHOLDER_10) (atom PLACEHOLDER_3))))))
+  (function
+    (function_clause (atom PLACEHOLDER_4)
+      (expr_args
+        (variable PLACEHOLDER_10))
+      (clause_body
+        (call (atom PLACEHOLDER_11)
+          (expr_args
+            (variable PLACEHOLDER_10) (atom PLACEHOLDER_4))))))
+  (function
+    (function_clause (atom PLACEHOLDER_5)
+      (expr_args
+        (variable PLACEHOLDER_10)
+        (variable PLACEHOLDER_12))
+      (clause_body
+        (call (atom PLACEHOLDER_11)
+          (expr_args
+            (variable PLACEHOLDER_10)
+            (tuple (atom PLACEHOLDER_5)
+              (variable PLACEHOLDER_12)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_6)
+      (expr_args
+        (variable PLACEHOLDER_10)
+        (variable PLACEHOLDER_12))
+      (clause_body
+        (call (atom PLACEHOLDER_11)
+          (expr_args
+            (variable PLACEHOLDER_10)
+            (tuple (atom PLACEHOLDER_6)
+              (variable PLACEHOLDER_12)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_11)
+      (expr_args
+        (variable PLACEHOLDER_10)
+        (variable PLACEHOLDER_13))
+      (clause_body
+        (binary_op_expr
+          (variable PLACEHOLDER_10) !
+          (tuple
+            (call self
+              (expr_args))
+            (variable PLACEHOLDER_13)))
+        (receive_expr
+          (cr_clause
+            (variable PLACEHOLDER_14)
+            (clause_body
+              (variable PLACEHOLDER_14)))
+          (receive_after
+            (macro_call_expr PLACEHOLDER_7)
+            (clause_body
+              (tuple error process_not_running)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_9)
+      (expr_args
+        (tuple
+          (variable PLACEHOLDER_8)
+          (variable PLACEHOLDER_15)))
+      (clause_body
+        (receive_expr
+          (cr_clause
+            (tuple
+              (variable PLACEHOLDER_16) (atom PLACEHOLDER_3))
+            (guard
+              (guard_clause
+                (binary_op_expr
+                  (call length
+                    (expr_args
+                      (variable PLACEHOLDER_15))) =:= 0)))
+            (clause_body
+              (binary_op_expr
+                (variable PLACEHOLDER_16) !
+                (tuple error empty))
+              (call (atom PLACEHOLDER_9)
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_8)
+                    (variable PLACEHOLDER_15))))))
+          (cr_clause
+            (tuple
+              (variable PLACEHOLDER_16) (atom PLACEHOLDER_3))
+            (clause_body
+              (match_expr
+                (list
+                  (pipe
+                    (variable PLACEHOLDER_17)
+                    (variable PLACEHOLDER_18)))
+                (variable PLACEHOLDER_15))
+              (binary_op_expr
+                (variable PLACEHOLDER_16) !
+                (tuple ok
+                  (variable PLACEHOLDER_17)))
+              (call (atom PLACEHOLDER_9)
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_8)
+                    (variable PLACEHOLDER_18))))))
+          (cr_clause
+            (tuple
+              (variable PLACEHOLDER_16) (atom PLACEHOLDER_4))
+            (clause_body
+              (binary_op_expr
+                (variable PLACEHOLDER_16) !
+                (tuple ok
+                  (variable PLACEHOLDER_8)))
+              (call (atom PLACEHOLDER_9)
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_8)
+                    (variable PLACEHOLDER_15))))))
+          (cr_clause
+            (tuple
+              (variable PLACEHOLDER_16)
+              (tuple (atom PLACEHOLDER_5)
+                (variable PLACEHOLDER_12)))
+            (guard
+              (guard_clause
+                (binary_op_expr
+                  (call length
+                    (expr_args
+                      (variable PLACEHOLDER_15))) <
+                  (variable PLACEHOLDER_8))))
+            (clause_body
+              (binary_op_expr
+                (variable PLACEHOLDER_16) ! ok)
+              (call (atom PLACEHOLDER_9)
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_8)
+                    (binary_op_expr
+                      (variable PLACEHOLDER_15) ++
+                      (list
+                        (variable PLACEHOLDER_12))))))))
+          (cr_clause
+            (tuple
+              (variable PLACEHOLDER_16)
+              (tuple (atom PLACEHOLDER_5)
+                (variable PLACEHOLDER_12)))
+            (clause_body
+              (binary_op_expr
+                (variable PLACEHOLDER_16) ! ok)
+              (call (atom PLACEHOLDER_9)
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_8)
+                    (binary_op_expr
+                      (call tl
+                        (expr_args
+                          (variable PLACEHOLDER_15))) ++
+                      (list
+                        (variable PLACEHOLDER_12))))))))
+          (cr_clause
+            (tuple
+              (variable PLACEHOLDER_16)
+              (tuple (atom PLACEHOLDER_6)
+                (variable PLACEHOLDER_12)))
+            (guard
+              (guard_clause
+                (binary_op_expr
+                  (call length
+                    (expr_args
+                      (variable PLACEHOLDER_15))) <
+                  (variable PLACEHOLDER_8))))
+            (clause_body
+              (binary_op_expr
+                (variable PLACEHOLDER_16) ! ok)
+              (call (atom PLACEHOLDER_9)
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_8)
+                    (binary_op_expr
+                      (variable PLACEHOLDER_15) ++
+                      (list
+                        (variable PLACEHOLDER_12))))))))
+          (cr_clause
+            (tuple
+              (variable PLACEHOLDER_16)
+              (tuple (atom PLACEHOLDER_6) _))
+            (clause_body
+              (binary_op_expr
+                (variable PLACEHOLDER_16) !
+                (tuple error full))
+              (call (atom PLACEHOLDER_9)
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_8)
+                    (variable PLACEHOLDER_15)))))))))))
