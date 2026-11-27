@@ -7,8 +7,10 @@ module Representer::Languages
 end
 
 require_relative "languages/basic"
+
 # A language on the old structure is one file, such as `languages/python.rb`.
 Dir[File.join(__dir__, "languages", "*.rb")].each { |file| require file }
+
 # A staged language is a folder, such as `languages/ruby/`. Its spec.rb
 # defines the language, and Engine::Language loads the rest of the folder.
 Dir[File.join(__dir__, "languages", "*", "spec.rb")].each { |file| require file }

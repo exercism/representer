@@ -128,6 +128,7 @@ module Representer
       # The nodes that are instructions. A folded instruction holds the
       # instructions that it takes as operands.
       INSTRUCTIONS = %w[plain_instr block_block block_loop block_if block_try_table].freeze
+
       # The groups that can list several types at once.
       GROUPS = %w[param result local].freeze
 

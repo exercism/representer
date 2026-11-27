@@ -37,6 +37,7 @@ module Representer
 
       # A `#!` line only says how to run the file as a script.
       drop "[(comment) (hash_bang_line)]"
+
       # An empty statement does nothing, except as the first or second part of
       # a `for`, where it shows which part is missing: `for (;; i++)` and
       # `for (i++;;)` are different loops.
@@ -81,6 +82,7 @@ module Representer
       rewrite "[(string) @string (template_string) @string]" do |match|
         pieces = JavaScript.string_parts(match.node.children)
         next nil unless pieces
+
         # A template made only of substitutions is already in its final form.
         next nil if pieces.any? && pieces.all?(Engine::Node)
 

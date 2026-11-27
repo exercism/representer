@@ -25,11 +25,13 @@ module Representer::Languages::Elixir
       # Drop comments.
       drop(tree, "(comment)")
       values
+
       # Unwrap brackets that only group, because the tree's shape shows the grouping.
       # (1 + 2) == 1 + 2
       unwrap(tree, "(block)")
       do_keywords
       keyword_lists
+
       # Drop empty brackets from a call on a module or value. Leave `f()` alone,
       # because the parser reads a bare `f` as a variable.
       # Mod.f() == Mod.f

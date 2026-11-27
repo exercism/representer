@@ -99,6 +99,7 @@ module Representer::Engine
         node = copy(ts_node, cursor.current_field_name, source)
         gaps.enter(node, ts_node)
         parent&.children&.push(node)
+
         # Children of a skipped node are skipped too: their parent is nil.
         # So are the children of a text node, which holds their text.
         if text_types.include?(node.type)
@@ -171,6 +172,7 @@ module Representer::Engine
 
     def new_node(ts_node, field, source)
       type = type_of(ts_node, source)
+
       # An empty file's root has no children and no text. It isn't a leaf.
       empty = ts_node.end_byte == ts_node.start_byte
       if (ts_node.child_count.zero? && !empty) || !ts_node.named?

@@ -106,6 +106,7 @@ class RubyTest < RepresenterTest
   def test_deep_nesting_is_unrepresentable
     assert_unrepresentable("[" * 2_000 + "]" * 2_000, "too_deep")
   end
+
   ### Spellings ###
 
   def test_spellings_that_ruby_reads_the_same_are_the_same

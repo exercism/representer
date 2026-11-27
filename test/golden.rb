@@ -286,6 +286,7 @@ module Golden
       language = Representer::Languages.for(track)
       first, second = difference["solutions"].first(2).map do |names|
         files = Solution.new(track:, exercise: difference["exercise"], name: names.first).files
+
         # The representer ignores files in other formats, such as a HELP.md.
         language.respond_to?(:source_file?) ? files.select { |name, _| language.source_file?(name) } : files
       end

@@ -64,6 +64,7 @@ module Representer::Languages::Ruby
       methods_and_calls
       class_and_module_bodies
       drop_tokens(tree, everywhere: TOKENS, only_in: TOKENS_IN, kept_in: TOKENS_KEPT_IN)
+
       # Unwrap brackets that only group, because the tree's shape shows the grouping.
       # (1 + 2) == 1 + 2
       unwrap(tree, "(parenthesized_statements)")
@@ -102,6 +103,7 @@ module Representer::Languages::Ruby
       raw = opening.include?("'")
       pieces = parts.map { |part| part.type == "heredoc_content" ? part.text : part }
       pieces[0] = pieces[0].delete_prefix("\n") if pieces.first.is_a?(String)
+
       # Remove the closing name's own indentation, in a `<<-` or `<<~` heredoc.
       pieces[-1] = pieces[-1].sub(/(?<=\n)[ \t]+\z/, "") if pieces.last.is_a?(String)
       pieces = dedent(pieces) if opening.start_with?("<<~")
@@ -287,12 +289,14 @@ module Representer::Languages::Ruby
           { consequence: (build(:then, *match[:else].named_children) if match[:else]) },
           { alternative: (build(:else, *match[:then].named_children) if match[:then]) })
       end
+
       # Leave `begin ... end while x` alone, because it runs the body before the first check.
       %w[while until].each do |loop|
         transform(tree, "(#{loop}_modifier body: (_) @body condition: (_) @condition)") do |match|
           build(loop, { condition: match[:condition] }, { body: build(:do, match[:body]) }) unless match[:body].type == "begin"
         end
       end
+
       # Drop an empty `then` or `else`.
       each_node(tree) do |node, _|
         node.children.reject! { |child| child.named? && %w[then else].include?(child.type) && child.named_children.empty? }
@@ -350,6 +354,7 @@ module Representer::Languages::Ruby
           EMPTY_LISTS.include?(child.type) && child.named_children.empty? && node[:method]&.type != "super"
         end
       end
+
       # Add the missing `call` to `f.(x)`.
       transform(tree, "(call receiver: (_) !method arguments: (_) @arguments)") do |match|
         match.node.children.insert(match.node.children.index(match[:arguments]), leaf(:identifier, "call", field: :method))

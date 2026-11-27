@@ -97,20 +97,26 @@ class PHPTest < RepresenterTest
       "<?php\ninterface I {\n    const string PHP = 'PHP 8.3';\n}\nclass Php84 implements I {\n    const string PHP = 'PHP 8.4';\n}",
       "<?php\ninterface I {\n    const PHP = 'PHP 8.3';\n}\nclass Php84 implements I {\n    const PHP = 'PHP 8.4';\n}"
     )
+
     # ClassInstantiationTest
     assert_same_representation "<?php\n(new MyClass())->method();", "<?php\nnew MyClass()->method();"
+
     # InlineHtmlTest
     assert_same_representation "\nThis is inline HTML.\n\n\n<?php\n\n$a = 1;\n\n?>\n\n\n<php\n\n\n?>\nAgain inline HTML.",
       "<?php\n$a = 1;"
+
     # StableSpacingTest
     assert_same_representation "<?php\n\nfunction helloWorld()\n{\n\n    return    \"Hello World!\"   ;\n}",
       "<?php\n\nfunction helloWorld()\n{\n    return \"Hello World!\";\n}"
+
     # ExitAndDieTest
     assert_same_representation "<?php\n\nexit(1);\nexit();", "<?php\n\ndie(1);\ndie();"
+
     # ArraySyntaxTest
     assert_same_representation "<?php\n\n$a = [0, 1, 'a' => 'b', 'c' => 'd'];", "<?php\n\n$a = array(0, 1, 'a' => 'b', 'c' => 'd');"
     assert_same_representation "<?php\n\n$a = [\n    0,\n    1,\n    'a' => 'b',\n    'c' => 'd',\n];",
       "<?php\n\n$a = [0, 1, 'a' => 'b', 'c' => 'd'];"
+
     # CastTest
     assert_same_representation "<?php\n$a = (double) 1.0;", "<?php\n$a = (float) 1.0;"
     assert_same_representation "<?php\n$a = (double) 1.0;", "<?php\n$a = (real) 1.0;"

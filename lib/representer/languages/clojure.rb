@@ -72,8 +72,10 @@ module Representer
 
       # Forms whose first argument is a vector of bindings.
       BINDING_FORMS = %w[let loop with-open with-local-vars if-let when-let if-some when-some when-first for doseq dotimes].freeze
+
       # Forms that define a var, protocol or type with the name that follows.
       DEFINING_FORMS = %w[def defonce defmulti defprotocol definterface defrecord deftype defstruct].freeze
+
       # Forms that hold method implementations: `(method [this x] ...)`.
       IMPLEMENTING_FORMS = %w[reify extend-type extend-protocol proxy extend deftype defrecord defprotocol definterface].freeze
 

@@ -200,6 +200,8 @@ The line above each declaration is an instruction, such as "Rename the names of 
 Update a comment whenever the code below it changes.
 Write every comment by the rules in "Writing comments and docs" below.
 
+Put a blank line above a comment that describes the code below it, so each comment and its code read as one unit. The comment needs no blank line when it's the first thing in a method, class, module or block, follows another comment, or follows `private`. Rubocop checks this with `Representer/EmptyLineBeforeComment` (in `rubocop/cop/representer/`) and can fix it with `bundle exec rubocop -a`.
+
 ### GenerateAST's tokens
 
 `GenerateAST` lists the tokens it drops explicitly.

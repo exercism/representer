@@ -97,6 +97,7 @@ module Representer
       rewrite "(prefix_expression) @expression", where: ->(match) { match.node.children.size == 2 } do |match|
         Nim.operator_call(match.node.children.first, match.node.children.last)
       end
+
       # `+`(a, b) written with backticks.
       rewrite("(accent_quoted (identifier) @operator)", where: ->(match) { Nim.operator?(match[:operator].text) }) do |match|
         build(:accent_quoted, leaf(:operator, match[:operator].text))

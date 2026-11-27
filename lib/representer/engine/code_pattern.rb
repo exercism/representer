@@ -47,8 +47,10 @@ module Representer::Engine
     # An Any is a placeholder. It matches any node if its type is
     # nil, and otherwise a leaf of its type.
     Any = Struct.new(:word, :type)
+
     # A Leaf matches a token, or a named leaf with the same text.
     Leaf = Struct.new(:type, :text, :named)
+
     # A Branch matches a node whose children match its children, which are
     # [field, element] pairs.
     Branch = Struct.new(:type, :children)
