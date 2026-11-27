@@ -101,8 +101,8 @@ class BasicTest < RepresenterTest
   def test_imports_on_their_own_lines_are_dropped
     kotlin = Representer::RepresentSolution.("kotlin", { "a.kt" => "import kotlin.math.abs\nfun f() = 1\n" })
     assert_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }).representation, kotlin.representation
-    c = Representer::RepresentSolution.("c", { "a.c" => "#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n" })
-    assert_equal Representer::RepresentSolution.("c", { "a.c" => "int f() { return 1; }\n" }).representation, c.representation
+    c = basic("#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n", track: "c")
+    assert_equal basic("int f() { return 1; }\n", track: "c").representation, c.representation
     haskell = "module A (a, b) where\nimport Data.List (sort,\n    nub)\na = 1\n"
     assert_equal Representer::RepresentSolution.("haskell", { "A.hs" => "module A where\na = 1\n" }).representation,
       Representer::RepresentSolution.("haskell", { "A.hs" => haskell }).representation

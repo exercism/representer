@@ -1,86 +1,366 @@
-#ifndef LIST_OPS_H
-#define LIST_OPS_H
-typedef int list_element_t ;
-typedef struct {
-size_t length ;
-list_element_t elements [];
-} list_t ;
-list_t * new_list ( size_t length , list_element_t elements []);
-list_t * append_list ( list_t * list1 , list_t * list2 );
-list_t * filter_list ( list_t * list , bool ( * filter ) ( list_element_t ));
-size_t length_list ( list_t * list );
-list_t * map_list ( list_t * list , list_element_t ( * map ) ( list_element_t ));
-list_element_t foldl_list ( list_t * list , list_element_t initial ,
-list_element_t ( * foldl ) ( list_element_t ,
-list_element_t ));
-list_element_t foldr_list ( list_t * list , list_element_t initial ,
-list_element_t ( * foldr ) ( list_element_t ,
-list_element_t ));
-list_t * reverse_list ( list_t * list );
-void delete_list ( list_t * list );
-#endif
-list_t * new_list ( size_t length , list_element_t elements []) {
-list_t * list = malloc ( sizeof ( list_t ) + length * sizeof ( list_element_t ));
-list -> length = length ;
-memcpy ( & list -> elements , elements , length * sizeof ( list_element_t ));
-return list ;
-}
-list_t * append_list ( list_t * list1 , list_t * list2 ) {
-size_t length = list1 -> length + list2 -> length ;
-list_t * list = malloc ( sizeof ( list_t ) + length * sizeof ( list_element_t ));
-list -> length = length ;
-memcpy ( list -> elements , list1 -> elements ,
-list1 -> length * sizeof ( list_element_t ));
-memcpy ( & list -> elements [ list1 -> length ], list2 -> elements ,
-list2 -> length * sizeof ( list_element_t ));
-return list ;
-}
-list_t * filter_list ( list_t * list , bool ( * filter )( list_element_t )) {
-list_t * result ;
-size_t length = 0 ;
-list_element_t * elements = malloc ( list -> length * sizeof ( list_element_t ));
-for ( size_t i = 0 ; i < list -> length ; i ++ ) {
-if ( filter ( list -> elements [ i ])) {
-elements [ length ++ ] = list -> elements [ i ];
-}
-}
-result = new_list ( length , elements );
-free ( elements );
-return result ;
-}
-size_t length_list ( list_t * list ) { return list -> length ; }
-list_t * map_list ( list_t * list , list_element_t ( * map )( list_element_t )) {
-list_t * result =
-malloc ( sizeof ( list_t ) + list -> length * sizeof ( list_element_t ));
-result -> length = list -> length ;
-for ( size_t i = 0 ; i < list -> length ; i ++ ) {
-result -> elements [ i ] = map ( list -> elements [ i ]);
-}
-return result ;
-}
-list_element_t foldl_list ( list_t * list , list_element_t initial ,
-list_element_t ( * foldl )( list_element_t ,
-list_element_t )) {
-for ( size_t i = 0 ; i < list -> length ; i ++ ) {
-initial = foldl ( initial , list -> elements [ i ]);
-}
-return initial ;
-}
-list_element_t foldr_list ( list_t * list , list_element_t initial ,
-list_element_t ( * foldr )( list_element_t ,
-list_element_t )) {
-for ( size_t i = list -> length ; i -- ;) {
-initial = foldr ( list -> elements [ i ], initial );
-}
-return initial ;
-}
-list_t * reverse_list ( list_t * list ) {
-list_t * result =
-malloc ( sizeof ( list_t ) + list -> length * sizeof ( list_element_t ));
-result -> length = list -> length ;
-for ( size_t i = 0 ; i < list -> length ; i ++ ) {
-result -> elements [ list -> length - i - 1 ] = list -> elements [ i ];
-}
-return result ;
-}
-void delete_list ( list_t * list ) { free ( list ); }
+(translation_unit
+  (function_definition (type_identifier PLACEHOLDER_1)
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_2
+        (parameter_list
+          (parameter_declaration size_t PLACEHOLDER_3)
+          (parameter_declaration (type_identifier PLACEHOLDER_4)
+            (array_declarator PLACEHOLDER_5)))))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_1)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_6) =
+          (call_expression malloc
+            (argument_list
+              (binary_expression
+                (sizeof_expression PLACEHOLDER_1) +
+                (binary_expression PLACEHOLDER_3 *
+                  (sizeof_expression PLACEHOLDER_4)))))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3)) = PLACEHOLDER_3))
+      (expression_statement
+        (call_expression memcpy
+          (argument_list
+            (pointer_expression &
+              (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5))) PLACEHOLDER_5
+            (binary_expression PLACEHOLDER_3 *
+              (sizeof_expression PLACEHOLDER_4)))))
+      (return_statement PLACEHOLDER_6)))
+  (function_definition (type_identifier PLACEHOLDER_1)
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_7
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_8))
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_9)))))
+    (compound_statement
+      (declaration size_t
+        (init_declarator PLACEHOLDER_3 =
+          (binary_expression
+            (field_expression PLACEHOLDER_8 -> (field_identifier PLACEHOLDER_3)) +
+            (field_expression PLACEHOLDER_9 -> (field_identifier PLACEHOLDER_3)))))
+      (declaration (type_identifier PLACEHOLDER_1)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_6) =
+          (call_expression malloc
+            (argument_list
+              (binary_expression
+                (sizeof_expression PLACEHOLDER_1) +
+                (binary_expression PLACEHOLDER_3 *
+                  (sizeof_expression PLACEHOLDER_4)))))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3)) = PLACEHOLDER_3))
+      (expression_statement
+        (call_expression memcpy
+          (argument_list
+            (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5))
+            (field_expression PLACEHOLDER_8 -> (field_identifier PLACEHOLDER_5))
+            (binary_expression
+              (field_expression PLACEHOLDER_8 -> (field_identifier PLACEHOLDER_3)) *
+              (sizeof_expression PLACEHOLDER_4)))))
+      (expression_statement
+        (call_expression memcpy
+          (argument_list
+            (pointer_expression &
+              (subscript_expression
+                (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5))
+                (field_expression PLACEHOLDER_8 -> (field_identifier PLACEHOLDER_3))))
+            (field_expression PLACEHOLDER_9 -> (field_identifier PLACEHOLDER_5))
+            (binary_expression
+              (field_expression PLACEHOLDER_9 -> (field_identifier PLACEHOLDER_3)) *
+              (sizeof_expression PLACEHOLDER_4)))))
+      (return_statement PLACEHOLDER_6)))
+  (function_definition (type_identifier PLACEHOLDER_1)
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_10
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_6))
+          (parameter_declaration bool
+            (function_declarator
+              (parenthesized_declarator
+                (pointer_declarator * PLACEHOLDER_11))
+              (parameter_list
+                (parameter_declaration (type_identifier PLACEHOLDER_4))))))))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_1)
+        (pointer_declarator * PLACEHOLDER_12))
+      (declaration size_t
+        (init_declarator PLACEHOLDER_3 = 0))
+      (declaration (type_identifier PLACEHOLDER_4)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_5) =
+          (call_expression malloc
+            (argument_list
+              (binary_expression
+                (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3)) *
+                (sizeof_expression PLACEHOLDER_4))))))
+      (for_statement
+        (declaration size_t
+          (init_declarator PLACEHOLDER_13 = 0))
+        (binary_expression PLACEHOLDER_13 <
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3))) ;
+        (update_expression PLACEHOLDER_13 ++)
+        (compound_statement
+          (if_statement
+            (call_expression PLACEHOLDER_11
+              (argument_list
+                (subscript_expression
+                  (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5)) PLACEHOLDER_13)))
+            (compound_statement
+              (expression_statement
+                (assignment_expression
+                  (subscript_expression PLACEHOLDER_5
+                    (update_expression PLACEHOLDER_3 ++)) =
+                  (subscript_expression
+                    (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5)) PLACEHOLDER_13)))))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_12 =
+          (call_expression PLACEHOLDER_2
+            (argument_list PLACEHOLDER_3 PLACEHOLDER_5))))
+      (expression_statement
+        (call_expression free
+          (argument_list PLACEHOLDER_5)))
+      (return_statement PLACEHOLDER_12)))
+  (function_definition size_t
+    (function_declarator PLACEHOLDER_14
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_1)
+          (pointer_declarator * PLACEHOLDER_6))))
+    (compound_statement
+      (return_statement
+        (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3)))))
+  (function_definition (type_identifier PLACEHOLDER_1)
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_15
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_6))
+          (parameter_declaration (type_identifier PLACEHOLDER_4)
+            (function_declarator
+              (parenthesized_declarator
+                (pointer_declarator * PLACEHOLDER_16))
+              (parameter_list
+                (parameter_declaration (type_identifier PLACEHOLDER_4))))))))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_1)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_12) =
+          (call_expression malloc
+            (argument_list
+              (binary_expression
+                (sizeof_expression PLACEHOLDER_1) +
+                (binary_expression
+                  (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3)) *
+                  (sizeof_expression PLACEHOLDER_4)))))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_12 -> (field_identifier PLACEHOLDER_3)) =
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3))))
+      (for_statement
+        (declaration size_t
+          (init_declarator PLACEHOLDER_13 = 0))
+        (binary_expression PLACEHOLDER_13 <
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3))) ;
+        (update_expression PLACEHOLDER_13 ++)
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (subscript_expression
+                (field_expression PLACEHOLDER_12 -> (field_identifier PLACEHOLDER_5)) PLACEHOLDER_13) =
+              (call_expression PLACEHOLDER_16
+                (argument_list
+                  (subscript_expression
+                    (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5)) PLACEHOLDER_13)))))))
+      (return_statement PLACEHOLDER_12)))
+  (function_definition (type_identifier PLACEHOLDER_4)
+    (function_declarator PLACEHOLDER_17
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_1)
+          (pointer_declarator * PLACEHOLDER_6))
+        (parameter_declaration (type_identifier PLACEHOLDER_4) PLACEHOLDER_18)
+        (parameter_declaration (type_identifier PLACEHOLDER_4)
+          (function_declarator
+            (parenthesized_declarator
+              (pointer_declarator * PLACEHOLDER_19))
+            (parameter_list
+              (parameter_declaration (type_identifier PLACEHOLDER_4))
+              (parameter_declaration (type_identifier PLACEHOLDER_4)))))))
+    (compound_statement
+      (for_statement
+        (declaration size_t
+          (init_declarator PLACEHOLDER_13 = 0))
+        (binary_expression PLACEHOLDER_13 <
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3))) ;
+        (update_expression PLACEHOLDER_13 ++)
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_18 =
+              (call_expression PLACEHOLDER_19
+                (argument_list PLACEHOLDER_18
+                  (subscript_expression
+                    (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5)) PLACEHOLDER_13)))))))
+      (return_statement PLACEHOLDER_18)))
+  (function_definition (type_identifier PLACEHOLDER_4)
+    (function_declarator PLACEHOLDER_20
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_1)
+          (pointer_declarator * PLACEHOLDER_6))
+        (parameter_declaration (type_identifier PLACEHOLDER_4) PLACEHOLDER_18)
+        (parameter_declaration (type_identifier PLACEHOLDER_4)
+          (function_declarator
+            (parenthesized_declarator
+              (pointer_declarator * PLACEHOLDER_21))
+            (parameter_list
+              (parameter_declaration (type_identifier PLACEHOLDER_4))
+              (parameter_declaration (type_identifier PLACEHOLDER_4)))))))
+    (compound_statement
+      (for_statement
+        (declaration size_t
+          (init_declarator PLACEHOLDER_13 =
+            (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3))))
+        (update_expression PLACEHOLDER_13 --) ;
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_18 =
+              (call_expression PLACEHOLDER_21
+                (argument_list
+                  (subscript_expression
+                    (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5)) PLACEHOLDER_13) PLACEHOLDER_18))))))
+      (return_statement PLACEHOLDER_18)))
+  (function_definition (type_identifier PLACEHOLDER_1)
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_22
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_6)))))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_1)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_12) =
+          (call_expression malloc
+            (argument_list
+              (binary_expression
+                (sizeof_expression PLACEHOLDER_1) +
+                (binary_expression
+                  (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3)) *
+                  (sizeof_expression PLACEHOLDER_4)))))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_12 -> (field_identifier PLACEHOLDER_3)) =
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3))))
+      (for_statement
+        (declaration size_t
+          (init_declarator PLACEHOLDER_13 = 0))
+        (binary_expression PLACEHOLDER_13 <
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3))) ;
+        (update_expression PLACEHOLDER_13 ++)
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (subscript_expression
+                (field_expression PLACEHOLDER_12 -> (field_identifier PLACEHOLDER_5))
+                (binary_expression
+                  (binary_expression
+                    (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_3)) - PLACEHOLDER_13) - 1)) =
+              (subscript_expression
+                (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_5)) PLACEHOLDER_13)))))
+      (return_statement PLACEHOLDER_12)))
+  (function_definition void
+    (function_declarator PLACEHOLDER_23
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_1)
+          (pointer_declarator * PLACEHOLDER_6))))
+    (compound_statement
+      (expression_statement
+        (call_expression free
+          (argument_list PLACEHOLDER_6)))))
+  (preproc_ifdef #ifndef PLACEHOLDER_24
+    (preproc_def PLACEHOLDER_24)
+    (type_definition int (type_identifier PLACEHOLDER_4))
+    (type_definition
+      (struct_specifier
+        (field_declaration_list
+          (field_declaration size_t (field_identifier PLACEHOLDER_3))
+          (field_declaration (type_identifier PLACEHOLDER_4)
+            (array_declarator (field_identifier PLACEHOLDER_5))))) (type_identifier PLACEHOLDER_1))
+    (declaration (type_identifier PLACEHOLDER_1)
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_2
+          (parameter_list
+            (parameter_declaration size_t PLACEHOLDER_3)
+            (parameter_declaration (type_identifier PLACEHOLDER_4)
+              (array_declarator PLACEHOLDER_5))))))
+    (declaration (type_identifier PLACEHOLDER_1)
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_7
+          (parameter_list
+            (parameter_declaration (type_identifier PLACEHOLDER_1)
+              (pointer_declarator * PLACEHOLDER_8))
+            (parameter_declaration (type_identifier PLACEHOLDER_1)
+              (pointer_declarator * PLACEHOLDER_9))))))
+    (expression_statement
+      (binary_expression PLACEHOLDER_1 *
+        (call_expression PLACEHOLDER_10
+          (argument_list
+            (binary_expression PLACEHOLDER_1 * PLACEHOLDER_6)
+            (call_expression
+              (call_expression bool
+                (argument_list
+                  (pointer_expression * PLACEHOLDER_11)))
+              (argument_list PLACEHOLDER_4))))))
+    (declaration size_t
+      (function_declarator PLACEHOLDER_14
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_6)))))
+    (expression_statement
+      (binary_expression PLACEHOLDER_1 *
+        (call_expression PLACEHOLDER_15
+          (argument_list
+            (binary_expression PLACEHOLDER_1 * PLACEHOLDER_6)
+            (call_expression
+              (call_expression PLACEHOLDER_4
+                (argument_list
+                  (pointer_expression * PLACEHOLDER_16)))
+              (argument_list PLACEHOLDER_4))))))
+    (declaration (type_identifier PLACEHOLDER_4)
+      (function_declarator PLACEHOLDER_17
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_6))
+          (parameter_declaration (type_identifier PLACEHOLDER_4) PLACEHOLDER_18)
+          (parameter_declaration (type_identifier PLACEHOLDER_4)
+            (function_declarator
+              (parenthesized_declarator
+                (pointer_declarator * PLACEHOLDER_19))
+              (parameter_list
+                (parameter_declaration (type_identifier PLACEHOLDER_4))
+                (parameter_declaration (type_identifier PLACEHOLDER_4))))))))
+    (declaration (type_identifier PLACEHOLDER_4)
+      (function_declarator PLACEHOLDER_20
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_6))
+          (parameter_declaration (type_identifier PLACEHOLDER_4) PLACEHOLDER_18)
+          (parameter_declaration (type_identifier PLACEHOLDER_4)
+            (function_declarator
+              (parenthesized_declarator
+                (pointer_declarator * PLACEHOLDER_21))
+              (parameter_list
+                (parameter_declaration (type_identifier PLACEHOLDER_4))
+                (parameter_declaration (type_identifier PLACEHOLDER_4))))))))
+    (declaration (type_identifier PLACEHOLDER_1)
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_22
+          (parameter_list
+            (parameter_declaration (type_identifier PLACEHOLDER_1)
+              (pointer_declarator * PLACEHOLDER_6))))))
+    (declaration void
+      (function_declarator PLACEHOLDER_23
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_6)))))))

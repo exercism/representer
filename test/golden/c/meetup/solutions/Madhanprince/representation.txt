@@ -1,60 +1,175 @@
-#ifndef MEETUP_H
-#define MEETUP_H
-int meetup_day_of_month ( unsigned int year , unsigned int month , const char * week ,
-const char * day_of_week );
-#endif
-static const char * weekdays [] = {
-"\"Sunday\"" , "\"Monday\"" , "\"Tuesday\"" , "\"Wednesday\"" , "\"Thursday\"" , "\"Friday\"" , "\"Saturday\""
-};
-static const unsigned int days_in_month [ 2 ][ 12 ] = {
-{ 31 , 28 , 31 , 30 , 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31 },
-{ 31 , 29 , 31 , 30 , 31 , 30 , 31 , 31 , 30 , 31 , 30 , 31 },
-};
-static unsigned int
-weekday_to_num ( const char * weekday )
-{
-for ( unsigned int i = 0 ; i < 7 ; i ++ )
-if ( ! strcmp ( weekdays [ i ], weekday ))
-return i ;
-return 8 ;
-}
-static unsigned int
-is_leap ( unsigned int year )
-{
-return ! ( year % 4 ) && (( year % 100 ) || ! ( year % 400 ));
-}
-int
-meetup_day_of_month ( unsigned int year ,
-unsigned int month ,
-const char * week ,
-const char * day_of_week )
-{
-struct tm tm = {
-. tm_year = year - 1900 ,
-. tm_mon = month - 1 ,
-. tm_mday = 1 ,
-};
-mktime ( & tm );
-int wday = weekday_to_num ( day_of_week );
-if ( wday > 7 )
-goto fail ;
-int day = 1 + wday - tm . tm_wday ;
-if ( day <= 0 )
-day += 7 ;
-if ( ! strcmp ( week , "\"first\"" )) {
-return day ;
-} else if ( ! strcmp ( week , "\"second\"" )) {
-return day + 7 ;
-} else if ( ! strcmp ( week , "\"third\"" )) {
-return day + 14 ;
-} else if ( ! strcmp ( week , "\"fourth\"" )) {
-return day + 21 ;
-} else if ( ! strcmp ( week , "\"last\"" )) {
-int ndays = days_in_month [ is_leap ( year )][ month - 1 ];
-return ( day + 28 ) > ndays ? day + 21 : day + 28 ;
-} else if ( ! strcmp ( week , "\"teenth\"" )) {
-return ( day + 7 ) < 13 ? day + 14 : day + 7 ;
-}
-fail:
-return - 1 ;
-}
+(translation_unit
+  (declaration
+    (storage_class_specifier static)
+    (type_qualifier const) char
+    (init_declarator
+      (pointer_declarator *
+        (array_declarator PLACEHOLDER_1)) =
+      (initializer_list "Sunday" "Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday")))
+  (declaration
+    (storage_class_specifier static)
+    (type_qualifier const)
+    (sized_type_specifier unsigned int)
+    (init_declarator
+      (array_declarator
+        (array_declarator PLACEHOLDER_2 2) 12) =
+      (initializer_list
+        (initializer_list 31 28 31 30 31 30 31 31 30 31 30 31)
+        (initializer_list 31 29 31 30 31 30 31 31 30 31 30 31))))
+  (function_definition
+    (storage_class_specifier static)
+    (sized_type_specifier unsigned int)
+    (function_declarator PLACEHOLDER_3
+      (parameter_list
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_4))))
+    (compound_statement
+      (for_statement
+        (declaration
+          (sized_type_specifier unsigned int)
+          (init_declarator PLACEHOLDER_5 = 0))
+        (binary_expression PLACEHOLDER_5 < 7) ;
+        (update_expression PLACEHOLDER_5 ++)
+        (if_statement
+          (unary_expression !
+            (call_expression strcmp
+              (argument_list
+                (subscript_expression PLACEHOLDER_1 PLACEHOLDER_5) PLACEHOLDER_4)))
+          (return_statement PLACEHOLDER_5)))
+      (return_statement 8)))
+  (function_definition
+    (storage_class_specifier static)
+    (sized_type_specifier unsigned int)
+    (function_declarator PLACEHOLDER_6
+      (parameter_list
+        (parameter_declaration
+          (sized_type_specifier unsigned int) PLACEHOLDER_7)))
+    (compound_statement
+      (return_statement
+        (binary_expression
+          (unary_expression !
+            (binary_expression PLACEHOLDER_7 % 4)) &&
+          (binary_expression
+            (binary_expression PLACEHOLDER_7 % 100) ||
+            (unary_expression !
+              (binary_expression PLACEHOLDER_7 % 400)))))))
+  (function_definition int
+    (function_declarator PLACEHOLDER_8
+      (parameter_list
+        (parameter_declaration
+          (sized_type_specifier unsigned int) PLACEHOLDER_7)
+        (parameter_declaration
+          (sized_type_specifier unsigned int) PLACEHOLDER_9)
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_10))
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_11))))
+    (compound_statement
+      (declaration
+        (struct_specifier (type_identifier PLACEHOLDER_12))
+        (init_declarator PLACEHOLDER_12 =
+          (initializer_list
+            (initializer_pair
+              (field_designator . tm_year) =
+              (binary_expression PLACEHOLDER_7 - 1900))
+            (initializer_pair
+              (field_designator . tm_mon) =
+              (binary_expression PLACEHOLDER_9 - 1))
+            (initializer_pair
+              (field_designator . tm_mday) = 1))))
+      (expression_statement
+        (call_expression mktime
+          (argument_list
+            (pointer_expression & PLACEHOLDER_12))))
+      (declaration int
+        (init_declarator PLACEHOLDER_13 =
+          (call_expression PLACEHOLDER_3
+            (argument_list PLACEHOLDER_11))))
+      (if_statement
+        (binary_expression PLACEHOLDER_13 > 7)
+        (goto_statement (statement_identifier PLACEHOLDER_14)))
+      (declaration int
+        (init_declarator PLACEHOLDER_15 =
+          (binary_expression
+            (binary_expression 1 + PLACEHOLDER_13) -
+            (field_expression PLACEHOLDER_12 . tm_wday))))
+      (if_statement
+        (binary_expression PLACEHOLDER_15 <= 0)
+        (expression_statement
+          (assignment_expression PLACEHOLDER_15 += 7)))
+      (if_statement
+        (unary_expression !
+          (call_expression strcmp
+            (argument_list PLACEHOLDER_10 "first")))
+        (compound_statement
+          (return_statement PLACEHOLDER_15))
+        (if_statement
+          (unary_expression !
+            (call_expression strcmp
+              (argument_list PLACEHOLDER_10 "second")))
+          (compound_statement
+            (return_statement
+              (binary_expression PLACEHOLDER_15 + 7)))
+          (if_statement
+            (unary_expression !
+              (call_expression strcmp
+                (argument_list PLACEHOLDER_10 "third")))
+            (compound_statement
+              (return_statement
+                (binary_expression PLACEHOLDER_15 + 14)))
+            (if_statement
+              (unary_expression !
+                (call_expression strcmp
+                  (argument_list PLACEHOLDER_10 "fourth")))
+              (compound_statement
+                (return_statement
+                  (binary_expression PLACEHOLDER_15 + 21)))
+              (if_statement
+                (unary_expression !
+                  (call_expression strcmp
+                    (argument_list PLACEHOLDER_10 "last")))
+                (compound_statement
+                  (declaration int
+                    (init_declarator PLACEHOLDER_16 =
+                      (subscript_expression
+                        (subscript_expression PLACEHOLDER_2
+                          (call_expression PLACEHOLDER_6
+                            (argument_list PLACEHOLDER_7)))
+                        (binary_expression PLACEHOLDER_9 - 1))))
+                  (return_statement
+                    (conditional_expression
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_15 + 28) > PLACEHOLDER_16) ?
+                      (binary_expression PLACEHOLDER_15 + 21) :
+                      (binary_expression PLACEHOLDER_15 + 28))))
+                (if_statement
+                  (unary_expression !
+                    (call_expression strcmp
+                      (argument_list PLACEHOLDER_10 "teenth")))
+                  (compound_statement
+                    (return_statement
+                      (conditional_expression
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_15 + 7) < 13) ?
+                        (binary_expression PLACEHOLDER_15 + 14) :
+                        (binary_expression PLACEHOLDER_15 + 7))))))))))
+      (labeled_statement (statement_identifier PLACEHOLDER_14) :
+        (return_statement -1))))
+  (preproc_ifdef #ifndef PLACEHOLDER_17
+    (preproc_def PLACEHOLDER_17)
+    (declaration int
+      (function_declarator PLACEHOLDER_8
+        (parameter_list
+          (parameter_declaration
+            (sized_type_specifier unsigned int) PLACEHOLDER_7)
+          (parameter_declaration
+            (sized_type_specifier unsigned int) PLACEHOLDER_9)
+          (parameter_declaration
+            (type_qualifier const) char
+            (pointer_declarator * PLACEHOLDER_10))
+          (parameter_declaration
+            (type_qualifier const) char
+            (pointer_declarator * PLACEHOLDER_11)))))))

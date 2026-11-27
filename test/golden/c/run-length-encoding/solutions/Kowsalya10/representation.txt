@@ -1,52 +1,156 @@
-#ifndef RUN_LENGTH_ENCODING_H
-#define RUN_LENGTH_ENCODING_H
-char * encode ( const char * text );
-char * decode ( const char * data );
-#endif
-char * encode ( const char * text )
-{
-char encoded [ 0xffff ];
-char current ;
-size_t current_encoded = 0 ;
-size_t count ;
-size_t chunk_len ;
-char * ret ;
-for ( const char * c = text ; * c ;) {
-current = * c ;
-for ( count = 0 ; c [ count ] == current ; count ++ );
-if ( count == 1 ) {
-sprintf ( & encoded [ current_encoded ++ ], "\"%c\"" , current );
-} else {
-chunk_len = log10 ( count ) + 2 ;
-sprintf ( & encoded [ current_encoded ], "\"%zu%c\"" , count , current );
-current_encoded += chunk_len ;
-}
-c += count ;
-}
-ret = malloc ( sizeof ( char ) * current_encoded + 1 );
-strcpy ( ret , encoded );
-return ret ;
-}
-char * decode ( const char * data )
-{
-char decoded [ 0xffff ];
-size_t current_decoded = 0 ;
-size_t count ;
-size_t count_len ;
-char * ret ;
-for ( const char * c = data ; * c ;) {
-count = atoi ( c );
-if ( count == 0 || * c == "' '" ) {
-decoded [ current_decoded ++ ] = * c ;
-c ++ ;
-} else {
-count_len = log10 ( count ) + 1 ;
-memset ( & decoded [ current_decoded ], * ( c + count_len ), count );
-current_decoded += ( count );
-c += count_len + 1 ;
-}
-}
-ret = calloc ( current_decoded + 1 , sizeof ( char ));
-strncpy ( ret , decoded , current_decoded );
-return ret ;
-}
+(translation_unit
+  (function_definition char
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_1
+        (parameter_list
+          (parameter_declaration
+            (type_qualifier const) char
+            (pointer_declarator * PLACEHOLDER_2)))))
+    (compound_statement
+      (declaration char
+        (array_declarator PLACEHOLDER_3 65535))
+      (declaration char PLACEHOLDER_4)
+      (declaration size_t
+        (init_declarator PLACEHOLDER_5 = 0))
+      (declaration size_t PLACEHOLDER_6)
+      (declaration size_t PLACEHOLDER_7)
+      (declaration char
+        (pointer_declarator * PLACEHOLDER_8))
+      (for_statement
+        (declaration
+          (type_qualifier const) char
+          (init_declarator
+            (pointer_declarator * PLACEHOLDER_9) = PLACEHOLDER_2))
+        (pointer_expression * PLACEHOLDER_9) ;
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 =
+              (pointer_expression * PLACEHOLDER_9)))
+          (for_statement
+            (assignment_expression PLACEHOLDER_6 = 0) ;
+            (binary_expression
+              (subscript_expression PLACEHOLDER_9 PLACEHOLDER_6) == PLACEHOLDER_4) ;
+            (update_expression PLACEHOLDER_6 ++)
+            (expression_statement))
+          (if_statement
+            (binary_expression PLACEHOLDER_6 == 1)
+            (compound_statement
+              (expression_statement
+                (call_expression sprintf
+                  (argument_list
+                    (pointer_expression &
+                      (subscript_expression PLACEHOLDER_3
+                        (update_expression PLACEHOLDER_5 ++))) "%c" PLACEHOLDER_4))))
+            (compound_statement
+              (expression_statement
+                (assignment_expression PLACEHOLDER_7 =
+                  (binary_expression
+                    (call_expression log10
+                      (argument_list PLACEHOLDER_6)) + 2)))
+              (expression_statement
+                (call_expression sprintf
+                  (argument_list
+                    (pointer_expression &
+                      (subscript_expression PLACEHOLDER_3 PLACEHOLDER_5)) "%zu%c" PLACEHOLDER_6 PLACEHOLDER_4)))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_5 += PLACEHOLDER_7))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_9 += PLACEHOLDER_6))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_8 =
+          (call_expression malloc
+            (argument_list
+              (binary_expression
+                (binary_expression
+                  (sizeof_expression
+                    (type_descriptor char)) * PLACEHOLDER_5) + 1)))))
+      (expression_statement
+        (call_expression strcpy
+          (argument_list PLACEHOLDER_8 PLACEHOLDER_3)))
+      (return_statement PLACEHOLDER_8)))
+  (function_definition char
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_10
+        (parameter_list
+          (parameter_declaration
+            (type_qualifier const) char
+            (pointer_declarator * PLACEHOLDER_11)))))
+    (compound_statement
+      (declaration char
+        (array_declarator PLACEHOLDER_12 65535))
+      (declaration size_t
+        (init_declarator PLACEHOLDER_13 = 0))
+      (declaration size_t PLACEHOLDER_6)
+      (declaration size_t PLACEHOLDER_14)
+      (declaration char
+        (pointer_declarator * PLACEHOLDER_8))
+      (for_statement
+        (declaration
+          (type_qualifier const) char
+          (init_declarator
+            (pointer_declarator * PLACEHOLDER_9) = PLACEHOLDER_11))
+        (pointer_expression * PLACEHOLDER_9) ;
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_6 =
+              (call_expression atoi
+                (argument_list PLACEHOLDER_9))))
+          (if_statement
+            (binary_expression
+              (binary_expression PLACEHOLDER_6 == 0) ||
+              (binary_expression
+                (pointer_expression * PLACEHOLDER_9) ==
+                (char_literal ' " " ')))
+            (compound_statement
+              (expression_statement
+                (assignment_expression
+                  (subscript_expression PLACEHOLDER_12
+                    (update_expression PLACEHOLDER_13 ++)) =
+                  (pointer_expression * PLACEHOLDER_9)))
+              (expression_statement
+                (update_expression PLACEHOLDER_9 ++)))
+            (compound_statement
+              (expression_statement
+                (assignment_expression PLACEHOLDER_14 =
+                  (binary_expression
+                    (call_expression log10
+                      (argument_list PLACEHOLDER_6)) + 1)))
+              (expression_statement
+                (call_expression memset
+                  (argument_list
+                    (pointer_expression &
+                      (subscript_expression PLACEHOLDER_12 PLACEHOLDER_13))
+                    (pointer_expression *
+                      (binary_expression PLACEHOLDER_9 + PLACEHOLDER_14)) PLACEHOLDER_6)))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_13 += PLACEHOLDER_6))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_9 +=
+                  (binary_expression PLACEHOLDER_14 + 1)))))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_8 =
+          (call_expression calloc
+            (argument_list
+              (binary_expression PLACEHOLDER_13 + 1)
+              (sizeof_expression
+                (type_descriptor char))))))
+      (expression_statement
+        (call_expression strncpy
+          (argument_list PLACEHOLDER_8 PLACEHOLDER_12 PLACEHOLDER_13)))
+      (return_statement PLACEHOLDER_8)))
+  (preproc_ifdef #ifndef PLACEHOLDER_15
+    (preproc_def PLACEHOLDER_15)
+    (declaration char
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_1
+          (parameter_list
+            (parameter_declaration
+              (type_qualifier const) char
+              (pointer_declarator * PLACEHOLDER_2))))))
+    (declaration char
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_10
+          (parameter_list
+            (parameter_declaration
+              (type_qualifier const) char
+              (pointer_declarator * PLACEHOLDER_11))))))))

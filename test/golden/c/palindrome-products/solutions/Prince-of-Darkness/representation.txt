@@ -1,114 +1,312 @@
-#ifndef PALINDROME_PRODUCTS_H
-#define PALINDROME_PRODUCTS_H
-#define MAXERR 100
-typedef struct factors {
-int factor_a ;
-int factor_b ;
-struct factors * next ;
-} factor_t ;
-struct product {
-int smallest ;
-int largest ;
-factor_t * factors_sm ;
-factor_t * factors_lg ;
-char error [ MAXERR ];
-};
-typedef struct product product_t ;
-bool is_palindrome ( int n );
-product_t * get_palindrome_product ( int from , int to );
-void free_product ( product_t * p );
-#endif
-bool is_palindrome ( int n ) {
-char buf [ 1024 ];
-if ( n < 10 ) return true ;
-sprintf ( buf , "\"%d\"" , n );
-size_t l = strlen ( buf );
-for ( size_t i = 0 ; i < l / 2 ; i ++ ) {
-if ( buf [ i ] != buf [ l - i - 1 ]) return false ;
-}
-return true ;
-}
-product_t * get_palindrome_product ( int from , int to ) {
-int min = from * from ;
-int max = to * to ;
-int x ;
-product_t * p = ( product_t * ) malloc ( sizeof ( product_t ));
-p -> factors_sm = NULL ;
-p -> factors_lg = NULL ;
-factor_t * factor ;
-factor_t * factor_sm ;
-factor_t * factor_lg ;
-if ( from > to ) {
-sprintf ( p -> error , "\"invalid input: min is %d and max is %d\"" , from , to );
-return p ;
-}
-while ( 1 ) {
-if ( min > max ) {
-sprintf ( p -> error , "\"no palindrome with factors in the range %d to %d\"" , from , to );
-return p ;
-} else if ( is_palindrome ( min )) {
-for ( x = from ; x * x <= min ; x ++ ) {
-if ( min % x == 0 && min / x <= to ) {
-p -> smallest = min ;
-factor = ( factor_t * ) malloc ( sizeof ( factor_t ));
-factor -> factor_a = x ;
-factor -> factor_b = min / x ;
-factor -> next = NULL ;
-if ( p -> factors_sm == NULL ) {
-p -> factors_sm = factor ;
-} else {
-factor_sm = p -> factors_sm ;
-while ( factor_sm -> next != NULL ) factor_sm = factor_sm -> next ;
-factor_sm -> next = factor ;
-}
-}
-}
-if ( p -> factors_sm != NULL ) break ;
-}
-min ++ ;
-}
-while ( 1 ) {
-if ( is_palindrome ( max )) {
-for ( x = from ; x * x <= max ; x ++ ) {
-if ( max % x == 0 && max / x <= to ) {
-p -> largest = max ;
-factor = ( factor_t * ) malloc ( sizeof ( factor_t ));
-factor -> factor_a = x ;
-factor -> factor_b = max / x ;
-factor -> next = NULL ;
-if ( p -> factors_lg == NULL ) {
-p -> factors_lg = factor ;
-} else {
-factor_lg = p -> factors_lg ;
-while ( factor_lg -> next != NULL ) factor_lg = factor_lg -> next ;
-factor_lg -> next = factor ;
-}
-}
-}
-if ( p -> factors_lg != NULL ) break ;
-}
-max -- ;
-}
-return p ;
-}
-void free_product ( product_t * p ) {
-factor_t * factor ;
-factor_t * factor2 ;
-if ( p -> factors_sm ) {
-factor = p -> factors_sm ;
-while ( factor -> next ) {
-factor2 = factor -> next ;
-free ( factor );
-factor = factor2 ;
-}
-}
-if ( p -> factors_lg ) {
-factor = p -> factors_lg ;
-while ( factor -> next ) {
-factor2 = factor -> next ;
-free ( factor );
-factor = factor2 ;
-}
-}
-free ( p );
-}
+(translation_unit
+  (function_definition bool
+    (function_declarator PLACEHOLDER_1
+      (parameter_list
+        (parameter_declaration int PLACEHOLDER_2)))
+    (compound_statement
+      (declaration char
+        (array_declarator PLACEHOLDER_3 1024))
+      (if_statement
+        (binary_expression PLACEHOLDER_2 < 10)
+        (return_statement true))
+      (expression_statement
+        (call_expression sprintf
+          (argument_list PLACEHOLDER_3 "%d" PLACEHOLDER_2)))
+      (declaration size_t
+        (init_declarator PLACEHOLDER_4 =
+          (call_expression strlen
+            (argument_list PLACEHOLDER_3))))
+      (for_statement
+        (declaration size_t
+          (init_declarator PLACEHOLDER_5 = 0))
+        (binary_expression PLACEHOLDER_5 <
+          (binary_expression PLACEHOLDER_4 / 2)) ;
+        (update_expression PLACEHOLDER_5 ++)
+        (compound_statement
+          (if_statement
+            (binary_expression
+              (subscript_expression PLACEHOLDER_3 PLACEHOLDER_5) !=
+              (subscript_expression PLACEHOLDER_3
+                (binary_expression
+                  (binary_expression PLACEHOLDER_4 - PLACEHOLDER_5) - 1)))
+            (return_statement false))))
+      (return_statement true)))
+  (function_definition (type_identifier PLACEHOLDER_6)
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_7
+        (parameter_list
+          (parameter_declaration int PLACEHOLDER_8)
+          (parameter_declaration int PLACEHOLDER_9))))
+    (compound_statement
+      (declaration int
+        (init_declarator PLACEHOLDER_10 =
+          (binary_expression PLACEHOLDER_8 * PLACEHOLDER_8)))
+      (declaration int
+        (init_declarator PLACEHOLDER_11 =
+          (binary_expression PLACEHOLDER_9 * PLACEHOLDER_9)))
+      (declaration int PLACEHOLDER_12)
+      (declaration (type_identifier PLACEHOLDER_6)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_13) =
+          (cast_expression
+            (type_descriptor (type_identifier PLACEHOLDER_6)
+              (abstract_pointer_declarator *))
+            (call_expression malloc
+              (argument_list
+                (sizeof_expression PLACEHOLDER_6))))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_14)) =
+          (null NULL)))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_15)) =
+          (null NULL)))
+      (declaration (type_identifier PLACEHOLDER_16)
+        (pointer_declarator * PLACEHOLDER_17))
+      (declaration (type_identifier PLACEHOLDER_16)
+        (pointer_declarator * PLACEHOLDER_18))
+      (declaration (type_identifier PLACEHOLDER_16)
+        (pointer_declarator * PLACEHOLDER_19))
+      (if_statement
+        (binary_expression PLACEHOLDER_8 > PLACEHOLDER_9)
+        (compound_statement
+          (expression_statement
+            (call_expression sprintf
+              (argument_list
+                (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_20)) "invalid input: min is %d and max is %d" PLACEHOLDER_8 PLACEHOLDER_9)))
+          (return_statement PLACEHOLDER_13)))
+      (while_statement 1
+        (compound_statement
+          (if_statement
+            (binary_expression PLACEHOLDER_10 > PLACEHOLDER_11)
+            (compound_statement
+              (expression_statement
+                (call_expression sprintf
+                  (argument_list
+                    (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_20)) "no palindrome with factors in the range %d to %d" PLACEHOLDER_8 PLACEHOLDER_9)))
+              (return_statement PLACEHOLDER_13))
+            (if_statement
+              (call_expression PLACEHOLDER_1
+                (argument_list PLACEHOLDER_10))
+              (compound_statement
+                (for_statement
+                  (assignment_expression PLACEHOLDER_12 = PLACEHOLDER_8) ;
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_12 * PLACEHOLDER_12) <= PLACEHOLDER_10) ;
+                  (update_expression PLACEHOLDER_12 ++)
+                  (compound_statement
+                    (if_statement
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_10 % PLACEHOLDER_12) == 0) &&
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_10 / PLACEHOLDER_12) <= PLACEHOLDER_9))
+                      (compound_statement
+                        (expression_statement
+                          (assignment_expression
+                            (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_21)) = PLACEHOLDER_10))
+                        (expression_statement
+                          (assignment_expression PLACEHOLDER_17 =
+                            (cast_expression
+                              (type_descriptor (type_identifier PLACEHOLDER_16)
+                                (abstract_pointer_declarator *))
+                              (call_expression malloc
+                                (argument_list
+                                  (sizeof_expression PLACEHOLDER_16))))))
+                        (expression_statement
+                          (assignment_expression
+                            (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_22)) = PLACEHOLDER_12))
+                        (expression_statement
+                          (assignment_expression
+                            (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_23)) =
+                            (binary_expression PLACEHOLDER_10 / PLACEHOLDER_12)))
+                        (expression_statement
+                          (assignment_expression
+                            (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_24)) =
+                            (null NULL)))
+                        (if_statement
+                          (binary_expression
+                            (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_14)) ==
+                            (null NULL))
+                          (compound_statement
+                            (expression_statement
+                              (assignment_expression
+                                (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_14)) = PLACEHOLDER_17)))
+                          (compound_statement
+                            (expression_statement
+                              (assignment_expression PLACEHOLDER_18 =
+                                (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_14))))
+                            (while_statement
+                              (binary_expression
+                                (field_expression PLACEHOLDER_18 -> (field_identifier PLACEHOLDER_24)) !=
+                                (null NULL))
+                              (expression_statement
+                                (assignment_expression PLACEHOLDER_18 =
+                                  (field_expression PLACEHOLDER_18 -> (field_identifier PLACEHOLDER_24)))))
+                            (expression_statement
+                              (assignment_expression
+                                (field_expression PLACEHOLDER_18 -> (field_identifier PLACEHOLDER_24)) = PLACEHOLDER_17))))))))
+                (if_statement
+                  (binary_expression
+                    (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_14)) !=
+                    (null NULL))
+                  (break_statement)))))
+          (expression_statement
+            (update_expression PLACEHOLDER_10 ++))))
+      (while_statement 1
+        (compound_statement
+          (if_statement
+            (call_expression PLACEHOLDER_1
+              (argument_list PLACEHOLDER_11))
+            (compound_statement
+              (for_statement
+                (assignment_expression PLACEHOLDER_12 = PLACEHOLDER_8) ;
+                (binary_expression
+                  (binary_expression PLACEHOLDER_12 * PLACEHOLDER_12) <= PLACEHOLDER_11) ;
+                (update_expression PLACEHOLDER_12 ++)
+                (compound_statement
+                  (if_statement
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_11 % PLACEHOLDER_12) == 0) &&
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_11 / PLACEHOLDER_12) <= PLACEHOLDER_9))
+                    (compound_statement
+                      (expression_statement
+                        (assignment_expression
+                          (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_25)) = PLACEHOLDER_11))
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_17 =
+                          (cast_expression
+                            (type_descriptor (type_identifier PLACEHOLDER_16)
+                              (abstract_pointer_declarator *))
+                            (call_expression malloc
+                              (argument_list
+                                (sizeof_expression PLACEHOLDER_16))))))
+                      (expression_statement
+                        (assignment_expression
+                          (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_22)) = PLACEHOLDER_12))
+                      (expression_statement
+                        (assignment_expression
+                          (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_23)) =
+                          (binary_expression PLACEHOLDER_11 / PLACEHOLDER_12)))
+                      (expression_statement
+                        (assignment_expression
+                          (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_24)) =
+                          (null NULL)))
+                      (if_statement
+                        (binary_expression
+                          (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_15)) ==
+                          (null NULL))
+                        (compound_statement
+                          (expression_statement
+                            (assignment_expression
+                              (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_15)) = PLACEHOLDER_17)))
+                        (compound_statement
+                          (expression_statement
+                            (assignment_expression PLACEHOLDER_19 =
+                              (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_15))))
+                          (while_statement
+                            (binary_expression
+                              (field_expression PLACEHOLDER_19 -> (field_identifier PLACEHOLDER_24)) !=
+                              (null NULL))
+                            (expression_statement
+                              (assignment_expression PLACEHOLDER_19 =
+                                (field_expression PLACEHOLDER_19 -> (field_identifier PLACEHOLDER_24)))))
+                          (expression_statement
+                            (assignment_expression
+                              (field_expression PLACEHOLDER_19 -> (field_identifier PLACEHOLDER_24)) = PLACEHOLDER_17))))))))
+              (if_statement
+                (binary_expression
+                  (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_15)) !=
+                  (null NULL))
+                (break_statement))))
+          (expression_statement
+            (update_expression PLACEHOLDER_11 --))))
+      (return_statement PLACEHOLDER_13)))
+  (function_definition void
+    (function_declarator PLACEHOLDER_26
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_6)
+          (pointer_declarator * PLACEHOLDER_13))))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_16)
+        (pointer_declarator * PLACEHOLDER_17))
+      (declaration (type_identifier PLACEHOLDER_16)
+        (pointer_declarator * PLACEHOLDER_27))
+      (if_statement
+        (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_14))
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_17 =
+              (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_14))))
+          (while_statement
+            (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_24))
+            (compound_statement
+              (expression_statement
+                (assignment_expression PLACEHOLDER_27 =
+                  (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_24))))
+              (expression_statement
+                (call_expression free
+                  (argument_list PLACEHOLDER_17)))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_17 = PLACEHOLDER_27))))))
+      (if_statement
+        (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_15))
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_17 =
+              (field_expression PLACEHOLDER_13 -> (field_identifier PLACEHOLDER_15))))
+          (while_statement
+            (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_24))
+            (compound_statement
+              (expression_statement
+                (assignment_expression PLACEHOLDER_27 =
+                  (field_expression PLACEHOLDER_17 -> (field_identifier PLACEHOLDER_24))))
+              (expression_statement
+                (call_expression free
+                  (argument_list PLACEHOLDER_17)))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_17 = PLACEHOLDER_27))))))
+      (expression_statement
+        (call_expression free
+          (argument_list PLACEHOLDER_13)))))
+  (preproc_ifdef #ifndef PLACEHOLDER_28
+    (preproc_def PLACEHOLDER_28)
+    (preproc_def PLACEHOLDER_29 100)
+    (type_definition
+      (struct_specifier (type_identifier PLACEHOLDER_30)
+        (field_declaration_list
+          (field_declaration int (field_identifier PLACEHOLDER_22))
+          (field_declaration int (field_identifier PLACEHOLDER_23))
+          (field_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_30))
+            (pointer_declarator * (field_identifier PLACEHOLDER_24))))) (type_identifier PLACEHOLDER_16))
+    (struct_specifier (type_identifier PLACEHOLDER_31)
+      (field_declaration_list
+        (field_declaration int (field_identifier PLACEHOLDER_21))
+        (field_declaration int (field_identifier PLACEHOLDER_25))
+        (field_declaration (type_identifier PLACEHOLDER_16)
+          (pointer_declarator * (field_identifier PLACEHOLDER_14)))
+        (field_declaration (type_identifier PLACEHOLDER_16)
+          (pointer_declarator * (field_identifier PLACEHOLDER_15)))
+        (field_declaration char
+          (array_declarator (field_identifier PLACEHOLDER_20) PLACEHOLDER_29))))
+    (type_definition
+      (struct_specifier (type_identifier PLACEHOLDER_31)) (type_identifier PLACEHOLDER_6))
+    (declaration bool
+      (function_declarator PLACEHOLDER_1
+        (parameter_list
+          (parameter_declaration int PLACEHOLDER_2))))
+    (declaration (type_identifier PLACEHOLDER_6)
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_7
+          (parameter_list
+            (parameter_declaration int PLACEHOLDER_8)
+            (parameter_declaration int PLACEHOLDER_9)))))
+    (declaration void
+      (function_declarator PLACEHOLDER_26
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_6)
+            (pointer_declarator * PLACEHOLDER_13)))))))

@@ -1,187 +1,392 @@
-#ifndef TWO_BUCKET_H
-#define TWO_BUCKET_H
-typedef enum {
-BUCKET_ID_1 ,
-BUCKET_ID_2
-} bucket_id_t ;
-typedef unsigned int bucket_liters_t ;
-typedef struct {
-bool possible ;
-int move_count ;
-bucket_id_t goal_bucket ;
-bucket_liters_t other_bucket_liters ;
-} bucket_result_t ;
-bucket_result_t measure (
-bucket_liters_t bucket_1_size ,
-bucket_liters_t bucket_2_size ,
-bucket_liters_t goal_volume ,
-bucket_id_t start_bucket );
-void InitBucket ( bucket_result_t * bucketToInit , bucket_id_t startBucket , bucket_id_t otherBucket );
-void FillEmptyBucket ( bucket_result_t * bucketToFill , bucket_liters_t * bucketLevel , bucket_liters_t fillVolume );
-bool CheckIfGoalVolumeIsInGoalBucket ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume );
-void OtherBucketHadGoalVolume ( bucket_result_t * bucketToFill );
-bool CheckIfGoalVolumeIsInOtherBucket ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume );
-bool OtherBucketIsExactlyTheGoalVolume ( bucket_result_t * bucketToFill , bucket_liters_t startBucketSize , bucket_liters_t goalVolume );
-bool CheckIfBothBucketsAreFull ( bucket_result_t * bucketToFill , bucket_liters_t bucketOneSize );
-void PourGoalBucketIntoOtherBucket ( bucket_result_t * bucketToFill );
-bool CheckIfEndCaseIsMet ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume , bucket_liters_t bucketOneSize );
-void BucketAlgorithm ( bucket_result_t * bucketToFill , bucket_liters_t bucketOneSize , bucket_liters_t goalVolume );
-#endif
-bucket_liters_t startBucketLevel = 0 ;
-bucket_liters_t otherBucketLevel = 0 ;
-void InitBucket ( bucket_result_t * bucketToInit , bucket_id_t startBucket , bucket_id_t otherBucket )
-{
-bucketToInit -> possible = false ;
-bucketToInit -> move_count = 0 ;
-bucketToInit -> goal_bucket = startBucket ;
-bucketToInit -> other_bucket_liters = otherBucket ;
-}
-void FillEmptyBucket ( bucket_result_t * bucketToFill , bucket_liters_t * bucketLevel , bucket_liters_t fillVolume )
-{
-bucketToFill -> move_count ++ ;
-* bucketLevel = fillVolume ;
-}
-bool CheckIfGoalVolumeIsInGoalBucket ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume )
-{
-if ( startBucketLevel == goalVolume )
-{
-bucketToFill -> possible = true ;
-bucketToFill -> other_bucket_liters = otherBucketLevel ;
-return true ;
-}
-return false ;
-}
-void OtherBucketHadGoalVolume ( bucket_result_t * bucketToFill )
-{
-bucketToFill -> possible = true ;
-bucketToFill -> other_bucket_liters = startBucketLevel ;
-if ( bucketToFill -> goal_bucket == BUCKET_ID_1 )
-{
-bucketToFill -> goal_bucket = BUCKET_ID_2 ;
-}
-else if ( bucketToFill -> goal_bucket == BUCKET_ID_2 )
-{
-bucketToFill -> goal_bucket = BUCKET_ID_1 ;
-}
-}
-bool CheckIfGoalVolumeIsInOtherBucket ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume )
-{
-if ( otherBucketLevel == goalVolume )
-{
-OtherBucketHadGoalVolume ( bucketToFill );
-return true ;
-}
-return false ;
-}
-bool OtherBucketIsExactlyTheGoalVolume ( bucket_result_t * bucketToFill , bucket_liters_t startBucketSize , bucket_liters_t goalVolume )
-{
-if ( bucketToFill -> other_bucket_liters == goalVolume )
-{
-FillEmptyBucket ( bucketToFill , & startBucketLevel , startBucketSize );
-FillEmptyBucket ( bucketToFill , & otherBucketLevel , goalVolume );
-OtherBucketHadGoalVolume ( bucketToFill );
-return true ;
-}
-return false ;
-}
-bool CheckIfBothBucketsAreFull ( bucket_result_t * bucketToFill , bucket_liters_t bucketOneSize )
-{
-if ( otherBucketLevel == bucketToFill -> other_bucket_liters && startBucketLevel == bucketOneSize )
-{
-bucketToFill -> possible = false ;
-return true ;
-}
-return false ;
-}
-void PourGoalBucketIntoOtherBucket ( bucket_result_t * bucketToFill )
-{
-bucketToFill -> move_count ++ ;
-otherBucketLevel += startBucketLevel ;
-if ( otherBucketLevel > bucketToFill -> other_bucket_liters )
-{
-startBucketLevel = otherBucketLevel - bucketToFill -> other_bucket_liters ;
-otherBucketLevel = bucketToFill -> other_bucket_liters ;
-}
-else
-{
-startBucketLevel = 0 ;
-}
-}
-bool CheckIfEndCaseIsMet ( bucket_result_t * bucketToFill , bucket_liters_t goalVolume , bucket_liters_t bucketOneSize )
-{
-if ( CheckIfGoalVolumeIsInGoalBucket ( bucketToFill , goalVolume ) == true )
-{
-return true ;
-}
-else if ( CheckIfGoalVolumeIsInOtherBucket ( bucketToFill , goalVolume ) == true )
-{
-return true ;
-}
-else if ( CheckIfBothBucketsAreFull ( bucketToFill , bucketOneSize ) == true )
-{
-return true ;
-}
-return false ;
-}
-void BucketAlgorithm ( bucket_result_t * bucketToFill , bucket_liters_t bucketOneSize , bucket_liters_t goalVolume )
-{
-if ( CheckIfEndCaseIsMet ( bucketToFill , goalVolume , bucketOneSize ) == true )
-{
-return ;
-}
-if ( startBucketLevel == 0 )
-{
-FillEmptyBucket ( bucketToFill , & startBucketLevel , bucketOneSize );
-}
-else if ( otherBucketLevel == 0 )
-{
-PourGoalBucketIntoOtherBucket ( bucketToFill );
-}
-if ( CheckIfEndCaseIsMet ( bucketToFill , goalVolume , bucketOneSize ) == true )
-{
-return ;
-}
-if ( otherBucketLevel == bucketToFill -> other_bucket_liters )
-{
-bucketToFill -> move_count ++ ;
-otherBucketLevel = 0 ;
-}
-if ( startBucketLevel == bucketOneSize )
-{
-PourGoalBucketIntoOtherBucket ( bucketToFill );
-}
-BucketAlgorithm ( bucketToFill , bucketOneSize , goalVolume );
-return ;
-}
-bucket_result_t measure (
-bucket_liters_t bucket_1_size ,
-bucket_liters_t bucket_2_size ,
-bucket_liters_t goal_volume ,
-bucket_id_t start_bucket )
-{
-startBucketLevel = 0 ;
-otherBucketLevel = 0 ;
-bucket_result_t * outputBucket = ( bucket_result_t * ) malloc ( sizeof ( bucket_result_t ));
-if ( goal_volume > bucket_1_size && goal_volume > bucket_2_size )
-{
-outputBucket -> possible = false ;
-return * outputBucket ;
-}
-if ( start_bucket == BUCKET_ID_1 )
-{
-InitBucket ( outputBucket , start_bucket , bucket_2_size );
-if ( OtherBucketIsExactlyTheGoalVolume ( outputBucket , bucket_1_size , goal_volume ) == false )
-{
-BucketAlgorithm ( outputBucket , bucket_1_size , goal_volume );
-}
-}
-else
-{
-InitBucket ( outputBucket , start_bucket , bucket_1_size );
-if ( OtherBucketIsExactlyTheGoalVolume ( outputBucket , bucket_1_size , goal_volume ) == false )
-{
-BucketAlgorithm ( outputBucket , bucket_2_size , goal_volume );
-}
-}
-return * outputBucket ;
-}
+(translation_unit
+  (declaration (type_identifier PLACEHOLDER_1)
+    (init_declarator PLACEHOLDER_2 = 0))
+  (declaration (type_identifier PLACEHOLDER_1)
+    (init_declarator PLACEHOLDER_3 = 0))
+  (function_definition void
+    (function_declarator PLACEHOLDER_4
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_6))
+        (parameter_declaration (type_identifier PLACEHOLDER_7) PLACEHOLDER_8)
+        (parameter_declaration (type_identifier PLACEHOLDER_7) PLACEHOLDER_9)))
+    (compound_statement
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_10)) = false))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_11)) = 0))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_12)) = PLACEHOLDER_8))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 -> (field_identifier PLACEHOLDER_13)) = PLACEHOLDER_9))))
+  (function_definition void
+    (function_declarator PLACEHOLDER_14
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))
+        (parameter_declaration (type_identifier PLACEHOLDER_1)
+          (pointer_declarator * PLACEHOLDER_16))
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_17)))
+    (compound_statement
+      (expression_statement
+        (update_expression
+          (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_11)) ++))
+      (expression_statement
+        (assignment_expression
+          (pointer_expression * PLACEHOLDER_16) = PLACEHOLDER_17))))
+  (function_definition bool
+    (function_declarator PLACEHOLDER_18
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19)))
+    (compound_statement
+      (if_statement
+        (binary_expression PLACEHOLDER_2 == PLACEHOLDER_19)
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_10)) = true))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_13)) = PLACEHOLDER_3))
+          (return_statement true)))
+      (return_statement false)))
+  (function_definition void
+    (function_declarator PLACEHOLDER_20
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))))
+    (compound_statement
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_10)) = true))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_13)) = PLACEHOLDER_2))
+      (if_statement
+        (binary_expression
+          (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_12)) == PLACEHOLDER_21)
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_12)) = PLACEHOLDER_22)))
+        (if_statement
+          (binary_expression
+            (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_12)) == PLACEHOLDER_22)
+          (compound_statement
+            (expression_statement
+              (assignment_expression
+                (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_12)) = PLACEHOLDER_21)))))))
+  (function_definition bool
+    (function_declarator PLACEHOLDER_23
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19)))
+    (compound_statement
+      (if_statement
+        (binary_expression PLACEHOLDER_3 == PLACEHOLDER_19)
+        (compound_statement
+          (expression_statement
+            (call_expression PLACEHOLDER_20
+              (argument_list PLACEHOLDER_15)))
+          (return_statement true)))
+      (return_statement false)))
+  (function_definition bool
+    (function_declarator PLACEHOLDER_24
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_25)
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19)))
+    (compound_statement
+      (if_statement
+        (binary_expression
+          (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_13)) == PLACEHOLDER_19)
+        (compound_statement
+          (expression_statement
+            (call_expression PLACEHOLDER_14
+              (argument_list PLACEHOLDER_15
+                (pointer_expression & PLACEHOLDER_2) PLACEHOLDER_25)))
+          (expression_statement
+            (call_expression PLACEHOLDER_14
+              (argument_list PLACEHOLDER_15
+                (pointer_expression & PLACEHOLDER_3) PLACEHOLDER_19)))
+          (expression_statement
+            (call_expression PLACEHOLDER_20
+              (argument_list PLACEHOLDER_15)))
+          (return_statement true)))
+      (return_statement false)))
+  (function_definition bool
+    (function_declarator PLACEHOLDER_26
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_27)))
+    (compound_statement
+      (if_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_3 ==
+            (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_13))) &&
+          (binary_expression PLACEHOLDER_2 == PLACEHOLDER_27))
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_10)) = false))
+          (return_statement true)))
+      (return_statement false)))
+  (function_definition void
+    (function_declarator PLACEHOLDER_28
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))))
+    (compound_statement
+      (expression_statement
+        (update_expression
+          (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_11)) ++))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 += PLACEHOLDER_2))
+      (if_statement
+        (binary_expression PLACEHOLDER_3 >
+          (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_13)))
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 =
+              (binary_expression PLACEHOLDER_3 -
+                (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_13)))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_3 =
+              (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_13)))))
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 = 0))))))
+  (function_definition bool
+    (function_declarator PLACEHOLDER_29
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19)
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_27)))
+    (compound_statement
+      (if_statement
+        (binary_expression
+          (call_expression PLACEHOLDER_18
+            (argument_list PLACEHOLDER_15 PLACEHOLDER_19)) == true)
+        (compound_statement
+          (return_statement true))
+        (if_statement
+          (binary_expression
+            (call_expression PLACEHOLDER_23
+              (argument_list PLACEHOLDER_15 PLACEHOLDER_19)) == true)
+          (compound_statement
+            (return_statement true))
+          (if_statement
+            (binary_expression
+              (call_expression PLACEHOLDER_26
+                (argument_list PLACEHOLDER_15 PLACEHOLDER_27)) == true)
+            (compound_statement
+              (return_statement true)))))
+      (return_statement false)))
+  (function_definition void
+    (function_declarator PLACEHOLDER_30
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_5)
+          (pointer_declarator * PLACEHOLDER_15))
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_27)
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19)))
+    (compound_statement
+      (if_statement
+        (binary_expression
+          (call_expression PLACEHOLDER_29
+            (argument_list PLACEHOLDER_15 PLACEHOLDER_19 PLACEHOLDER_27)) == true)
+        (compound_statement
+          (return_statement)))
+      (if_statement
+        (binary_expression PLACEHOLDER_2 == 0)
+        (compound_statement
+          (expression_statement
+            (call_expression PLACEHOLDER_14
+              (argument_list PLACEHOLDER_15
+                (pointer_expression & PLACEHOLDER_2) PLACEHOLDER_27))))
+        (if_statement
+          (binary_expression PLACEHOLDER_3 == 0)
+          (compound_statement
+            (expression_statement
+              (call_expression PLACEHOLDER_28
+                (argument_list PLACEHOLDER_15))))))
+      (if_statement
+        (binary_expression
+          (call_expression PLACEHOLDER_29
+            (argument_list PLACEHOLDER_15 PLACEHOLDER_19 PLACEHOLDER_27)) == true)
+        (compound_statement
+          (return_statement)))
+      (if_statement
+        (binary_expression PLACEHOLDER_3 ==
+          (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_13)))
+        (compound_statement
+          (expression_statement
+            (update_expression
+              (field_expression PLACEHOLDER_15 -> (field_identifier PLACEHOLDER_11)) ++))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_3 = 0))))
+      (if_statement
+        (binary_expression PLACEHOLDER_2 == PLACEHOLDER_27)
+        (compound_statement
+          (expression_statement
+            (call_expression PLACEHOLDER_28
+              (argument_list PLACEHOLDER_15)))))
+      (expression_statement
+        (call_expression PLACEHOLDER_30
+          (argument_list PLACEHOLDER_15 PLACEHOLDER_27 PLACEHOLDER_19)))
+      (return_statement)))
+  (function_definition (type_identifier PLACEHOLDER_5)
+    (function_declarator PLACEHOLDER_31
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_32)
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_33)
+        (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_34)
+        (parameter_declaration (type_identifier PLACEHOLDER_7) PLACEHOLDER_35)))
+    (compound_statement
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = 0))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 = 0))
+      (declaration (type_identifier PLACEHOLDER_5)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_36) =
+          (cast_expression
+            (type_descriptor (type_identifier PLACEHOLDER_5)
+              (abstract_pointer_declarator *))
+            (call_expression malloc
+              (argument_list
+                (sizeof_expression PLACEHOLDER_5))))))
+      (if_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_34 > PLACEHOLDER_32) &&
+          (binary_expression PLACEHOLDER_34 > PLACEHOLDER_33))
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_36 -> (field_identifier PLACEHOLDER_10)) = false))
+          (return_statement
+            (pointer_expression * PLACEHOLDER_36))))
+      (if_statement
+        (binary_expression PLACEHOLDER_35 == PLACEHOLDER_21)
+        (compound_statement
+          (expression_statement
+            (call_expression PLACEHOLDER_4
+              (argument_list PLACEHOLDER_36 PLACEHOLDER_35 PLACEHOLDER_33)))
+          (if_statement
+            (binary_expression
+              (call_expression PLACEHOLDER_24
+                (argument_list PLACEHOLDER_36 PLACEHOLDER_32 PLACEHOLDER_34)) == false)
+            (compound_statement
+              (expression_statement
+                (call_expression PLACEHOLDER_30
+                  (argument_list PLACEHOLDER_36 PLACEHOLDER_32 PLACEHOLDER_34))))))
+        (compound_statement
+          (expression_statement
+            (call_expression PLACEHOLDER_4
+              (argument_list PLACEHOLDER_36 PLACEHOLDER_35 PLACEHOLDER_32)))
+          (if_statement
+            (binary_expression
+              (call_expression PLACEHOLDER_24
+                (argument_list PLACEHOLDER_36 PLACEHOLDER_32 PLACEHOLDER_34)) == false)
+            (compound_statement
+              (expression_statement
+                (call_expression PLACEHOLDER_30
+                  (argument_list PLACEHOLDER_36 PLACEHOLDER_33 PLACEHOLDER_34)))))))
+      (return_statement
+        (pointer_expression * PLACEHOLDER_36))))
+  (preproc_ifdef #ifndef PLACEHOLDER_37
+    (preproc_def PLACEHOLDER_37)
+    (type_definition
+      (enum_specifier
+        (enumerator_list
+          (enumerator PLACEHOLDER_21)
+          (enumerator PLACEHOLDER_22))) (type_identifier PLACEHOLDER_7))
+    (type_definition
+      (sized_type_specifier unsigned int) (type_identifier PLACEHOLDER_1))
+    (type_definition
+      (struct_specifier
+        (field_declaration_list
+          (field_declaration bool (field_identifier PLACEHOLDER_10))
+          (field_declaration int (field_identifier PLACEHOLDER_11))
+          (field_declaration (type_identifier PLACEHOLDER_7) (field_identifier PLACEHOLDER_12))
+          (field_declaration (type_identifier PLACEHOLDER_1) (field_identifier PLACEHOLDER_13)))) (type_identifier PLACEHOLDER_5))
+    (declaration (type_identifier PLACEHOLDER_5)
+      (function_declarator PLACEHOLDER_31
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_32)
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_33)
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_34)
+          (parameter_declaration (type_identifier PLACEHOLDER_7) PLACEHOLDER_35))))
+    (declaration void
+      (function_declarator PLACEHOLDER_4
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_6))
+          (parameter_declaration (type_identifier PLACEHOLDER_7) PLACEHOLDER_8)
+          (parameter_declaration (type_identifier PLACEHOLDER_7) PLACEHOLDER_9))))
+    (declaration void
+      (function_declarator PLACEHOLDER_14
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15))
+          (parameter_declaration (type_identifier PLACEHOLDER_1)
+            (pointer_declarator * PLACEHOLDER_16))
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_17))))
+    (declaration bool
+      (function_declarator PLACEHOLDER_18
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15))
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19))))
+    (declaration void
+      (function_declarator PLACEHOLDER_20
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15)))))
+    (declaration bool
+      (function_declarator PLACEHOLDER_23
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15))
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19))))
+    (declaration bool
+      (function_declarator PLACEHOLDER_24
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15))
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_25)
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19))))
+    (declaration bool
+      (function_declarator PLACEHOLDER_26
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15))
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_27))))
+    (declaration void
+      (function_declarator PLACEHOLDER_28
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15)))))
+    (declaration bool
+      (function_declarator PLACEHOLDER_29
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15))
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19)
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_27))))
+    (declaration void
+      (function_declarator PLACEHOLDER_30
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_5)
+            (pointer_declarator * PLACEHOLDER_15))
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_27)
+          (parameter_declaration (type_identifier PLACEHOLDER_1) PLACEHOLDER_19))))))

@@ -1,81 +1,276 @@
-#ifndef INTERGALACTIC_TRANSMISSION_H
-#define INTERGALACTIC_TRANSMISSION_H
-#define WRONG_PARITY -1
-int parity_bit ( uint8_t bits );
-uint8_t getbit ( const uint8_t * source , int message_length );
-uint8_t getbits ( const uint8_t * source , int message_length );
-void putbit ( const uint8_t bit );
-int transmit_sequence ( uint8_t * buffer , const uint8_t * message , int message_length );
-int decode_message ( uint8_t * buffer , const uint8_t * message , int message_length );
-#endif
-uint8_t bit_buffer = 0 , number_of_bits = 0 ;
-uint8_t * ptr = NULL ;
-int parity_bit ( uint8_t bits ) {
-int counter = 0 ;
-bits >>= 1 ;
-for ( int i = 0 ; i < 7 ; i ++ ) {
-if ( bits & 1 ) counter ++ ;
-bits >>= 1 ;
-}
-if ( counter & 1 ) return 1 ;
-else return 0 ;
-}
-uint8_t getbit ( const uint8_t * source , int message_length ) {
-uint8_t bit = 0 ;
-if ( number_of_bits > 0 ) {
-bit = (( bit_buffer & 0x80 ) > 0 ) ? 1 : 0 ;
-bit_buffer <<= 1 ;
-number_of_bits -- ;
-} else {
-if ( ptr < source + message_length ) {
-bit_buffer = * ptr ++ ;
-bit = (( bit_buffer & 0x80 ) > 0 ) ? 1 : 0 ;
-bit_buffer <<= 1 ;
-number_of_bits = 7 ;
-} else bit = 0 ;
-}
-return bit ;
-}
-void putbit ( const uint8_t bit ) {
-if ( number_of_bits ++ < 7 ) bit_buffer += bit_buffer + bit ;
-else {
-bit_buffer += bit_buffer + bit ;
-* ( ptr ++ ) = bit_buffer ;
-bit_buffer = number_of_bits = 0 ;
-}
-}
-uint8_t getbits ( const uint8_t * source , int message_length ) {
-uint8_t data = 0 ;
-for ( int i = 0 ; i < 7 ; i ++ )
-data += data + getbit ( source , message_length );
-return data * 2 ;
-}
-int transmit_sequence ( uint8_t * buffer , const uint8_t * message , int message_length ) {
-if ( message == NULL ) return 0 ;
-ptr = ( uint8_t * ) message ;
-int number_of_bytes ;
-if (( message_length * 8 ) % 7 == 0 ) number_of_bytes = ( message_length * 8 ) / 7 ;
-else number_of_bytes = (( message_length * 8 ) / 7 ) + 1 ;
-for ( int r = 0 ; r < number_of_bytes ; r ++ ) {
-uint8_t bits = getbits ( message , message_length );
-int pb = parity_bit ( bits );
-bits += pb ;
-* ( buffer ++ ) = bits ;
-}
-return number_of_bytes ;
-}
-int decode_message ( uint8_t * buffer , const uint8_t * message , int message_length ) {
-if ( message == NULL ) return 0 ;
-ptr = ( uint8_t * ) buffer ;
-number_of_bits = bit_buffer = 0 ;
-for ( int i = 0 ; i < message_length ; i ++ ) {
-uint8_t c = * ( message + i );
-if ( parity_bit ( c & 0xFE ) != ( c & 0x01 )) return - 1 ;
-for ( int k = 0 ; k < 7 ; k ++ ) {
-uint8_t bit = (( c & 0x80 ) > 0 ) ? 1 : 0 ;
-putbit ( bit );
-c <<= 1 ;
-}
-}
-return ( ptr - buffer );
-}
+(translation_unit
+  (declaration uint8_t
+    (init_declarator PLACEHOLDER_1 = 0)
+    (init_declarator PLACEHOLDER_2 = 0))
+  (declaration uint8_t
+    (init_declarator
+      (pointer_declarator * PLACEHOLDER_3) =
+      (null NULL)))
+  (function_definition int
+    (function_declarator PLACEHOLDER_4
+      (parameter_list
+        (parameter_declaration uint8_t PLACEHOLDER_5)))
+    (compound_statement
+      (declaration int
+        (init_declarator PLACEHOLDER_6 = 0))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_5 >>= 1))
+      (for_statement
+        (declaration int
+          (init_declarator PLACEHOLDER_7 = 0))
+        (binary_expression PLACEHOLDER_7 < 7) ;
+        (update_expression PLACEHOLDER_7 ++)
+        (compound_statement
+          (if_statement
+            (binary_expression PLACEHOLDER_5 & 1)
+            (expression_statement
+              (update_expression PLACEHOLDER_6 ++)))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_5 >>= 1))))
+      (if_statement
+        (binary_expression PLACEHOLDER_6 & 1)
+        (return_statement 1)
+        (return_statement 0))))
+  (function_definition uint8_t
+    (function_declarator PLACEHOLDER_8
+      (parameter_list
+        (parameter_declaration
+          (type_qualifier const) uint8_t
+          (pointer_declarator * PLACEHOLDER_9))
+        (parameter_declaration int PLACEHOLDER_10)))
+    (compound_statement
+      (declaration uint8_t
+        (init_declarator PLACEHOLDER_11 = 0))
+      (if_statement
+        (binary_expression PLACEHOLDER_2 > 0)
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_11 =
+              (conditional_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_1 & 128) > 0) ? 1 : 0)))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_1 <<= 1))
+          (expression_statement
+            (update_expression PLACEHOLDER_2 --)))
+        (compound_statement
+          (if_statement
+            (binary_expression PLACEHOLDER_3 <
+              (binary_expression PLACEHOLDER_9 + PLACEHOLDER_10))
+            (compound_statement
+              (expression_statement
+                (assignment_expression PLACEHOLDER_1 =
+                  (pointer_expression *
+                    (update_expression PLACEHOLDER_3 ++))))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_11 =
+                  (conditional_expression
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_1 & 128) > 0) ? 1 : 0)))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_1 <<= 1))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_2 = 7)))
+            (expression_statement
+              (assignment_expression PLACEHOLDER_11 = 0)))))
+      (return_statement PLACEHOLDER_11)))
+  (function_definition void
+    (function_declarator PLACEHOLDER_12
+      (parameter_list
+        (parameter_declaration
+          (type_qualifier const) uint8_t PLACEHOLDER_11)))
+    (compound_statement
+      (if_statement
+        (binary_expression
+          (update_expression PLACEHOLDER_2 ++) < 7)
+        (expression_statement
+          (assignment_expression PLACEHOLDER_1 +=
+            (binary_expression PLACEHOLDER_1 + PLACEHOLDER_11)))
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_1 +=
+              (binary_expression PLACEHOLDER_1 + PLACEHOLDER_11)))
+          (expression_statement
+            (assignment_expression
+              (pointer_expression *
+                (update_expression PLACEHOLDER_3 ++)) = PLACEHOLDER_1))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_1 =
+              (assignment_expression PLACEHOLDER_2 = 0)))))))
+  (function_definition uint8_t
+    (function_declarator PLACEHOLDER_13
+      (parameter_list
+        (parameter_declaration
+          (type_qualifier const) uint8_t
+          (pointer_declarator * PLACEHOLDER_9))
+        (parameter_declaration int PLACEHOLDER_10)))
+    (compound_statement
+      (declaration uint8_t
+        (init_declarator PLACEHOLDER_14 = 0))
+      (for_statement
+        (declaration int
+          (init_declarator PLACEHOLDER_7 = 0))
+        (binary_expression PLACEHOLDER_7 < 7) ;
+        (update_expression PLACEHOLDER_7 ++)
+        (expression_statement
+          (assignment_expression PLACEHOLDER_14 +=
+            (binary_expression PLACEHOLDER_14 +
+              (call_expression PLACEHOLDER_8
+                (argument_list PLACEHOLDER_9 PLACEHOLDER_10))))))
+      (return_statement
+        (binary_expression PLACEHOLDER_14 * 2))))
+  (function_definition int
+    (function_declarator PLACEHOLDER_15
+      (parameter_list
+        (parameter_declaration uint8_t
+          (pointer_declarator * PLACEHOLDER_16))
+        (parameter_declaration
+          (type_qualifier const) uint8_t
+          (pointer_declarator * PLACEHOLDER_17))
+        (parameter_declaration int PLACEHOLDER_10)))
+    (compound_statement
+      (if_statement
+        (binary_expression PLACEHOLDER_17 ==
+          (null NULL))
+        (return_statement 0))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 =
+          (cast_expression
+            (type_descriptor uint8_t
+              (abstract_pointer_declarator *)) PLACEHOLDER_17)))
+      (declaration int PLACEHOLDER_18)
+      (if_statement
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_10 * 8) % 7) == 0)
+        (expression_statement
+          (assignment_expression PLACEHOLDER_18 =
+            (binary_expression
+              (binary_expression PLACEHOLDER_10 * 8) / 7)))
+        (expression_statement
+          (assignment_expression PLACEHOLDER_18 =
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_10 * 8) / 7) + 1))))
+      (for_statement
+        (declaration int
+          (init_declarator PLACEHOLDER_19 = 0))
+        (binary_expression PLACEHOLDER_19 < PLACEHOLDER_18) ;
+        (update_expression PLACEHOLDER_19 ++)
+        (compound_statement
+          (declaration uint8_t
+            (init_declarator PLACEHOLDER_5 =
+              (call_expression PLACEHOLDER_13
+                (argument_list PLACEHOLDER_17 PLACEHOLDER_10))))
+          (declaration int
+            (init_declarator PLACEHOLDER_20 =
+              (call_expression PLACEHOLDER_4
+                (argument_list PLACEHOLDER_5))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_5 += PLACEHOLDER_20))
+          (expression_statement
+            (assignment_expression
+              (pointer_expression *
+                (update_expression PLACEHOLDER_16 ++)) = PLACEHOLDER_5))))
+      (return_statement PLACEHOLDER_18)))
+  (function_definition int
+    (function_declarator PLACEHOLDER_21
+      (parameter_list
+        (parameter_declaration uint8_t
+          (pointer_declarator * PLACEHOLDER_16))
+        (parameter_declaration
+          (type_qualifier const) uint8_t
+          (pointer_declarator * PLACEHOLDER_17))
+        (parameter_declaration int PLACEHOLDER_10)))
+    (compound_statement
+      (if_statement
+        (binary_expression PLACEHOLDER_17 ==
+          (null NULL))
+        (return_statement 0))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 =
+          (cast_expression
+            (type_descriptor uint8_t
+              (abstract_pointer_declarator *)) PLACEHOLDER_16)))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 =
+          (assignment_expression PLACEHOLDER_1 = 0)))
+      (for_statement
+        (declaration int
+          (init_declarator PLACEHOLDER_7 = 0))
+        (binary_expression PLACEHOLDER_7 < PLACEHOLDER_10) ;
+        (update_expression PLACEHOLDER_7 ++)
+        (compound_statement
+          (declaration uint8_t
+            (init_declarator PLACEHOLDER_22 =
+              (pointer_expression *
+                (binary_expression PLACEHOLDER_17 + PLACEHOLDER_7))))
+          (if_statement
+            (binary_expression
+              (call_expression PLACEHOLDER_4
+                (argument_list
+                  (binary_expression PLACEHOLDER_22 & 254))) !=
+              (binary_expression PLACEHOLDER_22 & 1))
+            (return_statement -1))
+          (for_statement
+            (declaration int
+              (init_declarator PLACEHOLDER_23 = 0))
+            (binary_expression PLACEHOLDER_23 < 7) ;
+            (update_expression PLACEHOLDER_23 ++)
+            (compound_statement
+              (declaration uint8_t
+                (init_declarator PLACEHOLDER_11 =
+                  (conditional_expression
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_22 & 128) > 0) ? 1 : 0)))
+              (expression_statement
+                (call_expression PLACEHOLDER_12
+                  (argument_list PLACEHOLDER_11)))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_22 <<= 1))))))
+      (return_statement
+        (binary_expression PLACEHOLDER_3 - PLACEHOLDER_16))))
+  (preproc_ifdef #ifndef PLACEHOLDER_24
+    (preproc_def PLACEHOLDER_24)
+    (preproc_def PLACEHOLDER_25 -1)
+    (declaration int
+      (function_declarator PLACEHOLDER_4
+        (parameter_list
+          (parameter_declaration uint8_t PLACEHOLDER_5))))
+    (declaration uint8_t
+      (function_declarator PLACEHOLDER_8
+        (parameter_list
+          (parameter_declaration
+            (type_qualifier const) uint8_t
+            (pointer_declarator * PLACEHOLDER_9))
+          (parameter_declaration int PLACEHOLDER_10))))
+    (declaration uint8_t
+      (function_declarator PLACEHOLDER_13
+        (parameter_list
+          (parameter_declaration
+            (type_qualifier const) uint8_t
+            (pointer_declarator * PLACEHOLDER_9))
+          (parameter_declaration int PLACEHOLDER_10))))
+    (declaration void
+      (function_declarator PLACEHOLDER_12
+        (parameter_list
+          (parameter_declaration
+            (type_qualifier const) uint8_t PLACEHOLDER_11))))
+    (declaration int
+      (function_declarator PLACEHOLDER_15
+        (parameter_list
+          (parameter_declaration uint8_t
+            (pointer_declarator * PLACEHOLDER_16))
+          (parameter_declaration
+            (type_qualifier const) uint8_t
+            (pointer_declarator * PLACEHOLDER_17))
+          (parameter_declaration int PLACEHOLDER_10))))
+    (declaration int
+      (function_declarator PLACEHOLDER_21
+        (parameter_list
+          (parameter_declaration uint8_t
+            (pointer_declarator * PLACEHOLDER_16))
+          (parameter_declaration
+            (type_qualifier const) uint8_t
+            (pointer_declarator * PLACEHOLDER_17))
+          (parameter_declaration int PLACEHOLDER_10))))))

@@ -1,98 +1,372 @@
-#define MAX_WORDS (10)
-#define MAX_WORDS_LENGTH (100)
-typedef struct {
-char words [ MAX_WORDS ][ MAX_WORDS_LENGTH ];
-} words_t ;
-static words_t * split ( const char * phrase ) {
-words_t * result = calloc ( 1 , sizeof ( words_t ));
-size_t word_count = 0 ;
-char tmp [ MAX_WORDS * MAX_WORDS_LENGTH ];
-strcpy ( tmp , phrase );
-char * word = strtok ( tmp , "\" \"" );
-do {
-if ( word ) {
-strcpy ( result -> words [ word_count ], word );
-word_count ++ ;
-}
-word = strtok ( NULL , "\" \"" );
-} while ( word != NULL );
-return result ;
-}
-static char * translate_word_vowel ( char * word ) {
-char tmp [ MAX_WORDS_LENGTH ] = { '\0' };
-strcpy ( tmp , word );
-strcat ( tmp , "\"ay\"" );
-strcpy ( word , tmp );
-return word ;
-}
-static bool start_with_vowel ( char * word ) {
-return word [ 0 ] == 'a'
-|| word [ 0 ] == 'e'
-|| word [ 0 ] == 'i'
-|| word [ 0 ] == 'o'
-|| word [ 0 ] == 'u'
-|| ( word [ 0 ] == 'y' && word [ 1 ] == 't' )
-|| ( word [ 0 ] == 'x' && word [ 1 ] == 'r' );
-}
-static bool start_with_qu ( char * word ) {
-return word [ 0 ] == 'q' && word [ 1 ] == 'u' ;
-}
-static bool start_with_Xqu ( char * word ) {
-return word [ 1 ] == 'q' && word [ 2 ] == 'u' ;
-}
-static bool start_with_sch ( char * word ) {
-return word [ 0 ] == 's' && word [ 1 ] == 'c' && word [ 2 ] == 'h' ;
-}
-static bool start_with_thr ( char * word ) {
-return word [ 0 ] == 't' && word [ 1 ] == 'h' && word [ 2 ] == 'r' ;
-}
-static bool y_second_letter_of_two_letter_word ( char * word ) {
-return word [ 1 ] == 'y' && word [ 2 ] == '\0' ;
-}
-static char * translate_word_consonant ( char * word ) {
-char tmp [ MAX_WORDS_LENGTH ] = { '\0' };
-if ( start_with_qu ( word )) {
-strcpy ( tmp , word + 2 );
-word [ 2 ] = '\0' ;
-} else if ( start_with_Xqu ( word ) || start_with_thr ( word ) || start_with_sch ( word )) {
-strcpy ( tmp , word + 3 );
-word [ 3 ] = '\0' ;
-} else if ( start_with_vowel ( word + 1 ) || y_second_letter_of_two_letter_word ( word )) {
-strcpy ( tmp , word + 1 );
-word [ 1 ] = '\0' ;
-} else {
-strcpy ( tmp , word + 2 );
-word [ 2 ] = '\0' ;
-}
-strcat ( tmp , word );
-strcat ( tmp , "\"ay\"" );
-strcpy ( word , tmp );
-return word ;
-}
-static char * translate_word ( char * word ) {
-if ( start_with_vowel ( word )) {
-printf ( "\"vowel\\n\"" );
-return translate_word_vowel ( word );
-}
-return translate_word_consonant ( word );
-}
-char * translate ( const char * phrase ) {
-if ( NULL == phrase ) {
-return NULL ;
-}
-char * result = calloc ( MAX_WORDS * MAX_WORDS_LENGTH , sizeof ( char ));
-words_t * words = split ( phrase );
-for ( size_t i = 0 ; i < MAX_WORDS ; ++ i ) {
-printf ( "\"%s\\n\"" , result );
-strcat ( result , translate_word ( words -> words [ i ]));
-if ( i + 1 == MAX_WORDS || strlen ( words -> words [ i + 1 ]) == 0 ) {
-break ;
-}
-strcat ( result , "\" \"" );
-}
-return result ;
-}
-#ifndef PIG_LATIN_H
-#define PIG_LATIN_H
-char * translate ( const char * phrase );
-#endif
+(translation_unit
+  (preproc_def PLACEHOLDER_1 "(10)")
+  (preproc_def PLACEHOLDER_2 "(100)")
+  (type_definition
+    (struct_specifier
+      (field_declaration_list
+        (field_declaration char
+          (array_declarator
+            (array_declarator (field_identifier PLACEHOLDER_3) PLACEHOLDER_1) PLACEHOLDER_2)))) (type_identifier PLACEHOLDER_4))
+  (function_definition
+    (storage_class_specifier static) (type_identifier PLACEHOLDER_4)
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_5
+        (parameter_list
+          (parameter_declaration
+            (type_qualifier const) char
+            (pointer_declarator * PLACEHOLDER_6)))))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_4)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_7) =
+          (call_expression calloc
+            (argument_list 1
+              (sizeof_expression PLACEHOLDER_4)))))
+      (declaration size_t
+        (init_declarator PLACEHOLDER_8 = 0))
+      (declaration char
+        (array_declarator PLACEHOLDER_9
+          (binary_expression PLACEHOLDER_1 * PLACEHOLDER_2)))
+      (expression_statement
+        (call_expression strcpy
+          (argument_list PLACEHOLDER_9 PLACEHOLDER_6)))
+      (declaration char
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_10) =
+          (call_expression strtok
+            (argument_list PLACEHOLDER_9 " "))))
+      (do_statement
+        (compound_statement
+          (if_statement PLACEHOLDER_10
+            (compound_statement
+              (expression_statement
+                (call_expression strcpy
+                  (argument_list
+                    (subscript_expression
+                      (field_expression PLACEHOLDER_7 -> (field_identifier PLACEHOLDER_3)) PLACEHOLDER_8) PLACEHOLDER_10)))
+              (expression_statement
+                (update_expression PLACEHOLDER_8 ++))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_10 =
+              (call_expression strtok
+                (argument_list
+                  (null NULL) " ")))))
+        (binary_expression PLACEHOLDER_10 !=
+          (null NULL)))
+      (return_statement PLACEHOLDER_7)))
+  (function_definition
+    (storage_class_specifier static) char
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_11
+        (parameter_list
+          (parameter_declaration char
+            (pointer_declarator * PLACEHOLDER_10)))))
+    (compound_statement
+      (declaration char
+        (init_declarator
+          (array_declarator PLACEHOLDER_9 PLACEHOLDER_2) =
+          (initializer_list
+            (char_literal ' "\\0" '))))
+      (expression_statement
+        (call_expression strcpy
+          (argument_list PLACEHOLDER_9 PLACEHOLDER_10)))
+      (expression_statement
+        (call_expression strcat
+          (argument_list PLACEHOLDER_9 "ay")))
+      (expression_statement
+        (call_expression strcpy
+          (argument_list PLACEHOLDER_10 PLACEHOLDER_9)))
+      (return_statement PLACEHOLDER_10)))
+  (function_definition
+    (storage_class_specifier static) bool
+    (function_declarator PLACEHOLDER_12
+      (parameter_list
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_10))))
+    (compound_statement
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (subscript_expression PLACEHOLDER_10 0) ==
+                      (char_literal ' a ')) ||
+                    (binary_expression
+                      (subscript_expression PLACEHOLDER_10 0) ==
+                      (char_literal ' e '))) ||
+                  (binary_expression
+                    (subscript_expression PLACEHOLDER_10 0) ==
+                    (char_literal ' i '))) ||
+                (binary_expression
+                  (subscript_expression PLACEHOLDER_10 0) ==
+                  (char_literal ' o '))) ||
+              (binary_expression
+                (subscript_expression PLACEHOLDER_10 0) ==
+                (char_literal ' u '))) ||
+            (binary_expression
+              (binary_expression
+                (subscript_expression PLACEHOLDER_10 0) ==
+                (char_literal ' y ')) &&
+              (binary_expression
+                (subscript_expression PLACEHOLDER_10 1) ==
+                (char_literal ' t ')))) ||
+          (binary_expression
+            (binary_expression
+              (subscript_expression PLACEHOLDER_10 0) ==
+              (char_literal ' x ')) &&
+            (binary_expression
+              (subscript_expression PLACEHOLDER_10 1) ==
+              (char_literal ' r ')))))))
+  (function_definition
+    (storage_class_specifier static) bool
+    (function_declarator PLACEHOLDER_13
+      (parameter_list
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_10))))
+    (compound_statement
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (subscript_expression PLACEHOLDER_10 0) ==
+            (char_literal ' q ')) &&
+          (binary_expression
+            (subscript_expression PLACEHOLDER_10 1) ==
+            (char_literal ' u '))))))
+  (function_definition
+    (storage_class_specifier static) bool
+    (function_declarator PLACEHOLDER_14
+      (parameter_list
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_10))))
+    (compound_statement
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (subscript_expression PLACEHOLDER_10 1) ==
+            (char_literal ' q ')) &&
+          (binary_expression
+            (subscript_expression PLACEHOLDER_10 2) ==
+            (char_literal ' u '))))))
+  (function_definition
+    (storage_class_specifier static) bool
+    (function_declarator PLACEHOLDER_15
+      (parameter_list
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_10))))
+    (compound_statement
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (subscript_expression PLACEHOLDER_10 0) ==
+              (char_literal ' s ')) &&
+            (binary_expression
+              (subscript_expression PLACEHOLDER_10 1) ==
+              (char_literal ' c '))) &&
+          (binary_expression
+            (subscript_expression PLACEHOLDER_10 2) ==
+            (char_literal ' h '))))))
+  (function_definition
+    (storage_class_specifier static) bool
+    (function_declarator PLACEHOLDER_16
+      (parameter_list
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_10))))
+    (compound_statement
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (subscript_expression PLACEHOLDER_10 0) ==
+              (char_literal ' t ')) &&
+            (binary_expression
+              (subscript_expression PLACEHOLDER_10 1) ==
+              (char_literal ' h '))) &&
+          (binary_expression
+            (subscript_expression PLACEHOLDER_10 2) ==
+            (char_literal ' r '))))))
+  (function_definition
+    (storage_class_specifier static) bool
+    (function_declarator PLACEHOLDER_17
+      (parameter_list
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_10))))
+    (compound_statement
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (subscript_expression PLACEHOLDER_10 1) ==
+            (char_literal ' y ')) &&
+          (binary_expression
+            (subscript_expression PLACEHOLDER_10 2) ==
+            (char_literal ' "\\0" '))))))
+  (function_definition
+    (storage_class_specifier static) char
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_18
+        (parameter_list
+          (parameter_declaration char
+            (pointer_declarator * PLACEHOLDER_10)))))
+    (compound_statement
+      (declaration char
+        (init_declarator
+          (array_declarator PLACEHOLDER_9 PLACEHOLDER_2) =
+          (initializer_list
+            (char_literal ' "\\0" '))))
+      (if_statement
+        (call_expression PLACEHOLDER_13
+          (argument_list PLACEHOLDER_10))
+        (compound_statement
+          (expression_statement
+            (call_expression strcpy
+              (argument_list PLACEHOLDER_9
+                (binary_expression PLACEHOLDER_10 + 2))))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_10 2) =
+              (char_literal ' "\\0" '))))
+        (if_statement
+          (binary_expression
+            (binary_expression
+              (call_expression PLACEHOLDER_14
+                (argument_list PLACEHOLDER_10)) ||
+              (call_expression PLACEHOLDER_16
+                (argument_list PLACEHOLDER_10))) ||
+            (call_expression PLACEHOLDER_15
+              (argument_list PLACEHOLDER_10)))
+          (compound_statement
+            (expression_statement
+              (call_expression strcpy
+                (argument_list PLACEHOLDER_9
+                  (binary_expression PLACEHOLDER_10 + 3))))
+            (expression_statement
+              (assignment_expression
+                (subscript_expression PLACEHOLDER_10 3) =
+                (char_literal ' "\\0" '))))
+          (if_statement
+            (binary_expression
+              (call_expression PLACEHOLDER_12
+                (argument_list
+                  (binary_expression PLACEHOLDER_10 + 1))) ||
+              (call_expression PLACEHOLDER_17
+                (argument_list PLACEHOLDER_10)))
+            (compound_statement
+              (expression_statement
+                (call_expression strcpy
+                  (argument_list PLACEHOLDER_9
+                    (binary_expression PLACEHOLDER_10 + 1))))
+              (expression_statement
+                (assignment_expression
+                  (subscript_expression PLACEHOLDER_10 1) =
+                  (char_literal ' "\\0" '))))
+            (compound_statement
+              (expression_statement
+                (call_expression strcpy
+                  (argument_list PLACEHOLDER_9
+                    (binary_expression PLACEHOLDER_10 + 2))))
+              (expression_statement
+                (assignment_expression
+                  (subscript_expression PLACEHOLDER_10 2) =
+                  (char_literal ' "\\0" ')))))))
+      (expression_statement
+        (call_expression strcat
+          (argument_list PLACEHOLDER_9 PLACEHOLDER_10)))
+      (expression_statement
+        (call_expression strcat
+          (argument_list PLACEHOLDER_9 "ay")))
+      (expression_statement
+        (call_expression strcpy
+          (argument_list PLACEHOLDER_10 PLACEHOLDER_9)))
+      (return_statement PLACEHOLDER_10)))
+  (function_definition
+    (storage_class_specifier static) char
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_19
+        (parameter_list
+          (parameter_declaration char
+            (pointer_declarator * PLACEHOLDER_10)))))
+    (compound_statement
+      (if_statement
+        (call_expression PLACEHOLDER_12
+          (argument_list PLACEHOLDER_10))
+        (compound_statement
+          (expression_statement
+            (call_expression printf
+              (argument_list "vowel\n")))
+          (return_statement
+            (call_expression PLACEHOLDER_11
+              (argument_list PLACEHOLDER_10)))))
+      (return_statement
+        (call_expression PLACEHOLDER_18
+          (argument_list PLACEHOLDER_10)))))
+  (function_definition char
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_20
+        (parameter_list
+          (parameter_declaration
+            (type_qualifier const) char
+            (pointer_declarator * PLACEHOLDER_6)))))
+    (compound_statement
+      (if_statement
+        (binary_expression
+          (null NULL) == PLACEHOLDER_6)
+        (compound_statement
+          (return_statement
+            (null NULL))))
+      (declaration char
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_7) =
+          (call_expression calloc
+            (argument_list
+              (binary_expression PLACEHOLDER_1 * PLACEHOLDER_2)
+              (sizeof_expression
+                (type_descriptor char))))))
+      (declaration (type_identifier PLACEHOLDER_4)
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_3) =
+          (call_expression PLACEHOLDER_5
+            (argument_list PLACEHOLDER_6))))
+      (for_statement
+        (declaration size_t
+          (init_declarator PLACEHOLDER_21 = 0))
+        (binary_expression PLACEHOLDER_21 < PLACEHOLDER_1) ;
+        (update_expression ++ PLACEHOLDER_21)
+        (compound_statement
+          (expression_statement
+            (call_expression printf
+              (argument_list "%s\n" PLACEHOLDER_7)))
+          (expression_statement
+            (call_expression strcat
+              (argument_list PLACEHOLDER_7
+                (call_expression PLACEHOLDER_19
+                  (argument_list
+                    (subscript_expression
+                      (field_expression PLACEHOLDER_3 -> (field_identifier PLACEHOLDER_3)) PLACEHOLDER_21))))))
+          (if_statement
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_21 + 1) == PLACEHOLDER_1) ||
+              (binary_expression
+                (call_expression strlen
+                  (argument_list
+                    (subscript_expression
+                      (field_expression PLACEHOLDER_3 -> (field_identifier PLACEHOLDER_3))
+                      (binary_expression PLACEHOLDER_21 + 1)))) == 0))
+            (compound_statement
+              (break_statement)))
+          (expression_statement
+            (call_expression strcat
+              (argument_list PLACEHOLDER_7 " ")))))
+      (return_statement PLACEHOLDER_7)))
+  (preproc_ifdef #ifndef PLACEHOLDER_22
+    (preproc_def PLACEHOLDER_22)
+    (declaration char
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_20
+          (parameter_list
+            (parameter_declaration
+              (type_qualifier const) char
+              (pointer_declarator * PLACEHOLDER_6))))))))

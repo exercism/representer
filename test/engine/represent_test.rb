@@ -47,7 +47,7 @@ class RepresentTest < Minitest::Test
     ["x = '''a\r\nb'''\r\n", "x = '''a\rb'''\r", "\uFEFFx = '''a\nb'''\n"].each do |source|
       assert_equal lf, Representer::RepresentSolution.("python", { "a.py" => source }).representation
     end
-    basic = Representer::RepresentSolution.("c", { "a.c" => "\uFEFFint x;\0" }).representation
+    basic = Representer::RepresentSolution.("groovy", { "a.groovy" => "\uFEFFint x;\0" }).representation
     assert_equal "int x ; \uFFFD", basic
   end
 

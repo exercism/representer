@@ -1,136 +1,460 @@
-#define ENGLISH
-#if defined(ENGLISH)
-const char * MINUS = "\"minus\"" ;
-const char * ONES [] = { "\"zero\"" , "\"one\"" , "\"two\"" , "\"three\"" , "\"four\"" ,
-"\"five\"" , "\"six\"" , "\"seven\"" , "\"eight\"" , "\"nine\"" };
-const char * TEENS [] = { "\"ten\"" , "\"eleven\"" , "\"twelve\"" , "\"thirteen\"" ,
-"\"fourteen\"" , "\"fifteen\"" , "\"sixteen\"" , "\"seventeen\"" ,
-"\"eighteen\"" , "\"nineteen\"" };
-const char * TWENTEENS [] = { NULL };
-const char * TENS [] = { "\"ten\"" , "\"twenty\"" , "\"thirty\"" , "\"forty\"" , "\"fifty\"" ,
-"\"sixty\"" , "\"seventy\"" , "\"eighty\"" , "\"ninety\"" };
-const char * HUNDREDS [] = { NULL };
-const char * THOUSANDS [] = { NULL };
-const char * MILLIONS [] = { NULL };
-const char * BILLIONS [] = { NULL };
-const char * HUNDRED = "\"hundred\"" ;
-const char * THOUSAND = "\"thousand\"" ;
-const char * MILLION = "\"million\"" ;
-const char * BILLION = "\"billion\"" ;
-const char * DEC_SEP = "\"-\"" ;
-#elif defined(SPANISH)
-const char * MINUS = "\"menos\"" ;
-const char * ONES [] = { "\"cero\"" , "\"uno\"" , "\"dos\"" , "\"tres\"" , "\"cuatro\"" ,
-"\"cinco\"" , "\"seis\"" , "\"siete\"" , "\"ocho\"" , "\"nueve\"" };
-const char * TEENS [] = { "\"diez\"" , "\"once\"" , "\"doce\"" , "\"trece\"" ,
-"\"catorce\"" , "\"quince\"" , "\"diecis\u00E9is\"" , "\"diecisiete\"" ,
-"\"dieciocho\"" , "\"diecinueve\"" };
-const char * TWENTEENS [] = {
-"\"veinte\"" , "\"veintiuno\"" , "\"veintid\u00F3s\"" , "\"veintitres\"" , "\"veinticuatro\"" ,
-"\"veinticinco\"" , "\"veintiseis\"" , "\"veintisiete\"" , "\"veintiocho\"" , "\"veintinueve\"" };
-const char * TENS [] = { "\"diez\"" , "\"veinte\"" , "\"treinta\"" , "\"cuarenta\"" , "\"cincuenta\"" ,
-"\"sesenta\"" , "\"setenta\"" , "\"ochenta\"" , "\"noventa\"" };
-const char * HUNDREDS [] = {
-"\"cien\"" , "\"doscientos\"" , "\"trescientos\"" , "\"cuatrocientos\"" , "\"quinientos\"" ,
-"\"seiscientos\"" , "\"setecientos\"" , "\"ochocientos\"" , "\"novecientos\"" ,
-};
-const char * THOUSANDS [] = { "\"mil\"" };
-const char * MILLIONS [] = { "\"un mill\u00F3n\"" };
-const char * BILLIONS [] = { "\"mil mill\u00F3n\"" };
-const char * HUNDRED = "\"cien\"" ;
-const char * THOUSAND = "\"mil\"" ;
-const char * MILLION = "\"mill\u00F3nes\"" ;
-const char * BILLION = "\"mil mill\u00F3nes\"" ;
-const char * DEC_SEP = "\" y \"" ;
-#endif
-const int64_t MAX = 999999999999 ;
-#if defined(NEGATIVE_NUMBERS)
-const int64_t MIN = - MAX ;
-#else
-const int64_t MIN = 0 ;
-#endif
-static size_t inner ( const char * sep , int64_t input , char * result );
-static size_t convert ( const char * sep , int64_t prefix , const char * with ,
-const char * next_sep , int64_t next , char * result );
-int say ( int64_t input , char ** ans ) {
-if ( input < MIN || input > MAX ) {
-return - 1 ;
-}
-size_t len = inner ( NULL , input , NULL );
-* ans = malloc (( len + 1 ) * sizeof ( char ));
-inner ( NULL , input , * ans );
-return 0 ;
-}
-static size_t inner ( const char * sep , int64_t input , char * result ) {
-if ( input < 0 ) {
-return convert ( sep , 0 , MINUS , "\" \"" , - input , result );
-} else if ( input == 0 ) {
-return convert ( sep , 0 , sep ? "\"\"" : ONES [ 0 ], NULL , 0 , result );
-} else if ( input < 10 ) {
-return convert ( sep , 0 , ONES [ input ], NULL , 0 , result );
-} else if ( input < 20 ) {
-return convert ( sep , 0 , TEENS [ input - 10 ], NULL , 0 , result );
-} else if ( input < 30 && TWENTEENS [ 0 ]) {
-return convert ( sep , 0 , TWENTEENS [ input - 20 ], NULL , 0 , result );
-} else if ( input < 100 ) {
-return convert ( sep , 0 , TENS [ input / 10 - 1 ], DEC_SEP , input % 10 , result );
-} else if ( input < 1000 && HUNDREDS [ 0 ]) {
-return convert ( sep , 0 , HUNDREDS [ input / 100 - 1 ], "\" \"" , input % 100 , result );
-} else if ( input < 1000 ) {
-return convert ( sep , input / 100 , HUNDRED , "\" \"" , input % 100 , result );
-} else if ( input < 2000 && THOUSANDS [ 0 ]) {
-return convert ( sep , 0 , THOUSANDS [ 0 ], "\" \"" , input % 1000 , result );
-} else if ( input < 1000000 ) {
-return convert ( sep , input / 1000 , THOUSAND , "\" \"" , input % 1000 , result );
-} else if ( input < 2000000 && MILLIONS [ 0 ]) {
-return convert ( sep , 0 , MILLIONS [ 0 ], "\" \"" , input % 1000000 , result );
-} else if ( input < 1000000000 ) {
-return convert ( sep , input / 1000000 , MILLION , "\" \"" , input % 1000000 , result );
-} else if ( input < 2000000000 && BILLIONS [ 0 ]) {
-return convert ( sep , 0 , BILLIONS [ 0 ], "\" \"" , input % 1000000000 , result );
-} else if ( input < 1000000000000 ) {
-return convert ( sep , input / 1000000000 , BILLION , "\" \"" , input % 1000000000 ,
-result );
-} else {
-return 0 ;
-}
-}
-static size_t convert ( const char * sep , int64_t prefix , const char * with ,
-const char * next_sep , int64_t next , char * result ) {
-size_t len = 0 ;
-if ( prefix ) {
-len += inner ( sep , prefix , result );
-sep = NULL ;
-if ( result ) {
-result += len ;
-}
-}
-if ( prefix ) {
-len += 1 ;
-if ( result ) {
-sprintf ( result , "\" \"" );
-result += 1 ;
-}
-}
-if ( sep ) {
-len += strlen ( sep );
-if ( result ) {
-sprintf ( result , "\"%s\"" , sep );
-result += strlen ( sep );
-}
-}
-len += strlen ( with );
-if ( result ) {
-sprintf ( result , "\"%s\"" , with );
-result += strlen ( with );
-}
-if ( next ) {
-return inner ( next_sep , next , result ) + len ;
-} else {
-return len ;
-}
-}
-#ifndef SAY_H
-#define SAY_H
-int say ( int64_t input , char ** ans );
-#endif
+(translation_unit
+  (preproc_def PLACEHOLDER_1)
+  (preproc_if
+    (preproc_defined defined PLACEHOLDER_1)
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator * PLACEHOLDER_2) = "minus"))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator *
+          (array_declarator PLACEHOLDER_3)) =
+        (initializer_list "zero" "one" "two" "three" "four" "five" "six" "seven" "eight" "nine")))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator *
+          (array_declarator PLACEHOLDER_4)) =
+        (initializer_list "ten" "eleven" "twelve" "thirteen" "fourteen" "fifteen" "sixteen" "seventeen" "eighteen" "nineteen")))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator *
+          (array_declarator PLACEHOLDER_5)) =
+        (initializer_list
+          (null NULL))))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator *
+          (array_declarator PLACEHOLDER_6)) =
+        (initializer_list "ten" "twenty" "thirty" "forty" "fifty" "sixty" "seventy" "eighty" "ninety")))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator *
+          (array_declarator PLACEHOLDER_7)) =
+        (initializer_list
+          (null NULL))))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator *
+          (array_declarator PLACEHOLDER_8)) =
+        (initializer_list
+          (null NULL))))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator *
+          (array_declarator PLACEHOLDER_9)) =
+        (initializer_list
+          (null NULL))))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator *
+          (array_declarator PLACEHOLDER_10)) =
+        (initializer_list
+          (null NULL))))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator * PLACEHOLDER_11) = "hundred"))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator * PLACEHOLDER_12) = "thousand"))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator * PLACEHOLDER_13) = "million"))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator * PLACEHOLDER_14) = "billion"))
+    (declaration
+      (type_qualifier const) char
+      (init_declarator
+        (pointer_declarator * PLACEHOLDER_15) = "-"))
+    (preproc_elif
+      (preproc_defined defined SPANISH)
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_2) = "menos"))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator *
+            (array_declarator PLACEHOLDER_3)) =
+          (initializer_list "cero" "uno" "dos" "tres" "cuatro" "cinco" "seis" "siete" "ocho" "nueve")))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator *
+            (array_declarator PLACEHOLDER_4)) =
+          (initializer_list "diez" "once" "doce" "trece" "catorce" "quince" "diecis\u00E9is" "diecisiete" "dieciocho" "diecinueve")))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator *
+            (array_declarator PLACEHOLDER_5)) =
+          (initializer_list "veinte" "veintiuno" "veintid\u00F3s" "veintitres" "veinticuatro" "veinticinco" "veintiseis" "veintisiete" "veintiocho" "veintinueve")))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator *
+            (array_declarator PLACEHOLDER_6)) =
+          (initializer_list "diez" "veinte" "treinta" "cuarenta" "cincuenta" "sesenta" "setenta" "ochenta" "noventa")))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator *
+            (array_declarator PLACEHOLDER_7)) =
+          (initializer_list "cien" "doscientos" "trescientos" "cuatrocientos" "quinientos" "seiscientos" "setecientos" "ochocientos" "novecientos")))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator *
+            (array_declarator PLACEHOLDER_8)) =
+          (initializer_list "mil")))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator *
+            (array_declarator PLACEHOLDER_9)) =
+          (initializer_list "un mill\u00F3n")))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator *
+            (array_declarator PLACEHOLDER_10)) =
+          (initializer_list "mil mill\u00F3n")))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_11) = "cien"))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_12) = "mil"))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_13) = "mill\u00F3nes"))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_14) = "mil mill\u00F3nes"))
+      (declaration
+        (type_qualifier const) char
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_15) = " y "))))
+  (declaration
+    (type_qualifier const) int64_t
+    (init_declarator PLACEHOLDER_16 = 999999999999))
+  (preproc_if
+    (preproc_defined defined NEGATIVE_NUMBERS)
+    (declaration
+      (type_qualifier const) int64_t
+      (init_declarator PLACEHOLDER_17 =
+        (unary_expression - PLACEHOLDER_16)))
+    (preproc_else
+      (declaration
+        (type_qualifier const) int64_t
+        (init_declarator PLACEHOLDER_17 = 0))))
+  (declaration
+    (storage_class_specifier static) size_t
+    (function_declarator PLACEHOLDER_18
+      (parameter_list
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_19))
+        (parameter_declaration int64_t PLACEHOLDER_20)
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_21)))))
+  (declaration
+    (storage_class_specifier static) size_t
+    (function_declarator PLACEHOLDER_22
+      (parameter_list
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_19))
+        (parameter_declaration int64_t PLACEHOLDER_23)
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_24))
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_25))
+        (parameter_declaration int64_t PLACEHOLDER_26)
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_21)))))
+  (function_definition int
+    (function_declarator PLACEHOLDER_27
+      (parameter_list
+        (parameter_declaration int64_t PLACEHOLDER_20)
+        (parameter_declaration char
+          (pointer_declarator *
+            (pointer_declarator * PLACEHOLDER_28)))))
+    (compound_statement
+      (if_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_20 < PLACEHOLDER_17) ||
+          (binary_expression PLACEHOLDER_20 > PLACEHOLDER_16))
+        (compound_statement
+          (return_statement -1)))
+      (declaration size_t
+        (init_declarator PLACEHOLDER_29 =
+          (call_expression PLACEHOLDER_18
+            (argument_list
+              (null NULL) PLACEHOLDER_20
+              (null NULL)))))
+      (expression_statement
+        (assignment_expression
+          (pointer_expression * PLACEHOLDER_28) =
+          (call_expression malloc
+            (argument_list
+              (binary_expression
+                (binary_expression PLACEHOLDER_29 + 1) *
+                (sizeof_expression
+                  (type_descriptor char)))))))
+      (expression_statement
+        (call_expression PLACEHOLDER_18
+          (argument_list
+            (null NULL) PLACEHOLDER_20
+            (pointer_expression * PLACEHOLDER_28))))
+      (return_statement 0)))
+  (function_definition
+    (storage_class_specifier static) size_t
+    (function_declarator PLACEHOLDER_18
+      (parameter_list
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_19))
+        (parameter_declaration int64_t PLACEHOLDER_20)
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_21))))
+    (compound_statement
+      (if_statement
+        (binary_expression PLACEHOLDER_20 < 0)
+        (compound_statement
+          (return_statement
+            (call_expression PLACEHOLDER_22
+              (argument_list PLACEHOLDER_19 0 PLACEHOLDER_2 " "
+                (unary_expression - PLACEHOLDER_20) PLACEHOLDER_21))))
+        (if_statement
+          (binary_expression PLACEHOLDER_20 == 0)
+          (compound_statement
+            (return_statement
+              (call_expression PLACEHOLDER_22
+                (argument_list PLACEHOLDER_19 0
+                  (conditional_expression PLACEHOLDER_19 ? "" :
+                    (subscript_expression PLACEHOLDER_3 0))
+                  (null NULL) 0 PLACEHOLDER_21))))
+          (if_statement
+            (binary_expression PLACEHOLDER_20 < 10)
+            (compound_statement
+              (return_statement
+                (call_expression PLACEHOLDER_22
+                  (argument_list PLACEHOLDER_19 0
+                    (subscript_expression PLACEHOLDER_3 PLACEHOLDER_20)
+                    (null NULL) 0 PLACEHOLDER_21))))
+            (if_statement
+              (binary_expression PLACEHOLDER_20 < 20)
+              (compound_statement
+                (return_statement
+                  (call_expression PLACEHOLDER_22
+                    (argument_list PLACEHOLDER_19 0
+                      (subscript_expression PLACEHOLDER_4
+                        (binary_expression PLACEHOLDER_20 - 10))
+                      (null NULL) 0 PLACEHOLDER_21))))
+              (if_statement
+                (binary_expression
+                  (binary_expression PLACEHOLDER_20 < 30) &&
+                  (subscript_expression PLACEHOLDER_5 0))
+                (compound_statement
+                  (return_statement
+                    (call_expression PLACEHOLDER_22
+                      (argument_list PLACEHOLDER_19 0
+                        (subscript_expression PLACEHOLDER_5
+                          (binary_expression PLACEHOLDER_20 - 20))
+                        (null NULL) 0 PLACEHOLDER_21))))
+                (if_statement
+                  (binary_expression PLACEHOLDER_20 < 100)
+                  (compound_statement
+                    (return_statement
+                      (call_expression PLACEHOLDER_22
+                        (argument_list PLACEHOLDER_19 0
+                          (subscript_expression PLACEHOLDER_6
+                            (binary_expression
+                              (binary_expression PLACEHOLDER_20 / 10) - 1)) PLACEHOLDER_15
+                          (binary_expression PLACEHOLDER_20 % 10) PLACEHOLDER_21))))
+                  (if_statement
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_20 < 1000) &&
+                      (subscript_expression PLACEHOLDER_7 0))
+                    (compound_statement
+                      (return_statement
+                        (call_expression PLACEHOLDER_22
+                          (argument_list PLACEHOLDER_19 0
+                            (subscript_expression PLACEHOLDER_7
+                              (binary_expression
+                                (binary_expression PLACEHOLDER_20 / 100) - 1)) " "
+                            (binary_expression PLACEHOLDER_20 % 100) PLACEHOLDER_21))))
+                    (if_statement
+                      (binary_expression PLACEHOLDER_20 < 1000)
+                      (compound_statement
+                        (return_statement
+                          (call_expression PLACEHOLDER_22
+                            (argument_list PLACEHOLDER_19
+                              (binary_expression PLACEHOLDER_20 / 100) PLACEHOLDER_11 " "
+                              (binary_expression PLACEHOLDER_20 % 100) PLACEHOLDER_21))))
+                      (if_statement
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_20 < 2000) &&
+                          (subscript_expression PLACEHOLDER_8 0))
+                        (compound_statement
+                          (return_statement
+                            (call_expression PLACEHOLDER_22
+                              (argument_list PLACEHOLDER_19 0
+                                (subscript_expression PLACEHOLDER_8 0) " "
+                                (binary_expression PLACEHOLDER_20 % 1000) PLACEHOLDER_21))))
+                        (if_statement
+                          (binary_expression PLACEHOLDER_20 < 1000000)
+                          (compound_statement
+                            (return_statement
+                              (call_expression PLACEHOLDER_22
+                                (argument_list PLACEHOLDER_19
+                                  (binary_expression PLACEHOLDER_20 / 1000) PLACEHOLDER_12 " "
+                                  (binary_expression PLACEHOLDER_20 % 1000) PLACEHOLDER_21))))
+                          (if_statement
+                            (binary_expression
+                              (binary_expression PLACEHOLDER_20 < 2000000) &&
+                              (subscript_expression PLACEHOLDER_9 0))
+                            (compound_statement
+                              (return_statement
+                                (call_expression PLACEHOLDER_22
+                                  (argument_list PLACEHOLDER_19 0
+                                    (subscript_expression PLACEHOLDER_9 0) " "
+                                    (binary_expression PLACEHOLDER_20 % 1000000) PLACEHOLDER_21))))
+                            (if_statement
+                              (binary_expression PLACEHOLDER_20 < 1000000000)
+                              (compound_statement
+                                (return_statement
+                                  (call_expression PLACEHOLDER_22
+                                    (argument_list PLACEHOLDER_19
+                                      (binary_expression PLACEHOLDER_20 / 1000000) PLACEHOLDER_13 " "
+                                      (binary_expression PLACEHOLDER_20 % 1000000) PLACEHOLDER_21))))
+                              (if_statement
+                                (binary_expression
+                                  (binary_expression PLACEHOLDER_20 < 2000000000) &&
+                                  (subscript_expression PLACEHOLDER_10 0))
+                                (compound_statement
+                                  (return_statement
+                                    (call_expression PLACEHOLDER_22
+                                      (argument_list PLACEHOLDER_19 0
+                                        (subscript_expression PLACEHOLDER_10 0) " "
+                                        (binary_expression PLACEHOLDER_20 % 1000000000) PLACEHOLDER_21))))
+                                (if_statement
+                                  (binary_expression PLACEHOLDER_20 < 1000000000000)
+                                  (compound_statement
+                                    (return_statement
+                                      (call_expression PLACEHOLDER_22
+                                        (argument_list PLACEHOLDER_19
+                                          (binary_expression PLACEHOLDER_20 / 1000000000) PLACEHOLDER_14 " "
+                                          (binary_expression PLACEHOLDER_20 % 1000000000) PLACEHOLDER_21))))
+                                  (compound_statement
+                                    (return_statement 0))))))))))))))))))
+  (function_definition
+    (storage_class_specifier static) size_t
+    (function_declarator PLACEHOLDER_22
+      (parameter_list
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_19))
+        (parameter_declaration int64_t PLACEHOLDER_23)
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_24))
+        (parameter_declaration
+          (type_qualifier const) char
+          (pointer_declarator * PLACEHOLDER_25))
+        (parameter_declaration int64_t PLACEHOLDER_26)
+        (parameter_declaration char
+          (pointer_declarator * PLACEHOLDER_21))))
+    (compound_statement
+      (declaration size_t
+        (init_declarator PLACEHOLDER_29 = 0))
+      (if_statement PLACEHOLDER_23
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_29 +=
+              (call_expression PLACEHOLDER_18
+                (argument_list PLACEHOLDER_19 PLACEHOLDER_23 PLACEHOLDER_21))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_19 =
+              (null NULL)))
+          (if_statement PLACEHOLDER_21
+            (compound_statement
+              (expression_statement
+                (assignment_expression PLACEHOLDER_21 += PLACEHOLDER_29))))))
+      (if_statement PLACEHOLDER_23
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_29 += 1))
+          (if_statement PLACEHOLDER_21
+            (compound_statement
+              (expression_statement
+                (call_expression sprintf
+                  (argument_list PLACEHOLDER_21 " ")))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_21 += 1))))))
+      (if_statement PLACEHOLDER_19
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_29 +=
+              (call_expression strlen
+                (argument_list PLACEHOLDER_19))))
+          (if_statement PLACEHOLDER_21
+            (compound_statement
+              (expression_statement
+                (call_expression sprintf
+                  (argument_list PLACEHOLDER_21 "%s" PLACEHOLDER_19)))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_21 +=
+                  (call_expression strlen
+                    (argument_list PLACEHOLDER_19))))))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_29 +=
+          (call_expression strlen
+            (argument_list PLACEHOLDER_24))))
+      (if_statement PLACEHOLDER_21
+        (compound_statement
+          (expression_statement
+            (call_expression sprintf
+              (argument_list PLACEHOLDER_21 "%s" PLACEHOLDER_24)))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_21 +=
+              (call_expression strlen
+                (argument_list PLACEHOLDER_24))))))
+      (if_statement PLACEHOLDER_26
+        (compound_statement
+          (return_statement
+            (binary_expression
+              (call_expression PLACEHOLDER_18
+                (argument_list PLACEHOLDER_25 PLACEHOLDER_26 PLACEHOLDER_21)) + PLACEHOLDER_29)))
+        (compound_statement
+          (return_statement PLACEHOLDER_29)))))
+  (preproc_ifdef #ifndef PLACEHOLDER_30
+    (preproc_def PLACEHOLDER_30)
+    (declaration int
+      (function_declarator PLACEHOLDER_27
+        (parameter_list
+          (parameter_declaration int64_t PLACEHOLDER_20)
+          (parameter_declaration char
+            (pointer_declarator *
+              (pointer_declarator * PLACEHOLDER_28))))))))

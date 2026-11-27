@@ -1,129 +1,382 @@
-#ifndef RATIONAL_NUMBERS_H
-#define RATIONAL_NUMBERS_H
-typedef struct
-{
-int numerator ;
-int denominator ;
-}
-rational_t ;
-int gcd ( int a , int b );
-float root ( float r , int n );
-rational_t reduce ( rational_t r );
-rational_t add ( rational_t r1 , rational_t r2 );
-rational_t subtract ( rational_t r1 , rational_t r2 );
-rational_t multiply ( rational_t r1 , rational_t r2 );
-rational_t divide ( rational_t r1 , rational_t r2 );
-rational_t absolute ( rational_t r );
-rational_t exp_rational ( rational_t b , int e );
-float exp_real ( float b , rational_t e );
-#endif
-int gcd ( int a , int b )
-{
-register int aux ;
-if ( a < b )
-{
-aux = a ;
-a = b ;
-b = aux ;
-}
-if ( a < 0 ) a = - a ;
-if ( b < 0 ) b = - b ;
-if ( ! b ) return a ;
-if ( b == 1 ) return 1 ;
-if ( ! ( a & 1 ) && ! ( b & 1 ))
-return gcd ( a >> 1 , b >> 1 ) << 1 ;
-if (( ! ( a & 1 ) && ( b & 1 )))
-return gcd ( a >> 1 , b );
-if ((( a & 1 ) && ! ( b & 1 )))
-return gcd ( a , b >> 1 );
-return gcd ( a - b , b );
-}
-float root ( float r , int n )
-{
-int i , j ;
-float x , xp ;
-x = xp = 1 ;
-for ( i = 0 ; i < 5 ; ++ i )
-{
-for ( xp = 1 , j = n - 1 ; j ; -- j ) xp *= x ;
-x = ( n - 1 ) * x / n + r / ( n * xp );
-}
-return x ;
-}
-rational_t reduce ( rational_t r )
-{
-int g = gcd ( r . numerator , r . denominator );
-r . numerator /= g ;
-r . denominator /= g ;
-if ( r . denominator < 0 )
-{
-r . denominator = - r . denominator ;
-r . numerator = - r . numerator ;
-}
-return r ;
-}
-rational_t add ( rational_t r1 , rational_t r2 )
-{
-rational_t r ;
-r . numerator = r1 . numerator * r2 . denominator + r2 . numerator * r1 . denominator ;
-r . denominator = r1 . denominator * r2 . denominator ;
-return reduce ( r );
-}
-rational_t subtract ( rational_t r1 , rational_t r2 )
-{
-rational_t r ;
-r . numerator = r1 . numerator * r2 . denominator - r2 . numerator * r1 . denominator ;
-r . denominator = r1 . denominator * r2 . denominator ;
-return reduce ( r );
-}
-rational_t multiply ( rational_t r1 , rational_t r2 )
-{
-rational_t r ;
-r . numerator = r1 . numerator * r2 . numerator ;
-r . denominator = r1 . denominator * r2 . denominator ;
-return reduce ( r );
-}
-rational_t divide ( rational_t r1 , rational_t r2 )
-{
-rational_t r ;
-r . numerator = r1 . numerator * r2 . denominator ;
-r . denominator = r1 . denominator * r2 . numerator ;
-return reduce ( r );
-}
-rational_t absolute ( rational_t r )
-{
-r = reduce ( r );
-if ( r . numerator < 0 ) r . numerator = - r . numerator ;
-return r ;
-}
-rational_t exp_rational ( rational_t b , int e )
-{
-rational_t r = { 1 , 1 };
-int aux ;
-if ( ! e ) return r ;
-if ( e < 0 )
-{
-e = - e ;
-aux = b . numerator ;
-b . numerator = b . denominator ;
-b . denominator = aux ;
-}
-while ( e -- )
-{
-r . numerator *= b . numerator ;
-r . denominator *= b . denominator ;
-}
-return reduce ( r );
-}
-float exp_real ( float b , rational_t e )
-{
-rational_t abs_e ;
-float r = 1 , r_ ;
-if ( ! e . numerator ) return 1 .;
-e = reduce ( e );
-abs_e = absolute ( e );
-r_ = root ( b , e . denominator );
-while ( abs_e . numerator -- ) r *= r_ ;
-if ( e . numerator < 0 ) return 1 . 0 / r ;
-else return r ;
-}
+(translation_unit
+  (function_definition int
+    (function_declarator PLACEHOLDER_1
+      (parameter_list
+        (parameter_declaration int PLACEHOLDER_2)
+        (parameter_declaration int PLACEHOLDER_3)))
+    (compound_statement
+      (declaration
+        (storage_class_specifier register) int PLACEHOLDER_4)
+      (if_statement
+        (binary_expression PLACEHOLDER_2 < PLACEHOLDER_3)
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 = PLACEHOLDER_2))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 = PLACEHOLDER_3))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_3 = PLACEHOLDER_4))))
+      (if_statement
+        (binary_expression PLACEHOLDER_2 < 0)
+        (expression_statement
+          (assignment_expression PLACEHOLDER_2 =
+            (unary_expression - PLACEHOLDER_2))))
+      (if_statement
+        (binary_expression PLACEHOLDER_3 < 0)
+        (expression_statement
+          (assignment_expression PLACEHOLDER_3 =
+            (unary_expression - PLACEHOLDER_3))))
+      (if_statement
+        (unary_expression ! PLACEHOLDER_3)
+        (return_statement PLACEHOLDER_2))
+      (if_statement
+        (binary_expression PLACEHOLDER_3 == 1)
+        (return_statement 1))
+      (if_statement
+        (binary_expression
+          (unary_expression !
+            (binary_expression PLACEHOLDER_2 & 1)) &&
+          (unary_expression !
+            (binary_expression PLACEHOLDER_3 & 1)))
+        (return_statement
+          (binary_expression
+            (call_expression PLACEHOLDER_1
+              (argument_list
+                (binary_expression PLACEHOLDER_2 >> 1)
+                (binary_expression PLACEHOLDER_3 >> 1))) << 1)))
+      (if_statement
+        (binary_expression
+          (unary_expression !
+            (binary_expression PLACEHOLDER_2 & 1)) &&
+          (binary_expression PLACEHOLDER_3 & 1))
+        (return_statement
+          (call_expression PLACEHOLDER_1
+            (argument_list
+              (binary_expression PLACEHOLDER_2 >> 1) PLACEHOLDER_3))))
+      (if_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_2 & 1) &&
+          (unary_expression !
+            (binary_expression PLACEHOLDER_3 & 1)))
+        (return_statement
+          (call_expression PLACEHOLDER_1
+            (argument_list PLACEHOLDER_2
+              (binary_expression PLACEHOLDER_3 >> 1)))))
+      (return_statement
+        (call_expression PLACEHOLDER_1
+          (argument_list
+            (binary_expression PLACEHOLDER_2 - PLACEHOLDER_3) PLACEHOLDER_3)))))
+  (function_definition float
+    (function_declarator PLACEHOLDER_5
+      (parameter_list
+        (parameter_declaration float PLACEHOLDER_6)
+        (parameter_declaration int PLACEHOLDER_7)))
+    (compound_statement
+      (declaration int PLACEHOLDER_8 PLACEHOLDER_9)
+      (declaration float PLACEHOLDER_10 PLACEHOLDER_11)
+      (expression_statement
+        (assignment_expression PLACEHOLDER_10 =
+          (assignment_expression PLACEHOLDER_11 = 1)))
+      (for_statement
+        (assignment_expression PLACEHOLDER_8 = 0) ;
+        (binary_expression PLACEHOLDER_8 < 5) ;
+        (update_expression ++ PLACEHOLDER_8)
+        (compound_statement
+          (for_statement
+            (comma_expression
+              (assignment_expression PLACEHOLDER_11 = 1)
+              (assignment_expression PLACEHOLDER_9 =
+                (binary_expression PLACEHOLDER_7 - 1))) ; PLACEHOLDER_9 ;
+            (update_expression -- PLACEHOLDER_9)
+            (expression_statement
+              (assignment_expression PLACEHOLDER_11 *= PLACEHOLDER_10)))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_10 =
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_7 - 1) * PLACEHOLDER_10) / PLACEHOLDER_7) +
+                (binary_expression PLACEHOLDER_6 /
+                  (binary_expression PLACEHOLDER_7 * PLACEHOLDER_11)))))))
+      (return_statement PLACEHOLDER_10)))
+  (function_definition (type_identifier PLACEHOLDER_12)
+    (function_declarator PLACEHOLDER_13
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_6)))
+    (compound_statement
+      (declaration int
+        (init_declarator PLACEHOLDER_14 =
+          (call_expression PLACEHOLDER_1
+            (argument_list
+              (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15))
+              (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16))))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) /= PLACEHOLDER_14))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)) /= PLACEHOLDER_14))
+      (if_statement
+        (binary_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)) < 0)
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)) =
+              (unary_expression -
+                (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)))))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) =
+              (unary_expression -
+                (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)))))))
+      (return_statement PLACEHOLDER_6)))
+  (function_definition (type_identifier PLACEHOLDER_12)
+    (function_declarator PLACEHOLDER_17
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_18)
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_19)))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_6)
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) =
+          (binary_expression
+            (binary_expression
+              (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_15)) *
+              (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_16))) +
+            (binary_expression
+              (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_15)) *
+              (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_16))))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)) =
+          (binary_expression
+            (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_16)) *
+            (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_16)))))
+      (return_statement
+        (call_expression PLACEHOLDER_13
+          (argument_list PLACEHOLDER_6)))))
+  (function_definition (type_identifier PLACEHOLDER_12)
+    (function_declarator PLACEHOLDER_20
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_18)
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_19)))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_6)
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) =
+          (binary_expression
+            (binary_expression
+              (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_15)) *
+              (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_16))) -
+            (binary_expression
+              (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_15)) *
+              (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_16))))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)) =
+          (binary_expression
+            (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_16)) *
+            (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_16)))))
+      (return_statement
+        (call_expression PLACEHOLDER_13
+          (argument_list PLACEHOLDER_6)))))
+  (function_definition (type_identifier PLACEHOLDER_12)
+    (function_declarator PLACEHOLDER_21
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_18)
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_19)))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_6)
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) =
+          (binary_expression
+            (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_15)) *
+            (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_15)))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)) =
+          (binary_expression
+            (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_16)) *
+            (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_16)))))
+      (return_statement
+        (call_expression PLACEHOLDER_13
+          (argument_list PLACEHOLDER_6)))))
+  (function_definition (type_identifier PLACEHOLDER_12)
+    (function_declarator PLACEHOLDER_22
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_18)
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_19)))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_6)
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) =
+          (binary_expression
+            (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_15)) *
+            (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_16)))))
+      (expression_statement
+        (assignment_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)) =
+          (binary_expression
+            (field_expression PLACEHOLDER_18 . (field_identifier PLACEHOLDER_16)) *
+            (field_expression PLACEHOLDER_19 . (field_identifier PLACEHOLDER_15)))))
+      (return_statement
+        (call_expression PLACEHOLDER_13
+          (argument_list PLACEHOLDER_6)))))
+  (function_definition (type_identifier PLACEHOLDER_12)
+    (function_declarator PLACEHOLDER_23
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_6)))
+    (compound_statement
+      (expression_statement
+        (assignment_expression PLACEHOLDER_6 =
+          (call_expression PLACEHOLDER_13
+            (argument_list PLACEHOLDER_6))))
+      (if_statement
+        (binary_expression
+          (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) < 0)
+        (expression_statement
+          (assignment_expression
+            (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) =
+            (unary_expression -
+              (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15))))))
+      (return_statement PLACEHOLDER_6)))
+  (function_definition (type_identifier PLACEHOLDER_12)
+    (function_declarator PLACEHOLDER_24
+      (parameter_list
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_3)
+        (parameter_declaration int PLACEHOLDER_25)))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_12)
+        (init_declarator PLACEHOLDER_6 =
+          (initializer_list 1 1)))
+      (declaration int PLACEHOLDER_4)
+      (if_statement
+        (unary_expression ! PLACEHOLDER_25)
+        (return_statement PLACEHOLDER_6))
+      (if_statement
+        (binary_expression PLACEHOLDER_25 < 0)
+        (compound_statement
+          (expression_statement
+            (assignment_expression PLACEHOLDER_25 =
+              (unary_expression - PLACEHOLDER_25)))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 =
+              (field_expression PLACEHOLDER_3 . (field_identifier PLACEHOLDER_15))))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_3 . (field_identifier PLACEHOLDER_15)) =
+              (field_expression PLACEHOLDER_3 . (field_identifier PLACEHOLDER_16))))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_3 . (field_identifier PLACEHOLDER_16)) = PLACEHOLDER_4))))
+      (while_statement
+        (update_expression PLACEHOLDER_25 --)
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_15)) *=
+              (field_expression PLACEHOLDER_3 . (field_identifier PLACEHOLDER_15))))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_6 . (field_identifier PLACEHOLDER_16)) *=
+              (field_expression PLACEHOLDER_3 . (field_identifier PLACEHOLDER_16))))))
+      (return_statement
+        (call_expression PLACEHOLDER_13
+          (argument_list PLACEHOLDER_6)))))
+  (function_definition float
+    (function_declarator PLACEHOLDER_26
+      (parameter_list
+        (parameter_declaration float PLACEHOLDER_3)
+        (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_25)))
+    (compound_statement
+      (declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_27)
+      (declaration float
+        (init_declarator PLACEHOLDER_6 = 1) PLACEHOLDER_28)
+      (if_statement
+        (unary_expression !
+          (field_expression PLACEHOLDER_25 . (field_identifier PLACEHOLDER_15)))
+        (return_statement 1.0))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_25 =
+          (call_expression PLACEHOLDER_13
+            (argument_list PLACEHOLDER_25))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_27 =
+          (call_expression PLACEHOLDER_23
+            (argument_list PLACEHOLDER_25))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_28 =
+          (call_expression PLACEHOLDER_5
+            (argument_list PLACEHOLDER_3
+              (field_expression PLACEHOLDER_25 . (field_identifier PLACEHOLDER_16))))))
+      (while_statement
+        (update_expression
+          (field_expression PLACEHOLDER_27 . (field_identifier PLACEHOLDER_15)) --)
+        (expression_statement
+          (assignment_expression PLACEHOLDER_6 *= PLACEHOLDER_28)))
+      (if_statement
+        (binary_expression
+          (field_expression PLACEHOLDER_25 . (field_identifier PLACEHOLDER_15)) < 0)
+        (return_statement
+          (binary_expression 1.0 / PLACEHOLDER_6))
+        (return_statement PLACEHOLDER_6))))
+  (preproc_ifdef #ifndef PLACEHOLDER_29
+    (preproc_def PLACEHOLDER_29)
+    (type_definition
+      (struct_specifier
+        (field_declaration_list
+          (field_declaration int (field_identifier PLACEHOLDER_15))
+          (field_declaration int (field_identifier PLACEHOLDER_16)))) (type_identifier PLACEHOLDER_12))
+    (declaration int
+      (function_declarator PLACEHOLDER_1
+        (parameter_list
+          (parameter_declaration int PLACEHOLDER_2)
+          (parameter_declaration int PLACEHOLDER_3))))
+    (declaration float
+      (function_declarator PLACEHOLDER_5
+        (parameter_list
+          (parameter_declaration float PLACEHOLDER_6)
+          (parameter_declaration int PLACEHOLDER_7))))
+    (declaration (type_identifier PLACEHOLDER_12)
+      (function_declarator PLACEHOLDER_13
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_6))))
+    (declaration (type_identifier PLACEHOLDER_12)
+      (function_declarator PLACEHOLDER_17
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_18)
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_19))))
+    (declaration (type_identifier PLACEHOLDER_12)
+      (function_declarator PLACEHOLDER_20
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_18)
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_19))))
+    (declaration (type_identifier PLACEHOLDER_12)
+      (function_declarator PLACEHOLDER_21
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_18)
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_19))))
+    (declaration (type_identifier PLACEHOLDER_12)
+      (function_declarator PLACEHOLDER_22
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_18)
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_19))))
+    (declaration (type_identifier PLACEHOLDER_12)
+      (function_declarator PLACEHOLDER_23
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_6))))
+    (declaration (type_identifier PLACEHOLDER_12)
+      (function_declarator PLACEHOLDER_24
+        (parameter_list
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_3)
+          (parameter_declaration int PLACEHOLDER_25))))
+    (declaration float
+      (function_declarator PLACEHOLDER_26
+        (parameter_list
+          (parameter_declaration float PLACEHOLDER_3)
+          (parameter_declaration (type_identifier PLACEHOLDER_12) PLACEHOLDER_25))))))

@@ -1,96 +1,417 @@
-#ifndef REACT_H
-#define REACT_H
-#define LIMIT 32
-typedef void ( * callback )( void * , int );
-typedef int callback_id ;
-typedef int ( * compute1 )( int );
-typedef int ( * compute2 )( int , int );
-struct reactor {
-struct cell * cells [ LIMIT ];
-int length ;
-};
-struct cell {
-callback callbacks [ LIMIT ];
-void * args [ LIMIT ];
-struct cell * feed1 , * feed2 ;
-compute1 process1 ;
-compute2 process2 ;
-int value , num_callbacks ;
-};
-struct reactor * create_reactor ( void );
-void destroy_reactor ( struct reactor * );
-struct cell * create_input_cell ( struct reactor * , int initial_value );
-struct cell * create_compute1_cell ( struct reactor * , struct cell * , compute1 );
-struct cell * create_compute2_cell ( struct reactor * , struct cell * ,
-struct cell * , compute2 );
-int get_cell_value ( struct cell * );
-void set_cell_value ( struct cell * , int new_value );
-callback_id add_callback ( struct cell * , void * , callback );
-void remove_callback ( struct cell * , callback_id );
-#endif
-static void update ( void * cell , int n ) {
-( void ) n ;
-struct cell * c = cell ;
-set_cell_value ( c , get_cell_value ( c ));
-}
-struct reactor * create_reactor ( void ) {
-return ( struct reactor * ) calloc ( 1 , sizeof ( struct reactor ));
-}
-void destroy_reactor ( struct reactor * r ) {
-while ( r -> length -- )
-free ( r -> cells [ r -> length ]);
-}
-struct cell * create_input_cell ( struct reactor * r , int initial_value ) {
-struct cell * c = ( struct cell * ) calloc ( 1 , sizeof ( struct cell ));
-if ( c ) {
-c -> value = initial_value ;
-r -> cells [ r -> length ++ ] = c ;
-}
-return c ;
-}
-struct cell * create_compute1_cell ( struct reactor * r , struct cell * feed1 , compute1 f ) {
-struct cell * c = ( struct cell * ) calloc ( 1 , sizeof ( struct cell ));
-if ( c ) {
-c -> feed1 = feed1 ;
-c -> process1 = f ;
-c -> value = get_cell_value ( c );
-add_callback ( feed1 , c , update );
-r -> cells [ r -> length ++ ] = c ;
-}
-return c ;
-}
-struct cell * create_compute2_cell ( struct reactor * r , struct cell * feed1 ,
-struct cell * feed2 , compute2 f ) {
-struct cell * c = ( struct cell * ) calloc ( 1 , sizeof ( struct cell ));
-if ( c ) {
-c -> feed1 = feed1 ;
-c -> feed2 = feed2 ;
-c -> process2 = f ;
-c -> value = get_cell_value ( c );
-add_callback ( feed1 , c , update );
-add_callback ( feed2 , c , update );
-r -> cells [ r -> length ++ ] = c ;
-}
-return c ;
-}
-int get_cell_value ( struct cell * c ) {
-if ( ! c -> feed1 )
-return c -> value ;
-return c -> feed2 ? c -> process2 ( get_cell_value ( c -> feed1 ), get_cell_value ( c -> feed2 )) : c -> process1 ( get_cell_value ( c -> feed1 ));
-}
-void set_cell_value ( struct cell * c , int new_value ) {
-if ( c -> value != new_value ) {
-c -> value = new_value ;
-for ( int i = 0 ; i < c -> num_callbacks ; ++ i )
-if ( c -> callbacks [ i ])
-c -> callbacks [ i ]( c -> args [ i ], c -> value );
-}
-}
-callback_id add_callback ( struct cell * c , void * arg , callback f ) {
-c -> callbacks [ c -> num_callbacks ] = f ;
-c -> args [ c -> num_callbacks ] = arg ;
-return c -> num_callbacks ++ ;
-}
-void remove_callback ( struct cell * c , callback_id id ) {
-c -> callbacks [ id ] = NULL ;
-}
+(translation_unit
+  (function_definition
+    (storage_class_specifier static) void
+    (function_declarator PLACEHOLDER_1
+      (parameter_list
+        (parameter_declaration void
+          (pointer_declarator * PLACEHOLDER_2))
+        (parameter_declaration int PLACEHOLDER_3)))
+    (compound_statement
+      (expression_statement
+        (cast_expression
+          (type_descriptor void) PLACEHOLDER_3))
+      (declaration
+        (struct_specifier (type_identifier PLACEHOLDER_2))
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_4) = PLACEHOLDER_2))
+      (expression_statement
+        (call_expression PLACEHOLDER_5
+          (argument_list PLACEHOLDER_4
+            (call_expression PLACEHOLDER_6
+              (argument_list PLACEHOLDER_4)))))))
+  (function_definition
+    (struct_specifier (type_identifier PLACEHOLDER_7))
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_8
+        (parameter_list
+          (parameter_declaration void))))
+    (compound_statement
+      (return_statement
+        (cast_expression
+          (type_descriptor
+            (struct_specifier (type_identifier PLACEHOLDER_7))
+            (abstract_pointer_declarator *))
+          (call_expression calloc
+            (argument_list 1
+              (sizeof_expression
+                (type_descriptor
+                  (struct_specifier (type_identifier PLACEHOLDER_7))))))))))
+  (function_definition void
+    (function_declarator PLACEHOLDER_9
+      (parameter_list
+        (parameter_declaration
+          (struct_specifier (type_identifier PLACEHOLDER_7))
+          (pointer_declarator * PLACEHOLDER_10))))
+    (compound_statement
+      (while_statement
+        (update_expression
+          (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_11)) --)
+        (expression_statement
+          (call_expression free
+            (argument_list
+              (subscript_expression
+                (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_12))
+                (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_11)))))))))
+  (function_definition
+    (struct_specifier (type_identifier PLACEHOLDER_2))
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_13
+        (parameter_list
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_7))
+            (pointer_declarator * PLACEHOLDER_10))
+          (parameter_declaration int PLACEHOLDER_14))))
+    (compound_statement
+      (declaration
+        (struct_specifier (type_identifier PLACEHOLDER_2))
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_4) =
+          (cast_expression
+            (type_descriptor
+              (struct_specifier (type_identifier PLACEHOLDER_2))
+              (abstract_pointer_declarator *))
+            (call_expression calloc
+              (argument_list 1
+                (sizeof_expression
+                  (type_descriptor
+                    (struct_specifier (type_identifier PLACEHOLDER_2)))))))))
+      (if_statement PLACEHOLDER_4
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_15)) = PLACEHOLDER_14))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression
+                (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_12))
+                (update_expression
+                  (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_11)) ++)) = PLACEHOLDER_4))))
+      (return_statement PLACEHOLDER_4)))
+  (function_definition
+    (struct_specifier (type_identifier PLACEHOLDER_2))
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_16
+        (parameter_list
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_7))
+            (pointer_declarator * PLACEHOLDER_10))
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_2))
+            (pointer_declarator * PLACEHOLDER_17))
+          (parameter_declaration (type_identifier PLACEHOLDER_18) PLACEHOLDER_19))))
+    (compound_statement
+      (declaration
+        (struct_specifier (type_identifier PLACEHOLDER_2))
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_4) =
+          (cast_expression
+            (type_descriptor
+              (struct_specifier (type_identifier PLACEHOLDER_2))
+              (abstract_pointer_declarator *))
+            (call_expression calloc
+              (argument_list 1
+                (sizeof_expression
+                  (type_descriptor
+                    (struct_specifier (type_identifier PLACEHOLDER_2)))))))))
+      (if_statement PLACEHOLDER_4
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_17)) = PLACEHOLDER_17))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_20)) = PLACEHOLDER_19))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_15)) =
+              (call_expression PLACEHOLDER_6
+                (argument_list PLACEHOLDER_4))))
+          (expression_statement
+            (call_expression PLACEHOLDER_21
+              (argument_list PLACEHOLDER_17 PLACEHOLDER_4 PLACEHOLDER_1)))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression
+                (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_12))
+                (update_expression
+                  (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_11)) ++)) = PLACEHOLDER_4))))
+      (return_statement PLACEHOLDER_4)))
+  (function_definition
+    (struct_specifier (type_identifier PLACEHOLDER_2))
+    (pointer_declarator *
+      (function_declarator PLACEHOLDER_22
+        (parameter_list
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_7))
+            (pointer_declarator * PLACEHOLDER_10))
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_2))
+            (pointer_declarator * PLACEHOLDER_17))
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_2))
+            (pointer_declarator * PLACEHOLDER_23))
+          (parameter_declaration (type_identifier PLACEHOLDER_24) PLACEHOLDER_19))))
+    (compound_statement
+      (declaration
+        (struct_specifier (type_identifier PLACEHOLDER_2))
+        (init_declarator
+          (pointer_declarator * PLACEHOLDER_4) =
+          (cast_expression
+            (type_descriptor
+              (struct_specifier (type_identifier PLACEHOLDER_2))
+              (abstract_pointer_declarator *))
+            (call_expression calloc
+              (argument_list 1
+                (sizeof_expression
+                  (type_descriptor
+                    (struct_specifier (type_identifier PLACEHOLDER_2)))))))))
+      (if_statement PLACEHOLDER_4
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_17)) = PLACEHOLDER_17))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_23)) = PLACEHOLDER_23))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_25)) = PLACEHOLDER_19))
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_15)) =
+              (call_expression PLACEHOLDER_6
+                (argument_list PLACEHOLDER_4))))
+          (expression_statement
+            (call_expression PLACEHOLDER_21
+              (argument_list PLACEHOLDER_17 PLACEHOLDER_4 PLACEHOLDER_1)))
+          (expression_statement
+            (call_expression PLACEHOLDER_21
+              (argument_list PLACEHOLDER_23 PLACEHOLDER_4 PLACEHOLDER_1)))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression
+                (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_12))
+                (update_expression
+                  (field_expression PLACEHOLDER_10 -> (field_identifier PLACEHOLDER_11)) ++)) = PLACEHOLDER_4))))
+      (return_statement PLACEHOLDER_4)))
+  (function_definition int
+    (function_declarator PLACEHOLDER_6
+      (parameter_list
+        (parameter_declaration
+          (struct_specifier (type_identifier PLACEHOLDER_2))
+          (pointer_declarator * PLACEHOLDER_4))))
+    (compound_statement
+      (if_statement
+        (unary_expression !
+          (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_17)))
+        (return_statement
+          (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_15))))
+      (return_statement
+        (conditional_expression
+          (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_23)) ?
+          (call_expression
+            (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_25))
+            (argument_list
+              (call_expression PLACEHOLDER_6
+                (argument_list
+                  (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_17))))
+              (call_expression PLACEHOLDER_6
+                (argument_list
+                  (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_23)))))) :
+          (call_expression
+            (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_20))
+            (argument_list
+              (call_expression PLACEHOLDER_6
+                (argument_list
+                  (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_17))))))))))
+  (function_definition void
+    (function_declarator PLACEHOLDER_5
+      (parameter_list
+        (parameter_declaration
+          (struct_specifier (type_identifier PLACEHOLDER_2))
+          (pointer_declarator * PLACEHOLDER_4))
+        (parameter_declaration int PLACEHOLDER_26)))
+    (compound_statement
+      (if_statement
+        (binary_expression
+          (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_15)) != PLACEHOLDER_26)
+        (compound_statement
+          (expression_statement
+            (assignment_expression
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_15)) = PLACEHOLDER_26))
+          (for_statement
+            (declaration int
+              (init_declarator PLACEHOLDER_27 = 0))
+            (binary_expression PLACEHOLDER_27 <
+              (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_28))) ;
+            (update_expression ++ PLACEHOLDER_27)
+            (if_statement
+              (subscript_expression
+                (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_29)) PLACEHOLDER_27)
+              (expression_statement
+                (call_expression
+                  (subscript_expression
+                    (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_29)) PLACEHOLDER_27)
+                  (argument_list
+                    (subscript_expression
+                      (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_30)) PLACEHOLDER_27)
+                    (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_15)))))))))))
+  (function_definition (type_identifier PLACEHOLDER_31)
+    (function_declarator PLACEHOLDER_21
+      (parameter_list
+        (parameter_declaration
+          (struct_specifier (type_identifier PLACEHOLDER_2))
+          (pointer_declarator * PLACEHOLDER_4))
+        (parameter_declaration void
+          (pointer_declarator * PLACEHOLDER_32))
+        (parameter_declaration (type_identifier PLACEHOLDER_33) PLACEHOLDER_19)))
+    (compound_statement
+      (expression_statement
+        (assignment_expression
+          (subscript_expression
+            (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_29))
+            (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_28))) = PLACEHOLDER_19))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression
+            (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_30))
+            (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_28))) = PLACEHOLDER_32))
+      (return_statement
+        (update_expression
+          (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_28)) ++))))
+  (function_definition void
+    (function_declarator PLACEHOLDER_34
+      (parameter_list
+        (parameter_declaration
+          (struct_specifier (type_identifier PLACEHOLDER_2))
+          (pointer_declarator * PLACEHOLDER_4))
+        (parameter_declaration (type_identifier PLACEHOLDER_31) PLACEHOLDER_35)))
+    (compound_statement
+      (expression_statement
+        (assignment_expression
+          (subscript_expression
+            (field_expression PLACEHOLDER_4 -> (field_identifier PLACEHOLDER_29)) PLACEHOLDER_35) =
+          (null NULL)))))
+  (preproc_ifdef #ifndef PLACEHOLDER_36
+    (preproc_def PLACEHOLDER_36)
+    (preproc_def PLACEHOLDER_37 32)
+    (type_definition void
+      (function_declarator
+        (parenthesized_declarator
+          (pointer_declarator * (type_identifier PLACEHOLDER_33)))
+        (parameter_list
+          (parameter_declaration void
+            (abstract_pointer_declarator *))
+          (parameter_declaration int))))
+    (type_definition int (type_identifier PLACEHOLDER_31))
+    (type_definition int
+      (function_declarator
+        (parenthesized_declarator
+          (pointer_declarator * (type_identifier PLACEHOLDER_18)))
+        (parameter_list
+          (parameter_declaration int))))
+    (type_definition int
+      (function_declarator
+        (parenthesized_declarator
+          (pointer_declarator * (type_identifier PLACEHOLDER_24)))
+        (parameter_list
+          (parameter_declaration int)
+          (parameter_declaration int))))
+    (struct_specifier (type_identifier PLACEHOLDER_7)
+      (field_declaration_list
+        (field_declaration
+          (struct_specifier (type_identifier PLACEHOLDER_2))
+          (pointer_declarator *
+            (array_declarator (field_identifier PLACEHOLDER_12) PLACEHOLDER_37)))
+        (field_declaration int (field_identifier PLACEHOLDER_11))))
+    (struct_specifier (type_identifier PLACEHOLDER_2)
+      (field_declaration_list
+        (field_declaration (type_identifier PLACEHOLDER_33)
+          (array_declarator (field_identifier PLACEHOLDER_29) PLACEHOLDER_37))
+        (field_declaration void
+          (pointer_declarator *
+            (array_declarator (field_identifier PLACEHOLDER_30) PLACEHOLDER_37)))
+        (field_declaration
+          (struct_specifier (type_identifier PLACEHOLDER_2))
+          (pointer_declarator * (field_identifier PLACEHOLDER_17))
+          (pointer_declarator * (field_identifier PLACEHOLDER_23)))
+        (field_declaration (type_identifier PLACEHOLDER_18) (field_identifier PLACEHOLDER_20))
+        (field_declaration (type_identifier PLACEHOLDER_24) (field_identifier PLACEHOLDER_25))
+        (field_declaration int (field_identifier PLACEHOLDER_15) (field_identifier PLACEHOLDER_28))))
+    (declaration
+      (struct_specifier (type_identifier PLACEHOLDER_7))
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_8
+          (parameter_list
+            (parameter_declaration void)))))
+    (declaration void
+      (function_declarator PLACEHOLDER_9
+        (parameter_list
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_7))
+            (abstract_pointer_declarator *)))))
+    (declaration
+      (struct_specifier (type_identifier PLACEHOLDER_2))
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_13
+          (parameter_list
+            (parameter_declaration
+              (struct_specifier (type_identifier PLACEHOLDER_7))
+              (abstract_pointer_declarator *))
+            (parameter_declaration int PLACEHOLDER_14)))))
+    (declaration
+      (struct_specifier (type_identifier PLACEHOLDER_2))
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_16
+          (parameter_list
+            (parameter_declaration
+              (struct_specifier (type_identifier PLACEHOLDER_7))
+              (abstract_pointer_declarator *))
+            (parameter_declaration
+              (struct_specifier (type_identifier PLACEHOLDER_2))
+              (abstract_pointer_declarator *))
+            (parameter_declaration (type_identifier PLACEHOLDER_18))))))
+    (declaration
+      (struct_specifier (type_identifier PLACEHOLDER_2))
+      (pointer_declarator *
+        (function_declarator PLACEHOLDER_22
+          (parameter_list
+            (parameter_declaration
+              (struct_specifier (type_identifier PLACEHOLDER_7))
+              (abstract_pointer_declarator *))
+            (parameter_declaration
+              (struct_specifier (type_identifier PLACEHOLDER_2))
+              (abstract_pointer_declarator *))
+            (parameter_declaration
+              (struct_specifier (type_identifier PLACEHOLDER_2))
+              (abstract_pointer_declarator *))
+            (parameter_declaration (type_identifier PLACEHOLDER_24))))))
+    (declaration int
+      (function_declarator PLACEHOLDER_6
+        (parameter_list
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_2))
+            (abstract_pointer_declarator *)))))
+    (declaration void
+      (function_declarator PLACEHOLDER_5
+        (parameter_list
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_2))
+            (abstract_pointer_declarator *))
+          (parameter_declaration int PLACEHOLDER_26))))
+    (declaration (type_identifier PLACEHOLDER_31)
+      (function_declarator PLACEHOLDER_21
+        (parameter_list
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_2))
+            (abstract_pointer_declarator *))
+          (parameter_declaration void
+            (abstract_pointer_declarator *))
+          (parameter_declaration (type_identifier PLACEHOLDER_33)))))
+    (declaration void
+      (function_declarator PLACEHOLDER_34
+        (parameter_list
+          (parameter_declaration
+            (struct_specifier (type_identifier PLACEHOLDER_2))
+            (abstract_pointer_declarator *))
+          (parameter_declaration (type_identifier PLACEHOLDER_31)))))))

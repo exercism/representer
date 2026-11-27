@@ -154,7 +154,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | awk | Basic | 202 | 34 | 100 | 69 | 100 | 18 | 2 | 0 | 0 |
 | ballerina | Ballerina | 210 | 37 | 100 | 51 | 98 | 0 | 6 | 0 | 10 |
 | bash | Basic | 379 | 93 | 100 | 60 | 93 | 7 | 1 | 0 | 0 |
-| c | Basic | 394 | 98 | 100 | 69 | 100 | 10 | 1 | 0 | 0 |
+| c | C | 394 | 98 | 100 | 69 | 100 | 0 | 1 | 0 | 0 |
 | cairo | Cairo | 112 | 4 | 100 | 52 | 90 | 0 | 4 | 0 | 0 |
 | cfml | Basic | 95 | 1 | 93 | 43 | 89 | 0 | 0 | 0 | 0 |
 | clojure | Clojure | 361 | 87 | 100 | 71 | 98 | 5 | 11 | 0 | 0 |
