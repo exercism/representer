@@ -1,5 +1,6 @@
-# REPRESENTER_DSL.md defines every declaration in this file. Ruby's stages
-# are the other files in this folder.
+# This file declares how the representer reads Ruby. REPRESENTER_DSL.md
+# explains each declaration, and the other files in this folder hold Ruby's
+# stages.
 module Representer::Languages::Ruby
   class Spec < Representer::Engine::Language
     tracks "ruby"
@@ -13,7 +14,8 @@ module Representer::Languages::Ruby
               :class_variable,     # «@@count»
               :global_variable     # «$count»
 
-    # A symbol such as `:count` names `count`, so the colon isn't part of it.
+    # A symbol such as `:count` refers to the name `count`, so the colon isn't
+    # part of the name.
     names_are :simple_symbol, without_prefix: ":" # :«count»
 
     # A class or a module defines its name.
@@ -41,7 +43,8 @@ module Representer::Languages::Ruby
                          assignment: :left,              # «total» = price * 2
                          operator_assignment: :left      # «total» += 1
 
-    # A `rescue` and a `for` loop define the names they bind.
+    # The variable of a `rescue` and the variable of a `for` loop are
+    # definitions.
     names_are_defined_by :exception_variable,  # rescue ArgumentError => «error»
                          for: :pattern         # for «item» in items
 
