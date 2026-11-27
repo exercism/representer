@@ -1,30 +1,89 @@
-fun largestProduct ( digits : string , span : int ): int =
-let
-fun charToInt c =
-if Char . isDigit c then
-ord c - ord #"0"
-else
-raise Fail "\"digits input must only contain digits\""
-fun product [] = 1
-| product ( x::xs ) = x * product xs
-fun getSpans ([], _) = []
-| getSpans ( chars , n ) =
-if length chars < n then []
-else List . take ( chars , n ) :: getSpans ( List . tl chars , n )
-in
-if span < 0 then
-raise Fail "\"span must not be negative\""
-else if span > String . size digits then
-raise Fail "\"span must not exceed string length\""
-else if span = 0 then
-1
-else
-let
-val numbers = List . map charToInt ( String . explode digits )
-val products = List . map product ( getSpans ( numbers , span ))
-in
-case products of
-[] => 0
-| ps => foldl Int . max 0 ps
-end
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (tuple_pat
+          (typed_pat
+            (var_pat PLACEHOLDER_2) string)
+          (typed_pat
+            (var_pat PLACEHOLDER_3) int)) int
+        (let_exp
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_4
+                (var_pat PLACEHOLDER_5)
+                (cond_exp
+                  (app_exp
+                    (longvid Char isDigit) PLACEHOLDER_5)
+                  (infix_exp
+                    (app_exp ord PLACEHOLDER_5) -
+                    (app_exp ord
+                      (character "0")))
+                  (raise_exp
+                    (app_exp Fail "digits input must only contain digits"))))))
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_6
+                (list_pat) 1)
+              (fmrule PLACEHOLDER_6
+                (infix_pat
+                  (var_pat PLACEHOLDER_7) ::
+                  (var_pat PLACEHOLDER_8))
+                (infix_exp PLACEHOLDER_7 *
+                  (app_exp PLACEHOLDER_6 PLACEHOLDER_8)))))
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_9
+                (tuple_pat
+                  (list_pat) _)
+                (list_exp))
+              (fmrule PLACEHOLDER_9
+                (tuple_pat
+                  (var_pat PLACEHOLDER_10)
+                  (var_pat PLACEHOLDER_11))
+                (cond_exp
+                  (infix_exp
+                    (app_exp length PLACEHOLDER_10) < PLACEHOLDER_11)
+                  (list_exp)
+                  (infix_exp
+                    (app_exp
+                      (longvid List take)
+                      (tuple_exp PLACEHOLDER_10 PLACEHOLDER_11)) ::
+                    (app_exp PLACEHOLDER_9
+                      (tuple_exp
+                        (app_exp
+                          (longvid List tl) PLACEHOLDER_10) PLACEHOLDER_11)))))))
+          (cond_exp
+            (infix_exp PLACEHOLDER_3 < 0)
+            (raise_exp
+              (app_exp Fail "span must not be negative"))
+            (cond_exp
+              (infix_exp PLACEHOLDER_3 >
+                (app_exp
+                  (longvid String size) PLACEHOLDER_2))
+              (raise_exp
+                (app_exp Fail "span must not exceed string length"))
+              (cond_exp
+                (infix_exp PLACEHOLDER_3 = 0) 1
+                (let_exp
+                  (val_dec
+                    (valbind
+                      (var_pat PLACEHOLDER_12)
+                      (app_exp
+                        (longvid List map) PLACEHOLDER_4
+                        (app_exp
+                          (longvid String explode) PLACEHOLDER_2))))
+                  (val_dec
+                    (valbind
+                      (var_pat PLACEHOLDER_13)
+                      (app_exp
+                        (longvid List map) PLACEHOLDER_6
+                        (app_exp PLACEHOLDER_9
+                          (tuple_exp PLACEHOLDER_12 PLACEHOLDER_3)))))
+                  (case_exp PLACEHOLDER_13
+                    (mrule
+                      (list_pat) 0)
+                    (mrule
+                      (var_pat PLACEHOLDER_14)
+                      (app_exp foldl
+                        (longvid Int max) 0 PLACEHOLDER_14))))))))))))

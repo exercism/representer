@@ -1,18 +1,88 @@
-fun convert c =
-if Char . isAlpha c
-then str ( chr ( ord #"a" + ord #"z" - ord ( Char . toLower c )))
-else if Char . isDigit c
-then str c
-else "\"\""
-fun chunksOf n s =
-let fun chunkOf i = String . substring ( s , n * i , n )
-handle Subscript => String . extract ( s , n * i , NONE )
-in List . tabulate (( size s + n - 1 ) div n , chunkOf ) end
-fun intersperse sep [] = []
-| intersperse sep [ s ] = [ s ]
-| intersperse sep ( s::ss ) = s :: sep :: intersperse sep ss
-val unwords = String . concat o intersperse "\" \""
-val decode =
-String . translate convert
-val encode =
-unwords o chunksOf 5 o String . translate convert
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (var_pat PLACEHOLDER_2)
+        (cond_exp
+          (app_exp
+            (longvid Char isAlpha) PLACEHOLDER_2)
+          (app_exp str
+            (app_exp chr
+              (infix_exp
+                (infix_exp
+                  (app_exp ord
+                    (character "a")) +
+                  (app_exp ord
+                    (character "z"))) -
+                (app_exp ord
+                  (app_exp
+                    (longvid Char toLower) PLACEHOLDER_2)))))
+          (cond_exp
+            (app_exp
+              (longvid Char isDigit) PLACEHOLDER_2)
+            (app_exp str PLACEHOLDER_2) "")))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_3
+        (var_pat PLACEHOLDER_4)
+        (var_pat PLACEHOLDER_5)
+        (let_exp
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_6
+                (var_pat PLACEHOLDER_7)
+                (handle_exp
+                  (app_exp
+                    (longvid String substring)
+                    (tuple_exp PLACEHOLDER_5
+                      (infix_exp PLACEHOLDER_4 * PLACEHOLDER_7) PLACEHOLDER_4))
+                  (mrule Subscript
+                    (app_exp
+                      (longvid String extract)
+                      (tuple_exp PLACEHOLDER_5
+                        (infix_exp PLACEHOLDER_4 * PLACEHOLDER_7) NONE)))))))
+          (app_exp
+            (longvid List tabulate)
+            (tuple_exp
+              (infix_exp
+                (infix_exp
+                  (infix_exp
+                    (app_exp size PLACEHOLDER_5) + PLACEHOLDER_4) - 1) div PLACEHOLDER_4) PLACEHOLDER_6))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_8
+        (var_pat PLACEHOLDER_9)
+        (list_pat)
+        (list_exp))
+      (fmrule PLACEHOLDER_8
+        (var_pat PLACEHOLDER_9)
+        (list_pat
+          (var_pat PLACEHOLDER_5))
+        (list_exp PLACEHOLDER_5))
+      (fmrule PLACEHOLDER_8
+        (var_pat PLACEHOLDER_9)
+        (infix_pat
+          (var_pat PLACEHOLDER_5) ::
+          (var_pat PLACEHOLDER_10))
+        (infix_exp PLACEHOLDER_5 ::
+          (infix_exp PLACEHOLDER_9 ::
+            (app_exp PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10))))))
+  (val_dec
+    (valbind
+      (var_pat PLACEHOLDER_11)
+      (infix_exp
+        (longvid String concat) o
+        (app_exp PLACEHOLDER_8 " "))))
+  (val_dec
+    (valbind
+      (var_pat PLACEHOLDER_12)
+      (app_exp
+        (longvid String translate) PLACEHOLDER_1)))
+  (val_dec
+    (valbind
+      (var_pat PLACEHOLDER_13)
+      (infix_exp
+        (infix_exp PLACEHOLDER_11 o
+          (app_exp PLACEHOLDER_3 5)) o
+        (app_exp
+          (longvid String translate) PLACEHOLDER_1)))))

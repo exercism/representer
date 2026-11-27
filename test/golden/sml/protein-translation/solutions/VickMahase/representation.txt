@@ -1,40 +1,89 @@
-fun codonToProtein codon =
-case codon of
-"\"AUG\"" => SOME "\"Methionine\""
-| "\"UUU\"" => SOME "\"Phenylalanine\""
-| "\"UUC\"" => SOME "\"Phenylalanine\""
-| "\"UUA\"" => SOME "\"Leucine\""
-| "\"UUG\"" => SOME "\"Leucine\""
-| "\"UCU\"" => SOME "\"Serine\""
-| "\"UCC\"" => SOME "\"Serine\""
-| "\"UCA\"" => SOME "\"Serine\""
-| "\"UCG\"" => SOME "\"Serine\""
-| "\"UAU\"" => SOME "\"Tyrosine\""
-| "\"UAC\"" => SOME "\"Tyrosine\""
-| "\"UGU\"" => SOME "\"Cysteine\""
-| "\"UGC\"" => SOME "\"Cysteine\""
-| "\"UGG\"" => SOME "\"Tryptophan\""
-| "\"UAA\"" => NONE
-| "\"UAG\"" => NONE
-| "\"UGA\"" => NONE
-| _ => raise Fail "\"Invalid codon\""
-fun proteins rna =
-let
-fun getCodon pos =
-if pos + 3 <= String . size rna then
-String . substring ( rna , pos , 3 )
-else
-raise Fail "\"Invalid codon\""
-fun translate pos acc =
-if pos >= String . size rna then acc
-else
-let val codon = getCodon pos
-in
-case codonToProtein codon of
-NONE => acc
-| SOME protein => translate ( pos + 3 ) ( protein :: acc )
-end
-in
-if rna = "\"\"" then []
-else List . rev ( translate 0 [])
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (var_pat PLACEHOLDER_2)
+        (case_exp PLACEHOLDER_2
+          (mrule "AUG"
+            (app_exp SOME "Methionine"))
+          (mrule "UUU"
+            (app_exp SOME "Phenylalanine"))
+          (mrule "UUC"
+            (app_exp SOME "Phenylalanine"))
+          (mrule "UUA"
+            (app_exp SOME "Leucine"))
+          (mrule "UUG"
+            (app_exp SOME "Leucine"))
+          (mrule "UCU"
+            (app_exp SOME "Serine"))
+          (mrule "UCC"
+            (app_exp SOME "Serine"))
+          (mrule "UCA"
+            (app_exp SOME "Serine"))
+          (mrule "UCG"
+            (app_exp SOME "Serine"))
+          (mrule "UAU"
+            (app_exp SOME "Tyrosine"))
+          (mrule "UAC"
+            (app_exp SOME "Tyrosine"))
+          (mrule "UGU"
+            (app_exp SOME "Cysteine"))
+          (mrule "UGC"
+            (app_exp SOME "Cysteine"))
+          (mrule "UGG"
+            (app_exp SOME "Tryptophan"))
+          (mrule "UAA" NONE)
+          (mrule "UAG" NONE)
+          (mrule "UGA" NONE)
+          (mrule _
+            (raise_exp
+              (app_exp Fail "Invalid codon")))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_3
+        (var_pat PLACEHOLDER_4)
+        (let_exp
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_5
+                (var_pat PLACEHOLDER_6)
+                (cond_exp
+                  (infix_exp
+                    (infix_exp PLACEHOLDER_6 + 3) <=
+                    (app_exp
+                      (longvid String size) PLACEHOLDER_4))
+                  (app_exp
+                    (longvid String substring)
+                    (tuple_exp PLACEHOLDER_4 PLACEHOLDER_6 3))
+                  (raise_exp
+                    (app_exp Fail "Invalid codon"))))))
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_7
+                (var_pat PLACEHOLDER_6)
+                (var_pat PLACEHOLDER_8)
+                (cond_exp
+                  (infix_exp PLACEHOLDER_6 >=
+                    (app_exp
+                      (longvid String size) PLACEHOLDER_4)) PLACEHOLDER_8
+                  (let_exp
+                    (val_dec
+                      (valbind
+                        (var_pat PLACEHOLDER_2)
+                        (app_exp PLACEHOLDER_5 PLACEHOLDER_6)))
+                    (case_exp
+                      (app_exp PLACEHOLDER_1 PLACEHOLDER_2)
+                      (mrule NONE PLACEHOLDER_8)
+                      (mrule
+                        (app_pat SOME
+                          (var_pat PLACEHOLDER_9))
+                        (app_exp PLACEHOLDER_7
+                          (infix_exp PLACEHOLDER_6 + 3)
+                          (infix_exp PLACEHOLDER_9 :: PLACEHOLDER_8)))))))))
+          (cond_exp
+            (infix_exp PLACEHOLDER_4 = "")
+            (list_exp)
+            (app_exp
+              (longvid List rev)
+              (app_exp PLACEHOLDER_7 0
+                (list_exp)))))))))

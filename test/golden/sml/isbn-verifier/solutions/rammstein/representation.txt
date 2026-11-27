@@ -1,10 +1,55 @@
-fun isValid ( isbn : string ) =
-let fun sum [] acc n = if n <> 0 then 0 else acc
-| sum ( #"X" :: []) acc n = sum [] ( acc+ 10 ) ( n- 1 )
-| sum ( #"-" ::xs ) acc n = sum xs acc n
-| sum ( x :: xs ) acc n = if Char . isDigit x then sum xs ( acc + ( ord ( x ) - 48 ) * n ) ( n- 1 ) else 0
-in
-case sum ( explode isbn ) 0 10
-of 0 => false
-| n => n mod 11 = 0
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (typed_pat
+          (var_pat PLACEHOLDER_2) string)
+        (let_exp
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_3
+                (list_pat)
+                (var_pat PLACEHOLDER_4)
+                (var_pat PLACEHOLDER_5)
+                (cond_exp
+                  (infix_exp PLACEHOLDER_5 <> 0) 0 PLACEHOLDER_4))
+              (fmrule PLACEHOLDER_3
+                (infix_pat
+                  (character "X") ::
+                  (list_pat))
+                (var_pat PLACEHOLDER_4)
+                (var_pat PLACEHOLDER_5)
+                (app_exp PLACEHOLDER_3
+                  (list_exp)
+                  (infix_exp PLACEHOLDER_4 + 10)
+                  (infix_exp PLACEHOLDER_5 - 1)))
+              (fmrule PLACEHOLDER_3
+                (infix_pat
+                  (character "-") ::
+                  (var_pat PLACEHOLDER_6))
+                (var_pat PLACEHOLDER_4)
+                (var_pat PLACEHOLDER_5)
+                (app_exp PLACEHOLDER_3 PLACEHOLDER_6 PLACEHOLDER_4 PLACEHOLDER_5))
+              (fmrule PLACEHOLDER_3
+                (infix_pat
+                  (var_pat PLACEHOLDER_7) ::
+                  (var_pat PLACEHOLDER_6))
+                (var_pat PLACEHOLDER_4)
+                (var_pat PLACEHOLDER_5)
+                (cond_exp
+                  (app_exp
+                    (longvid Char isDigit) PLACEHOLDER_7)
+                  (app_exp PLACEHOLDER_3 PLACEHOLDER_6
+                    (infix_exp PLACEHOLDER_4 +
+                      (infix_exp
+                        (infix_exp
+                          (app_exp ord PLACEHOLDER_7) - 48) * PLACEHOLDER_5))
+                    (infix_exp PLACEHOLDER_5 - 1)) 0))))
+          (case_exp
+            (app_exp PLACEHOLDER_3
+              (app_exp explode PLACEHOLDER_2) 0 10)
+            (mrule 0 false)
+            (mrule
+              (var_pat PLACEHOLDER_5)
+              (infix_exp
+                (infix_exp PLACEHOLDER_5 mod 11) = 0))))))))

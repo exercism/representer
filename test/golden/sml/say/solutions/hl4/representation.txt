@@ -1,21 +1,81 @@
-local
-val SMALLS = [ "\"zero\"" , "\"one\"" , "\"two\"" , "\"three\"" , "\"four\"" , "\"five\"" , "\"six\"" , "\"seven\"" , "\"eight\"" , "\"nine\"" , "\"ten\"" , "\"eleven\"" , "\"twelve\"" , "\"thirteen\"" , "\"fourteen\"" , "\"fifteen\"" , "\"sixteen\"" , "\"seventeen\"" , "\"eightteen\"" , "\"nineteen\"" ]
-val TENS = [ "\"\"" , "\"\"" , "\"twenty\"" , "\"thirty\"" , "\"forty\"" , "\"fifty\"" , "\"sixty\"" , "\"seventy\"" , "\"eighty\"" , "\"ninety\"" ]
-in
-fun say ( number : int ): string =
-if number < 0 orelse number > 999999999999 then raise Fail "\"input out of range\""
-else if number < 20 then List . nth ( SMALLS , number )
-else if number < 100 then saySmall number
-else if number < 1000 then sayCompound number 100 "\" hundred\""
-else if number < 1000000 then sayCompound number 1000 "\" thousand\""
-else if number < 1000000000 then sayCompound number 1000000 "\" million\""
-else sayCompound number 1000000000 "\" billion\""
-and saySmall ( num : int ): string =
-let val ( n , r ) = ( num div 10 , num mod 10 )
-in List . nth ( TENS , n ) ^ ( if r = 0 then "\"\"" else "\"-\"" ^ say r )
-end
-and sayCompound num base word =
-let val ( n , r ) = ( num div base , num mod base )
-in say n ^ word ^ ( if r = 0 then "\"\"" else "\" \"" ^ say r )
-end
-end
+(source_file
+  (local_strdec
+    (val_dec
+      (valbind
+        (var_pat PLACEHOLDER_1)
+        (list_exp "zero" "one" "two" "three" "four" "five" "six" "seven" "eight" "nine" "ten" "eleven" "twelve" "thirteen" "fourteen" "fifteen" "sixteen" "seventeen" "eightteen" "nineteen")))
+    (val_dec
+      (valbind
+        (var_pat PLACEHOLDER_2)
+        (list_exp "" "" "twenty" "thirty" "forty" "fifty" "sixty" "seventy" "eighty" "ninety"))) in
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_3
+          (typed_pat
+            (var_pat PLACEHOLDER_4) int) string
+          (cond_exp
+            (disj_exp
+              (infix_exp PLACEHOLDER_4 < 0)
+              (infix_exp PLACEHOLDER_4 > 999999999999))
+            (raise_exp
+              (app_exp Fail "input out of range"))
+            (cond_exp
+              (infix_exp PLACEHOLDER_4 < 20)
+              (app_exp
+                (longvid List nth)
+                (tuple_exp PLACEHOLDER_1 PLACEHOLDER_4))
+              (cond_exp
+                (infix_exp PLACEHOLDER_4 < 100)
+                (app_exp PLACEHOLDER_5 PLACEHOLDER_4)
+                (cond_exp
+                  (infix_exp PLACEHOLDER_4 < 1000)
+                  (app_exp PLACEHOLDER_6 PLACEHOLDER_4 100 " hundred")
+                  (cond_exp
+                    (infix_exp PLACEHOLDER_4 < 1000000)
+                    (app_exp PLACEHOLDER_6 PLACEHOLDER_4 1000 " thousand")
+                    (cond_exp
+                      (infix_exp PLACEHOLDER_4 < 1000000000)
+                      (app_exp PLACEHOLDER_6 PLACEHOLDER_4 1000000 " million")
+                      (app_exp PLACEHOLDER_6 PLACEHOLDER_4 1000000000 " billion")))))))))
+      (fvalbind
+        (fmrule PLACEHOLDER_5
+          (typed_pat
+            (var_pat PLACEHOLDER_7) int) string
+          (let_exp
+            (val_dec
+              (valbind
+                (tuple_pat
+                  (var_pat PLACEHOLDER_8)
+                  (var_pat PLACEHOLDER_9))
+                (tuple_exp
+                  (infix_exp PLACEHOLDER_7 div 10)
+                  (infix_exp PLACEHOLDER_7 mod 10))))
+            (infix_exp
+              (app_exp
+                (longvid List nth)
+                (tuple_exp PLACEHOLDER_2 PLACEHOLDER_8)) ^
+              (cond_exp
+                (infix_exp PLACEHOLDER_9 = 0) ""
+                (infix_exp "-" ^
+                  (app_exp PLACEHOLDER_3 PLACEHOLDER_9)))))))
+      (fvalbind
+        (fmrule PLACEHOLDER_6
+          (var_pat PLACEHOLDER_7)
+          (var_pat PLACEHOLDER_10)
+          (var_pat PLACEHOLDER_11)
+          (let_exp
+            (val_dec
+              (valbind
+                (tuple_pat
+                  (var_pat PLACEHOLDER_8)
+                  (var_pat PLACEHOLDER_9))
+                (tuple_exp
+                  (infix_exp PLACEHOLDER_7 div PLACEHOLDER_10)
+                  (infix_exp PLACEHOLDER_7 mod PLACEHOLDER_10))))
+            (infix_exp
+              (infix_exp
+                (app_exp PLACEHOLDER_3 PLACEHOLDER_8) ^ PLACEHOLDER_11) ^
+              (cond_exp
+                (infix_exp PLACEHOLDER_9 = 0) ""
+                (infix_exp " " ^
+                  (app_exp PLACEHOLDER_3 PLACEHOLDER_9))))))))))

@@ -1,50 +1,244 @@
-fun mkBetweenSpace ( rowLetter : char ): char list option =
-if not ( Char . isAscii rowLetter andalso Char . isUpper rowLetter ) then NONE
-else if rowLetter = #"A" then SOME []
-else let val width = 2 * ( ord rowLetter - ord #"A" ) - 1
-fun go n = if n <= 0 then [] else "#\" \"" :: go ( n - 1 )
-in SOME ( go width )
-end
-fun mkRow ( rowLetter : char ) ( beforeSpace : char list ) ( betweenSpace : char list ): string option =
-if not ( Char . isAscii rowLetter andalso Char . isUpper rowLetter ) then NONE
-else if rowLetter = #"A" then SOME ( implode ( beforeSpace @ ( rowLetter :: beforeSpace )))
-else SOME ( implode ( beforeSpace @ ( rowLetter :: betweenSpace ) @ ( rowLetter :: beforeSpace )))
-fun mkDescendingRows ( rowLetter : char ) ( beforeSpace : char list ) ([]: char list ): string list option =
-( case mkRow rowLetter beforeSpace [] of
-SOME newRow => SOME [ newRow ]
-| NONE => NONE )
-| mkDescendingRows ( rowLetter : char ) ( beforeSpace : char list ) ( b0:: []: char list ) =
-let val newBeforeSpace = "#\" \"" :: beforeSpace
-in
-case mkRow rowLetter beforeSpace ( b0:: []) of
-SOME newRow =>
-( case mkDescendingRows ( Char . pred rowLetter ) newBeforeSpace [] of
-SOME otherRows => SOME ( newRow :: otherRows )
-| NONE => NONE )
-| NONE => NONE
-end
-| mkDescendingRows ( rowLetter : char ) ( beforeSpace : char list ) ( b0::b1::betweenSpace : char list ) =
-let val newBeforeSpace = "#\" \"" :: beforeSpace
-in
-case mkRow rowLetter beforeSpace ( b0::b1::betweenSpace ) of
-SOME newRow =>
-( case mkDescendingRows ( Char . pred rowLetter ) newBeforeSpace betweenSpace of
-SOME otherRows => SOME ( newRow :: otherRows )
-| NONE => NONE )
-| NONE => NONE
-end
-fun rows ( input : string ): string list =
-let val cs = explode input
-in
-if length cs = 0 orelse length cs >= 2 then []
-else if not ( Char . isAscii ( hd cs ) andalso Char . isUpper ( hd cs )) then []
-else
-case mkBetweenSpace ( hd cs ) of
-NONE => []
-| SOME betweenSpace =>
-( case mkDescendingRows ( hd cs ) [] betweenSpace of
-NONE => []
-| SOME [] => []
-| SOME ( r:: []) => [ r ]
-| SOME ( r::rs ) => ( rev rs ) @ ( r::rs ))
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (typed_pat
+          (var_pat PLACEHOLDER_2) char)
+        (tycon_ty
+          (tyseq
+            (tycon_ty
+              (tyseq char) list)) option)
+        (cond_exp
+          (app_exp not
+            (conj_exp
+              (app_exp
+                (longvid Char isAscii) PLACEHOLDER_2)
+              (app_exp
+                (longvid Char isUpper) PLACEHOLDER_2))) NONE
+          (cond_exp
+            (infix_exp PLACEHOLDER_2 =
+              (character "A"))
+            (app_exp SOME
+              (list_exp))
+            (let_exp
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_3)
+                  (infix_exp
+                    (infix_exp 2 *
+                      (infix_exp
+                        (app_exp ord PLACEHOLDER_2) -
+                        (app_exp ord
+                          (character "A")))) - 1)))
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_4
+                    (var_pat PLACEHOLDER_5)
+                    (cond_exp
+                      (infix_exp PLACEHOLDER_5 <= 0)
+                      (list_exp)
+                      (infix_exp
+                        (character " ") ::
+                        (app_exp PLACEHOLDER_4
+                          (infix_exp PLACEHOLDER_5 - 1)))))))
+              (app_exp SOME
+                (app_exp PLACEHOLDER_4 PLACEHOLDER_3))))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_6
+        (typed_pat
+          (var_pat PLACEHOLDER_2) char)
+        (typed_pat
+          (var_pat PLACEHOLDER_7)
+          (tycon_ty
+            (tyseq char) list))
+        (typed_pat
+          (var_pat PLACEHOLDER_8)
+          (tycon_ty
+            (tyseq char) list))
+        (tycon_ty
+          (tyseq string) option)
+        (cond_exp
+          (app_exp not
+            (conj_exp
+              (app_exp
+                (longvid Char isAscii) PLACEHOLDER_2)
+              (app_exp
+                (longvid Char isUpper) PLACEHOLDER_2))) NONE
+          (cond_exp
+            (infix_exp PLACEHOLDER_2 =
+              (character "A"))
+            (app_exp SOME
+              (app_exp implode
+                (infix_exp PLACEHOLDER_7 @
+                  (infix_exp PLACEHOLDER_2 :: PLACEHOLDER_7))))
+            (app_exp SOME
+              (app_exp implode
+                (infix_exp PLACEHOLDER_7 @
+                  (infix_exp
+                    (infix_exp PLACEHOLDER_2 :: PLACEHOLDER_8) @
+                    (infix_exp PLACEHOLDER_2 :: PLACEHOLDER_7))))))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_9
+        (typed_pat
+          (var_pat PLACEHOLDER_2) char)
+        (typed_pat
+          (var_pat PLACEHOLDER_7)
+          (tycon_ty
+            (tyseq char) list))
+        (typed_pat
+          (list_pat)
+          (tycon_ty
+            (tyseq char) list))
+        (tycon_ty
+          (tyseq
+            (tycon_ty
+              (tyseq string) list)) option)
+        (case_exp
+          (app_exp PLACEHOLDER_6 PLACEHOLDER_2 PLACEHOLDER_7
+            (list_exp))
+          (mrule
+            (app_pat SOME
+              (var_pat PLACEHOLDER_10))
+            (app_exp SOME
+              (list_exp PLACEHOLDER_10)))
+          (mrule NONE NONE)))
+      (fmrule PLACEHOLDER_9
+        (typed_pat
+          (var_pat PLACEHOLDER_2) char)
+        (typed_pat
+          (var_pat PLACEHOLDER_7)
+          (tycon_ty
+            (tyseq char) list))
+        (typed_pat
+          (infix_pat
+            (var_pat PLACEHOLDER_11) ::
+            (list_pat))
+          (tycon_ty
+            (tyseq char) list))
+        (let_exp
+          (val_dec
+            (valbind
+              (var_pat PLACEHOLDER_12)
+              (infix_exp
+                (character " ") :: PLACEHOLDER_7)))
+          (case_exp
+            (app_exp PLACEHOLDER_6 PLACEHOLDER_2 PLACEHOLDER_7
+              (infix_exp PLACEHOLDER_11 ::
+                (list_exp)))
+            (mrule
+              (app_pat SOME
+                (var_pat PLACEHOLDER_10))
+              (case_exp
+                (app_exp PLACEHOLDER_9
+                  (app_exp
+                    (longvid Char pred) PLACEHOLDER_2) PLACEHOLDER_12
+                  (list_exp))
+                (mrule
+                  (app_pat SOME
+                    (var_pat PLACEHOLDER_13))
+                  (app_exp SOME
+                    (infix_exp PLACEHOLDER_10 :: PLACEHOLDER_13)))
+                (mrule NONE NONE)))
+            (mrule NONE NONE))))
+      (fmrule PLACEHOLDER_9
+        (typed_pat
+          (var_pat PLACEHOLDER_2) char)
+        (typed_pat
+          (var_pat PLACEHOLDER_7)
+          (tycon_ty
+            (tyseq char) list))
+        (typed_pat
+          (infix_pat
+            (var_pat PLACEHOLDER_11) ::
+            (infix_pat
+              (var_pat PLACEHOLDER_14) ::
+              (var_pat PLACEHOLDER_8)))
+          (tycon_ty
+            (tyseq char) list))
+        (let_exp
+          (val_dec
+            (valbind
+              (var_pat PLACEHOLDER_12)
+              (infix_exp
+                (character " ") :: PLACEHOLDER_7)))
+          (case_exp
+            (app_exp PLACEHOLDER_6 PLACEHOLDER_2 PLACEHOLDER_7
+              (infix_exp PLACEHOLDER_11 ::
+                (infix_exp PLACEHOLDER_14 :: PLACEHOLDER_8)))
+            (mrule
+              (app_pat SOME
+                (var_pat PLACEHOLDER_10))
+              (case_exp
+                (app_exp PLACEHOLDER_9
+                  (app_exp
+                    (longvid Char pred) PLACEHOLDER_2) PLACEHOLDER_12 PLACEHOLDER_8)
+                (mrule
+                  (app_pat SOME
+                    (var_pat PLACEHOLDER_13))
+                  (app_exp SOME
+                    (infix_exp PLACEHOLDER_10 :: PLACEHOLDER_13)))
+                (mrule NONE NONE)))
+            (mrule NONE NONE))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_15
+        (typed_pat
+          (var_pat PLACEHOLDER_16) string)
+        (tycon_ty
+          (tyseq string) list)
+        (let_exp
+          (val_dec
+            (valbind
+              (var_pat PLACEHOLDER_17)
+              (app_exp explode PLACEHOLDER_16)))
+          (cond_exp
+            (disj_exp
+              (infix_exp
+                (app_exp length PLACEHOLDER_17) = 0)
+              (infix_exp
+                (app_exp length PLACEHOLDER_17) >= 2))
+            (list_exp)
+            (cond_exp
+              (app_exp not
+                (conj_exp
+                  (app_exp
+                    (longvid Char isAscii)
+                    (app_exp hd PLACEHOLDER_17))
+                  (app_exp
+                    (longvid Char isUpper)
+                    (app_exp hd PLACEHOLDER_17))))
+              (list_exp)
+              (case_exp
+                (app_exp PLACEHOLDER_1
+                  (app_exp hd PLACEHOLDER_17))
+                (mrule NONE
+                  (list_exp))
+                (mrule
+                  (app_pat SOME
+                    (var_pat PLACEHOLDER_8))
+                  (case_exp
+                    (app_exp PLACEHOLDER_9
+                      (app_exp hd PLACEHOLDER_17)
+                      (list_exp) PLACEHOLDER_8)
+                    (mrule NONE
+                      (list_exp))
+                    (mrule
+                      (app_pat SOME
+                        (list_pat))
+                      (list_exp))
+                    (mrule
+                      (app_pat SOME
+                        (infix_pat
+                          (var_pat PLACEHOLDER_18) ::
+                          (list_pat)))
+                      (list_exp PLACEHOLDER_18))
+                    (mrule
+                      (app_pat SOME
+                        (infix_pat
+                          (var_pat PLACEHOLDER_18) ::
+                          (var_pat PLACEHOLDER_19)))
+                      (infix_exp
+                        (app_exp rev PLACEHOLDER_19) @
+                        (infix_exp PLACEHOLDER_18 :: PLACEHOLDER_19)))))))))))))

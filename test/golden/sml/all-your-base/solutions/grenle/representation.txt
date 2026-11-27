@@ -1,46 +1,216 @@
-signature ALLYOURBASE = sig
-val rebase : int * int * int list -> int list option
-end
-structure AllYourBase : ALLYOURBASE = struct
-fun I x = x
-val all = List . all
-val zip = ListPair . zip
-val sum = foldl op + 0
-val validate = let
-val allTrue = all I
-fun misd [] x = []
-| misd ( f :: fs ) x = f x :: misd fs x
-fun inputValid ( b , b' , d ) = 0 <> sum d
-fun inBaseValid ( b , b' , d ) = b > 0
-fun outBaseValid ( b , b' , d ) = b' > 1
-fun validDigit b d = d < b andalso d > ~1
-fun validDigits ( b , b' , d ) = List . all ( validDigit b ) d
-val validators = [ inputValid , inBaseValid , outBaseValid , validDigits ]
-in
-allTrue o misd validators
-end
-fun toInt ( b , b' , d ) = let
-val tabulate = List . tabulate
-fun intPow b n = Int . fromLarge ( IntInf . pow ( Int . toLarge b , n ))
-val basePower = intPow b
-fun powers d = rev ( tabulate ( length d , basePower ))
-fun pair s = zip ( s , powers s )
-val products = map op *
-in
-( sum o products o pair ) d
-end
-fun toBase n b = let
-fun qr ( a , b ) = ( Int . quot ( a , b ), Int . rem ( a , b ))
-fun f ( q , r ) b res =
-if q = 0
-then r :: res
-else r :: f ( qr ( q , b )) b res
-in
-rev ( f ( qr ( n , b )) b [])
-end
-fun rebase ( args as ( b : int , b' : int , d : int list )) =
-if validate args
-then SOME ( toBase ( toInt args ) b' )
-else NONE
-end
-val rebase = AllYourBase . rebase
+(source_file
+  (signature_sigdec
+    (sigbind (sigid PLACEHOLDER_1)
+      (sig_sigexp
+        (val_spec
+          (valdesc PLACEHOLDER_2
+            (fn_ty
+              (tuple_ty int int
+                (tycon_ty
+                  (tyseq int) list))
+              (tycon_ty
+                (tyseq
+                  (tycon_ty
+                    (tyseq int) list)) option)))))))
+  (structure_strdec
+    (strbind (strid PLACEHOLDER_3) : (sigid PLACEHOLDER_1)
+      (struct_strexp
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_4
+              (var_pat PLACEHOLDER_5) PLACEHOLDER_5)))
+        (val_dec
+          (valbind
+            (var_pat PLACEHOLDER_6)
+            (longvid List PLACEHOLDER_6)))
+        (val_dec
+          (valbind
+            (var_pat PLACEHOLDER_7)
+            (longvid ListPair PLACEHOLDER_7)))
+        (val_dec
+          (valbind
+            (var_pat PLACEHOLDER_8)
+            (app_exp foldl + 0)))
+        (val_dec
+          (valbind
+            (var_pat PLACEHOLDER_9)
+            (let_exp
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_10)
+                  (app_exp PLACEHOLDER_6 PLACEHOLDER_4)))
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_11
+                    (list_pat)
+                    (var_pat PLACEHOLDER_5)
+                    (list_exp))
+                  (fmrule PLACEHOLDER_11
+                    (infix_pat
+                      (var_pat PLACEHOLDER_12) ::
+                      (var_pat PLACEHOLDER_13))
+                    (var_pat PLACEHOLDER_5)
+                    (infix_exp
+                      (app_exp PLACEHOLDER_12 PLACEHOLDER_5) ::
+                      (app_exp PLACEHOLDER_11 PLACEHOLDER_13 PLACEHOLDER_5)))))
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_14
+                    (tuple_pat
+                      (var_pat PLACEHOLDER_15)
+                      (var_pat PLACEHOLDER_16)
+                      (var_pat PLACEHOLDER_17))
+                    (infix_exp 0 <>
+                      (app_exp PLACEHOLDER_8 PLACEHOLDER_17)))))
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_18
+                    (tuple_pat
+                      (var_pat PLACEHOLDER_15)
+                      (var_pat PLACEHOLDER_16)
+                      (var_pat PLACEHOLDER_17))
+                    (infix_exp PLACEHOLDER_15 > 0))))
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_19
+                    (tuple_pat
+                      (var_pat PLACEHOLDER_15)
+                      (var_pat PLACEHOLDER_16)
+                      (var_pat PLACEHOLDER_17))
+                    (infix_exp PLACEHOLDER_16 > 1))))
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_20
+                    (var_pat PLACEHOLDER_15)
+                    (var_pat PLACEHOLDER_17)
+                    (conj_exp
+                      (infix_exp PLACEHOLDER_17 < PLACEHOLDER_15)
+                      (infix_exp PLACEHOLDER_17 > ~1)))))
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_21
+                    (tuple_pat
+                      (var_pat PLACEHOLDER_15)
+                      (var_pat PLACEHOLDER_16)
+                      (var_pat PLACEHOLDER_17))
+                    (app_exp
+                      (longvid List PLACEHOLDER_6)
+                      (app_exp PLACEHOLDER_20 PLACEHOLDER_15) PLACEHOLDER_17))))
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_22)
+                  (list_exp PLACEHOLDER_14 PLACEHOLDER_18 PLACEHOLDER_19 PLACEHOLDER_21)))
+              (infix_exp PLACEHOLDER_10 o
+                (app_exp PLACEHOLDER_11 PLACEHOLDER_22)))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_23
+              (tuple_pat
+                (var_pat PLACEHOLDER_15)
+                (var_pat PLACEHOLDER_16)
+                (var_pat PLACEHOLDER_17))
+              (let_exp
+                (val_dec
+                  (valbind
+                    (var_pat PLACEHOLDER_24)
+                    (longvid List PLACEHOLDER_24)))
+                (fun_dec
+                  (fvalbind
+                    (fmrule PLACEHOLDER_25
+                      (var_pat PLACEHOLDER_15)
+                      (var_pat PLACEHOLDER_26)
+                      (app_exp
+                        (longvid Int fromLarge)
+                        (app_exp
+                          (longvid IntInf pow)
+                          (tuple_exp
+                            (app_exp
+                              (longvid Int toLarge) PLACEHOLDER_15) PLACEHOLDER_26))))))
+                (val_dec
+                  (valbind
+                    (var_pat PLACEHOLDER_27)
+                    (app_exp PLACEHOLDER_25 PLACEHOLDER_15)))
+                (fun_dec
+                  (fvalbind
+                    (fmrule PLACEHOLDER_28
+                      (var_pat PLACEHOLDER_17)
+                      (app_exp rev
+                        (app_exp PLACEHOLDER_24
+                          (tuple_exp
+                            (app_exp length PLACEHOLDER_17) PLACEHOLDER_27))))))
+                (fun_dec
+                  (fvalbind
+                    (fmrule PLACEHOLDER_29
+                      (var_pat PLACEHOLDER_30)
+                      (app_exp PLACEHOLDER_7
+                        (tuple_exp PLACEHOLDER_30
+                          (app_exp PLACEHOLDER_28 PLACEHOLDER_30))))))
+                (val_dec
+                  (valbind
+                    (var_pat PLACEHOLDER_31)
+                    (app_exp map *)))
+                (app_exp
+                  (infix_exp
+                    (infix_exp PLACEHOLDER_8 o PLACEHOLDER_31) o PLACEHOLDER_29) PLACEHOLDER_17)))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_32
+              (var_pat PLACEHOLDER_26)
+              (var_pat PLACEHOLDER_15)
+              (let_exp
+                (fun_dec
+                  (fvalbind
+                    (fmrule PLACEHOLDER_33
+                      (tuple_pat
+                        (var_pat PLACEHOLDER_34)
+                        (var_pat PLACEHOLDER_15))
+                      (tuple_exp
+                        (app_exp
+                          (longvid Int quot)
+                          (tuple_exp PLACEHOLDER_34 PLACEHOLDER_15))
+                        (app_exp
+                          (longvid Int rem)
+                          (tuple_exp PLACEHOLDER_34 PLACEHOLDER_15))))))
+                (fun_dec
+                  (fvalbind
+                    (fmrule PLACEHOLDER_12
+                      (tuple_pat
+                        (var_pat PLACEHOLDER_35)
+                        (var_pat PLACEHOLDER_36))
+                      (var_pat PLACEHOLDER_15)
+                      (var_pat PLACEHOLDER_37)
+                      (cond_exp
+                        (infix_exp PLACEHOLDER_35 = 0)
+                        (infix_exp PLACEHOLDER_36 :: PLACEHOLDER_37)
+                        (infix_exp PLACEHOLDER_36 ::
+                          (app_exp PLACEHOLDER_12
+                            (app_exp PLACEHOLDER_33
+                              (tuple_exp PLACEHOLDER_35 PLACEHOLDER_15)) PLACEHOLDER_15 PLACEHOLDER_37))))))
+                (app_exp rev
+                  (app_exp PLACEHOLDER_12
+                    (app_exp PLACEHOLDER_33
+                      (tuple_exp PLACEHOLDER_26 PLACEHOLDER_15)) PLACEHOLDER_15
+                    (list_exp)))))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_2
+              (conj_pat
+                (var_pat PLACEHOLDER_38)
+                (tuple_pat
+                  (typed_pat
+                    (var_pat PLACEHOLDER_15) int)
+                  (typed_pat
+                    (var_pat PLACEHOLDER_16) int)
+                  (typed_pat
+                    (var_pat PLACEHOLDER_17)
+                    (tycon_ty
+                      (tyseq int) list))))
+              (cond_exp
+                (app_exp PLACEHOLDER_9 PLACEHOLDER_38)
+                (app_exp SOME
+                  (app_exp PLACEHOLDER_32
+                    (app_exp PLACEHOLDER_23 PLACEHOLDER_38) PLACEHOLDER_16)) NONE)))))))
+  (val_dec
+    (valbind
+      (var_pat PLACEHOLDER_2)
+      (longvid (strid PLACEHOLDER_3) PLACEHOLDER_2))))
