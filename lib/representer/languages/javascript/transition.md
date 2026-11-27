@@ -1,0 +1,24 @@
+# JavaScript's transition
+
+This file says how the JavaScript outputs of this service differ from the tools they replace, and why.
+
+## Representation
+
+The representation replaces the old JavaScript representer (`exercism/javascript-representer`), which parsed the solution with typescript-estree, renamed its identifiers and printed it again as code.
+It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+
+- Export lists (`export { a }`), `module.exports = { a }` and declarations that only `require` modules are dropped, with the imports. The `export` keyword is dropped too, so `export function f` and `function f` followed by `export { f }` get the same representation. The old representer kept all of them.
+- Empty statements, such as the second `;` of `x = 1;;`, are dropped. The old representer printed each one. The empty parts of a `for`, as in `for (;; i++)`, stay.
+- The escapes of a template string are read, so `` `a\nb` `` and `"a\nb"` get the same representation. The old representer printed a template's escapes as written, and a string's escapes as their values.
+- Only the common escapes are read (`\n`, `\t`, `\r`, `\b`, `\f`, `\v`, `\0`, `\\`, the quotes, `\$`, `\xHH`, `\uHHHH`, `\u{H}` and a backslash at the end of a line). The old representer read every escape, so it merged `"\q"` and `"q"`, which stay apart here.
+
+## Analysis
+
+This service doesn't make JavaScript analyses yet, so there is nothing to compare with the old analyzer (`exercism/javascript-analyzer`).
+
+## Snippet
+
+The snippet replaces snippet-extractor (`exercism/snippet-extractor`).
+Snippet-extractor found comments and `import` lines by the text at the start of each line.
+This service reads the solution's syntax tree instead, so it removes every comment wherever it is, and skips the imports at the top of the file, up to the first other statement.
+It keeps the first 15 lines of the main file, where snippet-extractor kept 10.

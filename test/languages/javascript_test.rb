@@ -1,6 +1,6 @@
 require "test_helper"
 
-class JavaScriptTest < RepresenterTest
+class JavascriptTest < RepresenterTest
   extend UpstreamTests
 
   track "javascript"
@@ -8,31 +8,33 @@ class JavaScriptTest < RepresenterTest
   LIBRARY_NAMES = "This representer never renames names from JavaScript's library (console, log, indexOf...), " \
                   "so mentors' comments on different library calls stay apart. The old representer renamed them.".freeze
 
-  EXPORTS = "The old representer kept the names that a solution exports. This representer renames them like any " \
-            "other name, and keeps the ones that the exercise's tests use. These tests have no test files, so the " \
-            "exported names are renamed.".freeze
+  EXPORTS = "The old representer kept the names that a solution exports. This representer renames every name " \
+            "the solution defines, including the exported ones.".freeze
+
+  OWN_METHODS = "This representer renames every method the solution defines, including the ones that JavaScript " \
+                "itself calls (constructor, toString, valueOf). The old representer kept them.".freeze
 
   DEVIATIONS = {
     "general-normalize-quotes" => {
       restore: { "IDENTIFIER_11" => "indexOf" },
       remove: ["indexOf"],
-      add: %w[decodedValue],
+      add: ["decodedValue"],
       why: "#{LIBRARY_NAMES} #{EXPORTS}"
     },
-    "general-remove-comments" => { add: %w[twoFer], why: EXPORTS },
-    "general-normalize-whitespace" => { add: %w[twoFer], why: EXPORTS },
-    "two-fer-pass" => { add: %w[twoFer], why: EXPORTS },
+    "general-remove-comments" => { add: ["twoFer"], why: EXPORTS },
+    "general-normalize-whitespace" => { add: ["twoFer"], why: EXPORTS },
+    "two-fer-pass" => { add: ["twoFer"], why: EXPORTS },
     "two-fer-fail" => {
       restore: { "IDENTIFIER_2" => "console", "IDENTIFIER_3" => "debug", "IDENTIFIER_4" => "log" },
       remove: %w[console debug log],
-      add: %w[twoFer],
+      add: ["twoFer"],
       why: "#{LIBRARY_NAMES} #{EXPORTS}"
     },
     "clock-pass" => {
       restore: { "IDENTIFIER_5" => "console", "IDENTIFIER_6" => "log", "IDENTIFIER_9" => "padStart" },
       remove: %w[console log padStart],
-      add: %w[Clock clockPad],
-      why: "#{LIBRARY_NAMES} #{EXPORTS}"
+      add: %w[Clock clockPad constructor toString valueOf],
+      why: "#{LIBRARY_NAMES} #{EXPORTS} #{OWN_METHODS}"
     }
   }.freeze
 
@@ -72,21 +74,23 @@ class JavaScriptTest < RepresenterTest
     assert_same_representation "class A { size() { return this.a.size } }", "class A { count() { return this.a.count } }"
   end
 
-  def test_shorthand_properties_keep_their_names
-    refute_same_representation "const a = 1; export const f = () => ({ a })", "const b = 1; export const f = () => ({ b })"
+  # A shorthand property is also a variable, and the old representer renamed
+  # it with the variable.
+  def test_shorthand_properties_are_renamed_with_their_variable
+    assert_same_representation "const a = 1; export const f = () => ({ a })", "const b = 1; export const f = () => ({ b })"
   end
 
-  def test_exports_and_names_in_the_tests_are_kept
+  def test_the_exercise_files_make_no_difference
     tests = { "two-fer.spec.js" => "import { twoFer } from './two-fer';\ntest('x', () => expect(twoFer()).toEqual('x'));" }
     result = represent("export const twoFer = (name = 'you') => name", filename: "two-fer.js", exercise_files: tests)
-    assert_equal ["name"], result.mapping.values
+    assert_equal %w[twoFer name], result.mapping.values
   end
 
   def test_syntax_errors_are_unrepresentable_with_the_javascript_version
     result = represent("const = ;")
     assert_nil result.representation
     assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::JavaScript.version, result.version
+    assert_equal Representer::Languages::Javascript::Representation.version, result.version
   end
 
   # The empty first or second part of a `for` shows which part is missing.

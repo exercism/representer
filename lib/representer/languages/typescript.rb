@@ -11,7 +11,9 @@
 #
 # Update this list whenever the class's rules change.
 
-require_relative "javascript"
+# This class starts from the rules of JavaScript's old class, which has moved
+# to stages, so it can't load. It loads again once TypeScript moves to stages.
+return unless defined?(Representer::Languages::JavaScript)
 
 module Representer
   module Languages
