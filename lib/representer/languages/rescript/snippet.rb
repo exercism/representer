@@ -1,9 +1,10 @@
 # The website shows the first lines of each solution on its card. This file
 # says what to leave out of a ReScript solution's snippet, so that the card
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
-module Representer::Languages::ReScript
+module Representer::Languages::Rescript
   class Snippet < Representer::Engine::Snippet
-    tracks "rescript"
+    # Bump the version whenever the snippet of any solution could change.
+    version 2
 
     # Remove every comment, wherever it is.
     remove :comments # let x = 1 «// The answer»
