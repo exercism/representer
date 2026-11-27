@@ -7,45 +7,29 @@
 # bindings.
 module Representer::Languages::Factor::Common
   class GenerateAST < Representer::Engine::GenerateAST
-    Numbers = Representer::Engine::Numbers
-
     # Strip the brackets, the stack effect's `--` and the `;` that ends a
     # definition, because the node types already show them.
     # : f ( a -- b ) [ dup + ] ;  ->  (definition : f (effect (inputs a) (outputs b)) (quote dup +))
     strip_tokens "(", ")", "--", "[", "]", "{", "}", ";"
 
-    def call
-      tree.tap do
-        write_numbers_as_values!
-        mark_the_name_of_each_definition!
-        group_each_import_with_its_words!
-      end
-    end
-
-    private
     # Write each number as its value. Factor separates digits with `,` or
     # `_`.
     #
     # 1,000  ->  1000
     # 0x1F  ->  31
     # 1.50  ->  1.5
-    def write_numbers_as_values!
-      each_node(tree) do |node, _|
-        next unless node.leaf?
+    numbers_are integer: [:base10, :base16],
+                decimal: :float,
+                separators: ["_", ","]
 
-        value = number_value(node)
-        node.text = value if value
+    def call
+      tree.tap do
+        mark_the_name_of_each_definition!
+        group_each_import_with_its_words!
       end
     end
 
-    def number_value(node)
-      text = node.text.delete(",")
-      case node.type
-      when "base10", "base16" then Numbers.integer(text)&.to_s
-      when "float" then Numbers.decimal(text)&.then { |value| Numbers.write_decimal(value) }
-      end
-    end
-
+    private
     # Mark the word after `:` or `::` as the definition's name, so that
     # representation.rb can list it.
     # : «double» ( n -- m ) 2 * ;

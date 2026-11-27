@@ -11,6 +11,8 @@ class NumbersTest < Minitest::Test
     assert_equal(-7, Numbers.integer("-7"))
     assert_equal 1000, Numbers.integer("1'000", separator: "'")
     assert_nil Numbers.integer("0x1F", prefixes: {})
+    assert_equal 0, Numbers.integer("0", prefixes: { "0" => 8 })
+    assert_nil Numbers.integer("0x")
     assert_nil Numbers.integer("1.5")
     assert_nil Numbers.integer("12abc")
   end

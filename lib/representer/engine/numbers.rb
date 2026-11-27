@@ -14,13 +14,15 @@ module Representer::Engine
     # own text, so a huge number can't use up the memory.
     MAX_EXPONENT = 400
 
-    # An integer literal's value, or nil. separator is the digit separator
-    # (such as "_" or "'"), and prefixes maps each base prefix to its base.
+    # An integer literal's value, or nil. separator holds the digit
+    # separators (such as "_" or "'"), and prefixes maps each base prefix to
+    # its base. A prefix needs digits after it, so with the prefix `0` for
+    # octal, `0` on its own is still zero.
     def self.integer(text, separator: "_", prefixes: PREFIXES)
       sign, digits = split_sign(text.delete(separator))
       base = 10
       prefixes.each do |prefix, prefix_base|
-        next unless digits.downcase.start_with?(prefix.downcase)
+        next unless digits.size > prefix.size && digits.downcase.start_with?(prefix.downcase)
 
         base = prefix_base
         digits = digits[prefix.size..]

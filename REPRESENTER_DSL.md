@@ -240,14 +240,23 @@ unwrap :parenthesized_statements
 
 This declaration writes each number leaf of these types as its value, so `1_000` and `1000` become the same leaf.
 `integer:` and `decimal:` each take a node type or a list of them.
+If the grammar gives integers and decimals one node type, as Clojure's does, give that type to both. The engine then reads each number as an integer if it can, and as a decimal otherwise.
+If the language stores every number the same way, as JavaScript does, give the type to `number:` instead. The engine then writes a whole number without a point, so `1.0` and `1` become the same leaf.
 `prefixes:` maps each base prefix of an integer to its base, in the order to try them.
 `suffixes:` lists the type suffixes that a decimal may end with, which stay in lower case.
+`separators:` lists the characters that may separate digits, and is `["_"]` unless the language gives it.
 A number that the engine can't read keeps its text.
 
 ```ruby
 numbers_are integer: :integer,
             decimal: :float,
             prefixes: { "0x" => 16, "0o" => 8, "0b" => 2, "0" => 8 }
+
+numbers_are number: :number
+
+numbers_are integer: [:base10, :base16],
+            decimal: :float,
+            separators: ["_", ","]
 ```
 
 ### Verbs for Normalise

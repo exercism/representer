@@ -53,14 +53,17 @@ module Representer::Engine
       def unwrap(*types) = unwrapped_types.concat(types.map(&:to_s))
 
       # Writes each number leaf of these types as its value (see
-      # WriteNumbersAsValues). integer and decimal each take a type or a
-      # list of types. prefixes maps each base prefix of an integer to its
-      # base, and suffixes lists the type suffixes a decimal may end with.
-      def numbers_are(integer: [], decimal: [], prefixes: Numbers::PREFIXES, suffixes: [])
-        @numbers = { integer: Array(integer).map(&:to_s), decimal: Array(decimal).map(&:to_s), prefixes:, suffixes: }
+      # WriteNumbersAsValues). integer, decimal and number each take a type
+      # or a list of types. prefixes maps each base prefix of an integer to
+      # its base, suffixes lists the type suffixes a decimal may end with,
+      # and separators lists the characters that may separate digits.
+      def numbers_are(integer: [], decimal: [], number: [], prefixes: Numbers::PREFIXES, suffixes: [],
+                      separators: ["_"])
+        types = { integer:, decimal:, number: }.transform_values { |given| Array(given).map(&:to_s) }
+        @numbers = { **types, prefixes:, suffixes:, separators: }
       end
 
-      def numbers = @numbers || { integer: [], decimal: [], prefixes: Numbers::PREFIXES, suffixes: [] }
+      def numbers = @numbers || {}
       def stripped_tokens = @stripped_tokens ||= []
       def stripped_tokens_in = @stripped_tokens_in ||= {}
       def kept_tokens_in = @kept_tokens_in ||= {}

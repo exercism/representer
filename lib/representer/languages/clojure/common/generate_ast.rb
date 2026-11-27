@@ -9,10 +9,16 @@ module Representer::Languages::Clojure::Common
     # #{1 2}  ->  (set_lit 1 2)
     strip_tokens "(", ")", "[", "]", "{", "}", "#"
 
-    # Write each integer as its value.
+    # Write each number as its value. A ratio, a number in another base and a
+    # number with a suffix keep their text, because the reader gives them
+    # other types.
+    #
     # 0x1F  ->  31
     # 017  ->  15
+    # 0.90  ->  0.9
+    # 1e3  ->  1000.0
     numbers_are integer: :num_lit,
+                decimal: :num_lit,
                 prefixes: { "0x" => 16, "0" => 8 }
 
     FORMS = { quoting_lit: "quote", derefing_lit: "deref", var_quoting_lit: "var" }.freeze
@@ -24,7 +30,6 @@ module Representer::Languages::Clojure::Common
     def call
       tree.tap do
         drop_metadata!
-        write_decimals_as_their_values!
         write_strings_as_their_values!
         write_symbols_as_leaves!
         write_quotes_derefs_and_vars_as_forms!
@@ -39,18 +44,6 @@ module Representer::Languages::Clojure::Common
     # (defn ^:private f [^long x] x)  ->  (defn f [x] x)
     def drop_metadata!
       drop(tree, "(meta_lit)")
-    end
-
-    # Write each decimal as its value. A ratio, a number in another base and a
-    # number with a suffix keep their text, because the reader gives them
-    # other types.
-    # 0.90  ->  0.9
-    # 1e3  ->  1000.0
-    def write_decimals_as_their_values!
-      captured(tree, "(num_lit /[.eE]/) @name").each do |number|
-        value = Representer::Engine::Numbers.decimal(number.text)
-        number.text = Representer::Engine::Numbers.write_decimal(value) if value
-      end
     end
 
     # Write each string as its contents. Keep its escapes as they are written,

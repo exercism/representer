@@ -24,6 +24,15 @@ module Representer::Languages::Wren::Common
     # (a + b) * c  ->  (binary_expression (binary_expression a + b) * c)
     unwrap :parenthesized_expression
 
+    # Write each number as its value. Every Wren number is a double, so an
+    # integer and a decimal with the same value are the same.
+    #
+    # 0x1F  ->  31
+    # 1.0  ->  1
+    # 1e3  ->  1000
+    # 1.50  ->  1.5
+    numbers_are number: :number
+
     ESCAPES = {
       '\n' => "\n",
       '\r' => "\r",
@@ -42,7 +51,6 @@ module Representer::Languages::Wren::Common
     def call
       tree.tap do
         write_strings_as_their_values!
-        write_numbers_as_their_values!
         put_each_setter_parameter_in_a_parameter_list!
       end
     end
@@ -96,22 +104,6 @@ module Representer::Languages::Wren::Common
       return parts.first if parts.one? && parts.first.type == "literal"
 
       build(:string, *parts)
-    end
-
-    # Write each number as its value. Every Wren number is a double, so an
-    # integer and a decimal with the same value are the same.
-    #
-    # 0x1F  ->  31
-    # 1.0  ->  1
-    # 1e3  ->  1000
-    # 1.50  ->  1.5
-    def write_numbers_as_their_values!
-      each_node(tree) do |node, _|
-        next unless node.named? && node.type == "number"
-
-        value = Representer::Engine::Numbers.integer(node.text) || Representer::Engine::Numbers.decimal(node.text)
-        node.text = Representer::Engine::Numbers.write_number(value.to_r) if value
-      end
     end
 
     ### Names ###

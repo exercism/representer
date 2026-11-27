@@ -21,6 +21,17 @@ module Representer::Languages::JavaScript::Common
     # (a + b) * c  ->  (binary_expression (binary_expression a + b) * c)
     unwrap :parenthesized_expression
 
+    # Write each number as its value. JavaScript stores every number the same
+    # way, so an integer and a decimal with the same value are the same. A
+    # BigInt keeps its text.
+    #
+    # 1_000  ->  1000
+    # 0x1F  ->  31
+    # 1e3  ->  1000
+    # 1.50  ->  1.5
+    # 10n  ->  10n
+    numbers_are number: :number
+
     ESCAPES = {
       '\n' => "\n",
       '\t' => "\t",
@@ -41,7 +52,6 @@ module Representer::Languages::JavaScript::Common
       tree.tap do
         drop_hash_bang_line!
         write_strings_as_their_values!
-        write_numbers_as_their_values!
         write_a_lone_arrow_parameter_without_brackets!
         mark_properties_set_on_this!
       end
@@ -100,24 +110,6 @@ module Representer::Languages::JavaScript::Common
       return parts.first if parts.one? && parts.first.type == "literal"
 
       build(type, *parts)
-    end
-
-    # Write each number as its value. JavaScript stores every number the same
-    # way, so an integer and a decimal with the same value are the same. A
-    # BigInt and an old octal number keep their text.
-    #
-    # 1_000  ->  1000
-    # 0x1F  ->  31
-    # 1e3  ->  1000
-    # 1.50  ->  1.5
-    # 10n  ->  10n
-    def write_numbers_as_their_values!
-      each_node(tree) do |node, _|
-        next unless node.named? && node.type == "number" && !node.text.match?(/\A0\d|n\z/)
-
-        value = Representer::Engine::Numbers.integer(node.text) || Representer::Engine::Numbers.decimal(node.text)
-        node.text = Representer::Engine::Numbers.write_number(value.to_r) if value
-      end
     end
 
     ### Names ###
