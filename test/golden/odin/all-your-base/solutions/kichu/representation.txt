@@ -1,43 +1,86 @@
-package all_your_base
-Error :: enum {
-None,
-Invalid_Input_Digit,
-Input_Base_Too_Small,
-Output_Base_Too_Small,
-Unimplemented,
-}
-rebase :: proc(input_base: int, digits: []int, output_base: int) -> ([]int, Error) {
-if input_base < 2 {
-return nil, Error.Input_Base_Too_Small
-}
-if output_base < 2 {
-return nil, Error.Output_Base_Too_Small
-}
-len_digits := len(digits)
-base10_value := 0
-for digit, index in digits {
-if digit < 0 || digit >= input_base {
-return nil, Error.Invalid_Input_Digit
-}
-v := digit == 0 ? 0 : digit * pow(input_base, len_digits - index - 1)
-base10_value += v
-}
-new_digits: [dynamic]int
-defer delete(new_digits)
-for base10_value >= output_base {
-append(&new_digits, base10_value % output_base)
-base10_value /= output_base
-}
-append(&new_digits, base10_value)
-out_digits := make([]int, len(new_digits))
-runtime.copy_slice(out_digits, new_digits[:])
-slice.reverse(out_digits)
-return out_digits, .None
-}
-pow :: proc(base: int, exp: int) -> int {
-res := 1
-for i := 0; i < exp; i += 1 {
-res *= base
-}
-return res
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (enum_declaration PLACEHOLDER_2
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_4)
+    (enum_member PLACEHOLDER_5)
+    (enum_member PLACEHOLDER_6)
+    (enum_member PLACEHOLDER_7))
+  (procedure_declaration PLACEHOLDER_8
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_9 : int)
+        (parameter PLACEHOLDER_10 :
+          (array_type int))
+        (parameter PLACEHOLDER_11 : int))
+      (tuple_type
+        (array_type int) PLACEHOLDER_2)
+      (block
+        (if_statement
+          (binary_expression PLACEHOLDER_9 < 2)
+          (block
+            (return_statement nil
+              (member_expression PLACEHOLDER_2 PLACEHOLDER_5))))
+        (if_statement
+          (binary_expression PLACEHOLDER_11 < 2)
+          (block
+            (return_statement nil
+              (member_expression PLACEHOLDER_2 PLACEHOLDER_6))))
+        (assignment_statement PLACEHOLDER_12 :=
+          (call_expression len PLACEHOLDER_10))
+        (assignment_statement PLACEHOLDER_13 := 0)
+        (for_statement PLACEHOLDER_14 PLACEHOLDER_15 in PLACEHOLDER_10
+          (block
+            (if_statement
+              (binary_expression
+                (binary_expression PLACEHOLDER_14 < 0) ||
+                (binary_expression PLACEHOLDER_14 >= PLACEHOLDER_9))
+              (block
+                (return_statement nil
+                  (member_expression PLACEHOLDER_2 PLACEHOLDER_4))))
+            (assignment_statement PLACEHOLDER_16 :=
+              (ternary_expression
+                (binary_expression PLACEHOLDER_14 == 0) 0
+                (binary_expression PLACEHOLDER_14 *
+                  (call_expression PLACEHOLDER_17 PLACEHOLDER_9
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_12 - PLACEHOLDER_15) - 1)))))
+            (update_statement PLACEHOLDER_13 += PLACEHOLDER_16)))
+        (var_declaration PLACEHOLDER_18 :
+          (array_type dynamic int))
+        (defer_statement
+          (call_expression delete PLACEHOLDER_18))
+        (for_statement
+          (binary_expression PLACEHOLDER_13 >= PLACEHOLDER_11)
+          (block
+            (call_expression append
+              (unary_expression & PLACEHOLDER_18)
+              (binary_expression PLACEHOLDER_13 % PLACEHOLDER_11))
+            (update_statement PLACEHOLDER_13 /= PLACEHOLDER_11)))
+        (call_expression append
+          (unary_expression & PLACEHOLDER_18) PLACEHOLDER_13)
+        (assignment_statement PLACEHOLDER_19 :=
+          (call_expression make
+            (array_type int)
+            (call_expression len PLACEHOLDER_18)))
+        (call_expression
+          (member_expression runtime copy_slice) PLACEHOLDER_19
+          (slice_expression PLACEHOLDER_18 :))
+        (call_expression
+          (member_expression slice reverse) PLACEHOLDER_19)
+        (return_statement PLACEHOLDER_19
+          (member_expression PLACEHOLDER_3)))))
+  (procedure_declaration PLACEHOLDER_17
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : int)
+        (parameter PLACEHOLDER_21 : int)) int
+      (block
+        (assignment_statement PLACEHOLDER_22 := 1)
+        (for_statement
+          (assignment_statement PLACEHOLDER_23 := 0) ;
+          (binary_expression PLACEHOLDER_23 < PLACEHOLDER_21) ;
+          (update_statement PLACEHOLDER_23 += 1)
+          (block
+            (update_statement PLACEHOLDER_22 *= PLACEHOLDER_20)))
+        (return_statement PLACEHOLDER_22)))))

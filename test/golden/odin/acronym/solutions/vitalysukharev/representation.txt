@@ -1,38 +1,95 @@
-package acronym
-is_letter :: proc(r: rune) -> bool {
-switch r {
-case 'A' ..= 'Z':
-return true
-case 'a' ..= 'z':
-return true
-}
-return false
-}
-iterate :: proc(str: ^string) -> (letter: string, next: bool) {
-if str^ == "\"\"" do return
-found_letter, word_start, word_end := false, 0, 0
-for r, i in str {
-if is_letter(r) && !found_letter {
-found_letter, word_start, next = true, i, true
-letter, _ = strings.substring(str^, i, i + 1)
-letter, _ = strings.to_upper(letter)
-}
-if (r == ' ' || r == '-') && found_letter {
-word_end = i
-break
-}
-}
-if word_end == 0 do word_end = len(str)
-str^ = str[word_end:]
-return letter, true
-}
-abbreviate :: proc(phrase: string) -> string {
-copy := phrase
-builder: strings.Builder
-strings.builder_init(&builder)
-defer strings.builder_destroy(&builder)
-for letter in iterate(&copy) {
-strings.write_string(&builder, letter)
-}
-return strings.to_string(builder)
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (procedure_declaration PLACEHOLDER_2
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_3 : rune)) bool
+      (block
+        (switch_statement PLACEHOLDER_3
+          (switch_case
+            (range_expression 'A' ..= 'Z') :
+            (return_statement
+              (boolean true)))
+          (switch_case
+            (range_expression 'a' ..= 'z') :
+            (return_statement
+              (boolean true))))
+        (return_statement
+          (boolean false)))))
+  (procedure_declaration PLACEHOLDER_4
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_5 :
+          (pointer_type ^ string)))
+      (tuple_type
+        (named_type PLACEHOLDER_6 string)
+        (named_type PLACEHOLDER_7 bool))
+      (block
+        (if_statement
+          (binary_expression
+            (address PLACEHOLDER_5 ^) == "")
+          (block
+            (return_statement)))
+        (assignment_statement PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10 :=
+          (boolean false) 0 0)
+        (for_statement PLACEHOLDER_3 PLACEHOLDER_11 in PLACEHOLDER_5
+          (block
+            (if_statement
+              (binary_expression
+                (call_expression PLACEHOLDER_2 PLACEHOLDER_3) &&
+                (unary_expression ! PLACEHOLDER_8))
+              (block
+                (assignment_statement PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_7 =
+                  (boolean true) PLACEHOLDER_11
+                  (boolean true))
+                (assignment_statement PLACEHOLDER_6 _ =
+                  (call_expression
+                    (member_expression strings substring)
+                    (address PLACEHOLDER_5 ^) PLACEHOLDER_11
+                    (binary_expression PLACEHOLDER_11 + 1)))
+                (assignment_statement PLACEHOLDER_6 _ =
+                  (call_expression
+                    (member_expression strings to_upper) PLACEHOLDER_6))))
+            (if_statement
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_3 == "' '") ||
+                  (binary_expression PLACEHOLDER_3 == '-')) && PLACEHOLDER_8)
+              (block
+                (assignment_statement PLACEHOLDER_10 = PLACEHOLDER_11)
+                (break_statement)))))
+        (if_statement
+          (binary_expression PLACEHOLDER_10 == 0)
+          (block
+            (assignment_statement PLACEHOLDER_10 =
+              (call_expression len PLACEHOLDER_5))))
+        (assignment_statement
+          (address PLACEHOLDER_5 ^) =
+          (slice_expression PLACEHOLDER_5 PLACEHOLDER_10 :))
+        (return_statement PLACEHOLDER_6
+          (boolean true)))))
+  (procedure_declaration PLACEHOLDER_12
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_13 : string)) string
+      (block
+        (assignment_statement PLACEHOLDER_14 := PLACEHOLDER_13)
+        (var_declaration PLACEHOLDER_15 :
+          (field_type strings Builder))
+        (call_expression
+          (member_expression strings builder_init)
+          (unary_expression & PLACEHOLDER_15))
+        (defer_statement
+          (call_expression
+            (member_expression strings builder_destroy)
+            (unary_expression & PLACEHOLDER_15)))
+        (for_statement PLACEHOLDER_6 in
+          (call_expression PLACEHOLDER_4
+            (unary_expression & PLACEHOLDER_14))
+          (block
+            (call_expression
+              (member_expression strings write_string)
+              (unary_expression & PLACEHOLDER_15) PLACEHOLDER_6)))
+        (return_statement
+          (call_expression
+            (member_expression strings to_string) PLACEHOLDER_15))))))

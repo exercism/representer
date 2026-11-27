@@ -194,7 +194,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | moonscript | Basic | 100 | 0 | 100 | 99 | 98 | 0 | 0 | 0 | 0 |
 | nim | Nim | 256 | 52 | 100 | 64 | 98 | 1 | 6 | 0 | 0 |
 | ocaml | OCaml | 244 | 48 | 100 | 48 | 100 | 0 | 9 | 0 | 0 |
-| odin | Basic | 160 | 20 | 100 | 65 | 100 | 3 | 0 | 0 | 3 |
+| odin | Odin | 160 | 20 | 100 | 65 | 100 | 0 | 5 | 0 | 3 |
 | perl5 | Basic | 151 | 17 | 100 | 75 | 100 | 5 | 0 | 0 | 0 |
 | pharo-smalltalk | Basic | 115 | 5 | 100 | 45 | 100 | 1 | 1 | 0 | 0 |
 | php | PHP | 352 | 84 | 100 | 68 | 99 | 11 | 4 | 0 | 0 |

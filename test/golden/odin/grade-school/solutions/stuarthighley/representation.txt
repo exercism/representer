@@ -1,40 +1,126 @@
-package grade_school
-School :: struct {
-students: map[string]struct{},
-grades: [10][dynamic]string,
-}
-Grade :: struct {
-id: u8,
-students: []string,
-}
-// Add a student's name to the roster for a grade.
-add :: proc(s: ^School, student: string, grade_id: u8) -> bool {
-if int(grade_id) >= len(s.grades) do return false
-if student in s.students do return false
-s.students[student] = {}
-i, _ := slice.binary_search(s.grades[grade_id][:], student)
-inject_at(&s.grades[grade_id], i, student)
-return true
-}
-grade :: proc(s: ^School, grade_id: u8) -> []string {
-if int(grade_id) >= len(s.grades) do return nil
-return s.grades[grade_id][:]
-}
-roster :: proc(s: ^School) -> []Grade {
-// Count number of grades with at least one student.
-count := 0
-for &students in s.grades do if len(students) > 0 do count += 1
-if count == 0 do return nil
-out := make([]Grade, count)
-i := 0
-for &students, grade_id in s.grades {
-if len(students) == 0 do continue
-out[i] = Grade{u8(grade_id), students[:]}
-i += 1
-}
-return out
-}
-delete_school :: proc(s: ^School) {
-delete(s.students)
-for &students in s.grades do delete(students)
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (struct_declaration PLACEHOLDER_2
+    (field PLACEHOLDER_3
+      (map_type string
+        (struct_type)))
+    (field PLACEHOLDER_4
+      (array_type 10
+        (array_type dynamic string))))
+  (struct_declaration PLACEHOLDER_5
+    (field PLACEHOLDER_6 u8)
+    (field PLACEHOLDER_3
+      (array_type string)))
+  (procedure_declaration PLACEHOLDER_7
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 :
+          (pointer_type ^ PLACEHOLDER_2))
+        (parameter PLACEHOLDER_9 : string)
+        (parameter PLACEHOLDER_10 : u8)) bool
+      (block
+        (if_statement
+          (binary_expression
+            (call_expression int PLACEHOLDER_10) >=
+            (call_expression len
+              (member_expression PLACEHOLDER_8 PLACEHOLDER_4)))
+          (block
+            (return_statement
+              (boolean false))))
+        (if_statement
+          (in_expression PLACEHOLDER_9 in
+            (member_expression PLACEHOLDER_8 PLACEHOLDER_3))
+          (block
+            (return_statement
+              (boolean false))))
+        (assignment_statement
+          (index_expression
+            (member_expression PLACEHOLDER_8 PLACEHOLDER_3) PLACEHOLDER_9) =
+          (struct))
+        (assignment_statement PLACEHOLDER_11 _ :=
+          (call_expression
+            (member_expression slice binary_search)
+            (slice_expression
+              (index_expression
+                (member_expression PLACEHOLDER_8 PLACEHOLDER_4) PLACEHOLDER_10) :) PLACEHOLDER_9))
+        (call_expression inject_at
+          (unary_expression &
+            (index_expression
+              (member_expression PLACEHOLDER_8 PLACEHOLDER_4) PLACEHOLDER_10)) PLACEHOLDER_11 PLACEHOLDER_9)
+        (return_statement
+          (boolean true)))))
+  (procedure_declaration PLACEHOLDER_12
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 :
+          (pointer_type ^ PLACEHOLDER_2))
+        (parameter PLACEHOLDER_10 : u8))
+      (array_type string)
+      (block
+        (if_statement
+          (binary_expression
+            (call_expression int PLACEHOLDER_10) >=
+            (call_expression len
+              (member_expression PLACEHOLDER_8 PLACEHOLDER_4)))
+          (block
+            (return_statement nil)))
+        (return_statement
+          (slice_expression
+            (index_expression
+              (member_expression PLACEHOLDER_8 PLACEHOLDER_4) PLACEHOLDER_10) :)))))
+  (procedure_declaration PLACEHOLDER_13
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (array_type PLACEHOLDER_5)
+      (block
+        (assignment_statement PLACEHOLDER_14 := 0)
+        (for_statement
+          (unary_expression & PLACEHOLDER_3) in
+          (member_expression PLACEHOLDER_8 PLACEHOLDER_4)
+          (block
+            (if_statement
+              (binary_expression
+                (call_expression len PLACEHOLDER_3) > 0)
+              (block
+                (update_statement PLACEHOLDER_14 += 1)))))
+        (if_statement
+          (binary_expression PLACEHOLDER_14 == 0)
+          (block
+            (return_statement nil)))
+        (assignment_statement PLACEHOLDER_15 :=
+          (call_expression make
+            (array_type PLACEHOLDER_5) PLACEHOLDER_14))
+        (assignment_statement PLACEHOLDER_11 := 0)
+        (for_statement
+          (unary_expression & PLACEHOLDER_3) PLACEHOLDER_10 in
+          (member_expression PLACEHOLDER_8 PLACEHOLDER_4)
+          (block
+            (if_statement
+              (binary_expression
+                (call_expression len PLACEHOLDER_3) == 0)
+              (block
+                (continue_statement)))
+            (assignment_statement
+              (index_expression PLACEHOLDER_15 PLACEHOLDER_11) =
+              (struct PLACEHOLDER_5
+                (struct_field
+                  (call_expression u8 PLACEHOLDER_10))
+                (struct_field
+                  (slice_expression PLACEHOLDER_3 :))))
+            (update_statement PLACEHOLDER_11 += 1)))
+        (return_statement PLACEHOLDER_15))))
+  (procedure_declaration PLACEHOLDER_16
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_8 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (block
+        (call_expression delete
+          (member_expression PLACEHOLDER_8 PLACEHOLDER_3))
+        (for_statement
+          (unary_expression & PLACEHOLDER_3) in
+          (member_expression PLACEHOLDER_8 PLACEHOLDER_4)
+          (block
+            (call_expression delete PLACEHOLDER_3)))))))

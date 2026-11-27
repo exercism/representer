@@ -1,55 +1,136 @@
-package robotname
-MAX_ROBOTS :: 26 * 26 * 10 * 10 * 10
-Robot_Storage :: struct {
-free_list: [dynamic]uint,
-robots: map[uint]Robot,
-}
-Robot :: struct {
-id: uint,
-name: string,
-}
-Error :: enum {
-None,
-Could_Not_Create_Name,
-Unimplemented,
-}
-make_storage :: proc() -> Robot_Storage {
-storage := Robot_Storage {}
-for i in 0..<MAX_ROBOTS {
-append(&storage.free_list, uint(i))
-}
-rand.shuffle(storage.free_list[:])
-return storage
-}
-delete_storage :: proc(storage: ^Robot_Storage) {
-for _, v in storage.robots {
-delete(v.name)
-}
-delete(storage.free_list)
-delete(storage.robots)
-}
-name_from_id :: proc(id: uint) -> string {
-id := id
-num := id % 1000
-letter_2 := rune('A' + id / 1000 % 26)
-letter_1 := rune('A' + id / 1000 / 26 % 26)
-return fmt.aprintf("{}{}%3i", letter_1, letter_2, num)
-}
-new_robot :: proc(storage: ^Robot_Storage) -> (Robot, Error) {
-if len(storage.free_list) == 0 do return Robot{}, .Could_Not_Create_Name
-id := pop(&storage.free_list)
-storage.robots[id] = Robot {
-id = id,
-name = name_from_id(id)
-}
-return storage.robots[id], .None
-}
-reset :: proc(storage: ^Robot_Storage, r: ^Robot) {
-old := r.id
-inject_at(&storage.free_list, 0, old)
-r.id = pop(&storage.free_list)
-delete(r.name)
-r.name = name_from_id(r.id)
-delete_key(&storage.robots, old)
-storage.robots[r.id] = r^
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (const_declaration PLACEHOLDER_2
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (binary_expression 26 * 26) * 10) * 10) * 10))
+  (struct_declaration PLACEHOLDER_3
+    (field PLACEHOLDER_4
+      (array_type dynamic uint))
+    (field PLACEHOLDER_5
+      (map_type uint PLACEHOLDER_6)))
+  (struct_declaration PLACEHOLDER_6
+    (field PLACEHOLDER_7 uint)
+    (field PLACEHOLDER_8 string))
+  (enum_declaration PLACEHOLDER_9
+    (enum_member PLACEHOLDER_10)
+    (enum_member PLACEHOLDER_11)
+    (enum_member PLACEHOLDER_12))
+  (procedure_declaration PLACEHOLDER_13
+    (procedure
+      (parameters) PLACEHOLDER_3
+      (block
+        (assignment_statement PLACEHOLDER_14 :=
+          (struct PLACEHOLDER_3))
+        (for_statement PLACEHOLDER_15 in
+          (range_expression 0 ..< PLACEHOLDER_2)
+          (block
+            (call_expression append
+              (unary_expression &
+                (member_expression PLACEHOLDER_14 PLACEHOLDER_4))
+              (call_expression uint PLACEHOLDER_15))))
+        (call_expression
+          (member_expression rand shuffle)
+          (slice_expression
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_4) :))
+        (return_statement PLACEHOLDER_14))))
+  (procedure_declaration PLACEHOLDER_16
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_14 :
+          (pointer_type ^ PLACEHOLDER_3)))
+      (block
+        (for_statement _ PLACEHOLDER_17 in
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_5)
+          (block
+            (call_expression delete
+              (member_expression PLACEHOLDER_17 PLACEHOLDER_8))))
+        (call_expression delete
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_4))
+        (call_expression delete
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_5)))))
+  (procedure_declaration PLACEHOLDER_18
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_7 : uint)) string
+      (block
+        (assignment_statement PLACEHOLDER_7 := PLACEHOLDER_7)
+        (assignment_statement PLACEHOLDER_19 :=
+          (binary_expression PLACEHOLDER_7 % 1000))
+        (assignment_statement PLACEHOLDER_20 :=
+          (call_expression rune
+            (binary_expression 'A' +
+              (binary_expression
+                (binary_expression PLACEHOLDER_7 / 1000) % 26))))
+        (assignment_statement PLACEHOLDER_21 :=
+          (call_expression rune
+            (binary_expression 'A' +
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_7 / 1000) / 26) % 26))))
+        (return_statement
+          (call_expression
+            (member_expression fmt aprintf) "{}{}%3i" PLACEHOLDER_21 PLACEHOLDER_20 PLACEHOLDER_19)))))
+  (procedure_declaration PLACEHOLDER_22
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_14 :
+          (pointer_type ^ PLACEHOLDER_3)))
+      (tuple_type PLACEHOLDER_6 PLACEHOLDER_9)
+      (block
+        (if_statement
+          (binary_expression
+            (call_expression len
+              (member_expression PLACEHOLDER_14 PLACEHOLDER_4)) == 0)
+          (block
+            (return_statement
+              (struct PLACEHOLDER_6)
+              (member_expression PLACEHOLDER_11))))
+        (assignment_statement PLACEHOLDER_7 :=
+          (call_expression pop
+            (unary_expression &
+              (member_expression PLACEHOLDER_14 PLACEHOLDER_4))))
+        (assignment_statement
+          (index_expression
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_5) PLACEHOLDER_7) =
+          (struct PLACEHOLDER_6
+            (struct_field PLACEHOLDER_7 PLACEHOLDER_7)
+            (struct_field PLACEHOLDER_8
+              (call_expression PLACEHOLDER_18 PLACEHOLDER_7))))
+        (return_statement
+          (index_expression
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_5) PLACEHOLDER_7)
+          (member_expression PLACEHOLDER_10)))))
+  (procedure_declaration PLACEHOLDER_23
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_14 :
+          (pointer_type ^ PLACEHOLDER_3))
+        (parameter PLACEHOLDER_24 :
+          (pointer_type ^ PLACEHOLDER_6)))
+      (block
+        (assignment_statement PLACEHOLDER_25 :=
+          (member_expression PLACEHOLDER_24 PLACEHOLDER_7))
+        (call_expression inject_at
+          (unary_expression &
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_4)) 0 PLACEHOLDER_25)
+        (assignment_statement
+          (member_expression PLACEHOLDER_24 PLACEHOLDER_7) =
+          (call_expression pop
+            (unary_expression &
+              (member_expression PLACEHOLDER_14 PLACEHOLDER_4))))
+        (call_expression delete
+          (member_expression PLACEHOLDER_24 PLACEHOLDER_8))
+        (assignment_statement
+          (member_expression PLACEHOLDER_24 PLACEHOLDER_8) =
+          (call_expression PLACEHOLDER_18
+            (member_expression PLACEHOLDER_24 PLACEHOLDER_7)))
+        (call_expression delete_key
+          (unary_expression &
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_5)) PLACEHOLDER_25)
+        (assignment_statement
+          (index_expression
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_5)
+            (member_expression PLACEHOLDER_24 PLACEHOLDER_7)) =
+          (address PLACEHOLDER_24 ^))))))

@@ -1,34 +1,102 @@
-package anagram
-MAX_RUNES :: 64
-to_runes :: proc(str: string, slc:[]rune) -> (res : []rune) {
-i := 0
-for c in str do slc[i], i = unicode.to_lower(c), i+1
-slice.sort(slc[:i])
-res = slc[:i] // err is .None
-return
-}
-find_anagrams:: proc(word: string, candidates: []string) ->
-(r: []string , err: mem.Allocator_Error)#optional_allocator_error {
-word_len := strings.rune_count(word)
-if word_len > MAX_RUNES do return // Word too big for stack buffer
-word_buf : [MAX_RUNES]rune
-cand_buf : [MAX_RUNES]rune
-sorted_lc_word := to_runes(word,word_buf[:])
-result := make([dynamic]string) or_return
-for cand in candidates {
-if strings.rune_count(cand) != strings.rune_count(word) do continue
-i, w := 0, word
-for c in cand {
-r, size := utf8.decode_rune(w)
-if unicode.to_lower(c) != unicode.to_lower(r) do break
-i,w = i+1, w[size:]
-}
-if i == strings.rune_count(word) do continue
-sorted_lc_cand := to_runes(cand,cand_buf[:])
-if slice.equal(sorted_lc_cand, sorted_lc_word) {
-append(&result, cand) or_return
-}
-}
-r = result[:]
-return
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (const_declaration PLACEHOLDER_2 64)
+  (procedure_declaration PLACEHOLDER_3
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_4 : string)
+        (parameter PLACEHOLDER_5 :
+          (array_type rune)))
+      (named_type PLACEHOLDER_6
+        (array_type rune))
+      (block
+        (assignment_statement PLACEHOLDER_7 := 0)
+        (for_statement PLACEHOLDER_8 in PLACEHOLDER_4
+          (block
+            (assignment_statement
+              (index_expression PLACEHOLDER_5 PLACEHOLDER_7) PLACEHOLDER_7 =
+              (call_expression
+                (member_expression unicode to_lower) PLACEHOLDER_8)
+              (binary_expression PLACEHOLDER_7 + 1))))
+        (call_expression
+          (member_expression slice sort)
+          (slice_expression PLACEHOLDER_5 : PLACEHOLDER_7))
+        (assignment_statement PLACEHOLDER_6 =
+          (slice_expression PLACEHOLDER_5 : PLACEHOLDER_7))
+        (return_statement))))
+  (procedure_declaration PLACEHOLDER_9
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_10 : string)
+        (parameter PLACEHOLDER_11 :
+          (array_type string)))
+      (tuple_type
+        (named_type PLACEHOLDER_12
+          (array_type string))
+        (named_type PLACEHOLDER_13
+          (field_type mem Allocator_Error))) #optional_allocator_error
+      (block
+        (assignment_statement PLACEHOLDER_14 :=
+          (call_expression
+            (member_expression strings rune_count) PLACEHOLDER_10))
+        (if_statement
+          (binary_expression PLACEHOLDER_14 > PLACEHOLDER_2)
+          (block
+            (return_statement)))
+        (var_declaration PLACEHOLDER_15 :
+          (array_type PLACEHOLDER_2 rune))
+        (var_declaration PLACEHOLDER_16 :
+          (array_type PLACEHOLDER_2 rune))
+        (assignment_statement PLACEHOLDER_17 :=
+          (call_expression PLACEHOLDER_3 PLACEHOLDER_10
+            (slice_expression PLACEHOLDER_15 :)))
+        (assignment_statement PLACEHOLDER_18 :=
+          (or_return_expression
+            (call_expression make
+              (array_type dynamic string))))
+        (for_statement PLACEHOLDER_19 in PLACEHOLDER_11
+          (block
+            (if_statement
+              (binary_expression
+                (call_expression
+                  (member_expression strings rune_count) PLACEHOLDER_19) !=
+                (call_expression
+                  (member_expression strings rune_count) PLACEHOLDER_10))
+              (block
+                (continue_statement)))
+            (assignment_statement PLACEHOLDER_7 PLACEHOLDER_20 := 0 PLACEHOLDER_10)
+            (for_statement PLACEHOLDER_8 in PLACEHOLDER_19
+              (block
+                (assignment_statement PLACEHOLDER_12 PLACEHOLDER_21 :=
+                  (call_expression
+                    (member_expression utf8 decode_rune) PLACEHOLDER_20))
+                (if_statement
+                  (binary_expression
+                    (call_expression
+                      (member_expression unicode to_lower) PLACEHOLDER_8) !=
+                    (call_expression
+                      (member_expression unicode to_lower) PLACEHOLDER_12))
+                  (block
+                    (break_statement)))
+                (assignment_statement PLACEHOLDER_7 PLACEHOLDER_20 =
+                  (binary_expression PLACEHOLDER_7 + 1)
+                  (slice_expression PLACEHOLDER_20 PLACEHOLDER_21 :))))
+            (if_statement
+              (binary_expression PLACEHOLDER_7 ==
+                (call_expression
+                  (member_expression strings rune_count) PLACEHOLDER_10))
+              (block
+                (continue_statement)))
+            (assignment_statement PLACEHOLDER_22 :=
+              (call_expression PLACEHOLDER_3 PLACEHOLDER_19
+                (slice_expression PLACEHOLDER_16 :)))
+            (if_statement
+              (call_expression
+                (member_expression slice equal) PLACEHOLDER_22 PLACEHOLDER_17)
+              (block
+                (or_return_expression
+                  (call_expression append
+                    (unary_expression & PLACEHOLDER_18) PLACEHOLDER_19))))))
+        (assignment_statement PLACEHOLDER_12 =
+          (slice_expression PLACEHOLDER_18 :))
+        (return_statement)))))

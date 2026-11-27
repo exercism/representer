@@ -1,97 +1,277 @@
-package linked_list
-// Define the content of List.
-// (a double-link list must keep track of its head and its tail).
-List :: struct {
-head, tail: ^Node,
-count: int,
-}
-// Define the content of Node.
-// (for a double-link list, a Node must keep track of its previous and next element).
-Node :: struct {
-next, prev : ^Node,
-station: int,
-}
-Error :: enum {
-None,
-Empty_List,
-Unimplemented,
-}
-// Create a new list containing 'elements'.
-new_list :: proc(elements: ..int) -> (xs :List) {
-xs = List{}
-for e in elements do push(&xs, e)
-return xs
-}
-// Deallocate the list
-destroy_list :: proc(l: ^List) -> (e:Error) {
-if l == nil do return .Empty_List
-defer free(l)
-for do shift(l) or_return
-}
-// Insert a value at the head of the list.
-unshift :: proc(l: ^List, value: int) {
-hd := new(Node)
-hd.station, hd.prev , hd.next = value, nil, l.head
-if l.head != nil do l.head.prev = hd
-l.head = hd
-l.count += 1
-if l.count == 1 do l.tail = l.head
-}
-// Add a value to the tail of the list
-push :: proc(l: ^List, value: int) {
-tl := new(Node)
-tl.station, tl.prev , tl.next = value, l.tail, nil
-if l.tail != nil do l.tail.next = tl
-l.tail = tl
-l.count += 1
-if l.count == 1 do l.head = l.tail
-}
-// Remove and return the value at the head of the list.
-shift :: proc(l: ^List) -> (int, Error) {
-if l.head == nil do return -1, .Empty_List
-hd := l.head
-defer free (hd)
-l.head = l.head.next
-if l.head != nil do l.head.prev = nil
-l.count -= 1
-if l.count == 0 do l.tail = nil
-return hd.station, .None
-}
-// Remove and return the value at the tail of the list.
-pop :: proc(l: ^List) -> (int, Error) {
-if l.tail == nil do return -1, .Empty_List
-tl := l.tail
-defer free(tl)
-l.tail= l.tail.prev
-if l.tail != nil do l.tail.next = nil
-l.count -= 1
-if l.count == 0 do l.head = nil
-return tl.station, .None
-}
-// Reverse the elements in the list (in-place).
-reverse :: proc(l: ^List) {
-if l.head == nil do return
-for curr := l.head; curr != nil; curr = curr.prev {
-curr.next, curr.prev = curr.prev, curr.next
-}
-l.head, l.tail = l.tail, l.head
-}
-// Returns the number of elements in the list
-count :: proc(l: List) -> int {
-return l.count
-}
-// Delete (only) the first element from the list with the given value.
-// If the value is not in the list, do nothing.
-delete :: proc(l: ^List, value: int) {
-if l.count == 0 do return
-for p := l.head; p != nil; p = p.next {
-if p.station == value {
-if p.prev != nil do p.prev.next = p.next
-else do l.head = p.next
-if p.next != nil do p.next.prev = p.prev
-else do l.tail = p.prev
-l.count -= 1
-return
-}
-}
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (struct_declaration PLACEHOLDER_2
+    (field PLACEHOLDER_3 PLACEHOLDER_4
+      (pointer_type ^ PLACEHOLDER_5))
+    (field PLACEHOLDER_6 int))
+  (struct_declaration PLACEHOLDER_5
+    (field PLACEHOLDER_7 PLACEHOLDER_8
+      (pointer_type ^ PLACEHOLDER_5))
+    (field PLACEHOLDER_9 int))
+  (enum_declaration PLACEHOLDER_10
+    (enum_member PLACEHOLDER_11)
+    (enum_member PLACEHOLDER_12)
+    (enum_member PLACEHOLDER_13))
+  (procedure_declaration PLACEHOLDER_14
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_15 :
+          (variadic_type int)))
+      (named_type PLACEHOLDER_16 PLACEHOLDER_2)
+      (block
+        (assignment_statement PLACEHOLDER_16 =
+          (struct PLACEHOLDER_2))
+        (for_statement PLACEHOLDER_17 in PLACEHOLDER_15
+          (block
+            (call_expression PLACEHOLDER_18
+              (unary_expression & PLACEHOLDER_16) PLACEHOLDER_17)))
+        (return_statement PLACEHOLDER_16))))
+  (procedure_declaration PLACEHOLDER_19
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (named_type PLACEHOLDER_17 PLACEHOLDER_10)
+      (block
+        (if_statement
+          (binary_expression PLACEHOLDER_20 == nil)
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_12))))
+        (defer_statement
+          (call_expression free PLACEHOLDER_20))
+        (for_statement
+          (block
+            (or_return_expression
+              (call_expression PLACEHOLDER_21 PLACEHOLDER_20)))))))
+  (procedure_declaration PLACEHOLDER_22
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 :
+          (pointer_type ^ PLACEHOLDER_2))
+        (parameter PLACEHOLDER_23 : int))
+      (block
+        (assignment_statement PLACEHOLDER_24 :=
+          (call_expression new PLACEHOLDER_5))
+        (assignment_statement
+          (member_expression PLACEHOLDER_24 PLACEHOLDER_9)
+          (member_expression PLACEHOLDER_24 PLACEHOLDER_8)
+          (member_expression PLACEHOLDER_24 PLACEHOLDER_7) = PLACEHOLDER_23 nil
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_3))
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_3) != nil)
+          (block
+            (assignment_statement
+              (member_expression
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_3) PLACEHOLDER_8) = PLACEHOLDER_24)))
+        (assignment_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_3) = PLACEHOLDER_24)
+        (update_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_6) += 1)
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_6) == 1)
+          (block
+            (assignment_statement
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_4) =
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_3)))))))
+  (procedure_declaration PLACEHOLDER_18
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 :
+          (pointer_type ^ PLACEHOLDER_2))
+        (parameter PLACEHOLDER_23 : int))
+      (block
+        (assignment_statement PLACEHOLDER_25 :=
+          (call_expression new PLACEHOLDER_5))
+        (assignment_statement
+          (member_expression PLACEHOLDER_25 PLACEHOLDER_9)
+          (member_expression PLACEHOLDER_25 PLACEHOLDER_8)
+          (member_expression PLACEHOLDER_25 PLACEHOLDER_7) = PLACEHOLDER_23
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_4) nil)
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_4) != nil)
+          (block
+            (assignment_statement
+              (member_expression
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_4) PLACEHOLDER_7) = PLACEHOLDER_25)))
+        (assignment_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_4) = PLACEHOLDER_25)
+        (update_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_6) += 1)
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_6) == 1)
+          (block
+            (assignment_statement
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_3) =
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_4)))))))
+  (procedure_declaration PLACEHOLDER_21
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (tuple_type int PLACEHOLDER_10)
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_3) == nil)
+          (block
+            (return_statement
+              (unary_expression - 1)
+              (member_expression PLACEHOLDER_12))))
+        (assignment_statement PLACEHOLDER_24 :=
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_3))
+        (defer_statement
+          (call_expression free PLACEHOLDER_24))
+        (assignment_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_3) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_3) PLACEHOLDER_7))
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_3) != nil)
+          (block
+            (assignment_statement
+              (member_expression
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_3) PLACEHOLDER_8) = nil)))
+        (update_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_6) -= 1)
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_6) == 0)
+          (block
+            (assignment_statement
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_4) = nil)))
+        (return_statement
+          (member_expression PLACEHOLDER_24 PLACEHOLDER_9)
+          (member_expression PLACEHOLDER_11)))))
+  (procedure_declaration PLACEHOLDER_26
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (tuple_type int PLACEHOLDER_10)
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_4) == nil)
+          (block
+            (return_statement
+              (unary_expression - 1)
+              (member_expression PLACEHOLDER_12))))
+        (assignment_statement PLACEHOLDER_25 :=
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_4))
+        (defer_statement
+          (call_expression free PLACEHOLDER_25))
+        (assignment_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_4) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_4) PLACEHOLDER_8))
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_4) != nil)
+          (block
+            (assignment_statement
+              (member_expression
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_4) PLACEHOLDER_7) = nil)))
+        (update_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_6) -= 1)
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_6) == 0)
+          (block
+            (assignment_statement
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_3) = nil)))
+        (return_statement
+          (member_expression PLACEHOLDER_25 PLACEHOLDER_9)
+          (member_expression PLACEHOLDER_11)))))
+  (procedure_declaration PLACEHOLDER_27
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 :
+          (pointer_type ^ PLACEHOLDER_2)))
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_3) == nil)
+          (block
+            (return_statement)))
+        (for_statement
+          (assignment_statement PLACEHOLDER_28 :=
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_3)) ;
+          (binary_expression PLACEHOLDER_28 != nil) ;
+          (assignment_statement PLACEHOLDER_28 =
+            (member_expression PLACEHOLDER_28 PLACEHOLDER_8))
+          (block
+            (assignment_statement
+              (member_expression PLACEHOLDER_28 PLACEHOLDER_7)
+              (member_expression PLACEHOLDER_28 PLACEHOLDER_8) =
+              (member_expression PLACEHOLDER_28 PLACEHOLDER_8)
+              (member_expression PLACEHOLDER_28 PLACEHOLDER_7))))
+        (assignment_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_3)
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_4) =
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_4)
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_3)))))
+  (procedure_declaration PLACEHOLDER_6
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_2)) int
+      (block
+        (return_statement
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_6)))))
+  (procedure_declaration PLACEHOLDER_29
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 :
+          (pointer_type ^ PLACEHOLDER_2))
+        (parameter PLACEHOLDER_23 : int))
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_6) == 0)
+          (block
+            (return_statement)))
+        (for_statement
+          (assignment_statement PLACEHOLDER_30 :=
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_3)) ;
+          (binary_expression PLACEHOLDER_30 != nil) ;
+          (assignment_statement PLACEHOLDER_30 =
+            (member_expression PLACEHOLDER_30 PLACEHOLDER_7))
+          (block
+            (if_statement
+              (binary_expression
+                (member_expression PLACEHOLDER_30 PLACEHOLDER_9) == PLACEHOLDER_23)
+              (block
+                (if_statement
+                  (binary_expression
+                    (member_expression PLACEHOLDER_30 PLACEHOLDER_8) != nil)
+                  (block
+                    (assignment_statement
+                      (member_expression
+                        (member_expression PLACEHOLDER_30 PLACEHOLDER_8) PLACEHOLDER_7) =
+                      (member_expression PLACEHOLDER_30 PLACEHOLDER_7)))
+                  (else_clause
+                    (block
+                      (assignment_statement
+                        (member_expression PLACEHOLDER_20 PLACEHOLDER_3) =
+                        (member_expression PLACEHOLDER_30 PLACEHOLDER_7)))))
+                (if_statement
+                  (binary_expression
+                    (member_expression PLACEHOLDER_30 PLACEHOLDER_7) != nil)
+                  (block
+                    (assignment_statement
+                      (member_expression
+                        (member_expression PLACEHOLDER_30 PLACEHOLDER_7) PLACEHOLDER_8) =
+                      (member_expression PLACEHOLDER_30 PLACEHOLDER_8)))
+                  (else_clause
+                    (block
+                      (assignment_statement
+                        (member_expression PLACEHOLDER_20 PLACEHOLDER_4) =
+                        (member_expression PLACEHOLDER_30 PLACEHOLDER_8)))))
+                (update_statement
+                  (member_expression PLACEHOLDER_20 PLACEHOLDER_6) -= 1)
+                (return_statement)))))))))

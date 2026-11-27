@@ -1,141 +1,296 @@
-package zipper
-// A Binary Tree representation
-Tree :: ^Node
-// A single Node within the Binary Tree
-Node :: struct {
-value: int,
-left: Tree,
-right: Tree,
-}
-// The Zipper data structure that keeps track of the focus and the previous operations.
-Zipper :: struct {
-tree: Tree,
-trail: Trail,
-}
-// The set of previous operations applied to the tree.
-Trail :: ^Step
-// A single operation applied to the tree.
-Step :: struct {
-action: Action,
-value: int,
-tree: Tree,
-next: Trail,
-}
-// The possible operations applied to the tree.
-Action :: enum {
-Right,
-Left,
-}
-// Get a zipper out of a tree, the focus is on the root node.
-zip_from_tree :: proc(t: Tree) -> Zipper {
-return Zipper{tree = t, trail = nil}
-}
-// Get the tree out of the zipper.
-zip_to_tree :: proc(z: Zipper) -> Tree {
-current_z := z
-// Walk up the trail, reconstructing the tree as we go
-for current_z.trail != nil {
-step := current_z.trail
-if step.action == .Left {
-// We came from the left, so reconstruct with our current tree as left child
-parent := new(Node)
-parent.value = step.value
-parent.left = current_z.tree
-parent.right = step.tree
-current_z.tree = parent
-} else {
-// We came from the right, so reconstruct with our current tree as right child
-parent := new(Node)
-parent.value = step.value
-parent.left = step.tree
-parent.right = current_z.tree
-current_z.tree = parent
-}
-current_z.trail = step.next
-}
-return current_z.tree
-}
-// Get the value of the focus node.
-zip_value :: proc(z: Zipper) -> int {
-if z.tree == nil {
-return 0
-}
-return z.tree.value
-}
-// Move the focus to the left child of the focus node, returns a new zipper.
-// If there is no left child, return a zero value Zipper.
-zip_left :: proc(z: Zipper) -> Zipper {
-if z.tree == nil || z.tree.left == nil {
-return Zipper{}
-}
-step := new(Step)
-step.action = .Left
-step.value = z.tree.value
-step.tree = z.tree.right
-step.next = z.trail
-return Zipper{tree = z.tree.left, trail = step}
-}
-// Move the focus to the right child of the focus node, returns a new zipper.
-// If there is no right child, return a zero value Zipper.
-zip_right :: proc(z: Zipper) -> Zipper {
-if z.tree == nil || z.tree.right == nil {
-return Zipper{}
-}
-step := new(Step)
-step.action = .Right
-step.value = z.tree.value
-step.tree = z.tree.left
-step.next = z.trail
-return Zipper{tree = z.tree.right, trail = step}
-}
-// Move the focus to the parent of the focus node, returns a new zipper.
-// If there is no parent, return a zero value Zipper.
-zip_up :: proc(z: Zipper) -> Zipper {
-if z.trail == nil {
-return Zipper{}
-}
-step := z.trail
-parent := new(Node)
-parent.value = step.value
-if step.action == .Left {
-parent.left = z.tree
-parent.right = step.tree
-} else {
-parent.left = step.tree
-parent.right = z.tree
-}
-return Zipper{tree = parent, trail = step.next}
-}
-// Set the value of the focus node, returns a new zipper.
-zip_set_value :: proc(z: Zipper, value: int) -> Zipper {
-if z.tree == nil {
-return Zipper{}
-}
-new_node := new(Node)
-new_node.value = value
-new_node.left = z.tree.left
-new_node.right = z.tree.right
-return Zipper{tree = new_node, trail = z.trail}
-}
-// Set the left subtree of the focus node, returns a new zipper.
-zip_set_left :: proc(z: Zipper, subtree: Tree) -> Zipper {
-if z.tree == nil {
-return Zipper{}
-}
-new_node := new(Node)
-new_node.value = z.tree.value
-new_node.left = subtree
-new_node.right = z.tree.right
-return Zipper{tree = new_node, trail = z.trail}
-}
-// Set the right subtree of the focus node, returns a new zipper.
-zip_set_right :: proc(z: Zipper, subtree: Tree) -> Zipper {
-if z.tree == nil {
-return Zipper{}
-}
-new_node := new(Node)
-new_node.value = z.tree.value
-new_node.left = z.tree.left
-new_node.right = subtree
-return Zipper{tree = new_node, trail = z.trail}
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (const_declaration PLACEHOLDER_2
+    (pointer_type ^ PLACEHOLDER_3))
+  (struct_declaration PLACEHOLDER_3
+    (field PLACEHOLDER_4 int)
+    (field PLACEHOLDER_5 PLACEHOLDER_2)
+    (field PLACEHOLDER_6 PLACEHOLDER_2))
+  (struct_declaration PLACEHOLDER_7
+    (field PLACEHOLDER_8 PLACEHOLDER_2)
+    (field PLACEHOLDER_9 PLACEHOLDER_10))
+  (const_declaration PLACEHOLDER_10
+    (pointer_type ^ PLACEHOLDER_11))
+  (struct_declaration PLACEHOLDER_11
+    (field PLACEHOLDER_12 PLACEHOLDER_13)
+    (field PLACEHOLDER_4 int)
+    (field PLACEHOLDER_8 PLACEHOLDER_2)
+    (field PLACEHOLDER_14 PLACEHOLDER_10))
+  (enum_declaration PLACEHOLDER_13
+    (enum_member PLACEHOLDER_15)
+    (enum_member PLACEHOLDER_16))
+  (procedure_declaration PLACEHOLDER_17
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_18 : PLACEHOLDER_2)) PLACEHOLDER_7
+      (block
+        (return_statement
+          (struct PLACEHOLDER_7
+            (struct_field PLACEHOLDER_8 PLACEHOLDER_18)
+            (struct_field PLACEHOLDER_9 nil))))))
+  (procedure_declaration PLACEHOLDER_19
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_7)) PLACEHOLDER_2
+      (block
+        (assignment_statement PLACEHOLDER_21 := PLACEHOLDER_20)
+        (for_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_21 PLACEHOLDER_9) != nil)
+          (block
+            (assignment_statement PLACEHOLDER_22 :=
+              (member_expression PLACEHOLDER_21 PLACEHOLDER_9))
+            (if_statement
+              (binary_expression
+                (member_expression PLACEHOLDER_22 PLACEHOLDER_12) ==
+                (member_expression PLACEHOLDER_16))
+              (block
+                (assignment_statement PLACEHOLDER_23 :=
+                  (call_expression new PLACEHOLDER_3))
+                (assignment_statement
+                  (member_expression PLACEHOLDER_23 PLACEHOLDER_4) =
+                  (member_expression PLACEHOLDER_22 PLACEHOLDER_4))
+                (assignment_statement
+                  (member_expression PLACEHOLDER_23 PLACEHOLDER_5) =
+                  (member_expression PLACEHOLDER_21 PLACEHOLDER_8))
+                (assignment_statement
+                  (member_expression PLACEHOLDER_23 PLACEHOLDER_6) =
+                  (member_expression PLACEHOLDER_22 PLACEHOLDER_8))
+                (assignment_statement
+                  (member_expression PLACEHOLDER_21 PLACEHOLDER_8) = PLACEHOLDER_23))
+              (else_clause
+                (block
+                  (assignment_statement PLACEHOLDER_23 :=
+                    (call_expression new PLACEHOLDER_3))
+                  (assignment_statement
+                    (member_expression PLACEHOLDER_23 PLACEHOLDER_4) =
+                    (member_expression PLACEHOLDER_22 PLACEHOLDER_4))
+                  (assignment_statement
+                    (member_expression PLACEHOLDER_23 PLACEHOLDER_5) =
+                    (member_expression PLACEHOLDER_22 PLACEHOLDER_8))
+                  (assignment_statement
+                    (member_expression PLACEHOLDER_23 PLACEHOLDER_6) =
+                    (member_expression PLACEHOLDER_21 PLACEHOLDER_8))
+                  (assignment_statement
+                    (member_expression PLACEHOLDER_21 PLACEHOLDER_8) = PLACEHOLDER_23))))
+            (assignment_statement
+              (member_expression PLACEHOLDER_21 PLACEHOLDER_9) =
+              (member_expression PLACEHOLDER_22 PLACEHOLDER_14))))
+        (return_statement
+          (member_expression PLACEHOLDER_21 PLACEHOLDER_8)))))
+  (procedure_declaration PLACEHOLDER_24
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_7)) int
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) == nil)
+          (block
+            (return_statement 0)))
+        (return_statement
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_4)))))
+  (procedure_declaration PLACEHOLDER_25
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_7)) PLACEHOLDER_7
+      (block
+        (if_statement
+          (binary_expression
+            (binary_expression
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_8) == nil) ||
+            (binary_expression
+              (member_expression
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_5) == nil))
+          (block
+            (return_statement
+              (struct PLACEHOLDER_7))))
+        (assignment_statement PLACEHOLDER_22 :=
+          (call_expression new PLACEHOLDER_11))
+        (assignment_statement
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_12) =
+          (member_expression PLACEHOLDER_16))
+        (assignment_statement
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_4) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_4))
+        (assignment_statement
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_8) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_6))
+        (assignment_statement
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_14) =
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_9))
+        (return_statement
+          (struct PLACEHOLDER_7
+            (struct_field PLACEHOLDER_8
+              (member_expression
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_5))
+            (struct_field PLACEHOLDER_9 PLACEHOLDER_22))))))
+  (procedure_declaration PLACEHOLDER_26
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_7)) PLACEHOLDER_7
+      (block
+        (if_statement
+          (binary_expression
+            (binary_expression
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_8) == nil) ||
+            (binary_expression
+              (member_expression
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_6) == nil))
+          (block
+            (return_statement
+              (struct PLACEHOLDER_7))))
+        (assignment_statement PLACEHOLDER_22 :=
+          (call_expression new PLACEHOLDER_11))
+        (assignment_statement
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_12) =
+          (member_expression PLACEHOLDER_15))
+        (assignment_statement
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_4) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_4))
+        (assignment_statement
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_8) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_5))
+        (assignment_statement
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_14) =
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_9))
+        (return_statement
+          (struct PLACEHOLDER_7
+            (struct_field PLACEHOLDER_8
+              (member_expression
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_6))
+            (struct_field PLACEHOLDER_9 PLACEHOLDER_22))))))
+  (procedure_declaration PLACEHOLDER_27
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_7)) PLACEHOLDER_7
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_9) == nil)
+          (block
+            (return_statement
+              (struct PLACEHOLDER_7))))
+        (assignment_statement PLACEHOLDER_22 :=
+          (member_expression PLACEHOLDER_20 PLACEHOLDER_9))
+        (assignment_statement PLACEHOLDER_23 :=
+          (call_expression new PLACEHOLDER_3))
+        (assignment_statement
+          (member_expression PLACEHOLDER_23 PLACEHOLDER_4) =
+          (member_expression PLACEHOLDER_22 PLACEHOLDER_4))
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_22 PLACEHOLDER_12) ==
+            (member_expression PLACEHOLDER_16))
+          (block
+            (assignment_statement
+              (member_expression PLACEHOLDER_23 PLACEHOLDER_5) =
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_8))
+            (assignment_statement
+              (member_expression PLACEHOLDER_23 PLACEHOLDER_6) =
+              (member_expression PLACEHOLDER_22 PLACEHOLDER_8)))
+          (else_clause
+            (block
+              (assignment_statement
+                (member_expression PLACEHOLDER_23 PLACEHOLDER_5) =
+                (member_expression PLACEHOLDER_22 PLACEHOLDER_8))
+              (assignment_statement
+                (member_expression PLACEHOLDER_23 PLACEHOLDER_6) =
+                (member_expression PLACEHOLDER_20 PLACEHOLDER_8)))))
+        (return_statement
+          (struct PLACEHOLDER_7
+            (struct_field PLACEHOLDER_8 PLACEHOLDER_23)
+            (struct_field PLACEHOLDER_9
+              (member_expression PLACEHOLDER_22 PLACEHOLDER_14)))))))
+  (procedure_declaration PLACEHOLDER_28
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_7)
+        (parameter PLACEHOLDER_4 : int)) PLACEHOLDER_7
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) == nil)
+          (block
+            (return_statement
+              (struct PLACEHOLDER_7))))
+        (assignment_statement PLACEHOLDER_29 :=
+          (call_expression new PLACEHOLDER_3))
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_4) = PLACEHOLDER_4)
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_5) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_5))
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_6) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_6))
+        (return_statement
+          (struct PLACEHOLDER_7
+            (struct_field PLACEHOLDER_8 PLACEHOLDER_29)
+            (struct_field PLACEHOLDER_9
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_9)))))))
+  (procedure_declaration PLACEHOLDER_30
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_7)
+        (parameter PLACEHOLDER_31 : PLACEHOLDER_2)) PLACEHOLDER_7
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) == nil)
+          (block
+            (return_statement
+              (struct PLACEHOLDER_7))))
+        (assignment_statement PLACEHOLDER_29 :=
+          (call_expression new PLACEHOLDER_3))
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_4) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_4))
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_5) = PLACEHOLDER_31)
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_6) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_6))
+        (return_statement
+          (struct PLACEHOLDER_7
+            (struct_field PLACEHOLDER_8 PLACEHOLDER_29)
+            (struct_field PLACEHOLDER_9
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_9)))))))
+  (procedure_declaration PLACEHOLDER_32
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_20 : PLACEHOLDER_7)
+        (parameter PLACEHOLDER_31 : PLACEHOLDER_2)) PLACEHOLDER_7
+      (block
+        (if_statement
+          (binary_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) == nil)
+          (block
+            (return_statement
+              (struct PLACEHOLDER_7))))
+        (assignment_statement PLACEHOLDER_29 :=
+          (call_expression new PLACEHOLDER_3))
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_4) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_4))
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_5) =
+          (member_expression
+            (member_expression PLACEHOLDER_20 PLACEHOLDER_8) PLACEHOLDER_5))
+        (assignment_statement
+          (member_expression PLACEHOLDER_29 PLACEHOLDER_6) = PLACEHOLDER_31)
+        (return_statement
+          (struct PLACEHOLDER_7
+            (struct_field PLACEHOLDER_8 PLACEHOLDER_29)
+            (struct_field PLACEHOLDER_9
+              (member_expression PLACEHOLDER_20 PLACEHOLDER_9))))))))

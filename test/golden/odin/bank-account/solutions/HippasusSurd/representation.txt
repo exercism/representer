@@ -1,47 +1,135 @@
-package bank_account
-TransactionResult :: enum {
-Success,
-Account_Not_Open,
-Account_Already_Open,
-Invalid_Amount,
-Not_Enough_Balance,
-Unimplemented,
-}
-Account :: struct {
-balance: u32,
-is_open: bool,
-mutex: sync.Mutex
-}
-open :: proc(self: ^Account) -> TransactionResult {
-sync.guard(&self.mutex)
-if self.is_open do return .Account_Already_Open
-self.is_open = true
-return .Success
-}
-close :: proc(self: ^Account) -> TransactionResult {
-sync.guard(&self.mutex)
-if !self.is_open do return .Account_Not_Open
-self.balance = 0
-self.is_open = false
-return .Success
-}
-read_balance :: proc(self: ^Account) -> (u32, TransactionResult) {
-sync.guard(&self.mutex)
-if (!self.is_open) do return 0, .Account_Not_Open
-return self.balance, .Success
-}
-deposit :: proc(self: ^Account, amount: u32) -> TransactionResult {
-sync.guard(&self.mutex)
-if amount == 0 do return .Invalid_Amount
-if !self.is_open do return .Account_Not_Open
-self.balance += amount
-return .Success
-}
-withdraw :: proc(self: ^Account, amount: u32) -> TransactionResult {
-sync.guard(&self.mutex)
-if amount == 0 do return .Invalid_Amount
-if !self.is_open do return .Account_Not_Open
-if amount > self.balance do return .Not_Enough_Balance
-self.balance -= amount
-return .Success
-}
+(source_file
+  (package_declaration PLACEHOLDER_1)
+  (enum_declaration PLACEHOLDER_2
+    (enum_member PLACEHOLDER_3)
+    (enum_member PLACEHOLDER_4)
+    (enum_member PLACEHOLDER_5)
+    (enum_member PLACEHOLDER_6)
+    (enum_member PLACEHOLDER_7)
+    (enum_member PLACEHOLDER_8))
+  (struct_declaration PLACEHOLDER_9
+    (field PLACEHOLDER_10 u32)
+    (field PLACEHOLDER_11 bool)
+    (field PLACEHOLDER_12
+      (field_type sync Mutex)))
+  (procedure_declaration PLACEHOLDER_13
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_14 :
+          (pointer_type ^ PLACEHOLDER_9))) PLACEHOLDER_2
+      (block
+        (call_expression
+          (member_expression sync guard)
+          (unary_expression &
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_12)))
+        (if_statement
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_11)
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_5))))
+        (assignment_statement
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_11) =
+          (boolean true))
+        (return_statement
+          (member_expression PLACEHOLDER_3)))))
+  (procedure_declaration PLACEHOLDER_15
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_14 :
+          (pointer_type ^ PLACEHOLDER_9))) PLACEHOLDER_2
+      (block
+        (call_expression
+          (member_expression sync guard)
+          (unary_expression &
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_12)))
+        (if_statement
+          (unary_expression !
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_11))
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_4))))
+        (assignment_statement
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_10) = 0)
+        (assignment_statement
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_11) =
+          (boolean false))
+        (return_statement
+          (member_expression PLACEHOLDER_3)))))
+  (procedure_declaration PLACEHOLDER_16
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_14 :
+          (pointer_type ^ PLACEHOLDER_9)))
+      (tuple_type u32 PLACEHOLDER_2)
+      (block
+        (call_expression
+          (member_expression sync guard)
+          (unary_expression &
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_12)))
+        (if_statement
+          (unary_expression !
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_11))
+          (block
+            (return_statement 0
+              (member_expression PLACEHOLDER_4))))
+        (return_statement
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_10)
+          (member_expression PLACEHOLDER_3)))))
+  (procedure_declaration PLACEHOLDER_17
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_14 :
+          (pointer_type ^ PLACEHOLDER_9))
+        (parameter PLACEHOLDER_18 : u32)) PLACEHOLDER_2
+      (block
+        (call_expression
+          (member_expression sync guard)
+          (unary_expression &
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_12)))
+        (if_statement
+          (binary_expression PLACEHOLDER_18 == 0)
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_6))))
+        (if_statement
+          (unary_expression !
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_11))
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_4))))
+        (update_statement
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_10) += PLACEHOLDER_18)
+        (return_statement
+          (member_expression PLACEHOLDER_3)))))
+  (procedure_declaration PLACEHOLDER_19
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_14 :
+          (pointer_type ^ PLACEHOLDER_9))
+        (parameter PLACEHOLDER_18 : u32)) PLACEHOLDER_2
+      (block
+        (call_expression
+          (member_expression sync guard)
+          (unary_expression &
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_12)))
+        (if_statement
+          (binary_expression PLACEHOLDER_18 == 0)
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_6))))
+        (if_statement
+          (unary_expression !
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_11))
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_4))))
+        (if_statement
+          (binary_expression PLACEHOLDER_18 >
+            (member_expression PLACEHOLDER_14 PLACEHOLDER_10))
+          (block
+            (return_statement
+              (member_expression PLACEHOLDER_7))))
+        (update_statement
+          (member_expression PLACEHOLDER_14 PLACEHOLDER_10) -= PLACEHOLDER_18)
+        (return_statement
+          (member_expression PLACEHOLDER_3))))))

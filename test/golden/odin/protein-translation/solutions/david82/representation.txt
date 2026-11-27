@@ -1,74 +1,86 @@
-#+feature dynamic-literals
-package protein_translation
-@(private)
-CODON_TABLE := map[string]u8{
-// Methionine
-"\"AUG\"" = 1,
-// Phenylalanine
-"\"UUU\"" = 2, "\"UUC\"" = 2,
-// Leucine
-"\"UUA\"" = 3, "\"UUG\"" = 3,
-// Serine
-"\"UCU\"" = 4, "\"UCC\"" = 4, "\"UCA\"" = 4, "\"UCG\"" = 4,
-// Tyrosine
-"\"UAU\"" = 5, "\"UAC\"" = 5,
-// Cysteine
-"\"UGU\"" = 6, "\"UGC\"" = 6,
-// Tryptophan
-"\"UGG\"" = 7,
-// STOP codons
-"\"UAA\"" = 9, "\"UAG\"" = 9, "\"UGA\"" = 9,
-}
-@(private)
-AMINO_ACIDS := [10]string{
-"\"\"," // 0 = invalid
-"\"Methionine\","
-"\"Phenylalanine\","
-"\"Leucine\","
-"\"Serine\","
-"\"Tyrosine\","
-"\"Cysteine\","
-"\"Tryptophan\","
-"\"\"," // unused
-"\"\"," // 9 = STOP
-}
-proteins :: proc(rna_strand: string) -> ([]string, bool) {
-// Handle empty string
-if len(rna_strand) == 0 {
-return make([]string, 0), true
-}
-// Calculate maximum possible proteins (assumes no STOP codons)
-max_proteins := len(rna_strand) / 3
-// Pre-allocate with exact capacity to avoid reallocations
-amino_acids := make([dynamic]string, 0, max_proteins)
-stopped_at_stop_codon := false
-// Process the RNA strand in chunks of 3 (codons)
-for i := 0; i + 3 <= len(rna_strand); i += 3 {
-// Direct string slice - no copy
-codon := rna_strand[i:i+3]
-// Lookup in table (faster than switch for many cases)
-code, found := CODON_TABLE[codon]
-if !found {
-// Invalid codon
-delete(amino_acids)
-return nil, false
-}
-if code == 9 {
-// STOP codon
-stopped_at_stop_codon = true
-break
-}
-// Add the amino acid to the list
-append(&amino_acids, AMINO_ACIDS[code])
-}
-// Check if there are remaining characters that couldn't form a complete codon
-// This is only an error if we didn't encounter a STOP codon
-remaining := len(rna_strand) % 3
-if remaining != 0 && !stopped_at_stop_codon {
-// Incomplete sequence without a STOP codon is invalid
-delete(amino_acids)
-return nil, false
-}
-// Convert dynamic array to slice
-return amino_acids[:], true
-}
+(source_file
+  (build_tag)
+  (package_declaration PLACEHOLDER_1)
+  (variable_declaration
+    (attributes
+      (attribute private)) PLACEHOLDER_2 :=
+    (map string u8 "AUG" 1 "UUU" 2 "UUC" 2 "UUA" 3 "UUG" 3 "UCU" 4 "UCC" 4 "UCA" 4 "UCG" 4 "UAU" 5 "UAC" 5 "UGU" 6 "UGC" 6 "UGG" 7 "UAA" 9 "UAG" 9 "UGA" 9))
+  (variable_declaration
+    (attributes
+      (attribute private)) PLACEHOLDER_3 :=
+    (struct
+      (array_type 10 string)
+      (struct_field "")
+      (struct_field "Methionine")
+      (struct_field "Phenylalanine")
+      (struct_field "Leucine")
+      (struct_field "Serine")
+      (struct_field "Tyrosine")
+      (struct_field "Cysteine")
+      (struct_field "Tryptophan")
+      (struct_field "")
+      (struct_field "")))
+  (procedure_declaration PLACEHOLDER_4
+    (procedure
+      (parameters
+        (parameter PLACEHOLDER_5 : string))
+      (tuple_type
+        (array_type string) bool)
+      (block
+        (if_statement
+          (binary_expression
+            (call_expression len PLACEHOLDER_5) == 0)
+          (block
+            (return_statement
+              (call_expression make
+                (array_type string) 0)
+              (boolean true))))
+        (assignment_statement PLACEHOLDER_6 :=
+          (binary_expression
+            (call_expression len PLACEHOLDER_5) / 3))
+        (assignment_statement PLACEHOLDER_7 :=
+          (call_expression make
+            (array_type dynamic string) 0 PLACEHOLDER_6))
+        (assignment_statement PLACEHOLDER_8 :=
+          (boolean false))
+        (for_statement
+          (assignment_statement PLACEHOLDER_9 := 0) ;
+          (binary_expression
+            (binary_expression PLACEHOLDER_9 + 3) <=
+            (call_expression len PLACEHOLDER_5)) ;
+          (update_statement PLACEHOLDER_9 += 3)
+          (block
+            (assignment_statement PLACEHOLDER_10 :=
+              (slice_expression PLACEHOLDER_5 PLACEHOLDER_9 :
+                (binary_expression PLACEHOLDER_9 + 3)))
+            (assignment_statement PLACEHOLDER_11 PLACEHOLDER_12 :=
+              (index_expression PLACEHOLDER_2 PLACEHOLDER_10))
+            (if_statement
+              (unary_expression ! PLACEHOLDER_12)
+              (block
+                (call_expression delete PLACEHOLDER_7)
+                (return_statement nil
+                  (boolean false))))
+            (if_statement
+              (binary_expression PLACEHOLDER_11 == 9)
+              (block
+                (assignment_statement PLACEHOLDER_8 =
+                  (boolean true))
+                (break_statement)))
+            (call_expression append
+              (unary_expression & PLACEHOLDER_7)
+              (index_expression PLACEHOLDER_3 PLACEHOLDER_11))))
+        (assignment_statement PLACEHOLDER_13 :=
+          (binary_expression
+            (call_expression len PLACEHOLDER_5) % 3))
+        (if_statement
+          (binary_expression
+            (binary_expression PLACEHOLDER_13 != 0) &&
+            (unary_expression ! PLACEHOLDER_8))
+          (block
+            (call_expression delete PLACEHOLDER_7)
+            (return_statement nil
+              (boolean false))))
+        (return_statement
+          (slice_expression PLACEHOLDER_7 :)
+          (boolean true))))))
