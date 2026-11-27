@@ -1,50 +1,224 @@
-local open List
-in
-datatype category
-= Ones | Twos | Threes | Fours | Fives | Sixes | FullHouse
-| FourOfAKind | LittleStraight | BigStraight | Choice | Yacht
-fun score ([]: int list , _: category ) : int = 0
-| score ( dice , cat ) =
-case cat of
-Ones => sum ( filter ( equal 1 ) dice )
-| Twos => sum ( filter ( equal 2 ) dice )
-| Threes => sum ( filter ( equal 3 ) dice )
-| Fours => sum ( filter ( equal 4 ) dice )
-| Fives => sum ( filter ( equal 5 ) dice )
-| Sixes => sum ( filter ( equal 6 ) dice )
-| FullHouse =>
-( case group dice of
-[[_, _, _], [_, _]] => sum dice
-| [[_, _], [_, _, _]] => sum dice
-| _ => 0 )
-| FourOfAKind =>
-( case group dice of
-[ values as [_, _, _, _, _]] => sum ( tl values )
-| [ values as [_, _, _, _], [_]] => sum values
-| [[_], values as [_, _, _, _]] => sum values
-| _ => 0 )
-| LittleStraight => if ( qsort dice ) = [ 1 , 2 , 3 , 4 , 5 ] then 30 else 0
-| BigStraight => if ( qsort dice ) = [ 2 , 3 , 4 , 5 , 6 ] then 30 else 0
-| Choice => sum dice
-| Yacht => if all ( equal ( hd dice )) dice then 50 else 0
-and qsort [] = []
-| qsort ( x :: xs ) =
-let
-val greater = filter ( fn n => n >= x ) xs
-val smaller = filter ( fn n => n < x ) xs
-in
-( qsort smaller ) @ ( x :: qsort greater )
-end
-and sum xs =
-foldl op + 0 xs
-and equal a b = a = b
-and group ( xs : int list ) : int list list = group' xs []
-and group' ( xs : int list ) ( g : int list list ) : int list list =
-case xs of
-[] => g
-| x :: ys => group' ys ( addToGroup x g )
-and addToGroup x [] = [[ x ]]
-| addToGroup x (( y :: xs ) :: zs ) =
-if x = y then (( x :: y :: xs ) :: zs ) else ( y :: xs ) :: ( addToGroup x zs )
-| addToGroup x ([] :: zs ) = addToGroup x zs
-end
+(source_file
+  (local_strdec in
+    (datatype_dec
+      (datbind (tycon PLACEHOLDER_1)
+        (conbind PLACEHOLDER_2)
+        (conbind PLACEHOLDER_3)
+        (conbind PLACEHOLDER_4)
+        (conbind PLACEHOLDER_5)
+        (conbind PLACEHOLDER_6)
+        (conbind PLACEHOLDER_7)
+        (conbind PLACEHOLDER_8)
+        (conbind PLACEHOLDER_9)
+        (conbind PLACEHOLDER_10)
+        (conbind PLACEHOLDER_11)
+        (conbind PLACEHOLDER_12)
+        (conbind PLACEHOLDER_13)))
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_14
+          (tuple_pat
+            (typed_pat
+              (list_pat)
+              (tycon_ty
+                (tyseq int) list))
+            (typed_pat _ (tycon PLACEHOLDER_1))) int 0)
+        (fmrule PLACEHOLDER_14
+          (tuple_pat
+            (var_pat PLACEHOLDER_15)
+            (var_pat PLACEHOLDER_16))
+          (case_exp PLACEHOLDER_16
+            (mrule
+              (var_pat PLACEHOLDER_2)
+              (app_exp PLACEHOLDER_17
+                (app_exp filter
+                  (app_exp PLACEHOLDER_18 1) PLACEHOLDER_15)))
+            (mrule
+              (var_pat PLACEHOLDER_3)
+              (app_exp PLACEHOLDER_17
+                (app_exp filter
+                  (app_exp PLACEHOLDER_18 2) PLACEHOLDER_15)))
+            (mrule
+              (var_pat PLACEHOLDER_4)
+              (app_exp PLACEHOLDER_17
+                (app_exp filter
+                  (app_exp PLACEHOLDER_18 3) PLACEHOLDER_15)))
+            (mrule
+              (var_pat PLACEHOLDER_5)
+              (app_exp PLACEHOLDER_17
+                (app_exp filter
+                  (app_exp PLACEHOLDER_18 4) PLACEHOLDER_15)))
+            (mrule
+              (var_pat PLACEHOLDER_6)
+              (app_exp PLACEHOLDER_17
+                (app_exp filter
+                  (app_exp PLACEHOLDER_18 5) PLACEHOLDER_15)))
+            (mrule
+              (var_pat PLACEHOLDER_7)
+              (app_exp PLACEHOLDER_17
+                (app_exp filter
+                  (app_exp PLACEHOLDER_18 6) PLACEHOLDER_15)))
+            (mrule
+              (var_pat PLACEHOLDER_8)
+              (case_exp
+                (app_exp PLACEHOLDER_19 PLACEHOLDER_15)
+                (mrule
+                  (list_pat
+                    (list_pat _ _ _)
+                    (list_pat _ _))
+                  (app_exp PLACEHOLDER_17 PLACEHOLDER_15))
+                (mrule
+                  (list_pat
+                    (list_pat _ _)
+                    (list_pat _ _ _))
+                  (app_exp PLACEHOLDER_17 PLACEHOLDER_15))
+                (mrule _ 0)))
+            (mrule
+              (var_pat PLACEHOLDER_9)
+              (case_exp
+                (app_exp PLACEHOLDER_19 PLACEHOLDER_15)
+                (mrule
+                  (list_pat
+                    (conj_pat
+                      (var_pat PLACEHOLDER_20)
+                      (list_pat _ _ _ _ _)))
+                  (app_exp PLACEHOLDER_17
+                    (app_exp tl PLACEHOLDER_20)))
+                (mrule
+                  (list_pat
+                    (conj_pat
+                      (var_pat PLACEHOLDER_20)
+                      (list_pat _ _ _ _))
+                    (list_pat _))
+                  (app_exp PLACEHOLDER_17 PLACEHOLDER_20))
+                (mrule
+                  (list_pat
+                    (list_pat _)
+                    (conj_pat
+                      (var_pat PLACEHOLDER_20)
+                      (list_pat _ _ _ _)))
+                  (app_exp PLACEHOLDER_17 PLACEHOLDER_20))
+                (mrule _ 0)))
+            (mrule
+              (var_pat PLACEHOLDER_10)
+              (cond_exp
+                (infix_exp
+                  (app_exp PLACEHOLDER_21 PLACEHOLDER_15) =
+                  (list_exp 1 2 3 4 5)) 30 0))
+            (mrule
+              (var_pat PLACEHOLDER_11)
+              (cond_exp
+                (infix_exp
+                  (app_exp PLACEHOLDER_21 PLACEHOLDER_15) =
+                  (list_exp 2 3 4 5 6)) 30 0))
+            (mrule
+              (var_pat PLACEHOLDER_12)
+              (app_exp PLACEHOLDER_17 PLACEHOLDER_15))
+            (mrule
+              (var_pat PLACEHOLDER_13)
+              (cond_exp
+                (app_exp all
+                  (app_exp PLACEHOLDER_18
+                    (app_exp hd PLACEHOLDER_15)) PLACEHOLDER_15) 50 0)))))
+      (fvalbind
+        (fmrule PLACEHOLDER_21
+          (list_pat)
+          (list_exp))
+        (fmrule PLACEHOLDER_21
+          (infix_pat
+            (var_pat PLACEHOLDER_22) ::
+            (var_pat PLACEHOLDER_23))
+          (let_exp
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_24)
+                (app_exp filter
+                  (fn_exp
+                    (mrule
+                      (var_pat PLACEHOLDER_25)
+                      (infix_exp PLACEHOLDER_25 >= PLACEHOLDER_22))) PLACEHOLDER_23)))
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_26)
+                (app_exp filter
+                  (fn_exp
+                    (mrule
+                      (var_pat PLACEHOLDER_25)
+                      (infix_exp PLACEHOLDER_25 < PLACEHOLDER_22))) PLACEHOLDER_23)))
+            (infix_exp
+              (app_exp PLACEHOLDER_21 PLACEHOLDER_26) @
+              (infix_exp PLACEHOLDER_22 ::
+                (app_exp PLACEHOLDER_21 PLACEHOLDER_24))))))
+      (fvalbind
+        (fmrule PLACEHOLDER_17
+          (var_pat PLACEHOLDER_23)
+          (app_exp foldl + 0 PLACEHOLDER_23)))
+      (fvalbind
+        (fmrule PLACEHOLDER_18
+          (var_pat PLACEHOLDER_27)
+          (var_pat PLACEHOLDER_28)
+          (infix_exp PLACEHOLDER_27 = PLACEHOLDER_28)))
+      (fvalbind
+        (fmrule PLACEHOLDER_19
+          (typed_pat
+            (var_pat PLACEHOLDER_23)
+            (tycon_ty
+              (tyseq int) list))
+          (tycon_ty
+            (tyseq
+              (tycon_ty
+                (tyseq int) list)) list)
+          (app_exp PLACEHOLDER_29 PLACEHOLDER_23
+            (list_exp))))
+      (fvalbind
+        (fmrule PLACEHOLDER_29
+          (typed_pat
+            (var_pat PLACEHOLDER_23)
+            (tycon_ty
+              (tyseq int) list))
+          (typed_pat
+            (var_pat PLACEHOLDER_30)
+            (tycon_ty
+              (tyseq
+                (tycon_ty
+                  (tyseq int) list)) list))
+          (tycon_ty
+            (tyseq
+              (tycon_ty
+                (tyseq int) list)) list)
+          (case_exp PLACEHOLDER_23
+            (mrule
+              (list_pat) PLACEHOLDER_30)
+            (mrule
+              (infix_pat
+                (var_pat PLACEHOLDER_22) ::
+                (var_pat PLACEHOLDER_31))
+              (app_exp PLACEHOLDER_29 PLACEHOLDER_31
+                (app_exp PLACEHOLDER_32 PLACEHOLDER_22 PLACEHOLDER_30))))))
+      (fvalbind
+        (fmrule PLACEHOLDER_32
+          (var_pat PLACEHOLDER_22)
+          (list_pat)
+          (list_exp
+            (list_exp PLACEHOLDER_22)))
+        (fmrule PLACEHOLDER_32
+          (var_pat PLACEHOLDER_22)
+          (infix_pat
+            (infix_pat
+              (var_pat PLACEHOLDER_33) ::
+              (var_pat PLACEHOLDER_23)) ::
+            (var_pat PLACEHOLDER_34))
+          (cond_exp
+            (infix_exp PLACEHOLDER_22 = PLACEHOLDER_33)
+            (infix_exp
+              (infix_exp PLACEHOLDER_22 ::
+                (infix_exp PLACEHOLDER_33 :: PLACEHOLDER_23)) :: PLACEHOLDER_34)
+            (infix_exp
+              (infix_exp PLACEHOLDER_33 :: PLACEHOLDER_23) ::
+              (app_exp PLACEHOLDER_32 PLACEHOLDER_22 PLACEHOLDER_34))))
+        (fmrule PLACEHOLDER_32
+          (var_pat PLACEHOLDER_22)
+          (infix_pat
+            (list_pat) ::
+            (var_pat PLACEHOLDER_34))
+          (app_exp PLACEHOLDER_32 PLACEHOLDER_22 PLACEHOLDER_34))))))

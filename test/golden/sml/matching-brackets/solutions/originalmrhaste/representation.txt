@@ -1,36 +1,104 @@
-fun isBalanced s =
-let
-fun is_bracket bracket =
-case bracket of
-#"(" => true
-| #"[" => true
-| #"{" => true
-| #")" => true
-| #"]" => true
-| #"}" => true
-| _ => false
-fun is_open bracket =
-case bracket of
-#"(" => true
-| #"[" => true
-| #"{" => true
-| _ => false
-fun is_matching_bracket bracket_open bracket_closed =
-case ( bracket_open , bracket_closed ) of
-( #"(" , #")" ) => true
-| ( #"[" , #"]" ) => true
-| ( #"{" , #"}" ) => true
-| _ => false
-fun isBalancedAcc s seen =
-case ( s , seen ) of
-([], []) => true
-| ( x::xs , []) => if is_open x then isBalancedAcc xs ( x:: []) else false
-| ([], (_ :: _)) => false
-| ( x::xs , y::ys ) => if is_open x
-then isBalancedAcc xs ( x::y::ys )
-else ( if is_matching_bracket y x
-then isBalancedAcc xs ys
-else false )
-in
-isBalancedAcc ( List . filter is_bracket ( String . explode s )) []
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (var_pat PLACEHOLDER_2)
+        (let_exp
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_3
+                (var_pat PLACEHOLDER_4)
+                (case_exp PLACEHOLDER_4
+                  (mrule
+                    (character "(") true)
+                  (mrule
+                    (character "[") true)
+                  (mrule
+                    (character "{") true)
+                  (mrule
+                    (character ")") true)
+                  (mrule
+                    (character "]") true)
+                  (mrule
+                    (character "}") true)
+                  (mrule _ false)))))
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_5
+                (var_pat PLACEHOLDER_4)
+                (case_exp PLACEHOLDER_4
+                  (mrule
+                    (character "(") true)
+                  (mrule
+                    (character "[") true)
+                  (mrule
+                    (character "{") true)
+                  (mrule _ false)))))
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_6
+                (var_pat PLACEHOLDER_7)
+                (var_pat PLACEHOLDER_8)
+                (case_exp
+                  (tuple_exp PLACEHOLDER_7 PLACEHOLDER_8)
+                  (mrule
+                    (tuple_pat
+                      (character "(")
+                      (character ")")) true)
+                  (mrule
+                    (tuple_pat
+                      (character "[")
+                      (character "]")) true)
+                  (mrule
+                    (tuple_pat
+                      (character "{")
+                      (character "}")) true)
+                  (mrule _ false)))))
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_9
+                (var_pat PLACEHOLDER_2)
+                (var_pat PLACEHOLDER_10)
+                (case_exp
+                  (tuple_exp PLACEHOLDER_2 PLACEHOLDER_10)
+                  (mrule
+                    (tuple_pat
+                      (list_pat)
+                      (list_pat)) true)
+                  (mrule
+                    (tuple_pat
+                      (infix_pat
+                        (var_pat PLACEHOLDER_11) ::
+                        (var_pat PLACEHOLDER_12))
+                      (list_pat))
+                    (cond_exp
+                      (app_exp PLACEHOLDER_5 PLACEHOLDER_11)
+                      (app_exp PLACEHOLDER_9 PLACEHOLDER_12
+                        (infix_exp PLACEHOLDER_11 ::
+                          (list_exp))) false))
+                  (mrule
+                    (tuple_pat
+                      (list_pat)
+                      (infix_pat _ :: _)) false)
+                  (mrule
+                    (tuple_pat
+                      (infix_pat
+                        (var_pat PLACEHOLDER_11) ::
+                        (var_pat PLACEHOLDER_12))
+                      (infix_pat
+                        (var_pat PLACEHOLDER_13) ::
+                        (var_pat PLACEHOLDER_14)))
+                    (cond_exp
+                      (app_exp PLACEHOLDER_5 PLACEHOLDER_11)
+                      (app_exp PLACEHOLDER_9 PLACEHOLDER_12
+                        (infix_exp PLACEHOLDER_11 ::
+                          (infix_exp PLACEHOLDER_13 :: PLACEHOLDER_14)))
+                      (cond_exp
+                        (app_exp PLACEHOLDER_6 PLACEHOLDER_13 PLACEHOLDER_11)
+                        (app_exp PLACEHOLDER_9 PLACEHOLDER_12 PLACEHOLDER_14) false)))))))
+          (app_exp PLACEHOLDER_9
+            (app_exp
+              (longvid List filter) PLACEHOLDER_3
+              (app_exp
+                (longvid String explode) PLACEHOLDER_2))
+            (list_exp)))))))

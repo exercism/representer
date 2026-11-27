@@ -1,51 +1,174 @@
-structure CircularBuffer :> sig
-type buffer
-exception BufferFull
-exception BufferEmpty
-val create : int -> buffer
-val read : buffer -> int
-val write : buffer -> int -> unit
-val clear : buffer -> unit
-val overwrite : buffer -> int -> unit
-end = struct
-type buffer = {
-ary : int array ,
-size : int ,
-readp : int ref ,
-writep : int ref ,
-count : int ref
-}
-exception BufferFull
-exception BufferEmpty
-fun create size = {
-ary = Array . array ( size , 0 ),
-size = size ,
-readp = ref 0 ,
-writep = ref 0 ,
-count = ref 0
-}
-fun read buff =
-if ! ( #count buff ) = 0
-then raise BufferEmpty
-else let val value = Array . sub ( #ary buff , ! ( #readp buff ))
-in ( ( #readp buff ) := ( ! ( #readp buff ) + 1 ) mod #size buff ;
-( #count buff ) := ! ( #count buff ) - 1 ;
-value
-)
-end
-fun write buff value =
-if ! ( #count buff ) = #size buff
-then raise BufferFull
-else ( Array . update ( #ary buff , ! ( #writep buff ), value );
-( #writep buff ) := ( ! ( #writep buff ) + 1 ) mod #size buff ;
-( #count buff ) := ! ( #count buff ) + 1
-)
-fun clear buff = (
-( #writep buff ) := ! ( #readp buff );
-( #count buff ) := 0
-)
-fun overwrite buff value =
-let val _ = if ! ( #count buff ) = #size buff then read buff else 0
-in write buff value
-end
-end
+(source_file
+  (structure_strdec
+    (strbind (strid PLACEHOLDER_1) :>
+      (sig_sigexp
+        (type_spec
+          (typedesc (tycon PLACEHOLDER_2)))
+        (exception_spec
+          (exdesc PLACEHOLDER_3))
+        (exception_spec
+          (exdesc PLACEHOLDER_4))
+        (val_spec
+          (valdesc PLACEHOLDER_5
+            (fn_ty int (tycon PLACEHOLDER_2))))
+        (val_spec
+          (valdesc PLACEHOLDER_6
+            (fn_ty (tycon PLACEHOLDER_2) int)))
+        (val_spec
+          (valdesc PLACEHOLDER_7
+            (fn_ty (tycon PLACEHOLDER_2)
+              (fn_ty int unit))))
+        (val_spec
+          (valdesc PLACEHOLDER_8
+            (fn_ty (tycon PLACEHOLDER_2) unit)))
+        (val_spec
+          (valdesc PLACEHOLDER_9
+            (fn_ty (tycon PLACEHOLDER_2)
+              (fn_ty int unit)))))
+      (struct_strexp
+        (type_dec
+          (typbind (tycon PLACEHOLDER_2)
+            (record_ty
+              (tyrow (lab PLACEHOLDER_10)
+                (tycon_ty
+                  (tyseq int) array))
+              (tyrow (lab PLACEHOLDER_11) int)
+              (tyrow (lab PLACEHOLDER_12)
+                (tycon_ty
+                  (tyseq int) ref))
+              (tyrow (lab PLACEHOLDER_13)
+                (tycon_ty
+                  (tyseq int) ref))
+              (tyrow (lab PLACEHOLDER_14)
+                (tycon_ty
+                  (tyseq int) ref)))))
+        (exception_dec
+          (exbind PLACEHOLDER_3))
+        (exception_dec
+          (exbind PLACEHOLDER_4))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_5
+              (var_pat PLACEHOLDER_11)
+              (record_exp
+                (exprow (lab PLACEHOLDER_10)
+                  (app_exp
+                    (longvid Array array)
+                    (tuple_exp PLACEHOLDER_11 0)))
+                (exprow (lab PLACEHOLDER_11) PLACEHOLDER_11)
+                (exprow (lab PLACEHOLDER_12)
+                  (app_exp ref 0))
+                (exprow (lab PLACEHOLDER_13)
+                  (app_exp ref 0))
+                (exprow (lab PLACEHOLDER_14)
+                  (app_exp ref 0))))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_6
+              (var_pat PLACEHOLDER_15)
+              (cond_exp
+                (infix_exp
+                  (app_exp !
+                    (app_exp
+                      (recordsel_exp (lab PLACEHOLDER_14)) PLACEHOLDER_15)) = 0)
+                (raise_exp PLACEHOLDER_4)
+                (let_exp
+                  (val_dec
+                    (valbind
+                      (var_pat PLACEHOLDER_16)
+                      (app_exp
+                        (longvid Array sub)
+                        (tuple_exp
+                          (app_exp
+                            (recordsel_exp (lab PLACEHOLDER_10)) PLACEHOLDER_15)
+                          (app_exp !
+                            (app_exp
+                              (recordsel_exp (lab PLACEHOLDER_12)) PLACEHOLDER_15))))))
+                  (sequence_exp
+                    (infix_exp
+                      (app_exp
+                        (recordsel_exp (lab PLACEHOLDER_12)) PLACEHOLDER_15) :=
+                      (infix_exp
+                        (infix_exp
+                          (app_exp !
+                            (app_exp
+                              (recordsel_exp (lab PLACEHOLDER_12)) PLACEHOLDER_15)) + 1) mod
+                        (app_exp
+                          (recordsel_exp (lab PLACEHOLDER_11)) PLACEHOLDER_15)))
+                    (infix_exp
+                      (app_exp
+                        (recordsel_exp (lab PLACEHOLDER_14)) PLACEHOLDER_15) :=
+                      (infix_exp
+                        (app_exp !
+                          (app_exp
+                            (recordsel_exp (lab PLACEHOLDER_14)) PLACEHOLDER_15)) - 1)) PLACEHOLDER_16))))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_7
+              (var_pat PLACEHOLDER_15)
+              (var_pat PLACEHOLDER_16)
+              (cond_exp
+                (infix_exp
+                  (app_exp !
+                    (app_exp
+                      (recordsel_exp (lab PLACEHOLDER_14)) PLACEHOLDER_15)) =
+                  (app_exp
+                    (recordsel_exp (lab PLACEHOLDER_11)) PLACEHOLDER_15))
+                (raise_exp PLACEHOLDER_3)
+                (sequence_exp
+                  (app_exp
+                    (longvid Array update)
+                    (tuple_exp
+                      (app_exp
+                        (recordsel_exp (lab PLACEHOLDER_10)) PLACEHOLDER_15)
+                      (app_exp !
+                        (app_exp
+                          (recordsel_exp (lab PLACEHOLDER_13)) PLACEHOLDER_15)) PLACEHOLDER_16))
+                  (infix_exp
+                    (app_exp
+                      (recordsel_exp (lab PLACEHOLDER_13)) PLACEHOLDER_15) :=
+                    (infix_exp
+                      (infix_exp
+                        (app_exp !
+                          (app_exp
+                            (recordsel_exp (lab PLACEHOLDER_13)) PLACEHOLDER_15)) + 1) mod
+                      (app_exp
+                        (recordsel_exp (lab PLACEHOLDER_11)) PLACEHOLDER_15)))
+                  (infix_exp
+                    (app_exp
+                      (recordsel_exp (lab PLACEHOLDER_14)) PLACEHOLDER_15) :=
+                    (infix_exp
+                      (app_exp !
+                        (app_exp
+                          (recordsel_exp (lab PLACEHOLDER_14)) PLACEHOLDER_15)) + 1)))))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_8
+              (var_pat PLACEHOLDER_15)
+              (sequence_exp
+                (infix_exp
+                  (app_exp
+                    (recordsel_exp (lab PLACEHOLDER_13)) PLACEHOLDER_15) :=
+                  (app_exp !
+                    (app_exp
+                      (recordsel_exp (lab PLACEHOLDER_12)) PLACEHOLDER_15)))
+                (infix_exp
+                  (app_exp
+                    (recordsel_exp (lab PLACEHOLDER_14)) PLACEHOLDER_15) := 0)))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_9
+              (var_pat PLACEHOLDER_15)
+              (var_pat PLACEHOLDER_16)
+              (let_exp
+                (val_dec
+                  (valbind _
+                    (cond_exp
+                      (infix_exp
+                        (app_exp !
+                          (app_exp
+                            (recordsel_exp (lab PLACEHOLDER_14)) PLACEHOLDER_15)) =
+                        (app_exp
+                          (recordsel_exp (lab PLACEHOLDER_11)) PLACEHOLDER_15))
+                      (app_exp PLACEHOLDER_6 PLACEHOLDER_15) 0)))
+                (app_exp PLACEHOLDER_7 PLACEHOLDER_15 PLACEHOLDER_16)))))))))

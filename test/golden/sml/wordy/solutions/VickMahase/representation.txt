@@ -1,49 +1,173 @@
-structure Wordy = struct
-fun splitString s =
-String . tokens ( fn c => c = "#\" \"" ) s
-fun strToIntOpt s =
-case Int . fromString s of
-SOME n => SOME n
-| NONE =>
-if String . size s > 0 andalso String . sub ( s , 0 ) = #"~"
-then Int . fromString ( String . substring ( s , 1 , String . size s - 1 ))
-else NONE
-fun applyOp op1 a b =
-case op1 of
-"\"plus\"" => SOME ( a + b )
-| "\"minus\"" => SOME ( a - b )
-| "\"multiplied\"" => SOME ( a * b )
-| "\"divided\"" => SOME ( a div b )
-| _ => NONE
-fun processTokens tokens =
-case tokens of
-[] => NONE
-| [ n ] => strToIntOpt n
-| n::op1:: "\"by\"" ::n2::rest =>
-( case ( strToIntOpt n , strToIntOpt n2 ) of
-( SOME num1 , SOME num2 ) =>
-( case applyOp op1 num1 num2 of
-SOME result => processTokens ( Int . toString result :: rest )
-| NONE => NONE )
-| _ => NONE )
-| n::op1::n2::rest =>
-( case ( strToIntOpt n , strToIntOpt n2 ) of
-( SOME num1 , SOME num2 ) =>
-( case applyOp op1 num1 num2 of
-SOME result => processTokens ( Int . toString result :: rest )
-| NONE => NONE )
-| _ => NONE )
-| _ => NONE
-fun answer question =
-let
-val cleanQuestion = String . translate ( fn c => if c = #"?" then "\" \"" else str c ) question
-val tokens = splitString cleanQuestion
-fun isValidStart tokens =
-case tokens of
-"\"What\"" :: "\"is\"" ::rest => processTokens rest
-| _ => NONE
-in
-isValidStart tokens
-end
-end
-val answer = Wordy . answer
+(source_file
+  (structure_strdec
+    (strbind (strid PLACEHOLDER_1)
+      (struct_strexp
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_2
+              (var_pat PLACEHOLDER_3)
+              (app_exp
+                (longvid String PLACEHOLDER_4)
+                (fn_exp
+                  (mrule
+                    (var_pat PLACEHOLDER_5)
+                    (infix_exp PLACEHOLDER_5 =
+                      (character " ")))) PLACEHOLDER_3))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_6
+              (var_pat PLACEHOLDER_3)
+              (case_exp
+                (app_exp
+                  (longvid Int fromString) PLACEHOLDER_3)
+                (mrule
+                  (app_pat SOME
+                    (var_pat PLACEHOLDER_7))
+                  (app_exp SOME PLACEHOLDER_7))
+                (mrule NONE
+                  (cond_exp
+                    (conj_exp
+                      (infix_exp
+                        (app_exp
+                          (longvid String size) PLACEHOLDER_3) > 0)
+                      (infix_exp
+                        (app_exp
+                          (longvid String sub)
+                          (tuple_exp PLACEHOLDER_3 0)) =
+                        (character "~")))
+                    (app_exp
+                      (longvid Int fromString)
+                      (app_exp
+                        (longvid String substring)
+                        (tuple_exp PLACEHOLDER_3 1
+                          (infix_exp
+                            (app_exp
+                              (longvid String size) PLACEHOLDER_3) - 1)))) NONE))))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_8
+              (var_pat PLACEHOLDER_9)
+              (var_pat PLACEHOLDER_10)
+              (var_pat PLACEHOLDER_11)
+              (case_exp PLACEHOLDER_9
+                (mrule "plus"
+                  (app_exp SOME
+                    (infix_exp PLACEHOLDER_10 + PLACEHOLDER_11)))
+                (mrule "minus"
+                  (app_exp SOME
+                    (infix_exp PLACEHOLDER_10 - PLACEHOLDER_11)))
+                (mrule "multiplied"
+                  (app_exp SOME
+                    (infix_exp PLACEHOLDER_10 * PLACEHOLDER_11)))
+                (mrule "divided"
+                  (app_exp SOME
+                    (infix_exp PLACEHOLDER_10 div PLACEHOLDER_11)))
+                (mrule _ NONE)))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_12
+              (var_pat PLACEHOLDER_4)
+              (case_exp PLACEHOLDER_4
+                (mrule
+                  (list_pat) NONE)
+                (mrule
+                  (list_pat
+                    (var_pat PLACEHOLDER_7))
+                  (app_exp PLACEHOLDER_6 PLACEHOLDER_7))
+                (mrule
+                  (infix_pat
+                    (var_pat PLACEHOLDER_7) ::
+                    (infix_pat
+                      (var_pat PLACEHOLDER_9) ::
+                      (infix_pat "by" ::
+                        (infix_pat
+                          (var_pat PLACEHOLDER_13) ::
+                          (var_pat PLACEHOLDER_14)))))
+                  (case_exp
+                    (tuple_exp
+                      (app_exp PLACEHOLDER_6 PLACEHOLDER_7)
+                      (app_exp PLACEHOLDER_6 PLACEHOLDER_13))
+                    (mrule
+                      (tuple_pat
+                        (app_pat SOME
+                          (var_pat PLACEHOLDER_15))
+                        (app_pat SOME
+                          (var_pat PLACEHOLDER_16)))
+                      (case_exp
+                        (app_exp PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_15 PLACEHOLDER_16)
+                        (mrule
+                          (app_pat SOME
+                            (var_pat PLACEHOLDER_17))
+                          (app_exp PLACEHOLDER_12
+                            (infix_exp
+                              (app_exp
+                                (longvid Int toString) PLACEHOLDER_17) :: PLACEHOLDER_14)))
+                        (mrule NONE NONE)))
+                    (mrule _ NONE)))
+                (mrule
+                  (infix_pat
+                    (var_pat PLACEHOLDER_7) ::
+                    (infix_pat
+                      (var_pat PLACEHOLDER_9) ::
+                      (infix_pat
+                        (var_pat PLACEHOLDER_13) ::
+                        (var_pat PLACEHOLDER_14))))
+                  (case_exp
+                    (tuple_exp
+                      (app_exp PLACEHOLDER_6 PLACEHOLDER_7)
+                      (app_exp PLACEHOLDER_6 PLACEHOLDER_13))
+                    (mrule
+                      (tuple_pat
+                        (app_pat SOME
+                          (var_pat PLACEHOLDER_15))
+                        (app_pat SOME
+                          (var_pat PLACEHOLDER_16)))
+                      (case_exp
+                        (app_exp PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_15 PLACEHOLDER_16)
+                        (mrule
+                          (app_pat SOME
+                            (var_pat PLACEHOLDER_17))
+                          (app_exp PLACEHOLDER_12
+                            (infix_exp
+                              (app_exp
+                                (longvid Int toString) PLACEHOLDER_17) :: PLACEHOLDER_14)))
+                        (mrule NONE NONE)))
+                    (mrule _ NONE)))
+                (mrule _ NONE)))))
+        (fun_dec
+          (fvalbind
+            (fmrule PLACEHOLDER_18
+              (var_pat PLACEHOLDER_19)
+              (let_exp
+                (val_dec
+                  (valbind
+                    (var_pat PLACEHOLDER_20)
+                    (app_exp
+                      (longvid String translate)
+                      (fn_exp
+                        (mrule
+                          (var_pat PLACEHOLDER_5)
+                          (cond_exp
+                            (infix_exp PLACEHOLDER_5 =
+                              (character "?")) " "
+                            (app_exp str PLACEHOLDER_5)))) PLACEHOLDER_19)))
+                (val_dec
+                  (valbind
+                    (var_pat PLACEHOLDER_4)
+                    (app_exp PLACEHOLDER_2 PLACEHOLDER_20)))
+                (fun_dec
+                  (fvalbind
+                    (fmrule PLACEHOLDER_21
+                      (var_pat PLACEHOLDER_4)
+                      (case_exp PLACEHOLDER_4
+                        (mrule
+                          (infix_pat "What" ::
+                            (infix_pat "is" ::
+                              (var_pat PLACEHOLDER_14)))
+                          (app_exp PLACEHOLDER_12 PLACEHOLDER_14))
+                        (mrule _ NONE)))))
+                (app_exp PLACEHOLDER_21 PLACEHOLDER_4))))))))
+  (val_dec
+    (valbind
+      (var_pat PLACEHOLDER_18)
+      (longvid (strid PLACEHOLDER_1) PLACEHOLDER_18))))

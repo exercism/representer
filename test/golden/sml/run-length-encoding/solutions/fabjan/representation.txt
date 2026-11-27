@@ -1,35 +1,165 @@
-infix |>
-fun x | > f = f x
-type runlength = ( char * int ) list ;
-fun compress ( c , 0 ) = "\"\""
-| compress ( c , 1 ) = Char . toString c
-| compress ( c , n ) = ( Int . toString n ) ^ ( Char . toString c )
-fun expand ( c , n ) = List . tabulate ( n , fn _ => c ) | > String . implode
-fun render toString runlengths =
-List . foldl ( fn ( next , acc ) => ( toString next ) ::acc ) [] runlengths | > String . concat
-local
-fun unpack s acc =
-let
-val ( nums , rest ) = Substring . splitl Char . isDigit s
-val count = Int . fromString ( Substring . string nums )
-in
-case ( count , Substring . getc rest ) of
-( NONE , NONE ) => acc
-| ( NONE , SOME ( c , more )) => unpack more (( c , 1 ) ::acc )
-| ( SOME n , SOME ( c , more )) => unpack more (( c , n ) ::acc )
-| ( SOME _, NONE ) => raise Fail "\"cannot uncompress digits only\""
-end
-in
-fun decode ( phrase : string ): string =
-unpack ( Substring . full phrase ) [] | > render expand
-end
-local
-fun pack ( next , []) = ( next , 1 ) :: []
-| pack ( next , ( current , count ) ::acc ) =
-if next = current
-then ( next , count+ 1 ) ::acc
-else ( next , 1 ) :: ( current , count ) ::acc
-in
-fun encode ( phrase : string ): string =
-Substring . foldl pack [] ( Substring . full phrase ) | > render compress
-end
+(source_file
+  (infix_dec 0 PLACEHOLDER_1)
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_2
+        (var_pat PLACEHOLDER_1)
+        (var_pat PLACEHOLDER_3)
+        (app_exp PLACEHOLDER_3 PLACEHOLDER_2))))
+  (type_dec
+    (typbind (tycon PLACEHOLDER_4)
+      (tycon_ty
+        (tyseq
+          (tuple_ty char int)) list)))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_5
+        (tuple_pat
+          (var_pat PLACEHOLDER_6) 0) "")
+      (fmrule PLACEHOLDER_5
+        (tuple_pat
+          (var_pat PLACEHOLDER_6) 1)
+        (app_exp
+          (longvid Char PLACEHOLDER_7) PLACEHOLDER_6))
+      (fmrule PLACEHOLDER_5
+        (tuple_pat
+          (var_pat PLACEHOLDER_6)
+          (var_pat PLACEHOLDER_8))
+        (infix_exp
+          (app_exp
+            (longvid Int PLACEHOLDER_7) PLACEHOLDER_8) ^
+          (app_exp
+            (longvid Char PLACEHOLDER_7) PLACEHOLDER_6)))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_9
+        (tuple_pat
+          (var_pat PLACEHOLDER_6)
+          (var_pat PLACEHOLDER_8))
+        (infix_exp
+          (app_exp
+            (longvid List tabulate)
+            (tuple_exp PLACEHOLDER_8
+              (fn_exp
+                (mrule _ PLACEHOLDER_6)))) PLACEHOLDER_1
+          (longvid String implode)))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_10
+        (var_pat PLACEHOLDER_7)
+        (var_pat PLACEHOLDER_11)
+        (infix_exp
+          (app_exp
+            (longvid List foldl)
+            (fn_exp
+              (mrule
+                (tuple_pat
+                  (var_pat PLACEHOLDER_12)
+                  (var_pat PLACEHOLDER_13))
+                (infix_exp
+                  (app_exp PLACEHOLDER_7 PLACEHOLDER_12) :: PLACEHOLDER_13)))
+            (list_exp) PLACEHOLDER_11) PLACEHOLDER_1
+          (longvid String concat)))))
+  (local_strdec
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_14
+          (var_pat PLACEHOLDER_15)
+          (var_pat PLACEHOLDER_13)
+          (let_exp
+            (val_dec
+              (valbind
+                (tuple_pat
+                  (var_pat PLACEHOLDER_16)
+                  (var_pat PLACEHOLDER_17))
+                (app_exp
+                  (longvid Substring splitl)
+                  (longvid Char isDigit) PLACEHOLDER_15)))
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_18)
+                (app_exp
+                  (longvid Int fromString)
+                  (app_exp
+                    (longvid Substring string) PLACEHOLDER_16))))
+            (case_exp
+              (tuple_exp PLACEHOLDER_18
+                (app_exp
+                  (longvid Substring getc) PLACEHOLDER_17))
+              (mrule
+                (tuple_pat NONE NONE) PLACEHOLDER_13)
+              (mrule
+                (tuple_pat NONE
+                  (app_pat SOME
+                    (tuple_pat
+                      (var_pat PLACEHOLDER_6)
+                      (var_pat PLACEHOLDER_19))))
+                (app_exp PLACEHOLDER_14 PLACEHOLDER_19
+                  (infix_exp
+                    (tuple_exp PLACEHOLDER_6 1) :: PLACEHOLDER_13)))
+              (mrule
+                (tuple_pat
+                  (app_pat SOME
+                    (var_pat PLACEHOLDER_8))
+                  (app_pat SOME
+                    (tuple_pat
+                      (var_pat PLACEHOLDER_6)
+                      (var_pat PLACEHOLDER_19))))
+                (app_exp PLACEHOLDER_14 PLACEHOLDER_19
+                  (infix_exp
+                    (tuple_exp PLACEHOLDER_6 PLACEHOLDER_8) :: PLACEHOLDER_13)))
+              (mrule
+                (tuple_pat
+                  (app_pat SOME _) NONE)
+                (raise_exp
+                  (app_exp Fail "cannot uncompress digits only")))))))) in
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_20
+          (typed_pat
+            (var_pat PLACEHOLDER_21) string) string
+          (infix_exp
+            (app_exp PLACEHOLDER_14
+              (app_exp
+                (longvid Substring full) PLACEHOLDER_21)
+              (list_exp)) PLACEHOLDER_1
+            (app_exp PLACEHOLDER_10 PLACEHOLDER_9))))))
+  (local_strdec
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_22
+          (tuple_pat
+            (var_pat PLACEHOLDER_12)
+            (list_pat))
+          (infix_exp
+            (tuple_exp PLACEHOLDER_12 1) ::
+            (list_exp)))
+        (fmrule PLACEHOLDER_22
+          (tuple_pat
+            (var_pat PLACEHOLDER_12)
+            (infix_pat
+              (tuple_pat
+                (var_pat PLACEHOLDER_23)
+                (var_pat PLACEHOLDER_18)) ::
+              (var_pat PLACEHOLDER_13)))
+          (cond_exp
+            (infix_exp PLACEHOLDER_12 = PLACEHOLDER_23)
+            (infix_exp
+              (tuple_exp PLACEHOLDER_12
+                (infix_exp PLACEHOLDER_18 + 1)) :: PLACEHOLDER_13)
+            (infix_exp
+              (tuple_exp PLACEHOLDER_12 1) ::
+              (infix_exp
+                (tuple_exp PLACEHOLDER_23 PLACEHOLDER_18) :: PLACEHOLDER_13)))))) in
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_24
+          (typed_pat
+            (var_pat PLACEHOLDER_21) string) string
+          (infix_exp
+            (app_exp
+              (longvid Substring foldl) PLACEHOLDER_22
+              (list_exp)
+              (app_exp
+                (longvid Substring full) PLACEHOLDER_21)) PLACEHOLDER_1
+            (app_exp PLACEHOLDER_10 PLACEHOLDER_5)))))))

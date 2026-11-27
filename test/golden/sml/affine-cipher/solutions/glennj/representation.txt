@@ -1,51 +1,239 @@
-fun mmi ( a : int , m : int ): int =
-let fun mmi' ( a , m , x ) =
-if m = x then 0
-else if ( a * x ) mod m = 1 then x
-else mmi' ( a , m , x + 1 )
-in mmi' ( a , m , 0 )
-end
-fun gcd ( a : int , b : int ): int =
-if b = 0 then a else gcd ( b , a mod b )
-fun hypot ( x : real , y : real ): real =
-Math . sqrt ( x * x + y * y )
-fun factorial 0 = 1
-| factorial n = n * factorial ( n - 1 )
-fun choose ( n , k ) = ( factorial n ) div ( factorial k * factorial ( n - k ))
-infix choose
-fun log ( n : real , base : int ): real =
-( Math . ln n ) / ( Math . ln ( real base ))
-fun stringSubstrings ( len : int ) ( s : string ): string list =
-if s = "\"\"" then []
-else if size s < len then [ s ]
-else ( String . substring ( s , 0 , len )) :: ( stringSubstrings len ( String . extract ( s , len , NONE )))
-fun addSpaces ( chunkSize : int ) ( word : string ): string =
-String . concatWith "\" \"" ( stringSubstrings chunkSize word )
-use "\"math-utils.sml\"" ;
-use "\"string-utils.sml\"" ;
-local
-val m = 26
-val A = Char . ord #"a"
-fun encipher ( phrase : string ) ( a : int ) ( f : int -> int ): string =
-if gcd ( a , m ) <> 1
-then raise Fail "\"a and m must be coprime.\""
-else let val cs = ( ( List . map Char . toLower )
-o ( List . filter Char . isAlphaNum )
-o explode
-) phrase
-fun translate c = if Char . isAlpha c
-then Char . chr ( A + f ( Char . ord c - A ))
-else c
-in implode ( List . map translate cs )
-end
-in
-fun encode ( key : { a : int , b : int }, phrase : string ): string =
-let fun encoder x = (( #a key ) * x + ( #b key )) mod m
-in addSpaces 5 ( encipher phrase ( #a key ) encoder )
-end
-fun decode ( key : { a : int , b : int }, phrase : string ): string =
-let val a' = mmi (( #a key ), m )
-fun decoder y = ( a' * ( y - ( #b key ))) mod m
-in encipher phrase ( #a key ) decoder
-end
-end
+(source_file
+  (app_exp use "math-utils.sml")
+  (app_exp use "string-utils.sml")
+  (local_strdec
+    (val_dec
+      (valbind
+        (var_pat PLACEHOLDER_1) 26))
+    (val_dec
+      (valbind
+        (var_pat PLACEHOLDER_2)
+        (app_exp
+          (longvid Char ord)
+          (character "a"))))
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_3
+          (typed_pat
+            (var_pat PLACEHOLDER_4) string)
+          (typed_pat
+            (var_pat PLACEHOLDER_5) int)
+          (typed_pat
+            (var_pat PLACEHOLDER_6)
+            (fn_ty int int)) string
+          (cond_exp
+            (infix_exp
+              (app_exp PLACEHOLDER_7
+                (tuple_exp PLACEHOLDER_5 PLACEHOLDER_1)) <> 1)
+            (raise_exp
+              (app_exp Fail "a and m must be coprime."))
+            (let_exp
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_8)
+                  (app_exp
+                    (infix_exp
+                      (infix_exp
+                        (app_exp
+                          (longvid List map)
+                          (longvid Char toLower)) o
+                        (app_exp
+                          (longvid List filter)
+                          (longvid Char isAlphaNum))) o explode) PLACEHOLDER_4)))
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_9
+                    (var_pat PLACEHOLDER_10)
+                    (cond_exp
+                      (app_exp
+                        (longvid Char isAlpha) PLACEHOLDER_10)
+                      (app_exp
+                        (longvid Char chr)
+                        (infix_exp PLACEHOLDER_2 +
+                          (app_exp PLACEHOLDER_6
+                            (infix_exp
+                              (app_exp
+                                (longvid Char ord) PLACEHOLDER_10) - PLACEHOLDER_2)))) PLACEHOLDER_10))))
+              (app_exp implode
+                (app_exp
+                  (longvid List map) PLACEHOLDER_9 PLACEHOLDER_8))))))) in
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_11
+          (tuple_pat
+            (typed_pat
+              (var_pat PLACEHOLDER_12)
+              (record_ty
+                (tyrow (lab PLACEHOLDER_5) int)
+                (tyrow (lab PLACEHOLDER_13) int)))
+            (typed_pat
+              (var_pat PLACEHOLDER_4) string)) string
+          (let_exp
+            (fun_dec
+              (fvalbind
+                (fmrule PLACEHOLDER_14
+                  (var_pat PLACEHOLDER_15)
+                  (infix_exp
+                    (infix_exp
+                      (infix_exp
+                        (app_exp
+                          (recordsel_exp (lab PLACEHOLDER_5)) PLACEHOLDER_12) * PLACEHOLDER_15) +
+                      (app_exp
+                        (recordsel_exp (lab PLACEHOLDER_13)) PLACEHOLDER_12)) mod PLACEHOLDER_1))))
+            (app_exp PLACEHOLDER_16 5
+              (app_exp PLACEHOLDER_3 PLACEHOLDER_4
+                (app_exp
+                  (recordsel_exp (lab PLACEHOLDER_5)) PLACEHOLDER_12) PLACEHOLDER_14))))))
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_17
+          (tuple_pat
+            (typed_pat
+              (var_pat PLACEHOLDER_12)
+              (record_ty
+                (tyrow (lab PLACEHOLDER_5) int)
+                (tyrow (lab PLACEHOLDER_13) int)))
+            (typed_pat
+              (var_pat PLACEHOLDER_4) string)) string
+          (let_exp
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_18)
+                (app_exp PLACEHOLDER_19
+                  (tuple_exp
+                    (app_exp
+                      (recordsel_exp (lab PLACEHOLDER_5)) PLACEHOLDER_12) PLACEHOLDER_1))))
+            (fun_dec
+              (fvalbind
+                (fmrule PLACEHOLDER_20
+                  (var_pat PLACEHOLDER_21)
+                  (infix_exp
+                    (infix_exp PLACEHOLDER_18 *
+                      (infix_exp PLACEHOLDER_21 -
+                        (app_exp
+                          (recordsel_exp (lab PLACEHOLDER_13)) PLACEHOLDER_12))) mod PLACEHOLDER_1))))
+            (app_exp PLACEHOLDER_3 PLACEHOLDER_4
+              (app_exp
+                (recordsel_exp (lab PLACEHOLDER_5)) PLACEHOLDER_12) PLACEHOLDER_20))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_19
+        (tuple_pat
+          (typed_pat
+            (var_pat PLACEHOLDER_5) int)
+          (typed_pat
+            (var_pat PLACEHOLDER_1) int)) int
+        (let_exp
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_22
+                (tuple_pat
+                  (var_pat PLACEHOLDER_5)
+                  (var_pat PLACEHOLDER_1)
+                  (var_pat PLACEHOLDER_15))
+                (cond_exp
+                  (infix_exp PLACEHOLDER_1 = PLACEHOLDER_15) 0
+                  (cond_exp
+                    (infix_exp
+                      (infix_exp
+                        (infix_exp PLACEHOLDER_5 * PLACEHOLDER_15) mod PLACEHOLDER_1) = 1) PLACEHOLDER_15
+                    (app_exp PLACEHOLDER_22
+                      (tuple_exp PLACEHOLDER_5 PLACEHOLDER_1
+                        (infix_exp PLACEHOLDER_15 + 1))))))))
+          (app_exp PLACEHOLDER_22
+            (tuple_exp PLACEHOLDER_5 PLACEHOLDER_1 0))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_7
+        (tuple_pat
+          (typed_pat
+            (var_pat PLACEHOLDER_5) int)
+          (typed_pat
+            (var_pat PLACEHOLDER_13) int)) int
+        (cond_exp
+          (infix_exp PLACEHOLDER_13 = 0) PLACEHOLDER_5
+          (app_exp PLACEHOLDER_7
+            (tuple_exp PLACEHOLDER_13
+              (infix_exp PLACEHOLDER_5 mod PLACEHOLDER_13)))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_23
+        (tuple_pat
+          (typed_pat
+            (var_pat PLACEHOLDER_15) real)
+          (typed_pat
+            (var_pat PLACEHOLDER_21) real)) real
+        (app_exp
+          (longvid Math sqrt)
+          (infix_exp
+            (infix_exp PLACEHOLDER_15 * PLACEHOLDER_15) +
+            (infix_exp PLACEHOLDER_21 * PLACEHOLDER_21))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_24 0 1)
+      (fmrule PLACEHOLDER_24
+        (var_pat PLACEHOLDER_25)
+        (infix_exp PLACEHOLDER_25 *
+          (app_exp PLACEHOLDER_24
+            (infix_exp PLACEHOLDER_25 - 1))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_26
+        (tuple_pat
+          (var_pat PLACEHOLDER_25)
+          (var_pat PLACEHOLDER_27))
+        (infix_exp
+          (app_exp PLACEHOLDER_24 PLACEHOLDER_25) div
+          (infix_exp
+            (app_exp PLACEHOLDER_24 PLACEHOLDER_27) *
+            (app_exp PLACEHOLDER_24
+              (infix_exp PLACEHOLDER_25 - PLACEHOLDER_27)))))))
+  (infix_dec 0 PLACEHOLDER_26)
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_28
+        (tuple_pat
+          (typed_pat
+            (var_pat PLACEHOLDER_25) real)
+          (typed_pat
+            (var_pat PLACEHOLDER_29) int)) real
+        (infix_exp
+          (app_exp
+            (longvid Math ln) PLACEHOLDER_25) /
+          (app_exp
+            (longvid Math ln)
+            (app_exp real PLACEHOLDER_29))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_30
+        (typed_pat
+          (var_pat PLACEHOLDER_31) int)
+        (typed_pat
+          (var_pat PLACEHOLDER_32) string)
+        (tycon_ty
+          (tyseq string) list)
+        (cond_exp
+          (infix_exp PLACEHOLDER_32 = "")
+          (list_exp)
+          (cond_exp
+            (infix_exp
+              (app_exp size PLACEHOLDER_32) < PLACEHOLDER_31)
+            (list_exp PLACEHOLDER_32)
+            (infix_exp
+              (app_exp
+                (longvid String substring)
+                (tuple_exp PLACEHOLDER_32 0 PLACEHOLDER_31)) ::
+              (app_exp PLACEHOLDER_30 PLACEHOLDER_31
+                (app_exp
+                  (longvid String extract)
+                  (tuple_exp PLACEHOLDER_32 PLACEHOLDER_31 NONE)))))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_16
+        (typed_pat
+          (var_pat PLACEHOLDER_33) int)
+        (typed_pat
+          (var_pat PLACEHOLDER_34) string) string
+        (app_exp
+          (longvid String concatWith) " "
+          (app_exp PLACEHOLDER_30 PLACEHOLDER_33 PLACEHOLDER_34))))))

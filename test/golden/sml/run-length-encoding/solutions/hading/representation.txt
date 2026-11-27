@@ -1,37 +1,142 @@
-fun decode' s acc =
-case Substring . first s of
-NONE => String . concat ( rev acc )
-| SOME c => if Char . isDigit c then
-let
-val ( numStr , tail ) = Substring . splitl Char . isDigit s
-val num = ( valOf o Int . fromString o Substring . string ) numStr
-val rest = Substring . slice ( tail , 1 , NONE )
-val char = Substring . first tail
-in
-case char of
-NONE => raise Fail "\"No letter to use\""
-| SOME c => let
-val charStr = String . implode ( List . tabulate ( num , fn _ => c ))
-in
-decode' rest ( charStr::acc )
-end
-end
-else
-decode' ( Substring . slice ( s , 1 , NONE )) (( Char . toString c ) ::acc )
-fun decode ( phrase : string ): string =
-decode' ( Substring . full phrase ) []
-fun encode' s acc =
-case Substring . first s of
-NONE => String . concat ( rev acc )
-| SOME c =>
-let
-val ( cs , rest ) = Substring . splitl ( fn x => x = c ) s
-val l = Substring . size cs
-val lStr = Int . toString l
-val cStr = Char . toString c
-val str = if l = 1 then cStr else lStr ^ cStr
-in
-encode' rest ( str::acc )
-end
-fun encode ( phrase : string ): string =
-encode' ( Substring . full phrase ) []
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (var_pat PLACEHOLDER_2)
+        (var_pat PLACEHOLDER_3)
+        (case_exp
+          (app_exp
+            (longvid Substring first) PLACEHOLDER_2)
+          (mrule NONE
+            (app_exp
+              (longvid String concat)
+              (app_exp rev PLACEHOLDER_3)))
+          (mrule
+            (app_pat SOME
+              (var_pat PLACEHOLDER_4))
+            (cond_exp
+              (app_exp
+                (longvid Char isDigit) PLACEHOLDER_4)
+              (let_exp
+                (val_dec
+                  (valbind
+                    (tuple_pat
+                      (var_pat PLACEHOLDER_5)
+                      (var_pat PLACEHOLDER_6))
+                    (app_exp
+                      (longvid Substring splitl)
+                      (longvid Char isDigit) PLACEHOLDER_2)))
+                (val_dec
+                  (valbind
+                    (var_pat PLACEHOLDER_7)
+                    (app_exp
+                      (infix_exp
+                        (infix_exp valOf o
+                          (longvid Int fromString)) o
+                        (longvid Substring string)) PLACEHOLDER_5)))
+                (val_dec
+                  (valbind
+                    (var_pat PLACEHOLDER_8)
+                    (app_exp
+                      (longvid Substring slice)
+                      (tuple_exp PLACEHOLDER_6 1 NONE))))
+                (val_dec
+                  (valbind
+                    (var_pat PLACEHOLDER_9)
+                    (app_exp
+                      (longvid Substring first) PLACEHOLDER_6)))
+                (case_exp PLACEHOLDER_9
+                  (mrule NONE
+                    (raise_exp
+                      (app_exp Fail "No letter to use")))
+                  (mrule
+                    (app_pat SOME
+                      (var_pat PLACEHOLDER_4))
+                    (let_exp
+                      (val_dec
+                        (valbind
+                          (var_pat PLACEHOLDER_10)
+                          (app_exp
+                            (longvid String implode)
+                            (app_exp
+                              (longvid List tabulate)
+                              (tuple_exp PLACEHOLDER_7
+                                (fn_exp
+                                  (mrule _ PLACEHOLDER_4)))))))
+                      (app_exp PLACEHOLDER_1 PLACEHOLDER_8
+                        (infix_exp PLACEHOLDER_10 :: PLACEHOLDER_3))))))
+              (app_exp PLACEHOLDER_1
+                (app_exp
+                  (longvid Substring slice)
+                  (tuple_exp PLACEHOLDER_2 1 NONE))
+                (infix_exp
+                  (app_exp
+                    (longvid Char toString) PLACEHOLDER_4) :: PLACEHOLDER_3))))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_11
+        (typed_pat
+          (var_pat PLACEHOLDER_12) string) string
+        (app_exp PLACEHOLDER_1
+          (app_exp
+            (longvid Substring full) PLACEHOLDER_12)
+          (list_exp)))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_13
+        (var_pat PLACEHOLDER_2)
+        (var_pat PLACEHOLDER_3)
+        (case_exp
+          (app_exp
+            (longvid Substring first) PLACEHOLDER_2)
+          (mrule NONE
+            (app_exp
+              (longvid String concat)
+              (app_exp rev PLACEHOLDER_3)))
+          (mrule
+            (app_pat SOME
+              (var_pat PLACEHOLDER_4))
+            (let_exp
+              (val_dec
+                (valbind
+                  (tuple_pat
+                    (var_pat PLACEHOLDER_14)
+                    (var_pat PLACEHOLDER_8))
+                  (app_exp
+                    (longvid Substring splitl)
+                    (fn_exp
+                      (mrule
+                        (var_pat PLACEHOLDER_15)
+                        (infix_exp PLACEHOLDER_15 = PLACEHOLDER_4))) PLACEHOLDER_2)))
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_16)
+                  (app_exp
+                    (longvid Substring size) PLACEHOLDER_14)))
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_17)
+                  (app_exp
+                    (longvid Int toString) PLACEHOLDER_16)))
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_18)
+                  (app_exp
+                    (longvid Char toString) PLACEHOLDER_4)))
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_19)
+                  (cond_exp
+                    (infix_exp PLACEHOLDER_16 = 1) PLACEHOLDER_18
+                    (infix_exp PLACEHOLDER_17 ^ PLACEHOLDER_18))))
+              (app_exp PLACEHOLDER_13 PLACEHOLDER_8
+                (infix_exp PLACEHOLDER_19 :: PLACEHOLDER_3))))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_20
+        (typed_pat
+          (var_pat PLACEHOLDER_12) string) string
+        (app_exp PLACEHOLDER_13
+          (app_exp
+            (longvid Substring full) PLACEHOLDER_12)
+          (list_exp))))))

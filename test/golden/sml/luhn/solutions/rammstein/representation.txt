@@ -1,21 +1,88 @@
-fun valid ( value : string ) =
-let
-fun toInt c = Char . ord c - 48
-fun getDigits ( xs , digs , i ) =
-case xs
-of [] => if i < 2 then [] else digs
-| x::xs' => if Char . isDigit x
-then getDigits ( xs' , digs@ [ toInt x ], i+ 1 )
-else if x = "#\" \"" then getDigits ( xs' , digs , i ) else []
-val digits = getDigits ( explode value , [], 0 )
-val sum = foldr ( fn ( x , ( even , acc )) =>
-if even
-then ( not even , acc + ( if x < 5 then x* 2 else x* 2 - 9 ))
-else ( not even , acc + x )) ( false , 0 )
-in
-case digits
-of [] => false
-| ds => if #2 ( sum ds ) mod 10 = 0
-then true
-else false
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (typed_pat
+          (var_pat PLACEHOLDER_2) string)
+        (let_exp
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_3
+                (var_pat PLACEHOLDER_4)
+                (infix_exp
+                  (app_exp
+                    (longvid Char ord) PLACEHOLDER_4) - 48))))
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_5
+                (tuple_pat
+                  (var_pat PLACEHOLDER_6)
+                  (var_pat PLACEHOLDER_7)
+                  (var_pat PLACEHOLDER_8))
+                (case_exp PLACEHOLDER_6
+                  (mrule
+                    (list_pat)
+                    (cond_exp
+                      (infix_exp PLACEHOLDER_8 < 2)
+                      (list_exp) PLACEHOLDER_7))
+                  (mrule
+                    (infix_pat
+                      (var_pat PLACEHOLDER_9) ::
+                      (var_pat PLACEHOLDER_10))
+                    (cond_exp
+                      (app_exp
+                        (longvid Char isDigit) PLACEHOLDER_9)
+                      (app_exp PLACEHOLDER_5
+                        (tuple_exp PLACEHOLDER_10
+                          (infix_exp PLACEHOLDER_7 @
+                            (list_exp
+                              (app_exp PLACEHOLDER_3 PLACEHOLDER_9)))
+                          (infix_exp PLACEHOLDER_8 + 1)))
+                      (cond_exp
+                        (infix_exp PLACEHOLDER_9 =
+                          (character " "))
+                        (app_exp PLACEHOLDER_5
+                          (tuple_exp PLACEHOLDER_10 PLACEHOLDER_7 PLACEHOLDER_8))
+                        (list_exp))))))))
+          (val_dec
+            (valbind
+              (var_pat PLACEHOLDER_11)
+              (app_exp PLACEHOLDER_5
+                (tuple_exp
+                  (app_exp explode PLACEHOLDER_2)
+                  (list_exp) 0))))
+          (val_dec
+            (valbind
+              (var_pat PLACEHOLDER_12)
+              (app_exp foldr
+                (fn_exp
+                  (mrule
+                    (tuple_pat
+                      (var_pat PLACEHOLDER_9)
+                      (tuple_pat
+                        (var_pat PLACEHOLDER_13)
+                        (var_pat PLACEHOLDER_14)))
+                    (cond_exp PLACEHOLDER_13
+                      (tuple_exp
+                        (app_exp not PLACEHOLDER_13)
+                        (infix_exp PLACEHOLDER_14 +
+                          (cond_exp
+                            (infix_exp PLACEHOLDER_9 < 5)
+                            (infix_exp PLACEHOLDER_9 * 2)
+                            (infix_exp
+                              (infix_exp PLACEHOLDER_9 * 2) - 9))))
+                      (tuple_exp
+                        (app_exp not PLACEHOLDER_13)
+                        (infix_exp PLACEHOLDER_14 + PLACEHOLDER_9)))))
+                (tuple_exp false 0))))
+          (case_exp PLACEHOLDER_11
+            (mrule
+              (list_pat) false)
+            (mrule
+              (var_pat PLACEHOLDER_15)
+              (cond_exp
+                (infix_exp
+                  (infix_exp
+                    (app_exp
+                      (recordsel_exp 2)
+                      (app_exp PLACEHOLDER_12 PLACEHOLDER_15)) mod 10) = 0) true false))))))))

@@ -1,22 +1,72 @@
-fun zipWith f nil _ = nil
-| zipWith f _ nil = nil
-| zipWith f ( x::xs ) ( y::ys ) = f ( x , y ) :: zipWith f xs ys
-fun mkLine nil = nil
-| mkLine list = let val xs = 0 ::list
-val ys = list @ [ 0 ]
-in zipWith ( op + ) xs ys
-end
-fun rows 0 = nil
-| rows count =
-let fun aux ( 0 , acc ) = aux ( 1 , [[ 1 ]])
-| aux ( i , acc ) =
-if i >= count
-then
-acc
-else
-let val head :: _ = acc
-in aux ( i + 1 , mkLine head :: acc )
-end
-val pascals = aux ( 0 , nil )
-in rev pascals
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (var_pat PLACEHOLDER_2) nil _ nil)
+      (fmrule PLACEHOLDER_1
+        (var_pat PLACEHOLDER_2) _ nil nil)
+      (fmrule PLACEHOLDER_1
+        (var_pat PLACEHOLDER_2)
+        (infix_pat
+          (var_pat PLACEHOLDER_3) ::
+          (var_pat PLACEHOLDER_4))
+        (infix_pat
+          (var_pat PLACEHOLDER_5) ::
+          (var_pat PLACEHOLDER_6))
+        (infix_exp
+          (app_exp PLACEHOLDER_2
+            (tuple_exp PLACEHOLDER_3 PLACEHOLDER_5)) ::
+          (app_exp PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_4 PLACEHOLDER_6)))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_7 nil nil)
+      (fmrule PLACEHOLDER_7
+        (var_pat PLACEHOLDER_8)
+        (let_exp
+          (val_dec
+            (valbind
+              (var_pat PLACEHOLDER_4)
+              (infix_exp 0 :: PLACEHOLDER_8)))
+          (val_dec
+            (valbind
+              (var_pat PLACEHOLDER_6)
+              (infix_exp PLACEHOLDER_8 @
+                (list_exp 0))))
+          (app_exp PLACEHOLDER_1 + PLACEHOLDER_4 PLACEHOLDER_6)))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_9 0 nil)
+      (fmrule PLACEHOLDER_9
+        (var_pat PLACEHOLDER_10)
+        (let_exp
+          (fun_dec
+            (fvalbind
+              (fmrule PLACEHOLDER_11
+                (tuple_pat 0
+                  (var_pat PLACEHOLDER_12))
+                (app_exp PLACEHOLDER_11
+                  (tuple_exp 1
+                    (list_exp
+                      (list_exp 1)))))
+              (fmrule PLACEHOLDER_11
+                (tuple_pat
+                  (var_pat PLACEHOLDER_13)
+                  (var_pat PLACEHOLDER_12))
+                (cond_exp
+                  (infix_exp PLACEHOLDER_13 >= PLACEHOLDER_10) PLACEHOLDER_12
+                  (let_exp
+                    (val_dec
+                      (valbind
+                        (infix_pat
+                          (var_pat PLACEHOLDER_14) :: _) PLACEHOLDER_12))
+                    (app_exp PLACEHOLDER_11
+                      (tuple_exp
+                        (infix_exp PLACEHOLDER_13 + 1)
+                        (infix_exp
+                          (app_exp PLACEHOLDER_7 PLACEHOLDER_14) :: PLACEHOLDER_12))))))))
+          (val_dec
+            (valbind
+              (var_pat PLACEHOLDER_15)
+              (app_exp PLACEHOLDER_11
+                (tuple_exp 0 nil))))
+          (app_exp rev PLACEHOLDER_15))))))

@@ -1,27 +1,76 @@
-fun compute_aliquot_sum' ( dividend , divisor , limit , sum ) =
-if divisor > limit then sum + 1
-else let
-val remainder = dividend mod divisor
-val dividend' = dividend div divisor
-in
-if remainder = 0 then
-if divisor = dividend' then
-compute_aliquot_sum' ( dividend , divisor + 1 , limit , sum + divisor )
-else
-compute_aliquot_sum' ( dividend , divisor + 1 , limit , sum + divisor + dividend' )
-else
-compute_aliquot_sum' ( dividend , divisor + 1 , limit , sum )
-end
-fun compute_aliquot_sum ( 1 ) = 0
-| compute_aliquot_sum ( n ) =
-compute_aliquot_sum' ( n , 2 , ( Real . trunc ( Math . sqrt ( Real . fromInt n ))), 0 )
-datatype classification = Abundant | Deficient | Perfect
-fun classify ( input : int ) : classification option =
-if input < 1 then NONE
-else let
-val aliquot_sum = compute_aliquot_sum input
-in
-if aliquot_sum < input then SOME ( Deficient )
-else if aliquot_sum = input then SOME ( Perfect )
-else SOME ( Abundant )
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (tuple_pat
+          (var_pat PLACEHOLDER_2)
+          (var_pat PLACEHOLDER_3)
+          (var_pat PLACEHOLDER_4)
+          (var_pat PLACEHOLDER_5))
+        (cond_exp
+          (infix_exp PLACEHOLDER_3 > PLACEHOLDER_4)
+          (infix_exp PLACEHOLDER_5 + 1)
+          (let_exp
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_6)
+                (infix_exp PLACEHOLDER_2 mod PLACEHOLDER_3)))
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_7)
+                (infix_exp PLACEHOLDER_2 div PLACEHOLDER_3)))
+            (cond_exp
+              (infix_exp PLACEHOLDER_6 = 0)
+              (cond_exp
+                (infix_exp PLACEHOLDER_3 = PLACEHOLDER_7)
+                (app_exp PLACEHOLDER_1
+                  (tuple_exp PLACEHOLDER_2
+                    (infix_exp PLACEHOLDER_3 + 1) PLACEHOLDER_4
+                    (infix_exp PLACEHOLDER_5 + PLACEHOLDER_3)))
+                (app_exp PLACEHOLDER_1
+                  (tuple_exp PLACEHOLDER_2
+                    (infix_exp PLACEHOLDER_3 + 1) PLACEHOLDER_4
+                    (infix_exp
+                      (infix_exp PLACEHOLDER_5 + PLACEHOLDER_3) + PLACEHOLDER_7))))
+              (app_exp PLACEHOLDER_1
+                (tuple_exp PLACEHOLDER_2
+                  (infix_exp PLACEHOLDER_3 + 1) PLACEHOLDER_4 PLACEHOLDER_5))))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_8 1 0)
+      (fmrule PLACEHOLDER_8
+        (var_pat PLACEHOLDER_9)
+        (app_exp PLACEHOLDER_1
+          (tuple_exp PLACEHOLDER_9 2
+            (app_exp
+              (longvid Real trunc)
+              (app_exp
+                (longvid Math sqrt)
+                (app_exp
+                  (longvid Real fromInt) PLACEHOLDER_9))) 0)))))
+  (datatype_dec
+    (datbind (tycon PLACEHOLDER_10)
+      (conbind PLACEHOLDER_11)
+      (conbind PLACEHOLDER_12)
+      (conbind PLACEHOLDER_13)))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_14
+        (typed_pat
+          (var_pat PLACEHOLDER_15) int)
+        (tycon_ty
+          (tyseq (tycon PLACEHOLDER_10)) option)
+        (cond_exp
+          (infix_exp PLACEHOLDER_15 < 1) NONE
+          (let_exp
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_16)
+                (app_exp PLACEHOLDER_8 PLACEHOLDER_15)))
+            (cond_exp
+              (infix_exp PLACEHOLDER_16 < PLACEHOLDER_15)
+              (app_exp SOME PLACEHOLDER_12)
+              (cond_exp
+                (infix_exp PLACEHOLDER_16 = PLACEHOLDER_15)
+                (app_exp SOME PLACEHOLDER_13)
+                (app_exp SOME PLACEHOLDER_11)))))))))

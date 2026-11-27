@@ -1,22 +1,81 @@
-fun answer ( question : string ): int option =
-case String . tokens Char . isSpace question
-of "\"What\"" :: "\"is\"" ::words => getNumber words 0 op +
-| _ => NONE
-and getNumber ( words : string list ) ( acc : int ) ( operation : int * int -> int ): int option =
-case words
-of [] => NONE
-| ( num::ws ) =>
-case Int . fromString num
-of NONE => NONE
-| SOME n => getOperator ws ( operation ( acc , n ))
-and getOperator ( words : string list ) ( acc : int ): int option =
-case words
-of [] => SOME acc
-| [_] => NONE
-| ( op_::ws ) =>
-case op_
-of "\"plus\"" => getNumber ws acc op +
-| "\"minus\"" => getNumber ws acc op -
-| "\"multiplied\"" => getNumber ( tl ws ) acc op *
-| "\"divided\"" => getNumber ( tl ws ) acc ( op div )
-| _ => NONE
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (typed_pat
+          (var_pat PLACEHOLDER_2) string)
+        (tycon_ty
+          (tyseq int) option)
+        (case_exp
+          (app_exp
+            (longvid String tokens)
+            (longvid Char isSpace) PLACEHOLDER_2)
+          (mrule
+            (infix_pat "What" ::
+              (infix_pat "is" ::
+                (var_pat PLACEHOLDER_3)))
+            (app_exp PLACEHOLDER_4 PLACEHOLDER_3 0 +))
+          (mrule _ NONE))))
+    (fvalbind
+      (fmrule PLACEHOLDER_4
+        (typed_pat
+          (var_pat PLACEHOLDER_3)
+          (tycon_ty
+            (tyseq string) list))
+        (typed_pat
+          (var_pat PLACEHOLDER_5) int)
+        (typed_pat
+          (var_pat PLACEHOLDER_6)
+          (fn_ty
+            (tuple_ty int int) int))
+        (tycon_ty
+          (tyseq int) option)
+        (case_exp PLACEHOLDER_3
+          (mrule
+            (list_pat) NONE)
+          (mrule
+            (infix_pat
+              (var_pat PLACEHOLDER_7) ::
+              (var_pat PLACEHOLDER_8))
+            (case_exp
+              (app_exp
+                (longvid Int fromString) PLACEHOLDER_7)
+              (mrule NONE NONE)
+              (mrule
+                (app_pat SOME
+                  (var_pat PLACEHOLDER_9))
+                (app_exp PLACEHOLDER_10 PLACEHOLDER_8
+                  (app_exp PLACEHOLDER_6
+                    (tuple_exp PLACEHOLDER_5 PLACEHOLDER_9)))))))))
+    (fvalbind
+      (fmrule PLACEHOLDER_10
+        (typed_pat
+          (var_pat PLACEHOLDER_3)
+          (tycon_ty
+            (tyseq string) list))
+        (typed_pat
+          (var_pat PLACEHOLDER_5) int)
+        (tycon_ty
+          (tyseq int) option)
+        (case_exp PLACEHOLDER_3
+          (mrule
+            (list_pat)
+            (app_exp SOME PLACEHOLDER_5))
+          (mrule
+            (list_pat _) NONE)
+          (mrule
+            (infix_pat
+              (var_pat PLACEHOLDER_11) ::
+              (var_pat PLACEHOLDER_8))
+            (case_exp PLACEHOLDER_11
+              (mrule "plus"
+                (app_exp PLACEHOLDER_4 PLACEHOLDER_8 PLACEHOLDER_5 +))
+              (mrule "minus"
+                (app_exp PLACEHOLDER_4 PLACEHOLDER_8 PLACEHOLDER_5 -))
+              (mrule "multiplied"
+                (app_exp PLACEHOLDER_4
+                  (app_exp tl PLACEHOLDER_8) PLACEHOLDER_5 *))
+              (mrule "divided"
+                (app_exp PLACEHOLDER_4
+                  (app_exp tl PLACEHOLDER_8) PLACEHOLDER_5 div))
+              (mrule _ NONE))))))))

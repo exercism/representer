@@ -1,30 +1,159 @@
-local
-fun coprime x y =
-if x <= 0 orelse y <= 0 then false else
-let fun loop b s = if s = 0 then b else loop s ( b mod s )
-in ( if x > y then loop x y else
-if x < y then loop y x else x ) = 1
-end
-fun mod_inverse a m =
-let fun loop x y = if y = 1 then x else loop y (( y * a ) mod m )
-in loop 1 a
-end
-fun transcode g f s =
-let fun recode c = if Char . isDigit c then c else
-chr ( ord #"a" + f ( ord ( Char . toLower c ) - ord #"a" ))
-in ( implode o g o map recode o List . filter Char . isAlphaNum o explode ) s
-end
-in
-fun encode ({ a , b }, s ) =
-if not ( coprime a 26 ) then raise Fail "\"a and m must be coprime.\"" else
-let fun fives ( a::b::c::d::e::f::xs ) =
-a::b::c::d::e:: "#\" \"" ::fives ( f::xs )
-| fives xs = xs
-in transcode fives ( fn n => ( a * n + b ) mod 26 ) s
-end
-fun decode ({ a , b }, s ) =
-if not ( coprime a 26 ) then raise Fail "\"a and m must be coprime.\"" else
-let val a' = mod_inverse a 26
-in transcode ( fn x => x ) ( fn n => (( n - b ) * a' ) mod 26 ) s
-end
-end
+(source_file
+  (local_strdec
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_1
+          (var_pat PLACEHOLDER_2)
+          (var_pat PLACEHOLDER_3)
+          (cond_exp
+            (disj_exp
+              (infix_exp PLACEHOLDER_2 <= 0)
+              (infix_exp PLACEHOLDER_3 <= 0)) false
+            (let_exp
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_4
+                    (var_pat PLACEHOLDER_5)
+                    (var_pat PLACEHOLDER_6)
+                    (cond_exp
+                      (infix_exp PLACEHOLDER_6 = 0) PLACEHOLDER_5
+                      (app_exp PLACEHOLDER_4 PLACEHOLDER_6
+                        (infix_exp PLACEHOLDER_5 mod PLACEHOLDER_6))))))
+              (infix_exp
+                (cond_exp
+                  (infix_exp PLACEHOLDER_2 > PLACEHOLDER_3)
+                  (app_exp PLACEHOLDER_4 PLACEHOLDER_2 PLACEHOLDER_3)
+                  (cond_exp
+                    (infix_exp PLACEHOLDER_2 < PLACEHOLDER_3)
+                    (app_exp PLACEHOLDER_4 PLACEHOLDER_3 PLACEHOLDER_2) PLACEHOLDER_2)) = 1))))))
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_7
+          (var_pat PLACEHOLDER_8)
+          (var_pat PLACEHOLDER_9)
+          (let_exp
+            (fun_dec
+              (fvalbind
+                (fmrule PLACEHOLDER_4
+                  (var_pat PLACEHOLDER_2)
+                  (var_pat PLACEHOLDER_3)
+                  (cond_exp
+                    (infix_exp PLACEHOLDER_3 = 1) PLACEHOLDER_2
+                    (app_exp PLACEHOLDER_4 PLACEHOLDER_3
+                      (infix_exp
+                        (infix_exp PLACEHOLDER_3 * PLACEHOLDER_8) mod PLACEHOLDER_9))))))
+            (app_exp PLACEHOLDER_4 1 PLACEHOLDER_8)))))
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_10
+          (var_pat PLACEHOLDER_11)
+          (var_pat PLACEHOLDER_12)
+          (var_pat PLACEHOLDER_6)
+          (let_exp
+            (fun_dec
+              (fvalbind
+                (fmrule PLACEHOLDER_13
+                  (var_pat PLACEHOLDER_14)
+                  (cond_exp
+                    (app_exp
+                      (longvid Char isDigit) PLACEHOLDER_14) PLACEHOLDER_14
+                    (app_exp chr
+                      (infix_exp
+                        (app_exp ord
+                          (character "a")) +
+                        (app_exp PLACEHOLDER_12
+                          (infix_exp
+                            (app_exp ord
+                              (app_exp
+                                (longvid Char toLower) PLACEHOLDER_14)) -
+                            (app_exp ord
+                              (character "a"))))))))))
+            (app_exp
+              (infix_exp
+                (infix_exp
+                  (infix_exp
+                    (infix_exp implode o PLACEHOLDER_11) o
+                    (app_exp map PLACEHOLDER_13)) o
+                  (app_exp
+                    (longvid List filter)
+                    (longvid Char isAlphaNum))) o explode) PLACEHOLDER_6))))) in
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_15
+          (tuple_pat
+            (record_pat
+              (patrow (lab PLACEHOLDER_8)
+                (var_pat PLACEHOLDER_8))
+              (patrow (lab PLACEHOLDER_5)
+                (var_pat PLACEHOLDER_5)))
+            (var_pat PLACEHOLDER_6))
+          (cond_exp
+            (app_exp not
+              (app_exp PLACEHOLDER_1 PLACEHOLDER_8 26))
+            (raise_exp
+              (app_exp Fail "a and m must be coprime."))
+            (let_exp
+              (fun_dec
+                (fvalbind
+                  (fmrule PLACEHOLDER_16
+                    (infix_pat
+                      (var_pat PLACEHOLDER_8) ::
+                      (infix_pat
+                        (var_pat PLACEHOLDER_5) ::
+                        (infix_pat
+                          (var_pat PLACEHOLDER_14) ::
+                          (infix_pat
+                            (var_pat PLACEHOLDER_17) ::
+                            (infix_pat
+                              (var_pat PLACEHOLDER_18) ::
+                              (infix_pat
+                                (var_pat PLACEHOLDER_12) ::
+                                (var_pat PLACEHOLDER_19)))))))
+                    (infix_exp PLACEHOLDER_8 ::
+                      (infix_exp PLACEHOLDER_5 ::
+                        (infix_exp PLACEHOLDER_14 ::
+                          (infix_exp PLACEHOLDER_17 ::
+                            (infix_exp PLACEHOLDER_18 ::
+                              (infix_exp
+                                (character " ") ::
+                                (app_exp PLACEHOLDER_16
+                                  (infix_exp PLACEHOLDER_12 :: PLACEHOLDER_19)))))))))
+                  (fmrule PLACEHOLDER_16
+                    (var_pat PLACEHOLDER_19) PLACEHOLDER_19)))
+              (app_exp PLACEHOLDER_10 PLACEHOLDER_16
+                (fn_exp
+                  (mrule
+                    (var_pat PLACEHOLDER_20)
+                    (infix_exp
+                      (infix_exp
+                        (infix_exp PLACEHOLDER_8 * PLACEHOLDER_20) + PLACEHOLDER_5) mod 26))) PLACEHOLDER_6))))))
+    (fun_dec
+      (fvalbind
+        (fmrule PLACEHOLDER_21
+          (tuple_pat
+            (record_pat
+              (patrow (lab PLACEHOLDER_8)
+                (var_pat PLACEHOLDER_8))
+              (patrow (lab PLACEHOLDER_5)
+                (var_pat PLACEHOLDER_5)))
+            (var_pat PLACEHOLDER_6))
+          (cond_exp
+            (app_exp not
+              (app_exp PLACEHOLDER_1 PLACEHOLDER_8 26))
+            (raise_exp
+              (app_exp Fail "a and m must be coprime."))
+            (let_exp
+              (val_dec
+                (valbind
+                  (var_pat PLACEHOLDER_22)
+                  (app_exp PLACEHOLDER_7 PLACEHOLDER_8 26)))
+              (app_exp PLACEHOLDER_10
+                (fn_exp
+                  (mrule
+                    (var_pat PLACEHOLDER_2) PLACEHOLDER_2))
+                (fn_exp
+                  (mrule
+                    (var_pat PLACEHOLDER_20)
+                    (infix_exp
+                      (infix_exp
+                        (infix_exp PLACEHOLDER_20 - PLACEHOLDER_5) * PLACEHOLDER_22) mod 26))) PLACEHOLDER_6))))))))

@@ -1,25 +1,73 @@
-fun getNumber inBase digits =
-foldl ( fn ( x , y ) => x + inBase * y ) 0 digits
-fun putNumber' outbase n acc =
-if n = 0 then
-acc
-else
-let
-val q = n div outbase
-val m = n mod outbase
-in
-putNumber' outbase q ( m::acc )
-end
-fun putNumber outbase n =
-putNumber' outbase n []
-fun rebase (_, _, []) = NONE
-| rebase ( inBase , outBase , digits ) =
-if inBase <= 1 orelse outBase <= 1 orelse not ( List . all ( fn x => x >= 0 andalso x < inBase ) digits )
-then
-NONE
-else
-let
-val n = getNumber inBase digits
-in
-if n = 0 then NONE else SOME ( putNumber outBase n )
-end
+(source_file
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_1
+        (var_pat PLACEHOLDER_2)
+        (var_pat PLACEHOLDER_3)
+        (app_exp foldl
+          (fn_exp
+            (mrule
+              (tuple_pat
+                (var_pat PLACEHOLDER_4)
+                (var_pat PLACEHOLDER_5))
+              (infix_exp PLACEHOLDER_4 +
+                (infix_exp PLACEHOLDER_2 * PLACEHOLDER_5)))) 0 PLACEHOLDER_3))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_6
+        (var_pat PLACEHOLDER_7)
+        (var_pat PLACEHOLDER_8)
+        (var_pat PLACEHOLDER_9)
+        (cond_exp
+          (infix_exp PLACEHOLDER_8 = 0) PLACEHOLDER_9
+          (let_exp
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_10)
+                (infix_exp PLACEHOLDER_8 div PLACEHOLDER_7)))
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_11)
+                (infix_exp PLACEHOLDER_8 mod PLACEHOLDER_7)))
+            (app_exp PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_10
+              (infix_exp PLACEHOLDER_11 :: PLACEHOLDER_9)))))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_12
+        (var_pat PLACEHOLDER_7)
+        (var_pat PLACEHOLDER_8)
+        (app_exp PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8
+          (list_exp)))))
+  (fun_dec
+    (fvalbind
+      (fmrule PLACEHOLDER_13
+        (tuple_pat _ _
+          (list_pat)) NONE)
+      (fmrule PLACEHOLDER_13
+        (tuple_pat
+          (var_pat PLACEHOLDER_2)
+          (var_pat PLACEHOLDER_14)
+          (var_pat PLACEHOLDER_3))
+        (cond_exp
+          (disj_exp
+            (disj_exp
+              (infix_exp PLACEHOLDER_2 <= 1)
+              (infix_exp PLACEHOLDER_14 <= 1))
+            (app_exp not
+              (app_exp
+                (longvid List all)
+                (fn_exp
+                  (mrule
+                    (var_pat PLACEHOLDER_4)
+                    (conj_exp
+                      (infix_exp PLACEHOLDER_4 >= 0)
+                      (infix_exp PLACEHOLDER_4 < PLACEHOLDER_2)))) PLACEHOLDER_3))) NONE
+          (let_exp
+            (val_dec
+              (valbind
+                (var_pat PLACEHOLDER_8)
+                (app_exp PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3)))
+            (cond_exp
+              (infix_exp PLACEHOLDER_8 = 0) NONE
+              (app_exp SOME
+                (app_exp PLACEHOLDER_12 PLACEHOLDER_14 PLACEHOLDER_8)))))))))
