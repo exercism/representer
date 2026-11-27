@@ -1,31 +1,163 @@
-maximum_value <- \ ( max_weight , items ) {
-if ( length ( items ) == 0 ) { return ( 0 ) }
-x <- as.data.frame ( t ( sapply ( items , as.integer )))
-names ( x ) <- c ( 'wt' , 'val' )
-pool <- data.frame ( lb = 0 , ub = sum ( x [, 2 ]), rw = max_weight )
-max_val <- 0
-for ( i in 1 : nrow ( x )) {
-new_pool <- NULL
-for ( j in 1 : nrow ( pool )) {
-lb <- pool [ j , 1 ] + x $ val [ i ]
-ub <- pool [ j , 2 ]
-rw <- pool [ j , 3 ] - x $ wt [ i ]
-if ( rw >= 0 && lb == ub ) {
-max_val <- max ( max_val , lb )
-} else if ( rw >= 0 && lb < ub ) {
-new_pool <- rbind ( new_pool , c ( lb , ub , rw ))
-}
-lb <- pool [ j , 1 ]
-ub <- pool [ j , 2 ] - x $ val [ i ]
-rw <- pool [ j , 3 ]
-if ( rw >= 0 && lb == ub ) {
-max_val <- max ( max_val , lb )
-} else if ( rw >= 0 && lb < ub ) {
-new_pool <- rbind ( new_pool , c ( lb , ub , rw ))
-}
-}
-if ( is.null ( new_pool )) { break }
-pool <- new_pool
-}
-max_val
-}
+(program
+  (assignment PLACEHOLDER_1 <-
+    (function_definition
+      (parameters
+        (parameter PLACEHOLDER_2)
+        (parameter PLACEHOLDER_3))
+      (braced_expression
+        (if_statement
+          (binary_operator
+            (call length
+              (arguments
+                (argument PLACEHOLDER_3))) == 0)
+          (braced_expression
+            (call return
+              (arguments
+                (argument 0)))))
+        (assignment PLACEHOLDER_4 <-
+          (call as.data.frame
+            (arguments
+              (argument
+                (call t
+                  (arguments
+                    (argument
+                      (call sapply
+                        (arguments
+                          (argument PLACEHOLDER_3)
+                          (argument as.integer))))))))))
+        (assignment
+          (call names
+            (arguments
+              (argument PLACEHOLDER_4))) <-
+          (call c
+            (arguments
+              (argument "wt")
+              (argument "val"))))
+        (assignment PLACEHOLDER_5 <-
+          (call data.frame
+            (arguments
+              (argument PLACEHOLDER_6 = 0)
+              (argument PLACEHOLDER_7 =
+                (call sum
+                  (arguments
+                    (argument
+                      (subset PLACEHOLDER_4
+                        (arguments
+                          (empty_argument)
+                          (argument 2)))))))
+              (argument PLACEHOLDER_8 = PLACEHOLDER_2))))
+        (assignment PLACEHOLDER_9 <- 0)
+        (for_statement PLACEHOLDER_10
+          (binary_operator 1 :
+            (call nrow
+              (arguments
+                (argument PLACEHOLDER_4))))
+          (braced_expression
+            (assignment PLACEHOLDER_11 <- NULL)
+            (for_statement PLACEHOLDER_12
+              (binary_operator 1 :
+                (call nrow
+                  (arguments
+                    (argument PLACEHOLDER_5))))
+              (braced_expression
+                (assignment PLACEHOLDER_6 <-
+                  (binary_operator
+                    (subset PLACEHOLDER_5
+                      (arguments
+                        (argument PLACEHOLDER_12)
+                        (argument 1))) +
+                    (subset
+                      (extract_operator PLACEHOLDER_4 $ val)
+                      (arguments
+                        (argument PLACEHOLDER_10)))))
+                (assignment PLACEHOLDER_7 <-
+                  (subset PLACEHOLDER_5
+                    (arguments
+                      (argument PLACEHOLDER_12)
+                      (argument 2))))
+                (assignment PLACEHOLDER_8 <-
+                  (binary_operator
+                    (subset PLACEHOLDER_5
+                      (arguments
+                        (argument PLACEHOLDER_12)
+                        (argument 3))) -
+                    (subset
+                      (extract_operator PLACEHOLDER_4 $ wt)
+                      (arguments
+                        (argument PLACEHOLDER_10)))))
+                (if_statement
+                  (binary_operator
+                    (binary_operator PLACEHOLDER_8 >= 0) &&
+                    (binary_operator PLACEHOLDER_6 == PLACEHOLDER_7))
+                  (braced_expression
+                    (assignment PLACEHOLDER_9 <-
+                      (call max
+                        (arguments
+                          (argument PLACEHOLDER_9)
+                          (argument PLACEHOLDER_6)))))
+                  (if_statement
+                    (binary_operator
+                      (binary_operator PLACEHOLDER_8 >= 0) &&
+                      (binary_operator PLACEHOLDER_6 < PLACEHOLDER_7))
+                    (braced_expression
+                      (assignment PLACEHOLDER_11 <-
+                        (call rbind
+                          (arguments
+                            (argument PLACEHOLDER_11)
+                            (argument
+                              (call c
+                                (arguments
+                                  (argument PLACEHOLDER_6)
+                                  (argument PLACEHOLDER_7)
+                                  (argument PLACEHOLDER_8))))))))))
+                (assignment PLACEHOLDER_6 <-
+                  (subset PLACEHOLDER_5
+                    (arguments
+                      (argument PLACEHOLDER_12)
+                      (argument 1))))
+                (assignment PLACEHOLDER_7 <-
+                  (binary_operator
+                    (subset PLACEHOLDER_5
+                      (arguments
+                        (argument PLACEHOLDER_12)
+                        (argument 2))) -
+                    (subset
+                      (extract_operator PLACEHOLDER_4 $ val)
+                      (arguments
+                        (argument PLACEHOLDER_10)))))
+                (assignment PLACEHOLDER_8 <-
+                  (subset PLACEHOLDER_5
+                    (arguments
+                      (argument PLACEHOLDER_12)
+                      (argument 3))))
+                (if_statement
+                  (binary_operator
+                    (binary_operator PLACEHOLDER_8 >= 0) &&
+                    (binary_operator PLACEHOLDER_6 == PLACEHOLDER_7))
+                  (braced_expression
+                    (assignment PLACEHOLDER_9 <-
+                      (call max
+                        (arguments
+                          (argument PLACEHOLDER_9)
+                          (argument PLACEHOLDER_6)))))
+                  (if_statement
+                    (binary_operator
+                      (binary_operator PLACEHOLDER_8 >= 0) &&
+                      (binary_operator PLACEHOLDER_6 < PLACEHOLDER_7))
+                    (braced_expression
+                      (assignment PLACEHOLDER_11 <-
+                        (call rbind
+                          (arguments
+                            (argument PLACEHOLDER_11)
+                            (argument
+                              (call c
+                                (arguments
+                                  (argument PLACEHOLDER_6)
+                                  (argument PLACEHOLDER_7)
+                                  (argument PLACEHOLDER_8))))))))))))
+            (if_statement
+              (call is.null
+                (arguments
+                  (argument PLACEHOLDER_11)))
+              (braced_expression break))
+            (assignment PLACEHOLDER_5 <- PLACEHOLDER_11))) PLACEHOLDER_9))))

@@ -203,7 +203,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | purescript | Basic | 123 | 8 | 100 | 25 | 98 | 4 | 0 | 0 | 2 |
 | pyret | Basic | 103 | 1 | 100 | 65 | 97 | 0 | 0 | 0 | 0 |
 | python | Python | 397 | 99 | 100 | 92 | 100 | 4 | 0 | 0 | 0 |
-| r | Basic | 391 | 97 | 100 | 71 | 98 | 10 | 1 | 0 | 0 |
+| r | R | 391 | 97 | 100 | 71 | 98 | 0 | 3 | 0 | 0 |
 | racket | Basic | 277 | 59 | 100 | 56 | 98 | 30 | 0 | 0 | 0 |
 | raku | Raku | 128 | 12 | 92 | 59 | 83 | 0 | 3 | 0 | 0 |
 | reasonml | Basic | 178 | 26 | 100 | 26 | 95 | 4 | 0 | 0 | 0 |
