@@ -91,7 +91,7 @@ class RubyTest < RepresenterTest
     result = represent("def x(")
     assert_nil result.representation
     assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::Ruby.version, result.version
+    assert_equal Representer::Languages::Ruby::Spec.version, result.version
   end
 
   def test_missing_nodes_are_unrepresentable

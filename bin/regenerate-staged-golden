@@ -40,8 +40,9 @@ changed_grammars = begin
 end
 
 changed = languages.select do |language|
-  # A staged language keeps its stages in a folder named after its file.
-  sources = [class_files[language], *Dir[class_files[language].sub(/\.rb\z/, "/*.rb")]]
+  # A staged language keeps all its files in its folder, beside its spec.rb.
+  file = class_files[language]
+  sources = file.end_with?("/spec.rb") ? Dir[File.join(File.dirname(file), "*.rb")] : [file]
   text = File.read(class_files[language])
   text.scan(/inherit (\w+)/).flatten.each { |parent| sources << class_files[Representer::Languages.const_get(parent)] }
 

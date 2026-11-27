@@ -1,7 +1,7 @@
 require_relative "stage_helper"
 
 # Checks Elixir's declarations of which nodes are names and which nodes
-# define them (see elixir.rb), through the engine's renaming.
+# define them (see elixir/spec.rb), through the engine's renaming.
 class ElixirNamesTest < Minitest::Test
   include ElixirStages
 
@@ -38,9 +38,9 @@ class ElixirNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Elixir)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Elixir::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Elixir.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Elixir::Spec.name?(node) }
     leaves
   end
 end

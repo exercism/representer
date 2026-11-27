@@ -1,7 +1,7 @@
 require_relative "stage_helper"
 
 # Checks Ruby's declarations of which nodes are names and which nodes define
-# them (see ruby.rb), through the engine's renaming.
+# them (see ruby/spec.rb), through the engine's renaming.
 class RubyNamesTest < Minitest::Test
   include RubyStages
 
@@ -38,9 +38,9 @@ class RubyNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Ruby)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Ruby::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Ruby.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Ruby::Spec.name?(node) }
     leaves
   end
 end

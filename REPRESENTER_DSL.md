@@ -1,402 +1,454 @@
 # Representer DSL
 
-A language with its own representer is written in one of two ways:
+This file defines every declaration and verb that a language can use.
+Ruby and Elixir are staged languages, and every language will become one.
+The other languages are still on the old structure, and use the rule DSL described in the last section.
+[CONTRIBUTING.md](./CONTRIBUTING.md) explains how to add a language.
 
-- **With stages** (Ruby): a module that extends `StagedLanguage`. It declares which nodes are names and which nodes define them, and defines the stages it needs as subclasses of the engine's stage classes (`GenerateAST`, `Normalise` and `Reorder`). The engine renames the names. Every language should be written this way, and [CONTRIBUTING.md](./CONTRIBUTING.md) explains how.
-- **With the rule DSL** (every other language, until it moves to stages): a class that inherits from `Language` and lists drop, rewrite and rename rules. The engine parses the solution with the language's tree-sitter grammar, then applies the drop rules, then the rewrite rules, then the rename rules.
+## How a staged language is laid out
 
-Both use the same setup methods.
-Every solution that the representer sees passes its tests, so a language can drop any code that makes no difference to the solution working (see "The goal" in CONTRIBUTING.md).
+Each staged language has a folder of its own in `lib/representer/languages/`.
+The folder's `spec.rb` defines a class called `Spec`, which declares the language's setup, names and imports.
+Each stage the language needs is a class in a file of its own beside it, in the same module:
 
-## Names in a staged language
-
-A staged language declares two lists, with the node types that `GenerateAST` leaves:
-
-```ruby
-names_are :identifier, :constant, :instance_variable
-names_are :simple_symbol, without_prefix: ":"
-names_are_defined_by :class, :method_parameters, method: :name, assignment: :left
+```
+lib/representer/languages/ruby/
+  spec.rb           Ruby::Spec
+  generate_ast.rb   Ruby::GenerateAST
+  normalise.rb      Ruby::Normalise
+  reorder.rb        Ruby::Reorder
 ```
 
-- `names_are` lists the leaf types that are names, and a language can call it more than once. If a type's text starts with something that isn't part of the name, such as the `:` of Ruby's `:name`, give it as `without_prefix:`.
-- `names_are_defined_by` lists the node types that define a name. A type given on its own defines each of its children that is a name. A type given with a field defines only the child in that field, so `assignment: :left` defines `x` in `x = y`, and not `y`.
-
-[`Engine::RenameUserDefinedNodes`](./lib/representer/engine/rename_user_defined_nodes.rb) then walks the solution's trees twice.
-The first walk collects the text of every name that the solution defines.
-The second walk renames every name with one of those texts, wherever it appears: in its definition, and in every use, call and symbol.
-Every name that the solution doesn't define keeps its name, so a call to a library method stays as it is.
-The engine never reads the exercise's tests or stub for names.
-
-## Code patterns
-
-A code pattern is code in the language itself, with placeholders.
-A staged language lists its imports and its `Normalise` rules as code patterns.
-The engine parses a pattern with the language's grammar and runs the language's `GenerateAST` on it, so a pattern has the same shape as a solution's tree, and a language never writes a tree-sitter query for it.
-[`Engine::CodePattern`](./lib/representer/engine/code_pattern.rb) compiles each pattern once and caches it.
-
-| Code | Matches |
-|---|---|
-| `{{word}}` | Any code. In a list, such as a method's parameters, it matches any number of items, including none. |
-| `"{{file}}"` | One string without interpolation. If the grammar reads a placeholder as something other than a name, the placeholder matches one node of that kind. |
-| Anything else | The same code. |
-
-The placeholders use braces, because a `$word` is real code in Ruby, PHP, Perl, Bash, jq and JavaScript templates.
-
-A pattern matches a node if the pattern's children match the node's children in order.
-The node may have more children between and after them, such as a method's body.
-It may not have anything with a field name before them, such as a call's receiver.
-So Ruby's `require "{{file}}"` matches `require "set"`, and it doesn't match `Kernel.require "set"` or `require name`.
-
-Some code doesn't parse on its own, such as Ruby's `{ |{{x}}| }`, or `def {{method}}({{x}})` without its `end`.
-The engine then tries the code in each of the language's pattern contexts, in order.
-A rule can also give its own context with `inside:`.
-A context marks the code's place with `...`.
-The pattern is the smallest node that holds all of the code, and it matches that node wherever it appears.
-So `"*{{x}}", inside: "def f(...) end"` matches a splat parameter in a method, a block or a lambda.
-
-If one of the grammar's keywords comes out as a name, the engine rejects that parse and tries the next context.
-So Ruby's `rescue => {{x}}` can't become a pattern match on a variable called `rescue`.
-If the code doesn't parse in any context, the engine tries every context again with each placeholder capitalised, as Ruby's `class {{x}}` needs.
-
-## Stages
-
-A language defines each stage it needs as a subclass of the engine's class for that stage, and the engine skips a stage that a language doesn't define.
-Each stage is a Mandate command that takes one tree and returns the new tree, and includes `Engine::TreeHelpers`.
-
-- `GenerateAST < Engine::GenerateAST` writes its own `call` with the tree helpers below.
-- `Normalise < Engine::Normalise` lists its rules with the verbs below.
-- `Reorder < Engine::Reorder` lists the containers to sort with the verb below. It sorts code if its order makes no difference, by a key that ignores names.
-
-### Normalise verbs
-
 ```ruby
-class Normalise < Engine::Normalise
-  drop_calls_to :puts
-  rewrite "{{list}}.length", as: "{{list}}.size"
+module Representer::Languages::Ruby
+  class Spec < Representer::Engine::Language
+    tracks "ruby"
+    version 11
+    grammar "ruby"
+    extensions ".rb"
+  end
 end
 ```
 
-The stage applies its rules in the order they are listed, and each rule visits every node once.
-The engine compiles the rules the first time the stage runs.
+When a language defines its `Spec`, the engine looks in the language's folder for each stage's file.
+If a file is missing, the language doesn't run that stage.
 
-| Verb | Does |
-|---|---|
-| `drop "code", ...` | Removes every piece of code that matches one of the patterns. |
-| `drop_calls_to :name, ...` | Removes every call to these methods. The engine writes each call as `name({{arguments}})`. |
-| `rewrite "code", as: "code"` | Turns each match into the code given in `as:`, from the leaves up. Each placeholder in `as:` becomes a copy of its match. |
-| `attach_to_next "code", ...` | Moves each statement that matches one of the patterns into the statement after it, as its last child, so the two move together when Reorder sorts them. If several matches come one after the other, they all move into the next statement. |
-| `attach_to_each_following "code", ..., to: ["code", ...]` | Removes each line that matches one of the patterns, and gives a copy of it, as a last child, to every definition after it that matches one of the patterns in `to:`, up to the next of these lines or the end of the container. So each definition keeps the line's meaning wherever it moves. |
+## Setup declarations
 
-Each verb also takes `inside:`.
-A statement or a line is a child with no field name, so the `private` of Ruby's `private def x` isn't a line.
+### tracks
 
-Elixir keeps each `@spec` with its function, and Ruby marks each method with its visibility:
-
-```ruby
-attach_to_next "@spec {{spec}}"
-
-attach_to_each_following "private", "protected", "public",
-  to: ["def {{name}}\nend", "attr_reader {{names}}"]
-```
-
-[`Engine::AttachToNext`](./lib/representer/engine/attach_to_next.rb) and [`Engine::AttachToEachFollowing`](./lib/representer/engine/attach_to_each_following.rb) do the work.
-
-### The Reorder verb
-
-```ruby
-class Reorder < Engine::Reorder
-  sort :class_body, :module_body, :hash
-end
-```
-
-| Verb | Does |
-|---|---|
-| `sort :type, ...` | Sorts the children of every node of these types by their code, written with every renamed name as `_`. Children with the same code keep their order. Inner nodes are sorted before the nodes around them. |
-
-Reorder runs after the engine renames the names, so the order never depends on the names a student chose.
-Only list containers of definitions or entries, such as a class's body or a map, where the order makes no difference to the solution working.
-Never list a block of statements, which runs in order.
-If the language's tree gives such a container the same type as a block of statements, give it a type of its own in `GenerateAST`, as Ruby's `class_body` and Elixir's `module_body` do.
-[`Engine::SortChildren`](./lib/representer/engine/sort_children.rb) does the work.
-
-### Setup for a staged language
-
-A staged language's module takes the setup methods `tracks`, `version`, `grammar` and `extensions` (see "Setup" below), `names_are` and `names_are_defined_by` (see "Names in a staged language"), and these two more:
-
-- `imports "code", ...` lists the code that counts as an import, as code patterns. The engine drops it from every file, after `GenerateAST`.
-- `pattern_contexts "context", ...` lists the code to put a code pattern in when the pattern doesn't parse on its own. Each context marks the pattern's place with `...`.
-
-## Tree helpers for GenerateAST
-
-Every stage includes `Engine::TreeHelpers`, and `GenerateAST` calls these methods on its tree.
-Each method visits a node once, so a rule can't match its own output and loop.
-A method that can replace the root returns the new root.
-Their patterns use the syntax in "Patterns" below, and they also accept a code pattern.
-
-| Helper | Does |
-|---|---|
-| `each_node(root) { \|node, parent\| }` | Visits every node and its parent, parents first, in source order. |
-| `find_all(root, pattern)` | Returns every match of the pattern, as `Match`es. |
-| `captured(root, pattern, name = :name)` | Returns every node captured as `@name`, with list captures flattened. |
-| `transform(root, pattern, template)` | Replaces each match with the template, from the leaves up. |
-| `transform(root, pattern) { \|match\| }` | Replaces each match with the block's result, from the leaves up. The block can return the matched node changed in place, or nil to leave it. |
-| `drop(root, pattern)` | Removes each match with its children. |
-| `drop_tokens(root, everywhere:, only_in:, kept_in:)` | Removes anonymous tokens: `everywhere` from every node apart from the types in `kept_in`, and `only_in` from the types it names. |
-| `unwrap(root, pattern)` | Replaces a match that has one named child with that child. |
-| `retype(root, from => to)` | Gives nodes of one type another type. |
-| `attach(node, *children)` | Adds the children to the end of the node's children, without field names, so that they move with the node. |
-| `build`, `leaf`, `literal`, `token`, `copy` | These make nodes (see "Helpers for rewrite blocks" below). |
-| `text_of(node)` | Returns the text of a node's leaves, joined. |
-
-## The rule DSL
-
-The rest of this file describes the rule DSL, used by the languages that haven't moved to stages yet.
-Each class in `lib/representer/languages/` describes its language with the rules below.
-A staged language's module also takes the setup methods `tracks`, `version`, `grammar` and `extensions`.
-
-## Setup
-
-### `tracks(*slugs)`
-
-This sets the track slugs that the class represents.
+A language says which tracks it represents, and the engine then uses it for those tracks.
 
 ```ruby
 tracks "ruby"
 ```
 
-### `version(number)`
+### version
 
-This sets the language's representer version, from 2 to 32767.
-Bump it whenever the output for any solution changes.
+The website represents a track's solutions again when the version changes, so a language bumps its version whenever the output for any solution could change.
+Versions run from 2 to 32767, because the old per-track representers all reported 1.
 
 ```ruby
-version 2
+version 11
 ```
 
-### `grammar(name)`
+### grammar
 
-This names the grammar's entry in `grammars.yml`.
+A language names its tree-sitter grammar's entry in `grammars.yml`.
 
 ```ruby
 grammar "ruby"
 ```
 
-### `extensions(*list)`
+### extensions
 
-This lists the file extensions of the language's source files.
-The engine ignores solution and exercise files with any other extension, such as Rust's `Cargo.toml`.
+The engine only represents solution files with one of these extensions, and ignores files such as Rust's `Cargo.toml`.
 
 ```ruby
 extensions ".rb"
 ```
 
-### `names(*types, **prefixed)`
+## Names and imports
 
-This lists the leaf types that hold names, which the rename rules may rename.
-A keyword argument gives a prefix that isn't part of the name, such as the `:` in `:name`.
+### names_are
+
+A language lists the leaf types that hold names, after `GenerateAST`.
+If a type's text starts with something that isn't part of the name, the language gives it as `without_prefix:`.
+A language can call `names_are` more than once.
 
 ```ruby
-names :identifier, :constant, :instance_variable, :class_variable, :global_variable, simple_symbol: ":"
+names_are :simple_symbol, without_prefix: ":"
 ```
 
-### `fold_names { |name| ... }`
+### names_are_defined_by
 
-The block returns one canonical spelling for a name.
-Use it for a language that treats some spellings of a name as the same name.
+A language lists the node types that define a name, after `GenerateAST`.
+A type given on its own defines each of its children that is a name.
+A type given with a field defines only the child in that field, so `assignment: :left` defines `x` in `x = y`, and not `y`.
+A language can call `names_are_defined_by` more than once.
+
+```ruby
+names_are_defined_by :method_parameters, assignment: :left
+```
+
+### imports
+
+A solution that passes its tests has already loaded everything it needs, so the engine drops every import from every file, after `GenerateAST`.
+A language lists the code that counts as an import, as code patterns.
+
+```ruby
+imports 'require "{{file}}"'
+```
+
+### pattern_contexts
+
+Some code patterns don't parse on their own, such as a `def` without its `end`.
+A language lists code to put such a pattern in, and marks the pattern's place with `...`.
+The engine tries the contexts in order.
+
+```ruby
+pattern_contexts "...\nend"
+```
+
+## Stages
+
+Each stage is a subclass of the engine's class for that stage, and runs on a tree.
+The engine runs the stages in this order, between its own steps (see "What the engine does for every language" below):
+
+1. `GenerateAST` runs on each file. It turns tree-sitter's tree into the tree given by the language's own parser, with the tree helpers below.
+2. `Normalise` runs on each file. It applies the equivalences and removals decided for the language, with the verbs below.
+3. `Reorder` runs on all the files joined into one tree. It sorts code if its order makes no difference.
+
+```ruby
+module Representer::Languages::Ruby
+  class Reorder < Representer::Engine::Reorder
+    sort :class_body, :hash
+  end
+end
+```
+
+### drop
+
+`Normalise` removes every piece of code that matches one of the patterns.
+
+```ruby
+drop "@moduledoc {{text}}", "@doc {{text}}"
+```
+
+### drop_calls_to
+
+`Normalise` removes every call to these methods, written as `name({{arguments}})`.
+
+```ruby
+drop_calls_to :puts
+```
+
+### rewrite
+
+`Normalise` turns each piece of code that matches the pattern into the code given in `as:`, from the leaves up.
+Each placeholder in `as:` becomes a copy of the code it matched.
+
+```ruby
+rewrite "{{list}}.length", as: "{{list}}.size"
+```
+
+### attach_to_next
+
+Some statements belong to the definition after them, such as Elixir's `@spec`.
+`Normalise` moves each statement that matches one of the patterns into the next statement, as its last child, so the two move together when `Reorder` sorts them.
+If several matches come one after the other, they all move into the next statement.
+
+```ruby
+attach_to_next "@spec {{spec}}"
+```
+
+### attach_to_each_following
+
+Some lines change every definition after them, such as Ruby's `private`.
+`Normalise` removes each line that matches one of the patterns, and gives a copy of it to every definition after it that matches a pattern in `to:`, up to the next of these lines or the end of the container.
+Each definition then keeps the line's meaning wherever it moves.
+
+```ruby
+attach_to_each_following "private", "public", to: ["def {{name}}\nend"]
+```
+
+### sort
+
+`Reorder` sorts the children of every node of these types by their code, written with every renamed name blank.
+Children with the same code keep their order, and inner nodes are sorted before the nodes around them.
+A language only lists containers of definitions or entries, such as a class's body or a hash, because a block of statements runs in order.
+If a grammar gives such a container the same type as a block of statements, `GenerateAST` gives it a type of its own first.
+
+```ruby
+sort :class_body, :module_body, :hash
+```
+
+### inside
+
+Every `Normalise` verb also takes `inside:`, which gives its code patterns a context of their own (see "pattern_contexts" above).
+
+```ruby
+drop "*{{x}}", inside: "def f(...) end"
+```
+
+## Code patterns
+
+A code pattern is code in the language itself, with placeholders.
+The engine parses a pattern with the language's grammar and runs the language's `GenerateAST` on it, so a pattern has the same shape as a solution's tree.
+
+A placeholder is a word in double braces, such as `{{file}}`.
+A placeholder matches any code, and in a list, such as a method's parameters, it matches any number of items.
+If the grammar reads a placeholder as something other than a name, it matches one node of that kind, so `"{{file}}"` in quotes matches one string without interpolation.
+A `$word` is real code in several languages, so placeholders use braces.
+
+```ruby
+'require "{{file}}"'
+```
+
+A pattern matches a node if the pattern's children match the node's children in order.
+The node may have more children between and after them, such as a method's body, but nothing with a field name before them, such as a call's receiver.
+So `require "{{file}}"` matches `require "set"`, and it doesn't match `Kernel.require "set"` or `require name`.
+
+If a pattern doesn't parse on its own, the engine tries it in each of the language's pattern contexts.
+If one of the grammar's keywords comes out as a name, the engine rejects that parse and tries the next context.
+If the code doesn't parse in any context, the engine tries every context again with each placeholder capitalised, as Ruby's `class {{x}}` needs.
+
+## What the engine does for every language
+
+A language only says what the engine can't know.
+The engine does these things for every staged language:
+
+1. It ignores files without one of the language's extensions, and test and config files.
+2. It parses each file with the language's grammar, after turning Windows line endings into plain line breaks. If a file doesn't parse, the solution gets no representation.
+3. It drops the language's imports from each file, after `GenerateAST`.
+4. It renames every name the solution defines, wherever the name appears: in its definition, and in every use, call and symbol. A name the solution doesn't define keeps its name, such as a call to a library method. The engine never reads the exercise's tests or stub for names.
+5. It joins the files into one tree, in an order set by their code, and leaves out the file names.
+6. It numbers the placeholders in the order the names appear, and writes the tree out as an s-expression.
+
+## Tree helpers
+
+`GenerateAST` works on the tree with the helpers in `Engine::TreeHelpers`, which every stage includes.
+Each helper visits a node once, so a rule can't loop on its own output.
+A helper that can replace the root returns the new root.
+Their patterns use the syntax in "Tree patterns" below, and they also accept a code pattern.
+
+| Helper | Does | Example |
+|---|---|---|
+| `each_node` | It visits every node and its parent, parents first, in source order. | `each_node(tree) { \|node, parent\| ... }` |
+| `find_all` | It returns every match of the pattern. | `find_all(tree, "(call)")` |
+| `captured` | It returns every node captured as `@name`. | `captured(tree, "(class body: (_) @name)")` |
+| `transform` | It replaces each match with a template or the block's result, from the leaves up. The block can return nil to leave the node. | `transform(tree, "(do_block) @b") { \|match\| ... }` |
+| `drop` | It removes each match with its children. | `drop(tree, "(comment)")` |
+| `drop_tokens` | It removes anonymous tokens: `everywhere` from every node apart from the types in `kept_in`, and `only_in` from the types it names. | `drop_tokens(tree, everywhere: %w[( )])` |
+| `unwrap` | It replaces a match that has one named child with that child. | `unwrap(tree, "(parenthesized_statements)")` |
+| `retype` | It gives nodes of one type another type. | `retype(tree, do_block: :block)` |
+| `attach` | It adds children to the end of a node, without field names, so they move with it. | `attach(method, mark)` |
+| `build` | It makes a node. Children can be nodes or `field: node` pairs. | `build(:if, { condition: x })` |
+| `leaf` | It makes a named leaf. | `leaf(:identifier, "call")` |
+| `literal` | It makes a value that the output always writes in quotes. | `literal("a")` |
+| `token` | It makes an anonymous token. | `token("!")` |
+| `copy` | It makes a deep copy of a node. | `copy(node)` |
+| `text_of` | It returns the text of a node's leaves, joined. | `text_of(node)` |
+
+Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's type, field names and tokens.
+
+### Tree patterns
+
+Tree patterns use a subset of tree-sitter's query syntax.
+
+| Syntax | Matches |
+|---|---|
+| `(type child...)` | It matches a node of this type if its children match the child patterns in order. Other children may sit between them. |
+| `(_)` | It matches any named node. |
+| `_` | It matches any node, named or anonymous. |
+| `field: pattern` | It matches the child with this field name, if the child matches the pattern. |
+| `!field` | It matches a node with no child under this field name. |
+| `"text"` | It matches an anonymous token with this text. Inside a leaf's pattern, it matches the leaf's text. |
+| `/regex/` | It works like `"text"`, with a regular expression. |
+| `[a b c]` | It matches any one of the patterns. |
+| `pattern?` | It matches the pattern, or nothing. |
+| `pattern*` | It matches every remaining child that fits, and its captures become lists. |
+| `pattern @name` | It matches the pattern, and captures the match as `name`. |
+
+### Templates
+
+A template builds a new node in the same syntax.
+
+| Syntax | Builds |
+|---|---|
+| `(type child...)` | It builds a new node of this type. |
+| `field: child` | It builds a child with this field name. |
+| `@name` | It builds a copy of the node captured as `name`. If nothing was captured under that name, the template leaves it out. |
+| `"text"` | It builds an anonymous token. |
+
+## The rule DSL for languages on the old structure
+
+Languages still on the old structure use this DSL, until they become staged languages.
+Each one is a class in `lib/representer/languages/` that inherits from `Representer::Language`.
+It uses the setup declarations above, and lists drop, rewrite and rename rules.
+The engine parses the solution with the language's grammar, then applies the drop rules, then the rewrite rules, then the rename rules.
+
+### names
+
+An old-structure language lists the leaf types that hold names, which the rename rules may rename.
+A keyword argument gives a prefix that isn't part of the name.
+
+```ruby
+names :identifier, :constant, simple_symbol: ":"
+```
+
+### fold_names
+
+Some languages treat several spellings of a name as one name, so the block returns one canonical spelling.
 The mapping keeps the student's first spelling.
 
 ```ruby
 fold_names { |name| name.empty? ? name : name[0] + name[1..].delete("_").downcase }
 ```
 
-### `inherit(parent)`
+### inherit
 
-This copies all of another language's rules and names.
-Use it for a language that is a superset of another, and call it before the class's own rules.
+A language that is a superset of another copies all of the other language's rules and names, before its own rules.
 
 ```ruby
 inherit JavaScript
 ```
 
-### `text_nodes(*types)`
+### text_nodes
 
-This makes each node of these types a leaf that holds its whole source text.
-Use it when a node's text isn't made of its children, such as Gleam's module path `gleam/list`, where the tree only has the slashes as children.
+Some nodes' text isn't made of their children, such as Gleam's module path `gleam/list`, so each node of these types becomes a leaf that holds its whole source text.
 
 ```ruby
 text_nodes :module
 ```
 
-### `text_between_children(*types)`
+### text_between_children
 
-This keeps the text between the children of these node types, as "fragment" leaves.
-Use it when a node's children don't cover all of its text, such as Python's string contents around an escape sequence.
+Some nodes' children don't cover all of their text, such as Python's string contents around an escape, so the engine keeps the text between their children as "fragment" leaves.
 
 ```ruby
-text_between_children :string_content, :format_specifier
+text_between_children :string_content
 ```
 
-## Drop rules
+### syntax_check
 
-### `drop(pattern, where: nil)`
+Some code is accepted by the grammar but rejected by the language, such as Python 2's `print "x"`.
+The block receives the source and the tree, and returns a message if the code is invalid.
+The solution then gets no representation.
 
-This removes every node that matches the pattern.
-The optional `where:` lambda receives the match and returns whether the rule applies.
+```ruby
+syntax_check { |source, _tree| "Python 2 print" if source.match?(/^print "/) }
+```
+
+### drop
+
+The engine removes every node that matches the pattern.
+The optional `where:` lambda receives the match and says whether the rule applies.
 
 ```ruby
 drop "(comment)"
-drop "(method_parameters)", where: ->(match) { match.node.children.empty? }
 ```
 
-### `drop_tokens(*tokens)`
+### drop_tokens
 
-This leaves these anonymous tokens (keywords and punctuation) out of the tree.
-Only drop a token if the node around it already says everything the token says.
+The engine leaves these anonymous tokens out of the tree.
+A language only drops a token if the node around it already says everything the token says.
 
 ```ruby
-drop_tokens "(", ")", ",", ";", "def", "end"
+drop_tokens "(", ")", ",", ";"
 ```
 
-### `keep_tokens_in(type, *tokens)`
+### keep_tokens_in
 
-This keeps some of the dropped tokens in nodes of one type, where they are the only thing that tells two programs apart.
-Check every token you drop: if any node can hold it or leave it out, and the rest of the node can be the same either way, keep it in that node.
+Some dropped tokens are the only thing that tells two programs apart in one node type, so the engine keeps them in that type.
 
 ```ruby
 keep_tokens_in :delete_expression, "[", "]"
 ```
 
-## Rewrite rules
+### rewrite
 
-Rewrite rules apply from the leaves up, and again to their own results.
-
-### `rewrite(pattern, template = nil, where: nil) { |match| ... }`
-
-This replaces each node that matches the pattern.
-Give either a template or a block.
-The block receives the match and returns the replacement node, or `nil` to leave the node as it is.
-A block that changes the matched node in place returns that node, and must return `nil` if it changed nothing, or the rule will keep matching.
+The engine replaces each node that matches the pattern, from the leaves up, and again on its own results.
+A rule gives either a template or a block.
+The block receives the match and returns the replacement node, or nil to leave the node.
+If a block changes the matched node in place, it must return that node, and nil if it changed nothing. Otherwise the rule will keep matching.
 
 ```ruby
 rewrite "(if_modifier body: (_) @body condition: (_) @condition)",
   "(if condition: @condition consequence: (then @body))"
-
-rewrite("(hash_key_symbol) @key") { |match| leaf(:simple_symbol, ":#{match[:key].text}") }
 ```
 
-### `numbers(*types) { |text| ... }`
+### numbers
 
-This writes every number leaf of these types in one form.
-The block receives the number's text and returns its canonical text, or `nil` to keep the text as it is.
-`Engine::Numbers` has readers for integers (with digit separators and base prefixes) and decimals, and writers for their values.
-Only give two spellings one form if the language reads them as the same value of the same type.
+The engine writes every number leaf of these types in one form.
+The block receives the number's text and returns its canonical text, or nil to keep it.
+`Engine::Numbers` has readers for integers and decimals, and writers for their values.
+A language only gives two spellings one form if it reads them as the same value of the same type.
 
 ```ruby
 numbers(:integer) { |text| Engine::Numbers.integer(text)&.to_s }
-numbers :float do |text|
-  value = Engine::Numbers.decimal(text)
-  value && Engine::Numbers.write_decimal(value)
-end
 ```
 
-### `retype(mapping)`
+### retype
 
-This gives nodes of one type another type.
-Use it for two spellings with the same meaning.
+The engine gives nodes of one type another type, for two spellings with the same meaning.
 
 ```ruby
-retype do_block: :block, block_body: :body_statement
+retype do_block: :block
 ```
 
-### `unwrap(*types)`
+### unwrap
 
-This replaces a node that has exactly one named child with that child.
-Use it for brackets that only group, because the tree's shape already shows the grouping.
+The engine replaces a node that has exactly one named child with that child, for brackets that only group.
 
 ```ruby
 unwrap :parenthesized_statements
 ```
 
-## Rename rules
+### rename
 
 Each rename pattern captures the name's leaf as `@name`.
 Renamed names become `PLACEHOLDER_1`, `PLACEHOLDER_2` and so on, in the order they first appear.
-A name gets the same placeholder everywhere, unless a rewrite has given its leaf a scope (`leaf.scope = node`). A local name in a scope gets a placeholder of its own there, so two methods that reuse a parameter's name number their placeholders the same way as two that don't.
+A name gets the same placeholder everywhere, unless a rewrite has given its leaf a scope (`leaf.scope = node`).
 
-### `rename(pattern)`
-
-This marks a name the student defines for a local variable or parameter.
+`rename` marks a name defined by the student for a local variable or parameter.
 The engine renames it everywhere except after a dot.
 
 ```ruby
-rename "[(assignment left: (identifier) @name) (operator_assignment left: (identifier) @name)]"
+rename "(assignment left: (identifier) @name)"
 ```
 
-### `rename_member(pattern)`
+### rename_member
 
-This marks a name the student defines for a method, function, property, class or constant.
+`rename_member` marks a name defined by the student for a method, function, property, class or constant.
 The engine renames it everywhere, including after a dot.
 
 ```ruby
-rename_member "[(method name: (_) @name) (singleton_method name: (_) @name)]"
+rename_member "(method name: (_) @name)"
 ```
 
-### `member(pattern)`
+### member
 
-This marks a name used after a dot, or anywhere else that refers to a member of some other object.
+`member` marks a name used after a dot, or anywhere else that refers to a member of another object.
 The engine only renames it if the solution defines a member with that name.
 
 ```ruby
 member "(call receiver: (_) method: (_) @name)"
 ```
 
-### `keep(*names_or_patterns)`
+### keep
 
-This marks names that are never renamed.
-Give the names themselves, or a pattern that captures `@name`.
+`keep` marks names that are never renamed, given as the names themselves or as a pattern that captures `@name`.
 
 ```ruby
-keep "initialize", "to_s", "each", "<=>"
-keep "(keyword_parameter name: (identifier) @name)"
+keep "initialize", "(keyword_parameter name: (identifier) @name)"
 ```
 
-## Patterns
+### Helpers for rewrite blocks
 
-Patterns use a subset of tree-sitter's query syntax.
+A rewrite block builds nodes with `build`, `leaf`, `literal`, `token` and `copy`, as in the tree helpers above.
+It reads the match with `match.node` (the matched node) and `match[:name]` (the node captured as `name`).
 
-| Syntax | Matches |
-|---|---|
-| `(type child...)` | A node of this type whose children match the child patterns in order. Other children may sit between them. |
-| `(_)` | Any named node. |
-| `_` | Any node, named or anonymous. |
-| `field: pattern` | The child with this field name, if it matches the pattern. |
-| `!field` | A node with no child under this field name. |
-| `"text"` | An anonymous token with this text. Inside a leaf's pattern, it matches the leaf's text. |
-| `/regex/` | Like `"text"`, but with a regular expression. |
-| `[a b c]` | Any one of the patterns. |
-| `pattern?` | The pattern, or nothing. |
-| `pattern*` | Every remaining child that fits. Its captures become lists. |
-| `pattern @name` | The pattern, captured as `name`. |
-
-## Templates
-
-A template builds a new node in the same syntax.
-
-| Syntax | Builds |
-|---|---|
-| `(type child...)` | A new node of this type. |
-| `field: child` | A child with this field name. |
-| `@name` | A copy of the node captured as `name`. If nothing was captured under that name, the template leaves it out. |
-| `"text"` | An anonymous token. |
-
-## Helpers for rewrite blocks
-
-| Helper | Returns |
-|---|---|
-| `build(type, *children)` | A new node. Children can be nodes or `field: node` pairs. |
-| `leaf(type, text)` | A named leaf, such as an identifier. |
-| `literal(value)` | A literal value, such as a string's contents, which the output always writes in quotes. |
-| `token(text)` | An anonymous token. |
-| `copy(node)` | A deep copy of a node. |
-| `match.node` | The matched node. |
-| `match[:name]` | The node captured as `name`. |
+```ruby
+rewrite("(hash_key_symbol) @key") { |match| leaf(:simple_symbol, ":#{match[:key].text}") }
+```

@@ -8,12 +8,12 @@ class CodePatternTest < Minitest::Test
 
   # A language with Ruby's grammar, for stage classes of the tests' own.
   module Rubyish
-    extend Representer::StagedLanguage
-
-    grammar "ruby"
-    names :identifier, :constant, :instance_variable, simple_symbol: ":"
-    pattern_contexts "...\nend", "begin\n...\nend", "f ..."
-    imports 'require "{{file}}"'
+    class Spec < Representer::Engine::Language
+      grammar "ruby"
+      names :identifier, :constant, :instance_variable, simple_symbol: ":"
+      pattern_contexts "...\nend", "begin\n...\nend", "f ..."
+      imports 'require "{{file}}"'
+    end
 
     GenerateAST = Representer::Languages::Ruby::GenerateAST
 
@@ -34,13 +34,13 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_placeholder_in_quotes_matches_a_string
-    pattern = CodePattern[Rubyish, 'require "{{file}}"']
+    pattern = CodePattern[Rubyish::Spec, 'require "{{file}}"']
     assert pattern.match(tree("require 'set'").children.first)
     refute pattern.match(tree("require name").children.first)
   end
 
   def test_nothing_labelled_comes_before_the_pattern
-    pattern = CodePattern[Rubyish, 'require "{{file}}"']
+    pattern = CodePattern[Rubyish::Spec, 'require "{{file}}"']
     refute pattern.match(tree("Kernel.require 'set'").children.first)
   end
 
@@ -49,7 +49,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_keyword_read_as_a_name_moves_the_pattern_into_a_context
-    assert_equal "rescue", CodePattern[Rubyish, "rescue => {{x}}"].type
+    assert_equal "rescue", CodePattern[Rubyish::Spec, "rescue => {{x}}"].type
   end
 
   def test_an_inside_context_makes_the_pattern_match_anywhere
@@ -61,11 +61,11 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_patterns_are_cached
-    assert_same CodePattern[Rubyish, "@{{x}}"], CodePattern[Rubyish, "@{{x}}"]
+    assert_same CodePattern[Rubyish::Spec, "@{{x}}"], CodePattern[Rubyish::Spec, "@{{x}}"]
   end
 
   def test_code_that_never_parses_is_an_error
-    assert_raises(ArgumentError) { CodePattern[Rubyish, "def def def"] }
+    assert_raises(ArgumentError) { CodePattern[Rubyish::Spec, "def def def"] }
   end
 
   def test_normalise_drops_calls_and_matching_code
@@ -85,7 +85,7 @@ class CodePatternTest < Minitest::Test
   # The code that the placeholder matches, written out, in each match in
   # the source. A match of a list is written as its items, joined.
   def matched(code, source, word, inside: nil)
-    pattern = CodePattern[Rubyish, code, inside:]
+    pattern = CodePattern[Rubyish::Spec, code, inside:]
     found = []
     tree(source).each_descendant do |node|
       pattern.matches(node).each do |bindings|

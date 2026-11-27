@@ -2,7 +2,7 @@
 
 Every track gets the Basic representer until it has a representer of its own.
 This guide explains how to add one.
-Ruby, in [`lib/representer/languages/ruby.rb`](./lib/representer/languages/ruby.rb) and [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/), is the worked example, and the quickest way to start is to copy it.
+Ruby, in [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/), is the worked example, and the quickest way to start is to copy it.
 
 The steps are:
 
@@ -112,64 +112,59 @@ Never use a deviation to hide a merge that the old representer kept apart.
 
 ## 3. Declare the names and write the stages
 
-A language is a module that declares its names and imports, and defines the stages it needs, each in a file of its own.
-Ruby is the worked example: [`lib/representer/languages/ruby.rb`](./lib/representer/languages/ruby.rb) and [`lib/representer/languages/ruby/generate_ast.rb`](./lib/representer/languages/ruby/generate_ast.rb).
-The other languages still use the older rule DSL, described in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#the-rule-dsl), until they move to stages.
+[REPRESENTER_DSL.md](./REPRESENTER_DSL.md) defines every declaration and verb used in this step.
+The other languages still use the older rule DSL, described at the end of that file, until they move to stages.
 
 ### The rules for every language
 
 These rules decide what a language may do:
 
 1. Every solution that the representer sees is valid code that passes its tests. A stage may throw away code that makes no difference to the solution working, but it never adds code that only copes with invalid input.
-2. The engine makes the decisions that apply to every language. It drops the language's imports, renames every name the solution defines, leaves out file names, orders the files by their code, numbers the placeholders and refuses invalid code. A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of these decisions.
+2. The engine makes the decisions that apply to every language (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#what-the-engine-does-for-every-language)). A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of the engine's decisions.
 3. Within a language, match what the old representer (`exercism/<track>-representer`) did. A language-specific difference from the old behaviour only goes in if a human has decided it. List any other improvement you'd suggest in `test/golden/<track>/SUGGESTIONS.md` for the maintainers to discuss. Fix bugs, such as wrong merges and crashes.
 
-### The module
+### The language's folder
 
-`lib/representer/languages/<track>.rb` defines the module and its setup, and requires the stages:
+Each language has a folder of its own, named after it, such as `lib/representer/languages/ruby/`.
+The folder holds all the language's files:
+
+- `spec.rb` defines `Ruby::Spec`, which declares the language's setup, names and imports.
+- `generate_ast.rb`, `normalise.rb` and `reorder.rb` each define one stage, such as `Ruby::GenerateAST`.
+
+Every file uses the compact module form, and each stage is a class beside `Spec` in the same module:
 
 ```ruby
-module Representer
-  module Languages
-    module Ruby
-      extend StagedLanguage
+module Representer::Languages::Ruby
+  class Spec < Representer::Engine::Language
+    tracks "ruby"
+    version 11
+    grammar "ruby"
+    extensions ".rb"
 
-      tracks "ruby"
-      version 9
-      grammar "ruby"
-      extensions ".rb"
-
-      names_are :identifier, :constant, :instance_variable, :class_variable, :global_variable
-      names_are :simple_symbol, without_prefix: ":"
-
-      names_are_defined_by :class, :module, :method_parameters, ...,
-        method: :name, assignment: :left, ...
-
-      imports 'require "{{file}}"', 'require_relative "{{file}}"'
-    end
+    # A symbol such as `:count` names the method `count`, so the colon isn't
+    # part of the name.
+    names_are :simple_symbol, without_prefix: ":"
   end
 end
 ```
 
-The engine loads each stage from a file named after it, in a folder named after the language, such as `languages/ruby/generate_ast.rb`, `normalise.rb` and `reorder.rb`. If a file doesn't exist, the language doesn't run that stage, so don't add `require` lines for them.
+```ruby
+module Representer::Languages::Ruby
+  class Reorder < Representer::Engine::Reorder
+    sort :class_body, :module_body, :hash
+  end
+end
+```
 
-- `tracks` gives the track slugs that this module represents.
-- `version` gives the representer version (see step 5).
-- `grammar` gives the grammar's name in `grammars.yml`.
-- `extensions` gives the language's file extensions. The engine ignores solution files with other extensions.
-- `names_are` gives the leaf types that are names, and a language can call it more than once. If a type's text starts with something that isn't part of the name, such as the `:` of Ruby's `:name`, give it as `without_prefix:`.
-- `names_are_defined_by` gives the node types that define a name. A type on its own defines each of its children that is a name. A type with a field defines only the child in that field, so `assignment: :left` defines `x` in `x = y`, and not `y`.
-- `imports` gives the code that counts as an import, as code patterns (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#code-patterns)). The engine drops it from every file.
-- `pattern_contexts` (optional) gives the code to put a code pattern in when the pattern doesn't parse on its own.
+When a language defines its `Spec`, the engine finds the stage files in the language's folder, and loads each one the first time it needs that stage.
+If a file doesn't exist, the language doesn't run that stage, so a language only has the files it needs, and never needs `require` lines for them.
 
-Give both lists with the node types that `GenerateAST` leaves.
+Give `names_are` and `names_are_defined_by` the node types that `GenerateAST` leaves.
 Check the grammar's `queries/locals.scm` and `queries/tags.scm`, which mark the nodes that define locals, methods and classes.
 
 ### The stages
 
-A language defines only the stages it needs, and the engine skips the others.
-Each stage is a subclass of the engine's class for it, such as `class GenerateAST < Engine::GenerateAST`.
-The engine runs the steps in this order:
+The engine runs the stages and its own steps in this order:
 
 1. `GenerateAST` runs on each file. It turns tree-sitter's tree, which has every token and comment, into the tree given by the language's own parser. It drops comments and the tokens dropped by the parser, unwraps brackets that only group, and turns spellings that the parser treats as one into one tree (for Ruby, these include heredocs and strings, `%w[]` and arrays, and `do ... end` and braces).
 2. The engine drops the imports from each file.
@@ -179,41 +174,22 @@ The engine runs the steps in this order:
 6. `Reorder` runs on the joined tree. It sorts code if its order makes no difference, by a key that ignores names.
 7. The engine numbers the placeholders, in the order the names appear, and writes the tree out as an s-expression.
 
-`GenerateAST` works on the tree with the helpers in `Engine::TreeHelpers`, because it has to know the grammar's tree in detail.
-`Normalise` is a list of rules.
-Each rule is a plain verb, such as `drop` or `rewrite`, and its arguments are code patterns: code in the language itself, with `{{word}}` placeholders.
-`Reorder` lists the node types it sorts with one verb, `sort`.
-[REPRESENTER_DSL.md](./REPRESENTER_DSL.md#stages) lists the verbs and explains code patterns.
-
-Three verbs let a language sort code whose order makes no difference:
-
-- `sort :type, ...` (in `Reorder`) sorts the children of those node types by their code, with every renamed name left blank. Children with the same code keep their order. Use it only for containers of definitions or entries, such as a class's body or a hash, and never for a block of statements.
-- `attach_to_next "code"` (in `Normalise`) moves each statement that matches the pattern into the definition after it, so the two move together. Elixir uses it to keep each `@spec` with its function.
-- `attach_to_each_following "a", "b", to: [...]` (in `Normalise`) removes each of these lines and marks every definition after it with the line, up to the next of these lines or the end of the container. Ruby uses it for `private`, so each method carries its own visibility wherever it moves.
-
+`GenerateAST` works on the tree with the tree helpers, because it has to know the grammar's tree in detail.
+`Normalise` lists its rules with verbs such as `drop`, `rewrite` and `attach_to_next`, and their arguments are code patterns: code in the language itself, with `{{word}}` placeholders.
+`Reorder` lists the node types it sorts with `sort`.
+Only sort containers of definitions or entries, such as a class's body or a hash, and never a block of statements.
 If the grammar gives a container the same type as a block of statements, give it a type of its own in `GenerateAST` before sorting it, as Ruby's `class_body` does.
-If a rule genuinely needs logic, write it as a small, clearly named Ruby method with a plain comment above it.
-
-Start each file with a comment that lists, in plain English and one bullet each, everything it does: what it drops, what it treats as the same, what it renames and keeps, and why.
-The list is for a maintainer who doesn't know the code, so update it whenever the file changes.
-Write it, and every other comment, by the rules in "Writing comments and docs" below.
+If a rule genuinely needs logic, write it as a small, clearly named Ruby method.
 
 Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's type, field names and tokens.
 
-### The helpers for GenerateAST
+### Comments
 
-`Engine::TreeHelpers` has the operations that `GenerateAST` needs.
-Each one visits a node once, so a rule can't loop on its own output.
-[REPRESENTER_DSL.md](./REPRESENTER_DSL.md#tree-helpers-for-generateast) lists them all. These are the main ones:
-
-- `transform(tree, pattern, template)` or `transform(tree, pattern) { |match| ... }` replaces each match, from the leaves up.
-- `drop(tree, pattern)` removes each match.
-- `drop_tokens(tree, everywhere:, only_in:, kept_in:)` removes anonymous tokens.
-- `unwrap(tree, pattern)` replaces a match that has one named child with that child.
-- `each_node`, `find_all` and `captured` walk the tree and find matches.
-- `build`, `leaf`, `literal`, `token` and `copy` make nodes.
-
-Their patterns and templates use the tree-sitter query syntax in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#patterns).
+The comment at the top of each file only says, in one or two sentences, that [REPRESENTER_DSL.md](./REPRESENTER_DSL.md) defines its declarations or verbs.
+Each declaration about the language's code (such as `names_are` or `imports`), each rule and each method then has a short comment directly above it, which says what it means for this language.
+For example, Ruby's `spec.rb` has this comment above `names_are :simple_symbol, without_prefix: ":"`: "A symbol such as `:count` names the method `count`, so the colon isn't part of the name."
+Update a comment whenever the code below it changes.
+Write every comment by the rules in "Writing comments and docs" below.
 
 ### GenerateAST's tokens
 
@@ -279,11 +255,14 @@ It takes its inputs with `initialize_with`, and code calls it with `.()`, as in 
 Each command has a unit test file of its own, named after it, such as `test/engine/rename_user_defined_nodes_test.rb`.
 The tests check the command on small trees, apart from any language where they can.
 
+Every file uses the compact module form, such as `module Representer::Engine` or `module Representer::Languages::Ruby`, and never nested modules.
+The languages still on the old structure use nested modules until they move to stages.
+
 Write new code this way, and convert older code to it when you change that code.
 
 ## Running the tests
 
-If a change only touches one language's files (its class or classes, its grammar's pin or its golden data), run only that language's tests:
+If a change only touches one language's files (its class or its folder, its grammar's pin or its golden data), run only that language's tests:
 
 ```shell
 ./bin/run-tests.sh ruby

@@ -5,15 +5,15 @@ require "test_helper"
 # A `def` and an assignment define names, and `sum` is its one library
 # name.
 module ToyLanguage
-  extend Representer::StagedLanguage
+  class Spec < Representer::Engine::Language
+    grammar "ruby"
+    names_are :identifier, :constant
+    names_are :simple_symbol, without_prefix: ":"
+    names_are_defined_by :def, assignment: :left
+    imports 'require "{{file}}"'
 
-  grammar "ruby"
-  names_are :identifier, :constant
-  names_are :simple_symbol, without_prefix: ":"
-  names_are_defined_by :def, assignment: :left
-  imports 'require "{{file}}"'
-
-  def self.library = Set["sum"]
+    def self.library = Set["sum"]
+  end
 
   # Helpers for building trees by hand.
   module Trees

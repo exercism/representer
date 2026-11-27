@@ -8,9 +8,9 @@ class TreeHelpersTest < Minitest::Test
 
   # A language with names, as names_in needs.
   module Names
-    extend Representer::StagedLanguage
-
-    names :identifier, :constant
+    class Spec < Representer::Engine::Language
+      names :identifier, :constant
+    end
   end
 
   def test_transform_works_from_the_leaves_up
@@ -40,7 +40,7 @@ class TreeHelpersTest < Minitest::Test
 
   def test_names_in_reads_the_captured_names
     tree = build(:program, build(:def, leaf(:identifier, "f")), build(:def, leaf(:constant, "G")))
-    assert_equal Set["f", "G"], names_in([tree], Names, "(def (_) @name)")
+    assert_equal Set["f", "G"], names_in([tree], Names::Spec, "(def (_) @name)")
   end
 
   private

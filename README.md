@@ -68,7 +68,7 @@ For a language with its own class, the representer:
 5. Replaces each name the student chose with a placeholder. For Ruby and Elixir, this is every name the solution defines, wherever it appears. The other languages also keep the names used in the tests.
 6. Writes the tree out as an indented s-expression.
 
-Ruby and Elixir declare their names and imports in [`ruby.rb`](./lib/representer/languages/ruby.rb) and [`elixir.rb`](./lib/representer/languages/elixir.rb), and describe steps 2 and 3 in their stages in [`ruby/`](./lib/representer/languages/ruby/) and [`elixir/`](./lib/representer/languages/elixir/). The comment at the top of each file lists what it does.
+Ruby and Elixir each have a folder, [`ruby/`](./lib/representer/languages/ruby/) and [`elixir/`](./lib/representer/languages/elixir/). Each folder's `spec.rb` declares the language's names and imports, and its stage files describe steps 2 and 3. A comment above each declaration and method says what it does.
 The other languages describe these steps as rules in their class in [`lib/representer/languages/`](./lib/representer/languages/), until they are moved to stages, and the comment at the top of each class lists what its rules do.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains the stages and how to add a language.
 

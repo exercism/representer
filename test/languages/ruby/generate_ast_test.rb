@@ -179,7 +179,7 @@ class RubyGenerateASTTest < Minitest::Test
     def initialize = @names = {}
 
     def text_for(leaf, **)
-      prefix = Representer::Languages::Ruby.names[leaf.type] if leaf.named?
+      prefix = Representer::Languages::Ruby::Spec.names[leaf.type] if leaf.named?
       prefix && "#{leaf.type}:N#{@names[leaf.text.delete_prefix(prefix)] ||= @names.size}"
     end
   end
