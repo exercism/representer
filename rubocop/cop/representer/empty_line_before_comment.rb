@@ -24,7 +24,8 @@ module RuboCop
 
         MSG = "Put a blank line before a comment that describes the code below it."
 
-        OPENERS = /\A(def|class|module|begin|if|unless|case|while|until|when|in|else|elsif|rescue|ensure|private|protected|public)\b|(\bdo|\{|\[|\(|\|)\s*(\|[^|]*\|)?\s*\z/
+        KEYWORDS = %w[def class module begin if unless case while until when in else elsif rescue ensure private protected public].freeze
+        OPENERS = /\A(#{KEYWORDS.join("|")})\b|(\bdo|\{|\[|\(|\|)\s*(\|[^|]*\|)?\s*\z/
 
         def on_new_investigation
           lines = processed_source.lines
