@@ -1,35 +1,146 @@
-object VariableLengthQuantity :
-  private def encodeNumber ( n: Int ) : Seq [ Int ] =
-    if n == 0 then
-      List ( 0 )
-    else
-      val groups = Iterator
-        . iterate ( n )( _ >>> 7 )
-        . takeWhile ( _ != 0 )
-        . map ( _ & 0x7f )
-        . toList
-        . reverse
-      groups . zipWithIndex . map { case ( group , i ) =>
-        if i < groups . length - 1 then
-          group | 0x80
-        else
-          group
-      }
-  def encode ( values : List [ Int ]) : List [ Int ] = values . flatMap ( encodeNumber ). toList
-  private def decodeGroup ( bytes : List [ Int ]) : Int =
-    bytes . map ( _ & 0x7f ). foldLeft ( 0 )(( acc , value ) => acc << 7 | value )
-  def decode ( bytes : List [ Int ]) : Either [ String , List [ Int ]] =
-    @tailrec
-    def decodeBytes ( bytes : List [ Int ], acc : List [ Int ]) : Either [ String , List [ Int ]] =
-      if bytes . isEmpty then
-        Right ( acc )
-      else
-        val initBytes = bytes . takeWhile ( n => ( n & ( 1 << 7 )) != 0 )
-        val lastByte = bytes . drop ( initBytes . length ). headOption
-        lastByte match
-          case Some ( byte ) => decodeBytes (
-            bytes . drop ( initBytes . length + 1 ),
-            acc :+ decodeGroup ( initBytes :+ byte )
-            )
-          case None => Left ( "\"Invalid sequence of bytes\"" )
-    decodeBytes ( bytes , List . empty )
+(compilation_unit
+  (object_definition PLACEHOLDER_1
+    (template_body
+      (function_definition
+        (modifiers
+          (access_modifier private)) PLACEHOLDER_2
+        (parameters
+          (parameter PLACEHOLDER_3 Int))
+        (generic_type Seq
+          (type_arguments Int)) =
+        (if_expression
+          (infix_expression PLACEHOLDER_3 == 0)
+          (call_expression List
+            (arguments 0))
+          (block
+            (val_definition PLACEHOLDER_4
+              (field_expression
+                (field_expression
+                  (call_expression
+                    (field_expression
+                      (call_expression
+                        (field_expression
+                          (call_expression
+                            (call_expression
+                              (field_expression Iterator iterate)
+                              (arguments PLACEHOLDER_3))
+                            (arguments
+                              (infix_expression
+                                (wildcard) >>> 7))) takeWhile)
+                        (arguments
+                          (infix_expression
+                            (wildcard) != 0))) map)
+                    (arguments
+                      (infix_expression
+                        (wildcard) & 127))) toList) reverse))
+            (call_expression
+              (field_expression
+                (field_expression PLACEHOLDER_4 zipWithIndex) map)
+              (case_block
+                (case_clause
+                  (tuple_pattern
+                    (bind PLACEHOLDER_5)
+                    (bind PLACEHOLDER_6))
+                  (if_expression
+                    (infix_expression PLACEHOLDER_6 <
+                      (infix_expression
+                        (field_expression PLACEHOLDER_4 length) - 1))
+                    (infix_expression PLACEHOLDER_5 | 128) PLACEHOLDER_5)))))))
+      (function_definition PLACEHOLDER_7
+        (parameters
+          (parameter PLACEHOLDER_8
+            (generic_type List
+              (type_arguments Int))))
+        (generic_type List
+          (type_arguments Int)) =
+        (field_expression
+          (call_expression
+            (field_expression PLACEHOLDER_8 flatMap)
+            (arguments PLACEHOLDER_2)) toList))
+      (function_definition
+        (modifiers
+          (access_modifier private)) PLACEHOLDER_9
+        (parameters
+          (parameter PLACEHOLDER_10
+            (generic_type List
+              (type_arguments Int)))) Int =
+        (call_expression
+          (call_expression
+            (field_expression
+              (call_expression
+                (field_expression PLACEHOLDER_10 map)
+                (arguments
+                  (infix_expression
+                    (wildcard) & 127))) foldLeft)
+            (arguments 0))
+          (arguments
+            (lambda_expression
+              (bindings
+                (binding PLACEHOLDER_11)
+                (binding PLACEHOLDER_12))
+              (infix_expression
+                (infix_expression PLACEHOLDER_11 << 7) | PLACEHOLDER_12)))))
+      (function_definition PLACEHOLDER_13
+        (parameters
+          (parameter PLACEHOLDER_10
+            (generic_type List
+              (type_arguments Int))))
+        (generic_type Either
+          (type_arguments String
+            (generic_type List
+              (type_arguments Int)))) =
+        (block
+          (function_definition
+            (annotation tailrec) PLACEHOLDER_14
+            (parameters
+              (parameter PLACEHOLDER_10
+                (generic_type List
+                  (type_arguments Int)))
+              (parameter PLACEHOLDER_11
+                (generic_type List
+                  (type_arguments Int))))
+            (generic_type Either
+              (type_arguments String
+                (generic_type List
+                  (type_arguments Int)))) =
+            (if_expression
+              (field_expression PLACEHOLDER_10 isEmpty)
+              (call_expression Right
+                (arguments PLACEHOLDER_11))
+              (block
+                (val_definition PLACEHOLDER_15
+                  (call_expression
+                    (field_expression PLACEHOLDER_10 takeWhile)
+                    (arguments
+                      (lambda_expression PLACEHOLDER_3
+                        (infix_expression
+                          (infix_expression PLACEHOLDER_3 &
+                            (infix_expression 1 << 7)) != 0)))))
+                (val_definition PLACEHOLDER_16
+                  (field_expression
+                    (call_expression
+                      (field_expression PLACEHOLDER_10 drop)
+                      (arguments
+                        (field_expression PLACEHOLDER_15 length))) headOption))
+                (match_expression PLACEHOLDER_16
+                  (case_block
+                    (case_clause
+                      (case_class_pattern Some
+                        (bind PLACEHOLDER_17))
+                      (call_expression PLACEHOLDER_14
+                        (arguments
+                          (call_expression
+                            (field_expression PLACEHOLDER_10 drop)
+                            (arguments
+                              (infix_expression
+                                (field_expression PLACEHOLDER_15 length) + 1)))
+                          (infix_expression PLACEHOLDER_11 :+
+                            (call_expression PLACEHOLDER_9
+                              (arguments
+                                (infix_expression PLACEHOLDER_15 :+ PLACEHOLDER_17)))))))
+                    (case_clause None
+                      (call_expression Left
+                        (arguments "Invalid sequence of bytes"))))))))
+          (call_expression PLACEHOLDER_14
+            (arguments PLACEHOLDER_10
+              (field_expression List empty))))))))
