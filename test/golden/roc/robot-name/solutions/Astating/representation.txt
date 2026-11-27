@@ -1,61 +1,248 @@
-import random.Random
-RobotName :: {}.{
-  Factory :: {
-    seed: Random.State,
-  robot_names : Set(Str)
-  }.{
-    create : { seed : U32 } -> Factory
-    create = |{ seed }|
-      { seed: Random.seed(seed), robot_names : Set.empty() }
-    build_robot : Factory -> Robot
-    build_robot = |factory|
-      { name: NoName, factory }
-  }
-  Robot :: {
-    name : [Name(Str), NoName],
-  factory : Factory
-  }.{
-    boot : Robot -> Robot
-    boot = |robot| match robot.name {
-    Name(_) => robot
-    NoName => {
-      { value: { letters, numbers }, state } = Random.step(robot.factory.seed,
-        {
-          letters: Random.list(Random.bounded_u8('A', 'Z'), 2),
-          numbers: Random.list(
-            Random.bounded_u8(0, 9)|> Random.map(|n| n + '0'),
-            3
-          )
-        }.Random
-      )
-      name = letters.concat(numbers) |> Str.from_utf8_lossy()
-      match robot.factory.robot_names.contains(name) {
-        True => boot({..robot, factory: {..robot.factory, seed: state}})
-        False => {
-          name: Name(name),
-          factory: {
-            seed: state,
-            robot_names: robot.factory.robot_names.insert(name)
-          }
-        }
-      }
-    }
-  }
-    factory_reset : Robot -> Robot
-    factory_reset = |robot| match robot.name {
-    NoName => robot
-    Name(name) =>
-      {
-        name: NoName,
-        factory: {
-          ..robot.factory,
-          robot_names: robot.factory.robot_names.remove(name)
-        }
-          }
-  }
-    get_name : Robot -> [Name(Str), NoName]
-    get_name = |robot| robot.name
-    get_factory : Robot -> Factory
-    get_factory = |robot| robot.factory
-  }
-}
+(file
+  (opaque_type_def
+    (type_name (concrete_type PLACEHOLDER_1)) ::
+    (record_type)
+    (nominal_methods
+      (opaque_type_def
+        (type_name (concrete_type PLACEHOLDER_2)) ::
+        (record_type
+          (record_field_type (field_name PLACEHOLDER_3)
+            (apply_type Random.State))
+          (record_field_type (field_name PLACEHOLDER_4)
+            (apply_type Set
+              (apply_type_arg
+                (apply_type Str)))))
+        (nominal_methods
+          (annotation_type_def
+            (annotation_pre_colon PLACEHOLDER_5)
+            (function_type
+              (record_type
+                (record_field_type (field_name PLACEHOLDER_3)
+                  (apply_type U32)))
+              (arrow)
+              (apply_type (concrete_type PLACEHOLDER_2))))
+          (value_declaration
+            (decl_left
+              (identifier_pattern PLACEHOLDER_5))
+            (anon_fun_expr
+              (argument_patterns
+                (record_pattern
+                  (record_field_pattern (field_name PLACEHOLDER_3))))
+              (record_expr
+                (record_field_expr (field_name PLACEHOLDER_3)
+                  (function_call_pnc_expr
+                    (variable_expr Random PLACEHOLDER_3)
+                    (variable_expr PLACEHOLDER_3)))
+                (record_field_expr (field_name PLACEHOLDER_4)
+                  (function_call_pnc_expr
+                    (variable_expr Set empty))))))
+          (annotation_type_def
+            (annotation_pre_colon PLACEHOLDER_6)
+            (function_type
+              (apply_type (concrete_type PLACEHOLDER_2))
+              (arrow)
+              (apply_type (concrete_type PLACEHOLDER_7))))
+          (value_declaration
+            (decl_left
+              (identifier_pattern PLACEHOLDER_6))
+            (anon_fun_expr
+              (argument_patterns
+                (identifier_pattern PLACEHOLDER_8))
+              (record_expr
+                (record_field_expr (field_name PLACEHOLDER_9)
+                  (tag_expr
+                    (tag PLACEHOLDER_10)))
+                (record_field_expr (field_name PLACEHOLDER_8)))))))
+      (opaque_type_def
+        (type_name (concrete_type PLACEHOLDER_7)) ::
+        (record_type
+          (record_field_type (field_name PLACEHOLDER_9)
+            (tags_type
+              (tag_type (tag_name PLACEHOLDER_11)
+                (apply_type_arg
+                  (apply_type Str)))
+              (tag_type (tag_name PLACEHOLDER_10))))
+          (record_field_type (field_name PLACEHOLDER_8)
+            (apply_type (concrete_type PLACEHOLDER_2))))
+        (nominal_methods
+          (annotation_type_def
+            (annotation_pre_colon PLACEHOLDER_12)
+            (function_type
+              (apply_type (concrete_type PLACEHOLDER_7))
+              (arrow)
+              (apply_type (concrete_type PLACEHOLDER_7))))
+          (value_declaration
+            (decl_left
+              (identifier_pattern PLACEHOLDER_12))
+            (anon_fun_expr
+              (argument_patterns
+                (identifier_pattern PLACEHOLDER_13))
+              (match_expr match
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_13) PLACEHOLDER_9)
+                (match_branch
+                  (tag_pattern
+                    (tag PLACEHOLDER_11) _) =>
+                  (variable_expr PLACEHOLDER_13))
+                (match_branch
+                  (tag_pattern
+                    (tag PLACEHOLDER_10)) =>
+                  (body_expression
+                    (value_declaration
+                      (decl_left
+                        (record_pattern
+                          (record_field_pattern (field_name PLACEHOLDER_14)
+                            (record_pattern
+                              (record_field_pattern (field_name PLACEHOLDER_15))
+                              (record_field_pattern (field_name PLACEHOLDER_16))))
+                          (record_field_pattern (field_name PLACEHOLDER_17))))
+                      (function_call_pnc_expr
+                        (variable_expr Random step)
+                        (field_access_expr
+                          (field_access_expr
+                            (variable_expr PLACEHOLDER_13) PLACEHOLDER_8) PLACEHOLDER_3)
+                        (record_expr
+                          (record_field_expr (field_name PLACEHOLDER_15)
+                            (function_call_pnc_expr
+                              (variable_expr Random list)
+                              (function_call_pnc_expr
+                                (variable_expr Random bounded_u8) 'A' 'Z') 2))
+                          (record_field_expr (field_name PLACEHOLDER_16)
+                            (function_call_pnc_expr
+                              (variable_expr Random list)
+                              (bin_op_expr
+                                (function_call_pnc_expr
+                                  (variable_expr Random bounded_u8) 0 9)
+                                (operator |>)
+                                (function_call_pnc_expr
+                                  (variable_expr Random map)
+                                  (anon_fun_expr
+                                    (argument_patterns
+                                      (identifier_pattern PLACEHOLDER_18))
+                                    (bin_op_expr
+                                      (variable_expr PLACEHOLDER_18)
+                                      (operator +) '0')))) 3)) .Random)))
+                    (value_declaration
+                      (decl_left
+                        (identifier_pattern PLACEHOLDER_9))
+                      (bin_op_expr
+                        (function_call_pnc_expr
+                          (field_access_expr
+                            (variable_expr PLACEHOLDER_15) concat)
+                          (variable_expr PLACEHOLDER_16))
+                        (operator |>)
+                        (function_call_pnc_expr
+                          (variable_expr Str from_utf8_lossy))))
+                    (match_expr match
+                      (function_call_pnc_expr
+                        (field_access_expr
+                          (field_access_expr
+                            (field_access_expr
+                              (variable_expr PLACEHOLDER_13) PLACEHOLDER_8) PLACEHOLDER_4) contains)
+                        (variable_expr PLACEHOLDER_9))
+                      (match_branch
+                        (tag_pattern
+                          (tag True)) =>
+                        (function_call_pnc_expr
+                          (variable_expr PLACEHOLDER_12)
+                          (record_expr
+                            (spread_expr
+                              (variable_expr PLACEHOLDER_13))
+                            (record_field_expr (field_name PLACEHOLDER_8)
+                              (record_expr
+                                (spread_expr
+                                  (field_access_expr
+                                    (variable_expr PLACEHOLDER_13) PLACEHOLDER_8))
+                                (record_field_expr (field_name PLACEHOLDER_3)
+                                  (variable_expr PLACEHOLDER_17)))))))
+                      (match_branch
+                        (tag_pattern
+                          (tag False)) =>
+                        (record_expr
+                          (record_field_expr (field_name PLACEHOLDER_9)
+                            (function_call_pnc_expr
+                              (tag_expr
+                                (tag PLACEHOLDER_11))
+                              (variable_expr PLACEHOLDER_9)))
+                          (record_field_expr (field_name PLACEHOLDER_8)
+                            (record_expr
+                              (record_field_expr (field_name PLACEHOLDER_3)
+                                (variable_expr PLACEHOLDER_17))
+                              (record_field_expr (field_name PLACEHOLDER_4)
+                                (function_call_pnc_expr
+                                  (field_access_expr
+                                    (field_access_expr
+                                      (field_access_expr
+                                        (variable_expr PLACEHOLDER_13) PLACEHOLDER_8) PLACEHOLDER_4) insert)
+                                  (variable_expr PLACEHOLDER_9)))))))))))))
+          (annotation_type_def
+            (annotation_pre_colon PLACEHOLDER_19)
+            (function_type
+              (apply_type (concrete_type PLACEHOLDER_7))
+              (arrow)
+              (apply_type (concrete_type PLACEHOLDER_7))))
+          (value_declaration
+            (decl_left
+              (identifier_pattern PLACEHOLDER_19))
+            (anon_fun_expr
+              (argument_patterns
+                (identifier_pattern PLACEHOLDER_13))
+              (match_expr match
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_13) PLACEHOLDER_9)
+                (match_branch
+                  (tag_pattern
+                    (tag PLACEHOLDER_10)) =>
+                  (variable_expr PLACEHOLDER_13))
+                (match_branch
+                  (tag_pattern
+                    (tag PLACEHOLDER_11)
+                    (identifier_pattern PLACEHOLDER_9)) =>
+                  (record_expr
+                    (record_field_expr (field_name PLACEHOLDER_9)
+                      (tag_expr
+                        (tag PLACEHOLDER_10)))
+                    (record_field_expr (field_name PLACEHOLDER_8)
+                      (record_expr
+                        (spread_expr
+                          (field_access_expr
+                            (variable_expr PLACEHOLDER_13) PLACEHOLDER_8))
+                        (record_field_expr (field_name PLACEHOLDER_4)
+                          (function_call_pnc_expr
+                            (field_access_expr
+                              (field_access_expr
+                                (field_access_expr
+                                  (variable_expr PLACEHOLDER_13) PLACEHOLDER_8) PLACEHOLDER_4) remove)
+                            (variable_expr PLACEHOLDER_9))))))))))
+          (annotation_type_def
+            (annotation_pre_colon PLACEHOLDER_20)
+            (function_type
+              (apply_type (concrete_type PLACEHOLDER_7))
+              (arrow)
+              (tags_type
+                (tag_type (tag_name PLACEHOLDER_11)
+                  (apply_type_arg
+                    (apply_type Str)))
+                (tag_type (tag_name PLACEHOLDER_10)))))
+          (value_declaration
+            (decl_left
+              (identifier_pattern PLACEHOLDER_20))
+            (anon_fun_expr
+              (argument_patterns
+                (identifier_pattern PLACEHOLDER_13))
+              (field_access_expr
+                (variable_expr PLACEHOLDER_13) PLACEHOLDER_9)))
+          (annotation_type_def
+            (annotation_pre_colon PLACEHOLDER_21)
+            (function_type
+              (apply_type (concrete_type PLACEHOLDER_7))
+              (arrow)
+              (apply_type (concrete_type PLACEHOLDER_2))))
+          (value_declaration
+            (decl_left
+              (identifier_pattern PLACEHOLDER_21))
+            (anon_fun_expr
+              (argument_patterns
+                (identifier_pattern PLACEHOLDER_13))
+              (field_access_expr
+                (variable_expr PLACEHOLDER_13) PLACEHOLDER_8))))))))

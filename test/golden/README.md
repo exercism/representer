@@ -209,7 +209,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | reasonml | Basic | 178 | 26 | 100 | 26 | 95 | 4 | 0 | 0 | 0 |
 | red | Red | 190 | 30 | 100 | 45 | 100 | 0 | 0 | 0 | 0 |
 | rescript | Basic | 45 | 1 | 42 | 22 | 39 | 1 | 0 | 0 | 0 |
-| roc | Basic | 36 | 1 | 33 | 28 | 32 | 1 | 0 | 0 | 0 |
+| roc | Roc | 36 | 1 | 33 | 28 | 32 | 0 | 0 | 0 | 0 |
 | ruby | Ruby | 379 | 93 | 100 | 85 | 100 | 7 | 0 | 0 | 2 |
 | rust | Rust | 394 | 98 | 100 | 76 | 99 | 8 | 0 | 0 | 0 |
 | scala | Scala | 362 | 89 | 100 | 59 | 97 | 0 | 6 | 0 | 0 |

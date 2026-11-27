@@ -1,43 +1,205 @@
-Clock :: { hour : U8, minute : U8 }.{
-  OptionalHourMinute := { hour : I128 ?? 0, minute : I128 ?? 0 }
-  pad = |num| {
-    if num < 10 {
-      "\"0${num.to_str()}\""
-    }
-    else {
-      "\"${num.to_str()}\""
-    }
-  }
-  create : OptionalHourMinute -> Clock
-  create = |{ hour, minute }| {
-    # Calculate real minutes first
-    # Use the raw minutes to convert back to hour and minute
-    minutes_in_day = 24 * 60
-    var $raw_minutes = ((hour * 60) + minute) % minutes_in_day
-    if $raw_minutes < 0 {
-      $raw_minutes = minutes_in_day + $raw_minutes
-    }
-    # dbg "\"raw:" ${$raw_minutes.to_str()}"
-    var $hourx = ($raw_minutes // 60)
-    var $minutex = $raw_minutes % 60
-    # dbg "\"input:" ${hour.to_str()}, ${minute.to_str()}"
-    # dbg "\"output:" ${$hourx.to_str()}, ${$minutex.to_str()}"
-    { hour: $hourx.to_u8_try().ok_or(0), minute: $minutex.to_u8_try().ok_or(0) }
-  }
-  to_str : Clock -> Str
-  to_str = |clock| {
-    "\"${pad(clock.hour)}:${pad(clock.minute)}\""
-  }
-  add : Clock, OptionalHourMinute -> Clock
-  add = |clock, { hour, minute }| {
-    # Simplify conversion issues by forcing create() to handle conversions
-    Clock.create({ hour: clock.hour.to_i128() + hour, minute: clock.minute.to_i128() + minute})
-  }
-  subtract : Clock, OptionalHourMinute -> Clock
-  subtract = |clock, { hour, minute }| {
-    # Simplify conversion issues by forcing create() to handle conversions
-    Clock.create({ hour: clock.hour.to_i128() - hour, minute: clock.minute.to_i128() - minute})
-  }
-  # The following line enables the default `is_eq` implementation
-  is_eq : _
-}
+(file
+  (opaque_type_def
+    (type_name (concrete_type PLACEHOLDER_1)) ::
+    (record_type
+      (record_field_type (field_name PLACEHOLDER_2)
+        (apply_type U8))
+      (record_field_type (field_name PLACEHOLDER_3)
+        (apply_type U8)))
+    (nominal_methods
+      (nominal_type_def
+        (type_name (concrete_type PLACEHOLDER_4)) :=
+        (record_type
+          (record_field_type (field_name PLACEHOLDER_2)
+            (apply_type I128) ?? 0)
+          (record_field_type (field_name PLACEHOLDER_3)
+            (apply_type I128) ?? 0)))
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_5))
+        (anon_fun_expr
+          (argument_patterns
+            (identifier_pattern PLACEHOLDER_6))
+          (body_expression
+            (if_expr
+              (bin_op_expr
+                (variable_expr PLACEHOLDER_6)
+                (operator <) 10)
+              (then
+                (body_expression
+                  (string "0"
+                    (interpolation_char
+                      (function_call_pnc_expr
+                        (field_access_expr
+                          (variable_expr PLACEHOLDER_6) PLACEHOLDER_7))))))
+              (else
+                (body_expression
+                  (string
+                    (interpolation_char
+                      (function_call_pnc_expr
+                        (field_access_expr
+                          (variable_expr PLACEHOLDER_6) PLACEHOLDER_7))))))))))
+      (annotation_type_def
+        (annotation_pre_colon PLACEHOLDER_8)
+        (function_type
+          (apply_type (concrete_type PLACEHOLDER_4))
+          (arrow)
+          (apply_type (concrete_type PLACEHOLDER_1))))
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_8))
+        (anon_fun_expr
+          (argument_patterns
+            (record_pattern
+              (record_field_pattern (field_name PLACEHOLDER_2))
+              (record_field_pattern (field_name PLACEHOLDER_3))))
+          (body_expression
+            (value_declaration
+              (decl_left
+                (identifier_pattern PLACEHOLDER_9))
+              (bin_op_expr 24
+                (operator *) 60))
+            (var_declaration PLACEHOLDER_10
+              (bin_op_expr
+                (parenthesized_expr
+                  (bin_op_expr
+                    (parenthesized_expr
+                      (bin_op_expr
+                        (variable_expr PLACEHOLDER_2)
+                        (operator *) 60))
+                    (operator +)
+                    (variable_expr PLACEHOLDER_3)))
+                (operator %)
+                (variable_expr PLACEHOLDER_9)))
+            (if_expr
+              (bin_op_expr
+                (variable_expr PLACEHOLDER_10)
+                (operator <) 0)
+              (then
+                (body_expression
+                  (value_declaration
+                    (decl_left
+                      (identifier_pattern PLACEHOLDER_10))
+                    (bin_op_expr
+                      (variable_expr PLACEHOLDER_9)
+                      (operator +)
+                      (variable_expr PLACEHOLDER_10))))))
+            (var_declaration PLACEHOLDER_11
+              (bin_op_expr
+                (variable_expr PLACEHOLDER_10)
+                (operator //) 60))
+            (var_declaration PLACEHOLDER_12
+              (bin_op_expr
+                (variable_expr PLACEHOLDER_10)
+                (operator %) 60))
+            (record_expr
+              (record_field_expr (field_name PLACEHOLDER_2)
+                (function_call_pnc_expr
+                  (field_access_expr
+                    (function_call_pnc_expr
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_11) to_u8_try)) ok_or) 0))
+              (record_field_expr (field_name PLACEHOLDER_3)
+                (function_call_pnc_expr
+                  (field_access_expr
+                    (function_call_pnc_expr
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_12) to_u8_try)) ok_or) 0))))))
+      (annotation_type_def
+        (annotation_pre_colon PLACEHOLDER_7)
+        (function_type
+          (apply_type (concrete_type PLACEHOLDER_1))
+          (arrow)
+          (apply_type Str)))
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_7))
+        (anon_fun_expr
+          (argument_patterns
+            (identifier_pattern PLACEHOLDER_13))
+          (body_expression
+            (string
+              (interpolation_char
+                (function_call_pnc_expr
+                  (variable_expr PLACEHOLDER_5)
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_13) PLACEHOLDER_2))) ":"
+              (interpolation_char
+                (function_call_pnc_expr
+                  (variable_expr PLACEHOLDER_5)
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_13) PLACEHOLDER_3)))))))
+      (annotation_type_def
+        (annotation_pre_colon PLACEHOLDER_14)
+        (function_type
+          (apply_type (concrete_type PLACEHOLDER_1))
+          (apply_type (concrete_type PLACEHOLDER_4))
+          (arrow)
+          (apply_type (concrete_type PLACEHOLDER_1))))
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_14))
+        (anon_fun_expr
+          (argument_patterns
+            (identifier_pattern PLACEHOLDER_13)
+            (record_pattern
+              (record_field_pattern (field_name PLACEHOLDER_2))
+              (record_field_pattern (field_name PLACEHOLDER_3))))
+          (body_expression
+            (function_call_pnc_expr
+              (variable_expr (module PLACEHOLDER_1) PLACEHOLDER_8)
+              (record_expr
+                (record_field_expr (field_name PLACEHOLDER_2)
+                  (bin_op_expr
+                    (function_call_pnc_expr
+                      (field_access_expr
+                        (field_access_expr
+                          (variable_expr PLACEHOLDER_13) PLACEHOLDER_2) to_i128))
+                    (operator +)
+                    (variable_expr PLACEHOLDER_2)))
+                (record_field_expr (field_name PLACEHOLDER_3)
+                  (bin_op_expr
+                    (function_call_pnc_expr
+                      (field_access_expr
+                        (field_access_expr
+                          (variable_expr PLACEHOLDER_13) PLACEHOLDER_3) to_i128))
+                    (operator +)
+                    (variable_expr PLACEHOLDER_3))))))))
+      (annotation_type_def
+        (annotation_pre_colon PLACEHOLDER_15)
+        (function_type
+          (apply_type (concrete_type PLACEHOLDER_1))
+          (apply_type (concrete_type PLACEHOLDER_4))
+          (arrow)
+          (apply_type (concrete_type PLACEHOLDER_1))))
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_15))
+        (anon_fun_expr
+          (argument_patterns
+            (identifier_pattern PLACEHOLDER_13)
+            (record_pattern
+              (record_field_pattern (field_name PLACEHOLDER_2))
+              (record_field_pattern (field_name PLACEHOLDER_3))))
+          (body_expression
+            (function_call_pnc_expr
+              (variable_expr (module PLACEHOLDER_1) PLACEHOLDER_8)
+              (record_expr
+                (record_field_expr (field_name PLACEHOLDER_2)
+                  (bin_op_expr
+                    (function_call_pnc_expr
+                      (field_access_expr
+                        (field_access_expr
+                          (variable_expr PLACEHOLDER_13) PLACEHOLDER_2) to_i128))
+                    (operator -)
+                    (variable_expr PLACEHOLDER_2)))
+                (record_field_expr (field_name PLACEHOLDER_3)
+                  (bin_op_expr
+                    (function_call_pnc_expr
+                      (field_access_expr
+                        (field_access_expr
+                          (variable_expr PLACEHOLDER_13) PLACEHOLDER_3) to_i128))
+                    (operator -)
+                    (variable_expr PLACEHOLDER_3))))))))
+      (inferred_associated_annotation
+        (annotation_pre_colon PLACEHOLDER_16) _))))
