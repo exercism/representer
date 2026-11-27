@@ -1,60 +1,256 @@
-( define ( forth source )
-( evaluate-forth ( parse-forth source ) ' () ' ()))
-( define ( evaluate-forth program environment stack )
-( cond (( null? program ) stack )
-(( eq? 'define-forth ( caar program ))
-( evaluate-forth ( cdr program )
-( define-forth ( cdar program ) environment )
-stack ))
-( else
-( evaluate-forth ( cdr program )
-environment
-( evaluate-statement ( car program ) environment stack )))))
-( define ( evaluate-statement statement environment stack )
-( let walk (( statement statement ) ( stack stack ))
-( cond (( null? statement ) stack )
-(( number? ( car statement )) ( walk ( cdr statement ) ( cons ( car statement ) stack )))
-(( assq ( car statement ) environment ) =>
-( lambda ( def )
-( walk ` ( ,@ ( cdr def ) ,@ ( cdr statement )) stack )))
-( else
-( case ( car statement )
-(( drop ) ( walk ( cdr statement ) ( cdr stack )))
-(( dup ) ( walk ( cdr statement ) ` ( , ( car stack ) ,@ stack )))
-(( over ) ( walk ( cdr statement ) ` ( , ( cadr stack ) ,@ stack )))
-(( swap ) ( walk ( cdr statement ) ` ( , ( cadr stack ) , ( car stack ) ,@ ( cddr stack ))))
-(( * ) ( walk ( cdr statement ) ` ( , ( * ( cadr stack ) ( car stack )) ,@ ( cddr stack ))))
-(( + ) ( walk ( cdr statement ) ` ( , ( + ( cadr stack ) ( car stack )) ,@ ( cddr stack ))))
-(( - ) ( walk ( cdr statement ) ` ( , ( - ( cadr stack ) ( car stack )) ,@ ( cddr stack ))))
-(( / ) ( walk ( cdr statement ) ` ( , ( quotient ( cadr stack ) ( car stack )) ,@ ( cddr stack ))))
-( else ( error 'forth "\"unknown thing\"" statement environment stack )))))))
-( define ( define-forth atoms environment )
-( assert ( not ( number? ( car atoms ))))
-` (( , ( car atoms ) ,@ ( fold-right ( lambda ( atom definition )
-( cond (( assq atom environment ) =>
-( lambda ( def )
-` ( ,@ ( cdr def ) ,@ definition )))
-( else ( cons atom definition ))))
-' ()
-( cdr atoms )))
-,@ environment ))
-( define ( parse-forth source )
-( define ( parse-statement statement )
-( define ( definition? line )
-( and ( < 2 ( string-length line ))
-( char=? ( string-ref line 0 ) # \ : )
-( char=? ( string-ref line ( - ( string-length line ) 1 )) #\; )))
-( define ( parse-definition stmt )
-` ( define-forth
-,@ ( parse-statement ( substring stmt 1 ( - ( string-length stmt ) 1 )))))
-( define ( parse-line stmt )
-( with-input-from-string ( string-downcase stmt )
-( lambda ()
-( let loop (( next ( read )) ( tokens ' ()))
-( if ( eof-object? next )
-( reverse tokens )
-( loop ( read ) ( cons next tokens )))))))
-( if ( definition? statement )
-( parse-definition statement )
-( parse-line statement )))
-( map parse-statement source ))
+(program
+  (list define
+    (list
+      (definition PLACEHOLDER_1)
+      (definition PLACEHOLDER_2))
+    (list PLACEHOLDER_3
+      (list PLACEHOLDER_4 PLACEHOLDER_2)
+      (list quote
+        (list))
+      (list quote
+        (list))))
+  (list define
+    (list
+      (definition PLACEHOLDER_3)
+      (definition PLACEHOLDER_5)
+      (definition PLACEHOLDER_6)
+      (definition PLACEHOLDER_7))
+    (list cond
+      (list
+        (list null? PLACEHOLDER_5) PLACEHOLDER_7)
+      (list
+        (list eq?
+          (list quote PLACEHOLDER_8)
+          (list caar PLACEHOLDER_5))
+        (list PLACEHOLDER_3
+          (list cdr PLACEHOLDER_5)
+          (list PLACEHOLDER_8
+            (list cdar PLACEHOLDER_5) PLACEHOLDER_6) PLACEHOLDER_7))
+      (list else
+        (list PLACEHOLDER_3
+          (list cdr PLACEHOLDER_5) PLACEHOLDER_6
+          (list PLACEHOLDER_9
+            (list car PLACEHOLDER_5) PLACEHOLDER_6 PLACEHOLDER_7)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_10)
+      (definition PLACEHOLDER_6)
+      (definition PLACEHOLDER_7))
+    (list let
+      (definition PLACEHOLDER_11)
+      (list
+        (list
+          (definition PLACEHOLDER_10) PLACEHOLDER_10)
+        (list
+          (definition PLACEHOLDER_7) PLACEHOLDER_7))
+      (list cond
+        (list
+          (list null? PLACEHOLDER_10) PLACEHOLDER_7)
+        (list
+          (list number?
+            (list car PLACEHOLDER_10))
+          (list PLACEHOLDER_11
+            (list cdr PLACEHOLDER_10)
+            (list cons
+              (list car PLACEHOLDER_10) PLACEHOLDER_7)))
+        (list
+          (list assq
+            (list car PLACEHOLDER_10) PLACEHOLDER_6) =>
+          (list lambda
+            (list
+              (definition PLACEHOLDER_12))
+            (list PLACEHOLDER_11
+              (list quasiquote
+                (list
+                  (list unquote-splicing
+                    (list cdr PLACEHOLDER_12))
+                  (list unquote-splicing
+                    (list cdr PLACEHOLDER_10)))) PLACEHOLDER_7)))
+        (list else
+          (list case
+            (list car PLACEHOLDER_10)
+            (list
+              (list drop)
+              (list PLACEHOLDER_11
+                (list cdr PLACEHOLDER_10)
+                (list cdr PLACEHOLDER_7)))
+            (list
+              (list dup)
+              (list PLACEHOLDER_11
+                (list cdr PLACEHOLDER_10)
+                (list quasiquote
+                  (list
+                    (list unquote
+                      (list car PLACEHOLDER_7))
+                    (list unquote-splicing PLACEHOLDER_7)))))
+            (list
+              (list over)
+              (list PLACEHOLDER_11
+                (list cdr PLACEHOLDER_10)
+                (list quasiquote
+                  (list
+                    (list unquote
+                      (list cadr PLACEHOLDER_7))
+                    (list unquote-splicing PLACEHOLDER_7)))))
+            (list
+              (list swap)
+              (list PLACEHOLDER_11
+                (list cdr PLACEHOLDER_10)
+                (list quasiquote
+                  (list
+                    (list unquote
+                      (list cadr PLACEHOLDER_7))
+                    (list unquote
+                      (list car PLACEHOLDER_7))
+                    (list unquote-splicing
+                      (list cddr PLACEHOLDER_7))))))
+            (list
+              (list *)
+              (list PLACEHOLDER_11
+                (list cdr PLACEHOLDER_10)
+                (list quasiquote
+                  (list
+                    (list unquote
+                      (list *
+                        (list cadr PLACEHOLDER_7)
+                        (list car PLACEHOLDER_7)))
+                    (list unquote-splicing
+                      (list cddr PLACEHOLDER_7))))))
+            (list
+              (list +)
+              (list PLACEHOLDER_11
+                (list cdr PLACEHOLDER_10)
+                (list quasiquote
+                  (list
+                    (list unquote
+                      (list +
+                        (list cadr PLACEHOLDER_7)
+                        (list car PLACEHOLDER_7)))
+                    (list unquote-splicing
+                      (list cddr PLACEHOLDER_7))))))
+            (list
+              (list -)
+              (list PLACEHOLDER_11
+                (list cdr PLACEHOLDER_10)
+                (list quasiquote
+                  (list
+                    (list unquote
+                      (list -
+                        (list cadr PLACEHOLDER_7)
+                        (list car PLACEHOLDER_7)))
+                    (list unquote-splicing
+                      (list cddr PLACEHOLDER_7))))))
+            (list
+              (list /)
+              (list PLACEHOLDER_11
+                (list cdr PLACEHOLDER_10)
+                (list quasiquote
+                  (list
+                    (list unquote
+                      (list quotient
+                        (list cadr PLACEHOLDER_7)
+                        (list car PLACEHOLDER_7)))
+                    (list unquote-splicing
+                      (list cddr PLACEHOLDER_7))))))
+            (list else
+              (list error
+                (list quote PLACEHOLDER_1) "unknown thing" PLACEHOLDER_10 PLACEHOLDER_6 PLACEHOLDER_7)))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_8)
+      (definition PLACEHOLDER_13)
+      (definition PLACEHOLDER_6))
+    (list assert
+      (list not
+        (list number?
+          (list car PLACEHOLDER_13))))
+    (list quasiquote
+      (list
+        (list
+          (list unquote
+            (list car PLACEHOLDER_13))
+          (list unquote-splicing
+            (list fold-right
+              (list lambda
+                (list
+                  (definition PLACEHOLDER_14)
+                  (definition PLACEHOLDER_15))
+                (list cond
+                  (list
+                    (list assq PLACEHOLDER_14 PLACEHOLDER_6) =>
+                    (list lambda
+                      (list
+                        (definition PLACEHOLDER_12))
+                      (list quasiquote
+                        (list
+                          (list unquote-splicing
+                            (list cdr PLACEHOLDER_12))
+                          (list unquote-splicing PLACEHOLDER_15)))))
+                  (list else
+                    (list cons PLACEHOLDER_14 PLACEHOLDER_15))))
+              (list quote
+                (list))
+              (list cdr PLACEHOLDER_13))))
+        (list unquote-splicing PLACEHOLDER_6))))
+  (list define
+    (list
+      (definition PLACEHOLDER_4)
+      (definition PLACEHOLDER_2))
+    (list define
+      (list
+        (definition PLACEHOLDER_16)
+        (definition PLACEHOLDER_10))
+      (list define
+        (list
+          (definition PLACEHOLDER_17)
+          (definition PLACEHOLDER_18))
+        (list and
+          (list < 2
+            (list string-length PLACEHOLDER_18))
+          (list char=?
+            (list string-ref PLACEHOLDER_18 0) "#\\:")
+          (list char=?
+            (list string-ref PLACEHOLDER_18
+              (list -
+                (list string-length PLACEHOLDER_18) 1)) "#\\;")))
+      (list define
+        (list
+          (definition PLACEHOLDER_19)
+          (definition PLACEHOLDER_20))
+        (list quasiquote
+          (list PLACEHOLDER_8
+            (list unquote-splicing
+              (list PLACEHOLDER_16
+                (list substring PLACEHOLDER_20 1
+                  (list -
+                    (list string-length PLACEHOLDER_20) 1)))))))
+      (list define
+        (list
+          (definition PLACEHOLDER_21)
+          (definition PLACEHOLDER_20))
+        (list with-input-from-string
+          (list string-downcase PLACEHOLDER_20)
+          (list lambda
+            (list)
+            (list let
+              (definition PLACEHOLDER_22)
+              (list
+                (list
+                  (definition PLACEHOLDER_23)
+                  (list read))
+                (list
+                  (definition PLACEHOLDER_24)
+                  (list quote
+                    (list))))
+              (list if
+                (list eof-object? PLACEHOLDER_23)
+                (list reverse PLACEHOLDER_24)
+                (list PLACEHOLDER_22
+                  (list read)
+                  (list cons PLACEHOLDER_23 PLACEHOLDER_24)))))))
+      (list if
+        (list PLACEHOLDER_17 PLACEHOLDER_10)
+        (list PLACEHOLDER_19 PLACEHOLDER_10)
+        (list PLACEHOLDER_21 PLACEHOLDER_10)))
+    (list map PLACEHOLDER_16 PLACEHOLDER_2)))

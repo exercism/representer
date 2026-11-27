@@ -1,101 +1,253 @@
-( import ( rnrs ))
-( define ( encode key text )
-"\"Encodes string TEXT via affine cypher using KEY pair.\""
-( validate-key-pair key )
-( list->string ( cypher-text 5 ( affine-encoder
-key
-( string->list ( string-downcase text ))))))
-( define ( decode key text )
-"\"Decodes string TEXT via affine cypher using KEY pair.\""
-( validate-key-pair key )
-( list->string ( affine-decoder
-key
-( string->list ( string-downcase text )))))
-( define affine-alphabet ' ( #\a #\b #\c #\d #\e #\f #\g #\h
-#\i #\j #\k #\l #\m #\n #\o #\p
-#\q #\r #\s #\t #\u #\v #\w #\x
-#\y #\z ))
-( define m ( length affine-alphabet ))
-( define ( affine-encoder key xs )
-"\"Encode a list of characters XS via the affine cypher using A and\nB as keys. Decimal digits are passed unaltered. Alphabetic characters\nin the affine-alphabet are encoded. All other characters are dropped.\""
-( let*
-(( a ( car key ))
-( b ( cdr key ))
-( r ' ())
-( x 0 )
-( e 0 )
-( c #\space ))
-( while ( not ( null? xs ))
-( set! c ( car xs ))
-( set! xs ( cdr xs ))
-( set! x ( index-into c affine-alphabet ))
-( if ( > x -1 )
-( begin
-( set! e ( modulo ( + ( * a x ) b ) m ))
-( set! r ( cons ( character-at e affine-alphabet ) r )))
-( if ( and ( char>=? c #\0 ) ( char<=? c #\9 ))
-( set! r ( cons c r )))))
-( reverse r )))
-( define ( affine-decoder key xs )
-"\"Decode a list of characters XS via the affine cypher using A and\nB as keys. Decimal digits are passed unaltered. Alphabetic characters\nin the affine-alphabet are decoded. All other characters are dropped.\""
-( let*
-(( a ( car key ))
-( b ( cdr key ))
-( r ' ())
-( n ( mmi a m ))
-( y 0 )
-( d 0 )
-( c #\space ))
-( while ( not ( null? xs ))
-( set! c ( car xs ))
-( set! xs ( cdr xs ))
-( set! y ( index-into c affine-alphabet ))
-( if ( > y -1 )
-( begin
-( set! d ( modulo ( * n ( - y b )) m ))
-( set! r ( cons ( character-at d affine-alphabet ) r )))
-( if ( and ( char>=? c #\0 ) ( char<=? c #\9 ))
-( set! r ( cons c r )))))
-( reverse r )))
-( define ( validate-key-pair key )
-"\"Is the first part of the KEY pair valid with regard to alphabet length\nM? If not throw an error back.\""
-( if ( or ( not ( pair? key )) ( not ( coprime? ( car key ) m )))
-( error 'encode "\"invalid key provided, part 1 must be coprime with m\"" key m )))
-( define ( cypher-text x xs )
-"\"Insert a character space every X elements into XS. Typically this\nwould be done for encrypted or decrypted text.\""
-( cond (( null? xs ) xs )
-(( < x 1 ) xs )
-( else
-( let (( r ' ()) ( tic x ))
-( while ( not ( null? xs ))
-( set! r ( cons ( car xs ) r ))
-( set! tic ( 1- tic ))
-( set! xs ( cdr xs ))
-( if ( and ( not ( null? xs )) ( < tic 1 ))
-( begin ( set! r ( cons #\space r ))
-( set! tic x ))))
-( reverse r )))))
-( define ( index-into x xs )
-"\"Returns position relative to 0 of X in list XS or -1 if not found.\nImplementing to use a list allows for discontiguous and/or shuffled\ncharacter sets.\""
-( cond (( null? xs ) -1 )
-( else ( let (( m ( member x xs )))
-( if ( list? m )
-( - ( length xs ) ( length m ))
--1 )))))
-( define ( character-at x xs )
-"\"Returns the element at position X relative to 0 in list XS or '()\nif out of bounds.\""
-( cond (( null? xs ) ' ())
-(( zero? x ) ( car xs ))
-( else ( character-at ( 1- x ) ( cdr xs )))))
-( define ( coprime? a b )
-"\"Are integers A and B coprime?\""
-( cond (( or ( not ( integer? a )) ( not ( integer? b ))) #f )
-(( or ( zero? a ) ( zero? b )) #f )
-( else
-( = ( gcd a b ) 1 ))))
-( define ( mmi a m )
-"\"Return the modular multiplicative inverse (N) of A and M in\nthe relation AN mod M = 1 using a simple iterative solution\nfor the small values of M expected.\""
-( let (( n 1 ))
-( while ( not ( = 1 ( modulo ( * a n ) m )))
-( set! n ( 1+ n )))
-n ))
+(program
+  (list define
+    (list
+      (definition PLACEHOLDER_1)
+      (definition PLACEHOLDER_2)
+      (definition PLACEHOLDER_3)) "Encodes string TEXT via affine cypher using KEY pair."
+    (list PLACEHOLDER_4 PLACEHOLDER_2)
+    (list list->string
+      (list PLACEHOLDER_5 5
+        (list PLACEHOLDER_6 PLACEHOLDER_2
+          (list string->list
+            (list string-downcase PLACEHOLDER_3))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_7)
+      (definition PLACEHOLDER_2)
+      (definition PLACEHOLDER_3)) "Decodes string TEXT via affine cypher using KEY pair."
+    (list PLACEHOLDER_4 PLACEHOLDER_2)
+    (list list->string
+      (list PLACEHOLDER_8 PLACEHOLDER_2
+        (list string->list
+          (list string-downcase PLACEHOLDER_3)))))
+  (list define
+    (definition PLACEHOLDER_9)
+    (list quote
+      (list "#\\a" "#\\b" "#\\c" "#\\d" "#\\e" "#\\f" "#\\g" "#\\h" "#\\i" "#\\j" "#\\k" "#\\l" "#\\m" "#\\n" "#\\o" "#\\p" "#\\q" "#\\r" "#\\s" "#\\t" "#\\u" "#\\v" "#\\w" "#\\x" "#\\y" "#\\z")))
+  (list define
+    (definition PLACEHOLDER_10)
+    (list length PLACEHOLDER_9))
+  (list define
+    (list
+      (definition PLACEHOLDER_6)
+      (definition PLACEHOLDER_2)
+      (definition PLACEHOLDER_11)) "Encode a list of characters XS via the affine cypher using A and\nB as keys. Decimal digits are passed unaltered. Alphabetic characters\nin the affine-alphabet are encoded. All other characters are dropped."
+    (list let*
+      (list
+        (list
+          (definition PLACEHOLDER_12)
+          (list car PLACEHOLDER_2))
+        (list
+          (definition PLACEHOLDER_13)
+          (list cdr PLACEHOLDER_2))
+        (list
+          (definition PLACEHOLDER_14)
+          (list quote
+            (list)))
+        (list
+          (definition PLACEHOLDER_15) 0)
+        (list
+          (definition PLACEHOLDER_16) 0)
+        (list
+          (definition PLACEHOLDER_17) "#\\space"))
+      (list while
+        (list not
+          (list null? PLACEHOLDER_11))
+        (list set! PLACEHOLDER_17
+          (list car PLACEHOLDER_11))
+        (list set! PLACEHOLDER_11
+          (list cdr PLACEHOLDER_11))
+        (list set! PLACEHOLDER_15
+          (list PLACEHOLDER_18 PLACEHOLDER_17 PLACEHOLDER_9))
+        (list if
+          (list > PLACEHOLDER_15 -1)
+          (list begin
+            (list set! PLACEHOLDER_16
+              (list modulo
+                (list +
+                  (list * PLACEHOLDER_12 PLACEHOLDER_15) PLACEHOLDER_13) PLACEHOLDER_10))
+            (list set! PLACEHOLDER_14
+              (list cons
+                (list PLACEHOLDER_19 PLACEHOLDER_16 PLACEHOLDER_9) PLACEHOLDER_14)))
+          (list if
+            (list and
+              (list char>=? PLACEHOLDER_17 "#\\0")
+              (list char<=? PLACEHOLDER_17 "#\\9"))
+            (list set! PLACEHOLDER_14
+              (list cons PLACEHOLDER_17 PLACEHOLDER_14)))))
+      (list reverse PLACEHOLDER_14)))
+  (list define
+    (list
+      (definition PLACEHOLDER_8)
+      (definition PLACEHOLDER_2)
+      (definition PLACEHOLDER_11)) "Decode a list of characters XS via the affine cypher using A and\nB as keys. Decimal digits are passed unaltered. Alphabetic characters\nin the affine-alphabet are decoded. All other characters are dropped."
+    (list let*
+      (list
+        (list
+          (definition PLACEHOLDER_12)
+          (list car PLACEHOLDER_2))
+        (list
+          (definition PLACEHOLDER_13)
+          (list cdr PLACEHOLDER_2))
+        (list
+          (definition PLACEHOLDER_14)
+          (list quote
+            (list)))
+        (list
+          (definition PLACEHOLDER_20)
+          (list PLACEHOLDER_21 PLACEHOLDER_12 PLACEHOLDER_10))
+        (list
+          (definition PLACEHOLDER_22) 0)
+        (list
+          (definition PLACEHOLDER_23) 0)
+        (list
+          (definition PLACEHOLDER_17) "#\\space"))
+      (list while
+        (list not
+          (list null? PLACEHOLDER_11))
+        (list set! PLACEHOLDER_17
+          (list car PLACEHOLDER_11))
+        (list set! PLACEHOLDER_11
+          (list cdr PLACEHOLDER_11))
+        (list set! PLACEHOLDER_22
+          (list PLACEHOLDER_18 PLACEHOLDER_17 PLACEHOLDER_9))
+        (list if
+          (list > PLACEHOLDER_22 -1)
+          (list begin
+            (list set! PLACEHOLDER_23
+              (list modulo
+                (list * PLACEHOLDER_20
+                  (list - PLACEHOLDER_22 PLACEHOLDER_13)) PLACEHOLDER_10))
+            (list set! PLACEHOLDER_14
+              (list cons
+                (list PLACEHOLDER_19 PLACEHOLDER_23 PLACEHOLDER_9) PLACEHOLDER_14)))
+          (list if
+            (list and
+              (list char>=? PLACEHOLDER_17 "#\\0")
+              (list char<=? PLACEHOLDER_17 "#\\9"))
+            (list set! PLACEHOLDER_14
+              (list cons PLACEHOLDER_17 PLACEHOLDER_14)))))
+      (list reverse PLACEHOLDER_14)))
+  (list define
+    (list
+      (definition PLACEHOLDER_4)
+      (definition PLACEHOLDER_2)) "Is the first part of the KEY pair valid with regard to alphabet length\nM? If not throw an error back."
+    (list if
+      (list or
+        (list not
+          (list pair? PLACEHOLDER_2))
+        (list not
+          (list PLACEHOLDER_24
+            (list car PLACEHOLDER_2) PLACEHOLDER_10)))
+      (list error
+        (list quote PLACEHOLDER_1) "invalid key provided, part 1 must be coprime with m" PLACEHOLDER_2 PLACEHOLDER_10)))
+  (list define
+    (list
+      (definition PLACEHOLDER_5)
+      (definition PLACEHOLDER_15)
+      (definition PLACEHOLDER_11)) "Insert a character space every X elements into XS. Typically this\nwould be done for encrypted or decrypted text."
+    (list cond
+      (list
+        (list null? PLACEHOLDER_11) PLACEHOLDER_11)
+      (list
+        (list < PLACEHOLDER_15 1) PLACEHOLDER_11)
+      (list else
+        (list let
+          (list
+            (list
+              (definition PLACEHOLDER_14)
+              (list quote
+                (list)))
+            (list
+              (definition PLACEHOLDER_25) PLACEHOLDER_15))
+          (list while
+            (list not
+              (list null? PLACEHOLDER_11))
+            (list set! PLACEHOLDER_14
+              (list cons
+                (list car PLACEHOLDER_11) PLACEHOLDER_14))
+            (list set! PLACEHOLDER_25
+              (list 1 - PLACEHOLDER_25))
+            (list set! PLACEHOLDER_11
+              (list cdr PLACEHOLDER_11))
+            (list if
+              (list and
+                (list not
+                  (list null? PLACEHOLDER_11))
+                (list < PLACEHOLDER_25 1))
+              (list begin
+                (list set! PLACEHOLDER_14
+                  (list cons "#\\space" PLACEHOLDER_14))
+                (list set! PLACEHOLDER_25 PLACEHOLDER_15))))
+          (list reverse PLACEHOLDER_14)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_18)
+      (definition PLACEHOLDER_15)
+      (definition PLACEHOLDER_11)) "Returns position relative to 0 of X in list XS or -1 if not found.\nImplementing to use a list allows for discontiguous and/or shuffled\ncharacter sets."
+    (list cond
+      (list
+        (list null? PLACEHOLDER_11) -1)
+      (list else
+        (list let
+          (list
+            (list
+              (definition PLACEHOLDER_10)
+              (list member PLACEHOLDER_15 PLACEHOLDER_11)))
+          (list if
+            (list list? PLACEHOLDER_10)
+            (list -
+              (list length PLACEHOLDER_11)
+              (list length PLACEHOLDER_10)) -1)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_19)
+      (definition PLACEHOLDER_15)
+      (definition PLACEHOLDER_11)) "Returns the element at position X relative to 0 in list XS or '()\nif out of bounds."
+    (list cond
+      (list
+        (list null? PLACEHOLDER_11)
+        (list quote
+          (list)))
+      (list
+        (list zero? PLACEHOLDER_15)
+        (list car PLACEHOLDER_11))
+      (list else
+        (list PLACEHOLDER_19
+          (list 1 - PLACEHOLDER_15)
+          (list cdr PLACEHOLDER_11)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_24)
+      (definition PLACEHOLDER_12)
+      (definition PLACEHOLDER_13)) "Are integers A and B coprime?"
+    (list cond
+      (list
+        (list or
+          (list not
+            (list integer? PLACEHOLDER_12))
+          (list not
+            (list integer? PLACEHOLDER_13))) #f)
+      (list
+        (list or
+          (list zero? PLACEHOLDER_12)
+          (list zero? PLACEHOLDER_13)) #f)
+      (list else
+        (list =
+          (list gcd PLACEHOLDER_12 PLACEHOLDER_13) 1))))
+  (list define
+    (list
+      (definition PLACEHOLDER_21)
+      (definition PLACEHOLDER_12)
+      (definition PLACEHOLDER_10)) "Return the modular multiplicative inverse (N) of A and M in\nthe relation AN mod M = 1 using a simple iterative solution\nfor the small values of M expected."
+    (list let
+      (list
+        (list
+          (definition PLACEHOLDER_20) 1))
+      (list while
+        (list not
+          (list = 1
+            (list modulo
+              (list * PLACEHOLDER_12 PLACEHOLDER_20) PLACEHOLDER_10)))
+        (list set! PLACEHOLDER_20
+          (list 1 + PLACEHOLDER_20))) PLACEHOLDER_20)))

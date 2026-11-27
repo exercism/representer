@@ -1,136 +1,383 @@
-( use-modules ( srfi srfi-9 ))
-( define-record-type <defn>
-( make-defn word word-list )
-defn?
-( word defn-word )
-( word-list defn-list ))
-( define-record-type <forth-interpreter>
-( make-frth stack defs )
-frth?
-( stack frth-stack )
-( defs frth-defs ))
-( define ( pop-stack frth )
-( let (( s ( frth-stack frth )))
-( if ( null? s )
-( throw 'misc-error "\"stack underflow\"" )
-( values ( make-frth ( cdr s ) ( frth-defs frth ))
-( car s )))))
-( define ( peek-stack frth )
-( if ( null? ( frth-stack frth ))
-( throw 'misc-error "\"stack underflow\"" )
-( car ( frth-stack frth ))))
-( define ( push-stack frth val )
-( make-frth ( cons val ( frth-stack frth )) ( frth-defs frth )))
-( define ( push-defn frth new-def )
-( make-frth ( frth-stack frth ) ( cons new-def ( frth-defs frth ))))
-( define ( parse-token token )
-( let (( read-tok ( call-with-input-string token read )))
-( if ( integer? read-tok ) read-tok token )))
-( define ( parse-defn accum left )
-( cond
-(( null? left )
-( throw 'misc-error "\"input ended mid-definition\"" ))
-(( equal? "\";\"" ( car left ))
-( let (( words ( reverse accum )))
-( cond
-(( = 0 ( length words ))
-( throw 'misc-error "\"zero-length definition\"" ))
-(( integer? ( car words ))
-( throw 'misc-erro "\"redefinition of number\"" ))
-( else ( values ( make-defn ( car words ) ( cdr words ))
-( cdr left ))))))
-( else ( parse-defn ( cons ( parse-token ( car left )) accum ) ( cdr left )))))
-( define ( parse-aux accum left )
-( cond
-(( null? left ) ( reverse accum ))
-(( equal? "\":\"" ( car left ))
-( call-with-values
-( lambda () ( parse-defn ' () ( cdr left )))
-( lambda ( new-def new-left )
-( parse-aux ( cons new-def accum ) new-left ))))
-( else
-( guard ( ex ( else
-( throw 'misc-error
-( string-append "\"illegal token in input: \"" ( car left )))))
-( parse-aux ( cons ( parse-token ( car left )) accum ) ( cdr left ))))))
-( define ( parse program-line )
-( parse-aux ' () ( filter ( lambda ( x ) ( < 0 ( string-length x )))
-( string-split ( string-upcase program-line )
-char-whitespace? ))))
-( define base-arith-words ( list "\"+\"" "\"-\"" "\"*\"" "\"/\"" ))
-( define ( arithmetic frth op )
-( call-with-values
-( lambda () ( pop-stack frth ))
-( lambda ( next-frth y )
-( call-with-values
-( lambda () ( pop-stack next-frth ))
-( lambda ( next-frth x )
-( cond
-(( equal? op "\"+\"" ) ( push-stack next-frth ( + x y )))
-(( equal? op "\"-\"" ) ( push-stack next-frth ( - x y )))
-(( equal? op "\"*\"" ) ( push-stack next-frth ( * x y )))
-(( equal? op "\"/\"" )
-( if ( = y 0 )
-( throw 'misc-error "\"division by zero\"" )
-( push-stack next-frth ( quotient x y ))))
-( else ( throw 'misc-error
-( string-append
-"\"not an arithmetic operator: \""
-op )))))))))
-( define ( eval-base-word frth word )
-( cond
-(( member word base-arith-words ) ( arithmetic frth word ))
-(( equal? "\"DUP\"" word )
-( push-stack frth ( peek-stack frth )))
-(( equal? "\"DROP\"" word )
-( call-with-values
-( lambda () ( pop-stack frth ))
-( lambda ( next-frth x ) next-frth )))
-(( equal? "\"SWAP\"" word )
-( call-with-values
-( lambda () ( pop-stack frth ))
-( lambda ( next-frth y )
-( call-with-values
-( lambda () ( pop-stack next-frth ))
-( lambda ( next-frth x )
-( push-stack ( push-stack next-frth y ) x ))))))
-(( equal? "\"OVER\"" word )
-( call-with-values
-( lambda () ( pop-stack frth ))
-( lambda ( next-frth y )
-( let (( x ( peek-stack next-frth )))
-( push-stack ( push-stack next-frth y ) x )))))
-( else ( throw 'misc-error
-( string-append "\"undefined word: \"" word )))))
-( define ( eval-word frth word )
-( cond
-(( null? ( frth-defs frth )) ( eval-base-word frth word ))
-(( equal? word ( defn-word ( car ( frth-defs frth ))))
-( frth-eval ( make-frth ( frth-stack frth )
-( cdr ( frth-defs frth )))
-( defn-list ( car ( frth-defs frth )))))
-( else ( eval-word ( make-frth ( frth-stack frth )
-( cdr ( frth-defs frth )))
-word ))))
-( define ( frth-eval frth token-list )
-( cond
-(( null? token-list ) frth )
-(( integer? ( car token-list ))
-( frth-eval ( push-stack frth ( car token-list )) ( cdr token-list )))
-(( defn? ( car token-list ))
-( frth-eval ( push-defn frth ( car token-list )) ( cdr token-list )))
-( else ( call-with-values
-( lambda () ( values ( eval-word frth ( car token-list ))
-( frth-defs frth )))
-( lambda ( next-frth old-defs )
-( frth-eval ( make-frth ( frth-stack next-frth ) old-defs )
-( cdr token-list )))))))
-( define ( forth-aux frth prog-left )
-( if ( null? prog-left )
-( frth-stack frth )
-( forth-aux
-( frth-eval frth ( parse ( car prog-left )))
-( cdr prog-left ))))
-( define ( forth program )
-( let (( frth ( make-frth ' () ' ())))
-( forth-aux frth program )))
+(program
+  (list define-record-type
+    (definition PLACEHOLDER_1)
+    (list
+      (definition PLACEHOLDER_2) PLACEHOLDER_3 PLACEHOLDER_4)
+    (definition PLACEHOLDER_5)
+    (list
+      (definition PLACEHOLDER_3)
+      (definition PLACEHOLDER_6))
+    (list
+      (definition PLACEHOLDER_4)
+      (definition PLACEHOLDER_7)))
+  (list define-record-type
+    (definition PLACEHOLDER_8)
+    (list
+      (definition PLACEHOLDER_9) PLACEHOLDER_10 PLACEHOLDER_11)
+    (definition PLACEHOLDER_12)
+    (list
+      (definition PLACEHOLDER_10)
+      (definition PLACEHOLDER_13))
+    (list
+      (definition PLACEHOLDER_11)
+      (definition PLACEHOLDER_14)))
+  (list define
+    (list
+      (definition PLACEHOLDER_15)
+      (definition PLACEHOLDER_16))
+    (list let
+      (list
+        (list
+          (definition PLACEHOLDER_17)
+          (list PLACEHOLDER_13 PLACEHOLDER_16)))
+      (list if
+        (list null? PLACEHOLDER_17)
+        (list throw
+          (list quote misc-error) "stack underflow")
+        (list values
+          (list PLACEHOLDER_9
+            (list cdr PLACEHOLDER_17)
+            (list PLACEHOLDER_14 PLACEHOLDER_16))
+          (list car PLACEHOLDER_17)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_18)
+      (definition PLACEHOLDER_16))
+    (list if
+      (list null?
+        (list PLACEHOLDER_13 PLACEHOLDER_16))
+      (list throw
+        (list quote misc-error) "stack underflow")
+      (list car
+        (list PLACEHOLDER_13 PLACEHOLDER_16))))
+  (list define
+    (list
+      (definition PLACEHOLDER_19)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_20))
+    (list PLACEHOLDER_9
+      (list cons PLACEHOLDER_20
+        (list PLACEHOLDER_13 PLACEHOLDER_16))
+      (list PLACEHOLDER_14 PLACEHOLDER_16)))
+  (list define
+    (list
+      (definition PLACEHOLDER_21)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_22))
+    (list PLACEHOLDER_9
+      (list PLACEHOLDER_13 PLACEHOLDER_16)
+      (list cons PLACEHOLDER_22
+        (list PLACEHOLDER_14 PLACEHOLDER_16))))
+  (list define
+    (list
+      (definition PLACEHOLDER_23)
+      (definition PLACEHOLDER_24))
+    (list let
+      (list
+        (list
+          (definition PLACEHOLDER_25)
+          (list call-with-input-string PLACEHOLDER_24 read)))
+      (list if
+        (list integer? PLACEHOLDER_25) PLACEHOLDER_25 PLACEHOLDER_24)))
+  (list define
+    (list
+      (definition PLACEHOLDER_26)
+      (definition PLACEHOLDER_27)
+      (definition PLACEHOLDER_28))
+    (list cond
+      (list
+        (list null? PLACEHOLDER_28)
+        (list throw
+          (list quote misc-error) "input ended mid-definition"))
+      (list
+        (list equal? ";"
+          (list car PLACEHOLDER_28))
+        (list let
+          (list
+            (list
+              (definition PLACEHOLDER_29)
+              (list reverse PLACEHOLDER_27)))
+          (list cond
+            (list
+              (list = 0
+                (list length PLACEHOLDER_29))
+              (list throw
+                (list quote misc-error) "zero-length definition"))
+            (list
+              (list integer?
+                (list car PLACEHOLDER_29))
+              (list throw
+                (list quote misc-erro) "redefinition of number"))
+            (list else
+              (list values
+                (list PLACEHOLDER_2
+                  (list car PLACEHOLDER_29)
+                  (list cdr PLACEHOLDER_29))
+                (list cdr PLACEHOLDER_28))))))
+      (list else
+        (list PLACEHOLDER_26
+          (list cons
+            (list PLACEHOLDER_23
+              (list car PLACEHOLDER_28)) PLACEHOLDER_27)
+          (list cdr PLACEHOLDER_28)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_30)
+      (definition PLACEHOLDER_27)
+      (definition PLACEHOLDER_28))
+    (list cond
+      (list
+        (list null? PLACEHOLDER_28)
+        (list reverse PLACEHOLDER_27))
+      (list
+        (list equal? ":"
+          (list car PLACEHOLDER_28))
+        (list call-with-values
+          (list lambda
+            (list)
+            (list PLACEHOLDER_26
+              (list quote
+                (list))
+              (list cdr PLACEHOLDER_28)))
+          (list lambda
+            (list
+              (definition PLACEHOLDER_22)
+              (definition PLACEHOLDER_31))
+            (list PLACEHOLDER_30
+              (list cons PLACEHOLDER_22 PLACEHOLDER_27) PLACEHOLDER_31))))
+      (list else
+        (list guard
+          (list
+            (definition PLACEHOLDER_32)
+            (list else
+              (list throw
+                (list quote misc-error)
+                (list string-append "illegal token in input: "
+                  (list car PLACEHOLDER_28)))))
+          (list PLACEHOLDER_30
+            (list cons
+              (list PLACEHOLDER_23
+                (list car PLACEHOLDER_28)) PLACEHOLDER_27)
+            (list cdr PLACEHOLDER_28))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_33)
+      (definition PLACEHOLDER_34))
+    (list PLACEHOLDER_30
+      (list quote
+        (list))
+      (list filter
+        (list lambda
+          (list
+            (definition PLACEHOLDER_35))
+          (list < 0
+            (list string-length PLACEHOLDER_35)))
+        (list string-split
+          (list string-upcase PLACEHOLDER_34) char-whitespace?))))
+  (list define
+    (definition PLACEHOLDER_36)
+    (list list "+" "-" "*" "/"))
+  (list define
+    (list
+      (definition PLACEHOLDER_37)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_38))
+    (list call-with-values
+      (list lambda
+        (list)
+        (list PLACEHOLDER_15 PLACEHOLDER_16))
+      (list lambda
+        (list
+          (definition PLACEHOLDER_39)
+          (definition PLACEHOLDER_40))
+        (list call-with-values
+          (list lambda
+            (list)
+            (list PLACEHOLDER_15 PLACEHOLDER_39))
+          (list lambda
+            (list
+              (definition PLACEHOLDER_39)
+              (definition PLACEHOLDER_35))
+            (list cond
+              (list
+                (list equal? PLACEHOLDER_38 "+")
+                (list PLACEHOLDER_19 PLACEHOLDER_39
+                  (list + PLACEHOLDER_35 PLACEHOLDER_40)))
+              (list
+                (list equal? PLACEHOLDER_38 "-")
+                (list PLACEHOLDER_19 PLACEHOLDER_39
+                  (list - PLACEHOLDER_35 PLACEHOLDER_40)))
+              (list
+                (list equal? PLACEHOLDER_38 "*")
+                (list PLACEHOLDER_19 PLACEHOLDER_39
+                  (list * PLACEHOLDER_35 PLACEHOLDER_40)))
+              (list
+                (list equal? PLACEHOLDER_38 "/")
+                (list if
+                  (list = PLACEHOLDER_40 0)
+                  (list throw
+                    (list quote misc-error) "division by zero")
+                  (list PLACEHOLDER_19 PLACEHOLDER_39
+                    (list quotient PLACEHOLDER_35 PLACEHOLDER_40))))
+              (list else
+                (list throw
+                  (list quote misc-error)
+                  (list string-append "not an arithmetic operator: " PLACEHOLDER_38)))))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_41)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_3))
+    (list cond
+      (list
+        (list member PLACEHOLDER_3 PLACEHOLDER_36)
+        (list PLACEHOLDER_37 PLACEHOLDER_16 PLACEHOLDER_3))
+      (list
+        (list equal? "DUP" PLACEHOLDER_3)
+        (list PLACEHOLDER_19 PLACEHOLDER_16
+          (list PLACEHOLDER_18 PLACEHOLDER_16)))
+      (list
+        (list equal? "DROP" PLACEHOLDER_3)
+        (list call-with-values
+          (list lambda
+            (list)
+            (list PLACEHOLDER_15 PLACEHOLDER_16))
+          (list lambda
+            (list
+              (definition PLACEHOLDER_39)
+              (definition PLACEHOLDER_35)) PLACEHOLDER_39)))
+      (list
+        (list equal? "SWAP" PLACEHOLDER_3)
+        (list call-with-values
+          (list lambda
+            (list)
+            (list PLACEHOLDER_15 PLACEHOLDER_16))
+          (list lambda
+            (list
+              (definition PLACEHOLDER_39)
+              (definition PLACEHOLDER_40))
+            (list call-with-values
+              (list lambda
+                (list)
+                (list PLACEHOLDER_15 PLACEHOLDER_39))
+              (list lambda
+                (list
+                  (definition PLACEHOLDER_39)
+                  (definition PLACEHOLDER_35))
+                (list PLACEHOLDER_19
+                  (list PLACEHOLDER_19 PLACEHOLDER_39 PLACEHOLDER_40) PLACEHOLDER_35))))))
+      (list
+        (list equal? "OVER" PLACEHOLDER_3)
+        (list call-with-values
+          (list lambda
+            (list)
+            (list PLACEHOLDER_15 PLACEHOLDER_16))
+          (list lambda
+            (list
+              (definition PLACEHOLDER_39)
+              (definition PLACEHOLDER_40))
+            (list let
+              (list
+                (list
+                  (definition PLACEHOLDER_35)
+                  (list PLACEHOLDER_18 PLACEHOLDER_39)))
+              (list PLACEHOLDER_19
+                (list PLACEHOLDER_19 PLACEHOLDER_39 PLACEHOLDER_40) PLACEHOLDER_35)))))
+      (list else
+        (list throw
+          (list quote misc-error)
+          (list string-append "undefined word: " PLACEHOLDER_3)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_42)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_3))
+    (list cond
+      (list
+        (list null?
+          (list PLACEHOLDER_14 PLACEHOLDER_16))
+        (list PLACEHOLDER_41 PLACEHOLDER_16 PLACEHOLDER_3))
+      (list
+        (list equal? PLACEHOLDER_3
+          (list PLACEHOLDER_6
+            (list car
+              (list PLACEHOLDER_14 PLACEHOLDER_16))))
+        (list PLACEHOLDER_43
+          (list PLACEHOLDER_9
+            (list PLACEHOLDER_13 PLACEHOLDER_16)
+            (list cdr
+              (list PLACEHOLDER_14 PLACEHOLDER_16)))
+          (list PLACEHOLDER_7
+            (list car
+              (list PLACEHOLDER_14 PLACEHOLDER_16)))))
+      (list else
+        (list PLACEHOLDER_42
+          (list PLACEHOLDER_9
+            (list PLACEHOLDER_13 PLACEHOLDER_16)
+            (list cdr
+              (list PLACEHOLDER_14 PLACEHOLDER_16))) PLACEHOLDER_3))))
+  (list define
+    (list
+      (definition PLACEHOLDER_43)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_44))
+    (list cond
+      (list
+        (list null? PLACEHOLDER_44) PLACEHOLDER_16)
+      (list
+        (list integer?
+          (list car PLACEHOLDER_44))
+        (list PLACEHOLDER_43
+          (list PLACEHOLDER_19 PLACEHOLDER_16
+            (list car PLACEHOLDER_44))
+          (list cdr PLACEHOLDER_44)))
+      (list
+        (list PLACEHOLDER_5
+          (list car PLACEHOLDER_44))
+        (list PLACEHOLDER_43
+          (list PLACEHOLDER_21 PLACEHOLDER_16
+            (list car PLACEHOLDER_44))
+          (list cdr PLACEHOLDER_44)))
+      (list else
+        (list call-with-values
+          (list lambda
+            (list)
+            (list values
+              (list PLACEHOLDER_42 PLACEHOLDER_16
+                (list car PLACEHOLDER_44))
+              (list PLACEHOLDER_14 PLACEHOLDER_16)))
+          (list lambda
+            (list
+              (definition PLACEHOLDER_39)
+              (definition PLACEHOLDER_45))
+            (list PLACEHOLDER_43
+              (list PLACEHOLDER_9
+                (list PLACEHOLDER_13 PLACEHOLDER_39) PLACEHOLDER_45)
+              (list cdr PLACEHOLDER_44)))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_46)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_47))
+    (list if
+      (list null? PLACEHOLDER_47)
+      (list PLACEHOLDER_13 PLACEHOLDER_16)
+      (list PLACEHOLDER_46
+        (list PLACEHOLDER_43 PLACEHOLDER_16
+          (list PLACEHOLDER_33
+            (list car PLACEHOLDER_47)))
+        (list cdr PLACEHOLDER_47))))
+  (list define
+    (list
+      (definition PLACEHOLDER_48)
+      (definition PLACEHOLDER_49))
+    (list let
+      (list
+        (list
+          (definition PLACEHOLDER_16)
+          (list PLACEHOLDER_9
+            (list quote
+              (list))
+            (list quote
+              (list)))))
+      (list PLACEHOLDER_46 PLACEHOLDER_16 PLACEHOLDER_49))))
