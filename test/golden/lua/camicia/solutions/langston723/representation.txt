@@ -1,91 +1,256 @@
-local paymentCards = {
-A = 4 ,
-K = 3 ,
-Q = 2 ,
-J = 1 ,
-}
-local function simulate_game ( playerA , playerB )
-local tricks = 0
-local cards = 0
-local pile = {}
-local acting , waiting = playerA , playerB
-local paymentDue = 0
-local seen = {}
-local function playCard ()
-local card = table.remove ( acting , 1 )
-pile [ # pile + 1 ] = card
-return card
-end
-local function switchPlayer ()
-acting , waiting = waiting , acting
-end
-local function pickupPile ()
-for i = 1 , # pile do
-waiting [ # waiting + 1 ] = pile [ i ]
-end
-pile = {}
-end
-local function isGameOver ()
-return # acting == 0
-end
-local function handKey ( hand )
-local keys = {}
-for i = 1 , # hand do
-local card = hand [ i ]
-if paymentCards [ card ] then
-keys [ # keys + 1 ] = card
-else
-keys [ # keys + 1 ] = "\"x\""
-end
-end
-return table.concat ( keys , "\",\"" )
-end
-local function stateKey ()
-return table.concat ({
-handKey ( playerA ),
-handKey ( playerB ),
-}, "\"|\"" )
-end
-local key = stateKey ()
-seen [ key ] = true
-local status = "\"playing\""
-while true do
-if isGameOver () then
-tricks = tricks + 1
-status = "\"finished\""
-break
-end
-local card = playCard ()
-cards = cards + 1
-if paymentDue > 0 then
-if paymentCards [ card ] then
-switchPlayer ()
-paymentDue = paymentCards [ card ]
-elseif paymentDue == 1 then
-paymentDue = paymentDue - 1
-pickupPile ()
-tricks = tricks + 1
-if isGameOver () then
-status = "\"finished\""
-break
-end
-key = stateKey ()
-if seen [ key ] then
-status = "\"loop\""
-break
-end
-seen [ key ] = true
-else
-paymentDue = paymentDue - 1
-end
-elseif paymentCards [ card ] then
-switchPlayer ()
-paymentDue = paymentCards [ card ]
-end
-if paymentDue == 0 then
-switchPlayer ()
-end
-end
-return { status = status , cards = cards , tricks = tricks }
-end
-return { simulate_game = simulate_game }
+(chunk
+  (variable_declaration local
+    (assignment_statement
+      (variable_list PLACEHOLDER_1)
+      (expression_list
+        (table_constructor
+          (field PLACEHOLDER_2 4)
+          (field PLACEHOLDER_3 3)
+          (field PLACEHOLDER_4 2)
+          (field PLACEHOLDER_5 1)))))
+  (function_declaration local PLACEHOLDER_6
+    (parameters PLACEHOLDER_7 PLACEHOLDER_8)
+    (block
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_9)
+          (expression_list 0)))
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_10)
+          (expression_list 0)))
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_11)
+          (expression_list
+            (table_constructor))))
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_12 PLACEHOLDER_13)
+          (expression_list PLACEHOLDER_7 PLACEHOLDER_8)))
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_14)
+          (expression_list 0)))
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_15)
+          (expression_list
+            (table_constructor))))
+      (function_declaration local PLACEHOLDER_16
+        (parameters)
+        (block
+          (variable_declaration local
+            (assignment_statement
+              (variable_list PLACEHOLDER_17)
+              (expression_list
+                (function_call
+                  (dot_index_expression table remove)
+                  (arguments PLACEHOLDER_12 1)))))
+          (assignment_statement
+            (variable_list
+              (bracket_index_expression PLACEHOLDER_11
+                (binary_expression
+                  (unary_expression # PLACEHOLDER_11) + 1)))
+            (expression_list PLACEHOLDER_17))
+          (return_statement
+            (expression_list PLACEHOLDER_17))))
+      (function_declaration local PLACEHOLDER_18
+        (parameters)
+        (block
+          (assignment_statement
+            (variable_list PLACEHOLDER_12 PLACEHOLDER_13)
+            (expression_list PLACEHOLDER_13 PLACEHOLDER_12))))
+      (function_declaration local PLACEHOLDER_19
+        (parameters)
+        (block
+          (for_statement
+            (for_numeric_clause PLACEHOLDER_20 1
+              (unary_expression # PLACEHOLDER_11))
+            (block
+              (assignment_statement
+                (variable_list
+                  (bracket_index_expression PLACEHOLDER_13
+                    (binary_expression
+                      (unary_expression # PLACEHOLDER_13) + 1)))
+                (expression_list
+                  (bracket_index_expression PLACEHOLDER_11 PLACEHOLDER_20)))))
+          (assignment_statement
+            (variable_list PLACEHOLDER_11)
+            (expression_list
+              (table_constructor)))))
+      (function_declaration local PLACEHOLDER_21
+        (parameters)
+        (block
+          (return_statement
+            (expression_list
+              (binary_expression
+                (unary_expression # PLACEHOLDER_12) == 0)))))
+      (function_declaration local PLACEHOLDER_22
+        (parameters PLACEHOLDER_23)
+        (block
+          (variable_declaration local
+            (assignment_statement
+              (variable_list PLACEHOLDER_24)
+              (expression_list
+                (table_constructor))))
+          (for_statement
+            (for_numeric_clause PLACEHOLDER_20 1
+              (unary_expression # PLACEHOLDER_23))
+            (block
+              (variable_declaration local
+                (assignment_statement
+                  (variable_list PLACEHOLDER_17)
+                  (expression_list
+                    (bracket_index_expression PLACEHOLDER_23 PLACEHOLDER_20))))
+              (if_statement
+                (bracket_index_expression PLACEHOLDER_1 PLACEHOLDER_17)
+                (block
+                  (assignment_statement
+                    (variable_list
+                      (bracket_index_expression PLACEHOLDER_24
+                        (binary_expression
+                          (unary_expression # PLACEHOLDER_24) + 1)))
+                    (expression_list PLACEHOLDER_17)))
+                (else_statement
+                  (block
+                    (assignment_statement
+                      (variable_list
+                        (bracket_index_expression PLACEHOLDER_24
+                          (binary_expression
+                            (unary_expression # PLACEHOLDER_24) + 1)))
+                      (expression_list "x")))))))
+          (return_statement
+            (expression_list
+              (function_call
+                (dot_index_expression table concat)
+                (arguments PLACEHOLDER_24 ","))))))
+      (function_declaration local PLACEHOLDER_25
+        (parameters)
+        (block
+          (return_statement
+            (expression_list
+              (function_call
+                (dot_index_expression table concat)
+                (arguments
+                  (table_constructor
+                    (field
+                      (function_call PLACEHOLDER_22
+                        (arguments PLACEHOLDER_7)))
+                    (field
+                      (function_call PLACEHOLDER_22
+                        (arguments PLACEHOLDER_8)))) "|"))))))
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_26)
+          (expression_list
+            (function_call PLACEHOLDER_25
+              (arguments)))))
+      (assignment_statement
+        (variable_list
+          (bracket_index_expression PLACEHOLDER_15 PLACEHOLDER_26))
+        (expression_list true))
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_27)
+          (expression_list "playing")))
+      (while_statement true
+        (block
+          (if_statement
+            (function_call PLACEHOLDER_21
+              (arguments))
+            (block
+              (assignment_statement
+                (variable_list PLACEHOLDER_9)
+                (expression_list
+                  (binary_expression PLACEHOLDER_9 + 1)))
+              (assignment_statement
+                (variable_list PLACEHOLDER_27)
+                (expression_list "finished")) break))
+          (variable_declaration local
+            (assignment_statement
+              (variable_list PLACEHOLDER_17)
+              (expression_list
+                (function_call PLACEHOLDER_16
+                  (arguments)))))
+          (assignment_statement
+            (variable_list PLACEHOLDER_10)
+            (expression_list
+              (binary_expression PLACEHOLDER_10 + 1)))
+          (if_statement
+            (binary_expression PLACEHOLDER_14 > 0)
+            (block
+              (if_statement
+                (bracket_index_expression PLACEHOLDER_1 PLACEHOLDER_17)
+                (block
+                  (function_call PLACEHOLDER_18
+                    (arguments))
+                  (assignment_statement
+                    (variable_list PLACEHOLDER_14)
+                    (expression_list
+                      (bracket_index_expression PLACEHOLDER_1 PLACEHOLDER_17))))
+                (elseif_statement
+                  (binary_expression PLACEHOLDER_14 == 1)
+                  (block
+                    (assignment_statement
+                      (variable_list PLACEHOLDER_14)
+                      (expression_list
+                        (binary_expression PLACEHOLDER_14 - 1)))
+                    (function_call PLACEHOLDER_19
+                      (arguments))
+                    (assignment_statement
+                      (variable_list PLACEHOLDER_9)
+                      (expression_list
+                        (binary_expression PLACEHOLDER_9 + 1)))
+                    (if_statement
+                      (function_call PLACEHOLDER_21
+                        (arguments))
+                      (block
+                        (assignment_statement
+                          (variable_list PLACEHOLDER_27)
+                          (expression_list "finished")) break))
+                    (assignment_statement
+                      (variable_list PLACEHOLDER_26)
+                      (expression_list
+                        (function_call PLACEHOLDER_25
+                          (arguments))))
+                    (if_statement
+                      (bracket_index_expression PLACEHOLDER_15 PLACEHOLDER_26)
+                      (block
+                        (assignment_statement
+                          (variable_list PLACEHOLDER_27)
+                          (expression_list "loop")) break))
+                    (assignment_statement
+                      (variable_list
+                        (bracket_index_expression PLACEHOLDER_15 PLACEHOLDER_26))
+                      (expression_list true))))
+                (else_statement
+                  (block
+                    (assignment_statement
+                      (variable_list PLACEHOLDER_14)
+                      (expression_list
+                        (binary_expression PLACEHOLDER_14 - 1)))))))
+            (elseif_statement
+              (bracket_index_expression PLACEHOLDER_1 PLACEHOLDER_17)
+              (block
+                (function_call PLACEHOLDER_18
+                  (arguments))
+                (assignment_statement
+                  (variable_list PLACEHOLDER_14)
+                  (expression_list
+                    (bracket_index_expression PLACEHOLDER_1 PLACEHOLDER_17))))))
+          (if_statement
+            (binary_expression PLACEHOLDER_14 == 0)
+            (block
+              (function_call PLACEHOLDER_18
+                (arguments))))))
+      (return_statement
+        (expression_list
+          (table_constructor
+            (field PLACEHOLDER_27 PLACEHOLDER_27)
+            (field PLACEHOLDER_10 PLACEHOLDER_10)
+            (field PLACEHOLDER_9 PLACEHOLDER_9))))))
+  (return_statement
+    (expression_list
+      (table_constructor
+        (field PLACEHOLDER_6 PLACEHOLDER_6)))))
