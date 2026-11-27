@@ -5,7 +5,8 @@ module Representer
     # methods in its own order.
     #
     # Methods that take a pattern accept the pattern syntax in
-    # Engine::Pattern, and templates use the syntax in Engine::Template.
+    # Engine::Pattern, or a CodePattern, and templates use the syntax in
+    # Engine::Template.
     # A match is a Language::Match: match.node is the matched node, and
     # match[:name] a capture.
     #
@@ -169,7 +170,7 @@ module Representer
       end
 
       private
-      def pattern(source) = PATTERNS[source] ||= Pattern.parse(source)
+      def pattern(source) = source.is_a?(String) ? PATTERNS[source] ||= Pattern.parse(source) : source
     end
   end
 end

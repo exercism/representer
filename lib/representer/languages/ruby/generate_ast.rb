@@ -1,41 +1,50 @@
-# Ruby's GenerateAST stage turns tree-sitter's tree into the tree that
-# Ruby's own parser (the `parser` gem, which the old representer used)
-# would give. These spellings get the same tree:
+# Ruby's GenerateAST stage turns tree-sitter's tree into the tree given by
+# Ruby's own parser. The old representer used that parser (the `parser`
+# gem). This stage gives each of these pairs the same tree:
 #
-# - Code with and without comments, layout, `;` and line breaks. The text
-#   after `__END__` goes, as the parser drops it.
-# - `x if y` and `if y then x end`. The same goes for `unless`, `while` and
-#   `until`, except `begin ... end while x`, which runs its body first.
-# - `x ? a : b` and `if x then a else b end`.
-# - `elsif` and an `if` inside `else`.
-# - `unless x then a else b end` and `if x then b else a end`, as the parser
-#   writes every `unless` as an `if` with its branches swapped.
-# - `do ... end` and `{ ... }` blocks.
-# - `->(a) { a }` and `lambda { |a| a }`.
-# - `and`, `or`, `not` and `&&`, `||`, `!`.
-# - `def f = x` and `def f; x; end`.
-# - Empty brackets and none: `def f()` and `def f`, `a.b()` and `a.b`,
-#   `foo()` and `foo`. `super()` and `super` stay apart, as `super` passes
-#   on the method's arguments.
-# - Brackets around arguments and parameters, and brackets that only group:
-#   `puts(x)` and `puts x`, `(1 + 2)` and `1 + 2`.
-# - `A::b` and `A.b`, and `f.(x)` and `f.call(x)`.
-# - `{a: 1}`, `{"a": 1}` and `{:a => 1}`, and `{a:}` and `{a: a}`.
-# - `:"a"` and `:a`.
-# - Numbers with the same value: `1_000` and `1000`, `0x1F`, `037` and
-#   `31`, `1.50` and `1.5`.
-# - Strings with the same value: `'a'`, `"a"`, `%q(a)`, `?a` and a heredoc.
-#   A `<<~` heredoc loses the indentation that Ruby removes, and a heredoc's
-#   closing name goes. Escapes in double quotes are read for `\n`, `\t`,
-#   `\s`, `\e`, `\0`, `\\`, `\"`, `\'` and `\#`. Any other escape stays as
-#   it is written, so it can't make two different strings the same.
-# - `%w[a b]` and `["a", "b"]`, and `%i[a b]` and `[:a, :b]`.
-# - `/a/` and `%r{a}`, and a regex's options in any order.
+# - Code with and without comments, layout, `;` and line breaks gets the
+#   same tree. The text after `__END__` goes, because the parser drops it.
+# - `x if y` gets the tree of `if y then x end`. The same goes for
+#   `unless`, `while` and `until`, except `begin ... end while x`, which
+#   runs its body before the first check.
+# - `x ? a : b` gets the tree of `if x then a else b end`.
+# - `elsif` gets the tree of an `if` inside `else`.
+# - `unless x then a else b end` gets the tree of `if x then b else a end`,
+#   because the parser writes every `unless` as an `if` with its branches
+#   swapped.
+# - A `do ... end` block gets the tree of a `{ ... }` block.
+# - `->(a) { a }` gets the tree of `lambda { |a| a }`.
+# - `and`, `or` and `not` get the trees of `&&`, `||` and `!`.
+# - `def f = x` gets the tree of `def f; x; end`.
+# - Empty brackets get the same tree as none, so `def f()` is `def f`,
+#   `a.b()` is `a.b`, and `foo()` is `foo`. `super()` and `super` stay
+#   apart, because `super` passes on the method's arguments.
+# - Brackets around arguments and parameters go, and so do brackets that
+#   only group. So `puts(x)` is `puts x`, and `(1 + 2)` is `1 + 2`.
+# - `A::b` gets the tree of `A.b`, and `f.(x)` gets the tree of
+#   `f.call(x)`.
+# - `{a: 1}`, `{"a": 1}` and `{:a => 1}` get one tree, and so do `{a:}`
+#   and `{a: a}`.
+# - `:"a"` gets the tree of `:a`.
+# - Numbers with the same value get the same tree. So `1_000` is `1000`,
+#   `0x1F` and `037` are `31`, and `1.50` is `1.5`.
+# - Strings with the same value get the same tree. So `'a'`, `"a"`,
+#   `%q(a)`, `?a` and a heredoc that holds `a` are all the same. A `<<~`
+#   heredoc loses the indentation removed by Ruby, and a heredoc loses its
+#   closing name. In double quotes, this stage reads the escapes `\n`,
+#   `\t`, `\s`, `\e`, `\0`, `\\`, `\"`, `\'` and `\#`. Any other escape
+#   stays as it is written, so it can't make two different strings the
+#   same.
+# - `%w[a b]` gets the tree of `["a", "b"]`, and `%i[a b]` gets the tree of
+#   `[:a, :b]`.
+# - `/a/` gets the tree of `%r{a}`, and a regex's options get one order.
 #
-# These stay apart, although the parser gives them the same tree:
+# This stage keeps these apart, although the parser gives them the same
+# tree:
 #
-# - `|a,|` and `|a|`. The first takes an array's first element, so the
-#   trailing comma becomes an `implicit_rest`, as Prism writes it.
+# - `|a,|` stays apart from `|a|`. The first takes an array's first
+#   element, so this stage writes its trailing comma as an
+#   `implicit_rest`, as Prism does.
 #
 # Update this list whenever the class changes.
 module Representer

@@ -9,6 +9,9 @@ module Representer
 
     # The track slugs this language represents.
     def tracks(*slugs)
+      return @tracks || [] if slugs.empty?
+
+      (@tracks ||= []).concat(slugs)
       slugs.each { |slug| Languages.register(slug, self) }
     end
 

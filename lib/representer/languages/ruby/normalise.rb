@@ -1,21 +1,13 @@
-# Ruby's Normalise stage drops `require` and `require_relative` calls. They
-# only make code available, and a solution that passes its tests has
-# required everything it uses.
+# Ruby's Normalise stage makes no changes of its own. The old representer
+# only dropped `require` and `require_relative`, and the engine drops those
+# as imports (see `imports` in ruby.rb).
 #
-# The old representer made no other changes of its own, so this stage makes
-# none either. Update this list whenever the class changes.
+# Update this comment whenever the class changes.
 module Representer
   module Languages
     module Ruby
       class Normalise
-        include Mandate
-        include Engine::TreeHelpers
-
-        initialize_with :tree
-
-        def call
-          drop(tree, "(call !receiver method: (identifier /\\Arequire(_relative)?\\z/) arguments: (argument_list (literal)))")
-        end
+        extend Engine::NormaliseStage
       end
     end
   end

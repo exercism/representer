@@ -21,8 +21,10 @@ module Representer
     #   same name in different scopes get different placeholders.
     # - renamed: set by a staged language's Rename stage, to true for a leaf
     #   that holds a name the student chose (see Placeholders).
+    # - span: the node's byte range in the source. Grammar#parse only sets it
+    #   when asked to, because only CodePattern needs it.
     class Node
-      attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :scope, :renamed
+      attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :scope, :renamed, :span
 
       def initialize(type, children = [], text: nil, named: true, field: nil, quoted: false)
         @type = type.to_s

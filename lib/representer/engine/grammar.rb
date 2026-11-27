@@ -41,16 +41,33 @@ module Representer
       # the node types listed in gap_types, each stretch of text between the
       # children becomes a "fragment" leaf, so no text is lost.
       #
+      # With spans: true, each node also gets its byte range in the source
+      # (Node#span), which CodePattern uses to find a pattern in its context.
+      #
       # Raises CannotRepresent if the source has a syntax error (which
       # includes code too new for the grammar), or nests deeper than
       # max_depth.
-      def parse(source, skip_tokens: Set.new, kept_tokens: {}, text_types: Set.new, max_depth: MAX_DEPTH, gap_types: Set.new)
+      def parse(source, skip_tokens: Set.new, kept_tokens: {}, text_types: Set.new, max_depth: MAX_DEPTH, gap_types: Set.new,
+                spans: false)
         tree = @parser.parse_string(nil, source)
         raise CannotRepresent.new("parse_error", "The parser gave up") unless tree
         raise CannotRepresent.new("parse_error", "The code has a syntax error") if tree.root_node.has_error?
 
         skip = ->(token, parent) { skip_tokens.include?(token) && !kept_tokens[parent&.type]&.include?(token) }
+        @with_spans = spans
         build(tree.root_node, source, skip, text_types, max_depth, gap_types)
+      end
+
+      # The grammar's keywords: the anonymous tokens that are spelled like a
+      # name, such as `def` or `rescue`.
+      def keywords
+        @keywords ||= begin
+          language = @parser.language
+          (0...language.symbol_count).
+            select { |id| language.symbol_type(id) == :anonymous }.
+            map { |id| language.symbol_name(id) }.
+            grep(/\A[a-z_]\w*[?!]?\z/i).to_set
+        end
       end
 
       private
@@ -146,6 +163,12 @@ module Representer
       end
 
       def copy(ts_node, field, source)
+        node = new_node(ts_node, field, source)
+        node.span = ts_node.start_byte...ts_node.end_byte if @with_spans
+        node
+      end
+
+      def new_node(ts_node, field, source)
         type = type_of(ts_node, source)
         # An empty file's root has no children and no text. It isn't a leaf.
         empty = ts_node.end_byte == ts_node.start_byte

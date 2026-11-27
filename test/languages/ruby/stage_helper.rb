@@ -7,8 +7,9 @@ module RubyStages
   # GenerateAST's tree for the source.
   def generate_ast(source) = Ruby::GenerateAST.(Representer::Engine::Grammar["ruby"].parse(Representer::Engine.clean(source)))
 
-  # The tree after GenerateAST and Normalise.
-  def normalise(source) = Ruby::Normalise.(generate_ast(source))
+  # The tree after GenerateAST, the engine's dropping of imports, and
+  # Normalise (see StagedLanguage#prepare).
+  def normalise(source) = Ruby.prepare(Representer::Engine::Grammar["ruby"].parse(Representer::Engine.clean(source)))
 
   def write(tree) = Representer::Engine::Serialize.(tree, nil)
 end

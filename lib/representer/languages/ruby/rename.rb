@@ -1,79 +1,68 @@
-# Ruby's Rename stage marks the names that the solution gives their whole
-# meaning, and the engine then writes a placeholder for each of them. These
-# names are the student's:
+# Ruby's Rename stage decides which names are the student's, and the engine
+# then writes a placeholder for each of them. This stage renames these
+# names:
 #
-# - Parameters of methods, blocks and lambdas, and assigned local variables.
-# - Instance variables and class variables.
-# - Global variables that the solution assigns. Other globals, such as
-#   `$stdout`, are Ruby's.
-# - Instance methods that the solution defines with `def`, and the methods
-#   that `attr_reader`, `attr_writer` and `attr_accessor` define.
-# - Classes and modules that the solution defines.
+# - It renames each parameter of a method, block or lambda, and each local
+#   variable assigned in the solution.
+# - It renames each instance variable and class variable.
+# - It renames each global variable assigned in the solution. Ruby's own
+#   globals, such as `$stdout`, keep their names.
+# - It renames each instance method defined with `def`, and each method
+#   defined with `attr_reader`, `attr_writer` or `attr_accessor`.
+# - It renames each class and module defined in the solution.
 #
-# A name after a dot or `::`, and every symbol, refers to a method. It is
-# only renamed if the solution defines a method with that name, so
-# `count = 0; xs.map(&:count)` keeps `:count`.
+# A name after a dot or `::` refers to a method or a constant, and so does
+# a symbol. The engine only renames a name there if the solution defines a
+# member with that name. So `count = 0; xs.map(&:count)` keeps `:count`.
 #
-# These names are kept:
+# This stage keeps these names:
 #
-# - Every name used in the exercise's tests, and the members that its stub
-#   defines (the engine finds these).
-# - Keyword parameters, which callers pass by name.
-# - A method that the solution names after one of Ruby's own methods (see
-#   library_names/ruby.txt), so `def sum(a) = a.sum` and
-#   `def max(a) = a.max` stay apart.
-# - Methods defined with `def self.`, and constants, as the old representer
-#   kept them.
+# - It keeps keyword parameters, because callers pass them by name.
+# - It keeps methods defined with `def self.`, and constants, because the
+#   old representer kept them.
 #
-# Renaming goes by name: every use of a renamed name gets the same
+# The engine also keeps every name used in the exercise's tests, the
+# members defined in its stub, and each method named after one of Ruby's
+# own methods (see library_names/ruby.txt).
+#
+# Renaming goes by name, so every use of a renamed name gets the same
 # placeholder. Update this list whenever the class changes.
 module Representer
   module Languages
     module Ruby
       class Rename
-        include Mandate
-        include Engine::TreeHelpers
+        extend Engine::RenameStage
 
-        initialize_with :trees, :kept_names
+        # Ruby's operator assignments, such as `x += 1` and `x ||= 1`.
+        OPERATORS = ["+=", "-=", "*=", "/=", "%=", "**=", "<<=", ">>=", "&=", "|=", "^=", "&&=", "||="].freeze
 
-        LOCALS = [
-          "[(method_parameters (identifier)* @name) (block_parameters (identifier)* @name)]",
-          "[(optional_parameter name: (_) @name) (splat_parameter name: (_) @name)]",
-          "[(hash_splat_parameter name: (_) @name) (block_parameter name: (_) @name)]",
-          "(destructured_parameter (identifier)* @name)",
-          "[(assignment left: (identifier) @name) (operator_assignment left: (identifier) @name)]",
-          "[(left_assignment_list (identifier)* @name) (rest_assignment (identifier) @name)]",
-          "[(for pattern: (identifier) @name) (exception_variable (identifier) @name)]",
-          "[(instance_variable) @name (class_variable) @name]",
-          "[(assignment left: (global_variable) @name) (operator_assignment left: (global_variable) @name)]",
-          "(left_assignment_list (global_variable)* @name)"
-        ].freeze
+        # In these patterns, `@$name` matches an instance variable, and
+        # `$$name` matches a global variable, because Ruby writes a global as
+        # `$name`. A capitalised `$Name` matches a constant.
 
-        MEMBERS = [
-          "(method name: (_) @name)",
-          "[(class name: (constant) @name) (module name: (constant) @name)]",
-          "[(class name: (scope_resolution name: (constant) @name)) (module name: (scope_resolution name: (constant) @name))]",
-          "(call !receiver method: (identifier /\\Aattr_(reader|writer|accessor)\\z/)
-            arguments: (argument_list (simple_symbol)* @name))"
-        ].freeze
+        # An assignment names a local variable, or a global variable that
+        # belongs to the solution.
+        rename_locals "$name = $value", "$$name = $value"
+        rename_locals(*OPERATORS.flat_map { |operator| ["$name #{operator} $value", "$$name #{operator} $value"] })
+        rename_locals "$name, $more", "$$name, $more", "*$name", inside: "... = $value"
 
-        MEMBER_USES = [
-          "(call receiver: (_) method: (_) @name)",
-          "(scope_resolution scope: (_) name: (_) @name)",
-          "(simple_symbol) @name"
-        ].freeze
+        # A parameter names a local variable. The patterns with a context
+        # match a parameter in a method, a block or a lambda.
+        rename_locals "def $method($name)", "def $object.$method($name)", "{ |$name| }"
+        rename_locals "$name = $default", "*$name", "**$name", "&$name", "($name)", inside: "def f(...) end"
 
-        KEPT = ["(keyword_parameter name: (identifier) @name)"].freeze
+        # A `for` loop and a `rescue` also name a local variable.
+        rename_locals "for $name in $list", "rescue => $name", "rescue $errors => $name"
 
-        # Returns the names of the members that the trees define, which the
-        # engine keeps when it reads them from an exercise's stub.
-        def call
-          members = names_in(trees, Ruby, *MEMBERS)
-          kept = kept_names | names_in(trees, Ruby, *KEPT) | (members & Ruby.library)
-          member_uses = MEMBER_USES.flat_map { |pattern| trees.flat_map { |tree| captured(tree, pattern) } }
-          mark_student_names(trees, Ruby, names: names_in(trees, Ruby, *LOCALS) | members, members:, member_uses:, kept:)
-          members
-        end
+        rename_locals "@$name", "@@$name"
+
+        rename_members "def $name", "def $Name", "class $name", "module $name"
+        rename_members "class $Scope::$name", "module $Scope::$name"
+        rename_members "attr_reader :$name", "attr_writer :$name", "attr_accessor :$name"
+
+        rename_member_uses "$object.$name", "$object.$Name", "$Scope::$Name", ":$name"
+
+        keep "$name:", inside: "def f(...) end"
       end
     end
   end

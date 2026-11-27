@@ -33,11 +33,12 @@ module Representer
 
       private
       # Parses the source, and applies a staged language's GenerateAST and
-      # Normalise stages, or another language's drop and rewrite rules.
+      # Normalise stages (see StagedLanguage#prepare), or another language's
+      # drop and rewrite rules.
       def prepare(source)
         tree = parse(source)
         @root_type = tree.type
-        return language::Normalise.(language::GenerateAST.(tree)) if language.staged?
+        return language.prepare(tree) if language.staged?
 
         drop(tree)
         rewrite(tree)
@@ -239,6 +240,7 @@ module Representer
     # the type at the pattern's root.
     def self.could_match?(pattern, type)
       case pattern
+      when CodePattern then pattern.type.nil? || pattern.type == type
       when Pattern::NodePattern then ["_", type].include?(pattern.type)
       when Pattern::Alternation then pattern.options.any? { |option| could_match?(option, type) }
       else true
