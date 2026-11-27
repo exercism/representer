@@ -1,113 +1,529 @@
-class MsgException implements Exception {
-final String message ;
-MsgException ( this . message );
-@override
-String toString () = > "\"$message\"" ;
-}
-class StackEmptyException extends MsgException {
-StackEmptyException () : super ( "'Exception: Stack empty'" );
-}
-class UnknowCommandException extends MsgException {
-UnknowCommandException () : super ( "'Exception: Unknown command'" );
-}
-class InvalidDefinitionException extends MsgException {
-InvalidDefinitionException () : super ( "'Exception: Invalid definition'" );
-}
-extension on List < int > {
-int pop () {
-if ( isEmpty ) {
-throw StackEmptyException ();
-}
-return removeLast ();
-}
-}
-class Forth {
-var stack = < int >[];
-final _integerArithmetics = [ '+' , '-' , '*' , '/' ];
-final _stackManipulations = [ 'DUP' , 'DROP' , 'SWAP' , 'OVER' ];
-var _userWords = < String , String >{};
-void evaluate ( String expression ) {
-expression = expression . toUpperCase ();
-if ( isUserWord ( expression ))
-evaluateUserWord ( expression );
-else
-evaluateExpression ( expression );
-}
-void evaluateExpression ( String expression ) {
-final splited = expression . split ( "' '" );
-print ( splited );
-for ( var element in splited ) {
-var number = int . tryParse ( element );
-if ( number != null )
-stack . add ( number );
-else if ( _userWords . containsKey ( element ))
-evaluate ( _userWords [ element ] ! );
-else if ( _integerArithmetics . contains ( element ))
-operatorArithmetics ( element );
-else if ( _stackManipulations . contains ( element ))
-operatorManipulation ( element );
-else
-throw UnknowCommandException ();
-}
-}
-void operatorArithmetics ( String arithmetic ) {
-int num2 = stack . pop ();
-int num1 = stack . pop ();
-switch ( arithmetic ) {
-case '+' :
-stack . add ( num1 + num2 );
-break ;
-case '-' :
-stack . add ( num1 - num2 );
-break ;
-case '*' :
-stack . add ( num1 * num2 );
-break ;
-case '/' :
-if ( num2 == 0 )
-throw MsgException ( "'Exception: Division by zero'" );
-stack . add ( num1 ~/ num2 );
-break ;
-default :
-throw UnknowCommandException ();
-}
-}
-void operatorManipulation ( String manipulation ) {
-switch ( manipulation ) {
-case 'DUP' :
-var number = stack . pop ();
-stack . addAll ([ number , number ]);
-break ;
-case 'DROP' :
-stack . pop ();
-break ;
-case 'SWAP' :
-var num1 = stack . pop ();
-var num2 = stack . pop ();
-stack . addAll ([ num1 , num2 ]);
-break ;
-case 'OVER' :
-var num1 = stack . pop ();
-var num2 = stack . pop ();
-stack . addAll ([ num2 , num1 , num2 ]);
-break ;
-default :
-throw UnknowCommandException ();
-}
-}
-bool isUserWord ( String word ) = > word . startsWith ( ':' ) && word . endsWith ( ';' );
-void evaluateUserWord ( String definition ) {
-definition = definition . substring ( 1 , definition . length - 2 ) . trim ();
-var words = definition . split ( "' '" );
-if ( int . tryParse ( words . first ) != null )
-throw InvalidDefinitionException ();
-String expression = words . skip ( 1 ) . join ( "' '" );
-_userWords . entries . forEach (( element ) {
-expression = expression . replaceAll ( element . key , element . value );
-});
-_userWords . update (
-words . first ,
-( _ ) = > expression ,
-ifAbsent: () = > expression );
-}
-}
+(program
+  (class_definition PLACEHOLDER_1
+    (interfaces Exception)
+    (class_body
+      (declaration
+        (final_builtin) String
+        (initialized_identifier_list
+          (initialized_identifier PLACEHOLDER_2)))
+      (declaration
+        (constructor_signature PLACEHOLDER_1
+          (formal_parameter_list
+            (formal_parameter
+              (constructor_param
+                (this) PLACEHOLDER_2)))))
+      (annotation override)
+      (method_signature
+        (function_signature String PLACEHOLDER_3
+          (formal_parameter_list)))
+      (function_body
+        (string_literal
+          (template_substitution PLACEHOLDER_2)))))
+  (class_definition PLACEHOLDER_4
+    (superclass (type_identifier PLACEHOLDER_1))
+    (class_body
+      (declaration
+        (constructor_signature PLACEHOLDER_4
+          (formal_parameter_list))
+        (initializers
+          (initializer_list_entry
+            (super)
+            (arguments
+              (argument "Exception: Stack empty")))))))
+  (class_definition PLACEHOLDER_5
+    (superclass (type_identifier PLACEHOLDER_1))
+    (class_body
+      (declaration
+        (constructor_signature PLACEHOLDER_5
+          (formal_parameter_list))
+        (initializers
+          (initializer_list_entry
+            (super)
+            (arguments
+              (argument "Exception: Unknown command")))))))
+  (class_definition PLACEHOLDER_6
+    (superclass (type_identifier PLACEHOLDER_1))
+    (class_body
+      (declaration
+        (constructor_signature PLACEHOLDER_6
+          (formal_parameter_list))
+        (initializers
+          (initializer_list_entry
+            (super)
+            (arguments
+              (argument "Exception: Invalid definition")))))))
+  (extension_declaration List
+    (type_arguments int)
+    (extension_body
+      (method_signature
+        (function_signature int PLACEHOLDER_7
+          (formal_parameter_list)))
+      (function_body
+        (block
+          (if_statement isEmpty
+            (block
+              (expression_statement
+                (throw_expression PLACEHOLDER_4
+                  (selector
+                    (argument_part
+                      (arguments)))))))
+          (return_statement removeLast
+            (selector
+              (argument_part
+                (arguments))))))))
+  (class_definition PLACEHOLDER_8
+    (class_body
+      (declaration
+        (inferred_type)
+        (initialized_identifier_list
+          (initialized_identifier PLACEHOLDER_9
+            (list_literal
+              (type_arguments int)))))
+      (declaration
+        (final_builtin)
+        (initialized_identifier_list
+          (initialized_identifier PLACEHOLDER_10
+            (list_literal "+" "-" "*" "/"))))
+      (declaration
+        (final_builtin)
+        (initialized_identifier_list
+          (initialized_identifier PLACEHOLDER_11
+            (list_literal "DUP" "DROP" "SWAP" "OVER"))))
+      (declaration
+        (inferred_type)
+        (initialized_identifier_list
+          (initialized_identifier PLACEHOLDER_12
+            (set_or_map_literal
+              (type_arguments String String)))))
+      (method_signature
+        (function_signature void PLACEHOLDER_13
+          (formal_parameter_list
+            (formal_parameter String PLACEHOLDER_14))))
+      (function_body
+        (block
+          (expression_statement
+            (assignment_expression
+              (assignable_expression PLACEHOLDER_14) = PLACEHOLDER_14
+              (selector
+                (unconditional_assignable_selector toUpperCase))
+              (selector
+                (argument_part
+                  (arguments)))))
+          (if_statement PLACEHOLDER_15
+            (selector
+              (argument_part
+                (arguments
+                  (argument PLACEHOLDER_14))))
+            (expression_statement PLACEHOLDER_16
+              (selector
+                (argument_part
+                  (arguments
+                    (argument PLACEHOLDER_14)))))
+            (expression_statement PLACEHOLDER_17
+              (selector
+                (argument_part
+                  (arguments
+                    (argument PLACEHOLDER_14))))))))
+      (method_signature
+        (function_signature void PLACEHOLDER_17
+          (formal_parameter_list
+            (formal_parameter String PLACEHOLDER_14))))
+      (function_body
+        (block
+          (local_variable_declaration
+            (initialized_variable_definition
+              (final_builtin) PLACEHOLDER_18 PLACEHOLDER_14
+              (selector
+                (unconditional_assignable_selector split))
+              (selector
+                (argument_part
+                  (arguments
+                    (argument " "))))))
+          (expression_statement print
+            (selector
+              (argument_part
+                (arguments
+                  (argument PLACEHOLDER_18)))))
+          (for_statement
+            (for_loop_parts
+              (inferred_type) PLACEHOLDER_19 PLACEHOLDER_18)
+            (block
+              (local_variable_declaration
+                (initialized_variable_definition
+                  (inferred_type) PLACEHOLDER_20 int
+                  (selector
+                    (unconditional_assignable_selector tryParse))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument PLACEHOLDER_19))))))
+              (if_statement
+                (equality_expression PLACEHOLDER_20 !=
+                  (null_literal))
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector add))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument PLACEHOLDER_20)))))
+                (if_statement PLACEHOLDER_12
+                  (selector
+                    (unconditional_assignable_selector containsKey))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument PLACEHOLDER_19))))
+                  (expression_statement PLACEHOLDER_13
+                    (selector
+                      (argument_part
+                        (arguments
+                          (argument PLACEHOLDER_12
+                            (selector
+                              (unconditional_assignable_selector
+                                (index_selector PLACEHOLDER_19)))
+                            (selector !))))))
+                  (if_statement PLACEHOLDER_10
+                    (selector
+                      (unconditional_assignable_selector contains))
+                    (selector
+                      (argument_part
+                        (arguments
+                          (argument PLACEHOLDER_19))))
+                    (expression_statement PLACEHOLDER_21
+                      (selector
+                        (argument_part
+                          (arguments
+                            (argument PLACEHOLDER_19)))))
+                    (if_statement PLACEHOLDER_11
+                      (selector
+                        (unconditional_assignable_selector contains))
+                      (selector
+                        (argument_part
+                          (arguments
+                            (argument PLACEHOLDER_19))))
+                      (expression_statement PLACEHOLDER_22
+                        (selector
+                          (argument_part
+                            (arguments
+                              (argument PLACEHOLDER_19)))))
+                      (expression_statement
+                        (throw_expression PLACEHOLDER_5
+                          (selector
+                            (argument_part
+                              (arguments)))))))))))))
+      (method_signature
+        (function_signature void PLACEHOLDER_21
+          (formal_parameter_list
+            (formal_parameter String PLACEHOLDER_23))))
+      (function_body
+        (block
+          (local_variable_declaration
+            (initialized_variable_definition int PLACEHOLDER_24 PLACEHOLDER_9
+              (selector
+                (unconditional_assignable_selector PLACEHOLDER_7))
+              (selector
+                (argument_part
+                  (arguments)))))
+          (local_variable_declaration
+            (initialized_variable_definition int PLACEHOLDER_25 PLACEHOLDER_9
+              (selector
+                (unconditional_assignable_selector PLACEHOLDER_7))
+              (selector
+                (argument_part
+                  (arguments)))))
+          (switch_statement PLACEHOLDER_23
+            (switch_block
+              (switch_statement_case
+                (case_builtin)
+                (constant_pattern "+")
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector add))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument
+                          (additive_expression PLACEHOLDER_25 + PLACEHOLDER_24))))))
+                (break_statement break))
+              (switch_statement_case
+                (case_builtin)
+                (constant_pattern "-")
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector add))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument
+                          (additive_expression PLACEHOLDER_25 - PLACEHOLDER_24))))))
+                (break_statement break))
+              (switch_statement_case
+                (case_builtin)
+                (constant_pattern "*")
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector add))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument
+                          (multiplicative_expression PLACEHOLDER_25
+                            (multiplicative_operator *) PLACEHOLDER_24))))))
+                (break_statement break))
+              (switch_statement_case
+                (case_builtin)
+                (constant_pattern "/")
+                (if_statement
+                  (equality_expression PLACEHOLDER_24 == 0)
+                  (expression_statement
+                    (throw_expression PLACEHOLDER_1
+                      (selector
+                        (argument_part
+                          (arguments
+                            (argument "Exception: Division by zero")))))))
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector add))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument
+                          (multiplicative_expression PLACEHOLDER_25
+                            (multiplicative_operator ~/) PLACEHOLDER_24))))))
+                (break_statement break))
+              (switch_statement_default
+                (expression_statement
+                  (throw_expression PLACEHOLDER_5
+                    (selector
+                      (argument_part
+                        (arguments))))))))))
+      (method_signature
+        (function_signature void PLACEHOLDER_22
+          (formal_parameter_list
+            (formal_parameter String PLACEHOLDER_26))))
+      (function_body
+        (block
+          (switch_statement PLACEHOLDER_26
+            (switch_block
+              (switch_statement_case
+                (case_builtin)
+                (constant_pattern "DUP")
+                (local_variable_declaration
+                  (initialized_variable_definition
+                    (inferred_type) PLACEHOLDER_20 PLACEHOLDER_9
+                    (selector
+                      (unconditional_assignable_selector PLACEHOLDER_7))
+                    (selector
+                      (argument_part
+                        (arguments)))))
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector addAll))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument
+                          (list_literal PLACEHOLDER_20 PLACEHOLDER_20))))))
+                (break_statement break))
+              (switch_statement_case
+                (case_builtin)
+                (constant_pattern "DROP")
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector PLACEHOLDER_7))
+                  (selector
+                    (argument_part
+                      (arguments))))
+                (break_statement break))
+              (switch_statement_case
+                (case_builtin)
+                (constant_pattern "SWAP")
+                (local_variable_declaration
+                  (initialized_variable_definition
+                    (inferred_type) PLACEHOLDER_25 PLACEHOLDER_9
+                    (selector
+                      (unconditional_assignable_selector PLACEHOLDER_7))
+                    (selector
+                      (argument_part
+                        (arguments)))))
+                (local_variable_declaration
+                  (initialized_variable_definition
+                    (inferred_type) PLACEHOLDER_24 PLACEHOLDER_9
+                    (selector
+                      (unconditional_assignable_selector PLACEHOLDER_7))
+                    (selector
+                      (argument_part
+                        (arguments)))))
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector addAll))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument
+                          (list_literal PLACEHOLDER_25 PLACEHOLDER_24))))))
+                (break_statement break))
+              (switch_statement_case
+                (case_builtin)
+                (constant_pattern "OVER")
+                (local_variable_declaration
+                  (initialized_variable_definition
+                    (inferred_type) PLACEHOLDER_25 PLACEHOLDER_9
+                    (selector
+                      (unconditional_assignable_selector PLACEHOLDER_7))
+                    (selector
+                      (argument_part
+                        (arguments)))))
+                (local_variable_declaration
+                  (initialized_variable_definition
+                    (inferred_type) PLACEHOLDER_24 PLACEHOLDER_9
+                    (selector
+                      (unconditional_assignable_selector PLACEHOLDER_7))
+                    (selector
+                      (argument_part
+                        (arguments)))))
+                (expression_statement PLACEHOLDER_9
+                  (selector
+                    (unconditional_assignable_selector addAll))
+                  (selector
+                    (argument_part
+                      (arguments
+                        (argument
+                          (list_literal PLACEHOLDER_24 PLACEHOLDER_25 PLACEHOLDER_24))))))
+                (break_statement break))
+              (switch_statement_default
+                (expression_statement
+                  (throw_expression PLACEHOLDER_5
+                    (selector
+                      (argument_part
+                        (arguments))))))))))
+      (method_signature
+        (function_signature bool PLACEHOLDER_15
+          (formal_parameter_list
+            (formal_parameter String PLACEHOLDER_27))))
+      (function_body
+        (logical_and_expression PLACEHOLDER_27
+          (selector
+            (unconditional_assignable_selector startsWith))
+          (selector
+            (argument_part
+              (arguments
+                (argument ":"))))
+          (logical_and_operator &&) PLACEHOLDER_27
+          (selector
+            (unconditional_assignable_selector endsWith))
+          (selector
+            (argument_part
+              (arguments
+                (argument ";"))))))
+      (method_signature
+        (function_signature void PLACEHOLDER_16
+          (formal_parameter_list
+            (formal_parameter String PLACEHOLDER_28))))
+      (function_body
+        (block
+          (expression_statement
+            (assignment_expression
+              (assignable_expression PLACEHOLDER_28) = PLACEHOLDER_28
+              (selector
+                (unconditional_assignable_selector substring))
+              (selector
+                (argument_part
+                  (arguments
+                    (argument 1)
+                    (argument
+                      (additive_expression PLACEHOLDER_28
+                        (selector
+                          (unconditional_assignable_selector length)) - 2)))))
+              (selector
+                (unconditional_assignable_selector trim))
+              (selector
+                (argument_part
+                  (arguments)))))
+          (local_variable_declaration
+            (initialized_variable_definition
+              (inferred_type) PLACEHOLDER_29 PLACEHOLDER_28
+              (selector
+                (unconditional_assignable_selector split))
+              (selector
+                (argument_part
+                  (arguments
+                    (argument " "))))))
+          (if_statement
+            (equality_expression int
+              (selector
+                (unconditional_assignable_selector tryParse))
+              (selector
+                (argument_part
+                  (arguments
+                    (argument PLACEHOLDER_29
+                      (selector
+                        (unconditional_assignable_selector first)))))) !=
+              (null_literal))
+            (expression_statement
+              (throw_expression PLACEHOLDER_6
+                (selector
+                  (argument_part
+                    (arguments))))))
+          (local_variable_declaration
+            (initialized_variable_definition String PLACEHOLDER_14 PLACEHOLDER_29
+              (selector
+                (unconditional_assignable_selector skip))
+              (selector
+                (argument_part
+                  (arguments
+                    (argument 1))))
+              (selector
+                (unconditional_assignable_selector join))
+              (selector
+                (argument_part
+                  (arguments
+                    (argument " "))))))
+          (expression_statement PLACEHOLDER_12
+            (selector
+              (unconditional_assignable_selector entries))
+            (selector
+              (unconditional_assignable_selector forEach))
+            (selector
+              (argument_part
+                (arguments
+                  (argument
+                    (function_expression
+                      (formal_parameter_list
+                        (formal_parameter PLACEHOLDER_19))
+                      (function_expression_body
+                        (block
+                          (expression_statement
+                            (assignment_expression
+                              (assignable_expression PLACEHOLDER_14) = PLACEHOLDER_14
+                              (selector
+                                (unconditional_assignable_selector replaceAll))
+                              (selector
+                                (argument_part
+                                  (arguments
+                                    (argument PLACEHOLDER_19
+                                      (selector
+                                        (unconditional_assignable_selector key)))
+                                    (argument PLACEHOLDER_19
+                                      (selector
+                                        (unconditional_assignable_selector value))))))))))))))))
+          (expression_statement PLACEHOLDER_12
+            (selector
+              (unconditional_assignable_selector update))
+            (selector
+              (argument_part
+                (arguments
+                  (argument PLACEHOLDER_29
+                    (selector
+                      (unconditional_assignable_selector first)))
+                  (argument
+                    (function_expression
+                      (formal_parameter_list
+                        (formal_parameter PLACEHOLDER_30))
+                      (function_expression_body PLACEHOLDER_14)))
+                  (named_argument
+                    (label ifAbsent)
+                    (function_expression
+                      (formal_parameter_list)
+                      (function_expression_body PLACEHOLDER_14))))))))))))
