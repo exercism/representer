@@ -357,6 +357,15 @@ add_braces_to "if ({{...}}) {{body}}",
               "if ({{...}}) { } else {{body}}"
 ```
 
+Some grammars read empty braces as something else, such as Wren's, which reads them as an empty map.
+A language then gives the block's type in `block:`, and the engine finds the body's field from the `{{body}}` in each pattern.
+
+```ruby
+add_braces_to "if ({{...}}) {{body}}",
+              "while ({{...}}) {{body}}",
+    block: :block
+```
+
 #### inside
 
 Every verb above also takes `inside:`, which gives its code patterns a context of their own to parse in (see "pattern_contexts" above).

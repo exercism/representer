@@ -153,6 +153,15 @@ module Representer::Engine
       [field, child.type] if child
     end
 
+    # Returns the field of the pattern's child that holds the placeholder
+    # with this word, such as `consequence` for the `{{body}}` of
+    # `if ({{...}}) {{body}}`, or nil.
+    def field_holding(word)
+      return nil unless @root.is_a?(Branch)
+
+      @root.children.find { |_, element| holds_word?(element, word) }&.first
+    end
+
     # Builds the pattern's code as a new tree. Each placeholder becomes a
     # copy of its match in bindings.
     def build(bindings)
@@ -323,6 +332,15 @@ module Representer::Engine
       word = placeholder_word(child)
       word if word && child.span == node.span && !representation&.names&.key?(node.type) &&
               representation&.names&.key?(child.type)
+    end
+
+    def holds_word?(element, word)
+      case element
+      when Any then element.word == word
+      when Branch, Run then element.children.any? { |_, child| holds_word?(child, word) }
+      when Items then element.word == word || holds_word?(element.branch, word)
+      else false
+      end
     end
 
     ### Matching ###

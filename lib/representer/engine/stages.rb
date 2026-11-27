@@ -136,8 +136,9 @@ module Representer::Engine
 
     # Puts braces around a body that has none (see AddBraces). Each
     # pattern marks the body with `{{body}}`, such as
-    # `add_braces_to "if ({{...}}) {{body}}"`.
-    def self.add_braces_to(*codes, inside: nil) = rules << [:add_braces_to, codes, inside]
+    # `add_braces_to "if ({{...}}) {{body}}"`. block: gives the block's
+    # type, for a grammar that reads empty braces as something else.
+    def self.add_braces_to(*codes, inside: nil, block: nil) = rules << [:add_braces_to, codes, inside, block]
 
     def self.rules = @rules ||= []
 
@@ -157,11 +158,17 @@ module Representer::Engine
       when :attach_to_each_following
         AttachToEachFollowing.(root, patterns(codes, inside), patterns(option, inside))
       when :add_braces_to
-        codes.reduce(root) { |tree, code| AddBraces.(tree, code_pattern(code.sub("{{body}}", "{ }"), inside)) }
+        codes.reduce(root) { |tree, code| add_braces(tree, code, inside, option) }
       end
     end
 
     def code_pattern(code, inside) = CodePattern[self.class.language, code, inside:]
+
+    def add_braces(tree, code, inside, block)
+      return AddBraces.(tree, code_pattern(code, inside), block:) if block
+
+      AddBraces.(tree, code_pattern(code.sub("{{body}}", "{ }"), inside))
+    end
 
     # The patterns for the codes, where :docstrings gives the docstrings
     # declared in the Spec.

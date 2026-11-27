@@ -16,10 +16,15 @@ class AddBracesTest < Minitest::Test
     assert_equal write(tree("if (a) b(); else { c(); }")), add_braces("if (a) b(); else c();", "if ({{...}}) { } else { }")
   end
 
+  def test_a_block_type_given_finds_the_body_by_its_placeholder
+    assert_equal write(tree("if (a) b(); else { c(); }")),
+      add_braces("if (a) b(); else c();", "if ({{...}}) { } else {{body}}();", block: :block)
+  end
+
   private
-  def add_braces(source, braced)
+  def add_braces(source, braced, block: nil)
     pattern = Representer::Engine::CodePattern[CSharp::Spec, braced]
-    write(Representer::Engine::AddBraces.(tree(source), pattern))
+    write(Representer::Engine::AddBraces.(tree(source), pattern, block:))
   end
 
   def tree(source) = CSharp::Common::GenerateAST.(Representer::Engine::Grammar["c_sharp"].parse(source))
