@@ -1,178 +1,882 @@
-import isodate.Date
-import unicode.Grapheme
-Ledger :: {}.{
-  Currency : [Usd, Eur]
-  Locale : [EnUs, NlNl]
-  Entry : { date : Str, description : Str, amount_in_cents : AmountInCents }
-  AmountInCents : I64
-  format_entries : { currency : Currency, locale : Locale, entries : List(Entry) } -> Try(Str, [InvalidDateFormat])
-  format_entries = |{ currency, locale, entries }| {
-    parsed_entries = entries.map_try(
-      |entry|
-        Date.from_iso_str(entry.date)
-          .map_ok(|parsed_date| { date: parsed_date, description: entry.description, amount_in_cents: entry.amount_in_cents }),
-    )?
-    sorted_entries = parsed_entries.sort_with(
-      |left, right| {
-        match left.date.order_relative_to(right.date) {
-          Before => Before
-          After => After
-          Same => match compare_strings(left.description, right.description) {
-            Before => Before
-            After => After
-            Same => left.amount_in_cents.order_relative_to(right.amount_in_cents)
-          }
-        }
-      },
-    )
-    heading_line = match locale {
-      EnUs =>
-        "\"Date" | Description | Change "\""
-      NlNl =>
-        "\"Datum" | Omschrijving | Verandering "\""
-    }
-    formatted_entries = sorted_entries.map(
-      |entry| {
-        money = format_amount(locale, currency, entry.amount_in_cents)
-        padded_money = pad_start({ to_pad: money, target_length: 13, padding: "\"" "\"" })
-        description_target_length = 25
-        truncated_description = truncate_to({ to_truncate: entry.description, target_length: description_target_length, ellipses: "\"...\"" })
-        padded_description = pad_end({ to_pad: truncated_description, target_length: description_target_length, padding: "\"" "\"" })
-        "\"${format_date(locale," entry.date)} | ${padded_description} | ${padded_money}"
-      },
-    )
-    [heading_line].concat(formatted_entries)
-      |> Str.join_with("\n")
-      |> Ok
-  }
-}
-ParsedEntry : { date : Date, description : Str, amount_in_cents : I64 }
-compare_strings : Str, Str -> [Before, After, Same]
-compare_strings = |left, right| {
-  compare_bytes(left.to_utf8(), right.to_utf8())
-}
-compare_bytes : List(U8), List(U8) -> [Before, After, Same]
-compare_bytes = |left, right| {
-  match (left, right) {
-    ([], []) => Same
-    ([], _) => Before
-    (_, []) => After
-    ([x, .. as xs], [y, .. as ys]) => if x == y {
-      compare_bytes(xs, ys)
-    } else {
-      x.order_relative_to(y)
-    }
-  }
-}
-format_date : Ledger.Locale, Date -> Str
-format_date = |locale, date| {
-  match locale {
-    EnUs => date.format("{MM}/{DD}/{YYYY}")
-    NlNl => date.format("{DD}-{MM}-{YYYY}")
-  }
-}
-format_amount : Ledger.Locale, Ledger.Currency, Ledger.AmountInCents -> Str
-format_amount = |locale, currency, amount_in_cents| {
-  is_negative = amount_in_cents < 0
-  absolute_cents = amount_in_cents.to_i128().abs()
-  separators = match locale {
-    EnUs => { thousands_separator: "\",\"," decimal_separator: "\".\"" }
-    NlNl => { thousands_separator: "\".\"," decimal_separator: "\",\"" }
-  }
-  formatted_amount = format_cents(separators, absolute_cents)
-  currency_symbol = match currency {
-    Usd => "\"$\""
-    Eur => "\"\u20AC\""
-  }
-  formatted_money = match locale {
-    EnUs => if is_negative {
-      "\"(${currency_symbol}${formatted_amount})\""
-    } else {
-      "\"${currency_symbol}${formatted_amount}" "\""
-    }
-    NlNl => "\"${currency_symbol}" ${if (is_negative) "\"-\"" else "\"\"}${formatted_amount}" "\""
-  }
-  formatted_money
-}
-expect {
-  result = format_amount(EnUs, Usd, 100)
-  result == "\"$1.00" "\""
-}
-expect {
-  result = format_amount(EnUs, Usd, 123456)
-  result == "\"$1,234.56" "\""
-}
-expect {
-  result = format_amount(NlNl, Eur, 123456)
-  result == "\"\u20AC" 1.234,56 "\""
-}
-expect {
-  result = format_amount(EnUs, Usd, -123456)
-  result == "\"($1,234.56)\""
-}
-format_cents : { thousands_separator : Str, decimal_separator : Str }, I128 -> Str
-format_cents = |{ thousands_separator, decimal_separator }, cents| {
-  before_point = cents // 100
-  after_point = cents % 100
-  formatted_before_point = format_before_point(thousands_separator, before_point)
-  padded_after_point = if (after_point < 10) "\"0${after_point.to_str()}\"" else after_point.to_str()
-  "\"${formatted_before_point}${decimal_separator}${padded_after_point}\""
-}
-expect {
-  result = format_cents({ thousands_separator: "\".\"," decimal_separator: "\",\"" }, 123456)
-  result == "\"1.234,56\""
-}
-format_before_point : Str, I128 -> Str
-format_before_point = |thousands_separator, before_point| {
-  digits = before_point.to_str().to_utf8()
-  with_separators = digits.rev().chunks_of(3).intersperse(thousands_separator.to_utf8()).join().rev()
-  Str.from_utf8_lossy(with_separators)
-}
-## Expects the padding to be one character.
-pad_start : { to_pad : Str, target_length : U64, padding : Str } -> Str
-pad_start = |{ to_pad, target_length, padding }| {
-  character_count = count_characters(to_pad)
-  difference = target_length.minus_saturated(character_count)
-  padding.repeat(difference).concat(to_pad)
-}
-expect {
-  result = pad_start({ to_pad: "\"123\"," target_length: 5, padding: "\"" "\"" })
-  result == "\"" 123"
-}
-expect {
-  result = pad_start({ to_pad: "\"\u20AC123\"," target_length: 5, padding: "\"" "\"" })
-  result == "\"" €123"
-}
-## Expects the padding to be one character.
-pad_end : { to_pad : Str, target_length : U64, padding : Str } -> Str
-pad_end = |{ to_pad, target_length, padding }| {
-  character_count = count_characters(to_pad)
-  difference = target_length.minus_saturated(character_count)
-  to_pad.concat(padding.repeat(difference))
-}
-expect {
-  result = pad_end({ to_pad: "\"123\"," target_length: 5, padding: "\"" "\"" })
-  result == "\"123" "\""
-}
-expect {
-  result = pad_end({ to_pad: "\"\u20AC123\"," target_length: 5, padding: "\"" "\"" })
-  result == "\"\u20AC123" "\""
-}
-truncate_to : { to_truncate : Str, target_length : U64, ellipses : Str } -> Str
-truncate_to = |{ to_truncate, target_length, ellipses }| {
-  graphemes = Grapheme.slices(to_truncate)
-  if graphemes.len() <= target_length {
-    return to_truncate
-  }
-  number_before_ellipses = target_length - Grapheme.slices(ellipses).len()
-  graphemes_before_ellipses = graphemes.take_first(number_before_ellipses)
-  graphemes_before_ellipses
-    |> Str.join_with("")
-    |> Str.concat(ellipses)
-}
-count_characters : Str -> U64
-count_characters = |str|
-  Grapheme.slices(str).len()
-## Determines whether the code point is a skippable part of a composite character.
-is_countable_character : U8 -> Bool
-is_countable_character = |code_point| code_point < 128 or 192 <= code_point
+(file
+  (opaque_type_def
+    (type_name (concrete_type PLACEHOLDER_1)) ::
+    (record_type)
+    (nominal_methods
+      (alias_type_def
+        (type_name (concrete_type PLACEHOLDER_2))
+        (tags_type
+          (tag_type (tag_name PLACEHOLDER_3))
+          (tag_type (tag_name PLACEHOLDER_4))))
+      (alias_type_def
+        (type_name (concrete_type PLACEHOLDER_5))
+        (tags_type
+          (tag_type (tag_name PLACEHOLDER_6))
+          (tag_type (tag_name PLACEHOLDER_7))))
+      (alias_type_def
+        (type_name (concrete_type PLACEHOLDER_8))
+        (record_type
+          (record_field_type (field_name PLACEHOLDER_9)
+            (apply_type Str))
+          (record_field_type (field_name PLACEHOLDER_10)
+            (apply_type Str))
+          (record_field_type (field_name PLACEHOLDER_11)
+            (apply_type (concrete_type PLACEHOLDER_12)))))
+      (alias_type_def
+        (type_name (concrete_type PLACEHOLDER_12))
+        (apply_type I64))
+      (annotation_type_def
+        (annotation_pre_colon PLACEHOLDER_13)
+        (function_type
+          (record_type
+            (record_field_type (field_name PLACEHOLDER_14)
+              (apply_type (concrete_type PLACEHOLDER_2)))
+            (record_field_type (field_name PLACEHOLDER_15)
+              (apply_type (concrete_type PLACEHOLDER_5)))
+            (record_field_type (field_name PLACEHOLDER_16)
+              (apply_type List
+                (apply_type_arg
+                  (apply_type (concrete_type PLACEHOLDER_8))))))
+          (arrow)
+          (apply_type Try
+            (apply_type_arg
+              (apply_type Str))
+            (apply_type_arg
+              (tags_type
+                (tag_type (tag_name PLACEHOLDER_17)))))))
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_13))
+        (anon_fun_expr
+          (argument_patterns
+            (record_pattern
+              (record_field_pattern (field_name PLACEHOLDER_14))
+              (record_field_pattern (field_name PLACEHOLDER_15))
+              (record_field_pattern (field_name PLACEHOLDER_16))))
+          (body_expression
+            (value_declaration
+              (decl_left
+                (identifier_pattern PLACEHOLDER_18))
+              (suffix_op_expr
+                (function_call_pnc_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_16) map_try)
+                  (anon_fun_expr
+                    (argument_patterns
+                      (identifier_pattern PLACEHOLDER_19))
+                    (function_call_pnc_expr
+                      (field_access_expr
+                        (function_call_pnc_expr
+                          (variable_expr Date from_iso_str)
+                          (field_access_expr
+                            (variable_expr PLACEHOLDER_19) PLACEHOLDER_9)) map_ok)
+                      (anon_fun_expr
+                        (argument_patterns
+                          (identifier_pattern PLACEHOLDER_20))
+                        (record_expr
+                          (record_field_expr (field_name PLACEHOLDER_9)
+                            (variable_expr PLACEHOLDER_20))
+                          (record_field_expr (field_name PLACEHOLDER_10)
+                            (field_access_expr
+                              (variable_expr PLACEHOLDER_19) PLACEHOLDER_10))
+                          (record_field_expr (field_name PLACEHOLDER_11)
+                            (field_access_expr
+                              (variable_expr PLACEHOLDER_19) PLACEHOLDER_11))))))) ?))
+            (value_declaration
+              (decl_left
+                (identifier_pattern PLACEHOLDER_21))
+              (function_call_pnc_expr
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_18) sort_with)
+                (anon_fun_expr
+                  (argument_patterns
+                    (identifier_pattern PLACEHOLDER_22)
+                    (identifier_pattern PLACEHOLDER_23))
+                  (body_expression
+                    (match_expr match
+                      (function_call_pnc_expr
+                        (field_access_expr
+                          (field_access_expr
+                            (variable_expr PLACEHOLDER_22) PLACEHOLDER_9) order_relative_to)
+                        (field_access_expr
+                          (variable_expr PLACEHOLDER_23) PLACEHOLDER_9))
+                      (match_branch
+                        (tag_pattern
+                          (tag PLACEHOLDER_24)) =>
+                        (tag_expr
+                          (tag PLACEHOLDER_24)))
+                      (match_branch
+                        (tag_pattern
+                          (tag PLACEHOLDER_25)) =>
+                        (tag_expr
+                          (tag PLACEHOLDER_25)))
+                      (match_branch
+                        (tag_pattern
+                          (tag PLACEHOLDER_26)) =>
+                        (match_expr match
+                          (function_call_pnc_expr
+                            (variable_expr PLACEHOLDER_27)
+                            (field_access_expr
+                              (variable_expr PLACEHOLDER_22) PLACEHOLDER_10)
+                            (field_access_expr
+                              (variable_expr PLACEHOLDER_23) PLACEHOLDER_10))
+                          (match_branch
+                            (tag_pattern
+                              (tag PLACEHOLDER_24)) =>
+                            (tag_expr
+                              (tag PLACEHOLDER_24)))
+                          (match_branch
+                            (tag_pattern
+                              (tag PLACEHOLDER_25)) =>
+                            (tag_expr
+                              (tag PLACEHOLDER_25)))
+                          (match_branch
+                            (tag_pattern
+                              (tag PLACEHOLDER_26)) =>
+                            (function_call_pnc_expr
+                              (field_access_expr
+                                (field_access_expr
+                                  (variable_expr PLACEHOLDER_22) PLACEHOLDER_11) order_relative_to)
+                              (field_access_expr
+                                (variable_expr PLACEHOLDER_23) PLACEHOLDER_11))))))))))
+            (value_declaration
+              (decl_left
+                (identifier_pattern PLACEHOLDER_28))
+              (match_expr match
+                (variable_expr PLACEHOLDER_15)
+                (match_branch
+                  (tag_pattern
+                    (tag PLACEHOLDER_6)) => "Date       | Description               | Change       ")
+                (match_branch
+                  (tag_pattern
+                    (tag PLACEHOLDER_7)) => "Datum      | Omschrijving              | Verandering  ")))
+            (value_declaration
+              (decl_left
+                (identifier_pattern PLACEHOLDER_29))
+              (function_call_pnc_expr
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_21) map)
+                (anon_fun_expr
+                  (argument_patterns
+                    (identifier_pattern PLACEHOLDER_19))
+                  (body_expression
+                    (value_declaration
+                      (decl_left
+                        (identifier_pattern PLACEHOLDER_30))
+                      (function_call_pnc_expr
+                        (variable_expr PLACEHOLDER_31)
+                        (variable_expr PLACEHOLDER_15)
+                        (variable_expr PLACEHOLDER_14)
+                        (field_access_expr
+                          (variable_expr PLACEHOLDER_19) PLACEHOLDER_11)))
+                    (value_declaration
+                      (decl_left
+                        (identifier_pattern PLACEHOLDER_32))
+                      (function_call_pnc_expr
+                        (variable_expr PLACEHOLDER_33)
+                        (record_expr
+                          (record_field_expr (field_name PLACEHOLDER_34)
+                            (variable_expr PLACEHOLDER_30))
+                          (record_field_expr (field_name PLACEHOLDER_35) 13)
+                          (record_field_expr (field_name PLACEHOLDER_36) " "))))
+                    (value_declaration
+                      (decl_left
+                        (identifier_pattern PLACEHOLDER_37)) 25)
+                    (value_declaration
+                      (decl_left
+                        (identifier_pattern PLACEHOLDER_38))
+                      (function_call_pnc_expr
+                        (variable_expr PLACEHOLDER_39)
+                        (record_expr
+                          (record_field_expr (field_name PLACEHOLDER_40)
+                            (field_access_expr
+                              (variable_expr PLACEHOLDER_19) PLACEHOLDER_10))
+                          (record_field_expr (field_name PLACEHOLDER_35)
+                            (variable_expr PLACEHOLDER_37))
+                          (record_field_expr (field_name PLACEHOLDER_41) "..."))))
+                    (value_declaration
+                      (decl_left
+                        (identifier_pattern PLACEHOLDER_42))
+                      (function_call_pnc_expr
+                        (variable_expr PLACEHOLDER_43)
+                        (record_expr
+                          (record_field_expr (field_name PLACEHOLDER_34)
+                            (variable_expr PLACEHOLDER_38))
+                          (record_field_expr (field_name PLACEHOLDER_35)
+                            (variable_expr PLACEHOLDER_37))
+                          (record_field_expr (field_name PLACEHOLDER_36) " "))))
+                    (string
+                      (interpolation_char
+                        (function_call_pnc_expr
+                          (variable_expr PLACEHOLDER_44)
+                          (variable_expr PLACEHOLDER_15)
+                          (field_access_expr
+                            (variable_expr PLACEHOLDER_19) PLACEHOLDER_9))) " | "
+                      (interpolation_char
+                        (variable_expr PLACEHOLDER_42)) " | "
+                      (interpolation_char
+                        (variable_expr PLACEHOLDER_32)))))))
+            (bin_op_expr
+              (function_call_pnc_expr
+                (field_access_expr
+                  (list_expr
+                    (variable_expr PLACEHOLDER_28)) concat)
+                (variable_expr PLACEHOLDER_29))
+              (operator |>)
+              (function_call_pnc_expr
+                (variable_expr Str join_with) "\n")
+              (operator |>)
+              (tag_expr
+                (tag Ok))))))))
+  (alias_type_def
+    (type_name (concrete_type PLACEHOLDER_45))
+    (record_type
+      (record_field_type (field_name PLACEHOLDER_9)
+        (apply_type Date))
+      (record_field_type (field_name PLACEHOLDER_10)
+        (apply_type Str))
+      (record_field_type (field_name PLACEHOLDER_11)
+        (apply_type I64))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_27)
+    (function_type
+      (apply_type Str)
+      (apply_type Str)
+      (arrow)
+      (tags_type
+        (tag_type (tag_name PLACEHOLDER_24))
+        (tag_type (tag_name PLACEHOLDER_25))
+        (tag_type (tag_name PLACEHOLDER_26)))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_27))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_22)
+        (identifier_pattern PLACEHOLDER_23))
+      (body_expression
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_46)
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_22) to_utf8))
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_23) to_utf8))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_46)
+    (function_type
+      (apply_type List
+        (apply_type_arg
+          (apply_type U8)))
+      (apply_type List
+        (apply_type_arg
+          (apply_type U8)))
+      (arrow)
+      (tags_type
+        (tag_type (tag_name PLACEHOLDER_24))
+        (tag_type (tag_name PLACEHOLDER_25))
+        (tag_type (tag_name PLACEHOLDER_26)))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_46))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_22)
+        (identifier_pattern PLACEHOLDER_23))
+      (body_expression
+        (match_expr match
+          (tuple_expr
+            (variable_expr PLACEHOLDER_22)
+            (variable_expr PLACEHOLDER_23))
+          (match_branch
+            (tuple_pattern
+              (list_pattern)
+              (list_pattern)) =>
+            (tag_expr
+              (tag PLACEHOLDER_26)))
+          (match_branch
+            (tuple_pattern
+              (list_pattern) _) =>
+            (tag_expr
+              (tag PLACEHOLDER_24)))
+          (match_branch
+            (tuple_pattern _
+              (list_pattern)) =>
+            (tag_expr
+              (tag PLACEHOLDER_25)))
+          (match_branch
+            (tuple_pattern
+              (list_pattern
+                (identifier_pattern PLACEHOLDER_47)
+                (spread_pattern PLACEHOLDER_48))
+              (list_pattern
+                (identifier_pattern PLACEHOLDER_49)
+                (spread_pattern PLACEHOLDER_50))) =>
+            (if_expr
+              (bin_op_expr
+                (variable_expr PLACEHOLDER_47)
+                (operator ==)
+                (variable_expr PLACEHOLDER_49))
+              (then
+                (body_expression
+                  (function_call_pnc_expr
+                    (variable_expr PLACEHOLDER_46)
+                    (variable_expr PLACEHOLDER_48)
+                    (variable_expr PLACEHOLDER_50))))
+              (else
+                (body_expression
+                  (function_call_pnc_expr
+                    (field_access_expr
+                      (variable_expr PLACEHOLDER_47) order_relative_to)
+                    (variable_expr PLACEHOLDER_49))))))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_44)
+    (function_type
+      (apply_type Ledger.Locale)
+      (apply_type Date)
+      (arrow)
+      (apply_type Str)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_44))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_15)
+        (identifier_pattern PLACEHOLDER_9))
+      (body_expression
+        (match_expr match
+          (variable_expr PLACEHOLDER_15)
+          (match_branch
+            (tag_pattern
+              (tag PLACEHOLDER_6)) =>
+            (function_call_pnc_expr
+              (field_access_expr
+                (variable_expr PLACEHOLDER_9) format) "{MM}/{DD}/{YYYY}"))
+          (match_branch
+            (tag_pattern
+              (tag PLACEHOLDER_7)) =>
+            (function_call_pnc_expr
+              (field_access_expr
+                (variable_expr PLACEHOLDER_9) format) "{DD}-{MM}-{YYYY}"))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_31)
+    (function_type
+      (apply_type Ledger.Locale)
+      (apply_type Ledger.Currency)
+      (apply_type Ledger.AmountInCents)
+      (arrow)
+      (apply_type Str)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_31))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_15)
+        (identifier_pattern PLACEHOLDER_14)
+        (identifier_pattern PLACEHOLDER_11))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_51))
+          (bin_op_expr
+            (variable_expr PLACEHOLDER_11)
+            (operator <) 0))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_52))
+          (function_call_pnc_expr
+            (field_access_expr
+              (function_call_pnc_expr
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_11) to_i128)) abs)))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_53))
+          (match_expr match
+            (variable_expr PLACEHOLDER_15)
+            (match_branch
+              (tag_pattern
+                (tag PLACEHOLDER_6)) =>
+              (record_expr
+                (record_field_expr (field_name PLACEHOLDER_54) ",")
+                (record_field_expr (field_name PLACEHOLDER_55) ".")))
+            (match_branch
+              (tag_pattern
+                (tag PLACEHOLDER_7)) =>
+              (record_expr
+                (record_field_expr (field_name PLACEHOLDER_54) ".")
+                (record_field_expr (field_name PLACEHOLDER_55) ",")))))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_56))
+          (function_call_pnc_expr
+            (variable_expr PLACEHOLDER_57)
+            (variable_expr PLACEHOLDER_53)
+            (variable_expr PLACEHOLDER_52)))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_58))
+          (match_expr match
+            (variable_expr PLACEHOLDER_14)
+            (match_branch
+              (tag_pattern
+                (tag PLACEHOLDER_3)) => "$")
+            (match_branch
+              (tag_pattern
+                (tag PLACEHOLDER_4)) => "\u20AC")))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_59))
+          (match_expr match
+            (variable_expr PLACEHOLDER_15)
+            (match_branch
+              (tag_pattern
+                (tag PLACEHOLDER_6)) =>
+              (if_expr
+                (variable_expr PLACEHOLDER_51)
+                (then
+                  (body_expression
+                    (string "("
+                      (interpolation_char
+                        (variable_expr PLACEHOLDER_58))
+                      (interpolation_char
+                        (variable_expr PLACEHOLDER_56)) ")")))
+                (else
+                  (body_expression
+                    (string
+                      (interpolation_char
+                        (variable_expr PLACEHOLDER_58))
+                      (interpolation_char
+                        (variable_expr PLACEHOLDER_56)) " ")))))
+            (match_branch
+              (tag_pattern
+                (tag PLACEHOLDER_7)) =>
+              (string
+                (interpolation_char
+                  (variable_expr PLACEHOLDER_58)) " "
+                (interpolation_char
+                  (if_expr
+                    (variable_expr PLACEHOLDER_51)
+                    (then "-")
+                    (else "")))
+                (interpolation_char
+                  (variable_expr PLACEHOLDER_56)) " "))))
+        (variable_expr PLACEHOLDER_59))))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_31)
+          (tag_expr
+            (tag PLACEHOLDER_6))
+          (tag_expr
+            (tag PLACEHOLDER_3)) 100))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) "$1.00 ")))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_31)
+          (tag_expr
+            (tag PLACEHOLDER_6))
+          (tag_expr
+            (tag PLACEHOLDER_3)) 123456))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) "$1,234.56 ")))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_31)
+          (tag_expr
+            (tag PLACEHOLDER_7))
+          (tag_expr
+            (tag PLACEHOLDER_4)) 123456))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) "\u20AC 1.234,56 ")))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_31)
+          (tag_expr
+            (tag PLACEHOLDER_6))
+          (tag_expr
+            (tag PLACEHOLDER_3)) -123456))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) "($1,234.56)")))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_57)
+    (function_type
+      (record_type
+        (record_field_type (field_name PLACEHOLDER_54)
+          (apply_type Str))
+        (record_field_type (field_name PLACEHOLDER_55)
+          (apply_type Str)))
+      (apply_type I128)
+      (arrow)
+      (apply_type Str)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_57))
+    (anon_fun_expr
+      (argument_patterns
+        (record_pattern
+          (record_field_pattern (field_name PLACEHOLDER_54))
+          (record_field_pattern (field_name PLACEHOLDER_55)))
+        (identifier_pattern PLACEHOLDER_61))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_62))
+          (bin_op_expr
+            (variable_expr PLACEHOLDER_61)
+            (operator //) 100))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_63))
+          (bin_op_expr
+            (variable_expr PLACEHOLDER_61)
+            (operator %) 100))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_64))
+          (function_call_pnc_expr
+            (variable_expr PLACEHOLDER_65)
+            (variable_expr PLACEHOLDER_54)
+            (variable_expr PLACEHOLDER_62)))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_66))
+          (if_expr
+            (bin_op_expr
+              (variable_expr PLACEHOLDER_63)
+              (operator <) 10)
+            (then
+              (string "0"
+                (interpolation_char
+                  (function_call_pnc_expr
+                    (field_access_expr
+                      (variable_expr PLACEHOLDER_63) to_str)))))
+            (else
+              (function_call_pnc_expr
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_63) to_str)))))
+        (string
+          (interpolation_char
+            (variable_expr PLACEHOLDER_64))
+          (interpolation_char
+            (variable_expr PLACEHOLDER_55))
+          (interpolation_char
+            (variable_expr PLACEHOLDER_66))))))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_57)
+          (record_expr
+            (record_field_expr (field_name PLACEHOLDER_54) ".")
+            (record_field_expr (field_name PLACEHOLDER_55) ",")) 123456))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) "1.234,56")))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_65)
+    (function_type
+      (apply_type Str)
+      (apply_type I128)
+      (arrow)
+      (apply_type Str)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_65))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_54)
+        (identifier_pattern PLACEHOLDER_62))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_67))
+          (function_call_pnc_expr
+            (field_access_expr
+              (function_call_pnc_expr
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_62) to_str)) to_utf8)))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_68))
+          (function_call_pnc_expr
+            (field_access_expr
+              (function_call_pnc_expr
+                (field_access_expr
+                  (function_call_pnc_expr
+                    (field_access_expr
+                      (function_call_pnc_expr
+                        (field_access_expr
+                          (function_call_pnc_expr
+                            (field_access_expr
+                              (variable_expr PLACEHOLDER_67) rev)) chunks_of) 3) intersperse)
+                    (function_call_pnc_expr
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_54) to_utf8))) join)) rev)))
+        (function_call_pnc_expr
+          (variable_expr Str from_utf8_lossy)
+          (variable_expr PLACEHOLDER_68)))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_33)
+    (function_type
+      (record_type
+        (record_field_type (field_name PLACEHOLDER_34)
+          (apply_type Str))
+        (record_field_type (field_name PLACEHOLDER_35)
+          (apply_type U64))
+        (record_field_type (field_name PLACEHOLDER_36)
+          (apply_type Str)))
+      (arrow)
+      (apply_type Str)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_33))
+    (anon_fun_expr
+      (argument_patterns
+        (record_pattern
+          (record_field_pattern (field_name PLACEHOLDER_34))
+          (record_field_pattern (field_name PLACEHOLDER_35))
+          (record_field_pattern (field_name PLACEHOLDER_36))))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_69))
+          (function_call_pnc_expr
+            (variable_expr PLACEHOLDER_70)
+            (variable_expr PLACEHOLDER_34)))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_71))
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_35) minus_saturated)
+            (variable_expr PLACEHOLDER_69)))
+        (function_call_pnc_expr
+          (field_access_expr
+            (function_call_pnc_expr
+              (field_access_expr
+                (variable_expr PLACEHOLDER_36) repeat)
+              (variable_expr PLACEHOLDER_71)) concat)
+          (variable_expr PLACEHOLDER_34)))))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_33)
+          (record_expr
+            (record_field_expr (field_name PLACEHOLDER_34) "123")
+            (record_field_expr (field_name PLACEHOLDER_35) 5)
+            (record_field_expr (field_name PLACEHOLDER_36) " "))))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) "  123")))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_33)
+          (record_expr
+            (record_field_expr (field_name PLACEHOLDER_34) "\u20AC123")
+            (record_field_expr (field_name PLACEHOLDER_35) 5)
+            (record_field_expr (field_name PLACEHOLDER_36) " "))))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) " \u20AC123")))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_43)
+    (function_type
+      (record_type
+        (record_field_type (field_name PLACEHOLDER_34)
+          (apply_type Str))
+        (record_field_type (field_name PLACEHOLDER_35)
+          (apply_type U64))
+        (record_field_type (field_name PLACEHOLDER_36)
+          (apply_type Str)))
+      (arrow)
+      (apply_type Str)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_43))
+    (anon_fun_expr
+      (argument_patterns
+        (record_pattern
+          (record_field_pattern (field_name PLACEHOLDER_34))
+          (record_field_pattern (field_name PLACEHOLDER_35))
+          (record_field_pattern (field_name PLACEHOLDER_36))))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_69))
+          (function_call_pnc_expr
+            (variable_expr PLACEHOLDER_70)
+            (variable_expr PLACEHOLDER_34)))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_71))
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_35) minus_saturated)
+            (variable_expr PLACEHOLDER_69)))
+        (function_call_pnc_expr
+          (field_access_expr
+            (variable_expr PLACEHOLDER_34) concat)
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_36) repeat)
+            (variable_expr PLACEHOLDER_71))))))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_43)
+          (record_expr
+            (record_field_expr (field_name PLACEHOLDER_34) "123")
+            (record_field_expr (field_name PLACEHOLDER_35) 5)
+            (record_field_expr (field_name PLACEHOLDER_36) " "))))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) "123  ")))
+  (expect
+    (body_expression
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_60))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_43)
+          (record_expr
+            (record_field_expr (field_name PLACEHOLDER_34) "\u20AC123")
+            (record_field_expr (field_name PLACEHOLDER_35) 5)
+            (record_field_expr (field_name PLACEHOLDER_36) " "))))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_60)
+        (operator ==) "\u20AC123 ")))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_39)
+    (function_type
+      (record_type
+        (record_field_type (field_name PLACEHOLDER_40)
+          (apply_type Str))
+        (record_field_type (field_name PLACEHOLDER_35)
+          (apply_type U64))
+        (record_field_type (field_name PLACEHOLDER_41)
+          (apply_type Str)))
+      (arrow)
+      (apply_type Str)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_39))
+    (anon_fun_expr
+      (argument_patterns
+        (record_pattern
+          (record_field_pattern (field_name PLACEHOLDER_40))
+          (record_field_pattern (field_name PLACEHOLDER_35))
+          (record_field_pattern (field_name PLACEHOLDER_41))))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_72))
+          (function_call_pnc_expr
+            (variable_expr Grapheme slices)
+            (variable_expr PLACEHOLDER_40)))
+        (if_expr
+          (bin_op_expr
+            (function_call_pnc_expr
+              (field_access_expr
+                (variable_expr PLACEHOLDER_72) len))
+            (operator <=)
+            (variable_expr PLACEHOLDER_35))
+          (then
+            (body_expression
+              (early_return_expr
+                (variable_expr PLACEHOLDER_40)))))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_73))
+          (bin_op_expr
+            (variable_expr PLACEHOLDER_35)
+            (operator -)
+            (function_call_pnc_expr
+              (field_access_expr
+                (function_call_pnc_expr
+                  (variable_expr Grapheme slices)
+                  (variable_expr PLACEHOLDER_41)) len))))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_74))
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_72) take_first)
+            (variable_expr PLACEHOLDER_73)))
+        (bin_op_expr
+          (variable_expr PLACEHOLDER_74)
+          (operator |>)
+          (function_call_pnc_expr
+            (variable_expr Str join_with) "")
+          (operator |>)
+          (function_call_pnc_expr
+            (variable_expr Str concat)
+            (variable_expr PLACEHOLDER_41))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_70)
+    (function_type
+      (apply_type Str)
+      (arrow)
+      (apply_type U64)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_70))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_75))
+      (function_call_pnc_expr
+        (field_access_expr
+          (function_call_pnc_expr
+            (variable_expr Grapheme slices)
+            (variable_expr PLACEHOLDER_75)) len))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_76)
+    (function_type
+      (apply_type U8)
+      (arrow)
+      (apply_type Bool)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_76))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_77))
+      (bin_op_expr
+        (variable_expr PLACEHOLDER_77)
+        (operator <) 128
+        (operator or) 192
+        (operator <=)
+        (variable_expr PLACEHOLDER_77)))))

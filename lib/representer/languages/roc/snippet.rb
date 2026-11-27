@@ -3,16 +3,18 @@
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
 module Representer::Languages::Roc
   class Snippet < Representer::Engine::Snippet
-    tracks "roc"
+    # Bump the version whenever the snippet of any solution could change.
+    version 2
 
     # Remove every comment, wherever it is.
     remove :comments # x = 1 «# The answer»
 
-    # Find the comments by the way they start, because Rouge has no Roc lexer.
+    # Find the comments by the way they start in a file that doesn't parse,
+    # because Rouge has no Roc lexer.
     comment_lines "#" # «# A comment»
 
     # Skip the module header and imports at the top of the file, up to the first other statement.
-    skip_at_top :module, # «module [isLeapYear]»
+    skip_at_top :module, # «module [is_leap_year]»
                 :import  # «import Helpers»
   end
 end

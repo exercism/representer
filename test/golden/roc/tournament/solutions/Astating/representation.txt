@@ -1,129 +1,621 @@
-Tournament :: {}.{
-  tally : Str -> Try(Str, [InvalidInput(Str), InvalidMatchResult(Str)])
-  tally = |table| {
-    if table.is_empty()
-      return Ok(header)
-    matches = parse_input(table)?
-    matches
-    |> compute_tally()
-    |> order_tally()
-    |> display_tally()
-    |> Ok()
-  }
-}
-MatchResult : [Win, Loss, Draw]
-Match : {
-  team1 : Str,
-  team2 : Str,
-  result : MatchResult,
-}
-TeamTally : {
-  matches_played : U8,
-  wins : U8,
-  losses : U8,
-  draws : U8,
-  points : U8,
-}
-CompetitionTally : Dict(Str, TeamTally)
-header = "\"Team" | MP | W | D | L | P"
-parse_input : Str -> Try(List(Match), _)
-parse_input = |table| table
-  .split_on("\n")
-  .map_try(|match_played| match match_played.split_on(";") {
-    [team1, team2, result_str] =>
-      parse_result(result_str).map_ok(|result|
-        { team1, team2, result }
-      )
-    _ => Err(InvalidInput(match_played))
-  })
-parse_result : Str -> Try(MatchResult, _)
-parse_result = |result| match result {
-  "\"win\"" => Win
-  "\"loss\"" => Loss
-  "\"draw\"" => Draw
-  _ => return Err(InvalidMatchResult(result))
-} |> Ok()
-compute_tally : List(Match) -> CompetitionTally
-compute_tally = |matches| matches
-  .fold(Dict.empty(), |competition_tally, match_played| {
-    (team1_score, team2_score) = score_match(match_played)
-    competition_tally
-    |> update_score(match_played.team1, team1_score)
-    |> update_score(match_played.team2, team2_score)
-  })
-update_score : CompetitionTally, Str, TeamTally -> CompetitionTally
-update_score = |competition_tally, team_name, score| competition_tally
-  .update(team_name, |team| match team {
-    Err(Missing) => score
-    Ok(team_tally) => {
-      matches_played: team_tally.matches_played + score.matches_played,
-      wins: team_tally.wins + score.wins,
-      losses: team_tally.losses + score.losses,
-      draws: team_tally.draws + score.draws,
-      points: team_tally.points + score.points,
-    }
-  } |> Ok())
-score_match : Match -> (TeamTally, TeamTally)
-score_match = |match_played|
-  (
-    compute_points({
-      wins: if (match_played.result == Win) 1 else 0,
-      losses: if (match_played.result == Loss) 1 else 0,
-      draws: if (match_played.result == Draw) 1 else 0,
-    }),
-    compute_points({
-      wins: if (match_played.result == Loss) 1 else 0,
-      losses: if (match_played.result == Win) 1 else 0,
-      draws: if (match_played.result == Draw) 1 else 0,
-    }),
-  )
-compute_points = |{ wins, losses, draws }| {
-  matches_played: 1,
-  wins,
-  losses,
-  draws,
-  points: 3 * wins + draws,
-}
-order_tally : CompetitionTally -> List( (Str, TeamTally) )
-order_tally = |competition_tally| competition_tally
-  .to_list()
-  .sort_with(|(team1_name, team1_tally), (team2_name, team2_tally)|
-    if team1_tally.points > team2_tally.points
-      Before
-    else if team1_tally.points < team2_tally.points
-      After
-    else
-      compare_initials(team1_name, team2_name) ?? Same
-  )
-compare_initials = |first, second| {
-  a = first.to_utf8().first()?
-  b = second.to_utf8().first()?
-  Ok(a.order_relative_to(b))
-}
-display_tally : List( (Str, TeamTally) ) -> Str
-display_tally = |list| list
-  .map(|(name, { matches_played, wins, draws, losses, points })|
-    [
-      pad_team_name_column(name),
-      pad_single_digit(matches_played),
-      pad_single_digit(wins),
-      pad_single_digit(draws),
-      pad_single_digit(losses),
-      pad_single_digit(points),
-    ]
-    |> Str.join_with(" | "\")"
-  )
-  .prepend(header)
-  |> Str.join_with("\n")
-pad_team_name_column = |name| {
-  team_name_col_width = 30
-  name_length = name.count_utf8_bytes()
-  padding = "\"" "\".repeat(team_name_col_width" - name_length)
-  name.concat(padding)
-}
-pad_single_digit = |number| {
-  numStr = number.to_str()
-  if number < 10
-    "\"" ${numStr}"
-  else numStr
-}
+(file
+  (opaque_type_def
+    (type_name (concrete_type PLACEHOLDER_1)) ::
+    (record_type)
+    (nominal_methods
+      (annotation_type_def
+        (annotation_pre_colon PLACEHOLDER_2)
+        (function_type
+          (apply_type Str)
+          (arrow)
+          (apply_type Try
+            (apply_type_arg
+              (apply_type Str))
+            (apply_type_arg
+              (tags_type
+                (tag_type (tag_name PLACEHOLDER_3)
+                  (apply_type_arg
+                    (apply_type Str)))
+                (tag_type (tag_name PLACEHOLDER_4)
+                  (apply_type_arg
+                    (apply_type Str))))))))
+      (value_declaration
+        (decl_left
+          (identifier_pattern PLACEHOLDER_2))
+        (anon_fun_expr
+          (argument_patterns
+            (identifier_pattern PLACEHOLDER_5))
+          (body_expression
+            (if_expr
+              (function_call_pnc_expr
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_5) is_empty))
+              (then
+                (early_return_expr
+                  (function_call_pnc_expr
+                    (tag_expr
+                      (tag Ok))
+                    (variable_expr PLACEHOLDER_6)))))
+            (value_declaration
+              (decl_left
+                (identifier_pattern PLACEHOLDER_7))
+              (suffix_op_expr
+                (function_call_pnc_expr
+                  (variable_expr PLACEHOLDER_8)
+                  (variable_expr PLACEHOLDER_5)) ?))
+            (bin_op_expr
+              (variable_expr PLACEHOLDER_7)
+              (operator |>)
+              (function_call_pnc_expr
+                (variable_expr PLACEHOLDER_9))
+              (operator |>)
+              (function_call_pnc_expr
+                (variable_expr PLACEHOLDER_10))
+              (operator |>)
+              (function_call_pnc_expr
+                (variable_expr PLACEHOLDER_11))
+              (operator |>)
+              (function_call_pnc_expr
+                (tag_expr
+                  (tag Ok)))))))))
+  (alias_type_def
+    (type_name (concrete_type PLACEHOLDER_12))
+    (tags_type
+      (tag_type (tag_name PLACEHOLDER_13))
+      (tag_type (tag_name PLACEHOLDER_14))
+      (tag_type (tag_name PLACEHOLDER_15))))
+  (alias_type_def
+    (type_name (concrete_type PLACEHOLDER_16))
+    (record_type
+      (record_field_type (field_name PLACEHOLDER_17)
+        (apply_type Str))
+      (record_field_type (field_name PLACEHOLDER_18)
+        (apply_type Str))
+      (record_field_type (field_name PLACEHOLDER_19)
+        (apply_type (concrete_type PLACEHOLDER_12)))))
+  (alias_type_def
+    (type_name (concrete_type PLACEHOLDER_20))
+    (record_type
+      (record_field_type (field_name PLACEHOLDER_21)
+        (apply_type U8))
+      (record_field_type (field_name PLACEHOLDER_22)
+        (apply_type U8))
+      (record_field_type (field_name PLACEHOLDER_23)
+        (apply_type U8))
+      (record_field_type (field_name PLACEHOLDER_24)
+        (apply_type U8))
+      (record_field_type (field_name PLACEHOLDER_25)
+        (apply_type U8))))
+  (alias_type_def
+    (type_name (concrete_type PLACEHOLDER_26))
+    (apply_type Dict
+      (apply_type_arg
+        (apply_type Str))
+      (apply_type_arg
+        (apply_type (concrete_type PLACEHOLDER_20)))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_6)) "Team                           | MP |  W |  D |  L |  P")
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_8)
+    (function_type
+      (apply_type Str)
+      (arrow)
+      (apply_type Try
+        (apply_type_arg
+          (apply_type List
+            (apply_type_arg
+              (apply_type (concrete_type PLACEHOLDER_16)))))
+        (apply_type_arg _))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_8))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_5))
+      (function_call_pnc_expr
+        (field_access_expr
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_5) split_on) "\n") map_try)
+        (anon_fun_expr
+          (argument_patterns
+            (identifier_pattern PLACEHOLDER_27))
+          (match_expr match
+            (function_call_pnc_expr
+              (field_access_expr
+                (variable_expr PLACEHOLDER_27) split_on) ";")
+            (match_branch
+              (list_pattern
+                (identifier_pattern PLACEHOLDER_17)
+                (identifier_pattern PLACEHOLDER_18)
+                (identifier_pattern PLACEHOLDER_28)) =>
+              (function_call_pnc_expr
+                (field_access_expr
+                  (function_call_pnc_expr
+                    (variable_expr PLACEHOLDER_29)
+                    (variable_expr PLACEHOLDER_28)) map_ok)
+                (anon_fun_expr
+                  (argument_patterns
+                    (identifier_pattern PLACEHOLDER_19))
+                  (record_expr
+                    (record_field_expr (field_name PLACEHOLDER_17))
+                    (record_field_expr (field_name PLACEHOLDER_18))
+                    (record_field_expr (field_name PLACEHOLDER_19))))))
+            (match_branch _ =>
+              (function_call_pnc_expr
+                (tag_expr
+                  (tag Err))
+                (function_call_pnc_expr
+                  (tag_expr
+                    (tag PLACEHOLDER_3))
+                  (variable_expr PLACEHOLDER_27)))))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_29)
+    (function_type
+      (apply_type Str)
+      (arrow)
+      (apply_type Try
+        (apply_type_arg
+          (apply_type (concrete_type PLACEHOLDER_12)))
+        (apply_type_arg _))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_29))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_19))
+      (bin_op_expr
+        (match_expr match
+          (variable_expr PLACEHOLDER_19)
+          (match_branch
+            (const_pattern "win") =>
+            (tag_expr
+              (tag PLACEHOLDER_13)))
+          (match_branch
+            (const_pattern "loss") =>
+            (tag_expr
+              (tag PLACEHOLDER_14)))
+          (match_branch
+            (const_pattern "draw") =>
+            (tag_expr
+              (tag PLACEHOLDER_15)))
+          (match_branch _ =>
+            (early_return_expr
+              (function_call_pnc_expr
+                (tag_expr
+                  (tag Err))
+                (function_call_pnc_expr
+                  (tag_expr
+                    (tag PLACEHOLDER_4))
+                  (variable_expr PLACEHOLDER_19))))))
+        (operator |>)
+        (function_call_pnc_expr
+          (tag_expr
+            (tag Ok))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_9)
+    (function_type
+      (apply_type List
+        (apply_type_arg
+          (apply_type (concrete_type PLACEHOLDER_16))))
+      (arrow)
+      (apply_type (concrete_type PLACEHOLDER_26))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_9))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_7))
+      (function_call_pnc_expr
+        (field_access_expr
+          (variable_expr PLACEHOLDER_7) fold)
+        (function_call_pnc_expr
+          (variable_expr Dict empty))
+        (anon_fun_expr
+          (argument_patterns
+            (identifier_pattern PLACEHOLDER_30)
+            (identifier_pattern PLACEHOLDER_27))
+          (body_expression
+            (value_declaration
+              (decl_left
+                (tuple_pattern
+                  (identifier_pattern PLACEHOLDER_31)
+                  (identifier_pattern PLACEHOLDER_32)))
+              (function_call_pnc_expr
+                (variable_expr PLACEHOLDER_33)
+                (variable_expr PLACEHOLDER_27)))
+            (bin_op_expr
+              (variable_expr PLACEHOLDER_30)
+              (operator |>)
+              (function_call_pnc_expr
+                (variable_expr PLACEHOLDER_34)
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_27) PLACEHOLDER_17)
+                (variable_expr PLACEHOLDER_31))
+              (operator |>)
+              (function_call_pnc_expr
+                (variable_expr PLACEHOLDER_34)
+                (field_access_expr
+                  (variable_expr PLACEHOLDER_27) PLACEHOLDER_18)
+                (variable_expr PLACEHOLDER_32))))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_34)
+    (function_type
+      (apply_type (concrete_type PLACEHOLDER_26))
+      (apply_type Str)
+      (apply_type (concrete_type PLACEHOLDER_20))
+      (arrow)
+      (apply_type (concrete_type PLACEHOLDER_26))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_34))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_30)
+        (identifier_pattern PLACEHOLDER_35)
+        (identifier_pattern PLACEHOLDER_36))
+      (function_call_pnc_expr
+        (field_access_expr
+          (variable_expr PLACEHOLDER_30) update)
+        (variable_expr PLACEHOLDER_35)
+        (anon_fun_expr
+          (argument_patterns
+            (identifier_pattern PLACEHOLDER_37))
+          (bin_op_expr
+            (match_expr match
+              (variable_expr PLACEHOLDER_37)
+              (match_branch
+                (tag_pattern
+                  (tag Err)
+                  (tag_pattern
+                    (tag Missing))) =>
+                (variable_expr PLACEHOLDER_36))
+              (match_branch
+                (tag_pattern
+                  (tag Ok)
+                  (identifier_pattern PLACEHOLDER_38)) =>
+                (record_expr
+                  (record_field_expr (field_name PLACEHOLDER_21)
+                    (bin_op_expr
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_38) PLACEHOLDER_21)
+                      (operator +)
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_36) PLACEHOLDER_21)))
+                  (record_field_expr (field_name PLACEHOLDER_22)
+                    (bin_op_expr
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_38) PLACEHOLDER_22)
+                      (operator +)
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_36) PLACEHOLDER_22)))
+                  (record_field_expr (field_name PLACEHOLDER_23)
+                    (bin_op_expr
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_38) PLACEHOLDER_23)
+                      (operator +)
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_36) PLACEHOLDER_23)))
+                  (record_field_expr (field_name PLACEHOLDER_24)
+                    (bin_op_expr
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_38) PLACEHOLDER_24)
+                      (operator +)
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_36) PLACEHOLDER_24)))
+                  (record_field_expr (field_name PLACEHOLDER_25)
+                    (bin_op_expr
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_38) PLACEHOLDER_25)
+                      (operator +)
+                      (field_access_expr
+                        (variable_expr PLACEHOLDER_36) PLACEHOLDER_25))))))
+            (operator |>)
+            (function_call_pnc_expr
+              (tag_expr
+                (tag Ok))))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_33)
+    (function_type
+      (apply_type (concrete_type PLACEHOLDER_16))
+      (arrow)
+      (tuple_type
+        (apply_type (concrete_type PLACEHOLDER_20))
+        (apply_type (concrete_type PLACEHOLDER_20)))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_33))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_27))
+      (tuple_expr
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_39)
+          (record_expr
+            (record_field_expr (field_name PLACEHOLDER_22)
+              (if_expr
+                (bin_op_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_27) PLACEHOLDER_19)
+                  (operator ==)
+                  (tag_expr
+                    (tag PLACEHOLDER_13)))
+                (then 1)
+                (else 0)))
+            (record_field_expr (field_name PLACEHOLDER_23)
+              (if_expr
+                (bin_op_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_27) PLACEHOLDER_19)
+                  (operator ==)
+                  (tag_expr
+                    (tag PLACEHOLDER_14)))
+                (then 1)
+                (else 0)))
+            (record_field_expr (field_name PLACEHOLDER_24)
+              (if_expr
+                (bin_op_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_27) PLACEHOLDER_19)
+                  (operator ==)
+                  (tag_expr
+                    (tag PLACEHOLDER_15)))
+                (then 1)
+                (else 0)))))
+        (function_call_pnc_expr
+          (variable_expr PLACEHOLDER_39)
+          (record_expr
+            (record_field_expr (field_name PLACEHOLDER_22)
+              (if_expr
+                (bin_op_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_27) PLACEHOLDER_19)
+                  (operator ==)
+                  (tag_expr
+                    (tag PLACEHOLDER_14)))
+                (then 1)
+                (else 0)))
+            (record_field_expr (field_name PLACEHOLDER_23)
+              (if_expr
+                (bin_op_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_27) PLACEHOLDER_19)
+                  (operator ==)
+                  (tag_expr
+                    (tag PLACEHOLDER_13)))
+                (then 1)
+                (else 0)))
+            (record_field_expr (field_name PLACEHOLDER_24)
+              (if_expr
+                (bin_op_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_27) PLACEHOLDER_19)
+                  (operator ==)
+                  (tag_expr
+                    (tag PLACEHOLDER_15)))
+                (then 1)
+                (else 0))))))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_39))
+    (anon_fun_expr
+      (argument_patterns
+        (record_pattern
+          (record_field_pattern (field_name PLACEHOLDER_22))
+          (record_field_pattern (field_name PLACEHOLDER_23))
+          (record_field_pattern (field_name PLACEHOLDER_24))))
+      (record_expr
+        (record_field_expr (field_name PLACEHOLDER_21) 1)
+        (record_field_expr (field_name PLACEHOLDER_22))
+        (record_field_expr (field_name PLACEHOLDER_23))
+        (record_field_expr (field_name PLACEHOLDER_24))
+        (record_field_expr (field_name PLACEHOLDER_25)
+          (bin_op_expr 3
+            (operator *)
+            (variable_expr PLACEHOLDER_22)
+            (operator +)
+            (variable_expr PLACEHOLDER_24))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_10)
+    (function_type
+      (apply_type (concrete_type PLACEHOLDER_26))
+      (arrow)
+      (apply_type List
+        (apply_type_arg
+          (tuple_type
+            (apply_type Str)
+            (apply_type (concrete_type PLACEHOLDER_20)))))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_10))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_30))
+      (function_call_pnc_expr
+        (field_access_expr
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_30) to_list)) sort_with)
+        (anon_fun_expr
+          (argument_patterns
+            (tuple_pattern
+              (identifier_pattern PLACEHOLDER_40)
+              (identifier_pattern PLACEHOLDER_41))
+            (tuple_pattern
+              (identifier_pattern PLACEHOLDER_42)
+              (identifier_pattern PLACEHOLDER_43)))
+          (if_expr
+            (bin_op_expr
+              (field_access_expr
+                (variable_expr PLACEHOLDER_41) PLACEHOLDER_25)
+              (operator >)
+              (field_access_expr
+                (variable_expr PLACEHOLDER_43) PLACEHOLDER_25))
+            (then
+              (tag_expr
+                (tag Before)))
+            (else
+              (if_expr
+                (bin_op_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_41) PLACEHOLDER_25)
+                  (operator <)
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_43) PLACEHOLDER_25))
+                (then
+                  (tag_expr
+                    (tag After)))
+                (else
+                  (bin_op_expr
+                    (function_call_pnc_expr
+                      (variable_expr PLACEHOLDER_44)
+                      (variable_expr PLACEHOLDER_40)
+                      (variable_expr PLACEHOLDER_42))
+                    (operator ??)
+                    (tag_expr
+                      (tag Same)))))))))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_44))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_45)
+        (identifier_pattern PLACEHOLDER_46))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_47))
+          (suffix_op_expr
+            (function_call_pnc_expr
+              (field_access_expr
+                (function_call_pnc_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_45) to_utf8)) PLACEHOLDER_45)) ?))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_48))
+          (suffix_op_expr
+            (function_call_pnc_expr
+              (field_access_expr
+                (function_call_pnc_expr
+                  (field_access_expr
+                    (variable_expr PLACEHOLDER_46) to_utf8)) PLACEHOLDER_45)) ?))
+        (function_call_pnc_expr
+          (tag_expr
+            (tag Ok))
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_47) order_relative_to)
+            (variable_expr PLACEHOLDER_48))))))
+  (annotation_type_def
+    (annotation_pre_colon PLACEHOLDER_11)
+    (function_type
+      (apply_type List
+        (apply_type_arg
+          (tuple_type
+            (apply_type Str)
+            (apply_type (concrete_type PLACEHOLDER_20)))))
+      (arrow)
+      (apply_type Str)))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_11))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_49))
+      (bin_op_expr
+        (function_call_pnc_expr
+          (field_access_expr
+            (function_call_pnc_expr
+              (field_access_expr
+                (variable_expr PLACEHOLDER_49) map)
+              (anon_fun_expr
+                (argument_patterns
+                  (tuple_pattern
+                    (identifier_pattern PLACEHOLDER_50)
+                    (record_pattern
+                      (record_field_pattern (field_name PLACEHOLDER_21))
+                      (record_field_pattern (field_name PLACEHOLDER_22))
+                      (record_field_pattern (field_name PLACEHOLDER_24))
+                      (record_field_pattern (field_name PLACEHOLDER_23))
+                      (record_field_pattern (field_name PLACEHOLDER_25)))))
+                (bin_op_expr
+                  (list_expr
+                    (function_call_pnc_expr
+                      (variable_expr PLACEHOLDER_51)
+                      (variable_expr PLACEHOLDER_50))
+                    (function_call_pnc_expr
+                      (variable_expr PLACEHOLDER_52)
+                      (variable_expr PLACEHOLDER_21))
+                    (function_call_pnc_expr
+                      (variable_expr PLACEHOLDER_52)
+                      (variable_expr PLACEHOLDER_22))
+                    (function_call_pnc_expr
+                      (variable_expr PLACEHOLDER_52)
+                      (variable_expr PLACEHOLDER_24))
+                    (function_call_pnc_expr
+                      (variable_expr PLACEHOLDER_52)
+                      (variable_expr PLACEHOLDER_23))
+                    (function_call_pnc_expr
+                      (variable_expr PLACEHOLDER_52)
+                      (variable_expr PLACEHOLDER_25)))
+                  (operator |>)
+                  (function_call_pnc_expr
+                    (variable_expr Str join_with) " | ")))) prepend)
+          (variable_expr PLACEHOLDER_6))
+        (operator |>)
+        (function_call_pnc_expr
+          (variable_expr Str join_with) "\n"))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_51))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_50))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_53)) 30)
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_54))
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_50) count_utf8_bytes)))
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_55))
+          (function_call_pnc_expr
+            (field_access_expr " " repeat)
+            (bin_op_expr
+              (variable_expr PLACEHOLDER_53)
+              (operator -)
+              (variable_expr PLACEHOLDER_54))))
+        (function_call_pnc_expr
+          (field_access_expr
+            (variable_expr PLACEHOLDER_50) concat)
+          (variable_expr PLACEHOLDER_55)))))
+  (value_declaration
+    (decl_left
+      (identifier_pattern PLACEHOLDER_52))
+    (anon_fun_expr
+      (argument_patterns
+        (identifier_pattern PLACEHOLDER_56))
+      (body_expression
+        (value_declaration
+          (decl_left
+            (identifier_pattern PLACEHOLDER_57))
+          (function_call_pnc_expr
+            (field_access_expr
+              (variable_expr PLACEHOLDER_56) to_str)))
+        (if_expr
+          (bin_op_expr
+            (variable_expr PLACEHOLDER_56)
+            (operator <) 10)
+          (then
+            (string " "
+              (interpolation_char
+                (variable_expr PLACEHOLDER_57))))
+          (else
+            (variable_expr PLACEHOLDER_57)))))))
