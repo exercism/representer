@@ -26,7 +26,7 @@ The website POSTs JSON like this:
 ```
 
 - `solution_files` are the student's files.
-- `exercise_files` are the exercise's test files and stub. The representer only uses them to find the names that the tests use, so that it keeps those names.
+- `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. Ruby, which is written with stages, ignores them.
 
 It responds with `200` and:
 
@@ -65,11 +65,11 @@ For a language with its own class, the representer:
 2. Drops what makes no difference to the solution working, such as comments, brackets that only group, and imports. Every solution that the representer sees passes its tests, so this code can't change what a mentor says about it.
 3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`, or `1_000` into `1000`.
 4. Joins the files into one tree, in an order that depends only on their code. A file's name is never part of the representation, so renaming or reordering files doesn't change it.
-5. Replaces each name the student chose with a placeholder. It keeps every name with a meaning outside the solution: library names, names the tests use, and names the language calls itself (such as `initialize`).
+5. Replaces each name the student chose with a placeholder. For Ruby, this is every name the solution defines, wherever it appears, apart from the names in Ruby's library names list (such as `sum` and `initialize`). The other languages also keep the names used in the tests.
 6. Writes the tree out as an indented s-expression.
 
-Ruby describes steps 2, 3 and 5 in four stages (`GenerateAST`, `Normalise`, `Rename` and `Reorder`) in [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/), and the comment at the top of each stage lists what it does.
-The other languages describe them as rules in their class in [`lib/representer/languages/`](./lib/representer/languages/), until they are moved to stages, and the comment at the top of each class lists what its rules do.
+Ruby declares its names and imports in [`lib/representer/languages/ruby.rb`](./lib/representer/languages/ruby.rb), and describes steps 2 and 3 in its `GenerateAST` stage in [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/). The comment at the top of each file lists what it does.
+The other languages describe these steps as rules in their class in [`lib/representer/languages/`](./lib/representer/languages/), until they are moved to stages, and the comment at the top of each class lists what its rules do.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains the stages and how to add a language.
 
 Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.

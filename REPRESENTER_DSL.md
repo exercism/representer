@@ -2,91 +2,94 @@
 
 A language with its own representer is written in one of two ways:
 
-- **As four stages** (Ruby): a module that extends `StagedLanguage`, with the classes `GenerateAST`, `Normalise`, `Rename` and `Reorder`. `Normalise`, `Rename` and `Reorder` are lists of rules written with the stage verbs below, and each rule takes code patterns. `GenerateAST` works on the tree with the helpers in `Engine::TreeHelpers`. Every language should be written this way, and [CONTRIBUTING.md](./CONTRIBUTING.md) explains how.
+- **With stages** (Ruby): a module that extends `StagedLanguage`. It declares which nodes are names and which nodes define them, and defines the stages it needs as subclasses of the engine's stage classes (`GenerateAST`, `Normalise` and `Reorder`). The engine renames the names. Every language should be written this way, and [CONTRIBUTING.md](./CONTRIBUTING.md) explains how.
 - **With the rule DSL** (every other language, until it moves to stages): a class that inherits from `Language` and lists drop, rewrite and rename rules. The engine parses the solution with the language's tree-sitter grammar, then applies the drop rules, then the rewrite rules, then the rename rules.
 
 Both use the same setup methods.
 Every solution that the representer sees passes its tests, so a language can drop any code that makes no difference to the solution working (see "The goal" in CONTRIBUTING.md).
 
+## Names in a staged language
+
+A staged language declares two lists, with the node types that `GenerateAST` leaves:
+
+```ruby
+names_are :identifier, :constant, :instance_variable, simple_symbol: ":"
+names_are_defined_by :class, :method_parameters, method: :name, assignment: :left
+```
+
+- `names_are` lists the leaf types that are names. A keyword gives a prefix that isn't part of the name, such as Ruby's `simple_symbol: ":"` for `:name`.
+- `names_are_defined_by` lists the node types that define a name. A type given on its own defines each of its children that is a name. A type given with a field defines only the child in that field, so `assignment: :left` defines `x` in `x = y`, and not `y`.
+
+[`Engine::RenameUserDefinedNodes`](./lib/representer/engine/rename_user_defined_nodes.rb) then walks the solution's trees twice.
+The first walk collects the text of every name that the solution defines.
+The second walk renames every name with one of those texts, wherever it appears: in its definition, and in every use, call and symbol.
+A name in the language's library names list keeps its name, even if the solution defines it.
+Every other name keeps its name, so a call to a library method stays as it is.
+The engine never reads the exercise's tests or stub for names.
+
 ## Code patterns
 
 A code pattern is code in the language itself, with placeholders.
-The engine parses it with the language's grammar and runs the language's `GenerateAST` on it, so a pattern has the same shape as a solution's tree, and a language class never writes a tree-sitter query.
+A staged language lists its imports and its `Normalise` rules as code patterns.
+The engine parses a pattern with the language's grammar and runs the language's `GenerateAST` on it, so a pattern has the same shape as a solution's tree, and a language never writes a tree-sitter query for it.
 [`Engine::CodePattern`](./lib/representer/engine/code_pattern.rb) compiles each pattern once and caches it.
 
 | Code | Matches |
 |---|---|
-| `$name` | The name the rule is about, of the kind written there. In Ruby, `$name = $value` matches a local variable, `@$name` an instance variable, `$$name` a global variable and `$Name` a constant. |
-| Any other `$word` | Any code. In a list, such as a method's parameters, it matches any number of items, including none. |
-| `"$file"` | One string without interpolation. If the grammar reads a placeholder as something other than a name, the placeholder matches one node of that kind. |
+| `{{word}}` | Any code. In a list, such as a method's parameters, it matches any number of items, including none. |
+| `"{{file}}"` | One string without interpolation. If the grammar reads a placeholder as something other than a name, the placeholder matches one node of that kind. |
 | Anything else | The same code. |
+
+The placeholders use braces, because a `$word` is real code in Ruby, PHP, Perl, Bash, jq and JavaScript templates.
 
 A pattern matches a node if the pattern's children match the node's children in order.
 The node may have more children between and after them, such as a method's body.
 It may not have anything with a field name before them, such as a call's receiver.
-So Ruby's `require "$file"` matches `require "set"`, and it doesn't match `Kernel.require "set"` or `require name`.
+So Ruby's `require "{{file}}"` matches `require "set"`, and it doesn't match `Kernel.require "set"` or `require name`.
 
-Some code doesn't parse on its own, such as Ruby's `{ |$name| }`, or `def $method($name)` without its `end`.
+Some code doesn't parse on its own, such as Ruby's `{ |{{x}}| }`, or `def {{method}}({{x}})` without its `end`.
 The engine then tries the code in each of the language's pattern contexts, in order.
 A rule can also give its own context with `inside:`.
 A context marks the code's place with `...`.
 The pattern is the smallest node that holds all of the code, and it matches that node wherever it appears.
-So `"*$name", inside: "def f(...) end"` matches a splat parameter in a method, a block or a lambda.
+So `"*{{x}}", inside: "def f(...) end"` matches a splat parameter in a method, a block or a lambda.
 
 If one of the grammar's keywords comes out as a name, the engine rejects that parse and tries the next context.
-So Ruby's `rescue => $name` can't become a pattern match on a variable called `rescue`.
-If the code doesn't parse in any context, the engine tries every context again with each placeholder capitalised, as Ruby's `class $name` needs.
+So Ruby's `rescue => {{x}}` can't become a pattern match on a variable called `rescue`.
+If the code doesn't parse in any context, the engine tries every context again with each placeholder capitalised, as Ruby's `class {{x}}` needs.
 
-## Stage verbs
+## Stages
 
-A stage class extends the engine module for its stage and lists its rules:
+A language defines each stage it needs as a subclass of the engine's class for that stage, and the engine skips a stage that a language doesn't define.
+Each stage is a Mandate command that takes one tree and returns the new tree, and includes `Engine::TreeHelpers`.
+
+- `GenerateAST < Engine::GenerateAST` writes its own `call` with the tree helpers below.
+- `Normalise < Engine::Normalise` lists its rules with the verbs below.
+- `Reorder < Engine::Reorder` writes its own `call`. It sorts code if its order makes no difference, by a key that ignores names. No language needs one yet.
+
+### Normalise verbs
 
 ```ruby
-class Normalise
-  extend Engine::NormaliseStage
-
+class Normalise < Engine::Normalise
   drop_calls_to :puts
-  rewrite "$list.length", as: "$list.size"
+  rewrite "{{list}}.length", as: "{{list}}.size"
 end
 ```
 
+The stage applies its rules in the order they are listed, and each rule visits every node once.
 The engine compiles the rules the first time the stage runs.
-
-### Normalise
-
-`Normalise` extends `Engine::NormaliseStage`.
-It applies its rules in the order they are listed, and each rule visits every node once.
 
 | Verb | Does |
 |---|---|
 | `drop "code", ...` | Removes every piece of code that matches one of the patterns. |
-| `drop_calls_to :name, ...` | Removes every call to these methods. The engine writes each call as `name($arguments)`. |
+| `drop_calls_to :name, ...` | Removes every call to these methods. The engine writes each call as `name({{arguments}})`. |
 | `rewrite "code", as: "code"` | Turns each match into the code given in `as:`, from the leaves up. Each placeholder in `as:` becomes a copy of its match. |
 
-### Rename
-
-`Rename` extends `Engine::RenameStage`.
-Each of its patterns marks a name with `$name`.
-
-| Verb | Does |
-|---|---|
-| `rename_locals "code", ...` | Renames each name matched, such as a local variable or a parameter. |
-| `rename_members "code", ...` | Renames each member matched, such as a method or a class. |
-| `rename_member_uses "code", ...` | Marks the places where a name refers to another object's member, such as the name after a dot. The engine only renames a name there if the solution defines a member with that name. |
-| `keep "code", ...` | Keeps each name matched, such as a keyword parameter. |
-
 Each verb also takes `inside:`.
-Renaming goes by name, so every use of a renamed name gets the same placeholder.
-The engine keeps every name used in the exercise's tests, the members defined in its stub, and each member named after one of the language's library names.
-
-### Reorder
-
-`Reorder` extends `Engine::ReorderStage`.
-A stage with no rules keeps the order of everything, and no language needs a rule yet.
 
 ### Setup for a staged language
 
-A staged language's module takes the setup methods below (`tracks` to `fold_names`), and these two more:
+A staged language's module takes the setup methods `tracks`, `version`, `grammar` and `extensions` (see "Setup" below), `names_are` and `names_are_defined_by` (see "Names in a staged language"), and these two more:
 
 - `imports "code", ...` lists the code that counts as an import, as code patterns. The engine drops it from every file, after `GenerateAST`.
 - `pattern_contexts "context", ...` lists the code to put a code pattern in when the pattern doesn't parse on its own. Each context marks the pattern's place with `...`.
@@ -95,7 +98,7 @@ The engine reads a staged language's library names from `lib/representer/languag
 
 ## Tree helpers for GenerateAST
 
-`GenerateAST` includes `Engine::TreeHelpers` and calls these methods on its tree.
+Every stage includes `Engine::TreeHelpers`, and `GenerateAST` calls these methods on its tree.
 Each method visits a node once, so a rule can't match its own output and loop.
 A method that can replace the root returns the new root.
 Their patterns use the syntax in "Patterns" below, and they also accept a code pattern.
@@ -113,13 +116,12 @@ Their patterns use the syntax in "Patterns" below, and they also accept a code p
 | `retype(root, from => to)` | Gives nodes of one type another type. |
 | `build`, `leaf`, `literal`, `token`, `copy` | These make nodes (see "Helpers for rewrite blocks" below). |
 | `text_of(node)` | Returns the text of a node's leaves, joined. |
-| `mark_student_names(trees, language, names:, members:, member_uses:, kept:)` | Marks each leaf if its name is in `names` and not in `kept`. A leaf in `member_uses` is only marked if its name is also in `members`. The engine writes a placeholder for each marked leaf. `Engine::RenameStage` calls it. |
 
 ## The rule DSL
 
 The rest of this file describes the rule DSL, used by the languages that haven't moved to stages yet.
 Each class in `lib/representer/languages/` describes its language with the rules below.
-The setup methods (`tracks` to `fold_names`) also work in a staged language's module.
+A staged language's module also takes the setup methods `tracks`, `version`, `grammar` and `extensions`.
 
 ## Setup
 

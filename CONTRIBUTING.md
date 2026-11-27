@@ -8,7 +8,7 @@ The steps are:
 
 1. Pin and build the grammar.
 2. Port the old representer's tests.
-3. Write the language's stages.
+3. Declare the language's names and write its stages.
 4. Add tests for each stage.
 5. Set the version.
 
@@ -21,9 +21,9 @@ Two solutions that differ only in such code would pass the same tests in the sam
 Two solutions should get the same representation if a mentor would give them the same feedback, and different representations otherwise.
 A merge is only harmful if a mentor would comment differently on the two solutions.
 
-Names follow from the same principle, and give one firm rule: **only rename a name if the solution gives it its whole meaning.**
-If the language, a library, the tests or a protocol also gives the name a meaning, renaming it could change what the code does, so keep it.
-For example, Ruby keeps `initialize` (Ruby calls it), every name the tests use, and a method called `sum` (so `def sum(a) = a.sum` and `def max(a) = a.max` stay apart).
+Names follow from the same principle, and give one rule: **rename every name the solution defines, wherever it appears.**
+A name the solution doesn't define, such as a call to a library method, keeps its name.
+A name in the language's library names list keeps its name too, even if the solution defines it, so `def sum(a) = a.sum` and `def max(a) = a.max` stay apart.
 
 When in doubt, keep two solutions apart.
 A missed merge only means a mentor sees one more solution.
@@ -109,18 +109,18 @@ DEVIATIONS = {
 The common deviations are library names (this representer keeps them; several old ones renamed them) and old outputs that weren't valid code.
 Never use a deviation to hide a merge that the old representer kept apart.
 
-## 3. Write the language's stages
+## 3. Declare the names and write the stages
 
-A language is a module with four stages, and each stage has a file of its own.
-Ruby is the worked example: [`lib/representer/languages/ruby.rb`](./lib/representer/languages/ruby.rb) and the files in [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/).
+A language is a module that declares its names and imports, and defines the stages it needs, each in a file of its own.
+Ruby is the worked example: [`lib/representer/languages/ruby.rb`](./lib/representer/languages/ruby.rb) and [`lib/representer/languages/ruby/generate_ast.rb`](./lib/representer/languages/ruby/generate_ast.rb).
 The other languages still use the older rule DSL, described in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#the-rule-dsl), until they move to stages.
 
 ### The rules for every language
 
-These rules decide what each stage may do:
+These rules decide what a language may do:
 
 1. Every solution that the representer sees is valid code that passes its tests. A stage may throw away code that makes no difference to the solution working, but it never adds code that only copes with invalid input.
-2. The engine makes the decisions that apply to every language. It drops the language's imports, keeps the language's library names, leaves out file names, orders the files by their code, numbers the placeholders and refuses invalid code. A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of these decisions.
+2. The engine makes the decisions that apply to every language. It drops the language's imports, renames every name the solution defines, keeps the language's library names, leaves out file names, orders the files by their code, numbers the placeholders and refuses invalid code. A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of these decisions.
 3. Within a language, match what the old representer (`exercism/<track>-representer`) did. A language-specific difference from the old behaviour only goes in if a human has decided it. List any other improvement you'd suggest in `test/golden/<track>/SUGGESTIONS.md` for the maintainers to discuss. Fix bugs, such as wrong merges and crashes.
 
 ### The module
@@ -134,69 +134,58 @@ module Representer
       extend StagedLanguage
 
       tracks "ruby"
-      version 8
+      version 9
       grammar "ruby"
       extensions ".rb"
 
-      names :identifier, :constant, :instance_variable, :class_variable, :global_variable, simple_symbol: ":"
+      names_are :identifier, :constant, :instance_variable, :class_variable, :global_variable, simple_symbol: ":"
 
-      imports 'require "$file"', 'require_relative "$file"'
+      names_are_defined_by :class, :module, :method_parameters, ...,
+        method: :name, assignment: :left, ...
 
-      pattern_contexts "...\nend", "begin\n...\nend", "f ..."
+      imports 'require "{{file}}"', 'require_relative "{{file}}"'
     end
   end
 end
 
 require_relative "ruby/generate_ast"
-require_relative "ruby/normalise"
-require_relative "ruby/rename"
-require_relative "ruby/reorder"
 ```
 
 - `tracks` gives the track slugs that this module represents.
 - `version` gives the representer version (see step 5).
 - `grammar` gives the grammar's name in `grammars.yml`.
-- `extensions` gives the language's file extensions. The engine ignores solution and exercise files with other extensions.
-- `names` gives the leaf types that hold names. Only these can be renamed. A keyword gives a prefix that isn't part of the name (Ruby's `simple_symbol: ":"` for `:name`).
-- `imports` gives the code that counts as an import, as code patterns. The engine drops it from every file.
-- `pattern_contexts` gives the code to put a code pattern in when the pattern doesn't parse on its own (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#code-patterns)).
+- `extensions` gives the language's file extensions. The engine ignores solution files with other extensions.
+- `names_are` gives the leaf types that are names. A keyword gives a prefix that isn't part of the name (Ruby's `simple_symbol: ":"` for `:name`).
+- `names_are_defined_by` gives the node types that define a name. A type on its own defines each of its children that is a name. A type with a field defines only the child in that field, so `assignment: :left` defines `x` in `x = y`, and not `y`.
+- `imports` gives the code that counts as an import, as code patterns (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#code-patterns)). The engine drops it from every file.
+- `pattern_contexts` (optional) gives the code to put a code pattern in when the pattern doesn't parse on its own.
 
+Give both lists with the node types that `GenerateAST` leaves.
+Check the grammar's `queries/locals.scm` and `queries/tags.scm`, which mark the nodes that define locals, methods and classes.
 The engine reads the library names from `lib/representer/languages/library_names/<track>.txt` (see "Library names" below).
 
 ### The stages
 
-The engine runs the stages in this order:
+A language defines only the stages it needs, and the engine skips the others.
+Each stage is a subclass of the engine's class for it, such as `class GenerateAST < Engine::GenerateAST`.
+The engine runs the steps in this order:
 
 1. `GenerateAST` runs on each file. It turns tree-sitter's tree, which has every token and comment, into the tree given by the language's own parser. It drops comments and the tokens dropped by the parser, unwraps brackets that only group, and turns spellings that the parser treats as one into one tree (for Ruby, these include heredocs and strings, `%w[]` and arrays, and `do ... end` and braces).
 2. The engine drops the imports from each file.
 3. `Normalise` runs on each file. It applies any equivalences and removals that a human has decided for the language.
-4. `Rename` runs on all the files together. It decides which names are the student's.
+4. The engine renames every name the solution defines, in all the files together (see "Names" below).
 5. The engine joins the files into one tree, in an order set by their code.
 6. `Reorder` runs on the joined tree. It sorts code if its order makes no difference, by a key that ignores names.
 7. The engine numbers the placeholders, in the order the names appear, and writes the tree out as an s-expression.
 
-`GenerateAST` is a [Mandate](https://github.com/iHiD/mandate) command that works on the tree with the helpers in `Engine::TreeHelpers`, because it has to know the grammar's tree in detail.
-`Normalise`, `Rename` and `Reorder` are lists of rules.
-Each rule is a plain verb, such as `rename_locals` or `drop`, and its arguments are code patterns: code in the language itself, with `$word` placeholders.
-[REPRESENTER_DSL.md](./REPRESENTER_DSL.md#stage-verbs) lists the verbs and explains code patterns.
-This is part of Ruby's `Rename`:
-
-```ruby
-class Rename
-  extend Engine::RenameStage
-
-  rename_locals "$name = $value", "@$name", "@@$name"
-  rename_members "def $name", "class $name", "module $name"
-  rename_member_uses "$object.$name", ":$name"
-  keep "$name:", inside: "def f(...) end"
-end
-```
-
-In a code pattern, `$name` marks the name the rule is about, and any other `$word` matches any code.
+`GenerateAST` works on the tree with the helpers in `Engine::TreeHelpers`, because it has to know the grammar's tree in detail.
+`Normalise` is a list of rules.
+Each rule is a plain verb, such as `drop` or `rewrite`, and its arguments are code patterns: code in the language itself, with `{{word}}` placeholders.
+[REPRESENTER_DSL.md](./REPRESENTER_DSL.md#stages) lists the verbs and explains code patterns.
 If a rule genuinely needs logic, write it as a small, clearly named Ruby method with a plain comment above it.
 
-Start each stage's file with a comment that lists, in plain English and one bullet each, everything the stage does: what it drops, what it treats as the same, what it renames and keeps, and why.
-The list is for a maintainer who doesn't know the code, so update it whenever the stage changes.
+Start each file with a comment that lists, in plain English and one bullet each, everything it does: what it drops, what it treats as the same, what it renames and keeps, and why.
+The list is for a maintainer who doesn't know the code, so update it whenever the file changes.
 Write it, and every other comment, by the rules in "Writing comments and docs" below.
 
 Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's type, field names and tokens.
@@ -239,21 +228,23 @@ Give two numbers one form only if the language reads them as the same value of t
 
 ### Names
 
-Only rename a name if the solution gives it its whole meaning.
-`Rename` lists the code that names a local (`rename_locals`) or defines a member (`rename_members`), the places where a name refers to another object's member (`rename_member_uses`, such as the name after a dot), and the names to keep (`keep`, such as keyword parameters).
-The engine only renames a member use if the solution defines a member with that name.
-The engine also keeps every name in the tests, the members of the stub, and each member named after a library name.
+The engine renames names in one step, [`Engine::RenameUserDefinedNodes`](./lib/representer/engine/rename_user_defined_nodes.rb), which walks the trees twice.
+The first walk collects the text of every name defined by a node listed in `names_are_defined_by`.
+The second walk renames every name with one of those texts, wherever it appears: in its definition, and in every use, call and symbol.
+Renaming goes by name, so every use of a renamed name gets the same placeholder.
+A name in the library names list keeps its name, even if the solution defines it.
+The engine never reads the exercise's tests or stub for names.
 
 ### Library names
 
-The library names list keeps a student's method if it has a library method's name, so `def sum(a) = a.sum` and `def max(a) = a.max` stay apart.
+The library names list keeps a name if it is a library method's name, so `def sum(a) = a.sum` and `def max(a) = a.max` stay apart.
 Only list methods where the choice of method is something a mentor comments on, and the methods that the language calls itself (such as Ruby's `initialize`).
 The engine reads the list from `lib/representer/languages/library_names/<track>.txt`.
 [`bin/draft-ruby-library-names`](./bin/draft-ruby-library-names) made Ruby's list from the methods called in the golden solutions.
 
 ## 4. Add tests for each stage
 
-Give each stage a test file of its own in `test/languages/<track>/`, which tests that stage's job.
+Give each stage a test file of its own in `test/languages/<track>/`, which tests that stage's job, and test the language's names in `test/languages/<track>/names_test.rb`.
 See [`test/languages/ruby/`](./test/languages/ruby/).
 
 Test `GenerateAST` against the language's own parser: for a set of snippets (from the tests and the golden data), check that two snippets get the same tree from `GenerateAST` exactly when the parser gives them the same tree, ignoring locations and names.
@@ -273,10 +264,20 @@ The golden tests fail if a change splits or merges any of the production groups,
 
 A new language starts at version 2, because the old per-track representers all reported version 1.
 
-Bump a language's version whenever its output could change for any solution: a change to a stage or a rule, a new library names list, or a new grammar commit.
+Bump a language's version whenever its output could change for any solution: a change to a stage, a rule or the names, a new library names list, or a new grammar commit.
 The website will then represent the track's solutions again.
 
 Basic has its own version, which only covers the tracks with no class of their own.
+
+## How the code is organised
+
+The code is built from small [Mandate](https://github.com/iHiD/mandate) commands.
+Each command is a class that does one clearly named job, such as `Engine::RenameUserDefinedNodes` or `Engine::DropImports`.
+It takes its inputs with `initialize_with`, and code calls it with `.()`, as in `Engine::DropImports.(tree, language)`.
+Each command has a unit test file of its own, named after it, such as `test/engine/rename_user_defined_nodes_test.rb`.
+The tests check the command on small trees, apart from any language where they can.
+
+Write new code this way, and convert older code to it when you change that code.
 
 ## Running the tests
 
