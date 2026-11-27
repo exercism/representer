@@ -64,7 +64,7 @@ class NimTest < RepresenterTest
     assert_equal %w[helloworld a], represent("proc helloWorld(a: int): int = a\necho hello_WORLD(1)").mapping.values
   end
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "proc f( =\n"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "proc f( =\n"
   end
 end

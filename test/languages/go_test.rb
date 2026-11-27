@@ -81,8 +81,8 @@ class GoTest < RepresenterTest
 
   ### Validity ###
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "package p\n\nfunc F( {\n"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "package p\n\nfunc F( {\n"
   end
 
   def test_a_string_holding_a_semicolon

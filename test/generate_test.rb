@@ -18,8 +18,8 @@ class GenerateTest < Minitest::Test
   end
 
   def test_a_solution_that_cant_be_represented_gets_an_error_with_the_version
-    output = generate(%i[representation], { "a.rb" => "def x(" })[:representation]
-    assert_equal({ error: "parse_error", message: "The code has a syntax error",
+    output = generate(%i[representation], { "a.rb" => ("[" * 2_000) + ("]" * 2_000) })[:representation]
+    assert_equal({ error: "too_deep", message: "The code nests too deeply",
                    version: Representer::Languages::Ruby::Representation.version }, output)
   end
 

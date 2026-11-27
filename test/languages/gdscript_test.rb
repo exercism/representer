@@ -50,7 +50,7 @@ class GDScriptTest < RepresenterTest
     refute_same_representation "func f(a):\n\treturn str(a)", "func f(a):\n\treturn len(a)"
   end
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "func f(:\n"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "func f(:\n"
   end
 end

@@ -104,7 +104,7 @@ DEVIATIONS = {
 - `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that the old representer renamed but this one keeps.
 - `replace`: text in `equivalent.<ext>` to replace with other text, for names that this representer renames and the old one kept.
 - `add` and `remove`: names to add to or remove from the old mapping.
-- `unrepresentable: true`: the input has a syntax error that tree-sitter rejects, so it gets no representation. The test checks that, and nothing else.
+- `parse_error: true`: the input has a syntax error that tree-sitter rejects, so it gets Basic's representation. The test checks that, and nothing else.
 - `merges_with`: other tests that this representer gives the same representation, although the old representer kept them apart. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
 - `why`: the reason. Every deviation needs one.
 
@@ -374,7 +374,7 @@ Test `GenerateAST` against the language's own parser: for a set of snippets (fro
 Ruby's test uses the `parser` gem, which the old Ruby representer used, and lists each pair where `GenerateAST` deliberately differs, with the reason.
 
 Keep the ported tests and the tests of the whole representer in `test/languages/<track>_test.rb`.
-`RepresenterTest` gives you `assert_same_representation`, `refute_same_representation` and `assert_unrepresentable` (which checks that a solution gets no representation, for a given reason).
+`RepresenterTest` gives you `assert_same_representation`, `refute_same_representation`, `assert_basic_representation` (which checks that a solution doesn't parse, and so gets Basic's representation) and `assert_unrepresentable` (which checks that a solution gets no representation, for a given reason).
 
 Also add a request test: a `tests/<track>/<name>/request.json` with a typical solution and its tests, and an `expected_response.json` made by running `./bin/run.sh tests/<track>/<name>/request.json tests/<track>/<name>` and copying `response.json` after checking it.
 
@@ -423,7 +423,8 @@ A new language starts at version 2, because the old per-track representers all r
 Bump the representation's version whenever its output could change for any solution: a change to a stage, a rule or the names, or a new grammar commit.
 The website will then represent the track's solutions again.
 
-Basic has its own version, which only covers the tracks with no representer of their own.
+Basic has its own version, for the tracks with no representer of their own.
+If a solution doesn't parse, it gets Basic's representation with the language's version, so a change to Basic's output must also bump every language's version.
 
 ## How the code is organised
 

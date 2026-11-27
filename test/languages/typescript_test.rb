@@ -16,8 +16,8 @@ class TypeScriptTest < RepresenterTest
     },
     "two-fer-fail" => { remove: %w[console debug log], why: LIBRARY_NAMES },
     "two-fer-error-syntax" => {
-      unrepresentable: true,
-      why: "The solution has a syntax error, so it gets no representation. The old representer's test " \
+      parse_error: true,
+      why: "The solution has a syntax error, so it gets Basic's representation. The old representer's test " \
            "expected an error, and has no output to compare. The old test 'two-fer/error/missing' has no " \
            "solution file, so there is nothing to port."
     }
@@ -61,10 +61,7 @@ class TypeScriptTest < RepresenterTest
     refute_same_representation "export const f = (s: string) => s.toUpperCase()", "export const f = (s: string) => s.toLowerCase()"
   end
 
-  def test_syntax_errors_are_unrepresentable_with_the_typescript_version
-    result = represent("const = ;")
-    assert_nil result.representation
-    assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::TypeScript::Spec.version, result.version
+  def test_syntax_errors_get_a_basic_representation_with_the_typescript_version
+    assert_basic_representation "const = ;"
   end
 end

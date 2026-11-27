@@ -15,7 +15,7 @@ It differs from the old representer in the decisions that apply to every languag
 - A string in single quotes, ‘’ or double quotes is written as its value, so `'a'` and `"a"` are the same. A string with interpolation, or with an escape other than `\n`, `\t` and the escaped quotes, sigils and brackets, keeps its structure.
 - A heredoc's indentation is removed, up to the indentation of its closing line, as Raku does.
 - A Num, such as `1e3`, keeps its text, and a Rat, such as `1.50`, is written as its value (`1.5`).
-- A solution with a syntax error gets no representation.
+- A solution with a syntax error gets Basic's representation, which only drops comments and formatting.
 
 ## Analysis
 

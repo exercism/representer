@@ -7,8 +7,8 @@ class CrystalTest < RepresenterTest
 
   DEVIATIONS = {
     "example-syntax-error" => {
-      unrepresentable: true,
-      why: "The solution has a syntax error, so it gets no representation. The old representer printed the code unchanged."
+      parse_error: true,
+      why: "The solution has a syntax error, so it gets Basic's representation. The old representer printed the code unchanged."
     }
   }.freeze
 
@@ -34,8 +34,8 @@ class CrystalTest < RepresenterTest
     assert_same_representation "require \"big\"\nclass C\nend", "class C\nend"
   end
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "def f(\n"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "def f(\n"
   end
 
   def test_names_are_renamed_wherever_they_appear

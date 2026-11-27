@@ -44,7 +44,7 @@ class ZigTest < RepresenterTest
       "const std = @import(\"std\");\npub fn f() void { std.log.info(\"a\", .{}); }"
   end
 
-  def test_a_syntax_error_is_unrepresentable
-    assert_unrepresentable "fn f( void {"
+  def test_a_syntax_error_gets_a_basic_representation
+    assert_basic_representation "fn f( void {"
   end
 end

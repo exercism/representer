@@ -40,7 +40,7 @@ class WrenTest < RepresenterTest
     refute_same_representation "System.print(1)", "System.write(1)"
   end
 
-  def test_a_syntax_error_is_unrepresentable
-    assert_unrepresentable "class {"
+  def test_a_syntax_error_gets_a_basic_representation
+    assert_basic_representation "class {"
   end
 end

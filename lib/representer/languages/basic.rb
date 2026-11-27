@@ -6,9 +6,9 @@ require_relative "basic/write_lines"
 # Basic represents every track with no language of its own. It has no
 # grammar, so it removes comments and formatting and changes nothing else.
 # Two solutions get the same representation if they differ in nothing but
-# comments, formatting, imports and the names and order of their files. A
-# solution that its language can't parse gets no representation, and never
-# falls back to Basic.
+# comments, formatting, imports and the names and order of their files.
+# Basic also represents the solutions that their language's grammar can't
+# parse (see RepresentSolution).
 #
 # Basic renames nothing, and keeps every string exactly as written. In
 # indentation-sensitive tracks it keeps each line's indentation depth. A
@@ -19,6 +19,9 @@ class Representer::Languages::Basic
 
   # Bump the version whenever the output for any solution changes. Versions
   # start at 2, because the website's old basic representer reported 0.
+  # Solutions that their language can't parse get Basic's output with the
+  # language's version, so a change to Basic's output must also bump the
+  # representation version of every language.
   VERSION = 5
 
   initialize_with :track_slug, :solution_files

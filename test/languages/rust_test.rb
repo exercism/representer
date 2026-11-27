@@ -93,8 +93,8 @@ class RustTest < RepresenterTest
     refute_same_representation format(code, "Ok", "Err"), format(code, "Err", "Ok")
   end
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "fn f( {\n"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "fn f( {\n"
   end
 
   def test_files_in_other_formats_are_ignored

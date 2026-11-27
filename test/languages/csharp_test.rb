@@ -36,9 +36,9 @@ class CSharpTest < RepresenterTest
            "used, so its output isn't valid code. This representer renames both consistently, and renames properties too."
     },
     "Identifiers-CombinationOfEverything" => {
-      unrepresentable: true,
+      parse_error: true,
       why: "The input has syntax errors (two missing semicolons). Roslyn represents it anyway, but tree-sitter " \
-           "reports the errors, so the solution gets no representation."
+           "reports the errors, so the solution gets Basic's representation."
     }
   }.freeze
 
@@ -83,11 +83,8 @@ class CSharpTest < RepresenterTest
     refute_same_representation wrap("var (a, b) = (1, 2); return a - b;"), wrap("var (a, b) = (1, 2); return b - a;")
   end
 
-  def test_syntax_errors_are_unrepresentable_with_the_csharp_version
-    result = represent("public class {")
-    assert_nil result.representation
-    assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::CSharp::Representation.version, result.version
+  def test_syntax_errors_get_a_basic_representation_with_the_csharp_version
+    assert_basic_representation "public class {"
   end
 
   # These keywords and punctuation are the only difference between each pair.

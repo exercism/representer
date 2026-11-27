@@ -28,8 +28,8 @@ class PHPTest < RepresenterTest
   # line added, so that it is a PHP file.
   DEVIATIONS = {
     "example-syntax-error" => {
-      unrepresentable: true,
-      why: "The solution has a syntax error, so it gets no representation."
+      parse_error: true,
+      why: "The solution has a syntax error, so it gets Basic's representation."
     },
     "example-leading-trailing-empty-lines" => with_dollars("year"),
     "example-single-file" => with_dollars("year"),
@@ -139,12 +139,12 @@ class PHPTest < RepresenterTest
     refute_same_representation "<?php\nfunction f($a) { $max = max($a); }", "<?php\nfunction f($a) { $max = min($a); }"
   end
 
-  def test_syntax_errors_are_unrepresentable_with_the_php_version
-    assert_unrepresentable "<?php\nclass !"
+  def test_syntax_errors_get_a_basic_representation_with_the_php_version
+    assert_basic_representation "<?php\nclass !"
   end
 
-  def test_a_file_with_no_php_code_is_unrepresentable
-    assert_unrepresentable "<h1>Hello</h1>"
+  def test_a_file_with_no_php_code_gets_a_basic_representation
+    assert_basic_representation "<h1>Hello</h1>"
   end
 
   def test_imports_are_dropped

@@ -24,9 +24,9 @@ class JavaTest < RepresenterTest
 
   DEVIATIONS = {
     "scenario-simple" => {
-      unrepresentable: true,
+      parse_error: true,
       why: "The upstream scenario has a syntax error (a missing semicolon after the return), which the old " \
-           "representer's Java compiler repaired. This representer gives it no representation."
+           "representer's Java compiler repaired. This representer gives it Basic's representation."
     },
     "scenario-lambda-arguments" => {
       replace: { ".filter(" => ".PLACEHOLDER_02(" },
@@ -101,11 +101,8 @@ class JavaTest < RepresenterTest
       "record Q(int y) { int double2() { return y * 2; } }"
   end
 
-  def test_syntax_errors_are_unrepresentable_with_the_java_version
-    result = represent("class A { int f( }")
-    assert_nil result.representation
-    assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::Java::Representation.version, result.version
+  def test_syntax_errors_get_a_basic_representation_with_the_java_version
+    assert_basic_representation "class A { int f( }"
   end
 
   # These brackets and semicolons are the only difference between each pair.

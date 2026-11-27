@@ -71,7 +71,7 @@ class PythonTest < RepresenterTest
     refute_same_representation "import math\nx = math.pi", "import cmath\nx = cmath.pi"
   end
 
-  def test_syntax_errors_are_unrepresentable_with_the_python_version
-    assert_unrepresentable "def (:"
+  def test_syntax_errors_get_a_basic_representation_with_the_python_version
+    assert_basic_representation "def (:"
   end
 end

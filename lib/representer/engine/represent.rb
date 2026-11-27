@@ -17,7 +17,7 @@ module Representer::Engine
   #    the tree out.
   #
   # Raises CannotRepresent if the solution has no source file, or if a file
-  # doesn't parse. The solution then gets no representation.
+  # doesn't parse (RepresentSolution then falls back to Basic).
   class Represent
     include Mandate
 

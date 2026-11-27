@@ -80,11 +80,8 @@ class JavaScriptTest < RepresenterTest
     assert_same_representation "const a = 1; export const f = () => ({ a })", "const b = 1; export const f = () => ({ b })"
   end
 
-  def test_syntax_errors_are_unrepresentable_with_the_javascript_version
-    result = represent("const = ;")
-    assert_nil result.representation
-    assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::JavaScript::Representation.version, result.version
+  def test_syntax_errors_get_a_basic_representation_with_the_javascript_version
+    assert_basic_representation "const = ;"
   end
 
   # The empty first or second part of a `for` shows which part is missing.

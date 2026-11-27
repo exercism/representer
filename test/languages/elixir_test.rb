@@ -88,7 +88,7 @@ class ElixirTest < RepresenterTest
     refute_same_representation wrap("[b: 1, a: 2]"), wrap("[a: 2, b: 1]")
   end
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "defmodule M do\n  def f(\nend"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "defmodule M do\n  def f(\nend"
   end
 end

@@ -86,7 +86,6 @@ Every track gets a snippet, even when its solution can't be represented. If one 
 Some solutions can't be represented.
 For those, the `representation` output is an error with the language's version, and `error` is one of these reasons:
 
-- `parse_error`: the grammar couldn't parse the code. This includes new syntax that the pinned grammar doesn't know yet.
 - `too_deep`: the code nests deeper than 1,000 levels.
 - `too_large`: the solution files hold more than 200 KB, or the exercise files more than 500 KB. The load balancer limits bodies to 1 MB.
 - `no_source_files`: none of the solution's files is a source file of the language. The representer ignores files in other formats, such as Rust's `Cargo.toml` or a `HELP.md`, and test and tool config files, such as `leap_test.go` or `babel.config.js`.
@@ -94,6 +93,7 @@ For those, the `representation` output is an error with the language's version, 
 
 The website then marks the submission as unrepresentable.
 Basic, which serves the tracks with no representer of their own, can represent any solution that isn't too large and has a source file.
+A solution that the grammar can't parse gets Basic's representation (see "How it works").
 
 The response is a `400` if the request is invalid, including when `outputs` is missing or empty.
 
@@ -107,7 +107,7 @@ Representer::Generate.("ruby", solution_files, outputs: %i[representation snippe
 
 For a language with a representer of its own, the representer:
 
-1. Parses each file with the language's tree-sitter grammar. It skips files without one of the language's extensions, and test and config files, and turns Windows line endings into plain line breaks.
+1. Parses each file with the language's tree-sitter grammar. It skips files without one of the language's extensions, and test and config files, and turns Windows line endings into plain line breaks. If a file doesn't parse, the solution gets Basic's representation instead (see below).
 2. Drops what makes no difference to the solution working, such as comments, brackets that only group, and imports. Every solution that the representer sees passes its tests, so this code can't change what a mentor says about it.
 3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`, or `1_000` into `1000`.
 4. Joins the files into one tree, in an order that depends only on their code. A file's name is never part of the representation, so renaming or reordering files doesn't change it.
@@ -124,6 +124,13 @@ A comment above each declaration and method says what it does.
 
 Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.
 It renames nothing, so it only merges solutions that differ in nothing but comments and formatting.
+
+Basic also represents a solution that its language's grammar can't parse.
+Every solution passes its tests, so a file that doesn't parse shows a gap in the grammar, such as syntax newer than the pinned commit.
+Basic still groups those solutions with the ones that differ only in comments and formatting.
+The representation starts with a line that says `basic`, so it can never equal a tree's representation, which starts with `(`.
+It keeps the language's version, so each track has one version.
+If Basic's output changes, every language's version must change too.
 
 Ruby also has an analysis, which gives the student comments on their solution.
 It runs the stages in `common/` and the analysis's own `analysis/normalise.rb` on the main file, and then the rules of the exercise, one file per exercise in [`ruby/analysis/`](./lib/representer/languages/ruby/analysis/).

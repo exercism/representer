@@ -2,13 +2,20 @@ module Representer
   # Represents a solution with its track's language. Tracks with no language
   # of their own get Basic.
   #
-  # A solution that a language can't represent (it has a syntax error, nests
+  # If a file doesn't parse, the solution gets Basic's representation, with
+  # the language's version (see represent_with_basic).
+  #
+  # A solution that a language can't represent for another reason (it nests
   # too deeply, is too large, or has no source file) gets no
   # representation: the result has a nil representation, an empty mapping,
   # the language's version, the reason and a message. So does a solution
   # that makes a rule raise an error (reason "internal_error").
   class RepresentSolution
     include Mandate
+
+    # A solution that falls back to Basic gets a representation that starts
+    # with this line, so it can never equal a tree's, which starts with "(".
+    BASIC_PREFIX = "basic\n".freeze
 
     # trees holds the files already parsed by the snippet, by filename. The
     # language starts from them instead of parsing the files again.
@@ -19,7 +26,7 @@ module Representer
 
       return Languages::Basic.(track_slug, solution_files) if language == Languages::Basic
 
-      language.(solution_files, trees:)
+      represent
     rescue CannotRepresent => e
       unrepresentable(e.reason, e.message)
     rescue SystemStackError
@@ -36,6 +43,24 @@ module Representer
     private
     def language = Languages.for(track_slug)
     def too_large? = solution_files.sum { |name, source| name.bytesize + source.bytesize } > MAX_SOLUTION_BYTES
+
+    def represent
+      language.(solution_files, trees:)
+    rescue CannotRepresent => e
+      raise unless e.reason == "parse_error"
+
+      represent_with_basic
+    end
+
+    # Every solution passes its tests, so a file that doesn't parse shows a
+    # gap in the grammar. Basic still groups solutions that differ only in
+    # comments and formatting. The result keeps the language's version, so
+    # the website has one version for each track.
+    def represent_with_basic
+      basic = Languages::Basic.(track_slug, solution_files)
+      Engine::Result.new(representation: BASIC_PREFIX + basic.representation, mapping: basic.mapping,
+        version: language.version, representer: Languages::Basic)
+    end
 
     def unrepresentable(reason, message)
       Engine::Result.new(representation: nil, mapping: {}, version: language.version, representer: language, reason:,

@@ -58,7 +58,7 @@ class RakuTest < RepresenterTest
     refute_same_representation "sub f(:$size) { 1 }", "sub f(:$width) { 1 }"
   end
 
-  def test_unbalanced_code_is_unrepresentable
-    assert_unrepresentable "sub f($x) { $x "
+  def test_unbalanced_code_gets_a_basic_representation
+    assert_basic_representation "sub f($x) { $x "
   end
 end

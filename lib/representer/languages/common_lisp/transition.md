@@ -16,7 +16,7 @@ It differs from the old representer in the decisions that apply to every languag
 - `require`, `export`, `import` and `use-package` forms are dropped, and so are the `:use`, `:export` and `:import-from` options of `defpackage`. The old representer kept them, and renamed the names in `:use` and `:export`.
 - A loop's `for` and `with` clauses keep only their variable, so two loops that differ only in their bounds, as in `for i from 0 below n` and `for i from 1 to n`, get the same representation. The old representer kept the whole clause.
 - The options left in a `defpackage` are sorted by their code. The old representer sorted them by their keyword.
-- A solution with a syntax error, such as a missing bracket, gets no representation. The old representer gave SBCL's reader error as the representation.
+- A solution with a syntax error, such as a missing bracket, gets Basic's representation, which only drops comments and formatting. The old representer gave SBCL's reader error as the representation.
 - `#.` forms are represented like any other code. The old representer refused them, because SBCL's reader would run them.
 
 ## Analysis

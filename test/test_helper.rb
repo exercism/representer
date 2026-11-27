@@ -31,11 +31,20 @@ class RepresenterTest < Minitest::Test
   end
 
   # Checks that the solution gets no representation, with this reason.
-  def assert_unrepresentable(code, reason = "parse_error")
+  def assert_unrepresentable(code, reason)
     result = represent(code)
     assert_nil result.representation
     assert_empty result.mapping
     assert_equal reason, result.reason
+    assert_equal Representer::Languages.for(track).version, result.version
+  end
+
+  # Checks that the solution doesn't parse, so it gets Basic's representation
+  # with the language's version.
+  def assert_basic_representation(code)
+    result = represent(code)
+    basic = Representer::Languages::Basic.(track, { default_filename => code })
+    assert_equal Representer::RepresentSolution::BASIC_PREFIX + basic.representation, result.representation
     assert_equal Representer::Languages.for(track).version, result.version
   end
 end
@@ -65,7 +74,7 @@ end
 # - replace: text in equivalent.<ext> to replace with other text, for names
 #   that this representer renames and the old one kept.
 # - add / remove: names to add to or remove from the old mapping.
-# - unrepresentable: the input has a syntax error, so it gets no
+# - parse_error: the input has a syntax error, so it gets Basic's
 #   representation. The test checks that, and nothing else.
 # - merges_with: the names of other tests that this representer gives the
 #   same representation, although the old one kept them apart (such as two
@@ -93,11 +102,11 @@ module UpstreamTests
     cases.each do |test_case|
       raise ArgumentError, "The deviation for #{test_case.name} must say why" if test_case.deviation.any? && !test_case.deviation[:why]
 
-      if test_case.deviation[:unrepresentable]
-        define_method("test_upstream_#{test_case.name}_is_unrepresentable") do
+      if test_case.deviation[:parse_error]
+        define_method("test_upstream_#{test_case.name}_gets_a_basic_representation") do
           result = Representer::RepresentSolution.(track, test_case.solution_files)
-          assert_nil result.representation
-          assert_equal "parse_error", result.reason
+          assert_equal Representer::Languages::Basic, result.representer
+          assert result.representation.start_with?(Representer::RepresentSolution::BASIC_PREFIX)
         end
         next
       end
@@ -117,7 +126,7 @@ module UpstreamTests
     end
 
     define_method(:test_upstream_distinctness) do
-      represented = cases.reject { |test_case| test_case.deviation[:unrepresentable] }
+      represented = cases.reject { |test_case| test_case.deviation[:parse_error] }
       representations = represented.to_h do |test_case|
         [test_case.name, Representer::RepresentSolution.(track, test_case.solution_files).representation]
       end

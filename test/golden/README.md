@@ -112,8 +112,8 @@ The variants find 32 near-miss merges, and all of them are accepted.
 
 The data holds 20,581 solutions in 82 tracks: 4,187 production groups of two or three solutions, and 8,041 singles.
 Each track has between 33 and 100 singles (the median is 100), from between 22 and 100 exercises (the median is 69).
-Compared with production, today's representer makes 664 splits and 160 merges, 42 solutions get no representation, and 32 singles get the same representation as their variant.
-All 160 merges, all 32 near-miss merges and 24 of the splits are accepted. The other splits and the unrepresentable solutions are still `undecided`.
+Compared with production, today's representer makes 664 splits and 160 merges, and 32 singles get the same representation as their variant.
+All 160 merges, all 32 near-miss merges and 24 of the splits are accepted. The other splits are still `undecided`.
 
 ### The 55 tracks that use Basic
 
@@ -128,7 +128,7 @@ Today's Basic does the opposite: it keeps line breaks, the spaces between tokens
 
 ### The 27 tracks with a language of their own
 
-These tracks have 96 splits, 97 merges and 42 unrepresentable solutions.
+These tracks have 96 splits and 97 merges.
 
 The main causes of splits are:
 
@@ -138,12 +138,8 @@ The main causes of splits are:
 
 The merges are all accepted. They are solutions with the same code, code that differs only in comments, formatting or imports, or code that differs only in names or in spellings that mean the same.
 
-The unrepresentable solutions are all grammar gaps: the pinned grammar rejects code that the track's tests accept.
-
-- **C++ (13):** explicit template instantiations, and default arguments written as `{0, 0}`.
-- **Raku (10):** hyper operators and other Unicode operators, such as `»×»` and `Z×`.
-- **Common Lisp (8):** mostly `loop`.
-- **GDScript (4), Crystal (3), Zig (3) and C# (1).**
+If the pinned grammar rejects a solution's code, the solution gets Basic's representation, so no solution in these tracks is unrepresentable.
+Five solutions get Basic's representation this way: four in GDScript and one in C#.
 
 ### Per track
 
@@ -164,10 +160,10 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | clojure | Clojure | 361 | 87 | 100 | 71 | 98 | 5 | 11 | 0 | 0 |
 | cobol | Basic | 193 | 31 | 100 | 42 | 100 | 10 | 0 | 0 | 0 |
 | coffeescript | Basic | 139 | 13 | 100 | 80 | 97 | 6 | 0 | 0 | 0 |
-| common-lisp | CommonLisp | 391 | 97 | 100 | 76 | 93 | 13 | 1 | 8 | 3 |
-| cpp | Cpp | 397 | 99 | 100 | 76 | 100 | 7 | 0 | 13 | 0 |
-| crystal | Crystal | 389 | 97 | 100 | 94 | 97 | 5 | 4 | 3 | 0 |
-| csharp | CSharp | 397 | 99 | 100 | 98 | 96 | 1 | 1 | 1 | 0 |
+| common-lisp | CommonLisp | 391 | 97 | 100 | 76 | 93 | 13 | 1 | 0 | 3 |
+| cpp | Cpp | 397 | 99 | 100 | 76 | 100 | 7 | 0 | 0 | 0 |
+| crystal | Crystal | 389 | 97 | 100 | 94 | 97 | 5 | 4 | 0 | 0 |
+| csharp | CSharp | 397 | 99 | 100 | 98 | 96 | 1 | 1 | 0 | 0 |
 | d | Basic | 127 | 9 | 100 | 62 | 100 | 5 | 0 | 0 | 0 |
 | dart | Basic | 394 | 98 | 100 | 50 | 98 | 9 | 0 | 0 | 0 |
 | elixir | Elixir | 397 | 99 | 100 | 100 | 96 | 7 | 0 | 0 | 0 |
@@ -180,7 +176,7 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | free-pascal | Basic | 103 | 1 | 100 | 90 | 96 | 1 | 0 | 0 | 0 |
 | fsharp | FSharp | 397 | 99 | 100 | 87 | 94 | 1 | 7 | 0 | 0 |
 | futhark | Basic | 103 | 1 | 100 | 80 | 100 | 0 | 0 | 0 | 0 |
-| gdscript | GDScript | 103 | 1 | 100 | 74 | 98 | 0 | 0 | 4 | 0 |
+| gdscript | GDScript | 103 | 1 | 100 | 74 | 98 | 0 | 0 | 0 | 0 |
 | gleam | Gleam | 373 | 91 | 100 | 76 | 88 | 1 | 2 | 0 | 0 |
 | go | Go | 363 | 88 | 100 | 78 | 99 | 16 | 0 | 0 | 0 |
 | groovy | Basic | 235 | 45 | 100 | 57 | 94 | 13 | 1 | 0 | 0 |
@@ -209,7 +205,7 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | python | Python | 397 | 99 | 100 | 92 | 100 | 4 | 0 | 0 | 0 |
 | r | Basic | 391 | 97 | 100 | 71 | 98 | 10 | 1 | 0 | 0 |
 | racket | Basic | 277 | 59 | 100 | 56 | 98 | 30 | 0 | 0 | 0 |
-| raku | Raku | 128 | 12 | 92 | 59 | 83 | 0 | 3 | 10 | 0 |
+| raku | Raku | 128 | 12 | 92 | 59 | 83 | 0 | 3 | 0 | 0 |
 | reasonml | Basic | 178 | 26 | 100 | 26 | 95 | 4 | 0 | 0 | 0 |
 | red | Red | 190 | 30 | 100 | 45 | 100 | 0 | 0 | 0 | 0 |
 | rescript | Basic | 45 | 1 | 42 | 22 | 39 | 1 | 0 | 0 | 0 |
@@ -232,4 +228,4 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | wren | Wren | 217 | 39 | 100 | 82 | 99 | 2 | 9 | 0 | 0 |
 | x86-64-assembly | Basic | 298 | 66 | 100 | 71 | 100 | 0 | 4 | 0 | 0 |
 | yamlscript | Basic | 127 | 9 | 100 | 57 | 89 | 1 | 0 | 0 | 0 |
-| zig | Zig | 382 | 94 | 100 | 63 | 96 | 0 | 17 | 3 | 0 |
+| zig | Zig | 382 | 94 | 100 | 63 | 96 | 0 | 17 | 0 | 0 |

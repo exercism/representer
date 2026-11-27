@@ -11,7 +11,7 @@ The engine does the rest of the work.
 For every language, it does these things in order:
 
 1. It ignores files without one of the language's extensions, and test and config files.
-2. It turns Windows line endings into plain line breaks, then parses each file with the language's grammar. If a file doesn't parse, the solution gets no representation.
+2. It turns Windows line endings into plain line breaks, then parses each file with the language's grammar. If a file doesn't parse, the solution gets Basic's representation instead (see README.md).
 3. It drops the comments declared in `spec.rb`, and runs the language's common stages (`GenerateAST`, then `Normalise`) on each file.
 4. It drops the representation's imports from each file.
 5. It runs the representation's `Normalise` stage on each file.

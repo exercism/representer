@@ -45,7 +45,7 @@ class WasmTest < RepresenterTest
       "(module (global $y (mut i32) (i32.const 0)) (func (global.set $y (i32.const 1))))"
   end
 
-  def test_a_syntax_error_is_unrepresentable
-    assert_unrepresentable "(module (func"
+  def test_a_syntax_error_gets_a_basic_representation
+    assert_basic_representation "(module (func"
   end
 end

@@ -79,16 +79,13 @@ class RubyTest < RepresenterTest
 
   ### Unrepresentable solutions ###
 
-  def test_syntax_errors_are_unrepresentable_with_the_ruby_version
-    result = represent("def x(")
-    assert_nil result.representation
-    assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::Ruby::Representation.version, result.version
+  def test_syntax_errors_get_a_basic_representation_with_the_ruby_version
+    assert_basic_representation "def x("
   end
 
-  def test_missing_nodes_are_unrepresentable
+  def test_missing_nodes_get_a_basic_representation
     # tree-sitter repairs this by inserting a MISSING "end" node.
-    assert_unrepresentable "def x\n  1\n"
+    assert_basic_representation "def x\n  1\n"
   end
 
   def test_large_solutions_are_unrepresentable

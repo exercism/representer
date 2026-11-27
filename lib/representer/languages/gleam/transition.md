@@ -8,7 +8,7 @@ The representation replaces the old Gleam representer (`exercism/gleam-represent
 It joined the solution's files, removed blank lines and trailing whitespace, and kept every name as it was written.
 This service applies the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these rules of its own:
 
-- **Syntax errors.** A solution with a syntax error gets no representation. The old representer worked on text, so it represented any file.
+- **Syntax errors.** A solution with a syntax error gets Basic's representation, which only drops comments and formatting. The old representer worked on text, so it represented any file.
 - **Comments and layout.** Comments (`//`, `///` and `////`), brackets, commas and the keywords that sit in a fixed place are left out, because the tree already shows them.
 - **Imports.** Every `import` is dropped. A name given with `as` in an import becomes the name it stands for, so after `import gleam/list as l`, `l.length` is `list.length`.
 - **Names.** The names of functions, constants, types, constructors and fields are renamed, along with parameters and the variables bound by `let`, `let assert`, `use` and the patterns of a `case`. The labels of a function's parameters and the type variables, such as the `a` in `List(a)`, keep their names.

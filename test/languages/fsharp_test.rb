@@ -64,7 +64,7 @@ class FSharpTest < RepresenterTest
     assert_same_representation wrap(format(code, "Total")), wrap(format(code, "Amount"))
   end
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "module M\nlet f = = =\n"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "module M\nlet f = = =\n"
   end
 end

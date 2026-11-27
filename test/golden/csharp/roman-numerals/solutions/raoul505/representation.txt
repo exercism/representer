@@ -1,1 +1,46 @@
-unrepresentable: parse_error
+basic
+using RomanSymbol = ( char letter , int value );
+public static class ArrayGetDefaultExtension {
+public static T GetOrDefault < T >( this T [] array , int index , T fallback = default !)
+=> ( uint ) index < ( uint ) array . Length ? array [ index ] : fallback ;
+}
+public static class RomanNumeralExtension
+{
+private static readonly RomanSymbol [] RomanLetterOrder =
+{
+( 'I' , 1 ),
+( 'V' , 5 ),
+( 'X' , 10 ),
+( 'L' , 50 ),
+( 'C' , 100 ),
+( 'D' , 500 ),
+( 'M' , 1000 ),
+};
+public static string ToRoman ( this int value )
+{
+string s = "\"\"" ;
+int remainder = value ;
+for ( int i = RomanLetterOrder . Length - 1 ; i >= 0 ; i -= 2 ){
+RomanSymbol big = RomanLetterOrder . GetOrDefault ( i + 2 );
+RomanSymbol medium = RomanLetterOrder . GetOrDefault ( i + 1 );
+RomanSymbol small = RomanLetterOrder [ i ];
+( int parse , remainder ) = int . DivRem ( remainder , small . value );
+string strPart = parse switch
+{
+0 => $"" ,
+1 => $" { small . letter } "\"" ,
+2 => $" { small . letter }{ small . letter } "\"" ,
+3 => $" { small . letter }{ small . letter }{ small . letter } "\"" ,
+4 => $" { small . letter }{ medium . letter } "\"" ,
+5 => $" { medium . letter } "\"" ,
+6 => $" { medium . letter }{ small . letter } "\"" ,
+7 => $" { medium . letter }{ small . letter }{ small . letter } "\"" ,
+8 => $" { medium . letter }{ small . letter }{ small . letter }{ small . letter } "\"" ,
+9 => $" { small . letter }{ big . letter } "\"" ,
+_ => throw new ArgumentOutOfRangeException ( nameof ( value ))
+};
+s += strPart ;
+}
+return s ;
+}
+}

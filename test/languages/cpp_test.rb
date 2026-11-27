@@ -13,8 +13,8 @@ class CppTest < RepresenterTest
 
   DEVIATIONS = {
     "syntax-error" => {
-      unrepresentable: true,
-      why: "The solution has a syntax error, so it gets no representation. The old representer worked on tokens, so it " \
+      parse_error: true,
+      why: "The solution has a syntax error, so it gets Basic's representation. The old representer worked on tokens, so it " \
            "represented any text."
     }
   }.freeze
@@ -81,10 +81,7 @@ class CppTest < RepresenterTest
     assert_same_representation format(code, "total"), format(code, "amount")
   end
 
-  def test_syntax_errors_are_unrepresentable_with_the_cpp_version
-    result = represent("int f( {")
-    assert_nil result.representation
-    assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::Cpp::Representation.version, result.version
+  def test_syntax_errors_get_a_basic_representation_with_the_cpp_version
+    assert_basic_representation "int f( {"
   end
 end

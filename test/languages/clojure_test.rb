@@ -260,9 +260,9 @@ class ClojureTest < RepresenterTest
     assert_same_representation "(defprotocol Shape (area [this]))", "(defprotocol Figure (size [self]))"
   end
 
-  ### Unrepresentable solutions ###
+  ### Syntax errors ###
 
-  def test_unbalanced_code_is_unrepresentable
-    assert_unrepresentable "(defn f [x] (inc x)"
+  def test_unbalanced_code_gets_a_basic_representation
+    assert_basic_representation "(defn f [x] (inc x)"
   end
 end

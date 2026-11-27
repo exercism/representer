@@ -49,7 +49,7 @@ class GleamTest < RepresenterTest
     refute_same_representation format(code, "name"), format(code, "title")
   end
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "pub fn f( {"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "pub fn f( {"
   end
 end

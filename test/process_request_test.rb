@@ -42,9 +42,10 @@ class ProcessRequestTest < Minitest::Test
   end
 
   def test_a_solution_that_cant_be_represented_still_gets_a_snippet
-    body = JSON.parse(request(track_slug: "ruby", outputs: %w[representation snippet], solution_files: { "a.rb" => "def x(" })[:body])
-    assert_equal "parse_error", body["representation"]["error"]
-    assert_equal "def x(", body["snippet"]["snippet"]
+    code = ("[" * 2_000) + ("]" * 2_000)
+    body = JSON.parse(request(track_slug: "ruby", outputs: %w[representation snippet], solution_files: { "a.rb" => code })[:body])
+    assert_equal "too_deep", body["representation"]["error"]
+    assert body["snippet"]["snippet"].start_with?("[[[")
   end
 
   def test_requests_need_outputs
@@ -78,7 +79,7 @@ class ProcessRequestTest < Minitest::Test
   def test_solutions_with_syntax_errors
     response = request(track_slug: "ruby", solution_files: { "a.rb" => "def x(" })
     assert_equal 200, response[:statusCode]
-    assert_equal({ "representation" => { "error" => "parse_error", "message" => "The code has a syntax error",
+    assert_equal({ "representation" => { "representation" => "basic\ndef x (", "mapping" => {},
                                          "version" => Representer::Languages::Ruby::Representation.version } },
       JSON.parse(response[:body]))
   end

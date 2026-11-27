@@ -45,9 +45,9 @@ class ElmTest < RepresenterTest
            "drops them."
     },
     "pattern-uncons" => {
-      unrepresentable: true,
+      parse_error: true,
       why: "`f x :: xs = ...` isn't valid Elm. The old parser accepted it, but tree-sitter rejects it, so this " \
-           "representer gives it no representation."
+           "representer gives it Basic's representation."
     }
   }.freeze
 
@@ -122,8 +122,8 @@ class ElmTest < RepresenterTest
     assert_same_representation wrap("f : a -> a\nf x =\n    x"), wrap("f : b -> b\nf x =\n    x")
   end
 
-  def test_syntax_errors_are_unrepresentable
-    assert_unrepresentable "module M exposing (..)\n\nf =\n"
+  def test_syntax_errors_get_a_basic_representation
+    assert_basic_representation "module M exposing (..)\n\nf =\n"
   end
 
   # A field named like a library function is renamed, like any other field.
