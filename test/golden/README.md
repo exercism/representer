@@ -169,7 +169,7 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | common-lisp | CommonLisp | 391 | 97 | 100 | 76 | 93 | 13 | 1 | 8 | 3 |
 | cpp | Cpp | 397 | 99 | 100 | 76 | 100 | 7 | 0 | 13 | 0 |
 | crystal | Crystal | 389 | 97 | 100 | 94 | 97 | 5 | 4 | 3 | 0 |
-| csharp | CSharp | 397 | 99 | 100 | 98 | 96 | 4 | 0 | 1 | 0 |
+| csharp | CSharp | 397 | 99 | 100 | 98 | 96 | 1 | 1 | 1 | 0 |
 | d | Basic | 127 | 9 | 100 | 62 | 100 | 5 | 0 | 0 | 0 |
 | dart | Basic | 394 | 98 | 100 | 50 | 98 | 9 | 0 | 0 | 0 |
 | elixir | Elixir | 397 | 99 | 100 | 100 | 96 | 7 | 0 | 0 | 0 |

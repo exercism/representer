@@ -56,9 +56,11 @@ class CSharpTest < RepresenterTest
     assert_same_representation wrap("return !x ? 1 > y : 2 > y;"), wrap("return x ? 2 > y : 1 > y;")
   end
 
-  def test_type_keywords
-    assert_same_representation wrap("return Int32.Parse(\"1\") > y;"), wrap("return int.Parse(\"1\") > y;")
-    assert_same_representation wrap("Boolean z = x; return z;"), wrap("bool z = x; return z;")
+  # As in the old representer, only `String` is written as its keyword.
+  def test_string_is_written_as_its_keyword
+    assert_same_representation wrap("String z = \"\"; return x;"), wrap("string z = \"\"; return x;")
+    assert_same_representation wrap("return String.IsNullOrEmpty(\"\");"), wrap("return string.IsNullOrEmpty(\"\");")
+    refute_same_representation wrap("return Int32.Parse(\"1\") > y;"), wrap("return int.Parse(\"1\") > y;")
   end
 
   def test_object_creation_brackets
@@ -81,18 +83,18 @@ class CSharpTest < RepresenterTest
     refute_same_representation wrap("var (a, b) = (1, 2); return a - b;"), wrap("var (a, b) = (1, 2); return b - a;")
   end
 
-  def test_names_in_the_tests_are_kept
+  def test_the_exercise_files_make_no_difference
     tests = { "LeapTests.cs" => "public class LeapTests { [Fact] public void T() => Assert.True(Leap.IsLeapYear(2000)); }" }
     result = represent("public static class Leap { public static bool IsLeapYear(int year) => year % 4 == 0; }",
       filename: "Leap.cs", exercise_files: tests)
-    assert_equal ["year"], result.mapping.values
+    assert_equal %w[Leap IsLeapYear year], result.mapping.values
   end
 
   def test_syntax_errors_are_unrepresentable_with_the_csharp_version
     result = represent("public class {")
     assert_nil result.representation
     assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::CSharp.version, result.version
+    assert_equal Representer::Languages::CSharp::Spec.version, result.version
   end
 
   # These keywords and punctuation are the only difference between each pair.
