@@ -22,6 +22,19 @@ abort "usage: ./bin/inspect track-slug path/to/file" unless track_slug && path
 language = Representer::Languages.for(track_slug)
 source = File.read(path)
 
+# The representer ignores files named like tests or config files, such as
+# leap_test.gleam, so such a file is represented as solution.gleam.
+filename = File.basename(path)
+if Representer::Engine.test_or_config_file?(filename)
+  renamed = "solution#{File.extname(filename)}"
+  puts "The representer ignores files named like #{filename}, so this represents it as #{renamed}.\n\n"
+  filename = renamed
+end
+
+if language != Representer::Languages::Basic && !language.source_file?(filename)
+  puts "The representer ignores #{filename}, because #{track_slug} only reads #{language.extensions.join(', ')} files.\n\n"
+end
+
 def show(node, depth = 0)
   label = node.named? ? node.type : node.type.inspect
   label = "#{node.field}: #{label}" if node.field
@@ -37,11 +50,12 @@ else
   show(Representer::Engine::Grammar[language.grammar].parse(Representer::Engine.clean(source)))
 end
 
-result = Representer::RepresentSolution.(track_slug, { File.basename(path) => source })
-puts "\nRepresentation (#{result.representer.name.split('::').last}, version #{result.version}):"
+result = Representer::RepresentSolution.(track_slug, { filename => source })
+language_name = result.representer.name.delete_suffix("::Spec").split("::").last
+puts "\nRepresentation (#{language_name}, version #{result.version}):"
 puts result.representation
 puts "\nMapping: #{result.mapping}"
 
-snippet = Representer::Generate.(track_slug, { File.basename(path) => source }, outputs: [:snippet])[:snippet]
+snippet = Representer::Generate.(track_slug, { filename => source }, outputs: [:snippet])[:snippet]
 puts "\nSnippet (version #{snippet[:version]}):"
 puts snippet[:snippet] || snippet[:message]
