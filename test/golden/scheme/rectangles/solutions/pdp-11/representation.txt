@@ -1,74 +1,248 @@
-( import ( rnrs ))
-( use-modules ( ice-9 receive ))
-( define ( %strs->ra strs )
-( list->array 2 ( map string->list strs )))
-( define ( indices->key rowi coli )
-( make-rectangular rowi coli ))
-( define ( key->indices key )
-( values ( inexact->exact ( real-part key ))
-( inexact->exact ( imag-part key ))))
-( define ( %get-right ht key )
-( car ( hashv-ref ht key ' ( #f . #f ))))
-( define ( %set-right! ht key val )
-( set-car! ( hashv-ref ht key ) val ))
-( define ( %get-down ht key )
-( cdr ( hashv-ref ht key ' ( #f . #f ))))
-( define ( %set-down! ht key val )
-( set-cdr! ( hashv-ref ht key ) val ))
-( define ( %scan-row i ra ht pt conn keyf setf )
-( define row ( array-slice ra i ))
-( define prev #f )
-( do (( j 0 ( 1+ j )))
-(( not ( array-in-bounds? row j )) ht )
-( let (( c ( array-ref row j )))
-( cond (( eqv? c pt )
-( let (( key ( keyf i j )))
-( when prev ( setf ht prev key ))
-( unless ( hashv-ref ht key )
-( hashv-set! ht key ( cons #f #f )))
-( set! prev key )))
-(( not ( eqv? c conn ))
-( when prev ( set! prev #f )))))))
-( define ( %scan-rows ra ht pt conn keyf setf )
-( do (( i 0 ( 1+ i )))
-(( <= ( array-length ra ) i ) ht )
-( %scan-row i ra ht pt conn keyf setf )))
-( define ( %scan-ra ra )
-( define ra* ( transpose-array ra 1 0 ))
-( define ht ( make-hash-table ))
-( %scan-rows ra ht #\+ #\- indices->key %set-right! )
-( %scan-rows ra* ht #\+ # \ |
-( lambda ( j i ) ( indices->key i j )) %set-down! ))
-( define ( %conn? ht left up key )
-( and ( hashv-ref ht key )
-( let loop-right (( right ( %get-right ht left )))
-( cond (( not right ) #f )
-(( eqv? right key ) #t )
-( else ( loop-right ( %get-right ht right )))))
-( let loop-down (( down ( %get-down ht up )))
-( cond (( not down ) #f )
-(( eqv? down key ) #t )
-( else ( loop-down ( %get-down ht down )))))))
-( define ( %count-rect key ht rect-ht )
-( when ( and ( hashv-ref ht key )
-( not ( hashv-ref rect-ht key )))
-( hashv-set! rect-ht key 0 )
-( let loop-down (( down ( %get-down ht key )))
-( when down
-( let loop-right (( right ( %get-right ht key )))
-( if right
-( receive ( down-rowi _ ) ( key->indices down )
-( receive ( _ right-coli ) ( key->indices right )
-( when ( %conn?
-ht down right
-( indices->key down-rowi right-coli ))
-( hashv-set!
-rect-ht key ( 1+ ( hashv-ref rect-ht key ))))
-( loop-right ( %get-right ht right ))))
-( loop-down ( %get-down ht down ))))))))
-( define ( rectangles strs )
-( define ra ( %strs->ra strs ))
-( define ht ( %scan-ra ra ))
-( define rect-ht ( make-hash-table ))
-( hash-for-each ( lambda ( key _ ) ( %count-rect key ht rect-ht )) ht )
-( hash-fold ( lambda ( _ val sum ) ( + val sum )) 0 rect-ht ))
+(program
+  (list define
+    (list
+      (definition PLACEHOLDER_1)
+      (definition PLACEHOLDER_2))
+    (list list->array 2
+      (list map string->list PLACEHOLDER_2)))
+  (list define
+    (list
+      (definition PLACEHOLDER_3)
+      (definition PLACEHOLDER_4)
+      (definition PLACEHOLDER_5))
+    (list make-rectangular PLACEHOLDER_4 PLACEHOLDER_5))
+  (list define
+    (list
+      (definition PLACEHOLDER_6)
+      (definition PLACEHOLDER_7))
+    (list values
+      (list inexact->exact
+        (list real-part PLACEHOLDER_7))
+      (list inexact->exact
+        (list imag-part PLACEHOLDER_7))))
+  (list define
+    (list
+      (definition PLACEHOLDER_8)
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_7))
+    (list car
+      (list hashv-ref PLACEHOLDER_9 PLACEHOLDER_7
+        (list quote
+          (list #f . #f)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_10)
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_7)
+      (definition PLACEHOLDER_11))
+    (list set-car!
+      (list hashv-ref PLACEHOLDER_9 PLACEHOLDER_7) PLACEHOLDER_11))
+  (list define
+    (list
+      (definition PLACEHOLDER_12)
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_7))
+    (list cdr
+      (list hashv-ref PLACEHOLDER_9 PLACEHOLDER_7
+        (list quote
+          (list #f . #f)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_13)
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_7)
+      (definition PLACEHOLDER_11))
+    (list set-cdr!
+      (list hashv-ref PLACEHOLDER_9 PLACEHOLDER_7) PLACEHOLDER_11))
+  (list define
+    (list
+      (definition PLACEHOLDER_14)
+      (definition PLACEHOLDER_15)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_17)
+      (definition PLACEHOLDER_18)
+      (definition PLACEHOLDER_19)
+      (definition PLACEHOLDER_20))
+    (list define
+      (definition PLACEHOLDER_21)
+      (list array-slice PLACEHOLDER_16 PLACEHOLDER_15))
+    (list define
+      (definition PLACEHOLDER_22) #f)
+    (list do
+      (list
+        (list
+          (definition PLACEHOLDER_23) 0
+          (list 1 + PLACEHOLDER_23)))
+      (list
+        (list not
+          (list array-in-bounds? PLACEHOLDER_21 PLACEHOLDER_23)) PLACEHOLDER_9)
+      (list let
+        (list
+          (list
+            (definition PLACEHOLDER_24)
+            (list array-ref PLACEHOLDER_21 PLACEHOLDER_23)))
+        (list cond
+          (list
+            (list eqv? PLACEHOLDER_24 PLACEHOLDER_17)
+            (list let
+              (list
+                (list
+                  (definition PLACEHOLDER_7)
+                  (list PLACEHOLDER_19 PLACEHOLDER_15 PLACEHOLDER_23)))
+              (list when PLACEHOLDER_22
+                (list PLACEHOLDER_20 PLACEHOLDER_9 PLACEHOLDER_22 PLACEHOLDER_7))
+              (list unless
+                (list hashv-ref PLACEHOLDER_9 PLACEHOLDER_7)
+                (list hashv-set! PLACEHOLDER_9 PLACEHOLDER_7
+                  (list cons #f #f)))
+              (list set! PLACEHOLDER_22 PLACEHOLDER_7)))
+          (list
+            (list not
+              (list eqv? PLACEHOLDER_24 PLACEHOLDER_18))
+            (list when PLACEHOLDER_22
+              (list set! PLACEHOLDER_22 #f)))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_25)
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_17)
+      (definition PLACEHOLDER_18)
+      (definition PLACEHOLDER_19)
+      (definition PLACEHOLDER_20))
+    (list do
+      (list
+        (list
+          (definition PLACEHOLDER_15) 0
+          (list 1 + PLACEHOLDER_15)))
+      (list
+        (list <=
+          (list array-length PLACEHOLDER_16) PLACEHOLDER_15) PLACEHOLDER_9)
+      (list PLACEHOLDER_14 PLACEHOLDER_15 PLACEHOLDER_16 PLACEHOLDER_9 PLACEHOLDER_17 PLACEHOLDER_18 PLACEHOLDER_19 PLACEHOLDER_20)))
+  (list define
+    (list
+      (definition PLACEHOLDER_26)
+      (definition PLACEHOLDER_16))
+    (list define
+      (definition PLACEHOLDER_27)
+      (list transpose-array PLACEHOLDER_16 1 0))
+    (list define
+      (definition PLACEHOLDER_9)
+      (list make-hash-table))
+    (list PLACEHOLDER_25 PLACEHOLDER_16 PLACEHOLDER_9 "#\\+" "#\\-" PLACEHOLDER_3 PLACEHOLDER_10)
+    (list PLACEHOLDER_25 PLACEHOLDER_27 PLACEHOLDER_9 "#\\+" "#\\|"
+      (list lambda
+        (list
+          (definition PLACEHOLDER_23)
+          (definition PLACEHOLDER_15))
+        (list PLACEHOLDER_3 PLACEHOLDER_15 PLACEHOLDER_23)) PLACEHOLDER_13))
+  (list define
+    (list
+      (definition PLACEHOLDER_28)
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_29)
+      (definition PLACEHOLDER_30)
+      (definition PLACEHOLDER_7))
+    (list and
+      (list hashv-ref PLACEHOLDER_9 PLACEHOLDER_7)
+      (list let
+        (definition PLACEHOLDER_31)
+        (list
+          (list
+            (definition PLACEHOLDER_32)
+            (list PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_29)))
+        (list cond
+          (list
+            (list not PLACEHOLDER_32) #f)
+          (list
+            (list eqv? PLACEHOLDER_32 PLACEHOLDER_7) #t)
+          (list else
+            (list PLACEHOLDER_31
+              (list PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_32)))))
+      (list let
+        (definition PLACEHOLDER_33)
+        (list
+          (list
+            (definition PLACEHOLDER_34)
+            (list PLACEHOLDER_12 PLACEHOLDER_9 PLACEHOLDER_30)))
+        (list cond
+          (list
+            (list not PLACEHOLDER_34) #f)
+          (list
+            (list eqv? PLACEHOLDER_34 PLACEHOLDER_7) #t)
+          (list else
+            (list PLACEHOLDER_33
+              (list PLACEHOLDER_12 PLACEHOLDER_9 PLACEHOLDER_34)))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_35)
+      (definition PLACEHOLDER_7)
+      (definition PLACEHOLDER_9)
+      (definition PLACEHOLDER_36))
+    (list when
+      (list and
+        (list hashv-ref PLACEHOLDER_9 PLACEHOLDER_7)
+        (list not
+          (list hashv-ref PLACEHOLDER_36 PLACEHOLDER_7)))
+      (list hashv-set! PLACEHOLDER_36 PLACEHOLDER_7 0)
+      (list let
+        (definition PLACEHOLDER_33)
+        (list
+          (list
+            (definition PLACEHOLDER_34)
+            (list PLACEHOLDER_12 PLACEHOLDER_9 PLACEHOLDER_7)))
+        (list when PLACEHOLDER_34
+          (list let
+            (definition PLACEHOLDER_31)
+            (list
+              (list
+                (definition PLACEHOLDER_32)
+                (list PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_7)))
+            (list if PLACEHOLDER_32
+              (list receive
+                (list
+                  (definition PLACEHOLDER_37)
+                  (definition PLACEHOLDER_38))
+                (list PLACEHOLDER_6 PLACEHOLDER_34)
+                (list receive
+                  (list
+                    (definition PLACEHOLDER_38)
+                    (definition PLACEHOLDER_39))
+                  (list PLACEHOLDER_6 PLACEHOLDER_32)
+                  (list when
+                    (list PLACEHOLDER_28 PLACEHOLDER_9 PLACEHOLDER_34 PLACEHOLDER_32
+                      (list PLACEHOLDER_3 PLACEHOLDER_37 PLACEHOLDER_39))
+                    (list hashv-set! PLACEHOLDER_36 PLACEHOLDER_7
+                      (list 1 +
+                        (list hashv-ref PLACEHOLDER_36 PLACEHOLDER_7))))
+                  (list PLACEHOLDER_31
+                    (list PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_32))))
+              (list PLACEHOLDER_33
+                (list PLACEHOLDER_12 PLACEHOLDER_9 PLACEHOLDER_34))))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_40)
+      (definition PLACEHOLDER_2))
+    (list define
+      (definition PLACEHOLDER_16)
+      (list PLACEHOLDER_1 PLACEHOLDER_2))
+    (list define
+      (definition PLACEHOLDER_9)
+      (list PLACEHOLDER_26 PLACEHOLDER_16))
+    (list define
+      (definition PLACEHOLDER_36)
+      (list make-hash-table))
+    (list hash-for-each
+      (list lambda
+        (list
+          (definition PLACEHOLDER_7)
+          (definition PLACEHOLDER_38))
+        (list PLACEHOLDER_35 PLACEHOLDER_7 PLACEHOLDER_9 PLACEHOLDER_36)) PLACEHOLDER_9)
+    (list hash-fold
+      (list lambda
+        (list
+          (definition PLACEHOLDER_38)
+          (definition PLACEHOLDER_11)
+          (definition PLACEHOLDER_41))
+        (list + PLACEHOLDER_11 PLACEHOLDER_41)) 0 PLACEHOLDER_36)))

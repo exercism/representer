@@ -1,22 +1,49 @@
-( use-modules ( ice-9 peg ))
-( define-peg-pattern whitespace none
-( * ( or "\" \"" "\".\"" "\"-\"" )))
-( define-peg-pattern digit body
-( or "\"0\"" "\"1\"" "\"2\"" "\"3\"" "\"4\"" "\"5\"" "\"6\"" "\"7\"" "\"8\"" "\"9\"" ))
-( define-peg-pattern digit2 body
-( or "\"2\"" "\"3\"" "\"4\"" "\"5\"" "\"6\"" "\"7\"" "\"8\"" "\"9\"" ))
-( define-peg-pattern exchange-code body
-( and whitespace digit2 whitespace digit whitespace digit whitespace ))
-( define-peg-pattern area-code body
-( and whitespace ( ? ( ignore "\"(\"" )) exchange-code ( ? ( ignore "\")\"" )) whitespace ))
-( define-peg-pattern number body
-( and whitespace digit whitespace digit whitespace digit whitespace digit whitespace ))
-( define-peg-pattern phone-number body
-( and ( ? ( ignore ( or ( and "\"+\"" "\"1\"" ) "\"1\"" ))) area-code exchange-code number ))
-( define ( clean unclean-phone-number )
-( let (( match-record ( match-pattern phone-number unclean-phone-number )))
-( unless ( peg:tree match-record )
-( error "\"invalid phone number\"" unclean-phone-number ))
-( unless ( = ( string-length unclean-phone-number ) ( peg:end match-record ))
-( error "\"phone number too long\"" match-record ))
-( peg:tree match-record )))
+(program
+  (list define-peg-pattern
+    (definition PLACEHOLDER_1) none
+    (list *
+      (list or " " "." "-")))
+  (list define-peg-pattern
+    (definition PLACEHOLDER_2) body
+    (list or "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
+  (list define-peg-pattern
+    (definition PLACEHOLDER_3) body
+    (list or "2" "3" "4" "5" "6" "7" "8" "9"))
+  (list define-peg-pattern
+    (definition PLACEHOLDER_4) body
+    (list and PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_1))
+  (list define-peg-pattern
+    (definition PLACEHOLDER_5) body
+    (list and PLACEHOLDER_1
+      (list ?
+        (list ignore "(")) PLACEHOLDER_4
+      (list ?
+        (list ignore ")")) PLACEHOLDER_1))
+  (list define-peg-pattern
+    (definition PLACEHOLDER_6) body
+    (list and PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_1))
+  (list define-peg-pattern
+    (definition PLACEHOLDER_7) body
+    (list and
+      (list ?
+        (list ignore
+          (list or
+            (list and "+" "1") "1"))) PLACEHOLDER_5 PLACEHOLDER_4 PLACEHOLDER_6))
+  (list define
+    (list
+      (definition PLACEHOLDER_8)
+      (definition PLACEHOLDER_9))
+    (list let
+      (list
+        (list
+          (definition PLACEHOLDER_10)
+          (list match-pattern PLACEHOLDER_7 PLACEHOLDER_9)))
+      (list unless
+        (list peg:tree PLACEHOLDER_10)
+        (list error "invalid phone number" PLACEHOLDER_9))
+      (list unless
+        (list =
+          (list string-length PLACEHOLDER_9)
+          (list peg:end PLACEHOLDER_10))
+        (list error "phone number too long" PLACEHOLDER_10))
+      (list peg:tree PLACEHOLDER_10))))

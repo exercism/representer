@@ -213,7 +213,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | ruby | Ruby | 379 | 93 | 100 | 85 | 100 | 7 | 0 | 0 | 2 |
 | rust | Rust | 394 | 98 | 100 | 76 | 99 | 8 | 0 | 0 | 0 |
 | scala | Scala | 362 | 89 | 100 | 59 | 97 | 0 | 6 | 0 | 0 |
-| scheme | Basic | 238 | 46 | 100 | 46 | 99 | 32 | 0 | 0 | 0 |
+| scheme | Scheme | 238 | 46 | 100 | 46 | 99 | 0 | 1 | 0 | 0 |
 | sml | Basic | 211 | 37 | 100 | 60 | 95 | 19 | 0 | 0 | 0 |
 | sqlite | Basic | 328 | 76 | 100 | 63 | 100 | 38 | 11 | 0 | 0 |
 | swift | Basic | 373 | 91 | 100 | 62 | 96 | 10 | 2 | 0 | 0 |
