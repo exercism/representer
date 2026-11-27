@@ -1,19 +1,105 @@
-BEGIN { RS = "\"[[:space:]]+\"" }
-p < 3 { q = p + 1 ; token [ q , ++ cnt [ q ]] = $0 }
-/[.!?]$/ { ++ p }
-{ ++ alpha ; lenSum += length }
-END {
-print "\"The text is:\""
-for ( ix = 1 ; ix < 4 ; ++ ix ) {
-str = token [ ix , 1 ]
-for ( jx = 2 ; jx <= cnt [ ix ]; ++ jx ) {
-str = str "\" \"" token [ ix , jx ]; if ( length ( str ) > 49 ) break }
-if ( length ( str ) > 49 ) str = substr ( str , 1 , 50 ) "\"...\""
-print str }
-if ( p > 3 ) print "\"...\""
-printf "\"Words: %d\\nSentences: %d\\nCharacters: %d\\n\"" , alpha , p , lenSum
-printf "\"Score: %.2f\\n\"" , score = 4.71 * lenSum / alpha + 0.5 * alpha / p - 21.43
-age = score > 13 ? 18 : int ( score ) + 5
-printf "\"This text should be understood by %d-%d year-olds.\\n\"" ,
-age , age == 18 ? 22 : age + 1
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression RS = "[[:space:]]+"))))
+  (rule
+    (binary_expression PLACEHOLDER_1 < 3)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 =
+          (binary_expression PLACEHOLDER_1 + 1)))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_3
+            (subscript_list PLACEHOLDER_2
+              (update_expression ++
+                (subscript_expression PLACEHOLDER_4
+                  (subscript_list PLACEHOLDER_2))))) =
+          (field_reference 0)))))
+  (rule /[.!?]$/
+    (statement_list
+      (expression_statement
+        (update_expression ++ PLACEHOLDER_1))))
+  (rule
+    (statement_list
+      (expression_statement
+        (update_expression ++ PLACEHOLDER_5))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_6 +=
+          (function_call length
+            (argument_list))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (print_statement
+        (output_arguments "The text is:"))
+      (for_statement
+        (assignment_expression PLACEHOLDER_7 = 1) ;
+        (binary_expression PLACEHOLDER_7 < 4) ;
+        (update_expression ++ PLACEHOLDER_7)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_8 =
+              (subscript_expression PLACEHOLDER_3
+                (subscript_list PLACEHOLDER_7 1))))
+          (for_statement
+            (assignment_expression PLACEHOLDER_9 = 2) ;
+            (binary_expression PLACEHOLDER_9 <=
+              (subscript_expression PLACEHOLDER_4
+                (subscript_list PLACEHOLDER_7))) ;
+            (update_expression ++ PLACEHOLDER_9)
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_8 =
+                  (concatenation_expression
+                    (concatenation_expression PLACEHOLDER_8 " ")
+                    (subscript_expression PLACEHOLDER_3
+                      (subscript_list PLACEHOLDER_7 PLACEHOLDER_9)))))
+              (if_statement
+                (binary_expression
+                  (function_call length
+                    (argument_list PLACEHOLDER_8)) > 49)
+                (statement_list
+                  (break_statement)))))
+          (if_statement
+            (binary_expression
+              (function_call length
+                (argument_list PLACEHOLDER_8)) > 49)
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_8 =
+                  (concatenation_expression
+                    (function_call substr
+                      (argument_list PLACEHOLDER_8 1 50)) "...")))))
+          (print_statement
+            (output_arguments PLACEHOLDER_8))))
+      (if_statement
+        (binary_expression PLACEHOLDER_1 > 3)
+        (statement_list
+          (print_statement
+            (output_arguments "..."))))
+      (printf_statement
+        (output_arguments "Words: %d\nSentences: %d\nCharacters: %d\n" PLACEHOLDER_5 PLACEHOLDER_1 PLACEHOLDER_6))
+      (printf_statement
+        (output_arguments "Score: %.2f\n"
+          (assignment_expression PLACEHOLDER_10 =
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression 4.71 * PLACEHOLDER_6) / PLACEHOLDER_5) +
+                (binary_expression
+                  (binary_expression 0.5 * PLACEHOLDER_5) / PLACEHOLDER_1)) - 21.43))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_11 =
+          (conditional_expression
+            (binary_expression PLACEHOLDER_10 > 13) 18
+            (binary_expression
+              (function_call int
+                (argument_list PLACEHOLDER_10)) + 5))))
+      (printf_statement
+        (output_arguments "This text should be understood by %d-%d year-olds.\n" PLACEHOLDER_11
+          (conditional_expression
+            (binary_expression PLACEHOLDER_11 == 18) 22
+            (binary_expression PLACEHOLDER_11 + 1)))))))

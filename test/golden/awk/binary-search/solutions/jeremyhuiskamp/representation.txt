@@ -1,17 +1,43 @@
-BEGIN { FS = "\",\"" }
-{
-lo = 1
-hi = NF
-while ( lo <= hi ) {
-mid = int (( hi + lo ) / 2 )
-if ( $mid == value ) {
-print mid
-exit
-} else if ( $mid > value ) {
-hi = mid - 1
-} else {
-lo = mid + 1
-}
-}
-print - 1
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = ","))))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = 1))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = NF))
+      (while_statement
+        (binary_expression PLACEHOLDER_1 <= PLACEHOLDER_2)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_3 =
+              (function_call int
+                (argument_list
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_2 + PLACEHOLDER_1) / 2)))))
+          (if_statement
+            (binary_expression
+              (field_reference PLACEHOLDER_3) == value)
+            (statement_list
+              (print_statement
+                (output_arguments PLACEHOLDER_3))
+              (exit_statement))
+            (statement_list
+              (if_statement
+                (binary_expression
+                  (field_reference PLACEHOLDER_3) > value)
+                (statement_list
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_2 =
+                      (binary_expression PLACEHOLDER_3 - 1))))
+                (statement_list
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_1 =
+                      (binary_expression PLACEHOLDER_3 + 1)))))))))
+      (print_statement
+        (output_arguments
+          (unary_expression - 1))))))

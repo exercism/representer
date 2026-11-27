@@ -1,16 +1,48 @@
-BEGIN {
-abc_forward = "\"abcdefghijklmnopqrstuvwxyz1234567890\""
-abc_backward = "\"zyxwvutsrqponmlkjihgfedcba1234567890\""
-split ( abc_backward , encode , "\"\"" )
-FS = "\"\""
-}
-{
-gsub ( "/[ .,]/" , "\"\"" )
-$0 = tolower ( $0 );
-for ( i = 1 ; i <= NF ; i ++ ) {
-pos = index ( abc_forward , $i )
-printf encode [ pos ]
-if ( direction == "\"encode\"" && i % 5 == 0 && i != NF )
-printf "\" \""
-}
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = "abcdefghijklmnopqrstuvwxyz1234567890"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = "zyxwvutsrqponmlkjihgfedcba1234567890"))
+      (expression_statement
+        (function_call split
+          (argument_list PLACEHOLDER_2 PLACEHOLDER_3 "")))
+      (expression_statement
+        (assignment_expression FS = ""))))
+  (rule
+    (statement_list
+      (expression_statement
+        (function_call gsub
+          (argument_list "/[ .,]/" "")))
+      (expression_statement
+        (assignment_expression
+          (field_reference 0) =
+          (function_call tolower
+            (argument_list
+              (field_reference 0)))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_4 = 1) ;
+        (binary_expression PLACEHOLDER_4 <= NF) ;
+        (update_expression PLACEHOLDER_4 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_5 =
+              (function_call index
+                (argument_list PLACEHOLDER_1
+                  (field_reference PLACEHOLDER_4)))))
+          (printf_statement
+            (output_arguments
+              (subscript_expression PLACEHOLDER_3
+                (subscript_list PLACEHOLDER_5))))
+          (if_statement
+            (binary_expression
+              (binary_expression
+                (binary_expression direction == "encode") &&
+                (binary_expression
+                  (binary_expression PLACEHOLDER_4 % 5) == 0)) &&
+              (binary_expression PLACEHOLDER_4 != NF))
+            (statement_list
+              (printf_statement
+                (output_arguments " ")))))))))

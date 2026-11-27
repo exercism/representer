@@ -1,15 +1,50 @@
-BEGIN { FS = "\"[:,]\"" }
-{
-$0 = tolower ( $0 )
-val = $1
-for ( i = 2 ; i <= NF ; i ++ ) {
-gsub ( /[^a-z]/ , "\"\"" , $i )
-if ( length ( $i ) > 0 )
-value [ $i ] = val
-}
-}
-END {
-PROCINFO [ "\"sorted_in\"" ] = "\"@ind_str_asc\""
-for ( i in value )
-printf ( "\"%c,%d\\n\"" , i , value [ i ])
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = "[:,]"))))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (field_reference 0) =
+          (function_call tolower
+            (argument_list
+              (field_reference 0)))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (field_reference 1)))
+      (for_statement
+        (assignment_expression PLACEHOLDER_2 = 2) ;
+        (binary_expression PLACEHOLDER_2 <= NF) ;
+        (update_expression PLACEHOLDER_2 ++)
+        (statement_list
+          (expression_statement
+            (function_call gsub
+              (argument_list /[^a-z]/ ""
+                (field_reference PLACEHOLDER_2))))
+          (if_statement
+            (binary_expression
+              (function_call length
+                (argument_list
+                  (field_reference PLACEHOLDER_2))) > 0)
+            (statement_list
+              (expression_statement
+                (assignment_expression
+                  (subscript_expression PLACEHOLDER_3
+                    (subscript_list
+                      (field_reference PLACEHOLDER_2))) = PLACEHOLDER_1))))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PROCINFO
+            (subscript_list "sorted_in")) = "@ind_str_asc"))
+      (for_in_statement PLACEHOLDER_2 PLACEHOLDER_3
+        (statement_list
+          (printf_statement
+            (output_arguments "%c,%d\n" PLACEHOLDER_2
+              (subscript_expression PLACEHOLDER_3
+                (subscript_list PLACEHOLDER_2)))))))))

@@ -1,25 +1,92 @@
-BEGIN {
-FPAT = "\"..?.?\""
-Stop = @ / UAA | UAG | UGA /
-Protein [ "\"AUG\"" ] = "\"Methionine\""
-Protein [ "\"UGG\"" ] = "\"Tryptophan\""
-Protein [ "\"UUU\"" ] = Protein [ "\"UUC\"" ] = "\"Phenylalanine\""
-Protein [ "\"UUA\"" ] = Protein [ "\"UUG\"" ] = "\"Leucine\""
-Protein [ "\"UAU\"" ] = Protein [ "\"UAC\"" ] = "\"Tyrosine\""
-Protein [ "\"UGU\"" ] = Protein [ "\"UGC\"" ] = "\"Cysteine\""
-Protein [ "\"UCU\"" ] = Protein [ "\"UCC\"" ] = Protein [ "\"UCA\"" ] = Protein [ "\"UCG\"" ] = "\"Serine\""
-}
-{
-for ( i = 1 ; i <= NF ; ++ i )
-if ( $i ~ Stop )
-NF = i - 1
-else
-$i = translate ( $i )
-print
-}
-function translate ( codon ) {
-if ( codon in Protein )
-return Protein [ codon ]
-print "\"Invalid codon\""
-exit 1
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FPAT = "..?.?"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (typed_regexp /UAA|UAG|UGA/)))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list "AUG")) = "Methionine"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list "UGG")) = "Tryptophan"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list "UUU")) =
+          (assignment_expression
+            (subscript_expression PLACEHOLDER_2
+              (subscript_list "UUC")) = "Phenylalanine")))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list "UUA")) =
+          (assignment_expression
+            (subscript_expression PLACEHOLDER_2
+              (subscript_list "UUG")) = "Leucine")))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list "UAU")) =
+          (assignment_expression
+            (subscript_expression PLACEHOLDER_2
+              (subscript_list "UAC")) = "Tyrosine")))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list "UGU")) =
+          (assignment_expression
+            (subscript_expression PLACEHOLDER_2
+              (subscript_list "UGC")) = "Cysteine")))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list "UCU")) =
+          (assignment_expression
+            (subscript_expression PLACEHOLDER_2
+              (subscript_list "UCC")) =
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_2
+                (subscript_list "UCA")) =
+              (assignment_expression
+                (subscript_expression PLACEHOLDER_2
+                  (subscript_list "UCG")) = "Serine")))))))
+  (rule
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <= NF) ;
+        (update_expression ++ PLACEHOLDER_3)
+        (statement_list
+          (if_statement
+            (binary_expression
+              (field_reference PLACEHOLDER_3) ~ PLACEHOLDER_1)
+            (statement_list
+              (expression_statement
+                (assignment_expression NF =
+                  (binary_expression PLACEHOLDER_3 - 1))))
+            (statement_list
+              (expression_statement
+                (assignment_expression
+                  (field_reference PLACEHOLDER_3) =
+                  (function_call PLACEHOLDER_4
+                    (argument_list
+                      (field_reference PLACEHOLDER_3)))))))))
+      (print_statement)))
+  (function_definition PLACEHOLDER_4
+    (parameter_list PLACEHOLDER_5)
+    (statement_list
+      (if_statement
+        (membership_expression PLACEHOLDER_5 PLACEHOLDER_2)
+        (statement_list
+          (return_statement
+            (subscript_expression PLACEHOLDER_2
+              (subscript_list PLACEHOLDER_5)))))
+      (print_statement
+        (output_arguments "Invalid codon"))
+      (exit_statement 1))))

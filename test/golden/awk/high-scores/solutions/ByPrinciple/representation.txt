@@ -1,12 +1,58 @@
-BEGIN { ind = 1 }
-/[0-9]+/ { scores [ ind ++ ] = $0 }
-/list/ { for ( i = 1 ; i <= ind ; i ++ ){
-print scores [ i ]
-}}
-/latest/ { print scores [ ind - 1 ] }
-/personalBest/ { n = asort ( scores , sorted );
-print sorted [ n ] }
-/personalTopThree/ { n = asort ( scores , sorted )
-for ( i = n ; i > n - 3 ; i -- ){
-print sorted [ i ]
-}}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = 1))))
+  (rule /[0-9]+/
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list
+              (update_expression PLACEHOLDER_1 ++))) =
+          (field_reference 0)))))
+  (rule /list/
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <= PLACEHOLDER_1) ;
+        (update_expression PLACEHOLDER_3 ++)
+        (statement_list
+          (print_statement
+            (output_arguments
+              (subscript_expression PLACEHOLDER_2
+                (subscript_list PLACEHOLDER_3))))))))
+  (rule /latest/
+    (statement_list
+      (print_statement
+        (output_arguments
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list
+              (binary_expression PLACEHOLDER_1 - 1)))))))
+  (rule /personalBest/
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 =
+          (function_call asort
+            (argument_list PLACEHOLDER_2 PLACEHOLDER_5))))
+      (print_statement
+        (output_arguments
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list PLACEHOLDER_4))))))
+  (rule /personalTopThree/
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 =
+          (function_call asort
+            (argument_list PLACEHOLDER_2 PLACEHOLDER_5))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = PLACEHOLDER_4) ;
+        (binary_expression PLACEHOLDER_3 >
+          (binary_expression PLACEHOLDER_4 - 3)) ;
+        (update_expression PLACEHOLDER_3 --)
+        (statement_list
+          (print_statement
+            (output_arguments
+              (subscript_expression PLACEHOLDER_5
+                (subscript_list PLACEHOLDER_3)))))))))

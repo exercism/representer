@@ -1,24 +1,89 @@
-BEGIN {
-PROCINFO [ "\"sorted_in\"" ] = "\"@val_num_asc\""
-FS = "\",\""
-all [ "\"eggs\"" ] = 1
-all [ "\"peanuts\"" ] = 2
-all [ "\"shellfish\"" ] = 4
-all [ "\"strawberries\"" ] = 8
-all [ "\"tomatoes\"" ] = 16
-all [ "\"chocolate\"" ] = 32
-all [ "\"pollen\"" ] = 64
-all [ "\"cats\"" ] = 128
-a = "\"false\""
-getline
-if ( NF == 3 && and ( $1 , all [ $3 ])) a = "\"true\""
-if ( NF == 2 && $2 == "\"list\"" ) {
-if ( $1 == 0 ) exit
-a = "\"\""
-for ( i in all ) {
-if ( and ( $1 , all [ i ])) a = a "\",\"" i
-}
-sub ( "\"^,\"" , "\"\"" , a )
-}
-print a
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PROCINFO
+            (subscript_list "sorted_in")) = "@val_num_asc"))
+      (expression_statement
+        (assignment_expression FS = ","))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "eggs")) = 1))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "peanuts")) = 2))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "shellfish")) = 4))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "strawberries")) = 8))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "tomatoes")) = 16))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "chocolate")) = 32))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "pollen")) = 64))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "cats")) = 128))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = "false"))
+      (expression_statement
+        (getline_expression))
+      (if_statement
+        (binary_expression
+          (binary_expression NF == 3) &&
+          (function_call and
+            (argument_list
+              (field_reference 1)
+              (subscript_expression PLACEHOLDER_1
+                (subscript_list
+                  (field_reference 3))))))
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 = "true"))))
+      (if_statement
+        (binary_expression
+          (binary_expression NF == 2) &&
+          (binary_expression
+            (field_reference 2) == "list"))
+        (statement_list
+          (if_statement
+            (binary_expression
+              (field_reference 1) == 0)
+            (statement_list
+              (exit_statement)))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 = ""))
+          (for_in_statement PLACEHOLDER_3 PLACEHOLDER_1
+            (statement_list
+              (if_statement
+                (function_call and
+                  (argument_list
+                    (field_reference 1)
+                    (subscript_expression PLACEHOLDER_1
+                      (subscript_list PLACEHOLDER_3))))
+                (statement_list
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_2 =
+                      (concatenation_expression
+                        (concatenation_expression PLACEHOLDER_2 ",") PLACEHOLDER_3)))))))
+          (expression_statement
+            (function_call sub
+              (argument_list "^," "" PLACEHOLDER_2)))))
+      (print_statement
+        (output_arguments PLACEHOLDER_2)))))

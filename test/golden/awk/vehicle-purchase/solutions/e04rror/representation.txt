@@ -1,15 +1,45 @@
-BEGIN {
-FS = "\",\""
-}
-{
-if ( $1 ~ "\"needs_license\"" ) { if ( $2 ~ /car|truck/ ) { print "\"true\"" } }
-else if ( $1 ~ "\"resell_price\"" ) {
-if ( $3 < 3 ) {
-print (( $2 ) * 0.8 )
-} else if ( $3 > 10 ) {
-print (( $2 ) * 0.5 )
-} else {
-print (( $2 ) * 0.7 )
-}
-}
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = ","))))
+  (rule
+    (statement_list
+      (if_statement
+        (binary_expression
+          (field_reference 1) ~ "needs_license")
+        (statement_list
+          (if_statement
+            (binary_expression
+              (field_reference 2) ~ /car|truck/)
+            (statement_list
+              (print_statement
+                (output_arguments "true")))))
+        (statement_list
+          (if_statement
+            (binary_expression
+              (field_reference 1) ~ "resell_price")
+            (statement_list
+              (if_statement
+                (binary_expression
+                  (field_reference 3) < 3)
+                (statement_list
+                  (print_statement
+                    (output_arguments
+                      (binary_expression
+                        (field_reference 2) * 0.8))))
+                (statement_list
+                  (if_statement
+                    (binary_expression
+                      (field_reference 3) > 10)
+                    (statement_list
+                      (print_statement
+                        (output_arguments
+                          (binary_expression
+                            (field_reference 2) * 0.5))))
+                    (statement_list
+                      (print_statement
+                        (output_arguments
+                          (binary_expression
+                            (field_reference 2) * 0.7))))))))))))))

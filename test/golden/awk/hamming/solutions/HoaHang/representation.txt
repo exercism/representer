@@ -1,15 +1,61 @@
-BEGIN { count = 0 }
-{ line [ NR ] = $0 }
-END {
-if ( NR != 2 ) { print "\"Wrong format\"" ; exit 1 }
-if ( length ( line [ 1 ]) != length ( line [ 2 ])){
-print "\"strands must be of equal length\""
-exit 1
-}
-else {
-for ( i = 1 ; i <= length ( line [ 1 ]); i ++ ){
-if ( substr ( line [ 1 ], i , 1 ) != substr ( line [ 2 ], i , 1 )) count ++
-}
-print count
-}
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = 0))))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list NR)) =
+          (field_reference 0)))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (if_statement
+        (binary_expression NR != 2)
+        (statement_list
+          (print_statement
+            (output_arguments "Wrong format"))
+          (exit_statement 1)))
+      (if_statement
+        (binary_expression
+          (function_call length
+            (argument_list
+              (subscript_expression PLACEHOLDER_2
+                (subscript_list 1)))) !=
+          (function_call length
+            (argument_list
+              (subscript_expression PLACEHOLDER_2
+                (subscript_list 2)))))
+        (statement_list
+          (print_statement
+            (output_arguments "strands must be of equal length"))
+          (exit_statement 1))
+        (statement_list
+          (for_statement
+            (assignment_expression PLACEHOLDER_3 = 1) ;
+            (binary_expression PLACEHOLDER_3 <=
+              (function_call length
+                (argument_list
+                  (subscript_expression PLACEHOLDER_2
+                    (subscript_list 1))))) ;
+            (update_expression PLACEHOLDER_3 ++)
+            (statement_list
+              (if_statement
+                (binary_expression
+                  (function_call substr
+                    (argument_list
+                      (subscript_expression PLACEHOLDER_2
+                        (subscript_list 1)) PLACEHOLDER_3 1)) !=
+                  (function_call substr
+                    (argument_list
+                      (subscript_expression PLACEHOLDER_2
+                        (subscript_list 2)) PLACEHOLDER_3 1)))
+                (statement_list
+                  (expression_statement
+                    (update_expression PLACEHOLDER_1 ++))))))
+          (print_statement
+            (output_arguments PLACEHOLDER_1)))))))

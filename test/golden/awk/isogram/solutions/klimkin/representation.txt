@@ -1,20 +1,41 @@
-BEGIN {
-FS = "\"\""
-is_isogram = 1
-}
-{
-for ( i = 1 ; i <= NF ; i ++ ) {
-c = tolower ( $i )
-if ( c ~ /[^a-z]/ ) {
-continue
-}
-if ( seen [ c ]) {
-is_isogram = 0
-exit 0
-}
-seen [ c ] = 1
-}
-}
-END {
-print ( is_isogram ? "\"true\"" : "\"false\"" )
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = ""))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = 1))))
+  (rule
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_2 = 1) ;
+        (binary_expression PLACEHOLDER_2 <= NF) ;
+        (update_expression PLACEHOLDER_2 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_3 =
+              (function_call tolower
+                (argument_list
+                  (field_reference PLACEHOLDER_2)))))
+          (if_statement
+            (binary_expression PLACEHOLDER_3 ~ /[^a-z]/)
+            (statement_list
+              (continue_statement)))
+          (if_statement
+            (subscript_expression PLACEHOLDER_4
+              (subscript_list PLACEHOLDER_3))
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_1 = 0))
+              (exit_statement 0)))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_4
+                (subscript_list PLACEHOLDER_3)) = 1))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (print_statement
+        (output_arguments
+          (conditional_expression PLACEHOLDER_1 "true" "false"))))))

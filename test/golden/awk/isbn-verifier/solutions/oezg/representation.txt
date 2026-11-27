@@ -1,13 +1,45 @@
-BEGIN { FPAT = "\"[[:digit:]X]\"" }
-{ print isValidISBN () ? "\"true\"" : "\"false\"" }
-function isValidISBN () {
-if ( /[^[:digit:]X-]/ || NF != 10 ) return 0
-for ( i = 1 ; i <= 10 ; i ++ ) {
-if ( $i == "\"X\"" ) {
-if ( i < 10 ) return 0
-n += 10
-}
-else n += $i * ( 11 - i )
-}
-return n % 11 == 0
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FPAT = "[[:digit:]X]"))))
+  (rule
+    (statement_list
+      (print_statement
+        (output_arguments
+          (conditional_expression
+            (function_call PLACEHOLDER_1
+              (argument_list)) "true" "false")))))
+  (function_definition PLACEHOLDER_1
+    (parameter_list)
+    (statement_list
+      (if_statement
+        (binary_expression /[^[:digit:]X-]/ ||
+          (binary_expression NF != 10))
+        (statement_list
+          (return_statement 0)))
+      (for_statement
+        (assignment_expression PLACEHOLDER_2 = 1) ;
+        (binary_expression PLACEHOLDER_2 <= 10) ;
+        (update_expression PLACEHOLDER_2 ++)
+        (statement_list
+          (if_statement
+            (binary_expression
+              (field_reference PLACEHOLDER_2) == "X")
+            (statement_list
+              (if_statement
+                (binary_expression PLACEHOLDER_2 < 10)
+                (statement_list
+                  (return_statement 0)))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_3 += 10)))
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_3 +=
+                  (binary_expression
+                    (field_reference PLACEHOLDER_2) *
+                    (binary_expression 11 - PLACEHOLDER_2))))))))
+      (return_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_3 % 11) == 0)))))

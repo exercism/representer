@@ -1,6 +1,34 @@
-BEGIN { FPAT = "\"[0-9]\"" }
-{
-sum = 0 ;
-for ( i = 1 ; i <= NF ; i ++ ) sum += ( NF - i ) % 2 ? int ( $i * 2.2 ): $i ;
-print ( ! "/[^0-9 ]/" && sum % 10 == 0 && NF > 1 ) ? "\"true\"" : "\"false\""
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FPAT = "[0-9]"))))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = 0))
+      (for_statement
+        (assignment_expression PLACEHOLDER_2 = 1) ;
+        (binary_expression PLACEHOLDER_2 <= NF) ;
+        (update_expression PLACEHOLDER_2 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_1 +=
+              (conditional_expression
+                (binary_expression
+                  (binary_expression NF - PLACEHOLDER_2) % 2)
+                (function_call int
+                  (argument_list
+                    (binary_expression
+                      (field_reference PLACEHOLDER_2) * 2.2)))
+                (field_reference PLACEHOLDER_2))))))
+      (print_statement
+        (output_arguments
+          (conditional_expression
+            (binary_expression
+              (binary_expression
+                (unary_expression ! "/[^0-9 ]/") &&
+                (binary_expression
+                  (binary_expression PLACEHOLDER_1 % 10) == 0)) &&
+              (binary_expression NF > 1)) "true" "false"))))))

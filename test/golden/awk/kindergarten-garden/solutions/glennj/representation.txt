@@ -1,17 +1,86 @@
-BEGIN {
-FPAT = "\"..\""
-n = split ( "\"Alice Bob Charlie David Eve Fred Ginny Harriet Ileana Joseph Kincaid Larry\"" , names , "/ /" )
-for ( i = 1 ; i <= n ; i ++ ) student [ names [ i ]] = i
-plant [ "\"G\"" ] = "\"grass\""
-plant [ "\"C\"" ] = "\"clover\""
-plant [ "\"R\"" ] = "\"radishes\""
-plant [ "\"V\"" ] = "\"violets\""
-}
-{ for ( i = 1 ; i <= NF ; i ++ ) plots [ i ] = plots [ i ] $i }
-END {
-idx = student [ name ]
-n = split ( plots [ idx ], plot , "\"\"" )
-result = plant [ plot [ 1 ]]
-for ( i = 2 ; i <= n ; i ++ ) result = result "\" \"" plant [ plot [ i ]]
-print result
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FPAT = ".."))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (function_call split
+            (argument_list "Alice Bob Charlie David Eve Fred Ginny Harriet Ileana Joseph Kincaid Larry" PLACEHOLDER_2 "/ /"))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <= PLACEHOLDER_1) ;
+        (update_expression PLACEHOLDER_3 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_4
+                (subscript_list
+                  (subscript_expression PLACEHOLDER_2
+                    (subscript_list PLACEHOLDER_3)))) = PLACEHOLDER_3))))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "G")) = "grass"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "C")) = "clover"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "R")) = "radishes"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "V")) = "violets"))))
+  (rule
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <= NF) ;
+        (update_expression PLACEHOLDER_3 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_6
+                (subscript_list PLACEHOLDER_3)) =
+              (concatenation_expression
+                (subscript_expression PLACEHOLDER_6
+                  (subscript_list PLACEHOLDER_3))
+                (field_reference PLACEHOLDER_3))))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_7 =
+          (subscript_expression PLACEHOLDER_4
+            (subscript_list name))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (function_call split
+            (argument_list
+              (subscript_expression PLACEHOLDER_6
+                (subscript_list PLACEHOLDER_7)) PLACEHOLDER_8 ""))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_9 =
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list
+              (subscript_expression PLACEHOLDER_8
+                (subscript_list 1))))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 2) ;
+        (binary_expression PLACEHOLDER_3 <= PLACEHOLDER_1) ;
+        (update_expression PLACEHOLDER_3 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_9 =
+              (concatenation_expression
+                (concatenation_expression PLACEHOLDER_9 " ")
+                (subscript_expression PLACEHOLDER_5
+                  (subscript_list
+                    (subscript_expression PLACEHOLDER_8
+                      (subscript_list PLACEHOLDER_3)))))))))
+      (print_statement
+        (output_arguments PLACEHOLDER_9)))))

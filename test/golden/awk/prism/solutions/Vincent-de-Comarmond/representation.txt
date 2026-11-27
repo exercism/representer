@@ -1,61 +1,214 @@
-BEGIN {
-split ( "\"\"" , reflectors , FS )
-split ( "\"\"" , point , FS )
-split ( "\"\"" , points , FS )
-}
-NF == 3 {
-point [ 1 ] = $1
-point [ 2 ] = $2
-point [ 3 ] = $3
-next
-}
-{
-reflectors [ $1 ] = $2 SUBSEP $3 SUBSEP $4
-}
-END {
-populate_trajectory ( points , reflectors , point )
-for ( i = 1 ; i <= length ( points ); i ++ ) {
-printf "\"%s%d\"" , i == 1 ? "\"\"" : "\" \"" , points [ i ]
-}
-}
-function approx_eq ( alpha , beta , tol )
-{
-return ( alpha < beta ? ( beta - alpha ) <= tol : ( alpha - beta ) <= tol )
-}
-function cosdeg ( angle )
-{
-return cos ( angle * atan2 ( 0 , - 1 ) / 180 )
-}
-function populate_trajectory ( reflectors_hit , reflector_map , current , _cos , _sin , _i , _point , _nextpoint , _eps , _mindist , _dist , _idx )
-{
-_idx = 0
-_eps = 1 e - 2
-_mindist = 1 e10
-_cos = cosdeg ( current [ 3 ])
-_sin = sindeg ( current [ 3 ])
-for ( _i in reflector_map ) {
-if (( 0 < length ( reflectors_hit )) && _i == reflectors_hit [ length ( reflectors_hit )]) {
-continue
-}
-split ( reflector_map [ _i ], _point , SUBSEP )
-_dist = ( _point [ 1 ] - current [ 1 ]) * _sin - ( _point [ 2 ] - current [ 2 ]) * _cos
-if ( approx_eq ( _dist , 0 , _eps )) {
-_dist = ( _point [ 1 ] - current [ 1 ]) * _cos + ( _point [ 2 ] - current [ 2 ]) * _sin
-if ( 0 < _dist && _dist < _mindist ) {
-_idx = _i
-_mindist = _dist
-_nextpoint [ 1 ] = _point [ 1 ]
-_nextpoint [ 2 ] = _point [ 2 ]
-_nextpoint [ 3 ] = _point [ 3 ] + current [ 3 ]
-}
-}
-}
-if ( _idx != 0 ) {
-reflectors_hit [ length ( reflectors_hit ) + 1 ] = _idx
-return populate_trajectory ( reflectors_hit , reflector_map , _nextpoint )
-}
-}
-function sindeg ( angle )
-{
-return sin ( angle * atan2 ( 0 , - 1 ) / 180 )
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (function_call split
+          (argument_list "" PLACEHOLDER_1 FS)))
+      (expression_statement
+        (function_call split
+          (argument_list "" PLACEHOLDER_2 FS)))
+      (expression_statement
+        (function_call split
+          (argument_list "" PLACEHOLDER_3 FS)))))
+  (rule
+    (binary_expression NF == 3)
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list 1)) =
+          (field_reference 1)))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list 2)) =
+          (field_reference 2)))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_2
+            (subscript_list 3)) =
+          (field_reference 3)))
+      (next_statement)))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list
+              (field_reference 1))) =
+          (concatenation_expression
+            (concatenation_expression
+              (concatenation_expression
+                (concatenation_expression
+                  (field_reference 2) SUBSEP)
+                (field_reference 3)) SUBSEP)
+            (field_reference 4))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (expression_statement
+        (function_call PLACEHOLDER_4
+          (argument_list PLACEHOLDER_3 PLACEHOLDER_1 PLACEHOLDER_2)))
+      (for_statement
+        (assignment_expression PLACEHOLDER_5 = 1) ;
+        (binary_expression PLACEHOLDER_5 <=
+          (function_call length
+            (argument_list PLACEHOLDER_3))) ;
+        (update_expression PLACEHOLDER_5 ++)
+        (statement_list
+          (printf_statement
+            (output_arguments "%s%d"
+              (conditional_expression
+                (binary_expression PLACEHOLDER_5 == 1) "" " ")
+              (subscript_expression PLACEHOLDER_3
+                (subscript_list PLACEHOLDER_5))))))))
+  (function_definition PLACEHOLDER_6
+    (parameter_list PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9)
+    (statement_list
+      (return_statement
+        (conditional_expression
+          (binary_expression PLACEHOLDER_7 < PLACEHOLDER_8)
+          (binary_expression
+            (binary_expression PLACEHOLDER_8 - PLACEHOLDER_7) <= PLACEHOLDER_9)
+          (binary_expression
+            (binary_expression PLACEHOLDER_7 - PLACEHOLDER_8) <= PLACEHOLDER_9)))))
+  (function_definition PLACEHOLDER_10
+    (parameter_list PLACEHOLDER_11)
+    (statement_list
+      (return_statement
+        (function_call cos
+          (argument_list
+            (binary_expression
+              (binary_expression PLACEHOLDER_11 *
+                (function_call atan2
+                  (argument_list 0
+                    (unary_expression - 1)))) / 180))))))
+  (function_definition PLACEHOLDER_4
+    (parameter_list PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14 PLACEHOLDER_15 PLACEHOLDER_16 PLACEHOLDER_17 PLACEHOLDER_18 PLACEHOLDER_19 PLACEHOLDER_20 PLACEHOLDER_21 PLACEHOLDER_22 PLACEHOLDER_23)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_23 = 0))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_20 = 0.01))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_21 = 10000000000))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_15 =
+          (function_call PLACEHOLDER_10
+            (argument_list
+              (subscript_expression PLACEHOLDER_14
+                (subscript_list 3))))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_16 =
+          (function_call PLACEHOLDER_24
+            (argument_list
+              (subscript_expression PLACEHOLDER_14
+                (subscript_list 3))))))
+      (for_in_statement PLACEHOLDER_17 PLACEHOLDER_13
+        (statement_list
+          (if_statement
+            (binary_expression
+              (binary_expression 0 <
+                (function_call length
+                  (argument_list PLACEHOLDER_12))) &&
+              (binary_expression PLACEHOLDER_17 ==
+                (subscript_expression PLACEHOLDER_12
+                  (subscript_list
+                    (function_call length
+                      (argument_list PLACEHOLDER_12))))))
+            (statement_list
+              (continue_statement)))
+          (expression_statement
+            (function_call split
+              (argument_list
+                (subscript_expression PLACEHOLDER_13
+                  (subscript_list PLACEHOLDER_17)) PLACEHOLDER_18 SUBSEP)))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_22 =
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (subscript_expression PLACEHOLDER_18
+                      (subscript_list 1)) -
+                    (subscript_expression PLACEHOLDER_14
+                      (subscript_list 1))) * PLACEHOLDER_16) -
+                (binary_expression
+                  (binary_expression
+                    (subscript_expression PLACEHOLDER_18
+                      (subscript_list 2)) -
+                    (subscript_expression PLACEHOLDER_14
+                      (subscript_list 2))) * PLACEHOLDER_15))))
+          (if_statement
+            (function_call PLACEHOLDER_6
+              (argument_list PLACEHOLDER_22 0 PLACEHOLDER_20))
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_22 =
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression
+                        (subscript_expression PLACEHOLDER_18
+                          (subscript_list 1)) -
+                        (subscript_expression PLACEHOLDER_14
+                          (subscript_list 1))) * PLACEHOLDER_15) +
+                    (binary_expression
+                      (binary_expression
+                        (subscript_expression PLACEHOLDER_18
+                          (subscript_list 2)) -
+                        (subscript_expression PLACEHOLDER_14
+                          (subscript_list 2))) * PLACEHOLDER_16))))
+              (if_statement
+                (binary_expression
+                  (binary_expression 0 < PLACEHOLDER_22) &&
+                  (binary_expression PLACEHOLDER_22 < PLACEHOLDER_21))
+                (statement_list
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_23 = PLACEHOLDER_17))
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_21 = PLACEHOLDER_22))
+                  (expression_statement
+                    (assignment_expression
+                      (subscript_expression PLACEHOLDER_19
+                        (subscript_list 1)) =
+                      (subscript_expression PLACEHOLDER_18
+                        (subscript_list 1))))
+                  (expression_statement
+                    (assignment_expression
+                      (subscript_expression PLACEHOLDER_19
+                        (subscript_list 2)) =
+                      (subscript_expression PLACEHOLDER_18
+                        (subscript_list 2))))
+                  (expression_statement
+                    (assignment_expression
+                      (subscript_expression PLACEHOLDER_19
+                        (subscript_list 3)) =
+                      (binary_expression
+                        (subscript_expression PLACEHOLDER_18
+                          (subscript_list 3)) +
+                        (subscript_expression PLACEHOLDER_14
+                          (subscript_list 3)))))))))))
+      (if_statement
+        (binary_expression PLACEHOLDER_23 != 0)
+        (statement_list
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_12
+                (subscript_list
+                  (binary_expression
+                    (function_call length
+                      (argument_list PLACEHOLDER_12)) + 1))) = PLACEHOLDER_23))
+          (return_statement
+            (function_call PLACEHOLDER_4
+              (argument_list PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_19)))))))
+  (function_definition PLACEHOLDER_24
+    (parameter_list PLACEHOLDER_11)
+    (statement_list
+      (return_statement
+        (function_call sin
+          (argument_list
+            (binary_expression
+              (binary_expression PLACEHOLDER_11 *
+                (function_call atan2
+                  (argument_list 0
+                    (unary_expression - 1)))) / 180)))))))

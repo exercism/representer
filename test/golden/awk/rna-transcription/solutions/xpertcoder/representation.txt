@@ -1,12 +1,64 @@
-NF {
-n = split ( $0 , word , "\"\"" )
-res = "\"\""
-for ( i = 1 ; i <= n ; i ++ ) {
-if ( word [ i ] == "\"G\"" ) res = res "\"C\""
-else if ( word [ i ] == "\"C\"" ) res = res "\"G\""
-else if ( word [ i ] == "\"T\"" ) res = res "\"A\""
-else if ( word [ i ] == "\"A\"" ) res = res "\"U\""
-else { print ( "\"Invalid nucleotide detected.\"" ); exit_invoked = 1 ; exit 1 ;}
-}
-}
-END { if ( ! exit_invoked ) { print res }}
+(program
+  (rule NF
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (function_call split
+            (argument_list
+              (field_reference 0) PLACEHOLDER_2 ""))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 = ""))
+      (for_statement
+        (assignment_expression PLACEHOLDER_4 = 1) ;
+        (binary_expression PLACEHOLDER_4 <= PLACEHOLDER_1) ;
+        (update_expression PLACEHOLDER_4 ++)
+        (statement_list
+          (if_statement
+            (binary_expression
+              (subscript_expression PLACEHOLDER_2
+                (subscript_list PLACEHOLDER_4)) == "G")
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_3 =
+                  (concatenation_expression PLACEHOLDER_3 "C"))))
+            (statement_list
+              (if_statement
+                (binary_expression
+                  (subscript_expression PLACEHOLDER_2
+                    (subscript_list PLACEHOLDER_4)) == "C")
+                (statement_list
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_3 =
+                      (concatenation_expression PLACEHOLDER_3 "G"))))
+                (statement_list
+                  (if_statement
+                    (binary_expression
+                      (subscript_expression PLACEHOLDER_2
+                        (subscript_list PLACEHOLDER_4)) == "T")
+                    (statement_list
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_3 =
+                          (concatenation_expression PLACEHOLDER_3 "A"))))
+                    (statement_list
+                      (if_statement
+                        (binary_expression
+                          (subscript_expression PLACEHOLDER_2
+                            (subscript_list PLACEHOLDER_4)) == "A")
+                        (statement_list
+                          (expression_statement
+                            (assignment_expression PLACEHOLDER_3 =
+                              (concatenation_expression PLACEHOLDER_3 "U"))))
+                        (statement_list
+                          (print_statement
+                            (output_arguments "Invalid nucleotide detected."))
+                          (expression_statement
+                            (assignment_expression PLACEHOLDER_5 = 1))
+                          (exit_statement 1)))))))))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (if_statement
+        (unary_expression ! PLACEHOLDER_5)
+        (statement_list
+          (print_statement
+            (output_arguments PLACEHOLDER_3)))))))

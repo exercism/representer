@@ -1,9 +1,38 @@
-BEGIN { cnt = 0 }
-{
-if ( $0 < 1 ) { print "\"Error: Only positive numbers are allowed\"" ; exit 1 }
-while ( $0 > 1 ) {
-if ( $0 % 2 == 0 ) $0 /= 2 ; else $0 = 3 * $0 + 1
-++ cnt
-}
-print cnt
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = 0))))
+  (rule
+    (statement_list
+      (if_statement
+        (binary_expression
+          (field_reference 0) < 1)
+        (statement_list
+          (print_statement
+            (output_arguments "Error: Only positive numbers are allowed"))
+          (exit_statement 1)))
+      (while_statement
+        (binary_expression
+          (field_reference 0) > 1)
+        (statement_list
+          (if_statement
+            (binary_expression
+              (binary_expression
+                (field_reference 0) % 2) == 0)
+            (statement_list
+              (expression_statement
+                (assignment_expression
+                  (field_reference 0) /= 2)))
+            (statement_list
+              (expression_statement
+                (assignment_expression
+                  (field_reference 0) =
+                  (binary_expression
+                    (binary_expression 3 *
+                      (field_reference 0)) + 1)))))
+          (expression_statement
+            (update_expression ++ PLACEHOLDER_1))))
+      (print_statement
+        (output_arguments PLACEHOLDER_1)))))

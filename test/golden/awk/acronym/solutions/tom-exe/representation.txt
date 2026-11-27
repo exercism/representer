@@ -1,8 +1,24 @@
-BEGIN {
-FS = "\"[- ]\""
-}
-{
-gsub ( "/[^-a-zA-Z0-9 ]/" , "\"\"" , $0 )
-for ( i = 1 ; i <= NF ; i ++ )
-printf ( "\"%s\"" , toupper ( substr ( $i , 1 , 1 )))
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = "[- ]"))))
+  (rule
+    (statement_list
+      (expression_statement
+        (function_call gsub
+          (argument_list "/[^-a-zA-Z0-9 ]/" ""
+            (field_reference 0))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_1 = 1) ;
+        (binary_expression PLACEHOLDER_1 <= NF) ;
+        (update_expression PLACEHOLDER_1 ++)
+        (statement_list
+          (printf_statement
+            (output_arguments "%s"
+              (function_call toupper
+                (argument_list
+                  (function_call substr
+                    (argument_list
+                      (field_reference PLACEHOLDER_1) 1 1)))))))))))

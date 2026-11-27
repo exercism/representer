@@ -1,36 +1,107 @@
-@ include "\"assert\""
-function encode ( v , i , s ) {
-if ( v == 0 ) return "\"00\""
-while ( v > 0 ) {
-d = and ( v , 0 x7F )
-if ( i ++ > 0 ) d = or ( d , 0 x80 )
-s = sprintf ( "\"%02X %s\"" , d , s )
-v = rshift ( v , 7 )
-}
-return substr ( s , 1 , length ( s ) - 1 )
-}
-action == "\"encode\"" {
-for ( i = 1 ; i <= NF ; ++ i ) {
-printf "\"%s%s\"" , sep , encode ( strtonum ( "\"0x\"" $i ))
-sep = "\" \""
-}
-}
-action == "\"decode\"" {
-v = 0
-for ( i = 1 ; i <= NF ; ++ i ) {
-b = strtonum ( "\"0x\"" $i )
-done = and ( b , 0 x80 ) == 0
-b = and ( b , 0 x7F )
-v = lshift ( v , 7 )
-v = or ( v , b )
-if ( done ) {
-printf "\"%s%02X\"" , sep , v
-v = 0
-sep = "\" \""
-}
-}
-assert ( done , "\"incomplete byte sequence\"" )
-}
-{
-assert ( action == "\"encode\"" || action == "\"decode\"" , "\"unknown action\"" )
-}
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4)
+    (statement_list
+      (if_statement
+        (binary_expression PLACEHOLDER_2 == 0)
+        (statement_list
+          (return_statement "00")))
+      (while_statement
+        (binary_expression PLACEHOLDER_2 > 0)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_5 =
+              (function_call and
+                (argument_list PLACEHOLDER_2 127))))
+          (if_statement
+            (binary_expression
+              (update_expression PLACEHOLDER_3 ++) > 0)
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_5 =
+                  (function_call or
+                    (argument_list PLACEHOLDER_5 128))))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 =
+              (function_call sprintf
+                (argument_list "%02X %s" PLACEHOLDER_5 PLACEHOLDER_4))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 =
+              (function_call rshift
+                (argument_list PLACEHOLDER_2 7))))))
+      (return_statement
+        (function_call substr
+          (argument_list PLACEHOLDER_4 1
+            (binary_expression
+              (function_call length
+                (argument_list PLACEHOLDER_4)) - 1))))))
+  (rule
+    (binary_expression action == "encode")
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <= NF) ;
+        (update_expression ++ PLACEHOLDER_3)
+        (statement_list
+          (printf_statement
+            (output_arguments "%s%s" PLACEHOLDER_6
+              (function_call PLACEHOLDER_1
+                (argument_list
+                  (function_call strtonum
+                    (argument_list
+                      (concatenation_expression "0x"
+                        (field_reference PLACEHOLDER_3))))))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_6 = " "))))))
+  (rule
+    (binary_expression action == "decode")
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = 0))
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <= NF) ;
+        (update_expression ++ PLACEHOLDER_3)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_7 =
+              (function_call strtonum
+                (argument_list
+                  (concatenation_expression "0x"
+                    (field_reference PLACEHOLDER_3))))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_8 =
+              (binary_expression
+                (function_call and
+                  (argument_list PLACEHOLDER_7 128)) == 0)))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_7 =
+              (function_call and
+                (argument_list PLACEHOLDER_7 127))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 =
+              (function_call lshift
+                (argument_list PLACEHOLDER_2 7))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 =
+              (function_call or
+                (argument_list PLACEHOLDER_2 PLACEHOLDER_7))))
+          (if_statement PLACEHOLDER_8
+            (statement_list
+              (printf_statement
+                (output_arguments "%s%02X" PLACEHOLDER_6 PLACEHOLDER_2))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_2 = 0))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_6 = " "))))))
+      (expression_statement
+        (function_call assert
+          (argument_list PLACEHOLDER_8 "incomplete byte sequence")))))
+  (rule
+    (statement_list
+      (expression_statement
+        (function_call assert
+          (argument_list
+            (binary_expression
+              (binary_expression action == "encode") ||
+              (binary_expression action == "decode")) "unknown action"))))))

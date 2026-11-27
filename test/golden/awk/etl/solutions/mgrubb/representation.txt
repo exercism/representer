@@ -1,21 +1,61 @@
-BEGIN {
-fs [ "\"a\"" ] = 1
-}
-function f2arr ( arr , v ) {
-for ( i = 2 ; i <= NF ; i ++ ) {
-arr [ $i ] = v
-}
-}
-{
-$0 = tolower ( $0 )
-gsub ( /["]/ , "\"\"" , $0 )
-gsub ( /,/ , "\" \"" , $0 )
-gsub ( /:/ , "\" \"" , $0 )
-f2arr ( fs , $1 )
-}
-END {
-asorti ( fs , fs2 )
-for ( i in fs2 ) {
-printf "\"%s,%d\\n\"" , fs2 [ i ], fs [ fs2 [ i ]]
-}
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "a")) = 1))))
+  (function_definition PLACEHOLDER_2
+    (parameter_list PLACEHOLDER_3 PLACEHOLDER_4)
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_5 = 2) ;
+        (binary_expression PLACEHOLDER_5 <= NF) ;
+        (update_expression PLACEHOLDER_5 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_3
+                (subscript_list
+                  (field_reference PLACEHOLDER_5))) = PLACEHOLDER_4))))))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (field_reference 0) =
+          (function_call tolower
+            (argument_list
+              (field_reference 0)))))
+      (expression_statement
+        (function_call gsub
+          (argument_list "/[\"]/" ""
+            (field_reference 0))))
+      (expression_statement
+        (function_call gsub
+          (argument_list /,/ " "
+            (field_reference 0))))
+      (expression_statement
+        (function_call gsub
+          (argument_list /:/ " "
+            (field_reference 0))))
+      (expression_statement
+        (function_call PLACEHOLDER_2
+          (argument_list PLACEHOLDER_1
+            (field_reference 1))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (expression_statement
+        (function_call asorti
+          (argument_list PLACEHOLDER_1 PLACEHOLDER_6)))
+      (for_in_statement PLACEHOLDER_5 PLACEHOLDER_6
+        (statement_list
+          (printf_statement
+            (output_arguments "%s,%d\n"
+              (subscript_expression PLACEHOLDER_6
+                (subscript_list PLACEHOLDER_5))
+              (subscript_expression PLACEHOLDER_1
+                (subscript_list
+                  (subscript_expression PLACEHOLDER_6
+                    (subscript_list PLACEHOLDER_5)))))))))))

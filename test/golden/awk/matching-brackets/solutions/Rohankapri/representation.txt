@@ -1,12 +1,76 @@
-function push ( x ) { bin [ ++ binPtr ] = x }
-function pop () { return bin [ binPtr -- ] }
-BEGIN {
-pairOpen [ "\"(\"" ] = "\")\"" ; pairOpen [ "\"{\"" ] = "\"}\"" ; pairOpen [ "\"[\"" ] = "\"]\""
-binPtr = 0 }
-END {
-for ( ix = length ( $0 ); ix > 0 ; -- ix ) {
-ch = substr ( $0 , ix , 1 )
-if ( ch ~ /[^][(){}]/ ) continue
-if ( ! ( ch in pairOpen )) { push ( ch ); continue }
-if ( ! binPtr || pop () != pairOpen [ ch ]) { print "\"false\"" ; exit } }
-print binPtr ? "\"false\"" : "\"true\"" }
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list PLACEHOLDER_2)
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_3
+            (subscript_list
+              (update_expression ++ PLACEHOLDER_4))) = PLACEHOLDER_2))))
+  (function_definition PLACEHOLDER_5
+    (parameter_list)
+    (statement_list
+      (return_statement
+        (subscript_expression PLACEHOLDER_3
+          (subscript_list
+            (update_expression PLACEHOLDER_4 --))))))
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "(")) = ")"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "{")) = "}"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "[")) = "]"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 = 0))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_7 =
+          (function_call length
+            (argument_list
+              (field_reference 0)))) ;
+        (binary_expression PLACEHOLDER_7 > 0) ;
+        (update_expression -- PLACEHOLDER_7)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_8 =
+              (function_call substr
+                (argument_list
+                  (field_reference 0) PLACEHOLDER_7 1))))
+          (if_statement
+            (binary_expression PLACEHOLDER_8 ~ "/[^][(){}]/")
+            (statement_list
+              (continue_statement)))
+          (if_statement
+            (unary_expression !
+              (membership_expression PLACEHOLDER_8 PLACEHOLDER_6))
+            (statement_list
+              (expression_statement
+                (function_call PLACEHOLDER_1
+                  (argument_list PLACEHOLDER_8)))
+              (continue_statement)))
+          (if_statement
+            (binary_expression
+              (unary_expression ! PLACEHOLDER_4) ||
+              (binary_expression
+                (function_call PLACEHOLDER_5
+                  (argument_list)) !=
+                (subscript_expression PLACEHOLDER_6
+                  (subscript_list PLACEHOLDER_8))))
+            (statement_list
+              (print_statement
+                (output_arguments "false"))
+              (exit_statement)))))
+      (print_statement
+        (output_arguments
+          (conditional_expression PLACEHOLDER_4 "false" "true"))))))
