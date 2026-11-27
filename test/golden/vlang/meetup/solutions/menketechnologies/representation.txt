@@ -1,38 +1,190 @@
-module main
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-const teenths = ['monteenth', 'tuesteenth', 'wednesteenth', 'thursteenth', 'friteenth', 'saturteenth', 'sunteenth']
-const descriptors = ['first', 'second', 'third', 'fourth', 'last']
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-fn date(phrase string) string {
-query := r'The (?P<day_spec>.*) of (?P<month>\w+) (?P<year>\d{4})'
-mut re := regex.regex_opt(query) or { panic(err) }
-if !re.matches_string(phrase) {
-panic('Invalid date: "\"\"${phrase}\"\"')"
-}
-month := months.index(re.get_group_by_name(phrase, 'month')) + 1
-year := re.get_group_by_name(phrase, 'year').int()
-mut t := time.new_time(time.Time{ month: month, year: year, day: 1 })
-mut found_t := time.Time{}
-day_spec := re.get_group_by_name(phrase, 'day_spec')
-if day_spec.contains('teenth') {
-day := teenths.index(day_spec) + 1
-for t.day_of_week() != day || t.day < 13 {
-t = t.add_days(1)
-}
-found_t = time.Time{
-...t
-}
-} else {
-day := days.index(day_spec.all_after(' ')) + 1
-ord := descriptors.index(day_spec.all_before(' ')) + 1
-mut found := 0
-for found < ord && t.month == month {
-if t.day_of_week() == day {
-found_t = t
-found += 1
-}
-t = t.add_days(1)
-}
-}
-return found_t.ymmdd().replace('-0', '-').replace('-', '/')
-}
+(source_file
+  (module_clause main)
+  (const_declaration
+    (const_definition PLACEHOLDER_1 =
+      (array_creation "Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday" "Sunday")))
+  (const_declaration
+    (const_definition PLACEHOLDER_2 =
+      (array_creation "monteenth" "tuesteenth" "wednesteenth" "thursteenth" "friteenth" "saturteenth" "sunteenth")))
+  (const_declaration
+    (const_definition PLACEHOLDER_3 =
+      (array_creation "first" "second" "third" "fourth" "last")))
+  (const_declaration
+    (const_definition PLACEHOLDER_4 =
+      (array_creation "January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December")))
+  (function_declaration PLACEHOLDER_5
+    (signature
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_6 string)) string)
+    (block
+      (var_declaration
+        (identifier_list PLACEHOLDER_7)
+        (expression_list "The (?P<day_spec>.*) of (?P<month>\\w+) (?P<year>\\d{4})"))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_8))
+        (expression_list
+          (or_block_expression
+            (call_expression
+              (selector_expression regex regex_opt)
+              (argument_list PLACEHOLDER_7))
+            (or_block
+              (block
+                (call_expression panic
+                  (argument_list err)))))))
+      (if_expression
+        (unary_expression !
+          (call_expression
+            (selector_expression PLACEHOLDER_8 matches_string)
+            (argument_list PLACEHOLDER_6)))
+        (block
+          (call_expression panic
+            (argument_list
+              (interpreted_string_literal "Invalid date: \"\""
+                (string_interpolation PLACEHOLDER_6) "\"\"")))))
+      (var_declaration
+        (identifier_list PLACEHOLDER_9)
+        (expression_list
+          (binary_expression
+            (call_expression
+              (selector_expression PLACEHOLDER_4 index)
+              (argument_list
+                (call_expression
+                  (selector_expression PLACEHOLDER_8 get_group_by_name)
+                  (argument_list PLACEHOLDER_6 "month")))) + 1)))
+      (var_declaration
+        (identifier_list PLACEHOLDER_10)
+        (expression_list
+          (call_expression
+            (selector_expression
+              (call_expression
+                (selector_expression PLACEHOLDER_8 get_group_by_name)
+                (argument_list PLACEHOLDER_6 "year")) int)
+            (argument_list))))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_11))
+        (expression_list
+          (call_expression
+            (selector_expression time new_time)
+            (argument_list
+              (type_initializer
+                (qualified_type time Time)
+                (type_initializer_body
+                  (element_list
+                    (keyed_element PLACEHOLDER_9 PLACEHOLDER_9)
+                    (keyed_element PLACEHOLDER_10 PLACEHOLDER_10)
+                    (keyed_element PLACEHOLDER_12 1))))))))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_13))
+        (expression_list
+          (type_initializer
+            (qualified_type time Time)
+            (type_initializer_body))))
+      (var_declaration
+        (identifier_list PLACEHOLDER_14)
+        (expression_list
+          (call_expression
+            (selector_expression PLACEHOLDER_8 get_group_by_name)
+            (argument_list PLACEHOLDER_6 "day_spec"))))
+      (if_expression
+        (call_expression
+          (selector_expression PLACEHOLDER_14 contains)
+          (argument_list "teenth"))
+        (block
+          (var_declaration
+            (identifier_list PLACEHOLDER_12)
+            (expression_list
+              (binary_expression
+                (call_expression
+                  (selector_expression PLACEHOLDER_2 index)
+                  (argument_list PLACEHOLDER_14)) + 1)))
+          (for_statement
+            (binary_expression
+              (binary_expression
+                (call_expression
+                  (selector_expression PLACEHOLDER_11 day_of_week)
+                  (argument_list)) != PLACEHOLDER_12) ||
+              (binary_expression
+                (selector_expression PLACEHOLDER_11 PLACEHOLDER_12) < 13))
+            (block
+              (assignment_statement
+                (expression_list PLACEHOLDER_11) =
+                (expression_list
+                  (call_expression
+                    (selector_expression PLACEHOLDER_11 add_days)
+                    (argument_list 1))))))
+          (assignment_statement
+            (expression_list PLACEHOLDER_13) =
+            (expression_list
+              (type_initializer
+                (qualified_type time Time)
+                (type_initializer_body
+                  (element_list
+                    (spread_expression ... PLACEHOLDER_11)))))))
+        (else_branch
+          (block
+            (var_declaration
+              (identifier_list PLACEHOLDER_12)
+              (expression_list
+                (binary_expression
+                  (call_expression
+                    (selector_expression PLACEHOLDER_1 index)
+                    (argument_list
+                      (call_expression
+                        (selector_expression PLACEHOLDER_14 all_after)
+                        (argument_list " ")))) + 1)))
+            (var_declaration
+              (identifier_list PLACEHOLDER_15)
+              (expression_list
+                (binary_expression
+                  (call_expression
+                    (selector_expression PLACEHOLDER_3 index)
+                    (argument_list
+                      (call_expression
+                        (selector_expression PLACEHOLDER_14 all_before)
+                        (argument_list " ")))) + 1)))
+            (var_declaration
+              (identifier_list
+                (mutable_identifier
+                  (mutability_modifiers mut) PLACEHOLDER_16))
+              (expression_list 0))
+            (for_statement
+              (binary_expression
+                (binary_expression PLACEHOLDER_16 < PLACEHOLDER_15) &&
+                (binary_expression
+                  (selector_expression PLACEHOLDER_11 PLACEHOLDER_9) == PLACEHOLDER_9))
+              (block
+                (if_expression
+                  (binary_expression
+                    (call_expression
+                      (selector_expression PLACEHOLDER_11 day_of_week)
+                      (argument_list)) == PLACEHOLDER_12)
+                  (block
+                    (assignment_statement
+                      (expression_list PLACEHOLDER_13) =
+                      (expression_list PLACEHOLDER_11))
+                    (assignment_statement
+                      (expression_list PLACEHOLDER_16) +=
+                      (expression_list 1))))
+                (assignment_statement
+                  (expression_list PLACEHOLDER_11) =
+                  (expression_list
+                    (call_expression
+                      (selector_expression PLACEHOLDER_11 add_days)
+                      (argument_list 1)))))))))
+      (return_statement
+        (expression_list
+          (call_expression
+            (selector_expression
+              (call_expression
+                (selector_expression
+                  (call_expression
+                    (selector_expression PLACEHOLDER_13 ymmdd)
+                    (argument_list)) replace)
+                (argument_list "-0" "-")) replace)
+            (argument_list "-" "/")))))))

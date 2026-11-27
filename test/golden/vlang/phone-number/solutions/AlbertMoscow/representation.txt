@@ -1,22 +1,140 @@
-module main
-const phone_num_len = 10
-const zero_ones = { `0`: 'zero', `1`: 'one' }
-fn clean(phrase string) !string {
-phrase_bytes := phrase.bytes()
-if phrase.contains_any('@:!') { return error('punctuations not permitted') }
-res := phrase_bytes.filter(it.is_digit())
-return match true {
-phrase_bytes.any(it.is_letter()) { error('letters not permitted') }
-res.len < phone_num_len { error('must not be fewer than 10 digits') }
-res.len > phone_num_len + 1 { error('must not be greater than 11 digits') }
-res.len == phone_num_len + 1 && res[0] != `1` { error('11 digits must start with 1') }
-res[res.len - phone_num_len] in zero_ones.keys() {
-error('area code cannot start with ${zero_ones[res[res.len - phone_num_len]]}')
-}
-res[res.len - phone_num_len + 3] in zero_ones.keys() {
-error('exchange code cannot start with ${zero_ones[res[res.len - phone_num_len + 3]]}')
-}
-else { if res.len == phone_num_len + 1 && res[0] == `1` { res.bytestr()[1..] }
-else { res.bytestr() } }
-}
-}
+(source_file
+  (module_clause main)
+  (const_declaration
+    (const_definition PLACEHOLDER_1 = 10))
+  (const_declaration
+    (const_definition PLACEHOLDER_2 =
+      (map_init_expression
+        (map_keyed_element `0` "zero")
+        (map_keyed_element `1` "one"))))
+  (function_declaration PLACEHOLDER_3
+    (signature
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_4 string))
+      (result_type ! string))
+    (block
+      (var_declaration
+        (identifier_list PLACEHOLDER_5)
+        (expression_list
+          (call_expression
+            (selector_expression PLACEHOLDER_4 bytes)
+            (argument_list))))
+      (if_expression
+        (call_expression
+          (selector_expression PLACEHOLDER_4 contains_any)
+          (argument_list "@:!"))
+        (block
+          (return_statement
+            (expression_list
+              (call_expression error
+                (argument_list "punctuations not permitted"))))))
+      (var_declaration
+        (identifier_list PLACEHOLDER_6)
+        (expression_list
+          (call_expression
+            (selector_expression PLACEHOLDER_5 filter)
+            (argument_list
+              (call_expression
+                (selector_expression it is_digit)
+                (argument_list))))))
+      (return_statement
+        (expression_list
+          (match_expression true
+            (match_arms
+              (match_arm
+                (match_expression_list
+                  (call_expression
+                    (selector_expression PLACEHOLDER_5 any)
+                    (argument_list
+                      (call_expression
+                        (selector_expression it is_letter)
+                        (argument_list)))))
+                (block
+                  (call_expression error
+                    (argument_list "letters not permitted"))))
+              (match_arm
+                (match_expression_list
+                  (binary_expression
+                    (selector_expression PLACEHOLDER_6 len) < PLACEHOLDER_1))
+                (block
+                  (call_expression error
+                    (argument_list "must not be fewer than 10 digits"))))
+              (match_arm
+                (match_expression_list
+                  (binary_expression
+                    (selector_expression PLACEHOLDER_6 len) >
+                    (binary_expression PLACEHOLDER_1 + 1)))
+                (block
+                  (call_expression error
+                    (argument_list "must not be greater than 11 digits"))))
+              (match_arm
+                (match_expression_list
+                  (binary_expression
+                    (binary_expression
+                      (selector_expression PLACEHOLDER_6 len) ==
+                      (binary_expression PLACEHOLDER_1 + 1)) &&
+                    (binary_expression
+                      (index_expression PLACEHOLDER_6 0) != `1`)))
+                (block
+                  (call_expression error
+                    (argument_list "11 digits must start with 1"))))
+              (match_arm
+                (match_expression_list
+                  (in_expression
+                    (index_expression PLACEHOLDER_6
+                      (binary_expression
+                        (selector_expression PLACEHOLDER_6 len) - PLACEHOLDER_1)) in
+                    (call_expression
+                      (selector_expression PLACEHOLDER_2 keys)
+                      (argument_list))))
+                (block
+                  (call_expression error
+                    (argument_list
+                      (interpreted_string_literal "area code cannot start with "
+                        (string_interpolation
+                          (index_expression PLACEHOLDER_2
+                            (index_expression PLACEHOLDER_6
+                              (binary_expression
+                                (selector_expression PLACEHOLDER_6 len) - PLACEHOLDER_1)))))))))
+              (match_arm
+                (match_expression_list
+                  (in_expression
+                    (index_expression PLACEHOLDER_6
+                      (binary_expression
+                        (binary_expression
+                          (selector_expression PLACEHOLDER_6 len) - PLACEHOLDER_1) + 3)) in
+                    (call_expression
+                      (selector_expression PLACEHOLDER_2 keys)
+                      (argument_list))))
+                (block
+                  (call_expression error
+                    (argument_list
+                      (interpreted_string_literal "exchange code cannot start with "
+                        (string_interpolation
+                          (index_expression PLACEHOLDER_2
+                            (index_expression PLACEHOLDER_6
+                              (binary_expression
+                                (binary_expression
+                                  (selector_expression PLACEHOLDER_6 len) - PLACEHOLDER_1) + 3)))))))))
+              (match_else_arm_clause
+                (block
+                  (if_expression
+                    (binary_expression
+                      (binary_expression
+                        (selector_expression PLACEHOLDER_6 len) ==
+                        (binary_expression PLACEHOLDER_1 + 1)) &&
+                      (binary_expression
+                        (index_expression PLACEHOLDER_6 0) == `1`))
+                    (block
+                      (slice_expression
+                        (call_expression
+                          (selector_expression PLACEHOLDER_6 bytestr)
+                          (argument_list))
+                        (range 1 ..))))
+                  (type_initializer else
+                    (type_initializer_body
+                      (short_element_list
+                        (element
+                          (call_expression
+                            (selector_expression PLACEHOLDER_6 bytestr)
+                            (argument_list)))))))))))))))

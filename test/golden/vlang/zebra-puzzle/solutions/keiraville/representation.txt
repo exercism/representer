@@ -1,214 +1,518 @@
-module main
-struct PermutationIter[T] {
-mut:
-a []T
-started bool
-}
-fn PermutationIter.new[T](a []T) PermutationIter[T] {
-return PermutationIter[T]{
-a: a
-}
-}
-fn (mut iter PermutationIter[T]) next() ?[]T {
-if !iter.started {
-iter.started = true
-return iter.a
-}
-n := iter.a.len
-if n <= 1 {
-return none
-}
-mut j := n - 2
-for iter.a[j] >= iter.a[j+1] {
-if j == 0 {
-return none
-}
-j--
-}
-mut l := n - 1
-for iter.a[j] >= iter.a[l] {
-l--
-}
-iter.a[j], iter.a[l] = iter.a[l], iter.a[j]
-mut k := j + 1
-l = n - 1
-for k < l {
-iter.a[k], iter.a[l] = iter.a[l], iter.a[k]
-k++
-l--
-}
-return iter.a
-}
-enum Color as u8 {
-blue
-green
-ivory
-red
-yellow
-}
-enum Drink as u8 {
-coffee
-milk
-orange_juice
-tea
-water
-}
-enum Hobby as u8 {
-chess
-dancing
-football
-painting
-reading
-}
-enum Nationality as u8 {
-englishman
-japanese
-norwegian
-spaniard
-ukrainian
-}
-enum Pet as u8 {
-dog
-fox
-horse
-snails
-zebra
-}
-struct Solution {
-water_drinker Nationality
-zebra_owner Nationality
-}
-fn name(nationality Nationality) string {
-return match nationality {
-.englishman { "\"Englishman\"" }
-.japanese { "\"Japanese\"" }
-.norwegian { "\"Norwegian\"" }
-.spaniard { "\"Spaniard\"" }
-.ukrainian { "\"Ukrainian\"" }
-}
-}
-fn find[T](haystack []T, needle T) int {
-mut index := 0
-for haystack[index] != needle {
-index++
-}
-return index
-}
-fn adjacent(first int, second int) bool {
-return first + 1 == second || second + 1 == first
-}
-fn solution() Solution {
-// 1. There are five houses.
-mut color_iter := PermutationIter.new[Color]([
-Color.blue,
-.green,
-.ivory,
-.red,
-.yellow
-])
-for colors in color_iter {
-// 6. The green house is immediately to the right of the ivory house.
-if find(colors, Color.green) + 1 != find(colors, Color.ivory) {
-continue
-}
-mut drink_iter := PermutationIter.new[Drink]([
-Drink.coffee,
-.milk,
-.orange_juice,
-.tea,
-.water
-])
-for drinks in drink_iter {
-// 4. The person in the green house drinks coffee.
-if find(colors, Color.green) != find(drinks, Drink.coffee) {
-continue
-}
-// 9. The person in the middle house drinks milk.
-if find(drinks, Drink.milk) != 2 {
-continue
-}
-mut hobby_iter := PermutationIter.new[Hobby]([
-Hobby.chess,
-.dancing,
-.football,
-.painting,
-.reading
-])
-for hobbies in hobby_iter {
-// 8. The person in the yellow house is a painter.
-if find(colors, Color.yellow) != find(hobbies, Hobby.painting) {
-continue
-}
-// 13. The person who plays football drinks orange juice.
-if find(hobbies, Hobby.football) != find(drinks, Drink.orange_juice) {
-continue
-}
-mut nationality_iter := PermutationIter.new[Nationality]([
-Nationality.englishman,
-.japanese,
-.norwegian,
-.spaniard,
-.ukrainian
-])
-for nationalities in nationality_iter {
-// 2. The Englishman lives in the red house.
-if find(nationalities, Nationality.englishman) != find(colors, Color.red) {
-continue
-}
-// 5. The Ukrainian drinks tea.
-if find(nationalities, Nationality.ukrainian) != find(drinks, Drink.tea) {
-continue
-}
-// 10. The Norwegian lives in the first house.
-if find(nationalities, Nationality.norwegian) != 0 {
-continue
-}
-// 14. The Japanese person plays chess.
-if find(nationalities, Nationality.japanese) != find(hobbies, Hobby.chess) {
-continue
-}
-// 15. The Norwegian lives next to the blue house.
-if !adjacent(find(nationalities, Nationality.norwegian), find(colors, Color.blue)) {
-continue
-}
-mut pet_iter := PermutationIter.new[Pet]([
-Pet.dog,
-.fox,
-.horse,
-.snails,
-.zebra
-])
-for pets in pet_iter {
-// 3. The Spaniard owns the dog.
-if find(nationalities, Nationality.spaniard) != find(pets, Pet.dog) {
-continue
-}
-// 7. The snail owner likes to go dancing.
-if find(pets, Pet.snails) != find(hobbies, Hobby.dancing) {
-continue
-}
-// 11. The person who enjoys reading lives in the house next to the person with the fox.
-if !adjacent(find(hobbies, Hobby.reading), find(pets, Pet.fox)) {
-continue
-}
-// 12. The painter's house is next to the house with the horse.
-if !adjacent(find(hobbies, Hobby.painting), find(pets, Pet.horse)) {
-continue
-}
-return Solution {
-water_drinker: nationalities[find(drinks, Drink.water)]
-zebra_owner: nationalities[find(pets, Pet.zebra)]
-}
-}
-}
-}
-}
-}
-return solution()
-}
-fn drinks_water() string {
-return name(solution().water_drinker)
-}
-fn owns_zebra() string {
-return name(solution().zebra_owner)
-}
+(source_file
+  (module_clause main)
+  (struct_declaration PLACEHOLDER_1
+    (generic_parameters
+      (generic_parameter PLACEHOLDER_2))
+    (struct_field_scope mut)
+    (struct_field_declaration PLACEHOLDER_3
+      (array_type PLACEHOLDER_2))
+    (struct_field_declaration PLACEHOLDER_4 bool))
+  (static_method_declaration
+    (static_receiver PLACEHOLDER_1) PLACEHOLDER_5
+    (generic_parameters
+      (generic_parameter PLACEHOLDER_2))
+    (signature
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_3
+          (array_type PLACEHOLDER_2)))
+      (generic_type PLACEHOLDER_1
+        (type_parameters PLACEHOLDER_2)))
+    (block
+      (return_statement
+        (expression_list
+          (type_initializer
+            (generic_type PLACEHOLDER_1
+              (type_parameters PLACEHOLDER_2))
+            (type_initializer_body
+              (element_list
+                (keyed_element PLACEHOLDER_3 PLACEHOLDER_3))))))))
+  (function_declaration
+    (receiver
+      (mutability_modifiers mut) PLACEHOLDER_6
+      (generic_type PLACEHOLDER_1
+        (type_parameters PLACEHOLDER_2))) PLACEHOLDER_7
+    (signature
+      (parameter_list)
+      (option_type ?
+        (array_type PLACEHOLDER_2)))
+    (block
+      (if_expression
+        (unary_expression !
+          (selector_expression PLACEHOLDER_6 PLACEHOLDER_4))
+        (block
+          (assignment_statement
+            (expression_list
+              (selector_expression PLACEHOLDER_6 PLACEHOLDER_4)) =
+            (expression_list true))
+          (return_statement
+            (expression_list
+              (selector_expression PLACEHOLDER_6 PLACEHOLDER_3)))))
+      (var_declaration
+        (identifier_list PLACEHOLDER_8)
+        (expression_list
+          (selector_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) len)))
+      (if_expression
+        (binary_expression PLACEHOLDER_8 <= 1)
+        (block
+          (return_statement
+            (expression_list none))))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_9))
+        (expression_list
+          (binary_expression PLACEHOLDER_8 - 2)))
+      (for_statement
+        (binary_expression
+          (index_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_9) >=
+          (index_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3)
+            (binary_expression PLACEHOLDER_9 + 1)))
+        (block
+          (if_expression
+            (binary_expression PLACEHOLDER_9 == 0)
+            (block
+              (return_statement
+                (expression_list none))))
+          (dec_expression PLACEHOLDER_9 --)))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_10))
+        (expression_list
+          (binary_expression PLACEHOLDER_8 - 1)))
+      (for_statement
+        (binary_expression
+          (index_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_9) >=
+          (index_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_10))
+        (block
+          (dec_expression PLACEHOLDER_10 --)))
+      (assignment_statement
+        (expression_list
+          (index_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_9)
+          (index_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_10)) =
+        (expression_list
+          (index_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_10)
+          (index_expression
+            (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_9)))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_11))
+        (expression_list
+          (binary_expression PLACEHOLDER_9 + 1)))
+      (assignment_statement
+        (expression_list PLACEHOLDER_10) =
+        (expression_list
+          (binary_expression PLACEHOLDER_8 - 1)))
+      (for_statement
+        (binary_expression PLACEHOLDER_11 < PLACEHOLDER_10)
+        (block
+          (assignment_statement
+            (expression_list
+              (index_expression
+                (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_11)
+              (index_expression
+                (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_10)) =
+            (expression_list
+              (index_expression
+                (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_10)
+              (index_expression
+                (selector_expression PLACEHOLDER_6 PLACEHOLDER_3) PLACEHOLDER_11)))
+          (inc_expression PLACEHOLDER_11 ++)
+          (dec_expression PLACEHOLDER_10 --)))
+      (return_statement
+        (expression_list
+          (selector_expression PLACEHOLDER_6 PLACEHOLDER_3)))))
+  (enum_declaration PLACEHOLDER_12
+    (enum_backed_type u8)
+    (enum_field_definition PLACEHOLDER_13)
+    (enum_field_definition PLACEHOLDER_14)
+    (enum_field_definition PLACEHOLDER_15)
+    (enum_field_definition PLACEHOLDER_16)
+    (enum_field_definition PLACEHOLDER_17))
+  (enum_declaration PLACEHOLDER_18
+    (enum_backed_type u8)
+    (enum_field_definition PLACEHOLDER_19)
+    (enum_field_definition PLACEHOLDER_20)
+    (enum_field_definition PLACEHOLDER_21)
+    (enum_field_definition PLACEHOLDER_22)
+    (enum_field_definition PLACEHOLDER_23))
+  (enum_declaration PLACEHOLDER_24
+    (enum_backed_type u8)
+    (enum_field_definition PLACEHOLDER_25)
+    (enum_field_definition PLACEHOLDER_26)
+    (enum_field_definition PLACEHOLDER_27)
+    (enum_field_definition PLACEHOLDER_28)
+    (enum_field_definition PLACEHOLDER_29))
+  (enum_declaration PLACEHOLDER_30
+    (enum_backed_type u8)
+    (enum_field_definition PLACEHOLDER_31)
+    (enum_field_definition PLACEHOLDER_32)
+    (enum_field_definition PLACEHOLDER_33)
+    (enum_field_definition PLACEHOLDER_34)
+    (enum_field_definition PLACEHOLDER_35))
+  (enum_declaration PLACEHOLDER_36
+    (enum_backed_type u8)
+    (enum_field_definition PLACEHOLDER_37)
+    (enum_field_definition PLACEHOLDER_38)
+    (enum_field_definition PLACEHOLDER_39)
+    (enum_field_definition PLACEHOLDER_40)
+    (enum_field_definition PLACEHOLDER_41))
+  (struct_declaration PLACEHOLDER_42
+    (struct_field_declaration PLACEHOLDER_43 PLACEHOLDER_30)
+    (struct_field_declaration PLACEHOLDER_44 PLACEHOLDER_30))
+  (function_declaration PLACEHOLDER_45
+    (signature
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_46 PLACEHOLDER_30)) string)
+    (block
+      (return_statement
+        (expression_list
+          (match_expression PLACEHOLDER_46
+            (match_arms
+              (match_arm
+                (match_expression_list
+                  (enum_fetch PLACEHOLDER_31))
+                (block "Englishman"))
+              (match_arm
+                (match_expression_list
+                  (enum_fetch PLACEHOLDER_32))
+                (block "Japanese"))
+              (match_arm
+                (match_expression_list
+                  (enum_fetch PLACEHOLDER_33))
+                (block "Norwegian"))
+              (match_arm
+                (match_expression_list
+                  (enum_fetch PLACEHOLDER_34))
+                (block "Spaniard"))
+              (match_arm
+                (match_expression_list
+                  (enum_fetch PLACEHOLDER_35))
+                (block "Ukrainian"))))))))
+  (function_declaration PLACEHOLDER_47
+    (generic_parameters
+      (generic_parameter PLACEHOLDER_2))
+    (signature
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_48
+          (array_type PLACEHOLDER_2))
+        (parameter_declaration PLACEHOLDER_49 PLACEHOLDER_2)) int)
+    (block
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_50))
+        (expression_list 0))
+      (for_statement
+        (binary_expression
+          (index_expression PLACEHOLDER_48 PLACEHOLDER_50) != PLACEHOLDER_49)
+        (block
+          (inc_expression PLACEHOLDER_50 ++)))
+      (return_statement
+        (expression_list PLACEHOLDER_50))))
+  (function_declaration PLACEHOLDER_51
+    (signature
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_52 int)
+        (parameter_declaration PLACEHOLDER_53 int)) bool)
+    (block
+      (return_statement
+        (expression_list
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_52 + 1) == PLACEHOLDER_53) ||
+            (binary_expression
+              (binary_expression PLACEHOLDER_53 + 1) == PLACEHOLDER_52))))))
+  (function_declaration PLACEHOLDER_54
+    (signature
+      (parameter_list) PLACEHOLDER_42)
+    (block
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_55))
+        (expression_list
+          (call_expression
+            (selector_expression PLACEHOLDER_1 PLACEHOLDER_5)
+            (type_parameters PLACEHOLDER_12)
+            (argument_list
+              (array_creation
+                (selector_expression PLACEHOLDER_12 PLACEHOLDER_13)
+                (enum_fetch PLACEHOLDER_14)
+                (enum_fetch PLACEHOLDER_15)
+                (enum_fetch PLACEHOLDER_16)
+                (enum_fetch PLACEHOLDER_17))))))
+      (for_statement
+        (range_clause
+          (var_definition_list
+            (var_definition PLACEHOLDER_56)) PLACEHOLDER_55)
+        (block
+          (if_expression
+            (binary_expression
+              (binary_expression
+                (call_expression PLACEHOLDER_47
+                  (argument_list PLACEHOLDER_56
+                    (selector_expression PLACEHOLDER_12 PLACEHOLDER_14))) + 1) !=
+              (call_expression PLACEHOLDER_47
+                (argument_list PLACEHOLDER_56
+                  (selector_expression PLACEHOLDER_12 PLACEHOLDER_15))))
+            (block
+              (continue_statement)))
+          (var_declaration
+            (identifier_list
+              (mutable_identifier
+                (mutability_modifiers mut) PLACEHOLDER_57))
+            (expression_list
+              (call_expression
+                (selector_expression PLACEHOLDER_1 PLACEHOLDER_5)
+                (type_parameters PLACEHOLDER_18)
+                (argument_list
+                  (array_creation
+                    (selector_expression PLACEHOLDER_18 PLACEHOLDER_19)
+                    (enum_fetch PLACEHOLDER_20)
+                    (enum_fetch PLACEHOLDER_21)
+                    (enum_fetch PLACEHOLDER_22)
+                    (enum_fetch PLACEHOLDER_23))))))
+          (for_statement
+            (range_clause
+              (var_definition_list
+                (var_definition PLACEHOLDER_58)) PLACEHOLDER_57)
+            (block
+              (if_expression
+                (binary_expression
+                  (call_expression PLACEHOLDER_47
+                    (argument_list PLACEHOLDER_56
+                      (selector_expression PLACEHOLDER_12 PLACEHOLDER_14))) !=
+                  (call_expression PLACEHOLDER_47
+                    (argument_list PLACEHOLDER_58
+                      (selector_expression PLACEHOLDER_18 PLACEHOLDER_19))))
+                (block
+                  (continue_statement)))
+              (if_expression
+                (binary_expression
+                  (call_expression PLACEHOLDER_47
+                    (argument_list PLACEHOLDER_58
+                      (selector_expression PLACEHOLDER_18 PLACEHOLDER_20))) != 2)
+                (block
+                  (continue_statement)))
+              (var_declaration
+                (identifier_list
+                  (mutable_identifier
+                    (mutability_modifiers mut) PLACEHOLDER_59))
+                (expression_list
+                  (call_expression
+                    (selector_expression PLACEHOLDER_1 PLACEHOLDER_5)
+                    (type_parameters PLACEHOLDER_24)
+                    (argument_list
+                      (array_creation
+                        (selector_expression PLACEHOLDER_24 PLACEHOLDER_25)
+                        (enum_fetch PLACEHOLDER_26)
+                        (enum_fetch PLACEHOLDER_27)
+                        (enum_fetch PLACEHOLDER_28)
+                        (enum_fetch PLACEHOLDER_29))))))
+              (for_statement
+                (range_clause
+                  (var_definition_list
+                    (var_definition PLACEHOLDER_60)) PLACEHOLDER_59)
+                (block
+                  (if_expression
+                    (binary_expression
+                      (call_expression PLACEHOLDER_47
+                        (argument_list PLACEHOLDER_56
+                          (selector_expression PLACEHOLDER_12 PLACEHOLDER_17))) !=
+                      (call_expression PLACEHOLDER_47
+                        (argument_list PLACEHOLDER_60
+                          (selector_expression PLACEHOLDER_24 PLACEHOLDER_28))))
+                    (block
+                      (continue_statement)))
+                  (if_expression
+                    (binary_expression
+                      (call_expression PLACEHOLDER_47
+                        (argument_list PLACEHOLDER_60
+                          (selector_expression PLACEHOLDER_24 PLACEHOLDER_27))) !=
+                      (call_expression PLACEHOLDER_47
+                        (argument_list PLACEHOLDER_58
+                          (selector_expression PLACEHOLDER_18 PLACEHOLDER_21))))
+                    (block
+                      (continue_statement)))
+                  (var_declaration
+                    (identifier_list
+                      (mutable_identifier
+                        (mutability_modifiers mut) PLACEHOLDER_61))
+                    (expression_list
+                      (call_expression
+                        (selector_expression PLACEHOLDER_1 PLACEHOLDER_5)
+                        (type_parameters PLACEHOLDER_30)
+                        (argument_list
+                          (array_creation
+                            (selector_expression PLACEHOLDER_30 PLACEHOLDER_31)
+                            (enum_fetch PLACEHOLDER_32)
+                            (enum_fetch PLACEHOLDER_33)
+                            (enum_fetch PLACEHOLDER_34)
+                            (enum_fetch PLACEHOLDER_35))))))
+                  (for_statement
+                    (range_clause
+                      (var_definition_list
+                        (var_definition PLACEHOLDER_62)) PLACEHOLDER_61)
+                    (block
+                      (if_expression
+                        (binary_expression
+                          (call_expression PLACEHOLDER_47
+                            (argument_list PLACEHOLDER_62
+                              (selector_expression PLACEHOLDER_30 PLACEHOLDER_31))) !=
+                          (call_expression PLACEHOLDER_47
+                            (argument_list PLACEHOLDER_56
+                              (selector_expression PLACEHOLDER_12 PLACEHOLDER_16))))
+                        (block
+                          (continue_statement)))
+                      (if_expression
+                        (binary_expression
+                          (call_expression PLACEHOLDER_47
+                            (argument_list PLACEHOLDER_62
+                              (selector_expression PLACEHOLDER_30 PLACEHOLDER_35))) !=
+                          (call_expression PLACEHOLDER_47
+                            (argument_list PLACEHOLDER_58
+                              (selector_expression PLACEHOLDER_18 PLACEHOLDER_22))))
+                        (block
+                          (continue_statement)))
+                      (if_expression
+                        (binary_expression
+                          (call_expression PLACEHOLDER_47
+                            (argument_list PLACEHOLDER_62
+                              (selector_expression PLACEHOLDER_30 PLACEHOLDER_33))) != 0)
+                        (block
+                          (continue_statement)))
+                      (if_expression
+                        (binary_expression
+                          (call_expression PLACEHOLDER_47
+                            (argument_list PLACEHOLDER_62
+                              (selector_expression PLACEHOLDER_30 PLACEHOLDER_32))) !=
+                          (call_expression PLACEHOLDER_47
+                            (argument_list PLACEHOLDER_60
+                              (selector_expression PLACEHOLDER_24 PLACEHOLDER_25))))
+                        (block
+                          (continue_statement)))
+                      (if_expression
+                        (unary_expression !
+                          (call_expression PLACEHOLDER_51
+                            (argument_list
+                              (call_expression PLACEHOLDER_47
+                                (argument_list PLACEHOLDER_62
+                                  (selector_expression PLACEHOLDER_30 PLACEHOLDER_33)))
+                              (call_expression PLACEHOLDER_47
+                                (argument_list PLACEHOLDER_56
+                                  (selector_expression PLACEHOLDER_12 PLACEHOLDER_13))))))
+                        (block
+                          (continue_statement)))
+                      (var_declaration
+                        (identifier_list
+                          (mutable_identifier
+                            (mutability_modifiers mut) PLACEHOLDER_63))
+                        (expression_list
+                          (call_expression
+                            (selector_expression PLACEHOLDER_1 PLACEHOLDER_5)
+                            (type_parameters PLACEHOLDER_36)
+                            (argument_list
+                              (array_creation
+                                (selector_expression PLACEHOLDER_36 PLACEHOLDER_37)
+                                (enum_fetch PLACEHOLDER_38)
+                                (enum_fetch PLACEHOLDER_39)
+                                (enum_fetch PLACEHOLDER_40)
+                                (enum_fetch PLACEHOLDER_41))))))
+                      (for_statement
+                        (range_clause
+                          (var_definition_list
+                            (var_definition PLACEHOLDER_64)) PLACEHOLDER_63)
+                        (block
+                          (if_expression
+                            (binary_expression
+                              (call_expression PLACEHOLDER_47
+                                (argument_list PLACEHOLDER_62
+                                  (selector_expression PLACEHOLDER_30 PLACEHOLDER_34))) !=
+                              (call_expression PLACEHOLDER_47
+                                (argument_list PLACEHOLDER_64
+                                  (selector_expression PLACEHOLDER_36 PLACEHOLDER_37))))
+                            (block
+                              (continue_statement)))
+                          (if_expression
+                            (binary_expression
+                              (call_expression PLACEHOLDER_47
+                                (argument_list PLACEHOLDER_64
+                                  (selector_expression PLACEHOLDER_36 PLACEHOLDER_40))) !=
+                              (call_expression PLACEHOLDER_47
+                                (argument_list PLACEHOLDER_60
+                                  (selector_expression PLACEHOLDER_24 PLACEHOLDER_26))))
+                            (block
+                              (continue_statement)))
+                          (if_expression
+                            (unary_expression !
+                              (call_expression PLACEHOLDER_51
+                                (argument_list
+                                  (call_expression PLACEHOLDER_47
+                                    (argument_list PLACEHOLDER_60
+                                      (selector_expression PLACEHOLDER_24 PLACEHOLDER_29)))
+                                  (call_expression PLACEHOLDER_47
+                                    (argument_list PLACEHOLDER_64
+                                      (selector_expression PLACEHOLDER_36 PLACEHOLDER_38))))))
+                            (block
+                              (continue_statement)))
+                          (if_expression
+                            (unary_expression !
+                              (call_expression PLACEHOLDER_51
+                                (argument_list
+                                  (call_expression PLACEHOLDER_47
+                                    (argument_list PLACEHOLDER_60
+                                      (selector_expression PLACEHOLDER_24 PLACEHOLDER_28)))
+                                  (call_expression PLACEHOLDER_47
+                                    (argument_list PLACEHOLDER_64
+                                      (selector_expression PLACEHOLDER_36 PLACEHOLDER_39))))))
+                            (block
+                              (continue_statement)))
+                          (return_statement
+                            (expression_list PLACEHOLDER_42))
+                          (map_init_expression
+                            (map_keyed_element PLACEHOLDER_43
+                              (index_expression PLACEHOLDER_62
+                                (call_expression PLACEHOLDER_47
+                                  (argument_list PLACEHOLDER_58
+                                    (selector_expression PLACEHOLDER_18 PLACEHOLDER_23)))))
+                            (map_keyed_element PLACEHOLDER_44
+                              (index_expression PLACEHOLDER_62
+                                (call_expression PLACEHOLDER_47
+                                  (argument_list PLACEHOLDER_64
+                                    (selector_expression PLACEHOLDER_36 PLACEHOLDER_41))))))))))))))))
+      (return_statement
+        (expression_list
+          (call_expression PLACEHOLDER_54
+            (argument_list))))))
+  (function_declaration PLACEHOLDER_65
+    (signature
+      (parameter_list) string)
+    (block
+      (return_statement
+        (expression_list
+          (call_expression PLACEHOLDER_45
+            (argument_list
+              (selector_expression
+                (call_expression PLACEHOLDER_54
+                  (argument_list)) PLACEHOLDER_43)))))))
+  (function_declaration PLACEHOLDER_66
+    (signature
+      (parameter_list) string)
+    (block
+      (return_statement
+        (expression_list
+          (call_expression PLACEHOLDER_45
+            (argument_list
+              (selector_expression
+                (call_expression PLACEHOLDER_54
+                  (argument_list)) PLACEHOLDER_44))))))))

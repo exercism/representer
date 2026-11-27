@@ -1,30 +1,166 @@
-module main
-enum BucketId {
-one
-two
-}
-struct Solution {
-moves int
-goal_bucket BucketId
-other_bucket int
-}
-pub fn measure(capacity_one int, capacity_two int, goal int, start_bucket BucketId) !Solution {
-first_move := if start_bucket == BucketId.one { [capacity_one,0,1] } else { [0,capacity_two,1] }
-forbidden_move := if start_bucket == BucketId.one { [0,capacity_two] } else { [capacity_one,0] }
-mut queue := [first_move]
-mut history := [forbidden_move]
-for queue.len > 0 {
-state := queue.pop()
-history << [state[0],state[1]]
-if goal == state[0] { return Solution{moves: state[2], goal_bucket: BucketId.one, other_bucket: state[1]} }
-if goal == state[1] { return Solution{moves: state[2], goal_bucket: BucketId.two, other_bucket: state[0]} }
-pour_one := math.min(state[0], capacity_two - state[1])
-pour_two := math.min(state[1], capacity_one - state[0])
-actions := [[0,state[1],state[2]+1], [capacity_one,state[1],state[2]+1],
-[state[0],0,state[2]+1], [state[0],capacity_two,state[2]+1],
-[state[0]-pour_one,state[1]+pour_one,state[2]+1], [state[0]+pour_two,state[1]-pour_two,state[2]+1]]
-valid_actions := actions.filter([it[0],it[1]] !in history)
-queue.prepend(valid_actions)
-}
-return error("impossible")
-}
+(source_file
+  (module_clause main)
+  (enum_declaration PLACEHOLDER_1
+    (enum_field_definition PLACEHOLDER_2)
+    (enum_field_definition PLACEHOLDER_3))
+  (struct_declaration PLACEHOLDER_4
+    (struct_field_declaration PLACEHOLDER_5 int)
+    (struct_field_declaration PLACEHOLDER_6 PLACEHOLDER_1)
+    (struct_field_declaration PLACEHOLDER_7 int))
+  (function_declaration
+    (visibility_modifiers pub) PLACEHOLDER_8
+    (signature
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_9 int)
+        (parameter_declaration PLACEHOLDER_10 int)
+        (parameter_declaration PLACEHOLDER_11 int)
+        (parameter_declaration PLACEHOLDER_12 PLACEHOLDER_1))
+      (result_type ! PLACEHOLDER_4))
+    (block
+      (var_declaration
+        (identifier_list PLACEHOLDER_13)
+        (expression_list
+          (if_expression
+            (binary_expression PLACEHOLDER_12 ==
+              (selector_expression PLACEHOLDER_1 PLACEHOLDER_2))
+            (block
+              (array_creation PLACEHOLDER_9 0 1))
+            (else_branch
+              (block
+                (array_creation 0 PLACEHOLDER_10 1))))))
+      (var_declaration
+        (identifier_list PLACEHOLDER_14)
+        (expression_list
+          (if_expression
+            (binary_expression PLACEHOLDER_12 ==
+              (selector_expression PLACEHOLDER_1 PLACEHOLDER_2))
+            (block
+              (array_creation 0 PLACEHOLDER_10))
+            (else_branch
+              (block
+                (array_creation PLACEHOLDER_9 0))))))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_15))
+        (expression_list
+          (array_creation PLACEHOLDER_13)))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_16))
+        (expression_list
+          (array_creation PLACEHOLDER_14)))
+      (for_statement
+        (binary_expression
+          (selector_expression PLACEHOLDER_15 len) > 0)
+        (block
+          (var_declaration
+            (identifier_list PLACEHOLDER_17)
+            (expression_list
+              (call_expression
+                (selector_expression PLACEHOLDER_15 pop)
+                (argument_list))))
+          (append_statement PLACEHOLDER_16 <<
+            (array_creation
+              (index_expression PLACEHOLDER_17 0)
+              (index_expression PLACEHOLDER_17 1)))
+          (if_expression
+            (binary_expression PLACEHOLDER_11 ==
+              (index_expression PLACEHOLDER_17 0))
+            (block
+              (return_statement
+                (expression_list
+                  (type_initializer PLACEHOLDER_4
+                    (type_initializer_body
+                      (element_list
+                        (keyed_element PLACEHOLDER_5
+                          (index_expression PLACEHOLDER_17 2))
+                        (keyed_element PLACEHOLDER_6
+                          (selector_expression PLACEHOLDER_1 PLACEHOLDER_2))
+                        (keyed_element PLACEHOLDER_7
+                          (index_expression PLACEHOLDER_17 1)))))))))
+          (if_expression
+            (binary_expression PLACEHOLDER_11 ==
+              (index_expression PLACEHOLDER_17 1))
+            (block
+              (return_statement
+                (expression_list
+                  (type_initializer PLACEHOLDER_4
+                    (type_initializer_body
+                      (element_list
+                        (keyed_element PLACEHOLDER_5
+                          (index_expression PLACEHOLDER_17 2))
+                        (keyed_element PLACEHOLDER_6
+                          (selector_expression PLACEHOLDER_1 PLACEHOLDER_3))
+                        (keyed_element PLACEHOLDER_7
+                          (index_expression PLACEHOLDER_17 0)))))))))
+          (var_declaration
+            (identifier_list PLACEHOLDER_18)
+            (expression_list
+              (call_expression
+                (selector_expression math min)
+                (argument_list
+                  (index_expression PLACEHOLDER_17 0)
+                  (binary_expression PLACEHOLDER_10 -
+                    (index_expression PLACEHOLDER_17 1))))))
+          (var_declaration
+            (identifier_list PLACEHOLDER_19)
+            (expression_list
+              (call_expression
+                (selector_expression math min)
+                (argument_list
+                  (index_expression PLACEHOLDER_17 1)
+                  (binary_expression PLACEHOLDER_9 -
+                    (index_expression PLACEHOLDER_17 0))))))
+          (var_declaration
+            (identifier_list PLACEHOLDER_20)
+            (expression_list
+              (array_creation
+                (array_creation 0
+                  (index_expression PLACEHOLDER_17 1)
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 2) + 1))
+                (array_creation PLACEHOLDER_9
+                  (index_expression PLACEHOLDER_17 1)
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 2) + 1))
+                (array_creation
+                  (index_expression PLACEHOLDER_17 0) 0
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 2) + 1))
+                (array_creation
+                  (index_expression PLACEHOLDER_17 0) PLACEHOLDER_10
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 2) + 1))
+                (array_creation
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 0) - PLACEHOLDER_18)
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 1) + PLACEHOLDER_18)
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 2) + 1))
+                (array_creation
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 0) + PLACEHOLDER_19)
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 1) - PLACEHOLDER_19)
+                  (binary_expression
+                    (index_expression PLACEHOLDER_17 2) + 1)))))
+          (var_declaration
+            (identifier_list PLACEHOLDER_21)
+            (expression_list
+              (call_expression
+                (selector_expression PLACEHOLDER_20 filter)
+                (argument_list
+                  (in_expression
+                    (array_creation
+                      (index_expression it 0)
+                      (index_expression it 1)) !in PLACEHOLDER_16)))))
+          (call_expression
+            (selector_expression PLACEHOLDER_15 prepend)
+            (argument_list PLACEHOLDER_21))))
+      (return_statement
+        (expression_list
+          (call_expression error
+            (argument_list "impossible")))))))

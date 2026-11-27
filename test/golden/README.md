@@ -223,7 +223,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | unison | Basic | 115 | 5 | 100 | 43 | 97 | 0 | 0 | 0 | 0 |
 | vbnet | Basic | 174 | 25 | 100 | 76 | 94 | 0 | 1 | 0 | 0 |
 | vimscript | Basic | 124 | 8 | 100 | 68 | 96 | 0 | 0 | 0 | 0 |
-| vlang | Basic | 193 | 31 | 100 | 83 | 98 | 11 | 0 | 0 | 0 |
+| vlang | Vlang | 193 | 31 | 100 | 83 | 98 | 0 | 4 | 0 | 0 |
 | wasm | Wasm | 289 | 63 | 100 | 59 | 100 | 0 | 2 | 0 | 0 |
 | wren | Wren | 217 | 39 | 100 | 82 | 99 | 2 | 9 | 0 | 0 |
 | x86-64-assembly | Basic | 298 | 66 | 100 | 71 | 100 | 0 | 4 | 0 | 0 |
