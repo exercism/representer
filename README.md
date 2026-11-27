@@ -8,7 +8,7 @@ The website groups solutions by their representation, and shows a mentor's feedb
 
 It runs as an AWS Lambda function behind Exercism's internal load balancer.
 One service handles every track.
-These languages have a representer of their own, and the representer parses them with [tree-sitter][tree-sitter]: Ballerina, C, C#, C++, Cairo, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, Factor, GDScript, Gleam, Go, Java, JavaScript, Nim, PHP, Python, Raku, Red, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
+These languages have a representer of their own, and the representer parses them with [tree-sitter][tree-sitter]: Ballerina, C, C#, C++, Cairo, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, Factor, GDScript, Gleam, Go, Java, JavaScript, Kotlin, Nim, PHP, Python, Raku, Red, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
 
 Every other track gets a simpler token-based representation called Basic.
 

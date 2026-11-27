@@ -1,113 +1,751 @@
-class Forth {
-fun evaluate ( vararg line : String ): List < Int > {
-val deque = ArrayDeque < Int >()
-val userDefinedWords = mutableMapOf < String , List < String >>()
-line . map { it . lowercase () }. forEach {
-if ( it . startsWith ( "\":\"" )) {
-val tokens = it . split ( "\" \"" )
-val name = tokens [ 1 ]
-require ( name . toIntOrNull () == null ) { "\"illegal operation\"" }
-userDefinedWords [ name ] =
-evaluate ( tokens . subList ( 2 , tokens . lastIndex ), userDefinedWords )
-} else {
-evaluate (
-it . split ( "\" \"" )
-. flatMap { token -> userDefinedWords [ token ] ?: listOf ( token ) },
-deque
-)
-}
-}
-return deque . toList ()
-}
-private fun evaluate (
-tokens : List < String >,
-userDefinedWords : Map < String , List < String >>
-): List < String > {
-return tokens . flatMap {
-val body = userDefinedWords [ it ]
-if ( body != null ) {
-evaluate ( body , userDefinedWords )
-} else {
-listOf ( it )
-}
-}
-}
-private fun evaluate ( tokens : List < String >, deque : ArrayDeque < Int >) {
-tokens . forEach {
-val num = it . toIntOrNull ()
-if ( num != null ) {
-deque . addLast ( num )
-} else {
-when ( it . lowercase ()) {
-"\"+\"" -> add ( deque )
-"\"-\"" -> subtract ( deque )
-"\"*\"" -> multiply ( deque )
-"\"/\"" -> divide ( deque )
-"\"dup\"" -> dup ( deque )
-"\"drop\"" -> drop ( deque )
-"\"swap\"" -> swap ( deque )
-"\"over\"" -> over ( deque )
-else -> {
-throw IllegalArgumentException ( "\"undefined operation\"" )
-}
-}
-}
-}
-}
-private fun add ( deque : ArrayDeque < Int >) {
-require (! deque . isEmpty ()) { "\"empty stack\"" }
-require ( deque . size > 1 ) { "\"only one value on the stack\"" }
-val b = deque . removeLast ()
-val a = deque . removeLast ()
-deque . addLast ( a + b )
-}
-private fun subtract ( deque : ArrayDeque < Int >) {
-require (! deque . isEmpty ()) { "\"empty stack\"" }
-require ( deque . size > 1 ) { "\"only one value on the stack\"" }
-val b = deque . removeLast ()
-val a = deque . removeLast ()
-deque . addLast ( a - b )
-}
-private fun multiply ( deque : ArrayDeque < Int >) {
-require (! deque . isEmpty ()) { "\"empty stack\"" }
-require ( deque . size > 1 ) { "\"only one value on the stack\"" }
-val b = deque . removeLast ()
-val a = deque . removeLast ()
-deque . addLast ( a * b )
-}
-private fun divide ( deque : ArrayDeque < Int >) {
-require (! deque . isEmpty ()) { "\"empty stack\"" }
-require ( deque . size > 1 ) { "\"only one value on the stack\"" }
-val b = deque . removeLast ()
-require ( b != 0 ) { "\"divide by zero \"" }
-val a = deque . removeLast ()
-deque . addLast ( a / b )
-}
-private fun dup ( deque : ArrayDeque < Int >) {
-require (! deque . isEmpty ()) { "\"empty stack\"" }
-val a = deque . removeLast ()
-deque . addLast ( a )
-deque . addLast ( a )
-}
-private fun swap ( deque : ArrayDeque < Int >) {
-require (! deque . isEmpty ()) { "\"empty stack\"" }
-require ( deque . size > 1 ) { "\"only one value on the stack\"" }
-val b = deque . removeLast ()
-val a = deque . removeLast ()
-deque . addLast ( b )
-deque . addLast ( a )
-}
-private fun drop ( deque : ArrayDeque < Int >) {
-require (! deque . isEmpty ()) { "\"empty stack\"" }
-deque . removeLast ()
-}
-private fun over ( deque : ArrayDeque < Int >) {
-require (! deque . isEmpty ()) { "\"empty stack\"" }
-require ( deque . size > 1 ) { "\"only one value on the stack\"" }
-val a = deque . removeLast ()
-val b = deque . removeLast ()
-deque . addLast ( b )
-deque . addLast ( a )
-deque . addLast ( b )
-}
-}
+(source_file
+  (class_declaration class (type_identifier PLACEHOLDER_1)
+    (class_body
+      (function_declaration PLACEHOLDER_2
+        (function_value_parameters
+          (parameter_modifiers
+            (parameter_modifier vararg))
+          (parameter PLACEHOLDER_3 :
+            (user_type String))) :
+        (user_type List
+          (type_arguments
+            (type_projection
+              (user_type Int))))
+        (function_body
+          (statements
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_4) =
+              (call_expression ArrayDeque
+                (call_suffix
+                  (type_arguments
+                    (type_projection
+                      (user_type Int)))
+                  (value_arguments))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_5) =
+              (call_expression mutableMapOf
+                (call_suffix
+                  (type_arguments
+                    (type_projection
+                      (user_type String))
+                    (type_projection
+                      (user_type List
+                        (type_arguments
+                          (type_projection
+                            (user_type String))))))
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression
+                (call_expression
+                  (navigation_expression PLACEHOLDER_3
+                    (navigation_suffix . map))
+                  (call_suffix
+                    (annotated_lambda
+                      (lambda_literal
+                        (statements
+                          (call_expression
+                            (navigation_expression it
+                              (navigation_suffix . lowercase))
+                            (call_suffix
+                              (value_arguments))))))))
+                (navigation_suffix . forEach))
+              (call_suffix
+                (annotated_lambda
+                  (lambda_literal
+                    (statements
+                      (if_expression
+                        (call_expression
+                          (navigation_expression it
+                            (navigation_suffix . startsWith))
+                          (call_suffix
+                            (value_arguments
+                              (value_argument ":"))))
+                        (control_structure_body
+                          (statements
+                            (property_declaration
+                              (binding_pattern_kind val)
+                              (variable_declaration PLACEHOLDER_6) =
+                              (call_expression
+                                (navigation_expression it
+                                  (navigation_suffix . split))
+                                (call_suffix
+                                  (value_arguments
+                                    (value_argument " ")))))
+                            (property_declaration
+                              (binding_pattern_kind val)
+                              (variable_declaration PLACEHOLDER_7) =
+                              (indexing_expression PLACEHOLDER_6
+                                (indexing_suffix 1)))
+                            (call_expression require
+                              (call_suffix
+                                (value_arguments
+                                  (value_argument
+                                    (equality_expression
+                                      (call_expression
+                                        (navigation_expression PLACEHOLDER_7
+                                          (navigation_suffix . toIntOrNull))
+                                        (call_suffix
+                                          (value_arguments))) == null)))
+                                (annotated_lambda
+                                  (lambda_literal
+                                    (statements "illegal operation")))))
+                            (assignment
+                              (directly_assignable_expression PLACEHOLDER_5
+                                (indexing_suffix PLACEHOLDER_7)) =
+                              (call_expression PLACEHOLDER_2
+                                (call_suffix
+                                  (value_arguments
+                                    (value_argument
+                                      (call_expression
+                                        (navigation_expression PLACEHOLDER_6
+                                          (navigation_suffix . subList))
+                                        (call_suffix
+                                          (value_arguments
+                                            (value_argument 2)
+                                            (value_argument
+                                              (navigation_expression PLACEHOLDER_6
+                                                (navigation_suffix . lastIndex)))))))
+                                    (value_argument PLACEHOLDER_5)))))))
+                        (control_structure_body
+                          (statements
+                            (call_expression PLACEHOLDER_2
+                              (call_suffix
+                                (value_arguments
+                                  (value_argument
+                                    (call_expression
+                                      (navigation_expression
+                                        (call_expression
+                                          (navigation_expression it
+                                            (navigation_suffix . split))
+                                          (call_suffix
+                                            (value_arguments
+                                              (value_argument " "))))
+                                        (navigation_suffix . flatMap))
+                                      (call_suffix
+                                        (annotated_lambda
+                                          (lambda_literal
+                                            (lambda_parameters
+                                              (variable_declaration PLACEHOLDER_8)) ->
+                                            (statements
+                                              (elvis_expression
+                                                (indexing_expression PLACEHOLDER_5
+                                                  (indexing_suffix PLACEHOLDER_8)) ?:
+                                                (call_expression listOf
+                                                  (call_suffix
+                                                    (value_arguments
+                                                      (value_argument PLACEHOLDER_8)))))))))))
+                                  (value_argument PLACEHOLDER_4))))))))))))
+            (jump_expression return
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . toList))
+                (call_suffix
+                  (value_arguments)))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_2
+        (function_value_parameters
+          (parameter PLACEHOLDER_6 :
+            (user_type List
+              (type_arguments
+                (type_projection
+                  (user_type String)))))
+          (parameter PLACEHOLDER_5 :
+            (user_type Map
+              (type_arguments
+                (type_projection
+                  (user_type String))
+                (type_projection
+                  (user_type List
+                    (type_arguments
+                      (type_projection
+                        (user_type String))))))))) :
+        (user_type List
+          (type_arguments
+            (type_projection
+              (user_type String))))
+        (function_body
+          (statements
+            (jump_expression return
+              (call_expression
+                (navigation_expression PLACEHOLDER_6
+                  (navigation_suffix . flatMap))
+                (call_suffix
+                  (annotated_lambda
+                    (lambda_literal
+                      (statements
+                        (property_declaration
+                          (binding_pattern_kind val)
+                          (variable_declaration PLACEHOLDER_9) =
+                          (indexing_expression PLACEHOLDER_5
+                            (indexing_suffix it)))
+                        (if_expression
+                          (equality_expression PLACEHOLDER_9 != null)
+                          (control_structure_body
+                            (statements
+                              (call_expression PLACEHOLDER_2
+                                (call_suffix
+                                  (value_arguments
+                                    (value_argument PLACEHOLDER_9)
+                                    (value_argument PLACEHOLDER_5))))))
+                          (control_structure_body
+                            (statements
+                              (call_expression listOf
+                                (call_suffix
+                                  (value_arguments
+                                    (value_argument it))))))))))))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_2
+        (function_value_parameters
+          (parameter PLACEHOLDER_6 :
+            (user_type List
+              (type_arguments
+                (type_projection
+                  (user_type String)))))
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression
+              (navigation_expression PLACEHOLDER_6
+                (navigation_suffix . forEach))
+              (call_suffix
+                (annotated_lambda
+                  (lambda_literal
+                    (statements
+                      (property_declaration
+                        (binding_pattern_kind val)
+                        (variable_declaration PLACEHOLDER_10) =
+                        (call_expression
+                          (navigation_expression it
+                            (navigation_suffix . toIntOrNull))
+                          (call_suffix
+                            (value_arguments))))
+                      (if_expression
+                        (equality_expression PLACEHOLDER_10 != null)
+                        (control_structure_body
+                          (statements
+                            (call_expression
+                              (navigation_expression PLACEHOLDER_4
+                                (navigation_suffix . addLast))
+                              (call_suffix
+                                (value_arguments
+                                  (value_argument PLACEHOLDER_10))))))
+                        (control_structure_body
+                          (statements
+                            (when_expression
+                              (when_subject
+                                (call_expression
+                                  (navigation_expression it
+                                    (navigation_suffix . lowercase))
+                                  (call_suffix
+                                    (value_arguments))))
+                              (when_entry
+                                (when_condition "+")
+                                (control_structure_body
+                                  (call_expression PLACEHOLDER_11
+                                    (call_suffix
+                                      (value_arguments
+                                        (value_argument PLACEHOLDER_4))))))
+                              (when_entry
+                                (when_condition "-")
+                                (control_structure_body
+                                  (call_expression PLACEHOLDER_12
+                                    (call_suffix
+                                      (value_arguments
+                                        (value_argument PLACEHOLDER_4))))))
+                              (when_entry
+                                (when_condition "*")
+                                (control_structure_body
+                                  (call_expression PLACEHOLDER_13
+                                    (call_suffix
+                                      (value_arguments
+                                        (value_argument PLACEHOLDER_4))))))
+                              (when_entry
+                                (when_condition "/")
+                                (control_structure_body
+                                  (call_expression PLACEHOLDER_14
+                                    (call_suffix
+                                      (value_arguments
+                                        (value_argument PLACEHOLDER_4))))))
+                              (when_entry
+                                (when_condition "dup")
+                                (control_structure_body
+                                  (call_expression PLACEHOLDER_15
+                                    (call_suffix
+                                      (value_arguments
+                                        (value_argument PLACEHOLDER_4))))))
+                              (when_entry
+                                (when_condition "drop")
+                                (control_structure_body
+                                  (call_expression PLACEHOLDER_16
+                                    (call_suffix
+                                      (value_arguments
+                                        (value_argument PLACEHOLDER_4))))))
+                              (when_entry
+                                (when_condition "swap")
+                                (control_structure_body
+                                  (call_expression PLACEHOLDER_17
+                                    (call_suffix
+                                      (value_arguments
+                                        (value_argument PLACEHOLDER_4))))))
+                              (when_entry
+                                (when_condition "over")
+                                (control_structure_body
+                                  (call_expression PLACEHOLDER_18
+                                    (call_suffix
+                                      (value_arguments
+                                        (value_argument PLACEHOLDER_4))))))
+                              (when_entry
+                                (control_structure_body
+                                  (statements
+                                    (jump_expression throw
+                                      (call_expression IllegalArgumentException
+                                        (call_suffix
+                                          (value_arguments
+                                            (value_argument "undefined operation"))))))))))))))))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_11
+        (function_value_parameters
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (prefix_expression !
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_4
+                          (navigation_suffix . isEmpty))
+                        (call_suffix
+                          (value_arguments))))))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "empty stack")))))
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (comparison_expression
+                      (navigation_expression PLACEHOLDER_4
+                        (navigation_suffix . size)) > 1)))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "only one value on the stack")))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_19) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_20) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (additive_expression PLACEHOLDER_20 + PLACEHOLDER_19))))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_12
+        (function_value_parameters
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (prefix_expression !
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_4
+                          (navigation_suffix . isEmpty))
+                        (call_suffix
+                          (value_arguments))))))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "empty stack")))))
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (comparison_expression
+                      (navigation_expression PLACEHOLDER_4
+                        (navigation_suffix . size)) > 1)))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "only one value on the stack")))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_19) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_20) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (additive_expression PLACEHOLDER_20 - PLACEHOLDER_19))))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_13
+        (function_value_parameters
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (prefix_expression !
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_4
+                          (navigation_suffix . isEmpty))
+                        (call_suffix
+                          (value_arguments))))))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "empty stack")))))
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (comparison_expression
+                      (navigation_expression PLACEHOLDER_4
+                        (navigation_suffix . size)) > 1)))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "only one value on the stack")))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_19) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_20) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (multiplicative_expression PLACEHOLDER_20 * PLACEHOLDER_19))))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_14
+        (function_value_parameters
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (prefix_expression !
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_4
+                          (navigation_suffix . isEmpty))
+                        (call_suffix
+                          (value_arguments))))))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "empty stack")))))
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (comparison_expression
+                      (navigation_expression PLACEHOLDER_4
+                        (navigation_suffix . size)) > 1)))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "only one value on the stack")))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_19) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (equality_expression PLACEHOLDER_19 != 0)))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "divide by zero ")))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_20) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (multiplicative_expression PLACEHOLDER_20 / PLACEHOLDER_19))))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_15
+        (function_value_parameters
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (prefix_expression !
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_4
+                          (navigation_suffix . isEmpty))
+                        (call_suffix
+                          (value_arguments))))))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "empty stack")))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_20) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_20))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_20)))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_17
+        (function_value_parameters
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (prefix_expression !
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_4
+                          (navigation_suffix . isEmpty))
+                        (call_suffix
+                          (value_arguments))))))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "empty stack")))))
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (comparison_expression
+                      (navigation_expression PLACEHOLDER_4
+                        (navigation_suffix . size)) > 1)))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "only one value on the stack")))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_19) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_20) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_19))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_20)))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_16
+        (function_value_parameters
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (prefix_expression !
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_4
+                          (navigation_suffix . isEmpty))
+                        (call_suffix
+                          (value_arguments))))))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "empty stack")))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . removeLast))
+              (call_suffix
+                (value_arguments))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_18
+        (function_value_parameters
+          (parameter PLACEHOLDER_4 :
+            (user_type ArrayDeque
+              (type_arguments
+                (type_projection
+                  (user_type Int))))))
+        (function_body
+          (statements
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (prefix_expression !
+                      (call_expression
+                        (navigation_expression PLACEHOLDER_4
+                          (navigation_suffix . isEmpty))
+                        (call_suffix
+                          (value_arguments))))))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "empty stack")))))
+            (call_expression require
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (comparison_expression
+                      (navigation_expression PLACEHOLDER_4
+                        (navigation_suffix . size)) > 1)))
+                (annotated_lambda
+                  (lambda_literal
+                    (statements "only one value on the stack")))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_20) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (property_declaration
+              (binding_pattern_kind val)
+              (variable_declaration PLACEHOLDER_19) =
+              (call_expression
+                (navigation_expression PLACEHOLDER_4
+                  (navigation_suffix . removeLast))
+                (call_suffix
+                  (value_arguments))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_19))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_20))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_4
+                (navigation_suffix . addLast))
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_19))))))))))

@@ -99,8 +99,9 @@ class BasicTest < RepresenterTest
   end
 
   def test_imports_on_their_own_lines_are_dropped
-    kotlin = Representer::RepresentSolution.("kotlin", { "a.kt" => "import kotlin.math.abs\nfun f() = 1\n" })
-    assert_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }).representation, kotlin.representation
+    groovy = Representer::RepresentSolution.("groovy", { "a.groovy" => "import java.time.Year\ndef f() { 1 }\n" })
+    assert_equal Representer::RepresentSolution.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
+      groovy.representation
     c = basic("#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n", track: "c")
     assert_equal basic("int f() { return 1; }\n", track: "c").representation, c.representation
     haskell = "module A (a, b) where\nimport Data.List (sort,\n    nub)\na = 1\n"
@@ -118,7 +119,8 @@ class BasicTest < RepresenterTest
   end
 
   def test_a_line_that_only_starts_like_an_import_stays
-    with_call = Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = importer()\n" })
-    refute_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }).representation, with_call.representation
+    with_call = Representer::RepresentSolution.("groovy", { "a.groovy" => "def f() { importer() }\n" })
+    refute_equal Representer::RepresentSolution.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
+      with_call.representation
   end
 end
