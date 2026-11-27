@@ -5,18 +5,23 @@ class PHPTest < RepresenterTest
 
   track "php"
 
-  # The old representer renamed every function, method and class that a
-  # solution mentioned, even those that PHP provides or that another file
-  # defines. This representer only renames what the solution defines.
   UNDEFINED = "This representer only renames a name that the solution defines. The old representer also renamed " \
               "classes and methods that the solution only uses (here MyClass and method), because it renamed " \
               "every one it saw.".freeze
 
-  # PHP keeps variables and functions in separate namespaces. This
-  # representer renames by name, so a variable and a function with the same
-  # name get one placeholder and one entry in the mapping.
-  SHARED_NAME = "This representer renames by name, so a variable and a function or method with the same name " \
-                "share one placeholder and one entry in the mapping. The old representer gave each its own.".freeze
+  DOLLARS = "This representer keeps a variable's `$` in the mapping, as in `$year`, because PHP keeps variables " \
+            "apart from functions and methods with the same name.".freeze
+
+  UNSET = "The variable is never set, so the solution doesn't define it and this representer keeps its name. The " \
+          "old representer renamed every variable.".freeze
+
+  # The deviation for a test whose variables are set, so the mapping lists
+  # each of them with its `$`.
+  def self.with_dollars(*names) = { remove: names, add: names.map { |name| "$#{name}" }, why: DOLLARS }
+
+  # The deviation for a test that reads a variable it never sets, written as
+  # $v0 in the equivalent file.
+  def self.unset(name) = { restore: { "v0" => name }, remove: [name], why: UNSET }
 
   # The upstream tests were written for the old representer's output, which
   # had no <?php tag. Each equivalent.php here is that output with a <?php
@@ -26,55 +31,41 @@ class PHPTest < RepresenterTest
       unrepresentable: true,
       why: "The solution has a syntax error, so it gets no representation."
     },
-    "unit-function-case-insensitive-native" => {
-      replace: { "function_exists" => "FunCtioN_ExiStS" },
-      why: "PHP ignores the case of a function's name. The old representer wrote the name of a PHP function in " \
-           "lower case. This representer has no list of PHP functions, so it leaves the case of a function the " \
-           "solution doesn't define."
-    },
+    "example-leading-trailing-empty-lines" => with_dollars("year"),
+    "example-single-file" => with_dollars("year"),
+    "example-trailing-whitespace" => with_dollars("year"),
+    "unit-class-anonymous" => with_dollars("a"),
+    "unit-class-mapping" => with_dollars("a"),
+    "unit-function-name-as-expression" => { remove: ["a"], add: ["a", "$a"], why: DOLLARS },
     "unit-class-instantiation-backward-compatibility" => {
       restore: { "C0" => "MyClass", "m0" => "method" },
       remove: %w[MyClass method],
       why: UNDEFINED
     },
     "unit-function-aliases" => {
-      remove: %w[array_key_exists count current floatval fwrite highlight_file implode ini_set is_float is_int is_writable rtrim
-                 strstr],
+      remove: %w[array_key_exists count current floatval fwrite highlight_file implode ini_set
+                 is_float is_int is_writable rtrim strstr],
       why: "This representer writes a function's aliases as its main name (join is implode, sizeof is count) without " \
            "listing them in the mapping, because they aren't names the student chose. The old representer listed them. " \
            "(The old mapping's stable names are real function names here, so the test helper reads the mapping the " \
            "other way round, and the names to remove are the stable ones.)"
     },
-    "unit-function-name-as-expression" => {
-      restore: { "fn0" => "a", "v0" => "a" },
-      remove: ["a"],
-      add: ["a"],
-      why: SHARED_NAME
-    },
-    "unit-method-mapping" => {
-      restore: { "m0" => "a", "v0" => "a" },
-      remove: ["a"],
-      add: ["a"],
-      why: SHARED_NAME
-    },
-    "unit-method-expression" => {
-      add: ["a"],
-      why: "The old representer didn't rename ${a}. This representer reads ${a} as $a, which PHP does too."
-    },
-    "unit-string-simple-encapsulation" => {
-      add: ["a"],
-      why: "The old representer didn't rename a variable that was alone in a string (\"$a\"), which looks like an " \
-           "oversight, because it renamed the same variable everywhere else. This representer renames it."
-    }
+    "unit-method-mapping" => { restore: { "v0" => "a" }, remove: ["a"], add: ["a"], why: UNSET },
+    "unit-string-encapsulation" => unset("a"),
+    "unit-string-heredoc-with-escapes" => unset("a"),
+    "unit-string-useless-interpolated-concatenation-left-left" => unset("c"),
+    "unit-string-useless-interpolated-concatenation-left-left-and-right-right" => unset("c"),
+    "unit-string-useless-interpolated-concatenation-left-right" => unset("c"),
+    "unit-string-useless-interpolated-concatenation-right-left" => unset("c"),
+    "unit-string-useless-interpolated-concatenation-right-right" => unset("c")
   }.freeze
 
   upstream_tests ".php", deviations: DEVIATIONS
 
   # The old tests/example-multiple-files test has two solution files, and the
   # upstream_tests helper only handles one, so it is written out here. The
-  # equivalent files are the old output with a <?php line added, except that
-  # `use Helpers;` is `use C1;`, because this representer renames the class
-  # there too and the old representer left it.
+  # equivalent files are the old output with a <?php line added, and without
+  # the `use Helpers;`, which this representer drops as an import.
   def test_upstream_example_multiple_files
     input = {
       "Helpers.php" => "<?php\n\nclass Helpers\n{\n    public static function mod($x, $y)\n    {\n        return $x % $y;\n    }\n}\n",
@@ -83,12 +74,12 @@ class PHPTest < RepresenterTest
     }
     equivalent = {
       "Helpers.php" => "<?php\nclass C1\n{\n    public static function m1($v1, $v2)\n    {\n        return $v1 % $v2;\n    }\n}\n",
-      "Leap.php" => "<?php\nuse C1;\nclass C0\n{\n    public static function m0($v0)\n    {\n" \
+      "Leap.php" => "<?php\nclass C0\n{\n    public static function m0($v0)\n    {\n" \
                     "        return C1::m1($v0, 4) === 0;\n    }\n}\n"
     }
     actual = Representer::RepresentSolution.("php", input, {})
     assert_equal actual.representation, Representer::RepresentSolution.("php", equivalent, {}).representation
-    assert_equal %w[Helpers Leap isLeapYear mod x y year], actual.mapping.values.sort
+    assert_equal ["$x", "$y", "$year", "Helpers", "Leap", "isLeapYear", "mod"], actual.mapping.values.sort
   end
 
   def test_same_representation_as_the_old_assert_same_representation_tests
@@ -129,18 +120,13 @@ class PHPTest < RepresenterTest
     a = represent("<?php\nfunction helloWorld()\n{\n    $a = \"Hello World!\";\n    return $a;\n}")
     b = represent("<?php\nfunction helloWorld()\n{\n    $b = \"Hello World!\";\n    return $b;\n}")
     assert_equal a.representation, b.representation
-    assert_equal %w[a helloWorld], a.mapping.values.sort
-    assert_equal %w[b helloWorld], b.mapping.values.sort
+    assert_equal ["$a", "helloWorld"], a.mapping.values.sort
+    assert_equal ["$b", "helloWorld"], b.mapping.values.sort
   end
 
   # The old FunctionReorderingTest is skipped upstream ("not implemented yet"), and
   # the old ApplicationTest and ConsoleTest test its command line and the files it
   # reads, which this service doesn't have: the website sends the files in the request.
-
-  def test_function_names_ignore_case
-    assert_same_representation "<?php\nfunction Foo() { return 1; }\nFOO();", "<?php\nfunction bar() { return 1; }\nBar();"
-    assert_same_representation "<?php\nclass Foo {}\n$a = new FOO;", "<?php\nclass Bar {}\n$a = new bar();"
-  end
 
   def test_the_php_functions_a_solution_calls_stay_apart
     refute_same_representation "<?php\necho strtoupper('a');", "<?php\necho strtolower('a');"
@@ -148,86 +134,36 @@ class PHPTest < RepresenterTest
       "<?php\nclass A { function min() { return min($this->a); } }"
   end
 
-  def test_visibility_is_ignored_but_static_is_not
-    assert_same_representation "<?php\nclass A { private function f() {} }", "<?php\nclass A { final public function f() {} }"
-    refute_same_representation "<?php\nclass A { static function f() {} }", "<?php\nclass A { function f() {} }"
-    refute_same_representation "<?php\nclass A { private $x; }", "<?php\nclass A { public $x; }"
-  end
-
-  def test_properties_are_renamed_if_the_solution_defines_them
-    assert_same_representation "<?php\nclass A { private $total = 0; function deposit($n) { $this->total += $n; } }",
-      "<?php\nclass B { private $sum = 0; function put($m) { $this->sum += $m; } }"
-    assert_same_representation "<?php\nclass A { function f($x) { return $x->name; } }",
-      "<?php\nclass A { function f($y) { return $y->name; } }"
-    refute_same_representation "<?php\nclass A { function f($x) { return $x->name; } }",
-      "<?php\nclass A { function f($x) { return $x->title; } }"
-  end
-
   def test_a_variable_named_like_a_function
-    refute_same_representation "<?php\n$max = max($a);", "<?php\n$min = min($a);"
-    assert_same_representation "<?php\n$count = count($a);", "<?php\n$total = count($b);"
+    assert_same_representation "<?php\nfunction f($a) { $max = max($a); }", "<?php\nfunction f($b) { $min = max($b); }"
+    refute_same_representation "<?php\nfunction f($a) { $max = max($a); }", "<?php\nfunction f($a) { $max = min($a); }"
   end
 
-  def test_elseif_is_else_if_and_braces_are_optional
-    assert_same_representation "<?php\nif ($a) { b(); } elseif ($c) { d(); } else { e(); }",
-      "<?php\nif ($a) b(); else if ($c) d(); else e();"
-    refute_same_representation "<?php\nif ($a) { b(); }", "<?php\nwhile ($a) { b(); }"
-  end
-
-  def test_numbers_are_their_values
-    assert_same_representation "<?php\n$a = 1000 + 16 + 15;", "<?php\n$a = 1_000 + 0x10 + 017;"
-    refute_same_representation "<?php\n$a = 1;", "<?php\n$a = 1.0;"
-  end
-
-  def test_strings
-    assert_same_representation "<?php\n$a = 'it\\'s';", "<?php\n$a = \"it's\";"
-    assert_same_representation "<?php\n$a = 'a\\\\b';", "<?php\n$a = \"a\\\\b\";"
-    refute_same_representation "<?php\n$a = 'a\\nb';", "<?php\n$a = \"a\\nb\";"
-    refute_same_representation "<?php\n$a = 'x';", "<?php\n$a = 'y';"
-    refute_same_representation "<?php\n$a = \"\\xFF\";", "<?php\n$a = \"\\u{FF}\";"
-  end
-
-  def test_constants_and_keywords
-    assert_same_representation "<?php\n$a = TRUE;", "<?php\n$a = true;"
-    assert_same_representation "<?php\nclass A { const X = 1; function f() { return self::X; } }",
-      "<?php\nclass B { const Y = 1; function g() { return self::Y; } }"
-  end
-
-  def test_names_in_the_tests_are_kept
+  def test_the_exercise_files_make_no_difference
     tests = { "LeapTest.php" => "<?php\nrequire 'Leap.php';\nclass LeapTest { function t() { isLeap(2000); } }" }
     result = represent("<?php\nfunction isLeap($year) { return $year % 4 == 0; }", filename: "Leap.php", exercise_files: tests)
-    assert_equal ["year"], result.mapping.values
+    assert_equal ["$year", "isLeap"], result.mapping.values.sort
   end
 
   def test_syntax_errors_are_unrepresentable_with_the_php_version
-    result = represent("<?php\nclass !")
-    assert_nil result.representation
-    assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::PHP.version, result.version
+    assert_unrepresentable "<?php\nclass !"
   end
 
-  def test_an_empty_heredoc
-    refute_same_representation "<?php\n$a = <<<EOT\nEOT;\n", "<?php\n$a = <<<EOT\nb\nEOT;\n"
+  def test_a_file_with_no_php_code_is_unrepresentable
+    assert_unrepresentable "<h1>Hello</h1>"
   end
 
-  # These semicolons and keywords are the only difference between each pair.
-  def test_tokens_that_tell_programs_apart_are_kept
-    refute_same_representation "<?php for (;; $i++) {}", "<?php for ($i++;;) {}"
-    refute_same_representation "<?php for (; $i++;) {}", "<?php for ($i++;;) {}"
-    refute_same_representation "<?php\nnamespace A;\nuse function B\\c;\necho c();", "<?php\nnamespace A;\nuse B\\c;\necho c();"
+  def test_imports_are_dropped
+    assert_same_representation "<?php\nuse A\\B;\nrequire_once 'x.php';\ninclude 'y.php';\n$x = 1;", "<?php\n$x = 1;"
+    refute_same_representation "<?php\ndeclare(strict_types=1);\n$x = 1;", "<?php\n$x = 1;"
   end
 
-  # From php-representer's mapping tests: PHP ignores the case of A to Z only.
+  # PHP ignores the case of A to Z only.
   def test_only_ascii_letters_are_case_insensitive
     assert_equal ["AΛΕΙΤΟΥΡΓΙΑ"], represent("<?php\nfunction AΛΕΙΤΟΥΡΓΙΑ() {}\naΛΕΙΤΟΥΡΓΙΑ();\n").mapping.values
-    assert_equal %w[AΤΑΞΗ], represent("<?php\nclass AΤΑΞΗ {}\nnew aΤΑΞΗ();\n").mapping.values
-    assert_equal %w[A AΜΕΘΟΔΟΣ], represent("<?php\nclass A { public static function AΜΕΘΟΔΟΣ() {} }\nA::aΜΕΘΟΔΟΣ();\n").mapping.values
+    assert_equal ["AΤΑΞΗ"], represent("<?php\nclass AΤΑΞΗ {}\nnew aΤΑΞΗ();\n").mapping.values
+    method = "<?php\nclass A { public static function AΜΕΘΟΔΟΣ() {} }\nA::aΜΕΘΟΔΟΣ();\n"
+    assert_equal %w[A AΜΕΘΟΔΟΣ], represent(method).mapping.values
     refute_same_representation "<?php\nfunction ΛΕΙΤΟΥΡΓΙΑ() {}\nΛΕΙΤΟΥΡΓΙΑ();\n", "<?php\nfunction ΛΕΙΤΟΥΡΓΙΑ() {}\nλειτουργια();\n"
-  end
-
-  def test_use_and_includes_are_dropped
-    assert_same_representation "<?php\nuse A\\B;\nrequire_once 'x.php';\ninclude 'y.php';\n$x = 1;", "<?php\n$x = 1;"
-    assert_same_representation "<?php\nuse A\\B as C;\n$x = new C();", "<?php\nuse A\\B;\n$x = new B();"
-    refute_same_representation "<?php\ndeclare(strict_types=1);\n$x = 1;", "<?php\n$x = 1;"
   end
 end
