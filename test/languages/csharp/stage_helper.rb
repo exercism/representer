@@ -7,7 +7,7 @@ module CSharpStages
   def parse(source) = Representer::Engine::Grammar["c_sharp"].parse(Representer::Engine.clean(source))
 
   # GenerateAST's tree for the source.
-  def generate_ast(source) = CSharp::GenerateAST.(parse(source))
+  def generate_ast(source) = CSharp::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).

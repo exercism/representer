@@ -1,7 +1,7 @@
 require_relative "stage_helper"
 
-# Tests C#'s Normalise stage, which keeps the old representer's rewriters and
-# the changes made by Roslyn's simplifier.
+# Tests C#'s Normalise stages, which give one form to spellings that C#
+# reads the same way.
 class CSharpNormaliseTest < Minitest::Test
   include CSharpStages
 
@@ -42,7 +42,10 @@ class CSharpNormaliseTest < Minitest::Test
     code = "class A { int c; static int B() => 1; int D() => %s + %s(); }"
     assert_same format(code, "this.c", "A.B"), format(code, "c", "B")
     shadowed = "class A { int c; void D(int c) { %s = c; } }"
-    refute_same format(shadowed, "this.c"), format(shadowed, "c")
+    assert_same format(shadowed, "this.c"), format(shadowed, "c")
+    refute_same "class A { int D() => Math.Max(1, 2); }", "class A { int D() => Max(1, 2); }"
+    assert_same "struct A { static int B() => 1; int D() => A.B(); }", "struct A { static int B() => 1; int D() => B(); }"
+    assert_same "record A { static int B() => 1; int D() => A.B(); }", "record A { static int B() => 1; int D() => B(); }"
   end
 
   def test_puts_the_bodies_of_if_and_else_in_braces

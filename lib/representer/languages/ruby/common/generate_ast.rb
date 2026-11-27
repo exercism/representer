@@ -1,45 +1,61 @@
-# REPRESENTER_DSL.md defines the helpers in this file.
+# REPRESENTER_DSL.md and WRITING_GENERATE_AST.md define the declarations and
+# helpers in this file.
 # Tree-sitter's tree keeps every token and spelling, but a mentor would give
 # the same feedback however a solution is written. So this stage turns it into
-# the simpler tree that Ruby's own parser (the `parser` gem) gives, as the old
-# representer used.
-module Representer::Languages::Ruby
+# the simpler tree that Ruby's own parser (the `parser` gem) gives.
+module Representer::Languages::Ruby::Common
   class GenerateAST < Representer::Engine::GenerateAST
-    # Drop these tokens from every node, because the node types already show
-    # them. They are keywords and punctuation that sit in a fixed place, and
-    # layout such as brackets, commas, `then` and `do`.
-    #
-    # e.g. We convert:
-    # puts(x)
-    # A::b
-    #
-    # internally into:
-    # puts x
-    # A.b
-    #
-    # `&.` stays, because it differs from `.`.
-    TOKENS = %w[
-      -> ? BEGIN END __ENCODING__ __FILE__ __LINE__ alias begin break case class def else elsif ensure
-      false for if in module next nil redo rescue retry return self super true undef unless until when
-      while yield
-      ( ) [ ] { } , ; : :: . = => then do end #{
-    ].freeze
+    # Strip the keywords that sit in a fixed place, because the node types
+    # already show them.
+    # def f(x) ... end  ->  (method f (method_parameters x) ...)
+    strip_tokens "alias", "begin", "break", "case", "class", "def", "do", "else", "elsif", "end", "ensure", "for",
+                 "if", "in", "module", "next", "redo", "rescue", "retry", "return", "super", "then", "undef", "unless",
+                 "until", "when", "while", "yield"
 
-    # Drop these tokens only from the nodes listed, because elsewhere they are
+    # Strip the keywords that are values, because the node types already show them.
+    # nil  ->  (nil)
+    strip_tokens "false", "nil", "self", "true", "__ENCODING__", "__FILE__", "__LINE__", "BEGIN", "END"
+
+    # Strip the brackets, commas and other punctuation, because they are layout.
+    # Keep `&.`, because it differs from `.`.
+    # puts(x)  ->  puts x
+    # A::b  ->  A.b
+    strip_tokens "(", ")", "[", "]", "{", "}", ",", ";", ":", "::", ".", "=", "=>", "->", "?", "\#{"
+
+    # Strip these tokens only from the nodes listed, because elsewhere they are
     # operators.
-    #
-    # e.g. The `<` is dropped from `class A < B`, and kept in `a < b`.
-    TOKENS_IN = {
-      "superclass" => %w[<], "block_argument" => %w[&], "block_parameter" => %w[&],
-      "splat_argument" => %w[*], "splat_parameter" => %w[*], "rest_assignment" => %w[*],
-      "hash_splat_argument" => %w[**], "hash_splat_parameter" => %w[**], "hash_splat_nil" => %w[**],
-      "block_parameters" => %w[|], "alternative_pattern" => %w[|],
-      "variable_reference_pattern" => %w[^], "expression_reference_pattern" => %w[^],
-      "singleton_class" => %w[<<], "subshell" => %w[`], "regex" => %w[/]
-    }.freeze
+    # class A < B  ->  (class A (superclass B)), and a < b keeps its `<`
+    # f(&block), f(*args), f(**options)  ->  (block_argument block) ...
+    # xs.map { |x| x }  ->  (block (block_parameters x) x)
+    # in ^x, class << self, `ls` and /a/ lose their `^`, `<<`, backticks and slashes
+    strip_tokens "<", only_in: :superclass
+    strip_tokens "&", only_in: [:block_argument, :block_parameter]
+    strip_tokens "*", only_in: [:splat_argument, :splat_parameter, :rest_assignment]
+    strip_tokens "**", only_in: [:hash_splat_argument, :hash_splat_parameter, :hash_splat_nil]
+    strip_tokens "|", only_in: [:block_parameters, :alternative_pattern]
+    strip_tokens "^", only_in: [:variable_reference_pattern, :expression_reference_pattern]
+    strip_tokens "<<", only_in: :singleton_class
+    strip_tokens "`", only_in: :subshell
+    strip_tokens "/", only_in: :regex
 
     # Keep the `;` in block parameters, because `|a; b|` makes b a block-local variable.
-    TOKENS_KEPT_IN = { "block_parameters" => %w[;] }.freeze
+    # xs.each { |a; b| ... } keeps its `;`
+    keep_tokens ";", in: :block_parameters
+
+    # Unwrap brackets that only group, because the tree's shape shows the grouping.
+    # (1 + 2)  ->  1 + 2
+    unwrap :parenthesized_statements
+
+    # Write each number as its value. A `0d` prefix means decimal, and a
+    # leading 0 means octal.
+    #
+    # 1_000  ->  1000
+    # 0x1F  ->  31
+    # 037  ->  31
+    # 1.50  ->  1.5
+    numbers_are integer: :integer,
+                decimal: :float,
+                prefixes: { "0x" => 16, "0o" => 8, "0b" => 2, "0d" => 10, "0" => 8 }
 
     # The escapes that a double-quoted string reads, and the text each one stands for.
     ESCAPES = {
@@ -47,44 +63,26 @@ module Representer::Languages::Ruby
       "\\" => "\\", '"' => '"', "'" => "'", "#" => "#"
     }.freeze
 
-    Numbers = Representer::Engine::Numbers
-
     # Stand in for one non-text part of a heredoc while its indentation is
     # removed. Source code can't hold a NUL (see Engine.clean).
     MARK = "\0".freeze
 
     def call
       tree.tap do
-        drop_comments_empty_statements_and_text_after_end!
+        drop_empty_statements_and_text_after_end!
         turn_heredocs_into_strings!
         write_strings_symbols_and_word_lists_as_values!
-        write_numbers_as_their_values!
         write_conditions_and_loops_in_one_shape!
         write_blocks_and_lambdas_in_one_shape!
         write_methods_and_calls_in_one_shape!
         mark_class_and_module_bodies!
-        drop_tokens_that_the_node_types_already_show!
-        unwrap_brackets_that_only_group!
       end
     end
 
     private
-    ### Comments, brackets and tokens ###
-
-    # Drop comments, empty statements and the text after `__END__`.
-    def drop_comments_empty_statements_and_text_after_end!
-      drop(tree, "[(comment) (uninterpreted) (empty_statement)]")
-    end
-
-    # Drop the tokens listed in TOKENS, TOKENS_IN and TOKENS_KEPT_IN.
-    def drop_tokens_that_the_node_types_already_show!
-      drop_tokens(tree, everywhere: TOKENS, only_in: TOKENS_IN, kept_in: TOKENS_KEPT_IN)
-    end
-
-    # Unwrap brackets that only group, because the tree's shape shows the grouping.
-    # (1 + 2) == 1 + 2
-    def unwrap_brackets_that_only_group!
-      unwrap(tree, "(parenthesized_statements)")
+    # Drop empty statements and the text after `__END__`, because Ruby never runs them.
+    def drop_empty_statements_and_text_after_end!
+      drop(tree, "[(uninterpreted) (empty_statement)]")
     end
 
     ### Heredocs ###
@@ -162,10 +160,12 @@ module Representer::Languages::Ruby
     # of a double-quoted string. Keep any other escape as it is written, so it
     # can't make two different strings the same.
     #
-    # 'a' == "a" == %q(a) == ?a
-    # :"a" == :a
-    # %w[a b] == ["a", "b"]
-    # %i[a b] == [:a, :b]
+    # 'a'  ->  "a"
+    # %q(a)  ->  "a"
+    # ?a  ->  "a"
+    # :"a"  ->  :a
+    # %w[a b]  ->  ["a", "b"]
+    # %i[a b]  ->  [:a, :b]
     def write_strings_symbols_and_word_lists_as_values!
       transform(tree, '(string "\"" @quote)') do |match|
         raw = match[:quote].text.start_with?("'", "%q")
@@ -215,7 +215,7 @@ module Representer::Languages::Ruby
     end
 
     # Build the symbol that has a string's value.
-    # :"a" == :a
+    # :"a"  ->  :a
     def symbol(value)
       return leaf(:simple_symbol, ":#{value.text}") if value.type == "literal"
 
@@ -224,8 +224,9 @@ module Representer::Languages::Ruby
 
     # Give every hash key the same shape, and fill in a missing value.
     #
-    # {a: 1} == {"a": 1} == {:a => 1}
-    # {a:} == {a: a}
+    # {"a": 1}  ->  {a: 1}
+    # {:a => 1}  ->  {a: 1}
+    # {a:}  ->  {a: a}
     def write_every_hash_key_the_same_way!
       transform(tree, '(pair key: (_) @key ":" @colon)') do |match|
         key = match[:key]
@@ -239,8 +240,8 @@ module Representer::Languages::Ruby
 
     # Keep a regex's source text and its options, sorted, and drop its delimiters.
     #
-    # /a/ == %r{a}
-    # /a/im == /a/mi
+    # %r{a}  ->  /a/
+    # /a/mi  ->  /a/im
     def write_regexes_as_source_and_sorted_options!
       transform(tree, '(regex "/" @open)') do |match|
         options = match.node.children.last.text[/[a-z]*\z/].chars.sort.uniq.join
@@ -248,34 +249,6 @@ module Representer::Languages::Ruby
         value = string_node(pieces)
         parts = value.type == "literal" ? [value] : value.children
         build(:regex, *parts, (leaf(:regex_options, options) unless options.empty?))
-      end
-    end
-
-    ### Numbers ###
-
-    # Turn each number into its value. A `0d` prefix means decimal, and a leading 0 means octal.
-    #
-    # 1_000 == 1000
-    # 0x1F == 037 == 31
-    # 1.50 == 1.5
-    def write_numbers_as_their_values!
-      prefixes = Numbers::PREFIXES.merge("0d" => 10)
-      write_numbers_of_type_as_values!(:integer) do |text|
-        text = "0o#{text[1..]}" if text.match?(/\A0[0-7_]/)
-        Numbers.integer(text, prefixes:)&.to_s
-      end
-      write_numbers_of_type_as_values!(:float) do |text|
-        value = Numbers.decimal(text)
-        value && Numbers.write_decimal(value)
-      end
-    end
-
-    def write_numbers_of_type_as_values!(type)
-      each_node(tree) do |node, _|
-        next unless node.type == type.to_s && node.leaf?
-
-        text = yield(node.text)
-        node.text = text if text
       end
     end
 
@@ -307,7 +280,7 @@ module Representer::Languages::Ruby
       end
 
       # Leave `begin ... end while x` alone, because it runs the body before the first check.
-      %w[while until].each do |loop|
+      ["while", "until"].each do |loop|
         transform(tree, "(#{loop}_modifier body: (_) @body condition: (_) @condition)") do |match|
           build(loop, { condition: match[:condition] }, { body: build(:do, match[:body]) }) unless match[:body].type == "begin"
         end
@@ -315,7 +288,7 @@ module Representer::Languages::Ruby
 
       # Drop an empty `then` or `else`.
       each_node(tree) do |node, _|
-        node.children.reject! { |child| child.named? && %w[then else].include?(child.type) && child.named_children.empty? }
+        node.children.reject! { |child| child.named? && ["then", "else"].include?(child.type) && child.named_children.empty? }
       end
       { "and" => "&&", "or" => "||", "not" => "!" }.each do |word, symbol|
         each_node(tree) do |node, _|
@@ -330,8 +303,8 @@ module Representer::Languages::Ruby
     # because it makes the block take an array's first element. Ruby's parser
     # drops it, so turn it into an `implicit_rest`, as Prism does.
     #
-    # xs.each do |x| ... end == xs.each { |x| ... }
-    # ->(a) { a } == lambda { |a| a }
+    # xs.each do |x| ... end  ->  xs.each { |x| ... }
+    # ->(a) { a }  ->  lambda { |a| a }
     def write_blocks_and_lambdas_in_one_shape!
       retype(tree, do_block: :block, block_body: :body_statement)
       each_node(tree) do |node, _|
@@ -350,15 +323,15 @@ module Representer::Languages::Ruby
       end
     end
 
-    EMPTY_LISTS = %w[method_parameters block_parameters argument_list].freeze
+    EMPTY_LISTS = ["method_parameters", "block_parameters", "argument_list"].freeze
 
     # Give methods and calls one shape. Drop empty brackets, except on `super`,
     # because `super` passes on the method's arguments and `super()` doesn't.
     #
-    # def f = x == def f; x; end
-    # def f() == def f
-    # a.b() == a.b
-    # f.(x) == f.call(x)
+    # def f = x  ->  def f; x; end
+    # def f()  ->  def f
+    # a.b()  ->  a.b
+    # f.(x)  ->  f.call(x)
     def write_methods_and_calls_in_one_shape!
       transform(tree, '[(method "=" @equals body: (_) @body) (singleton_method "=" @equals body: (_) @body)]') do |match|
         match.node.children.delete(match[:equals])

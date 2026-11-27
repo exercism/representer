@@ -38,9 +38,9 @@ class ElixirNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Elixir::Spec)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Elixir::Representation)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Elixir::Spec.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Elixir::Representation.name?(node) }
     leaves
   end
 end

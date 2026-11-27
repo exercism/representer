@@ -51,9 +51,9 @@ class CSharpNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], CSharp::Spec)
+    Representer::Engine::RenameUserDefinedNodes.([tree], CSharp::Representation)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if CSharp::Spec.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if CSharp::Representation.name?(node) }
     leaves
   end
 end

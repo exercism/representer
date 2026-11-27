@@ -1,28 +1,33 @@
 module Representer::Engine
   # Every staged language is a class called Spec that subclasses this one,
-  # in a module named after the language. The language's stages are classes
-  # beside it in the same module, such as Ruby::GenerateAST.
+  # in a module named after the language. The Spec says what the language
+  # is and how its files are read. Each output is a class beside it, such
+  # as Ruby::Representation and Ruby::Snippet, and the stages that every
+  # output needs sit in a module beside it, such as Ruby::Common.
   # REPRESENTER_DSL.md describes every declaration.
   class Language
     extend Representer::LanguageSetup
 
-    # Each stage lives in a file named after it, in the language's folder,
-    # and so does the language's snippet (see Engine::Snippet).
-    STAGE_FILES = { GenerateAST: "generate_ast", Normalise: "normalise", Reorder: "reorder", Snippet: "snippet" }.freeze
+    # Each output lives in a file named after it, in the language's folder.
+    OUTPUT_FILES = { Representation: "representation", Snippet: "snippet" }.freeze
+
+    # Each stage that every output needs lives in a file named after it, in
+    # the language's `common/` folder.
+    COMMON_FILES = { GenerateAST: "generate_ast", Normalise: "normalise" }.freeze
 
     class << self
-      # Ruby calls this when a language defines its Spec. If the language's
-      # folder has a file for a stage, such as `languages/ruby/normalise.rb`,
-      # Ruby will load that file the first time the engine asks for the
-      # stage. If a language has no file for a stage, it doesn't run that
-      # stage.
+      # Ruby calls this when a language defines its Spec. The engine then
+      # finds the language's outputs and common stages in its folder (see
+      # AutoloadFiles), and Ruby loads each one the first time the engine
+      # asks for it. If a language has no file for a stage, it doesn't run
+      # that stage.
       def inherited(spec)
         super
-        folder = File.expand_path("../languages/#{snake_case(spec.name.split('::')[-2])}", __dir__)
-        STAGE_FILES.each do |stage, file|
-          path = File.join(folder, "#{file}.rb")
-          stages_of(spec).autoload(stage, path) if File.exist?(path)
-        end
+        language = Representer::Engine.language_module(spec)
+        folder = Representer::Engine.folder_of(language)
+        AutoloadFiles.(language, folder, OUTPUT_FILES)
+        common = language.const_defined?(:Common, false) ? language::Common : language.const_set(:Common, Module.new)
+        AutoloadFiles.(common, File.join(folder, "common"), COMMON_FILES)
       end
 
       # Called by Representer when it picks a language for a track.
@@ -30,33 +35,26 @@ module Representer::Engine
 
       def staged? = true
 
-      # The node types that are names (see REPRESENTER_DSL.md). A language
-      # can call it more than once.
-      def names_are(*types, without_prefix: "")
-        @names = (@names || {}).merge(types.to_h { |type| [type.to_s, without_prefix] })
+      # The node types that are comments (see REPRESENTER_DSL.md). The
+      # engine drops them before GenerateAST, and the snippet removes them.
+      # With no arguments, it returns the types.
+      def comments_are(*types) = (@comment_types ||= []).concat(types.map(&:to_s))
+
+      def comment_types = comments_are
+
+      # The code that counts as a docstring, as code patterns (see
+      # REPRESENTER_DSL.md). The snippet removes it, and an output's
+      # Normalise stage can drop it with `drop :docstrings`.
+      def docstrings_are(*codes) = @docstring_codes = codes
+
+      # The docstring patterns, compiled for the tree from GenerateAST, or
+      # for the grammar's own tree if raw.
+      def docstrings(raw: false)
+        (@docstrings ||= {})[raw] ||= (@docstring_codes || []).map { |code| CodePattern[self, code, raw:] }
       end
 
-      # The node types that define a name (see REPRESENTER_DSL.md). A
-      # language can call it more than once.
-      def names_are_defined_by(*types, **fields)
-        added = types.to_h { |type| [type.to_s, nil] }.merge(fields.to_h { |type, field| [type.to_s, field.to_s] })
-        @definitions = (@definitions || {}).merge(added)
-      end
-
-      # Whether the node is a name: a leaf of one of the types in names_are.
-      def name?(node) = node.named? && node.leaf? && names.key?(node.type)
-
-      # The name held by a name's leaf, without its prefix.
-      def name_text(leaf) = leaf.text.delete_prefix(names[leaf.type])
-
-      # The leaves of the names defined by the node (see names_are_defined_by).
-      def names_defined_by(node)
-        return [] unless @definitions&.key?(node.type)
-
-        field = @definitions[node.type]
-        children = field ? [node[field]].compact : node.children
-        children.select { |child| name?(child) }
-      end
+      # Whether the node is a docstring, in the grammar's own tree.
+      def docstring?(node) = docstrings(raw: true).any? { |pattern| pattern.match(node) }
 
       # The node types that hold their whole source text as a leaf, for
       # nodes whose text the grammar doesn't give as children (see
@@ -71,31 +69,48 @@ module Representer::Engine
       # How Grammar#parse copies a tree for this language.
       def parse_options = { text_types: text_nodes, gap_types: text_between_children }
 
-      # The code that counts as an import, as code patterns (see
-      # REPRESENTER_DSL.md). With no arguments, it returns the compiled
-      # patterns.
-      def imports(*codes)
-        return @import_patterns ||= (@imports || []).map { |code| CodePattern[self, code] } if codes.empty?
+      # The language's representation output, such as Ruby::Representation,
+      # or nil if it has none.
+      def representation = stages.const_defined?(:Representation, false) ? stages::Representation : nil
 
-        @imports = codes
-      end
+      # The representation's version. A response gives it even when the
+      # solution can't be represented.
+      def version = representation.version
 
-      # The code to put a code pattern in when the pattern doesn't parse on
-      # its own (see REPRESENTER_DSL.md).
-      def pattern_contexts(*contexts) = contexts.empty? ? @pattern_contexts || [] : @pattern_contexts = contexts
+      # The module that holds the stages every output needs, such as
+      # Ruby::Common.
+      def common = stages::Common
 
-      # Runs the language's stage with this name on the tree, and returns
-      # the new tree. If the language doesn't define the stage, the tree
-      # stays as it is.
-      def run_stage(name, tree) = stages.const_defined?(name, false) ? stages.const_get(name, false).(tree) : tree
+      # Runs the common stage with this name on the tree, and returns the
+      # new tree (see Engine.run_stage).
+      def run_stage(name, tree) = Representer::Engine.run_stage(common, name, tree)
 
-      # The module that holds the Spec and its stages, such as
+      # The module that holds the Spec and its outputs, such as
       # Representer::Languages::Ruby.
-      def stages = stages_of(self)
-
-      private
-      def stages_of(spec) = Object.const_get(spec.name.delete_suffix("::Spec"))
-      def snake_case(name) = name.gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase
+      def stages = Representer::Engine.language_module(self)
     end
   end
+
+  # Returns the module of the language that holds the class: the nearest
+  # module around it that holds a Spec. So Ruby::Common::Normalise belongs
+  # to Representer::Languages::Ruby.
+  def self.language_module(klass)
+    parts = klass.name.split("::")
+    parts.pop until parts.empty? || Object.const_get(parts.join("::")).const_defined?(:Spec, false)
+    raise ArgumentError, "#{klass.name} isn't inside a language with a Spec" if parts.empty?
+
+    Object.const_get(parts.join("::"))
+  end
+
+  # Returns the folder of a staged language, such as `languages/ruby/` for
+  # Representer::Languages::Ruby.
+  def self.folder_of(language)
+    name = language.name.split("::").last.gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase
+    File.expand_path("../languages/#{name}", __dir__)
+  end
+
+  # Runs the stage with this name from the module on the tree, and returns
+  # the new tree. If the module doesn't define the stage, the tree stays as
+  # it is.
+  def self.run_stage(owner, name, tree) = owner.const_defined?(name, false) ? owner.const_get(name, false).(tree) : tree
 end

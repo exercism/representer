@@ -1,25 +1,29 @@
-# REPRESENTER_DSL.md defines the helpers in this file.
+# REPRESENTER_DSL.md and WRITING_GENERATE_AST.md define the declarations and
+# helpers in this file.
 # Tree-sitter's tree keeps every token and spelling, but a mentor would give
 # the same feedback however a solution is written. So this stage turns it into
 # the simpler tree that the F# compiler's parser (its untyped syntax tree)
-# gives, as the old representer used.
-module Representer::Languages::FSharp
+# gives.
+module Representer::Languages::FSharp::Common
   class GenerateAST < Representer::Engine::GenerateAST
-    # Drop these tokens from every node, because the node types already show
-    # them. They are keywords and punctuation that sit in a fixed place, and
-    # layout such as brackets and separators.
+    # Strip the keywords that sit in a fixed place, because the node types
+    # already show them.
+    # if a then 1 else if b then 2 else 3  ->  if a then 1 elif b then 2 else 3
+    strip_tokens "let", "module", "namespace", "type", "fun", "function", "if", "then", "else", "elif", "else if",
+                 "match"
+
+    # Strip the brackets and separators, because they are layout.
+    # let total = add(x)  ->  let total = add x
+    strip_tokens "(", ")", "[", "]", "{", "}", "[|", "|]", ";", ","
+
+    # Write each number as its value. A number with a type suffix, such as
+    # `10L`, keeps it.
     #
-    # e.g. We convert:
-    # let total = add(x)
-    # if a then 1 else if b then 2 else 3
-    #
-    # internally into:
-    # let total = add x
-    # if a then 1 elif b then 2 else 3
-    TOKENS = [
-      "(", ")", "[", "]", "{", "}", "[|", "|]", ";", ",", "let", "module", "namespace", "type", "fun",
-      "function", "if", "then", "else", "elif", "else if", "match"
-    ].freeze
+    # 1_000  ->  1000
+    # 0x1F  ->  31
+    # 1.50  ->  1.5
+    numbers_are integer: [:int, :xint],
+                decimal: :float
 
     # The escapes that a string reads, and the text each one stands for.
     ESCAPES = {
@@ -27,52 +31,40 @@ module Representer::Languages::FSharp
       "\\" => "\\", '"' => '"', "'" => "'"
     }.freeze
 
-    Numbers = Representer::Engine::Numbers
-
     def call
       tree.tap do
-        drop_comments_and_xml_documentation!
         write_strings_as_their_values!
-        write_numbers_as_their_values!
         write_every_operator_as_a_leaf!
         regroup_operators_and_calls!(tree)
         unwrap_brackets_that_only_group!
         drop_bars_between_match_union_and_enum_cases!
         mark_the_code_that_defines_names!
-        drop_tokens_that_the_node_types_already_show!
       end
     end
 
     private
-    ### Comments, brackets and tokens ###
+    ### Brackets ###
 
-    # Drop comments and XML documentation.
-    def drop_comments_and_xml_documentation!
-      drop(tree, "[(line_comment) (block_comment) (xml_doc)]")
-    end
-
-    # Unwrap brackets that only group, because the tree's shape now shows the grouping.
-    # a + (b * c) == a + b * c
+    # Unwrap brackets that only group, because the tree's shape now shows the
+    # grouping. This step runs after regrouping the operators, which needs
+    # the brackets, and before marking the names, which needs them gone.
+    # a + (b * c)  ->  a + b * c
     def unwrap_brackets_that_only_group!
       unwrap(tree, "[(paren_expression) (paren_pattern)]")
     end
 
-    # Drop the tokens listed in TOKENS from every node.
-    def drop_tokens_that_the_node_types_already_show!
-      drop_tokens(tree, everywhere: TOKENS)
-    end
-
-    ### Strings and numbers ###
+    ### Strings ###
 
     # Turn each string into its value, however it is quoted, and read its
     # escapes. Keep any other escape as it is written, so it can't make two
     # different strings the same.
     #
-    # "a\"b" == @"a""b" == """a"b"""
+    # @"a""b"  ->  "a\"b"
+    # """a"b"""  ->  "a\"b"
     def write_strings_as_their_values!
       transform(tree, "(string) @string") do |match|
         parts = match.node.children
-        next nil unless parts.all? { |part| %w[fragment "].include?(part.type) }
+        next nil unless parts.all? { |part| ["fragment", '"'].include?(part.type) }
 
         literal(parts.select { |part| part.type == "fragment" }.sum("") { |part| unescape(part.text) })
       end
@@ -87,25 +79,6 @@ module Representer::Languages::FSharp
 
         code = hex.to_i(16)
         code.between?(0xD800, 0xDFFF) || code > 0x10FFFF ? escape : [code].pack("U")
-      end
-    end
-
-    # Turn each number into its value. A number with a type suffix, such as
-    # `10L`, keeps it.
-    #
-    # 1_000 == 1000
-    # 0x1F == 31
-    # 1.50 == 1.5
-    def write_numbers_as_their_values!
-      each_node(tree) do |node, _|
-        next unless node.leaf?
-
-        value = case node.type
-                when "int" then Numbers.integer(node.text, prefixes: {})
-                when "xint" then Numbers.integer(node.text)
-                when "float" then Numbers.decimal(node.text)&.then { Numbers.write_decimal(it) }
-                end
-        node.text = value.to_s if value
       end
     end
 
@@ -180,10 +153,10 @@ module Representer::Languages::FSharp
 
     # Drop the `|` between the cases of a match, a union type or an enum,
     # because the first one is optional.
-    # type Shape = | Circle | Square == type Shape = Circle | Square
+    # type Shape = | Circle | Square  ->  type Shape = Circle | Square
     def drop_bars_between_match_union_and_enum_cases!
       each_node(tree) do |node, _|
-        node.children.reject! { |child| child.type == "|" } if %w[rules union_type_cases enum_type_cases].include?(node.type)
+        node.children.reject! { |child| child.type == "|" } if ["rules", "union_type_cases", "enum_type_cases"].include?(node.type)
       end
     end
 
@@ -243,7 +216,7 @@ module Representer::Languages::FSharp
     # In `let f (Some x) = x`, `x` is a named_pattern, and `Some` isn't.
     def mark_single_name_patterns_as_named_patterns!
       # Write a parameter that is a bare name as a pattern, as it is in brackets.
-      # let f x = x == let f (x) = x
+      # let f x = x  ->  let f (x) = x
       each_node(tree) do |node, _|
         next unless node.type == "argument_patterns"
 
@@ -298,8 +271,8 @@ module Representer::Languages::FSharp
       # These prefix operators bind tighter than a function call, and the
       # others (such as `-`) bind looser.
       #
-      # !f x == (!f) x
-      # -f x == -(f x)
+      # !f x  ->  (!f) x
+      # -f x  ->  -(f x)
       TIGHT_PREFIX = /\A[!~?]/
 
       def self.group(parts) = new(parts).expression

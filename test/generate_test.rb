@@ -13,14 +13,14 @@ class GenerateTest < Minitest::Test
   def test_the_representation_has_its_mapping_and_version
     output = generate(%i[representation], { "a.rb" => "def f(x) = x" })[:representation]
     assert_equal({ "PLACEHOLDER_1" => "f", "PLACEHOLDER_2" => "x" }, output[:mapping])
-    assert_equal Representer::Languages::Ruby::Spec.version, output[:version]
+    assert_equal Representer::Languages::Ruby::Representation.version, output[:version]
     refute_nil output[:representation]
   end
 
   def test_a_solution_that_cant_be_represented_gets_an_error_with_the_version
     output = generate(%i[representation], { "a.rb" => "def x(" })[:representation]
     assert_equal({ error: "parse_error", message: "The code has a syntax error",
-                   version: Representer::Languages::Ruby::Spec.version }, output)
+                   version: Representer::Languages::Ruby::Representation.version }, output)
   end
 
   def test_exercise_files_over_their_limit_make_the_representation_too_large

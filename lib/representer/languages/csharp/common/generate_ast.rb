@@ -1,38 +1,48 @@
-# REPRESENTER_DSL.md defines the helpers in this file.
+# REPRESENTER_DSL.md and WRITING_GENERATE_AST.md define the declarations and
+# helpers in this file.
 # Tree-sitter's tree keeps every token and spelling, but a mentor would give
 # the same feedback however a solution is written. So this stage turns it into
-# the simpler tree that C#'s own parser (Roslyn) gives, as the old representer
-# used.
-module Representer::Languages::CSharp
+# the simpler tree that C#'s own parser (Roslyn) gives.
+module Representer::Languages::CSharp::Common
   class GenerateAST < Representer::Engine::GenerateAST
-    # Drop these tokens from every node, because the node types already show
-    # them. They are keywords and punctuation that sit in a fixed place.
-    #
-    # e.g. We convert:
-    # if (x) { return y; }
-    #
-    # internally into:
-    # (if_statement x (block (return_statement y)))
-    #
-    # `using` and `await` stay, because `using var x` and `await foreach`
-    # differ from `var x` and `foreach` only by them.
-    TOKENS = %w[
-      ( ) { } [ ] ; , . : ? => "
-      new return if else class struct interface record enum namespace var for foreach while do switch
-      break continue throw try catch finally lock typeof sizeof yield goto
-    ].freeze
+    # Strip the keywords that sit in a fixed place, because the node types
+    # already show them. Keep `using` and `await`, because `using var x` and
+    # `await foreach` differ from `var x` and `foreach` only by them.
+    # if (x) { return y; }  ->  (if_statement x (block (return_statement y)))
+    strip_tokens "new", "return", "if", "else", "class", "struct", "interface", "record", "enum", "namespace", "var",
+                 "for", "foreach", "while", "do", "switch", "break", "continue", "throw", "try", "catch", "finally", "lock",
+                 "typeof", "sizeof", "yield", "goto"
+
+    # Strip the brackets, commas and other punctuation, because they are layout.
+    # f(a, b);  ->  (invocation_expression f (argument_list a b))
+    strip_tokens "(", ")", "{", "}", "[", "]", ";", ",", ".", ":", "?", "=>", '"'
 
     # Keep these tokens in the nodes listed, because they are the only thing
     # that tells two programs apart there.
+    # record struct P and record class P
+    # where T : struct and where T : class?
+    # int[,] and int[], new[,] and new[], and Dictionary<,> and List<>
+    # for (;; i++) and for (i++;;)
+    keep_tokens "class", "struct", in: :record_declaration
+    keep_tokens "class", "struct", "?", in: :type_parameter_constraint
+    keep_tokens ",", in: [:array_rank_specifier, :implicit_array_creation_expression, :type_argument_list]
+    keep_tokens ";", in: :for_statement
+
+    # Unwrap brackets that only group, because the tree's shape shows the grouping.
+    # (a)  ->  a
+    unwrap :parenthesized_expression
+
+    # Write each number as its value. A `float` or `double` keeps its suffix,
+    # in lower case. A decimal (`1.50m`) keeps its digits, because .NET keeps
+    # a decimal's scale, and an integer with a suffix keeps its text.
     #
-    # e.g. `record struct` and `record class`, `where T : class` and
-    # `where T : struct?`, `int[,]` and `int[]`, `new[,]` and `new[]`,
-    # `Dictionary<,>` and `List<>`, and `for (;; i++)` and `for (i++;;)`.
-    TOKENS_KEPT_IN = {
-      "record_declaration" => %w[class struct], "type_parameter_constraint" => %w[class struct ?],
-      "array_rank_specifier" => %w[,], "implicit_array_creation_expression" => %w[,],
-      "type_argument_list" => %w[,], "for_statement" => %w[;]
-    }.freeze
+    # 1_000  ->  1000
+    # 0x1F  ->  31
+    # 1.50  ->  1.5
+    # 1E7F  ->  10000000.0f
+    numbers_are integer: :integer_literal,
+                decimal: :real_literal,
+                suffixes: ["f", "d"]
 
     # The escapes that a string reads, and the text each one stands for.
     ESCAPES = {
@@ -40,48 +50,24 @@ module Representer::Languages::CSharp
       "v" => "\v", "e" => "\e", "\\" => "\\", '"' => '"', "'" => "'"
     }.freeze
 
-    Numbers = Representer::Engine::Numbers
-
     def call
       tree.tap do
-        drop_comments!
         write_strings_as_their_values!
-        write_numbers_as_their_values!
         add_parameter_node_to_bare_lambda_parameters!
         mark_let_and_join_variables_as_names!
-        drop_tokens_that_the_node_types_already_show!
-        unwrap_brackets_that_only_group!
       end
     end
 
     private
-    ### Comments, brackets and tokens ###
-
-    # Drop comments.
-    def drop_comments!
-      drop(tree, "(comment)")
-    end
-
-    # Drop the tokens listed in TOKENS from every node, apart from the node
-    # types listed in TOKENS_KEPT_IN.
-    def drop_tokens_that_the_node_types_already_show!
-      drop_tokens(tree, everywhere: TOKENS, kept_in: TOKENS_KEPT_IN)
-    end
-
-    # Unwrap brackets that only group, because the tree's shape shows the grouping.
-    # (1 + 2) * 3 keeps its shape, and (a) == a
-    def unwrap_brackets_that_only_group!
-      unwrap(tree, "(parenthesized_expression)")
-    end
-
     ### Values ###
 
     # Turn each regular and verbatim string into its value, and read its
     # escapes. Keep any other escape as a node of its own, so it can't make
     # two different strings the same.
     #
-    # "\x41" == "A" == "A"
-    # @"a""b" == "a\"b"
+    # "\x41"  ->  "A"
+    # "\u0041"  ->  "A"
+    # @"a""b"  ->  "a\"b"
     def write_strings_as_their_values!
       transform(tree, "(string_literal) @string") do |match|
         string_node(match.node.named_children.map { |part| string_piece(part) })
@@ -118,31 +104,6 @@ module Representer::Languages::CSharp
       return parts.first if parts.one? && parts.first.type == "literal"
 
       build(:string_literal, *parts)
-    end
-
-    # Write each number as its value. A decimal (`1.50m`) keeps its digits,
-    # because .NET keeps a decimal's scale, and an integer with a suffix keeps
-    # its text.
-    #
-    # 1_000 == 1000
-    # 0x1F == 0b11111 == 31
-    # 1.50 == 1.5
-    # 1e7 == 1E7 == 10000000.0
-    def write_numbers_as_their_values!
-      each_node(tree) do |node, _|
-        next unless node.named? && node.leaf?
-
-        case node.type
-        when "integer_literal" then node.text = Numbers.integer(node.text)&.to_s || node.text
-        when "real_literal" then node.text = real(node.text) || node.text
-        end
-      end
-    end
-
-    def real(text)
-      digits, suffix = text.match(/\A(.*?)([fFdD])?\z/).captures
-      value = Numbers.decimal(digits)
-      value && "#{Numbers.write_decimal(value)}#{suffix&.downcase}"
     end
 
     ### Names ###

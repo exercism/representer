@@ -44,7 +44,8 @@ module Representer::Engine
       def version(number = nil) = number ? @version = number : @version || 1
 
       # Things to remove wherever they are: :comments, and :docstrings for a
-      # language that declares docstrings_are.
+      # language that declares docstrings_are. A staged language declares
+      # both in its Spec.
       def remove(*things)
         unknown = things - REMOVABLE
         raise ArgumentError, "A snippet can't remove #{unknown.map(&:inspect).join(', ')}" if unknown.any?
@@ -52,12 +53,14 @@ module Representer::Engine
         removed.concat(things)
       end
 
-      # Node types that are comments, as well as every type with "comment"
-      # in its name.
+      # For a language on the old structure: node types that are comments,
+      # as well as every type with "comment" in its name. A staged language
+      # declares them in its Spec, with comments_are.
       def comment_types(*types) = comment_type_names.concat(types.map(&:to_s))
 
-      # Says which nodes are docstrings. The block receives a node and its
-      # parent.
+      # For a language on the old structure: says which nodes are
+      # docstrings. The block receives a node and its parent. A staged
+      # language declares them in its Spec, with docstrings_are.
       def docstrings_are(&block) = @docstring_check = block
 
       # Node types that hold the rest of the file after a header line, such
@@ -117,13 +120,20 @@ module Representer::Engine
         (removed.include?(:comments) && comment?(node)) || (removed.include?(:docstrings) && docstring?(node, parent))
       end
 
-      def comment?(node) = node.type.include?("comment") || comment_type_names.include?(node.type)
+      def comment?(node)
+        node.type.include?("comment") || comment_type_names.include?(node.type) || staged_language&.comment_types&.include?(node.type)
+      end
 
       def docstring?(node, parent)
+        return staged_language.docstring?(node) if staged_language
         raise ArgumentError, "#{name} removes docstrings, so it needs docstrings_are" unless @docstring_check
 
         @docstring_check.(node, parent)
       end
+
+      # The Spec of a staged language, which declares its comments and
+      # docstrings, or nil.
+      def staged_language = language.respond_to?(:staged?) && language.staged? ? language : nil
 
       def container?(node) = container_types.include?(node.type)
 

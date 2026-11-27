@@ -1,16 +1,23 @@
 require_relative "toy_language"
 
 class PrepareFileTest < Minitest::Test
-  # A language with a GenerateAST stage of its own, which drops comments.
+  # A language with comments and a GenerateAST stage of its own, before
+  # which the engine drops the comments.
   module WithGenerateAST
     class Spec < Representer::Engine::Language
       grammar "ruby"
-      names_are :identifier
-      imports 'require "{{file}}"'
+      comments_are :comment
     end
 
-    class GenerateAST < Representer::Engine::GenerateAST
-      def call = drop(tree, "(comment)")
+    class Representation < Representer::Engine::Representation
+      names_are :identifier
+      imports 'require "{{...}}"'
+    end
+
+    module Common
+      class GenerateAST < Representer::Engine::GenerateAST
+        def call = tree
+      end
     end
   end
 
@@ -31,6 +38,8 @@ class PrepareFileTest < Minitest::Test
       text_nodes :string
       text_between_children :array
     end
+
+    class Representation < Representer::Engine::Representation; end
   end
 
   def test_keeps_the_text_the_language_asks_for

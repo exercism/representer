@@ -17,7 +17,7 @@ class ProcessRequestTest < Minitest::Test
     body = JSON.parse(response[:body])
     assert_equal ["representation"], body.keys
     assert_equal({ "PLACEHOLDER_1" => "two_fer", "PLACEHOLDER_2" => "who" }, body["representation"]["mapping"])
-    assert_equal Representer::Languages::Ruby::Spec.version, body["representation"]["version"]
+    assert_equal Representer::Languages::Ruby::Representation.version, body["representation"]["version"]
   end
 
   def test_returns_each_output_asked_for
@@ -79,7 +79,7 @@ class ProcessRequestTest < Minitest::Test
     response = request(track_slug: "ruby", solution_files: { "a.rb" => "def x(" })
     assert_equal 200, response[:statusCode]
     assert_equal({ "representation" => { "error" => "parse_error", "message" => "The code has a syntax error",
-                                         "version" => Representer::Languages::Ruby::Spec.version } },
+                                         "version" => Representer::Languages::Ruby::Representation.version } },
       JSON.parse(response[:body]))
   end
 

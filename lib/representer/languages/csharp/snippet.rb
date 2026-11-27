@@ -3,6 +3,9 @@
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
 module Representer::Languages::CSharp
   class Snippet < Representer::Engine::Snippet
+    # Bump the version whenever the snippet of any solution could change.
+    version 1
+
     # Remove every comment, wherever it is.
     remove :comments # int x = 1; «// The answer»
 

@@ -5,7 +5,7 @@ module RubyStages
   Ruby = Representer::Languages::Ruby
 
   # GenerateAST's tree for the source.
-  def generate_ast(source) = Ruby::GenerateAST.(Representer::Engine::Grammar["ruby"].parse(Representer::Engine.clean(source)))
+  def generate_ast(source) = Ruby::Common::GenerateAST.(Representer::Engine::Grammar["ruby"].parse(Representer::Engine.clean(source)))
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).

@@ -1,7 +1,7 @@
 # REPRESENTER_DSL.md defines the verbs and helpers in this file.
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on.
-module Representer::Languages::Ruby
+module Representer::Languages::Ruby::Common
   class Normalise < Representer::Engine::Normalise
     # Mark each method and attribute with the modifier line above it, and drop the line.
     #
@@ -19,13 +19,11 @@ module Representer::Languages::Ruby
     # This allows us to reorder the contents of a class/module safely.
     #
     # Note: `private :x` is left as an ordinary call for now.
-    attach_to_each_following "private", "protected", "public", "module_function",
-      to: [
-        "def {{name}}\nend",
-        "attr_reader {{names}}",
-        "attr_writer {{names}}",
-        "attr_accessor {{names}}"
-      ]
+    attach_to_each_following "private",
+                             "protected",
+                             "public",
+                             "module_function",
+        to: ["def {{...}}\nend", "attr_reader {{...}}", "attr_writer {{...}}", "attr_accessor {{...}}"]
 
     def call
       super.tap do |root|

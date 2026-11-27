@@ -1,6 +1,6 @@
 module Representer::Engine
   # A code pattern is a pattern written as code in the language itself,
-  # such as Ruby's `require "{{file}}"`. A staged language lists its
+  # such as Ruby's `require "{{...}}"`. A staged language lists its
   # imports and its Normalise rules as code patterns, so each one reads as
   # the code it is about.
   #
@@ -11,13 +11,17 @@ module Representer::Engine
   # - If the grammar reads a `{{word}}` as something other than a name,
   #   the placeholder matches one node of that kind. So `"{{file}}"` (in
   #   quotes) matches one string without interpolation.
+  # - A `rewrite`'s `as:` code can copy the code matched by a named
+  #   placeholder. `{{...}}` is a placeholder with no name, for code that
+  #   nothing copies, so `require "{{...}}"` matches any require.
   #
   # A `$word` is real code in Ruby, PHP, Perl, Bash, jq and JavaScript
   # templates, so placeholders use braces.
   #
   # The engine parses the code with the language's grammar and runs the
   # language's GenerateAST stage on it, so the pattern has the same shape
-  # as a solution's tree. A pattern matches a node of the same type if the
+  # as a solution's tree. A raw pattern skips GenerateAST, for the
+  # snippet, which works on the grammar's own tree. A pattern matches a node of the same type if the
   # pattern's children match the node's children in order. The node may
   # have more children between and after them (such as a method's body),
   # but nothing with a field name before them (such as a call's receiver).
@@ -27,11 +31,11 @@ module Representer::Engine
   # Some code doesn't parse on its own, such as Ruby's `{ |{{x}}| }`, or
   # `def {{method}}({{x}})` without its `end`. The engine then tries the
   # code in each of the language's pattern contexts (see
-  # Language.pattern_contexts). A rule can also give its own context
-  # with `inside:`. A context marks the code's place with `...`. The
+  # Representation.pattern_contexts). A rule can also give its own context
+  # with `inside:`. A context marks the code's place with `{{pattern}}`. The
   # pattern is the smallest node that holds all of the code, and it
   # matches that node wherever it appears. So `"*{{x}}"` inside
-  # `"def f(...) end"` matches a splat parameter in a method, a block or a
+  # `"def f({{pattern}}) end"` matches a splat parameter in a method, a block or a
   # lambda.
   #
   # If one of the grammar's keywords comes out as a name, the engine
@@ -41,8 +45,12 @@ module Representer::Engine
   # every context again with each placeholder capitalised, as Ruby's
   # `class {{x}}` needs.
   class CodePattern
-    PLACEHOLDER = /\{\{([A-Za-z_]\w*)\}\}/
-    MARK = "...".freeze
+    PLACEHOLDER = /\{\{([A-Za-z_]\w*|\.\.\.)\}\}/
+    MARK = "{{pattern}}".freeze
+
+    # The word that each `{{...}}` gets inside the engine, with a number.
+    # Nothing can refer to it.
+    ANONYMOUS = "anything".freeze
 
     # An Any is a placeholder. It matches any node if its type is
     # nil, and otherwise a leaf of its type.
@@ -56,16 +64,18 @@ module Representer::Engine
     Branch = Struct.new(:type, :children)
 
     # Compiling a pattern parses code, so this returns a cached pattern.
-    def self.[](language, code, inside: nil)
-      (@cache ||= {})[[language, code, inside]] ||= new(language, code, inside:)
+    def self.[](language, code, inside: nil, raw: false)
+      (@cache ||= {})[[language, code, inside, raw]] ||= new(language, code, inside:, raw:)
     end
 
     attr_reader :code
 
-    def initialize(language, code, inside: nil)
+    def initialize(language, code, inside: nil, raw: false)
       @language = language
       @code = code
+      @raw = raw
       @words = {}
+      @anonymous = Set.new
       @node = parse(inside)
       @root = compile(@node)
     end
@@ -75,17 +85,27 @@ module Representer::Engine
 
     # Returns every way the pattern matches the node. Each is a Hash from
     # each placeholder's word to its match. A placeholder in a list matches
-    # a list of nodes.
-    def matches(node)
+    # a list of nodes. A word used more than once must match the same code
+    # each time (see SameCode), and so must a word already in bindings.
+    def matches(node, bindings = {})
       found = []
-      match_element(@root, node, {}) { |bindings| found << bindings }
+      match_element(@root, node, bindings) { |matched| found << matched }
       found
     end
 
     # Returns the first way the pattern matches the node, or nil.
-    def match(node)
-      match_element(@root, node, {}) { |bindings| return bindings }
+    def match(node, bindings = {})
+      match_element(@root, node, bindings) { |matched| return matched }
       nil
+    end
+
+    # Returns the field and type of the pattern's last child with nothing in
+    # it, such as the `{ }` of `if ({{...}}) { }`, or nil.
+    def last_empty_child
+      return nil unless @root.is_a?(Branch)
+
+      field, child = @root.children.reverse.find { |_, element| element.is_a?(Branch) && element.children.empty? }
+      [field, child.type] if child
     end
 
     # Builds the pattern's code as a new tree. Each placeholder becomes a
@@ -101,10 +121,12 @@ module Representer::Engine
     def inspect = "#<CodePattern #{code.inspect}>"
 
     private
+    def representation = @language.representation
+
     ### Parsing ###
 
     def parse(inside)
-      contexts = inside ? [inside] : [MARK, *@language.pattern_contexts]
+      contexts = inside ? [inside] : [MARK, *representation&.pattern_contexts]
       [false, true].each do |capitalised|
         contexts.each do |context|
           node = parse_in(context, capitalised)
@@ -129,6 +151,8 @@ module Representer::Engine
       node = smallest_node_holding(tree, from, to)
       return nil if misread_keyword?(node)
 
+      return node if @raw
+
       tree = @language.run_stage(:GenerateAST, tree)
       contains?(tree, node) ? node : node_after_generate_ast(tree, from, to)
     rescue Representer::CannotRepresent
@@ -151,22 +175,33 @@ module Representer::Engine
     end
 
     # Writes each placeholder as a name that the grammar accepts: `{{file}}`
-    # becomes `file__`, or `File__` when capitalised.
+    # becomes `file__`, or `File__` when capitalised. Each `{{...}}` gets a
+    # word of its own, such as `anything1__`.
     def spell(text, capitalised)
+      count = 0
       text.gsub(PLACEHOLDER) do
         word = Regexp.last_match(1)
+        if word == "..."
+          word = "#{ANONYMOUS}#{count += 1}"
+          @anonymous << word
+        end
         spelling = "#{capitalised ? word[0].upcase + word[1..] : word}__"
         @words[spelling] = word
         spelling
       end
     end
 
+    # Returns the smallest named node that holds the code. If the code is
+    # one token inside a larger node, such as the `readonly` of C#'s
+    # `ref readonly int`, it returns that token.
     def smallest_node_holding(tree, from, to)
       node = tree
       while (child = node.children.find { |candidate| candidate.named? && candidate.span.begin <= from && candidate.span.end >= to })
         node = child
       end
-      node
+      return node if node.span.nil? || (node.span.begin == from && node.span.end == to)
+
+      node.children.find { |candidate| !candidate.named? && candidate.span&.begin == from && candidate.span&.end == to } || node
     end
 
     def misread_keyword?(node)
@@ -196,7 +231,7 @@ module Representer::Engine
     def compile(node)
       word = placeholder_word(node)
       if word
-        return Any.new(word, @language.names.key?(node.type) ? nil : node.type)
+        return Any.new(word, representation&.names&.key?(node.type) ? nil : node.type)
       end
       return Leaf.new(node.type, node.named? ? node.text : nil, node.named?) if node.leaf?
 
@@ -208,7 +243,10 @@ module Representer::Engine
     def match_element(element, node, bindings, &found)
       case element
       when Any
-        yield(bindings.merge(element.word => node)) if element.type.nil? || (node.leaf? && node.type == element.type)
+        return unless element.type.nil? || (node.leaf? && node.type == element.type)
+
+        bound = bind(bindings, element.word, node)
+        yield(bound) if bound
       when Leaf
         yield(bindings) if leaf_matches?(element, node)
       when Branch
@@ -227,25 +265,37 @@ module Representer::Engine
     def match_children(elements, node, start, first, bindings, pending = nil, &found)
       children = node.children
       if elements.empty?
-        bindings = bindings.merge(pending => children[start..]) if pending
-        yield(bindings) unless labelled_before?(children, first)
+        bindings = bind(bindings, pending, children[start..]) if pending
+        yield(bindings) if bindings && !labelled_before?(children, first)
         return
       end
 
       (field, element), *rest = elements
       if field.nil? && element.is_a?(Any) && element.type.nil?
-        bindings = bindings.merge(pending => []) if pending
+        bindings = bind(bindings, pending, []) if pending
+        return unless bindings
+
         return match_children(rest, node, start, first, bindings, element.word, &found)
       end
 
       (start...children.size).each do |index|
         next unless field.nil? || children[index].field == field
 
-        with_pending = pending ? bindings.merge(pending => children[start...index]) : bindings
+        with_pending = pending ? bind(bindings, pending, children[start...index]) : bindings
+        next unless with_pending
+
         match_element(element, children[index], with_pending) do |matched|
           match_children(rest, node, index + 1, first || index, matched, &found)
         end
       end
+    end
+
+    # Adds the word's match to the bindings, or returns nil if the word
+    # already matched different code.
+    def bind(bindings, word, value)
+      return bindings.merge(word => value) unless bindings.key?(word)
+
+      SameCode.(bindings[word], value) ? bindings : nil
     end
 
     def labelled_before?(children, first)
@@ -257,6 +307,7 @@ module Representer::Engine
     def build_node(node, bindings)
       word = placeholder_word(node)
       if word
+        raise ArgumentError, "{{...}} in #{code.inspect} can't be copied" if @anonymous.include?(word)
         raise ArgumentError, "{{#{word}}} in #{code.inspect} matched nothing" unless bindings.key?(word)
 
         bound = bindings[word]

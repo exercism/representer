@@ -9,13 +9,13 @@ module Representer::Engine
   class RenameUserDefinedNodes
     include Mandate
 
-    initialize_with :trees, :language
+    initialize_with :trees, :representation
 
     def call
-      renamed = CollectDefinedNames.(trees, language)
+      renamed = CollectDefinedNames.(trees, representation)
       trees.each do |tree|
         tree.each_descendant do |node|
-          node.renamed = true if language.name?(node) && renamed.include?(language.name_text(node))
+          node.renamed = true if representation.name?(node) && renamed.include?(representation.name_text(node))
         end
       end
     end

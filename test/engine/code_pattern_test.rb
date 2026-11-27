@@ -10,12 +10,25 @@ class CodePatternTest < Minitest::Test
   module Rubyish
     class Spec < Representer::Engine::Language
       grammar "ruby"
-      names :identifier, :constant, :instance_variable, simple_symbol: ":"
-      pattern_contexts "...\nend", "begin\n...\nend", "f ..."
-      imports 'require "{{file}}"'
     end
 
-    GenerateAST = Representer::Languages::Ruby::GenerateAST
+    class Representation < Representer::Engine::Representation
+      names_are :identifier, :constant, :instance_variable
+      names_are :simple_symbol, without_prefix: ":"
+      pattern_contexts "{{pattern}}\nend", "begin\n{{pattern}}\nend", "f {{pattern}}"
+      imports 'require "{{...}}"'
+    end
+
+    module Common
+      GenerateAST = Representer::Languages::Ruby::Common::GenerateAST
+    end
+
+    # A Normalise stage that drops a class's own name before a method call.
+    class Within < Representer::Engine::Normalise
+      rewrite "{{type}}.{{name}}",
+          as: "{{name}}",
+      within: "class {{type}}\nend"
+    end
 
     class Normalise < Representer::Engine::Normalise
       drop_calls_to :puts
@@ -53,11 +66,52 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_an_inside_context_makes_the_pattern_match_anywhere
-    assert_equal %w[a b], matched("*{{x}}", "def f(*a) = 1\nxs.each { |*b| b }", "x", inside: "def f(...) end")
+    assert_equal %w[a b], matched("*{{x}}", "def f(*a) = 1\nxs.each { |*b| b }", "x", inside: "def f({{pattern}}) end")
   end
 
   def test_placeholders_are_capitalised_when_the_code_needs_it
     assert_equal %w[A], matched("class {{x}}", "class A\nend", "x")
+  end
+
+  def test_an_anonymous_placeholder_matches_any_code
+    assert_equal 1, CodePattern[Rubyish::Spec, 'require "{{...}}"'].matches(tree("require 'set'").children.first).size
+    assert_equal 2, CodePattern[Rubyish::Spec, "{{...}} + {{...}}"].matches(tree("a + b").children.first).first.size
+  end
+
+  def test_an_anonymous_placeholder_cannot_be_copied
+    pattern = CodePattern[Rubyish::Spec, "f({{...}})"]
+    assert_raises(ArgumentError) { pattern.build(pattern.match(tree("f(1)").children.first)) }
+  end
+
+  def test_a_word_used_twice_matches_the_same_code
+    pattern = CodePattern[Rubyish::Spec, "{{x}} + {{x}}"]
+    assert pattern.match(tree("a + a").children.first)
+    refute pattern.match(tree("a + b").children.first)
+  end
+
+  def test_a_word_already_bound_must_match_the_same_code
+    pattern = CodePattern[Rubyish::Spec, "{{x}}.size"]
+    assert pattern.match(tree("a.size").children.first, { "x" => tree("a").children.first })
+    refute pattern.match(tree("b.size").children.first, { "x" => tree("a").children.first })
+  end
+
+  def test_a_raw_pattern_matches_the_grammars_own_tree
+    raw = CodePattern[Rubyish::Spec, "x if {{...}}", raw: true]
+    assert_equal "if_modifier", raw.type
+    assert_equal "if", CodePattern[Rubyish::Spec, "x if {{...}}"].type
+  end
+
+  def test_a_pattern_that_is_one_token_inside_a_node_is_that_token
+    csharp = Representer::Languages::CSharp::Spec
+    pattern = CodePattern[csharp, "readonly", inside: "class A { ref {{pattern}} int F() => x; }"]
+    assert_equal "readonly", pattern.type
+    assert_equal "modifier", CodePattern[csharp, "readonly", inside: "class A { {{pattern}} int x; }"].type
+  end
+
+  def test_normalise_rewrites_only_within_a_matching_scope
+    tree = tree("class A\n  x = A.b\n  y = C.b\nend")
+    Rubyish::Within.(tree)
+    assert_equal write(tree("class A\n  x = b\n  y = C.b\nend")), write(tree)
   end
 
   def test_patterns_are_cached
@@ -78,7 +132,7 @@ class CodePatternTest < Minitest::Test
 
   private
   def parse(source) = Representer::Engine::Grammar["ruby"].parse(source)
-  def tree(source) = Ruby::GenerateAST.(parse(source))
+  def tree(source) = Ruby::Common::GenerateAST.(parse(source))
   def normalise(source) = Rubyish::Normalise.(tree(source))
   def write(tree) = Representer::Engine::Serialize.(tree, nil)
 

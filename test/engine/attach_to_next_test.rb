@@ -25,6 +25,11 @@ class AttachToNextTest < Minitest::Test
     assert_equal "(program\n  (module\n    (def a\n      (spec 1))))", attach(tree)
   end
 
+  def test_moves_past_the_statements_given_in_past
+    tree = node(:body, node(:spec, leaf("1")), node(:doc, leaf("d")), node(:def, leaf("a")))
+    assert_equal "(body\n  (doc d)\n  (def a\n    (spec 1)))", attach(tree, past: ["(doc)"])
+  end
+
   private
-  def attach(tree) = Representer::Engine::Serialize.(Representer::Engine::AttachToNext.(tree, ["(spec)"]), nil)
+  def attach(tree, past: []) = Representer::Engine::Serialize.(Representer::Engine::AttachToNext.(tree, ["(spec)"], past:), nil)
 end

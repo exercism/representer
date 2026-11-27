@@ -1,15 +1,16 @@
 module Representer::Engine
-  # Removes the code that counts as an import in a staged language (see
-  # Language.imports). Every solution that the representer sees
-  # passes its tests, so it has already loaded everything it needs.
+  # Removes the code that counts as an import, for a staged language's
+  # representation (see Representation.imports). Every solution that the
+  # representer sees passes its tests, so it has already loaded everything
+  # it needs.
   class DropImports
     include Mandate
     include TreeHelpers
 
-    initialize_with :tree, :language
+    initialize_with :tree, :representation
 
     def call
-      language.imports.each { |pattern| drop(tree, pattern) }
+      representation.imports.each { |pattern| drop(tree, pattern) }
       tree
     end
   end

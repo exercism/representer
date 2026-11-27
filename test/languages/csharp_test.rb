@@ -94,7 +94,7 @@ class CSharpTest < RepresenterTest
     result = represent("public class {")
     assert_nil result.representation
     assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::CSharp::Spec.version, result.version
+    assert_equal Representer::Languages::CSharp::Representation.version, result.version
   end
 
   # These keywords and punctuation are the only difference between each pair.
@@ -118,8 +118,10 @@ class CSharpTest < RepresenterTest
            "    public static int B() => 1;\n    public int C() => %s();\n}"
     assert_same_representation format(code, "this.count", "B"), format(code, "count", "A.B")
     assert_same_representation format(code, "this.count", "this.B"), format(code, "count", "B")
+
+    # A parameter with the member's name gets the same placeholder anyway.
     shadowed = "public class A\n{\n    private int count;\n    public A(int count) { %s = count; }\n}"
-    refute_same_representation format(shadowed, "this.count"), format(shadowed, "count")
+    assert_same_representation format(shadowed, "this.count"), format(shadowed, "count")
   end
 
   def test_numbers_are_their_values

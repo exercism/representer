@@ -11,11 +11,14 @@ module Representer::Engine
   #   move into the next statement, in their order.
   # - If no statement comes after them, or the next one is a leaf (which
   #   can't hold children), they stay where they are.
+  # - A statement that matches one of the patterns in past stays where it
+  #   is, and the waiting statements move past it to the next statement.
+  #   So Elixir's `@spec` moves past a `@doc` into its function.
   class AttachToNext
     include Mandate
     include TreeHelpers
 
-    initialize_with :tree, :patterns
+    initialize_with :tree, :patterns, past: []
 
     def call
       containers = []
@@ -30,6 +33,8 @@ module Representer::Engine
       kept = children.each_with_object([]) do |child, result|
         if attached?(child)
           waiting << child
+        elsif waiting.any? && passed?(child)
+          result << child
         elsif waiting.any? && !child.leaf?
           result << attach(child, *waiting)
           waiting = []
@@ -42,6 +47,10 @@ module Representer::Engine
     end
 
     # A statement stands on its own, so it has no field name.
-    def attached?(node) = node.field.nil? && patterns.any? { |pattern| pattern(pattern).match(node) }
+    def attached?(node) = node.field.nil? && matches?(patterns, node)
+
+    def passed?(node) = node.field.nil? && matches?(past, node)
+
+    def matches?(list, node) = list.any? { |pattern| pattern(pattern).match(node) }
   end
 end

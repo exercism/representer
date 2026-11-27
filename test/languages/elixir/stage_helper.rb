@@ -7,7 +7,7 @@ module ElixirStages
   def parse(source) = Representer::Engine::Grammar["elixir"].parse(Representer::Engine.clean(source))
 
   # GenerateAST's tree for the source.
-  def generate_ast(source) = Elixir::GenerateAST.(parse(source))
+  def generate_ast(source) = Elixir::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).

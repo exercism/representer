@@ -285,4 +285,11 @@ class SnippetTest < Minitest::Test
     output = Representer::Generate.("ruby", { "a.rb" => "x" }, outputs: %i[snippet])
     assert_equal Representer::Languages::Ruby::Snippet.version, output[:snippet][:version]
   end
+
+  def test_a_staged_language_reads_its_comments_and_docstrings_from_its_spec
+    fsharp = "module Leap\n/// Says whether the year is a leap year.\nlet leap year = true\n"
+    assert_equal "let leap year = true\n", snippet({ "Leap.fs" => fsharp }, track: "fsharp")
+    elixir = "defmodule Leap do\n  @doc false\n  def leap?(year), do: true\nend\n"
+    assert_equal "defmodule Leap do\n  def leap?(year), do: true\nend\n", snippet({ "leap.ex" => elixir }, track: "elixir")
+  end
 end

@@ -3,11 +3,11 @@
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
 module Representer::Languages::FSharp
   class Snippet < Representer::Engine::Snippet
+    # Bump the version whenever the snippet of any solution could change.
+    version 1
+
     # Remove every comment, wherever it is.
     remove :comments # let x = 1 «// The answer»
-
-    # Treat XML documentation as a comment.
-    comment_types :xml_doc # «/// Says hello.»
 
     # Skip the module declaration and opens at the top of the file, up to the first other statement.
     skip_at_top :module,    # «module Leap»

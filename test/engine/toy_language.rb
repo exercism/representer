@@ -7,10 +7,14 @@ require "test_helper"
 module ToyLanguage
   class Spec < Representer::Engine::Language
     grammar "ruby"
+  end
+
+  class Representation < Representer::Engine::Representation
+    version 2
     names_are :identifier, :constant
     names_are :simple_symbol, without_prefix: ":"
     names_are_defined_by :def, assignment: :left
-    imports 'require "{{file}}"'
+    imports 'require "{{...}}"'
 
     def self.library = Set["sum"]
   end

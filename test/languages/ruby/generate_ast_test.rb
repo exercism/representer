@@ -7,7 +7,7 @@ require "rubocop-ast"
 # own parser gives (the parser gem, with RuboCop's builder, as the old
 # representer used).
 class RubyGenerateASTTest < Minitest::Test
-  GenerateAST = Representer::Languages::Ruby::GenerateAST
+  GenerateAST = Representer::Languages::Ruby::Common::GenerateAST
 
   def test_drops_comments_and_layout
     assert_same "x = 1 # one\n\n", "x = 1;"
@@ -179,7 +179,7 @@ class RubyGenerateASTTest < Minitest::Test
     def initialize = @names = {}
 
     def text_for(leaf, **)
-      prefix = Representer::Languages::Ruby::Spec.names[leaf.type] if leaf.named?
+      prefix = Representer::Languages::Ruby::Representation.names[leaf.type] if leaf.named?
       prefix && "#{leaf.type}:N#{@names[leaf.text.delete_prefix(prefix)] ||= @names.size}"
     end
   end
