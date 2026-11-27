@@ -141,9 +141,8 @@ module Representer::Languages::Ruby
     grammar "ruby"
     extensions ".rb"
 
-    # A symbol such as `:count` names the method `count`, so the colon isn't
-    # part of the name.
-    names_are :simple_symbol, without_prefix: ":"
+    # A symbol such as `:count` names `count`, so the colon isn't part of it.
+    names_are :simple_symbol, without_prefix: ":" # :«count»
   end
 end
 ```
@@ -186,8 +185,10 @@ Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's t
 ### Comments
 
 The comment at the top of each file only says, in one or two sentences, that [REPRESENTER_DSL.md](./REPRESENTER_DSL.md) defines its declarations or verbs.
-Each declaration about the language's code (such as `names_are` or `imports`), each rule and each method then has a short comment directly above it, which says what it means for this language.
-For example, Ruby's `spec.rb` has this comment above `names_are :simple_symbol, without_prefix: ":"`: "A symbol such as `:count` names the method `count`, so the colon isn't part of the name."
+Each rule and each method then has a short comment directly above it, which says what it means for this language.
+In `spec.rb`, each item in a `names_are`, `names_are_defined_by` or `imports` list has a short example of the code it matches at the end of its line, with «» around the name or code it matches.
+The examples in a list line up in one column.
+A declaration only has a comment above it if the comment says something the examples don't show, in one short line, such as "A symbol such as `:count` names `count`, so the colon isn't part of it."
 Update a comment whenever the code below it changes.
 Write every comment by the rules in "Writing comments and docs" below.
 

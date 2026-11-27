@@ -70,6 +70,8 @@ extensions ".rb"
 
 ## Names and imports
 
+In the inline examples in each `spec.rb`, «» marks the name or code that the item on that line matches.
+
 ### names_are
 
 A language lists the leaf types that hold names, after `GenerateAST`.

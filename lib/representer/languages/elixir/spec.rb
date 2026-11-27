@@ -7,36 +7,29 @@ module Representer::Languages::Elixir
     grammar "elixir"
     extensions ".ex", ".exs"
 
-    # Identifiers hold the names of variables, functions and attributes, and
-    # aliases hold the parts of module names, such as `Enum`.
-    names_are :identifier,  # count
-              :alias        # Counter
+    # Each part of a module's name is an alias.
+    names_are :identifier,  # «count»
+              :alias        # «Enum»
 
-    # `defmodule` and `defprotocol` define their module's name. GenerateAST
-    # splits a name such as `Foo.Bar` into its parts, so it defines both
-    # `Foo` and `Bar`.
-    names_are_defined_by :module_name # defmodule Counter do ... end
+    # A module's name defines each of its parts.
+    names_are_defined_by :module_name # defmodule «Shop».«Counter» do ... end
 
-    # A `def`, `defp`, `defmacro`, `defmacrop`, `defguard`, `defguardp` or
-    # `defdelegate` defines its function's name, and `@type t :: ...`
-    # defines `t`.
-    names_are_defined_by function_head: :target,  # def area(width, height) do ... end
-                         type_definition: :left   # @type count :: integer
+    # A function's head and a type definition define their names.
+    names_are_defined_by function_head: :target,  # def «area»(width, height) do ... end
+                         type_definition: :left   # @type «count» :: integer
 
-    # A pattern defines each variable it binds, such as `x` in `x = 1` or in
-    # `def f(x)`.
-    names_are_defined_by :variable # total = 0
+    # A pattern defines each variable it binds.
+    names_are_defined_by :variable # «total» = price * 2
 
     # Elixir's own attributes, such as `@impl`, are only ever set, so a
-    # solution only reads its own attributes. Reading `@limit` defines
-    # `limit`.
-    names_are_defined_by :attribute # @limit
+    # solution only reads its own attributes.
+    names_are_defined_by :attribute # @«limit»
 
-    # A solution that passes its tests has already made available every
-    # module it needs, so the engine drops every `alias`, `import` and
-    # `require`. It keeps `use`, which runs the module's code.
-    imports "alias {{module}}",   # alias MyApp.Counter
-            "import {{module}}",  # import Enum
-            "require {{module}}"  # require Logger
+    # A solution that passes its tests has already made every module it
+    # needs available, so the engine drops these imports. It keeps `use`,
+    # which runs the module's code.
+    imports "alias {{module}}",   # «alias Shop.Counter»
+            "import {{module}}",  # «import Enum»
+            "require {{module}}"  # «require Logger»
   end
 end
