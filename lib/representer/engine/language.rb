@@ -130,7 +130,7 @@ module Representer::Engine
 
   # Languages whose names are one word, although they have a capital inside.
   # JavaScript  ->  `languages/javascript/`
-  ONE_WORD_NAMES = %w[JavaScript TypeScript].freeze
+  ONE_WORD_NAMES = %w[JavaScript PureScript TypeScript].freeze
 
   # Returns the folder of a language, such as `languages/ruby/` for
   # Representer::Languages::Ruby. A capital after a lower-case letter starts
