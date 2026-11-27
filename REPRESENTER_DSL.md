@@ -168,6 +168,7 @@ names_are :simple_symbol, without_prefix: ":"
 A language lists the node types that define a name, as they are after `GenerateAST`.
 A type given on its own defines each of its children that is a name.
 A type given with a field defines only the child in that field, so `assignment: :left` defines `x` in `x = y`, and doesn't define `y`.
+If the grammar puts several children in the field, as Go's `var a, b int` does, the type defines each of them.
 A language can call `names_are_defined_by` more than once.
 
 ```ruby

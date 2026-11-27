@@ -58,11 +58,13 @@ module Representer::Engine
       def name_text(leaf) = leaf.text.delete_prefix(names[leaf.type])
 
       # The leaves of the names defined by the node (see names_are_defined_by).
+      # A field can hold several children, as Go's `var a, b int` does, and
+      # each of them that is a name counts.
       def names_defined_by(node)
         return [] unless @definitions&.key?(node.type)
 
         field = @definitions[node.type]
-        children = field ? [node[field]].compact : node.children
+        children = field ? node.children.select { |child| child.field == field } : node.children
         children.select { |child| name?(child) }
       end
 
