@@ -1,41 +1,119 @@
-function humiditycheck ( pct_humidity )
-if pct_humidity <= 70
-@info "\"humidity level check passed: \"" * string ( pct_humidity ) * "\"%\""
-else
-throw ( ErrorException ( "\"[ERROR] humidity check failed: \"" * string ( pct_humidity ) * "\"%\"" ))
-end
-end
-function temperaturecheck ( temperature )
-if isnothing ( temperature )
-throw ( ArgumentError ( "\"[ERROR] sensor is broken\"" ))
-elseif temperature > 500
-throw ( DomainError ( "\"[ERROR] overheating detected: \"" * string ( temperature ) * "\" \u00B0C\"" ))
-else
-@info "\"temperature check passed: \"" * string ( temperature ) * "\" \u00B0C\""
-end
-end
-struct MachineError <: Exception end
-function machinemonitor ( pct_humidity , temperature )
-t = false
-try
-humiditycheck ( pct_humidity )
-catch e
-t = true
-if e isa ErrorException
-@error "\"humidity level check failed: \"" * string ( pct_humidity ) * "\"%\""
-end
-end
-try
-temperaturecheck ( temperature )
-catch e
-t = true
-if e isa ArgumentError
-@warn "\"sensor is broken\""
-elseif e isa DomainError
-@error "\"overheating detected: \"" * string ( temperature ) * "\" \u00B0C\""
-end
-end
-if t == true
-throw ( MachineError ())
-end
-end
+(source_file
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_1
+        (argument_list PLACEHOLDER_2)))
+    (block
+      (if_statement
+        (binary_expression PLACEHOLDER_2 <= 70)
+        (block
+          (macrocall_expression
+            (macro_identifier info)
+            (macro_argument_list
+              (binary_expression
+                (binary_expression "humidity level check passed: " *
+                  (call_expression string
+                    (argument_list PLACEHOLDER_2))) * "%"))))
+        (else_clause
+          (block
+            (call_expression throw
+              (argument_list
+                (call_expression ErrorException
+                  (argument_list
+                    (binary_expression
+                      (binary_expression "[ERROR] humidity check failed: " *
+                        (call_expression string
+                          (argument_list PLACEHOLDER_2))) * "%"))))))))))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_3
+        (argument_list PLACEHOLDER_4)))
+    (block
+      (if_statement
+        (call_expression isnothing
+          (argument_list PLACEHOLDER_4))
+        (block
+          (call_expression throw
+            (argument_list
+              (call_expression ArgumentError
+                (argument_list "[ERROR] sensor is broken")))))
+        (elseif_clause
+          (binary_expression PLACEHOLDER_4 > 500)
+          (block
+            (call_expression throw
+              (argument_list
+                (call_expression DomainError
+                  (argument_list
+                    (binary_expression
+                      (binary_expression "[ERROR] overheating detected: " *
+                        (call_expression string
+                          (argument_list PLACEHOLDER_4))) * " \u00B0C")))))))
+        (else_clause
+          (block
+            (macrocall_expression
+              (macro_identifier info)
+              (macro_argument_list
+                (binary_expression
+                  (binary_expression "temperature check passed: " *
+                    (call_expression string
+                      (argument_list PLACEHOLDER_4))) * " \u00B0C"))))))))
+  (struct_definition
+    (type_head
+      (binary_expression PLACEHOLDER_5 <: Exception)))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_6
+        (argument_list PLACEHOLDER_2 PLACEHOLDER_4)))
+    (block
+      (assignment PLACEHOLDER_7 =
+        (boolean_literal false))
+      (try_statement
+        (block
+          (call_expression PLACEHOLDER_1
+            (argument_list PLACEHOLDER_2)))
+        (catch_clause PLACEHOLDER_8
+          (block
+            (assignment PLACEHOLDER_7 =
+              (boolean_literal true))
+            (if_statement
+              (binary_expression PLACEHOLDER_8 isa ErrorException)
+              (block
+                (macrocall_expression
+                  (macro_identifier error)
+                  (macro_argument_list
+                    (binary_expression
+                      (binary_expression "humidity level check failed: " *
+                        (call_expression string
+                          (argument_list PLACEHOLDER_2))) * "%"))))))))
+      (try_statement
+        (block
+          (call_expression PLACEHOLDER_3
+            (argument_list PLACEHOLDER_4)))
+        (catch_clause PLACEHOLDER_8
+          (block
+            (assignment PLACEHOLDER_7 =
+              (boolean_literal true))
+            (if_statement
+              (binary_expression PLACEHOLDER_8 isa ArgumentError)
+              (block
+                (macrocall_expression
+                  (macro_identifier warn)
+                  (macro_argument_list "sensor is broken")))
+              (elseif_clause
+                (binary_expression PLACEHOLDER_8 isa DomainError)
+                (block
+                  (macrocall_expression
+                    (macro_identifier error)
+                    (macro_argument_list
+                      (binary_expression
+                        (binary_expression "overheating detected: " *
+                          (call_expression string
+                            (argument_list PLACEHOLDER_4))) * " \u00B0C")))))))))
+      (if_statement
+        (binary_expression PLACEHOLDER_7 ==
+          (boolean_literal true))
+        (block
+          (call_expression throw
+            (argument_list
+              (call_expression PLACEHOLDER_5
+                (argument_list)))))))))

@@ -1,69 +1,163 @@
-export solve
-"\"\"\"\n    solve(puzzle::String) -> Union{Dict{Char, Int}, Nothing}\n\nSolves an alphametics puzzle given as a string, e.g. \"" SEND + MORE == MONEY "\".\nReturns a Dict mapping each letter to its digit, or `nothing` if no solution.\n\"\"\""
-function solve ( puzzle :: String )
-lhs , rhs = split ( puzzle , "\"==\"" )
-lhs_words = split ( replace ( lhs , "\"+\"" => "\" \"" ), "' '" , keepempty = false )
-rhs_word = strip ( rhs )
-words = [ lhs_words ; [ rhs_word ]]
-letters = Set { Char }()
-for word in words
-for letter in word
-if isletter ( letter )
-push! ( letters , letter )
-end
-end
-end
-if length ( letters ) > 10
-return nothing
-end
-leading_letters = Set { Char }()
-for word in words
-for char in word
-if isletter ( char )
-push! ( leading_letters , char )
-break
-end
-end
-end
-letters_arr = collect ( letters )
-function backtrack ( idx , used_digits , letter_vals )
-if idx > length ( letters_arr )
-lhs_val = 0
-for word in lhs_words
-word_val = 0
-for c in word
-if isletter ( c )
-word_val = word_val * 10 + letter_vals [ c ]
-end
-end
-lhs_val += word_val
-end
-rhs_val = 0
-for c in rhs_word
-if isletter ( c )
-rhs_val = rhs_val * 10 + letter_vals [ c ]
-end
-end
-return lhs_val == rhs_val ? letter_vals : nothing
-end
-letter = letters_arr [ idx ]
-for digit in 0 : 9
-if digit in used_digits
-continue
-end
-if digit == 0 && letter in leading_letters
-continue
-end
-new_letter_vals = copy ( letter_vals )
-new_letter_vals [ letter ] = digit
-new_used_digits = copy ( used_digits )
-push! ( new_used_digits , digit )
-result = backtrack ( idx + 1 , new_used_digits , new_letter_vals )
-if result !== nothing
-return result
-end
-end
-return nothing
-end
-return backtrack ( 1 , Set { Int }(), Dict { Char , Int }())
-end
+(source_file
+  (export_statement PLACEHOLDER_1)
+  (triple_quoted_string "\n    solve(puzzle::String) -> Union{Dict{Char, Int}, Nothing}\n\nSolves an alphametics puzzle given as a string, e.g. \"SEND + MORE == MONEY\".\nReturns a Dict mapping each letter to its digit, or `nothing` if no solution.\n")
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_1
+        (argument_list
+          (typed_expression PLACEHOLDER_2 String))))
+    (block
+      (assignment
+        (open_tuple PLACEHOLDER_3 PLACEHOLDER_4) =
+        (call_expression split
+          (argument_list PLACEHOLDER_2 "==")))
+      (assignment PLACEHOLDER_5 =
+        (call_expression split
+          (argument_list
+            (call_expression replace
+              (argument_list PLACEHOLDER_3
+                (binary_expression "+" => " ")))
+            (character_literal " ")
+            (keyword_argument keepempty =
+              (boolean_literal false)))))
+      (assignment PLACEHOLDER_6 =
+        (call_expression strip
+          (argument_list PLACEHOLDER_4)))
+      (assignment PLACEHOLDER_7 =
+        (matrix_expression
+          (matrix_row PLACEHOLDER_5) ;
+          (matrix_row
+            (vector_expression PLACEHOLDER_6))))
+      (assignment PLACEHOLDER_8 =
+        (call_expression
+          (parametrized_type_expression Set
+            (curly_expression Char))
+          (argument_list)))
+      (for_statement
+        (for_binding PLACEHOLDER_9 PLACEHOLDER_7)
+        (block
+          (for_statement
+            (for_binding PLACEHOLDER_10 PLACEHOLDER_9)
+            (block
+              (if_statement
+                (call_expression isletter
+                  (argument_list PLACEHOLDER_10))
+                (block
+                  (call_expression push!
+                    (argument_list PLACEHOLDER_8 PLACEHOLDER_10))))))))
+      (if_statement
+        (binary_expression
+          (call_expression length
+            (argument_list PLACEHOLDER_8)) > 10)
+        (block
+          (return_statement nothing)))
+      (assignment PLACEHOLDER_11 =
+        (call_expression
+          (parametrized_type_expression Set
+            (curly_expression Char))
+          (argument_list)))
+      (for_statement
+        (for_binding PLACEHOLDER_9 PLACEHOLDER_7)
+        (block
+          (for_statement
+            (for_binding PLACEHOLDER_12 PLACEHOLDER_9)
+            (block
+              (if_statement
+                (call_expression isletter
+                  (argument_list PLACEHOLDER_12))
+                (block
+                  (call_expression push!
+                    (argument_list PLACEHOLDER_11 PLACEHOLDER_12)) break))))))
+      (assignment PLACEHOLDER_13 =
+        (call_expression collect
+          (argument_list PLACEHOLDER_8)))
+      (function_definition
+        (signature
+          (call_expression PLACEHOLDER_14
+            (argument_list PLACEHOLDER_15 PLACEHOLDER_16 PLACEHOLDER_17)))
+        (block
+          (if_statement
+            (binary_expression PLACEHOLDER_15 >
+              (call_expression length
+                (argument_list PLACEHOLDER_13)))
+            (block
+              (assignment PLACEHOLDER_18 = 0)
+              (for_statement
+                (for_binding PLACEHOLDER_9 PLACEHOLDER_5)
+                (block
+                  (assignment PLACEHOLDER_19 = 0)
+                  (for_statement
+                    (for_binding PLACEHOLDER_20 PLACEHOLDER_9)
+                    (block
+                      (if_statement
+                        (call_expression isletter
+                          (argument_list PLACEHOLDER_20))
+                        (block
+                          (assignment PLACEHOLDER_19 =
+                            (binary_expression
+                              (binary_expression PLACEHOLDER_19 * 10) +
+                              (index_expression PLACEHOLDER_17
+                                (vector_expression PLACEHOLDER_20))))))))
+                  (compound_assignment_expression PLACEHOLDER_18 += PLACEHOLDER_19)))
+              (assignment PLACEHOLDER_21 = 0)
+              (for_statement
+                (for_binding PLACEHOLDER_20 PLACEHOLDER_6)
+                (block
+                  (if_statement
+                    (call_expression isletter
+                      (argument_list PLACEHOLDER_20))
+                    (block
+                      (assignment PLACEHOLDER_21 =
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_21 * 10) +
+                          (index_expression PLACEHOLDER_17
+                            (vector_expression PLACEHOLDER_20))))))))
+              (return_statement
+                (ternary_expression
+                  (binary_expression PLACEHOLDER_18 == PLACEHOLDER_21) PLACEHOLDER_17 nothing))))
+          (assignment PLACEHOLDER_10 =
+            (index_expression PLACEHOLDER_13
+              (vector_expression PLACEHOLDER_15)))
+          (for_statement
+            (for_binding PLACEHOLDER_22
+              (range_expression 0 9))
+            (block
+              (if_statement
+                (binary_expression PLACEHOLDER_22 in PLACEHOLDER_16)
+                (block continue))
+              (if_statement
+                (binary_expression
+                  (binary_expression PLACEHOLDER_22 == 0) &&
+                  (binary_expression PLACEHOLDER_10 in PLACEHOLDER_11))
+                (block continue))
+              (assignment PLACEHOLDER_23 =
+                (call_expression copy
+                  (argument_list PLACEHOLDER_17)))
+              (assignment
+                (index_expression PLACEHOLDER_23
+                  (vector_expression PLACEHOLDER_10)) = PLACEHOLDER_22)
+              (assignment PLACEHOLDER_24 =
+                (call_expression copy
+                  (argument_list PLACEHOLDER_16)))
+              (call_expression push!
+                (argument_list PLACEHOLDER_24 PLACEHOLDER_22))
+              (assignment PLACEHOLDER_25 =
+                (call_expression PLACEHOLDER_14
+                  (argument_list
+                    (binary_expression PLACEHOLDER_15 + 1) PLACEHOLDER_24 PLACEHOLDER_23)))
+              (if_statement
+                (binary_expression PLACEHOLDER_25 !== nothing)
+                (block
+                  (return_statement PLACEHOLDER_25)))))
+          (return_statement nothing)))
+      (return_statement
+        (call_expression PLACEHOLDER_14
+          (argument_list 1
+            (call_expression
+              (parametrized_type_expression Set
+                (curly_expression Int))
+              (argument_list))
+            (call_expression
+              (parametrized_type_expression Dict
+                (curly_expression Char Int))
+              (argument_list))))))))

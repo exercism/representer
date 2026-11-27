@@ -1,29 +1,104 @@
-struct ISBN { T <: AbstractString }
-s :: T
-"\"\"\"\n        ISBN(s)\n\n    An International Standard Book Number. Throws `DomainError` if `s` does not look like a valid 10-digit ISBN.\n    \"\"\""
-function ISBN ( s )
-acc = 0
-coeff = 10
-for c in s
-if c == '-'
-continue
-elseif isdigit ( c )
-acc += ( c - '0' ) * coeff
-coeff -= 1
-elseif c == 'X' && coeff == 1
-acc += 10
-coeff -= 1
-else
-throw ( DomainError ( s , "\"'$c' is not allowable at this location\"" ))
-end
-end
-coeff == 0 || throw ( DomainError ( s , "\"ISBNs must be 10 digits long\"" ))
-acc % 11 == 0 || throw ( DomainError ( s , "\"ISBN checksum failed\"" ))
-s′ = replace ( s , '-' => "\"\"" )
-new { typeof ( s′ )}( s′ )
-end
-end
-value ( x :: ISBN ) = x . s
-== ( a :: ISBN , b :: ISBN ) = value ( a ) == value ( b )
-macro isbn_str ( s ) ISBN ( s ) end
-show ( io :: IO , isbn :: ISBN ) = print ( io , "\"isbn\\\"\"" , value ( isbn ), '"' )
+(source_file
+  (struct_definition
+    (type_head
+      (parametrized_type_expression PLACEHOLDER_1
+        (curly_expression
+          (binary_expression PLACEHOLDER_2 <: AbstractString))))
+    (block
+      (typed_expression PLACEHOLDER_3 PLACEHOLDER_2)
+      (triple_quoted_string "\n        ISBN(s)\n\n    An International Standard Book Number. Throws `DomainError` if `s` does not look like a valid 10-digit ISBN.\n    ")
+      (function_definition
+        (signature
+          (call_expression PLACEHOLDER_1
+            (argument_list PLACEHOLDER_3)))
+        (block
+          (assignment PLACEHOLDER_4 = 0)
+          (assignment PLACEHOLDER_5 = 10)
+          (for_statement
+            (for_binding PLACEHOLDER_6 PLACEHOLDER_3)
+            (block
+              (if_statement
+                (binary_expression PLACEHOLDER_6 ==
+                  (character_literal "-"))
+                (block continue)
+                (elseif_clause
+                  (call_expression isdigit
+                    (argument_list PLACEHOLDER_6))
+                  (block
+                    (compound_assignment_expression PLACEHOLDER_4 +=
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_6 -
+                          (character_literal "0")) * PLACEHOLDER_5))
+                    (compound_assignment_expression PLACEHOLDER_5 -= 1)))
+                (elseif_clause
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_6 ==
+                      (character_literal "X")) &&
+                    (binary_expression PLACEHOLDER_5 == 1))
+                  (block
+                    (compound_assignment_expression PLACEHOLDER_4 += 10)
+                    (compound_assignment_expression PLACEHOLDER_5 -= 1)))
+                (else_clause
+                  (block
+                    (call_expression throw
+                      (argument_list
+                        (call_expression DomainError
+                          (argument_list PLACEHOLDER_3
+                            (string_literal "'"
+                              (string_interpolation PLACEHOLDER_6) "' is not allowable at this location"))))))))))
+          (binary_expression
+            (binary_expression PLACEHOLDER_5 == 0) ||
+            (call_expression throw
+              (argument_list
+                (call_expression DomainError
+                  (argument_list PLACEHOLDER_3 "ISBNs must be 10 digits long")))))
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_4 % 11) == 0) ||
+            (call_expression throw
+              (argument_list
+                (call_expression DomainError
+                  (argument_list PLACEHOLDER_3 "ISBN checksum failed")))))
+          (assignment PLACEHOLDER_7 =
+            (call_expression replace
+              (argument_list PLACEHOLDER_3
+                (binary_expression
+                  (character_literal "-") => ""))))
+          (call_expression
+            (parametrized_type_expression new
+              (curly_expression
+                (call_expression typeof
+                  (argument_list PLACEHOLDER_7))))
+            (argument_list PLACEHOLDER_7))))))
+  (assignment
+    (call_expression PLACEHOLDER_8
+      (argument_list
+        (typed_expression PLACEHOLDER_9 PLACEHOLDER_1))) =
+    (field_expression PLACEHOLDER_9 PLACEHOLDER_3))
+  (assignment
+    (call_expression ==
+      (argument_list
+        (typed_expression PLACEHOLDER_10 PLACEHOLDER_1)
+        (typed_expression PLACEHOLDER_11 PLACEHOLDER_1))) =
+    (binary_expression
+      (call_expression PLACEHOLDER_8
+        (argument_list PLACEHOLDER_10)) ==
+      (call_expression PLACEHOLDER_8
+        (argument_list PLACEHOLDER_11))))
+  (macro_definition
+    (signature
+      (call_expression PLACEHOLDER_12
+        (argument_list PLACEHOLDER_3)))
+    (block
+      (call_expression PLACEHOLDER_1
+        (argument_list PLACEHOLDER_3))))
+  (assignment
+    (call_expression PLACEHOLDER_13
+      (argument_list
+        (typed_expression PLACEHOLDER_14 IO)
+        (typed_expression PLACEHOLDER_15 PLACEHOLDER_1))) =
+    (call_expression print
+      (argument_list PLACEHOLDER_14 "isbn\""
+        (call_expression PLACEHOLDER_8
+          (argument_list PLACEHOLDER_15))
+        (character_literal "\"")))))

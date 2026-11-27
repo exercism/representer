@@ -1,53 +1,142 @@
-function wordy ( problem )
-problem = replace ( problem , "\"What is \"" => "\"\"" )
-problem = replace ( problem , "\"?\"" => "\"\"" )
-problem = strip ( problem )
-parts = split ( problem , "\" \"" )
-if isempty ( parts )
-throw ( ArgumentError ( "\"Empty problem\"" ))
-end
-current_value = tryparse ( Int , parts [ 1 ])
-if current_value === nothing
-throw ( ArgumentError ( "\"Invalid number format or non-math question\"" ))
-end
-i = 2
-while i <= length ( parts )
-operation_word = parts [ i ]
-operator = "\"\""
-if operation_word == "\"plus\""
-operator = "\"+\""
-elseif operation_word == "\"minus\""
-operator = "\"-\""
-elseif operation_word == "\"multiplied\"" && i + 1 <= length ( parts ) && parts [ i + 1 ] == "\"by\""
-operator = "\"*\""
-i += 1
-elseif operation_word == "\"divided\"" && i + 1 <= length ( parts ) && parts [ i + 1 ] == "\"by\""
-operator = "\"/\""
-i += 1
-else
-throw ( ArgumentError ( "\"Unsupported operation or invalid syntax\"" ))
-end
-i += 1
-if i > length ( parts )
-throw ( ArgumentError ( "\"Missing operand after operator\"" ))
-end
-operand = tryparse ( Int , parts [ i ])
-if operand === nothing
-throw ( ArgumentError ( "\"Invalid number format or missing operand\"" ))
-end
-if operator == "\"+\""
-current_value += operand
-elseif operator == "\"-\""
-current_value -= operand
-elseif operator == "\"*\""
-current_value *= operand
-elseif operator == "\"/\""
-if operand == 0
-throw ( ArgumentError ( "\"Division by zero\"" ))
-end
-current_value = current_value ÷ operand
-end
-i += 1
-end
-return current_value
-end
+(source_file
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_1
+        (argument_list PLACEHOLDER_2)))
+    (block
+      (assignment PLACEHOLDER_2 =
+        (call_expression replace
+          (argument_list PLACEHOLDER_2
+            (binary_expression "What is " => ""))))
+      (assignment PLACEHOLDER_2 =
+        (call_expression replace
+          (argument_list PLACEHOLDER_2
+            (binary_expression "?" => ""))))
+      (assignment PLACEHOLDER_2 =
+        (call_expression strip
+          (argument_list PLACEHOLDER_2)))
+      (assignment PLACEHOLDER_3 =
+        (call_expression split
+          (argument_list PLACEHOLDER_2 " ")))
+      (if_statement
+        (call_expression isempty
+          (argument_list PLACEHOLDER_3))
+        (block
+          (call_expression throw
+            (argument_list
+              (call_expression ArgumentError
+                (argument_list "Empty problem"))))))
+      (assignment PLACEHOLDER_4 =
+        (call_expression tryparse
+          (argument_list Int
+            (index_expression PLACEHOLDER_3
+              (vector_expression 1)))))
+      (if_statement
+        (binary_expression PLACEHOLDER_4 === nothing)
+        (block
+          (call_expression throw
+            (argument_list
+              (call_expression ArgumentError
+                (argument_list "Invalid number format or non-math question"))))))
+      (assignment PLACEHOLDER_5 = 2)
+      (while_statement
+        (binary_expression PLACEHOLDER_5 <=
+          (call_expression length
+            (argument_list PLACEHOLDER_3)))
+        (block
+          (assignment PLACEHOLDER_6 =
+            (index_expression PLACEHOLDER_3
+              (vector_expression PLACEHOLDER_5)))
+          (assignment PLACEHOLDER_7 = "")
+          (if_statement
+            (binary_expression PLACEHOLDER_6 == "plus")
+            (block
+              (assignment PLACEHOLDER_7 = "+"))
+            (elseif_clause
+              (binary_expression PLACEHOLDER_6 == "minus")
+              (block
+                (assignment PLACEHOLDER_7 = "-")))
+            (elseif_clause
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_6 == "multiplied") &&
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_5 + 1) <=
+                    (call_expression length
+                      (argument_list PLACEHOLDER_3)))) &&
+                (binary_expression
+                  (index_expression PLACEHOLDER_3
+                    (vector_expression
+                      (binary_expression PLACEHOLDER_5 + 1))) == "by"))
+              (block
+                (assignment PLACEHOLDER_7 = "*")
+                (compound_assignment_expression PLACEHOLDER_5 += 1)))
+            (elseif_clause
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_6 == "divided") &&
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_5 + 1) <=
+                    (call_expression length
+                      (argument_list PLACEHOLDER_3)))) &&
+                (binary_expression
+                  (index_expression PLACEHOLDER_3
+                    (vector_expression
+                      (binary_expression PLACEHOLDER_5 + 1))) == "by"))
+              (block
+                (assignment PLACEHOLDER_7 = "/")
+                (compound_assignment_expression PLACEHOLDER_5 += 1)))
+            (else_clause
+              (block
+                (call_expression throw
+                  (argument_list
+                    (call_expression ArgumentError
+                      (argument_list "Unsupported operation or invalid syntax")))))))
+          (compound_assignment_expression PLACEHOLDER_5 += 1)
+          (if_statement
+            (binary_expression PLACEHOLDER_5 >
+              (call_expression length
+                (argument_list PLACEHOLDER_3)))
+            (block
+              (call_expression throw
+                (argument_list
+                  (call_expression ArgumentError
+                    (argument_list "Missing operand after operator"))))))
+          (assignment PLACEHOLDER_8 =
+            (call_expression tryparse
+              (argument_list Int
+                (index_expression PLACEHOLDER_3
+                  (vector_expression PLACEHOLDER_5)))))
+          (if_statement
+            (binary_expression PLACEHOLDER_8 === nothing)
+            (block
+              (call_expression throw
+                (argument_list
+                  (call_expression ArgumentError
+                    (argument_list "Invalid number format or missing operand"))))))
+          (if_statement
+            (binary_expression PLACEHOLDER_7 == "+")
+            (block
+              (compound_assignment_expression PLACEHOLDER_4 += PLACEHOLDER_8))
+            (elseif_clause
+              (binary_expression PLACEHOLDER_7 == "-")
+              (block
+                (compound_assignment_expression PLACEHOLDER_4 -= PLACEHOLDER_8)))
+            (elseif_clause
+              (binary_expression PLACEHOLDER_7 == "*")
+              (block
+                (compound_assignment_expression PLACEHOLDER_4 *= PLACEHOLDER_8)))
+            (elseif_clause
+              (binary_expression PLACEHOLDER_7 == "/")
+              (block
+                (if_statement
+                  (binary_expression PLACEHOLDER_8 == 0)
+                  (block
+                    (call_expression throw
+                      (argument_list
+                        (call_expression ArgumentError
+                          (argument_list "Division by zero"))))))
+                (assignment PLACEHOLDER_4 =
+                  (binary_expression PLACEHOLDER_4 ÷ PLACEHOLDER_8)))))
+          (compound_assignment_expression PLACEHOLDER_5 += 1)))
+      (return_statement PLACEHOLDER_4))))

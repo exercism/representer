@@ -1,50 +1,130 @@
-function proteins ( rna :: AbstractString )
-codon_table = Dict (
-"\"AUG\"" => "\"Methionine\"" ,
-"\"UUU\"" => "\"Phenylalanine\"" ,
-"\"UUC\"" => "\"Phenylalanine\"" ,
-"\"UUA\"" => "\"Leucine\"" ,
-"\"UUG\"" => "\"Leucine\"" ,
-"\"UCU\"" => "\"Serine\"" ,
-"\"UCC\"" => "\"Serine\"" ,
-"\"UCA\"" => "\"Serine\"" ,
-"\"UCG\"" => "\"Serine\"" ,
-"\"UAU\"" => "\"Tyrosine\"" ,
-"\"UAC\"" => "\"Tyrosine\"" ,
-"\"UGU\"" => "\"Cysteine\"" ,
-"\"UGC\"" => "\"Cysteine\"" ,
-"\"UGG\"" => "\"Tryptophan\"" ,
-"\"UAA\"" => "\"STOP\"" ,
-"\"UAG\"" => "\"STOP\"" ,
-"\"UGA\"" => "\"STOP\""
-)
-if isempty ( rna )
-return String []
-end
-if length ( rna ) % 3 != 0
-n = div ( length ( rna ), 3 ) * 3
-codons = [ rna [ i : i + 2 ] for i in 1 : 3 : n ]
-for ( idx , codon ) in enumerate ( codons )
-if ! haskey ( codon_table , codon )
-throw ( DomainError ( "\"Invalid codon: $codon\"" ))
-end
-if codon_table [ codon ] == "\"STOP\""
-return [ codon_table [ c ] for c in codons [ 1 : idx - 1 ]]
-end
-end
-throw ( DomainError ( "\"Incomplete RNA sequence\"" ))
-end
-codons = [ rna [ i : i + 2 ] for i in 1 : 3 : length ( rna )]
-proteins = String []
-for codon in codons
-aa = get ( codon_table , codon , nothing )
-if aa === nothing
-throw ( DomainError ( "\"Invalid codon: $codon\"" ))
-elseif aa == "\"STOP\""
-break
-else
-push! ( proteins , aa )
-end
-end
-return proteins
-end
+(source_file
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_1
+        (argument_list
+          (typed_expression PLACEHOLDER_2 AbstractString))))
+    (block
+      (assignment PLACEHOLDER_3 =
+        (call_expression Dict
+          (argument_list
+            (binary_expression "AUG" => "Methionine")
+            (binary_expression "UUU" => "Phenylalanine")
+            (binary_expression "UUC" => "Phenylalanine")
+            (binary_expression "UUA" => "Leucine")
+            (binary_expression "UUG" => "Leucine")
+            (binary_expression "UCU" => "Serine")
+            (binary_expression "UCC" => "Serine")
+            (binary_expression "UCA" => "Serine")
+            (binary_expression "UCG" => "Serine")
+            (binary_expression "UAU" => "Tyrosine")
+            (binary_expression "UAC" => "Tyrosine")
+            (binary_expression "UGU" => "Cysteine")
+            (binary_expression "UGC" => "Cysteine")
+            (binary_expression "UGG" => "Tryptophan")
+            (binary_expression "UAA" => "STOP")
+            (binary_expression "UAG" => "STOP")
+            (binary_expression "UGA" => "STOP"))))
+      (if_statement
+        (call_expression isempty
+          (argument_list PLACEHOLDER_2))
+        (block
+          (return_statement
+            (index_expression String
+              (vector_expression)))))
+      (if_statement
+        (binary_expression
+          (binary_expression
+            (call_expression length
+              (argument_list PLACEHOLDER_2)) % 3) != 0)
+        (block
+          (assignment PLACEHOLDER_4 =
+            (binary_expression
+              (call_expression div
+                (argument_list
+                  (call_expression length
+                    (argument_list PLACEHOLDER_2)) 3)) * 3))
+          (assignment PLACEHOLDER_5 =
+            (comprehension_expression
+              (index_expression PLACEHOLDER_2
+                (vector_expression
+                  (range_expression PLACEHOLDER_6
+                    (binary_expression PLACEHOLDER_6 + 2))))
+              (for_clause
+                (for_binding PLACEHOLDER_6
+                  (range_expression
+                    (range_expression 1 3) PLACEHOLDER_4)))))
+          (for_statement
+            (for_binding
+              (tuple_expression PLACEHOLDER_7 PLACEHOLDER_8)
+              (call_expression enumerate
+                (argument_list PLACEHOLDER_5)))
+            (block
+              (if_statement
+                (unary_expression !
+                  (call_expression haskey
+                    (argument_list PLACEHOLDER_3 PLACEHOLDER_8)))
+                (block
+                  (call_expression throw
+                    (argument_list
+                      (call_expression DomainError
+                        (argument_list
+                          (string_literal "Invalid codon: "
+                            (string_interpolation PLACEHOLDER_8))))))))
+              (if_statement
+                (binary_expression
+                  (index_expression PLACEHOLDER_3
+                    (vector_expression PLACEHOLDER_8)) == "STOP")
+                (block
+                  (return_statement
+                    (comprehension_expression
+                      (index_expression PLACEHOLDER_3
+                        (vector_expression PLACEHOLDER_9))
+                      (for_clause
+                        (for_binding PLACEHOLDER_9
+                          (index_expression PLACEHOLDER_5
+                            (vector_expression
+                              (range_expression 1
+                                (binary_expression PLACEHOLDER_7 - 1))))))))))))
+          (call_expression throw
+            (argument_list
+              (call_expression DomainError
+                (argument_list "Incomplete RNA sequence"))))))
+      (assignment PLACEHOLDER_5 =
+        (comprehension_expression
+          (index_expression PLACEHOLDER_2
+            (vector_expression
+              (range_expression PLACEHOLDER_6
+                (binary_expression PLACEHOLDER_6 + 2))))
+          (for_clause
+            (for_binding PLACEHOLDER_6
+              (range_expression
+                (range_expression 1 3)
+                (call_expression length
+                  (argument_list PLACEHOLDER_2)))))))
+      (assignment PLACEHOLDER_1 =
+        (index_expression String
+          (vector_expression)))
+      (for_statement
+        (for_binding PLACEHOLDER_8 PLACEHOLDER_5)
+        (block
+          (assignment PLACEHOLDER_10 =
+            (call_expression get
+              (argument_list PLACEHOLDER_3 PLACEHOLDER_8 nothing)))
+          (if_statement
+            (binary_expression PLACEHOLDER_10 === nothing)
+            (block
+              (call_expression throw
+                (argument_list
+                  (call_expression DomainError
+                    (argument_list
+                      (string_literal "Invalid codon: "
+                        (string_interpolation PLACEHOLDER_8)))))))
+            (elseif_clause
+              (binary_expression PLACEHOLDER_10 == "STOP")
+              (block break))
+            (else_clause
+              (block
+                (call_expression push!
+                  (argument_list PLACEHOLDER_1 PLACEHOLDER_10)))))))
+      (return_statement PLACEHOLDER_1))))
