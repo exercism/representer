@@ -3,7 +3,7 @@
 module Representer::Languages::Elixir
   class Spec < Representer::Engine::Language
     tracks "elixir"
-    version 9
+    version 10
     grammar "elixir"
     extensions ".ex", ".exs"
 

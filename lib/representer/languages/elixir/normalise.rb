@@ -5,9 +5,10 @@ module Representer::Languages::Elixir
     # `@moduledoc`, `@doc` and `@typedoc` go, as in the old representer.
     drop "@moduledoc {{text}}", "@doc {{text}}", "@typedoc {{text}}"
 
-    # A `@spec` describes the function after it, so it moves into that
-    # function and stays with it when Reorder sorts the module's body.
-    attach_to_next "@spec {{spec}}"
+    # A `@spec` describes the function after it, and `@impl` says that the
+    # function implements a behaviour. So each one moves into the function
+    # after it, and stays with it when Reorder sorts the module's body.
+    attach_to_next "@spec {{spec}}", "@impl {{value}}"
 
     TYPES = /\A(spec|callback|macrocallback|type|typep|opaque)\z/
 

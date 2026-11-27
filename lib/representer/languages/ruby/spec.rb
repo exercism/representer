@@ -3,7 +3,7 @@
 module Representer::Languages::Ruby
   class Spec < Representer::Engine::Language
     tracks "ruby"
-    version 11
+    version 12
     grammar "ruby"
     extensions ".rb"
 
