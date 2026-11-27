@@ -20,30 +20,47 @@ The website POSTs JSON like this:
 {
   "track_slug": "ruby",
   "exercise_slug": "two-fer",
+  "outputs": ["representation", "snippet"],
   "solution_files": { "two_fer.rb": "def two_fer(name = 'you')\n ...\nend\n" },
   "exercise_files": { "two_fer_test.rb": "...", ".meta/config.json": "..." }
 }
 ```
 
+- `outputs` lists what to generate, as one or more of `representation`, `snippet` and `analysis`. The representer only runs the steps needed for these outputs.
 - `solution_files` are the student's files.
 - `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. Ruby and Elixir, which are written with stages, ignore them.
 
-It responds with `200` and:
+It responds with `200` and one key for each output asked for:
 
 ```json
 {
-  "representation": "...",
-  "mapping": { "PLACEHOLDER_1": "name" },
-  "version": 2
+  "representation": {
+    "representation": "...",
+    "mapping": { "PLACEHOLDER_1": "name" },
+    "version": 12
+  },
+  "snippet": {
+    "error": "not_supported",
+    "message": "The representer doesn't make snippets yet"
+  }
 }
 ```
+
+The `representation` output has these fields:
 
 - `representation` is the normalised solution.
 - `mapping` says which name each placeholder replaced.
 - `version` is the version of the track's representer. It changes whenever the track's output changes, so the website knows to represent the track's solutions again.
 
+Each output has its own version, so a change to one output never makes the website generate the others again.
+
+If the representer can't generate an output, that output holds an error instead, and the other outputs still come back.
+An error has the same shape for every output: `error` gives the reason, `message` says what went wrong, and `version` is the output's version for the track, if it has one.
+If a track doesn't support an output yet, the error is `not_supported`.
+The representer doesn't make snippets or analyses yet, so these outputs always get `not_supported`.
+
 Some solutions can't be represented.
-For those, the response is still a `200`, with the language's version, but `representation` is `null`, `mapping` is empty, and `reason` says why:
+For those, the `representation` output is an error with the language's version, and `error` is one of these reasons:
 
 - `parse_error`: the grammar couldn't parse the code. This includes new syntax that the pinned grammar doesn't know yet.
 - `too_deep`: the code nests deeper than 1,000 levels.
@@ -55,7 +72,13 @@ For those, the response is still a `200`, with the language's version, but `repr
 The website then marks the submission as unrepresentable.
 Basic, which serves the tracks with no class of their own, can represent any solution that isn't too large and has a source file.
 
-The response is a `400` if the request is invalid.
+The response is a `400` if the request is invalid, including when `outputs` is missing or empty.
+
+From Ruby, call `Representer::Generate` with the outputs as symbols:
+
+```ruby
+Representer::Generate.("ruby", solution_files, outputs: %i[representation snippet], exercise_files:)
+```
 
 ## How it works
 
