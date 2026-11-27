@@ -51,6 +51,13 @@ module Representer::Engine
   # every context again with each placeholder capitalised, as Ruby's
   # `class {{x}}` needs.
   #
+  # In some grammars the file is a flat list of tokens, such as Factor's
+  # `USING: kernel math ;`. Code that is several top-level items of its
+  # file becomes a run pattern, which matches a run of consecutive children
+  # of any node. In a run, a placeholder matches as few children as it can,
+  # and a placeholder at the end of the run matches one child. A run
+  # pattern can only be dropped (see TreeHelpers#drop).
+  #
   # An exact pattern (exactly: true) also requires each list in the code,
   # such as a method's parameters or statements, to hold nothing besides
   # the pattern's items, and each placeholder in a list then matches one
@@ -80,6 +87,12 @@ module Representer::Engine
     # A Branch matches a node whose children match its children, which are
     # [field, element] pairs.
     Branch = Struct.new(:type, :children)
+
+    # A Run matches a run of consecutive children, which match its
+    # children, which are [field, element] pairs.
+    Run = Struct.new(:children) do
+      def type = nil
+    end
 
     # Compiling a pattern parses code, so this returns a cached pattern.
     def self.[](language, code, inside: nil, raw: false, exactly: false)
@@ -116,6 +129,21 @@ module Representer::Engine
       nil
     end
 
+    def run? = @root.is_a?(Run)
+
+    # Returns the index ranges of the children that match a run pattern,
+    # from the first child to the last, without overlaps.
+    def runs(children)
+      found = []
+      index = 0
+      while index < children.size
+        stop = run_from(children, index)
+        found << (index...stop) if stop
+        index = stop || (index + 1)
+      end
+      found
+    end
+
     # Returns the field and type of the pattern's last child with nothing in
     # it, such as the `{ }` of `if ({{...}}) { }`, or nil.
     def last_empty_child
@@ -128,8 +156,7 @@ module Representer::Engine
     # Builds the pattern's code as a new tree. Each placeholder becomes a
     # copy of its match in bindings.
     def build(bindings)
-      built = build_node(@node, bindings)
-      return built unless built.is_a?(Array)
+      built = Array(@node).flat_map { |node| Array(build_node(node, bindings)) }
       return built.first if built.one?
 
       raise ArgumentError, "The code #{code.inspect} must build one node"
@@ -167,13 +194,32 @@ module Representer::Engine
       to = from + fragment.bytesize
       node = smallest_node_holding(tree, from, to)
       return nil if misread_keyword?(node)
+      return run_or_node(tree, from, to) if @raw
 
-      return node if @raw
-
+      root = tree
       tree = @language.run_stage(:GenerateAST, tree)
+      return run_or_node(tree, from, to) if node.equal?(root) && tree.equal?(root)
+
       contains?(tree, node) ? node : node_after_generate_ast(tree, from, to)
     rescue Representer::CannotRepresent
       nil
+    end
+
+    # Returns the root's children that hold the code, if the code is
+    # several of them, and otherwise the code's node.
+    def run_or_node(tree, from, to)
+      node = smallest_node_holding(tree, from, to)
+      return node unless node.equal?(tree)
+
+      inside = tree.children.each_index.select { |index| inside?(tree.children[index], from, to) }
+      inside.size > 1 ? tree.children[inside.first..inside.last] : node
+    end
+
+    # Whether the node holds part of the code and nothing outside it.
+    def inside?(node, from, to)
+      spans = []
+      node.each_descendant { |descendant| spans << descendant.span if descendant.leaf? && descendant.span }
+      spans.any? && spans.all? { |span| span.begin >= from && span.end <= to }
     end
 
     # GenerateAST can replace the code's node, as Ruby's turns `x if y`
@@ -251,6 +297,8 @@ module Representer::Engine
     end
 
     def compile(node)
+      return Run.new(node.map { |child| [child.field, compile(child)] }) if node.is_a?(Array)
+
       word = placeholder_word(node)
       if word
         return Any.new(word, representation&.names&.key?(node.type) ? nil : node.type)
@@ -276,8 +324,37 @@ module Representer::Engine
 
     ### Matching ###
 
+    # Returns the index after the run that matches from the index, or nil.
+    def run_from(children, index)
+      match_run(@root.children, children, index, {}) { |stop, _| return stop }
+      nil
+    end
+
+    # Matches the elements against the children from the index, with
+    # nothing between them, and yields the index after them and the
+    # bindings. A placeholder tries the fewest children first.
+    def match_run(elements, children, index, bindings, &found)
+      return yield(index, bindings) if elements.empty?
+      return if index >= children.size
+
+      (field, element), *rest = elements
+      if field.nil? && list_placeholder?(element)
+        stops = rest.empty? ? [index + 1] : (index..children.size)
+        stops.each do |stop|
+          bound = bind(bindings, pending_for(element), children[index...stop])
+          match_run(rest, children, stop, bound, &found) if bound
+        end
+        return
+      end
+      return unless field.nil? || children[index].field == field
+
+      match_element(element, children[index], bindings) { |matched| match_run(rest, children, index + 1, matched, &found) }
+    end
+
     def match_element(element, node, bindings, &found)
       case element
+      when Run
+        raise ArgumentError, "The code pattern #{code.inspect} is several top-level items, so it can only be dropped"
       when Any
         return unless element.type.nil? || (node.leaf? && node.type == element.type)
 

@@ -523,6 +523,12 @@ If one of the grammar's keywords comes out as a name, the engine rejects that pa
 If the code doesn't parse in any context, the engine tries every context again with each placeholder capitalised, as Ruby's `class {{x}}` needs.
 If the code is one token inside a larger node, such as the `readonly` of C#'s `ref readonly int`, the pattern is that token.
 
+Some grammars give a file as a flat list of tokens, such as Factor's and Ballerina's.
+If the code is several top-level items, such as Factor's `USING: {{...}} ;`, the pattern matches a run of children in a row, inside any node.
+In such a run, a placeholder matches as few children as it can, and a placeholder at the end of the run matches one child.
+So `USING: {{...}} ;` matches `USING: kernel math ;` up to the first `;`, and `USE: {{...}}` matches `USE: io`.
+A pattern like this can only be dropped, so it works in `imports` and `drop`.
+
 ## Common mistakes
 
 - If a node type that defines a name is missing from `names_are_defined_by`, the engine won't rename that name. Two solutions that differ only in the spelling of that name will then give different output. Check that every kind of definition in the language is listed.

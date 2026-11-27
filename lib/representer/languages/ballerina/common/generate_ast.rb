@@ -24,7 +24,6 @@ module Representer::Languages::Ballerina::Common
         write_quoted_names_as_plain_names!
         write_template_text_as_values!
         write_floats_as_their_values!
-        group_imports!
         wrap_defined_names!
       end
     end
@@ -63,22 +62,6 @@ module Representer::Languages::Ballerina::Common
     end
 
     def type_suffix?(token) = token&.type == "identifier" && TYPE_SUFFIXES.include?(token.text)
-
-    ### Imports ###
-
-    # Put each import's tokens in a node of their own.
-    # import ballerina/io;  ->  (import_declaration import ballerina / io ;)
-    def group_imports!
-      runs = tree.children.slice_before { |token| import_keyword?(token) }
-      tree.children = runs.flat_map do |run|
-        next run unless import_keyword?(run.first)
-
-        import, *rest = run.slice_after { |token| text_of(token) == ";" }.to_a
-        [build(:import_declaration, *import), *rest.flatten]
-      end
-    end
-
-    def import_keyword?(token) = token.type == "keyword" && text_of(token) == "import"
 
     ### Names ###
 

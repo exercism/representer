@@ -31,10 +31,6 @@ class BallerinaGenerateASTTest < Minitest::Test
     refute_same "function f() { float x = 1.5; }", "function f() { float x = 1.6; }"
   end
 
-  def test_groups_each_import
-    assert_includes ast("import ballerina/io;\nfunction f() { }"), "(import_declaration"
-  end
-
   def test_wraps_the_names_of_functions_and_types
     assert_includes ast("function add(int x) returns int { return x; }"), "(function_name add)"
     assert_includes ast("type P record {| int x; |};"), "(type_name P)"

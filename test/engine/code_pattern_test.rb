@@ -182,11 +182,27 @@ class CodePatternTest < Minitest::Test
     assert_equal write(tree("n = xs.size\ng(1, 2)")), write(normalise("n = xs.length\nf(1, 2)"))
   end
 
+  def test_code_of_several_top_level_items_drops_each_run_of_them
+    pattern = CodePattern[Rubyish::Spec, "a\n{{...}}\nb"]
+    assert pattern.run?
+    assert_equal "(program c)", write(helpers.drop(tree("a\n1\n2\nb\nc\na\nb"), pattern))
+  end
+
+  def test_a_placeholder_at_the_end_of_a_run_matches_one_child
+    pattern = CodePattern[Rubyish::Spec, "a\n{{...}}"]
+    assert_equal "(program 2 3)", write(helpers.drop(tree("a\n1\n2\n3"), pattern))
+  end
+
+  def test_a_run_can_only_be_dropped
+    assert_raises(ArgumentError) { CodePattern[Rubyish::Spec, "a\nb"].match(tree("a\nb")) }
+  end
+
   private
   def parse(source) = Representer::Engine::Grammar["ruby"].parse(source)
   def tree(source) = Ruby::Common::GenerateAST.(parse(source))
   def normalise(source) = Rubyish::Normalise.(tree(source))
   def write(tree) = Representer::Engine::Serialize.(tree)
+  def helpers = Object.new.extend(Representer::Engine::TreeHelpers)
 
   # PHP wraps each of a call's arguments in an `argument` node.
   PHP = Representer::Languages::PHP::Spec

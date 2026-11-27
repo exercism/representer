@@ -22,10 +22,6 @@ class FactorGenerateASTTest < Minitest::Test
     assert_equal ["f"], names
   end
 
-  def test_using_and_use_get_nodes_of_their_own
-    assert_includes ast("USING: kernel math ;\nUSE: io\nIN: a"), "(using kernel math)\n  (use io) IN: a"
-  end
-
   private
   def ast(source) = write(generate_ast(source))
   def assert_same(first, second) = assert_equal(ast(first), ast(second))

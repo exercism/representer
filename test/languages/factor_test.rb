@@ -23,6 +23,10 @@ class FactorTest < RepresenterTest
     refute_same_representation ": f ( a -- b ) ;", ": f ( a b -- ) ;"
   end
 
+  def test_using_and_use_are_dropped
+    assert_same_representation "USING: kernel math\n  sequences ;\nUSE: io\nIN: a\n: f ( x -- y ) 1 + ;", "IN: a\n: f ( x -- y ) 1 + ;"
+  end
+
   def test_the_vocabulary_name_matters
     refute_same_representation "IN: a\n: f ( x -- y ) 1 + ;", "IN: b\n: f ( x -- y ) 1 + ;"
   end

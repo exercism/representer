@@ -25,7 +25,6 @@ module Representer::Languages::Factor::Common
     def call
       tree.tap do
         mark_the_name_of_each_definition!
-        group_each_import_with_its_words!
       end
     end
 
@@ -38,34 +37,5 @@ module Representer::Languages::Factor::Common
         node.named_children.find { |child| child.type == "symbol" }.field = "name" if node.type == "definition"
       end
     end
-
-    # Put the words of each `USING: ... ;` and `USE: word` in a node of its
-    # own, so that the representation can drop them as imports. The grammar
-    # reads them as plain words.
-    # USING: kernel math ;  ->  (using kernel math)
-    # USE: io  ->  (use io)
-    def group_each_import_with_its_words!
-      words = tree.children
-      tree.children = []
-      tree.children << next_import_or_word!(words) until words.empty?
-    end
-
-    def next_import_or_word!(words)
-      word = words.shift
-      case word_text(word)
-      when "USING:" then build(:using, *take_words_until_semicolon!(words))
-      when "USE:" then build(:use, *words.shift(1))
-      else word
-      end
-    end
-
-    def take_words_until_semicolon!(words)
-      taken = []
-      taken << words.shift until words.empty? || word_text(words.first) == ";"
-      words.shift
-      taken
-    end
-
-    def word_text(node) = node.type == "symbol" ? node.text : nil
   end
 end

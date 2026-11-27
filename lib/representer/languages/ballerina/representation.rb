@@ -9,5 +9,9 @@ module Representer::Languages::Ballerina
     names_are_defined_by :function_name, # function «add»(int x) returns int { ... }
                          :type_name,     # type «Point» record {| int x; |};
                          :variable       # int «total» = 0;
+
+    # Drop each import, because a solution that passes its tests has already
+    # imported every module it needs.
+    imports "import {{...}};" # «import ballerina/io;»
   end
 end

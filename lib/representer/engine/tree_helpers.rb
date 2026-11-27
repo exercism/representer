@@ -75,9 +75,12 @@ module Representer::Engine
       root
     end
 
-    # Removes every node that matches the pattern, with its children.
+    # Removes every node that matches the pattern, with its children. A
+    # run pattern (see CodePattern) removes each run of children it matches.
     def drop(root, pattern_source)
       pattern = pattern(pattern_source)
+      return drop_runs(root, pattern) if pattern.is_a?(CodePattern) && pattern.run?
+
       each_node(root) do |node, _|
         node.children.reject! { |child| Representer::Engine.could_match?(pattern, child.type) && pattern.match(child) }
       end
@@ -153,6 +156,11 @@ module Representer::Engine
     end
 
     private
+    def drop_runs(root, pattern)
+      each_node(root) { |node, _| pattern.runs(node.children).reverse_each { |run| node.children.slice!(run) } }
+      root
+    end
+
     def pattern(source) = source.is_a?(String) ? PATTERNS[source] ||= Pattern.parse(source) : source
   end
 end
