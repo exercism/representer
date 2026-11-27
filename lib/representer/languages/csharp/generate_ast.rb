@@ -45,10 +45,10 @@ module Representer::Languages::CSharp
     def call
       # Drop comments.
       drop(tree, "(comment)")
-      strings
-      numbers
-      lambda_parameters
-      query_names
+      write_strings_as_their_values!
+      write_numbers_as_their_values!
+      add_parameter_node_to_bare_lambda_parameters!
+      mark_let_and_join_variables_as_names!
       drop_tokens(tree, everywhere: TOKENS, kept_in: TOKENS_KEPT_IN)
 
       # Unwrap brackets that only group, because the tree's shape shows the grouping.
@@ -65,7 +65,7 @@ module Representer::Languages::CSharp
     #
     # "\x41" == "A" == "A"
     # @"a""b" == "a\"b"
-    def strings
+    def write_strings_as_their_values!
       transform(tree, "(string_literal) @string") do |match|
         string_node(match.node.named_children.map { |part| string_piece(part) })
       end
@@ -111,7 +111,7 @@ module Representer::Languages::CSharp
     # 0x1F == 0b11111 == 31
     # 1.50 == 1.5
     # 1e7 == 1E7 == 10000000.0
-    def numbers
+    def write_numbers_as_their_values!
       each_node(tree) do |node, _|
         next unless node.named? && node.leaf?
 
@@ -133,7 +133,7 @@ module Representer::Languages::CSharp
     # Give a lambda's single parameter without brackets a `parameter` node,
     # as Roslyn does, so that spec.rb can list it with the other parameters.
     # x => x * 2 has the parameter x
-    def lambda_parameters
+    def add_parameter_node_to_bare_lambda_parameters!
       transform(tree, "(implicit_parameter) @parameter") do |match|
         build(:parameter, { name: leaf(:identifier, match.node.text) })
       end
@@ -143,7 +143,7 @@ module Representer::Languages::CSharp
     # Roslyn does.
     # let «total» = a + b
     # join «order» in orders on ...
-    def query_names
+    def mark_let_and_join_variables_as_names!
       captured(tree, "[(let_clause (identifier) @name) (join_clause (identifier) @name)]").each do |name|
         name.field = "name"
       end

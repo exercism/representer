@@ -32,16 +32,16 @@ module Representer::Languages::FSharp
     def call
       # Drop comments and XML documentation.
       drop(tree, "[(line_comment) (block_comment) (xml_doc)]")
-      strings
-      numbers
-      operators
-      precedence(tree)
+      write_strings_as_their_values!
+      write_numbers_as_their_values!
+      write_every_operator_as_a_leaf!
+      regroup_operators_and_calls!(tree)
 
       # Unwrap brackets that only group, because the tree's shape now shows the grouping.
       # a + (b * c) == a + b * c
       unwrap(tree, "[(paren_expression) (paren_pattern)]")
-      bars
-      names
+      drop_bars_between_match_union_and_enum_cases!
+      mark_the_code_that_defines_names!
       drop_tokens(tree, everywhere: TOKENS)
     end
 
@@ -53,7 +53,7 @@ module Representer::Languages::FSharp
     # different strings the same.
     #
     # "a\"b" == @"a""b" == """a"b"""
-    def strings
+    def write_strings_as_their_values!
       transform(tree, "(string) @string") do |match|
         parts = match.node.children
         next nil unless parts.all? { |part| %w[fragment "].include?(part.type) }
@@ -80,7 +80,7 @@ module Representer::Languages::FSharp
     # 1_000 == 1000
     # 0x1F == 31
     # 1.50 == 1.5
-    def numbers
+    def write_numbers_as_their_values!
       each_node(tree) do |node, _|
         next unless node.leaf?
 
@@ -97,7 +97,7 @@ module Representer::Languages::FSharp
 
     # Write each operator as a leaf. The grammar writes an operator as a
     # leaf in some places, and as a node holding one token in others.
-    def operators
+    def write_every_operator_as_a_leaf!
       transform(tree, "[(infix_op) (prefix_op)] @op") do |match|
         children = match.node.children
         leaf(match.node.type, children.first.text) if children.one? && !children.first.named?
@@ -121,10 +121,10 @@ module Representer::Languages::FSharp
     # source order, and groups them again (see Chain). A bracketed
     # expression, a method call such as `f(x)` and any other expression
     # counts as one operand.
-    def precedence(node)
+    def regroup_operators_and_calls!(node)
       return Chain.group(parts(node)).tap { |grouped| grouped.field = node.field } if chain?(node)
 
-      node.children.map! { |child| child.named? ? precedence(child) : child }
+      node.children.map! { |child| child.named? ? regroup_operators_and_calls!(child) : child }
       node
     end
 
@@ -150,13 +150,13 @@ module Representer::Languages::FSharp
 
     # Return the operands and operators of a chain, in source order.
     def parts(node)
-      return [precedence(node)] unless chain?(node)
+      return [regroup_operators_and_calls!(node)] unless chain?(node)
 
       children = node.named_children.each { |child| child.field = nil }
       case node.type
       when "infix_expression" then [*parts(children[0]), Chain::Operator.new(:infix, children[1]), *parts(children[2])]
       when "prefixed_expression" then [Chain::Operator.new(:prefix, children[0]), *parts(children[1])]
-      else [*parts(children[0]), *(bracketed?(node) ? [precedence(children[1])] : parts(children[1]))]
+      else [*parts(children[0]), *(bracketed?(node) ? [regroup_operators_and_calls!(children[1])] : parts(children[1]))]
       end
     end
 
@@ -165,7 +165,7 @@ module Representer::Languages::FSharp
     # Drop the `|` between the cases of a match, a union type or an enum,
     # because the first one is optional.
     # type Shape = | Circle | Square == type Shape = Circle | Square
-    def bars
+    def drop_bars_between_match_union_and_enum_cases!
       each_node(tree) do |node, _|
         node.children.reject! { |child| child.type == "|" } if %w[rules union_type_cases enum_type_cases].include?(node.type)
       end
@@ -175,7 +175,7 @@ module Representer::Languages::FSharp
 
     # Give the code that defines a name a shape of its own, so that spec.rb
     # can list it in names_are_defined_by.
-    def names
+    def mark_the_code_that_defines_names!
       # Mark the name of a module or a namespace as a `module_name`.
       # module Shop.Counter
       captured(tree, "[(named_module name: (long_identifier) @name) (namespace name: (long_identifier) @name)]").each do |name|
@@ -188,8 +188,8 @@ module Representer::Languages::FSharp
       # Mark `_` as a `wildcard_pattern`, because it names nothing.
       # member _.Area = 1
       each_node(tree) { |node, _| node.type = "wildcard_pattern" if node.type == "identifier" && node.text == "_" }
-      function_heads
-      patterns
+      write_functions_with_a_return_type_as_functions!
+      mark_single_name_patterns_as_named_patterns!
     end
 
     # Write each function with a return type as a function. The grammar
@@ -202,7 +202,7 @@ module Representer::Languages::FSharp
     # as the pattern `add (a: int) ((b: int): int)`, and we convert it into
     # the function `add` with the parameters `(a: int)` and `(b: int)` and
     # the return type `int`.
-    def function_heads
+    def write_functions_with_a_return_type_as_functions!
       find_all(tree, "(function_or_value_defn (value_declaration_left) @left)").each do |match|
         definition = match.node
         left = match[:left]
@@ -225,7 +225,7 @@ module Representer::Languages::FSharp
     # a new name.
     #
     # In `let f (Some x) = x`, `x` is a named_pattern, and `Some` isn't.
-    def patterns
+    def mark_single_name_patterns_as_named_patterns!
       # Write a parameter that is a bare name as a pattern, as it is in brackets.
       # let f x = x == let f (x) = x
       each_node(tree) do |node, _|

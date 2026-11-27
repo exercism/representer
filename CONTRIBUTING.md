@@ -179,6 +179,7 @@ The engine runs the stages and its own steps in this order:
 Only sort containers of definitions or entries, such as a class's body or a hash, and never a block of statements.
 If the grammar gives a container the same type as a block of statements, give it a type of its own in `GenerateAST` before sorting it, as Ruby's `class_body` does.
 If a rule genuinely needs logic, write it as a small, clearly named Ruby method.
+Each step in a stage is a bang method named for what it does to the tree, such as `add_braces_to_if_and_else_bodies!`.
 
 Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's type, field names and tokens.
 

@@ -47,14 +47,14 @@ module Representer::Languages::CSharp
 
     def call
       root = super
-      own_members(root)
-      empty_brackets(root)
+      drop_this_and_class_name_before_own_members!(root)
+      drop_empty_brackets_from_new_with_initializer!(root)
 
       # Drop the `readonly` of a `ref readonly` too, which isn't a modifier.
       # ref readonly int F() == ref int F()
       drop_tokens(root, everywhere: %w[readonly])
-      braces(root)
-      dictionaries(root)
+      add_braces_to_if_and_else_bodies!(root)
+      write_every_dictionary_initialiser_the_same_way!(root)
       root
     end
 
@@ -73,12 +73,12 @@ module Representer::Languages::CSharp
     #
     # internally into:
     # void Reset() { count = Start(); }
-    def own_members(root)
+    def drop_this_and_class_name_before_own_members!(root)
       each_node(root) do |type, _|
         next unless %w[class_declaration struct_declaration record_declaration].include?(type.type) && type[:body]
 
         names = member_names(type[:body]) - local_names(type)
-        drop_qualifiers(type, names) if names.any?
+        drop_own_qualifiers_before_names!(type, names) if names.any?
       end
     end
 
@@ -103,7 +103,7 @@ module Representer::Languages::CSharp
       locals
     end
 
-    def drop_qualifiers(type, names)
+    def drop_own_qualifiers_before_names!(type, names)
       own = ->(qualifier) { qualifier.type == "this" || (qualifier.type == "identifier" && qualifier.text == type[:name].text) }
       transform(type, "(member_access_expression expression: _ @qualifier name: (identifier) @name)") do |match|
         match[:name] if names.include?(match[:name].text) && own.(match[:qualifier])
@@ -113,7 +113,7 @@ module Representer::Languages::CSharp
     # Drop empty brackets after the type of a `new` with an initializer, as
     # Roslyn's simplifier does.
     # new List<int>() { 1 } == new List<int> { 1 }
-    def empty_brackets(root)
+    def drop_empty_brackets_from_new_with_initializer!(root)
       find_all(root, "(object_creation_expression arguments: (argument_list) @arguments initializer: (_))").each do |match|
         match.node.children.delete(match[:arguments]) if match[:arguments].children.empty?
       end
@@ -127,7 +127,7 @@ module Representer::Languages::CSharp
     #
     # internally into:
     # if (x) { y(); } else { if (z) { w(); } }
-    def braces(root)
+    def add_braces_to_if_and_else_bodies!(root)
       each_node(root) do |node, _|
         next unless node.type == "if_statement"
 
@@ -139,7 +139,7 @@ module Representer::Languages::CSharp
 
     # Write each `[key] = value` entry of a new dictionary as `{ key, value }`.
     # new Dictionary<int, string> { [1] = "a" } == new Dictionary<int, string> { { 1, "a" } }
-    def dictionaries(root)
+    def write_every_dictionary_initialiser_the_same_way!(root)
       pattern = '(object_creation_expression type: (generic_name (identifier "Dictionary")) ' \
                 "initializer: (initializer_expression (assignment_expression left: (element_binding_expression))* @entries))"
       find_all(root, pattern).each do |match|

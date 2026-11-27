@@ -27,7 +27,7 @@ module Representer::Languages::Ruby
         "attr_accessor {{names}}"
       ]
 
-    def call = visibility_before_def(super)
+    def call = attach_visibility_to_the_def_it_wraps!(super)
 
     private
     # Mark a method defined inside `private`, `protected` or `public` with that modifier.
@@ -43,7 +43,7 @@ module Representer::Languages::Ruby
     # end
     #
     # This matches the attach_to_each_following behaviour above.
-    def visibility_before_def(root)
+    def attach_visibility_to_the_def_it_wraps!(root)
       pattern = '(call !receiver method: (identifier /\A(private|protected|public)\z/) arguments: (argument_list (method)))'
       transform(root, pattern) do |match|
         arguments = match.node[:arguments].children

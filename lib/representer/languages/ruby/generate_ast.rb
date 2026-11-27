@@ -56,13 +56,13 @@ module Representer::Languages::Ruby
     def call
       # Drop comments, empty statements and the text after `__END__`.
       drop(tree, "[(comment) (uninterpreted) (empty_statement)]")
-      heredocs
-      strings
-      numbers
-      conditionals
-      blocks
-      methods_and_calls
-      class_and_module_bodies
+      turn_heredocs_into_strings!
+      write_strings_symbols_and_word_lists_as_values!
+      write_numbers_as_their_values!
+      write_conditions_and_loops_in_one_shape!
+      write_blocks_and_lambdas_in_one_shape!
+      write_methods_and_calls_in_one_shape!
+      mark_class_and_module_bodies!
       drop_tokens(tree, everywhere: TOKENS, only_in: TOKENS_IN, kept_in: TOKENS_KEPT_IN)
 
       # Unwrap brackets that only group, because the tree's shape shows the grouping.
@@ -87,18 +87,18 @@ module Representer::Languages::Ruby
     # A heredoc's body follows the line that starts it, so the tree has the body
     # apart from the `<<~TEXT`. Give each body to the first `<<~TEXT` before it
     # that has no body yet.
-    def heredocs
+    def turn_heredocs_into_strings!
       waiting = []
       pairs = []
       each_node(tree) do |node, parent|
         waiting << [node, parent] if node.type == "heredoc_beginning"
         pairs << [*waiting.shift, node] if node.type == "heredoc_body" && waiting.any?
       end
-      pairs.each { |beginning, parent, body| parent.replace_child(beginning, heredoc(beginning.text, body)) }
+      pairs.each { |beginning, parent, body| parent.replace_child(beginning, heredoc_to_string(beginning.text, body)) }
       drop(tree, "(heredoc_body)")
     end
 
-    def heredoc(opening, body)
+    def heredoc_to_string(opening, body)
       parts = body.children.reject { |part| !part.named? || part.type == "heredoc_end" }
       raw = opening.include?("'")
       pieces = parts.map { |part| part.type == "heredoc_content" ? part.text : part }
@@ -150,7 +150,7 @@ module Representer::Languages::Ruby
     # :"a" == :a
     # %w[a b] == ["a", "b"]
     # %i[a b] == [:a, :b]
-    def strings
+    def write_strings_symbols_and_word_lists_as_values!
       transform(tree, '(string "\"" @quote)') do |match|
         raw = match[:quote].text.start_with?("'", "%q")
         string_node(match.node.named_children.map { |part| string_piece(part, raw:) })
@@ -160,14 +160,14 @@ module Representer::Languages::Ruby
         symbol(string_node(match.node.named_children.map { |part| string_piece(part, raw: false) }))
       end
       transform(tree, "(hash_key_symbol) @key") { |match| leaf(:simple_symbol, ":#{match.node.text}") }
-      hash_keys
+      write_every_hash_key_the_same_way!
       transform(tree, "(string_array) @words") do |match|
         build(:array, *match.node.named_children.map { |word| word_value(word) })
       end
       transform(tree, "(symbol_array) @words") do |match|
         build(:array, *match.node.named_children.map { |word| symbol(word_value(word)) })
       end
-      regexes
+      write_regexes_as_source_and_sorted_options!
     end
 
     # Return a string part's text, or its node if it is an interpolation or an
@@ -210,7 +210,7 @@ module Representer::Languages::Ruby
     #
     # {a: 1} == {"a": 1} == {:a => 1}
     # {a:} == {a: a}
-    def hash_keys
+    def write_every_hash_key_the_same_way!
       transform(tree, '(pair key: (_) @key ":" @colon)') do |match|
         key = match[:key]
         next nil if key.type == "simple_symbol" && match.node[:value]
@@ -225,7 +225,7 @@ module Representer::Languages::Ruby
     #
     # /a/ == %r{a}
     # /a/im == /a/mi
-    def regexes
+    def write_regexes_as_source_and_sorted_options!
       transform(tree, '(regex "/" @open)') do |match|
         options = match.node.children.last.text[/[a-z]*\z/].chars.sort.uniq.join
         pieces = match.node.named_children.map { |part| part.type == "interpolation" ? part : part.text }
@@ -242,19 +242,19 @@ module Representer::Languages::Ruby
     # 1_000 == 1000
     # 0x1F == 037 == 31
     # 1.50 == 1.5
-    def numbers
+    def write_numbers_as_their_values!
       prefixes = Numbers::PREFIXES.merge("0d" => 10)
-      number(:integer) do |text|
+      write_numbers_of_type_as_values!(:integer) do |text|
         text = "0o#{text[1..]}" if text.match?(/\A0[0-7_]/)
         Numbers.integer(text, prefixes:)&.to_s
       end
-      number(:float) do |text|
+      write_numbers_of_type_as_values!(:float) do |text|
         value = Numbers.decimal(text)
         value && Numbers.write_decimal(value)
       end
     end
 
-    def number(type)
+    def write_numbers_of_type_as_values!(type)
       each_node(tree) do |node, _|
         next unless node.type == type.to_s && node.leaf?
 
@@ -276,7 +276,7 @@ module Representer::Languages::Ruby
     # - `unless x then a else b end` becomes `if x then b else a end`, because
     #   the parser writes every `unless` as an `if` with swapped branches.
     # - `and`, `or` and `not` become `&&`, `||` and `!`.
-    def conditionals
+    def write_conditions_and_loops_in_one_shape!
       transform(tree, "(if_modifier body: (_) @body condition: (_) @condition)",
         "(if condition: @condition consequence: (then @body))")
       transform(tree, "(unless_modifier body: (_) @body condition: (_) @condition)",
@@ -316,7 +316,7 @@ module Representer::Languages::Ruby
     #
     # xs.each do |x| ... end == xs.each { |x| ... }
     # ->(a) { a } == lambda { |a| a }
-    def blocks
+    def write_blocks_and_lambdas_in_one_shape!
       retype(tree, do_block: :block, block_body: :body_statement)
       each_node(tree) do |node, _|
         next unless node.type == "block_parameters"
@@ -343,7 +343,7 @@ module Representer::Languages::Ruby
     # def f() == def f
     # a.b() == a.b
     # f.(x) == f.call(x)
-    def methods_and_calls
+    def write_methods_and_calls_in_one_shape!
       transform(tree, '[(method "=" @equals body: (_) @body) (singleton_method "=" @equals body: (_) @body)]') do |match|
         match.node.children.delete(match[:equals])
         match.node.replace_child(match[:body], build(:body_statement, match[:body]))
@@ -368,7 +368,7 @@ module Representer::Languages::Ruby
     # Mark the body of each class as a `class_body` and of each module as a
     # `module_body`, so that Normalise and Reorder can tell them apart from a
     # method's body.
-    def class_and_module_bodies
+    def mark_class_and_module_bodies!
       captured(tree, "(class body: (body_statement) @name)").each { |body| body.type = "class_body" }
       captured(tree, "(module body: (body_statement) @name)").each { |body| body.type = "module_body" }
     end

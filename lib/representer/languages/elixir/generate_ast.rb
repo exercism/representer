@@ -24,13 +24,13 @@ module Representer::Languages::Elixir
     def call
       # Drop comments.
       drop(tree, "(comment)")
-      values
+      write_numbers_strings_atoms_and_charlists_as_values!
 
       # Unwrap brackets that only group, because the tree's shape shows the grouping.
       # (1 + 2) == 1 + 2
       unwrap(tree, "(block)")
-      do_keywords
-      keyword_lists
+      turn_do_and_else_keywords_into_a_do_block!
+      write_keyword_lists_and_map_entries_in_one_shape!
 
       # Drop empty brackets from a call on a module or value. Leave `f()` alone,
       # because the parser reads a bare `f` as a variable.
@@ -40,9 +40,9 @@ module Representer::Languages::Elixir
         match.node.children.delete(match[:arguments]) if match[:arguments].named_children.empty?
         match.node
       end
-      definitions
-      containers
-      variables
+      mark_the_code_that_defines_names!
+      mark_module_bodies_and_map_updates!
+      wrap_bound_variables_in_variable_nodes!
       drop_tokens(tree, everywhere: TOKENS)
     end
 
@@ -60,10 +60,10 @@ module Representer::Languages::Elixir
     # "a\nb" == a heredoc that holds the same two lines
     # :"a" == :a
     # '' == []
-    def values
+    def write_numbers_strings_atoms_and_charlists_as_values!
       transform(tree, '(string quoted_start: /\A"("")?\z/ @quote)') do |match|
         parts = match.node.named_children
-        parts = heredoc(parts) if match[:quote].text == '"""'
+        parts = remove_heredoc_indentation!(parts) if match[:quote].text == '"""'
         string_node(parts)
       end
       transform(tree, "(charlist) @charlist") { |match| build(:list) if match.node.named_children.empty? }
@@ -76,14 +76,14 @@ module Representer::Languages::Elixir
         case node.type
         when "integer" then node.text = Numbers.integer(node.text)&.to_s || node.text
         when "float" then node.text = Numbers.decimal(node.text)&.then { Numbers.write_decimal(it) } || node.text
-        when "char" then character(node)
+        when "char" then turn_character_into_integer!(node)
         end
       end
     end
 
     # Start a heredoc's value on the line after its opening `"""`, and remove
     # the indentation of its closing `"""` from every line.
-    def heredoc(parts)
+    def remove_heredoc_indentation!(parts)
       indent = parts.last.text[/[ \t]*\z/].size
       parts.each_with_index do |part, index|
         next unless part.type == "quoted_content"
@@ -116,7 +116,7 @@ module Representer::Languages::Elixir
     # Turn a character literal into the integer of its code.
     # ?a == 97
     # ?\s == 32
-    def character(node)
+    def turn_character_into_integer!(node)
       char = node.text.delete_prefix("?")
       char = ESCAPES[char[1..]] if char.start_with?("\\") && char.size > 1
       return unless char&.size == 1
@@ -129,7 +129,7 @@ module Representer::Languages::Elixir
 
     # Turn the `do:` and `else:` keywords of a call into a `do` block.
     # f x, do: a, else: b == f x do a else b end
-    def do_keywords
+    def turn_do_and_else_keywords_into_a_do_block!
       each_node(tree) do |call, _|
         next unless call.type == "call" && call.children.none? { |child| child.type == "do_block" }
 
@@ -156,7 +156,7 @@ module Representer::Languages::Elixir
     # [a: 1] == [{:a, 1}]
     # %{a: 1} == %{:a => 1}
     # f(x, a: 1) == f(x, [a: 1])
-    def keyword_lists
+    def write_keyword_lists_and_map_entries_in_one_shape!
       transform(tree, "(pair key: (keyword) @key value: (_) @value)") do |match|
         build(:tuple, leaf(:atom, ":#{match[:key].text.strip.delete_suffix(':')}"), match[:value])
       end
@@ -186,7 +186,7 @@ module Representer::Languages::Elixir
     # - Mark the `t :: ...` of `@type`, `@typep` and `@opaque` as a
     #   `type_definition`.
     # - Mark `@name` with no value (reading an attribute) as an `attribute`.
-    def definitions
+    def mark_the_code_that_defines_names!
       transform(tree, "(alias) @alias") do |match|
         build(:aliases, *match.node.text.split(".").map { |part| leaf(:alias, part) })
       end
@@ -194,7 +194,7 @@ module Representer::Languages::Elixir
         name.type = "module_name"
       end
       captured(tree, "(call target: (identifier /#{DEFINITIONS.source}/) (arguments) @name)").each do |arguments|
-        function_head(arguments)
+        mark_function_head!(arguments)
       end
       captured(tree, <<~PATTERN).each { |definition| definition.type = "type_definition" }
         (unary_operator operand: (call target: (identifier /\\A(type|typep|opaque)\\z/)
@@ -206,7 +206,7 @@ module Representer::Languages::Elixir
     # Mark the head of a definition as a `function_head`. The head is the first
     # argument, or the left of its `when`. A head with no brackets, as in
     # `def f do`, is a bare name.
-    def function_head(arguments)
+    def mark_function_head!(arguments)
       parent = arguments
       head = arguments.named_children.first
       if head.type == "binary_operator" && head[:operator].text == "when"
@@ -229,7 +229,7 @@ module Representer::Languages::Elixir
     # - Mark the body of a `defmodule`, `defprotocol` or `defimpl` as a
     #   `module_body`, so it differs from a function's `do_block`.
     # - Mark the entries after the `|` of `%{map | a: 1}` as a `map_update`.
-    def containers
+    def mark_module_bodies_and_map_updates!
       captured(tree, "(call target: (identifier /\\A(defmodule|defprotocol|defimpl)\\z/) (do_block) @name)").each do |body|
         body.type = "module_body"
       end
@@ -244,12 +244,12 @@ module Representer::Languages::Elixir
     # spec.rb can list it in names_are_defined_by. The patterns are a
     # function's parameters and the left of `=`, `<-` and `->`. A pinned `^x`
     # binds nothing, and neither does `_`.
-    def variables
+    def wrap_bound_variables_in_variable_nodes!
       each_node(tree) do |node, _|
         if node.type == "function_head"
-          node.children.each { |child| bind(child) if child.type == "arguments" }
+          node.children.each { |child| wrap_names_bound_by_pattern!(child) if child.type == "arguments" }
         elsif node.type == "stab_clause" || (node.type == "binary_operator" && %w[= <-].include?(node[:operator].text))
-          node.replace_child(node[:left], bind(node[:left])) if node[:left]
+          node.replace_child(node[:left], wrap_names_bound_by_pattern!(node[:left])) if node[:left]
         end
       end
     end
@@ -257,19 +257,19 @@ module Representer::Languages::Elixir
     # Return the pattern with each name bound by it wrapped in a `variable`
     # node. A function called in a pattern, the type in `x::binary` and the
     # default in `x \\ 1` bind nothing.
-    def bind(pattern)
+    def wrap_names_bound_by_pattern!(pattern)
       return pattern if %w[variable dot].include?(pattern.type) || pinned?(pattern)
-      return variable(pattern) if pattern.type == "identifier"
+      return variable_node_for(pattern) if pattern.type == "identifier"
 
       pattern.children.map! do |child|
         skip = child.field == "target" ||
                (pattern.type == "binary_operator" && %w[:: \\\\].include?(pattern[:operator].text) && child.field == "right")
-        skip ? child : bind(child)
+        skip ? child : wrap_names_bound_by_pattern!(child)
       end
       pattern
     end
 
-    def variable(name)
+    def variable_node_for(name)
       return name if name.text == "_"
 
       build(:variable, name).tap { |node| node.field = name.field }

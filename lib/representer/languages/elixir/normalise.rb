@@ -20,8 +20,8 @@ module Representer::Languages::Elixir
 
     def call
       root = super
-      call_after_pipe(root)
-      types_without_brackets(root)
+      add_empty_brackets_to_function_after_pipe!(root)
+      drop_empty_brackets_from_types!(root)
       root
     end
 
@@ -29,7 +29,7 @@ module Representer::Languages::Elixir
     # Add empty brackets to the function after a pipe, because a pipe always
     # calls it, as in the old representer.
     # a |> f == a |> f()
-    def call_after_pipe(root)
+    def add_empty_brackets_to_function_after_pipe!(root)
       transform(root, '(binary_operator operator: "|>" right: (identifier) @function)') do |match|
         match.node.replace_child(match[:function], build(:call, { target: match[:function] }, build(:arguments)))
         match.node
@@ -39,7 +39,7 @@ module Representer::Languages::Elixir
     # Drop empty brackets from types in `@spec`, `@callback`, `@macrocallback`,
     # `@type`, `@typep` and `@opaque`, as in the old representer.
     # integer() == integer
-    def types_without_brackets(root)
+    def drop_empty_brackets_from_types!(root)
       captured(root, "(unary_operator operand: (call target: (identifier /#{TYPES.source}/) (arguments) @name))").each do |types|
         transform(types, "(call target: (identifier) @type (arguments) @arguments)") do |match|
           match[:type] if match[:arguments].children.empty?
