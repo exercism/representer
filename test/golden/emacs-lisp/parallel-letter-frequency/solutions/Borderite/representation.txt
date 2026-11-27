@@ -1,52 +1,119 @@
-( defun word-char-p ( x )
-( = ( char-syntax x ) ?\w ))
-( defun count-chars-from-stdin ()
-( let (( table ( make-hash-table :test #' eq ))
-( string ( with-temp-buffer
-( insert-file-contents "\"/dev/stdin\"" )
-( buffer-string ))))
-( dotimes ( i ( length string ))
-( let (( x ( aref string i )))
-( when ( word-char-p x )
-( setf x ( downcase x )
-( gethash x table ) ( 1+ ( gethash x table 0 ))))))
-( prin1 table )))
-( require 'cl-lib )
-( defconst *num-of-processes* ( num-processors ))
-( defun calculate-frequencies ( texts )
-( let (( table ( make-hash-table :test #' eq ))
-( n-procs *num-of-processes* )
-( procs ( make-vector *num-of-processes* nil )))
-( dotimes ( i *num-of-processes* )
-( setf ( aref procs i )
-( make-process
-:name "\"char-count\""
-:buffer nil
-:command ' ( "\"emacs\"" "\"-Q\"" "\"-batch\"" "\"-l\"" "\"count-chars-from-stdin.el\""
-"\"-f\"" "\"count-chars-from-stdin\"" "\"2>/dev/null\"" )
-:connection-type 'pipe
-:filter
-( lambda ( proc expr )
-( let (( sub-table ( car ( read-from-string expr ))))
-( maphash ( lambda ( char count )
-( setf ( gethash char table )
-( + ( gethash char table 0 ) count )))
-sub-table )))
-:sentinel
-( lambda ( proc event )
-( cl-decf n-procs )
-( when ( not ( string= event "\"finished\\n\"" ))
-( error "\"%s\"" event )))
-:noquery t ))
-( when ( not ( process-live-p ( aref procs i )))
-( error "\"failed to start a subprocess\"" )))
-( let (( i 0 ))
-( dolist ( line texts )
-( process-send-string ( aref procs i ) line ))
-( setf i ( mod ( 1+ i ) *num-of-processes* )))
-( dotimes ( i *num-of-processes* )
-( process-send-eof ( aref procs i )))
-( while ( > n-procs 0 )
-( sleep-for 0.1 ))
-table ))
-( provide 'parallel-letter-frequency )
+(source_file
+  (list defconst
+    (definition PLACEHOLDER_1)
+    (list num-processors))
+  (list defun
+    (definition PLACEHOLDER_2)
+    (list
+      (variable PLACEHOLDER_3))
+    (list let
+      (list
+        (list
+          (variable PLACEHOLDER_4)
+          (list make-hash-table :test
+            (list function eq)))
+        (list
+          (variable PLACEHOLDER_5) PLACEHOLDER_1)
+        (list
+          (variable PLACEHOLDER_6)
+          (list make-vector PLACEHOLDER_1 nil)))
+      (list dotimes
+        (list
+          (variable PLACEHOLDER_7) PLACEHOLDER_1)
+        (list setf
+          (list aref PLACEHOLDER_6 PLACEHOLDER_7)
+          (list make-process :name "char-count" :buffer nil :command
+            (list quote
+              (list "emacs" "-Q" "-batch" "-l" "count-chars-from-stdin.el" "-f" "count-chars-from-stdin" "2>/dev/null")) :connection-type
+            (list quote pipe) :filter
+            (list lambda
+              (list
+                (variable PLACEHOLDER_8)
+                (variable PLACEHOLDER_9))
+              (list let
+                (list
+                  (list
+                    (variable PLACEHOLDER_10)
+                    (list car
+                      (list read-from-string PLACEHOLDER_9))))
+                (list maphash
+                  (list lambda
+                    (list
+                      (variable PLACEHOLDER_11)
+                      (variable PLACEHOLDER_12))
+                    (list setf
+                      (list gethash PLACEHOLDER_11 PLACEHOLDER_4)
+                      (list +
+                        (list gethash PLACEHOLDER_11 PLACEHOLDER_4 0) PLACEHOLDER_12))) PLACEHOLDER_10))) :sentinel
+            (list lambda
+              (list
+                (variable PLACEHOLDER_8)
+                (variable PLACEHOLDER_13))
+              (list cl-decf PLACEHOLDER_5)
+              (list when
+                (list not
+                  (list string= PLACEHOLDER_13 "finished\n"))
+                (list error "%s" PLACEHOLDER_13))) :noquery t))
+        (list when
+          (list not
+            (list process-live-p
+              (list aref PLACEHOLDER_6 PLACEHOLDER_7)))
+          (list error "failed to start a subprocess")))
+      (list let
+        (list
+          (list
+            (variable PLACEHOLDER_7) 0))
+        (list dolist
+          (list
+            (variable PLACEHOLDER_14) PLACEHOLDER_3)
+          (list process-send-string
+            (list aref PLACEHOLDER_6 PLACEHOLDER_7) PLACEHOLDER_14))
+        (list setf PLACEHOLDER_7
+          (list mod
+            (list 1+ PLACEHOLDER_7) PLACEHOLDER_1)))
+      (list dotimes
+        (list
+          (variable PLACEHOLDER_7) PLACEHOLDER_1)
+        (list process-send-eof
+          (list aref PLACEHOLDER_6 PLACEHOLDER_7)))
+      (list while
+        (list > PLACEHOLDER_5 0)
+        (list sleep-for 0.1)) PLACEHOLDER_4))
+  (list provide
+    (list quote parallel-letter-frequency))
+  (list defun
+    (definition PLACEHOLDER_15)
+    (list
+      (variable PLACEHOLDER_16))
+    (list =
+      (list char-syntax PLACEHOLDER_16) "?\\w"))
+  (list defun
+    (definition PLACEHOLDER_17) nil
+    (list let
+      (list
+        (list
+          (variable PLACEHOLDER_4)
+          (list make-hash-table :test
+            (list function eq)))
+        (list
+          (variable PLACEHOLDER_18)
+          (list with-temp-buffer
+            (list insert-file-contents "/dev/stdin")
+            (list buffer-string))))
+      (list dotimes
+        (list
+          (variable PLACEHOLDER_7)
+          (list length PLACEHOLDER_18))
+        (list let
+          (list
+            (list
+              (variable PLACEHOLDER_16)
+              (list aref PLACEHOLDER_18 PLACEHOLDER_7)))
+          (list when
+            (list PLACEHOLDER_15 PLACEHOLDER_16)
+            (list setf PLACEHOLDER_16
+              (list downcase PLACEHOLDER_16)
+              (list gethash PLACEHOLDER_16 PLACEHOLDER_4)
+              (list 1+
+                (list gethash PLACEHOLDER_16 PLACEHOLDER_4 0))))))
+      (list prin1 PLACEHOLDER_4))))

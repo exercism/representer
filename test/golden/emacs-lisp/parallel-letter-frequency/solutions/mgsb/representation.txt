@@ -1,51 +1,134 @@
-( defvar parallel-countp t )
-( defun single-calculate-frequencies ( texts )
-( let* (( freq ( make-hash-table :test 'equal )))
-( mapc ( lambda ( s )
-( mapc ( lambda ( c )
-( when ( memq ( get-char-code-property c 'general-category )
-' ( Ll Lu Lo Lt Lm Mn Mc Me Nl ))
-( puthash ( downcase c ) ( 1+ ( gethash ( downcase c ) freq 0 )) freq )))
-s ))
-( if ( listp texts ) texts ( list texts )))
-freq ))
-( defun calculate-frequencies ( texts )
-( if ( not parallel-countp )
-( single-calculate-frequencies texts )
-( let* (( freq ( make-hash-table :test 'equal )))
-( with-temp-buffer
-( parallel-run ' ( "\"emacs\"" "\"-Q\"" "\"--batch\"" "\"-l\"" "\"parallel-letter-frequency.el\"" "\"--eval\"" )
-( mapcar ( lambda ( v ) ( format "\"(print (single-calculate-frequencies %S))\"" v )) texts )
-( current-buffer ))
-( goto-char ( point-min ))
-( while ( re-search-forward "\"^#s\"" nil t )
-( maphash ( lambda ( key value )
-( puthash key ( + value ( gethash key freq 0 )) freq ))
-( car ( read-from-string ( buffer-substring-no-properties ( line-beginning-position )
-( line-end-position )))))))
-freq )))
-( defun parallel--wait ( name count )
-"\"Wait for the number of processes with base name NAME to be less than COUNT.\""
-( while ( < count ( seq-count ( lambda ( p )
-( string-match-p ( format "\"^%s\\\\(<[0-9]+>\\\\)*\"" name ) ( process-name p )))
-( process-list )))
-( sleep-for 0.001 )))
-( defun parallel-run ( cmd args output-buffer &optional num-procs )
-"\"Run CMD with ARGS in NUM-PROCS parallel processes and return output in OUTPUT-BUFFER.\""
-( let* (( num-procs ( or num-procs ( num-processors )))
-( outputs )
-( stderr ( generate-new-buffer "\"*parallel-errors*\"" ))
-( proc-name "\"*parallelproc*\"" ))
-( dolist ( arg args )
-( parallel--wait proc-name num-procs )
-( make-process :name proc-name :buffer ( car ( push ( generate-new-buffer proc-name t ) outputs ))
-:stderr stderr
-:sentinel #' ignore
-:command ( append cmd ( list arg ))))
-( parallel--wait proc-name 1 )
-( with-current-buffer output-buffer
-( dolist ( buf ( reverse outputs ))
-( insert ( with-current-buffer buf
-( buffer-string )))
-( kill-buffer buf )))))
-( provide 'parallel-letter-frequency )
+(source_file
+  (list defvar
+    (definition PLACEHOLDER_1) t)
+  (list defun
+    (definition PLACEHOLDER_2)
+    (list
+      (variable PLACEHOLDER_3))
+    (list let*
+      (list
+        (list
+          (variable PLACEHOLDER_4)
+          (list make-hash-table :test
+            (list quote equal))))
+      (list mapc
+        (list lambda
+          (list
+            (variable PLACEHOLDER_5))
+          (list mapc
+            (list lambda
+              (list
+                (variable PLACEHOLDER_6))
+              (list when
+                (list memq
+                  (list get-char-code-property PLACEHOLDER_6
+                    (list quote general-category))
+                  (list quote
+                    (list Ll Lu Lo Lt Lm Mn Mc Me Nl)))
+                (list puthash
+                  (list downcase PLACEHOLDER_6)
+                  (list 1+
+                    (list gethash
+                      (list downcase PLACEHOLDER_6) PLACEHOLDER_4 0)) PLACEHOLDER_4))) PLACEHOLDER_5))
+        (list if
+          (list listp PLACEHOLDER_3) PLACEHOLDER_3
+          (list list PLACEHOLDER_3))) PLACEHOLDER_4))
+  (list defun
+    (definition PLACEHOLDER_7)
+    (list
+      (variable PLACEHOLDER_3))
+    (list if
+      (list not PLACEHOLDER_1)
+      (list PLACEHOLDER_2 PLACEHOLDER_3)
+      (list let*
+        (list
+          (list
+            (variable PLACEHOLDER_4)
+            (list make-hash-table :test
+              (list quote equal))))
+        (list with-temp-buffer
+          (list PLACEHOLDER_8
+            (list quote
+              (list "emacs" "-Q" "--batch" "-l" "parallel-letter-frequency.el" "--eval"))
+            (list mapcar
+              (list lambda
+                (list
+                  (variable PLACEHOLDER_9))
+                (list format "(print (single-calculate-frequencies %S))" PLACEHOLDER_9)) PLACEHOLDER_3)
+            (list current-buffer))
+          (list goto-char
+            (list point-min))
+          (list while
+            (list re-search-forward "^#s" nil t)
+            (list maphash
+              (list lambda
+                (list
+                  (variable PLACEHOLDER_10)
+                  (variable PLACEHOLDER_11))
+                (list puthash PLACEHOLDER_10
+                  (list + PLACEHOLDER_11
+                    (list gethash PLACEHOLDER_10 PLACEHOLDER_4 0)) PLACEHOLDER_4))
+              (list car
+                (list read-from-string
+                  (list buffer-substring-no-properties
+                    (list line-beginning-position)
+                    (list line-end-position))))))) PLACEHOLDER_4)))
+  (list defun
+    (definition PLACEHOLDER_12)
+    (list
+      (variable PLACEHOLDER_13)
+      (variable PLACEHOLDER_14)) "Wait for the number of processes with base name NAME to be less than COUNT."
+    (list while
+      (list < PLACEHOLDER_14
+        (list seq-count
+          (list lambda
+            (list
+              (variable PLACEHOLDER_15))
+            (list string-match-p
+              (list format "^%s\\(<[0-9]+>\\)*" PLACEHOLDER_13)
+              (list process-name PLACEHOLDER_15)))
+          (list process-list)))
+      (list sleep-for 0.001)))
+  (list defun
+    (definition PLACEHOLDER_8)
+    (list
+      (variable PLACEHOLDER_16)
+      (variable PLACEHOLDER_17)
+      (variable PLACEHOLDER_18) &optional
+      (variable PLACEHOLDER_19)) "Run CMD with ARGS in NUM-PROCS parallel processes and return output in OUTPUT-BUFFER."
+    (list let*
+      (list
+        (list
+          (variable PLACEHOLDER_19)
+          (list or PLACEHOLDER_19
+            (list num-processors)))
+        (list
+          (variable PLACEHOLDER_20))
+        (list
+          (variable PLACEHOLDER_21)
+          (list generate-new-buffer "*parallel-errors*"))
+        (list
+          (variable PLACEHOLDER_22) "*parallelproc*"))
+      (list dolist
+        (list
+          (variable PLACEHOLDER_23) PLACEHOLDER_17)
+        (list PLACEHOLDER_12 PLACEHOLDER_22 PLACEHOLDER_19)
+        (list make-process :name PLACEHOLDER_22 :buffer
+          (list car
+            (list push
+              (list generate-new-buffer PLACEHOLDER_22 t) PLACEHOLDER_20)) :stderr PLACEHOLDER_21 :sentinel
+          (list function ignore) :command
+          (list append PLACEHOLDER_16
+            (list list PLACEHOLDER_23))))
+      (list PLACEHOLDER_12 PLACEHOLDER_22 1)
+      (list with-current-buffer PLACEHOLDER_18
+        (list dolist
+          (list
+            (variable PLACEHOLDER_24)
+            (list reverse PLACEHOLDER_20))
+          (list insert
+            (list with-current-buffer PLACEHOLDER_24
+              (list buffer-string)))
+          (list kill-buffer PLACEHOLDER_24)))))
+  (list provide
+    (list quote parallel-letter-frequency)))

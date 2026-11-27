@@ -1,59 +1,109 @@
-( require 'seq )
-( require 'cl-lib )
-( defconst alphabet-for-random-letter "\"abcdefghijklmnopqrstuvwxyz\"" )
-( defun encode ( plaintext key )
-( simple-cipher plaintext key '+ ))
-( defun decode ( ciphertext key )
-( simple-cipher ciphertext key '- ))
-( defun simple-cipher ( text key fun )
-( let (( calc-key
-( if ( <= ( length text ) ( length key ))
-key
-( dotimes ( _index ( / ( length text ) ( length key )) key )
-( let (( key-copy key ))
-( setq key ( concat key key-copy )))))))
-( mapconcat
-'identity
-( cl-mapcar ( lambda ( char1 char2 )
-( char-to-string
-( + ?a
-( mod
-( funcall fun ( - char1 ?a ) ( - char2 ?a ))
-( length alphabet-for-random-letter )))))
-text
-calc-key )
-"\"\"" )))
-( defun generate-key ()
-( let (( key "\"\"" ))
-( dotimes ( _i 100 key )
-( setq key
-( concat
-key
-( char-to-string
-( seq-elt
-alphabet-for-random-letter
-( secure-random-int
-( length alphabet-for-random-letter )))))))))
-( defun secure-next ( bits )
-"\"Read BITS number of bits from /dev/urandom.\nBITS gets divided by 8 as head only reads whole bytes.\n\nAs of Emacs 28.2 the (random) function is using rand() from the libc,\nhich is not cryptographically secure. So this function reads randomness\nrom /devu/urandom, which should be secure.\nSee https://emacs.stackexchange.com/questions/35615/secure-random-numbers\""
-( with-temp-buffer
-( set-buffer-multibyte nil )
-( call-process "\"head\""
-"\"/dev/urandom\""
-t
-nil
-"\"-c\""
-( number-to-string ( / bits 8 )))
-( seq-reduce
-( lambda ( accu elem )
-( + ( ash accu 8 ) ( logand elem 255 )))
-( buffer-string ) 0 )))
-( defun secure-random-int ( max )
-"\"Return a cryptographically secure fixnum in the range of 0 to MAX, exclusive.\n\nI have no idea if this is actually secure, use at your own peril.\""
-( let (( random-number ( secure-next 32 )))
-( while ( >= ( abs random-number )
-( - most-positive-fixnum
-( mod most-positive-fixnum max )))
-( setq random-number ( secure-next 32 )))
-( mod random-number max )))
-( provide 'simple-cipher )
+(source_file
+  (list defconst
+    (definition PLACEHOLDER_1) "abcdefghijklmnopqrstuvwxyz")
+  (list defun
+    (definition PLACEHOLDER_2)
+    (list
+      (variable PLACEHOLDER_3)
+      (variable PLACEHOLDER_4))
+    (list PLACEHOLDER_5 PLACEHOLDER_3 PLACEHOLDER_4
+      (list quote +)))
+  (list defun
+    (definition PLACEHOLDER_6)
+    (list
+      (variable PLACEHOLDER_7)
+      (variable PLACEHOLDER_4))
+    (list PLACEHOLDER_5 PLACEHOLDER_7 PLACEHOLDER_4
+      (list quote -)))
+  (list defun
+    (definition PLACEHOLDER_5)
+    (list
+      (variable PLACEHOLDER_8)
+      (variable PLACEHOLDER_4)
+      (variable PLACEHOLDER_9))
+    (list let
+      (list
+        (list
+          (variable PLACEHOLDER_10)
+          (list if
+            (list <=
+              (list length PLACEHOLDER_8)
+              (list length PLACEHOLDER_4)) PLACEHOLDER_4
+            (list dotimes
+              (list
+                (variable PLACEHOLDER_11)
+                (list /
+                  (list length PLACEHOLDER_8)
+                  (list length PLACEHOLDER_4)) PLACEHOLDER_4)
+              (list let
+                (list
+                  (list
+                    (variable PLACEHOLDER_12) PLACEHOLDER_4))
+                (list setq PLACEHOLDER_4
+                  (list concat PLACEHOLDER_4 PLACEHOLDER_12)))))))
+      (list mapconcat
+        (list quote identity)
+        (list cl-mapcar
+          (list lambda
+            (list
+              (variable PLACEHOLDER_13)
+              (variable PLACEHOLDER_14))
+            (list char-to-string
+              (list + ?a
+                (list mod
+                  (list funcall PLACEHOLDER_9
+                    (list - PLACEHOLDER_13 ?a)
+                    (list - PLACEHOLDER_14 ?a))
+                  (list length PLACEHOLDER_1))))) PLACEHOLDER_8 PLACEHOLDER_10) "")))
+  (list defun
+    (definition PLACEHOLDER_15) nil
+    (list let
+      (list
+        (list
+          (variable PLACEHOLDER_4) ""))
+      (list dotimes
+        (list
+          (variable PLACEHOLDER_16) 100 PLACEHOLDER_4)
+        (list setq PLACEHOLDER_4
+          (list concat PLACEHOLDER_4
+            (list char-to-string
+              (list seq-elt PLACEHOLDER_1
+                (list PLACEHOLDER_17
+                  (list length PLACEHOLDER_1)))))))))
+  (list defun
+    (definition PLACEHOLDER_18)
+    (list
+      (variable PLACEHOLDER_19)) "Read BITS number of bits from /dev/urandom.\nBITS gets divided by 8 as head only reads whole bytes.\n\nAs of Emacs 28.2 the (random) function is using rand() from the libc,\nhich is not cryptographically secure. So this function reads randomness\nrom /devu/urandom, which should be secure.\nSee https://emacs.stackexchange.com/questions/35615/secure-random-numbers"
+    (list with-temp-buffer
+      (list set-buffer-multibyte nil)
+      (list call-process "head" "/dev/urandom" t nil "-c"
+        (list number-to-string
+          (list / PLACEHOLDER_19 8)))
+      (list seq-reduce
+        (list lambda
+          (list
+            (variable PLACEHOLDER_20)
+            (variable PLACEHOLDER_21))
+          (list +
+            (list ash PLACEHOLDER_20 8)
+            (list logand PLACEHOLDER_21 255)))
+        (list buffer-string) 0)))
+  (list defun
+    (definition PLACEHOLDER_17)
+    (list
+      (variable PLACEHOLDER_22)) "Return a cryptographically secure fixnum in the range of 0 to MAX, exclusive.\n\nI have no idea if this is actually secure, use at your own peril."
+    (list let
+      (list
+        (list
+          (variable PLACEHOLDER_23)
+          (list PLACEHOLDER_18 32)))
+      (list while
+        (list >=
+          (list abs PLACEHOLDER_23)
+          (list - most-positive-fixnum
+            (list mod most-positive-fixnum PLACEHOLDER_22)))
+        (list setq PLACEHOLDER_23
+          (list PLACEHOLDER_18 32)))
+      (list mod PLACEHOLDER_23 PLACEHOLDER_22)))
+  (list provide
+    (list quote PLACEHOLDER_5)))

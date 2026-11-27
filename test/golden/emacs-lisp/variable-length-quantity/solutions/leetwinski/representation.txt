@@ -1,32 +1,113 @@
-( defconst sept #b1111111 )
-( defconst i128 #b10000000 )
-( cl-defmacro updf ( place f ) ` ( setf , place ( funcall , f , place )))
-( defun lastp ( x ) ( zerop ( logand i128 x )))
-( defun flipflag ( x ) ( logxor x i128 ))
-( defun resetflag ( x ) ( logand ( flipflag x ) x ))
-( defun enc-num ( n )
-( if ( zerop n )
-( list 0 )
-( cl-loop for off below 32 by 7
-for v = ( logand ( ash n ( - off )) sept )
-collect v into res
-finally ( let (( res ( mapcar
-#' flipflag
-( cl-member-if-not #' zerop ( nreverse res )))))
-( updf ( car ( last res )) #' flipflag )
-( cl-return res )))))
-( cl-defun nums ( data &aux ( res ( list nil )))
-( cl-loop for x in data
-do ( push x ( car res ))
-when ( lastp x ) do ( push nil res )
-finally ( if ( car res )
-( error "\"invalid input\"" )
-( cl-return ( nreverse ( mapcar #' nreverse ( cdr res )))))))
-( cl-defun dec-num ( n &aux ( res 0 ))
-( cl-loop for off from 0 by 7
-for x in ( reverse ( mapcar #' resetflag n ))
-do ( setf res ( logior res ( ash x off )))
-finally ( return res )))
-( defun decode ( ns ) ( mapcar #' dec-num ( nums ns )))
-( defun encode ( ns ) ( mapcan #' enc-num ns ))
-( provide 'variable-length-quantity )
+(source_file
+  (list defconst
+    (definition PLACEHOLDER_1) 127)
+  (list defconst
+    (definition PLACEHOLDER_2) 128)
+  (list cl-defmacro
+    (definition PLACEHOLDER_3)
+    (list
+      (variable PLACEHOLDER_4)
+      (variable PLACEHOLDER_5))
+    (list `
+      (list setf
+        (list , PLACEHOLDER_4)
+        (list funcall
+          (list , PLACEHOLDER_5)
+          (list , PLACEHOLDER_4)))))
+  (list defun
+    (definition PLACEHOLDER_6)
+    (list
+      (variable PLACEHOLDER_7))
+    (list zerop
+      (list logand PLACEHOLDER_2 PLACEHOLDER_7)))
+  (list defun
+    (definition PLACEHOLDER_8)
+    (list
+      (variable PLACEHOLDER_7))
+    (list logxor PLACEHOLDER_7 PLACEHOLDER_2))
+  (list defun
+    (definition PLACEHOLDER_9)
+    (list
+      (variable PLACEHOLDER_7))
+    (list logand
+      (list PLACEHOLDER_8 PLACEHOLDER_7) PLACEHOLDER_7))
+  (list defun
+    (definition PLACEHOLDER_10)
+    (list
+      (variable PLACEHOLDER_11))
+    (list if
+      (list zerop PLACEHOLDER_11)
+      (list list 0)
+      (list cl-loop for
+        (variable PLACEHOLDER_12) below 32 by 7 for
+        (variable PLACEHOLDER_13) =
+        (list logand
+          (list ash PLACEHOLDER_11
+            (list - PLACEHOLDER_12)) PLACEHOLDER_1) collect PLACEHOLDER_13 into
+        (variable PLACEHOLDER_14) finally
+        (list let
+          (list
+            (list
+              (variable PLACEHOLDER_14)
+              (list mapcar
+                (list function PLACEHOLDER_8)
+                (list cl-member-if-not
+                  (list function zerop)
+                  (list nreverse PLACEHOLDER_14)))))
+          (list PLACEHOLDER_3
+            (list car
+              (list last PLACEHOLDER_14))
+            (list function PLACEHOLDER_8))
+          (list cl-return PLACEHOLDER_14)))))
+  (list cl-defun
+    (definition PLACEHOLDER_15)
+    (list
+      (variable PLACEHOLDER_16) &aux
+      (list
+        (variable PLACEHOLDER_14)
+        (list list nil)))
+    (list cl-loop for
+      (variable PLACEHOLDER_7) in PLACEHOLDER_16 do
+      (list push PLACEHOLDER_7
+        (list car PLACEHOLDER_14)) when
+      (list PLACEHOLDER_6 PLACEHOLDER_7) do
+      (list push nil PLACEHOLDER_14) finally
+      (list if
+        (list car PLACEHOLDER_14)
+        (list error "invalid input")
+        (list cl-return
+          (list nreverse
+            (list mapcar
+              (list function nreverse)
+              (list cdr PLACEHOLDER_14)))))))
+  (list cl-defun
+    (definition PLACEHOLDER_17)
+    (list
+      (variable PLACEHOLDER_11) &aux
+      (list
+        (variable PLACEHOLDER_14) 0))
+    (list cl-loop for
+      (variable PLACEHOLDER_12) from 0 by 7 for
+      (variable PLACEHOLDER_7) in
+      (list reverse
+        (list mapcar
+          (list function PLACEHOLDER_9) PLACEHOLDER_11)) do
+      (list setf PLACEHOLDER_14
+        (list logior PLACEHOLDER_14
+          (list ash PLACEHOLDER_7 PLACEHOLDER_12))) finally
+      (list return PLACEHOLDER_14)))
+  (list defun
+    (definition PLACEHOLDER_18)
+    (list
+      (variable PLACEHOLDER_19))
+    (list mapcar
+      (list function PLACEHOLDER_17)
+      (list PLACEHOLDER_15 PLACEHOLDER_19)))
+  (list defun
+    (definition PLACEHOLDER_20)
+    (list
+      (variable PLACEHOLDER_19))
+    (list mapcan
+      (list function PLACEHOLDER_10) PLACEHOLDER_19))
+  (list provide
+    (list quote variable-length-quantity)))
