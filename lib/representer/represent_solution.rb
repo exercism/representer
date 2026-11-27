@@ -10,12 +10,18 @@ module Representer
   class RepresentSolution
     include Mandate
 
-    initialize_with :track_slug, :solution_files, :exercise_files, exercise_slug: nil
+    # trees holds the files already parsed by the snippet, by filename. A
+    # staged language starts from them instead of parsing the files again.
+    initialize_with :track_slug, :solution_files, :exercise_files, exercise_slug: nil, trees: {}
 
     def call
       raise CannotRepresent.new("too_large", "The solution is over #{MAX_SOLUTION_BYTES} bytes") if too_large?
 
       return Languages::Basic.(track_slug, solution_files) if language == Languages::Basic
+
+      # Only a staged language starts from the trees already parsed for the
+      # snippet, because the other languages parse with their own options.
+      return language.(solution_files, exercise_files, trees:) if language.staged?
 
       language.(solution_files, exercise_files)
     rescue CannotRepresent => e

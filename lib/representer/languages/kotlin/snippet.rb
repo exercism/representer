@@ -1,0 +1,16 @@
+# The website shows the first lines of each solution on its card. This file
+# says what to leave out of a Kotlin solution's snippet, so that the card
+# shows the student's own code. REPRESENTER_DSL.md explains each declaration.
+module Representer::Languages::Kotlin
+  class Snippet < Representer::Engine::Snippet
+    tracks "kotlin"
+
+    # Remove every comment, wherever it is.
+    remove :comments # val x = 1 «// The answer»
+
+    # Skip the package header, imports and file annotations at the top of the file, up to the first other statement.
+    skip_at_top :package, # «package leap»
+                :import,  # «import kotlin.math.abs»
+                "@file:"  # «@file:JvmName("Leap")»
+  end
+end

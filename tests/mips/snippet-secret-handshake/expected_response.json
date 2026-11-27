@@ -1,0 +1,15 @@
+{
+  "representation": {
+    "representation": "# | Register | Usage | Type | Description |\n# | -------- | ------------ | ------- | ------------------------------- |\n# | `$a0` | input | integer | number between 1 and 31 |\n# | `$a1` | input/output | address | null-terminated output string |\n# | `$t0` | temporary | address | copy of return address |\n# | `$t1` | temporary | address | output pointer |\n# | `$t2` | temporary | address | null-terminated action string |\n# | `$t3` | temporary | integer | number place for action |\n# | `$t4` | temporary | integer | non-zero if action is requested |\n# | `$t5` | temporary | byte | character being copied |\n.globl commands\n.eqv WINK 0x01\n.eqv DOUBLE_BLINK 0x02\n.eqv CLOSE_YOUR_EYES 0x04\n.eqv JUMP 0x08\n.eqv REVERSE 0x10\n.macro consider (%place, %action)\nla $t2, %action\nli $t3, %place\njal consider_action\n.end_macro\n.data\nwink: .asciiz \"\\\"wink,\" \"\\\"\"\ndouble_blink: .asciiz \"\\\"double\" blink, \"\\\"\"\nclose_your_eyes: .asciiz \"\\\"close\" your eyes, \"\\\"\"\njump: .asciiz \"\\\"jump,\" \"\\\"\"\n.text\ncommands:\nmove $t0, $ra # save return address\nmove $t1, $a1 # output pointer\nandi $t4, $a0, REVERSE # check if reverse if requested\nbnez $t4, reverse\nconsider (WINK, wink)\nconsider (DOUBLE_BLINK, double_blink)\nconsider (CLOSE_YOUR_EYES, close_your_eyes)\nconsider (JUMP, jump)\nj end\nreverse:\nconsider (JUMP, jump)\nconsider (CLOSE_YOUR_EYES, close_your_eyes)\nconsider (DOUBLE_BLINK, double_blink)\nconsider (WINK, wink)\nend:\nbeq $t1, $a1, terminate # jump ahead if no actions have been output\naddi $t1, $t1, -2 # drop comma and space from last action\nterminate:\nsb $zero, 0($t1) # write null terminator\njr $t0 # return to original caller\nconsider_action:\n# $a0 - number between 1 and 31\n# $t1 - output pointer, to be modified\n# $t2 - action string\n# $t3 - number place for action\nand $t4, $a0, $t3\nbeqz $t4, return\nloop:\nlb $t5, 0($t2) # read byte from action\naddi $t2, $t2, 1 # increment action pointer\nsb $t5, 0($t1) # write byte to output\naddi $t1, $t1, 1 # increment output pointer\nbnez $t5, loop # repeat until null terminator is copied\naddi $t1, $t1, -1 # point to null terminator\nreturn:\njr $ra",
+    "mapping": {},
+    "version": 5
+  },
+  "snippet": {
+    "snippet": ".eqv WINK 0x01\n.eqv DOUBLE_BLINK 0x02\n.eqv CLOSE_YOUR_EYES 0x04\n.eqv JUMP 0x08\n.eqv REVERSE 0x10\n\n.macro consider (%place, %action)\n        la      $t2, %action\n        li      $t3, %place\n        jal     consider_action\n.end_macro              \n\nwink:            .asciiz \"wink, \"\ndouble_blink:    .asciiz \"double blink, \"\nclose_your_eyes: .asciiz \"close your eyes, \"\n",
+    "version": 1
+  },
+  "analysis": {
+    "error": "not_supported",
+    "message": "The mips track has no analysis rules yet"
+  }
+}

@@ -33,6 +33,7 @@ lib/representer/languages/ruby/
   generate_ast.rb   Ruby::GenerateAST
   normalise.rb      Ruby::Normalise
   reorder.rb        Ruby::Reorder
+  snippet.rb        Ruby::Snippet
 ```
 
 ```ruby
@@ -46,7 +47,7 @@ module Representer::Languages::Ruby
 end
 ```
 
-When a language defines its `Spec`, the engine looks in the language's folder for each stage's file.
+When a language defines its `Spec`, the engine looks in the language's folder for each stage's file, and for `snippet.rb` (see "Snippets" below).
 If a file is missing, the language doesn't run that stage.
 
 ## Setup declarations
@@ -238,6 +239,86 @@ module Representer::Languages::Ruby
   end
 end
 ```
+
+## Snippets
+
+The website shows the first lines of each solution on its card.
+Each track's `Snippet` class says what to leave out of them, so that the card shows the student's own code.
+A staged language keeps it in its folder, as `snippet.rb`.
+Every other track has a folder holding only `snippet.rb`, such as `lib/representer/languages/python/snippet.rb`.
+A language on the old structure puts its `Snippet` class inside its class, and a track with no class of its own starts with `tracks`.
+A track with no snippet of its own gets Basic's, which removes the comments found by the track's Rouge lexer.
+
+```ruby
+module Representer::Languages::Ruby
+  class Snippet < Representer::Engine::Snippet
+    remove :comments
+    skip_at_top :require, :require_relative
+  end
+end
+```
+
+The snippet comes from the solution's main file.
+This is the first file listed in `files.solution` in the exercise's `.meta/config.json` that the student submitted, or else the student's first file.
+The engine runs the snippet on the tree from the language's grammar, before `GenerateAST` or any other stage changes it.
+If the track has no grammar, or the file doesn't parse, the rules apply to lines instead.
+
+Each removal cuts the bytes out of the original source, so the student's formatting stays.
+The engine then drops the lines left empty by a removal and the blank lines at the top, turns each run of blank lines into one, keeps the first 15 lines and cuts each line after 200 characters.
+If the main file is over 200 KB, the snippet is its first 15 lines.
+
+Bump the snippet's version (`version 2`) whenever its snippets could change.
+The snippet has its own version, so a change to it never makes the website represent the track's solutions again.
+
+### remove
+
+`remove :comments` removes every comment, wherever it is.
+With a tree, a comment is any node with `comment` in its type, or a type listed in `comment_types`.
+Without one, the engine finds the comments with the track's Rouge lexer, or with the markers given to `comment_lines`.
+
+`remove :docstrings` removes every docstring. The language says which nodes are docstrings with `docstrings_are`.
+
+```ruby
+remove :comments, :docstrings
+comment_types :xml_doc
+docstrings_are { |node, parent| node.type == "string" && %w[module block].include?(parent&.type) }
+```
+
+### skip_at_top
+
+This declaration skips the statements at the top of the file that start with one of these words, such as imports.
+A word must match a whole word, in any case, so `:require` doesn't match `require_relative`.
+The engine stops at the first other statement, so the same words further down stay.
+
+```ruby
+skip_at_top :import, :from
+```
+
+If the language puts the rest of the file inside a node with a header line (as F# does with `module Leap`), list that node's type in `containers`.
+The engine then skips only the header line and the closing bracket, and goes on with the statements inside.
+If skipping would leave nothing, the engine keeps the containers, and if that leaves nothing too, it skips nothing.
+
+```ruby
+containers :named_module, :namespace
+```
+
+Without a tree, `skip_at_top` skips lines.
+It also skips the lines after a skipped line that are indented or start with a closing bracket, such as the names in a multi-line import.
+A pair skips a block of lines, from a line that starts with the first word to the next line that holds the second:
+
+```ruby
+skip_at_top "CLASS" => "IMPLEMENTATION."
+```
+
+### Rules for lines
+
+These declarations only work without a tree:
+
+- `skip_at_bottom :end` skips the lines at the bottom that start with one of the words.
+- `remove_lines ".data"` removes the lines that start with one of the words, wherever they are.
+- `comment_lines "//", "/*" => "*/"` finds comments by the way they start, for a track with no Rouge lexer. A string is a line comment, and a pair is a block comment's start and end. A block comment must start its line. A line comment may also follow code after a space, unless it might be inside a string.
+
+`lines_only` makes a language with a grammar apply its rules to lines, for a grammar with no useful tree for the code at the top of a file.
 
 ## Code patterns
 

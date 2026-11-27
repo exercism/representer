@@ -28,6 +28,25 @@ class ProcessRequestTest < Minitest::Test
     refute_nil body["representation"]["representation"]
   end
 
+  def test_returns_the_snippet_and_its_version
+    body = JSON.parse(request(track_slug: "ruby", outputs: ["snippet"],
+      solution_files: { "a.rb" => "require 'set'\n# A comment\nx = 1\n" })[:body])
+    assert_equal({ "snippet" => "x = 1\n", "version" => Representer::Languages::Ruby::Snippet.version }, body["snippet"])
+  end
+
+  def test_tracks_with_no_snippet_of_their_own_get_the_basic_one
+    body = JSON.parse(request(track_slug: "cobol", outputs: ["snippet"],
+      solution_files: { "a.cob" => "      * A comment\n       DISPLAY 'HI'.\n" })[:body])
+    assert_equal({ "snippet" => "       DISPLAY 'HI'.\n", "version" => Representer::Languages::Basic::Snippet.version },
+      body["snippet"])
+  end
+
+  def test_a_solution_that_cant_be_represented_still_gets_a_snippet
+    body = JSON.parse(request(track_slug: "ruby", outputs: %w[representation snippet], solution_files: { "a.rb" => "def x(" })[:body])
+    assert_equal "parse_error", body["representation"]["error"]
+    assert_equal "def x(", body["snippet"]["snippet"]
+  end
+
   def test_requests_need_outputs
     [nil, [], ["summary"], "representation", [1]].each do |outputs|
       response = request({ track_slug: "ruby", outputs:, solution_files: { "a.rb" => "x" } })

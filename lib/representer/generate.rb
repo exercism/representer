@@ -3,18 +3,23 @@ module Representer
   # :representation, :snippet and :analysis, and the result has one key for
   # each output asked for:
   #
-  #   Generate.("ruby", { "two_fer.rb" => "..." }, outputs: %i[representation snippet])
+  #   Generate.("ruby", { "two_fer.rb" => "..." }, outputs: %i[representation analysis])
   #   # => { representation: { representation: "...", mapping: {...}, version: 12 },
-  #   #      snippet: { error: "not_supported", message: "..." } }
+  #   #      analysis: { error: "not_supported", message: "..." } }
   #
   # Each output has its own version, so a change to one output never makes
   # the website generate the others again.
+  #
+  # The snippet works on the main file's tree from the grammar, before any
+  # stage changes it. A staged language's representation then starts from
+  # the same tree, so the engine parses each of its files only once.
   #
   # If an output can't be generated, its key holds an error with a reason
   # (error) and a message. The other outputs still come back. A solution that
   # can't be represented gets an error with the reasons listed in README.md,
   # and the language's version. An output that the track doesn't support yet
-  # gets the error "not_supported".
+  # gets the error "not_supported", and a bug in the snippet's rules gets
+  # "internal_error".
   class Generate
     include Mandate
 
@@ -26,7 +31,10 @@ module Representer
       unknown = outputs - OUTPUTS
       raise ArgumentError, "Unknown outputs: #{unknown.join(', ')}" if unknown.any?
 
-      outputs.uniq.to_h { |output| [output, send(output)] }
+      # Make the snippet first, because the representation's stages change
+      # the trees that it shares with the snippet.
+      generated = outputs.uniq.sort_by { |output| output == :snippet ? 0 : 1 }.to_h { |output| [output, send(output)] }
+      outputs.uniq.to_h { |output| [output, generated[output]] }
     end
 
     private
@@ -37,13 +45,40 @@ module Representer
         return error("too_large", "The exercise files are over #{MAX_EXERCISE_BYTES} bytes", version: language.version)
       end
 
-      result = RepresentSolution.(track_slug, solution_files, exercise_files, exercise_slug:)
+      result = RepresentSolution.(track_slug, solution_files, exercise_files, exercise_slug:, trees:)
       return error(result.reason, result.message, version: result.version) if result.reason
 
       { representation: result.representation, mapping: result.mapping, version: result.version }
     end
 
-    def snippet = error("not_supported", "The representer doesn't make snippets yet")
+    # A bug in a snippet's rules must never fail the request, so the snippet
+    # gets an error and the log says what went wrong.
+    def snippet
+      rules = Languages.snippet_for(track_slug)
+      file = Engine::FindMainFile.(solution_files, exercise_files)
+      source = Engine.clean(solution_files.fetch(file))
+      { snippet: rules.(track_slug, source, parse(file, source, rules.language)), version: rules.version }
+    rescue StandardError => e
+      warn "#{track_slug}/#{exercise_slug} snippet: #{e.class}: #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}"
+      error("internal_error", "One of the snippet's rules raised an error")
+    end
+
+    # Parses the file with the language's grammar, and keeps the tree for the
+    # representation. A staged language's tree is parsed with its options, as
+    # PrepareFile would. Returns nil if the track has no grammar, or the file
+    # is too large or doesn't parse.
+    def parse(file, source, language)
+      return nil unless language && source.bytesize <= MAX_SOLUTION_BYTES
+
+      options = language.staged? ? language.parse_options : {}
+      trees[file] = Engine::Grammar[language.grammar].parse(source, spans: true, **options)
+    rescue CannotRepresent
+      nil
+    end
+
+    # The trees parsed so far, by filename.
+    memoize
+    def trees = {}
 
     def analysis = error("not_supported", "The #{track_slug} track has no analysis rules yet")
 
