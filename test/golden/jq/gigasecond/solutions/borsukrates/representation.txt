@@ -1,5 +1,18 @@
-.moment
-| if contains("T") | not then . + "\"T00:00:00\"" end
-| . + "\"Z\""
-| fromdate + pow(10; 9)
-| todate[:-1]
+(program
+  (pipeline
+    (subscript_expression . "moment")
+    (pipeline
+      (if_expression
+        (pipeline
+          (call_expression contains
+            (argument_list "T")) not)
+        (binary_expression . + "T00:00:00")
+        (else_expression .))
+      (pipeline
+        (binary_expression . + "Z")
+        (pipeline
+          (binary_expression fromdate +
+            (call_expression pow
+              (argument_list 10 9)))
+          (subscript_expression todate
+            (slice_expression : -1)))))))

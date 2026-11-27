@@ -1,6 +1,40 @@
-def subsets:
-if length > 0 then (.[:1] + (.[1:] | subsets)), (.[1:] | subsets) end;
-[ .items = (.items | subsets)
-| select((.items | map(.weight) | add) <= .maximumWeight)
-| (.items | map(.value) | add) ]
-| max // 0
+(program
+  (function_definition PLACEHOLDER_1
+    (if_expression
+      (binary_expression length > 0)
+      (sequence_expression
+        (binary_expression
+          (subscript_expression .
+            (slice_expression : 1)) +
+          (pipeline
+            (subscript_expression .
+              (slice_expression 1 :)) PLACEHOLDER_1))
+        (pipeline
+          (subscript_expression .
+            (slice_expression 1 :)) PLACEHOLDER_1))
+      (else_expression .)))
+  (pipeline
+    (array
+      (pipeline
+        (assignment_expression
+          (subscript_expression . "items") =
+          (pipeline
+            (subscript_expression . "items") PLACEHOLDER_1))
+        (pipeline
+          (call_expression select
+            (argument_list
+              (binary_expression
+                (pipeline
+                  (subscript_expression . "items")
+                  (pipeline
+                    (call_expression map
+                      (argument_list
+                        (subscript_expression . "weight"))) add)) <=
+                (subscript_expression . "maximumWeight"))))
+          (pipeline
+            (subscript_expression . "items")
+            (pipeline
+              (call_expression map
+                (argument_list
+                  (subscript_expression . "value"))) add)))))
+    (binary_expression max // 0)))

@@ -1,10 +1,39 @@
-def calculate_sum:
-if length == 0 then 0
-elif length == 1 then .[0]
-else (.[-2] * 2 | if . > 9 then . - 9 else . end)
-+ .[-1] + (.[:-2] | calculate_sum) end;
-if test("[^0-9\\s]") then false
-else gsub("\\s"; "\"\")" | ./"" |
-if length <= 1 then false
-else map(tonumber) | calculate_sum % 10 == 0 end
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (if_expression
+      (binary_expression length == 0) 0
+      (else_expression
+        (if_expression
+          (binary_expression length == 1)
+          (subscript_expression . 0)
+          (else_expression
+            (binary_expression
+              (binary_expression
+                (pipeline
+                  (binary_expression
+                    (subscript_expression . -2) * 2)
+                  (if_expression
+                    (binary_expression . > 9)
+                    (binary_expression . - 9)
+                    (else_expression .))) +
+                (subscript_expression . -1)) +
+              (pipeline
+                (subscript_expression .
+                  (slice_expression : -2)) PLACEHOLDER_1)))))))
+  (if_expression
+    (call_expression test
+      (argument_list "[^0-9\\s]")) false
+    (else_expression
+      (pipeline
+        (call_expression gsub
+          (argument_list "\\s" ""))
+        (pipeline
+          (binary_expression . / "")
+          (if_expression
+            (binary_expression length <= 1) false
+            (else_expression
+              (pipeline
+                (call_expression map
+                  (argument_list tonumber))
+                (binary_expression
+                  (binary_expression PLACEHOLDER_1 % 10) == 0)))))))))

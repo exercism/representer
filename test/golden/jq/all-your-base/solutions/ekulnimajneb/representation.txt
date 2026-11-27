@@ -1,39 +1,98 @@
-def preconditions:
-if .inputBase < 2
-then "\"input" base must be >= 2" | halt_error
-else .
-end |
-if .outputBase < 2
-then "\"output" base must be >= 2" | halt_error
-else .
-end |
-.inputBase as $inputBase |
-if .digits | any((. >= $inputBase) or (. < 0))
-then "\"all" digits must satisfy 0 <= d < input base" | halt_error
-else .
-end
-;
-def digits_to_number(base):
-reduce (. | reverse | .[]) as $digit (
-{place: 1, sum: 0};
-{place: (.place * base), sum: (.sum + $digit * .place)}) | .sum
-;
-def number_to_digits(base):
-{number: ., digits: [], done: false} |
-[while(
-.done | not;
-{
-digits: (.digits + [.number % base]),
-number: (.number / base | floor),
-done: (.number == 0)
-})] | .[-1] | .digits | reverse
-;
-preconditions |
-. as $input |
-$input.digits |
-digits_to_number($input.inputBase) |
-number_to_digits($input.outputBase) |
-if (.|length) == 0
-then [0]
-else .
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (if_expression
+        (binary_expression
+          (subscript_expression . "inputBase") < 2)
+        (pipeline "input base must be >= 2" halt_error)
+        (else_expression .))
+      (pipeline
+        (if_expression
+          (binary_expression
+            (subscript_expression . "outputBase") < 2)
+          (pipeline "output base must be >= 2" halt_error)
+          (else_expression .))
+        (pipeline
+          (binding_expression
+            (subscript_expression . "inputBase") (variable PLACEHOLDER_2))
+          (if_expression
+            (pipeline
+              (subscript_expression . "digits")
+              (call_expression any
+                (argument_list
+                  (binary_expression
+                    (binary_expression . >= (variable PLACEHOLDER_2)) or
+                    (binary_expression . < 0)))))
+            (pipeline "all digits must satisfy 0 <= d < input base" halt_error)
+            (else_expression .))))))
+  (function_definition PLACEHOLDER_3
+    (parameter_list PLACEHOLDER_4)
+    (pipeline
+      (reduce_expression
+        (binding_expression
+          (pipeline .
+            (pipeline reverse
+              (subscript_expression .))) (variable PLACEHOLDER_5))
+        (object
+          (pair "place" 1)
+          (pair "sum" 0))
+        (object
+          (pair "place"
+            (binary_expression
+              (subscript_expression . "place") * PLACEHOLDER_4))
+          (pair "sum"
+            (binary_expression
+              (subscript_expression . "sum") +
+              (binary_expression (variable PLACEHOLDER_5) *
+                (subscript_expression . "place"))))))
+      (subscript_expression . "sum")))
+  (function_definition PLACEHOLDER_6
+    (parameter_list PLACEHOLDER_4)
+    (pipeline
+      (object
+        (pair "number" .)
+        (pair "digits"
+          (array))
+        (pair "done" false))
+      (pipeline
+        (array
+          (call_expression while
+            (argument_list
+              (pipeline
+                (subscript_expression . "done") not)
+              (object
+                (pair "digits"
+                  (binary_expression
+                    (subscript_expression . "digits") +
+                    (array
+                      (binary_expression
+                        (subscript_expression . "number") % PLACEHOLDER_4))))
+                (pair "number"
+                  (pipeline
+                    (binary_expression
+                      (subscript_expression . "number") / PLACEHOLDER_4) floor))
+                (pair "done"
+                  (binary_expression
+                    (subscript_expression . "number") == 0))))))
+        (pipeline
+          (subscript_expression . -1)
+          (pipeline
+            (subscript_expression . "digits") reverse)))))
+  (pipeline PLACEHOLDER_1
+    (pipeline
+      (binding_expression . (variable PLACEHOLDER_7))
+      (pipeline
+        (subscript_expression (variable PLACEHOLDER_7) "digits")
+        (pipeline
+          (call_expression PLACEHOLDER_3
+            (argument_list
+              (subscript_expression (variable PLACEHOLDER_7) "inputBase")))
+          (pipeline
+            (call_expression PLACEHOLDER_6
+              (argument_list
+                (subscript_expression (variable PLACEHOLDER_7) "outputBase")))
+            (if_expression
+              (binary_expression
+                (pipeline . length) == 0)
+              (array 0)
+              (else_expression .))))))))

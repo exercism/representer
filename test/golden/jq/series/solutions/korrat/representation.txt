@@ -1,9 +1,38 @@
-.series as $s
-| .sliceLength as $l
-| if $l < 0 then "\"slice" length cannot be negative" | halt_error
-elif $l == 0 then "\"slice" length cannot be zero" | halt_error
-else . end
-| if $s == "\"\"" then "\"series" cannot be empty" | halt_error else null end
-| ($s | length) - $l + 1
-| if . <= 0 then "\"slice" length cannot be greater than series length" | halt_error else . end
-| [range(.) | $s[.:][:$l]]
+(program
+  (pipeline
+    (binding_expression
+      (subscript_expression . "series") (variable PLACEHOLDER_1))
+    (pipeline
+      (binding_expression
+        (subscript_expression . "sliceLength") (variable PLACEHOLDER_2))
+      (pipeline
+        (if_expression
+          (binary_expression (variable PLACEHOLDER_2) < 0)
+          (pipeline "slice length cannot be negative" halt_error)
+          (else_expression
+            (if_expression
+              (binary_expression (variable PLACEHOLDER_2) == 0)
+              (pipeline "slice length cannot be zero" halt_error)
+              (else_expression .))))
+        (pipeline
+          (if_expression
+            (binary_expression (variable PLACEHOLDER_1) == "")
+            (pipeline "series cannot be empty" halt_error)
+            (else_expression null))
+          (pipeline
+            (binary_expression
+              (binary_expression
+                (pipeline (variable PLACEHOLDER_1) length) - (variable PLACEHOLDER_2)) + 1)
+            (pipeline
+              (if_expression
+                (binary_expression . <= 0)
+                (pipeline "slice length cannot be greater than series length" halt_error)
+                (else_expression .))
+              (array
+                (pipeline
+                  (call_expression range
+                    (argument_list .))
+                  (subscript_expression
+                    (subscript_expression (variable PLACEHOLDER_1)
+                      (slice_expression . :))
+                    (slice_expression : (variable PLACEHOLDER_2))))))))))))

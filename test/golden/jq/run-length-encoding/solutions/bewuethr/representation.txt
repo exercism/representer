@@ -1,17 +1,46 @@
-def encode:
-[ match("(.)(\\1)*"; "\"g\")" ]
-| map(
-.string[:1] as $c
-| .string | length as $l
-| if $l > 1 then $l | tostring + $c
-else $c
-end
-)
-| join("");
-def decode:
-[ capture("(?<count>\\d*)(?<char>[^\\d])"; "\"g\")" ]
-| map(
-if .count == "\"\"" then .count |= "\"1\"" else . end
-| .char * (.count | tonumber)
-)
-| join("");
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (array
+        (call_expression match
+          (argument_list "(.)(\\1)*" "g")))
+      (pipeline
+        (call_expression map
+          (argument_list
+            (pipeline
+              (binding_expression
+                (subscript_expression
+                  (subscript_expression . "string")
+                  (slice_expression : 1)) (variable PLACEHOLDER_2))
+              (pipeline
+                (subscript_expression . "string")
+                (pipeline
+                  (binding_expression length (variable PLACEHOLDER_3))
+                  (if_expression
+                    (binary_expression (variable PLACEHOLDER_3) > 1)
+                    (pipeline (variable PLACEHOLDER_3)
+                      (binary_expression tostring + (variable PLACEHOLDER_2)))
+                    (else_expression (variable PLACEHOLDER_2))))))))
+        (call_expression join
+          (argument_list "")))))
+  (function_definition PLACEHOLDER_4
+    (pipeline
+      (array
+        (call_expression capture
+          (argument_list "(?<count>\\d*)(?<char>[^\\d])" "g")))
+      (pipeline
+        (call_expression map
+          (argument_list
+            (pipeline
+              (if_expression
+                (binary_expression
+                  (subscript_expression . "count") == "")
+                (assignment_expression
+                  (subscript_expression . "count") |= "1")
+                (else_expression .))
+              (binary_expression
+                (subscript_expression . "char") *
+                (pipeline
+                  (subscript_expression . "count") tonumber)))))
+        (call_expression join
+          (argument_list ""))))))

@@ -3,12 +3,20 @@
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
 module Representer::Languages::Jq
   class Snippet < Representer::Engine::Snippet
-    tracks "jq"
+    # Bump the version whenever the snippet of any solution could change.
+    version 2
 
     # Remove every comment, wherever it is.
     remove :comments # .x «# The answer»
 
-    # Find the comments by the way they start, because Rouge has no jq lexer.
+    # Find the comments by the way they start in a file that doesn't parse,
+    # because Rouge has no jq lexer.
     comment_lines "#" # «# A comment»
+
+    # Skip the module directive and the imports at the top of the file, up
+    # to the first other statement.
+    skip_at_top :module,  # «module {name: "colors"};»
+                :import,  # «import "lib" as lib;»
+                :include  # «include "lib";»
   end
 end

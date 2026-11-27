@@ -1,18 +1,31 @@
-(
-{
-"\"AEIOULNRST\":" 1,
-"\"DG\":" 2,
-"\"BCMP\":" 3,
-"\"FHVWY\":" 4,
-"\"K\":" 5,
-"\"JX\":" 8,
-"\"QZ\":" 10
-}
-| to_entries
-| map({((.key / "\"\")[]):" .value})
-| add
-) as $score
-| .word
-| ascii_upcase / "\"\""
-| map($score[.])
-| add // 0
+(program
+  (pipeline
+    (binding_expression
+      (pipeline
+        (object
+          (pair "AEIOULNRST" 1)
+          (pair "DG" 2)
+          (pair "BCMP" 3)
+          (pair "FHVWY" 4)
+          (pair "K" 5)
+          (pair "JX" 8)
+          (pair "QZ" 10))
+        (pipeline to_entries
+          (pipeline
+            (call_expression map
+              (argument_list
+                (object
+                  (pair
+                    (subscript_expression
+                      (binary_expression
+                        (subscript_expression . "key") / ""))
+                    (subscript_expression . "value"))))) add))) (variable PLACEHOLDER_1))
+    (pipeline
+      (subscript_expression . "word")
+      (pipeline
+        (binary_expression ascii_upcase / "")
+        (pipeline
+          (call_expression map
+            (argument_list
+              (subscript_expression (variable PLACEHOLDER_1) .)))
+          (binary_expression add // 0))))))

@@ -1,48 +1,219 @@
-def gcd:
-until(.[1] == 0; [.[1], .[0] % .[1]]) | .[0]
-;
-def stringify: map(tostring) | join(";");
-def winner(goal): .contents | any(. == goal);
-def fill1(capacity): [capacity[0], .contents[1]];
-def fill2(capacity): [.contents[0], capacity[1]];
-def empty1: [0, .contents[1]];
-def empty2: [.contents[0], 0];
-def move12(capacity):
-([.contents[0], capacity[1] - .contents[1]] | min) as $delta |
-[.contents[0] - $delta, .contents[1] + $delta]
-;
-def move21(capacity):
-([.contents[1], capacity[0] - .contents[0]] | min) as $delta |
-[.contents[0] + $delta, .contents[1] - $delta]
-;
-def extend(capacity):
-.seen as $seen |
-.move as $move |
-[fill1(capacity), fill2(capacity), empty1, empty2,
-move12(capacity), move21(capacity)] |
-map(select(stringify | in($seen) | not)) as $steps |
-([($steps | .[] | {(. | stringify): ($move + 1)})] | add) as $newlyseen |
-$steps |
-map({contents: ., move: ($move + 1), seen: ($seen + $newlyseen)})
-;
-def search(goal; capacity):
-until (first | winner(goal); .[1:] + (first | extend(capacity))) | first
-;
-[.bucketOne, .bucketTwo] as $capacity |
-($capacity | max) as $m |
-($capacity | gcd) as $g |
-.goal as $goal |
-(if .startBucket == "\"one\"" then 0 else 1 end) as $start |
-if $goal > $m or $goal % $g != 0 then
-"\"impossible\"" | halt_error
-else
-[[$capacity[0], 0], [0, $capacity[1]]] as $initial |
-([($initial | .[] | {(. | stringify): 1})] | add) as $seen |
-[{contents: $initial[$start], move: 1, seen: $seen}] |
-search($goal; $capacity) |
-if .contents[0] == $goal then
-{moves: .move, goalBucket: "\"one\"," otherBucket: .contents[1]}
-else
-{moves: .move, goalBucket: "\"two\"," otherBucket: .contents[0]}
-end
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (call_expression until
+        (argument_list
+          (binary_expression
+            (subscript_expression . 1) == 0)
+          (array
+            (subscript_expression . 1)
+            (binary_expression
+              (subscript_expression . 0) %
+              (subscript_expression . 1)))))
+      (subscript_expression . 0)))
+  (function_definition PLACEHOLDER_2
+    (pipeline
+      (call_expression map
+        (argument_list tostring))
+      (call_expression join
+        (argument_list ";"))))
+  (function_definition PLACEHOLDER_3
+    (parameter_list PLACEHOLDER_4)
+    (pipeline
+      (subscript_expression . "contents")
+      (call_expression any
+        (argument_list
+          (binary_expression . == PLACEHOLDER_4)))))
+  (function_definition PLACEHOLDER_5
+    (parameter_list PLACEHOLDER_6)
+    (array
+      (subscript_expression PLACEHOLDER_6 0)
+      (subscript_expression
+        (subscript_expression . "contents") 1)))
+  (function_definition PLACEHOLDER_7
+    (parameter_list PLACEHOLDER_6)
+    (array
+      (subscript_expression
+        (subscript_expression . "contents") 0)
+      (subscript_expression PLACEHOLDER_6 1)))
+  (function_definition PLACEHOLDER_8
+    (array 0
+      (subscript_expression
+        (subscript_expression . "contents") 1)))
+  (function_definition PLACEHOLDER_9
+    (array
+      (subscript_expression
+        (subscript_expression . "contents") 0) 0))
+  (function_definition PLACEHOLDER_10
+    (parameter_list PLACEHOLDER_6)
+    (pipeline
+      (binding_expression
+        (pipeline
+          (array
+            (subscript_expression
+              (subscript_expression . "contents") 0)
+            (binary_expression
+              (subscript_expression PLACEHOLDER_6 1) -
+              (subscript_expression
+                (subscript_expression . "contents") 1))) min) (variable PLACEHOLDER_11))
+      (array
+        (binary_expression
+          (subscript_expression
+            (subscript_expression . "contents") 0) - (variable PLACEHOLDER_11))
+        (binary_expression
+          (subscript_expression
+            (subscript_expression . "contents") 1) + (variable PLACEHOLDER_11)))))
+  (function_definition PLACEHOLDER_12
+    (parameter_list PLACEHOLDER_6)
+    (pipeline
+      (binding_expression
+        (pipeline
+          (array
+            (subscript_expression
+              (subscript_expression . "contents") 1)
+            (binary_expression
+              (subscript_expression PLACEHOLDER_6 0) -
+              (subscript_expression
+                (subscript_expression . "contents") 0))) min) (variable PLACEHOLDER_11))
+      (array
+        (binary_expression
+          (subscript_expression
+            (subscript_expression . "contents") 0) + (variable PLACEHOLDER_11))
+        (binary_expression
+          (subscript_expression
+            (subscript_expression . "contents") 1) - (variable PLACEHOLDER_11)))))
+  (function_definition PLACEHOLDER_13
+    (parameter_list PLACEHOLDER_6)
+    (pipeline
+      (binding_expression
+        (subscript_expression . "seen") (variable PLACEHOLDER_14))
+      (pipeline
+        (binding_expression
+          (subscript_expression . "move") (variable PLACEHOLDER_15))
+        (pipeline
+          (array
+            (call_expression PLACEHOLDER_5
+              (argument_list PLACEHOLDER_6))
+            (call_expression PLACEHOLDER_7
+              (argument_list PLACEHOLDER_6)) PLACEHOLDER_8 PLACEHOLDER_9
+            (call_expression PLACEHOLDER_10
+              (argument_list PLACEHOLDER_6))
+            (call_expression PLACEHOLDER_12
+              (argument_list PLACEHOLDER_6)))
+          (pipeline
+            (binding_expression
+              (call_expression map
+                (argument_list
+                  (call_expression select
+                    (argument_list
+                      (pipeline PLACEHOLDER_2
+                        (pipeline
+                          (call_expression in
+                            (argument_list (variable PLACEHOLDER_14))) not)))))) (variable PLACEHOLDER_16))
+            (pipeline
+              (binding_expression
+                (pipeline
+                  (array
+                    (pipeline (variable PLACEHOLDER_16)
+                      (pipeline
+                        (subscript_expression .)
+                        (object
+                          (pair
+                            (pipeline . PLACEHOLDER_2)
+                            (binary_expression (variable PLACEHOLDER_15) + 1)))))) add) (variable PLACEHOLDER_17))
+              (pipeline (variable PLACEHOLDER_16)
+                (call_expression map
+                  (argument_list
+                    (object
+                      (pair "contents" .)
+                      (pair "move"
+                        (binary_expression (variable PLACEHOLDER_15) + 1))
+                      (pair "seen"
+                        (binary_expression (variable PLACEHOLDER_14) + (variable PLACEHOLDER_17)))))))))))))
+  (function_definition PLACEHOLDER_18
+    (parameter_list PLACEHOLDER_4 PLACEHOLDER_6)
+    (pipeline
+      (call_expression until
+        (argument_list
+          (pipeline first
+            (call_expression PLACEHOLDER_3
+              (argument_list PLACEHOLDER_4)))
+          (binary_expression
+            (subscript_expression .
+              (slice_expression 1 :)) +
+            (pipeline first
+              (call_expression PLACEHOLDER_13
+                (argument_list PLACEHOLDER_6)))))) first))
+  (pipeline
+    (binding_expression
+      (array
+        (subscript_expression . "bucketOne")
+        (subscript_expression . "bucketTwo")) (variable PLACEHOLDER_19))
+    (pipeline
+      (binding_expression
+        (pipeline (variable PLACEHOLDER_19) max) (variable PLACEHOLDER_20))
+      (pipeline
+        (binding_expression
+          (pipeline (variable PLACEHOLDER_19) PLACEHOLDER_1) (variable PLACEHOLDER_21))
+        (pipeline
+          (binding_expression
+            (subscript_expression . "goal") (variable PLACEHOLDER_22))
+          (pipeline
+            (binding_expression
+              (if_expression
+                (binary_expression
+                  (subscript_expression . "startBucket") == "one") 0
+                (else_expression 1)) (variable PLACEHOLDER_23))
+            (if_expression
+              (binary_expression
+                (binary_expression (variable PLACEHOLDER_22) > (variable PLACEHOLDER_20)) or
+                (binary_expression
+                  (binary_expression (variable PLACEHOLDER_22) % (variable PLACEHOLDER_21)) != 0))
+              (pipeline "impossible" halt_error)
+              (else_expression
+                (pipeline
+                  (binding_expression
+                    (array
+                      (array
+                        (subscript_expression (variable PLACEHOLDER_19) 0) 0)
+                      (array 0
+                        (subscript_expression (variable PLACEHOLDER_19) 1))) (variable PLACEHOLDER_24))
+                  (pipeline
+                    (binding_expression
+                      (pipeline
+                        (array
+                          (pipeline (variable PLACEHOLDER_24)
+                            (pipeline
+                              (subscript_expression .)
+                              (object
+                                (pair
+                                  (pipeline . PLACEHOLDER_2) 1))))) add) (variable PLACEHOLDER_14))
+                    (pipeline
+                      (array
+                        (object
+                          (pair "contents"
+                            (subscript_expression (variable PLACEHOLDER_24) (variable PLACEHOLDER_23)))
+                          (pair "move" 1)
+                          (pair "seen" (variable PLACEHOLDER_14))))
+                      (pipeline
+                        (call_expression PLACEHOLDER_18
+                          (argument_list (variable PLACEHOLDER_22) (variable PLACEHOLDER_19)))
+                        (if_expression
+                          (binary_expression
+                            (subscript_expression
+                              (subscript_expression . "contents") 0) == (variable PLACEHOLDER_22))
+                          (object
+                            (pair "moves"
+                              (subscript_expression . "move"))
+                            (pair "goalBucket" "one")
+                            (pair "otherBucket"
+                              (subscript_expression
+                                (subscript_expression . "contents") 1)))
+                          (else_expression
+                            (object
+                              (pair "moves"
+                                (subscript_expression . "move"))
+                              (pair "goalBucket" "two")
+                              (pair "otherBucket"
+                                (subscript_expression
+                                  (subscript_expression . "contents") 0)))))))))))))))))

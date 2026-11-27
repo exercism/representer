@@ -1,7 +1,40 @@
-def squareOfSum: .input.number | [range(1; .+1)] | add | pow(.; 2);
-def sumOfSquares: .input.number | [range(1; .+1)] | map(pow(.; 2)) | add;
-if .property == "\"squareOfSum\"" then squareOfSum
-elif .property == "\"sumOfSquares\"" then sumOfSquares
-elif .property == "\"differenceOfSquares\"" then squareOfSum - sumOfSquares
-else halt_error
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (subscript_expression
+        (subscript_expression . "input") "number")
+      (pipeline
+        (array
+          (call_expression range
+            (argument_list 1
+              (binary_expression . + 1))))
+        (pipeline add
+          (call_expression pow
+            (argument_list . 2))))))
+  (function_definition PLACEHOLDER_2
+    (pipeline
+      (subscript_expression
+        (subscript_expression . "input") "number")
+      (pipeline
+        (array
+          (call_expression range
+            (argument_list 1
+              (binary_expression . + 1))))
+        (pipeline
+          (call_expression map
+            (argument_list
+              (call_expression pow
+                (argument_list . 2)))) add))))
+  (if_expression
+    (binary_expression
+      (subscript_expression . "property") == "squareOfSum") PLACEHOLDER_1
+    (else_expression
+      (if_expression
+        (binary_expression
+          (subscript_expression . "property") == "sumOfSquares") PLACEHOLDER_2
+        (else_expression
+          (if_expression
+            (binary_expression
+              (subscript_expression . "property") == "differenceOfSquares")
+            (binary_expression PLACEHOLDER_1 - PLACEHOLDER_2)
+            (else_expression halt_error)))))))

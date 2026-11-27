@@ -1,16 +1,47 @@
-if (.digits | length) < (.span) then
-"\"span" must not exceed string length" | halt_error
-elif .digits | test("\\D") then
-"\"digits" input must only contain digits" | halt_error
-elif .span < 0 then
-"\"span" must not be negative" | halt_error
-else
-(.digits / "\"\"" | map(tonumber)) as $digits
-| .span as $span
-| [
-range(($digits | length) - $span + 1)
-| $digits[. : . + $span]
-| reduce .[] as $n (1; . * $n)
-]
-| max // 1
-end
+(program
+  (if_expression
+    (binary_expression
+      (pipeline
+        (subscript_expression . "digits") length) <
+      (subscript_expression . "span"))
+    (pipeline "span must not exceed string length" halt_error)
+    (else_expression
+      (if_expression
+        (pipeline
+          (subscript_expression . "digits")
+          (call_expression test
+            (argument_list "\\D")))
+        (pipeline "digits input must only contain digits" halt_error)
+        (else_expression
+          (if_expression
+            (binary_expression
+              (subscript_expression . "span") < 0)
+            (pipeline "span must not be negative" halt_error)
+            (else_expression
+              (pipeline
+                (binding_expression
+                  (pipeline
+                    (binary_expression
+                      (subscript_expression . "digits") / "")
+                    (call_expression map
+                      (argument_list tonumber))) (variable PLACEHOLDER_1))
+                (pipeline
+                  (binding_expression
+                    (subscript_expression . "span") (variable PLACEHOLDER_2))
+                  (pipeline
+                    (array
+                      (pipeline
+                        (call_expression range
+                          (argument_list
+                            (binary_expression
+                              (binary_expression
+                                (pipeline (variable PLACEHOLDER_1) length) - (variable PLACEHOLDER_2)) + 1)))
+                        (pipeline
+                          (subscript_expression (variable PLACEHOLDER_1)
+                            (slice_expression . :
+                              (binary_expression . + (variable PLACEHOLDER_2))))
+                          (reduce_expression
+                            (binding_expression
+                              (subscript_expression .) (variable PLACEHOLDER_3)) 1
+                            (binary_expression . * (variable PLACEHOLDER_3))))))
+                    (binary_expression max // 1)))))))))))

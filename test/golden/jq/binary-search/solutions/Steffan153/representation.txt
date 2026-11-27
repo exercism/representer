@@ -1,11 +1,35 @@
-.value as $v |
-def find:
-if . == [] then
-"\"value" not in array" | halt_error
-else
-((length - 1) / 2 | floor) as $idx |
-if .[$idx] == $v then $idx
-elif .[$idx] > $v then .[:$idx] | find
-else .[$idx+1:] | find + $idx + 1 end
-end;
-.array | find
+(program
+  (pipeline
+    (binding_expression
+      (subscript_expression . "value") (variable PLACEHOLDER_1))
+    (function_expression
+      (function_definition PLACEHOLDER_2
+        (if_expression
+          (binary_expression . ==
+            (array))
+          (pipeline "value not in array" halt_error)
+          (else_expression
+            (pipeline
+              (binding_expression
+                (pipeline
+                  (binary_expression
+                    (binary_expression length - 1) / 2) floor) (variable PLACEHOLDER_3))
+              (if_expression
+                (binary_expression
+                  (subscript_expression . (variable PLACEHOLDER_3)) == (variable PLACEHOLDER_1)) (variable PLACEHOLDER_3)
+                (else_expression
+                  (if_expression
+                    (binary_expression
+                      (subscript_expression . (variable PLACEHOLDER_3)) > (variable PLACEHOLDER_1))
+                    (pipeline
+                      (subscript_expression .
+                        (slice_expression : (variable PLACEHOLDER_3))) PLACEHOLDER_2)
+                    (else_expression
+                      (pipeline
+                        (subscript_expression .
+                          (slice_expression
+                            (binary_expression (variable PLACEHOLDER_3) + 1) :))
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_2 + (variable PLACEHOLDER_3)) + 1))))))))))
+      (pipeline
+        (subscript_expression . "array") PLACEHOLDER_2))))

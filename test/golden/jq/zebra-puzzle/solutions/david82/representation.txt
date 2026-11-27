@@ -1,58 +1,201 @@
-# Enhanced Zebra Puzzle solution
-def permutations:
-if length < 2 then .
-else range(0; length) as $i | [.[$i]] + (del(.[$i]) | permutations)
-end;
-def abs: if . < 0 then -. else . end;
-.property as $property |
-# Generate nationality permutations with early constraint
-["Englishman", "\"Spaniard\"," "\"Ukrainian\"," "\"Norwegian\"," "\"Japanese\"]" | permutations as $nations |
-def nation(s): $nations | index(s);
-# Constraint 10: Norwegian lives in first house
-select(nation("Norwegian") == 0) |
-# Generate pet permutations with early constraint
-["dog", "\"snail\"," "\"fox\"," "\"horse\"," "\"zebra\"]" | permutations as $pets |
-def pet(s): $pets | index(s);
-# Constraint 3: Spaniard owns dog
-select(nation("Spaniard") == pet("dog")) |
-# Generate color permutations with early constraints
-["blue", "\"red\"," "\"green\"," "\"ivory\"," "\"yellow\"]" | permutations as $colors |
-def color(s): $colors | index(s);
-# Constraint 6: Green house immediately to the right of ivory house
-select(color("green") == color("ivory") + 1) |
-# Constraint 2: Englishman lives in red house
-select(nation("Englishman") == color("red")) |
-# Constraint 15: Norwegian lives next to blue house
-select(nation("Norwegian") - color("blue") | abs == 1) |
-# Generate drink permutations with constraints
-["coffee", "\"milk\"," "\"orange" juice", "\"tea\"," "\"water\"]" | permutations as $drinks |
-def drink(s): $drinks | index(s);
-# Constraint 9: Person in middle house drinks milk
-select(drink("milk") == 2) |
-# Constraint 5: Ukrainian drinks tea
-select(nation("Ukrainian") == drink("tea")) |
-# Constraint 4: Person in green house drinks coffee
-select(color("green") == drink("coffee")) |
-# Generate hobby permutations with constraints (corrected from cigarettes)
-["dancing", "\"painter\"," "\"reading\"," "\"football\"," "\"chess\"]" | permutations as $hobbies |
-def hobby(s): $hobbies | index(s);
-# Constraint 7: Snail owner likes to go dancing
-select(pet("snail") == hobby("dancing")) |
-# Constraint 8: Person in yellow house is a painter
-select(color("yellow") == hobby("painter")) |
-# Constraint 11: Person who enjoys reading lives next to person with fox
-select(hobby("reading") - pet("fox") | abs == 1) |
-# Constraint 12: Painter's house is next to house with horse
-select(hobby("painter") - pet("horse") | abs == 1) |
-# Constraint 13: Person who plays football drinks orange juice
-select(drink("orange juice") == hobby("football")) |
-# Constraint 14: Japanese person plays chess
-select(nation("Japanese") == hobby("chess")) |
-# Return the requested answer
-if $property == "\"drinksWater\"" then
-$nations[drink("water")]
-elif $property == "\"ownsZebra\"" then
-$nations[pet("zebra")]
-else
-"\"Invalid" property"
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (if_expression
+      (binary_expression length < 2) .
+      (else_expression
+        (pipeline
+          (binding_expression
+            (call_expression range
+              (argument_list 0 length)) (variable PLACEHOLDER_2))
+          (binary_expression
+            (array
+              (subscript_expression . (variable PLACEHOLDER_2))) +
+            (pipeline
+              (call_expression del
+                (argument_list
+                  (subscript_expression . (variable PLACEHOLDER_2)))) PLACEHOLDER_1))))))
+  (function_definition PLACEHOLDER_3
+    (if_expression
+      (binary_expression . < 0)
+      (unary_expression - .)
+      (else_expression .)))
+  (pipeline
+    (binding_expression
+      (subscript_expression . "property") (variable PLACEHOLDER_4))
+    (pipeline
+      (array "Englishman" "Spaniard" "Ukrainian" "Norwegian" "Japanese")
+      (pipeline
+        (binding_expression PLACEHOLDER_1 (variable PLACEHOLDER_5))
+        (function_expression
+          (function_definition PLACEHOLDER_6
+            (parameter_list PLACEHOLDER_7)
+            (pipeline (variable PLACEHOLDER_5)
+              (call_expression index
+                (argument_list PLACEHOLDER_7))))
+          (pipeline
+            (call_expression select
+              (argument_list
+                (binary_expression
+                  (call_expression PLACEHOLDER_6
+                    (argument_list "Norwegian")) == 0)))
+            (pipeline
+              (array "dog" "snail" "fox" "horse" "zebra")
+              (pipeline
+                (binding_expression PLACEHOLDER_1 (variable PLACEHOLDER_8))
+                (function_expression
+                  (function_definition PLACEHOLDER_9
+                    (parameter_list PLACEHOLDER_7)
+                    (pipeline (variable PLACEHOLDER_8)
+                      (call_expression index
+                        (argument_list PLACEHOLDER_7))))
+                  (pipeline
+                    (call_expression select
+                      (argument_list
+                        (binary_expression
+                          (call_expression PLACEHOLDER_6
+                            (argument_list "Spaniard")) ==
+                          (call_expression PLACEHOLDER_9
+                            (argument_list "dog")))))
+                    (pipeline
+                      (array "blue" "red" "green" "ivory" "yellow")
+                      (pipeline
+                        (binding_expression PLACEHOLDER_1 (variable PLACEHOLDER_10))
+                        (function_expression
+                          (function_definition PLACEHOLDER_11
+                            (parameter_list PLACEHOLDER_7)
+                            (pipeline (variable PLACEHOLDER_10)
+                              (call_expression index
+                                (argument_list PLACEHOLDER_7))))
+                          (pipeline
+                            (call_expression select
+                              (argument_list
+                                (binary_expression
+                                  (call_expression PLACEHOLDER_11
+                                    (argument_list "green")) ==
+                                  (binary_expression
+                                    (call_expression PLACEHOLDER_11
+                                      (argument_list "ivory")) + 1))))
+                            (pipeline
+                              (call_expression select
+                                (argument_list
+                                  (binary_expression
+                                    (call_expression PLACEHOLDER_6
+                                      (argument_list "Englishman")) ==
+                                    (call_expression PLACEHOLDER_11
+                                      (argument_list "red")))))
+                              (pipeline
+                                (call_expression select
+                                  (argument_list
+                                    (pipeline
+                                      (binary_expression
+                                        (call_expression PLACEHOLDER_6
+                                          (argument_list "Norwegian")) -
+                                        (call_expression PLACEHOLDER_11
+                                          (argument_list "blue")))
+                                      (binary_expression PLACEHOLDER_3 == 1))))
+                                (pipeline
+                                  (array "coffee" "milk" "orange juice" "tea" "water")
+                                  (pipeline
+                                    (binding_expression PLACEHOLDER_1 (variable PLACEHOLDER_12))
+                                    (function_expression
+                                      (function_definition PLACEHOLDER_13
+                                        (parameter_list PLACEHOLDER_7)
+                                        (pipeline (variable PLACEHOLDER_12)
+                                          (call_expression index
+                                            (argument_list PLACEHOLDER_7))))
+                                      (pipeline
+                                        (call_expression select
+                                          (argument_list
+                                            (binary_expression
+                                              (call_expression PLACEHOLDER_13
+                                                (argument_list "milk")) == 2)))
+                                        (pipeline
+                                          (call_expression select
+                                            (argument_list
+                                              (binary_expression
+                                                (call_expression PLACEHOLDER_6
+                                                  (argument_list "Ukrainian")) ==
+                                                (call_expression PLACEHOLDER_13
+                                                  (argument_list "tea")))))
+                                          (pipeline
+                                            (call_expression select
+                                              (argument_list
+                                                (binary_expression
+                                                  (call_expression PLACEHOLDER_11
+                                                    (argument_list "green")) ==
+                                                  (call_expression PLACEHOLDER_13
+                                                    (argument_list "coffee")))))
+                                            (pipeline
+                                              (array "dancing" "painter" "reading" "football" "chess")
+                                              (pipeline
+                                                (binding_expression PLACEHOLDER_1 (variable PLACEHOLDER_14))
+                                                (function_expression
+                                                  (function_definition PLACEHOLDER_15
+                                                    (parameter_list PLACEHOLDER_7)
+                                                    (pipeline (variable PLACEHOLDER_14)
+                                                      (call_expression index
+                                                        (argument_list PLACEHOLDER_7))))
+                                                  (pipeline
+                                                    (call_expression select
+                                                      (argument_list
+                                                        (binary_expression
+                                                          (call_expression PLACEHOLDER_9
+                                                            (argument_list "snail")) ==
+                                                          (call_expression PLACEHOLDER_15
+                                                            (argument_list "dancing")))))
+                                                    (pipeline
+                                                      (call_expression select
+                                                        (argument_list
+                                                          (binary_expression
+                                                            (call_expression PLACEHOLDER_11
+                                                              (argument_list "yellow")) ==
+                                                            (call_expression PLACEHOLDER_15
+                                                              (argument_list "painter")))))
+                                                      (pipeline
+                                                        (call_expression select
+                                                          (argument_list
+                                                            (pipeline
+                                                              (binary_expression
+                                                                (call_expression PLACEHOLDER_15
+                                                                  (argument_list "reading")) -
+                                                                (call_expression PLACEHOLDER_9
+                                                                  (argument_list "fox")))
+                                                              (binary_expression PLACEHOLDER_3 == 1))))
+                                                        (pipeline
+                                                          (call_expression select
+                                                            (argument_list
+                                                              (pipeline
+                                                                (binary_expression
+                                                                  (call_expression PLACEHOLDER_15
+                                                                    (argument_list "painter")) -
+                                                                  (call_expression PLACEHOLDER_9
+                                                                    (argument_list "horse")))
+                                                                (binary_expression PLACEHOLDER_3 == 1))))
+                                                          (pipeline
+                                                            (call_expression select
+                                                              (argument_list
+                                                                (binary_expression
+                                                                  (call_expression PLACEHOLDER_13
+                                                                    (argument_list "orange juice")) ==
+                                                                  (call_expression PLACEHOLDER_15
+                                                                    (argument_list "football")))))
+                                                            (pipeline
+                                                              (call_expression select
+                                                                (argument_list
+                                                                  (binary_expression
+                                                                    (call_expression PLACEHOLDER_6
+                                                                      (argument_list "Japanese")) ==
+                                                                    (call_expression PLACEHOLDER_15
+                                                                      (argument_list "chess")))))
+                                                              (if_expression
+                                                                (binary_expression (variable PLACEHOLDER_4) == "drinksWater")
+                                                                (subscript_expression (variable PLACEHOLDER_5)
+                                                                  (call_expression PLACEHOLDER_13
+                                                                    (argument_list "water")))
+                                                                (else_expression
+                                                                  (if_expression
+                                                                    (binary_expression (variable PLACEHOLDER_4) == "ownsZebra")
+                                                                    (subscript_expression (variable PLACEHOLDER_5)
+                                                                      (call_expression PLACEHOLDER_9
+                                                                        (argument_list "zebra")))
+                                                                    (else_expression "Invalid property")))))))))))))))))))))))))))))))))))

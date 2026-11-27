@@ -1,26 +1,63 @@
-("a" | explode | .[0]) as $a |
-("0" | explode | .[0]) as $zero |
-[range($a; $a + 26)] as $alpha |
-($alpha | reverse) as $ahpla |
-def map_codes:
-map(. as $in_code |
-if (($in_code >= $zero) and ($in_code < $zero + 10)) then
-$in_code
-else
-$ahpla[($alpha | index($in_code))]
-end
-)
-;
-def decode:
-gsub("[^[:alnum:]]"; "\"\")" | ascii_downcase | explode
-| map_codes
-| implode
-;
-def encode:
-decode | [match(".{1,5}"; "\"g\")" | .string] | join(" "\")"
-;
-if .property=="encode" then
-.input.phrase | encode
-else
-.input.phrase | decode
-end
+(program
+  (pipeline
+    (binding_expression
+      (pipeline "a"
+        (pipeline explode
+          (subscript_expression . 0))) (variable PLACEHOLDER_1))
+    (pipeline
+      (binding_expression
+        (pipeline "0"
+          (pipeline explode
+            (subscript_expression . 0))) (variable PLACEHOLDER_2))
+      (pipeline
+        (binding_expression
+          (array
+            (call_expression range
+              (argument_list (variable PLACEHOLDER_1)
+                (binary_expression (variable PLACEHOLDER_1) + 26)))) (variable PLACEHOLDER_3))
+        (pipeline
+          (binding_expression
+            (pipeline (variable PLACEHOLDER_3) reverse) (variable PLACEHOLDER_4))
+          (function_expression
+            (function_definition PLACEHOLDER_5
+              (call_expression map
+                (argument_list
+                  (pipeline
+                    (binding_expression . (variable PLACEHOLDER_6))
+                    (if_expression
+                      (binary_expression
+                        (binary_expression (variable PLACEHOLDER_6) >= (variable PLACEHOLDER_2)) and
+                        (binary_expression (variable PLACEHOLDER_6) <
+                          (binary_expression (variable PLACEHOLDER_2) + 10))) (variable PLACEHOLDER_6)
+                      (else_expression
+                        (subscript_expression (variable PLACEHOLDER_4)
+                          (pipeline (variable PLACEHOLDER_3)
+                            (call_expression index
+                              (argument_list (variable PLACEHOLDER_6)))))))))))
+            (function_definition PLACEHOLDER_7
+              (pipeline
+                (call_expression gsub
+                  (argument_list "[^[:alnum:]]" ""))
+                (pipeline ascii_downcase
+                  (pipeline explode
+                    (pipeline PLACEHOLDER_5 implode)))))
+            (function_definition PLACEHOLDER_8
+              (pipeline PLACEHOLDER_7
+                (pipeline
+                  (array
+                    (pipeline
+                      (call_expression match
+                        (argument_list ".{1,5}" "g"))
+                      (subscript_expression . "string")))
+                  (call_expression join
+                    (argument_list " ")))))
+            (if_expression
+              (binary_expression
+                (subscript_expression . "property") == "encode")
+              (pipeline
+                (subscript_expression
+                  (subscript_expression . "input") "phrase") PLACEHOLDER_8)
+              (else_expression
+                (pipeline
+                  (subscript_expression
+                    (subscript_expression . "input") "phrase") PLACEHOLDER_7)))))))))

@@ -1,22 +1,27 @@
-# We will get more in-depth about jq functions in a later lesson.
-# For now, your job is to implement the logic of the tasks in the function
-# bodies, so that they output the correct values.
-# We haven't covered regular expressions yet.
-# This function will remove leading and trailing whitespace
-# from the input string.
-def trim: sub("^\\s+"; "\"\")" | sub("\\s+$"; "\"\");"
-# Task 1. Get message from a log line
-def message:
-#. # implement the body of this function
-split(": "\")" | .[1] | trim
-;
-# Task 2. Get log level from a log line
-def log_level:
-#. # implement the body of this function
-split("]") | .[0][1:] | ascii_downcase
-;
-# Task 3. Reformat a log line
-def reformat:
-#. # implement the body of this function
-(. | message) + "\"" (" + (. | log_level) + "\")\""
-;
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (call_expression sub
+        (argument_list "^\\s+" ""))
+      (call_expression sub
+        (argument_list "\\s+$" ""))))
+  (function_definition PLACEHOLDER_2
+    (pipeline
+      (call_expression split
+        (argument_list ": "))
+      (pipeline
+        (subscript_expression . 1) PLACEHOLDER_1)))
+  (function_definition PLACEHOLDER_3
+    (pipeline
+      (call_expression split
+        (argument_list "]"))
+      (pipeline
+        (subscript_expression
+          (subscript_expression . 0)
+          (slice_expression 1 :)) ascii_downcase)))
+  (function_definition PLACEHOLDER_4
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (pipeline . PLACEHOLDER_2) + " (") +
+        (pipeline . PLACEHOLDER_3)) + ")")))

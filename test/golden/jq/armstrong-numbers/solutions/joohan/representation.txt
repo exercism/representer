@@ -1,8 +1,21 @@
-.number as $number
-| ($number | tostring | length) as $exp
-| $number
-| tostring
-| split("")
-| map(tonumber | pow(.; $exp))
-| add
-| . == $number
+(program
+  (pipeline
+    (binding_expression
+      (subscript_expression . "number") (variable PLACEHOLDER_1))
+    (pipeline
+      (binding_expression
+        (pipeline (variable PLACEHOLDER_1)
+          (pipeline tostring length)) (variable PLACEHOLDER_2))
+      (pipeline (variable PLACEHOLDER_1)
+        (pipeline tostring
+          (pipeline
+            (call_expression split
+              (argument_list ""))
+            (pipeline
+              (call_expression map
+                (argument_list
+                  (pipeline tonumber
+                    (call_expression pow
+                      (argument_list . (variable PLACEHOLDER_2))))))
+              (pipeline add
+                (binary_expression . == (variable PLACEHOLDER_1))))))))))

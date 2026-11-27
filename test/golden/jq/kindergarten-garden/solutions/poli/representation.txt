@@ -1,6 +1,51 @@
-{ "\"G\":" "\"grass\"," "\"C\":" "\"clover\"," "\"R\":" "\"radishes\"," "\"V\":" "\"violets\"" } as $plant
-| (.diagram | split("\n") | first | split("")) as $d1
-| (.diagram | split("\n") | last | split("")) as $d2
-| ("A" | explode | first) as $a
-| (.student | explode | first - $a | . * 2 ) as $i
-| [ $plant[$d1[$i]], $plant[$d1[$i+1]], $plant[$d2[$i]], $plant[$d2[$i+1]] ]
+(program
+  (pipeline
+    (binding_expression
+      (object
+        (pair "G" "grass")
+        (pair "C" "clover")
+        (pair "R" "radishes")
+        (pair "V" "violets")) (variable PLACEHOLDER_1))
+    (pipeline
+      (binding_expression
+        (pipeline
+          (subscript_expression . "diagram")
+          (pipeline
+            (call_expression split
+              (argument_list "\n"))
+            (pipeline first
+              (call_expression split
+                (argument_list ""))))) (variable PLACEHOLDER_2))
+      (pipeline
+        (binding_expression
+          (pipeline
+            (subscript_expression . "diagram")
+            (pipeline
+              (call_expression split
+                (argument_list "\n"))
+              (pipeline last
+                (call_expression split
+                  (argument_list ""))))) (variable PLACEHOLDER_3))
+        (pipeline
+          (binding_expression
+            (pipeline "A"
+              (pipeline explode first)) (variable PLACEHOLDER_4))
+          (pipeline
+            (binding_expression
+              (pipeline
+                (subscript_expression . "student")
+                (pipeline explode
+                  (pipeline
+                    (binary_expression first - (variable PLACEHOLDER_4))
+                    (binary_expression . * 2)))) (variable PLACEHOLDER_5))
+            (array
+              (subscript_expression (variable PLACEHOLDER_1)
+                (subscript_expression (variable PLACEHOLDER_2) (variable PLACEHOLDER_5)))
+              (subscript_expression (variable PLACEHOLDER_1)
+                (subscript_expression (variable PLACEHOLDER_2)
+                  (binary_expression (variable PLACEHOLDER_5) + 1)))
+              (subscript_expression (variable PLACEHOLDER_1)
+                (subscript_expression (variable PLACEHOLDER_3) (variable PLACEHOLDER_5)))
+              (subscript_expression (variable PLACEHOLDER_1)
+                (subscript_expression (variable PLACEHOLDER_3)
+                  (binary_expression (variable PLACEHOLDER_5) + 1))))))))))

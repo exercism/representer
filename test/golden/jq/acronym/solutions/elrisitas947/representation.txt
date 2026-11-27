@@ -1,1 +1,16 @@
-.phrase | gsub("[^a-zA-Z-\\s]"; "\"\")" | split("[\\s-]"; "\"x\")" | reduce .[] as $word (""; . + $word[0:1] | ascii_upcase)
+(program
+  (pipeline
+    (subscript_expression . "phrase")
+    (pipeline
+      (call_expression gsub
+        (argument_list "[^a-zA-Z-\\s]" ""))
+      (pipeline
+        (call_expression split
+          (argument_list "[\\s-]" "x"))
+        (reduce_expression
+          (binding_expression
+            (subscript_expression .) (variable PLACEHOLDER_1)) ""
+          (pipeline
+            (binary_expression . +
+              (subscript_expression (variable PLACEHOLDER_1)
+                (slice_expression 0 : 1))) ascii_upcase))))))

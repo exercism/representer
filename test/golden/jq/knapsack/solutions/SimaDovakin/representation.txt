@@ -1,16 +1,48 @@
-def knapsack(items; maximum_weight; n):
-if n == 0 or maximum_weight == 0 then
-0
-elif items[n - 1].weight > maximum_weight then
-knapsack(items; maximum_weight; n - 1)
-else
-knapsack(items; maximum_weight; n - 1) as $without_item
-| (items[n - 1].value + knapsack(items; maximum_weight - items[n - 1].weight; n - 1)) as $with_item
-| [$with_item, $without_item]
-| max
-end;
-if (.items | length) == 0 then
-0
-else
-knapsack(.items; .maximumWeight; (.items | length))
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4)
+    (if_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_4 == 0) or
+        (binary_expression PLACEHOLDER_3 == 0)) 0
+      (else_expression
+        (if_expression
+          (binary_expression
+            (subscript_expression
+              (subscript_expression PLACEHOLDER_2
+                (binary_expression PLACEHOLDER_4 - 1)) "weight") > PLACEHOLDER_3)
+          (call_expression PLACEHOLDER_1
+            (argument_list PLACEHOLDER_2 PLACEHOLDER_3
+              (binary_expression PLACEHOLDER_4 - 1)))
+          (else_expression
+            (pipeline
+              (binding_expression
+                (call_expression PLACEHOLDER_1
+                  (argument_list PLACEHOLDER_2 PLACEHOLDER_3
+                    (binary_expression PLACEHOLDER_4 - 1))) (variable PLACEHOLDER_5))
+              (pipeline
+                (binding_expression
+                  (binary_expression
+                    (subscript_expression
+                      (subscript_expression PLACEHOLDER_2
+                        (binary_expression PLACEHOLDER_4 - 1)) "value") +
+                    (call_expression PLACEHOLDER_1
+                      (argument_list PLACEHOLDER_2
+                        (binary_expression PLACEHOLDER_3 -
+                          (subscript_expression
+                            (subscript_expression PLACEHOLDER_2
+                              (binary_expression PLACEHOLDER_4 - 1)) "weight"))
+                        (binary_expression PLACEHOLDER_4 - 1)))) (variable PLACEHOLDER_6))
+                (pipeline
+                  (array (variable PLACEHOLDER_6) (variable PLACEHOLDER_5)) max))))))))
+  (if_expression
+    (binary_expression
+      (pipeline
+        (subscript_expression . "items") length) == 0) 0
+    (else_expression
+      (call_expression PLACEHOLDER_1
+        (argument_list
+          (subscript_expression . "items")
+          (subscript_expression . "maximumWeight")
+          (pipeline
+            (subscript_expression . "items") length))))))

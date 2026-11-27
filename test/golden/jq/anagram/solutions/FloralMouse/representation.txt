@@ -1,7 +1,24 @@
-(.subject | ascii_upcase) as $s |
-.candidates |
-map(select(
-ascii_upcase | (
-. != $s and ([., $s | split("") | sort] | .[0] == .[1])
-)
-))
+(program
+  (pipeline
+    (binding_expression
+      (pipeline
+        (subscript_expression . "subject") ascii_upcase) (variable PLACEHOLDER_1))
+    (pipeline
+      (subscript_expression . "candidates")
+      (call_expression map
+        (argument_list
+          (call_expression select
+            (argument_list
+              (pipeline ascii_upcase
+                (binary_expression
+                  (binary_expression . != (variable PLACEHOLDER_1)) and
+                  (pipeline
+                    (array
+                      (pipeline
+                        (sequence_expression . (variable PLACEHOLDER_1))
+                        (pipeline
+                          (call_expression split
+                            (argument_list "")) sort)))
+                    (binary_expression
+                      (subscript_expression . 0) ==
+                      (subscript_expression . 1))))))))))))

@@ -1,36 +1,40 @@
-def build_sieve:
-# Create an array for each number upto and including limit
-# 0 & 1 are included so each number sits at the correct index.
-# Both are explicitly marked as non-prime.
-[range(. + 1)] | map(true) | .[0] = false | .[1] = false
-;
-def mark_composites(i):
-if .[i] then
-# The field in the array is only true, IFF it was not
-# set to false by a previous iteration. This means that
-# this number is prime.
-# Now iterate through all multiples of this number within
-# the array and mark them as non-prime, since the can be
-# divided by i.
-reduce range(
-# 2*i is the first multiple of i after i
-2 * i;
-# Iterate over the rest of the array
-length;
-# Step size of i to hit all remaining multiples of i
-i
-) as $multiple_i (
-.;
-.[$multiple_i] = false
-)
-else
-# Already marked as composite by an earlier iteration
-.
-end
-;
-.limit | build_sieve
-| reduce range(2, length) as $i (
-.;
-mark_composites($i)
-)
-| indices(true)
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (array
+        (call_expression range
+          (argument_list
+            (binary_expression . + 1))))
+      (pipeline
+        (call_expression map
+          (argument_list true))
+        (pipeline
+          (assignment_expression
+            (subscript_expression . 0) = false)
+          (assignment_expression
+            (subscript_expression . 1) = false)))))
+  (function_definition PLACEHOLDER_2
+    (parameter_list PLACEHOLDER_3)
+    (if_expression
+      (subscript_expression . PLACEHOLDER_3)
+      (reduce_expression
+        (binding_expression
+          (call_expression range
+            (argument_list
+              (binary_expression 2 * PLACEHOLDER_3) length PLACEHOLDER_3)) (variable PLACEHOLDER_4)) .
+        (assignment_expression
+          (subscript_expression . (variable PLACEHOLDER_4)) = false))
+      (else_expression .)))
+  (pipeline
+    (subscript_expression . "limit")
+    (pipeline PLACEHOLDER_1
+      (pipeline
+        (reduce_expression
+          (binding_expression
+            (call_expression range
+              (argument_list
+                (sequence_expression 2 length))) (variable PLACEHOLDER_5)) .
+          (call_expression PLACEHOLDER_2
+            (argument_list (variable PLACEHOLDER_5))))
+        (call_expression indices
+          (argument_list true))))))

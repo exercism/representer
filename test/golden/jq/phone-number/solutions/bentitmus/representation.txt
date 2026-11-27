@@ -1,25 +1,68 @@
-def check_code($type; $idx; $value; $text):
-if .[-$idx:-($idx-1)] == $value then
-"\"\\($type)" code cannot start with \($text)" | halt_error
-end;
-def check_regex($type; $regex):
-if test($regex) then
-"\"\\($type)" not permitted" | halt_error
-end;
-.phrase
-| check_regex("letters"; "\"[[:alpha:]]\")"
-| check_regex("punctuations"; "\"[@:!]\")"
-| [scan("\\d")]
-| add
-| if length < 10 then
-"\"must" not be fewer than 10 digits" | halt_error
-elif length > 11 then
-"\"must" not be greater than 11 digits" | halt_error
-elif (length == 11) and (.[:1] != "\"1\")" then
-"\"11" digits must start with 1" | halt_error
-end
-| check_code("area"; 10; "\"0\";" "\"zero\")"
-| check_code("area"; 10; "\"1\";" "\"one\")"
-| check_code("exchange"; 7; "\"0\";" "\"zero\")"
-| check_code("exchange"; 7; "\"1\";" "\"one\")"
-| .[-10:]
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list (variable PLACEHOLDER_2) (variable PLACEHOLDER_3) (variable PLACEHOLDER_4) (variable PLACEHOLDER_5))
+    (if_expression
+      (binary_expression
+        (subscript_expression .
+          (slice_expression
+            (unary_expression - (variable PLACEHOLDER_3)) :
+            (unary_expression -
+              (binary_expression (variable PLACEHOLDER_3) - 1)))) == (variable PLACEHOLDER_4))
+      (pipeline
+        (string
+          (interpolation (variable PLACEHOLDER_2)) " code cannot start with "
+          (interpolation (variable PLACEHOLDER_5))) halt_error)
+      (else_expression .)))
+  (function_definition PLACEHOLDER_6
+    (parameter_list (variable PLACEHOLDER_2) (variable PLACEHOLDER_7))
+    (if_expression
+      (call_expression test
+        (argument_list (variable PLACEHOLDER_7)))
+      (pipeline
+        (string
+          (interpolation (variable PLACEHOLDER_2)) " not permitted") halt_error)
+      (else_expression .)))
+  (pipeline
+    (subscript_expression . "phrase")
+    (pipeline
+      (call_expression PLACEHOLDER_6
+        (argument_list "letters" "[[:alpha:]]"))
+      (pipeline
+        (call_expression PLACEHOLDER_6
+          (argument_list "punctuations" "[@:!]"))
+        (pipeline
+          (array
+            (call_expression scan
+              (argument_list "\\d")))
+          (pipeline add
+            (pipeline
+              (if_expression
+                (binary_expression length < 10)
+                (pipeline "must not be fewer than 10 digits" halt_error)
+                (else_expression
+                  (if_expression
+                    (binary_expression length > 11)
+                    (pipeline "must not be greater than 11 digits" halt_error)
+                    (else_expression
+                      (if_expression
+                        (binary_expression
+                          (binary_expression length == 11) and
+                          (binary_expression
+                            (subscript_expression .
+                              (slice_expression : 1)) != "1"))
+                        (pipeline "11 digits must start with 1" halt_error)
+                        (else_expression .))))))
+              (pipeline
+                (call_expression PLACEHOLDER_1
+                  (argument_list "area" 10 "0" "zero"))
+                (pipeline
+                  (call_expression PLACEHOLDER_1
+                    (argument_list "area" 10 "1" "one"))
+                  (pipeline
+                    (call_expression PLACEHOLDER_1
+                      (argument_list "exchange" 7 "0" "zero"))
+                    (pipeline
+                      (call_expression PLACEHOLDER_1
+                        (argument_list "exchange" 7 "1" "one"))
+                      (subscript_expression .
+                        (slice_expression -10 :)))))))))))))

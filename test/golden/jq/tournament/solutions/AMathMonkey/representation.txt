@@ -1,36 +1,162 @@
-def lpad($n): tostring | if length < $n then "\"" "\"" * ($n - length) + . end;
-def rpad($n): tostring | if length < $n then . + "\"" "\"" * ($n - length) end;
-{wins: 0, losses: 0, draws: 0} as $default |
-(
-[
-("Team" | rpad(30)),
-("MP" | lpad(2)),
-("W" | lpad(2)),
-("D" | lpad(2)),
-("L" | lpad(2)),
-("P" | lpad(2))
-] | join(" | "\")"
-) as $header |
-.matches |
-reduce (.[] | split(";")) as [$team1, $team2, $result] (
-{};
-.[$team1] //= $default | .[$team2] //= $default |
-if $result == "\"win\"" then
-.[$team1].wins += 1 | .[$team2].losses += 1
-elif $result == "\"loss\"" then
-.[$team1].losses += 1 | .[$team2].wins += 1
-else
-.[$team1].draws += 1 | .[$team2].draws += 1
-end
-) | map_values(.matches = .wins + .losses + .draws | .score = .wins * 3 + .draws) |
-to_entries | map(.value + {name: .key}) | sort_by(-.score, .name) |
-map([
-(.name | rpad(30)),
-(.matches | lpad(2)),
-(.wins | lpad(2)),
-(.draws | lpad(2)),
-(.losses | lpad(2)),
-(.score | lpad(2))
-] | join(" | "\"))" |
-[$header] + . |
-join("\n")
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list (variable PLACEHOLDER_2))
+    (pipeline tostring
+      (if_expression
+        (binary_expression length < (variable PLACEHOLDER_2))
+        (binary_expression
+          (binary_expression " " *
+            (binary_expression (variable PLACEHOLDER_2) - length)) + .)
+        (else_expression .))))
+  (function_definition PLACEHOLDER_3
+    (parameter_list (variable PLACEHOLDER_2))
+    (pipeline tostring
+      (if_expression
+        (binary_expression length < (variable PLACEHOLDER_2))
+        (binary_expression . +
+          (binary_expression " " *
+            (binary_expression (variable PLACEHOLDER_2) - length)))
+        (else_expression .))))
+  (pipeline
+    (binding_expression
+      (object
+        (pair "wins" 0)
+        (pair "losses" 0)
+        (pair "draws" 0)) (variable PLACEHOLDER_4))
+    (pipeline
+      (binding_expression
+        (pipeline
+          (array
+            (pipeline "Team"
+              (call_expression PLACEHOLDER_3
+                (argument_list 30)))
+            (pipeline "MP"
+              (call_expression PLACEHOLDER_1
+                (argument_list 2)))
+            (pipeline "W"
+              (call_expression PLACEHOLDER_1
+                (argument_list 2)))
+            (pipeline "D"
+              (call_expression PLACEHOLDER_1
+                (argument_list 2)))
+            (pipeline "L"
+              (call_expression PLACEHOLDER_1
+                (argument_list 2)))
+            (pipeline "P"
+              (call_expression PLACEHOLDER_1
+                (argument_list 2))))
+          (call_expression join
+            (argument_list " | "))) (variable PLACEHOLDER_5))
+      (pipeline
+        (subscript_expression . "matches")
+        (pipeline
+          (reduce_expression
+            (binding_expression
+              (pipeline
+                (subscript_expression .)
+                (call_expression split
+                  (argument_list ";")))
+              (array_pattern (variable PLACEHOLDER_6) (variable PLACEHOLDER_7) (variable PLACEHOLDER_8)))
+            (object)
+            (pipeline
+              (assignment_expression
+                (subscript_expression . (variable PLACEHOLDER_6)) //= (variable PLACEHOLDER_4))
+              (pipeline
+                (assignment_expression
+                  (subscript_expression . (variable PLACEHOLDER_7)) //= (variable PLACEHOLDER_4))
+                (if_expression
+                  (binary_expression (variable PLACEHOLDER_8) == "win")
+                  (pipeline
+                    (assignment_expression
+                      (subscript_expression
+                        (subscript_expression . (variable PLACEHOLDER_6)) "wins") += 1)
+                    (assignment_expression
+                      (subscript_expression
+                        (subscript_expression . (variable PLACEHOLDER_7)) "losses") += 1))
+                  (else_expression
+                    (if_expression
+                      (binary_expression (variable PLACEHOLDER_8) == "loss")
+                      (pipeline
+                        (assignment_expression
+                          (subscript_expression
+                            (subscript_expression . (variable PLACEHOLDER_6)) "losses") += 1)
+                        (assignment_expression
+                          (subscript_expression
+                            (subscript_expression . (variable PLACEHOLDER_7)) "wins") += 1))
+                      (else_expression
+                        (pipeline
+                          (assignment_expression
+                            (subscript_expression
+                              (subscript_expression . (variable PLACEHOLDER_6)) "draws") += 1)
+                          (assignment_expression
+                            (subscript_expression
+                              (subscript_expression . (variable PLACEHOLDER_7)) "draws") += 1)))))))))
+          (pipeline
+            (call_expression map_values
+              (argument_list
+                (pipeline
+                  (assignment_expression
+                    (subscript_expression . "matches") =
+                    (binary_expression
+                      (binary_expression
+                        (subscript_expression . "wins") +
+                        (subscript_expression . "losses")) +
+                      (subscript_expression . "draws")))
+                  (assignment_expression
+                    (subscript_expression . "score") =
+                    (binary_expression
+                      (binary_expression
+                        (subscript_expression . "wins") * 3) +
+                      (subscript_expression . "draws"))))))
+            (pipeline to_entries
+              (pipeline
+                (call_expression map
+                  (argument_list
+                    (binary_expression
+                      (subscript_expression . "value") +
+                      (object
+                        (pair "name"
+                          (subscript_expression . "key"))))))
+                (pipeline
+                  (call_expression sort_by
+                    (argument_list
+                      (sequence_expression
+                        (unary_expression -
+                          (subscript_expression . "score"))
+                        (subscript_expression . "name"))))
+                  (pipeline
+                    (call_expression map
+                      (argument_list
+                        (pipeline
+                          (array
+                            (pipeline
+                              (subscript_expression . "name")
+                              (call_expression PLACEHOLDER_3
+                                (argument_list 30)))
+                            (pipeline
+                              (subscript_expression . "matches")
+                              (call_expression PLACEHOLDER_1
+                                (argument_list 2)))
+                            (pipeline
+                              (subscript_expression . "wins")
+                              (call_expression PLACEHOLDER_1
+                                (argument_list 2)))
+                            (pipeline
+                              (subscript_expression . "draws")
+                              (call_expression PLACEHOLDER_1
+                                (argument_list 2)))
+                            (pipeline
+                              (subscript_expression . "losses")
+                              (call_expression PLACEHOLDER_1
+                                (argument_list 2)))
+                            (pipeline
+                              (subscript_expression . "score")
+                              (call_expression PLACEHOLDER_1
+                                (argument_list 2))))
+                          (call_expression join
+                            (argument_list " | ")))))
+                    (pipeline
+                      (binary_expression
+                        (array (variable PLACEHOLDER_5)) + .)
+                      (call_expression join
+                        (argument_list "\n")))))))))))))

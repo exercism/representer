@@ -1,26 +1,85 @@
-def totree:
-if has(0)
-then
-.[0] as $first |
-reduce .[1:][] as $o (
-{v: $first.v, l: [], r: []};
-if $o.position < $first.position
-then .l
-else .r
-end += [$o]
-) | (.l, .r) |= totree
-else {}
-end
-;
-if [.preorder, .inorder | length] | .[0] != .[1]
-then "\"traversals" must have the same length" | halt_error
-elif [.preorder, .inorder | sort] | .[0] != .[1]
-then "\"traversals" must have the same elements" | halt_error
-elif any(.preorder | group_by(.)[]; length > 1)
-then "\"traversals" must contain unique items" | halt_error
-else
-.inorder as $inorder |
-.preorder |
-map({v: ., position: $inorder[[.]][0]}) |
-totree
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (if_expression
+      (call_expression has
+        (argument_list 0))
+      (pipeline
+        (binding_expression
+          (subscript_expression . 0) (variable PLACEHOLDER_2))
+        (pipeline
+          (reduce_expression
+            (binding_expression
+              (subscript_expression
+                (subscript_expression .
+                  (slice_expression 1 :))) (variable PLACEHOLDER_3))
+            (object
+              (pair "v"
+                (subscript_expression (variable PLACEHOLDER_2) "v"))
+              (pair "l"
+                (array))
+              (pair "r"
+                (array)))
+            (assignment_expression
+              (if_expression
+                (binary_expression
+                  (subscript_expression (variable PLACEHOLDER_3) "position") <
+                  (subscript_expression (variable PLACEHOLDER_2) "position"))
+                (subscript_expression . "l")
+                (else_expression
+                  (subscript_expression . "r"))) +=
+              (array (variable PLACEHOLDER_3))))
+          (assignment_expression
+            (sequence_expression
+              (subscript_expression . "l")
+              (subscript_expression . "r")) |= PLACEHOLDER_1)))
+      (else_expression
+        (object))))
+  (if_expression
+    (pipeline
+      (array
+        (pipeline
+          (sequence_expression
+            (subscript_expression . "preorder")
+            (subscript_expression . "inorder")) length))
+      (binary_expression
+        (subscript_expression . 0) !=
+        (subscript_expression . 1)))
+    (pipeline "traversals must have the same length" halt_error)
+    (else_expression
+      (if_expression
+        (pipeline
+          (array
+            (pipeline
+              (sequence_expression
+                (subscript_expression . "preorder")
+                (subscript_expression . "inorder")) sort))
+          (binary_expression
+            (subscript_expression . 0) !=
+            (subscript_expression . 1)))
+        (pipeline "traversals must have the same elements" halt_error)
+        (else_expression
+          (if_expression
+            (call_expression any
+              (argument_list
+                (pipeline
+                  (subscript_expression . "preorder")
+                  (subscript_expression
+                    (call_expression group_by
+                      (argument_list .))))
+                (binary_expression length > 1)))
+            (pipeline "traversals must contain unique items" halt_error)
+            (else_expression
+              (pipeline
+                (binding_expression
+                  (subscript_expression . "inorder") (variable PLACEHOLDER_4))
+                (pipeline
+                  (subscript_expression . "preorder")
+                  (pipeline
+                    (call_expression map
+                      (argument_list
+                        (object
+                          (pair "v" .)
+                          (pair "position"
+                            (subscript_expression
+                              (subscript_expression (variable PLACEHOLDER_4)
+                                (array .)) 0))))) PLACEHOLDER_1))))))))))
