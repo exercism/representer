@@ -13,6 +13,15 @@ class RustTest < RepresenterTest
          "the type, so its output isn't valid code. This representer renames them, so the equivalent has the placeholder."
   }.freeze
 
+  CAPITALS = "This representer reads a capitalised name in a pattern as an enum variant or a constant, which binds " \
+             "nothing, so the equivalent writes its placeholders in lower case.".freeze
+
+  # The deviation for a test with a placeholder in a pattern, such as
+  # `Some(PLACEHOLDER_1)`: its equivalent writes the placeholders in lower case.
+  def self.lower_case(**deviation)
+    { **deviation, replace: { "PLACEHOLDER_" => "placeholder_" }, why: [deviation[:why], CAPITALS].compact.join(" ") }
+  end
+
   DEVIATIONS = {
     "generics" => IMPL_TYPE,
     "ignore_comments" => IMPL_TYPE,
@@ -20,16 +29,21 @@ class RustTest < RepresenterTest
     "sort_by_ascii_file_items" => IMPL_TYPE,
     "user_defined_traits" => IMPL_TYPE,
     "fn_calls" => { restore: { "PLACEHOLDER_2" => "square" }, remove: ["square"], why: format(UNDEFINED, "square") },
-    "for_loops" => { restore: { "PLACEHOLDER_3" => "lines" }, remove: ["lines"], why: format(UNDEFINED, "lines") },
+    "for_loops" => lower_case(restore: { "PLACEHOLDER_3" => "lines" }, remove: ["lines"], why: format(UNDEFINED, "lines")),
     "if_expressions" => { restore: { "PLACEHOLDER_1" => "x" }, remove: ["x"], why: format(UNDEFINED, "x") },
-    "if_let_expressions" => { restore: { "PLACEHOLDER_2" => "my_func" }, remove: ["my_func"], why: format(UNDEFINED, "my_func") },
+    "if_let_expressions" => lower_case(restore: { "PLACEHOLDER_2" => "my_func" }, remove: ["my_func"],
+      why: format(UNDEFINED, "my_func")),
+    "match_arms" => lower_case,
+    "match_expressions" => lower_case,
     "loops" => { restore: { "PLACEHOLDER_1" => "x" }, remove: ["x"], why: format(UNDEFINED, "x") },
     "method_calls" => { restore: { "PLACEHOLDER_2" => "pi" }, remove: ["pi"], why: format(UNDEFINED, "pi") },
     "while_loops" => { restore: { "PLACEHOLDER_2" => "x" }, remove: ["x"], why: format(UNDEFINED, "x") },
     "type_aliases" => {
       add: ["T"],
+      replace: { "std::result::Result" => "std::result::PLACEHOLDER_1" },
       why: "The old representer left the type parameter T of a type alias. This representer renames it, as it does in a " \
-           "struct, so the equivalent has a placeholder for T."
+           "struct, so the equivalent has a placeholder for T. The solution defines the name Result, so this " \
+           "representer also renames it in `std::result::Result`."
     },
     "union_names" => {
       add: %w[A B x y],
@@ -38,54 +52,12 @@ class RustTest < RepresenterTest
     }
   }.freeze
 
-  upstream_tests ".rs", deviations: DEVIATIONS
+  MAIN = %w[blocks closure_expressions fn_calls for_loops if_expressions if_let_expressions ignore_comments
+            ignore_doc_comments let_bindings loops macro_inputs match_arms match_expressions method_calls
+            replace_same_identifier typed_let_binding while_loops].freeze
 
-  def wrap(body) = "fn f() {\n#{body}\n}\n"
-
-  def test_semicolons_after_statements_are_dropped
-    assert_same_representation wrap("let a = 1; let b = 2;"), wrap("let a = 1;\nlet b = 2;")
-    assert_same_representation "struct A;", "struct A;;"
-  end
-
-  def test_a_trailing_semicolon_still_changes_the_result
-    refute_same_representation wrap("1"), wrap("1;")
-  end
-
-  def test_array_repeat_is_not_an_array_list
-    refute_same_representation wrap("let a = [0; 5];"), wrap("let a = [0, 5];")
-    refute_same_representation wrap("let a = vec![0; 5];"), wrap("let a = vec![0, 5];")
-  end
-
-  def test_parentheses
-    assert_same_representation wrap("let a = (1 + 2);"), wrap("let a = 1 + 2;")
-    refute_same_representation wrap("let a = (1 + 2) * 3;"), wrap("let a = 1 + 2 * 3;")
-  end
-
-  def test_shorthand_fields
-    assert_same_representation "struct P { x: u32 }\nfn f(x: u32) -> P { P { x } }",
-      "struct P { x: u32 }\nfn f(x: u32) -> P { P { x: x } }"
-    assert_same_representation "struct P { x: u32 }\nfn f(p: P) { let P { x } = p; }",
-      "struct P { x: u32 }\nfn f(p: P) { let P { x: x } = p; }"
-  end
-
-  def test_strings
-    assert_same_representation wrap('let s = "a\\u{41}";'), wrap('let s = "aA";')
-    assert_same_representation wrap('let s = r"a";'), wrap('let s = "a";')
-    refute_same_representation wrap('let s = b"a";'), wrap('let s = "a";')
-    refute_same_representation wrap('let s = r"\\n";'), wrap('let s = "\\n";')
-  end
-
-  def test_items_are_sorted_with_their_attributes
-    assert_same_representation "#[derive(Debug)]\nstruct A(u32);\nfn f() -> u32 { 1 }\nuse std::fmt;\n",
-      "use std::fmt;\nfn f() -> u32 { 1 }\n#[derive(Debug)]\nstruct A(u32);\n"
-    refute_same_representation "#[derive(Debug)]\nstruct A(u32);\nstruct B(u32);\n",
-      "struct A(u32);\n#[derive(Debug)]\nstruct B(u32);\n"
-  end
-
-  def test_names_in_a_different_order_in_impls
-    assert_same_representation "struct A;\nimpl A { fn b(&self) -> u32 { 1 } fn a(&self) {} }",
-      "struct A;\nimpl A { fn a(&self) {} fn b(&self) -> u32 { 1 } }"
-  end
+  upstream_tests ".rs", deviations: DEVIATIONS, renamed: { ["main"] => MAIN },
+    renamed_why: "The old representer kept the name main. This representer renames every name the solution defines."
 
   def test_locals_and_parameters_are_renamed
     assert_same_representation "fn f(a: u32) -> u32 { let b = a; b }", "fn g(x: u32) -> u32 { let y = x; y }"
@@ -107,24 +79,27 @@ class RustTest < RepresenterTest
     assert_same_representation format(code, "total"), format(code, "amount")
   end
 
-  def test_trait_methods_keep_their_names
-    code = "struct S;\nimpl std::fmt::Display for S { fn %s(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result { Ok(()) } }"
-    refute_same_representation format(code, "fmt"), format(code, "show")
+  # A method that implements a library trait is defined by the solution too.
+  def test_trait_methods_are_renamed
+    code = "use std::fmt::{Display, Formatter, Result};\nstruct S;\n" \
+           "impl Display for S { fn %s(&self, f: &mut Formatter) -> Result { Ok(()) } }"
+    assert_same_representation format(code, "fmt"), format(code, "show")
   end
 
-  def test_names_the_tests_use_are_kept
-    refute_same_representation "pub fn f() {}", "pub fn g() {}",
+  def test_names_the_tests_use_are_renamed
+    assert_same_representation "pub fn f() {}", "pub fn g() {}",
       exercise_files: { "tests/t.rs" => "use p::*;\n#[test]\nfn t() { f(); }\n" }
+  end
+
+  # A pattern names the variants it matches, so swapping them changes the
+  # program.
+  def test_swapping_the_variants_of_a_match_changes_the_result
+    code = "fn f(r: Result<u8, u8>) -> u8 { match r { %s(v) => v, %s(_) => 0 } }"
+    refute_same_representation format(code, "Ok", "Err"), format(code, "Err", "Ok")
   end
 
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "fn f( {\n"
-  end
-
-  # A rule that drops ";" tokens also matched the contents of the string ";",
-  # and kept matching it.
-  def test_a_string_holding_a_semicolon
-    refute_same_representation 'fn f() -> &str { ";" }', 'fn f() -> &str { ":" }'
   end
 
   def test_files_in_other_formats_are_ignored
@@ -142,34 +117,5 @@ class RustTest < RepresenterTest
   def test_windows_line_endings_are_plain_line_breaks
     assert_same_representation "fn f() -> &str {\n    \"a\n b\"\n}\n", "fn f() -> &str {\r\n    \"a\r\n b\"\r\n}\r\n"
     refute_same_representation 'fn f() -> &str { "a\\r\\nb" }', 'fn f() -> &str { "a\\nb" }'
-  end
-
-  # A macro's tokens have no syntax tree, so commas and brackets count.
-  def test_every_token_in_a_macro_is_kept
-    refute_same_representation "fn f(a: i32) -> Vec<i32> { vec![a - 1] }", "fn f(a: i32) -> Vec<i32> { vec![a, -1] }"
-    refute_same_representation "fn f() { g(vec![[1, 2]]) }", "fn f() { g(vec![(1, 2)]) }"
-  end
-
-  def test_use_and_extern_crate_are_dropped
-    assert_same_representation "use std::collections::HashMap;\nextern crate foo;\nfn f() {}", "fn f() {}"
-    refute_same_representation "fn f() { std::cmp::max(1, 2); }", "fn f() { std::cmp::min(1, 2); }"
-  end
-
-  def test_a_final_assignment_is_a_statement
-    assert_same_representation "fn f(x: &mut u32) { *x = 1 }", "fn f(x: &mut u32) { *x = 1; }"
-    assert_same_representation "fn f(x: &mut u32) { *x += 1 }", "fn f(x: &mut u32) { *x += 1; }"
-  end
-
-  def test_a_match_arm_block_with_one_expression_is_the_expression
-    assert_same_representation wrap("match 1 { 1 => { 2 }, _ => 3 };"), wrap("match 1 { 1 => 2, _ => 3 };")
-    refute_same_representation wrap("match 1 { 1 => { g(); 2 }, _ => 3 };"), wrap("match 1 { 1 => 2, _ => 3 };")
-    assert_same_representation wrap("match 1 { 1 => {}, _ => () };"), wrap("match 1 { 1 => (), _ => {} };")
-  end
-
-  def test_numbers_are_their_values
-    assert_same_representation wrap("let x = 1_000 + 0x1F + 1_000u32;"), wrap("let x = 1000 + 31 + 1000u32;")
-    assert_same_representation wrap("let x = 1.50 + 2.0_f64;"), wrap("let x = 1.5 + 2.0f64;")
-    refute_same_representation wrap("let x = 1u8;"), wrap("let x = 1;")
-    refute_same_representation wrap("let x = 1.0;"), wrap("let x = 1;")
   end
 end
