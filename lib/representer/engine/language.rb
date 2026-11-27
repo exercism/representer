@@ -104,11 +104,19 @@ module Representer::Engine
     Object.const_get(parts.join("::"))
   end
 
+  # Languages whose names are one word, although they have a capital inside.
+  # JavaScript  ->  `languages/javascript/`
+  ONE_WORD_NAMES = %w[JavaScript TypeScript].freeze
+
   # Returns the folder of a staged language, such as `languages/ruby/` for
-  # Representer::Languages::Ruby.
+  # Representer::Languages::Ruby. A capital after a lower-case letter starts
+  # a new word, unless the name is in ONE_WORD_NAMES.
+  # EmacsLisp  ->  `languages/emacs_lisp/`
+  # CSharp  ->  `languages/csharp/`
   def self.folder_of(language)
-    name = language.name.split("::").last.gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase
-    File.expand_path("../languages/#{name}", __dir__)
+    name = language.name.split("::").last
+    name = name.gsub(/([a-z\d])([A-Z])/, '\1_\2') unless ONE_WORD_NAMES.include?(name)
+    File.expand_path("../languages/#{name.downcase}", __dir__)
   end
 
   # Runs the stage with this name from the module on the tree, and returns

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class TypescriptTest < RepresenterTest
+class TypeScriptTest < RepresenterTest
   extend UpstreamTests
 
   track "typescript"
@@ -72,6 +72,6 @@ class TypescriptTest < RepresenterTest
     result = represent("const = ;")
     assert_nil result.representation
     assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::Typescript::Spec.version, result.version
+    assert_equal Representer::Languages::TypeScript::Spec.version, result.version
   end
 end

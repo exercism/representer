@@ -5,8 +5,8 @@ require_relative "stage_helper"
 # the raw text of literals), and each refute_same pair gets different trees.
 # The last test lists the pairs where this stage deliberately differs from
 # the parser.
-class JavascriptGenerateASTTest < Minitest::Test
-  include JavascriptStages
+class JavaScriptGenerateASTTest < Minitest::Test
+  include JavaScriptStages
 
   def test_drops_comments_layout_and_the_hash_bang_line
     assert_same "const x = 1; // one\n/* two */\n", "const x=1"

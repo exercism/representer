@@ -1,4 +1,4 @@
-module Representer::Languages::Javascript
+module Representer::Languages::JavaScript
   class Representation < Representer::Engine::Representation
     version 9
 

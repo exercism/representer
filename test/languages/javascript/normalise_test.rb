@@ -2,8 +2,8 @@ require_relative "stage_helper"
 
 # Tests JavaScript's representation Normalise stage, and the engine's
 # dropping of the imports declared in representation.rb.
-class JavascriptNormaliseTest < Minitest::Test
-  include JavascriptStages
+class JavaScriptNormaliseTest < Minitest::Test
+  include JavaScriptStages
 
   def test_drops_empty_statements
     assert_same "let x = 1;;", "let x = 1;"

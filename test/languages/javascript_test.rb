@@ -1,6 +1,6 @@
 require "test_helper"
 
-class JavascriptTest < RepresenterTest
+class JavaScriptTest < RepresenterTest
   extend UpstreamTests
 
   track "javascript"
@@ -90,7 +90,7 @@ class JavascriptTest < RepresenterTest
     result = represent("const = ;")
     assert_nil result.representation
     assert_equal "parse_error", result.reason
-    assert_equal Representer::Languages::Javascript::Representation.version, result.version
+    assert_equal Representer::Languages::JavaScript::Representation.version, result.version
   end
 
   # The empty first or second part of a `for` shows which part is missing.

@@ -3,8 +3,8 @@ require_relative "stage_helper"
 # Checks TypeScript's declarations of which nodes are names and which nodes
 # define them (see typescript/representation.rb), through the engine's
 # renaming.
-class TypescriptNamesTest < Minitest::Test
-  include TypescriptStages
+class TypeScriptNamesTest < Minitest::Test
+  include TypeScriptStages
 
   def test_renames_types_and_their_type_parameters
     source = "class A<T> {}\nabstract class B {}\ninterface I {}\ntype P<U> = U extends Array<infer V> ? V : never\nenum E { F }"
@@ -42,8 +42,9 @@ class TypescriptNamesTest < Minitest::Test
     assert_equal %w[x], renamed("const x = Math.abs(-1)\nconsole.log(x.toFixed(2))")
   end
 
-  def test_keeps_shorthand_properties
-    assert_equal %w[a], renamed("const a = 1\nconst o = { a }").grep_v("o")
+  def test_renames_shorthand_properties_and_properties_set_on_this
+    marks = marks("const a = 1\nconst o = { a }\nclass B { constructor() { this.c = 1 } }")
+    assert(marks.select { |text, _| %w[a c].include?(text) }.all?(&:last))
   end
 
   def test_renames_library_names_the_solution_defines
@@ -57,9 +58,9 @@ class TypescriptNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Typescript::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], TypeScript::Representation)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Typescript::Representation.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if TypeScript::Representation.name?(node) }
     leaves
   end
 end

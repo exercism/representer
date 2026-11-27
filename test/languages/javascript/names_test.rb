@@ -3,8 +3,8 @@ require_relative "stage_helper"
 # Checks JavaScript's declarations of which nodes are names and which nodes
 # define them (see javascript/representation.rb), through the engine's
 # renaming.
-class JavascriptNamesTest < Minitest::Test
-  include JavascriptStages
+class JavaScriptNamesTest < Minitest::Test
+  include JavaScriptStages
 
   def test_renames_functions_and_classes
     source = "function a() {}\nfunction* b() {}\nconst c = function d() {}\nconst e = function* f() {}\n" \
@@ -51,9 +51,9 @@ class JavascriptNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Javascript::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], JavaScript::Representation)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Javascript::Representation.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if JavaScript::Representation.name?(node) }
     leaves
   end
 end

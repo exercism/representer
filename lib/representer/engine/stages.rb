@@ -7,6 +7,7 @@ module Representer::Engine
   class Stage
     include Mandate
     include TreeHelpers
+    extend InheritDeclarations
 
     initialize_with :tree
 
@@ -30,6 +31,8 @@ module Representer::Engine
   # still read the brackets and the tokens, so the engine unwraps the
   # brackets and strips the tokens after them.
   class GenerateAST < Stage
+    declarations_in :@stripped_tokens, :@stripped_tokens_in, :@kept_tokens_in, :@unwrapped_types, :@numbers
+
     class << self
       # Strips these anonymous tokens (keywords and punctuation) from every
       # node, or only from the node types given in only_in.
@@ -88,6 +91,8 @@ module Representer::Engine
   # rule visits every node once. The engine compiles the patterns with the
   # language that holds the stage.
   class Normalise < Stage
+    declarations_in :@rules
+
     # Removes every piece of code that matches one of the patterns.
     # `drop :docstrings` removes the docstrings declared in the Spec.
     def self.drop(*codes, inside: nil) = rules << [:drop, codes, inside]
@@ -171,6 +176,8 @@ module Representer::Engine
   #
   # A language that needs more can add its own call method.
   class Reorder < Stage
+    declarations_in :@sorted_types
+
     # Sorts the children of every node of these types (see SortChildren).
     def self.sort(*types) = sorted_types.concat(types)
 

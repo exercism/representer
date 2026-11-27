@@ -35,6 +35,11 @@ module Representer::Engine
 
     REMOVABLE = %i[comments docstrings].freeze
 
+    extend InheritDeclarations
+    declarations_in :@version, :@docstring_check, :@lines_only, :@removed, :@comment_type_names, :@container_types,
+                    :@skipped_words, :@skipped_blocks, :@skipped_bottom_words, :@removed_line_words,
+                    :@line_comment_markers, :@block_comment_markers
+
     initialize_with :track_slug, :source, :tree
 
     class << self

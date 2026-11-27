@@ -68,6 +68,9 @@ end
 When a language defines its `Spec`, the engine looks in the language's folder for each output's file and each stage's file.
 If a file is missing, the language doesn't run that stage.
 
+A language that builds on another can subclass the other language's outputs and stages, as TypeScript's `class GenerateAST < Representer::Languages::JavaScript::Common::GenerateAST` does.
+Each subclass starts with its parent's declarations and adds its own to them, so it declares only what its language adds.
+
 ## The language's declarations
 
 These declarations go in `spec.rb`.

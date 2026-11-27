@@ -9,9 +9,9 @@ It matches what the old representer did, apart from the decisions that apply to 
 
 - A string is its value, so `'a'`, `"a"` and `` `a` `` are the same, and so are `"\x41"` and `"A"`. The old representer printed each string's source text too, so it kept them apart.
 - A number is its value, so `1_000`, `1000.0`, `1e3` and `0x3E8` are the same. JavaScript has one number type, so they are the same number. The old representer printed each number's source text too.
-- An empty statement (a stray `;`) is dropped, apart from the empty parts of a `for`. The old representer kept it.
+- An empty statement (a stray `;`) is dropped, apart from the empty parts of a `for`, as in `for (;; i++)`. The old representer kept it.
 - A private name such as `#count` is renamed, because the solution defines it. The old representer kept it.
-- A property set on `this` that the solution doesn't declare, such as an error's `this.name`, keeps its name, because the solution doesn't define it. The old representer renamed every identifier.
+- `module.exports = { a }` and declarations that only `require` modules are dropped, with the imports. The old representer kept them.
 
 ## Analysis
 

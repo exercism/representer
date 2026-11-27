@@ -4,7 +4,7 @@
 # the same feedback however a solution is written. So this stage turns it into
 # the simpler tree that JavaScript's own parser (ESTree, as typescript-estree
 # gives it) gives.
-module Representer::Languages::Javascript::Common
+module Representer::Languages::JavaScript::Common
   class GenerateAST < Representer::Engine::GenerateAST
     # Strip the keywords that sit in a fixed place, because the node types
     # already show them.
@@ -113,7 +113,7 @@ module Representer::Languages::Javascript::Common
     # 10n  ->  10n
     def write_numbers_as_their_values!
       each_node(tree) do |node, _|
-        next unless node.type == "number" && !node.text.match?(/\A0\d|n\z/)
+        next unless node.named? && node.type == "number" && !node.text.match?(/\A0\d|n\z/)
 
         value = Representer::Engine::Numbers.integer(node.text) || Representer::Engine::Numbers.decimal(node.text)
         node.text = Representer::Engine::Numbers.write_number(value.to_r) if value
@@ -127,13 +127,19 @@ module Representer::Languages::Javascript::Common
     # (x) => x  ->  x => x
     def write_a_lone_arrow_parameter_without_brackets!
       transform(tree, "(arrow_function parameters: (formal_parameters) @parameters)") do |match|
-        parameters = match[:parameters].named_children
-        next nil unless parameters.one? && parameters.first.type == "identifier"
+        parameter = lone_parameter(match[:parameters].named_children)
+        next nil unless parameter
 
-        match.node.replace_child(match[:parameters], parameters.first)
-        parameters.first.field = "parameter"
+        match.node.replace_child(match[:parameters], parameter)
+        parameter.field = "parameter"
         match.node
       end
+    end
+
+    # Return the name of an arrow function's single parameter, if the
+    # parameter is only a name.
+    def lone_parameter(parameters)
+      parameters.first if parameters.one? && parameters.first.type == "identifier"
     end
 
     # Mark each property that an assignment sets on `this`, so that

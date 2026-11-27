@@ -1,7 +1,7 @@
 # REPRESENTER_DSL.md defines the verbs and helpers in this file.
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on.
-class Representer::Languages::Javascript::Representation
+class Representer::Languages::JavaScript::Representation
   class Normalise < Representer::Engine::Normalise
     REQUIRE = '(variable_declarator value: (call_expression function: (identifier "require") arguments: (arguments (literal))))'.freeze
 

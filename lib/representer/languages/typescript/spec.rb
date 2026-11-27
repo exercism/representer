@@ -1,4 +1,4 @@
-module Representer::Languages::Typescript
+module Representer::Languages::TypeScript
   class Spec < Representer::Engine::Language
     tracks "typescript"
     grammar "typescript"

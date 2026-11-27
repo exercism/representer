@@ -7,7 +7,11 @@ module Representer::Engine
   # classes inside it, such as Ruby::Representation::Reorder, in the
   # language's `representation/` folder.
   class Representation
+    extend InheritDeclarations
+
     STAGE_FILES = { Normalise: "normalise", Reorder: "reorder" }.freeze
+
+    declarations_in :@version, :@names, :@definitions, :@imports, :@pattern_contexts
 
     class << self
       # Ruby calls this when a language defines its Representation. The
@@ -68,12 +72,12 @@ module Representer::Engine
       def imports(*codes)
         return @import_patterns ||= (@imports || []).map { |code| CodePattern[language, code] } if codes.empty?
 
-        @imports = codes
+        (@imports ||= []).concat(codes)
       end
 
       # The code to put a code pattern in when the pattern doesn't parse on
       # its own (see REPRESENTER_DSL.md).
-      def pattern_contexts(*contexts) = contexts.empty? ? @pattern_contexts || [] : @pattern_contexts = contexts
+      def pattern_contexts(*contexts) = (@pattern_contexts ||= []).concat(contexts)
 
       # Runs the representation's stage with this name on the tree, and
       # returns the new tree (see Engine.run_stage).

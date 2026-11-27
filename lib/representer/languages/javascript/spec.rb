@@ -1,4 +1,4 @@
-module Representer::Languages::Javascript
+module Representer::Languages::JavaScript
   class Spec < Representer::Engine::Language
     tracks "javascript"
     grammar "javascript"

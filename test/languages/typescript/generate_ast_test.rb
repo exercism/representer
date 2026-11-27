@@ -4,8 +4,8 @@ require_relative "stage_helper"
 # tree from TypeScript's parser (typescript-estree, comparing each literal's
 # value and ignoring locations and comments), and each refute_same pair gets
 # different trees.
-class TypescriptGenerateASTTest < Minitest::Test
-  include TypescriptStages
+class TypeScriptGenerateASTTest < Minitest::Test
+  include TypeScriptStages
 
   def test_drops_comments_layout_and_the_hash_bang_line
     assert_same "const x = 1; // one\n/* two */\n", "const x = 1"
