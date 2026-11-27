@@ -1,69 +1,209 @@
-local name = 1
-local children = 2
-local function ancestry ( which , node )
-if which == node [ name ] then
-return { node }
-end
-for _ , child in ipairs ( node [ children ] or {}) do
-local _ancestry = ancestry ( which , child )
-if _ancestry then
-table.insert ( _ancestry , 1 , node )
-return _ancestry
-end
-end
-end
-local function add_child ( node , child )
-node [ children ] = node [ children ] or {}
-table.insert ( node [ children ], child )
-end
-local function remove_child ( node , which )
-for i , child in ipairs ( node [ children ]) do
-if which == child then
-table.remove ( node [ children ], i )
-if # node [ children ] == 0 then
-node [ children ] = nil
-end
-end
-end
-end
-local function clone_tree ( tree )
-local clone = {}
-for k , v in pairs ( tree ) do
-if type ( v ) == 'table' then
-clone [ k ] = clone_tree ( v )
-else
-clone [ k ] = v
-end
-end
-return clone
-end
-local function pov_from ( node_name )
-return {
-of = function ( tree )
-tree = clone_tree ( tree )
-local ancestry = ancestry ( node_name , tree )
-for i = 1 , # ancestry - 1 do
-remove_child ( ancestry [ i ], ancestry [ i + 1 ])
-add_child ( ancestry [ i + 1 ], ancestry [ i ])
-end
-return ancestry [ # ancestry ]
-end
-}
-end
-local function path_from ( source )
-return {
-to = function ( destination )
-return {
-of = function ( tree )
-local ancestry = ancestry ( destination , pov_from ( source ). of ( tree ))
-local path = {}
-for _ , node in ipairs ( ancestry ) do
-table.insert ( path , node [ name ])
-end
-return path
-end
-}
-end
-}
-end
-return { pov_from = pov_from , path_from = path_from }
+(chunk
+  (variable_declaration local
+    (assignment_statement
+      (variable_list PLACEHOLDER_1)
+      (expression_list 1)))
+  (variable_declaration local
+    (assignment_statement
+      (variable_list PLACEHOLDER_2)
+      (expression_list 2)))
+  (function_declaration local PLACEHOLDER_3
+    (parameters PLACEHOLDER_4 PLACEHOLDER_5)
+    (block
+      (if_statement
+        (binary_expression PLACEHOLDER_4 ==
+          (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_1))
+        (block
+          (return_statement
+            (expression_list
+              (table_constructor
+                (field PLACEHOLDER_5))))))
+      (for_statement
+        (for_generic_clause
+          (variable_list PLACEHOLDER_6 PLACEHOLDER_7)
+          (expression_list
+            (function_call ipairs
+              (arguments
+                (binary_expression
+                  (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_2) or
+                  (table_constructor))))))
+        (block
+          (variable_declaration local
+            (assignment_statement
+              (variable_list PLACEHOLDER_8)
+              (expression_list
+                (function_call PLACEHOLDER_3
+                  (arguments PLACEHOLDER_4 PLACEHOLDER_7)))))
+          (if_statement PLACEHOLDER_8
+            (block
+              (function_call
+                (dot_index_expression table insert)
+                (arguments PLACEHOLDER_8 1 PLACEHOLDER_5))
+              (return_statement
+                (expression_list PLACEHOLDER_8))))))))
+  (function_declaration local PLACEHOLDER_9
+    (parameters PLACEHOLDER_5 PLACEHOLDER_7)
+    (block
+      (assignment_statement
+        (variable_list
+          (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_2))
+        (expression_list
+          (binary_expression
+            (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_2) or
+            (table_constructor))))
+      (function_call
+        (dot_index_expression table insert)
+        (arguments
+          (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_2) PLACEHOLDER_7))))
+  (function_declaration local PLACEHOLDER_10
+    (parameters PLACEHOLDER_5 PLACEHOLDER_4)
+    (block
+      (for_statement
+        (for_generic_clause
+          (variable_list PLACEHOLDER_11 PLACEHOLDER_7)
+          (expression_list
+            (function_call ipairs
+              (arguments
+                (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_2)))))
+        (block
+          (if_statement
+            (binary_expression PLACEHOLDER_4 == PLACEHOLDER_7)
+            (block
+              (function_call
+                (dot_index_expression table remove)
+                (arguments
+                  (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_2) PLACEHOLDER_11))
+              (if_statement
+                (binary_expression
+                  (unary_expression #
+                    (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_2)) == 0)
+                (block
+                  (assignment_statement
+                    (variable_list
+                      (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_2))
+                    (expression_list nil))))))))))
+  (function_declaration local PLACEHOLDER_12
+    (parameters PLACEHOLDER_13)
+    (block
+      (variable_declaration local
+        (assignment_statement
+          (variable_list PLACEHOLDER_14)
+          (expression_list
+            (table_constructor))))
+      (for_statement
+        (for_generic_clause
+          (variable_list PLACEHOLDER_15 PLACEHOLDER_16)
+          (expression_list
+            (function_call pairs
+              (arguments PLACEHOLDER_13))))
+        (block
+          (if_statement
+            (binary_expression
+              (function_call type
+                (arguments PLACEHOLDER_16)) == "table")
+            (block
+              (assignment_statement
+                (variable_list
+                  (bracket_index_expression PLACEHOLDER_14 PLACEHOLDER_15))
+                (expression_list
+                  (function_call PLACEHOLDER_12
+                    (arguments PLACEHOLDER_16)))))
+            (else_statement
+              (block
+                (assignment_statement
+                  (variable_list
+                    (bracket_index_expression PLACEHOLDER_14 PLACEHOLDER_15))
+                  (expression_list PLACEHOLDER_16)))))))
+      (return_statement
+        (expression_list PLACEHOLDER_14))))
+  (function_declaration local PLACEHOLDER_17
+    (parameters PLACEHOLDER_18)
+    (block
+      (return_statement
+        (expression_list
+          (table_constructor
+            (field PLACEHOLDER_19
+              (function_definition
+                (parameters PLACEHOLDER_13)
+                (block
+                  (assignment_statement
+                    (variable_list PLACEHOLDER_13)
+                    (expression_list
+                      (function_call PLACEHOLDER_12
+                        (arguments PLACEHOLDER_13))))
+                  (variable_declaration local
+                    (assignment_statement
+                      (variable_list PLACEHOLDER_3)
+                      (expression_list
+                        (function_call PLACEHOLDER_3
+                          (arguments PLACEHOLDER_18 PLACEHOLDER_13)))))
+                  (for_statement
+                    (for_numeric_clause PLACEHOLDER_11 1
+                      (binary_expression
+                        (unary_expression # PLACEHOLDER_3) - 1))
+                    (block
+                      (function_call PLACEHOLDER_10
+                        (arguments
+                          (bracket_index_expression PLACEHOLDER_3 PLACEHOLDER_11)
+                          (bracket_index_expression PLACEHOLDER_3
+                            (binary_expression PLACEHOLDER_11 + 1))))
+                      (function_call PLACEHOLDER_9
+                        (arguments
+                          (bracket_index_expression PLACEHOLDER_3
+                            (binary_expression PLACEHOLDER_11 + 1))
+                          (bracket_index_expression PLACEHOLDER_3 PLACEHOLDER_11)))))
+                  (return_statement
+                    (expression_list
+                      (bracket_index_expression PLACEHOLDER_3
+                        (unary_expression # PLACEHOLDER_3))))))))))))
+  (function_declaration local PLACEHOLDER_20
+    (parameters PLACEHOLDER_21)
+    (block
+      (return_statement
+        (expression_list
+          (table_constructor
+            (field PLACEHOLDER_22
+              (function_definition
+                (parameters PLACEHOLDER_23)
+                (block
+                  (return_statement
+                    (expression_list
+                      (table_constructor
+                        (field PLACEHOLDER_19
+                          (function_definition
+                            (parameters PLACEHOLDER_13)
+                            (block
+                              (variable_declaration local
+                                (assignment_statement
+                                  (variable_list PLACEHOLDER_3)
+                                  (expression_list
+                                    (function_call PLACEHOLDER_3
+                                      (arguments PLACEHOLDER_23
+                                        (function_call
+                                          (dot_index_expression
+                                            (function_call PLACEHOLDER_17
+                                              (arguments PLACEHOLDER_21)) PLACEHOLDER_19)
+                                          (arguments PLACEHOLDER_13)))))))
+                              (variable_declaration local
+                                (assignment_statement
+                                  (variable_list PLACEHOLDER_24)
+                                  (expression_list
+                                    (table_constructor))))
+                              (for_statement
+                                (for_generic_clause
+                                  (variable_list PLACEHOLDER_6 PLACEHOLDER_5)
+                                  (expression_list
+                                    (function_call ipairs
+                                      (arguments PLACEHOLDER_3))))
+                                (block
+                                  (function_call
+                                    (dot_index_expression table insert)
+                                    (arguments PLACEHOLDER_24
+                                      (bracket_index_expression PLACEHOLDER_5 PLACEHOLDER_1)))))
+                              (return_statement
+                                (expression_list PLACEHOLDER_24))))))))))))))))
+  (return_statement
+    (expression_list
+      (table_constructor
+        (field PLACEHOLDER_17 PLACEHOLDER_17)
+        (field PLACEHOLDER_20 PLACEHOLDER_20)))))

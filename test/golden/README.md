@@ -189,7 +189,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | kotlin | Basic | 388 | 96 | 100 | 71 | 95 | 25 | 0 | 0 | 0 |
 | lean | Basic | 121 | 7 | 100 | 81 | 94 | 3 | 0 | 0 | 0 |
 | lfe | Basic | 84 | 1 | 81 | 52 | 81 | 1 | 0 | 0 | 0 |
-| lua | Basic | 331 | 77 | 100 | 72 | 95 | 9 | 1 | 0 | 0 |
+| lua | Lua | 331 | 77 | 100 | 72 | 95 | 0 | 7 | 0 | 0 |
 | mips | Basic | 124 | 8 | 100 | 52 | 100 | 2 | 0 | 0 | 0 |
 | moonscript | Basic | 100 | 0 | 100 | 99 | 98 | 0 | 0 | 0 | 0 |
 | nim | Nim | 256 | 52 | 100 | 64 | 98 | 1 | 6 | 0 | 0 |

@@ -1,41 +1,123 @@
-local bracket_push = {}
-local brackets = {
-{ '{' , '}' },
-{ '(' , ')' },
-{ '[' , ']' }
-}
-local function is_open_bracket ( char )
-for _ , bt in ipairs ( brackets ) do
-if bt [ 1 ] == char then
-return true
-end
-end
-return false
-end
-local function belong_together ( o_char , c_char )
-for _ , bt in ipairs ( brackets ) do
-if bt [ 1 ] == o_char then
-return bt [ 2 ] == c_char
-end
-end
-return false
-end
-function bracket_push . valid ( str )
-if str == '' then return true end
-local stack = {}
-for i = 1 , # str do
-local char = str : sub ( i , i )
-if char : find ( '[{}()%[%]]' ) then
-if is_open_bracket ( char ) then
-table.insert ( stack , char )
-else
-if # stack == 0
-or not belong_together ( table.remove ( stack , # stack ), char ) then
-return false
-end
-end
-end
-end
-return # stack == 0
-end
-return bracket_push
+(chunk
+  (variable_declaration local
+    (assignment_statement
+      (variable_list PLACEHOLDER_1)
+      (expression_list
+        (table_constructor))))
+  (variable_declaration local
+    (assignment_statement
+      (variable_list PLACEHOLDER_2)
+      (expression_list
+        (table_constructor
+          (field
+            (table_constructor
+              (field "{")
+              (field "}")))
+          (field
+            (table_constructor
+              (field "(")
+              (field ")")))
+          (field
+            (table_constructor
+              (keyed_field "[")
+              (field "]")))))))
+  (function_declaration local PLACEHOLDER_3
+    (parameters PLACEHOLDER_4)
+    (block
+      (for_statement
+        (for_generic_clause
+          (variable_list PLACEHOLDER_5 PLACEHOLDER_6)
+          (expression_list
+            (function_call ipairs
+              (arguments PLACEHOLDER_2))))
+        (block
+          (if_statement
+            (binary_expression
+              (bracket_index_expression PLACEHOLDER_6 1) == PLACEHOLDER_4)
+            (block
+              (return_statement
+                (expression_list true))))))
+      (return_statement
+        (expression_list false))))
+  (function_declaration local PLACEHOLDER_7
+    (parameters PLACEHOLDER_8 PLACEHOLDER_9)
+    (block
+      (for_statement
+        (for_generic_clause
+          (variable_list PLACEHOLDER_5 PLACEHOLDER_6)
+          (expression_list
+            (function_call ipairs
+              (arguments PLACEHOLDER_2))))
+        (block
+          (if_statement
+            (binary_expression
+              (bracket_index_expression PLACEHOLDER_6 1) == PLACEHOLDER_8)
+            (block
+              (return_statement
+                (expression_list
+                  (binary_expression
+                    (bracket_index_expression PLACEHOLDER_6 2) == PLACEHOLDER_9)))))))
+      (return_statement
+        (expression_list false))))
+  (assignment_statement
+    (variable_list
+      (dot_index_expression PLACEHOLDER_1 PLACEHOLDER_10))
+    (expression_list
+      (function_definition
+        (parameters PLACEHOLDER_11)
+        (block
+          (if_statement
+            (binary_expression PLACEHOLDER_11 == "")
+            (block
+              (return_statement
+                (expression_list true))))
+          (variable_declaration local
+            (assignment_statement
+              (variable_list PLACEHOLDER_12)
+              (expression_list
+                (table_constructor))))
+          (for_statement
+            (for_numeric_clause PLACEHOLDER_13 1
+              (unary_expression # PLACEHOLDER_11))
+            (block
+              (variable_declaration local
+                (assignment_statement
+                  (variable_list PLACEHOLDER_4)
+                  (expression_list
+                    (function_call
+                      (method_index_expression PLACEHOLDER_11 sub)
+                      (arguments PLACEHOLDER_13 PLACEHOLDER_13)))))
+              (if_statement
+                (function_call
+                  (method_index_expression PLACEHOLDER_4 find)
+                  (arguments "[{}()%[%]]"))
+                (block
+                  (if_statement
+                    (function_call PLACEHOLDER_3
+                      (arguments PLACEHOLDER_4))
+                    (block
+                      (function_call
+                        (dot_index_expression table insert)
+                        (arguments PLACEHOLDER_12 PLACEHOLDER_4)))
+                    (else_statement
+                      (block
+                        (if_statement
+                          (binary_expression
+                            (binary_expression
+                              (unary_expression # PLACEHOLDER_12) == 0) or
+                            (unary_expression not
+                              (function_call PLACEHOLDER_7
+                                (arguments
+                                  (function_call
+                                    (dot_index_expression table remove)
+                                    (arguments PLACEHOLDER_12
+                                      (unary_expression # PLACEHOLDER_12))) PLACEHOLDER_4))))
+                          (block
+                            (return_statement
+                              (expression_list false)))))))))))
+          (return_statement
+            (expression_list
+              (binary_expression
+                (unary_expression # PLACEHOLDER_12) == 0)))))))
+  (return_statement
+    (expression_list PLACEHOLDER_1)))
