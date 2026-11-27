@@ -1,69 +1,228 @@
-module main
-struct Bucket {
-id BucketId
-capacity int
-mut:
-contents int
-}
-enum BucketId {
-one
-two
-}
-struct Solution {
-moves int
-goal_bucket BucketId
-other_bucket int
-}
-pub fn measure(capacity_one int, capacity_two int, goal int, start_bucket BucketId) !Solution {
-greatest_common_divisor := gcd(capacity_one, capacity_two);
-if goal % greatest_common_divisor != 0 ||
-(goal > capacity_one && goal > capacity_two) {
-return error("impossible")
-}
-mut moves := 0;
-mut bucket_one := Bucket { BucketId.one, capacity_one, 0};
-mut bucket_two := Bucket { BucketId.two, capacity_two, 0};
-mut buckets := [bucket_one, bucket_two]
-if start_bucket == BucketId.two {
-buckets = [bucket_two, bucket_one];
-}
-// first move, fill the first bucket (this is chosen for us, so we must make it)
-buckets[0].contents = buckets[0].capacity;
-moves += 1;
-// special case, in case the second bucket's capacity would allow us to reach the
-// goal if we'd just fill it from the tap without faffing around with bucket one
-if goal == buckets[1].capacity{
-buckets[1].contents = buckets[1].capacity;
-moves += 1;
-}
-// this form of vlang `for` is equivalent to a while in another language.
-// i.e. loop until the condition evaluates false
-for buckets[0].contents != goal && buckets[1].contents != goal {
-if buckets[1].contents == buckets[1].capacity {
-// if the second bucket is full, empty it
-buckets[1].contents = 0;
-moves += 1;
-}else if buckets[0].contents == 0 {
-// if the first bucket is empty again, fill it
-buckets[0].contents = buckets[0].capacity;
-moves += 1;
-}else{
-to_space := buckets[1].capacity - buckets[1].contents; // space in the second bucket
-pour_amount := min(buckets[0].contents, to_space); // pour the least of first bucket's
-// contents and second bucket's space
-buckets[0].contents = buckets[0].contents - pour_amount; // do the pouring out
-buckets[1].contents = buckets[1].contents + pour_amount; // and pouring in
-moves += 1;
-}
-}
-mut goal_bucket := BucketId.one;
-mut other_bucket := 0;
-if buckets[0].contents == goal {
-goal_bucket = buckets[0].id
-other_bucket = buckets[1].contents;
-}else{
-goal_bucket = buckets[1].id;
-other_bucket = buckets[0].contents;
-}
-return Solution { moves, goal_bucket, other_bucket }
-}
+(source_file
+  (module_clause main)
+  (struct_declaration PLACEHOLDER_1
+    (struct_field_declaration PLACEHOLDER_2 PLACEHOLDER_3)
+    (struct_field_declaration PLACEHOLDER_4 int)
+    (struct_field_scope mut)
+    (struct_field_declaration PLACEHOLDER_5 int))
+  (enum_declaration PLACEHOLDER_3
+    (enum_field_definition PLACEHOLDER_6)
+    (enum_field_definition PLACEHOLDER_7))
+  (struct_declaration PLACEHOLDER_8
+    (struct_field_declaration PLACEHOLDER_9 int)
+    (struct_field_declaration PLACEHOLDER_10 PLACEHOLDER_3)
+    (struct_field_declaration PLACEHOLDER_11 int))
+  (function_declaration
+    (visibility_modifiers pub) PLACEHOLDER_12
+    (signature
+      (parameter_list
+        (parameter_declaration PLACEHOLDER_13 int)
+        (parameter_declaration PLACEHOLDER_14 int)
+        (parameter_declaration PLACEHOLDER_15 int)
+        (parameter_declaration PLACEHOLDER_16 PLACEHOLDER_3))
+      (result_type ! PLACEHOLDER_8))
+    (block
+      (var_declaration
+        (identifier_list PLACEHOLDER_17)
+        (expression_list
+          (call_expression gcd
+            (argument_list PLACEHOLDER_13 PLACEHOLDER_14))))
+      (if_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_15 % PLACEHOLDER_17) != 0) ||
+          (binary_expression
+            (binary_expression PLACEHOLDER_15 > PLACEHOLDER_13) &&
+            (binary_expression PLACEHOLDER_15 > PLACEHOLDER_14)))
+        (block
+          (return_statement
+            (expression_list
+              (call_expression error
+                (argument_list "impossible"))))))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_9))
+        (expression_list 0))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_18))
+        (expression_list
+          (type_initializer PLACEHOLDER_1
+            (type_initializer_body
+              (short_element_list
+                (element
+                  (selector_expression PLACEHOLDER_3 PLACEHOLDER_6))
+                (element PLACEHOLDER_13)
+                (element 0))))))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_19))
+        (expression_list
+          (type_initializer PLACEHOLDER_1
+            (type_initializer_body
+              (short_element_list
+                (element
+                  (selector_expression PLACEHOLDER_3 PLACEHOLDER_7))
+                (element PLACEHOLDER_14)
+                (element 0))))))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_20))
+        (expression_list
+          (array_creation PLACEHOLDER_18 PLACEHOLDER_19)))
+      (if_expression
+        (binary_expression PLACEHOLDER_16 ==
+          (selector_expression PLACEHOLDER_3 PLACEHOLDER_7))
+        (block
+          (assignment_statement
+            (expression_list PLACEHOLDER_20) =
+            (expression_list
+              (array_creation PLACEHOLDER_19 PLACEHOLDER_18)))))
+      (assignment_statement
+        (expression_list
+          (selector_expression
+            (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5)) =
+        (expression_list
+          (selector_expression
+            (index_expression PLACEHOLDER_20 0) PLACEHOLDER_4)))
+      (assignment_statement
+        (expression_list PLACEHOLDER_9) +=
+        (expression_list 1))
+      (if_expression
+        (binary_expression PLACEHOLDER_15 ==
+          (selector_expression
+            (index_expression PLACEHOLDER_20 1) PLACEHOLDER_4))
+        (block
+          (assignment_statement
+            (expression_list
+              (selector_expression
+                (index_expression PLACEHOLDER_20 1) PLACEHOLDER_5)) =
+            (expression_list
+              (selector_expression
+                (index_expression PLACEHOLDER_20 1) PLACEHOLDER_4)))
+          (assignment_statement
+            (expression_list PLACEHOLDER_9) +=
+            (expression_list 1))))
+      (for_statement
+        (binary_expression
+          (binary_expression
+            (selector_expression
+              (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5) != PLACEHOLDER_15) &&
+          (binary_expression
+            (selector_expression
+              (index_expression PLACEHOLDER_20 1) PLACEHOLDER_5) != PLACEHOLDER_15))
+        (block
+          (if_expression
+            (binary_expression
+              (selector_expression
+                (index_expression PLACEHOLDER_20 1) PLACEHOLDER_5) ==
+              (selector_expression
+                (index_expression PLACEHOLDER_20 1) PLACEHOLDER_4))
+            (block
+              (assignment_statement
+                (expression_list
+                  (selector_expression
+                    (index_expression PLACEHOLDER_20 1) PLACEHOLDER_5)) =
+                (expression_list 0))
+              (assignment_statement
+                (expression_list PLACEHOLDER_9) +=
+                (expression_list 1)))
+            (else_branch
+              (if_expression
+                (binary_expression
+                  (selector_expression
+                    (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5) == 0)
+                (block
+                  (assignment_statement
+                    (expression_list
+                      (selector_expression
+                        (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5)) =
+                    (expression_list
+                      (selector_expression
+                        (index_expression PLACEHOLDER_20 0) PLACEHOLDER_4)))
+                  (assignment_statement
+                    (expression_list PLACEHOLDER_9) +=
+                    (expression_list 1)))
+                (else_branch
+                  (block
+                    (var_declaration
+                      (identifier_list PLACEHOLDER_21)
+                      (expression_list
+                        (binary_expression
+                          (selector_expression
+                            (index_expression PLACEHOLDER_20 1) PLACEHOLDER_4) -
+                          (selector_expression
+                            (index_expression PLACEHOLDER_20 1) PLACEHOLDER_5))))
+                    (var_declaration
+                      (identifier_list PLACEHOLDER_22)
+                      (expression_list
+                        (call_expression min
+                          (argument_list
+                            (selector_expression
+                              (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5) PLACEHOLDER_21))))
+                    (assignment_statement
+                      (expression_list
+                        (selector_expression
+                          (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5)) =
+                      (expression_list
+                        (binary_expression
+                          (selector_expression
+                            (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5) - PLACEHOLDER_22)))
+                    (assignment_statement
+                      (expression_list
+                        (selector_expression
+                          (index_expression PLACEHOLDER_20 1) PLACEHOLDER_5)) =
+                      (expression_list
+                        (binary_expression
+                          (selector_expression
+                            (index_expression PLACEHOLDER_20 1) PLACEHOLDER_5) + PLACEHOLDER_22)))
+                    (assignment_statement
+                      (expression_list PLACEHOLDER_9) +=
+                      (expression_list 1)))))))))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_10))
+        (expression_list
+          (selector_expression PLACEHOLDER_3 PLACEHOLDER_6)))
+      (var_declaration
+        (identifier_list
+          (mutable_identifier
+            (mutability_modifiers mut) PLACEHOLDER_11))
+        (expression_list 0))
+      (if_expression
+        (binary_expression
+          (selector_expression
+            (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5) == PLACEHOLDER_15)
+        (block
+          (assignment_statement
+            (expression_list PLACEHOLDER_10) =
+            (expression_list
+              (selector_expression
+                (index_expression PLACEHOLDER_20 0) PLACEHOLDER_2)))
+          (assignment_statement
+            (expression_list PLACEHOLDER_11) =
+            (expression_list
+              (selector_expression
+                (index_expression PLACEHOLDER_20 1) PLACEHOLDER_5))))
+        (else_branch
+          (block
+            (assignment_statement
+              (expression_list PLACEHOLDER_10) =
+              (expression_list
+                (selector_expression
+                  (index_expression PLACEHOLDER_20 1) PLACEHOLDER_2)))
+            (assignment_statement
+              (expression_list PLACEHOLDER_11) =
+              (expression_list
+                (selector_expression
+                  (index_expression PLACEHOLDER_20 0) PLACEHOLDER_5))))))
+      (return_statement
+        (expression_list
+          (type_initializer PLACEHOLDER_8
+            (type_initializer_body
+              (element_list PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11))))))))
