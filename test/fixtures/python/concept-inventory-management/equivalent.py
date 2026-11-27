@@ -52,7 +52,7 @@ def placeholder_7(placeholder_2):
     :return: list of tuples - list of key, value pairs from the inventory dictionary.
     """
     placeholder_8 = []
-    for placeholder_4 in sorted(placeholder_2.items()):
+    for placeholder_4 in sorted(placeholder_2.placeholder_1()):
         if placeholder_4[1] > 0:
             placeholder_8.append(placeholder_4)
     return placeholder_8

@@ -1,7 +1,7 @@
 from calendar import Calendar
 
 def placeholder_0(placeholder_1, placeholder_2, placeholder_3, placeholder_4):
-    placeholder_5 = [placeholder_6 for placeholder_6 in Calendar().itermonthdates(placeholder_1, placeholder_2) if placeholder_6.month == placeholder_2 if placeholder_6.strftime('%A') == placeholder_4]
+    placeholder_5 = [placeholder_6 for placeholder_6 in Calendar().itermonthdates(placeholder_1, placeholder_2) if placeholder_6.placeholder_2 == placeholder_2 if placeholder_6.strftime('%A') == placeholder_4]
     return placeholder_7(placeholder_3)(placeholder_5)
 
 def placeholder_7(placeholder_3):
