@@ -1,36 +1,120 @@
-def tostring_zpad($num_digits):
-tostring as $in
-| [limit($num_digits; repeat("0"))]
-| add + $in
-| .[-$num_digits:];
-def dates_in_month($year; $month):
-($year | tostring_zpad(4)) as $year_str
-| ($month | tostring_zpad(2)) as $month_str
-| range(31)
-| . + 1
-| tostring_zpad(2) as $date_str
-| "\"\\($year_str)-\\($month_str)-\\($date_str)\""
-| strptime("%Y-%m-%d")
-| mktime
-| select(strftime("%m") == $month_str);
-def dates_in_month_strings($year; $month):
-dates_in_month($year; $month)
-| strftime("%Y-%m-%d");
-def teenth:
-.[]
-| select(strftime("%d") | tonumber | . >= 13 and . <= 19);
-def get_day_matching_week($week):
-if $week == "\"first\"" then .[0]
-elif $week == "\"second\"" then .[1]
-elif $week == "\"third\"" then .[2]
-elif $week == "\"fourth\"" then .[3]
-elif $week == "\"last\"" then .[-1]
-elif $week == "\"teenth\"" then teenth
-else error("Invalid week \"\($week)\"")
-end;
-. as $info |
-[ dates_in_month($info.year; $info.month)
-| select(strftime("%A") == $info.dayofweek)
-]
-| get_day_matching_week($info.week)
-| strftime("%Y-%m-%d")
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list (variable PLACEHOLDER_2))
+    (pipeline
+      (binding_expression tostring (variable PLACEHOLDER_3))
+      (pipeline
+        (array
+          (call_expression limit
+            (argument_list (variable PLACEHOLDER_2)
+              (call_expression repeat
+                (argument_list "0")))))
+        (pipeline
+          (binary_expression add + (variable PLACEHOLDER_3))
+          (subscript_expression .
+            (slice_expression
+              (unary_expression - (variable PLACEHOLDER_2)) :))))))
+  (function_definition PLACEHOLDER_4
+    (parameter_list (variable PLACEHOLDER_5) (variable PLACEHOLDER_6))
+    (pipeline
+      (binding_expression
+        (pipeline (variable PLACEHOLDER_5)
+          (call_expression PLACEHOLDER_1
+            (argument_list 4))) (variable PLACEHOLDER_7))
+      (pipeline
+        (binding_expression
+          (pipeline (variable PLACEHOLDER_6)
+            (call_expression PLACEHOLDER_1
+              (argument_list 2))) (variable PLACEHOLDER_8))
+        (pipeline
+          (call_expression range
+            (argument_list 31))
+          (pipeline
+            (binary_expression . + 1)
+            (pipeline
+              (binding_expression
+                (call_expression PLACEHOLDER_1
+                  (argument_list 2)) (variable PLACEHOLDER_9))
+              (pipeline
+                (string
+                  (interpolation (variable PLACEHOLDER_7)) "-"
+                  (interpolation (variable PLACEHOLDER_8)) "-"
+                  (interpolation (variable PLACEHOLDER_9)))
+                (pipeline
+                  (call_expression strptime
+                    (argument_list "%Y-%m-%d"))
+                  (pipeline mktime
+                    (call_expression select
+                      (argument_list
+                        (binary_expression
+                          (call_expression strftime
+                            (argument_list "%m")) == (variable PLACEHOLDER_8)))))))))))))
+  (function_definition PLACEHOLDER_10
+    (parameter_list (variable PLACEHOLDER_5) (variable PLACEHOLDER_6))
+    (pipeline
+      (call_expression PLACEHOLDER_4
+        (argument_list (variable PLACEHOLDER_5) (variable PLACEHOLDER_6)))
+      (call_expression strftime
+        (argument_list "%Y-%m-%d"))))
+  (function_definition PLACEHOLDER_11
+    (pipeline
+      (subscript_expression .)
+      (call_expression select
+        (argument_list
+          (pipeline
+            (call_expression strftime
+              (argument_list "%d"))
+            (pipeline tonumber
+              (binary_expression
+                (binary_expression . >= 13) and
+                (binary_expression . <= 19))))))))
+  (function_definition PLACEHOLDER_12
+    (parameter_list (variable PLACEHOLDER_13))
+    (if_expression
+      (binary_expression (variable PLACEHOLDER_13) == "first")
+      (subscript_expression . 0)
+      (else_expression
+        (if_expression
+          (binary_expression (variable PLACEHOLDER_13) == "second")
+          (subscript_expression . 1)
+          (else_expression
+            (if_expression
+              (binary_expression (variable PLACEHOLDER_13) == "third")
+              (subscript_expression . 2)
+              (else_expression
+                (if_expression
+                  (binary_expression (variable PLACEHOLDER_13) == "fourth")
+                  (subscript_expression . 3)
+                  (else_expression
+                    (if_expression
+                      (binary_expression (variable PLACEHOLDER_13) == "last")
+                      (subscript_expression . -1)
+                      (else_expression
+                        (if_expression
+                          (binary_expression (variable PLACEHOLDER_13) == "teenth") PLACEHOLDER_11
+                          (else_expression
+                            (call_expression error
+                              (argument_list
+                                (string "Invalid week \""
+                                  (interpolation (variable PLACEHOLDER_13)) "\""))))))))))))))))
+  (pipeline
+    (binding_expression . (variable PLACEHOLDER_14))
+    (pipeline
+      (array
+        (pipeline
+          (call_expression PLACEHOLDER_4
+            (argument_list
+              (subscript_expression (variable PLACEHOLDER_14) "year")
+              (subscript_expression (variable PLACEHOLDER_14) "month")))
+          (call_expression select
+            (argument_list
+              (binary_expression
+                (call_expression strftime
+                  (argument_list "%A")) ==
+                (subscript_expression (variable PLACEHOLDER_14) "dayofweek"))))))
+      (pipeline
+        (call_expression PLACEHOLDER_12
+          (argument_list
+            (subscript_expression (variable PLACEHOLDER_14) "week")))
+        (call_expression strftime
+          (argument_list "%Y-%m-%d"))))))

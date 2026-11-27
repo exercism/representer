@@ -1,6 +1,24 @@
-.input
-| .desiredGrade as $grade
-| .students | unique_by(first)
-| map(select($grade == null or last == $grade))
-| sort_by(last)
-| map(first)
+(program
+  (pipeline
+    (subscript_expression . "input")
+    (pipeline
+      (binding_expression
+        (subscript_expression . "desiredGrade") (variable PLACEHOLDER_1))
+      (pipeline
+        (subscript_expression . "students")
+        (pipeline
+          (call_expression unique_by
+            (argument_list first))
+          (pipeline
+            (call_expression map
+              (argument_list
+                (call_expression select
+                  (argument_list
+                    (binary_expression
+                      (binary_expression (variable PLACEHOLDER_1) == null) or
+                      (binary_expression last == (variable PLACEHOLDER_1)))))))
+            (pipeline
+              (call_expression sort_by
+                (argument_list last))
+              (call_expression map
+                (argument_list first)))))))))

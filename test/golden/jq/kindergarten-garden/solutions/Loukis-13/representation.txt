@@ -1,8 +1,38 @@
-["Alice","Bob","Charlie","David","Eve","Fred","Ginny","Harriet","Ileana","Joseph","Kincaid","Larry"] as $students
-| {G: "\"grass\"," C: "\"clover\"," R: "\"radishes\"," V: "\"violets\"}" as $seeds
-| .student as $student
-| ($students | index($student) * 2) as $i
-| .diagram / "\"\\n\""
-| .[0][$i : $i+2] + .[1][$i : $i+2]
-| . / "\"\""
-| map($seeds[.])
+(program
+  (pipeline
+    (binding_expression
+      (array "Alice" "Bob" "Charlie" "David" "Eve" "Fred" "Ginny" "Harriet" "Ileana" "Joseph" "Kincaid" "Larry") (variable PLACEHOLDER_1))
+    (pipeline
+      (binding_expression
+        (object
+          (pair "G" "grass")
+          (pair "C" "clover")
+          (pair "R" "radishes")
+          (pair "V" "violets")) (variable PLACEHOLDER_2))
+      (pipeline
+        (binding_expression
+          (subscript_expression . "student") (variable PLACEHOLDER_3))
+        (pipeline
+          (binding_expression
+            (pipeline (variable PLACEHOLDER_1)
+              (binary_expression
+                (call_expression index
+                  (argument_list (variable PLACEHOLDER_3))) * 2)) (variable PLACEHOLDER_4))
+          (pipeline
+            (binary_expression
+              (subscript_expression . "diagram") / "\n")
+            (pipeline
+              (binary_expression
+                (subscript_expression
+                  (subscript_expression . 0)
+                  (slice_expression (variable PLACEHOLDER_4) :
+                    (binary_expression (variable PLACEHOLDER_4) + 2))) +
+                (subscript_expression
+                  (subscript_expression . 1)
+                  (slice_expression (variable PLACEHOLDER_4) :
+                    (binary_expression (variable PLACEHOLDER_4) + 2))))
+              (pipeline
+                (binary_expression . / "")
+                (call_expression map
+                  (argument_list
+                    (subscript_expression (variable PLACEHOLDER_2) .)))))))))))

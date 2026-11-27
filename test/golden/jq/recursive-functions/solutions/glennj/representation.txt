@@ -1,34 +1,49 @@
-# Add the elements of the input array, and return the sum.
-#
-# Example:
-# [1, 2, 3] | array_add # => 6
-def array_add:
-if length == 0
-then 0
-else .[0] + (.[1:] | array_add)
-end;
-# Reverse the input array, and return the result in a new array.
-#
-# Example:
-# [1, 2, 3] | array_reverse # => [3, 2, 1]
-def array_reverse:
-if length == 0
-then []
-else (.[1:] | array_reverse) + [.[0]]
-end;
-# Run the filter `f` for each element of the input array,
-# and return the outputs in a new array.
-#
-# Example:
-# [1, 2, 3] | array_map(. + 1) # => [2, 3, 4]
-# implemented with a local function to allow tail call optimization
-def array_map(f):
-def _map:
-if (.array | length) == 0
-then .result
-else
-.result += [.array[0] | f]
-| .array = .array[1:]
-| _map
-end;
-{result: [], array: .} | _map;
+(program
+  (function_definition PLACEHOLDER_1
+    (if_expression
+      (binary_expression length == 0) 0
+      (else_expression
+        (binary_expression
+          (subscript_expression . 0) +
+          (pipeline
+            (subscript_expression .
+              (slice_expression 1 :)) PLACEHOLDER_1)))))
+  (function_definition PLACEHOLDER_2
+    (if_expression
+      (binary_expression length == 0)
+      (array)
+      (else_expression
+        (binary_expression
+          (pipeline
+            (subscript_expression .
+              (slice_expression 1 :)) PLACEHOLDER_2) +
+          (array
+            (subscript_expression . 0))))))
+  (function_definition PLACEHOLDER_3
+    (parameter_list PLACEHOLDER_4)
+    (function_expression
+      (function_definition PLACEHOLDER_5
+        (if_expression
+          (binary_expression
+            (pipeline
+              (subscript_expression . "array") length) == 0)
+          (subscript_expression . "result")
+          (else_expression
+            (pipeline
+              (assignment_expression
+                (subscript_expression . "result") +=
+                (array
+                  (pipeline
+                    (subscript_expression
+                      (subscript_expression . "array") 0) PLACEHOLDER_4)))
+              (pipeline
+                (assignment_expression
+                  (subscript_expression . "array") =
+                  (subscript_expression
+                    (subscript_expression . "array")
+                    (slice_expression 1 :))) PLACEHOLDER_5)))))
+      (pipeline
+        (object
+          (pair "result"
+            (array))
+          (pair "array" .)) PLACEHOLDER_5))))

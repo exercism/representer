@@ -1,17 +1,48 @@
-def beerRun: [
-"\"No" more bottles of beer on the wall, no more bottles of beer.",
-"\"Go" to the store and buy some more, 99 bottles of beer on the wall.",
-"\"\""
-];
-def line($count1; $b1; $it; $count2; $b2): [
-"\"\\($count1)" \($b1) of beer on the wall, \($count1) \($b1) of beer.",
-"\"Take" \($it) down and pass it around, \($count2) \($b2) of beer on the wall.",
-"\"\""
-];
-def getLine($i):
-if $i == 0 then beerRun
-elif $i == 2 then line(2; "\"bottles\";" "\"one\";" 1; "\"bottle\")"
-elif $i == 1 then line(1; "\"bottle\";" "\"it\";" "\"no" more"; "\"bottles\")"
-else line($i; "\"bottles\";" "\"one\";" $i - 1; "\"bottles\")" end
-;
-[range(.startBottles; .startBottles - .takeDown; -1)] | map(getLine(.)) | flatten[:-1]
+(program
+  (function_definition PLACEHOLDER_1
+    (array "No more bottles of beer on the wall, no more bottles of beer." "Go to the store and buy some more, 99 bottles of beer on the wall." ""))
+  (function_definition PLACEHOLDER_2
+    (parameter_list (variable PLACEHOLDER_3) (variable PLACEHOLDER_4) (variable PLACEHOLDER_5) (variable PLACEHOLDER_6) (variable PLACEHOLDER_7))
+    (array
+      (string
+        (interpolation (variable PLACEHOLDER_3)) " "
+        (interpolation (variable PLACEHOLDER_4)) " of beer on the wall, "
+        (interpolation (variable PLACEHOLDER_3)) " "
+        (interpolation (variable PLACEHOLDER_4)) " of beer.")
+      (string "Take "
+        (interpolation (variable PLACEHOLDER_5)) " down and pass it around, "
+        (interpolation (variable PLACEHOLDER_6)) " "
+        (interpolation (variable PLACEHOLDER_7)) " of beer on the wall.") ""))
+  (function_definition PLACEHOLDER_8
+    (parameter_list (variable PLACEHOLDER_9))
+    (if_expression
+      (binary_expression (variable PLACEHOLDER_9) == 0) PLACEHOLDER_1
+      (else_expression
+        (if_expression
+          (binary_expression (variable PLACEHOLDER_9) == 2)
+          (call_expression PLACEHOLDER_2
+            (argument_list 2 "bottles" "one" 1 "bottle"))
+          (else_expression
+            (if_expression
+              (binary_expression (variable PLACEHOLDER_9) == 1)
+              (call_expression PLACEHOLDER_2
+                (argument_list 1 "bottle" "it" "no more" "bottles"))
+              (else_expression
+                (call_expression PLACEHOLDER_2
+                  (argument_list (variable PLACEHOLDER_9) "bottles" "one"
+                    (binary_expression (variable PLACEHOLDER_9) - 1) "bottles")))))))))
+  (pipeline
+    (array
+      (call_expression range
+        (argument_list
+          (subscript_expression . "startBottles")
+          (binary_expression
+            (subscript_expression . "startBottles") -
+            (subscript_expression . "takeDown")) -1)))
+    (pipeline
+      (call_expression map
+        (argument_list
+          (call_expression PLACEHOLDER_8
+            (argument_list .))))
+      (subscript_expression flatten
+        (slice_expression : -1)))))

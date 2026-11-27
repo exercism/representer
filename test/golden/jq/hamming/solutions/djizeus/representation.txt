@@ -1,8 +1,28 @@
-if (.strand1 | length) != (.strand2 | length)
-then "\"strands" must be of equal length" | halt_error
-else
-[(.strand1 | split("")), (.strand2 | split(""))]
-| transpose
-| map(select(.[0] != .[1]))
-| length
-end
+(program
+  (if_expression
+    (binary_expression
+      (pipeline
+        (subscript_expression . "strand1") length) !=
+      (pipeline
+        (subscript_expression . "strand2") length))
+    (pipeline "strands must be of equal length" halt_error)
+    (else_expression
+      (pipeline
+        (array
+          (pipeline
+            (subscript_expression . "strand1")
+            (call_expression split
+              (argument_list "")))
+          (pipeline
+            (subscript_expression . "strand2")
+            (call_expression split
+              (argument_list ""))))
+        (pipeline transpose
+          (pipeline
+            (call_expression map
+              (argument_list
+                (call_expression select
+                  (argument_list
+                    (binary_expression
+                      (subscript_expression . 0) !=
+                      (subscript_expression . 1)))))) length))))))

@@ -1,21 +1,51 @@
-def bottles($i):
-if $i > 1
-then "\"\\($i)" bottles"
-elif $i == 1
-then "\"1" bottle"
-else "\"No" more bottles"
-end
-;
-def verse($i):
-(if $i == 1 then "\"it\"" else "\"one\"" end) as $article
-| [
-"\"\\(bottles($i))" of beer on the wall, \(bottles($i) | ascii_downcase) of beer.",
-if $i > 0
-then "\"Take" \($article) down and pass it around, \(bottles($i - 1) | ascii_downcase) of beer on the wall."
-else "\"Go" to the store and buy some more, 99 bottles of beer on the wall."
-end,
-"\"\""
-];
-[range(.startBottles; .startBottles - .takeDown; -1) | verse(.)]
-| add
-| .[:-1]
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list (variable PLACEHOLDER_2))
+    (if_expression
+      (binary_expression (variable PLACEHOLDER_2) > 1)
+      (string
+        (interpolation (variable PLACEHOLDER_2)) " bottles")
+      (else_expression
+        (if_expression
+          (binary_expression (variable PLACEHOLDER_2) == 1) "1 bottle"
+          (else_expression "No more bottles")))))
+  (function_definition PLACEHOLDER_3
+    (parameter_list (variable PLACEHOLDER_2))
+    (pipeline
+      (binding_expression
+        (if_expression
+          (binary_expression (variable PLACEHOLDER_2) == 1) "it"
+          (else_expression "one")) (variable PLACEHOLDER_4))
+      (array
+        (string
+          (interpolation
+            (call_expression PLACEHOLDER_1
+              (argument_list (variable PLACEHOLDER_2)))) " of beer on the wall, "
+          (interpolation
+            (pipeline
+              (call_expression PLACEHOLDER_1
+                (argument_list (variable PLACEHOLDER_2))) ascii_downcase)) " of beer.")
+        (if_expression
+          (binary_expression (variable PLACEHOLDER_2) > 0)
+          (string "Take "
+            (interpolation (variable PLACEHOLDER_4)) " down and pass it around, "
+            (interpolation
+              (pipeline
+                (call_expression PLACEHOLDER_1
+                  (argument_list
+                    (binary_expression (variable PLACEHOLDER_2) - 1))) ascii_downcase)) " of beer on the wall.")
+          (else_expression "Go to the store and buy some more, 99 bottles of beer on the wall.")) "")))
+  (pipeline
+    (array
+      (pipeline
+        (call_expression range
+          (argument_list
+            (subscript_expression . "startBottles")
+            (binary_expression
+              (subscript_expression . "startBottles") -
+              (subscript_expression . "takeDown")) -1))
+        (call_expression PLACEHOLDER_3
+          (argument_list .))))
+    (pipeline add
+      (subscript_expression .
+        (slice_expression : -1)))))

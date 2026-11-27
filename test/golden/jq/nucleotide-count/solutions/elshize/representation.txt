@@ -1,11 +1,34 @@
-def explode_to_chars: explode | map([.] | implode);
-def empty_dict: {"A": 0, "\"C\":" 0, "\"G\"" :0, "\"T\":" 0};
-def accumulate($nucleotide):
-if ("ACGT" | contains($nucleotide)) then
-. + { ($nucleotide): (.[$nucleotide] + 1) }
-else
-"\"Invalid" nucleotide in strand" | halt_error
-end;
-.strand
-| explode_to_chars
-| reduce .[] as $nucleotide (empty_dict; accumulate($nucleotide))
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline explode
+      (call_expression map
+        (argument_list
+          (pipeline
+            (array .) implode)))))
+  (function_definition PLACEHOLDER_2
+    (object
+      (pair "A" 0)
+      (pair "C" 0)
+      (pair "G" 0)
+      (pair "T" 0)))
+  (function_definition PLACEHOLDER_3
+    (parameter_list (variable PLACEHOLDER_4))
+    (if_expression
+      (pipeline "ACGT"
+        (call_expression contains
+          (argument_list (variable PLACEHOLDER_4))))
+      (binary_expression . +
+        (object
+          (pair (variable PLACEHOLDER_4)
+            (binary_expression
+              (subscript_expression . (variable PLACEHOLDER_4)) + 1))))
+      (else_expression
+        (pipeline "Invalid nucleotide in strand" halt_error))))
+  (pipeline
+    (subscript_expression . "strand")
+    (pipeline PLACEHOLDER_1
+      (reduce_expression
+        (binding_expression
+          (subscript_expression .) (variable PLACEHOLDER_4)) PLACEHOLDER_2
+        (call_expression PLACEHOLDER_3
+          (argument_list (variable PLACEHOLDER_4)))))))

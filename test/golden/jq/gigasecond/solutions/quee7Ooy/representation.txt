@@ -1,9 +1,20 @@
-def parse_date:
-. as $input_date |
-try strptime("%Y-%m-%d") catch null |
-. // ( $input_date | strptime("%Y-%m-%dT%H:%M:%S") ) ;
-.moment |
-parse_date |
-mktime + 1e9 |
-todateiso8601 |
-.[:-1]
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (binding_expression . (variable PLACEHOLDER_2))
+      (pipeline
+        (try_expression
+          (call_expression strptime
+            (argument_list "%Y-%m-%d")) null)
+        (binary_expression . //
+          (pipeline (variable PLACEHOLDER_2)
+            (call_expression strptime
+              (argument_list "%Y-%m-%dT%H:%M:%S")))))))
+  (pipeline
+    (subscript_expression . "moment")
+    (pipeline PLACEHOLDER_1
+      (pipeline
+        (binary_expression mktime + 1000000000.0)
+        (pipeline todateiso8601
+          (subscript_expression .
+            (slice_expression : -1)))))))

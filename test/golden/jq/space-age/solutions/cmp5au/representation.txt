@@ -1,19 +1,58 @@
-# input: a floating point number
-# output: the number rounded to two decimal places
-def two_decimal: ((. * 100) | round) / 100;
-# input: a planet as a string
-# output: the number of seconds in a year on the input planet
-def planet_year_duration:
-31557600 as $earth_year_seconds |
-if . | ascii_downcase == "\"earth\"" then $earth_year_seconds
-elif . | ascii_downcase == "\"mercury\"" then $earth_year_seconds * 0.2408467
-elif . | ascii_downcase == "\"venus\"" then $earth_year_seconds * 0.61519726
-elif . | ascii_downcase == "\"mars\"" then $earth_year_seconds * 1.8808158
-elif . | ascii_downcase == "\"jupiter\"" then $earth_year_seconds * 11.862615
-elif . | ascii_downcase == "\"saturn\"" then $earth_year_seconds * 29.447498
-elif . | ascii_downcase == "\"uranus\"" then $earth_year_seconds * 84.0168467
-elif . | ascii_downcase == "\"neptune\"" then $earth_year_seconds * 164.79132
-else error("Invalid planet: \(.)")
-end
-;
-try ((.seconds / (.planet | planet_year_duration)) | two_decimal) catch ("not a planet" | halt_error)
+(program
+  (function_definition PLACEHOLDER_1
+    (binary_expression
+      (pipeline
+        (binary_expression . * 100) round) / 100))
+  (function_definition PLACEHOLDER_2
+    (pipeline
+      (binding_expression 31557600 (variable PLACEHOLDER_3))
+      (if_expression
+        (pipeline .
+          (binary_expression ascii_downcase == "earth")) (variable PLACEHOLDER_3)
+        (else_expression
+          (if_expression
+            (pipeline .
+              (binary_expression ascii_downcase == "mercury"))
+            (binary_expression (variable PLACEHOLDER_3) * 0.2408467)
+            (else_expression
+              (if_expression
+                (pipeline .
+                  (binary_expression ascii_downcase == "venus"))
+                (binary_expression (variable PLACEHOLDER_3) * 0.61519726)
+                (else_expression
+                  (if_expression
+                    (pipeline .
+                      (binary_expression ascii_downcase == "mars"))
+                    (binary_expression (variable PLACEHOLDER_3) * 1.8808158)
+                    (else_expression
+                      (if_expression
+                        (pipeline .
+                          (binary_expression ascii_downcase == "jupiter"))
+                        (binary_expression (variable PLACEHOLDER_3) * 11.862615)
+                        (else_expression
+                          (if_expression
+                            (pipeline .
+                              (binary_expression ascii_downcase == "saturn"))
+                            (binary_expression (variable PLACEHOLDER_3) * 29.447498)
+                            (else_expression
+                              (if_expression
+                                (pipeline .
+                                  (binary_expression ascii_downcase == "uranus"))
+                                (binary_expression (variable PLACEHOLDER_3) * 84.0168467)
+                                (else_expression
+                                  (if_expression
+                                    (pipeline .
+                                      (binary_expression ascii_downcase == "neptune"))
+                                    (binary_expression (variable PLACEHOLDER_3) * 164.79132)
+                                    (else_expression
+                                      (call_expression error
+                                        (argument_list
+                                          (string "Invalid planet: "
+                                            (interpolation .))))))))))))))))))))))
+  (try_expression
+    (pipeline
+      (binary_expression
+        (subscript_expression . "seconds") /
+        (pipeline
+          (subscript_expression . "planet") PLACEHOLDER_2)) PLACEHOLDER_1)
+    (pipeline "not a planet" halt_error)))

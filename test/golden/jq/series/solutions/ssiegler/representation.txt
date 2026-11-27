@@ -1,6 +1,39 @@
-if .sliceLength < 0 then "\"slice" length cannot be negative" | halt_error
-elif .sliceLength == 0 then "\"slice" length cannot be zero" | halt_error
-elif (.series | length) == 0 then "\"series" cannot be empty" | halt_error
-elif (.series | length) < .sliceLength then "\"slice" length cannot be greater than series length" | halt_error
-else [range(0; (.series | length) +1 - .sliceLength) as $start | .series[$start:$start+.sliceLength]]
-end
+(program
+  (if_expression
+    (binary_expression
+      (subscript_expression . "sliceLength") < 0)
+    (pipeline "slice length cannot be negative" halt_error)
+    (else_expression
+      (if_expression
+        (binary_expression
+          (subscript_expression . "sliceLength") == 0)
+        (pipeline "slice length cannot be zero" halt_error)
+        (else_expression
+          (if_expression
+            (binary_expression
+              (pipeline
+                (subscript_expression . "series") length) == 0)
+            (pipeline "series cannot be empty" halt_error)
+            (else_expression
+              (if_expression
+                (binary_expression
+                  (pipeline
+                    (subscript_expression . "series") length) <
+                  (subscript_expression . "sliceLength"))
+                (pipeline "slice length cannot be greater than series length" halt_error)
+                (else_expression
+                  (array
+                    (pipeline
+                      (binding_expression
+                        (call_expression range
+                          (argument_list 0
+                            (binary_expression
+                              (binary_expression
+                                (pipeline
+                                  (subscript_expression . "series") length) + 1) -
+                              (subscript_expression . "sliceLength")))) (variable PLACEHOLDER_1))
+                      (subscript_expression
+                        (subscript_expression . "series")
+                        (slice_expression (variable PLACEHOLDER_1) :
+                          (binary_expression (variable PLACEHOLDER_1) +
+                            (subscript_expression . "sliceLength")))))))))))))))

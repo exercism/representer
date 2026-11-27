@@ -1,32 +1,45 @@
-def double_digit:
-. * 2
-| if . > 9 then
-. - 9
-else
-.
-end
-;
-def filter_digits:
-split("")
-| map(select( . != "\"" "\"" ))
-| map(tonumber)
-;
-if (test("^[0-9 ]+$") | not) then
-false
-else
-filter_digits
-| if (. | length) <= 1 then
-false
-else
-reverse
-| to_entries
-| map(
-if .key % 2 == 1 then
-.value | double_digit
-else
-.value
-end
-)
-| add % 10 == 0
-end
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (binary_expression . * 2)
+      (if_expression
+        (binary_expression . > 9)
+        (binary_expression . - 9)
+        (else_expression .))))
+  (function_definition PLACEHOLDER_2
+    (pipeline
+      (call_expression split
+        (argument_list ""))
+      (pipeline
+        (call_expression map
+          (argument_list
+            (call_expression select
+              (argument_list
+                (binary_expression . != " ")))))
+        (call_expression map
+          (argument_list tonumber)))))
+  (if_expression
+    (pipeline
+      (call_expression test
+        (argument_list "^[0-9 ]+$")) not) false
+    (else_expression
+      (pipeline PLACEHOLDER_2
+        (if_expression
+          (binary_expression
+            (pipeline . length) <= 1) false
+          (else_expression
+            (pipeline reverse
+              (pipeline to_entries
+                (pipeline
+                  (call_expression map
+                    (argument_list
+                      (if_expression
+                        (binary_expression
+                          (binary_expression
+                            (subscript_expression . "key") % 2) == 1)
+                        (pipeline
+                          (subscript_expression . "value") PLACEHOLDER_1)
+                        (else_expression
+                          (subscript_expression . "value")))))
+                  (binary_expression
+                    (binary_expression add % 10) == 0))))))))))

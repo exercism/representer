@@ -96,7 +96,7 @@ class BasicTest < RepresenterTest
     with_config = code.merge("package.yaml" => "name: leap", "HELP.md" => "# Help", "test/LeapSpec_test.hs" => "x")
     assert_equal Representer::RepresentSolution.("haskell", code).representation,
       Representer::RepresentSolution.("haskell", with_config).representation
-    assert_equal "1", Representer::RepresentSolution.("jq", { "a.jq" => "1", "notes.txt" => "2" }).representation
+    assert_equal "1", Representer::RepresentSolution.("groovy", { "a.groovy" => "1", "notes.txt" => "2" }).representation
     assert_equal "no_source_files", Representer::RepresentSolution.("haskell", { "package.yaml" => "x" }).reason
   end
 

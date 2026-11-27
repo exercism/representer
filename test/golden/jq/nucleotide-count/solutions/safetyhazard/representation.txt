@@ -1,5 +1,21 @@
-if .strand | test("[^ATCG]") then
-"\"Invalid" nucleotide in strand" | halt_error
-else
-.strand / "\"\"" | reduce .[] as $n ({A: 0, T: 0, C: 0, G: 0}; .[$n] += 1)
-end
+(program
+  (if_expression
+    (pipeline
+      (subscript_expression . "strand")
+      (call_expression test
+        (argument_list "[^ATCG]")))
+    (pipeline "Invalid nucleotide in strand" halt_error)
+    (else_expression
+      (pipeline
+        (binary_expression
+          (subscript_expression . "strand") / "")
+        (reduce_expression
+          (binding_expression
+            (subscript_expression .) (variable PLACEHOLDER_1))
+          (object
+            (pair "A" 0)
+            (pair "T" 0)
+            (pair "C" 0)
+            (pair "G" 0))
+          (assignment_expression
+            (subscript_expression . (variable PLACEHOLDER_1)) += 1))))))

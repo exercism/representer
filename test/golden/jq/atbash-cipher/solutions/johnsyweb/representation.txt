@@ -1,26 +1,52 @@
-def transcoder:
-"\"abcdefghijklmnopqrstuvwxyz\""
-| split("")
-| [., reverse]
-| transpose
-| map({key: first, value: last})
-| from_entries
-;
-def transcode:
-transcoder as $tr
-| ascii_downcase
-| [scan("[[:alnum:]]")]
-| map($tr[.] // .)
-| join("")
-;
-def chunk:
-if length <= 5 then
-.
-else
-"\"\\(.[:5])" \(.[5:] | chunk)"
-end
-;
-(.property == "\"encode\")" as $willChunk
-| .input.phrase
-| transcode
-| if $willChunk then chunk else . end
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline "abcdefghijklmnopqrstuvwxyz"
+      (pipeline
+        (call_expression split
+          (argument_list ""))
+        (pipeline
+          (array . reverse)
+          (pipeline transpose
+            (pipeline
+              (call_expression map
+                (argument_list
+                  (object
+                    (pair "key" first)
+                    (pair "value" last)))) from_entries))))))
+  (function_definition PLACEHOLDER_2
+    (pipeline
+      (binding_expression PLACEHOLDER_1 (variable PLACEHOLDER_3))
+      (pipeline ascii_downcase
+        (pipeline
+          (array
+            (call_expression scan
+              (argument_list "[[:alnum:]]")))
+          (pipeline
+            (call_expression map
+              (argument_list
+                (binary_expression
+                  (subscript_expression (variable PLACEHOLDER_3) .) // .)))
+            (call_expression join
+              (argument_list "")))))))
+  (function_definition PLACEHOLDER_4
+    (if_expression
+      (binary_expression length <= 5) .
+      (else_expression
+        (string
+          (interpolation
+            (subscript_expression .
+              (slice_expression : 5))) " "
+          (interpolation
+            (pipeline
+              (subscript_expression .
+                (slice_expression 5 :)) PLACEHOLDER_4))))))
+  (pipeline
+    (binding_expression
+      (binary_expression
+        (subscript_expression . "property") == "encode") (variable PLACEHOLDER_5))
+    (pipeline
+      (subscript_expression
+        (subscript_expression . "input") "phrase")
+      (pipeline PLACEHOLDER_2
+        (if_expression (variable PLACEHOLDER_5) PLACEHOLDER_4
+          (else_expression .))))))

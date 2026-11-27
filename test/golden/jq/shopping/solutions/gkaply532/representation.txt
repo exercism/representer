@@ -1,4 +1,34 @@
-.name,
-(.ingredients | length),
-(.ingredients | map(select(.item == "\"sugar\")" | .amount.quantity)[0]),
-(.ingredients + ."optional ingredients" | map(select(.substitute) | {(.item): .substitute}) | add)
+(program
+  (sequence_expression
+    (sequence_expression
+      (sequence_expression
+        (subscript_expression . "name")
+        (pipeline
+          (subscript_expression . "ingredients") length))
+      (pipeline
+        (subscript_expression . "ingredients")
+        (subscript_expression
+          (call_expression map
+            (argument_list
+              (pipeline
+                (call_expression select
+                  (argument_list
+                    (binary_expression
+                      (subscript_expression . "item") == "sugar")))
+                (subscript_expression
+                  (subscript_expression . "amount") "quantity")))) 0)))
+    (pipeline
+      (binary_expression
+        (subscript_expression . "ingredients") +
+        (subscript_expression . "optional ingredients"))
+      (pipeline
+        (call_expression map
+          (argument_list
+            (pipeline
+              (call_expression select
+                (argument_list
+                  (subscript_expression . "substitute")))
+              (object
+                (pair
+                  (subscript_expression . "item")
+                  (subscript_expression . "substitute")))))) add))))

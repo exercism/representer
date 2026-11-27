@@ -1,11 +1,58 @@
-def is_open_par: . == "\"(\"" or . == "\"[\"" or . == "\"{\";"
-def is_close_par: . == "\")\"" or . == "\"]\"" or . == "\"}\";"
-def closes($v): . == "\"(\"" and $v == "\")\"" or . == "\"[\"" and $v == "\"]\"" or . == "\"{\"" and $v == "\"}\";"
-.value / "\"\"" | map(select(is_open_par or is_close_par))
-| reduce .[] as $v(
-[];
-if ($v | is_open_par) then . + [$v]
-elif ($v | is_close_par) and (.[-1] | closes($v)) then .[:-1]
-else . + [$v]
-end
-) == []
+(program
+  (function_definition PLACEHOLDER_1
+    (binary_expression
+      (binary_expression
+        (binary_expression . == "(") or
+        (binary_expression . == "[")) or
+      (binary_expression . == "{")))
+  (function_definition PLACEHOLDER_2
+    (binary_expression
+      (binary_expression
+        (binary_expression . == ")") or
+        (binary_expression . == "]")) or
+      (binary_expression . == "}")))
+  (function_definition PLACEHOLDER_3
+    (parameter_list (variable PLACEHOLDER_4))
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (binary_expression . == "(") and
+          (binary_expression (variable PLACEHOLDER_4) == ")")) or
+        (binary_expression
+          (binary_expression . == "[") and
+          (binary_expression (variable PLACEHOLDER_4) == "]"))) or
+      (binary_expression
+        (binary_expression . == "{") and
+        (binary_expression (variable PLACEHOLDER_4) == "}"))))
+  (pipeline
+    (binary_expression
+      (subscript_expression . "value") / "")
+    (pipeline
+      (call_expression map
+        (argument_list
+          (call_expression select
+            (argument_list
+              (binary_expression PLACEHOLDER_1 or PLACEHOLDER_2)))))
+      (binary_expression
+        (reduce_expression
+          (binding_expression
+            (subscript_expression .) (variable PLACEHOLDER_4))
+          (array)
+          (if_expression
+            (pipeline (variable PLACEHOLDER_4) PLACEHOLDER_1)
+            (binary_expression . +
+              (array (variable PLACEHOLDER_4)))
+            (else_expression
+              (if_expression
+                (binary_expression
+                  (pipeline (variable PLACEHOLDER_4) PLACEHOLDER_2) and
+                  (pipeline
+                    (subscript_expression . -1)
+                    (call_expression PLACEHOLDER_3
+                      (argument_list (variable PLACEHOLDER_4)))))
+                (subscript_expression .
+                  (slice_expression : -1))
+                (else_expression
+                  (binary_expression . +
+                    (array (variable PLACEHOLDER_4)))))))) ==
+        (array)))))

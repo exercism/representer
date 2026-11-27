@@ -1,11 +1,44 @@
-def series:
-. as $inp | [range(0; ($inp.series|length) - $inp.sliceLength + 1)]
-| map($inp.series[.:.+$inp.sliceLength])
-;
-if (.series | length) == 0 then "\"series" cannot be empty" | halt_error
-elif (.sliceLength > (.series | length))
-then "\"slice" length cannot be greater than series length" | halt_error
-elif .sliceLength == 0 then "\"slice" length cannot be zero" | halt_error
-elif .sliceLength < 0 then "\"slice" length cannot be negative" | halt_error
-else . | series
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (pipeline
+      (binding_expression . (variable PLACEHOLDER_2))
+      (pipeline
+        (array
+          (call_expression range
+            (argument_list 0
+              (binary_expression
+                (binary_expression
+                  (pipeline
+                    (subscript_expression (variable PLACEHOLDER_2) "series") length) -
+                  (subscript_expression (variable PLACEHOLDER_2) "sliceLength")) + 1))))
+        (call_expression map
+          (argument_list
+            (subscript_expression
+              (subscript_expression (variable PLACEHOLDER_2) "series")
+              (slice_expression . :
+                (binary_expression . +
+                  (subscript_expression (variable PLACEHOLDER_2) "sliceLength")))))))))
+  (if_expression
+    (binary_expression
+      (pipeline
+        (subscript_expression . "series") length) == 0)
+    (pipeline "series cannot be empty" halt_error)
+    (else_expression
+      (if_expression
+        (binary_expression
+          (subscript_expression . "sliceLength") >
+          (pipeline
+            (subscript_expression . "series") length))
+        (pipeline "slice length cannot be greater than series length" halt_error)
+        (else_expression
+          (if_expression
+            (binary_expression
+              (subscript_expression . "sliceLength") == 0)
+            (pipeline "slice length cannot be zero" halt_error)
+            (else_expression
+              (if_expression
+                (binary_expression
+                  (subscript_expression . "sliceLength") < 0)
+                (pipeline "slice length cannot be negative" halt_error)
+                (else_expression
+                  (pipeline . PLACEHOLDER_1))))))))))

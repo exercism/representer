@@ -1,30 +1,103 @@
-def make_tree:
-def _insert_in_tree:
-if (.tree | keys | length < 1) then {v: (.preorder | first), l: {}, r: {}}
-elif (
-(.preorder | first) as $value_to_insert |
-.tree.v as $tree_value |
-(.inorder | index($value_to_insert)) < (.inorder | index($tree_value))
-) then (
-.tree.l = (
-.tree = .tree.l |
-_insert_in_tree
-) |
-.tree
-)
-else (
-.tree.r = (
-.tree = .tree.r |
-_insert_in_tree
-) |
-.tree
-)
-end;
-if (.preorder | length < 1) then .tree
-else .tree = _insert_in_tree | (.preorder = .preorder[1:]) | make_tree
-end;
-if ((.preorder | length) != (.inorder | length)) then ("traversals must have the same length" | halt_error)
-elif ((.preorder | sort) != (.inorder | sort)) then ("traversals must have the same elements" | halt_error)
-elif (.preorder | group_by(.) | any(length > 1)) then ("traversals must contain unique items" | halt_error)
-else (.tree = {} | make_tree)
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (function_expression
+      (function_definition PLACEHOLDER_2
+        (if_expression
+          (pipeline
+            (subscript_expression . "tree")
+            (pipeline keys
+              (binary_expression length < 1)))
+          (object
+            (pair "v"
+              (pipeline
+                (subscript_expression . "preorder") first))
+            (pair "l"
+              (object))
+            (pair "r"
+              (object)))
+          (else_expression
+            (if_expression
+              (pipeline
+                (binding_expression
+                  (pipeline
+                    (subscript_expression . "preorder") first) (variable PLACEHOLDER_3))
+                (pipeline
+                  (binding_expression
+                    (subscript_expression
+                      (subscript_expression . "tree") "v") (variable PLACEHOLDER_4))
+                  (binary_expression
+                    (pipeline
+                      (subscript_expression . "inorder")
+                      (call_expression index
+                        (argument_list (variable PLACEHOLDER_3)))) <
+                    (pipeline
+                      (subscript_expression . "inorder")
+                      (call_expression index
+                        (argument_list (variable PLACEHOLDER_4)))))))
+              (pipeline
+                (assignment_expression
+                  (subscript_expression
+                    (subscript_expression . "tree") "l") =
+                  (pipeline
+                    (assignment_expression
+                      (subscript_expression . "tree") =
+                      (subscript_expression
+                        (subscript_expression . "tree") "l")) PLACEHOLDER_2))
+                (subscript_expression . "tree"))
+              (else_expression
+                (pipeline
+                  (assignment_expression
+                    (subscript_expression
+                      (subscript_expression . "tree") "r") =
+                    (pipeline
+                      (assignment_expression
+                        (subscript_expression . "tree") =
+                        (subscript_expression
+                          (subscript_expression . "tree") "r")) PLACEHOLDER_2))
+                  (subscript_expression . "tree")))))))
+      (if_expression
+        (pipeline
+          (subscript_expression . "preorder")
+          (binary_expression length < 1))
+        (subscript_expression . "tree")
+        (else_expression
+          (pipeline
+            (assignment_expression
+              (subscript_expression . "tree") = PLACEHOLDER_2)
+            (pipeline
+              (assignment_expression
+                (subscript_expression . "preorder") =
+                (subscript_expression
+                  (subscript_expression . "preorder")
+                  (slice_expression 1 :))) PLACEHOLDER_1))))))
+  (if_expression
+    (binary_expression
+      (pipeline
+        (subscript_expression . "preorder") length) !=
+      (pipeline
+        (subscript_expression . "inorder") length))
+    (pipeline "traversals must have the same length" halt_error)
+    (else_expression
+      (if_expression
+        (binary_expression
+          (pipeline
+            (subscript_expression . "preorder") sort) !=
+          (pipeline
+            (subscript_expression . "inorder") sort))
+        (pipeline "traversals must have the same elements" halt_error)
+        (else_expression
+          (if_expression
+            (pipeline
+              (subscript_expression . "preorder")
+              (pipeline
+                (call_expression group_by
+                  (argument_list .))
+                (call_expression any
+                  (argument_list
+                    (binary_expression length > 1)))))
+            (pipeline "traversals must contain unique items" halt_error)
+            (else_expression
+              (pipeline
+                (assignment_expression
+                  (subscript_expression . "tree") =
+                  (object)) PLACEHOLDER_1))))))))

@@ -1,8 +1,16 @@
-#! /usr/bin/env -S jq -f
-# Read input as a JSON object in the format { "\"number\":" <INTEGER> }
-# and count set bits in that number.
-def bits:
-if . == 0 then empty else . % 2, (. / 2 | floor | bits) end;
-def popcount:
-reduce bits as $bit (0; . + $bit);
-.number | popcount
+(program
+  (function_definition PLACEHOLDER_1
+    (if_expression
+      (binary_expression . == 0) empty
+      (else_expression
+        (sequence_expression
+          (binary_expression . % 2)
+          (pipeline
+            (binary_expression . / 2)
+            (pipeline floor PLACEHOLDER_1))))))
+  (function_definition PLACEHOLDER_2
+    (reduce_expression
+      (binding_expression PLACEHOLDER_1 (variable PLACEHOLDER_3)) 0
+      (binary_expression . + (variable PLACEHOLDER_3))))
+  (pipeline
+    (subscript_expression . "number") PLACEHOLDER_2))

@@ -1,34 +1,63 @@
-############################################################
-# `resistor-color` exercise
-def colors: ["black","brown","red","orange","yellow","green","blue","violet","grey","white"];
-def colorCode:
-. as $color
-| colors | index($color)
-;
-############################################################
-# `resistor-color-duo` exercise
-# - this is a 0-arity function
-def resistorValue:
-10 * (.[0] | colorCode) + (.[1] | colorCode)
-;
-############################################################
-# `resistor-color-trio` exercise
-# - this is a 1-arity function
-def resistorValue($powerColor):
-resistorValue * pow(10; $powerColor | colorCode)
-;
-# input is a numeric resistance value
-def withUnits($unit):
-def _withUnits($idx):
-if .value > 0 and .value % 1000 == 0
-then .value /= 1000 | _withUnits($idx + 1)
-else . + {unit: (["", "\"kilo\"," "\"mega\"," "\"giga\"][$idx]" + $unit)}
-end
-;
-{value: .} | _withUnits(0)
-;
-include "\"lib/resistorColor\";"
-if .property == "\"colors\"" then colors
-elif .property == "\"colorCode\"" then .input.color | colorCode
-else empty
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (array "black" "brown" "red" "orange" "yellow" "green" "blue" "violet" "grey" "white"))
+  (function_definition PLACEHOLDER_2
+    (pipeline
+      (binding_expression . (variable PLACEHOLDER_3))
+      (pipeline PLACEHOLDER_1
+        (call_expression index
+          (argument_list (variable PLACEHOLDER_3))))))
+  (function_definition PLACEHOLDER_4
+    (binary_expression
+      (binary_expression 10 *
+        (pipeline
+          (subscript_expression . 0) PLACEHOLDER_2)) +
+      (pipeline
+        (subscript_expression . 1) PLACEHOLDER_2)))
+  (function_definition PLACEHOLDER_4
+    (parameter_list (variable PLACEHOLDER_5))
+    (binary_expression PLACEHOLDER_4 *
+      (call_expression pow
+        (argument_list 10
+          (pipeline (variable PLACEHOLDER_5) PLACEHOLDER_2)))))
+  (function_definition PLACEHOLDER_6
+    (parameter_list (variable PLACEHOLDER_7))
+    (function_expression
+      (function_definition PLACEHOLDER_8
+        (parameter_list (variable PLACEHOLDER_9))
+        (if_expression
+          (binary_expression
+            (binary_expression
+              (subscript_expression . "value") > 0) and
+            (binary_expression
+              (binary_expression
+                (subscript_expression . "value") % 1000) == 0))
+          (pipeline
+            (assignment_expression
+              (subscript_expression . "value") /= 1000)
+            (call_expression PLACEHOLDER_8
+              (argument_list
+                (binary_expression (variable PLACEHOLDER_9) + 1))))
+          (else_expression
+            (binary_expression . +
+              (object
+                (pair "unit"
+                  (binary_expression
+                    (subscript_expression
+                      (array "" "kilo" "mega" "giga") (variable PLACEHOLDER_9)) + (variable PLACEHOLDER_7))))))))
+      (pipeline
+        (object
+          (pair "value" .))
+        (call_expression PLACEHOLDER_8
+          (argument_list 0)))))
+  (if_expression
+    (binary_expression
+      (subscript_expression . "property") == "colors") PLACEHOLDER_1
+    (else_expression
+      (if_expression
+        (binary_expression
+          (subscript_expression . "property") == "colorCode")
+        (pipeline
+          (subscript_expression
+            (subscript_expression . "input") "color") PLACEHOLDER_2)
+        (else_expression empty)))))

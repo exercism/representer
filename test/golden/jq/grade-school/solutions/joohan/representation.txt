@@ -1,6 +1,37 @@
-. as $in
-| $in.input.students | unique_by(.[0])
-| if $in.property == "\"roster\"" then .
-elif $in.property == "\"grade\"" then map(select(.[1] == $in.input.desiredGrade))
-else "\"unknown" property" | halt_error end
-| sort_by(.[1], .[0]) | map(.[0])
+(program
+  (pipeline
+    (binding_expression . (variable PLACEHOLDER_1))
+    (pipeline
+      (subscript_expression
+        (subscript_expression (variable PLACEHOLDER_1) "input") "students")
+      (pipeline
+        (call_expression unique_by
+          (argument_list
+            (subscript_expression . 0)))
+        (pipeline
+          (if_expression
+            (binary_expression
+              (subscript_expression (variable PLACEHOLDER_1) "property") == "roster") .
+            (else_expression
+              (if_expression
+                (binary_expression
+                  (subscript_expression (variable PLACEHOLDER_1) "property") == "grade")
+                (call_expression map
+                  (argument_list
+                    (call_expression select
+                      (argument_list
+                        (binary_expression
+                          (subscript_expression . 1) ==
+                          (subscript_expression
+                            (subscript_expression (variable PLACEHOLDER_1) "input") "desiredGrade"))))))
+                (else_expression
+                  (pipeline "unknown property" halt_error)))))
+          (pipeline
+            (call_expression sort_by
+              (argument_list
+                (sequence_expression
+                  (subscript_expression . 1)
+                  (subscript_expression . 0))))
+            (call_expression map
+              (argument_list
+                (subscript_expression . 0)))))))))

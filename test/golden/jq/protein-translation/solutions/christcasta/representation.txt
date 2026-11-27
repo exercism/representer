@@ -1,30 +1,98 @@
-def chunk($codon_nucl_map):
-def rec($acc; $lili):
-if ($lili | length) == 0 then
-$acc
-elif ($lili | length) < 3 then
-"\"Invalid" codon" | halt_error
-elif $codon_nucl_map | has(($lili[0:3] | join(""))) | not then
-"\"Invalid" codon" | halt_error
-elif $codon_nucl_map[$lili[0:3] | join("")] == "\"STOP\"" then
-$acc
-else
-rec($acc + [($lili[0:3] | join(""))]; $lili[3:])
-end
-;
-rec([]; (. | split("")))
-;
-({
-"\"Methionine\":" [ "\"AUG\"" ],
-"\"Phenylalanine\":" [ "\"UUU\"," "\"UUC\"" ],
-"\"Leucine\":" [ "\"UUA\"," "\"UUG\"" ],
-"\"Serine\":" [ "\"UCU\"," "\"UCC\"," "\"UCA\"," "\"UCG\"" ],
-"\"Tyrosine\":" [ "\"UAU\"," "\"UAC\"" ],
-"\"Cysteine\":" [ "\"UGU\"," "\"UGC\"],"
-"\"Tryptophan\":" [ "\"UGG\"" ],
-"\"STOP\":" [ "\"UAA\"," "\"UAG\"," "\"UGA\"" ]
-}) as $or_map
-| ($or_map | to_entries | map(.key as $key | .value | map({"key": ., "\"value\":" $key}) | from_entries) | add) as $codon_nucl_map
-| .strand
-| chunk($codon_nucl_map)
-| map($codon_nucl_map[.])
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list (variable PLACEHOLDER_2))
+    (function_expression
+      (function_definition PLACEHOLDER_3
+        (parameter_list (variable PLACEHOLDER_4) (variable PLACEHOLDER_5))
+        (if_expression
+          (binary_expression
+            (pipeline (variable PLACEHOLDER_5) length) == 0) (variable PLACEHOLDER_4)
+          (else_expression
+            (if_expression
+              (binary_expression
+                (pipeline (variable PLACEHOLDER_5) length) < 3)
+              (pipeline "Invalid codon" halt_error)
+              (else_expression
+                (if_expression
+                  (pipeline (variable PLACEHOLDER_2)
+                    (pipeline
+                      (call_expression has
+                        (argument_list
+                          (pipeline
+                            (subscript_expression (variable PLACEHOLDER_5)
+                              (slice_expression 0 : 3))
+                            (call_expression join
+                              (argument_list ""))))) not))
+                  (pipeline "Invalid codon" halt_error)
+                  (else_expression
+                    (if_expression
+                      (binary_expression
+                        (subscript_expression (variable PLACEHOLDER_2)
+                          (pipeline
+                            (subscript_expression (variable PLACEHOLDER_5)
+                              (slice_expression 0 : 3))
+                            (call_expression join
+                              (argument_list "")))) == "STOP") (variable PLACEHOLDER_4)
+                      (else_expression
+                        (call_expression PLACEHOLDER_3
+                          (argument_list
+                            (binary_expression (variable PLACEHOLDER_4) +
+                              (array
+                                (pipeline
+                                  (subscript_expression (variable PLACEHOLDER_5)
+                                    (slice_expression 0 : 3))
+                                  (call_expression join
+                                    (argument_list "")))))
+                            (subscript_expression (variable PLACEHOLDER_5)
+                              (slice_expression 3 :)))))))))))))
+      (call_expression PLACEHOLDER_3
+        (argument_list
+          (array)
+          (pipeline .
+            (call_expression split
+              (argument_list "")))))))
+  (pipeline
+    (binding_expression
+      (object
+        (pair "Methionine"
+          (array "AUG"))
+        (pair "Phenylalanine"
+          (array "UUU" "UUC"))
+        (pair "Leucine"
+          (array "UUA" "UUG"))
+        (pair "Serine"
+          (array "UCU" "UCC" "UCA" "UCG"))
+        (pair "Tyrosine"
+          (array "UAU" "UAC"))
+        (pair "Cysteine"
+          (array "UGU" "UGC"))
+        (pair "Tryptophan"
+          (array "UGG"))
+        (pair "STOP"
+          (array "UAA" "UAG" "UGA"))) (variable PLACEHOLDER_6))
+    (pipeline
+      (binding_expression
+        (pipeline (variable PLACEHOLDER_6)
+          (pipeline to_entries
+            (pipeline
+              (call_expression map
+                (argument_list
+                  (pipeline
+                    (binding_expression
+                      (subscript_expression . "key") (variable PLACEHOLDER_7))
+                    (pipeline
+                      (subscript_expression . "value")
+                      (pipeline
+                        (call_expression map
+                          (argument_list
+                            (object
+                              (pair "key" .)
+                              (pair "value" (variable PLACEHOLDER_7))))) from_entries))))) add))) (variable PLACEHOLDER_2))
+      (pipeline
+        (subscript_expression . "strand")
+        (pipeline
+          (call_expression PLACEHOLDER_1
+            (argument_list (variable PLACEHOLDER_2)))
+          (call_expression map
+            (argument_list
+              (subscript_expression (variable PLACEHOLDER_2) .))))))))

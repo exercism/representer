@@ -1,74 +1,170 @@
-def gcd(a; b):
-if b == 0 then a
-else gcd(b; a % b)
-end;
-def solve_two_bucket:
-. as $input |
-# Extract input parameters
-.bucketOne as $c1 |
-.bucketTwo as $c2 |
-.goal as $goal |
-.startBucket as $start |
-# Check if goal is impossible
-if $goal > ($c1 | if . > $c2 then . else $c2 end) then
-"\"impossible\"" | halt_error(1)
-elif ($goal % gcd($c1; $c2)) != 0 then
-"\"impossible\"" | halt_error(1)
-else
-# Initialize state based on start bucket
-(if $start == "\"one\"" then [$c1, 0] else [0, $c2] end) as $initial_state |
-# BFS to find solution
-{
-queue: [[$initial_state, 1]],
-visited: {
-"\"0,0\":" true,
-(if $start == "\"one\"" then "\"0,\\($c2)\"" else "\"\\($c1),0\"" end): true
-}
-} |
-until(.queue == [] or .found;
-.queue[0] as $current |
-$current[0] as $state |
-$current[1] as $moves |
-$state[0] as $x1 |
-$state[1] as $x2 |
-if $x1 == $goal or $x2 == $goal then
-.found = {
-moves: $moves,
-goalBucket: (if $x1 == $goal then "\"one\"" else "\"two\"" end),
-otherBucket: (if $x1 == $goal then $x2 else $x1 end)
-}
-else
-.queue = .queue[1:] |
-# Generate all possible next states
-[
-# Empty bucket one
-[0, $x2],
-# Empty bucket two
-[$x1, 0],
-# Pour from bucket one to bucket two
-([$x1 - ([$x1, $c2 - $x2] | min), $x2 + ([$x1, $c2 - $x2] | min)]),
-# Pour from bucket two to bucket one
-([$x1 + ([$x2, $c1 - $x1] | min), $x2 - ([$x2, $c1 - $x1] | min)]),
-# Fill bucket one
-[$c1, $x2],
-# Fill bucket two
-[$x1, $c2]
-] as $next_states |
-reduce $next_states[] as $next_state (.;
-($next_state | "\"\\(.[0]),\\(.[1])\")" as $state_key |
-if .visited[$state_key] | not then
-.visited[$state_key] = true |
-.queue += [[$next_state, $moves + 1]]
-else
-.
-end
-)
-end
-) |
-if .found then
-.found
-else
-"\"impossible\"" | halt_error(1)
-end
-end;
-solve_two_bucket
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list PLACEHOLDER_2 PLACEHOLDER_3)
+    (if_expression
+      (binary_expression PLACEHOLDER_3 == 0) PLACEHOLDER_2
+      (else_expression
+        (call_expression PLACEHOLDER_1
+          (argument_list PLACEHOLDER_3
+            (binary_expression PLACEHOLDER_2 % PLACEHOLDER_3))))))
+  (function_definition PLACEHOLDER_4
+    (pipeline
+      (binding_expression . (variable PLACEHOLDER_5))
+      (pipeline
+        (binding_expression
+          (subscript_expression . "bucketOne") (variable PLACEHOLDER_6))
+        (pipeline
+          (binding_expression
+            (subscript_expression . "bucketTwo") (variable PLACEHOLDER_7))
+          (pipeline
+            (binding_expression
+              (subscript_expression . "goal") (variable PLACEHOLDER_8))
+            (pipeline
+              (binding_expression
+                (subscript_expression . "startBucket") (variable PLACEHOLDER_9))
+              (if_expression
+                (binary_expression (variable PLACEHOLDER_8) >
+                  (pipeline (variable PLACEHOLDER_6)
+                    (if_expression
+                      (binary_expression . > (variable PLACEHOLDER_7)) .
+                      (else_expression (variable PLACEHOLDER_7)))))
+                (pipeline "impossible"
+                  (call_expression halt_error
+                    (argument_list 1)))
+                (else_expression
+                  (if_expression
+                    (binary_expression
+                      (binary_expression (variable PLACEHOLDER_8) %
+                        (call_expression PLACEHOLDER_1
+                          (argument_list (variable PLACEHOLDER_6) (variable PLACEHOLDER_7)))) != 0)
+                    (pipeline "impossible"
+                      (call_expression halt_error
+                        (argument_list 1)))
+                    (else_expression
+                      (pipeline
+                        (binding_expression
+                          (if_expression
+                            (binary_expression (variable PLACEHOLDER_9) == "one")
+                            (array (variable PLACEHOLDER_6) 0)
+                            (else_expression
+                              (array 0 (variable PLACEHOLDER_7)))) (variable PLACEHOLDER_10))
+                        (pipeline
+                          (object
+                            (pair "queue"
+                              (array
+                                (array (variable PLACEHOLDER_10) 1)))
+                            (pair "visited"
+                              (object
+                                (pair "0,0" true)
+                                (pair
+                                  (if_expression
+                                    (binary_expression (variable PLACEHOLDER_9) == "one")
+                                    (string "0,"
+                                      (interpolation (variable PLACEHOLDER_7)))
+                                    (else_expression
+                                      (string
+                                        (interpolation (variable PLACEHOLDER_6)) ",0"))) true))))
+                          (pipeline
+                            (call_expression until
+                              (argument_list
+                                (binary_expression
+                                  (binary_expression
+                                    (subscript_expression . "queue") ==
+                                    (array)) or
+                                  (subscript_expression . "found"))
+                                (pipeline
+                                  (binding_expression
+                                    (subscript_expression
+                                      (subscript_expression . "queue") 0) (variable PLACEHOLDER_11))
+                                  (pipeline
+                                    (binding_expression
+                                      (subscript_expression (variable PLACEHOLDER_11) 0) (variable PLACEHOLDER_12))
+                                    (pipeline
+                                      (binding_expression
+                                        (subscript_expression (variable PLACEHOLDER_11) 1) (variable PLACEHOLDER_13))
+                                      (pipeline
+                                        (binding_expression
+                                          (subscript_expression (variable PLACEHOLDER_12) 0) (variable PLACEHOLDER_14))
+                                        (pipeline
+                                          (binding_expression
+                                            (subscript_expression (variable PLACEHOLDER_12) 1) (variable PLACEHOLDER_15))
+                                          (if_expression
+                                            (binary_expression
+                                              (binary_expression (variable PLACEHOLDER_14) == (variable PLACEHOLDER_8)) or
+                                              (binary_expression (variable PLACEHOLDER_15) == (variable PLACEHOLDER_8)))
+                                            (assignment_expression
+                                              (subscript_expression . "found") =
+                                              (object
+                                                (pair "moves" (variable PLACEHOLDER_13))
+                                                (pair "goalBucket"
+                                                  (if_expression
+                                                    (binary_expression (variable PLACEHOLDER_14) == (variable PLACEHOLDER_8)) "one"
+                                                    (else_expression "two")))
+                                                (pair "otherBucket"
+                                                  (if_expression
+                                                    (binary_expression (variable PLACEHOLDER_14) == (variable PLACEHOLDER_8)) (variable PLACEHOLDER_15)
+                                                    (else_expression (variable PLACEHOLDER_14))))))
+                                            (else_expression
+                                              (pipeline
+                                                (assignment_expression
+                                                  (subscript_expression . "queue") =
+                                                  (subscript_expression
+                                                    (subscript_expression . "queue")
+                                                    (slice_expression 1 :)))
+                                                (pipeline
+                                                  (binding_expression
+                                                    (array
+                                                      (array 0 (variable PLACEHOLDER_15))
+                                                      (array (variable PLACEHOLDER_14) 0)
+                                                      (array
+                                                        (binary_expression (variable PLACEHOLDER_14) -
+                                                          (pipeline
+                                                            (array (variable PLACEHOLDER_14)
+                                                              (binary_expression (variable PLACEHOLDER_7) - (variable PLACEHOLDER_15))) min))
+                                                        (binary_expression (variable PLACEHOLDER_15) +
+                                                          (pipeline
+                                                            (array (variable PLACEHOLDER_14)
+                                                              (binary_expression (variable PLACEHOLDER_7) - (variable PLACEHOLDER_15))) min)))
+                                                      (array
+                                                        (binary_expression (variable PLACEHOLDER_14) +
+                                                          (pipeline
+                                                            (array (variable PLACEHOLDER_15)
+                                                              (binary_expression (variable PLACEHOLDER_6) - (variable PLACEHOLDER_14))) min))
+                                                        (binary_expression (variable PLACEHOLDER_15) -
+                                                          (pipeline
+                                                            (array (variable PLACEHOLDER_15)
+                                                              (binary_expression (variable PLACEHOLDER_6) - (variable PLACEHOLDER_14))) min)))
+                                                      (array (variable PLACEHOLDER_6) (variable PLACEHOLDER_15))
+                                                      (array (variable PLACEHOLDER_14) (variable PLACEHOLDER_7))) (variable PLACEHOLDER_16))
+                                                  (reduce_expression
+                                                    (binding_expression
+                                                      (subscript_expression (variable PLACEHOLDER_16)) (variable PLACEHOLDER_17)) .
+                                                    (pipeline
+                                                      (binding_expression
+                                                        (pipeline (variable PLACEHOLDER_17)
+                                                          (string
+                                                            (interpolation
+                                                              (subscript_expression . 0)) ","
+                                                            (interpolation
+                                                              (subscript_expression . 1)))) (variable PLACEHOLDER_18))
+                                                      (if_expression
+                                                        (pipeline
+                                                          (subscript_expression
+                                                            (subscript_expression . "visited") (variable PLACEHOLDER_18)) not)
+                                                        (pipeline
+                                                          (assignment_expression
+                                                            (subscript_expression
+                                                              (subscript_expression . "visited") (variable PLACEHOLDER_18)) = true)
+                                                          (assignment_expression
+                                                            (subscript_expression . "queue") +=
+                                                            (array
+                                                              (array (variable PLACEHOLDER_17)
+                                                                (binary_expression (variable PLACEHOLDER_13) + 1)))))
+                                                        (else_expression .)))))))))))))))
+                            (if_expression
+                              (subscript_expression . "found")
+                              (subscript_expression . "found")
+                              (else_expression
+                                (pipeline "impossible"
+                                  (call_expression halt_error
+                                    (argument_list 1)))))))))))))))))) PLACEHOLDER_4)

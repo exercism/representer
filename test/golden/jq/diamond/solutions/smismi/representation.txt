@@ -1,13 +1,41 @@
-def A: 65;
-def tonum: .letter | explode | .[] - A;
-def tochar: [. + A] | implode;
-tonum as $max
-| [range($max + 1), range($max - 1; -1; -1)]
-| map(
-"\".\"" * ($max - .) # left padding
-+ tochar # letter
-+ "\".\"" * (. * 2 - 1) # middle spaces
-+ (if . > 0 then tochar else "\"\"" end) # letter again except for A
-+ "\".\"" * ($max - .) # right padding
-)
-| join("\n")
+(program
+  (function_definition PLACEHOLDER_1 65)
+  (function_definition PLACEHOLDER_2
+    (pipeline
+      (subscript_expression . "letter")
+      (pipeline explode
+        (binary_expression
+          (subscript_expression .) - PLACEHOLDER_1))))
+  (function_definition PLACEHOLDER_3
+    (pipeline
+      (array
+        (binary_expression . + PLACEHOLDER_1)) implode))
+  (pipeline
+    (binding_expression PLACEHOLDER_2 (variable PLACEHOLDER_4))
+    (pipeline
+      (array
+        (call_expression range
+          (argument_list
+            (binary_expression (variable PLACEHOLDER_4) + 1)))
+        (call_expression range
+          (argument_list
+            (binary_expression (variable PLACEHOLDER_4) - 1) -1 -1)))
+      (pipeline
+        (call_expression map
+          (argument_list
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (binary_expression "." *
+                      (binary_expression (variable PLACEHOLDER_4) - .)) + PLACEHOLDER_3) +
+                  (binary_expression "." *
+                    (binary_expression
+                      (binary_expression . * 2) - 1))) +
+                (if_expression
+                  (binary_expression . > 0) PLACEHOLDER_3
+                  (else_expression ""))) +
+              (binary_expression "." *
+                (binary_expression (variable PLACEHOLDER_4) - .)))))
+        (call_expression join
+          (argument_list "\n"))))))

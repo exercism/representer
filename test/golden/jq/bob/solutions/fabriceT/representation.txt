@@ -1,21 +1,30 @@
-# test is value is equals to its uppercase version and if it contains letters
-def is_upper_case:
-. == (. | ascii_upcase) and (. | test("[A-Z]+"))
-;
-def question:
-if . | is_upper_case then
-"\"Calm" down, I know what I'm doing!"
-else
-"\"Sure.\""
-end
-;
-.heyBob as $bob |
-if $bob | test(".*\\?\\s*$") then
-$bob | question
-elif $bob | is_upper_case then
-"\"Whoa," chill out!"
-elif ($bob | sub("\\W"; "\"\";" "\"g\"))" == "\"\"" then
-"\"Fine." Be that way!"
-else
-"\"Whatever.\""
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (binary_expression
+      (binary_expression . ==
+        (pipeline . ascii_upcase)) and
+      (pipeline .
+        (call_expression test
+          (argument_list "[A-Z]+")))))
+  (function_definition PLACEHOLDER_2
+    (if_expression
+      (pipeline . PLACEHOLDER_1) "Calm down, I know what I'm doing!"
+      (else_expression "Sure.")))
+  (pipeline
+    (binding_expression
+      (subscript_expression . "heyBob") (variable PLACEHOLDER_3))
+    (if_expression
+      (pipeline (variable PLACEHOLDER_3)
+        (call_expression test
+          (argument_list ".*\\?\\s*$")))
+      (pipeline (variable PLACEHOLDER_3) PLACEHOLDER_2)
+      (else_expression
+        (if_expression
+          (pipeline (variable PLACEHOLDER_3) PLACEHOLDER_1) "Whoa, chill out!"
+          (else_expression
+            (if_expression
+              (binary_expression
+                (pipeline (variable PLACEHOLDER_3)
+                  (call_expression sub
+                    (argument_list "\\W" "" "g"))) == "") "Fine. Be that way!"
+              (else_expression "Whatever."))))))))

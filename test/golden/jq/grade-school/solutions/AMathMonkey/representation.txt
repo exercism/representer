@@ -1,17 +1,64 @@
-def all_names($sort):
-. as $in | keys_unsorted
-| if $sort then sort_by(tonumber) end
-| map($in[.]) | flatten;
-def grades:
-reduce .[] as [$name, $grade] ({};
-if all_names(false) | index($name) | not then
-.[$grade | tostring] |= (. // []) + [$name]
-end)
-| map_values(sort);
-def grade($n):
-grades | .[$n | tostring] // [];
-if .property == "\"roster\"" then
-.input.students | grades | all_names(true)
-else
-.input as $i | $i.students | grade($i.desiredGrade)
-end
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list (variable PLACEHOLDER_2))
+    (pipeline
+      (binding_expression . (variable PLACEHOLDER_3))
+      (pipeline keys_unsorted
+        (pipeline
+          (if_expression (variable PLACEHOLDER_2)
+            (call_expression sort_by
+              (argument_list tonumber))
+            (else_expression .))
+          (pipeline
+            (call_expression map
+              (argument_list
+                (subscript_expression (variable PLACEHOLDER_3) .))) flatten)))))
+  (function_definition PLACEHOLDER_4
+    (pipeline
+      (reduce_expression
+        (binding_expression
+          (subscript_expression .)
+          (array_pattern (variable PLACEHOLDER_5) (variable PLACEHOLDER_6)))
+        (object)
+        (if_expression
+          (pipeline
+            (call_expression PLACEHOLDER_1
+              (argument_list false))
+            (pipeline
+              (call_expression index
+                (argument_list (variable PLACEHOLDER_5))) not))
+          (assignment_expression
+            (subscript_expression .
+              (pipeline (variable PLACEHOLDER_6) tostring)) |=
+            (binary_expression
+              (binary_expression . //
+                (array)) +
+              (array (variable PLACEHOLDER_5))))
+          (else_expression .)))
+      (call_expression map_values
+        (argument_list sort))))
+  (function_definition PLACEHOLDER_7
+    (parameter_list (variable PLACEHOLDER_8))
+    (pipeline PLACEHOLDER_4
+      (binary_expression
+        (subscript_expression .
+          (pipeline (variable PLACEHOLDER_8) tostring)) //
+        (array))))
+  (if_expression
+    (binary_expression
+      (subscript_expression . "property") == "roster")
+    (pipeline
+      (subscript_expression
+        (subscript_expression . "input") "students")
+      (pipeline PLACEHOLDER_4
+        (call_expression PLACEHOLDER_1
+          (argument_list true))))
+    (else_expression
+      (pipeline
+        (binding_expression
+          (subscript_expression . "input") (variable PLACEHOLDER_9))
+        (pipeline
+          (subscript_expression (variable PLACEHOLDER_9) "students")
+          (call_expression PLACEHOLDER_7
+            (argument_list
+              (subscript_expression (variable PLACEHOLDER_9) "desiredGrade"))))))))

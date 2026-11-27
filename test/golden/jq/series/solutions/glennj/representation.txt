@@ -1,13 +1,51 @@
-def assert(cond; errmsg):
-if (cond | not) then errmsg | halt_error
-else .
-end ;
-(.series | length) as $strlen
-| assert($strlen > 0; "\"series" cannot be empty")
-| assert(.sliceLength <= $strlen; "\"slice" length cannot be greater than series length")
-| assert(.sliceLength >= 0; "\"slice" length cannot be negative")
-| assert(.sliceLength > 0; "\"slice" length cannot be zero")
-| reduce range($strlen - .sliceLength + 1) as $i (. + {slices: []};
-.slices += [.series[$i:$i + .sliceLength]]
-)
-| .slices
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list PLACEHOLDER_2 PLACEHOLDER_3)
+    (if_expression
+      (pipeline PLACEHOLDER_2 not)
+      (pipeline PLACEHOLDER_3 halt_error)
+      (else_expression .)))
+  (pipeline
+    (binding_expression
+      (pipeline
+        (subscript_expression . "series") length) (variable PLACEHOLDER_4))
+    (pipeline
+      (call_expression PLACEHOLDER_1
+        (argument_list
+          (binary_expression (variable PLACEHOLDER_4) > 0) "series cannot be empty"))
+      (pipeline
+        (call_expression PLACEHOLDER_1
+          (argument_list
+            (binary_expression
+              (subscript_expression . "sliceLength") <= (variable PLACEHOLDER_4)) "slice length cannot be greater than series length"))
+        (pipeline
+          (call_expression PLACEHOLDER_1
+            (argument_list
+              (binary_expression
+                (subscript_expression . "sliceLength") >= 0) "slice length cannot be negative"))
+          (pipeline
+            (call_expression PLACEHOLDER_1
+              (argument_list
+                (binary_expression
+                  (subscript_expression . "sliceLength") > 0) "slice length cannot be zero"))
+            (pipeline
+              (reduce_expression
+                (binding_expression
+                  (call_expression range
+                    (argument_list
+                      (binary_expression
+                        (binary_expression (variable PLACEHOLDER_4) -
+                          (subscript_expression . "sliceLength")) + 1))) (variable PLACEHOLDER_5))
+                (binary_expression . +
+                  (object
+                    (pair "slices"
+                      (array))))
+                (assignment_expression
+                  (subscript_expression . "slices") +=
+                  (array
+                    (subscript_expression
+                      (subscript_expression . "series")
+                      (slice_expression (variable PLACEHOLDER_5) :
+                        (binary_expression (variable PLACEHOLDER_5) +
+                          (subscript_expression . "sliceLength")))))))
+              (subscript_expression . "slices"))))))))

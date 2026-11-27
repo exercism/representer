@@ -1,10 +1,34 @@
-.strings as $strings |
-if ($strings | length) == 0 then
-[]
-elif ($strings | length) == 1 then
-["And all for the want of a \($strings[0])."]
-else
-([range(0; ($strings | length) - 1) |
-"\"For" want of a \($strings[.]) the \($strings[. + 1]) was lost."] +
-["And all for the want of a \($strings[0])."])
-end
+(program
+  (pipeline
+    (binding_expression
+      (subscript_expression . "strings") (variable PLACEHOLDER_1))
+    (if_expression
+      (binary_expression
+        (pipeline (variable PLACEHOLDER_1) length) == 0)
+      (array)
+      (else_expression
+        (if_expression
+          (binary_expression
+            (pipeline (variable PLACEHOLDER_1) length) == 1)
+          (array
+            (string "And all for the want of a "
+              (interpolation
+                (subscript_expression (variable PLACEHOLDER_1) 0)) "."))
+          (else_expression
+            (binary_expression
+              (array
+                (pipeline
+                  (call_expression range
+                    (argument_list 0
+                      (binary_expression
+                        (pipeline (variable PLACEHOLDER_1) length) - 1)))
+                  (string "For want of a "
+                    (interpolation
+                      (subscript_expression (variable PLACEHOLDER_1) .)) " the "
+                    (interpolation
+                      (subscript_expression (variable PLACEHOLDER_1)
+                        (binary_expression . + 1))) " was lost."))) +
+              (array
+                (string "And all for the want of a "
+                  (interpolation
+                    (subscript_expression (variable PLACEHOLDER_1) 0)) ".")))))))))

@@ -1,27 +1,36 @@
-# Extract the limit from the input
-.limit as $limit |
-# For numbers less than 2, there are no primes
-if $limit < 2 then
-[]
-else
-# Create a sequence of all numbers from 2 to limit
-[range(2; $limit + 1)] |
-# Apply the sieve of Eratosthenes
-reduce range(0; length) as $i (
-.;
-# Current number being checked
-.[$i] as $current |
-# If current number is not 0 (not marked as composite yet)
-if $current != 0 then
-# Mark all multiples as composite (0)
-reduce range($i + $current; length; $current) as $j (
-.;
-.[$j] = 0
-)
-else
-.
-end
-) |
-# Keep only the non-zero values (the primes)
-map(select(. != 0))
-end
+(program
+  (pipeline
+    (binding_expression
+      (subscript_expression . "limit") (variable PLACEHOLDER_1))
+    (if_expression
+      (binary_expression (variable PLACEHOLDER_1) < 2)
+      (array)
+      (else_expression
+        (pipeline
+          (array
+            (call_expression range
+              (argument_list 2
+                (binary_expression (variable PLACEHOLDER_1) + 1))))
+          (pipeline
+            (reduce_expression
+              (binding_expression
+                (call_expression range
+                  (argument_list 0 length)) (variable PLACEHOLDER_2)) .
+              (pipeline
+                (binding_expression
+                  (subscript_expression . (variable PLACEHOLDER_2)) (variable PLACEHOLDER_3))
+                (if_expression
+                  (binary_expression (variable PLACEHOLDER_3) != 0)
+                  (reduce_expression
+                    (binding_expression
+                      (call_expression range
+                        (argument_list
+                          (binary_expression (variable PLACEHOLDER_2) + (variable PLACEHOLDER_3)) length (variable PLACEHOLDER_3))) (variable PLACEHOLDER_4)) .
+                    (assignment_expression
+                      (subscript_expression . (variable PLACEHOLDER_4)) = 0))
+                  (else_expression .))))
+            (call_expression map
+              (argument_list
+                (call_expression select
+                  (argument_list
+                    (binary_expression . != 0)))))))))))
