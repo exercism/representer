@@ -3,8 +3,6 @@
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
 module Representer::Languages::Dart
   class Snippet < Representer::Engine::Snippet
-    tracks "dart"
-
     # Remove every comment, wherever it is.
     remove :comments # var x = 1; «// The answer»
 
