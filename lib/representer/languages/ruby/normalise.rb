@@ -1,21 +1,48 @@
 # REPRESENTER_DSL.md defines the verbs and helpers in this file.
+# Remember that all solutions pass the tests and we don't need to run the code,
+# so normalising only has to keep what a mentor would comment on.
 module Representer::Languages::Ruby
   class Normalise < Representer::Engine::Normalise
-    # A bare `private`, `protected`, `public` or `module_function` line
-    # changes every method after it, so the line goes and each method and
-    # `attr_*` after it gets a copy of the line as a mark. Each method then
-    # keeps its meaning when Reorder sorts the body. `private :x` stays as
-    # it is, as an ordinary call.
+    # Mark each method and attribute with the modifier line above it, and drop the line.
+    #
+    # e.g. We convert:
+    # private
+    # attr_reader :foo, :bar
+    # def area
+    #
+    # internally into:
+    # attr_reader :foo, :bar (private)
+    # def area (private)
+    #
+    # and strip out the private line.
+    #
+    # This allows us to reorder the contents of a class/module safely.
+    #
+    # Note: `private :x` is left as an ordinary call for now.
     attach_to_each_following "private", "protected", "public", "module_function",
-      to: ["def {{name}}\nend", "attr_reader {{names}}", "attr_writer {{names}}", "attr_accessor {{names}}"]
+      to: [
+        "def {{name}}\nend",
+        "attr_reader {{names}}",
+        "attr_writer {{names}}",
+        "attr_accessor {{names}}"
+      ]
 
     def call = visibility_before_def(super)
 
     private
-    # `private def x ... end` calls `private` with the method, so the method
-    # takes the place of the call, with `private` as its mark. It is then
-    # the same as `def x ... end` after a `private` line. The same goes for
-    # `protected def` and `public def`.
+    # Mark a method defined inside `private`, `protected` or `public` with that modifier.
+    #
+    # e.g. We convert:
+    # private def area
+    #   ...
+    # end
+    #
+    # internally into
+    # def area (private)
+    #   ...
+    # end
+    #
+    # This matches the attach_to_each_following behaviour above.
     def visibility_before_def(root)
       pattern = '(call !receiver method: (identifier /\A(private|protected|public)\z/) arguments: (argument_list (method)))'
       transform(root, pattern) do |match|
