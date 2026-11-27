@@ -23,7 +23,6 @@ module Representer::Languages::Elixir::Common
     numbers_are integer: :integer,
                 decimal: :float
 
-    # "a\tb"  ->  a, a tab character, then b
     ESCAPES = {
       "n" => "\n", "t" => "\t", "r" => "\r", "s" => " ", "e" => "\e", "0" => "\0",
       "\\" => "\\", '"' => '"', "'" => "'", "#" => "#"

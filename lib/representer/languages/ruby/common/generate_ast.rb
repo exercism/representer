@@ -57,7 +57,6 @@ module Representer::Languages::Ruby::Common
                 decimal: :float,
                 prefixes: { "0x" => 16, "0o" => 8, "0b" => 2, "0d" => 10, "0" => 8 }
 
-    # "a\tb"  ->  a, a tab character, then b
     ESCAPES = {
       "n" => "\n", "t" => "\t", "s" => " ", "e" => "\e", "0" => "\0",
       "\\" => "\\", '"' => '"', "'" => "'", "#" => "#"

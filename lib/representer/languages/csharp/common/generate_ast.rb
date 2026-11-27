@@ -44,7 +44,6 @@ module Representer::Languages::CSharp::Common
                 decimal: :real_literal,
                 suffixes: ["f", "d"]
 
-    # "a\tb"  ->  a, a tab character, then b
     ESCAPES = {
       "n" => "\n", "t" => "\t", "r" => "\r", "0" => "\0", "a" => "\a", "b" => "\b", "f" => "\f",
       "v" => "\v", "e" => "\e", "\\" => "\\", '"' => '"', "'" => "'"
