@@ -195,6 +195,24 @@ The engine tries the contexts in order.
 pattern_contexts "{{pattern}}\nend"
 ```
 
+### placeholder_suffix
+
+The engine spells each placeholder in a code pattern as a name, such as `name__` for `{{name}}`.
+If the grammar can't read a name that ends in `__`, as Nim's can't, a language gives another suffix.
+
+```ruby
+placeholder_suffix "placeholder"
+```
+
+### keywords_used_as_names
+
+If one of the grammar's keywords comes out as a name in a code pattern, the engine rejects that parse (see "Code patterns" below).
+A language lists the keywords that it also uses as names, such as Common Lisp's `cl`, so a pattern such as `:cl` can use them.
+
+```ruby
+keywords_used_as_names "cl"
+```
+
 ## Stages and their verbs
 
 A stage is a class in its own file in the language's folder.
@@ -519,7 +537,7 @@ So `require "{{...}}"` matches `require "set"`, and doesn't match `Kernel.requir
 Empty brackets in a pattern match any brackets, so `f()` also matches `f(1)`.
 
 If a pattern doesn't parse on its own, the engine tries it in each of the language's pattern contexts.
-If one of the grammar's keywords comes out as a name, the engine rejects that parse and tries the next context.
+If one of the grammar's keywords comes out as a name, the engine rejects that parse and tries the next context, unless the language lists the keyword in `keywords_used_as_names`.
 If the code doesn't parse in any context, the engine tries every context again with each placeholder capitalised, as Ruby's `class {{x}}` needs.
 If the code is one token inside a larger node, such as the `readonly` of C#'s `ref readonly int`, the pattern is that token.
 

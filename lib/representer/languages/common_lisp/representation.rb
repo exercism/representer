@@ -20,5 +20,9 @@ module Representer::Languages::CommonLisp
             "(:use {{...}})",           # (defpackage :two-fer «(:use :cl)»)
             "(:import-from {{...}})",   # (defpackage :two-fer «(:import-from :uiop :split-string)»)
             "(:export {{...}})"         # (defpackage :two-fer «(:export :twofer)»)
+
+    # Let code patterns use `cl` as a name, because it is the nickname of the
+    # package `common-lisp`, although the grammar reads it as a keyword.
+    keywords_used_as_names "cl" # (:use «:cl»)
   end
 end

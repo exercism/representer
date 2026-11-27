@@ -19,5 +19,19 @@ module Representer::Languages::Nim
     # `for`, and every name marked with `*` to export it.
     names_are_defined_by :exported_symbol,          # proc «area»*(width: int): int
                          symbol_declaration: :name  # let «total» = 1, proc f(«width»: int), for «i» in xs
+
+    # Drop every import, because a solution that passes its tests has already
+    # made every module it needs available. Drop exports too, because they
+    # only make names available to the code that imports the solution.
+    imports "import {{...}}",                # «import strutils»
+            "import {{...}} except {{...}}", # «import strutils except toUpper»
+            "from {{...}} import {{...}}",   # «from math import sqrt»
+            "include {{...}}",               # «include helpers»
+            "export {{...}}"                 # «export sqrt»
+
+    # Spell each placeholder in a code pattern as `wordplaceholder`, because
+    # Nim's grammar can't read a name that ends in an underscore, and
+    # GenerateAST writes names in lower case.
+    placeholder_suffix "placeholder"
   end
 end

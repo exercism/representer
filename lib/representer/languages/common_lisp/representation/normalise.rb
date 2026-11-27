@@ -9,11 +9,14 @@ class Representer::Languages::CommonLisp::Representation
     # '()  ->  nil
     rewrite "'nil", as: "nil"
 
+    # Write the package `:common-lisp` by its nickname.
+    # :common-lisp  ->  :cl
+    rewrite ":common-lisp", as: ":cl"
+
     def call
       super.tap do |root|
         drop_the_function_mark_before_each_lambda!(root)
         drop_the_hash_before_each_keyword!(root)
-        write_the_common_lisp_package_by_its_nickname!(root)
         drop_docstrings!(root)
         keep_only_the_variable_of_each_for_and_with_clause!(root)
       end
@@ -39,13 +42,6 @@ class Representer::Languages::CommonLisp::Representation
           child.type == "#" && node.children[index + 1]&.type == "kwd_lit"
         end
       end
-    end
-
-    # Write the package `:common-lisp` by its nickname. A code pattern can't
-    # write `:cl`, because `cl` is one of the grammar's keywords.
-    # :common-lisp  ->  :cl
-    def write_the_common_lisp_package_by_its_nickname!(root)
-      each_node(root) { |node, _| node.text = "cl" if node.type == "kwd_symbol" && node.text == "common-lisp" }
     end
 
     # Drop the docstring of each function and global variable. A function's

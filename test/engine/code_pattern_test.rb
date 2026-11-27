@@ -197,6 +197,36 @@ class CodePatternTest < Minitest::Test
     assert_raises(ArgumentError) { CodePattern[Rubyish::Spec, "a\nb"].match(tree("a\nb")) }
   end
 
+  # A language with Ruby's grammar and a placeholder suffix of its own.
+  module Suffixed
+    class Spec < Representer::Engine::Language
+      grammar "ruby"
+    end
+
+    class Representation < Representer::Engine::Representation
+      names_are :identifier
+      placeholder_suffix "_ph"
+    end
+
+    module Common
+      GenerateAST = Representer::Languages::Ruby::Common::GenerateAST
+    end
+  end
+
+  def test_a_language_can_spell_its_placeholders_with_another_suffix
+    pattern = CodePattern[Suffixed::Spec, "x = {{value}}"]
+    assert_equal "1", pattern.match(tree("x = 1").children.first)["value"].text
+  end
+
+  def test_a_language_can_use_one_of_the_grammars_keywords_as_a_name
+    language = Representer::Languages::CommonLisp::Spec
+    pattern = CodePattern[language, ":cl"]
+    file = Representer::Engine::PrepareFile.(language, "(f :cl)")
+    found = []
+    file.each_descendant { |node| found << node if pattern.match(node) }
+    assert_equal 1, found.size
+  end
+
   private
   def parse(source) = Representer::Engine::Grammar["ruby"].parse(source)
   def tree(source) = Ruby::Common::GenerateAST.(parse(source))

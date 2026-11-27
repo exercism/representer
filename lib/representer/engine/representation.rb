@@ -11,7 +11,8 @@ module Representer::Engine
 
     STAGE_FILES = { Normalise: "normalise", Reorder: "reorder" }.freeze
 
-    declarations_in :@version, :@names, :@definitions, :@imports, :@pattern_contexts
+    declarations_in :@version, :@names, :@definitions, :@imports, :@pattern_contexts, :@placeholder_suffix,
+                    :@keywords_used_as_names
 
     class << self
       # Ruby calls this when a language defines its Representation. The
@@ -80,6 +81,18 @@ module Representer::Engine
       # The code to put a code pattern in when the pattern doesn't parse on
       # its own (see REPRESENTER_DSL.md).
       def pattern_contexts(*contexts) = (@pattern_contexts ||= []).concat(contexts)
+
+      # The text that ends each placeholder's spelling in a code pattern,
+      # such as `name__` for `{{name}}` (see REPRESENTER_DSL.md).
+      def placeholder_suffix(suffix = nil)
+        return @placeholder_suffix || "__" unless suffix
+
+        @placeholder_suffix = suffix
+      end
+
+      # The grammar's keywords that the language also uses as names, so a
+      # code pattern may use them as names (see REPRESENTER_DSL.md).
+      def keywords_used_as_names(*words) = (@keywords_used_as_names ||= []).concat(words)
 
       # Runs the representation's stage with this name on the tree, and
       # returns the new tree (see Engine.run_stage).

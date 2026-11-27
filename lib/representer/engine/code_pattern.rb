@@ -243,7 +243,8 @@ module Representer::Engine
     end
 
     # Writes each placeholder as a name that the grammar accepts: `{{file}}`
-    # becomes `file__`, or `File__` when capitalised. Each `{{...}}` gets a
+    # becomes `file__`, or `File__` when capitalised. A language can give
+    # another suffix (see Representation.placeholder_suffix). Each `{{...}}` gets a
     # word of its own, such as `anything1__`.
     def spell(text, capitalised)
       count = 0
@@ -253,7 +254,7 @@ module Representer::Engine
           word = "#{ANONYMOUS}#{count += 1}"
           @anonymous << word
         end
-        spelling = "#{capitalised ? word[0].upcase + word[1..] : word}__"
+        spelling = "#{capitalised ? word[0].upcase + word[1..] : word}#{suffix}"
         @words[spelling] = word
         spelling
       end
@@ -272,8 +273,10 @@ module Representer::Engine
       node.children.find { |candidate| !candidate.named? && candidate.span&.begin == from && candidate.span&.end == to } || node
     end
 
+    def suffix = representation&.placeholder_suffix || "__"
+
     def misread_keyword?(node)
-      keywords = Grammar[@language.grammar].keywords
+      keywords = Grammar[@language.grammar].keywords - (representation&.keywords_used_as_names || [])
       misread = false
       node.each_descendant do |descendant|
         misread ||= descendant.named? && descendant.leaf? && descendant.type != descendant.text &&
