@@ -3,9 +3,10 @@ require "test_helper"
 class BasicTest < RepresenterTest
   track "haskell"
 
-  # Python has a language of its own, so the tests for indentation call Basic
+  # Haskell and Python have languages of their own, so the tests call Basic
   # directly.
   def basic(code, track: "haskell") = Representer::Languages::Basic.(track, { FILENAMES.fetch(track) => code })
+  def represent(code, filename: default_filename) = Representer::Languages::Basic.(track, { filename => code })
   def default_filename = FILENAMES.fetch(track)
 
   # Basic only reads a track's source files.
@@ -15,7 +16,7 @@ class BasicTest < RepresenterTest
   }.freeze
 
   def test_tracks_without_a_class_use_basic_and_its_version
-    result = Representer::RepresentSolution.("haskell", { "Main.hs" => "main = print 1" })
+    result = Representer::RepresentSolution.("8th", { "main.8th" => ": main 1 . ;" })
     assert_equal Representer::Languages::Basic, result.representer
     assert_nil result.reason
     assert_equal Representer::Languages::Basic::VERSION, result.version
@@ -105,8 +106,7 @@ class BasicTest < RepresenterTest
     c = basic("#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n", track: "c")
     assert_equal basic("int f() { return 1; }\n", track: "c").representation, c.representation
     haskell = "module A (a, b) where\nimport Data.List (sort,\n    nub)\na = 1\n"
-    assert_equal Representer::RepresentSolution.("haskell", { "A.hs" => "module A where\na = 1\n" }).representation,
-      Representer::RepresentSolution.("haskell", { "A.hs" => haskell }).representation
+    assert_equal basic("module A where\na = 1\n").representation, basic(haskell).representation
   end
 
   def test_erlang_and_prolog_directives_that_import_or_export_are_dropped

@@ -1,44 +1,290 @@
-module Poker where
-validHand :: [ String ] -> Bool
-validHand h = and [ length h == 5
-  , all (` elem ` "\"A23456789TJQK\"" ) ( head <$> h )
-  , all (` elem ` "\"HSDC\"" ) ( last <$> h )
-  , all (( == 2 ) . length ) h ]
-parseHand :: String -> [ String ]
-parseHand = map f . words
-  where
-    f ( '1' : '0' : xs ) = 'T' : xs
-    f xs = xs
-rankHand :: [ String ] -> ( Int , [ Int ])
-rankHand h
-  | counts == [ 5 ] = ( 9 , ranks' )
-  | straight && flush = ( 8 , ranks' )
-  | counts == [ 4 , 1 ] = ( 7 , ranks' )
-  | counts == [ 3 , 2 ] = ( 6 , ranks' )
-  | flush = ( 5 , ranks' )
-  | straight = ( 4 , ranks' )
-  | counts == [ 3 , 1 , 1 ] = ( 3 , ranks' )
-  | counts == [ 2 , 2 , 1 ] = ( 2 , ranks' )
-  | counts == [ 2 , 1 , 1 , 1 ] = ( 1 , ranks' )
-  | otherwise = ( 0 , ranks' )
-  where
-    r = fromJust . flip elemIndex "\"..23456789TJQKA\"" . head <$> h
-    groups = let x = nub r in sortBy ( flip compare ) ( zip ( times r <$> x ) x )
-    counts = fst <$> groups
-    ranks = snd <$> groups
-    ranks' = if ranks == [ 14 , 5 , 4 , 3 , 2 ] then [ 5 , 4 , 3 , 2 , 1 ] else ranks
-    straight = length counts == 5 && ( maximum ranks' - minimum ranks' ) == 4
-    flush = length ( nub ( last <$> h )) == 1
-    times xs x = length $ filter ( == x ) xs
-bestHands :: [ String ] -> Maybe [ String ]
-bestHands hands
-  | not ( all validHand hands' ) = Nothing
-  | otherwise = Just $ f ( 0 , [] ) [] ( zip hands hands' )
-  where
-    hands' = parseHand <$> hands
-    f _ r [] = r
-    f m r (( x , y ) : xs )
-      | null r || rank > m = f rank [ x ] xs
-      | rank == m = f m ( x : r ) xs
-      | otherwise = f m r xs
-      where rank = rankHand y
+(haskell
+  (header
+    (module_name (module_id PLACEHOLDER_1))
+    (exports
+      (export PLACEHOLDER_2)))
+  (declarations
+    (signature PLACEHOLDER_3
+      (function
+        (list String) Bool))
+    (function PLACEHOLDER_3
+      (patterns
+        (variable_pattern PLACEHOLDER_4))
+      (match
+        (apply and
+          (list
+            (infix
+              (apply length PLACEHOLDER_4) ==
+              (literal 5))
+            (apply
+              (apply all
+                (right_section
+                  (infix_id elem)
+                  (literal "A23456789TJQK")))
+              (infix head <$> PLACEHOLDER_4))
+            (apply
+              (apply all
+                (right_section
+                  (infix_id elem)
+                  (literal "HSDC")))
+              (infix last <$> PLACEHOLDER_4))
+            (apply
+              (apply all
+                (infix
+                  (right_section ==
+                    (literal 2)) . length)) PLACEHOLDER_4)))))
+    (signature PLACEHOLDER_5
+      (function String
+        (list String)))
+    (bind PLACEHOLDER_5
+      (match
+        (infix
+          (apply map PLACEHOLDER_6) . words))
+      (local_binds
+        (function PLACEHOLDER_6
+          (patterns
+            (infix
+              (literal '1') :
+              (infix
+                (literal '0') :
+                (variable_pattern PLACEHOLDER_7))))
+          (match
+            (infix
+              (literal 'T') : PLACEHOLDER_7)))
+        (function PLACEHOLDER_6
+          (patterns
+            (variable_pattern PLACEHOLDER_7))
+          (match PLACEHOLDER_7))))
+    (signature PLACEHOLDER_8
+      (function
+        (list String)
+        (tuple Int ,
+          (list Int))))
+    (function PLACEHOLDER_8
+      (patterns
+        (variable_pattern PLACEHOLDER_4))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_9 ==
+              (list
+                (literal 5)))))
+        (tuple
+          (literal 9) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_11 && PLACEHOLDER_12)))
+        (tuple
+          (literal 8) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_9 ==
+              (list
+                (literal 4)
+                (literal 1)))))
+        (tuple
+          (literal 7) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_9 ==
+              (list
+                (literal 3)
+                (literal 2)))))
+        (tuple
+          (literal 6) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean PLACEHOLDER_12))
+        (tuple
+          (literal 5) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean PLACEHOLDER_11))
+        (tuple
+          (literal 4) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_9 ==
+              (list
+                (literal 3)
+                (literal 1)
+                (literal 1)))))
+        (tuple
+          (literal 3) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_9 ==
+              (list
+                (literal 2)
+                (literal 2)
+                (literal 1)))))
+        (tuple
+          (literal 2) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_9 ==
+              (list
+                (literal 2)
+                (literal 1)
+                (literal 1)
+                (literal 1)))))
+        (tuple
+          (literal 1) , PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean otherwise))
+        (tuple
+          (literal 0) , PLACEHOLDER_10))
+      (local_binds
+        (bind PLACEHOLDER_13
+          (match
+            (infix fromJust .
+              (infix
+                (apply
+                  (apply flip elemIndex)
+                  (literal "..23456789TJQKA")) .
+                (infix head <$> PLACEHOLDER_4)))))
+        (bind PLACEHOLDER_14
+          (match
+            (let_in
+              (local_binds
+                (bind PLACEHOLDER_15
+                  (match
+                    (apply nub PLACEHOLDER_13))))
+              (apply
+                (apply sortBy
+                  (apply flip compare))
+                (apply
+                  (apply zip
+                    (infix
+                      (apply PLACEHOLDER_16 PLACEHOLDER_13) <$> PLACEHOLDER_15)) PLACEHOLDER_15)))))
+        (bind PLACEHOLDER_9
+          (match
+            (infix fst <$> PLACEHOLDER_14)))
+        (bind PLACEHOLDER_17
+          (match
+            (infix snd <$> PLACEHOLDER_14)))
+        (bind PLACEHOLDER_10
+          (match
+            (conditional
+              (infix PLACEHOLDER_17 ==
+                (list
+                  (literal 14)
+                  (literal 5)
+                  (literal 4)
+                  (literal 3)
+                  (literal 2)))
+              (list
+                (literal 5)
+                (literal 4)
+                (literal 3)
+                (literal 2)
+                (literal 1)) PLACEHOLDER_17)))
+        (bind PLACEHOLDER_11
+          (match
+            (infix
+              (apply length PLACEHOLDER_9) ==
+              (infix
+                (literal 5) &&
+                (infix
+                  (parens
+                    (infix
+                      (apply maximum PLACEHOLDER_10) -
+                      (apply minimum PLACEHOLDER_10))) ==
+                  (literal 4))))))
+        (bind PLACEHOLDER_12
+          (match
+            (infix
+              (apply length
+                (apply nub
+                  (infix last <$> PLACEHOLDER_4))) ==
+              (literal 1))))
+        (function PLACEHOLDER_16
+          (patterns
+            (variable_pattern PLACEHOLDER_7)
+            (variable_pattern PLACEHOLDER_15))
+          (match
+            (infix length $
+              (apply
+                (apply filter
+                  (right_section == PLACEHOLDER_15)) PLACEHOLDER_7))))))
+    (signature PLACEHOLDER_2
+      (function
+        (list String)
+        (apply Maybe
+          (list String))))
+    (function PLACEHOLDER_2
+      (patterns
+        (variable_pattern PLACEHOLDER_18))
+      (match
+        (guards
+          (boolean
+            (apply not
+              (apply
+                (apply all PLACEHOLDER_3) PLACEHOLDER_19)))) Nothing)
+      (match
+        (guards
+          (boolean otherwise))
+        (infix Just $
+          (apply
+            (apply
+              (apply PLACEHOLDER_6
+                (tuple
+                  (literal 0) ,
+                  (list)))
+              (list))
+            (apply
+              (apply zip PLACEHOLDER_18) PLACEHOLDER_19))))
+      (local_binds
+        (bind PLACEHOLDER_19
+          (match
+            (infix PLACEHOLDER_5 <$> PLACEHOLDER_18)))
+        (function PLACEHOLDER_6
+          (patterns
+            (wildcard _)
+            (variable_pattern PLACEHOLDER_13)
+            (list))
+          (match PLACEHOLDER_13))
+        (function PLACEHOLDER_6
+          (patterns
+            (variable_pattern PLACEHOLDER_20)
+            (variable_pattern PLACEHOLDER_13)
+            (infix
+              (tuple
+                (variable_pattern PLACEHOLDER_15) ,
+                (variable_pattern PLACEHOLDER_21)) :
+              (variable_pattern PLACEHOLDER_7)))
+          (match
+            (guards
+              (boolean
+                (infix
+                  (apply null PLACEHOLDER_13) ||
+                  (infix PLACEHOLDER_22 > PLACEHOLDER_20))))
+            (apply
+              (apply
+                (apply PLACEHOLDER_6 PLACEHOLDER_22)
+                (list PLACEHOLDER_15)) PLACEHOLDER_7))
+          (match
+            (guards
+              (boolean
+                (infix PLACEHOLDER_22 == PLACEHOLDER_20)))
+            (apply
+              (apply
+                (apply PLACEHOLDER_6 PLACEHOLDER_20)
+                (infix PLACEHOLDER_15 : PLACEHOLDER_13)) PLACEHOLDER_7))
+          (match
+            (guards
+              (boolean otherwise))
+            (apply
+              (apply
+                (apply PLACEHOLDER_6 PLACEHOLDER_20) PLACEHOLDER_13) PLACEHOLDER_7))
+          (local_binds
+            (bind PLACEHOLDER_22
+              (match
+                (apply PLACEHOLDER_8 PLACEHOLDER_21)))))))))

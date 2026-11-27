@@ -1,87 +1,478 @@
-module Connect where
-data Mark = Cross | Nought deriving ( Eq , Show )
-type Spot = Maybe Mark
-type Line = [ Spot ]
-type Board = [ Line ]
-type Coord = ( Int , Int )
-winner :: [ String ] -> Maybe Mark
-winner input
-  | isEmptyBoard board = Nothing
-  | is1x1Board board = head $ head board
-  | crossWon board = Just Cross
-  | noughtWon board = Just Nought
-  | otherwise = Nothing
-  where board = parseBoard input
-isEmptyBoard :: Board -> Bool
-isEmptyBoard = all $ all ( == Nothing )
-is1x1Board :: Board -> Bool
-is1x1Board board = length board == 1 && length ( head board ) == 1
-crossWon :: Board -> Bool
-crossWon board = case crossesInFirstColumn of
-  [] -> False
-  xs -> connectsToRight xs
-  where
-  coords = coordsOfBoard board
-  boardLength = lengthOfBoard board
-  firstColumn = filter (( == 0 ) . fst ) coords
-  lastColumn = filter (( == boardLength ) . fst ) coords
-  crossesInFirstColumn = filter (( == Just Cross ) . pieceOnBoard board ) firstColumn
-  connectsToRight [] = False
-  connectsToRight ( c : cs ) = continuesOnward c [] || connectsToRight cs
-  continuesOnward coord coordsVisited
-    | coord ` elem ` lastColumn = True
-    | coord ` elem ` coordsVisited = False
-    | otherwise = case filter isValidMove movements of
-      [] -> False
-      validMovements -> any keepsGoing validMovements
-    where
-    ( x , y ) = coord
-    isValidMove ( a , b ) = do
-      let ac = ( x + a , y + b )
-      ac ` elem ` coords && pieceOnBoard board ac == Just Cross
-    keepsGoing ( mx , my ) = continuesOnward ( x + mx , y + my ) ( coord : coordsVisited )
-noughtWon :: Board -> Bool
-noughtWon board = case noughtsInTopRow of
-  [] -> False
-  xs -> connectsToBottom xs
-  where
-  coords = coordsOfBoard board
-  boardHeight = heightOfBoard board
-  topRow = filter (( == 0 ) . snd ) coords
-  bottomRow = filter (( == boardHeight ) . snd ) coords
-  noughtsInTopRow = filter (( == Just Nought ) . pieceOnBoard board ) topRow
-  connectsToBottom [] = False
-  connectsToBottom ( c : cs ) = continuesOnward c [] || connectsToBottom cs
-  continuesOnward coord coordsVisited
-    | coord ` elem ` bottomRow = True
-    | coord ` elem ` coordsVisited = False
-    | otherwise = case filter isValidMove movements of
-      [] -> False
-      validMovements -> any keepsGoing validMovements
-    where
-    ( x , y ) = coord
-    keepsGoing ( mx , my ) = continuesOnward ( x + mx , y + my ) ( coord : coordsVisited )
-    isValidMove ( a , b ) = do
-      let ac = ( x + a , y + b )
-      ac ` elem ` coords && pieceOnBoard board ac == Just Nought
-lengthOfBoard :: Board -> Int
-lengthOfBoard = foldr ( \ line acc -> max acc $ length line - 1 ) 0
-heightOfBoard :: Board -> Int
-heightOfBoard board = length board - 1
-coordsOfBoard :: Board -> [ Coord ]
-coordsOfBoard board = [ c | c <- (,) <$> [ 0 .. lengthOfBoard board ] <*> [ 0 .. heightOfBoard board ]]
-movements :: [ Coord ]
-movements = [ c | c <- (,) <$> [ - 1 , 0 , 1 ] <*> [ - 1 , 0 , 1 ], not $ c ` elem ` illegalMovements ]
-illegalMovements :: [ Coord ]
-illegalMovements = [( 1 , 1 ), ( - 1 , - 1 )]
-pieceOnBoard :: Board -> Coord -> Spot
-pieceOnBoard board ( x , y ) = board !! y !! x
-parseBoard :: [ String ] -> Board
-parseBoard = foldr ( \ line acc -> ( parseLine line ) : acc ) []
-parseLine :: String -> Line
-parseLine = foldr ( \ spot acc -> parseSpot spot : acc ) [] . filter ( /= "' '" )
-parseSpot :: Char -> Spot
-parseSpot char = case char of
-  'X' -> Just Cross
-  'O' -> Just Nought
-  _ -> Nothing
+(haskell
+  (header
+    (module_name (module_id PLACEHOLDER_1))
+    (exports
+      (export (name PLACEHOLDER_2)
+        (children ..))
+      (export PLACEHOLDER_3)))
+  (declarations
+    (data_type (name PLACEHOLDER_2)
+      (data_constructors
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_4)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_5))))
+      (deriving
+        (tuple Eq , Show)))
+    (type_synonym (name PLACEHOLDER_6)
+      (apply Maybe (name PLACEHOLDER_2)))
+    (type_synonym (name PLACEHOLDER_7)
+      (list (name PLACEHOLDER_6)))
+    (type_synonym (name PLACEHOLDER_8)
+      (list (name PLACEHOLDER_7)))
+    (type_synonym (name PLACEHOLDER_9)
+      (tuple Int , Int))
+    (signature PLACEHOLDER_3
+      (function
+        (list String)
+        (apply Maybe (name PLACEHOLDER_2))))
+    (function PLACEHOLDER_3
+      (patterns
+        (variable_pattern PLACEHOLDER_10))
+      (match
+        (guards
+          (boolean
+            (apply PLACEHOLDER_11 PLACEHOLDER_12))) Nothing)
+      (match
+        (guards
+          (boolean
+            (apply PLACEHOLDER_13 PLACEHOLDER_12)))
+        (infix head $
+          (apply head PLACEHOLDER_12)))
+      (match
+        (guards
+          (boolean
+            (apply PLACEHOLDER_14 PLACEHOLDER_12)))
+        (apply Just (constructor PLACEHOLDER_4)))
+      (match
+        (guards
+          (boolean
+            (apply PLACEHOLDER_15 PLACEHOLDER_12)))
+        (apply Just (constructor PLACEHOLDER_5)))
+      (match
+        (guards
+          (boolean otherwise)) Nothing)
+      (local_binds
+        (bind PLACEHOLDER_12
+          (match
+            (apply PLACEHOLDER_16 PLACEHOLDER_10)))))
+    (signature PLACEHOLDER_11
+      (function (name PLACEHOLDER_8) Bool))
+    (bind PLACEHOLDER_11
+      (match
+        (infix all $
+          (apply all
+            (right_section == Nothing)))))
+    (signature PLACEHOLDER_13
+      (function (name PLACEHOLDER_8) Bool))
+    (function PLACEHOLDER_13
+      (patterns
+        (variable_pattern PLACEHOLDER_12))
+      (match
+        (infix
+          (apply length PLACEHOLDER_12) ==
+          (infix
+            (literal 1) &&
+            (infix
+              (apply length
+                (apply head PLACEHOLDER_12)) ==
+              (literal 1))))))
+    (signature PLACEHOLDER_14
+      (function (name PLACEHOLDER_8) Bool))
+    (function PLACEHOLDER_14
+      (patterns
+        (variable_pattern PLACEHOLDER_12))
+      (match
+        (case PLACEHOLDER_17
+          (alternatives
+            (alternative
+              (list)
+              (match False))
+            (alternative
+              (variable_pattern PLACEHOLDER_18)
+              (match
+                (apply PLACEHOLDER_19 PLACEHOLDER_18))))))
+      (local_binds
+        (bind PLACEHOLDER_20
+          (match
+            (apply PLACEHOLDER_21 PLACEHOLDER_12)))
+        (bind PLACEHOLDER_22
+          (match
+            (apply PLACEHOLDER_23 PLACEHOLDER_12)))
+        (bind PLACEHOLDER_24
+          (match
+            (apply
+              (apply filter
+                (infix
+                  (right_section ==
+                    (literal 0)) . fst)) PLACEHOLDER_20)))
+        (bind PLACEHOLDER_25
+          (match
+            (apply
+              (apply filter
+                (infix
+                  (right_section == PLACEHOLDER_22) . fst)) PLACEHOLDER_20)))
+        (bind PLACEHOLDER_17
+          (match
+            (apply
+              (apply filter
+                (infix
+                  (right_section ==
+                    (apply Just (constructor PLACEHOLDER_4))) .
+                  (apply PLACEHOLDER_26 PLACEHOLDER_12))) PLACEHOLDER_24)))
+        (function PLACEHOLDER_19
+          (patterns
+            (list))
+          (match False))
+        (function PLACEHOLDER_19
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_27) :
+              (variable_pattern PLACEHOLDER_28)))
+          (match
+            (infix
+              (apply
+                (apply PLACEHOLDER_29 PLACEHOLDER_27)
+                (list)) ||
+              (apply PLACEHOLDER_19 PLACEHOLDER_28))))
+        (function PLACEHOLDER_29
+          (patterns
+            (variable_pattern PLACEHOLDER_30)
+            (variable_pattern PLACEHOLDER_31))
+          (match
+            (guards
+              (boolean
+                (infix PLACEHOLDER_30
+                  (infix_id elem) PLACEHOLDER_25))) True)
+          (match
+            (guards
+              (boolean
+                (infix PLACEHOLDER_30
+                  (infix_id elem) PLACEHOLDER_31))) False)
+          (match
+            (guards
+              (boolean otherwise))
+            (case
+              (apply
+                (apply filter PLACEHOLDER_32) PLACEHOLDER_33)
+              (alternatives
+                (alternative
+                  (list)
+                  (match False))
+                (alternative
+                  (variable_pattern PLACEHOLDER_34)
+                  (match
+                    (apply
+                      (apply any PLACEHOLDER_35) PLACEHOLDER_34))))))
+          (local_binds
+            (bind
+              (tuple
+                (variable_pattern PLACEHOLDER_36) ,
+                (variable_pattern PLACEHOLDER_37))
+              (match PLACEHOLDER_30))
+            (function PLACEHOLDER_32
+              (patterns
+                (tuple
+                  (variable_pattern PLACEHOLDER_38) ,
+                  (variable_pattern PLACEHOLDER_39)))
+              (match
+                (do
+                  (let
+                    (local_binds
+                      (bind PLACEHOLDER_40
+                        (match
+                          (tuple
+                            (infix PLACEHOLDER_36 + PLACEHOLDER_38) ,
+                            (infix PLACEHOLDER_37 + PLACEHOLDER_39))))))
+                  (exp
+                    (infix PLACEHOLDER_40
+                      (infix_id elem)
+                      (infix PLACEHOLDER_20 &&
+                        (infix
+                          (apply
+                            (apply PLACEHOLDER_26 PLACEHOLDER_12) PLACEHOLDER_40) ==
+                          (apply Just (constructor PLACEHOLDER_4)))))))))
+            (function PLACEHOLDER_35
+              (patterns
+                (tuple
+                  (variable_pattern PLACEHOLDER_41) ,
+                  (variable_pattern PLACEHOLDER_42)))
+              (match
+                (apply
+                  (apply PLACEHOLDER_29
+                    (tuple
+                      (infix PLACEHOLDER_36 + PLACEHOLDER_41) ,
+                      (infix PLACEHOLDER_37 + PLACEHOLDER_42)))
+                  (infix PLACEHOLDER_30 : PLACEHOLDER_31))))))))
+    (signature PLACEHOLDER_15
+      (function (name PLACEHOLDER_8) Bool))
+    (function PLACEHOLDER_15
+      (patterns
+        (variable_pattern PLACEHOLDER_12))
+      (match
+        (case PLACEHOLDER_43
+          (alternatives
+            (alternative
+              (list)
+              (match False))
+            (alternative
+              (variable_pattern PLACEHOLDER_18)
+              (match
+                (apply PLACEHOLDER_44 PLACEHOLDER_18))))))
+      (local_binds
+        (bind PLACEHOLDER_20
+          (match
+            (apply PLACEHOLDER_21 PLACEHOLDER_12)))
+        (bind PLACEHOLDER_45
+          (match
+            (apply PLACEHOLDER_46 PLACEHOLDER_12)))
+        (bind PLACEHOLDER_47
+          (match
+            (apply
+              (apply filter
+                (infix
+                  (right_section ==
+                    (literal 0)) . snd)) PLACEHOLDER_20)))
+        (bind PLACEHOLDER_48
+          (match
+            (apply
+              (apply filter
+                (infix
+                  (right_section == PLACEHOLDER_45) . snd)) PLACEHOLDER_20)))
+        (bind PLACEHOLDER_43
+          (match
+            (apply
+              (apply filter
+                (infix
+                  (right_section ==
+                    (apply Just (constructor PLACEHOLDER_5))) .
+                  (apply PLACEHOLDER_26 PLACEHOLDER_12))) PLACEHOLDER_47)))
+        (function PLACEHOLDER_44
+          (patterns
+            (list))
+          (match False))
+        (function PLACEHOLDER_44
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_27) :
+              (variable_pattern PLACEHOLDER_28)))
+          (match
+            (infix
+              (apply
+                (apply PLACEHOLDER_29 PLACEHOLDER_27)
+                (list)) ||
+              (apply PLACEHOLDER_44 PLACEHOLDER_28))))
+        (function PLACEHOLDER_29
+          (patterns
+            (variable_pattern PLACEHOLDER_30)
+            (variable_pattern PLACEHOLDER_31))
+          (match
+            (guards
+              (boolean
+                (infix PLACEHOLDER_30
+                  (infix_id elem) PLACEHOLDER_48))) True)
+          (match
+            (guards
+              (boolean
+                (infix PLACEHOLDER_30
+                  (infix_id elem) PLACEHOLDER_31))) False)
+          (match
+            (guards
+              (boolean otherwise))
+            (case
+              (apply
+                (apply filter PLACEHOLDER_32) PLACEHOLDER_33)
+              (alternatives
+                (alternative
+                  (list)
+                  (match False))
+                (alternative
+                  (variable_pattern PLACEHOLDER_34)
+                  (match
+                    (apply
+                      (apply any PLACEHOLDER_35) PLACEHOLDER_34))))))
+          (local_binds
+            (bind
+              (tuple
+                (variable_pattern PLACEHOLDER_36) ,
+                (variable_pattern PLACEHOLDER_37))
+              (match PLACEHOLDER_30))
+            (function PLACEHOLDER_35
+              (patterns
+                (tuple
+                  (variable_pattern PLACEHOLDER_41) ,
+                  (variable_pattern PLACEHOLDER_42)))
+              (match
+                (apply
+                  (apply PLACEHOLDER_29
+                    (tuple
+                      (infix PLACEHOLDER_36 + PLACEHOLDER_41) ,
+                      (infix PLACEHOLDER_37 + PLACEHOLDER_42)))
+                  (infix PLACEHOLDER_30 : PLACEHOLDER_31))))
+            (function PLACEHOLDER_32
+              (patterns
+                (tuple
+                  (variable_pattern PLACEHOLDER_38) ,
+                  (variable_pattern PLACEHOLDER_39)))
+              (match
+                (do
+                  (let
+                    (local_binds
+                      (bind PLACEHOLDER_40
+                        (match
+                          (tuple
+                            (infix PLACEHOLDER_36 + PLACEHOLDER_38) ,
+                            (infix PLACEHOLDER_37 + PLACEHOLDER_39))))))
+                  (exp
+                    (infix PLACEHOLDER_40
+                      (infix_id elem)
+                      (infix PLACEHOLDER_20 &&
+                        (infix
+                          (apply
+                            (apply PLACEHOLDER_26 PLACEHOLDER_12) PLACEHOLDER_40) ==
+                          (apply Just (constructor PLACEHOLDER_5)))))))))))))
+    (signature PLACEHOLDER_23
+      (function (name PLACEHOLDER_8) Int))
+    (bind PLACEHOLDER_23
+      (match
+        (apply
+          (apply foldr
+            (lambda
+              (patterns
+                (variable_pattern PLACEHOLDER_49)
+                (variable_pattern PLACEHOLDER_50))
+              (infix
+                (apply max PLACEHOLDER_50) $
+                (infix
+                  (apply length PLACEHOLDER_49) -
+                  (literal 1)))))
+          (literal 0))))
+    (signature PLACEHOLDER_46
+      (function (name PLACEHOLDER_8) Int))
+    (function PLACEHOLDER_46
+      (patterns
+        (variable_pattern PLACEHOLDER_12))
+      (match
+        (infix
+          (apply length PLACEHOLDER_12) -
+          (literal 1))))
+    (signature PLACEHOLDER_21
+      (function (name PLACEHOLDER_8)
+        (list (name PLACEHOLDER_9))))
+    (function PLACEHOLDER_21
+      (patterns
+        (variable_pattern PLACEHOLDER_12))
+      (match
+        (list_comprehension PLACEHOLDER_27
+          (qualifiers
+            (generator
+              (variable_pattern PLACEHOLDER_27)
+              (infix
+                (prefix_tuple ,) <$>
+                (infix
+                  (arithmetic_sequence
+                    (literal 0)
+                    (apply PLACEHOLDER_23 PLACEHOLDER_12)) <*>
+                  (arithmetic_sequence
+                    (literal 0)
+                    (apply PLACEHOLDER_46 PLACEHOLDER_12)))))))))
+    (signature PLACEHOLDER_33
+      (list (name PLACEHOLDER_9)))
+    (bind PLACEHOLDER_33
+      (match
+        (list_comprehension PLACEHOLDER_27
+          (qualifiers
+            (generator
+              (variable_pattern PLACEHOLDER_27)
+              (infix
+                (prefix_tuple ,) <$>
+                (infix
+                  (list
+                    (negation
+                      (literal 1))
+                    (literal 0)
+                    (literal 1)) <*>
+                  (list
+                    (negation
+                      (literal 1))
+                    (literal 0)
+                    (literal 1)))))
+            (boolean
+              (infix not $
+                (infix PLACEHOLDER_27
+                  (infix_id elem) PLACEHOLDER_51)))))))
+    (signature PLACEHOLDER_51
+      (list (name PLACEHOLDER_9)))
+    (bind PLACEHOLDER_51
+      (match
+        (list
+          (tuple
+            (literal 1) ,
+            (literal 1))
+          (tuple
+            (negation
+              (literal 1)) ,
+            (negation
+              (literal 1))))))
+    (signature PLACEHOLDER_26
+      (function (name PLACEHOLDER_8)
+        (function (name PLACEHOLDER_9) (name PLACEHOLDER_6))))
+    (function PLACEHOLDER_26
+      (patterns
+        (variable_pattern PLACEHOLDER_12)
+        (tuple
+          (variable_pattern PLACEHOLDER_36) ,
+          (variable_pattern PLACEHOLDER_37)))
+      (match
+        (infix PLACEHOLDER_12 !!
+          (infix PLACEHOLDER_37 !! PLACEHOLDER_36))))
+    (signature PLACEHOLDER_16
+      (function
+        (list String) (name PLACEHOLDER_8)))
+    (bind PLACEHOLDER_16
+      (match
+        (apply
+          (apply foldr
+            (lambda
+              (patterns
+                (variable_pattern PLACEHOLDER_49)
+                (variable_pattern PLACEHOLDER_50))
+              (infix
+                (apply PLACEHOLDER_52 PLACEHOLDER_49) : PLACEHOLDER_50)))
+          (list))))
+    (signature PLACEHOLDER_52
+      (function String (name PLACEHOLDER_7)))
+    (bind PLACEHOLDER_52
+      (match
+        (infix
+          (apply
+            (apply foldr
+              (lambda
+                (patterns
+                  (variable_pattern PLACEHOLDER_53)
+                  (variable_pattern PLACEHOLDER_50))
+                (infix
+                  (apply PLACEHOLDER_54 PLACEHOLDER_53) : PLACEHOLDER_50)))
+            (list)) .
+          (apply filter
+            (right_section /=
+              (literal "' '"))))))
+    (signature PLACEHOLDER_54
+      (function Char (name PLACEHOLDER_6)))
+    (function PLACEHOLDER_54
+      (patterns
+        (variable_pattern PLACEHOLDER_55))
+      (match
+        (case PLACEHOLDER_55
+          (alternatives
+            (alternative
+              (literal 'X')
+              (match
+                (apply Just (constructor PLACEHOLDER_4))))
+            (alternative
+              (literal 'O')
+              (match
+                (apply Just (constructor PLACEHOLDER_5))))
+            (alternative
+              (wildcard _)
+              (match Nothing))))))))

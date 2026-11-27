@@ -1,69 +1,545 @@
-module Poker where
-bestHands :: [ String ] -> Maybe [ String ]
-bestHands = ( map ( unwords . map showCard ) . head . groupBy (( == ) ` on ` hand ) . sortBy ( comparing hand ) <$> ) . map' ( readCards 5 . words )
-map' :: ( a -> Maybe b ) -> [ a ] -> Maybe [ b ]
-map' f [] = Just []
-map' f ( x : xs ) = ( : ) <$> ( f x ) <*> map' f xs
-data Suit = C | D | H | S deriving ( Eq , Ord , Enum , Show , Read )
-type Rank = Int
-data Card = Card { rank_ :: Rank , suit_ :: Suit } deriving ( Eq , Ord )
-newtype Hand = Hand ( Int , [ Rank ])
-instance Eq Hand where
-  Hand x == Hand y = x == y
-instance Ord Hand where
-  compare ( Hand x @ ( p , q )) ( Hand y @ ( r , s ))
-    | straight q && straight s = res
-    | otherwise = flip compare x y
-    where res = flip compare q s
-showCard :: Card -> String
-showCard ( Card 14 s ) = 'A' : show s
-showCard ( Card 11 s ) = 'J' : show s
-showCard ( Card 12 s ) = 'Q' : show s
-showCard ( Card 13 s ) = 'K' : show s
-showCard ( Card r s ) = show r ++ show s
-readCard :: String -> Maybe Card
-readCard ( 'A' : s @ [ c ])
-  | c ` elem ` "\"CDHS\"" = Just $ Card 14 ( read s )
-readCard ( '1' : '0' : s @ [ c ])
-  | c ` elem ` "\"CDHS\"" = Just $ Card 10 ( read s )
-readCard ( 'J' : s @ [ c ])
-  | c ` elem ` "\"CDHS\"" = Just $ Card 11 ( read s )
-readCard ( 'Q' : s @ [ c ])
-  | c ` elem ` "\"CDHS\"" = Just $ Card 12 ( read s )
-readCard ( 'K' : s @ [ c ])
-  | c ` elem ` "\"CDHS\"" = Just $ Card 13 ( read s )
-readCard ( r : s @ [ c ])
-  | r ` elem ` "\"23456789\"" && c ` elem ` "\"CDHS\"" = Just $ Card ( digitToInt r ) ( read s )
-readCard _ = Nothing
-readCards :: Int -> [ String ] -> Maybe [ Card ]
-readCards 0 [] = Just []
-readCards n ( s : ss ) = ( : ) <$> readCard s <*> readCards ( n - 1 ) ss
-readCards _ _ = Nothing
-hand :: [ Card ] -> Hand
-hand cs
-  | length css == 2 = Hand $ if 4 ` elem ` map length css then ( fcSc , rs' ) else ( fhSc , rs' )
-  | length css == 3 = Hand $ if 3 ` elem ` map length css then ( tcSc , rs ) else ( tpSc , rs )
-  | length css == 4 = Hand ( opSc , rs )
-  | flush cs' = Hand $ if straight rs then ( sfSc , if rs == [ 14 , 5 , 4 , 3 , 2 ] then [ 5 , 4 , 3 , 2 , 1 ] else rs ) else ( flSc , rs )
-  | straight rs = Hand ( stSc , if rs == [ 14 , 5 , 4 , 3 , 2 ] then [ 5 , 4 , 3 , 2 , 1 ] else rs )
-  | otherwise = Hand ( hcSc , rs )
-  where
-    cs' = sortBy ( flip compare ) cs
-    css = groupBy (( == ) ` on ` rank_ ) cs'
-    rs = map rank_ cs'
-    rs' = map rank_ $ concat $ sortBy ( flip ( comparing length )) css
-    flush = and . ( zipWith ( == ) <*> tail ) . map suit_
-straight :: [ Rank ] -> Bool
-straight = (` elem ` flushpat )
-flushpat :: [[ Int ]]
-flushpat = [ 14 , 5 , 4 , 3 , 2 ] : take 9 ( map ( take 5 ) ( tails [ 14 , 13 .. ]))
-sfSc , fcSc , fhSc , flSc , stSc , tcSc , tpSc , opSc , hcSc :: Int
-sfSc = - 40
-fcSc = - 624
-fhSc = - 3744
-flSc = - 5108
-stSc = - 10200
-tcSc = - 54912
-tpSc = - 123552
-opSc = - 1098240
-hcSc = - 1302540
+(haskell
+  (header
+    (module_name (module_id PLACEHOLDER_1))
+    (exports
+      (export PLACEHOLDER_2)))
+  (declarations
+    (signature PLACEHOLDER_2
+      (function
+        (list String)
+        (apply Maybe
+          (list String))))
+    (bind PLACEHOLDER_2
+      (match
+        (infix
+          (left_section
+            (infix
+              (apply map
+                (infix unwords .
+                  (apply map PLACEHOLDER_3))) .
+              (infix head .
+                (infix
+                  (apply groupBy
+                    (infix
+                      (prefix_id (operator PLACEHOLDER_4))
+                      (infix_id on) PLACEHOLDER_5)) .
+                  (apply sortBy
+                    (apply comparing PLACEHOLDER_5))))) <$>) .
+          (apply PLACEHOLDER_6
+            (infix
+              (apply PLACEHOLDER_7
+                (literal 5)) . words)))))
+    (signature PLACEHOLDER_6
+      (function
+        (function
+          (type_variable PLACEHOLDER_8)
+          (apply Maybe
+            (type_variable PLACEHOLDER_9)))
+        (function
+          (list
+            (type_variable PLACEHOLDER_8))
+          (apply Maybe
+            (list
+              (type_variable PLACEHOLDER_9))))))
+    (function PLACEHOLDER_6
+      (patterns
+        (variable_pattern PLACEHOLDER_10)
+        (list))
+      (match
+        (apply Just
+          (list))))
+    (function PLACEHOLDER_6
+      (patterns
+        (variable_pattern PLACEHOLDER_10)
+        (infix
+          (variable_pattern PLACEHOLDER_11) :
+          (variable_pattern PLACEHOLDER_12)))
+      (match
+        (infix
+          (prefix_id :) <$>
+          (infix
+            (apply PLACEHOLDER_10 PLACEHOLDER_11) <*>
+            (apply
+              (apply PLACEHOLDER_6 PLACEHOLDER_10) PLACEHOLDER_12)))))
+    (data_type (name PLACEHOLDER_13)
+      (data_constructors
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_14)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_15)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_16)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_17))))
+      (deriving
+        (tuple Eq , Ord , Enum , Show , Read)))
+    (type_synonym (name PLACEHOLDER_18) Int)
+    (data_type (name PLACEHOLDER_19)
+      (data_constructors
+        (data_constructor
+          (record (constructor PLACEHOLDER_19)
+            (fields
+              (field
+                (field_name PLACEHOLDER_20) (name PLACEHOLDER_18))
+              (field
+                (field_name PLACEHOLDER_21) (name PLACEHOLDER_13))))))
+      (deriving
+        (tuple Eq , Ord)))
+    (newtype (name PLACEHOLDER_22)
+      (newtype_constructor (constructor PLACEHOLDER_22)
+        (field
+          (tuple Int ,
+            (list (name PLACEHOLDER_18))))))
+    (instance Eq
+      (type_patterns (name PLACEHOLDER_22))
+      (instance_declarations
+        (function
+          (infix_head
+            (apply (constructor PLACEHOLDER_22)
+              (variable_pattern PLACEHOLDER_11)) (operator PLACEHOLDER_4)
+            (apply (constructor PLACEHOLDER_22)
+              (variable_pattern PLACEHOLDER_23)))
+          (match
+            (infix PLACEHOLDER_11 (operator PLACEHOLDER_4) PLACEHOLDER_23)))))
+    (instance Ord
+      (type_patterns (name PLACEHOLDER_22))
+      (instance_declarations
+        (function PLACEHOLDER_24
+          (patterns
+            (apply (constructor PLACEHOLDER_22)
+              (as
+                (variable_pattern PLACEHOLDER_11)
+                (tuple
+                  (variable_pattern PLACEHOLDER_25) ,
+                  (variable_pattern PLACEHOLDER_26))))
+            (apply (constructor PLACEHOLDER_22)
+              (as
+                (variable_pattern PLACEHOLDER_23)
+                (tuple
+                  (variable_pattern PLACEHOLDER_27) ,
+                  (variable_pattern PLACEHOLDER_28)))))
+          (match
+            (guards
+              (boolean
+                (infix
+                  (apply PLACEHOLDER_29 PLACEHOLDER_26) &&
+                  (apply PLACEHOLDER_29 PLACEHOLDER_28)))) PLACEHOLDER_30)
+          (match
+            (guards
+              (boolean otherwise))
+            (apply
+              (apply
+                (apply flip PLACEHOLDER_24) PLACEHOLDER_11) PLACEHOLDER_23))
+          (local_binds
+            (bind PLACEHOLDER_30
+              (match
+                (apply
+                  (apply
+                    (apply flip PLACEHOLDER_24) PLACEHOLDER_26) PLACEHOLDER_28)))))))
+    (signature PLACEHOLDER_3
+      (function (name PLACEHOLDER_19) String))
+    (function PLACEHOLDER_3
+      (patterns
+        (apply
+          (apply (constructor PLACEHOLDER_19)
+            (literal 14))
+          (variable_pattern PLACEHOLDER_28)))
+      (match
+        (infix
+          (literal 'A') :
+          (apply show PLACEHOLDER_28))))
+    (function PLACEHOLDER_3
+      (patterns
+        (apply
+          (apply (constructor PLACEHOLDER_19)
+            (literal 11))
+          (variable_pattern PLACEHOLDER_28)))
+      (match
+        (infix
+          (literal 'J') :
+          (apply show PLACEHOLDER_28))))
+    (function PLACEHOLDER_3
+      (patterns
+        (apply
+          (apply (constructor PLACEHOLDER_19)
+            (literal 12))
+          (variable_pattern PLACEHOLDER_28)))
+      (match
+        (infix
+          (literal 'Q') :
+          (apply show PLACEHOLDER_28))))
+    (function PLACEHOLDER_3
+      (patterns
+        (apply
+          (apply (constructor PLACEHOLDER_19)
+            (literal 13))
+          (variable_pattern PLACEHOLDER_28)))
+      (match
+        (infix
+          (literal 'K') :
+          (apply show PLACEHOLDER_28))))
+    (function PLACEHOLDER_3
+      (patterns
+        (apply
+          (apply (constructor PLACEHOLDER_19)
+            (variable_pattern PLACEHOLDER_27))
+          (variable_pattern PLACEHOLDER_28)))
+      (match
+        (infix
+          (apply show PLACEHOLDER_27) ++
+          (apply show PLACEHOLDER_28))))
+    (signature PLACEHOLDER_31
+      (function String
+        (apply Maybe (name PLACEHOLDER_19))))
+    (function PLACEHOLDER_31
+      (patterns
+        (infix
+          (literal 'A') :
+          (as
+            (variable_pattern PLACEHOLDER_28)
+            (list
+              (variable_pattern PLACEHOLDER_32)))))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_32
+              (infix_id elem)
+              (literal "CDHS"))))
+        (infix Just $
+          (apply
+            (apply (constructor PLACEHOLDER_19)
+              (literal 14))
+            (apply read PLACEHOLDER_28)))))
+    (function PLACEHOLDER_31
+      (patterns
+        (infix
+          (literal '1') :
+          (infix
+            (literal '0') :
+            (as
+              (variable_pattern PLACEHOLDER_28)
+              (list
+                (variable_pattern PLACEHOLDER_32))))))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_32
+              (infix_id elem)
+              (literal "CDHS"))))
+        (infix Just $
+          (apply
+            (apply (constructor PLACEHOLDER_19)
+              (literal 10))
+            (apply read PLACEHOLDER_28)))))
+    (function PLACEHOLDER_31
+      (patterns
+        (infix
+          (literal 'J') :
+          (as
+            (variable_pattern PLACEHOLDER_28)
+            (list
+              (variable_pattern PLACEHOLDER_32)))))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_32
+              (infix_id elem)
+              (literal "CDHS"))))
+        (infix Just $
+          (apply
+            (apply (constructor PLACEHOLDER_19)
+              (literal 11))
+            (apply read PLACEHOLDER_28)))))
+    (function PLACEHOLDER_31
+      (patterns
+        (infix
+          (literal 'Q') :
+          (as
+            (variable_pattern PLACEHOLDER_28)
+            (list
+              (variable_pattern PLACEHOLDER_32)))))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_32
+              (infix_id elem)
+              (literal "CDHS"))))
+        (infix Just $
+          (apply
+            (apply (constructor PLACEHOLDER_19)
+              (literal 12))
+            (apply read PLACEHOLDER_28)))))
+    (function PLACEHOLDER_31
+      (patterns
+        (infix
+          (literal 'K') :
+          (as
+            (variable_pattern PLACEHOLDER_28)
+            (list
+              (variable_pattern PLACEHOLDER_32)))))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_32
+              (infix_id elem)
+              (literal "CDHS"))))
+        (infix Just $
+          (apply
+            (apply (constructor PLACEHOLDER_19)
+              (literal 13))
+            (apply read PLACEHOLDER_28)))))
+    (function PLACEHOLDER_31
+      (patterns
+        (infix
+          (variable_pattern PLACEHOLDER_27) :
+          (as
+            (variable_pattern PLACEHOLDER_28)
+            (list
+              (variable_pattern PLACEHOLDER_32)))))
+      (match
+        (guards
+          (boolean
+            (infix PLACEHOLDER_27
+              (infix_id elem)
+              (infix
+                (literal "23456789") &&
+                (infix PLACEHOLDER_32
+                  (infix_id elem)
+                  (literal "CDHS"))))))
+        (infix Just $
+          (apply
+            (apply (constructor PLACEHOLDER_19)
+              (apply digitToInt PLACEHOLDER_27))
+            (apply read PLACEHOLDER_28)))))
+    (function PLACEHOLDER_31
+      (patterns
+        (wildcard _))
+      (match Nothing))
+    (signature PLACEHOLDER_7
+      (function Int
+        (function
+          (list String)
+          (apply Maybe
+            (list (name PLACEHOLDER_19))))))
+    (function PLACEHOLDER_7
+      (patterns
+        (literal 0)
+        (list))
+      (match
+        (apply Just
+          (list))))
+    (function PLACEHOLDER_7
+      (patterns
+        (variable_pattern PLACEHOLDER_33)
+        (infix
+          (variable_pattern PLACEHOLDER_28) :
+          (variable_pattern PLACEHOLDER_34)))
+      (match
+        (infix
+          (prefix_id :) <$>
+          (infix
+            (apply PLACEHOLDER_31 PLACEHOLDER_28) <*>
+            (apply
+              (apply PLACEHOLDER_7
+                (infix PLACEHOLDER_33 -
+                  (literal 1))) PLACEHOLDER_34)))))
+    (function PLACEHOLDER_7
+      (patterns
+        (wildcard _)
+        (wildcard _))
+      (match Nothing))
+    (signature PLACEHOLDER_5
+      (function
+        (list (name PLACEHOLDER_19)) (name PLACEHOLDER_22)))
+    (function PLACEHOLDER_5
+      (patterns
+        (variable_pattern PLACEHOLDER_35))
+      (match
+        (guards
+          (boolean
+            (infix
+              (apply length PLACEHOLDER_36) (operator PLACEHOLDER_4)
+              (literal 2))))
+        (infix (constructor PLACEHOLDER_22) $
+          (conditional
+            (infix
+              (literal 4)
+              (infix_id elem)
+              (apply
+                (apply map length) PLACEHOLDER_36))
+            (tuple PLACEHOLDER_37 , PLACEHOLDER_38)
+            (tuple PLACEHOLDER_39 , PLACEHOLDER_38))))
+      (match
+        (guards
+          (boolean
+            (infix
+              (apply length PLACEHOLDER_36) (operator PLACEHOLDER_4)
+              (literal 3))))
+        (infix (constructor PLACEHOLDER_22) $
+          (conditional
+            (infix
+              (literal 3)
+              (infix_id elem)
+              (apply
+                (apply map length) PLACEHOLDER_36))
+            (tuple PLACEHOLDER_40 , PLACEHOLDER_41)
+            (tuple PLACEHOLDER_42 , PLACEHOLDER_41))))
+      (match
+        (guards
+          (boolean
+            (infix
+              (apply length PLACEHOLDER_36) (operator PLACEHOLDER_4)
+              (literal 4))))
+        (apply (constructor PLACEHOLDER_22)
+          (tuple PLACEHOLDER_43 , PLACEHOLDER_41)))
+      (match
+        (guards
+          (boolean
+            (apply PLACEHOLDER_44 PLACEHOLDER_45)))
+        (infix (constructor PLACEHOLDER_22) $
+          (conditional
+            (apply PLACEHOLDER_29 PLACEHOLDER_41)
+            (tuple PLACEHOLDER_46 ,
+              (conditional
+                (infix PLACEHOLDER_41 (operator PLACEHOLDER_4)
+                  (list
+                    (literal 14)
+                    (literal 5)
+                    (literal 4)
+                    (literal 3)
+                    (literal 2)))
+                (list
+                  (literal 5)
+                  (literal 4)
+                  (literal 3)
+                  (literal 2)
+                  (literal 1)) PLACEHOLDER_41))
+            (tuple PLACEHOLDER_47 , PLACEHOLDER_41))))
+      (match
+        (guards
+          (boolean
+            (apply PLACEHOLDER_29 PLACEHOLDER_41)))
+        (apply (constructor PLACEHOLDER_22)
+          (tuple PLACEHOLDER_48 ,
+            (conditional
+              (infix PLACEHOLDER_41 (operator PLACEHOLDER_4)
+                (list
+                  (literal 14)
+                  (literal 5)
+                  (literal 4)
+                  (literal 3)
+                  (literal 2)))
+              (list
+                (literal 5)
+                (literal 4)
+                (literal 3)
+                (literal 2)
+                (literal 1)) PLACEHOLDER_41))))
+      (match
+        (guards
+          (boolean otherwise))
+        (apply (constructor PLACEHOLDER_22)
+          (tuple PLACEHOLDER_49 , PLACEHOLDER_41)))
+      (local_binds
+        (bind PLACEHOLDER_45
+          (match
+            (apply
+              (apply sortBy
+                (apply flip PLACEHOLDER_24)) PLACEHOLDER_35)))
+        (bind PLACEHOLDER_36
+          (match
+            (apply
+              (apply groupBy
+                (infix
+                  (prefix_id (operator PLACEHOLDER_4))
+                  (infix_id on) PLACEHOLDER_20)) PLACEHOLDER_45)))
+        (bind PLACEHOLDER_41
+          (match
+            (apply
+              (apply map PLACEHOLDER_20) PLACEHOLDER_45)))
+        (bind PLACEHOLDER_38
+          (match
+            (infix
+              (apply map PLACEHOLDER_20) $
+              (infix concat $
+                (apply
+                  (apply sortBy
+                    (apply flip
+                      (apply comparing length))) PLACEHOLDER_36)))))
+        (bind PLACEHOLDER_44
+          (match
+            (infix and .
+              (infix
+                (parens
+                  (infix
+                    (apply zipWith
+                      (prefix_id (operator PLACEHOLDER_4))) <*> tail)) .
+                (apply map PLACEHOLDER_21)))))))
+    (signature PLACEHOLDER_29
+      (function
+        (list (name PLACEHOLDER_18)) Bool))
+    (bind PLACEHOLDER_29
+      (match
+        (right_section
+          (infix_id elem) PLACEHOLDER_50)))
+    (signature PLACEHOLDER_50
+      (list
+        (list Int)))
+    (bind PLACEHOLDER_50
+      (match
+        (infix
+          (list
+            (literal 14)
+            (literal 5)
+            (literal 4)
+            (literal 3)
+            (literal 2)) :
+          (apply
+            (apply take
+              (literal 9))
+            (apply
+              (apply map
+                (apply take
+                  (literal 5)))
+              (apply tails
+                (arithmetic_sequence
+                  (literal 14)
+                  (literal 13))))))))
+    (signature
+      (binding_list PLACEHOLDER_46 PLACEHOLDER_37 PLACEHOLDER_39 PLACEHOLDER_47 PLACEHOLDER_48 PLACEHOLDER_40 PLACEHOLDER_42 PLACEHOLDER_43 PLACEHOLDER_49) Int)
+    (bind PLACEHOLDER_46
+      (match
+        (negation
+          (literal 40))))
+    (bind PLACEHOLDER_37
+      (match
+        (negation
+          (literal 624))))
+    (bind PLACEHOLDER_39
+      (match
+        (negation
+          (literal 3744))))
+    (bind PLACEHOLDER_47
+      (match
+        (negation
+          (literal 5108))))
+    (bind PLACEHOLDER_48
+      (match
+        (negation
+          (literal 10200))))
+    (bind PLACEHOLDER_40
+      (match
+        (negation
+          (literal 54912))))
+    (bind PLACEHOLDER_42
+      (match
+        (negation
+          (literal 123552))))
+    (bind PLACEHOLDER_43
+      (match
+        (negation
+          (literal 1098240))))
+    (bind PLACEHOLDER_49
+      (match
+        (negation
+          (literal 1302540))))))

@@ -1,140 +1,589 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedStrings #-}
-module Forth
-  ( ForthError ( .. ),
-    ForthState ,
-    evalText ,
-    toList ,
-    emptyState ,
-  )
-where
-data ForthError
-  = DivisionByZero
-  | StackUnderflow
-  | InvalidWord
-  | UnknownWord Text . Text
-  | ParseError ParseError
-  deriving ( Show , Eq )
-data ForthState = ForthState
-  { stack :: Stack ,
-    env :: ForthEnv
-  }
-type Stack = [ Int ]
-type ForthEnv = Map . Map Text . Text Operation
-type Operation = Stack -> Either ForthError Stack
-data Primitive
-  = ADD
-  | SUB
-  | MUL
-  | DIV
-  | DUP
-  | DROP
-  | SWAP
-  | OVER
-  | INSERT Int
-data Instruction = Define Symbol [ Symbol ] | Evaluate [ Symbol ]
-data Symbol = SymbolWord ForthWord | SymbolInt ForthInt
-newtype ForthWord = ForthWord Text . Text deriving ( Eq , Ord )
-newtype ForthInt = ForthInt Int
-emptyState :: ForthState
-emptyState = ForthState { stack = [] , env = emptyEnv }
-  where
-    emptyEnv =
-      Map . fromList
-        [ ( "\"+\"" , interpretPrimitive ADD ),
-          ( "\"-\"" , interpretPrimitive SUB ),
-          ( "\"*\"" , interpretPrimitive MUL ),
-          ( "\"/\"" , interpretPrimitive DIV ),
-          ( "\"dup\"" , interpretPrimitive DUP ),
-          ( "\"drop\"" , interpretPrimitive DROP ),
-          ( "\"swap\"" , interpretPrimitive SWAP ),
-          ( "\"over\"" , interpretPrimitive OVER )
-        ]
-evalText :: Text . Text -> ForthState -> Either ForthError ForthState
-evalText text state = parseText text >>= flip evalInstruction state
-toList :: ForthState -> [ Int ]
-toList ForthState { stack } = reverse stack
-parseText :: Text . Text -> Either ForthError Instruction
-parseText text = case parse instruction "\"\"" text of
-  Left err -> Left $ ParseError err
-  Right instr -> Right instr
-instruction :: Parser Instruction
-instruction = defineInstruction <|> evaluateInstruction
-defineInstruction :: Parser Instruction
-defineInstruction = do
-  between open close $ Define <$> symbol <* spaces <*> symbols
-  where
-    open = char ':' <* spaces
-    close = spaces *> char ';'
-evaluateInstruction :: Parser Instruction
-evaluateInstruction = Evaluate <$> symbols
-symbols :: Parser [ Symbol ]
-symbols = sepEndBy1 symbol spaces
-symbol :: Parser Symbol
-symbol = SymbolInt <$> forthInt <|> SymbolWord <$> forthWord
-forthWord :: Parser ForthWord
-forthWord = ForthWord . toLower . pack <$> many1 ( alphaNum <|> oneOf "\"+-*/\"" )
-forthInt :: Parser ForthInt
-forthInt = ForthInt . read <$> numberStr
-  where
-    numberStr = try negNum <|> posNum
-    posNum = many1 digit
-    negNum = ( : ) <$> char '-' <*> many1 digit
-evalInstruction :: Instruction -> ForthState -> Either ForthError ForthState
-evalInstruction ( Define sym syms ) ForthState { stack , env } = case sym of
-  SymbolWord ( ForthWord name ) ->
-    Right $ ForthState { stack , env = Map . insert name op env }
-  SymbolInt _ -> Left InvalidWord
-  where
-    op = concatM . map ( interpretSymbol env ) $ syms
-evalInstruction ( Evaluate syms ) state @ ForthState { env } = evalOperation op state
-  where
-    op = concatM . map ( interpretSymbol env ) $ syms
-evalOperation :: Operation -> ForthState -> Either ForthError ForthState
-evalOperation f ForthState { stack , env } = ( \ s -> ForthState { stack = s , env }) <$> f stack
-interpretSymbol :: ForthEnv -> Symbol -> Operation
-interpretSymbol _ ( SymbolInt ( ForthInt x )) = interpretPrimitive ( INSERT x )
-interpretSymbol env ( SymbolWord ( ForthWord name )) =
-  fromMaybe
-    ( \ _ -> Left $ UnknownWord name )
-    ( env Map .!? name )
-interpretPrimitive :: Primitive -> Operation
-interpretPrimitive ADD = _add
-  where
-    _add ( x1 : x2 : xs ) = Right $ ( x2 + x1 ) : xs
-    _add _ = Left StackUnderflow
-interpretPrimitive SUB = _sub
-  where
-    _sub ( x1 : x2 : xs ) = Right $ ( x2 - x1 ) : xs
-    _sub _ = Left StackUnderflow
-interpretPrimitive MUL = _mul
-  where
-    _mul ( x1 : x2 : xs ) = Right $ ( x2 * x1 ) : xs
-    _mul _ = Left StackUnderflow
-interpretPrimitive DIV = _div
-  where
-    _div ( 0 : _ ) = Left DivisionByZero
-    _div ( x1 : x2 : xs ) = Right $ ( x2 ` div ` x1 ) : xs
-    _div _ = Left StackUnderflow
-interpretPrimitive DUP = _dup
-  where
-    _dup ( x : xs ) = Right $ x : x : xs
-    _dup _ = Left StackUnderflow
-interpretPrimitive DROP = _drop
-  where
-    _drop ( _ : xs ) = Right xs
-    _drop _ = Left StackUnderflow
-interpretPrimitive SWAP = _swap
-  where
-    _swap ( x1 : x2 : xs ) = Right $ x2 : x1 : xs
-    _swap _ = Left StackUnderflow
-interpretPrimitive OVER = _over
-  where
-    _over ( x1 : x2 : xs ) = Right $ x2 : x1 : x2 : xs
-    _over _ = Left StackUnderflow
-interpretPrimitive ( INSERT x ) = _insert x
-  where
-    _insert x' xs = Right $ x' : xs
-concatM :: Monad m => [ a -> m a ] -> a -> m a
-concatM = foldr ( >=> ) return
+(haskell "{-# LANGUAGE FlexibleContexts #-}" "{-# LANGUAGE NamedFieldPuns #-}" "{-# LANGUAGE OverloadedStrings #-}"
+  (header
+    (module_name (module_id PLACEHOLDER_1))
+    (exports
+      (export (name PLACEHOLDER_2)
+        (children ..))
+      (export (name PLACEHOLDER_3))
+      (export PLACEHOLDER_4)
+      (export PLACEHOLDER_5)
+      (export PLACEHOLDER_6)))
+  (declarations
+    (data_type (name PLACEHOLDER_2)
+      (data_constructors
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_7)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_8)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_9)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_10)
+            (qualified
+              (module Text) Text)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_11) (name PLACEHOLDER_11))))
+      (deriving
+        (tuple Show , Eq)))
+    (data_type (name PLACEHOLDER_3)
+      (data_constructors
+        (data_constructor
+          (record (constructor PLACEHOLDER_3)
+            (fields
+              (field
+                (field_name PLACEHOLDER_12) (name PLACEHOLDER_13))
+              (field
+                (field_name PLACEHOLDER_14) (name PLACEHOLDER_15)))))))
+    (type_synonym (name PLACEHOLDER_13)
+      (list Int))
+    (type_synonym (name PLACEHOLDER_15)
+      (apply
+        (apply
+          (qualified
+            (module Map) Map)
+          (qualified
+            (module Text) Text)) (name PLACEHOLDER_16)))
+    (type_synonym (name PLACEHOLDER_16)
+      (function (name PLACEHOLDER_13)
+        (apply
+          (apply Either (name PLACEHOLDER_2)) (name PLACEHOLDER_13))))
+    (data_type (name PLACEHOLDER_17)
+      (data_constructors
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_18)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_19)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_20)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_21)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_22)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_23)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_24)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_25)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_26) Int))))
+    (data_type (name PLACEHOLDER_27)
+      (data_constructors
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_28) (name PLACEHOLDER_29)
+            (list (name PLACEHOLDER_29))))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_30)
+            (list (name PLACEHOLDER_29))))))
+    (data_type (name PLACEHOLDER_29)
+      (data_constructors
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_31) (name PLACEHOLDER_32)))
+        (data_constructor
+          (prefix (constructor PLACEHOLDER_33) (name PLACEHOLDER_34)))))
+    (newtype (name PLACEHOLDER_32)
+      (newtype_constructor (constructor PLACEHOLDER_32)
+        (field
+          (qualified
+            (module Text) Text)))
+      (deriving
+        (tuple Eq , Ord)))
+    (newtype (name PLACEHOLDER_34)
+      (newtype_constructor (constructor PLACEHOLDER_34)
+        (field Int)))
+    (signature PLACEHOLDER_6 (name PLACEHOLDER_3))
+    (bind PLACEHOLDER_6
+      (match
+        (record (constructor PLACEHOLDER_3)
+          (field_update
+            (field_name PLACEHOLDER_12)
+            (list))
+          (field_update
+            (field_name PLACEHOLDER_14) PLACEHOLDER_35)))
+      (local_binds
+        (bind PLACEHOLDER_35
+          (match
+            (apply
+              (qualified
+                (module Map) fromList)
+              (list
+                (tuple
+                  (literal "+") ,
+                  (apply PLACEHOLDER_36 (constructor PLACEHOLDER_18)))
+                (tuple
+                  (literal "-") ,
+                  (apply PLACEHOLDER_36 (constructor PLACEHOLDER_19)))
+                (tuple
+                  (literal "*") ,
+                  (apply PLACEHOLDER_36 (constructor PLACEHOLDER_20)))
+                (tuple
+                  (literal "/") ,
+                  (apply PLACEHOLDER_36 (constructor PLACEHOLDER_21)))
+                (tuple
+                  (literal "dup") ,
+                  (apply PLACEHOLDER_36 (constructor PLACEHOLDER_22)))
+                (tuple
+                  (literal "drop") ,
+                  (apply PLACEHOLDER_36 (constructor PLACEHOLDER_23)))
+                (tuple
+                  (literal "swap") ,
+                  (apply PLACEHOLDER_36 (constructor PLACEHOLDER_24)))
+                (tuple
+                  (literal "over") ,
+                  (apply PLACEHOLDER_36 (constructor PLACEHOLDER_25)))))))))
+    (signature PLACEHOLDER_4
+      (function
+        (qualified
+          (module Text) Text)
+        (function (name PLACEHOLDER_3)
+          (apply
+            (apply Either (name PLACEHOLDER_2)) (name PLACEHOLDER_3)))))
+    (function PLACEHOLDER_4
+      (patterns
+        (variable_pattern PLACEHOLDER_37)
+        (variable_pattern PLACEHOLDER_38))
+      (match
+        (infix
+          (apply PLACEHOLDER_39 PLACEHOLDER_37) >>=
+          (apply
+            (apply flip PLACEHOLDER_40) PLACEHOLDER_38))))
+    (signature PLACEHOLDER_5
+      (function (name PLACEHOLDER_3)
+        (list Int)))
+    (function PLACEHOLDER_5
+      (patterns
+        (record (constructor PLACEHOLDER_3)
+          (field_pattern
+            (field_name PLACEHOLDER_12))))
+      (match
+        (apply reverse PLACEHOLDER_12)))
+    (signature PLACEHOLDER_39
+      (function
+        (qualified
+          (module Text) Text)
+        (apply
+          (apply Either (name PLACEHOLDER_2)) (name PLACEHOLDER_27))))
+    (function PLACEHOLDER_39
+      (patterns
+        (variable_pattern PLACEHOLDER_37))
+      (match
+        (case
+          (apply
+            (apply
+              (apply parse PLACEHOLDER_41)
+              (literal "")) PLACEHOLDER_37)
+          (alternatives
+            (alternative
+              (apply Left
+                (variable_pattern PLACEHOLDER_42))
+              (match
+                (infix Left $
+                  (apply (constructor PLACEHOLDER_11) PLACEHOLDER_42))))
+            (alternative
+              (apply Right
+                (variable_pattern PLACEHOLDER_43))
+              (match
+                (apply Right PLACEHOLDER_43)))))))
+    (signature PLACEHOLDER_41
+      (apply Parser (name PLACEHOLDER_27)))
+    (bind PLACEHOLDER_41
+      (match
+        (infix PLACEHOLDER_44 <|> PLACEHOLDER_45)))
+    (signature PLACEHOLDER_44
+      (apply Parser (name PLACEHOLDER_27)))
+    (bind PLACEHOLDER_44
+      (match
+        (do
+          (exp
+            (infix
+              (apply
+                (apply between PLACEHOLDER_46) PLACEHOLDER_47) $
+              (infix (constructor PLACEHOLDER_28) <$>
+                (infix PLACEHOLDER_48 <*
+                  (infix spaces <*> PLACEHOLDER_49)))))))
+      (local_binds
+        (bind PLACEHOLDER_46
+          (match
+            (infix
+              (apply char
+                (literal ':')) <* spaces)))
+        (bind PLACEHOLDER_47
+          (match
+            (infix spaces *>
+              (apply char
+                (literal ';')))))))
+    (signature PLACEHOLDER_45
+      (apply Parser (name PLACEHOLDER_27)))
+    (bind PLACEHOLDER_45
+      (match
+        (infix (constructor PLACEHOLDER_30) <$> PLACEHOLDER_49)))
+    (signature PLACEHOLDER_49
+      (apply Parser
+        (list (name PLACEHOLDER_29))))
+    (bind PLACEHOLDER_49
+      (match
+        (apply
+          (apply sepEndBy1 PLACEHOLDER_48) spaces)))
+    (signature PLACEHOLDER_48
+      (apply Parser (name PLACEHOLDER_29)))
+    (bind PLACEHOLDER_48
+      (match
+        (infix (constructor PLACEHOLDER_33) <$>
+          (infix PLACEHOLDER_50 <|>
+            (infix (constructor PLACEHOLDER_31) <$> PLACEHOLDER_51)))))
+    (signature PLACEHOLDER_51
+      (apply Parser (name PLACEHOLDER_32)))
+    (bind PLACEHOLDER_51
+      (match
+        (infix (constructor PLACEHOLDER_32) .
+          (infix toLower .
+            (infix pack <$>
+              (apply many1
+                (infix alphaNum <|>
+                  (apply oneOf
+                    (literal "+-*/")))))))))
+    (signature PLACEHOLDER_50
+      (apply Parser (name PLACEHOLDER_34)))
+    (bind PLACEHOLDER_50
+      (match
+        (infix (constructor PLACEHOLDER_34) .
+          (infix read <$> PLACEHOLDER_52)))
+      (local_binds
+        (bind PLACEHOLDER_52
+          (match
+            (infix
+              (apply try PLACEHOLDER_53) <|> PLACEHOLDER_54)))
+        (bind PLACEHOLDER_54
+          (match
+            (apply many1 digit)))
+        (bind PLACEHOLDER_53
+          (match
+            (infix
+              (prefix_id :) <$>
+              (infix
+                (apply char
+                  (literal '-')) <*>
+                (apply many1 digit)))))))
+    (signature PLACEHOLDER_40
+      (function (name PLACEHOLDER_27)
+        (function (name PLACEHOLDER_3)
+          (apply
+            (apply Either (name PLACEHOLDER_2)) (name PLACEHOLDER_3)))))
+    (function PLACEHOLDER_40
+      (patterns
+        (apply
+          (apply (constructor PLACEHOLDER_28)
+            (variable_pattern PLACEHOLDER_55))
+          (variable_pattern PLACEHOLDER_56))
+        (record (constructor PLACEHOLDER_3)
+          (field_pattern
+            (field_name PLACEHOLDER_12))
+          (field_pattern
+            (field_name PLACEHOLDER_14))))
+      (match
+        (case PLACEHOLDER_55
+          (alternatives
+            (alternative
+              (apply (constructor PLACEHOLDER_31)
+                (apply (constructor PLACEHOLDER_32)
+                  (variable_pattern PLACEHOLDER_57)))
+              (match
+                (infix Right $
+                  (record (constructor PLACEHOLDER_3)
+                    (field_update
+                      (field_name PLACEHOLDER_12))
+                    (field_update
+                      (field_name PLACEHOLDER_14)
+                      (apply
+                        (apply
+                          (apply
+                            (qualified
+                              (module Map) insert) PLACEHOLDER_57) PLACEHOLDER_58) PLACEHOLDER_14))))))
+            (alternative
+              (apply (constructor PLACEHOLDER_33)
+                (wildcard _))
+              (match
+                (apply Left (constructor PLACEHOLDER_9)))))))
+      (local_binds
+        (bind PLACEHOLDER_58
+          (match
+            (infix PLACEHOLDER_59 .
+              (infix
+                (apply map
+                  (apply PLACEHOLDER_60 PLACEHOLDER_14)) $ PLACEHOLDER_56))))))
+    (function PLACEHOLDER_40
+      (patterns
+        (apply (constructor PLACEHOLDER_30)
+          (variable_pattern PLACEHOLDER_56))
+        (as
+          (variable_pattern PLACEHOLDER_38)
+          (record (constructor PLACEHOLDER_3)
+            (field_pattern
+              (field_name PLACEHOLDER_14)))))
+      (match
+        (apply
+          (apply PLACEHOLDER_61 PLACEHOLDER_58) PLACEHOLDER_38))
+      (local_binds
+        (bind PLACEHOLDER_58
+          (match
+            (infix PLACEHOLDER_59 .
+              (infix
+                (apply map
+                  (apply PLACEHOLDER_60 PLACEHOLDER_14)) $ PLACEHOLDER_56))))))
+    (signature PLACEHOLDER_61
+      (function (name PLACEHOLDER_16)
+        (function (name PLACEHOLDER_3)
+          (apply
+            (apply Either (name PLACEHOLDER_2)) (name PLACEHOLDER_3)))))
+    (function PLACEHOLDER_61
+      (patterns
+        (variable_pattern PLACEHOLDER_62)
+        (record (constructor PLACEHOLDER_3)
+          (field_pattern
+            (field_name PLACEHOLDER_12))
+          (field_pattern
+            (field_name PLACEHOLDER_14))))
+      (match
+        (infix
+          (lambda
+            (patterns
+              (variable_pattern PLACEHOLDER_63))
+            (record (constructor PLACEHOLDER_3)
+              (field_update
+                (field_name PLACEHOLDER_12) PLACEHOLDER_63)
+              (field_update
+                (field_name PLACEHOLDER_14)))) <$>
+          (apply PLACEHOLDER_62 PLACEHOLDER_12))))
+    (signature PLACEHOLDER_60
+      (function (name PLACEHOLDER_15)
+        (function (name PLACEHOLDER_29) (name PLACEHOLDER_16))))
+    (function PLACEHOLDER_60
+      (patterns
+        (wildcard _)
+        (apply (constructor PLACEHOLDER_33)
+          (apply (constructor PLACEHOLDER_34)
+            (variable_pattern PLACEHOLDER_64))))
+      (match
+        (apply PLACEHOLDER_36
+          (apply (constructor PLACEHOLDER_26) PLACEHOLDER_64))))
+    (function PLACEHOLDER_60
+      (patterns
+        (variable_pattern PLACEHOLDER_14)
+        (apply (constructor PLACEHOLDER_31)
+          (apply (constructor PLACEHOLDER_32)
+            (variable_pattern PLACEHOLDER_57))))
+      (match
+        (apply
+          (apply fromMaybe
+            (lambda
+              (patterns
+                (wildcard _))
+              (infix Left $
+                (apply (constructor PLACEHOLDER_10) PLACEHOLDER_57))))
+          (infix PLACEHOLDER_14
+            (qualified
+              (module Map) !?) PLACEHOLDER_57))))
+    (signature PLACEHOLDER_36
+      (function (name PLACEHOLDER_17) (name PLACEHOLDER_16)))
+    (function PLACEHOLDER_36
+      (patterns (constructor PLACEHOLDER_18))
+      (match PLACEHOLDER_65)
+      (local_binds
+        (function PLACEHOLDER_65
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_66) :
+              (infix
+                (variable_pattern PLACEHOLDER_67) :
+                (variable_pattern PLACEHOLDER_68))))
+          (match
+            (infix Right $
+              (infix
+                (parens
+                  (infix PLACEHOLDER_67 + PLACEHOLDER_66)) : PLACEHOLDER_68))))
+        (function PLACEHOLDER_65
+          (patterns
+            (wildcard _))
+          (match
+            (apply Left (constructor PLACEHOLDER_8))))))
+    (function PLACEHOLDER_36
+      (patterns (constructor PLACEHOLDER_19))
+      (match PLACEHOLDER_69)
+      (local_binds
+        (function PLACEHOLDER_69
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_66) :
+              (infix
+                (variable_pattern PLACEHOLDER_67) :
+                (variable_pattern PLACEHOLDER_68))))
+          (match
+            (infix Right $
+              (infix
+                (parens
+                  (infix PLACEHOLDER_67 - PLACEHOLDER_66)) : PLACEHOLDER_68))))
+        (function PLACEHOLDER_69
+          (patterns
+            (wildcard _))
+          (match
+            (apply Left (constructor PLACEHOLDER_8))))))
+    (function PLACEHOLDER_36
+      (patterns (constructor PLACEHOLDER_20))
+      (match PLACEHOLDER_70)
+      (local_binds
+        (function PLACEHOLDER_70
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_66) :
+              (infix
+                (variable_pattern PLACEHOLDER_67) :
+                (variable_pattern PLACEHOLDER_68))))
+          (match
+            (infix Right $
+              (infix
+                (parens
+                  (infix PLACEHOLDER_67 * PLACEHOLDER_66)) : PLACEHOLDER_68))))
+        (function PLACEHOLDER_70
+          (patterns
+            (wildcard _))
+          (match
+            (apply Left (constructor PLACEHOLDER_8))))))
+    (function PLACEHOLDER_36
+      (patterns (constructor PLACEHOLDER_21))
+      (match PLACEHOLDER_71)
+      (local_binds
+        (function PLACEHOLDER_71
+          (patterns
+            (infix
+              (literal 0) :
+              (wildcard _)))
+          (match
+            (apply Left (constructor PLACEHOLDER_7))))
+        (function PLACEHOLDER_71
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_66) :
+              (infix
+                (variable_pattern PLACEHOLDER_67) :
+                (variable_pattern PLACEHOLDER_68))))
+          (match
+            (infix Right $
+              (infix
+                (parens
+                  (infix PLACEHOLDER_67
+                    (infix_id div) PLACEHOLDER_66)) : PLACEHOLDER_68))))
+        (function PLACEHOLDER_71
+          (patterns
+            (wildcard _))
+          (match
+            (apply Left (constructor PLACEHOLDER_8))))))
+    (function PLACEHOLDER_36
+      (patterns (constructor PLACEHOLDER_22))
+      (match PLACEHOLDER_72)
+      (local_binds
+        (function PLACEHOLDER_72
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_64) :
+              (variable_pattern PLACEHOLDER_68)))
+          (match
+            (infix Right $
+              (infix PLACEHOLDER_64 :
+                (infix PLACEHOLDER_64 : PLACEHOLDER_68)))))
+        (function PLACEHOLDER_72
+          (patterns
+            (wildcard _))
+          (match
+            (apply Left (constructor PLACEHOLDER_8))))))
+    (function PLACEHOLDER_36
+      (patterns (constructor PLACEHOLDER_23))
+      (match PLACEHOLDER_73)
+      (local_binds
+        (function PLACEHOLDER_73
+          (patterns
+            (infix
+              (wildcard _) :
+              (variable_pattern PLACEHOLDER_68)))
+          (match
+            (apply Right PLACEHOLDER_68)))
+        (function PLACEHOLDER_73
+          (patterns
+            (wildcard _))
+          (match
+            (apply Left (constructor PLACEHOLDER_8))))))
+    (function PLACEHOLDER_36
+      (patterns (constructor PLACEHOLDER_24))
+      (match PLACEHOLDER_74)
+      (local_binds
+        (function PLACEHOLDER_74
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_66) :
+              (infix
+                (variable_pattern PLACEHOLDER_67) :
+                (variable_pattern PLACEHOLDER_68))))
+          (match
+            (infix Right $
+              (infix PLACEHOLDER_67 :
+                (infix PLACEHOLDER_66 : PLACEHOLDER_68)))))
+        (function PLACEHOLDER_74
+          (patterns
+            (wildcard _))
+          (match
+            (apply Left (constructor PLACEHOLDER_8))))))
+    (function PLACEHOLDER_36
+      (patterns (constructor PLACEHOLDER_25))
+      (match PLACEHOLDER_75)
+      (local_binds
+        (function PLACEHOLDER_75
+          (patterns
+            (infix
+              (variable_pattern PLACEHOLDER_66) :
+              (infix
+                (variable_pattern PLACEHOLDER_67) :
+                (variable_pattern PLACEHOLDER_68))))
+          (match
+            (infix Right $
+              (infix PLACEHOLDER_67 :
+                (infix PLACEHOLDER_66 :
+                  (infix PLACEHOLDER_67 : PLACEHOLDER_68))))))
+        (function PLACEHOLDER_75
+          (patterns
+            (wildcard _))
+          (match
+            (apply Left (constructor PLACEHOLDER_8))))))
+    (function PLACEHOLDER_36
+      (patterns
+        (apply (constructor PLACEHOLDER_26)
+          (variable_pattern PLACEHOLDER_64)))
+      (match
+        (apply PLACEHOLDER_76 PLACEHOLDER_64))
+      (local_binds
+        (function PLACEHOLDER_76
+          (patterns
+            (variable_pattern PLACEHOLDER_77)
+            (variable_pattern PLACEHOLDER_68))
+          (match
+            (infix Right $
+              (infix PLACEHOLDER_77 : PLACEHOLDER_68))))))
+    (signature PLACEHOLDER_59
+      (context
+        (apply Monad
+          (type_variable PLACEHOLDER_78))
+        (function
+          (list
+            (function
+              (type_variable PLACEHOLDER_79)
+              (apply
+                (type_variable PLACEHOLDER_78)
+                (type_variable PLACEHOLDER_79))))
+          (function
+            (type_variable PLACEHOLDER_79)
+            (apply
+              (type_variable PLACEHOLDER_78)
+              (type_variable PLACEHOLDER_79))))))
+    (bind PLACEHOLDER_59
+      (match
+        (apply
+          (apply foldr
+            (prefix_id >=>)) return)))))
