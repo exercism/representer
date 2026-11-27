@@ -1,16 +1,12 @@
 # The website shows the first lines of each solution on its card. This file
 # says what to leave out of a Factor solution's snippet, so that the card
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
-module Representer
-  module Languages
-    class Factor
-      class Snippet < Representer::Engine::Snippet
-        # Work on lines, because the grammar doesn't know Factor's comments, and Rouge's Factor lexer does.
-        lines_only
+module Representer::Languages::Factor
+  class Snippet < Representer::Engine::Snippet
+    # Work on lines, because the grammar doesn't know Factor's comments, and Rouge's Factor lexer does.
+    lines_only
 
-        # Remove every comment, wherever it is.
-        remove :comments # : answer ( -- n ) 42 ; «! The answer»
-      end
-    end
+    # Remove every comment, wherever it is.
+    remove :comments # : answer ( -- n ) 42 ; «! The answer»
   end
 end
