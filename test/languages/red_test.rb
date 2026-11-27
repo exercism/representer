@@ -1,6 +1,7 @@
 require "test_helper"
 
-# Red has no old representer, so there are no upstream tests to port.
+# Tests the whole Red representer. The tests of each stage are in
+# test/languages/red/.
 class RedTest < RepresenterTest
   track "red"
 
@@ -29,8 +30,14 @@ class RedTest < RepresenterTest
     refute_same_representation "f: func [a /local b] [b: a]", "f: func [a /extra b] [b: a]"
   end
 
-  def test_main_and_return_names_are_kept
-    refute_same_representation "main: does [1]", "other: does [1]"
+  def test_chars_urls_and_binaries_keep_their_text
+    refute_same_representation "print #\"a\"", "print #\"b\""
+    refute_same_representation "print http://a.com", "print http://b.com"
+    refute_same_representation "print \#{FF}", "print \#{00}"
+  end
+
+  def test_main_is_renamed_as_any_other_name
+    assert_same_representation "main: does [1]", "other: does [1]"
   end
 
   def test_numbers_are_their_values
