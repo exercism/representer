@@ -1,28 +1,79 @@
-CLASS zcl_phone_number DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS clean
-IMPORTING
-! number TYPE string
-RETURNING
-VALUE ( result ) TYPE string
-RAISING
-cx_parameter_invalid .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_phone_number IMPLEMENTATION .
-METHOD clean .
-IF number CN "'0123456789 +().-'" .
-raise exception type cx_parameter_invalid .
-ENDIF .
-result = reduce # ( INIT r = ||
-FOR index = 0 WHILE index < strlen ( number )
-NEXT r = r && cond # ( when number + index ( 1 ) CO '0123456789' AND ( r IS NOT INITIAL OR number + index ( 1 ) NE '1' ) then number + index ( 1 ) ) ).
-IF STRLEN ( result ) LE 9 OR STRLEN ( result ) GT 10 OR result ( 1 ) EQ '0' OR result + 3 ( 1 ) CO '01' .
-raise exception type cx_parameter_invalid .
-ENDIF .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (if_statement
+          (comparison_expression PLACEHOLDER_3 cn
+            (text_literal "0123456789 +().-"))
+          (statement_block
+            (raise_exception_statement
+              (new_exception_spec type cx_parameter_invalid))))
+        (assignment PLACEHOLDER_4 =
+          (reduce_expression #
+            (accumulators_spec
+              (accumulator_spec PLACEHOLDER_5 =
+                (string_template)))
+            (conditional_iteration for
+              (assignment PLACEHOLDER_6 = 0)
+              (iteration_condition
+                (while_spec
+                  (comparison_expression PLACEHOLDER_6 <
+                    (function_call strlen
+                      (call_argument_list
+                        (positional_argument PLACEHOLDER_3)))))))
+            (next_spec
+              (assignment PLACEHOLDER_5 =
+                (string_concatenation PLACEHOLDER_5 &&
+                  (cond_expression #
+                    (case
+                      (logical_expression
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_3 + PLACEHOLDER_6 1) co
+                          (text_literal "0123456789")) and
+                        (logical_expression
+                          (initial_predicate PLACEHOLDER_5 is not initial) or
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_3 + PLACEHOLDER_6 1) <>
+                            (text_literal "1"))))
+                      (substring_access PLACEHOLDER_3 + PLACEHOLDER_6 1))))))))
+        (if_statement
+          (logical_expression
+            (logical_expression
+              (logical_expression
+                (comparison_expression
+                  (function_call strlen
+                    (call_argument_list
+                      (positional_argument PLACEHOLDER_4))) <= 9) or
+                (comparison_expression
+                  (function_call strlen
+                    (call_argument_list
+                      (positional_argument PLACEHOLDER_4))) > 10)) or
+              (comparison_expression
+                (substring_access PLACEHOLDER_4 1) =
+                (text_literal "0"))) or
+            (comparison_expression
+              (substring_access PLACEHOLDER_4 + 3 1) co
+              (text_literal "01")))
+          (statement_block
+            (raise_exception_statement
+              (new_exception_spec type cx_parameter_invalid))))))))

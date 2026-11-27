@@ -1,69 +1,159 @@
-CLASS zcl_rle DEFINITION PUBLIC FINAL CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS encode IMPORTING input TYPE string
-RETURNING VALUE ( result ) TYPE string .
-METHODS decode IMPORTING input TYPE string
-RETURNING VALUE ( result ) TYPE string .
-ENDCLASS .
-CLASS zcl_rle IMPLEMENTATION .
-METHOD encode .
-DATA lv_ns TYPE string .
-DATA ( lv_length ) = strlen ( input ).
-IF lv_length EQ 0 .
-RETURN .
-ENDIF .
-DATA ( lv_prev ) = substring ( val = input off = 0 len = 1 ).
-DATA ( lv_i ) = 1 .
-DATA ( lv_n ) = 1 .
-WHILE lv_i < lv_length .
-DATA ( lv_this ) = substring ( val = input off = lv_i len = 1 ).
-IF lv_this EQ lv_prev .
-lv_n = lv_n + 1 .
-ELSE .
-IF lv_n GT 1 .
-lv_ns = lv_n .
-CONDENSE lv_ns NO-GAPS .
-CONCATENATE result lv_ns lv_prev INTO result .
-ELSE .
-CONCATENATE result lv_prev INTO result .
-ENDIF .
-lv_n = 1 .
-lv_ns = `` .
-ENDIF .
-lv_prev = lv_this .
-ADD 1 TO lv_i .
-ENDWHILE .
-IF lv_n GT 1 .
-lv_ns = lv_n .
-CONDENSE lv_ns NO-GAPS .
-CONCATENATE result lv_ns lv_prev INTO result .
-ELSE .
-CONCATENATE result lv_prev INTO result .
-ENDIF .
-ENDMETHOD .
-METHOD decode .
-DATA lv_ns TYPE string .
-DATA ( lv_length ) = strlen ( input ).
-IF lv_length EQ 0 .
-RETURN .
-ENDIF .
-DATA ( lv_i ) = 0 .
-DATA ( lv_n ) = 1 .
-WHILE lv_i < lv_length .
-DATA ( lv_c ) = substring ( val = input off = lv_i len = 1 ).
-IF lv_c CA '0123456789' .
-CONCATENATE lv_ns lv_c INTO lv_ns .
-ELSE .
-IF strlen ( lv_ns ) GT 0 .
-lv_n = lv_ns .
-CLEAR lv_ns .
-ENDIF .
-DO lv_n TIMES .
-CONCATENATE result lv_c INTO result RESPECTING BLANKS .
-ENDDO .
-lv_n = 1 .
-ENDIF .
-ADD 1 TO lv_i .
-ENDWHILE .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_5 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string)))))))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_6
+            (referred_type type string)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_7) =
+          (function_call strlen
+            (call_argument_list
+              (positional_argument PLACEHOLDER_3))))
+        (if_statement
+          (comparison_expression PLACEHOLDER_7 = 0)
+          (statement_block
+            (return_statement)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_8) =
+          (function_call substring
+            (call_argument_list
+              (argument_list
+                (named_argument val = PLACEHOLDER_3)
+                (named_argument off = 0)
+                (named_argument len = 1)))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_9) = 1)
+        (assignment
+          (declaration_expression data PLACEHOLDER_10) = 1)
+        (while_statement
+          (comparison_expression PLACEHOLDER_9 < PLACEHOLDER_7)
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_11) =
+              (function_call substring
+                (call_argument_list
+                  (argument_list
+                    (named_argument val = PLACEHOLDER_3)
+                    (named_argument off = PLACEHOLDER_9)
+                    (named_argument len = 1)))))
+            (if_statement
+              (comparison_expression PLACEHOLDER_11 = PLACEHOLDER_8)
+              (statement_block
+                (assignment PLACEHOLDER_10 =
+                  (arithmetic_expression PLACEHOLDER_10 + 1)))
+              (else_clause
+                (statement_block
+                  (if_statement
+                    (comparison_expression PLACEHOLDER_10 > 1)
+                    (statement_block
+                      (assignment PLACEHOLDER_6 = PLACEHOLDER_10)
+                      (condense_statement PLACEHOLDER_6
+                        (no_gaps))
+                      (concatenate_statement
+                        (operand_list PLACEHOLDER_4 PLACEHOLDER_6 PLACEHOLDER_8)
+                        (into_spec into PLACEHOLDER_4)))
+                    (else_clause
+                      (statement_block
+                        (concatenate_statement
+                          (operand_list PLACEHOLDER_4 PLACEHOLDER_8)
+                          (into_spec into PLACEHOLDER_4)))))
+                  (assignment PLACEHOLDER_10 = 1)
+                  (assignment PLACEHOLDER_6 = ""))))
+            (assignment PLACEHOLDER_8 = PLACEHOLDER_11)
+            (add_statement 1 to PLACEHOLDER_9)))
+        (if_statement
+          (comparison_expression PLACEHOLDER_10 > 1)
+          (statement_block
+            (assignment PLACEHOLDER_6 = PLACEHOLDER_10)
+            (condense_statement PLACEHOLDER_6
+              (no_gaps))
+            (concatenate_statement
+              (operand_list PLACEHOLDER_4 PLACEHOLDER_6 PLACEHOLDER_8)
+              (into_spec into PLACEHOLDER_4)))
+          (else_clause
+            (statement_block
+              (concatenate_statement
+                (operand_list PLACEHOLDER_4 PLACEHOLDER_8)
+                (into_spec into PLACEHOLDER_4)))))))
+    (method_implementation PLACEHOLDER_5
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_6
+            (referred_type type string)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_7) =
+          (function_call strlen
+            (call_argument_list
+              (positional_argument PLACEHOLDER_3))))
+        (if_statement
+          (comparison_expression PLACEHOLDER_7 = 0)
+          (statement_block
+            (return_statement)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_9) = 0)
+        (assignment
+          (declaration_expression data PLACEHOLDER_10) = 1)
+        (while_statement
+          (comparison_expression PLACEHOLDER_9 < PLACEHOLDER_7)
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_12) =
+              (function_call substring
+                (call_argument_list
+                  (argument_list
+                    (named_argument val = PLACEHOLDER_3)
+                    (named_argument off = PLACEHOLDER_9)
+                    (named_argument len = 1)))))
+            (if_statement
+              (comparison_expression PLACEHOLDER_12 ca
+                (text_literal "0123456789"))
+              (statement_block
+                (concatenate_statement
+                  (operand_list PLACEHOLDER_6 PLACEHOLDER_12)
+                  (into_spec into PLACEHOLDER_6)))
+              (else_clause
+                (statement_block
+                  (if_statement
+                    (comparison_expression
+                      (function_call strlen
+                        (call_argument_list
+                          (positional_argument PLACEHOLDER_6))) > 0)
+                    (statement_block
+                      (assignment PLACEHOLDER_10 = PLACEHOLDER_6)
+                      (clear_statement clear
+                        (clear_spec PLACEHOLDER_6))))
+                  (do_statement
+                    (times_spec PLACEHOLDER_10)
+                    (statement_block
+                      (concatenate_statement
+                        (operand_list PLACEHOLDER_4 PLACEHOLDER_12)
+                        (into_spec into PLACEHOLDER_4)
+                        (respecting_blanks))))
+                  (assignment PLACEHOLDER_10 = 1))))
+            (add_statement 1 to PLACEHOLDER_9)))))))

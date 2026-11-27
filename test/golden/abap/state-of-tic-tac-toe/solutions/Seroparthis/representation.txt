@@ -1,101 +1,583 @@
-CLASS zcl_state_of_tic_tac_toe DEFINITION .
-PUBLIC SECTION .
-TYPES player_type TYPE c LENGTH 1 .
-TYPES board_type TYPE TABLE OF string INITIAL SIZE 3 .
-CONSTANTS : BEGIN OF player_enum ,
-one TYPE player_type VALUE 'X' ,
-two TYPE player_type VALUE 'O' ,
-END OF player_enum .
-CONSTANTS : BEGIN OF state_enum ,
-ongoing_game TYPE string VALUE "`Ongoing game`" ,
-draw TYPE string VALUE `Draw` ,
-win TYPE string VALUE `Win` ,
-END OF state_enum .
-METHODS get_state
-IMPORTING board TYPE board_type
-RETURNING VALUE ( state ) TYPE string
-RAISING cx_parameter_invalid .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_state_of_tic_tac_toe IMPLEMENTATION .
-METHOD get_state .
-DATA ( string1 ) = board [ 1 ].
-DATA ( string2 ) = board [ 2 ].
-DATA ( string3 ) = board [ 3 ].
-DATA : counter_X TYPE i VALUE 0 ,
-counter_O TYPE i VALUE 0 ,
-counter TYPE i VALUE 0 .
-DO 3 TIMES .
-IF string1 + counter ( 1 ) = 'X' .
-counter_X = counter_X + 1 .
-ELSEIF string1 + counter ( 1 ) = 'O' .
-counter_O = counter_O + 1 .
-ENDIF .
-counter = counter + 1 .
-ENDDO .
-counter = 0 .
-DO 3 TIMES .
-IF string2 + counter ( 1 ) = 'X' .
-counter_X = counter_X + 1 .
-ELSEIF string2 + counter ( 1 ) = 'O' .
-counter_O = counter_O + 1 .
-ENDIF .
-counter = counter + 1 .
-ENDDO .
-counter = 0 .
-DO 3 TIMES .
-IF string3 + counter ( 1 ) = 'X' .
-counter_X = counter_X + 1 .
-ELSEIF string3 + counter ( 1 ) = 'O' .
-counter_O = counter_O + 1 .
-ENDIF .
-counter = counter + 1 .
-ENDDO .
-IF counter_O > counter_X OR counter_X - 1 > counter_O .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-IF ( ( string1 + 0 ( 1 ) = 'X' AND string1 + 1 ( 1 ) = 'X' AND string1 + 2 ( 1 ) = 'X' )
-OR ( string2 + 0 ( 1 ) = 'X' AND string2 + 1 ( 1 ) = 'X' AND string2 + 2 ( 1 ) = 'X' )
-OR ( string3 + 0 ( 1 ) = 'X' AND string3 + 1 ( 1 ) = 'X' AND string3 + 2 ( 1 ) = 'X' )
-OR ( string1 + 0 ( 1 ) = 'X' AND string2 + 0 ( 1 ) = 'X' AND string3 + 0 ( 1 ) = 'X' )
-OR ( string1 + 1 ( 1 ) = 'X' AND string2 + 1 ( 1 ) = 'X' AND string3 + 1 ( 1 ) = 'X' )
-OR ( string1 + 2 ( 1 ) = 'X' AND string2 + 2 ( 1 ) = 'X' AND string3 + 2 ( 1 ) = 'X' )
-OR ( string1 + 0 ( 1 ) = 'X' AND string2 + 1 ( 1 ) = 'X' AND string3 + 2 ( 1 ) = 'X' )
-OR ( string3 + 0 ( 1 ) = 'X' AND string2 + 1 ( 1 ) = 'X' AND string1 + 2 ( 1 ) = 'X' ) ) AND
-( ( string1 + 0 ( 1 ) = 'O' AND string1 + 1 ( 1 ) = 'O' AND string1 + 2 ( 1 ) = 'O' )
-OR ( string2 + 0 ( 1 ) = 'O' AND string2 + 1 ( 1 ) = 'O' AND string2 + 2 ( 1 ) = 'O' )
-OR ( string3 + 0 ( 1 ) = 'O' AND string3 + 1 ( 1 ) = 'O' AND string3 + 2 ( 1 ) = 'O' )
-OR ( string1 + 0 ( 1 ) = 'O' AND string2 + 0 ( 1 ) = 'O' AND string3 + 0 ( 1 ) = 'O' )
-OR ( string1 + 1 ( 1 ) = 'O' AND string2 + 1 ( 1 ) = 'O' AND string3 + 1 ( 1 ) = 'O' )
-OR ( string1 + 2 ( 1 ) = 'O' AND string2 + 2 ( 1 ) = 'O' AND string3 + 2 ( 1 ) = 'O' )
-OR ( string1 + 0 ( 1 ) = 'O' AND string2 + 1 ( 1 ) = 'O' AND string3 + 2 ( 1 ) = 'O' )
-OR ( string3 + 0 ( 1 ) = 'O' AND string2 + 1 ( 1 ) = 'O' AND string1 + 2 ( 1 ) = 'O' ) ).
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-IF ( ( string1 + 0 ( 1 ) = 'X' AND string1 + 1 ( 1 ) = 'X' AND string1 + 2 ( 1 ) = 'X' )
-OR ( string2 + 0 ( 1 ) = 'X' AND string2 + 1 ( 1 ) = 'X' AND string2 + 2 ( 1 ) = 'X' )
-OR ( string3 + 0 ( 1 ) = 'X' AND string3 + 1 ( 1 ) = 'X' AND string3 + 2 ( 1 ) = 'X' )
-OR ( string1 + 0 ( 1 ) = 'X' AND string2 + 0 ( 1 ) = 'X' AND string3 + 0 ( 1 ) = 'X' )
-OR ( string1 + 1 ( 1 ) = 'X' AND string2 + 1 ( 1 ) = 'X' AND string3 + 1 ( 1 ) = 'X' )
-OR ( string1 + 2 ( 1 ) = 'X' AND string2 + 2 ( 1 ) = 'X' AND string3 + 2 ( 1 ) = 'X' )
-OR ( string1 + 0 ( 1 ) = 'X' AND string2 + 1 ( 1 ) = 'X' AND string3 + 2 ( 1 ) = 'X' )
-OR ( string3 + 0 ( 1 ) = 'X' AND string2 + 1 ( 1 ) = 'X' AND string1 + 2 ( 1 ) = 'X' ) ) OR
-( ( string1 + 0 ( 1 ) = 'O' AND string1 + 1 ( 1 ) = 'O' AND string1 + 2 ( 1 ) = 'O' )
-OR ( string2 + 0 ( 1 ) = 'O' AND string2 + 1 ( 1 ) = 'O' AND string2 + 2 ( 1 ) = 'O' )
-OR ( string3 + 0 ( 1 ) = 'O' AND string3 + 1 ( 1 ) = 'O' AND string3 + 2 ( 1 ) = 'O' )
-OR ( string1 + 0 ( 1 ) = 'O' AND string2 + 0 ( 1 ) = 'O' AND string3 + 0 ( 1 ) = 'O' )
-OR ( string1 + 1 ( 1 ) = 'O' AND string2 + 1 ( 1 ) = 'O' AND string3 + 1 ( 1 ) = 'O' )
-OR ( string1 + 2 ( 1 ) = 'O' AND string2 + 2 ( 1 ) = 'O' AND string3 + 2 ( 1 ) = 'O' )
-OR ( string1 + 0 ( 1 ) = 'O' AND string2 + 1 ( 1 ) = 'O' AND string3 + 2 ( 1 ) = 'O' )
-OR ( string3 + 0 ( 1 ) = 'O' AND string2 + 1 ( 1 ) = 'O' AND string1 + 2 ( 1 ) = 'O' ) ).
-state = 'Win' .
-ELSEIF string1 + 0 ( 1 ) <> "| |" AND string1 + 1 ( 1 ) <> "| |" AND string1 + 2 ( 1 ) <> "| |" AND
-string2 + 0 ( 1 ) <> "| |" AND string2 + 1 ( 1 ) <> "| |" AND string2 + 2 ( 1 ) <> "| |" AND
-string3 + 0 ( 1 ) <> "| |" AND string3 + 1 ( 1 ) <> "| |" AND string3 + 2 ( 1 ) <> "| |" .
-state = 'Draw' .
-ELSE .
-state = "'Ongoing game'" .
-ENDIF .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_body
+      (public_section public section
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (builtin_type_spec type c
+              (type_length_spec 1))))
+        (types_declaration
+          (types_spec PLACEHOLDER_3
+            (table_type type
+              (standard_table table) of string
+              (initial_size_spec initial 3))))
+        (constants_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_4))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_5
+            (referred_type type PLACEHOLDER_2
+              (default_data_value_spec
+                (text_literal "X")))))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_6
+            (referred_type type PLACEHOLDER_2
+              (default_data_value_spec
+                (text_literal "O")))))
+        (constants_declaration
+          (end_of_struct_spec end of PLACEHOLDER_4))
+        (constants_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_7))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_8
+            (referred_type type string
+              (default_data_value_spec "Ongoing game"))))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_9
+            (referred_type type string
+              (default_data_value_spec "Draw"))))
+        (constants_declaration
+          (constants_spec PLACEHOLDER_10
+            (referred_type type string
+              (default_data_value_spec "Win"))))
+        (constants_declaration
+          (end_of_struct_spec end of PLACEHOLDER_7))
+        (methods_declaration
+          (method_spec PLACEHOLDER_11 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_12)
+                (referred_type type PLACEHOLDER_3))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_13)
+              (referred_type type string)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_11
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_14) =
+          (table_expression PLACEHOLDER_12
+            (index_read 1)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_15) =
+          (table_expression PLACEHOLDER_12
+            (index_read 2)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_16) =
+          (table_expression PLACEHOLDER_12
+            (index_read 3)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_17
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_18
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_19
+            (referred_type type i
+              (default_data_value_spec 0))))
+        (do_statement
+          (times_spec 3)
+          (statement_block
+            (if_statement
+              (comparison_expression
+                (substring_access PLACEHOLDER_14 + PLACEHOLDER_19 1) =
+                (text_literal "X"))
+              (statement_block
+                (assignment PLACEHOLDER_17 =
+                  (arithmetic_expression PLACEHOLDER_17 + 1)))
+              (elseif_clause
+                (comparison_expression
+                  (substring_access PLACEHOLDER_14 + PLACEHOLDER_19 1) =
+                  (text_literal "O"))
+                (statement_block
+                  (assignment PLACEHOLDER_18 =
+                    (arithmetic_expression PLACEHOLDER_18 + 1)))))
+            (assignment PLACEHOLDER_19 =
+              (arithmetic_expression PLACEHOLDER_19 + 1))))
+        (assignment PLACEHOLDER_19 = 0)
+        (do_statement
+          (times_spec 3)
+          (statement_block
+            (if_statement
+              (comparison_expression
+                (substring_access PLACEHOLDER_15 + PLACEHOLDER_19 1) =
+                (text_literal "X"))
+              (statement_block
+                (assignment PLACEHOLDER_17 =
+                  (arithmetic_expression PLACEHOLDER_17 + 1)))
+              (elseif_clause
+                (comparison_expression
+                  (substring_access PLACEHOLDER_15 + PLACEHOLDER_19 1) =
+                  (text_literal "O"))
+                (statement_block
+                  (assignment PLACEHOLDER_18 =
+                    (arithmetic_expression PLACEHOLDER_18 + 1)))))
+            (assignment PLACEHOLDER_19 =
+              (arithmetic_expression PLACEHOLDER_19 + 1))))
+        (assignment PLACEHOLDER_19 = 0)
+        (do_statement
+          (times_spec 3)
+          (statement_block
+            (if_statement
+              (comparison_expression
+                (substring_access PLACEHOLDER_16 + PLACEHOLDER_19 1) =
+                (text_literal "X"))
+              (statement_block
+                (assignment PLACEHOLDER_17 =
+                  (arithmetic_expression PLACEHOLDER_17 + 1)))
+              (elseif_clause
+                (comparison_expression
+                  (substring_access PLACEHOLDER_16 + PLACEHOLDER_19 1) =
+                  (text_literal "O"))
+                (statement_block
+                  (assignment PLACEHOLDER_18 =
+                    (arithmetic_expression PLACEHOLDER_18 + 1)))))
+            (assignment PLACEHOLDER_19 =
+              (arithmetic_expression PLACEHOLDER_19 + 1))))
+        (if_statement
+          (logical_expression
+            (comparison_expression PLACEHOLDER_18 > PLACEHOLDER_17) or
+            (comparison_expression
+              (arithmetic_expression PLACEHOLDER_17 - 1) > PLACEHOLDER_18))
+          (statement_block
+            (raise_exception_statement
+              (new_exception_spec type cx_parameter_invalid))))
+        (if_statement
+          (logical_expression
+            (logical_expression
+              (logical_expression
+                (logical_expression
+                  (logical_expression
+                    (logical_expression
+                      (logical_expression
+                        (logical_expression
+                          (logical_expression
+                            (logical_expression
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_14 + 0 1) =
+                                (text_literal "X")) and
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_14 + 1 1) =
+                                (text_literal "X"))) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_14 + 2 1) =
+                              (text_literal "X"))) or
+                          (logical_expression
+                            (logical_expression
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_15 + 0 1) =
+                                (text_literal "X")) and
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_15 + 1 1) =
+                                (text_literal "X"))) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_15 + 2 1) =
+                              (text_literal "X")))) or
+                        (logical_expression
+                          (logical_expression
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_16 + 0 1) =
+                              (text_literal "X")) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_16 + 1 1) =
+                              (text_literal "X"))) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_16 + 2 1) =
+                            (text_literal "X")))) or
+                      (logical_expression
+                        (logical_expression
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_14 + 0 1) =
+                            (text_literal "X")) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_15 + 0 1) =
+                            (text_literal "X"))) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_16 + 0 1) =
+                          (text_literal "X")))) or
+                    (logical_expression
+                      (logical_expression
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_14 + 1 1) =
+                          (text_literal "X")) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_15 + 1 1) =
+                          (text_literal "X"))) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_16 + 1 1) =
+                        (text_literal "X")))) or
+                  (logical_expression
+                    (logical_expression
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_14 + 2 1) =
+                        (text_literal "X")) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_15 + 2 1) =
+                        (text_literal "X"))) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_16 + 2 1) =
+                      (text_literal "X")))) or
+                (logical_expression
+                  (logical_expression
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_14 + 0 1) =
+                      (text_literal "X")) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_15 + 1 1) =
+                      (text_literal "X"))) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 2 1) =
+                    (text_literal "X")))) or
+              (logical_expression
+                (logical_expression
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 0 1) =
+                    (text_literal "X")) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_15 + 1 1) =
+                    (text_literal "X"))) and
+                (comparison_expression
+                  (substring_access PLACEHOLDER_14 + 2 1) =
+                  (text_literal "X")))) and
+            (logical_expression
+              (logical_expression
+                (logical_expression
+                  (logical_expression
+                    (logical_expression
+                      (logical_expression
+                        (logical_expression
+                          (logical_expression
+                            (logical_expression
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_14 + 0 1) =
+                                (text_literal "O")) and
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_14 + 1 1) =
+                                (text_literal "O"))) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_14 + 2 1) =
+                              (text_literal "O"))) or
+                          (logical_expression
+                            (logical_expression
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_15 + 0 1) =
+                                (text_literal "O")) and
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_15 + 1 1) =
+                                (text_literal "O"))) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_15 + 2 1) =
+                              (text_literal "O")))) or
+                        (logical_expression
+                          (logical_expression
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_16 + 0 1) =
+                              (text_literal "O")) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_16 + 1 1) =
+                              (text_literal "O"))) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_16 + 2 1) =
+                            (text_literal "O")))) or
+                      (logical_expression
+                        (logical_expression
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_14 + 0 1) =
+                            (text_literal "O")) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_15 + 0 1) =
+                            (text_literal "O"))) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_16 + 0 1) =
+                          (text_literal "O")))) or
+                    (logical_expression
+                      (logical_expression
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_14 + 1 1) =
+                          (text_literal "O")) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_15 + 1 1) =
+                          (text_literal "O"))) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_16 + 1 1) =
+                        (text_literal "O")))) or
+                  (logical_expression
+                    (logical_expression
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_14 + 2 1) =
+                        (text_literal "O")) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_15 + 2 1) =
+                        (text_literal "O"))) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_16 + 2 1) =
+                      (text_literal "O")))) or
+                (logical_expression
+                  (logical_expression
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_14 + 0 1) =
+                      (text_literal "O")) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_15 + 1 1) =
+                      (text_literal "O"))) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 2 1) =
+                    (text_literal "O")))) or
+              (logical_expression
+                (logical_expression
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 0 1) =
+                    (text_literal "O")) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_15 + 1 1) =
+                    (text_literal "O"))) and
+                (comparison_expression
+                  (substring_access PLACEHOLDER_14 + 2 1) =
+                  (text_literal "O")))))
+          (statement_block
+            (raise_exception_statement
+              (new_exception_spec type cx_parameter_invalid))))
+        (if_statement
+          (logical_expression
+            (logical_expression
+              (logical_expression
+                (logical_expression
+                  (logical_expression
+                    (logical_expression
+                      (logical_expression
+                        (logical_expression
+                          (logical_expression
+                            (logical_expression
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_14 + 0 1) =
+                                (text_literal "X")) and
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_14 + 1 1) =
+                                (text_literal "X"))) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_14 + 2 1) =
+                              (text_literal "X"))) or
+                          (logical_expression
+                            (logical_expression
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_15 + 0 1) =
+                                (text_literal "X")) and
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_15 + 1 1) =
+                                (text_literal "X"))) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_15 + 2 1) =
+                              (text_literal "X")))) or
+                        (logical_expression
+                          (logical_expression
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_16 + 0 1) =
+                              (text_literal "X")) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_16 + 1 1) =
+                              (text_literal "X"))) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_16 + 2 1) =
+                            (text_literal "X")))) or
+                      (logical_expression
+                        (logical_expression
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_14 + 0 1) =
+                            (text_literal "X")) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_15 + 0 1) =
+                            (text_literal "X"))) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_16 + 0 1) =
+                          (text_literal "X")))) or
+                    (logical_expression
+                      (logical_expression
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_14 + 1 1) =
+                          (text_literal "X")) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_15 + 1 1) =
+                          (text_literal "X"))) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_16 + 1 1) =
+                        (text_literal "X")))) or
+                  (logical_expression
+                    (logical_expression
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_14 + 2 1) =
+                        (text_literal "X")) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_15 + 2 1) =
+                        (text_literal "X"))) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_16 + 2 1) =
+                      (text_literal "X")))) or
+                (logical_expression
+                  (logical_expression
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_14 + 0 1) =
+                      (text_literal "X")) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_15 + 1 1) =
+                      (text_literal "X"))) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 2 1) =
+                    (text_literal "X")))) or
+              (logical_expression
+                (logical_expression
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 0 1) =
+                    (text_literal "X")) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_15 + 1 1) =
+                    (text_literal "X"))) and
+                (comparison_expression
+                  (substring_access PLACEHOLDER_14 + 2 1) =
+                  (text_literal "X")))) or
+            (logical_expression
+              (logical_expression
+                (logical_expression
+                  (logical_expression
+                    (logical_expression
+                      (logical_expression
+                        (logical_expression
+                          (logical_expression
+                            (logical_expression
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_14 + 0 1) =
+                                (text_literal "O")) and
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_14 + 1 1) =
+                                (text_literal "O"))) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_14 + 2 1) =
+                              (text_literal "O"))) or
+                          (logical_expression
+                            (logical_expression
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_15 + 0 1) =
+                                (text_literal "O")) and
+                              (comparison_expression
+                                (substring_access PLACEHOLDER_15 + 1 1) =
+                                (text_literal "O"))) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_15 + 2 1) =
+                              (text_literal "O")))) or
+                        (logical_expression
+                          (logical_expression
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_16 + 0 1) =
+                              (text_literal "O")) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_16 + 1 1) =
+                              (text_literal "O"))) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_16 + 2 1) =
+                            (text_literal "O")))) or
+                      (logical_expression
+                        (logical_expression
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_14 + 0 1) =
+                            (text_literal "O")) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_15 + 0 1) =
+                            (text_literal "O"))) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_16 + 0 1) =
+                          (text_literal "O")))) or
+                    (logical_expression
+                      (logical_expression
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_14 + 1 1) =
+                          (text_literal "O")) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_15 + 1 1) =
+                          (text_literal "O"))) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_16 + 1 1) =
+                        (text_literal "O")))) or
+                  (logical_expression
+                    (logical_expression
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_14 + 2 1) =
+                        (text_literal "O")) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_15 + 2 1) =
+                        (text_literal "O"))) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_16 + 2 1) =
+                      (text_literal "O")))) or
+                (logical_expression
+                  (logical_expression
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_14 + 0 1) =
+                      (text_literal "O")) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_15 + 1 1) =
+                      (text_literal "O"))) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 2 1) =
+                    (text_literal "O")))) or
+              (logical_expression
+                (logical_expression
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 0 1) =
+                    (text_literal "O")) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_15 + 1 1) =
+                    (text_literal "O"))) and
+                (comparison_expression
+                  (substring_access PLACEHOLDER_14 + 2 1) =
+                  (text_literal "O")))))
+          (statement_block
+            (assignment PLACEHOLDER_13 =
+              (text_literal "Win")))
+          (elseif_clause
+            (logical_expression
+              (logical_expression
+                (logical_expression
+                  (logical_expression
+                    (logical_expression
+                      (logical_expression
+                        (logical_expression
+                          (logical_expression
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_14 + 0 1) <>
+                              (string_template " ")) and
+                            (comparison_expression
+                              (substring_access PLACEHOLDER_14 + 1 1) <>
+                              (string_template " "))) and
+                          (comparison_expression
+                            (substring_access PLACEHOLDER_14 + 2 1) <>
+                            (string_template " "))) and
+                        (comparison_expression
+                          (substring_access PLACEHOLDER_15 + 0 1) <>
+                          (string_template " "))) and
+                      (comparison_expression
+                        (substring_access PLACEHOLDER_15 + 1 1) <>
+                        (string_template " "))) and
+                    (comparison_expression
+                      (substring_access PLACEHOLDER_15 + 2 1) <>
+                      (string_template " "))) and
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_16 + 0 1) <>
+                    (string_template " "))) and
+                (comparison_expression
+                  (substring_access PLACEHOLDER_16 + 1 1) <>
+                  (string_template " "))) and
+              (comparison_expression
+                (substring_access PLACEHOLDER_16 + 2 1) <>
+                (string_template " ")))
+            (statement_block
+              (assignment PLACEHOLDER_13 =
+                (text_literal "Draw"))))
+          (else_clause
+            (statement_block
+              (assignment PLACEHOLDER_13 =
+                (text_literal "Ongoing game")))))))))

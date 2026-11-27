@@ -1,58 +1,152 @@
-CLASS zcl_itab_aggregation DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES group TYPE c LENGTH 1 .
-TYPES : BEGIN OF initial_numbers_type ,
-group TYPE group ,
-number TYPE i ,
-END OF initial_numbers_type ,
-initial_numbers TYPE STANDARD TABLE OF initial_numbers_type WITH EMPTY KEY .
-TYPES : BEGIN OF aggregated_data_type ,
-group TYPE group ,
-count TYPE i ,
-sum TYPE i ,
-min TYPE i ,
-max TYPE i ,
-average TYPE f ,
-END OF aggregated_data_type ,
-aggregated_data TYPE STANDARD TABLE OF aggregated_data_type WITH EMPTY KEY .
-METHODS perform_aggregation
-IMPORTING
-initial_numbers TYPE initial_numbers
-RETURNING
-VALUE ( aggregated_data ) TYPE aggregated_data .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_itab_aggregation IMPLEMENTATION .
-METHOD perform_aggregation .
-DATA : ls_post TYPE aggregated_data_type .
-SORT initial_numbers BY group ASCENDING .
-READ TABLE initial_numbers INDEX 1 INTO DATA ( ls_group ).
-ls_post-group = ls_group-group .
-LOOP AT initial_numbers ASSIGNING FIELD-SYMBOL ( < internal > ).
-IF ls_post-group NE < internal >- group .
-APPEND ls_post TO aggregated_data .
-CLEAR ls_post .
-ENDIF .
-ls_post-group = < internal >- group .
-ls_post-count += 1 .
-ls_post-sum += < internal >- number .
-IF ls_post-count = 1 .
-ls_post-min = < internal >- number .
-ls_post-max = < internal >- number .
-ELSE .
-ls_post-min = COND i ( WHEN < internal >- number < ls_post-min THEN < internal >- number
-ELSE ls_post-min ).
-ls_post-max = COND i ( WHEN < internal >- number > ls_post-max THEN < internal >- number
-ELSE ls_post-max ).
-ENDIF .
-ls_post-average = COND f ( WHEN ls_post-sum NE 0 THEN ls_post-sum / ls_post-count ELSE 0 ).
-ENDLOOP .
-IF ls_post-count > 0 .
-APPEND ls_post TO aggregated_data .
-ENDIF .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (builtin_type_spec type c
+              (type_length_spec 1))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_3))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_4
+            (referred_type type i)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_3))
+        (types_declaration
+          (types_spec PLACEHOLDER_5
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_3
+              (with_key_spec with
+                (empty_key key)))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_6))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_7
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_8
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_9
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_10
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_11
+            (referred_type type f)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_6))
+        (types_declaration
+          (types_spec PLACEHOLDER_12
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_6
+              (with_key_spec with
+                (empty_key key)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_13 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_5)
+                (referred_type type PLACEHOLDER_5))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_12)
+              (referred_type type PLACEHOLDER_12)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_13
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_14
+            (referred_type type PLACEHOLDER_6)))
+        (sort_statement PLACEHOLDER_5
+          (by_sort_component_list_spec
+            (sort_component_spec PLACEHOLDER_2
+              (sort_order_spec
+                (ascending)))))
+        (read_table_statement table PLACEHOLDER_5
+          (index_spec index 1)
+          (into_spec into
+            (declaration_expression data PLACEHOLDER_15)))
+        (assignment
+          (component_selection PLACEHOLDER_14 - PLACEHOLDER_2) =
+          (component_selection PLACEHOLDER_15 - PLACEHOLDER_2))
+        (loop_at_statement PLACEHOLDER_5
+          (assigning_spec
+            (declaration_expression field-symbol (field_symbol PLACEHOLDER_16)))
+          (loop_at_body
+            (if_statement
+              (comparison_expression
+                (component_selection PLACEHOLDER_14 - PLACEHOLDER_2) <>
+                (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_2))
+              (statement_block
+                (append_statement PLACEHOLDER_14 to PLACEHOLDER_12)
+                (clear_statement clear
+                  (clear_spec PLACEHOLDER_14))))
+            (assignment
+              (component_selection PLACEHOLDER_14 - PLACEHOLDER_2) =
+              (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_2))
+            (calculation_assignment
+              (component_selection PLACEHOLDER_14 - PLACEHOLDER_7) += 1)
+            (calculation_assignment
+              (component_selection PLACEHOLDER_14 - PLACEHOLDER_8) +=
+              (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_4))
+            (if_statement
+              (comparison_expression
+                (component_selection PLACEHOLDER_14 - PLACEHOLDER_7) = 1)
+              (statement_block
+                (assignment
+                  (component_selection PLACEHOLDER_14 - PLACEHOLDER_9) =
+                  (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_4))
+                (assignment
+                  (component_selection PLACEHOLDER_14 - PLACEHOLDER_10) =
+                  (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_4)))
+              (else_clause
+                (statement_block
+                  (assignment
+                    (component_selection PLACEHOLDER_14 - PLACEHOLDER_9) =
+                    (cond_expression i
+                      (case
+                        (comparison_expression
+                          (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_4) <
+                          (component_selection PLACEHOLDER_14 - PLACEHOLDER_9))
+                        (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_4))
+                      (else_case
+                        (component_selection PLACEHOLDER_14 - PLACEHOLDER_9))))
+                  (assignment
+                    (component_selection PLACEHOLDER_14 - PLACEHOLDER_10) =
+                    (cond_expression i
+                      (case
+                        (comparison_expression
+                          (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_4) >
+                          (component_selection PLACEHOLDER_14 - PLACEHOLDER_10))
+                        (component_selection (field_symbol PLACEHOLDER_16) - PLACEHOLDER_4))
+                      (else_case
+                        (component_selection PLACEHOLDER_14 - PLACEHOLDER_10)))))))
+            (assignment
+              (component_selection PLACEHOLDER_14 - PLACEHOLDER_11) =
+              (cond_expression f
+                (case
+                  (comparison_expression
+                    (component_selection PLACEHOLDER_14 - PLACEHOLDER_8) <> 0)
+                  (arithmetic_expression
+                    (component_selection PLACEHOLDER_14 - PLACEHOLDER_8) /
+                    (component_selection PLACEHOLDER_14 - PLACEHOLDER_7)))
+                (else_case 0)))))
+        (if_statement
+          (comparison_expression
+            (component_selection PLACEHOLDER_14 - PLACEHOLDER_7) > 0)
+          (statement_block
+            (append_statement PLACEHOLDER_14 to PLACEHOLDER_12)))))))

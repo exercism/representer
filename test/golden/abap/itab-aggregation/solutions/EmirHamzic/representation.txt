@@ -1,61 +1,151 @@
-CLASS zcl_itab_aggregation DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES group TYPE c LENGTH 1 .
-TYPES : BEGIN OF initial_numbers_type ,
-group TYPE group ,
-number TYPE i ,
-END OF initial_numbers_type ,
-initial_numbers TYPE STANDARD TABLE OF initial_numbers_type WITH EMPTY KEY .
-TYPES : BEGIN OF aggregated_data_type ,
-group TYPE group ,
-count TYPE i ,
-sum TYPE i ,
-min TYPE i ,
-max TYPE i ,
-average TYPE f ,
-END OF aggregated_data_type ,
-aggregated_data TYPE STANDARD TABLE OF aggregated_data_type WITH EMPTY KEY .
-METHODS perform_aggregation
-IMPORTING
-initial_numbers TYPE initial_numbers
-RETURNING
-VALUE ( aggregated_data ) TYPE aggregated_data .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_itab_aggregation IMPLEMENTATION .
-METHOD perform_aggregation .
-data : lt_aggregated_data type aggregated_data ,
-ls_aggregated_data type aggregated_data_type ,
-lt_initial_data type initial_numbers ,
-ls_initial_data type initial_numbers_type .
-lt_initial_data = initial_numbers .
-LOOP AT lt_initial_data into ls_initial_data .
-READ TABLE lt_aggregated_data with key group = ls_initial_data-group into ls_aggregated_data .
-if sy-subrc = 0 .
-ls_aggregated_data-count = ls_aggregated_data-count + 1 .
-ls_aggregated_data-sum = ls_aggregated_data-sum + ls_initial_data-number .
-if ls_initial_data-number < ls_aggregated_data-min .
-ls_aggregated_data-min = ls_initial_data-number .
-endif .
-if ls_initial_data-number > ls_aggregated_data-max .
-ls_aggregated_data-max = ls_initial_data-number .
-endif .
-ls_aggregated_data-average = ls_aggregated_data-sum / ls_aggregated_data-count .
-modify lt_aggregated_data from ls_aggregated_data INDEX sy-tabix .
-else .
-ls_aggregated_data-group = ls_initial_data-group .
-ls_aggregated_data-count = 1 .
-ls_aggregated_data-sum = ls_initial_data-number .
-ls_aggregated_data-min = ls_initial_data-number .
-ls_aggregated_data-max = ls_initial_data-number .
-ls_aggregated_data-average = ls_initial_data-number .
-append ls_aggregated_data to lt_aggregated_data .
-endif .
-ENDLOOP .
-aggregated_data = lt_aggregated_data .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (builtin_type_spec type c
+              (type_length_spec 1))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_3))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_4
+            (referred_type type i)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_3))
+        (types_declaration
+          (types_spec PLACEHOLDER_5
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_3
+              (with_key_spec with
+                (empty_key key)))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_6))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_7
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_8
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_9
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_10
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_11
+            (referred_type type f)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_6))
+        (types_declaration
+          (types_spec PLACEHOLDER_12
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_6
+              (with_key_spec with
+                (empty_key key)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_13 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_5)
+                (referred_type type PLACEHOLDER_5))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_12)
+              (referred_type type PLACEHOLDER_12)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_13
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_14
+            (referred_type type PLACEHOLDER_12)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_15
+            (referred_type type PLACEHOLDER_6)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_16
+            (referred_type type PLACEHOLDER_5)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_17
+            (referred_type type PLACEHOLDER_3)))
+        (assignment PLACEHOLDER_16 = PLACEHOLDER_5)
+        (loop_at_statement PLACEHOLDER_16
+          (into_spec into PLACEHOLDER_17)
+          (loop_at_body
+            (read_table_statement table PLACEHOLDER_14
+              (free_key_spec with key
+                (key_component_list
+                  (itab_comp_spec PLACEHOLDER_2 =
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_2))))
+              (into_spec into PLACEHOLDER_15))
+            (if_statement
+              (comparison_expression
+                (component_selection sy - subrc) = 0)
+              (statement_block
+                (assignment
+                  (component_selection PLACEHOLDER_15 - PLACEHOLDER_7) =
+                  (arithmetic_expression
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_7) + 1))
+                (assignment
+                  (component_selection PLACEHOLDER_15 - PLACEHOLDER_8) =
+                  (arithmetic_expression
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_8) +
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_4)))
+                (if_statement
+                  (comparison_expression
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_4) <
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_9))
+                  (statement_block
+                    (assignment
+                      (component_selection PLACEHOLDER_15 - PLACEHOLDER_9) =
+                      (component_selection PLACEHOLDER_17 - PLACEHOLDER_4))))
+                (if_statement
+                  (comparison_expression
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_4) >
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_10))
+                  (statement_block
+                    (assignment
+                      (component_selection PLACEHOLDER_15 - PLACEHOLDER_10) =
+                      (component_selection PLACEHOLDER_17 - PLACEHOLDER_4))))
+                (assignment
+                  (component_selection PLACEHOLDER_15 - PLACEHOLDER_11) =
+                  (arithmetic_expression
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_8) /
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_7)))
+                (modify_statement modify PLACEHOLDER_14
+                  (from_work_area_spec from PLACEHOLDER_15)
+                  (index_spec index
+                    (component_selection sy - tabix))))
+              (else_clause
+                (statement_block
+                  (assignment
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_2) =
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_2))
+                  (assignment
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_7) = 1)
+                  (assignment
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_8) =
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_4))
+                  (assignment
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_9) =
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_4))
+                  (assignment
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_10) =
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_4))
+                  (assignment
+                    (component_selection PLACEHOLDER_15 - PLACEHOLDER_11) =
+                    (component_selection PLACEHOLDER_17 - PLACEHOLDER_4))
+                  (append_statement PLACEHOLDER_15 to PLACEHOLDER_14))))))
+        (assignment PLACEHOLDER_12 = PLACEHOLDER_14)))))

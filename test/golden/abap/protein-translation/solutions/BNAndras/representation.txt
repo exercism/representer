@@ -1,66 +1,139 @@
-CLASS zcl_protein_translation DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS proteins
-IMPORTING
-strand TYPE string
-RETURNING
-VALUE ( result ) TYPE string_table
-RAISING
-cx_parameter_invalid .
-PROTECTED SECTION .
-PRIVATE SECTION .
-METHODS get_protein
-IMPORTING
-codon TYPE string
-RETURNING
-VALUE ( result ) TYPE string
-RAISING
-cx_parameter_invalid .
-ENDCLASS .
-CLASS zcl_protein_translation IMPLEMENTATION .
-METHOD proteins .
-DATA ( offset ) = 0 .
-DATA ( length ) = strlen ( strand ).
-WHILE offset < length .
-IF offset + 3 > length .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-DATA ( codon ) = substring ( val = strand
-off = offset
-len = 3 ).
-DATA ( protein ) = get_protein ( codon ).
-IF protein = 'STOP' .
-RETURN .
-ENDIF .
-IF protein IS NOT INITIAL .
-APPEND protein TO result .
-ENDIF .
-offset = offset + 3 .
-ENDWHILE .
-ENDMETHOD .
-METHOD get_protein .
-CASE codon .
-WHEN 'AUG' .
-result = 'Methionine' .
-WHEN 'UUU' OR 'UUC' .
-result = 'Phenylalanine' .
-WHEN 'UUA' OR 'UUG' .
-result = 'Leucine' .
-WHEN 'UCU' OR 'UCC' OR 'UCA' OR 'UCG' .
-result = 'Serine' .
-WHEN 'UAU' OR 'UAC' .
-result = 'Tyrosine' .
-WHEN 'UGU' OR 'UGC' .
-result = 'Cysteine' .
-WHEN 'UGG' .
-result = 'Tryptophan' .
-WHEN 'UAA' OR 'UAG' OR 'UGA' .
-result = 'STOP' .
-WHEN OTHERS .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDCASE .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string_table)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid)))))
+      (protected_section protected section)
+      (private_section private section
+        (methods_declaration
+          (method_spec PLACEHOLDER_5 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_6)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid)))))))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_7) = 0)
+        (assignment
+          (declaration_expression data PLACEHOLDER_8) =
+          (function_call strlen
+            (call_argument_list
+              (positional_argument PLACEHOLDER_3))))
+        (while_statement
+          (comparison_expression PLACEHOLDER_7 < PLACEHOLDER_8)
+          (statement_block
+            (if_statement
+              (comparison_expression
+                (arithmetic_expression PLACEHOLDER_7 + 3) > PLACEHOLDER_8)
+              (statement_block
+                (raise_exception_statement
+                  (new_exception_spec type cx_parameter_invalid))))
+            (assignment
+              (declaration_expression data PLACEHOLDER_6) =
+              (function_call substring
+                (call_argument_list
+                  (argument_list
+                    (named_argument val = PLACEHOLDER_3)
+                    (named_argument off = PLACEHOLDER_7)
+                    (named_argument len = 3)))))
+            (assignment
+              (declaration_expression data PLACEHOLDER_9) =
+              (function_call PLACEHOLDER_5
+                (call_argument_list
+                  (positional_argument PLACEHOLDER_6))))
+            (if_statement
+              (comparison_expression PLACEHOLDER_9 =
+                (text_literal "STOP"))
+              (statement_block
+                (return_statement)))
+            (if_statement
+              (initial_predicate PLACEHOLDER_9 is not initial)
+              (statement_block
+                (append_statement PLACEHOLDER_9 to PLACEHOLDER_4)))
+            (assignment PLACEHOLDER_7 =
+              (arithmetic_expression PLACEHOLDER_7 + 3))))))
+    (method_implementation PLACEHOLDER_5
+      (method_body
+        (case_statement PLACEHOLDER_6
+          (case_clause
+            (case_operand_list
+              (text_literal "AUG"))
+            (statement_block
+              (assignment PLACEHOLDER_4 =
+                (text_literal "Methionine"))))
+          (case_clause
+            (case_operand_list
+              (text_literal "UUU") or
+              (text_literal "UUC"))
+            (statement_block
+              (assignment PLACEHOLDER_4 =
+                (text_literal "Phenylalanine"))))
+          (case_clause
+            (case_operand_list
+              (text_literal "UUA") or
+              (text_literal "UUG"))
+            (statement_block
+              (assignment PLACEHOLDER_4 =
+                (text_literal "Leucine"))))
+          (case_clause
+            (case_operand_list
+              (text_literal "UCU") or
+              (text_literal "UCC") or
+              (text_literal "UCA") or
+              (text_literal "UCG"))
+            (statement_block
+              (assignment PLACEHOLDER_4 =
+                (text_literal "Serine"))))
+          (case_clause
+            (case_operand_list
+              (text_literal "UAU") or
+              (text_literal "UAC"))
+            (statement_block
+              (assignment PLACEHOLDER_4 =
+                (text_literal "Tyrosine"))))
+          (case_clause
+            (case_operand_list
+              (text_literal "UGU") or
+              (text_literal "UGC"))
+            (statement_block
+              (assignment PLACEHOLDER_4 =
+                (text_literal "Cysteine"))))
+          (case_clause
+            (case_operand_list
+              (text_literal "UGG"))
+            (statement_block
+              (assignment PLACEHOLDER_4 =
+                (text_literal "Tryptophan"))))
+          (case_clause
+            (case_operand_list
+              (text_literal "UAA") or
+              (text_literal "UAG") or
+              (text_literal "UGA"))
+            (statement_block
+              (assignment PLACEHOLDER_4 =
+                (text_literal "STOP"))))
+          (others_case_clause
+            (statement_block
+              (raise_exception_statement
+                (new_exception_spec type cx_parameter_invalid)))))))))

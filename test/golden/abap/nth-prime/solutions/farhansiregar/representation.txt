@@ -1,46 +1,91 @@
-CLASS zcl_nth_prime DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS prime
-IMPORTING
-input TYPE i
-RETURNING
-VALUE ( result ) TYPE i
-RAISING
-cx_parameter_invalid .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_nth_prime IMPLEMENTATION .
-METHOD prime .
-IF input = 0 .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-DATA int_list TYPE STANDARD TABLE OF i WITH EMPTY KEY .
-DATA int_list_result TYPE STANDARD TABLE OF i WITH EMPTY KEY .
-DATA max TYPE int8 .
-DATA prime_number TYPE int8 .
-DATA ( times ) = input * input .
-IF times <= 1 .
-times = 2 .
-ENDIF .
-DO times TIMES .
-APPEND sy-tabix + 1 TO int_list .
-ENDDO .
-DELETE int_list INDEX 1 .
-int_list_result = int_list .
-prime_number = 2 .
-max = input * input .
-WHILE prime_number * prime_number < max .
-LOOP AT int_list ASSIGNING FIELD-SYMBOL ( < integer > ).
-IF < integer > MOD prime_number = 0 AND < integer > <> prime_number .
-DELETE int_list_result WHERE table_line = < integer > .
-ENDIF .
-ENDLOOP .
-prime_number = prime_number + 1 .
-ENDWHILE .
-result = int_list_result [ input ].
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type i))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type i)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (if_statement
+          (comparison_expression PLACEHOLDER_3 = 0)
+          (statement_block
+            (raise_exception_statement
+              (new_exception_spec type cx_parameter_invalid))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_5
+            (table_type type
+              (standard_table standard table) of i
+              (with_key_spec with
+                (empty_key key)))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_6
+            (table_type type
+              (standard_table standard table) of i
+              (with_key_spec with
+                (empty_key key)))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_7
+            (referred_type type int8)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_8
+            (referred_type type int8)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_9) =
+          (arithmetic_expression PLACEHOLDER_3 * PLACEHOLDER_3))
+        (if_statement
+          (comparison_expression PLACEHOLDER_9 <= 1)
+          (statement_block
+            (assignment PLACEHOLDER_9 = 2)))
+        (do_statement
+          (times_spec PLACEHOLDER_9)
+          (statement_block
+            (append_statement
+              (arithmetic_expression
+                (component_selection sy - tabix) + 1) to PLACEHOLDER_5)))
+        (delete_statement
+          (delete_itab_index_spec PLACEHOLDER_5
+            (index_spec index 1)))
+        (assignment PLACEHOLDER_6 = PLACEHOLDER_5)
+        (assignment PLACEHOLDER_8 = 2)
+        (assignment PLACEHOLDER_7 =
+          (arithmetic_expression PLACEHOLDER_3 * PLACEHOLDER_3))
+        (while_statement
+          (comparison_expression
+            (arithmetic_expression PLACEHOLDER_8 * PLACEHOLDER_8) < PLACEHOLDER_7)
+          (statement_block
+            (loop_at_statement PLACEHOLDER_5
+              (assigning_spec
+                (declaration_expression field-symbol (field_symbol PLACEHOLDER_10)))
+              (loop_at_body
+                (if_statement
+                  (logical_expression
+                    (comparison_expression
+                      (arithmetic_expression (field_symbol PLACEHOLDER_10) mod PLACEHOLDER_8) = 0) and
+                    (comparison_expression (field_symbol PLACEHOLDER_10) <> PLACEHOLDER_8))
+                  (statement_block
+                    (delete_statement
+                      (delete_itab_lines_spec PLACEHOLDER_6
+                        (itab_lines_spec
+                          (where_condition_spec where
+                            (comparison_expression table_line = (field_symbol PLACEHOLDER_10))))))))))
+            (assignment PLACEHOLDER_8 =
+              (arithmetic_expression PLACEHOLDER_8 + 1))))
+        (assignment PLACEHOLDER_4 =
+          (table_expression PLACEHOLDER_6
+            (index_read PLACEHOLDER_3)))))))

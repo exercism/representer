@@ -1,57 +1,113 @@
-CLASS zcl_phone_number DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS clean
-IMPORTING
-! number TYPE string
-RETURNING
-VALUE ( result ) TYPE string
-RAISING
-cx_parameter_invalid .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_phone_number IMPLEMENTATION .
-METHOD clean .
-DATA num TYPE c LENGTH 1 .
-DATA ( telnum ) = number .
-REPLACE ALL OCCURRENCES OF PCRE "'[.() -]'" IN telnum WITH `` .
-DATA ( i ) = 0 .
-WHILE i < strlen ( telnum ).
-num = telnum + i ( 1 ).
-IF num = '+' .
-i += 1 .
-IF telnum + i ( 1 ) NE 1 .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-i += 1 .
-CONTINUE .
-ENDIF .
-IF num NA '0123456789' .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-result &&= num .
-i += 1 .
-ENDWHILE .
-IF strlen ( result ) = 11 .
-IF result ( 1 ) = 1 .
-result = substring ( val = result off = 1 ).
-ELSE .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-ENDIF .
-IF strlen ( result ) <> 10 .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-i = 0 .
-WHILE i < strlen ( result ).
-num = result + i ( 1 ).
-IF ( i = 0 OR i = 3 ) AND num < 2 .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-i += 1 .
-ENDWHILE .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_5
+            (builtin_type_spec type c
+              (type_length_spec 1))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_6) = PLACEHOLDER_3)
+        (replace_statement replace
+          (all_occurrences_of_pattern_spec all of
+            (pcre_spec
+              (text_literal "[.() -]"))) in PLACEHOLDER_6
+          (substitute_with_spec with ""))
+        (assignment
+          (declaration_expression data PLACEHOLDER_7) = 0)
+        (while_statement
+          (comparison_expression PLACEHOLDER_7 <
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_6))))
+          (statement_block
+            (assignment PLACEHOLDER_5 =
+              (substring_access PLACEHOLDER_6 + PLACEHOLDER_7 1))
+            (if_statement
+              (comparison_expression PLACEHOLDER_5 =
+                (text_literal "+"))
+              (statement_block
+                (calculation_assignment PLACEHOLDER_7 += 1)
+                (if_statement
+                  (comparison_expression
+                    (substring_access PLACEHOLDER_6 + PLACEHOLDER_7 1) <> 1)
+                  (statement_block
+                    (raise_exception_statement
+                      (new_exception_spec type cx_parameter_invalid))))
+                (calculation_assignment PLACEHOLDER_7 += 1)
+                (continue_statement)))
+            (if_statement
+              (comparison_expression PLACEHOLDER_5 na
+                (text_literal "0123456789"))
+              (statement_block
+                (raise_exception_statement
+                  (new_exception_spec type cx_parameter_invalid))))
+            (calculation_assignment PLACEHOLDER_4 &&= PLACEHOLDER_5)
+            (calculation_assignment PLACEHOLDER_7 += 1)))
+        (if_statement
+          (comparison_expression
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_4))) = 11)
+          (statement_block
+            (if_statement
+              (comparison_expression
+                (substring_access PLACEHOLDER_4 1) = 1)
+              (statement_block
+                (assignment PLACEHOLDER_4 =
+                  (function_call substring
+                    (call_argument_list
+                      (argument_list
+                        (named_argument val = PLACEHOLDER_4)
+                        (named_argument off = 1))))))
+              (else_clause
+                (statement_block
+                  (raise_exception_statement
+                    (new_exception_spec type cx_parameter_invalid)))))))
+        (if_statement
+          (comparison_expression
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_4))) <> 10)
+          (statement_block
+            (raise_exception_statement
+              (new_exception_spec type cx_parameter_invalid))))
+        (assignment PLACEHOLDER_7 = 0)
+        (while_statement
+          (comparison_expression PLACEHOLDER_7 <
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_4))))
+          (statement_block
+            (assignment PLACEHOLDER_5 =
+              (substring_access PLACEHOLDER_4 + PLACEHOLDER_7 1))
+            (if_statement
+              (logical_expression
+                (logical_expression
+                  (comparison_expression PLACEHOLDER_7 = 0) or
+                  (comparison_expression PLACEHOLDER_7 = 3)) and
+                (comparison_expression PLACEHOLDER_5 < 2))
+              (statement_block
+                (raise_exception_statement
+                  (new_exception_spec type cx_parameter_invalid))))
+            (calculation_assignment PLACEHOLDER_7 += 1)))))))

@@ -143,7 +143,7 @@ For a language with a grammar, the snippet works on the grammar's tree, before a
 ## Set up
 
 You need Ruby 3.4, git and a C compiler.
-The Raku grammar doesn't commit its `parser.c`, so building it also needs node and the tree-sitter CLI (`npm install -g tree-sitter-cli@0.23.0`).
+Some grammars (marked `generate: true` in `grammars.yml`) don't commit their `parser.c`, so building them also needs node and the tree-sitter CLI (`npm install -g tree-sitter-cli@0.25.10`).
 
 1. Run `bundle install`.
 2. Run `./bin/build-grammars` to fetch and compile the tree-sitter grammars pinned in [`grammars.yml`](./grammars.yml). This puts them in `grammars/build/`, which git ignores.

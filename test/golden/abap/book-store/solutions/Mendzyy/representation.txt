@@ -1,71 +1,204 @@
-CLASS zcl_book_store DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES book_id TYPE i .
-TYPES basket_type TYPE SORTED TABLE OF book_id
-WITH NON-UNIQUE KEY table_line .
-TYPES total TYPE p LENGTH 3 DECIMALS 2 .
-METHODS calculate_total
-IMPORTING basket TYPE basket_type
-RETURNING VALUE ( total ) TYPE total .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_book_store IMPLEMENTATION .
-METHOD calculate_total .
-TYPES : BEGIN OF basket_aggr_line ,
-book_id TYPE book_id ,
-quantity TYPE i ,
-END OF basket_aggr_line .
-DATA b TYPE REF TO basket_aggr_line .
-DATA basket_aggr TYPE TABLE OF basket_aggr_line
-WITH NON-UNIQUE SORTED KEY quantity COMPONENTS quantity .
-DATA basket_line TYPE REF TO book_id .
-DATA filtered_basket_aggr LIKE basket_aggr .
-TYPES : BEGIN OF discount_grp ,
-unique_books TYPE i ,
-discount TYPE total ,
-END OF discount_grp .
-DATA grp TYPE REF TO discount_grp .
-DATA discount_grps TYPE TABLE OF discount_grp .
-discount_grps = VALUE # ( ( unique_books = 5 discount = '.25' )
-( unique_books = 4 discount = '.20' )
-( unique_books = 3 discount = '.10' )
-( unique_books = 2 discount = '.05' )
-( unique_books = 1 discount = 0 ) ).
-DATA new_total TYPE total .
-total = 999 .
-DATA ( max_grp ) = 5 .
-DO 5 TIMES .
-new_total = 0 .
-basket_aggr = VALUE # ( ( book_id = 1 )
-( book_id = 2 )
-( book_id = 3 )
-( book_id = 4 )
-( book_id = 5 ) ).
-LOOP AT basket REFERENCE INTO basket_line .
-basket_aggr [ book_id = basket_line ->* ] - quantity += 1 .
-ENDLOOP .
-LOOP AT discount_grps REFERENCE INTO grp WHERE unique_books <= max_grp .
-DO .
-CLEAR filtered_basket_aggr .
-LOOP AT basket_aggr REFERENCE INTO b WHERE quantity > 0 .
-APPEND b ->* TO filtered_basket_aggr .
-ENDLOOP .
-IF lines ( filtered_basket_aggr ) < grp -> unique_books .
-EXIT .
-ENDIF .
-SORT basket_aggr BY quantity DESCENDING .
-DO grp -> unique_books TIMES .
-basket_aggr [ sy-index ] - quantity -= 1 .
-ENDDO .
-new_total += grp -> unique_books * 8 * ( 1 - grp -> discount ).
-ENDDO .
-ENDLOOP .
-total = nmin ( val1 = total val2 = new_total ).
-max_grp -= 1 .
-ENDDO .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_3
+            (table_type type
+              (sorted_table table) of PLACEHOLDER_2
+              (with_key_spec with
+                (table_key_definition_spec
+                  (non_unique) key
+                  (key_components_spec table_line))))))
+        (types_declaration
+          (types_spec PLACEHOLDER_4
+            (builtin_type_spec type p
+              (type_length_spec 3)
+              (type_decimals_spec 2))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_5 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_6)
+                (referred_type type PLACEHOLDER_3))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type PLACEHOLDER_4)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_5
+      (method_body
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_7))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_8
+            (referred_type type i)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_7))
+        (data_declaration data
+          (data_spec PLACEHOLDER_9
+            (reference_type type
+              (ref_to to PLACEHOLDER_7))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_10
+            (table_type type
+              (standard_table table) of PLACEHOLDER_7
+              (with_key_spec with
+                (table_key_definition_spec
+                  (non_unique)
+                  (sorted) key PLACEHOLDER_8
+                  (key_components_spec components PLACEHOLDER_8))))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_11
+            (reference_type type
+              (ref_to to PLACEHOLDER_2))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_12
+            (referred_type like PLACEHOLDER_10)))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_13))
+        (types_declaration
+          (types_spec PLACEHOLDER_14
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_15
+            (referred_type type PLACEHOLDER_4)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_13))
+        (data_declaration data
+          (data_spec PLACEHOLDER_16
+            (reference_type type
+              (ref_to to PLACEHOLDER_13))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_17
+            (table_type type
+              (standard_table table) of PLACEHOLDER_13)))
+        (assignment PLACEHOLDER_17 =
+          (value_expression #
+            (table_comprehension
+              (line_spec
+                (argument_list
+                  (named_argument PLACEHOLDER_14 = 5)
+                  (named_argument PLACEHOLDER_15 =
+                    (text_literal ".25"))))
+              (line_spec
+                (argument_list
+                  (named_argument PLACEHOLDER_14 = 4)
+                  (named_argument PLACEHOLDER_15 =
+                    (text_literal ".20"))))
+              (line_spec
+                (argument_list
+                  (named_argument PLACEHOLDER_14 = 3)
+                  (named_argument PLACEHOLDER_15 =
+                    (text_literal ".10"))))
+              (line_spec
+                (argument_list
+                  (named_argument PLACEHOLDER_14 = 2)
+                  (named_argument PLACEHOLDER_15 =
+                    (text_literal ".05"))))
+              (line_spec
+                (argument_list
+                  (named_argument PLACEHOLDER_14 = 1)
+                  (named_argument PLACEHOLDER_15 = 0))))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_18
+            (referred_type type PLACEHOLDER_4)))
+        (assignment PLACEHOLDER_4 = 999)
+        (assignment
+          (declaration_expression data PLACEHOLDER_19) = 5)
+        (do_statement
+          (times_spec 5)
+          (statement_block
+            (assignment PLACEHOLDER_18 = 0)
+            (assignment PLACEHOLDER_10 =
+              (value_expression #
+                (table_comprehension
+                  (line_spec
+                    (argument_list
+                      (named_argument PLACEHOLDER_2 = 1)))
+                  (line_spec
+                    (argument_list
+                      (named_argument PLACEHOLDER_2 = 2)))
+                  (line_spec
+                    (argument_list
+                      (named_argument PLACEHOLDER_2 = 3)))
+                  (line_spec
+                    (argument_list
+                      (named_argument PLACEHOLDER_2 = 4)))
+                  (line_spec
+                    (argument_list
+                      (named_argument PLACEHOLDER_2 = 5))))))
+            (loop_at_statement PLACEHOLDER_6
+              (reference_into_spec into PLACEHOLDER_11)
+              (loop_at_body
+                (calculation_assignment
+                  (component_selection
+                    (table_expression PLACEHOLDER_10
+                      (free_key_spec
+                        (key_component_list
+                          (itab_comp_spec PLACEHOLDER_2 =
+                            (dereference_expression PLACEHOLDER_11 ->*))))) - PLACEHOLDER_8) += 1)))
+            (loop_at_statement PLACEHOLDER_17
+              (reference_into_spec into PLACEHOLDER_16)
+              (itab_lines_spec
+                (where_condition_spec where
+                  (comparison_expression PLACEHOLDER_14 <= PLACEHOLDER_19)))
+              (loop_at_body
+                (do_statement
+                  (statement_block
+                    (clear_statement clear
+                      (clear_spec PLACEHOLDER_12))
+                    (loop_at_statement PLACEHOLDER_10
+                      (reference_into_spec into PLACEHOLDER_9)
+                      (itab_lines_spec
+                        (where_condition_spec where
+                          (comparison_expression PLACEHOLDER_8 > 0)))
+                      (loop_at_body
+                        (append_statement
+                          (dereference_expression PLACEHOLDER_9 ->*) to PLACEHOLDER_12)))
+                    (if_statement
+                      (comparison_expression
+                        (function_call lines
+                          (call_argument_list
+                            (positional_argument PLACEHOLDER_12))) <
+                        (component_selection PLACEHOLDER_16 -> PLACEHOLDER_14))
+                      (statement_block
+                        (exit_statement)))
+                    (sort_statement PLACEHOLDER_10
+                      (by_sort_component_list_spec
+                        (sort_component_spec PLACEHOLDER_8
+                          (sort_order_spec
+                            (descending)))))
+                    (do_statement
+                      (times_spec
+                        (component_selection PLACEHOLDER_16 -> PLACEHOLDER_14))
+                      (statement_block
+                        (calculation_assignment
+                          (component_selection
+                            (table_expression PLACEHOLDER_10
+                              (index_read
+                                (component_selection sy - index))) - PLACEHOLDER_8) -= 1)))
+                    (calculation_assignment PLACEHOLDER_18 +=
+                      (arithmetic_expression
+                        (arithmetic_expression
+                          (component_selection PLACEHOLDER_16 -> PLACEHOLDER_14) * 8) *
+                        (arithmetic_expression 1 -
+                          (component_selection PLACEHOLDER_16 -> PLACEHOLDER_15))))))))
+            (assignment PLACEHOLDER_4 =
+              (function_call nmin
+                (call_argument_list
+                  (argument_list
+                    (named_argument val1 = PLACEHOLDER_4)
+                    (named_argument val2 = PLACEHOLDER_18)))))
+            (calculation_assignment PLACEHOLDER_19 -= 1)))))))

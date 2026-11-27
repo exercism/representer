@@ -1,56 +1,151 @@
-CLASS zcl_matrix DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES integertab TYPE STANDARD TABLE OF i WITH EMPTY KEY .
-METHODS matrix_row
-IMPORTING
-string TYPE string
-index TYPE i
-RETURNING
-VALUE ( result ) TYPE integertab .
-METHODS matrix_column
-IMPORTING
-string TYPE string
-index TYPE i
-RETURNING
-VALUE ( result ) TYPE integertab .
-TYPES : begin of t_matrix ,
-row TYPE integertab ,
-end of t_matrix ,
-tt_matrix TYPE standard table of t_matrix with empty key .
-METHODS get_matrix_table
-IMPORTING
-! input TYPE string
-! i_row TYPE i optional
-! i_col TYPE i optional
-RETURNING
-VALUE ( result ) TYPE integertab .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_matrix IMPLEMENTATION .
-METHOD matrix_row .
-result = get_matrix_table ( input = string i_row = index ).
-ENDMETHOD .
-METHOD matrix_column .
-result = get_matrix_table ( input = string i_col = index ).
-ENDMETHOD .
-METHOD get_matrix_table .
-SPLIT input AT '\n' INTO TABLE DATA ( lt_input ).
-IF i_row IS NOT INITIAL AND line_exists ( lt_input [ i_row ] ).
-SPLIT lt_input [ i_row ] AT space INTO TABLE DATA ( ltrow ).
-result = VALUE # ( FOR i = 1 UNTIL i GT lines ( ltrow )
-( CONV i ( ltrow [ i ] ) )
-).
-ELSE .
-LOOP AT lt_input ASSIGNING FIELD-SYMBOL ( < line > ).
-SPLIT < line > AT space INTO TABLE DATA ( numbers ).
-IF i_col BETWEEN 1 AND lines ( numbers ).
-APPEND CONV i ( numbers [ i_col ] ) TO result .
-ENDIF .
-ENDLOOP .
-ENDIF .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_3
+              (with_key_spec with
+                (empty_key key)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_4 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_5)
+                (referred_type type PLACEHOLDER_5))
+              (parameter
+                (implicit_reference PLACEHOLDER_6)
+                (referred_type type PLACEHOLDER_3))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_7)
+              (referred_type type PLACEHOLDER_2))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_8 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_5)
+                (referred_type type PLACEHOLDER_5))
+              (parameter
+                (implicit_reference PLACEHOLDER_6)
+                (referred_type type PLACEHOLDER_3))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_7)
+              (referred_type type PLACEHOLDER_2))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_9))
+        (types_declaration
+          (types_spec PLACEHOLDER_10
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_9))
+        (types_declaration
+          (types_spec PLACEHOLDER_11
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_9
+              (with_key_spec with
+                (empty_key key)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_12 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_13)
+                (referred_type type PLACEHOLDER_5))
+              (parameter
+                (implicit_reference PLACEHOLDER_14)
+                (referred_type type PLACEHOLDER_3)
+                (optional))
+              (parameter
+                (implicit_reference PLACEHOLDER_15)
+                (referred_type type PLACEHOLDER_3)
+                (optional))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_7)
+              (referred_type type PLACEHOLDER_2)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_4
+      (method_body
+        (assignment PLACEHOLDER_7 =
+          (function_call PLACEHOLDER_12
+            (call_argument_list
+              (argument_list
+                (named_argument PLACEHOLDER_13 = PLACEHOLDER_5)
+                (named_argument PLACEHOLDER_14 = PLACEHOLDER_6)))))))
+    (method_implementation PLACEHOLDER_8
+      (method_body
+        (assignment PLACEHOLDER_7 =
+          (function_call PLACEHOLDER_12
+            (call_argument_list
+              (argument_list
+                (named_argument PLACEHOLDER_13 = PLACEHOLDER_5)
+                (named_argument PLACEHOLDER_15 = PLACEHOLDER_6)))))))
+    (method_implementation PLACEHOLDER_12
+      (method_body
+        (split_statement PLACEHOLDER_13
+          (split_at_spec
+            (text_literal "\\n"))
+          (into_spec into
+            (split_table_result table
+              (declaration_expression data PLACEHOLDER_16))))
+        (if_statement
+          (logical_expression
+            (initial_predicate PLACEHOLDER_14 is not initial) and
+            (initial_predicate
+              (function_call line_exists
+                (call_argument_list
+                  (positional_argument
+                    (table_expression PLACEHOLDER_16
+                      (index_read PLACEHOLDER_14)))))))
+          (statement_block
+            (split_statement
+              (table_expression PLACEHOLDER_16
+                (index_read PLACEHOLDER_14))
+              (split_at_spec space)
+              (into_spec into
+                (split_table_result table
+                  (declaration_expression data PLACEHOLDER_17))))
+            (assignment PLACEHOLDER_7 =
+              (value_expression #
+                (table_comprehension
+                  (conditional_iteration for
+                    (assignment PLACEHOLDER_3 = 1)
+                    (iteration_condition
+                      (until_spec
+                        (comparison_expression PLACEHOLDER_3 >
+                          (function_call lines
+                            (call_argument_list
+                              (positional_argument PLACEHOLDER_17)))))))
+                  (line_spec
+                    (argument_list
+                      (positional_argument
+                        (conv_expression PLACEHOLDER_3
+                          (table_expression PLACEHOLDER_17
+                            (index_read PLACEHOLDER_3))))))))))
+          (else_clause
+            (statement_block
+              (loop_at_statement PLACEHOLDER_16
+                (assigning_spec
+                  (declaration_expression field-symbol (field_symbol PLACEHOLDER_18)))
+                (loop_at_body
+                  (split_statement (field_symbol PLACEHOLDER_18)
+                    (split_at_spec space)
+                    (into_spec into
+                      (split_table_result table
+                        (declaration_expression data PLACEHOLDER_19))))
+                  (if_statement
+                    (comparison_expression PLACEHOLDER_15
+                      (between_spec between 1 and
+                        (function_call lines
+                          (call_argument_list
+                            (positional_argument PLACEHOLDER_19)))))
+                    (statement_block
+                      (append_statement
+                        (conv_expression PLACEHOLDER_3
+                          (table_expression PLACEHOLDER_19
+                            (index_read PLACEHOLDER_15))) to PLACEHOLDER_7))))))))))))

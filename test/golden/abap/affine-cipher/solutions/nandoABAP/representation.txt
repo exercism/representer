@@ -1,81 +1,217 @@
-CLASS zcl_affine_cipher DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES : BEGIN OF key ,
-a TYPE i ,
-b TYPE i ,
-END OF key .
-METHODS :
-encode IMPORTING phrase TYPE string
-key TYPE key
-RETURNING VALUE ( cipher ) TYPE string
-RAISING cx_parameter_invalid ,
-decode IMPORTING cipher TYPE string
-key TYPE key
-RETURNING VALUE ( phrase ) TYPE string
-RAISING cx_parameter_invalid ,
-check_coprime
-IMPORTING number TYPE i
-RAISING cx_parameter_invalid ,
-inverse_MMI
-IMPORTING number TYPE i
-RETURNING VALUE ( result ) TYPE i .
-PROTECTED SECTION .
-PRIVATE SECTION .
-DATA : i TYPE i VALUE 0 ,
-num TYPE i ,
-str TYPE string ,
-alp TYPE string VALUE 'abcdefghijklmnopqrstuvwxyz' .
-ENDCLASS .
-CLASS zcl_affine_cipher IMPLEMENTATION .
-METHOD encode .
-check_coprime ( number = key-a ).
-phrase = TO_LOWER ( phrase ).
-REPLACE ALL OCCURRENCES OF REGEX '[^a-z0-9]' IN phrase WITH '' .
-DO STRLEN ( phrase ) TIMES .
-str = phrase + i ( 1 ).
-FIND REGEX '[0-9]' IN str .
-IF sy-subrc = 0 .
-cipher = cipher && str .
-ELSE .
-FIND str IN alp MATCH OFFSET num .
-num = ( key-a * num + key-b ) MOD 26 .
-cipher = cipher && alp + num ( 1 ).
-ENDIF .
-IF sy-index MOD 5 = 0 AND sy-index <> STRLEN ( phrase ).
-cipher = cipher && "| |" .
-ENDIF .
-i += 1 .
-ENDDO .
-ENDMETHOD .
-METHOD decode .
-check_coprime ( number = key-a ).
-REPLACE ALL OCCURRENCES OF REGEX '[^a-z0-9]' IN cipher WITH '' .
-DO STRLEN ( cipher ) TIMES .
-str = cipher + i ( 1 ).
-FIND REGEX '[0-9]' IN str .
-IF sy-subrc = 0 .
-phrase = phrase && str .
-ELSE .
-FIND str IN alp MATCH OFFSET num .
-num = ( inverse_MMI ( number = key-a ) * ( num - key-b ) ) MOD 26 .
-phrase = phrase && alp + num ( 1 ).
-ENDIF .
-i += 1 .
-ENDDO .
-ENDMETHOD .
-METHOD check_coprime .
-IF number MOD 2 = 0 OR number MOD 13 = 0 .
-RAISE EXCEPTION TYPE cx_parameter_invalid .
-ENDIF .
-ENDMETHOD .
-METHOD inverse_MMI .
-DATA n TYPE i .
-WHILE n <> 1 .
-result = sy-index .
-n = ( number * result ) MOD 26 .
-ENDWHILE .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_2))
+        (types_declaration
+          (types_spec PLACEHOLDER_3
+            (referred_type type PLACEHOLDER_4)))
+        (types_declaration
+          (types_spec PLACEHOLDER_5
+            (referred_type type PLACEHOLDER_4)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_2))
+        (methods_declaration
+          (method_spec PLACEHOLDER_6 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_7)
+                (referred_type type string))
+              (parameter
+                (implicit_reference PLACEHOLDER_2)
+                (referred_type type PLACEHOLDER_2))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_8)
+              (referred_type type string)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_9 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_8)
+                (referred_type type string))
+              (parameter
+                (implicit_reference PLACEHOLDER_2)
+                (referred_type type PLACEHOLDER_2))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_7)
+              (referred_type type string)) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_10 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_11)
+                (referred_type type PLACEHOLDER_4))) raising
+            (raising_list
+              (non_resumable_exception_spec cx_parameter_invalid))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_12 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_11)
+                (referred_type type PLACEHOLDER_4))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_13)
+              (referred_type type PLACEHOLDER_4)))))
+      (protected_section protected section)
+      (private_section private section
+        (data_declaration data
+          (data_spec PLACEHOLDER_4
+            (referred_type type PLACEHOLDER_4
+              (default_data_value_spec 0))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_14
+            (referred_type type PLACEHOLDER_4)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_15
+            (referred_type type string)))
+        (data_declaration data
+          (data_spec PLACEHOLDER_16
+            (referred_type type string
+              (default_data_value_spec
+                (text_literal "abcdefghijklmnopqrstuvwxyz"))))))))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_6
+      (method_body
+        (function_call PLACEHOLDER_10
+          (call_argument_list
+            (argument_list
+              (named_argument PLACEHOLDER_11 =
+                (component_selection PLACEHOLDER_2 - PLACEHOLDER_3)))))
+        (assignment PLACEHOLDER_7 =
+          (function_call to_lower
+            (call_argument_list
+              (positional_argument PLACEHOLDER_7))))
+        (replace_statement replace
+          (all_occurrences_of_pattern_spec all of
+            (regex_spec
+              (text_literal "[^a-z0-9]"))) in PLACEHOLDER_7
+          (substitute_with_spec with
+            (text_literal "")))
+        (do_statement
+          (times_spec
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_7))))
+          (statement_block
+            (assignment PLACEHOLDER_15 =
+              (substring_access PLACEHOLDER_7 + PLACEHOLDER_4 1))
+            (find_statement
+              (regex_spec
+                (text_literal "[0-9]")) in PLACEHOLDER_15)
+            (if_statement
+              (comparison_expression
+                (component_selection sy - subrc) = 0)
+              (statement_block
+                (assignment PLACEHOLDER_8 =
+                  (string_concatenation PLACEHOLDER_8 && PLACEHOLDER_15)))
+              (else_clause
+                (statement_block
+                  (find_statement
+                    (substring_spec PLACEHOLDER_15) in PLACEHOLDER_16
+                    (match_offset_spec PLACEHOLDER_14))
+                  (assignment PLACEHOLDER_14 =
+                    (arithmetic_expression
+                      (arithmetic_expression
+                        (arithmetic_expression
+                          (component_selection PLACEHOLDER_2 - PLACEHOLDER_3) * PLACEHOLDER_14) +
+                        (component_selection PLACEHOLDER_2 - PLACEHOLDER_5)) mod 26))
+                  (assignment PLACEHOLDER_8 =
+                    (string_concatenation PLACEHOLDER_8 &&
+                      (substring_access PLACEHOLDER_16 + PLACEHOLDER_14 1))))))
+            (if_statement
+              (logical_expression
+                (comparison_expression
+                  (arithmetic_expression
+                    (component_selection sy - index) mod 5) = 0) and
+                (comparison_expression
+                  (component_selection sy - index) <>
+                  (function_call strlen
+                    (call_argument_list
+                      (positional_argument PLACEHOLDER_7)))))
+              (statement_block
+                (assignment PLACEHOLDER_8 =
+                  (string_concatenation PLACEHOLDER_8 &&
+                    (string_template " ")))))
+            (calculation_assignment PLACEHOLDER_4 += 1)))))
+    (method_implementation PLACEHOLDER_9
+      (method_body
+        (function_call PLACEHOLDER_10
+          (call_argument_list
+            (argument_list
+              (named_argument PLACEHOLDER_11 =
+                (component_selection PLACEHOLDER_2 - PLACEHOLDER_3)))))
+        (replace_statement replace
+          (all_occurrences_of_pattern_spec all of
+            (regex_spec
+              (text_literal "[^a-z0-9]"))) in PLACEHOLDER_8
+          (substitute_with_spec with
+            (text_literal "")))
+        (do_statement
+          (times_spec
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_8))))
+          (statement_block
+            (assignment PLACEHOLDER_15 =
+              (substring_access PLACEHOLDER_8 + PLACEHOLDER_4 1))
+            (find_statement
+              (regex_spec
+                (text_literal "[0-9]")) in PLACEHOLDER_15)
+            (if_statement
+              (comparison_expression
+                (component_selection sy - subrc) = 0)
+              (statement_block
+                (assignment PLACEHOLDER_7 =
+                  (string_concatenation PLACEHOLDER_7 && PLACEHOLDER_15)))
+              (else_clause
+                (statement_block
+                  (find_statement
+                    (substring_spec PLACEHOLDER_15) in PLACEHOLDER_16
+                    (match_offset_spec PLACEHOLDER_14))
+                  (assignment PLACEHOLDER_14 =
+                    (arithmetic_expression
+                      (arithmetic_expression
+                        (function_call PLACEHOLDER_12
+                          (call_argument_list
+                            (argument_list
+                              (named_argument PLACEHOLDER_11 =
+                                (component_selection PLACEHOLDER_2 - PLACEHOLDER_3))))) *
+                        (arithmetic_expression PLACEHOLDER_14 -
+                          (component_selection PLACEHOLDER_2 - PLACEHOLDER_5))) mod 26))
+                  (assignment PLACEHOLDER_7 =
+                    (string_concatenation PLACEHOLDER_7 &&
+                      (substring_access PLACEHOLDER_16 + PLACEHOLDER_14 1))))))
+            (calculation_assignment PLACEHOLDER_4 += 1)))))
+    (method_implementation PLACEHOLDER_10
+      (method_body
+        (if_statement
+          (logical_expression
+            (comparison_expression
+              (arithmetic_expression PLACEHOLDER_11 mod 2) = 0) or
+            (comparison_expression
+              (arithmetic_expression PLACEHOLDER_11 mod 13) = 0))
+          (statement_block
+            (raise_exception_statement
+              (new_exception_spec type cx_parameter_invalid))))))
+    (method_implementation PLACEHOLDER_12
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_17
+            (referred_type type PLACEHOLDER_4)))
+        (while_statement
+          (comparison_expression PLACEHOLDER_17 <> 1)
+          (statement_block
+            (assignment PLACEHOLDER_13 =
+              (component_selection sy - index))
+            (assignment PLACEHOLDER_17 =
+              (arithmetic_expression
+                (arithmetic_expression PLACEHOLDER_11 * PLACEHOLDER_13) mod 26))))))))

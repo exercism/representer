@@ -1,49 +1,171 @@
-CLASS zcl_itab_aggregation DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES group TYPE c LENGTH 1 .
-TYPES : BEGIN OF initial_numbers_type ,
-group TYPE group ,
-number TYPE i ,
-END OF initial_numbers_type ,
-initial_numbers TYPE STANDARD TABLE OF initial_numbers_type WITH EMPTY KEY .
-TYPES : BEGIN OF aggregated_data_type ,
-group TYPE group ,
-count TYPE i ,
-sum TYPE i ,
-min TYPE i ,
-max TYPE i ,
-average TYPE f ,
-END OF aggregated_data_type ,
-aggregated_data TYPE STANDARD TABLE OF aggregated_data_type WITH EMPTY KEY .
-METHODS perform_aggregation
-IMPORTING
-initial_numbers TYPE initial_numbers
-RETURNING
-VALUE ( aggregated_data ) TYPE aggregated_data .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_itab_aggregation IMPLEMENTATION .
-METHOD perform_aggregation .
-SORT initial_numbers BY group number .
-DATA ( clone ) = initial_numbers .
-DELETE ADJACENT DUPLICATES FROM clone COMPARING group .
-DATA : ls_agg LIKE LINE OF aggregated_data .
-LOOP AT clone INTO DATA ( ls_clone ).
-ls_agg-group = ls_clone-group .
-ls_agg-count = REDUCE i ( init x = 0 FOR wa IN initial_numbers WHERE ( group = ls_clone-group ) NEXT x = x + 1 ).
-ls_agg-sum = REDUCE i ( init x = 0 FOR wa IN initial_numbers WHERE ( group = ls_clone-group ) NEXT x = x + wa-number ).
-ls_agg-min = REDUCE # ( INIT x = initial_numbers [ group = ls_clone-group ] - number
-FOR wa IN initial_numbers WHERE ( group = ls_clone-group )
-NEXT x = COND # ( WHEN wa-number < x THEN wa-number ELSE x ) ).
-ls_agg-max = REDUCE # ( INIT x = initial_numbers [ group = ls_clone-group ] - number
-FOR wa IN initial_numbers WHERE ( group = ls_clone-group )
-NEXT x = COND # ( WHEN wa-number > x THEN wa-number ELSE x ) ).
-ls_agg-average = ls_agg-sum / ls_agg-count .
-APPEND ls_agg TO aggregated_data .
-ENDLOOP .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (builtin_type_spec type c
+              (type_length_spec 1))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_3))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_4
+            (referred_type type i)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_3))
+        (types_declaration
+          (types_spec PLACEHOLDER_5
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_3
+              (with_key_spec with
+                (empty_key key)))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_6))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_7
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_8
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_9
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_10
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_11
+            (referred_type type f)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_6))
+        (types_declaration
+          (types_spec PLACEHOLDER_12
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_6
+              (with_key_spec with
+                (empty_key key)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_13 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_5)
+                (referred_type type PLACEHOLDER_5))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_12)
+              (referred_type type PLACEHOLDER_12)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_13
+      (method_body
+        (sort_statement PLACEHOLDER_5
+          (by_sort_component_list_spec
+            (sort_component_spec PLACEHOLDER_2)
+            (sort_component_spec PLACEHOLDER_4)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_14) = PLACEHOLDER_5)
+        (delete_statement
+          (delete_itab_duplicates_spec from PLACEHOLDER_14
+            (comparing_spec
+              (component_list PLACEHOLDER_2))))
+        (data_declaration data
+          (data_spec PLACEHOLDER_15
+            (type_line_of like line of PLACEHOLDER_12)))
+        (loop_at_statement PLACEHOLDER_14
+          (into_spec into
+            (declaration_expression data PLACEHOLDER_16))
+          (loop_at_body
+            (assignment
+              (component_selection PLACEHOLDER_15 - PLACEHOLDER_2) =
+              (component_selection PLACEHOLDER_16 - PLACEHOLDER_2))
+            (assignment
+              (component_selection PLACEHOLDER_15 - PLACEHOLDER_7) =
+              (reduce_expression i
+                (accumulators_spec
+                  (accumulator_spec PLACEHOLDER_17 = 0))
+                (table_iteration for PLACEHOLDER_18 in PLACEHOLDER_5
+                  (itab_lines_spec
+                    (where_condition_spec where
+                      (comparison_expression PLACEHOLDER_2 =
+                        (component_selection PLACEHOLDER_16 - PLACEHOLDER_2)))))
+                (next_spec
+                  (assignment PLACEHOLDER_17 =
+                    (arithmetic_expression PLACEHOLDER_17 + 1)))))
+            (assignment
+              (component_selection PLACEHOLDER_15 - PLACEHOLDER_8) =
+              (reduce_expression i
+                (accumulators_spec
+                  (accumulator_spec PLACEHOLDER_17 = 0))
+                (table_iteration for PLACEHOLDER_18 in PLACEHOLDER_5
+                  (itab_lines_spec
+                    (where_condition_spec where
+                      (comparison_expression PLACEHOLDER_2 =
+                        (component_selection PLACEHOLDER_16 - PLACEHOLDER_2)))))
+                (next_spec
+                  (assignment PLACEHOLDER_17 =
+                    (arithmetic_expression PLACEHOLDER_17 +
+                      (component_selection PLACEHOLDER_18 - PLACEHOLDER_4))))))
+            (assignment
+              (component_selection PLACEHOLDER_15 - PLACEHOLDER_9) =
+              (reduce_expression #
+                (accumulators_spec
+                  (accumulator_spec PLACEHOLDER_17 =
+                    (component_selection
+                      (table_expression PLACEHOLDER_5
+                        (free_key_spec
+                          (key_component_list
+                            (itab_comp_spec PLACEHOLDER_2 =
+                              (component_selection PLACEHOLDER_16 - PLACEHOLDER_2))))) - PLACEHOLDER_4)))
+                (table_iteration for PLACEHOLDER_18 in PLACEHOLDER_5
+                  (itab_lines_spec
+                    (where_condition_spec where
+                      (comparison_expression PLACEHOLDER_2 =
+                        (component_selection PLACEHOLDER_16 - PLACEHOLDER_2)))))
+                (next_spec
+                  (assignment PLACEHOLDER_17 =
+                    (cond_expression #
+                      (case
+                        (comparison_expression
+                          (component_selection PLACEHOLDER_18 - PLACEHOLDER_4) < PLACEHOLDER_17)
+                        (component_selection PLACEHOLDER_18 - PLACEHOLDER_4))
+                      (else_case PLACEHOLDER_17))))))
+            (assignment
+              (component_selection PLACEHOLDER_15 - PLACEHOLDER_10) =
+              (reduce_expression #
+                (accumulators_spec
+                  (accumulator_spec PLACEHOLDER_17 =
+                    (component_selection
+                      (table_expression PLACEHOLDER_5
+                        (free_key_spec
+                          (key_component_list
+                            (itab_comp_spec PLACEHOLDER_2 =
+                              (component_selection PLACEHOLDER_16 - PLACEHOLDER_2))))) - PLACEHOLDER_4)))
+                (table_iteration for PLACEHOLDER_18 in PLACEHOLDER_5
+                  (itab_lines_spec
+                    (where_condition_spec where
+                      (comparison_expression PLACEHOLDER_2 =
+                        (component_selection PLACEHOLDER_16 - PLACEHOLDER_2)))))
+                (next_spec
+                  (assignment PLACEHOLDER_17 =
+                    (cond_expression #
+                      (case
+                        (comparison_expression
+                          (component_selection PLACEHOLDER_18 - PLACEHOLDER_4) > PLACEHOLDER_17)
+                        (component_selection PLACEHOLDER_18 - PLACEHOLDER_4))
+                      (else_case PLACEHOLDER_17))))))
+            (assignment
+              (component_selection PLACEHOLDER_15 - PLACEHOLDER_11) =
+              (arithmetic_expression
+                (component_selection PLACEHOLDER_15 - PLACEHOLDER_8) /
+                (component_selection PLACEHOLDER_15 - PLACEHOLDER_7)))
+            (append_statement PLACEHOLDER_15 to PLACEHOLDER_12)))))))

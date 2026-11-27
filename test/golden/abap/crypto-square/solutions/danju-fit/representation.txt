@@ -1,39 +1,105 @@
-CLASS zcl_crypto_square DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS encode IMPORTING plain_text TYPE string
-RETURNING VALUE ( crypto_text ) TYPE string .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_crypto_square IMPLEMENTATION .
-METHOD encode .
-DATA ( normalized_text ) = to_lower ( plain_text ).
-DATA ( column_num ) = 0 .
-DATA ( row_num ) = 0 .
-REPLACE ALL OCCURRENCES OF REGEX '[^a-z0-9]' IN normalized_text WITH '' .
-DATA ( len ) = strlen ( normalized_text ).
-WHILE column_num * row_num < len .
-column_num = column_num + 1 .
-row_num = row_num + 1 .
-ENDWHILE .
-IF column_num * ( row_num - 1 ) >= len .
-row_num = row_num - 1 .
-ENDIF .
-DO column_num * row_num TIMES .
-DATA ( current_column ) = ( sy-index - 1 ) DIV row_num .
-DATA ( current_row ) = ( sy-index - 1 ) * column_num .
-DATA ( current ) = ( current_column + current_row ) MOD ( row_num * column_num ) .
-IF ( sy-index - 1 ) MOD row_num = 0 AND ( sy-index - 1 ) <> 0 .
-CONCATENATE crypto_text "' '" INTO crypto_text RESPECTING BLANKS .
-ENDIF .
-IF current < len .
-CONCATENATE crypto_text normalized_text + current ( 1 ) INTO crypto_text .
-ELSE .
-CONCATENATE crypto_text "' '" INTO crypto_text RESPECTING BLANKS .
-ENDIF .
-ENDDO .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (assignment
+          (declaration_expression data PLACEHOLDER_5) =
+          (function_call to_lower
+            (call_argument_list
+              (positional_argument PLACEHOLDER_3))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_6) = 0)
+        (assignment
+          (declaration_expression data PLACEHOLDER_7) = 0)
+        (replace_statement replace
+          (all_occurrences_of_pattern_spec all of
+            (regex_spec
+              (text_literal "[^a-z0-9]"))) in PLACEHOLDER_5
+          (substitute_with_spec with
+            (text_literal "")))
+        (assignment
+          (declaration_expression data PLACEHOLDER_8) =
+          (function_call strlen
+            (call_argument_list
+              (positional_argument PLACEHOLDER_5))))
+        (while_statement
+          (comparison_expression
+            (arithmetic_expression PLACEHOLDER_6 * PLACEHOLDER_7) < PLACEHOLDER_8)
+          (statement_block
+            (assignment PLACEHOLDER_6 =
+              (arithmetic_expression PLACEHOLDER_6 + 1))
+            (assignment PLACEHOLDER_7 =
+              (arithmetic_expression PLACEHOLDER_7 + 1))))
+        (if_statement
+          (comparison_expression
+            (arithmetic_expression PLACEHOLDER_6 *
+              (arithmetic_expression PLACEHOLDER_7 - 1)) >= PLACEHOLDER_8)
+          (statement_block
+            (assignment PLACEHOLDER_7 =
+              (arithmetic_expression PLACEHOLDER_7 - 1))))
+        (do_statement
+          (times_spec
+            (arithmetic_expression PLACEHOLDER_6 * PLACEHOLDER_7))
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_9) =
+              (arithmetic_expression
+                (arithmetic_expression
+                  (component_selection sy - index) - 1) div PLACEHOLDER_7))
+            (assignment
+              (declaration_expression data PLACEHOLDER_10) =
+              (arithmetic_expression
+                (arithmetic_expression
+                  (component_selection sy - index) - 1) * PLACEHOLDER_6))
+            (assignment
+              (declaration_expression data PLACEHOLDER_11) =
+              (arithmetic_expression
+                (arithmetic_expression PLACEHOLDER_9 + PLACEHOLDER_10) mod
+                (arithmetic_expression PLACEHOLDER_7 * PLACEHOLDER_6)))
+            (if_statement
+              (logical_expression
+                (comparison_expression
+                  (arithmetic_expression
+                    (arithmetic_expression
+                      (component_selection sy - index) - 1) mod PLACEHOLDER_7) = 0) and
+                (comparison_expression
+                  (arithmetic_expression
+                    (component_selection sy - index) - 1) <> 0))
+              (statement_block
+                (concatenate_statement
+                  (operand_list PLACEHOLDER_4
+                    (text_literal " "))
+                  (into_spec into PLACEHOLDER_4)
+                  (respecting_blanks))))
+            (if_statement
+              (comparison_expression PLACEHOLDER_11 < PLACEHOLDER_8)
+              (statement_block
+                (concatenate_statement
+                  (operand_list PLACEHOLDER_4
+                    (substring_access PLACEHOLDER_5 + PLACEHOLDER_11 1))
+                  (into_spec into PLACEHOLDER_4)))
+              (else_clause
+                (statement_block
+                  (concatenate_statement
+                    (operand_list PLACEHOLDER_4
+                      (text_literal " "))
+                    (into_spec into PLACEHOLDER_4)
+                    (respecting_blanks)))))))))))

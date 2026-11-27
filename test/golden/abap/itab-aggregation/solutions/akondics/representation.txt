@@ -1,51 +1,130 @@
-CLASS zcl_itab_aggregation DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-TYPES group TYPE c LENGTH 1 .
-TYPES : BEGIN OF initial_numbers_type ,
-group TYPE group ,
-number TYPE i ,
-END OF initial_numbers_type ,
-initial_numbers TYPE STANDARD TABLE OF initial_numbers_type WITH EMPTY KEY .
-TYPES : BEGIN OF aggregated_data_type ,
-group TYPE group ,
-count TYPE i ,
-sum TYPE i ,
-min TYPE i ,
-max TYPE i ,
-average TYPE f ,
-END OF aggregated_data_type ,
-aggregated_data TYPE STANDARD TABLE OF aggregated_data_type WITH EMPTY KEY .
-METHODS perform_aggregation
-IMPORTING
-initial_numbers TYPE initial_numbers
-RETURNING
-VALUE ( aggregated_data ) TYPE aggregated_data .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_itab_aggregation IMPLEMENTATION .
-METHOD perform_aggregation .
-LOOP AT initial_numbers REFERENCE INTO DATA ( work_data )
-GROUP BY ( key = work_data -> group
-size = GROUP SIZE )
-ASCENDING
-REFERENCE INTO DATA ( group_data ).
-APPEND INITIAL LINE TO aggregated_data REFERENCE INTO DATA ( l_item ).
-l_item -> group = group_data -> key .
-l_item -> count = group_data -> size .
-l_item -> min = 9999999999 .
-l_item -> max = 0 .
-LOOP AT GROUP group_data ASSIGNING FIELD-SYMBOL ( < ls_number > ).
-l_item -> sum = l_item -> sum + < ls_number >- number .
-l_item -> min = nmin ( val1 = l_item -> min
-val2 = < ls_number >- number ).
-l_item -> max = nmax ( val1 = l_item -> max
-val2 = < ls_number >- number ).
-ENDLOOP .
-l_item -> average = l_item -> sum / group_data -> size .
-ENDLOOP .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (builtin_type_spec type c
+              (type_length_spec 1))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_3))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_4
+            (referred_type type i)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_3))
+        (types_declaration
+          (types_spec PLACEHOLDER_5
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_3
+              (with_key_spec with
+                (empty_key key)))))
+        (types_declaration
+          (begin_of_struct_spec begin of PLACEHOLDER_6))
+        (types_declaration
+          (types_spec PLACEHOLDER_2
+            (referred_type type PLACEHOLDER_2)))
+        (types_declaration
+          (types_spec PLACEHOLDER_7
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_8
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_9
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_10
+            (referred_type type i)))
+        (types_declaration
+          (types_spec PLACEHOLDER_11
+            (referred_type type f)))
+        (types_declaration
+          (end_of_struct_spec end of PLACEHOLDER_6))
+        (types_declaration
+          (types_spec PLACEHOLDER_12
+            (table_type type
+              (standard_table standard table) of PLACEHOLDER_6
+              (with_key_spec with
+                (empty_key key)))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_13 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_5)
+                (referred_type type PLACEHOLDER_5))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_12)
+              (referred_type type PLACEHOLDER_12)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_13
+      (method_body
+        (loop_at_statement PLACEHOLDER_5
+          (reference_into_spec into
+            (declaration_expression data PLACEHOLDER_14))
+          (group_by_spec
+            (group_key_components
+              (group_key_component PLACEHOLDER_15 =
+                (component_selection PLACEHOLDER_14 -> PLACEHOLDER_2))
+              (group_key_component PLACEHOLDER_16 =
+                (group_size)))
+            (sort_order_spec
+              (ascending))
+            (reference_into_spec into
+              (declaration_expression data PLACEHOLDER_17)))
+          (loop_at_body
+            (append_statement
+              (initial_line_spec initial line) to PLACEHOLDER_12
+              (reference_into_spec into
+                (declaration_expression data PLACEHOLDER_18)))
+            (assignment
+              (component_selection PLACEHOLDER_18 -> PLACEHOLDER_2) =
+              (component_selection PLACEHOLDER_17 -> PLACEHOLDER_15))
+            (assignment
+              (component_selection PLACEHOLDER_18 -> PLACEHOLDER_7) =
+              (component_selection PLACEHOLDER_17 -> PLACEHOLDER_16))
+            (assignment
+              (component_selection PLACEHOLDER_18 -> PLACEHOLDER_9) = 9999999999)
+            (assignment
+              (component_selection PLACEHOLDER_18 -> PLACEHOLDER_10) = 0)
+            (loop_at_group_statement PLACEHOLDER_17
+              (assigning_spec
+                (declaration_expression field-symbol (field_symbol PLACEHOLDER_19)))
+              (loop_at_body
+                (assignment
+                  (component_selection PLACEHOLDER_18 -> PLACEHOLDER_8) =
+                  (arithmetic_expression
+                    (component_selection PLACEHOLDER_18 -> PLACEHOLDER_8) +
+                    (component_selection (field_symbol PLACEHOLDER_19) - PLACEHOLDER_4)))
+                (assignment
+                  (component_selection PLACEHOLDER_18 -> PLACEHOLDER_9) =
+                  (function_call nmin
+                    (call_argument_list
+                      (argument_list
+                        (named_argument val1 =
+                          (component_selection PLACEHOLDER_18 -> PLACEHOLDER_9))
+                        (named_argument val2 =
+                          (component_selection (field_symbol PLACEHOLDER_19) - PLACEHOLDER_4))))))
+                (assignment
+                  (component_selection PLACEHOLDER_18 -> PLACEHOLDER_10) =
+                  (function_call nmax
+                    (call_argument_list
+                      (argument_list
+                        (named_argument val1 =
+                          (component_selection PLACEHOLDER_18 -> PLACEHOLDER_10))
+                        (named_argument val2 =
+                          (component_selection (field_symbol PLACEHOLDER_19) - PLACEHOLDER_4))))))))
+            (assignment
+              (component_selection PLACEHOLDER_18 -> PLACEHOLDER_11) =
+              (arithmetic_expression
+                (component_selection PLACEHOLDER_18 -> PLACEHOLDER_8) /
+                (component_selection PLACEHOLDER_17 -> PLACEHOLDER_16)))))))))

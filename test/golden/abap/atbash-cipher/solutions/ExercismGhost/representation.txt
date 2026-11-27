@@ -1,42 +1,124 @@
-CLASS zcl_atbash_cipher DEFINITION PUBLIC FINAL CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS decode
-IMPORTING
-cipher_text TYPE string
-RETURNING
-VALUE ( plain_text ) TYPE string .
-METHODS encode
-IMPORTING
-plain_text TYPE string
-RETURNING
-VALUE ( cipher_text ) TYPE string .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_atbash_cipher IMPLEMENTATION .
-METHOD decode .
-plain_text = encode ( cipher_text ).
-REPLACE ALL OCCURRENCES OF "` `" IN plain_text WITH '' .
-ENDMETHOD .
-METHOD encode .
-DATA output TYPE string .
-DATA ( input ) = to_lower ( plain_text ).
-REPLACE ALL OCCURRENCES OF "` `" IN input WITH '' .
-REPLACE ALL OCCURRENCES OF '.' IN input WITH '' .
-REPLACE ALL OCCURRENCES OF ',' IN input WITH '' .
-WHILE strlen ( input ) > 0 .
-DATA ( index ) = find ( val = to_lower ( sy-abcde ) sub = input ( 1 ) ).
-IF index < 0 .
-cipher_text = cipher_text && input ( 1 ).
-ELSE .
-cipher_text = cipher_text && substring ( val = reverse ( to_lower ( sy-abcde ) ) off = index len = 1 ).
-ENDIF .
-input = input + 1 .
-ENDWHILE .
-WHILE strlen ( cipher_text ) > 5 .
-output = output && cipher_text ( 5 ) && "` `" .
-cipher_text = cipher_text + 5 .
-ENDWHILE .
-cipher_text = output && cipher_text .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_4)
+              (referred_type type string))))
+        (methods_declaration
+          (method_spec PLACEHOLDER_5 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_4)
+                (referred_type type string))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_3)
+              (referred_type type string)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (assignment PLACEHOLDER_4 =
+          (function_call PLACEHOLDER_5
+            (call_argument_list
+              (positional_argument PLACEHOLDER_3))))
+        (replace_statement replace
+          (all_occurrences_of_pattern_spec all of
+            (substring_spec " ")) in PLACEHOLDER_4
+          (substitute_with_spec with
+            (text_literal "")))))
+    (method_implementation PLACEHOLDER_5
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_6
+            (referred_type type string)))
+        (assignment
+          (declaration_expression data PLACEHOLDER_7) =
+          (function_call to_lower
+            (call_argument_list
+              (positional_argument PLACEHOLDER_4))))
+        (replace_statement replace
+          (all_occurrences_of_pattern_spec all of
+            (substring_spec " ")) in PLACEHOLDER_7
+          (substitute_with_spec with
+            (text_literal "")))
+        (replace_statement replace
+          (all_occurrences_of_pattern_spec all of
+            (substring_spec
+              (text_literal "."))) in PLACEHOLDER_7
+          (substitute_with_spec with
+            (text_literal "")))
+        (replace_statement replace
+          (all_occurrences_of_pattern_spec all of
+            (substring_spec
+              (text_literal ","))) in PLACEHOLDER_7
+          (substitute_with_spec with
+            (text_literal "")))
+        (while_statement
+          (comparison_expression
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_7))) > 0)
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_8) =
+              (function_call find
+                (call_argument_list
+                  (argument_list
+                    (named_argument val =
+                      (function_call to_lower
+                        (call_argument_list
+                          (positional_argument
+                            (component_selection sy - abcde)))))
+                    (named_argument sub =
+                      (substring_access PLACEHOLDER_7 1))))))
+            (if_statement
+              (comparison_expression PLACEHOLDER_8 < 0)
+              (statement_block
+                (assignment PLACEHOLDER_3 =
+                  (string_concatenation PLACEHOLDER_3 &&
+                    (substring_access PLACEHOLDER_7 1))))
+              (else_clause
+                (statement_block
+                  (assignment PLACEHOLDER_3 =
+                    (string_concatenation PLACEHOLDER_3 &&
+                      (function_call substring
+                        (call_argument_list
+                          (argument_list
+                            (named_argument val =
+                              (function_call reverse
+                                (call_argument_list
+                                  (positional_argument
+                                    (function_call to_lower
+                                      (call_argument_list
+                                        (positional_argument
+                                          (component_selection sy - abcde))))))))
+                            (named_argument off = PLACEHOLDER_8)
+                            (named_argument len = 1)))))))))
+            (assignment PLACEHOLDER_7 =
+              (substring_access PLACEHOLDER_7 + 1))))
+        (while_statement
+          (comparison_expression
+            (function_call strlen
+              (call_argument_list
+                (positional_argument PLACEHOLDER_3))) > 5)
+          (statement_block
+            (assignment PLACEHOLDER_6 =
+              (string_concatenation
+                (string_concatenation PLACEHOLDER_6 &&
+                  (substring_access PLACEHOLDER_3 5)) && " "))
+            (assignment PLACEHOLDER_3 =
+              (substring_access PLACEHOLDER_3 + 5))))
+        (assignment PLACEHOLDER_3 =
+          (string_concatenation PLACEHOLDER_6 && PLACEHOLDER_3))))))

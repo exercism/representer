@@ -1,29 +1,81 @@
-CLASS zcl_secret_handshake DEFINITION
-PUBLIC
-FINAL
-CREATE PUBLIC .
-PUBLIC SECTION .
-METHODS get_commands
-IMPORTING code TYPE i
-RETURNING VALUE ( commands ) TYPE string_table .
-PROTECTED SECTION .
-PRIVATE SECTION .
-ENDCLASS .
-CLASS zcl_secret_handshake IMPLEMENTATION .
-METHOD get_commands .
-DATA binary_zero TYPE x VALUE 0 .
-DATA ( binary_code ) = CONV xstring ( code ).
-DATA ( codes_transl ) = VALUE string_table ( ( `wink` ) ( "`double blink`" ) ( "`close your eyes`" ) ( `jump` ) ).
-LOOP AT codes_transl REFERENCE INTO DATA ( command ).
-IF CONV xstring ( 2 ** ( sy-tabix - 1 ) ) BIT-AND binary_code > binary_zero .
-APPEND command ->* TO commands .
-ENDIF .
-ENDLOOP .
-IF binary_code BIT-AND CONV xstring ( 16 ) > binary_zero .
-DATA ( reversed_commands ) = VALUE string_table ( FOR line IN commands
-INDEX INTO i
-( commands [ lines ( commands ) - i + 1 ] ) ).
-commands = reversed_commands .
-ENDIF .
-ENDMETHOD .
-ENDCLASS .
+(source
+  (class_declaration PLACEHOLDER_1
+    (class_options
+      (public public)
+      (final final)
+      (create_visibility_spec public))
+    (class_body
+      (public_section public section
+        (methods_declaration
+          (method_spec PLACEHOLDER_2 importing
+            (parameters
+              (parameter
+                (implicit_reference PLACEHOLDER_3)
+                (referred_type type PLACEHOLDER_4))) returning
+            (return_value
+              (explicit_value PLACEHOLDER_5)
+              (referred_type type string_table)))))
+      (protected_section protected section)
+      (private_section private section)))
+  (class_implementation PLACEHOLDER_1
+    (method_implementation PLACEHOLDER_2
+      (method_body
+        (data_declaration data
+          (data_spec PLACEHOLDER_6
+            (referred_type type x
+              (default_data_value_spec 0))))
+        (assignment
+          (declaration_expression data PLACEHOLDER_7) =
+          (conv_expression xstring PLACEHOLDER_3))
+        (assignment
+          (declaration_expression data PLACEHOLDER_8) =
+          (value_expression string_table
+            (table_comprehension
+              (line_spec
+                (argument_list
+                  (positional_argument "wink")))
+              (line_spec
+                (argument_list
+                  (positional_argument "double blink")))
+              (line_spec
+                (argument_list
+                  (positional_argument "close your eyes")))
+              (line_spec
+                (argument_list
+                  (positional_argument "jump"))))))
+        (loop_at_statement PLACEHOLDER_8
+          (reference_into_spec into
+            (declaration_expression data PLACEHOLDER_9))
+          (loop_at_body
+            (if_statement
+              (comparison_expression
+                (bit_expression
+                  (conv_expression xstring
+                    (arithmetic_expression 2 **
+                      (arithmetic_expression
+                        (component_selection sy - tabix) - 1))) bit-and PLACEHOLDER_7) > PLACEHOLDER_6)
+              (statement_block
+                (append_statement
+                  (dereference_expression PLACEHOLDER_9 ->*) to PLACEHOLDER_5)))))
+        (if_statement
+          (comparison_expression
+            (bit_expression PLACEHOLDER_7 bit-and
+              (conv_expression xstring 16)) > PLACEHOLDER_6)
+          (statement_block
+            (assignment
+              (declaration_expression data PLACEHOLDER_10) =
+              (value_expression string_table
+                (table_comprehension
+                  (table_iteration for PLACEHOLDER_11 in PLACEHOLDER_5
+                    (index_into_spec index into PLACEHOLDER_4))
+                  (line_spec
+                    (argument_list
+                      (positional_argument
+                        (table_expression PLACEHOLDER_5
+                          (index_read
+                            (arithmetic_expression
+                              (arithmetic_expression
+                                (function_call lines
+                                  (call_argument_list
+                                    (positional_argument PLACEHOLDER_5))) - PLACEHOLDER_4) + 1)))))))))
+            (assignment PLACEHOLDER_5 = PLACEHOLDER_10)))))))
