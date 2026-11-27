@@ -2,8 +2,9 @@ FROM public.ecr.aws/lambda/ruby:4.0.2026.11.24.13 AS build
 
 # The build stage also installs node and the tree-sitter CLI, for grammars that
 # don't commit their parser.c (marked `generate: true` in grammars.yml). The
-# runtime stage doesn't get them.
-RUN dnf install gcc git nodejs npm -y && \
+# runtime stage doesn't get them. Node 20 or later is needed, because ABAP's
+# grammar.js uses a recursive fs.readdirSync (the default nodejs is 18).
+RUN dnf install gcc git nodejs22 nodejs22-npm -y && \
     npm install -g tree-sitter-cli@0.25.10
 
 ENV GEM_HOME=${LAMBDA_TASK_ROOT}
