@@ -490,6 +490,8 @@ The engine parses a pattern with the language's grammar and runs the language's 
 A placeholder is a word in double braces, such as `{{name}}`.
 A placeholder matches any code.
 In a list, such as a method's parameters, it matches any number of items.
+Some grammars wrap each item of a list in a node of its own, such as PHP's and C#'s `argument`.
+In such a list, a placeholder matches every item in a row, and at least one, so PHP's `f({{x}})` matches all of `f($a, $b)` and doesn't match `f()`.
 If the grammar reads a placeholder as something other than a name, it matches one node of that kind, so `"{{...}}"` in quotes matches one string without interpolation.
 Placeholders use braces, because a `$word` is real code in several languages.
 

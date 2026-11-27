@@ -14,6 +14,12 @@ module Representer::Engine
   # - A `rewrite`'s `as:` code can copy the code matched by a named
   #   placeholder. `{{...}}` is a placeholder with no name, for code that
   #   nothing copies, so `require "{{...}}"` matches any require.
+  # - Some grammars wrap each item of a list in a node of its own, such as
+  #   PHP's and C#'s `argument`. A placeholder that is the whole of such an
+  #   item matches every item of that kind in a row, and at least one, so
+  #   `f({{x}})` matches all of `f($a, $b)`, and doesn't match `f()`. Its
+  #   match is each item, unwrapped if the item holds only one node, and
+  #   the `as:` code wraps each one again.
   #
   # A `$word` is real code in Ruby, PHP, Perl, Bash, jq and JavaScript
   # templates, so placeholders use braces.
@@ -62,6 +68,12 @@ module Representer::Engine
     # An Any is a placeholder. It matches any node if its type is
     # nil, and otherwise a leaf of its type.
     Any = Struct.new(:word, :type)
+
+    # An Items is a placeholder that is the whole of a list item wrapped in
+    # a node of its own, such as PHP's `argument`. In a list, it matches
+    # every item of its branch's type in a row, and at least one. In an
+    # exact pattern, it matches its branch, which is one item.
+    Items = Struct.new(:word, :branch)
 
     Leaf = Struct.new(:type, :text, :named)
 
@@ -245,7 +257,21 @@ module Representer::Engine
       end
       return Leaf.new(node.type, node.named? ? node.text : nil, node.named?) if node.leaf?
 
-      Branch.new(node.type, node.children.map { |child| [child.field, compile(child)] })
+      branch = Branch.new(node.type, node.children.map { |child| [child.field, compile(child)] })
+      item_word = wrapped_placeholder_word(node)
+      item_word ? Items.new(item_word, branch) : branch
+    end
+
+    # Returns the placeholder's word if the node only wraps a placeholder
+    # that names any code, and adds no code of its own, as PHP's `argument`
+    # wraps `$a` in `f($a)`.
+    def wrapped_placeholder_word(node)
+      return nil unless node.field.nil? && node.children.one? && node.span
+
+      child = node.children.first
+      word = placeholder_word(child)
+      word if word && child.span == node.span && !representation&.names&.key?(node.type) &&
+              representation&.names&.key?(child.type)
     end
 
     ### Matching ###
@@ -261,8 +287,14 @@ module Representer::Engine
         yield(bindings) if leaf_matches?(element, node)
       when Branch
         match_children(element.children, node, 0, nil, bindings, &found) if node.named? && !node.leaf? && node.type == element.type
+      when Items
+        match_element(element.branch, node, bindings, &found)
       end
     end
+
+    # Whether the element is a placeholder that matches a run of items in a
+    # list.
+    def list_placeholder?(element) = (element.is_a?(Any) && element.type.nil?) || element.is_a?(Items)
 
     def leaf_matches?(element, node)
       node.leaf? && node.named? == element.named && node.type == element.type && (!element.named || node.text == element.text)
@@ -275,21 +307,21 @@ module Representer::Engine
     def match_children(elements, node, start, first, bindings, pending = nil, &found)
       children = node.children
       if elements.empty?
-        bindings = bind(bindings, pending, children[start..]) if pending
+        bindings = bind(bindings, pending, rest_of_list(pending, children[start..])) if pending
         yield(bindings) if bindings && !labelled_before?(children, first) && !unmatched_items?(children[start..])
         return
       end
 
       (field, element), *rest = elements
-      if !@exactly && field.nil? && element.is_a?(Any) && element.type.nil?
+      if !@exactly && field.nil? && list_placeholder?(element)
         bindings = bind(bindings, pending, []) if pending
         return unless bindings
 
-        return match_children(rest, node, start, first, bindings, element.word, &found)
+        return match_children(rest, node, start, first, bindings, pending_for(element), &found)
       end
 
       (start...children.size).each do |index|
-        break if unmatched_items?(children[start...index])
+        break if unmatched_items?(children[start...index]) || !wrapped_items?(pending, children[start...index])
         next unless field.nil? || children[index].field == field
 
         with_pending = pending ? bind(bindings, pending, children[start...index]) : bindings
@@ -301,14 +333,48 @@ module Representer::Engine
       end
     end
 
+    # A placeholder in a list waits as pending until the match knows its
+    # items. An Items waits as itself, so that bind can check and unwrap
+    # its items.
+    def pending_for(element) = element.is_a?(Items) ? element : element.word
+
+    # Returns the children that a pending placeholder takes at the end of
+    # a list. An Items takes the items of its wrapper's type, and leaves
+    # any other children after them, as a node may have more children
+    # after the pattern's.
+    def rest_of_list(pending, children)
+      pending.is_a?(Items) ? children.take_while { |child| wrapped_item?(pending, child) } : children
+    end
+
+    # Whether an Items placeholder can take all of the children. It skips
+    # tokens, such as the `type` of TypeScript's `import type { T }`.
+    def wrapped_items?(pending, children)
+      !pending.is_a?(Items) || children.all? { |child| wrapped_item?(pending, child) }
+    end
+
+    def wrapped_item?(items, child) = !child.named? || child.type == items.branch.type
+
     # Adds the word's match to the bindings, or returns nil if the word
     # already matched different code. A `{{...}}` binds nothing, so it
     # never has to match the `{{...}}` of another pattern.
     def bind(bindings, word, value)
+      if word.is_a?(Items)
+        value = value.select(&:named?)
+        return nil if value.empty? || !wrapped_items?(word, value)
+
+        value = unwrap_items(word.branch.type, value)
+        word = word.word
+      end
       return bindings if @anonymous.include?(word)
       return bindings.merge(word => value) unless bindings.key?(word)
 
       SameCode.(bindings[word], value) ? bindings : nil
+    end
+
+    # Unwraps each item that is a wrapper of the type around one node, so
+    # `$a` in `f($a, b: $c)` matches as `$a`, and `b: $c` stays an argument.
+    def unwrap_items(type, items)
+      items.map { |item| item.type == type && item.children.one? ? item.children.first : item }
     end
 
     # Whether an exact pattern would skip one of these children. Only the
@@ -322,6 +388,9 @@ module Representer::Engine
     ### Building ###
 
     def build_node(node, bindings)
+      word = wrapped_placeholder_word(node)
+      return build_items(node, word, bindings) if word && bindings[word].is_a?(Array)
+
       word = placeholder_word(node)
       if word
         raise ArgumentError, "{{...}} in #{code.inspect} can't be copied" if @anonymous.include?(word)
@@ -337,6 +406,18 @@ module Representer::Engine
       copy.span = nil
       copy.children = node.children.flat_map { |child| Array(build_node(child, bindings)) }
       copy
+    end
+
+    # Builds a copy of the wrapper around each item that the word matched,
+    # and copies an item that is already a wrapper of the same type.
+    def build_items(wrapper, word, bindings)
+      raise ArgumentError, "{{...}} in #{code.inspect} can't be copied" if @anonymous.include?(word)
+
+      bindings[word].map do |item|
+        next Representer::Engine.deep_copy(item).tap { |copy| copy.field = wrapper.field } if item.type == wrapper.type
+
+        build_node(wrapper, bindings.merge(word => item))
+      end
     end
   end
 end

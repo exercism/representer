@@ -114,6 +114,33 @@ class CodePatternTest < Minitest::Test
     refute pattern.match(tree("def f = 1").children.first)
   end
 
+  def test_a_placeholder_in_a_list_of_wrapped_items_matches_every_item
+    pattern = CodePattern[PHP, "f({{x}});"]
+    assert_equal ["$a $b"], php_matched(pattern, "<?php f($a, $b);", "x")
+    assert_equal ["$a"], php_matched(pattern, "<?php f($a);", "x")
+    assert_empty php_matched(pattern, "<?php f();", "x")
+  end
+
+  def test_a_placeholder_after_a_wrapped_item_matches_the_items_after_it
+    assert_equal ["$b $c"], php_matched(CodePattern[PHP, "f($a, {{x}});"], "<?php f($a, $b, $c);", "x")
+  end
+
+  def test_an_anonymous_placeholder_in_a_list_of_wrapped_items_binds_nothing
+    assert_equal [{}], CodePattern[PHP, "f({{...}});"].matches(php_statement("<?php f($a, $b);"))
+  end
+
+  def test_a_placeholder_in_a_list_of_wrapped_items_builds_every_item
+    bindings = CodePattern[PHP, "f({{x}});"].match(php_statement("<?php f($a, b: $c);"))
+    built = CodePattern[PHP, "g({{x}});"].build(bindings)
+    assert_equal write(php_statement("<?php g($a, b: $c);")), write(built)
+  end
+
+  def test_a_placeholder_in_an_exact_list_of_wrapped_items_matches_one_item
+    pattern = CodePattern[PHP, "f({{x}});", exactly: true]
+    assert_equal "$a", pattern.match(php_statement("<?php f($a);"))["x"].text
+    refute pattern.match(php_statement("<?php f($a, $b);"))
+  end
+
   def test_an_exact_pattern_leaves_out_parts_that_can_be_anything
     pattern = CodePattern[Rubyish::Spec, "x.max", exactly: true]
     assert pattern.match(tree("x.max(3)").children.first)
@@ -160,6 +187,19 @@ class CodePatternTest < Minitest::Test
   def tree(source) = Ruby::Common::GenerateAST.(parse(source))
   def normalise(source) = Rubyish::Normalise.(tree(source))
   def write(tree) = Representer::Engine::Serialize.(tree, nil)
+
+  # PHP wraps each of a call's arguments in an `argument` node.
+  PHP = Representer::Languages::PHP::Spec
+
+  def php_statement(source) = Representer::Engine::PrepareFile.(PHP, source).children.first
+
+  def php_matched(pattern, source, word)
+    found = []
+    php_statement(source).each_descendant do |node|
+      pattern.matches(node).each { |bindings| found << bindings[word].map(&:text).join(" ") }
+    end
+    found
+  end
 
   # The code that the placeholder matches, written out, in each match in
   # the source. A match of a list is written as its items, joined.
