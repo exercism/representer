@@ -1,22 +1,175 @@
-tournament <- function ( input ) {
-input_split <- lapply ( input , function ( x ) unlist ( strsplit ( x , ';' )))
-valid_length_inputs <- input_split [ sapply ( input_split , function ( x ) length ( x ) == 3 )]
-input_table <- t ( simplify2array ( valid_length_inputs ))
-all_teams <- unique ( c ( input_table [, 1 : 2 ]))
-score_df <- data.frame ( Team = all_teams , MP = NA , W = NA , D = NA , L = NA , P = NA , row.names = all_teams )
-win_rows <- input_table [, 3 ] == 'win'
-loss_rows <- input_table [, 3 ] == 'loss'
-draw_rows <- input_table [, 3 ] == 'draw'
-for ( team in all_teams ){
-team_col_1 <- input_table [, 1 ] == team
-team_col_2 <- input_table [, 2 ] == team
-score_df [ team , 'W' ] = sum (( team_col_1 & win_rows ) | ( team_col_2 & loss_rows ))
-score_df [ team , 'L' ] = sum (( team_col_1 & loss_rows ) | ( team_col_2 & win_rows ))
-score_df [ team , 'D' ] = sum (( team_col_1 | team_col_2 ) & draw_rows )
-}
-score_df $ MP <- rowSums ( score_df [, 3 : 5 ])
-score_df $ P <- score_df $ W * 3 + score_df $ D * 1
-score_df <- score_df [ order ( score_df $ P , score_df $ Team , decreasing = c ( TRUE , FALSE ), method = "\"radix\"" ), ]
-row.names ( score_df ) <- NULL
-return ( score_df )
-}
+(program
+  (assignment PLACEHOLDER_1 <-
+    (function_definition
+      (parameters
+        (parameter PLACEHOLDER_2))
+      (braced_expression
+        (assignment PLACEHOLDER_3 <-
+          (call lapply
+            (arguments
+              (argument PLACEHOLDER_2)
+              (argument
+                (function_definition
+                  (parameters
+                    (parameter PLACEHOLDER_4))
+                  (call unlist
+                    (arguments
+                      (argument
+                        (call strsplit
+                          (arguments
+                            (argument PLACEHOLDER_4)
+                            (argument ";")))))))))))
+        (assignment PLACEHOLDER_5 <-
+          (subset PLACEHOLDER_3
+            (arguments
+              (argument
+                (call sapply
+                  (arguments
+                    (argument PLACEHOLDER_3)
+                    (argument
+                      (function_definition
+                        (parameters
+                          (parameter PLACEHOLDER_4))
+                        (binary_operator
+                          (call length
+                            (arguments
+                              (argument PLACEHOLDER_4))) == 3)))))))))
+        (assignment PLACEHOLDER_6 <-
+          (call t
+            (arguments
+              (argument
+                (call simplify2array
+                  (arguments
+                    (argument PLACEHOLDER_5)))))))
+        (assignment PLACEHOLDER_7 <-
+          (call unique
+            (arguments
+              (argument
+                (call c
+                  (arguments
+                    (argument
+                      (subset PLACEHOLDER_6
+                        (arguments
+                          (empty_argument)
+                          (argument
+                            (binary_operator 1 : 2)))))))))))
+        (assignment PLACEHOLDER_8 <-
+          (call data.frame
+            (arguments
+              (argument Team = PLACEHOLDER_7)
+              (argument PLACEHOLDER_9 =
+                (na NA))
+              (argument W =
+                (na NA))
+              (argument D =
+                (na NA))
+              (argument L =
+                (na NA))
+              (argument PLACEHOLDER_10 =
+                (na NA))
+              (argument row.names = PLACEHOLDER_7))))
+        (assignment PLACEHOLDER_11 <-
+          (binary_operator
+            (subset PLACEHOLDER_6
+              (arguments
+                (empty_argument)
+                (argument 3))) == "win"))
+        (assignment PLACEHOLDER_12 <-
+          (binary_operator
+            (subset PLACEHOLDER_6
+              (arguments
+                (empty_argument)
+                (argument 3))) == "loss"))
+        (assignment PLACEHOLDER_13 <-
+          (binary_operator
+            (subset PLACEHOLDER_6
+              (arguments
+                (empty_argument)
+                (argument 3))) == "draw"))
+        (for_statement PLACEHOLDER_14 PLACEHOLDER_7
+          (braced_expression
+            (assignment PLACEHOLDER_15 <-
+              (binary_operator
+                (subset PLACEHOLDER_6
+                  (arguments
+                    (empty_argument)
+                    (argument 1))) == PLACEHOLDER_14))
+            (assignment PLACEHOLDER_16 <-
+              (binary_operator
+                (subset PLACEHOLDER_6
+                  (arguments
+                    (empty_argument)
+                    (argument 2))) == PLACEHOLDER_14))
+            (assignment
+              (subset PLACEHOLDER_8
+                (arguments
+                  (argument PLACEHOLDER_14)
+                  (argument "W"))) =
+              (call sum
+                (arguments
+                  (argument
+                    (binary_operator
+                      (binary_operator PLACEHOLDER_15 & PLACEHOLDER_11) |
+                      (binary_operator PLACEHOLDER_16 & PLACEHOLDER_12))))))
+            (assignment
+              (subset PLACEHOLDER_8
+                (arguments
+                  (argument PLACEHOLDER_14)
+                  (argument "L"))) =
+              (call sum
+                (arguments
+                  (argument
+                    (binary_operator
+                      (binary_operator PLACEHOLDER_15 & PLACEHOLDER_12) |
+                      (binary_operator PLACEHOLDER_16 & PLACEHOLDER_11))))))
+            (assignment
+              (subset PLACEHOLDER_8
+                (arguments
+                  (argument PLACEHOLDER_14)
+                  (argument "D"))) =
+              (call sum
+                (arguments
+                  (argument
+                    (binary_operator
+                      (binary_operator PLACEHOLDER_15 | PLACEHOLDER_16) & PLACEHOLDER_13)))))))
+        (assignment
+          (extract_operator PLACEHOLDER_8 $ PLACEHOLDER_9) <-
+          (call rowSums
+            (arguments
+              (argument
+                (subset PLACEHOLDER_8
+                  (arguments
+                    (empty_argument)
+                    (argument
+                      (binary_operator 3 : 5))))))))
+        (assignment
+          (extract_operator PLACEHOLDER_8 $ PLACEHOLDER_10) <-
+          (binary_operator
+            (binary_operator
+              (extract_operator PLACEHOLDER_8 $ W) * 3) +
+            (binary_operator
+              (extract_operator PLACEHOLDER_8 $ D) * 1)))
+        (assignment PLACEHOLDER_8 <-
+          (subset PLACEHOLDER_8
+            (arguments
+              (argument
+                (call order
+                  (arguments
+                    (argument
+                      (extract_operator PLACEHOLDER_8 $ PLACEHOLDER_10))
+                    (argument
+                      (extract_operator PLACEHOLDER_8 $ Team))
+                    (argument decreasing =
+                      (call c
+                        (arguments
+                          (argument TRUE)
+                          (argument FALSE))))
+                    (argument method = "radix"))))
+              (empty_argument))))
+        (assignment
+          (call row.names
+            (arguments
+              (argument PLACEHOLDER_8))) <- NULL)
+        (call return
+          (arguments
+            (argument PLACEHOLDER_8)))))))

@@ -1,41 +1,176 @@
-normalized_plaintext <- function ( input ) {
-gsub ( "\"[^[:alnum:]]\"" , "\"\"" , tolower ( input ))
-}
-plaintext_segments <- function ( input ) {
-input <- normalized_plaintext ( input )
-num.cols <- ceiling ( sqrt ( nchar ( input )))
-num.rows <- ceiling ( nchar ( input ) / num.cols )
-segs <- c ()
-while ( nchar ( input ) > 0 ) {
-segs <- c ( segs , substr ( input , 1 , num.cols ))
-input <- substr ( input , num.cols + 1 , nchar ( input ))
-}
-if ( is.null ( segs )) {
-"\"\""
-} else {
-segs
-}
-}
-encoded <- function ( input ) {
-gsub ( "\"[[:blank:]]\"" , "\"\"" , ciphertext ( input ))
-}
-ciphertext <- function ( input ) {
-segs <- plaintext_segments ( input )
-if ( length ( segs ) == 1 & nchar ( segs [ 1 ]) == 0 ) {
-segs <- c ()
-}
-if ( length ( segs ) > 0 ) {
-num.cols = nchar ( segs [ 1 ])
-paste0 ( sapply ( 1 : num.cols , function ( col ) {
-paste0 ( sapply ( 1 : length ( segs ), function ( row ) {
-if ( nchar ( segs [ row ]) >= col ) {
-substr ( segs [ row ], col , col )
-} else {
-"\" \""
-}
-}), collapse = "\"\"" )
-}), collapse = "\" \"" )
-} else {
-"\"\""
-}
-}
+(program
+  (assignment PLACEHOLDER_1 <-
+    (function_definition
+      (parameters
+        (parameter PLACEHOLDER_2))
+      (braced_expression
+        (call gsub
+          (arguments
+            (argument "[^[:alnum:]]")
+            (argument "")
+            (argument
+              (call tolower
+                (arguments
+                  (argument PLACEHOLDER_2)))))))))
+  (assignment PLACEHOLDER_3 <-
+    (function_definition
+      (parameters
+        (parameter PLACEHOLDER_2))
+      (braced_expression
+        (assignment PLACEHOLDER_2 <-
+          (call PLACEHOLDER_1
+            (arguments
+              (argument PLACEHOLDER_2))))
+        (assignment PLACEHOLDER_4 <-
+          (call ceiling
+            (arguments
+              (argument
+                (call sqrt
+                  (arguments
+                    (argument
+                      (call nchar
+                        (arguments
+                          (argument PLACEHOLDER_2))))))))))
+        (assignment PLACEHOLDER_5 <-
+          (call ceiling
+            (arguments
+              (argument
+                (binary_operator
+                  (call nchar
+                    (arguments
+                      (argument PLACEHOLDER_2))) / PLACEHOLDER_4)))))
+        (assignment PLACEHOLDER_6 <-
+          (call c
+            (arguments)))
+        (while_statement
+          (binary_operator
+            (call nchar
+              (arguments
+                (argument PLACEHOLDER_2))) > 0)
+          (braced_expression
+            (assignment PLACEHOLDER_6 <-
+              (call c
+                (arguments
+                  (argument PLACEHOLDER_6)
+                  (argument
+                    (call substr
+                      (arguments
+                        (argument PLACEHOLDER_2)
+                        (argument 1)
+                        (argument PLACEHOLDER_4)))))))
+            (assignment PLACEHOLDER_2 <-
+              (call substr
+                (arguments
+                  (argument PLACEHOLDER_2)
+                  (argument
+                    (binary_operator PLACEHOLDER_4 + 1))
+                  (argument
+                    (call nchar
+                      (arguments
+                        (argument PLACEHOLDER_2)))))))))
+        (if_statement
+          (call is.null
+            (arguments
+              (argument PLACEHOLDER_6)))
+          (braced_expression "")
+          (braced_expression PLACEHOLDER_6)))))
+  (assignment PLACEHOLDER_7 <-
+    (function_definition
+      (parameters
+        (parameter PLACEHOLDER_2))
+      (braced_expression
+        (call gsub
+          (arguments
+            (argument "[[:blank:]]")
+            (argument "")
+            (argument
+              (call PLACEHOLDER_8
+                (arguments
+                  (argument PLACEHOLDER_2)))))))))
+  (assignment PLACEHOLDER_8 <-
+    (function_definition
+      (parameters
+        (parameter PLACEHOLDER_2))
+      (braced_expression
+        (assignment PLACEHOLDER_6 <-
+          (call PLACEHOLDER_3
+            (arguments
+              (argument PLACEHOLDER_2))))
+        (if_statement
+          (binary_operator
+            (binary_operator
+              (call length
+                (arguments
+                  (argument PLACEHOLDER_6))) == 1) &
+            (binary_operator
+              (call nchar
+                (arguments
+                  (argument
+                    (subset PLACEHOLDER_6
+                      (arguments
+                        (argument 1)))))) == 0))
+          (braced_expression
+            (assignment PLACEHOLDER_6 <-
+              (call c
+                (arguments)))))
+        (if_statement
+          (binary_operator
+            (call length
+              (arguments
+                (argument PLACEHOLDER_6))) > 0)
+          (braced_expression
+            (assignment PLACEHOLDER_4 =
+              (call nchar
+                (arguments
+                  (argument
+                    (subset PLACEHOLDER_6
+                      (arguments
+                        (argument 1)))))))
+            (call paste0
+              (arguments
+                (argument
+                  (call sapply
+                    (arguments
+                      (argument
+                        (binary_operator 1 : PLACEHOLDER_4))
+                      (argument
+                        (function_definition
+                          (parameters
+                            (parameter PLACEHOLDER_9))
+                          (braced_expression
+                            (call paste0
+                              (arguments
+                                (argument
+                                  (call sapply
+                                    (arguments
+                                      (argument
+                                        (binary_operator 1 :
+                                          (call length
+                                            (arguments
+                                              (argument PLACEHOLDER_6)))))
+                                      (argument
+                                        (function_definition
+                                          (parameters
+                                            (parameter PLACEHOLDER_10))
+                                          (braced_expression
+                                            (if_statement
+                                              (binary_operator
+                                                (call nchar
+                                                  (arguments
+                                                    (argument
+                                                      (subset PLACEHOLDER_6
+                                                        (arguments
+                                                          (argument PLACEHOLDER_10)))))) >= PLACEHOLDER_9)
+                                              (braced_expression
+                                                (call substr
+                                                  (arguments
+                                                    (argument
+                                                      (subset PLACEHOLDER_6
+                                                        (arguments
+                                                          (argument PLACEHOLDER_10))))
+                                                    (argument PLACEHOLDER_9)
+                                                    (argument PLACEHOLDER_9))))
+                                              (braced_expression " "))))))))
+                                (argument collapse = "")))))))))
+                (argument collapse = " "))))
+          (braced_expression ""))))))
