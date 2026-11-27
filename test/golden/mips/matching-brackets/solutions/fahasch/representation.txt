@@ -1,74 +1,118 @@
-# | Register | Usage | Type | Description |
-# | -------- | --------- | ------- | --------------------------------------------------------- |
-# | `$a0` | input | address | null-terminated input string |
-# | `$v0` | output | boolean | input has matching brackets (`0` = `false`, `1` = `true`) |
-# | `$t0-9` | temporary | any | used for temporary storage |
-.globl is_paired
-# stack for saving type of opening brackets
-.data
-stack: .space 100
-.text
-# registers
-.eqv input $t0 # pointer to input string
-.eqv top $t1 # pointer to top of stack
-.eqv ch $t2 # char being parsed
-.eqv temp $t9
-# type of brackets
-.eqv paren 0 # (
-.eqv brack 1 # [
-.eqv brace 2 # {
-.macro push(%type)
-li temp, %type
-sb temp, (top)
-addiu top, top, 1
-.end_macro
-.macro pop(%ret)
-la temp, stack
-beq top, temp, __fail
-addi top, top, -1
-lb %ret, (top)
-.end_macro
-.macro close(%type) # check if %type can be closed
-pop(temp)
-bne temp, %type, __fail
-.end_macro
-is_paired:
-move input, $a0
-la top, stack
-__next:
-lb ch, (input)
-addiu input, input, 1
-beqz ch, __end
-# check opening
-__o_p:
-bne ch, '(', __o_bk
-push(paren)
-j __next
-__o_bk:
-bne ch, '[', __o_bc
-push(brack)
-j __next
-__o_bc:
-bne ch, '{', __c_p
-push(brace)
-j __next
-# check closing
-__c_p:
-bne ch, ')', __c_bk
-close(paren)
-j __next
-__c_bk:
-bne ch, ']', __c_bc
-close(brack)
-j __next
-__c_bc:
-bne ch, '}', __next
-close(brace)
-j __next
-__end:
-la temp, stack
-seq $v0, top, temp
-jr $ra
-__fail:
-li $v0, 0
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (directive .data)
+  (label PLACEHOLDER_2)
+  (directive
+    (integer_mnemonic .space)
+    (directive_operands 100))
+  (directive .text)
+  (eqv PLACEHOLDER_3 $t0)
+  (eqv PLACEHOLDER_4 $t1)
+  (eqv PLACEHOLDER_5 $t2)
+  (eqv PLACEHOLDER_6 $t9)
+  (eqv PLACEHOLDER_7 0)
+  (eqv PLACEHOLDER_8 1)
+  (eqv PLACEHOLDER_9 2)
+  (directive .macro (macro_name PLACEHOLDER_10)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_11))))
+  (instruction li
+    (operands PLACEHOLDER_6 (macro_variable PLACEHOLDER_11)))
+  (instruction sb
+    (operands PLACEHOLDER_6
+      (parenthesized_expression
+        (operands PLACEHOLDER_4))))
+  (instruction addiu
+    (operands PLACEHOLDER_4 PLACEHOLDER_4 1))
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_12)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_13))))
+  (instruction la
+    (operands PLACEHOLDER_6 PLACEHOLDER_2))
+  (instruction beq
+    (operands PLACEHOLDER_4 PLACEHOLDER_6 PLACEHOLDER_14))
+  (instruction addi
+    (operands PLACEHOLDER_4 PLACEHOLDER_4 -1))
+  (instruction lb
+    (operands (macro_variable PLACEHOLDER_13)
+      (parenthesized_expression
+        (operands PLACEHOLDER_4))))
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_15)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_11))))
+  (call_statement PLACEHOLDER_12
+    (operands PLACEHOLDER_6))
+  (instruction bne
+    (operands PLACEHOLDER_6 (macro_variable PLACEHOLDER_11) PLACEHOLDER_14))
+  (directive .end_macro)
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands PLACEHOLDER_3 $a0))
+  (instruction la
+    (operands PLACEHOLDER_4 PLACEHOLDER_2))
+  (label PLACEHOLDER_16)
+  (instruction lb
+    (operands PLACEHOLDER_5
+      (parenthesized_expression
+        (operands PLACEHOLDER_3))))
+  (instruction addiu
+    (operands PLACEHOLDER_3 PLACEHOLDER_3 1))
+  (instruction beqz
+    (operands PLACEHOLDER_5 PLACEHOLDER_17))
+  (label PLACEHOLDER_18)
+  (instruction bne
+    (operands PLACEHOLDER_5 "'('" PLACEHOLDER_19))
+  (call_statement PLACEHOLDER_10
+    (operands PLACEHOLDER_7))
+  (instruction j
+    (operands PLACEHOLDER_16))
+  (label PLACEHOLDER_19)
+  (instruction bne
+    (operands PLACEHOLDER_5 '[' PLACEHOLDER_20))
+  (call_statement PLACEHOLDER_10
+    (operands PLACEHOLDER_8))
+  (instruction j
+    (operands PLACEHOLDER_16))
+  (label PLACEHOLDER_20)
+  (instruction bne
+    (operands PLACEHOLDER_5 '{' PLACEHOLDER_21))
+  (call_statement PLACEHOLDER_10
+    (operands PLACEHOLDER_9))
+  (instruction j
+    (operands PLACEHOLDER_16))
+  (label PLACEHOLDER_21)
+  (instruction bne
+    (operands PLACEHOLDER_5 "')'" PLACEHOLDER_22))
+  (call_statement PLACEHOLDER_15
+    (operands PLACEHOLDER_7))
+  (instruction j
+    (operands PLACEHOLDER_16))
+  (label PLACEHOLDER_22)
+  (instruction bne
+    (operands PLACEHOLDER_5 ']' PLACEHOLDER_23))
+  (call_statement PLACEHOLDER_15
+    (operands PLACEHOLDER_8))
+  (instruction j
+    (operands PLACEHOLDER_16))
+  (label PLACEHOLDER_23)
+  (instruction bne
+    (operands PLACEHOLDER_5 '}' PLACEHOLDER_16))
+  (call_statement PLACEHOLDER_15
+    (operands PLACEHOLDER_9))
+  (instruction j
+    (operands PLACEHOLDER_16))
+  (label PLACEHOLDER_17)
+  (instruction la
+    (operands PLACEHOLDER_6 PLACEHOLDER_2))
+  (instruction seq
+    (operands $v0 PLACEHOLDER_4 PLACEHOLDER_6))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_14)
+  (instruction li
+    (operands $v0 0))
+  (instruction jr
+    (operands $ra)))

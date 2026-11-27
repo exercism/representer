@@ -1,45 +1,81 @@
-.globl valid
-valid:
-li $v0, 0 # assume invalid
-li $t9, 0 # number of digits
-li $t8, 0 # even luhn
-li $t7, 0 # odd luhn
-__loop:
-lb $t0, ($a0)
-addi $a0, $a0, 1
-beqz $t0, __validate
-beq $t0, ' ', __loop # ignore spaces
-blt $t0, '0', __return # invalid digit
-bgt $t0, '9', __return # invalid digit
-subi $t0, $t0, '0'
-addi $t9, $t9, 1
-rem $t1, $t9, 2
-beqz $t1, __even_length
-# we're at an odd position 1..3..5..7.. => even luhn doubles
-add $t7, $t7, $t0
-mul $t0, $t0, 2
-ble $t0, 9, __odd_length_add
-subi $t0, $t0, 9
-__odd_length_add:
-add $t8, $t8, $t0
-b __loop
-__even_length:
-# we're at an even position 2..4..6..8.. => odd luhn doubles
-add $t8, $t8, $t0
-mul $t0, $t0, 2
-ble $t0, 9, __even_length_add
-subi $t0, $t0, 9
-__even_length_add:
-add $t7, $t7, $t0
-b __loop
-__validate:
-ble $t9, 1, __return # strings of lengths 1 or 0 are invalid
-move $t0, $t8 # set even luhn as default
-rem $t1, $t9, 2
-beqz $t1, __check
-move $t0, $t7 # use odd luhn
-__check:
-rem $t1, $t0, 10
-seq $v0, $t1, 0
-__return:
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction li
+    (operands $v0 0))
+  (instruction li
+    (operands $t9 0))
+  (instruction li
+    (operands $t8 0))
+  (instruction li
+    (operands $t7 0))
+  (label PLACEHOLDER_2)
+  (instruction lb
+    (operands $t0
+      (parenthesized_expression
+        (operands $a0))))
+  (instruction addi
+    (operands $a0 $a0 1))
+  (instruction beqz
+    (operands $t0 PLACEHOLDER_3))
+  (instruction beq
+    (operands $t0 "' '" PLACEHOLDER_2))
+  (instruction blt
+    (operands $t0 '0' PLACEHOLDER_4))
+  (instruction bgt
+    (operands $t0 '9' PLACEHOLDER_4))
+  (instruction subi
+    (operands $t0 $t0 '0'))
+  (instruction addi
+    (operands $t9 $t9 1))
+  (instruction rem
+    (operands $t1 $t9 2))
+  (instruction beqz
+    (operands $t1 PLACEHOLDER_5))
+  (instruction add
+    (operands $t7 $t7 $t0))
+  (instruction mul
+    (operands $t0 $t0 2))
+  (instruction ble
+    (operands $t0 9 PLACEHOLDER_6))
+  (instruction subi
+    (operands $t0 $t0 9))
+  (label PLACEHOLDER_6)
+  (instruction add
+    (operands $t8 $t8 $t0))
+  (instruction b
+    (operands PLACEHOLDER_2))
+  (label PLACEHOLDER_5)
+  (instruction add
+    (operands $t8 $t8 $t0))
+  (instruction mul
+    (operands $t0 $t0 2))
+  (instruction ble
+    (operands $t0 9 PLACEHOLDER_7))
+  (instruction subi
+    (operands $t0 $t0 9))
+  (label PLACEHOLDER_7)
+  (instruction add
+    (operands $t7 $t7 $t0))
+  (instruction b
+    (operands PLACEHOLDER_2))
+  (label PLACEHOLDER_3)
+  (instruction ble
+    (operands $t9 1 PLACEHOLDER_4))
+  (instruction move
+    (operands $t0 $t8))
+  (instruction rem
+    (operands $t1 $t9 2))
+  (instruction beqz
+    (operands $t1 PLACEHOLDER_8))
+  (instruction move
+    (operands $t0 $t7))
+  (label PLACEHOLDER_8)
+  (instruction rem
+    (operands $t1 $t0 10))
+  (instruction seq
+    (operands $v0 $t1 0))
+  (label PLACEHOLDER_4)
+  (instruction jr
+    (operands $ra)))

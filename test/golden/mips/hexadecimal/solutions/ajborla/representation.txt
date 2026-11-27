@@ -1,260 +1,275 @@
-# -----------------------------------------------------------------------------
-# exercism.io
-# MIPS Track Exercise: hex_convert
-# Contributed: Anthony J. Borla (ajborla@bigpond.com)
-#
-# -------------------
-#
-# Converts a hex string into its decimal equivalent (integer form). Note:
-#
-# - accepts mixed-case hexadecmal values e.g. 0Ff056
-# - performs input validation; non-hexadecimal characters accepted
-# but their value set to zero, so a result is always generated
-# - validation logic / coding shown here:
-#
-# ASCII Conversion Code
-# ----- ---------- ----
-# '/' (47) x - 48 = -1 bltz $t3, fix_value
-# '0' (48) = 0 ble $t3, 9, convert
-# '9' (57) = 9 j chk_hex_upr
-# ':' (58) = 10
-# ---
-# '@' (64) x - 55 = 9 ble $t3, 9, fix_value
-# 'A' (65) = 10 ble $t3, 15, convert
-# 'F' (70) = 15 j chk_hex_lwr
-# 'G' (71) = 16
-# ---
-# '`' (96) x - 87 = 9 ble $t3, 9, fix_value
-# 'a' (97) = 10 ble $t3, 15, convert
-# 'f' (102) = 15 j fix_value
-# 'g' (103) = 16
-#
-# -------------------
-#
-# input: $a0 - hex string (HS) base address
-# return: $v0 - decimal value resulting from string conversion
-# local: $t0 - HS base address
-# $t1 - HS terminal character value
-# $t2 - current HS character address
-# $t3 - integer value of current HS character
-# $t4 - offset position of current HS character
-# $t5 - temporary storage
-# $t6 - accumulated decimal value
-# $a0 - current HS character value
-# $a1 - HS length
-# $a2 - HS loop counter
-# -----------------------------------------------------------------------------
-.text
-# ---- Macro Helpers
-# Clears temporary registers
-.macro clr_temp_regs
-or $t0, $0, $0
-or $t1, $0, $0
-or $t2, $0, $0
-or $t3, $0, $0
-or $t4, $0, $0
-or $t5, $0, $0
-or $t6, $0, $0
-or $t7, $0, $0
-or $t8, $0, $0
-or $t9, $0, $0
-.end_macro
-# Clears argument registers
-.macro clr_arg_regs
-or $a0, $0, $0
-or $a1, $0, $0
-or $a2, $0, $0
-or $a3, $0, $0
-.end_macro
-# ---------------------------------------
-.globl hex_convert
-# ---- Entry point
-hex_convert:
-# ---- Initialisation
-init:
-or $t0, $a0, $0 # HS base address
-ori $t1, $0, 0 # HS terminal character value (NUL)
-or $t6, $0, $0 # initialise result accumulator
-len_init:
-or $t2, $t0, $0 # HS base address (initial value)
-len_loop:
-lbu $a0, 0($t2) # load current HS character
-beq $a0, $t1, len_done # check for terminal character
-addiu $t2, $t2, 1 # point to next HS character
-j len_loop
-len_done:
-sub $a1, $t2, $t0 # $a1 = HS length
-or $a2, $a1, $0 # $a2 = $a1; loop counter
-addi $t2, $t2, -1 # $t2 now points to end of HS
-# ---- Main Loop
-loop:
-beq $a2, $0, done # check loop counter == 0
-# ---- Validation
-chk_digit:
-lbu $t3, 0($t2) # load current HS character
-addi $t3, $t3, -48 # convert ascii symbol to integer
-bltz $t3, fix_value # $t3 < 0 : invalid
-ble $t3, 9, convert # 0 <= $t3 <= 9 : in-range
-j chk_hex_upr # $t3 > 9 : further check
-chk_hex_upr:
-lbu $t3, 0($t2) # load current HS character
-addi $t3, $t3, -55 # convert ascii symbol to integer
-ble $t3, 9, fix_value # $t3 <= 9 : invalid
-ble $t3, 15, convert # 10 <= $t3 <= 15 : in-range
-j chk_hex_lwr # $t3 > 15 : further check
-chk_hex_lwr:
-lbu $t3, 0($t2) # load current HS character
-addi $t3, $t3, -87 # convert ascii symbol to integer
-ble $t3, 9, fix_value # $t3 <= 9 : invalid
-ble $t3, 15, convert # 10 <= $t3 <= 15 : in-range
-j fix_value # $t3 > 15 : invalid
-fix_value:
-ori $t3, $0, 0 # value out of range, so set it to 0
-# ---- Conversion
-convert:
-sub $t4, $a1, $a2 # offset = HS length - counter
-ori $t5, $0, 4 # load 4 for multiply offset
-mulu $t4, $t4, $t5 # offset = offset * 4
-ori $t5, $0, 1 # load 1 for shift left
-sllv $t5, $t5, $t4 # 2^(offset) == shl 1, offset
-mulu $t3, $t3, $t5 # $t3 = $t3 * 2^(offset)
-addu $t6, $t6, $t3 # accumulate result ($t6 += $t3)
-addiu $t2, $t2, -1 # point to next HS character
-addiu $a2, $a2, -1 # decrement loop counter
-j loop
-# ---- Cleanup
-done:
-or $v0, $t6, $0 # return accumulator value
-clr_arg_regs # clear argument registers
-clr_temp_regs # clear temporary registers
-jr $ra # return from subroutine
-# -----------------------------------------------------------------------------
-# exercism.io
-# MIPS Track Exercise: hex_convert
-# Contributed: Anthony J. Borla (ajborla@bigpond.com)
-#
-# -------------------
-#
-# Converts a hex string into its decimal equivalent (integer form). Note:
-#
-# - accepts mixed-case hexadecmal values e.g. 0Ff056
-# - performs input validation; non-hexadecimal characters accepted
-# but their value set to zero, so a result is always generated
-# - validation logic / coding shown here:
-#
-# ASCII Conversion Code
-# ----- ---------- ----
-# '/' (47) x - 48 = -1 bltz $t3, fix_value
-# '0' (48) = 0 ble $t3, 9, convert
-# '9' (57) = 9 j chk_hex_upr
-# ':' (58) = 10
-# ---
-# '@' (64) x - 55 = 9 ble $t3, 9, fix_value
-# 'A' (65) = 10 ble $t3, 15, convert
-# 'F' (70) = 15 j chk_hex_lwr
-# 'G' (71) = 16
-# ---
-# '`' (96) x - 87 = 9 ble $t3, 9, fix_value
-# 'a' (97) = 10 ble $t3, 15, convert
-# 'f' (102) = 15 j fix_value
-# 'g' (103) = 16
-#
-# -------------------
-#
-# input: $a0 - hex string (HS) base address
-# return: $v0 - decimal value resulting from string conversion
-# local: $t0 - HS base address
-# $t1 - HS terminal character value
-# $t2 - current HS character address
-# $t3 - integer value of current HS character
-# $t4 - offset position of current HS character
-# $t5 - temporary storage
-# $t6 - accumulated decimal value
-# $a0 - current HS character value
-# $a1 - HS length
-# $a2 - HS loop counter
-# -----------------------------------------------------------------------------
-.text
-# ---- Macro Helpers
-# Clears temporary registers
-.macro clr_temp_regs
-or $t0, $0, $0
-or $t1, $0, $0
-or $t2, $0, $0
-or $t3, $0, $0
-or $t4, $0, $0
-or $t5, $0, $0
-or $t6, $0, $0
-or $t7, $0, $0
-or $t8, $0, $0
-or $t9, $0, $0
-.end_macro
-# Clears argument registers
-.macro clr_arg_regs
-or $a0, $0, $0
-or $a1, $0, $0
-or $a2, $0, $0
-or $a3, $0, $0
-.end_macro
-# ---------------------------------------
-.globl hex_convert
-# ---- Entry point
-hex_convert:
-# ---- Initialisation
-init:
-or $t0, $a0, $0 # HS base address
-ori $t1, $0, 0 # HS terminal character value (NUL)
-or $t6, $0, $0 # initialise result accumulator
-len_init:
-or $t2, $t0, $0 # HS base address (initial value)
-len_loop:
-lbu $a0, 0($t2) # load current HS character
-beq $a0, $t1, len_done # check for terminal character
-addiu $t2, $t2, 1 # point to next HS character
-j len_loop
-len_done:
-sub $a1, $t2, $t0 # $a1 = HS length
-or $a2, $a1, $0 # $a2 = $a1; loop counter
-addi $t2, $t2, -1 # $t2 now points to end of HS
-# ---- Main Loop
-loop:
-beq $a2, $0, done # check loop counter == 0
-# ---- Validation
-chk_digit:
-lbu $t3, 0($t2) # load current HS character
-addi $t3, $t3, -48 # convert ascii symbol to integer
-bltz $t3, fix_value # $t3 < 0 : invalid
-ble $t3, 9, convert # 0 <= $t3 <= 9 : in-range
-j chk_hex_upr # $t3 > 9 : further check
-chk_hex_upr:
-lbu $t3, 0($t2) # load current HS character
-addi $t3, $t3, -55 # convert ascii symbol to integer
-ble $t3, 9, fix_value # $t3 <= 9 : invalid
-ble $t3, 15, convert # 10 <= $t3 <= 15 : in-range
-j chk_hex_lwr # $t3 > 15 : further check
-chk_hex_lwr:
-lbu $t3, 0($t2) # load current HS character
-addi $t3, $t3, -87 # convert ascii symbol to integer
-ble $t3, 9, fix_value # $t3 <= 9 : invalid
-ble $t3, 15, convert # 10 <= $t3 <= 15 : in-range
-j fix_value # $t3 > 15 : invalid
-fix_value:
-ori $t3, $0, 0 # value out of range, so set it to 0
-# ---- Conversion
-convert:
-sub $t4, $a1, $a2 # offset = HS length - counter
-ori $t5, $0, 4 # load 4 for multiply offset
-mulu $t4, $t4, $t5 # offset = offset * 4
-ori $t5, $0, 1 # load 1 for shift left
-sllv $t5, $t5, $t4 # 2^(offset) == shl 1, offset
-mulu $t3, $t3, $t5 # $t3 = $t3 * 2^(offset)
-addu $t6, $t6, $t3 # accumulate result ($t6 += $t3)
-addiu $t2, $t2, -1 # point to next HS character
-addiu $a2, $a2, -1 # decrement loop counter
-j loop
-# ---- Cleanup
-done:
-or $v0, $t6, $0 # return accumulator value
-clr_arg_regs # clear argument registers
-clr_temp_regs # clear temporary registers
-jr $ra # return from subroutine
+(program
+  (directive .text)
+  (directive .macro (macro_name PLACEHOLDER_1))
+  (instruction or
+    (operands $t0 $0 $0))
+  (instruction or
+    (operands $t1 $0 $0))
+  (instruction or
+    (operands $t2 $0 $0))
+  (instruction or
+    (operands $t3 $0 $0))
+  (instruction or
+    (operands $t4 $0 $0))
+  (instruction or
+    (operands $t5 $0 $0))
+  (instruction or
+    (operands $t6 $0 $0))
+  (instruction or
+    (operands $t7 $0 $0))
+  (instruction or
+    (operands $t8 $0 $0))
+  (instruction or
+    (operands $t9 $0 $0))
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_2))
+  (instruction or
+    (operands $a0 $0 $0))
+  (instruction or
+    (operands $a1 $0 $0))
+  (instruction or
+    (operands $a2 $0 $0))
+  (instruction or
+    (operands $a3 $0 $0))
+  (directive .end_macro)
+  (directive .globl
+    (directive_operands PLACEHOLDER_3))
+  (label PLACEHOLDER_3)
+  (label PLACEHOLDER_4)
+  (instruction or
+    (operands $t0 $a0 $0))
+  (instruction ori
+    (operands $t1 $0 0))
+  (instruction or
+    (operands $t6 $0 $0))
+  (label PLACEHOLDER_5)
+  (instruction or
+    (operands $t2 $t0 $0))
+  (label PLACEHOLDER_6)
+  (instruction lbu
+    (operands $a0
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction beq
+    (operands $a0 $t1 PLACEHOLDER_7))
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_7)
+  (instruction sub
+    (operands $a1 $t2 $t0))
+  (instruction or
+    (operands $a2 $a1 $0))
+  (instruction addi
+    (operands $t2 $t2 -1))
+  (label PLACEHOLDER_8)
+  (instruction beq
+    (operands $a2 $0 PLACEHOLDER_9))
+  (label PLACEHOLDER_10)
+  (instruction lbu
+    (operands $t3
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction addi
+    (operands $t3 $t3 -48))
+  (instruction bltz
+    (operands $t3 PLACEHOLDER_11))
+  (instruction ble
+    (operands $t3 9 PLACEHOLDER_12))
+  (instruction j
+    (operands PLACEHOLDER_13))
+  (label PLACEHOLDER_13)
+  (instruction lbu
+    (operands $t3
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction addi
+    (operands $t3 $t3 -55))
+  (instruction ble
+    (operands $t3 9 PLACEHOLDER_11))
+  (instruction ble
+    (operands $t3 15 PLACEHOLDER_12))
+  (instruction j
+    (operands PLACEHOLDER_14))
+  (label PLACEHOLDER_14)
+  (instruction lbu
+    (operands $t3
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction addi
+    (operands $t3 $t3 -87))
+  (instruction ble
+    (operands $t3 9 PLACEHOLDER_11))
+  (instruction ble
+    (operands $t3 15 PLACEHOLDER_12))
+  (instruction j
+    (operands PLACEHOLDER_11))
+  (label PLACEHOLDER_11)
+  (instruction ori
+    (operands $t3 $0 0))
+  (label PLACEHOLDER_12)
+  (instruction sub
+    (operands $t4 $a1 $a2))
+  (instruction ori
+    (operands $t5 $0 4))
+  (instruction mulu
+    (operands $t4 $t4 $t5))
+  (instruction ori
+    (operands $t5 $0 1))
+  (instruction sllv
+    (operands $t5 $t5 $t4))
+  (instruction mulu
+    (operands $t3 $t3 $t5))
+  (instruction addu
+    (operands $t6 $t6 $t3))
+  (instruction addiu
+    (operands $t2 $t2 -1))
+  (instruction addiu
+    (operands $a2 $a2 -1))
+  (instruction j
+    (operands PLACEHOLDER_8))
+  (label PLACEHOLDER_9)
+  (instruction or
+    (operands $v0 $t6 $0))
+  (call_statement PLACEHOLDER_2)
+  (call_statement PLACEHOLDER_1)
+  (instruction jr
+    (operands $ra))
+  (directive .text)
+  (directive .macro (macro_name PLACEHOLDER_1))
+  (instruction or
+    (operands $t0 $0 $0))
+  (instruction or
+    (operands $t1 $0 $0))
+  (instruction or
+    (operands $t2 $0 $0))
+  (instruction or
+    (operands $t3 $0 $0))
+  (instruction or
+    (operands $t4 $0 $0))
+  (instruction or
+    (operands $t5 $0 $0))
+  (instruction or
+    (operands $t6 $0 $0))
+  (instruction or
+    (operands $t7 $0 $0))
+  (instruction or
+    (operands $t8 $0 $0))
+  (instruction or
+    (operands $t9 $0 $0))
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_2))
+  (instruction or
+    (operands $a0 $0 $0))
+  (instruction or
+    (operands $a1 $0 $0))
+  (instruction or
+    (operands $a2 $0 $0))
+  (instruction or
+    (operands $a3 $0 $0))
+  (directive .end_macro)
+  (directive .globl
+    (directive_operands PLACEHOLDER_3))
+  (label PLACEHOLDER_3)
+  (label PLACEHOLDER_4)
+  (instruction or
+    (operands $t0 $a0 $0))
+  (instruction ori
+    (operands $t1 $0 0))
+  (instruction or
+    (operands $t6 $0 $0))
+  (label PLACEHOLDER_5)
+  (instruction or
+    (operands $t2 $t0 $0))
+  (label PLACEHOLDER_6)
+  (instruction lbu
+    (operands $a0
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction beq
+    (operands $a0 $t1 PLACEHOLDER_7))
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_7)
+  (instruction sub
+    (operands $a1 $t2 $t0))
+  (instruction or
+    (operands $a2 $a1 $0))
+  (instruction addi
+    (operands $t2 $t2 -1))
+  (label PLACEHOLDER_8)
+  (instruction beq
+    (operands $a2 $0 PLACEHOLDER_9))
+  (label PLACEHOLDER_10)
+  (instruction lbu
+    (operands $t3
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction addi
+    (operands $t3 $t3 -48))
+  (instruction bltz
+    (operands $t3 PLACEHOLDER_11))
+  (instruction ble
+    (operands $t3 9 PLACEHOLDER_12))
+  (instruction j
+    (operands PLACEHOLDER_13))
+  (label PLACEHOLDER_13)
+  (instruction lbu
+    (operands $t3
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction addi
+    (operands $t3 $t3 -55))
+  (instruction ble
+    (operands $t3 9 PLACEHOLDER_11))
+  (instruction ble
+    (operands $t3 15 PLACEHOLDER_12))
+  (instruction j
+    (operands PLACEHOLDER_14))
+  (label PLACEHOLDER_14)
+  (instruction lbu
+    (operands $t3
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction addi
+    (operands $t3 $t3 -87))
+  (instruction ble
+    (operands $t3 9 PLACEHOLDER_11))
+  (instruction ble
+    (operands $t3 15 PLACEHOLDER_12))
+  (instruction j
+    (operands PLACEHOLDER_11))
+  (label PLACEHOLDER_11)
+  (instruction ori
+    (operands $t3 $0 0))
+  (label PLACEHOLDER_12)
+  (instruction sub
+    (operands $t4 $a1 $a2))
+  (instruction ori
+    (operands $t5 $0 4))
+  (instruction mulu
+    (operands $t4 $t4 $t5))
+  (instruction ori
+    (operands $t5 $0 1))
+  (instruction sllv
+    (operands $t5 $t5 $t4))
+  (instruction mulu
+    (operands $t3 $t3 $t5))
+  (instruction addu
+    (operands $t6 $t6 $t3))
+  (instruction addiu
+    (operands $t2 $t2 -1))
+  (instruction addiu
+    (operands $a2 $a2 -1))
+  (instruction j
+    (operands PLACEHOLDER_8))
+  (label PLACEHOLDER_9)
+  (instruction or
+    (operands $v0 $t6 $0))
+  (call_statement PLACEHOLDER_2)
+  (call_statement PLACEHOLDER_1)
+  (instruction jr
+    (operands $ra)))

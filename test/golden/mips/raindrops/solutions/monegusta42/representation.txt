@@ -1,71 +1,141 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------- |
-# | `$a0` | input | integer | given number |
-# | `$a1` | input/output | address | null-terminated result string |
-# | `$t0-9` | temporary | any | for temporary storage |
-.globl raindrops
-# writes "\"Pl%ng\"" to output str (from $t0)
-# uses $t9
-.macro plng(%l)
-li $t9, 'P'
-sb $t9, 0($t0)
-li $t9, 'l'
-sb $t9, 1($t0)
-add $t9, $zero, %l
-sb $t9, 2($t0)
-li $t9, 'n'
-sb $t9, 3($t0)
-li $t9, 'g'
-sb $t9, 4($t0)
-addi $t0, $t0, 5
-.end_macro
-raindrops:
-move $t0, $a1
-li $t1, 3 # check if divisible by 3
-div $a0, $t1
-mfhi $t1
-bnez $t1, chk5 # skip if not divisible by 3
-plng('i') # write "\"Pling\""
-chk5:
-li $t1, 5 # check if divisible by 5
-div $a0, $t1
-mfhi $t1
-bnez $t1, chk7 # skip if not divisible by 5
-plng('a') # write "\"Plang\""
-chk7:
-li $t1, 7 # check if divisible by 7
-div $a0, $t1
-mfhi $t1
-bnez $t1, chk0 # skip if not divisible by 7
-plng('o') # write "\"Plong\""
-chk0:
-bne $a1, $t0, done # if we wrote anything to output, we are done
-bnez $a0, to_str # special case if input was 0
-li $t1, '0'
-sb $t1, 0($t0) # write '0' to output string
-addi $t0, $t0, 1 # adv str pointer
-j done
-to_str:
-move $t1, $sp # store stack pointer
-move $t2, $a0 # copy input
-li $t3, 10 # divisor
-li $t8, '0'
-pshdig:
-beqz $t2, write
-div $t2, $t3 # div by 10 to get quo ($lo) and rem ($hi)
-mflo $t2
-mfhi $t9
-add $t9, $t9, $t8 # convert to char
-addi $sp, $sp, -1 # make space on stack
-sb $t9, 0($sp) # push char onto stack
-j pshdig
-write:
-beq $sp, $t1, done # if back to original $sp, done
-lb $t9, 0($sp) # load char from stack
-subi $sp, $sp, -1 # dec stack pointer
-sb $t9, 0($t0) # add char to output str
-addi $t0, $t0, 1 # adv output str pointer
-j write
-done:
-sb $zero, 0($t0) # cap output str with \0
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (directive .macro (macro_name PLACEHOLDER_2)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_3))))
+  (instruction li
+    (operands $t9 'P'))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction li
+    (operands $t9 'l'))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression 1
+        (operands $t0))))
+  (instruction add
+    (operands $t9 $zero (macro_variable PLACEHOLDER_3)))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression 2
+        (operands $t0))))
+  (instruction li
+    (operands $t9 'n'))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression 3
+        (operands $t0))))
+  (instruction li
+    (operands $t9 'g'))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression 4
+        (operands $t0))))
+  (instruction addi
+    (operands $t0 $t0 5))
+  (directive .end_macro)
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands $t0 $a1))
+  (instruction li
+    (operands $t1 3))
+  (instruction div
+    (operands $a0 $t1))
+  (instruction mfhi
+    (operands $t1))
+  (instruction bnez
+    (operands $t1 PLACEHOLDER_4))
+  (call_statement PLACEHOLDER_2
+    (operands 'i'))
+  (label PLACEHOLDER_4)
+  (instruction li
+    (operands $t1 5))
+  (instruction div
+    (operands $a0 $t1))
+  (instruction mfhi
+    (operands $t1))
+  (instruction bnez
+    (operands $t1 PLACEHOLDER_5))
+  (call_statement PLACEHOLDER_2
+    (operands 'a'))
+  (label PLACEHOLDER_5)
+  (instruction li
+    (operands $t1 7))
+  (instruction div
+    (operands $a0 $t1))
+  (instruction mfhi
+    (operands $t1))
+  (instruction bnez
+    (operands $t1 PLACEHOLDER_6))
+  (call_statement PLACEHOLDER_2
+    (operands 'o'))
+  (label PLACEHOLDER_6)
+  (instruction bne
+    (operands $a1 $t0 PLACEHOLDER_7))
+  (instruction bnez
+    (operands $a0 PLACEHOLDER_8))
+  (instruction li
+    (operands $t1 '0'))
+  (instruction sb
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction addi
+    (operands $t0 $t0 1))
+  (instruction j
+    (operands PLACEHOLDER_7))
+  (label PLACEHOLDER_8)
+  (instruction move
+    (operands $t1 $sp))
+  (instruction move
+    (operands $t2 $a0))
+  (instruction li
+    (operands $t3 10))
+  (instruction li
+    (operands $t8 '0'))
+  (label PLACEHOLDER_9)
+  (instruction beqz
+    (operands $t2 PLACEHOLDER_10))
+  (instruction div
+    (operands $t2 $t3))
+  (instruction mflo
+    (operands $t2))
+  (instruction mfhi
+    (operands $t9))
+  (instruction add
+    (operands $t9 $t9 $t8))
+  (instruction addi
+    (operands $sp $sp -1))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression 0
+        (operands $sp))))
+  (instruction j
+    (operands PLACEHOLDER_9))
+  (label PLACEHOLDER_10)
+  (instruction beq
+    (operands $sp $t1 PLACEHOLDER_7))
+  (instruction lb
+    (operands $t9
+      (parenthesized_expression 0
+        (operands $sp))))
+  (instruction subi
+    (operands $sp $sp -1))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction addi
+    (operands $t0 $t0 1))
+  (instruction j
+    (operands PLACEHOLDER_10))
+  (label PLACEHOLDER_7)
+  (instruction sb
+    (operands $zero
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction jr
+    (operands $ra)))

@@ -1,45 +1,67 @@
-# | Register | Usage | Type | Description |
-# | -------- | --------- | ------- | ------------------------------------------------------------------------------------- |
-# | `$a0` | input | integer | number |
-# | `$v0` | output | integer | classification (`1` = `perfect`, `2` = `abundant`, `3` = `deficient`, `-1` = `error`) |
-# | `$t0` | temporary | integer | sum of factors |
-# | `$t1` | temporary | integer | candidate factor |
-.eqv PERFECT 1
-.eqv ABUNDANT 2
-.eqv DEFICIENT 3
-.eqv ERROR -1
-.globl classify
-classify:
-ble $a0, $zero, error # Classification is only possible for positive integers.
-move $t0, $zero
-move $t1, $zero
-j square
-divide:
-div $a0, $t1
-mfhi $t2
-bnez $t2, square # Exclude candidate factor if remainder is non-zero
-mflo $t3
-add $t0, $t0, $t1 # candidate factor is confirmed as a factor
-add $t0, $t0, $t3 # Another factor is a0 / candidate factor
-square:
-addi $t1, $t1, 1 # Advance to the next candidate factor
-mul $t2, $t1, $t1 # Square the candidate factor
-blt $t2, $a0, divide # The square root of $a0 has not yet been reached.
-bne $t2, $a0, exclude_number
-add $t0, $t0, $t1 # The square root of $a0 is a factor.
-exclude_number:
-sub $t0, $t0, $a0 # We exclude the supplied number itself.
-bgt $t0, $a0, abundant
-blt $t0, $a0, deficient
-perfect:
-li $v0, PERFECT
-jr $ra
-abundant:
-li $v0, ABUNDANT
-jr $ra
-deficient:
-li $v0, DEFICIENT
-jr $ra
-error:
-li $v0, ERROR
-jr $ra
+(program
+  (eqv PLACEHOLDER_1 1)
+  (eqv PLACEHOLDER_2 2)
+  (eqv PLACEHOLDER_3 3)
+  (eqv PLACEHOLDER_4 -1)
+  (directive .globl
+    (directive_operands PLACEHOLDER_5))
+  (label PLACEHOLDER_5)
+  (instruction ble
+    (operands $a0 $zero PLACEHOLDER_6))
+  (instruction move
+    (operands $t0 $zero))
+  (instruction move
+    (operands $t1 $zero))
+  (instruction j
+    (operands PLACEHOLDER_7))
+  (label PLACEHOLDER_8)
+  (instruction div
+    (operands $a0 $t1))
+  (instruction mfhi
+    (operands $t2))
+  (instruction bnez
+    (operands $t2 PLACEHOLDER_7))
+  (instruction mflo
+    (operands $t3))
+  (instruction add
+    (operands $t0 $t0 $t1))
+  (instruction add
+    (operands $t0 $t0 $t3))
+  (label PLACEHOLDER_7)
+  (instruction addi
+    (operands $t1 $t1 1))
+  (instruction mul
+    (operands $t2 $t1 $t1))
+  (instruction blt
+    (operands $t2 $a0 PLACEHOLDER_8))
+  (instruction bne
+    (operands $t2 $a0 PLACEHOLDER_9))
+  (instruction add
+    (operands $t0 $t0 $t1))
+  (label PLACEHOLDER_9)
+  (instruction sub
+    (operands $t0 $t0 $a0))
+  (instruction bgt
+    (operands $t0 $a0 PLACEHOLDER_10))
+  (instruction blt
+    (operands $t0 $a0 PLACEHOLDER_11))
+  (label PLACEHOLDER_12)
+  (instruction li
+    (operands $v0 PLACEHOLDER_1))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_10)
+  (instruction li
+    (operands $v0 PLACEHOLDER_2))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_11)
+  (instruction li
+    (operands $v0 PLACEHOLDER_3))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_6)
+  (instruction li
+    (operands $v0 PLACEHOLDER_4))
+  (instruction jr
+    (operands $ra)))

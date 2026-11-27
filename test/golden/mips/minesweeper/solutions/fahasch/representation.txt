@@ -1,78 +1,124 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------- |
-# | `$a0` | input | address | null-terminated input string |
-# | `$a1` | input/output | address | null-terminated output string |
-# | `$t0-9` | temporary | any | for temporary storage |
-.globl annotate
-# macro that increases mine count at
-# position $t1
-# uses: $t9
-.macro inc_mine
-lb $t9, ($t1)
-beq $t9, '\n', __end # skip for '\n'
-beq $t9, '*', __end # skip for '*'
-bne $t9, ' ', __inc
-li $t9, '0' # replace ' ' with '0'
-__inc:
-addiu $t9, $t9, 1
-sb $t9, ($t1)
-__end:
-.end_macro
-# macro that loops through the input and checks for mines
-# input:
-# $t0 initial pointer in input
-# $t1 initial pointer in output
-# we keep the distance between $t0 and $t1 fixed to check
-# in a specific "\"direction\""
-#
-# the register %reg is $t0, $t1 and %offset denotes the positive offset
-#
-# uses: $t9
-.macro check_mines (%reg, %offset)
-ble $t3, %offset, __end # start point beyond board size
-move $t0, $a0
-move $t1, $a1
-addu %reg, %reg, %offset # adjust %reg by offset
-__loop:
-lb $t9, (%reg)
-beqz $t9, __end # end of board
-lb $t9, ($t0)
-bne $t9, '*', __next
-inc_mine # found a mine
-__next:
-addiu $t0, $t0, 1
-addiu $t1, $t1, 1
-j __loop
-__end:
-.end_macro
-annotate:
-move $t0, $a0
-move $t1, $a1
-__copy: # copy the input to the output
-lb $t2, ($t0)
-sb $t2, ($t1)
-addiu $t0, $t0, 1
-addiu $t1, $t1, 1
-bnez $t2, __copy
-sub $t3, $t0, $a0 # $t3: size of board (in bytes)
-addi $t0, $t0, -1
-beq $t0, $a0, __end # empty board?
-move $t1, $a1
-__find_width: # find width of board -> $t2
-lb $t2, ($t1)
-addiu $t1, $t1, 1
-bne $t2, '\n', __find_width # loop until '\n' found
-sub $t2, $t1, $a1 # calculate $t2 = $t1 - $a1 -1
-addi $t2, $t2, -1
-check_mines($t1, 1) # check mines to the left
-check_mines($t0, 1) # check mines to the right
-check_mines($t1, $t2) # check mines on bottom-left
-check_mines($t0, $t2) # check mines on top-right
-addiu $t2, $t2, 1 # inc $t2
-check_mines($t1, $t2) # check mines on bottom
-check_mines($t0, $t2) # check mines on top
-addiu $t2, $t2, 1 # inc $t2
-check_mines($t1, $t2) # check mines on bottom-right
-check_mines($t0, $t2) # check mines on top-left
-__end:
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (directive .macro (macro_name PLACEHOLDER_2))
+  (instruction lb
+    (operands $t9
+      (parenthesized_expression
+        (operands $t1))))
+  (instruction beq
+    (operands $t9 "'\\n'" PLACEHOLDER_3))
+  (instruction beq
+    (operands $t9 '*' PLACEHOLDER_3))
+  (instruction bne
+    (operands $t9 "' '" PLACEHOLDER_4))
+  (instruction li
+    (operands $t9 '0'))
+  (label PLACEHOLDER_4)
+  (instruction addiu
+    (operands $t9 $t9 1))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression
+        (operands $t1))))
+  (label PLACEHOLDER_3)
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_5)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_6))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_7))))
+  (instruction ble
+    (operands $t3 (macro_variable PLACEHOLDER_7) PLACEHOLDER_3))
+  (instruction move
+    (operands $t0 $a0))
+  (instruction move
+    (operands $t1 $a1))
+  (instruction addu
+    (operands (macro_variable PLACEHOLDER_6) (macro_variable PLACEHOLDER_6) (macro_variable PLACEHOLDER_7)))
+  (label PLACEHOLDER_8)
+  (instruction lb
+    (operands $t9
+      (parenthesized_expression
+        (operands (macro_variable PLACEHOLDER_6)))))
+  (instruction beqz
+    (operands $t9 PLACEHOLDER_3))
+  (instruction lb
+    (operands $t9
+      (parenthesized_expression
+        (operands $t0))))
+  (instruction bne
+    (operands $t9 '*' PLACEHOLDER_9))
+  (call_statement PLACEHOLDER_2)
+  (label PLACEHOLDER_9)
+  (instruction addiu
+    (operands $t0 $t0 1))
+  (instruction addiu
+    (operands $t1 $t1 1))
+  (instruction j
+    (operands PLACEHOLDER_8))
+  (label PLACEHOLDER_3)
+  (directive .end_macro)
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands $t0 $a0))
+  (instruction move
+    (operands $t1 $a1))
+  (label PLACEHOLDER_10)
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression
+        (operands $t0))))
+  (instruction sb
+    (operands $t2
+      (parenthesized_expression
+        (operands $t1))))
+  (instruction addiu
+    (operands $t0 $t0 1))
+  (instruction addiu
+    (operands $t1 $t1 1))
+  (instruction bnez
+    (operands $t2 PLACEHOLDER_10))
+  (instruction sub
+    (operands $t3 $t0 $a0))
+  (instruction addi
+    (operands $t0 $t0 -1))
+  (instruction beq
+    (operands $t0 $a0 PLACEHOLDER_3))
+  (instruction move
+    (operands $t1 $a1))
+  (label PLACEHOLDER_11)
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression
+        (operands $t1))))
+  (instruction addiu
+    (operands $t1 $t1 1))
+  (instruction bne
+    (operands $t2 "'\\n'" PLACEHOLDER_11))
+  (instruction sub
+    (operands $t2 $t1 $a1))
+  (instruction addi
+    (operands $t2 $t2 -1))
+  (call_statement PLACEHOLDER_5
+    (operands $t1 1))
+  (call_statement PLACEHOLDER_5
+    (operands $t0 1))
+  (call_statement PLACEHOLDER_5
+    (operands $t1 $t2))
+  (call_statement PLACEHOLDER_5
+    (operands $t0 $t2))
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (call_statement PLACEHOLDER_5
+    (operands $t1 $t2))
+  (call_statement PLACEHOLDER_5
+    (operands $t0 $t2))
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (call_statement PLACEHOLDER_5
+    (operands $t1 $t2))
+  (call_statement PLACEHOLDER_5
+    (operands $t0 $t2))
+  (label PLACEHOLDER_3)
+  (instruction jr
+    (operands $ra)))

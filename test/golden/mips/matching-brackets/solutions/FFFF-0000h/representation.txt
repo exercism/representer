@@ -1,68 +1,107 @@
-# is_paired - check if brackets are balanced
-# $a0: pointer to null-terminated input string
-# $v0: 1 if balanced, 0 otherwise
-.globl is_paired
-is_paired:
-# preserve original stack pointer
-move $t8, $sp
-move $t0, $a0 # pointer to string
-loop:
-lb $t1, 0($t0) # load current character
-beqz $t1, end_loop # end of string
-# check for opening brackets
-li $t2, '('
-beq $t1, $t2, push_open
-li $t2, '{'
-beq $t1, $t2, push_open
-li $t2, '['
-beq $t1, $t2, push_open
-# check for closing brackets
-li $t2, ')'
-beq $t1, $t2, check_close
-li $t2, '}'
-beq $t1, $t2, check_close
-li $t2, ']'
-beq $t1, $t2, check_close
-# ignore any other character
-j next_char
-push_open:
-# push the opening bracket onto the stack
-addiu $sp, $sp, -4
-sw $t1, 0($sp)
-j next_char
-check_close:
-# if stack is empty, mismatch
-beq $sp, $t8, mismatch
-# pop the top bracket
-lw $t2, 0($sp)
-addiu $sp, $sp, 4
-# $t1 = closing bracket, $t2 = expected opening bracket
-li $t3, ')'
-bne $t1, $t3, not_paren
-li $t3, '('
-bne $t2, $t3, mismatch
-j next_char
-not_paren:
-li $t3, '}'
-bne $t1, $t3, not_brace
-li $t3, '{'
-bne $t2, $t3, mismatch
-j next_char
-not_brace:
-# must be ']'
-li $t3, '['
-bne $t2, $t3, mismatch
-j next_char
-next_char:
-addiu $t0, $t0, 1 # move to next character
-j loop
-end_loop:
-beq $sp, $t8, success # stack empty -> balanced
-# otherwise fall through to mismatch
-mismatch:
-move $sp, $t8 # restore stack pointer
-li $v0, 0
-jr $ra
-success:
-li $v0, 1
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands $t8 $sp))
+  (instruction move
+    (operands $t0 $a0))
+  (label PLACEHOLDER_2)
+  (instruction lb
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction beqz
+    (operands $t1 PLACEHOLDER_3))
+  (instruction li
+    (operands $t2 "'('"))
+  (instruction beq
+    (operands $t1 $t2 PLACEHOLDER_4))
+  (instruction li
+    (operands $t2 '{'))
+  (instruction beq
+    (operands $t1 $t2 PLACEHOLDER_4))
+  (instruction li
+    (operands $t2 '['))
+  (instruction beq
+    (operands $t1 $t2 PLACEHOLDER_4))
+  (instruction li
+    (operands $t2 "')'"))
+  (instruction beq
+    (operands $t1 $t2 PLACEHOLDER_5))
+  (instruction li
+    (operands $t2 '}'))
+  (instruction beq
+    (operands $t1 $t2 PLACEHOLDER_5))
+  (instruction li
+    (operands $t2 ']'))
+  (instruction beq
+    (operands $t1 $t2 PLACEHOLDER_5))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_4)
+  (instruction addiu
+    (operands $sp $sp -4))
+  (instruction sw
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $sp))))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_5)
+  (instruction beq
+    (operands $sp $t8 PLACEHOLDER_7))
+  (instruction lw
+    (operands $t2
+      (parenthesized_expression 0
+        (operands $sp))))
+  (instruction addiu
+    (operands $sp $sp 4))
+  (instruction li
+    (operands $t3 "')'"))
+  (instruction bne
+    (operands $t1 $t3 PLACEHOLDER_8))
+  (instruction li
+    (operands $t3 "'('"))
+  (instruction bne
+    (operands $t2 $t3 PLACEHOLDER_7))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_8)
+  (instruction li
+    (operands $t3 '}'))
+  (instruction bne
+    (operands $t1 $t3 PLACEHOLDER_9))
+  (instruction li
+    (operands $t3 '{'))
+  (instruction bne
+    (operands $t2 $t3 PLACEHOLDER_7))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_9)
+  (instruction li
+    (operands $t3 '['))
+  (instruction bne
+    (operands $t2 $t3 PLACEHOLDER_7))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_6)
+  (instruction addiu
+    (operands $t0 $t0 1))
+  (instruction j
+    (operands PLACEHOLDER_2))
+  (label PLACEHOLDER_3)
+  (instruction beq
+    (operands $sp $t8 PLACEHOLDER_10))
+  (label PLACEHOLDER_7)
+  (instruction move
+    (operands $sp $t8))
+  (instruction li
+    (operands $v0 0))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_10)
+  (instruction li
+    (operands $v0 1))
+  (instruction jr
+    (operands $ra)))

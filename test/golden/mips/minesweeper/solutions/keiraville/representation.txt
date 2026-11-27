@@ -1,89 +1,150 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | --------------------------------------------- |
-# | `$a0` | input | address | null-terminated input string |
-# | `$a1` | input/output | address | null-terminated output string |
-# | `$t0` | temporary | address | pointer into input |
-# | `$t1` | temporary | byte | input character |
-# | `$t2` | temporary | address | line length (including newline character) |
-# | `$t3` | temporary | address | location of input's null terminator |
-# | `$t4` | temporary | address | previous row (or current for first row) |
-# | `$t5` | temporary | address | current row |
-# | `$t6` | temporary | address | next row (or current for last row) |
-# | `$t7` | temporary | integer | previous column (or current for first column) |
-# | `$t8` | temporary | integer | current column |
-# | `$t9` | temporary | integer | next column (or current for last column) |
-# | `$a2` | temporary | address | row of adjacent square |
-# | `$a3` | temporary | integer | column of adjacent square |
-# | `$v0` | temporary | byte | newline character |
-# | `$v1` | temporary | integer | number of adjacent mines |
-# | `$s0` | temporary | byte | mine character '*' |
-.globl annotate
-annotate:
-move $t0, $a0
-lb $t1, 0($t0) # read first byte of minefield
-beqz $t1, return
-subi $sp, $sp, 4 # preserve original $s0 value on stack
-sw $s0, 0($sp)
-li $s0, '*' # mine character
-li $v0, '\n'
-find_newline:
-lb $t1, 0($t0)
-addi $t0, $t0, 1
-bne $t1, $v0, find_newline
-sub $t2, $t0, $a0 # line length (including newline character)
-move $t0, $a0
-find_null:
-add $t0, $t0, $t2 # jump ahead by line length
-lb $t1, 0($t0)
-bnez $t1, find_null
-move $t3, $t0 # location of input's null terminator
-move $t5, $a0
-move $t6, $a0 # start of first row
-next_row:
-move $t8, $zero # first column
-move $t9, $zero
-move $t4, $t5 # current row becomes previous row
-move $t5, $t6 # next row becomes current row
-add $t6, $t5, $t2 # next row
-bne $t6, $t3, first_column
-move $t6, $t5 # last row
-first_column:
-beq $t2, 1, write_newline # jump ahead if rows contain no squares
-next_column:
-move $t7, $t8 # current column becomes previous column
-move $t8, $t9 # next column becomes current column
-addi $t9, $t8, 2
-sne $t9, $t9, $t2 # Set $t9 to 1 if there are more columns, otherwise 0
-add $t9, $t8, $t9 # next column
-add $t0, $t5, $t8 # address of minefield square
-lb $t1, 0($t0)
-beq $t1, $s0, write_square # jump ahead if we have reached a mine
-move $v1, $zero # number of adjacent mines
-subu $a2, $t4, $t2
-adjacent_row:
-addu $a2, $a2, $t2 # address of adjacent row: $t4, $t4+$t2, $t6
-subiu $a3, $t7, 1
-adjacent_column:
-addiu $a3, $a3, 1 # index of adjacent column: $t7, $t7+1, $t9
-add $t0, $a2, $a3 # address of adjacent square
-lb $t1, 0($t0)
-seq $t0, $t1, $s0 # 1 if square contains mine, 0 otherwise
-add $v1, $v1, $t0 # update mine count
-bne $a3, $t9, adjacent_column
-bne $a2, $t6, adjacent_row
-li $t1, ' '
-beqz $v1, write_square
-addi $t1, $v1, '0' # mine count, as ASCII digit
-write_square:
-sb $t1, 0($a1)
-addi $a1, $a1, 1 # increment output pointer
-bne $t8, $t9, next_column
-write_newline:
-sb $v0, 0($a1) # write '\n'
-addi $a1, $a1, 1
-bne $t5, $t6, next_row
-lw $s0, 0($sp) # restore original $s0 value
-addi $sp, $sp, 4
-return:
-sb $zero, 0($a1) # null terminator
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands $t0 $a0))
+  (instruction lb
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction beqz
+    (operands $t1 PLACEHOLDER_2))
+  (instruction subi
+    (operands $sp $sp 4))
+  (instruction sw
+    (operands $s0
+      (parenthesized_expression 0
+        (operands $sp))))
+  (instruction li
+    (operands $s0 '*'))
+  (instruction li
+    (operands $v0 "'\\n'"))
+  (label PLACEHOLDER_3)
+  (instruction lb
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction addi
+    (operands $t0 $t0 1))
+  (instruction bne
+    (operands $t1 $v0 PLACEHOLDER_3))
+  (instruction sub
+    (operands $t2 $t0 $a0))
+  (instruction move
+    (operands $t0 $a0))
+  (label PLACEHOLDER_4)
+  (instruction add
+    (operands $t0 $t0 $t2))
+  (instruction lb
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction bnez
+    (operands $t1 PLACEHOLDER_4))
+  (instruction move
+    (operands $t3 $t0))
+  (instruction move
+    (operands $t5 $a0))
+  (instruction move
+    (operands $t6 $a0))
+  (label PLACEHOLDER_5)
+  (instruction move
+    (operands $t8 $zero))
+  (instruction move
+    (operands $t9 $zero))
+  (instruction move
+    (operands $t4 $t5))
+  (instruction move
+    (operands $t5 $t6))
+  (instruction add
+    (operands $t6 $t5 $t2))
+  (instruction bne
+    (operands $t6 $t3 PLACEHOLDER_6))
+  (instruction move
+    (operands $t6 $t5))
+  (label PLACEHOLDER_6)
+  (instruction beq
+    (operands $t2 1 PLACEHOLDER_7))
+  (label PLACEHOLDER_8)
+  (instruction move
+    (operands $t7 $t8))
+  (instruction move
+    (operands $t8 $t9))
+  (instruction addi
+    (operands $t9 $t8 2))
+  (instruction sne
+    (operands $t9 $t9 $t2))
+  (instruction add
+    (operands $t9 $t8 $t9))
+  (instruction add
+    (operands $t0 $t5 $t8))
+  (instruction lb
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction beq
+    (operands $t1 $s0 PLACEHOLDER_9))
+  (instruction move
+    (operands $v1 $zero))
+  (instruction subu
+    (operands $a2 $t4 $t2))
+  (label PLACEHOLDER_10)
+  (instruction addu
+    (operands $a2 $a2 $t2))
+  (instruction subiu
+    (operands $a3 $t7 1))
+  (label PLACEHOLDER_11)
+  (instruction addiu
+    (operands $a3 $a3 1))
+  (instruction add
+    (operands $t0 $a2 $a3))
+  (instruction lb
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction seq
+    (operands $t0 $t1 $s0))
+  (instruction add
+    (operands $v1 $v1 $t0))
+  (instruction bne
+    (operands $a3 $t9 PLACEHOLDER_11))
+  (instruction bne
+    (operands $a2 $t6 PLACEHOLDER_10))
+  (instruction li
+    (operands $t1 "' '"))
+  (instruction beqz
+    (operands $v1 PLACEHOLDER_9))
+  (instruction addi
+    (operands $t1 $v1 '0'))
+  (label PLACEHOLDER_9)
+  (instruction sb
+    (operands $t1
+      (parenthesized_expression 0
+        (operands $a1))))
+  (instruction addi
+    (operands $a1 $a1 1))
+  (instruction bne
+    (operands $t8 $t9 PLACEHOLDER_8))
+  (label PLACEHOLDER_7)
+  (instruction sb
+    (operands $v0
+      (parenthesized_expression 0
+        (operands $a1))))
+  (instruction addi
+    (operands $a1 $a1 1))
+  (instruction bne
+    (operands $t5 $t6 PLACEHOLDER_5))
+  (instruction lw
+    (operands $s0
+      (parenthesized_expression 0
+        (operands $sp))))
+  (instruction addi
+    (operands $sp $sp 4))
+  (label PLACEHOLDER_2)
+  (instruction sb
+    (operands $zero
+      (parenthesized_expression 0
+        (operands $a1))))
+  (instruction jr
+    (operands $ra)))

@@ -1,81 +1,145 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------- |
-# | `$a0` | input | address | garden diagram |
-# | `$a1` | input | address | student's name |
-# | `$a2` | input/output | address | null-terminated output string |
-# | `$t0-9` | temporary | any | used for temporary storage |
-.globl plants
-.data
-grass: .asciiz "\"grass\""
-clover: .asciiz "\"clover\""
-radishes: .asciiz "\"radishes\""
-violets: .asciiz "\"violets\""
-separator: .asciiz "\"," "\""
-.text
-.macro copy_string()
-next_byte:
-lb $t1, ($t0) # Load next byte
-beqz $t1, finish_copy # Finished copying string
-sb $t1, ($t5) # Copy byte
-addiu $t0, $t0, 1 # Point to next source byte
-addiu $t5, $t5, 1 # Point to next output byte
-j next_byte
-finish_copy:
-.end_macro
-.macro add_separator()
-la $t0, separator
-copy_string()
-.end_macro
-plants:
-move $t5, $a2 # Output pointer
-addiu $sp, $sp, -4 # Preserve return address
-sw $ra, ($sp)
-# This cheats a bit by taking advantage of the fact that each student's name
-# begins with a different capital letter. Otherwise, there would have to be a
-# complete comparison to match the correct name.
-lb $t0, ($a1)
-subi $t4, $t0, 'A' # Convert first initial to a code index
-sll $t4, $t4, 1 # Each student gets two plants per row
-move $t2, $a0 # Diagram pointer
-add $t2, $t2, $t4 # Offset
-jal record_plant # Record plants of first row
-add_separator()
-addiu $t2, $t2, 1 # Second plant code of first row
-jal record_plant
-add_separator()
-find_next_row:
-addiu $t2, $t2, 1
-lb $t0, ($t2)
-beq $t0, '\n', found
-j find_next_row
-found:
-addiu $t2, $t2, 1 # Move pointer past newline
-add $t2, $t2, $t4 # Offset
-jal record_plant # Record plants of second row
-add_separator()
-addiu $t2, $t2, 1 # Second plant code of second row
-jal record_plant
-lw $ra, ($sp) # Restore return address
-addiu $sp, $sp, 4
-jr $ra
-# Procedure to record the appropriate plant based on the plant code
-record_plant:
-lb $t3, ($t2) # Get selected plant code
-beq $t3, 'G', grass_code
-beq $t3, 'C', clover_code
-beq $t3, 'R', radishes_code
-beq $t3, 'V', violets_code
-grass_code:
-la $t0, grass
-j copy_plant
-clover_code:
-la $t0, clover
-j copy_plant
-radishes_code:
-la $t0, radishes
-j copy_plant
-violets_code:
-la $t0, violets
-copy_plant:
-copy_string()
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (directive .data)
+  (label PLACEHOLDER_2)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "grass"))
+  (label PLACEHOLDER_3)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "clover"))
+  (label PLACEHOLDER_4)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "radishes"))
+  (label PLACEHOLDER_5)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "violets"))
+  (label PLACEHOLDER_6)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands ", "))
+  (directive .text)
+  (directive .macro (macro_name PLACEHOLDER_7))
+  (label PLACEHOLDER_8)
+  (instruction lb
+    (operands $t1
+      (parenthesized_expression
+        (operands $t0))))
+  (instruction beqz
+    (operands $t1 PLACEHOLDER_9))
+  (instruction sb
+    (operands $t1
+      (parenthesized_expression
+        (operands $t5))))
+  (instruction addiu
+    (operands $t0 $t0 1))
+  (instruction addiu
+    (operands $t5 $t5 1))
+  (instruction j
+    (operands PLACEHOLDER_8))
+  (label PLACEHOLDER_9)
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_10))
+  (instruction la
+    (operands $t0 PLACEHOLDER_6))
+  (call_statement PLACEHOLDER_7)
+  (directive .end_macro)
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands $t5 $a2))
+  (instruction addiu
+    (operands $sp $sp -4))
+  (instruction sw
+    (operands $ra
+      (parenthesized_expression
+        (operands $sp))))
+  (instruction lb
+    (operands $t0
+      (parenthesized_expression
+        (operands $a1))))
+  (instruction subi
+    (operands $t4 $t0 'A'))
+  (instruction sll
+    (operands $t4 $t4 1))
+  (instruction move
+    (operands $t2 $a0))
+  (instruction add
+    (operands $t2 $t2 $t4))
+  (instruction jal
+    (operands PLACEHOLDER_11))
+  (call_statement PLACEHOLDER_10)
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (instruction jal
+    (operands PLACEHOLDER_11))
+  (call_statement PLACEHOLDER_10)
+  (label PLACEHOLDER_12)
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (instruction lb
+    (operands $t0
+      (parenthesized_expression
+        (operands $t2))))
+  (instruction beq
+    (operands $t0 "'\\n'" PLACEHOLDER_13))
+  (instruction j
+    (operands PLACEHOLDER_12))
+  (label PLACEHOLDER_13)
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (instruction add
+    (operands $t2 $t2 $t4))
+  (instruction jal
+    (operands PLACEHOLDER_11))
+  (call_statement PLACEHOLDER_10)
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (instruction jal
+    (operands PLACEHOLDER_11))
+  (instruction lw
+    (operands $ra
+      (parenthesized_expression
+        (operands $sp))))
+  (instruction addiu
+    (operands $sp $sp 4))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_11)
+  (instruction lb
+    (operands $t3
+      (parenthesized_expression
+        (operands $t2))))
+  (instruction beq
+    (operands $t3 'G' PLACEHOLDER_14))
+  (instruction beq
+    (operands $t3 'C' PLACEHOLDER_15))
+  (instruction beq
+    (operands $t3 'R' PLACEHOLDER_16))
+  (instruction beq
+    (operands $t3 'V' PLACEHOLDER_17))
+  (label PLACEHOLDER_14)
+  (instruction la
+    (operands $t0 PLACEHOLDER_2))
+  (instruction j
+    (operands PLACEHOLDER_18))
+  (label PLACEHOLDER_15)
+  (instruction la
+    (operands $t0 PLACEHOLDER_3))
+  (instruction j
+    (operands PLACEHOLDER_18))
+  (label PLACEHOLDER_16)
+  (instruction la
+    (operands $t0 PLACEHOLDER_4))
+  (instruction j
+    (operands PLACEHOLDER_18))
+  (label PLACEHOLDER_17)
+  (instruction la
+    (operands $t0 PLACEHOLDER_5))
+  (label PLACEHOLDER_18)
+  (call_statement PLACEHOLDER_7)
+  (instruction jr
+    (operands $ra)))

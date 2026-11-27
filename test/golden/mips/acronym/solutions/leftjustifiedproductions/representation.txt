@@ -1,63 +1,105 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------- |
-# | `$a0` | input | address | null-terminated input string |
-# | `$a1` | input/output | address | null-terminated output string |
-# | `$t0-9` | temporary | any | used for temporary storage |
-# $t0 current char
-# $t1 is valid char
-# $t2 is space char
-# $t3 is acronym
-#.include "\"impl.mips\""
-.globl abbreviate
-abbreviate:
-move $t9, $ra
-beq $a0, $zero, invalid_input
-li $t3, 1
-j check_char
-check_char_return:
-sb $zero 0($a1)
-move $ra, $t9
-jr $ra
-check_char:
-li $t1, 0
-li $t2, 0
-lbu $t0, 0($a0)
-beq $t0, $zero, check_char_return
-li $t8, 64
-sgtu $t4, $t0, $t8
-slti $t5, $t0, 91
-and $t4, $t4, $t5
-li $t8, 96
-sgtu $t6, $t0, $t8
-slti $t7, $t0, 123
-and $t6, $t6, $t7
-or $t1, $t4, $t6 #in valid char range
-and $t1, $t1, $t3 #valid char and is acronym
-beq $t1, $zero, check_char_non_valid_char
-jal write_char
-addi $a0, $a0, 1
-j check_char
-check_char_non_valid_char:
-li $t8, 32
-seq $t4, $t0, $t8
-li $t8, 45
-seq $t5, $t0, $t8
-or $t4, $t4, $t5
-beq $t4, $zero, check_char_ignore
-li $t3, 1
-addi $a0, $a0, 1
-j check_char
-check_char_ignore:
-addi $a0, $a0, 1
-j check_char
-write_char:
-slti $t4, $t0, 91
-bne $t4, $zero, uppered
-addi $t0, $t0, -32 #toUpper()
-uppered:
-sb $t0 0($a1)
-addi $a1, $a1, 1
-li $t3, 0
-jr $ra
-invalid_input:
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands $t9 $ra))
+  (instruction beq
+    (operands $a0 $zero PLACEHOLDER_2))
+  (instruction li
+    (operands $t3 1))
+  (instruction j
+    (operands PLACEHOLDER_3))
+  (label PLACEHOLDER_4)
+  (instruction sb
+    (operands $zero
+      (parenthesized_expression 0
+        (operands $a1))))
+  (instruction move
+    (operands $ra $t9))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_3)
+  (instruction li
+    (operands $t1 0))
+  (instruction li
+    (operands $t2 0))
+  (instruction lbu
+    (operands $t0
+      (parenthesized_expression 0
+        (operands $a0))))
+  (instruction beq
+    (operands $t0 $zero PLACEHOLDER_4))
+  (instruction li
+    (operands $t8 64))
+  (instruction sgtu
+    (operands $t4 $t0 $t8))
+  (instruction slti
+    (operands $t5 $t0 91))
+  (instruction and
+    (operands $t4 $t4 $t5))
+  (instruction li
+    (operands $t8 96))
+  (instruction sgtu
+    (operands $t6 $t0 $t8))
+  (instruction slti
+    (operands $t7 $t0 123))
+  (instruction and
+    (operands $t6 $t6 $t7))
+  (instruction or
+    (operands $t1 $t4 $t6))
+  (instruction and
+    (operands $t1 $t1 $t3))
+  (instruction beq
+    (operands $t1 $zero PLACEHOLDER_5))
+  (instruction jal
+    (operands PLACEHOLDER_6))
+  (instruction addi
+    (operands $a0 $a0 1))
+  (instruction j
+    (operands PLACEHOLDER_3))
+  (label PLACEHOLDER_5)
+  (instruction li
+    (operands $t8 32))
+  (instruction seq
+    (operands $t4 $t0 $t8))
+  (instruction li
+    (operands $t8 45))
+  (instruction seq
+    (operands $t5 $t0 $t8))
+  (instruction or
+    (operands $t4 $t4 $t5))
+  (instruction beq
+    (operands $t4 $zero PLACEHOLDER_7))
+  (instruction li
+    (operands $t3 1))
+  (instruction addi
+    (operands $a0 $a0 1))
+  (instruction j
+    (operands PLACEHOLDER_3))
+  (label PLACEHOLDER_7)
+  (instruction addi
+    (operands $a0 $a0 1))
+  (instruction j
+    (operands PLACEHOLDER_3))
+  (label PLACEHOLDER_6)
+  (instruction slti
+    (operands $t4 $t0 91))
+  (instruction bne
+    (operands $t4 $zero PLACEHOLDER_8))
+  (instruction addi
+    (operands $t0 $t0 -32))
+  (label PLACEHOLDER_8)
+  (instruction sb
+    (operands $t0
+      (parenthesized_expression 0
+        (operands $a1))))
+  (instruction addi
+    (operands $a1 $a1 1))
+  (instruction li
+    (operands $t3 0))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_2)
+  (instruction jr
+    (operands $ra)))
