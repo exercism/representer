@@ -1,61 +1,15 @@
 require "test_helper"
 
-# The old gleam-representer was the Exercism template: it joined the solution
-# files, removed blank lines and trailing whitespace, and never changed a name.
-# Its golden tests are the template's F# examples (Leap.fs), so none of them
-# can be ported. Everything below is new.
+# Tests the whole Gleam representer. Each stage has its own tests in
+# test/languages/gleam/.
 class GleamTest < RepresenterTest
   track "gleam"
 
   def wrap(body) = "pub fn f(x: Int) -> Int {\n#{body}\n}\n"
 
-  ### Formatting ###
-
-  def test_comments_and_blank_lines_are_dropped
-    assert_same_representation "//// module\n/// doc\npub fn f() {\n  // note\n  1\n}\n", "pub fn f() {\n\n  1\n\n}\n"
-  end
-
-  def test_trailing_commas_and_formatting
+  def test_formatting_makes_no_difference
     assert_same_representation "pub fn f(a, b,) { [1, 2,] }", "pub fn f(a, b) {\n  [\n    1,\n    2\n  ]\n}"
   end
-
-  def test_numbers_with_underscores
-    assert_same_representation wrap("1_000"), wrap("1000")
-    assert_same_representation wrap("1_0.5"), wrap("10.5")
-    refute_same_representation wrap("1000"), wrap("100")
-  end
-
-  def test_strings
-    assert_same_representation wrap('"a\\nb"'), wrap("\"a\nb\"")
-    assert_same_representation wrap('"\\u{41}"'), wrap('"A"')
-    refute_same_representation wrap('"a"'), wrap('"b"')
-  end
-
-  def test_labelled_argument_shorthand
-    assert_same_representation "pub fn f(age) { greet(name: \"x\", age:) }", "pub fn f(age) { greet(name: \"x\", age: age) }"
-    assert_same_representation "pub fn f(c) { let Circle(radius:) = c\n radius }",
-      "pub fn f(c) { let Circle(radius: radius) = c\n radius }"
-  end
-
-  ### Imports ###
-
-  def test_imports_are_dropped
-    assert_same_representation "import gleam/string\nimport gleam/list\n\npub fn f() { 1 }", "pub fn f() { 1 }"
-    assert_same_representation "import gleam/list.{map, filter}\npub fn f() { 1 }", "pub fn f() { 1 }"
-    refute_same_representation "import gleam/string\npub fn f(x) { string.length(x) }",
-      "import gleam/list\npub fn f(x) { list.length(x) }"
-  end
-
-  def test_import_aliases_are_the_names_they_stand_for
-    assert_same_representation "import gleam/list as l\npub fn f() { l.length([]) }",
-      "import gleam/list as m\npub fn f() { m.length([]) }"
-    assert_same_representation "import gleam/list as l\npub fn f() { l.length([]) }",
-      "import gleam/list\npub fn f() { list.length([]) }"
-    assert_same_representation "import gleam/int.{to_string as ts}\npub fn f(x) { ts(x) }",
-      "import gleam/int.{to_string}\npub fn f(x) { to_string(x) }"
-  end
-
-  ### Names ###
 
   def test_variables_and_parameters_are_renamed
     assert_same_representation wrap("let y = x\ny"), wrap("let z = x\nz")
@@ -67,6 +21,12 @@ class GleamTest < RepresenterTest
     assert_same_representation "pub fn f(xs) { case xs { Ok(#(p, q)) -> p\n _ -> 0 } }",
       "pub fn f(xs) { case xs { Ok(#(a, b)) -> a\n _ -> 0 } }"
     assert_same_representation "pub fn f(xs) { use z <- g(xs)\n z }", "pub fn f(xs) { use w <- g(xs)\n w }"
+  end
+
+  def test_labelled_argument_shorthand
+    assert_same_representation "pub fn f(age) { greet(name: \"x\", age:) }", "pub fn f(age) { greet(name: \"x\", age: age) }"
+    assert_same_representation "pub fn f(c) { let Circle(radius:) = c\n radius }",
+      "pub fn f(c) { let Circle(radius: radius) = c\n radius }"
   end
 
   def test_types_and_constructors_are_renamed
@@ -89,24 +49,7 @@ class GleamTest < RepresenterTest
     refute_same_representation format(code, "name"), format(code, "title")
   end
 
-  def test_main_keeps_its_name
-    refute_same_representation "pub fn main() { 1 }", "pub fn go() { 1 }"
-  end
-
-  def test_names_the_tests_use_are_kept
-    tests = "import leap\n\npub fn leap_test() {\n  leap.is_leap_year(2015)\n}\n"
-    refute_same_representation "pub fn is_leap_year(y) { y }", "pub fn other(y) { y }",
-      exercise_files: { "test/leap_test.gleam" => tests }
-  end
-
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "pub fn f( {"
-  end
-
-  def test_numbers_are_their_values
-    assert_same_representation wrap("1_000 + 0x1F + 0b1"), wrap("1000 + 31 + 1")
-    assert_same_representation wrap("1.50 +. 1.0e3"), wrap("1.5 +. 1000.0")
-    refute_same_representation wrap("1 + 2"), wrap("1 + 3")
-    refute_same_representation wrap("1.0"), wrap("1")
   end
 end
