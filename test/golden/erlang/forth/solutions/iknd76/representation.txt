@@ -1,31 +1,278 @@
-- module ( forth ).
-evaluate ( Instructions ) -> evaluate ( Instructions , # {}).
-evaluate ([ Instruction ], Defs ) ->
-Segments = string : split ( string : lowercase ( Instruction ), "\" \"" , all ),
-process ( Segments , Defs , []);
-evaluate ([ H | T ], Defs ) ->
-NewDefs = update_defs ( string : lowercase ( H ), Defs ),
-evaluate ( T , NewDefs ).
-process ([], _ Defs , Stack ) -> lists : reverse ( Stack );
-process ([ H | T ], Defs , Stack ) ->
-case maps : get ( H , Defs , undefined ) of
-undefined -> process ( T , Defs , update_stack ( H , Stack ));
-Value -> process ( Value ++ T , Defs , Stack )
-end .
-update_defs ( Instruction , Defs ) ->
-[ Key | Values ] = string : split ( string : trim ( Instruction , both , "\":; \"" ), "\" \"" , all ),
-ResolvedValues = [ maps : get ( V , Defs , V ) || V <- Values ],
-maps : put ( Key , ResolvedValues , Defs ).
-update_stack ( "\"+\"" , [ A , B | T ]) -> [ B + A | T ];
-update_stack ( "\"-\"" , [ A , B | T ]) -> [ B - A | T ];
-update_stack ( "\"*\"" , [ A , B | T ]) -> [ B * A | T ];
-update_stack ( "\"/\"" , [ A , B | T ]) -> [ B div A | T ];
-update_stack ( "\"dup\"" , [ A | T ]) -> [ A , A | T ];
-update_stack ( "\"drop\"" , [_| T ]) -> T ;
-update_stack ( "\"swap\"" , [ A , B | T ]) -> [ B , A | T ];
-update_stack ( "\"over\"" , [ A , B | T ]) -> [ B , A , B | T ];
-update_stack ( Val , Stack ) ->
-case string : to_integer ( Val ) of
-{ error , _} -> erlang : error ( badarg );
-{ Number , _} -> [ Number | Stack ]
-end .
+(source_file
+  (module_attribute (atom PLACEHOLDER_1))
+  (export_attribute
+    (fa (atom PLACEHOLDER_2)
+      (arity 1)))
+  (function
+    (function_clause (atom PLACEHOLDER_2)
+      (expr_args
+        (variable PLACEHOLDER_3))
+      (clause_body
+        (call (atom PLACEHOLDER_2)
+          (expr_args
+            (variable PLACEHOLDER_3)
+            (map_expr))))))
+  (function
+    (function_clause (atom PLACEHOLDER_2)
+      (expr_args
+        (list
+          (variable PLACEHOLDER_4))
+        (variable PLACEHOLDER_5))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_6)
+          (remote
+            (remote_module string)
+            (call split
+              (expr_args
+                (remote
+                  (remote_module string)
+                  (call lowercase
+                    (expr_args
+                      (variable PLACEHOLDER_4)))) " " all))))
+        (call (atom PLACEHOLDER_7)
+          (expr_args
+            (variable PLACEHOLDER_6)
+            (variable PLACEHOLDER_5)
+            (list)))))
+    (function_clause (atom PLACEHOLDER_2)
+      (expr_args
+        (list
+          (pipe
+            (variable PLACEHOLDER_8)
+            (variable PLACEHOLDER_9)))
+        (variable PLACEHOLDER_5))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_10)
+          (call (atom PLACEHOLDER_11)
+            (expr_args
+              (remote
+                (remote_module string)
+                (call lowercase
+                  (expr_args
+                    (variable PLACEHOLDER_8))))
+              (variable PLACEHOLDER_5))))
+        (call (atom PLACEHOLDER_2)
+          (expr_args
+            (variable PLACEHOLDER_9)
+            (variable PLACEHOLDER_10))))))
+  (function
+    (function_clause (atom PLACEHOLDER_7)
+      (expr_args
+        (list)
+        (variable PLACEHOLDER_12)
+        (variable PLACEHOLDER_13))
+      (clause_body
+        (remote
+          (remote_module lists)
+          (call reverse
+            (expr_args
+              (variable PLACEHOLDER_13))))))
+    (function_clause (atom PLACEHOLDER_7)
+      (expr_args
+        (list
+          (pipe
+            (variable PLACEHOLDER_8)
+            (variable PLACEHOLDER_9)))
+        (variable PLACEHOLDER_5)
+        (variable PLACEHOLDER_13))
+      (clause_body
+        (case_expr
+          (remote
+            (remote_module maps)
+            (call get
+              (expr_args
+                (variable PLACEHOLDER_8)
+                (variable PLACEHOLDER_5) undefined)))
+          (cr_clause undefined
+            (clause_body
+              (call (atom PLACEHOLDER_7)
+                (expr_args
+                  (variable PLACEHOLDER_9)
+                  (variable PLACEHOLDER_5)
+                  (call (atom PLACEHOLDER_14)
+                    (expr_args
+                      (variable PLACEHOLDER_8)
+                      (variable PLACEHOLDER_13)))))))
+          (cr_clause
+            (variable PLACEHOLDER_15)
+            (clause_body
+              (call (atom PLACEHOLDER_7)
+                (expr_args
+                  (binary_op_expr
+                    (variable PLACEHOLDER_15) ++
+                    (variable PLACEHOLDER_9))
+                  (variable PLACEHOLDER_5)
+                  (variable PLACEHOLDER_13)))))))))
+  (function
+    (function_clause (atom PLACEHOLDER_11)
+      (expr_args
+        (variable PLACEHOLDER_4)
+        (variable PLACEHOLDER_5))
+      (clause_body
+        (match_expr
+          (list
+            (pipe
+              (variable PLACEHOLDER_16)
+              (variable PLACEHOLDER_17)))
+          (remote
+            (remote_module string)
+            (call split
+              (expr_args
+                (remote
+                  (remote_module string)
+                  (call trim
+                    (expr_args
+                      (variable PLACEHOLDER_4) both ":; "))) " " all))))
+        (match_expr
+          (variable PLACEHOLDER_18)
+          (list_comprehension
+            (remote
+              (remote_module maps)
+              (call get
+                (expr_args
+                  (variable PLACEHOLDER_19)
+                  (variable PLACEHOLDER_5)
+                  (variable PLACEHOLDER_19))))
+            (lc_exprs
+              (lc_or_zc_expr
+                (generator
+                  (variable PLACEHOLDER_19) <-
+                  (variable PLACEHOLDER_17))))))
+        (remote
+          (remote_module maps)
+          (call put
+            (expr_args
+              (variable PLACEHOLDER_16)
+              (variable PLACEHOLDER_18)
+              (variable PLACEHOLDER_5)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args "+"
+        (list
+          (variable PLACEHOLDER_20)
+          (pipe
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_9))))
+      (clause_body
+        (list
+          (pipe
+            (binary_op_expr
+              (variable PLACEHOLDER_21) +
+              (variable PLACEHOLDER_20))
+            (variable PLACEHOLDER_9)))))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args "-"
+        (list
+          (variable PLACEHOLDER_20)
+          (pipe
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_9))))
+      (clause_body
+        (list
+          (pipe
+            (binary_op_expr
+              (variable PLACEHOLDER_21) -
+              (variable PLACEHOLDER_20))
+            (variable PLACEHOLDER_9)))))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args "*"
+        (list
+          (variable PLACEHOLDER_20)
+          (pipe
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_9))))
+      (clause_body
+        (list
+          (pipe
+            (binary_op_expr
+              (variable PLACEHOLDER_21) *
+              (variable PLACEHOLDER_20))
+            (variable PLACEHOLDER_9)))))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args "/"
+        (list
+          (variable PLACEHOLDER_20)
+          (pipe
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_9))))
+      (clause_body
+        (list
+          (pipe
+            (binary_op_expr
+              (variable PLACEHOLDER_21) div
+              (variable PLACEHOLDER_20))
+            (variable PLACEHOLDER_9)))))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args "dup"
+        (list
+          (pipe
+            (variable PLACEHOLDER_20)
+            (variable PLACEHOLDER_9))))
+      (clause_body
+        (list
+          (variable PLACEHOLDER_20)
+          (pipe
+            (variable PLACEHOLDER_20)
+            (variable PLACEHOLDER_9)))))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args "drop"
+        (list
+          (pipe _
+            (variable PLACEHOLDER_9))))
+      (clause_body
+        (variable PLACEHOLDER_9)))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args "swap"
+        (list
+          (variable PLACEHOLDER_20)
+          (pipe
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_9))))
+      (clause_body
+        (list
+          (variable PLACEHOLDER_21)
+          (pipe
+            (variable PLACEHOLDER_20)
+            (variable PLACEHOLDER_9)))))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args "over"
+        (list
+          (variable PLACEHOLDER_20)
+          (pipe
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_9))))
+      (clause_body
+        (list
+          (variable PLACEHOLDER_21)
+          (variable PLACEHOLDER_20)
+          (pipe
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_9)))))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args
+        (variable PLACEHOLDER_22)
+        (variable PLACEHOLDER_13))
+      (clause_body
+        (case_expr
+          (remote
+            (remote_module string)
+            (call to_integer
+              (expr_args
+                (variable PLACEHOLDER_22))))
+          (cr_clause
+            (tuple error _)
+            (clause_body
+              (remote
+                (remote_module erlang)
+                (call error
+                  (expr_args badarg)))))
+          (cr_clause
+            (tuple
+              (variable PLACEHOLDER_23) _)
+            (clause_body
+              (list
+                (pipe
+                  (variable PLACEHOLDER_23)
+                  (variable PLACEHOLDER_13))))))))))

@@ -3,8 +3,8 @@ require "test_helper"
 class BasicTest < RepresenterTest
   track "haskell"
 
-  # Haskell and Python have languages of their own, so the tests call Basic
-  # directly.
+  # Erlang, Haskell and Python have languages of their own, so the tests call
+  # Basic directly.
   def basic(code, track: "haskell") = Representer::Languages::Basic.(track, { FILENAMES.fetch(track) => code })
   def represent(code, filename: default_filename) = Representer::Languages::Basic.(track, { filename => code })
   def default_filename = FILENAMES.fetch(track)
@@ -12,7 +12,8 @@ class BasicTest < RepresenterTest
   # Basic only reads a track's source files.
   FILENAMES = {
     "haskell" => "Main.hs", "python" => "main.py", "dart" => "main.dart", "8th" => "main.8th", "emacs-lisp" => "main.el",
-    "scheme" => "main.scm", "haxe" => "Main.hx", "c" => "main.c"
+    "scheme" => "main.scm", "haxe" => "Main.hx", "c" => "main.c",
+    "erlang" => "main.erl"
   }.freeze
 
   def test_tracks_without_a_class_use_basic_and_its_version
@@ -111,8 +112,8 @@ class BasicTest < RepresenterTest
 
   def test_erlang_and_prolog_directives_that_import_or_export_are_dropped
     erlang = "-module(a).\n-export([f/1,\n  g/1]).\n-include_lib(\"eunit/include/eunit.hrl\").\nf(X) -> X.\n"
-    assert_equal Representer::RepresentSolution.("erlang", { "a.erl" => "-module(a).\nf(X) -> X.\n" }).representation,
-      Representer::RepresentSolution.("erlang", { "a.erl" => erlang }).representation
+    assert_equal basic("-module(a).\nf(X) -> X.\n", track: "erlang").representation,
+      basic(erlang, track: "erlang").representation
     prolog = ":- use_module(library(lists)).\nf(X) :- X.\n"
     assert_equal Representer::RepresentSolution.("prolog", { "a.pl" => "f(X) :- X.\n" }).representation,
       Representer::RepresentSolution.("prolog", { "a.pl" => prolog }).representation

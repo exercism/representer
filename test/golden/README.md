@@ -169,7 +169,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | elixir | Elixir | 397 | 99 | 100 | 100 | 96 | 7 | 0 | 0 | 0 |
 | elm | Elm | 400 | 100 | 100 | 74 | 96 | 5 | 14 | 0 | 0 |
 | emacs-lisp | Basic | 190 | 30 | 100 | 70 | 99 | 23 | 4 | 0 | 0 |
-| erlang | Basic | 397 | 99 | 100 | 63 | 100 | 25 | 1 | 0 | 11 |
+| erlang | Erlang | 397 | 99 | 100 | 63 | 100 | 1 | 6 | 0 | 0 |
 | euphoria | Basic | 109 | 3 | 100 | 62 | 98 | 2 | 0 | 0 | 0 |
 | factor | Factor | 146 | 16 | 100 | 100 | 84 | 0 | 5 | 0 | 0 |
 | fortran | Basic | 130 | 10 | 100 | 38 | 100 | 1 | 0 | 0 | 0 |

@@ -1,59 +1,501 @@
-- module ( connect ).
-- record ( board , { grid , height , width }).
-winner ( Rows ) ->
-Board = new_board ( Rows ),
-CX = connected ( x , Board ),
-CO = connected ( o , Board ),
-case { CX , CO } of
-{ true , false } -> x ;
-{ false , true } -> o ;
-_ -> undefined
-end .
-new_board ( Rows ) ->
-Grid = parse_board ( enumerate ( Rows ), # {}),
-Height = length ( Rows ),
-Width = length ( hd ( Rows )),
-#board { grid = Grid , height = Height , width = Width }.
-parse_board ([], Acc ) -> Acc ;
-parse_board ([{ Y , Row }| T ], Acc ) ->
-parse_board ( T , update_grid ( enumerate ( Row ), Y , Acc )).
-update_grid ([], _, Acc ) -> Acc ;
-update_grid ([{ X , $X }| T ], Y , Acc ) -> update_grid ( T , Y , maps : put ({ Y , X }, x , Acc ));
-update_grid ([{ X , $O }| T ], Y , Acc ) -> update_grid ( T , Y , maps : put ({ Y , X }, o , Acc ));
-update_grid ([_| T ], Y , Acc ) -> update_grid ( T , Y , Acc ).
-connected ( o , Board ) ->
-Fun = fun ( K = { Y ,_}) -> Y == 1 andalso maps : get ( K , Board #board.grid ) == o end ,
-Candidates = lists : filter ( Fun , maps : keys ( Board #board.grid )),
-lists : any ( fun ( C ) -> has_crossed ( C , Board ) end , Candidates );
-connected ( x , Board ) ->
-Fun = fun ( K = { Y , X }) -> Y == X andalso maps : get ( K , Board #board.grid ) == x end ,
-Candidates = lists : filter ( Fun , maps : keys ( Board #board.grid )),
-lists : any ( fun ( C ) -> has_crossed ( C , Board ) end , Candidates ).
-has_crossed ( Point , Board ) ->
-Queue = [ Point ],
-Visited = # {},
-dfs ( Queue , Visited , Board ).
-dfs ([], _, _) -> false ;
-dfs ([ Point | T ], Visited , Board ) ->
-case reached_edge ( Point , Board ) of
-true -> true ;
-false ->
-NewVisited = maps : put ( Point , true , Visited ),
-Neighbours = neighbours_of ( Point , Visited , Board ),
-dfs ( Neighbours ++ T , NewVisited , Board )
-end .
-reached_edge ({ Y , X }, Board ) ->
-Player = maps : get ({ Y , X }, Board #board.grid ),
-case Player of
-o -> Board #board.height == Y ;
-x -> Board #board.width == X - Y + 1 ;
-_ -> false
-end .
-neighbours_of ({ Y , X }, Visited , Board ) ->
-Player = maps : get ({ Y , X }, Board #board.grid ),
-Positions = [{ Y - 1 , X - 1 }, { Y - 1 , X + 1 }, { Y , X + 2 }, { Y + 1 , X + 1 }, { Y + 1 , X - 1 }, { Y , X - 2 }],
-Fun = fun ( P ) -> maps : get ( P , Board #board.grid , undefined ) == Player andalso not maps : is_key ( P , Visited ) end ,
-lists : filter ( Fun , Positions ).
-enumerate ( List ) ->
-{ List1 , _ } = lists : mapfoldl ( fun ( T , Acc ) -> {{ Acc , T }, Acc + 1 } end , 1 , List ),
-List1 .
+(source_file
+  (module_attribute (atom PLACEHOLDER_1))
+  (export_attribute
+    (fa (atom PLACEHOLDER_2)
+      (arity 1)))
+  (record_decl (atom PLACEHOLDER_3)
+    (record_field (atom PLACEHOLDER_4))
+    (record_field (atom PLACEHOLDER_5))
+    (record_field (atom PLACEHOLDER_6)))
+  (function
+    (function_clause (atom PLACEHOLDER_2)
+      (expr_args
+        (variable PLACEHOLDER_7))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_8)
+          (call (atom PLACEHOLDER_9)
+            (expr_args
+              (variable PLACEHOLDER_7))))
+        (match_expr
+          (variable PLACEHOLDER_10)
+          (call (atom PLACEHOLDER_11)
+            (expr_args x
+              (variable PLACEHOLDER_8))))
+        (match_expr
+          (variable PLACEHOLDER_12)
+          (call (atom PLACEHOLDER_11)
+            (expr_args o
+              (variable PLACEHOLDER_8))))
+        (case_expr
+          (tuple
+            (variable PLACEHOLDER_10)
+            (variable PLACEHOLDER_12))
+          (cr_clause
+            (tuple true false)
+            (clause_body x))
+          (cr_clause
+            (tuple false true)
+            (clause_body o))
+          (cr_clause _
+            (clause_body undefined))))))
+  (function
+    (function_clause (atom PLACEHOLDER_9)
+      (expr_args
+        (variable PLACEHOLDER_7))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_13)
+          (call (atom PLACEHOLDER_14)
+            (expr_args
+              (call (atom PLACEHOLDER_15)
+                (expr_args
+                  (variable PLACEHOLDER_7)))
+              (map_expr))))
+        (match_expr
+          (variable PLACEHOLDER_16)
+          (call length
+            (expr_args
+              (variable PLACEHOLDER_7))))
+        (match_expr
+          (variable PLACEHOLDER_17)
+          (call length
+            (expr_args
+              (call hd
+                (expr_args
+                  (variable PLACEHOLDER_7))))))
+        (record_expr
+          (record_name (atom PLACEHOLDER_3))
+          (record_field (atom PLACEHOLDER_4)
+            (field_expr
+              (variable PLACEHOLDER_13)))
+          (record_field (atom PLACEHOLDER_5)
+            (field_expr
+              (variable PLACEHOLDER_16)))
+          (record_field (atom PLACEHOLDER_6)
+            (field_expr
+              (variable PLACEHOLDER_17)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args
+        (list)
+        (variable PLACEHOLDER_18))
+      (clause_body
+        (variable PLACEHOLDER_18)))
+    (function_clause (atom PLACEHOLDER_14)
+      (expr_args
+        (list
+          (pipe
+            (tuple
+              (variable PLACEHOLDER_19)
+              (variable PLACEHOLDER_20))
+            (variable PLACEHOLDER_21)))
+        (variable PLACEHOLDER_18))
+      (clause_body
+        (call (atom PLACEHOLDER_14)
+          (expr_args
+            (variable PLACEHOLDER_21)
+            (call (atom PLACEHOLDER_22)
+              (expr_args
+                (call (atom PLACEHOLDER_15)
+                  (expr_args
+                    (variable PLACEHOLDER_20)))
+                (variable PLACEHOLDER_19)
+                (variable PLACEHOLDER_18))))))))
+  (function
+    (function_clause (atom PLACEHOLDER_22)
+      (expr_args
+        (list) _
+        (variable PLACEHOLDER_18))
+      (clause_body
+        (variable PLACEHOLDER_18)))
+    (function_clause (atom PLACEHOLDER_22)
+      (expr_args
+        (list
+          (pipe
+            (tuple
+              (variable PLACEHOLDER_23) $X)
+            (variable PLACEHOLDER_21)))
+        (variable PLACEHOLDER_19)
+        (variable PLACEHOLDER_18))
+      (clause_body
+        (call (atom PLACEHOLDER_22)
+          (expr_args
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_19)
+            (remote
+              (remote_module maps)
+              (call put
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_19)
+                    (variable PLACEHOLDER_23)) x
+                  (variable PLACEHOLDER_18))))))))
+    (function_clause (atom PLACEHOLDER_22)
+      (expr_args
+        (list
+          (pipe
+            (tuple
+              (variable PLACEHOLDER_23) $O)
+            (variable PLACEHOLDER_21)))
+        (variable PLACEHOLDER_19)
+        (variable PLACEHOLDER_18))
+      (clause_body
+        (call (atom PLACEHOLDER_22)
+          (expr_args
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_19)
+            (remote
+              (remote_module maps)
+              (call put
+                (expr_args
+                  (tuple
+                    (variable PLACEHOLDER_19)
+                    (variable PLACEHOLDER_23)) o
+                  (variable PLACEHOLDER_18))))))))
+    (function_clause (atom PLACEHOLDER_22)
+      (expr_args
+        (list
+          (pipe _
+            (variable PLACEHOLDER_21)))
+        (variable PLACEHOLDER_19)
+        (variable PLACEHOLDER_18))
+      (clause_body
+        (call (atom PLACEHOLDER_22)
+          (expr_args
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_19)
+            (variable PLACEHOLDER_18))))))
+  (function
+    (function_clause (atom PLACEHOLDER_11)
+      (expr_args o
+        (variable PLACEHOLDER_8))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_24)
+          (anonymous_fun
+            (fun_clause
+              (expr_args
+                (match_expr
+                  (variable PLACEHOLDER_25)
+                  (tuple
+                    (variable PLACEHOLDER_19) _)))
+              (clause_body
+                (binary_op_expr
+                  (binary_op_expr
+                    (variable PLACEHOLDER_19) == 1) andalso
+                  (binary_op_expr
+                    (remote
+                      (remote_module maps)
+                      (call get
+                        (expr_args
+                          (variable PLACEHOLDER_25)
+                          (record_field_expr
+                            (variable PLACEHOLDER_8)
+                            (record_name (atom PLACEHOLDER_3))
+                            (record_field_name (atom PLACEHOLDER_4)))))) == o))))))
+        (match_expr
+          (variable PLACEHOLDER_26)
+          (remote
+            (remote_module lists)
+            (call filter
+              (expr_args
+                (variable PLACEHOLDER_24)
+                (remote
+                  (remote_module maps)
+                  (call keys
+                    (expr_args
+                      (record_field_expr
+                        (variable PLACEHOLDER_8)
+                        (record_name (atom PLACEHOLDER_3))
+                        (record_field_name (atom PLACEHOLDER_4))))))))))
+        (remote
+          (remote_module lists)
+          (call any
+            (expr_args
+              (anonymous_fun
+                (fun_clause
+                  (expr_args
+                    (variable PLACEHOLDER_27))
+                  (clause_body
+                    (call (atom PLACEHOLDER_28)
+                      (expr_args
+                        (variable PLACEHOLDER_27)
+                        (variable PLACEHOLDER_8))))))
+              (variable PLACEHOLDER_26))))))
+    (function_clause (atom PLACEHOLDER_11)
+      (expr_args x
+        (variable PLACEHOLDER_8))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_24)
+          (anonymous_fun
+            (fun_clause
+              (expr_args
+                (match_expr
+                  (variable PLACEHOLDER_25)
+                  (tuple
+                    (variable PLACEHOLDER_19)
+                    (variable PLACEHOLDER_23))))
+              (clause_body
+                (binary_op_expr
+                  (binary_op_expr
+                    (variable PLACEHOLDER_19) ==
+                    (variable PLACEHOLDER_23)) andalso
+                  (binary_op_expr
+                    (remote
+                      (remote_module maps)
+                      (call get
+                        (expr_args
+                          (variable PLACEHOLDER_25)
+                          (record_field_expr
+                            (variable PLACEHOLDER_8)
+                            (record_name (atom PLACEHOLDER_3))
+                            (record_field_name (atom PLACEHOLDER_4)))))) == x))))))
+        (match_expr
+          (variable PLACEHOLDER_26)
+          (remote
+            (remote_module lists)
+            (call filter
+              (expr_args
+                (variable PLACEHOLDER_24)
+                (remote
+                  (remote_module maps)
+                  (call keys
+                    (expr_args
+                      (record_field_expr
+                        (variable PLACEHOLDER_8)
+                        (record_name (atom PLACEHOLDER_3))
+                        (record_field_name (atom PLACEHOLDER_4))))))))))
+        (remote
+          (remote_module lists)
+          (call any
+            (expr_args
+              (anonymous_fun
+                (fun_clause
+                  (expr_args
+                    (variable PLACEHOLDER_27))
+                  (clause_body
+                    (call (atom PLACEHOLDER_28)
+                      (expr_args
+                        (variable PLACEHOLDER_27)
+                        (variable PLACEHOLDER_8))))))
+              (variable PLACEHOLDER_26)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_28)
+      (expr_args
+        (variable PLACEHOLDER_29)
+        (variable PLACEHOLDER_8))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_30)
+          (list
+            (variable PLACEHOLDER_29)))
+        (match_expr
+          (variable PLACEHOLDER_31)
+          (map_expr))
+        (call (atom PLACEHOLDER_32)
+          (expr_args
+            (variable PLACEHOLDER_30)
+            (variable PLACEHOLDER_31)
+            (variable PLACEHOLDER_8))))))
+  (function
+    (function_clause (atom PLACEHOLDER_32)
+      (expr_args
+        (list) _ _)
+      (clause_body false))
+    (function_clause (atom PLACEHOLDER_32)
+      (expr_args
+        (list
+          (pipe
+            (variable PLACEHOLDER_29)
+            (variable PLACEHOLDER_21)))
+        (variable PLACEHOLDER_31)
+        (variable PLACEHOLDER_8))
+      (clause_body
+        (case_expr
+          (call (atom PLACEHOLDER_33)
+            (expr_args
+              (variable PLACEHOLDER_29)
+              (variable PLACEHOLDER_8)))
+          (cr_clause true
+            (clause_body true))
+          (cr_clause false
+            (clause_body
+              (match_expr
+                (variable PLACEHOLDER_34)
+                (remote
+                  (remote_module maps)
+                  (call put
+                    (expr_args
+                      (variable PLACEHOLDER_29) true
+                      (variable PLACEHOLDER_31)))))
+              (match_expr
+                (variable PLACEHOLDER_35)
+                (call (atom PLACEHOLDER_36)
+                  (expr_args
+                    (variable PLACEHOLDER_29)
+                    (variable PLACEHOLDER_31)
+                    (variable PLACEHOLDER_8))))
+              (call (atom PLACEHOLDER_32)
+                (expr_args
+                  (binary_op_expr
+                    (variable PLACEHOLDER_35) ++
+                    (variable PLACEHOLDER_21))
+                  (variable PLACEHOLDER_34)
+                  (variable PLACEHOLDER_8)))))))))
+  (function
+    (function_clause (atom PLACEHOLDER_33)
+      (expr_args
+        (tuple
+          (variable PLACEHOLDER_19)
+          (variable PLACEHOLDER_23))
+        (variable PLACEHOLDER_8))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_37)
+          (remote
+            (remote_module maps)
+            (call get
+              (expr_args
+                (tuple
+                  (variable PLACEHOLDER_19)
+                  (variable PLACEHOLDER_23))
+                (record_field_expr
+                  (variable PLACEHOLDER_8)
+                  (record_name (atom PLACEHOLDER_3))
+                  (record_field_name (atom PLACEHOLDER_4)))))))
+        (case_expr
+          (variable PLACEHOLDER_37)
+          (cr_clause o
+            (clause_body
+              (binary_op_expr
+                (record_field_expr
+                  (variable PLACEHOLDER_8)
+                  (record_name (atom PLACEHOLDER_3))
+                  (record_field_name (atom PLACEHOLDER_5))) ==
+                (variable PLACEHOLDER_19))))
+          (cr_clause x
+            (clause_body
+              (binary_op_expr
+                (record_field_expr
+                  (variable PLACEHOLDER_8)
+                  (record_name (atom PLACEHOLDER_3))
+                  (record_field_name (atom PLACEHOLDER_6))) ==
+                (binary_op_expr
+                  (binary_op_expr
+                    (variable PLACEHOLDER_23) -
+                    (variable PLACEHOLDER_19)) + 1))))
+          (cr_clause _
+            (clause_body false))))))
+  (function
+    (function_clause (atom PLACEHOLDER_36)
+      (expr_args
+        (tuple
+          (variable PLACEHOLDER_19)
+          (variable PLACEHOLDER_23))
+        (variable PLACEHOLDER_31)
+        (variable PLACEHOLDER_8))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_37)
+          (remote
+            (remote_module maps)
+            (call get
+              (expr_args
+                (tuple
+                  (variable PLACEHOLDER_19)
+                  (variable PLACEHOLDER_23))
+                (record_field_expr
+                  (variable PLACEHOLDER_8)
+                  (record_name (atom PLACEHOLDER_3))
+                  (record_field_name (atom PLACEHOLDER_4)))))))
+        (match_expr
+          (variable PLACEHOLDER_38)
+          (list
+            (tuple
+              (binary_op_expr
+                (variable PLACEHOLDER_19) - 1)
+              (binary_op_expr
+                (variable PLACEHOLDER_23) - 1))
+            (tuple
+              (binary_op_expr
+                (variable PLACEHOLDER_19) - 1)
+              (binary_op_expr
+                (variable PLACEHOLDER_23) + 1))
+            (tuple
+              (variable PLACEHOLDER_19)
+              (binary_op_expr
+                (variable PLACEHOLDER_23) + 2))
+            (tuple
+              (binary_op_expr
+                (variable PLACEHOLDER_19) + 1)
+              (binary_op_expr
+                (variable PLACEHOLDER_23) + 1))
+            (tuple
+              (binary_op_expr
+                (variable PLACEHOLDER_19) + 1)
+              (binary_op_expr
+                (variable PLACEHOLDER_23) - 1))
+            (tuple
+              (variable PLACEHOLDER_19)
+              (binary_op_expr
+                (variable PLACEHOLDER_23) - 2))))
+        (match_expr
+          (variable PLACEHOLDER_24)
+          (anonymous_fun
+            (fun_clause
+              (expr_args
+                (variable PLACEHOLDER_39))
+              (clause_body
+                (binary_op_expr
+                  (binary_op_expr
+                    (remote
+                      (remote_module maps)
+                      (call get
+                        (expr_args
+                          (variable PLACEHOLDER_39)
+                          (record_field_expr
+                            (variable PLACEHOLDER_8)
+                            (record_name (atom PLACEHOLDER_3))
+                            (record_field_name (atom PLACEHOLDER_4))) undefined))) ==
+                    (variable PLACEHOLDER_37)) andalso
+                  (unary_op_expr not
+                    (remote
+                      (remote_module maps)
+                      (call is_key
+                        (expr_args
+                          (variable PLACEHOLDER_39)
+                          (variable PLACEHOLDER_31))))))))))
+        (remote
+          (remote_module lists)
+          (call filter
+            (expr_args
+              (variable PLACEHOLDER_24)
+              (variable PLACEHOLDER_38)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_15)
+      (expr_args
+        (variable PLACEHOLDER_40))
+      (clause_body
+        (match_expr
+          (tuple
+            (variable PLACEHOLDER_41) _)
+          (remote
+            (remote_module lists)
+            (call mapfoldl
+              (expr_args
+                (anonymous_fun
+                  (fun_clause
+                    (expr_args
+                      (variable PLACEHOLDER_21)
+                      (variable PLACEHOLDER_18))
+                    (clause_body
+                      (tuple
+                        (tuple
+                          (variable PLACEHOLDER_18)
+                          (variable PLACEHOLDER_21))
+                        (binary_op_expr
+                          (variable PLACEHOLDER_18) + 1))))) 1
+                (variable PLACEHOLDER_40)))))
+        (variable PLACEHOLDER_41)))))

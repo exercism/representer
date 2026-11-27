@@ -1,42 +1,226 @@
-- module ( crypto_square ).
-ciphertext ([]) ->
-[];
-ciphertext ( PlainText ) ->
-SimpleText = normalize ( PlainText ),
-Size = length ( SimpleText ),
-C = ceil ( math : sqrt ( Size )),
-encode ( SimpleText , C ).
-normalize ( Text ) ->
-Separators = "\"\\',.$\\t$\\n !@%\"" ,
-NewText = [ A || A <- Text , not lists : member ( A , Separators )],
-string : casefold ( NewText ).
-encode ( SimpleText , 0 ) ->
-SimpleText ;
-encode ( SimpleText , C ) ->
-Res = encode ( SimpleText , C , 0 , # {}),
-Fun = fun ( K , V , AccIn ) ->
-case K + 1 of
-C ->
-AccIn ++ lists : reverse ( V );
-_ ->
-AccIn ++ lists : reverse ([ 32 | V ])
-end
-end ,
-maps : fold ( Fun , [], Res ).
-encode ([], C , Counter , Acc ) ->
-I = Counter rem C ,
-if
-I > 0 ->
-List = maps : get ( I , Acc , []),
-NewList = [ 32 | List ],
-NewAcc = maps : put ( I , NewList , Acc ),
-encode ([], C , Counter + 1 , NewAcc );
-true ->
-Acc
-end ;
-encode ([ H | T ], C , Counter , Acc ) ->
-I = Counter rem C ,
-List = maps : get ( I , Acc , []),
-NewList = [ H | List ],
-NewAcc = maps : put ( I , NewList , Acc ),
-encode ( T , C , Counter + 1 , NewAcc ).
+(source_file
+  (module_attribute (atom PLACEHOLDER_1))
+  (export_attribute
+    (fa (atom PLACEHOLDER_2)
+      (arity 1)))
+  (function
+    (function_clause (atom PLACEHOLDER_2)
+      (expr_args
+        (list))
+      (clause_body
+        (list)))
+    (function_clause (atom PLACEHOLDER_2)
+      (expr_args
+        (variable PLACEHOLDER_3))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_4)
+          (call (atom PLACEHOLDER_5)
+            (expr_args
+              (variable PLACEHOLDER_3))))
+        (match_expr
+          (variable PLACEHOLDER_6)
+          (call length
+            (expr_args
+              (variable PLACEHOLDER_4))))
+        (match_expr
+          (variable PLACEHOLDER_7)
+          (call ceil
+            (expr_args
+              (remote
+                (remote_module math)
+                (call sqrt
+                  (expr_args
+                    (variable PLACEHOLDER_6)))))))
+        (call (atom PLACEHOLDER_8)
+          (expr_args
+            (variable PLACEHOLDER_4)
+            (variable PLACEHOLDER_7))))))
+  (function
+    (function_clause (atom PLACEHOLDER_5)
+      (expr_args
+        (variable PLACEHOLDER_9))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_10) "',.$\t$\n !@%")
+        (match_expr
+          (variable PLACEHOLDER_11)
+          (list_comprehension
+            (variable PLACEHOLDER_12)
+            (lc_exprs
+              (lc_or_zc_expr
+                (generator
+                  (variable PLACEHOLDER_12) <-
+                  (variable PLACEHOLDER_9)))
+              (lc_or_zc_expr
+                (unary_op_expr not
+                  (remote
+                    (remote_module lists)
+                    (call member
+                      (expr_args
+                        (variable PLACEHOLDER_12)
+                        (variable PLACEHOLDER_10)))))))))
+        (remote
+          (remote_module string)
+          (call casefold
+            (expr_args
+              (variable PLACEHOLDER_11)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_8)
+      (expr_args
+        (variable PLACEHOLDER_4) 0)
+      (clause_body
+        (variable PLACEHOLDER_4)))
+    (function_clause (atom PLACEHOLDER_8)
+      (expr_args
+        (variable PLACEHOLDER_4)
+        (variable PLACEHOLDER_7))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_13)
+          (call (atom PLACEHOLDER_8)
+            (expr_args
+              (variable PLACEHOLDER_4)
+              (variable PLACEHOLDER_7) 0
+              (map_expr))))
+        (match_expr
+          (variable PLACEHOLDER_14)
+          (anonymous_fun
+            (fun_clause
+              (expr_args
+                (variable PLACEHOLDER_15)
+                (variable PLACEHOLDER_16)
+                (variable PLACEHOLDER_17))
+              (clause_body
+                (case_expr
+                  (binary_op_expr
+                    (variable PLACEHOLDER_15) + 1)
+                  (cr_clause
+                    (variable PLACEHOLDER_7)
+                    (clause_body
+                      (binary_op_expr
+                        (variable PLACEHOLDER_17) ++
+                        (remote
+                          (remote_module lists)
+                          (call reverse
+                            (expr_args
+                              (variable PLACEHOLDER_16)))))))
+                  (cr_clause _
+                    (clause_body
+                      (binary_op_expr
+                        (variable PLACEHOLDER_17) ++
+                        (remote
+                          (remote_module lists)
+                          (call reverse
+                            (expr_args
+                              (list
+                                (pipe 32
+                                  (variable PLACEHOLDER_16))))))))))))))
+        (remote
+          (remote_module maps)
+          (call fold
+            (expr_args
+              (variable PLACEHOLDER_14)
+              (list)
+              (variable PLACEHOLDER_13)))))))
+  (function
+    (function_clause (atom PLACEHOLDER_8)
+      (expr_args
+        (list)
+        (variable PLACEHOLDER_7)
+        (variable PLACEHOLDER_18)
+        (variable PLACEHOLDER_19))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_20)
+          (binary_op_expr
+            (variable PLACEHOLDER_18) rem
+            (variable PLACEHOLDER_7)))
+        (if_expr
+          (if_clause
+            (guard
+              (guard_clause
+                (binary_op_expr
+                  (variable PLACEHOLDER_20) > 0)))
+            (clause_body
+              (match_expr
+                (variable PLACEHOLDER_21)
+                (remote
+                  (remote_module maps)
+                  (call get
+                    (expr_args
+                      (variable PLACEHOLDER_20)
+                      (variable PLACEHOLDER_19)
+                      (list)))))
+              (match_expr
+                (variable PLACEHOLDER_22)
+                (list
+                  (pipe 32
+                    (variable PLACEHOLDER_21))))
+              (match_expr
+                (variable PLACEHOLDER_23)
+                (remote
+                  (remote_module maps)
+                  (call put
+                    (expr_args
+                      (variable PLACEHOLDER_20)
+                      (variable PLACEHOLDER_22)
+                      (variable PLACEHOLDER_19)))))
+              (call (atom PLACEHOLDER_8)
+                (expr_args
+                  (list)
+                  (variable PLACEHOLDER_7)
+                  (binary_op_expr
+                    (variable PLACEHOLDER_18) + 1)
+                  (variable PLACEHOLDER_23)))))
+          (if_clause
+            (guard
+              (guard_clause true))
+            (clause_body
+              (variable PLACEHOLDER_19))))))
+    (function_clause (atom PLACEHOLDER_8)
+      (expr_args
+        (list
+          (pipe
+            (variable PLACEHOLDER_24)
+            (variable PLACEHOLDER_25)))
+        (variable PLACEHOLDER_7)
+        (variable PLACEHOLDER_18)
+        (variable PLACEHOLDER_19))
+      (clause_body
+        (match_expr
+          (variable PLACEHOLDER_20)
+          (binary_op_expr
+            (variable PLACEHOLDER_18) rem
+            (variable PLACEHOLDER_7)))
+        (match_expr
+          (variable PLACEHOLDER_21)
+          (remote
+            (remote_module maps)
+            (call get
+              (expr_args
+                (variable PLACEHOLDER_20)
+                (variable PLACEHOLDER_19)
+                (list)))))
+        (match_expr
+          (variable PLACEHOLDER_22)
+          (list
+            (pipe
+              (variable PLACEHOLDER_24)
+              (variable PLACEHOLDER_21))))
+        (match_expr
+          (variable PLACEHOLDER_23)
+          (remote
+            (remote_module maps)
+            (call put
+              (expr_args
+                (variable PLACEHOLDER_20)
+                (variable PLACEHOLDER_22)
+                (variable PLACEHOLDER_19)))))
+        (call (atom PLACEHOLDER_8)
+          (expr_args
+            (variable PLACEHOLDER_25)
+            (variable PLACEHOLDER_7)
+            (binary_op_expr
+              (variable PLACEHOLDER_18) + 1)
+            (variable PLACEHOLDER_23)))))))
