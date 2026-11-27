@@ -1,107 +1,112 @@
-# -----------------------------------------------------------------------------
-# exercism.org
-# MIPS Track Exercise: octal_convert
-# Contributed: Anthony J. Borla (ajborla@bigpond.com)
-#
-# -------------------
-#
-# Converts a octal string into its decimal equivalent (integer form). Note:
-#
-# - performs input validation; non-octal characters accepted but their
-# value set to zero, so a result is always generated
-# - validation logic / coding shown here:
-#
-# ASCII Conversion Code
-# ----- ---------- ----
-# '/' (47) x - 48 = -1 bltz $t3, fix_digit
-# '0' (48) = 0 ble $t3, 7, convert
-# '7' (55) = 7 j fix_digit
-# '8' (56) = 8
-#
-# -------------------
-#
-# input: $a0 - octal string (OS) base address
-# return: $v0 - decimal value resulting from string conversion
-# local: $t0 - OS base address
-# $t1 - OS terminal character value
-# $t2 - current OS character address
-# $t3 - integer value of current OS character
-# $t4 - offset position of current OS character
-# $t5 - temporary storage
-# $t6 - accumulated decimal value
-# $a0 - current OS character value
-# $a1 - OS length
-# $a2 - OS loop counter
-# -----------------------------------------------------------------------------
-.text
-# ---- Macro Helpers
-# Clears temporary registers
-.macro clr_temp_regs
-or $t0, $0, $0
-or $t1, $0, $0
-or $t2, $0, $0
-or $t3, $0, $0
-or $t4, $0, $0
-or $t5, $0, $0
-or $t6, $0, $0
-or $t7, $0, $0
-or $t8, $0, $0
-or $t9, $0, $0
-.end_macro
-# Clears argument registers
-.macro clr_arg_regs
-or $a0, $0, $0
-or $a1, $0, $0
-or $a2, $0, $0
-or $a3, $0, $0
-.end_macro
-# ---------------------------------------
-.globl octal_convert
-# ---- Entry point
-octal_convert:
-# ---- Initialisation
-init:
-or $t0, $a0, $0 # OS base address
-ori $t1, $0, 0 # OS terminal character value (NUL)
-or $t6, $0, $0 # initialise result accumulator
-len_init:
-or $t2, $t0, $0 # OS base address (initial value)
-len_loop:
-lbu $a0, 0($t2) # load current OS character
-beq $a0, $t1, len_done # check for terminal character
-addiu $t2, $t2, 1 # point to next OS character
-j len_loop
-len_done:
-sub $a1, $t2, $t0 # $a1 = OS length
-or $a2, $a1, $0 # $a2 = $a1; loop counter
-addi $t2, $t2, -1 # $t2 now points to end of OS
-# ---- Main Loop
-loop:
-beq $a2, $0, done # check loop counter == 0
-# ---- Validation
-chk_digit:
-lbu $t3, 0($t2) # load current OS character
-addi $t3, $t3, -48 # convert ascii digit to integer
-bltz $t3, fix_digit # $t3 < 0 : invalid
-ble $t3, 7, convert # 0 <= $t3 <= 7 : in-range
-j fix_digit # $t3 > 7 : invalid
-fix_digit:
-ori $t3, $0, 0 # digit out of range, so set it to 0
-# ---- Conversion
-convert:
-sub $t4, $a1, $a2 # offset = OS length - counter
-ori $t5, $0, 3 # load 3 for multiply offset
-mulu $t4, $t4, $t5 # offset = offset * 3
-ori $t5, $0, 1 # load 1 for shift left
-sllv $t5, $t5, $t4 # 2^(offset) == shl 1, offset
-mulu $t3, $t3, $t5 # $t3 = $t3 * 2^(offset)
-addu $t6, $t6, $t3 # accumulate result ($t6 += $t3)
-addiu $t2, $t2, -1 # point to next OS character
-addiu $a2, $a2, -1 # decrement loop counter
-j loop
-# ---- Cleanup
-done:
-or $v0, $t6, $0 # return accumulator value
-clr_arg_regs # clear argument registers
-clr_temp_regs # clear temporary registers
-jr $ra # return from subroutine
+(program
+  (directive .text)
+  (directive .macro (macro_name PLACEHOLDER_1))
+  (instruction or
+    (operands $t0 $0 $0))
+  (instruction or
+    (operands $t1 $0 $0))
+  (instruction or
+    (operands $t2 $0 $0))
+  (instruction or
+    (operands $t3 $0 $0))
+  (instruction or
+    (operands $t4 $0 $0))
+  (instruction or
+    (operands $t5 $0 $0))
+  (instruction or
+    (operands $t6 $0 $0))
+  (instruction or
+    (operands $t7 $0 $0))
+  (instruction or
+    (operands $t8 $0 $0))
+  (instruction or
+    (operands $t9 $0 $0))
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_2))
+  (instruction or
+    (operands $a0 $0 $0))
+  (instruction or
+    (operands $a1 $0 $0))
+  (instruction or
+    (operands $a2 $0 $0))
+  (instruction or
+    (operands $a3 $0 $0))
+  (directive .end_macro)
+  (directive .globl
+    (directive_operands PLACEHOLDER_3))
+  (label PLACEHOLDER_3)
+  (label PLACEHOLDER_4)
+  (instruction or
+    (operands $t0 $a0 $0))
+  (instruction ori
+    (operands $t1 $0 0))
+  (instruction or
+    (operands $t6 $0 $0))
+  (label PLACEHOLDER_5)
+  (instruction or
+    (operands $t2 $t0 $0))
+  (label PLACEHOLDER_6)
+  (instruction lbu
+    (operands $a0
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction beq
+    (operands $a0 $t1 PLACEHOLDER_7))
+  (instruction addiu
+    (operands $t2 $t2 1))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_7)
+  (instruction sub
+    (operands $a1 $t2 $t0))
+  (instruction or
+    (operands $a2 $a1 $0))
+  (instruction addi
+    (operands $t2 $t2 -1))
+  (label PLACEHOLDER_8)
+  (instruction beq
+    (operands $a2 $0 PLACEHOLDER_9))
+  (label PLACEHOLDER_10)
+  (instruction lbu
+    (operands $t3
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction addi
+    (operands $t3 $t3 -48))
+  (instruction bltz
+    (operands $t3 PLACEHOLDER_11))
+  (instruction ble
+    (operands $t3 7 PLACEHOLDER_12))
+  (instruction j
+    (operands PLACEHOLDER_11))
+  (label PLACEHOLDER_11)
+  (instruction ori
+    (operands $t3 $0 0))
+  (label PLACEHOLDER_12)
+  (instruction sub
+    (operands $t4 $a1 $a2))
+  (instruction ori
+    (operands $t5 $0 3))
+  (instruction mulu
+    (operands $t4 $t4 $t5))
+  (instruction ori
+    (operands $t5 $0 1))
+  (instruction sllv
+    (operands $t5 $t5 $t4))
+  (instruction mulu
+    (operands $t3 $t3 $t5))
+  (instruction addu
+    (operands $t6 $t6 $t3))
+  (instruction addiu
+    (operands $t2 $t2 -1))
+  (instruction addiu
+    (operands $a2 $a2 -1))
+  (instruction j
+    (operands PLACEHOLDER_8))
+  (label PLACEHOLDER_9)
+  (instruction or
+    (operands $v0 $t6 $0))
+  (call_statement PLACEHOLDER_2)
+  (call_statement PLACEHOLDER_1)
+  (instruction jr
+    (operands $ra)))

@@ -1,46 +1,84 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------- |
-# | `$a0` | input | integer | given number |
-# | `$a1` | input/output | address | null-terminated result string |
-# | `$t0-9` | temporary | any | for temporary storage |
-# store one byte in places pointed to by $t1 and advance $t1
-.macro store (%byte)
-li $t9, %byte
-sb $t9, 0($t1)
-addi $t1, $t1, 1
-.end_macro
-# store literals and reduce number $t0 by corresponding values
-.macro digit (%unit, %half, %full, %val, %val4, %val5, %val9)
-blt $t0, %val9, _l5
-store %unit # digit was 9
-store %full
-sub $t0, $t0, %val9
-j _out
-_l5:
-blt $t0, %val5, _l4
-store %half # digit was 5-8
-sub $t0, $t0, %val5
-j _l1 # check for more 1s
-_l4:
-blt $t0, %val4, _l1
-store %unit # digit was 4
-store %half
-sub $t0, $t0, %val4
-j _out
-_l1:
-blt $t0, %val, _out
-store %unit # digit was 1-3
-sub $t0, $t0, %val
-j _l1 # check for more 1s
-_out:
-.end_macro
-.globl roman
-roman:
-move $t0, $a0
-move $t1, $a1
-digit 'M', 'A', 'B', 1000, 4000, 5000, 9000
-digit 'C', 'D', 'M', 100, 400, 500, 900
-digit 'X', 'L', 'C', 10, 40, 50, 90
-digit 'I', 'V', 'X', 1, 4, 5, 9
-sb $0, 0($t1)
-jr $ra
+(program
+  (directive .macro (macro_name PLACEHOLDER_1)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_2))))
+  (instruction li
+    (operands $t9 (macro_variable PLACEHOLDER_2)))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression 0
+        (operands $t1))))
+  (instruction addi
+    (operands $t1 $t1 1))
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_3)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_4))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_5))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_6))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_7))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_8))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_9))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_10))))
+  (instruction blt
+    (operands $t0 (macro_variable PLACEHOLDER_10) PLACEHOLDER_11))
+  (call_statement PLACEHOLDER_1
+    (operands (macro_variable PLACEHOLDER_4)))
+  (call_statement PLACEHOLDER_1
+    (operands (macro_variable PLACEHOLDER_6)))
+  (instruction sub
+    (operands $t0 $t0 (macro_variable PLACEHOLDER_10)))
+  (instruction j
+    (operands PLACEHOLDER_12))
+  (label PLACEHOLDER_11)
+  (instruction blt
+    (operands $t0 (macro_variable PLACEHOLDER_9) PLACEHOLDER_13))
+  (call_statement PLACEHOLDER_1
+    (operands (macro_variable PLACEHOLDER_5)))
+  (instruction sub
+    (operands $t0 $t0 (macro_variable PLACEHOLDER_9)))
+  (instruction j
+    (operands PLACEHOLDER_14))
+  (label PLACEHOLDER_13)
+  (instruction blt
+    (operands $t0 (macro_variable PLACEHOLDER_8) PLACEHOLDER_14))
+  (call_statement PLACEHOLDER_1
+    (operands (macro_variable PLACEHOLDER_4)))
+  (call_statement PLACEHOLDER_1
+    (operands (macro_variable PLACEHOLDER_5)))
+  (instruction sub
+    (operands $t0 $t0 (macro_variable PLACEHOLDER_8)))
+  (instruction j
+    (operands PLACEHOLDER_12))
+  (label PLACEHOLDER_14)
+  (instruction blt
+    (operands $t0 (macro_variable PLACEHOLDER_7) PLACEHOLDER_12))
+  (call_statement PLACEHOLDER_1
+    (operands (macro_variable PLACEHOLDER_4)))
+  (instruction sub
+    (operands $t0 $t0 (macro_variable PLACEHOLDER_7)))
+  (instruction j
+    (operands PLACEHOLDER_14))
+  (label PLACEHOLDER_12)
+  (directive .end_macro)
+  (directive .globl
+    (directive_operands PLACEHOLDER_15))
+  (label PLACEHOLDER_15)
+  (instruction move
+    (operands $t0 $a0))
+  (instruction move
+    (operands $t1 $a1))
+  (call_statement PLACEHOLDER_3
+    (operands 'M' 'A' 'B' 1000 4000 5000 9000))
+  (call_statement PLACEHOLDER_3
+    (operands 'C' 'D' 'M' 100 400 500 900))
+  (call_statement PLACEHOLDER_3
+    (operands 'X' 'L' 'C' 10 40 50 90))
+  (call_statement PLACEHOLDER_3
+    (operands 'I' 'V' 'X' 1 4 5 9))
+  (instruction sb
+    (operands $0
+      (parenthesized_expression 0
+        (operands $t1))))
+  (instruction jr
+    (operands $ra)))

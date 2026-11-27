@@ -1,52 +1,69 @@
-.globl is_armstrong_number
-is_armstrong_number:
-li $t3,0 # accumulated result
-li $t0,10 # radix
-move $t4,$a0 # armstrong number
-li $t5,0 # counter
-move $t6,$a0 # quotient for counter, starts with input
-length:
-# todo: maybe store partial results in array to trade space with time
-beqz $t6,init_before_loop
-div $t6,$t6,$t0
-addi $t5,$t5,1 # past this label it's read only
-j length
-init_before_loop:
-move $t7,$t5 # copy read only counter, we will decrement `$t7`, since we need the original value in oher iteration
-loop:
-beqz $a0,its_result_time
-div $a0,$t0
-mflo $a0 # quotient, write back into input, this what we still need to handle
-mfhi $t1 # remainder, raise this to the power of `$t5`
-# keep this value write the result of raising into `$t2`
-li $t2,1
-exp:
-# li $t9,0
-# bgt $t3,$t9,log
-beqz $t7,accumulate
-mul $t2,$t2,$t1 # 5*1 *5 *5
-subi $t7,$t7,1
-j exp
-accumulate:
-add $t3,$t3,$t2 # accumulate
-j init_before_loop
-its_result_time:
-beq $t3,$t4,yesyesyes
-li $v0,0 # it's a nope
-jr $ra
-yesyesyes:
-li $v0,1
-jr $ra
-log:
-li $v0,1
-move $a0,$t7
-# move $a0,$t4 # log saved input, expected 153, ok
-# move $a0,$t6 # 0, ok
-# move $a0,$t5 # log len, expected 3, ok
-# move $a0,$a0 # quotient first div, 15, ok
-# move $a0,$t1 # remainder first div, 3, ok
-# move $a0,$t7 # 3, ok
-# move $a0,$t1 # 1, ok
-# move $a0,$t1 # 3 ^ 3 = 27,
-# move $a0,$t3 # log accumulated
-syscall
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction li
+    (operands $t3 0))
+  (instruction li
+    (operands $t0 10))
+  (instruction move
+    (operands $t4 $a0))
+  (instruction li
+    (operands $t5 0))
+  (instruction move
+    (operands $t6 $a0))
+  (label PLACEHOLDER_2)
+  (instruction beqz
+    (operands $t6 PLACEHOLDER_3))
+  (instruction div
+    (operands $t6 $t6 $t0))
+  (instruction addi
+    (operands $t5 $t5 1))
+  (instruction j
+    (operands PLACEHOLDER_2))
+  (label PLACEHOLDER_3)
+  (instruction move
+    (operands $t7 $t5))
+  (label PLACEHOLDER_4)
+  (instruction beqz
+    (operands $a0 PLACEHOLDER_5))
+  (instruction div
+    (operands $a0 $t0))
+  (instruction mflo
+    (operands $a0))
+  (instruction mfhi
+    (operands $t1))
+  (instruction li
+    (operands $t2 1))
+  (label PLACEHOLDER_6)
+  (instruction beqz
+    (operands $t7 PLACEHOLDER_7))
+  (instruction mul
+    (operands $t2 $t2 $t1))
+  (instruction subi
+    (operands $t7 $t7 1))
+  (instruction j
+    (operands PLACEHOLDER_6))
+  (label PLACEHOLDER_7)
+  (instruction add
+    (operands $t3 $t3 $t2))
+  (instruction j
+    (operands PLACEHOLDER_3))
+  (label PLACEHOLDER_5)
+  (instruction beq
+    (operands $t3 $t4 PLACEHOLDER_8))
+  (instruction li
+    (operands $v0 0))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_8)
+  (instruction li
+    (operands $v0 1))
+  (instruction jr
+    (operands $ra))
+  (label PLACEHOLDER_9)
+  (instruction li
+    (operands $v0 1))
+  (instruction move
+    (operands $a0 $t7))
+  (instruction syscall))

@@ -1,75 +1,75 @@
-# | Register | Usage | Type | Description |
-# | -------- | --------- | ------- | ---------------------------------------- |
-# | `$a0` | input | address | null-terminated input string |
-# | `$v0` | output | boolean | valid isbn (`0` = `false`, `1` = `true`) |
-# | `$t0-9` | temporary | any | used for temporary storage |
-.globl is_valid
-# ## High level
-# int n = strlen(s);
-# int count = 10;
-# char c;
-# int accum = 0;
-# for (int i = 0; i < strlen(s); i++) {
-# c = s[i];
-# if (c == '-') continue;
-# if ((c == 'X') && (count == 1)) {
-# accum += 10*1;
-# count--;
-# continue;
-# }
-# c = (int)(c - '0');
-# if ((c >= 0) && (c < 10)) {
-# // accumulate value
-# accum += count*c;
-# count--;
-# } else {
-# // invalid char, return failure
-# return -1;
-# }
-# }
-#
-# return (accum % 11)
-#
-# ## Low level
-#
-is_valid:
-add $t0, $a0, $zero # char *
-addi $t1, $zero, 10 # counter
-addi $t3, $zero, '-'
-addi $t4, $zero, 'X'
-addi $t7, $zero, 1 # const for compare
-addi $t6, $zero, 0 #accum
-__loop:
-lb $t5, ($t0) # load char
-beq $t5, $zero, __calcmod # done loop
-beq $t5, $t3, __continue # continue if '-'
-beq $t5, $t4, __add10 # handle 'X'
-__addN:
-slti $t8, $t5, 0x30 # want this false (0)
-bne $t8, $zero, __exitfail
-slti $t9, $t5, 0x3a # want this true (1)
-beq $t9, $zero, __exitfail
-# $t5 is between 0 and 10, ok
-addi $t5, $t5, -0x30 # add value*counter into accum
-mult $t5, $t1
-mflo $t5
-add $t6, $t6, $t5
-addi $t1, $t1, -1 # decrement counter
-__continue:
-addi $t0, $t0, 1 # increment string address
-j __loop
-__add10:
-addi $t6, $t6, 10 # add 10 to accum
-addi $t1, $t1, -1 # decrement counter
-# we should be at end, so we wont loop
-__calcmod:
-bne $t1, $zero, __exitfail # fail if we haven't counted 10
-addi $t1, $t1, 11
-div $t6, $t1
-mfhi $v0 # $v0 holds remainder
-slti $v0, $v0, 1 # (accum % 11) == 0 ? 1 : 0
-j __done
-__exitfail:
-addi $v0, $zero, 0 # fail with 0 for tests
-__done:
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction add
+    (operands $t0 $a0 $zero))
+  (instruction addi
+    (operands $t1 $zero 10))
+  (instruction addi
+    (operands $t3 $zero '-'))
+  (instruction addi
+    (operands $t4 $zero 'X'))
+  (instruction addi
+    (operands $t7 $zero 1))
+  (instruction addi
+    (operands $t6 $zero 0))
+  (label PLACEHOLDER_2)
+  (instruction lb
+    (operands $t5
+      (parenthesized_expression
+        (operands $t0))))
+  (instruction beq
+    (operands $t5 $zero PLACEHOLDER_3))
+  (instruction beq
+    (operands $t5 $t3 PLACEHOLDER_4))
+  (instruction beq
+    (operands $t5 $t4 PLACEHOLDER_5))
+  (label PLACEHOLDER_6)
+  (instruction slti
+    (operands $t8 $t5 48))
+  (instruction bne
+    (operands $t8 $zero PLACEHOLDER_7))
+  (instruction slti
+    (operands $t9 $t5 58))
+  (instruction beq
+    (operands $t9 $zero PLACEHOLDER_7))
+  (instruction addi
+    (operands $t5 $t5 -48))
+  (instruction mult
+    (operands $t5 $t1))
+  (instruction mflo
+    (operands $t5))
+  (instruction add
+    (operands $t6 $t6 $t5))
+  (instruction addi
+    (operands $t1 $t1 -1))
+  (label PLACEHOLDER_4)
+  (instruction addi
+    (operands $t0 $t0 1))
+  (instruction j
+    (operands PLACEHOLDER_2))
+  (label PLACEHOLDER_5)
+  (instruction addi
+    (operands $t6 $t6 10))
+  (instruction addi
+    (operands $t1 $t1 -1))
+  (label PLACEHOLDER_3)
+  (instruction bne
+    (operands $t1 $zero PLACEHOLDER_7))
+  (instruction addi
+    (operands $t1 $t1 11))
+  (instruction div
+    (operands $t6 $t1))
+  (instruction mfhi
+    (operands $v0))
+  (instruction slti
+    (operands $v0 $v0 1))
+  (instruction j
+    (operands PLACEHOLDER_8))
+  (label PLACEHOLDER_7)
+  (instruction addi
+    (operands $v0 $zero 0))
+  (label PLACEHOLDER_8)
+  (instruction jr
+    (operands $ra)))

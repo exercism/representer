@@ -1,42 +1,62 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | -------------------------------------------- |
-# | `$a0` | input | integer | N, sum of sides of triangle |
-# | `$a1` | input/output | address | a values |
-# | `$a2` | input/output | address | b values |
-# | `$a3` | input/output | address | c values |
-# | `$v0` | output | integer | number of triplets |
-# | `$t0-9` | temporary | any | for temporary storage |
-.globl triplets_with_sum
-# solution to the equations a+b+c==N, a^2+b^2=c^2
-# is given by b = N*(N-2*a)/(2*(N-a))
-# c = N - a - b
-# so 2*(N-a) should divide N*(N-2*a) evenly
-triplets_with_sum:
-li $v0, 0
-li $t0, 0 # $t0: value of a
-__loop_a:
-addiu $t0, $t0, 1
-sll $t4, $t0, 1 # loop can be stopped of 2*a >= N
-bge $t4, $a0, __end
-sub $t4, $a0, $t4 # $t4 = N - 2*a
-mul $t4, $a0, $t4 # $t4 = N*(N-2*a)
-sub $t5, $a0, $t0 # $t5 = N-a
-sll $t5, $t5, 1 # $t5 = 2*(N-a)
-div $t4, $t5
-mfhi $t4
-bnez $t4, __loop_a # does not divide evenly
-mflo $t1 # $t1: value of b
-ble $t1, $t0, __end # if b <= a then done
-add $t2, $t0, $t1 # $t2: a+b
-sub $t2, $a0, $t2 # $t2: value of c
-# found solution
-sw $t0, ($a1)
-addiu $a1, $a1, 4
-sw $t1, ($a2)
-addiu $a2, $a2, 4
-sw $t2, ($a3)
-addiu $a3, $a3, 4
-addiu $v0, $v0, 1
-j __loop_a
-__end:
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction li
+    (operands $v0 0))
+  (instruction li
+    (operands $t0 0))
+  (label PLACEHOLDER_2)
+  (instruction addiu
+    (operands $t0 $t0 1))
+  (instruction sll
+    (operands $t4 $t0 1))
+  (instruction bge
+    (operands $t4 $a0 PLACEHOLDER_3))
+  (instruction sub
+    (operands $t4 $a0 $t4))
+  (instruction mul
+    (operands $t4 $a0 $t4))
+  (instruction sub
+    (operands $t5 $a0 $t0))
+  (instruction sll
+    (operands $t5 $t5 1))
+  (instruction div
+    (operands $t4 $t5))
+  (instruction mfhi
+    (operands $t4))
+  (instruction bnez
+    (operands $t4 PLACEHOLDER_2))
+  (instruction mflo
+    (operands $t1))
+  (instruction ble
+    (operands $t1 $t0 PLACEHOLDER_3))
+  (instruction add
+    (operands $t2 $t0 $t1))
+  (instruction sub
+    (operands $t2 $a0 $t2))
+  (instruction sw
+    (operands $t0
+      (parenthesized_expression
+        (operands $a1))))
+  (instruction addiu
+    (operands $a1 $a1 4))
+  (instruction sw
+    (operands $t1
+      (parenthesized_expression
+        (operands $a2))))
+  (instruction addiu
+    (operands $a2 $a2 4))
+  (instruction sw
+    (operands $t2
+      (parenthesized_expression
+        (operands $a3))))
+  (instruction addiu
+    (operands $a3 $a3 4))
+  (instruction addiu
+    (operands $v0 $v0 1))
+  (instruction j
+    (operands PLACEHOLDER_2))
+  (label PLACEHOLDER_3)
+  (instruction jr
+    (operands $ra)))

@@ -1,37 +1,52 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------- |
-# | `$a0` | input | address | null-terminated input string |
-# | `$a1` | input/output | address | null-terminated output string |
-# | `$t0-9` | temporary | any | used for temporary storage |
-.globl reverse
-reverse:
-# Find the end of the input string
-li $t0, 0 # Initialize length counter
-move $t1, $a0 # $t1 is a pointer to the input string
-find_length_loop:
-lb $t2, 0($t1) # Load byte (character) from input string
-beq $t2, $zero, end_length # If character is null terminator, exit loop
-addi $t1, $t1, 1 # Move pointer to the next character
-addi $t0, $t0, 1 # Increment length counter
-j find_length_loop
-end_length:
-# $t1 now points to the null pointer
-# $t0 holds the length of the string
-# Set up pointers for the reverse copy
-addi $t1, $t1, -1 # $t1 now points to last character of string
-move $t3, $a1 # $t3 is a pointer to the output string
-reverse_copy_loop:
-# Check if we've copied all characters
-blez $t0, end_copy # If length counter <= 0, we're done
-# Copy character from input to output
-lb $t2, 0($t1) # Load character from the end of input string
-sb $t2, 0($t3) # Store character to the beginning of output string
-# Update pointers and counter
-addi $t1, $t1, -1 # Move input pointer backwards
-addi $t3, $t3, 1 # Move output pointer forwards
-addi $t0, $t0, -1 # Decrement length counter
-j reverse_copy_loop
-end_copy:
-# Add a null terminator to the output string
-sb $zero, 0($t3) # Store a null byte at end of new string
-jr $ra # Return from the function
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction li
+    (operands $t0 0))
+  (instruction move
+    (operands $t1 $a0))
+  (label PLACEHOLDER_2)
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression 0
+        (operands $t1))))
+  (instruction beq
+    (operands $t2 $zero PLACEHOLDER_3))
+  (instruction addi
+    (operands $t1 $t1 1))
+  (instruction addi
+    (operands $t0 $t0 1))
+  (instruction j
+    (operands PLACEHOLDER_2))
+  (label PLACEHOLDER_3)
+  (instruction addi
+    (operands $t1 $t1 -1))
+  (instruction move
+    (operands $t3 $a1))
+  (label PLACEHOLDER_4)
+  (instruction blez
+    (operands $t0 PLACEHOLDER_5))
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression 0
+        (operands $t1))))
+  (instruction sb
+    (operands $t2
+      (parenthesized_expression 0
+        (operands $t3))))
+  (instruction addi
+    (operands $t1 $t1 -1))
+  (instruction addi
+    (operands $t3 $t3 1))
+  (instruction addi
+    (operands $t0 $t0 -1))
+  (instruction j
+    (operands PLACEHOLDER_4))
+  (label PLACEHOLDER_5)
+  (instruction sb
+    (operands $zero
+      (parenthesized_expression 0
+        (operands $t3))))
+  (instruction jr
+    (operands $ra)))

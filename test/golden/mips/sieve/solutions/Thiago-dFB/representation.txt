@@ -1,49 +1,84 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------------- |
-# | `$a0` | input | integer | limit |
-# | `$a1` | input/output | address | destination array for prime numbers |
-# | `$v0` | output | integer | number of primes |
-# | `$t0-9` | temporary | any | used for temporary storage |
-.globl primes
-primes:
-li $v0, 0
-move $t9, $a1
-subi $t0, $a0, 2
-blt $t0, $zero, exit # ($a0 - 2) < 0 = $a0 < 2 then goto exit
-li $t0, 2 # $t0 <- current number to check
-sw $t0, 0($t9)
-addi $v0, $v0, 1
-addi $t9, $t9, 4
-li $t1, 0 # $t1 <- max prime index
-loop1:
-# any number smaller than the square of a prime need only to check against it or smaller primes
-sll $t2, $t1, 2
-add $t2, $t2, $a1
-lw $t2, 0($t2)
-mult $t2, $t2
-mflo $t2 # $t2 <- $a1[$t1]²
-loop2:
-bgt $t0, $t2, loop2_end
-li $t3, 0 # $t3 <- index up to $t1
-loop3:
-sll $t4, $t3, 2
-add $t4, $t4, $a1
-lw $t4, 0($t4)
-div $t0, $t4
-mfhi $t4 # $t4 <- $t0 % $a1[$t3]
-beq $t4, $zero, loop3_end
-addi $t3, $t3, 1
-ble $t3, $t1, loop3
-# success
-sw $t0, 0($t9)
-addi $v0, $v0, 1
-addi $t9, $t9, 4
-loop3_end:
-addi $t0, $t0, 1
-bgt $t0, $a0, exit
-j loop2
-loop2_end:
-addi $t1, $t1, 1
-j loop1
-exit:
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (label PLACEHOLDER_1)
+  (instruction li
+    (operands $v0 0))
+  (instruction move
+    (operands $t9 $a1))
+  (instruction subi
+    (operands $t0 $a0 2))
+  (instruction blt
+    (operands $t0 $zero PLACEHOLDER_2))
+  (instruction li
+    (operands $t0 2))
+  (instruction sw
+    (operands $t0
+      (parenthesized_expression 0
+        (operands $t9))))
+  (instruction addi
+    (operands $v0 $v0 1))
+  (instruction addi
+    (operands $t9 $t9 4))
+  (instruction li
+    (operands $t1 0))
+  (label PLACEHOLDER_3)
+  (instruction sll
+    (operands $t2 $t1 2))
+  (instruction add
+    (operands $t2 $t2 $a1))
+  (instruction lw
+    (operands $t2
+      (parenthesized_expression 0
+        (operands $t2))))
+  (instruction mult
+    (operands $t2 $t2))
+  (instruction mflo
+    (operands $t2))
+  (label PLACEHOLDER_4)
+  (instruction bgt
+    (operands $t0 $t2 PLACEHOLDER_5))
+  (instruction li
+    (operands $t3 0))
+  (label PLACEHOLDER_6)
+  (instruction sll
+    (operands $t4 $t3 2))
+  (instruction add
+    (operands $t4 $t4 $a1))
+  (instruction lw
+    (operands $t4
+      (parenthesized_expression 0
+        (operands $t4))))
+  (instruction div
+    (operands $t0 $t4))
+  (instruction mfhi
+    (operands $t4))
+  (instruction beq
+    (operands $t4 $zero PLACEHOLDER_7))
+  (instruction addi
+    (operands $t3 $t3 1))
+  (instruction ble
+    (operands $t3 $t1 PLACEHOLDER_6))
+  (instruction sw
+    (operands $t0
+      (parenthesized_expression 0
+        (operands $t9))))
+  (instruction addi
+    (operands $v0 $v0 1))
+  (instruction addi
+    (operands $t9 $t9 4))
+  (label PLACEHOLDER_7)
+  (instruction addi
+    (operands $t0 $t0 1))
+  (instruction bgt
+    (operands $t0 $a0 PLACEHOLDER_2))
+  (instruction j
+    (operands PLACEHOLDER_4))
+  (label PLACEHOLDER_5)
+  (instruction addi
+    (operands $t1 $t1 1))
+  (instruction j
+    (operands PLACEHOLDER_3))
+  (label PLACEHOLDER_2)
+  (instruction jr
+    (operands $ra)))

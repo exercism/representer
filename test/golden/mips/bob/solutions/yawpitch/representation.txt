@@ -1,65 +1,116 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------- |
-# | `$a0` | input | address | null-terminated input string |
-# | `$a1` | input/output | address | null-terminated output string |
-# | `$t0` | temporary | address | required output message |
-# | `$t1` | temporary | byte | most recent non-WS character |
-# | `$t2` | temporary | byte | current character |
-# | `$t3` | flag | boolean | contains upper case |
-# | `$t4` | flag | boolean | contains lower case |
-.globl response
-.data
-SILENCE: .asciiz "\"Fine." Be that way!"
-YELLED: .asciiz "\"Whoa," chill out!"
-YELLED_QUESTION: .asciiz "\"Calm" down, I know what I'm doing!"
-QUIET: .asciiz "\"Whatever.\""
-QUIET_QUESTION: .asciiz "\"Sure.\""
-.text
-response:
-move $t1, $zero # zero non-WS character
-move $t3, $zero # zero upper case flag
-move $t4, $zero # zero lower case flag
-parse_loop:
-lb $t2, 0($a0) # read character
-addi $a0, $a0, 1 # increment input pointer
-beqz $t2, select_response # exit on NULL
-ble $t2, ' ', parse_loop # skip WS
-move $t1, $t2 # store most recent non-WS character
-blt $t2, 'A', parse_loop # skip punctuation < 'A'
-ble $t2, 'Z', parsed_upper
-blt $t2, 'a', parse_loop # skip punctuation > 'Z' && < 'a'
-bgt $t2, 'z', parse_loop # skip punctuation > 'z'
-parsed_lower: # input contains a lower case letter
-li $t4, 1
-j parse_loop
-parsed_upper: # input contains an upper case letter
-li $t3, 1
-j parse_loop
-select_response:
-beqz $t1, handle_silence # if no input is present at all
-bnez $t4, handle_quiet # if lower case letters are present
-beqz $t3, handle_quiet # if no upper case letters are present
-handle_yelled: # respond to yelled inputs
-beq $t1, '?', handle_yelled_question
-la $t0, YELLED
-j strcopy
-handle_yelled_question: # respond to yelled questions
-la $t0, YELLED_QUESTION
-j strcopy
-handle_silence: # respond to silence
-la $t0, SILENCE
-j strcopy
-handle_quiet: # respond to quiet inputs
-beq $t1, '?', handle_quiet_question
-la $t0, QUIET
-j strcopy
-handle_quiet_question: # respond to quiet questions
-la $t0, QUIET_QUESTION
-j strcopy
-strcopy:
-lb $t2, 0($t0) # load byte from src
-sb $t2, 0($a1) # copy byte to dst
-addi $t0, $t0, 1 # increment src pointer
-addi $a1, $a1, 1 # increment dst pointer
-bnez $t2, strcopy # repeat until NULL
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (directive .data)
+  (label PLACEHOLDER_2)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "Fine. Be that way!"))
+  (label PLACEHOLDER_3)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "Whoa, chill out!"))
+  (label PLACEHOLDER_4)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "Calm down, I know what I'm doing!"))
+  (label PLACEHOLDER_5)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "Whatever."))
+  (label PLACEHOLDER_6)
+  (directive
+    (string_mnemonic .asciiz)
+    (directive_operands "Sure."))
+  (directive .text)
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands $t1 $zero))
+  (instruction move
+    (operands $t3 $zero))
+  (instruction move
+    (operands $t4 $zero))
+  (label PLACEHOLDER_7)
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression 0
+        (operands $a0))))
+  (instruction addi
+    (operands $a0 $a0 1))
+  (instruction beqz
+    (operands $t2 PLACEHOLDER_8))
+  (instruction ble
+    (operands $t2 "' '" PLACEHOLDER_7))
+  (instruction move
+    (operands $t1 $t2))
+  (instruction blt
+    (operands $t2 'A' PLACEHOLDER_7))
+  (instruction ble
+    (operands $t2 'Z' PLACEHOLDER_9))
+  (instruction blt
+    (operands $t2 'a' PLACEHOLDER_7))
+  (instruction bgt
+    (operands $t2 'z' PLACEHOLDER_7))
+  (label PLACEHOLDER_10)
+  (instruction li
+    (operands $t4 1))
+  (instruction j
+    (operands PLACEHOLDER_7))
+  (label PLACEHOLDER_9)
+  (instruction li
+    (operands $t3 1))
+  (instruction j
+    (operands PLACEHOLDER_7))
+  (label PLACEHOLDER_8)
+  (instruction beqz
+    (operands $t1 PLACEHOLDER_11))
+  (instruction bnez
+    (operands $t4 PLACEHOLDER_12))
+  (instruction beqz
+    (operands $t3 PLACEHOLDER_12))
+  (label PLACEHOLDER_13)
+  (instruction beq
+    (operands $t1 '?' PLACEHOLDER_14))
+  (instruction la
+    (operands $t0 PLACEHOLDER_3))
+  (instruction j
+    (operands PLACEHOLDER_15))
+  (label PLACEHOLDER_14)
+  (instruction la
+    (operands $t0 PLACEHOLDER_4))
+  (instruction j
+    (operands PLACEHOLDER_15))
+  (label PLACEHOLDER_11)
+  (instruction la
+    (operands $t0 PLACEHOLDER_2))
+  (instruction j
+    (operands PLACEHOLDER_15))
+  (label PLACEHOLDER_12)
+  (instruction beq
+    (operands $t1 '?' PLACEHOLDER_16))
+  (instruction la
+    (operands $t0 PLACEHOLDER_5))
+  (instruction j
+    (operands PLACEHOLDER_15))
+  (label PLACEHOLDER_16)
+  (instruction la
+    (operands $t0 PLACEHOLDER_6))
+  (instruction j
+    (operands PLACEHOLDER_15))
+  (label PLACEHOLDER_15)
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression 0
+        (operands $t0))))
+  (instruction sb
+    (operands $t2
+      (parenthesized_expression 0
+        (operands $a1))))
+  (instruction addi
+    (operands $t0 $t0 1))
+  (instruction addi
+    (operands $a1 $a1 1))
+  (instruction bnez
+    (operands $t2 PLACEHOLDER_15))
+  (instruction jr
+    (operands $ra)))

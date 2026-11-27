@@ -1,90 +1,171 @@
-# | Register | Usage | Type | Description |
-# | -------- | ------------ | ------- | ----------------------------- |
-# | `$a0` | input | address | null-terminated phrase |
-# | `$a1` | input/output | address | null-terminated result string |
-# | `$t0` | temporary | address | pos. in input string |
-# | `$t1` | temporary | address | pos. in output string |
-# | `$t2` | temporary | byte | current character |
-# | `$t3` | temporary | byte | next character |
-# | `$t4` | temporary | address | start of curren word |
-# | `$t9` | temporary | byte | temp storage in macro |
-.globl translate
-.macro copy_end(%inp, %out) # copy chars from %inp to %out until end of word (uses $t9)
-__loop:
-lb $t9, (%inp)
-beqz $t9, __end
-beq $t9, ' ', __end
-sb $t9, (%out)
-addiu %inp, %inp, 1
-addiu %out, %out, 1
-j __loop
-__end:
-.end_macro
-.macro copy(%inp1, %inp2, %out) # copy chars between %inp1 and %inp2 to %out (uses $t9)
-__loop:
-lb $t9, (%inp1)
-sb $t9, (%out)
-addiu %inp1, %inp1, 1
-addiu %out, %out, 1
-blt %inp1, %inp2, __loop
-.end_macro
-translate:
-move $t0, $a0 # input pntr
-move $t1, $a1 # output pntr
-__next_word:
-move $t4, $t0 # save start of present word in $t4
-lb $t2, ($t0) # first char
-# check if vowel
-beq $t2, 'a', __vowel
-beq $t2, 'e', __vowel
-beq $t2, 'i', __vowel
-beq $t2, 'o', __vowel
-beq $t2, 'u', __vowel
-lb $t3, 1($t0) # get next char
-__check_xr:
-bne $t2, 'x', __check_yt
-bne $t3, 'r', __check_yt
-j __vowel # xr treated as vowel
-__check_yt:
-bne $t2, 'y', __cons
-bne $t3, 't', __cons
-j __vowel # yt treated as vowel
-__cons:
-add $t0, $t0, 1 # check next char
-lb $t2, ($t0)
-beq $t2, 'a', __after_cons # stop at vowls or y
-beq $t2, 'e', __after_cons
-beq $t2, 'i', __after_cons
-beq $t2, 'o', __after_cons
-beq $t2, 'u', __check_qu
-beq $t2, 'y', __after_cons
-j __cons
-__check_qu:
-# we come here from u
-# check if q is before
-lb $t2, -1($t0)
-bne $t2, 'q', __after_cons # should be treated by the generic method
-addiu $t0, $t0, 1 # found qu
-__after_cons:
-move $t2, $t0
-copy_end($t0, $t1)
-copy($t4, $t2, $t1)
-j __add_ay
-__vowel:
-copy_end($t0, $t1)
-__add_ay:
-li $t2, 'a'
-sb $t2, ($t1)
-li $t2, 'y'
-sb $t2, 1($t1)
-addiu $t1, $t1, 2
-lb $t2, ($t0)
-beqz $t2, __end # last word?
-addiu $t0, $t0, 1 # next word
-li $t2, ' '
-sb $t2, ($t1) # add space
-addiu $t1, $t1, 1
-j __next_word
-__end: # end of string
-sb $zero, ($t1)
-jr $ra
+(program
+  (directive .globl
+    (directive_operands PLACEHOLDER_1))
+  (directive .macro (macro_name PLACEHOLDER_2)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_3))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_4))))
+  (label PLACEHOLDER_5)
+  (instruction lb
+    (operands $t9
+      (parenthesized_expression
+        (operands (macro_variable PLACEHOLDER_3)))))
+  (instruction beqz
+    (operands $t9 PLACEHOLDER_6))
+  (instruction beq
+    (operands $t9 "' '" PLACEHOLDER_6))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression
+        (operands (macro_variable PLACEHOLDER_4)))))
+  (instruction addiu
+    (operands (macro_variable PLACEHOLDER_3) (macro_variable PLACEHOLDER_3) 1))
+  (instruction addiu
+    (operands (macro_variable PLACEHOLDER_4) (macro_variable PLACEHOLDER_4) 1))
+  (instruction j
+    (operands PLACEHOLDER_5))
+  (label PLACEHOLDER_6)
+  (directive .end_macro)
+  (directive .macro (macro_name PLACEHOLDER_7)
+    (macro_parameters
+      (macro_parameter (macro_parameter_name PLACEHOLDER_8))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_9))
+      (macro_parameter (macro_parameter_name PLACEHOLDER_4))))
+  (label PLACEHOLDER_5)
+  (instruction lb
+    (operands $t9
+      (parenthesized_expression
+        (operands (macro_variable PLACEHOLDER_8)))))
+  (instruction sb
+    (operands $t9
+      (parenthesized_expression
+        (operands (macro_variable PLACEHOLDER_4)))))
+  (instruction addiu
+    (operands (macro_variable PLACEHOLDER_8) (macro_variable PLACEHOLDER_8) 1))
+  (instruction addiu
+    (operands (macro_variable PLACEHOLDER_4) (macro_variable PLACEHOLDER_4) 1))
+  (instruction blt
+    (operands (macro_variable PLACEHOLDER_8) (macro_variable PLACEHOLDER_9) PLACEHOLDER_5))
+  (directive .end_macro)
+  (label PLACEHOLDER_1)
+  (instruction move
+    (operands $t0 $a0))
+  (instruction move
+    (operands $t1 $a1))
+  (label PLACEHOLDER_10)
+  (instruction move
+    (operands $t4 $t0))
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression
+        (operands $t0))))
+  (instruction beq
+    (operands $t2 'a' PLACEHOLDER_11))
+  (instruction beq
+    (operands $t2 'e' PLACEHOLDER_11))
+  (instruction beq
+    (operands $t2 'i' PLACEHOLDER_11))
+  (instruction beq
+    (operands $t2 'o' PLACEHOLDER_11))
+  (instruction beq
+    (operands $t2 'u' PLACEHOLDER_11))
+  (instruction lb
+    (operands $t3
+      (parenthesized_expression 1
+        (operands $t0))))
+  (label PLACEHOLDER_12)
+  (instruction bne
+    (operands $t2 'x' PLACEHOLDER_13))
+  (instruction bne
+    (operands $t3 'r' PLACEHOLDER_13))
+  (instruction j
+    (operands PLACEHOLDER_11))
+  (label PLACEHOLDER_13)
+  (instruction bne
+    (operands $t2 'y' PLACEHOLDER_14))
+  (instruction bne
+    (operands $t3 't' PLACEHOLDER_14))
+  (instruction j
+    (operands PLACEHOLDER_11))
+  (label PLACEHOLDER_14)
+  (instruction add
+    (operands $t0 $t0 1))
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression
+        (operands $t0))))
+  (instruction beq
+    (operands $t2 'a' PLACEHOLDER_15))
+  (instruction beq
+    (operands $t2 'e' PLACEHOLDER_15))
+  (instruction beq
+    (operands $t2 'i' PLACEHOLDER_15))
+  (instruction beq
+    (operands $t2 'o' PLACEHOLDER_15))
+  (instruction beq
+    (operands $t2 'u' PLACEHOLDER_16))
+  (instruction beq
+    (operands $t2 'y' PLACEHOLDER_15))
+  (instruction j
+    (operands PLACEHOLDER_14))
+  (label PLACEHOLDER_16)
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression -1
+        (operands $t0))))
+  (instruction bne
+    (operands $t2 'q' PLACEHOLDER_15))
+  (instruction addiu
+    (operands $t0 $t0 1))
+  (label PLACEHOLDER_15)
+  (instruction move
+    (operands $t2 $t0))
+  (call_statement PLACEHOLDER_2
+    (operands $t0 $t1))
+  (call_statement PLACEHOLDER_7
+    (operands $t4 $t2 $t1))
+  (instruction j
+    (operands PLACEHOLDER_17))
+  (label PLACEHOLDER_11)
+  (call_statement PLACEHOLDER_2
+    (operands $t0 $t1))
+  (label PLACEHOLDER_17)
+  (instruction li
+    (operands $t2 'a'))
+  (instruction sb
+    (operands $t2
+      (parenthesized_expression
+        (operands $t1))))
+  (instruction li
+    (operands $t2 'y'))
+  (instruction sb
+    (operands $t2
+      (parenthesized_expression 1
+        (operands $t1))))
+  (instruction addiu
+    (operands $t1 $t1 2))
+  (instruction lb
+    (operands $t2
+      (parenthesized_expression
+        (operands $t0))))
+  (instruction beqz
+    (operands $t2 PLACEHOLDER_6))
+  (instruction addiu
+    (operands $t0 $t0 1))
+  (instruction li
+    (operands $t2 "' '"))
+  (instruction sb
+    (operands $t2
+      (parenthesized_expression
+        (operands $t1))))
+  (instruction addiu
+    (operands $t1 $t1 1))
+  (instruction j
+    (operands PLACEHOLDER_10))
+  (label PLACEHOLDER_6)
+  (instruction sb
+    (operands $zero
+      (parenthesized_expression
+        (operands $t1))))
+  (instruction jr
+    (operands $ra)))
