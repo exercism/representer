@@ -112,7 +112,7 @@ The variants find 32 near-miss merges, and all of them are accepted.
 
 The data holds 20,581 solutions in 82 tracks: 4,187 production groups of two or three solutions, and 8,041 singles.
 Each track has between 33 and 100 singles (the median is 100), from between 22 and 100 exercises (the median is 69).
-Compared with production, today's representer makes 674 splits and 160 merges, 48 solutions get no representation, and 32 singles get the same representation as their variant.
+Compared with production, today's representer makes 664 splits and 160 merges, 42 solutions get no representation, and 32 singles get the same representation as their variant.
 All 160 merges, all 32 near-miss merges and 24 of the splits are accepted. The other splits and the unrepresentable solutions are still `undecided`.
 
 ### The 55 tracks that use Basic
@@ -128,12 +128,11 @@ Today's Basic does the opposite: it keeps line breaks, the spaces between tokens
 
 ### The 27 tracks with a class of their own
 
-These tracks have 106 splits, 97 merges and 48 unrepresentable solutions.
+These tracks have 96 splits, 97 merges and 42 unrepresentable solutions.
 
 The main causes of splits are:
 
-- **Names used by the tests (about 63 splits).** The languages written with the rule DSL keep every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Common Lisp (9), Rust (8) and PHP (5) have the most.
-- **F# layout (8 splits).** The F# grammar builds a different tree for the same expression laid out differently, such as a pipeline split across lines.
+- **Names used by the tests (about 61 splits).** The languages written with the rule DSL keep every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Common Lisp (9), Rust (8) and PHP (5) have the most.
 - **C++ headers (7 splits).** One solution declares its functions in a header and defines them in a source file, and the other defines them in the header.
 - **Real differences (24 splits, accepted).** The solutions are different programs that an old representer treated as the same, such as PHP's `!==` and `!=`, JavaScript's `toUpperCase` and `toLocaleUpperCase`, or a solution with an extra file.
 - The rest are one-off cases, such as Elm's `100` and `100.0` (an Int and a Float) or Elixir code that uses a function from an `import` without its module's name.
@@ -145,7 +144,7 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 - **C++ (13):** explicit template instantiations, and default arguments written as `{0, 0}`.
 - **Raku (10):** hyper operators and other Unicode operators, such as `»×»` and `Z×`.
 - **Common Lisp (8):** mostly `loop`.
-- **F# (6), GDScript (4), Crystal (3), Zig (3) and C# (1).**
+- **GDScript (4), Crystal (3), Zig (3) and C# (1).**
 
 ### Per track
 
@@ -180,7 +179,7 @@ The unrepresentable solutions are all grammar gaps: the pinned grammar rejects c
 | factor | Factor | 146 | 16 | 100 | 100 | 84 | 0 | 5 | 0 | 0 |
 | fortran | Basic | 130 | 10 | 100 | 38 | 100 | 1 | 0 | 0 | 0 |
 | free-pascal | Basic | 103 | 1 | 100 | 90 | 96 | 1 | 0 | 0 | 0 |
-| fsharp | FSharp | 397 | 99 | 100 | 87 | 94 | 11 | 7 | 6 | 0 |
+| fsharp | FSharp | 397 | 99 | 100 | 87 | 94 | 1 | 7 | 0 | 0 |
 | futhark | Basic | 103 | 1 | 100 | 80 | 100 | 0 | 0 | 0 | 0 |
 | gdscript | GDScript | 103 | 1 | 100 | 74 | 98 | 0 | 0 | 4 | 0 |
 | gleam | Gleam | 373 | 91 | 100 | 76 | 88 | 1 | 2 | 0 | 0 |

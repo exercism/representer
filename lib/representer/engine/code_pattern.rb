@@ -123,7 +123,7 @@ module Representer::Engine
       before = spell(before, capitalised)
       fragment = spell(code.strip, capitalised)
       source = before + fragment + spell(after, capitalised)
-      tree = Grammar[@language.grammar].parse(source, spans: true)
+      tree = Grammar[@language.grammar].parse(source, spans: true, **@language.parse_options)
       from = before.bytesize
       to = from + fragment.bytesize
       node = smallest_node_holding(tree, from, to)

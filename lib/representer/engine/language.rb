@@ -57,6 +57,19 @@ module Representer::Engine
         children.select { |child| name?(child) }
       end
 
+      # The node types that hold their whole source text as a leaf, for
+      # nodes whose text the grammar doesn't give as children (see
+      # REPRESENTER_DSL.md). With no arguments, it returns the types.
+      def text_nodes(*types) = (@text_nodes ||= Set.new).merge(types.map(&:to_s))
+
+      # The node types whose children don't cover all their text (see
+      # REPRESENTER_DSL.md). Each stretch of text between the children
+      # becomes a "fragment" leaf. With no arguments, it returns the types.
+      def text_between_children(*types) = (@text_between_children ||= Set.new).merge(types.map(&:to_s))
+
+      # How Grammar#parse copies a tree for this language.
+      def parse_options = { text_types: text_nodes, gap_types: text_between_children }
+
       # The code that counts as an import, as code patterns (see
       # REPRESENTER_DSL.md). With no arguments, it returns the compiled
       # patterns.
