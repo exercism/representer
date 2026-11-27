@@ -1,74 +1,209 @@
-module sum_of_multiples
-implicit none
-private
-public :: sum_multiples
-contains
-function sum_multiples ( factors , limit ) result ( res )
-integer , intent ( in ) :: factors (:), limit
-integer :: res
-integer :: n_multiples
-if ( limit < 1000 ) then
-res = sum_multiples_s ( factors , limit - 1 , n_multiples )
-else
-res = sum_multiples_l ( factors , limit )
-end if
-end function sum_multiples
-function sum_multiples_l ( factors , limit ) result ( res )
-integer , intent ( in ) :: factors (:), limit
-integer :: res
-integer :: lcm , n_multiples , n_divisions
-lcm = least_common_multiple ( factors , limit )
-if ( lcm == 0 ) then
-res = sum_multiples_s ( factors , limit - 1 , n_multiples )
-else
-n_divisions = ( limit - 1 )/ lcm
-res = sum_multiples_s ( factors , lcm , n_multiples ) * n_divisions
-res = res + n_multiples * lcm * ( n_divisions * ( n_divisions - 1 )/ 2 )
-res = res + sum_multiples_s ( factors , mod ( limit - 1 , lcm ), n_multiples )
-res = res + n_multiples * lcm * n_divisions
-end if
-end function sum_multiples_l
-function sum_multiples_s ( factors , limit , n_multiples ) result ( res )
-integer , intent ( in ) :: factors (:), limit
-integer , intent ( out ) :: n_multiples
-integer :: res
-integer :: i , j , f , i_max , multiple , ia , ii
-integer , parameter :: int_size = bit_size ( limit )
-integer , dimension ( limit / int_size + 1 ) :: bitarray
-bitarray = 0
-res = 0
-i = 1
-n_multiples = 0
-do j = 1 , size ( factors )
-f = factors ( j )
-if ( f == 0 ) cycle
-if ( any ( mod ( f , factors ( 1 : j -1 )) == 0 ) ) cycle
-i_max = limit / f
-do i = 1 , i_max
-multiple = f * i
-ia = multiple / int_size
-ii = multiple - ia - 1
-if ( btest ( bitarray ( ia + 1 ), ii )) cycle
-res = res + multiple
-n_multiples = n_multiples + 1
-bitarray ( ia + 1 ) = ibset ( bitarray ( ia + 1 ), ii )
-end do
-end do
-end function sum_multiples_s
-pure function least_common_multiple ( factors , limit ) result ( lcm )
-integer , intent ( in ) :: factors (:), limit
-integer :: lcm
-integer :: fmax , val
-lcm = 0
-fmax = maxval ( factors )
-if ( fmax == 0 ) return
-val = fmax
-do while ( val < limit )
-if ( all ( factors == 0 .OR. mod ( val , max ( factors , 1 )) == 0 )) then
-lcm = val
-return
-end if
-val = val + fmax
-end do
-end function least_common_multiple
-end module sum_of_multiples
+(translation_unit
+  (module
+    (module_statement (name PLACEHOLDER_1))
+    (implicit_statement none)
+    (private_statement private)
+    (public_statement public PLACEHOLDER_2)
+    (internal_procedures
+      (contains_statement)
+      (function
+        (function_statement (name PLACEHOLDER_2)
+          (parameters PLACEHOLDER_3 PLACEHOLDER_4)
+          (function_result PLACEHOLDER_5))
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier intent in)
+          (sized_declarator PLACEHOLDER_3
+            (size
+              (extent_specifier :))) PLACEHOLDER_4)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_5)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_6)
+        (if_statement
+          (relational_expression PLACEHOLDER_4 < 1000) then
+          (assignment_statement PLACEHOLDER_5 =
+            (call_expression PLACEHOLDER_7
+              (argument_list PLACEHOLDER_3
+                (math_expression PLACEHOLDER_4 - 1) PLACEHOLDER_6)))
+          (else_clause
+            (assignment_statement PLACEHOLDER_5 =
+              (call_expression PLACEHOLDER_8
+                (argument_list PLACEHOLDER_3 PLACEHOLDER_4))))))
+      (function
+        (function_statement (name PLACEHOLDER_8)
+          (parameters PLACEHOLDER_3 PLACEHOLDER_4)
+          (function_result PLACEHOLDER_5))
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier intent in)
+          (sized_declarator PLACEHOLDER_3
+            (size
+              (extent_specifier :))) PLACEHOLDER_4)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_5)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_9 PLACEHOLDER_6 PLACEHOLDER_10)
+        (assignment_statement PLACEHOLDER_9 =
+          (call_expression PLACEHOLDER_11
+            (argument_list PLACEHOLDER_3 PLACEHOLDER_4)))
+        (if_statement
+          (relational_expression PLACEHOLDER_9 == 0) then
+          (assignment_statement PLACEHOLDER_5 =
+            (call_expression PLACEHOLDER_7
+              (argument_list PLACEHOLDER_3
+                (math_expression PLACEHOLDER_4 - 1) PLACEHOLDER_6)))
+          (else_clause
+            (assignment_statement PLACEHOLDER_10 =
+              (math_expression
+                (math_expression PLACEHOLDER_4 - 1) / PLACEHOLDER_9))
+            (assignment_statement PLACEHOLDER_5 =
+              (math_expression
+                (call_expression PLACEHOLDER_7
+                  (argument_list PLACEHOLDER_3 PLACEHOLDER_9 PLACEHOLDER_6)) * PLACEHOLDER_10))
+            (assignment_statement PLACEHOLDER_5 =
+              (math_expression PLACEHOLDER_5 +
+                (math_expression
+                  (math_expression PLACEHOLDER_6 * PLACEHOLDER_9) *
+                  (math_expression
+                    (math_expression PLACEHOLDER_10 *
+                      (math_expression PLACEHOLDER_10 - 1)) / 2))))
+            (assignment_statement PLACEHOLDER_5 =
+              (math_expression PLACEHOLDER_5 +
+                (call_expression PLACEHOLDER_7
+                  (argument_list PLACEHOLDER_3
+                    (call_expression mod
+                      (argument_list
+                        (math_expression PLACEHOLDER_4 - 1) PLACEHOLDER_9)) PLACEHOLDER_6))))
+            (assignment_statement PLACEHOLDER_5 =
+              (math_expression PLACEHOLDER_5 +
+                (math_expression
+                  (math_expression PLACEHOLDER_6 * PLACEHOLDER_9) * PLACEHOLDER_10))))))
+      (function
+        (function_statement (name PLACEHOLDER_7)
+          (parameters PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_6)
+          (function_result PLACEHOLDER_5))
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier intent in)
+          (sized_declarator PLACEHOLDER_3
+            (size
+              (extent_specifier :))) PLACEHOLDER_4)
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier intent out) PLACEHOLDER_6)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_5)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14 PLACEHOLDER_15 PLACEHOLDER_16 PLACEHOLDER_17 PLACEHOLDER_18)
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier parameter)
+          (init_declarator PLACEHOLDER_19 =
+            (call_expression bit_size
+              (argument_list PLACEHOLDER_4))))
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier dimension
+            (argument_list
+              (math_expression
+                (math_expression PLACEHOLDER_4 / PLACEHOLDER_19) + 1))) PLACEHOLDER_20)
+        (assignment_statement PLACEHOLDER_20 = 0)
+        (assignment_statement PLACEHOLDER_5 = 0)
+        (assignment_statement PLACEHOLDER_12 = 1)
+        (assignment_statement PLACEHOLDER_6 = 0)
+        (do_loop
+          (do_statement
+            (loop_control_expression PLACEHOLDER_13 = 1
+              (call_expression size
+                (argument_list PLACEHOLDER_3))))
+          (assignment_statement PLACEHOLDER_14 =
+            (call_expression PLACEHOLDER_3
+              (argument_list PLACEHOLDER_13)))
+          (if_statement
+            (relational_expression PLACEHOLDER_14 == 0)
+            (keyword_statement cycle))
+          (if_statement
+            (call_expression any
+              (argument_list
+                (relational_expression
+                  (call_expression mod
+                    (argument_list PLACEHOLDER_14
+                      (call_expression PLACEHOLDER_3
+                        (argument_list
+                          (extent_specifier 1 :
+                            (math_expression PLACEHOLDER_13 - 1)))))) == 0)))
+            (keyword_statement cycle))
+          (assignment_statement PLACEHOLDER_15 =
+            (math_expression PLACEHOLDER_4 / PLACEHOLDER_14))
+          (do_loop
+            (do_statement
+              (loop_control_expression PLACEHOLDER_12 = 1 PLACEHOLDER_15))
+            (assignment_statement PLACEHOLDER_16 =
+              (math_expression PLACEHOLDER_14 * PLACEHOLDER_12))
+            (assignment_statement PLACEHOLDER_17 =
+              (math_expression PLACEHOLDER_16 / PLACEHOLDER_19))
+            (assignment_statement PLACEHOLDER_18 =
+              (math_expression
+                (math_expression PLACEHOLDER_16 - PLACEHOLDER_17) - 1))
+            (if_statement
+              (call_expression btest
+                (argument_list
+                  (call_expression PLACEHOLDER_20
+                    (argument_list
+                      (math_expression PLACEHOLDER_17 + 1))) PLACEHOLDER_18))
+              (keyword_statement cycle))
+            (assignment_statement PLACEHOLDER_5 =
+              (math_expression PLACEHOLDER_5 + PLACEHOLDER_16))
+            (assignment_statement PLACEHOLDER_6 =
+              (math_expression PLACEHOLDER_6 + 1))
+            (assignment_statement
+              (call_expression PLACEHOLDER_20
+                (argument_list
+                  (math_expression PLACEHOLDER_17 + 1))) =
+              (call_expression ibset
+                (argument_list
+                  (call_expression PLACEHOLDER_20
+                    (argument_list
+                      (math_expression PLACEHOLDER_17 + 1))) PLACEHOLDER_18))))))
+      (function
+        (function_statement
+          (procedure_qualifier pure) (name PLACEHOLDER_11)
+          (parameters PLACEHOLDER_3 PLACEHOLDER_4)
+          (function_result PLACEHOLDER_9))
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier intent in)
+          (sized_declarator PLACEHOLDER_3
+            (size
+              (extent_specifier :))) PLACEHOLDER_4)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_9)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_21 PLACEHOLDER_22)
+        (assignment_statement PLACEHOLDER_9 = 0)
+        (assignment_statement PLACEHOLDER_21 =
+          (call_expression maxval
+            (argument_list PLACEHOLDER_3)))
+        (if_statement
+          (relational_expression PLACEHOLDER_21 == 0)
+          (keyword_statement return))
+        (assignment_statement PLACEHOLDER_22 = PLACEHOLDER_21)
+        (do_loop
+          (do_statement
+            (while_statement
+              (relational_expression PLACEHOLDER_22 < PLACEHOLDER_4)))
+          (if_statement
+            (call_expression all
+              (argument_list
+                (logical_expression
+                  (relational_expression PLACEHOLDER_3 == 0) .or.
+                  (relational_expression
+                    (call_expression mod
+                      (argument_list PLACEHOLDER_22
+                        (call_expression max
+                          (argument_list PLACEHOLDER_3 1)))) == 0)))) then
+            (assignment_statement PLACEHOLDER_9 = PLACEHOLDER_22)
+            (keyword_statement return))
+          (assignment_statement PLACEHOLDER_22 =
+            (math_expression PLACEHOLDER_22 + PLACEHOLDER_21)))))))
