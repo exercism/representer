@@ -12,6 +12,11 @@ module Representer::Languages::Scheme::Common
     # #(1 2)  ->  (vector 1 2)
     strip_tokens "(", ")", "[", "]", "#(", "#u8(", "#vu8("
 
+    # Label the first item of each list as its head, so that the import
+    # `(import {{...}})` matches `(import (rnrs))`, and doesn't match
+    # `(list 1 import)`.
+    lists_are :list
+
     # Write each number as its value. An exact number and an inexact one stay
     # apart, because the reader gives them different types. A rational and a
     # number with an exactness prefix keep their text.

@@ -65,6 +65,10 @@ class EmacsLispGenerateASTTest < Minitest::Test
     assert_equal write(prepare("(f 1)")), write(prepare("(require 'cl-lib)\n(require 'subr-x nil t)\n(f 1)"))
   end
 
+  def test_a_form_is_only_an_import_if_it_starts_with_require
+    assert_includes write(prepare("(defun f (x) (list 1 require x))")), "(list list 1 require"
+  end
+
   private
   def ast(source) = write(generate_ast(source))
   def assert_same(first, second) = assert_equal(ast(first), ast(second))

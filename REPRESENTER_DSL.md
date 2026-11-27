@@ -265,6 +265,16 @@ This declaration replaces each node of these types that has exactly one named ch
 unwrap :parenthesized_statements
 ```
 
+#### lists_are
+
+Some grammars give the items of a form no field names, such as the lists of Clojure and Scheme.
+A code pattern such as `(require {{...}})` would then match any list that holds `require`, such as `(list 1 require 2)`.
+This declaration gives the first item of each node of these types the field name `head`, so a code pattern matches that item only as the first item.
+
+```ruby
+lists_are :list_lit, :vec_lit
+```
+
 #### numbers_are
 
 This declaration writes each number leaf of these types as its value, so `1_000` and `1000` become the same leaf.

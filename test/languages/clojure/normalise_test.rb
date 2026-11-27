@@ -27,9 +27,17 @@ class ClojureNormaliseTest < RepresenterTest
       "(ns a (:require [clojure.string :as str]))\n(defn f [x] (str/lower-case x))"
   end
 
+  def test_a_form_is_only_an_import_if_it_starts_with_the_import
+    refute_same_representation "(defn f [x] (list 1 require x))", "(defn f [x])"
+    refute_same_representation "(defn f [x] (list 1 :require x))", "(defn f [x])"
+    refute_same_representation "(defn f [x] [1 :require x])", "(defn f [x])"
+    refute_same_representation "(defn f [x] (list 1 import x))", "(defn f [x])"
+  end
+
   def test_comment_forms_are_dropped_at_the_top_level
     assert_same_representation "(defn f [x] x)\n(comment (f 1))", "(defn f [x] x)"
     assert_same_representation wrap("(do (comment y) x)"), wrap("(do nil x)")
+    refute_same_representation wrap("(list 1 comment x)"), wrap("nil")
   end
 
   ### Threading macros ###

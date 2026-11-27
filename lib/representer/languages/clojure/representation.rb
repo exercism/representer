@@ -1,6 +1,6 @@
 module Representer::Languages::Clojure
   class Representation < Representer::Engine::Representation
-    version 9
+    version 10
 
     # Rename symbols.
     names_are :sym # «count»

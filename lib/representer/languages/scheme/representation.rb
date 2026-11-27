@@ -1,6 +1,6 @@
 module Representer::Languages::Scheme
   class Representation < Representer::Engine::Representation
-    version 6
+    version 7
 
     # Rename symbols.
     names_are :symbol # «count»

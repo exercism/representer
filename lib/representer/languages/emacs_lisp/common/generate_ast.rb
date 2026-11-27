@@ -10,6 +10,11 @@ module Representer::Languages::EmacsLisp::Common
     # [1 2]  ->  (vector 1 2)
     strip_tokens "(", ")", "[", "]", "#[", "#(", "#s(hash-table"
 
+    # Label the first item of each list as its head, so that the import
+    # `(require {{...}})` matches `(require 'cl-lib)`, and doesn't match
+    # `(list 1 require)`.
+    lists_are :list
+
     # The reader reads each of these marks as a list that starts with the
     # symbol given.
     MARKS = { "'" => "quote", "`" => "`", "#'" => "function", "," => ",", ",@" => ",@" }.freeze
