@@ -1,58 +1,275 @@
-func timeToPrepare ( drinks : [ String ]) -> Double {
-let drinksTimes : [ String : Double ] = [ "\"beer\"" : 0.5 , "\"soda\"" : 0.5 , "\"water\"" : 0.5 , "\"shot\"" : 1.0 , "\"mixed drink\"" : 1.5 , "\"fancy drink\"" : 2.5 , "\"frozen drink\"" : 3.0 ]
-var timeToPrepare : Double = 0
-for drink in drinks {
-timeToPrepare += drinksTimes [ drink ] ?? 0.0
-}
-return timeToPrepare
-}
-func makeWedges ( needed : Int , limes : [ String ]) -> Int {
-let limeWedges = [ "\"small\"" : 6 , "\"medium\"" : 8 , "\"large\"" : 10 ]
-var limesToCut : [ Int ] = []
-var wedges : Int = 0
-for lime in limes {
-limesToCut . append ( limeWedges [ lime ] ! )
-}
-if limes . count == 0 || needed == 0 { return 0 }
-for pieces in limesToCut [ 0 ..< limesToCut . count - 1 ]{
-wedges += pieces
-if wedges >= needed {
-wedges -= limesToCut . first !
-limesToCut . removeFirst ()
-}
-}
-return limesToCut . count
-}
-func finishShift ( minutesLeft : Int , remainingOrders : [[ String ]]) -> [[ String ]] {
-var drinksToPrepare : [[ String ]] = remainingOrders
-var minutesOfWork : Double = 0
-repeat {
-if drinksToPrepare . isEmpty { break }
-minutesOfWork += timeToPrepare ( drinks : drinksToPrepare [ 0 ])
-drinksToPrepare . removeFirst ()
-} while minutesOfWork < Double ( minutesLeft )
-return drinksToPrepare
-}
-func orderTracker ( orders : [( drink : String , time : String )]) -> (
-beer : ( first : String , last : String , total : Int )?, soda : ( first : String , last : String , total : Int )?
-) {
-var beerInfo : ( first : String , last : String , total : Int )?
-var sodaInfo : ( first : String , last : String , total : Int )?
-for ( drink , time ) in orders {
-switch ( drink ){
-case "\"beer\"" :
-if (( beerInfo ? . first ) == nil ) {
-beerInfo = ( time , time , beerInfo ? . total ?? 0 )
-}
-beerInfo = ( beerInfo ? . first ?? time , time , ( beerInfo ? . total ?? 0 ) + 1 )
-case "\"soda\"" :
-if (( sodaInfo ? . first ) == nil ) {
-sodaInfo = ( time , time , sodaInfo ? . total ?? 0 )
-}
-sodaInfo = ( sodaInfo ? . first ?? time , time , ( sodaInfo ? . total ?? 0 ) + 1 )
-default :
-break
-}
-}
-return ( beerInfo , sodaInfo )
-}
+(source_file
+  (function_declaration PLACEHOLDER_1
+    (parameter PLACEHOLDER_2
+      (array_type
+        (user_type String)))
+    (user_type Double)
+    (function_body
+      (statements
+        (property_declaration
+          (value_binding_pattern let)
+          (pattern PLACEHOLDER_3)
+          (type_annotation
+            (dictionary_type
+              (user_type String)
+              (user_type Double)))
+          (dictionary_literal "beer" 0.5 "soda" 0.5 "water" 0.5 "shot" 1.0 "mixed drink" 1.5 "fancy drink" 2.5 "frozen drink" 3.0))
+        (property_declaration
+          (value_binding_pattern var)
+          (pattern PLACEHOLDER_1)
+          (type_annotation
+            (user_type Double)) 0)
+        (for_statement
+          (pattern PLACEHOLDER_4) PLACEHOLDER_2
+          (statements
+            (assignment
+              (directly_assignable_expression PLACEHOLDER_1) +=
+              (nil_coalescing_expression
+                (call_expression PLACEHOLDER_3
+                  (call_suffix
+                    (value_arguments [
+                      (value_argument PLACEHOLDER_4) ]))) ?? 0.0))))
+        (control_transfer_statement return PLACEHOLDER_1))))
+  (function_declaration PLACEHOLDER_5
+    (parameter PLACEHOLDER_6
+      (user_type Int))
+    (parameter PLACEHOLDER_7
+      (array_type
+        (user_type String)))
+    (user_type Int)
+    (function_body
+      (statements
+        (property_declaration
+          (value_binding_pattern let)
+          (pattern PLACEHOLDER_8)
+          (dictionary_literal "small" 6 "medium" 8 "large" 10))
+        (property_declaration
+          (value_binding_pattern var)
+          (pattern PLACEHOLDER_9)
+          (type_annotation
+            (array_type
+              (user_type Int)))
+          (array_literal))
+        (property_declaration
+          (value_binding_pattern var)
+          (pattern PLACEHOLDER_10)
+          (type_annotation
+            (user_type Int)) 0)
+        (for_statement
+          (pattern PLACEHOLDER_11) PLACEHOLDER_7
+          (statements
+            (call_expression
+              (navigation_expression PLACEHOLDER_9
+                (navigation_suffix append))
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (postfix_expression
+                      (call_expression PLACEHOLDER_8
+                        (call_suffix
+                          (value_arguments [
+                            (value_argument PLACEHOLDER_11) ]))) !)))))))
+        (if_statement
+          (disjunction_expression
+            (equality_expression
+              (navigation_expression PLACEHOLDER_7
+                (navigation_suffix count)) == 0) ||
+            (equality_expression PLACEHOLDER_6 == 0))
+          (statements
+            (control_transfer_statement return 0)))
+        (for_statement
+          (pattern PLACEHOLDER_12)
+          (call_expression PLACEHOLDER_9
+            (call_suffix
+              (value_arguments [
+                (value_argument
+                  (range_expression 0 ..<
+                    (additive_expression
+                      (navigation_expression PLACEHOLDER_9
+                        (navigation_suffix count)) - 1))) ])))
+          (statements
+            (assignment
+              (directly_assignable_expression PLACEHOLDER_10) += PLACEHOLDER_12)
+            (if_statement
+              (infix_expression PLACEHOLDER_10 >= PLACEHOLDER_6)
+              (statements
+                (assignment
+                  (directly_assignable_expression PLACEHOLDER_10) -=
+                  (postfix_expression
+                    (navigation_expression PLACEHOLDER_9
+                      (navigation_suffix PLACEHOLDER_13)) !))
+                (call_expression
+                  (navigation_expression PLACEHOLDER_9
+                    (navigation_suffix removeFirst))
+                  (call_suffix
+                    (value_arguments)))))))
+        (control_transfer_statement return
+          (navigation_expression PLACEHOLDER_9
+            (navigation_suffix count))))))
+  (function_declaration PLACEHOLDER_14
+    (parameter PLACEHOLDER_15
+      (user_type Int))
+    (parameter PLACEHOLDER_16
+      (array_type
+        (array_type
+          (user_type String))))
+    (array_type
+      (array_type
+        (user_type String)))
+    (function_body
+      (statements
+        (property_declaration
+          (value_binding_pattern var)
+          (pattern PLACEHOLDER_17)
+          (type_annotation
+            (array_type
+              (array_type
+                (user_type String)))) PLACEHOLDER_16)
+        (property_declaration
+          (value_binding_pattern var)
+          (pattern PLACEHOLDER_18)
+          (type_annotation
+            (user_type Double)) 0)
+        (repeat_while_statement
+          (statements
+            (if_statement
+              (navigation_expression PLACEHOLDER_17
+                (navigation_suffix isEmpty))
+              (statements
+                (control_transfer_statement break)))
+            (assignment
+              (directly_assignable_expression PLACEHOLDER_18) +=
+              (call_expression PLACEHOLDER_1
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (value_argument_label PLACEHOLDER_2)
+                      (call_expression PLACEHOLDER_17
+                        (call_suffix
+                          (value_arguments [
+                            (value_argument 0) ]))))))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_17
+                (navigation_suffix removeFirst))
+              (call_suffix
+                (value_arguments))))
+          (comparison_expression PLACEHOLDER_18 <
+            (call_expression Double
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_15))))))
+        (control_transfer_statement return PLACEHOLDER_17))))
+  (function_declaration PLACEHOLDER_19
+    (parameter PLACEHOLDER_20
+      (array_type
+        (tuple_type
+          (tuple_type_item PLACEHOLDER_4
+            (user_type String))
+          (tuple_type_item PLACEHOLDER_21
+            (user_type String)))))
+    (tuple_type
+      (tuple_type_item PLACEHOLDER_22
+        (optional_type
+          (tuple_type
+            (tuple_type_item PLACEHOLDER_13
+              (user_type String))
+            (tuple_type_item PLACEHOLDER_23
+              (user_type String))
+            (tuple_type_item PLACEHOLDER_24
+              (user_type Int))) ?))
+      (tuple_type_item PLACEHOLDER_25
+        (optional_type
+          (tuple_type
+            (tuple_type_item PLACEHOLDER_13
+              (user_type String))
+            (tuple_type_item PLACEHOLDER_23
+              (user_type String))
+            (tuple_type_item PLACEHOLDER_24
+              (user_type Int))) ?)))
+    (function_body
+      (statements
+        (property_declaration
+          (value_binding_pattern var)
+          (pattern PLACEHOLDER_26)
+          (type_annotation
+            (optional_type
+              (tuple_type
+                (tuple_type_item PLACEHOLDER_13
+                  (user_type String))
+                (tuple_type_item PLACEHOLDER_23
+                  (user_type String))
+                (tuple_type_item PLACEHOLDER_24
+                  (user_type Int))) ?)))
+        (property_declaration
+          (value_binding_pattern var)
+          (pattern PLACEHOLDER_27)
+          (type_annotation
+            (optional_type
+              (tuple_type
+                (tuple_type_item PLACEHOLDER_13
+                  (user_type String))
+                (tuple_type_item PLACEHOLDER_23
+                  (user_type String))
+                (tuple_type_item PLACEHOLDER_24
+                  (user_type Int))) ?)))
+        (for_statement
+          (pattern
+            (pattern PLACEHOLDER_4)
+            (pattern PLACEHOLDER_21)) PLACEHOLDER_20
+          (statements
+            (switch_statement PLACEHOLDER_4
+              (switch_entry
+                (switch_pattern
+                  (pattern "beer"))
+                (statements
+                  (if_statement
+                    (equality_expression
+                      (navigation_expression PLACEHOLDER_26 ?
+                        (navigation_suffix PLACEHOLDER_13)) == nil)
+                    (statements
+                      (assignment
+                        (directly_assignable_expression PLACEHOLDER_26) =
+                        (tuple_expression PLACEHOLDER_21 PLACEHOLDER_21
+                          (nil_coalescing_expression
+                            (navigation_expression PLACEHOLDER_26 ?
+                              (navigation_suffix PLACEHOLDER_24)) ?? 0)))))
+                  (assignment
+                    (directly_assignable_expression PLACEHOLDER_26) =
+                    (tuple_expression
+                      (nil_coalescing_expression
+                        (navigation_expression PLACEHOLDER_26 ?
+                          (navigation_suffix PLACEHOLDER_13)) ?? PLACEHOLDER_21) PLACEHOLDER_21
+                      (additive_expression
+                        (nil_coalescing_expression
+                          (navigation_expression PLACEHOLDER_26 ?
+                            (navigation_suffix PLACEHOLDER_24)) ?? 0) + 1)))))
+              (switch_entry
+                (switch_pattern
+                  (pattern "soda"))
+                (statements
+                  (if_statement
+                    (equality_expression
+                      (navigation_expression PLACEHOLDER_27 ?
+                        (navigation_suffix PLACEHOLDER_13)) == nil)
+                    (statements
+                      (assignment
+                        (directly_assignable_expression PLACEHOLDER_27) =
+                        (tuple_expression PLACEHOLDER_21 PLACEHOLDER_21
+                          (nil_coalescing_expression
+                            (navigation_expression PLACEHOLDER_27 ?
+                              (navigation_suffix PLACEHOLDER_24)) ?? 0)))))
+                  (assignment
+                    (directly_assignable_expression PLACEHOLDER_27) =
+                    (tuple_expression
+                      (nil_coalescing_expression
+                        (navigation_expression PLACEHOLDER_27 ?
+                          (navigation_suffix PLACEHOLDER_13)) ?? PLACEHOLDER_21) PLACEHOLDER_21
+                      (additive_expression
+                        (nil_coalescing_expression
+                          (navigation_expression PLACEHOLDER_27 ?
+                            (navigation_suffix PLACEHOLDER_24)) ?? 0) + 1)))))
+              (switch_entry default
+                (statements
+                  (control_transfer_statement break))))))
+        (control_transfer_statement return
+          (tuple_expression PLACEHOLDER_26 PLACEHOLDER_27))))))

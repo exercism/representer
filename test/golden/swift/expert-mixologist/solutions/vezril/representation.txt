@@ -1,51 +1,446 @@
-func timeToPrepare ( drinks : [ String ]) -> Double {
-let drinksPrep : [ String : Double ] = [ "\"beer\"" : 0.5 , "\"soda\"" : 0.5 , "\"water\"" : 0.5 , "\"shot\"" : 1.0 , "\"mixed drink\"" : 1.5 , "\"fancy drink\"" : 2.5 , "\"frozen drink\"" : 3.0 ]
-return drinks . map { drinksPrep [ $0 , default : 0 ] } . reduce ( 0 , { x , y in x + y })
-}
-func makeWedges ( needed : Int , limes : [ String ]) -> Int {
-func prep ( needed : Int , limes : [ String ]) -> Int {
-func prepAcc ( acc : Int , needed : Int , limes : [ String ]) -> Int {
-let limePrep : [ String : Int ] = [ "\"small\"" : 6 , "\"medium\"" : 8 , "\"large\"" : 10 ]
-if ( needed <= 0 || limes . isEmpty ) { return acc }
-else {
-let ( head , tail ) = ( limes . first . flatMap { limePrep [ $0 ] }, Array ( limes . dropFirst ()))
-let n = head ?? 0
-return prepAcc ( acc : acc + 1 , needed : needed - n , limes : tail )
-}
-}
-return prepAcc ( acc : 0 , needed : needed , limes : limes )
-}
-return prep ( needed : needed , limes : limes )
-}
-func finishShift ( minutesLeft : Int , remainingOrders : [[ String ]]) -> [[ String ]] {
-func prep ( timeRemaining : Double , orders : [[ String ]]) -> ( Double , [[ String ]]) {
-func prepAcc ( timeRemaining : Double , orders : [[ String ]]) -> ( Double , [[ String ]]) {
-if ( timeRemaining <= 0 || orders . isEmpty ) { return ( timeRemaining , orders ) }
-else {
-let ( head , tail ) = ( timeToPrepare ( drinks : orders . first ?? []) , Array ( orders . dropFirst ()))
-return prepAcc ( timeRemaining : timeRemaining - head , orders : tail )
-}
-}
-return prepAcc ( timeRemaining : timeRemaining , orders : orders )
-}
-return prep ( timeRemaining : Double ( minutesLeft ), orders : remainingOrders ) . 1
-}
-func orderTracker ( orders : [( drink : String , time : String )]) -> (
-beer : ( first : String , last : String , total : Int )?, soda : ( first : String , last : String , total : Int )?
-) {
-let beers = orders . filter { $0 . drink == "\"beer\"" }
-let sodas = orders . filter { $0 . drink == "\"soda\"" }
-let beer : ( first : String , last : String , total : Int )? = {
-if ( beers . isEmpty ) {
-return Optional . none
-} else {
-return Optional (( first : beers . min ( by : { $0 . time < $1 . time })? . time ?? "\"\"" , last : beers . max ( by : { $0 . time < $1 . time })? . time ?? "\"\"" , total : beers . count ))
-}}()
-let soda : ( first : String , last : String , total : Int )? = {
-if ( sodas . isEmpty ) {
-return Optional . none
-} else {
-return Optional (( first : sodas . min ( by : { $0 . time < $1 . time })? . time ?? "\"\"" , last : sodas . max ( by : { $0 . time < $1 . time })? . time ?? "\"\"" , total : sodas . count ))
-}}()
-return ( beer : beer , soda : soda )
-}
+(source_file
+  (function_declaration PLACEHOLDER_1
+    (parameter PLACEHOLDER_2
+      (array_type
+        (user_type String)))
+    (user_type Double)
+    (function_body
+      (statements
+        (property_declaration
+          (value_binding_pattern let)
+          (pattern PLACEHOLDER_3)
+          (type_annotation
+            (dictionary_type
+              (user_type String)
+              (user_type Double)))
+          (dictionary_literal "beer" 0.5 "soda" 0.5 "water" 0.5 "shot" 1.0 "mixed drink" 1.5 "fancy drink" 2.5 "frozen drink" 3.0))
+        (control_transfer_statement return
+          (call_expression
+            (navigation_expression
+              (call_expression
+                (navigation_expression PLACEHOLDER_2
+                  (navigation_suffix map))
+                (call_suffix
+                  (lambda_literal
+                    (statements
+                      (call_expression PLACEHOLDER_3
+                        (call_suffix
+                          (value_arguments [
+                            (value_argument $0)
+                            (value_argument
+                              (value_argument_label default) 0) ])))))))
+              (navigation_suffix reduce))
+            (call_suffix
+              (value_arguments
+                (value_argument 0)
+                (value_argument
+                  (lambda_literal
+                    (lambda_function_type
+                      (lambda_function_type_parameters
+                        (lambda_parameter PLACEHOLDER_4)
+                        (lambda_parameter PLACEHOLDER_5)))
+                    (statements
+                      (additive_expression PLACEHOLDER_4 + PLACEHOLDER_5)))))))))))
+  (function_declaration PLACEHOLDER_6
+    (parameter PLACEHOLDER_7
+      (user_type Int))
+    (parameter PLACEHOLDER_8
+      (array_type
+        (user_type String)))
+    (user_type Int)
+    (function_body
+      (statements
+        (function_declaration PLACEHOLDER_9
+          (parameter PLACEHOLDER_7
+            (user_type Int))
+          (parameter PLACEHOLDER_8
+            (array_type
+              (user_type String)))
+          (user_type Int)
+          (function_body
+            (statements
+              (function_declaration PLACEHOLDER_10
+                (parameter PLACEHOLDER_11
+                  (user_type Int))
+                (parameter PLACEHOLDER_7
+                  (user_type Int))
+                (parameter PLACEHOLDER_8
+                  (array_type
+                    (user_type String)))
+                (user_type Int)
+                (function_body
+                  (statements
+                    (property_declaration
+                      (value_binding_pattern let)
+                      (pattern PLACEHOLDER_12)
+                      (type_annotation
+                        (dictionary_type
+                          (user_type String)
+                          (user_type Int)))
+                      (dictionary_literal "small" 6 "medium" 8 "large" 10))
+                    (if_statement
+                      (disjunction_expression
+                        (infix_expression PLACEHOLDER_7 <= 0) ||
+                        (navigation_expression PLACEHOLDER_8
+                          (navigation_suffix isEmpty)))
+                      (statements
+                        (control_transfer_statement return PLACEHOLDER_11)) else
+                      (statements
+                        (property_declaration
+                          (value_binding_pattern let)
+                          (pattern
+                            (pattern PLACEHOLDER_13)
+                            (pattern PLACEHOLDER_14))
+                          (tuple_expression
+                            (call_expression
+                              (navigation_expression
+                                (navigation_expression PLACEHOLDER_8
+                                  (navigation_suffix PLACEHOLDER_15))
+                                (navigation_suffix flatMap))
+                              (call_suffix
+                                (lambda_literal
+                                  (statements
+                                    (call_expression PLACEHOLDER_12
+                                      (call_suffix
+                                        (value_arguments [
+                                          (value_argument $0) ])))))))
+                            (call_expression Array
+                              (call_suffix
+                                (value_arguments
+                                  (value_argument
+                                    (call_expression
+                                      (navigation_expression PLACEHOLDER_8
+                                        (navigation_suffix dropFirst))
+                                      (call_suffix
+                                        (value_arguments)))))))))
+                        (property_declaration
+                          (value_binding_pattern let)
+                          (pattern PLACEHOLDER_16)
+                          (nil_coalescing_expression PLACEHOLDER_13 ?? 0))
+                        (control_transfer_statement return
+                          (call_expression PLACEHOLDER_10
+                            (call_suffix
+                              (value_arguments
+                                (value_argument
+                                  (value_argument_label PLACEHOLDER_11)
+                                  (additive_expression PLACEHOLDER_11 + 1))
+                                (value_argument
+                                  (value_argument_label PLACEHOLDER_7)
+                                  (additive_expression PLACEHOLDER_7 - PLACEHOLDER_16))
+                                (value_argument
+                                  (value_argument_label PLACEHOLDER_8) PLACEHOLDER_14))))))))))
+              (control_transfer_statement return
+                (call_expression PLACEHOLDER_10
+                  (call_suffix
+                    (value_arguments
+                      (value_argument
+                        (value_argument_label PLACEHOLDER_11) 0)
+                      (value_argument
+                        (value_argument_label PLACEHOLDER_7) PLACEHOLDER_7)
+                      (value_argument
+                        (value_argument_label PLACEHOLDER_8) PLACEHOLDER_8))))))))
+        (control_transfer_statement return
+          (call_expression PLACEHOLDER_9
+            (call_suffix
+              (value_arguments
+                (value_argument
+                  (value_argument_label PLACEHOLDER_7) PLACEHOLDER_7)
+                (value_argument
+                  (value_argument_label PLACEHOLDER_8) PLACEHOLDER_8))))))))
+  (function_declaration PLACEHOLDER_17
+    (parameter PLACEHOLDER_18
+      (user_type Int))
+    (parameter PLACEHOLDER_19
+      (array_type
+        (array_type
+          (user_type String))))
+    (array_type
+      (array_type
+        (user_type String)))
+    (function_body
+      (statements
+        (function_declaration PLACEHOLDER_9
+          (parameter PLACEHOLDER_20
+            (user_type Double))
+          (parameter PLACEHOLDER_21
+            (array_type
+              (array_type
+                (user_type String))))
+          (tuple_type
+            (tuple_type_item
+              (user_type Double))
+            (tuple_type_item
+              (array_type
+                (array_type
+                  (user_type String)))))
+          (function_body
+            (statements
+              (function_declaration PLACEHOLDER_10
+                (parameter PLACEHOLDER_20
+                  (user_type Double))
+                (parameter PLACEHOLDER_21
+                  (array_type
+                    (array_type
+                      (user_type String))))
+                (tuple_type
+                  (tuple_type_item
+                    (user_type Double))
+                  (tuple_type_item
+                    (array_type
+                      (array_type
+                        (user_type String)))))
+                (function_body
+                  (statements
+                    (if_statement
+                      (disjunction_expression
+                        (infix_expression PLACEHOLDER_20 <= 0) ||
+                        (navigation_expression PLACEHOLDER_21
+                          (navigation_suffix isEmpty)))
+                      (statements
+                        (control_transfer_statement return
+                          (tuple_expression PLACEHOLDER_20 PLACEHOLDER_21))) else
+                      (statements
+                        (property_declaration
+                          (value_binding_pattern let)
+                          (pattern
+                            (pattern PLACEHOLDER_13)
+                            (pattern PLACEHOLDER_14))
+                          (tuple_expression
+                            (call_expression PLACEHOLDER_1
+                              (call_suffix
+                                (value_arguments
+                                  (value_argument
+                                    (value_argument_label PLACEHOLDER_2)
+                                    (nil_coalescing_expression
+                                      (navigation_expression PLACEHOLDER_21
+                                        (navigation_suffix PLACEHOLDER_15)) ??
+                                      (array_literal))))))
+                            (call_expression Array
+                              (call_suffix
+                                (value_arguments
+                                  (value_argument
+                                    (call_expression
+                                      (navigation_expression PLACEHOLDER_21
+                                        (navigation_suffix dropFirst))
+                                      (call_suffix
+                                        (value_arguments)))))))))
+                        (control_transfer_statement return
+                          (call_expression PLACEHOLDER_10
+                            (call_suffix
+                              (value_arguments
+                                (value_argument
+                                  (value_argument_label PLACEHOLDER_20)
+                                  (additive_expression PLACEHOLDER_20 - PLACEHOLDER_13))
+                                (value_argument
+                                  (value_argument_label PLACEHOLDER_21) PLACEHOLDER_14))))))))))
+              (control_transfer_statement return
+                (call_expression PLACEHOLDER_10
+                  (call_suffix
+                    (value_arguments
+                      (value_argument
+                        (value_argument_label PLACEHOLDER_20) PLACEHOLDER_20)
+                      (value_argument
+                        (value_argument_label PLACEHOLDER_21) PLACEHOLDER_21))))))))
+        (control_transfer_statement return
+          (navigation_expression
+            (call_expression PLACEHOLDER_9
+              (call_suffix
+                (value_arguments
+                  (value_argument
+                    (value_argument_label PLACEHOLDER_20)
+                    (call_expression Double
+                      (call_suffix
+                        (value_arguments
+                          (value_argument PLACEHOLDER_18)))))
+                  (value_argument
+                    (value_argument_label PLACEHOLDER_21) PLACEHOLDER_19))))
+            (navigation_suffix 1))))))
+  (function_declaration PLACEHOLDER_22
+    (parameter PLACEHOLDER_21
+      (array_type
+        (tuple_type
+          (tuple_type_item PLACEHOLDER_23
+            (user_type String))
+          (tuple_type_item PLACEHOLDER_24
+            (user_type String)))))
+    (tuple_type
+      (tuple_type_item PLACEHOLDER_25
+        (optional_type
+          (tuple_type
+            (tuple_type_item PLACEHOLDER_15
+              (user_type String))
+            (tuple_type_item PLACEHOLDER_26
+              (user_type String))
+            (tuple_type_item PLACEHOLDER_27
+              (user_type Int))) ?))
+      (tuple_type_item PLACEHOLDER_28
+        (optional_type
+          (tuple_type
+            (tuple_type_item PLACEHOLDER_15
+              (user_type String))
+            (tuple_type_item PLACEHOLDER_26
+              (user_type String))
+            (tuple_type_item PLACEHOLDER_27
+              (user_type Int))) ?)))
+    (function_body
+      (statements
+        (property_declaration
+          (value_binding_pattern let)
+          (pattern PLACEHOLDER_29)
+          (call_expression
+            (navigation_expression PLACEHOLDER_21
+              (navigation_suffix filter))
+            (call_suffix
+              (lambda_literal
+                (statements
+                  (equality_expression
+                    (navigation_expression $0
+                      (navigation_suffix PLACEHOLDER_23)) == "beer"))))))
+        (property_declaration
+          (value_binding_pattern let)
+          (pattern PLACEHOLDER_30)
+          (call_expression
+            (navigation_expression PLACEHOLDER_21
+              (navigation_suffix filter))
+            (call_suffix
+              (lambda_literal
+                (statements
+                  (equality_expression
+                    (navigation_expression $0
+                      (navigation_suffix PLACEHOLDER_23)) == "soda"))))))
+        (property_declaration
+          (value_binding_pattern let)
+          (pattern PLACEHOLDER_25)
+          (type_annotation
+            (optional_type
+              (tuple_type
+                (tuple_type_item PLACEHOLDER_15
+                  (user_type String))
+                (tuple_type_item PLACEHOLDER_26
+                  (user_type String))
+                (tuple_type_item PLACEHOLDER_27
+                  (user_type Int))) ?))
+          (call_expression
+            (lambda_literal
+              (statements
+                (if_statement
+                  (navigation_expression PLACEHOLDER_29
+                    (navigation_suffix isEmpty))
+                  (statements
+                    (control_transfer_statement return
+                      (navigation_expression Optional
+                        (navigation_suffix none)))) else
+                  (statements
+                    (control_transfer_statement return
+                      (call_expression Optional
+                        (call_suffix
+                          (value_arguments
+                            (value_argument
+                              (tuple_expression PLACEHOLDER_15
+                                (nil_coalescing_expression
+                                  (navigation_expression
+                                    (call_expression
+                                      (navigation_expression PLACEHOLDER_29
+                                        (navigation_suffix min))
+                                      (call_suffix
+                                        (value_arguments
+                                          (value_argument
+                                            (value_argument_label by)
+                                            (lambda_literal
+                                              (statements
+                                                (comparison_expression
+                                                  (navigation_expression $0
+                                                    (navigation_suffix PLACEHOLDER_24)) <
+                                                  (navigation_expression $1
+                                                    (navigation_suffix PLACEHOLDER_24))))))))) ?
+                                    (navigation_suffix PLACEHOLDER_24)) ?? "") PLACEHOLDER_26
+                                (nil_coalescing_expression
+                                  (navigation_expression
+                                    (call_expression
+                                      (navigation_expression PLACEHOLDER_29
+                                        (navigation_suffix max))
+                                      (call_suffix
+                                        (value_arguments
+                                          (value_argument
+                                            (value_argument_label by)
+                                            (lambda_literal
+                                              (statements
+                                                (comparison_expression
+                                                  (navigation_expression $0
+                                                    (navigation_suffix PLACEHOLDER_24)) <
+                                                  (navigation_expression $1
+                                                    (navigation_suffix PLACEHOLDER_24))))))))) ?
+                                    (navigation_suffix PLACEHOLDER_24)) ?? "") PLACEHOLDER_27
+                                (navigation_expression PLACEHOLDER_29
+                                  (navigation_suffix count))))))))))))
+            (call_suffix
+              (value_arguments))))
+        (property_declaration
+          (value_binding_pattern let)
+          (pattern PLACEHOLDER_28)
+          (type_annotation
+            (optional_type
+              (tuple_type
+                (tuple_type_item PLACEHOLDER_15
+                  (user_type String))
+                (tuple_type_item PLACEHOLDER_26
+                  (user_type String))
+                (tuple_type_item PLACEHOLDER_27
+                  (user_type Int))) ?))
+          (call_expression
+            (lambda_literal
+              (statements
+                (if_statement
+                  (navigation_expression PLACEHOLDER_30
+                    (navigation_suffix isEmpty))
+                  (statements
+                    (control_transfer_statement return
+                      (navigation_expression Optional
+                        (navigation_suffix none)))) else
+                  (statements
+                    (control_transfer_statement return
+                      (call_expression Optional
+                        (call_suffix
+                          (value_arguments
+                            (value_argument
+                              (tuple_expression PLACEHOLDER_15
+                                (nil_coalescing_expression
+                                  (navigation_expression
+                                    (call_expression
+                                      (navigation_expression PLACEHOLDER_30
+                                        (navigation_suffix min))
+                                      (call_suffix
+                                        (value_arguments
+                                          (value_argument
+                                            (value_argument_label by)
+                                            (lambda_literal
+                                              (statements
+                                                (comparison_expression
+                                                  (navigation_expression $0
+                                                    (navigation_suffix PLACEHOLDER_24)) <
+                                                  (navigation_expression $1
+                                                    (navigation_suffix PLACEHOLDER_24))))))))) ?
+                                    (navigation_suffix PLACEHOLDER_24)) ?? "") PLACEHOLDER_26
+                                (nil_coalescing_expression
+                                  (navigation_expression
+                                    (call_expression
+                                      (navigation_expression PLACEHOLDER_30
+                                        (navigation_suffix max))
+                                      (call_suffix
+                                        (value_arguments
+                                          (value_argument
+                                            (value_argument_label by)
+                                            (lambda_literal
+                                              (statements
+                                                (comparison_expression
+                                                  (navigation_expression $0
+                                                    (navigation_suffix PLACEHOLDER_24)) <
+                                                  (navigation_expression $1
+                                                    (navigation_suffix PLACEHOLDER_24))))))))) ?
+                                    (navigation_suffix PLACEHOLDER_24)) ?? "") PLACEHOLDER_27
+                                (navigation_expression PLACEHOLDER_30
+                                  (navigation_suffix count))))))))))))
+            (call_suffix
+              (value_arguments))))
+        (control_transfer_statement return
+          (tuple_expression PLACEHOLDER_25 PLACEHOLDER_25 PLACEHOLDER_28 PLACEHOLDER_28))))))

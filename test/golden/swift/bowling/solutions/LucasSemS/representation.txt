@@ -1,139 +1,647 @@
-enum BowlingError : Error {
-case negativePins
-case tooManyPinsInFrame
-case gameInProgress
-case gameIsOver
-}
-class Bowling {
-private var throwScores : [ Int ] = []
-private var rounds : [ Round ] = []
-private var gameInProgress : Bool {
-guard let last = rounds . last else {
-return rounds . count > 0
-}
-return ! last . isLastRound || ! bonusScoresExist ( for : last )
-}
-private var gameIsComplete : Bool {
-guard rounds . last != nil else { return false }
-if let tenthFrame = rounds . first ( where : { $0 . roundNumber == 10 }) {
-if tenthFrame . isIncomplete {
-return false
-} else if tenthFrame . isOpenRound {
-return true
-} else if tenthFrame . isSpare || tenthFrame . isStrike {
-return bonusScoresExist ( for : tenthFrame )
-}
-}
-return false
-}
-init ( _ throwScores : [ Int ]) {
-self . throwScores = throwScores
-rounds = ( try ? buildRounds ( from : throwScores )) ?? []
-}
-func roll ( pins : Int ) throws {
-guard try checkValidThrowScore ( pins ) else { return }
-guard ! gameIsComplete else { throw BowlingError . gameIsOver }
-throwScores . append ( pins )
-rounds = try buildRounds ( from : throwScores )
-}
-func score () throws -> Int {
-guard gameIsComplete else { throw BowlingError . gameInProgress }
-return rounds . compactMap ({ score ( round : $0 ) }) . reduce ( 0 , + )
-}
-private func score ( round : Round ) -> Int ? {
-guard ! round . isLastFrameScoreRound else { return nil }
-guard ! round . isIncomplete else { return nil }
-guard ! round . isOpenRound else { return round . throwScores . reduce ( 0 , + ) }
-guard bonusScoresExist ( for : round ) else { return nil }
-let subsequentThrows = throwScores ( after : round )
-if round . isSpare , subsequentThrows . count > 0 {
-return ( round . throwScores + [ subsequentThrows [ 0 ]]) . reduce ( 0 , + )
-} else if round . isStrike , subsequentThrows . count > 1 {
-return ( round . throwScores + [ subsequentThrows [ 0 ], subsequentThrows [ 1 ]]) . reduce ( 0 , + )
-}
-return nil
-}
-private func bonusScoresExist ( for round : Round ) -> Bool {
-guard round . isStrike || round . isSpare else { return false }
-let subsequentThrows = throwScores ( after : round )
-if round . isSpare {
-return subsequentThrows . count > 0
-} else if round . isStrike {
-return subsequentThrows . count > 1
-}
-return false
-}
-private func throwScores ( after round : Round ) -> [ Int ] {
-var scores : [ Int ] = []
-for r in rounds . filter ({ $0 . roundNumber > round . roundNumber }) {
-scores . append ( contentsOf : r . throwScores )
-}
-return scores
-}
-private func checkValidThrowScore ( _ score : Int ) throws -> Bool {
-guard score >= 0 else { throw BowlingError . negativePins }
-guard score <= 10 else { throw BowlingError . tooManyPinsInFrame }
-if let last = rounds . last , last . isIncomplete , last . firstThrow + score > 10 {
-throw BowlingError . tooManyPinsInFrame
-}
-return true
-}
-private func buildRounds ( from throwScores : [ Int ]) throws -> [ Round ] {
-var rounds : [ Round ] = []
-var pendingRound : Round ?
-for throwScore in throwScores {
-if var pending = pendingRound , pending . isIncomplete {
-if pending . firstThrow + throwScore > 10 {
-throw BowlingError . tooManyPinsInFrame
-}
-pending . secondThrow = throwScore
-rounds . append ( pending )
-pendingRound = nil
-continue
-}
-let roundNumber = rounds . last == nil ? 1 : ( rounds . last ? . roundNumber ?? 0 ) + 1
-let round = Round ( firstThrow : throwScore , roundNumber : roundNumber )
-if round . isStrike {
-rounds . append ( round )
-} else if round . isIncomplete {
-pendingRound = round
-}
-}
-if let pending = pendingRound , pending . isIncomplete , pending . isLastFrameScoreRound {
-rounds . append ( pending )
-}
-return rounds
-}
-struct Round {
-let firstThrow : Int
-var secondThrow : Int ?
-var roundNumber : Int = 0
-var throwScores : [ Int ] {
-var scores = [ firstThrow ]
-if let secondThrow {
-scores . append ( secondThrow )
-}
-return scores
-}
-var isLastRound : Bool {
-return roundNumber == 10
-}
-var isLastFrameScoreRound : Bool {
-return roundNumber == 11 || roundNumber == 12
-}
-var isIncomplete : Bool {
-return firstThrow < 10 && secondThrow == nil
-}
-var isOpenRound : Bool {
-guard let secondThrow else { return false }
-return firstThrow + secondThrow < 10
-}
-var isSpare : Bool {
-guard let secondThrow else { return false }
-return firstThrow != 10 && ( firstThrow + secondThrow == 10 )
-}
-var isStrike : Bool {
-return firstThrow == 10 && secondThrow == nil
-}
-}
-}
+(source_file
+  (class_declaration enum (type_identifier PLACEHOLDER_1)
+    (inheritance_specifier
+      (user_type Error))
+    (enum_class_body
+      (enum_entry PLACEHOLDER_2)
+      (enum_entry PLACEHOLDER_3)
+      (enum_entry PLACEHOLDER_4)
+      (enum_entry PLACEHOLDER_5)))
+  (class_declaration class (type_identifier PLACEHOLDER_6)
+    (class_body
+      (property_declaration
+        (modifiers
+          (visibility_modifier private))
+        (value_binding_pattern var)
+        (pattern PLACEHOLDER_7)
+        (type_annotation
+          (array_type
+            (user_type Int)))
+        (array_literal))
+      (property_declaration
+        (modifiers
+          (visibility_modifier private))
+        (value_binding_pattern var)
+        (pattern PLACEHOLDER_8)
+        (type_annotation
+          (array_type
+            (user_type (type_identifier PLACEHOLDER_9))))
+        (array_literal))
+      (property_declaration
+        (modifiers
+          (visibility_modifier private))
+        (value_binding_pattern var)
+        (pattern PLACEHOLDER_4)
+        (type_annotation
+          (user_type Bool))
+        (computed_property
+          (statements
+            (guard_statement
+              (value_binding_pattern let) PLACEHOLDER_10 =
+              (navigation_expression PLACEHOLDER_8
+                (navigation_suffix PLACEHOLDER_10)) else
+              (statements
+                (control_transfer_statement return
+                  (comparison_expression
+                    (navigation_expression PLACEHOLDER_8
+                      (navigation_suffix count)) > 0))))
+            (control_transfer_statement return
+              (disjunction_expression
+                (prefix_expression !
+                  (navigation_expression PLACEHOLDER_10
+                    (navigation_suffix PLACEHOLDER_11))) ||
+                (prefix_expression !
+                  (call_expression PLACEHOLDER_12
+                    (call_suffix
+                      (value_arguments
+                        (value_argument
+                          (value_argument_label PLACEHOLDER_13) PLACEHOLDER_10))))))))))
+      (property_declaration
+        (modifiers
+          (visibility_modifier private))
+        (value_binding_pattern var)
+        (pattern PLACEHOLDER_14)
+        (type_annotation
+          (user_type Bool))
+        (computed_property
+          (statements
+            (guard_statement
+              (infix_expression
+                (navigation_expression PLACEHOLDER_8
+                  (navigation_suffix PLACEHOLDER_10)) != nil) else
+              (statements
+                (control_transfer_statement return
+                  (boolean_literal false))))
+            (if_statement
+              (value_binding_pattern let) PLACEHOLDER_15 =
+              (call_expression
+                (navigation_expression PLACEHOLDER_8
+                  (navigation_suffix first))
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (value_argument_label where)
+                      (lambda_literal
+                        (statements
+                          (equality_expression
+                            (navigation_expression $0
+                              (navigation_suffix PLACEHOLDER_16)) == 10)))))))
+              (statements
+                (if_statement
+                  (navigation_expression PLACEHOLDER_15
+                    (navigation_suffix PLACEHOLDER_17))
+                  (statements
+                    (control_transfer_statement return
+                      (boolean_literal false))) else
+                  (if_statement
+                    (navigation_expression PLACEHOLDER_15
+                      (navigation_suffix PLACEHOLDER_18))
+                    (statements
+                      (control_transfer_statement return
+                        (boolean_literal true))) else
+                    (if_statement
+                      (disjunction_expression
+                        (navigation_expression PLACEHOLDER_15
+                          (navigation_suffix PLACEHOLDER_19)) ||
+                        (navigation_expression PLACEHOLDER_15
+                          (navigation_suffix PLACEHOLDER_20)))
+                      (statements
+                        (control_transfer_statement return
+                          (call_expression PLACEHOLDER_12
+                            (call_suffix
+                              (value_arguments
+                                (value_argument
+                                  (value_argument_label PLACEHOLDER_13) PLACEHOLDER_15)))))))))))
+            (control_transfer_statement return
+              (boolean_literal false)))))
+      (init_declaration
+        (parameter _ PLACEHOLDER_7
+          (array_type
+            (user_type Int)))
+        (function_body
+          (statements
+            (assignment
+              (directly_assignable_expression
+                (navigation_expression
+                  (self_expression)
+                  (navigation_suffix PLACEHOLDER_7))) = PLACEHOLDER_7)
+            (assignment
+              (directly_assignable_expression PLACEHOLDER_8) =
+              (nil_coalescing_expression
+                (try_expression
+                  (try_operator try ?)
+                  (call_expression PLACEHOLDER_21
+                    (call_suffix
+                      (value_arguments
+                        (value_argument
+                          (value_argument_label PLACEHOLDER_22) PLACEHOLDER_7))))) ??
+                (array_literal))))))
+      (function_declaration PLACEHOLDER_23
+        (parameter PLACEHOLDER_24
+          (user_type Int)) throws
+        (function_body
+          (statements
+            (guard_statement
+              (try_expression
+                (try_operator try)
+                (call_expression PLACEHOLDER_25
+                  (call_suffix
+                    (value_arguments
+                      (value_argument PLACEHOLDER_24))))) else
+              (statements
+                (control_transfer_statement return)))
+            (guard_statement
+              (prefix_expression ! PLACEHOLDER_14) else
+              (statements
+                (control_transfer_statement throw
+                  (navigation_expression PLACEHOLDER_1
+                    (navigation_suffix PLACEHOLDER_5)))))
+            (call_expression
+              (navigation_expression PLACEHOLDER_7
+                (navigation_suffix append))
+              (call_suffix
+                (value_arguments
+                  (value_argument PLACEHOLDER_24))))
+            (assignment
+              (directly_assignable_expression PLACEHOLDER_8) =
+              (try_expression
+                (try_operator try)
+                (call_expression PLACEHOLDER_21
+                  (call_suffix
+                    (value_arguments
+                      (value_argument
+                        (value_argument_label PLACEHOLDER_22) PLACEHOLDER_7)))))))))
+      (function_declaration PLACEHOLDER_26 throws
+        (user_type Int)
+        (function_body
+          (statements
+            (guard_statement PLACEHOLDER_14 else
+              (statements
+                (control_transfer_statement throw
+                  (navigation_expression PLACEHOLDER_1
+                    (navigation_suffix PLACEHOLDER_4)))))
+            (control_transfer_statement return
+              (call_expression
+                (navigation_expression
+                  (call_expression
+                    (navigation_expression PLACEHOLDER_8
+                      (navigation_suffix compactMap))
+                    (call_suffix
+                      (value_arguments
+                        (value_argument
+                          (lambda_literal
+                            (statements
+                              (call_expression PLACEHOLDER_26
+                                (call_suffix
+                                  (value_arguments
+                                    (value_argument
+                                      (value_argument_label PLACEHOLDER_27) $0))))))))))
+                  (navigation_suffix reduce))
+                (call_suffix
+                  (value_arguments
+                    (value_argument 0)
+                    (value_argument +))))))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_26
+        (parameter PLACEHOLDER_27
+          (user_type (type_identifier PLACEHOLDER_9)))
+        (optional_type
+          (user_type Int) ?)
+        (function_body
+          (statements
+            (guard_statement
+              (prefix_expression !
+                (navigation_expression PLACEHOLDER_27
+                  (navigation_suffix PLACEHOLDER_28))) else
+              (statements
+                (control_transfer_statement return nil)))
+            (guard_statement
+              (prefix_expression !
+                (navigation_expression PLACEHOLDER_27
+                  (navigation_suffix PLACEHOLDER_17))) else
+              (statements
+                (control_transfer_statement return nil)))
+            (guard_statement
+              (prefix_expression !
+                (navigation_expression PLACEHOLDER_27
+                  (navigation_suffix PLACEHOLDER_18))) else
+              (statements
+                (control_transfer_statement return
+                  (call_expression
+                    (navigation_expression
+                      (navigation_expression PLACEHOLDER_27
+                        (navigation_suffix PLACEHOLDER_7))
+                      (navigation_suffix reduce))
+                    (call_suffix
+                      (value_arguments
+                        (value_argument 0)
+                        (value_argument +)))))))
+            (guard_statement
+              (call_expression PLACEHOLDER_12
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (value_argument_label PLACEHOLDER_13) PLACEHOLDER_27)))) else
+              (statements
+                (control_transfer_statement return nil)))
+            (property_declaration
+              (value_binding_pattern let)
+              (pattern PLACEHOLDER_29)
+              (call_expression PLACEHOLDER_7
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (value_argument_label PLACEHOLDER_30) PLACEHOLDER_27)))))
+            (if_statement
+              (navigation_expression PLACEHOLDER_27
+                (navigation_suffix PLACEHOLDER_19))
+              (comparison_expression
+                (navigation_expression PLACEHOLDER_29
+                  (navigation_suffix count)) > 0)
+              (statements
+                (control_transfer_statement return
+                  (call_expression
+                    (navigation_expression
+                      (additive_expression
+                        (navigation_expression PLACEHOLDER_27
+                          (navigation_suffix PLACEHOLDER_7)) +
+                        (array_literal
+                          (call_expression PLACEHOLDER_29
+                            (call_suffix
+                              (value_arguments [
+                                (value_argument 0) ])))))
+                      (navigation_suffix reduce))
+                    (call_suffix
+                      (value_arguments
+                        (value_argument 0)
+                        (value_argument +)))))) else
+              (if_statement
+                (navigation_expression PLACEHOLDER_27
+                  (navigation_suffix PLACEHOLDER_20))
+                (comparison_expression
+                  (navigation_expression PLACEHOLDER_29
+                    (navigation_suffix count)) > 1)
+                (statements
+                  (control_transfer_statement return
+                    (call_expression
+                      (navigation_expression
+                        (additive_expression
+                          (navigation_expression PLACEHOLDER_27
+                            (navigation_suffix PLACEHOLDER_7)) +
+                          (array_literal
+                            (call_expression PLACEHOLDER_29
+                              (call_suffix
+                                (value_arguments [
+                                  (value_argument 0) ])))
+                            (call_expression PLACEHOLDER_29
+                              (call_suffix
+                                (value_arguments [
+                                  (value_argument 1) ])))))
+                        (navigation_suffix reduce))
+                      (call_suffix
+                        (value_arguments
+                          (value_argument 0)
+                          (value_argument +))))))))
+            (control_transfer_statement return nil))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_12
+        (parameter PLACEHOLDER_13 PLACEHOLDER_27
+          (user_type (type_identifier PLACEHOLDER_9)))
+        (user_type Bool)
+        (function_body
+          (statements
+            (guard_statement
+              (disjunction_expression
+                (navigation_expression PLACEHOLDER_27
+                  (navigation_suffix PLACEHOLDER_20)) ||
+                (navigation_expression PLACEHOLDER_27
+                  (navigation_suffix PLACEHOLDER_19))) else
+              (statements
+                (control_transfer_statement return
+                  (boolean_literal false))))
+            (property_declaration
+              (value_binding_pattern let)
+              (pattern PLACEHOLDER_29)
+              (call_expression PLACEHOLDER_7
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (value_argument_label PLACEHOLDER_30) PLACEHOLDER_27)))))
+            (if_statement
+              (navigation_expression PLACEHOLDER_27
+                (navigation_suffix PLACEHOLDER_19))
+              (statements
+                (control_transfer_statement return
+                  (comparison_expression
+                    (navigation_expression PLACEHOLDER_29
+                      (navigation_suffix count)) > 0))) else
+              (if_statement
+                (navigation_expression PLACEHOLDER_27
+                  (navigation_suffix PLACEHOLDER_20))
+                (statements
+                  (control_transfer_statement return
+                    (comparison_expression
+                      (navigation_expression PLACEHOLDER_29
+                        (navigation_suffix count)) > 1)))))
+            (control_transfer_statement return
+              (boolean_literal false)))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_7
+        (parameter PLACEHOLDER_30 PLACEHOLDER_27
+          (user_type (type_identifier PLACEHOLDER_9)))
+        (array_type
+          (user_type Int))
+        (function_body
+          (statements
+            (property_declaration
+              (value_binding_pattern var)
+              (pattern PLACEHOLDER_31)
+              (type_annotation
+                (array_type
+                  (user_type Int)))
+              (array_literal))
+            (for_statement
+              (pattern PLACEHOLDER_32)
+              (call_expression
+                (navigation_expression PLACEHOLDER_8
+                  (navigation_suffix filter))
+                (call_suffix
+                  (value_arguments
+                    (value_argument
+                      (lambda_literal
+                        (statements
+                          (comparison_expression
+                            (navigation_expression $0
+                              (navigation_suffix PLACEHOLDER_16)) >
+                            (navigation_expression PLACEHOLDER_27
+                              (navigation_suffix PLACEHOLDER_16)))))))))
+              (statements
+                (call_expression
+                  (navigation_expression PLACEHOLDER_31
+                    (navigation_suffix append))
+                  (call_suffix
+                    (value_arguments
+                      (value_argument
+                        (value_argument_label contentsOf)
+                        (navigation_expression PLACEHOLDER_32
+                          (navigation_suffix PLACEHOLDER_7))))))))
+            (control_transfer_statement return PLACEHOLDER_31))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_25
+        (parameter _ PLACEHOLDER_26
+          (user_type Int)) throws
+        (user_type Bool)
+        (function_body
+          (statements
+            (guard_statement
+              (infix_expression PLACEHOLDER_26 >= 0) else
+              (statements
+                (control_transfer_statement throw
+                  (navigation_expression PLACEHOLDER_1
+                    (navigation_suffix PLACEHOLDER_2)))))
+            (guard_statement
+              (infix_expression PLACEHOLDER_26 <= 10) else
+              (statements
+                (control_transfer_statement throw
+                  (navigation_expression PLACEHOLDER_1
+                    (navigation_suffix PLACEHOLDER_3)))))
+            (if_statement
+              (value_binding_pattern let) PLACEHOLDER_10 =
+              (navigation_expression PLACEHOLDER_8
+                (navigation_suffix PLACEHOLDER_10))
+              (navigation_expression PLACEHOLDER_10
+                (navigation_suffix PLACEHOLDER_17))
+              (comparison_expression
+                (additive_expression
+                  (navigation_expression PLACEHOLDER_10
+                    (navigation_suffix PLACEHOLDER_33)) + PLACEHOLDER_26) > 10)
+              (statements
+                (control_transfer_statement throw
+                  (navigation_expression PLACEHOLDER_1
+                    (navigation_suffix PLACEHOLDER_3)))))
+            (control_transfer_statement return
+              (boolean_literal true)))))
+      (function_declaration
+        (modifiers
+          (visibility_modifier private)) PLACEHOLDER_21
+        (parameter PLACEHOLDER_22 PLACEHOLDER_7
+          (array_type
+            (user_type Int))) throws
+        (array_type
+          (user_type (type_identifier PLACEHOLDER_9)))
+        (function_body
+          (statements
+            (property_declaration
+              (value_binding_pattern var)
+              (pattern PLACEHOLDER_8)
+              (type_annotation
+                (array_type
+                  (user_type (type_identifier PLACEHOLDER_9))))
+              (array_literal))
+            (property_declaration
+              (value_binding_pattern var)
+              (pattern PLACEHOLDER_34)
+              (type_annotation
+                (optional_type
+                  (user_type (type_identifier PLACEHOLDER_9)) ?)))
+            (for_statement
+              (pattern PLACEHOLDER_35) PLACEHOLDER_7
+              (statements
+                (if_statement
+                  (value_binding_pattern var) PLACEHOLDER_36 = PLACEHOLDER_34
+                  (navigation_expression PLACEHOLDER_36
+                    (navigation_suffix PLACEHOLDER_17))
+                  (statements
+                    (if_statement
+                      (comparison_expression
+                        (additive_expression
+                          (navigation_expression PLACEHOLDER_36
+                            (navigation_suffix PLACEHOLDER_33)) + PLACEHOLDER_35) > 10)
+                      (statements
+                        (control_transfer_statement throw
+                          (navigation_expression PLACEHOLDER_1
+                            (navigation_suffix PLACEHOLDER_3)))))
+                    (assignment
+                      (directly_assignable_expression
+                        (navigation_expression PLACEHOLDER_36
+                          (navigation_suffix PLACEHOLDER_37))) = PLACEHOLDER_35)
+                    (call_expression
+                      (navigation_expression PLACEHOLDER_8
+                        (navigation_suffix append))
+                      (call_suffix
+                        (value_arguments
+                          (value_argument PLACEHOLDER_36))))
+                    (assignment
+                      (directly_assignable_expression PLACEHOLDER_34) = nil)
+                    (control_transfer_statement continue)))
+                (property_declaration
+                  (value_binding_pattern let)
+                  (pattern PLACEHOLDER_16)
+                  (ternary_expression
+                    (equality_expression
+                      (navigation_expression PLACEHOLDER_8
+                        (navigation_suffix PLACEHOLDER_10)) == nil) 1
+                    (additive_expression
+                      (nil_coalescing_expression
+                        (navigation_expression
+                          (navigation_expression PLACEHOLDER_8
+                            (navigation_suffix PLACEHOLDER_10)) ?
+                          (navigation_suffix PLACEHOLDER_16)) ?? 0) + 1)))
+                (property_declaration
+                  (value_binding_pattern let)
+                  (pattern PLACEHOLDER_27)
+                  (call_expression PLACEHOLDER_9
+                    (call_suffix
+                      (value_arguments
+                        (value_argument
+                          (value_argument_label PLACEHOLDER_33) PLACEHOLDER_35)
+                        (value_argument
+                          (value_argument_label PLACEHOLDER_16) PLACEHOLDER_16)))))
+                (if_statement
+                  (navigation_expression PLACEHOLDER_27
+                    (navigation_suffix PLACEHOLDER_20))
+                  (statements
+                    (call_expression
+                      (navigation_expression PLACEHOLDER_8
+                        (navigation_suffix append))
+                      (call_suffix
+                        (value_arguments
+                          (value_argument PLACEHOLDER_27))))) else
+                  (if_statement
+                    (navigation_expression PLACEHOLDER_27
+                      (navigation_suffix PLACEHOLDER_17))
+                    (statements
+                      (assignment
+                        (directly_assignable_expression PLACEHOLDER_34) = PLACEHOLDER_27))))))
+            (if_statement
+              (value_binding_pattern let) PLACEHOLDER_36 = PLACEHOLDER_34
+              (navigation_expression PLACEHOLDER_36
+                (navigation_suffix PLACEHOLDER_17))
+              (navigation_expression PLACEHOLDER_36
+                (navigation_suffix PLACEHOLDER_28))
+              (statements
+                (call_expression
+                  (navigation_expression PLACEHOLDER_8
+                    (navigation_suffix append))
+                  (call_suffix
+                    (value_arguments
+                      (value_argument PLACEHOLDER_36))))))
+            (control_transfer_statement return PLACEHOLDER_8))))
+      (class_declaration struct (type_identifier PLACEHOLDER_9)
+        (class_body
+          (property_declaration
+            (value_binding_pattern let)
+            (pattern PLACEHOLDER_33)
+            (type_annotation
+              (user_type Int)))
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_37)
+            (type_annotation
+              (optional_type
+                (user_type Int) ?)))
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_16)
+            (type_annotation
+              (user_type Int)) 0)
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_7)
+            (type_annotation
+              (array_type
+                (user_type Int)))
+            (computed_property
+              (statements
+                (property_declaration
+                  (value_binding_pattern var)
+                  (pattern PLACEHOLDER_31)
+                  (array_literal PLACEHOLDER_33))
+                (if_statement
+                  (value_binding_pattern let) PLACEHOLDER_37
+                  (statements
+                    (call_expression
+                      (navigation_expression PLACEHOLDER_31
+                        (navigation_suffix append))
+                      (call_suffix
+                        (value_arguments
+                          (value_argument PLACEHOLDER_37))))))
+                (control_transfer_statement return PLACEHOLDER_31))))
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_11)
+            (type_annotation
+              (user_type Bool))
+            (computed_property
+              (statements
+                (control_transfer_statement return
+                  (equality_expression PLACEHOLDER_16 == 10)))))
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_28)
+            (type_annotation
+              (user_type Bool))
+            (computed_property
+              (statements
+                (control_transfer_statement return
+                  (disjunction_expression
+                    (equality_expression PLACEHOLDER_16 == 11) ||
+                    (equality_expression PLACEHOLDER_16 == 12))))))
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_17)
+            (type_annotation
+              (user_type Bool))
+            (computed_property
+              (statements
+                (control_transfer_statement return
+                  (conjunction_expression
+                    (comparison_expression PLACEHOLDER_33 < 10) &&
+                    (equality_expression PLACEHOLDER_37 == nil))))))
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_18)
+            (type_annotation
+              (user_type Bool))
+            (computed_property
+              (statements
+                (guard_statement
+                  (value_binding_pattern let) PLACEHOLDER_37 else
+                  (statements
+                    (control_transfer_statement return
+                      (boolean_literal false))))
+                (control_transfer_statement return
+                  (comparison_expression
+                    (additive_expression PLACEHOLDER_33 + PLACEHOLDER_37) < 10)))))
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_19)
+            (type_annotation
+              (user_type Bool))
+            (computed_property
+              (statements
+                (guard_statement
+                  (value_binding_pattern let) PLACEHOLDER_37 else
+                  (statements
+                    (control_transfer_statement return
+                      (boolean_literal false))))
+                (control_transfer_statement return
+                  (conjunction_expression
+                    (infix_expression PLACEHOLDER_33 != 10) &&
+                    (equality_expression
+                      (additive_expression PLACEHOLDER_33 + PLACEHOLDER_37) == 10))))))
+          (property_declaration
+            (value_binding_pattern var)
+            (pattern PLACEHOLDER_20)
+            (type_annotation
+              (user_type Bool))
+            (computed_property
+              (statements
+                (control_transfer_statement return
+                  (conjunction_expression
+                    (equality_expression PLACEHOLDER_33 == 10) &&
+                    (equality_expression PLACEHOLDER_37 == nil)))))))))))
