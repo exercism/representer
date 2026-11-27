@@ -1,50 +1,156 @@
-# lang racket
-( provide encode decode )
-( define-syntax-rule ( 1+ x ) ( + 1 x ))
-( define ( encode1 num )
-( letrec ([ encode-byte ( lambda ( byte pos )
-( let ([ low ( bitwise-and byte #x7F )]
-[ high ( if ( > pos 0 )
-#x80
-#x00 )])
-( bitwise-ior low high )))]
-[ loop ( lambda ( byten num acc )
-( if ( = num 0 )
-acc
-( loop
-( 1+ byten )
-( arithmetic-shift num -7 )
-( cons ( encode-byte num byten ) acc ))))])
-( cond
-[( < num 128 ) num ]
-[ else ( loop 0 num ' ())])))
-( define ( encode . nums )
-( flatten ( map encode1 nums )))
-( define ( chunk-by lst pred )
-( letrec ([ collect ( lambda ( lst pred acc tmp )
-( cond
-[( empty? lst ) ( reverse ( if ( empty? tmp )
-acc
-( cons tmp acc )))]
-[( pred ( car lst )) ( collect ( cdr lst ) pred acc ( cons ( car lst ) tmp ))]
-[ else ( collect
-( cdr lst )
-pred
-( cons ( reverse ( cons ( car lst ) tmp )) acc )
-' ())]))])
-( collect lst pred ' () ' ())))
-( define ( decode1 bytes )
-( letrec ([ rbytes ( reverse bytes )]
-[ decode-byte ( lambda ( byte pos )
-( arithmetic-shift ( bitwise-and byte #x7F ) ( * 7 pos )))]
-[ loop ( lambda ( pos bytes acc )
-( if ( empty? bytes )
-acc
-( loop ( 1+ pos ) ( cdr bytes ) ( bitwise-ior acc ( decode-byte ( car bytes ) pos )))
-))])
-( if ( or ( empty? bytes ) ( = #x80 ( bitwise-and ( car rbytes ) #x80 )))
-( error "\"invalid sequence\"" )
-( loop 0 rbytes 0 ))))
-( define ( decode . nums )
-( let ([ enc-bytes ( chunk-by nums ( lambda ( x ) ( = #x80 ( bitwise-and x #x80 ))))])
-( map decode1 enc-bytes )))
+(program
+  (extension racket)
+  (list provide PLACEHOLDER_1 PLACEHOLDER_2)
+  (list define-syntax-rule
+    (list
+      (definition PLACEHOLDER_3)
+      (definition PLACEHOLDER_4))
+    (list + 1 PLACEHOLDER_4))
+  (list define
+    (list
+      (definition PLACEHOLDER_5)
+      (definition PLACEHOLDER_6))
+    (list letrec
+      (list
+        (list
+          (definition PLACEHOLDER_7)
+          (list lambda
+            (list
+              (definition PLACEHOLDER_8)
+              (definition PLACEHOLDER_9))
+            (list let
+              (list
+                (list
+                  (definition PLACEHOLDER_10)
+                  (list bitwise-and PLACEHOLDER_8 127))
+                (list
+                  (definition PLACEHOLDER_11)
+                  (list if
+                    (list > PLACEHOLDER_9 0) 128 0)))
+              (list bitwise-ior PLACEHOLDER_10 PLACEHOLDER_11))))
+        (list
+          (definition PLACEHOLDER_12)
+          (list lambda
+            (list
+              (definition PLACEHOLDER_13)
+              (definition PLACEHOLDER_6)
+              (definition PLACEHOLDER_14))
+            (list if
+              (list = PLACEHOLDER_6 0) PLACEHOLDER_14
+              (list PLACEHOLDER_12
+                (list PLACEHOLDER_3 PLACEHOLDER_13)
+                (list arithmetic-shift PLACEHOLDER_6 -7)
+                (list cons
+                  (list PLACEHOLDER_7 PLACEHOLDER_6 PLACEHOLDER_13) PLACEHOLDER_14))))))
+      (list cond
+        (list
+          (list < PLACEHOLDER_6 128) PLACEHOLDER_6)
+        (list else
+          (list PLACEHOLDER_12 0 PLACEHOLDER_6
+            (list quote
+              (list)))))))
+  (list define
+    (list
+      (definition PLACEHOLDER_1) .
+      (definition PLACEHOLDER_15))
+    (list flatten
+      (list map PLACEHOLDER_5 PLACEHOLDER_15)))
+  (list define
+    (list
+      (definition PLACEHOLDER_16)
+      (definition PLACEHOLDER_17)
+      (definition PLACEHOLDER_18))
+    (list letrec
+      (list
+        (list
+          (definition PLACEHOLDER_19)
+          (list lambda
+            (list
+              (definition PLACEHOLDER_17)
+              (definition PLACEHOLDER_18)
+              (definition PLACEHOLDER_14)
+              (definition PLACEHOLDER_20))
+            (list cond
+              (list
+                (list empty? PLACEHOLDER_17)
+                (list reverse
+                  (list if
+                    (list empty? PLACEHOLDER_20) PLACEHOLDER_14
+                    (list cons PLACEHOLDER_20 PLACEHOLDER_14))))
+              (list
+                (list PLACEHOLDER_18
+                  (list car PLACEHOLDER_17))
+                (list PLACEHOLDER_19
+                  (list cdr PLACEHOLDER_17) PLACEHOLDER_18 PLACEHOLDER_14
+                  (list cons
+                    (list car PLACEHOLDER_17) PLACEHOLDER_20)))
+              (list else
+                (list PLACEHOLDER_19
+                  (list cdr PLACEHOLDER_17) PLACEHOLDER_18
+                  (list cons
+                    (list reverse
+                      (list cons
+                        (list car PLACEHOLDER_17) PLACEHOLDER_20)) PLACEHOLDER_14)
+                  (list quote
+                    (list))))))))
+      (list PLACEHOLDER_19 PLACEHOLDER_17 PLACEHOLDER_18
+        (list quote
+          (list))
+        (list quote
+          (list)))))
+  (list define
+    (list
+      (definition PLACEHOLDER_21)
+      (definition PLACEHOLDER_22))
+    (list letrec
+      (list
+        (list
+          (definition PLACEHOLDER_23)
+          (list reverse PLACEHOLDER_22))
+        (list
+          (definition PLACEHOLDER_24)
+          (list lambda
+            (list
+              (definition PLACEHOLDER_8)
+              (definition PLACEHOLDER_9))
+            (list arithmetic-shift
+              (list bitwise-and PLACEHOLDER_8 127)
+              (list * 7 PLACEHOLDER_9))))
+        (list
+          (definition PLACEHOLDER_12)
+          (list lambda
+            (list
+              (definition PLACEHOLDER_9)
+              (definition PLACEHOLDER_22)
+              (definition PLACEHOLDER_14))
+            (list if
+              (list empty? PLACEHOLDER_22) PLACEHOLDER_14
+              (list PLACEHOLDER_12
+                (list PLACEHOLDER_3 PLACEHOLDER_9)
+                (list cdr PLACEHOLDER_22)
+                (list bitwise-ior PLACEHOLDER_14
+                  (list PLACEHOLDER_24
+                    (list car PLACEHOLDER_22) PLACEHOLDER_9)))))))
+      (list if
+        (list or
+          (list empty? PLACEHOLDER_22)
+          (list = 128
+            (list bitwise-and
+              (list car PLACEHOLDER_23) 128)))
+        (list error "invalid sequence")
+        (list PLACEHOLDER_12 0 PLACEHOLDER_23 0))))
+  (list define
+    (list
+      (definition PLACEHOLDER_2) .
+      (definition PLACEHOLDER_15))
+    (list let
+      (list
+        (list
+          (definition PLACEHOLDER_25)
+          (list PLACEHOLDER_16 PLACEHOLDER_15
+            (list lambda
+              (list
+                (definition PLACEHOLDER_4))
+              (list = 128
+                (list bitwise-and PLACEHOLDER_4 128))))))
+      (list map PLACEHOLDER_21 PLACEHOLDER_25))))
