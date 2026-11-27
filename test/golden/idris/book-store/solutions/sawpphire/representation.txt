@@ -1,75 +1,494 @@
-module BookStore
-Books : Type
-Books = Vect 6 Nat
-BookIndexes : Type
-BookIndexes = List ( Fin 6 )
-Cache : Type
-Cache = List ( Books , Nat )
-getPrice : Nat -> Nat
-getPrice 1 = 800
-getPrice 2 = 1520
-getPrice 3 = 2160
-getPrice 4 = 2560
-getPrice 5 = 3000
-getPrice _ = 0
-getOneBook : Fin 6 -> Books -> ( Books , Nat )
-getOneBook index books =
-  if 0 < Vect . index index books
-  then ( updateAt index (` minus ` 1 ) books , 1 )
-  else ( books , 0 )
-getDifferentBooks : Books -> BookIndexes -> ( Books , Nat )
-getDifferentBooks books Nil = ( books , 0 )
-getDifferentBooks books ( index :: indexes ) =
-  let ( newBook , bit ) = getOneBook index books
-    ( nextBook , nextNum ) = getDifferentBooks newBook indexes in
-  ( nextBook , bit + nextNum )
-minNoZero : Nat -> Nat -> Nat
-minNoZero 0 y = y
-minNoZero x 0 = x
-minNoZero x y = if x > y then y else x
-getSubGroups : Vect n Nat -> BookIndexes -> List BookIndexes
-getSubGroups ( y :: ys ) ( index :: indexes ) =
-  let next = getSubGroups ys indexes in
-    if 0 < y
-    then (( index :: ) <$> next ) ++ next
-    else next
-getSubGroups _ _ = [ [] ]
-compareWithCache : Books -> Cache -> Maybe Nat
-compareWithCache books Nil = Nothing
-compareWithCache books (( cacheBooks , number ) :: cache ) =
-  if cacheBooks == books
-  then Just number
-  else compareWithCache books cache
-getMaxDiscount : Books -> Cache -> ( Nat , Cache )
-getMaxDiscount books cache =
-  case compareWithCache books cache of
-  Just number => ( number , cache )
-  Nothing =>
-    let ( number , newCache ) = foldWithCache cache ( accumulatePrice books ) ( getSubGroups books [ 0 , 1 , 2 , 3 , 4 , 5 ]) in
-    ( number , ( books , number ) :: newCache )
-  where
-    accumulatePrice : Books -> Cache -> BookIndexes -> ( Nat , Cache )
-    accumulatePrice _ cache Nil = ( 0 , cache )
-    accumulatePrice books cache indexes =
-      let ( newBooks , number ) = getDifferentBooks books indexes
-        price = getPrice number in
-        if number == 0 then ( 0 , cache ) else
-          let ( newNumber , newCache ) = getMaxDiscount newBooks cache in
-            ( price + newNumber , newCache )
-    foldWithCache : Cache
-      -> ( Cache -> BookIndexes -> ( Nat , Cache ))
-      -> List BookIndexes
-      -> ( Nat , Cache )
-    foldWithCache cache func Nil = ( 0 , cache )
-    foldWithCache cache func ( index :: indexes ) =
-      let ( number , subCache ) = func cache index
-        ( newNumber , newCache ) = foldWithCache subCache func indexes in
-      ( minNoZero number newNumber , newCache )
-countBooks : BookIndexes -> Books -> Books
-countBooks Nil books = books
-countBooks ( index :: indexes ) books = countBooks indexes $ updateAt index ( + 1 ) books
-export
-price : List ( Fin 6 ) -> Nat
-price books =
-  let ( number , _ ) = getMaxDiscount ( countBooks books [ 0 , 0 , 0 , 0 , 0 , 0 ]) [] in
-  number
+(idris
+  (module (caname PLACEHOLDER_1))
+  (signature (caname PLACEHOLDER_2)
+    (exp_name Type))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_2)))
+    (rhs
+      (exp_name Vect) 6
+      (exp_name Nat)))
+  (signature (caname PLACEHOLDER_3)
+    (exp_name Type))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_3)))
+    (rhs
+      (exp_name List)
+      (exp_parens
+        (exp_name Fin) 6)))
+  (signature (caname PLACEHOLDER_4)
+    (exp_name Type))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_4)))
+    (rhs
+      (exp_name List)
+      (exp_tuple
+        (exp_name (caname PLACEHOLDER_2)) ,
+        (exp_name Nat))))
+  (signature PLACEHOLDER_5
+    (exp_name Nat)
+    (arrow_separator ->)
+    (exp_name Nat))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_5
+        (patterns 1)))
+    (rhs 800))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_5
+        (patterns 2)))
+    (rhs 1520))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_5
+        (patterns 3)))
+    (rhs 2160))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_5
+        (patterns 4)))
+    (rhs 2560))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_5
+        (patterns 5)))
+    (rhs 3000))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_5
+        (patterns _)))
+    (rhs 0))
+  (signature PLACEHOLDER_6
+    (exp_name Fin) 6
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_2))
+    (arrow_separator ->)
+    (exp_tuple
+      (exp_name (caname PLACEHOLDER_2)) ,
+      (exp_name Nat)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_6
+        (patterns
+          (pat_name PLACEHOLDER_7)
+          (pat_name PLACEHOLDER_8))))
+    (rhs
+      (exp_if 0 <
+        (exp_name
+          (qualified_loname Vect PLACEHOLDER_7))
+        (exp_name PLACEHOLDER_7)
+        (exp_name PLACEHOLDER_8)
+        (exp_then
+          (exp_tuple
+            (exp_name updateAt)
+            (exp_name PLACEHOLDER_7)
+            (exp_parens
+              (exp_ticked
+                (exp_name minus)) 1)
+            (exp_name PLACEHOLDER_8) , 1))
+        (exp_else
+          (exp_tuple
+            (exp_name PLACEHOLDER_8) , 0)))))
+  (signature PLACEHOLDER_9
+    (exp_name (caname PLACEHOLDER_2))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_3))
+    (arrow_separator ->)
+    (exp_tuple
+      (exp_name (caname PLACEHOLDER_2)) ,
+      (exp_name Nat)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_9
+        (patterns
+          (pat_name PLACEHOLDER_8)
+          (pat_constructor Nil))))
+    (rhs
+      (exp_tuple
+        (exp_name PLACEHOLDER_8) , 0)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_9
+        (patterns
+          (pat_name PLACEHOLDER_8)
+          (pat_parens
+            (pat_name PLACEHOLDER_7) ::
+            (pat_name PLACEHOLDER_10)))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_11) ,
+              (pat_name PLACEHOLDER_12)))
+          (rhs
+            (exp_name PLACEHOLDER_6)
+            (exp_name PLACEHOLDER_7)
+            (exp_name PLACEHOLDER_8))
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_13) ,
+              (pat_name PLACEHOLDER_14)))
+          (rhs
+            (exp_name PLACEHOLDER_9)
+            (exp_name PLACEHOLDER_11)
+            (exp_name PLACEHOLDER_10)))
+        (in
+          (exp_tuple
+            (exp_name PLACEHOLDER_13) ,
+            (exp_name PLACEHOLDER_12) +
+            (exp_name PLACEHOLDER_14))))))
+  (signature PLACEHOLDER_15
+    (exp_name Nat)
+    (arrow_separator ->)
+    (exp_name Nat)
+    (arrow_separator ->)
+    (exp_name Nat))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_15
+        (patterns 0
+          (pat_name PLACEHOLDER_16))))
+    (rhs
+      (exp_name PLACEHOLDER_16)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_15
+        (patterns
+          (pat_name PLACEHOLDER_17) 0)))
+    (rhs
+      (exp_name PLACEHOLDER_17)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_15
+        (patterns
+          (pat_name PLACEHOLDER_17)
+          (pat_name PLACEHOLDER_16))))
+    (rhs
+      (exp_if
+        (exp_name PLACEHOLDER_17) >
+        (exp_name PLACEHOLDER_16)
+        (exp_then
+          (exp_name PLACEHOLDER_16))
+        (exp_else
+          (exp_name PLACEHOLDER_17)))))
+  (signature PLACEHOLDER_18
+    (exp_name Vect)
+    (type_variable PLACEHOLDER_19)
+    (exp_name Nat)
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_3))
+    (arrow_separator ->)
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_3)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_18
+        (patterns
+          (pat_parens
+            (pat_name PLACEHOLDER_16) ::
+            (pat_name PLACEHOLDER_20))
+          (pat_parens
+            (pat_name PLACEHOLDER_7) ::
+            (pat_name PLACEHOLDER_10)))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_name PLACEHOLDER_21))
+          (rhs
+            (exp_name PLACEHOLDER_18)
+            (exp_name PLACEHOLDER_20)
+            (exp_name PLACEHOLDER_10)))
+        (in
+          (exp_if 0 <
+            (exp_name PLACEHOLDER_16)
+            (exp_then
+              (exp_parens
+                (exp_parens
+                  (exp_name PLACEHOLDER_7) ::) <$>
+                (exp_name PLACEHOLDER_21)) ++
+              (exp_name PLACEHOLDER_21))
+            (exp_else
+              (exp_name PLACEHOLDER_21)))))))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_18
+        (patterns _ _)))
+    (rhs
+      (exp_list
+        (exp_list))))
+  (signature PLACEHOLDER_22
+    (exp_name (caname PLACEHOLDER_2))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_4))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name Nat))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_22
+        (patterns
+          (pat_name PLACEHOLDER_8)
+          (pat_constructor Nil))))
+    (rhs
+      (exp_name Nothing)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_22
+        (patterns
+          (pat_name PLACEHOLDER_8)
+          (pat_parens
+            (pat_parens
+              (pat_name PLACEHOLDER_23) ,
+              (pat_name PLACEHOLDER_24)) ::
+            (pat_name PLACEHOLDER_25)))))
+    (rhs
+      (exp_if
+        (exp_name PLACEHOLDER_23) ==
+        (exp_name PLACEHOLDER_8)
+        (exp_then
+          (exp_name Just)
+          (exp_name PLACEHOLDER_24))
+        (exp_else
+          (exp_name PLACEHOLDER_22)
+          (exp_name PLACEHOLDER_8)
+          (exp_name PLACEHOLDER_25)))))
+  (signature PLACEHOLDER_26
+    (exp_name (caname PLACEHOLDER_2))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_4))
+    (arrow_separator ->)
+    (exp_tuple
+      (exp_name Nat) ,
+      (exp_name (caname PLACEHOLDER_4))))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_26
+        (patterns
+          (pat_name PLACEHOLDER_8)
+          (pat_name PLACEHOLDER_25))))
+    (rhs
+      (exp_case
+        (exp_name PLACEHOLDER_22)
+        (exp_name PLACEHOLDER_8)
+        (exp_name PLACEHOLDER_25)
+        (alts
+          (alt
+            (pat_constructor Just)
+            (pat_name PLACEHOLDER_24)
+            (exp_tuple
+              (exp_name PLACEHOLDER_24) ,
+              (exp_name PLACEHOLDER_25)))
+          (alt
+            (pat_constructor Nothing)
+            (exp_let_in
+              (declarations
+                (lhs
+                  (pat_parens
+                    (pat_name PLACEHOLDER_24) ,
+                    (pat_name PLACEHOLDER_27)))
+                (rhs
+                  (exp_name PLACEHOLDER_28)
+                  (exp_name PLACEHOLDER_25)
+                  (exp_parens
+                    (exp_name PLACEHOLDER_29)
+                    (exp_name PLACEHOLDER_8))
+                  (exp_parens
+                    (exp_name PLACEHOLDER_18)
+                    (exp_name PLACEHOLDER_8)
+                    (exp_list 0 , 1 , 2 , 3 , 4 , 5))))
+              (in
+                (exp_tuple
+                  (exp_name PLACEHOLDER_24) ,
+                  (exp_tuple
+                    (exp_name PLACEHOLDER_8) ,
+                    (exp_name PLACEHOLDER_24)) ::
+                  (exp_name PLACEHOLDER_27))))
+            (declarations
+              (signature PLACEHOLDER_29
+                (exp_name (caname PLACEHOLDER_2))
+                (arrow_separator ->)
+                (exp_name (caname PLACEHOLDER_4))
+                (arrow_separator ->)
+                (exp_name (caname PLACEHOLDER_3))
+                (arrow_separator ->)
+                (exp_tuple
+                  (exp_name Nat) ,
+                  (exp_name (caname PLACEHOLDER_4))))
+              (function
+                (lhs
+                  (funvar PLACEHOLDER_29
+                    (patterns _
+                      (pat_name PLACEHOLDER_25)
+                      (pat_constructor Nil))))
+                (rhs
+                  (exp_tuple 0 ,
+                    (exp_name PLACEHOLDER_25))))
+              (function
+                (lhs
+                  (funvar PLACEHOLDER_29
+                    (patterns
+                      (pat_name PLACEHOLDER_8)
+                      (pat_name PLACEHOLDER_25)
+                      (pat_name PLACEHOLDER_10))))
+                (rhs
+                  (exp_let_in
+                    (declarations
+                      (lhs
+                        (pat_parens
+                          (pat_name PLACEHOLDER_30) ,
+                          (pat_name PLACEHOLDER_24)))
+                      (rhs
+                        (exp_name PLACEHOLDER_9)
+                        (exp_name PLACEHOLDER_8)
+                        (exp_name PLACEHOLDER_10))
+                      (lhs
+                        (pat_name PLACEHOLDER_31))
+                      (rhs
+                        (exp_name PLACEHOLDER_5)
+                        (exp_name PLACEHOLDER_24)))
+                    (in
+                      (exp_if
+                        (exp_name PLACEHOLDER_24) == 0
+                        (exp_then
+                          (exp_tuple 0 ,
+                            (exp_name PLACEHOLDER_25)))
+                        (exp_else
+                          (exp_let_in
+                            (declarations
+                              (lhs
+                                (pat_parens
+                                  (pat_name PLACEHOLDER_32) ,
+                                  (pat_name PLACEHOLDER_27)))
+                              (rhs
+                                (exp_name PLACEHOLDER_26)
+                                (exp_name PLACEHOLDER_30)
+                                (exp_name PLACEHOLDER_25)))
+                            (in
+                              (exp_tuple
+                                (exp_name PLACEHOLDER_31) +
+                                (exp_name PLACEHOLDER_32) ,
+                                (exp_name PLACEHOLDER_27))))))))))
+              (signature PLACEHOLDER_28
+                (exp_name (caname PLACEHOLDER_4))
+                (arrow_separator ->)
+                (exp_parens
+                  (exp_name (caname PLACEHOLDER_4))
+                  (arrow_separator ->)
+                  (exp_name (caname PLACEHOLDER_3))
+                  (arrow_separator ->)
+                  (exp_tuple
+                    (exp_name Nat) ,
+                    (exp_name (caname PLACEHOLDER_4))))
+                (arrow_separator ->)
+                (exp_name List)
+                (exp_name (caname PLACEHOLDER_3))
+                (arrow_separator ->)
+                (exp_tuple
+                  (exp_name Nat) ,
+                  (exp_name (caname PLACEHOLDER_4))))
+              (function
+                (lhs
+                  (funvar PLACEHOLDER_28
+                    (patterns
+                      (pat_name PLACEHOLDER_25)
+                      (pat_name PLACEHOLDER_33)
+                      (pat_constructor Nil))))
+                (rhs
+                  (exp_tuple 0 ,
+                    (exp_name PLACEHOLDER_25))))
+              (function
+                (lhs
+                  (funvar PLACEHOLDER_28
+                    (patterns
+                      (pat_name PLACEHOLDER_25)
+                      (pat_name PLACEHOLDER_33)
+                      (pat_parens
+                        (pat_name PLACEHOLDER_7) ::
+                        (pat_name PLACEHOLDER_10)))))
+                (rhs
+                  (exp_let_in
+                    (declarations
+                      (lhs
+                        (pat_parens
+                          (pat_name PLACEHOLDER_24) ,
+                          (pat_name PLACEHOLDER_34)))
+                      (rhs
+                        (exp_name PLACEHOLDER_33)
+                        (exp_name PLACEHOLDER_25)
+                        (exp_name PLACEHOLDER_7))
+                      (lhs
+                        (pat_parens
+                          (pat_name PLACEHOLDER_32) ,
+                          (pat_name PLACEHOLDER_27)))
+                      (rhs
+                        (exp_name PLACEHOLDER_28)
+                        (exp_name PLACEHOLDER_34)
+                        (exp_name PLACEHOLDER_33)
+                        (exp_name PLACEHOLDER_10)))
+                    (in
+                      (exp_tuple
+                        (exp_name PLACEHOLDER_15)
+                        (exp_name PLACEHOLDER_24)
+                        (exp_name PLACEHOLDER_32) ,
+                        (exp_name PLACEHOLDER_27))))))))))))
+  (signature PLACEHOLDER_35
+    (exp_name (caname PLACEHOLDER_3))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_2))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_2)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_35
+        (patterns
+          (pat_constructor Nil)
+          (pat_name PLACEHOLDER_8))))
+    (rhs
+      (exp_name PLACEHOLDER_8)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_35
+        (patterns
+          (pat_parens
+            (pat_name PLACEHOLDER_7) ::
+            (pat_name PLACEHOLDER_10))
+          (pat_name PLACEHOLDER_8))))
+    (rhs
+      (exp_name PLACEHOLDER_35)
+      (exp_name PLACEHOLDER_10) $
+      (exp_name updateAt)
+      (exp_name PLACEHOLDER_7)
+      (exp_parens + 1)
+      (exp_name PLACEHOLDER_8)))
+  (signature
+    (visibility export) PLACEHOLDER_31
+    (exp_name List)
+    (exp_parens
+      (exp_name Fin) 6)
+    (arrow_separator ->)
+    (exp_name Nat))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_31
+        (patterns
+          (pat_name PLACEHOLDER_8))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_24) , _))
+          (rhs
+            (exp_name PLACEHOLDER_26)
+            (exp_parens
+              (exp_name PLACEHOLDER_35)
+              (exp_name PLACEHOLDER_8)
+              (exp_list 0 , 0 , 0 , 0 , 0 , 0))
+            (exp_list)))
+        (in
+          (exp_name PLACEHOLDER_24))))))

@@ -1,351 +1,2013 @@
-module ZebraData
-public export data UniqueNothing a = Yes a | No | NoNothing a
-public export data Nationality = Spaniard | Norwegian | Englishman | Japanese | Ukrainian
-public export data Color = Blue | Yellow | Red | Ivory | Green
-public export data Pet = Dog | Snail | Zebra | Fox | Horse
-public export data Beverage = Tea | Coffee | Juice | Water | Milk
-public export data Hobby = Chess | Dancing | Painter | Reading | Football
-public export data Parameter = MC ( Maybe Color )
-  | MN ( Maybe Nationality )
-  | MP ( Maybe Pet )
-  | MB ( Maybe Beverage )
-  | MH ( Maybe Hobby )
-public export
-record Solution where
-  constructor MkSolution
-  drinksWater : Nationality
-  ownsZebra : Nationality
-public export
-Len : Nat
-Len = 5
-data IsHabitant : Vect Len Parameter -> Type where
-  ItIsHabitant : IsHabitant ( MC c :: MN n :: MP p :: MB b :: MH h :: Nil )
-public export
-Habitant : Type
-Habitant = DPair ( Vect Len Parameter ) ( \ v => IsHabitant v )
-public export
-Parameters : Type
-Parameters =
-  let p := ( Parameter , Fin Len )
-    in ( p , p )
-public export
-Correlated : Type
-Correlated = ( Parameters , Maybe Parameters )
-public export
-Neighborhood : Type
-Neighborhood = Vect Len Habitant
-mkHabitant : Maybe Color
-  -> Maybe Nationality
-  -> Maybe Pet
-  -> Maybe Beverage
-  -> Maybe Hobby
-  -> Habitant
-mkHabitant mc mn mp mb mh =
-  ([ MC mc , MN mn , MP mp , MB mb , MH mh ] ** ItIsHabitant )
-mkCorrelated : Parameter
-  -> Fin Len
-  -> Parameter
-  -> Fin Len
-  -> ( isSymmetric : Bool )
-  -> Correlated
-mkCorrelated p i p' i' isSymmetric =
-  let ps := (( p , i ), ( p' , i' ))
-    s := (( p' , i' ), ( p , i ))
-    in ( ps , toMaybe isSymmetric s )
-public export
-empty : Habitant
-empty = mkHabitant Nothing Nothing Nothing Nothing Nothing
-export
-replace : Parameter -> Habitant -> Habitant
-replace param ([ MC c , MN n , MP p , MB b , MH h ] ** _ ) =
-  case param of
-    MC c' => mkHabitant c' n p b h
-    MN n' => mkHabitant c n' p b h
-    MP p' => mkHabitant c n p' b h
-    MB b' => mkHabitant c n p b' h
-    MH h' => mkHabitant c n p b h'
-export
-isJust : Parameter -> Bool
-isJust p =
-  case p of
-    MC c => Maybe . isJust c
-    MB b => Maybe . isJust b
-    MN n => Maybe . isJust n
-    MH h => Maybe . isJust h
-    MP p => Maybe . isJust p
-S2_The_Englishman_lives_in_the_red_house : Habitant
-S2_The_Englishman_lives_in_the_red_house =
-  mkHabitant ( Just Red ) ( Just Englishman ) Nothing Nothing Nothing
-S3_The_Spaniard_owns_the_dog : Habitant
-S3_The_Spaniard_owns_the_dog =
-  mkHabitant Nothing ( Just Spaniard ) ( Just Dog ) Nothing Nothing
-S4_The_person_in_the_green_house_drinks_coffee : Habitant
-S4_The_person_in_the_green_house_drinks_coffee =
-  mkHabitant ( Just Green ) Nothing Nothing ( Just Coffee ) Nothing
-S5_The_Ukrainian_drinks_tea : Habitant
-S5_The_Ukrainian_drinks_tea =
-  mkHabitant Nothing ( Just Ukrainian ) Nothing ( Just Tea ) Nothing
-S6_The_green_house_is_immediately_to_the_right_of_ivory_house : Correlated
-S6_The_green_house_is_immediately_to_the_right_of_ivory_house =
-  mkCorrelated ( MC $ Just Ivory ) 0 ( MC $ Just Green ) 0 False
-S7_The_snail_owner_likes_to_go_dancing : Habitant
-S7_The_snail_owner_likes_to_go_dancing =
-  mkHabitant Nothing Nothing ( Just Snail ) Nothing ( Just Dancing )
-S8_The_person_in_the_yellow_house_is_a_painter : Habitant
-S8_The_person_in_the_yellow_house_is_a_painter =
-  mkHabitant ( Just Yellow ) Nothing Nothing Nothing ( Just Painter )
-S9_The_person_in_the_middle_house_drinks_milk : Habitant
-S9_The_person_in_the_middle_house_drinks_milk =
-  mkHabitant Nothing Nothing Nothing ( Just Milk ) Nothing
-S10_The_Norwegian_lives_in_the_first_house : Habitant
-S10_The_Norwegian_lives_in_the_first_house =
-  mkHabitant Nothing ( Just Norwegian ) Nothing Nothing Nothing
-S11_The_person_who_enjoys_reading_lives_in_the_house_next_to_the_person_with_the_fox :
-  Correlated
-S11_The_person_who_enjoys_reading_lives_in_the_house_next_to_the_person_with_the_fox =
-  mkCorrelated ( MH $ Just Reading ) 4 ( MP $ Just Fox ) 2 True
-S12_The_painter's_house_is_next_to_the_house_with_the_horse : Correlated
-S12_The_painter's_house_is_next_to_the_house_with_the_horse =
-  mkCorrelated ( MH $ Just Painter ) 4 ( MP $ Just Horse ) 2 True
-S13_The_person_who_plays_football_drinks_orange_juice : Habitant
-S13_The_person_who_plays_football_drinks_orange_juice =
-  mkHabitant Nothing Nothing Nothing ( Just Juice ) ( Just Football )
-S14_The_Japanese_person_play_chess : Habitant
-S14_The_Japanese_person_play_chess =
-  mkHabitant Nothing ( Just Japanese ) Nothing Nothing ( Just Chess )
-S15_The_norwegian_lives_next_to_the_blue_house : Correlated
-S15_The_norwegian_lives_next_to_the_blue_house =
-  mkCorrelated ( MN $ Just Norwegian ) 1 ( MC $ Just Blue ) 0 True
-public export
-habitants : List Habitant
-habitants =
-  [ S2_The_Englishman_lives_in_the_red_house
-  , S3_The_Spaniard_owns_the_dog
-  , S4_The_person_in_the_green_house_drinks_coffee
-  , S5_The_Ukrainian_drinks_tea
-  , S7_The_snail_owner_likes_to_go_dancing
-  , S8_The_person_in_the_yellow_house_is_a_painter
-  , S13_The_person_who_plays_football_drinks_orange_juice
-  , S14_The_Japanese_person_play_chess
-  ]
-public export
-correlated : List Correlated
-correlated =
-  [ S6_The_green_house_is_immediately_to_the_right_of_ivory_house
-  , S11_The_person_who_enjoys_reading_lives_in_the_house_next_to_the_person_with_the_fox
-  , S12_The_painter's_house_is_next_to_the_house_with_the_horse
-  , S15_The_norwegian_lives_next_to_the_blue_house
-  ]
-public export
-neighborhood : Neighborhood
-neighborhood =
-  [ S10_The_Norwegian_lives_in_the_first_house
-  , empty
-  , S9_The_person_in_the_middle_house_drinks_milk
-  , empty
-  , empty
-  ]
-module ZebraImplementation
-export
-Eq Color where
-  Blue == Blue = True
-  Yellow == Yellow = True
-  Red == Red = True
-  Ivory == Ivory = True
-  Green == Green = True
-  _ == _ = False
-export
-Eq Nationality where
-  Spaniard == Spaniard = True
-  Norwegian == Norwegian = True
-  Englishman == Englishman = True
-  Japanese == Japanese = True
-  Ukrainian == Ukrainian = True
-  _ == _ = False
-export
-Eq Pet where
-  Dog == Dog = True
-  Snail == Snail = True
-  Zebra == Zebra = True
-  Fox == Fox = True
-  Horse == Horse = True
-  _ == _ = False
-export
-Eq Beverage where
-  Tea == Tea = True
-  Coffee == Coffee = True
-  Water == Water = True
-  Juice == Juice = True
-  Milk == Milk = True
-  _ == _ = False
-export
-Eq Hobby where
-  Football == Football = True
-  Chess == Chess = True
-  Painter == Painter = True
-  Dancing == Dancing = True
-  Reading == Reading = True
-  _ == _ = False
-public export
-Eq Parameter where
-  MC c == MC c' = c == c'
-  MB b == MB b' = b == b'
-  MN n == MN n' = n == n'
-  MH h == MH h' = h == h'
-  MP p == MP p' = p == p'
-  _ == _ = False
-export
-Eq Habitant where ( h ** _ ) == ( h' ** _ ) = h == h'
-module ZebraPuzzle
-fitParameter : Parameter
-  -> ( parameterIndex : Fin Len )
-  -> Habitant
-  -> ( neighborhood : UniqueNothing ( Vect k Habitant ))
-  -> UniqueNothing $ Vect ( S k ) Habitant
-fitParameter p pi h @ ( h' ** _ ) sh =
-  case ( isJust ( index pi h' ), sh ) of
-    ( False , NoNothing sh' ) => Yes $ replace p h :: sh'
-    ( True , NoNothing sh' ) => NoNothing $ h :: sh'
-    ( True , Yes sh' ) => Yes $ h :: sh'
-    ( False , Yes sh' ) => No
-    ( _ , No ) => No
-foldFit : Parameter
-  -> ( parameterIndex : Fin Len )
-  -> ( neighborhood : Vect l Habitant )
-  -> UniqueNothing $ Vect l Habitant
-foldFit p pi Nil = NoNothing []
-foldFit p pi ( h :: hs ) = fitParameter p pi h $ foldFit p pi hs
-succFit : ( Parameter , Fin Len )
-  -> Neighborhood
-  -> Maybe Neighborhood
-  -> Maybe Neighborhood
-succFit ( p , pIndex ) n mn =
-  case ( foldFit p pIndex ( fromMaybe n mn ), mn ) of
-    ( Yes n' , _ ) => Just n'
-    ( _ , Just n' ) => Just n'
-    ( _ , _ ) => Nothing
-fitCorrelated : List Correlated -> Neighborhood -> Maybe Neighborhood
-fitCorrelated Nil _ = Nothing
-fitCorrelated (( params , _ ) :: cs ) n =
-  let ( p , p' ) := params
-    in succFit p n $ succFit p' n $ fitCorrelated cs n
-connectParameters : Parameters
-  -> ( neighborhood : Vect ( S n ) Habitant )
-  -> Maybe $ Vect ( S n ) Habitant
-connectParameters _ ( _ :: Nil ) = Nothing
-connectParameters ( pi1 , pi2 ) n @ ( h1 :: h2 :: hs ) =
-  let ( p1 , index1 ) := pi1
-    ( p2 , index2 ) := pi2
-    ( h1' ** _ ) := h1
-    ( h2' ** _ ) := h2
-    p1' := index index1 h1'
-    p2' := index index2 h2'
-    allready := p1' == p1 && p2' == p2
-    connect1 := isJust p1' == False && p2 == p2'
-    connect2 := p1' == p1 && isJust p2' == False
-    in ( toMaybe allready n )
-  <|> ( toMaybe connect1 $ replace p1 h1 :: h2 :: hs )
-  <|> ( toMaybe connect2 $ h1 :: replace p2 h2 :: hs )
-  <|> [ | Just h1 :: connectParameters ( pi1 , pi2 ) ( h2 :: hs ) | ]
-connectCorrelated' : List Correlated
-  -> List Correlated
-  -> Neighborhood
-  -> List ( List Correlated , Neighborhood )
-connectCorrelated' Nil _ _ = []
-connectCorrelated' ( c @ ( params , symParams ) :: cs ) sc n =
-  let cs' := sc ++ cs
-    in recConnect cs' params ++ recConnectSym cs' symParams
-  where
-    recConnect : List Correlated
-      -> Parameters
-      -> List ( List Correlated , Neighborhood )
-    recConnect cs' ps =
-      case connectParameters ps n of
-        Nothing => connectCorrelated' cs ( c :: sc ) n
-        Just nps => ( cs' , nps ) :: connectCorrelated' cs sc nps
-    recConnectSym : List Correlated
-      -> Maybe Parameters
-      -> List ( List Correlated , Neighborhood )
-    recConnectSym cs' sps =
-      fromMaybe [] $
-        do sps' <- sps
-          nsps <- connectParameters sps' n
-          Just $ ( cs' , nsps ) :: connectCorrelated' cs sc nsps
-connectCorrelated : List Correlated
-  -> Neighborhood
-  -> List ( List Correlated , Neighborhood )
-connectCorrelated c n = connectCorrelated' c [] n
-tryUnifyParameters : Parameter -> Parameter -> Habitant -> Maybe Habitant
-tryUnifyParameters p p' h =
-  case ( isJust p , isJust p' ) of
-    ( True , False ) => Just $ replace p h
-    ( False , True ) => Just h
-    ( False , False ) => Just h
-    ( True , True ) => Nothing
-foldApp2 : Applicative f => Monad f => ( a -> a -> b -> f b ) -> Vect n a -> Vect n a -> b -> f b
-foldApp2 fn Nil Nil z = pure z
-foldApp2 fn ( x :: xs ) ( y :: ys ) z = fn x y z >>= foldApp2 fn xs ys
-plusAssociativeSucc : ( n : Nat ) -> ( m : Nat ) -> n + ( S m ) === nm -> ( S n ) + m === nm
-plusAssociativeSucc n m p =
-  rewrite plusCommutative ( S n ) m
-  in rewrite sym ( plusSuccRightSucc m n )
-    in rewrite cong S ( plusCommutative m n )
-      in rewrite plusSuccRightSucc n m
-        in p
-fitHabitant' : { ln : Nat }
-  -> { nl : Nat }
-  -> { auto prf : nl + ln === Len }
-  -> Habitant
-  -> Vect ln Habitant
-  -> Vect nl Habitant
-  -> List Neighborhood
-fitHabitant' { ln = Z } _ Nil _ = []
-fitHabitant' { ln = S ln' } h1 ( h2 :: hs ) sh =
-  let ( h1' ** _ ) := h1
-    ( h2' ** _ ) := h2
-    prf' := plusAssociativeSucc nl ln' prf
-    rec := fitHabitant' { prf = prf' } h1 hs ( h2 :: sh )
-    f := replace { p = \ len => Vect len Habitant } prf
-    in case foldApp2 tryUnifyParameters h1' h2' h2 of
-      Nothing => rec
-      Just h3 => ( f $ reverse sh ++ ( h3 :: hs )) :: rec
-fitHabitant : Habitant -> Neighborhood -> List Neighborhood
-fitHabitant h n = fitHabitant' h n []
-untilJust : ( a -> Maybe b ) -> List a -> Maybe b
-untilJust f Nil = Nothing
-untilJust f ( x :: xs ) =
-  case f x of
-    Nothing => untilJust f xs
-    Just y => Just y
-solve : List Habitant -> List Correlated -> Neighborhood -> Maybe Neighborhood
-solve Nil Nil n = pure n
-solve hs cs n = ( recCorrelated $ connectCorrelated cs n )
-  <|> ( recHabitants hs )
-  <|> ( fitCorrelated cs n >>= solve hs cs )
-  where
-  recCorrelated : List ( List Correlated , Neighborhood ) -> Maybe Neighborhood
-  recCorrelated Nil = Nothing
-  recCorrelated csn = untilJust ( \ ( c' , n' ) => solve hs c' n' ) csn
-  recHabitants : List Habitant -> Maybe Neighborhood
-  recHabitants Nil = Nothing
-  recHabitants ( h' :: hs' ) =
-    case fitHabitant h' n of
-      Nil => Nothing
-      ns => untilJust ( solve hs' cs ) ns
-isNothing : Fin Len -> Habitant -> Bool
-isNothing i ( h ** _ ) = not $ isJust $ index i h
-getNationality : Habitant -> Maybe Nationality
-getNationality (( _ :: MN n :: _ ) ** _ ) = n
-findMissing : Fin Len -> Neighborhood -> Maybe Nationality
-findMissing i n =
-  do habitant <- find ( isNothing i ) n
-    nationality <- getNationality habitant
-    pure nationality
-export
-solution : Solution
-solution =
-  fromMaybe solution $
-    do neighborhood' <- solve habitants correlated neighborhood
-      solution1 <- findMissing 3 neighborhood'
-      solution2 <- findMissing 2 neighborhood'
-      pure $ MkSolution solution1 solution2
+(idris
+  (module (caname PLACEHOLDER_1))
+  (data
+    (visibility public export) (data_name PLACEHOLDER_2) PLACEHOLDER_3
+    (data_constructor (caname PLACEHOLDER_4))
+    (exp_name PLACEHOLDER_3) |
+    (data_constructor (caname PLACEHOLDER_5)) |
+    (data_constructor (caname PLACEHOLDER_6))
+    (exp_name PLACEHOLDER_3))
+  (data
+    (visibility public export) (data_name PLACEHOLDER_7)
+    (data_constructor (caname PLACEHOLDER_8)) |
+    (data_constructor (caname PLACEHOLDER_9)) |
+    (data_constructor (caname PLACEHOLDER_10)) |
+    (data_constructor (caname PLACEHOLDER_11)) |
+    (data_constructor (caname PLACEHOLDER_12)))
+  (data
+    (visibility public export) (data_name PLACEHOLDER_13)
+    (data_constructor (caname PLACEHOLDER_14)) |
+    (data_constructor (caname PLACEHOLDER_15)) |
+    (data_constructor (caname PLACEHOLDER_16)) |
+    (data_constructor (caname PLACEHOLDER_17)) |
+    (data_constructor (caname PLACEHOLDER_18)))
+  (data
+    (visibility public export) (data_name PLACEHOLDER_19)
+    (data_constructor (caname PLACEHOLDER_20)) |
+    (data_constructor (caname PLACEHOLDER_21)) |
+    (data_constructor (caname PLACEHOLDER_22)) |
+    (data_constructor (caname PLACEHOLDER_23)) |
+    (data_constructor (caname PLACEHOLDER_24)))
+  (data
+    (visibility public export) (data_name PLACEHOLDER_25)
+    (data_constructor (caname PLACEHOLDER_26)) |
+    (data_constructor (caname PLACEHOLDER_27)) |
+    (data_constructor (caname PLACEHOLDER_28)) |
+    (data_constructor (caname PLACEHOLDER_29)) |
+    (data_constructor (caname PLACEHOLDER_30)))
+  (data
+    (visibility public export) (data_name PLACEHOLDER_31)
+    (data_constructor (caname PLACEHOLDER_32)) |
+    (data_constructor (caname PLACEHOLDER_33)) |
+    (data_constructor (caname PLACEHOLDER_34)) |
+    (data_constructor (caname PLACEHOLDER_35)) |
+    (data_constructor (caname PLACEHOLDER_36)))
+  (data
+    (visibility public export) (data_name PLACEHOLDER_37)
+    (data_constructor (caname PLACEHOLDER_38))
+    (exp_parens
+      (exp_name Maybe)
+      (exp_name (caname PLACEHOLDER_13))) |
+    (data_constructor (caname PLACEHOLDER_39))
+    (exp_parens
+      (exp_name Maybe)
+      (exp_name (caname PLACEHOLDER_7))) |
+    (data_constructor (caname PLACEHOLDER_40))
+    (exp_parens
+      (exp_name Maybe)
+      (exp_name (caname PLACEHOLDER_19))) |
+    (data_constructor (caname PLACEHOLDER_41))
+    (exp_parens
+      (exp_name Maybe)
+      (exp_name (caname PLACEHOLDER_25))) |
+    (data_constructor (caname PLACEHOLDER_42))
+    (exp_parens
+      (exp_name Maybe)
+      (exp_name (caname PLACEHOLDER_31))))
+  (record
+    (visibility public export) (caname PLACEHOLDER_43)
+    (record_body
+      (constructor (caname PLACEHOLDER_44))
+      (record_field PLACEHOLDER_45
+        (exp_name (caname PLACEHOLDER_7)))
+      (record_field PLACEHOLDER_46
+        (exp_name (caname PLACEHOLDER_7)))))
+  (signature
+    (visibility public export) (caname PLACEHOLDER_47)
+    (exp_name Nat))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_47)))
+    (rhs 5))
+  (data (data_name PLACEHOLDER_48)
+    (type_signature
+      (exp_name Vect)
+      (exp_name (caname PLACEHOLDER_47))
+      (exp_name (caname PLACEHOLDER_37))
+      (arrow_separator ->)
+      (exp_name Type))
+    (data_body
+      (signature (caname PLACEHOLDER_49)
+        (exp_name (caname PLACEHOLDER_48))
+        (exp_parens
+          (exp_name (caname PLACEHOLDER_38))
+          (type_variable PLACEHOLDER_50) ::
+          (exp_name (caname PLACEHOLDER_39))
+          (type_variable PLACEHOLDER_51) ::
+          (exp_name (caname PLACEHOLDER_40))
+          (type_variable PLACEHOLDER_52) ::
+          (exp_name (caname PLACEHOLDER_41))
+          (type_variable PLACEHOLDER_53) ::
+          (exp_name (caname PLACEHOLDER_42))
+          (type_variable PLACEHOLDER_54) ::
+          (exp_name Nil)))))
+  (signature
+    (visibility public export) (caname PLACEHOLDER_55)
+    (exp_name Type))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_55)))
+    (rhs
+      (exp_name DPair)
+      (exp_parens
+        (exp_name Vect)
+        (exp_name (caname PLACEHOLDER_47))
+        (exp_name (caname PLACEHOLDER_37)))
+      (exp_lambda
+        (lambda_args
+          (pat_name PLACEHOLDER_56))
+        (lambda_exp
+          (exp_name (caname PLACEHOLDER_48))
+          (exp_name PLACEHOLDER_56)))))
+  (signature
+    (visibility public export) (caname PLACEHOLDER_57)
+    (exp_name Type))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_57)))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_name PLACEHOLDER_52))
+          (rhs :=
+            (exp_tuple
+              (exp_name (caname PLACEHOLDER_37)) ,
+              (exp_name Fin)
+              (exp_name (caname PLACEHOLDER_47)))))
+        (in
+          (exp_tuple
+            (exp_name PLACEHOLDER_52) ,
+            (exp_name PLACEHOLDER_52))))))
+  (signature
+    (visibility public export) (caname PLACEHOLDER_58)
+    (exp_name Type))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_58)))
+    (rhs
+      (exp_tuple
+        (exp_name (caname PLACEHOLDER_57)) ,
+        (exp_name Maybe)
+        (exp_name (caname PLACEHOLDER_57)))))
+  (signature
+    (visibility public export) (caname PLACEHOLDER_59)
+    (exp_name Type))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_59)))
+    (rhs
+      (exp_name Vect)
+      (exp_name (caname PLACEHOLDER_47))
+      (exp_name (caname PLACEHOLDER_55))))
+  (signature PLACEHOLDER_60
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_13))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_7))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_19))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_25))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_31))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_60
+        (patterns
+          (pat_name PLACEHOLDER_61)
+          (pat_name PLACEHOLDER_62)
+          (pat_name PLACEHOLDER_63)
+          (pat_name PLACEHOLDER_64)
+          (pat_name PLACEHOLDER_65))))
+    (rhs
+      (exp_tuple
+        (exp_list
+          (exp_name (caname PLACEHOLDER_38))
+          (exp_name PLACEHOLDER_61) ,
+          (exp_name (caname PLACEHOLDER_39))
+          (exp_name PLACEHOLDER_62) ,
+          (exp_name (caname PLACEHOLDER_40))
+          (exp_name PLACEHOLDER_63) ,
+          (exp_name (caname PLACEHOLDER_41))
+          (exp_name PLACEHOLDER_64) ,
+          (exp_name (caname PLACEHOLDER_42))
+          (exp_name PLACEHOLDER_65)) **
+        (exp_name (caname PLACEHOLDER_49)))))
+  (signature PLACEHOLDER_66
+    (exp_name (caname PLACEHOLDER_37))
+    (arrow_separator ->)
+    (exp_name Fin)
+    (exp_name (caname PLACEHOLDER_47))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_37))
+    (arrow_separator ->)
+    (exp_name Fin)
+    (exp_name (caname PLACEHOLDER_47))
+    (arrow_separator ->)
+    (type_parens
+      (type_var PLACEHOLDER_67
+        (exp_name Bool)))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_58)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_66
+        (patterns
+          (pat_name PLACEHOLDER_52)
+          (pat_name PLACEHOLDER_68)
+          (pat_name PLACEHOLDER_69)
+          (pat_name PLACEHOLDER_70)
+          (pat_name PLACEHOLDER_67))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_name PLACEHOLDER_71))
+          (rhs :=
+            (exp_tuple
+              (exp_tuple
+                (exp_name PLACEHOLDER_52) ,
+                (exp_name PLACEHOLDER_68)) ,
+              (exp_tuple
+                (exp_name PLACEHOLDER_69) ,
+                (exp_name PLACEHOLDER_70))))
+          (lhs
+            (pat_name PLACEHOLDER_72))
+          (rhs :=
+            (exp_tuple
+              (exp_tuple
+                (exp_name PLACEHOLDER_69) ,
+                (exp_name PLACEHOLDER_70)) ,
+              (exp_tuple
+                (exp_name PLACEHOLDER_52) ,
+                (exp_name PLACEHOLDER_68)))))
+        (in
+          (exp_tuple
+            (exp_name PLACEHOLDER_71) ,
+            (exp_name toMaybe)
+            (exp_name PLACEHOLDER_67)
+            (exp_name PLACEHOLDER_72))))))
+  (signature
+    (visibility public export) PLACEHOLDER_73
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_73))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_name Nothing)))
+  (signature
+    (visibility export) PLACEHOLDER_74
+    (exp_name (caname PLACEHOLDER_37))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_74
+        (patterns
+          (pat_name PLACEHOLDER_75)
+          (pat_parens
+            (pat_list
+              (pat_constructor (caname PLACEHOLDER_38))
+              (pat_name PLACEHOLDER_50) ,
+              (pat_constructor (caname PLACEHOLDER_39))
+              (pat_name PLACEHOLDER_51) ,
+              (pat_constructor (caname PLACEHOLDER_40))
+              (pat_name PLACEHOLDER_52) ,
+              (pat_constructor (caname PLACEHOLDER_41))
+              (pat_name PLACEHOLDER_53) ,
+              (pat_constructor (caname PLACEHOLDER_42))
+              (pat_name PLACEHOLDER_54)) ** _))))
+    (rhs
+      (exp_case
+        (exp_name PLACEHOLDER_75)
+        (alts
+          (alt
+            (pat_constructor (caname PLACEHOLDER_38))
+            (pat_name PLACEHOLDER_76)
+            (exp_name PLACEHOLDER_60)
+            (exp_name PLACEHOLDER_76)
+            (exp_name PLACEHOLDER_51)
+            (exp_name PLACEHOLDER_52)
+            (exp_name PLACEHOLDER_53)
+            (exp_name PLACEHOLDER_54))
+          (alt
+            (pat_constructor (caname PLACEHOLDER_39))
+            (pat_name PLACEHOLDER_77)
+            (exp_name PLACEHOLDER_60)
+            (exp_name PLACEHOLDER_50)
+            (exp_name PLACEHOLDER_77)
+            (exp_name PLACEHOLDER_52)
+            (exp_name PLACEHOLDER_53)
+            (exp_name PLACEHOLDER_54))
+          (alt
+            (pat_constructor (caname PLACEHOLDER_40))
+            (pat_name PLACEHOLDER_69)
+            (exp_name PLACEHOLDER_60)
+            (exp_name PLACEHOLDER_50)
+            (exp_name PLACEHOLDER_51)
+            (exp_name PLACEHOLDER_69)
+            (exp_name PLACEHOLDER_53)
+            (exp_name PLACEHOLDER_54))
+          (alt
+            (pat_constructor (caname PLACEHOLDER_41))
+            (pat_name PLACEHOLDER_78)
+            (exp_name PLACEHOLDER_60)
+            (exp_name PLACEHOLDER_50)
+            (exp_name PLACEHOLDER_51)
+            (exp_name PLACEHOLDER_52)
+            (exp_name PLACEHOLDER_78)
+            (exp_name PLACEHOLDER_54))
+          (alt
+            (pat_constructor (caname PLACEHOLDER_42))
+            (pat_name PLACEHOLDER_79)
+            (exp_name PLACEHOLDER_60)
+            (exp_name PLACEHOLDER_50)
+            (exp_name PLACEHOLDER_51)
+            (exp_name PLACEHOLDER_52)
+            (exp_name PLACEHOLDER_53)
+            (exp_name PLACEHOLDER_79))))))
+  (signature
+    (visibility export) PLACEHOLDER_80
+    (exp_name (caname PLACEHOLDER_37))
+    (arrow_separator ->)
+    (exp_name Bool))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_80
+        (patterns
+          (pat_name PLACEHOLDER_52))))
+    (rhs
+      (exp_case
+        (exp_name PLACEHOLDER_52)
+        (alts
+          (alt
+            (pat_constructor (caname PLACEHOLDER_38))
+            (pat_name PLACEHOLDER_50)
+            (exp_name
+              (qualified_loname Maybe PLACEHOLDER_80))
+            (exp_name PLACEHOLDER_50))
+          (alt
+            (pat_constructor (caname PLACEHOLDER_41))
+            (pat_name PLACEHOLDER_53)
+            (exp_name
+              (qualified_loname Maybe PLACEHOLDER_80))
+            (exp_name PLACEHOLDER_53))
+          (alt
+            (pat_constructor (caname PLACEHOLDER_39))
+            (pat_name PLACEHOLDER_51)
+            (exp_name
+              (qualified_loname Maybe PLACEHOLDER_80))
+            (exp_name PLACEHOLDER_51))
+          (alt
+            (pat_constructor (caname PLACEHOLDER_42))
+            (pat_name PLACEHOLDER_54)
+            (exp_name
+              (qualified_loname Maybe PLACEHOLDER_80))
+            (exp_name PLACEHOLDER_54))
+          (alt
+            (pat_constructor (caname PLACEHOLDER_40))
+            (pat_name PLACEHOLDER_52)
+            (exp_name
+              (qualified_loname Maybe PLACEHOLDER_80))
+            (exp_name PLACEHOLDER_52))))))
+  (signature (caname PLACEHOLDER_81)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_81)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_16)))
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_10)))
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_name Nothing)))
+  (signature (caname PLACEHOLDER_82)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_82)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_8)))
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_20)))
+      (exp_name Nothing)
+      (exp_name Nothing)))
+  (signature (caname PLACEHOLDER_83)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_83)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_18)))
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_27)))
+      (exp_name Nothing)))
+  (signature (caname PLACEHOLDER_84)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_84)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_12)))
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_26)))
+      (exp_name Nothing)))
+  (signature (caname PLACEHOLDER_85)
+    (exp_name (caname PLACEHOLDER_58)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_85)))
+    (rhs
+      (exp_name PLACEHOLDER_66)
+      (exp_parens
+        (exp_name (caname PLACEHOLDER_38)) $
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_17))) 0
+      (exp_parens
+        (exp_name (caname PLACEHOLDER_38)) $
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_18))) 0
+      (exp_name False)))
+  (signature (caname PLACEHOLDER_86)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_86)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_21)))
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_33)))))
+  (signature (caname PLACEHOLDER_87)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_87)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_15)))
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_34)))))
+  (signature (caname PLACEHOLDER_88)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_88)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_30)))
+      (exp_name Nothing)))
+  (signature (caname PLACEHOLDER_89)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_89)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_9)))
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_name Nothing)))
+  (signature (caname PLACEHOLDER_90)
+    (exp_name (caname PLACEHOLDER_58)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_90)))
+    (rhs
+      (exp_name PLACEHOLDER_66)
+      (exp_parens
+        (exp_name (caname PLACEHOLDER_42)) $
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_35))) 4
+      (exp_parens
+        (exp_name (caname PLACEHOLDER_40)) $
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_23))) 2
+      (exp_name True)))
+  (signature (caname PLACEHOLDER_91)
+    (exp_name (caname PLACEHOLDER_58)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_91)))
+    (rhs
+      (exp_name PLACEHOLDER_66)
+      (exp_parens
+        (exp_name (caname PLACEHOLDER_42)) $
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_34))) 4
+      (exp_parens
+        (exp_name (caname PLACEHOLDER_40)) $
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_24))) 2
+      (exp_name True)))
+  (signature (caname PLACEHOLDER_92)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_92)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_28)))
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_36)))))
+  (signature (caname PLACEHOLDER_93)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_93)))
+    (rhs
+      (exp_name PLACEHOLDER_60)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_11)))
+      (exp_name Nothing)
+      (exp_name Nothing)
+      (exp_parens
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_32)))))
+  (signature (caname PLACEHOLDER_94)
+    (exp_name (caname PLACEHOLDER_58)))
+  (function
+    (lhs
+      (funvar (caname PLACEHOLDER_94)))
+    (rhs
+      (exp_name PLACEHOLDER_66)
+      (exp_parens
+        (exp_name (caname PLACEHOLDER_39)) $
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_9))) 1
+      (exp_parens
+        (exp_name (caname PLACEHOLDER_38)) $
+        (exp_name Just)
+        (exp_name (caname PLACEHOLDER_14))) 0
+      (exp_name True)))
+  (signature
+    (visibility public export) PLACEHOLDER_95
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_95))
+    (rhs
+      (exp_list
+        (exp_name (caname PLACEHOLDER_81)) ,
+        (exp_name (caname PLACEHOLDER_82)) ,
+        (exp_name (caname PLACEHOLDER_83)) ,
+        (exp_name (caname PLACEHOLDER_84)) ,
+        (exp_name (caname PLACEHOLDER_86)) ,
+        (exp_name (caname PLACEHOLDER_87)) ,
+        (exp_name (caname PLACEHOLDER_92)) ,
+        (exp_name (caname PLACEHOLDER_93)))))
+  (signature
+    (visibility public export) PLACEHOLDER_96
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_58)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_96))
+    (rhs
+      (exp_list
+        (exp_name (caname PLACEHOLDER_85)) ,
+        (exp_name (caname PLACEHOLDER_90)) ,
+        (exp_name (caname PLACEHOLDER_91)) ,
+        (exp_name (caname PLACEHOLDER_94)))))
+  (signature
+    (visibility public export) PLACEHOLDER_97
+    (exp_name (caname PLACEHOLDER_59)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_97))
+    (rhs
+      (exp_list
+        (exp_name (caname PLACEHOLDER_89)) ,
+        (exp_name PLACEHOLDER_73) ,
+        (exp_name (caname PLACEHOLDER_88)) ,
+        (exp_name PLACEHOLDER_73) ,
+        (exp_name PLACEHOLDER_73))))
+  (module (caname PLACEHOLDER_98))
+  (implementation
+    (implementation_head
+      (visibility export) Eq
+      (exp_name (caname PLACEHOLDER_13)))
+    (implementation_body
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_14)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_14)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_15)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_15)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_16)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_16)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_17)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_17)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_18)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_18)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs _ == _)
+        (rhs
+          (exp_name False)))))
+  (implementation
+    (implementation_head
+      (visibility export) Eq
+      (exp_name (caname PLACEHOLDER_7)))
+    (implementation_body
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_8)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_8)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_9)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_9)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_10)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_10)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_11)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_11)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_12)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_12)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs _ == _)
+        (rhs
+          (exp_name False)))))
+  (implementation
+    (implementation_head
+      (visibility export) Eq
+      (exp_name (caname PLACEHOLDER_19)))
+    (implementation_body
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_20)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_20)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_21)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_21)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_22)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_22)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_23)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_23)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_24)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_24)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs _ == _)
+        (rhs
+          (exp_name False)))))
+  (implementation
+    (implementation_head
+      (visibility export) Eq
+      (exp_name (caname PLACEHOLDER_25)))
+    (implementation_body
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_26)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_26)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_27)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_27)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_29)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_29)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_28)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_28)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_30)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_30)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs _ == _)
+        (rhs
+          (exp_name False)))))
+  (implementation
+    (implementation_head
+      (visibility export) Eq
+      (exp_name (caname PLACEHOLDER_31)))
+    (implementation_body
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_36)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_36)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_32)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_32)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_34)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_34)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_33)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_33)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_35)
+            (patterns ==
+              (pat_constructor (caname PLACEHOLDER_35)))))
+        (rhs
+          (exp_name True)))
+      (function
+        (lhs _ == _)
+        (rhs
+          (exp_name False)))))
+  (implementation
+    (implementation_head
+      (visibility public export) Eq
+      (exp_name (caname PLACEHOLDER_37)))
+    (implementation_body
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_38)
+            (patterns
+              (pat_name PLACEHOLDER_50) ==
+              (pat_constructor (caname PLACEHOLDER_38))
+              (pat_name PLACEHOLDER_76))))
+        (rhs
+          (exp_name PLACEHOLDER_50) ==
+          (exp_name PLACEHOLDER_76)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_41)
+            (patterns
+              (pat_name PLACEHOLDER_53) ==
+              (pat_constructor (caname PLACEHOLDER_41))
+              (pat_name PLACEHOLDER_78))))
+        (rhs
+          (exp_name PLACEHOLDER_53) ==
+          (exp_name PLACEHOLDER_78)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_39)
+            (patterns
+              (pat_name PLACEHOLDER_51) ==
+              (pat_constructor (caname PLACEHOLDER_39))
+              (pat_name PLACEHOLDER_77))))
+        (rhs
+          (exp_name PLACEHOLDER_51) ==
+          (exp_name PLACEHOLDER_77)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_42)
+            (patterns
+              (pat_name PLACEHOLDER_54) ==
+              (pat_constructor (caname PLACEHOLDER_42))
+              (pat_name PLACEHOLDER_79))))
+        (rhs
+          (exp_name PLACEHOLDER_54) ==
+          (exp_name PLACEHOLDER_79)))
+      (function
+        (lhs
+          (funvar (caname PLACEHOLDER_40)
+            (patterns
+              (pat_name PLACEHOLDER_52) ==
+              (pat_constructor (caname PLACEHOLDER_40))
+              (pat_name PLACEHOLDER_69))))
+        (rhs
+          (exp_name PLACEHOLDER_52) ==
+          (exp_name PLACEHOLDER_69)))
+      (function
+        (lhs _ == _)
+        (rhs
+          (exp_name False)))))
+  (implementation
+    (implementation_head
+      (visibility export) Eq
+      (exp_name (caname PLACEHOLDER_55)))
+    (implementation_body
+      (function
+        (lhs
+          (pat_parens
+            (pat_name PLACEHOLDER_54) ** _) ==
+          (pat_parens
+            (pat_name PLACEHOLDER_79) ** _))
+        (rhs
+          (exp_name PLACEHOLDER_54) ==
+          (exp_name PLACEHOLDER_79)))))
+  (module (caname PLACEHOLDER_99))
+  (signature PLACEHOLDER_100
+    (exp_name (caname PLACEHOLDER_37))
+    (arrow_separator ->)
+    (type_parens
+      (type_var PLACEHOLDER_101
+        (exp_name Fin)
+        (exp_name (caname PLACEHOLDER_47))))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (type_parens
+      (type_var PLACEHOLDER_97
+        (exp_name (caname PLACEHOLDER_2))
+        (exp_parens
+          (exp_name Vect)
+          (type_variable PLACEHOLDER_102)
+          (exp_name (caname PLACEHOLDER_55)))))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_2)) $
+    (exp_name Vect)
+    (exp_parens
+      (exp_name S)
+      (type_variable PLACEHOLDER_102))
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_100
+        (patterns
+          (pat_name PLACEHOLDER_52)
+          (pat_name PLACEHOLDER_103)
+          (pat_name PLACEHOLDER_54) @
+          (pat_parens
+            (pat_name PLACEHOLDER_79) ** _)
+          (pat_name PLACEHOLDER_104))))
+    (rhs
+      (exp_case
+        (exp_tuple
+          (exp_name PLACEHOLDER_80)
+          (exp_parens
+            (exp_name index)
+            (exp_name PLACEHOLDER_103)
+            (exp_name PLACEHOLDER_79)) ,
+          (exp_name PLACEHOLDER_104))
+        (alts
+          (alt
+            (pat_parens
+              (pat_constructor False) ,
+              (pat_constructor (caname PLACEHOLDER_6))
+              (pat_name PLACEHOLDER_105))
+            (exp_name (caname PLACEHOLDER_4)) $
+            (exp_name PLACEHOLDER_74)
+            (exp_name PLACEHOLDER_52)
+            (exp_name PLACEHOLDER_54) ::
+            (exp_name PLACEHOLDER_105))
+          (alt
+            (pat_parens
+              (pat_constructor True) ,
+              (pat_constructor (caname PLACEHOLDER_6))
+              (pat_name PLACEHOLDER_105))
+            (exp_name (caname PLACEHOLDER_6)) $
+            (exp_name PLACEHOLDER_54) ::
+            (exp_name PLACEHOLDER_105))
+          (alt
+            (pat_parens
+              (pat_constructor True) ,
+              (pat_constructor (caname PLACEHOLDER_4))
+              (pat_name PLACEHOLDER_105))
+            (exp_name (caname PLACEHOLDER_4)) $
+            (exp_name PLACEHOLDER_54) ::
+            (exp_name PLACEHOLDER_105))
+          (alt
+            (pat_parens
+              (pat_constructor False) ,
+              (pat_constructor (caname PLACEHOLDER_4))
+              (pat_name PLACEHOLDER_105))
+            (exp_name (caname PLACEHOLDER_5)))
+          (alt
+            (pat_parens _ ,
+              (pat_constructor (caname PLACEHOLDER_5)))
+            (exp_name (caname PLACEHOLDER_5)))))))
+  (signature PLACEHOLDER_106
+    (exp_name (caname PLACEHOLDER_37))
+    (arrow_separator ->)
+    (type_parens
+      (type_var PLACEHOLDER_101
+        (exp_name Fin)
+        (exp_name (caname PLACEHOLDER_47))))
+    (arrow_separator ->)
+    (type_parens
+      (type_var PLACEHOLDER_97
+        (exp_name Vect)
+        (type_variable PLACEHOLDER_107)
+        (exp_name (caname PLACEHOLDER_55))))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_2)) $
+    (exp_name Vect)
+    (type_variable PLACEHOLDER_107)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_106
+        (patterns
+          (pat_name PLACEHOLDER_52)
+          (pat_name PLACEHOLDER_103)
+          (pat_constructor Nil))))
+    (rhs
+      (exp_name (caname PLACEHOLDER_6))
+      (exp_list)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_106
+        (patterns
+          (pat_name PLACEHOLDER_52)
+          (pat_name PLACEHOLDER_103)
+          (pat_parens
+            (pat_name PLACEHOLDER_54) ::
+            (pat_name PLACEHOLDER_108)))))
+    (rhs
+      (exp_name PLACEHOLDER_100)
+      (exp_name PLACEHOLDER_52)
+      (exp_name PLACEHOLDER_103)
+      (exp_name PLACEHOLDER_54) $
+      (exp_name PLACEHOLDER_106)
+      (exp_name PLACEHOLDER_52)
+      (exp_name PLACEHOLDER_103)
+      (exp_name PLACEHOLDER_108)))
+  (signature PLACEHOLDER_109
+    (exp_tuple
+      (exp_name (caname PLACEHOLDER_37)) ,
+      (exp_name Fin)
+      (exp_name (caname PLACEHOLDER_47)))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_59))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_59))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_59)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_109
+        (patterns
+          (pat_parens
+            (pat_name PLACEHOLDER_52) ,
+            (pat_name PLACEHOLDER_110))
+          (pat_name PLACEHOLDER_51)
+          (pat_name PLACEHOLDER_62))))
+    (rhs
+      (exp_case
+        (exp_tuple
+          (exp_name PLACEHOLDER_106)
+          (exp_name PLACEHOLDER_52)
+          (exp_name PLACEHOLDER_110)
+          (exp_parens
+            (exp_name fromMaybe)
+            (exp_name PLACEHOLDER_51)
+            (exp_name PLACEHOLDER_62)) ,
+          (exp_name PLACEHOLDER_62))
+        (alts
+          (alt
+            (pat_parens
+              (pat_constructor (caname PLACEHOLDER_4))
+              (pat_name PLACEHOLDER_77) , _)
+            (exp_name Just)
+            (exp_name PLACEHOLDER_77))
+          (alt
+            (pat_parens _ ,
+              (pat_constructor Just)
+              (pat_name PLACEHOLDER_77))
+            (exp_name Just)
+            (exp_name PLACEHOLDER_77))
+          (alt
+            (pat_parens _ , _)
+            (exp_name Nothing))))))
+  (signature PLACEHOLDER_111
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_58))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_59))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_59)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_111
+        (patterns
+          (pat_constructor Nil) _)))
+    (rhs
+      (exp_name Nothing)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_111
+        (patterns
+          (pat_parens
+            (pat_parens
+              (pat_name PLACEHOLDER_112) , _) ::
+            (pat_name PLACEHOLDER_113))
+          (pat_name PLACEHOLDER_51))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_52) ,
+              (pat_name PLACEHOLDER_69)))
+          (rhs :=
+            (exp_name PLACEHOLDER_112)))
+        (in
+          (exp_name PLACEHOLDER_109)
+          (exp_name PLACEHOLDER_52)
+          (exp_name PLACEHOLDER_51) $
+          (exp_name PLACEHOLDER_109)
+          (exp_name PLACEHOLDER_69)
+          (exp_name PLACEHOLDER_51) $
+          (exp_name PLACEHOLDER_111)
+          (exp_name PLACEHOLDER_113)
+          (exp_name PLACEHOLDER_51)))))
+  (signature PLACEHOLDER_114
+    (exp_name (caname PLACEHOLDER_57))
+    (arrow_separator ->)
+    (type_parens
+      (type_var PLACEHOLDER_97
+        (exp_name Vect)
+        (exp_parens
+          (exp_name S)
+          (type_variable PLACEHOLDER_51))
+        (exp_name (caname PLACEHOLDER_55))))
+    (arrow_separator ->)
+    (exp_name Maybe) $
+    (exp_name Vect)
+    (exp_parens
+      (exp_name S)
+      (type_variable PLACEHOLDER_51))
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_114
+        (patterns _
+          (pat_parens _ ::
+            (pat_constructor Nil)))))
+    (rhs
+      (exp_name Nothing)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_114
+        (patterns
+          (pat_parens
+            (pat_name PLACEHOLDER_115) ,
+            (pat_name PLACEHOLDER_116))
+          (pat_name PLACEHOLDER_51) @
+          (pat_parens
+            (pat_name PLACEHOLDER_117) ::
+            (pat_name PLACEHOLDER_118) ::
+            (pat_name PLACEHOLDER_108)))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_119) ,
+              (pat_name PLACEHOLDER_120)))
+          (rhs :=
+            (exp_name PLACEHOLDER_115))
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_121) ,
+              (pat_name PLACEHOLDER_122)))
+          (rhs :=
+            (exp_name PLACEHOLDER_116))
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_123) ** _))
+          (rhs :=
+            (exp_name PLACEHOLDER_117))
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_124) ** _))
+          (rhs :=
+            (exp_name PLACEHOLDER_118))
+          (lhs
+            (pat_name PLACEHOLDER_125))
+          (rhs :=
+            (exp_name index)
+            (exp_name PLACEHOLDER_120)
+            (exp_name PLACEHOLDER_123))
+          (lhs
+            (pat_name PLACEHOLDER_126))
+          (rhs :=
+            (exp_name index)
+            (exp_name PLACEHOLDER_122)
+            (exp_name PLACEHOLDER_124))
+          (lhs
+            (pat_name PLACEHOLDER_127))
+          (rhs :=
+            (exp_name PLACEHOLDER_125) ==
+            (exp_name PLACEHOLDER_119) &&
+            (exp_name PLACEHOLDER_126) ==
+            (exp_name PLACEHOLDER_121))
+          (lhs
+            (pat_name PLACEHOLDER_128))
+          (rhs :=
+            (exp_name PLACEHOLDER_80)
+            (exp_name PLACEHOLDER_125) ==
+            (exp_name False) &&
+            (exp_name PLACEHOLDER_121) ==
+            (exp_name PLACEHOLDER_126))
+          (lhs
+            (pat_name PLACEHOLDER_129))
+          (rhs :=
+            (exp_name PLACEHOLDER_125) ==
+            (exp_name PLACEHOLDER_119) &&
+            (exp_name PLACEHOLDER_80)
+            (exp_name PLACEHOLDER_126) ==
+            (exp_name False)))
+        (in
+          (exp_parens
+            (exp_name toMaybe)
+            (exp_name PLACEHOLDER_127)
+            (exp_name PLACEHOLDER_51)) <|>
+          (exp_parens
+            (exp_name toMaybe)
+            (exp_name PLACEHOLDER_128) $
+            (exp_name PLACEHOLDER_74)
+            (exp_name PLACEHOLDER_119)
+            (exp_name PLACEHOLDER_117) ::
+            (exp_name PLACEHOLDER_118) ::
+            (exp_name PLACEHOLDER_108)) <|>
+          (exp_parens
+            (exp_name toMaybe)
+            (exp_name PLACEHOLDER_129) $
+            (exp_name PLACEHOLDER_117) ::
+            (exp_name PLACEHOLDER_74)
+            (exp_name PLACEHOLDER_121)
+            (exp_name PLACEHOLDER_118) ::
+            (exp_name PLACEHOLDER_108)) <|>
+          (exp_idiom
+            (exp_name Just)
+            (exp_name PLACEHOLDER_117) ::
+            (exp_name PLACEHOLDER_114)
+            (exp_tuple
+              (exp_name PLACEHOLDER_115) ,
+              (exp_name PLACEHOLDER_116))
+            (exp_parens
+              (exp_name PLACEHOLDER_118) ::
+              (exp_name PLACEHOLDER_108)))))))
+  (signature PLACEHOLDER_130
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_58))
+    (arrow_separator ->)
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_58))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_59))
+    (arrow_separator ->)
+    (exp_name List)
+    (exp_tuple
+      (exp_name List)
+      (exp_name (caname PLACEHOLDER_58)) ,
+      (exp_name (caname PLACEHOLDER_59))))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_130
+        (patterns
+          (pat_constructor Nil) _ _)))
+    (rhs
+      (exp_list)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_130
+        (patterns
+          (pat_parens
+            (pat_name PLACEHOLDER_50) @
+            (pat_parens
+              (pat_name PLACEHOLDER_112) ,
+              (pat_name PLACEHOLDER_131)) ::
+            (pat_name PLACEHOLDER_113))
+          (pat_name PLACEHOLDER_132)
+          (pat_name PLACEHOLDER_51))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_name PLACEHOLDER_133))
+          (rhs :=
+            (exp_name PLACEHOLDER_132) ++
+            (exp_name PLACEHOLDER_113)))
+        (in
+          (exp_name PLACEHOLDER_134)
+          (exp_name PLACEHOLDER_133)
+          (exp_name PLACEHOLDER_112) ++
+          (exp_name PLACEHOLDER_135)
+          (exp_name PLACEHOLDER_133)
+          (exp_name PLACEHOLDER_131))))
+    (declarations
+      (signature PLACEHOLDER_134
+        (exp_name List)
+        (exp_name (caname PLACEHOLDER_58))
+        (arrow_separator ->)
+        (exp_name (caname PLACEHOLDER_57))
+        (arrow_separator ->)
+        (exp_name List)
+        (exp_tuple
+          (exp_name List)
+          (exp_name (caname PLACEHOLDER_58)) ,
+          (exp_name (caname PLACEHOLDER_59))))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_134
+            (patterns
+              (pat_name PLACEHOLDER_133)
+              (pat_name PLACEHOLDER_71))))
+        (rhs
+          (exp_case
+            (exp_name PLACEHOLDER_114)
+            (exp_name PLACEHOLDER_71)
+            (exp_name PLACEHOLDER_51)
+            (alts
+              (alt
+                (pat_constructor Nothing)
+                (exp_name PLACEHOLDER_130)
+                (exp_name PLACEHOLDER_113)
+                (exp_parens
+                  (exp_name PLACEHOLDER_50) ::
+                  (exp_name PLACEHOLDER_132))
+                (exp_name PLACEHOLDER_51))
+              (alt
+                (pat_constructor Just)
+                (pat_name PLACEHOLDER_136)
+                (exp_tuple
+                  (exp_name PLACEHOLDER_133) ,
+                  (exp_name PLACEHOLDER_136)) ::
+                (exp_name PLACEHOLDER_130)
+                (exp_name PLACEHOLDER_113)
+                (exp_name PLACEHOLDER_132)
+                (exp_name PLACEHOLDER_136))))))
+      (signature PLACEHOLDER_135
+        (exp_name List)
+        (exp_name (caname PLACEHOLDER_58))
+        (arrow_separator ->)
+        (exp_name Maybe)
+        (exp_name (caname PLACEHOLDER_57))
+        (arrow_separator ->)
+        (exp_name List)
+        (exp_tuple
+          (exp_name List)
+          (exp_name (caname PLACEHOLDER_58)) ,
+          (exp_name (caname PLACEHOLDER_59))))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_135
+            (patterns
+              (pat_name PLACEHOLDER_133)
+              (pat_name PLACEHOLDER_137))))
+        (rhs
+          (exp_name fromMaybe)
+          (exp_list) $
+          (exp_do
+            (statement
+              (bind_pattern
+                (pat_name PLACEHOLDER_138)
+                (bind_exp
+                  (exp_name PLACEHOLDER_137))))
+            (statement
+              (bind_pattern
+                (pat_name PLACEHOLDER_139)
+                (bind_exp
+                  (exp_name PLACEHOLDER_114)
+                  (exp_name PLACEHOLDER_138)
+                  (exp_name PLACEHOLDER_51))))
+            (statement
+              (exp_name Just) $
+              (exp_tuple
+                (exp_name PLACEHOLDER_133) ,
+                (exp_name PLACEHOLDER_139)) ::
+              (exp_name PLACEHOLDER_130)
+              (exp_name PLACEHOLDER_113)
+              (exp_name PLACEHOLDER_132)
+              (exp_name PLACEHOLDER_139)))))))
+  (signature PLACEHOLDER_140
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_58))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_59))
+    (arrow_separator ->)
+    (exp_name List)
+    (exp_tuple
+      (exp_name List)
+      (exp_name (caname PLACEHOLDER_58)) ,
+      (exp_name (caname PLACEHOLDER_59))))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_140
+        (patterns
+          (pat_name PLACEHOLDER_50)
+          (pat_name PLACEHOLDER_51))))
+    (rhs
+      (exp_name PLACEHOLDER_130)
+      (exp_name PLACEHOLDER_50)
+      (exp_list)
+      (exp_name PLACEHOLDER_51)))
+  (signature PLACEHOLDER_141
+    (exp_name (caname PLACEHOLDER_37))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_37))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_55)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_141
+        (patterns
+          (pat_name PLACEHOLDER_52)
+          (pat_name PLACEHOLDER_69)
+          (pat_name PLACEHOLDER_54))))
+    (rhs
+      (exp_case
+        (exp_tuple
+          (exp_name PLACEHOLDER_80)
+          (exp_name PLACEHOLDER_52) ,
+          (exp_name PLACEHOLDER_80)
+          (exp_name PLACEHOLDER_69))
+        (alts
+          (alt
+            (pat_parens
+              (pat_constructor True) ,
+              (pat_constructor False))
+            (exp_name Just) $
+            (exp_name PLACEHOLDER_74)
+            (exp_name PLACEHOLDER_52)
+            (exp_name PLACEHOLDER_54))
+          (alt
+            (pat_parens
+              (pat_constructor False) ,
+              (pat_constructor True))
+            (exp_name Just)
+            (exp_name PLACEHOLDER_54))
+          (alt
+            (pat_parens
+              (pat_constructor False) ,
+              (pat_constructor False))
+            (exp_name Just)
+            (exp_name PLACEHOLDER_54))
+          (alt
+            (pat_parens
+              (pat_constructor True) ,
+              (pat_constructor True))
+            (exp_name Nothing))))))
+  (signature PLACEHOLDER_142
+    (exp_name Applicative)
+    (type_variable PLACEHOLDER_143)
+    (arrow_separator =>)
+    (exp_name Monad)
+    (type_variable PLACEHOLDER_143)
+    (arrow_separator =>)
+    (exp_parens
+      (type_variable PLACEHOLDER_3)
+      (arrow_separator ->)
+      (type_variable PLACEHOLDER_3)
+      (arrow_separator ->)
+      (type_variable PLACEHOLDER_53)
+      (arrow_separator ->)
+      (exp_name PLACEHOLDER_143)
+      (type_variable PLACEHOLDER_53))
+    (arrow_separator ->)
+    (exp_name Vect)
+    (type_variable PLACEHOLDER_51)
+    (type_variable PLACEHOLDER_3)
+    (arrow_separator ->)
+    (exp_name Vect)
+    (type_variable PLACEHOLDER_51)
+    (type_variable PLACEHOLDER_3)
+    (arrow_separator ->)
+    (type_variable PLACEHOLDER_53)
+    (arrow_separator ->)
+    (exp_name PLACEHOLDER_143)
+    (type_variable PLACEHOLDER_53))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_142
+        (patterns
+          (pat_name PLACEHOLDER_144)
+          (pat_constructor Nil)
+          (pat_constructor Nil)
+          (pat_name PLACEHOLDER_145))))
+    (rhs
+      (exp_name pure)
+      (exp_name PLACEHOLDER_145)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_142
+        (patterns
+          (pat_name PLACEHOLDER_144)
+          (pat_parens
+            (pat_name PLACEHOLDER_146) ::
+            (pat_name PLACEHOLDER_147))
+          (pat_parens
+            (pat_name PLACEHOLDER_148) ::
+            (pat_name PLACEHOLDER_149))
+          (pat_name PLACEHOLDER_145))))
+    (rhs
+      (exp_name PLACEHOLDER_144)
+      (exp_name PLACEHOLDER_146)
+      (exp_name PLACEHOLDER_148)
+      (exp_name PLACEHOLDER_145) >>=
+      (exp_name PLACEHOLDER_142)
+      (exp_name PLACEHOLDER_144)
+      (exp_name PLACEHOLDER_147)
+      (exp_name PLACEHOLDER_149)))
+  (signature PLACEHOLDER_150
+    (type_parens
+      (type_var PLACEHOLDER_51
+        (exp_name Nat)))
+    (arrow_separator ->)
+    (type_parens
+      (type_var PLACEHOLDER_151
+        (exp_name Nat)))
+    (arrow_separator ->)
+    (type_variable PLACEHOLDER_51) +
+    (exp_parens
+      (exp_name S)
+      (type_variable PLACEHOLDER_151)) ===
+    (type_variable PLACEHOLDER_152)
+    (arrow_separator ->)
+    (exp_parens
+      (exp_name S)
+      (type_variable PLACEHOLDER_51)) +
+    (type_variable PLACEHOLDER_151) ===
+    (type_variable PLACEHOLDER_152))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_150
+        (patterns
+          (pat_name PLACEHOLDER_51)
+          (pat_name PLACEHOLDER_151)
+          (pat_name PLACEHOLDER_52))))
+    (rhs
+      (exp_rewrite_in
+        (rewrite_exp
+          (exp_name plusCommutative)
+          (exp_parens
+            (exp_name S)
+            (exp_name PLACEHOLDER_51))
+          (exp_name PLACEHOLDER_151))
+        (in
+          (exp_rewrite_in
+            (rewrite_exp
+              (exp_name sym)
+              (exp_parens
+                (exp_name plusSuccRightSucc)
+                (exp_name PLACEHOLDER_151)
+                (exp_name PLACEHOLDER_51)))
+            (in
+              (exp_rewrite_in
+                (rewrite_exp
+                  (exp_name cong)
+                  (exp_name S)
+                  (exp_parens
+                    (exp_name plusCommutative)
+                    (exp_name PLACEHOLDER_151)
+                    (exp_name PLACEHOLDER_51)))
+                (in
+                  (exp_rewrite_in
+                    (rewrite_exp
+                      (exp_name plusSuccRightSucc)
+                      (exp_name PLACEHOLDER_51)
+                      (exp_name PLACEHOLDER_151))
+                    (in
+                      (exp_name PLACEHOLDER_52)))))))))))
+  (signature PLACEHOLDER_153
+    (type_braces
+      (type_variable PLACEHOLDER_154)
+      (exp_name Nat))
+    (arrow_separator ->)
+    (type_braces
+      (type_variable PLACEHOLDER_155)
+      (exp_name Nat))
+    (arrow_separator ->)
+    (type_braces auto
+      (type_variable PLACEHOLDER_156)
+      (type_variable PLACEHOLDER_155) +
+      (type_variable PLACEHOLDER_154) ===
+      (exp_name (caname PLACEHOLDER_47)))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name Vect)
+    (type_variable PLACEHOLDER_154)
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name Vect)
+    (type_variable PLACEHOLDER_155)
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_59)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_153
+        (patterns
+          (pat_braces PLACEHOLDER_154
+            (pat_constructor Z)) _
+          (pat_constructor Nil) _)))
+    (rhs
+      (exp_list)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_153
+        (patterns
+          (pat_braces PLACEHOLDER_154
+            (pat_constructor S)
+            (pat_name PLACEHOLDER_157))
+          (pat_name PLACEHOLDER_117)
+          (pat_parens
+            (pat_name PLACEHOLDER_118) ::
+            (pat_name PLACEHOLDER_108))
+          (pat_name PLACEHOLDER_104))))
+    (rhs
+      (exp_let_in
+        (declarations
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_123) ** _))
+          (rhs :=
+            (exp_name PLACEHOLDER_117))
+          (lhs
+            (pat_parens
+              (pat_name PLACEHOLDER_124) ** _))
+          (rhs :=
+            (exp_name PLACEHOLDER_118))
+          (lhs
+            (pat_name PLACEHOLDER_158))
+          (rhs :=
+            (exp_name PLACEHOLDER_150)
+            (exp_name PLACEHOLDER_155)
+            (exp_name PLACEHOLDER_157)
+            (exp_name PLACEHOLDER_156))
+          (lhs
+            (pat_name PLACEHOLDER_159))
+          (rhs :=
+            (exp_name PLACEHOLDER_153)
+            (exp_braces
+              (explicit_arg PLACEHOLDER_156
+                (equal)
+                (exp_name PLACEHOLDER_158)))
+            (exp_name PLACEHOLDER_117)
+            (exp_name PLACEHOLDER_108)
+            (exp_parens
+              (exp_name PLACEHOLDER_118) ::
+              (exp_name PLACEHOLDER_104)))
+          (lhs
+            (pat_name PLACEHOLDER_143))
+          (rhs :=
+            (exp_name PLACEHOLDER_74)
+            (exp_braces
+              (explicit_arg PLACEHOLDER_52
+                (equal)
+                (exp_lambda
+                  (lambda_args
+                    (pat_name PLACEHOLDER_160))
+                  (lambda_exp
+                    (exp_name Vect)
+                    (exp_name PLACEHOLDER_160)
+                    (exp_name (caname PLACEHOLDER_55))))))
+            (exp_name PLACEHOLDER_156)))
+        (in
+          (exp_case
+            (exp_name PLACEHOLDER_142)
+            (exp_name PLACEHOLDER_141)
+            (exp_name PLACEHOLDER_123)
+            (exp_name PLACEHOLDER_124)
+            (exp_name PLACEHOLDER_118)
+            (alts
+              (alt
+                (pat_constructor Nothing)
+                (exp_name PLACEHOLDER_159))
+              (alt
+                (pat_constructor Just)
+                (pat_name PLACEHOLDER_161)
+                (exp_parens
+                  (exp_name PLACEHOLDER_143) $
+                  (exp_name reverse)
+                  (exp_name PLACEHOLDER_104) ++
+                  (exp_parens
+                    (exp_name PLACEHOLDER_161) ::
+                    (exp_name PLACEHOLDER_108))) ::
+                (exp_name PLACEHOLDER_159))))))))
+  (signature PLACEHOLDER_162
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_59))
+    (arrow_separator ->)
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_59)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_162
+        (patterns
+          (pat_name PLACEHOLDER_54)
+          (pat_name PLACEHOLDER_51))))
+    (rhs
+      (exp_name PLACEHOLDER_153)
+      (exp_name PLACEHOLDER_54)
+      (exp_name PLACEHOLDER_51)
+      (exp_list)))
+  (signature PLACEHOLDER_163
+    (exp_parens
+      (type_variable PLACEHOLDER_3)
+      (arrow_separator ->)
+      (exp_name Maybe)
+      (type_variable PLACEHOLDER_53))
+    (arrow_separator ->)
+    (exp_name List)
+    (type_variable PLACEHOLDER_3)
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (type_variable PLACEHOLDER_53))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_163
+        (patterns
+          (pat_name PLACEHOLDER_143)
+          (pat_constructor Nil))))
+    (rhs
+      (exp_name Nothing)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_163
+        (patterns
+          (pat_name PLACEHOLDER_143)
+          (pat_parens
+            (pat_name PLACEHOLDER_146) ::
+            (pat_name PLACEHOLDER_147)))))
+    (rhs
+      (exp_case
+        (exp_name PLACEHOLDER_143)
+        (exp_name PLACEHOLDER_146)
+        (alts
+          (alt
+            (pat_constructor Nothing)
+            (exp_name PLACEHOLDER_163)
+            (exp_name PLACEHOLDER_143)
+            (exp_name PLACEHOLDER_147))
+          (alt
+            (pat_constructor Just)
+            (pat_name PLACEHOLDER_148)
+            (exp_name Just)
+            (exp_name PLACEHOLDER_148))))))
+  (signature PLACEHOLDER_164
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name List)
+    (exp_name (caname PLACEHOLDER_58))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_59))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_59)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_164
+        (patterns
+          (pat_constructor Nil)
+          (pat_constructor Nil)
+          (pat_name PLACEHOLDER_51))))
+    (rhs
+      (exp_name pure)
+      (exp_name PLACEHOLDER_51)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_164
+        (patterns
+          (pat_name PLACEHOLDER_108)
+          (pat_name PLACEHOLDER_113)
+          (pat_name PLACEHOLDER_51))))
+    (rhs
+      (exp_parens
+        (exp_name PLACEHOLDER_165) $
+        (exp_name PLACEHOLDER_140)
+        (exp_name PLACEHOLDER_113)
+        (exp_name PLACEHOLDER_51)) <|>
+      (exp_parens
+        (exp_name PLACEHOLDER_166)
+        (exp_name PLACEHOLDER_108)) <|>
+      (exp_parens
+        (exp_name PLACEHOLDER_111)
+        (exp_name PLACEHOLDER_113)
+        (exp_name PLACEHOLDER_51) >>=
+        (exp_name PLACEHOLDER_164)
+        (exp_name PLACEHOLDER_108)
+        (exp_name PLACEHOLDER_113)))
+    (declarations
+      (signature PLACEHOLDER_165
+        (exp_name List)
+        (exp_tuple
+          (exp_name List)
+          (exp_name (caname PLACEHOLDER_58)) ,
+          (exp_name (caname PLACEHOLDER_59)))
+        (arrow_separator ->)
+        (exp_name Maybe)
+        (exp_name (caname PLACEHOLDER_59)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_165
+            (patterns
+              (pat_constructor Nil))))
+        (rhs
+          (exp_name Nothing)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_165
+            (patterns
+              (pat_name PLACEHOLDER_167))))
+        (rhs
+          (exp_name PLACEHOLDER_163)
+          (exp_lambda
+            (lambda_args
+              (pat_parens
+                (pat_name PLACEHOLDER_76) ,
+                (pat_name PLACEHOLDER_77)))
+            (lambda_exp
+              (exp_name PLACEHOLDER_164)
+              (exp_name PLACEHOLDER_108)
+              (exp_name PLACEHOLDER_76)
+              (exp_name PLACEHOLDER_77)))
+          (exp_name PLACEHOLDER_167)))
+      (signature PLACEHOLDER_166
+        (exp_name List)
+        (exp_name (caname PLACEHOLDER_55))
+        (arrow_separator ->)
+        (exp_name Maybe)
+        (exp_name (caname PLACEHOLDER_59)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_166
+            (patterns
+              (pat_constructor Nil))))
+        (rhs
+          (exp_name Nothing)))
+      (function
+        (lhs
+          (funvar PLACEHOLDER_166
+            (patterns
+              (pat_parens
+                (pat_name PLACEHOLDER_79) ::
+                (pat_name PLACEHOLDER_168)))))
+        (rhs
+          (exp_case
+            (exp_name PLACEHOLDER_162)
+            (exp_name PLACEHOLDER_79)
+            (exp_name PLACEHOLDER_51)
+            (alts
+              (alt
+                (pat_constructor Nil)
+                (exp_name Nothing))
+              (alt
+                (pat_name PLACEHOLDER_169)
+                (exp_name PLACEHOLDER_163)
+                (exp_parens
+                  (exp_name PLACEHOLDER_164)
+                  (exp_name PLACEHOLDER_168)
+                  (exp_name PLACEHOLDER_113))
+                (exp_name PLACEHOLDER_169))))))))
+  (signature PLACEHOLDER_170
+    (exp_name Fin)
+    (exp_name (caname PLACEHOLDER_47))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name Bool))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_170
+        (patterns
+          (pat_name PLACEHOLDER_68)
+          (pat_parens
+            (pat_name PLACEHOLDER_54) ** _))))
+    (rhs
+      (exp_name not) $
+      (exp_name PLACEHOLDER_80) $
+      (exp_name index)
+      (exp_name PLACEHOLDER_68)
+      (exp_name PLACEHOLDER_54)))
+  (signature PLACEHOLDER_171
+    (exp_name (caname PLACEHOLDER_55))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_7)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_171
+        (patterns
+          (pat_parens _ ::
+            (pat_constructor (caname PLACEHOLDER_39))
+            (pat_name PLACEHOLDER_51) :: _ ** _))))
+    (rhs
+      (exp_name PLACEHOLDER_51)))
+  (signature PLACEHOLDER_172
+    (exp_name Fin)
+    (exp_name (caname PLACEHOLDER_47))
+    (arrow_separator ->)
+    (exp_name (caname PLACEHOLDER_59))
+    (arrow_separator ->)
+    (exp_name Maybe)
+    (exp_name (caname PLACEHOLDER_7)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_172
+        (patterns
+          (pat_name PLACEHOLDER_68)
+          (pat_name PLACEHOLDER_51))))
+    (rhs
+      (exp_do
+        (statement
+          (bind_pattern
+            (pat_name PLACEHOLDER_173)
+            (bind_exp
+              (exp_name find)
+              (exp_parens
+                (exp_name PLACEHOLDER_170)
+                (exp_name PLACEHOLDER_68))
+              (exp_name PLACEHOLDER_51))))
+        (statement
+          (bind_pattern
+            (pat_name PLACEHOLDER_174)
+            (bind_exp
+              (exp_name PLACEHOLDER_171)
+              (exp_name PLACEHOLDER_173))))
+        (statement
+          (exp_name pure)
+          (exp_name PLACEHOLDER_174)))))
+  (signature
+    (visibility export) PLACEHOLDER_175
+    (exp_name (caname PLACEHOLDER_43)))
+  (function
+    (lhs
+      (funvar PLACEHOLDER_175))
+    (rhs
+      (exp_name fromMaybe)
+      (exp_name PLACEHOLDER_175) $
+      (exp_do
+        (statement
+          (bind_pattern
+            (pat_name PLACEHOLDER_176)
+            (bind_exp
+              (exp_name PLACEHOLDER_164)
+              (exp_name PLACEHOLDER_95)
+              (exp_name PLACEHOLDER_96)
+              (exp_name PLACEHOLDER_97))))
+        (statement
+          (bind_pattern
+            (pat_name PLACEHOLDER_177)
+            (bind_exp
+              (exp_name PLACEHOLDER_172) 3
+              (exp_name PLACEHOLDER_176))))
+        (statement
+          (bind_pattern
+            (pat_name PLACEHOLDER_178)
+            (bind_exp
+              (exp_name PLACEHOLDER_172) 2
+              (exp_name PLACEHOLDER_176))))
+        (statement
+          (exp_name pure) $
+          (exp_name (caname PLACEHOLDER_44))
+          (exp_name PLACEHOLDER_177)
+          (exp_name PLACEHOLDER_178))))))
