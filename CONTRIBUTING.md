@@ -133,18 +133,23 @@ The folder holds all the language's files, and splits its stages by the outputs 
 languages/ruby/
   spec.rb                       Ruby::Spec
   representation.rb             Ruby::Representation
+  analysis.rb                   Ruby::Analysis
   snippet.rb                    Ruby::Snippet
   common/generate_ast.rb        Ruby::Common::GenerateAST
   common/normalise.rb           Ruby::Common::Normalise
   representation/normalise.rb   Ruby::Representation::Normalise
   representation/reorder.rb     Ruby::Representation::Reorder
+  analysis/normalise.rb         Ruby::Analysis::Normalise
+  analysis/two_fer.rb           Ruby::Analysis::TwoFer
 ```
 
 - `spec.rb` says what the language is and how its files are read: its `tracks`, `extensions` and `grammar`, which code is a comment (`comments_are`) and which code is a docstring (`docstrings_are`). A grammar that needs `text_nodes` or `text_between_children` declares them here too.
 - `representation.rb` declares the representation's settings: its `version`, `names_are`, `names_are_defined_by`, `imports` and `pattern_contexts`.
+- `analysis.rb` declares the analysis's `version`. Bump it whenever the comments on any solution could change.
 - `snippet.rb` declares the snippet's `version` and what to leave out of it (see step 5).
-- `common/` holds the stages that every output needs. Today only the representation uses them, and the analysis will use them too.
+- `common/` holds the stages that every output needs, which are the representation and the analysis.
 - `representation/` holds the stages that only the representation needs.
+- `analysis/` holds the Normalise stage that only the analysis needs, and one file of rules for each exercise, named after the exercise's slug ([REPRESENTER_DSL.md](./REPRESENTER_DSL.md#analysis) describes the rules). Give each exercise's rules a test file in `test/languages/<track>/`, such as `two_fer_analysis_test.rb`.
 
 A rewrite goes in `common/normalise.rb` only if it hides no spelling that an analysis rule would need. If you aren't sure, put it in `representation/normalise.rb`.
 Every `Reorder` goes in `representation/`, and so does dropping docstrings, as the analysis may read them.

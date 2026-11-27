@@ -5,7 +5,7 @@ module Representer
   #
   #   Generate.("ruby", { "two_fer.rb" => "..." }, outputs: %i[representation analysis])
   #   # => { representation: { representation: "...", mapping: {...}, version: 12 },
-  #   #      analysis: { error: "not_supported", message: "..." } }
+  #   #      analysis: { comments: [{ comment: "ruby.two-fer.string_format", ... }], version: 1 } }
   #
   # Each output has its own version, so a change to one output never makes
   # the website generate the others again.
@@ -17,9 +17,10 @@ module Representer
   # If an output can't be generated, its key holds an error with a reason
   # (error) and a message. The other outputs still come back. A solution that
   # can't be represented gets an error with the reasons listed in README.md,
-  # and the language's version. An output that the track doesn't support yet
-  # gets the error "not_supported", and a bug in the snippet's rules gets
-  # "internal_error".
+  # and the language's version. An analysis whose main file doesn't parse
+  # gets an error with the analysis's version. An output that the track
+  # doesn't support yet gets the error "not_supported", and a bug in the
+  # snippet's or the analysis's rules gets "internal_error".
   class Generate
     include Mandate
 
@@ -79,7 +80,24 @@ module Representer
     memoize
     def trees = {}
 
-    def analysis = error("not_supported", "The #{track_slug} track has no analysis rules yet")
+    # The comments of the exercise's rules, for a track with an analysis.
+    # A bug in a rule must never fail the request, so the analysis gets an
+    # error and the log says what went wrong.
+    def analysis
+      analysis = language.respond_to?(:analysis) && language.analysis
+      return error("not_supported", "The #{track_slug} track has no analysis rules yet") unless analysis
+
+      begin
+        { comments: Engine::Analyse.(analysis, exercise_slug, solution_files, exercise_files), version: analysis.version }
+      rescue CannotRepresent => e
+        error(e.reason, e.message, version: analysis.version)
+      rescue SystemStackError
+        error("too_deep", "The code nests too deeply", version: analysis.version)
+      rescue StandardError => e
+        warn "#{track_slug}/#{exercise_slug} analysis: #{e.class}: #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}"
+        error("internal_error", "One of the analysis's rules raised an error", version: analysis.version)
+      end
+    end
 
     def error(reason, message, **details) = { error: reason, message:, **details }
 

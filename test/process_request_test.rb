@@ -24,7 +24,7 @@ class ProcessRequestTest < Minitest::Test
     body = JSON.parse(request(track_slug: "ruby", outputs: %w[analysis representation],
       solution_files: { "a.rb" => "x = 1" })[:body])
     assert_equal %w[analysis representation], body.keys
-    assert_equal "not_supported", body["analysis"]["error"]
+    assert_equal({ "comments" => [], "version" => Representer::Languages::Ruby::Analysis.version }, body["analysis"])
     refute_nil body["representation"]["representation"]
   end
 

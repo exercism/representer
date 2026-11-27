@@ -13,3 +13,12 @@ module RubyStages
 
   def write(tree) = Representer::Engine::Serialize.(tree, nil)
 end
+
+# Runs Ruby's analysis for an exercise, for the tests of its rules.
+module RubyAnalysis
+  # Each comment as its key, with its params if it has any.
+  def comments(slug, source)
+    analysis = Representer::Generate.("ruby", { "solution.rb" => source }, outputs: %i[analysis], exercise_slug: slug)[:analysis]
+    analysis.fetch(:comments).map { |comment| comment[:params] ? [comment[:comment], comment[:params]] : comment[:comment] }
+  end
+end

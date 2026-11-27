@@ -353,6 +353,53 @@ class Representer::Languages::Ruby::Representation
 end
 ```
 
+## Analysis
+
+The analysis gives a student comments on their solution, in the analyzers' comment format.
+A language declares the analysis's `version` in `analysis.rb`, and bumps it whenever the comments on any solution could change.
+
+The engine runs the common stages on the solution's main file, and then the analysis's own `Normalise` stage, in `analysis/normalise.rb`.
+That stage only has to keep the code's meaning, such as Ruby's, which writes every way of defining a method on a class as `def self.name`.
+Before adding a rewrite to it, check that no rule needs the spelling it removes.
+The analysis keeps the imports and the student's names, and doesn't reorder the code.
+
+Each exercise has a file of rules in `analysis/`, named after its slug, such as `analysis/two_fer.rb` for two-fer:
+
+```ruby
+class Representer::Languages::Ruby::Analysis
+  class Leap < Representer::Engine::AnalysisRules
+    within ["class Year; end", "module Year; end"] do
+      within "def self.leap?; end" do
+        uses(["Date.leap?", "Date.gregorian_leap?"]) { actionable "ruby.leap.std_lib" }
+      end
+    end
+  end
+end
+```
+
+Each rule starts with a condition written as code patterns (see "Code patterns" below), and its block says what to do when the condition holds.
+A list of patterns means any of them.
+The rules run in the order they are written, and the analysis returns every comment they add, in that order.
+Each comment comes once, unless its params differ.
+The block is plain Ruby, so it can hold more rules, which run only when its condition holds.
+A one-line rule uses braces, so Ruby needs brackets around its patterns.
+
+- `uses(patterns)` runs its block if the code has a match. With `more_than: n`, it needs more than n matches, and a match inside another match doesn't count, so an `elsif` counts as part of its `if`.
+- `uses_all(patterns)` runs its block if the code has a match of every pattern.
+- `missing(patterns)` runs its block if the code has no match of any of them.
+- `within(patterns)` runs its block once for each match, and the rules inside it only look inside that match. If nothing matches, the block doesn't run.
+- `first_of` runs only the first rule inside it whose condition holds. A rule with no block stops the `first_of` without a comment.
+- `essential`, `actionable`, `informative` and `celebratory` add a comment with its key and params, such as `actionable "ruby.two-fer.splat_args", name_variable: "{{name}}"`. A param that names a placeholder gives the code it matched.
+- `indented_in_steps_of?(2)` says whether the main file is indented with spaces, in steps of two.
+
+A word in a pattern must match the same code as the same word in a `within` around it, so `within "def self.two_fer({{name}} = {{default}}); end"` lets the rules inside it use the parameter as `{{name}}`.
+A `{{...}}` matches any code, and never has to match another `{{...}}`.
+
+Every condition takes `exactly: true`, for code that must have nothing extra.
+Each list in the code, such as a method's parameters or statements, must then hold only the pattern's items, and each placeholder in a list matches one item.
+A part that the pattern leaves out, such as a method's body, can still be anything.
+So the exact pattern `def self.two_fer({{name}} = "you"); {{...}}; end` matches a method with one optional parameter and one statement.
+
 ## Snippets
 
 The website shows the first lines of each solution on its card.
@@ -446,6 +493,7 @@ Placeholders use braces, because a `$word` is real code in several languages.
 `{{...}}` is a placeholder with no name, for code that nothing refers to.
 Use a named placeholder only for code that a `rewrite`'s `as:` copies, or that has to match the same code twice.
 Within one rule, a name used more than once (including in `within:`) must match the same code each time, so `{{x}} == {{x}}` matches `a == a` and not `a == b`.
+A placeholder in a list that matched one item is the same code as that item.
 
 ```ruby
 'require "{{...}}"'

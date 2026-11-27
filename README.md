@@ -52,6 +52,22 @@ The `snippet` output holds the start of the solution, which the website shows on
 { "snippet": { "snippet": "def two_fer(name = 'you')\n ...", "version": 1 } }
 ```
 
+The `analysis` output holds the comments for the student, in the analyzers' comment format, and the analysis's version:
+
+```json
+{
+  "analysis": {
+    "comments": [
+      { "comment": "ruby.two-fer.string_format", "params": { "name_variable": "name" }, "type": "informative" }
+    ],
+    "version": 1
+  }
+}
+```
+
+Each comment has a key, a type (`essential`, `actionable`, `informative` or `celebratory`), and `params` if its text has any.
+The rules come from the exercise given in `exercise_slug`, and an exercise with no rules gets no comments.
+
 The `representation` output has these fields:
 
 - `representation` is the normalised solution.
@@ -63,7 +79,8 @@ Each output has its own version, so a change to one output never makes the websi
 If the representer can't generate an output, that output holds an error instead, and the other outputs still come back.
 An error has the same shape for every output: `error` gives the reason, `message` says what went wrong, and `version` is the output's version for the track, if it has one.
 If a track doesn't support an output yet, the error is `not_supported`.
-The representer doesn't make analyses yet, so the `analysis` output always gets `not_supported`.
+Only Ruby has an analysis so far, so every other track's `analysis` output gets `not_supported`.
+If the solution's main file doesn't parse, the analysis gets the error `parse_error`, and if one of its rules raises an error, `internal_error`.
 Every track gets a snippet, even when its solution can't be represented. If one of the snippet's rules raises an error, the snippet gets the error `internal_error`.
 
 Some solutions can't be represented.
@@ -100,7 +117,7 @@ For a language with its own class, the representer:
 
 C#, Elixir, F# and Ruby each have a folder: [`csharp/`](./lib/representer/languages/csharp/), [`elixir/`](./lib/representer/languages/elixir/), [`fsharp/`](./lib/representer/languages/fsharp/) and [`ruby/`](./lib/representer/languages/ruby/).
 In each folder, `spec.rb` says what the language is and how its files are read, including its comments and docstrings.
-`representation.rb` and `snippet.rb` declare the settings of each output, such as the representation's version, names and imports.
+`representation.rb`, `analysis.rb` and `snippet.rb` declare the settings of each output, such as the representation's version, names and imports.
 The stages that describe steps 2 and 3 sit in `common/`, for the stages that every output needs, and `representation/`, for the stages that only the representation needs.
 `transition.md` says how the language differs from the tools it replaces.
 A comment above each declaration and method says what it does.
@@ -109,6 +126,10 @@ The other languages describe these steps as rules in their class in [`lib/repres
 
 Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.
 It renames nothing, so it only merges solutions that differ in nothing but comments and formatting.
+
+Ruby also has an analysis, which gives the student comments on their solution.
+It runs the stages in `common/` and the analysis's own `analysis/normalise.rb` on the main file, and then the rules of the exercise, one file per exercise in [`ruby/analysis/`](./lib/representer/languages/ruby/analysis/).
+The analysis keeps the imports and the student's names, and doesn't reorder the code.
 
 Every track also gets a snippet: the first 15 lines of the solution's main file, without its comments or the boilerplate at its top, such as imports.
 Each track's `snippet.rb` in its folder in [`lib/representer/languages/`](./lib/representer/languages/) says what to leave out, and [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#snippets) explains the rules.

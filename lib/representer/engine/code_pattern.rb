@@ -44,6 +44,13 @@ module Representer::Engine
   # `rescue`. If the code doesn't parse in any context, the engine tries
   # every context again with each placeholder capitalised, as Ruby's
   # `class {{x}}` needs.
+  #
+  # An exact pattern (exactly: true) also requires each list in the code,
+  # such as a method's parameters or statements, to hold nothing besides
+  # the pattern's items, and each placeholder in a list then matches one
+  # item. A part that the pattern leaves out, such as a method's body,
+  # can still be anything. So the exact pattern `def f({{x}}) end` matches
+  # `def f(a) = a + 1`, and doesn't match `def f(a, b) = a`.
   class CodePattern
     PLACEHOLDER = /\{\{([A-Za-z_]\w*|\.\.\.)\}\}/
     MARK = "{{pattern}}".freeze
@@ -63,16 +70,17 @@ module Representer::Engine
     Branch = Struct.new(:type, :children)
 
     # Compiling a pattern parses code, so this returns a cached pattern.
-    def self.[](language, code, inside: nil, raw: false)
-      (@cache ||= {})[[language, code, inside, raw]] ||= new(language, code, inside:, raw:)
+    def self.[](language, code, inside: nil, raw: false, exactly: false)
+      (@cache ||= {})[[language, code, inside, raw, exactly]] ||= new(language, code, inside:, raw:, exactly:)
     end
 
     attr_reader :code
 
-    def initialize(language, code, inside: nil, raw: false)
+    def initialize(language, code, inside: nil, raw: false, exactly: false)
       @language = language
       @code = code
       @raw = raw
+      @exactly = exactly
       @words = {}
       @anonymous = Set.new
       @node = parse(inside)
@@ -158,14 +166,19 @@ module Representer::Engine
 
     # GenerateAST can replace the code's node, as Ruby's turns `x if y`
     # into an `if`. The code's node is then the smallest node that holds
-    # all of the code's leaves.
+    # all of the code's leaves. If that is only a placeholder, it is the
+    # outermost node built by GenerateAST around it, as in Ruby's
+    # `"a#{{{x}}}"`, whose string is built from new leaves.
     def node_after_generate_ast(tree, from, to)
       leaves = Set.new.compare_by_identity
       tree.each_descendant { |node| leaves << node if node.leaf? && node.span && node.span.begin >= from && node.span.end <= to }
       node = tree
+      built = nil
       while (child = node.children.find { |candidate| leaves.all? { |leaf| contains?(candidate, leaf) } })
         node = child
+        built ||= node if node.span.nil?
       end
+      node = built if built && placeholder_word(node)
       return node unless leaves.empty? || placeholder_word(node)
 
       raise ArgumentError, "#{@language.name}'s GenerateAST leaves too little of the code pattern #{code.inspect} to match"
@@ -258,17 +271,17 @@ module Representer::Engine
     # Matches the pattern's children against the node's children from
     # start, in order. first is the index of the first matched child. A
     # placeholder in a list waits as pending, and takes the children up to
-    # the next match.
+    # the next match. In an exact pattern, it matches one child instead.
     def match_children(elements, node, start, first, bindings, pending = nil, &found)
       children = node.children
       if elements.empty?
         bindings = bind(bindings, pending, children[start..]) if pending
-        yield(bindings) if bindings && !labelled_before?(children, first)
+        yield(bindings) if bindings && !labelled_before?(children, first) && !unmatched_items?(children[start..])
         return
       end
 
       (field, element), *rest = elements
-      if field.nil? && element.is_a?(Any) && element.type.nil?
+      if !@exactly && field.nil? && element.is_a?(Any) && element.type.nil?
         bindings = bind(bindings, pending, []) if pending
         return unless bindings
 
@@ -276,6 +289,7 @@ module Representer::Engine
       end
 
       (start...children.size).each do |index|
+        break if unmatched_items?(children[start...index])
         next unless field.nil? || children[index].field == field
 
         with_pending = pending ? bind(bindings, pending, children[start...index]) : bindings
@@ -288,12 +302,18 @@ module Representer::Engine
     end
 
     # Adds the word's match to the bindings, or returns nil if the word
-    # already matched different code.
+    # already matched different code. A `{{...}}` binds nothing, so it
+    # never has to match the `{{...}}` of another pattern.
     def bind(bindings, word, value)
+      return bindings if @anonymous.include?(word)
       return bindings.merge(word => value) unless bindings.key?(word)
 
       SameCode.(bindings[word], value) ? bindings : nil
     end
+
+    # Whether an exact pattern would skip one of these children. Only the
+    # items of a list, which have no field name, count.
+    def unmatched_items?(children) = @exactly && children.any? { |child| child.field.nil? }
 
     def labelled_before?(children, first)
       first && children[0...first].any? { |child| child.named? && child.field }

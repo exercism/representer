@@ -28,8 +28,29 @@ class GenerateTest < Minitest::Test
     assert_equal "too_large", generate(%i[representation], exercise_files: tests)[:representation][:error]
   end
 
-  def test_analysis_is_not_supported_yet
-    assert_equal "not_supported", generate(%i[analysis])[:analysis][:error]
+  def test_the_analysis_has_the_exercises_comments_and_its_version
+    solution = { "leap.rb" => "class Year\n  def self.leap?(year) = Date.leap?(year)\nend\n" }
+    assert_equal({ comments: [{ comment: "ruby.leap.std_lib", type: "actionable" }],
+                   version: Representer::Languages::Ruby::Analysis.version },
+      generate(%i[analysis], solution, exercise_slug: "leap")[:analysis])
+  end
+
+  def test_an_analysis_that_cant_parse_its_main_file_gets_an_error_with_the_version
+    output = generate(%i[analysis], { "leap.rb" => "def x(" }, exercise_slug: "leap")[:analysis]
+    assert_equal({ error: "parse_error", message: "The code has a syntax error",
+                   version: Representer::Languages::Ruby::Analysis.version }, output)
+  end
+
+  def test_the_analysis_and_representation_each_get_their_own_tree
+    solution = { "leap.rb" => "class Year\n  def self.leap?(year) = Date.leap?(year)\nend\n" }
+    outputs = generate(%i[representation analysis], solution, exercise_slug: "leap")
+    assert_equal(["ruby.leap.std_lib"], outputs[:analysis][:comments].map { |comment| comment[:comment] })
+    refute_nil outputs[:representation][:representation]
+  end
+
+  def test_a_track_without_analysis_rules_gets_not_supported
+    output = Representer::Generate.("python", { "a.py" => "x = 1" }, outputs: %i[analysis])[:analysis]
+    assert_equal "not_supported", output[:error]
   end
 
   def test_unknown_outputs_raise

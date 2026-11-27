@@ -19,6 +19,11 @@ class SameCodeTest < Minitest::Test
   def test_compares_lists
     assert SameCode.([leaf("a"), leaf("b")], [leaf("a"), leaf("b")])
     refute SameCode.([leaf("a")], [leaf("a"), leaf("b")])
-    refute SameCode.([leaf("a")], leaf("a"))
+    refute SameCode.([], leaf("a"))
+  end
+
+  def test_a_list_of_one_node_is_that_node
+    assert SameCode.([leaf("a")], leaf("a"))
+    refute SameCode.([leaf("a")], leaf("b"))
   end
 end

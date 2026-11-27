@@ -2,13 +2,14 @@ module Representer::Engine
   # Every staged language is a class called Spec that subclasses this one,
   # in a module named after the language. The Spec says what the language
   # is and how its files are read. Each output is a class beside it, such
-  # as Ruby::Representation and Ruby::Snippet, and the stages that every
-  # output needs sit in a module beside it, such as Ruby::Common.
+  # as Ruby::Representation, Ruby::Analysis and Ruby::Snippet, and the
+  # stages that every output needs sit in a module beside it, such as
+  # Ruby::Common.
   # REPRESENTER_DSL.md describes every declaration.
   class Language
     extend Representer::LanguageSetup
 
-    OUTPUT_FILES = { Representation: "representation", Snippet: "snippet" }.freeze
+    OUTPUT_FILES = { Representation: "representation", Analysis: "analysis", Snippet: "snippet" }.freeze
 
     COMMON_FILES = { GenerateAST: "generate_ast", Normalise: "normalise" }.freeze
 
@@ -69,6 +70,10 @@ module Representer::Engine
       # The language's representation output, such as Ruby::Representation,
       # or nil if it has none.
       def representation = stages.const_defined?(:Representation, false) ? stages::Representation : nil
+
+      # The language's analysis output, such as Ruby::Analysis, or nil if it
+      # has none.
+      def analysis = stages.const_defined?(:Analysis, false) ? stages::Analysis : nil
 
       # The representation's version. A response gives it even when the
       # solution can't be represented.

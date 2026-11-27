@@ -75,7 +75,12 @@ class CodePatternTest < Minitest::Test
 
   def test_an_anonymous_placeholder_matches_any_code
     assert_equal 1, CodePattern[Rubyish::Spec, 'require "{{...}}"'].matches(tree("require 'set'").children.first).size
-    assert_equal 2, CodePattern[Rubyish::Spec, "{{...}} + {{...}}"].matches(tree("a + b").children.first).first.size
+    assert_equal [{}], CodePattern[Rubyish::Spec, "{{...}} + {{...}}"].matches(tree("a + b").children.first)
+  end
+
+  def test_an_anonymous_placeholder_ignores_bindings
+    pattern = CodePattern[Rubyish::Spec, "{{...}}.size"]
+    assert pattern.match(tree("b.size").children.first, { "anything1" => tree("a").children.first })
   end
 
   def test_an_anonymous_placeholder_cannot_be_copied
@@ -93,6 +98,26 @@ class CodePatternTest < Minitest::Test
     pattern = CodePattern[Rubyish::Spec, "{{x}}.size"]
     assert pattern.match(tree("a.size").children.first, { "x" => tree("a").children.first })
     refute pattern.match(tree("b.size").children.first, { "x" => tree("a").children.first })
+  end
+
+  def test_an_exact_pattern_matches_lists_with_nothing_extra
+    pattern = CodePattern[Rubyish::Spec, "f({{x}}, 2)", exactly: true]
+    assert pattern.match(tree("f(1, 2)").children.first)
+    refute pattern.match(tree("f(1, 2, 3)").children.first)
+    refute pattern.match(tree("f(0, 1, 2)").children.first)
+  end
+
+  def test_a_placeholder_in_an_exact_list_matches_one_item
+    pattern = CodePattern[Rubyish::Spec, "def f({{x}}) end", exactly: true]
+    assert_equal "a", pattern.match(tree("def f(a) = a + 1").children.first)["x"].text
+    refute pattern.match(tree("def f(a, b) = a").children.first)
+    refute pattern.match(tree("def f = 1").children.first)
+  end
+
+  def test_an_exact_pattern_leaves_out_parts_that_can_be_anything
+    pattern = CodePattern[Rubyish::Spec, "x.max", exactly: true]
+    assert pattern.match(tree("x.max(3)").children.first)
+    refute CodePattern[Rubyish::Spec, "x.max(3)", exactly: true].match(tree("x.max(3, 4)").children.first)
   end
 
   def test_a_raw_pattern_matches_the_grammars_own_tree
