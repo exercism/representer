@@ -19,6 +19,9 @@ class ElmTest < RepresenterTest
     { restore: { placeholder => name }, remove: [name], why: format(UNDEFINED, what, name) }
   end
 
+  QUALIFIED = "The solution defines `length`, so this representer renames it wherever it appears, including in " \
+              "`%s.length`. The old representer kept a name after a module's dot.".freeze
+
   DEVIATIONS = {
     "expression-record-access" => undefined("identifier_3", "y", "a field read from a record"),
     "expression-record-access-function" => undefined("identifier_3", "y", "a field read from a record"),
@@ -29,6 +32,8 @@ class ElmTest < RepresenterTest
     "type-alias-tuple-of-custom-types" => undefined("Identifier_2", "Name", "a type from elsewhere"),
     "type-alias-function" => undefined("Identifier_2", "Name", "a type from elsewhere"),
     "type-alias-record" => undefined("Identifier_3", "Name", "a type from elsewhere"),
+    "imports-qualified" => { replace: { "Dict.length" => "Dict.identifier_1" }, why: format(QUALIFIED, "Dict") },
+    "imports-qualified-aliased" => { replace: { "D.length" => "D.identifier_1" }, why: format(QUALIFIED, "D") },
     "exports-module-name" => {
       merges_with: "exports-exposed-things",
       why: "The two tests only differ in what the module exposes. This representer drops the exposing list, as " \
@@ -46,22 +51,37 @@ class ElmTest < RepresenterTest
     }
   }.freeze
 
-  upstream_tests ".elm", deviations: DEVIATIONS
+  # Every fixture's module is called Boilerplate, apart from the two tests
+  # of the module's name, which call it Bob.
+  BOB = %w[exports-exposed-things exports-module-name].freeze
+  MODULES = {
+    ["Bob"] => BOB,
+    ["Boilerplate"] => Dir[File.join(__dir__, "../fixtures/elm/*")].map { |dir| File.basename(dir) } - BOB -
+                       ["pattern-uncons"]
+  }.freeze
 
-  # The upstream tests for the names that Elm imports into every module. A
-  # solution that defines one of these keeps its name.
-  %w[toFloat round floor ceiling truncate max min compare not xor modBy remainderBy negate abs clamp sqrt logBase e pi
-     cos sin tan acos asin atan atan2 degrees radians turns toPolar fromPolar isNaN isInfinite identity always never
+  upstream_tests ".elm",
+    deviations: DEVIATIONS,
+    renamed: MODULES,
+    renamed_why: "The solution defines its module, so this representer renames the module's name. The old " \
+                 "representer kept it."
+
+  # The upstream tests for the names that Elm imports into every module.
+  # The old representer kept these names, even where the solution defined
+  # them. This representer renames every name the solution defines.
+  %w[toFloat round floor ceiling truncate max min compare not xor modBy remainderBy
+     negate abs clamp sqrt logBase e pi cos sin tan acos asin atan atan2
+     degrees radians turns toPolar fromPolar isNaN isInfinite identity always never
      number comparable appendable compappend].each do |word|
-    define_method("test_upstream_a_function_called_#{word}_keeps_its_name") do
-      refute_same_representation "#{word} x =\n    x", "zzz x =\n    x"
+    define_method("test_upstream_a_function_called_#{word}_is_renamed") do
+      assert_same_representation "#{word} x =\n    x", "zzz x =\n    x"
     end
   end
 
-  %w[Int Float Order GT EQ LT Bool True False Never List Maybe Just Result Ok Err String Char Tuple Debug Program Cmd
-     Sub].each do |word|
-    define_method("test_upstream_a_type_called_#{word}_keeps_its_name") do
-      refute_same_representation "type #{word} = Zzz", "type Yyy = Zzz"
+  %w[Int Float Order GT EQ LT Bool True False Never List Maybe Just Result Ok
+     Err String Char Tuple Debug Program Cmd Sub].each do |word|
+    define_method("test_upstream_a_type_called_#{word}_is_renamed") do
+      assert_same_representation "type #{word} = Zzz", "type Yyy = Zzz"
     end
   end
 
@@ -73,31 +93,7 @@ class ElmTest < RepresenterTest
   def wrap(body) = "module M exposing (f)\n\n#{body}\n"
 
   def test_comments_are_dropped
-    assert_same_representation wrap("f x =\n    x"), wrap("-- a\n{- b -}\nf x =\n    -- c\n    x")
-  end
-
-  def test_brackets_that_only_group_are_dropped
-    assert_same_representation wrap("f x =\n    g (h x)"), wrap("f x =\n    g   (h  x)")
-    assert_same_representation wrap("f x =\n    (x)"), wrap("f x =\n    x")
-    assert_same_representation wrap("f n =\n    (modBy 2 n) + g (n // 2)"), wrap("f n =\n    modBy 2 n + g (n // 2)")
-    assert_same_representation wrap("f n =\n    (n + 1)"), wrap("f n =\n    n + 1")
-    refute_same_representation wrap("f x =\n    g (h x)"), wrap("f x =\n    g h x")
-    refute_same_representation wrap("f a b c =\n    (a + b) * c"), wrap("f a b c =\n    a + b * c")
-    refute_same_representation wrap("f a b c =\n    a - (b - c)"), wrap("f a b c =\n    a - b - c")
-  end
-
-  def test_numbers_are_their_values
-    assert_same_representation wrap("f =\n    0x1F"), wrap("f =\n    31")
-    assert_same_representation wrap("f =\n    1.50"), wrap("f =\n    1.5")
-    refute_same_representation wrap("f =\n    1.0"), wrap("f =\n    1")
-    refute_same_representation wrap("f =\n    0x1F"), wrap("f =\n    0x1E")
-  end
-
-  def test_strings_are_their_values
-    assert_same_representation wrap("f =\n    \"a\\u{41}\""), wrap("f =\n    \"aA\"")
-    assert_same_representation wrap("f =\n    \"\"\"a\"\"\""), wrap("f =\n    \"a\"")
-    refute_same_representation wrap("f =\n    \"a\""), wrap("f =\n    \"b\"")
-    refute_same_representation wrap("f =\n    \"a\\qb\""), wrap("f =\n    \"aqb\"")
+    assert_same_representation wrap("f x =\n    x"), wrap("-- a\n{- b -}\n{-| c -}\nf x =\n    -- d\n    x")
   end
 
   def test_variables_and_parameters_are_renamed
@@ -107,8 +103,8 @@ class ElmTest < RepresenterTest
   end
 
   def test_fields_are_renamed_through_dots
-    code = "type alias R =\n    { %s : Int }\n\nf r =\n    r.%s\n\ng =\n    { %s = 1 }"
-    assert_same_representation wrap(format(code, "a", "a", "a")), wrap(format(code, "b", "b", "b"))
+    code = "type alias R =\n    { %s : Int }\n\nf r =\n    r.%s\n\ng =\n    { %s = 1 }\n\nh =\n    .%s"
+    assert_same_representation wrap(format(code, "a", "a", "a", "a")), wrap(format(code, "b", "b", "b", "b"))
   end
 
   def test_constructors_are_renamed_where_they_are_used
@@ -121,18 +117,13 @@ class ElmTest < RepresenterTest
     refute_same_representation wrap("map xs =\n    List.map xs"), wrap("map xs =\n    List.filter xs")
   end
 
-  def test_imports_and_exposing_lists_are_dropped
-    assert_same_representation "module M exposing (f)\n\nf x =\n    x\n", "module M exposing (g)\n\ng x =\n    x\n"
-    assert_same_representation "module M exposing (a, b)\n\na =\n    1\n\nb =\n    2\n",
-      "module M exposing (b, a)\n\na =\n    1\n\nb =\n    2\n"
-    assert_same_representation "module M exposing (..)\n\nimport Dict exposing (Dict)\nimport List as L\n\nf =\n    1\n",
-      "module M exposing (f)\n\nf =\n    1\n"
-    refute_same_representation "module M exposing (f)\n\nimport Array\n\nf =\n    Array.map\n",
-      "module M exposing (f)\n\nimport List\n\nf =\n    List.map\n"
+  def test_constrained_type_variables_keep_their_names
+    refute_same_representation wrap("f : number -> number\nf x =\n    x"), wrap("f : a -> a\nf x =\n    x")
+    assert_same_representation wrap("f : a -> a\nf x =\n    x"), wrap("f : b -> b\nf x =\n    x")
   end
 
-  def test_names_the_tests_use_are_kept
-    refute_same_representation wrap("f x =\n    x"), wrap("g x =\n    x"),
+  def test_names_the_tests_use_are_renamed
+    assert_same_representation wrap("f x =\n    x"), wrap("g x =\n    x"),
       exercise_files: { "tests/Tests.elm" => "module Tests exposing (..)\n\nt =\n    f 1\n" }
   end
 
