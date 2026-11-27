@@ -1,6 +1,7 @@
 require "test_helper"
 
-# Ballerina has no old representer, so there are no upstream tests to port.
+# Tests the whole Ballerina representer. The tests of each stage are in
+# test/languages/ballerina/.
 class BallerinaTest < RepresenterTest
   track "ballerina"
 
@@ -30,8 +31,7 @@ class BallerinaTest < RepresenterTest
     refute_same_representation "type P record {| int x; |};", "type P record {| int y; |};"
   end
 
-  def test_main_and_library_calls_are_kept
-    refute_same_representation "public function main() { }", "public function other() { }"
+  def test_library_calls_are_kept
     refute_same_representation wrap("io:println(a);"), wrap("io:print(a);")
     refute_same_representation wrap("return a.length();"), wrap("return a.size();")
   end
