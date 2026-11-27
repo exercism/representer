@@ -1,43 +1,113 @@
-use v5 . 40 ;
-use experimental qw<class> ;
-class CircularBuffer ;
-field $capacity : reader : param ;
-field $read_idx = 0 ;
-field $write_idx = 0 ;
-field $in_use = 0 ;
-field @buffer ;
-ADJUST {
-$#buffer = $capacity - 1 ;
-}
-method write ( $item ) {
-die "\"" "buffer full" "\"" if $self -> is_full ();
-$buffer [ $write_idx ] = $item ;
-$write_idx = $self -> incr_idx ( $write_idx );
-return ++ $in_use ;
-}
-method read () {
-die "\"" "buffer empty" "\"" if $self -> is_empty ();
-my $item = $buffer [ $read_idx ];
-$read_idx = $self -> incr_idx ( $read_idx );
--- $in_use ;
-return $item ;
-}
-method clear () {
-$in_use = 0 ;
-$write_idx = $read_idx ;
-return ;
-}
-method overwrite ( $item ) {
-$self -> read () if $self -> is_full ();
-return $self -> write ( $item );
-}
-method is_full () {
-return $in_use == $capacity ;
-}
-method is_empty () {
-$in_use == 0 ;
-}
-method incr_idx ( $idx ) {
-return ( $idx + 1 ) % $capacity ;
-}
-1 ;
+(source_file
+  (use_version_statement use v5.40)
+  (pragma_statement use experimental "class")
+  (class_statement (package PLACEHOLDER_1))
+  (variable_declaration field
+    (scalar $ PLACEHOLDER_2)
+    (attrlist
+      (attribute reader)
+      (attribute param)))
+  (assignment_expression
+    (variable_declaration field
+      (scalar $ PLACEHOLDER_3)) = 0)
+  (assignment_expression
+    (variable_declaration field
+      (scalar $ PLACEHOLDER_4)) = 0)
+  (assignment_expression
+    (variable_declaration field
+      (scalar $ PLACEHOLDER_5)) = 0)
+  (variable_declaration field
+    (array @ PLACEHOLDER_6))
+  (class_phaser_statement ADJUST
+    (block
+      (assignment_expression
+        (arraylen $# PLACEHOLDER_6) =
+        (binary_expression
+          (scalar $ PLACEHOLDER_2) - 1))))
+  (method_declaration_statement (bareword PLACEHOLDER_7)
+    (signature
+      (mandatory_parameter
+        (scalar $ PLACEHOLDER_8)))
+    (block
+      (postfix_conditional_expression
+        (function_call_expression
+          (function die) "buffer full") if
+        (method_call_expression
+          (scalar $ self) (method PLACEHOLDER_9)))
+      (assignment_expression
+        (array_element_expression
+          (container_variable $ PLACEHOLDER_6)
+          (scalar $ PLACEHOLDER_4)) =
+        (scalar $ PLACEHOLDER_8))
+      (assignment_expression
+        (scalar $ PLACEHOLDER_4) =
+        (method_call_expression
+          (scalar $ self) (method PLACEHOLDER_10)
+          (scalar $ PLACEHOLDER_4)))
+      (return_expression
+        (preinc_expression ++
+          (scalar $ PLACEHOLDER_5)))))
+  (method_declaration_statement (bareword PLACEHOLDER_11) "()"
+    (block
+      (postfix_conditional_expression
+        (function_call_expression
+          (function die) "buffer empty") if
+        (method_call_expression
+          (scalar $ self) (method PLACEHOLDER_12)))
+      (assignment_expression
+        (variable_declaration my
+          (scalar $ PLACEHOLDER_8)) =
+        (array_element_expression
+          (container_variable $ PLACEHOLDER_6)
+          (scalar $ PLACEHOLDER_3)))
+      (assignment_expression
+        (scalar $ PLACEHOLDER_3) =
+        (method_call_expression
+          (scalar $ self) (method PLACEHOLDER_10)
+          (scalar $ PLACEHOLDER_3)))
+      (preinc_expression --
+        (scalar $ PLACEHOLDER_5))
+      (return_expression
+        (scalar $ PLACEHOLDER_8))))
+  (method_declaration_statement (bareword PLACEHOLDER_13) "()"
+    (block
+      (assignment_expression
+        (scalar $ PLACEHOLDER_5) = 0)
+      (assignment_expression
+        (scalar $ PLACEHOLDER_4) =
+        (scalar $ PLACEHOLDER_3))
+      (return_expression)))
+  (method_declaration_statement (bareword PLACEHOLDER_14)
+    (signature
+      (mandatory_parameter
+        (scalar $ PLACEHOLDER_8)))
+    (block
+      (postfix_conditional_expression
+        (method_call_expression
+          (scalar $ self) (method PLACEHOLDER_11)) if
+        (method_call_expression
+          (scalar $ self) (method PLACEHOLDER_9)))
+      (return_expression
+        (method_call_expression
+          (scalar $ self) (method PLACEHOLDER_7)
+          (scalar $ PLACEHOLDER_8)))))
+  (method_declaration_statement (bareword PLACEHOLDER_9) "()"
+    (block
+      (return_expression
+        (equality_expression
+          (scalar $ PLACEHOLDER_5) ==
+          (scalar $ PLACEHOLDER_2)))))
+  (method_declaration_statement (bareword PLACEHOLDER_12) "()"
+    (block
+      (equality_expression
+        (scalar $ PLACEHOLDER_5) == 0)))
+  (method_declaration_statement (bareword PLACEHOLDER_10)
+    (signature
+      (mandatory_parameter
+        (scalar $ PLACEHOLDER_15)))
+    (block
+      (return_expression
+        (binary_expression
+          (binary_expression
+            (scalar $ PLACEHOLDER_15) + 1) %
+          (scalar $ PLACEHOLDER_2))))) 1)
