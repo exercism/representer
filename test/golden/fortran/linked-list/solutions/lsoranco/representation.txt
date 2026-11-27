@@ -1,135 +1,294 @@
-module linked_list
-implicit none
-type :: node
-type ( node ), pointer :: next => null ()
-type ( node ), pointer :: prev => null ()
-integer :: value
-end type node
-type :: list_t
-type ( node ), pointer :: head => null ()
-end type list_t
-contains
-function new () result ( list )
-type ( list_t ) :: list
-end function new
-subroutine push ( list , val )
-type ( list_t ), intent ( inout ) :: list
-integer , intent ( in ) :: val
-type ( node ), pointer :: new_node
-type ( node ), pointer :: current_node
-allocate ( new_node )
-new_node % value = val
-if ( .not. associated ( list % head )) then
-list % head => new_node
-return
-end if
-current_node => list % head
-do while ( associated ( current_node % next ))
-current_node => current_node % next
-end do
-current_node % next => new_node
-new_node % prev => current_node
-end subroutine push
-function pop ( list ) result ( val )
-type ( list_t ), intent ( inout ) :: list
-integer :: val
-type ( node ), pointer :: current_node
-if ( .not. associated ( list % head )) then
-val = -1
-return
-end if
-current_node => list % head
-do while ( associated ( current_node % next ))
-current_node => current_node % next
-end do
-val = current_node % value
-if ( associated ( current_node % prev )) then
-current_node => current_node % prev
-deallocate ( current_node % next )
-current_node % next => null ()
-else
-deallocate ( current_node )
-list % head => null ()
-endif
-end function pop
-subroutine unshift ( list , val )
-type ( list_t ), intent ( inout ) :: list
-integer , intent ( in ) :: val
-type ( node ), pointer :: new_node
-allocate ( new_node )
-new_node % value = val
-new_node % next => list % head
-if ( associated ( list % head )) then
-list % head % prev => new_node
-endif
-list % head => new_node
-end subroutine unshift
-function shift ( list ) result ( val )
-type ( list_t ), intent ( inout ) :: list
-integer :: val
-type ( node ), pointer :: current_node
-if ( .not. associated ( list % head )) then
-val = -999
-return
-endif
-current_node => list % head
-val = current_node % value
-if ( associated ( current_node % next )) then
-list % head => list % head % next
-deallocate ( current_node )
-list % head % prev => null ()
-else
-deallocate ( current_node )
-list % head => null ()
-end if
-end function shift
-function length ( list ) result ( n )
-type ( list_t ), intent ( in ) :: list
-integer :: n
-type ( node ), pointer :: current_node
-n = 0
-if ( .not. associated ( list % head )) then
-return
-endif
-current_node => list % head
-n = 1
-do while ( associated ( current_node % next ))
-current_node => current_node % next
-n = n + 1
-end do
-end function length
-subroutine delete ( list , val )
-type ( list_t ), intent ( inout ) :: list
-integer :: val
-type ( node ), pointer :: current_node
-integer :: temp
-if ( .not. associated ( list % head )) then
-return
-endif
-current_node => list % head
-if ( current_node % value == val ) then
-temp = shift ( list )
-return
-endif
-do while ( associated ( current_node % next ))
-if ( current_node % value == val ) then
-current_node % prev % next => current_node % next
-current_node % next % prev => current_node % prev
-deallocate ( current_node )
-return
-end if
-current_node => current_node % next
-end do
-if ( current_node % value == val ) then
-temp = pop ( list )
-end if
-end subroutine delete
-subroutine destroy ( list )
-type ( list_t ), intent ( inout ) :: list
-integer :: counter , temp , list_length
-list_length = length ( list )
-do counter = 1 , list_length
-temp = shift ( list )
-end do
-end subroutine destroy
-end module
+(translation_unit
+  (module
+    (module_statement (name PLACEHOLDER_1))
+    (implicit_statement none)
+    (derived_type_definition
+      (derived_type_statement type (type_name PLACEHOLDER_2))
+      (variable_declaration
+        (derived_type type (type_name PLACEHOLDER_2))
+        (type_qualifier pointer)
+        (pointer_init_declarator PLACEHOLDER_3 =>
+          (null_literal null)))
+      (variable_declaration
+        (derived_type type (type_name PLACEHOLDER_2))
+        (type_qualifier pointer)
+        (pointer_init_declarator PLACEHOLDER_4 =>
+          (null_literal null)))
+      (variable_declaration
+        (intrinsic_type integer) PLACEHOLDER_5))
+    (derived_type_definition
+      (derived_type_statement type (type_name PLACEHOLDER_6))
+      (variable_declaration
+        (derived_type type (type_name PLACEHOLDER_2))
+        (type_qualifier pointer)
+        (pointer_init_declarator PLACEHOLDER_7 =>
+          (null_literal null))))
+    (internal_procedures
+      (contains_statement)
+      (function
+        (function_statement (name PLACEHOLDER_8)
+          (parameters)
+          (function_result PLACEHOLDER_9))
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_6)) PLACEHOLDER_9))
+      (subroutine
+        (subroutine_statement (name PLACEHOLDER_10)
+          (parameters PLACEHOLDER_9 PLACEHOLDER_11))
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_6))
+          (type_qualifier intent inout) PLACEHOLDER_9)
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier intent in) PLACEHOLDER_11)
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_2))
+          (type_qualifier pointer) PLACEHOLDER_12)
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_2))
+          (type_qualifier pointer) PLACEHOLDER_13)
+        (allocate_statement allocate PLACEHOLDER_12)
+        (assignment_statement
+          (derived_type_member_expression PLACEHOLDER_12 % (type_member PLACEHOLDER_5)) = PLACEHOLDER_11)
+        (if_statement
+          (logical_expression .not.
+            (call_expression associated
+              (argument_list
+                (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7))))) then
+          (pointer_association_statement
+            (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)) => PLACEHOLDER_12)
+          (keyword_statement return))
+        (pointer_association_statement PLACEHOLDER_13 =>
+          (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)))
+        (do_loop
+          (do_statement
+            (while_statement
+              (call_expression associated
+                (argument_list
+                  (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3))))))
+          (pointer_association_statement PLACEHOLDER_13 =>
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3))))
+        (pointer_association_statement
+          (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3)) => PLACEHOLDER_12)
+        (pointer_association_statement
+          (derived_type_member_expression PLACEHOLDER_12 % (type_member PLACEHOLDER_4)) => PLACEHOLDER_13))
+      (function
+        (function_statement (name PLACEHOLDER_14)
+          (parameters PLACEHOLDER_9)
+          (function_result PLACEHOLDER_11))
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_6))
+          (type_qualifier intent inout) PLACEHOLDER_9)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_11)
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_2))
+          (type_qualifier pointer) PLACEHOLDER_13)
+        (if_statement
+          (logical_expression .not.
+            (call_expression associated
+              (argument_list
+                (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7))))) then
+          (assignment_statement PLACEHOLDER_11 =
+            (unary_expression - 1))
+          (keyword_statement return))
+        (pointer_association_statement PLACEHOLDER_13 =>
+          (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)))
+        (do_loop
+          (do_statement
+            (while_statement
+              (call_expression associated
+                (argument_list
+                  (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3))))))
+          (pointer_association_statement PLACEHOLDER_13 =>
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3))))
+        (assignment_statement PLACEHOLDER_11 =
+          (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_5)))
+        (if_statement
+          (call_expression associated
+            (argument_list
+              (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_4)))) then
+          (pointer_association_statement PLACEHOLDER_13 =>
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_4)))
+          (deallocate_statement deallocate
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3)))
+          (pointer_association_statement
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3)) =>
+            (null_literal null))
+          (else_clause
+            (deallocate_statement deallocate PLACEHOLDER_13)
+            (pointer_association_statement
+              (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)) =>
+              (null_literal null)))))
+      (subroutine
+        (subroutine_statement (name PLACEHOLDER_15)
+          (parameters PLACEHOLDER_9 PLACEHOLDER_11))
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_6))
+          (type_qualifier intent inout) PLACEHOLDER_9)
+        (variable_declaration
+          (intrinsic_type integer)
+          (type_qualifier intent in) PLACEHOLDER_11)
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_2))
+          (type_qualifier pointer) PLACEHOLDER_12)
+        (allocate_statement allocate PLACEHOLDER_12)
+        (assignment_statement
+          (derived_type_member_expression PLACEHOLDER_12 % (type_member PLACEHOLDER_5)) = PLACEHOLDER_11)
+        (pointer_association_statement
+          (derived_type_member_expression PLACEHOLDER_12 % (type_member PLACEHOLDER_3)) =>
+          (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)))
+        (if_statement
+          (call_expression associated
+            (argument_list
+              (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)))) then
+          (pointer_association_statement
+            (derived_type_member_expression
+              (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)) % (type_member PLACEHOLDER_4)) => PLACEHOLDER_12))
+        (pointer_association_statement
+          (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)) => PLACEHOLDER_12))
+      (function
+        (function_statement (name PLACEHOLDER_16)
+          (parameters PLACEHOLDER_9)
+          (function_result PLACEHOLDER_11))
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_6))
+          (type_qualifier intent inout) PLACEHOLDER_9)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_11)
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_2))
+          (type_qualifier pointer) PLACEHOLDER_13)
+        (if_statement
+          (logical_expression .not.
+            (call_expression associated
+              (argument_list
+                (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7))))) then
+          (assignment_statement PLACEHOLDER_11 =
+            (unary_expression - 999))
+          (keyword_statement return))
+        (pointer_association_statement PLACEHOLDER_13 =>
+          (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)))
+        (assignment_statement PLACEHOLDER_11 =
+          (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_5)))
+        (if_statement
+          (call_expression associated
+            (argument_list
+              (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3)))) then
+          (pointer_association_statement
+            (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)) =>
+            (derived_type_member_expression
+              (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)) % (type_member PLACEHOLDER_3)))
+          (deallocate_statement deallocate PLACEHOLDER_13)
+          (pointer_association_statement
+            (derived_type_member_expression
+              (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)) % (type_member PLACEHOLDER_4)) =>
+            (null_literal null))
+          (else_clause
+            (deallocate_statement deallocate PLACEHOLDER_13)
+            (pointer_association_statement
+              (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)) =>
+              (null_literal null)))))
+      (function
+        (function_statement (name PLACEHOLDER_17)
+          (parameters PLACEHOLDER_9)
+          (function_result PLACEHOLDER_18))
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_6))
+          (type_qualifier intent in) PLACEHOLDER_9)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_18)
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_2))
+          (type_qualifier pointer) PLACEHOLDER_13)
+        (assignment_statement PLACEHOLDER_18 = 0)
+        (if_statement
+          (logical_expression .not.
+            (call_expression associated
+              (argument_list
+                (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7))))) then
+          (keyword_statement return))
+        (pointer_association_statement PLACEHOLDER_13 =>
+          (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)))
+        (assignment_statement PLACEHOLDER_18 = 1)
+        (do_loop
+          (do_statement
+            (while_statement
+              (call_expression associated
+                (argument_list
+                  (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3))))))
+          (pointer_association_statement PLACEHOLDER_13 =>
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3)))
+          (assignment_statement PLACEHOLDER_18 =
+            (math_expression PLACEHOLDER_18 + 1))))
+      (subroutine
+        (subroutine_statement (name PLACEHOLDER_19)
+          (parameters PLACEHOLDER_9 PLACEHOLDER_11))
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_6))
+          (type_qualifier intent inout) PLACEHOLDER_9)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_11)
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_2))
+          (type_qualifier pointer) PLACEHOLDER_13)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_20)
+        (if_statement
+          (logical_expression .not.
+            (call_expression associated
+              (argument_list
+                (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7))))) then
+          (keyword_statement return))
+        (pointer_association_statement PLACEHOLDER_13 =>
+          (derived_type_member_expression PLACEHOLDER_9 % (type_member PLACEHOLDER_7)))
+        (if_statement
+          (relational_expression
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_5)) == PLACEHOLDER_11) then
+          (assignment_statement PLACEHOLDER_20 =
+            (call_expression PLACEHOLDER_16
+              (argument_list PLACEHOLDER_9)))
+          (keyword_statement return))
+        (do_loop
+          (do_statement
+            (while_statement
+              (call_expression associated
+                (argument_list
+                  (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3))))))
+          (if_statement
+            (relational_expression
+              (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_5)) == PLACEHOLDER_11) then
+            (pointer_association_statement
+              (derived_type_member_expression
+                (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_4)) % (type_member PLACEHOLDER_3)) =>
+              (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3)))
+            (pointer_association_statement
+              (derived_type_member_expression
+                (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3)) % (type_member PLACEHOLDER_4)) =>
+              (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_4)))
+            (deallocate_statement deallocate PLACEHOLDER_13)
+            (keyword_statement return))
+          (pointer_association_statement PLACEHOLDER_13 =>
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_3))))
+        (if_statement
+          (relational_expression
+            (derived_type_member_expression PLACEHOLDER_13 % (type_member PLACEHOLDER_5)) == PLACEHOLDER_11) then
+          (assignment_statement PLACEHOLDER_20 =
+            (call_expression PLACEHOLDER_14
+              (argument_list PLACEHOLDER_9)))))
+      (subroutine
+        (subroutine_statement (name PLACEHOLDER_21)
+          (parameters PLACEHOLDER_9))
+        (variable_declaration
+          (derived_type type (type_name PLACEHOLDER_6))
+          (type_qualifier intent inout) PLACEHOLDER_9)
+        (variable_declaration
+          (intrinsic_type integer) PLACEHOLDER_22 PLACEHOLDER_20 PLACEHOLDER_23)
+        (assignment_statement PLACEHOLDER_23 =
+          (call_expression PLACEHOLDER_17
+            (argument_list PLACEHOLDER_9)))
+        (do_loop
+          (do_statement
+            (loop_control_expression PLACEHOLDER_22 = 1 PLACEHOLDER_23))
+          (assignment_statement PLACEHOLDER_20 =
+            (call_expression PLACEHOLDER_16
+              (argument_list PLACEHOLDER_9))))))))

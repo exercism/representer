@@ -172,7 +172,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | erlang | Erlang | 397 | 99 | 100 | 63 | 100 | 1 | 6 | 0 | 0 |
 | euphoria | Basic | 109 | 3 | 100 | 62 | 98 | 2 | 0 | 0 | 0 |
 | factor | Factor | 146 | 16 | 100 | 100 | 84 | 0 | 5 | 0 | 0 |
-| fortran | Basic | 130 | 10 | 100 | 38 | 100 | 1 | 0 | 0 | 0 |
+| fortran | Fortran | 130 | 10 | 100 | 38 | 100 | 0 | 0 | 0 | 0 |
 | free-pascal | Basic | 103 | 1 | 100 | 90 | 96 | 1 | 0 | 0 | 0 |
 | fsharp | FSharp | 397 | 99 | 100 | 87 | 94 | 1 | 7 | 0 | 0 |
 | futhark | Basic | 103 | 1 | 100 | 80 | 100 | 0 | 0 | 0 | 0 |
