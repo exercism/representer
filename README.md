@@ -103,7 +103,9 @@ To see how a language's representer parses and represents a file, run:
 ./bin/run-tests.sh
 ```
 
-This runs the unit tests in `test/` (including every golden test ported from the old per-track representers), and then the request tests in `tests/`.
+To run only one language's tests, give its track slug: `./bin/run-tests.sh ruby` (see "Running the tests" in [CONTRIBUTING.md](./CONTRIBUTING.md)).
+
+With no slug, this runs the unit tests in `test/` (including every golden test ported from the old per-track representers), and then the request tests in `tests/`.
 Each request test runs `tests/<track>/<name>/request.json` and compares the response's body with `expected_response.json`.
 
 The unit tests also include the golden data tests in [`test/golden/`](./test/golden/), which run over about 20,000 real published solutions.
