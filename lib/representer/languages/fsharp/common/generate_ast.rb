@@ -26,8 +26,17 @@ module Representer::Languages::FSharp::Common
                 decimal: :float
 
     ESCAPES = {
-      "n" => "\n", "t" => "\t", "r" => "\r", "b" => "\b", "a" => "\a", "f" => "\f", "v" => "\v", "0" => "\0",
-      "\\" => "\\", '"' => '"', "'" => "'"
+      '\n' => "\n",
+      '\t' => "\t",
+      '\r' => "\r",
+      '\b' => "\b",
+      '\a' => "\a",
+      '\f' => "\f",
+      '\v' => "\v",
+      '\0' => "\0",
+      '\\\\' => "\\",
+      '\"' => '"',
+      "\\'" => "'"
     }.freeze
 
     def call
@@ -74,7 +83,7 @@ module Representer::Languages::FSharp::Common
     def unescape(text)
       text.gsub(/\\(?:u(\h{4})|U(\h{8})|x(\h{2})|(.))/m) do |escape|
         hex = Regexp.last_match(1) || Regexp.last_match(2) || Regexp.last_match(3)
-        next ESCAPES.fetch(Regexp.last_match(4), escape) unless hex
+        next ESCAPES.fetch(escape, escape) unless hex
 
         code = hex.to_i(16)
         code.between?(0xD800, 0xDFFF) || code > 0x10FFFF ? escape : [code].pack("U")

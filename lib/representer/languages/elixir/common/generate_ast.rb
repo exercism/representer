@@ -24,8 +24,16 @@ module Representer::Languages::Elixir::Common
                 decimal: :float
 
     ESCAPES = {
-      "n" => "\n", "t" => "\t", "r" => "\r", "s" => " ", "e" => "\e", "0" => "\0",
-      "\\" => "\\", '"' => '"', "'" => "'", "#" => "#"
+      '\n' => "\n",
+      '\t' => "\t",
+      '\r' => "\r",
+      '\s' => " ",
+      '\e' => "\e",
+      '\0' => "\0",
+      '\\\\' => "\\",
+      '\"' => '"',
+      "\\'" => "'",
+      '\#' => "#"
     }.freeze
 
     DEFINITIONS = /\A(def|defp|defmacro|defmacrop|defguard|defguardp|defdelegate)\z/
@@ -108,7 +116,7 @@ module Representer::Languages::Elixir::Common
       pieces = parts.map do |part|
         case part.type
         when "quoted_content" then part.text
-        when "escape_sequence" then ESCAPES.fetch(part.text[1..], part)
+        when "escape_sequence" then ESCAPES.fetch(part.text, part)
         else part
         end
       end
@@ -125,7 +133,7 @@ module Representer::Languages::Elixir::Common
     # ?\s  ->  32
     def turn_character_into_integer!(node)
       char = node.text.delete_prefix("?")
-      char = ESCAPES[char[1..]] if char.start_with?("\\") && char.size > 1
+      char = ESCAPES[char] if char.start_with?("\\") && char.size > 1
       return unless char&.size == 1
 
       node.type = "integer"

@@ -45,8 +45,18 @@ module Representer::Languages::CSharp::Common
                 suffixes: ["f", "d"]
 
     ESCAPES = {
-      "n" => "\n", "t" => "\t", "r" => "\r", "0" => "\0", "a" => "\a", "b" => "\b", "f" => "\f",
-      "v" => "\v", "e" => "\e", "\\" => "\\", '"' => '"', "'" => "'"
+      '\n' => "\n",
+      '\t' => "\t",
+      '\r' => "\r",
+      '\0' => "\0",
+      '\a' => "\a",
+      '\b' => "\b",
+      '\f' => "\f",
+      '\v' => "\v",
+      '\e' => "\e",
+      '\\\\' => "\\",
+      '\"' => '"',
+      "\\'" => "'"
     }.freeze
 
     def call
@@ -88,7 +98,7 @@ module Representer::Languages::CSharp::Common
     # stands for no single character, such as half of a surrogate pair.
     def escape(node)
       code = node.text[1..]
-      return ESCAPES.fetch(code, node) unless code.match?(/\A(u\h{4}|U\h{8}|x\h{1,4})\z/)
+      return ESCAPES.fetch(node.text, node) unless code.match?(/\A(u\h{4}|U\h{8}|x\h{1,4})\z/)
 
       value = code[1..].to_i(16)
       value.between?(0xD800, 0xDFFF) || value > 0x10FFFF ? node : [value].pack("U")

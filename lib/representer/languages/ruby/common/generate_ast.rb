@@ -58,8 +58,15 @@ module Representer::Languages::Ruby::Common
                 prefixes: { "0x" => 16, "0o" => 8, "0b" => 2, "0d" => 10, "0" => 8 }
 
     ESCAPES = {
-      "n" => "\n", "t" => "\t", "s" => " ", "e" => "\e", "0" => "\0",
-      "\\" => "\\", '"' => '"', "'" => "'", "#" => "#"
+      '\n' => "\n",
+      '\t' => "\t",
+      '\s' => " ",
+      '\e' => "\e",
+      '\0' => "\0",
+      '\\\\' => "\\",
+      '\"' => '"',
+      "\\'" => "'",
+      '\#' => "#"
     }.freeze
 
     # Stand in for one non-text part of a heredoc while its indentation is
@@ -190,12 +197,12 @@ module Representer::Languages::Ruby::Common
     def string_piece(part, raw:)
       case part.type
       when "string_content" then raw ? part.text.gsub(/\\([\\'])/, '\1') : part.text
-      when "escape_sequence" then raw ? part.text : ESCAPES.fetch(part.text[1..], part)
+      when "escape_sequence" then raw ? part.text : ESCAPES.fetch(part.text, part)
       else part
       end
     end
 
-    def character(text) = text.start_with?("\\") && text.size > 1 ? ESCAPES.fetch(text[1..], text) : text
+    def character(text) = ESCAPES.fetch(text, text)
 
     # Return the value of one word in `%w[a b]` or `%i[a b]`.
     def word_value(word) = string_node(word.children.map { |part| string_piece(part, raw: true) })
