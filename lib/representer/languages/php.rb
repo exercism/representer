@@ -16,12 +16,12 @@
 # - Writes numbers as their values (`1_000` is `1000`, `0x10` is `16`).
 # - Writes a string as its value, and a string with variables as a
 #   concatenation.
-# - Writes every spelling of a function, method or class name in one case,
-#   as PHP ignores case.
+# - Writes every spelling of a function, method or class name that the
+#   solution defines in one case, as PHP ignores case. It also writes a
+#   function's alias as the main name (`sizeof` is `count`), in lower case.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `$this`, `class`, the superglobals and names that start with
 #   `__`.
 # - Ignores files with other extensions, and test and config files.
@@ -36,7 +36,7 @@ module Representer
     # nikic/php-parser's tree and printed the tree back as code.
     class PHP < Language
       tracks "php"
-      version 7
+      version 8
       grammar "php"
       extensions ".php"
 
@@ -217,8 +217,6 @@ module Representer
       # Names that PHP itself gives a meaning to.
       keep "this", "class", *SUPERGLOBALS
       keep "(name /\\A__\\w+\\z/) @name"
-
-      library_names File.join(__dir__, "library_names", "php.txt")
 
       ### Helpers for the rules above ###
 
@@ -408,7 +406,7 @@ module Representer
 
         # The name that a function PHP provides is written with.
         def provided_name(kind, lower)
-          return nil unless kind == :function && (library.include?(lower) || FUNCTION_ALIASES.key?(lower))
+          return nil unless kind == :function && FUNCTION_ALIASES.key?(lower)
 
           FUNCTION_ALIASES.fetch(lower, lower)
         end

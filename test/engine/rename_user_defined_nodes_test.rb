@@ -25,9 +25,9 @@ class RenameUserDefinedNodesTest < Minitest::Test
     assert_equal "(program\n  (def PLACEHOLDER_1)\n  (call send (simple_symbol :PLACEHOLDER_1)))", represent(tree)
   end
 
-  def test_keeps_a_library_name_that_the_solution_defines
+  def test_renames_a_library_name_that_the_solution_defines
     tree = node(:program, node(:def, leaf("sum")), node(:call, leaf("sum")))
-    assert_equal "(program\n  (def sum)\n  (call sum))", represent(tree)
+    assert_equal "(program\n  (def PLACEHOLDER_1)\n  (call PLACEHOLDER_1))", represent(tree)
   end
 
   def test_keeps_a_call_to_a_method_that_the_solution_does_not_define

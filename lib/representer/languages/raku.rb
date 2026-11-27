@@ -13,8 +13,7 @@
 # - Gives each variable the type of its sigil.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `$_`, `@_`, `%_`, `$/`, `$!` and `self`.
 # - Ignores files with other extensions, and test and config files.
 # - Joins the files into one tree, in an order set by their code. File names
@@ -31,7 +30,7 @@ module Representer
     # the student defines.
     class Raku < Language
       tracks "raku"
-      version 7
+      version 8
       grammar "raku"
       extensions ".rakumod", ".raku", ".rakutest", ".pm6", ".p6"
 
@@ -118,8 +117,6 @@ module Representer
 
       # Variables that Raku sets, and the names it calls itself.
       keep "$_", "@_", "%_", "$/", "$!", "self"
-      library_names File.join(__dir__, "library_names", "raku.txt")
-
       DOUBLE_QUOTE_ESCAPES = { "\\n" => "\n", "\\t" => "\t", "\\\"" => "\"", "\\\\" => "\\", "\\$" => "$", "\\@" => "@",
                                "\\%" => "%", "\\&" => "&", "\\{" => "{" }.freeze
 

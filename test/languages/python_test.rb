@@ -6,9 +6,8 @@ class PythonTest < RepresenterTest
   track "python"
 
   REASONS = {
-    library: "This representer never renames a method or function that has the name of a Python library method " \
-             "(reverse, add, read...), so mentors' comments on different library calls stay apart. " \
-             "The old representer renamed them.",
+    library: "This representer never renames a library method that the solution only calls (reverse, add, read...), " \
+             "so mentors' comments on different library calls stay apart. The old representer renamed them.",
     called: "Python calls dunder methods (__init__, __add__...) itself, and `_` is the conventional throwaway name, " \
             "so this representer keeps them. The old representer renamed them.",
     double: "The old representer visited comprehension variables twice, so its mapping holds a placeholder as if " \
@@ -28,13 +27,13 @@ class PythonTest < RepresenterTest
 
   DEVIATIONS = {
     "practice-wordy" => { restore: { "placeholder_0" => "truediv" }, remove: %w[div], why: ALIASES },
-    "concept-ellens-alien-game" => {
-      remove: %w[__init__],
-      why: reasons(:called)
-    },
     "concept-mecha-munch-management" => {
       remove: %w[reverse],
       why: reasons(:library)
+    },
+    "concept-ellens-alien-game" => {
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "concept-pretty-leaflet" => {
       remove: %w[_],
@@ -45,12 +44,12 @@ class PythonTest < RepresenterTest
       why: reasons(:called)
     },
     "example-class-normalization" => {
-      remove: %w[__init__ clear read write],
-      why: reasons(:called, :library)
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "example-dataclass-normalization" => {
       remove: %w[_ __add__ __eq__ __init__ __lt__ __post_init__ advance default default_factory
-                 eq frozen init kw_only match_args namespace order search slots
+                 eq frozen init kw_only match_args namespace order slots
                  unsafe_hash weakref_slot],
       why: reasons(:called, :kwargs, :library)
     },
@@ -82,14 +81,6 @@ class PythonTest < RepresenterTest
       remove: %w[_ placeholder_17],
       why: reasons(:called, :double)
     },
-    "practice-accumulate" => {
-      remove: %w[accumulate],
-      why: reasons(:library)
-    },
-    "practice-affine-cipher" => {
-      remove: %w[decode encode translate],
-      why: reasons(:library)
-    },
     "practice-allergies" => {
       remove: %w[__init__],
       why: reasons(:called)
@@ -98,42 +89,33 @@ class PythonTest < RepresenterTest
       remove: %w[_ placeholder_37],
       why: reasons(:called, :double)
     },
-    "practice-atbash-cipher" => {
-      remove: %w[decode encode],
-      why: reasons(:library)
-    },
     "practice-bank-account" => {
-      remove: %w[__init__ close],
-      why: reasons(:called, :library)
-    },
-    "practice-binary-search" => {
-      remove: %w[find],
-      why: reasons(:library)
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "practice-binary-search-tree" => {
-      remove: %w[__init__ __str__ add],
-      why: reasons(:called, :library)
+      remove: %w[__init__ __str__],
+      why: reasons(:called)
     },
     "practice-book-store" => {
       remove: %w[_],
       why: reasons(:called)
     },
     "practice-bowling" => {
-      remove: %w[__init__ throw],
-      why: reasons(:called, :library)
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "practice-circular-buffer" => {
-      remove: %w[__init__ clear read write],
-      why: reasons(:called, :library)
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "practice-clock" => {
       remove: %w[__add__ __eq__ __init__ __repr__ __str__ __sub__],
       why: reasons(:called)
     },
     "practice-complex-numbers" => {
-      remove: %w[__abs__ __add__ __eq__ __init__ __mul__ __radd__ __rmul__ __rsub__ __rtruediv__
-                 __sub__ __truediv__ conjugate exp],
-      why: reasons(:called, :library)
+      remove: %w[__abs__ __add__ __eq__ __init__ __mul__ __radd__ __rmul__ __rsub__ __rtruediv__ __sub__ __truediv__],
+      why: reasons(:called)
     },
     "practice-connect" => {
       remove: %w[__init__],
@@ -144,9 +126,8 @@ class PythonTest < RepresenterTest
       why: reasons(:kwargs)
     },
     "practice-custom-set" => {
-      remove: %w[__add__ __contains__ __eq__ __init__ __iter__ __sub__ add intersection
-                 isdisjoint issubset],
-      why: reasons(:called, :library)
+      remove: %w[__add__ __contains__ __eq__ __init__ __iter__ __sub__],
+      why: reasons(:called)
     },
     "practice-dnd-character" => {
       remove: %w[_ __init__],
@@ -157,20 +138,20 @@ class PythonTest < RepresenterTest
       why: reasons(:called)
     },
     "practice-forth" => {
-      remove: %w[__init__ is_integer],
-      why: reasons(:called, :library)
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "practice-gigasecond" => {
-      remove: %w[add seconds],
-      why: reasons(:library, :kwargs)
+      remove: %w[seconds],
+      why: reasons(:kwargs)
     },
     "practice-go-counting" => {
       remove: %w[__init__],
       why: reasons(:called)
     },
     "practice-grade-school" => {
-      remove: %w[__init__ add],
-      why: reasons(:called, :library)
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "practice-grep" => {
       remove: %w[_ encoding start],
@@ -184,10 +165,6 @@ class PythonTest < RepresenterTest
       remove: %w[__init__ reverse],
       why: reasons(:called, :library)
     },
-    "practice-killer-sudoku-helper" => {
-      remove: %w[combinations],
-      why: reasons(:library)
-    },
     "practice-kindergarten-garden" => {
       remove: %w[__init__],
       why: reasons(:called)
@@ -197,16 +174,16 @@ class PythonTest < RepresenterTest
       why: reasons(:called, :double)
     },
     "practice-ledger" => {
-      remove: %w[__init__ truncate],
-      why: reasons(:called, :library)
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "practice-linked-list" => {
-      remove: %w[__init__ __iter__ __len__ pop],
-      why: reasons(:called, :library)
+      remove: %w[__init__ __iter__ __len__],
+      why: reasons(:called)
     },
     "practice-list-ops" => {
-      remove: %w[_ append concat reverse],
-      why: reasons(:called, :library)
+      remove: %w[_],
+      why: reasons(:called)
     },
     "practice-luhn" => {
       remove: %w[__init__],
@@ -220,17 +197,13 @@ class PythonTest < RepresenterTest
       remove: %w[__init__],
       why: reasons(:called)
     },
-    "practice-nucleotide-count" => {
-      remove: %w[count],
-      why: reasons(:library)
-    },
     "practice-ocr-numbers" => {
       remove: %w[placeholder_4],
       why: reasons(:double)
     },
     "practice-paasio" => {
-      remove: %w[__enter__ __exit__ __init__ __iter__ __next__ read send write],
-      why: reasons(:called, :library)
+      remove: %w[__enter__ __exit__ __init__ __iter__ __next__],
+      why: reasons(:called)
     },
     "practice-parallel-letter-frequency" => {
       remove: %w[_ __init__ args target],
@@ -240,25 +213,21 @@ class PythonTest < RepresenterTest
       remove: %w[__init__],
       why: reasons(:called)
     },
-    "practice-pig-latin" => {
-      remove: %w[translate],
-      why: reasons(:library)
-    },
     "practice-poker" => {
       remove: %w[_ reverse],
       why: reasons(:called, :library)
     },
     "practice-pov" => {
-      remove: %w[__dict__ __eq__ __init__ __iter__ __lt__ __str__ add remove],
-      why: reasons(:called, :library)
+      remove: %w[__dict__ __eq__ __init__ __iter__ __lt__ __str__],
+      why: reasons(:called)
     },
     "practice-queen-attack" => {
       remove: %w[__init__],
       why: reasons(:called)
     },
     "practice-rail-fence-cipher" => {
-      remove: %w[_ decode encode key],
-      why: reasons(:called, :library, :kwargs)
+      remove: %w[_ key],
+      why: reasons(:called, :kwargs)
     },
     "practice-rational-numbers" => {
       remove: %w[__abs__ __add__ __eq__ __init__ __mul__ __neg__ __pow__ __repr__ __rpow__
@@ -274,12 +243,8 @@ class PythonTest < RepresenterTest
       why: reasons(:called, :kwargs)
     },
     "practice-rest-api" => {
-      remove: %w[__init__ get update],
-      why: reasons(:called, :library)
-    },
-    "practice-reverse-string" => {
-      remove: %w[reverse],
-      why: reasons(:library)
+      remove: %w[__init__],
+      why: reasons(:called)
     },
     "practice-robot-name" => {
       remove: %w[_ __init__],
@@ -288,14 +253,6 @@ class PythonTest < RepresenterTest
     "practice-robot-simulator" => {
       remove: %w[__init__],
       why: reasons(:called)
-    },
-    "practice-rotational-cipher" => {
-      remove: %w[rotate],
-      why: reasons(:library)
-    },
-    "practice-run-length-encoding" => {
-      remove: %w[decode encode],
-      why: reasons(:library)
     },
     "practice-saddle-points" => {
       remove: %w[_],
@@ -310,12 +267,12 @@ class PythonTest < RepresenterTest
       why: reasons(:kwargs)
     },
     "practice-simple-cipher" => {
-      remove: %w[_ __init__ decode encode],
-      why: reasons(:called, :library)
+      remove: %w[_ __init__],
+      why: reasons(:called)
     },
     "practice-simple-linked-list" => {
-      remove: %w[__init__ __iter__ __len__ __next__ pop],
-      why: reasons(:called, :library)
+      remove: %w[__init__ __iter__ __len__ __next__],
+      why: reasons(:called)
     },
     "practice-space-age" => {
       remove: %w[__init__],
@@ -325,13 +282,9 @@ class PythonTest < RepresenterTest
       remove: %w[_],
       why: reasons(:called)
     },
-    "practice-strain" => {
-      remove: %w[discard],
-      why: reasons(:library)
-    },
     "practice-sublist" => {
-      remove: %w[_ contains],
-      why: reasons(:called, :library)
+      remove: %w[_],
+      why: reasons(:called)
     },
     "practice-tournament" => {
       remove: %w[draw key loss win],
@@ -345,13 +298,9 @@ class PythonTest < RepresenterTest
       remove: %w[__init__],
       why: reasons(:called)
     },
-    "practice-variable-length-quantity" => {
-      remove: %w[decode encode],
-      why: reasons(:library)
-    },
     "practice-word-search" => {
-      remove: %w[__add__ __eq__ __init__ __ne__ __repr__ __sub__ find search],
-      why: reasons(:called, :library)
+      remove: %w[__add__ __eq__ __init__ __ne__ __repr__ __sub__],
+      why: reasons(:called)
     },
     "practice-zebra-puzzle" => {
       remove: %w[_ placeholder_11],
@@ -457,8 +406,8 @@ class PythonTest < RepresenterTest
     assert_same_representation "def f(count, xs): return xs.count(count)", "def f(num, xs): return xs.count(num)"
   end
 
-  def test_methods_named_after_library_methods_stay_apart
-    refute_same_representation "class A:\n    def reverse(self): return self.a.reverse()",
+  def test_methods_named_after_library_methods_are_renamed
+    assert_same_representation "class A:\n    def reverse(self): return self.a.reverse()",
       "class A:\n    def sort(self): return self.a.sort()"
   end
 

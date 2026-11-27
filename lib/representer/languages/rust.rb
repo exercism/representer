@@ -13,8 +13,7 @@
 # - Sorts the items of a file, impl, trait or module by kind and size.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `main`, `Some`, `None`, `Ok`, `Err`, `self`, `Self` and the
 #   standard traits' associated types.
 # - Ignores files with other extensions, and test and config files.
@@ -29,7 +28,7 @@ module Representer
     # comment says which step it replaces.
     class Rust < Language
       tracks "rust"
-      version 7
+      version 8
       grammar "rust"
       extensions ".rs"
 
@@ -172,8 +171,6 @@ module Representer
 
       # Associated types that the standard library's traits fix.
       keep "Output", "Item", "Target", "Error", "IntoIter"
-
-      library_names File.join(__dir__, "library_names", "rust.txt")
 
       STRING_PARTS = %w[string_content escape_sequence].freeze
       ESCAPES = { "n" => "\n", "r" => "\r", "t" => "\t", "\\" => "\\", "0" => "\0", "\"" => "\"", "'" => "'" }.freeze

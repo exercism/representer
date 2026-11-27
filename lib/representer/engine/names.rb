@@ -37,10 +37,7 @@ module Representer
           end
         end
 
-        # A member named like a library method stays as it is, so that a
-        # student's `sum` that calls the library's `sum` can't merge with a
-        # student's `max` that calls `max`.
-        @renameable = (@local_defs | @member_defs) - kept - (@member_defs & language.library.to_set(&@fold))
+        @renameable = (@local_defs | @member_defs) - kept
         @placeholders = {}
         @mapping = {}
       end

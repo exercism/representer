@@ -61,12 +61,12 @@ class ZigTest < RepresenterTest
     refute_same_representation "const C = enum { red, blue };\nconst c = C.red;", "const C = enum { red, blue };\nconst c = C.blue;"
   end
 
-  def test_names_from_outside_are_kept
+  def test_names_from_outside_are_kept_if_the_solution_only_calls_them
     refute_same_representation wrap("return x +% 1;"), wrap("return x +| 1;")
     refute_same_representation "const std = @import(\"std\");\nconst a = std.mem.eql;",
       "const std = @import(\"std\");\nconst a = std.mem.order;"
     refute_same_representation wrap("return @abs(x);"), wrap("return @min(x, 1);")
-    refute_same_representation "const T = struct { fn len() u32 { return 1; } };", "const T = struct { fn count() u32 { return 1; } };"
+    assert_same_representation "const T = struct { fn len() u32 { return 1; } };", "const T = struct { fn count() u32 { return 1; } };"
   end
 
   def test_names_from_the_tests_are_kept

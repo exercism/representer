@@ -16,8 +16,7 @@
 #   its value.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps the methods that .NET itself calls (`Main`, `ToString`,
 #   `Equals` and so on).
 # - Ignores files with other extensions, and test and config files.
@@ -32,7 +31,7 @@ module Representer
     # rule's comment names the rewriter it replaces.
     class CSharp < Language
       tracks "csharp"
-      version 8
+      version 9
       grammar "c_sharp"
       extensions ".cs"
 
@@ -232,8 +231,6 @@ module Representer
       # Methods that .NET itself calls.
       keep "Main", "ToString", "Equals", "GetHashCode", "CompareTo", "Dispose", "GetEnumerator", "MoveNext",
         "Current", "Reset", "Deconstruct", "Clone", "value"
-
-      library_names File.join(__dir__, "library_names", "csharp.txt")
 
       LOCAL_DECLARATIONS = %w[parameter variable_declarator foreach_statement catch_declaration declaration_expression
                               declaration_pattern single_variable_designation].freeze

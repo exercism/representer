@@ -5,17 +5,10 @@ class WrenTest < RepresenterTest
 
   track "wren"
 
-  KEPT = "%s is a name from Wren's core library (or one the language calls itself), so a method that the " \
-         "solution defines with that name keeps it. The old representer renamed it.".freeze
+  RENAMED_WHY = "A method that the solution defines is renamed, even if its name is `new`, or one of Wren's core " \
+                "library or language methods. The old representer kept `new`.".freeze
 
-  DEVIATIONS = {
-    "queens" => {
-      remove: %w[contains toString],
-      why: format(KEPT, "`contains` and `toString`")
-    }
-  }.freeze
-
-  upstream_tests ".wren", deviations: DEVIATIONS
+  upstream_tests ".wren", renamed: { %w[new] => %w[queens] }, renamed_why: RENAMED_WHY
 
   # The old test with three solution files, which upstream_tests can't take.
   # It has its input files, an equivalent file for each input file, and the
@@ -58,11 +51,11 @@ class WrenTest < RepresenterTest
     refute_same_representation "var a = b.foo", "var a = b.bar"
   end
 
-  def test_names_from_outside_are_kept
+  def test_names_from_outside_are_kept_if_the_solution_only_calls_them
     refute_same_representation "var a = b.map {|x| x }", "var a = b.where {|x| x }"
     refute_same_representation "System.print(1)", "System.write(1)"
-    refute_same_representation wrap("contains(x) { x.contains(1) }"), wrap("indexOf(x) { x.indexOf(1) }")
-    refute_same_representation wrap("toString { \"a\" }"), wrap("other { \"a\" }")
+    assert_same_representation wrap("contains(x) { x.contains(1) }"), wrap("indexOf(x) { x.indexOf(1) }")
+    assert_same_representation wrap("toString { \"a\" }"), wrap("other { \"a\" }")
   end
 
   def test_names_from_the_tests_are_kept

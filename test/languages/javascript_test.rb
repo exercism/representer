@@ -29,10 +29,10 @@ class JavaScriptTest < RepresenterTest
       why: "#{LIBRARY_NAMES} #{EXPORTS}"
     },
     "clock-pass" => {
-      restore: { "IDENTIFIER_5" => "console", "IDENTIFIER_6" => "log", "IDENTIFIER_9" => "padStart", "IDENTIFIER_14" => "equals" },
-      remove: %w[console log padStart equals],
+      restore: { "IDENTIFIER_5" => "console", "IDENTIFIER_6" => "log", "IDENTIFIER_9" => "padStart" },
+      remove: %w[console log padStart],
       add: %w[Clock clockPad],
-      why: "#{LIBRARY_NAMES} The student's equals method also keeps its name, because equals is a library name. #{EXPORTS}"
+      why: "#{LIBRARY_NAMES} #{EXPORTS}"
     }
   }.freeze
 
@@ -67,9 +67,9 @@ class JavaScriptTest < RepresenterTest
     refute_same_representation "export const f = (s) => s.toUpperCase()", "export const f = (s) => s.toLowerCase()"
   end
 
-  def test_methods_named_after_library_methods_stay_apart
-    refute_same_representation "function max(a) { return a.max }", "function min(a) { return a.min }"
-    refute_same_representation "class A { size() { return this.a.size } }", "class A { count() { return this.a.count } }"
+  def test_methods_named_after_library_methods_are_renamed
+    assert_same_representation "function max(a) { return 1 }", "function min(a) { return 1 }"
+    assert_same_representation "class A { size() { return this.a.size } }", "class A { count() { return this.a.count } }"
   end
 
   def test_shorthand_properties_keep_their_names

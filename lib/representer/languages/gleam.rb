@@ -9,8 +9,7 @@
 # - Writes a string as its value.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps labelled arguments' labels and `main`.
 # - Ignores files with other extensions, and test and config files.
 # - Joins the files into one tree, in an order set by their code. File names

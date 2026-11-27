@@ -10,8 +10,7 @@
 # - Sorts a map's entries when every key is a string.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Ignores files with other extensions, and test and config files.
 # - Joins the files into one tree, in an order set by their code. File names
 #   never appear.
@@ -31,7 +30,7 @@ module Representer
     # output is a tree.
     class Wren < Language
       tracks "wren"
-      version 7
+      version 8
       grammar "wren"
       extensions ".wren"
 
@@ -102,8 +101,6 @@ module Representer
       rename_member "[(getter_definition name: (identifier) @name) (named_method name: (identifier) @name)]"
       rename_member "[(setter_definition name: (identifier) @name) (constructor_definition name: (identifier) @name)]"
       member "(method_call_expression method: (identifier) @name)"
-
-      library_names File.join(__dir__, "library_names", "wren.txt")
 
       ESCAPES = { "n" => "\n", "r" => "\r", "t" => "\t", "0" => "\0", "a" => "\a", "b" => "\b", "e" => "\e",
                   "f" => "\f", "v" => "\v", "\\" => "\\", "\"" => "\"", "%" => "%" }.freeze

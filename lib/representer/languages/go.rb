@@ -13,8 +13,7 @@
 # - Writes a string as its value.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `main`, `init` and the methods that the standard library
 #   calls (`String`, `Error`, `Len` and so on).
 # - Ignores files with other extensions, and test and config files.
@@ -29,7 +28,7 @@ module Representer
     # comment says which step it replaces.
     class Go < Language
       tracks "go"
-      version 8
+      version 9
       grammar "go"
       extensions ".go"
 
@@ -183,8 +182,6 @@ module Representer
       keep "String", "Error", "Len", "Less", "Swap", "Push", "Pop", "Read", "Write", "Close", "Unwrap", "Is", "As",
         "MarshalJSON", "UnmarshalJSON", "MarshalText", "UnmarshalText", "ServeHTTP", "Format", "Scan", "Seek",
         "ReadFrom", "WriteTo", "ReadByte", "WriteByte", "ReadRune", "WriteRune", "WriteString", "Next"
-
-      library_names File.join(__dir__, "library_names", "go.txt")
 
       STRING_PARTS = %w[interpreted_string_literal_content raw_string_literal_content escape_sequence].freeze
 

@@ -94,9 +94,9 @@ class FSharpTest < RepresenterTest
     refute_same_representation wrap("let sum xs = List.sum xs"), wrap("let sum xs = List.max xs")
   end
 
-  def test_a_member_named_like_a_library_member_keeps_its_name
+  def test_a_member_named_like_a_library_member_is_renamed
     code = "type C() =\n    member this.%s = 1"
-    refute_same_representation wrap(format(code, "Length")), wrap(format(code, "Size"))
+    assert_same_representation wrap(format(code, "Length")), wrap(format(code, "Size"))
     assert_same_representation wrap(format(code, "Total")), wrap(format(code, "Amount"))
   end
 

@@ -17,15 +17,13 @@
 #   in every symbol with its name, such as `:count` in `xs.map(&:count)`.
 # - A name that the solution doesn't define keeps its name, such as a call
 #   to a library method, or `$stdout`.
-# - A name in Ruby's library names list keeps its name, even if the
-#   solution defines it (see library_names/ruby.txt).
 module Representer
   module Languages
     module Ruby
       extend StagedLanguage
 
       tracks "ruby"
-      version 9
+      version 10
       grammar "ruby"
       extensions ".rb"
 

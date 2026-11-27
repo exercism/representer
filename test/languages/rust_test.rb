@@ -101,9 +101,9 @@ class RustTest < RepresenterTest
     assert_same_representation format(code, "A", "A"), format(code, "B", "B")
   end
 
-  def test_a_method_named_like_a_library_method_keeps_its_name
+  def test_a_method_named_like_a_library_method_is_renamed
     code = "struct S(u32);\nimpl S { fn %s(&self) -> u32 { self.0 } }"
-    refute_same_representation format(code, "len"), format(code, "size")
+    assert_same_representation format(code, "len"), format(code, "size")
     assert_same_representation format(code, "total"), format(code, "amount")
   end
 

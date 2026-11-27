@@ -21,8 +21,7 @@
 #   literal values.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Keeps every clojure.core name, even where the solution binds a local
 #   with the same name.
 # - Renames a name after a namespace, a method call or a constructor only if
@@ -55,7 +54,7 @@ module Representer
     # `doseq`, `case`, `condp` and `loop` destructuring stay as written.
     class Clojure < Language
       tracks "clojure"
-      version 7
+      version 8
       grammar "clojure"
       extensions ".clj", ".cljc", ".cljs"
 
@@ -68,11 +67,6 @@ module Representer
       # bindings) or the `definition` type (functions, vars, protocols, records),
       # and the rename rules can tell them from every other symbol.
       names :sym, :local, :definition
-
-      # clojure.core names and special forms are never renamed, even if the
-      # student binds a local with the same name (such as `name` or `mod`).
-      CORE_NAMES = File.readlines(File.join(__dir__, "library_names", "clojure.txt"), chomp: true).
-        reject { |line| line.empty? || line.start_with?("#") }.freeze
 
       IMPORT_CLAUSES = %w[:require :use :import].freeze
 
@@ -162,7 +156,9 @@ module Representer
       member "(qualified (sym) @name)"
       member "(method (sym) @name)"
       member "(constructor (sym) @name)"
-      keep(*CORE_NAMES)
+
+      # `&` marks the rest of a binding vector, and `_` marks an unused binding.
+      keep "&", "_"
 
       class << self
         # `(quote x)` for a quoting marker with one form.

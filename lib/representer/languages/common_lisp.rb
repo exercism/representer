@@ -18,8 +18,7 @@
 # - Keeps only the variable of a `loop` clause such as `for x from 1 to n`.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps the lambda-list keywords (`&optional`, `&key` and so on).
 # - Renames a keyword only if the solution defines something with that name.
 # - Ignores files with other extensions, and test and config files.

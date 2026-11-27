@@ -24,8 +24,7 @@ names_are_defined_by :class, :method_parameters, method: :name, assignment: :lef
 [`Engine::RenameUserDefinedNodes`](./lib/representer/engine/rename_user_defined_nodes.rb) then walks the solution's trees twice.
 The first walk collects the text of every name that the solution defines.
 The second walk renames every name with one of those texts, wherever it appears: in its definition, and in every use, call and symbol.
-A name in the language's library names list keeps its name, even if the solution defines it.
-Every other name keeps its name, so a call to a library method stays as it is.
+Every name that the solution doesn't define keeps its name, so a call to a library method stays as it is.
 The engine never reads the exercise's tests or stub for names.
 
 ## Code patterns
@@ -94,8 +93,6 @@ A staged language's module takes the setup methods `tracks`, `version`, `grammar
 
 - `imports "code", ...` lists the code that counts as an import, as code patterns. The engine drops it from every file, after `GenerateAST`.
 - `pattern_contexts "context", ...` lists the code to put a code pattern in when the pattern doesn't parse on its own. Each context marks the pattern's place with `...`.
-
-The engine reads a staged language's library names from `lib/representer/languages/library_names/<track>.txt`.
 
 ## Tree helpers for GenerateAST
 
@@ -305,7 +302,7 @@ rename "[(assignment left: (identifier) @name) (operator_assignment left: (ident
 ### `rename_member(pattern)`
 
 This marks a name the student defines for a method, function, property, class or constant.
-The engine renames it everywhere, including after a dot, unless it is also a library name.
+The engine renames it everywhere, including after a dot.
 
 ```ruby
 rename_member "[(method name: (_) @name) (singleton_method name: (_) @name)]"
@@ -328,15 +325,6 @@ Give the names themselves, or a pattern that captures `@name`.
 ```ruby
 keep "initialize", "to_s", "each", "<=>"
 keep "(keyword_parameter name: (identifier) @name)"
-```
-
-### `library_names(path)`
-
-This loads a file of the language's core and standard library names, one per line.
-If the student defines a method or property with one of these names, the engine keeps it.
-
-```ruby
-library_names File.join(__dir__, "library_names", "ruby.txt")
 ```
 
 ## Patterns

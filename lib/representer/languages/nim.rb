@@ -15,8 +15,7 @@
 #   underscores, as one name.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `result`.
 # - Ignores files with other extensions, and test and config files.
 # - Joins the files into one tree, in an order set by their code. File names
@@ -34,7 +33,7 @@ module Representer
     # replaces.
     class Nim < Language
       tracks "nim"
-      version 7
+      version 8
       grammar "nim"
       extensions ".nim", ".nims"
 
@@ -135,8 +134,6 @@ module Representer
 
       # The variable that Nim declares in every proc with a result.
       keep "result"
-      library_names File.join(__dir__, "library_names", "nim.txt")
-
       class << self
         def operator?(text) = text.match?(/\A[^A-Za-z_]/) || WORD_OPERATORS.include?(text)
 

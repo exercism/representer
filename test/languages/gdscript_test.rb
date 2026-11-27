@@ -85,9 +85,9 @@ class GDScriptTest < RepresenterTest
     refute_same_representation wrap("return a.size"), wrap("return a.back")
   end
 
-  def test_core_names_are_kept
-    refute_same_representation "func size():\n\treturn 1", "func back():\n\treturn 1"
-    refute_same_representation "func _ready():\n\tpass", "func _process():\n\tpass"
+  def test_core_names_are_kept_if_the_solution_only_calls_them
+    assert_same_representation "func size():\n\treturn 1", "func back():\n\treturn 1"
+    assert_same_representation "func _ready():\n\tpass", "func _process():\n\tpass"
     refute_same_representation wrap("return str(a)"), wrap("return len(a)")
   end
 

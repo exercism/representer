@@ -17,15 +17,12 @@ module Representer
   # Engine::RepresentWithStages for the order). It also makes the decisions
   # that apply to every language. It drops the language's imports after
   # GenerateAST, renames every name the solution defines (see
-  # Engine::RenameUserDefinedNodes), keeps the language's library names,
-  # leaves out file names, orders the files by their code, numbers the
-  # placeholders, and refuses invalid code.
+  # Engine::RenameUserDefinedNodes), leaves out file names, orders the files
+  # by their code, numbers the placeholders, and refuses invalid code.
   #
   # CONTRIBUTING.md explains how to write a language this way.
   module StagedLanguage
     include LanguageSetup
-
-    LIBRARY_NAMES = File.join(__dir__, "languages", "library_names")
 
     # Called by Representer when it picks a language for a track.
     def call(solution_files, exercise_files) = Engine::Represent.(self, solution_files, exercise_files)
@@ -85,17 +82,6 @@ module Representer
     # the pattern's place with `...`. In Ruby, `"...\nend"` would let
     # `def {{method}}({{x}})` parse.
     def pattern_contexts(*contexts) = contexts.empty? ? @pattern_contexts || [] : @pattern_contexts = contexts
-
-    # Returns the library names. The engine reads them from
-    # languages/library_names/<track>.txt. A name in this list keeps its
-    # name, even if the solution defines it, so `def sum(a) = a.sum` and
-    # `def max(a) = a.max` stay apart.
-    def library
-      return @library_names if @library_names
-
-      path = File.join(LIBRARY_NAMES, "#{tracks.first}.txt")
-      File.exist?(path) ? library_names(path) : @library_names = Set.new
-    end
 
     # Runs the language's stage with this name on the tree, and returns the
     # new tree. If the language doesn't define the stage, the tree stays as

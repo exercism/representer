@@ -43,7 +43,7 @@ class CairoTest < RepresenterTest
     refute_same_representation wrap("let mut v = array![];\nv.append(a);\na"), wrap("let mut v = array![];\nv.pop_front();\na")
   end
 
-  def test_a_method_named_like_a_library_method_keeps_its_name
+  def test_a_method_named_like_a_library_method_is_renamed_where_it_is_called_too
     refute_same_representation "fn len(a: u32) -> u32 { a.len() }", "fn size(a: u32) -> u32 { a.len() }"
   end
 

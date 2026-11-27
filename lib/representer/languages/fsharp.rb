@@ -12,8 +12,7 @@
 # - Writes a string as its value, however it is quoted.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps the members that .NET itself calls, and `Some`, `None`, `Ok`
 #   and `Error`.
 # - Ignores files with other extensions, and test and config files.
@@ -30,7 +29,7 @@ module Representer
     # makes layout irrelevant, so the printing step has no equivalent.
     class FSharp < Language
       tracks "fsharp"
-      version 7
+      version 8
       grammar "fsharp"
       extensions ".fs", ".fsx"
 
@@ -173,8 +172,6 @@ module Representer
 
       keep "_", "main", "ToString", "Equals", "GetHashCode", "CompareTo", "Dispose", "GetEnumerator", "MoveNext",
         "Current", "Item", "Some", "None", "Ok", "Error"
-
-      library_names File.join(__dir__, "library_names", "fsharp.txt")
 
       # Whether brackets group one thing that isn't an operator expression.
       def self.groups_one_thing?(paren)

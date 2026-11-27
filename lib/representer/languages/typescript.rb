@@ -4,8 +4,7 @@
 # - Writes `(x: T) => x` with one plain parameter as `x => x`.
 # - Renames the types, interfaces, enums and type parameters that the
 #   solution defines, and their members, whether or not they are exported.
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Ignores files with other extensions, and test and config files.
 # - Joins the files into one tree, in an order set by their code. File names
 #   never appear.
@@ -18,7 +17,7 @@ module Representer
   module Languages
     class TypeScript < Language
       tracks "typescript"
-      version 7
+      version 8
       grammar "typescript"
       extensions ".ts", ".mts", ".cts", ".tsx"
 
@@ -67,8 +66,6 @@ module Representer
 
       # Names after a dot in a type, such as `Namespace.Type`.
       member "(nested_type_identifier name: (_) @name)"
-
-      library_names File.join(__dir__, "library_names", "javascript.txt")
     end
   end
 end

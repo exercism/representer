@@ -110,9 +110,9 @@ class CrystalTest < RepresenterTest
     refute_same_representation wrap("def a\n  1\nend\ndef b\n  2\nend"), wrap("def a\n  1\nend\ndef b\n  3\nend")
   end
 
-  def test_a_method_named_like_a_library_method_keeps_its_name
+  def test_a_method_named_like_a_library_method_is_renamed
     code = "class C\n  def %s\n    1\n  end\nend"
-    refute_same_representation format(code, "sum"), format(code, "max")
+    assert_same_representation format(code, "sum"), format(code, "max")
     assert_same_representation format(code, "total"), format(code, "amount")
   end
 

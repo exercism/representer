@@ -23,7 +23,7 @@ A merge is only harmful if a mentor would comment differently on the two solutio
 
 Names follow from the same principle, and give one rule: **rename every name the solution defines, wherever it appears.**
 A name the solution doesn't define, such as a call to a library method, keeps its name.
-A name in the language's library names list keeps its name too, even if the solution defines it, so `def sum(a) = a.sum` and `def max(a) = a.max` stay apart.
+If the solution defines a method called `sum`, the engine renames it, even though the library has a `sum` too.
 
 When in doubt, keep two solutions apart.
 A missed merge only means a mentor sees one more solution.
@@ -107,7 +107,7 @@ DEVIATIONS = {
 - `merges_with`: other tests that this representer gives the same representation, although the old representer kept them apart. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
 - `why`: the reason. Every deviation needs one.
 
-The common deviations are library names (this representer keeps them; several old ones renamed them) and old outputs that weren't valid code.
+The common deviations are old outputs that weren't valid code, and names that the old representer kept and this one renames.
 Never use a deviation to hide a merge that the old representer kept apart.
 
 ## 3. Declare the names and write the stages
@@ -121,7 +121,7 @@ The other languages still use the older rule DSL, described in [REPRESENTER_DSL.
 These rules decide what a language may do:
 
 1. Every solution that the representer sees is valid code that passes its tests. A stage may throw away code that makes no difference to the solution working, but it never adds code that only copes with invalid input.
-2. The engine makes the decisions that apply to every language. It drops the language's imports, renames every name the solution defines, keeps the language's library names, leaves out file names, orders the files by their code, numbers the placeholders and refuses invalid code. A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of these decisions.
+2. The engine makes the decisions that apply to every language. It drops the language's imports, renames every name the solution defines, leaves out file names, orders the files by their code, numbers the placeholders and refuses invalid code. A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of these decisions.
 3. Within a language, match what the old representer (`exercism/<track>-representer`) did. A language-specific difference from the old behaviour only goes in if a human has decided it. List any other improvement you'd suggest in `test/golden/<track>/SUGGESTIONS.md` for the maintainers to discuss. Fix bugs, such as wrong merges and crashes.
 
 ### The module
@@ -164,7 +164,6 @@ require_relative "ruby/generate_ast"
 
 Give both lists with the node types that `GenerateAST` leaves.
 Check the grammar's `queries/locals.scm` and `queries/tags.scm`, which mark the nodes that define locals, methods and classes.
-The engine reads the library names from `lib/representer/languages/library_names/<track>.txt` (see "Library names" below).
 
 ### The stages
 
@@ -234,15 +233,7 @@ The engine renames names in one step, [`Engine::RenameUserDefinedNodes`](./lib/r
 The first walk collects the text of every name defined by a node listed in `names_are_defined_by`.
 The second walk renames every name with one of those texts, wherever it appears: in its definition, and in every use, call and symbol.
 Renaming goes by name, so every use of a renamed name gets the same placeholder.
-A name in the library names list keeps its name, even if the solution defines it.
 The engine never reads the exercise's tests or stub for names.
-
-### Library names
-
-The library names list keeps a name if it is a library method's name, so `def sum(a) = a.sum` and `def max(a) = a.max` stay apart.
-Only list methods where the choice of method is something a mentor comments on, and the methods that the language calls itself (such as Ruby's `initialize`).
-The engine reads the list from `lib/representer/languages/library_names/<track>.txt`.
-[`bin/draft-ruby-library-names`](./bin/draft-ruby-library-names) made Ruby's list from the methods called in the golden solutions.
 
 ## 4. Add tests for each stage
 
@@ -266,7 +257,7 @@ The golden tests fail if a change splits or merges any of the production groups,
 
 A new language starts at version 2, because the old per-track representers all reported version 1.
 
-Bump a language's version whenever its output could change for any solution: a change to a stage, a rule or the names, a new library names list, or a new grammar commit.
+Bump a language's version whenever its output could change for any solution: a change to a stage, a rule or the names, or a new grammar commit.
 The website will then represent the track's solutions again.
 
 Basic has its own version, which only covers the tracks with no class of their own.
@@ -283,7 +274,7 @@ Write new code this way, and convert older code to it when you change that code.
 
 ## Running the tests
 
-If a change only touches one language's files (its class or classes, its library names, its grammar's pin or its golden data), run only that language's tests:
+If a change only touches one language's files (its class or classes, its grammar's pin or its golden data), run only that language's tests:
 
 ```shell
 ./bin/run-tests.sh ruby

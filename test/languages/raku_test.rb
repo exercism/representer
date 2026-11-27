@@ -87,9 +87,9 @@ class RakuTest < RepresenterTest
     assert_same_representation "sub add($a, $b) { $a + $b }\nsay add(1, 2)", "sub plus($a, $b) { $a + $b }\nsay plus(1, 2)"
   end
 
-  def test_core_names_are_kept
+  def test_core_names_are_kept_if_the_solution_only_calls_them
     refute_same_representation "sub f($x) { $x.sum }", "sub f($x) { $x.max }"
-    refute_same_representation "method sum { 1 }", "method max { 1 }"
+    assert_same_representation "method sum { 1 }", "method max { 1 }"
     refute_same_representation "sub f($x) { say $x }", "sub f($x) { put $x }"
   end
 

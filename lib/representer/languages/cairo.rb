@@ -9,8 +9,7 @@
 # - Writes `P { x }` as `P { x: x }`.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `main`, `Some`, `None`, `Ok`, `Err`, `self` and `Self`.
 # - Renames functions, fields and enum variants after a dot or `::` too, but
 #   only if the solution defines them.
@@ -26,12 +25,12 @@ module Representer
     # The grammar is starkware-libs/tree-sitter-cairo (Apache-2.0).
     #
     # The class removes comments and formatting, and renames the names that
-    # the solution defines, apart from the names that a library, the tests
-    # or the language give a meaning. Cairo's syntax is close to Rust's, so
+    # the solution defines, apart from the names that the tests or the
+    # language give a meaning. Cairo's syntax is close to Rust's, so
     # the rules follow the Rust class.
     class Cairo < Language
       tracks "cairo"
-      version 3
+      version 4
       grammar "cairo"
       extensions ".cairo"
 
@@ -106,8 +105,6 @@ module Representer
       member "(scoped_type_identifier name: (type_identifier) @name)"
 
       keep "main", "Some", "None", "Ok", "Err", "self", "Self"
-
-      library_names File.join(__dir__, "library_names", "cairo.txt")
     end
   end
 end

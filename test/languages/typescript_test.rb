@@ -10,9 +10,8 @@ class TypeScriptTest < RepresenterTest
 
   DEVIATIONS = {
     "clock-pass" => {
-      remove: %w[length equals Math abs floor],
-      why: "#{LIBRARY_NAMES} The student's equals method also keeps its name, because equals is a library name, " \
-           "and length is kept because JavaScript itself uses it."
+      remove: %w[length Math abs floor],
+      why: "#{LIBRARY_NAMES} Length is kept because JavaScript itself uses it."
     },
     "two-fer-fail" => { remove: %w[console debug log], why: LIBRARY_NAMES },
     "two-fer-error-syntax" => {

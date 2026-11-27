@@ -10,8 +10,7 @@
 # - Drops type hints.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `self`, `super` and `_`.
 # - Ignores files with other extensions, and test and config files.
 # - Joins the files into one tree, in an order set by their code. File names
@@ -28,7 +27,7 @@ module Representer
     # those too, because the student chooses all of those names.
     class GDScript < Language
       tracks "gdscript"
-      version 7
+      version 8
       grammar "gdscript"
       extensions ".gd"
 
@@ -100,8 +99,6 @@ module Representer
 
       TYPE_HINT_FIELDS = %w[type return_type].freeze
       TYPE_HINTS = %w[type inferred_type].freeze
-      library_names File.join(__dir__, "library_names", "gdscript.txt")
-
       class << self
         # Replaces the operator token `from` with `to`.
         def respell(node, from, to)

@@ -14,8 +14,7 @@
 # - Writes a string as its value, joining adjacent strings.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps names that start and end with `__`.
 # - Ignores files with other extensions, and test and config files.
 # - Joins the files into one tree, in an order set by their code. File names
@@ -30,7 +29,7 @@ module Representer
     # statements, `if __name__ == "__main__"` blocks and type hints.
     class Python < Language
       tracks "python"
-      version 7
+      version 8
       grammar "python"
       extensions ".py"
 
@@ -248,8 +247,6 @@ module Representer
       # Names that Python itself uses.
       keep(*BUILTINS)
       keep "(identifier /\\A__\\w+__\\z/) @name"
-
-      library_names File.join(__dir__, "library_names", "python.txt")
 
       ### Helpers for the rules above ###
 

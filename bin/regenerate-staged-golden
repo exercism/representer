@@ -2,8 +2,8 @@
 
 # Synopsis:
 # The work of the git pre-commit hook (bin/pre-commit runs it with the Ruby
-# in .ruby-version). If the commit changes a language's class or stages, its library
-# names or its grammar's pin in grammars.yml, this regenerates that
+# in .ruby-version). If the commit changes a language's class or stages, or its
+# grammar's pin in grammars.yml, this regenerates that
 # language's golden data (see test/golden/README.md). If that changes any
 # golden files, it stops the commit, so that you can review and stage them.
 
@@ -44,10 +44,8 @@ changed = languages.select do |language|
   sources = [class_files[language], *Dir[class_files[language].sub(/\.rb\z/, "/*.rb")]]
   text = File.read(class_files[language])
   text.scan(/inherit (\w+)/).flatten.each { |parent| sources << class_files[Representer::Languages.const_get(parent)] }
-  libraries = sources.flat_map { |file| File.read(file).scan(/"(\w+\.txt)"/).flatten }.
-    map { |name| "#{languages_dir}library_names/#{name}" }
 
-  (staged & (sources + libraries)).any? || changed_grammars.include?(language.grammar)
+  (staged & sources).any? || changed_grammars.include?(language.grammar)
 end
 
 tracks = Golden.tracks.select do |track|

@@ -5,16 +5,8 @@ class CSharpTest < RepresenterTest
 
   track "csharp"
 
-  LIBRARY_ADD = {
-    restore: { "PLACEHOLDER_2" => "Add" },
-    remove: ["Add"],
-    why: "Add is a library method name (DateTime.Add), so a method the student calls Add keeps its name."
-  }.freeze
-
   DEVIATIONS = {
-    "Braces-BracesOnSameLine" => LIBRARY_ADD,
-    "WhiteSpace-InconsistentWhiteSpace" => LIBRARY_ADD,
-    "WhiteSpace-WindowsLineEndings" => LIBRARY_ADD,
+    "Identifiers-LocalFunction" => { add: ["Add"], why: "Local functions are renamed. The old representer left them." },
     "DictionaryInitializations-CollectionInitWithFunctionArgs" => {
       add: ["LocalInt"],
       why: "Local functions are renamed. The old representer left them."
@@ -80,8 +72,8 @@ class CSharpTest < RepresenterTest
 
   def test_library_calls_stay_apart
     refute_same_representation wrap("return y.Equals(1);"), wrap("return y.CompareTo(1) == 0;")
-    refute_same_representation "public static class A { public static int Sum(int[] a) => a.Sum(); }",
-      "public static class A { public static int Max(int[] a) => a.Max(); }"
+    assert_same_representation "public static class A { public static int Sum(int[] a) => 1; }",
+      "public static class A { public static int Max(int[] a) => 1; }"
   end
 
   def test_tuple_deconstruction_renames_every_variable

@@ -54,7 +54,7 @@ A new one gets `status: undecided` and a note that says where the solutions diff
 
 `./bin/setup-hooks` installs a pre-commit hook ([`bin/pre-commit`](../../bin/pre-commit)).
 The hook runs with the Ruby named in `.ruby-version`, whatever Ruby the shell has, and says so if it can't find one.
-If a commit changes a language's class, its library names or its grammar's pin, the hook regenerates that language's golden data.
+If a commit changes a language's class or its grammar's pin, the hook regenerates that language's golden data.
 If any golden file then changes, it will stop the commit until you stage the files.
 The hook doesn't look at changes to the engine, which can change every language, so run `./bin/regenerate-golden` for those.
 CI checks every track either way.
@@ -112,7 +112,7 @@ The variants find 32 near-miss merges, and all of them are accepted.
 
 The data holds 20,581 solutions in 82 tracks: 4,187 production groups of two or three solutions, and 8,041 singles.
 Each track has between 33 and 100 singles (the median is 100), from between 22 and 100 exercises (the median is 69).
-Compared with production, today's representer makes 685 splits and 160 merges, 48 solutions get no representation, and 32 singles get the same representation as their variant.
+Compared with production, today's representer makes 674 splits and 160 merges, 48 solutions get no representation, and 32 singles get the same representation as their variant.
 All 160 merges, all 32 near-miss merges and 24 of the splits are accepted. The other splits and the unrepresentable solutions are still `undecided`.
 
 ### The 55 tracks that use Basic
@@ -128,12 +128,11 @@ Today's Basic does the opposite: it keeps line breaks, the spaces between tokens
 
 ### The 27 tracks with a class of their own
 
-These tracks have 117 splits, 97 merges and 48 unrepresentable solutions.
+These tracks have 106 splits, 97 merges and 48 unrepresentable solutions.
 
 The main causes of splits are:
 
 - **Names used by the tests (about 63 splits).** The languages written with the rule DSL keep every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Common Lisp (9), Rust (8) and PHP (5) have the most.
-- **Library names in Ruby (6 splits).** Ruby keeps every name in its library names list, even if the solution defines it. So a local called `count` keeps its name, while another student's `n` gets a placeholder.
 - **F# layout (8 splits).** The F# grammar builds a different tree for the same expression laid out differently, such as a pipeline split across lines.
 - **C++ headers (7 splits).** One solution declares its functions in a header and defines them in a source file, and the other defines them in the header.
 - **Real differences (24 splits, accepted).** The solutions are different programs that an old representer treated as the same, such as PHP's `!==` and `!=`, JavaScript's `toUpperCase` and `toLocaleUpperCase`, or a solution with an extra file.

@@ -128,9 +128,9 @@ class CppTest < RepresenterTest
     refute_same_representation "int f(std::vector<int> v) { return v.size(); }", "int f(std::vector<int> v) { return v.max_size(); }"
   end
 
-  def test_a_function_named_like_a_library_function_keeps_its_name
+  def test_a_function_named_like_a_library_function_is_renamed
     code = "int %s(int a) { return a; }"
-    refute_same_representation format(code, "count"), format(code, "size")
+    assert_same_representation format(code, "count"), format(code, "size")
     assert_same_representation format(code, "total"), format(code, "amount")
   end
 

@@ -17,8 +17,8 @@ module Representer
   #    only on their code, and the rewrite rules run again on the whole. A
   #    file's name is never part of the representation.
   # 4. Rename: replace each name the student chose with a placeholder, and
-  #    keep every name with a meaning outside the solution (library names,
-  #    names the tests use, names the language calls itself).
+  #    keep every name with a meaning outside the solution (names the
+  #    tests use, names the language calls itself).
   #
   # CONTRIBUTING.md explains how to add a language.
   class Language
@@ -52,7 +52,7 @@ module Representer
 
       ### Setup ###
       # LanguageSetup gives tracks, version, grammar, extensions, names,
-      # fold_names and library_names.
+      # and fold_names.
 
       # Starts with all of another language's rules and names, for a language
       # that is a superset of it (such as TypeScript from JavaScript). Call it
@@ -63,7 +63,6 @@ module Representer
         @kept_tokens = parent.kept_tokens.transform_values(&:dup)
         @gap_types = parent.gap_types.dup
         @kept_names = parent.kept_names.dup
-        @library_names = parent.library.dup
         @syntax_checks = parent.syntax_checks.dup
         %i[drop_rules rewrite_rules local_rules member_rules member_position_rules keep_rules].each do |rules|
           instance_variable_set("@#{rules}", parent.public_send(rules).dup)
@@ -157,8 +156,7 @@ module Representer
       def rename(pattern) = local_rules << Rule.new(Engine::Pattern.parse(pattern))
 
       # A name the student defines for a method, function, property, class or
-      # constant. These names are renamed everywhere, including after a dot,
-      # unless they are also library names (see library_names).
+      # constant. These names are renamed everywhere, including after a dot.
       def rename_member(pattern) = member_rules << Rule.new(Engine::Pattern.parse(pattern))
 
       # A name used after a dot (obj.name), or anywhere else that refers to a

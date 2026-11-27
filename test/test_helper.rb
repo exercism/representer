@@ -63,8 +63,7 @@ end
 # Where this representer deliberately differs, a deviation says how and why:
 #
 # - restore: placeholders in equivalent.<ext> to turn back into names, for
-#   names the old representer renamed but this one keeps (such as library
-#   method names).
+#   names the old representer renamed but this one keeps.
 # - replace: text in equivalent.<ext> to replace with other text, for names
 #   that this representer renames and the old one kept.
 # - add / remove: names to add to or remove from the old mapping.
@@ -74,12 +73,23 @@ end
 #   same representation, although the old one kept them apart (such as two
 #   solutions that differ only in their imports).
 # - why: the reason, which every deviation must give.
+#
+# A test whose mapping has names that the old representer didn't rename (it
+# kept the names of library methods, even if the solution defined them) is
+# listed by the names in upstream_tests' renamed: argument, with one reason
+# for all of them in renamed_why:.
 module UpstreamTests
   Case = Struct.new(:name, :solution_files, :equivalent, :key, :mapping_names, :deviation, keyword_init: true)
 
-  def upstream_tests(extension, deviations: {})
-    cases = load_cases(extension, deviations)
-    unknown = deviations.keys - cases.map(&:name)
+  # renamed maps a list of names to the tests whose mapping has them,
+  # although the old representer's mapping didn't.
+  def upstream_tests(extension, deviations: {}, renamed: {}, renamed_why: nil)
+    raise ArgumentError, "renamed needs a renamed_why" if renamed.any? && !renamed_why
+
+    renamed_by_test = Hash.new { |hash, name| hash[name] = [] }
+    renamed.each { |names, tests| tests.each { |test| renamed_by_test[test].concat(names) } }
+    cases = load_cases(extension, deviations, renamed_by_test)
+    unknown = (deviations.keys | renamed_by_test.keys) - cases.map(&:name)
     raise ArgumentError, "Deviations for unknown tests: #{unknown.join(', ')}" if unknown.any?
 
     cases.each do |test_case|
@@ -130,7 +140,7 @@ module UpstreamTests
   PLACEHOLDER_KEY = /\A@?(PLACEHOLDER|IDENTIFIER|IDENT|FUNCVAR|FUNC|fn|v|C|m)_?\d+@?\z/i
 
   private
-  def load_cases(extension, deviations)
+  def load_cases(extension, deviations, renamed)
     Dir[File.join(__dir__, "fixtures", track, "*")].sort.map do |dir|
       name = File.basename(dir)
       deviation = deviations.fetch(name, {})
@@ -146,7 +156,7 @@ module UpstreamTests
         solution_files: solution_names.to_h { |file| [file, File.read(File.join(dir, file))] },
         equivalent:,
         key: expected_text.strip,
-        mapping_names: mapping_names(File.join(dir, "expected_mapping.json"), deviation),
+        mapping_names: mapping_names(File.join(dir, "expected_mapping.json"), deviation, renamed.fetch(name, [])),
         deviation:
       )
     end
@@ -161,9 +171,9 @@ module UpstreamTests
   # Old representers wrote mappings either way round (name to placeholder,
   # or placeholder to name). PHP's placeholders are fn0, v0, C0 and m0, and
   # Wren's are @IDENT1@.
-  def mapping_names(path, deviation)
+  def mapping_names(path, deviation, renamed)
     mapping = JSON.parse(File.read(path))
     names = mapping.keys.all? { |key| key.match?(PLACEHOLDER_KEY) } ? mapping.values : mapping.keys
-    names - deviation.fetch(:remove, []) + deviation.fetch(:add, [])
+    names - (deviation.fetch(:remove, []) - renamed) + deviation.fetch(:add, []) + renamed
   end
 end

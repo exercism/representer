@@ -11,8 +11,7 @@
 #   and `0x1F` is `31`.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps the methods that JavaScript itself calls (`constructor`,
 #   `toString` and so on).
 # - Keeps shorthand property names, because they are also property names.
@@ -26,7 +25,7 @@ module Representer
   module Languages
     class JavaScript < Language
       tracks "javascript"
-      version 7
+      version 8
       grammar "javascript"
       extensions ".js", ".mjs", ".cjs", ".jsx"
 
@@ -125,8 +124,6 @@ module Representer
 
       # Methods that JavaScript itself calls.
       keep "constructor", "toString", "valueOf", "toJSON", "then", "next", "length", "default"
-
-      library_names File.join(__dir__, "library_names", "javascript.txt")
 
       # `require("fs")`.
       def self.require_call?(node)

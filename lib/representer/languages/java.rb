@@ -12,8 +12,7 @@
 #   a string as its value.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Gives each method's parameters and local variables placeholders of their
 #   own, so a name reused in two methods doesn't change the numbering.
 # - Also keeps the methods that Java itself calls (`main`, `toString`,
@@ -32,7 +31,7 @@ module Representer
     # package.
     class Java < Language
       tracks "java"
-      version 7
+      version 8
       grammar "java"
       extensions ".java"
 
@@ -160,8 +159,6 @@ module Representer
       # Methods that Java itself calls.
       keep "main", "toString", "equals", "hashCode", "compareTo", "compare", "iterator", "hasNext", "next", "run", "call",
         "close", "clone", "finalize", "get", "apply", "accept", "test", "values", "valueOf", "length"
-
-      library_names File.join(__dir__, "library_names", "java.txt")
 
       LOCAL_DECLARATIONS = {
         "formal_parameter" => "name", "catch_formal_parameter" => "name", "enhanced_for_statement" => "name",

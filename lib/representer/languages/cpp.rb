@@ -15,8 +15,7 @@
 # - Writes a string as its value, joining adjacent strings.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `main`, and renames a name after `.`, `->` or `::` only if
 #   the solution defines it.
 # - Ignores files with other extensions, and test and config files.
@@ -31,10 +30,11 @@ module Representer
     # representer split the code into tokens with a lexer, dropped comments
     # and preprocessor lines, and renamed every name except those after
     # `std::`. Here the syntax tree does that job: only the names that the
-    # solution defines are renamed, so every library name stays.
+    # solution defines are renamed, so a library name that the solution only
+    # calls stays.
     class Cpp < Language
       tracks "cpp"
-      version 8
+      version 9
       grammar "cpp"
       extensions ".cpp", ".h", ".hpp", ".cc", ".cxx", ".hh", ".hxx"
 
@@ -186,8 +186,6 @@ module Representer
       member "(qualified_identifier name: (template_function name: (identifier) @name))"
 
       keep "main"
-
-      library_names File.join(__dir__, "library_names", "cpp.txt")
 
       ESCAPES = {
         "n" => "\n", "t" => "\t", "r" => "\r", "a" => "\a", "b" => "\b", "f" => "\f", "v" => "\v", "\\" => "\\",

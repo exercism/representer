@@ -27,8 +27,8 @@ class RubyNamesTest < Minitest::Test
     assert_equal %w[x], renamed("x = $stdout.puts(Base.new.count)")
   end
 
-  def test_keeps_library_names_the_solution_defines
-    assert_empty renamed("def sum = 1\ndef initialize = 1\ncount = 0")
+  def test_renames_library_names_the_solution_defines
+    assert_equal %w[count initialize sum], renamed("def sum = 1\ndef initialize = 1\ncount = 0").sort
   end
 
   private

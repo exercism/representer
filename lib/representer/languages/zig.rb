@@ -9,8 +9,7 @@
 #   `1.50` is `1.5`).
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps `main` and `_`.
 # - Ignores files with other extensions, and test and config files.
 # - Joins the files into one tree, in an order set by their code. File names
@@ -27,7 +26,7 @@ module Representer
     # the other languages.
     class Zig < Language
       tracks "zig"
-      version 8
+      version 9
       grammar "zig"
       extensions ".zig"
 
@@ -101,8 +100,6 @@ module Representer
       member "(_ field_constant: (IDENTIFIER) @name)"
 
       keep "main", "_"
-
-      library_names File.join(__dir__, "library_names", "zig.txt")
 
       ESCAPES = { "n" => "\n", "r" => "\r", "t" => "\t", "\\" => "\\", "'" => "'", "\"" => "\"" }.freeze
 

@@ -16,10 +16,6 @@ class RubyTest < RepresenterTest
       remove: %w[foobar barfood misc other1 other2],
       why: "A call to attr_reader, attr_writer or attr_accessor defines no name for this representer, so its " \
            "symbols keep their names. Strings keep their values, so attr_reader \"other1\" leaves \"other1\" as it is."
-    },
-    "naming_normalisation-complex_method" => {
-      remove: ["initialize"],
-      why: "Ruby calls initialize itself, so it keeps its name."
     }
   }.freeze
 
@@ -40,17 +36,17 @@ class RubyTest < RepresenterTest
     refute_same_representation "x = $stdout", "x = $stderr"
   end
 
-  def test_library_names_keep_their_names_even_if_the_solution_defines_them
-    refute_same_representation "count = 0\nxs.map(&:count)", "sum = 0\nxs.map(&:sum)"
-    refute_same_representation "def f(name) = name", "def f(who) = who"
+  def test_library_names_are_renamed_if_the_solution_defines_them
+    assert_same_representation "count = 0\nxs.map(&:count)", "sum = 0\nxs.map(&:sum)"
+    assert_same_representation "def f(name) = name", "def f(who) = who"
   end
 
   def test_a_trailing_comma_in_block_parameters_is_kept
     refute_same_representation "[[1, 2]].each { |a,| p a }", "[[1, 2]].each { |a| p a }"
   end
 
-  def test_methods_named_after_library_methods_stay_apart
-    refute_same_representation "def sum(a) = a.sum", "def max(a) = a.max"
+  def test_methods_named_after_library_methods_are_renamed
+    assert_same_representation "def sum(a) = a.sum", "def max(a) = a.max"
   end
 
   def test_attributes_named_after_library_methods_stay_apart
@@ -58,9 +54,9 @@ class RubyTest < RepresenterTest
       "attr_reader :last\ndef initialize(x) = @first = x.last"
   end
 
-  def test_protocol_methods_stay_apart
-    refute_same_representation "def initialize(a) = @a = a", "def setup(a) = @a = a"
-    refute_same_representation "def to_s = 'x'", "def show = 'x'"
+  def test_protocol_methods_are_renamed_if_the_solution_defines_them
+    assert_same_representation "def initialize(a) = @a = a", "def setup(a) = @a = a"
+    assert_same_representation "def to_s = 'x'", "def show = 'x'"
   end
 
   def test_library_calls_stay_apart

@@ -138,8 +138,8 @@ class NimTest < RepresenterTest
     refute_same_representation "echo p.size", "echo p.width"
   end
 
-  def test_core_names_are_kept
-    refute_same_representation "proc sum(a: seq[int]): int = a.sum", "proc max(a: seq[int]): int = a.max"
+  def test_core_names_are_kept_if_the_solution_only_calls_them
+    assert_same_representation "proc sum(a: seq[int]): int = a.sum", "proc max(a: seq[int]): int = a.max"
     refute_same_representation "proc f(a: seq[int]): int = a.len", "proc f(a: seq[int]): int = a.high"
     refute_same_representation "proc f(): int = result", "proc f(): int = 1"
   end

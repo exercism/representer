@@ -140,11 +140,10 @@ class ElmTest < RepresenterTest
     assert_unrepresentable "module M exposing (..)\n\nf =\n"
   end
 
-  # A field named like a library function keeps its name, so the functions
-  # after the dot stay apart.
-  def test_members_named_like_library_functions_stay_apart
-    refute_same_representation "module A exposing (f)\ntype alias R = { sum : Int }\nf xs = { sum = List.sum xs }\n",
-      "module A exposing (f)\ntype alias R = { product : Int }\nf xs = { product = List.product xs }\n"
+  # A field named like a library function is renamed, like any other field.
+  def test_members_named_like_library_functions_are_renamed
+    assert_same_representation "module A exposing (f)\ntype alias R = { sum : Int }\nf xs = { sum = 1 }\n",
+      "module A exposing (f)\ntype alias R = { product : Int }\nf xs = { product = 1 }\n"
     assert_same_representation "module A exposing (f)\ntype alias R = { total : Int }\nf xs = { total = List.sum xs }\n",
       "module A exposing (f)\ntype alias R = { count : Int }\nf xs = { count = List.sum xs }\n"
   end

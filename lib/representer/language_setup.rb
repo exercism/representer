@@ -1,9 +1,8 @@
 module Representer
   # The setup that every language with its own representer gives: its
-  # tracks, version, grammar, file extensions, the leaf types that hold
-  # names, and its library names. A Language subclass (written with the
-  # rule DSL) and a StagedLanguage module (written as four stages) both
-  # extend it.
+  # tracks, version, grammar, file extensions and the leaf types that hold
+  # names. A Language subclass (written with the rule DSL) and a
+  # StagedLanguage module (written as four stages) both extend it.
   module LanguageSetup
     IDENTITY_FOLD = ->(name) { name }
 
@@ -52,15 +51,5 @@ module Representer
     def fold_names(&block) = block ? @name_folding = block : @name_folding || IDENTITY_FOLD
 
     def folds_names? = !@name_folding.nil?
-
-    # A file of library names, one per line (the language's core and
-    # standard library). If the student defines a method or property with
-    # one of these names, it is kept, so `def sum(a) = a.sum` and
-    # `def max(a) = a.max` stay apart.
-    def library_names(path)
-      @library_names = File.readlines(path, chomp: true).reject { |line| line.empty? || line.start_with?("#") }.to_set
-    end
-
-    def library = @library_names || Set.new
   end
 end

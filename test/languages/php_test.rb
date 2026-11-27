@@ -26,6 +26,12 @@ class PHPTest < RepresenterTest
       unrepresentable: true,
       why: "The solution has a syntax error, so it gets no representation."
     },
+    "unit-function-case-insensitive-native" => {
+      replace: { "function_exists" => "FunCtioN_ExiStS" },
+      why: "PHP ignores the case of a function's name. The old representer wrote the name of a PHP function in " \
+           "lower case. This representer has no list of PHP functions, so it leaves the case of a function the " \
+           "solution doesn't define."
+    },
     "unit-class-instantiation-backward-compatibility" => {
       restore: { "C0" => "MyClass", "m0" => "method" },
       remove: %w[MyClass method],
@@ -127,13 +133,12 @@ class PHPTest < RepresenterTest
 
   def test_function_names_ignore_case
     assert_same_representation "<?php\nfunction Foo() { return 1; }\nFOO();", "<?php\nfunction bar() { return 1; }\nBar();"
-    assert_same_representation "<?php\necho STRLEN('a');", "<?php\necho strlen('a');"
     assert_same_representation "<?php\nclass Foo {}\n$a = new FOO;", "<?php\nclass Bar {}\n$a = new bar();"
   end
 
   def test_the_php_functions_a_solution_calls_stay_apart
     refute_same_representation "<?php\necho strtoupper('a');", "<?php\necho strtolower('a');"
-    refute_same_representation "<?php\nclass A { function max() { return max($this->a); } }",
+    assert_same_representation "<?php\nclass A { function max() { return max($this->a); } }",
       "<?php\nclass A { function min() { return min($this->a); } }"
   end
 
@@ -212,11 +217,6 @@ class PHPTest < RepresenterTest
     assert_equal %w[AΤΑΞΗ], represent("<?php\nclass AΤΑΞΗ {}\nnew aΤΑΞΗ();\n").mapping.values
     assert_equal %w[A AΜΕΘΟΔΟΣ], represent("<?php\nclass A { public static function AΜΕΘΟΔΟΣ() {} }\nA::aΜΕΘΟΔΟΣ();\n").mapping.values
     refute_same_representation "<?php\nfunction ΛΕΙΤΟΥΡΓΙΑ() {}\nΛΕΙΤΟΥΡΓΙΑ();\n", "<?php\nfunction ΛΕΙΤΟΥΡΓΙΑ() {}\nλειτουργια();\n"
-  end
-
-  def test_functions_of_the_extensions_in_the_old_image_are_library_names
-    refute_same_representation "<?php\nclass A { function gzcompress($x) { return gzcompress($x); } }\n",
-      "<?php\nclass A { function gzdeflate($x) { return gzdeflate($x); } }\n"
   end
 
   def test_use_and_includes_are_dropped

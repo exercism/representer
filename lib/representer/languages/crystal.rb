@@ -17,8 +17,7 @@
 #   level, largest first.
 # - Replaces each name that the solution defines with a placeholder
 #   (PLACEHOLDER_1, PLACEHOLDER_2 and so on).
-# - Keeps every name used in the tests, the members of the exercise's stub,
-#   and the language's library names.
+# - Keeps every name used in the tests and the members of the exercise's stub.
 # - Also keeps the methods that Crystal itself calls (`initialize`, `to_s`,
 #   `each` and so on).
 # - Ignores files with other extensions, and test and config files.
@@ -36,7 +35,7 @@ module Representer
     # here, because the tree has no layout.
     class Crystal < Language
       tracks "crystal"
-      version 9
+      version 10
       grammar "crystal"
       extensions ".cr"
 
@@ -221,8 +220,6 @@ module Representer
       keep "initialize", "to_s", "inspect", "to_a", "to_h", "to_i", "to_f", "to_json", "to_proc", "each", "size", "hash",
         "call", "succ", "clone", "dup", "finalize", "method_missing",
         "included", "extended", "inherited", "self", "main"
-
-      library_names File.join(__dir__, "library_names", "crystal.txt")
 
       ESCAPES = {
         "n" => "\n", "t" => "\t", "r" => "\r", "e" => "\e", "a" => "\a", "b" => "\b", "f" => "\f", "v" => "\v",

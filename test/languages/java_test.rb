@@ -29,10 +29,9 @@ class JavaTest < RepresenterTest
            "representer's Java compiler repaired. This representer gives it no representation."
     },
     "scenario-lambda-arguments" => {
-      restore: { "PLACEHOLDER_02" => "filter" },
-      remove: ["filter"],
-      why: "This representer never renames a method with the name of a Java library method (filter, add, get...), so " \
-           "mentors' comments on different library calls stay apart. The old representer renamed them."
+      replace: { ".filter(" => ".PLACEHOLDER_02(" },
+      why: "The solution defines a method called filter, so this representer renames every use of the name, " \
+           "including the call to Stream.filter. The old representer renamed only the declaration."
     },
     "scenario-class-with-nested-enum" => per_declaration("scenario-class-with-nested-enum")
   }.freeze
@@ -113,8 +112,8 @@ class JavaTest < RepresenterTest
     assert_equal %w[A args o], represent(code).mapping.values
   end
 
-  def test_methods_named_after_library_methods_stay_apart
-    refute_same_representation "class A { int max() { return Math.max(1, 2); } }", "class A { int min() { return Math.min(1, 2); } }"
+  def test_methods_named_after_library_methods_are_renamed
+    assert_same_representation "class A { int max() { return 1; } }", "class A { int min() { return 1; } }"
     refute_same_representation "class A { int f(java.util.List<Integer> a) { return a.size(); } }",
       "class A { int f(java.util.List<Integer> a) { return a.indexOf(1); } }"
   end
