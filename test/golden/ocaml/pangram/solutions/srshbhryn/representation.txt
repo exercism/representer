@@ -1,32 +1,186 @@
-module Set = struct
-type set = Empty | Node of set * char * set
-let rec add set value = match set with
-| Empty -> Node ( Empty , value , Empty )
-| Node ( l , v , r ) -> match v = value , v > value with
-| true , _ -> set
-| false , false -> Node ( add l value , v , r )
-| false , true -> Node ( l , v , add r value )
-let rec size set = match set with
-| Empty -> 0
-| Node ( l , _ , r ) -> 1 + size l + size r
-end
-let to_list = let rec _to_list acc s = match s with
-| "\"\"" -> acc
-| _ -> let open String in _to_list ( acc @ [ s . [ 0 ]]) (( sub s 1 ( length s - 1 )))
-in _to_list []
-type char_type = LowerCase | UpperCase | Other
-let get_char_type c = let m = int_of_char c in match m with
-| n when n > 96 && n < 123 -> LowerCase
-| n when n > 64 && n < 91 -> UpperCase
-| _ -> Other
-let capitalize c = match get_char_type c with
-| UpperCase -> c
-| LowerCase -> char_of_int ( int_of_char c - 32 )
-| _ -> failwith "\"unexpected char to capitalize\""
-let rec to_alph_set acc lst = match lst with
-| [] -> acc
-| h :: t -> match get_char_type h with
-| LowerCase -> let c = capitalize h in to_alph_set ( Set . add acc c ) t
-| UpperCase -> to_alph_set ( Set . add acc h ) t
-| Other -> to_alph_set acc t
-let is_pangram str = str |> to_list |> ( to_alph_set Set . Empty ) |> Set . size |> let f x = x = 26 in f
+(compilation_unit
+  (module_definition
+    (module_binding (module_name PLACEHOLDER_1)
+      (structure
+        (type_definition
+          (type_binding (type_constructor PLACEHOLDER_2)
+            (variant_declaration
+              (constructor_declaration (constructor_name PLACEHOLDER_3))
+              (constructor_declaration (constructor_name PLACEHOLDER_4) of (type_constructor PLACEHOLDER_2) char (type_constructor PLACEHOLDER_2)))))
+        (value_definition rec
+          (let_binding
+            (value_pattern PLACEHOLDER_5)
+            (parameter
+              (value_pattern PLACEHOLDER_2))
+            (parameter
+              (value_pattern PLACEHOLDER_6))
+            (match_expression PLACEHOLDER_2
+              (match_case (constructor_name PLACEHOLDER_3)
+                (application_expression (constructor_name PLACEHOLDER_4)
+                  (tuple_expression (constructor_name PLACEHOLDER_3) PLACEHOLDER_6 (constructor_name PLACEHOLDER_3))))
+              (match_case
+                (constructor_pattern (constructor_name PLACEHOLDER_4)
+                  (tuple_pattern
+                    (value_pattern PLACEHOLDER_7)
+                    (value_pattern PLACEHOLDER_8)
+                    (value_pattern PLACEHOLDER_9)))
+                (match_expression
+                  (tuple_expression
+                    (infix_expression PLACEHOLDER_8 = PLACEHOLDER_6)
+                    (infix_expression PLACEHOLDER_8 > PLACEHOLDER_6))
+                  (match_case
+                    (tuple_pattern
+                      (boolean true)
+                      (any_pattern)) PLACEHOLDER_2)
+                  (match_case
+                    (tuple_pattern
+                      (boolean false)
+                      (boolean false))
+                    (application_expression (constructor_name PLACEHOLDER_4)
+                      (tuple_expression
+                        (application_expression PLACEHOLDER_5 PLACEHOLDER_7 PLACEHOLDER_6) PLACEHOLDER_8 PLACEHOLDER_9)))
+                  (match_case
+                    (tuple_pattern
+                      (boolean false)
+                      (boolean true))
+                    (application_expression (constructor_name PLACEHOLDER_4)
+                      (tuple_expression PLACEHOLDER_7 PLACEHOLDER_8
+                        (application_expression PLACEHOLDER_5 PLACEHOLDER_9 PLACEHOLDER_6)))))))))
+        (value_definition rec
+          (let_binding
+            (value_pattern PLACEHOLDER_10)
+            (parameter
+              (value_pattern PLACEHOLDER_2))
+            (match_expression PLACEHOLDER_2
+              (match_case (constructor_name PLACEHOLDER_3) 0)
+              (match_case
+                (constructor_pattern (constructor_name PLACEHOLDER_4)
+                  (tuple_pattern
+                    (value_pattern PLACEHOLDER_7)
+                    (any_pattern)
+                    (value_pattern PLACEHOLDER_9)))
+                (infix_expression
+                  (infix_expression 1 +
+                    (application_expression PLACEHOLDER_10 PLACEHOLDER_7)) +
+                  (application_expression PLACEHOLDER_10 PLACEHOLDER_9)))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_11)
+      (let_expression
+        (value_definition rec
+          (let_binding
+            (value_pattern PLACEHOLDER_12)
+            (parameter
+              (value_pattern PLACEHOLDER_13))
+            (parameter
+              (value_pattern PLACEHOLDER_14))
+            (match_expression PLACEHOLDER_14
+              (match_case "" PLACEHOLDER_13)
+              (match_case
+                (any_pattern)
+                (local_open_expression String
+                  (application_expression PLACEHOLDER_12
+                    (infix_expression PLACEHOLDER_13 @
+                      (list_expression
+                        (string_get_expression PLACEHOLDER_14 0)))
+                    (application_expression sub PLACEHOLDER_14 1
+                      (infix_expression
+                        (application_expression length PLACEHOLDER_14) - 1))))))))
+        (application_expression PLACEHOLDER_12
+          (empty_list)))))
+  (type_definition
+    (type_binding (type_constructor PLACEHOLDER_15)
+      (variant_declaration
+        (constructor_declaration (constructor_name PLACEHOLDER_16))
+        (constructor_declaration (constructor_name PLACEHOLDER_17))
+        (constructor_declaration (constructor_name PLACEHOLDER_18)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_19)
+      (parameter
+        (value_pattern PLACEHOLDER_20))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_21)
+            (application_expression int_of_char PLACEHOLDER_20)))
+        (match_expression PLACEHOLDER_21
+          (match_case
+            (value_pattern PLACEHOLDER_22)
+            (guard
+              (infix_expression
+                (infix_expression PLACEHOLDER_22 > 96) &&
+                (infix_expression PLACEHOLDER_22 < 123))) (constructor_name PLACEHOLDER_16))
+          (match_case
+            (value_pattern PLACEHOLDER_22)
+            (guard
+              (infix_expression
+                (infix_expression PLACEHOLDER_22 > 64) &&
+                (infix_expression PLACEHOLDER_22 < 91))) (constructor_name PLACEHOLDER_17))
+          (match_case
+            (any_pattern) (constructor_name PLACEHOLDER_18))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_23)
+      (parameter
+        (value_pattern PLACEHOLDER_20))
+      (match_expression
+        (application_expression PLACEHOLDER_19 PLACEHOLDER_20)
+        (match_case (constructor_name PLACEHOLDER_17) PLACEHOLDER_20)
+        (match_case (constructor_name PLACEHOLDER_16)
+          (application_expression char_of_int
+            (infix_expression
+              (application_expression int_of_char PLACEHOLDER_20) - 32)))
+        (match_case
+          (any_pattern)
+          (application_expression failwith "unexpected char to capitalize")))))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_24)
+      (parameter
+        (value_pattern PLACEHOLDER_13))
+      (parameter
+        (value_pattern PLACEHOLDER_25))
+      (match_expression PLACEHOLDER_25
+        (match_case
+          (empty_list) PLACEHOLDER_13)
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_26)
+            (value_pattern PLACEHOLDER_27))
+          (match_expression
+            (application_expression PLACEHOLDER_19 PLACEHOLDER_26)
+            (match_case (constructor_name PLACEHOLDER_16)
+              (let_expression
+                (value_definition
+                  (let_binding
+                    (value_pattern PLACEHOLDER_20)
+                    (application_expression PLACEHOLDER_23 PLACEHOLDER_26)))
+                (application_expression PLACEHOLDER_24
+                  (application_expression
+                    (value_path (module_name PLACEHOLDER_1) PLACEHOLDER_5) PLACEHOLDER_13 PLACEHOLDER_20) PLACEHOLDER_27)))
+            (match_case (constructor_name PLACEHOLDER_17)
+              (application_expression PLACEHOLDER_24
+                (application_expression
+                  (value_path (module_name PLACEHOLDER_1) PLACEHOLDER_5) PLACEHOLDER_13 PLACEHOLDER_26) PLACEHOLDER_27))
+            (match_case (constructor_name PLACEHOLDER_18)
+              (application_expression PLACEHOLDER_24 PLACEHOLDER_13 PLACEHOLDER_27)))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_28)
+      (parameter
+        (value_pattern PLACEHOLDER_29))
+      (infix_expression
+        (infix_expression
+          (infix_expression
+            (infix_expression PLACEHOLDER_29 |> PLACEHOLDER_11) |>
+            (application_expression PLACEHOLDER_24
+              (constructor_path (module_name PLACEHOLDER_1) (constructor_name PLACEHOLDER_3)))) |>
+          (value_path (module_name PLACEHOLDER_1) PLACEHOLDER_10)) |>
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_30)
+              (parameter
+                (value_pattern PLACEHOLDER_31))
+              (infix_expression PLACEHOLDER_31 = 26))) PLACEHOLDER_30)))))

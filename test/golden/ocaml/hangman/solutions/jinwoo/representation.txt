@@ -1,38 +1,163 @@
-type progress =
-| Win
-| Lose
-| Busy of int
-type t = {
-feed : char -> unit ;
-mask : string signal ;
-progress : progress signal ;
-}
-let mask_fn word prev cin =
-String . mapi prev ~ f : ( fun i ch ->
-if Char .( word . [ i ] = cin ) then cin else ch )
-let progress_fn mask counter =
-if String . contains mask ' _' then
-match counter with
-| n when n >= 0 -> Busy n
-| _ -> Lose
-else Win
-let create word =
-let ( input , feed ) = E . create () in
-let init_mask = String . make ( String . length word ) ' _' in
-let mask_ev = E . fold ( mask_fn word ) init_mask input in
-let mask = S . hold init_mask mask_ev in
-let wrong_ev =
-E . map ( fun cin ->
-not ( String . contains word cin ) || String . contains ( S . value mask ) cin )
-input
-in
-let counter =
-S . fold ~ eq : ( = )
-( fun prev is_wrong -> if is_wrong then prev - 1 else prev )
-9 wrong_ev
-in
-let progress = S . l2 progress_fn mask counter in
-{ feed ; mask ; progress }
-let feed ch { feed } = feed ch
-let masked_word { mask } = mask
-let progress { progress } = progress
+(compilation_unit
+  (type_definition
+    (type_binding (type_constructor PLACEHOLDER_1)
+      (variant_declaration
+        (constructor_declaration (constructor_name PLACEHOLDER_2))
+        (constructor_declaration (constructor_name PLACEHOLDER_3))
+        (constructor_declaration (constructor_name PLACEHOLDER_4) of int))))
+  (type_definition
+    (type_binding (type_constructor PLACEHOLDER_5)
+      (record_declaration
+        (field_declaration (field_name PLACEHOLDER_6)
+          (function_type char unit))
+        (field_declaration (field_name PLACEHOLDER_7)
+          (constructed_type string signal))
+        (field_declaration (field_name PLACEHOLDER_1)
+          (constructed_type (type_constructor PLACEHOLDER_1) signal)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_8)
+      (parameter
+        (value_pattern PLACEHOLDER_9))
+      (parameter
+        (value_pattern PLACEHOLDER_10))
+      (parameter
+        (value_pattern PLACEHOLDER_11))
+      (application_expression
+        (value_path String mapi) PLACEHOLDER_10
+        (labeled_argument f
+          (fun_expression
+            (parameter
+              (value_pattern PLACEHOLDER_12))
+            (parameter
+              (value_pattern PLACEHOLDER_13))
+            (if_expression
+              (local_open_expression Char
+                (infix_expression
+                  (string_get_expression PLACEHOLDER_9 PLACEHOLDER_12) = PLACEHOLDER_11))
+              (then_clause PLACEHOLDER_11)
+              (else_clause PLACEHOLDER_13)))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_14)
+      (parameter
+        (value_pattern PLACEHOLDER_7))
+      (parameter
+        (value_pattern PLACEHOLDER_15))
+      (if_expression
+        (application_expression
+          (value_path String contains) PLACEHOLDER_7
+          (character "_"))
+        (then_clause
+          (match_expression PLACEHOLDER_15
+            (match_case
+              (value_pattern PLACEHOLDER_16)
+              (guard
+                (infix_expression PLACEHOLDER_16 >= 0))
+              (application_expression (constructor_name PLACEHOLDER_4) PLACEHOLDER_16))
+            (match_case
+              (any_pattern) (constructor_name PLACEHOLDER_3))))
+        (else_clause (constructor_name PLACEHOLDER_2)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_17)
+      (parameter
+        (value_pattern PLACEHOLDER_9))
+      (let_expression
+        (value_definition
+          (let_binding
+            (tuple_pattern
+              (value_pattern PLACEHOLDER_18)
+              (value_pattern PLACEHOLDER_6))
+            (application_expression
+              (value_path E PLACEHOLDER_17)
+              (unit))))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_19)
+              (application_expression
+                (value_path String make)
+                (application_expression
+                  (value_path String length) PLACEHOLDER_9)
+                (character "_"))))
+          (let_expression
+            (value_definition
+              (let_binding
+                (value_pattern PLACEHOLDER_20)
+                (application_expression
+                  (value_path E fold)
+                  (application_expression PLACEHOLDER_8 PLACEHOLDER_9) PLACEHOLDER_19 PLACEHOLDER_18)))
+            (let_expression
+              (value_definition
+                (let_binding
+                  (value_pattern PLACEHOLDER_7)
+                  (application_expression
+                    (value_path S hold) PLACEHOLDER_19 PLACEHOLDER_20)))
+              (let_expression
+                (value_definition
+                  (let_binding
+                    (value_pattern PLACEHOLDER_21)
+                    (application_expression
+                      (value_path E map)
+                      (fun_expression
+                        (parameter
+                          (value_pattern PLACEHOLDER_11))
+                        (infix_expression
+                          (application_expression not
+                            (application_expression
+                              (value_path String contains) PLACEHOLDER_9 PLACEHOLDER_11)) ||
+                          (application_expression
+                            (value_path String contains)
+                            (application_expression
+                              (value_path S value) PLACEHOLDER_7) PLACEHOLDER_11))) PLACEHOLDER_18)))
+                (let_expression
+                  (value_definition
+                    (let_binding
+                      (value_pattern PLACEHOLDER_15)
+                      (application_expression
+                        (value_path S fold)
+                        (labeled_argument eq =)
+                        (fun_expression
+                          (parameter
+                            (value_pattern PLACEHOLDER_10))
+                          (parameter
+                            (value_pattern PLACEHOLDER_22))
+                          (if_expression PLACEHOLDER_22
+                            (then_clause
+                              (infix_expression PLACEHOLDER_10 - 1))
+                            (else_clause PLACEHOLDER_10))) 9 PLACEHOLDER_21)))
+                  (let_expression
+                    (value_definition
+                      (let_binding
+                        (value_pattern PLACEHOLDER_1)
+                        (application_expression
+                          (value_path S l2) PLACEHOLDER_14 PLACEHOLDER_7 PLACEHOLDER_15)))
+                    (record_expression
+                      (field_expression (field_name PLACEHOLDER_6) PLACEHOLDER_6)
+                      (field_expression (field_name PLACEHOLDER_7) PLACEHOLDER_7)
+                      (field_expression (field_name PLACEHOLDER_1) PLACEHOLDER_1)))))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_6)
+      (parameter
+        (value_pattern PLACEHOLDER_13))
+      (parameter
+        (record_pattern
+          (field_pattern (field_name PLACEHOLDER_6)
+            (value_pattern PLACEHOLDER_6))))
+      (application_expression PLACEHOLDER_6 PLACEHOLDER_13)))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_23)
+      (parameter
+        (record_pattern
+          (field_pattern (field_name PLACEHOLDER_7)
+            (value_pattern PLACEHOLDER_7)))) PLACEHOLDER_7))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (parameter
+        (record_pattern
+          (field_pattern (field_name PLACEHOLDER_1)
+            (value_pattern PLACEHOLDER_1)))) PLACEHOLDER_1)))

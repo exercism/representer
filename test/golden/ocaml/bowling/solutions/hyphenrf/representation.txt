@@ -1,40 +1,206 @@
-type t = { game : int list ; bowl : int }
-let new_game = { game = [] ; bowl = 0 }
-let last2 = function
-| x :: y ::_ -> x , y
-| x ::_ -> x , 0
-| [] -> 0 , 0
-let odd x = x land 1 = 1
-let even x = not ( odd x )
-let roll pins { game ; bowl } =
-let x , y = last2 game in
-let game = pins :: game in
-if pins < 0 then
-Error "\"Negative roll is invalid\""
-else
-if pins > 10
-|| bowl < 18 && odd bowl && x + pins > 10
-|| bowl = 20 && y = 10 && x < 10 && x + pins > 10
-then
-Error "\"Pin count exceeds pins on the lane\""
-else
-if bowl > 20
-|| bowl = 20 && x + y < 10
-then
-Error "\"Cannot roll after game is over\""
-else
-if pins = 10 && even bowl && bowl < 18 then
-Ok { bowl = bowl + 2 ; game }
-else
-Ok { bowl = bowl + 1 ; game }
-let score { game ; _ } =
-let rec aux ( frame , score ) game =
-if frame < 11 then
-match game with
-| 10 :: ( y :: z ::_ as rest ) -> aux ( frame + 1 , score + 10 + y + z ) rest
-| x :: y :: ( z ::_ as rest ) when x + y = 10 -> aux ( frame + 1 , score + 10 + z ) rest
-| x :: y :: rest when x + y < 10 -> aux ( frame + 1 , score + x + y ) rest
-| _ ::_ | [] -> Error "\"Score cannot be taken until the end of the game\""
-else
-Ok score
-in aux ( 1 , 0 ) @@ List . rev game
+(compilation_unit
+  (type_definition
+    (type_binding (type_constructor PLACEHOLDER_1)
+      (record_declaration
+        (field_declaration (field_name PLACEHOLDER_2)
+          (constructed_type int list))
+        (field_declaration (field_name PLACEHOLDER_3) int))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_4)
+      (record_expression
+        (field_expression (field_name PLACEHOLDER_2)
+          (empty_list))
+        (field_expression (field_name PLACEHOLDER_3) 0))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_5)
+      (function_expression
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_6)
+            (cons_pattern
+              (value_pattern PLACEHOLDER_7)
+              (any_pattern)))
+          (tuple_expression PLACEHOLDER_6 PLACEHOLDER_7))
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_6)
+            (any_pattern))
+          (tuple_expression PLACEHOLDER_6 0))
+        (match_case
+          (empty_list)
+          (tuple_expression 0 0)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_8)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (infix_expression
+        (infix_expression PLACEHOLDER_6 land 1) = 1)))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_9)
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (application_expression not
+        (application_expression PLACEHOLDER_8 PLACEHOLDER_6))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_10)
+      (parameter
+        (value_pattern PLACEHOLDER_11))
+      (parameter
+        (record_pattern
+          (field_pattern (field_name PLACEHOLDER_2)
+            (value_pattern PLACEHOLDER_2))
+          (field_pattern (field_name PLACEHOLDER_3)
+            (value_pattern PLACEHOLDER_3))))
+      (let_expression
+        (value_definition
+          (let_binding
+            (tuple_pattern
+              (value_pattern PLACEHOLDER_6)
+              (value_pattern PLACEHOLDER_7))
+            (application_expression PLACEHOLDER_5 PLACEHOLDER_2)))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_2)
+              (cons_expression PLACEHOLDER_11 PLACEHOLDER_2)))
+          (if_expression
+            (infix_expression PLACEHOLDER_11 < 0)
+            (then_clause
+              (application_expression Error "Negative roll is invalid"))
+            (else_clause
+              (if_expression
+                (infix_expression
+                  (infix_expression PLACEHOLDER_11 > 10) ||
+                  (infix_expression
+                    (infix_expression
+                      (infix_expression PLACEHOLDER_3 < 18) &&
+                      (infix_expression
+                        (application_expression PLACEHOLDER_8 PLACEHOLDER_3) &&
+                        (infix_expression
+                          (infix_expression PLACEHOLDER_6 + PLACEHOLDER_11) > 10))) ||
+                    (infix_expression
+                      (infix_expression PLACEHOLDER_3 = 20) &&
+                      (infix_expression
+                        (infix_expression PLACEHOLDER_7 = 10) &&
+                        (infix_expression
+                          (infix_expression PLACEHOLDER_6 < 10) &&
+                          (infix_expression
+                            (infix_expression PLACEHOLDER_6 + PLACEHOLDER_11) > 10))))))
+                (then_clause
+                  (application_expression Error "Pin count exceeds pins on the lane"))
+                (else_clause
+                  (if_expression
+                    (infix_expression
+                      (infix_expression PLACEHOLDER_3 > 20) ||
+                      (infix_expression
+                        (infix_expression PLACEHOLDER_3 = 20) &&
+                        (infix_expression
+                          (infix_expression PLACEHOLDER_6 + PLACEHOLDER_7) < 10)))
+                    (then_clause
+                      (application_expression Error "Cannot roll after game is over"))
+                    (else_clause
+                      (if_expression
+                        (infix_expression
+                          (infix_expression PLACEHOLDER_11 = 10) &&
+                          (infix_expression
+                            (application_expression PLACEHOLDER_9 PLACEHOLDER_3) &&
+                            (infix_expression PLACEHOLDER_3 < 18)))
+                        (then_clause
+                          (application_expression Ok
+                            (record_expression
+                              (field_expression (field_name PLACEHOLDER_3)
+                                (infix_expression PLACEHOLDER_3 + 2))
+                              (field_expression (field_name PLACEHOLDER_2) PLACEHOLDER_2))))
+                        (else_clause
+                          (application_expression Ok
+                            (record_expression
+                              (field_expression (field_name PLACEHOLDER_3)
+                                (infix_expression PLACEHOLDER_3 + 1))
+                              (field_expression (field_name PLACEHOLDER_2) PLACEHOLDER_2)))))))))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_12)
+      (parameter
+        (record_pattern
+          (field_pattern (field_name PLACEHOLDER_2)
+            (value_pattern PLACEHOLDER_2)) _))
+      (let_expression
+        (value_definition rec
+          (let_binding
+            (value_pattern PLACEHOLDER_13)
+            (parameter
+              (tuple_pattern
+                (value_pattern PLACEHOLDER_14)
+                (value_pattern PLACEHOLDER_12)))
+            (parameter
+              (value_pattern PLACEHOLDER_2))
+            (if_expression
+              (infix_expression PLACEHOLDER_14 < 11)
+              (then_clause
+                (match_expression PLACEHOLDER_2
+                  (match_case
+                    (cons_pattern 10
+                      (alias_pattern
+                        (cons_pattern
+                          (value_pattern PLACEHOLDER_7)
+                          (cons_pattern
+                            (value_pattern PLACEHOLDER_15)
+                            (any_pattern)))
+                        (value_pattern PLACEHOLDER_16)))
+                    (application_expression PLACEHOLDER_13
+                      (tuple_expression
+                        (infix_expression PLACEHOLDER_14 + 1)
+                        (infix_expression
+                          (infix_expression
+                            (infix_expression PLACEHOLDER_12 + 10) + PLACEHOLDER_7) + PLACEHOLDER_15)) PLACEHOLDER_16))
+                  (match_case
+                    (cons_pattern
+                      (value_pattern PLACEHOLDER_6)
+                      (cons_pattern
+                        (value_pattern PLACEHOLDER_7)
+                        (alias_pattern
+                          (cons_pattern
+                            (value_pattern PLACEHOLDER_15)
+                            (any_pattern))
+                          (value_pattern PLACEHOLDER_16))))
+                    (guard
+                      (infix_expression
+                        (infix_expression PLACEHOLDER_6 + PLACEHOLDER_7) = 10))
+                    (application_expression PLACEHOLDER_13
+                      (tuple_expression
+                        (infix_expression PLACEHOLDER_14 + 1)
+                        (infix_expression
+                          (infix_expression PLACEHOLDER_12 + 10) + PLACEHOLDER_15)) PLACEHOLDER_16))
+                  (match_case
+                    (cons_pattern
+                      (value_pattern PLACEHOLDER_6)
+                      (cons_pattern
+                        (value_pattern PLACEHOLDER_7)
+                        (value_pattern PLACEHOLDER_16)))
+                    (guard
+                      (infix_expression
+                        (infix_expression PLACEHOLDER_6 + PLACEHOLDER_7) < 10))
+                    (application_expression PLACEHOLDER_13
+                      (tuple_expression
+                        (infix_expression PLACEHOLDER_14 + 1)
+                        (infix_expression
+                          (infix_expression PLACEHOLDER_12 + PLACEHOLDER_6) + PLACEHOLDER_7)) PLACEHOLDER_16))
+                  (match_case
+                    (or_pattern
+                      (cons_pattern
+                        (any_pattern)
+                        (any_pattern))
+                      (empty_list))
+                    (application_expression Error "Score cannot be taken until the end of the game"))))
+              (else_clause
+                (application_expression Ok PLACEHOLDER_12)))))
+        (infix_expression
+          (application_expression PLACEHOLDER_13
+            (tuple_expression 1 0)) @@
+          (application_expression
+            (value_path List rev) PLACEHOLDER_2))))))

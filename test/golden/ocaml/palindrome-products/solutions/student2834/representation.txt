@@ -1,46 +1,221 @@
-type palindrome_products = { value : int option ; factors : ( int * int ) list }
-let range a b = Seq . ints a |> Seq . take ( b - a + 1 )
-let is_pal s =
-let rec aux left right =
-if left > right then true
-else if s . [ left ] <> s . [ right ] then false
-else aux ( left + 1 ) ( right - 1 )
-in
-aux 0 ( String . length s - 1 );;
-let rec last l =
-match l with
-| [] -> None
-| [ x ] -> Some x
-| _ :: t -> last t
-let first l =
-match l with
-| [] -> None
-| x :: _ -> Some x
-let get_pals min max =
-Seq . flat_map
-( fun x -> Seq . map ( fun y -> ( x * y , x , y )) ( range x max ))
-( range min max )
-|> Seq . filter ( fun ( xy , _ , _ ) -> xy |> string_of_int |> is_pal )
-|> List . of_seq |> List . sort compare
-|> List . fold_left
-( fun acc ( xy , x , y ) ->
-match acc with
-| ( ab , factors ) :: t when xy = ab -> ( xy , ( x , y ) :: factors ) :: t
-| _ -> ( xy , [ ( x , y ) ]) :: acc )
-[]
-let smallest ~ min ~ max =
-if min > max then Error "\"min must be <= max\""
-else
-get_pals min max
-|> last
-|> ( function
-| None -> Ok { value = None ; factors = [] }
-| Some ( v , fs ) -> Ok { value = Some v ; factors = List . rev fs })
-let largest ~ min ~ max =
-if min > max then Error "\"min must be <= max\""
-else
-get_pals min max
-|> first
-|> ( function
-| None -> Ok { value = None ; factors = [] }
-| Some ( v , fs ) -> Ok { value = Some v ; factors = List . rev fs })
+(compilation_unit
+  (type_definition
+    (type_binding (type_constructor PLACEHOLDER_1)
+      (record_declaration
+        (field_declaration (field_name PLACEHOLDER_2)
+          (constructed_type int option))
+        (field_declaration (field_name PLACEHOLDER_3)
+          (constructed_type
+            (tuple_type int int) list)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_4)
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (parameter
+        (value_pattern PLACEHOLDER_6))
+      (infix_expression
+        (application_expression
+          (value_path Seq ints) PLACEHOLDER_5) |>
+        (application_expression
+          (value_path Seq take)
+          (infix_expression
+            (infix_expression PLACEHOLDER_6 - PLACEHOLDER_5) + 1)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_7)
+      (parameter
+        (value_pattern PLACEHOLDER_8))
+      (let_expression
+        (value_definition rec
+          (let_binding
+            (value_pattern PLACEHOLDER_9)
+            (parameter
+              (value_pattern PLACEHOLDER_10))
+            (parameter
+              (value_pattern PLACEHOLDER_11))
+            (if_expression
+              (infix_expression PLACEHOLDER_10 > PLACEHOLDER_11)
+              (then_clause
+                (boolean true))
+              (else_clause
+                (if_expression
+                  (infix_expression
+                    (string_get_expression PLACEHOLDER_8 PLACEHOLDER_10) <>
+                    (string_get_expression PLACEHOLDER_8 PLACEHOLDER_11))
+                  (then_clause
+                    (boolean false))
+                  (else_clause
+                    (application_expression PLACEHOLDER_9
+                      (infix_expression PLACEHOLDER_10 + 1)
+                      (infix_expression PLACEHOLDER_11 - 1))))))))
+        (application_expression PLACEHOLDER_9 0
+          (infix_expression
+            (application_expression
+              (value_path String length) PLACEHOLDER_8) - 1)))))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_12)
+      (parameter
+        (value_pattern PLACEHOLDER_13))
+      (match_expression PLACEHOLDER_13
+        (match_case
+          (empty_list) None)
+        (match_case
+          (list_pattern
+            (value_pattern PLACEHOLDER_14))
+          (application_expression Some PLACEHOLDER_14))
+        (match_case
+          (cons_pattern
+            (any_pattern)
+            (value_pattern PLACEHOLDER_15))
+          (application_expression PLACEHOLDER_12 PLACEHOLDER_15)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_16)
+      (parameter
+        (value_pattern PLACEHOLDER_13))
+      (match_expression PLACEHOLDER_13
+        (match_case
+          (empty_list) None)
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_14)
+            (any_pattern))
+          (application_expression Some PLACEHOLDER_14)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_17)
+      (parameter
+        (value_pattern PLACEHOLDER_18))
+      (parameter
+        (value_pattern PLACEHOLDER_19))
+      (infix_expression
+        (infix_expression
+          (infix_expression
+            (infix_expression
+              (application_expression
+                (value_path Seq flat_map)
+                (fun_expression
+                  (parameter
+                    (value_pattern PLACEHOLDER_14))
+                  (application_expression
+                    (value_path Seq map)
+                    (fun_expression
+                      (parameter
+                        (value_pattern PLACEHOLDER_20))
+                      (tuple_expression
+                        (infix_expression PLACEHOLDER_14 * PLACEHOLDER_20) PLACEHOLDER_14 PLACEHOLDER_20))
+                    (application_expression PLACEHOLDER_4 PLACEHOLDER_14 PLACEHOLDER_19)))
+                (application_expression PLACEHOLDER_4 PLACEHOLDER_18 PLACEHOLDER_19)) |>
+              (application_expression
+                (value_path Seq filter)
+                (fun_expression
+                  (parameter
+                    (tuple_pattern
+                      (value_pattern PLACEHOLDER_21)
+                      (any_pattern)
+                      (any_pattern)))
+                  (infix_expression
+                    (infix_expression PLACEHOLDER_21 |> string_of_int) |> PLACEHOLDER_7)))) |>
+            (value_path List of_seq)) |>
+          (application_expression
+            (value_path List sort) compare)) |>
+        (application_expression
+          (value_path List fold_left)
+          (fun_expression
+            (parameter
+              (value_pattern PLACEHOLDER_22))
+            (parameter
+              (tuple_pattern
+                (value_pattern PLACEHOLDER_21)
+                (value_pattern PLACEHOLDER_14)
+                (value_pattern PLACEHOLDER_20)))
+            (match_expression PLACEHOLDER_22
+              (match_case
+                (cons_pattern
+                  (tuple_pattern
+                    (value_pattern PLACEHOLDER_23)
+                    (value_pattern PLACEHOLDER_3))
+                  (value_pattern PLACEHOLDER_15))
+                (guard
+                  (infix_expression PLACEHOLDER_21 = PLACEHOLDER_23))
+                (cons_expression
+                  (tuple_expression PLACEHOLDER_21
+                    (cons_expression
+                      (tuple_expression PLACEHOLDER_14 PLACEHOLDER_20) PLACEHOLDER_3)) PLACEHOLDER_15))
+              (match_case
+                (any_pattern)
+                (cons_expression
+                  (tuple_expression PLACEHOLDER_21
+                    (list_expression
+                      (tuple_expression PLACEHOLDER_14 PLACEHOLDER_20))) PLACEHOLDER_22))))
+          (empty_list)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_24)
+      (parameter (label_name PLACEHOLDER_18)
+        (value_pattern PLACEHOLDER_18))
+      (parameter (label_name PLACEHOLDER_19)
+        (value_pattern PLACEHOLDER_19))
+      (if_expression
+        (infix_expression PLACEHOLDER_18 > PLACEHOLDER_19)
+        (then_clause
+          (application_expression Error "min must be <= max"))
+        (else_clause
+          (infix_expression
+            (infix_expression
+              (application_expression PLACEHOLDER_17 PLACEHOLDER_18 PLACEHOLDER_19) |> PLACEHOLDER_12) |>
+            (function_expression
+              (match_case None
+                (application_expression Ok
+                  (record_expression
+                    (field_expression (field_name PLACEHOLDER_2) None)
+                    (field_expression (field_name PLACEHOLDER_3)
+                      (empty_list)))))
+              (match_case
+                (constructor_pattern Some
+                  (tuple_pattern
+                    (value_pattern PLACEHOLDER_25)
+                    (value_pattern PLACEHOLDER_26)))
+                (application_expression Ok
+                  (record_expression
+                    (field_expression (field_name PLACEHOLDER_2)
+                      (application_expression Some PLACEHOLDER_25))
+                    (field_expression (field_name PLACEHOLDER_3)
+                      (application_expression
+                        (value_path List rev) PLACEHOLDER_26)))))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_27)
+      (parameter (label_name PLACEHOLDER_18)
+        (value_pattern PLACEHOLDER_18))
+      (parameter (label_name PLACEHOLDER_19)
+        (value_pattern PLACEHOLDER_19))
+      (if_expression
+        (infix_expression PLACEHOLDER_18 > PLACEHOLDER_19)
+        (then_clause
+          (application_expression Error "min must be <= max"))
+        (else_clause
+          (infix_expression
+            (infix_expression
+              (application_expression PLACEHOLDER_17 PLACEHOLDER_18 PLACEHOLDER_19) |> PLACEHOLDER_16) |>
+            (function_expression
+              (match_case None
+                (application_expression Ok
+                  (record_expression
+                    (field_expression (field_name PLACEHOLDER_2) None)
+                    (field_expression (field_name PLACEHOLDER_3)
+                      (empty_list)))))
+              (match_case
+                (constructor_pattern Some
+                  (tuple_pattern
+                    (value_pattern PLACEHOLDER_25)
+                    (value_pattern PLACEHOLDER_26)))
+                (application_expression Ok
+                  (record_expression
+                    (field_expression (field_name PLACEHOLDER_2)
+                      (application_expression Some PLACEHOLDER_25))
+                    (field_expression (field_name PLACEHOLDER_3)
+                      (application_expression
+                        (value_path List rev) PLACEHOLDER_26))))))))))))

@@ -1,69 +1,185 @@
-let lt20 = function
-| 0 L -> "\"\""
-| 1 L -> "\"one\""
-| 2 L -> "\"two\""
-| 3 L -> "\"three\""
-| 4 L -> "\"four\""
-| 5 L -> "\"five\""
-| 6 L -> "\"six\""
-| 7 L -> "\"seven\""
-| 8 L -> "\"eight\""
-| 9 L -> "\"nine\""
-| 10 L -> "\"ten\""
-| 11 L -> "\"eleven\""
-| 12 L -> "\"twelve\""
-| 13 L -> "\"thirteen\""
-| 14 L -> "\"fourteen\""
-| 15 L -> "\"fifteen\""
-| 16 L -> "\"sixteen\""
-| 17 L -> "\"seventeen\""
-| 18 L -> "\"eighteen\""
-| 19 L -> "\"nineteen\""
-| _ -> raise ( Invalid_argument "\"Argument must be less than 20\"" )
-let tenty x y =
-if y = 0 L then x else x ^ "\"-\"" ^ ( lt20 y )
-let lt100 x =
-let tens = x / 10 L in
-let ones = x % 10 L in
-match tens with
-| 0 L | 1 L -> lt20 x
-| 2 L -> tenty "\"twenty\"" ones
-| 3 L -> tenty "\"thirty\"" ones
-| 4 L -> tenty "\"forty\"" ones
-| 5 L -> tenty "\"fifty\"" ones
-| 6 L -> tenty "\"sixty\"" ones
-| 7 L -> tenty "\"seventy\"" ones
-| 8 L -> tenty "\"eighty\"" ones
-| 9 L -> tenty "\"ninety\"" ones
-| _ -> raise ( Invalid_argument "\"Argument must be less than 100\"" )
-let lt1000 x =
-match ( x / 100 L , x % 100 L ) with
-| ( 0 L , t ) -> lt100 t
-| ( h , 0 L ) -> ( lt20 h ) ^ "\" hundred\""
-| ( h , t ) -> ( lt20 h ) ^ "\" hundred \"" ^ ( lt100 t )
-let rec split_1000s x =
-if x < 1000 L then [ x ]
-else [ x % 1000 L ] @ split_1000s ( x / 1000 L )
-let scale = function
-| 0 -> "\"\""
-| 1 -> "\"thousand\""
-| 2 -> "\"million\""
-| 3 -> "\"billion\""
-| 4 -> "\"trillion\""
-| _ -> raise ( Invalid_argument "\"Argument must be less than 5\"" )
-let in_english x =
-if ( x < 0 L ) || ( x > 999_999_999_999 L ) then
-Error "\"input out of range\""
-else if x = 0 L then Ok "\"zero\""
-else
-Ok (
-split_1000s x
-|> List . mapi ~ f : ( fun i y ->
-if y = 0 L then "\"\""
-else match i with
-| 0 -> ( lt1000 y )
-| _ -> ( lt1000 y ) ^ "\" \"" ^ ( scale i ))
-|> List . rev
-|> String . concat ~ sep : "\" \""
-|> String . strip
-)
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (function_expression
+        (match_case 0L "")
+        (match_case 1L "one")
+        (match_case 2L "two")
+        (match_case 3L "three")
+        (match_case 4L "four")
+        (match_case 5L "five")
+        (match_case 6L "six")
+        (match_case 7L "seven")
+        (match_case 8L "eight")
+        (match_case 9L "nine")
+        (match_case 10L "ten")
+        (match_case 11L "eleven")
+        (match_case 12L "twelve")
+        (match_case 13L "thirteen")
+        (match_case 14L "fourteen")
+        (match_case 15L "fifteen")
+        (match_case 16L "sixteen")
+        (match_case 17L "seventeen")
+        (match_case 18L "eighteen")
+        (match_case 19L "nineteen")
+        (match_case
+          (any_pattern)
+          (application_expression raise
+            (application_expression Invalid_argument "Argument must be less than 20"))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_2)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (parameter
+        (value_pattern PLACEHOLDER_4))
+      (if_expression
+        (infix_expression PLACEHOLDER_4 = 0L)
+        (then_clause PLACEHOLDER_3)
+        (else_clause
+          (infix_expression PLACEHOLDER_3 ^
+            (infix_expression "-" ^
+              (application_expression PLACEHOLDER_1 PLACEHOLDER_4)))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_5)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_6)
+            (infix_expression PLACEHOLDER_3 / 10L)))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_7)
+              (infix_expression PLACEHOLDER_3 % 10L)))
+          (match_expression PLACEHOLDER_6
+            (match_case
+              (or_pattern 0L 1L)
+              (application_expression PLACEHOLDER_1 PLACEHOLDER_3))
+            (match_case 2L
+              (application_expression PLACEHOLDER_2 "twenty" PLACEHOLDER_7))
+            (match_case 3L
+              (application_expression PLACEHOLDER_2 "thirty" PLACEHOLDER_7))
+            (match_case 4L
+              (application_expression PLACEHOLDER_2 "forty" PLACEHOLDER_7))
+            (match_case 5L
+              (application_expression PLACEHOLDER_2 "fifty" PLACEHOLDER_7))
+            (match_case 6L
+              (application_expression PLACEHOLDER_2 "sixty" PLACEHOLDER_7))
+            (match_case 7L
+              (application_expression PLACEHOLDER_2 "seventy" PLACEHOLDER_7))
+            (match_case 8L
+              (application_expression PLACEHOLDER_2 "eighty" PLACEHOLDER_7))
+            (match_case 9L
+              (application_expression PLACEHOLDER_2 "ninety" PLACEHOLDER_7))
+            (match_case
+              (any_pattern)
+              (application_expression raise
+                (application_expression Invalid_argument "Argument must be less than 100"))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_8)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (match_expression
+        (tuple_expression
+          (infix_expression PLACEHOLDER_3 / 100L)
+          (infix_expression PLACEHOLDER_3 % 100L))
+        (match_case
+          (tuple_pattern 0L
+            (value_pattern PLACEHOLDER_9))
+          (application_expression PLACEHOLDER_5 PLACEHOLDER_9))
+        (match_case
+          (tuple_pattern
+            (value_pattern PLACEHOLDER_10) 0L)
+          (infix_expression
+            (application_expression PLACEHOLDER_1 PLACEHOLDER_10) ^ " hundred"))
+        (match_case
+          (tuple_pattern
+            (value_pattern PLACEHOLDER_10)
+            (value_pattern PLACEHOLDER_9))
+          (infix_expression
+            (application_expression PLACEHOLDER_1 PLACEHOLDER_10) ^
+            (infix_expression " hundred " ^
+              (application_expression PLACEHOLDER_5 PLACEHOLDER_9)))))))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_11)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (if_expression
+        (infix_expression PLACEHOLDER_3 < 1000L)
+        (then_clause
+          (list_expression PLACEHOLDER_3))
+        (else_clause
+          (infix_expression
+            (list_expression
+              (infix_expression PLACEHOLDER_3 % 1000L)) @
+            (application_expression PLACEHOLDER_11
+              (infix_expression PLACEHOLDER_3 / 1000L)))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_12)
+      (function_expression
+        (match_case 0 "")
+        (match_case 1 "thousand")
+        (match_case 2 "million")
+        (match_case 3 "billion")
+        (match_case 4 "trillion")
+        (match_case
+          (any_pattern)
+          (application_expression raise
+            (application_expression Invalid_argument "Argument must be less than 5"))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_13)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (if_expression
+        (infix_expression
+          (infix_expression PLACEHOLDER_3 < 0L) ||
+          (infix_expression PLACEHOLDER_3 > 999_999_999_999L))
+        (then_clause
+          (application_expression Error "input out of range"))
+        (else_clause
+          (if_expression
+            (infix_expression PLACEHOLDER_3 = 0L)
+            (then_clause
+              (application_expression Ok "zero"))
+            (else_clause
+              (application_expression Ok
+                (infix_expression
+                  (infix_expression
+                    (infix_expression
+                      (infix_expression
+                        (application_expression PLACEHOLDER_11 PLACEHOLDER_3) |>
+                        (application_expression
+                          (value_path List mapi)
+                          (labeled_argument f
+                            (fun_expression
+                              (parameter
+                                (value_pattern PLACEHOLDER_14))
+                              (parameter
+                                (value_pattern PLACEHOLDER_4))
+                              (if_expression
+                                (infix_expression PLACEHOLDER_4 = 0L)
+                                (then_clause "")
+                                (else_clause
+                                  (match_expression PLACEHOLDER_14
+                                    (match_case 0
+                                      (application_expression PLACEHOLDER_8 PLACEHOLDER_4))
+                                    (match_case
+                                      (any_pattern)
+                                      (infix_expression
+                                        (application_expression PLACEHOLDER_8 PLACEHOLDER_4) ^
+                                        (infix_expression " " ^
+                                          (application_expression PLACEHOLDER_12 PLACEHOLDER_14))))))))))) |>
+                      (value_path List rev)) |>
+                    (application_expression
+                      (value_path String concat)
+                      (labeled_argument sep " "))) |>
+                  (value_path String strip))))))))))

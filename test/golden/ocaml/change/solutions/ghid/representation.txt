@@ -1,30 +1,115 @@
-let make_array n = Array . init ( n + 1 ) ~ f : ( fun _ -> [] )
-let solve_minimal_coin_change target coins =
-let dp = make_array target in
-let compute_partial_solution table sub_target coin_value =
-let coin_count i =
-match List . length table . ( i ) with
-| 0 when i > 0 -> target + 1
-| l -> l
-in
-let i' = sub_target - coin_value in
-if 1 + coin_count i' <= coin_count sub_target
-then table . ( sub_target ) <- table . ( i' ) @ [ coin_value ]
-else ()
-in
-for i = 1 to target do
-List . iter
-~ f : ( fun coin_value -> compute_partial_solution dp i coin_value )
-( List . filter ~ f : ( fun coin_value -> coin_value <= i ) coins )
-done ;
-dp . ( target )
-;;
-let make_change ~ target ~ coins =
-match target with
-| 0 -> Ok []
-| _ when target < 0 -> Error "\"target can't be negative\""
-| _ ->
-( match solve_minimal_coin_change target coins with
-| [] -> Error "\"can't make target with given coins\""
-| l -> Ok l )
-;;
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (parameter
+        (value_pattern PLACEHOLDER_2))
+      (application_expression
+        (value_path Array init)
+        (infix_expression PLACEHOLDER_2 + 1)
+        (labeled_argument f
+          (fun_expression
+            (parameter
+              (any_pattern))
+            (empty_list))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_3)
+      (parameter
+        (value_pattern PLACEHOLDER_4))
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_6)
+            (application_expression PLACEHOLDER_1 PLACEHOLDER_4)))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_7)
+              (parameter
+                (value_pattern PLACEHOLDER_8))
+              (parameter
+                (value_pattern PLACEHOLDER_9))
+              (parameter
+                (value_pattern PLACEHOLDER_10))
+              (let_expression
+                (value_definition
+                  (let_binding
+                    (value_pattern PLACEHOLDER_11)
+                    (parameter
+                      (value_pattern PLACEHOLDER_12))
+                    (match_expression
+                      (application_expression
+                        (value_path List length)
+                        (array_get_expression PLACEHOLDER_8 PLACEHOLDER_12))
+                      (match_case 0
+                        (guard
+                          (infix_expression PLACEHOLDER_12 > 0))
+                        (infix_expression PLACEHOLDER_4 + 1))
+                      (match_case
+                        (value_pattern PLACEHOLDER_13) PLACEHOLDER_13))))
+                (let_expression
+                  (value_definition
+                    (let_binding
+                      (value_pattern PLACEHOLDER_14)
+                      (infix_expression PLACEHOLDER_9 - PLACEHOLDER_10)))
+                  (if_expression
+                    (infix_expression
+                      (infix_expression 1 +
+                        (application_expression PLACEHOLDER_11 PLACEHOLDER_14)) <=
+                      (application_expression PLACEHOLDER_11 PLACEHOLDER_9))
+                    (then_clause
+                      (set_expression
+                        (array_get_expression PLACEHOLDER_8 PLACEHOLDER_9)
+                        (infix_expression
+                          (array_get_expression PLACEHOLDER_8 PLACEHOLDER_14) @
+                          (list_expression PLACEHOLDER_10))))
+                    (else_clause
+                      (unit)))))))
+          (sequence_expression
+            (for_expression
+              (value_pattern PLACEHOLDER_12) 1 to PLACEHOLDER_4
+              (do_clause
+                (application_expression
+                  (value_path List iter)
+                  (labeled_argument f
+                    (fun_expression
+                      (parameter
+                        (value_pattern PLACEHOLDER_10))
+                      (application_expression PLACEHOLDER_7 PLACEHOLDER_6 PLACEHOLDER_12 PLACEHOLDER_10)))
+                  (application_expression
+                    (value_path List filter)
+                    (labeled_argument f
+                      (fun_expression
+                        (parameter
+                          (value_pattern PLACEHOLDER_10))
+                        (infix_expression PLACEHOLDER_10 <= PLACEHOLDER_12))) PLACEHOLDER_5))))
+            (array_get_expression PLACEHOLDER_6 PLACEHOLDER_4))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_15)
+      (parameter (label_name PLACEHOLDER_4)
+        (value_pattern PLACEHOLDER_4))
+      (parameter (label_name PLACEHOLDER_5)
+        (value_pattern PLACEHOLDER_5))
+      (match_expression PLACEHOLDER_4
+        (match_case 0
+          (application_expression Ok
+            (empty_list)))
+        (match_case
+          (any_pattern)
+          (guard
+            (infix_expression PLACEHOLDER_4 < 0))
+          (application_expression Error "target can't be negative"))
+        (match_case
+          (any_pattern)
+          (match_expression
+            (application_expression PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5)
+            (match_case
+              (empty_list)
+              (application_expression Error "can't make target with given coins"))
+            (match_case
+              (value_pattern PLACEHOLDER_13)
+              (application_expression Ok PLACEHOLDER_13))))))))

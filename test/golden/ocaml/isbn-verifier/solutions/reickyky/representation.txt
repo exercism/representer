@@ -1,39 +1,166 @@
-let char_to_int ( c : char ) : int option =
-let open Char in
-if c >= ' 0 ' && c <= ' 9 ' then Some ( code c - code ' 0 ' ) else None
-let char_to_int_last ( c : char ) : int option =
-let open Char in
-if c >= ' 0 ' && c <= ' 9 ' then Some ( code c - code ' 0 ' )
-else if c = ' X' || c = ' x' then Some 10
-else None
-let parse ( input : string ) : ( int list , string ) result =
-let strlen = String . length input in
-let rec loop acc idx digits =
-if idx >= strlen then
-if digits = 10 then Ok ( List . rev acc ) else Error "\"Not enough digits\""
-else
-match input . [ idx ] with
-| ' - ' -> loop acc ( idx + 1 ) digits
-| c -> (
-if digits = 9 then
-if idx <> strlen - 1 then Error "\"Too many characters\""
-else
-match char_to_int_last c with
-| None -> Error "\"Invalid character in check digit\""
-| Some x -> Ok ( List . rev ( x :: acc ))
-else
-match char_to_int c with
-| None -> Error "\"Invalid character\""
-| Some x -> loop ( x :: acc ) ( idx + 1 ) ( digits + 1 ))
-in
-loop [] 0 0
-let is_valid input =
-match parse input with
-| Error _ -> false
-| Ok l ->
-let _ , sum =
-List . fold_left
-( fun ( coeff , v ) x -> ( coeff - 1 , ( coeff * x ) + v ))
-( 10 , 0 ) l
-in
-sum mod 11 = 0
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_2) char))
+      (constructed_type int option)
+      (local_open_expression Char
+        (if_expression
+          (infix_expression
+            (infix_expression PLACEHOLDER_2 >=
+              (character "0")) &&
+            (infix_expression PLACEHOLDER_2 <=
+              (character "9")))
+          (then_clause
+            (application_expression Some
+              (infix_expression
+                (application_expression code PLACEHOLDER_2) -
+                (application_expression code
+                  (character "0")))))
+          (else_clause None)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_3)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_2) char))
+      (constructed_type int option)
+      (local_open_expression Char
+        (if_expression
+          (infix_expression
+            (infix_expression PLACEHOLDER_2 >=
+              (character "0")) &&
+            (infix_expression PLACEHOLDER_2 <=
+              (character "9")))
+          (then_clause
+            (application_expression Some
+              (infix_expression
+                (application_expression code PLACEHOLDER_2) -
+                (application_expression code
+                  (character "0")))))
+          (else_clause
+            (if_expression
+              (infix_expression
+                (infix_expression PLACEHOLDER_2 =
+                  (character "X")) ||
+                (infix_expression PLACEHOLDER_2 =
+                  (character "x")))
+              (then_clause
+                (application_expression Some 10))
+              (else_clause None)))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_4)
+      (parameter
+        (typed_pattern
+          (value_pattern PLACEHOLDER_5) string))
+      (constructed_type
+        (constructed_type int list) string result)
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_6)
+            (application_expression
+              (value_path String length) PLACEHOLDER_5)))
+        (let_expression
+          (value_definition rec
+            (let_binding
+              (value_pattern PLACEHOLDER_7)
+              (parameter
+                (value_pattern PLACEHOLDER_8))
+              (parameter
+                (value_pattern PLACEHOLDER_9))
+              (parameter
+                (value_pattern PLACEHOLDER_10))
+              (if_expression
+                (infix_expression PLACEHOLDER_9 >= PLACEHOLDER_6)
+                (then_clause
+                  (if_expression
+                    (infix_expression PLACEHOLDER_10 = 10)
+                    (then_clause
+                      (application_expression Ok
+                        (application_expression
+                          (value_path List rev) PLACEHOLDER_8)))
+                    (else_clause
+                      (application_expression Error "Not enough digits"))))
+                (else_clause
+                  (match_expression
+                    (string_get_expression PLACEHOLDER_5 PLACEHOLDER_9)
+                    (match_case
+                      (character "-")
+                      (application_expression PLACEHOLDER_7 PLACEHOLDER_8
+                        (infix_expression PLACEHOLDER_9 + 1) PLACEHOLDER_10))
+                    (match_case
+                      (value_pattern PLACEHOLDER_2)
+                      (if_expression
+                        (infix_expression PLACEHOLDER_10 = 9)
+                        (then_clause
+                          (if_expression
+                            (infix_expression PLACEHOLDER_9 <>
+                              (infix_expression PLACEHOLDER_6 - 1))
+                            (then_clause
+                              (application_expression Error "Too many characters"))
+                            (else_clause
+                              (match_expression
+                                (application_expression PLACEHOLDER_3 PLACEHOLDER_2)
+                                (match_case None
+                                  (application_expression Error "Invalid character in check digit"))
+                                (match_case
+                                  (constructor_pattern Some
+                                    (value_pattern PLACEHOLDER_11))
+                                  (application_expression Ok
+                                    (application_expression
+                                      (value_path List rev)
+                                      (cons_expression PLACEHOLDER_11 PLACEHOLDER_8))))))))
+                        (else_clause
+                          (match_expression
+                            (application_expression PLACEHOLDER_1 PLACEHOLDER_2)
+                            (match_case None
+                              (application_expression Error "Invalid character"))
+                            (match_case
+                              (constructor_pattern Some
+                                (value_pattern PLACEHOLDER_11))
+                              (application_expression PLACEHOLDER_7
+                                (cons_expression PLACEHOLDER_11 PLACEHOLDER_8)
+                                (infix_expression PLACEHOLDER_9 + 1)
+                                (infix_expression PLACEHOLDER_10 + 1))))))))))))
+          (application_expression PLACEHOLDER_7
+            (empty_list) 0 0)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_12)
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (match_expression
+        (application_expression PLACEHOLDER_4 PLACEHOLDER_5)
+        (match_case
+          (constructor_pattern Error
+            (any_pattern))
+          (boolean false))
+        (match_case
+          (constructor_pattern Ok
+            (value_pattern PLACEHOLDER_13))
+          (let_expression
+            (value_definition
+              (let_binding
+                (tuple_pattern
+                  (any_pattern)
+                  (value_pattern PLACEHOLDER_14))
+                (application_expression
+                  (value_path List fold_left)
+                  (fun_expression
+                    (parameter
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_15)
+                        (value_pattern PLACEHOLDER_16)))
+                    (parameter
+                      (value_pattern PLACEHOLDER_11))
+                    (tuple_expression
+                      (infix_expression PLACEHOLDER_15 - 1)
+                      (infix_expression
+                        (infix_expression PLACEHOLDER_15 * PLACEHOLDER_11) + PLACEHOLDER_16)))
+                  (tuple_expression 10 0) PLACEHOLDER_13)))
+            (infix_expression
+              (infix_expression PLACEHOLDER_14 mod 11) = 0)))))))

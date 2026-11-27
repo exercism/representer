@@ -1,49 +1,252 @@
-let roman_number_map =
-[ ( 1000 , "\"M\"" )
-; ( 500 , "\"D\"" )
-; ( 100 , "\"C\"" )
-; ( 50 , "\"L\"" )
-; ( 10 , "\"X\"" )
-; ( 5 , "\"V\"" )
-; ( 1 , "\"I\"" )
-; ( 900 , "\"CM\"" )
-; ( 400 , "\"CD\"" )
-; ( 90 , "\"XC\"" )
-; ( 40 , "\"XL\"" )
-; ( 9 , "\"IX\"" )
-; ( 4 , "\"IV\"" ) ]
-let pow n p =
-let rec aux n p acc = if p <= 0 then acc else aux n ( p - 1 ) ( acc * n ) in
-aux n p 1
-let nb_len n =
-let rec aux n acc = if n = 0 then acc else aux ( n / 10 ) ( acc + 1 ) in
-aux n 0
-let arabic_to_roman n =
-let len = nb_len n - 1 in
-let iterations = n / pow 10 len in
-let r1 = List . find_opt ( fun ( nb , _ ) -> nb = n ) roman_number_map in
-let r2 = List . find_opt ( fun ( nb , _ ) -> nb = iterations ) roman_number_map in
-match [ r1 ; r2 ] with
-| [ Some ( _ , l1 ); _ ] ->
-l1
-| [ _ ; Some ( _ , l2 )] ->
-String . init len ( fun _ -> l2 . [ 0 ])
-| _ ->
-if n < 4 then String . init n ( fun _ -> ' I' )
-else if n < 10 then "\"V\"" ^ String . init ( n - 5 ) ( fun _ -> ' I' )
-else if n < 40 then String . init iterations ( fun _ -> ' X' )
-else if n < 100 then "\"L\"" ^ String . init ( iterations - 5 ) ( fun _ -> ' X' )
-else if n < 400 then String . init iterations ( fun _ -> ' C' )
-else if n < 1000 then "\"D\"" ^ String . init ( iterations - 5 ) ( fun _ -> ' C' )
-else String . init iterations ( fun _ -> ' M' )
-let to_roman n =
-let rec decompose_number n p acc =
-if n = 0 then acc
-else
-let next = n mod pow 10 p in
-decompose_number next ( p - 1 ) (( n - next ) :: acc )
-in
-let l = decompose_number n ( nb_len n - 1 ) [] in
-List . map arabic_to_roman l |> List . rev
-|> List . filter ( fun s -> s <> "\"\"" )
-|> List . fold_left ( ^ ) "\"\""
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (list_expression
+        (tuple_expression 1000 "M")
+        (tuple_expression 500 "D")
+        (tuple_expression 100 "C")
+        (tuple_expression 50 "L")
+        (tuple_expression 10 "X")
+        (tuple_expression 5 "V")
+        (tuple_expression 1 "I")
+        (tuple_expression 900 "CM")
+        (tuple_expression 400 "CD")
+        (tuple_expression 90 "XC")
+        (tuple_expression 40 "XL")
+        (tuple_expression 9 "IX")
+        (tuple_expression 4 "IV"))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_2)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (parameter
+        (value_pattern PLACEHOLDER_4))
+      (let_expression
+        (value_definition rec
+          (let_binding
+            (value_pattern PLACEHOLDER_5)
+            (parameter
+              (value_pattern PLACEHOLDER_3))
+            (parameter
+              (value_pattern PLACEHOLDER_4))
+            (parameter
+              (value_pattern PLACEHOLDER_6))
+            (if_expression
+              (infix_expression PLACEHOLDER_4 <= 0)
+              (then_clause PLACEHOLDER_6)
+              (else_clause
+                (application_expression PLACEHOLDER_5 PLACEHOLDER_3
+                  (infix_expression PLACEHOLDER_4 - 1)
+                  (infix_expression PLACEHOLDER_6 * PLACEHOLDER_3))))))
+        (application_expression PLACEHOLDER_5 PLACEHOLDER_3 PLACEHOLDER_4 1))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_7)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (let_expression
+        (value_definition rec
+          (let_binding
+            (value_pattern PLACEHOLDER_5)
+            (parameter
+              (value_pattern PLACEHOLDER_3))
+            (parameter
+              (value_pattern PLACEHOLDER_6))
+            (if_expression
+              (infix_expression PLACEHOLDER_3 = 0)
+              (then_clause PLACEHOLDER_6)
+              (else_clause
+                (application_expression PLACEHOLDER_5
+                  (infix_expression PLACEHOLDER_3 / 10)
+                  (infix_expression PLACEHOLDER_6 + 1))))))
+        (application_expression PLACEHOLDER_5 PLACEHOLDER_3 0))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_8)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (let_expression
+        (value_definition
+          (let_binding
+            (value_pattern PLACEHOLDER_9)
+            (infix_expression
+              (application_expression PLACEHOLDER_7 PLACEHOLDER_3) - 1)))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_10)
+              (infix_expression PLACEHOLDER_3 /
+                (application_expression PLACEHOLDER_2 10 PLACEHOLDER_9))))
+          (let_expression
+            (value_definition
+              (let_binding
+                (value_pattern PLACEHOLDER_11)
+                (application_expression
+                  (value_path List find_opt)
+                  (fun_expression
+                    (parameter
+                      (tuple_pattern
+                        (value_pattern PLACEHOLDER_12)
+                        (any_pattern)))
+                    (infix_expression PLACEHOLDER_12 = PLACEHOLDER_3)) PLACEHOLDER_1)))
+            (let_expression
+              (value_definition
+                (let_binding
+                  (value_pattern PLACEHOLDER_13)
+                  (application_expression
+                    (value_path List find_opt)
+                    (fun_expression
+                      (parameter
+                        (tuple_pattern
+                          (value_pattern PLACEHOLDER_12)
+                          (any_pattern)))
+                      (infix_expression PLACEHOLDER_12 = PLACEHOLDER_10)) PLACEHOLDER_1)))
+              (match_expression
+                (list_expression PLACEHOLDER_11 PLACEHOLDER_13)
+                (match_case
+                  (list_pattern
+                    (constructor_pattern Some
+                      (tuple_pattern
+                        (any_pattern)
+                        (value_pattern PLACEHOLDER_14)))
+                    (any_pattern)) PLACEHOLDER_14)
+                (match_case
+                  (list_pattern
+                    (any_pattern)
+                    (constructor_pattern Some
+                      (tuple_pattern
+                        (any_pattern)
+                        (value_pattern PLACEHOLDER_15))))
+                  (application_expression
+                    (value_path String init) PLACEHOLDER_9
+                    (fun_expression
+                      (parameter
+                        (any_pattern))
+                      (string_get_expression PLACEHOLDER_15 0))))
+                (match_case
+                  (any_pattern)
+                  (if_expression
+                    (infix_expression PLACEHOLDER_3 < 4)
+                    (then_clause
+                      (application_expression
+                        (value_path String init) PLACEHOLDER_3
+                        (fun_expression
+                          (parameter
+                            (any_pattern))
+                          (character "I"))))
+                    (else_clause
+                      (if_expression
+                        (infix_expression PLACEHOLDER_3 < 10)
+                        (then_clause
+                          (infix_expression "V" ^
+                            (application_expression
+                              (value_path String init)
+                              (infix_expression PLACEHOLDER_3 - 5)
+                              (fun_expression
+                                (parameter
+                                  (any_pattern))
+                                (character "I")))))
+                        (else_clause
+                          (if_expression
+                            (infix_expression PLACEHOLDER_3 < 40)
+                            (then_clause
+                              (application_expression
+                                (value_path String init) PLACEHOLDER_10
+                                (fun_expression
+                                  (parameter
+                                    (any_pattern))
+                                  (character "X"))))
+                            (else_clause
+                              (if_expression
+                                (infix_expression PLACEHOLDER_3 < 100)
+                                (then_clause
+                                  (infix_expression "L" ^
+                                    (application_expression
+                                      (value_path String init)
+                                      (infix_expression PLACEHOLDER_10 - 5)
+                                      (fun_expression
+                                        (parameter
+                                          (any_pattern))
+                                        (character "X")))))
+                                (else_clause
+                                  (if_expression
+                                    (infix_expression PLACEHOLDER_3 < 400)
+                                    (then_clause
+                                      (application_expression
+                                        (value_path String init) PLACEHOLDER_10
+                                        (fun_expression
+                                          (parameter
+                                            (any_pattern))
+                                          (character "C"))))
+                                    (else_clause
+                                      (if_expression
+                                        (infix_expression PLACEHOLDER_3 < 1000)
+                                        (then_clause
+                                          (infix_expression "D" ^
+                                            (application_expression
+                                              (value_path String init)
+                                              (infix_expression PLACEHOLDER_10 - 5)
+                                              (fun_expression
+                                                (parameter
+                                                  (any_pattern))
+                                                (character "C")))))
+                                        (else_clause
+                                          (application_expression
+                                            (value_path String init) PLACEHOLDER_10
+                                            (fun_expression
+                                              (parameter
+                                                (any_pattern))
+                                              (character "M")))))))))))))))))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_16)
+      (parameter
+        (value_pattern PLACEHOLDER_3))
+      (let_expression
+        (value_definition rec
+          (let_binding
+            (value_pattern PLACEHOLDER_17)
+            (parameter
+              (value_pattern PLACEHOLDER_3))
+            (parameter
+              (value_pattern PLACEHOLDER_4))
+            (parameter
+              (value_pattern PLACEHOLDER_6))
+            (if_expression
+              (infix_expression PLACEHOLDER_3 = 0)
+              (then_clause PLACEHOLDER_6)
+              (else_clause
+                (let_expression
+                  (value_definition
+                    (let_binding
+                      (value_pattern PLACEHOLDER_18)
+                      (infix_expression PLACEHOLDER_3 mod
+                        (application_expression PLACEHOLDER_2 10 PLACEHOLDER_4))))
+                  (application_expression PLACEHOLDER_17 PLACEHOLDER_18
+                    (infix_expression PLACEHOLDER_4 - 1)
+                    (cons_expression
+                      (infix_expression PLACEHOLDER_3 - PLACEHOLDER_18) PLACEHOLDER_6)))))))
+        (let_expression
+          (value_definition
+            (let_binding
+              (value_pattern PLACEHOLDER_19)
+              (application_expression PLACEHOLDER_17 PLACEHOLDER_3
+                (infix_expression
+                  (application_expression PLACEHOLDER_7 PLACEHOLDER_3) - 1)
+                (empty_list))))
+          (infix_expression
+            (infix_expression
+              (infix_expression
+                (application_expression
+                  (value_path List map) PLACEHOLDER_8 PLACEHOLDER_19) |>
+                (value_path List rev)) |>
+              (application_expression
+                (value_path List filter)
+                (fun_expression
+                  (parameter
+                    (value_pattern PLACEHOLDER_20))
+                  (infix_expression PLACEHOLDER_20 <> "")))) |>
+            (application_expression
+              (value_path List fold_left) ^ "")))))))

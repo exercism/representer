@@ -1,23 +1,52 @@
-let verse = function
-| 0 ->
-"\"No more bottles of beer on the wall, no more bottles of beer.\\n\\\n       Go to the store and buy some more, 99 bottles of beer on the wall.\""
-| 1 ->
-"\"1 bottle of beer on the wall, 1 bottle of beer.\\n\\\n       Take it down and pass it around, no more bottles of beer on the wall.\""
-| n ->
-let num = Int . to_string n in
-let num_minus_one = Int . to_string ( n - 1 ) in
-let plural = if n > 2 then "\"s\"" else "\"\"" in
-String . concat
-[
-num ;
-"\" bottles of beer on the wall, \"" ;
-num ;
-"\" bottles of beer.\\nTake one down and pass it around, \"" ;
-num_minus_one ;
-"\" bottle\"" ;
-plural ;
-"\" of beer on the wall.\"" ;
-]
-let recite from len =
-List . init len ~ f : ( fun index -> verse ( from - index ))
-|> String . concat ~ sep : "\"\\n\\n\""
+(compilation_unit
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (function_expression
+        (match_case 0 "No more bottles of beer on the wall, no more bottles of beer.\nGo to the store and buy some more, 99 bottles of beer on the wall.")
+        (match_case 1 "1 bottle of beer on the wall, 1 bottle of beer.\nTake it down and pass it around, no more bottles of beer on the wall.")
+        (match_case
+          (value_pattern PLACEHOLDER_2)
+          (let_expression
+            (value_definition
+              (let_binding
+                (value_pattern PLACEHOLDER_3)
+                (application_expression
+                  (value_path Int to_string) PLACEHOLDER_2)))
+            (let_expression
+              (value_definition
+                (let_binding
+                  (value_pattern PLACEHOLDER_4)
+                  (application_expression
+                    (value_path Int to_string)
+                    (infix_expression PLACEHOLDER_2 - 1))))
+              (let_expression
+                (value_definition
+                  (let_binding
+                    (value_pattern PLACEHOLDER_5)
+                    (if_expression
+                      (infix_expression PLACEHOLDER_2 > 2)
+                      (then_clause "s")
+                      (else_clause ""))))
+                (application_expression
+                  (value_path String concat)
+                  (list_expression PLACEHOLDER_3 " bottles of beer on the wall, " PLACEHOLDER_3 " bottles of beer.\nTake one down and pass it around, " PLACEHOLDER_4 " bottle" PLACEHOLDER_5 " of beer on the wall.")))))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_6)
+      (parameter
+        (value_pattern PLACEHOLDER_7))
+      (parameter
+        (value_pattern PLACEHOLDER_8))
+      (infix_expression
+        (application_expression
+          (value_path List init) PLACEHOLDER_8
+          (labeled_argument f
+            (fun_expression
+              (parameter
+                (value_pattern PLACEHOLDER_9))
+              (application_expression PLACEHOLDER_1
+                (infix_expression PLACEHOLDER_7 - PLACEHOLDER_9))))) |>
+        (application_expression
+          (value_path String concat)
+          (labeled_argument sep "\n\n"))))))

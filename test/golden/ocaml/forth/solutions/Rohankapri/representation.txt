@@ -1,48 +1,240 @@
-module WordMap = Map . Make ( String )
-let exec_stack_op = function
-| "\"+\"" , b :: a :: stk -> Some (( a + b ) :: stk )
-| "\"-\"" , b :: a :: stk -> Some (( a - b ) :: stk )
-| "\"*\"" , b :: a :: stk -> Some (( a * b ) :: stk )
-| "\"/\"" , b :: a :: stk when b <> 0 -> Some (( a / b ) :: stk )
-| "\"DUP\"" , a :: stk -> Some ( a :: a :: stk )
-| "\"DROP\"" , _ :: stk -> Some stk
-| "\"SWAP\"" , b :: a :: stk -> Some ( a :: b :: stk )
-| "\"OVER\"" , b :: a :: stk -> Some ( a :: b :: a :: stk )
-| w , stk -> int_of_string_opt w |> Option . map ( fun n -> n :: stk )
-let rec run_immediate vocab stk = function
-| [] -> Some ( List . rev stk )
-| "\";\"" :: _ -> None
-| "\":\"" :: prg -> run_defining vocab stk prg
-| w :: prg ->
-match WordMap . find_opt w vocab with
-| None ->
-Option . bind
-( exec_stack_op ( w , stk ))
-( fun s -> run_immediate vocab s prg )
-| Some proc -> List . rev_append proc prg |> run_immediate vocab stk
-and run_defining vocab stk = function
-| [] | "\":\"" :: _ | "\";\"" :: _ -> None
-| nm :: prg ->
-match int_of_string_opt nm with
-| None -> run_compiling vocab stk nm [] prg
-| Some _ -> None
-and run_compiling vocab stk nm proc = function
-| [] | "\":\"" :: _ -> None
-| "\";\"" :: prg ->
-let vocab = WordMap . add nm proc vocab in
-run_immediate vocab stk prg
-| w :: prg ->
-let proc =
-match WordMap . find_opt w vocab with
-| None -> w :: proc
-| Some p -> p @ proc
-in
-run_compiling vocab stk nm proc prg
-let tokenize str =
-String . split_on_char ' ' str
-|> List . filter (( <> ) "\"\"" )
-|> List . map String . uppercase_ascii
-let evaluate strs =
-List . map tokenize strs
-|> List . flatten
-|> run_immediate WordMap . empty []
+(compilation_unit
+  (module_definition
+    (module_binding (module_name PLACEHOLDER_1)
+      (module_application
+        (module_path Map Make) String)))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_2)
+      (function_expression
+        (match_case
+          (tuple_pattern "+"
+            (cons_pattern
+              (value_pattern PLACEHOLDER_3)
+              (cons_pattern
+                (value_pattern PLACEHOLDER_4)
+                (value_pattern PLACEHOLDER_5))))
+          (application_expression Some
+            (cons_expression
+              (infix_expression PLACEHOLDER_4 + PLACEHOLDER_3) PLACEHOLDER_5)))
+        (match_case
+          (tuple_pattern "-"
+            (cons_pattern
+              (value_pattern PLACEHOLDER_3)
+              (cons_pattern
+                (value_pattern PLACEHOLDER_4)
+                (value_pattern PLACEHOLDER_5))))
+          (application_expression Some
+            (cons_expression
+              (infix_expression PLACEHOLDER_4 - PLACEHOLDER_3) PLACEHOLDER_5)))
+        (match_case
+          (tuple_pattern "*"
+            (cons_pattern
+              (value_pattern PLACEHOLDER_3)
+              (cons_pattern
+                (value_pattern PLACEHOLDER_4)
+                (value_pattern PLACEHOLDER_5))))
+          (application_expression Some
+            (cons_expression
+              (infix_expression PLACEHOLDER_4 * PLACEHOLDER_3) PLACEHOLDER_5)))
+        (match_case
+          (tuple_pattern "/"
+            (cons_pattern
+              (value_pattern PLACEHOLDER_3)
+              (cons_pattern
+                (value_pattern PLACEHOLDER_4)
+                (value_pattern PLACEHOLDER_5))))
+          (guard
+            (infix_expression PLACEHOLDER_3 <> 0))
+          (application_expression Some
+            (cons_expression
+              (infix_expression PLACEHOLDER_4 / PLACEHOLDER_3) PLACEHOLDER_5)))
+        (match_case
+          (tuple_pattern "DUP"
+            (cons_pattern
+              (value_pattern PLACEHOLDER_4)
+              (value_pattern PLACEHOLDER_5)))
+          (application_expression Some
+            (cons_expression PLACEHOLDER_4
+              (cons_expression PLACEHOLDER_4 PLACEHOLDER_5))))
+        (match_case
+          (tuple_pattern "DROP"
+            (cons_pattern
+              (any_pattern)
+              (value_pattern PLACEHOLDER_5)))
+          (application_expression Some PLACEHOLDER_5))
+        (match_case
+          (tuple_pattern "SWAP"
+            (cons_pattern
+              (value_pattern PLACEHOLDER_3)
+              (cons_pattern
+                (value_pattern PLACEHOLDER_4)
+                (value_pattern PLACEHOLDER_5))))
+          (application_expression Some
+            (cons_expression PLACEHOLDER_4
+              (cons_expression PLACEHOLDER_3 PLACEHOLDER_5))))
+        (match_case
+          (tuple_pattern "OVER"
+            (cons_pattern
+              (value_pattern PLACEHOLDER_3)
+              (cons_pattern
+                (value_pattern PLACEHOLDER_4)
+                (value_pattern PLACEHOLDER_5))))
+          (application_expression Some
+            (cons_expression PLACEHOLDER_4
+              (cons_expression PLACEHOLDER_3
+                (cons_expression PLACEHOLDER_4 PLACEHOLDER_5)))))
+        (match_case
+          (tuple_pattern
+            (value_pattern PLACEHOLDER_6)
+            (value_pattern PLACEHOLDER_5))
+          (infix_expression
+            (application_expression int_of_string_opt PLACEHOLDER_6) |>
+            (application_expression
+              (value_path Option map)
+              (fun_expression
+                (parameter
+                  (value_pattern PLACEHOLDER_7))
+                (cons_expression PLACEHOLDER_7 PLACEHOLDER_5))))))))
+  (value_definition rec
+    (let_binding
+      (value_pattern PLACEHOLDER_8)
+      (parameter
+        (value_pattern PLACEHOLDER_9))
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (function_expression
+        (match_case
+          (empty_list)
+          (application_expression Some
+            (application_expression
+              (value_path List rev) PLACEHOLDER_5)))
+        (match_case
+          (cons_pattern ";"
+            (any_pattern)) None)
+        (match_case
+          (cons_pattern ":"
+            (value_pattern PLACEHOLDER_10))
+          (application_expression PLACEHOLDER_11 PLACEHOLDER_9 PLACEHOLDER_5 PLACEHOLDER_10))
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_6)
+            (value_pattern PLACEHOLDER_10))
+          (match_expression
+            (application_expression
+              (value_path (module_name PLACEHOLDER_1) find_opt) PLACEHOLDER_6 PLACEHOLDER_9)
+            (match_case None
+              (application_expression
+                (value_path Option bind)
+                (application_expression PLACEHOLDER_2
+                  (tuple_expression PLACEHOLDER_6 PLACEHOLDER_5))
+                (fun_expression
+                  (parameter
+                    (value_pattern PLACEHOLDER_12))
+                  (application_expression PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_12 PLACEHOLDER_10))))
+            (match_case
+              (constructor_pattern Some
+                (value_pattern PLACEHOLDER_13))
+              (infix_expression
+                (application_expression
+                  (value_path List rev_append) PLACEHOLDER_13 PLACEHOLDER_10) |>
+                (application_expression PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_5)))))))
+    (let_binding
+      (value_pattern PLACEHOLDER_11)
+      (parameter
+        (value_pattern PLACEHOLDER_9))
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (function_expression
+        (match_case
+          (or_pattern
+            (empty_list)
+            (cons_pattern ":"
+              (any_pattern))
+            (cons_pattern ";"
+              (any_pattern))) None)
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_14)
+            (value_pattern PLACEHOLDER_10))
+          (match_expression
+            (application_expression int_of_string_opt PLACEHOLDER_14)
+            (match_case None
+              (application_expression PLACEHOLDER_15 PLACEHOLDER_9 PLACEHOLDER_5 PLACEHOLDER_14
+                (empty_list) PLACEHOLDER_10))
+            (match_case
+              (constructor_pattern Some
+                (any_pattern)) None)))))
+    (let_binding
+      (value_pattern PLACEHOLDER_15)
+      (parameter
+        (value_pattern PLACEHOLDER_9))
+      (parameter
+        (value_pattern PLACEHOLDER_5))
+      (parameter
+        (value_pattern PLACEHOLDER_14))
+      (parameter
+        (value_pattern PLACEHOLDER_13))
+      (function_expression
+        (match_case
+          (or_pattern
+            (empty_list)
+            (cons_pattern ":"
+              (any_pattern))) None)
+        (match_case
+          (cons_pattern ";"
+            (value_pattern PLACEHOLDER_10))
+          (let_expression
+            (value_definition
+              (let_binding
+                (value_pattern PLACEHOLDER_9)
+                (application_expression
+                  (value_path (module_name PLACEHOLDER_1) add) PLACEHOLDER_14 PLACEHOLDER_13 PLACEHOLDER_9)))
+            (application_expression PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_5 PLACEHOLDER_10)))
+        (match_case
+          (cons_pattern
+            (value_pattern PLACEHOLDER_6)
+            (value_pattern PLACEHOLDER_10))
+          (let_expression
+            (value_definition
+              (let_binding
+                (value_pattern PLACEHOLDER_13)
+                (match_expression
+                  (application_expression
+                    (value_path (module_name PLACEHOLDER_1) find_opt) PLACEHOLDER_6 PLACEHOLDER_9)
+                  (match_case None
+                    (cons_expression PLACEHOLDER_6 PLACEHOLDER_13))
+                  (match_case
+                    (constructor_pattern Some
+                      (value_pattern PLACEHOLDER_16))
+                    (infix_expression PLACEHOLDER_16 @ PLACEHOLDER_13)))))
+            (application_expression PLACEHOLDER_15 PLACEHOLDER_9 PLACEHOLDER_5 PLACEHOLDER_14 PLACEHOLDER_13 PLACEHOLDER_10))))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_17)
+      (parameter
+        (value_pattern PLACEHOLDER_18))
+      (infix_expression
+        (infix_expression
+          (application_expression
+            (value_path String split_on_char)
+            (character " ") PLACEHOLDER_18) |>
+          (application_expression
+            (value_path List filter)
+            (application_expression <> ""))) |>
+        (application_expression
+          (value_path List map)
+          (value_path String uppercase_ascii)))))
+  (value_definition
+    (let_binding
+      (value_pattern PLACEHOLDER_19)
+      (parameter
+        (value_pattern PLACEHOLDER_20))
+      (infix_expression
+        (infix_expression
+          (application_expression
+            (value_path List map) PLACEHOLDER_17 PLACEHOLDER_20) |>
+          (value_path List flatten)) |>
+        (application_expression PLACEHOLDER_8
+          (value_path (module_name PLACEHOLDER_1) empty)
+          (empty_list))))))
