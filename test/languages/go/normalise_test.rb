@@ -33,7 +33,7 @@ class GoNormaliseTest < RepresenterTest
 
   def test_every_builtin_numeric_type_has_a_zero_value
     %w[int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 uintptr byte rune
-     float32 complex64].each do |type|
+       float32 complex64].each do |type|
       assert_same_representation in_function("var a #{type}"), in_function("a := #{type}(0)")
     end
   end
