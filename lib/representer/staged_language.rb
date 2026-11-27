@@ -24,6 +24,21 @@ module Representer
   module StagedLanguage
     include LanguageSetup
 
+    # Each stage lives in its own file, in a folder named after the
+    # language, such as `languages/elixir/normalise.rb`.
+    STAGE_FILES = { GenerateAST: "generate_ast", Normalise: "normalise", Reorder: "reorder" }.freeze
+
+    # When a language extends this module, Ruby loads each of its stage files
+    # that exists the first time the engine asks for that stage. A language
+    # with no file for a stage doesn't run that stage.
+    def self.extended(language)
+      folder = File.join(__dir__, "languages", language.name.split("::").last.gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase)
+      STAGE_FILES.each do |stage, file|
+        path = File.join(folder, "#{file}.rb")
+        language.autoload(stage, path) if File.exist?(path)
+      end
+    end
+
     # Called by Representer when it picks a language for a track.
     def call(solution_files, exercise_files) = Engine::Represent.(self, solution_files, exercise_files)
 

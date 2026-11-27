@@ -149,9 +149,9 @@ module Representer
     end
   end
 end
-
-require_relative "ruby/generate_ast"
 ```
+
+The engine loads each stage from a file named after it, in a folder named after the language, such as `languages/ruby/generate_ast.rb`, `normalise.rb` and `reorder.rb`. If a file doesn't exist, the language doesn't run that stage, so don't add `require` lines for them.
 
 - `tracks` gives the track slugs that this module represents.
 - `version` gives the representer version (see step 5).

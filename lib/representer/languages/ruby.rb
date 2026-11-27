@@ -59,5 +59,3 @@ module Representer
     end
   end
 end
-
-require_relative "ruby/generate_ast"

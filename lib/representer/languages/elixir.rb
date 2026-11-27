@@ -46,7 +46,3 @@ module Representer
     end
   end
 end
-
-require_relative "elixir/generate_ast"
-require_relative "elixir/normalise"
-require_relative "elixir/reorder"
