@@ -3,7 +3,8 @@
 # shows the student's own code. REPRESENTER_DSL.md explains each declaration.
 module Representer::Languages::Swift
   class Snippet < Representer::Engine::Snippet
-    tracks "swift"
+    # Bump the version whenever the snippet of any solution could change.
+    version 2
 
     # Remove every comment, wherever it is.
     remove :comments # let x = 1 «// The answer»
