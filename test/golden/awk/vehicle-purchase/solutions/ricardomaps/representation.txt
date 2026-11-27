@@ -1,7 +1,51 @@
-BEGIN {
-FS = "\",\""
-}
-$1 == "\"needs_license\"" && $2 ~ /(car|truck)/ { print "\"true\"" }
-$1 == "\"resell_price\"" && $3 < 3 { print $2 * 0.8 }
-$1 == "\"resell_price\"" && $3 >= 3 && $3 <= 10 { print $2 * 0.7 }
-$1 == "\"resell_price\"" && $3 > 10 { print $2 * 0.5 }
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = ","))))
+  (rule
+    (binary_expression
+      (binary_expression
+        (field_reference 1) == "needs_license") &&
+      (binary_expression
+        (field_reference 2) ~ "/(car|truck)/"))
+    (statement_list
+      (print_statement
+        (output_arguments "true"))))
+  (rule
+    (binary_expression
+      (binary_expression
+        (field_reference 1) == "resell_price") &&
+      (binary_expression
+        (field_reference 3) < 3))
+    (statement_list
+      (print_statement
+        (output_arguments
+          (binary_expression
+            (field_reference 2) * 0.8)))))
+  (rule
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (field_reference 1) == "resell_price") &&
+        (binary_expression
+          (field_reference 3) >= 3)) &&
+      (binary_expression
+        (field_reference 3) <= 10))
+    (statement_list
+      (print_statement
+        (output_arguments
+          (binary_expression
+            (field_reference 2) * 0.7)))))
+  (rule
+    (binary_expression
+      (binary_expression
+        (field_reference 1) == "resell_price") &&
+      (binary_expression
+        (field_reference 3) > 10))
+    (statement_list
+      (print_statement
+        (output_arguments
+          (binary_expression
+            (field_reference 2) * 0.5))))))

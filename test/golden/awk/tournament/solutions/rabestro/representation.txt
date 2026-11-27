@@ -1,39 +1,161 @@
-BEGIN {
-FS = "\";\""
-}
-! NF { next }
-{
-Teams [ $1 ][ "\"MP\"" ] ++
-Teams [ $2 ][ "\"MP\"" ] ++
-}
-$3 == "\"win\"" {
-Teams [ $1 ][ "\"W\"" ] ++
-Teams [ $2 ][ "\"L\"" ] ++
-Teams [ $1 ][ "\"P\"" ] += 3
-}
-$3 == "\"loss\"" {
-Teams [ $2 ][ "\"W\"" ] ++
-Teams [ $1 ][ "\"L\"" ] ++
-Teams [ $2 ][ "\"P\"" ] += 3
-}
-$3 == "\"draw\"" {
-Teams [ $1 ][ "\"D\"" ] ++
-Teams [ $2 ][ "\"D\"" ] ++
-Teams [ $1 ][ "\"P\"" ] ++
-Teams [ $2 ][ "\"P\"" ] ++
-}
-END {
-print "\"Team                           | MP |  W |  D |  L |  P\""
-PROCINFO [ "\"sorted_in\"" ] = "\"compare\""
-for ( team in Teams )
-printf ( "\"%-30s | %2d | %2d | %2d | %2d | %2d\\n\"" , team , \
-Teams [ team ][ "\"MP\"" ], \
-Teams [ team ][ "\"W\"" ], \
-Teams [ team ][ "\"D\"" ], \
-Teams [ team ][ "\"L\"" ], \
-Teams [ team ][ "\"P\"" ])
-}
-function compare ( name1 , one , name2 , two ) {
-if ( one [ "\"P\"" ] == two [ "\"P\"" ]) return name1 > name2
-return one [ "\"P\"" ] < two [ "\"P\"" ] ? 1 : - 1
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = ";"))))
+  (rule
+    (unary_expression ! NF)
+    (statement_list
+      (next_statement)))
+  (rule
+    (statement_list
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 1)))
+            (subscript_list "MP")) ++))
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 2)))
+            (subscript_list "MP")) ++))))
+  (rule
+    (binary_expression
+      (field_reference 3) == "win")
+    (statement_list
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 1)))
+            (subscript_list "W")) ++))
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 2)))
+            (subscript_list "L")) ++))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 1)))
+            (subscript_list "P")) += 3))))
+  (rule
+    (binary_expression
+      (field_reference 3) == "loss")
+    (statement_list
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 2)))
+            (subscript_list "W")) ++))
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 1)))
+            (subscript_list "L")) ++))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 2)))
+            (subscript_list "P")) += 3))))
+  (rule
+    (binary_expression
+      (field_reference 3) == "draw")
+    (statement_list
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 1)))
+            (subscript_list "D")) ++))
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 2)))
+            (subscript_list "D")) ++))
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 1)))
+            (subscript_list "P")) ++))
+      (expression_statement
+        (update_expression
+          (subscript_expression
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list
+                (field_reference 2)))
+            (subscript_list "P")) ++))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (print_statement
+        (output_arguments "Team                           | MP |  W |  D |  L |  P"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PROCINFO
+            (subscript_list "sorted_in")) = "compare"))
+      (for_in_statement PLACEHOLDER_2 PLACEHOLDER_1
+        (statement_list
+          (printf_statement
+            (output_arguments "%-30s | %2d | %2d | %2d | %2d | %2d\n" PLACEHOLDER_2
+              (subscript_expression
+                (subscript_expression PLACEHOLDER_1
+                  (subscript_list PLACEHOLDER_2))
+                (subscript_list "MP"))
+              (subscript_expression
+                (subscript_expression PLACEHOLDER_1
+                  (subscript_list PLACEHOLDER_2))
+                (subscript_list "W"))
+              (subscript_expression
+                (subscript_expression PLACEHOLDER_1
+                  (subscript_list PLACEHOLDER_2))
+                (subscript_list "D"))
+              (subscript_expression
+                (subscript_expression PLACEHOLDER_1
+                  (subscript_list PLACEHOLDER_2))
+                (subscript_list "L"))
+              (subscript_expression
+                (subscript_expression PLACEHOLDER_1
+                  (subscript_list PLACEHOLDER_2))
+                (subscript_list "P"))))))))
+  (function_definition PLACEHOLDER_3
+    (parameter_list PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7)
+    (statement_list
+      (if_statement
+        (binary_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "P")) ==
+          (subscript_expression PLACEHOLDER_7
+            (subscript_list "P")))
+        (statement_list
+          (return_statement
+            (binary_expression PLACEHOLDER_4 > PLACEHOLDER_6))))
+      (return_statement
+        (conditional_expression
+          (binary_expression
+            (subscript_expression PLACEHOLDER_5
+              (subscript_list "P")) <
+            (subscript_expression PLACEHOLDER_7
+              (subscript_list "P"))) 1
+          (unary_expression - 1))))))

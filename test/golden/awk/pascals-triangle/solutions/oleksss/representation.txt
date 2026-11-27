@@ -1,27 +1,75 @@
-{
-split ( "\"\"" , row )
-row [ 1 ] = 1
-row [ 2 ] = 1
-if ( $0 > 0 ) {
-print "\"1\""
-}
-if ( $0 > 1 ) {
-print "\"1 1\""
-}
-if ( $0 > 2 ) {
-for ( i = 3 ; i <= $0 ; i ++ ) {
-prev = 1
-for ( j = 2 ; j < i ; j ++ ) {
-temp = row [ j ]
-row [ j ] = row [ j ] + prev
-prev = temp
-}
-row [ i ] = 1
-printf "\"1\""
-for ( j = 2 ; j < length ( row ); j ++ ) {
-printf "\" %d\"" , row [ j ]
-}
-print "\" 1\""
-}
-}
-}
+(program
+  (rule
+    (statement_list
+      (expression_statement
+        (function_call split
+          (argument_list "" PLACEHOLDER_1)))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list 1)) = 1))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list 2)) = 1))
+      (if_statement
+        (binary_expression
+          (field_reference 0) > 0)
+        (statement_list
+          (print_statement
+            (output_arguments "1"))))
+      (if_statement
+        (binary_expression
+          (field_reference 0) > 1)
+        (statement_list
+          (print_statement
+            (output_arguments "1 1"))))
+      (if_statement
+        (binary_expression
+          (field_reference 0) > 2)
+        (statement_list
+          (for_statement
+            (assignment_expression PLACEHOLDER_2 = 3) ;
+            (binary_expression PLACEHOLDER_2 <=
+              (field_reference 0)) ;
+            (update_expression PLACEHOLDER_2 ++)
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_3 = 1))
+              (for_statement
+                (assignment_expression PLACEHOLDER_4 = 2) ;
+                (binary_expression PLACEHOLDER_4 < PLACEHOLDER_2) ;
+                (update_expression PLACEHOLDER_4 ++)
+                (statement_list
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_5 =
+                      (subscript_expression PLACEHOLDER_1
+                        (subscript_list PLACEHOLDER_4))))
+                  (expression_statement
+                    (assignment_expression
+                      (subscript_expression PLACEHOLDER_1
+                        (subscript_list PLACEHOLDER_4)) =
+                      (binary_expression
+                        (subscript_expression PLACEHOLDER_1
+                          (subscript_list PLACEHOLDER_4)) + PLACEHOLDER_3)))
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_3 = PLACEHOLDER_5))))
+              (expression_statement
+                (assignment_expression
+                  (subscript_expression PLACEHOLDER_1
+                    (subscript_list PLACEHOLDER_2)) = 1))
+              (printf_statement
+                (output_arguments "1"))
+              (for_statement
+                (assignment_expression PLACEHOLDER_4 = 2) ;
+                (binary_expression PLACEHOLDER_4 <
+                  (function_call length
+                    (argument_list PLACEHOLDER_1))) ;
+                (update_expression PLACEHOLDER_4 ++)
+                (statement_list
+                  (printf_statement
+                    (output_arguments " %d"
+                      (subscript_expression PLACEHOLDER_1
+                        (subscript_list PLACEHOLDER_4))))))
+              (print_statement
+                (output_arguments " 1")))))))))

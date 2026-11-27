@@ -1,13 +1,40 @@
-{
-$0 = tolower ( $0 )
-gsub ( /[^a-z]/ , "\"\"" )
-split ( $0 , chars , "\"\"" )
-for ( i = 1 ; i <= length ( chars ); i ++ ) {
-if ( chars_seen [ chars [ i ]]) {
-print "\"false\""
-exit
-}
-chars_seen [ chars [ i ]] ++
-}
-print "\"true\""
-}
+(program
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (field_reference 0) =
+          (function_call tolower
+            (argument_list
+              (field_reference 0)))))
+      (expression_statement
+        (function_call gsub
+          (argument_list /[^a-z]/ "")))
+      (expression_statement
+        (function_call split
+          (argument_list
+            (field_reference 0) PLACEHOLDER_1 "")))
+      (for_statement
+        (assignment_expression PLACEHOLDER_2 = 1) ;
+        (binary_expression PLACEHOLDER_2 <=
+          (function_call length
+            (argument_list PLACEHOLDER_1))) ;
+        (update_expression PLACEHOLDER_2 ++)
+        (statement_list
+          (if_statement
+            (subscript_expression PLACEHOLDER_3
+              (subscript_list
+                (subscript_expression PLACEHOLDER_1
+                  (subscript_list PLACEHOLDER_2))))
+            (statement_list
+              (print_statement
+                (output_arguments "false"))
+              (exit_statement)))
+          (expression_statement
+            (update_expression
+              (subscript_expression PLACEHOLDER_3
+                (subscript_list
+                  (subscript_expression PLACEHOLDER_1
+                    (subscript_list PLACEHOLDER_2)))) ++))))
+      (print_statement
+        (output_arguments "true")))))

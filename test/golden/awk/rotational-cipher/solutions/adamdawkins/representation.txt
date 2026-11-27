@@ -1,27 +1,59 @@
-@ load "\"ordchr\""
-BEGIN {
-FS = "\"\""
-OFS = "\"\""
-A = 65
-Z = 90
-a = 97
-z = 122
-}
-{
-for ( i = 1 ; i <= NF ; i ++ ) {
-if ( $i ~ /[a-zA-Z]/ ) {
-$i = chr ( rotate_letter ( ord ( $i ), distance ))
-}
-}
-print
-}
-function rotate_letter ( current , _distance ) {
-if ( current <= Z ) {
-return _rotate ( current , _distance , A )
-} else {
-return _rotate ( current , _distance , a )
-}
-}
-function _rotate ( current , _distance , start ) {
-return ( current - start + distance ) % 26 + start
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = ""))
+      (expression_statement
+        (assignment_expression OFS = ""))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = 65))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = 90))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 = 97))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 = 122))))
+  (rule
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_5 = 1) ;
+        (binary_expression PLACEHOLDER_5 <= NF) ;
+        (update_expression PLACEHOLDER_5 ++)
+        (statement_list
+          (if_statement
+            (binary_expression
+              (field_reference PLACEHOLDER_5) ~ /[a-zA-Z]/)
+            (statement_list
+              (expression_statement
+                (assignment_expression
+                  (field_reference PLACEHOLDER_5) =
+                  (function_call chr
+                    (argument_list
+                      (function_call PLACEHOLDER_6
+                        (argument_list
+                          (function_call ord
+                            (argument_list
+                              (field_reference PLACEHOLDER_5))) distance))))))))))
+      (print_statement)))
+  (function_definition PLACEHOLDER_6
+    (parameter_list PLACEHOLDER_7 PLACEHOLDER_8)
+    (statement_list
+      (if_statement
+        (binary_expression PLACEHOLDER_7 <= PLACEHOLDER_2)
+        (statement_list
+          (return_statement
+            (function_call PLACEHOLDER_9
+              (argument_list PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_1))))
+        (statement_list
+          (return_statement
+            (function_call PLACEHOLDER_9
+              (argument_list PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_3)))))))
+  (function_definition PLACEHOLDER_9
+    (parameter_list PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_10)
+    (statement_list
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_7 - PLACEHOLDER_10) + distance) % 26) + PLACEHOLDER_10)))))

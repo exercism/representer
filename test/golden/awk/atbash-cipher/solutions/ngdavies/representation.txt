@@ -1,34 +1,94 @@
-BEGIN {
-FS = "\"\""
-keys = "\"abcdefghijklmnopqrstuvwxyz\""
-cipher = "\"zyxwvutsrqponmlkjihgfedcba\""
-for ( ik = 1 ; ik <= 26 ; ik ++ ) {
-key = substr ( keys , ik , 1 )
-code = substr ( cipher , ik , 1 )
-map [ key ] = code
-map [ toupper ( key )] = code
-}
-}
-END {
-processed = "\"\""
-recoded = "\"\""
-recode ()
-if ( direction == "\"encode\"" ) {
-for ( ir = 1 ; ir <= length ( recoded ); ir += 5 ) {
-chunk = substr ( recoded , ir , 5 )
-processed = ( processed ) ? processed "\" \"" chunk : chunk
-}
-} else {
-processed = recoded
-}
-print processed
-}
-function recode ( ir ) {
-for ( ir = 1 ; ir <= NF ; ir ++ ) {
-if ( $ir in map ) {
-recoded = recoded map [ $ir ]
-} else if ( $ir ~ /[0-9]/ ) {
-recoded = recoded $ir
-}
-}
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = ""))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = "abcdefghijklmnopqrstuvwxyz"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = "zyxwvutsrqponmlkjihgfedcba"))
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <= 26) ;
+        (update_expression PLACEHOLDER_3 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 =
+              (function_call substr
+                (argument_list PLACEHOLDER_1 PLACEHOLDER_3 1))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_5 =
+              (function_call substr
+                (argument_list PLACEHOLDER_2 PLACEHOLDER_3 1))))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_6
+                (subscript_list PLACEHOLDER_4)) = PLACEHOLDER_5))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_6
+                (subscript_list
+                  (function_call toupper
+                    (argument_list PLACEHOLDER_4)))) = PLACEHOLDER_5))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_7 = ""))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_8 = ""))
+      (expression_statement
+        (function_call PLACEHOLDER_9
+          (argument_list)))
+      (if_statement
+        (binary_expression direction == "encode")
+        (statement_list
+          (for_statement
+            (assignment_expression PLACEHOLDER_10 = 1) ;
+            (binary_expression PLACEHOLDER_10 <=
+              (function_call length
+                (argument_list PLACEHOLDER_8))) ;
+            (assignment_expression PLACEHOLDER_10 += 5)
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_11 =
+                  (function_call substr
+                    (argument_list PLACEHOLDER_8 PLACEHOLDER_10 5))))
+              (expression_statement
+                (assignment_expression PLACEHOLDER_7 =
+                  (conditional_expression PLACEHOLDER_7
+                    (concatenation_expression
+                      (concatenation_expression PLACEHOLDER_7 " ") PLACEHOLDER_11) PLACEHOLDER_11))))))
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_7 = PLACEHOLDER_8))))
+      (print_statement
+        (output_arguments PLACEHOLDER_7))))
+  (function_definition PLACEHOLDER_9
+    (parameter_list PLACEHOLDER_10)
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_10 = 1) ;
+        (binary_expression PLACEHOLDER_10 <= NF) ;
+        (update_expression PLACEHOLDER_10 ++)
+        (statement_list
+          (if_statement
+            (membership_expression
+              (field_reference PLACEHOLDER_10) PLACEHOLDER_6)
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_8 =
+                  (concatenation_expression PLACEHOLDER_8
+                    (subscript_expression PLACEHOLDER_6
+                      (subscript_list
+                        (field_reference PLACEHOLDER_10)))))))
+            (statement_list
+              (if_statement
+                (binary_expression
+                  (field_reference PLACEHOLDER_10) ~ /[0-9]/)
+                (statement_list
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_8 =
+                      (concatenation_expression PLACEHOLDER_8
+                        (field_reference PLACEHOLDER_10)))))))))))))

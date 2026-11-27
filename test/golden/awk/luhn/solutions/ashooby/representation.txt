@@ -1,26 +1,69 @@
-BEGIN {
-getline digits
-if ( match ( digits , "\"[^0-9 ]\"" )) {
-print "\"false\""
-exit
-}
-gsub ( "\" \"" , "\"\"" , digits )
-if ( length ( digits ) < 2 ) {
-print "\"false\""
-exit
-}
-split ( digits , arr , "\"\"" )
-for ( i = length ( arr ) - 1 ; i > 0 ; i -= 2 ) {
-n = arr [ i ] * 2
-if ( n > 9 )
-n -= 9
-arr [ i ] = n
-}
-for ( i = 1 ; i <= length ( arr ); i ++ ) {
-cksum += arr [ i ]
-}
-if ( cksum % 10 == 0 )
-print "\"true\""
-else
-print "\"false\""
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (getline_expression PLACEHOLDER_1))
+      (if_statement
+        (function_call match
+          (argument_list PLACEHOLDER_1 "[^0-9 ]"))
+        (statement_list
+          (print_statement
+            (output_arguments "false"))
+          (exit_statement)))
+      (expression_statement
+        (function_call gsub
+          (argument_list " " "" PLACEHOLDER_1)))
+      (if_statement
+        (binary_expression
+          (function_call length
+            (argument_list PLACEHOLDER_1)) < 2)
+        (statement_list
+          (print_statement
+            (output_arguments "false"))
+          (exit_statement)))
+      (expression_statement
+        (function_call split
+          (argument_list PLACEHOLDER_1 PLACEHOLDER_2 "")))
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 =
+          (binary_expression
+            (function_call length
+              (argument_list PLACEHOLDER_2)) - 1)) ;
+        (binary_expression PLACEHOLDER_3 > 0) ;
+        (assignment_expression PLACEHOLDER_3 -= 2)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 =
+              (binary_expression
+                (subscript_expression PLACEHOLDER_2
+                  (subscript_list PLACEHOLDER_3)) * 2)))
+          (if_statement
+            (binary_expression PLACEHOLDER_4 > 9)
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_4 -= 9))))
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_2
+                (subscript_list PLACEHOLDER_3)) = PLACEHOLDER_4))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <=
+          (function_call length
+            (argument_list PLACEHOLDER_2))) ;
+        (update_expression PLACEHOLDER_3 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_5 +=
+              (subscript_expression PLACEHOLDER_2
+                (subscript_list PLACEHOLDER_3))))))
+      (if_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_5 % 10) == 0)
+        (statement_list
+          (print_statement
+            (output_arguments "true")))
+        (statement_list
+          (print_statement
+            (output_arguments "false")))))))

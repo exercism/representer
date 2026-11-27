@@ -1,13 +1,32 @@
-BEGIN { FS = "\"\\n\"" ; ORS = "\"\"" ; }
-{
-if ( NR == 0 || length ( $0 ) == 0 ) {
-print "\"One for you, one for me.\""
-} else {
-printf "\"One for %s, one for me.\\n\"" , $0 ;
-}
-}
-END {
-if ( NR == 0 ) {
-print "\"One for you, one for me.\""
-}
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = "\n"))
+      (expression_statement
+        (assignment_expression ORS = ""))))
+  (rule
+    (statement_list
+      (if_statement
+        (binary_expression
+          (binary_expression NR == 0) ||
+          (binary_expression
+            (function_call length
+              (argument_list
+                (field_reference 0))) == 0))
+        (statement_list
+          (print_statement
+            (output_arguments "One for you, one for me.")))
+        (statement_list
+          (printf_statement
+            (output_arguments "One for %s, one for me.\n"
+              (field_reference 0)))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (if_statement
+        (binary_expression NR == 0)
+        (statement_list
+          (print_statement
+            (output_arguments "One for you, one for me.")))))))

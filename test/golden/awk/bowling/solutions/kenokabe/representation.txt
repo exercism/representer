@@ -1,84 +1,259 @@
-BEGIN {
-if (( getline ) <= 0 ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-n = split ( $0 , rolls , "\" \"" )
-if ( n == 0 ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-for ( i = 1 ; i <= n ; i ++ ) {
-if ( rolls [ i ] < 0 ) {
-error ( "\"Negative roll is invalid\"" )
-}
-if ( rolls [ i ] > 10 ) {
-error ( "\"Pin count exceeds pins on the lane\"" )
-}
-}
-idx = 1
-score = 0
-for ( frame = 1 ; frame <= 10 ; frame ++ ) {
-if ( idx > n ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-if ( frame < 10 ) {
-if ( rolls [ idx ] == 10 ) {
-if ( idx + 2 > n ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-score += 10 + rolls [ idx + 1 ] + rolls [ idx + 2 ]
-idx ++
-} else {
-if ( idx + 1 > n ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-if ( rolls [ idx ] + rolls [ idx + 1 ] > 10 ) {
-error ( "\"Pin count exceeds pins on the lane\"" )
-}
-if ( rolls [ idx ] + rolls [ idx + 1 ] == 10 ) {
-if ( idx + 2 > n ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-score += 10 + rolls [ idx + 2 ]
-} else {
-score += rolls [ idx ] + rolls [ idx + 1 ]
-}
-idx += 2
-}
-} else {
-if ( idx + 1 > n ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-if ( rolls [ idx ] == 10 ) {
-if ( idx + 2 > n ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-if ( rolls [ idx + 1 ] != 10 && rolls [ idx + 1 ] + rolls [ idx + 2 ] > 10 ) {
-error ( "\"Pin count exceeds pins on the lane\"" )
-}
-score += rolls [ idx ] + rolls [ idx + 1 ] + rolls [ idx + 2 ]
-idx += 3
-} else if ( rolls [ idx ] + rolls [ idx + 1 ] == 10 ) {
-if ( idx + 2 > n ) {
-error ( "\"Score cannot be taken until the end of the game\"" )
-}
-score += rolls [ idx ] + rolls [ idx + 1 ] + rolls [ idx + 2 ]
-idx += 3
-} else {
-if ( rolls [ idx ] + rolls [ idx + 1 ] > 10 ) {
-error ( "\"Pin count exceeds pins on the lane\"" )
-}
-score += rolls [ idx ] + rolls [ idx + 1 ]
-idx += 2
-}
-}
-}
-if ( idx <= n ) {
-error ( "\"Cannot roll after game is over\"" )
-}
-print score
-}
-function error ( msg )
-{
-print ( msg ) > "\"/dev/stderr\""
-exit 1
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (if_statement
+        (binary_expression
+          (getline_expression) <= 0)
+        (statement_list
+          (expression_statement
+            (function_call PLACEHOLDER_1
+              (argument_list "Score cannot be taken until the end of the game")))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 =
+          (function_call split
+            (argument_list
+              (field_reference 0) PLACEHOLDER_3 " "))))
+      (if_statement
+        (binary_expression PLACEHOLDER_2 == 0)
+        (statement_list
+          (expression_statement
+            (function_call PLACEHOLDER_1
+              (argument_list "Score cannot be taken until the end of the game")))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_4 = 1) ;
+        (binary_expression PLACEHOLDER_4 <= PLACEHOLDER_2) ;
+        (update_expression PLACEHOLDER_4 ++)
+        (statement_list
+          (if_statement
+            (binary_expression
+              (subscript_expression PLACEHOLDER_3
+                (subscript_list PLACEHOLDER_4)) < 0)
+            (statement_list
+              (expression_statement
+                (function_call PLACEHOLDER_1
+                  (argument_list "Negative roll is invalid")))))
+          (if_statement
+            (binary_expression
+              (subscript_expression PLACEHOLDER_3
+                (subscript_list PLACEHOLDER_4)) > 10)
+            (statement_list
+              (expression_statement
+                (function_call PLACEHOLDER_1
+                  (argument_list "Pin count exceeds pins on the lane")))))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_5 = 1))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_6 = 0))
+      (for_statement
+        (assignment_expression PLACEHOLDER_7 = 1) ;
+        (binary_expression PLACEHOLDER_7 <= 10) ;
+        (update_expression PLACEHOLDER_7 ++)
+        (statement_list
+          (if_statement
+            (binary_expression PLACEHOLDER_5 > PLACEHOLDER_2)
+            (statement_list
+              (expression_statement
+                (function_call PLACEHOLDER_1
+                  (argument_list "Score cannot be taken until the end of the game")))))
+          (if_statement
+            (binary_expression PLACEHOLDER_7 < 10)
+            (statement_list
+              (if_statement
+                (binary_expression
+                  (subscript_expression PLACEHOLDER_3
+                    (subscript_list PLACEHOLDER_5)) == 10)
+                (statement_list
+                  (if_statement
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_5 + 2) > PLACEHOLDER_2)
+                    (statement_list
+                      (expression_statement
+                        (function_call PLACEHOLDER_1
+                          (argument_list "Score cannot be taken until the end of the game")))))
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_6 +=
+                      (binary_expression
+                        (binary_expression 10 +
+                          (subscript_expression PLACEHOLDER_3
+                            (subscript_list
+                              (binary_expression PLACEHOLDER_5 + 1)))) +
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list
+                            (binary_expression PLACEHOLDER_5 + 2))))))
+                  (expression_statement
+                    (update_expression PLACEHOLDER_5 ++)))
+                (statement_list
+                  (if_statement
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_5 + 1) > PLACEHOLDER_2)
+                    (statement_list
+                      (expression_statement
+                        (function_call PLACEHOLDER_1
+                          (argument_list "Score cannot be taken until the end of the game")))))
+                  (if_statement
+                    (binary_expression
+                      (binary_expression
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list PLACEHOLDER_5)) +
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list
+                            (binary_expression PLACEHOLDER_5 + 1)))) > 10)
+                    (statement_list
+                      (expression_statement
+                        (function_call PLACEHOLDER_1
+                          (argument_list "Pin count exceeds pins on the lane")))))
+                  (if_statement
+                    (binary_expression
+                      (binary_expression
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list PLACEHOLDER_5)) +
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list
+                            (binary_expression PLACEHOLDER_5 + 1)))) == 10)
+                    (statement_list
+                      (if_statement
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_5 + 2) > PLACEHOLDER_2)
+                        (statement_list
+                          (expression_statement
+                            (function_call PLACEHOLDER_1
+                              (argument_list "Score cannot be taken until the end of the game")))))
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_6 +=
+                          (binary_expression 10 +
+                            (subscript_expression PLACEHOLDER_3
+                              (subscript_list
+                                (binary_expression PLACEHOLDER_5 + 2)))))))
+                    (statement_list
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_6 +=
+                          (binary_expression
+                            (subscript_expression PLACEHOLDER_3
+                              (subscript_list PLACEHOLDER_5)) +
+                            (subscript_expression PLACEHOLDER_3
+                              (subscript_list
+                                (binary_expression PLACEHOLDER_5 + 1))))))))
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_5 += 2)))))
+            (statement_list
+              (if_statement
+                (binary_expression
+                  (binary_expression PLACEHOLDER_5 + 1) > PLACEHOLDER_2)
+                (statement_list
+                  (expression_statement
+                    (function_call PLACEHOLDER_1
+                      (argument_list "Score cannot be taken until the end of the game")))))
+              (if_statement
+                (binary_expression
+                  (subscript_expression PLACEHOLDER_3
+                    (subscript_list PLACEHOLDER_5)) == 10)
+                (statement_list
+                  (if_statement
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_5 + 2) > PLACEHOLDER_2)
+                    (statement_list
+                      (expression_statement
+                        (function_call PLACEHOLDER_1
+                          (argument_list "Score cannot be taken until the end of the game")))))
+                  (if_statement
+                    (binary_expression
+                      (binary_expression
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list
+                            (binary_expression PLACEHOLDER_5 + 1))) != 10) &&
+                      (binary_expression
+                        (binary_expression
+                          (subscript_expression PLACEHOLDER_3
+                            (subscript_list
+                              (binary_expression PLACEHOLDER_5 + 1))) +
+                          (subscript_expression PLACEHOLDER_3
+                            (subscript_list
+                              (binary_expression PLACEHOLDER_5 + 2)))) > 10))
+                    (statement_list
+                      (expression_statement
+                        (function_call PLACEHOLDER_1
+                          (argument_list "Pin count exceeds pins on the lane")))))
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_6 +=
+                      (binary_expression
+                        (binary_expression
+                          (subscript_expression PLACEHOLDER_3
+                            (subscript_list PLACEHOLDER_5)) +
+                          (subscript_expression PLACEHOLDER_3
+                            (subscript_list
+                              (binary_expression PLACEHOLDER_5 + 1)))) +
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list
+                            (binary_expression PLACEHOLDER_5 + 2))))))
+                  (expression_statement
+                    (assignment_expression PLACEHOLDER_5 += 3)))
+                (statement_list
+                  (if_statement
+                    (binary_expression
+                      (binary_expression
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list PLACEHOLDER_5)) +
+                        (subscript_expression PLACEHOLDER_3
+                          (subscript_list
+                            (binary_expression PLACEHOLDER_5 + 1)))) == 10)
+                    (statement_list
+                      (if_statement
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_5 + 2) > PLACEHOLDER_2)
+                        (statement_list
+                          (expression_statement
+                            (function_call PLACEHOLDER_1
+                              (argument_list "Score cannot be taken until the end of the game")))))
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_6 +=
+                          (binary_expression
+                            (binary_expression
+                              (subscript_expression PLACEHOLDER_3
+                                (subscript_list PLACEHOLDER_5)) +
+                              (subscript_expression PLACEHOLDER_3
+                                (subscript_list
+                                  (binary_expression PLACEHOLDER_5 + 1)))) +
+                            (subscript_expression PLACEHOLDER_3
+                              (subscript_list
+                                (binary_expression PLACEHOLDER_5 + 2))))))
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_5 += 3)))
+                    (statement_list
+                      (if_statement
+                        (binary_expression
+                          (binary_expression
+                            (subscript_expression PLACEHOLDER_3
+                              (subscript_list PLACEHOLDER_5)) +
+                            (subscript_expression PLACEHOLDER_3
+                              (subscript_list
+                                (binary_expression PLACEHOLDER_5 + 1)))) > 10)
+                        (statement_list
+                          (expression_statement
+                            (function_call PLACEHOLDER_1
+                              (argument_list "Pin count exceeds pins on the lane")))))
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_6 +=
+                          (binary_expression
+                            (subscript_expression PLACEHOLDER_3
+                              (subscript_list PLACEHOLDER_5)) +
+                            (subscript_expression PLACEHOLDER_3
+                              (subscript_list
+                                (binary_expression PLACEHOLDER_5 + 1))))))
+                      (expression_statement
+                        (assignment_expression PLACEHOLDER_5 += 2))))))))))
+      (if_statement
+        (binary_expression PLACEHOLDER_5 <= PLACEHOLDER_2)
+        (statement_list
+          (expression_statement
+            (function_call PLACEHOLDER_1
+              (argument_list "Cannot roll after game is over")))))
+      (print_statement
+        (output_arguments PLACEHOLDER_6))))
+  (function_definition PLACEHOLDER_1
+    (parameter_list PLACEHOLDER_8)
+    (statement_list
+      (print_statement
+        (output_arguments PLACEHOLDER_8)
+        (output_redirection > "/dev/stderr"))
+      (exit_statement 1))))

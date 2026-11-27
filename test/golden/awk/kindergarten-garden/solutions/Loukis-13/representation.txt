@@ -1,17 +1,61 @@
-BEGIN {
-letters = "\"ABCDEFGHIJKLMNOPQRSTUV\""
-letter = substr ( name , 0 , 1 )
-for ( i = 1 ; letter != substr ( letters , i , 1 ); i ++ );
-i *= 2
-c = 0
-encoding [ "\"G\"" ] = "\"grass\""
-encoding [ "\"C\"" ] = "\"clover\""
-encoding [ "\"R\"" ] = "\"radishes\""
-encoding [ "\"V\"" ] = "\"violets\""
-}
-{
-if ( c == 0 ) c = 1
-else printf "\" \""
-printf "\"%s\"" , encoding [ substr ( $1 , i - 1 , 1 )]
-printf "\" %s\"" , encoding [ substr ( $1 , i , 1 )]
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = "ABCDEFGHIJKLMNOPQRSTUV"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 =
+          (function_call substr
+            (argument_list name 0 1))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_2 !=
+          (function_call substr
+            (argument_list PLACEHOLDER_1 PLACEHOLDER_3 1))) ;
+        (update_expression PLACEHOLDER_3 ++))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 *= 2))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 = 0))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "G")) = "grass"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "C")) = "clover"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "R")) = "radishes"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list "V")) = "violets"))))
+  (rule
+    (statement_list
+      (if_statement
+        (binary_expression PLACEHOLDER_4 == 0)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 = 1)))
+        (statement_list
+          (printf_statement
+            (output_arguments " "))))
+      (printf_statement
+        (output_arguments "%s"
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list
+              (function_call substr
+                (argument_list
+                  (field_reference 1)
+                  (binary_expression PLACEHOLDER_3 - 1) 1))))))
+      (printf_statement
+        (output_arguments " %s"
+          (subscript_expression PLACEHOLDER_5
+            (subscript_list
+              (function_call substr
+                (argument_list
+                  (field_reference 1) PLACEHOLDER_3 1)))))))))

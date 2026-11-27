@@ -1,29 +1,133 @@
-BEGIN {
-d [ "\" _ | ||_|\"" ] = 0 ; d [ "\"     |  |\"" ] = 1 ; d [ "\" _  _||_ \"" ] = 2
-d [ "\" _  _| _|\"" ] = 3 ; d [ "\"   |_|  |\"" ] = 4 ; d [ "\" _ |_  _|\"" ] = 5
-d [ "\" _ |_ |_|\"" ] = 6 ; d [ "\" _   |  |\"" ] = 7 ; d [ "\" _ |_||_|\"" ] = 8
-d [ "\" _ |_| _|\"" ] = 9
-}
-{
-len = length / 3
-}
-len != int ( len ) {
-print "\"Number of input columns is not a multiple of three\""
-fault = 1 ; exit
-}
-NR % 4 {
-for ( p = len ; p > 0 ; -- p ) frag [ p ] = frag [ p ] substr ( $0 , p * 3 - 2 , 3 )
-next
-}
-{
-p = len
-for ( len = NR / 4 ; p > 0 ; -- p ) final [ len ] = ( frag [ p ] in d ? d [ frag [ p ]] : "\"?\"" ) final [ len ]
-delete frag
-}
-END {
-if ( fault ) exit fault
-if ( NR % 4 ) {
-print "\"Number of input lines is not a multiple of four\"" ; exit 1
-}
-printf final [ 1 ]; for ( q = 2 ; q <= len ; ++ q ) printf "\",%s\"" , final [ q ]
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list " _ | ||_|")) = 0))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "     |  |")) = 1))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list " _  _||_ ")) = 2))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list " _  _| _|")) = 3))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list "   |_|  |")) = 4))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list " _ |_  _|")) = 5))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list " _ |_ |_|")) = 6))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list " _   |  |")) = 7))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list " _ |_||_|")) = 8))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list " _ |_| _|")) = 9))))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 =
+          (binary_expression
+            (function_call length
+              (argument_list)) / 3)))))
+  (rule
+    (binary_expression PLACEHOLDER_2 !=
+      (function_call int
+        (argument_list PLACEHOLDER_2)))
+    (statement_list
+      (print_statement
+        (output_arguments "Number of input columns is not a multiple of three"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 = 1))
+      (exit_statement)))
+  (rule
+    (binary_expression NR % 4)
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_4 = PLACEHOLDER_2) ;
+        (binary_expression PLACEHOLDER_4 > 0) ;
+        (update_expression -- PLACEHOLDER_4)
+        (statement_list
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_5
+                (subscript_list PLACEHOLDER_4)) =
+              (concatenation_expression
+                (subscript_expression PLACEHOLDER_5
+                  (subscript_list PLACEHOLDER_4))
+                (function_call substr
+                  (argument_list
+                    (field_reference 0)
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_4 * 3) - 2) 3)))))))
+      (next_statement)))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 = PLACEHOLDER_2))
+      (for_statement
+        (assignment_expression PLACEHOLDER_2 =
+          (binary_expression NR / 4)) ;
+        (binary_expression PLACEHOLDER_4 > 0) ;
+        (update_expression -- PLACEHOLDER_4)
+        (statement_list
+          (expression_statement
+            (assignment_expression
+              (subscript_expression PLACEHOLDER_6
+                (subscript_list PLACEHOLDER_2)) =
+              (concatenation_expression
+                (conditional_expression
+                  (membership_expression
+                    (subscript_expression PLACEHOLDER_5
+                      (subscript_list PLACEHOLDER_4)) PLACEHOLDER_1)
+                  (subscript_expression PLACEHOLDER_1
+                    (subscript_list
+                      (subscript_expression PLACEHOLDER_5
+                        (subscript_list PLACEHOLDER_4)))) "?")
+                (subscript_expression PLACEHOLDER_6
+                  (subscript_list PLACEHOLDER_2)))))))
+      (delete_statement PLACEHOLDER_5)))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (if_statement PLACEHOLDER_3
+        (statement_list
+          (exit_statement PLACEHOLDER_3)))
+      (if_statement
+        (binary_expression NR % 4)
+        (statement_list
+          (print_statement
+            (output_arguments "Number of input lines is not a multiple of four"))
+          (exit_statement 1)))
+      (printf_statement
+        (output_arguments
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list 1))))
+      (for_statement
+        (assignment_expression PLACEHOLDER_7 = 2) ;
+        (binary_expression PLACEHOLDER_7 <= PLACEHOLDER_2) ;
+        (update_expression ++ PLACEHOLDER_7)
+        (statement_list
+          (printf_statement
+            (output_arguments ",%s"
+              (subscript_expression PLACEHOLDER_6
+                (subscript_list PLACEHOLDER_7)))))))))

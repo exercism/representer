@@ -1,40 +1,135 @@
-BEGIN {
-if ( dir == "\"\"" ) dir = "\"north\""
-if ( dir !~ /north|east|south|west/ ) {
-print "\"invalid direction\""
-exit 1
-}
-if ( x == "\"\"" ) x = "\"0\""
-if ( y == "\"\"" ) y = "\"0\""
-RS = "\"^$\""
-FS = "\"\""
-res = getline
-gsub ( "\"[ \\n]\"" , "\"\"" )
-for ( i = 1 ; i <= NF ; i ++ ) {
-if ( $i ~ /R/ ) rotate ( "\"r\"" )
-else if ( $i ~ /L/ ) rotate ( "\"l\"" )
-else if ( $i ~ /A/ ) advance ()
-else {
-print "\"invalid instruction\""
-exit 1
-}
-}
-print x , y , dir
-}
-function rotate ( to ) {
-r [ "\"north\"" ] = "\"east\""
-r [ "\"east\"" ] = "\"south\""
-r [ "\"south\"" ] = "\"west\""
-r [ "\"west\"" ] = "\"north\""
-l [ "\"east\"" ] = "\"north\""
-l [ "\"south\"" ] = "\"east\""
-l [ "\"west\"" ] = "\"south\""
-l [ "\"north\"" ] = "\"west\""
-dir = to == "\"r\"" ? r [ dir ] : l [ dir ]
-}
-function advance () {
-if ( dir == "\"north\"" ) y ++
-if ( dir == "\"east\"" ) x ++
-if ( dir == "\"south\"" ) y --
-if ( dir == "\"west\"" ) x --
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (if_statement
+        (binary_expression PLACEHOLDER_1 == "")
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_1 = "north"))))
+      (if_statement
+        (binary_expression PLACEHOLDER_1 !~ /north|east|south|west/)
+        (statement_list
+          (print_statement
+            (output_arguments "invalid direction"))
+          (exit_statement 1)))
+      (if_statement
+        (binary_expression PLACEHOLDER_2 == "")
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 = "0"))))
+      (if_statement
+        (binary_expression PLACEHOLDER_3 == "")
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_3 = "0"))))
+      (expression_statement
+        (assignment_expression RS = "^$"))
+      (expression_statement
+        (assignment_expression FS = ""))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 =
+          (getline_expression)))
+      (expression_statement
+        (function_call gsub
+          (argument_list "[ \n]" "")))
+      (for_statement
+        (assignment_expression PLACEHOLDER_5 = 1) ;
+        (binary_expression PLACEHOLDER_5 <= NF) ;
+        (update_expression PLACEHOLDER_5 ++)
+        (statement_list
+          (if_statement
+            (binary_expression
+              (field_reference PLACEHOLDER_5) ~ /R/)
+            (statement_list
+              (expression_statement
+                (function_call PLACEHOLDER_6
+                  (argument_list "r"))))
+            (statement_list
+              (if_statement
+                (binary_expression
+                  (field_reference PLACEHOLDER_5) ~ /L/)
+                (statement_list
+                  (expression_statement
+                    (function_call PLACEHOLDER_6
+                      (argument_list "l"))))
+                (statement_list
+                  (if_statement
+                    (binary_expression
+                      (field_reference PLACEHOLDER_5) ~ /A/)
+                    (statement_list
+                      (expression_statement
+                        (function_call PLACEHOLDER_7
+                          (argument_list))))
+                    (statement_list
+                      (print_statement
+                        (output_arguments "invalid instruction"))
+                      (exit_statement 1)))))))))
+      (print_statement
+        (output_arguments PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_1))))
+  (function_definition PLACEHOLDER_6
+    (parameter_list PLACEHOLDER_8)
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_9
+            (subscript_list "north")) = "east"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_9
+            (subscript_list "east")) = "south"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_9
+            (subscript_list "south")) = "west"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_9
+            (subscript_list "west")) = "north"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_10
+            (subscript_list "east")) = "north"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_10
+            (subscript_list "south")) = "east"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_10
+            (subscript_list "west")) = "south"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_10
+            (subscript_list "north")) = "west"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (conditional_expression
+            (binary_expression PLACEHOLDER_8 == "r")
+            (subscript_expression PLACEHOLDER_9
+              (subscript_list PLACEHOLDER_1))
+            (subscript_expression PLACEHOLDER_10
+              (subscript_list PLACEHOLDER_1)))))))
+  (function_definition PLACEHOLDER_7
+    (parameter_list)
+    (statement_list
+      (if_statement
+        (binary_expression PLACEHOLDER_1 == "north")
+        (statement_list
+          (expression_statement
+            (update_expression PLACEHOLDER_3 ++))))
+      (if_statement
+        (binary_expression PLACEHOLDER_1 == "east")
+        (statement_list
+          (expression_statement
+            (update_expression PLACEHOLDER_2 ++))))
+      (if_statement
+        (binary_expression PLACEHOLDER_1 == "south")
+        (statement_list
+          (expression_statement
+            (update_expression PLACEHOLDER_3 --))))
+      (if_statement
+        (binary_expression PLACEHOLDER_1 == "west")
+        (statement_list
+          (expression_statement
+            (update_expression PLACEHOLDER_2 --)))))))

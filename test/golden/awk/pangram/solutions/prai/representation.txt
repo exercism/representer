@@ -1,21 +1,52 @@
-$0 {
-my_str = $0 ;
-my_str = tolower ( my_str );
-gsub ( "\"([[:digit:]]|[[:blank:]]|[[:space:]]|[[:punct:]])\"" , "\"\"" , my_str );
-system ( "\"echo '\"" my_str "\"'|fold -w1 > /tmp/pangram\"" );
-result = main ();
-print result ;
-}
-$0 ~ /^$/ {
-print "\"false\""
-}
-function main (){
-res = "\"false\"" ;
-cmd = "\"cat /tmp/pangram|sort|uniq|wc -l\"" ;
-cmd | getline result ;
-close ( cmd );
-if ( result == "\"26\"" )
-res = "\"true\"" ;
-system ( "\"rm /tmp/pangram\"" );
-return res ;
-}
+(program
+  (rule
+    (field_reference 0)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (field_reference 0)))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (function_call tolower
+            (argument_list PLACEHOLDER_1))))
+      (expression_statement
+        (function_call gsub
+          (argument_list "([[:digit:]]|[[:blank:]]|[[:space:]]|[[:punct:]])" "" PLACEHOLDER_1)))
+      (expression_statement
+        (function_call system
+          (argument_list
+            (concatenation_expression
+              (concatenation_expression "echo '" PLACEHOLDER_1) "'|fold -w1 > /tmp/pangram"))))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 =
+          (function_call PLACEHOLDER_3
+            (argument_list))))
+      (print_statement
+        (output_arguments PLACEHOLDER_2))))
+  (rule
+    (binary_expression
+      (field_reference 0) ~ /^$/)
+    (statement_list
+      (print_statement
+        (output_arguments "false"))))
+  (function_definition PLACEHOLDER_3
+    (parameter_list)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 = "false"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_5 = "cat /tmp/pangram|sort|uniq|wc -l"))
+      (expression_statement
+        (getline_expression PLACEHOLDER_5 | PLACEHOLDER_2))
+      (expression_statement
+        (function_call close
+          (argument_list PLACEHOLDER_5)))
+      (if_statement
+        (binary_expression PLACEHOLDER_2 == "26")
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 = "true"))))
+      (expression_statement
+        (function_call system
+          (argument_list "rm /tmp/pangram")))
+      (return_statement PLACEHOLDER_4))))

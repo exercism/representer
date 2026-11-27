@@ -1,34 +1,73 @@
-"/^[ 0-9]+$/" {
-digits = $0
-gsub ( /[^0-9]/ , "\"\"" , digits )
-if ( length ( digits ) <= 1 ) {
-print "\"false\""
-next
-}
-double_now = 0
-sum = 0
-for ( i = length ( digits ); i >= 1 ; i -- ) {
-c = substr ( digits , i , 1 )
-if ( double_now ) {
-digit_value = doubled ( c )
-} else {
-digit_value = c
-}
-sum += digit_value
-double_now = ! double_now
-}
-if ( sum % 10 == 0 ) {
-print "\"true\""
-} else {
-print "\"false\""
-}
-next
-}
-{ print "\"false\"" }
-function doubled ( d ) {
-d2 = d * 2
-if ( d2 > 9 )
-return d2 - 9
-else
-return d2
-}
+(program
+  (rule "/^[ 0-9]+$/"
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 =
+          (field_reference 0)))
+      (expression_statement
+        (function_call gsub
+          (argument_list /[^0-9]/ "" PLACEHOLDER_1)))
+      (if_statement
+        (binary_expression
+          (function_call length
+            (argument_list PLACEHOLDER_1)) <= 1)
+        (statement_list
+          (print_statement
+            (output_arguments "false"))
+          (next_statement)))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = 0))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 = 0))
+      (for_statement
+        (assignment_expression PLACEHOLDER_4 =
+          (function_call length
+            (argument_list PLACEHOLDER_1))) ;
+        (binary_expression PLACEHOLDER_4 >= 1) ;
+        (update_expression PLACEHOLDER_4 --)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_5 =
+              (function_call substr
+                (argument_list PLACEHOLDER_1 PLACEHOLDER_4 1))))
+          (if_statement PLACEHOLDER_2
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_6 =
+                  (function_call PLACEHOLDER_7
+                    (argument_list PLACEHOLDER_5)))))
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_6 = PLACEHOLDER_5))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_3 += PLACEHOLDER_6))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_2 =
+              (unary_expression ! PLACEHOLDER_2)))))
+      (if_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_3 % 10) == 0)
+        (statement_list
+          (print_statement
+            (output_arguments "true")))
+        (statement_list
+          (print_statement
+            (output_arguments "false"))))
+      (next_statement)))
+  (rule
+    (statement_list
+      (print_statement
+        (output_arguments "false"))))
+  (function_definition PLACEHOLDER_7
+    (parameter_list PLACEHOLDER_8)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_9 =
+          (binary_expression PLACEHOLDER_8 * 2)))
+      (if_statement
+        (binary_expression PLACEHOLDER_9 > 9)
+        (statement_list
+          (return_statement
+            (binary_expression PLACEHOLDER_9 - 9)))
+        (statement_list
+          (return_statement PLACEHOLDER_9))))))

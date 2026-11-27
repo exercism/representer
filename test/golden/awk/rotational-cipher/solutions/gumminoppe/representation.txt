@@ -1,9 +1,49 @@
-BEGIN { FS = "\"\"" ; U = "\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\"" ; L = tolower ( U ) }
-{
-for ( i = 1 ; i <= NF ; ++ i )
-result = result \
-( $i ~ /[A-Z]/ ? substr ( U , ( index ( U , $i ) + distance - 1 ) % 26 + 1 , 1 ) \
-: $i ~ /[a-z]/ ? substr ( L , ( index ( L , $i ) + distance - 1 ) % 26 + 1 , 1 ) \
-: $i )
-print result
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (assignment_expression FS = ""))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 =
+          (function_call tolower
+            (argument_list PLACEHOLDER_1))))))
+  (rule
+    (statement_list
+      (for_statement
+        (assignment_expression PLACEHOLDER_3 = 1) ;
+        (binary_expression PLACEHOLDER_3 <= NF) ;
+        (update_expression ++ PLACEHOLDER_3)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 =
+              (concatenation_expression PLACEHOLDER_4
+                (conditional_expression
+                  (binary_expression
+                    (field_reference PLACEHOLDER_3) ~ /[A-Z]/)
+                  (function_call substr
+                    (argument_list PLACEHOLDER_1
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (function_call index
+                                (argument_list PLACEHOLDER_1
+                                  (field_reference PLACEHOLDER_3))) + distance) - 1) % 26) + 1) 1))
+                  (conditional_expression
+                    (binary_expression
+                      (field_reference PLACEHOLDER_3) ~ /[a-z]/)
+                    (function_call substr
+                      (argument_list PLACEHOLDER_2
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (binary_expression
+                                (function_call index
+                                  (argument_list PLACEHOLDER_2
+                                    (field_reference PLACEHOLDER_3))) + distance) - 1) % 26) + 1) 1))
+                    (field_reference PLACEHOLDER_3))))))))
+      (print_statement
+        (output_arguments PLACEHOLDER_4)))))

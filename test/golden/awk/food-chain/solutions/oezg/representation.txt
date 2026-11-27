@@ -1,30 +1,112 @@
-BEGIN {
-split ( "\"fly spider bird cat dog goat cow horse\"" , Animal )
-first_line = "\"I know an old lady who swallowed a %s.\\n\""
-middle_line = "\"She swallowed the %s to catch the %s.\\n\""
-last_line = "\"I don't know why she swallowed the fly. Perhaps she'll die.\\n\""
-tickled = "\" wriggled and jiggled and tickled inside her\""
-Lines [ "\"spider\"" ] = "\"It\"" tickled "\".\\n\""
-Lines [ "\"bird\"" ] = "\"How absurd to swallow a bird!\\n\""
-Lines [ "\"cat\"" ] = "\"Imagine that, to swallow a cat!\\n\""
-Lines [ "\"dog\"" ] = "\"What a hog, to swallow a dog!\\n\""
-Lines [ "\"goat\"" ] = "\"Just opened her throat and swallowed a goat!\\n\""
-Lines [ "\"cow\"" ] = "\"I don't know how she swallowed a cow!\\n\""
-for ( i = start ; i <= end ; i ++ ) print verse ( i )
-}
-function verse ( i ) {
-animal = Animal [ i ]
-return sprintf ( first_line , animal ) Lines [ animal ] middle ( i ) final ( animal )
-}
-function middle ( i ) {
-if ( Lines [ Animal [ i ]]) return refrain ( Animal [ i ], Animal [ i - 1 ]) middle ( i - 1 )
-}
-function refrain ( swallowed , to_catch ) {
-return sprintf ( middle_line , swallowed , tickle ( to_catch ))
-}
-function tickle ( to_catch ) {
-return to_catch == "\"spider\"" ? to_catch "\" that\"" tickled : to_catch
-}
-function final ( animal ) {
-return animal == "\"horse\"" ? "\"She's dead, of course!\\n\"" : last_line
-}
+(program
+  (rule
+    (special_pattern BEGIN)
+    (statement_list
+      (expression_statement
+        (function_call split
+          (argument_list "fly spider bird cat dog goat cow horse" PLACEHOLDER_1)))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_2 = "I know an old lady who swallowed a %s.\n"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 = "She swallowed the %s to catch the %s.\n"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 = "I don't know why she swallowed the fly. Perhaps she'll die.\n"))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_5 = " wriggled and jiggled and tickled inside her"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "spider")) =
+          (concatenation_expression
+            (concatenation_expression "It" PLACEHOLDER_5) ".\n")))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "bird")) = "How absurd to swallow a bird!\n"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "cat")) = "Imagine that, to swallow a cat!\n"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "dog")) = "What a hog, to swallow a dog!\n"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "goat")) = "Just opened her throat and swallowed a goat!\n"))
+      (expression_statement
+        (assignment_expression
+          (subscript_expression PLACEHOLDER_6
+            (subscript_list "cow")) = "I don't know how she swallowed a cow!\n"))
+      (for_statement
+        (assignment_expression PLACEHOLDER_7 = start) ;
+        (binary_expression PLACEHOLDER_7 <= end) ;
+        (update_expression PLACEHOLDER_7 ++)
+        (statement_list
+          (print_statement
+            (output_arguments
+              (function_call PLACEHOLDER_8
+                (argument_list PLACEHOLDER_7))))))))
+  (function_definition PLACEHOLDER_8
+    (parameter_list PLACEHOLDER_7)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_9 =
+          (subscript_expression PLACEHOLDER_1
+            (subscript_list PLACEHOLDER_7))))
+      (return_statement
+        (concatenation_expression
+          (concatenation_expression
+            (concatenation_expression
+              (function_call sprintf
+                (argument_list PLACEHOLDER_2 PLACEHOLDER_9))
+              (subscript_expression PLACEHOLDER_6
+                (subscript_list PLACEHOLDER_9)))
+            (function_call PLACEHOLDER_10
+              (argument_list PLACEHOLDER_7)))
+          (function_call PLACEHOLDER_11
+            (argument_list PLACEHOLDER_9))))))
+  (function_definition PLACEHOLDER_10
+    (parameter_list PLACEHOLDER_7)
+    (statement_list
+      (if_statement
+        (subscript_expression PLACEHOLDER_6
+          (subscript_list
+            (subscript_expression PLACEHOLDER_1
+              (subscript_list PLACEHOLDER_7))))
+        (statement_list
+          (return_statement
+            (concatenation_expression
+              (function_call PLACEHOLDER_12
+                (argument_list
+                  (subscript_expression PLACEHOLDER_1
+                    (subscript_list PLACEHOLDER_7))
+                  (subscript_expression PLACEHOLDER_1
+                    (subscript_list
+                      (binary_expression PLACEHOLDER_7 - 1)))))
+              (function_call PLACEHOLDER_10
+                (argument_list
+                  (binary_expression PLACEHOLDER_7 - 1)))))))))
+  (function_definition PLACEHOLDER_12
+    (parameter_list PLACEHOLDER_13 PLACEHOLDER_14)
+    (statement_list
+      (return_statement
+        (function_call sprintf
+          (argument_list PLACEHOLDER_3 PLACEHOLDER_13
+            (function_call PLACEHOLDER_15
+              (argument_list PLACEHOLDER_14)))))))
+  (function_definition PLACEHOLDER_15
+    (parameter_list PLACEHOLDER_14)
+    (statement_list
+      (return_statement
+        (conditional_expression
+          (binary_expression PLACEHOLDER_14 == "spider")
+          (concatenation_expression
+            (concatenation_expression PLACEHOLDER_14 " that") PLACEHOLDER_5) PLACEHOLDER_14))))
+  (function_definition PLACEHOLDER_11
+    (parameter_list PLACEHOLDER_9)
+    (statement_list
+      (return_statement
+        (conditional_expression
+          (binary_expression PLACEHOLDER_9 == "horse") "She's dead, of course!\n" PLACEHOLDER_4)))))

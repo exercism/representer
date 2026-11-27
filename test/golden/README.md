@@ -151,7 +151,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | abap | Basic | 400 | 100 | 100 | 45 | 94 | 15 | 10 | 0 | 0 |
 | arm64-assembly | Basic | 111 | 4 | 100 | 70 | 98 | 0 | 0 | 0 | 0 |
 | arturo | Basic | 109 | 3 | 100 | 69 | 96 | 1 | 0 | 0 | 0 |
-| awk | Basic | 202 | 34 | 100 | 69 | 100 | 18 | 2 | 0 | 0 |
+| awk | Awk | 202 | 34 | 100 | 69 | 100 | 4 | 6 | 0 | 0 |
 | ballerina | Ballerina | 210 | 37 | 100 | 51 | 98 | 0 | 6 | 0 | 10 |
 | bash | Basic | 379 | 93 | 100 | 60 | 93 | 7 | 1 | 0 | 0 |
 | c | C | 394 | 98 | 100 | 69 | 100 | 0 | 1 | 0 | 0 |

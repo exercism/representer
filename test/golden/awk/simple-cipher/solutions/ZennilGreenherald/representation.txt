@@ -1,27 +1,116 @@
-@ load "\"ordchr\""
-function transform ( f ) {
-ki = 1
-s = "\"\""
-for ( ti = 1 ; ti <= length ( $0 ); ti ++ ) {
-key_code = ord ( substr ( key , ki , 1 )) - ord ( "\"a\"" )
-text_code = ord ( substr ( $0 , ti , 1 )) - ord ( "\"a\"" )
-s = s chr (( text_code + 26 + f * key_code ) % 26 + ord ( "\"a\"" ))
-ki ++
-if ( ki > length ( key )) ki = 1
-}
-print s
-}
-{ $0 = tolower ( $0 ) }
-type == "\"encode\"" && key ~ /[a-z]+/ { transform ( 1 ) }
-type == "\"decode\"" && key ~ /[a-z]+/ { transform ( - 1 ) }
-END {
-if ( ! key ) {
-s = "\"\""
-for ( i = 1 ; i <= 100 ; i ++ )
-s = s chr ( rand () * 26 + ord ( "\"a\"" ))
-print s
-} else if ( key !~ /[a-z]+/ ) {
-print "\"invalid key\""
-exit 1
-}
-}
+(program
+  (function_definition PLACEHOLDER_1
+    (parameter_list PLACEHOLDER_2)
+    (statement_list
+      (expression_statement
+        (assignment_expression PLACEHOLDER_3 = 1))
+      (expression_statement
+        (assignment_expression PLACEHOLDER_4 = ""))
+      (for_statement
+        (assignment_expression PLACEHOLDER_5 = 1) ;
+        (binary_expression PLACEHOLDER_5 <=
+          (function_call length
+            (argument_list
+              (field_reference 0)))) ;
+        (update_expression PLACEHOLDER_5 ++)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_6 =
+              (binary_expression
+                (function_call ord
+                  (argument_list
+                    (function_call substr
+                      (argument_list key PLACEHOLDER_3 1)))) -
+                (function_call ord
+                  (argument_list "a")))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_7 =
+              (binary_expression
+                (function_call ord
+                  (argument_list
+                    (function_call substr
+                      (argument_list
+                        (field_reference 0) PLACEHOLDER_5 1)))) -
+                (function_call ord
+                  (argument_list "a")))))
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 =
+              (concatenation_expression PLACEHOLDER_4
+                (function_call chr
+                  (argument_list
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_7 + 26) +
+                          (binary_expression PLACEHOLDER_2 * PLACEHOLDER_6)) % 26) +
+                      (function_call ord
+                        (argument_list "a"))))))))
+          (expression_statement
+            (update_expression PLACEHOLDER_3 ++))
+          (if_statement
+            (binary_expression PLACEHOLDER_3 >
+              (function_call length
+                (argument_list key)))
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_3 = 1))))))
+      (print_statement
+        (output_arguments PLACEHOLDER_4))))
+  (rule
+    (statement_list
+      (expression_statement
+        (assignment_expression
+          (field_reference 0) =
+          (function_call tolower
+            (argument_list
+              (field_reference 0)))))))
+  (rule
+    (binary_expression
+      (binary_expression type == "encode") &&
+      (binary_expression key ~ /[a-z]+/))
+    (statement_list
+      (expression_statement
+        (function_call PLACEHOLDER_1
+          (argument_list 1)))))
+  (rule
+    (binary_expression
+      (binary_expression type == "decode") &&
+      (binary_expression key ~ /[a-z]+/))
+    (statement_list
+      (expression_statement
+        (function_call PLACEHOLDER_1
+          (argument_list
+            (unary_expression - 1))))))
+  (rule
+    (special_pattern END)
+    (statement_list
+      (if_statement
+        (unary_expression ! key)
+        (statement_list
+          (expression_statement
+            (assignment_expression PLACEHOLDER_4 = ""))
+          (for_statement
+            (assignment_expression PLACEHOLDER_8 = 1) ;
+            (binary_expression PLACEHOLDER_8 <= 100) ;
+            (update_expression PLACEHOLDER_8 ++)
+            (statement_list
+              (expression_statement
+                (assignment_expression PLACEHOLDER_4 =
+                  (concatenation_expression PLACEHOLDER_4
+                    (function_call chr
+                      (argument_list
+                        (binary_expression
+                          (binary_expression
+                            (function_call rand
+                              (argument_list)) * 26) +
+                          (function_call ord
+                            (argument_list "a"))))))))))
+          (print_statement
+            (output_arguments PLACEHOLDER_4)))
+        (statement_list
+          (if_statement
+            (binary_expression key !~ /[a-z]+/)
+            (statement_list
+              (print_statement
+                (output_arguments "invalid key"))
+              (exit_statement 1))))))))
