@@ -1,28 +1,125 @@
-include ( "\"permutations.jl\"" )
-function solve ( puzzle :: AbstractString )
-lhs , rhs = split ( puzzle , "\"==\"" )
-word_rhs = strip ( rhs )
-words = strip . ( split ( lhs , '+' ))
-characters = collect ( Set ( ch for ch in puzzle if isletter ( ch )))
-isinitial = map ( characters ) do character
-any ( word -> startswith ( word , character ), [ words ; word_rhs ])
-end
-idx_char = Dict ( c => i for ( i , c ) in enumerate ( characters ))
-weights = zeros ( Int , length ( characters ))
-for word in words
-for ( i , char ) in enumerate ( reverse ( word ))
-weights [ idx_char [ char ]] += 10 ^ ( i - 1 )
-end
-end
-for ( i , char ) in enumerate ( reverse ( word_rhs ))
-weights [ idx_char [ char ]] -= 10 ^ ( i - 1 )
-end
-results = []
-for permutation in permutations ( 0 : 9 , length ( characters ))
-any ( isinitial .&& ( permutation .== 0 )) && continue
-if sum ( weights .* permutation ) == 0
-push! ( results , Dict ( zip ( characters , permutation )))
-end
-end
-length ( results ) == 1 ? results [ 1 ] : nothing
-end
+(source_file
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_1
+        (argument_list
+          (typed_expression PLACEHOLDER_2 AbstractString))))
+    (block
+      (assignment
+        (open_tuple PLACEHOLDER_3 PLACEHOLDER_4) =
+        (call_expression split
+          (argument_list PLACEHOLDER_2 "==")))
+      (assignment PLACEHOLDER_5 =
+        (call_expression strip
+          (argument_list PLACEHOLDER_4)))
+      (assignment PLACEHOLDER_6 =
+        (broadcast_call_expression strip
+          (argument_list
+            (call_expression split
+              (argument_list PLACEHOLDER_3
+                (character_literal "+"))))))
+      (assignment PLACEHOLDER_7 =
+        (call_expression collect
+          (argument_list
+            (call_expression Set
+              (argument_list
+                (generator PLACEHOLDER_8
+                  (for_clause
+                    (for_binding PLACEHOLDER_8 PLACEHOLDER_2))
+                  (if_clause
+                    (call_expression isletter
+                      (argument_list PLACEHOLDER_8)))))))))
+      (assignment PLACEHOLDER_9 =
+        (call_expression map
+          (argument_list PLACEHOLDER_7)
+          (do_clause PLACEHOLDER_10
+            (block
+              (call_expression any
+                (argument_list
+                  (arrow_function_expression PLACEHOLDER_11
+                    (call_expression startswith
+                      (argument_list PLACEHOLDER_11 PLACEHOLDER_10)))
+                  (matrix_expression
+                    (matrix_row PLACEHOLDER_6) ;
+                    (matrix_row PLACEHOLDER_5))))))))
+      (assignment PLACEHOLDER_12 =
+        (call_expression Dict
+          (argument_list
+            (generator
+              (binary_expression PLACEHOLDER_13 => PLACEHOLDER_14)
+              (for_clause
+                (for_binding
+                  (tuple_expression PLACEHOLDER_14 PLACEHOLDER_13)
+                  (call_expression enumerate
+                    (argument_list PLACEHOLDER_7))))))))
+      (assignment PLACEHOLDER_15 =
+        (call_expression zeros
+          (argument_list Int
+            (call_expression length
+              (argument_list PLACEHOLDER_7)))))
+      (for_statement
+        (for_binding PLACEHOLDER_11 PLACEHOLDER_6)
+        (block
+          (for_statement
+            (for_binding
+              (tuple_expression PLACEHOLDER_14 PLACEHOLDER_16)
+              (call_expression enumerate
+                (argument_list
+                  (call_expression reverse
+                    (argument_list PLACEHOLDER_11)))))
+            (block
+              (compound_assignment_expression
+                (index_expression PLACEHOLDER_15
+                  (vector_expression
+                    (index_expression PLACEHOLDER_12
+                      (vector_expression PLACEHOLDER_16)))) +=
+                (binary_expression 10 ^
+                  (binary_expression PLACEHOLDER_14 - 1)))))))
+      (for_statement
+        (for_binding
+          (tuple_expression PLACEHOLDER_14 PLACEHOLDER_16)
+          (call_expression enumerate
+            (argument_list
+              (call_expression reverse
+                (argument_list PLACEHOLDER_5)))))
+        (block
+          (compound_assignment_expression
+            (index_expression PLACEHOLDER_15
+              (vector_expression
+                (index_expression PLACEHOLDER_12
+                  (vector_expression PLACEHOLDER_16)))) -=
+            (binary_expression 10 ^
+              (binary_expression PLACEHOLDER_14 - 1)))))
+      (assignment PLACEHOLDER_17 =
+        (vector_expression))
+      (for_statement
+        (for_binding PLACEHOLDER_18
+          (call_expression permutations
+            (argument_list
+              (range_expression 0 9)
+              (call_expression length
+                (argument_list PLACEHOLDER_7)))))
+        (block
+          (binary_expression
+            (call_expression any
+              (argument_list
+                (binary_expression PLACEHOLDER_9 .&&
+                  (binary_expression PLACEHOLDER_18 .== 0)))) && continue)
+          (if_statement
+            (binary_expression
+              (call_expression sum
+                (argument_list
+                  (binary_expression PLACEHOLDER_15 .* PLACEHOLDER_18))) == 0)
+            (block
+              (call_expression push!
+                (argument_list PLACEHOLDER_17
+                  (call_expression Dict
+                    (argument_list
+                      (call_expression zip
+                        (argument_list PLACEHOLDER_7 PLACEHOLDER_18))))))))))
+      (ternary_expression
+        (binary_expression
+          (call_expression length
+            (argument_list PLACEHOLDER_17)) == 1)
+        (index_expression PLACEHOLDER_17
+          (vector_expression 1)) nothing))))

@@ -1,54 +1,175 @@
-function connect ( board )
-processed_board = [ filter ( c -> c != "' '" , row ) for row in board ]
-height = length ( processed_board )
-if height == 0
-return "\"\""
-end
-width = length ( processed_board [ 1 ])
-if check_win ( processed_board , 'X' , width , height )
-return "\"X\""
-end
-if check_win ( processed_board , 'O' , width , height )
-return "\"O\""
-end
-return "\"\""
-end
-function check_win ( board , player , width , height )
-grid = [ collect ( row ) for row in board ]
-if player == 'X'
-starting_points = [( i , 1 ) for i in 1 : height if grid [ i ][ 1 ] == 'X' ]
-target_check = ( _ , j ) -> j == width
-else
-starting_points = [( 1 , j ) for j in 1 : width if grid [ 1 ][ j ] == 'O' ]
-target_check = ( i , _ ) -> i == height
-end
-for start in starting_points
-visited = Set { Tuple { Int , Int }}()
-if dfs ( grid , start [ 1 ], start [ 2 ], player , visited , target_check , width , height )
-return true
-end
-end
-return false
-end
-function dfs ( grid , i , j , player , visited , target_check , width , height )
-if target_check ( i , j )
-return true
-end
-push! ( visited , ( i , j ))
-directions = [
-( - 1 , 0 ), ( - 1 , 1 ),
-( 0 , - 1 ), ( 0 , 1 ),
-( 1 , - 1 ), ( 1 , 0 )
-]
-for ( di , dj ) in directions
-ni , nj = i + di , j + dj
-if 1 <= ni <= height && 1 <= nj <= width
-if grid [ ni ][ nj ] == player && ! (( ni , nj ) in visited )
-if dfs ( grid , ni , nj , player , visited , target_check , width , height )
-return true
-end
-end
-end
-end
-return false
-end
+(source_file
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_1
+        (argument_list PLACEHOLDER_2)))
+    (block
+      (assignment PLACEHOLDER_3 =
+        (comprehension_expression
+          (call_expression filter
+            (argument_list
+              (arrow_function_expression PLACEHOLDER_4
+                (binary_expression PLACEHOLDER_4 !=
+                  (character_literal " "))) PLACEHOLDER_5))
+          (for_clause
+            (for_binding PLACEHOLDER_5 PLACEHOLDER_2))))
+      (assignment PLACEHOLDER_6 =
+        (call_expression length
+          (argument_list PLACEHOLDER_3)))
+      (if_statement
+        (binary_expression PLACEHOLDER_6 == 0)
+        (block
+          (return_statement "")))
+      (assignment PLACEHOLDER_7 =
+        (call_expression length
+          (argument_list
+            (index_expression PLACEHOLDER_3
+              (vector_expression 1)))))
+      (if_statement
+        (call_expression PLACEHOLDER_8
+          (argument_list PLACEHOLDER_3
+            (character_literal "X") PLACEHOLDER_7 PLACEHOLDER_6))
+        (block
+          (return_statement "X")))
+      (if_statement
+        (call_expression PLACEHOLDER_8
+          (argument_list PLACEHOLDER_3
+            (character_literal "O") PLACEHOLDER_7 PLACEHOLDER_6))
+        (block
+          (return_statement "O")))
+      (return_statement "")))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_8
+        (argument_list PLACEHOLDER_2 PLACEHOLDER_9 PLACEHOLDER_7 PLACEHOLDER_6)))
+    (block
+      (assignment PLACEHOLDER_10 =
+        (comprehension_expression
+          (call_expression collect
+            (argument_list PLACEHOLDER_5))
+          (for_clause
+            (for_binding PLACEHOLDER_5 PLACEHOLDER_2))))
+      (if_statement
+        (binary_expression PLACEHOLDER_9 ==
+          (character_literal "X"))
+        (block
+          (assignment PLACEHOLDER_11 =
+            (comprehension_expression
+              (tuple_expression PLACEHOLDER_12 1)
+              (for_clause
+                (for_binding PLACEHOLDER_12
+                  (range_expression 1 PLACEHOLDER_6)))
+              (if_clause
+                (binary_expression
+                  (index_expression
+                    (index_expression PLACEHOLDER_10
+                      (vector_expression PLACEHOLDER_12))
+                    (vector_expression 1)) ==
+                  (character_literal "X")))))
+          (assignment PLACEHOLDER_13 =
+            (arrow_function_expression
+              (argument_list PLACEHOLDER_14 PLACEHOLDER_15)
+              (binary_expression PLACEHOLDER_15 == PLACEHOLDER_7))))
+        (else_clause
+          (block
+            (assignment PLACEHOLDER_11 =
+              (comprehension_expression
+                (tuple_expression 1 PLACEHOLDER_15)
+                (for_clause
+                  (for_binding PLACEHOLDER_15
+                    (range_expression 1 PLACEHOLDER_7)))
+                (if_clause
+                  (binary_expression
+                    (index_expression
+                      (index_expression PLACEHOLDER_10
+                        (vector_expression 1))
+                      (vector_expression PLACEHOLDER_15)) ==
+                    (character_literal "O")))))
+            (assignment PLACEHOLDER_13 =
+              (arrow_function_expression
+                (argument_list PLACEHOLDER_12 PLACEHOLDER_14)
+                (binary_expression PLACEHOLDER_12 == PLACEHOLDER_6))))))
+      (for_statement
+        (for_binding PLACEHOLDER_16 PLACEHOLDER_11)
+        (block
+          (assignment PLACEHOLDER_17 =
+            (call_expression
+              (parametrized_type_expression Set
+                (curly_expression
+                  (parametrized_type_expression Tuple
+                    (curly_expression Int Int))))
+              (argument_list)))
+          (if_statement
+            (call_expression PLACEHOLDER_18
+              (argument_list PLACEHOLDER_10
+                (index_expression PLACEHOLDER_16
+                  (vector_expression 1))
+                (index_expression PLACEHOLDER_16
+                  (vector_expression 2)) PLACEHOLDER_9 PLACEHOLDER_17 PLACEHOLDER_13 PLACEHOLDER_7 PLACEHOLDER_6))
+            (block
+              (return_statement
+                (boolean_literal true))))))
+      (return_statement
+        (boolean_literal false))))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_18
+        (argument_list PLACEHOLDER_10 PLACEHOLDER_12 PLACEHOLDER_15 PLACEHOLDER_9 PLACEHOLDER_17 PLACEHOLDER_13 PLACEHOLDER_7 PLACEHOLDER_6)))
+    (block
+      (if_statement
+        (call_expression PLACEHOLDER_13
+          (argument_list PLACEHOLDER_12 PLACEHOLDER_15))
+        (block
+          (return_statement
+            (boolean_literal true))))
+      (call_expression push!
+        (argument_list PLACEHOLDER_17
+          (tuple_expression PLACEHOLDER_12 PLACEHOLDER_15)))
+      (assignment PLACEHOLDER_19 =
+        (vector_expression
+          (tuple_expression
+            (unary_expression - 1) 0)
+          (tuple_expression
+            (unary_expression - 1) 1)
+          (tuple_expression 0
+            (unary_expression - 1))
+          (tuple_expression 0 1)
+          (tuple_expression 1
+            (unary_expression - 1))
+          (tuple_expression 1 0)))
+      (for_statement
+        (for_binding
+          (tuple_expression PLACEHOLDER_20 PLACEHOLDER_21) PLACEHOLDER_19)
+        (block
+          (assignment
+            (open_tuple PLACEHOLDER_22 PLACEHOLDER_23) =
+            (open_tuple
+              (binary_expression PLACEHOLDER_12 + PLACEHOLDER_20)
+              (binary_expression PLACEHOLDER_15 + PLACEHOLDER_21)))
+          (if_statement
+            (binary_expression
+              (binary_expression
+                (binary_expression 1 <= PLACEHOLDER_22) <= PLACEHOLDER_6) &&
+              (binary_expression
+                (binary_expression 1 <= PLACEHOLDER_23) <= PLACEHOLDER_7))
+            (block
+              (if_statement
+                (binary_expression
+                  (binary_expression
+                    (index_expression
+                      (index_expression PLACEHOLDER_10
+                        (vector_expression PLACEHOLDER_22))
+                      (vector_expression PLACEHOLDER_23)) == PLACEHOLDER_9) &&
+                  (call_expression !
+                    (argument_list
+                      (binary_expression
+                        (tuple_expression PLACEHOLDER_22 PLACEHOLDER_23) in PLACEHOLDER_17))))
+                (block
+                  (if_statement
+                    (call_expression PLACEHOLDER_18
+                      (argument_list PLACEHOLDER_10 PLACEHOLDER_22 PLACEHOLDER_23 PLACEHOLDER_9 PLACEHOLDER_17 PLACEHOLDER_13 PLACEHOLDER_7 PLACEHOLDER_6))
+                    (block
+                      (return_statement
+                        (boolean_literal true))))))))))
+      (return_statement
+        (boolean_literal false)))))

@@ -1,33 +1,95 @@
-function translate ( text :: AbstractString )
-words = split ( text )
-return join ( translate_word . ( words ), "\" \"" )
-end
-function translate_word ( word :: AbstractString )
-if startswith ( word , r "\"^(a|e|i|o|u|xr|yt)\"" )
-return word * "\"ay\""
-end
-if occursin ( r "\"^([^aeiou]+)qu\"" , word )
-m = match ( r "\"^([^aeiou]+)qu(.*)$\"" , word )
-if m !== nothing
-prefix , rest = m . captures
-return rest * prefix * "\"qu\"" * "\"ay\""
-end
-end
-if startswith ( word , "\"qu\"" )
-return word [ 3 : end ] * "\"qu\"" * "\"ay\""
-end
-if startswith ( word , "\"y\"" )
-return word [ 2 : end ] * "\"y\"" * "\"ay\""
-end
-m = match ( r "\"^([^aeiou]+)(y.*)$\"" , word )
-if m !== nothing
-prefix , rest = m . captures
-return rest * prefix * "\"ay\""
-end
-m = match ( r "\"^([^aeiou]+)(.*)$\"" , word )
-if m !== nothing
-prefix , rest = m . captures
-return rest * prefix * "\"ay\""
-end
-return word * "\"ay\""
-end
+(source_file
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_1
+        (argument_list
+          (typed_expression PLACEHOLDER_2 AbstractString))))
+    (block
+      (assignment PLACEHOLDER_3 =
+        (call_expression split
+          (argument_list PLACEHOLDER_2)))
+      (return_statement
+        (call_expression join
+          (argument_list
+            (broadcast_call_expression PLACEHOLDER_4
+              (argument_list PLACEHOLDER_3)) " ")))))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_4
+        (argument_list
+          (typed_expression PLACEHOLDER_5 AbstractString))))
+    (block
+      (if_statement
+        (call_expression startswith
+          (argument_list PLACEHOLDER_5
+            (prefixed_string_literal r "\"" "^(a|e|i|o|u|xr|yt)")))
+        (block
+          (return_statement
+            (binary_expression PLACEHOLDER_5 * "ay"))))
+      (if_statement
+        (call_expression occursin
+          (argument_list
+            (prefixed_string_literal r "\"" "^([^aeiou]+)qu") PLACEHOLDER_5))
+        (block
+          (assignment PLACEHOLDER_6 =
+            (call_expression match
+              (argument_list
+                (prefixed_string_literal r "\"" "^([^aeiou]+)qu(.*)$") PLACEHOLDER_5)))
+          (if_statement
+            (binary_expression PLACEHOLDER_6 !== nothing)
+            (block
+              (assignment
+                (open_tuple PLACEHOLDER_7 PLACEHOLDER_8) =
+                (field_expression PLACEHOLDER_6 captures))
+              (return_statement
+                (binary_expression
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_8 * PLACEHOLDER_7) * "qu") * "ay"))))))
+      (if_statement
+        (call_expression startswith
+          (argument_list PLACEHOLDER_5 "qu"))
+        (block
+          (return_statement
+            (binary_expression
+              (binary_expression
+                (index_expression PLACEHOLDER_5
+                  (vector_expression
+                    (range_expression 3 end))) * "qu") * "ay"))))
+      (if_statement
+        (call_expression startswith
+          (argument_list PLACEHOLDER_5 "y"))
+        (block
+          (return_statement
+            (binary_expression
+              (binary_expression
+                (index_expression PLACEHOLDER_5
+                  (vector_expression
+                    (range_expression 2 end))) * "y") * "ay"))))
+      (assignment PLACEHOLDER_6 =
+        (call_expression match
+          (argument_list
+            (prefixed_string_literal r "\"" "^([^aeiou]+)(y.*)$") PLACEHOLDER_5)))
+      (if_statement
+        (binary_expression PLACEHOLDER_6 !== nothing)
+        (block
+          (assignment
+            (open_tuple PLACEHOLDER_7 PLACEHOLDER_8) =
+            (field_expression PLACEHOLDER_6 captures))
+          (return_statement
+            (binary_expression
+              (binary_expression PLACEHOLDER_8 * PLACEHOLDER_7) * "ay"))))
+      (assignment PLACEHOLDER_6 =
+        (call_expression match
+          (argument_list
+            (prefixed_string_literal r "\"" "^([^aeiou]+)(.*)$") PLACEHOLDER_5)))
+      (if_statement
+        (binary_expression PLACEHOLDER_6 !== nothing)
+        (block
+          (assignment
+            (open_tuple PLACEHOLDER_7 PLACEHOLDER_8) =
+            (field_expression PLACEHOLDER_6 captures))
+          (return_statement
+            (binary_expression
+              (binary_expression PLACEHOLDER_8 * PLACEHOLDER_7) * "ay"))))
+      (return_statement
+        (binary_expression PLACEHOLDER_5 * "ay")))))

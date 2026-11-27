@@ -1,66 +1,222 @@
-struct ISBN
-str :: String
-ISBN ( str ) = is_valid ( str ) ? new ( String ( clean ( str ))) : throw ( DomainError ( "\"\"" ))
-end
-function is_valid ( str :: String )
-str = clean ( str )
-length ( str ) == 10 || return false
-digits = to_digits ( str )
-return check_isbn_digits ( digits )
-end
-function clean ( str :: String )
-digits = '0' : '9'
-other_valid = [ '-' , "' '" ]
-last_valid = [ 'X' , 'x' ]
-result = Char []
-n = length ( str )
-for ( ind , c ) in enumerate ( str )
-if c in digits || ( ind == n && c in last_valid )
-push! ( result , c )
-elseif ! ( c in other_valid )
-throw ( DomainError ( "\"\"" ))
-end
-end
-if n > 1 && result [ end ] == 'X'
-result [ end ] = 'x'
-end
-return result
-end
-function to_digits ( str :: Array { Char , 1 })
-result = Int []
-for c in str
-if c == 'x'
-push! ( result , 10 )
-else
-push! ( result , parse ( Int , c ))
-end
-end
-return result
-return [ ifelse ( c == 'x' , 10 , parse ( Int , c )) for c in str ]
-end
-function check_isbn_digits ( digits :: Array { Int64 , 1 })
-n = length ( digits )
-s = sum ( digits .* ( n :- 1 : 1 ))
-return s % 11 == 0
-end
-function Base.: ( == )( x :: ISBN , y :: ISBN )
-return x . str == y . str
-end
-macro isbn_str ( str )
-"\"\"\"\n    Define a string macro so that\n    isbn\"" 3 - 598 - 21507 - X "\" == ISBN(\"" 3 - 598 - 21507 - X "\")\n    \"\"\""
-return ISBN ( str )
-end
-function get_isbn ( str )
-"\"\"\"\n    Define a function or iterator to generate a valid ISBN,\n    maybe even from a given starting ISBN.\n    \"\"\""
-str = clean ( str )
-n = length ( str )
-m = 10 - n
-fixed_digits = to_digits ( str )
-try_again = true
-while try_again
-global digits = vcat ( fixed_digits , rand ( 0 : 9 , m ))
-@show digits
-try_again = ! check_isbn_digits ( digits )
-end
-return digits , check_isbn_digits ( digits )
-end
+(source_file
+  (struct_definition
+    (type_head PLACEHOLDER_1)
+    (block
+      (typed_expression PLACEHOLDER_2 String)
+      (assignment
+        (call_expression PLACEHOLDER_1
+          (argument_list PLACEHOLDER_2)) =
+        (ternary_expression
+          (call_expression PLACEHOLDER_3
+            (argument_list PLACEHOLDER_2))
+          (call_expression new
+            (argument_list
+              (call_expression String
+                (argument_list
+                  (call_expression PLACEHOLDER_4
+                    (argument_list PLACEHOLDER_2))))))
+          (call_expression throw
+            (argument_list
+              (call_expression DomainError
+                (argument_list ""))))))))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_3
+        (argument_list
+          (typed_expression PLACEHOLDER_2 String))))
+    (block
+      (assignment PLACEHOLDER_2 =
+        (call_expression PLACEHOLDER_4
+          (argument_list PLACEHOLDER_2)))
+      (binary_expression
+        (binary_expression
+          (call_expression length
+            (argument_list PLACEHOLDER_2)) == 10) ||
+        (return_statement
+          (boolean_literal false)))
+      (assignment PLACEHOLDER_5 =
+        (call_expression PLACEHOLDER_6
+          (argument_list PLACEHOLDER_2)))
+      (return_statement
+        (call_expression PLACEHOLDER_7
+          (argument_list PLACEHOLDER_5)))))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_4
+        (argument_list
+          (typed_expression PLACEHOLDER_2 String))))
+    (block
+      (assignment PLACEHOLDER_5 =
+        (range_expression
+          (character_literal "0")
+          (character_literal "9")))
+      (assignment PLACEHOLDER_8 =
+        (vector_expression
+          (character_literal "-")
+          (character_literal " ")))
+      (assignment PLACEHOLDER_9 =
+        (vector_expression
+          (character_literal "X")
+          (character_literal "x")))
+      (assignment PLACEHOLDER_10 =
+        (index_expression Char
+          (vector_expression)))
+      (assignment PLACEHOLDER_11 =
+        (call_expression length
+          (argument_list PLACEHOLDER_2)))
+      (for_statement
+        (for_binding
+          (tuple_expression PLACEHOLDER_12 PLACEHOLDER_13)
+          (call_expression enumerate
+            (argument_list PLACEHOLDER_2)))
+        (block
+          (if_statement
+            (binary_expression
+              (binary_expression PLACEHOLDER_13 in PLACEHOLDER_5) ||
+              (binary_expression
+                (binary_expression PLACEHOLDER_12 == PLACEHOLDER_11) &&
+                (binary_expression PLACEHOLDER_13 in PLACEHOLDER_9)))
+            (block
+              (call_expression push!
+                (argument_list PLACEHOLDER_10 PLACEHOLDER_13)))
+            (elseif_clause
+              (call_expression !
+                (argument_list
+                  (binary_expression PLACEHOLDER_13 in PLACEHOLDER_8)))
+              (block
+                (call_expression throw
+                  (argument_list
+                    (call_expression DomainError
+                      (argument_list "")))))))))
+      (if_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_11 > 1) &&
+          (binary_expression
+            (index_expression PLACEHOLDER_10
+              (vector_expression end)) ==
+            (character_literal "X")))
+        (block
+          (assignment
+            (index_expression PLACEHOLDER_10
+              (vector_expression end)) =
+            (character_literal "x"))))
+      (return_statement PLACEHOLDER_10)))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_6
+        (argument_list
+          (typed_expression PLACEHOLDER_2
+            (parametrized_type_expression Array
+              (curly_expression Char 1))))))
+    (block
+      (assignment PLACEHOLDER_10 =
+        (index_expression Int
+          (vector_expression)))
+      (for_statement
+        (for_binding PLACEHOLDER_13 PLACEHOLDER_2)
+        (block
+          (if_statement
+            (binary_expression PLACEHOLDER_13 ==
+              (character_literal "x"))
+            (block
+              (call_expression push!
+                (argument_list PLACEHOLDER_10 10)))
+            (else_clause
+              (block
+                (call_expression push!
+                  (argument_list PLACEHOLDER_10
+                    (call_expression parse
+                      (argument_list Int PLACEHOLDER_13)))))))))
+      (return_statement PLACEHOLDER_10)
+      (return_statement
+        (comprehension_expression
+          (call_expression ifelse
+            (argument_list
+              (binary_expression PLACEHOLDER_13 ==
+                (character_literal "x")) 10
+              (call_expression parse
+                (argument_list Int PLACEHOLDER_13))))
+          (for_clause
+            (for_binding PLACEHOLDER_13 PLACEHOLDER_2))))))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_7
+        (argument_list
+          (typed_expression PLACEHOLDER_5
+            (parametrized_type_expression Array
+              (curly_expression Int64 1))))))
+    (block
+      (assignment PLACEHOLDER_11 =
+        (call_expression length
+          (argument_list PLACEHOLDER_5)))
+      (assignment PLACEHOLDER_14 =
+        (call_expression sum
+          (argument_list
+            (binary_expression PLACEHOLDER_5 .*
+              (range_expression
+                (range_expression PLACEHOLDER_11
+                  (unary_expression - 1)) 1)))))
+      (return_statement
+        (binary_expression
+          (binary_expression PLACEHOLDER_14 % 11) == 0))))
+  (function_definition
+    (signature
+      (call_expression
+        (field_expression Base
+          (quote_expression ==))
+        (argument_list
+          (typed_expression PLACEHOLDER_15 PLACEHOLDER_1)
+          (typed_expression PLACEHOLDER_16 PLACEHOLDER_1))))
+    (block
+      (return_statement
+        (binary_expression
+          (field_expression PLACEHOLDER_15 PLACEHOLDER_2) ==
+          (field_expression PLACEHOLDER_16 PLACEHOLDER_2)))))
+  (macro_definition
+    (signature
+      (call_expression PLACEHOLDER_17
+        (argument_list PLACEHOLDER_2)))
+    (block
+      (triple_quoted_string "\n    Define a string macro so that\n    isbn\"3-598-21507-X\" == ISBN(\"3-598-21507-X\")\n    ")
+      (return_statement
+        (call_expression PLACEHOLDER_1
+          (argument_list PLACEHOLDER_2)))))
+  (function_definition
+    (signature
+      (call_expression PLACEHOLDER_18
+        (argument_list PLACEHOLDER_2)))
+    (block
+      (triple_quoted_string "\n    Define a function or iterator to generate a valid ISBN,\n    maybe even from a given starting ISBN.\n    ")
+      (assignment PLACEHOLDER_2 =
+        (call_expression PLACEHOLDER_4
+          (argument_list PLACEHOLDER_2)))
+      (assignment PLACEHOLDER_11 =
+        (call_expression length
+          (argument_list PLACEHOLDER_2)))
+      (assignment PLACEHOLDER_19 =
+        (binary_expression 10 - PLACEHOLDER_11))
+      (assignment PLACEHOLDER_20 =
+        (call_expression PLACEHOLDER_6
+          (argument_list PLACEHOLDER_2)))
+      (assignment PLACEHOLDER_21 =
+        (boolean_literal true))
+      (while_statement PLACEHOLDER_21
+        (block
+          (global_statement
+            (assignment PLACEHOLDER_5 =
+              (call_expression vcat
+                (argument_list PLACEHOLDER_20
+                  (call_expression rand
+                    (argument_list
+                      (range_expression 0 9) PLACEHOLDER_19))))))
+          (macrocall_expression
+            (macro_identifier show)
+            (macro_argument_list PLACEHOLDER_5))
+          (assignment PLACEHOLDER_21 =
+            (unary_expression !
+              (call_expression PLACEHOLDER_7
+                (argument_list PLACEHOLDER_5))))))
+      (return_statement
+        (open_tuple PLACEHOLDER_5
+          (call_expression PLACEHOLDER_7
+            (argument_list PLACEHOLDER_5)))))))
