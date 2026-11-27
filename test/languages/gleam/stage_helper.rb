@@ -12,7 +12,7 @@ module GleamStages
   # The tree after GenerateAST and Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Gleam::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   # The code as the body of a function.
   def wrap(body) = "pub fn f(x: Int) -> Int {\n#{body}\n}\n"

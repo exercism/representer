@@ -24,8 +24,8 @@ class CrystalTest < RepresenterTest
       equivalents = Dir[File.join(dir, "equivalent", "*.cr")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("crystal", inputs, {})
-      assert_equal Representer::RepresentSolution.("crystal", equivalents, {}).representation, actual.representation
+      actual = Representer::RepresentSolution.("crystal", inputs)
+      assert_equal Representer::RepresentSolution.("crystal", equivalents).representation, actual.representation
       assert_equal mapping.values.sort, actual.mapping.values.sort
     end
   end
@@ -64,10 +64,5 @@ class CrystalTest < RepresenterTest
     code = "class C\n  def %s\n    1\n  end\nend"
     assert_same_representation format(code, "sum"), format(code, "max")
     assert_same_representation format(code, "to_s"), format(code, "show")
-  end
-
-  def test_the_exercise_files_make_no_difference
-    assert_same_representation "def f\n  1\nend", "def g\n  1\nend",
-      exercise_files: { "spec/t_spec.cr" => "it \"x\" do\n  f.should eq 1\nend\n" }
   end
 end

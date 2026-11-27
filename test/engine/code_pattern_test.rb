@@ -186,7 +186,7 @@ class CodePatternTest < Minitest::Test
   def parse(source) = Representer::Engine::Grammar["ruby"].parse(source)
   def tree(source) = Ruby::Common::GenerateAST.(parse(source))
   def normalise(source) = Rubyish::Normalise.(tree(source))
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   # PHP wraps each of a call's arguments in an `argument` node.
   PHP = Representer::Languages::PHP::Spec

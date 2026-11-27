@@ -1,8 +1,8 @@
 module Representer::Engine
-  # Returns the text of every name defined in the trees. A staged language's
+  # Returns the text of every name defined in the trees. A language's
   # representation says which nodes define a name (see
-  # Representation.names_defined_by),
-  # and this command asks every node in turn.
+  # Representation.names_defined_by), and this command asks every node in
+  # turn.
   class CollectDefinedNames
     include Mandate
 

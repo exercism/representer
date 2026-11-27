@@ -32,8 +32,8 @@ class WasmTest < RepresenterTest
       equivalents = Dir[File.join(dir, "equivalent", "*.wat")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("wasm", inputs, {})
-      assert_equal Representer::RepresentSolution.("wasm", equivalents, {}).representation, actual.representation
+      actual = Representer::RepresentSolution.("wasm", inputs)
+      assert_equal Representer::RepresentSolution.("wasm", equivalents).representation, actual.representation
       assert_equal ["year"], actual.mapping.values.uniq
     end
   end

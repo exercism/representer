@@ -8,7 +8,7 @@ The website groups solutions by their representation, and shows a mentor's feedb
 
 It runs as an AWS Lambda function behind Exercism's internal load balancer.
 One service handles every track.
-These languages have a class of their own, and the representer parses them with [tree-sitter][tree-sitter]: Ballerina, C#, C++, Cairo, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, Factor, GDScript, Gleam, Go, Java, JavaScript, Nim, PHP, Python, Raku, Red, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
+These languages have a representer of their own, and the representer parses them with [tree-sitter][tree-sitter]: Ballerina, C#, C++, Cairo, Clojure, Common Lisp, Crystal, Elixir, Elm, F#, Factor, GDScript, Gleam, Go, Java, JavaScript, Nim, PHP, Python, Raku, Red, Ruby, Rust, TypeScript, WebAssembly, Wren and Zig.
 
 Every other track gets a simpler token-based representation called Basic.
 
@@ -28,7 +28,7 @@ The website POSTs JSON like this:
 
 - `outputs` lists what to generate, as one or more of `representation`, `snippet` and `analysis`. The representer only runs the steps needed for these outputs.
 - `solution_files` are the student's files.
-- `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. The languages written with stages ignore them.
+- `exercise_files` are the exercise's test files and stub. The snippet and the analysis read the exercise's `.meta/config.json` from them, to find the solution's main file. The representation doesn't use them.
 
 It responds with `200` and one key for each output asked for:
 
@@ -89,12 +89,11 @@ For those, the `representation` output is an error with the language's version, 
 - `parse_error`: the grammar couldn't parse the code. This includes new syntax that the pinned grammar doesn't know yet.
 - `too_deep`: the code nests deeper than 1,000 levels.
 - `too_large`: the solution files hold more than 200 KB, or the exercise files more than 500 KB. The load balancer limits bodies to 1 MB.
-- `too_complex`: the language's rules hit one of the representer's own limits. Either they changed one part of the tree more than 50 times, or they took more than 10 seconds. This usually means a rule is wrong, so the representer also writes the message to the log.
 - `no_source_files`: none of the solution's files is a source file of the language. The representer ignores files in other formats, such as Rust's `Cargo.toml` or a `HELP.md`, and test and tool config files, such as `leap_test.go` or `babel.config.js`.
 - `internal_error`: one of the representer's rules raised an error. This is a bug in the representer, so it also writes the error to the log.
 
 The website then marks the submission as unrepresentable.
-Basic, which serves the tracks with no class of their own, can represent any solution that isn't too large and has a source file.
+Basic, which serves the tracks with no representer of their own, can represent any solution that isn't too large and has a source file.
 
 The response is a `400` if the request is invalid, including when `outputs` is missing or empty.
 
@@ -106,22 +105,21 @@ Representer::Generate.("ruby", solution_files, outputs: %i[representation snippe
 
 ## How it works
 
-For a language with its own class, the representer:
+For a language with a representer of its own, the representer:
 
 1. Parses each file with the language's tree-sitter grammar. It skips files without one of the language's extensions, and test and config files, and turns Windows line endings into plain line breaks.
 2. Drops what makes no difference to the solution working, such as comments, brackets that only group, and imports. Every solution that the representer sees passes its tests, so this code can't change what a mentor says about it.
 3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`, or `1_000` into `1000`.
 4. Joins the files into one tree, in an order that depends only on their code. A file's name is never part of the representation, so renaming or reordering files doesn't change it.
-5. Replaces each name the student chose with a placeholder. For the languages written with stages, this is every name the solution defines, wherever it appears. The other languages also keep the names used in the tests.
+5. Replaces every name the solution defines with a placeholder, wherever the name appears.
 6. Writes the tree out as an indented s-expression.
 
-Each language written with stages has a folder in [`lib/representer/languages/`](./lib/representer/languages/) that holds a `spec.rb`, such as [`ruby/`](./lib/representer/languages/ruby/).
+Each language has a folder in [`lib/representer/languages/`](./lib/representer/languages/) that holds a `spec.rb`, such as [`ruby/`](./lib/representer/languages/ruby/).
 In each folder, `spec.rb` says what the language is and how its files are read, including its comments and docstrings.
 `representation.rb`, `analysis.rb` and `snippet.rb` declare the settings of each output, such as the representation's version, names and imports.
 The stages that describe steps 2 and 3 sit in `common/`, for the stages that every output needs, and `representation/`, for the stages that only the representation needs.
 `transition.md` says how the language differs from the tools it replaces.
 A comment above each declaration and method says what it does.
-The other languages describe these steps as rules in their class in [`lib/representer/languages/`](./lib/representer/languages/), until they are moved to stages, and the comment at the top of each class lists what its rules do.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains the stages and how to add a language.
 
 Basic ([`lib/representer/languages/basic.rb`](./lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge][rouge] lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.

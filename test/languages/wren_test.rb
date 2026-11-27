@@ -20,8 +20,8 @@ class WrenTest < RepresenterTest
       equivalents = Dir[File.join(dir, "equivalent", "*.wren")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("wren", inputs, {})
-      assert_equal Representer::RepresentSolution.("wren", equivalents, {}).representation, actual.representation
+      actual = Representer::RepresentSolution.("wren", inputs)
+      assert_equal Representer::RepresentSolution.("wren", equivalents).representation, actual.representation
       assert_equal mapping.values.sort, actual.mapping.values.sort
     end
   end
@@ -33,12 +33,6 @@ class WrenTest < RepresenterTest
   def test_imports_are_dropped
     assert_same_representation "import \"random\" for Random\nvar x = 1", "var x = 1"
     assert_same_representation "import \"a\" for A, B\nimport \"b\"\nvar x = 1", "var x = 1"
-  end
-
-  def test_the_exercise_files_make_no_difference
-    tests = { "two_fer.spec.wren" => "import \"./two_fer\" for TwoFer\nSystem.print(TwoFer.twoFer())" }
-    assert_same_representation "class TwoFer { static twoFer() { 1 } }", "class TwoFer { static other() { 1 } }",
-      exercise_files: tests
   end
 
   def test_names_from_outside_are_kept_if_the_solution_only_calls_them

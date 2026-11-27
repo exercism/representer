@@ -26,5 +26,5 @@ class SortChildrenTest < Minitest::Test
 
   private
   def renamed(leaf) = leaf.tap { leaf.renamed = true }
-  def sort(tree, *types) = Representer::Engine::Serialize.(Representer::Engine::SortChildren.(tree, types), nil)
+  def sort(tree, *types) = Representer::Engine::Serialize.(Representer::Engine::SortChildren.(tree, types))
 end

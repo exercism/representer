@@ -1,5 +1,5 @@
 module Representer::Engine
-  # A staged language's analysis output is a class called Analysis that
+  # A language's analysis output is a class called Analysis that
   # subclasses this one, beside the language's Spec. It declares the
   # analysis's version. Its stages and rules are classes inside it, in the
   # language's `analysis/` folder: a Normalise stage that only the analysis

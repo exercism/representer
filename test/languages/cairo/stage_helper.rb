@@ -13,7 +13,7 @@ module CairoStages
   # Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Cairo::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   def wrap(body) = "fn f(a: u32, b: u32) -> u32 {\n#{body}\n}\n"
 end

@@ -83,11 +83,6 @@ class ElixirTest < RepresenterTest
       "defmodule N do\n  @c 1\n  def g(d), do: @c + d\nend"
   end
 
-  def test_the_exercise_files_make_no_difference
-    assert_same_representation "defmodule M do\n  def f(x), do: x\nend", "defmodule M do\n  def g(x), do: x\nend",
-      exercise_files: { "m_test.exs" => "defmodule MTest do\n  test \"a\" do\n    assert M.f(1) == 1\n  end\nend" }
-  end
-
   def test_maps_are_sorted_and_keyword_lists_are_not
     assert_same_representation wrap("%{b: 1, a: 2}"), wrap("%{a: 2, b: 1}")
     refute_same_representation wrap("[b: 1, a: 2]"), wrap("[a: 2, b: 1]")

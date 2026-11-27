@@ -109,17 +109,26 @@ class ProcessRequestTest < Minitest::Test
     assert_equal "too_large", body["representation"]["error"]
   end
 
-  # A rule with a bug.
-  class Raising < Representer::Language
-    version 2
-    grammar "ruby"
-    extensions ".rb"
-    names :identifier
-    rewrite("(integer) @number") { |match| match.node.nonexistent }
+  # A language with a bug in a stage.
+  module Raising
+    class Spec < Representer::Engine::Language
+      grammar "ruby"
+      extensions ".rb"
+    end
+
+    class Representation < Representer::Engine::Representation
+      version 2
+    end
+
+    module Common
+      class Normalise < Representer::Engine::Stage
+        def call = tree.nonexistent
+      end
+    end
   end
 
   def test_an_error_in_a_rule_makes_the_solution_unrepresentable
-    Representer::Languages.register("raising", Raising)
+    Representer::Languages.register("raising", Raising::Spec)
     body = nil
     _, log = capture_io do
       body = JSON.parse(request(track_slug: "raising", exercise_slug: "leap", solution_files: { "a.rb" => "x = 1" })[:body])

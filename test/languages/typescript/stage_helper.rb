@@ -13,5 +13,5 @@ module TypeScriptStages
   # Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(TypeScript::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 end

@@ -86,11 +86,6 @@ class RustTest < RepresenterTest
     assert_same_representation format(code, "fmt"), format(code, "show")
   end
 
-  def test_names_the_tests_use_are_renamed
-    assert_same_representation "pub fn f() {}", "pub fn g() {}",
-      exercise_files: { "tests/t.rs" => "use p::*;\n#[test]\nfn t() { f(); }\n" }
-  end
-
   # A pattern names the variants it matches, so swapping them changes the
   # program.
   def test_swapping_the_variants_of_a_match_changes_the_result
@@ -105,11 +100,11 @@ class RustTest < RepresenterTest
   def test_files_in_other_formats_are_ignored
     code = "pub fn f() {}"
     assert_equal represent(code, filename: "src/lib.rs").representation,
-      Representer::RepresentSolution.(track, { "src/lib.rs" => code, "Cargo.toml" => "[package]\nname = \"p\"\n" }, {}).representation
+      Representer::RepresentSolution.(track, { "src/lib.rs" => code, "Cargo.toml" => "[package]\nname = \"p\"\n" }).representation
   end
 
   def test_a_solution_with_no_source_files
-    result = Representer::RepresentSolution.(track, { "Cargo.toml" => "[package]" }, {})
+    result = Representer::RepresentSolution.(track, { "Cargo.toml" => "[package]" })
     assert_nil result.representation
     assert_equal "no_source_files", result.reason
   end

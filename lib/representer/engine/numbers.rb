@@ -1,9 +1,9 @@
 module Representer::Engine
-  # Reads number literals, so that a language's rules can write every
-  # number in one canonical form (see Language.numbers). `1_000` and
+  # Reads number literals, so that a language's GenerateAST can write every
+  # number in one canonical form (see WriteNumbersAsValues). `1_000` and
   # `1000`, `0x10` and `16`, and `0.90` and `0.9` are the same number.
   #
-  # Each reader returns nil for text it doesn't understand, and the rule
+  # Each reader returns nil for text it doesn't understand, and the stage
   # then keeps the text as it is. So a spelling these readers don't know
   # can never merge with a different number.
   module Numbers

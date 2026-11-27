@@ -33,6 +33,6 @@ class AttachToEachFollowingTest < Minitest::Test
   LINES = ['(identifier /\A(private|public)\z/)'].freeze
 
   def mark(tree)
-    Representer::Engine::Serialize.(Representer::Engine::AttachToEachFollowing.(tree, LINES, ["(def)"]), nil)
+    Representer::Engine::Serialize.(Representer::Engine::AttachToEachFollowing.(tree, LINES, ["(def)"]))
   end
 end

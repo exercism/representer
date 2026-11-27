@@ -252,11 +252,6 @@ class ClojureTest < RepresenterTest
     refute_same_representation "(defn f [x] (.toUpperCase x))", "(defn f [x] (.toLowerCase x))"
   end
 
-  def test_names_the_tests_use_are_renamed
-    tests = { "f_test.clj" => "(ns f-test (:require f)) (is (= 1 (f/two-fer)))" }
-    assert_same_representation "(defn two-fer [] 1)", "(defn other [] 1)", exercise_files: tests
-  end
-
   def test_other_definitions_are_renamed
     assert_same_representation "(def limit 5) (declare helper) (defn f [x] (+ x limit))",
       "(def top 5) (declare other) (defn g [y] (+ y top))"

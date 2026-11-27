@@ -31,5 +31,5 @@ class AttachToNextTest < Minitest::Test
   end
 
   private
-  def attach(tree, past: []) = Representer::Engine::Serialize.(Representer::Engine::AttachToNext.(tree, ["(spec)"], past:), nil)
+  def attach(tree, past: []) = Representer::Engine::Serialize.(Representer::Engine::AttachToNext.(tree, ["(spec)"], past:))
 end

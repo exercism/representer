@@ -2,14 +2,13 @@
 
 The representer turns a student's solution into a normal form, so that two solutions with the same approach give the same output.
 To do this for a language, it needs to know a few things that only a person who knows the language can say: which names the solution defines, which code does nothing (such as comments and imports), and which spellings mean the same thing.
-A staged language says these things in a folder of small files of declarations, plus one file for each stage the language needs.
-Other languages still use the old rule DSL, described in the last section.
+A language says these things in a folder of small files of declarations, plus one file for each stage the language needs.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains how to add a language.
 
 ## What the engine does for every language
 
 The engine does the rest of the work.
-For every staged language, it does these things in order:
+For every language, it does these things in order:
 
 1. It ignores files without one of the language's extensions, and test and config files.
 2. It turns Windows line endings into plain line breaks, then parses each file with the language's grammar. If a file doesn't parse, the solution gets no representation.
@@ -23,9 +22,9 @@ For every staged language, it does these things in order:
 
 The snippet works on the grammar's own tree, before step 3.
 
-## How a staged language is laid out
+## How a language is laid out
 
-Each staged language has a folder of its own in `lib/representer/languages/`.
+Each language has a folder of its own in `lib/representer/languages/`.
 The folder's `spec.rb` says what the language is and how its files are read.
 Each output declares its own settings in a file beside it, and the stages sit in folders named after the outputs that need them:
 
@@ -407,9 +406,8 @@ So the exact pattern `def self.two_fer({{name}} = "you"); {{...}}; end` matches 
 
 The website shows the first lines of each solution on its card.
 Each track's `Snippet` class says what to leave out of them, so that the card shows the student's own code.
-A staged language keeps it in its folder, as `snippet.rb`, and its snippet reads the comments and docstrings declared in `spec.rb`.
-Every other track has a folder holding only `snippet.rb`, such as `lib/representer/languages/python/snippet.rb`.
-A language on the old structure puts its `Snippet` class inside its class, and a track with no class of its own starts with `tracks`.
+A language keeps it in its folder, as `snippet.rb`, and its snippet reads the comments and docstrings declared in `spec.rb`.
+A track with no language of its own can have a folder holding only `snippet.rb`, such as `lib/representer/languages/lean/snippet.rb`, which starts with `tracks`.
 A track with no snippet of its own gets Basic's, which removes the comments found by the track's Rouge lexer.
 
 ```ruby
@@ -437,10 +435,11 @@ The snippet has its own version, separate from the representation's, so a change
 ### remove
 
 `remove :comments` removes every comment, wherever it is.
-With a tree, a comment is any node with `comment` in its type, or a type listed in the Spec's `comments_are` (or, for a language on the old structure, in the snippet's `comment_types`).
+With a tree, a comment is any node with `comment` in its type, or a type listed in the Spec's `comments_are`.
 Without one, the engine finds the comments with the track's Rouge lexer, or with the markers given to `comment_lines`.
 
-`remove :docstrings` removes every docstring. A staged language says which code is a docstring in its Spec, with `docstrings_are`. A language on the old structure gives the snippet's `docstrings_are` a block, which receives a node and its parent.
+`remove :docstrings` removes every docstring. A language says which code is a docstring in its Spec, with `docstrings_are`.
+If a code pattern can't describe a language's docstrings, its snippet defines `self.docstring?(node, parent)` instead, as Python's does.
 
 ```ruby
 remove :comments, :docstrings
@@ -518,186 +517,4 @@ If the code is one token inside a larger node, such as the `readonly` of C#'s `r
 
 - If a node type that defines a name is missing from `names_are_defined_by`, the engine won't rename that name. Two solutions that differ only in the spelling of that name will then give different output. Check that every kind of definition in the language is listed.
 - Never list a block of statements in `sort`. Statements run in order, so sorting them changes what the program does. List only containers whose order makes no difference, such as a class's body or a hash.
-- A `rewrite` block that changes nothing must return nil. If it returns the node, the engine will treat the node as rewritten and match it again, and the rule will match the same node forever.
 - If a pattern doesn't match, check its shape with `./bin/inspect <track> <file>`. The pattern is parsed and run through `GenerateAST`, so it must match the tree after `GenerateAST`, which can differ from tree-sitter's tree.
-
-## The rule DSL for languages that aren't staged yet
-
-A language that isn't staged yet uses this DSL, until it becomes a staged language.
-Each one is a class in `lib/representer/languages/` that inherits from `Representer::Language`.
-It uses the setup declarations above, and lists drop, rewrite and rename rules.
-The engine parses the solution with the language's grammar, then applies the drop rules, then the rewrite rules, then the rename rules.
-The rules use the tree patterns and tree helpers described in [WRITING_GENERATE_AST.md](./WRITING_GENERATE_AST.md).
-
-### names
-
-A language lists the leaf types that hold names, which the rename rules may rename.
-A keyword argument gives a prefix that isn't part of the name.
-
-```ruby
-names :identifier, :constant, simple_symbol: ":"
-```
-
-### fold_names
-
-Some languages treat several spellings of a name as one name, such as Nim, where `my_var` and `myVar` are the same.
-The block takes a name and returns one canonical spelling of it.
-The engine treats names with the same canonical spelling as one name, so they get one placeholder.
-Names that the engine doesn't rename are written in their canonical spelling too.
-For each placeholder, the engine keeps the student's first spelling of the name.
-
-```ruby
-fold_names { |name| name.empty? ? name : name[0] + name[1..].delete("_").downcase }
-```
-
-### inherit
-
-A language that is a superset of another copies all of the other language's rules and names before its own rules.
-
-```ruby
-inherit JavaScript
-```
-
-### text_nodes
-
-Some nodes' text isn't made of their children, such as Gleam's module path `gleam/list`.
-The engine turns each node of these types into a leaf that holds its whole source text.
-
-```ruby
-text_nodes :module
-```
-
-### text_between_children
-
-Some nodes' children don't cover all of their text, such as Python's string contents around an escape.
-The engine keeps the text between the children of these types as "fragment" leaves.
-
-```ruby
-text_between_children :string_content
-```
-
-### syntax_check
-
-Some code is accepted by the grammar but rejected by the language, such as Python 2's `print "x"`.
-The block receives the source and the tree, and returns a message if the code is invalid.
-The solution then gets no representation.
-
-```ruby
-syntax_check { |source, _tree| "Python 2 print" if source.match?(/^print "/) }
-```
-
-### drop
-
-The engine removes every node that matches the pattern.
-The optional `where:` block receives the match and says whether the rule applies.
-
-```ruby
-drop "(comment)"
-```
-
-### drop_tokens
-
-The engine leaves these anonymous tokens (keywords and punctuation) out of the tree.
-A language drops a token only if the node around it already says everything the token says.
-
-```ruby
-drop_tokens "(", ")", ",", ";"
-```
-
-### keep_tokens_in
-
-Some dropped tokens are the only thing that tells two programs apart in one node type.
-The engine keeps them in that type.
-
-```ruby
-keep_tokens_in :delete_expression, "[", "]"
-```
-
-### rewrite
-
-The engine replaces each node that matches the pattern, starting with the innermost code and working outwards, and again on its own results.
-A rule gives either a template or a block.
-The block receives the match and returns the replacement node, or nil to leave the node.
-If a block changes the matched node in place, it must return that node, and it must return nil if it changed nothing. Otherwise the rule will keep matching the same node.
-
-```ruby
-rewrite "(if_modifier body: (_) @body condition: (_) @condition)",
-  "(if condition: @condition consequence: (then @body))"
-```
-
-### numbers
-
-The engine writes every number leaf of these types in one form.
-The block receives the number's text and returns its canonical text, or nil to keep the text.
-`Engine::Numbers` has readers for integers and decimals, and writers for their values.
-A language gives two spellings one form only if it reads them as the same value of the same type.
-
-```ruby
-numbers(:integer) { |text| Engine::Numbers.integer(text)&.to_s }
-```
-
-### retype
-
-The engine gives nodes of one type another type, for two spellings with the same meaning.
-
-```ruby
-retype do_block: :block
-```
-
-### unwrap
-
-The engine replaces a node that has exactly one named child with that child, for brackets that only group.
-
-```ruby
-unwrap :parenthesized_statements
-```
-
-### rename
-
-Each rename pattern captures the name's leaf as `@name`.
-Renamed names become `PLACEHOLDER_1`, `PLACEHOLDER_2` and so on, in the order they first appear.
-A name gets the same placeholder everywhere.
-The exception is a name that a rewrite gave a scope, by setting `leaf.scope = node` (where `node` is the node that declares the name, such as a method).
-The same name in two different scopes then gets two different placeholders, so the numbers don't depend on whether two methods happen to use the same name for their locals.
-
-`rename` marks a name defined by the student for a local variable or parameter.
-The engine renames it everywhere except after a dot.
-
-```ruby
-rename "(assignment left: (identifier) @name)"
-```
-
-### rename_member
-
-`rename_member` marks a name defined by the student for a method, function, property, class or constant.
-The engine renames it everywhere, including after a dot.
-
-```ruby
-rename_member "(method name: (_) @name)"
-```
-
-### member
-
-`member` marks a name used after a dot, or anywhere else that refers to a member of another object.
-The engine renames it only if the solution defines a member with that name.
-
-```ruby
-member "(call receiver: (_) method: (_) @name)"
-```
-
-### keep
-
-`keep` marks names that the engine never renames, given as the names themselves or as a pattern that captures `@name`.
-
-```ruby
-keep "initialize", "(keyword_parameter name: (identifier) @name)"
-```
-
-### Helpers for rewrite blocks
-
-A rewrite block builds nodes with `build`, `leaf`, `literal`, `token` and `copy`, as in the tree helpers in [WRITING_GENERATE_AST.md](./WRITING_GENERATE_AST.md).
-It reads the match with `match.node` (the matched node) and `match[:name]` (the node captured as `name`).
-
-```ruby
-rewrite("(hash_key_symbol) @key") { |match| leaf(:simple_symbol, ":#{match[:key].text}") }
-```

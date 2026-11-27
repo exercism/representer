@@ -1,13 +1,17 @@
 module Representer::Engine
-  # Operations on a syntax tree, for the stage classes of a staged language
-  # (see Engine::Stage). Each stage includes this module, and calls these
+  # A match of a pattern: match.node is the matched node, and match[:name]
+  # the node captured as `name`.
+  Match = Struct.new(:node, :captures) do
+    def [](name) = captures[name.to_s]
+  end
+
+  # Operations on a syntax tree, for a language's stage classes (see
+  # Engine::Stage). Each stage includes this module, and calls these
   # methods in its own order.
   #
   # Methods that take a pattern accept the pattern syntax in
   # Engine::Pattern, or a CodePattern, and templates use the syntax in
   # Engine::Template.
-  # A match is a Language::Match: match.node is the matched node, and
-  # match[:name] a capture.
   #
   # Each method visits a node once, so a rule can't match its own output
   # and loop. A method that can replace the root returns the new root.
@@ -36,7 +40,7 @@ module Representer::Engine
         next unless Representer::Engine.could_match?(pattern, node.type)
 
         captures = pattern.match(node)
-        matches << Representer::Language::Match.new(node, captures) if captures
+        matches << Match.new(node, captures) if captures
       end
       matches
     end
@@ -62,7 +66,7 @@ module Representer::Engine
         next unless Representer::Engine.could_match?(pattern, node.type)
 
         captures = pattern.match(node)
-        replacement = captures && block.(Representer::Language::Match.new(node, captures))
+        replacement = captures && block.(Match.new(node, captures))
         next if replacement.nil? || replacement.equal?(node)
         return replacement if parent.nil?
 
@@ -146,14 +150,6 @@ module Representer::Engine
       return node.text if node.leaf?
 
       node.children.sum("") { |child| text_of(child) }
-    end
-
-    ### Names ###
-
-    # The names held by the leaves captured as @name by the patterns.
-    def names_in(trees, language, *pattern_sources)
-      leaves = pattern_sources.flat_map { |source| trees.flat_map { |tree| captured(tree, source) } }
-      leaves.select(&:leaf?).to_set { |leaf| leaf.text.delete_prefix(language.names.fetch(leaf.type, "")) }
     end
 
     private

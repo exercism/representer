@@ -83,13 +83,6 @@ class CSharpTest < RepresenterTest
     refute_same_representation wrap("var (a, b) = (1, 2); return a - b;"), wrap("var (a, b) = (1, 2); return b - a;")
   end
 
-  def test_the_exercise_files_make_no_difference
-    tests = { "LeapTests.cs" => "public class LeapTests { [Fact] public void T() => Assert.True(Leap.IsLeapYear(2000)); }" }
-    result = represent("public static class Leap { public static bool IsLeapYear(int year) => year % 4 == 0; }",
-      filename: "Leap.cs", exercise_files: tests)
-    assert_equal %w[Leap IsLeapYear year], result.mapping.values
-  end
-
   def test_syntax_errors_are_unrepresentable_with_the_csharp_version
     result = represent("public class {")
     assert_nil result.representation

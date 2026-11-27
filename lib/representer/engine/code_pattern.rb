@@ -1,6 +1,6 @@
 module Representer::Engine
   # A code pattern is a pattern written as code in the language itself,
-  # such as Ruby's `require "{{...}}"`. A staged language lists its
+  # such as Ruby's `require "{{...}}"`. A language lists its
   # imports and its Normalise rules as code patterns, so each one reads as
   # the code it is about.
   #

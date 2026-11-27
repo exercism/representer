@@ -52,8 +52,8 @@ class JavaTest < RepresenterTest
       end
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("java", inputs, {})
-      assert_equal Representer::RepresentSolution.("java", equivalents, {}).representation, actual.representation
+      actual = Representer::RepresentSolution.("java", inputs)
+      assert_equal Representer::RepresentSolution.("java", equivalents).representation, actual.representation
       assert_equal mapping.values.uniq.sort, actual.mapping.values.uniq.sort
     end
   end
@@ -99,12 +99,6 @@ class JavaTest < RepresenterTest
     assert_same_representation "class A { void f() { g(this::h); } void h() {} }", "class B { void i() { g(this::j); } void j() {} }"
     assert_same_representation "record P(int x) { int twice() { return x * 2; } }",
       "record Q(int y) { int double2() { return y * 2; } }"
-  end
-
-  def test_the_exercise_files_make_no_difference
-    tests = { "LeapTest.java" => "class LeapTest { void t() { new Leap().isLeapYear(2000); } }" }
-    result = represent("class Leap { boolean isLeapYear(int year) { return true; } }", filename: "Leap.java", exercise_files: tests)
-    assert_equal %w[Leap isLeapYear year], result.mapping.values
   end
 
   def test_syntax_errors_are_unrepresentable_with_the_java_version

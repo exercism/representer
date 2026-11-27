@@ -1,5 +1,5 @@
 module Representer::Engine
-  # Analyses a solution in a staged language, and returns the comments of
+  # Analyses a solution in its language, and returns the comments of
   # the exercise's rules (see AnalysisRules). An exercise with no rules gets
   # no comments.
   #

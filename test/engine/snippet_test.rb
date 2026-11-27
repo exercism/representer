@@ -192,7 +192,7 @@ class SnippetTest < Minitest::Test
     assert_equal "pub fn f() void {}\n", snippet("const std = @import(\"std\");\n\npub fn f() void {}\n", track: "zig")
   end
 
-  ### Tracks with no class of their own ###
+  ### Tracks with no language of their own ###
 
   def test_removes_the_comments_found_by_the_lexer
     code = "// A comment\n#include <stdio.h>\n\nint main() { return 0; } /* The end */\n#include <math.h>\n"
@@ -253,7 +253,7 @@ class SnippetTest < Minitest::Test
     assert_raises(ArgumentError) { Class.new(Representer::Engine::Snippet).remove(:strings) }
   end
 
-  def test_a_staged_language_parses_the_main_file_once_for_the_snippet_and_the_representation
+  def test_the_main_file_is_parsed_once_for_the_snippet_and_the_representation
     source = "# A comment\nx = 1\n"
     parses = 0
     counting = Module.new do
@@ -286,7 +286,7 @@ class SnippetTest < Minitest::Test
     assert_equal Representer::Languages::Ruby::Snippet.version, output[:snippet][:version]
   end
 
-  def test_a_staged_language_reads_its_comments_and_docstrings_from_its_spec
+  def test_a_language_reads_its_comments_and_docstrings_from_its_spec
     fsharp = "module Leap\n/// Says whether the year is a leap year.\nlet leap year = true\n"
     assert_equal "let leap year = true\n", snippet({ "Leap.fs" => fsharp }, track: "fsharp")
     elixir = "defmodule Leap do\n  @doc false\n  def leap?(year), do: true\nend\n"

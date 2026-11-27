@@ -44,8 +44,7 @@ class TypeScriptTest < RepresenterTest
 
   def test_exported_names_are_renamed
     assert_same_representation "export interface Shape { a: number }", "export interface Form { a: number }"
-    tests = { "two-fer.test.ts" => "import { twoFer } from './two-fer'\ntwoFer()" }
-    assert_same_representation "export function twoFer() {}", "export function twoMore() {}", exercise_files: tests
+    assert_same_representation "export function twoFer() {}", "export function twoMore() {}"
   end
 
   def test_enum_names_are_renamed
@@ -60,12 +59,6 @@ class TypeScriptTest < RepresenterTest
 
   def test_library_calls_stay_apart
     refute_same_representation "export const f = (s: string) => s.toUpperCase()", "export const f = (s: string) => s.toLowerCase()"
-  end
-
-  def test_names_in_the_tests_are_renamed
-    tests = { "two-fer.test.ts" => "import { twoFer } from './two-fer';\ntest('x', () => expect(twoFer()).toEqual('x'));" }
-    result = represent("export const twoFer = (name: string = 'you'): string => name", filename: "two-fer.ts", exercise_files: tests)
-    assert_equal %w[twoFer name], result.mapping.values
   end
 
   def test_syntax_errors_are_unrepresentable_with_the_typescript_version

@@ -13,7 +13,7 @@ module ElmStages
   # Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Elm::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   # The code as the body of a function in a module.
   def wrap(body) = "module M exposing (f)\n\nf x y =\n#{body.gsub(/^/, '    ')}\n"

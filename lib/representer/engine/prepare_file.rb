@@ -1,5 +1,5 @@
 module Representer::Engine
-  # Turns one file of a staged language into the tree seen by
+  # Turns one file of a solution into the tree seen by
   # RenameUserDefinedNodes. It parses the source (unless it is given the
   # tree already made from it by the grammar), and runs the language's
   # common GenerateAST and Normalise stages on it. Then it drops the

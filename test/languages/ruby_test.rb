@@ -77,14 +77,6 @@ class RubyTest < RepresenterTest
     assert_same_representation "total = 0\nxs.map(&:total)", "acc = 0\nxs.map(&:acc)"
   end
 
-  def test_the_exercise_files_make_no_difference
-    tests = { "two_fer_test.rb" => "class TwoFerTest\n  def test_x\n    assert_equal 'x', TwoFer.two_fer\n  end\nend" }
-    source = "class TwoFer\n  def self.two_fer(who) = who\nend"
-    result = represent(source, filename: "two_fer.rb", exercise_files: tests)
-    assert_equal %w[TwoFer two_fer who], result.mapping.values
-    assert_equal represent(source, filename: "two_fer.rb").representation, result.representation
-  end
-
   ### Unrepresentable solutions ###
 
   def test_syntax_errors_are_unrepresentable_with_the_ruby_version

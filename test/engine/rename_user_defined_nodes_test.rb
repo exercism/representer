@@ -45,6 +45,6 @@ class RenameUserDefinedNodesTest < Minitest::Test
   def represent(tree)
     Representer::Engine::RenameUserDefinedNodes.([tree], ToyLanguage::Representation)
     @mapping = Representer::Engine::NumberPlaceholders.(tree, ToyLanguage::Representation)
-    Representer::Engine::Serialize.(tree, nil)
+    Representer::Engine::Serialize.(tree)
   end
 end

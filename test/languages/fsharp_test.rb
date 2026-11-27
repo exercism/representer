@@ -64,11 +64,6 @@ class FSharpTest < RepresenterTest
     assert_same_representation wrap(format(code, "Total")), wrap(format(code, "Amount"))
   end
 
-  def test_names_the_tests_use_are_renamed
-    assert_same_representation wrap("let f x = x"), wrap("let g x = x"),
-      exercise_files: { "Tests.fs" => "module T\nlet t = f 1\n" }
-  end
-
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "module M\nlet f = = =\n"
   end

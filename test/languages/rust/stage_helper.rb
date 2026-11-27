@@ -13,7 +13,7 @@ module RustStages
   # Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Rust::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   def wrap(body) = "fn f() {\n#{body}\n}\n"
 end

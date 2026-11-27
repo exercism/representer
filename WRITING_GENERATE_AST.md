@@ -3,7 +3,7 @@
 Run `./bin/inspect <track> <file>` to see the node types and field names to use in your patterns.
 It prints tree-sitter's tree for the file, with each node's type, field names and tokens.
 
-`GenerateAST` is the first stage of a staged language (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md)), in the language's `common/generate_ast.rb`.
+`GenerateAST` is the first stage of every language (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md)), in the language's `common/generate_ast.rb`.
 It turns tree-sitter's tree into the tree that the language's own parser would give, such as Ruby's `parser` gem or Elixir's `Code.string_to_quoted`.
 Later stages then see the same tree for the same meaning.
 

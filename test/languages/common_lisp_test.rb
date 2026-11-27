@@ -49,12 +49,6 @@ class CommonLispTest < RepresenterTest
     refute_same_representation "(make-array 3 :initial-element 0)", "(make-array 3 :element-type 0)"
   end
 
-  def test_names_used_by_the_tests_are_renamed_too
-    tests = { "two-fer-test.lisp" => "(in-package :two-fer-test)\n(is (equal (two-fer:twofer) 1))" }
-    assert_same_representation "(defpackage :two-fer (:export :twofer))\n(defun twofer () 1)",
-      "(defpackage :two-fer (:export :other))\n(defun other () 1)", exercise_files: tests
-  end
-
   def test_structures_and_classes
     assert_same_representation "(defstruct point x y) (point-x (make-point :x 1))",
       "(defstruct pt x y) (point-x (make-point :x 1))"

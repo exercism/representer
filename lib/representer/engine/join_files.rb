@@ -3,23 +3,21 @@ module Representer::Engine
   # their code, so the files' names and order never change the
   # representation.
   #
-  # It writes each tree out with every name that will be renamed left
-  # blank, and sorts the trees by that. Trees that are the same apart from
-  # those names are sorted by the names as written. A staged language
-  # marks those names on the leaves (see RenameUserDefinedNodes), and
-  # another language gives them as names (see Names).
+  # It writes each tree out with every renamed name left blank (see
+  # RenameUserDefinedNodes), and sorts the trees by that. Trees that are
+  # the same apart from those names are sorted by the names as written.
   #
-  # A rule may have replaced a file's root, so such a file joins as one
+  # A stage may have replaced a file's root, so such a file joins as one
   # child.
   class JoinFiles
     include Mandate
 
-    initialize_with :trees, :root_type, :names
+    initialize_with :trees, :root_type
 
     def call
       return trees.first if trees.one?
 
-      sorted = trees.sort_by { |tree| [Serialize.(tree, names, blank: true), Serialize.(tree, nil)] }
+      sorted = trees.sort_by { |tree| [Serialize.(tree, blank: true), Serialize.(tree)] }
       Node.new(root_type, sorted.flat_map { |tree| tree.type == root_type ? tree.children : [tree] })
     end
   end

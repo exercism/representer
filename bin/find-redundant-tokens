@@ -2,15 +2,16 @@
 
 # Synopsis:
 # List the anonymous tokens that survive in a language's trees, to find
-# tokens that drop_tokens could drop.
+# tokens that strip_tokens could strip.
 
 # Arguments:
-# $1: track slug (optional, defaults to every language with a class)
+# $1: track slug (optional, defaults to every language)
 # $2...: extra source files to include
 
 # Output:
 # For each language, every anonymous token left in the trees of its test
-# fixtures and request tests, grouped by the type of the token's parent
+# fixtures and request tests after the stages that each file goes through
+# (see Engine::PrepareFile), grouped by the type of the token's parent
 # node, with counts.
 
 # Example:
@@ -34,18 +35,15 @@ languages.group_by { |_, language| language }.each do |language, entries|
     end
     Dir[File.join(root, "tests", slug, "*/request.json")].each do |path|
       request = JSON.parse(File.read(path))
-      request.values_at("solution_files", "exercise_files").compact.each do |files|
-        files.each { |name, source| sources << source if language.source_file?(name) }
-      end
+      request.fetch("solution_files", {}).each { |name, source| sources << source if language.source_file?(name) }
     end
   end
 
   sources.concat(extra_files.select { |path| language.source_file?(path) }.map { |path| File.read(path) })
 
   counts = Hash.new(0)
-  instance = Representer::Engine::Represent.new(language, {}, {})
   sources.each do |source|
-    tree = instance.send(:prepare, source)
+    tree = Representer::Engine::PrepareFile.(language, source)
     stack = [tree]
     until stack.empty?
       node = stack.pop

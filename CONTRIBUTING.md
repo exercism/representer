@@ -114,7 +114,6 @@ Never use a deviation to hide a merge that the old representer kept apart.
 ## 3. Declare the names and write the stages
 
 [REPRESENTER_DSL.md](./REPRESENTER_DSL.md) defines every declaration and verb used in this step.
-The other languages still use the older rule DSL, described at the end of that file, until they move to stages.
 
 ### The rules for every language
 
@@ -405,7 +404,7 @@ module Representer::Languages::Ruby
 end
 ```
 
-A staged language's snippet reads the comments and docstrings declared in `spec.rb`, so `remove :comments, :docstrings` needs nothing else.
+A language's snippet reads the comments and docstrings declared in `spec.rb`, so `remove :comments, :docstrings` needs nothing else.
 [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#snippets) explains every declaration.
 To choose the words, look at the start of the track's example solutions.
 Add a test to [`test/engine/snippet_test.rb`](./test/engine/snippet_test.rb) for anything unusual, and run the track's request tests, whose expected responses include the snippet.
@@ -424,7 +423,7 @@ A new language starts at version 2, because the old per-track representers all r
 Bump the representation's version whenever its output could change for any solution: a change to a stage, a rule or the names, or a new grammar commit.
 The website will then represent the track's solutions again.
 
-Basic has its own version, which only covers the tracks with no class of their own.
+Basic has its own version, which only covers the tracks with no representer of their own.
 
 ## How the code is organised
 
@@ -435,7 +434,6 @@ Each command has a unit test file of its own, named after it, such as `test/engi
 The tests check the command on small trees, apart from any language where they can.
 
 Every file uses the compact module form, such as `module Representer::Engine` or `module Representer::Languages::Ruby`, and never nested modules.
-The languages still on the old structure use nested modules until they move to stages.
 
 Write new code this way, and convert older code to it when you change that code.
 
@@ -443,7 +441,7 @@ Write new code this way, and convert older code to it when you change that code.
 
 If a change only touches comments, docs or the Rubocop config, run `bundle exec rubocop --except Metrics` and skip the tests.
 
-If a change only touches one language's files (its class or its folder, its grammar's pin or its golden data), run only that language's tests:
+If a change only touches one language's files (its folder, its grammar's pin or its golden data), run only that language's tests:
 
 ```shell
 ./bin/run-tests.sh ruby

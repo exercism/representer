@@ -77,8 +77,8 @@ class PHPTest < RepresenterTest
       "Leap.php" => "<?php\nclass C0\n{\n    public static function m0($v0)\n    {\n" \
                     "        return C1::m1($v0, 4) === 0;\n    }\n}\n"
     }
-    actual = Representer::RepresentSolution.("php", input, {})
-    assert_equal actual.representation, Representer::RepresentSolution.("php", equivalent, {}).representation
+    actual = Representer::RepresentSolution.("php", input)
+    assert_equal actual.representation, Representer::RepresentSolution.("php", equivalent).representation
     assert_equal ["$x", "$y", "$year", "Helpers", "Leap", "isLeapYear", "mod"], actual.mapping.values.sort
   end
 
@@ -137,12 +137,6 @@ class PHPTest < RepresenterTest
   def test_a_variable_named_like_a_function
     assert_same_representation "<?php\nfunction f($a) { $max = max($a); }", "<?php\nfunction f($b) { $min = max($b); }"
     refute_same_representation "<?php\nfunction f($a) { $max = max($a); }", "<?php\nfunction f($a) { $max = min($a); }"
-  end
-
-  def test_the_exercise_files_make_no_difference
-    tests = { "LeapTest.php" => "<?php\nrequire 'Leap.php';\nclass LeapTest { function t() { isLeap(2000); } }" }
-    result = represent("<?php\nfunction isLeap($year) { return $year % 4 == 0; }", filename: "Leap.php", exercise_files: tests)
-    assert_equal ["$year", "isLeap"], result.mapping.values.sort
   end
 
   def test_syntax_errors_are_unrepresentable_with_the_php_version

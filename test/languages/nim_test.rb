@@ -60,11 +60,6 @@ class NimTest < RepresenterTest
     assert_same_representation "proc sum(a: seq[int]): int = a.sum", "proc max(a: seq[int]): int = a.max"
   end
 
-  def test_names_the_tests_use_are_renamed
-    tests = { "f_test.nim" => "import f\ncheck twoFer() == 1" }
-    assert_same_representation "proc twoFer(): int = 1", "proc other(): int = 1", exercise_files: tests
-  end
-
   def test_the_mapping_gives_each_name_in_one_spelling
     assert_equal %w[helloworld a], represent("proc helloWorld(a: int): int = a\necho hello_WORLD(1)").mapping.values
   end

@@ -32,6 +32,6 @@ class Representer::Languages::Crystal::Representation
 
     # Sort by the code, with every renamed name left blank, so two solutions
     # that only name things differently get the same order.
-    def key(node) = Representer::Engine::Serialize.(Representer::Engine::Node.new("key", [node]), nil, blank: true)
+    def key(node) = Representer::Engine::Serialize.(Representer::Engine::Node.new("key", [node]), blank: true)
   end
 end

@@ -1,177 +1,51 @@
 module Representer::Engine
-  # Represents one solution with one language's rules (see Language). A
-  # staged language's solution goes to RepresentWithStages instead.
+  # Represents the source files of a solution in one language (see
+  # Engine::Language). It only represents the solution files that have one
+  # of the language's extensions and aren't test or config files, as the
+  # website also sends files such as Rust's Cargo.toml.
   #
-  # Only the solution files with one of the language's extensions are
-  # represented, as the website also sends files such as Rust's Cargo.toml.
-  # The files are joined into one tree, and their names are never part of
-  # the representation.
+  # 1. PrepareFile parses each file (unless trees holds its tree already)
+  #    and runs the common stages and the representation's Normalise
+  #    stage on it.
+  # 2. RenameUserDefinedNodes marks every name the solution defines, in
+  #    all the files together.
+  # 3. JoinFiles joins the files into one tree, so the files' names are
+  #    never part of the representation.
+  # 4. The representation's Reorder stage runs on the joined tree, if the
+  #    language defines one.
+  # 5. NumberPlaceholders numbers the marked names, and Serialize writes
+  #    the tree out.
   #
-  # Raises CannotRepresent if the solution has no such file, if a file
-  # can't be parsed, or if the rules hit one of the engine's limits (see
-  # MAX_REWRITES_PER_NODE and MAX_SECONDS). The solution then gets no
-  # representation.
+  # Raises CannotRepresent if the solution has no source file, or if a file
+  # doesn't parse. The solution then gets no representation.
   class Represent
     include Mandate
 
     # trees holds files already parsed by the grammar, by filename (see
-    # RepresentSolution). Only a staged language uses them.
-    initialize_with :language, :solution_files, :exercise_files, trees: {}
+    # RepresentSolution).
+    initialize_with :language, :solution_files, trees: {}
 
     def call
-      @deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + Representer::MAX_SECONDS
-      sources = solution_files.select { |filename, _| language.source_file?(filename) && !Representer::Engine.test_or_config_file?(filename) }
       if sources.empty?
         raise Representer::CannotRepresent.new("no_source_files",
           "No solution file has one of the extensions #{language.extensions.join(', ')}")
       end
 
-      return RepresentWithStages.(language, sources.values, parsed: trees.values_at(*sources.keys)) if language.staged?
-
-      trees = sources.values.map { |source| prepare(source) }
-      tree = merge(trees)
-      names = Names.new(language, [tree], required_names)
-      result(tree, names)
+      prepared = sources.map { |filename, source| PrepareFile.(language, source, tree: trees[filename]) }
+      representation = language.representation
+      RenameUserDefinedNodes.(prepared, representation)
+      tree = JoinFiles.(prepared, prepared.first.type)
+      tree = representation.run_stage(:Reorder, tree)
+      mapping = NumberPlaceholders.(tree, representation)
+      Result.new(representation: Serialize.(tree), mapping:, version: representation.version, representer: language)
     end
 
     private
-    # Parses the source and applies the language's drop and rewrite rules.
-    def prepare(source)
-      tree = parse(source)
-      @root_type = tree.type
-      drop(tree)
-      rewrite(tree)
-    end
-
-    def result(tree, names)
-      Result.new(representation: Serialize.(tree, names), mapping: names.mapping, version: language.version,
-        representer: language)
-    end
-
-    def parse(source)
-      source = Representer::Engine.clean(source)
-      tree = Grammar[language.grammar].parse(source, **language.parse_options)
-      language.syntax_checks.each do |check|
-        problem = check.(source, tree)
-        raise Representer::CannotRepresent.new("parse_error", problem) if problem
-      end
-      tree
-    end
-
-    # Joins the files' trees into one (see JoinFiles) and applies the
-    # rewrite rules to the whole, so the rules for a whole file (such as
-    # one that sorts its declarations) run on all of the solution's code.
-    # Splitting code across files then changes the representation as
-    # little as possible.
-    def merge(trees)
-      return trees.first if trees.one?
-
-      rewrite(JoinFiles.(trees, @root_type, Names.new(language, trees, required_names)))
-    end
-
-    def drop(root)
-      stack = [root]
-      until stack.empty?
-        node = stack.pop
-        node.children.reject! { |child| rules_for(language.drop_rules, child).any? { |rule| rule.match(child) } }
-        stack.concat(node.children)
-      end
-    end
-
-    # Applies the rewrite rules from the leaves up. When a rule replaces a
-    # node, the rules run again on the replacement (and its children), so a
-    # rule's output is always fully rewritten. The rewrites of a node and
-    # of the nodes that replace it count together, so two rules that undo
-    # each other hit MAX_REWRITES_PER_NODE too.
-    def rewrite(node, rewrites = 0)
-      node.children.map! do |child|
-        rewritten = rewrite(child)
-        rewritten.field = child.field
-        rewritten
-      end
-
-      loop do
-        check_time
-        replacement = apply_first_rewrite(node)
-        return node if replacement.nil?
-
-        rewrites += 1
-        if rewrites > Representer::MAX_REWRITES_PER_NODE
-          raise Representer::CannotRepresent.new("too_complex",
-            "Rewrite rules keep matching #{node.type} in #{language.name}. A rule's output must not match its own pattern.")
-        end
-
-        replacement.field = node.field
-        return rewrite(replacement, rewrites) unless replacement.equal?(node)
-      end
-    end
-
-    def check_time
-      return if Process.clock_gettime(Process::CLOCK_MONOTONIC) < @deadline
-
-      raise Representer::CannotRepresent.new("too_complex", "The rules took more than #{Representer::MAX_SECONDS} seconds")
-    end
-
-    # Runs the first rule that matches the node and changes it (a rule's
-    # block can return nil to say it changed nothing), and returns the
-    # node's replacement. Returns nil if no rule changed the node.
-    def apply_first_rewrite(node)
-      rules_for(language.rewrite_rules, node).each do |rule|
-        match = rule.match(node)
-        replacement = match && rule.action.(match)
-        return replacement if replacement
-      end
-      nil
-    end
-
-    # The rules worth trying on a node: those whose pattern starts with the
-    # node's type, plus those that can start with anything, in the order
-    # the language lists them.
-    def rules_for(rules, node)
-      @rule_index ||= {}
-      @rule_index[[rules.object_id, node.type]] ||= rules.select { |rule| Representer::Engine.could_match?(rule.pattern, node.type) }
-    end
-
-    # Names that the exercise fixes: every name in the tests (and any other
-    # exercise file that isn't the stub), and the members that the stub
-    # defines. Exercise files that don't parse are ignored. A test's names
-    # are read before the rules drop anything too, so a name that only
-    # appears in a test's import (`use TwoFer;`) still counts.
-    #
-    # A stub is a file that `.meta/config.json` lists as a solution file, or
-    # that has the name of one of the student's files. So a student who
-    # names their file differently from the stub keeps only the stub's
-    # members, and not every name in it.
     memoize
-    def required_names
-      names = Set.new
-      exercise_files.each do |filename, source|
-        next if filename.start_with?(".") || !language.source_file?(filename)
-
-        begin
-          tree = prepare(source)
-        rescue Representer::CannotRepresent
-          next
-        end
-
-        if stub?(filename)
-          names.merge(Names.new(language, [tree], Set.new).member_defs)
-        else
-          [tree, parse(source)].each { |names_tree| Names.each_name(language, names_tree) { |_leaf, name| names << name } }
-        end
+    def sources
+      solution_files.select do |filename, _|
+        language.source_file?(filename) && !Representer::Engine.test_or_config_file?(filename)
       end
-      names
-    end
-
-    def stub?(filename) = solution_files.key?(filename) || stub_names.include?(filename)
-
-    memoize
-    def stub_names
-      config = JSON.parse(exercise_files.fetch(".meta/config.json", "{}"))
-      listed = config.is_a?(Hash) && config["files"].is_a?(Hash) ? config["files"]["solution"] : nil
-      Array(listed).grep(String).to_set
-    rescue JSON::ParserError
-      Set.new
     end
   end
 

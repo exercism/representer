@@ -12,9 +12,7 @@ module Representer::Languages::Factor
     # reads them as words. The files are parsed again, because any trees
     # already parsed still hold the comments.
     # : f ( -- n ) 1 ; ! The answer  ->  : f ( -- n ) 1 ;
-    def self.call(solution_files, exercise_files, **)
-      super(solution_files.transform_values { |source| without_comments(source) }, exercise_files)
-    end
+    def self.call(solution_files, **) = super(solution_files.transform_values { |source| without_comments(source) })
 
     def self.without_comments(source)
       Representer::Engine.clean(source).gsub(COMMENTS) { |match| match.start_with?('"') ? match : "" }

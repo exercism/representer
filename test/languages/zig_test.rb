@@ -30,15 +30,6 @@ class ZigTest < RepresenterTest
     refute_same_representation wrap("return @abs(x);"), wrap("return @min(x, 1);")
   end
 
-  def test_the_exercise_files_make_no_difference
-    files = {
-      "test_leap.zig" => "const leap = @import(\"leap.zig\");\ntest \"a\" { _ = leap.isLeapYear(1); }",
-      "leap.zig" => "pub fn isLeapYear(year: u32) bool {\n    _ = year;\n    @compileError(\"x\");\n}\n"
-    }
-    assert_same_representation "pub fn isLeapYear(y: u32) bool { return y == 1; }",
-      "pub fn other(year: u32) bool { return year == 1; }", exercise_files: files
-  end
-
   def test_things_that_must_stay_apart
     refute_same_representation wrap("return x + 1;"), wrap("return x - 1;")
     refute_same_representation wrap("return x | 1;"), wrap("return x & 1;")

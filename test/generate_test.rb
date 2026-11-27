@@ -23,6 +23,12 @@ class GenerateTest < Minitest::Test
                    version: Representer::Languages::Ruby::Representation.version }, output)
   end
 
+  def test_the_exercise_files_make_no_difference_to_the_representation
+    solution = { "two_fer.rb" => "class TwoFer\n  def self.two_fer(who) = who\nend" }
+    tests = { "two_fer_test.rb" => "class TwoFerTest\n  def test_x = assert_equal('x', TwoFer.two_fer('x'))\nend" }
+    assert_equal generate(%i[representation], solution), generate(%i[representation], solution, exercise_files: tests)
+  end
+
   def test_exercise_files_over_their_limit_make_the_representation_too_large
     tests = { "t.rb" => "x" * (Representer::MAX_EXERCISE_BYTES + 1) }
     assert_equal "too_large", generate(%i[representation], exercise_files: tests)[:representation][:error]

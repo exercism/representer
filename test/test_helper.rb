@@ -9,9 +9,7 @@ class RepresenterTest < Minitest::Test
   def self.track(slug = nil) = slug ? @track = slug : @track
   def track = self.class.track
 
-  def represent(code, filename: default_filename, exercise_files: {})
-    Representer::RepresentSolution.(track, { filename => code }, exercise_files)
-  end
+  def represent(code, filename: default_filename) = Representer::RepresentSolution.(track, { filename => code })
 
   # A solution file with the language's first extension, as the engine
   # ignores files with other extensions.
@@ -97,7 +95,7 @@ module UpstreamTests
 
       if test_case.deviation[:unrepresentable]
         define_method("test_upstream_#{test_case.name}_is_unrepresentable") do
-          result = Representer::RepresentSolution.(track, test_case.solution_files, {})
+          result = Representer::RepresentSolution.(track, test_case.solution_files)
           assert_nil result.representation
           assert_equal "parse_error", result.reason
         end
@@ -106,14 +104,14 @@ module UpstreamTests
 
       define_method("test_upstream_#{test_case.name}_equivalence") do
         filename = test_case.solution_files.keys.first
-        expected = Representer::RepresentSolution.(track, { filename => test_case.equivalent }, {})
-        actual = Representer::RepresentSolution.(track, test_case.solution_files, {})
+        expected = Representer::RepresentSolution.(track, { filename => test_case.equivalent })
+        actual = Representer::RepresentSolution.(track, test_case.solution_files)
         assert_equal expected.representation, actual.representation
         refute_nil actual.representation, "#{test_case.name} has no representation (#{actual.reason})"
       end
 
       define_method("test_upstream_#{test_case.name}_mapping") do
-        actual = Representer::RepresentSolution.(track, test_case.solution_files, {})
+        actual = Representer::RepresentSolution.(track, test_case.solution_files)
         assert_equal test_case.mapping_names.uniq.sort, actual.mapping.values.uniq.sort
       end
     end
@@ -121,7 +119,7 @@ module UpstreamTests
     define_method(:test_upstream_distinctness) do
       represented = cases.reject { |test_case| test_case.deviation[:unrepresentable] }
       representations = represented.to_h do |test_case|
-        [test_case.name, Representer::RepresentSolution.(track, test_case.solution_files, {}).representation]
+        [test_case.name, Representer::RepresentSolution.(track, test_case.solution_files).representation]
       end
       represented.combination(2).each do |a, b|
         if a.key == b.key || UpstreamTests.merged?(a, b)

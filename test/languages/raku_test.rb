@@ -58,12 +58,6 @@ class RakuTest < RepresenterTest
     refute_same_representation "sub f(:$size) { 1 }", "sub f(:$width) { 1 }"
   end
 
-  def test_a_sub_called_by_the_tests_is_renamed
-    tests = { "f.rakutest" => "use Foo; is two-fer(), 1;" }
-    assert_same_representation "sub two-fer() { 1 }", "sub other() { 1 }", exercise_files: tests
-    assert_equal({ "PLACEHOLDER_1" => "two-fer" }, represent("sub two-fer() { 1 }", exercise_files: tests).mapping)
-  end
-
   def test_unbalanced_code_is_unrepresentable
     assert_unrepresentable "sub f($x) { $x "
   end

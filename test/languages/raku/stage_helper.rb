@@ -13,5 +13,5 @@ module RakuStages
   # engine's dropping of imports (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Raku::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 end

@@ -13,5 +13,5 @@ module WasmStages
   # Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Wasm::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 end

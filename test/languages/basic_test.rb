@@ -3,7 +3,7 @@ require "test_helper"
 class BasicTest < RepresenterTest
   track "haskell"
 
-  # Python has a class of its own, so the tests for indentation call Basic
+  # Python has a language of its own, so the tests for indentation call Basic
   # directly.
   def basic(code, track: "haskell") = Representer::Languages::Basic.(track, { FILENAMES.fetch(track) => code })
   def default_filename = FILENAMES.fetch(track)
@@ -15,7 +15,7 @@ class BasicTest < RepresenterTest
   }.freeze
 
   def test_tracks_without_a_class_use_basic_and_its_version
-    result = Representer::RepresentSolution.("haskell", { "Main.hs" => "main = print 1" }, {})
+    result = Representer::RepresentSolution.("haskell", { "Main.hs" => "main = print 1" })
     assert_equal Representer::Languages::Basic, result.representer
     assert_nil result.reason
     assert_equal Representer::Languages::Basic::VERSION, result.version
@@ -58,8 +58,8 @@ class BasicTest < RepresenterTest
   end
 
   def test_file_names_and_order_do_not_matter
-    one = Representer::RepresentSolution.("dart", { "a.dart" => "x = 1;", "b.dart" => "y = 2;" }, {})
-    other = Representer::RepresentSolution.("dart", { "c.dart" => "y = 2;", "a.dart" => "x = 1;", "d.dart" => "" }, {})
+    one = Representer::RepresentSolution.("dart", { "a.dart" => "x = 1;", "b.dart" => "y = 2;" })
+    other = Representer::RepresentSolution.("dart", { "c.dart" => "y = 2;", "a.dart" => "x = 1;", "d.dart" => "" })
     assert_equal one.representation, other.representation
     refute_includes one.representation, "a.dart"
   end
@@ -92,33 +92,33 @@ class BasicTest < RepresenterTest
   def test_files_that_are_not_code_are_ignored
     code = { "src/Main.hs" => "main = print 1" }
     with_config = code.merge("package.yaml" => "name: leap", "HELP.md" => "# Help", "test/LeapSpec_test.hs" => "x")
-    assert_equal Representer::RepresentSolution.("haskell", code, {}).representation,
-      Representer::RepresentSolution.("haskell", with_config, {}).representation
-    assert_equal "1", Representer::RepresentSolution.("jq", { "a.jq" => "1", "notes.txt" => "2" }, {}).representation
-    assert_equal "no_source_files", Representer::RepresentSolution.("haskell", { "package.yaml" => "x" }, {}).reason
+    assert_equal Representer::RepresentSolution.("haskell", code).representation,
+      Representer::RepresentSolution.("haskell", with_config).representation
+    assert_equal "1", Representer::RepresentSolution.("jq", { "a.jq" => "1", "notes.txt" => "2" }).representation
+    assert_equal "no_source_files", Representer::RepresentSolution.("haskell", { "package.yaml" => "x" }).reason
   end
 
   def test_imports_on_their_own_lines_are_dropped
-    kotlin = Representer::RepresentSolution.("kotlin", { "a.kt" => "import kotlin.math.abs\nfun f() = 1\n" }, {})
-    assert_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }, {}).representation, kotlin.representation
-    c = Representer::RepresentSolution.("c", { "a.c" => "#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n" }, {})
-    assert_equal Representer::RepresentSolution.("c", { "a.c" => "int f() { return 1; }\n" }, {}).representation, c.representation
+    kotlin = Representer::RepresentSolution.("kotlin", { "a.kt" => "import kotlin.math.abs\nfun f() = 1\n" })
+    assert_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }).representation, kotlin.representation
+    c = Representer::RepresentSolution.("c", { "a.c" => "#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n" })
+    assert_equal Representer::RepresentSolution.("c", { "a.c" => "int f() { return 1; }\n" }).representation, c.representation
     haskell = "module A (a, b) where\nimport Data.List (sort,\n    nub)\na = 1\n"
-    assert_equal Representer::RepresentSolution.("haskell", { "A.hs" => "module A where\na = 1\n" }, {}).representation,
-      Representer::RepresentSolution.("haskell", { "A.hs" => haskell }, {}).representation
+    assert_equal Representer::RepresentSolution.("haskell", { "A.hs" => "module A where\na = 1\n" }).representation,
+      Representer::RepresentSolution.("haskell", { "A.hs" => haskell }).representation
   end
 
   def test_erlang_and_prolog_directives_that_import_or_export_are_dropped
     erlang = "-module(a).\n-export([f/1,\n  g/1]).\n-include_lib(\"eunit/include/eunit.hrl\").\nf(X) -> X.\n"
-    assert_equal Representer::RepresentSolution.("erlang", { "a.erl" => "-module(a).\nf(X) -> X.\n" }, {}).representation,
-      Representer::RepresentSolution.("erlang", { "a.erl" => erlang }, {}).representation
+    assert_equal Representer::RepresentSolution.("erlang", { "a.erl" => "-module(a).\nf(X) -> X.\n" }).representation,
+      Representer::RepresentSolution.("erlang", { "a.erl" => erlang }).representation
     prolog = ":- use_module(library(lists)).\nf(X) :- X.\n"
-    assert_equal Representer::RepresentSolution.("prolog", { "a.pl" => "f(X) :- X.\n" }, {}).representation,
-      Representer::RepresentSolution.("prolog", { "a.pl" => prolog }, {}).representation
+    assert_equal Representer::RepresentSolution.("prolog", { "a.pl" => "f(X) :- X.\n" }).representation,
+      Representer::RepresentSolution.("prolog", { "a.pl" => prolog }).representation
   end
 
   def test_a_line_that_only_starts_like_an_import_stays
-    with_call = Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = importer()\n" }, {})
-    refute_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }, {}).representation, with_call.representation
+    with_call = Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = importer()\n" })
+    refute_equal Representer::RepresentSolution.("kotlin", { "a.kt" => "fun f() = 1\n" }).representation, with_call.representation
   end
 end

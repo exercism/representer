@@ -80,12 +80,6 @@ class JavaScriptTest < RepresenterTest
     assert_same_representation "const a = 1; export const f = () => ({ a })", "const b = 1; export const f = () => ({ b })"
   end
 
-  def test_the_exercise_files_make_no_difference
-    tests = { "two-fer.spec.js" => "import { twoFer } from './two-fer';\ntest('x', () => expect(twoFer()).toEqual('x'));" }
-    result = represent("export const twoFer = (name = 'you') => name", filename: "two-fer.js", exercise_files: tests)
-    assert_equal %w[twoFer name], result.mapping.values
-  end
-
   def test_syntax_errors_are_unrepresentable_with_the_javascript_version
     result = represent("const = ;")
     assert_nil result.representation

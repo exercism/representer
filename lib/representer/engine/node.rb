@@ -2,8 +2,8 @@ module Representer::Engine
   # One node of a syntax tree.
   #
   # The engine copies each tree-sitter tree into these nodes, because
-  # tree-sitter's own trees can't be changed and rewrite rules need to
-  # change them.
+  # tree-sitter's own trees can't be changed and the stages need to change
+  # them.
   #
   # - type: the node's type, as a String ("call", "identifier", or for an
   #   anonymous token its canonical spelling, such as "(" or "def").
@@ -13,11 +13,6 @@ module Representer::Engine
   # - children: the child nodes, in source order.
   # - quoted: true for a leaf that holds a literal value (such as a string's
   #   contents), which the output always writes in quotes.
-  # - role: set by the naming rules. :member for a name after a dot, which
-  #   is only renamed if the solution defines a member with that name.
-  # - scope: set by a language's rules for a local name, to the node that
-  #   holds the name's declaration (such as a method). Two locals with the
-  #   same name in different scopes get different placeholders.
   # - renamed: set by RenameUserDefinedNodes, to true for a leaf that
   #   holds a name the solution defines.
   # - placeholder: set by NumberPlaceholders on each renamed leaf, to the
@@ -25,7 +20,7 @@ module Representer::Engine
   # - span: the node's byte range in the source. Grammar#parse only sets it
   #   when asked to, because only CodePattern needs it.
   class Node
-    attr_accessor :type, :text, :named, :field, :children, :quoted, :role, :scope, :renamed, :placeholder, :span
+    attr_accessor :type, :text, :named, :field, :children, :quoted, :renamed, :placeholder, :span
 
     def initialize(type, children = [], text: nil, named: true, field: nil, quoted: false)
       @type = type.to_s
@@ -34,8 +29,6 @@ module Representer::Engine
       @named = named
       @field = field&.to_s
       @quoted = quoted
-      @role = nil
-      @scope = nil
       @renamed = false
       @placeholder = nil
     end

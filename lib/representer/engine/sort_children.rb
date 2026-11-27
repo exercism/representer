@@ -32,6 +32,6 @@ module Representer::Engine
 
     # Serialize writes a node with its children, so a leaf goes inside a
     # node to keep its text.
-    def key(node) = Serialize.(Node.new("key", [node]), nil, blank: true)
+    def key(node) = Serialize.(Node.new("key", [node]), blank: true)
   end
 end

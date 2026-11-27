@@ -1,5 +1,5 @@
 module Representer::Engine
-  # Tells Ruby where to find the classes of a staged language. For each
+  # Tells Ruby where to find the classes of a language. For each
   # class name in files, if the folder has a file of that name, Ruby will
   # load the file the first time the engine asks the owner for the class.
   # So `AutoloadFiles.(Ruby, folder, { Snippet: "snippet" })` loads

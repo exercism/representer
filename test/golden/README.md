@@ -126,13 +126,12 @@ Today's Basic does the opposite: it keeps line breaks, the spaces between tokens
 - 62 merges are solutions that differ only in comments, whitespace or imports. For 18 Haskell merges, production split the solutions because some also held a `package.yaml` or had their file at another path. Basic now ignores files that aren't code, and writes no file names.
 - 1 Pharo merge is of a solution that also holds a `TestResults.txt`. Basic ignores that file, and the code is the same as the other group's.
 
-### The 27 tracks with a class of their own
+### The 27 tracks with a language of their own
 
 These tracks have 96 splits, 97 merges and 42 unrepresentable solutions.
 
 The main causes of splits are:
 
-- **Names used by the tests (about 61 splits).** The languages written with the rule DSL keep every name that appears anywhere in the exercise's files. So if one student calls a variable `input` and the tests also use `input`, that variable keeps its name, while another student's `s` gets a placeholder. Go (14), Common Lisp (9), Rust (8) and PHP (5) have the most.
 - **C++ headers (7 splits).** One solution declares its functions in a header and defines them in a source file, and the other defines them in the header.
 - **Real differences (24 splits, accepted).** The solutions are different programs that an old representer treated as the same, such as PHP's `!==` and `!=`, JavaScript's `toUpperCase` and `toLocaleUpperCase`, or a solution with an extra file.
 - The rest are one-off cases, such as Elm's `100` and `100.0` (an Int and a Float) or Elixir code that uses a function from an `import` without its module's name.

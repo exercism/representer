@@ -55,9 +55,9 @@ class PrepareFileTest < Minitest::Test
   def test_uses_the_tree_it_is_given_instead_of_parsing_the_source
     tree = Representer::Engine::Grammar["ruby"].parse("y = 2")
     prepared = Representer::Engine::PrepareFile.(WithGenerateAST::Spec, "x = 1", tree:)
-    assert_equal "(program\n  (assignment y = 2))", Representer::Engine::Serialize.(prepared, nil)
+    assert_equal "(program\n  (assignment y = 2))", Representer::Engine::Serialize.(prepared)
   end
 
   private
-  def prepare(language, source) = Representer::Engine::Serialize.(Representer::Engine::PrepareFile.(language, source), nil)
+  def prepare(language, source) = Representer::Engine::Serialize.(Representer::Engine::PrepareFile.(language, source))
 end

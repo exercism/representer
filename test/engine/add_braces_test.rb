@@ -23,5 +23,5 @@ class AddBracesTest < Minitest::Test
   end
 
   def tree(source) = CSharp::Common::GenerateAST.(Representer::Engine::Grammar["c_sharp"].parse(source))
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 end

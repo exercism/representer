@@ -13,7 +13,7 @@ module WrenStages
   # Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Wren::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   # The source as the body of a class.
   def in_class(body) = "class C {\n#{body}\n}\n"

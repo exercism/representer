@@ -31,8 +31,8 @@ class CppTest < RepresenterTest
       equivalents = Dir[File.join(dir, "equivalent", "*.{cpp,h}")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("cpp", inputs, {})
-      assert_equal Representer::RepresentSolution.("cpp", equivalents, {}).representation, actual.representation
+      actual = Representer::RepresentSolution.("cpp", inputs)
+      assert_equal Representer::RepresentSolution.("cpp", equivalents).representation, actual.representation
       assert_equal mapping.values.sort, actual.mapping.values.sort
     end
   end
@@ -79,13 +79,6 @@ class CppTest < RepresenterTest
     code = "int %s(int a) { return a; }"
     assert_same_representation format(code, "count"), format(code, "size")
     assert_same_representation format(code, "total"), format(code, "amount")
-  end
-
-  def test_the_exercise_files_make_no_difference
-    tests = { "leap_test.cpp" => "#include \"leap.h\"\nint main() { return leap::is_leap_year(2000); }\n" }
-    result = represent("namespace leap { bool is_leap_year(int year) { return true; } }", filename: "leap.cpp",
-      exercise_files: tests)
-    assert_equal %w[leap is_leap_year year], result.mapping.values
   end
 
   def test_syntax_errors_are_unrepresentable_with_the_cpp_version

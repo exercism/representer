@@ -122,11 +122,6 @@ class ElmTest < RepresenterTest
     assert_same_representation wrap("f : a -> a\nf x =\n    x"), wrap("f : b -> b\nf x =\n    x")
   end
 
-  def test_names_the_tests_use_are_renamed
-    assert_same_representation wrap("f x =\n    x"), wrap("g x =\n    x"),
-      exercise_files: { "tests/Tests.elm" => "module Tests exposing (..)\n\nt =\n    f 1\n" }
-  end
-
   def test_syntax_errors_are_unrepresentable
     assert_unrepresentable "module M exposing (..)\n\nf =\n"
   end

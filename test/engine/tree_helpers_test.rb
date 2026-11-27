@@ -1,17 +1,10 @@
 require "test_helper"
 
-# Checks the tree operations that staged languages use.
+# Checks the tree operations that the languages' stages use.
 class TreeHelpersTest < Minitest::Test
   include Representer::Engine::TreeHelpers
 
   Node = Representer::Engine::Node
-
-  # A language with names, as names_in needs.
-  module Names
-    class Spec < Representer::Engine::Language
-      names :identifier, :constant
-    end
-  end
 
   def test_transform_works_from_the_leaves_up
     tree = build(:program, build(:pair, leaf(:a, "1"), build(:pair, leaf(:a, "2"), leaf(:a, "3"))))
@@ -38,11 +31,6 @@ class TreeHelpersTest < Minitest::Test
     assert_equal "(program 1\n  (group 1 2))", write(unwrap(tree, "(group)"))
   end
 
-  def test_names_in_reads_the_captured_names
-    tree = build(:program, build(:def, leaf(:identifier, "f")), build(:def, leaf(:constant, "G")))
-    assert_equal Set["f", "G"], names_in([tree], Names::Spec, "(def (_) @name)")
-  end
-
   private
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 end

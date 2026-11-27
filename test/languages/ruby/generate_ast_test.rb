@@ -171,16 +171,18 @@ class RubyGenerateASTTest < Minitest::Test
     # tree-sitter-ruby needs a line break after a heredoc's closing name.
     source = "#{source}\n"
     tree = GenerateAST.(Representer::Engine::Grammar["ruby"].parse(Representer::Engine.clean(source)))
-    Representer::Engine::Serialize.(tree, names ? nil : AnonymousNames.new)
+    anonymise_names!(tree) unless names
+    Representer::Engine::Serialize.(tree)
   end
 
-  # Writes every name leaf as a placeholder, for Serialize.
-  class AnonymousNames
-    def initialize = @names = {}
-
-    def text_for(leaf, **)
-      prefix = Representer::Languages::Ruby::Representation.names[leaf.type] if leaf.named?
-      prefix && "#{leaf.type}:N#{@names[leaf.text.delete_prefix(prefix)] ||= @names.size}"
+  # Gives every name leaf a placeholder of its type and a number, for
+  # Serialize to write.
+  def anonymise_names!(tree)
+    numbers = {}
+    names = Representer::Languages::Ruby::Representation.names
+    tree.each_descendant do |leaf|
+      prefix = names[leaf.type] if leaf.named? && leaf.leaf?
+      leaf.placeholder = "#{leaf.type}:N#{numbers[leaf.text.delete_prefix(prefix)] ||= numbers.size}" if prefix
     end
   end
 

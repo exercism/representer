@@ -9,10 +9,10 @@ module Representer::Engine
   #     skip_at_top :require, :require_relative
   #   end
   #
-  # A staged language keeps its snippet in its folder (`languages/ruby/
-  # snippet.rb`), and the engine loads it like a stage. Every other track
-  # has a folder holding only `snippet.rb`. A track with no snippet of its
-  # own gets Languages::Basic::Snippet.
+  # A language keeps its snippet in its folder (`languages/ruby/
+  # snippet.rb`), and the engine loads it like a stage. A track with no
+  # language of its own can have a folder holding only `snippet.rb`. A track
+  # with no snippet of its own gets Languages::Basic::Snippet.
   #
   # The engine runs the snippet on the solution's main file (see
   # FindMainFile), with the tree from the language's grammar, before any
@@ -36,9 +36,8 @@ module Representer::Engine
     REMOVABLE = %i[comments docstrings].freeze
 
     extend InheritDeclarations
-    declarations_in :@version, :@docstring_check, :@lines_only, :@removed, :@comment_type_names, :@container_types,
-                    :@skipped_words, :@skipped_blocks, :@skipped_bottom_words, :@removed_line_words,
-                    :@line_comment_markers, :@block_comment_markers
+    declarations_in :@version, :@lines_only, :@removed, :@container_types, :@skipped_words, :@skipped_blocks,
+                    :@skipped_bottom_words, :@removed_line_words, :@line_comment_markers, :@block_comment_markers
 
     initialize_with :track_slug, :source, :tree
 
@@ -48,24 +47,14 @@ module Representer::Engine
       def version(number = nil) = number ? @version = number : @version || 1
 
       # Things to remove wherever they are: :comments, and :docstrings for a
-      # language that declares docstrings_are. A staged language declares
-      # both in its Spec.
+      # language that declares docstrings_are. The language declares both in
+      # its Spec.
       def remove(*things)
         unknown = things - REMOVABLE
         raise ArgumentError, "A snippet can't remove #{unknown.map(&:inspect).join(', ')}" if unknown.any?
 
         removed.concat(things)
       end
-
-      # For a language on the old structure: node types that are comments,
-      # as well as every type with "comment" in its name. A staged language
-      # declares them in its Spec, with comments_are.
-      def comment_types(*types) = comment_type_names.concat(types.map(&:to_s))
-
-      # For a language on the old structure: says which nodes are
-      # docstrings. The block receives a node and its parent. A staged
-      # language declares them in its Spec, with docstrings_are.
-      def docstrings_are(&block) = @docstring_check = block
 
       # Node types that hold the rest of the file after a header line, such
       # as F#'s `module Leap`. If skip_at_top skips one, it skips only the
@@ -115,42 +104,34 @@ module Representer::Engine
       # Call it before the other rules.
       def lines_only = @lines_only = true
 
-      # For a track with no class of its own: the track slugs that use this
-      # snippet.
+      # For a track with no language of its own: the track slugs that use
+      # this snippet.
       def tracks(*slugs) = slugs.each { |slug| Representer::Languages.register_snippet(slug, self) }
 
       def removes?(node, parent)
         (removed.include?(:comments) && comment?(node)) || (removed.include?(:docstrings) && docstring?(node, parent))
       end
 
-      def comment?(node)
-        node.type.include?("comment") || comment_type_names.include?(node.type) || staged_language&.comment_types&.include?(node.type)
-      end
+      # A comment is any node with "comment" in its type, or a type listed
+      # in the Spec's comments_are.
+      def comment?(node) = node.type.include?("comment") || language.comment_types.include?(node.type)
 
-      def docstring?(node, parent)
-        return staged_language.docstring?(node) if staged_language
-        raise ArgumentError, "#{name} removes docstrings, so it needs docstrings_are" unless @docstring_check
-
-        @docstring_check.(node, parent)
-      end
-
-      # The Spec of a staged language, which declares its comments and
-      # docstrings, or nil.
-      def staged_language = language.respond_to?(:staged?) && language.staged? ? language : nil
+      # A docstring is code listed in the Spec's docstrings_are. A snippet
+      # can define this method itself, for docstrings that a code pattern
+      # can't describe (as Python's does). It receives the node and its
+      # parent.
+      def docstring?(node, _parent) = language.docstring?(node)
 
       def container?(node) = container_types.include?(node.type)
 
-      # The language whose grammar parses the solution: the Spec beside a
-      # staged language's snippet, or the class around an older language's
-      # snippet. It is nil for a track with no class of its own, and for a
-      # snippet that works on lines only.
+      # The language whose grammar parses the solution: the Spec beside the
+      # snippet. It is nil for a track with no language of its own, and for
+      # a snippet that works on lines only.
       def language
         return nil if @lines_only
 
         owner = Object.const_get(name.delete_suffix("::Snippet"))
-        return owner::Spec if owner.const_defined?(:Spec, false)
-
-        owner.is_a?(Class) && owner < Representer::Language ? owner : nil
+        owner.const_defined?(:Spec, false) ? owner::Spec : nil
       end
 
       # Matches text that starts with one of the words, in any case (Common
@@ -167,7 +148,6 @@ module Representer::Engine
       def starts_with_skipped_word?(text) = (@skip_pattern ||= [starts_with(skipped_words)]).first&.match?(text)
 
       def removed = @removed ||= []
-      def comment_type_names = @comment_type_names ||= []
       def container_types = @container_types ||= []
       def skipped_words = @skipped_words ||= []
       def skipped_blocks = @skipped_blocks ||= {}

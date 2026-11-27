@@ -1,12 +1,13 @@
 require "test_helper"
 
-# A small staged language for the engine's tests, with Ruby's grammar and
+# A small language for the engine's tests, with Ruby's grammar and
 # no stages of its own. Its names are identifiers, constants and symbols.
 # A `def` and an assignment define names, and `sum` is its one library
 # name.
 module ToyLanguage
   class Spec < Representer::Engine::Language
     grammar "ruby"
+    extensions ".rb"
   end
 
   class Representation < Representer::Engine::Representation

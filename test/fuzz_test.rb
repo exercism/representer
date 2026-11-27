@@ -14,8 +14,6 @@ require "golden"
 #
 #   FUZZ_SAMPLE=50 FUZZ_TRACKS=go,rust bundle exec ruby -Itest test/fuzz_test.rb
 class FuzzTest < Minitest::Test
-  # The list leaves out too_complex. It means the rules hit one of the
-  # engine's limits, which usually means a rule is wrong.
   REASONS = %w[parse_error too_deep too_large no_source_files].freeze
   SAMPLE = Integer(ENV.fetch("FUZZ_SAMPLE", "1"))
   SEED = 20_261_126

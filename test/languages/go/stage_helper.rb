@@ -13,7 +13,7 @@ module GoStages
   # Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Go::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   # The source as the body of a function.
   def in_function(body) = "package p\n\nfunc F() {\n#{body}\n}\n"

@@ -13,7 +13,7 @@ module ZigStages
   # Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Zig::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   # The source as the body of a function.
   def in_function(body) = "pub fn f(x: u32) u32 {\n#{body}\n}\n"

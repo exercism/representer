@@ -1,5 +1,5 @@
 module Representer::Engine
-  # Removes the code that counts as an import, for a staged language's
+  # Removes the code that counts as an import, for a language's
   # representation (see Representation.imports). Every solution that the
   # representer sees passes its tests, so it has already loaded everything
   # it needs.

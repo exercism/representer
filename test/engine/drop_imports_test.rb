@@ -5,6 +5,6 @@ class DropImportsTest < Minitest::Test
     tree = Representer::Engine::Grammar["ruby"].parse("require 'set'\nrequire name\nx = 1")
     Representer::Engine::DropImports.(tree, ToyLanguage::Representation)
     assert_equal "(program\n  (call require\n    (argument_list name))\n  (assignment x = 1))",
-      Representer::Engine::Serialize.(tree, nil)
+      Representer::Engine::Serialize.(tree)
   end
 end

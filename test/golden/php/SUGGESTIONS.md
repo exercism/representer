@@ -15,4 +15,4 @@ None of them is made, because a change to PHP's own behaviour needs the maintain
 ## Names
 
 6. **Rename the namespaces that the solution declares.** `namespace App;` keeps its name today, although the solution chose it.
-7. **Treat every spelling of a function, method or class name as one name, across all the files.** Each file is normalised on its own today, so a function defined in one file and called from another with a capital letter in its name doesn't get its placeholder at the call. The engine would need to fold the case of these names when it renames, as the old rule DSL's `fold_names` does.
+7. **Treat every spelling of a function, method or class name as one name, across all the files.** Each file is normalised on its own today, so a function defined in one file and called from another with a capital letter in its name doesn't get its placeholder at the call. The engine would need to fold the case of these names when it renames.

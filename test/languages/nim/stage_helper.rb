@@ -12,7 +12,7 @@ module NimStages
   # The tree after GenerateAST and Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Nim::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   # The code as the body of a proc.
   def wrap(body) = "proc f(x: int, y: int): int =\n#{body.gsub(/^/, '  ')}\n"

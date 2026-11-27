@@ -17,7 +17,7 @@ class GDScriptTest < RepresenterTest
 
   def test_multiple_solution_files
     result = Representer::RepresentSolution.("gdscript",
-      { "one.gd" => "func foo():\n\treturn 1\n", "two.gd" => "func bar():\n\treturn \"Hello\"\n" }, {})
+      { "one.gd" => "func foo():\n\treturn 1\n", "two.gd" => "func bar():\n\treturn \"Hello\"\n" })
     assert_equal %w[bar foo], result.mapping.values.sort
     refute_equal Representer::Languages::Basic, result.representer
   end

@@ -11,8 +11,8 @@ module Representer
   # the website generate the others again.
   #
   # The snippet works on the main file's tree from the grammar, before any
-  # stage changes it. A staged language's representation then starts from
-  # the same tree, so the engine parses each of its files only once.
+  # stage changes it. The representation then starts from the same tree, so
+  # the engine parses each file only once.
   #
   # If an output can't be generated, its key holds an error with a reason
   # (error) and a message. The other outputs still come back. A solution that
@@ -46,7 +46,7 @@ module Representer
         return error("too_large", "The exercise files are over #{MAX_EXERCISE_BYTES} bytes", version: language.version)
       end
 
-      result = RepresentSolution.(track_slug, solution_files, exercise_files, exercise_slug:, trees:)
+      result = RepresentSolution.(track_slug, solution_files, exercise_slug:, trees:)
       return error(result.reason, result.message, version: result.version) if result.reason
 
       { representation: result.representation, mapping: result.mapping, version: result.version }
@@ -64,15 +64,13 @@ module Representer
       error("internal_error", "One of the snippet's rules raised an error")
     end
 
-    # Parses the file with the language's grammar, and keeps the tree for the
-    # representation. A staged language's tree is parsed with its options, as
-    # PrepareFile would. Returns nil if the track has no grammar, or the file
-    # is too large or doesn't parse.
+    # Parses the file with the language's grammar and options, as PrepareFile
+    # would, and keeps the tree for the representation. Returns nil if the
+    # track has no grammar, or the file is too large or doesn't parse.
     def parse(file, source, language)
       return nil unless language && source.bytesize <= MAX_SOLUTION_BYTES
 
-      options = language.staged? ? language.parse_options : {}
-      trees[file] = Engine::Grammar[language.grammar].parse(source, spans: true, **options)
+      trees[file] = Engine::Grammar[language.grammar].parse(source, spans: true, **language.parse_options)
     rescue CannotRepresent
       nil
     end

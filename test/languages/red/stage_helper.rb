@@ -12,5 +12,5 @@ module RedStages
   # The tree after GenerateAST and Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Red::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 end

@@ -1,5 +1,5 @@
 module Representer::Engine
-  # A staged language's representation output is a class called
+  # A language's representation output is a class called
   # Representation that subclasses this one, beside the language's Spec.
   # It declares the representation's version and the names and imports
   # that the representation works with (REPRESENTER_DSL.md describes every

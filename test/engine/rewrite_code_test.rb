@@ -22,5 +22,5 @@ class RewriteCodeTest < Minitest::Test
   end
 
   def tree(source) = Ruby::Common::GenerateAST.(Representer::Engine::Grammar["ruby"].parse(source))
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 end

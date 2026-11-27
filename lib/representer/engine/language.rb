@@ -1,5 +1,5 @@
 module Representer::Engine
-  # Every staged language is a class called Spec that subclasses this one,
+  # Every language is a class called Spec that subclasses this one,
   # in a module named after the language. The Spec says what the language
   # is and how its files are read. Each output is a class beside it, such
   # as Ruby::Representation, Ruby::Analysis and Ruby::Snippet, and the
@@ -7,8 +7,6 @@ module Representer::Engine
   # Ruby::Common.
   # REPRESENTER_DSL.md describes every declaration.
   class Language
-    extend Representer::LanguageSetup
-
     OUTPUT_FILES = { Representation: "representation", Analysis: "analysis", Snippet: "snippet" }.freeze
 
     COMMON_FILES = { GenerateAST: "generate_ast", Normalise: "normalise" }.freeze
@@ -29,9 +27,26 @@ module Representer::Engine
       end
 
       # Called by Representer when it picks a language for a track.
-      def call(solution_files, exercise_files, trees: {}) = Represent.(self, solution_files, exercise_files, trees:)
+      def call(solution_files, trees: {}) = Represent.(self, solution_files, trees:)
 
-      def staged? = true
+      # The tracks that the language represents. With no arguments, it
+      # returns them.
+      def tracks(*slugs)
+        (@tracks ||= []).concat(slugs)
+        slugs.each { |slug| Representer::Languages.register(slug, self) }
+        @tracks
+      end
+
+      # The name of the language's grammar in grammars.yml. With no
+      # argument, it returns the name.
+      def grammar(name = nil) = name ? @grammar = name : @grammar
+
+      # The file extensions of the language's source files. Solution files
+      # with other extensions (such as Cargo.toml) are ignored. With no
+      # arguments, it returns the extensions.
+      def extensions(*list) = list.empty? ? @extensions : @extensions = list
+
+      def source_file?(filename) = extensions.any? { |extension| filename.downcase.end_with?(extension) }
 
       # The node types that are comments (see REPRESENTER_DSL.md). The
       # engine drops them before GenerateAST, and the snippet removes them.
@@ -108,7 +123,7 @@ module Representer::Engine
   # JavaScript  ->  `languages/javascript/`
   ONE_WORD_NAMES = %w[JavaScript TypeScript].freeze
 
-  # Returns the folder of a staged language, such as `languages/ruby/` for
+  # Returns the folder of a language, such as `languages/ruby/` for
   # Representer::Languages::Ruby. A capital after a lower-case letter starts
   # a new word, unless the name is in ONE_WORD_NAMES.
   # EmacsLisp  ->  `languages/emacs_lisp/`

@@ -1,5 +1,5 @@
 module Representer::Engine
-  # A staged language defines each stage it needs as a subclass of one of
+  # A language defines each stage it needs as a subclass of one of
   # these classes, such as Ruby::Common::GenerateAST or
   # Ruby::Representation::Reorder. Each stage is a Mandate command that
   # takes one tree and returns the new tree, and works on it with the

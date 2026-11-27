@@ -13,7 +13,7 @@ module CrystalStages
   # Normalise (see Engine::PrepareFile).
   def prepare(source) = Representer::Engine::PrepareFile.(Crystal::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 
   # The source as the body of a class.
   def in_class(body) = "class C\n#{body}\nend\n"

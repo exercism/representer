@@ -3,8 +3,8 @@ require "strscan"
 module Representer::Engine
   # Tree patterns, written in a subset of tree-sitter's query syntax.
   #
-  # Language classes use patterns to say which nodes a rule applies to, and
-  # rewrite rules use the same syntax for templates. The syntax is:
+  # The stages use patterns to say which nodes a step applies to, and
+  # templates (see Template) use the same syntax. The syntax is:
   #
   #   (type child...)     a node of this type, whose children match the
   #                       child patterns in order (other children may sit
@@ -24,7 +24,7 @@ module Representer::Engine
   #   pattern @name       captures the matched node as "name".
   #
   # Patterns match the engine's own nodes (Engine::Node), so they also see
-  # changes made by earlier rewrite rules.
+  # changes made by earlier steps.
   module Pattern
     # In a template, @name always inserts a capture, and never captures
     # the element before it.

@@ -14,5 +14,5 @@ class UnwrapBracketsTest < Minitest::Test
   end
 
   private
-  def write(tree) = Representer::Engine::Serialize.(tree, nil)
+  def write(tree) = Representer::Engine::Serialize.(tree)
 end
