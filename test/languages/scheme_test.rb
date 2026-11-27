@@ -27,6 +27,11 @@ class SchemeTest < RepresenterTest
     assert_same_representation "(define-module (leap) #:export (leap-year?))\n(define x 1)", "(define x 1)"
   end
 
+  def test_a_form_is_only_an_import_if_it_starts_with_the_import
+    refute_same_representation "(define (f x) (list 1 import x))", "(define (f x))"
+    refute_same_representation "(define (f x) (list 1 export x))", "(define (f x))"
+  end
+
   def test_numbers_and_strings_are_their_values
     assert_same_representation "(define x #x10)", "(define x 16)"
     assert_same_representation "(define x 'a)", "(define x (quote a))"

@@ -1,6 +1,6 @@
 module Representer::Languages::EmacsLisp
   class Representation < Representer::Engine::Representation
-    version 6
+    version 7
 
     # Rename symbols, including quoted ones, so `'two-fer` in `provide` gets
     # the same placeholder as the function `two-fer`.

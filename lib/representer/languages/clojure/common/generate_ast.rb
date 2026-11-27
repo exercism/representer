@@ -9,6 +9,11 @@ module Representer::Languages::Clojure::Common
     # #{1 2}  ->  (set_lit 1 2)
     strip_tokens "(", ")", "[", "]", "{", "}", "#"
 
+    # Label the first item of each list and vector as its head, so that the
+    # import `(require {{...}})` matches `(require 'clojure.set)`, and
+    # doesn't match `(list 1 require)`.
+    lists_are :list_lit, :vec_lit
+
     # Write each number as its value. A ratio, a number in another base and a
     # number with a suffix keep their text, because the reader gives them
     # other types.

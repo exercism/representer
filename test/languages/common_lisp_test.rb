@@ -69,6 +69,8 @@ class CommonLispTest < RepresenterTest
     assert_same_representation "(defpackage :a (:use :cl) (:export :f))\n(in-package :a)\n(defun f () 1)",
       "(defpackage :a)\n(in-package :a)\n(defun f () 1)"
     refute_same_representation "(defpackage :a (:shadow :x))\n(defun f () 1)", "(defpackage :a)\n(defun f () 1)"
+    refute_same_representation "(defun f (x) (list 1 require x))", "(defun f (x))"
+    refute_same_representation "(defun f (x) (list 1 :use x))", "(defun f (x))"
   end
 
   def test_a_syntax_error_gets_a_basic_representation

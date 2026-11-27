@@ -31,7 +31,8 @@ module Representer::Engine
   # still read the brackets and the tokens, so the engine unwraps the
   # brackets and strips the tokens after them.
   class GenerateAST < Stage
-    declarations_in :@stripped_tokens, :@stripped_tokens_in, :@kept_tokens_in, :@unwrapped_types, :@numbers
+    declarations_in :@stripped_tokens, :@stripped_tokens_in, :@kept_tokens_in, :@unwrapped_types, :@numbers,
+                    :@list_types
 
     class << self
       # Strips these anonymous tokens (keywords and punctuation) from every
@@ -52,6 +53,12 @@ module Representer::Engine
       # that child, for brackets that only group (see UnwrapBrackets).
       def unwrap(*types) = unwrapped_types.concat(types.map(&:to_s))
 
+      # Gives the first item of each node of these types the field name
+      # `head`, for a grammar that gives a form's items no field names (see
+      # LabelListHeads). A code pattern then matches a list only by its
+      # first item.
+      def lists_are(*types) = list_types.concat(types.map(&:to_s))
+
       # Writes each number leaf of these types as its value (see
       # WriteNumbersAsValues). integer, decimal and number each take a type
       # or a list of types. prefixes maps each base prefix of an integer to
@@ -68,12 +75,14 @@ module Representer::Engine
       def stripped_tokens_in = @stripped_tokens_in ||= {}
       def kept_tokens_in = @kept_tokens_in ||= {}
       def unwrapped_types = @unwrapped_types ||= []
+      def list_types = @list_types ||= []
 
       # Runs the engine's steps around the language's own call method.
       def call(tree)
         tree = DropComments.(tree, language.comment_types)
         tree = WriteNumbersAsValues.(tree, **numbers)
         tree = super(tree)
+        tree = LabelListHeads.(tree, list_types)
         tree = UnwrapBrackets.(tree, unwrapped_types)
         StripTokens.(tree, stripped_tokens, only_in: stripped_tokens_in, kept_in: kept_tokens_in)
       end

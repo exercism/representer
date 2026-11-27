@@ -11,6 +11,11 @@ module Representer::Languages::Racket::Common
     # [x 1]  ->  (list x 1)
     strip_tokens "(", ")", "[", "]", "{", "}"
 
+    # Label the first item of each list as its head, so that the import
+    # `(require {{...}})` matches `(require racket/list)`, and doesn't match
+    # `(list 1 require)`.
+    lists_are :list
+
     # Strip the `#lang ` of the language line and the `#` of a vector,
     # because the node types already show them.
     # #lang racket  ->  (extension racket)
@@ -67,7 +72,6 @@ module Representer::Languages::Racket::Common
         write_ratios_in_their_lowest_terms!
         write_hashes_with_their_kind!
         write_quotes_as_the_forms_they_stand_for!
-        label_the_head_of_each_list!
         mark_the_names_each_form_defines!(tree)
       end
     end
@@ -165,15 +169,6 @@ module Representer::Languages::Racket::Common
         transform(tree, "(#{type}) @quote") do |match|
           build(:list, leaf(:symbol, name), *match.node.named_children)
         end
-      end
-    end
-
-    # Give the first item of each list the field name `head`, so that a code
-    # pattern such as `(require {{...}})` only matches a list that starts
-    # with `require`, and not `(list 1 require)`.
-    def label_the_head_of_each_list!
-      each_node(tree) do |node, _|
-        node.named_children.first&.field = "head" if node.type == "list"
       end
     end
 
