@@ -23,5 +23,5 @@ class placeholder_0:
         return placeholder_12
 
     def placeholder_15(self):
-        placeholder_16 = self.placeholder_8.index(self.placeholder_6)
+        placeholder_16 = self.placeholder_8.placeholder_16(self.placeholder_6)
         return self.placeholder_8[placeholder_16:] + self.placeholder_8[:placeholder_16]

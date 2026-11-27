@@ -6,7 +6,7 @@ def placeholder_0(placeholder_1: str) -> str:
 
 def placeholder_2(placeholder_3: List[int]) -> str:
     placeholder_4, placeholder_5, placeholder_6 = placeholder_3
-    placeholder_7 = calendar.month_name[placeholder_5]
+    placeholder_7 = calendar.placeholder_7[placeholder_5]
     return '{} {}, {}'.format(placeholder_7, placeholder_4, placeholder_6)
 
 def placeholder_8(placeholder_9: List[str]) -> List[str]:

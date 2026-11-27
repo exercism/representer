@@ -58,9 +58,9 @@ def placeholder_9(placeholder_1: int | float, placeholder_10: int | float, place
     """
     placeholder_12: int | float = placeholder_1 * placeholder_10
     match placeholder_12:
-        case placeholder_1000 if placeholder_1000 < placeholder_11 * 0.9:
+        case n if n < placeholder_11 * 0.9:
             return 'LOW'
-        case placeholder_1000 if placeholder_1000 > placeholder_11 * 1.1:
+        case n if n > placeholder_11 * 1.1:
             return 'DANGER'
         case _:
             return 'NORMAL'

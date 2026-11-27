@@ -50,9 +50,10 @@ def placeholder_19(placeholder_6, placeholder_4, placeholder_5):
             placeholder_4 = True
         else:
             placeholder_7 = placeholder_8(placeholder_20.group(1), 'li')
-    elif placeholder_4:
-        placeholder_5 = True
-        placeholder_4 = False
+    else:
+        if placeholder_4:
+            placeholder_5 = True
+            placeholder_4 = False
     if not re.match('<h|<ul|<li', placeholder_7):
         placeholder_7 = placeholder_8(placeholder_7, 'p')
     if placeholder_20 is None:

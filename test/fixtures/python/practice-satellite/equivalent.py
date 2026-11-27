@@ -8,7 +8,7 @@ def placeholder_0(placeholder_1, placeholder_2):
     if not placeholder_1:
         return {}
     placeholder_3 = placeholder_1.pop(0)
-    placeholder_4 = placeholder_2.index(placeholder_3)
+    placeholder_4 = placeholder_2.placeholder_4(placeholder_3)
     placeholder_5, placeholder_6 = (placeholder_2[:placeholder_4], placeholder_2[placeholder_4 + 1:])
     placeholder_7 = [placeholder_8 for placeholder_8 in placeholder_1 if placeholder_8 in placeholder_5]
     placeholder_9 = [placeholder_8 for placeholder_8 in placeholder_1 if placeholder_8 in placeholder_6]
