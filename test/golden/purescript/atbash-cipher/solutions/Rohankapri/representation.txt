@@ -1,76 +1,298 @@
-module AtbashCipher
-  ( encode
-  , decode
-  ) where
-lowerA :: CodePoint
-lowerA = codePointFromChar 'a'
-lowerZ :: CodePoint
-lowerZ = codePointFromChar 'z'
-upperA :: CodePoint
-upperA = codePointFromChar 'A'
-upperZ :: CodePoint
-upperZ = codePointFromChar 'Z'
-zeroDigit :: CodePoint
-zeroDigit = codePointFromChar '0'
-nineDigit :: CodePoint
-nineDigit = codePointFromChar '9'
-isLowerLetter :: CodePoint -> Boolean
-isLowerLetter cp = cp >= lowerA && cp <= lowerZ
-isUpperLetter :: CodePoint -> Boolean
-isUpperLetter cp = cp >= upperA && cp <= upperZ
-isDigitChar :: CodePoint -> Boolean
-isDigitChar cp = cp >= zeroDigit && cp <= nineDigit
-convertToLower :: CodePoint -> CodePoint
-convertToLower cp =
-  if isUpperLetter cp
-    then unsafePartial ( fromJust ( toEnum ( fromEnum cp + 32 )))
-    else cp
-reverseAtbash :: CodePoint -> CodePoint
-reverseAtbash cp =
-  unsafePartial ( fromJust ( toEnum ( fromEnum lowerA + fromEnum lowerZ - fromEnum cp )))
-trimTrailingSpace :: List CodePoint -> List CodePoint
-trimTrailingSpace Nil = Nil
-trimTrailingSpace cps =
-  case reverse cps of
-    ( sp : rest ) | sp == codePointFromChar "' '" -> reverse rest
-    _ -> cps
-encode :: String -> Maybe String
-encode input =
-  let
-    loopEncode :: String -> Int -> List CodePoint -> List CodePoint
-    loopEncode str idx acc = case uncons str of
-      Nothing -> reverse acc
-      Just { head : cp , tail }
-        | isLowerLetter cp ->
-          let cp' = reverseAtbash cp
-            acc' = if idx > 0 && idx ` mod ` 5 == 0
-              then cp' : codePointFromChar "' '" : acc
-              else cp' : acc
-          in loopEncode tail ( idx + 1 ) acc'
-        | isUpperLetter cp ->
-          let lc = convertToLower cp
-            cp' = reverseAtbash lc
-            acc' = if idx > 0 && idx ` mod ` 5 == 0
-              then cp' : codePointFromChar "' '" : acc
-              else cp' : acc
-          in loopEncode tail ( idx + 1 ) acc'
-        | isDigitChar cp ->
-          let acc' = if idx > 0 && idx ` mod ` 5 == 0
-            then cp : codePointFromChar "' '" : acc
-            else cp : acc
-          in loopEncode tail ( idx + 1 ) acc'
-        | otherwise -> loopEncode tail idx acc
-    result = trimTrailingSpace ( loopEncode input 0 Nil )
-  in Just ( fromCodePointArray ( toUnfoldable result :: Array CodePoint ))
-decode :: String -> Maybe String
-decode input =
-  let
-    loopDecode :: String -> List CodePoint -> List CodePoint
-    loopDecode str acc = case uncons str of
-      Nothing -> reverse acc
-      Just { head : cp , tail }
-        | isLowerLetter cp -> loopDecode tail ( reverseAtbash cp : acc )
-        | isDigitChar cp -> loopDecode tail ( cp : acc )
-        | otherwise -> loopDecode tail acc
-    result = loopDecode input Nil
-  in Just ( fromCodePointArray ( toUnfoldable result :: Array CodePoint ))
+(purescript (qualified_module PLACEHOLDER_1)
+  (exports
+    (export PLACEHOLDER_2)
+    (export PLACEHOLDER_3))
+  (signature PLACEHOLDER_4
+    (type_name CodePoint))
+  (function PLACEHOLDER_4
+    (exp_apply codePointFromChar 'a'))
+  (signature PLACEHOLDER_5
+    (type_name CodePoint))
+  (function PLACEHOLDER_5
+    (exp_apply codePointFromChar 'z'))
+  (signature PLACEHOLDER_6
+    (type_name CodePoint))
+  (function PLACEHOLDER_6
+    (exp_apply codePointFromChar 'A'))
+  (signature PLACEHOLDER_7
+    (type_name CodePoint))
+  (function PLACEHOLDER_7
+    (exp_apply codePointFromChar 'Z'))
+  (signature PLACEHOLDER_8
+    (type_name CodePoint))
+  (function PLACEHOLDER_8
+    (exp_apply codePointFromChar '0'))
+  (signature PLACEHOLDER_9
+    (type_name CodePoint))
+  (function PLACEHOLDER_9
+    (exp_apply codePointFromChar '9'))
+  (signature PLACEHOLDER_10
+    (type_infix
+      (type_name CodePoint) ->
+      (type_name Boolean)))
+  (function PLACEHOLDER_10
+    (patterns
+      (pat_name PLACEHOLDER_11))
+    (exp_infix
+      (exp_infix
+        (exp_infix PLACEHOLDER_11 >= PLACEHOLDER_4) && PLACEHOLDER_11) <= PLACEHOLDER_5))
+  (signature PLACEHOLDER_12
+    (type_infix
+      (type_name CodePoint) ->
+      (type_name Boolean)))
+  (function PLACEHOLDER_12
+    (patterns
+      (pat_name PLACEHOLDER_11))
+    (exp_infix
+      (exp_infix
+        (exp_infix PLACEHOLDER_11 >= PLACEHOLDER_6) && PLACEHOLDER_11) <= PLACEHOLDER_7))
+  (signature PLACEHOLDER_13
+    (type_infix
+      (type_name CodePoint) ->
+      (type_name Boolean)))
+  (function PLACEHOLDER_13
+    (patterns
+      (pat_name PLACEHOLDER_11))
+    (exp_infix
+      (exp_infix
+        (exp_infix PLACEHOLDER_11 >= PLACEHOLDER_8) && PLACEHOLDER_11) <= PLACEHOLDER_9))
+  (signature PLACEHOLDER_14
+    (type_infix
+      (type_name CodePoint) ->
+      (type_name CodePoint)))
+  (function PLACEHOLDER_14
+    (patterns
+      (pat_name PLACEHOLDER_11))
+    (exp_if
+      (exp_apply PLACEHOLDER_12 PLACEHOLDER_11)
+      (exp_apply unsafePartial
+        (exp_apply fromJust
+          (exp_apply toEnum
+            (exp_infix
+              (exp_apply fromEnum PLACEHOLDER_11) + 32)))) PLACEHOLDER_11))
+  (signature PLACEHOLDER_15
+    (type_infix
+      (type_name CodePoint) ->
+      (type_name CodePoint)))
+  (function PLACEHOLDER_15
+    (patterns
+      (pat_name PLACEHOLDER_11))
+    (exp_apply unsafePartial
+      (exp_apply fromJust
+        (exp_apply toEnum
+          (exp_infix
+            (exp_infix
+              (exp_apply fromEnum PLACEHOLDER_4) +
+              (exp_apply fromEnum PLACEHOLDER_5)) -
+            (exp_apply fromEnum PLACEHOLDER_11))))))
+  (signature PLACEHOLDER_16
+    (type_infix
+      (type_apply
+        (type_name List)
+        (type_name CodePoint)) ->
+      (type_apply
+        (type_name List)
+        (type_name CodePoint))))
+  (function PLACEHOLDER_16
+    (patterns Nil) Nil)
+  (function PLACEHOLDER_16
+    (patterns
+      (pat_name PLACEHOLDER_17))
+    (exp_case
+      (exp_apply reverse PLACEHOLDER_17)
+      (alts
+        (alt
+          (pat_infix
+            (pat_name PLACEHOLDER_18) :
+            (pat_name PLACEHOLDER_19))
+          (gdpat
+            (guards
+              (guard
+                (exp_infix PLACEHOLDER_18 ==
+                  (exp_apply codePointFromChar "' '"))))
+            (exp_apply reverse PLACEHOLDER_19)))
+        (alt
+          (pat_wildcard
+            (pat_wildcard)) PLACEHOLDER_17))))
+  (signature PLACEHOLDER_2
+    (type_infix
+      (type_name String) ->
+      (type_apply
+        (type_name Maybe)
+        (type_name String))))
+  (function PLACEHOLDER_2
+    (patterns
+      (pat_name PLACEHOLDER_20))
+    (exp_let_in
+      (declarations
+        (signature PLACEHOLDER_21
+          (type_infix
+            (type_name String) ->
+            (type_infix
+              (type_name Int) ->
+              (type_infix
+                (type_apply
+                  (type_name List)
+                  (type_name CodePoint)) ->
+                (type_apply
+                  (type_name List)
+                  (type_name CodePoint))))))
+        (function PLACEHOLDER_21
+          (patterns
+            (pat_name PLACEHOLDER_22)
+            (pat_name PLACEHOLDER_23)
+            (pat_name PLACEHOLDER_24))
+          (exp_case
+            (exp_apply uncons PLACEHOLDER_22)
+            (alts
+              (alt Nothing
+                (exp_apply reverse PLACEHOLDER_24))
+              (alt
+                (pat_apply Just
+                  (pat_record
+                    (pat_fields
+                      (pat_field head
+                        (pat_name PLACEHOLDER_11))
+                      (pat_field (field_name PLACEHOLDER_25)
+                        (pat_name PLACEHOLDER_25)))))
+                (gdpat
+                  (guards
+                    (guard
+                      (exp_apply PLACEHOLDER_10 PLACEHOLDER_11)))
+                  (exp_let_in
+                    (declarations
+                      (function PLACEHOLDER_26
+                        (exp_apply PLACEHOLDER_15 PLACEHOLDER_11))
+                      (function PLACEHOLDER_27
+                        (exp_if
+                          (exp_infix
+                            (exp_infix
+                              (exp_infix
+                                (exp_infix PLACEHOLDER_23 > 0) && PLACEHOLDER_23)
+                              (exp_ticked mod) 5) == 0)
+                          (exp_infix
+                            (exp_infix PLACEHOLDER_26 :
+                              (exp_apply codePointFromChar "' '")) : PLACEHOLDER_24)
+                          (exp_infix PLACEHOLDER_26 : PLACEHOLDER_24))))
+                    (exp_apply PLACEHOLDER_21 PLACEHOLDER_25
+                      (exp_infix PLACEHOLDER_23 + 1) PLACEHOLDER_27)))
+                (gdpat
+                  (guards
+                    (guard
+                      (exp_apply PLACEHOLDER_12 PLACEHOLDER_11)))
+                  (exp_let_in
+                    (declarations
+                      (function PLACEHOLDER_28
+                        (exp_apply PLACEHOLDER_14 PLACEHOLDER_11))
+                      (function PLACEHOLDER_26
+                        (exp_apply PLACEHOLDER_15 PLACEHOLDER_28))
+                      (function PLACEHOLDER_27
+                        (exp_if
+                          (exp_infix
+                            (exp_infix
+                              (exp_infix
+                                (exp_infix PLACEHOLDER_23 > 0) && PLACEHOLDER_23)
+                              (exp_ticked mod) 5) == 0)
+                          (exp_infix
+                            (exp_infix PLACEHOLDER_26 :
+                              (exp_apply codePointFromChar "' '")) : PLACEHOLDER_24)
+                          (exp_infix PLACEHOLDER_26 : PLACEHOLDER_24))))
+                    (exp_apply PLACEHOLDER_21 PLACEHOLDER_25
+                      (exp_infix PLACEHOLDER_23 + 1) PLACEHOLDER_27)))
+                (gdpat
+                  (guards
+                    (guard
+                      (exp_apply PLACEHOLDER_13 PLACEHOLDER_11)))
+                  (exp_let_in
+                    (declarations
+                      (function PLACEHOLDER_27
+                        (exp_if
+                          (exp_infix
+                            (exp_infix
+                              (exp_infix
+                                (exp_infix PLACEHOLDER_23 > 0) && PLACEHOLDER_23)
+                              (exp_ticked mod) 5) == 0)
+                          (exp_infix
+                            (exp_infix PLACEHOLDER_11 :
+                              (exp_apply codePointFromChar "' '")) : PLACEHOLDER_24)
+                          (exp_infix PLACEHOLDER_11 : PLACEHOLDER_24))))
+                    (exp_apply PLACEHOLDER_21 PLACEHOLDER_25
+                      (exp_infix PLACEHOLDER_23 + 1) PLACEHOLDER_27)))
+                (gdpat
+                  (guards
+                    (guard otherwise))
+                  (exp_apply PLACEHOLDER_21 PLACEHOLDER_25 PLACEHOLDER_23 PLACEHOLDER_24))))))
+        (function PLACEHOLDER_29
+          (exp_apply PLACEHOLDER_16
+            (exp_apply PLACEHOLDER_21 PLACEHOLDER_20 0 Nil))))
+      (exp_apply Just
+        (exp_apply fromCodePointArray
+          (exp_parens
+            (exp_apply toUnfoldable PLACEHOLDER_29)
+            (type_apply
+              (type_name Array)
+              (type_name CodePoint)))))))
+  (signature PLACEHOLDER_3
+    (type_infix
+      (type_name String) ->
+      (type_apply
+        (type_name Maybe)
+        (type_name String))))
+  (function PLACEHOLDER_3
+    (patterns
+      (pat_name PLACEHOLDER_20))
+    (exp_let_in
+      (declarations
+        (signature PLACEHOLDER_30
+          (type_infix
+            (type_name String) ->
+            (type_infix
+              (type_apply
+                (type_name List)
+                (type_name CodePoint)) ->
+              (type_apply
+                (type_name List)
+                (type_name CodePoint)))))
+        (function PLACEHOLDER_30
+          (patterns
+            (pat_name PLACEHOLDER_22)
+            (pat_name PLACEHOLDER_24))
+          (exp_case
+            (exp_apply uncons PLACEHOLDER_22)
+            (alts
+              (alt Nothing
+                (exp_apply reverse PLACEHOLDER_24))
+              (alt
+                (pat_apply Just
+                  (pat_record
+                    (pat_fields
+                      (pat_field head
+                        (pat_name PLACEHOLDER_11))
+                      (pat_field (field_name PLACEHOLDER_25)
+                        (pat_name PLACEHOLDER_25)))))
+                (gdpat
+                  (guards
+                    (guard
+                      (exp_apply PLACEHOLDER_10 PLACEHOLDER_11)))
+                  (exp_apply PLACEHOLDER_30 PLACEHOLDER_25
+                    (exp_infix
+                      (exp_apply PLACEHOLDER_15 PLACEHOLDER_11) : PLACEHOLDER_24)))
+                (gdpat
+                  (guards
+                    (guard
+                      (exp_apply PLACEHOLDER_13 PLACEHOLDER_11)))
+                  (exp_apply PLACEHOLDER_30 PLACEHOLDER_25
+                    (exp_infix PLACEHOLDER_11 : PLACEHOLDER_24)))
+                (gdpat
+                  (guards
+                    (guard otherwise))
+                  (exp_apply PLACEHOLDER_30 PLACEHOLDER_25 PLACEHOLDER_24))))))
+        (function PLACEHOLDER_29
+          (exp_apply PLACEHOLDER_30 PLACEHOLDER_20 Nil)))
+      (exp_apply Just
+        (exp_apply fromCodePointArray
+          (exp_parens
+            (exp_apply toUnfoldable PLACEHOLDER_29)
+            (type_apply
+              (type_name Array)
+              (type_name CodePoint))))))))

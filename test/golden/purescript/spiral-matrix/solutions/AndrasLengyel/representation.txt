@@ -1,74 +1,494 @@
-module Spiral
-  ( spiral ) where
-type Matrix = Array ( Array Int )
-type Position = { row :: Int , col :: Int }
-type Range = { min :: Int , max :: Int }
-spiral :: Int -> List ( List Int )
-spiral size =
-  let
-    matrix = Array . replicate size ( Array . replicate size 0 )
-    range = { min : 0 , max : size - 1 }
-    delta = { row : 0 , col : 1 }
-    pos = { row : 0 , col : 0 }
-    result = strideRow matrix range range delta pos 1
-  in
-    toList result
-strideRow :: Matrix -> Range -> Range -> Position -> Position -> Int -> Matrix
-strideRow matrix rows cols delta pos stepNo
-  | inRange pos rows cols =
-    let
-      newMatrix = matrixWithValueAt pos stepNo matrix
-      newPos = adjustPosition pos delta
-    in
-      strideRow newMatrix rows cols delta newPos ( stepNo + 1 )
-  | canShrinkRange rows =
-    let
-      new = adjustStrideDirection delta rows cols
-    in
-      strideColumn matrix new . rows new . cols new . delta new . pos stepNo
-  | otherwise = matrix
-strideColumn :: Matrix -> Range -> Range -> Position -> Position -> Int -> Matrix
-strideColumn matrix rows cols delta pos stepNo
-  | inRange pos rows cols =
-    let
-      newMatrix = matrixWithValueAt pos stepNo matrix
-      newPos = adjustPosition pos delta
-    in
-      strideColumn newMatrix rows cols delta newPos ( stepNo + 1 )
-  | canShrinkRange cols =
-    let
-      new = adjustStrideDirection delta rows cols
-    in
-      strideRow matrix new . rows new . cols new . delta new . pos stepNo
-  | otherwise = matrix
-inRange :: Position -> Range -> Range -> Boolean
-inRange pos row col =
-  pos . row >= row . min && pos . row <= row . max && pos . col >= col . min && pos . col <= col . max
-canShrinkRange :: Range -> Boolean
-canShrinkRange range = range . min < range . max
-adjustPosition :: Position -> Position -> Position
-adjustPosition pos delta = { row : pos . row + delta . row , col : pos . col + delta . col }
-adjustStrideDirection :: Position -> Range -> Range -> { delta :: Position , rows :: Range , cols :: Range , pos :: Position }
-adjustStrideDirection delta rows cols
-  | delta == { row : 0 , col : 1 } =
-    { delta : { row : 1 , col : 0 }, rows : { min : rows . min + 1 , max : rows . max }, cols , pos : { row : rows . min + 1 , col : cols . max }}
-  | delta == { row : 1 , col : 0 } =
-    { delta : { row : 0 , col : ( - 1 )}, rows , cols : { min : cols . min , max : cols . max - 1 }, pos : { row : rows . max , col : cols . max - 1 }}
-  | delta == { row : 0 , col : ( - 1 )} =
-    { delta : { row : ( - 1 ), col : 0 }, rows : { min : rows . min , max : rows . max - 1 }, cols , pos : { row : rows . max - 1 , col : cols . min }}
-  | delta == { row : ( - 1 ), col : 0 } =
-    { delta : { row : 0 , col : 1 }, rows , cols : { min : cols . min + 1 , max : cols . max }, pos : { row : rows . min , col : cols . min + 1 }}
-  | otherwise =
-    { delta : { row : 0 , col : 1 }, rows , cols , pos : { row : rows . min , col : cols . min }}
-matrixWithValueAt :: Position -> Int -> Array ( Array Int ) -> Array ( Array Int )
-matrixWithValueAt pos value matrix =
-  let
-    row = Maybe . fromMaybe [] $ matrix !! pos . row
-    updatedRow = arrayWithValueAt pos . col value row
-  in
-    arrayWithValueAt pos . row updatedRow matrix
-arrayWithValueAt :: forall a . Int -> a -> Array a -> Array a
-arrayWithValueAt idx value array =
-  Maybe . fromMaybe array $ Array . updateAt idx value array
-toList :: forall a . Array ( Array a ) -> List ( List a )
-toList = fromFoldable <<< map fromFoldable
+(purescript (qualified_module PLACEHOLDER_1)
+  (exports
+    (export PLACEHOLDER_2))
+  (type_alias (type PLACEHOLDER_3)
+    (type_apply
+      (type_name Array)
+      (type_apply
+        (type_name Array)
+        (type_name Int))))
+  (type_alias (type PLACEHOLDER_4)
+    (record_type_literal
+      (row_field (field_name PLACEHOLDER_5)
+        (type_name Int))
+      (row_field (field_name PLACEHOLDER_6)
+        (type_name Int))))
+  (type_alias (type PLACEHOLDER_7)
+    (record_type_literal
+      (row_field (field_name PLACEHOLDER_8)
+        (type_name Int))
+      (row_field (field_name PLACEHOLDER_9)
+        (type_name Int))))
+  (signature PLACEHOLDER_2
+    (type_infix
+      (type_name Int) ->
+      (type_apply
+        (type_name List)
+        (type_apply
+          (type_name List)
+          (type_name Int)))))
+  (function PLACEHOLDER_2
+    (patterns
+      (pat_name PLACEHOLDER_10))
+    (exp_let_in
+      (declarations
+        (function PLACEHOLDER_11
+          (exp_apply Array.replicate PLACEHOLDER_10
+            (exp_apply Array.replicate PLACEHOLDER_10 0)))
+        (function PLACEHOLDER_12
+          (record_literal
+            (record_field (field_name PLACEHOLDER_8)
+              (field_value 0))
+            (record_field (field_name PLACEHOLDER_9)
+              (field_value
+                (exp_infix PLACEHOLDER_10 - 1)))))
+        (function PLACEHOLDER_13
+          (record_literal
+            (record_field (field_name PLACEHOLDER_5)
+              (field_value 0))
+            (record_field (field_name PLACEHOLDER_6)
+              (field_value 1))))
+        (function PLACEHOLDER_14
+          (record_literal
+            (record_field (field_name PLACEHOLDER_5)
+              (field_value 0))
+            (record_field (field_name PLACEHOLDER_6)
+              (field_value 0))))
+        (function PLACEHOLDER_15
+          (exp_apply PLACEHOLDER_16 PLACEHOLDER_11 PLACEHOLDER_12 PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14 1)))
+      (exp_apply PLACEHOLDER_17 PLACEHOLDER_15)))
+  (signature PLACEHOLDER_16
+    (type_infix
+      (type_name (type PLACEHOLDER_3)) ->
+      (type_infix
+        (type_name (type PLACEHOLDER_7)) ->
+        (type_infix
+          (type_name (type PLACEHOLDER_7)) ->
+          (type_infix
+            (type_name (type PLACEHOLDER_4)) ->
+            (type_infix
+              (type_name (type PLACEHOLDER_4)) ->
+              (type_infix
+                (type_name Int) ->
+                (type_name (type PLACEHOLDER_3)))))))))
+  (function PLACEHOLDER_16
+    (patterns
+      (pat_name PLACEHOLDER_11)
+      (pat_name PLACEHOLDER_18)
+      (pat_name PLACEHOLDER_19)
+      (pat_name PLACEHOLDER_13)
+      (pat_name PLACEHOLDER_14)
+      (pat_name PLACEHOLDER_20))
+    (guard_equation
+      (guards
+        (guard
+          (exp_apply PLACEHOLDER_21 PLACEHOLDER_14 PLACEHOLDER_18 PLACEHOLDER_19)))
+      (exp_let_in
+        (declarations
+          (function PLACEHOLDER_22
+            (exp_apply PLACEHOLDER_23 PLACEHOLDER_14 PLACEHOLDER_20 PLACEHOLDER_11))
+          (function PLACEHOLDER_24
+            (exp_apply PLACEHOLDER_25 PLACEHOLDER_14 PLACEHOLDER_13)))
+        (exp_apply PLACEHOLDER_16 PLACEHOLDER_22 PLACEHOLDER_18 PLACEHOLDER_19 PLACEHOLDER_13 PLACEHOLDER_24
+          (exp_infix PLACEHOLDER_20 + 1))))
+    (guard_equation
+      (guards
+        (guard
+          (exp_apply PLACEHOLDER_26 PLACEHOLDER_18)))
+      (exp_let_in
+        (declarations
+          (function PLACEHOLDER_27
+            (exp_apply PLACEHOLDER_28 PLACEHOLDER_13 PLACEHOLDER_18 PLACEHOLDER_19)))
+        (exp_apply PLACEHOLDER_29 PLACEHOLDER_11
+          (exp_record_access PLACEHOLDER_27 PLACEHOLDER_18)
+          (exp_record_access PLACEHOLDER_27 PLACEHOLDER_19)
+          (exp_record_access PLACEHOLDER_27 PLACEHOLDER_13)
+          (exp_record_access PLACEHOLDER_27 PLACEHOLDER_14) PLACEHOLDER_20)))
+    (guard_equation
+      (guards
+        (guard otherwise)) PLACEHOLDER_11))
+  (signature PLACEHOLDER_29
+    (type_infix
+      (type_name (type PLACEHOLDER_3)) ->
+      (type_infix
+        (type_name (type PLACEHOLDER_7)) ->
+        (type_infix
+          (type_name (type PLACEHOLDER_7)) ->
+          (type_infix
+            (type_name (type PLACEHOLDER_4)) ->
+            (type_infix
+              (type_name (type PLACEHOLDER_4)) ->
+              (type_infix
+                (type_name Int) ->
+                (type_name (type PLACEHOLDER_3)))))))))
+  (function PLACEHOLDER_29
+    (patterns
+      (pat_name PLACEHOLDER_11)
+      (pat_name PLACEHOLDER_18)
+      (pat_name PLACEHOLDER_19)
+      (pat_name PLACEHOLDER_13)
+      (pat_name PLACEHOLDER_14)
+      (pat_name PLACEHOLDER_20))
+    (guard_equation
+      (guards
+        (guard
+          (exp_apply PLACEHOLDER_21 PLACEHOLDER_14 PLACEHOLDER_18 PLACEHOLDER_19)))
+      (exp_let_in
+        (declarations
+          (function PLACEHOLDER_22
+            (exp_apply PLACEHOLDER_23 PLACEHOLDER_14 PLACEHOLDER_20 PLACEHOLDER_11))
+          (function PLACEHOLDER_24
+            (exp_apply PLACEHOLDER_25 PLACEHOLDER_14 PLACEHOLDER_13)))
+        (exp_apply PLACEHOLDER_29 PLACEHOLDER_22 PLACEHOLDER_18 PLACEHOLDER_19 PLACEHOLDER_13 PLACEHOLDER_24
+          (exp_infix PLACEHOLDER_20 + 1))))
+    (guard_equation
+      (guards
+        (guard
+          (exp_apply PLACEHOLDER_26 PLACEHOLDER_19)))
+      (exp_let_in
+        (declarations
+          (function PLACEHOLDER_27
+            (exp_apply PLACEHOLDER_28 PLACEHOLDER_13 PLACEHOLDER_18 PLACEHOLDER_19)))
+        (exp_apply PLACEHOLDER_16 PLACEHOLDER_11
+          (exp_record_access PLACEHOLDER_27 PLACEHOLDER_18)
+          (exp_record_access PLACEHOLDER_27 PLACEHOLDER_19)
+          (exp_record_access PLACEHOLDER_27 PLACEHOLDER_13)
+          (exp_record_access PLACEHOLDER_27 PLACEHOLDER_14) PLACEHOLDER_20)))
+    (guard_equation
+      (guards
+        (guard otherwise)) PLACEHOLDER_11))
+  (signature PLACEHOLDER_21
+    (type_infix
+      (type_name (type PLACEHOLDER_4)) ->
+      (type_infix
+        (type_name (type PLACEHOLDER_7)) ->
+        (type_infix
+          (type_name (type PLACEHOLDER_7)) ->
+          (type_name Boolean)))))
+  (function PLACEHOLDER_21
+    (patterns
+      (pat_name PLACEHOLDER_14)
+      (pat_name PLACEHOLDER_5)
+      (pat_name PLACEHOLDER_6))
+    (exp_infix
+      (exp_infix
+        (exp_infix
+          (exp_infix
+            (exp_infix
+              (exp_infix
+                (exp_infix
+                  (exp_record_access PLACEHOLDER_14 PLACEHOLDER_5) >=
+                  (exp_record_access PLACEHOLDER_5 PLACEHOLDER_8)) &&
+                (exp_record_access PLACEHOLDER_14 PLACEHOLDER_5)) <=
+              (exp_record_access PLACEHOLDER_5 PLACEHOLDER_9)) &&
+            (exp_record_access PLACEHOLDER_14 PLACEHOLDER_6)) >=
+          (exp_record_access PLACEHOLDER_6 PLACEHOLDER_8)) &&
+        (exp_record_access PLACEHOLDER_14 PLACEHOLDER_6)) <=
+      (exp_record_access PLACEHOLDER_6 PLACEHOLDER_9)))
+  (signature PLACEHOLDER_26
+    (type_infix
+      (type_name (type PLACEHOLDER_7)) ->
+      (type_name Boolean)))
+  (function PLACEHOLDER_26
+    (patterns
+      (pat_name PLACEHOLDER_12))
+    (exp_infix
+      (exp_record_access PLACEHOLDER_12 PLACEHOLDER_8) <
+      (exp_record_access PLACEHOLDER_12 PLACEHOLDER_9)))
+  (signature PLACEHOLDER_25
+    (type_infix
+      (type_name (type PLACEHOLDER_4)) ->
+      (type_infix
+        (type_name (type PLACEHOLDER_4)) ->
+        (type_name (type PLACEHOLDER_4)))))
+  (function PLACEHOLDER_25
+    (patterns
+      (pat_name PLACEHOLDER_14)
+      (pat_name PLACEHOLDER_13))
+    (record_literal
+      (record_field (field_name PLACEHOLDER_5)
+        (field_value
+          (exp_infix
+            (exp_record_access PLACEHOLDER_14 PLACEHOLDER_5) +
+            (exp_record_access PLACEHOLDER_13 PLACEHOLDER_5))))
+      (record_field (field_name PLACEHOLDER_6)
+        (field_value
+          (exp_infix
+            (exp_record_access PLACEHOLDER_14 PLACEHOLDER_6) +
+            (exp_record_access PLACEHOLDER_13 PLACEHOLDER_6))))))
+  (signature PLACEHOLDER_28
+    (type_infix
+      (type_name (type PLACEHOLDER_4)) ->
+      (type_infix
+        (type_name (type PLACEHOLDER_7)) ->
+        (type_infix
+          (type_name (type PLACEHOLDER_7)) ->
+          (record_type_literal
+            (row_field (field_name PLACEHOLDER_13)
+              (type_name (type PLACEHOLDER_4)))
+            (row_field (field_name PLACEHOLDER_18)
+              (type_name (type PLACEHOLDER_7)))
+            (row_field (field_name PLACEHOLDER_19)
+              (type_name (type PLACEHOLDER_7)))
+            (row_field (field_name PLACEHOLDER_14)
+              (type_name (type PLACEHOLDER_4))))))))
+  (function PLACEHOLDER_28
+    (patterns
+      (pat_name PLACEHOLDER_13)
+      (pat_name PLACEHOLDER_18)
+      (pat_name PLACEHOLDER_19))
+    (guard_equation
+      (guards
+        (guard
+          (exp_infix PLACEHOLDER_13 ==
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value 0))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value 1))))))
+      (record_literal
+        (record_field (field_name PLACEHOLDER_13)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value 1))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value 0)))))
+        (record_field (field_name PLACEHOLDER_18)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_8)
+                (field_value
+                  (exp_infix
+                    (exp_record_access PLACEHOLDER_18 PLACEHOLDER_8) + 1)))
+              (record_field (field_name PLACEHOLDER_9)
+                (field_value
+                  (exp_record_access PLACEHOLDER_18 PLACEHOLDER_9))))))
+        (record_field (field_name PLACEHOLDER_19)
+          (field_value PLACEHOLDER_19))
+        (record_field (field_name PLACEHOLDER_14)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value
+                  (exp_infix
+                    (exp_record_access PLACEHOLDER_18 PLACEHOLDER_8) + 1)))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value
+                  (exp_record_access PLACEHOLDER_19 PLACEHOLDER_9))))))))
+    (guard_equation
+      (guards
+        (guard
+          (exp_infix PLACEHOLDER_13 ==
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value 1))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value 0))))))
+      (record_literal
+        (record_field (field_name PLACEHOLDER_13)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value 0))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value
+                  (exp_negation 1))))))
+        (record_field (field_name PLACEHOLDER_18)
+          (field_value PLACEHOLDER_18))
+        (record_field (field_name PLACEHOLDER_19)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_8)
+                (field_value
+                  (exp_record_access PLACEHOLDER_19 PLACEHOLDER_8)))
+              (record_field (field_name PLACEHOLDER_9)
+                (field_value
+                  (exp_infix
+                    (exp_record_access PLACEHOLDER_19 PLACEHOLDER_9) - 1))))))
+        (record_field (field_name PLACEHOLDER_14)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value
+                  (exp_record_access PLACEHOLDER_18 PLACEHOLDER_9)))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value
+                  (exp_infix
+                    (exp_record_access PLACEHOLDER_19 PLACEHOLDER_9) - 1))))))))
+    (guard_equation
+      (guards
+        (guard
+          (exp_infix PLACEHOLDER_13 ==
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value 0))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value
+                  (exp_negation 1)))))))
+      (record_literal
+        (record_field (field_name PLACEHOLDER_13)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value
+                  (exp_negation 1)))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value 0)))))
+        (record_field (field_name PLACEHOLDER_18)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_8)
+                (field_value
+                  (exp_record_access PLACEHOLDER_18 PLACEHOLDER_8)))
+              (record_field (field_name PLACEHOLDER_9)
+                (field_value
+                  (exp_infix
+                    (exp_record_access PLACEHOLDER_18 PLACEHOLDER_9) - 1))))))
+        (record_field (field_name PLACEHOLDER_19)
+          (field_value PLACEHOLDER_19))
+        (record_field (field_name PLACEHOLDER_14)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value
+                  (exp_infix
+                    (exp_record_access PLACEHOLDER_18 PLACEHOLDER_9) - 1)))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value
+                  (exp_record_access PLACEHOLDER_19 PLACEHOLDER_8))))))))
+    (guard_equation
+      (guards
+        (guard
+          (exp_infix PLACEHOLDER_13 ==
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value
+                  (exp_negation 1)))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value 0))))))
+      (record_literal
+        (record_field (field_name PLACEHOLDER_13)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value 0))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value 1)))))
+        (record_field (field_name PLACEHOLDER_18)
+          (field_value PLACEHOLDER_18))
+        (record_field (field_name PLACEHOLDER_19)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_8)
+                (field_value
+                  (exp_infix
+                    (exp_record_access PLACEHOLDER_19 PLACEHOLDER_8) + 1)))
+              (record_field (field_name PLACEHOLDER_9)
+                (field_value
+                  (exp_record_access PLACEHOLDER_19 PLACEHOLDER_9))))))
+        (record_field (field_name PLACEHOLDER_14)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value
+                  (exp_record_access PLACEHOLDER_18 PLACEHOLDER_8)))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value
+                  (exp_infix
+                    (exp_record_access PLACEHOLDER_19 PLACEHOLDER_8) + 1))))))))
+    (guard_equation
+      (guards
+        (guard otherwise))
+      (record_literal
+        (record_field (field_name PLACEHOLDER_13)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value 0))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value 1)))))
+        (record_field (field_name PLACEHOLDER_18)
+          (field_value PLACEHOLDER_18))
+        (record_field (field_name PLACEHOLDER_19)
+          (field_value PLACEHOLDER_19))
+        (record_field (field_name PLACEHOLDER_14)
+          (field_value
+            (record_literal
+              (record_field (field_name PLACEHOLDER_5)
+                (field_value
+                  (exp_record_access PLACEHOLDER_18 PLACEHOLDER_8)))
+              (record_field (field_name PLACEHOLDER_6)
+                (field_value
+                  (exp_record_access PLACEHOLDER_19 PLACEHOLDER_8)))))))))
+  (signature PLACEHOLDER_23
+    (type_infix
+      (type_name (type PLACEHOLDER_4)) ->
+      (type_infix
+        (type_name Int) ->
+        (type_infix
+          (type_apply
+            (type_name Array)
+            (type_apply
+              (type_name Array)
+              (type_name Int))) ->
+          (type_apply
+            (type_name Array)
+            (type_apply
+              (type_name Array)
+              (type_name Int)))))))
+  (function PLACEHOLDER_23
+    (patterns
+      (pat_name PLACEHOLDER_14)
+      (pat_name PLACEHOLDER_30)
+      (pat_name PLACEHOLDER_11))
+    (exp_let_in
+      (declarations
+        (function PLACEHOLDER_5
+          (exp_infix
+            (exp_infix
+              (exp_apply Maybe.fromMaybe
+                (exp_array)) $ PLACEHOLDER_11) !!
+            (exp_record_access PLACEHOLDER_14 PLACEHOLDER_5)))
+        (function PLACEHOLDER_31
+          (exp_apply PLACEHOLDER_32
+            (exp_record_access PLACEHOLDER_14 PLACEHOLDER_6) PLACEHOLDER_30 PLACEHOLDER_5)))
+      (exp_apply PLACEHOLDER_32
+        (exp_record_access PLACEHOLDER_14 PLACEHOLDER_5) PLACEHOLDER_31 PLACEHOLDER_11)))
+  (signature PLACEHOLDER_32
+    (type_infix
+      (forall (type_variable PLACEHOLDER_33))
+      (type_name Int) ->
+      (type_infix
+        (type_var (type_variable PLACEHOLDER_33)) ->
+        (type_infix
+          (type_apply
+            (type_name Array)
+            (type_var (type_variable PLACEHOLDER_33))) ->
+          (type_apply
+            (type_name Array)
+            (type_var (type_variable PLACEHOLDER_33)))))))
+  (function PLACEHOLDER_32
+    (patterns
+      (pat_name PLACEHOLDER_34)
+      (pat_name PLACEHOLDER_30)
+      (pat_name PLACEHOLDER_35))
+    (exp_infix
+      (exp_apply Maybe.fromMaybe PLACEHOLDER_35) $
+      (exp_apply Array.updateAt PLACEHOLDER_34 PLACEHOLDER_30 PLACEHOLDER_35)))
+  (signature PLACEHOLDER_17
+    (type_infix
+      (forall (type_variable PLACEHOLDER_33))
+      (type_apply
+        (type_name Array)
+        (type_apply
+          (type_name Array)
+          (type_var (type_variable PLACEHOLDER_33)))) ->
+      (type_apply
+        (type_name List)
+        (type_apply
+          (type_name List)
+          (type_var (type_variable PLACEHOLDER_33))))))
+  (function PLACEHOLDER_17
+    (exp_infix fromFoldable <<<
+      (exp_apply map fromFoldable))))

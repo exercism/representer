@@ -10,6 +10,7 @@ class FolderOfTest < Minitest::Test
 
   def test_keeps_the_names_that_are_one_word_together
     assert_equal "javascript", folder("JavaScript")
+    assert_equal "purescript", folder("PureScript")
     assert_equal "typescript", folder("TypeScript")
   end
 
