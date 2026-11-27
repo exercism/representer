@@ -25,4 +25,6 @@ This service doesn't make Scheme analyses yet, and Scheme has no old analyzer to
 
 ## Snippet
 
-Scheme has no snippet of its own yet, so it keeps Basic's, which removes the comments found by the track's Rouge lexer.
+The snippet used to be Basic's, which removed the comments found by the track's Rouge lexer.
+It now reads the solution's syntax tree, so it removes every comment and `#;` datum wherever they are, and skips the `import`, `use-modules` and `define-module` forms at the top of the file, up to the first other form.
+Its version is now 2.
