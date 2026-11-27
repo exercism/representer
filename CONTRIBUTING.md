@@ -138,7 +138,8 @@ module Representer
       grammar "ruby"
       extensions ".rb"
 
-      names_are :identifier, :constant, :instance_variable, :class_variable, :global_variable, simple_symbol: ":"
+      names_are :identifier, :constant, :instance_variable, :class_variable, :global_variable
+      names_are :simple_symbol, without_prefix: ":"
 
       names_are_defined_by :class, :module, :method_parameters, ...,
         method: :name, assignment: :left, ...
@@ -155,7 +156,7 @@ require_relative "ruby/generate_ast"
 - `version` gives the representer version (see step 5).
 - `grammar` gives the grammar's name in `grammars.yml`.
 - `extensions` gives the language's file extensions. The engine ignores solution files with other extensions.
-- `names_are` gives the leaf types that are names. A keyword gives a prefix that isn't part of the name (Ruby's `simple_symbol: ":"` for `:name`).
+- `names_are` gives the leaf types that are names, and a language can call it more than once. If a type's text starts with something that isn't part of the name, such as the `:` of Ruby's `:name`, give it as `without_prefix:`.
 - `names_are_defined_by` gives the node types that define a name. A type on its own defines each of its children that is a name. A type with a field defines only the child in that field, so `assignment: :left` defines `x` in `x = y`, and not `y`.
 - `imports` gives the code that counts as an import, as code patterns (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#code-patterns)). The engine drops it from every file.
 - `pattern_contexts` (optional) gives the code to put a code pattern in when the pattern doesn't parse on its own.

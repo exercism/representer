@@ -29,15 +29,35 @@ module Representer
       grammar "ruby"
       extensions ".rb"
 
-      names_are :identifier, :constant, :instance_variable, :class_variable, :global_variable, simple_symbol: ":"
+      names_are :identifier,
+                :constant,
+                :instance_variable,
+                :class_variable,
+                :global_variable
+      names_are :simple_symbol, without_prefix: ":"
 
-      names_are_defined_by :class, :module,
-        :method_parameters, :block_parameters, :destructured_parameter, :splat_parameter, :hash_splat_parameter,
-        :block_parameter, :left_assignment_list, :rest_assignment, :destructured_left_assignment, :exception_variable,
-        method: :name, singleton_method: :name, optional_parameter: :name, keyword_parameter: :name,
-        assignment: :left, operator_assignment: :left, for: :pattern
+      names_are_defined_by :class,
+                           :module,
+                           :method_parameters,
+                           :block_parameters,
+                           :destructured_parameter,
+                           :splat_parameter,
+                           :hash_splat_parameter,
+                           :block_parameter,
+                           :left_assignment_list,
+                           :rest_assignment,
+                           :destructured_left_assignment,
+                           :exception_variable,
+                           method: :name,
+                           singleton_method: :name,
+                           optional_parameter: :name,
+                           keyword_parameter: :name,
+                           assignment: :left,
+                           operator_assignment: :left,
+                           for: :pattern
 
-      imports 'require "{{file}}"', 'require_relative "{{file}}"'
+      imports 'require "{{file}}"',
+              'require_relative "{{file}}"'
     end
   end
 end

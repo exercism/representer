@@ -8,7 +8,8 @@ module ToyLanguage
   extend Representer::StagedLanguage
 
   grammar "ruby"
-  names_are :identifier, :constant, simple_symbol: ":"
+  names_are :identifier, :constant
+  names_are :simple_symbol, without_prefix: ":"
   names_are_defined_by :def, assignment: :left
   imports 'require "{{file}}"'
 

@@ -13,11 +13,12 @@ Every solution that the representer sees passes its tests, so a language can dro
 A staged language declares two lists, with the node types that `GenerateAST` leaves:
 
 ```ruby
-names_are :identifier, :constant, :instance_variable, simple_symbol: ":"
+names_are :identifier, :constant, :instance_variable
+names_are :simple_symbol, without_prefix: ":"
 names_are_defined_by :class, :method_parameters, method: :name, assignment: :left
 ```
 
-- `names_are` lists the leaf types that are names. A keyword gives a prefix that isn't part of the name, such as Ruby's `simple_symbol: ":"` for `:name`.
+- `names_are` lists the leaf types that are names, and a language can call it more than once. If a type's text starts with something that isn't part of the name, such as the `:` of Ruby's `:name`, give it as `without_prefix:`.
 - `names_are_defined_by` lists the node types that define a name. A type given on its own defines each of its children that is a name. A type given with a field defines only the child in that field, so `assignment: :left` defines `x` in `x = y`, and not `y`.
 
 [`Engine::RenameUserDefinedNodes`](./lib/representer/engine/rename_user_defined_nodes.rb) then walks the solution's trees twice.

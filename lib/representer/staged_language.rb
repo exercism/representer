@@ -32,12 +32,16 @@ module Representer
 
     def staged? = true
 
-    # Lists the node types that are names, after GenerateAST. A keyword
-    # gives a prefix that isn't part of the name, such as Ruby's
-    # `simple_symbol: ":"` for `:name`.
+    # Lists the node types that are names, after GenerateAST. A language can
+    # call it more than once. If a type's text starts with something that
+    # isn't part of the name, such as the `:` of Ruby's `:name`, give it as
+    # `without_prefix:`.
     #
-    #   names_are :identifier, :constant, simple_symbol: ":"
-    def names_are(*types, **prefixed) = names(*types, **prefixed)
+    #   names_are :identifier, :constant
+    #   names_are :simple_symbol, without_prefix: ":"
+    def names_are(*types, without_prefix: "")
+      @names = (@names || {}).merge(types.to_h { |type| [type.to_s, without_prefix] })
+    end
 
     # Lists the node types that define a name, after GenerateAST. A type
     # given on its own defines each of its children that is a name. A type
