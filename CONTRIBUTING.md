@@ -101,6 +101,7 @@ DEVIATIONS = {
 ```
 
 - `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that the old representer renamed but this one keeps.
+- `replace`: text in `equivalent.<ext>` to replace with other text, for names that this representer renames and the old one kept.
 - `add` and `remove`: names to add to or remove from the old mapping.
 - `unrepresentable: true`: the input has a syntax error that tree-sitter rejects, so it gets no representation. The test checks that, and nothing else.
 - `merges_with`: other tests that this representer gives the same representation, although the old representer kept them apart. Use it only for solutions that differ in code that makes no difference to them working, such as imports.

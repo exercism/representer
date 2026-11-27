@@ -65,6 +65,8 @@ end
 # - restore: placeholders in equivalent.<ext> to turn back into names, for
 #   names the old representer renamed but this one keeps (such as library
 #   method names).
+# - replace: text in equivalent.<ext> to replace with other text, for names
+#   that this representer renames and the old one kept.
 # - add / remove: names to add to or remove from the old mapping.
 # - unrepresentable: the input has a syntax error, so it gets no
 #   representation. The test checks that, and nothing else.
@@ -135,6 +137,7 @@ module UpstreamTests
       files = Dir.children(dir).sort
       solution_names = files.reject { |file| file.start_with?("equivalent", "expected_") }
       equivalent = restore(File.read(File.join(dir, "equivalent#{extension}")), deviation[:restore])
+      equivalent = (deviation[:replace] || {}).reduce(equivalent) { |code, (from, to)| code.gsub(from, to) }
       expected_path = File.join(dir, "expected_representation.txt")
       expected_text = File.exist?(expected_path) ? File.read(expected_path) : equivalent
 

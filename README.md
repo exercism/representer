@@ -26,7 +26,7 @@ The website POSTs JSON like this:
 ```
 
 - `solution_files` are the student's files.
-- `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. Ruby, which is written with stages, ignores them.
+- `exercise_files` are the exercise's test files and stub. The languages written with the rule DSL use them to find the names used in the tests, so that they keep those names. Ruby and Elixir, which are written with stages, ignore them.
 
 It responds with `200` and:
 
@@ -65,10 +65,10 @@ For a language with its own class, the representer:
 2. Drops what makes no difference to the solution working, such as comments, brackets that only group, and imports. Every solution that the representer sees passes its tests, so this code can't change what a mentor says about it.
 3. Rewrites different spellings of the same code into one, such as Ruby's `x if y` into a block `if`, or `1_000` into `1000`.
 4. Joins the files into one tree, in an order that depends only on their code. A file's name is never part of the representation, so renaming or reordering files doesn't change it.
-5. Replaces each name the student chose with a placeholder. For Ruby, this is every name the solution defines, wherever it appears, apart from the names in Ruby's library names list (such as `sum` and `initialize`). The other languages also keep the names used in the tests.
+5. Replaces each name the student chose with a placeholder. For Ruby and Elixir, this is every name the solution defines, wherever it appears. Ruby also keeps the names in its library names list (such as `sum` and `initialize`). The other languages also keep the names used in the tests.
 6. Writes the tree out as an indented s-expression.
 
-Ruby declares its names and imports in [`lib/representer/languages/ruby.rb`](./lib/representer/languages/ruby.rb), and describes steps 2 and 3 in its `GenerateAST` stage in [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/). The comment at the top of each file lists what it does.
+Ruby and Elixir declare their names and imports in [`ruby.rb`](./lib/representer/languages/ruby.rb) and [`elixir.rb`](./lib/representer/languages/elixir.rb), and describe steps 2 and 3 in their stages in [`ruby/`](./lib/representer/languages/ruby/) and [`elixir/`](./lib/representer/languages/elixir/). The comment at the top of each file lists what it does.
 The other languages describe these steps as rules in their class in [`lib/representer/languages/`](./lib/representer/languages/), until they are moved to stages, and the comment at the top of each class lists what its rules do.
 [CONTRIBUTING.md](./CONTRIBUTING.md) explains the stages and how to add a language.
 
