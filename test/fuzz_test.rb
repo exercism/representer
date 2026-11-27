@@ -103,14 +103,15 @@ class FuzzTest < Minitest::Test
     second = respond(track, name, solution_files, exercise_files)
 
     assert_equal 200, first[:statusCode], "#{track} #{name}: #{first[:body]}"
-    body = JSON.parse(first[:body])
-    assert body["representation"] || REASONS.include?(body["reason"]), "#{track} #{name}: #{first[:body]}"
+    output = JSON.parse(first[:body])["representation"]
+    assert output["representation"] || REASONS.include?(output["error"]), "#{track} #{name}: #{first[:body]}"
     assert_equal first[:body], second[:body], "#{track} #{name} got a different response the second time"
     first[:body]
   end
 
   def respond(track, name, solution_files, exercise_files)
-    body = { track_slug: track, exercise_slug: "fuzz", solution_files:, exercise_files: }.to_json
+    body = { track_slug: track, exercise_slug: "fuzz", outputs: Representer::Generate::OUTPUTS, solution_files:,
+             exercise_files: }.to_json
     body = body.b.gsub(BAD_CHARACTER.to_json[1..-2].b, "\xFF".b)
     Representer.process(event: { "body" => body }, context: {})
   rescue StandardError, SystemStackError => e

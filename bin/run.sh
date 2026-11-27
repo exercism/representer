@@ -4,7 +4,8 @@
 # Run the representer on a request.
 
 # Arguments:
-# $1: path to a request.json file, holding the request's JSON body
+# $1: path to a request.json file, holding the request's JSON body. Its
+#     "outputs" field lists what to generate (see README.md).
 # $2: path to output directory (optional)
 
 # Output:

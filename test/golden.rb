@@ -57,11 +57,12 @@ module Golden
   # the website sends, so it gets exactly the response the website gets.
   def self.representation(solution, files = solution.files)
     body = {
-      track_slug: solution.track, exercise_slug: solution.exercise,
+      track_slug: solution.track, exercise_slug: solution.exercise, outputs: ["representation"],
       solution_files: files, exercise_files: exercise_files(solution.track, solution.exercise)
     }
     response = JSON.parse(Representer.process(event: { "body" => body.to_json }, context: {})[:body])
-    response["representation"] ? "#{response['representation']}\n" : "unrepresentable: #{response['reason']}\n"
+    output = response["representation"]
+    output["representation"] ? "#{output['representation']}\n" : "unrepresentable: #{output['error']}\n"
   rescue StandardError => e
     "error: #{e.class}: #{e.message.lines.first.strip}\n"
   end

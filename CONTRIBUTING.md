@@ -273,6 +273,8 @@ Write new code this way, and convert older code to it when you change that code.
 
 ## Running the tests
 
+If a change only touches comments, docs or the Rubocop config, run `bundle exec rubocop --except Metrics` and skip the tests.
+
 If a change only touches one language's files (its class or its folder, its grammar's pin or its golden data), run only that language's tests:
 
 ```shell
