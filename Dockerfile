@@ -4,7 +4,7 @@ FROM public.ecr.aws/lambda/ruby:4.0.2026.11.24.13 AS build
 # don't commit their parser.c (marked `generate: true` in grammars.yml). The
 # runtime stage doesn't get them.
 RUN dnf install gcc git nodejs npm -y && \
-    npm install -g tree-sitter-cli@0.23.0
+    npm install -g tree-sitter-cli@0.25.10
 
 ENV GEM_HOME=${LAMBDA_TASK_ROOT}
 WORKDIR ${LAMBDA_TASK_ROOT}
