@@ -1,14 +1,83 @@
-function ! s:Move ( cs ) dict
-for l : c in split ( a:cs , '\zs' )
-if l : c == # 'R'
-let self . direction = self . direction == 'north' ? 'east' : self . direction == 'east' ? 'south' : self . direction == 'south' ? 'west' : 'north'
-elseif l : c == # 'L'
-let self . direction = self . direction == 'north' ? 'west' : self . direction == 'west' ? 'south' : self . direction == 'south' ? 'east' : 'north'
-elseif l : c == # 'A'
-let [ self . x , self . y ] += self . direction == 'north' ? [ 0 , 1 ] : self . direction == 'east' ? [ 1 , 0 ] : self . direction == 'south' ? [ 0 , -1 ] : [ -1 , 0 ]
-else | throw "'Unknown instruction: '" . instruction | endif
-endfor
-endfunction
-function ! Create ( direction , x , y ) abort
-return { "\"x\"" : a:x , "\"y\"" : a:y , "\"direction\"" : a:direction , "\"Move\"" : function ( "\"s:Move\"" )}
-endfunction
+(script_file
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_1)
+      (parameters PLACEHOLDER_2)) dict
+    (body
+      (for_loop PLACEHOLDER_3
+        (call_expression split
+          (argument PLACEHOLDER_2) "\\zs")
+        (body
+          (if_statement
+            (binary_operation PLACEHOLDER_3 ==
+              (match_case #) "R")
+            (body
+              (let_statement
+                (field_expression self PLACEHOLDER_4)
+                (ternary_expression
+                  (binary_operation
+                    (field_expression self PLACEHOLDER_4) == "north") "east"
+                  (ternary_expression
+                    (binary_operation
+                      (field_expression self PLACEHOLDER_4) == "east") "south"
+                    (ternary_expression
+                      (binary_operation
+                        (field_expression self PLACEHOLDER_4) == "south") "west" "north")))))
+            (elseif_statement
+              (binary_operation PLACEHOLDER_3 ==
+                (match_case #) "L")
+              (body
+                (let_statement
+                  (field_expression self PLACEHOLDER_4)
+                  (ternary_expression
+                    (binary_operation
+                      (field_expression self PLACEHOLDER_4) == "north") "west"
+                    (ternary_expression
+                      (binary_operation
+                        (field_expression self PLACEHOLDER_4) == "west") "south"
+                      (ternary_expression
+                        (binary_operation
+                          (field_expression self PLACEHOLDER_4) == "south") "east" "north"))))))
+            (elseif_statement
+              (binary_operation PLACEHOLDER_3 ==
+                (match_case #) "A")
+              (body
+                (let_statement
+                  (list_assignment
+                    (field_expression self PLACEHOLDER_5)
+                    (field_expression self PLACEHOLDER_6)) +=
+                  (ternary_expression
+                    (binary_operation
+                      (field_expression self PLACEHOLDER_4) == "north")
+                    (list 0 1)
+                    (ternary_expression
+                      (binary_operation
+                        (field_expression self PLACEHOLDER_4) == "east")
+                      (list 1 0)
+                      (ternary_expression
+                        (binary_operation
+                          (field_expression self PLACEHOLDER_4) == "south")
+                        (list 0
+                          (unary_operation - 1))
+                        (list
+                          (unary_operation - 1) 0)))))))
+            (else_statement
+              (body
+                (throw_statement
+                  (binary_operation "Unknown instruction: " .. instruction)))))))))
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_7
+      (parameters PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6)) abort
+    (body
+      (return_statement
+        (dictionnary
+          (dictionnary_entry "x"
+            (argument PLACEHOLDER_5))
+          (dictionnary_entry "y"
+            (argument PLACEHOLDER_6))
+          (dictionnary_entry "direction"
+            (argument PLACEHOLDER_4))
+          (dictionnary_entry "Move"
+            (call_expression function "s:Move")))))))

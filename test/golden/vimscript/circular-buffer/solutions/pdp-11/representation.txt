@@ -1,33 +1,135 @@
-function ! s:Read () dict
-let l : r = self . buffer [ self . rPtr ]
-if l : r is v : null | throw "\"Empty buffer\"" | endif
-let self . buffer [ self . rPtr ] = v : null
-let self . rPtr = ( self . rPtr + 1 ) % self . capacity
-return l : r
-endfunction
-function ! s:Write ( el ) dict
-if self . buffer [ self . wPtr ] != v : null
-if self . wPtr != self . rPtr
-while self . buffer [ self . wPtr ] != v : null
-let self . wPtr += 1
-endwhile
-else | throw "'Full buffer'" | endif
-endif
-let self . buffer [ self . wPtr ] = a:el
-let self . wPtr = ( self . wPtr + 1 ) % self . capacity
-endfunction
-function ! s:Clear () dict
-let [ self . buffer , self . rPtr , self . wPtr ] = [ repeat ([ v : null ], self . capacity ), 0 , 0 ]
-endfunction
-function ! s:Overwrite ( el ) dict
-try
-call self . Write ( a:el )
-catch "/Full buffer/"
-let self . buffer [ self . wPtr ] = a:el
-let [ self . wPtr , self . rPtr ] += [ 1 , 1 ]
-let [ self . wPtr , self . rPtr ] % = [ self . capacity , self . capacity ]
-endtry
-endfunction
-function ! CircularBuffer ( capacity ) abort
-return [ 'Read' , 'Write' , 'Clear' , 'Overwrite' ]-> reduce ({ r , k -> extend ( r , { k : function ( 's:' .. k )})}, { 'capacity' : a:capacity , 'buffer' : repeat ([ v : null ], a:capacity ), 'rPtr' : 0 , 'wPtr' : 0 })
-endfunction
+(script_file
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_1)
+      (parameters)) dict
+    (body
+      (let_statement PLACEHOLDER_2
+        (index_expression
+          (field_expression self PLACEHOLDER_3)
+          (field_expression self PLACEHOLDER_4)))
+      (if_statement
+        (binary_operation PLACEHOLDER_2 is v:null)
+        (body
+          (throw_statement "Empty buffer")))
+      (let_statement
+        (index_expression
+          (field_expression self PLACEHOLDER_3)
+          (field_expression self PLACEHOLDER_4)) v:null)
+      (let_statement
+        (field_expression self PLACEHOLDER_4)
+        (binary_operation
+          (binary_operation
+            (field_expression self PLACEHOLDER_4) + 1) %
+          (field_expression self PLACEHOLDER_5)))
+      (return_statement PLACEHOLDER_2)))
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_6)
+      (parameters PLACEHOLDER_7)) dict
+    (body
+      (if_statement
+        (binary_operation
+          (index_expression
+            (field_expression self PLACEHOLDER_3)
+            (field_expression self PLACEHOLDER_8)) != v:null)
+        (body
+          (if_statement
+            (binary_operation
+              (field_expression self PLACEHOLDER_8) !=
+              (field_expression self PLACEHOLDER_4))
+            (body
+              (while_loop
+                (binary_operation
+                  (index_expression
+                    (field_expression self PLACEHOLDER_3)
+                    (field_expression self PLACEHOLDER_8)) != v:null)
+                (body
+                  (let_statement
+                    (field_expression self PLACEHOLDER_8) += 1))))
+            (else_statement
+              (body
+                (throw_statement "Full buffer"))))))
+      (let_statement
+        (index_expression
+          (field_expression self PLACEHOLDER_3)
+          (field_expression self PLACEHOLDER_8))
+        (argument PLACEHOLDER_7))
+      (let_statement
+        (field_expression self PLACEHOLDER_8)
+        (binary_operation
+          (binary_operation
+            (field_expression self PLACEHOLDER_8) + 1) %
+          (field_expression self PLACEHOLDER_5)))))
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_9)
+      (parameters)) dict
+    (body
+      (let_statement
+        (list_assignment
+          (field_expression self PLACEHOLDER_3)
+          (field_expression self PLACEHOLDER_4)
+          (field_expression self PLACEHOLDER_8))
+        (list
+          (call_expression repeat
+            (list v:null)
+            (field_expression self PLACEHOLDER_5)) 0 0))))
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_10)
+      (parameters PLACEHOLDER_7)) dict
+    (body
+      (try_statement
+        (body
+          (call_statement
+            (call_expression
+              (field_expression self PLACEHOLDER_6)
+              (argument PLACEHOLDER_7))))
+        (catch_statement "/Full buffer/"
+          (body
+            (let_statement
+              (index_expression
+                (field_expression self PLACEHOLDER_3)
+                (field_expression self PLACEHOLDER_8))
+              (argument PLACEHOLDER_7))
+            (let_statement
+              (list_assignment
+                (field_expression self PLACEHOLDER_8)
+                (field_expression self PLACEHOLDER_4)) +=
+              (list 1 1))
+            (let_statement
+              (list_assignment
+                (field_expression self PLACEHOLDER_8)
+                (field_expression self PLACEHOLDER_4)) %=
+              (list
+                (field_expression self PLACEHOLDER_5)
+                (field_expression self PLACEHOLDER_5))))))))
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_11
+      (parameters PLACEHOLDER_5)) abort
+    (body
+      (return_statement
+        (method_expression
+          (list "Read" "Write" "Clear" "Overwrite")
+          (call_expression reduce
+            (lambda_expression PLACEHOLDER_2 PLACEHOLDER_12
+              (call_expression extend PLACEHOLDER_2
+                (dictionnary
+                  (dictionnary_entry PLACEHOLDER_12
+                    (call_expression function
+                      (binary_operation "s:" .. PLACEHOLDER_12))))))
+            (dictionnary
+              (dictionnary_entry "capacity"
+                (argument PLACEHOLDER_5))
+              (dictionnary_entry "buffer"
+                (call_expression repeat
+                  (list v:null)
+                  (argument PLACEHOLDER_5)))
+              (dictionnary_entry "rPtr" 0)
+              (dictionnary_entry "wPtr" 0))))))))

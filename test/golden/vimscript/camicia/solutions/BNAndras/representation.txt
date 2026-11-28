@@ -1,60 +1,139 @@
-function ! SimulateGame ( playerA , playerB ) abort
-let l : handA = map ( copy ( a:playerA ), 's:Val(v:val)' )
-let l : handB = map ( copy ( a:playerB ), 's:Val(v:val)' )
-let l : turn = 'A'
-let l : pile = []
-let l : seen = {}
-let l : total_tricks = 0
-let l : cards_played = 0
-let l : current_debt = 0
-while v : true
-if empty ( l : pile )
-let l : round = string ([ l : handA , l : handB , l : turn ])
-if has_key ( l : seen , l : round )
-return { 'status' : 'loop' , 'tricks' : l : total_tricks , 'cards' : l : cards_played }
-endif
-let l : seen [ l : round ] = v : true
-endif
-let l : active_hand = l : turn == # 'A' ? l : handA : l : handB
-let l : other_hand = l : turn == # 'A' ? l : handB : l : handA
-if empty ( l : active_hand )
-let l : extra_trick = empty ( l : pile ) ? 0 : 1
-return { 'status' : 'finished' , 'tricks' : l : total_tricks + l : extra_trick , 'cards' : l : cards_played }
-endif
-let l : card_val = remove ( l : active_hand , 0 )
-call add ( l : pile , l : card_val )
-let l : cards_played += 1
-if l : card_val > 0
-let l : current_debt = l : card_val
-let l : turn = l : turn == # 'A' ? 'B' : 'A'
-else
-if l : current_debt > 0
-let l : current_debt -= 1
-if l : current_debt == 0
-call extend ( l : other_hand , l : pile )
-let l : pile = []
-let l : total_tricks += 1
-let l : current_debt = 0
-if empty ( l : handA ) || empty ( l : handB )
-return { 'status' : 'finished' , 'tricks' : l : total_tricks , 'cards' : l : cards_played }
-endif
-let l : turn = l : turn == # 'A' ? 'B' : 'A'
-endif
-else
-let l : turn = l : turn == # 'A' ? 'B' : 'A'
-endif
-endif
-endwhile
-endfunction
-function ! s:Val ( card ) abort
-if a:card == # 'J'
-return 1
-elseif a:card == # 'Q'
-return 2
-elseif a:card == # 'K'
-return 3
-elseif a:card == # 'A'
-return 4
-endif
-return 0
-endfunction
+(script_file
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_1
+      (parameters PLACEHOLDER_2 PLACEHOLDER_3)) abort
+    (body
+      (let_statement PLACEHOLDER_4
+        (call_expression map
+          (call_expression copy
+            (argument PLACEHOLDER_2)) "s:Val(v:val)"))
+      (let_statement PLACEHOLDER_5
+        (call_expression map
+          (call_expression copy
+            (argument PLACEHOLDER_3)) "s:Val(v:val)"))
+      (let_statement PLACEHOLDER_6 "A")
+      (let_statement PLACEHOLDER_7
+        (list))
+      (let_statement PLACEHOLDER_8
+        (dictionnary))
+      (let_statement PLACEHOLDER_9 0)
+      (let_statement PLACEHOLDER_10 0)
+      (let_statement PLACEHOLDER_11 0)
+      (while_loop v:true
+        (body
+          (if_statement
+            (call_expression empty PLACEHOLDER_7)
+            (body
+              (let_statement PLACEHOLDER_12
+                (call_expression string
+                  (list PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6)))
+              (if_statement
+                (call_expression has_key PLACEHOLDER_8 PLACEHOLDER_12)
+                (body
+                  (return_statement
+                    (dictionnary
+                      (dictionnary_entry "status" "loop")
+                      (dictionnary_entry "tricks" PLACEHOLDER_9)
+                      (dictionnary_entry "cards" PLACEHOLDER_10)))))
+              (let_statement
+                (index_expression PLACEHOLDER_8 PLACEHOLDER_12) v:true)))
+          (let_statement PLACEHOLDER_13
+            (ternary_expression
+              (binary_operation PLACEHOLDER_6 ==
+                (match_case #) "A") PLACEHOLDER_4 PLACEHOLDER_5))
+          (let_statement PLACEHOLDER_14
+            (ternary_expression
+              (binary_operation PLACEHOLDER_6 ==
+                (match_case #) "A") PLACEHOLDER_5 PLACEHOLDER_4))
+          (if_statement
+            (call_expression empty PLACEHOLDER_13)
+            (body
+              (let_statement PLACEHOLDER_15
+                (ternary_expression
+                  (call_expression empty PLACEHOLDER_7) 0 1))
+              (return_statement
+                (dictionnary
+                  (dictionnary_entry "status" "finished")
+                  (dictionnary_entry "tricks"
+                    (binary_operation PLACEHOLDER_9 + PLACEHOLDER_15))
+                  (dictionnary_entry "cards" PLACEHOLDER_10)))))
+          (let_statement PLACEHOLDER_16
+            (call_expression remove PLACEHOLDER_13 0))
+          (call_statement
+            (call_expression add PLACEHOLDER_7 PLACEHOLDER_16))
+          (let_statement PLACEHOLDER_10 += 1)
+          (if_statement
+            (binary_operation PLACEHOLDER_16 > 0)
+            (body
+              (let_statement PLACEHOLDER_11 PLACEHOLDER_16)
+              (let_statement PLACEHOLDER_6
+                (ternary_expression
+                  (binary_operation PLACEHOLDER_6 ==
+                    (match_case #) "A") "B" "A")))
+            (else_statement
+              (body
+                (if_statement
+                  (binary_operation PLACEHOLDER_11 > 0)
+                  (body
+                    (let_statement PLACEHOLDER_11 -= 1)
+                    (if_statement
+                      (binary_operation PLACEHOLDER_11 == 0)
+                      (body
+                        (call_statement
+                          (call_expression extend PLACEHOLDER_14 PLACEHOLDER_7))
+                        (let_statement PLACEHOLDER_7
+                          (list))
+                        (let_statement PLACEHOLDER_9 += 1)
+                        (let_statement PLACEHOLDER_11 0)
+                        (if_statement
+                          (binary_operation
+                            (call_expression empty PLACEHOLDER_4) ||
+                            (call_expression empty PLACEHOLDER_5))
+                          (body
+                            (return_statement
+                              (dictionnary
+                                (dictionnary_entry "status" "finished")
+                                (dictionnary_entry "tricks" PLACEHOLDER_9)
+                                (dictionnary_entry "cards" PLACEHOLDER_10)))))
+                        (let_statement PLACEHOLDER_6
+                          (ternary_expression
+                            (binary_operation PLACEHOLDER_6 ==
+                              (match_case #) "A") "B" "A")))))
+                  (else_statement
+                    (body
+                      (let_statement PLACEHOLDER_6
+                        (ternary_expression
+                          (binary_operation PLACEHOLDER_6 ==
+                            (match_case #) "A") "B" "A"))))))))))))
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_17)
+      (parameters PLACEHOLDER_18)) abort
+    (body
+      (if_statement
+        (binary_operation
+          (argument PLACEHOLDER_18) ==
+          (match_case #) "J")
+        (body
+          (return_statement 1))
+        (elseif_statement
+          (binary_operation
+            (argument PLACEHOLDER_18) ==
+            (match_case #) "Q")
+          (body
+            (return_statement 2)))
+        (elseif_statement
+          (binary_operation
+            (argument PLACEHOLDER_18) ==
+            (match_case #) "K")
+          (body
+            (return_statement 3)))
+        (elseif_statement
+          (binary_operation
+            (argument PLACEHOLDER_18) ==
+            (match_case #) "A")
+          (body
+            (return_statement 4))))
+      (return_statement 0))))

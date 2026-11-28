@@ -1,20 +1,68 @@
-function ! ToString () dict abort
-return printf ( "\"%02d:%02d\"" , self . h , self . m )
-endfunction
-function ! Add ( d ) dict abort
-let c = Clock ( self . h , self . m + a:d )
-let self . h = c . h
-let self . m = c . m
-endfunction
-function ! Subtract ( d ) dict abort
-call self . Add (- a:d )
-endfunction
-function ! Clock ( hours , minutes ) abort
-let hhmm = ( 60 * a:hours + a:minutes ) % ( 24 * 60 )
-if hhmm < 0
-let hhmm += 24 * 60
-endif
-let h = hhmm / 60
-let m = hhmm % 60
-return { "\"h\"" : h , "\"m\"" : m , "\"ToString\"" : function ( "\"ToString\"" ), "\"Add\"" : function ( "\"Add\"" ), "\"Subtract\"" : function ( "\"Subtract\"" )}
-endfunction
+(script_file
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_1
+      (parameters)) dict abort
+    (body
+      (return_statement
+        (call_expression printf "%02d:%02d"
+          (field_expression self PLACEHOLDER_2)
+          (field_expression self PLACEHOLDER_3)))))
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_4
+      (parameters PLACEHOLDER_5)) dict abort
+    (body
+      (let_statement PLACEHOLDER_6
+        (call_expression PLACEHOLDER_7
+          (field_expression self PLACEHOLDER_2)
+          (binary_operation
+            (field_expression self PLACEHOLDER_3) +
+            (argument PLACEHOLDER_5))))
+      (let_statement
+        (field_expression self PLACEHOLDER_2)
+        (field_expression PLACEHOLDER_6 PLACEHOLDER_2))
+      (let_statement
+        (field_expression self PLACEHOLDER_3)
+        (field_expression PLACEHOLDER_6 PLACEHOLDER_3))))
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_8
+      (parameters PLACEHOLDER_5)) dict abort
+    (body
+      (call_statement
+        (call_expression
+          (field_expression self PLACEHOLDER_4)
+          (unary_operation -
+            (argument PLACEHOLDER_5))))))
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_7
+      (parameters PLACEHOLDER_9 PLACEHOLDER_10)) abort
+    (body
+      (let_statement PLACEHOLDER_11
+        (binary_operation
+          (binary_operation
+            (binary_operation 60 *
+              (argument PLACEHOLDER_9)) +
+            (argument PLACEHOLDER_10)) %
+          (binary_operation 24 * 60)))
+      (if_statement
+        (binary_operation PLACEHOLDER_11 < 0)
+        (body
+          (let_statement PLACEHOLDER_11 +=
+            (binary_operation 24 * 60))))
+      (let_statement PLACEHOLDER_2
+        (binary_operation PLACEHOLDER_11 / 60))
+      (let_statement PLACEHOLDER_3
+        (binary_operation PLACEHOLDER_11 % 60))
+      (return_statement
+        (dictionnary
+          (dictionnary_entry "h" PLACEHOLDER_2)
+          (dictionnary_entry "m" PLACEHOLDER_3)
+          (dictionnary_entry "ToString"
+            (call_expression function "ToString"))
+          (dictionnary_entry "Add"
+            (call_expression function "Add"))
+          (dictionnary_entry "Subtract"
+            (call_expression function "Subtract")))))))
