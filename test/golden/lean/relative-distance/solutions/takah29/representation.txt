@@ -1,31 +1,127 @@
-namespace RelativeDistance
-abbrev Parent := String
-abbrev Children := List String
-def buildAdjacencyMap ( familyTree : List ( Parent × Children ))
-  : Std . HashMap String ( List String ) := Id . run do
-  let mut adjMap : Std . HashMap String ( Std . HashSet String ) := {}
-  for ( parent , children ) in familyTree do
-    adjMap := adjMap . insert parent ( adjMap . getD parent {} |>. insertMany children )
-    for child in children do
-      adjMap := adjMap . insert child ( adjMap . getD child {} |>. insert parent )
-      adjMap := adjMap . insert child ( adjMap . getD child {} |>. insertMany ( children . erase child ))
-  return adjMap . map ( fun _ adj => adj . toList )
-partial def degreeOfSeparation ( familyTree : List ( Parent × Children )) ( personA personB : String ) : Option Nat :=
-  let adjMap := buildAdjacencyMap familyTree
-  let target := personB
-  let rec bfs ( queue : List String ) ( visited : Std . HashSet String ) ( dist : Nat ) : Option Nat :=
-    match queue with
-    | [] => none
-    | _ => do
-      let mut queue ' := []
-      let mut visited ' := visited
-      for current in queue do
-        if current == target then return dist
-        if let some neighbors := adjMap . get ? current then
-          for neighbor in neighbors do
-            if ! visited ' . contains neighbor then
-              visited ' := visited ' . insert neighbor
-              queue ' := neighbor :: queue '
-      bfs queue ' visited ' ( dist + 1 )
-  bfs [ personA ] { personA } 0
-end RelativeDistance
+(source_file
+  (namespace PLACEHOLDER_1)
+  (declaration
+    (definition abbrev PLACEHOLDER_2 String))
+  (declaration
+    (definition abbrev PLACEHOLDER_3
+      (application List String)))
+  (declaration
+    (definition def PLACEHOLDER_4
+      (explicit_binder PLACEHOLDER_5
+        (application List
+          (binary_expression PLACEHOLDER_2 × PLACEHOLDER_3)))
+      (application
+        (dotted_name Std HashMap) String
+        (application List String))
+      (application
+        (dotted_name Id run)
+        (do_expression
+          (block
+            (let_statement mut PLACEHOLDER_6
+              (application
+                (dotted_name Std HashMap) String
+                (application
+                  (dotted_name Std HashSet) String)) :=
+              (structure_instance))
+            (for_statement
+              (tuple
+                (variable_pattern PLACEHOLDER_7)
+                (variable_pattern PLACEHOLDER_8)) PLACEHOLDER_5
+              (block
+                (assignment PLACEHOLDER_6 :=
+                  (application
+                    (dotted_name PLACEHOLDER_6 insert) PLACEHOLDER_7
+                    (binary_expression
+                      (application
+                        (dotted_name PLACEHOLDER_6 getD) PLACEHOLDER_7
+                        (structure_instance)) |>.
+                      (application insertMany PLACEHOLDER_8))))
+                (for_statement
+                  (variable_pattern PLACEHOLDER_9) PLACEHOLDER_8
+                  (block
+                    (assignment PLACEHOLDER_6 :=
+                      (application
+                        (dotted_name PLACEHOLDER_6 insert) PLACEHOLDER_9
+                        (binary_expression
+                          (application
+                            (dotted_name PLACEHOLDER_6 getD) PLACEHOLDER_9
+                            (structure_instance)) |>.
+                          (application insert PLACEHOLDER_7))))
+                    (assignment PLACEHOLDER_6 :=
+                      (application
+                        (dotted_name PLACEHOLDER_6 insert) PLACEHOLDER_9
+                        (binary_expression
+                          (application
+                            (dotted_name PLACEHOLDER_6 getD) PLACEHOLDER_9
+                            (structure_instance)) |>.
+                          (application insertMany
+                            (application
+                              (dotted_name PLACEHOLDER_8 erase) PLACEHOLDER_9)))))))))
+            (return_statement
+              (application
+                (dotted_name PLACEHOLDER_6 map)
+                (fun _
+                  (variable_pattern PLACEHOLDER_10)
+                  (dotted_name PLACEHOLDER_10 toList)))))))))
+  (declaration
+    (modifier partial)
+    (definition def PLACEHOLDER_11
+      (explicit_binder PLACEHOLDER_5
+        (application List
+          (binary_expression PLACEHOLDER_2 × PLACEHOLDER_3)))
+      (explicit_binder PLACEHOLDER_12 PLACEHOLDER_13 String)
+      (application Option Nat)
+      (block
+        (let_statement PLACEHOLDER_6 :=
+          (application PLACEHOLDER_4 PLACEHOLDER_5))
+        (let_statement PLACEHOLDER_14 := PLACEHOLDER_13)
+        (let_statement rec PLACEHOLDER_15
+          (type_ascription
+            (variable_pattern PLACEHOLDER_16)
+            (application List String))
+          (type_ascription
+            (variable_pattern PLACEHOLDER_17)
+            (application
+              (dotted_name Std HashSet) String))
+          (type_ascription
+            (variable_pattern PLACEHOLDER_18) Nat)
+          (application Option Nat) :=
+          (match_expression
+            (match_discriminant PLACEHOLDER_16)
+            (match_alternatives
+              (match_alternative |
+                (list) none)
+              (match_alternative | _
+                (do_expression
+                  (block
+                    (let_statement mut PLACEHOLDER_19 :=
+                      (list))
+                    (let_statement mut PLACEHOLDER_20 := PLACEHOLDER_17)
+                    (for_statement
+                      (variable_pattern PLACEHOLDER_21) PLACEHOLDER_16
+                      (block
+                        (if_expression
+                          (binary_expression PLACEHOLDER_21 == PLACEHOLDER_14)
+                          (return_statement PLACEHOLDER_18))
+                        (if_expression let
+                          (application some
+                            (variable_pattern PLACEHOLDER_22))
+                          (application
+                            (dotted_name PLACEHOLDER_6 get?) PLACEHOLDER_21)
+                          (for_statement
+                            (variable_pattern PLACEHOLDER_23) PLACEHOLDER_22
+                            (if_expression
+                              (unary_expression !
+                                (application
+                                  (dotted_name PLACEHOLDER_20 contains) PLACEHOLDER_23))
+                              (block
+                                (assignment PLACEHOLDER_20 :=
+                                  (application
+                                    (dotted_name PLACEHOLDER_20 insert) PLACEHOLDER_23))
+                                (assignment PLACEHOLDER_19 :=
+                                  (binary_expression PLACEHOLDER_23 :: PLACEHOLDER_19))))))))
+                    (application PLACEHOLDER_15 PLACEHOLDER_19 PLACEHOLDER_20
+                      (binary_expression PLACEHOLDER_18 + 1))))))))
+        (application PLACEHOLDER_15
+          (list PLACEHOLDER_12)
+          (structure_instance PLACEHOLDER_12) 0)))))

@@ -1,63 +1,178 @@
-namespace Grep
-def parseArgs ( args : List String ) : Option ( String × List String × List String ) :=
-  match args with
-  | [] => none
-  | pattern :: rest =>
-    let flags := rest . filter ( fun s => s . startsWith "\"-\"" )
-    let files := rest . filter ( fun s => ! s . startsWith "\"-\"" )
-    some ( pattern , flags , files )
-/
-def linePrefix ( filename : String ) ( lineNum : Nat )
-  ( multiFile : Bool ) ( showLineNumbers : Bool ) : String :=
-  if multiFile && showLineNumbers then
-    filename ++ "\":\"" ++ toString lineNum ++ "\":\""
-  else if multiFile then
-    filename ++ "\":\""
-  else if showLineNumbers then
-    toString lineNum ++ "\":\""
-  else
-    "\"\""
-def processFile ( pattern : String ) ( flags : List String ) ( filename : String )
-  ( contents : String ) ( multiFile : Bool ) : List String :=
-  let caseInsensitive := flags . contains "\"-i\""
-  let invert := flags . contains "\"-v\""
-  let entireLine := flags . contains "\"-x\""
-  let showLineNumbers := flags . contains "\"-n\""
-  let showFilenames := flags . contains "\"-l\""
-  let lines := contents . splitOn "\"\\n\""
-  let lines := if lines . getLast ? == some "\"\"" then lines . dropLast else lines
-  let matchesLine ( line : String ) : Bool :=
-    let pat := if caseInsensitive then pattern . toLower else pattern
-    let l := if caseInsensitive then line . toLower else line
-    let hit := if entireLine then l == pat else l . contains pat
-    if invert then ! hit else hit
-  let matched := lines . zipIdx . filter ( fun ( line , _ ) => matchesLine line )
-  if showFilenames then
-    if matched . isEmpty then [] else [ filename ]
-  else
-    matched . map fun ( line , idx ) =>
-      linePrefix filename ( idx + 1 ) multiFile showLineNumbers ++ line
-def grep ( args : List String ) : IO Unit := do
-  match parseArgs args with
-  | none =>
-    IO . println "\"Called without arguments\""
-  | some ( pattern , flags , files ) =>
-    if files . isEmpty then
-      IO . println "\"Called without a file name\""
-    else
-      let multiFile := files . length > 1
-      let mut output : List String := []
-      let mut errorOccurred := false
-      for filename in files do
-        try
-          let contents ← IO . FS . readFile filename
-          let result := processFile pattern flags filename contents multiFile
-          output := output ++ result
-        catch _ =>
-          errorOccurred := true
-      if errorOccurred then
-        IO . println "\"File not found\""
-      else
-        for line in output do
-          IO . println line
-end Grep
+(source_file
+  (namespace PLACEHOLDER_1)
+  (declaration
+    (definition def PLACEHOLDER_2
+      (explicit_binder PLACEHOLDER_3
+        (application List String))
+      (application Option
+        (binary_expression String ×
+          (binary_expression
+            (application List String) ×
+            (application List String))))
+      (match_expression
+        (match_discriminant PLACEHOLDER_3)
+        (match_alternatives
+          (match_alternative |
+            (list) none)
+          (match_alternative |
+            (binary_expression
+              (variable_pattern PLACEHOLDER_4) ::
+              (variable_pattern PLACEHOLDER_5))
+            (block
+              (let_statement PLACEHOLDER_6 :=
+                (application
+                  (dotted_name PLACEHOLDER_5 filter)
+                  (fun
+                    (variable_pattern PLACEHOLDER_7)
+                    (application
+                      (dotted_name PLACEHOLDER_7 startsWith) "-"))))
+              (let_statement PLACEHOLDER_8 :=
+                (application
+                  (dotted_name PLACEHOLDER_5 filter)
+                  (fun
+                    (variable_pattern PLACEHOLDER_7)
+                    (unary_expression !
+                      (application
+                        (dotted_name PLACEHOLDER_7 startsWith) "-")))))
+              (application some
+                (tuple PLACEHOLDER_4 PLACEHOLDER_6 PLACEHOLDER_8))))))))
+  (declaration
+    (definition def PLACEHOLDER_9
+      (explicit_binder PLACEHOLDER_10 String)
+      (explicit_binder PLACEHOLDER_11 Nat)
+      (explicit_binder PLACEHOLDER_12 Bool)
+      (explicit_binder PLACEHOLDER_13 Bool) String
+      (if_expression
+        (binary_expression PLACEHOLDER_12 && PLACEHOLDER_13)
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_10 ++ ":") ++
+            (application toString PLACEHOLDER_11)) ++ ":")
+        (if_expression PLACEHOLDER_12
+          (binary_expression PLACEHOLDER_10 ++ ":")
+          (if_expression PLACEHOLDER_13
+            (binary_expression
+              (application toString PLACEHOLDER_11) ++ ":") "")))))
+  (declaration
+    (definition def PLACEHOLDER_14
+      (explicit_binder PLACEHOLDER_4 String)
+      (explicit_binder PLACEHOLDER_6
+        (application List String))
+      (explicit_binder PLACEHOLDER_10 String)
+      (explicit_binder PLACEHOLDER_15 String)
+      (explicit_binder PLACEHOLDER_12 Bool)
+      (application List String)
+      (block
+        (let_statement PLACEHOLDER_16 :=
+          (application
+            (dotted_name PLACEHOLDER_6 contains) "-i"))
+        (let_statement PLACEHOLDER_17 :=
+          (application
+            (dotted_name PLACEHOLDER_6 contains) "-v"))
+        (let_statement PLACEHOLDER_18 :=
+          (application
+            (dotted_name PLACEHOLDER_6 contains) "-x"))
+        (let_statement PLACEHOLDER_13 :=
+          (application
+            (dotted_name PLACEHOLDER_6 contains) "-n"))
+        (let_statement PLACEHOLDER_19 :=
+          (application
+            (dotted_name PLACEHOLDER_6 contains) "-l"))
+        (let_statement PLACEHOLDER_20 :=
+          (application
+            (dotted_name PLACEHOLDER_15 splitOn) "\n"))
+        (let_statement PLACEHOLDER_20 :=
+          (if_expression
+            (binary_expression
+              (dotted_name PLACEHOLDER_20 getLast?) ==
+              (application some ""))
+            (dotted_name PLACEHOLDER_20 dropLast) PLACEHOLDER_20))
+        (let_statement PLACEHOLDER_21
+          (type_ascription
+            (variable_pattern PLACEHOLDER_22) String) Bool :=
+          (block
+            (let_statement PLACEHOLDER_23 :=
+              (if_expression PLACEHOLDER_16
+                (dotted_name PLACEHOLDER_4 toLower) PLACEHOLDER_4))
+            (let_statement PLACEHOLDER_24 :=
+              (if_expression PLACEHOLDER_16
+                (dotted_name PLACEHOLDER_22 toLower) PLACEHOLDER_22))
+            (let_statement PLACEHOLDER_25 :=
+              (if_expression PLACEHOLDER_18
+                (binary_expression PLACEHOLDER_24 == PLACEHOLDER_23)
+                (application
+                  (dotted_name PLACEHOLDER_24 contains) PLACEHOLDER_23)))
+            (if_expression PLACEHOLDER_17
+              (unary_expression ! PLACEHOLDER_25) PLACEHOLDER_25)))
+        (let_statement PLACEHOLDER_26 :=
+          (application
+            (dotted_name PLACEHOLDER_20 zipIdx filter)
+            (fun
+              (tuple
+                (variable_pattern PLACEHOLDER_22) _)
+              (application PLACEHOLDER_21 PLACEHOLDER_22))))
+        (if_expression PLACEHOLDER_19
+          (if_expression
+            (dotted_name PLACEHOLDER_26 isEmpty)
+            (list)
+            (list PLACEHOLDER_10))
+          (application
+            (dotted_name PLACEHOLDER_26 map)
+            (fun
+              (tuple
+                (variable_pattern PLACEHOLDER_22)
+                (variable_pattern PLACEHOLDER_27))
+              (binary_expression
+                (application PLACEHOLDER_9 PLACEHOLDER_10
+                  (binary_expression PLACEHOLDER_27 + 1) PLACEHOLDER_12 PLACEHOLDER_13) ++ PLACEHOLDER_22)))))))
+  (declaration
+    (definition def PLACEHOLDER_28
+      (explicit_binder PLACEHOLDER_3
+        (application List String))
+      (application IO Unit)
+      (do_expression
+        (match_expression
+          (match_discriminant
+            (application PLACEHOLDER_2 PLACEHOLDER_3))
+          (match_alternatives
+            (match_alternative | none
+              (application
+                (dotted_name IO println) "Called without arguments"))
+            (match_alternative |
+              (application some
+                (tuple
+                  (variable_pattern PLACEHOLDER_4)
+                  (variable_pattern PLACEHOLDER_6)
+                  (variable_pattern PLACEHOLDER_8)))
+              (if_expression
+                (dotted_name PLACEHOLDER_8 isEmpty)
+                (application
+                  (dotted_name IO println) "Called without a file name")
+                (block
+                  (let_statement PLACEHOLDER_12 :=
+                    (binary_expression
+                      (dotted_name PLACEHOLDER_8 length) > 1))
+                  (let_statement mut PLACEHOLDER_29
+                    (application List String) :=
+                    (list))
+                  (let_statement mut PLACEHOLDER_30 := false)
+                  (for_statement
+                    (variable_pattern PLACEHOLDER_10) PLACEHOLDER_8
+                    (try_statement
+                      (block
+                        (let_statement PLACEHOLDER_15 ←
+                          (application
+                            (dotted_name IO FS readFile) PLACEHOLDER_10))
+                        (let_statement PLACEHOLDER_31 :=
+                          (application PLACEHOLDER_14 PLACEHOLDER_4 PLACEHOLDER_6 PLACEHOLDER_10 PLACEHOLDER_15 PLACEHOLDER_12))
+                        (assignment PLACEHOLDER_29 :=
+                          (binary_expression PLACEHOLDER_29 ++ PLACEHOLDER_31)))
+                      (catch_clause _
+                        (assignment PLACEHOLDER_30 := true))))
+                  (if_expression PLACEHOLDER_30
+                    (application
+                      (dotted_name IO println) "File not found")
+                    (for_statement
+                      (variable_pattern PLACEHOLDER_22) PLACEHOLDER_29
+                      (application
+                        (dotted_name IO println) PLACEHOLDER_22))))))))))))

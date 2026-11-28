@@ -1,51 +1,194 @@
-namespace Satellite
-inductive Tree (α : Type ) : Type where
-  | leaf
-  | branch ( value : α) ( left right : Tree α)
-  deriving BEq , Repr
-inductive Result where
-  | ok : Tree Char -> Result
-  | error : String -> Result
-  deriving BEq , Repr
-structure Triple where
-  tree : Tree Char
-  preorder : List Char
-  inorder : List Char
-  deriving BEq , Repr
-def startsWith ( opt : Option Char ) ( list : List Char ) : Bool :=
-  match ( opt , list ) with
-  | ( some c , first :: _ ) => first == c
-  | _ => false
-partial def traverse ( opt : Option Char ) ( preorder inorder : List Char ) : Option Triple :=
-  if startsWith opt inorder then some { tree := . leaf , preorder := preorder , inorder := inorder }
-  else match preorder with
-  | [] => none
-  | ( firstPreorder :: restPreorder ) =>
-    match traverse ( some firstPreorder ) restPreorder inorder with
-    | none => none
-    | ( some triple ) =>
-      match triple . inorder with
-      | [] => none
-      | ( _ :: []) => some { tree := ( . branch firstPreorder triple . tree . leaf ), preorder := triple . preorder , inorder := [] }
-      | ( _ :: restInorder ) =>
-        match traverse opt triple . preorder restInorder with
-        | none => none
-        | ( some restTriple ) => some { tree := ( . branch firstPreorder triple . tree restTriple . tree ), preorder := restTriple . preorder , inorder := restTriple . inorder }
-def contains ( letter : Char ) ( list : List Char ) : Bool :=
-  match list with
-  | [] => false
-  | ( first :: rest ) => ( first == letter ) || ( contains letter rest )
-def containsRepeat ( list : List Char ) : Bool :=
-  match list with
-  | [] => false
-  | ( first :: rest ) => ( contains first rest ) || ( containsRepeat rest )
-def extractTree ( opt : Option Triple ) : Result :=
-  match opt with
-  | none => ( . error "\"traversals must have the same elements\"" )
-  | some triple => ( . ok triple . tree )
-def treeFromTraversals ( preorder inorder : List Char ) : Result := Id . run do
-  if preorder . length != inorder . length then return ( . error "\"traversals must have the same length\"" )
-  if ( containsRepeat preorder ) || ( containsRepeat inorder ) then return ( . error "\"traversals must contain unique items\"" )
-  if preorder . length == 0 then return ( . ok Tree . leaf )
-  extractTree $ traverse none preorder inorder
-end Satellite
+(source_file
+  (namespace PLACEHOLDER_1)
+  (declaration
+    (inductive PLACEHOLDER_2
+      (explicit_binder PLACEHOLDER_3 Type) Type
+      (constructor PLACEHOLDER_4)
+      (constructor PLACEHOLDER_5
+        (explicit_binder PLACEHOLDER_6 PLACEHOLDER_3)
+        (explicit_binder PLACEHOLDER_7 PLACEHOLDER_8
+          (application PLACEHOLDER_2 PLACEHOLDER_3)))
+      (deriving BEq Repr)))
+  (declaration
+    (inductive PLACEHOLDER_9
+      (constructor PLACEHOLDER_10
+        (binary_expression
+          (application PLACEHOLDER_2 Char) → PLACEHOLDER_9))
+      (constructor PLACEHOLDER_11
+        (binary_expression String → PLACEHOLDER_9))
+      (deriving BEq Repr)))
+  (declaration
+    (structure structure PLACEHOLDER_12
+      (structure_field PLACEHOLDER_13
+        (application PLACEHOLDER_2 Char))
+      (structure_field PLACEHOLDER_14
+        (application List Char))
+      (structure_field PLACEHOLDER_15
+        (application List Char))
+      (deriving BEq Repr)))
+  (declaration
+    (definition def PLACEHOLDER_16
+      (explicit_binder PLACEHOLDER_17
+        (application Option Char))
+      (explicit_binder PLACEHOLDER_18
+        (application List Char)) Bool
+      (match_expression
+        (match_discriminant
+          (tuple PLACEHOLDER_17 PLACEHOLDER_18))
+        (match_alternatives
+          (match_alternative |
+            (tuple
+              (application some
+                (variable_pattern PLACEHOLDER_19))
+              (binary_expression
+                (variable_pattern PLACEHOLDER_20) :: _))
+            (binary_expression PLACEHOLDER_20 == PLACEHOLDER_19))
+          (match_alternative | _ false)))))
+  (declaration
+    (modifier partial)
+    (definition def PLACEHOLDER_21
+      (explicit_binder PLACEHOLDER_17
+        (application Option Char))
+      (explicit_binder PLACEHOLDER_14 PLACEHOLDER_15
+        (application List Char))
+      (application Option PLACEHOLDER_12)
+      (if_expression
+        (application PLACEHOLDER_16 PLACEHOLDER_17 PLACEHOLDER_15)
+        (application some
+          (structure_instance
+            (field_assignment PLACEHOLDER_13 (dot_identifier .PLACEHOLDER_4))
+            (field_assignment PLACEHOLDER_14 PLACEHOLDER_14)
+            (field_assignment PLACEHOLDER_15 PLACEHOLDER_15)))
+        (match_expression
+          (match_discriminant PLACEHOLDER_14)
+          (match_alternatives
+            (match_alternative |
+              (list) none)
+            (match_alternative |
+              (binary_expression
+                (variable_pattern PLACEHOLDER_22) ::
+                (variable_pattern PLACEHOLDER_23))
+              (match_expression
+                (match_discriminant
+                  (application PLACEHOLDER_21
+                    (application some PLACEHOLDER_22) PLACEHOLDER_23 PLACEHOLDER_15))
+                (match_alternatives
+                  (match_alternative | none none)
+                  (match_alternative |
+                    (application some
+                      (variable_pattern PLACEHOLDER_24))
+                    (match_expression
+                      (match_discriminant
+                        (dotted_name PLACEHOLDER_24 PLACEHOLDER_15))
+                      (match_alternatives
+                        (match_alternative |
+                          (list) none)
+                        (match_alternative |
+                          (binary_expression _ ::
+                            (list))
+                          (application some
+                            (structure_instance
+                              (field_assignment PLACEHOLDER_13
+                                (application (dot_identifier .PLACEHOLDER_5) PLACEHOLDER_22
+                                  (dotted_name PLACEHOLDER_24 PLACEHOLDER_13) (dot_identifier .PLACEHOLDER_4)))
+                              (field_assignment PLACEHOLDER_14
+                                (dotted_name PLACEHOLDER_24 PLACEHOLDER_14))
+                              (field_assignment PLACEHOLDER_15
+                                (list)))))
+                        (match_alternative |
+                          (binary_expression _ ::
+                            (variable_pattern PLACEHOLDER_25))
+                          (match_expression
+                            (match_discriminant
+                              (application PLACEHOLDER_21 PLACEHOLDER_17
+                                (dotted_name PLACEHOLDER_24 PLACEHOLDER_14) PLACEHOLDER_25))
+                            (match_alternatives
+                              (match_alternative | none none)
+                              (match_alternative |
+                                (application some
+                                  (variable_pattern PLACEHOLDER_26))
+                                (application some
+                                  (structure_instance
+                                    (field_assignment PLACEHOLDER_13
+                                      (application (dot_identifier .PLACEHOLDER_5) PLACEHOLDER_22
+                                        (dotted_name PLACEHOLDER_24 PLACEHOLDER_13)
+                                        (dotted_name PLACEHOLDER_26 PLACEHOLDER_13)))
+                                    (field_assignment PLACEHOLDER_14
+                                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_14))
+                                    (field_assignment PLACEHOLDER_15
+                                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_15)))))))))))))))))))
+  (declaration
+    (definition def PLACEHOLDER_27
+      (explicit_binder PLACEHOLDER_28 Char)
+      (explicit_binder PLACEHOLDER_18
+        (application List Char)) Bool
+      (match_expression
+        (match_discriminant PLACEHOLDER_18)
+        (match_alternatives
+          (match_alternative |
+            (list) false)
+          (match_alternative |
+            (binary_expression
+              (variable_pattern PLACEHOLDER_20) ::
+              (variable_pattern PLACEHOLDER_29))
+            (binary_expression
+              (binary_expression PLACEHOLDER_20 == PLACEHOLDER_28) ||
+              (application PLACEHOLDER_27 PLACEHOLDER_28 PLACEHOLDER_29)))))))
+  (declaration
+    (definition def PLACEHOLDER_30
+      (explicit_binder PLACEHOLDER_18
+        (application List Char)) Bool
+      (match_expression
+        (match_discriminant PLACEHOLDER_18)
+        (match_alternatives
+          (match_alternative |
+            (list) false)
+          (match_alternative |
+            (binary_expression
+              (variable_pattern PLACEHOLDER_20) ::
+              (variable_pattern PLACEHOLDER_29))
+            (binary_expression
+              (application PLACEHOLDER_27 PLACEHOLDER_20 PLACEHOLDER_29) ||
+              (application PLACEHOLDER_30 PLACEHOLDER_29)))))))
+  (declaration
+    (definition def PLACEHOLDER_31
+      (explicit_binder PLACEHOLDER_17
+        (application Option PLACEHOLDER_12)) PLACEHOLDER_9
+      (match_expression
+        (match_discriminant PLACEHOLDER_17)
+        (match_alternatives
+          (match_alternative | none
+            (application (dot_identifier .PLACEHOLDER_11) "traversals must have the same elements"))
+          (match_alternative |
+            (application some
+              (variable_pattern PLACEHOLDER_24))
+            (application (dot_identifier .PLACEHOLDER_10)
+              (dotted_name PLACEHOLDER_24 PLACEHOLDER_13)))))))
+  (declaration
+    (definition def PLACEHOLDER_32
+      (explicit_binder PLACEHOLDER_14 PLACEHOLDER_15
+        (application List Char)) PLACEHOLDER_9
+      (application
+        (dotted_name Id run)
+        (do_expression
+          (block
+            (if_expression
+              (binary_expression
+                (dotted_name PLACEHOLDER_14 length) !=
+                (dotted_name PLACEHOLDER_15 length))
+              (return_statement
+                (application (dot_identifier .PLACEHOLDER_11) "traversals must have the same length")))
+            (if_expression
+              (binary_expression
+                (application PLACEHOLDER_30 PLACEHOLDER_14) ||
+                (application PLACEHOLDER_30 PLACEHOLDER_15))
+              (return_statement
+                (application (dot_identifier .PLACEHOLDER_11) "traversals must contain unique items")))
+            (if_expression
+              (binary_expression
+                (dotted_name PLACEHOLDER_14 length) == 0)
+              (return_statement
+                (application (dot_identifier .PLACEHOLDER_10)
+                  (dotted_name PLACEHOLDER_2 PLACEHOLDER_4))))
+            (binary_expression PLACEHOLDER_31 $
+              (application PLACEHOLDER_21 none PLACEHOLDER_14 PLACEHOLDER_15))))))))

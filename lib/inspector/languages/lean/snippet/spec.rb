@@ -3,7 +3,13 @@
 # shows the student's own code. docs/snippets.md explains each declaration.
 module Inspector::Languages::Lean::Snippet
   class Spec < Inspector::Engine::Snippet
-    tracks "lean"
+    # Bump the version whenever the snippet of any solution could change.
+    version 1
+
+    # Work on lines, so that the `end` at the bottom of the file can be
+    # skipped. The grammar gives `end Leap` as a statement of its own, after
+    # the code inside the namespace.
+    lines_only
 
     # Remove every comment, wherever it is.
     remove :comments # def x := 1 «-- The answer»

@@ -1,121 +1,492 @@
-namespace LinkedList
-variable { α σ : Type } [ BEq α]
-abbrev NodeSlot (α : Type ) := Option ( Option Nat × Option Nat × α)
-structure LinkedList ( σ α : Type ) where
-  head : ST . Ref σ ( Option Nat )
-  tail : ST . Ref σ ( Option Nat )
-  size : ST . Ref σ Nat
-  nodes : ST . Ref σ ( Array ( NodeSlot α))
-def LinkedList . empty : ST σ ( LinkedList σ α) := do
-  let head : ST . Ref σ ( Option Nat ) ← ST . mkRef ( none : Option Nat )
-  let tail : ST . Ref σ ( Option Nat ) ← ST . mkRef ( none : Option Nat )
-  let size : ST . Ref σ Nat ← ST . mkRef 0
-  let nodes : ST . Ref σ ( Array ( NodeSlot α)) ← ST . mkRef ( # [] : Array ( NodeSlot α))
-  return { head , tail , size , nodes }
-def LinkedList . count ( list : LinkedList σ α) : ST σ Nat :=
-  list . size . get
-def LinkedList . push ( value : α) ( list : LinkedList σ α) : ST σ Unit := do
-  let nodesArr : Array ( NodeSlot α) ← list . nodes . get
-  let idx : Nat := nodesArr . size
-  let prevId : Option Nat ← list . tail . get
-  list . nodes . set ( nodesArr . push ( some ( prevId , none , value )))
-  match prevId with
-  | some pid =>
-    let arr : Array ( NodeSlot α) ← list . nodes . get
-    match arr [ pid ] ? with
-    | some ( some ( p , _ , v )) =>
-      list . nodes . set ( arr . set ! pid ( some ( p , some idx , v )))
-    | _ => pure ()
-  | none =>
-    list . head . set ( some idx )
-  list . tail . set ( some idx )
-  list . size . set (( ← list . size . get ) + 1 )
-def LinkedList . unshift ( value : α) ( list : LinkedList σ α) : ST σ Unit := do
-  let nodesArr : Array ( NodeSlot α) ← list . nodes . get
-  let idx : Nat := nodesArr . size
-  let nextId : Option Nat ← list . head . get
-  list . nodes . set ( nodesArr . push ( some ( none , nextId , value )))
-  match nextId with
-  | some nid =>
-    let arr : Array ( NodeSlot α) ← list . nodes . get
-    match arr [ nid ] ? with
-    | some ( some ( _ , n , v )) =>
-      list . nodes . set ( arr . set ! nid ( some ( some idx , n , v )))
-    | _ => pure ()
-  | none =>
-    list . tail . set ( some idx )
-  list . head . set ( some idx )
-  list . size . set (( ← list . size . get ) + 1 )
-def LinkedList . pop ( list : LinkedList σ α) : ST σ ( Option α) := do
-  let tailId : Option Nat ← list . tail . get
-  match tailId with
-  | none => return none
-  | some tid =>
-    let arr : Array ( NodeSlot α) ← list . nodes . get
-    match arr [ tid ] ? with
-    | some ( some ( p , _ , v )) =>
-      list . tail . set p
-      match p with
-      | some pid =>
-        let arr2 : Array ( NodeSlot α) ← list . nodes . get
-        match arr2 [ pid ] ? with
-        | some ( some ( pp , _ , pv )) =>
-          list . nodes . set ( arr2 . set ! pid ( some ( pp , none , pv )))
-        | _ => pure ()
-      | none =>
-        list . head . set none
-      list . size . set (( ← list . size . get ) - 1 )
-      return some v
-    | _ => return none
-def LinkedList . shift ( list : LinkedList σ α) : ST σ ( Option α) := do
-  let headId : Option Nat ← list . head . get
-  match headId with
-  | none => return none
-  | some hid =>
-    let arr : Array ( NodeSlot α) ← list . nodes . get
-    match arr [ hid ] ? with
-    | some ( some ( _ , n , v )) =>
-      list . head . set n
-      match n with
-      | some nid =>
-        let arr2 : Array ( NodeSlot α) ← list . nodes . get
-        match arr2 [ nid ] ? with
-        | some ( some ( _ , nn , nv )) =>
-          list . nodes . set ( arr2 . set ! nid ( some ( none , nn , nv )))
-        | _ => pure ()
-      | none =>
-        list . tail . set none
-      list . size . set (( ← list . size . get ) - 1 )
-      return some v
-    | _ => return none
-partial def deleteGo ( value : α) ( list : LinkedList σ α) ( cur : Option Nat ) : ST σ Unit := do
-  match cur with
-  | none => return ()
-  | some id =>
-    let arr : Array ( NodeSlot α) ← list . nodes . get
-    match arr [ id ] ? with
-    | some ( some ( p , n , v )) =>
-      if v == value then
-        match p with
-        | some pid =>
-          let arr2 : Array ( NodeSlot α) ← list . nodes . get
-          match arr2 [ pid ] ? with
-          | some ( some ( pp , _ , pv )) =>
-            list . nodes . set ( arr2 . set ! pid ( some ( pp , n , pv )))
-          | _ => pure ()
-        | none => list . head . set n
-        match n with
-        | some nid =>
-          let arr3 : Array ( NodeSlot α) ← list . nodes . get
-          match arr3 [ nid ] ? with
-          | some ( some ( _ , nn , nv )) =>
-            list . nodes . set ( arr3 . set ! nid ( some ( p , nn , nv )))
-          | _ => pure ()
-        | none => list . tail . set p
-        list . size . set (( ← list . size . get ) - 1 )
-      else
-        deleteGo value list n
-    | _ => return ()
-def LinkedList . delete ( value : α) ( list : LinkedList σ α) : ST σ Unit := do
-  deleteGo value list ( ← list . head . get )
-end LinkedList
+(source_file
+  (namespace PLACEHOLDER_1)
+  (variable
+    (implicit_binder PLACEHOLDER_2 PLACEHOLDER_3 Type)
+    (instance_binder
+      (application BEq PLACEHOLDER_2)))
+  (declaration
+    (definition abbrev PLACEHOLDER_4
+      (explicit_binder PLACEHOLDER_2 Type)
+      (application Option
+        (binary_expression
+          (application Option Nat) ×
+          (binary_expression
+            (application Option Nat) × PLACEHOLDER_2)))))
+  (declaration
+    (structure structure PLACEHOLDER_1
+      (explicit_binder PLACEHOLDER_3 PLACEHOLDER_2 Type)
+      (structure_field PLACEHOLDER_5
+        (application
+          (dotted_name ST Ref) PLACEHOLDER_3
+          (application Option Nat)))
+      (structure_field PLACEHOLDER_6
+        (application
+          (dotted_name ST Ref) PLACEHOLDER_3
+          (application Option Nat)))
+      (structure_field PLACEHOLDER_7
+        (application
+          (dotted_name ST Ref) PLACEHOLDER_3 Nat))
+      (structure_field PLACEHOLDER_8
+        (application
+          (dotted_name ST Ref) PLACEHOLDER_3
+          (application Array
+            (application PLACEHOLDER_4 PLACEHOLDER_2))))))
+  (declaration
+    (definition def PLACEHOLDER_1 PLACEHOLDER_9
+      (application ST PLACEHOLDER_3
+        (application PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_2))
+      (do_expression
+        (block
+          (let_statement PLACEHOLDER_5
+            (application
+              (dotted_name ST Ref) PLACEHOLDER_3
+              (application Option Nat)) ←
+            (application
+              (dotted_name ST mkRef)
+              (type_ascription none
+                (application Option Nat))))
+          (let_statement PLACEHOLDER_6
+            (application
+              (dotted_name ST Ref) PLACEHOLDER_3
+              (application Option Nat)) ←
+            (application
+              (dotted_name ST mkRef)
+              (type_ascription none
+                (application Option Nat))))
+          (let_statement PLACEHOLDER_7
+            (application
+              (dotted_name ST Ref) PLACEHOLDER_3 Nat) ←
+            (application
+              (dotted_name ST mkRef) 0))
+          (let_statement PLACEHOLDER_8
+            (application
+              (dotted_name ST Ref) PLACEHOLDER_3
+              (application Array
+                (application PLACEHOLDER_4 PLACEHOLDER_2))) ←
+            (application
+              (dotted_name ST mkRef)
+              (type_ascription
+                (array)
+                (application Array
+                  (application PLACEHOLDER_4 PLACEHOLDER_2)))))
+          (return_statement
+            (structure_instance PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8))))))
+  (declaration
+    (definition def PLACEHOLDER_1 PLACEHOLDER_10
+      (explicit_binder PLACEHOLDER_11
+        (application PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_2))
+      (application ST PLACEHOLDER_3 Nat)
+      (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 get)))
+  (declaration
+    (definition def PLACEHOLDER_1 PLACEHOLDER_12
+      (explicit_binder PLACEHOLDER_13 PLACEHOLDER_2)
+      (explicit_binder PLACEHOLDER_11
+        (application PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_2))
+      (application ST PLACEHOLDER_3 Unit)
+      (do_expression
+        (block
+          (let_statement PLACEHOLDER_14
+            (application Array
+              (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+          (let_statement PLACEHOLDER_15 Nat :=
+            (dotted_name PLACEHOLDER_14 PLACEHOLDER_7))
+          (let_statement PLACEHOLDER_16
+            (application Option Nat) ←
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_6 get))
+          (application
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 set)
+            (application
+              (dotted_name PLACEHOLDER_14 PLACEHOLDER_12)
+              (application some
+                (tuple PLACEHOLDER_16 none PLACEHOLDER_13))))
+          (match_expression
+            (match_discriminant PLACEHOLDER_16)
+            (match_alternatives
+              (match_alternative |
+                (application some
+                  (variable_pattern PLACEHOLDER_17))
+                (block
+                  (let_statement PLACEHOLDER_18
+                    (application Array
+                      (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                    (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                  (match_expression
+                    (match_discriminant
+                      (index_expression PLACEHOLDER_18 PLACEHOLDER_17 ?))
+                    (match_alternatives
+                      (match_alternative |
+                        (application some
+                          (application some
+                            (tuple
+                              (variable_pattern PLACEHOLDER_19) _
+                              (variable_pattern PLACEHOLDER_20))))
+                        (application
+                          (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 set)
+                          (application
+                            (dotted_name PLACEHOLDER_18 set!) PLACEHOLDER_17
+                            (application some
+                              (tuple PLACEHOLDER_19
+                                (application some PLACEHOLDER_15) PLACEHOLDER_20)))))
+                      (match_alternative | _
+                        (application pure
+                          (unit)))))))
+              (match_alternative | none
+                (application
+                  (dotted_name PLACEHOLDER_11 PLACEHOLDER_5 set)
+                  (application some PLACEHOLDER_15)))))
+          (application
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_6 set)
+            (application some PLACEHOLDER_15))
+          (application
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 set)
+            (binary_expression
+              (unary_expression ←
+                (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 get)) + 1))))))
+  (declaration
+    (definition def PLACEHOLDER_1 PLACEHOLDER_21
+      (explicit_binder PLACEHOLDER_13 PLACEHOLDER_2)
+      (explicit_binder PLACEHOLDER_11
+        (application PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_2))
+      (application ST PLACEHOLDER_3 Unit)
+      (do_expression
+        (block
+          (let_statement PLACEHOLDER_14
+            (application Array
+              (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+          (let_statement PLACEHOLDER_15 Nat :=
+            (dotted_name PLACEHOLDER_14 PLACEHOLDER_7))
+          (let_statement PLACEHOLDER_22
+            (application Option Nat) ←
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_5 get))
+          (application
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 set)
+            (application
+              (dotted_name PLACEHOLDER_14 PLACEHOLDER_12)
+              (application some
+                (tuple none PLACEHOLDER_22 PLACEHOLDER_13))))
+          (match_expression
+            (match_discriminant PLACEHOLDER_22)
+            (match_alternatives
+              (match_alternative |
+                (application some
+                  (variable_pattern PLACEHOLDER_23))
+                (block
+                  (let_statement PLACEHOLDER_18
+                    (application Array
+                      (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                    (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                  (match_expression
+                    (match_discriminant
+                      (index_expression PLACEHOLDER_18 PLACEHOLDER_23 ?))
+                    (match_alternatives
+                      (match_alternative |
+                        (application some
+                          (application some
+                            (tuple _
+                              (variable_pattern PLACEHOLDER_24)
+                              (variable_pattern PLACEHOLDER_20))))
+                        (application
+                          (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 set)
+                          (application
+                            (dotted_name PLACEHOLDER_18 set!) PLACEHOLDER_23
+                            (application some
+                              (tuple
+                                (application some PLACEHOLDER_15) PLACEHOLDER_24 PLACEHOLDER_20)))))
+                      (match_alternative | _
+                        (application pure
+                          (unit)))))))
+              (match_alternative | none
+                (application
+                  (dotted_name PLACEHOLDER_11 PLACEHOLDER_6 set)
+                  (application some PLACEHOLDER_15)))))
+          (application
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_5 set)
+            (application some PLACEHOLDER_15))
+          (application
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 set)
+            (binary_expression
+              (unary_expression ←
+                (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 get)) + 1))))))
+  (declaration
+    (definition def PLACEHOLDER_1 PLACEHOLDER_25
+      (explicit_binder PLACEHOLDER_11
+        (application PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_2))
+      (application ST PLACEHOLDER_3
+        (application Option PLACEHOLDER_2))
+      (do_expression
+        (block
+          (let_statement PLACEHOLDER_26
+            (application Option Nat) ←
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_6 get))
+          (match_expression
+            (match_discriminant PLACEHOLDER_26)
+            (match_alternatives
+              (match_alternative | none
+                (return_statement none))
+              (match_alternative |
+                (application some
+                  (variable_pattern PLACEHOLDER_27))
+                (block
+                  (let_statement PLACEHOLDER_18
+                    (application Array
+                      (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                    (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                  (match_expression
+                    (match_discriminant
+                      (index_expression PLACEHOLDER_18 PLACEHOLDER_27 ?))
+                    (match_alternatives
+                      (match_alternative |
+                        (application some
+                          (application some
+                            (tuple
+                              (variable_pattern PLACEHOLDER_19) _
+                              (variable_pattern PLACEHOLDER_20))))
+                        (block
+                          (application
+                            (dotted_name PLACEHOLDER_11 PLACEHOLDER_6 set) PLACEHOLDER_19)
+                          (match_expression
+                            (match_discriminant PLACEHOLDER_19)
+                            (match_alternatives
+                              (match_alternative |
+                                (application some
+                                  (variable_pattern PLACEHOLDER_17))
+                                (block
+                                  (let_statement PLACEHOLDER_28
+                                    (application Array
+                                      (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                                    (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                                  (match_expression
+                                    (match_discriminant
+                                      (index_expression PLACEHOLDER_28 PLACEHOLDER_17 ?))
+                                    (match_alternatives
+                                      (match_alternative |
+                                        (application some
+                                          (application some
+                                            (tuple
+                                              (variable_pattern PLACEHOLDER_29) _
+                                              (variable_pattern PLACEHOLDER_30))))
+                                        (application
+                                          (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 set)
+                                          (application
+                                            (dotted_name PLACEHOLDER_28 set!) PLACEHOLDER_17
+                                            (application some
+                                              (tuple PLACEHOLDER_29 none PLACEHOLDER_30)))))
+                                      (match_alternative | _
+                                        (application pure
+                                          (unit)))))))
+                              (match_alternative | none
+                                (application
+                                  (dotted_name PLACEHOLDER_11 PLACEHOLDER_5 set) none))))
+                          (application
+                            (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 set)
+                            (binary_expression
+                              (unary_expression ←
+                                (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 get)) - 1))
+                          (return_statement
+                            (application some PLACEHOLDER_20))))
+                      (match_alternative | _
+                        (return_statement none))))))))))))
+  (declaration
+    (definition def PLACEHOLDER_1 PLACEHOLDER_31
+      (explicit_binder PLACEHOLDER_11
+        (application PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_2))
+      (application ST PLACEHOLDER_3
+        (application Option PLACEHOLDER_2))
+      (do_expression
+        (block
+          (let_statement PLACEHOLDER_32
+            (application Option Nat) ←
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_5 get))
+          (match_expression
+            (match_discriminant PLACEHOLDER_32)
+            (match_alternatives
+              (match_alternative | none
+                (return_statement none))
+              (match_alternative |
+                (application some
+                  (variable_pattern PLACEHOLDER_33))
+                (block
+                  (let_statement PLACEHOLDER_18
+                    (application Array
+                      (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                    (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                  (match_expression
+                    (match_discriminant
+                      (index_expression PLACEHOLDER_18 PLACEHOLDER_33 ?))
+                    (match_alternatives
+                      (match_alternative |
+                        (application some
+                          (application some
+                            (tuple _
+                              (variable_pattern PLACEHOLDER_24)
+                              (variable_pattern PLACEHOLDER_20))))
+                        (block
+                          (application
+                            (dotted_name PLACEHOLDER_11 PLACEHOLDER_5 set) PLACEHOLDER_24)
+                          (match_expression
+                            (match_discriminant PLACEHOLDER_24)
+                            (match_alternatives
+                              (match_alternative |
+                                (application some
+                                  (variable_pattern PLACEHOLDER_23))
+                                (block
+                                  (let_statement PLACEHOLDER_28
+                                    (application Array
+                                      (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                                    (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                                  (match_expression
+                                    (match_discriminant
+                                      (index_expression PLACEHOLDER_28 PLACEHOLDER_23 ?))
+                                    (match_alternatives
+                                      (match_alternative |
+                                        (application some
+                                          (application some
+                                            (tuple _
+                                              (variable_pattern PLACEHOLDER_34)
+                                              (variable_pattern PLACEHOLDER_35))))
+                                        (application
+                                          (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 set)
+                                          (application
+                                            (dotted_name PLACEHOLDER_28 set!) PLACEHOLDER_23
+                                            (application some
+                                              (tuple none PLACEHOLDER_34 PLACEHOLDER_35)))))
+                                      (match_alternative | _
+                                        (application pure
+                                          (unit)))))))
+                              (match_alternative | none
+                                (application
+                                  (dotted_name PLACEHOLDER_11 PLACEHOLDER_6 set) none))))
+                          (application
+                            (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 set)
+                            (binary_expression
+                              (unary_expression ←
+                                (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 get)) - 1))
+                          (return_statement
+                            (application some PLACEHOLDER_20))))
+                      (match_alternative | _
+                        (return_statement none))))))))))))
+  (declaration
+    (modifier partial)
+    (definition def PLACEHOLDER_36
+      (explicit_binder PLACEHOLDER_13 PLACEHOLDER_2)
+      (explicit_binder PLACEHOLDER_11
+        (application PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_2))
+      (explicit_binder PLACEHOLDER_37
+        (application Option Nat))
+      (application ST PLACEHOLDER_3 Unit)
+      (do_expression
+        (match_expression
+          (match_discriminant PLACEHOLDER_37)
+          (match_alternatives
+            (match_alternative | none
+              (return_statement
+                (unit)))
+            (match_alternative |
+              (application some
+                (variable_pattern PLACEHOLDER_38))
+              (block
+                (let_statement PLACEHOLDER_18
+                  (application Array
+                    (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                  (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                (match_expression
+                  (match_discriminant
+                    (index_expression PLACEHOLDER_18 PLACEHOLDER_38 ?))
+                  (match_alternatives
+                    (match_alternative |
+                      (application some
+                        (application some
+                          (tuple
+                            (variable_pattern PLACEHOLDER_19)
+                            (variable_pattern PLACEHOLDER_24)
+                            (variable_pattern PLACEHOLDER_20))))
+                      (if_expression
+                        (binary_expression PLACEHOLDER_20 == PLACEHOLDER_13)
+                        (block
+                          (match_expression
+                            (match_discriminant PLACEHOLDER_19)
+                            (match_alternatives
+                              (match_alternative |
+                                (application some
+                                  (variable_pattern PLACEHOLDER_17))
+                                (block
+                                  (let_statement PLACEHOLDER_28
+                                    (application Array
+                                      (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                                    (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                                  (match_expression
+                                    (match_discriminant
+                                      (index_expression PLACEHOLDER_28 PLACEHOLDER_17 ?))
+                                    (match_alternatives
+                                      (match_alternative |
+                                        (application some
+                                          (application some
+                                            (tuple
+                                              (variable_pattern PLACEHOLDER_29) _
+                                              (variable_pattern PLACEHOLDER_30))))
+                                        (application
+                                          (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 set)
+                                          (application
+                                            (dotted_name PLACEHOLDER_28 set!) PLACEHOLDER_17
+                                            (application some
+                                              (tuple PLACEHOLDER_29 PLACEHOLDER_24 PLACEHOLDER_30)))))
+                                      (match_alternative | _
+                                        (application pure
+                                          (unit)))))))
+                              (match_alternative | none
+                                (application
+                                  (dotted_name PLACEHOLDER_11 PLACEHOLDER_5 set) PLACEHOLDER_24))))
+                          (match_expression
+                            (match_discriminant PLACEHOLDER_24)
+                            (match_alternatives
+                              (match_alternative |
+                                (application some
+                                  (variable_pattern PLACEHOLDER_23))
+                                (block
+                                  (let_statement PLACEHOLDER_39
+                                    (application Array
+                                      (application PLACEHOLDER_4 PLACEHOLDER_2)) ←
+                                    (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 get))
+                                  (match_expression
+                                    (match_discriminant
+                                      (index_expression PLACEHOLDER_39 PLACEHOLDER_23 ?))
+                                    (match_alternatives
+                                      (match_alternative |
+                                        (application some
+                                          (application some
+                                            (tuple _
+                                              (variable_pattern PLACEHOLDER_34)
+                                              (variable_pattern PLACEHOLDER_35))))
+                                        (application
+                                          (dotted_name PLACEHOLDER_11 PLACEHOLDER_8 set)
+                                          (application
+                                            (dotted_name PLACEHOLDER_39 set!) PLACEHOLDER_23
+                                            (application some
+                                              (tuple PLACEHOLDER_19 PLACEHOLDER_34 PLACEHOLDER_35)))))
+                                      (match_alternative | _
+                                        (application pure
+                                          (unit)))))))
+                              (match_alternative | none
+                                (application
+                                  (dotted_name PLACEHOLDER_11 PLACEHOLDER_6 set) PLACEHOLDER_19))))
+                          (application
+                            (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 set)
+                            (binary_expression
+                              (unary_expression ←
+                                (dotted_name PLACEHOLDER_11 PLACEHOLDER_7 get)) - 1)))
+                        (application PLACEHOLDER_36 PLACEHOLDER_13 PLACEHOLDER_11 PLACEHOLDER_24)))
+                    (match_alternative | _
+                      (return_statement
+                        (unit))))))))))))
+  (declaration
+    (definition def PLACEHOLDER_1 PLACEHOLDER_40
+      (explicit_binder PLACEHOLDER_13 PLACEHOLDER_2)
+      (explicit_binder PLACEHOLDER_11
+        (application PLACEHOLDER_1 PLACEHOLDER_3 PLACEHOLDER_2))
+      (application ST PLACEHOLDER_3 Unit)
+      (do_expression
+        (application PLACEHOLDER_36 PLACEHOLDER_13 PLACEHOLDER_11
+          (unary_expression ←
+            (dotted_name PLACEHOLDER_11 PLACEHOLDER_5 get)))))))
