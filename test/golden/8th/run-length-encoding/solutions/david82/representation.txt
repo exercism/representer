@@ -1,24 +1,18 @@
-needs regex/match
-: empty-string? \ s -- s T
-s:len 0 n:=
-;
-: encode-run \ a -- s
-a:open drop s:len 1 n:= !if s:len >s swap 0 1 s:slice s:+ ;then
-;
-: encode-runs \ s -- a
-/(.)\1*/ r:matchall[] ( encode-run 2 step ) 2 1 a:map+
-;
-: encode \ s -- s
-empty-string? if ;then
-encode-runs "\"\"" a:join
-;
-: decode-run \ a -- s
-a:open swap >n null? if drop 1 then s:* nip
-;
-: decode-runs \ s -- a
-/(\d*)(.)/ r:matchall[] ( decode-run 3 step ) 3 1 a:map+
-;
-: decode \ s -- s
-empty-string? if ;then
-decode-runs "\"\"" a:join
-;
+(source_file
+  (word_definition PLACEHOLDER_1 s:len 0 n:=)
+  (word_definition PLACEHOLDER_2 a:open drop s:len 1 n:=
+    (if_statement !if
+      (block s:len >s swap 0 1 s:slice s:+) ;then))
+  (word_definition PLACEHOLDER_3 "/(.)\\1*/" r:matchall[]
+    (quotation
+      (block (word PLACEHOLDER_2) 2 step)) 2 1 a:map+)
+  (word_definition PLACEHOLDER_4 (word PLACEHOLDER_1)
+    (if_statement ;then) (word PLACEHOLDER_3) "" a:join)
+  (word_definition PLACEHOLDER_5 a:open swap >n null?
+    (if_statement
+      (block drop 1)) s:* nip)
+  (word_definition PLACEHOLDER_6 "/(\\d*)(.)/" r:matchall[]
+    (quotation
+      (block (word PLACEHOLDER_5) 3 step)) 3 1 a:map+)
+  (word_definition PLACEHOLDER_7 (word PLACEHOLDER_1)
+    (if_statement ;then) (word PLACEHOLDER_6) "" a:join))

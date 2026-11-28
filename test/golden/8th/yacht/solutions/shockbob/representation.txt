@@ -1,74 +1,78 @@
-["zzz","ones","twos","threes","fours","fives","sixes"] constant nums
-: add-vals \ m - n
-m:vals a:squash
-( n:+ ) 0 a:reduce nip
-;
-: score \ m n - n
-swap ( a:_len nip over n:= ) m:filter add-vals
-;
-: build-groups \ a - m a
-( ) a:group m:vals ( a:_len ) a:map ( n:cmp ) a:sort
-;
-: little-straight? \ a - T
-( n:cmp ) a:sort [1,2,3,4,5] ( n:= ) a:= 2nip ;
-: big-straight? \ a - T
-( n:cmp ) a:sort [2,3,4,5,6] ( n:= ) a:= 2nip ;
-: yacht? \ a - T
-build-groups nip a:len 1 n:= nip
-;
-: full-house-score \ a -- T
-build-groups
-[2,3] ( n:= ) a:= if
-2drop
-add-vals
-else
-drop
-2drop 0
-then
-;
-: four-of-a-kind-score \ a -- n
-build-groups
-[1,4] ( n:= ) a:= if
-2drop 4 score nip
-;then
-drop
-[5] ( n:= ) a:= if
-2drop 5 score 4 n:* 5 n:/ nip
-else
-2drop drop 0
-then
-;
-: play_yacht \ a s -- n
-\ array-of-roll
-\ scoring-method
-\ score
-dup nums swap ( s:= ) a:indexof nip null? if
-drop
-dup "\"yacht\"" s:= if
-drop
-yacht? if 50 else 0 ;then
-;then
-dup "\"little" straight" s:= if
-drop
-little-straight? if 30 else 0 ;then
-;then
-dup "\"big" straight" s:= if
-drop
-big-straight? if 30 else 0 ;then
-;then
-dup "\"four" of a kind" s:= if
-drop
-four-of-a-kind-score
-;then
-dup "\"full" house" s:= if
-drop
-full-house-score
-;then
-dup "\"choice\"" s:= if
-drop
-( n:+ ) 0 a:reduce
-;then
-else
-nip >r ( r@ n:= ) a:filter a:len r@ n:* nip
-then
-;
+(source_file
+  (array "zzz" "ones" "twos" "threes" "fours" "fives" "sixes")
+  (constant_definition PLACEHOLDER_1)
+  (word_definition PLACEHOLDER_2 m:vals a:squash
+    (quotation
+      (block n:+)) 0 a:reduce nip)
+  (word_definition PLACEHOLDER_3 swap
+    (quotation
+      (block a:_len nip over n:=)) m:filter (word PLACEHOLDER_2))
+  (word_definition PLACEHOLDER_4
+    (quotation) a:group m:vals
+    (quotation
+      (block a:_len)) a:map
+    (quotation
+      (block n:cmp)) a:sort)
+  (word_definition PLACEHOLDER_5
+    (quotation
+      (block n:cmp)) a:sort
+    (array 1 2 3 4 5)
+    (quotation
+      (block n:=)) a:= 2nip)
+  (word_definition PLACEHOLDER_6
+    (quotation
+      (block n:cmp)) a:sort
+    (array 2 3 4 5 6)
+    (quotation
+      (block n:=)) a:= 2nip)
+  (word_definition PLACEHOLDER_7 (word PLACEHOLDER_4) nip a:len 1 n:= nip)
+  (word_definition PLACEHOLDER_8 (word PLACEHOLDER_4)
+    (array 2 3)
+    (quotation
+      (block n:=)) a:=
+    (if_statement
+      (block 2drop (word PLACEHOLDER_2)) else
+      (block drop 2drop 0)))
+  (word_definition PLACEHOLDER_9 (word PLACEHOLDER_4)
+    (array 1 4)
+    (quotation
+      (block n:=)) a:=
+    (if_statement
+      (block 2drop 4 (word PLACEHOLDER_3) nip) ;then) drop
+    (array 5)
+    (quotation
+      (block n:=)) a:=
+    (if_statement
+      (block 2drop 5 (word PLACEHOLDER_3) 4 n:* 5 n:/ nip) else
+      (block 2drop drop 0)))
+  (word_definition PLACEHOLDER_10 dup (word PLACEHOLDER_1) swap
+    (quotation
+      (block s:=)) a:indexof nip null?
+    (if_statement
+      (block drop dup "yacht" s:=
+        (if_statement
+          (block drop (word PLACEHOLDER_7)
+            (if_statement
+              (block 50) else
+              (block 0) ;then)) ;then) dup "little straight" s:=
+        (if_statement
+          (block drop (word PLACEHOLDER_5)
+            (if_statement
+              (block 30) else
+              (block 0) ;then)) ;then) dup "big straight" s:=
+        (if_statement
+          (block drop (word PLACEHOLDER_6)
+            (if_statement
+              (block 30) else
+              (block 0) ;then)) ;then) dup "four of a kind" s:=
+        (if_statement
+          (block drop (word PLACEHOLDER_9)) ;then) dup "full house" s:=
+        (if_statement
+          (block drop (word PLACEHOLDER_8)) ;then) dup "choice" s:=
+        (if_statement
+          (block drop
+            (quotation
+              (block n:+)) 0 a:reduce) ;then)) else
+      (block nip >r
+        (quotation
+          (block r@ n:=)) a:filter a:len r@ n:* nip))))

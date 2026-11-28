@@ -1,69 +1,30 @@
-var N:value
-: N:! N:value ! ;
-: N:@ N:value @ ;
-: N:3rd N:@ 3 / int ;
-: make-a-candidates SED: -- a
-( ) 1 N:3rd a:generate
-;
-: /2up SED: n -- n
-2 n:/ ceil int
-;
-: initial-boundary SED: a -- l h
-dup N:@ swap n:- /2up
-;
-: add-c SED: a b -- a b c
-2dup n:+ N:@ swap n:-
-;
-\ given a candidate a and a candidate b
-\ how far from having the sum of squares
-\ equal the square of (N - (a+b)) would we be?
-: difference-from-square SED: a b -- a b n
-2dup add-c \ a b a b c
-dup n:* -rot \ a b c^2 a b
-dup n:* swap \ a b c^2 b^2 a
-dup n:* n:+ \ a b c^2 (a^2 + b^2)
-swap n:- \ positive if b is too big
-;
-: binary-search-b SED: a l h -- a l h
-2dup n:< \ stop recursing when l == h
-if 2dup >r >r n:+ /2up \ a m { -- h l }
-difference-from-square \ a m n
-dup 0 n:=
-if drop dup \ m is b so stop recursing
-else 0 n:>
-if 1 n:-
-r> swap
-rdrop
-recurse \ m was too big so recurse with -- a l m
-else rdrop
-r>
-recurse \ m was too small so recurse with -- a m h
-then
-then
-then
-;
-: find-b-and-c SED: n -- a
-dup initial-boundary
-binary-search-b
-drop difference-from-square 0 n:= \ did the binary search halt with a legal triplet or not?
-if add-c
-3 a:close
-else 2drop
-a:new
-then
-;
-: remove-empties SED: a -- a
-( a:len swap drop ) a:filter
-;
-: find-triplets SED: a -- a
-' find-b-and-c a:map
-remove-empties
-;
-\ Given a positive integer N, returns an array of Pythagorean triplets
-\ for which a + b + c = N. For example, with N = 1_000, the result contains
-\ exactly one triplet: [ [ 200, 375, 425 ] ].
-: triplets-with-sum SED: n -- a
-N:!
-make-a-candidates
-find-triplets
-;
+(source_file
+  (variable_definition PLACEHOLDER_1)
+  (word_definition PLACEHOLDER_2 (word PLACEHOLDER_1) !)
+  (word_definition PLACEHOLDER_3 (word PLACEHOLDER_1) @)
+  (word_definition PLACEHOLDER_4 (word PLACEHOLDER_3) 3 / int)
+  (word_definition PLACEHOLDER_5
+    (quotation) 1 (word PLACEHOLDER_4) a:generate)
+  (word_definition PLACEHOLDER_6 2 n:/ ceil int)
+  (word_definition PLACEHOLDER_7 dup (word PLACEHOLDER_3) swap n:- (word PLACEHOLDER_6))
+  (word_definition PLACEHOLDER_8 2dup n:+ (word PLACEHOLDER_3) swap n:-)
+  (word_definition PLACEHOLDER_9 2dup (word PLACEHOLDER_8) dup n:* -rot dup n:* swap dup n:* n:+ swap n:-)
+  (word_definition PLACEHOLDER_10 2dup n:<
+    (if_statement
+      (block 2dup >r >r n:+ (word PLACEHOLDER_6) (word PLACEHOLDER_9) dup 0 n:=
+        (if_statement
+          (block drop dup) else
+          (block 0 n:>
+            (if_statement
+              (block 1 n:- r> swap rdrop recurse) else
+              (block rdrop r> recurse)))))))
+  (word_definition PLACEHOLDER_11 dup (word PLACEHOLDER_7) (word PLACEHOLDER_10) drop (word PLACEHOLDER_9) 0 n:=
+    (if_statement
+      (block (word PLACEHOLDER_8) 3 a:close) else
+      (block 2drop a:new)))
+  (word_definition PLACEHOLDER_12
+    (quotation
+      (block a:len swap drop)) a:filter)
+  (word_definition PLACEHOLDER_13
+    (tick (word PLACEHOLDER_11)) a:map (word PLACEHOLDER_12))
+  (word_definition PLACEHOLDER_14 (word PLACEHOLDER_2) (word PLACEHOLDER_5) (word PLACEHOLDER_13)))

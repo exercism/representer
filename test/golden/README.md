@@ -154,7 +154,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 
 | Track | Language | Solutions | Groups | Singles | Exercises | Variants | Splits | Merges | Unrepresentable | Near-miss merges |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 8th | Basic | 166 | 22 | 100 | 65 | 94 | 4 | 0 | 0 | 0 |
+| 8th | Eighth | 166 | 22 | 100 | 65 | 94 | 0 | 1 | 0 | 2 |
 | abap | Abap | 400 | 100 | 100 | 45 | 94 | 2 | 13 | 0 | 1 |
 | arm64-assembly | Arm64Assembly | 111 | 4 | 100 | 70 | 98 | 0 | 1 | 0 | 0 |
 | arturo | Basic | 109 | 3 | 100 | 69 | 96 | 1 | 0 | 0 | 0 |
