@@ -1,84 +1,193 @@
-section .bss
-transaction resq 1
-section .text
-global remember_transaction
-remember_transaction:
-mov qword [ rel transaction ], rdi
-ret
-global apply_remembered
-apply_remembered:
-jmp qword [ rel transaction ]
-global register_transaction
-register_transaction:
-mov qword [ rdi + 8 * rsi ], rdx
-ret
-global select_transaction
-select_transaction:
-mov rax , qword [ rdi + 8 * rsi ]
-mov rdi , rdx
-jmp rax
-global process_statement
-process_statement:
-push r12
-push r13
-push r14
-mov r12 , rsi
-xor r13d , r13d
-mov r14 , rdx
-.loop:
-cmp r13 , r14
-jae .end
-mov rax , qword [ r12 + 8 * r13 ]
-inc r13
-call rax
-mov rdi , rax
-jmp .loop
-.end:
-mov rax , rdi
-pop r14
-pop r13
-pop r12
-ret
-global process_with_guard
-process_with_guard:
-push rbp
-push rbx
-push r12
-push r13
-push r14
-push r15
-sub rsp , 8
-mov rbp , rdi
-xor ebx , ebx
-mov r12 , rsi
-lea r13 , [ rsi + 8 * rdx ]
-mov r15 , rcx
-.loop:
-cmp r12 , r13
-jae .end
-mov rdi , rbp
-mov rax , qword [ r12 ]
-add r12 , 8
-call rax
-mov r14 , rax
-mov rdi , rax
-call r15
-test rax , rax
-jz .loop
-inc rbx
-mov rbp , r14
-jmp .loop
-.end:
-mov rax , rbp
-mov rdx , rbx
-add rsp , 8
-pop r15
-pop r14
-pop r13
-pop r12
-pop rbx
-pop rbp
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .bss)
+  (data_definition PLACEHOLDER_1
+    (data_directive resq) 1)
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_2)
+  (label PLACEHOLDER_2)
+  (instruction mov
+    (sized_operand
+      (size qword)
+      (memory_operand rel PLACEHOLDER_1))
+    (register rdi))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_3)
+  (label PLACEHOLDER_3)
+  (instruction jmp
+    (sized_operand
+      (size qword)
+      (memory_operand rel PLACEHOLDER_1)))
+  (symbol_directive global PLACEHOLDER_4)
+  (label PLACEHOLDER_4)
+  (instruction mov
+    (sized_operand
+      (size qword)
+      (memory_operand
+        (binary_expression
+          (register rdi) +
+          (binary_expression 8 *
+            (register rsi)))))
+    (register rdx))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_5)
+  (label PLACEHOLDER_5)
+  (instruction mov
+    (register rax)
+    (sized_operand
+      (size qword)
+      (memory_operand
+        (binary_expression
+          (register rdi) +
+          (binary_expression 8 *
+            (register rsi))))))
+  (instruction mov
+    (register rdi)
+    (register rdx))
+  (instruction jmp
+    (register rax))
+  (symbol_directive global PLACEHOLDER_6)
+  (label PLACEHOLDER_6)
+  (instruction push
+    (register r12))
+  (instruction push
+    (register r13))
+  (instruction push
+    (register r14))
+  (instruction mov
+    (register r12)
+    (register rsi))
+  (instruction xor
+    (register r13d)
+    (register r13d))
+  (instruction mov
+    (register r14)
+    (register rdx))
+  (label (local_label PLACEHOLDER_7))
+  (instruction cmp
+    (register r13)
+    (register r14))
+  (instruction jae (local_label PLACEHOLDER_8))
+  (instruction mov
+    (register rax)
+    (sized_operand
+      (size qword)
+      (memory_operand
+        (binary_expression
+          (register r12) +
+          (binary_expression 8 *
+            (register r13))))))
+  (instruction inc
+    (register r13))
+  (instruction call
+    (register rax))
+  (instruction mov
+    (register rdi)
+    (register rax))
+  (instruction jmp (local_label PLACEHOLDER_7))
+  (label (local_label PLACEHOLDER_8))
+  (instruction mov
+    (register rax)
+    (register rdi))
+  (instruction pop
+    (register r14))
+  (instruction pop
+    (register r13))
+  (instruction pop
+    (register r12))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_9)
+  (label PLACEHOLDER_9)
+  (instruction push
+    (register rbp))
+  (instruction push
+    (register rbx))
+  (instruction push
+    (register r12))
+  (instruction push
+    (register r13))
+  (instruction push
+    (register r14))
+  (instruction push
+    (register r15))
+  (instruction sub
+    (register rsp) 8)
+  (instruction mov
+    (register rbp)
+    (register rdi))
+  (instruction xor
+    (register ebx)
+    (register ebx))
+  (instruction mov
+    (register r12)
+    (register rsi))
+  (instruction lea
+    (register r13)
+    (memory_operand
+      (binary_expression
+        (register rsi) +
+        (binary_expression 8 *
+          (register rdx)))))
+  (instruction mov
+    (register r15)
+    (register rcx))
+  (label (local_label PLACEHOLDER_7))
+  (instruction cmp
+    (register r12)
+    (register r13))
+  (instruction jae (local_label PLACEHOLDER_8))
+  (instruction mov
+    (register rdi)
+    (register rbp))
+  (instruction mov
+    (register rax)
+    (sized_operand
+      (size qword)
+      (memory_operand
+        (register r12))))
+  (instruction add
+    (register r12) 8)
+  (instruction call
+    (register rax))
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction mov
+    (register rdi)
+    (register rax))
+  (instruction call
+    (register r15))
+  (instruction test
+    (register rax)
+    (register rax))
+  (instruction jz (local_label PLACEHOLDER_7))
+  (instruction inc
+    (register rbx))
+  (instruction mov
+    (register rbp)
+    (register r14))
+  (instruction jmp (local_label PLACEHOLDER_7))
+  (label (local_label PLACEHOLDER_8))
+  (instruction mov
+    (register rax)
+    (register rbp))
+  (instruction mov
+    (register rdx)
+    (register rbx))
+  (instruction add
+    (register rsp) 8)
+  (instruction pop
+    (register r15))
+  (instruction pop
+    (register r14))
+  (instruction pop
+    (register r13))
+  (instruction pop
+    (register r12))
+  (instruction pop
+    (register rbx))
+  (instruction pop
+    (register rbp))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

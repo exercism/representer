@@ -1,58 +1,151 @@
-default rel
-section .text
-global sum_yields
-sum_yields:
-movaps xmm0 , oword [ rdi ]
-movaps xmm1 , oword [ rsi ]
-addps xmm0 , xmm1
-movaps [ rdx ], xmm0
-ret
-global scaled_deviation
-scaled_deviation:
-movupd xmm0 , oword [ rdi ]
-movupd xmm1 , oword [ rsi ]
-movupd xmm2 , oword [ rdx ]
-subpd xmm0 , xmm1
-mulpd xmm0 , xmm2
-movupd [ rcx ], xmm0
-ret
-section .rodata
-align 16
-conv_factor dq 0.5 , 0.5
-section .text
-global calibrate_batch
-calibrate_batch:
-movups xmm0 , oword [ rdi ]
-cvtps2pd xmm10 , xmm0
-movupd xmm2 , [ rdx ]
-mov r8 , 2
-.loop:
-subpd xmm10 , xmm2
-movupd xmm1 , [ rsi ]
-divpd xmm1 , xmm10
-mulpd xmm1 , [ conv_factor ]
-movupd [ rcx ], xmm1
-add rcx , 16
-movhlps xmm0 , xmm0
-cvtps2pd xmm10 , xmm0
-dec r8
-test r8 , r8
-jnz .loop
-ret
-global normalize_scores
-normalize_scores:
-movupd xmm2 , [ rdx ]
-.loop:
-movupd xmm1 , [ rsi ]
-movupd xmm0 , oword [ rdi ]
-mulpd xmm0 , xmm1
-divpd xmm0 , xmm2
-movupd [ rdi ], xmm0
-add rdi , 16
-add rsi , 16
-sub rcx , 2
-test rcx , rcx
-jg .loop
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (default_directive rel)
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (label PLACEHOLDER_1)
+  (instruction movaps
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi))))
+  (instruction movaps
+    (register xmm1)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rsi))))
+  (instruction addps
+    (register xmm0)
+    (register xmm1))
+  (instruction movaps
+    (memory_operand
+      (register rdx))
+    (register xmm0))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_2)
+  (label PLACEHOLDER_2)
+  (instruction movupd
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi))))
+  (instruction movupd
+    (register xmm1)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rsi))))
+  (instruction movupd
+    (register xmm2)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdx))))
+  (instruction subpd
+    (register xmm0)
+    (register xmm1))
+  (instruction mulpd
+    (register xmm0)
+    (register xmm2))
+  (instruction movupd
+    (memory_operand
+      (register rcx))
+    (register xmm0))
+  (instruction ret)
+  (section_directive .rodata)
+  (align_directive align 16)
+  (data_definition PLACEHOLDER_3
+    (data_directive dq) 0.5 0.5)
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_4)
+  (label PLACEHOLDER_4)
+  (instruction movups
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi))))
+  (instruction cvtps2pd
+    (register xmm10)
+    (register xmm0))
+  (instruction movupd
+    (register xmm2)
+    (memory_operand
+      (register rdx)))
+  (instruction mov
+    (register r8) 2)
+  (label (local_label PLACEHOLDER_5))
+  (instruction subpd
+    (register xmm10)
+    (register xmm2))
+  (instruction movupd
+    (register xmm1)
+    (memory_operand
+      (register rsi)))
+  (instruction divpd
+    (register xmm1)
+    (register xmm10))
+  (instruction mulpd
+    (register xmm1)
+    (memory_operand PLACEHOLDER_3))
+  (instruction movupd
+    (memory_operand
+      (register rcx))
+    (register xmm1))
+  (instruction add
+    (register rcx) 16)
+  (instruction movhlps
+    (register xmm0)
+    (register xmm0))
+  (instruction cvtps2pd
+    (register xmm10)
+    (register xmm0))
+  (instruction dec
+    (register r8))
+  (instruction test
+    (register r8)
+    (register r8))
+  (instruction jnz (local_label PLACEHOLDER_5))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_6)
+  (label PLACEHOLDER_6)
+  (instruction movupd
+    (register xmm2)
+    (memory_operand
+      (register rdx)))
+  (label (local_label PLACEHOLDER_5))
+  (instruction movupd
+    (register xmm1)
+    (memory_operand
+      (register rsi)))
+  (instruction movupd
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi))))
+  (instruction mulpd
+    (register xmm0)
+    (register xmm1))
+  (instruction divpd
+    (register xmm0)
+    (register xmm2))
+  (instruction movupd
+    (memory_operand
+      (register rdi))
+    (register xmm0))
+  (instruction add
+    (register rdi) 16)
+  (instruction add
+    (register rsi) 16)
+  (instruction sub
+    (register rcx) 2)
+  (instruction test
+    (register rcx)
+    (register rcx))
+  (instruction jg (local_label PLACEHOLDER_5))
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

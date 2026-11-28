@@ -1,82 +1,152 @@
-C10 equ 10
-CA equ 14
-FALSE equ 0
-section .text
-global value_of_card
-global higher_card
-global value_of_ace
-global is_blackjack
-global can_split_pairs
-global can_double_down
-%macro value 2
-mov % 2 , % 1
-mov rdx , 10
-cmp % 1 , C10
-cmovg % 2 , rdx
-mov rdx , 1
-cmp % 1 , CA
-cmove % 2 , rdx
-%endmacro
-value_of_card:
-value rdi , rax
-ret
-higher_card:
-value rdi , r8
-value rsi , r9
-xor rdx , rdx
-mov rax , rdi
-cmp r8 , r9
-cmovl rax , rsi
-cmove rdx , rsi
-ret
-value_of_ace:
-cmp rdi , CA
-sete r8b
-cmp rsi , CA
-sete r9b
-mov rax , 11
-mov rcx , 1
-or r8b , r9b
-cmovnz rax , rcx
-value rdi , r8
-value rsi , r9
-add r8 , r9
-cmp r8 , 10
-cmovg rax , rcx
-ret
-is_blackjack:
-cmp rdi , CA
-je .first
-cmp rsi , CA
-je .second
-mov al , FALSE
-ret
-.first:
-value rsi , r8
-cmp r8 , 10
-sete al
-ret
-.second:
-value rdi , r8
-cmp r8 , 10
-sete al
-ret
-can_split_pairs:
-value rdi , r8
-value rsi , r9
-cmp r8 , r9
-sete al
-ret
-can_double_down:
-value rdi , r8
-value rsi , r9
-add r8 , r9
-cmp r8 , 9
-setge cl
-cmp r8 , 11
-setle al
-and al , cl
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (equ_definition PLACEHOLDER_1 10)
+  (equ_definition PLACEHOLDER_2 14)
+  (equ_definition PLACEHOLDER_3 0)
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_4)
+  (symbol_directive global PLACEHOLDER_5)
+  (symbol_directive global PLACEHOLDER_6)
+  (symbol_directive global PLACEHOLDER_7)
+  (symbol_directive global PLACEHOLDER_8)
+  (symbol_directive global PLACEHOLDER_9)
+  (macro_definition PLACEHOLDER_10 2
+    (block
+      (instruction mov %2 %1)
+      (instruction mov
+        (register rdx) 10)
+      (instruction cmp %1 PLACEHOLDER_1)
+      (instruction cmovg %2
+        (register rdx))
+      (instruction mov
+        (register rdx) 1)
+      (instruction cmp %1 PLACEHOLDER_2)
+      (instruction cmove %2
+        (register rdx))))
+  (label PLACEHOLDER_4)
+  (macro_call PLACEHOLDER_10
+    (register rdi)
+    (register rax))
+  (instruction ret)
+  (label PLACEHOLDER_5)
+  (macro_call PLACEHOLDER_10
+    (register rdi)
+    (register r8))
+  (macro_call PLACEHOLDER_10
+    (register rsi)
+    (register r9))
+  (instruction xor
+    (register rdx)
+    (register rdx))
+  (instruction mov
+    (register rax)
+    (register rdi))
+  (instruction cmp
+    (register r8)
+    (register r9))
+  (instruction cmovl
+    (register rax)
+    (register rsi))
+  (instruction cmove
+    (register rdx)
+    (register rsi))
+  (instruction ret)
+  (label PLACEHOLDER_6)
+  (instruction cmp
+    (register rdi) PLACEHOLDER_2)
+  (instruction sete
+    (register r8b))
+  (instruction cmp
+    (register rsi) PLACEHOLDER_2)
+  (instruction sete
+    (register r9b))
+  (instruction mov
+    (register rax) 11)
+  (instruction mov
+    (register rcx) 1)
+  (instruction or
+    (register r8b)
+    (register r9b))
+  (instruction cmovnz
+    (register rax)
+    (register rcx))
+  (macro_call PLACEHOLDER_10
+    (register rdi)
+    (register r8))
+  (macro_call PLACEHOLDER_10
+    (register rsi)
+    (register r9))
+  (instruction add
+    (register r8)
+    (register r9))
+  (instruction cmp
+    (register r8) 10)
+  (instruction cmovg
+    (register rax)
+    (register rcx))
+  (instruction ret)
+  (label PLACEHOLDER_7)
+  (instruction cmp
+    (register rdi) PLACEHOLDER_2)
+  (instruction je (local_label PLACEHOLDER_11))
+  (instruction cmp
+    (register rsi) PLACEHOLDER_2)
+  (instruction je (local_label PLACEHOLDER_12))
+  (instruction mov
+    (register al) PLACEHOLDER_3)
+  (instruction ret)
+  (label (local_label PLACEHOLDER_11))
+  (macro_call PLACEHOLDER_10
+    (register rsi)
+    (register r8))
+  (instruction cmp
+    (register r8) 10)
+  (instruction sete
+    (register al))
+  (instruction ret)
+  (label (local_label PLACEHOLDER_12))
+  (macro_call PLACEHOLDER_10
+    (register rdi)
+    (register r8))
+  (instruction cmp
+    (register r8) 10)
+  (instruction sete
+    (register al))
+  (instruction ret)
+  (label PLACEHOLDER_8)
+  (macro_call PLACEHOLDER_10
+    (register rdi)
+    (register r8))
+  (macro_call PLACEHOLDER_10
+    (register rsi)
+    (register r9))
+  (instruction cmp
+    (register r8)
+    (register r9))
+  (instruction sete
+    (register al))
+  (instruction ret)
+  (label PLACEHOLDER_9)
+  (macro_call PLACEHOLDER_10
+    (register rdi)
+    (register r8))
+  (macro_call PLACEHOLDER_10
+    (register rsi)
+    (register r9))
+  (instruction add
+    (register r8)
+    (register r9))
+  (instruction cmp
+    (register r8) 9)
+  (instruction setge
+    (register cl))
+  (instruction cmp
+    (register r8) 11)
+  (instruction setle
+    (register al))
+  (instruction and
+    (register al)
+    (register cl))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

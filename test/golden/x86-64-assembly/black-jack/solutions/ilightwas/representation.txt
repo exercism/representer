@@ -1,128 +1,185 @@
-C2 equ 2
-C3 equ 3
-C4 equ 4
-C5 equ 5
-C6 equ 6
-C7 equ 7
-C8 equ 8
-C9 equ 9
-C10 equ 10
-CJ equ 11
-CQ equ 12
-CK equ 13
-CA equ 14
-TRUE equ 1
-FALSE equ 0
-section .text
-global value_of_card
-value_of_card:
-cmp di l , C10
-jg .face_card
-mov al , di l
-ret
-.face_card:
-cmp di l , CA
-je .ace
-mov al , 10
-ret
-.ace:
-mov al , 1
-ret
-get_card_pair_values:
-call value_of_card
-mov bl , al
-mov di l , si l
-call value_of_card
-mov dl , al
-mov al , bl
-ret
-global higher_card
-higher_card:
-mov r12b , di l
-mov r13b , si l
-call get_card_pair_values
-mov bl , dl
-xor rdx , rdx
-cmp al , bl
-jz .equal
-jl .less
-.greater:
-mov al , r12b
-ret
-.less:
-mov al , r13b
-ret
-.equal:
-mov al , r12b
-mov dl , r13b
-ret
-global value_of_ace
-value_of_ace:
-cmp di l , CA
-jz .has_ace
-cmp si l , CA
-jz .has_ace
-call get_card_pair_values
-add al , dl
-cmp al , C10
-ja .no_11
-mov al , 11
-ret
-.has_ace:
-.no_11:
-mov al , 1
-ret
-global is_blackjack
-is_blackjack:
-.check_first_is_ace:
-cmp di l , CA
-jz .first_is_ace
-.check_second_is_ace:
-cmp si l , CA
-jz .second_is_ace
-jmp .no
-.first_is_ace:
-cmp si l , C9
-jna .no
-cmp si l , CA
-jz .no
-jmp .yes
-.second_is_ace:
-cmp di l , C9
-jna .no
-jmp .yes
-.no:
-mov al , FALSE
-ret
-.yes:
-mov al , TRUE
-ret
-ret
-global can_split_pairs
-can_split_pairs:
-call get_card_pair_values
-cmp al , dl
-jz .can_split
-.cant:
-mov rax , FALSE
-ret
-.can_split:
-mov rax , TRUE
-ret
-global can_double_down
-can_double_down:
-call get_card_pair_values
-add al , dl
-cmp al , 8
-jna .no_double_down
-cmp al , 12
-jnb .no_double_down
-.double_down:
-mov rax , TRUE
-ret
-.no_double_down:
-mov rax , FALSE
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (equ_definition PLACEHOLDER_1 2)
+  (equ_definition PLACEHOLDER_2 3)
+  (equ_definition PLACEHOLDER_3 4)
+  (equ_definition PLACEHOLDER_4 5)
+  (equ_definition PLACEHOLDER_5 6)
+  (equ_definition PLACEHOLDER_6 7)
+  (equ_definition PLACEHOLDER_7 8)
+  (equ_definition PLACEHOLDER_8 9)
+  (equ_definition PLACEHOLDER_9 10)
+  (equ_definition PLACEHOLDER_10 11)
+  (equ_definition PLACEHOLDER_11 12)
+  (equ_definition PLACEHOLDER_12 13)
+  (equ_definition PLACEHOLDER_13 14)
+  (equ_definition PLACEHOLDER_14 1)
+  (equ_definition PLACEHOLDER_15 0)
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_16)
+  (label PLACEHOLDER_16)
+  (instruction cmp
+    (register dil) PLACEHOLDER_9)
+  (instruction jg (local_label PLACEHOLDER_17))
+  (instruction mov
+    (register al)
+    (register dil))
+  (instruction ret)
+  (label (local_label PLACEHOLDER_17))
+  (instruction cmp
+    (register dil) PLACEHOLDER_13)
+  (instruction je (local_label PLACEHOLDER_18))
+  (instruction mov
+    (register al) 10)
+  (instruction ret)
+  (label (local_label PLACEHOLDER_18))
+  (instruction mov
+    (register al) 1)
+  (instruction ret)
+  (label PLACEHOLDER_19)
+  (instruction call PLACEHOLDER_16)
+  (instruction mov
+    (register bl)
+    (register al))
+  (instruction mov
+    (register dil)
+    (register sil))
+  (instruction call PLACEHOLDER_16)
+  (instruction mov
+    (register dl)
+    (register al))
+  (instruction mov
+    (register al)
+    (register bl))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_20)
+  (label PLACEHOLDER_20)
+  (instruction mov
+    (register r12b)
+    (register dil))
+  (instruction mov
+    (register r13b)
+    (register sil))
+  (instruction call PLACEHOLDER_19)
+  (instruction mov
+    (register bl)
+    (register dl))
+  (instruction xor
+    (register rdx)
+    (register rdx))
+  (instruction cmp
+    (register al)
+    (register bl))
+  (instruction jz (local_label PLACEHOLDER_21))
+  (instruction jl (local_label PLACEHOLDER_22))
+  (label (local_label PLACEHOLDER_23))
+  (instruction mov
+    (register al)
+    (register r12b))
+  (instruction ret)
+  (label (local_label PLACEHOLDER_22))
+  (instruction mov
+    (register al)
+    (register r13b))
+  (instruction ret)
+  (label (local_label PLACEHOLDER_21))
+  (instruction mov
+    (register al)
+    (register r12b))
+  (instruction mov
+    (register dl)
+    (register r13b))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_24)
+  (label PLACEHOLDER_24)
+  (instruction cmp
+    (register dil) PLACEHOLDER_13)
+  (instruction jz (local_label PLACEHOLDER_25))
+  (instruction cmp
+    (register sil) PLACEHOLDER_13)
+  (instruction jz (local_label PLACEHOLDER_25))
+  (instruction call PLACEHOLDER_19)
+  (instruction add
+    (register al)
+    (register dl))
+  (instruction cmp
+    (register al) PLACEHOLDER_9)
+  (instruction ja (local_label PLACEHOLDER_26))
+  (instruction mov
+    (register al) 11)
+  (instruction ret)
+  (label (local_label PLACEHOLDER_25))
+  (label (local_label PLACEHOLDER_26))
+  (instruction mov
+    (register al) 1)
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_27)
+  (label PLACEHOLDER_27)
+  (label (local_label PLACEHOLDER_28))
+  (instruction cmp
+    (register dil) PLACEHOLDER_13)
+  (instruction jz (local_label PLACEHOLDER_29))
+  (label (local_label PLACEHOLDER_30))
+  (instruction cmp
+    (register sil) PLACEHOLDER_13)
+  (instruction jz (local_label PLACEHOLDER_31))
+  (instruction jmp (local_label PLACEHOLDER_32))
+  (label (local_label PLACEHOLDER_29))
+  (instruction cmp
+    (register sil) PLACEHOLDER_8)
+  (instruction jna (local_label PLACEHOLDER_32))
+  (instruction cmp
+    (register sil) PLACEHOLDER_13)
+  (instruction jz (local_label PLACEHOLDER_32))
+  (instruction jmp (local_label PLACEHOLDER_33))
+  (label (local_label PLACEHOLDER_31))
+  (instruction cmp
+    (register dil) PLACEHOLDER_8)
+  (instruction jna (local_label PLACEHOLDER_32))
+  (instruction jmp (local_label PLACEHOLDER_33))
+  (label (local_label PLACEHOLDER_32))
+  (instruction mov
+    (register al) PLACEHOLDER_15)
+  (instruction ret)
+  (label (local_label PLACEHOLDER_33))
+  (instruction mov
+    (register al) PLACEHOLDER_14)
+  (instruction ret)
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_34)
+  (label PLACEHOLDER_34)
+  (instruction call PLACEHOLDER_19)
+  (instruction cmp
+    (register al)
+    (register dl))
+  (instruction jz (local_label PLACEHOLDER_35))
+  (label (local_label PLACEHOLDER_36))
+  (instruction mov
+    (register rax) PLACEHOLDER_15)
+  (instruction ret)
+  (label (local_label PLACEHOLDER_35))
+  (instruction mov
+    (register rax) PLACEHOLDER_14)
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_37)
+  (label PLACEHOLDER_37)
+  (instruction call PLACEHOLDER_19)
+  (instruction add
+    (register al)
+    (register dl))
+  (instruction cmp
+    (register al) 8)
+  (instruction jna (local_label PLACEHOLDER_38))
+  (instruction cmp
+    (register al) 12)
+  (instruction jnb (local_label PLACEHOLDER_38))
+  (label (local_label PLACEHOLDER_39))
+  (instruction mov
+    (register rax) PLACEHOLDER_14)
+  (instruction ret)
+  (label (local_label PLACEHOLDER_38))
+  (instruction mov
+    (register rax) PLACEHOLDER_15)
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

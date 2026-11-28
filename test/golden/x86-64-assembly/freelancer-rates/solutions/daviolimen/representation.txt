@@ -1,38 +1,72 @@
-section .text
-global daily_rate
-daily_rate:
-mov rax , 8
-cvtsi2sd xmm1 , rax
-mulsd xmm0 , xmm1
-ret
-global apply_discount
-apply_discount:
-mov rax , 100
-cvtsi2sd xmm2 , rax
-movsd xmm3 , xmm2
-subsd xmm2 , xmm1
-mulsd xmm0 , xmm2
-divsd xmm0 , xmm3
-ret
-global monthly_rate
-monthly_rate:
-call apply_discount
-call daily_rate
-mov rax , 22
-cvtsi2sd xmm1 , rax
-mulsd xmm0 , xmm1
-roundsd xmm0 , xmm0 , 2
-cvtsd2si rax , xmm0
-ret
-global days_in_budget
-days_in_budget:
-call apply_discount
-call daily_rate
-cvtsi2sd xmm1 , rdi
-divsd xmm1 , xmm0
-roundsd xmm1 , xmm1 , 1
-cvtsd2si rax , xmm1
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (label PLACEHOLDER_1)
+  (instruction mov
+    (register rax) 8)
+  (instruction cvtsi2sd
+    (register xmm1)
+    (register rax))
+  (instruction mulsd
+    (register xmm0)
+    (register xmm1))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_2)
+  (label PLACEHOLDER_2)
+  (instruction mov
+    (register rax) 100)
+  (instruction cvtsi2sd
+    (register xmm2)
+    (register rax))
+  (instruction movsd
+    (register xmm3)
+    (register xmm2))
+  (instruction subsd
+    (register xmm2)
+    (register xmm1))
+  (instruction mulsd
+    (register xmm0)
+    (register xmm2))
+  (instruction divsd
+    (register xmm0)
+    (register xmm3))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_3)
+  (label PLACEHOLDER_3)
+  (instruction call PLACEHOLDER_2)
+  (instruction call PLACEHOLDER_1)
+  (instruction mov
+    (register rax) 22)
+  (instruction cvtsi2sd
+    (register xmm1)
+    (register rax))
+  (instruction mulsd
+    (register xmm0)
+    (register xmm1))
+  (instruction roundsd
+    (register xmm0)
+    (register xmm0) 2)
+  (instruction cvtsd2si
+    (register rax)
+    (register xmm0))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_4)
+  (label PLACEHOLDER_4)
+  (instruction call PLACEHOLDER_2)
+  (instruction call PLACEHOLDER_1)
+  (instruction cvtsi2sd
+    (register xmm1)
+    (register rdi))
+  (instruction divsd
+    (register xmm1)
+    (register xmm0))
+  (instruction roundsd
+    (register xmm1)
+    (register xmm1) 1)
+  (instruction cvtsd2si
+    (register rax)
+    (register xmm1))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

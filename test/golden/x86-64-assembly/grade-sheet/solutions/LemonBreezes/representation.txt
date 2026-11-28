@@ -1,83 +1,205 @@
-section .text
-global flag_above_threshold
-flag_above_threshold:
-movaps xmm0 , [ rsi ]
-movaps xmm1 , [ rdx ]
-cmpps xmm0 , xmm1 , 6
-movaps [ rdi ], xmm0
-ret
-global flag_perfect
-flag_perfect:
-movaps xmm0 , [ rsi ]
-movaps xmm1 , [ rdx ]
-cmpps xmm0 , xmm1 , 0
-movaps [ rdi ], xmm0
-ret
-global assign_ranks
-assign_ranks:
-movaps xmm1 , [ rsi ]
-movaps xmm2 , [ rdx ]
-movaps xmm3 , [ REL pass_threshold ]
-movaps xmm0 , xmm1
-cmpps xmm0 , xmm3 , 6
-movaps xmm4 , xmm1
-cmpps xmm4 , xmm2 , 0
-movaps xmm5 , [ REL rank_one ]
-movaps xmm6 , [ REL rank_two ]
-blendvps xmm5 , xmm6 , xmm0
-movaps xmm0 , xmm4
-movaps xmm6 , [ REL rank_three ]
-blendvps xmm5 , xmm6 , xmm0
-movaps [ rdi ], xmm5
-ret
-global count_failures
-count_failures:
-pxor xmm2 , xmm2
-.count_failures_loop:
-movdqa xmm0 , [ rdi ]
-movdqa xmm1 , [ rdx ]
-pcmpgtd xmm1 , xmm0
-movdqa xmm3 , [ REL ones ]
-pand xmm1 , xmm3
-paddd xmm2 , xmm1
-add rdi , 16
-dec rsi
-jnz .count_failures_loop
-movdqa xmm0 , xmm2
-pshufd xmm1 , xmm0 , 238
-paddd xmm0 , xmm1
-pshufd xmm1 , xmm0 , 153
-paddd xmm0 , xmm1
-movd eax , xmm0
-ret
-global al l_passed
-all_passed:
-pxor xmm0 , xmm0
-.all_passed_loop:
-movdqa xmm1 , [ rdi ]
-orps xmm0 , xmm1
-add rdi , 16
-dec rsi
-jnz .all_passed_loop
-movdqa xmm1 , xmm0
-pshufd xmm1 , xmm1 , 238
-orps xmm0 , xmm1
-pshufd xmm1 , xmm0 , 153
-orps xmm0 , xmm1
-movd eax , xmm0
-test eax , eax
-jnz .any_set
-mov eax , 1
-ret
-.any_set:
-xor eax , eax
-ret
-section .rodata al ign = 16
-pass_threshold: times 4 dd 50.0
-rank_one: times 4 dd 1
-rank_two: times 4 dd 2
-rank_three: times 4 dd 3
-ones: times 4 dd 1
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (label PLACEHOLDER_1)
+  (instruction movaps
+    (register xmm0)
+    (memory_operand
+      (register rsi)))
+  (instruction movaps
+    (register xmm1)
+    (memory_operand
+      (register rdx)))
+  (instruction cmpps
+    (register xmm0)
+    (register xmm1) 6)
+  (instruction movaps
+    (memory_operand
+      (register rdi))
+    (register xmm0))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_2)
+  (label PLACEHOLDER_2)
+  (instruction movaps
+    (register xmm0)
+    (memory_operand
+      (register rsi)))
+  (instruction movaps
+    (register xmm1)
+    (memory_operand
+      (register rdx)))
+  (instruction cmpps
+    (register xmm0)
+    (register xmm1) 0)
+  (instruction movaps
+    (memory_operand
+      (register rdi))
+    (register xmm0))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_3)
+  (label PLACEHOLDER_3)
+  (instruction movaps
+    (register xmm1)
+    (memory_operand
+      (register rsi)))
+  (instruction movaps
+    (register xmm2)
+    (memory_operand
+      (register rdx)))
+  (instruction movaps
+    (register xmm3)
+    (memory_operand rel PLACEHOLDER_4))
+  (instruction movaps
+    (register xmm0)
+    (register xmm1))
+  (instruction cmpps
+    (register xmm0)
+    (register xmm3) 6)
+  (instruction movaps
+    (register xmm4)
+    (register xmm1))
+  (instruction cmpps
+    (register xmm4)
+    (register xmm2) 0)
+  (instruction movaps
+    (register xmm5)
+    (memory_operand rel PLACEHOLDER_5))
+  (instruction movaps
+    (register xmm6)
+    (memory_operand rel PLACEHOLDER_6))
+  (instruction blendvps
+    (register xmm5)
+    (register xmm6)
+    (register xmm0))
+  (instruction movaps
+    (register xmm0)
+    (register xmm4))
+  (instruction movaps
+    (register xmm6)
+    (memory_operand rel PLACEHOLDER_7))
+  (instruction blendvps
+    (register xmm5)
+    (register xmm6)
+    (register xmm0))
+  (instruction movaps
+    (memory_operand
+      (register rdi))
+    (register xmm5))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_8)
+  (label PLACEHOLDER_8)
+  (instruction pxor
+    (register xmm2)
+    (register xmm2))
+  (label (local_label PLACEHOLDER_9))
+  (instruction movdqa
+    (register xmm0)
+    (memory_operand
+      (register rdi)))
+  (instruction movdqa
+    (register xmm1)
+    (memory_operand
+      (register rdx)))
+  (instruction pcmpgtd
+    (register xmm1)
+    (register xmm0))
+  (instruction movdqa
+    (register xmm3)
+    (memory_operand rel PLACEHOLDER_10))
+  (instruction pand
+    (register xmm1)
+    (register xmm3))
+  (instruction paddd
+    (register xmm2)
+    (register xmm1))
+  (instruction add
+    (register rdi) 16)
+  (instruction dec
+    (register rsi))
+  (instruction jnz (local_label PLACEHOLDER_9))
+  (instruction movdqa
+    (register xmm0)
+    (register xmm2))
+  (instruction pshufd
+    (register xmm1)
+    (register xmm0) 238)
+  (instruction paddd
+    (register xmm0)
+    (register xmm1))
+  (instruction pshufd
+    (register xmm1)
+    (register xmm0) 153)
+  (instruction paddd
+    (register xmm0)
+    (register xmm1))
+  (instruction movd
+    (register eax)
+    (register xmm0))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_11)
+  (label PLACEHOLDER_11)
+  (instruction pxor
+    (register xmm0)
+    (register xmm0))
+  (label (local_label PLACEHOLDER_12))
+  (instruction movdqa
+    (register xmm1)
+    (memory_operand
+      (register rdi)))
+  (instruction orps
+    (register xmm0)
+    (register xmm1))
+  (instruction add
+    (register rdi) 16)
+  (instruction dec
+    (register rsi))
+  (instruction jnz (local_label PLACEHOLDER_12))
+  (instruction movdqa
+    (register xmm1)
+    (register xmm0))
+  (instruction pshufd
+    (register xmm1)
+    (register xmm1) 238)
+  (instruction orps
+    (register xmm0)
+    (register xmm1))
+  (instruction pshufd
+    (register xmm1)
+    (register xmm0) 153)
+  (instruction orps
+    (register xmm0)
+    (register xmm1))
+  (instruction movd
+    (register eax)
+    (register xmm0))
+  (instruction test
+    (register eax)
+    (register eax))
+  (instruction jnz (local_label PLACEHOLDER_13))
+  (instruction mov
+    (register eax) 1)
+  (instruction ret)
+  (label (local_label PLACEHOLDER_13))
+  (instruction xor
+    (register eax)
+    (register eax))
+  (instruction ret)
+  (section_directive .rodata align=16)
+  (data_definition PLACEHOLDER_4
+    (times 4)
+    (data_directive dd) 50.0)
+  (data_definition PLACEHOLDER_5
+    (times 4)
+    (data_directive dd) 1)
+  (data_definition PLACEHOLDER_6
+    (times 4)
+    (data_directive dd) 2)
+  (data_definition PLACEHOLDER_7
+    (times 4)
+    (data_directive dd) 3)
+  (data_definition PLACEHOLDER_10
+    (times 4)
+    (data_directive dd) 1)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

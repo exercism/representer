@@ -1,49 +1,109 @@
-section .text
-global rotate
-rotate:
-mov r8 , 26
-mov r9 , 32
-not r9
-push rbx
-cmp rsi , r8
-jl start_rotate
-push rdx
-xor rdx , rdx
-mov eax , esi
-mov ebx , 26
-div ebx
-mov esi , edx
-pop rdx
-start_rotate:
-xor rcx , rcx
-.loop_over_string:
-xor rbx , rbx
-mov bl , byte [ rdi + rcx ]
-cmp bl , 0
-je .end_loop_over_string
-mov rax , rbx
-and rax , r9
-cmp al , 'A'
-jb .copy_letter
-cmp al , 'Z'
-ja .copy_letter
-add al , si l
-cmp rax , 'Z'
-jbe .convert_back_to_correct_case
-sub rax , r8
-.convert_back_to_correct_case:
-mov r10 , rbx
-and r10 , 32
-mov rbx , rax
-or rbx , r10
-.copy_letter:
-mov [ rdx + rcx ], bl
-inc rcx
-jmp .loop_over_string
-.end_loop_over_string:
-mov byte [ rdx + rcx ], 0
-pop rbx
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (label PLACEHOLDER_1)
+  (instruction mov
+    (register r8) 26)
+  (instruction mov
+    (register r9) 32)
+  (instruction not
+    (register r9))
+  (instruction push
+    (register rbx))
+  (instruction cmp
+    (register rsi)
+    (register r8))
+  (instruction jl PLACEHOLDER_2)
+  (instruction push
+    (register rdx))
+  (instruction xor
+    (register rdx)
+    (register rdx))
+  (instruction mov
+    (register eax)
+    (register esi))
+  (instruction mov
+    (register ebx) 26)
+  (instruction div
+    (register ebx))
+  (instruction mov
+    (register esi)
+    (register edx))
+  (instruction pop
+    (register rdx))
+  (label PLACEHOLDER_2)
+  (instruction xor
+    (register rcx)
+    (register rcx))
+  (label (local_label PLACEHOLDER_3))
+  (instruction xor
+    (register rbx)
+    (register rbx))
+  (instruction mov
+    (register bl)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (binary_expression
+          (register rdi) +
+          (register rcx)))))
+  (instruction cmp
+    (register bl) 0)
+  (instruction je (local_label PLACEHOLDER_4))
+  (instruction mov
+    (register rax)
+    (register rbx))
+  (instruction and
+    (register rax)
+    (register r9))
+  (instruction cmp
+    (register al) "A")
+  (instruction jb (local_label PLACEHOLDER_5))
+  (instruction cmp
+    (register al) "Z")
+  (instruction ja (local_label PLACEHOLDER_5))
+  (instruction add
+    (register al)
+    (register sil))
+  (instruction cmp
+    (register rax) "Z")
+  (instruction jbe (local_label PLACEHOLDER_6))
+  (instruction sub
+    (register rax)
+    (register r8))
+  (label (local_label PLACEHOLDER_6))
+  (instruction mov
+    (register r10)
+    (register rbx))
+  (instruction and
+    (register r10) 32)
+  (instruction mov
+    (register rbx)
+    (register rax))
+  (instruction or
+    (register rbx)
+    (register r10))
+  (label (local_label PLACEHOLDER_5))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register rdx) +
+        (register rcx)))
+    (register bl))
+  (instruction inc
+    (register rcx))
+  (instruction jmp (local_label PLACEHOLDER_3))
+  (label (local_label PLACEHOLDER_4))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (binary_expression
+          (register rdx) +
+          (register rcx)))) 0)
+  (instruction pop
+    (register rbx))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

@@ -1,52 +1,136 @@
-section .text
-global front_door_response
-front_door_response:
-movzx eax , byte [ rdi ]
-ret
-global front_door_password
-front_door_password:
-and byte [ rdi ], ~ 0x20
-jmp .next
-.repeat:
-or al , 0x20
-mov byte [ rdi ], al
-.next:
-inc rdi
-movzx eax , byte [ rdi ]
-test al , al
-jnz .repeat
-ret
-global back_door_response
-back_door_response:
-movzx eax , byte [ rdi ]
-jmp .next
-.repeat:
-lea ecx , [ rdx - 'A' ]
-and ecx , ~ 0x20
-cmp ecx , 'Z'
-cmovbe eax , edx
-.next:
-inc rdi
-movzx edx , byte [ rdi ]
-test dl , dl
-jnz .repeat
-ret
-global back_door_password
-back_door_password:
-xor ecx , ecx
-movzx eax , byte [ rsi ]
-and al , ~ 0x20
-.repeat:
-mov byte [ rdi + rcx ], al
-inc ecx
-movzx eax , byte [ rsi + rcx ]
-test al , al
-jnz .repeat
-add rdi , rcx
-mov rcx , "\", please\""
-mov [ rdi ], rcx
-mov word [ rdi + 8 ], '.'
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (label PLACEHOLDER_1)
+  (instruction movzx
+    (register eax)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register rdi))))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_2)
+  (label PLACEHOLDER_2)
+  (instruction and
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register rdi)))
+    (unary_expression ~ 32))
+  (instruction jmp (local_label PLACEHOLDER_3))
+  (label (local_label PLACEHOLDER_4))
+  (instruction or
+    (register al) 32)
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register rdi)))
+    (register al))
+  (label (local_label PLACEHOLDER_3))
+  (instruction inc
+    (register rdi))
+  (instruction movzx
+    (register eax)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register rdi))))
+  (instruction test
+    (register al)
+    (register al))
+  (instruction jnz (local_label PLACEHOLDER_4))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_5)
+  (label PLACEHOLDER_5)
+  (instruction movzx
+    (register eax)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register rdi))))
+  (instruction jmp (local_label PLACEHOLDER_3))
+  (label (local_label PLACEHOLDER_4))
+  (instruction lea
+    (register ecx)
+    (memory_operand
+      (binary_expression
+        (register rdx) - "A")))
+  (instruction and
+    (register ecx)
+    (unary_expression ~ 32))
+  (instruction cmp
+    (register ecx) "Z")
+  (instruction cmovbe
+    (register eax)
+    (register edx))
+  (label (local_label PLACEHOLDER_3))
+  (instruction inc
+    (register rdi))
+  (instruction movzx
+    (register edx)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register rdi))))
+  (instruction test
+    (register dl)
+    (register dl))
+  (instruction jnz (local_label PLACEHOLDER_4))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_6)
+  (label PLACEHOLDER_6)
+  (instruction xor
+    (register ecx)
+    (register ecx))
+  (instruction movzx
+    (register eax)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register rsi))))
+  (instruction and
+    (register al)
+    (unary_expression ~ 32))
+  (label (local_label PLACEHOLDER_4))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (binary_expression
+          (register rdi) +
+          (register rcx))))
+    (register al))
+  (instruction inc
+    (register ecx))
+  (instruction movzx
+    (register eax)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (binary_expression
+          (register rsi) +
+          (register rcx)))))
+  (instruction test
+    (register al)
+    (register al))
+  (instruction jnz (local_label PLACEHOLDER_4))
+  (instruction add
+    (register rdi)
+    (register rcx))
+  (instruction mov
+    (register rcx) ", please")
+  (instruction mov
+    (memory_operand
+      (register rdi))
+    (register rcx))
+  (instruction mov
+    (sized_operand
+      (size word)
+      (memory_operand
+        (binary_expression
+          (register rdi) + 8))) ".")
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

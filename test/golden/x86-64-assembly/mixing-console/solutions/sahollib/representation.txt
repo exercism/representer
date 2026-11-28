@@ -1,51 +1,144 @@
-default rel
-section .text
-global mix_tracks
-mix_tracks:
-movdqa xmm0 , oword [ rsi ]
-paddsw xmm0 , oword [ rdx ]
-movdqa oword [ rdi ], xmm0
-ret
-global remove_bleed
-remove_bleed:
-movdqa xmm0 , oword [ rsi ]
-movdqu xmm1 , oword [ rdx ]
-psubsw xmm0 , xmm1
-movdqu oword [ rdi ], xmm0
-ret
-global combine_meters
-combine_meters:
-movdqa xmm0 , oword [ rsi ]
-paddusb xmm0 , oword [ rdx ]
-movdqa oword [ rdi ], xmm0
-ret
-global apply_fade
-apply_fade:
-.loop:
-movdqa xmm0 , oword [ rsi ]
-pmulhw xmm0 , oword [ rdx ]
-movdqa oword [ rdi ], xmm0
-add rdi , 16
-add rsi , 16
-add rdx , 16
-sub rcx , 8
-jne .loop
-ret
-global attenuate_track
-attenuate_track:
-.loop:
-movdqu xmm0 , oword [ rsi ]
-pmovsxwd xmm0 , xmm0
-cvtdq2ps xmm0 , xmm0
-cvtdq2ps xmm1 , oword [ rdx ]
-divps xmm0 , xmm1
-cvttps2dq xmm0 , xmm0
-movdqa oword [ rdi ], xmm0
-add rdi , 16
-add rsi , 8
-sub rcx , 4
-jne .loop
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (default_directive rel)
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (label PLACEHOLDER_1)
+  (instruction movdqa
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rsi))))
+  (instruction paddsw
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdx))))
+  (instruction movdqa
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi)))
+    (register xmm0))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_2)
+  (label PLACEHOLDER_2)
+  (instruction movdqa
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rsi))))
+  (instruction movdqu
+    (register xmm1)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdx))))
+  (instruction psubsw
+    (register xmm0)
+    (register xmm1))
+  (instruction movdqu
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi)))
+    (register xmm0))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_3)
+  (label PLACEHOLDER_3)
+  (instruction movdqa
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rsi))))
+  (instruction paddusb
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdx))))
+  (instruction movdqa
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi)))
+    (register xmm0))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_4)
+  (label PLACEHOLDER_4)
+  (label (local_label PLACEHOLDER_5))
+  (instruction movdqa
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rsi))))
+  (instruction pmulhw
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdx))))
+  (instruction movdqa
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi)))
+    (register xmm0))
+  (instruction add
+    (register rdi) 16)
+  (instruction add
+    (register rsi) 16)
+  (instruction add
+    (register rdx) 16)
+  (instruction sub
+    (register rcx) 8)
+  (instruction jne (local_label PLACEHOLDER_5))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_6)
+  (label PLACEHOLDER_6)
+  (label (local_label PLACEHOLDER_5))
+  (instruction movdqu
+    (register xmm0)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rsi))))
+  (instruction pmovsxwd
+    (register xmm0)
+    (register xmm0))
+  (instruction cvtdq2ps
+    (register xmm0)
+    (register xmm0))
+  (instruction cvtdq2ps
+    (register xmm1)
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdx))))
+  (instruction divps
+    (register xmm0)
+    (register xmm1))
+  (instruction cvttps2dq
+    (register xmm0)
+    (register xmm0))
+  (instruction movdqa
+    (sized_operand
+      (size oword)
+      (memory_operand
+        (register rdi)))
+    (register xmm0))
+  (instruction add
+    (register rdi) 16)
+  (instruction add
+    (register rsi) 8)
+  (instruction sub
+    (register rcx) 4)
+  (instruction jne (local_label PLACEHOLDER_5))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

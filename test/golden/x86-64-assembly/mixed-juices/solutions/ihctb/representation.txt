@@ -1,61 +1,153 @@
-section .rodata
-juice_times dd 1 , 3 , 3 , 4 , 5 , 4 , 7 , 10
-section .text
-global time_to_make_juice
-global time_to_prepare
-global limes_to_cut
-global remaining_orders
-time_to_make_juice:
-push rbp
-mov rbp , rsp
-lea rsi , [ rel juice_times ]
-mov eax , dword [ rsi + 4 * rdi - 4 ]
-leave
-ret
-time_to_prepare:
-push rbp
-mov rbp , rsp
-xor eax , eax
-mov ecx , esi
-lea rsi , [ rel juice_times ]
-.accum:
-mov edx , dword [ rdi + 4 * rcx - 4 ]
-add eax , dword [ rsi + 4 * rdx - 4 ]
-dec rcx
-jnz .accum
-leave
-ret
-limes_to_cut:
-push rbp
-mov rbp , rsp
-xor eax , eax
-.loop:
-cmp eax , edx
-je .exit
-mov r8d , 6
-mov r9d , 8
-mov r10d , 10
-cmp byte [ rsi + rax ], 'M'
-cmovl r9d , r10d
-cmovg r9d , r8d
-inc eax
-sub edi , r9d
-jg .loop
-.exit:
-leave
-ret
-remaining_orders:
-push rbp
-mov rbp , rsp
-xor eax , eax
-lea rcx , [ rel juice_times ]
-.accum:
-mov edx , dword [ rsi + 4 * rax ]
-inc eax
-sub edi , dword [ rcx + 4 * rdx - 4 ]
-jg .accum
-leave
-ret
-%ifidn __OUTPUT_FORMAT__, elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .rodata)
+  (data_definition PLACEHOLDER_1
+    (data_directive dd) 1 3 3 4 5 4 7 10)
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_2)
+  (symbol_directive global PLACEHOLDER_3)
+  (symbol_directive global PLACEHOLDER_4)
+  (symbol_directive global PLACEHOLDER_5)
+  (label PLACEHOLDER_2)
+  (instruction push
+    (register rbp))
+  (instruction mov
+    (register rbp)
+    (register rsp))
+  (instruction lea
+    (register rsi)
+    (memory_operand rel PLACEHOLDER_1))
+  (instruction mov
+    (register eax)
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (binary_expression
+            (register rsi) +
+            (binary_expression 4 *
+              (register rdi))) - 4))))
+  (instruction leave)
+  (instruction ret)
+  (label PLACEHOLDER_3)
+  (instruction push
+    (register rbp))
+  (instruction mov
+    (register rbp)
+    (register rsp))
+  (instruction xor
+    (register eax)
+    (register eax))
+  (instruction mov
+    (register ecx)
+    (register esi))
+  (instruction lea
+    (register rsi)
+    (memory_operand rel PLACEHOLDER_1))
+  (label (local_label PLACEHOLDER_6))
+  (instruction mov
+    (register edx)
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (binary_expression
+            (register rdi) +
+            (binary_expression 4 *
+              (register rcx))) - 4))))
+  (instruction add
+    (register eax)
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (binary_expression
+            (register rsi) +
+            (binary_expression 4 *
+              (register rdx))) - 4))))
+  (instruction dec
+    (register rcx))
+  (instruction jnz (local_label PLACEHOLDER_6))
+  (instruction leave)
+  (instruction ret)
+  (label PLACEHOLDER_4)
+  (instruction push
+    (register rbp))
+  (instruction mov
+    (register rbp)
+    (register rsp))
+  (instruction xor
+    (register eax)
+    (register eax))
+  (label (local_label PLACEHOLDER_7))
+  (instruction cmp
+    (register eax)
+    (register edx))
+  (instruction je (local_label PLACEHOLDER_8))
+  (instruction mov
+    (register r8d) 6)
+  (instruction mov
+    (register r9d) 8)
+  (instruction mov
+    (register r10d) 10)
+  (instruction cmp
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (binary_expression
+          (register rsi) +
+          (register rax)))) "M")
+  (instruction cmovl
+    (register r9d)
+    (register r10d))
+  (instruction cmovg
+    (register r9d)
+    (register r8d))
+  (instruction inc
+    (register eax))
+  (instruction sub
+    (register edi)
+    (register r9d))
+  (instruction jg (local_label PLACEHOLDER_7))
+  (label (local_label PLACEHOLDER_8))
+  (instruction leave)
+  (instruction ret)
+  (label PLACEHOLDER_5)
+  (instruction push
+    (register rbp))
+  (instruction mov
+    (register rbp)
+    (register rsp))
+  (instruction xor
+    (register eax)
+    (register eax))
+  (instruction lea
+    (register rcx)
+    (memory_operand rel PLACEHOLDER_1))
+  (label (local_label PLACEHOLDER_6))
+  (instruction mov
+    (register edx)
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (register rsi) +
+          (binary_expression 4 *
+            (register rax))))))
+  (instruction inc
+    (register eax))
+  (instruction sub
+    (register edi)
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (binary_expression
+            (register rcx) +
+            (binary_expression 4 *
+              (register rdx))) - 4))))
+  (instruction jg (local_label PLACEHOLDER_6))
+  (instruction leave)
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

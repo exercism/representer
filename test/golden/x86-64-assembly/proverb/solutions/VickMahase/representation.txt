@@ -1,113 +1,289 @@
-default rel
-section .data
-prefix: db "\"" For want of a "\", 0\nmiddle:     db \"" the "\", 0\nsuffix:     db \"" was lost. "\"" , 10 , 0
-last_line: db "\"" And al l for the want of a "\"" , 0
-newline: db 10 , 0
-section .text
-global recite
-copy_string:
-push rbx
-mov rbx , rdi
-.loop:
-movzx eax , byte [ rsi ]
-test al , al
-jz .done
-mov [ rbx ], al
-inc rbx
-inc rsi
-jmp .loop
-.done:
-mov rax , rbx
-pop rbx
-ret
-recite:
-push rbp
-mov rbp , rsp
-push rbx
-push r12
-push r13
-push r14
-push r15
-mov r12 , rdi
-mov r13 , rsi
-mov r14 , r12
-mov rax , [ r13 ]
-test rax , rax
-jz .empty_list
-mov rax , [ r13 + 8 ]
-test rax , rax
-jz .single_element
-mov r15 , [ r13 ]
-xor ebx , ebx
-.line_loop:
-mov rsi , [ r13 + rbx * 8 ]
-test rsi , rsi
-jz .last_element
-mov rsi , [ r13 + rbx * 8 + 8 ]
-test rsi , rsi
-jz .last_element
-lea rsi , [ prefix ]
-mov rdi , r14
-call copy_string
-mov r14 , rax
-mov rsi , [ r13 + rbx * 8 ]
-mov rdi , r14
-call copy_string
-mov r14 , rax
-lea rsi , [ middle ]
-mov rdi , r14
-call copy_string
-mov r14 , rax
-mov rsi , [ r13 + rbx * 8 + 8 ]
-mov rdi , r14
-call copy_string
-mov r14 , rax
-lea rsi , [ suffix ]
-mov rdi , r14
-call copy_string
-mov r14 , rax
-inc rbx
-jmp .line_loop
-.last_element:
-lea rsi , [ last_line ]
-mov rdi , r14
-call copy_string
-mov r14 , rax
-mov rsi , r15
-mov rdi , r14
-call copy_string
-mov r14 , rax
-mov byte [ r14 ], '.'
-inc r14
-mov byte [ r14 ], 10
-inc r14
-mov byte [ r14 ], 0
-jmp .done
-.single_element:
-lea rsi , [ last_line ]
-mov rdi , r14
-call copy_string
-mov r14 , rax
-mov rsi , [ r13 ]
-mov rdi , r14
-call copy_string
-mov r14 , rax
-mov byte [ r14 ], '.'
-inc r14
-mov byte [ r14 ], 10
-inc r14
-mov byte [ r14 ], 0
-jmp .done
-.empty_list:
-mov byte [ r12 ], 0
-.done:
-pop r15
-pop r14
-pop r13
-pop r12
-pop rbx
-pop rbp
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (default_directive rel)
+  (section_directive .data)
+  (data_definition PLACEHOLDER_1
+    (data_directive db) "For want of a " 0)
+  (data_definition PLACEHOLDER_2
+    (data_directive db) " the " 0)
+  (data_definition PLACEHOLDER_3
+    (data_directive db) " was lost." 10 0)
+  (data_definition PLACEHOLDER_4
+    (data_directive db) "And all for the want of a " 0)
+  (data_definition PLACEHOLDER_5
+    (data_directive db) 10 0)
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_6)
+  (label PLACEHOLDER_7)
+  (instruction push
+    (register rbx))
+  (instruction mov
+    (register rbx)
+    (register rdi))
+  (label (local_label PLACEHOLDER_8))
+  (instruction movzx
+    (register eax)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register rsi))))
+  (instruction test
+    (register al)
+    (register al))
+  (instruction jz (local_label PLACEHOLDER_9))
+  (instruction mov
+    (memory_operand
+      (register rbx))
+    (register al))
+  (instruction inc
+    (register rbx))
+  (instruction inc
+    (register rsi))
+  (instruction jmp (local_label PLACEHOLDER_8))
+  (label (local_label PLACEHOLDER_9))
+  (instruction mov
+    (register rax)
+    (register rbx))
+  (instruction pop
+    (register rbx))
+  (instruction ret)
+  (label PLACEHOLDER_6)
+  (instruction push
+    (register rbp))
+  (instruction mov
+    (register rbp)
+    (register rsp))
+  (instruction push
+    (register rbx))
+  (instruction push
+    (register r12))
+  (instruction push
+    (register r13))
+  (instruction push
+    (register r14))
+  (instruction push
+    (register r15))
+  (instruction mov
+    (register r12)
+    (register rdi))
+  (instruction mov
+    (register r13)
+    (register rsi))
+  (instruction mov
+    (register r14)
+    (register r12))
+  (instruction mov
+    (register rax)
+    (memory_operand
+      (register r13)))
+  (instruction test
+    (register rax)
+    (register rax))
+  (instruction jz (local_label PLACEHOLDER_10))
+  (instruction mov
+    (register rax)
+    (memory_operand
+      (binary_expression
+        (register r13) + 8)))
+  (instruction test
+    (register rax)
+    (register rax))
+  (instruction jz (local_label PLACEHOLDER_11))
+  (instruction mov
+    (register r15)
+    (memory_operand
+      (register r13)))
+  (instruction xor
+    (register ebx)
+    (register ebx))
+  (label (local_label PLACEHOLDER_12))
+  (instruction mov
+    (register rsi)
+    (memory_operand
+      (binary_expression
+        (register r13) +
+        (binary_expression
+          (register rbx) * 8))))
+  (instruction test
+    (register rsi)
+    (register rsi))
+  (instruction jz (local_label PLACEHOLDER_13))
+  (instruction mov
+    (register rsi)
+    (memory_operand
+      (binary_expression
+        (binary_expression
+          (register r13) +
+          (binary_expression
+            (register rbx) * 8)) + 8)))
+  (instruction test
+    (register rsi)
+    (register rsi))
+  (instruction jz (local_label PLACEHOLDER_13))
+  (instruction lea
+    (register rsi)
+    (memory_operand PLACEHOLDER_1))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction mov
+    (register rsi)
+    (memory_operand
+      (binary_expression
+        (register r13) +
+        (binary_expression
+          (register rbx) * 8))))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction lea
+    (register rsi)
+    (memory_operand PLACEHOLDER_2))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction mov
+    (register rsi)
+    (memory_operand
+      (binary_expression
+        (binary_expression
+          (register r13) +
+          (binary_expression
+            (register rbx) * 8)) + 8)))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction lea
+    (register rsi)
+    (memory_operand PLACEHOLDER_3))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction inc
+    (register rbx))
+  (instruction jmp (local_label PLACEHOLDER_12))
+  (label (local_label PLACEHOLDER_13))
+  (instruction lea
+    (register rsi)
+    (memory_operand PLACEHOLDER_4))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction mov
+    (register rsi)
+    (register r15))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register r14))) ".")
+  (instruction inc
+    (register r14))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register r14))) 10)
+  (instruction inc
+    (register r14))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register r14))) 0)
+  (instruction jmp (local_label PLACEHOLDER_9))
+  (label (local_label PLACEHOLDER_11))
+  (instruction lea
+    (register rsi)
+    (memory_operand PLACEHOLDER_4))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction mov
+    (register rsi)
+    (memory_operand
+      (register r13)))
+  (instruction mov
+    (register rdi)
+    (register r14))
+  (instruction call PLACEHOLDER_7)
+  (instruction mov
+    (register r14)
+    (register rax))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register r14))) ".")
+  (instruction inc
+    (register r14))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register r14))) 10)
+  (instruction inc
+    (register r14))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register r14))) 0)
+  (instruction jmp (local_label PLACEHOLDER_9))
+  (label (local_label PLACEHOLDER_10))
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (register r12))) 0)
+  (label (local_label PLACEHOLDER_9))
+  (instruction pop
+    (register r15))
+  (instruction pop
+    (register r14))
+  (instruction pop
+    (register r13))
+  (instruction pop
+    (register r12))
+  (instruction pop
+    (register rbx))
+  (instruction pop
+    (register rbp))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))
