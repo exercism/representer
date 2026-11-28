@@ -7,7 +7,7 @@ Ruby, in [`lib/inspector/languages/ruby/`](./lib/inspector/languages/ruby/), is 
 The steps are:
 
 1. Pin and build the grammar.
-2. Port the old representer's tests.
+2. Add fixture tests.
 3. Declare the language's names and write its stages.
 4. Add tests for each stage.
 5. Write the snippet.
@@ -61,17 +61,20 @@ The grammar must parse the exercises' example solutions without errors.
 Check a few with `./bin/inspect`.
 If it reports syntax errors on valid code, try a newer commit or another grammar.
 
-Changing a grammar's commit later can change the representation of any solution in that language, so bump the language's version in the same commit (see step 5).
+Changing a grammar's commit later can change the representation of any solution in that language, so bump the language's version in the same commit (see step 6).
 
-## 2. Port the old representer's tests
+## 2. Add fixture tests
 
-If the track has an old representer (`exercism/<track>-representer`), port every one of its golden tests.
-Copy each test into `test/fixtures/<track>/<name>/`, using the old test's category and name for `<name>`:
+A fixture test checks Inspector's output for one solution against files that sit beside it.
+Each one lives in `test/fixtures/<track>/<name>/`, and holds:
 
-- The test's input files, unchanged.
-- `equivalent.<ext>`: code that the old representer treats as the same as the input. If the old representer printed normalised code (as C# and JavaScript did), this is its expected output, unchanged. Otherwise, write it by hand: take the input, rename the names the student chose, change the formatting, and use other spellings that the old representer normalised.
-- `expected_mapping.json`: the old expected mapping, unchanged.
-- `expected_representation.txt`: the old expected output, only if it isn't code (Ruby's was an AST).
+- The input files, which are the solution being tested.
+- `equivalent.<ext>`: code that should get the same representation as the input. Take the input, rename the names the student chose, change the formatting, and use other spellings that the representation treats as the same.
+- `expected_mapping.json`: the mapping from placeholders to the names they replace.
+- `expected_representation.txt` (optional): the expected output, for a fixture that gives the output by hand and not as code.
+
+A new language adds a few fixtures that cover its main rules, such as renaming names, dropping comments and imports, and the spellings that its `transition.md` lists.
+Request tests are separate. They live in `test/fixtures/requests/<track>/<name>/` and are described in step 4.
 
 Then create `test/languages/<track>_test.rb`:
 
@@ -89,14 +92,14 @@ class PythonTest < InspectorTest
 end
 ```
 
-`upstream_tests` (in [`test/test_helper.rb`](./test/test_helper.rb)) checks three things for every ported test:
+`upstream_tests` (in [`test/test_helper.rb`](./test/test_helper.rb)) checks three things for every fixture:
 
 1. Equivalence: the input and `equivalent.<ext>` get the same representation.
 2. Mapping: the names renamed are the ones in `expected_mapping.json`.
-3. Distinctness: two tests get the same representation exactly when they have the same expected output.
+3. Distinctness: two fixtures get the same representation exactly when they have the same expected output.
 
-Every ported test must pass.
-Where Inspector deliberately differs from a fixture, add a deviation that says how and why:
+Every fixture must pass.
+If Inspector deliberately differs from a fixture, add a deviation that says how and why:
 
 ```ruby
 DEVIATIONS = {
@@ -110,13 +113,14 @@ DEVIATIONS = {
 
 - `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that `expected_mapping.json` lists but Inspector keeps.
 - `replace`: text in `equivalent.<ext>` to replace with other text, for names that Inspector renames and the fixture keeps.
-- `add` and `remove`: names to add to or remove from the old mapping.
+- `add` and `remove`: names to add to or remove from the mapping in `expected_mapping.json`.
 - `parse_error: true`: the input has a syntax error that tree-sitter rejects, so it gets Basic's representation. The test checks that, and nothing else.
-- `merges_with`: other tests that Inspector gives the same representation, although their expected outputs differ. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
+- `merges_with`: other fixtures that Inspector gives the same representation, although their expected outputs differ. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
 - `why`: the reason. Every deviation needs one.
 
-The common deviations are old outputs that weren't valid code, and names that Inspector renames and the fixture keeps.
-Never use a deviation to hide a merge of two tests with different expected outputs.
+If a fixture's mapping lacks names that Inspector renames (it keeps the names of library methods, even if the solution defines them), list the fixture in `upstream_tests`'s `renamed:` argument, with one reason for all of them in `renamed_why:`.
+
+Never use a deviation to hide a merge of two fixtures with different expected outputs.
 
 ## 3. Declare the names and write the stages
 
@@ -383,7 +387,7 @@ See [`test/languages/ruby/`](./test/languages/ruby/).
 Test `GenerateAST` against the language's own parser: for a set of snippets (from the tests and the golden data), check that two snippets get the same tree from `GenerateAST` exactly when the parser gives them the same tree, ignoring locations and names.
 Ruby's test uses the `parser` gem, which the old Ruby representer used, and lists each pair where `GenerateAST` deliberately differs, with the reason.
 
-Keep the ported tests and the tests of Inspector as a whole in `test/languages/<track>_test.rb`.
+Keep the fixture tests and the tests of Inspector as a whole in `test/languages/<track>_test.rb`.
 `InspectorTest` gives you `assert_same_representation`, `refute_same_representation`, `assert_basic_representation` (which checks that a solution doesn't parse, and so gets Basic's representation) and `assert_unrepresentable` (which checks that a solution gets no representation, for a given reason).
 
 Also add a request test: a `test/fixtures/requests/<track>/<name>/request.json` with a typical solution and its tests, and an `expected_response.json` made by running `./bin/run.sh test/fixtures/requests/<track>/<name>/request.json test/fixtures/requests/<track>/<name>` and copying `response.json` after checking it.
