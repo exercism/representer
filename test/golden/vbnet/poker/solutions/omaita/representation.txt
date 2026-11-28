@@ -1,193 +1,823 @@
-Public Module Poker
-Private Structure PokerHand
-Public hand As String
-Public cards As List ( Of Integer )
-Public suits As List ( Of Char )
-Public rank As Integer
-Public points As Integer
-Public cards_remaining As List ( Of Integer )
-End Structure
-Private Enum Play
-StraightFlush = 800
-FourOfAKind = 700
-FullHouse = 600
-Flush = 500
-Straight = 400
-ThreeOfAKind = 300
-TwoPair = 200
-OnePair = 100
-HighCard = 0
-End Enum
-Public Function BestHands ( ByVal hands As IEnumerable ( Of String )) As IEnumerable ( Of String )
-If hands . Count = 1 Then Return hands
-Dim game ( hands . Count - 1 ) As PokerHand
-Dim result As New List ( Of String )
-For i As Integer = 0 To game . Length - 1
-game ( i ). hand = hands ( i )
-Parsehand ( game ( i ))
-SetRank ( game ( i ))
-game ( i ). cards_remaining . Sort ()
-Next
-Dim sortedGame = game . OrderByDescending ( Function ( n ) n . points ). ToList
-If sortedGame ( 0 ). points > sortedGame ( 1 ). points Then
-result . Add ( sortedGame ( 0 ). hand )
-Return result
-End If
-Dim tiedGames = sortedGame . TakeWhile ( Function ( n ) n . points = sortedGame ( 0 ). points ). ToList
-For i As Integer = 0 To tiedGames . Count - 1
-For j As Integer = i + 1 To tiedGames . Count - 1
-Dim t = BreakTie ( sortedGame ( i ), sortedGame ( j ))
-If t = 1 Then
-result . Add ( sortedGame ( i ). hand )
-ElseIf t = - 1 Then
-result . Add ( sortedGame ( j ). hand )
-ElseIf t = 0 Then
-result . Add ( sortedGame ( i ). hand )
-result . Add ( sortedGame ( j ). hand )
-End If
-Next
-Next
-Return result . Distinct
-End Function
-Private Sub Parsehand ( ByRef pkhand As PokerHand )
-pkhand . cards = New List ( Of Integer )
-pkhand . suits = New List ( Of Char )
-pkhand . cards_remaining = New List ( Of Integer )
-pkhand . suits = Strings . StrReverse ( pkhand . hand ). Split . Select ( Function ( st ) st ( 0 )). ToList
-For Each c In Strings . StrReverse ( pkhand . hand ). Split . Select ( Function ( st ) st ( 1 ))
-Select Case c
-Case "\"0\"" : pkhand . cards . Add ( 10 )
-Case "\"J\"" : pkhand . cards . Add ( 11 )
-Case "\"Q\"" : pkhand . cards . Add ( 12 )
-Case "\"K\"" : pkhand . cards . Add ( 13 )
-Case "\"A\"" : pkhand . cards . Add ( 14 )
-Case Else : pkhand . cards . Add ( Integer . Parse ( c ))
-End Select
-Next
-pkhand . cards . Sort ()
-End Sub
-Private Sub SetRank ( ByRef pkhand As PokerHand )
-Dim aux As New List ( Of Integer ) From { 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 2 , 3 , 4 , 5 , 14 }
-For i As Integer = 0 To aux . Count - 5
-If aux . Skip ( i ). Take ( 5 ). SequenceEqual ( pkhand . cards ) Then
-If pkhand . suits . Distinct . Count = 1 Then
-pkhand . rank = Play . StraightFlush
-Else
-pkhand . rank = Play . Straight
-End If
-If pkhand . cards ( 0 ) = 2 And pkhand . cards ( 4 ) = 14 Then
-pkhand . points = pkhand . rank + pkhand . cards ( 3 )
-Else
-pkhand . points = pkhand . rank + pkhand . cards ( 4 )
-End If
-Exit Sub
-End If
-Next
-If pkhand . suits . Distinct . Count = 1 Then
-pkhand . rank = Play . Flush
-pkhand . points = pkhand . rank + pkhand . cards ( 4 )
-pkhand . cards_remaining . Add ( pkhand . cards ( 3 ))
-pkhand . cards_remaining . Add ( pkhand . cards ( 2 ))
-pkhand . cards_remaining . Add ( pkhand . cards ( 1 ))
-pkhand . cards_remaining . Add ( pkhand . cards ( 0 ))
-Exit Sub
-End If
-Dim dict = pkhand . cards . GroupBy ( Function ( n ) n ). ToDictionary ( Function ( n ) n . Key , Function ( x ) x . Count )
-If dict . ContainsValue ( 4 ) Then
-For Each d In dict
-If d . Value = 4 Then
-pkhand . points = d . Key
-Else
-pkhand . cards_remaining . Add ( d . Key )
-End If
-Next
-pkhand . rank = Play . FourOfAKind
-pkhand . points += pkhand . rank
-Exit Sub
-ElseIf dict . ContainsValue ( 3 ) And dict . ContainsValue ( 2 ) Then
-For Each d In dict
-If d . Value = 3 Then
-pkhand . points = d . Key
-Else
-pkhand . cards_remaining . Add ( d . Key )
-End If
-Next
-pkhand . rank = Play . FullHouse
-pkhand . points += pkhand . rank
-Exit Sub
-ElseIf dict . ContainsValue ( 3 ) Then
-For Each d In dict
-If d . Value = 3 Then
-pkhand . points = d . Key
-Else
-pkhand . cards_remaining . Add ( d . Key )
-End If
-Next
-pkhand . rank = Play . ThreeOfAKind
-pkhand . points += pkhand . rank
-Exit Sub
-ElseIf dict . ContainsValue ( 2 ) And dict . Count = 3 Then
-Dim pairs As New List ( Of Integer )
-For Each d In dict
-If d . Value = 2 Then
-pairs . Add ( d . Key )
-Else
-pkhand . cards_remaining . Add ( d . Key )
-End If
-Next
-pkhand . points = pairs . Max
-pkhand . cards_remaining . Add ( pairs . Min )
-pkhand . rank = Play . TwoPair
-pkhand . points += pkhand . rank
-Exit Sub
-ElseIf dict . ContainsValue ( 2 ) And dict . Count = 4 Then
-For Each d In dict
-If d . Value = 2 Then
-pkhand . points = d . Key
-Else
-pkhand . cards_remaining . Add ( d . Key )
-End If
-Next
-pkhand . rank = Play . OnePair
-pkhand . points += pkhand . rank
-Exit Sub
-Else
-pkhand . rank = Play . HighCard
-pkhand . points = pkhand . rank + pkhand . cards ( 4 )
-pkhand . cards_remaining . Add ( pkhand . cards ( 3 ))
-pkhand . cards_remaining . Add ( pkhand . cards ( 2 ))
-pkhand . cards_remaining . Add ( pkhand . cards ( 1 ))
-pkhand . cards_remaining . Add ( pkhand . cards ( 0 ))
-Exit Sub
-End If
-End Sub
-Private Function BreakTie ( ByVal x As PokerHand , ByVal y As PokerHand ) As Integer
-Select Case x . rank
-Case Play . FourOfAKind
-Return x . cards_remaining ( 0 ). CompareTo ( y . cards_remaining ( 0 ))
-Case Play . FullHouse
-Return x . cards_remaining ( 0 ). CompareTo ( y . cards_remaining ( 0 ))
-Case Play . Flush
-Return addCardsRemaining ( x , y , 3 )
-Case Play . ThreeOfAKind
-Return addCardsRemaining ( x , y , 1 )
-Case Play . TwoPair
-Return addCardsRemaining ( x , y , 1 )
-Case Play . OnePair
-Return addCardsRemaining ( x , y , 2 )
-Case Play . HighCard
-Return addCardsRemaining ( x , y , 3 )
-Case Else
-End Select
-End Function
-Private Function addCardsRemaining ( ByVal x As PokerHand , ByVal y As PokerHand , ByVal number As Integer ) As Integer
-For i As Integer = number To 0 Step - 1
-If x . cards_remaining ( i ) > y . cards_remaining ( i ) Then
-Return 1
-ElseIf x . cards_remaining ( i ) < y . cards_remaining ( i ) Then
-Return - 1
-End If
-Next
-Return 0
-End Function
-End Module
+(source_file
+  (module_block
+    (modifiers
+      (modifier Public)) PLACEHOLDER_1
+    (structure_block
+      (modifiers
+        (modifier Private)) PLACEHOLDER_2
+      (field_declaration
+        (modifiers
+          (modifier Public))
+        (variable_declarator PLACEHOLDER_3 As
+          (primitive_type String)))
+      (field_declaration
+        (modifiers
+          (modifier Public))
+        (variable_declarator PLACEHOLDER_4 As
+          (generic_name list
+            (type_argument_list
+              (primitive_type Integer)))))
+      (field_declaration
+        (modifiers
+          (modifier Public))
+        (variable_declarator PLACEHOLDER_5 As
+          (generic_name list
+            (type_argument_list
+              (primitive_type Char)))))
+      (field_declaration
+        (modifiers
+          (modifier Public))
+        (variable_declarator PLACEHOLDER_6 As
+          (primitive_type Integer)))
+      (field_declaration
+        (modifiers
+          (modifier Public))
+        (variable_declarator PLACEHOLDER_7 As
+          (primitive_type Integer)))
+      (field_declaration
+        (modifiers
+          (modifier Public))
+        (variable_declarator PLACEHOLDER_8 As
+          (generic_name list
+            (type_argument_list
+              (primitive_type Integer))))))
+    (enum_block
+      (modifiers
+        (modifier Private)) PLACEHOLDER_9
+      (enum_member PLACEHOLDER_10 800)
+      (enum_member PLACEHOLDER_11 700)
+      (enum_member PLACEHOLDER_12 600)
+      (enum_member PLACEHOLDER_13 500)
+      (enum_member PLACEHOLDER_14 400)
+      (enum_member PLACEHOLDER_15 300)
+      (enum_member PLACEHOLDER_16 200)
+      (enum_member PLACEHOLDER_17 100)
+      (enum_member PLACEHOLDER_18 0))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_19
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_20
+          (generic_name ienumerable
+            (type_argument_list
+              (primitive_type String)))))
+      (generic_name ienumerable
+        (type_argument_list
+          (primitive_type String)))
+      (block
+        (single_line_if_statement
+          (binary_expression
+            (member_access_expression PLACEHOLDER_20 count) = 1)
+          (block
+            (return_statement PLACEHOLDER_20)))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_21
+            (argument_list
+              (binary_expression
+                (member_access_expression PLACEHOLDER_20 count) - 1)) As PLACEHOLDER_2))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_22 As
+            (object_creation_expression
+              (generic_name list
+                (type_argument_list
+                  (primitive_type String))))))
+        (for_statement PLACEHOLDER_23
+          (primitive_type Integer) 0
+          (binary_expression
+            (member_access_expression PLACEHOLDER_21 length) - 1)
+          (block
+            (assignment_statement
+              (member_access_expression
+                (invocation_expression PLACEHOLDER_21
+                  (argument_list PLACEHOLDER_23)) PLACEHOLDER_3) =
+              (invocation_expression PLACEHOLDER_20
+                (argument_list PLACEHOLDER_23)))
+            (expression_statement
+              (invocation_expression PLACEHOLDER_24
+                (argument_list
+                  (invocation_expression PLACEHOLDER_21
+                    (argument_list PLACEHOLDER_23)))))
+            (expression_statement
+              (invocation_expression PLACEHOLDER_25
+                (argument_list
+                  (invocation_expression PLACEHOLDER_21
+                    (argument_list PLACEHOLDER_23)))))
+            (expression_statement
+              (invocation_expression
+                (member_access_expression
+                  (member_access_expression
+                    (invocation_expression PLACEHOLDER_21
+                      (argument_list PLACEHOLDER_23)) PLACEHOLDER_8) sort)
+                (argument_list)))))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_26
+            (member_access_expression
+              (invocation_expression
+                (member_access_expression PLACEHOLDER_21 orderbydescending)
+                (argument_list
+                  (lambda_expression Function
+                    (parameter_list
+                      (parameter PLACEHOLDER_27))
+                    (member_access_expression PLACEHOLDER_27 PLACEHOLDER_7)))) tolist)))
+        (if_statement
+          (binary_expression
+            (member_access_expression
+              (invocation_expression PLACEHOLDER_26
+                (argument_list 0)) PLACEHOLDER_7) >
+            (member_access_expression
+              (invocation_expression PLACEHOLDER_26
+                (argument_list 1)) PLACEHOLDER_7))
+          (block
+            (expression_statement
+              (invocation_expression
+                (member_access_expression PLACEHOLDER_22 add)
+                (argument_list
+                  (member_access_expression
+                    (invocation_expression PLACEHOLDER_26
+                      (argument_list 0)) PLACEHOLDER_3))))
+            (return_statement PLACEHOLDER_22)))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_28
+            (member_access_expression
+              (invocation_expression
+                (member_access_expression PLACEHOLDER_26 takewhile)
+                (argument_list
+                  (lambda_expression Function
+                    (parameter_list
+                      (parameter PLACEHOLDER_27))
+                    (binary_expression
+                      (member_access_expression PLACEHOLDER_27 PLACEHOLDER_7) =
+                      (member_access_expression
+                        (invocation_expression PLACEHOLDER_26
+                          (argument_list 0)) PLACEHOLDER_7))))) tolist)))
+        (for_statement PLACEHOLDER_23
+          (primitive_type Integer) 0
+          (binary_expression
+            (member_access_expression PLACEHOLDER_28 count) - 1)
+          (block
+            (for_statement PLACEHOLDER_29
+              (primitive_type Integer)
+              (binary_expression PLACEHOLDER_23 + 1)
+              (binary_expression
+                (member_access_expression PLACEHOLDER_28 count) - 1)
+              (block
+                (local_declaration
+                  (modifiers
+                    (modifier Dim))
+                  (variable_declarator PLACEHOLDER_30
+                    (invocation_expression PLACEHOLDER_31
+                      (argument_list
+                        (invocation_expression PLACEHOLDER_26
+                          (argument_list PLACEHOLDER_23))
+                        (invocation_expression PLACEHOLDER_26
+                          (argument_list PLACEHOLDER_29))))))
+                (if_statement
+                  (binary_expression PLACEHOLDER_30 = 1)
+                  (block
+                    (expression_statement
+                      (invocation_expression
+                        (member_access_expression PLACEHOLDER_22 add)
+                        (argument_list
+                          (member_access_expression
+                            (invocation_expression PLACEHOLDER_26
+                              (argument_list PLACEHOLDER_23)) PLACEHOLDER_3)))))
+                  (elseif_clause
+                    (binary_expression PLACEHOLDER_30 =
+                      (unary_expression - 1))
+                    (block
+                      (expression_statement
+                        (invocation_expression
+                          (member_access_expression PLACEHOLDER_22 add)
+                          (argument_list
+                            (member_access_expression
+                              (invocation_expression PLACEHOLDER_26
+                                (argument_list PLACEHOLDER_29)) PLACEHOLDER_3))))))
+                  (elseif_clause
+                    (binary_expression PLACEHOLDER_30 = 0)
+                    (block
+                      (expression_statement
+                        (invocation_expression
+                          (member_access_expression PLACEHOLDER_22 add)
+                          (argument_list
+                            (member_access_expression
+                              (invocation_expression PLACEHOLDER_26
+                                (argument_list PLACEHOLDER_23)) PLACEHOLDER_3))))
+                      (expression_statement
+                        (invocation_expression
+                          (member_access_expression PLACEHOLDER_22 add)
+                          (argument_list
+                            (member_access_expression
+                              (invocation_expression PLACEHOLDER_26
+                                (argument_list PLACEHOLDER_29)) PLACEHOLDER_3)))))))))))
+        (return_statement
+          (member_access_expression PLACEHOLDER_22 distinct))))
+    (method_declaration
+      (modifiers
+        (modifier Private)) Sub PLACEHOLDER_24
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByRef)) PLACEHOLDER_32 PLACEHOLDER_2))
+      (block
+        (assignment_statement
+          (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) =
+          (object_creation_expression
+            (generic_name list
+              (type_argument_list
+                (primitive_type Integer)))))
+        (assignment_statement
+          (member_access_expression PLACEHOLDER_32 PLACEHOLDER_5) =
+          (object_creation_expression
+            (generic_name list
+              (type_argument_list
+                (primitive_type Char)))))
+        (assignment_statement
+          (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) =
+          (object_creation_expression
+            (generic_name list
+              (type_argument_list
+                (primitive_type Integer)))))
+        (assignment_statement
+          (member_access_expression PLACEHOLDER_32 PLACEHOLDER_5) =
+          (member_access_expression
+            (invocation_expression
+              (member_access_expression
+                (member_access_expression
+                  (invocation_expression
+                    (member_access_expression strings strreverse)
+                    (argument_list
+                      (member_access_expression PLACEHOLDER_32 PLACEHOLDER_3))) split) select)
+              (argument_list
+                (lambda_expression Function
+                  (parameter_list
+                    (parameter PLACEHOLDER_33))
+                  (invocation_expression PLACEHOLDER_33
+                    (argument_list 0))))) tolist))
+        (for_each_statement PLACEHOLDER_34
+          (invocation_expression
+            (member_access_expression
+              (member_access_expression
+                (invocation_expression
+                  (member_access_expression strings strreverse)
+                  (argument_list
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_3))) split) select)
+            (argument_list
+              (lambda_expression Function
+                (parameter_list
+                  (parameter PLACEHOLDER_33))
+                (invocation_expression PLACEHOLDER_33
+                  (argument_list 1)))))
+          (block
+            (select_statement PLACEHOLDER_34
+              (case_branch_clause
+                (case_clause "0")
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) add)
+                      (argument_list 10)))))
+              (case_branch_clause
+                (case_clause "J")
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) add)
+                      (argument_list 11)))))
+              (case_branch_clause
+                (case_clause "Q")
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) add)
+                      (argument_list 12)))))
+              (case_branch_clause
+                (case_clause "K")
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) add)
+                      (argument_list 13)))))
+              (case_branch_clause
+                (case_clause "A")
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) add)
+                      (argument_list 14)))))
+              (case_else_clause
+                (block
+                  (expression_statement
+                    (invocation_expression
+                      (member_access_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) add)
+                      (argument_list
+                        (invocation_expression
+                          (member_access_expression
+                            (primitive_type Integer) parse)
+                          (argument_list PLACEHOLDER_34))))))))))
+        (expression_statement
+          (invocation_expression
+            (member_access_expression
+              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) sort)
+            (argument_list)))))
+    (method_declaration
+      (modifiers
+        (modifier Private)) Sub PLACEHOLDER_25
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByRef)) PLACEHOLDER_32 PLACEHOLDER_2))
+      (block
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_35 As
+            (object_creation_expression
+              (generic_name list
+                (type_argument_list
+                  (primitive_type Integer)))
+              (collection_initializer 2 3 4 5 6 7 8 9 10 11 12 13 14 2 3 4 5 14))))
+        (for_statement PLACEHOLDER_23
+          (primitive_type Integer) 0
+          (binary_expression
+            (member_access_expression PLACEHOLDER_35 count) - 5)
+          (block
+            (if_statement
+              (invocation_expression
+                (member_access_expression
+                  (invocation_expression
+                    (member_access_expression
+                      (invocation_expression
+                        (member_access_expression PLACEHOLDER_35 skip)
+                        (argument_list PLACEHOLDER_23)) take)
+                    (argument_list 5)) sequenceequal)
+                (argument_list
+                  (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)))
+              (block
+                (if_statement
+                  (binary_expression
+                    (member_access_expression
+                      (member_access_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_5) distinct) count) = 1)
+                  (block
+                    (assignment_statement
+                      (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+                      (member_access_expression PLACEHOLDER_9 PLACEHOLDER_10)))
+                  (else_clause
+                    (block
+                      (assignment_statement
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+                        (member_access_expression PLACEHOLDER_9 PLACEHOLDER_14)))))
+                (if_statement
+                  (binary_expression
+                    (binary_expression
+                      (invocation_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                        (argument_list 0)) = 2) And
+                    (binary_expression
+                      (invocation_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                        (argument_list 4)) = 14))
+                  (block
+                    (assignment_statement
+                      (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+                      (binary_expression
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) +
+                        (invocation_expression
+                          (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                          (argument_list 3)))))
+                  (else_clause
+                    (block
+                      (assignment_statement
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+                        (binary_expression
+                          (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) +
+                          (invocation_expression
+                            (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                            (argument_list 4)))))))
+                (exit_statement Sub)))))
+        (if_statement
+          (binary_expression
+            (member_access_expression
+              (member_access_expression
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_5) distinct) count) = 1)
+          (block
+            (assignment_statement
+              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_13))
+            (assignment_statement
+              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+              (binary_expression
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) +
+                (invocation_expression
+                  (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                  (argument_list 4))))
+            (expression_statement
+              (invocation_expression
+                (member_access_expression
+                  (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                (argument_list
+                  (invocation_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                    (argument_list 3)))))
+            (expression_statement
+              (invocation_expression
+                (member_access_expression
+                  (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                (argument_list
+                  (invocation_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                    (argument_list 2)))))
+            (expression_statement
+              (invocation_expression
+                (member_access_expression
+                  (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                (argument_list
+                  (invocation_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                    (argument_list 1)))))
+            (expression_statement
+              (invocation_expression
+                (member_access_expression
+                  (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                (argument_list
+                  (invocation_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                    (argument_list 0)))))
+            (exit_statement Sub)))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_36
+            (invocation_expression
+              (member_access_expression
+                (invocation_expression
+                  (member_access_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4) groupby)
+                  (argument_list
+                    (lambda_expression Function
+                      (parameter_list
+                        (parameter PLACEHOLDER_27)) PLACEHOLDER_27))) todictionary)
+              (argument_list
+                (lambda_expression Function
+                  (parameter_list
+                    (parameter PLACEHOLDER_27))
+                  (member_access_expression PLACEHOLDER_27 key))
+                (lambda_expression Function
+                  (parameter_list
+                    (parameter PLACEHOLDER_37))
+                  (member_access_expression PLACEHOLDER_37 count))))))
+        (if_statement
+          (invocation_expression
+            (member_access_expression PLACEHOLDER_36 containsvalue)
+            (argument_list 4))
+          (block
+            (for_each_statement PLACEHOLDER_38 PLACEHOLDER_36
+              (block
+                (if_statement
+                  (binary_expression
+                    (member_access_expression PLACEHOLDER_38 value) = 4)
+                  (block
+                    (assignment_statement
+                      (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+                      (member_access_expression PLACEHOLDER_38 key)))
+                  (else_clause
+                    (block
+                      (expression_statement
+                        (invocation_expression
+                          (member_access_expression
+                            (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                          (argument_list
+                            (member_access_expression PLACEHOLDER_38 key)))))))))
+            (assignment_statement
+              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_11))
+            (assignment_statement
+              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) +=
+              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6))
+            (exit_statement Sub))
+          (elseif_clause
+            (binary_expression
+              (invocation_expression
+                (member_access_expression PLACEHOLDER_36 containsvalue)
+                (argument_list 3)) And
+              (invocation_expression
+                (member_access_expression PLACEHOLDER_36 containsvalue)
+                (argument_list 2)))
+            (block
+              (for_each_statement PLACEHOLDER_38 PLACEHOLDER_36
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_access_expression PLACEHOLDER_38 value) = 3)
+                    (block
+                      (assignment_statement
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+                        (member_access_expression PLACEHOLDER_38 key)))
+                    (else_clause
+                      (block
+                        (expression_statement
+                          (invocation_expression
+                            (member_access_expression
+                              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                            (argument_list
+                              (member_access_expression PLACEHOLDER_38 key)))))))))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+                (member_access_expression PLACEHOLDER_9 PLACEHOLDER_12))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) +=
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6))
+              (exit_statement Sub)))
+          (elseif_clause
+            (invocation_expression
+              (member_access_expression PLACEHOLDER_36 containsvalue)
+              (argument_list 3))
+            (block
+              (for_each_statement PLACEHOLDER_38 PLACEHOLDER_36
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_access_expression PLACEHOLDER_38 value) = 3)
+                    (block
+                      (assignment_statement
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+                        (member_access_expression PLACEHOLDER_38 key)))
+                    (else_clause
+                      (block
+                        (expression_statement
+                          (invocation_expression
+                            (member_access_expression
+                              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                            (argument_list
+                              (member_access_expression PLACEHOLDER_38 key)))))))))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+                (member_access_expression PLACEHOLDER_9 PLACEHOLDER_15))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) +=
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6))
+              (exit_statement Sub)))
+          (elseif_clause
+            (binary_expression
+              (invocation_expression
+                (member_access_expression PLACEHOLDER_36 containsvalue)
+                (argument_list 2)) And
+              (binary_expression
+                (member_access_expression PLACEHOLDER_36 count) = 3))
+            (block
+              (local_declaration
+                (modifiers
+                  (modifier Dim))
+                (variable_declarator PLACEHOLDER_39 As
+                  (object_creation_expression
+                    (generic_name list
+                      (type_argument_list
+                        (primitive_type Integer))))))
+              (for_each_statement PLACEHOLDER_38 PLACEHOLDER_36
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_access_expression PLACEHOLDER_38 value) = 2)
+                    (block
+                      (expression_statement
+                        (invocation_expression
+                          (member_access_expression PLACEHOLDER_39 add)
+                          (argument_list
+                            (member_access_expression PLACEHOLDER_38 key)))))
+                    (else_clause
+                      (block
+                        (expression_statement
+                          (invocation_expression
+                            (member_access_expression
+                              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                            (argument_list
+                              (member_access_expression PLACEHOLDER_38 key)))))))))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+                (member_access_expression PLACEHOLDER_39 max))
+              (expression_statement
+                (invocation_expression
+                  (member_access_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                  (argument_list
+                    (member_access_expression PLACEHOLDER_39 min))))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+                (member_access_expression PLACEHOLDER_9 PLACEHOLDER_16))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) +=
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6))
+              (exit_statement Sub)))
+          (elseif_clause
+            (binary_expression
+              (invocation_expression
+                (member_access_expression PLACEHOLDER_36 containsvalue)
+                (argument_list 2)) And
+              (binary_expression
+                (member_access_expression PLACEHOLDER_36 count) = 4))
+            (block
+              (for_each_statement PLACEHOLDER_38 PLACEHOLDER_36
+                (block
+                  (if_statement
+                    (binary_expression
+                      (member_access_expression PLACEHOLDER_38 value) = 2)
+                    (block
+                      (assignment_statement
+                        (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+                        (member_access_expression PLACEHOLDER_38 key)))
+                    (else_clause
+                      (block
+                        (expression_statement
+                          (invocation_expression
+                            (member_access_expression
+                              (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                            (argument_list
+                              (member_access_expression PLACEHOLDER_38 key)))))))))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+                (member_access_expression PLACEHOLDER_9 PLACEHOLDER_17))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) +=
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6))
+              (exit_statement Sub)))
+          (else_clause
+            (block
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) =
+                (member_access_expression PLACEHOLDER_9 PLACEHOLDER_18))
+              (assignment_statement
+                (member_access_expression PLACEHOLDER_32 PLACEHOLDER_7) =
+                (binary_expression
+                  (member_access_expression PLACEHOLDER_32 PLACEHOLDER_6) +
+                  (invocation_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                    (argument_list 4))))
+              (expression_statement
+                (invocation_expression
+                  (member_access_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                  (argument_list
+                    (invocation_expression
+                      (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                      (argument_list 3)))))
+              (expression_statement
+                (invocation_expression
+                  (member_access_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                  (argument_list
+                    (invocation_expression
+                      (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                      (argument_list 2)))))
+              (expression_statement
+                (invocation_expression
+                  (member_access_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                  (argument_list
+                    (invocation_expression
+                      (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                      (argument_list 1)))))
+              (expression_statement
+                (invocation_expression
+                  (member_access_expression
+                    (member_access_expression PLACEHOLDER_32 PLACEHOLDER_8) add)
+                  (argument_list
+                    (invocation_expression
+                      (member_access_expression PLACEHOLDER_32 PLACEHOLDER_4)
+                      (argument_list 0)))))
+              (exit_statement Sub))))))
+    (method_declaration
+      (modifiers
+        (modifier Private)) Function PLACEHOLDER_31
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_37 PLACEHOLDER_2)
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_40 PLACEHOLDER_2))
+      (primitive_type Integer)
+      (block
+        (select_statement
+          (member_access_expression PLACEHOLDER_37 PLACEHOLDER_6)
+          (case_branch_clause
+            (case_clause
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_11))
+            (block
+              (return_statement
+                (invocation_expression
+                  (member_access_expression
+                    (invocation_expression
+                      (member_access_expression PLACEHOLDER_37 PLACEHOLDER_8)
+                      (argument_list 0)) compareto)
+                  (argument_list
+                    (invocation_expression
+                      (member_access_expression PLACEHOLDER_40 PLACEHOLDER_8)
+                      (argument_list 0)))))))
+          (case_branch_clause
+            (case_clause
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_12))
+            (block
+              (return_statement
+                (invocation_expression
+                  (member_access_expression
+                    (invocation_expression
+                      (member_access_expression PLACEHOLDER_37 PLACEHOLDER_8)
+                      (argument_list 0)) compareto)
+                  (argument_list
+                    (invocation_expression
+                      (member_access_expression PLACEHOLDER_40 PLACEHOLDER_8)
+                      (argument_list 0)))))))
+          (case_branch_clause
+            (case_clause
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_13))
+            (block
+              (return_statement
+                (invocation_expression PLACEHOLDER_41
+                  (argument_list PLACEHOLDER_37 PLACEHOLDER_40 3)))))
+          (case_branch_clause
+            (case_clause
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_15))
+            (block
+              (return_statement
+                (invocation_expression PLACEHOLDER_41
+                  (argument_list PLACEHOLDER_37 PLACEHOLDER_40 1)))))
+          (case_branch_clause
+            (case_clause
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_16))
+            (block
+              (return_statement
+                (invocation_expression PLACEHOLDER_41
+                  (argument_list PLACEHOLDER_37 PLACEHOLDER_40 1)))))
+          (case_branch_clause
+            (case_clause
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_17))
+            (block
+              (return_statement
+                (invocation_expression PLACEHOLDER_41
+                  (argument_list PLACEHOLDER_37 PLACEHOLDER_40 2)))))
+          (case_branch_clause
+            (case_clause
+              (member_access_expression PLACEHOLDER_9 PLACEHOLDER_18))
+            (block
+              (return_statement
+                (invocation_expression PLACEHOLDER_41
+                  (argument_list PLACEHOLDER_37 PLACEHOLDER_40 3)))))
+          (case_else_clause))))
+    (method_declaration
+      (modifiers
+        (modifier Private)) Function PLACEHOLDER_41
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_37 PLACEHOLDER_2)
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_40 PLACEHOLDER_2)
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_42
+          (primitive_type Integer)))
+      (primitive_type Integer)
+      (block
+        (for_statement PLACEHOLDER_23
+          (primitive_type Integer) PLACEHOLDER_42 0
+          (unary_expression - 1)
+          (block
+            (if_statement
+              (binary_expression
+                (invocation_expression
+                  (member_access_expression PLACEHOLDER_37 PLACEHOLDER_8)
+                  (argument_list PLACEHOLDER_23)) >
+                (invocation_expression
+                  (member_access_expression PLACEHOLDER_40 PLACEHOLDER_8)
+                  (argument_list PLACEHOLDER_23)))
+              (block
+                (return_statement 1))
+              (elseif_clause
+                (binary_expression
+                  (invocation_expression
+                    (member_access_expression PLACEHOLDER_37 PLACEHOLDER_8)
+                    (argument_list PLACEHOLDER_23)) <
+                  (invocation_expression
+                    (member_access_expression PLACEHOLDER_40 PLACEHOLDER_8)
+                    (argument_list PLACEHOLDER_23)))
+                (block
+                  (return_statement
+                    (unary_expression - 1)))))))
+        (return_statement 0)))))

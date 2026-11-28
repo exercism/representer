@@ -1,77 +1,382 @@
-Public Class BinTree
-Public Sub New ( ByVal value As Integer , ByVal left As BinTree , ByVal right As BinTree )
-Me . Value = value
-Me . Left = left
-Me . Right = right
-End Sub
-Public ReadOnly Property Value As Integer
-Public ReadOnly Property Left As BinTree
-Public ReadOnly Property Right As BinTree
-Public Overrides Function Equals ( ByVal obj As Object ) As Boolean
-Dim that = TryCast ( obj , BinTree )
-If that Is Nothing OrElse that . Value <> Value Then
-Return False
-End If
-Dim leftMatch = ( that . Left Is Nothing AndAlso Left Is Nothing ) OrElse ( Left IsNot Nothing AndAlso Left . Equals ( that . Left ))
-Dim rightMatch = ( that . Right Is Nothing AndAlso Right Is Nothing ) OrElse ( Right IsNot Nothing AndAlso Right . Equals ( that . Right ))
-Return leftMatch AndAlso rightMatch
-End Function
-Public Overrides Function GetHashCode () As Integer
-Return MyBase . GetHashCode ()
-End Function
-End Class
-Public Class Zipper
-Private focus As BinTree
-Private parents As IEnumerable ( Of ( node As BinTree , isLeft As Boolean ))
-Public Function Value () As Integer
-Return focus . Value
-End Function
-Public Function Left () As Zipper
-Return If ( focus . Left IsNot Nothing , FromTree ( focus . Left , parents . Prepend (( focus , True ))), Nothing )
-End Function
-Public Function Right () As Zipper
-Return If ( focus . Right IsNot Nothing , FromTree ( focus . Right , parents . Prepend (( focus , False ))), Nothing )
-End Function
-Public Function Up () As Zipper
-If Not parents . Any () Then
-Return Nothing
-End If
-Dim parent = parents . First ()
-Dim others = parents . Skip ( 1 )
-Dim newFocus = New BinTree ( parent . node . Value , If ( parent . isLeft , focus , parent . node . Left ), If ( parent . isLeft , parent . node . Right , focus ))
-Return FromTree ( newFocus , others )
-End Function
-Public Function SetValue ( ByVal newValue As Integer ) As Zipper
-Return FromTree ( New BinTree ( newValue , focus . Left , focus . Right ), parents )
-End Function
-Public Function SetLeft ( ByVal binTree As BinTree ) As Zipper
-Return FromTree ( New BinTree ( focus . Value , binTree , focus . Right ), parents )
-End Function
-Public Function SetRight ( ByVal binTree As BinTree ) As Zipper
-Return FromTree ( New BinTree ( focus . Value , focus . Left , binTree ), parents )
-End Function
-Public Function ToTree () As BinTree
-Dim top = Me
-Dim nextZipper As Zipper = Nothing
-While ( InlineAssignHelper ( nextZipper , top . Up ())) IsNot Nothing
-top = nextZipper
-End While
-Return top . focus
-End Function
-Public Shared Function FromTree ( ByVal tree As BinTree , Optional ByVal parents As IEnumerable ( Of ( BinTree , Boolean )) = Nothing ) As Zipper
-Return New Zipper With {
-. focus = tree ,
-. parents = If ( parents , Enumerable . Empty ( Of ( BinTree , Boolean ))())
-}
-End Function
-Public Overrides Function Equals ( ByVal obj As Object ) As Boolean
-Return ( TryCast ( obj , Zipper )). focus . Equals ( focus )
-End Function
-Public Overrides Function GetHashCode () As Integer
-Return MyBase . GetHashCode ()
-End Function
-Private Shared Function InlineAssignHelper ( Of T )( ByRef target As T , ByVal value As T ) As T
-target = value
-Return value
-End Function
-End Class
+(source_file
+  (class_block
+    (modifiers
+      (modifier Public)) PLACEHOLDER_1
+    (constructor_declaration
+      (modifiers
+        (modifier Public))
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_2
+          (primitive_type Integer))
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_3 PLACEHOLDER_1)
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_4 PLACEHOLDER_1))
+      (block
+        (assignment_statement
+          (member_access_expression
+            (me Me) PLACEHOLDER_2) = PLACEHOLDER_2)
+        (assignment_statement
+          (member_access_expression
+            (me Me) PLACEHOLDER_3) = PLACEHOLDER_3)
+        (assignment_statement
+          (member_access_expression
+            (me Me) PLACEHOLDER_4) = PLACEHOLDER_4)))
+    (property_declaration
+      (modifiers
+        (modifier Public)
+        (modifier ReadOnly)) PLACEHOLDER_2
+      (primitive_type Integer))
+    (property_declaration
+      (modifiers
+        (modifier Public)
+        (modifier ReadOnly)) PLACEHOLDER_3 PLACEHOLDER_1)
+    (property_declaration
+      (modifiers
+        (modifier Public)
+        (modifier ReadOnly)) PLACEHOLDER_4 PLACEHOLDER_1)
+    (method_declaration
+      (modifiers
+        (modifier Public)
+        (modifier Overrides)) Function PLACEHOLDER_5
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_6
+          (primitive_type Object)))
+      (primitive_type Boolean)
+      (block
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_7
+            (cast_expression TryCast PLACEHOLDER_6 PLACEHOLDER_1)))
+        (if_statement
+          (binary_expression
+            (binary_expression PLACEHOLDER_7 Is
+              (nothing Nothing)) OrElse
+            (binary_expression
+              (member_access_expression PLACEHOLDER_7 PLACEHOLDER_2) <> PLACEHOLDER_2))
+          (block
+            (return_statement
+              (boolean_literal False))))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_8
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (member_access_expression PLACEHOLDER_7 PLACEHOLDER_3) Is
+                  (nothing Nothing)) AndAlso
+                (binary_expression PLACEHOLDER_3 Is
+                  (nothing Nothing))) OrElse
+              (binary_expression
+                (binary_expression PLACEHOLDER_3 IsNot
+                  (nothing Nothing)) AndAlso
+                (invocation_expression
+                  (member_access_expression PLACEHOLDER_3 PLACEHOLDER_5)
+                  (argument_list
+                    (member_access_expression PLACEHOLDER_7 PLACEHOLDER_3)))))))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_9
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (member_access_expression PLACEHOLDER_7 PLACEHOLDER_4) Is
+                  (nothing Nothing)) AndAlso
+                (binary_expression PLACEHOLDER_4 Is
+                  (nothing Nothing))) OrElse
+              (binary_expression
+                (binary_expression PLACEHOLDER_4 IsNot
+                  (nothing Nothing)) AndAlso
+                (invocation_expression
+                  (member_access_expression PLACEHOLDER_4 PLACEHOLDER_5)
+                  (argument_list
+                    (member_access_expression PLACEHOLDER_7 PLACEHOLDER_4)))))))
+        (return_statement
+          (binary_expression PLACEHOLDER_8 AndAlso PLACEHOLDER_9))))
+    (method_declaration
+      (modifiers
+        (modifier Public)
+        (modifier Overrides)) Function PLACEHOLDER_10
+      (parameter_list)
+      (primitive_type Integer)
+      (block
+        (return_statement
+          (invocation_expression
+            (member_access_expression
+              (my_base MyBase) PLACEHOLDER_10)
+            (argument_list))))))
+  (class_block
+    (modifiers
+      (modifier Public)) PLACEHOLDER_11
+    (field_declaration
+      (modifiers
+        (modifier Private))
+      (variable_declarator PLACEHOLDER_12 As PLACEHOLDER_1))
+    (field_declaration
+      (modifiers
+        (modifier Private))
+      (variable_declarator PLACEHOLDER_13 As
+        (generic_name ienumerable
+          (type_argument_list
+            (tuple_type
+              (tuple_element PLACEHOLDER_14 PLACEHOLDER_1)
+              (tuple_element PLACEHOLDER_15
+                (primitive_type Boolean)))))))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_2
+      (parameter_list)
+      (primitive_type Integer)
+      (block
+        (return_statement
+          (member_access_expression PLACEHOLDER_12 PLACEHOLDER_2))))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_3
+      (parameter_list) PLACEHOLDER_11
+      (block
+        (return_statement
+          (ternary_expression
+            (binary_expression
+              (member_access_expression PLACEHOLDER_12 PLACEHOLDER_3) IsNot
+              (nothing Nothing))
+            (invocation_expression PLACEHOLDER_16
+              (argument_list
+                (member_access_expression PLACEHOLDER_12 PLACEHOLDER_3)
+                (invocation_expression
+                  (member_access_expression PLACEHOLDER_13 prepend)
+                  (argument_list
+                    (tuple_expression PLACEHOLDER_12
+                      (boolean_literal True))))))
+            (nothing Nothing)))))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_4
+      (parameter_list) PLACEHOLDER_11
+      (block
+        (return_statement
+          (ternary_expression
+            (binary_expression
+              (member_access_expression PLACEHOLDER_12 PLACEHOLDER_4) IsNot
+              (nothing Nothing))
+            (invocation_expression PLACEHOLDER_16
+              (argument_list
+                (member_access_expression PLACEHOLDER_12 PLACEHOLDER_4)
+                (invocation_expression
+                  (member_access_expression PLACEHOLDER_13 prepend)
+                  (argument_list
+                    (tuple_expression PLACEHOLDER_12
+                      (boolean_literal False))))))
+            (nothing Nothing)))))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_17
+      (parameter_list) PLACEHOLDER_11
+      (block
+        (if_statement
+          (unary_expression Not
+            (invocation_expression
+              (member_access_expression PLACEHOLDER_13 any)
+              (argument_list)))
+          (block
+            (return_statement
+              (nothing Nothing))))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_18
+            (invocation_expression
+              (member_access_expression PLACEHOLDER_13 first)
+              (argument_list))))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_19
+            (invocation_expression
+              (member_access_expression PLACEHOLDER_13 skip)
+              (argument_list 1))))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_20
+            (object_creation_expression PLACEHOLDER_1
+              (argument_list
+                (member_access_expression
+                  (member_access_expression PLACEHOLDER_18 PLACEHOLDER_14) PLACEHOLDER_2)
+                (ternary_expression
+                  (member_access_expression PLACEHOLDER_18 PLACEHOLDER_15) PLACEHOLDER_12
+                  (member_access_expression
+                    (member_access_expression PLACEHOLDER_18 PLACEHOLDER_14) PLACEHOLDER_3))
+                (ternary_expression
+                  (member_access_expression PLACEHOLDER_18 PLACEHOLDER_15)
+                  (member_access_expression
+                    (member_access_expression PLACEHOLDER_18 PLACEHOLDER_14) PLACEHOLDER_4) PLACEHOLDER_12)))))
+        (return_statement
+          (invocation_expression PLACEHOLDER_16
+            (argument_list PLACEHOLDER_20 PLACEHOLDER_19)))))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_21
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_22
+          (primitive_type Integer))) PLACEHOLDER_11
+      (block
+        (return_statement
+          (invocation_expression PLACEHOLDER_16
+            (argument_list
+              (object_creation_expression PLACEHOLDER_1
+                (argument_list PLACEHOLDER_22
+                  (member_access_expression PLACEHOLDER_12 PLACEHOLDER_3)
+                  (member_access_expression PLACEHOLDER_12 PLACEHOLDER_4))) PLACEHOLDER_13)))))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_23
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_1 PLACEHOLDER_1)) PLACEHOLDER_11
+      (block
+        (return_statement
+          (invocation_expression PLACEHOLDER_16
+            (argument_list
+              (object_creation_expression PLACEHOLDER_1
+                (argument_list
+                  (member_access_expression PLACEHOLDER_12 PLACEHOLDER_2) PLACEHOLDER_1
+                  (member_access_expression PLACEHOLDER_12 PLACEHOLDER_4))) PLACEHOLDER_13)))))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_24
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_1 PLACEHOLDER_1)) PLACEHOLDER_11
+      (block
+        (return_statement
+          (invocation_expression PLACEHOLDER_16
+            (argument_list
+              (object_creation_expression PLACEHOLDER_1
+                (argument_list
+                  (member_access_expression PLACEHOLDER_12 PLACEHOLDER_2)
+                  (member_access_expression PLACEHOLDER_12 PLACEHOLDER_3) PLACEHOLDER_1)) PLACEHOLDER_13)))))
+    (method_declaration
+      (modifiers
+        (modifier Public)) Function PLACEHOLDER_25
+      (parameter_list) PLACEHOLDER_1
+      (block
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_26
+            (me Me)))
+        (local_declaration
+          (modifiers
+            (modifier Dim))
+          (variable_declarator PLACEHOLDER_27 As PLACEHOLDER_11
+            (nothing Nothing)))
+        (while_statement
+          (binary_expression
+            (invocation_expression PLACEHOLDER_28
+              (argument_list PLACEHOLDER_27
+                (invocation_expression
+                  (member_access_expression PLACEHOLDER_26 PLACEHOLDER_17)
+                  (argument_list)))) IsNot
+            (nothing Nothing))
+          (block
+            (assignment_statement PLACEHOLDER_26 = PLACEHOLDER_27)))
+        (return_statement
+          (member_access_expression PLACEHOLDER_26 PLACEHOLDER_12))))
+    (method_declaration
+      (modifiers
+        (modifier Public)
+        (modifier Shared)) Function PLACEHOLDER_16
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_29 PLACEHOLDER_1)
+        (parameter
+          (modifiers
+            (modifier Optional)
+            (modifier ByVal)) PLACEHOLDER_13
+          (generic_name ienumerable
+            (type_argument_list
+              (tuple_type
+                (tuple_element PLACEHOLDER_1)
+                (tuple_element
+                  (primitive_type Boolean)))))
+          (nothing Nothing))) PLACEHOLDER_11
+      (block
+        (return_statement
+          (object_creation_expression PLACEHOLDER_11
+            (object_initializer
+              (field_initializer
+                (binary_expression
+                  (member_access_expression PLACEHOLDER_12) = PLACEHOLDER_29))
+              (field_initializer
+                (binary_expression
+                  (member_access_expression PLACEHOLDER_13) =
+                  (coalesce_expression PLACEHOLDER_13
+                    (invocation_expression
+                      (member_access_expression enumerable
+                        (generic_name empty
+                          (type_argument_list
+                            (tuple_type
+                              (tuple_element PLACEHOLDER_1)
+                              (tuple_element
+                                (primitive_type Boolean))))))
+                      (argument_list))))))))))
+    (method_declaration
+      (modifiers
+        (modifier Public)
+        (modifier Overrides)) Function PLACEHOLDER_5
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_6
+          (primitive_type Object)))
+      (primitive_type Boolean)
+      (block
+        (return_statement
+          (invocation_expression
+            (member_access_expression
+              (member_access_expression
+                (cast_expression TryCast PLACEHOLDER_6 PLACEHOLDER_11) PLACEHOLDER_12) PLACEHOLDER_5)
+            (argument_list PLACEHOLDER_12)))))
+    (method_declaration
+      (modifiers
+        (modifier Public)
+        (modifier Overrides)) Function PLACEHOLDER_10
+      (parameter_list)
+      (primitive_type Integer)
+      (block
+        (return_statement
+          (invocation_expression
+            (member_access_expression
+              (my_base MyBase) PLACEHOLDER_10)
+            (argument_list)))))
+    (method_declaration
+      (modifiers
+        (modifier Private)
+        (modifier Shared)) Function PLACEHOLDER_28
+      (type_parameter_list
+        (type_parameter PLACEHOLDER_30))
+      (parameter_list
+        (parameter
+          (modifiers
+            (modifier ByRef)) PLACEHOLDER_31 PLACEHOLDER_30)
+        (parameter
+          (modifiers
+            (modifier ByVal)) PLACEHOLDER_2 PLACEHOLDER_30)) PLACEHOLDER_30
+      (block
+        (assignment_statement PLACEHOLDER_31 = PLACEHOLDER_2)
+        (return_statement PLACEHOLDER_2)))))
