@@ -7,7 +7,7 @@ module Representer::Engine
   # With scopes, it only rewrites code inside a node that matches one of
   # the scope patterns, and a word in both patterns must match the same
   # code. So the pattern `{{type}}.{{name}}` with the scope
-  # `class {{type}} {}` only matches `Counter.Start` inside the class
+  # `class {{type}} { {{...}} }` only matches `Counter.Start` inside the class
   # `Counter`, and leaves `Math.Max` alone.
   class RewriteCode
     include Mandate

@@ -8,8 +8,8 @@ class Representer::Languages::Clojure::Representation
   class Normalise < Representer::Engine::Normalise
     # Drop the docstring and attribute map of `ns`, because they only add metadata.
     # (ns app "Counts things." {:author "me"})  ->  (ns app)
-    rewrite '(ns {{name}} "{{...}}" {{clauses}})', as: "(ns {{name}} {{clauses}})"
-    rewrite "(ns {{name}} {} {{clauses}})",        as: "(ns {{name}} {{clauses}})"
+    rewrite '(ns {{name}} "{{_}}" {{...clauses}})',     as: "(ns {{name}} {{...clauses}})"
+    rewrite "(ns {{name}} { {{...}} } {{...clauses}})", as: "(ns {{name}} {{...clauses}})"
 
     # Write each `comment` form as nil, which is what it gives.
     # (comment (f 1))  ->  nil

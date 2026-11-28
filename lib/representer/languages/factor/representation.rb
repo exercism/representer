@@ -15,6 +15,6 @@ module Representer::Languages::Factor
     # Drop each `USING:` and `USE:`, because a solution that passes its tests
     # has already made every vocabulary it needs available.
     imports "USING: {{...}} ;", # «USING: kernel math ;»
-            "USE: {{...}}"      # «USE: io»
+            "USE: {{_}}"        # «USE: io»
   end
 end

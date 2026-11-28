@@ -25,7 +25,7 @@ module Representer::Languages::Wren
 
     # Drop these imports, because a solution that passes its tests has already
     # imported every module it needs.
-    imports 'import "{{...}}" for {{...}}',  # «import "random" for Random»
-            'import "{{...}}"'               # «import "random"»
+    imports 'import "{{_}}" for {{...}}', # «import "random" for Random»
+            'import "{{_}}"'              # «import "random"»
   end
 end

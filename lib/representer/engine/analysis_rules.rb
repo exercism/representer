@@ -5,7 +5,7 @@ module Representer::Engine
   # says what to do when the condition holds:
   #
   #   class Leap < Representer::Engine::AnalysisRules
-  #     within "def self.leap?; end" do
+  #     within "def self.leap?({{...}}); {{...}}; end" do
   #       uses("Date.leap?") { actionable "ruby.leap.std_lib" }
   #     end
   #   end
@@ -56,33 +56,33 @@ module Representer::Engine
     # than more_than matches of them in all. A match inside another match
     # doesn't count, so an `elsif` counts as part of its `if`. The block
     # can use the first match's placeholders.
-    def uses(codes, exactly: false, more_than: 0, &block)
+    def uses(codes, more_than: 0, &block)
       rule do
-        found = matches(codes, exactly)
+        found = matches(codes)
         outermost(found.map(&:first)).size > more_than && run(block, bindings: found.first.last)
       end
     end
 
     # Run the block if the scope has a match of every one of the codes. A
     # word used in two of them must match the same code in both.
-    def uses_all(codes, exactly: false, &block)
+    def uses_all(codes, &block)
       rule do
-        bindings = codes.reduce(@bindings) { |bound, code| bound && matches(code, exactly, bound).first&.last }
+        bindings = codes.reduce(@bindings) { |bound, code| bound && matches(code, bound).first&.last }
         bindings && run(block, bindings:)
       end
     end
 
     # Run the block if the scope has no match of any of the codes.
-    def missing(codes, exactly: false, &block)
-      rule { matches(codes, exactly).empty? && run(block) }
+    def missing(codes, &block)
+      rule { matches(codes).empty? && run(block) }
     end
 
     # Run the block once for each match of the codes in the scope, with the
     # match as the scope. The rules in the block then only look inside the
     # match, and can use its placeholders.
-    def within(codes, exactly: false, &block)
+    def within(codes, &block)
       rule do
-        found = matches(codes, exactly)
+        found = matches(codes)
         found.each { |node, bindings| run(block, scope: node, bindings:) }
         found.any?
       end
@@ -123,8 +123,8 @@ module Representer::Engine
 
     # Each node in the scope that matches one of the codes, with its
     # bindings.
-    def matches(codes, exactly, bindings = @bindings)
-      patterns = Array(codes).map { |code| CodePattern[self.class.language, code, exactly:] }
+    def matches(codes, bindings = @bindings)
+      patterns = Array(codes).map { |code| CodePattern[self.class.language, code] }
       found = []
       @scope.each_descendant do |node|
         patterns.each do |pattern|
@@ -166,7 +166,7 @@ module Representer::Engine
     def fill_in(value)
       return value unless value.is_a?(String)
 
-      value.gsub(CodePattern::PLACEHOLDER) { Array(@bindings.fetch(Regexp.last_match(1))).map { |node| text_of(node) }.join(", ") }
+      value.gsub(CodePattern::PLACEHOLDER) { Array(@bindings.fetch(CodePattern.word(Regexp.last_match))).map { |node| text_of(node) }.join(", ") }
     end
 
     ### Layout ###

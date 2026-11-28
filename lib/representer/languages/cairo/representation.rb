@@ -40,6 +40,7 @@ module Representer::Languages::Cairo
 
     # Drop these imports, because a solution that passes its tests has already
     # made every name it needs available.
-    imports "use {{...}};" # «use core::dict::Felt252Dict;»
+    imports "use {{...}};",     # «use core::dict::Felt252Dict;»
+            "pub use {{...}};"  # «pub use core::dict::Felt252Dict;»
   end
 end

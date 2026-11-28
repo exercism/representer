@@ -23,7 +23,7 @@ module Representer::Languages::Ruby::Common
                              "protected",
                              "public",
                              "module_function",
-        to: ["def {{...}}\nend", "attr_reader {{...}}", "attr_writer {{...}}", "attr_accessor {{...}}"]
+        to: ["def {{_}}({{...}})\n{{...}}\nend", "attr_reader {{...}}", "attr_writer {{...}}", "attr_accessor {{...}}"]
 
     def call
       super.tap do |root|

@@ -2,10 +2,12 @@
 # The tests call Acronym.abbreviate with a phrase.
 class Representer::Languages::Ruby::Analysis
   class Acronym < Representer::Engine::AnalysisRules
-    within ["class Acronym; end", "module Acronym; end"] do
+    within ["class Acronym; {{...}}; end", "module Acronym; {{...}}; end"] do
       # Suggest `map(&:chr)` in place of a block that only calls `chr`.
-      uses('def self.abbreviate({{phrase}}); {{phrase}}.tr("-", " ").split.map { |{{word}}| {{word}}.chr }.join.upcase; end',
-          exactly: true) { informative "ruby.acronym.block_syntax.shorthand" }
+      uses('def self.abbreviate({{phrase}}); ' \
+           '{{phrase}}.tr("-", " ").split({{...}}).map { |{{word}}| {{word}}.chr }.join.upcase; end') do
+        informative "ruby.acronym.block_syntax.shorthand"
+      end
     end
   end
 end

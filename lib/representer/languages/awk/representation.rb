@@ -22,7 +22,7 @@ module Representer::Languages::Awk
 
     # Drop these imports, because a solution that passes its tests has
     # already loaded every file and extension it needs.
-    imports '@include "{{...}}"', # «@include "array-utils.awk"»
-            '@load "{{...}}"'     # «@load "ordchr"»
+    imports '@include "{{_}}"', # «@include "array-utils.awk"»
+            '@load "{{_}}"'     # «@load "ordchr"»
   end
 end

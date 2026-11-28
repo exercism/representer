@@ -113,13 +113,21 @@ module Representer::Languages::Go::Common
 
     ### Declarations ###
 
-    # Put the specs of a grouped `var` or `import` straight into the
-    # declaration, as go/ast does for every grouped declaration.
+    # Put the specs of a grouped `var` straight into the declaration, as
+    # go/ast does for every grouped declaration. Write each spec of a
+    # grouped `import` as an import of its own, because Go reads them the
+    # same, and each import can then be dropped on its own.
     # var (a = 1)  ->  var a = 1
+    # import ("a"; _ "b")  ->  import "a"; import _ "b"
     def put_grouped_specs_in_their_declaration!
       each_node(tree) do |node, _|
         node.children = node.children.flat_map do |child|
-          ["var_spec_list", "import_spec_list"].include?(child.type) ? child.children : [child]
+          next child.children if child.type == "var_spec_list"
+          next [child] unless child.type == "import_declaration" && child.children.any? { |spec| spec.type == "import_spec_list" }
+
+          child.children.find { |spec| spec.type == "import_spec_list" }.children.select(&:named?).map do |spec|
+            build(:import_declaration, spec)
+          end
         end
       end
     end

@@ -58,8 +58,8 @@ class Representer::Languages::CSharp::Representation
 
     private
     # Drop empty brackets after the type of a `new` with an initializer. A
-    # code pattern's `()` also matches brackets that hold arguments, so this
-    # step checks that the brackets are empty.
+    # tree pattern's `(argument_list)` also matches brackets that hold
+    # arguments, so this step checks that the brackets are empty.
     # new List<int>() { 1 }  ->  new List<int> { 1 }
     def drop_empty_brackets_from_new_with_initializer!(root)
       find_all(root, "(object_creation_expression arguments: (argument_list) @arguments initializer: (_))").each do |match|

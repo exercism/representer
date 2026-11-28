@@ -46,7 +46,8 @@ module Representer::Languages::JavaScript
     # tests has already made every name it needs available. Keep an import
     # with no names, such as `import "./setup"`, because it runs code.
     # representation/normalise.rb drops `require` and `module.exports`.
-    imports 'import {{...}} from "{{...}}";',  # «import { sum } from "./sum";»
-            "export { {{...}} };"              # «export { sum };»
+    imports 'import {{...}} from "{{_}}";',     # «import { sum } from "./sum";»
+            "export { {{...}} };",              # «export { sum };»
+            'export { {{...}} } from "{{_}}";'  # «export { sum } from "./sum";»
   end
 end

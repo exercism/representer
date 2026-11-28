@@ -43,7 +43,7 @@ module Representer::Languages::Ruby
 
     # Drop these imports, because a solution that passes its tests has already
     # loaded everything it needs.
-    imports 'require "{{...}}"',          # «require "set"»
-            'require_relative "{{...}}"'  # «require_relative "helpers"»
+    imports 'require "{{_}}"',         # «require "set"»
+            'require_relative "{{_}}"' # «require_relative "helpers"»
   end
 end

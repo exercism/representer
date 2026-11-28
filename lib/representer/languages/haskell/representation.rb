@@ -37,6 +37,9 @@ module Representer::Languages::Haskell
 
     # Drop these imports, because a solution that passes its tests has already
     # imported every module it needs.
-    imports "import {{...}}" # «import Data.List (sort)»
+    imports "import {{...}} as {{...}} ({{...}})",                 # «import Data.List (sort)»
+            "import {{...}} as {{...}} hiding ({{...}})",          # «import Prelude hiding (lookup)»
+            "import qualified {{...}} as {{...}} ({{...}})",       # «import qualified Data.Map as Map»
+            "import qualified {{...}} as {{...}} hiding ({{...}})" # «import qualified Data.Map as M hiding (map)»
   end
 end

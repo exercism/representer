@@ -23,8 +23,8 @@ module Representer::Languages::Erlang
 
     # Drop these imports, because a solution that passes its tests has already
     # loaded every module and header it needs.
-    imports "-import({{...}}, []).",    # «-import(lists, [map/2]).»
-            '-include("{{...}}").',     # «-include("leap.hrl").»
-            '-include_lib("{{...}}").'  # «-include_lib("eunit/include/eunit.hrl").»
+    imports "-import({{_}}, [{{...}}/{{...}}]).", # «-import(lists, [map/2]).»
+            '-include("{{_}}").',                 # «-include("leap.hrl").»
+            '-include_lib("{{_}}").'              # «-include_lib("eunit/include/eunit.hrl").»
   end
 end

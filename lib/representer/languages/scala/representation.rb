@@ -42,6 +42,8 @@ module Representer::Languages::Scala
 
     # Drop these imports, because a solution that passes its tests has already
     # imported everything it needs.
-    imports "import {{...}}" # «import scala.math.abs»
+    imports "import {{...}}",            # «import scala.math.abs»
+            "import {{...}}._",          # «import scala.math._»
+            "import {{...}}.{ {{...}} }" # «import java.time.{DayOfWeek, LocalDate}»
   end
 end

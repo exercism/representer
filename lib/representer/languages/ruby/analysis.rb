@@ -4,6 +4,6 @@
 module Representer::Languages::Ruby
   class Analysis < Representer::Engine::Analysis
     # Bump the version whenever the comments on any solution could change.
-    version 1
+    version 2
   end
 end

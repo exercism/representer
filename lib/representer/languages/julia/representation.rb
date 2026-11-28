@@ -42,8 +42,8 @@ module Representer::Languages::Julia
 
     # Drop these imports, because a solution that passes its tests has already
     # loaded everything it needs.
-    imports "using {{...}}",       # «using Dates»
-            "import {{...}}",      # «import Base: show»
-            'include("{{...}}")'   # «include("helpers.jl")»
+    imports "using {{...}}",   # «using Dates»
+            "import {{...}}",  # «import Base: show»
+            'include("{{_}}")' # «include("helpers.jl")»
   end
 end

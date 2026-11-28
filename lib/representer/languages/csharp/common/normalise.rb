@@ -10,10 +10,23 @@ module Representer::Languages::CSharp::Common
     # this.count  ->  count
     rewrite "this.{{name}}", as: "{{name}}"
 
-    # Drop the type's own name before one of its members.
+    def call
+      super.tap do |root|
+        drop_the_types_own_name_before_its_members!(root)
+      end
+    end
+
+    private
+    # Drop the type's own name before one of its members. A code pattern
+    # can't stand for any class, because C# reads no placeholder in place of
+    # a class's modifiers or members, so this step finds the types with a
+    # tree pattern.
     # class Counter { ... Counter.Start() ... }  ->  class Counter { ... Start() ... }
-    rewrite "{{type}}.{{name}}",
-        as: "{{name}}",
-        within: ["class {{type}} {}", "struct {{type}} {}", "record {{type}} {}"]
+    def drop_the_types_own_name_before_its_members!(root)
+      Representer::Engine::RewriteCode.(root, code_pattern("{{type}}.{{name}}", nil), code_pattern("{{name}}", nil),
+        scopes: ["(class_declaration name: (_) @type)",
+                 "(struct_declaration name: (_) @type)",
+                 "(record_declaration name: (_) @type)"])
+    end
   end
 end

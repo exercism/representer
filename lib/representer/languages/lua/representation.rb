@@ -20,7 +20,7 @@ module Representer::Languages::Lua
 
     # Drop these imports, because a solution that passes its tests has
     # already loaded every module it needs.
-    imports 'local {{...}} = require("{{...}}")', # «local inspect = require("inspect")»
-            'require("{{...}}")'                  # «require("strict")»
+    imports 'local {{...}} = require("{{_}}")', # «local inspect = require("inspect")»
+            'require("{{_}}")'                  # «require("strict")»
   end
 end

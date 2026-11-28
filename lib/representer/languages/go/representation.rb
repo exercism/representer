@@ -1,6 +1,6 @@
 module Representer::Languages::Go
   class Representation < Representer::Engine::Representation
-    version 10
+    version 11
 
     # Rename identifiers, and the names of fields, types and labels.
     names_are :identifier,        # «count»
@@ -23,8 +23,8 @@ module Representer::Languages::Go
     # Drop these imports, because a solution that passes its tests has already
     # imported every package it needs. Keep an import of `_`, because it runs
     # the package's code.
-    imports 'import "{{...}}"',         # «import "strings"»
-            'import {{...}} "{{...}}"', # «import s "strings"»
-            'import . "{{...}}"'        # «import . "strings"»
+    imports 'import "{{_}}"',       # «import "strings"»
+            'import {{_}} "{{_}}"', # «import s "strings"»
+            'import . "{{_}}"'      # «import . "strings"»
   end
 end

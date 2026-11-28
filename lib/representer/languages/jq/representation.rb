@@ -20,7 +20,7 @@ module Representer::Languages::Jq
 
     # Drop these imports, because a solution that passes its tests has
     # already loaded every module it needs.
-    imports 'import "{{...}}" as {{...}};', # «import "lib" as lib;»
-            'include "{{...}}";'            # «include "lib";»
+    imports 'import "{{_}}" as {{...}};', # «import "lib" as lib;»
+            'include "{{_}}";'            # «include "lib";»
   end
 end

@@ -48,7 +48,9 @@ module Representer::Languages::Rust
 
     # Drop these imports, because a solution that passes its tests has already
     # made every name it needs available.
-    imports "use {{...}};",          # «use std::collections::HashMap;»
-            "extern crate {{...}};"  # «extern crate regex;»
+    imports "use {{...}};",             # «use std::collections::HashMap;»
+            "pub use {{...}};",         # «pub use std::fmt;»
+            "pub(crate) use {{...}};",  # «pub(crate) use std::fmt;»
+            "extern crate {{...}};"     # «extern crate regex;»
   end
 end

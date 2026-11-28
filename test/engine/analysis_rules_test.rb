@@ -4,9 +4,9 @@ require_relative "toy_language"
 # come straight from Ruby's grammar.
 module ToyLanguage
   class Greeting < Representer::Engine::AnalysisRules
-    missing("def greet\nend") { essential "toy.no_greet" }
+    missing("def greet({{...}})\n{{...}}\nend") { essential "toy.no_greet" }
 
-    within "def greet({{name}})\nend" do
+    within "def greet({{name}})\n{{...}}\nend" do
       uses("puts {{name}}") { actionable "toy.puts_name", name: "{{name}}" }
       uses("puts {{...}}", more_than: 1) { informative "toy.puts_twice" }
       uses_all(["a = 1", "b = 2"]) { informative "toy.a_and_b" }
@@ -22,7 +22,7 @@ module ToyLanguage
     end
 
     uses(["q = 1", "u = 1"]) { informative "toy.q_or_r" }
-    uses("if {{...}}\nend", more_than: 1) { informative "toy.several_ifs" }
+    uses("if {{_}}\n{{...}}\nend", more_than: 1) { informative "toy.several_ifs" }
   end
 end
 
@@ -34,7 +34,7 @@ class AnalysisRulesTest < Minitest::Test
   def test_within_scopes_the_rules_and_shares_its_placeholders
     assert_equal ["toy.puts_name"], keys("def greet(who)\n  puts who\nend")
     assert_empty keys("def greet(who)\n  puts other\nend")
-    assert_empty keys("def greet(who); end\nputs who")
+    assert_empty keys("def greet(who)\nend\nputs who")
   end
 
   def test_a_param_gives_the_code_of_its_placeholder
@@ -62,16 +62,16 @@ class AnalysisRulesTest < Minitest::Test
   end
 
   def test_a_block_can_hold_rules_that_need_its_condition
-    assert_includes keys("z = 1\nw = 1\ndef greet; end"), "toy.z_and_w"
-    refute_includes keys("w = 1\ndef greet; end"), "toy.z_and_w"
+    assert_includes keys("z = 1\nw = 1\ndef greet\nend"), "toy.z_and_w"
+    refute_includes keys("w = 1\ndef greet\nend"), "toy.z_and_w"
   end
 
   def test_a_list_holds_if_any_code_matches
-    assert_includes keys("u = 1\ndef greet; end"), "toy.q_or_r"
+    assert_includes keys("u = 1\ndef greet\nend"), "toy.q_or_r"
   end
 
   def test_each_comment_comes_once
-    assert_equal ["toy.q_or_r"], keys("q = 1\nu = 1\ndef greet; end")
+    assert_equal ["toy.q_or_r"], keys("q = 1\nu = 1\ndef greet\nend")
   end
 
   private

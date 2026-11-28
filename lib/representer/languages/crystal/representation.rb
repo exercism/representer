@@ -47,6 +47,6 @@ module Representer::Languages::Crystal
 
     # Drop these imports, because a solution that passes its tests has already
     # loaded everything it needs.
-    imports 'require "{{...}}"' # «require "big"»
+    imports 'require "{{_}}"' # «require "big"»
   end
 end

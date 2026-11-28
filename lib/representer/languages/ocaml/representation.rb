@@ -54,6 +54,7 @@ module Representer::Languages::OCaml
 
     # Drop the opens at the top of a module, because a solution that passes
     # its tests has already opened every module it needs.
-    imports "open {{...}}" # «open Base»
+    imports "open {{...}}", # «open Base»
+            "open! {{...}}" # «open! Base»
   end
 end

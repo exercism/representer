@@ -31,6 +31,7 @@ module Representer::Languages::Idris
 
     # Drop these imports, because a solution that passes its tests has already
     # imported every module it needs.
-    imports "import {{...}}" # «import Data.List»
+    imports "import {{...}} as {{...}}", # «import Data.List», «import Data.Vect as V»
+            "import public {{...}}"      # «import public Data.List»
   end
 end

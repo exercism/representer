@@ -41,7 +41,10 @@ module Representer::Languages::Dart
 
     # Drop these imports and exports, because a solution that passes its tests
     # has already made every name it needs available.
-    imports "import '{{...}}';", # «import 'dart:math';»
-            "export '{{...}}';"  # «export 'src/leap.dart';»
+    imports "import '{{_}}';",                 # «import 'dart:math';»
+            "import '{{_}}' as {{_}};",        # «import 'dart:math' as math;»
+            "import '{{_}}' show {{...}};",    # «import 'dart:math' show max;»
+            "import '{{_}}' hide {{...}};",    # «import 'dart:math' hide min;»
+            "export '{{_}}';"                  # «export 'src/leap.dart';»
   end
 end

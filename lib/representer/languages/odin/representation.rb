@@ -39,7 +39,7 @@ module Representer::Languages::Odin
 
     # Drop these imports, because a solution that passes its tests has already
     # imported every package it needs.
-    imports 'import "{{...}}"',        # «import "core:fmt"»
-            'import {{...}} "{{...}}"' # «import str "core:strings"»
+    imports 'import "{{_}}"',        # «import "core:fmt"»
+            'import {{...}} "{{_}}"' # «import str "core:strings"»
   end
 end

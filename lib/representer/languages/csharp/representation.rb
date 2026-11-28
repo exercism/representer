@@ -45,7 +45,8 @@ module Representer::Languages::CSharp
 
     # Drop these imports, because a solution that passes its tests has already
     # made every namespace it needs available.
-    imports "using {{...}};" # «using System.Linq;»
+    imports "using {{...}};",      # «using System.Linq;»
+            "using {{_}} = {{_}};" # «using Point = (int Row, int Col);»
 
     # Read a code pattern that doesn't parse on its own as a value, or else as
     # a statement in a method.

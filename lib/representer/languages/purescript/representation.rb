@@ -38,6 +38,6 @@ module Representer::Languages::PureScript
 
     # Drop these imports, because a solution that passes its tests has already
     # imported every module it needs.
-    imports "import {{...}}" # «import Data.Array (filter)»
+    imports "import {{...}} ({{...}}) as {{...}}" # «import Data.Array (filter)», «import Data.Map as M»
   end
 end

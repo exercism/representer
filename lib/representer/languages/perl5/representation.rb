@@ -35,16 +35,16 @@ module Representer::Languages::Perl5
     # pragmas, such as `use v5.38`, `use feature` and `use integer`, because
     # they change how Perl reads the code. GenerateAST gives a pragma a type
     # of its own, and a module's name starts with a capital, so
-    # `use {{Module}}` matches only modules.
-    imports "use {{Module}}",                 # «use List::Util qw(sum);»
-            "require {{Module}}",             # «require POSIX;»
-            "use strict",                     # «use strict;»
-            "no strict",                      # «no strict 'refs';»
-            "use warnings",                   # «use warnings;»
-            "no warnings",                    # «no warnings 'recursion';»
-            "use lib",                        # «use lib '.';»
-            "our @EXPORT = {{...}}",          # «our @EXPORT = qw(is_leap);»
-            "our @EXPORT_OK = {{...}}",       # «our @EXPORT_OK = qw(is_leap);»
-            "our %EXPORT_TAGS = {{...}}"      # «our %EXPORT_TAGS = (all => [qw(is_leap)]);»
+    # `use {{Module}} {{...}}` matches only modules.
+    imports "use {{Module}} {{...}}",    # «use List::Util qw(sum);»
+            "require {{Module}}",        # «require POSIX;»
+            "use strict {{...}}",        # «use strict;»
+            "no strict {{...}}",         # «no strict 'refs';»
+            "use warnings {{...}}",      # «use warnings;»
+            "no warnings {{...}}",       # «no warnings 'recursion';»
+            "use lib {{...}}",           # «use lib '.';»
+            "our @EXPORT = {{...}}",     # «our @EXPORT = qw(is_leap);»
+            "our @EXPORT_OK = {{...}}",  # «our @EXPORT_OK = qw(is_leap);»
+            "our %EXPORT_TAGS = {{...}}" # «our %EXPORT_TAGS = (all => [qw(is_leap)]);»
   end
 end

@@ -23,6 +23,6 @@ module Representer::Languages::Gleam
 
     # Drop these imports, because a solution that passes its tests has already
     # made every module it needs available.
-    imports "import {{...}}" # «import gleam/list»
+    imports "import {{_}}.{ {{...}} } as {{...}}" # «import gleam/list», «import gleam/dict.{type Dict} as d»
   end
 end

@@ -26,6 +26,11 @@ module Representer::Languages::Elm
 
     # Drop these imports, because a solution that passes its tests has already
     # imported every module it needs.
-    imports "import {{...}}" # «import Dict exposing (Dict)»
+    imports "import {{...}}",                             # «import Dict»
+            "import {{...}} as {{_}}",                    # «import Dict as D»
+            "import {{...}} exposing ({{...}})",          # «import Dict exposing (Dict)»
+            "import {{...}} exposing (..)",               # «import Dict exposing (..)»
+            "import {{...}} as {{_}} exposing ({{...}})", # «import Dict as D exposing (Dict)»
+            "import {{...}} as {{_}} exposing (..)"       # «import Dict as D exposing (..)»
   end
 end

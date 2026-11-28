@@ -12,7 +12,7 @@ class RewriteCodeTest < Minitest::Test
   def test_rewrites_only_inside_a_scope_with_the_same_code
     source = "class A\n  def f = A.b + C.b\nend\nx = A.b"
     expected = "class A\n  def f = b + C.b\nend\nx = A.b"
-    assert_equal write(tree(expected)), rewrite(source, "{{type}}.{{name}}", "{{name}}", scopes: ["class {{type}}\nend"])
+    assert_equal write(tree(expected)), rewrite(source, "{{type}}.{{name}}", "{{name}}", scopes: ["class {{type}}\n{{...}}\nend"])
   end
 
   private

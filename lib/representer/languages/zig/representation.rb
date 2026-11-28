@@ -24,6 +24,8 @@ module Representer::Languages::Zig
 
     # Drop these imports, because a solution that passes its tests has already
     # imported everything it needs.
-    imports 'const {{...}} = @import("{{...}}");' # «const std = @import("std");»
+    imports 'const {{_}} = @import("{{_}}");',            # «const std = @import("std");»
+            'const {{_}} = @import("{{_}}").{{_}};',      # «const math = @import("std").math;»
+            'const {{_}} = @import("{{_}}").{{_}}.{{_}};' # «const print = @import("std").debug.print;»
   end
 end

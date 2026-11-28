@@ -214,7 +214,7 @@ The engine runs the stages and its own steps in this order:
 The snippet works on tree-sitter's own tree, before any of these steps.
 
 `GenerateAST` works on the tree with the tree helpers, because it has to know the grammar's tree in detail.
-A `Normalise` stage lists its rules with verbs such as `drop`, `rewrite`, `attach_to_next` and `add_braces_to`, and their arguments are code patterns: code in the language itself, with `{{word}}` placeholders.
+A `Normalise` stage lists its rules with verbs such as `drop`, `rewrite`, `attach_to_next` and `add_braces_to`, and their arguments are code patterns: code in the language itself, with placeholders such as `{{x}}` and `{{...}}`. A code pattern matches code exactly, so use `{{...}}` wherever the code may hold more items (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#code-patterns)).
 Use a verb wherever one fits, and write a method only when no verb can say the rule.
 A `Reorder` stage lists the node types it sorts with `sort`.
 Only sort containers of definitions or entries, such as a class's body or a hash, and never a block of statements.
@@ -276,7 +276,7 @@ rewrite "{{x}} != false", as: "{{x}}"
 
 rewrite "{{type}}.{{name}}",
     as: "{{name}}",
-    within: ["class {{type}} {}", "struct {{type}} {}"]
+    within: ["class {{type}}\n{{...}}\nend", "module {{type}}\n{{...}}\nend"]
 
 add_braces_to "if ({{...}}) {{body}}",
               "if ({{...}}) { } else {{body}}"

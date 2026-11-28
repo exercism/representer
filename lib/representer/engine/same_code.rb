@@ -6,7 +6,7 @@ module Representer::Engine
   # code pattern uses this to check that a word used twice matches the same
   # code each time (see CodePattern).
   #
-  # def f({{x}}) = {{x}}.size matches def f(a) = a.size, although the first
+  # def f({{...x}}) = {{x}}.size matches def f(a) = a.size, although the first
   # {{x}} matches a list of parameters and the second matches one node.
   class SameCode
     include Mandate

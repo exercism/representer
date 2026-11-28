@@ -137,7 +137,7 @@ module Representer::Engine
     # definition after it with the line, up to the next of these lines
     # (see AttachToEachFollowing). A definition is code that matches one
     # of the patterns in to:. So
-    # `attach_to_each_following "private", to: "def {{...}}\nend"` marks
+    # `attach_to_each_following "private", to: "def {{_}}({{...}})\n{{...}}\nend"` marks
     # each Ruby method after a `private` line as private.
     def self.attach_to_each_following(*codes, to:, inside: nil)
       rules << [:attach_to_each_following, codes, inside, Array(to)]

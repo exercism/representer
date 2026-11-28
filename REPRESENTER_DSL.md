@@ -193,7 +193,7 @@ The engine therefore drops every import from every file, after the common stages
 A language lists the code that counts as an import, as code patterns (see "Code patterns" below).
 
 ```ruby
-imports 'require "{{...}}"'
+imports 'require "{{_}}"'
 ```
 
 ### pattern_contexts
@@ -268,8 +268,7 @@ unwrap :parenthesized_statements
 #### lists_are
 
 Some grammars give the items of a form no field names, such as the lists of Clojure and Scheme.
-A code pattern such as `(require {{...}})` would then match any list that holds `require`, such as `(list 1 require 2)`.
-This declaration gives the first item of each node of these types the field name `head`, so a code pattern matches that item only as the first item.
+This declaration gives the first item of each node of these types the field name `head`, so the tree marks the form's head, and a code pattern's first item matches only a head.
 
 ```ruby
 lists_are :list_lit, :vec_lit
@@ -308,7 +307,7 @@ This verb removes every piece of code that matches one of the patterns.
 `drop :docstrings` removes the docstrings declared in `spec.rb`.
 
 ```ruby
-drop "{{...}} if debug?"
+drop "{{_}} if debug?"
 drop :docstrings
 ```
 
@@ -336,7 +335,7 @@ A placeholder used in both must match the same code, so this rule drops `Counter
 ```ruby
 rewrite "{{type}}.{{name}}",
     as: "{{name}}",
-    within: ["class {{type}} {}", "struct {{type}} {}"]
+    within: "class {{type}}\n{{...}}\nend"
 ```
 
 #### attach_to_next
@@ -362,7 +361,7 @@ Each definition then keeps the line's meaning wherever it moves.
 ```ruby
 attach_to_each_following "private",
                          "public",
-    to: ["def {{...}}\nend"]
+    to: ["def {{_}}({{...}})\n{{...}}\nend"]
 ```
 
 #### add_braces_to
@@ -392,7 +391,7 @@ add_braces_to "if ({{...}}) {{body}}",
 Every verb above also takes `inside:`, which gives its code patterns a context of their own to parse in (see "pattern_contexts" above).
 
 ```ruby
-drop "*{{...}}", inside: "def f({{pattern}}) end"
+drop "*{{_}}", inside: "def f({{pattern}}) end"
 ```
 
 ### Verbs for Reorder
@@ -428,9 +427,9 @@ Each exercise has a file of rules in `analysis/`, named after its slug, such as 
 ```ruby
 class Representer::Languages::Ruby::Analysis
   class Leap < Representer::Engine::AnalysisRules
-    within ["class Year; end", "module Year; end"] do
-      within "def self.leap?; end" do
-        uses(["Date.leap?", "Date.gregorian_leap?"]) { actionable "ruby.leap.std_lib" }
+    within ["class Year; {{...}}; end", "module Year; {{...}}; end"] do
+      within "def self.leap?({{...}}); {{...}}; end" do
+        uses(["Date.leap?({{...}})", "Date.gregorian_leap?({{...}})"]) { actionable "ruby.leap.std_lib" }
       end
     end
   end
@@ -452,13 +451,9 @@ A one-line rule uses braces, so Ruby needs brackets around its patterns.
 - `essential`, `actionable`, `informative` and `celebratory` add a comment with its key and params, such as `actionable "ruby.two-fer.splat_args", name_variable: "{{name}}"`. A param that names a placeholder gives the code it matched.
 - `indented_in_steps_of?(2)` says whether the main file is indented with spaces, in steps of two.
 
-A word in a pattern must match the same code as the same word in a `within` around it, so `within "def self.two_fer({{name}} = {{default}}); end"` lets the rules inside it use the parameter as `{{name}}`.
-A `{{...}}` matches any code, and never has to match another `{{...}}`.
-
-Every condition takes `exactly: true`, for code that must have nothing extra.
-Each list in the code, such as a method's parameters or statements, must then hold only the pattern's items, and each placeholder in a list matches one item.
-A part that the pattern leaves out, such as a method's body, can still be anything.
-So the exact pattern `def self.two_fer({{name}} = "you"); {{...}}; end` matches a method with one optional parameter and one statement.
+A word in a pattern must match the same code as the same word in a `within` around it, so `within "def self.two_fer({{name}} = {{default}}); {{...}}; end"` lets the rules inside it use the parameter as `{{name}}`.
+A `{{_}}` or `{{...}}` never has to match another one.
+Every pattern matches exactly (see "Code patterns" below), so `def self.two_fer({{name}} = "you"); {{_}}; end` matches a method with one optional parameter and one statement.
 
 ## Snippets
 
@@ -544,27 +539,39 @@ These declarations only work without a tree:
 A code pattern is code in the language itself, with placeholders.
 The engine parses a pattern with the language's grammar and runs the language's `GenerateAST` on it, so a pattern has the same shape as a solution's tree.
 
-A placeholder is a word in double braces, such as `{{name}}`.
-A placeholder matches any code.
-In a list, such as a method's parameters, it matches any number of items.
-Some grammars wrap each item of a list in a node of its own, such as PHP's and C#'s `argument`.
-In such a list, a placeholder matches every item in a row, and at least one, so PHP's `f({{x}})` matches all of `f($a, $b)` and doesn't match `f()`.
-If the grammar reads a placeholder as something other than a name, it matches one node of that kind, so `"{{...}}"` in quotes matches one string without interpolation.
+A pattern matches code exactly.
+A node matches if it has the pattern's type and its children match the pattern's children one for one, with nothing left over.
+So `f(1)` matches `f(1)`, and doesn't match `f(1, 2)`, `f()`, `x.f(1)` or `f(1) { }`.
+
+Placeholders stand for the code that can vary:
+
+- `{{x}}` matches exactly one item (one node, one argument, one statement) and binds it as `x`.
+- `{{_}}` matches exactly one item and binds nothing.
+- `{{...rest}}` matches zero or more items in a row and binds them all as `rest`, so a `rewrite`'s `as:` can write them back.
+- `{{...}}` matches zero or more items and binds nothing.
+
+So `f(1, {{...}})` matches `f(1)`, `f(1, 2)` and `f(1, 2, 3)`.
+The same rules apply in every list: statements in a body, arguments, parameters, array items and class members.
 Placeholders use braces, because a `$word` is real code in several languages.
 
-`{{...}}` is a placeholder with no name, for code that nothing refers to.
-Use a named placeholder only for code that a `rewrite`'s `as:` copies, or that has to match the same code twice.
-Within one rule, a name used more than once (including in `within:`) must match the same code each time, so `{{x}} == {{x}}` matches `a == a` and not `a == b`.
-A placeholder in a list that matched one item is the same code as that item.
-
 ```ruby
-'require "{{...}}"'
+rewrite "f({{...args}})", as: "g({{...args}})"
 ```
 
-A pattern matches a node if the pattern's children match the node's children in order.
-The node may have more children between and after them, such as a method's body, but it may not have a child with a field name before them, such as a call's receiver.
-So `require "{{...}}"` matches `require "set"`, and doesn't match `Kernel.require "set"` or `require name`.
-Empty brackets in a pattern match any brackets, so `f()` also matches `f(1)`.
+Use a named placeholder only for code that a `rewrite`'s `as:` copies, or that has to match the same code twice.
+Within one rule, a name used more than once (including in `within:`) must match the same code each time, so `{{x}} == {{x}}` matches `a == a` and not `a == b`.
+A list of one item is the same code as that item.
+
+If the grammar reads a placeholder as something other than a name, it matches a leaf of that kind, so `"{{_}}"` in quotes matches one string without interpolation.
+A list placeholder of that kind matches any number of leaves of that kind.
+
+Some grammars wrap each item of a list in a node of its own, such as PHP's and C#'s `argument`, or wrap a name in two nodes, as D's `import` does.
+A placeholder that is the whole of such an item matches whole items, so PHP's `f({{x}})` matches `f($a)`, and `f({{...x}})` matches `f()` and `f($a, $b)`.
+
+Many grammars leave out a list's node when the list is empty, as Ruby's leaves out the parameters of `def f`.
+A part of the pattern that holds nothing but list placeholders (and tokens) can therefore also be missing from the code, so `def f({{...}}); {{...}}; end` matches `def f; end`.
+A token before a list placeholder, or before such a part, can be missing with it, so Haskell's `import {{...}} as {{...}} ({{...}})` also matches `import Data.List`.
+If the grammar can't read `{{...}}` on its own as an item, write an item made only of `{{...}}` placeholders, such as Erlang's `-import({{_}}, [{{...}}/{{...}}]).`, and it stands for any number of items.
 
 If a pattern doesn't parse on its own, the engine tries it in each of the language's pattern contexts.
 If one of the grammar's keywords comes out as a name, the engine rejects that parse and tries the next context, unless the language lists the keyword in `keywords_used_as_names`.
@@ -573,8 +580,8 @@ If the code is one token inside a larger node, such as the `readonly` of C#'s `r
 
 Some grammars give a file as a flat list of tokens, such as Factor's and Ballerina's.
 If the code is several top-level items, such as Factor's `USING: {{...}} ;`, the pattern matches a run of children in a row, inside any node.
-In such a run, a placeholder matches as few children as it can, and a placeholder at the end of the run matches one child.
-So `USING: {{...}} ;` matches `USING: kernel math ;` up to the first `;`, and `USE: {{...}}` matches `USE: io`.
+In such a run, `{{x}}` and `{{_}}` match one child, and a list placeholder matches as few children as it can.
+So `USING: {{...}} ;` matches `USING: kernel math ;` up to the first `;`, and `USE: {{_}}` matches `USE: io`.
 A pattern like this can only be dropped, so it works in `imports` and `drop`.
 
 ## Common mistakes

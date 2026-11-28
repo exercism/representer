@@ -56,6 +56,7 @@ The helpers take a tree pattern (see "Tree patterns" below), and they also accep
 
 A tree pattern describes a shape in the tree.
 It uses a subset of tree-sitter's query syntax, which writes a tree as nested brackets.
+A tree pattern lets a node have more children than the pattern names, while a code pattern matches the code exactly.
 
 | Syntax | Matches |
 |---|---|

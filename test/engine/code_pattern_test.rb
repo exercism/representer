@@ -27,23 +27,79 @@ class CodePatternTest < Minitest::Test
     class Within < Representer::Engine::Normalise
       rewrite "{{type}}.{{name}}",
           as: "{{name}}",
-      within: "class {{type}}\nend"
+      within: "class {{type}}\n{{...}}\nend"
     end
 
     class Normalise < Representer::Engine::Normalise
       drop_calls_to :puts
       drop "{{x}} if debug?"
       rewrite "{{list}}.length", as: "{{list}}.size"
-      rewrite "f({{args}})", as: "g({{args}})"
+      rewrite "f({{...args}})", as: "g({{...args}})"
+      rewrite "h(1)", as: "k(1)"
     end
   end
 
-  def test_a_placeholder_matches_any_code
-    assert_equal ["1", "(call f\n  (argument_list 2 3))"], matched("x = {{value}}", "x = 1\nx = f(2, 3)", "value")
+  def test_a_pattern_matches_only_the_code_it_names
+    pattern = CodePattern[Rubyish::Spec, "f(1)"]
+    assert pattern.match(statement("f(1)"))
+    refute pattern.match(statement("f(1, 2)"))
+    refute pattern.match(statement("f()"))
+    refute pattern.match(statement("x.f(1)"))
+    refute pattern.match(statement("f(1) { }"))
   end
 
-  def test_a_placeholder_in_a_list_matches_any_number_of_items
-    assert_equal ["a b c", "x"], matched("def {{method}}({{params}})", "def f(a, b, c) = 1\ndef g(x) = 1", "params")
+  def test_a_placeholder_matches_one_item
+    assert_equal ["1", "(call f\n  (argument_list 2 3))"], matched("x = {{value}}", "x = 1\nx = f(2, 3)", "value")
+    pattern = CodePattern[Rubyish::Spec, "f({{x}})"]
+    assert_equal "1", pattern.match(statement("f(1)"))["x"].text
+    refute pattern.match(statement("f(1, 2)"))
+    refute pattern.match(statement("f()"))
+  end
+
+  def test_an_underscore_matches_one_item_and_binds_nothing
+    pattern = CodePattern[Rubyish::Spec, "f({{_}}, 2)"]
+    assert_equal({}, pattern.match(statement("f(1, 2)")))
+    refute pattern.match(statement("f(2)"))
+    refute pattern.match(statement("f(0, 1, 2)"))
+  end
+
+  def test_a_list_placeholder_matches_any_number_of_items_and_binds_them
+    source = "def f(a, b, c) = 1\ndef g(x) = 1\ndef h() = 1"
+    assert_equal ["a b c", "x", ""], matched("def {{method}}({{...params}}) = 1", source, "params")
+  end
+
+  def test_an_anonymous_list_placeholder_matches_any_number_of_items
+    pattern = CodePattern[Rubyish::Spec, "f(1, {{...}})"]
+    assert_equal [{}], pattern.matches(statement("f(1)"))
+    assert pattern.match(statement("f(1, 2)"))
+    assert pattern.match(statement("f(1, 2, 3)"))
+    refute pattern.match(statement("f(2, 1)"))
+  end
+
+  def test_a_list_placeholder_matches_the_statements_of_a_body
+    pattern = CodePattern[Rubyish::Spec, "def f\n  x = 1\n  {{...rest}}\nend"]
+    assert_equal 2, pattern.match(statement("def f\n  x = 1\n  y\n  z\nend"))["rest"].size
+    refute pattern.match(statement("def f\n  y\n  x = 1\nend"))
+  end
+
+  def test_a_list_node_that_holds_only_list_placeholders_also_matches_no_node
+    pattern = CodePattern[Rubyish::Spec, "def f({{...}})\n  {{...}}\nend"]
+    assert pattern.match(statement("def f\nend"))
+    assert pattern.match(statement("def f(a, b)\n  a\nend"))
+  end
+
+  def test_a_token_and_the_empty_list_after_it_can_be_left_out
+    haskell = Representer::Languages::Haskell::Spec
+    pattern = CodePattern[haskell, "import {{...}} as {{...}} ({{...}})"]
+    assert pattern.match(generated(haskell, "import Data.List\nx = 1").children.first)
+    assert pattern.match(generated(haskell, "import Data.Map as M (Map)\nx = 1").children.first)
+  end
+
+  def test_a_typed_list_placeholder_matches_leaves_of_its_kind
+    purescript = Representer::Languages::PureScript::Spec
+    pattern = CodePattern[purescript, "import {{...}} ({{...}}) as {{...}}"]
+    assert pattern.match(generated(purescript, "module M where\nimport Data.Map as M\nx = 1").children[1])
+    assert pattern.match(generated(purescript, "module M where\nimport Prelude\nx = 1").children[1])
   end
 
   def test_a_placeholder_in_quotes_matches_a_string
@@ -58,7 +114,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_code_that_does_not_parse_alone_goes_in_a_context
-    assert_equal %w[a b], matched("{ |{{x}}| }", "xs.each { |a| a }\nys.map do |b| b end", "x")
+    assert_equal %w[a b], matched("{ |{{x}}| {{...}} }", "xs.each { |a| a }\nys.map do |b| b end", "x")
   end
 
   def test_a_keyword_read_as_a_name_moves_the_pattern_into_a_context
@@ -74,17 +130,17 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_an_anonymous_placeholder_matches_any_code
-    assert_equal 1, CodePattern[Rubyish::Spec, 'require "{{...}}"'].matches(tree("require 'set'").children.first).size
-    assert_equal [{}], CodePattern[Rubyish::Spec, "{{...}} + {{...}}"].matches(tree("a + b").children.first)
+    assert_equal 1, CodePattern[Rubyish::Spec, 'require "{{_}}"'].matches(tree("require 'set'").children.first).size
+    assert_equal [{}], CodePattern[Rubyish::Spec, "{{_}} + {{_}}"].matches(tree("a + b").children.first)
   end
 
   def test_an_anonymous_placeholder_ignores_bindings
-    pattern = CodePattern[Rubyish::Spec, "{{...}}.size"]
+    pattern = CodePattern[Rubyish::Spec, "{{_}}.size"]
     assert pattern.match(tree("b.size").children.first, { "anything1" => tree("a").children.first })
   end
 
   def test_an_anonymous_placeholder_cannot_be_copied
-    pattern = CodePattern[Rubyish::Spec, "f({{...}})"]
+    pattern = CodePattern[Rubyish::Spec, "f({{_}})"]
     assert_raises(ArgumentError) { pattern.build(pattern.match(tree("f(1)").children.first)) }
   end
 
@@ -100,57 +156,44 @@ class CodePatternTest < Minitest::Test
     refute pattern.match(tree("b.size").children.first, { "x" => tree("a").children.first })
   end
 
-  def test_an_exact_pattern_matches_lists_with_nothing_extra
-    pattern = CodePattern[Rubyish::Spec, "f({{x}}, 2)", exactly: true]
-    assert pattern.match(tree("f(1, 2)").children.first)
-    refute pattern.match(tree("f(1, 2, 3)").children.first)
-    refute pattern.match(tree("f(0, 1, 2)").children.first)
-  end
-
-  def test_a_placeholder_in_an_exact_list_matches_one_item
-    pattern = CodePattern[Rubyish::Spec, "def f({{x}}) end", exactly: true]
-    assert_equal "a", pattern.match(tree("def f(a) = a + 1").children.first)["x"].text
-    refute pattern.match(tree("def f(a, b) = a").children.first)
-    refute pattern.match(tree("def f = 1").children.first)
-  end
-
-  def test_a_placeholder_in_a_list_of_wrapped_items_matches_every_item
-    pattern = CodePattern[PHP, "f({{x}});"]
+  def test_a_list_placeholder_in_a_list_of_wrapped_items_matches_every_item
+    pattern = CodePattern[PHP, "f({{...x}});"]
     assert_equal ["$a $b"], php_matched(pattern, "<?php f($a, $b);", "x")
     assert_equal ["$a"], php_matched(pattern, "<?php f($a);", "x")
-    assert_empty php_matched(pattern, "<?php f();", "x")
+    assert_equal [""], php_matched(pattern, "<?php f();", "x")
   end
 
-  def test_a_placeholder_after_a_wrapped_item_matches_the_items_after_it
-    assert_equal ["$b $c"], php_matched(CodePattern[PHP, "f($a, {{x}});"], "<?php f($a, $b, $c);", "x")
+  def test_a_list_placeholder_after_a_wrapped_item_matches_the_items_after_it
+    assert_equal ["$b $c"], php_matched(CodePattern[PHP, "f($a, {{...x}});"], "<?php f($a, $b, $c);", "x")
   end
 
   def test_an_anonymous_placeholder_in_a_list_of_wrapped_items_binds_nothing
     assert_equal [{}], CodePattern[PHP, "f({{...}});"].matches(php_statement("<?php f($a, $b);"))
   end
 
-  def test_a_placeholder_in_a_list_of_wrapped_items_builds_every_item
-    bindings = CodePattern[PHP, "f({{x}});"].match(php_statement("<?php f($a, b: $c);"))
-    built = CodePattern[PHP, "g({{x}});"].build(bindings)
+  def test_a_list_placeholder_in_a_list_of_wrapped_items_builds_every_item
+    bindings = CodePattern[PHP, "f({{...x}});"].match(php_statement("<?php f($a, b: $c);"))
+    built = CodePattern[PHP, "g({{...x}});"].build(bindings)
     assert_equal write(php_statement("<?php g($a, b: $c);")), write(built)
   end
 
-  def test_a_placeholder_in_an_exact_list_of_wrapped_items_matches_one_item
-    pattern = CodePattern[PHP, "f({{x}});", exactly: true]
+  def test_a_placeholder_in_a_list_of_wrapped_items_matches_one_item
+    pattern = CodePattern[PHP, "f({{x}});"]
     assert_equal "$a", pattern.match(php_statement("<?php f($a);"))["x"].text
     refute pattern.match(php_statement("<?php f($a, $b);"))
+    refute pattern.match(php_statement("<?php f();"))
   end
 
-  def test_an_exact_pattern_leaves_out_parts_that_can_be_anything
-    pattern = CodePattern[Rubyish::Spec, "x.max", exactly: true]
-    assert pattern.match(tree("x.max(3)").children.first)
-    refute CodePattern[Rubyish::Spec, "x.max(3)", exactly: true].match(tree("x.max(3, 4)").children.first)
+  def test_a_placeholder_can_be_wrapped_in_several_nodes
+    d = Representer::Languages::D::Spec
+    pattern = CodePattern[d, "import {{...}};"]
+    assert pattern.match(generated(d, "module m;\nimport std.algorithm, std.range;\nvoid f() {}").children[1])
   end
 
   def test_a_raw_pattern_matches_the_grammars_own_tree
-    raw = CodePattern[Rubyish::Spec, "x if {{...}}", raw: true]
+    raw = CodePattern[Rubyish::Spec, "x if {{_}}", raw: true]
     assert_equal "if_modifier", raw.type
-    assert_equal "if", CodePattern[Rubyish::Spec, "x if {{...}}"].type
+    assert_equal "if", CodePattern[Rubyish::Spec, "x if {{_}}"].type
   end
 
   def test_a_pattern_that_is_one_token_inside_a_node_is_that_token
@@ -179,7 +222,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_normalise_rewrites_code
-    assert_equal write(tree("n = xs.size\ng(1, 2)")), write(normalise("n = xs.length\nf(1, 2)"))
+    assert_equal write(tree("n = xs.size\ng(1, 2)\nk(1)\nh(1, 2)")), write(normalise("n = xs.length\nf(1, 2)\nh(1)\nh(1, 2)"))
   end
 
   def test_code_of_several_top_level_items_drops_each_run_of_them
@@ -189,7 +232,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_placeholder_at_the_end_of_a_run_matches_one_child
-    pattern = CodePattern[Rubyish::Spec, "a\n{{...}}"]
+    pattern = CodePattern[Rubyish::Spec, "a\n{{_}}"]
     assert_equal "(program 2 3)", write(helpers.drop(tree("a\n1\n2\n3"), pattern))
   end
 
@@ -230,9 +273,14 @@ class CodePatternTest < Minitest::Test
   private
   def parse(source) = Representer::Engine::Grammar["ruby"].parse(source)
   def tree(source) = Ruby::Common::GenerateAST.(parse(source))
+  def statement(source) = tree(source).children.first
   def normalise(source) = Rubyish::Normalise.(tree(source))
   def write(tree) = Representer::Engine::Serialize.(tree)
   def helpers = Object.new.extend(Representer::Engine::TreeHelpers)
+
+  def generated(language, source)
+    language.run_stage(:GenerateAST, Representer::Engine::Grammar[language.grammar].parse(source, **language.parse_options))
+  end
 
   # PHP wraps each of a call's arguments in an `argument` node.
   PHP = Representer::Languages::PHP::Spec
