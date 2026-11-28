@@ -3,8 +3,8 @@ require "test_helper"
 class BasicTest < InspectorTest
   track "haskell"
 
-  # Erlang, Haskell and Python have languages of their own, so the tests call
-  # Basic directly.
+  # Almost every track has a language of its own, so the tests call Basic
+  # directly.
   def basic(code, track: "haskell") = Inspector::Languages::Basic.(track, { FILENAMES.fetch(track) => code })
   def represent(code, filename: default_filename) = Inspector::Languages::Basic.(track, { filename => code })
   def default_filename = FILENAMES.fetch(track)
@@ -16,8 +16,8 @@ class BasicTest < InspectorTest
     "erlang" => "main.erl"
   }.freeze
 
-  def test_tracks_without_a_class_use_basic_and_its_version
-    result = Inspector::RepresentSolution.("8th", { "main.8th" => ": main 1 . ;" })
+  def test_basic_gives_its_own_version_and_no_mapping
+    result = basic(": main 1 . ;", track: "8th")
     assert_equal Inspector::Languages::Basic, result.language
     assert_nil result.reason
     assert_equal Inspector::Languages::Basic::VERSION, result.version

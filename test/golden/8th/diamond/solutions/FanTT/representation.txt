@@ -1,48 +1,8 @@
-\ DIAMOND
--- w: build-half-string
--- s: c -- s
--- d: s = string of (diff) spaces (3)
--- d: prepend current character to s (4)
--- d: shift the character to the right
--- d: at the current diff position
-: build-half-string
-"\"" "\"" r@ s:* \ (3)
-over s:<+ \ (4) over = current character
-0 rot 'A n:- s:<> \ (5) rot = current character
-;
-: build-mirror-string \ s -- s (6)
-clone s:rev
-r@ s:lsub
-;
--- w: build-half-diamond
--- s: s -- a
--- d: convert s into c (1)
--- d: diff = <char X> - 'A (equals half of space number (+1)).. on rtack (2)
--- d: new array
--- d: ( build half string (3-5)
--- d: build mirror string (minus one caracter) (6)
--- d: complete string (7)
--- d: push into array (8)
--- d: ) for each character between 'A and X
--- d:
-: build-half-diamond \ s -- a
-0 s:@ nip dup \ (1) nip : remove s
-'A n:- >r \ (2) diff
-a:new
-( build-half-string \ (3-5)
-build-mirror-string \ (6)
-swap s:append \ (7)
-a:push \ (8)
-) 'A fourth loop nip \ fourth <= X ; nip : remove X
-rdrop
-;
-: build-symetrical-half-diamond \ a -- a
-clone
-a:pop drop \ remove the last row
-a:rev
-;
-: rows \ s -- a
-build-half-diamond
-build-symetrical-half-diamond
-a:+
-;
+(source_file
+  (word_definition PLACEHOLDER_1 " " r@ s:* over s:<+ 0 rot 'A n:- s:<>)
+  (word_definition PLACEHOLDER_2 clone s:rev r@ s:lsub)
+  (word_definition PLACEHOLDER_3 0 s:@ nip dup 'A n:- >r a:new
+    (quotation
+      (block (word PLACEHOLDER_1) (word PLACEHOLDER_2) swap s:append a:push)) 'A fourth loop nip rdrop)
+  (word_definition PLACEHOLDER_4 clone a:pop drop a:rev)
+  (word_definition PLACEHOLDER_5 (word PLACEHOLDER_3) (word PLACEHOLDER_4) a:+))

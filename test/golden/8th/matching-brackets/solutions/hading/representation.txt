@@ -1,52 +1,28 @@
-{ "\")\"" : "\"(\","
-"\"]\"" : "\"[\","
-"\"}\"" : "\"{\"" }
-constant delimiters
-: normalize \ s -- s
-/[^[\](){}]/ "\"\"" s:replace!
-;
-: add-to-stack \ a a -- a a
-a:shift rot swap a:push swap
-;
-: closing-delimiter? \ a -- a T
-0 a:@ delimiters swap m:exists? nip
-;
-: _empty? \ a -- T
-a:_len 0 n:=
-;
-: empty? \ a -- a T
-dup _empty?
-;
-\ stack chars -> stack chars delims-match
-: closes? \ a a -- a a T
-over _empty? if false ;then
-a:shift delimiters swap m:_@
-rot a:pop \ at this point we have chars delim-from-chars stack delim-from-stack
-rot s:= >r swap r>
-;
-\ first is stack, second is chars in string as strings
-: analyze \ a a -- T
-empty?
-if
-drop
-_empty?
-else
-closing-delimiter?
-if
-closes?
-if
-recurse
-else
-2drop
-false
-then
-else \ opening
-add-to-stack
-recurse
-then
-then
-;
-: paired? \ s -- T
-normalize null s:/
-a:new swap analyze
-;
+(source_file
+  (map
+    (pair ")" "(")
+    (pair "]" "[")
+    (pair "}" "{"))
+  (constant_definition PLACEHOLDER_1)
+  (word_definition PLACEHOLDER_2 "/[^[\\](){}]/" "" s:replace!)
+  (word_definition PLACEHOLDER_3 a:shift rot swap a:push swap)
+  (word_definition PLACEHOLDER_4 0 a:@ (word PLACEHOLDER_1) swap m:exists? nip)
+  (word_definition PLACEHOLDER_5 a:_len 0 n:=)
+  (word_definition PLACEHOLDER_6 dup (word PLACEHOLDER_5))
+  (word_definition PLACEHOLDER_7 over (word PLACEHOLDER_5)
+    (if_statement
+      (block
+        (false)) ;then) a:shift (word PLACEHOLDER_1) swap m:_@ rot a:pop rot s:= >r swap r>)
+  (word_definition PLACEHOLDER_8 (word PLACEHOLDER_6)
+    (if_statement
+      (block drop (word PLACEHOLDER_5)) else
+      (block (word PLACEHOLDER_4)
+        (if_statement
+          (block (word PLACEHOLDER_7)
+            (if_statement
+              (block recurse) else
+              (block 2drop
+                (false)))) else
+          (block (word PLACEHOLDER_3) recurse)))))
+  (word_definition PLACEHOLDER_9 (word PLACEHOLDER_2)
+    (null) s:/ a:new swap (word PLACEHOLDER_8)))
