@@ -7,7 +7,7 @@ class GoTest < InspectorTest
 
   DEVIATIONS = {
     "raindrops-7" => {
-      why: "The old representer didn't rename the type of a struct field (`sound sound`), so its output is only " \
+      why: "The fixture doesn't rename the type of a struct field (`sound sound`), so its output is only " \
            "valid code if that type keeps its name. Inspector renames it, so the equivalent has the " \
            "placeholder there."
     }

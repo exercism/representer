@@ -8,8 +8,8 @@ class FSharpTest < InspectorTest
   DEVIATIONS = {
     "TypeDefinitionNotIndented" => {
       add: %w[Volume Liter USPint ImperialPint],
-      why: "The old representer left type and union case names alone. Inspector renames every name the " \
-           "solution defines, including these."
+      why: "Inspector renames every name the solution defines, including type and " \
+           "union case names."
     }
   }.freeze
 

@@ -1,9 +1,8 @@
 require "test_helper"
 
-# The old raku-representer has two golden tests, normalize-whitespace and
-# remove-comments. Both are ported. Differences:
+# The fixtures are normalize-whitespace and remove-comments. Differences:
 #
-# - The old representer replaced every name in Rakudo's AST dump, including
+# - The fixture's mapping holds every name in Rakudo's AST dump, including
 #   `export` and `return`, which Raku defines. Inspector only renames the
 #   module and sub that the student defines, so the old mapping's `export` and
 #   `return` are removed, and the others are written without the quotes that
@@ -18,7 +17,7 @@ class RakuTest < InspectorTest
   OLD_NAMES = ["\"HelloWorld\"", "\"hello\"", "\"export\"", "\"return\""].freeze
   DEVIATIONS = %w[normalize-whitespace remove-comments].to_h do |name|
     [name, { remove: OLD_NAMES, add: %w[HelloWorld hello],
-             why: "The old representer renamed every name, even `export` and `return`, and wrote the names in quotes." }]
+             why: "The fixture's mapping holds every name, even `export` and `return`, and writes the names in quotes." }]
   end.freeze
 
   upstream_tests ".rakumod", deviations: DEVIATIONS

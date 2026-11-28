@@ -5,28 +5,28 @@ class CommonLispTest < InspectorTest
 
   track "common-lisp"
 
-  # The old representer wrote its mapping as generated keywords for upper-cased
-  # symbols (`:TWO-FER-0` for `:TWO-FER`), so the expected mappings are
-  # rewritten below as the lower-case names that Inspector renames.
+  # The fixtures' expected mappings hold generated keywords for upper-cased
+  # symbols (`:TWO-FER-0` for `:TWO-FER`). The deviations below rewrite them as
+  # the lower-case names that Inspector renames.
   DEVIATIONS = {
     "two-fer" => {
       remove: [":TWO-FER-0", ":TWO-FER-1", ":TWO-FER-2", ":TWO-FER-3", ":TWO-FER-4"],
       add: %w[two-fer twofer name],
-      why: "The old representer wrote its mapping as generated keywords, and renamed `:cl` in the `:use` option. " \
+      why: "The fixture's mapping holds generated keywords, and lists `:cl` from the `:use` option. " \
            "Inspector renames the names the solution defines (the package, the function and its " \
            "parameter), writes them in lower case, and keeps `cl`, which the solution doesn't define."
     },
     "end-of-file" => {
       parse_error: true,
-      why: "The old representer reported the reader error as the representation. A missing parenthesis is a " \
+      why: "The fixture expects a reader error as the representation. A missing parenthesis is a " \
            "syntax error to tree-sitter, so Inspector gives the solution Basic's representation."
     },
     "reader-error" => {
-      why: "The old representer reported SBCL's reader error for `#<` as the representation. The grammar accepts " \
+      why: "The fixture expects SBCL's reader error for `#<` as the representation. The grammar accepts " \
            "`#<foo>`, so Inspector represents it like any other code."
     },
     "sharpsign-dot" => {
-      why: "The old representer refused `#.` because it would run code while reading, and reported an error. " \
+      why: "The fixture expects an error for `#.`, which would run code while reading. " \
            "Inspector never evaluates anything, so it represents the form like any other."
     }
   }.freeze

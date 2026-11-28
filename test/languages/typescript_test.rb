@@ -6,7 +6,7 @@ class TypeScriptTest < InspectorTest
   track "typescript"
 
   LIBRARY_NAMES = "Inspector renames only the names that the solution defines, so names from JavaScript's " \
-                  "library (Math, abs, console, log...) keep their names. The old representer renamed every name.".freeze
+                  "library (Math, abs, console, log...) keep their names.".freeze
 
   DEVIATIONS = {
     "clock-pass" => {
@@ -17,9 +17,8 @@ class TypeScriptTest < InspectorTest
     "two-fer-fail" => { remove: %w[console debug log], why: LIBRARY_NAMES },
     "two-fer-error-syntax" => {
       parse_error: true,
-      why: "The solution has a syntax error, so it gets Basic's representation. The old representer's test " \
-           "expected an error, and has no output to compare. The old test 'two-fer/error/missing' has no " \
-           "solution file, so there is nothing to port."
+      why: "The solution has a syntax error, so it gets Basic's representation. The fixture " \
+           "expects an error, and has no output to compare."
     }
   }.freeze
 

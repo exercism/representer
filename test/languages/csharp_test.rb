@@ -6,33 +6,33 @@ class CSharpTest < InspectorTest
   track "csharp"
 
   DEVIATIONS = {
-    "Identifiers-LocalFunction" => { add: ["Add"], why: "Local functions are renamed. The old representer left them." },
+    "Identifiers-LocalFunction" => { add: ["Add"], why: "Local functions are renamed." },
     "DictionaryInitializations-CollectionInitWithFunctionArgs" => {
       add: ["LocalInt"],
-      why: "Local functions are renamed. The old representer left them."
+      why: "Local functions are renamed."
     },
     "DictionaryInitializations-ObjectInitWithFunctionArgs" => {
       add: ["LocalInt"],
-      why: "Local functions are renamed. The old representer left them."
+      why: "Local functions are renamed."
     },
     "ReadOnly-StructMembers" => {
       add: %w[Fake P P2],
-      why: "Structs and properties are renamed. The old representer left them."
+      why: "Structs and properties are renamed."
     },
     "ReadOnly-Structs" => {
       add: ["Fake"],
-      why: "Structs are renamed. The old representer left them."
+      why: "Structs are renamed."
     },
     "DictionaryInitializations-RealWorldCollectionInit" => {
       restore: { "PLACEHOLDER_2" => "FacialFeatures", "PLACEHOLDER_3" => "Identity" },
       add: %w[Admin Developers Email EyeColor NameAndAddress PhiltrumWidth],
-      why: "The old representer renamed FacialFeatures and Identity where they are declared but not where they are " \
+      why: "The fixture renames FacialFeatures and Identity where they are declared but not where they are " \
            "used, so its output isn't valid code. Inspector renames both consistently, and renames properties too."
     },
     "DictionaryInitializations-RealWorldObjectInit" => {
       restore: { "PLACEHOLDER_2" => "FacialFeatures", "PLACEHOLDER_3" => "Identity" },
       add: %w[Admin Developers Email EyeColor NameAndAddress PhiltrumWidth],
-      why: "The old representer renamed FacialFeatures and Identity where they are declared but not where they are " \
+      why: "The fixture renames FacialFeatures and Identity where they are declared but not where they are " \
            "used, so its output isn't valid code. Inspector renames both consistently, and renames properties too."
     },
     "Identifiers-CombinationOfEverything" => {
@@ -56,7 +56,7 @@ class CSharpTest < InspectorTest
     assert_same_representation wrap("return !x ? 1 > y : 2 > y;"), wrap("return x ? 2 > y : 1 > y;")
   end
 
-  # As in the old representer, only `String` is written as its keyword.
+  # Only `String` is written as its keyword.
   def test_string_is_written_as_its_keyword
     assert_same_representation wrap("String z = \"\"; return x;"), wrap("string z = \"\"; return x;")
     assert_same_representation wrap("return String.IsNullOrEmpty(\"\");"), wrap("return string.IsNullOrEmpty(\"\");")

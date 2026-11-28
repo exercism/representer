@@ -1,6 +1,6 @@
 require "test_helper"
 
-# Ported from exercism/nim-representer: its golden test (example-two-fer), the
+# The fixtures hold the example-two-fer test, the
 # end-to-end tests in tests/tnormalizations.nim ("All the things", "No params,
 # return type or statements", "Just one let statement", "All features" and the
 # two fmt tests) and the name tests in tests/tmapping.nim (see
@@ -24,8 +24,8 @@ class NimTest < InspectorTest
     "all-features" => {
       add: %w[Dollar testmacro testproc testtemplate],
       remove: %w[testMacro testProc testTemplate],
-      why: "The old representer left type sections as written, so it didn't rename the type Dollar. Inspector " \
-           "renames it. #{ONE_SPELLING}"
+      why: "Inspector renames the type Dollar, which " \
+           "the fixture's mapping leaves out. #{ONE_SPELLING}"
     },
     "all-the-things" => {
       add: %w[fullname helloworld teststdout],

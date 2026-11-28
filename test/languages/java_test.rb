@@ -5,9 +5,9 @@ class JavaTest < InspectorTest
 
   track "java"
 
-  PER_DECLARATION = "The old representer gave each declaration its own placeholder, so a field and a parameter with " \
-                    "the same name, or two parameters of different methods, got different placeholders. Inspector " \
-                    " renames by name, so they share one. The equivalent file has the later placeholders " \
+  PER_DECLARATION = "The fixture gives each declaration its own placeholder, so a field and a parameter with " \
+                    "the same name, or two parameters of different methods, get different placeholders. Inspector " \
+                    "renames by name, so they share one. The equivalent file has the later placeholders " \
                     "changed to the first, and the mapping lists the name once.".freeze
 
   # The deviation for a test whose old mapping has the same name more than once.
@@ -25,13 +25,13 @@ class JavaTest < InspectorTest
   DEVIATIONS = {
     "scenario-simple" => {
       parse_error: true,
-      why: "The upstream scenario has a syntax error (a missing semicolon after the return), which the old " \
-           "representer's Java compiler repaired. Inspector gives it Basic's representation."
+      why: "The upstream scenario has a syntax error (a missing semicolon after the return), which the " \
+           "fixture's Java compiler repaired. Inspector gives it Basic's representation."
     },
     "scenario-lambda-arguments" => {
       replace: { ".filter(" => ".PLACEHOLDER_02(" },
       why: "The solution defines a method called filter, so Inspector renames every use of the name, " \
-           "including the call to Stream.filter. The old representer renamed only the declaration."
+           "including the call to Stream.filter. The fixture renames only the declaration."
     },
     "scenario-class-with-nested-enum" => per_declaration("scenario-class-with-nested-enum")
   }.freeze

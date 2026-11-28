@@ -5,17 +5,17 @@ class PythonTest < InspectorTest
 
   track "python"
 
-  DOUBLE = "The old representer visited comprehension variables twice, so its mapping holds a placeholder as if " \
-           "it were a name from the solution. Inspector has no such entry.".freeze
+  DOUBLE = "The fixture's mapping holds a placeholder as if it were a name from the solution. Inspector has no such " \
+           "entry.".freeze
 
   ALIAS = "The engine drops every import, so the name given with `as` is never defined and keeps its name. " \
-          "The old representer kept imports and renamed the alias.".freeze
+          "The fixture keeps imports and renames the alias.".freeze
 
   ORDER = "Inspector renames a name the solution defines wherever it appears, including after a dot. " \
-          "The old representer renamed a name after a dot only once it had seen the name defined, earlier in the file.".freeze
+          "The fixture renames a name after a dot only once the name has been defined, earlier in the file.".freeze
 
   ROUNDING = "Inspector keeps every digit of a decimal. Python rounds a float to 17 significant figures, so the " \
-             "old representer merged decimals that differ only after them.".freeze
+             "fixture merges decimals that differ only after them.".freeze
 
   DEVIATIONS = {
     "concept-chaitanas-colossal-coaster" => { replace: { ".index(" => ".placeholder_10(" }, why: ORDER },
@@ -59,7 +59,7 @@ class PythonTest < InspectorTest
   upstream_tests ".py",
     deviations: DEVIATIONS,
     renamed: RENAMED,
-    renamed_why: "The old representer kept `self` and Python's built-in names, even where the solution defined them."
+    renamed_why: "The fixture's mappings leave out `self` and Python's built-in names, even where the solution defined them."
 
   def test_imports_are_dropped
     assert_same_representation "import math, re\nx = 1", "import re\nimport math\nx = 1"

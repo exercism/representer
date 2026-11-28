@@ -11,16 +11,15 @@ class ElmTest < InspectorTest
   # Elm, which the old tests' whitespace-stripped strings weren't) as the
   # equivalent. A test's name says which upstream suite it came from.
 
-  UNDEFINED = "The old representer renamed every name that wasn't a standard library name, including %s, which " \
-              "the solution never defines. Inspector only renames names the solution defines, so %s keeps " \
-              "its name.".freeze
+  UNDEFINED = "The fixture's mapping lists %s, which the solution never defines. " \
+              "Inspector only renames names the solution defines, so %s keeps its name.".freeze
 
   def self.undefined(placeholder, name, what)
     { restore: { placeholder => name }, remove: [name], why: format(UNDEFINED, what, name) }
   end
 
   QUALIFIED = "The solution defines `length`, so Inspector renames it wherever it appears, including in " \
-              "`%s.length`. The old representer kept a name after a module's dot.".freeze
+              "`%s.length`. The fixture keeps a name after a module's dot.".freeze
 
   DEVIATIONS = {
     "expression-record-access" => undefined("identifier_3", "y", "a field read from a record"),
@@ -41,7 +40,7 @@ class ElmTest < InspectorTest
     },
     "expression-parenthesized" => {
       merges_with: "function-name-and-parameters",
-      why: "`(x)` and `x` are the same value. The old representer kept brackets that only group, and Inspector " \
+      why: "`(x)` and `x` are the same value. The fixture keeps brackets that only group, and Inspector " \
            "drops them."
     },
     "pattern-uncons" => {
@@ -67,8 +66,8 @@ class ElmTest < InspectorTest
                  "representer kept it."
 
   # The upstream tests for the names that Elm imports into every module.
-  # The old representer kept these names, even where the solution defined
-  # them. Inspector renames every name the solution defines.
+  # The fixtures' mappings leave out these names, even where the solution
+  # defines them. Inspector renames every name the solution defines.
   %w[toFloat round floor ceiling truncate max min compare not xor modBy remainderBy
      negate abs clamp sqrt logBase e pi cos sin tan acos asin atan atan2
      degrees radians turns toPolar fromPolar isNaN isInfinite identity always never

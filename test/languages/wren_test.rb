@@ -6,7 +6,7 @@ class WrenTest < InspectorTest
   track "wren"
 
   RENAMED_WHY = "A method that the solution defines is renamed, even if its name is `new`, or one of Wren's core " \
-                "library or language methods. The old representer kept `new`.".freeze
+                "library or language methods.".freeze
 
   upstream_tests ".wren", renamed: { ["new"] => ["queens"] }, renamed_why: RENAMED_WHY
 

@@ -139,7 +139,7 @@ These tracks have 58 splits and 226 merges.
 The main causes of splits are:
 
 - **C++ headers (7 splits).** One solution declares its functions in a header and defines them in a source file, and the other defines them in the header.
-- **Real differences (21 splits, accepted).** The solutions are different programs that an old representer treated as the same, such as PHP's `!==` and `!=`, JavaScript's `toUpperCase` and `toLocaleUpperCase`, or a solution with an extra file.
+- **Real differences (21 splits, accepted).** The solutions are different programs that the production data grouped together, such as PHP's `!==` and `!=`, JavaScript's `toUpperCase` and `toLocaleUpperCase`, or a solution with an extra file.
 - The rest are one-off cases, such as Elm's `100` and `100.0` (an Int and a Float) or Elixir code that uses a function from an `import` without its module's name.
 
 All but one of the merges are accepted. They are solutions with the same code, or code that differs only in comments, whitespace, imports, names, quote style, how a number is written, brackets that only group, or spellings listed in the language's `transition.md`.

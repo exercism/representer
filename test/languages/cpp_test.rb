@@ -7,15 +7,15 @@ class CppTest < InspectorTest
 
   # Not ported: the upstream tests multiple-files-missing,
   # multiple-files-partially-missing and single-file-missing. They check how
-  # the old representer's command line failed when a file named in its config
-  # didn't exist. The service gets the files in the request, so it has no such
+  # what happens when a file named in a config
+  # doesn't exist. The service gets the files in the request, so it has no such
   # case.
 
   DEVIATIONS = {
     "syntax-error" => {
       parse_error: true,
-      why: "The solution has a syntax error, so it gets Basic's representation. The old representer worked on tokens, so it " \
-           "represented any text."
+      why: "The solution has a syntax error, so it gets Basic's representation. The fixture's expected output is " \
+           "made of tokens, so it represents any text."
     }
   }.freeze
 

@@ -1,7 +1,6 @@
 require "test_helper"
 
-# The old gdscript-representer has five golden tests. Four are ported as
-# fixtures: normalize-whitespace, remove-comments, remove-type-hints and
+# Four tests are fixtures: normalize-whitespace, remove-comments, remove-type-hints and
 # rename-identifiers. multiple-solution-files is test_multiple_solution_files
 # below, because a fixture holds one equivalent file. Each test's
 # `.meta/config.json` is not copied, because it only said which files were

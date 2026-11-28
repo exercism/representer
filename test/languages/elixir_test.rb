@@ -7,7 +7,7 @@ class ElixirTest < InspectorTest
 
   AS = "The engine drops every alias, so the name given with `as:` is never defined, and keeps its name.".freeze
   FIELDS = "Renaming goes by name, so a field with the name of something the solution defines, such as %s, gets " \
-           "its placeholder. The old representer never renamed a field.".freeze
+           "its placeholder.".freeze
 
   DEVIATIONS = {
     "local_function_calls" => {
@@ -17,8 +17,7 @@ class ElixirTest < InspectorTest
     "special_variables" => {
       restore: { "placeholder_6" => "some_value" },
       remove: ["some_value"],
-      why: "The old representer renamed every variable it met, including one that the solution never defines. Inspector " \
-           " only renames names the solution defines, so some_value keeps its name."
+      why: "Inspector only renames names the solution defines, so some_value, which the solution never defines, keeps its name."
     },
     "modules" => {
       restore: { "Placeholder_2" => "Two", "Placeholder_8" => "Eight", "Placeholder_12" => "Twelve",
@@ -49,7 +48,7 @@ class ElixirTest < InspectorTest
                  twentyone twentyfour twentyfive],
       why: "This fixture isn't valid code: it has specs for functions that it never defines, which doesn't compile. A " \
            "spec's name is renamed by the function's definition, so these keep their names, and so do the names " \
-           "that label a spec's arguments and its type variables. The old representer also renamed a parametrised " \
+           "that label a spec's arguments and its type variables. Inspector keeps a parametrised " \
            "type (three(four)), a callback's name, an attribute that is set but never read (twentyfour), and the " \
            "function names in `@optional_callbacks` and `@compile`. Inspector counts an attribute as defined " \
            "only if the solution reads it, so that Elixir's own attributes (@impl, @behaviour) keep their names, " \

@@ -6,13 +6,12 @@ class JavaScriptTest < InspectorTest
   track "javascript"
 
   LIBRARY_NAMES = "Inspector never renames names from JavaScript's library (console, log, indexOf...), " \
-                  "so mentors' comments on different library calls stay apart. The old representer renamed them.".freeze
+                  "so mentors' comments on different library calls stay apart.".freeze
 
-  EXPORTS = "The old representer kept the names that a solution exports. Inspector renames every name " \
-            "the solution defines, including the exported ones.".freeze
+  EXPORTS = "Inspector renames every name the solution defines, including the exported ones.".freeze
 
   OWN_METHODS = "Inspector renames every method the solution defines, including the ones that JavaScript " \
-                "itself calls (constructor, toString, valueOf). The old representer kept them.".freeze
+                "itself calls (constructor, toString, valueOf).".freeze
 
   DEVIATIONS = {
     "general-normalize-quotes" => {
@@ -74,7 +73,7 @@ class JavaScriptTest < InspectorTest
     assert_same_representation "class A { size() { return this.a.size } }", "class A { count() { return this.a.count } }"
   end
 
-  # A shorthand property is also a variable, and the old representer renamed
+  # A shorthand property is also a variable, and Inspector renames
   # it with the variable.
   def test_shorthand_properties_are_renamed_with_their_variable
     assert_same_representation "const a = 1; export const f = () => ({ a })", "const b = 1; export const f = () => ({ b })"

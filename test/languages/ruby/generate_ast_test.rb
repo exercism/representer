@@ -4,8 +4,7 @@ require "parser/ruby33"
 require "rubocop-ast"
 
 # Tests Ruby's GenerateAST stage on its own, and against the tree that Ruby's
-# own parser gives (the parser gem, with RuboCop's builder, as the old
-# representer used).
+# own parser gives (the parser gem, with RuboCop's builder).
 class RubyGenerateASTTest < Minitest::Test
   GenerateAST = Inspector::Languages::Ruby::Common::GenerateAST
 
@@ -151,8 +150,8 @@ class RubyGenerateASTTest < Minitest::Test
     assert_empty mismatches
   end
 
-  # The same, over every input and equivalent.rb of the tests ported from
-  # the old representer (test/fixtures/ruby).
+  # The same, over every input and equivalent.rb of the tests in
+  # test/fixtures/ruby.
   def test_upstream_fixtures_match_the_parser
     sources = Dir[File.join(__dir__, "../../fixtures/ruby/*/*.rb")].sort.to_h { |path| [path[%r{ruby/(.*)}, 1], File.read(path)] }
     ours = sources.transform_values { |source| ast(source, names: false) }

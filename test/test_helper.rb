@@ -49,47 +49,45 @@ class InspectorTest < Minitest::Test
   end
 end
 
-# Ports the golden tests of an old per-track representer. Each test lives in
+# Runs the golden tests of a track. Each test lives in
 # test/fixtures/<track>/<name>/ and holds:
 #
 # - The test's input files, unchanged.
-# - equivalent.<ext>: code that the old representer treats as the same as
-#   the input. Where the old representer printed normalised code, this is
-#   its expected output, unchanged. Otherwise it was written by hand.
-# - expected_mapping.json: the old representer's expected mapping.
-# - expected_representation.txt (optional): the old representer's expected
-#   output, if it isn't code.
+# - equivalent.<ext>: code that has the same representation as the input.
+# - expected_mapping.json: the expected mapping.
+# - expected_representation.txt (optional): the expected output, if it isn't
+#   code.
 #
 # Each test checks three things:
 #
 # 1. Equivalence: the input and equivalent.<ext> get the same representation.
-# 2. Mapping: the names renamed are the ones the old representer renamed.
-# 3. Distinctness: two tests get the same representation exactly when the old
-#    representer gave them the same expected output.
+# 2. Mapping: the names renamed are the ones in expected_mapping.json.
+# 3. Distinctness: two tests get the same representation exactly when they
+#    have the same expected output.
 #
 # Where Inspector deliberately differs, a deviation says how and why:
 #
 # - restore: placeholders in equivalent.<ext> to turn back into names, for
-#   names the old representer renamed but Inspector keeps.
+#   names that expected_mapping.json lists but Inspector keeps.
 # - replace: text in equivalent.<ext> to replace with other text, for names
-#   that Inspector renames and the old one kept.
-# - add / remove: names to add to or remove from the old mapping.
+#   that Inspector renames and the fixture keeps.
+# - add / remove: names to add to or remove from the expected mapping.
 # - parse_error: the input has a syntax error, so it gets Basic's
 #   representation. The test checks that, and nothing else.
 # - merges_with: the names of other tests that Inspector gives the
-#   same representation, although the old one kept them apart (such as two
+#   same representation, although their expected outputs differ (such as two
 #   solutions that differ only in their imports).
 # - why: the reason, which every deviation must give.
 #
-# A test whose mapping has names that the old representer didn't rename (it
-# kept the names of library methods, even if the solution defined them) is
+# A test whose mapping has names that expected_mapping.json leaves out (it
+# keeps the names of library methods, even if the solution defines them) is
 # listed by the names in upstream_tests' renamed: argument, with one reason
 # for all of them in renamed_why:.
 module UpstreamTests
   Case = Struct.new(:name, :solution_files, :equivalent, :key, :mapping_names, :deviation, keyword_init: true)
 
   # renamed maps a list of names to the tests whose mapping has them,
-  # although the old representer's mapping didn't.
+  # although expected_mapping.json doesn't.
   def upstream_tests(extension, deviations: {}, renamed: {}, renamed_why: nil)
     raise ArgumentError, "renamed needs a renamed_why" if renamed.any? && !renamed_why
 

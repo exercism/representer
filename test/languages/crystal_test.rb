@@ -8,7 +8,7 @@ class CrystalTest < InspectorTest
   DEVIATIONS = {
     "example-syntax-error" => {
       parse_error: true,
-      why: "The solution has a syntax error, so it gets Basic's representation. The old representer printed the code unchanged."
+      why: "The solution has a syntax error, so it gets Basic's representation."
     }
   }.freeze
 

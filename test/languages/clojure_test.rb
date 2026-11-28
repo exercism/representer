@@ -1,26 +1,24 @@
 require "test_helper"
 
-# The old clojure-representer has two golden suites, two-fer and
-# armstrong-numbers, with 500 real student solutions each. Its expected output
-# is the solution after `macroexpand-all`, and the tests only compare that
-# output. The 1000 solutions give 605 different outputs, and each different
+# The two-fer and armstrong-numbers fixtures hold 500 real student solutions
+# each. Each solution's expected output is the solution after `macroexpand-all`,
+# and the tests only compare that output. The 1000 solutions give 605 different outputs, and each different
 # output is ported once, as test/fixtures/clojure/<exercise>-<number>:
 #
 # - The input is the first solution with that output.
 # - equivalent.clj is the second solution with that output. A solution that
 #   has no other solution with its output gets its own code with the comments
 #   removed and the whitespace joined.
-# - The old representer didn't write a mapping that its tests check, so
-#   expected_mapping.json was made by Inspector and read through.
+# - expected_mapping.json was made by Inspector and read through.
 #
-# Differences from the old tests:
+# Differences from the expected outputs:
 #
 # - two-fer-53 is not ported. It is two-fer-2 plus a `(comment ...)` block.
-#   `macroexpand-all` turns the block into a `nil`, so the old representer
-#   kept the two apart. A mentor would give the same feedback for both, so
+#   `macroexpand-all` turns the block into a `nil`, so the expected
+#   outputs differ. A mentor would give the same feedback for both, so
 #   Inspector drops the block (see
 #   ClojureNormaliseTest#test_comment_forms_are_dropped_at_the_top_level).
-# - The old output contained the expansion of `ns`, gensym names such as
+# - The expected output contained the expansion of `ns`, gensym names such as
 #   `p1__123#` and object addresses cleaned with regular expressions. None of
 #   that is reproduced, because the fixtures only compare which solutions
 #   merge.
@@ -33,10 +31,10 @@ class ClojureTest < InspectorTest
                    "`:require`, `:use` and `:import` clauses, which only make names available.".freeze
 
   CORE_NAME = "Inspector renames a name that the solution defines, even if it is also a clojure.core name " \
-              "(`name`, `num`). The two tests only differ in such a name, which the old representer kept.".freeze
+              "(`name`, `num`). The two tests only differ in such a name, which the expected mapping keeps.".freeze
 
-  UNDERSCORE = "Inspector renames `_`, because it is a name that the solution binds. The old " \
-               "representer kept it.".freeze
+  UNDERSCORE = "Inspector renames `_`, because it is a name that the solution binds. The expected " \
+               "mapping keeps it.".freeze
 
   DEVIATIONS = {
     "armstrong-numbers-111" => { add: ["_"], why: UNDERSCORE },
@@ -60,11 +58,11 @@ class ClojureTest < InspectorTest
     }
   }.freeze
 
-  # The old representer never renamed a clojure.core name, even if the solution defined it (a local called
+  # The expected mappings never list a clojure.core name, even if the solution defined it (a local called
   # `name` or `num`). Inspector renames every name the solution defines, so the mapping of each test
   # below has these names too.
   RENAMED_WHY = "Inspector renames a name that the solution defines, even if it is also a clojure.core name. " \
-                "The old representer never renamed a clojure.core name.".freeze
+                "The expected mapping never lists a clojure.core name.".freeze
 
   RENAMED = {
     %w[num] => %w[

@@ -5,11 +5,9 @@ class WasmTest < InspectorTest
 
   track "wasm"
 
-  # The old representer renamed nothing, so every old mapping is empty. Inspector
-  #  renames each `$name` that the solution chooses, so every
-  # mapping gains the leap solution's parameter.
-  RENAMES = "The old representer never renamed anything. Inspector renames every `$name` the solution " \
-            "chooses, here the parameter.".freeze
+  # Every fixture mapping is empty. Inspector renames each `$name` that the
+  # solution chooses, so every mapping gains the leap solution's parameter.
+  RENAMES = "Inspector renames every `$name` the solution chooses, here the parameter.".freeze
 
   DEVIATIONS = %w[sugared unsugared normalize-whitespace remove-comments].to_h do |name|
     [name, { add: ["year"], why: RENAMES }]

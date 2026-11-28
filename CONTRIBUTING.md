@@ -92,11 +92,11 @@ end
 `upstream_tests` (in [`test/test_helper.rb`](./test/test_helper.rb)) checks three things for every ported test:
 
 1. Equivalence: the input and `equivalent.<ext>` get the same representation.
-2. Mapping: the names renamed are the ones the old representer renamed.
-3. Distinctness: two tests get the same representation exactly when the old representer gave them the same expected output.
+2. Mapping: the names renamed are the ones in `expected_mapping.json`.
+3. Distinctness: two tests get the same representation exactly when they have the same expected output.
 
 Every ported test must pass.
-Where Inspector deliberately differs from the old one, add a deviation that says how and why:
+Where Inspector deliberately differs from a fixture, add a deviation that says how and why:
 
 ```ruby
 DEVIATIONS = {
@@ -108,15 +108,15 @@ DEVIATIONS = {
 }.freeze
 ```
 
-- `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that the old representer renamed but Inspector keeps.
-- `replace`: text in `equivalent.<ext>` to replace with other text, for names that Inspector renames and the old one kept.
+- `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that `expected_mapping.json` lists but Inspector keeps.
+- `replace`: text in `equivalent.<ext>` to replace with other text, for names that Inspector renames and the fixture keeps.
 - `add` and `remove`: names to add to or remove from the old mapping.
 - `parse_error: true`: the input has a syntax error that tree-sitter rejects, so it gets Basic's representation. The test checks that, and nothing else.
-- `merges_with`: other tests that Inspector gives the same representation, although the old representer kept them apart. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
+- `merges_with`: other tests that Inspector gives the same representation, although their expected outputs differ. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
 - `why`: the reason. Every deviation needs one.
 
-The common deviations are old outputs that weren't valid code, and names that the old representer kept and Inspector renames.
-Never use a deviation to hide a merge that the old representer kept apart.
+The common deviations are old outputs that weren't valid code, and names that Inspector renames and the fixture keeps.
+Never use a deviation to hide a merge of two tests with different expected outputs.
 
 ## 3. Declare the names and write the stages
 

@@ -5,11 +5,11 @@ class RustTest < InspectorTest
 
   track "rust"
 
-  UNDEFINED = "The old representer renamed every name it met, including ones the solution never defines (a name " \
+  UNDEFINED = "The fixture's mapping lists names the solution never defines (a name " \
               "from the surrounding code). Inspector only renames names the solution defines, so %s keeps its name.".freeze
 
   IMPL_TYPE = {
-    why: "The old representer left the names in an impl header (`impl Test`) as they were, even where it renamed " \
+    why: "The fixture leaves the names in an impl header (`impl Test`) as they were, even where it renames " \
          "the type, so its output isn't valid code. Inspector renames them, so the equivalent has the placeholder."
   }.freeze
 
@@ -41,13 +41,13 @@ class RustTest < InspectorTest
     "type_aliases" => {
       add: ["T"],
       replace: { "std::result::Result" => "std::result::PLACEHOLDER_1" },
-      why: "The old representer left the type parameter T of a type alias. Inspector renames it, as it does in a " \
+      why: "The fixture leaves the type parameter T of a type alias. Inspector renames it, as it does in a " \
            "struct, so the equivalent has a placeholder for T. The solution defines the name Result, so Inspector " \
            " also renames it in `std::result::Result`."
     },
     "union_names" => {
       add: %w[A B x y],
-      why: "The old representer left the type parameters and fields of a union. Inspector renames them, as it " \
+      why: "The fixture leaves the type parameters and fields of a union. Inspector renames them, as it " \
            "does in a struct, so the equivalent has placeholders for them."
     }
   }.freeze
@@ -57,7 +57,7 @@ class RustTest < InspectorTest
             replace_same_identifier typed_let_binding while_loops].freeze
 
   upstream_tests ".rs", deviations: DEVIATIONS, renamed: { ["main"] => MAIN },
-    renamed_why: "The old representer kept the name main. Inspector renames every name the solution defines."
+    renamed_why: "The fixture keeps the name main. Inspector renames every name the solution defines."
 
   def test_locals_and_parameters_are_renamed
     assert_same_representation "fn f(a: u32) -> u32 { let b = a; b }", "fn g(x: u32) -> u32 { let y = x; y }"

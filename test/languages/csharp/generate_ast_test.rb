@@ -39,8 +39,8 @@ class CSharpGenerateASTTest < Minitest::Test
     refute_same "using var r = G();", "var r = G();"
   end
 
-  # Roslyn keeps brackets that only group, and the old representer's
-  # simplifier dropped them, so this stage drops them too. The tree's shape
+  # Roslyn keeps brackets that only group, so this stage drops
+  # them itself. The tree's shape
   # still shows the grouping.
   def test_where_this_stage_differs_from_the_parser
     assert_same "var x = (a + b);", "var x = a + b;"

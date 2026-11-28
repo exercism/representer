@@ -226,9 +226,8 @@ module Golden
       end
     end
 
-    # A production group that now splits. The old representer treated the
-    # solutions as the same, so the note shows the first line where the new
-    # representations differ.
+    # A production group that now splits. The note shows the first line where
+    # the new representations differ.
     def self.split(track, difference, texts)
       first, second = difference["solutions"].first(2).map { |names| texts.fetch("#{difference['exercise']}/#{names.first}") }
       a, b = first_difference(first.lines, second.lines)

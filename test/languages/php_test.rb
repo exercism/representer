@@ -5,15 +5,13 @@ class PHPTest < InspectorTest
 
   track "php"
 
-  UNDEFINED = "Inspector only renames a name that the solution defines. The old representer also renamed " \
-              "classes and methods that the solution only uses (here MyClass and method), because it renamed " \
-              "every one it saw.".freeze
+  UNDEFINED = "Inspector only renames a name that the solution defines. The fixture's mapping also lists " \
+              "classes and methods that the solution only uses (here MyClass and method).".freeze
 
   DOLLARS = "Inspector keeps a variable's `$` in the mapping, as in `$year`, because PHP keeps variables " \
             "apart from functions and methods with the same name.".freeze
 
-  UNSET = "The variable is never set, so the solution doesn't define it and Inspector keeps its name. The " \
-          "old representer renamed every variable.".freeze
+  UNSET = "The variable is never set, so the solution doesn't define it and Inspector keeps its name.".freeze
 
   # The deviation for a test whose variables are set, so the mapping lists
   # each of them with its `$`.
@@ -23,9 +21,7 @@ class PHPTest < InspectorTest
   # $v0 in the equivalent file.
   def self.unset(name) = { restore: { "v0" => name }, remove: [name], why: UNSET }
 
-  # The upstream tests were written for the old representer's output, which
-  # had no <?php tag. Each equivalent.php here is that output with a <?php
-  # line added, so that it is a PHP file.
+  # Each equivalent.php starts with a <?php line, so that it is a PHP file.
   DEVIATIONS = {
     "example-syntax-error" => {
       parse_error: true,
@@ -46,8 +42,8 @@ class PHPTest < InspectorTest
       remove: %w[array_key_exists count current floatval fwrite highlight_file implode ini_set
                  is_float is_int is_writable rtrim strstr],
       why: "Inspector writes a function's aliases as its main name (join is implode, sizeof is count) without " \
-           "listing them in the mapping, because they aren't names the student chose. The old representer listed them. " \
-           "(The old mapping's stable names are real function names here, so the test helper reads the mapping the " \
+           "listing them in the mapping, because they aren't names the student chose. The fixture's mapping lists them. " \
+           "(The fixture mapping's stable names are real function names here, so the test helper reads the mapping the " \
            "other way round, and the names to remove are the stable ones.)"
     },
     "unit-method-mapping" => { restore: { "v0" => "a" }, remove: ["a"], add: ["a"], why: UNSET },
