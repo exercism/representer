@@ -1,83 +1,154 @@
-unit TwoBucket ;
-interface
-type
-BucketId = ( One , Two );
-TResult = record
-moves : UInt64 ;
-goalBucket : BucketId ;
-otherBucket : UInt64 ;
-end ;
-function measure ( bucketOne , bucketTwo , goal : UInt64 ; startBucket : BucketId ) : TResult ;
-implementation
-uses SysUtils ;
-function GCD ( a , b : UInt64 ) : UInt64 ;
-var
-c : UInt64 ;
-begin
-c := a mod b ;
-while c <> 0 do
-begin
-a := b ;
-b := c ;
-c := a mod b ;
-end ;
-result := b ;
-end ;
-function measure ( bucketOne , bucketTwo , goal : UInt64 ; startBucket : BucketId ) : TResult ;
-var
-capacitySource : UInt64 ;
-capacitySink : UInt64 ;
-contentsSource : UInt64 = 0 ;
-contentsSink : UInt64 = 0 ;
-transfer : UInt64 ;
-begin
-if (( goal > bucketOne ) and ( goal > bucketTwo )) or ( goal mod GCD ( bucketOne , bucketTwo ) <> 0 ) then
-raise ENotImplemented . Create ( 'impossible' );
-result . moves := 0 ;
-if startBucket = One then
-begin
-capacitySource := bucketOne ;
-capacitySink := bucketTwo ;
-end
-else
-begin
-capacitySource := bucketTwo ;
-capacitySink := bucketOne ;
-end ;
-while ( contentsSource <> goal ) and ( contentsSink <> goal ) do
-begin
-result . moves := result . moves + 1 ;
-if contentsSource = 0 then
-contentsSource := capacitySource
-else if contentsSink = capacitySink then
-contentsSink := 0
-else if capacitySink = goal then
-contentsSink := capacitySink
-else
-begin
-if contentsSource + contentsSink < capacitySink then
-transfer := contentsSource
-else
-transfer := capacitySink - contentsSink ;
-contentsSource := contentsSource - transfer ;
-contentsSink := contentsSink + transfer ;
-end ;
-end ;
-if contentsSource = goal then
-begin
-if startBucket = One then
-result . goalBucket := One
-else
-result . goalBucket := Two ;
-result . otherBucket := contentsSink ;
-end
-else
-begin
-if startBucket = One then
-result . goalBucket := Two
-else
-result . goalBucket := One ;
-result . otherBucket := contentsSource ;
-end ;
-end ;
-end .
+(root
+  (unit
+    (moduleName PLACEHOLDER_1)
+    (interface
+      (declTypes
+        (declType PLACEHOLDER_2
+          (type
+            (declEnum
+              (declEnumValue PLACEHOLDER_3)
+              (declEnumValue PLACEHOLDER_4))))
+        (declType PLACEHOLDER_5
+          (declClass record
+            (declField PLACEHOLDER_6
+              (type
+                (typeref uint64)))
+            (declField PLACEHOLDER_7
+              (type
+                (typeref PLACEHOLDER_2)))
+            (declField PLACEHOLDER_8
+              (type
+                (typeref uint64))))))
+      (declProc function PLACEHOLDER_9
+        (declArgs
+          (declArg PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_12
+            (type
+              (typeref uint64)))
+          (declArg PLACEHOLDER_13
+            (type
+              (typeref PLACEHOLDER_2))))
+        (typeref PLACEHOLDER_5)))
+    (implementation
+      (defProc
+        (declProc function PLACEHOLDER_14
+          (declArgs
+            (declArg PLACEHOLDER_15 PLACEHOLDER_16
+              (type
+                (typeref uint64))))
+          (typeref uint64))
+        (declVars
+          (declVar PLACEHOLDER_17
+            (type
+              (typeref uint64))))
+        (block
+          (assignment PLACEHOLDER_17
+            (exprBinary PLACEHOLDER_15 mod PLACEHOLDER_16))
+          (while
+            (exprBinary PLACEHOLDER_17 <> 0)
+            (block
+              (assignment PLACEHOLDER_15 PLACEHOLDER_16)
+              (assignment PLACEHOLDER_16 PLACEHOLDER_17)
+              (assignment PLACEHOLDER_17
+                (exprBinary PLACEHOLDER_15 mod PLACEHOLDER_16))))
+          (assignment result PLACEHOLDER_16)))
+      (defProc
+        (declProc function PLACEHOLDER_9
+          (declArgs
+            (declArg PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_12
+              (type
+                (typeref uint64)))
+            (declArg PLACEHOLDER_13
+              (type
+                (typeref PLACEHOLDER_2))))
+          (typeref PLACEHOLDER_5))
+        (declVars
+          (declVar PLACEHOLDER_18
+            (type
+              (typeref uint64)))
+          (declVar PLACEHOLDER_19
+            (type
+              (typeref uint64)))
+          (declVar PLACEHOLDER_20
+            (type
+              (typeref uint64))
+            (defaultValue 0))
+          (declVar PLACEHOLDER_21
+            (type
+              (typeref uint64))
+            (defaultValue 0))
+          (declVar PLACEHOLDER_22
+            (type
+              (typeref uint64))))
+        (block
+          (if
+            (exprBinary
+              (exprBinary
+                (exprBinary PLACEHOLDER_12 > PLACEHOLDER_10) and
+                (exprBinary PLACEHOLDER_12 > PLACEHOLDER_11)) or
+              (exprBinary
+                (exprBinary PLACEHOLDER_12 mod
+                  (exprCall PLACEHOLDER_14
+                    (exprArgs PLACEHOLDER_10 PLACEHOLDER_11))) <> 0))
+            (raise
+              (exprCall
+                (exprDot enotimplemented create)
+                (exprArgs "impossible"))))
+          (assignment
+            (exprDot result PLACEHOLDER_6) 0)
+          (ifElse
+            (exprBinary PLACEHOLDER_13 = PLACEHOLDER_3)
+            (block
+              (assignment PLACEHOLDER_18 PLACEHOLDER_10)
+              (assignment PLACEHOLDER_19 PLACEHOLDER_11))
+            (block
+              (assignment PLACEHOLDER_18 PLACEHOLDER_11)
+              (assignment PLACEHOLDER_19 PLACEHOLDER_10)))
+          (while
+            (exprBinary
+              (exprBinary PLACEHOLDER_20 <> PLACEHOLDER_12) and
+              (exprBinary PLACEHOLDER_21 <> PLACEHOLDER_12))
+            (block
+              (assignment
+                (exprDot result PLACEHOLDER_6)
+                (exprBinary
+                  (exprDot result PLACEHOLDER_6) + 1))
+              (ifElse
+                (exprBinary PLACEHOLDER_20 = 0)
+                (assignment PLACEHOLDER_20 PLACEHOLDER_18)
+                (ifElse
+                  (exprBinary PLACEHOLDER_21 = PLACEHOLDER_19)
+                  (assignment PLACEHOLDER_21 0)
+                  (ifElse
+                    (exprBinary PLACEHOLDER_19 = PLACEHOLDER_12)
+                    (assignment PLACEHOLDER_21 PLACEHOLDER_19)
+                    (block
+                      (ifElse
+                        (exprBinary PLACEHOLDER_20 +
+                          (exprBinary PLACEHOLDER_21 < PLACEHOLDER_19))
+                        (assignment PLACEHOLDER_22 PLACEHOLDER_20)
+                        (assignment PLACEHOLDER_22
+                          (exprBinary PLACEHOLDER_19 - PLACEHOLDER_21)))
+                      (assignment PLACEHOLDER_20
+                        (exprBinary PLACEHOLDER_20 - PLACEHOLDER_22))
+                      (assignment PLACEHOLDER_21
+                        (exprBinary PLACEHOLDER_21 + PLACEHOLDER_22))))))))
+          (ifElse
+            (exprBinary PLACEHOLDER_20 = PLACEHOLDER_12)
+            (block
+              (ifElse
+                (exprBinary PLACEHOLDER_13 = PLACEHOLDER_3)
+                (assignment
+                  (exprDot result PLACEHOLDER_7) PLACEHOLDER_3)
+                (assignment
+                  (exprDot result PLACEHOLDER_7) PLACEHOLDER_4))
+              (assignment
+                (exprDot result PLACEHOLDER_8) PLACEHOLDER_21))
+            (block
+              (ifElse
+                (exprBinary PLACEHOLDER_13 = PLACEHOLDER_3)
+                (assignment
+                  (exprDot result PLACEHOLDER_7) PLACEHOLDER_4)
+                (assignment
+                  (exprDot result PLACEHOLDER_7) PLACEHOLDER_3))
+              (assignment
+                (exprDot result PLACEHOLDER_8) PLACEHOLDER_20))))))))

@@ -1,73 +1,200 @@
-unit IntergalacticTransmission ;
-interface
-type
-TIntArray = Array Of Integer ;
-function TransmitSequence ( message : TIntArray ) : TIntArray ;
-function DecodeMessage ( message : TIntArray ) : TIntArray ;
-implementation
-uses SysUtils ;
-function Parity ( value : Integer ) : Integer ;
-var
-remaining : Integer ;
-begin
-remaining := value ;
-result := 0 ;
-while remaining <> 0 do
-begin
-remaining := remaining - ( remaining and (- remaining ));
-result := 1 - result ;
-end ;
-end ;
-function Encode ( value : Integer ) : Integer ;
-begin
-result := ( value and $7f );
-result := ( result shl 1 ) or Parity ( result );
-end ;
-function TransmitSequence ( message : TIntArray ) : TIntArray ;
-var
-i : Integer ;
-data : Integer = 0 ;
-count : Integer = 0 ;
-sequence : TIntArray = ();
-begin
-for i := low ( message ) to high ( message ) do
-begin
-data := (( data and $ff ) shl 8 ) or message [ i ];
-count := count + 1 ;
-insert ( Encode ( data shr count ), sequence , Length ( sequence ));
-if count = 7 then
-begin
-count := 0 ;
-insert ( Encode ( data ), sequence , Length ( sequence ));
-end ;
-end ;
-if count <> 0 then
-begin
-insert ( Encode ( data shl ( 7 - count )), sequence , Length ( sequence ));
-end ;
-result := sequence ;
-end ;
-function DecodeMessage ( message : TIntArray ) : TIntArray ;
-var
-i : Integer ;
-value : Integer = 0 ;
-data : Integer = 0 ;
-count : Integer = 0 ;
-sequence : TIntArray = ();
-begin
-for i := low ( message ) to high ( message ) do
-begin
-value := message [ i ];
-if Parity ( value ) <> 0 then
-raise Exception . Create ( "'wrong parity'" );
-data := (( data and $ff ) shl 7 ) or ( value shr 1 );
-count := count + 7 ;
-if count >= 8 then
-begin
-count := count - 8 ;
-insert (( data shr count ) and $ff , sequence , Length ( sequence ));
-end ;
-end ;
-result := sequence ;
-end ;
-end .
+(root
+  (unit
+    (moduleName PLACEHOLDER_1)
+    (interface
+      (declTypes
+        (declType PLACEHOLDER_2
+          (type
+            (declArray array
+              (type
+                (typeref integer))))))
+      (declProc function PLACEHOLDER_3
+        (declArgs
+          (declArg PLACEHOLDER_4
+            (type
+              (typeref PLACEHOLDER_2))))
+        (typeref PLACEHOLDER_2))
+      (declProc function PLACEHOLDER_5
+        (declArgs
+          (declArg PLACEHOLDER_4
+            (type
+              (typeref PLACEHOLDER_2))))
+        (typeref PLACEHOLDER_2)))
+    (implementation
+      (defProc
+        (declProc function PLACEHOLDER_6
+          (declArgs
+            (declArg PLACEHOLDER_7
+              (type
+                (typeref integer))))
+          (typeref integer))
+        (declVars
+          (declVar PLACEHOLDER_8
+            (type
+              (typeref integer))))
+        (block
+          (assignment PLACEHOLDER_8 PLACEHOLDER_7)
+          (assignment result 0)
+          (while
+            (exprBinary PLACEHOLDER_8 <> 0)
+            (block
+              (assignment PLACEHOLDER_8
+                (exprBinary PLACEHOLDER_8 -
+                  (exprBinary PLACEHOLDER_8 and
+                    (exprUnary - PLACEHOLDER_8))))
+              (assignment result
+                (exprBinary 1 - result))))))
+      (defProc
+        (declProc function PLACEHOLDER_9
+          (declArgs
+            (declArg PLACEHOLDER_7
+              (type
+                (typeref integer))))
+          (typeref integer))
+        (block
+          (assignment result
+            (exprBinary PLACEHOLDER_7 and 127))
+          (assignment result
+            (exprBinary
+              (exprBinary result shl 1) or
+              (exprCall PLACEHOLDER_6
+                (exprArgs result))))))
+      (defProc
+        (declProc function PLACEHOLDER_3
+          (declArgs
+            (declArg PLACEHOLDER_4
+              (type
+                (typeref PLACEHOLDER_2))))
+          (typeref PLACEHOLDER_2))
+        (declVars
+          (declVar PLACEHOLDER_10
+            (type
+              (typeref integer)))
+          (declVar PLACEHOLDER_11
+            (type
+              (typeref integer))
+            (defaultValue 0))
+          (declVar PLACEHOLDER_12
+            (type
+              (typeref integer))
+            (defaultValue 0))
+          (declVar PLACEHOLDER_13
+            (type
+              (typeref PLACEHOLDER_2))
+            (defaultValue
+              (arrInitializer))))
+        (block
+          (for
+            (assignment PLACEHOLDER_10
+              (exprCall low
+                (exprArgs PLACEHOLDER_4))) to
+            (exprCall high
+              (exprArgs PLACEHOLDER_4))
+            (block
+              (assignment PLACEHOLDER_11
+                (exprBinary
+                  (exprBinary
+                    (exprBinary PLACEHOLDER_11 and 255) shl 8) or
+                  (exprSubscript PLACEHOLDER_4
+                    (exprArgs PLACEHOLDER_10))))
+              (assignment PLACEHOLDER_12
+                (exprBinary PLACEHOLDER_12 + 1))
+              (statement
+                (exprCall insert
+                  (exprArgs
+                    (exprCall PLACEHOLDER_9
+                      (exprArgs
+                        (exprBinary PLACEHOLDER_11 shr PLACEHOLDER_12))) PLACEHOLDER_13
+                    (exprCall length
+                      (exprArgs PLACEHOLDER_13)))))
+              (if
+                (exprBinary PLACEHOLDER_12 = 7)
+                (block
+                  (assignment PLACEHOLDER_12 0)
+                  (statement
+                    (exprCall insert
+                      (exprArgs
+                        (exprCall PLACEHOLDER_9
+                          (exprArgs PLACEHOLDER_11)) PLACEHOLDER_13
+                        (exprCall length
+                          (exprArgs PLACEHOLDER_13)))))))))
+          (if
+            (exprBinary PLACEHOLDER_12 <> 0)
+            (block
+              (statement
+                (exprCall insert
+                  (exprArgs
+                    (exprCall PLACEHOLDER_9
+                      (exprArgs
+                        (exprBinary PLACEHOLDER_11 shl
+                          (exprBinary 7 - PLACEHOLDER_12)))) PLACEHOLDER_13
+                    (exprCall length
+                      (exprArgs PLACEHOLDER_13)))))))
+          (assignment result PLACEHOLDER_13)))
+      (defProc
+        (declProc function PLACEHOLDER_5
+          (declArgs
+            (declArg PLACEHOLDER_4
+              (type
+                (typeref PLACEHOLDER_2))))
+          (typeref PLACEHOLDER_2))
+        (declVars
+          (declVar PLACEHOLDER_10
+            (type
+              (typeref integer)))
+          (declVar PLACEHOLDER_7
+            (type
+              (typeref integer))
+            (defaultValue 0))
+          (declVar PLACEHOLDER_11
+            (type
+              (typeref integer))
+            (defaultValue 0))
+          (declVar PLACEHOLDER_12
+            (type
+              (typeref integer))
+            (defaultValue 0))
+          (declVar PLACEHOLDER_13
+            (type
+              (typeref PLACEHOLDER_2))
+            (defaultValue
+              (arrInitializer))))
+        (block
+          (for
+            (assignment PLACEHOLDER_10
+              (exprCall low
+                (exprArgs PLACEHOLDER_4))) to
+            (exprCall high
+              (exprArgs PLACEHOLDER_4))
+            (block
+              (assignment PLACEHOLDER_7
+                (exprSubscript PLACEHOLDER_4
+                  (exprArgs PLACEHOLDER_10)))
+              (if
+                (exprBinary
+                  (exprCall PLACEHOLDER_6
+                    (exprArgs PLACEHOLDER_7)) <> 0)
+                (raise
+                  (exprCall
+                    (exprDot exception create)
+                    (exprArgs "wrong parity"))))
+              (assignment PLACEHOLDER_11
+                (exprBinary
+                  (exprBinary
+                    (exprBinary PLACEHOLDER_11 and 255) shl 7) or
+                  (exprBinary PLACEHOLDER_7 shr 1)))
+              (assignment PLACEHOLDER_12
+                (exprBinary PLACEHOLDER_12 + 7))
+              (if
+                (exprBinary PLACEHOLDER_12 >= 8)
+                (block
+                  (assignment PLACEHOLDER_12
+                    (exprBinary PLACEHOLDER_12 - 8))
+                  (statement
+                    (exprCall insert
+                      (exprArgs
+                        (exprBinary
+                          (exprBinary PLACEHOLDER_11 shr PLACEHOLDER_12) and 255) PLACEHOLDER_13
+                        (exprCall length
+                          (exprArgs PLACEHOLDER_13)))))))))
+          (assignment result PLACEHOLDER_13))))))

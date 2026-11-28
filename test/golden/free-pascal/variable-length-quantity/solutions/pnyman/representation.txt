@@ -1,47 +1,127 @@
-unit VariableLengthQuantity ;
-interface
-type
-TBytes = array of byte ;
-TLongWords = array of longword ;
-function encode ( const integers : TLongWords ): TBytes ;
-function decode ( const bytes : TBytes ): TLongWords ;
-implementation
-uses SysUtils ;
-function BitPosition ( n : QWord ): integer ;
-begin
-Result := 0 ;
-if n <> 0 then
-Result := BsrDWord ( n ) + 1 ;
-end ;
-function encode ( const integers : TLongWords ): TBytes ;
-var
-n , i : longword ;
-b : byte ;
-begin
-Result := nil ;
-for n in integers do
-for i := ( BitPosition ( n shr 1 ) div 7 ) downto 0 do
-begin
-b := (( n shr ( 7 * i )) and % 1111111 ) or ( Ord ( i <> 0 ) shl 7 );
-insert ( b , Result , length ( Result ));
-end ;
-end ;
-function decode ( const bytes : TBytes ): TLongWords ;
-var
-b : byte ;
-c : longword = 0 ;
-begin
-if ( bytes [ high ( bytes )] and ( 1 shl 7 )) <> 0 then
-raise Exception . Create ( "'incomplete sequence'" );
-Result := nil ;
-for b in bytes do
-begin
-c := ( c shl 7 ) or ( b and % 1111111 );
-if ( b and ( 1 shl 7 )) = 0 then
-begin
-insert ( c , Result , length ( Result ));
-c := 0 ;
-end ;
-end ;
-end ;
-end .
+(root
+  (unit
+    (moduleName PLACEHOLDER_1)
+    (interface
+      (declTypes
+        (declType PLACEHOLDER_2
+          (type
+            (declArray array
+              (type
+                (typeref byte)))))
+        (declType PLACEHOLDER_3
+          (type
+            (declArray array
+              (type
+                (typeref longword))))))
+      (declProc function PLACEHOLDER_4
+        (declArgs
+          (declArg const PLACEHOLDER_5
+            (type
+              (typeref PLACEHOLDER_3))))
+        (typeref PLACEHOLDER_2))
+      (declProc function PLACEHOLDER_6
+        (declArgs
+          (declArg const PLACEHOLDER_7
+            (type
+              (typeref PLACEHOLDER_2))))
+        (typeref PLACEHOLDER_3)))
+    (implementation
+      (defProc
+        (declProc function PLACEHOLDER_8
+          (declArgs
+            (declArg PLACEHOLDER_9
+              (type
+                (typeref qword))))
+          (typeref integer))
+        (block
+          (assignment result 0)
+          (if
+            (exprBinary PLACEHOLDER_9 <> 0)
+            (assignment result
+              (exprBinary
+                (exprCall bsrdword
+                  (exprArgs PLACEHOLDER_9)) + 1)))))
+      (defProc
+        (declProc function PLACEHOLDER_4
+          (declArgs
+            (declArg const PLACEHOLDER_5
+              (type
+                (typeref PLACEHOLDER_3))))
+          (typeref PLACEHOLDER_2))
+        (declVars
+          (declVar PLACEHOLDER_9 PLACEHOLDER_10
+            (type
+              (typeref longword)))
+          (declVar PLACEHOLDER_11
+            (type
+              (typeref byte))))
+        (block
+          (assignment result nil)
+          (foreach PLACEHOLDER_9 PLACEHOLDER_5
+            (for
+              (assignment PLACEHOLDER_10
+                (exprBinary
+                  (exprCall PLACEHOLDER_8
+                    (exprArgs
+                      (exprBinary PLACEHOLDER_9 shr 1))) div 7)) downto 0
+              (block
+                (assignment PLACEHOLDER_11
+                  (exprBinary
+                    (exprBinary
+                      (exprBinary PLACEHOLDER_9 shr
+                        (exprBinary 7 * PLACEHOLDER_10)) and 127) or
+                    (exprBinary
+                      (exprCall ord
+                        (exprArgs
+                          (exprBinary PLACEHOLDER_10 <> 0))) shl 7)))
+                (statement
+                  (exprCall insert
+                    (exprArgs PLACEHOLDER_11 result
+                      (exprCall length
+                        (exprArgs result))))))))))
+      (defProc
+        (declProc function PLACEHOLDER_6
+          (declArgs
+            (declArg const PLACEHOLDER_7
+              (type
+                (typeref PLACEHOLDER_2))))
+          (typeref PLACEHOLDER_3))
+        (declVars
+          (declVar PLACEHOLDER_11
+            (type
+              (typeref byte)))
+          (declVar PLACEHOLDER_12
+            (type
+              (typeref longword))
+            (defaultValue 0)))
+        (block
+          (if
+            (exprBinary
+              (exprBinary
+                (exprSubscript PLACEHOLDER_7
+                  (exprArgs
+                    (exprCall high
+                      (exprArgs PLACEHOLDER_7)))) and
+                (exprBinary 1 shl 7)) <> 0)
+            (raise
+              (exprCall
+                (exprDot exception create)
+                (exprArgs "incomplete sequence"))))
+          (assignment result nil)
+          (foreach PLACEHOLDER_11 PLACEHOLDER_7
+            (block
+              (assignment PLACEHOLDER_12
+                (exprBinary
+                  (exprBinary PLACEHOLDER_12 shl 7) or
+                  (exprBinary PLACEHOLDER_11 and 127)))
+              (if
+                (exprBinary
+                  (exprBinary PLACEHOLDER_11 and
+                    (exprBinary 1 shl 7)) = 0)
+                (block
+                  (statement
+                    (exprCall insert
+                      (exprArgs PLACEHOLDER_12 result
+                        (exprCall length
+                          (exprArgs result)))))
+                  (assignment PLACEHOLDER_12 0))))))))))

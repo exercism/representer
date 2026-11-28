@@ -1,142 +1,282 @@
-unit LinkedList ;
-interface
-type
-TNode = class
-private
-data : integer ;
-previous : TNode ;
-next : TNode ;
-public
-constructor Create ( const aData : integer );
-destructor Destroy ; override ;
-end ;
-TLinkedList = class
-private
-root : TNode ;
-public
-constructor Create ;
-destructor Destroy ; override ;
-procedure Push ( const aValue : integer );
-function Pop : integer ;
-procedure Unshift ( const aValue : integer );
-function Shift : integer ;
-procedure Delete ( const aValue : integer );
-function Count : integer ;
-end ;
-implementation
-uses SysUtils ;
-constructor TNode . Create ( const aData : integer );
-begin
-data := aData ;
-end ;
-destructor TNode . Destroy ;
-begin
-if ( previous <> nil ) and ( next <> nil ) then
-begin
-previous . next := next ;
-next . previous := previous ;
-end
-else if previous <> nil then
-previous . next := nil
-else if next <> nil then
-next . previous := nil ;
-inherited ;
-end ;
-constructor TLinkedList . Create ;
-begin
-inherited ;
-root := nil ;
-end ;
-destructor TLinkedList . Destroy ;
-begin
-FreeAndNil ( root );
-inherited ;
-end ;
-procedure TLinkedList . Push ( const aValue : integer );
-procedure PushNode ( var node : TNode );
-var
-new : TNode ;
-begin
-if node = nil then
-node := TNode . Create ( aValue )
-else if node . next = nil then
-begin
-new := TNode . Create ( aValue );
-new . previous := node ;
-node . next := new ;
-end
-else
-PushNode ( node . next );
-end ;
-begin
-PushNode ( root );
-end ;
-function TLinkedList . Pop : integer ;
-function PopNode ( var node : TNode ): integer ;
-begin
-if node . next = nil then
-begin
-Result := node . data ;
-node := nil ;
-end
-else
-Result := PopNode ( node . next );
-end ;
-begin
-if root = nil then
-raise Exception . Create ( "'empty list'" );
-Result := PopNode ( root );
-end ;
-procedure TLinkedList . Unshift ( const aValue : integer );
-var
-NewRoot , OldRoot : TNode ;
-begin
-NewRoot := TNode . Create ( aValue );
-if root = nil then
-begin
-root := NewRoot ;
-end
-else
-begin
-OldRoot := root ;
-NewRoot . next := OldRoot ;
-OldRoot . previous := NewRoot ;
-root := NewRoot ;
-end ;
-end ;
-function TLinkedList . Shift : integer ;
-begin
-if root = nil then
-raise Exception . Create ( "'empty list'" );
-Result := root . data ;
-if root . next = nil then
-root := nil
-else
-root := root . next ;
-end ;
-procedure TLinkedList . Delete ( const aValue : integer );
-var
-this : TNode ;
-begin
-this := root ;
-while ( this <> nil ) and ( this . data <> aValue ) do
-this := this . next ;
-if this = nil then exit ;
-if this = root then root := this . next ;
-this . Free ;
-end ;
-function TLinkedList . Count : integer ;
-var
-this : TNode ;
-begin
-if root = nil then
-exit ( 0 );
-Result := 1 ;
-this := root ;
-while this . next <> nil do
-begin
-this := this . next ;
-Inc ( Result );
-end ;
-end ;
-end .
+(root
+  (unit
+    (moduleName PLACEHOLDER_1)
+    (interface
+      (declTypes
+        (declType PLACEHOLDER_2
+          (declClass class
+            (declSection private
+              (declField PLACEHOLDER_3
+                (type
+                  (typeref integer)))
+              (declField PLACEHOLDER_4
+                (type
+                  (typeref PLACEHOLDER_2)))
+              (declField PLACEHOLDER_5
+                (type
+                  (typeref PLACEHOLDER_2))))
+            (declSection public
+              (declProc constructor PLACEHOLDER_6
+                (declArgs
+                  (declArg const PLACEHOLDER_7
+                    (type
+                      (typeref integer)))))
+              (declProc destructor PLACEHOLDER_8
+                (procAttribute override)))))
+        (declType PLACEHOLDER_9
+          (declClass class
+            (declSection private
+              (declField PLACEHOLDER_10
+                (type
+                  (typeref PLACEHOLDER_2))))
+            (declSection public
+              (declProc constructor PLACEHOLDER_6)
+              (declProc destructor PLACEHOLDER_8
+                (procAttribute override))
+              (declProc procedure PLACEHOLDER_11
+                (declArgs
+                  (declArg const PLACEHOLDER_12
+                    (type
+                      (typeref integer)))))
+              (declProc function PLACEHOLDER_13
+                (typeref integer))
+              (declProc procedure PLACEHOLDER_14
+                (declArgs
+                  (declArg const PLACEHOLDER_12
+                    (type
+                      (typeref integer)))))
+              (declProc function PLACEHOLDER_15
+                (typeref integer))
+              (declProc procedure PLACEHOLDER_16
+                (declArgs
+                  (declArg const PLACEHOLDER_12
+                    (type
+                      (typeref integer)))))
+              (declProc function PLACEHOLDER_17
+                (typeref integer)))))))
+    (implementation
+      (defProc
+        (declProc constructor
+          (genericDot PLACEHOLDER_2 PLACEHOLDER_6)
+          (declArgs
+            (declArg const PLACEHOLDER_7
+              (type
+                (typeref integer)))))
+        (block
+          (assignment PLACEHOLDER_3 PLACEHOLDER_7)))
+      (defProc
+        (declProc destructor
+          (genericDot PLACEHOLDER_2 PLACEHOLDER_8))
+        (block
+          (ifElse
+            (exprBinary
+              (exprBinary PLACEHOLDER_4 <> nil) and
+              (exprBinary PLACEHOLDER_5 <> nil))
+            (block
+              (assignment
+                (exprDot PLACEHOLDER_4 PLACEHOLDER_5) PLACEHOLDER_5)
+              (assignment
+                (exprDot PLACEHOLDER_5 PLACEHOLDER_4) PLACEHOLDER_4))
+            (ifElse
+              (exprBinary PLACEHOLDER_4 <> nil)
+              (assignment
+                (exprDot PLACEHOLDER_4 PLACEHOLDER_5) nil)
+              (if
+                (exprBinary PLACEHOLDER_5 <> nil)
+                (assignment
+                  (exprDot PLACEHOLDER_5 PLACEHOLDER_4) nil))))
+          (statement
+            (inherited))))
+      (defProc
+        (declProc constructor
+          (genericDot PLACEHOLDER_9 PLACEHOLDER_6))
+        (block
+          (statement
+            (inherited))
+          (assignment PLACEHOLDER_10 nil)))
+      (defProc
+        (declProc destructor
+          (genericDot PLACEHOLDER_9 PLACEHOLDER_8))
+        (block
+          (statement
+            (exprCall freeandnil
+              (exprArgs PLACEHOLDER_10)))
+          (statement
+            (inherited))))
+      (defProc
+        (declProc procedure
+          (genericDot PLACEHOLDER_9 PLACEHOLDER_11)
+          (declArgs
+            (declArg const PLACEHOLDER_12
+              (type
+                (typeref integer)))))
+        (defProc
+          (declProc procedure PLACEHOLDER_18
+            (declArgs
+              (declArg var PLACEHOLDER_19
+                (type
+                  (typeref PLACEHOLDER_2)))))
+          (declVars
+            (declVar PLACEHOLDER_20
+              (type
+                (typeref PLACEHOLDER_2))))
+          (block
+            (ifElse
+              (exprBinary PLACEHOLDER_19 = nil)
+              (assignment PLACEHOLDER_19
+                (exprCall
+                  (exprDot PLACEHOLDER_2 PLACEHOLDER_6)
+                  (exprArgs PLACEHOLDER_12)))
+              (ifElse
+                (exprBinary
+                  (exprDot PLACEHOLDER_19 PLACEHOLDER_5) = nil)
+                (block
+                  (assignment PLACEHOLDER_20
+                    (exprCall
+                      (exprDot PLACEHOLDER_2 PLACEHOLDER_6)
+                      (exprArgs PLACEHOLDER_12)))
+                  (assignment
+                    (exprDot PLACEHOLDER_20 PLACEHOLDER_4) PLACEHOLDER_19)
+                  (assignment
+                    (exprDot PLACEHOLDER_19 PLACEHOLDER_5) PLACEHOLDER_20))
+                (statement
+                  (exprCall PLACEHOLDER_18
+                    (exprArgs
+                      (exprDot PLACEHOLDER_19 PLACEHOLDER_5))))))))
+        (block
+          (statement
+            (exprCall PLACEHOLDER_18
+              (exprArgs PLACEHOLDER_10)))))
+      (defProc
+        (declProc function
+          (genericDot PLACEHOLDER_9 PLACEHOLDER_13)
+          (typeref integer))
+        (defProc
+          (declProc function PLACEHOLDER_21
+            (declArgs
+              (declArg var PLACEHOLDER_19
+                (type
+                  (typeref PLACEHOLDER_2))))
+            (typeref integer))
+          (block
+            (ifElse
+              (exprBinary
+                (exprDot PLACEHOLDER_19 PLACEHOLDER_5) = nil)
+              (block
+                (assignment result
+                  (exprDot PLACEHOLDER_19 PLACEHOLDER_3))
+                (assignment PLACEHOLDER_19 nil))
+              (assignment result
+                (exprCall PLACEHOLDER_21
+                  (exprArgs
+                    (exprDot PLACEHOLDER_19 PLACEHOLDER_5)))))))
+        (block
+          (if
+            (exprBinary PLACEHOLDER_10 = nil)
+            (raise
+              (exprCall
+                (exprDot exception PLACEHOLDER_6)
+                (exprArgs "empty list"))))
+          (assignment result
+            (exprCall PLACEHOLDER_21
+              (exprArgs PLACEHOLDER_10)))))
+      (defProc
+        (declProc procedure
+          (genericDot PLACEHOLDER_9 PLACEHOLDER_14)
+          (declArgs
+            (declArg const PLACEHOLDER_12
+              (type
+                (typeref integer)))))
+        (declVars
+          (declVar PLACEHOLDER_22 PLACEHOLDER_23
+            (type
+              (typeref PLACEHOLDER_2))))
+        (block
+          (assignment PLACEHOLDER_22
+            (exprCall
+              (exprDot PLACEHOLDER_2 PLACEHOLDER_6)
+              (exprArgs PLACEHOLDER_12)))
+          (ifElse
+            (exprBinary PLACEHOLDER_10 = nil)
+            (block
+              (assignment PLACEHOLDER_10 PLACEHOLDER_22))
+            (block
+              (assignment PLACEHOLDER_23 PLACEHOLDER_10)
+              (assignment
+                (exprDot PLACEHOLDER_22 PLACEHOLDER_5) PLACEHOLDER_23)
+              (assignment
+                (exprDot PLACEHOLDER_23 PLACEHOLDER_4) PLACEHOLDER_22)
+              (assignment PLACEHOLDER_10 PLACEHOLDER_22)))))
+      (defProc
+        (declProc function
+          (genericDot PLACEHOLDER_9 PLACEHOLDER_15)
+          (typeref integer))
+        (block
+          (if
+            (exprBinary PLACEHOLDER_10 = nil)
+            (raise
+              (exprCall
+                (exprDot exception PLACEHOLDER_6)
+                (exprArgs "empty list"))))
+          (assignment result
+            (exprDot PLACEHOLDER_10 PLACEHOLDER_3))
+          (ifElse
+            (exprBinary
+              (exprDot PLACEHOLDER_10 PLACEHOLDER_5) = nil)
+            (assignment PLACEHOLDER_10 nil)
+            (assignment PLACEHOLDER_10
+              (exprDot PLACEHOLDER_10 PLACEHOLDER_5)))))
+      (defProc
+        (declProc procedure
+          (genericDot PLACEHOLDER_9 PLACEHOLDER_16)
+          (declArgs
+            (declArg const PLACEHOLDER_12
+              (type
+                (typeref integer)))))
+        (declVars
+          (declVar PLACEHOLDER_24
+            (type
+              (typeref PLACEHOLDER_2))))
+        (block
+          (assignment PLACEHOLDER_24 PLACEHOLDER_10)
+          (while
+            (exprBinary
+              (exprBinary PLACEHOLDER_24 <> nil) and
+              (exprBinary
+                (exprDot PLACEHOLDER_24 PLACEHOLDER_3) <> PLACEHOLDER_12))
+            (assignment PLACEHOLDER_24
+              (exprDot PLACEHOLDER_24 PLACEHOLDER_5)))
+          (if
+            (exprBinary PLACEHOLDER_24 = nil)
+            (statement exit))
+          (if
+            (exprBinary PLACEHOLDER_24 = PLACEHOLDER_10)
+            (assignment PLACEHOLDER_10
+              (exprDot PLACEHOLDER_24 PLACEHOLDER_5)))
+          (statement
+            (exprDot PLACEHOLDER_24 free))))
+      (defProc
+        (declProc function
+          (genericDot PLACEHOLDER_9 PLACEHOLDER_17)
+          (typeref integer))
+        (declVars
+          (declVar PLACEHOLDER_24
+            (type
+              (typeref PLACEHOLDER_2))))
+        (block
+          (if
+            (exprBinary PLACEHOLDER_10 = nil)
+            (statement
+              (exprCall exit
+                (exprArgs 0))))
+          (assignment result 1)
+          (assignment PLACEHOLDER_24 PLACEHOLDER_10)
+          (while
+            (exprBinary
+              (exprDot PLACEHOLDER_24 PLACEHOLDER_5) <> nil)
+            (block
+              (assignment PLACEHOLDER_24
+                (exprDot PLACEHOLDER_24 PLACEHOLDER_5))
+              (statement
+                (exprCall inc
+                  (exprArgs result))))))))))
