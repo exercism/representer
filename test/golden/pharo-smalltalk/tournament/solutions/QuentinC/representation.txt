@@ -1,107 +1,216 @@
-Class {
-#name : #Team ,
-#superclass : #Object ,
-#instVars : [
-'name' ,
-'wins' ,
-'losses' ,
-'draws'
-] ,
-#category : # 'Exercise@Tournament'
-}
-{ #category : # "'instance creation'" }
-Team class >> new: aNameAsString [
-^ self new name: aNameAsString ; yourself
-]
-{ #category : #accessing }
-Team >> asString [
-^ String streamContents: [ : aStream |
-aStream << name .
-( 31 - ( name size )) timesRepeat: [ aStream << ( Character space ) ].
-aStream << "'|  '" << ( self matchPlayed asString ) << "' |  '" << ( wins asString ) << "' |  '" << ( draws asString ) << "' |  '" << ( losses asString ) << "' |  '" << ( self points asString )
-]
-]
-{ #category : #accessing }
-Team >> draw [
-draws := draws + 1
-]
-{ #category : #accessing }
-Team >> initialize [
-super initialize .
-wins := 0 .
-losses := 0 .
-draws := 0
-]
-{ #category : #accessing }
-Team >> lost [
-losses := losses + 1
-]
-{ #category : #accessing }
-Team >> matchPlayed [
-^ wins + losses + draws
-]
-{ #category : #accessing }
-Team >> name [
-^ name
-]
-{ #category : #accessing }
-Team >> name: aString [
-name := aString
-]
-{ #category : #accessing }
-Team >> points [
-^ wins * 3 + draws
-]
-{ #category : #accessing }
-Team >> won [
-wins := wins + 1
-]
-Class {
-#name : #Tournament ,
-#superclass : #Object ,
-#instVars : [
-'teams'
-] ,
-#category : # 'Exercise@Tournament'
-}
-{ #category : #parsing }
-Tournament >> parseLine: aString [
-| parts teamAName teamBName matchResult teamA teamB |
-parts := aString splitOn: $; .
-teamAName := parts at: 1 .
-teamBName := parts at: 2 .
-matchResult := parts at: 3 .
-( teams includesKey: teamAName )
-ifTrue: [ teamA := teams at: teamAName ]
-ifFalse: [
-teamA := Team new: teamAName .
-teams at: teamAName put: teamA ].
-( teams includesKey: teamBName )
-ifTrue: [ teamB := teams at: teamBName ]
-ifFalse: [
-teamB := Team new: teamBName .
-teams at: teamBName put: teamB ].
-matchResult = 'win' ifTrue: [
-teamA won .
-teamB lost ].
-matchResult = 'loss' ifTrue: [
-teamA lost .
-teamB won ].
-matchResult = 'draw' ifFalse: [ ^ self ].
-teamA draw .
-teamB draw
-]
-{ #category : #computing }
-Tournament >> tallyRows: aCollection [
-| tally |
-teams := Dictionary new .
-aCollection do: [ : line | self parseLine: line ].
-tally := OrderedCollection new .
-tally add: "'Team                           | MP |  W |  D |  L |  P'" .
-( teams asArray sorted: [ : team1 : team2 |
-team1 points = team2 points
-ifTrue: [ team1 name < team2 name ]
-ifFalse: [ team1 points > team2 points ] ]) do: [ : team |
-tally add: team asString ].
-^ tally asArray
-]
+(source_file
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_1))
+      (ston_pair superclass Object)
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5))
+      (ston_pair category #Exercise@Tournament)))
+  (method_definition
+    (ston_map
+      (ston_pair category "#instance creation")) PLACEHOLDER_1 class
+    (keyword_pattern (keyword_selector PLACEHOLDER_6)
+      (parameter PLACEHOLDER_7))
+    (method_body
+      (return
+        (cascade
+          (keyword_message
+            (unary_message self new) (keyword_selector PLACEHOLDER_8) PLACEHOLDER_7)
+          (cascaded_message yourself)))))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_9))
+    (method_body
+      (return
+        (keyword_message String streamContents:
+          (block
+            (block_parameter PLACEHOLDER_10)
+            (binary_message PLACEHOLDER_10 << PLACEHOLDER_2)
+            (keyword_message
+              (binary_message 31 -
+                (unary_message PLACEHOLDER_2 size)) timesRepeat:
+              (block
+                (binary_message PLACEHOLDER_10 <<
+                  (unary_message Character space))))
+            (binary_message
+              (binary_message
+                (binary_message
+                  (binary_message
+                    (binary_message
+                      (binary_message
+                        (binary_message
+                          (binary_message
+                            (binary_message
+                              (binary_message PLACEHOLDER_10 << "|  ") <<
+                              (unary_message
+                                (unary_message self (unary_selector PLACEHOLDER_11)) (unary_selector PLACEHOLDER_9))) << " |  ") <<
+                          (unary_message PLACEHOLDER_3 (unary_selector PLACEHOLDER_9))) << " |  ") <<
+                      (unary_message PLACEHOLDER_5 (unary_selector PLACEHOLDER_9))) << " |  ") <<
+                  (unary_message PLACEHOLDER_4 (unary_selector PLACEHOLDER_9))) << " |  ") <<
+              (unary_message
+                (unary_message self (unary_selector PLACEHOLDER_12)) (unary_selector PLACEHOLDER_9))))))))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_13))
+    (method_body
+      (assignment PLACEHOLDER_5
+        (binary_message PLACEHOLDER_5 + 1))))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_14))
+    (method_body
+      (unary_message super (unary_selector PLACEHOLDER_14))
+      (assignment PLACEHOLDER_3 0)
+      (assignment PLACEHOLDER_4 0)
+      (assignment PLACEHOLDER_5 0)))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_15))
+    (method_body
+      (assignment PLACEHOLDER_4
+        (binary_message PLACEHOLDER_4 + 1))))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_11))
+    (method_body
+      (return
+        (binary_message
+          (binary_message PLACEHOLDER_3 + PLACEHOLDER_4) + PLACEHOLDER_5))))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_2))
+    (method_body
+      (return PLACEHOLDER_2)))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_8)
+      (parameter PLACEHOLDER_16))
+    (method_body
+      (assignment PLACEHOLDER_2 PLACEHOLDER_16)))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_12))
+    (method_body
+      (return
+        (binary_message
+          (binary_message PLACEHOLDER_3 * 3) + PLACEHOLDER_5))))
+  (method_definition
+    (ston_map
+      (ston_pair category #accessing)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_17))
+    (method_body
+      (assignment PLACEHOLDER_3
+        (binary_message PLACEHOLDER_3 + 1))))
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_18))
+      (ston_pair superclass Object)
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_19))
+      (ston_pair category #Exercise@Tournament)))
+  (method_definition
+    (ston_map
+      (ston_pair category #parsing)) PLACEHOLDER_18
+    (keyword_pattern (keyword_selector PLACEHOLDER_20)
+      (parameter PLACEHOLDER_16))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_21)
+        (temporary PLACEHOLDER_22)
+        (temporary PLACEHOLDER_23)
+        (temporary PLACEHOLDER_24)
+        (temporary PLACEHOLDER_25)
+        (temporary PLACEHOLDER_26))
+      (assignment PLACEHOLDER_21
+        (keyword_message PLACEHOLDER_16 splitOn: $;))
+      (assignment PLACEHOLDER_22
+        (keyword_message PLACEHOLDER_21 at: 1))
+      (assignment PLACEHOLDER_23
+        (keyword_message PLACEHOLDER_21 at: 2))
+      (assignment PLACEHOLDER_24
+        (keyword_message PLACEHOLDER_21 at: 3))
+      (keyword_message
+        (keyword_message PLACEHOLDER_19 includesKey: PLACEHOLDER_22) ifTrue:ifFalse:
+        (block
+          (assignment PLACEHOLDER_25
+            (keyword_message PLACEHOLDER_19 at: PLACEHOLDER_22)))
+        (block
+          (assignment PLACEHOLDER_25
+            (keyword_message PLACEHOLDER_1 (keyword_selector PLACEHOLDER_6) PLACEHOLDER_22))
+          (keyword_message PLACEHOLDER_19 at:put: PLACEHOLDER_22 PLACEHOLDER_25)))
+      (keyword_message
+        (keyword_message PLACEHOLDER_19 includesKey: PLACEHOLDER_23) ifTrue:ifFalse:
+        (block
+          (assignment PLACEHOLDER_26
+            (keyword_message PLACEHOLDER_19 at: PLACEHOLDER_23)))
+        (block
+          (assignment PLACEHOLDER_26
+            (keyword_message PLACEHOLDER_1 (keyword_selector PLACEHOLDER_6) PLACEHOLDER_23))
+          (keyword_message PLACEHOLDER_19 at:put: PLACEHOLDER_23 PLACEHOLDER_26)))
+      (keyword_message
+        (binary_message PLACEHOLDER_24 = "win") ifTrue:
+        (block
+          (unary_message PLACEHOLDER_25 (unary_selector PLACEHOLDER_17))
+          (unary_message PLACEHOLDER_26 (unary_selector PLACEHOLDER_15))))
+      (keyword_message
+        (binary_message PLACEHOLDER_24 = "loss") ifTrue:
+        (block
+          (unary_message PLACEHOLDER_25 (unary_selector PLACEHOLDER_15))
+          (unary_message PLACEHOLDER_26 (unary_selector PLACEHOLDER_17))))
+      (keyword_message
+        (binary_message PLACEHOLDER_24 = "draw") ifFalse:
+        (block
+          (return self)))
+      (unary_message PLACEHOLDER_25 (unary_selector PLACEHOLDER_13))
+      (unary_message PLACEHOLDER_26 (unary_selector PLACEHOLDER_13))))
+  (method_definition
+    (ston_map
+      (ston_pair category #computing)) PLACEHOLDER_18
+    (keyword_pattern (keyword_selector PLACEHOLDER_27)
+      (parameter PLACEHOLDER_28))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_29))
+      (assignment PLACEHOLDER_19
+        (unary_message Dictionary new))
+      (keyword_message PLACEHOLDER_28 do:
+        (block
+          (block_parameter PLACEHOLDER_30)
+          (keyword_message self (keyword_selector PLACEHOLDER_20) PLACEHOLDER_30)))
+      (assignment PLACEHOLDER_29
+        (unary_message OrderedCollection new))
+      (keyword_message PLACEHOLDER_29 add: "Team                           | MP |  W |  D |  L |  P")
+      (keyword_message
+        (keyword_message
+          (unary_message PLACEHOLDER_19 asArray) sorted:
+          (block
+            (block_parameter PLACEHOLDER_31)
+            (block_parameter PLACEHOLDER_32)
+            (keyword_message
+              (binary_message
+                (unary_message PLACEHOLDER_31 (unary_selector PLACEHOLDER_12)) =
+                (unary_message PLACEHOLDER_32 (unary_selector PLACEHOLDER_12))) ifTrue:ifFalse:
+              (block
+                (binary_message
+                  (unary_message PLACEHOLDER_31 (unary_selector PLACEHOLDER_2)) <
+                  (unary_message PLACEHOLDER_32 (unary_selector PLACEHOLDER_2))))
+              (block
+                (binary_message
+                  (unary_message PLACEHOLDER_31 (unary_selector PLACEHOLDER_12)) >
+                  (unary_message PLACEHOLDER_32 (unary_selector PLACEHOLDER_12))))))) do:
+        (block
+          (block_parameter PLACEHOLDER_33)
+          (keyword_message PLACEHOLDER_29 add:
+            (unary_message PLACEHOLDER_33 (unary_selector PLACEHOLDER_9)))))
+      (return
+        (unary_message PLACEHOLDER_29 asArray)))))

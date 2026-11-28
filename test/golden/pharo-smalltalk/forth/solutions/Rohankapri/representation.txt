@@ -1,63 +1,273 @@
-Class { #name: #Forth , #category: 'Exercise@Forth' ,
-#superclass: #Object , #package: 'Exercise@Forth' ,
-#classVars: [ 'builtins' ] ,
-#instVars: [ 'name' , 'body' , 'stack' , 'state' , 'words' ]}
-Forth class>> initialize [
-builtins := #(#+ #- #* #/ #drop #dup #over #swap) asIdentitySet ]
-Forth>> initialize [
-stack := Stack new .
-state := 0 .
-words := IdentityDictionary new ]
-Forth>>tokenise: a [| tok |
-^ ( a joinUsing: "' '" ) asLowercase substrings collect: [ : item |
-tok := item parseLiterals .
-tok size = 1 ifTrue: [ tok first ] ifFalse: [ item asSymbol ]]]
-Forth>>checkDepth: count [| depth |
-depth := stack size .
-depth < 1 ifTrue: [ self error: "'empty stack'" ].
-( depth < 2 and: [ count > 1 ]) ifTrue: [ self error: "'only one value on the stack'" ]]
-Forth>>evaluate: instr [
-instr isNumber ifTrue: [ ^ stack push: instr ].
-instr = #drop ifTrue: [ self checkDepth: 1 . ^ stack pop ].
-instr = #dup ifTrue: [ self checkDepth: 1 . ^ stack push: stack top ].
-instr = #over ifTrue: [ self checkDepth: 2 . ^ stack push: ( stack at: 2 )].
-instr = #swap ifTrue: [ self checkDepth: 2 . ^ stack swap: 1 with: 2 ].
-instr = #+ ifTrue: [ self checkDepth: 2 . ^ stack push: ( stack pop + stack pop )].
-instr = #* ifTrue: [ self checkDepth: 2 . ^ stack push: ( stack pop * stack pop )].
-instr = #- ifTrue: [
-self checkDepth: 2 .
-^ stack at: 2 put: ( stack at: 2 ) - stack top ; pop ].
-instr = #/ ifTrue: [
-self checkDepth: 2 .
-stack top isZero ifTrue: [ self error: "'divide by zero'" ].
-^ stack at: 2 put: ( stack at: 2 ) // stack top ; pop ].
-self error: "'undefined operation'" ]
-Forth>>execute: instr [
-state isZero ifTrue: [
-instr = # ';' ifTrue: [ self error: "'undefined operation'" ].
-instr = # ':' ifTrue: [ ^ state := 1 ].
-( words includesKey: instr ) ifTrue: [ ^ ( words at: instr ) do: [ : cmd | self evaluate: cmd ]].
-( instr isNumber or: [ builtins includes: instr ]) ifTrue: [ ^ self evaluate: instr ].
-self error: "'undefined operation'" ].
-state = 1 ifTrue: [
-instr = # ';' ifTrue: [ self error: "'empty definition'" ].
-( instr = # ':' or: [ instr isNumber ]) ifTrue: [ self error: "'illegal operation'" ].
-name := instr . ^ state := 2 ].
-state = 2 ifTrue: [
-instr = # ';' ifTrue: [ self error: "'empty definition'" ].
-instr = # ':' ifTrue: [ self error: "'illegal operation'" ].
-( words includesKey: instr ) ifTrue: [
-body := ( words at: instr ) asOrderedCollection . ^ state := 3 ].
-( instr isNumber or: [ builtins includes: instr ]) ifTrue: [
-body := { instr } asOrderedCollection . ^ state := 3 ].
-self error: "'undefined operation'" ].
-state = 3 ifTrue: [
-instr = # ':' ifTrue: [ self error: "'illegal operation'" ].
-instr = # ';' ifTrue: [ words at: name put: body . ^ state := 0 ].
-( words includesKey: instr ) ifTrue: [ ^ body addAll: ( words at: instr )].
-( instr isNumber or: [ builtins includes: instr ]) ifTrue: [ ^ body add: instr ].
-self error: "'undefined operation'" ]]
-Forth>>evaluateInstructions: seq [
-( self tokenise: seq ) do: [ : elem | self execute: elem ].
-state isZero ifFalse: [ self error: "'unfinished definition'" ].
-^ stack reversed ]
+(source_file
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_1))
+      (ston_pair category "Exercise@Forth")
+      (ston_pair superclass Object)
+      (ston_pair package "Exercise@Forth")
+      (ston_pair classVars
+        (variable_names PLACEHOLDER_2))
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7))))
+  (method_definition PLACEHOLDER_1 class
+    (unary_pattern (unary_selector PLACEHOLDER_8))
+    (method_body
+      (assignment PLACEHOLDER_2
+        (unary_message
+          (literal_array #+ #- #* #/ #drop #dup #over #swap) asIdentitySet))))
+  (method_definition PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_8))
+    (method_body
+      (assignment PLACEHOLDER_5
+        (unary_message Stack new))
+      (assignment PLACEHOLDER_6 0)
+      (assignment PLACEHOLDER_7
+        (unary_message IdentityDictionary new))))
+  (method_definition PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_9)
+      (parameter PLACEHOLDER_10))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_11))
+      (return
+        (keyword_message
+          (unary_message
+            (unary_message
+              (keyword_message PLACEHOLDER_10 joinUsing: " ") asLowercase) substrings) collect:
+          (block
+            (block_parameter PLACEHOLDER_12)
+            (assignment PLACEHOLDER_11
+              (unary_message PLACEHOLDER_12 parseLiterals))
+            (keyword_message
+              (binary_message
+                (unary_message PLACEHOLDER_11 size) = 1) ifTrue:ifFalse:
+              (block
+                (unary_message PLACEHOLDER_11 first))
+              (block
+                (unary_message PLACEHOLDER_12 asSymbol))))))))
+  (method_definition PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_13)
+      (parameter PLACEHOLDER_14))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_15))
+      (assignment PLACEHOLDER_15
+        (unary_message PLACEHOLDER_5 size))
+      (keyword_message
+        (binary_message PLACEHOLDER_15 < 1) ifTrue:
+        (block
+          (keyword_message self error: "empty stack")))
+      (keyword_message
+        (keyword_message
+          (binary_message PLACEHOLDER_15 < 2) and:
+          (block
+            (binary_message PLACEHOLDER_14 > 1))) ifTrue:
+        (block
+          (keyword_message self error: "only one value on the stack")))))
+  (method_definition PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_16)
+      (parameter PLACEHOLDER_17))
+    (method_body
+      (keyword_message
+        (unary_message PLACEHOLDER_17 isNumber) ifTrue:
+        (block
+          (return
+            (keyword_message PLACEHOLDER_5 push: PLACEHOLDER_17))))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = #drop) ifTrue:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_13) 1)
+          (return
+            (unary_message PLACEHOLDER_5 pop))))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = #dup) ifTrue:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_13) 1)
+          (return
+            (keyword_message PLACEHOLDER_5 push:
+              (unary_message PLACEHOLDER_5 top)))))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = #over) ifTrue:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_13) 2)
+          (return
+            (keyword_message PLACEHOLDER_5 push:
+              (keyword_message PLACEHOLDER_5 at: 2)))))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = #swap) ifTrue:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_13) 2)
+          (return
+            (keyword_message PLACEHOLDER_5 swap:with: 1 2))))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = #+) ifTrue:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_13) 2)
+          (return
+            (keyword_message PLACEHOLDER_5 push:
+              (binary_message
+                (unary_message PLACEHOLDER_5 pop) +
+                (unary_message PLACEHOLDER_5 pop))))))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = #*) ifTrue:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_13) 2)
+          (return
+            (keyword_message PLACEHOLDER_5 push:
+              (binary_message
+                (unary_message PLACEHOLDER_5 pop) *
+                (unary_message PLACEHOLDER_5 pop))))))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = #-) ifTrue:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_13) 2)
+          (return
+            (cascade
+              (keyword_message PLACEHOLDER_5 at:put: 2
+                (binary_message
+                  (keyword_message PLACEHOLDER_5 at: 2) -
+                  (unary_message PLACEHOLDER_5 top)))
+              (cascaded_message pop)))))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = #/) ifTrue:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_13) 2)
+          (keyword_message
+            (unary_message
+              (unary_message PLACEHOLDER_5 top) isZero) ifTrue:
+            (block
+              (keyword_message self error: "divide by zero")))
+          (return
+            (cascade
+              (keyword_message PLACEHOLDER_5 at:put: 2
+                (binary_message
+                  (keyword_message PLACEHOLDER_5 at: 2) //
+                  (unary_message PLACEHOLDER_5 top)))
+              (cascaded_message pop)))))
+      (keyword_message self error: "undefined operation")))
+  (method_definition PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_18)
+      (parameter PLACEHOLDER_17))
+    (method_body
+      (keyword_message
+        (unary_message PLACEHOLDER_6 isZero) ifTrue:
+        (block
+          (keyword_message
+            (binary_message PLACEHOLDER_17 = #;) ifTrue:
+            (block
+              (keyword_message self error: "undefined operation")))
+          (keyword_message
+            (binary_message PLACEHOLDER_17 = #:) ifTrue:
+            (block
+              (return
+                (assignment PLACEHOLDER_6 1))))
+          (keyword_message
+            (keyword_message PLACEHOLDER_7 includesKey: PLACEHOLDER_17) ifTrue:
+            (block
+              (return
+                (keyword_message
+                  (keyword_message PLACEHOLDER_7 at: PLACEHOLDER_17) do:
+                  (block
+                    (block_parameter PLACEHOLDER_19)
+                    (keyword_message self (keyword_selector PLACEHOLDER_16) PLACEHOLDER_19))))))
+          (keyword_message
+            (keyword_message
+              (unary_message PLACEHOLDER_17 isNumber) or:
+              (block
+                (keyword_message PLACEHOLDER_2 includes: PLACEHOLDER_17))) ifTrue:
+            (block
+              (return
+                (keyword_message self (keyword_selector PLACEHOLDER_16) PLACEHOLDER_17))))
+          (keyword_message self error: "undefined operation")))
+      (keyword_message
+        (binary_message PLACEHOLDER_6 = 1) ifTrue:
+        (block
+          (keyword_message
+            (binary_message PLACEHOLDER_17 = #;) ifTrue:
+            (block
+              (keyword_message self error: "empty definition")))
+          (keyword_message
+            (keyword_message
+              (binary_message PLACEHOLDER_17 = #:) or:
+              (block
+                (unary_message PLACEHOLDER_17 isNumber))) ifTrue:
+            (block
+              (keyword_message self error: "illegal operation")))
+          (assignment PLACEHOLDER_3 PLACEHOLDER_17)
+          (return
+            (assignment PLACEHOLDER_6 2))))
+      (keyword_message
+        (binary_message PLACEHOLDER_6 = 2) ifTrue:
+        (block
+          (keyword_message
+            (binary_message PLACEHOLDER_17 = #;) ifTrue:
+            (block
+              (keyword_message self error: "empty definition")))
+          (keyword_message
+            (binary_message PLACEHOLDER_17 = #:) ifTrue:
+            (block
+              (keyword_message self error: "illegal operation")))
+          (keyword_message
+            (keyword_message PLACEHOLDER_7 includesKey: PLACEHOLDER_17) ifTrue:
+            (block
+              (assignment PLACEHOLDER_4
+                (unary_message
+                  (keyword_message PLACEHOLDER_7 at: PLACEHOLDER_17) asOrderedCollection))
+              (return
+                (assignment PLACEHOLDER_6 3))))
+          (keyword_message
+            (keyword_message
+              (unary_message PLACEHOLDER_17 isNumber) or:
+              (block
+                (keyword_message PLACEHOLDER_2 includes: PLACEHOLDER_17))) ifTrue:
+            (block
+              (assignment PLACEHOLDER_4
+                (unary_message
+                  (dynamic_array PLACEHOLDER_17) asOrderedCollection))
+              (return
+                (assignment PLACEHOLDER_6 3))))
+          (keyword_message self error: "undefined operation")))
+      (keyword_message
+        (binary_message PLACEHOLDER_6 = 3) ifTrue:
+        (block
+          (keyword_message
+            (binary_message PLACEHOLDER_17 = #:) ifTrue:
+            (block
+              (keyword_message self error: "illegal operation")))
+          (keyword_message
+            (binary_message PLACEHOLDER_17 = #;) ifTrue:
+            (block
+              (keyword_message PLACEHOLDER_7 at:put: PLACEHOLDER_3 PLACEHOLDER_4)
+              (return
+                (assignment PLACEHOLDER_6 0))))
+          (keyword_message
+            (keyword_message PLACEHOLDER_7 includesKey: PLACEHOLDER_17) ifTrue:
+            (block
+              (return
+                (keyword_message PLACEHOLDER_4 addAll:
+                  (keyword_message PLACEHOLDER_7 at: PLACEHOLDER_17)))))
+          (keyword_message
+            (keyword_message
+              (unary_message PLACEHOLDER_17 isNumber) or:
+              (block
+                (keyword_message PLACEHOLDER_2 includes: PLACEHOLDER_17))) ifTrue:
+            (block
+              (return
+                (keyword_message PLACEHOLDER_4 add: PLACEHOLDER_17))))
+          (keyword_message self error: "undefined operation")))))
+  (method_definition PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_20)
+      (parameter PLACEHOLDER_21))
+    (method_body
+      (keyword_message
+        (keyword_message self (keyword_selector PLACEHOLDER_9) PLACEHOLDER_21) do:
+        (block
+          (block_parameter PLACEHOLDER_22)
+          (keyword_message self (keyword_selector PLACEHOLDER_18) PLACEHOLDER_22)))
+      (keyword_message
+        (unary_message PLACEHOLDER_6 isZero) ifFalse:
+        (block
+          (keyword_message self error: "unfinished definition")))
+      (return
+        (unary_message PLACEHOLDER_5 reversed)))))
