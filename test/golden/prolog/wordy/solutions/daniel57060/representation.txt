@@ -1,58 +1,404 @@
-parse_assert ( Rule , Error ) :-
-( call ( Rule ) -> true ; throw ( error ( Error , _ ))).
-parse_string ( Stream , String , Rest ) :-
-string_chars ( String , Chars ),
-append ( Chars , Rest , Stream ).
-parse_digits ([ Digit | Stream ], [ Digit | Digits ], Rest , Count ) :-
-char_type ( Digit , digit ),
-NextCount is Count + 1 ,
-parse_digits ( Stream , Digits , Rest , NextCount ), !.
-parse_digits ( Stream , [], Stream , Count ) :- Count > 0 .
-parse_digits ( Stream , Digits , Rest ) :-
-parse_digits ( Stream , Digits , Rest , 0 ).
-parse_integer ( Stream , Digits , Rest ) :-
-parse_digits ( Stream , Digits , Rest ).
-parse_integer ([ Head | Stream ], [ Head | Digits ], Rest ) :-
-parse_string ([ Head ], "\"-\"" , []),
-parse_digits ( Stream , Digits , Rest ).
-parse_operation ( Stream , "\"+\"" , Rest ) :- parse_string ( Stream , "\"plus\"" , Rest ), !.
-parse_operation ( Stream , "\"-\"" , Rest ) :- parse_string ( Stream , "\"minus\"" , Rest ), !.
-parse_operation ( Stream , "\"*\"" , Rest ) :- parse_string ( Stream , "\"multiplied by\"" , Rest ), !.
-parse_operation ( Stream , "\"/\"" , Rest ) :- parse_string ( Stream , "\"divided by\"" , Rest ), !.
-parse_end ( Stream ) :- parse_string ( Stream , "\"?\"" , []).
-parse_rest ( Stream , [], []) :-
-parse_end ( Stream ).
-parse_rest ( Stream0 , [ Op , Number | MathTokens ], Rest ) :-
-parse_assert ( parse_string ( Stream0 , "\" \"" , Stream1 ), syntax_error ),
-( parse_integer ( Stream1 , _ , _ ), throw ( error ( syntax_error , _ ))
-; parse_assert ( parse_operation ( Stream1 , Op , Stream2 ), unknown_operation_error )
-),
-parse_assert ( parse_string ( Stream2 , "\" \"" , Stream3 ), syntax_error ),
-parse_assert ( parse_integer ( Stream3 , Number , Stream4 ), syntax_error ),
-parse_rest ( Stream4 , MathTokens , Rest ).
-parse_rest ( Stream , [], Stream ).
-parse ( Question , [ FirstNumber | MathTokens ]) :-
-string_chars ( Question , Stream0 ),
-parse_assert ( parse_string ( Stream0 , "\"What is\"" , Stream1 ), unknown_operation_error ),
-parse_assert ( parse_string ( Stream1 , "\" \"" , Stream2 ), syntax_error ),
-parse_assert ( parse_integer ( Stream2 , FirstNumber , Stream3 ), syntax_error ),
-parse_rest ( Stream3 , MathTokens , []),
-!.
-integer_cast ( NumberChars , Result ) :-
-string_chars ( Number , NumberChars ),
-atom_number ( Number , Result ).
-apply_op ( Lhs , "\"+\"" , Rhs , Result ) :- Result is Lhs + Rhs .
-apply_op ( Lhs , "\"-\"" , Rhs , Result ) :- Result is Lhs - Rhs .
-apply_op ( Lhs , "\"*\"" , Rhs , Result ) :- Result is Lhs * Rhs .
-apply_op ( Lhs , "\"/\"" , Rhs , Result ) :- Result is Lhs / Rhs .
-resolve ([], Acc , Acc ).
-resolve ([ Op , Rhs | Rest ], Acc , Result ) :-
-integer_cast ( Rhs , RhsValue ),
-apply_op ( Acc , Op , RhsValue , NextAcc ),
-resolve ( Rest , NextAcc , Result ), !.
-resolve ([ Fst | Rest ], Result ) :-
-integer_cast ( Fst , FstValue ),
-resolve ( Rest , FstValue , Result ).
-wordy ( Question , Answer ) :-
-parse ( Question , Tokens ),
-resolve ( Tokens , Answer ).
+(source_file
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_1)
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (variable PLACEHOLDER_3))) :-
+      (operator_notation
+        (operator_notation
+          (functional_notation call
+            (arg_list
+              (variable PLACEHOLDER_2))) -> true) ;
+        (functional_notation throw
+          (arg_list
+            (functional_notation error
+              (arg_list
+                (variable PLACEHOLDER_3) _)))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_4)
+        (arg_list
+          (variable PLACEHOLDER_5)
+          (variable PLACEHOLDER_6)
+          (variable PLACEHOLDER_7))) :-
+      (operator_notation
+        (functional_notation string_chars
+          (arg_list
+            (variable PLACEHOLDER_6)
+            (variable PLACEHOLDER_8))) ,
+        (functional_notation append
+          (arg_list
+            (variable PLACEHOLDER_8)
+            (variable PLACEHOLDER_7)
+            (variable PLACEHOLDER_5))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_9)
+        (arg_list
+          (list_notation
+            (variable PLACEHOLDER_10) |
+            (variable PLACEHOLDER_5))
+          (list_notation
+            (variable PLACEHOLDER_10) |
+            (variable PLACEHOLDER_11))
+          (variable PLACEHOLDER_7)
+          (variable PLACEHOLDER_12))) :-
+      (operator_notation
+        (functional_notation char_type
+          (arg_list
+            (variable PLACEHOLDER_10) digit)) ,
+        (operator_notation
+          (operator_notation
+            (variable PLACEHOLDER_13) is
+            (operator_notation
+              (variable PLACEHOLDER_12) + 1)) ,
+          (operator_notation
+            (functional_notation (atom PLACEHOLDER_9)
+              (arg_list
+                (variable PLACEHOLDER_5)
+                (variable PLACEHOLDER_11)
+                (variable PLACEHOLDER_7)
+                (variable PLACEHOLDER_13))) , !)))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_9)
+        (arg_list
+          (variable PLACEHOLDER_5) []
+          (variable PLACEHOLDER_5)
+          (variable PLACEHOLDER_12))) :-
+      (operator_notation
+        (variable PLACEHOLDER_12) > 0)))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_9)
+        (arg_list
+          (variable PLACEHOLDER_5)
+          (variable PLACEHOLDER_11)
+          (variable PLACEHOLDER_7))) :-
+      (functional_notation (atom PLACEHOLDER_9)
+        (arg_list
+          (variable PLACEHOLDER_5)
+          (variable PLACEHOLDER_11)
+          (variable PLACEHOLDER_7) 0))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_14)
+        (arg_list
+          (variable PLACEHOLDER_5)
+          (variable PLACEHOLDER_11)
+          (variable PLACEHOLDER_7))) :-
+      (functional_notation (atom PLACEHOLDER_9)
+        (arg_list
+          (variable PLACEHOLDER_5)
+          (variable PLACEHOLDER_11)
+          (variable PLACEHOLDER_7)))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_14)
+        (arg_list
+          (list_notation
+            (variable PLACEHOLDER_15) |
+            (variable PLACEHOLDER_5))
+          (list_notation
+            (variable PLACEHOLDER_15) |
+            (variable PLACEHOLDER_11))
+          (variable PLACEHOLDER_7))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_4)
+          (arg_list
+            (list_notation
+              (variable PLACEHOLDER_15)) "-" [])) ,
+        (functional_notation (atom PLACEHOLDER_9)
+          (arg_list
+            (variable PLACEHOLDER_5)
+            (variable PLACEHOLDER_11)
+            (variable PLACEHOLDER_7))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_16)
+        (arg_list
+          (variable PLACEHOLDER_5) "+"
+          (variable PLACEHOLDER_7))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_4)
+          (arg_list
+            (variable PLACEHOLDER_5) "plus"
+            (variable PLACEHOLDER_7))) , !)))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_16)
+        (arg_list
+          (variable PLACEHOLDER_5) "-"
+          (variable PLACEHOLDER_7))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_4)
+          (arg_list
+            (variable PLACEHOLDER_5) "minus"
+            (variable PLACEHOLDER_7))) , !)))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_16)
+        (arg_list
+          (variable PLACEHOLDER_5) "*"
+          (variable PLACEHOLDER_7))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_4)
+          (arg_list
+            (variable PLACEHOLDER_5) "multiplied by"
+            (variable PLACEHOLDER_7))) , !)))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_16)
+        (arg_list
+          (variable PLACEHOLDER_5) "/"
+          (variable PLACEHOLDER_7))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_4)
+          (arg_list
+            (variable PLACEHOLDER_5) "divided by"
+            (variable PLACEHOLDER_7))) , !)))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_17)
+        (arg_list
+          (variable PLACEHOLDER_5))) :-
+      (functional_notation (atom PLACEHOLDER_4)
+        (arg_list
+          (variable PLACEHOLDER_5) "?" []))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_18)
+        (arg_list
+          (variable PLACEHOLDER_5) [] [])) :-
+      (functional_notation (atom PLACEHOLDER_17)
+        (arg_list
+          (variable PLACEHOLDER_5)))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_18)
+        (arg_list
+          (variable PLACEHOLDER_19)
+          (list_notation
+            (variable PLACEHOLDER_20)
+            (variable PLACEHOLDER_21) |
+            (variable PLACEHOLDER_22))
+          (variable PLACEHOLDER_7))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_1)
+          (arg_list
+            (functional_notation (atom PLACEHOLDER_4)
+              (arg_list
+                (variable PLACEHOLDER_19) " "
+                (variable PLACEHOLDER_23))) syntax_error)) ,
+        (operator_notation
+          (operator_notation
+            (operator_notation
+              (functional_notation (atom PLACEHOLDER_14)
+                (arg_list
+                  (variable PLACEHOLDER_23) _ _)) ,
+              (functional_notation throw
+                (arg_list
+                  (functional_notation error
+                    (arg_list syntax_error _))))) ;
+            (functional_notation (atom PLACEHOLDER_1)
+              (arg_list
+                (functional_notation (atom PLACEHOLDER_16)
+                  (arg_list
+                    (variable PLACEHOLDER_23)
+                    (variable PLACEHOLDER_20)
+                    (variable PLACEHOLDER_24))) unknown_operation_error))) ,
+          (operator_notation
+            (functional_notation (atom PLACEHOLDER_1)
+              (arg_list
+                (functional_notation (atom PLACEHOLDER_4)
+                  (arg_list
+                    (variable PLACEHOLDER_24) " "
+                    (variable PLACEHOLDER_25))) syntax_error)) ,
+            (operator_notation
+              (functional_notation (atom PLACEHOLDER_1)
+                (arg_list
+                  (functional_notation (atom PLACEHOLDER_14)
+                    (arg_list
+                      (variable PLACEHOLDER_25)
+                      (variable PLACEHOLDER_21)
+                      (variable PLACEHOLDER_26))) syntax_error)) ,
+              (functional_notation (atom PLACEHOLDER_18)
+                (arg_list
+                  (variable PLACEHOLDER_26)
+                  (variable PLACEHOLDER_22)
+                  (variable PLACEHOLDER_7)))))))))
+  (clause_term
+    (head (atom PLACEHOLDER_18)
+      (arg_list
+        (variable PLACEHOLDER_5) []
+        (variable PLACEHOLDER_5))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_27)
+        (arg_list
+          (variable PLACEHOLDER_28)
+          (list_notation
+            (variable PLACEHOLDER_29) |
+            (variable PLACEHOLDER_22)))) :-
+      (operator_notation
+        (functional_notation string_chars
+          (arg_list
+            (variable PLACEHOLDER_28)
+            (variable PLACEHOLDER_19))) ,
+        (operator_notation
+          (functional_notation (atom PLACEHOLDER_1)
+            (arg_list
+              (functional_notation (atom PLACEHOLDER_4)
+                (arg_list
+                  (variable PLACEHOLDER_19) "What is"
+                  (variable PLACEHOLDER_23))) unknown_operation_error)) ,
+          (operator_notation
+            (functional_notation (atom PLACEHOLDER_1)
+              (arg_list
+                (functional_notation (atom PLACEHOLDER_4)
+                  (arg_list
+                    (variable PLACEHOLDER_23) " "
+                    (variable PLACEHOLDER_24))) syntax_error)) ,
+            (operator_notation
+              (functional_notation (atom PLACEHOLDER_1)
+                (arg_list
+                  (functional_notation (atom PLACEHOLDER_14)
+                    (arg_list
+                      (variable PLACEHOLDER_24)
+                      (variable PLACEHOLDER_29)
+                      (variable PLACEHOLDER_25))) syntax_error)) ,
+              (operator_notation
+                (functional_notation (atom PLACEHOLDER_18)
+                  (arg_list
+                    (variable PLACEHOLDER_25)
+                    (variable PLACEHOLDER_22) [])) , !)))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_30)
+        (arg_list
+          (variable PLACEHOLDER_31)
+          (variable PLACEHOLDER_32))) :-
+      (operator_notation
+        (functional_notation string_chars
+          (arg_list
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_31))) ,
+        (functional_notation atom_number
+          (arg_list
+            (variable PLACEHOLDER_21)
+            (variable PLACEHOLDER_32))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_33)
+        (arg_list
+          (variable PLACEHOLDER_34) "+"
+          (variable PLACEHOLDER_35)
+          (variable PLACEHOLDER_32))) :-
+      (operator_notation
+        (variable PLACEHOLDER_32) is
+        (operator_notation
+          (variable PLACEHOLDER_34) +
+          (variable PLACEHOLDER_35)))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_33)
+        (arg_list
+          (variable PLACEHOLDER_34) "-"
+          (variable PLACEHOLDER_35)
+          (variable PLACEHOLDER_32))) :-
+      (operator_notation
+        (variable PLACEHOLDER_32) is
+        (operator_notation
+          (variable PLACEHOLDER_34) -
+          (variable PLACEHOLDER_35)))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_33)
+        (arg_list
+          (variable PLACEHOLDER_34) "*"
+          (variable PLACEHOLDER_35)
+          (variable PLACEHOLDER_32))) :-
+      (operator_notation
+        (variable PLACEHOLDER_32) is
+        (operator_notation
+          (variable PLACEHOLDER_34) *
+          (variable PLACEHOLDER_35)))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_33)
+        (arg_list
+          (variable PLACEHOLDER_34) "/"
+          (variable PLACEHOLDER_35)
+          (variable PLACEHOLDER_32))) :-
+      (operator_notation
+        (variable PLACEHOLDER_32) is
+        (operator_notation
+          (variable PLACEHOLDER_34) /
+          (variable PLACEHOLDER_35)))))
+  (clause_term
+    (head (atom PLACEHOLDER_36)
+      (arg_list []
+        (variable PLACEHOLDER_37)
+        (variable PLACEHOLDER_37))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_36)
+        (arg_list
+          (list_notation
+            (variable PLACEHOLDER_20)
+            (variable PLACEHOLDER_35) |
+            (variable PLACEHOLDER_7))
+          (variable PLACEHOLDER_37)
+          (variable PLACEHOLDER_32))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_30)
+          (arg_list
+            (variable PLACEHOLDER_35)
+            (variable PLACEHOLDER_38))) ,
+        (operator_notation
+          (functional_notation (atom PLACEHOLDER_33)
+            (arg_list
+              (variable PLACEHOLDER_37)
+              (variable PLACEHOLDER_20)
+              (variable PLACEHOLDER_38)
+              (variable PLACEHOLDER_39))) ,
+          (operator_notation
+            (functional_notation (atom PLACEHOLDER_36)
+              (arg_list
+                (variable PLACEHOLDER_7)
+                (variable PLACEHOLDER_39)
+                (variable PLACEHOLDER_32))) , !)))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_36)
+        (arg_list
+          (list_notation
+            (variable PLACEHOLDER_40) |
+            (variable PLACEHOLDER_7))
+          (variable PLACEHOLDER_32))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_30)
+          (arg_list
+            (variable PLACEHOLDER_40)
+            (variable PLACEHOLDER_41))) ,
+        (functional_notation (atom PLACEHOLDER_36)
+          (arg_list
+            (variable PLACEHOLDER_7)
+            (variable PLACEHOLDER_41)
+            (variable PLACEHOLDER_32))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_42)
+        (arg_list
+          (variable PLACEHOLDER_28)
+          (variable PLACEHOLDER_43))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_27)
+          (arg_list
+            (variable PLACEHOLDER_28)
+            (variable PLACEHOLDER_44))) ,
+        (functional_notation (atom PLACEHOLDER_36)
+          (arg_list
+            (variable PLACEHOLDER_44)
+            (variable PLACEHOLDER_43)))))))

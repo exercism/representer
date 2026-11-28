@@ -1,43 +1,158 @@
-:- dynamic account / 3 .
-create_bank_account ( AccountId ) :-
-gensym ( account_ , AccountId ),
-assert ( account ( AccountId , 0 , closed )).
-open_account ( AccountId ) :-
-with_mutex ( AccountId , (
-account ( AccountId , _ , Status ),
-( Status == closed ->
-retract ( account ( AccountId , _ , _ )),
-assert ( account ( AccountId , 0 , open ))
-;
-fail
-)
-)).
-close_account ( AccountId ) :-
-with_mutex ( AccountId , (
-account ( AccountId , _ , Status ),
-( Status == open ->
-retract ( account ( AccountId , _ , _ )),
-assert ( account ( AccountId , 0 , closed ))
-;
-fail
-)
-)).
-balance ( AccountId , Balance ) :-
-account ( AccountId , Balance , open ).
-deposit ( AccountId , Amount ) :-
-Amount > 0 ,
-with_mutex ( AccountId , (
-account ( AccountId , CurrentBalance , open ),
-NewBalance is CurrentBalance + Amount ,
-retract ( account ( AccountId , _ , _ )),
-assert ( account ( AccountId , NewBalance , open ))
-)).
-withdraw ( AccountId , Amount ) :-
-Amount > 0 ,
-with_mutex ( AccountId , (
-account ( AccountId , CurrentBalance , open ),
-CurrentBalance >= Amount ,
-NewBalance is CurrentBalance - Amount ,
-retract ( account ( AccountId , _ , _ )),
-assert ( account ( AccountId , NewBalance , open ))
-)).
+(source_file
+  (directive_term :-
+    (operator_notation dynamic
+      (operator_notation account / 3)))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_1)
+        (arg_list
+          (variable PLACEHOLDER_2))) :-
+      (operator_notation
+        (functional_notation gensym
+          (arg_list account_
+            (variable PLACEHOLDER_2))) ,
+        (functional_notation assert
+          (arg_list
+            (functional_notation account
+              (arg_list
+                (variable PLACEHOLDER_2) 0 closed)))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_3)
+        (arg_list
+          (variable PLACEHOLDER_2))) :-
+      (functional_notation with_mutex
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (operator_notation
+            (functional_notation account
+              (arg_list
+                (variable PLACEHOLDER_2) _
+                (variable PLACEHOLDER_4))) ,
+            (operator_notation
+              (operator_notation
+                (operator_notation
+                  (variable PLACEHOLDER_4) == closed) ->
+                (operator_notation
+                  (functional_notation retract
+                    (arg_list
+                      (functional_notation account
+                        (arg_list
+                          (variable PLACEHOLDER_2) _ _)))) ,
+                  (functional_notation assert
+                    (arg_list
+                      (functional_notation account
+                        (arg_list
+                          (variable PLACEHOLDER_2) 0 open)))))) ; fail))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_5)
+        (arg_list
+          (variable PLACEHOLDER_2))) :-
+      (functional_notation with_mutex
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (operator_notation
+            (functional_notation account
+              (arg_list
+                (variable PLACEHOLDER_2) _
+                (variable PLACEHOLDER_4))) ,
+            (operator_notation
+              (operator_notation
+                (operator_notation
+                  (variable PLACEHOLDER_4) == open) ->
+                (operator_notation
+                  (functional_notation retract
+                    (arg_list
+                      (functional_notation account
+                        (arg_list
+                          (variable PLACEHOLDER_2) _ _)))) ,
+                  (functional_notation assert
+                    (arg_list
+                      (functional_notation account
+                        (arg_list
+                          (variable PLACEHOLDER_2) 0 closed)))))) ; fail))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_6)
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (variable PLACEHOLDER_7))) :-
+      (functional_notation account
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (variable PLACEHOLDER_7) open))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_8)
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (variable PLACEHOLDER_9))) :-
+      (operator_notation
+        (operator_notation
+          (variable PLACEHOLDER_9) > 0) ,
+        (functional_notation with_mutex
+          (arg_list
+            (variable PLACEHOLDER_2)
+            (operator_notation
+              (functional_notation account
+                (arg_list
+                  (variable PLACEHOLDER_2)
+                  (variable PLACEHOLDER_10) open)) ,
+              (operator_notation
+                (operator_notation
+                  (variable PLACEHOLDER_11) is
+                  (operator_notation
+                    (variable PLACEHOLDER_10) +
+                    (variable PLACEHOLDER_9))) ,
+                (operator_notation
+                  (functional_notation retract
+                    (arg_list
+                      (functional_notation account
+                        (arg_list
+                          (variable PLACEHOLDER_2) _ _)))) ,
+                  (functional_notation assert
+                    (arg_list
+                      (functional_notation account
+                        (arg_list
+                          (variable PLACEHOLDER_2)
+                          (variable PLACEHOLDER_11) open))))))))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_12)
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (variable PLACEHOLDER_9))) :-
+      (operator_notation
+        (operator_notation
+          (variable PLACEHOLDER_9) > 0) ,
+        (functional_notation with_mutex
+          (arg_list
+            (variable PLACEHOLDER_2)
+            (operator_notation
+              (functional_notation account
+                (arg_list
+                  (variable PLACEHOLDER_2)
+                  (variable PLACEHOLDER_10) open)) ,
+              (operator_notation
+                (operator_notation
+                  (variable PLACEHOLDER_10) >=
+                  (variable PLACEHOLDER_9)) ,
+                (operator_notation
+                  (operator_notation
+                    (variable PLACEHOLDER_11) is
+                    (operator_notation
+                      (variable PLACEHOLDER_10) -
+                      (variable PLACEHOLDER_9))) ,
+                  (operator_notation
+                    (functional_notation retract
+                      (arg_list
+                        (functional_notation account
+                          (arg_list
+                            (variable PLACEHOLDER_2) _ _)))) ,
+                    (functional_notation assert
+                      (arg_list
+                        (functional_notation account
+                          (arg_list
+                            (variable PLACEHOLDER_2)
+                            (variable PLACEHOLDER_11) open))))))))))))))
