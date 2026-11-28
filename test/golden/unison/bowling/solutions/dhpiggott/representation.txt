@@ -1,33 +1,79 @@
-type bowling . Error = Error Text
-bowling . score : [ Nat ] -> Either Error Nat
-bowling . score rolls =
-  go : Nat -> [ Nat ] -> Either Error Nat
-  go frame rolls =
-    use Either mapRight
-    use List +: head
-    use Nat + ==
-    error = Left ( Error "\"Score cannot be taken until the end of the game\"" )
-    match ( frame , rolls ) with
-      ( 10 , _ ) -> Right 0
-      ( _ , [ roll1 , roll2 ] ++ rolls )
-        | roll1 == 10 ->
-          ignore "\"Strike\""
-          match head rolls with
-            Some roll3 ->
-              extra = roll2 + roll3
-              mapRight
-                ( score -> score + roll1 + extra )
-                ( go ( frame + 1 ) ( roll2 +: rolls ))
-            None -> error
-        | roll1 + roll2 == 10 ->
-          ignore "\"Spare\""
-          match head rolls with
-            Some roll3 ->
-              extra = roll3
-              mapRight ( score -> score + 10 + extra ) ( go ( frame + 1 ) rolls )
-            None -> error
-        | otherwise ->
-          ignore "\"Open frame\""
-          mapRight ( score -> score + roll1 + roll2 ) ( go ( frame + 1 ) rolls )
-      _ -> error
-  go 0 rolls
+(unison
+  (type_declaration
+    (type_constructor
+      (type_name bowling. PLACEHOLDER_1)) PLACEHOLDER_1 Text)
+  (term_declaration
+    (type_signature bowling. PLACEHOLDER_2
+      (term_type
+        (sequence_type Nat) -> Either PLACEHOLDER_1 Nat))
+    (term_definition bowling. PLACEHOLDER_2 PLACEHOLDER_3
+      (term_declaration
+        (type_signature PLACEHOLDER_4
+          (term_type Nat ->
+            (sequence_type Nat) -> Either PLACEHOLDER_1 Nat))
+        (term_definition PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_3
+          (term_declaration
+            (term_definition PLACEHOLDER_6
+              (block_term Left
+                (tuple_or_parenthesized PLACEHOLDER_1 "Score cannot be taken until the end of the game"))))
+          (block_term
+            (match_expression
+              (tuple_or_parenthesized PLACEHOLDER_5 , PLACEHOLDER_3)
+              (pattern_case
+                (parenthesized_or_tuple_pattern 10 , _) ->
+                (block_term Right 0))
+              (pattern_case
+                (parenthesized_or_tuple_pattern _ ,
+                  (literal_list_pattern
+                    (variable_pattern PLACEHOLDER_7) ,
+                    (variable_pattern PLACEHOLDER_8)) ++
+                  (variable_pattern PLACEHOLDER_3))
+                (guarded_block
+                  (guard PLACEHOLDER_7 == 10) ->
+                  (block_term ignore "Strike")
+                  (block_term
+                    (match_expression head PLACEHOLDER_3
+                      (pattern_case
+                        (pattern
+                          (var_or_nullary_ctor Some)
+                          (variable_pattern PLACEHOLDER_9)) ->
+                        (term_declaration
+                          (term_definition PLACEHOLDER_10
+                            (block_term PLACEHOLDER_8 + PLACEHOLDER_9)))
+                        (block_term mapRight
+                          (literal_function PLACEHOLDER_2 -> PLACEHOLDER_2 + PLACEHOLDER_7 + PLACEHOLDER_10)
+                          (tuple_or_parenthesized PLACEHOLDER_4
+                            (tuple_or_parenthesized PLACEHOLDER_5 + 1)
+                            (tuple_or_parenthesized PLACEHOLDER_8 +: PLACEHOLDER_3))))
+                      (pattern_case
+                        (var_or_nullary_ctor None) ->
+                        (block_term PLACEHOLDER_6)))))
+                (guarded_block
+                  (guard PLACEHOLDER_7 + PLACEHOLDER_8 == 10) ->
+                  (block_term ignore "Spare")
+                  (block_term
+                    (match_expression head PLACEHOLDER_3
+                      (pattern_case
+                        (pattern
+                          (var_or_nullary_ctor Some)
+                          (variable_pattern PLACEHOLDER_9)) ->
+                        (term_declaration
+                          (term_definition PLACEHOLDER_10
+                            (block_term PLACEHOLDER_9)))
+                        (block_term mapRight
+                          (literal_function PLACEHOLDER_2 -> PLACEHOLDER_2 + 10 + PLACEHOLDER_10)
+                          (tuple_or_parenthesized PLACEHOLDER_4
+                            (tuple_or_parenthesized PLACEHOLDER_5 + 1) PLACEHOLDER_3)))
+                      (pattern_case
+                        (var_or_nullary_ctor None) ->
+                        (block_term PLACEHOLDER_6)))))
+                (guarded_block
+                  (guard otherwise) ->
+                  (block_term ignore "Open frame")
+                  (block_term mapRight
+                    (literal_function PLACEHOLDER_2 -> PLACEHOLDER_2 + PLACEHOLDER_7 + PLACEHOLDER_8)
+                    (tuple_or_parenthesized PLACEHOLDER_4
+                      (tuple_or_parenthesized PLACEHOLDER_5 + 1) PLACEHOLDER_3))))
+              (pattern_case _ ->
+                (block_term PLACEHOLDER_6))))))
+      (block_term PLACEHOLDER_4 0 PLACEHOLDER_3))))

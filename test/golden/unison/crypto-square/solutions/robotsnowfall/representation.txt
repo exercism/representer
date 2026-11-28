@@ -1,33 +1,155 @@
-normalize : [ Char ] -> [ Char ]
-normalize = ( List . foldLeft ( acc -> cases
-  c | isLower c -> acc :+ c
-    | isDigit c -> acc :+ c
-    | isUpper c -> acc :+ ( toLower c )
-    | otherwise -> acc
-  ) [] )
-findDimensions : [ Char ] -> ( Nat , Nat )
-findDimensions xs =
-  use Nat < >
-  square = cases
-    ( r , c ) | ( r * c ) < ( size xs ) -> square (( increment r ), ( increment c ))
-      | otherwise -> ( r , c )
-  rectangle = cases
-    ( r , c ) | ( r * c ) > ( size xs ) -> rectangle (( decrement r ), c )
-      | ( r * c ) < ( size xs ) -> (( increment r ), c )
-      | otherwise -> ( r , c )
-  ( rectangle << square ) ( 0 , 0 )
-matrix : [ Char ] -> [[ Char ]]
-matrix xs =
-  ( r , c ) = findDimensions xs
-  f acc ys = cases
-    0 -> acc :+ ( ys ++ ( List . fill ( c - ( size ys )) ( ?\ s )))
-    i -> match splitAt c ys with ( as , bs ) -> f ( acc :+ as ) bs ( decrement i )
-  f [] xs ( decrement r )
-rotate' : [[ Char ]] -> [ Char ] -> [[ Char ]]
-rotate' acc xs = zipWith ( ++ ) acc ( map singleton xs )
-rotate : [[ Char ]] -> [[ Char ]]
-rotate = cases
-  xs +: xss -> foldLeft rotate' ( map singleton xs ) xss
-  _ -> []
-ciphertext : Text -> Text
-ciphertext = ( join "\" \"" ) << ( map fromCharList ) << rotate << matrix << normalize << toCharList
+(unison
+  (term_declaration
+    (type_signature PLACEHOLDER_1
+      (term_type
+        (sequence_type Char) ->
+        (sequence_type Char)))
+    (term_definition PLACEHOLDER_1
+      (block_term List. foldLeft
+        (literal_function PLACEHOLDER_2 ->
+          (match_expression_lambda
+            (pattern_case
+              (variable_pattern PLACEHOLDER_3)
+              (guarded_block
+                (guard isLower PLACEHOLDER_3) ->
+                (block_term PLACEHOLDER_2 :+ PLACEHOLDER_3))
+              (guarded_block
+                (guard isDigit PLACEHOLDER_3) ->
+                (block_term PLACEHOLDER_2 :+ PLACEHOLDER_3))
+              (guarded_block
+                (guard isUpper PLACEHOLDER_3) ->
+                (block_term PLACEHOLDER_2 :+
+                  (tuple_or_parenthesized toLower PLACEHOLDER_3)))
+              (guarded_block
+                (guard otherwise) ->
+                (block_term PLACEHOLDER_2)))))
+        (literal_list))))
+  (term_declaration
+    (type_signature PLACEHOLDER_4
+      (term_type
+        (sequence_type Char) ->
+        (tuple_or_parenthesized_type Nat , Nat)))
+    (term_definition PLACEHOLDER_4 PLACEHOLDER_5
+      (term_declaration
+        (term_definition PLACEHOLDER_6
+          (block_term
+            (match_expression_lambda
+              (pattern_case
+                (parenthesized_or_tuple_pattern
+                  (variable_pattern PLACEHOLDER_7) ,
+                  (variable_pattern PLACEHOLDER_3))
+                (guarded_block
+                  (guard
+                    (tuple_or_parenthesized PLACEHOLDER_7 * PLACEHOLDER_3) <
+                    (tuple_or_parenthesized size PLACEHOLDER_5)) ->
+                  (block_term PLACEHOLDER_6
+                    (tuple_or_parenthesized
+                      (tuple_or_parenthesized increment PLACEHOLDER_7) ,
+                      (tuple_or_parenthesized increment PLACEHOLDER_3))))
+                (guarded_block
+                  (guard otherwise) ->
+                  (block_term
+                    (tuple_or_parenthesized PLACEHOLDER_7 , PLACEHOLDER_3))))))))
+      (term_declaration
+        (term_definition PLACEHOLDER_8
+          (block_term
+            (match_expression_lambda
+              (pattern_case
+                (parenthesized_or_tuple_pattern
+                  (variable_pattern PLACEHOLDER_7) ,
+                  (variable_pattern PLACEHOLDER_3))
+                (guarded_block
+                  (guard
+                    (tuple_or_parenthesized PLACEHOLDER_7 * PLACEHOLDER_3) >
+                    (tuple_or_parenthesized size PLACEHOLDER_5)) ->
+                  (block_term PLACEHOLDER_8
+                    (tuple_or_parenthesized
+                      (tuple_or_parenthesized decrement PLACEHOLDER_7) , PLACEHOLDER_3)))
+                (guarded_block
+                  (guard
+                    (tuple_or_parenthesized PLACEHOLDER_7 * PLACEHOLDER_3) <
+                    (tuple_or_parenthesized size PLACEHOLDER_5)) ->
+                  (block_term
+                    (tuple_or_parenthesized
+                      (tuple_or_parenthesized increment PLACEHOLDER_7) , PLACEHOLDER_3)))
+                (guarded_block
+                  (guard otherwise) ->
+                  (block_term
+                    (tuple_or_parenthesized PLACEHOLDER_7 , PLACEHOLDER_3))))))))
+      (block_term
+        (tuple_or_parenthesized PLACEHOLDER_8 << PLACEHOLDER_6)
+        (tuple_or_parenthesized 0 , 0))))
+  (term_declaration
+    (type_signature PLACEHOLDER_9
+      (term_type
+        (sequence_type Char) ->
+        (sequence_type
+          (sequence_type Char))))
+    (term_definition PLACEHOLDER_9 PLACEHOLDER_5
+      (destructuring_bind
+        (parenthesized_or_tuple_pattern
+          (variable_pattern PLACEHOLDER_7) ,
+          (variable_pattern PLACEHOLDER_3))
+        (block_term PLACEHOLDER_4 PLACEHOLDER_5))
+      (term_declaration
+        (term_definition PLACEHOLDER_10 PLACEHOLDER_2 PLACEHOLDER_11
+          (block_term
+            (match_expression_lambda
+              (pattern_case 0 ->
+                (block_term PLACEHOLDER_2 :+
+                  (tuple_or_parenthesized PLACEHOLDER_11 ++
+                    (tuple_or_parenthesized List. fill
+                      (tuple_or_parenthesized PLACEHOLDER_3 -
+                        (tuple_or_parenthesized size PLACEHOLDER_11))
+                      (literal_char "?\\s")))))
+              (pattern_case
+                (variable_pattern PLACEHOLDER_12) ->
+                (block_term
+                  (match_expression splitAt PLACEHOLDER_3 PLACEHOLDER_11
+                    (pattern_case
+                      (parenthesized_or_tuple_pattern
+                        (variable_pattern PLACEHOLDER_13) ,
+                        (variable_pattern PLACEHOLDER_14)) ->
+                      (block_term PLACEHOLDER_10
+                        (tuple_or_parenthesized PLACEHOLDER_2 :+ PLACEHOLDER_13) PLACEHOLDER_14
+                        (tuple_or_parenthesized decrement PLACEHOLDER_12))))))))))
+      (block_term PLACEHOLDER_10
+        (literal_list) PLACEHOLDER_5
+        (tuple_or_parenthesized decrement PLACEHOLDER_7))))
+  (term_declaration
+    (type_signature PLACEHOLDER_15
+      (term_type
+        (sequence_type
+          (sequence_type Char)) ->
+        (sequence_type Char) ->
+        (sequence_type
+          (sequence_type Char))))
+    (term_definition PLACEHOLDER_15 PLACEHOLDER_2 PLACEHOLDER_5
+      (block_term zipWith
+        (prefix_operator ++) PLACEHOLDER_2
+        (tuple_or_parenthesized map singleton PLACEHOLDER_5))))
+  (term_declaration
+    (type_signature PLACEHOLDER_16
+      (term_type
+        (sequence_type
+          (sequence_type Char)) ->
+        (sequence_type
+          (sequence_type Char))))
+    (term_definition PLACEHOLDER_16
+      (block_term
+        (match_expression_lambda
+          (pattern_case
+            (variable_pattern PLACEHOLDER_5) +:
+            (variable_pattern PLACEHOLDER_17) ->
+            (block_term foldLeft PLACEHOLDER_15
+              (tuple_or_parenthesized map singleton PLACEHOLDER_5) PLACEHOLDER_17))
+          (pattern_case _ ->
+            (block_term
+              (literal_list)))))))
+  (term_declaration
+    (type_signature PLACEHOLDER_18
+      (term_type Text -> Text))
+    (term_definition PLACEHOLDER_18
+      (block_term
+        (tuple_or_parenthesized join " ") <<
+        (tuple_or_parenthesized map fromCharList) << PLACEHOLDER_16 << PLACEHOLDER_9 << PLACEHOLDER_1 << toCharList))))

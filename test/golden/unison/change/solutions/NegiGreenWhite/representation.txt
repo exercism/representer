@@ -1,20 +1,90 @@
-change . findFewestCoins : [ Nat ] -> Nat -> Optional [ Nat ]
-change . findFewestCoins = findBest maxNat
-findBest : Nat -> [ Nat ] -> Nat -> Optional [ Nat ]
-findBest = cases
-  _ , _ , 0 -> Some []
-  _ , [] , _ -> None
-  count , _ , _ | count <= 0 -> None
-  count , ( _ :+ c ), amount | c * count < amount -> None
-  _ , ( _ :+ c ), amount | mod amount c == 0 -> Some ( fill ( amount / c ) c )
-  count , ( cs :+ c ), amount ->
-    go : Optional [ Nat ] -> Nat -> Optional [ Nat ]
-    go best x =
-      ans = match best with
-        None -> findBest ( count - x ) cs ( amount - ( x * c ))
-        Some ns -> findBest ( size ns - x ) cs ( amount - ( x * c ))
-      match ans with
-        None -> best
-        Some ns -> Some ( ns ++ fill x c )
-    xs = rangeClosed 0 ( amount / c ) |> reverse
-    List . foldLeft go None xs
+(unison
+  (term_declaration
+    (type_signature change. PLACEHOLDER_1
+      (term_type
+        (sequence_type Nat) -> Nat -> Optional
+        (sequence_type Nat)))
+    (term_definition change. PLACEHOLDER_1
+      (block_term PLACEHOLDER_2 maxNat)))
+  (term_declaration
+    (type_signature PLACEHOLDER_2
+      (term_type Nat ->
+        (sequence_type Nat) -> Nat -> Optional
+        (sequence_type Nat)))
+    (term_definition PLACEHOLDER_2
+      (block_term
+        (match_expression_lambda
+          (pattern_case _ , _ , 0 ->
+            (block_term Some
+              (literal_list)))
+          (pattern_case _ ,
+            (literal_list_pattern) , _ ->
+            (block_term None))
+          (pattern_case
+            (variable_pattern PLACEHOLDER_3) , _ , _
+            (guarded_block
+              (guard PLACEHOLDER_3 <= 0) ->
+              (block_term None)))
+          (pattern_case
+            (variable_pattern PLACEHOLDER_3) ,
+            (parenthesized_or_tuple_pattern _ :+
+              (variable_pattern PLACEHOLDER_4)) ,
+            (variable_pattern PLACEHOLDER_5)
+            (guarded_block
+              (guard PLACEHOLDER_4 * PLACEHOLDER_3 < PLACEHOLDER_5) ->
+              (block_term None)))
+          (pattern_case _ ,
+            (parenthesized_or_tuple_pattern _ :+
+              (variable_pattern PLACEHOLDER_4)) ,
+            (variable_pattern PLACEHOLDER_5)
+            (guarded_block
+              (guard mod PLACEHOLDER_5 PLACEHOLDER_4 == 0) ->
+              (block_term Some
+                (tuple_or_parenthesized fill
+                  (tuple_or_parenthesized PLACEHOLDER_5 / PLACEHOLDER_4) PLACEHOLDER_4))))
+          (pattern_case
+            (variable_pattern PLACEHOLDER_3) ,
+            (parenthesized_or_tuple_pattern
+              (variable_pattern PLACEHOLDER_6) :+
+              (variable_pattern PLACEHOLDER_4)) ,
+            (variable_pattern PLACEHOLDER_5) ->
+            (term_declaration
+              (type_signature PLACEHOLDER_7
+                (term_type Optional
+                  (sequence_type Nat) -> Nat -> Optional
+                  (sequence_type Nat)))
+              (term_definition PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9
+                (term_declaration
+                  (term_definition PLACEHOLDER_10
+                    (block_term
+                      (match_expression PLACEHOLDER_8
+                        (pattern_case
+                          (var_or_nullary_ctor None) ->
+                          (block_term PLACEHOLDER_2
+                            (tuple_or_parenthesized PLACEHOLDER_3 - PLACEHOLDER_9) PLACEHOLDER_6
+                            (tuple_or_parenthesized PLACEHOLDER_5 -
+                              (tuple_or_parenthesized PLACEHOLDER_9 * PLACEHOLDER_4))))
+                        (pattern_case
+                          (pattern
+                            (var_or_nullary_ctor Some)
+                            (variable_pattern PLACEHOLDER_11)) ->
+                          (block_term PLACEHOLDER_2
+                            (tuple_or_parenthesized size PLACEHOLDER_11 - PLACEHOLDER_9) PLACEHOLDER_6
+                            (tuple_or_parenthesized PLACEHOLDER_5 -
+                              (tuple_or_parenthesized PLACEHOLDER_9 * PLACEHOLDER_4))))))))
+                (block_term
+                  (match_expression PLACEHOLDER_10
+                    (pattern_case
+                      (var_or_nullary_ctor None) ->
+                      (block_term PLACEHOLDER_8))
+                    (pattern_case
+                      (pattern
+                        (var_or_nullary_ctor Some)
+                        (variable_pattern PLACEHOLDER_11)) ->
+                      (block_term Some
+                        (tuple_or_parenthesized PLACEHOLDER_11 ++ fill PLACEHOLDER_9 PLACEHOLDER_4)))))))
+            (term_declaration
+              (term_definition PLACEHOLDER_12
+                (block_term rangeClosed 0
+                  (tuple_or_parenthesized PLACEHOLDER_5 / PLACEHOLDER_4) |> reverse)))
+            (block_term List. foldLeft PLACEHOLDER_7 None PLACEHOLDER_12)))))))

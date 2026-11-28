@@ -1,24 +1,42 @@
-sieve . primes : Nat -> [ Nat ]
-sieve . primes = cases
-  n
-    | n Nat .< 2 -> []
-    | otherwise ->
-      Scope . run do
-        use Array write
-        use List foreach
-        use Nat * + / rangeClosed
-        arr = mutable . Array . fromList ( List . replicate ( n + 1 ) do true )
-        unsafeRun ! do
-          write arr 0 false
-          write arr 1 false
-          rangeClosed 2 n
-            |> foreach
-              ( i ->
-                when ( mutable . Array . read arr i ) do
-                  rangeClosed 2 ( n / i )
-                    |> foreach ( j -> write arr ( i * j ) false ))
-        Array . freeze ! arr
-          |> Array . toList
-          |> List . indexed
-          |> List . filter at1
-          |> List . map at2
+(unison
+  (term_declaration
+    (type_signature sieve. PLACEHOLDER_1
+      (term_type Nat ->
+        (sequence_type Nat)))
+    (term_definition sieve. PLACEHOLDER_1
+      (block_term
+        (match_expression_lambda
+          (pattern_case
+            (variable_pattern PLACEHOLDER_2)
+            (guarded_block
+              (guard PLACEHOLDER_2 Nat. < 2) ->
+              (block_term
+                (literal_list)))
+            (guarded_block
+              (guard otherwise) ->
+              (block_term Scope. run
+                (delay_block
+                  (term_declaration
+                    (term_definition PLACEHOLDER_3
+                      (block_term mutable.Array. fromList
+                        (tuple_or_parenthesized List. replicate
+                          (tuple_or_parenthesized PLACEHOLDER_2 + 1)
+                          (delay_block
+                            (block_term
+                              (literal_boolean true)))))))
+                  (block_term unsafeRun!
+                    (delay_block
+                      (block_term write PLACEHOLDER_3 0
+                        (literal_boolean false))
+                      (block_term write PLACEHOLDER_3 1
+                        (literal_boolean false))
+                      (block_term rangeClosed 2 PLACEHOLDER_2 |> foreach
+                        (literal_function PLACEHOLDER_4 -> when
+                          (tuple_or_parenthesized mutable.Array. read PLACEHOLDER_3 PLACEHOLDER_4)
+                          (delay_block
+                            (block_term rangeClosed 2
+                              (tuple_or_parenthesized PLACEHOLDER_2 / PLACEHOLDER_4) |> foreach
+                              (literal_function PLACEHOLDER_5 -> write PLACEHOLDER_3
+                                (tuple_or_parenthesized PLACEHOLDER_4 * PLACEHOLDER_5)
+                                (literal_boolean false))))))))
+                  (block_term Array. freeze! PLACEHOLDER_3 |> Array. toList |> List. indexed |> List. filter at1 |> List. map at2))))))))))

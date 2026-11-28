@@ -1,40 +1,99 @@
-runLengthEncoding . encode : Text -> Text
-runLengthEncoding . encode input =
-  use List +:
-  use Text ++
-  encodeInner : [( a , Nat )] -> a -> [( a , Nat )]
-  encodeInner z a = match z with
-    [] -> [( a , 1 )]
-    ( c , n ) +: t ->
-      if c === a then ( c , n + 1 ) +: t
-      else ( a , 1 ) +: z
-  toCharList input
-    |> List . foldLeft encodeInner []
-    |> ( List . map cases
-      ( c , 1 ) -> Char . toText c
-      ( c , n ) -> Nat . toText n ++ Char . toText c )
-    |> List . reverse
-    |> Text . join "\"\""
-runLengthEncoding . decode : Text -> Text
-runLengthEncoding . decode input =
-  decodeInner : [ Char ] -> Text
-  decodeInner = cases
-    [] -> "\"\""
-    cs ->
-      ( digits , rest ) = List . span isDigit cs
-      match rest with
-        [] -> "\"\""
-        h +: t ->
-          num = match digits with
-            [] -> 1
-            _ -> digitsToNumber digits
-          fromCharList ( List . of h num ) ++ decodeInner t
-  toCharList input
-    |> decodeInner
-digitsToNumber : [ Char ] -> Nat
-digitsToNumber chars =
-  use Nat *
-  List . filterMap toBase36Digit chars
-    |> List . reverse
-    |> mapIndexed ( i d -> Nat . pow 10 i * d )
-    |> Nat . sum
+(unison
+  (term_declaration
+    (type_signature runLengthEncoding. PLACEHOLDER_1
+      (term_type Text -> Text))
+    (term_definition runLengthEncoding. PLACEHOLDER_1 PLACEHOLDER_2
+      (term_declaration
+        (type_signature PLACEHOLDER_3
+          (term_type
+            (sequence_type
+              (tuple_or_parenthesized_type
+                (type_variable PLACEHOLDER_4) , Nat)) ->
+            (type_variable PLACEHOLDER_4) ->
+            (sequence_type
+              (tuple_or_parenthesized_type
+                (type_variable PLACEHOLDER_4) , Nat))))
+        (term_definition PLACEHOLDER_3 PLACEHOLDER_5 PLACEHOLDER_4
+          (block_term
+            (match_expression PLACEHOLDER_5
+              (pattern_case
+                (literal_list_pattern) ->
+                (block_term
+                  (literal_list
+                    (tuple_or_parenthesized PLACEHOLDER_4 , 1))))
+              (pattern_case
+                (parenthesized_or_tuple_pattern
+                  (variable_pattern PLACEHOLDER_6) ,
+                  (variable_pattern PLACEHOLDER_7)) +:
+                (variable_pattern PLACEHOLDER_8) ->
+                (block_term
+                  (exp_if
+                    (if_block
+                      (block_term PLACEHOLDER_6 === PLACEHOLDER_4))
+                    (then_block
+                      (block_term
+                        (tuple_or_parenthesized PLACEHOLDER_6 , PLACEHOLDER_7 +1) +: PLACEHOLDER_8))
+                    (else_block
+                      (block_term
+                        (tuple_or_parenthesized PLACEHOLDER_4 , 1) +: PLACEHOLDER_5)))))))))
+      (block_term toCharList PLACEHOLDER_2 |> List. foldLeft PLACEHOLDER_3
+        (literal_list) |>
+        (tuple_or_parenthesized List. map
+          (match_expression_lambda
+            (pattern_case
+              (parenthesized_or_tuple_pattern
+                (variable_pattern PLACEHOLDER_6) , 1) ->
+              (block_term Char. toText PLACEHOLDER_6))
+            (pattern_case
+              (parenthesized_or_tuple_pattern
+                (variable_pattern PLACEHOLDER_6) ,
+                (variable_pattern PLACEHOLDER_7)) ->
+              (block_term Nat. toText PLACEHOLDER_7 ++ Char. toText PLACEHOLDER_6)))) |> List. reverse |> Text. join "")))
+  (term_declaration
+    (type_signature runLengthEncoding. PLACEHOLDER_9
+      (term_type Text -> Text))
+    (term_definition runLengthEncoding. PLACEHOLDER_9 PLACEHOLDER_2
+      (term_declaration
+        (type_signature PLACEHOLDER_10
+          (term_type
+            (sequence_type Char) -> Text))
+        (term_definition PLACEHOLDER_10
+          (block_term
+            (match_expression_lambda
+              (pattern_case
+                (literal_list_pattern) ->
+                (block_term ""))
+              (pattern_case
+                (variable_pattern PLACEHOLDER_11) ->
+                (destructuring_bind
+                  (parenthesized_or_tuple_pattern
+                    (variable_pattern PLACEHOLDER_12) ,
+                    (variable_pattern PLACEHOLDER_13))
+                  (block_term List. span isDigit PLACEHOLDER_11))
+                (block_term
+                  (match_expression PLACEHOLDER_13
+                    (pattern_case
+                      (literal_list_pattern) ->
+                      (block_term ""))
+                    (pattern_case
+                      (variable_pattern PLACEHOLDER_14) +:
+                      (variable_pattern PLACEHOLDER_8) ->
+                      (term_declaration
+                        (term_definition PLACEHOLDER_15
+                          (block_term
+                            (match_expression PLACEHOLDER_12
+                              (pattern_case
+                                (literal_list_pattern) ->
+                                (block_term 1))
+                              (pattern_case _ ->
+                                (block_term PLACEHOLDER_16 PLACEHOLDER_12))))))
+                      (block_term fromCharList
+                        (tuple_or_parenthesized List. of PLACEHOLDER_14 PLACEHOLDER_15) ++ PLACEHOLDER_10 PLACEHOLDER_8)))))))))
+      (block_term toCharList PLACEHOLDER_2 |> PLACEHOLDER_10)))
+  (term_declaration
+    (type_signature PLACEHOLDER_16
+      (term_type
+        (sequence_type Char) -> Nat))
+    (term_definition PLACEHOLDER_16 PLACEHOLDER_17
+      (block_term List. filterMap toBase36Digit PLACEHOLDER_17 |> List. reverse |> mapIndexed
+        (literal_function PLACEHOLDER_18 PLACEHOLDER_19 -> Nat. pow 10 PLACEHOLDER_18 * PLACEHOLDER_19) |> Nat. sum))))

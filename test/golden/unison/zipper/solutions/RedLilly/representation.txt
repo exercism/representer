@@ -1,63 +1,262 @@
-structural type zipper . Tree a
-  = Branch a ( Optional ( zipper . Tree a )) ( Optional ( zipper . Tree a ))
-structural ability zipper . Zipper t a where
-  setValue : a -> { zipper . Zipper t a } ()
-  setLeft : t a -> { zipper . Zipper t a } ()
-  setRight : t a -> { zipper . Zipper t a } ()
-  left : { zipper . Zipper t a } ()
-  right : { zipper . Zipper t a } ()
-  up : { zipper . Zipper t a } ()
-  focus : { zipper . Zipper t a } a
-zipper . Zipper . handlerImpl : Tree a -> Request { Zipper Tree a } r -> { Store [ Tree a -> Tree a ]} ( r , Tree a )
-zipper . Zipper . handlerImpl tree request =
-  ( Branch val left right ) = tree
-  push = Store . modify << ( List .+: )
-  match request with
-    { r } -> ( r , tree )
-    { setValue newVal -> r } ->
-      handle ! r with handlerImpl ( Branch newVal left right )
-    { setLeft newBranch -> r } ->
-      handle ! r with handlerImpl ( Branch val ( Some newBranch ) right )
-    { setRight newBranch -> r } ->
-      handle ! r with handlerImpl ( Branch val left ( Some newBranch ))
-    { left -> r } ->
-      newRoot = match left with
-        Some subtree ->
-          push ( t -> Branch val ( Some t ) right )
-          subtree
-        None -> tree
-      handle ! r with handlerImpl newRoot
-    { right -> r } ->
-      newRoot = match right with
-        Some subtree ->
-          push ( t -> Branch val left ( Some t ))
-          subtree
-        None -> tree
-      handle ! r with handlerImpl newRoot
-    { up -> r } ->
-      newRoot = match Store . get with
-        rewind +: rest ->
-          Store . put rest
-          rewind tree
-        _ -> tree
-      handle ! r with handlerImpl newRoot
-    { focus -> r } ->
-      handle r val with handlerImpl tree
-zipper . Zipper . run : Tree a -> ' { Zipper Tree a } r -> r
-zipper . Zipper . run tree zipperFunction =
-  runWithTree tree zipperFunction |> at1
-zipper . Zipper . runWithTree : Tree a -> ' { Zipper Tree a } r -> ( r , Tree a )
-zipper . Zipper . runWithTree tree zipperFunction =
-  withInitialValue [] ' ( handle ! zipperFunction with handlerImpl tree )
-zipper . testTree : Tree Nat
-zipper . testTree = Branch 1 ( Some ( Branch 2 None None )) ( Some ( Branch 3 None None ))
-zipper . newRoot : ' { Zipper Tree Nat } Nat
-zipper . newRoot _ =
-  Zipper . right
-  setValue 400
-  Zipper . up
-  setValue 500
-  setLeft testTree
-  focus
-zipper . exampleProgram : ( Nat , Tree Nat )
-zipper . exampleProgram = runWithTree testTree newRoot
+(unison
+  (type_declaration structural
+    (type_constructor
+      (type_name zipper. PLACEHOLDER_1) (type_argument PLACEHOLDER_2)) PLACEHOLDER_3
+    (type_variable PLACEHOLDER_2)
+    (tuple_or_parenthesized_type Optional
+      (tuple_or_parenthesized_type zipper. PLACEHOLDER_1
+        (type_variable PLACEHOLDER_2)))
+    (tuple_or_parenthesized_type Optional
+      (tuple_or_parenthesized_type zipper. PLACEHOLDER_1
+        (type_variable PLACEHOLDER_2))))
+  (ability_declaration structural
+    (ability_name zipper. PLACEHOLDER_4) (type_argument PLACEHOLDER_5) (type_argument PLACEHOLDER_2)
+    (constructor (constructor_name PLACEHOLDER_6)
+      (type_variable PLACEHOLDER_2) -> {
+      (effect zipper. PLACEHOLDER_4
+        (type_variable PLACEHOLDER_5)
+        (type_variable PLACEHOLDER_2)) }
+      (unit))
+    (constructor (constructor_name PLACEHOLDER_7)
+      (type_variable PLACEHOLDER_5)
+      (type_variable PLACEHOLDER_2) -> {
+      (effect zipper. PLACEHOLDER_4
+        (type_variable PLACEHOLDER_5)
+        (type_variable PLACEHOLDER_2)) }
+      (unit))
+    (constructor (constructor_name PLACEHOLDER_8)
+      (type_variable PLACEHOLDER_5)
+      (type_variable PLACEHOLDER_2) -> {
+      (effect zipper. PLACEHOLDER_4
+        (type_variable PLACEHOLDER_5)
+        (type_variable PLACEHOLDER_2)) }
+      (unit))
+    (constructor (constructor_name PLACEHOLDER_9) {
+      (effect zipper. PLACEHOLDER_4
+        (type_variable PLACEHOLDER_5)
+        (type_variable PLACEHOLDER_2)) }
+      (unit))
+    (constructor (constructor_name PLACEHOLDER_10) {
+      (effect zipper. PLACEHOLDER_4
+        (type_variable PLACEHOLDER_5)
+        (type_variable PLACEHOLDER_2)) }
+      (unit))
+    (constructor (constructor_name PLACEHOLDER_11) {
+      (effect zipper. PLACEHOLDER_4
+        (type_variable PLACEHOLDER_5)
+        (type_variable PLACEHOLDER_2)) }
+      (unit))
+    (constructor (constructor_name PLACEHOLDER_12) {
+      (effect zipper. PLACEHOLDER_4
+        (type_variable PLACEHOLDER_5)
+        (type_variable PLACEHOLDER_2)) }
+      (type_variable PLACEHOLDER_2)))
+  (term_declaration
+    (type_signature zipper.Zipper. PLACEHOLDER_13
+      (term_type PLACEHOLDER_1
+        (type_variable PLACEHOLDER_2) -> Request {
+        (effect PLACEHOLDER_4 PLACEHOLDER_1
+          (type_variable PLACEHOLDER_2)) }
+        (type_variable PLACEHOLDER_14) -> {
+        (effect Store
+          (sequence_type PLACEHOLDER_1
+            (type_variable PLACEHOLDER_2) -> PLACEHOLDER_1
+            (type_variable PLACEHOLDER_2))) }
+        (tuple_or_parenthesized_type
+          (type_variable PLACEHOLDER_14) , PLACEHOLDER_1
+          (type_variable PLACEHOLDER_2))))
+    (term_definition zipper.Zipper. PLACEHOLDER_13 PLACEHOLDER_15 PLACEHOLDER_16
+      (destructuring_bind
+        (pattern
+          (var_or_nullary_ctor PLACEHOLDER_3)
+          (variable_pattern PLACEHOLDER_17)
+          (variable_pattern PLACEHOLDER_9)
+          (variable_pattern PLACEHOLDER_10))
+        (block_term PLACEHOLDER_15))
+      (term_declaration
+        (term_definition PLACEHOLDER_18
+          (block_term Store. modify <<
+            (prefix_operator List. +:))))
+      (block_term
+        (match_expression PLACEHOLDER_16
+          (pattern_case
+            (effect_pattern
+              (effect_pure
+                (variable_pattern PLACEHOLDER_14))) ->
+            (block_term
+              (tuple_or_parenthesized PLACEHOLDER_14 , PLACEHOLDER_15)))
+          (pattern_case
+            (effect_pattern
+              (effect_bind
+                (var_or_nullary_ctor PLACEHOLDER_6)
+                (variable_pattern PLACEHOLDER_19) ->
+                (variable_pattern PLACEHOLDER_14))) ->
+            (block_term
+              (handler
+                (block_term
+                  (bang PLACEHOLDER_14))
+                (block_term PLACEHOLDER_13
+                  (tuple_or_parenthesized PLACEHOLDER_3 PLACEHOLDER_19 PLACEHOLDER_9 PLACEHOLDER_10)))))
+          (pattern_case
+            (effect_pattern
+              (effect_bind
+                (var_or_nullary_ctor PLACEHOLDER_7)
+                (variable_pattern PLACEHOLDER_20) ->
+                (variable_pattern PLACEHOLDER_14))) ->
+            (block_term
+              (handler
+                (block_term
+                  (bang PLACEHOLDER_14))
+                (block_term PLACEHOLDER_13
+                  (tuple_or_parenthesized PLACEHOLDER_3 PLACEHOLDER_17
+                    (tuple_or_parenthesized Some PLACEHOLDER_20) PLACEHOLDER_10)))))
+          (pattern_case
+            (effect_pattern
+              (effect_bind
+                (var_or_nullary_ctor PLACEHOLDER_8)
+                (variable_pattern PLACEHOLDER_20) ->
+                (variable_pattern PLACEHOLDER_14))) ->
+            (block_term
+              (handler
+                (block_term
+                  (bang PLACEHOLDER_14))
+                (block_term PLACEHOLDER_13
+                  (tuple_or_parenthesized PLACEHOLDER_3 PLACEHOLDER_17 PLACEHOLDER_9
+                    (tuple_or_parenthesized Some PLACEHOLDER_20))))))
+          (pattern_case
+            (effect_pattern
+              (effect_bind
+                (var_or_nullary_ctor PLACEHOLDER_9) ->
+                (variable_pattern PLACEHOLDER_14))) ->
+            (term_declaration
+              (term_definition PLACEHOLDER_21
+                (block_term
+                  (match_expression PLACEHOLDER_9
+                    (pattern_case
+                      (pattern
+                        (var_or_nullary_ctor Some)
+                        (variable_pattern PLACEHOLDER_22)) ->
+                      (block_term PLACEHOLDER_18
+                        (literal_function PLACEHOLDER_5 -> PLACEHOLDER_3 PLACEHOLDER_17
+                          (tuple_or_parenthesized Some PLACEHOLDER_5) PLACEHOLDER_10))
+                      (block_term PLACEHOLDER_22))
+                    (pattern_case
+                      (var_or_nullary_ctor None) ->
+                      (block_term PLACEHOLDER_15))))))
+            (block_term
+              (handler
+                (block_term
+                  (bang PLACEHOLDER_14))
+                (block_term PLACEHOLDER_13 PLACEHOLDER_21))))
+          (pattern_case
+            (effect_pattern
+              (effect_bind
+                (var_or_nullary_ctor PLACEHOLDER_10) ->
+                (variable_pattern PLACEHOLDER_14))) ->
+            (term_declaration
+              (term_definition PLACEHOLDER_21
+                (block_term
+                  (match_expression PLACEHOLDER_10
+                    (pattern_case
+                      (pattern
+                        (var_or_nullary_ctor Some)
+                        (variable_pattern PLACEHOLDER_22)) ->
+                      (block_term PLACEHOLDER_18
+                        (literal_function PLACEHOLDER_5 -> PLACEHOLDER_3 PLACEHOLDER_17 PLACEHOLDER_9
+                          (tuple_or_parenthesized Some PLACEHOLDER_5)))
+                      (block_term PLACEHOLDER_22))
+                    (pattern_case
+                      (var_or_nullary_ctor None) ->
+                      (block_term PLACEHOLDER_15))))))
+            (block_term
+              (handler
+                (block_term
+                  (bang PLACEHOLDER_14))
+                (block_term PLACEHOLDER_13 PLACEHOLDER_21))))
+          (pattern_case
+            (effect_pattern
+              (effect_bind
+                (var_or_nullary_ctor PLACEHOLDER_11) ->
+                (variable_pattern PLACEHOLDER_14))) ->
+            (term_declaration
+              (term_definition PLACEHOLDER_21
+                (block_term
+                  (match_expression Store. get
+                    (pattern_case
+                      (variable_pattern PLACEHOLDER_23) +:
+                      (variable_pattern PLACEHOLDER_24) ->
+                      (block_term Store. put PLACEHOLDER_24)
+                      (block_term PLACEHOLDER_23 PLACEHOLDER_15))
+                    (pattern_case _ ->
+                      (block_term PLACEHOLDER_15))))))
+            (block_term
+              (handler
+                (block_term
+                  (bang PLACEHOLDER_14))
+                (block_term PLACEHOLDER_13 PLACEHOLDER_21))))
+          (pattern_case
+            (effect_pattern
+              (effect_bind
+                (var_or_nullary_ctor PLACEHOLDER_12) ->
+                (variable_pattern PLACEHOLDER_14))) ->
+            (block_term
+              (handler
+                (block_term PLACEHOLDER_14 PLACEHOLDER_17)
+                (block_term PLACEHOLDER_13 PLACEHOLDER_15))))))))
+  (term_declaration
+    (type_signature zipper.Zipper. PLACEHOLDER_25
+      (term_type PLACEHOLDER_1
+        (type_variable PLACEHOLDER_2) ->
+        (delayed {
+          (effect PLACEHOLDER_4 PLACEHOLDER_1
+            (type_variable PLACEHOLDER_2)) }
+          (type_variable PLACEHOLDER_14)) ->
+        (type_variable PLACEHOLDER_14)))
+    (term_definition zipper.Zipper. PLACEHOLDER_25 PLACEHOLDER_15 PLACEHOLDER_26
+      (block_term PLACEHOLDER_27 PLACEHOLDER_15 PLACEHOLDER_26 |> at1)))
+  (term_declaration
+    (type_signature zipper.Zipper. PLACEHOLDER_27
+      (term_type PLACEHOLDER_1
+        (type_variable PLACEHOLDER_2) ->
+        (delayed {
+          (effect PLACEHOLDER_4 PLACEHOLDER_1
+            (type_variable PLACEHOLDER_2)) }
+          (type_variable PLACEHOLDER_14)) ->
+        (tuple_or_parenthesized_type
+          (type_variable PLACEHOLDER_14) , PLACEHOLDER_1
+          (type_variable PLACEHOLDER_2))))
+    (term_definition zipper.Zipper. PLACEHOLDER_27 PLACEHOLDER_15 PLACEHOLDER_26
+      (block_term withInitialValue
+        (literal_list)
+        (delay_quote
+          (handler
+            (block_term
+              (bang PLACEHOLDER_26))
+            (block_term PLACEHOLDER_13 PLACEHOLDER_15))))))
+  (term_declaration
+    (type_signature zipper. PLACEHOLDER_28
+      (term_type PLACEHOLDER_1 Nat))
+    (term_definition zipper. PLACEHOLDER_28
+      (block_term PLACEHOLDER_3 1
+        (tuple_or_parenthesized Some
+          (tuple_or_parenthesized PLACEHOLDER_3 2 None None))
+        (tuple_or_parenthesized Some
+          (tuple_or_parenthesized PLACEHOLDER_3 3 None None)))))
+  (term_declaration
+    (type_signature zipper. PLACEHOLDER_21
+      (term_type
+        (delayed {
+          (effect PLACEHOLDER_4 PLACEHOLDER_1 Nat) } Nat)))
+    (term_definition zipper. PLACEHOLDER_21 PLACEHOLDER_29
+      (block_term Zipper. PLACEHOLDER_10)
+      (block_term PLACEHOLDER_6 400)
+      (block_term Zipper. PLACEHOLDER_11)
+      (block_term PLACEHOLDER_6 500)
+      (block_term PLACEHOLDER_7 PLACEHOLDER_28)
+      (block_term PLACEHOLDER_12)))
+  (term_declaration
+    (type_signature zipper. PLACEHOLDER_30
+      (term_type
+        (tuple_or_parenthesized_type Nat , PLACEHOLDER_1 Nat)))
+    (term_definition zipper. PLACEHOLDER_30
+      (block_term PLACEHOLDER_27 PLACEHOLDER_28 PLACEHOLDER_21))))

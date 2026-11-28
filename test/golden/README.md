@@ -227,7 +227,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | tcl | Tcl | 370 | 90 | 100 | 91 | 54 | 0 | 2 | 0 | 3 |
 | typescript | TypeScript | 387 | 96 | 100 | 63 | 95 | 0 | 2 | 0 | 0 |
 | uiua | Basic | 217 | 39 | 100 | 76 | 91 | 12 | 0 | 0 | 0 |
-| unison | Basic | 115 | 5 | 100 | 43 | 97 | 0 | 0 | 0 | 0 |
+| unison | Unison | 115 | 5 | 100 | 43 | 97 | 0 | 0 | 0 | 2 |
 | vbnet | VBNet | 174 | 25 | 100 | 76 | 94 | 0 | 3 | 0 | 0 |
 | vimscript | Vimscript | 124 | 8 | 100 | 68 | 96 | 0 | 1 | 0 | 0 |
 | vlang | Vlang | 193 | 31 | 100 | 83 | 98 | 0 | 4 | 0 | 0 |

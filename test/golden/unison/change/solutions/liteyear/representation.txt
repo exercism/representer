@@ -1,24 +1,81 @@
-use Nat div
-use List head +: size
-use Optional getOrElse
-change . findFewestCoins : [ Nat ] -> Nat -> Optional [ Nat ]
-change . findFewestCoins inputCoins target =
-  inputCoinsSorted = sortDescending inputCoins
-  maxCoin = getOrElse 1 ( head inputCoinsSorted )
-  incrementMaxCoinsUntilSomeUpToLimit maxCoins limit =
-    if maxCoins > limit then None else
-      res = findFewestCoinsGo [] inputCoinsSorted target maxCoins
-      if isSome res then res else incrementMaxCoinsUntilSomeUpToLimit ( increment maxCoins ) limit
-  incrementMaxCoinsUntilSomeUpToLimit ( div target maxCoin ) 15
-change . findFewestCoinsGo : [ Nat ] -> [ Nat ] -> Nat -> Nat -> Optional [ Nat ]
-change . findFewestCoinsGo change inputCoins target maxCoins = match inputCoins with
-  [] -> None
-  thisCoin +: rest | sum change == target -> Some change
-    | sum change > target -> None
-    | size change == maxCoins -> None
-    | sum change + (( maxCoins - size change ) * thisCoin ) < target
-      -> None
-    | otherwise ->
-    result = findFewestCoinsGo ( thisCoin +: change ) inputCoins target maxCoins
-    if isSome result then result
-    else findFewestCoinsGo change rest target maxCoins
+(unison
+  (term_declaration
+    (type_signature change. PLACEHOLDER_1
+      (term_type
+        (sequence_type Nat) -> Nat -> Optional
+        (sequence_type Nat)))
+    (term_definition change. PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (term_declaration
+        (term_definition PLACEHOLDER_4
+          (block_term sortDescending PLACEHOLDER_2)))
+      (term_declaration
+        (term_definition PLACEHOLDER_5
+          (block_term getOrElse 1
+            (tuple_or_parenthesized head PLACEHOLDER_4))))
+      (term_declaration
+        (term_definition PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8
+          (block_term
+            (exp_if
+              (if_block
+                (block_term PLACEHOLDER_7 > PLACEHOLDER_8))
+              (then_block
+                (block_term None))
+              (else_block
+                (term_declaration
+                  (term_definition PLACEHOLDER_9
+                    (block_term PLACEHOLDER_10
+                      (literal_list) PLACEHOLDER_4 PLACEHOLDER_3 PLACEHOLDER_7)))
+                (block_term
+                  (exp_if
+                    (if_block
+                      (block_term isSome PLACEHOLDER_9))
+                    (then_block
+                      (block_term PLACEHOLDER_9))
+                    (else_block
+                      (block_term PLACEHOLDER_6
+                        (tuple_or_parenthesized increment PLACEHOLDER_7) PLACEHOLDER_8)))))))))
+      (block_term PLACEHOLDER_6
+        (tuple_or_parenthesized div PLACEHOLDER_3 PLACEHOLDER_5) 15)))
+  (term_declaration
+    (type_signature change. PLACEHOLDER_10
+      (term_type
+        (sequence_type Nat) ->
+        (sequence_type Nat) -> Nat -> Nat -> Optional
+        (sequence_type Nat)))
+    (term_definition change. PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_7
+      (block_term
+        (match_expression PLACEHOLDER_2
+          (pattern_case
+            (literal_list_pattern) ->
+            (block_term None))
+          (pattern_case
+            (variable_pattern PLACEHOLDER_12) +:
+            (variable_pattern PLACEHOLDER_13)
+            (guarded_block
+              (guard sum PLACEHOLDER_11 == PLACEHOLDER_3) ->
+              (block_term Some PLACEHOLDER_11))
+            (guarded_block
+              (guard sum PLACEHOLDER_11 > PLACEHOLDER_3) ->
+              (block_term None))
+            (guarded_block
+              (guard size PLACEHOLDER_11 == PLACEHOLDER_7) ->
+              (block_term None))
+            (guarded_block
+              (guard sum PLACEHOLDER_11 +
+                (tuple_or_parenthesized
+                  (tuple_or_parenthesized PLACEHOLDER_7 - size PLACEHOLDER_11) * PLACEHOLDER_12) < PLACEHOLDER_3) ->
+              (block_term None))
+            (guarded_block
+              (guard otherwise) ->
+              (term_declaration
+                (term_definition PLACEHOLDER_14
+                  (block_term PLACEHOLDER_10
+                    (tuple_or_parenthesized PLACEHOLDER_12 +: PLACEHOLDER_11) PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_7)))
+              (block_term
+                (exp_if
+                  (if_block
+                    (block_term isSome PLACEHOLDER_14))
+                  (then_block
+                    (block_term PLACEHOLDER_14))
+                  (else_block
+                    (block_term PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_13 PLACEHOLDER_3 PLACEHOLDER_7)))))))))))
