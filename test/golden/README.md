@@ -203,7 +203,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | ocaml | OCaml | 244 | 48 | 100 | 48 | 100 | 0 | 9 | 0 | 0 |
 | odin | Odin | 160 | 20 | 100 | 65 | 100 | 0 | 5 | 0 | 3 |
 | perl5 | Perl5 | 151 | 17 | 100 | 75 | 100 | 0 | 2 | 0 | 1 |
-| pharo-smalltalk | Basic | 115 | 5 | 100 | 45 | 100 | 1 | 1 | 0 | 0 |
+| pharo-smalltalk | PharoSmalltalk | 115 | 5 | 100 | 45 | 100 | 0 | 2 | 0 | 0 |
 | php | PHP | 352 | 84 | 100 | 68 | 99 | 4 | 4 | 0 | 0 |
 | powershell | Powershell | 205 | 35 | 100 | 91 | 94 | 0 | 2 | 0 | 0 |
 | prolog | Prolog | 400 | 100 | 100 | 73 | 81 | 0 | 4 | 0 | 0 |

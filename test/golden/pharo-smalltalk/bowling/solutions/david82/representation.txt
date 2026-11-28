@@ -1,258 +1,560 @@
-Class {
-#name : #Bowling ,
-#superclass : #Object ,
-#instVars : [
-'rolls'
-] ,
-#category : # 'Exercise@Bowling'
-}
-{ #category : #initialization }
-Bowling >> initialize [
-super initialize .
-rolls := OrderedCollection new
-]
-{ #category : #private }
-Bowling >> isStrike: rollIndex [
-rollIndex + 1 <= rolls size ifFalse: [ ^ false ].
-^ ( rolls at: rollIndex + 1 ) = 10
-]
-{ #category : #private }
-Bowling >> isSpare: rollIndex [
-rollIndex + 2 <= rolls size ifFalse: [ ^ false ].
-^ ( rolls at: rollIndex + 1 ) + ( rolls at: rollIndex + 2 ) = 10
-]
-{ #category : #private }
-Bowling >> scoreFrame: frameIndex [
-| score |
-score := 0 .
-( self isStrike: frameIndex ) ifTrue: [
-score := 10 + ( rolls at: frameIndex + 2 ) + ( rolls at: frameIndex + 3 ).
-^ score
-].
-( self isSpare: frameIndex ) ifTrue: [
-score := 10 + ( rolls at: frameIndex + 3 ).
-^ score
-].
-score := ( rolls at: frameIndex + 1 ) + ( rolls at: frameIndex + 2 ).
-^ score
-]
-{ #category : #private }
-Bowling >> nextRollIndex: frameIndex [
-( self isStrike: frameIndex )
-ifTrue: [ ^ frameIndex + 1 ]
-ifFalse: [ ^ frameIndex + 2 ]
-]
-{ #category : #private }
-Bowling >> isGameComplete [
-rolls size = 0 ifTrue: [ ^ false ].
-^ self canScoreAllFrames
-]
-{ #category : #private }
-Bowling >> canScoreAllFrames [
-| rollIndex frame |
-rollIndex := 0 .
-frame := 1 .
-[ frame <= 10 ] whileTrue: [
-frame = 10 ifTrue: [
-^ self canScore10thFrame: rollIndex
-].
-( self canScoreFrame: rollIndex ) ifFalse: [ ^ false ].
-rollIndex := self nextRollIndex: rollIndex .
-frame := frame + 1
-].
-^ true
-]
-{ #category : #private }
-Bowling >> canScoreFrame: frameIndex [
-frameIndex + 1 > rolls size ifTrue: [ ^ false ].
-( self isStrike: frameIndex ) ifTrue: [
-^ frameIndex + 3 <= rolls size
-].
-frameIndex + 2 > rolls size ifTrue: [ ^ false ].
-( self isSpare: frameIndex ) ifTrue: [
-^ frameIndex + 3 <= rolls size
-].
-^ true
-]
-{ #category : #private }
-Bowling >> canScore10thFrame: frameIndex [
-| rollCount firstRoll secondRoll |
-rollCount := rolls size .
-frameIndex + 1 > rollCount ifTrue: [ ^ false ].
-firstRoll := rolls at: frameIndex + 1 .
-firstRoll = 10 ifTrue: [
-^ frameIndex + 3 <= rollCount
-].
-frameIndex + 2 > rollCount ifTrue: [ ^ false ].
-secondRoll := rolls at: frameIndex + 2 .
-( firstRoll + secondRoll = 10 ) ifTrue: [
-^ frameIndex + 3 <= rollCount
-].
-^ true
-]
-{ #category : #private }
-Bowling >> find10thFrameStart: rollsArray [
-| rollIndex frame |
-rollIndex := 0 .
-frame := 1 .
-[ frame < 10 ] whileTrue: [
-rollIndex + 1 <= rollsArray size ifTrue: [
-( rollsArray at: rollIndex + 1 ) = 10
-ifTrue: [ rollIndex := rollIndex + 1 ]
-ifFalse: [ rollIndex := rollIndex + 2 ]
-] ifFalse: [
-rollIndex := rollIndex + 1
-].
-frame := frame + 1
-].
-^ rollIndex
-]
-{ #category : #private }
-Bowling >> isGameCompleteWithRolls: rollsArray [
-| tempRolls result |
-tempRolls := rolls .
-rolls := rollsArray asOrderedCollection .
-result := self isGameComplete .
-rolls := tempRolls .
-^ result
-]
-{ #category : #private }
-Bowling >> validatePinCount: pins afterRolls: rollsArray [
-| rollCount tenthFrameStart |
-rollCount := rollsArray size .
-tenthFrameStart := self find10thFrameStart: rollsArray .
-rollCount > tenthFrameStart ifTrue: [
-self validate10thFramePinCount: pins afterRolls: rollsArray
-] ifFalse: [
-self validateRegularFramePinCount: pins afterRolls: rollsArray
-]
-]
-{ #category : #private }
-Bowling >> validateRegularFramePinCount: pins afterRolls: rollsArray [
-| rollCount rollIndex frame |
-rollCount := rollsArray size .
-rollIndex := 0 .
-frame := 1 .
-[ frame <= 9 and: [ rollIndex < rollCount - 1 ] ] whileTrue: [
-rollIndex + 1 <= rollsArray size ifTrue: [
-( rollsArray at: rollIndex + 1 ) = 10
-ifTrue: [
-rollIndex := rollIndex + 1 .
-frame := frame + 1
-]
-ifFalse: [
-rollIndex + 2 <= rollsArray size ifTrue: [
-| firstRoll secondRoll |
-firstRoll := rollsArray at: rollIndex + 1 .
-secondRoll := rollsArray at: rollIndex + 2 .
-( firstRoll + secondRoll > 10 ) ifTrue: [
-Error signal: "'Pin count exceeds pins on the lane'"
-].
-rollIndex := rollIndex + 2 .
-frame := frame + 1
-] ifFalse: [
-| firstRoll |
-firstRoll := rollsArray at: rollIndex + 1 .
-( firstRoll + pins > 10 ) ifTrue: [
-Error signal: "'Pin count exceeds pins on the lane'"
-].
-^ self
-]
-]
-] ifFalse: [
-^ self
-]
-]
-]
-{ #category : #private }
-Bowling >> validate10thFramePinCount: pins afterRolls: rollsArray [
-| rollCount tenthFrameStart frameRollIndex firstRoll secondRoll |
-rollCount := rollsArray size .
-tenthFrameStart := self find10thFrameStart: rollsArray .
-frameRollIndex := rollCount - tenthFrameStart .
-frameRollIndex = 1 ifTrue: [
-^ self
-].
-firstRoll := rollsArray at: tenthFrameStart + 1 .
-frameRollIndex = 2 ifTrue: [
-( firstRoll ~= 10 and: [ firstRoll + pins > 10 ]) ifTrue: [
-Error signal: "'Pin count exceeds pins on the lane'"
-]
-].
-frameRollIndex = 3 ifTrue: [
-secondRoll := rollsArray at: tenthFrameStart + 2 .
-firstRoll = 10 ifTrue: [
-( secondRoll ~= 10 and: [ secondRoll + pins > 10 ]) ifTrue: [
-Error signal: "'Pin count exceeds pins on the lane'"
-]
-] ifFalse: [
-]
-]
-]
-{ #category : #private }
-Bowling >> maxRollsForGame: rollsArray [
-| tenthFrameStart firstRoll secondRoll |
-tenthFrameStart := self find10thFrameStart: rollsArray .
-tenthFrameStart + 1 > rollsArray size ifTrue: [ ^ 21 ].
-firstRoll := rollsArray at: tenthFrameStart + 1 .
-firstRoll = 10 ifTrue: [ ^ tenthFrameStart + 3 ].
-tenthFrameStart + 2 > rollsArray size ifTrue: [ ^ 21 ].
-secondRoll := rollsArray at: tenthFrameStart + 2 .
-( firstRoll + secondRoll = 10 ) ifTrue: [ ^ tenthFrameStart + 3 ].
-^ tenthFrameStart + 2
-]
-{ #category : #api }
-Bowling >> scoreAfterRolling: rollsArray [
-| totalScore rollIndex |
-rolls := rollsArray asOrderedCollection .
-( self isGameComplete ) ifFalse: [
-Error signal: "'Score cannot be taken until the end of the game'"
-].
-totalScore := 0 .
-rollIndex := 0 .
-1 to: 9 do: [ : frame |
-totalScore := totalScore + ( self scoreFrame: rollIndex ).
-rollIndex := self nextRollIndex: rollIndex
-].
-rollIndex + 1 to: rolls size do: [ : index |
-totalScore := totalScore + ( rolls at: index )
-].
-^ totalScore
-]
-{ #category : #private }
-Bowling >> validateFramePinCount: pins afterRolls: rollsArray [
-| rollCount |
-rollCount := rollsArray size .
-rollCount <= 2 ifTrue: [
-rollCount = 2 ifTrue: [
-| firstRoll secondRoll |
-firstRoll := rollsArray at: 1 .
-secondRoll := rollsArray at: 2 .
-( firstRoll + secondRoll > 10 ) ifTrue: [
-Error signal: "'Pin count exceeds pins on the lane'"
-]
-].
-^ self
-].
-self validatePinCount: pins afterRolls: rollsArray
-]
-{ #category : #api }
-Bowling >> scoreRolling: pins after: previousRolls [
-| newRolls |
-pins < 0 ifTrue: [
-Error signal: "'Negative roll is invalid'"
-].
-pins > 10 ifTrue: [
-Error signal: "'Pin count exceeds pins on the lane'"
-].
-newRolls := previousRolls asOrderedCollection copy .
-newRolls add: pins .
-( self isGameCompleteWithRolls: previousRolls ) ifTrue: [
-Error signal: "'Cannot roll after game is over'"
-].
-newRolls size > ( self maxRollsForGame: newRolls ) ifTrue: [
-Error signal: "'Cannot roll after game is over'"
-].
-self validateFramePinCount: pins afterRolls: newRolls .
-^ self scoreAfterRolling: newRolls
-]
+(source_file
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_1))
+      (ston_pair superclass Object)
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_2))
+      (ston_pair category #Exercise@Bowling)))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_3))
+    (method_body
+      (unary_message super (unary_selector PLACEHOLDER_3))
+      (assignment PLACEHOLDER_2
+        (unary_message OrderedCollection new))))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_4)
+      (parameter PLACEHOLDER_5))
+    (method_body
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_5 + 1) <=
+          (unary_message PLACEHOLDER_2 size)) ifFalse:
+        (block
+          (return false)))
+      (return
+        (binary_message
+          (keyword_message PLACEHOLDER_2 at:
+            (binary_message PLACEHOLDER_5 + 1)) = 10))))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_6)
+      (parameter PLACEHOLDER_5))
+    (method_body
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_5 + 2) <=
+          (unary_message PLACEHOLDER_2 size)) ifFalse:
+        (block
+          (return false)))
+      (return
+        (binary_message
+          (binary_message
+            (keyword_message PLACEHOLDER_2 at:
+              (binary_message PLACEHOLDER_5 + 1)) +
+            (keyword_message PLACEHOLDER_2 at:
+              (binary_message PLACEHOLDER_5 + 2))) = 10))))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_7)
+      (parameter PLACEHOLDER_8))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_9))
+      (assignment PLACEHOLDER_9 0)
+      (keyword_message
+        (keyword_message self (keyword_selector PLACEHOLDER_4) PLACEHOLDER_8) ifTrue:
+        (block
+          (assignment PLACEHOLDER_9
+            (binary_message
+              (binary_message 10 +
+                (keyword_message PLACEHOLDER_2 at:
+                  (binary_message PLACEHOLDER_8 + 2))) +
+              (keyword_message PLACEHOLDER_2 at:
+                (binary_message PLACEHOLDER_8 + 3))))
+          (return PLACEHOLDER_9)))
+      (keyword_message
+        (keyword_message self (keyword_selector PLACEHOLDER_6) PLACEHOLDER_8) ifTrue:
+        (block
+          (assignment PLACEHOLDER_9
+            (binary_message 10 +
+              (keyword_message PLACEHOLDER_2 at:
+                (binary_message PLACEHOLDER_8 + 3))))
+          (return PLACEHOLDER_9)))
+      (assignment PLACEHOLDER_9
+        (binary_message
+          (keyword_message PLACEHOLDER_2 at:
+            (binary_message PLACEHOLDER_8 + 1)) +
+          (keyword_message PLACEHOLDER_2 at:
+            (binary_message PLACEHOLDER_8 + 2))))
+      (return PLACEHOLDER_9)))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_10)
+      (parameter PLACEHOLDER_8))
+    (method_body
+      (keyword_message
+        (keyword_message self (keyword_selector PLACEHOLDER_4) PLACEHOLDER_8) ifTrue:ifFalse:
+        (block
+          (return
+            (binary_message PLACEHOLDER_8 + 1)))
+        (block
+          (return
+            (binary_message PLACEHOLDER_8 + 2))))))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_11))
+    (method_body
+      (keyword_message
+        (binary_message
+          (unary_message PLACEHOLDER_2 size) = 0) ifTrue:
+        (block
+          (return false)))
+      (return
+        (unary_message self (unary_selector PLACEHOLDER_12)))))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_12))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_5)
+        (temporary PLACEHOLDER_13))
+      (assignment PLACEHOLDER_5 0)
+      (assignment PLACEHOLDER_13 1)
+      (keyword_message
+        (block
+          (binary_message PLACEHOLDER_13 <= 10)) whileTrue:
+        (block
+          (keyword_message
+            (binary_message PLACEHOLDER_13 = 10) ifTrue:
+            (block
+              (return
+                (keyword_message self (keyword_selector PLACEHOLDER_14) PLACEHOLDER_5))))
+          (keyword_message
+            (keyword_message self (keyword_selector PLACEHOLDER_15) PLACEHOLDER_5) ifFalse:
+            (block
+              (return false)))
+          (assignment PLACEHOLDER_5
+            (keyword_message self (keyword_selector PLACEHOLDER_10) PLACEHOLDER_5))
+          (assignment PLACEHOLDER_13
+            (binary_message PLACEHOLDER_13 + 1))))
+      (return true)))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_15)
+      (parameter PLACEHOLDER_8))
+    (method_body
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_8 + 1) >
+          (unary_message PLACEHOLDER_2 size)) ifTrue:
+        (block
+          (return false)))
+      (keyword_message
+        (keyword_message self (keyword_selector PLACEHOLDER_4) PLACEHOLDER_8) ifTrue:
+        (block
+          (return
+            (binary_message
+              (binary_message PLACEHOLDER_8 + 3) <=
+              (unary_message PLACEHOLDER_2 size)))))
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_8 + 2) >
+          (unary_message PLACEHOLDER_2 size)) ifTrue:
+        (block
+          (return false)))
+      (keyword_message
+        (keyword_message self (keyword_selector PLACEHOLDER_6) PLACEHOLDER_8) ifTrue:
+        (block
+          (return
+            (binary_message
+              (binary_message PLACEHOLDER_8 + 3) <=
+              (unary_message PLACEHOLDER_2 size)))))
+      (return true)))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_14)
+      (parameter PLACEHOLDER_8))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_16)
+        (temporary PLACEHOLDER_17)
+        (temporary PLACEHOLDER_18))
+      (assignment PLACEHOLDER_16
+        (unary_message PLACEHOLDER_2 size))
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_8 + 1) > PLACEHOLDER_16) ifTrue:
+        (block
+          (return false)))
+      (assignment PLACEHOLDER_17
+        (keyword_message PLACEHOLDER_2 at:
+          (binary_message PLACEHOLDER_8 + 1)))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = 10) ifTrue:
+        (block
+          (return
+            (binary_message
+              (binary_message PLACEHOLDER_8 + 3) <= PLACEHOLDER_16))))
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_8 + 2) > PLACEHOLDER_16) ifTrue:
+        (block
+          (return false)))
+      (assignment PLACEHOLDER_18
+        (keyword_message PLACEHOLDER_2 at:
+          (binary_message PLACEHOLDER_8 + 2)))
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_17 + PLACEHOLDER_18) = 10) ifTrue:
+        (block
+          (return
+            (binary_message
+              (binary_message PLACEHOLDER_8 + 3) <= PLACEHOLDER_16))))
+      (return true)))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_19)
+      (parameter PLACEHOLDER_20))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_5)
+        (temporary PLACEHOLDER_13))
+      (assignment PLACEHOLDER_5 0)
+      (assignment PLACEHOLDER_13 1)
+      (keyword_message
+        (block
+          (binary_message PLACEHOLDER_13 < 10)) whileTrue:
+        (block
+          (keyword_message
+            (binary_message
+              (binary_message PLACEHOLDER_5 + 1) <=
+              (unary_message PLACEHOLDER_20 size)) ifTrue:ifFalse:
+            (block
+              (keyword_message
+                (binary_message
+                  (keyword_message PLACEHOLDER_20 at:
+                    (binary_message PLACEHOLDER_5 + 1)) = 10) ifTrue:ifFalse:
+                (block
+                  (assignment PLACEHOLDER_5
+                    (binary_message PLACEHOLDER_5 + 1)))
+                (block
+                  (assignment PLACEHOLDER_5
+                    (binary_message PLACEHOLDER_5 + 2)))))
+            (block
+              (assignment PLACEHOLDER_5
+                (binary_message PLACEHOLDER_5 + 1))))
+          (assignment PLACEHOLDER_13
+            (binary_message PLACEHOLDER_13 + 1))))
+      (return PLACEHOLDER_5)))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_21)
+      (parameter PLACEHOLDER_20))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_22)
+        (temporary PLACEHOLDER_23))
+      (assignment PLACEHOLDER_22 PLACEHOLDER_2)
+      (assignment PLACEHOLDER_2
+        (unary_message PLACEHOLDER_20 asOrderedCollection))
+      (assignment PLACEHOLDER_23
+        (unary_message self (unary_selector PLACEHOLDER_11)))
+      (assignment PLACEHOLDER_2 PLACEHOLDER_22)
+      (return PLACEHOLDER_23)))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_24)
+      (parameter PLACEHOLDER_25)
+      (parameter PLACEHOLDER_20))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_16)
+        (temporary PLACEHOLDER_26))
+      (assignment PLACEHOLDER_16
+        (unary_message PLACEHOLDER_20 size))
+      (assignment PLACEHOLDER_26
+        (keyword_message self (keyword_selector PLACEHOLDER_19) PLACEHOLDER_20))
+      (keyword_message
+        (binary_message PLACEHOLDER_16 > PLACEHOLDER_26) ifTrue:ifFalse:
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_27) PLACEHOLDER_25 PLACEHOLDER_20))
+        (block
+          (keyword_message self (keyword_selector PLACEHOLDER_28) PLACEHOLDER_25 PLACEHOLDER_20)))))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_28)
+      (parameter PLACEHOLDER_25)
+      (parameter PLACEHOLDER_20))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_16)
+        (temporary PLACEHOLDER_5)
+        (temporary PLACEHOLDER_13))
+      (assignment PLACEHOLDER_16
+        (unary_message PLACEHOLDER_20 size))
+      (assignment PLACEHOLDER_5 0)
+      (assignment PLACEHOLDER_13 1)
+      (keyword_message
+        (block
+          (keyword_message
+            (binary_message PLACEHOLDER_13 <= 9) and:
+            (block
+              (binary_message
+                (binary_message PLACEHOLDER_5 < PLACEHOLDER_16) - 1)))) whileTrue:
+        (block
+          (keyword_message
+            (binary_message
+              (binary_message PLACEHOLDER_5 + 1) <=
+              (unary_message PLACEHOLDER_20 size)) ifTrue:ifFalse:
+            (block
+              (keyword_message
+                (binary_message
+                  (keyword_message PLACEHOLDER_20 at:
+                    (binary_message PLACEHOLDER_5 + 1)) = 10) ifTrue:ifFalse:
+                (block
+                  (assignment PLACEHOLDER_5
+                    (binary_message PLACEHOLDER_5 + 1))
+                  (assignment PLACEHOLDER_13
+                    (binary_message PLACEHOLDER_13 + 1)))
+                (block
+                  (keyword_message
+                    (binary_message
+                      (binary_message PLACEHOLDER_5 + 2) <=
+                      (unary_message PLACEHOLDER_20 size)) ifTrue:ifFalse:
+                    (block
+                      (temporaries
+                        (temporary PLACEHOLDER_17)
+                        (temporary PLACEHOLDER_18))
+                      (assignment PLACEHOLDER_17
+                        (keyword_message PLACEHOLDER_20 at:
+                          (binary_message PLACEHOLDER_5 + 1)))
+                      (assignment PLACEHOLDER_18
+                        (keyword_message PLACEHOLDER_20 at:
+                          (binary_message PLACEHOLDER_5 + 2)))
+                      (keyword_message
+                        (binary_message
+                          (binary_message PLACEHOLDER_17 + PLACEHOLDER_18) > 10) ifTrue:
+                        (block
+                          (keyword_message Error signal: "Pin count exceeds pins on the lane")))
+                      (assignment PLACEHOLDER_5
+                        (binary_message PLACEHOLDER_5 + 2))
+                      (assignment PLACEHOLDER_13
+                        (binary_message PLACEHOLDER_13 + 1)))
+                    (block
+                      (temporaries
+                        (temporary PLACEHOLDER_17))
+                      (assignment PLACEHOLDER_17
+                        (keyword_message PLACEHOLDER_20 at:
+                          (binary_message PLACEHOLDER_5 + 1)))
+                      (keyword_message
+                        (binary_message
+                          (binary_message PLACEHOLDER_17 + PLACEHOLDER_25) > 10) ifTrue:
+                        (block
+                          (keyword_message Error signal: "Pin count exceeds pins on the lane")))
+                      (return self))))))
+            (block
+              (return self)))))))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_27)
+      (parameter PLACEHOLDER_25)
+      (parameter PLACEHOLDER_20))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_16)
+        (temporary PLACEHOLDER_26)
+        (temporary PLACEHOLDER_29)
+        (temporary PLACEHOLDER_17)
+        (temporary PLACEHOLDER_18))
+      (assignment PLACEHOLDER_16
+        (unary_message PLACEHOLDER_20 size))
+      (assignment PLACEHOLDER_26
+        (keyword_message self (keyword_selector PLACEHOLDER_19) PLACEHOLDER_20))
+      (assignment PLACEHOLDER_29
+        (binary_message PLACEHOLDER_16 - PLACEHOLDER_26))
+      (keyword_message
+        (binary_message PLACEHOLDER_29 = 1) ifTrue:
+        (block
+          (return self)))
+      (assignment PLACEHOLDER_17
+        (keyword_message PLACEHOLDER_20 at:
+          (binary_message PLACEHOLDER_26 + 1)))
+      (keyword_message
+        (binary_message PLACEHOLDER_29 = 2) ifTrue:
+        (block
+          (keyword_message
+            (keyword_message
+              (binary_message PLACEHOLDER_17 ~= 10) and:
+              (block
+                (binary_message
+                  (binary_message PLACEHOLDER_17 + PLACEHOLDER_25) > 10))) ifTrue:
+            (block
+              (keyword_message Error signal: "Pin count exceeds pins on the lane")))))
+      (keyword_message
+        (binary_message PLACEHOLDER_29 = 3) ifTrue:
+        (block
+          (assignment PLACEHOLDER_18
+            (keyword_message PLACEHOLDER_20 at:
+              (binary_message PLACEHOLDER_26 + 2)))
+          (keyword_message
+            (binary_message PLACEHOLDER_17 = 10) ifTrue:ifFalse:
+            (block
+              (keyword_message
+                (keyword_message
+                  (binary_message PLACEHOLDER_18 ~= 10) and:
+                  (block
+                    (binary_message
+                      (binary_message PLACEHOLDER_18 + PLACEHOLDER_25) > 10))) ifTrue:
+                (block
+                  (keyword_message Error signal: "Pin count exceeds pins on the lane"))))
+            (block))))))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_30)
+      (parameter PLACEHOLDER_20))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_26)
+        (temporary PLACEHOLDER_17)
+        (temporary PLACEHOLDER_18))
+      (assignment PLACEHOLDER_26
+        (keyword_message self (keyword_selector PLACEHOLDER_19) PLACEHOLDER_20))
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_26 + 1) >
+          (unary_message PLACEHOLDER_20 size)) ifTrue:
+        (block
+          (return 21)))
+      (assignment PLACEHOLDER_17
+        (keyword_message PLACEHOLDER_20 at:
+          (binary_message PLACEHOLDER_26 + 1)))
+      (keyword_message
+        (binary_message PLACEHOLDER_17 = 10) ifTrue:
+        (block
+          (return
+            (binary_message PLACEHOLDER_26 + 3))))
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_26 + 2) >
+          (unary_message PLACEHOLDER_20 size)) ifTrue:
+        (block
+          (return 21)))
+      (assignment PLACEHOLDER_18
+        (keyword_message PLACEHOLDER_20 at:
+          (binary_message PLACEHOLDER_26 + 2)))
+      (keyword_message
+        (binary_message
+          (binary_message PLACEHOLDER_17 + PLACEHOLDER_18) = 10) ifTrue:
+        (block
+          (return
+            (binary_message PLACEHOLDER_26 + 3))))
+      (return
+        (binary_message PLACEHOLDER_26 + 2))))
+  (method_definition
+    (ston_map
+      (ston_pair category #api)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_31)
+      (parameter PLACEHOLDER_20))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_32)
+        (temporary PLACEHOLDER_5))
+      (assignment PLACEHOLDER_2
+        (unary_message PLACEHOLDER_20 asOrderedCollection))
+      (keyword_message
+        (unary_message self (unary_selector PLACEHOLDER_11)) ifFalse:
+        (block
+          (keyword_message Error signal: "Score cannot be taken until the end of the game")))
+      (assignment PLACEHOLDER_32 0)
+      (assignment PLACEHOLDER_5 0)
+      (keyword_message 1 to:do: 9
+        (block
+          (block_parameter PLACEHOLDER_13)
+          (assignment PLACEHOLDER_32
+            (binary_message PLACEHOLDER_32 +
+              (keyword_message self (keyword_selector PLACEHOLDER_7) PLACEHOLDER_5)))
+          (assignment PLACEHOLDER_5
+            (keyword_message self (keyword_selector PLACEHOLDER_10) PLACEHOLDER_5))))
+      (keyword_message
+        (binary_message PLACEHOLDER_5 + 1) to:do:
+        (unary_message PLACEHOLDER_2 size)
+        (block
+          (block_parameter PLACEHOLDER_33)
+          (assignment PLACEHOLDER_32
+            (binary_message PLACEHOLDER_32 +
+              (keyword_message PLACEHOLDER_2 at: PLACEHOLDER_33)))))
+      (return PLACEHOLDER_32)))
+  (method_definition
+    (ston_map
+      (ston_pair category #private)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_34)
+      (parameter PLACEHOLDER_25)
+      (parameter PLACEHOLDER_20))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_16))
+      (assignment PLACEHOLDER_16
+        (unary_message PLACEHOLDER_20 size))
+      (keyword_message
+        (binary_message PLACEHOLDER_16 <= 2) ifTrue:
+        (block
+          (keyword_message
+            (binary_message PLACEHOLDER_16 = 2) ifTrue:
+            (block
+              (temporaries
+                (temporary PLACEHOLDER_17)
+                (temporary PLACEHOLDER_18))
+              (assignment PLACEHOLDER_17
+                (keyword_message PLACEHOLDER_20 at: 1))
+              (assignment PLACEHOLDER_18
+                (keyword_message PLACEHOLDER_20 at: 2))
+              (keyword_message
+                (binary_message
+                  (binary_message PLACEHOLDER_17 + PLACEHOLDER_18) > 10) ifTrue:
+                (block
+                  (keyword_message Error signal: "Pin count exceeds pins on the lane")))))
+          (return self)))
+      (keyword_message self (keyword_selector PLACEHOLDER_24) PLACEHOLDER_25 PLACEHOLDER_20)))
+  (method_definition
+    (ston_map
+      (ston_pair category #api)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_35)
+      (parameter PLACEHOLDER_25)
+      (parameter PLACEHOLDER_36))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_37))
+      (keyword_message
+        (binary_message PLACEHOLDER_25 < 0) ifTrue:
+        (block
+          (keyword_message Error signal: "Negative roll is invalid")))
+      (keyword_message
+        (binary_message PLACEHOLDER_25 > 10) ifTrue:
+        (block
+          (keyword_message Error signal: "Pin count exceeds pins on the lane")))
+      (assignment PLACEHOLDER_37
+        (unary_message
+          (unary_message PLACEHOLDER_36 asOrderedCollection) copy))
+      (keyword_message PLACEHOLDER_37 add: PLACEHOLDER_25)
+      (keyword_message
+        (keyword_message self (keyword_selector PLACEHOLDER_21) PLACEHOLDER_36) ifTrue:
+        (block
+          (keyword_message Error signal: "Cannot roll after game is over")))
+      (keyword_message
+        (binary_message
+          (unary_message PLACEHOLDER_37 size) >
+          (keyword_message self (keyword_selector PLACEHOLDER_30) PLACEHOLDER_37)) ifTrue:
+        (block
+          (keyword_message Error signal: "Cannot roll after game is over")))
+      (keyword_message self (keyword_selector PLACEHOLDER_34) PLACEHOLDER_25 PLACEHOLDER_37)
+      (return
+        (keyword_message self (keyword_selector PLACEHOLDER_31) PLACEHOLDER_37)))))

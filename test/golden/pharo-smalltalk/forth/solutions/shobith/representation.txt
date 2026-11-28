@@ -1,163 +1,304 @@
-Class {
-#name : #BinaryOperation ,
-#superclass : #Object ,
-#instVars : [
-'block'
-] ,
-#category : # 'Exercise@Forth'
-}
-{ #category : #operations }
-BinaryOperation >> performOnStack: aStack [
-| a b |
-aStack isEmpty
-ifTrue: [ Error signal: "'empty stack'" ].
-aStack size < 2
-ifTrue: [ Error signal: "'only one value on the stack'" ].
-b := aStack pop .
-a := aStack pop .
-( block value: a value: b ) do: [ : each | aStack push: each ]
-]
-{ #category : #initialization }
-BinaryOperation >> withOperationBlock: aBlock [
-block := aBlock
-]
-Class {
-#name : #ChainedOperation ,
-#superclass : #Object ,
-#instVars : [
-'operationChain'
-] ,
-#category : # 'Exercise@Forth'
-}
-{ #category : #initialization }
-ChainedOperation >> performOnStack: aStack [
-operationChain do: [ : operation | operation performOnStack: aStack ]
-]
-{ #category : #initialization }
-ChainedOperation >> withOperationChain: aCollection [
-operationChain := aCollection .
-]
-Class {
-#name : #Forth ,
-#superclass : #Object ,
-#instVars : [
-'instructionSet' ,
-'programStack'
-] ,
-#category : # 'Exercise@Forth'
-}
-{ #category : #utilities }
-Forth >> evaluateInstructions: aCollection [
-| definitions program |
-definitions := aCollection allButLast .
-self setupDefinitions: definitions .
-program := self literalizeString: aCollection last .
-program
-do: [ : literal |
-literal isNumber
-ifTrue: [ programStack push: literal ]
-ifFalse: [ | instruction |
-instruction := instructionSet
-at: literal
-ifAbsent: [ literal = ':'
-ifTrue: [ Error signal: "'illegal operation'" ]
-ifFalse: [ Error signal: "'undefined operation'" ] ].
-instruction performOnStack: programStack ] ].
-^ programStack asArray reversed
-]
-{ #category : #initialization }
-Forth >> initialize [
-instructionSet := self setupInstructionSet .
-programStack := Stack new .
-]
-{ #category : #utilities }
-Forth >> literalizeString: aString [
-^ ( aString asLowercase splitOn: "' '" )
-collect: [ : literal |
-literal isAllDigits
-ifTrue: [ literal asNumber ]
-ifFalse: [ literal asSymbol ] ]
-]
-{ #category : #utilities }
-Forth >> setupDefinitions: someDefinitions [
-( someDefinitions
-collect: [ : rawDefinition |
-( self literalizeString: rawDefinition asLowercase ) allButFirst
-allButLast ])
-do: [ : definition |
-| word chain |
-word := definition first .
-chain := definition allButFirst .
-instructionSet
-at: word
-put:
-( ChainedOperation new
-withOperationChain:
-( chain
-collect: [ : literal |
-literal isNumber
-ifTrue: [ InsertOperation new withLiteral: literal ]
-ifFalse: [ instructionSet at: literal ] ])) ]
-]
-{ #category : #utilities }
-Forth >> setupInstructionSet [
-^ Dictionary new
-at: #+
-put: ( BinaryOperation new withOperationBlock: [ : a : b | {( a + b )} ]);
-at: #-
-put: ( BinaryOperation new withOperationBlock: [ : a : b | {( a - b )} ]);
-at: #*
-put: ( BinaryOperation new withOperationBlock: [ : a : b | {( a * b )} ]);
-at: #/
-put:
-( BinaryOperation new
-withOperationBlock: [ : a : b |
-b = 0
-ifTrue: [ Error signal: "'divide by zero'" ].
-{( a // b )} ]);
-at: #dup
-put: ( UnaryOperation new withOperationBlock: [ : a | { a . a } ]);
-at: #drop
-put: ( UnaryOperation new withOperationBlock: [ : a | {} ]);
-at: #swap
-put: ( BinaryOperation new withOperationBlock: [ : a : b | { b . a } ]);
-at: #over
-put: ( BinaryOperation new withOperationBlock: [ : a : b | { a . b . a } ]);
-yourself
-]
-Class {
-#name : #InsertOperation ,
-#superclass : #Object ,
-#instVars : [
-'literal'
-] ,
-#category : # 'Exercise@Forth'
-}
-{ #category : #initialization }
-InsertOperation >> performOnStack: aStack [
-aStack push: literal
-]
-{ #category : #initialization }
-InsertOperation >> withLiteral: aLiteral [
-literal := aLiteral
-]
-Class {
-#name : #UnaryOperation ,
-#superclass : #Object ,
-#instVars : [
-'block'
-] ,
-#category : # 'Exercise@Forth'
-}
-{ #category : #initialization }
-UnaryOperation >> performOnStack: aStack [
-| a |
-aStack isEmpty
-ifTrue: [ Error signal: "'empty stack'" ].
-a := aStack pop .
-( block value: a ) do: [ : each | aStack push: each ]
-]
-{ #category : #initialization }
-UnaryOperation >> withOperationBlock: aBlock [
-block := aBlock
-]
+(source_file
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_1))
+      (ston_pair superclass Object)
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_2 PLACEHOLDER_3))
+      (ston_pair category #Exercise@Forth)))
+  (method_definition
+    (ston_map
+      (ston_pair category #utilities)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_4)
+      (parameter PLACEHOLDER_5))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_6)
+        (temporary PLACEHOLDER_7))
+      (assignment PLACEHOLDER_6
+        (unary_message PLACEHOLDER_5 allButLast))
+      (keyword_message self (keyword_selector PLACEHOLDER_8) PLACEHOLDER_6)
+      (assignment PLACEHOLDER_7
+        (keyword_message self (keyword_selector PLACEHOLDER_9)
+          (unary_message PLACEHOLDER_5 last)))
+      (keyword_message PLACEHOLDER_7 do:
+        (block
+          (block_parameter PLACEHOLDER_10)
+          (keyword_message
+            (unary_message PLACEHOLDER_10 isNumber) ifTrue:ifFalse:
+            (block
+              (keyword_message PLACEHOLDER_3 push: PLACEHOLDER_10))
+            (block
+              (temporaries
+                (temporary PLACEHOLDER_11))
+              (assignment PLACEHOLDER_11
+                (keyword_message PLACEHOLDER_2 at:ifAbsent: PLACEHOLDER_10
+                  (block
+                    (keyword_message
+                      (binary_message PLACEHOLDER_10 = ":") ifTrue:ifFalse:
+                      (block
+                        (keyword_message Error signal: "illegal operation"))
+                      (block
+                        (keyword_message Error signal: "undefined operation"))))))
+              (keyword_message PLACEHOLDER_11 (keyword_selector PLACEHOLDER_12) PLACEHOLDER_3)))))
+      (return
+        (unary_message
+          (unary_message PLACEHOLDER_3 asArray) reversed))))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_13))
+    (method_body
+      (assignment PLACEHOLDER_2
+        (unary_message self (unary_selector PLACEHOLDER_14)))
+      (assignment PLACEHOLDER_3
+        (unary_message Stack new))))
+  (method_definition
+    (ston_map
+      (ston_pair category #utilities)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_9)
+      (parameter PLACEHOLDER_15))
+    (method_body
+      (return
+        (keyword_message
+          (keyword_message
+            (unary_message PLACEHOLDER_15 asLowercase) splitOn: " ") collect:
+          (block
+            (block_parameter PLACEHOLDER_10)
+            (keyword_message
+              (unary_message PLACEHOLDER_10 isAllDigits) ifTrue:ifFalse:
+              (block
+                (unary_message PLACEHOLDER_10 asNumber))
+              (block
+                (unary_message PLACEHOLDER_10 asSymbol))))))))
+  (method_definition
+    (ston_map
+      (ston_pair category #utilities)) PLACEHOLDER_1
+    (keyword_pattern (keyword_selector PLACEHOLDER_8)
+      (parameter PLACEHOLDER_16))
+    (method_body
+      (keyword_message
+        (keyword_message PLACEHOLDER_16 collect:
+          (block
+            (block_parameter PLACEHOLDER_17)
+            (unary_message
+              (unary_message
+                (keyword_message self (keyword_selector PLACEHOLDER_9)
+                  (unary_message PLACEHOLDER_17 asLowercase)) allButFirst) allButLast))) do:
+        (block
+          (block_parameter PLACEHOLDER_18)
+          (temporaries
+            (temporary PLACEHOLDER_19)
+            (temporary PLACEHOLDER_20))
+          (assignment PLACEHOLDER_19
+            (unary_message PLACEHOLDER_18 first))
+          (assignment PLACEHOLDER_20
+            (unary_message PLACEHOLDER_18 allButFirst))
+          (keyword_message PLACEHOLDER_2 at:put: PLACEHOLDER_19
+            (keyword_message
+              (unary_message PLACEHOLDER_21 new) (keyword_selector PLACEHOLDER_22)
+              (keyword_message PLACEHOLDER_20 collect:
+                (block
+                  (block_parameter PLACEHOLDER_10)
+                  (keyword_message
+                    (unary_message PLACEHOLDER_10 isNumber) ifTrue:ifFalse:
+                    (block
+                      (keyword_message
+                        (unary_message PLACEHOLDER_23 new) (keyword_selector PLACEHOLDER_24) PLACEHOLDER_10))
+                    (block
+                      (keyword_message PLACEHOLDER_2 at: PLACEHOLDER_10)))))))))))
+  (method_definition
+    (ston_map
+      (ston_pair category #utilities)) PLACEHOLDER_1
+    (unary_pattern (unary_selector PLACEHOLDER_14))
+    (method_body
+      (return
+        (cascade
+          (keyword_message
+            (unary_message Dictionary new) at:put: #+
+            (keyword_message
+              (unary_message PLACEHOLDER_25 new) (keyword_selector PLACEHOLDER_26)
+              (block
+                (block_parameter PLACEHOLDER_27)
+                (block_parameter PLACEHOLDER_28)
+                (dynamic_array
+                  (binary_message PLACEHOLDER_27 + PLACEHOLDER_28)))))
+          (cascaded_message at:put: #-
+            (keyword_message
+              (unary_message PLACEHOLDER_25 new) (keyword_selector PLACEHOLDER_26)
+              (block
+                (block_parameter PLACEHOLDER_27)
+                (block_parameter PLACEHOLDER_28)
+                (dynamic_array
+                  (binary_message PLACEHOLDER_27 - PLACEHOLDER_28)))))
+          (cascaded_message at:put: #*
+            (keyword_message
+              (unary_message PLACEHOLDER_25 new) (keyword_selector PLACEHOLDER_26)
+              (block
+                (block_parameter PLACEHOLDER_27)
+                (block_parameter PLACEHOLDER_28)
+                (dynamic_array
+                  (binary_message PLACEHOLDER_27 * PLACEHOLDER_28)))))
+          (cascaded_message at:put: #/
+            (keyword_message
+              (unary_message PLACEHOLDER_25 new) (keyword_selector PLACEHOLDER_26)
+              (block
+                (block_parameter PLACEHOLDER_27)
+                (block_parameter PLACEHOLDER_28)
+                (keyword_message
+                  (binary_message PLACEHOLDER_28 = 0) ifTrue:
+                  (block
+                    (keyword_message Error signal: "divide by zero")))
+                (dynamic_array
+                  (binary_message PLACEHOLDER_27 // PLACEHOLDER_28)))))
+          (cascaded_message at:put: #dup
+            (keyword_message
+              (unary_message PLACEHOLDER_29 new) (keyword_selector PLACEHOLDER_26)
+              (block
+                (block_parameter PLACEHOLDER_27)
+                (dynamic_array PLACEHOLDER_27 PLACEHOLDER_27))))
+          (cascaded_message at:put: #drop
+            (keyword_message
+              (unary_message PLACEHOLDER_29 new) (keyword_selector PLACEHOLDER_26)
+              (block
+                (block_parameter PLACEHOLDER_27)
+                (dynamic_array))))
+          (cascaded_message at:put: #swap
+            (keyword_message
+              (unary_message PLACEHOLDER_25 new) (keyword_selector PLACEHOLDER_26)
+              (block
+                (block_parameter PLACEHOLDER_27)
+                (block_parameter PLACEHOLDER_28)
+                (dynamic_array PLACEHOLDER_28 PLACEHOLDER_27))))
+          (cascaded_message at:put: #over
+            (keyword_message
+              (unary_message PLACEHOLDER_25 new) (keyword_selector PLACEHOLDER_26)
+              (block
+                (block_parameter PLACEHOLDER_27)
+                (block_parameter PLACEHOLDER_28)
+                (dynamic_array PLACEHOLDER_27 PLACEHOLDER_28 PLACEHOLDER_27))))
+          (cascaded_message yourself)))))
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_21))
+      (ston_pair superclass Object)
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_30))
+      (ston_pair category #Exercise@Forth)))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_21
+    (keyword_pattern (keyword_selector PLACEHOLDER_12)
+      (parameter PLACEHOLDER_31))
+    (method_body
+      (keyword_message PLACEHOLDER_30 do:
+        (block
+          (block_parameter PLACEHOLDER_32)
+          (keyword_message PLACEHOLDER_32 (keyword_selector PLACEHOLDER_12) PLACEHOLDER_31)))))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_21
+    (keyword_pattern (keyword_selector PLACEHOLDER_22)
+      (parameter PLACEHOLDER_5))
+    (method_body
+      (assignment PLACEHOLDER_30 PLACEHOLDER_5)))
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_23))
+      (ston_pair superclass Object)
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_10))
+      (ston_pair category #Exercise@Forth)))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_23
+    (keyword_pattern (keyword_selector PLACEHOLDER_12)
+      (parameter PLACEHOLDER_31))
+    (method_body
+      (keyword_message PLACEHOLDER_31 push: PLACEHOLDER_10)))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_23
+    (keyword_pattern (keyword_selector PLACEHOLDER_24)
+      (parameter PLACEHOLDER_33))
+    (method_body
+      (assignment PLACEHOLDER_10 PLACEHOLDER_33)))
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_29))
+      (ston_pair superclass Object)
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_34))
+      (ston_pair category #Exercise@Forth)))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_29
+    (keyword_pattern (keyword_selector PLACEHOLDER_12)
+      (parameter PLACEHOLDER_31))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_27))
+      (keyword_message
+        (unary_message PLACEHOLDER_31 isEmpty) ifTrue:
+        (block
+          (keyword_message Error signal: "empty stack")))
+      (assignment PLACEHOLDER_27
+        (unary_message PLACEHOLDER_31 pop))
+      (keyword_message
+        (keyword_message PLACEHOLDER_34 value: PLACEHOLDER_27) do:
+        (block
+          (block_parameter PLACEHOLDER_35)
+          (keyword_message PLACEHOLDER_31 push: PLACEHOLDER_35)))))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_29
+    (keyword_pattern (keyword_selector PLACEHOLDER_26)
+      (parameter PLACEHOLDER_36))
+    (method_body
+      (assignment PLACEHOLDER_34 PLACEHOLDER_36)))
+  (class_definition Class
+    (ston_map
+      (ston_pair name
+        (class_name PLACEHOLDER_25))
+      (ston_pair superclass Object)
+      (ston_pair instVars
+        (variable_names PLACEHOLDER_34))
+      (ston_pair category #Exercise@Forth)))
+  (method_definition
+    (ston_map
+      (ston_pair category #operations)) PLACEHOLDER_25
+    (keyword_pattern (keyword_selector PLACEHOLDER_12)
+      (parameter PLACEHOLDER_31))
+    (method_body
+      (temporaries
+        (temporary PLACEHOLDER_27)
+        (temporary PLACEHOLDER_28))
+      (keyword_message
+        (unary_message PLACEHOLDER_31 isEmpty) ifTrue:
+        (block
+          (keyword_message Error signal: "empty stack")))
+      (keyword_message
+        (binary_message
+          (unary_message PLACEHOLDER_31 size) < 2) ifTrue:
+        (block
+          (keyword_message Error signal: "only one value on the stack")))
+      (assignment PLACEHOLDER_28
+        (unary_message PLACEHOLDER_31 pop))
+      (assignment PLACEHOLDER_27
+        (unary_message PLACEHOLDER_31 pop))
+      (keyword_message
+        (keyword_message PLACEHOLDER_34 value:value: PLACEHOLDER_27 PLACEHOLDER_28) do:
+        (block
+          (block_parameter PLACEHOLDER_35)
+          (keyword_message PLACEHOLDER_31 push: PLACEHOLDER_35)))))
+  (method_definition
+    (ston_map
+      (ston_pair category #initialization)) PLACEHOLDER_25
+    (keyword_pattern (keyword_selector PLACEHOLDER_26)
+      (parameter PLACEHOLDER_36))
+    (method_body
+      (assignment PLACEHOLDER_34 PLACEHOLDER_36))))
