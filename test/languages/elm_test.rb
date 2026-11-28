@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ElmTest < RepresenterTest
+class ElmTest < InspectorTest
   extend UpstreamTests
 
   track "elm"
@@ -12,14 +12,14 @@ class ElmTest < RepresenterTest
   # equivalent. A test's name says which upstream suite it came from.
 
   UNDEFINED = "The old representer renamed every name that wasn't a standard library name, including %s, which " \
-              "the solution never defines. This representer only renames names the solution defines, so %s keeps " \
+              "the solution never defines. Inspector only renames names the solution defines, so %s keeps " \
               "its name.".freeze
 
   def self.undefined(placeholder, name, what)
     { restore: { placeholder => name }, remove: [name], why: format(UNDEFINED, what, name) }
   end
 
-  QUALIFIED = "The solution defines `length`, so this representer renames it wherever it appears, including in " \
+  QUALIFIED = "The solution defines `length`, so Inspector renames it wherever it appears, including in " \
               "`%s.length`. The old representer kept a name after a module's dot.".freeze
 
   DEVIATIONS = {
@@ -36,18 +36,18 @@ class ElmTest < RepresenterTest
     "imports-qualified-aliased" => { replace: { "D.length" => "D.identifier_1" }, why: format(QUALIFIED, "D") },
     "exports-module-name" => {
       merges_with: "exports-exposed-things",
-      why: "The two tests only differ in what the module exposes. This representer drops the exposing list, as " \
+      why: "The two tests only differ in what the module exposes. Inspector drops the exposing list, as " \
            "every solution exposes what the tests use."
     },
     "expression-parenthesized" => {
       merges_with: "function-name-and-parameters",
-      why: "`(x)` and `x` are the same value. The old representer kept brackets that only group, and this one " \
+      why: "`(x)` and `x` are the same value. The old representer kept brackets that only group, and Inspector " \
            "drops them."
     },
     "pattern-uncons" => {
       parse_error: true,
-      why: "`f x :: xs = ...` isn't valid Elm. The old parser accepted it, but tree-sitter rejects it, so this " \
-           "representer gives it Basic's representation."
+      why: "`f x :: xs = ...` isn't valid Elm. The old parser accepted it, but tree-sitter rejects it, so Inspector " \
+           " gives it Basic's representation."
     }
   }.freeze
 
@@ -63,12 +63,12 @@ class ElmTest < RepresenterTest
   upstream_tests ".elm",
     deviations: DEVIATIONS,
     renamed: MODULES,
-    renamed_why: "The solution defines its module, so this representer renames the module's name. The old " \
+    renamed_why: "The solution defines its module, so Inspector renames the module's name. The old " \
                  "representer kept it."
 
   # The upstream tests for the names that Elm imports into every module.
   # The old representer kept these names, even where the solution defined
-  # them. This representer renames every name the solution defines.
+  # them. Inspector renames every name the solution defines.
   %w[toFloat round floor ceiling truncate max min compare not xor modBy remainderBy
      negate abs clamp sqrt logBase e pi cos sin tan acos asin atan atan2
      degrees radians turns toPolar fromPolar isNaN isInfinite identity always never

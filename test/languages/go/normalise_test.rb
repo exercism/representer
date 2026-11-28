@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Go's Normalise stage, through the whole representer, because the
+# Tests Go's Normalise stage, through Inspector as a whole, because the
 # names it writes are renamed afterwards.
-class GoNormaliseTest < RepresenterTest
+class GoNormaliseTest < InspectorTest
   include GoStages
 
   track "go"

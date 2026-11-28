@@ -1,19 +1,19 @@
 require "test_helper"
 
-class RustTest < RepresenterTest
+class RustTest < InspectorTest
   extend UpstreamTests
 
   track "rust"
 
   UNDEFINED = "The old representer renamed every name it met, including ones the solution never defines (a name " \
-              "from the surrounding code). This representer only renames names the solution defines, so %s keeps its name.".freeze
+              "from the surrounding code). Inspector only renames names the solution defines, so %s keeps its name.".freeze
 
   IMPL_TYPE = {
     why: "The old representer left the names in an impl header (`impl Test`) as they were, even where it renamed " \
-         "the type, so its output isn't valid code. This representer renames them, so the equivalent has the placeholder."
+         "the type, so its output isn't valid code. Inspector renames them, so the equivalent has the placeholder."
   }.freeze
 
-  CAPITALS = "This representer reads a capitalised name in a pattern as an enum variant or a constant, which binds " \
+  CAPITALS = "Inspector reads a capitalised name in a pattern as an enum variant or a constant, which binds " \
              "nothing, so the equivalent writes its placeholders in lower case.".freeze
 
   # The deviation for a test with a placeholder in a pattern, such as
@@ -41,13 +41,13 @@ class RustTest < RepresenterTest
     "type_aliases" => {
       add: ["T"],
       replace: { "std::result::Result" => "std::result::PLACEHOLDER_1" },
-      why: "The old representer left the type parameter T of a type alias. This representer renames it, as it does in a " \
-           "struct, so the equivalent has a placeholder for T. The solution defines the name Result, so this " \
-           "representer also renames it in `std::result::Result`."
+      why: "The old representer left the type parameter T of a type alias. Inspector renames it, as it does in a " \
+           "struct, so the equivalent has a placeholder for T. The solution defines the name Result, so Inspector " \
+           " also renames it in `std::result::Result`."
     },
     "union_names" => {
       add: %w[A B x y],
-      why: "The old representer left the type parameters and fields of a union. This representer renames them, as it " \
+      why: "The old representer left the type parameters and fields of a union. Inspector renames them, as it " \
            "does in a struct, so the equivalent has placeholders for them."
     }
   }.freeze
@@ -57,7 +57,7 @@ class RustTest < RepresenterTest
             replace_same_identifier typed_let_binding while_loops].freeze
 
   upstream_tests ".rs", deviations: DEVIATIONS, renamed: { ["main"] => MAIN },
-    renamed_why: "The old representer kept the name main. This representer renames every name the solution defines."
+    renamed_why: "The old representer kept the name main. Inspector renames every name the solution defines."
 
   def test_locals_and_parameters_are_renamed
     assert_same_representation "fn f(a: u32) -> u32 { let b = a; b }", "fn g(x: u32) -> u32 { let y = x; y }"
@@ -100,11 +100,11 @@ class RustTest < RepresenterTest
   def test_files_in_other_formats_are_ignored
     code = "pub fn f() {}"
     assert_equal represent(code, filename: "src/lib.rs").representation,
-      Representer::RepresentSolution.(track, { "src/lib.rs" => code, "Cargo.toml" => "[package]\nname = \"p\"\n" }).representation
+      Inspector::RepresentSolution.(track, { "src/lib.rs" => code, "Cargo.toml" => "[package]\nname = \"p\"\n" }).representation
   end
 
   def test_a_solution_with_no_source_files
-    result = Representer::RepresentSolution.(track, { "Cargo.toml" => "[package]" })
+    result = Inspector::RepresentSolution.(track, { "Cargo.toml" => "[package]" })
     assert_nil result.representation
     assert_equal "no_source_files", result.reason
   end

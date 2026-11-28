@@ -1,6 +1,6 @@
 require "test_helper"
 
-class OCamlTest < RepresenterTest
+class OCamlTest < InspectorTest
   track "ocaml"
 
   def test_comments_and_layout_are_ignored

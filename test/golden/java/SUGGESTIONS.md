@@ -1,6 +1,6 @@
-# Suggestions for the Java representer
+# Suggestions for Java
 
-[`transition.md`](../../../lib/representer/languages/java/transition.md) says how the Java representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/java/transition.md) says how Inspector differs from the old Java representer.
 These are changes that could improve it.
 None of them is made, because a change to Java's own behaviour needs the maintainers to decide it.
 

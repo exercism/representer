@@ -6,7 +6,7 @@ The representation takes the most steps, so it comes first, and the analysis and
 
 ## The representation
 
-For a language with a representer of its own, Inspector:
+For a language with a folder of its own, Inspector:
 
 1. Parses each file with the language's tree-sitter grammar. It skips files without one of the language's extensions, and test and config files, and turns Windows line endings into plain line breaks. If a file doesn't parse, the solution gets Basic's representation instead (see "Basic" below).
 2. Drops what makes no difference to the solution working, such as comments, brackets that only group, and imports. Every solution that Inspector sees passes its tests, so this code can't change what a mentor says about it.
@@ -15,7 +15,7 @@ For a language with a representer of its own, Inspector:
 5. Replaces every name the solution defines with a placeholder, wherever the name appears.
 6. Writes the tree out as an indented s-expression.
 
-Each language has a folder in [`lib/representer/languages/`](../lib/representer/languages/), such as [`ruby/`](../lib/representer/languages/ruby/).
+Each language has a folder in [`lib/inspector/languages/`](../lib/inspector/languages/), such as [`ruby/`](../lib/inspector/languages/ruby/).
 In each folder, `common/spec.rb` says what the language is and how its files are read, including its comments and docstrings.
 `representation/spec.rb`, `analysis/spec.rb` and `snippet/spec.rb` declare the settings of each output, such as the representation's version, names and imports.
 The stages that describe steps 2 and 3 sit in `common/`, for the stages that every output needs, and `representation/`, for the stages that only the representation needs.
@@ -42,19 +42,19 @@ The snippet works on the grammar's own tree, before step 3.
 
 ## Basic
 
-Every track with no representer of its own gets Basic, which splits the code into tokens with the track's Rouge lexer, drops comments, spacing and some imports, and renames nothing.
+Every track that Inspector has no language for gets Basic, which splits the code into tokens with the track's Rouge lexer, drops comments, spacing and some imports, and renames nothing.
 Basic also represents a solution that its language's grammar can't parse, and its representation starts with a line that says `basic`.
 [representation.md](./representation.md#basic) describes Basic in full.
 
 ## The analysis
 
 Ruby also has an analysis, which gives the student comments on their solution.
-It runs the stages in `common/` and the analysis's own `analysis/normalise.rb` on the main file, and then the rules of the exercise, one file per exercise in [`ruby/analysis/`](../lib/representer/languages/ruby/analysis/).
+It runs the stages in `common/` and the analysis's own `analysis/normalise.rb` on the main file, and then the rules of the exercise, one file per exercise in [`ruby/analysis/`](../lib/inspector/languages/ruby/analysis/).
 The analysis keeps the imports and the student's names, and doesn't reorder the code.
 [analysis.md](./analysis.md) explains the rules.
 
 ## The snippet
 
 Every track also gets a snippet: the first 15 lines of the solution's main file, without its comments or the boilerplate at its top, such as imports.
-Each track's `snippet/spec.rb` in its folder in [`lib/representer/languages/`](../lib/representer/languages/) says what to leave out, and [snippets.md](./snippets.md) explains the rules.
+Each track's `snippet/spec.rb` in its folder in [`lib/inspector/languages/`](../lib/inspector/languages/) says what to leave out, and [snippets.md](./snippets.md) explains the rules.
 For a language with a grammar, the snippet works on the grammar's tree, before any of the steps above change it.

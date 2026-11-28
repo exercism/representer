@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CTest < RepresenterTest
+class CTest < InspectorTest
   track "c"
 
   def test_comments_and_includes_go
@@ -29,8 +29,8 @@ class CTest < RepresenterTest
     header = "#ifndef LEAP_H\n#define LEAP_H\n#include <stdbool.h>\nbool leap_year(int year);\n#endif\n"
     source = "#include \"leap.h\"\nbool leap_year(int year) { return year % 4 == 0; }\n"
     renamed = { "leap.h" => header.gsub("year", "y"), "leap.c" => source.gsub("year", "y") }
-    assert_equal Representer::RepresentSolution.("c", { "leap.h" => header, "leap.c" => source }).representation,
-      Representer::RepresentSolution.("c", renamed).representation
+    assert_equal Inspector::RepresentSolution.("c", { "leap.h" => header, "leap.c" => source }).representation,
+      Inspector::RepresentSolution.("c", renamed).representation
   end
 
   def test_syntax_errors_get_a_basic_representation_with_the_c_version

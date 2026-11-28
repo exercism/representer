@@ -4,13 +4,13 @@ require "test_helper"
 # remove-comments. Both are ported. Differences:
 #
 # - The old representer replaced every name in Rakudo's AST dump, including
-#   `export` and `return`, which Raku defines. This one only renames the
+#   `export` and `return`, which Raku defines. Inspector only renames the
 #   module and sub that the student defines, so the old mapping's `export` and
 #   `return` are removed, and the others are written without the quotes that
 #   the old mapping kept.
 # - Each test's `.meta/config.json` is not copied, because it only said which
 #   file was the solution.
-class RakuTest < RepresenterTest
+class RakuTest < InspectorTest
   extend UpstreamTests
 
   track "raku"

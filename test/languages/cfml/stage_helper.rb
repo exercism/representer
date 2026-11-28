@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs CFML's stages by hand, for the tests of each stage.
 module CFMLStages
-  CFML = Representer::Languages::CFML
+  CFML = Inspector::Languages::CFML
 
   def parse(source)
-    Representer::Engine::Grammar["cfscript"].parse(Representer::Engine.clean(source), **CFML::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["cfscript"].parse(Inspector::Engine.clean(source), **CFML::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module CFMLStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(CFML::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(CFML::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

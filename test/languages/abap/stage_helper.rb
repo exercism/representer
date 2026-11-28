@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs ABAP's stages by hand, for the tests of each stage.
 module AbapStages
-  Abap = Representer::Languages::Abap
+  Abap = Inspector::Languages::Abap
 
   def parse(source)
-    Representer::Engine::Grammar["abap"].parse(Representer::Engine.clean(source), **Abap::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["abap"].parse(Inspector::Engine.clean(source), **Abap::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module AbapStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Abap::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Abap::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

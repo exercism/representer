@@ -1,12 +1,12 @@
-# Suggestions for the Haskell representer
+# Suggestions for Haskell
 
-[`transition.md`](../../../lib/representer/languages/haskell/transition.md) says how the Haskell representer differs from Basic, which Haskell used before.
+[`transition.md`](../../../lib/inspector/languages/haskell/transition.md) says how Inspector treats Haskell differently from Basic, which Haskell used before.
 These are changes that could improve it.
 None of them is made, because a change to Haskell's own behaviour needs the maintainers to decide it.
 
 ## Spellings that GHC reads as the same
 
-1. **Group operators by their fixity.** The grammar reads every chain of operators from the right, so `a * b + c` comes out as `a * (b + c)`. The representer therefore keeps the brackets around an operator expression inside another one, and `a + (b * c)` stays apart from `a + b * c`, although GHC reads them the same. Regrouping by the Prelude's fixities, as F#'s GenerateAST does, would merge them. A solution can declare its own fixities, so regrouping would have to read `infixl` and `infixr` declarations too.
+1. **Group operators by their fixity.** The grammar reads every chain of operators from the right, so `a * b + c` comes out as `a * (b + c)`. Inspector therefore keeps the brackets around an operator expression inside another one, and `a + (b * c)` stays apart from `a + b * c`, although GHC reads them the same. Regrouping by the Prelude's fixities, as F#'s GenerateAST does, would merge them. A solution can declare its own fixities, so regrouping would have to read `infixl` and `infixr` declarations too.
 2. **Read a tight dot before arguments as composition.** `f.g x` means `f . (g x)`, but the grammar reads it as a record field applied to `x`, so it stays apart from `f . g x`. Today only a tight dot with no arguments after it, such as `not.isSpace`, is composition.
 3. **Read `$name` as an application of `$`.** Without TemplateHaskell, GHC reads `map snd $sortBy f xs` as `map snd $ sortBy f xs`, but the grammar reads `$sortBy` as a splice. One golden solution (rail-fence-cipher) has this.
 4. **Read a module's alias as the module.** After `import qualified Data.Map as M`, `M.fromList` and `Map.fromList` (after `as Map`) are the same function. The engine drops the import, so today they stay apart.
@@ -14,7 +14,7 @@ None of them is made, because a change to Haskell's own behaviour needs the main
 
 ## Equivalences for the maintainers to decide
 
-6. **Drop the export list.** Every solution exports what the tests use, so `module Leap (isLeapYear) where` and `module Leap where` would pass the same tests. Elm's representer drops its exposing list for this reason.
+6. **Drop the export list.** Every solution exports what the tests use, so `module Leap (isLeapYear) where` and `module Leap where` would pass the same tests. Inspector drops Elm's exposing list for this reason.
 7. **Drop pragmas that can't change what a passing solution does.** `{-# OPTIONS_GHC -Wall #-}`, `{-# INLINE f #-}` and a `LANGUAGE` pragma for an extension the code doesn't use make no difference. Some `LANGUAGE` pragmas, such as `OverloadedStrings`, change what the code means, so they would have to stay.
 8. **Keep the names of instance methods.** `instance Show Shape where show = ...` defines `show`, so the engine renames every `show` in the solution, including calls on other types. Keeping the name of a method of a class the solution doesn't define would keep these calls readable. The same applies to operators such as `==` in `instance Eq`.
 9. **Write `f $ x` as `f x`.** `print $ length xs` and `print (length xs)` do the same, but GHC's parser gives an operator application for the first. Mentors do comment on the choice, so this is a judgement call.

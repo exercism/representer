@@ -3,7 +3,7 @@ require "test_helper"
 # Tests Basic's Tokenise, which splits a file into lines of tokens and drops
 # the comments.
 class BasicTokeniseTest < Minitest::Test
-  def tokenise(source, track: "haskell") = Representer::Languages::Basic::Tokenise.(track, source)
+  def tokenise(source, track: "haskell") = Inspector::Languages::Basic::Tokenise.(track, source)
 
   def test_splits_lines_into_tokens_with_their_indentation
     assert_equal [[0, ["f", "x", "="]], [4, ["x", "+", "1"]]], tokenise("f x =\n    x + 1")

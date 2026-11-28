@@ -1,6 +1,6 @@
-# Suggestions for the Clojure representer
+# Suggestions for Clojure
 
-[`transition.md`](../../../lib/representer/languages/clojure/transition.md) says how the Clojure representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/clojure/transition.md) says how Inspector differs from the old Clojure representer.
 These are changes that could improve it.
 None of them is made, because a change to Clojure's own behaviour needs the maintainers to decide it.
 

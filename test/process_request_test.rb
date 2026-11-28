@@ -5,7 +5,7 @@ class ProcessRequestTest < Minitest::Test
     body ||= { outputs: ["representation"], **fields }
     raw = body.is_a?(String) ? body : body.to_json
     event = { "body" => encoded ? [raw].pack("m0") : raw, "isBase64Encoded" => encoded }
-    Representer.process(event:, context: {})
+    Inspector.process(event:, context: {})
   end
 
   def test_represents_a_solution
@@ -17,27 +17,27 @@ class ProcessRequestTest < Minitest::Test
     body = JSON.parse(response[:body])
     assert_equal ["representation"], body.keys
     assert_equal({ "PLACEHOLDER_1" => "two_fer", "PLACEHOLDER_2" => "who" }, body["representation"]["mapping"])
-    assert_equal Representer::Languages::Ruby::Representation::Spec.version, body["representation"]["version"]
+    assert_equal Inspector::Languages::Ruby::Representation::Spec.version, body["representation"]["version"]
   end
 
   def test_returns_each_output_asked_for
     body = JSON.parse(request(track_slug: "ruby", outputs: %w[analysis representation],
       solution_files: { "a.rb" => "x = 1" })[:body])
     assert_equal %w[analysis representation], body.keys
-    assert_equal({ "comments" => [], "version" => Representer::Languages::Ruby::Analysis::Spec.version }, body["analysis"])
+    assert_equal({ "comments" => [], "version" => Inspector::Languages::Ruby::Analysis::Spec.version }, body["analysis"])
     refute_nil body["representation"]["representation"]
   end
 
   def test_returns_the_snippet_and_its_version
     body = JSON.parse(request(track_slug: "ruby", outputs: ["snippet"],
       solution_files: { "a.rb" => "require 'set'\n# A comment\nx = 1\n" })[:body])
-    assert_equal({ "snippet" => "x = 1\n", "version" => Representer::Languages::Ruby::Snippet::Spec.version }, body["snippet"])
+    assert_equal({ "snippet" => "x = 1\n", "version" => Inspector::Languages::Ruby::Snippet::Spec.version }, body["snippet"])
   end
 
   def test_tracks_with_no_snippet_of_their_own_get_the_basic_one
     body = JSON.parse(request(track_slug: "cobol", outputs: ["snippet"],
       solution_files: { "a.cob" => "      * A comment\n       DISPLAY 'HI'.\n" })[:body])
-    assert_equal({ "snippet" => "       DISPLAY 'HI'.\n", "version" => Representer::Languages::Basic::Snippet::Spec.version },
+    assert_equal({ "snippet" => "       DISPLAY 'HI'.\n", "version" => Inspector::Languages::Basic::Snippet::Spec.version },
       body["snippet"])
   end
 
@@ -64,7 +64,7 @@ class ProcessRequestTest < Minitest::Test
 
   def test_unknown_tracks_get_basic
     body = JSON.parse(request(track_slug: "cobol", solution_files: { "a.cob" => "DISPLAY 'HI'." })[:body])
-    assert_equal Representer::Languages::Basic::VERSION, body["representation"]["version"]
+    assert_equal Inspector::Languages::Basic::VERSION, body["representation"]["version"]
   end
 
   def test_bad_requests
@@ -80,7 +80,7 @@ class ProcessRequestTest < Minitest::Test
     response = request(track_slug: "ruby", solution_files: { "a.rb" => "def x(" })
     assert_equal 200, response[:statusCode]
     assert_equal({ "representation" => { "representation" => "basic\ndef x (", "mapping" => {},
-                                         "version" => Representer::Languages::Ruby::Representation::Spec.version } },
+                                         "version" => Inspector::Languages::Ruby::Representation::Spec.version } },
       JSON.parse(response[:body]))
   end
 
@@ -90,22 +90,22 @@ class ProcessRequestTest < Minitest::Test
   end
 
   def test_solutions_over_the_limit
-    big = "x" * (Representer::MAX_SOLUTION_BYTES + 1)
+    big = "x" * (Inspector::MAX_SOLUTION_BYTES + 1)
     %w[ruby cobol].each do |track_slug|
       response = request(track_slug:, solution_files: { "a" => big })
       assert_equal 200, response[:statusCode]
       output = JSON.parse(response[:body])["representation"]
       assert_equal "too_large", output["error"]
-      assert_equal Representer::Languages.for(track_slug).version, output["version"]
+      assert_equal Inspector::Languages.for(track_slug).version, output["version"]
     end
   end
 
   def test_exercise_files_have_their_own_limit
-    tests = "x" * (Representer::MAX_SOLUTION_BYTES + 1)
+    tests = "x" * (Inspector::MAX_SOLUTION_BYTES + 1)
     body = JSON.parse(request(track_slug: "ruby", solution_files: { "a.rb" => "x" }, exercise_files: { "t.rb" => tests })[:body])
     refute_nil body["representation"]["representation"]
 
-    tests = "x" * (Representer::MAX_EXERCISE_BYTES + 1)
+    tests = "x" * (Inspector::MAX_EXERCISE_BYTES + 1)
     body = JSON.parse(request(track_slug: "ruby", solution_files: { "a.rb" => "x" }, exercise_files: { "t.rb" => tests })[:body])
     assert_equal "too_large", body["representation"]["error"]
   end
@@ -113,25 +113,25 @@ class ProcessRequestTest < Minitest::Test
   # A language with a bug in a stage.
   module Raising
     module Common
-      class Spec < Representer::Engine::Language
+      class Spec < Inspector::Engine::Language
         grammar "ruby"
         extensions ".rb"
       end
 
-      class Normalise < Representer::Engine::Stage
+      class Normalise < Inspector::Engine::Stage
         def call = tree.nonexistent
       end
     end
 
     module Representation
-      class Spec < Representer::Engine::Representation
+      class Spec < Inspector::Engine::Representation
         version 2
       end
     end
   end
 
   def test_an_error_in_a_rule_makes_the_solution_unrepresentable
-    Representer::Languages.register("raising", Raising::Common::Spec)
+    Inspector::Languages.register("raising", Raising::Common::Spec)
     body = nil
     _, log = capture_io do
       body = JSON.parse(request(track_slug: "raising", exercise_slug: "leap", solution_files: { "a.rb" => "x = 1" })[:body])
@@ -140,6 +140,6 @@ class ProcessRequestTest < Minitest::Test
                    "version" => 2 }, body["representation"])
     assert_includes log, "raising/leap: NoMethodError"
   ensure
-    Representer::Languages.registry.delete("raising")
+    Inspector::Languages.registry.delete("raising")
   end
 end

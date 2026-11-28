@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FSharpTest < RepresenterTest
+class FSharpTest < InspectorTest
   extend UpstreamTests
 
   track "fsharp"
@@ -8,7 +8,7 @@ class FSharpTest < RepresenterTest
   DEVIATIONS = {
     "TypeDefinitionNotIndented" => {
       add: %w[Volume Liter USPint ImperialPint],
-      why: "The old representer left type and union case names alone. This representer renames every name the " \
+      why: "The old representer left type and union case names alone. Inspector renames every name the " \
            "solution defines, including these."
     }
   }.freeze

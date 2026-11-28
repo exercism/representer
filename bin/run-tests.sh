@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Synopsis:
-# Test the representer: run the unit tests, then run the representer against
+# Test Inspector: run the unit tests, then run Inspector against
 # each request in test/fixtures/requests/ and compare its response with the
 # expected one.
 # With a track slug, run only that track's tests: its language tests, its

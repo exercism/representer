@@ -27,12 +27,12 @@ require_relative "../test/golden"
 def git(*args) = Open3.capture2("git", *args).first
 
 staged = git("diff", "--cached", "--name-only").lines(chomp: true)
-languages_dir = "lib/representer/languages/"
-languages = Representer::Languages.registry.values.uniq
+languages_dir = "lib/inspector/languages/"
+languages = Inspector::Languages.registry.values.uniq
 
-# The Ruby files in a language's folder, such as `lib/representer/languages/ruby/`.
+# The Ruby files in a language's folder, such as `lib/inspector/languages/ruby/`.
 def files_of(language)
-  Dir[File.join(Representer::Engine.folder_of(language.stages), "**", "*.rb")].map { |file| file.delete_prefix("#{ROOT}/") }
+  Dir[File.join(Inspector::Engine.folder_of(language.stages), "**", "*.rb")].map { |file| file.delete_prefix("#{ROOT}/") }
 end
 
 changed_grammars = begin
@@ -45,9 +45,9 @@ end
 # JavaScript's, so a change to the other language's files counts too.
 changed = languages.select do |language|
   sources = files_of(language)
-  parents = sources.flat_map { |file| File.read(file).scan(/Representer::Languages::(\w+)::/).flatten }
-  parents.uniq.map { |name| Representer::Languages.const_get(name) }.each do |parent|
-    sources += files_of(parent::Common::Spec) if parent != language.stages && Representer::Engine.language_module?(parent)
+  parents = sources.flat_map { |file| File.read(file).scan(/Inspector::Languages::(\w+)::/).flatten }
+  parents.uniq.map { |name| Inspector::Languages.const_get(name) }.each do |parent|
+    sources += files_of(parent::Common::Spec) if parent != language.stages && Inspector::Engine.language_module?(parent)
   end
 
   (staged & sources).any? || changed_grammars.include?(language.grammar)
@@ -55,8 +55,8 @@ end
 
 basic_changed = staged.any? { |file| file == "#{languages_dir}basic.rb" || file.start_with?("#{languages_dir}basic/") }
 tracks = Golden.tracks.select do |track|
-  language = Representer::Languages.for(track)
-  changed.include?(language) || (language == Representer::Languages::Basic && basic_changed)
+  language = Inspector::Languages.for(track)
+  changed.include?(language) || (language == Inspector::Languages::Basic && basic_changed)
 end
 exit 0 if tracks.empty?
 

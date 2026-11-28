@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CSharpTest < RepresenterTest
+class CSharpTest < InspectorTest
   extend UpstreamTests
 
   track "csharp"
@@ -27,13 +27,13 @@ class CSharpTest < RepresenterTest
       restore: { "PLACEHOLDER_2" => "FacialFeatures", "PLACEHOLDER_3" => "Identity" },
       add: %w[Admin Developers Email EyeColor NameAndAddress PhiltrumWidth],
       why: "The old representer renamed FacialFeatures and Identity where they are declared but not where they are " \
-           "used, so its output isn't valid code. This representer renames both consistently, and renames properties too."
+           "used, so its output isn't valid code. Inspector renames both consistently, and renames properties too."
     },
     "DictionaryInitializations-RealWorldObjectInit" => {
       restore: { "PLACEHOLDER_2" => "FacialFeatures", "PLACEHOLDER_3" => "Identity" },
       add: %w[Admin Developers Email EyeColor NameAndAddress PhiltrumWidth],
       why: "The old representer renamed FacialFeatures and Identity where they are declared but not where they are " \
-           "used, so its output isn't valid code. This representer renames both consistently, and renames properties too."
+           "used, so its output isn't valid code. Inspector renames both consistently, and renames properties too."
     },
     "Identifiers-CombinationOfEverything" => {
       parse_error: true,

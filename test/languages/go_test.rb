@@ -1,6 +1,6 @@
 require "test_helper"
 
-class GoTest < RepresenterTest
+class GoTest < InspectorTest
   extend UpstreamTests
 
   track "go"
@@ -8,7 +8,7 @@ class GoTest < RepresenterTest
   DEVIATIONS = {
     "raindrops-7" => {
       why: "The old representer didn't rename the type of a struct field (`sound sound`), so its output is only " \
-           "valid code if that type keeps its name. This representer renames it, so the equivalent has the " \
+           "valid code if that type keeps its name. Inspector renames it, so the equivalent has the " \
            "placeholder there."
     }
   }.freeze
@@ -37,23 +37,23 @@ class GoTest < RepresenterTest
       "b.go" => "package p\n\nfunc B() int { return 1 }\n"
     }
     swapped = { "x.go" => two["b.go"], "y.go" => two["a.go"] }
-    expected = Representer::RepresentSolution.("go", { "p.go" => one }).representation
-    assert_equal expected, Representer::RepresentSolution.("go", two).representation
-    assert_equal expected, Representer::RepresentSolution.("go", swapped).representation
+    expected = Inspector::RepresentSolution.("go", { "p.go" => one }).representation
+    assert_equal expected, Inspector::RepresentSolution.("go", two).representation
+    assert_equal expected, Inspector::RepresentSolution.("go", swapped).representation
   end
 
   def test_files_that_both_import_a_package_import_it_once
     files = { "a.go" => "package p\n\nimport \"fmt\"\n\nfunc A() { fmt.Println(1) }\n",
               "b.go" => "package p\n\nimport \"fmt\"\n\nfunc B() { fmt.Println(2) }\n" }
     one = "package p\n\nimport \"fmt\"\n\nfunc A() { fmt.Println(1) }\n\nfunc B() { fmt.Println(2) }\n"
-    assert_equal represent(one).representation, Representer::RepresentSolution.("go", files).representation
+    assert_equal represent(one).representation, Inspector::RepresentSolution.("go", files).representation
   end
 
   def test_different_files_with_different_code_stay_apart
     a = { "a.go" => "package p\n\nfunc A() int { return 1 }\n", "b.go" => "package p\n\nfunc B() int { return 2 }\n" }
     b = { "a.go" => "package p\n\nfunc A() int { return 1 }\n", "b.go" => "package p\n\nfunc B() int { return 3 }\n" }
-    refute_equal Representer::RepresentSolution.("go", a).representation,
-      Representer::RepresentSolution.("go", b).representation
+    refute_equal Inspector::RepresentSolution.("go", a).representation,
+      Inspector::RepresentSolution.("go", b).representation
   end
 
   ### Names ###

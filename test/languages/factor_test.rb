@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests the whole Factor representer. test/languages/factor/ tests each
+# Tests Inspector as a whole on Factor solutions. test/languages/factor/ tests each
 # stage and the names.
-class FactorTest < RepresenterTest
+class FactorTest < InspectorTest
   track "factor"
 
   def test_comments_are_dropped

@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs F#'s stages by hand, for the tests of each stage.
 module FSharpStages
-  FSharp = Representer::Languages::FSharp
+  FSharp = Inspector::Languages::FSharp
 
   def parse(source)
-    Representer::Engine::Grammar["fsharp"].parse(Representer::Engine.clean(source), **FSharp::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["fsharp"].parse(Inspector::Engine.clean(source), **FSharp::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module FSharpStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(FSharp::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(FSharp::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Scheme's stages by hand, for the tests of each stage.
 module SchemeStages
-  Scheme = Representer::Languages::Scheme
+  Scheme = Inspector::Languages::Scheme
 
   def parse(source)
-    Representer::Engine::Grammar["scheme"].parse(Representer::Engine.clean(source), **Scheme::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["scheme"].parse(Inspector::Engine.clean(source), **Scheme::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module SchemeStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Scheme::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Scheme::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

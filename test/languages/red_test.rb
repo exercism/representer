@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests the whole Red representer. The tests of each stage are in
+# Tests Inspector as a whole on Red solutions. The tests of each stage are in
 # test/languages/red/.
-class RedTest < RepresenterTest
+class RedTest < InspectorTest
   track "red"
 
   def test_comments_and_formatting

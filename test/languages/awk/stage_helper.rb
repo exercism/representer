@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs AWK's stages by hand, for the tests of each stage.
 module AwkStages
-  Awk = Representer::Languages::Awk
+  Awk = Inspector::Languages::Awk
 
   def parse(source)
-    Representer::Engine::Grammar["awk"].parse(Representer::Engine.clean(source), **Awk::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["awk"].parse(Inspector::Engine.clean(source), **Awk::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module AwkStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Awk::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Awk::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

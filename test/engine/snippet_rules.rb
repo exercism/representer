@@ -5,13 +5,13 @@ require "test_helper"
 module SnippetRules
   module Toy
     module Common
-      class Spec < Representer::Engine::Language
+      class Spec < Inspector::Engine::Language
         grammar "ruby"
       end
     end
 
     module Snippet
-      class Spec < Representer::Engine::Snippet
+      class Spec < Inspector::Engine::Snippet
         remove :comments
         skip_at_top :require
       end
@@ -22,7 +22,7 @@ module SnippetRules
 
   module Lines
     module Snippet
-      class Spec < Representer::Engine::Snippet
+      class Spec < Inspector::Engine::Snippet
         remove :comments
         comment_lines "//", "/*" => "*/"
         skip_at_top :import, "BEGIN" => "END"
@@ -33,5 +33,5 @@ module SnippetRules
 
   LinesSnippet = Lines::Snippet::Spec
 
-  def self.parse(source) = Representer::Engine::Grammar["ruby"].parse(source, spans: true)
+  def self.parse(source) = Inspector::Engine::Grammar["ruby"].parse(source, spans: true)
 end

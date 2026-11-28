@@ -1,6 +1,6 @@
-# Suggestions for the Raku representer
+# Suggestions for Raku
 
-[`transition.md`](../../../lib/representer/languages/raku/transition.md) says how the Raku representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/raku/transition.md) says how Inspector differs from the old Raku representer.
 These are changes that could improve it.
 None of them is made, because a change to Raku's own behaviour needs the maintainers to decide it.
 

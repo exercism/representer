@@ -1,6 +1,6 @@
-# Suggestions for the Swift representer
+# Suggestions for Swift
 
-[`transition.md`](../../../lib/representer/languages/swift/transition.md) says how the Swift representer differs from Basic, which the track used before.
+[`transition.md`](../../../lib/inspector/languages/swift/transition.md) says how Inspector treats Swift differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to Swift's own behaviour needs the maintainers to decide it.
 The counts come from the 373 golden solutions.

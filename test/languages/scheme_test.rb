@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Scheme's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on Scheme solutions. The tests of each stage are in
 # test/languages/scheme/.
-class SchemeTest < RepresenterTest
+class SchemeTest < InspectorTest
   track "scheme"
 
   def test_comments_and_formatting

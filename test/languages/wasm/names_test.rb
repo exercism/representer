@@ -41,7 +41,7 @@ class WasmNamesTest < Minitest::Test
   # Each name leaf's name, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Wasm::Representation::Spec)
+    Inspector::Engine::RenameUserDefinedNodes.([tree], Wasm::Representation::Spec)
     leaves = []
     tree.each_descendant do |node|
       leaves << [Wasm::Representation::Spec.name_text(node), node.renamed] if Wasm::Representation::Spec.name?(node)

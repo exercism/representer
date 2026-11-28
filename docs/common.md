@@ -9,13 +9,13 @@ Each output's own declarations and verbs are in [representation.md](./representa
 
 ## How a language is laid out
 
-Each language has a folder of its own in `lib/representer/languages/`.
+Each language has a folder of its own in `lib/inspector/languages/`.
 The folder has a folder for each output, and a folder called `common/` for what every output shares.
 Each of these folders holds a `spec.rb` with its settings, and the stages for that output.
 The folder's `common/spec.rb` says what the language is and how its files are read:
 
 ```
-lib/representer/languages/ruby/
+lib/inspector/languages/ruby/
   common/spec.rb                Ruby::Common::Spec
   common/generate_ast.rb        Ruby::Common::GenerateAST
   common/normalise.rb           Ruby::Common::Normalise
@@ -33,8 +33,8 @@ lib/representer/languages/ruby/
 `transition.md` says how the language differs from the tools it replaces.
 
 ```ruby
-module Representer::Languages::Ruby::Common
-  class Spec < Representer::Engine::Language
+module Inspector::Languages::Ruby::Common
+  class Spec < Inspector::Engine::Language
     tracks "ruby"
     grammar "ruby"
     extensions ".rb"
@@ -46,8 +46,8 @@ end
 ```
 
 ```ruby
-module Representer::Languages::Ruby::Representation
-  class Spec < Representer::Engine::Representation
+module Inspector::Languages::Ruby::Representation
+  class Spec < Inspector::Engine::Representation
     version 12
   end
 end
@@ -56,7 +56,7 @@ end
 When a language defines its `Common::Spec`, the engine looks in the language's folder for each output's `spec.rb` and each stage's file.
 If a file is missing, the language doesn't run that stage.
 
-A language that builds on another can subclass the other language's outputs and stages, as TypeScript's `class GenerateAST < Representer::Languages::JavaScript::Common::GenerateAST` does.
+A language that builds on another can subclass the other language's outputs and stages, as TypeScript's `class GenerateAST < Inspector::Languages::JavaScript::Common::GenerateAST` does.
 Each subclass starts with its parent's declarations and adds its own to them, so it declares only what its language adds.
 
 ## The language's declarations

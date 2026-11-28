@@ -52,6 +52,6 @@ class ElmNamesTest < Minitest::Test
   end
 
   def rename(source)
-    prepare(source).tap { |tree| Representer::Engine::RenameUserDefinedNodes.([tree], Elm::Representation::Spec) }
+    prepare(source).tap { |tree| Inspector::Engine::RenameUserDefinedNodes.([tree], Elm::Representation::Spec) }
   end
 end

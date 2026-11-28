@@ -1,33 +1,33 @@
 require "test_helper"
 
-class CommonLispTest < RepresenterTest
+class CommonLispTest < InspectorTest
   extend UpstreamTests
 
   track "common-lisp"
 
   # The old representer wrote its mapping as generated keywords for upper-cased
   # symbols (`:TWO-FER-0` for `:TWO-FER`), so the expected mappings are
-  # rewritten below as the lower-case names that this representer renames.
+  # rewritten below as the lower-case names that Inspector renames.
   DEVIATIONS = {
     "two-fer" => {
       remove: [":TWO-FER-0", ":TWO-FER-1", ":TWO-FER-2", ":TWO-FER-3", ":TWO-FER-4"],
       add: %w[two-fer twofer name],
       why: "The old representer wrote its mapping as generated keywords, and renamed `:cl` in the `:use` option. " \
-           "This representer renames the names the solution defines (the package, the function and its " \
+           "Inspector renames the names the solution defines (the package, the function and its " \
            "parameter), writes them in lower case, and keeps `cl`, which the solution doesn't define."
     },
     "end-of-file" => {
       parse_error: true,
       why: "The old representer reported the reader error as the representation. A missing parenthesis is a " \
-           "syntax error to tree-sitter, so this representer gives the solution Basic's representation."
+           "syntax error to tree-sitter, so Inspector gives the solution Basic's representation."
     },
     "reader-error" => {
       why: "The old representer reported SBCL's reader error for `#<` as the representation. The grammar accepts " \
-           "`#<foo>`, so this representer represents it like any other code."
+           "`#<foo>`, so Inspector represents it like any other code."
     },
     "sharpsign-dot" => {
       why: "The old representer refused `#.` because it would run code while reading, and reported an error. " \
-           "This representer never evaluates anything, so it represents the form like any other."
+           "Inspector never evaluates anything, so it represents the form like any other."
     }
   }.freeze
 

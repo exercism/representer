@@ -1,7 +1,7 @@
 require_relative "stage_helper"
 
-# Tests Clojure's Reorder stage, through the whole representer.
-class ClojureReorderTest < RepresenterTest
+# Tests Clojure's Reorder stage, through Inspector as a whole.
+class ClojureReorderTest < InspectorTest
   track "clojure"
 
   def test_sorts_sets_of_values

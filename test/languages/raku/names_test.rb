@@ -45,7 +45,7 @@ class RakuNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Raku::Representation::Spec)
+    Inspector::Engine::RenameUserDefinedNodes.([tree], Raku::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << [node.text, node.renamed] if Raku::Representation::Spec.name?(node) }
     leaves

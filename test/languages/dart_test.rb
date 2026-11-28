@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Dart's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on Dart solutions. The tests of each stage are in
 # test/languages/dart/.
-class DartTest < RepresenterTest
+class DartTest < InspectorTest
   track "dart"
 
   def wrap(body) = "int f(int a, int b) {\n#{body}\n}\n"

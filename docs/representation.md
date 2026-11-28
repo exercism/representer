@@ -17,7 +17,7 @@ The `representation` output has these fields:
 
 - `representation` is the normalised solution.
 - `mapping` says which name each placeholder replaced.
-- `version` is the version of the track's representer. It changes whenever the track's output changes, so the website knows to represent the track's solutions again.
+- `version` is the version of the track's representation. It changes whenever the track's output changes, so the website knows to represent the track's solutions again.
 
 ```json
 {
@@ -37,18 +37,18 @@ For those, the `representation` output is an error with the language's version, 
 - `too_deep`: the code nests deeper than 1,000 levels.
 - `too_large`: the solution files hold more than 200 KB, or the exercise files more than 500 KB. The load balancer limits bodies to 1 MB.
 - `no_source_files`: none of the solution's files is a source file of the language. Inspector ignores files in other formats, such as Rust's `Cargo.toml` or a `HELP.md`, and test and tool config files, such as `leap_test.go` or `babel.config.js`.
-- `internal_error`: one of the representer's rules raised an error. This is a bug in the representer, so it also writes the error to the log.
+- `internal_error`: one of Inspector's rules raised an error. This is a bug in Inspector, so it also writes the error to the log.
 
 The website then marks the submission as unrepresentable.
-Basic, which serves the tracks with no representer of their own, can represent any solution that isn't too large and has a source file.
+Basic, which serves the tracks that Inspector has no language for, can represent any solution that isn't too large and has a source file.
 A solution that the grammar can't parse gets Basic's representation (see "Basic" below).
 
 ## Basic
 
-Each language with a `common/spec.rb` in its folder in [`lib/representer/languages/`](../lib/representer/languages/) has a representer of its own, and Inspector parses it with [tree-sitter](https://tree-sitter.github.io/tree-sitter/).
+Each language with a `common/spec.rb` in its folder in [`lib/inspector/languages/`](../lib/inspector/languages/) has a language of its own, and Inspector parses its solutions with [tree-sitter](https://tree-sitter.github.io/tree-sitter/).
 Every other track gets a simpler token-based representation called Basic.
 
-Basic ([`lib/representer/languages/basic.rb`](../lib/representer/languages/basic.rb)) splits the code into tokens with the track's [Rouge](https://github.com/rouge-ruby/rouge) lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.
+Basic ([`lib/inspector/languages/basic.rb`](../lib/inspector/languages/basic.rb)) splits the code into tokens with the track's [Rouge](https://github.com/rouge-ruby/rouge) lexer, drops comments, spacing and (in the tracks where it can find them reliably) imports, and keeps everything else, including line breaks and (in languages like Python) indentation.
 It renames nothing, so it only merges solutions that differ in nothing but comments and formatting.
 
 Basic also represents a solution that its language's grammar can't parse.
@@ -224,8 +224,8 @@ A language lists only containers of definitions or entries, such as a class's bo
 If the grammar gives such a container the same type as a block of statements, `GenerateAST` gives it a type of its own first.
 
 ```ruby
-module Representer::Languages::Ruby::Representation
-  class Reorder < Representer::Engine::Reorder
+module Inspector::Languages::Ruby::Representation
+  class Reorder < Inspector::Engine::Reorder
     sort :class_body, :hash
   end
 end

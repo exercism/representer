@@ -1,7 +1,7 @@
 require "json"
 require "yaml"
 require "rouge"
-require_relative "../lib/representer"
+require_relative "../lib/inspector"
 
 # The golden data set in test/golden/: real published solutions for every
 # track, with the representation each one gets today and the groups they were
@@ -60,7 +60,7 @@ module Golden
       track_slug: solution.track, exercise_slug: solution.exercise, outputs: ["representation"],
       solution_files: files, exercise_files: exercise_files(solution.track, solution.exercise)
     }
-    response = JSON.parse(Representer.process(event: { "body" => body.to_json }, context: {})[:body])
+    response = JSON.parse(Inspector.process(event: { "body" => body.to_json }, context: {})[:body])
     output = response["representation"]
     output["representation"] ? "#{output['representation']}\n" : "unrepresentable: #{output['error']}\n"
   rescue StandardError => e
@@ -178,7 +178,7 @@ module Golden
   end
 
   DIFFERENCES_HEADER = <<~YAML.freeze
-    # How the groups that the representer makes today differ from the groups
+    # How the groups that Inspector makes today differ from the groups
     # these solutions were in on production (groups.yml). test/golden_test.rb
     # fails on any difference that isn't listed here, and on any listed
     # difference that no longer happens. bin/regenerate-golden rewrites this
@@ -222,7 +222,7 @@ module Golden
       case difference["kind"]
       when "split" then split(track, difference, texts)
       when "merge" then merge(track, difference)
-      else "The representer gives this solution no representation (#{difference['reason']})."
+      else "Inspector gives this solution no representation (#{difference['reason']})."
       end
     end
 
@@ -232,7 +232,7 @@ module Golden
     def self.split(track, difference, texts)
       first, second = difference["solutions"].first(2).map { |names| texts.fetch("#{difference['exercise']}/#{names.first}") }
       a, b = first_difference(first.lines, second.lines)
-      if Representer::Languages.for(track) == Representer::Languages::Basic
+      if Inspector::Languages.for(track) == Inspector::Languages::Basic
         cause = basic_split_cause(a, b)
       else
         cause = split_cause(track, difference["exercise"], first, second)
@@ -284,11 +284,11 @@ module Golden
     # comments or formatting, and otherwise shows the first line where it
     # differs.
     def self.merge(track, difference)
-      language = Representer::Languages.for(track)
+      language = Inspector::Languages.for(track)
       first, second = difference["solutions"].first(2).map do |names|
         files = Solution.new(track:, exercise: difference["exercise"], name: names.first).files
 
-        # The representer ignores files in other formats, such as a HELP.md.
+        # Inspector ignores files in other formats, such as a HELP.md.
         language.respond_to?(:source_file?) ? files.select { |name, _| language.source_file?(name) } : files
       end
       return "The solutions have the same files." if first == second
@@ -304,7 +304,7 @@ module Golden
     end
 
     def self.strip_comments(track, source)
-      lexer = Rouge::Lexer.find(Representer::Languages::Basic::LEXERS.fetch(track, track))
+      lexer = Rouge::Lexer.find(Inspector::Languages::Basic::LEXERS.fetch(track, track))
       return source unless lexer
 
       lexer.new.lex(source).reject { |token, _| token.qualname.start_with?("Comment") }.map(&:last).join

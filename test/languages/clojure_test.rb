@@ -11,31 +11,31 @@ require "test_helper"
 #   has no other solution with its output gets its own code with the comments
 #   removed and the whitespace joined.
 # - The old representer didn't write a mapping that its tests check, so
-#   expected_mapping.json was made by this representer and read through.
+#   expected_mapping.json was made by Inspector and read through.
 #
 # Differences from the old tests:
 #
 # - two-fer-53 is not ported. It is two-fer-2 plus a `(comment ...)` block.
 #   `macroexpand-all` turns the block into a `nil`, so the old representer
 #   kept the two apart. A mentor would give the same feedback for both, so
-#   this representer drops the block (see
+#   Inspector drops the block (see
 #   ClojureNormaliseTest#test_comment_forms_are_dropped_at_the_top_level).
 # - The old output contained the expansion of `ns`, gensym names such as
 #   `p1__123#` and object addresses cleaned with regular expressions. None of
 #   that is reproduced, because the fixtures only compare which solutions
 #   merge.
-class ClojureTest < RepresenterTest
+class ClojureTest < InspectorTest
   extend UpstreamTests
 
   track "clojure"
 
-  UNUSED_REQUIRE = "The two tests only differ in a `:require` that the code never uses. This representer drops the " \
+  UNUSED_REQUIRE = "The two tests only differ in a `:require` that the code never uses. Inspector drops the " \
                    "`:require`, `:use` and `:import` clauses, which only make names available.".freeze
 
-  CORE_NAME = "This representer renames a name that the solution defines, even if it is also a clojure.core name " \
+  CORE_NAME = "Inspector renames a name that the solution defines, even if it is also a clojure.core name " \
               "(`name`, `num`). The two tests only differ in such a name, which the old representer kept.".freeze
 
-  UNDERSCORE = "This representer renames `_`, because it is a name that the solution binds. The old " \
+  UNDERSCORE = "Inspector renames `_`, because it is a name that the solution binds. The old " \
                "representer kept it.".freeze
 
   DEVIATIONS = {
@@ -56,14 +56,14 @@ class ClojureTest < RepresenterTest
     "two-fer-345" => {
       merges_with: "two-fer-327",
       why: "The two tests only differ in whether the solution requires clojure.string in its `ns` or with a " \
-           "`require` form. This representer drops both."
+           "`require` form. Inspector drops both."
     }
   }.freeze
 
   # The old representer never renamed a clojure.core name, even if the solution defined it (a local called
-  # `name` or `num`). This representer renames every name the solution defines, so the mapping of each test
+  # `name` or `num`). Inspector renames every name the solution defines, so the mapping of each test
   # below has these names too.
-  RENAMED_WHY = "This representer renames a name that the solution defines, even if it is also a clojure.core name. " \
+  RENAMED_WHY = "Inspector renames a name that the solution defines, even if it is also a clojure.core name. " \
                 "The old representer never renamed a clojure.core name.".freeze
 
   RENAMED = {

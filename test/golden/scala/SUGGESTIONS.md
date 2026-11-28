@@ -1,6 +1,6 @@
-# Suggestions for the Scala representer
+# Suggestions for Scala
 
-[`transition.md`](../../../lib/representer/languages/scala/transition.md) says how the Scala representer differs from Basic, which the track used before.
+[`transition.md`](../../../lib/inspector/languages/scala/transition.md) says how Inspector treats Scala differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to Scala's own behaviour needs the maintainers to decide it.
 The counts come from the 362 golden solutions.

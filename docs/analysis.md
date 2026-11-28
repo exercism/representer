@@ -49,8 +49,8 @@ The analysis keeps the imports and the student's names, and doesn't reorder the 
 Each exercise has a file of rules in `analysis/`, named after its slug, such as `analysis/two_fer.rb` for two-fer:
 
 ```ruby
-module Representer::Languages::Ruby::Analysis
-  class Leap < Representer::Engine::AnalysisRules
+module Inspector::Languages::Ruby::Analysis
+  class Leap < Inspector::Engine::AnalysisRules
     within ["class Year; {{...}}; end", "module Year; {{...}}; end"] do
       within "def self.leap?({{...}}); {{...}}; end" do
         uses(["Date.leap?({{...}})", "Date.gregorian_leap?({{...}})"]) { actionable "ruby.leap.std_lib" }

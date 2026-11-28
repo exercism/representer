@@ -20,7 +20,7 @@ class FuzzTest < Minitest::Test
 
   # This text stands for a byte that isn't valid UTF-8. The request's JSON
   # gets the raw byte in its place, which the JSON parser passes through, so
-  # the representer receives an invalid string.
+  # Inspector receives an invalid string.
   BAD_CHARACTER = "\u0001INVALID\u0001".freeze
 
   # An editor chooses these, not the student, so they must not change the
@@ -69,7 +69,7 @@ class FuzzTest < Minitest::Test
   end
 
   def self.tracks
-    all = (Golden.tracks + Representer::Languages.registry.keys).uniq.sort
+    all = (Golden.tracks + Inspector::Languages.registry.keys).uniq.sort
     ENV["FUZZ_TRACKS"] ? all & ENV["FUZZ_TRACKS"].split(",") : all
   end
 
@@ -109,10 +109,10 @@ class FuzzTest < Minitest::Test
   end
 
   def respond(track, name, solution_files, exercise_files)
-    body = { track_slug: track, exercise_slug: "fuzz", outputs: Representer::Generate::OUTPUTS, solution_files:,
+    body = { track_slug: track, exercise_slug: "fuzz", outputs: Inspector::Generate::OUTPUTS, solution_files:,
              exercise_files: }.to_json
     body = body.b.gsub(BAD_CHARACTER.to_json[1..-2].b, "\xFF".b)
-    Representer.process(event: { "body" => body }, context: {})
+    Inspector.process(event: { "body" => body }, context: {})
   rescue StandardError, SystemStackError => e
     flunk "#{track} #{name} raised #{e.class}: #{e.message.lines.first}\n#{e.backtrace.first(5).join("\n")}"
   end

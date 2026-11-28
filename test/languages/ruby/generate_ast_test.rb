@@ -7,7 +7,7 @@ require "rubocop-ast"
 # own parser gives (the parser gem, with RuboCop's builder, as the old
 # representer used).
 class RubyGenerateASTTest < Minitest::Test
-  GenerateAST = Representer::Languages::Ruby::Common::GenerateAST
+  GenerateAST = Inspector::Languages::Ruby::Common::GenerateAST
 
   def test_drops_comments_and_layout
     assert_same "x = 1 # one\n\n", "x = 1;"
@@ -170,16 +170,16 @@ class RubyGenerateASTTest < Minitest::Test
   def ast(source, names: true)
     # tree-sitter-ruby needs a line break after a heredoc's closing name.
     source = "#{source}\n"
-    tree = GenerateAST.(Representer::Engine::Grammar["ruby"].parse(Representer::Engine.clean(source)))
+    tree = GenerateAST.(Inspector::Engine::Grammar["ruby"].parse(Inspector::Engine.clean(source)))
     anonymise_names!(tree) unless names
-    Representer::Engine::Serialize.(tree)
+    Inspector::Engine::Serialize.(tree)
   end
 
   # Gives every name leaf a placeholder of its type and a number, for
   # Serialize to write.
   def anonymise_names!(tree)
     numbers = {}
-    names = Representer::Languages::Ruby::Representation::Spec.names
+    names = Inspector::Languages::Ruby::Representation::Spec.names
     tree.each_descendant do |leaf|
       prefix = names[leaf.type] if leaf.named? && leaf.leaf?
       leaf.placeholder = "#{leaf.type}:N#{numbers[leaf.text.delete_prefix(prefix)] ||= numbers.size}" if prefix

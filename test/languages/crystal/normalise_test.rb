@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Crystal's Normalise stage, through the whole representer, because the
+# Tests Crystal's Normalise stage, through Inspector as a whole, because the
 # names it writes are renamed afterwards.
-class CrystalNormaliseTest < RepresenterTest
+class CrystalNormaliseTest < InspectorTest
   include CrystalStages
 
   track "crystal"

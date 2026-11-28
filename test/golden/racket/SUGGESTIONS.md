@@ -1,6 +1,6 @@
-# Suggestions for the Racket representer
+# Suggestions for Racket
 
-[`transition.md`](../../../lib/representer/languages/racket/transition.md) says how the Racket representer differs from Basic, which Racket used before.
+[`transition.md`](../../../lib/inspector/languages/racket/transition.md) says how Inspector treats Racket differently from Basic, which Racket used before.
 These are changes that could improve it.
 None of them is made, because a change to Racket's own behaviour needs the maintainers to decide it.
 

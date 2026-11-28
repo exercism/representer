@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ErlangTest < RepresenterTest
+class ErlangTest < InspectorTest
   track "erlang"
 
   def test_comments_and_layout_are_ignored

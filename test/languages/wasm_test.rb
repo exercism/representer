@@ -1,14 +1,14 @@
 require "test_helper"
 
-class WasmTest < RepresenterTest
+class WasmTest < InspectorTest
   extend UpstreamTests
 
   track "wasm"
 
-  # The old representer renamed nothing, so every old mapping is empty. This
-  # representer renames each `$name` that the solution chooses, so every
+  # The old representer renamed nothing, so every old mapping is empty. Inspector
+  #  renames each `$name` that the solution chooses, so every
   # mapping gains the leap solution's parameter.
-  RENAMES = "The old representer never renamed anything. This representer renames every `$name` the solution " \
+  RENAMES = "The old representer never renamed anything. Inspector renames every `$name` the solution " \
             "chooses, here the parameter.".freeze
 
   DEVIATIONS = %w[sugared unsugared normalize-whitespace remove-comments].to_h do |name|
@@ -32,8 +32,8 @@ class WasmTest < RepresenterTest
       equivalents = Dir[File.join(dir, "equivalent", "*.wat")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("wasm", inputs)
-      assert_equal Representer::RepresentSolution.("wasm", equivalents).representation, actual.representation
+      actual = Inspector::RepresentSolution.("wasm", inputs)
+      assert_equal Inspector::RepresentSolution.("wasm", equivalents).representation, actual.representation
       assert_equal ["year"], actual.mapping.values.uniq
     end
   end

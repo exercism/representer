@@ -11,7 +11,7 @@ require "test_helper"
 # The old unit tests only counted the names in all-features, so its expected
 # mapping lists the names found in the input and its equivalent.nim was
 # written by hand.
-class NimTest < RepresenterTest
+class NimTest < InspectorTest
   extend UpstreamTests
 
   track "nim"
@@ -24,7 +24,7 @@ class NimTest < RepresenterTest
     "all-features" => {
       add: %w[Dollar testmacro testproc testtemplate],
       remove: %w[testMacro testProc testTemplate],
-      why: "The old representer left type sections as written, so it didn't rename the type Dollar. This one " \
+      why: "The old representer left type sections as written, so it didn't rename the type Dollar. Inspector " \
            "renames it. #{ONE_SPELLING}"
     },
     "all-the-things" => {

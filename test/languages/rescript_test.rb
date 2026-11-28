@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RescriptTest < RepresenterTest
+class RescriptTest < InspectorTest
   track "rescript"
 
   def test_comments_and_layout_are_ignored
@@ -21,7 +21,7 @@ class RescriptTest < RepresenterTest
   end
 
   def test_interface_files_are_ignored
-    with_interface = Representer::RepresentSolution.(track, { "Leap.res" => "let f = x => x\n", "Leap.resi" => "let f: int => int\n" })
+    with_interface = Inspector::RepresentSolution.(track, { "Leap.res" => "let f = x => x\n", "Leap.resi" => "let f: int => int\n" })
     assert_equal represent("let f = x => x\n").representation, with_interface.representation
   end
 

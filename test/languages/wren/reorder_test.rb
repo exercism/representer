@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Wren's Reorder stage, through the whole representer, because it
+# Tests Wren's Reorder stage, through Inspector as a whole, because it
 # sorts by the code with the renamed names left out.
-class WrenReorderTest < RepresenterTest
+class WrenReorderTest < InspectorTest
   include WrenStages
 
   track "wren"

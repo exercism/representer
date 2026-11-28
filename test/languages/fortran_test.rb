@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FortranTest < RepresenterTest
+class FortranTest < InspectorTest
   track "fortran"
 
   def test_comments_and_layout_are_ignored

@@ -29,4 +29,4 @@ COPY lib/ lib/
 
 ENV RUBY_YJIT_ENABLE=1
 
-CMD [ "lib/representer.Representer.process" ]
+CMD [ "lib/inspector.Inspector.process" ]

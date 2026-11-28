@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs ReScript's stages by hand, for the tests of each stage.
 module RescriptStages
-  Rescript = Representer::Languages::Rescript
+  Rescript = Inspector::Languages::Rescript
 
   def parse(source)
-    Representer::Engine::Grammar["rescript"].parse(Representer::Engine.clean(source), **Rescript::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["rescript"].parse(Inspector::Engine.clean(source), **Rescript::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module RescriptStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Rescript::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Rescript::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

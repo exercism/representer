@@ -1,6 +1,6 @@
-# Suggestions for the C++ representer
+# Suggestions for C++
 
-[`transition.md`](../../../lib/representer/languages/cpp/transition.md) says how the C++ representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/cpp/transition.md) says how Inspector differs from the old C++ representer.
 These are changes that could improve it.
 None of them is made, because a change to C++'s own behaviour needs the maintainers to decide it.
 

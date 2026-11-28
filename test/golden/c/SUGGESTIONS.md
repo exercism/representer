@@ -1,6 +1,6 @@
-# Suggestions for the C representer
+# Suggestions for C
 
-[`transition.md`](../../../lib/representer/languages/c/transition.md) says how the C representer differs from Basic, which C used before.
+[`transition.md`](../../../lib/inspector/languages/c/transition.md) says how Inspector treats C differently from Basic, which C used before.
 These are changes that could improve it.
 None of them is made, because a change to C's own behaviour needs the maintainers to decide it.
 

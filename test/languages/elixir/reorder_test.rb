@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Elixir's Reorder stage, through the whole representer, because it
+# Tests Elixir's Reorder stage, through Inspector as a whole, because it
 # sorts by the code with the renamed names left out.
-class ElixirReorderTest < RepresenterTest
+class ElixirReorderTest < InspectorTest
   track "elixir"
 
   def wrap(body) = "defmodule M do\n  def f(x) do\n    #{body}\n  end\nend\n"

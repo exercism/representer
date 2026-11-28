@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Odin's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on Odin solutions. The tests of each stage are in
 # test/languages/odin/.
-class OdinTest < RepresenterTest
+class OdinTest < InspectorTest
   track "odin"
 
   def test_comments_layout_and_imports_go

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RacketTest < RepresenterTest
+class RacketTest < InspectorTest
   track "racket"
 
   def test_comments_and_layout_are_ignored

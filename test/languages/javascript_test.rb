@@ -1,17 +1,17 @@
 require "test_helper"
 
-class JavaScriptTest < RepresenterTest
+class JavaScriptTest < InspectorTest
   extend UpstreamTests
 
   track "javascript"
 
-  LIBRARY_NAMES = "This representer never renames names from JavaScript's library (console, log, indexOf...), " \
+  LIBRARY_NAMES = "Inspector never renames names from JavaScript's library (console, log, indexOf...), " \
                   "so mentors' comments on different library calls stay apart. The old representer renamed them.".freeze
 
-  EXPORTS = "The old representer kept the names that a solution exports. This representer renames every name " \
+  EXPORTS = "The old representer kept the names that a solution exports. Inspector renames every name " \
             "the solution defines, including the exported ones.".freeze
 
-  OWN_METHODS = "This representer renames every method the solution defines, including the ones that JavaScript " \
+  OWN_METHODS = "Inspector renames every method the solution defines, including the ones that JavaScript " \
                 "itself calls (constructor, toString, valueOf). The old representer kept them.".freeze
 
   DEVIATIONS = {

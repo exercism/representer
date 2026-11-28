@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests D's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on D solutions. The tests of each stage are in
 # test/languages/d/.
-class DTest < RepresenterTest
+class DTest < InspectorTest
   track "d"
 
   def test_comments_layout_and_imports_go

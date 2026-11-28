@@ -2,8 +2,8 @@ require "test_helper"
 
 # Checks RewriteCode with Ruby's grammar and GenerateAST stage.
 class RewriteCodeTest < Minitest::Test
-  CodePattern = Representer::Engine::CodePattern
-  Ruby = Representer::Languages::Ruby
+  CodePattern = Inspector::Engine::CodePattern
+  Ruby = Inspector::Languages::Ruby
 
   def test_rewrites_every_match
     assert_equal write(tree("n = xs.size")), rewrite("n = xs.length", "{{list}}.length", "{{list}}.size")
@@ -18,9 +18,9 @@ class RewriteCodeTest < Minitest::Test
   private
   def rewrite(source, code, replacement, scopes: [])
     patterns = [code, replacement, *scopes].map { |text| CodePattern[Ruby::Common::Spec, text] }
-    write(Representer::Engine::RewriteCode.(tree(source), patterns[0], patterns[1], scopes: patterns[2..]))
+    write(Inspector::Engine::RewriteCode.(tree(source), patterns[0], patterns[1], scopes: patterns[2..]))
   end
 
-  def tree(source) = Ruby::Common::GenerateAST.(Representer::Engine::Grammar["ruby"].parse(source))
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def tree(source) = Ruby::Common::GenerateAST.(Inspector::Engine::Grammar["ruby"].parse(source))
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

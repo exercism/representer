@@ -1,8 +1,8 @@
 # Adding a language
 
-Every track gets the Basic representer until it has a representer of its own.
+Inspector gives every track Basic's representation until the track's language is added.
 This guide explains how to add one.
-Ruby, in [`lib/representer/languages/ruby/`](./lib/representer/languages/ruby/), is the worked example, and the quickest way to start is to copy it.
+Ruby, in [`lib/inspector/languages/ruby/`](./lib/inspector/languages/ruby/), is the worked example, and the quickest way to start is to copy it.
 
 The steps are:
 
@@ -15,12 +15,12 @@ The steps are:
 
 ## The goal
 
-Every solution that the representer sees passes its tests.
-So the representer can throw away any code that makes no difference to the solution working, such as comments, imports, brackets that only group, and the way a number or a string is written.
+Every solution that Inspector sees passes its tests.
+So Inspector can throw away any code that makes no difference to the solution working, such as comments, imports, brackets that only group, and the way a number or a string is written.
 Two solutions that differ only in such code would pass the same tests in the same way, and a mentor would give them the same feedback.
 
 The same goes for two spellings that the language's own parser reads as the same program, such as an optional trailing comma or `;`, braces around a single statement, or keyword case in a case-insensitive language.
-Each language's `transition.md` lists the spellings that its representation treats as the same, in a section called "Spellings that share a representation" (see [Dart's](./lib/representer/languages/dart/transition.md#spellings-that-share-a-representation), for example).
+Each language's `transition.md` lists the spellings that its representation treats as the same, in a section called "Spellings that share a representation" (see [Dart's](./lib/inspector/languages/dart/transition.md#spellings-that-share-a-representation), for example).
 If you make the representation treat another pair of spellings as the same, add it to that list.
 
 A merge is accepted in `differences.yml` if the solutions differ only in names, whitespace, comments, imports, quote style, how a number is written, brackets that only group, or spellings listed in the language's `transition.md`.
@@ -78,7 +78,7 @@ Then create `test/languages/<track>_test.rb`:
 ```ruby
 require "test_helper"
 
-class PythonTest < RepresenterTest
+class PythonTest < InspectorTest
   extend UpstreamTests
 
   track "python"
@@ -96,7 +96,7 @@ end
 3. Distinctness: two tests get the same representation exactly when the old representer gave them the same expected output.
 
 Every ported test must pass.
-Where this representer deliberately differs from the old one, add a deviation that says how and why:
+Where Inspector deliberately differs from the old one, add a deviation that says how and why:
 
 ```ruby
 DEVIATIONS = {
@@ -108,14 +108,14 @@ DEVIATIONS = {
 }.freeze
 ```
 
-- `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that the old representer renamed but this one keeps.
-- `replace`: text in `equivalent.<ext>` to replace with other text, for names that this representer renames and the old one kept.
+- `restore`: placeholders in `equivalent.<ext>` to turn back into names, for names that the old representer renamed but Inspector keeps.
+- `replace`: text in `equivalent.<ext>` to replace with other text, for names that Inspector renames and the old one kept.
 - `add` and `remove`: names to add to or remove from the old mapping.
 - `parse_error: true`: the input has a syntax error that tree-sitter rejects, so it gets Basic's representation. The test checks that, and nothing else.
-- `merges_with`: other tests that this representer gives the same representation, although the old representer kept them apart. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
+- `merges_with`: other tests that Inspector gives the same representation, although the old representer kept them apart. Use it only for solutions that differ in code that makes no difference to them working, such as imports.
 - `why`: the reason. Every deviation needs one.
 
-The common deviations are old outputs that weren't valid code, and names that the old representer kept and this one renames.
+The common deviations are old outputs that weren't valid code, and names that the old representer kept and Inspector renames.
 Never use a deviation to hide a merge that the old representer kept apart.
 
 ## 3. Declare the names and write the stages
@@ -126,13 +126,13 @@ Never use a deviation to hide a merge that the old representer kept apart.
 
 These rules decide what a language may do:
 
-1. Every solution that the representer sees is valid code that passes its tests. A stage may throw away code that makes no difference to the solution working, but it never adds code that only copes with invalid input.
+1. Every solution that Inspector sees is valid code that passes its tests. A stage may throw away code that makes no difference to the solution working, but it never adds code that only copes with invalid input.
 2. The engine makes the decisions that apply to every language (see [docs/how-it-works.md](./docs/how-it-works.md#the-engines-steps)). A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of the engine's decisions.
 3. Within a language, match what the old representer (`exercism/<track>-representer`) did. A language-specific difference from the old behaviour only goes in if a human has decided it, and the language's `transition.md` records it. List any other improvement you'd suggest in `test/golden/<track>/SUGGESTIONS.md` for the maintainers to discuss. Fix bugs, such as wrong merges and crashes.
 
 ### The language's folder
 
-Each language has a folder of its own, named after it, such as `lib/representer/languages/ruby/`.
+Each language has a folder of its own, named after it, such as `lib/inspector/languages/ruby/`.
 The folder holds all the language's files in one folder for each output, and a folder called `common/` for what every output shares.
 Each of these folders holds a `spec.rb` with its settings, and the stages for that output.
 The top level of the folder holds only these folders and `transition.md`:
@@ -166,8 +166,8 @@ Every `Reorder` goes in `representation/`, and so does dropping docstrings, as t
 Every file uses the compact module form:
 
 ```ruby
-module Representer::Languages::Ruby::Common
-  class Spec < Representer::Engine::Language
+module Inspector::Languages::Ruby::Common
+  class Spec < Inspector::Engine::Language
     tracks "ruby"
     grammar "ruby"
     extensions ".rb"
@@ -179,8 +179,8 @@ end
 ```
 
 ```ruby
-module Representer::Languages::Ruby::Representation
-  class Spec < Representer::Engine::Representation
+module Inspector::Languages::Ruby::Representation
+  class Spec < Inspector::Engine::Representation
     version 12
 
     # Rename a symbol such as `:count` as the name `count`, without the colon.
@@ -192,8 +192,8 @@ end
 A stage in `representation/` is a class beside the output's `Spec`, in the same module:
 
 ```ruby
-module Representer::Languages::Ruby::Representation
-  class Reorder < Representer::Engine::Reorder
+module Inspector::Languages::Ruby::Representation
+  class Reorder < Inspector::Engine::Reorder
     # Reorder manually written hash keys.
     # {"a": 1, "b": 2} == {"b": 2, "a": 1}
     sort :hash
@@ -247,7 +247,7 @@ Run `./bin/inspect <track> <file>` to see tree-sitter's tree, with each node's t
 
 ### Comments in language files
 
-Each language file follows the style of Ruby's [`common/normalise.rb`](./lib/representer/languages/ruby/common/normalise.rb) and [`representation/reorder.rb`](./lib/representer/languages/ruby/representation/reorder.rb).
+Each language file follows the style of Ruby's [`common/normalise.rb`](./lib/inspector/languages/ruby/common/normalise.rb) and [`representation/reorder.rb`](./lib/inspector/languages/ruby/representation/reorder.rb).
 The comment at the top of a file says briefly why the stage exists.
 For example, all solutions pass the tests and the code is never run, so reordering only exists to group students who list things in a different order.
 The comment above each rule or method is an instruction that says what to do, such as "Mark each method..." or "Reorder the methods and other code inside classes and modules".
@@ -311,7 +311,7 @@ If there is nothing to say for a section yet, it says so in one sentence.
 Update a comment whenever the code below it changes.
 Write every comment by the rules in "Writing comments and docs" below.
 
-Put a blank line above a comment that describes the code below it, so each comment and its code read as one unit. The comment needs no blank line when it's the first thing in a method, class, module or block, follows another comment, or follows `private`. Rubocop checks this with `Representer/EmptyLineBeforeComment` (in `rubocop/cop/representer/`) and can fix it with `bundle exec rubocop -a`.
+Put a blank line above a comment that describes the code below it, so each comment and its code read as one unit. The comment needs no blank line when it's the first thing in a method, class, module or block, follows another comment, or follows `private`. Rubocop checks this with `Inspector/EmptyLineBeforeComment` (in `rubocop/cop/inspector/`) and can fix it with `bundle exec rubocop -a`.
 
 ### GenerateAST's declarations
 
@@ -319,8 +319,8 @@ The top of `GenerateAST` lists the steps that every language needs, as declarati
 The engine applies them around the language's own steps:
 
 ```ruby
-module Representer::Languages::Ruby::Common
-  class GenerateAST < Representer::Engine::GenerateAST
+module Inspector::Languages::Ruby::Common
+  class GenerateAST < Inspector::Engine::GenerateAST
     # Strip the keywords that sit in a fixed place, because the node types
     # already show them.
     strip_tokens "def", "end", "if", "then"
@@ -365,11 +365,11 @@ Read a token's text before stripping it if its text varies (Ruby's string opener
 Turn each string into its value with `literal(value)`, so that `'a'` and `"a"` are the same.
 Read only the escapes used in solutions, and keep any other escape as a node of its own, so two different strings can never get the same value.
 Give two numbers one form only if the language reads them as the same value of the same type.
-`numbers_are` does this with the readers in [`Engine::Numbers`](./lib/representer/engine/numbers.rb), and takes the prefixes and suffixes that the language reads.
+`numbers_are` does this with the readers in [`Engine::Numbers`](./lib/inspector/engine/numbers.rb), and takes the prefixes and suffixes that the language reads.
 
 ### Names
 
-The engine renames names in one step, [`Engine::RenameUserDefinedNodes`](./lib/representer/engine/rename_user_defined_nodes.rb), which walks the trees twice.
+The engine renames names in one step, [`Engine::RenameUserDefinedNodes`](./lib/inspector/engine/rename_user_defined_nodes.rb), which walks the trees twice.
 The first walk collects the text of every name defined by a node listed in `names_are_defined_by`.
 The second walk renames every name with one of those texts, wherever it appears: in its definition, and in every use, call and symbol.
 Renaming goes by name, so every use of a renamed name gets the same placeholder.
@@ -383,8 +383,8 @@ See [`test/languages/ruby/`](./test/languages/ruby/).
 Test `GenerateAST` against the language's own parser: for a set of snippets (from the tests and the golden data), check that two snippets get the same tree from `GenerateAST` exactly when the parser gives them the same tree, ignoring locations and names.
 Ruby's test uses the `parser` gem, which the old Ruby representer used, and lists each pair where `GenerateAST` deliberately differs, with the reason.
 
-Keep the ported tests and the tests of the whole representer in `test/languages/<track>_test.rb`.
-`RepresenterTest` gives you `assert_same_representation`, `refute_same_representation`, `assert_basic_representation` (which checks that a solution doesn't parse, and so gets Basic's representation) and `assert_unrepresentable` (which checks that a solution gets no representation, for a given reason).
+Keep the ported tests and the tests of Inspector as a whole in `test/languages/<track>_test.rb`.
+`InspectorTest` gives you `assert_same_representation`, `refute_same_representation`, `assert_basic_representation` (which checks that a solution doesn't parse, and so gets Basic's representation) and `assert_unrepresentable` (which checks that a solution gets no representation, for a given reason).
 
 Also add a request test: a `test/fixtures/requests/<track>/<name>/request.json` with a typical solution and its tests, and an `expected_response.json` made by running `./bin/run.sh test/fixtures/requests/<track>/<name>/request.json test/fixtures/requests/<track>/<name>` and copying `response.json` after checking it.
 
@@ -399,8 +399,8 @@ The website shows the first 15 lines of each solution on its card.
 Create `snippet/spec.rb` in the language's folder, and list what to leave out, such as comments and the imports at the top of the file:
 
 ```ruby
-module Representer::Languages::Ruby::Snippet
-  class Spec < Representer::Engine::Snippet
+module Inspector::Languages::Ruby::Snippet
+  class Spec < Inspector::Engine::Snippet
     # Bump the version whenever the snippet of any solution could change.
     version 1
 
@@ -420,7 +420,7 @@ To choose the words, look at the start of the track's example solutions.
 Add a test to [`test/engine/snippet_test.rb`](./test/engine/snippet_test.rb) for anything unusual, and run the track's request tests, whose expected responses include the snippet.
 If Rouge has no lexer for the language, add `comment_lines`, so a file that doesn't parse still loses its comments.
 
-A track with no representer of its own can have a snippet too.
+A track that Inspector has no language for can have a snippet too.
 Its folder holds only `snippet/spec.rb`, which starts with `tracks "<slug>"`, and its rules apply to lines.
 
 Bump the snippet's version whenever its snippets could change. The snippet's version is separate from the representation's version.
@@ -433,7 +433,7 @@ A new language starts at version 2, because the old per-track representers all r
 Bump the representation's version whenever its output could change for any solution: a change to a stage, a rule or the names, or a new grammar commit.
 The website will then represent the track's solutions again.
 
-Basic has its own version, for the tracks with no representer of their own.
+Basic has its own version, for the tracks that Inspector has no language for.
 If a solution doesn't parse, it gets Basic's representation with the language's version, so a change to Basic's output must also bump every language's version.
 
 ## How the code is organised
@@ -444,7 +444,7 @@ It takes its inputs with `initialize_with`, and code calls it with `.()`, as in 
 Each command has a unit test file of its own, named after it, such as `test/engine/rename_user_defined_nodes_test.rb`.
 The tests check the command on small trees, apart from any language where they can.
 
-Every file uses the compact module form, such as `module Representer::Engine` or `module Representer::Languages::Ruby::Common`, and never nested modules.
+Every file uses the compact module form, such as `module Inspector::Engine` or `module Inspector::Languages::Ruby::Common`, and never nested modules.
 
 Write new code this way, and convert older code to it when you change that code.
 

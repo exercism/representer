@@ -2,16 +2,16 @@ require "test_helper"
 
 # Runs Elixir's stages by hand, for the tests of each stage.
 module ElixirStages
-  Elixir = Representer::Languages::Elixir
+  Elixir = Inspector::Languages::Elixir
 
-  def parse(source) = Representer::Engine::Grammar["elixir"].parse(Representer::Engine.clean(source))
+  def parse(source) = Inspector::Engine::Grammar["elixir"].parse(Inspector::Engine.clean(source))
 
   # GenerateAST's tree for the source.
   def generate_ast(source) = Elixir::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Elixir::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Elixir::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

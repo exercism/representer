@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Emacs Lisp's stages by hand, for the tests of each stage.
 module EmacsLispStages
-  EmacsLisp = Representer::Languages::EmacsLisp
+  EmacsLisp = Inspector::Languages::EmacsLisp
 
   def parse(source)
-    Representer::Engine::Grammar["elisp"].parse(Representer::Engine.clean(source), **EmacsLisp::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["elisp"].parse(Inspector::Engine.clean(source), **EmacsLisp::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module EmacsLispStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(EmacsLisp::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(EmacsLisp::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

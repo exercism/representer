@@ -1,7 +1,7 @@
 require "test_helper"
 
 class CutRangesTest < Minitest::Test
-  def cut(source, ranges) = Representer::Engine::CutRanges.(source, ranges)
+  def cut(source, ranges) = Inspector::Engine::CutRanges.(source, ranges)
 
   def test_cuts_the_ranges_out_of_their_lines
     assert_equal ["x = 1\n", "y = 2\n"], cut("x = 1 # One\ny = 2\n", [6...11])

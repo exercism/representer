@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CppTest < RepresenterTest
+class CppTest < InspectorTest
   extend UpstreamTests
 
   track "cpp"
@@ -31,8 +31,8 @@ class CppTest < RepresenterTest
       equivalents = Dir[File.join(dir, "equivalent", "*.{cpp,h}")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("cpp", inputs)
-      assert_equal Representer::RepresentSolution.("cpp", equivalents).representation, actual.representation
+      actual = Inspector::RepresentSolution.("cpp", inputs)
+      assert_equal Inspector::RepresentSolution.("cpp", equivalents).representation, actual.representation
       assert_equal mapping.values.sort, actual.mapping.values.sort
     end
   end

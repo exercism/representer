@@ -1,7 +1,7 @@
 require "test_helper"
 
 class IndentedInStepsTest < Minitest::Test
-  IndentedInSteps = Representer::Engine::IndentedInSteps
+  IndentedInSteps = Inspector::Engine::IndentedInSteps
 
   def test_lines_may_move_in_or_out_by_one_step
     assert IndentedInSteps.("a\n  b\n    c\n  d\ne\n", 2)

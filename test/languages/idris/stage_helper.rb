@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Idris's stages by hand, for the tests of each stage.
 module IdrisStages
-  Idris = Representer::Languages::Idris
+  Idris = Inspector::Languages::Idris
 
   def parse(source)
-    Representer::Engine::Grammar["idris"].parse(Representer::Engine.clean(source), **Idris::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["idris"].parse(Inspector::Engine.clean(source), **Idris::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module IdrisStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Idris::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Idris::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

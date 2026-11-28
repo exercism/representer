@@ -3,7 +3,7 @@ require_relative "toy_language"
 # Checks the verbs of an exercise's rules on the toy language, whose trees
 # come straight from Ruby's grammar.
 module ToyLanguage
-  class Greeting < Representer::Engine::AnalysisRules
+  class Greeting < Inspector::Engine::AnalysisRules
     missing("def greet({{...}})\n{{...}}\nend") { essential "toy.no_greet" }
 
     within "def greet({{name}})\n{{...}}\nend" do
@@ -76,7 +76,7 @@ class AnalysisRulesTest < Minitest::Test
 
   private
   def analyse(source)
-    ToyLanguage::Greeting.(Representer::Engine::Grammar["ruby"].parse(source), source)
+    ToyLanguage::Greeting.(Inspector::Engine::Grammar["ruby"].parse(source), source)
   end
 
   def keys(source) = analyse(source).map { |comment| comment[:comment] }

@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Nim's Normalise stage, through the whole representer, because the
+# Tests Nim's Normalise stage, through Inspector as a whole, because the
 # names it writes are renamed afterwards.
-class NimNormaliseTest < RepresenterTest
+class NimNormaliseTest < InspectorTest
   include NimStages
 
   track "nim"

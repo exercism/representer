@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests ABAP's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on ABAP solutions. The tests of each stage are in
 # test/languages/abap/.
-class AbapTest < RepresenterTest
+class AbapTest < InspectorTest
   track "abap"
 
   def test_comments_layout_and_case_go

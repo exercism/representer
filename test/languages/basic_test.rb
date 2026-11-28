@@ -1,12 +1,12 @@
 require "test_helper"
 
-class BasicTest < RepresenterTest
+class BasicTest < InspectorTest
   track "haskell"
 
   # Erlang, Haskell and Python have languages of their own, so the tests call
   # Basic directly.
-  def basic(code, track: "haskell") = Representer::Languages::Basic.(track, { FILENAMES.fetch(track) => code })
-  def represent(code, filename: default_filename) = Representer::Languages::Basic.(track, { filename => code })
+  def basic(code, track: "haskell") = Inspector::Languages::Basic.(track, { FILENAMES.fetch(track) => code })
+  def represent(code, filename: default_filename) = Inspector::Languages::Basic.(track, { filename => code })
   def default_filename = FILENAMES.fetch(track)
 
   # Basic only reads a track's source files.
@@ -17,10 +17,10 @@ class BasicTest < RepresenterTest
   }.freeze
 
   def test_tracks_without_a_class_use_basic_and_its_version
-    result = Representer::RepresentSolution.("8th", { "main.8th" => ": main 1 . ;" })
-    assert_equal Representer::Languages::Basic, result.representer
+    result = Inspector::RepresentSolution.("8th", { "main.8th" => ": main 1 . ;" })
+    assert_equal Inspector::Languages::Basic, result.representer
     assert_nil result.reason
-    assert_equal Representer::Languages::Basic::VERSION, result.version
+    assert_equal Inspector::Languages::Basic::VERSION, result.version
     assert_empty result.mapping
   end
 
@@ -60,8 +60,8 @@ class BasicTest < RepresenterTest
   end
 
   def test_file_names_and_order_do_not_matter
-    one = Representer::RepresentSolution.("dart", { "a.dart" => "x = 1;", "b.dart" => "y = 2;" })
-    other = Representer::RepresentSolution.("dart", { "c.dart" => "y = 2;", "a.dart" => "x = 1;", "d.dart" => "" })
+    one = Inspector::RepresentSolution.("dart", { "a.dart" => "x = 1;", "b.dart" => "y = 2;" })
+    other = Inspector::RepresentSolution.("dart", { "c.dart" => "y = 2;", "a.dart" => "x = 1;", "d.dart" => "" })
     assert_equal one.representation, other.representation
     refute_includes one.representation, "a.dart"
   end
@@ -94,15 +94,15 @@ class BasicTest < RepresenterTest
   def test_files_that_are_not_code_are_ignored
     code = { "src/Main.hs" => "main = print 1" }
     with_config = code.merge("package.yaml" => "name: leap", "HELP.md" => "# Help", "test/LeapSpec_test.hs" => "x")
-    assert_equal Representer::RepresentSolution.("haskell", code).representation,
-      Representer::RepresentSolution.("haskell", with_config).representation
-    assert_equal "1", Representer::RepresentSolution.("groovy", { "a.groovy" => "1", "notes.txt" => "2" }).representation
-    assert_equal "no_source_files", Representer::RepresentSolution.("haskell", { "package.yaml" => "x" }).reason
+    assert_equal Inspector::RepresentSolution.("haskell", code).representation,
+      Inspector::RepresentSolution.("haskell", with_config).representation
+    assert_equal "1", Inspector::RepresentSolution.("groovy", { "a.groovy" => "1", "notes.txt" => "2" }).representation
+    assert_equal "no_source_files", Inspector::RepresentSolution.("haskell", { "package.yaml" => "x" }).reason
   end
 
   def test_imports_on_their_own_lines_are_dropped
-    groovy = Representer::RepresentSolution.("groovy", { "a.groovy" => "import java.time.Year\ndef f() { 1 }\n" })
-    assert_equal Representer::RepresentSolution.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
+    groovy = Inspector::RepresentSolution.("groovy", { "a.groovy" => "import java.time.Year\ndef f() { 1 }\n" })
+    assert_equal Inspector::RepresentSolution.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
       groovy.representation
     c = basic("#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n", track: "c")
     assert_equal basic("int f() { return 1; }\n", track: "c").representation, c.representation
@@ -115,13 +115,13 @@ class BasicTest < RepresenterTest
     assert_equal basic("-module(a).\nf(X) -> X.\n", track: "erlang").representation,
       basic(erlang, track: "erlang").representation
     prolog = ":- use_module(library(lists)).\nf(X) :- X.\n"
-    assert_equal Representer::RepresentSolution.("prolog", { "a.pl" => "f(X) :- X.\n" }).representation,
-      Representer::RepresentSolution.("prolog", { "a.pl" => prolog }).representation
+    assert_equal Inspector::RepresentSolution.("prolog", { "a.pl" => "f(X) :- X.\n" }).representation,
+      Inspector::RepresentSolution.("prolog", { "a.pl" => prolog }).representation
   end
 
   def test_a_line_that_only_starts_like_an_import_stays
-    with_call = Representer::RepresentSolution.("groovy", { "a.groovy" => "def f() { importer() }\n" })
-    refute_equal Representer::RepresentSolution.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
+    with_call = Inspector::RepresentSolution.("groovy", { "a.groovy" => "def f() { importer() }\n" })
+    refute_equal Inspector::RepresentSolution.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
       with_call.representation
   end
 end

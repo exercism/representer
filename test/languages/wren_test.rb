@@ -1,6 +1,6 @@
 require "test_helper"
 
-class WrenTest < RepresenterTest
+class WrenTest < InspectorTest
   extend UpstreamTests
 
   track "wren"
@@ -20,8 +20,8 @@ class WrenTest < RepresenterTest
       equivalents = Dir[File.join(dir, "equivalent", "*.wren")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("wren", inputs)
-      assert_equal Representer::RepresentSolution.("wren", equivalents).representation, actual.representation
+      actual = Inspector::RepresentSolution.("wren", inputs)
+      assert_equal Inspector::RepresentSolution.("wren", equivalents).representation, actual.representation
       assert_equal mapping.values.sort, actual.mapping.values.sort
     end
   end

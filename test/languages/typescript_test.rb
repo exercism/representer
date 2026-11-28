@@ -1,11 +1,11 @@
 require "test_helper"
 
-class TypeScriptTest < RepresenterTest
+class TypeScriptTest < InspectorTest
   extend UpstreamTests
 
   track "typescript"
 
-  LIBRARY_NAMES = "This representer renames only the names that the solution defines, so names from JavaScript's " \
+  LIBRARY_NAMES = "Inspector renames only the names that the solution defines, so names from JavaScript's " \
                   "library (Math, abs, console, log...) keep their names. The old representer renamed every name.".freeze
 
   DEVIATIONS = {

@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests the whole Gleam representer. Each stage has its own tests in
+# Tests Inspector as a whole on Gleam solutions. Each stage has its own tests in
 # test/languages/gleam/.
-class GleamTest < RepresenterTest
+class GleamTest < InspectorTest
   track "gleam"
 
   def wrap(body) = "pub fn f(x: Int) -> Int {\n#{body}\n}\n"

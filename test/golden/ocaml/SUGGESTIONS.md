@@ -1,6 +1,6 @@
-# Suggestions for the OCaml representer
+# Suggestions for OCaml
 
-[`transition.md`](../../../lib/representer/languages/ocaml/transition.md) says how the OCaml representer differs from Basic, which the track used before.
+[`transition.md`](../../../lib/inspector/languages/ocaml/transition.md) says how Inspector treats OCaml differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to OCaml's own behaviour needs the maintainers to decide it.
 The counts come from the 244 golden solutions.
@@ -21,4 +21,4 @@ The counts come from the 244 golden solutions.
 9. **Treat `function` and `fun x -> match x with` the same.** `let f = function 0 -> 1 | _ -> 2` and `let f x = match x with 0 -> 1 | _ -> 2` do the same, but OCaml's parser gives them different trees. 95 golden solutions use `function` and 4 write `fun x -> match x with`.
 10. **Write `x |> f` and `f @@ x` as `f x`.** All three apply `f` to `x`. Mentors do comment on pipelines, so this is a judgement call. 109 golden solutions use `|>` and 14 use `@@`.
 11. **Drop the `_` at the end of a record pattern.** `{ name; _ }` and `{ name }` match the same records, and the `_` only turns off a warning. 6 golden solutions write it.
-12. **Read the `.mli` file too.** The representer reads only `.ml` files, so two solutions that differ only in an interface file they submitted get the same representation. Reading `.mli` files needs tree-sitter-ocaml's interface grammar, which `grammars.yml` doesn't pin yet.
+12. **Read the `.mli` file too.** Inspector reads only `.ml` files, so two solutions that differ only in an interface file they submitted get the same representation. Reading `.mli` files needs tree-sitter-ocaml's interface grammar, which `grammars.yml` doesn't pin yet.

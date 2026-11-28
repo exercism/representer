@@ -1,13 +1,13 @@
 require "test_helper"
 
-class JavaTest < RepresenterTest
+class JavaTest < InspectorTest
   extend UpstreamTests
 
   track "java"
 
   PER_DECLARATION = "The old representer gave each declaration its own placeholder, so a field and a parameter with " \
-                    "the same name, or two parameters of different methods, got different placeholders. This " \
-                    "representer renames by name, so they share one. The equivalent file has the later placeholders " \
+                    "the same name, or two parameters of different methods, got different placeholders. Inspector " \
+                    " renames by name, so they share one. The equivalent file has the later placeholders " \
                     "changed to the first, and the mapping lists the name once.".freeze
 
   # The deviation for a test whose old mapping has the same name more than once.
@@ -26,11 +26,11 @@ class JavaTest < RepresenterTest
     "scenario-simple" => {
       parse_error: true,
       why: "The upstream scenario has a syntax error (a missing semicolon after the return), which the old " \
-           "representer's Java compiler repaired. This representer gives it Basic's representation."
+           "representer's Java compiler repaired. Inspector gives it Basic's representation."
     },
     "scenario-lambda-arguments" => {
       replace: { ".filter(" => ".PLACEHOLDER_02(" },
-      why: "The solution defines a method called filter, so this representer renames every use of the name, " \
+      why: "The solution defines a method called filter, so Inspector renames every use of the name, " \
            "including the call to Stream.filter. The old representer renamed only the declaration."
     },
     "scenario-class-with-nested-enum" => per_declaration("scenario-class-with-nested-enum")
@@ -52,8 +52,8 @@ class JavaTest < RepresenterTest
       end
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Representer::RepresentSolution.("java", inputs)
-      assert_equal Representer::RepresentSolution.("java", equivalents).representation, actual.representation
+      actual = Inspector::RepresentSolution.("java", inputs)
+      assert_equal Inspector::RepresentSolution.("java", equivalents).representation, actual.representation
       assert_equal mapping.values.uniq.sort, actual.mapping.values.uniq.sort
     end
   end

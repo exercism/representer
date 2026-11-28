@@ -1,6 +1,6 @@
 require "test_helper"
 
-class HaskellTest < RepresenterTest
+class HaskellTest < InspectorTest
   track "haskell"
 
   def test_comments_and_layout_are_ignored

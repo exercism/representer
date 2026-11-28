@@ -1,7 +1,7 @@
 require "test_helper"
 
 class FindMainFileTest < Minitest::Test
-  def find(solution_files, exercise_files = {}) = Representer::Engine::FindMainFile.(solution_files, exercise_files)
+  def find(solution_files, exercise_files = {}) = Inspector::Engine::FindMainFile.(solution_files, exercise_files)
   def config(*solution) = { ".meta/config.json" => { files: { solution: } }.to_json }
 
   def test_finds_the_first_solution_file_in_the_config_that_the_student_submitted

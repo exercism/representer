@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Clojure's stages by hand, for the tests of each stage.
 module ClojureStages
-  Clojure = Representer::Languages::Clojure
+  Clojure = Inspector::Languages::Clojure
 
   def parse(source)
-    Representer::Engine::Grammar["clojure"].parse(Representer::Engine.clean(source), **Clojure::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["clojure"].parse(Inspector::Engine.clean(source), **Clojure::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module ClojureStages
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Clojure::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Clojure::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

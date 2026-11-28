@@ -37,7 +37,7 @@ class Perl5NamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Perl5::Representation::Spec)
+    Inspector::Engine::RenameUserDefinedNodes.([tree], Perl5::Representation::Spec)
     leaves = []
     tree.each_descendant do |node|
       leaves << Perl5::Representation::Spec.name_text(node) if Perl5::Representation::Spec.name?(node) && node.renamed

@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Factor's stages by hand, for the tests of each stage.
 module FactorStages
-  Factor = Representer::Languages::Factor
+  Factor = Inspector::Languages::Factor
 
   def parse(source)
-    Representer::Engine::Grammar["factor"].parse(Representer::Engine.clean(source), **Factor::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["factor"].parse(Inspector::Engine.clean(source), **Factor::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module FactorStages
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Factor::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Factor::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

@@ -1,20 +1,20 @@
 require "test_helper"
 
-class PythonTest < RepresenterTest
+class PythonTest < InspectorTest
   extend UpstreamTests
 
   track "python"
 
   DOUBLE = "The old representer visited comprehension variables twice, so its mapping holds a placeholder as if " \
-           "it were a name from the solution. This representer has no such entry.".freeze
+           "it were a name from the solution. Inspector has no such entry.".freeze
 
   ALIAS = "The engine drops every import, so the name given with `as` is never defined and keeps its name. " \
           "The old representer kept imports and renamed the alias.".freeze
 
-  ORDER = "This representer renames a name the solution defines wherever it appears, including after a dot. " \
+  ORDER = "Inspector renames a name the solution defines wherever it appears, including after a dot. " \
           "The old representer renamed a name after a dot only once it had seen the name defined, earlier in the file.".freeze
 
-  ROUNDING = "This representer keeps every digit of a decimal. Python rounds a float to 17 significant figures, so the " \
+  ROUNDING = "Inspector keeps every digit of a decimal. Python rounds a float to 17 significant figures, so the " \
              "old representer merged decimals that differ only after them.".freeze
 
   DEVIATIONS = {

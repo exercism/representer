@@ -19,12 +19,12 @@
 # ./bin/find-redundant-tokens ruby extra_sample.rb
 
 require "json"
-require_relative "../lib/representer"
+require_relative "../lib/inspector"
 
 root = File.expand_path("..", __dir__)
 only, *extra_files = ARGV
 
-languages = Representer::Languages.registry.reject { |_, language| language == Representer::Languages::Basic }
+languages = Inspector::Languages.registry.reject { |_, language| language == Inspector::Languages::Basic }
 languages = languages.select { |slug, _| slug == only } if only
 languages.group_by { |_, language| language }.each do |language, entries|
   slugs = entries.map(&:first)
@@ -43,7 +43,7 @@ languages.group_by { |_, language| language }.each do |language, entries|
 
   counts = Hash.new(0)
   sources.each do |source|
-    tree = Representer::Engine::PrepareFile.(language, source)
+    tree = Inspector::Engine::PrepareFile.(language, source)
     stack = [tree]
     until stack.empty?
       node = stack.pop
@@ -52,7 +52,7 @@ languages.group_by { |_, language| language }.each do |language, entries|
         stack << child
       end
     end
-  rescue Representer::CannotRepresent
+  rescue Inspector::CannotRepresent
     next
   end
 

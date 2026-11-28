@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Go's Reorder stage, through the whole representer, because it
+# Tests Go's Reorder stage, through Inspector as a whole, because it
 # sorts by the code with the renamed names left out.
-class GoReorderTest < RepresenterTest
+class GoReorderTest < InspectorTest
   include GoStages
 
   track "go"

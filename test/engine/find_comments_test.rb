@@ -2,7 +2,7 @@ require_relative "snippet_rules"
 
 class FindCommentsTest < Minitest::Test
   def comments(source, track: "none")
-    Representer::Engine::FindComments.(SnippetRules::LinesSnippet, track, source).map { |range| source.byteslice(range) }
+    Inspector::Engine::FindComments.(SnippetRules::LinesSnippet, track, source).map { |range| source.byteslice(range) }
   end
 
   def test_uses_the_tracks_lexer

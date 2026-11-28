@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Cairo's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on Cairo solutions. The tests of each stage are in
 # test/languages/cairo/.
-class CairoTest < RepresenterTest
+class CairoTest < InspectorTest
   track "cairo"
 
   def wrap(body) = "fn f(a: u32, b: u32) -> u32 {\n#{body}\n}\n"

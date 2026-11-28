@@ -1,6 +1,6 @@
-# Suggestions for the Crystal representer
+# Suggestions for Crystal
 
-[`transition.md`](../../../lib/representer/languages/crystal/transition.md) says how the Crystal representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/crystal/transition.md) says how Inspector differs from the old Crystal representer.
 These are changes that could improve it.
 None of them is made, because a change to Crystal's own behaviour needs the maintainers to decide it.
 

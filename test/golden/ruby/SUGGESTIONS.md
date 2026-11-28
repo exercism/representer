@@ -1,6 +1,6 @@
-# Suggestions for the Ruby representer
+# Suggestions for Ruby
 
-[`transition.md`](../../../lib/representer/languages/ruby/transition.md) says how the Ruby representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/ruby/transition.md) says how Inspector differs from the old Ruby representer.
 These are changes that could improve it.
 None of them is made, because a change to Ruby's own behaviour needs the maintainers to decide it.
 

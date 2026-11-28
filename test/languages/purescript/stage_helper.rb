@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs PureScript's stages by hand, for the tests of each stage.
 module PureScriptStages
-  PureScript = Representer::Languages::PureScript
+  PureScript = Inspector::Languages::PureScript
 
   def parse(source)
-    Representer::Engine::Grammar["purescript"].parse(Representer::Engine.clean(source), **PureScript::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["purescript"].parse(Inspector::Engine.clean(source), **PureScript::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,9 +13,9 @@ module PureScriptStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(PureScript::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(PureScript::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 
   # The source as a module with one declaration.
   def in_module(code) = "module Leap where\n\n#{code}\n"

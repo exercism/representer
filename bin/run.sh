@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Synopsis:
-# Run the representer on a request.
+# Run Inspector on a request.
 
 # Arguments:
 # $1: path to a request.json file, holding the request's JSON body. Its

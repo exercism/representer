@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Python's stages by hand, for the tests of each stage.
 module PythonStages
-  Python = Representer::Languages::Python
+  Python = Inspector::Languages::Python
 
   def parse(source)
-    Representer::Engine::Grammar["python"].parse(Representer::Engine.clean(source), **Python::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["python"].parse(Inspector::Engine.clean(source), **Python::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module PythonStages
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Python::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Python::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 end

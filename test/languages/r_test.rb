@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests R's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on R solutions. The tests of each stage are in
 # test/languages/r/.
-class RTest < RepresenterTest
+class RTest < InspectorTest
   track "r"
 
   def wrap(body) = "f <- function(a, b) {\n#{body}\n}\n"

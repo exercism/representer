@@ -1,6 +1,6 @@
-# Suggestions for the Elm representer
+# Suggestions for Elm
 
-[`transition.md`](../../../lib/representer/languages/elm/transition.md) says how the Elm representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/elm/transition.md) says how Inspector differs from the old Elm representer.
 These are changes that could improve it.
 None of them is made, because a change to Elm's own behaviour needs the maintainers to decide it.
 

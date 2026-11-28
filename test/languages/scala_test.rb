@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ScalaTest < RepresenterTest
+class ScalaTest < InspectorTest
   track "scala"
 
   def test_comments_layout_and_imports_go

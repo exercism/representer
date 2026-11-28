@@ -1,6 +1,6 @@
-# Suggestions for the GDScript representer
+# Suggestions for GDScript
 
-[`transition.md`](../../../lib/representer/languages/gdscript/transition.md) says how the GDScript representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/gdscript/transition.md) says how Inspector differs from the old GDScript representer.
 These are changes that could improve it.
 None of them is made, because a change to GDScript's own behaviour needs the maintainers to decide it.
 

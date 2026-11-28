@@ -1,18 +1,18 @@
 require "test_helper"
 
-class PHPTest < RepresenterTest
+class PHPTest < InspectorTest
   extend UpstreamTests
 
   track "php"
 
-  UNDEFINED = "This representer only renames a name that the solution defines. The old representer also renamed " \
+  UNDEFINED = "Inspector only renames a name that the solution defines. The old representer also renamed " \
               "classes and methods that the solution only uses (here MyClass and method), because it renamed " \
               "every one it saw.".freeze
 
-  DOLLARS = "This representer keeps a variable's `$` in the mapping, as in `$year`, because PHP keeps variables " \
+  DOLLARS = "Inspector keeps a variable's `$` in the mapping, as in `$year`, because PHP keeps variables " \
             "apart from functions and methods with the same name.".freeze
 
-  UNSET = "The variable is never set, so the solution doesn't define it and this representer keeps its name. The " \
+  UNSET = "The variable is never set, so the solution doesn't define it and Inspector keeps its name. The " \
           "old representer renamed every variable.".freeze
 
   # The deviation for a test whose variables are set, so the mapping lists
@@ -45,7 +45,7 @@ class PHPTest < RepresenterTest
     "unit-function-aliases" => {
       remove: %w[array_key_exists count current floatval fwrite highlight_file implode ini_set
                  is_float is_int is_writable rtrim strstr],
-      why: "This representer writes a function's aliases as its main name (join is implode, sizeof is count) without " \
+      why: "Inspector writes a function's aliases as its main name (join is implode, sizeof is count) without " \
            "listing them in the mapping, because they aren't names the student chose. The old representer listed them. " \
            "(The old mapping's stable names are real function names here, so the test helper reads the mapping the " \
            "other way round, and the names to remove are the stable ones.)"
@@ -65,7 +65,7 @@ class PHPTest < RepresenterTest
   # The old tests/example-multiple-files test has two solution files, and the
   # upstream_tests helper only handles one, so it is written out here. The
   # equivalent files are the old output with a <?php line added, and without
-  # the `use Helpers;`, which this representer drops as an import.
+  # the `use Helpers;`, which Inspector drops as an import.
   def test_upstream_example_multiple_files
     input = {
       "Helpers.php" => "<?php\n\nclass Helpers\n{\n    public static function mod($x, $y)\n    {\n        return $x % $y;\n    }\n}\n",
@@ -77,8 +77,8 @@ class PHPTest < RepresenterTest
       "Leap.php" => "<?php\nclass C0\n{\n    public static function m0($v0)\n    {\n" \
                     "        return C1::m1($v0, 4) === 0;\n    }\n}\n"
     }
-    actual = Representer::RepresentSolution.("php", input)
-    assert_equal actual.representation, Representer::RepresentSolution.("php", equivalent).representation
+    actual = Inspector::RepresentSolution.("php", input)
+    assert_equal actual.representation, Inspector::RepresentSolution.("php", equivalent).representation
     assert_equal ["$x", "$y", "$year", "Helpers", "Leap", "isLeapYear", "mod"], actual.mapping.values.sort
   end
 

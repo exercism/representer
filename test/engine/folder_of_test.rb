@@ -15,10 +15,10 @@ class FolderOfTest < Minitest::Test
   end
 
   def test_finds_the_folders_of_javascript_and_typescript
-    assert File.directory?(Representer::Engine.folder_of(Representer::Languages::JavaScript))
-    assert File.directory?(Representer::Engine.folder_of(Representer::Languages::TypeScript))
+    assert File.directory?(Inspector::Engine.folder_of(Inspector::Languages::JavaScript))
+    assert File.directory?(Inspector::Engine.folder_of(Inspector::Languages::TypeScript))
   end
 
   private
-  def folder(name) = File.basename(Representer::Engine.folder_named("Representer::Languages::#{name}"))
+  def folder(name) = File.basename(Inspector::Engine.folder_named("Inspector::Languages::#{name}"))
 end

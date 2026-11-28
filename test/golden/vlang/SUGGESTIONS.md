@@ -1,6 +1,6 @@
-# Suggestions for the V representer
+# Suggestions for V
 
-[`transition.md`](../../../lib/representer/languages/vlang/transition.md) says how the V representer differs from Basic, which V used before.
+[`transition.md`](../../../lib/inspector/languages/vlang/transition.md) says how Inspector treats V differently from Basic, which V used before.
 These are changes that could improve it.
 None of them is made, because a change to V's own behaviour needs the maintainers to decide it.
 
@@ -9,7 +9,7 @@ None of them is made, because a change to V's own behaviour needs the maintainer
 1. **Drop `module main`.** V's parser gives a file without a module clause the module `main`, so `module main` changes nothing. Today a solution without it stays apart from one with it. One golden solution (nucleotide-count, meteoraxv) has no module clause.
 2. **Read `'$a.b'` as `'${a.b}'`.** V's parser reads a `$` followed by a field access as an interpolation of that field. Today only `$name` on its own is read as an interpolation, and the rest stays as it is written. No golden solution uses the longer form.
 3. **Read the escapes in a rune.** `` `\n` `` and a rune that holds a real line break are the same character. Today a rune keeps its text. No golden solution relies on this.
-4. **Check that V reads `017` as octal.** The grammar reads an integer that starts with `0` as octal, and so does the representer. If V reads it as decimal, `017` would merge with `15` when it should merge with `17`. No golden solution writes an integer like this.
+4. **Check that V reads `017` as octal.** The grammar reads an integer that starts with `0` as octal, and so does Inspector. If V reads it as decimal, `017` would merge with `15` when it should merge with `17`. No golden solution writes an integer like this.
 
 ## Equivalences for the maintainers to decide
 

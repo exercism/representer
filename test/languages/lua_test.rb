@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Lua's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on Lua solutions. The tests of each stage are in
 # test/languages/lua/.
-class LuaTest < RepresenterTest
+class LuaTest < InspectorTest
   track "lua"
 
   def wrap(body) = "local function f(a, b)\n#{body}\nend\n"

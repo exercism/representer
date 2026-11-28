@@ -1,6 +1,6 @@
-# Suggestions for the Common Lisp representer
+# Suggestions for Common Lisp
 
-[`transition.md`](../../../lib/representer/languages/common_lisp/transition.md) says how the Common Lisp representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/common_lisp/transition.md) says how Inspector differs from the old Common Lisp representer.
 These are changes that could improve it.
 None of them is made, because a change to Common Lisp's own behaviour needs the maintainers to decide it.
 

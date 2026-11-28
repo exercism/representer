@@ -1,6 +1,6 @@
 require "test_helper"
 
-class AwkTest < RepresenterTest
+class AwkTest < InspectorTest
   track "awk"
 
   def test_comments_and_layout_are_ignored
@@ -34,8 +34,8 @@ class AwkTest < RepresenterTest
 
   def test_a_shell_script_gets_basics_representation
     script = "awk '{ print $1 }' ./passwd\n"
-    basic = Representer::Languages::Basic.(track, { "basics.sh" => script })
-    assert_equal Representer::RepresentSolution::BASIC_PREFIX + basic.representation,
+    basic = Inspector::Languages::Basic.(track, { "basics.sh" => script })
+    assert_equal Inspector::RepresentSolution::BASIC_PREFIX + basic.representation,
       represent(script, filename: "basics.sh").representation
   end
 

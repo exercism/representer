@@ -1,6 +1,6 @@
 require "test_helper"
 
-class SmlTest < RepresenterTest
+class SmlTest < InspectorTest
   track "sml"
 
   def test_comments_and_layout_are_ignored

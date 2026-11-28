@@ -1,7 +1,7 @@
 require_relative "snippet_rules"
 
 class FindRemovedNodesTest < Minitest::Test
-  def find(source) = Representer::Engine::FindRemovedNodes.(SnippetRules::RubySnippet, SnippetRules.parse(source))
+  def find(source) = Inspector::Engine::FindRemovedNodes.(SnippetRules::RubySnippet, SnippetRules.parse(source))
 
   def test_finds_every_comment
     source = "# One\nx = 1 # Two\n"

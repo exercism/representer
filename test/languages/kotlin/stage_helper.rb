@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Kotlin's stages by hand, for the tests of each stage.
 module KotlinStages
-  Kotlin = Representer::Languages::Kotlin
+  Kotlin = Inspector::Languages::Kotlin
 
   def parse(source)
-    Representer::Engine::Grammar["kotlin"].parse(Representer::Engine.clean(source), **Kotlin::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["kotlin"].parse(Inspector::Engine.clean(source), **Kotlin::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,9 +13,9 @@ module KotlinStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Kotlin::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Kotlin::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 
   # The source as the body of a function.
   def in_function(body) = "fun f() {\n#{body}\n}\n"

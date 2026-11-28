@@ -17,7 +17,7 @@ A representation is a normal form of a student's solution.
 Inspector drops everything that makes no difference to the solution working, such as comments and imports, gives one spelling to code that means the same thing, and replaces the names the solution defines with placeholders.
 Two solutions with the same approach then get the same representation, so the website can group them, and a mentor's feedback on one solution reaches every solution in its group.
 
-Each language with a `common/spec.rb` in its folder in [`lib/representer/languages/`](./lib/representer/languages/) has a representer of its own, which parses solutions with [tree-sitter][tree-sitter].
+Each language with a `common/spec.rb` in its folder in [`lib/inspector/languages/`](./lib/inspector/languages/) has a language of its own in Inspector, which parses its solutions with [tree-sitter][tree-sitter].
 Every other track gets Basic, a simpler representation that splits the code into tokens with the track's [Rouge][rouge] lexer and drops only comments, spacing and some imports.
 [docs/representation.md](./docs/representation.md) describes the output, Basic, versions, the golden data tests and the declarations each language makes.
 
@@ -86,10 +86,10 @@ Each output's doc lists its other reasons.
 
 The response is a `400` if the request is invalid, including when `outputs` is missing or empty.
 
-From Ruby, call `Representer::Generate` with the outputs as symbols:
+From Ruby, call `Inspector::Generate` with the outputs as symbols:
 
 ```ruby
-Representer::Generate.("ruby", solution_files, outputs: %i[representation snippet], exercise_files:)
+Inspector::Generate.("ruby", solution_files, outputs: %i[representation snippet], exercise_files:)
 ```
 
 ## How it works
@@ -100,7 +100,7 @@ For the representation, Inspector then joins the files, sorts code that can come
 The engine makes the decisions that apply to every language, and each language declares only what the engine can't know, such as which code counts as an import.
 [docs/how-it-works.md](./docs/how-it-works.md) lists every step.
 
-Each language has a folder in [`lib/representer/languages/`](./lib/representer/languages/), such as [`ruby/`](./lib/representer/languages/ruby/).
+Each language has a folder in [`lib/inspector/languages/`](./lib/inspector/languages/), such as [`ruby/`](./lib/inspector/languages/ruby/).
 Its `common/` folder holds what every output shares, such as the language's grammar and comments.
 Next to `common/`, the language's folder has one folder for each output: `representation/`, `analysis/` and `snippet/`.
 Its `transition.md` says how the language differs from the tools it replaces.
@@ -122,7 +122,7 @@ To represent a solution, write a request body to a file (see [`test/fixtures/req
 ./bin/run.sh path/to/request.json
 ```
 
-To see how a language's representer parses and represents a file, and the file's snippet, run:
+To see how Inspector parses and represents a file, and the file's snippet, run:
 
 ```shell
 ./bin/inspect ruby path/to/two_fer.rb

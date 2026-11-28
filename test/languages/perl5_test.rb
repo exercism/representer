@@ -1,6 +1,6 @@
 require "test_helper"
 
-class Perl5Test < RepresenterTest
+class Perl5Test < InspectorTest
   track "perl5"
 
   def test_comments_and_layout_are_ignored

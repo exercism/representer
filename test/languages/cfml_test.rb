@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CFMLTest < RepresenterTest
+class CFMLTest < InspectorTest
   track "cfml"
 
   def test_comments_and_layout_are_ignored

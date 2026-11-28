@@ -1,8 +1,8 @@
 # Suggestions for Odin
 
-[`transition.md`](../../../lib/representer/languages/odin/transition.md) says how the Odin representer differs from Basic, which the track used before.
+[`transition.md`](../../../lib/inspector/languages/odin/transition.md) says how Inspector treats Odin differently from Basic, which the track used before.
 These are changes that could improve it.
-None of them is in the representer yet, because a change to Odin's own behaviour needs a human to decide it.
+None of them is in Inspector yet, because a change to Odin's own behaviour needs a human to decide it.
 The counts come from a text search of the 160 golden solutions.
 
 ## Code that could be dropped

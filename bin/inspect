@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Synopsis:
-# Show how a language's representer sees a file, to help write its rules.
+# Show how Inspector sees a file, to help write its rules.
 
 # Arguments:
 # $1: track slug
@@ -14,25 +14,25 @@
 # Example:
 # ./bin/inspect ruby path/to/two_fer.rb
 
-require_relative "../lib/representer"
+require_relative "../lib/inspector"
 
 track_slug, path = ARGV
 abort "usage: ./bin/inspect track-slug path/to/file" unless track_slug && path
 
-language = Representer::Languages.for(track_slug)
+language = Inspector::Languages.for(track_slug)
 source = File.read(path)
 
-# The representer ignores files named like tests or config files, such as
+# Inspector ignores files named like tests or config files, such as
 # leap_test.gleam, so such a file is represented as solution.gleam.
 filename = File.basename(path)
-if Representer::Engine.test_or_config_file?(filename)
+if Inspector::Engine.test_or_config_file?(filename)
   renamed = "solution#{File.extname(filename)}"
-  puts "The representer ignores files named like #{filename}, so this represents it as #{renamed}.\n\n"
+  puts "Inspector ignores files named like #{filename}, so this represents it as #{renamed}.\n\n"
   filename = renamed
 end
 
-if language != Representer::Languages::Basic && !language.source_file?(filename)
-  puts "The representer ignores #{filename}, because #{track_slug} only reads #{language.extensions.join(', ')} files.\n\n"
+if language != Inspector::Languages::Basic && !language.source_file?(filename)
+  puts "Inspector ignores #{filename}, because #{track_slug} only reads #{language.extensions.join(', ')} files.\n\n"
 end
 
 def show(node, depth = 0)
@@ -43,19 +43,19 @@ def show(node, depth = 0)
   node.children.each { |child| show(child, depth + 1) }
 end
 
-if language == Representer::Languages::Basic
+if language == Inspector::Languages::Basic
   puts "#{track_slug} has no language of its own, so it uses Basic."
 else
   puts "Parsed tree:"
-  show(Representer::Engine::Grammar[language.grammar].parse(Representer::Engine.clean(source)))
+  show(Inspector::Engine::Grammar[language.grammar].parse(Inspector::Engine.clean(source)))
 end
 
-result = Representer::RepresentSolution.(track_slug, { filename => source })
+result = Inspector::RepresentSolution.(track_slug, { filename => source })
 language_name = result.representer.name.delete_suffix("::Common::Spec").split("::").last
 puts "\nRepresentation (#{language_name}, version #{result.version}):"
 puts result.representation
 puts "\nMapping: #{result.mapping}"
 
-snippet = Representer::Generate.(track_slug, { filename => source }, outputs: [:snippet])[:snippet]
+snippet = Inspector::Generate.(track_slug, { filename => source }, outputs: [:snippet])[:snippet]
 puts "\nSnippet (version #{snippet[:version]}):"
 puts snippet[:snippet] || snippet[:message]

@@ -5,18 +5,18 @@ class PrepareFileTest < Minitest::Test
   # which the engine drops the comments.
   module WithGenerateAST
     module Common
-      class Spec < Representer::Engine::Language
+      class Spec < Inspector::Engine::Language
         grammar "ruby"
         comments_are :comment
       end
 
-      class GenerateAST < Representer::Engine::GenerateAST
+      class GenerateAST < Inspector::Engine::GenerateAST
         def call = tree
       end
     end
 
     module Representation
-      class Spec < Representer::Engine::Representation
+      class Spec < Inspector::Engine::Representation
         names_are :identifier
         imports 'require "{{...}}"'
       end
@@ -36,7 +36,7 @@ class PrepareFileTest < Minitest::Test
   # the children of an array.
   module WithText
     module Common
-      class Spec < Representer::Engine::Language
+      class Spec < Inspector::Engine::Language
         grammar "ruby"
         text_nodes :string
         text_between_children :array
@@ -44,7 +44,7 @@ class PrepareFileTest < Minitest::Test
     end
 
     module Representation
-      class Spec < Representer::Engine::Representation; end
+      class Spec < Inspector::Engine::Representation; end
     end
   end
 
@@ -54,16 +54,16 @@ class PrepareFileTest < Minitest::Test
   end
 
   def test_refuses_code_that_does_not_parse
-    error = assert_raises(Representer::CannotRepresent) { prepare(ToyLanguage::Common::Spec, "def x(") }
+    error = assert_raises(Inspector::CannotRepresent) { prepare(ToyLanguage::Common::Spec, "def x(") }
     assert_equal "parse_error", error.reason
   end
 
   def test_uses_the_tree_it_is_given_instead_of_parsing_the_source
-    tree = Representer::Engine::Grammar["ruby"].parse("y = 2")
-    prepared = Representer::Engine::PrepareFile.(WithGenerateAST::Common::Spec, "x = 1", tree:)
-    assert_equal "(program\n  (assignment y = 2))", Representer::Engine::Serialize.(prepared)
+    tree = Inspector::Engine::Grammar["ruby"].parse("y = 2")
+    prepared = Inspector::Engine::PrepareFile.(WithGenerateAST::Common::Spec, "x = 1", tree:)
+    assert_equal "(program\n  (assignment y = 2))", Inspector::Engine::Serialize.(prepared)
   end
 
   private
-  def prepare(language, source) = Representer::Engine::Serialize.(Representer::Engine::PrepareFile.(language, source))
+  def prepare(language, source) = Inspector::Engine::Serialize.(Inspector::Engine::PrepareFile.(language, source))
 end

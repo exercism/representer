@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RubyTest < RepresenterTest
+class RubyTest < InspectorTest
   extend UpstreamTests
 
   track "ruby"
@@ -14,7 +14,7 @@ class RubyTest < RepresenterTest
     },
     "mapping-attr_accessors" => {
       remove: %w[foobar barfood misc other1 other2],
-      why: "A call to attr_reader, attr_writer or attr_accessor defines no name for this representer, so its " \
+      why: "A call to attr_reader, attr_writer or attr_accessor defines no name for Inspector, so its " \
            "symbols keep their names. Strings keep their values, so attr_reader \"other1\" leaves \"other1\" as it is."
     }
   }.freeze
@@ -22,7 +22,7 @@ class RubyTest < RepresenterTest
   upstream_tests ".rb", deviations: DEVIATIONS
 
   # The tests in test/languages/ruby/ cover each stage on its own. These
-  # cover the whole representer.
+  # cover Inspector as a whole.
 
   ### Must not merge ###
 

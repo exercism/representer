@@ -1,6 +1,6 @@
-# Suggestions for the TypeScript representer
+# Suggestions for TypeScript
 
-[`transition.md`](../../../lib/representer/languages/typescript/transition.md) says how the TypeScript representer differs from the old one.
+[`transition.md`](../../../lib/inspector/languages/typescript/transition.md) says how Inspector differs from the old TypeScript representer.
 These are changes that could improve it.
 None of them is made, because a change to TypeScript's own behaviour needs the maintainers to decide it.
 

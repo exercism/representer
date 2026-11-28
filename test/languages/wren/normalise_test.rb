@@ -1,7 +1,7 @@
 require_relative "stage_helper"
 
-# Tests Wren's Normalise stage, through the whole representer.
-class WrenNormaliseTest < RepresenterTest
+# Tests Wren's Normalise stage, through Inspector as a whole.
+class WrenNormaliseTest < InspectorTest
   include WrenStages
 
   track "wren"

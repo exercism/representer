@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests the whole Ballerina representer. The tests of each stage are in
+# Tests Inspector as a whole on Ballerina solutions. The tests of each stage are in
 # test/languages/ballerina/.
-class BallerinaTest < RepresenterTest
+class BallerinaTest < InspectorTest
   track "ballerina"
 
   def wrap(body) = "function f(int a, int b) returns int {\n#{body}\n}\n"

@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Scala's stages by hand, for the tests of each stage.
 module ScalaStages
-  Scala = Representer::Languages::Scala
+  Scala = Inspector::Languages::Scala
 
   def parse(source)
-    Representer::Engine::Grammar["scala"].parse(Representer::Engine.clean(source), **Scala::Common::Spec.parse_options)
+    Inspector::Engine::Grammar["scala"].parse(Inspector::Engine.clean(source), **Scala::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,9 +13,9 @@ module ScalaStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Scala::Common::Spec, source)
+  def prepare(source) = Inspector::Engine::PrepareFile.(Scala::Common::Spec, source)
 
-  def write(tree) = Representer::Engine::Serialize.(tree)
+  def write(tree) = Inspector::Engine::Serialize.(tree)
 
   # The source as the body of a method in an object.
   def in_method(body) = "object A {\n  def f(a: Int, b: Int, xs: List[Int]) = {\n#{body}\n  }\n}\n"

@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Idris's whole representer. The tests of each stage are in
+# Tests Inspector as a whole on Idris solutions. The tests of each stage are in
 # test/languages/idris/.
-class IdrisTest < RepresenterTest
+class IdrisTest < InspectorTest
   track "idris"
 
   def test_comments_layout_and_imports_go
