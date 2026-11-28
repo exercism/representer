@@ -1,34 +1,88 @@
-!yamlscript/v0
-defn measure(bucket-one bucket-two goal start-bucket):
-  defn gcd(a b): if b.? gcd(b (a.mod(b))) a
-  cond:
-    start-bucket < 1: die('impossible')
-    start-bucket > 2: die('impossible')
-    goal > max(bucket-one bucket-two): die('impossible')
-  if start-bucket == 1:
-    find-solution(bucket-one bucket-two goal [[bucket-one 0 1]] [[0 bucket-two]])
-    find-solution(bucket-one bucket-two goal [[0 bucket-two 1]] [[bucket-one 0]])
-defn find-solution(bucket-one-capacity bucket-two-capacity target queue visited):
-  when queue.!: die('impossible')
-  -[current-state *remaining-states] =: queue
-  -[bucket-one-level bucket-two-level move-count] =: current-state
-  cond:
-    visited.has?([bucket-one-level bucket-two-level]):
-      find-solution(bucket-one-capacity bucket-two-capacity target remaining-states visited)
-    target == bucket-one-level:
-      -{'moves' move-count 'goalBucket' 1 'otherBucket' bucket-two-level}
-    target == bucket-two-level:
-      -{'moves' move-count 'goalBucket' 2 'otherBucket' bucket-one-level}
-    else:
-      find-solution(bucket-one-capacity bucket-two-capacity target ((remaining-states || []) + [
-        [bucket-one-capacity bucket-two-level move-count.++]
-        [bucket-one-level bucket-two-capacity move-count.++]
-        [min((bucket-one-level + bucket-two-level) bucket-one-capacity)
-          ((bucket-two-level - min((bucket-one-level + bucket-two-level) bucket-one-capacity)) + bucket-one-level)
-          move-count.++]
-        [((bucket-one-level - min((bucket-one-level + bucket-two-level) bucket-two-capacity)) + bucket-two-level)
-          min((bucket-one-level + bucket-two-level) bucket-two-capacity)
-          move-count.++]
-        [0 bucket-two-level move-count.++]
-        [bucket-one-level 0 move-count.++]
-      ]) conj(visited [bucket-one-level bucket-two-level]))
+(source_file
+  (function_definition defn PLACEHOLDER_1
+    (parameters PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5)
+    (function_definition defn PLACEHOLDER_6
+      (parameters PLACEHOLDER_7 PLACEHOLDER_8) if
+      (call
+        (member_expression PLACEHOLDER_8 truey?))
+      (call PLACEHOLDER_6 PLACEHOLDER_8
+        (call
+          (call
+            (member_expression PLACEHOLDER_7 mod) PLACEHOLDER_8))) PLACEHOLDER_7)
+    (call cond
+      (binary_expression PLACEHOLDER_5 < 1)
+      (call die "impossible")
+      (binary_expression PLACEHOLDER_5 > 2)
+      (call die "impossible")
+      (binary_expression PLACEHOLDER_4 >
+        (call max PLACEHOLDER_2 PLACEHOLDER_3))
+      (call die "impossible"))
+    (call if
+      (binary_expression PLACEHOLDER_5 == 1)
+      (call PLACEHOLDER_9 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+        (vector
+          (vector PLACEHOLDER_2 0 1))
+        (vector
+          (vector 0 PLACEHOLDER_3)))
+      (call PLACEHOLDER_9 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+        (vector
+          (vector 0 PLACEHOLDER_3 1))
+        (vector
+          (vector PLACEHOLDER_2 0)))))
+  (function_definition defn PLACEHOLDER_9
+    (parameters PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14)
+    (call when
+      (call
+        (member_expression PLACEHOLDER_13 falsey?))
+      (call die "impossible"))
+    (assignment
+      (vector_pattern -[ PLACEHOLDER_15
+        (rest_parameter PLACEHOLDER_16)) = PLACEHOLDER_13)
+    (assignment
+      (vector_pattern -[ PLACEHOLDER_17 PLACEHOLDER_18 PLACEHOLDER_19) = PLACEHOLDER_15)
+    (call cond
+      (call
+        (member_expression PLACEHOLDER_14 has?)
+        (vector PLACEHOLDER_17 PLACEHOLDER_18))
+      (call PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_12 PLACEHOLDER_16 PLACEHOLDER_14)
+      (binary_expression PLACEHOLDER_12 == PLACEHOLDER_17)
+      (map -{ "moves" PLACEHOLDER_19 "goalBucket" 1 "otherBucket" PLACEHOLDER_18)
+      (binary_expression PLACEHOLDER_12 == PLACEHOLDER_18)
+      (map -{ "moves" PLACEHOLDER_19 "goalBucket" 2 "otherBucket" PLACEHOLDER_17) :else
+      (call PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_12
+        (binary_expression
+          (binary_expression PLACEHOLDER_16 ||
+            (vector)) +
+          (vector
+            (vector PLACEHOLDER_10 PLACEHOLDER_18
+              (call
+                (member_expression PLACEHOLDER_19 inc)))
+            (vector PLACEHOLDER_17 PLACEHOLDER_11
+              (call
+                (member_expression PLACEHOLDER_19 inc)))
+            (vector
+              (call min
+                (binary_expression PLACEHOLDER_17 + PLACEHOLDER_18) PLACEHOLDER_10)
+              (binary_expression
+                (binary_expression PLACEHOLDER_18 -
+                  (call min
+                    (binary_expression PLACEHOLDER_17 + PLACEHOLDER_18) PLACEHOLDER_10)) + PLACEHOLDER_17)
+              (call
+                (member_expression PLACEHOLDER_19 inc)))
+            (vector
+              (binary_expression
+                (binary_expression PLACEHOLDER_17 -
+                  (call min
+                    (binary_expression PLACEHOLDER_17 + PLACEHOLDER_18) PLACEHOLDER_11)) + PLACEHOLDER_18)
+              (call min
+                (binary_expression PLACEHOLDER_17 + PLACEHOLDER_18) PLACEHOLDER_11)
+              (call
+                (member_expression PLACEHOLDER_19 inc)))
+            (vector 0 PLACEHOLDER_18
+              (call
+                (member_expression PLACEHOLDER_19 inc)))
+            (vector PLACEHOLDER_17 0
+              (call
+                (member_expression PLACEHOLDER_19 inc)))))
+        (call conj PLACEHOLDER_14
+          (vector PLACEHOLDER_17 PLACEHOLDER_18))))))
