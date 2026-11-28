@@ -234,5 +234,5 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | wasm | Wasm | 289 | 63 | 100 | 59 | 100 | 0 | 2 | 0 | 0 |
 | wren | Wren | 217 | 39 | 100 | 82 | 99 | 0 | 8 | 0 | 0 |
 | x86-64-assembly | X8664Assembly | 298 | 66 | 100 | 71 | 100 | 0 | 5 | 0 | 0 |
-| yamlscript | Basic | 127 | 9 | 100 | 57 | 89 | 1 | 0 | 0 | 0 |
+| yamlscript | YAMLScript | 127 | 9 | 100 | 57 | 89 | 0 | 1 | 0 | 0 |
 | zig | Zig | 382 | 94 | 100 | 63 | 96 | 0 | 16 | 0 | 0 |
