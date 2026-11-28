@@ -1,113 +1,272 @@
-include std/map.e
--- Returns the penalty value for a face card, or 0 for number cards
-function get_penalty(sequence card)
-if equal(card, "\"J\")" then
-return 1
-elsif equal(card, "\"Q\")" then
-return 2
-elsif equal(card, "\"K\")" then
-return 3
-elsif equal(card, "\"A\")" then
-return 4
-else
-return 0
-end if
-end function
--- Generates a normalized pattern of the deck where all number cards are '-'
--- and only face cards ('J', 'Q', 'K', 'A') are preserved.
-function get_pattern(sequence deck)
-sequence pat = repeat('-', length(deck))
-sequence card
-for i = 1 to length(deck) do
-card = deck[i]
-if equal(card, "\"J\")" then
-pat[i] = 'J'
-elsif equal(card, "\"Q\")" then
-pat[i] = 'Q'
-elsif equal(card, "\"K\")" then
-pat[i] = 'K'
-elsif equal(card, "\"A\")" then
-pat[i] = 'A'
-end if
-end for
-return pat
-end function
--- Simulates the card game Camicia until it terminates or enters a loop
-public function simulateGame(sequence playerA, sequence playerB)
-sequence decks = {playerA, playerB}
-integer current_player = 1
-integer last_payment_player = 0
-integer penalty_remaining = 0
-sequence pile = {}
-integer cards_played = 0
-integer tricks = 0
-object seen = map:new()
-sequence initial_key = get_pattern(decks[1]) & "\"|\"" & get_pattern(decks[2])
-sequence card, key
-integer other, p
--- Record initial state at the start of Round 1
-map:put(seen, initial_key, 1)
-while 1 do
--- If a player runs out of cards and is unable to play (on their turn or paying penalty)
-if length(decks[current_player]) = 0 then
-other = 3 - current_player
-decks[other] &= pile
-pile = {}
-tricks += 1
-return {
-{"status", "\"finished\"},"
-{"cards", cards_played},
-{"tricks", tricks}
-}
-end if
--- Draw the top card from the player's deck
-card = decks[current_player][1]
-if length(decks[current_player]) = 1 then
-decks[current_player] = {}
-else
-decks[current_player] = decks[current_player][2..$]
-end if
-pile = append(pile, card)
-cards_played += 1
-p = get_penalty(card)
-if p > 0 then
--- Face card played: resets penalty and passes turn to opponent
-last_payment_player = current_player
-penalty_remaining = p
-current_player = 3 - current_player
-else
-if penalty_remaining > 0 then
-penalty_remaining -= 1
-if penalty_remaining = 0 then
--- Penalty fully paid without interruption: trick won
-decks[last_payment_player] &= pile
-pile = {}
-tricks += 1
--- If either player is out of cards, the other has all cards
-if length(decks[1]) = 0 or length(decks[2]) = 0 then
-return {
-{"status", "\"finished\"},"
-{"cards", cards_played},
-{"tricks", tricks}
-}
-end if
--- The trick winner leads the next round
-current_player = last_payment_player
--- Check if this round-start state has occurred previously
-key = get_pattern(decks[1]) & "\"|\"" & get_pattern(decks[2])
-if map:has(seen, key) then
-return {
-{"status", "\"loop\"},"
-{"cards", cards_played},
-{"tricks", tricks}
-}
-end if
-map:put(seen, key, 1)
-end if
-else
--- Normal number card played outside of any penalty
-current_player = 3 - current_player
-end if
-end if
-end while
-end function
+(source_file
+  (function_definition PLACEHOLDER_1
+    (parameter_list
+      (parameter sequence PLACEHOLDER_2))
+    (block
+      (if_statement
+        (call equal
+          (argument_list PLACEHOLDER_2 "J"))
+        (block
+          (return_statement 1))
+        (elsif_clause
+          (call equal
+            (argument_list PLACEHOLDER_2 "Q"))
+          (block
+            (return_statement 2)))
+        (elsif_clause
+          (call equal
+            (argument_list PLACEHOLDER_2 "K"))
+          (block
+            (return_statement 3)))
+        (elsif_clause
+          (call equal
+            (argument_list PLACEHOLDER_2 "A"))
+          (block
+            (return_statement 4)))
+        (else_clause
+          (block
+            (return_statement 0))))))
+  (function_definition PLACEHOLDER_3
+    (parameter_list
+      (parameter sequence PLACEHOLDER_4))
+    (block
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_5
+          (call repeat
+            (argument_list
+              (character "-")
+              (call length
+                (argument_list PLACEHOLDER_4))))))
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_2))
+      (for_statement PLACEHOLDER_6 1
+        (call length
+          (argument_list PLACEHOLDER_4))
+        (block
+          (assignment_statement
+            (lvalue PLACEHOLDER_2) =
+            (subscript_expression PLACEHOLDER_4
+              (index PLACEHOLDER_6)))
+          (if_statement
+            (call equal
+              (argument_list PLACEHOLDER_2 "J"))
+            (block
+              (assignment_statement
+                (lvalue PLACEHOLDER_5
+                  (index PLACEHOLDER_6)) =
+                (character "J")))
+            (elsif_clause
+              (call equal
+                (argument_list PLACEHOLDER_2 "Q"))
+              (block
+                (assignment_statement
+                  (lvalue PLACEHOLDER_5
+                    (index PLACEHOLDER_6)) =
+                  (character "Q"))))
+            (elsif_clause
+              (call equal
+                (argument_list PLACEHOLDER_2 "K"))
+              (block
+                (assignment_statement
+                  (lvalue PLACEHOLDER_5
+                    (index PLACEHOLDER_6)) =
+                  (character "K"))))
+            (elsif_clause
+              (call equal
+                (argument_list PLACEHOLDER_2 "A"))
+              (block
+                (assignment_statement
+                  (lvalue PLACEHOLDER_5
+                    (index PLACEHOLDER_6)) =
+                  (character "A")))))))
+      (return_statement PLACEHOLDER_5)))
+  (function_definition
+    (scope public) PLACEHOLDER_7
+    (parameter_list
+      (parameter sequence PLACEHOLDER_8)
+      (parameter sequence PLACEHOLDER_9))
+    (block
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_10
+          (sequence PLACEHOLDER_8 PLACEHOLDER_9)))
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_11 1))
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_12 0))
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_13 0))
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_14
+          (sequence)))
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_15 0))
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_16 0))
+      (variable_declaration object
+        (variable_declarator PLACEHOLDER_17
+          (call
+            (qualified_identifier map new)
+            (argument_list))))
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_18
+          (binary_expression
+            (binary_expression
+              (call PLACEHOLDER_3
+                (argument_list
+                  (subscript_expression PLACEHOLDER_10
+                    (index 1)))) & "|") &
+            (call PLACEHOLDER_3
+              (argument_list
+                (subscript_expression PLACEHOLDER_10
+                  (index 2)))))))
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_2)
+        (variable_declarator PLACEHOLDER_19))
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_20)
+        (variable_declarator PLACEHOLDER_21))
+      (call_statement
+        (call
+          (qualified_identifier map put)
+          (argument_list PLACEHOLDER_17 PLACEHOLDER_18 1)))
+      (while_statement 1
+        (block
+          (if_statement
+            (binary_expression
+              (call length
+                (argument_list
+                  (subscript_expression PLACEHOLDER_10
+                    (index PLACEHOLDER_11)))) = 0)
+            (block
+              (assignment_statement
+                (lvalue PLACEHOLDER_20) =
+                (binary_expression 3 - PLACEHOLDER_11))
+              (assignment_statement
+                (lvalue PLACEHOLDER_10
+                  (index PLACEHOLDER_20)) &= PLACEHOLDER_14)
+              (assignment_statement
+                (lvalue PLACEHOLDER_14) =
+                (sequence))
+              (assignment_statement
+                (lvalue PLACEHOLDER_16) += 1)
+              (return_statement
+                (sequence
+                  (sequence "status" "finished")
+                  (sequence "cards" PLACEHOLDER_15)
+                  (sequence "tricks" PLACEHOLDER_16)))))
+          (assignment_statement
+            (lvalue PLACEHOLDER_2) =
+            (subscript_expression
+              (subscript_expression PLACEHOLDER_10
+                (index PLACEHOLDER_11))
+              (index 1)))
+          (if_statement
+            (binary_expression
+              (call length
+                (argument_list
+                  (subscript_expression PLACEHOLDER_10
+                    (index PLACEHOLDER_11)))) = 1)
+            (block
+              (assignment_statement
+                (lvalue PLACEHOLDER_10
+                  (index PLACEHOLDER_11)) =
+                (sequence)))
+            (else_clause
+              (block
+                (assignment_statement
+                  (lvalue PLACEHOLDER_10
+                    (index PLACEHOLDER_11)) =
+                  (slice_expression
+                    (subscript_expression PLACEHOLDER_10
+                      (index PLACEHOLDER_11))
+                    (slice 2
+                      (dollar)))))))
+          (assignment_statement
+            (lvalue PLACEHOLDER_14) =
+            (call append
+              (argument_list PLACEHOLDER_14 PLACEHOLDER_2)))
+          (assignment_statement
+            (lvalue PLACEHOLDER_15) += 1)
+          (assignment_statement
+            (lvalue PLACEHOLDER_21) =
+            (call PLACEHOLDER_1
+              (argument_list PLACEHOLDER_2)))
+          (if_statement
+            (binary_expression PLACEHOLDER_21 > 0)
+            (block
+              (assignment_statement
+                (lvalue PLACEHOLDER_12) = PLACEHOLDER_11)
+              (assignment_statement
+                (lvalue PLACEHOLDER_13) = PLACEHOLDER_21)
+              (assignment_statement
+                (lvalue PLACEHOLDER_11) =
+                (binary_expression 3 - PLACEHOLDER_11)))
+            (else_clause
+              (block
+                (if_statement
+                  (binary_expression PLACEHOLDER_13 > 0)
+                  (block
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_13) -= 1)
+                    (if_statement
+                      (binary_expression PLACEHOLDER_13 = 0)
+                      (block
+                        (assignment_statement
+                          (lvalue PLACEHOLDER_10
+                            (index PLACEHOLDER_12)) &= PLACEHOLDER_14)
+                        (assignment_statement
+                          (lvalue PLACEHOLDER_14) =
+                          (sequence))
+                        (assignment_statement
+                          (lvalue PLACEHOLDER_16) += 1)
+                        (if_statement
+                          (binary_expression
+                            (binary_expression
+                              (call length
+                                (argument_list
+                                  (subscript_expression PLACEHOLDER_10
+                                    (index 1)))) = 0) or
+                            (binary_expression
+                              (call length
+                                (argument_list
+                                  (subscript_expression PLACEHOLDER_10
+                                    (index 2)))) = 0))
+                          (block
+                            (return_statement
+                              (sequence
+                                (sequence "status" "finished")
+                                (sequence "cards" PLACEHOLDER_15)
+                                (sequence "tricks" PLACEHOLDER_16)))))
+                        (assignment_statement
+                          (lvalue PLACEHOLDER_11) = PLACEHOLDER_12)
+                        (assignment_statement
+                          (lvalue PLACEHOLDER_19) =
+                          (binary_expression
+                            (binary_expression
+                              (call PLACEHOLDER_3
+                                (argument_list
+                                  (subscript_expression PLACEHOLDER_10
+                                    (index 1)))) & "|") &
+                            (call PLACEHOLDER_3
+                              (argument_list
+                                (subscript_expression PLACEHOLDER_10
+                                  (index 2))))))
+                        (if_statement
+                          (call
+                            (qualified_identifier map has)
+                            (argument_list PLACEHOLDER_17 PLACEHOLDER_19))
+                          (block
+                            (return_statement
+                              (sequence
+                                (sequence "status" "loop")
+                                (sequence "cards" PLACEHOLDER_15)
+                                (sequence "tricks" PLACEHOLDER_16)))))
+                        (call_statement
+                          (call
+                            (qualified_identifier map put)
+                            (argument_list PLACEHOLDER_17 PLACEHOLDER_19 1))))))
+                  (else_clause
+                    (block
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_11) =
+                        (binary_expression 3 - PLACEHOLDER_11)))))))))))))

@@ -177,7 +177,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | elm | Elm | 400 | 100 | 100 | 74 | 96 | 2 | 15 | 0 | 0 |
 | emacs-lisp | EmacsLisp | 190 | 30 | 100 | 70 | 99 | 0 | 5 | 0 | 0 |
 | erlang | Erlang | 397 | 99 | 100 | 63 | 100 | 1 | 6 | 0 | 0 |
-| euphoria | Basic | 109 | 3 | 100 | 62 | 98 | 2 | 0 | 0 | 0 |
+| euphoria | Euphoria | 109 | 3 | 100 | 62 | 98 | 0 | 0 | 0 | 0 |
 | factor | Factor | 146 | 16 | 100 | 100 | 84 | 0 | 5 | 0 | 0 |
 | fortran | Fortran | 130 | 10 | 100 | 38 | 100 | 0 | 0 | 0 | 0 |
 | free-pascal | FreePascal | 103 | 1 | 100 | 90 | 96 | 0 | 0 | 0 | 0 |

@@ -1,40 +1,136 @@
-include lib/errors.e
-public function check_bases(integer input_base, integer output_base)
-if input_base < 2 then return {ERR, "\"input" base must be >= 2"} end if
-if output_base < 2 then return {ERR, "\"output" base must be >= 2"} end if
-return {OK}
-end function
-public function validate_digits(sequence digits, integer base)
-integer i = 1
-while i <= length(digits) do
-if digits[i] < 0 or digits[i] >= base then
-return {ERR, "\"all" digits must satisfy 0 <= d < input base"}
-end if
-i += 1
-end while
-return {OK}
-end function
-public function rebase(integer input_base, sequence input_digits, integer output_base)
-sequence check_result = check_bases(input_base, output_base)
-if check_result[1] = ERR then return check_result end if
-check_result = validate_digits(input_digits, input_base)
-if check_result[1] = ERR then return check_result end if
-sequence result = {}
-sequence remaining_digits = input_digits
-while length(remaining_digits) > 0 do
-integer remaining = 0, digit
-for i = 1 to length(remaining_digits) do
-digit = remaining_digits[i]
-remaining = remaining * input_base + digit
-remaining_digits[i] = floor(remaining / output_base)
-remaining = remainder(remaining, output_base)
-end for
-result = remaining & result
-while length(remaining_digits) > 0
-and remaining_digits[1] = 0 do
-remaining_digits = remaining_digits[2..$]
-end while
-end while
-if length(result) = 0 then result = {0} end if
-return {OK, result}
-end function
+(source_file
+  (function_definition
+    (scope public) PLACEHOLDER_1
+    (parameter_list
+      (parameter integer PLACEHOLDER_2)
+      (parameter integer PLACEHOLDER_3))
+    (block
+      (if_statement
+        (binary_expression PLACEHOLDER_2 < 2)
+        (block
+          (return_statement
+            (sequence ERR "input base must be >= 2"))))
+      (if_statement
+        (binary_expression PLACEHOLDER_3 < 2)
+        (block
+          (return_statement
+            (sequence ERR "output base must be >= 2"))))
+      (return_statement
+        (sequence OK))))
+  (function_definition
+    (scope public) PLACEHOLDER_4
+    (parameter_list
+      (parameter sequence PLACEHOLDER_5)
+      (parameter integer PLACEHOLDER_6))
+    (block
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_7 1))
+      (while_statement
+        (binary_expression PLACEHOLDER_7 <=
+          (call length
+            (argument_list PLACEHOLDER_5)))
+        (block
+          (if_statement
+            (binary_expression
+              (binary_expression
+                (subscript_expression PLACEHOLDER_5
+                  (index PLACEHOLDER_7)) < 0) or
+              (binary_expression
+                (subscript_expression PLACEHOLDER_5
+                  (index PLACEHOLDER_7)) >= PLACEHOLDER_6))
+            (block
+              (return_statement
+                (sequence ERR "all digits must satisfy 0 <= d < input base"))))
+          (assignment_statement
+            (lvalue PLACEHOLDER_7) += 1)))
+      (return_statement
+        (sequence OK))))
+  (function_definition
+    (scope public) PLACEHOLDER_8
+    (parameter_list
+      (parameter integer PLACEHOLDER_2)
+      (parameter sequence PLACEHOLDER_9)
+      (parameter integer PLACEHOLDER_3))
+    (block
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_10
+          (call PLACEHOLDER_1
+            (argument_list PLACEHOLDER_2 PLACEHOLDER_3))))
+      (if_statement
+        (binary_expression
+          (subscript_expression PLACEHOLDER_10
+            (index 1)) = ERR)
+        (block
+          (return_statement PLACEHOLDER_10)))
+      (assignment_statement
+        (lvalue PLACEHOLDER_10) =
+        (call PLACEHOLDER_4
+          (argument_list PLACEHOLDER_9 PLACEHOLDER_2)))
+      (if_statement
+        (binary_expression
+          (subscript_expression PLACEHOLDER_10
+            (index 1)) = ERR)
+        (block
+          (return_statement PLACEHOLDER_10)))
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_11
+          (sequence)))
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_12 PLACEHOLDER_9))
+      (while_statement
+        (binary_expression
+          (call length
+            (argument_list PLACEHOLDER_12)) > 0)
+        (block
+          (variable_declaration integer
+            (variable_declarator PLACEHOLDER_13 0)
+            (variable_declarator PLACEHOLDER_14))
+          (for_statement PLACEHOLDER_7 1
+            (call length
+              (argument_list PLACEHOLDER_12))
+            (block
+              (assignment_statement
+                (lvalue PLACEHOLDER_14) =
+                (subscript_expression PLACEHOLDER_12
+                  (index PLACEHOLDER_7)))
+              (assignment_statement
+                (lvalue PLACEHOLDER_13) =
+                (binary_expression
+                  (binary_expression PLACEHOLDER_13 * PLACEHOLDER_2) + PLACEHOLDER_14))
+              (assignment_statement
+                (lvalue PLACEHOLDER_12
+                  (index PLACEHOLDER_7)) =
+                (call floor
+                  (argument_list
+                    (binary_expression PLACEHOLDER_13 / PLACEHOLDER_3))))
+              (assignment_statement
+                (lvalue PLACEHOLDER_13) =
+                (call remainder
+                  (argument_list PLACEHOLDER_13 PLACEHOLDER_3)))))
+          (assignment_statement
+            (lvalue PLACEHOLDER_11) =
+            (binary_expression PLACEHOLDER_13 & PLACEHOLDER_11))
+          (while_statement
+            (binary_expression
+              (binary_expression
+                (call length
+                  (argument_list PLACEHOLDER_12)) > 0) and
+              (binary_expression
+                (subscript_expression PLACEHOLDER_12
+                  (index 1)) = 0))
+            (block
+              (assignment_statement
+                (lvalue PLACEHOLDER_12) =
+                (slice_expression PLACEHOLDER_12
+                  (slice 2
+                    (dollar))))))))
+      (if_statement
+        (binary_expression
+          (call length
+            (argument_list PLACEHOLDER_11)) = 0)
+        (block
+          (assignment_statement
+            (lvalue PLACEHOLDER_11) =
+            (sequence 0))))
+      (return_statement
+        (sequence OK PLACEHOLDER_11)))))

@@ -1,85 +1,89 @@
-/* *
-* OK, my implementation is faster than the stdlib version.
-* How is that possible?
-*
-* 1. using `nth_prime_builtin`
-*
-* $ time eutest
-*
-* interpreting t_nth-prime.e:
-* passed: first prime
-* passed: second prime
-* passed: sixth prime
-* passed: big prime
-* 4 tests run, 4 passed, 0 failed, 100% success
-*
-* Test results summary:
-* Files (run: 1) (failed: 0) (100% success)
-*
-* real 0m0.682s
-* user 0m0.466s
-* sys 0m0.116s
-*
-*
-* 2. using `nth_prime_from_scratch`
-*
-* $ time eutest
-*
-* interpreting t_nth-prime.e:
-* passed: first prime
-* passed: second prime
-* passed: sixth prime
-* passed: big prime
-* 4 tests run, 4 passed, 0 failed, 100% success
-*
-* Test results summary:
-* Files (run: 1) (failed: 0) (100% success)
-*
-* real 0m0.418s
-* user 0m0.247s
-* sys 0m0.070s
-*
-*/
-include std/primes.e
-include std/math.e
-public function prime( integer number )
--- return nth_prime_builtin(number)
-return nth_prime_from_scratch(number)
-end function
--- ------------------------------------------------------------
--- cheating? using the included primes library
-function nth_prime_builtin( integer number )
-integer n = 1
-integer p = 2
-while n < number do
-p = next_prime(p + 1)
-n += 1
-end while
-return p
-end function
--- ------------------------------------------------------------
--- My implementation using a file-scoped cache of primes
-sequence my_primes = {2, 3}
-enum FALSE = 0, TRUE
-function my_is_prime(integer candidate)
-for i = 1 to length(my_primes) do
-integer p = my_primes[i]
-if p * p > candidate then return TRUE end if
-if mod(candidate, p) = 0 then return FALSE end if
-end for
-return TRUE
-end function
-function my_next_prime()
-integer p = my_primes[$]
-loop do
-p += 2
-until my_is_prime(p)
-end loop
-return p
-end function
-function nth_prime_from_scratch(integer number)
-while number > length(my_primes) do
-my_primes &= my_next_prime()
-end while
-return my_primes[number]
-end function
+(source_file
+  (function_definition
+    (scope public) PLACEHOLDER_1
+    (parameter_list
+      (parameter integer PLACEHOLDER_2))
+    (block
+      (return_statement
+        (call PLACEHOLDER_3
+          (argument_list PLACEHOLDER_2)))))
+  (function_definition PLACEHOLDER_4
+    (parameter_list
+      (parameter integer PLACEHOLDER_2))
+    (block
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_5 1))
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_6 2))
+      (while_statement
+        (binary_expression PLACEHOLDER_5 < PLACEHOLDER_2)
+        (block
+          (assignment_statement
+            (lvalue PLACEHOLDER_6) =
+            (call next_prime
+              (argument_list
+                (binary_expression PLACEHOLDER_6 + 1))))
+          (assignment_statement
+            (lvalue PLACEHOLDER_5) += 1)))
+      (return_statement PLACEHOLDER_6)))
+  (variable_declaration sequence
+    (variable_declarator PLACEHOLDER_7
+      (sequence 2 3)))
+  (enum_declaration
+    (enum_member PLACEHOLDER_8 0)
+    (enum_member PLACEHOLDER_9))
+  (function_definition PLACEHOLDER_10
+    (parameter_list
+      (parameter integer PLACEHOLDER_11))
+    (block
+      (for_statement PLACEHOLDER_12 1
+        (call length
+          (argument_list PLACEHOLDER_7))
+        (block
+          (variable_declaration integer
+            (variable_declarator PLACEHOLDER_6
+              (subscript_expression PLACEHOLDER_7
+                (index PLACEHOLDER_12))))
+          (if_statement
+            (binary_expression
+              (binary_expression PLACEHOLDER_6 * PLACEHOLDER_6) > PLACEHOLDER_11)
+            (block
+              (return_statement PLACEHOLDER_9)))
+          (if_statement
+            (binary_expression
+              (call mod
+                (argument_list PLACEHOLDER_11 PLACEHOLDER_6)) = 0)
+            (block
+              (return_statement PLACEHOLDER_8)))))
+      (return_statement PLACEHOLDER_9)))
+  (function_definition PLACEHOLDER_13
+    (parameter_list)
+    (block
+      (variable_declaration integer
+        (variable_declarator PLACEHOLDER_6
+          (subscript_expression PLACEHOLDER_7
+            (index
+              (dollar)))))
+      (loop_statement
+        (block
+          (assignment_statement
+            (lvalue PLACEHOLDER_6) += 2))
+        (call PLACEHOLDER_10
+          (argument_list PLACEHOLDER_6)))
+      (return_statement PLACEHOLDER_6)))
+  (function_definition PLACEHOLDER_3
+    (parameter_list
+      (parameter integer PLACEHOLDER_2))
+    (block
+      (while_statement
+        (binary_expression PLACEHOLDER_2 >
+          (call length
+            (argument_list PLACEHOLDER_7)))
+        (block
+          (assignment_statement
+            (lvalue PLACEHOLDER_7) &=
+            (call PLACEHOLDER_13
+              (argument_list)))))
+      (return_statement
+        (subscript_expression PLACEHOLDER_7
+          (index PLACEHOLDER_2))))))
