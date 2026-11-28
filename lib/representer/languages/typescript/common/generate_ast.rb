@@ -1,4 +1,4 @@
-# REPRESENTER_DSL.md and WRITING_GENERATE_AST.md define the declarations and
+# docs/dsl.md and docs/writing-generate-ast.md define the declarations and
 # helpers in this file.
 # TypeScript is JavaScript with types, and its own parser (typescript-estree)
 # gives JavaScript's tree for the code that the two share. So this stage runs

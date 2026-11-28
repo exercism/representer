@@ -4,7 +4,7 @@ module Representer::Engine
   # `representation/` folder. Its settings are a class called Spec that
   # subclasses this one, such as Ruby::Representation::Spec. The Spec
   # declares the representation's version and the names and imports that
-  # the representation works with (REPRESENTER_DSL.md describes every
+  # the representation works with (docs/dsl.md describes every
   # declaration). The stages that only the representation needs are
   # classes beside the Spec, such as Ruby::Representation::Reorder.
   class Representation
@@ -39,7 +39,7 @@ module Representer::Engine
         @version = number
       end
 
-      # The node types that are names (see REPRESENTER_DSL.md). A language
+      # The node types that are names (see docs/dsl.md). A language
       # can call it more than once. With no arguments, it returns each
       # type with its prefix.
       def names_are(*types, without_prefix: "")
@@ -48,7 +48,7 @@ module Representer::Engine
 
       def names = @names || {}
 
-      # The node types that define a name (see REPRESENTER_DSL.md). A
+      # The node types that define a name (see docs/dsl.md). A
       # language can call it more than once.
       def names_are_defined_by(*types, **fields)
         added = types.to_h { |type| [type.to_s, nil] }.merge(fields.to_h { |type, field| [type.to_s, field.to_s] })
@@ -71,7 +71,7 @@ module Representer::Engine
       end
 
       # The code that counts as an import, as code patterns (see
-      # REPRESENTER_DSL.md). With no arguments, it returns the compiled
+      # docs/dsl.md). With no arguments, it returns the compiled
       # patterns.
       def imports(*codes)
         return @import_patterns ||= (@imports || []).map { |code| CodePattern[language, code] } if codes.empty?
@@ -80,11 +80,11 @@ module Representer::Engine
       end
 
       # The code to put a code pattern in when the pattern doesn't parse on
-      # its own (see REPRESENTER_DSL.md).
+      # its own (see docs/dsl.md).
       def pattern_contexts(*contexts) = (@pattern_contexts ||= []).concat(contexts)
 
       # The text that ends each placeholder's spelling in a code pattern,
-      # such as `name__` for `{{name}}` (see REPRESENTER_DSL.md).
+      # such as `name__` for `{{name}}` (see docs/dsl.md).
       def placeholder_suffix(suffix = nil)
         return @placeholder_suffix || "__" unless suffix
 
@@ -92,7 +92,7 @@ module Representer::Engine
       end
 
       # The grammar's keywords that the language also uses as names, so a
-      # code pattern may use them as names (see REPRESENTER_DSL.md).
+      # code pattern may use them as names (see docs/dsl.md).
       def keywords_used_as_names(*words) = (@keywords_used_as_names ||= []).concat(words)
 
       # Runs the representation's stage with this name on the tree, and

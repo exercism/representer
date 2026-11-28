@@ -1,4 +1,4 @@
-# REPRESENTER_DSL.md defines the verbs and helpers in this file.
+# docs/dsl.md defines the verbs and helpers in this file.
 module Representer::Languages::Elixir::Common
   class Normalise < Representer::Engine::Normalise
     # Attach each `@spec` and `@impl` to the function after it, so that it stays

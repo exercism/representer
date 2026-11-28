@@ -3,7 +3,7 @@
 The representer turns a student's solution into a normal form, so that two solutions with the same approach give the same output.
 To do this for a language, it needs to know a few things that only a person who knows the language can say: which names the solution defines, which code does nothing (such as comments and imports), and which spellings mean the same thing.
 A language says these things in a folder of small files of declarations, plus one file for each stage the language needs.
-[CONTRIBUTING.md](./CONTRIBUTING.md) explains how to add a language.
+[CONTRIBUTING.md](../CONTRIBUTING.md) explains how to add a language.
 
 ## What the engine does for every language
 
@@ -231,7 +231,7 @@ A stage is a class in its own file in the language's folder.
 Each stage inherits from the engine's class of the same name, and runs on a tree.
 The engine runs the stages in this order, between its own steps (see "What the engine does for every language" above):
 
-1. `GenerateAST` (in `common/generate_ast.rb`) runs on each file. It turns tree-sitter's tree into the tree that the language's own parser would give, such as Ruby's `parser` gem or Elixir's `Code.string_to_quoted`. [WRITING_GENERATE_AST.md](./WRITING_GENERATE_AST.md) explains how to write it.
+1. `GenerateAST` (in `common/generate_ast.rb`) runs on each file. It turns tree-sitter's tree into the tree that the language's own parser would give, such as Ruby's `parser` gem or Elixir's `Code.string_to_quoted`. [docs/writing-generate-ast.md](./writing-generate-ast.md) explains how to write it.
 2. `Normalise` (in `common/normalise.rb` and `representation/normalise.rb`) runs on each file. It removes code that makes no difference and gives one form to code that means the same thing, with the verbs below.
 3. `Reorder` (in `representation/reorder.rb`) runs on all the files joined into one tree. It sorts code that can come in any order.
 

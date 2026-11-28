@@ -1,4 +1,4 @@
-# REPRESENTER_DSL.md defines the verbs in this file.
+# docs/dsl.md defines the verbs in this file.
 # The tests call TwoFer.two_fer with a name and without one.
 module Representer::Languages::Ruby::Analysis
   class TwoFer < Representer::Engine::AnalysisRules

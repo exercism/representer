@@ -1,6 +1,6 @@
 # The website shows the first lines of each solution on its card. This file
 # says what to leave out of a Scala solution's snippet, so that the card
-# shows the student's own code. REPRESENTER_DSL.md explains each declaration.
+# shows the student's own code. docs/dsl.md explains each declaration.
 module Representer::Languages::Scala::Snippet
   class Spec < Representer::Engine::Snippet
     # Bump the version whenever the snippet of any solution could change.

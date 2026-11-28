@@ -1,4 +1,4 @@
-# REPRESENTER_DSL.md defines the verbs in this file.
+# docs/dsl.md defines the verbs in this file.
 # The tests create a HighScores with a list of scores, and call its methods.
 module Representer::Languages::Ruby::Analysis
   class HighScores < Representer::Engine::AnalysisRules

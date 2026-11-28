@@ -1,4 +1,4 @@
-# REPRESENTER_DSL.md defines the verbs and helpers in this file.
+# docs/dsl.md defines the verbs and helpers in this file.
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Clojure
 # expands every macro before it runs the code, so this stage expands the core

@@ -1,4 +1,4 @@
-# REPRESENTER_DSL.md and WRITING_GENERATE_AST.md define the helpers in this
+# docs/dsl.md and docs/writing-generate-ast.md define the helpers in this
 # file.
 # Ballerina's grammar only splits the code into tokens. Its tree is a flat
 # list of keywords, names, literals, punctuation and templates, with no

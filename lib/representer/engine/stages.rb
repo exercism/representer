@@ -3,7 +3,7 @@ module Representer::Engine
   # these classes, such as Ruby::Common::GenerateAST or
   # Ruby::Representation::Reorder. Each stage is a Mandate command that
   # takes one tree and returns the new tree, and works on it with the
-  # helpers in TreeHelpers. REPRESENTER_DSL.md describes the verbs.
+  # helpers in TreeHelpers. docs/dsl.md describes the verbs.
   class Stage
     include Mandate
     include TreeHelpers

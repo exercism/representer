@@ -6,7 +6,7 @@ module Representer::Engine
   # Ruby::Representation, Ruby::Analysis and Ruby::Snippet, and holds the
   # output's settings as a class called Spec. Common holds the stages that
   # every output needs.
-  # REPRESENTER_DSL.md describes every declaration.
+  # docs/dsl.md describes every declaration.
   class Language
     OUTPUT_FILES = { Representation: "representation/spec", Analysis: "analysis/spec", Snippet: "snippet/spec" }.freeze
 
@@ -48,7 +48,7 @@ module Representer::Engine
 
       def source_file?(filename) = extensions.any? { |extension| filename.downcase.end_with?(extension) }
 
-      # The node types that are comments (see REPRESENTER_DSL.md). The
+      # The node types that are comments (see docs/dsl.md). The
       # engine drops them before GenerateAST, and the snippet removes them.
       # With no arguments, it returns the types.
       def comments_are(*types) = (@comment_types ||= []).concat(types.map(&:to_s))
@@ -56,7 +56,7 @@ module Representer::Engine
       def comment_types = comments_are
 
       # The code that counts as a docstring, as code patterns (see
-      # REPRESENTER_DSL.md). The snippet removes it, and an output's
+      # docs/dsl.md). The snippet removes it, and an output's
       # Normalise stage can drop it with `drop :docstrings`.
       def docstrings_are(*codes) = @docstring_codes = codes
 
@@ -71,18 +71,18 @@ module Representer::Engine
 
       # The node types that hold their whole source text as a leaf, for
       # nodes whose text the grammar doesn't give as children (see
-      # REPRESENTER_DSL.md). With no arguments, it returns the types.
+      # docs/dsl.md). With no arguments, it returns the types.
       def text_nodes(*types) = (@text_nodes ||= Set.new).merge(types.map(&:to_s))
 
       # The node types whose children don't cover all their text (see
-      # REPRESENTER_DSL.md). Each stretch of text between the children
+      # docs/dsl.md). Each stretch of text between the children
       # becomes a "fragment" leaf. With no arguments, it returns the types.
       def text_between_children(*types) = (@text_between_children ||= Set.new).merge(types.map(&:to_s))
 
       # How Grammar#parse copies a tree for this language.
       # The text of the comments that the grammar doesn't know, as a regular
       # expression, and the code that a comment can't be inside, such as a
-      # string (see REPRESENTER_DSL.md). The engine blanks them out before
+      # string (see docs/dsl.md). The engine blanks them out before
       # parsing.
       def comment_text(pattern, outside: nil) = @comment_text = { pattern:, outside: }
 

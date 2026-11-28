@@ -1,4 +1,4 @@
-# REPRESENTER_DSL.md defines the verbs and helpers in this file.
+# docs/dsl.md defines the verbs and helpers in this file.
 # TypeScript's code normalises the same way as JavaScript's, so this stage
 # runs JavaScript's Normalise.
 module Representer::Languages::TypeScript::Representation

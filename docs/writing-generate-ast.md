@@ -3,14 +3,14 @@
 Run `./bin/inspect <track> <file>` to see the node types and field names to use in your patterns.
 It prints tree-sitter's tree for the file, with each node's type, field names and tokens.
 
-`GenerateAST` is the first stage of every language (see [REPRESENTER_DSL.md](./REPRESENTER_DSL.md)), in the language's `common/generate_ast.rb`.
+`GenerateAST` is the first stage of every language (see [docs/dsl.md](./dsl.md)), in the language's `common/generate_ast.rb`.
 It turns tree-sitter's tree into the tree that the language's own parser would give, such as Ruby's `parser` gem or Elixir's `Code.string_to_quoted`.
 Later stages then see the same tree for the same meaning.
 
 ## Declarations and steps
 
 The engine drops the comments declared in `common/spec.rb` before `GenerateAST` starts.
-The top of the class lists the steps that every language needs, as declarations: `strip_tokens`, `keep_tokens`, `unwrap` and `numbers_are` (see "GenerateAST's declarations" in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#generateasts-declarations)).
+The top of the class lists the steps that every language needs, as declarations: `strip_tokens`, `keep_tokens`, `unwrap` and `numbers_are` (see "GenerateAST's declarations" in [docs/dsl.md](./dsl.md#generateasts-declarations)).
 The engine writes the numbers before the language's own steps, and unwraps the brackets and strips the tokens after them.
 
 The language's `call` method lists its own steps, starting from `tree.tap`:
@@ -32,7 +32,7 @@ If a step needs the brackets gone before it runs, unwrap them in a step of its o
 `GenerateAST` changes the tree with the helpers in `Engine::TreeHelpers`, which every stage includes.
 Each helper visits a node once, so a rule can't loop on its own output.
 A helper that can replace the root returns the new root.
-The helpers take a tree pattern (see "Tree patterns" below), and they also accept a code pattern (see "Code patterns" in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md)).
+The helpers take a tree pattern (see "Tree patterns" below), and they also accept a code pattern (see "Code patterns" in [docs/dsl.md](./dsl.md)).
 
 | Helper | What it does | Example |
 |---|---|---|
