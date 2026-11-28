@@ -80,6 +80,7 @@ module Representer::Languages::Perl5::Common
       tree.tap do
         put_heredocs_in_place!
         write_pragmas_as_pragmas!
+        take_the_field_off_the_version_of_a_use!
         mark_the_constants_that_use_constant_defines!
         mark_the_variables_that_are_declared!
         write_strings_as_their_values!
@@ -246,6 +247,17 @@ module Representer::Languages::Perl5::Common
     def write_pragmas_as_pragmas!
       find_all(tree, "(use_statement module: (package) @module) @use").each do |match|
         match.node.type = "pragma_statement" if match.captures["module"].text.match?(/\A[a-z]/)
+      end
+    end
+
+    # Take the field off the version that a `use` asks for, so that
+    # representation/spec.rb's `use {{Module}} {{...}}` also matches
+    # `use List::Util 1.45 qw(sum);`. A code pattern can't hold a
+    # placeholder where Perl expects a version.
+    # use List::Util 1.45;  ->  (use_statement use (package List::Util) 1.45)
+    def take_the_field_off_the_version_of_a_use!
+      find_all(tree, "(use_statement version: (_) @version)").each do |match|
+        match.captures["version"].field = nil
       end
     end
 

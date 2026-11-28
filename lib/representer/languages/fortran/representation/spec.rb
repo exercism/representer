@@ -40,11 +40,13 @@ module Representer::Languages::Fortran::Representation
 
     # Drop the uses of modules, because a solution that passes its tests has
     # already made every module it needs available.
-    imports "use {{_}}",                             # «use iso_fortran_env»
-            "use {{_}}, only: {{...}}",              # «use iso_fortran_env, only: int64»
-            "use {{_}}, {{_}} => {{_}}",             # «use iso_fortran_env, i8 => int8»
-            "use, intrinsic :: {{_}}",               # «use, intrinsic :: iso_fortran_env»
-            "use, intrinsic :: {{_}}, only: {{...}}" # «use, intrinsic :: iso_fortran_env, only: int64»
+    imports "use {{_}}",                                 # «use iso_fortran_env»
+            "use {{_}}, only: {{...}}",                  # «use iso_fortran_env, only: int64»
+            "use {{_}}, {{...}} => {{...}}",             # «use iso_fortran_env, i8 => int8, i16 => int16»
+            "use, intrinsic :: {{_}}",                   # «use, intrinsic :: iso_fortran_env»
+            "use, intrinsic :: {{_}}, only: {{...}}",    # «use, intrinsic :: iso_fortran_env, only: int64»
+            "use, non_intrinsic :: {{_}}",               # «use, non_intrinsic :: shapes»
+            "use, non_intrinsic :: {{_}}, only: {{...}}" # «use, non_intrinsic :: shapes, only: area»
 
     # Put a pattern that can only stand inside a module there, such as a
     # `use` statement.

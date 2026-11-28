@@ -32,6 +32,13 @@ class FortranTest < RepresenterTest
                                "module m\n  implicit none\nend module\n"
   end
 
+  def test_rarer_forms_of_use_are_dropped
+    plain = "module m\n  implicit none\nend module\n"
+    assert_same_representation "module m\n  use, non_intrinsic :: shapes\n  implicit none\nend module\n", plain
+    assert_same_representation "module m\n  use shapes, only: area => circle, side => square\n  implicit none\nend module\n", plain
+    assert_same_representation "module m\n  use shapes, area => circle, side => square\n  implicit none\nend module\n", plain
+  end
+
   def test_names_the_solution_defines_are_renamed_whatever_their_case
     first = <<~FORTRAN
       module leap

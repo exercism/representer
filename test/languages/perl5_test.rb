@@ -14,6 +14,11 @@ class Perl5Test < RepresenterTest
       "sub total { sum(@_) }"
   end
 
+  def test_a_module_with_a_version_is_dropped
+    assert_same_representation "use List::Util 1.45;\nsub total { List::Util::sum(@_) }",
+      "sub total { List::Util::sum(@_) }"
+  end
+
   def test_pragmas_that_change_how_perl_reads_the_code_stay
     refute_same_representation "use v5.38;\nsub f { say 1 }", "sub f { say 1 }"
     refute_same_representation "use integer;\nsub f { 1 / 2 }", "sub f { 1 / 2 }"
