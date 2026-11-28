@@ -1,24 +1,86 @@
-proc luhn { digits } {
-# remove whitespace
-regsub -all { \s + } $digits {} digits
-if { [ string length $digits ] <= 1 } {
-return false
-}
-if { [ regexp {[ ^0-9 ]} $digits ] } {
-# only supports base 10 digits
-return false
-}
-set tot 0
-set ctr 1
-# since we start from the right, simply reverse the string
-foreach d [ split [ string reverse $digits ] "\"\"" ] {
-if { $ctr % 2 == 0 } {
-# double and possibly deduct from the value
-set d [ expr { 2 * $d }]
-set d [ expr $d > 9 ? [ expr { $d - 9 }] : $d ]
-}
-incr tot $d
-incr ctr
-}
-return [ expr { $tot % 10 == 0 }]
-}
+(source_file
+  (procedure
+    (definition PLACEHOLDER_1)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_2)))
+    (braced_word
+      (regsub -all "\\s+"
+        (variable_substitution (id PLACEHOLDER_2)) ""
+        (definition PLACEHOLDER_2))
+      (if
+        (expr {
+          (binop_expr
+            (command_substitution
+              (command string
+                (word_list length
+                  (variable_substitution (id PLACEHOLDER_2))))) <= 1) })
+        (braced_word
+          (command return
+            (word_list false))))
+      (if
+        (expr {
+          (command_substitution
+            (regexp "[^0-9]"
+              (variable_substitution (id PLACEHOLDER_2)))) })
+        (braced_word
+          (command return
+            (word_list false))))
+      (set
+        (definition (id PLACEHOLDER_3)) 0)
+      (set
+        (definition (id PLACEHOLDER_4)) 1)
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_5)))
+        (command_substitution
+          (command split
+            (word_list
+              (command_substitution
+                (command string
+                  (word_list reverse
+                    (variable_substitution (id PLACEHOLDER_2))))) "")))
+        (braced_word
+          (if
+            (expr {
+              (binop_expr
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_4)) % 2) == 0) })
+            (braced_word
+              (set
+                (definition (id PLACEHOLDER_5))
+                (command_substitution
+                  (expr_cmd
+                    (expr {
+                      (binop_expr 2 *
+                        (variable_substitution (id PLACEHOLDER_5))) }))))
+              (set
+                (definition (id PLACEHOLDER_5))
+                (command_substitution
+                  (expr_cmd
+                    (expr
+                      (ternary_expr
+                        (binop_expr
+                          (variable_substitution (id PLACEHOLDER_5)) > 9)
+                        (command_substitution
+                          (expr_cmd
+                            (expr {
+                              (binop_expr
+                                (variable_substitution (id PLACEHOLDER_5)) - 9) })))
+                        (variable_substitution (id PLACEHOLDER_5)))))))))
+          (command incr
+            (word_list
+              (definition PLACEHOLDER_3)
+              (variable_substitution (id PLACEHOLDER_5))))
+          (command incr
+            (word_list
+              (definition PLACEHOLDER_4)))))
+      (command return
+        (word_list
+          (command_substitution
+            (expr_cmd
+              (expr {
+                (binop_expr
+                  (binop_expr
+                    (variable_substitution (id PLACEHOLDER_3)) % 10) == 0) }))))))))

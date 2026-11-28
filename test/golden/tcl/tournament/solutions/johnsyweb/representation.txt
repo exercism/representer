@@ -1,82 +1,408 @@
-oo::class create Team {
-constructor { teamName } {
-set name $teamName
-set win 0
-set loss 0
-set draw 0
-}
-method addWin {} { incr win }
-method addDraw {} { incr draw }
-method addLoss {} { incr loss }
-method name {} { return $name }
-method points {} { return [ expr { 3 * $win + $draw }]}
-method matches {} { return [ expr { $win + $loss + $draw }] }
-method asString {} {
-return [ format "\"%-30s | %2s | %2s | %2s | %2s | %2s\"" $name [ my matches ] $win $draw $loss [ my points ]]
-}
-variable name win draw loss
-}
-proc orderTeams { a b } {
-if {[ $a points ] > [ $b points ]} {
-return -1
-} elseif {[ $a points ] < [ $b points ]} {
-return 1
-}
-return [ string compare [ $a name ] [ $b name ]]
-}
-proc header {} {
-return [ format "\"%-30s | %2s | %2s | %2s | %2s | %2s\"" Team MP W D L P ]
-}
-proc loadMatches { filename } {
-set fh [ open $filename ]
-set text [ read $fh ]
-close $fh
-return [ split $text \n ]
-}
-proc classifyMatches { matches } {
-set classifieds [ dict create ]
-foreach match $matches {
-set classifieds [ classify $match $classifieds ]
-}
-return $classifieds
-}
-proc classify { match classifieds } {
-set parts [ split $match "\";\"" ]
-if {[ llength $parts ] == 3 } {
-set home [ lindex $parts 0 ]
-set away [ lindex $parts 1 ]
-set result [ lindex $parts 2 ]
-set classifieds [ ensureTeam $classifieds $home ]
-set classifieds [ ensureTeam $classifieds $away ]
-switch $result {
-win {
-[ dict get $classifieds $home ] addWin
-[ dict get $classifieds $away ] addLoss
-}
-loss {
-[ dict get $classifieds $home ] addLoss
-[ dict get $classifieds $away ] addWin
-}
-draw {
-[ dict get $classifieds $home ] addDraw
-[ dict get $classifieds $away ] addDraw
-}
-}
-}
-return $classifieds
-}
-proc ensureTeam { classifieds team } {
-if { ! [ dict exists $classifieds $team ]} {
-dict set classifieds $team [ Team new $team ]
-}
-return $classifieds
-}
-proc tablify { classifieds } {
-set teams [ dict values $classifieds ]
-set ordered [ lsort -command orderTeams $teams ]
-return [ lmap team $ordered { $team asString }]
-}
-proc tournamentResults { filename } {
-set rows [ tablify [ classifyMatches [ loadMatches $filename ]]]
-return [ join [ list [ header ] {*} $rows ] \n ]
-}
+(source_file
+  (command oo::class
+    (word_list create
+      (definition PLACEHOLDER_1)
+      (braced_word
+        (command constructor
+          (word_list
+            (braced_word
+              (command
+                (definition PLACEHOLDER_2)))
+            (braced_word
+              (set
+                (definition (id PLACEHOLDER_3))
+                (variable_substitution (id PLACEHOLDER_2)))
+              (set
+                (definition (id PLACEHOLDER_4)) 0)
+              (set
+                (definition (id PLACEHOLDER_5)) 0)
+              (set
+                (definition (id PLACEHOLDER_6)) 0))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_7) ""
+            (braced_word
+              (command incr
+                (word_list
+                  (definition PLACEHOLDER_4))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_8) ""
+            (braced_word
+              (command incr
+                (word_list
+                  (definition PLACEHOLDER_6))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_9) ""
+            (braced_word
+              (command incr
+                (word_list
+                  (definition PLACEHOLDER_5))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_3) ""
+            (braced_word
+              (command return
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_3)))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_10) ""
+            (braced_word
+              (command return
+                (word_list
+                  (command_substitution
+                    (expr_cmd
+                      (expr {
+                        (binop_expr
+                          (binop_expr 3 *
+                            (variable_substitution (id PLACEHOLDER_4))) +
+                          (variable_substitution (id PLACEHOLDER_6))) }))))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_11) ""
+            (braced_word
+              (command return
+                (word_list
+                  (command_substitution
+                    (expr_cmd
+                      (expr {
+                        (binop_expr
+                          (binop_expr
+                            (variable_substitution (id PLACEHOLDER_4)) +
+                            (variable_substitution (id PLACEHOLDER_5))) +
+                          (variable_substitution (id PLACEHOLDER_6))) }))))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_12) ""
+            (braced_word
+              (command return
+                (word_list
+                  (command_substitution
+                    (command format
+                      (word_list "%-30s | %2s | %2s | %2s | %2s | %2s"
+                        (variable_substitution (id PLACEHOLDER_3))
+                        (command_substitution
+                          (command my
+                            (word_list PLACEHOLDER_11)))
+                        (variable_substitution (id PLACEHOLDER_4))
+                        (variable_substitution (id PLACEHOLDER_6))
+                        (variable_substitution (id PLACEHOLDER_5))
+                        (command_substitution
+                          (command my
+                            (word_list PLACEHOLDER_10)))))))))))
+        (variable
+          (definition PLACEHOLDER_3) PLACEHOLDER_4
+          (definition PLACEHOLDER_6) PLACEHOLDER_5))))
+  (procedure
+    (definition PLACEHOLDER_13)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_14))
+      (argument
+        (definition PLACEHOLDER_15)))
+    (braced_word
+      (if
+        (expr {
+          (binop_expr
+            (command_substitution
+              (command
+                (variable_substitution (id PLACEHOLDER_14))
+                (word_list PLACEHOLDER_10))) >
+            (command_substitution
+              (command
+                (variable_substitution (id PLACEHOLDER_15))
+                (word_list PLACEHOLDER_10)))) })
+        (braced_word
+          (command return
+            (word_list -1)))
+        (elseif
+          (expr {
+            (binop_expr
+              (command_substitution
+                (command
+                  (variable_substitution (id PLACEHOLDER_14))
+                  (word_list PLACEHOLDER_10))) <
+              (command_substitution
+                (command
+                  (variable_substitution (id PLACEHOLDER_15))
+                  (word_list PLACEHOLDER_10)))) })
+          (braced_word
+            (command return
+              (word_list 1)))))
+      (command return
+        (word_list
+          (command_substitution
+            (command string
+              (word_list compare
+                (command_substitution
+                  (command
+                    (variable_substitution (id PLACEHOLDER_14))
+                    (word_list PLACEHOLDER_3)))
+                (command_substitution
+                  (command
+                    (variable_substitution (id PLACEHOLDER_15))
+                    (word_list PLACEHOLDER_3))))))))))
+  (procedure
+    (definition PLACEHOLDER_16)
+    (arguments)
+    (braced_word
+      (command return
+        (word_list
+          (command_substitution
+            (command format
+              (word_list "%-30s | %2s | %2s | %2s | %2s | %2s" PLACEHOLDER_1 MP W D L P)))))))
+  (procedure
+    (definition PLACEHOLDER_17)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_18)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_19))
+        (command_substitution
+          (command open
+            (word_list
+              (variable_substitution (id PLACEHOLDER_18))))))
+      (set
+        (definition (id PLACEHOLDER_20))
+        (command_substitution
+          (command read
+            (word_list
+              (variable_substitution (id PLACEHOLDER_19))))))
+      (command close
+        (word_list
+          (variable_substitution (id PLACEHOLDER_19))))
+      (command return
+        (word_list
+          (command_substitution
+            (command split
+              (word_list
+                (variable_substitution (id PLACEHOLDER_20)) "\n")))))))
+  (procedure
+    (definition PLACEHOLDER_21)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_11)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_22))
+        (command_substitution
+          (command dict
+            (word_list create))))
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_23)))
+        (variable_substitution (id PLACEHOLDER_11))
+        (braced_word
+          (set
+            (definition (id PLACEHOLDER_22))
+            (command_substitution
+              (command PLACEHOLDER_24
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_23))
+                  (variable_substitution (id PLACEHOLDER_22))))))))
+      (command return
+        (word_list
+          (variable_substitution (id PLACEHOLDER_22))))))
+  (procedure
+    (definition PLACEHOLDER_24)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_23))
+      (argument
+        (definition PLACEHOLDER_22)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_25))
+        (command_substitution
+          (command split
+            (word_list
+              (variable_substitution (id PLACEHOLDER_23)) ";"))))
+      (if
+        (expr {
+          (binop_expr
+            (command_substitution
+              (command llength
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_25))))) == 3) })
+        (braced_word
+          (set
+            (definition (id PLACEHOLDER_26))
+            (command_substitution
+              (command lindex
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_25)) 0))))
+          (set
+            (definition (id PLACEHOLDER_27))
+            (command_substitution
+              (command lindex
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_25)) 1))))
+          (set
+            (definition (id PLACEHOLDER_28))
+            (command_substitution
+              (command lindex
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_25)) 2))))
+          (set
+            (definition (id PLACEHOLDER_22))
+            (command_substitution
+              (command PLACEHOLDER_29
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_22))
+                  (variable_substitution (id PLACEHOLDER_26))))))
+          (set
+            (definition (id PLACEHOLDER_22))
+            (command_substitution
+              (command PLACEHOLDER_29
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_22))
+                  (variable_substitution (id PLACEHOLDER_27))))))
+          (command switch
+            (word_list
+              (variable_substitution (id PLACEHOLDER_28))
+              (braced_word
+                (command PLACEHOLDER_4
+                  (word_list
+                    (braced_word
+                      (command
+                        (command_substitution
+                          (command dict
+                            (word_list get
+                              (variable_substitution (id PLACEHOLDER_22))
+                              (variable_substitution (id PLACEHOLDER_26)))))
+                        (word_list PLACEHOLDER_7))
+                      (command
+                        (command_substitution
+                          (command dict
+                            (word_list get
+                              (variable_substitution (id PLACEHOLDER_22))
+                              (variable_substitution (id PLACEHOLDER_27)))))
+                        (word_list PLACEHOLDER_9)))))
+                (command PLACEHOLDER_5
+                  (word_list
+                    (braced_word
+                      (command
+                        (command_substitution
+                          (command dict
+                            (word_list get
+                              (variable_substitution (id PLACEHOLDER_22))
+                              (variable_substitution (id PLACEHOLDER_26)))))
+                        (word_list PLACEHOLDER_9))
+                      (command
+                        (command_substitution
+                          (command dict
+                            (word_list get
+                              (variable_substitution (id PLACEHOLDER_22))
+                              (variable_substitution (id PLACEHOLDER_27)))))
+                        (word_list PLACEHOLDER_7)))))
+                (command PLACEHOLDER_6
+                  (word_list
+                    (braced_word
+                      (command
+                        (command_substitution
+                          (command dict
+                            (word_list get
+                              (variable_substitution (id PLACEHOLDER_22))
+                              (variable_substitution (id PLACEHOLDER_26)))))
+                        (word_list PLACEHOLDER_8))
+                      (command
+                        (command_substitution
+                          (command dict
+                            (word_list get
+                              (variable_substitution (id PLACEHOLDER_22))
+                              (variable_substitution (id PLACEHOLDER_27)))))
+                        (word_list PLACEHOLDER_8))))))))))
+      (command return
+        (word_list
+          (variable_substitution (id PLACEHOLDER_22))))))
+  (procedure
+    (definition PLACEHOLDER_29)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_22))
+      (argument
+        (definition PLACEHOLDER_30)))
+    (braced_word
+      (if
+        (expr {
+          (unary_expr !
+            (command_substitution
+              (command dict
+                (word_list exists
+                  (variable_substitution (id PLACEHOLDER_22))
+                  (variable_substitution (id PLACEHOLDER_30)))))) })
+        (braced_word
+          (command dict
+            (word_list set
+              (definition PLACEHOLDER_22)
+              (variable_substitution (id PLACEHOLDER_30))
+              (command_substitution
+                (command PLACEHOLDER_1
+                  (word_list new
+                    (variable_substitution (id PLACEHOLDER_30)))))))))
+      (command return
+        (word_list
+          (variable_substitution (id PLACEHOLDER_22))))))
+  (procedure
+    (definition PLACEHOLDER_31)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_22)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_32))
+        (command_substitution
+          (command dict
+            (word_list values
+              (variable_substitution (id PLACEHOLDER_22))))))
+      (set
+        (definition (id PLACEHOLDER_33))
+        (command_substitution
+          (command lsort
+            (word_list -command PLACEHOLDER_13
+              (variable_substitution (id PLACEHOLDER_32))))))
+      (command return
+        (word_list
+          (command_substitution
+            (command lmap
+              (word_list
+                (definition PLACEHOLDER_30)
+                (variable_substitution (id PLACEHOLDER_33))
+                (braced_word
+                  (command
+                    (variable_substitution (id PLACEHOLDER_30))
+                    (word_list PLACEHOLDER_12))))))))))
+  (procedure
+    (definition PLACEHOLDER_34)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_18)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_35))
+        (command_substitution
+          (command PLACEHOLDER_31
+            (word_list
+              (command_substitution
+                (command PLACEHOLDER_21
+                  (word_list
+                    (command_substitution
+                      (command PLACEHOLDER_17
+                        (word_list
+                          (variable_substitution (id PLACEHOLDER_18))))))))))))
+      (command return
+        (word_list
+          (command_substitution
+            (command join
+              (word_list
+                (command_substitution
+                  (command list
+                    (word_list
+                      (command_substitution
+                        (command PLACEHOLDER_16))
+                      (unpack
+                        (variable_substitution (id PLACEHOLDER_35)))))) "\n"))))))))

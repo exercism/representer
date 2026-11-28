@@ -1,43 +1,200 @@
-namespace export squareOfSum sumOfSquares differenceOfSquares
-proc squareOfSum { n } {
-expr { (( $n * ( $n + 1 )) / 2 ) ** 2 }
-}
-proc sumOfSquares { n } {
-expr { $n * ( $n + 1 ) * ( 2 * $n + 1 ) / 6 }
-}
-proc differenceOfSquares { n } {
-expr { abs ( [ sumOfSquares $n ] - [ squareOfSum $n ] )}
-}
-}
-namespace export squareOfSum sumOfSquares differenceOfSquares
-# a simple generator
-proc sequence { n } {
-yield
-for { set i 1 } { $i <= $n } { incr i } {
-yield $i
-}
-}
-proc foldl { initValue varnames coro body } {
-lassign $varnames accumVarname elemVarname
-upvar 1 $accumVarname acc
-upvar 1 $elemVarname elem
-set acc $initValue
-while {[ set elem [ $coro ]] ne "\"\"" } {
-set acc [ uplevel 1 $body ]
-}
-return $acc
-}
-proc squareOfSum { n } {
-coroutine seq sequence $n
-set sum [ foldl 0 { sum x } seq { expr { $sum + $x }}]
-expr { $sum ** 2 }
-}
-proc sumOfSquares { n } {
-coroutine seq sequence $n
-foldl 0 { sum x } seq { expr { $sum + $x**2 }}
-}
-proc differenceOfSquares { n } {
-expr { abs ( [ sumOfSquares $n ] - [ squareOfSum $n ] )}
-}
-}
-namespace import difference::iterative::*
+(source_file
+  (namespace
+    (word_list eval
+      (definition PLACEHOLDER_1)
+      (braced_word
+        (namespace
+          (word_list export PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4))
+        (procedure
+          (definition PLACEHOLDER_2)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_5)))
+          (braced_word
+            (expr_cmd
+              (expr {
+                (binop_expr
+                  (binop_expr
+                    (binop_expr
+                      (variable_substitution (id PLACEHOLDER_5)) *
+                      (binop_expr
+                        (variable_substitution (id PLACEHOLDER_5)) + 1)) / 2) ** 2) }))))
+        (procedure
+          (definition PLACEHOLDER_3)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_5)))
+          (braced_word
+            (expr_cmd
+              (expr {
+                (binop_expr
+                  (binop_expr
+                    (binop_expr
+                      (variable_substitution (id PLACEHOLDER_5)) *
+                      (binop_expr
+                        (variable_substitution (id PLACEHOLDER_5)) + 1)) *
+                    (binop_expr
+                      (binop_expr 2 *
+                        (variable_substitution (id PLACEHOLDER_5))) + 1)) / 6) }))))
+        (procedure
+          (definition PLACEHOLDER_4)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_5)))
+          (braced_word
+            (expr_cmd
+              (expr {
+                (function_call abs
+                  (function_arguments
+                    (binop_expr
+                      (command_substitution
+                        (command PLACEHOLDER_3
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_5))))) -
+                      (command_substitution
+                        (command PLACEHOLDER_2
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_5)))))))) })))))))
+  (namespace
+    (word_list eval
+      (definition PLACEHOLDER_6)
+      (braced_word
+        (namespace
+          (word_list export PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4))
+        (procedure
+          (definition PLACEHOLDER_7)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_5)))
+          (braced_word
+            (command yield)
+            (for
+              (braced_word
+                (set
+                  (definition (id PLACEHOLDER_8)) 1))
+              (expr {
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_8)) <=
+                  (variable_substitution (id PLACEHOLDER_5))) })
+              (braced_word
+                (command incr
+                  (word_list
+                    (definition PLACEHOLDER_8))))
+              (braced_word
+                (command yield
+                  (word_list
+                    (variable_substitution (id PLACEHOLDER_8))))))))
+        (procedure
+          (definition PLACEHOLDER_9)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_10))
+            (argument
+              (definition PLACEHOLDER_11))
+            (argument
+              (definition PLACEHOLDER_12))
+            (argument
+              (definition PLACEHOLDER_13)))
+          (braced_word
+            (command lassign
+              (word_list
+                (variable_substitution (id PLACEHOLDER_11))
+                (definition PLACEHOLDER_14)
+                (definition PLACEHOLDER_15)))
+            (command upvar
+              (word_list 1
+                (variable_substitution (id PLACEHOLDER_14))
+                (definition PLACEHOLDER_16)))
+            (command upvar
+              (word_list 1
+                (variable_substitution (id PLACEHOLDER_15))
+                (definition PLACEHOLDER_17)))
+            (set
+              (definition (id PLACEHOLDER_16))
+              (variable_substitution (id PLACEHOLDER_10)))
+            (while
+              (expr {
+                (binop_expr
+                  (command_substitution
+                    (set
+                      (definition (id PLACEHOLDER_17))
+                      (command_substitution
+                        (command
+                          (variable_substitution (id PLACEHOLDER_12)))))) ne "") })
+              (braced_word
+                (set
+                  (definition (id PLACEHOLDER_16))
+                  (command_substitution
+                    (command uplevel
+                      (word_list 1
+                        (variable_substitution (id PLACEHOLDER_13))))))))
+            (command return
+              (word_list
+                (variable_substitution (id PLACEHOLDER_16))))))
+        (procedure
+          (definition PLACEHOLDER_2)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_5)))
+          (braced_word
+            (command coroutine
+              (word_list seq PLACEHOLDER_7
+                (variable_substitution (id PLACEHOLDER_5))))
+            (set
+              (definition (id PLACEHOLDER_18))
+              (command_substitution
+                (command PLACEHOLDER_9
+                  (word_list 0
+                    (braced_word
+                      (command PLACEHOLDER_18
+                        (word_list x))) seq
+                    (braced_word
+                      (expr_cmd
+                        (expr {
+                          (binop_expr
+                            (variable_substitution (id PLACEHOLDER_18)) +
+                            (variable_substitution x)) })))))))
+            (expr_cmd
+              (expr {
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_18)) ** 2) }))))
+        (procedure
+          (definition PLACEHOLDER_3)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_5)))
+          (braced_word
+            (command coroutine
+              (word_list seq PLACEHOLDER_7
+                (variable_substitution (id PLACEHOLDER_5))))
+            (command PLACEHOLDER_9
+              (word_list 0
+                (braced_word
+                  (command PLACEHOLDER_18
+                    (word_list x))) seq
+                (braced_word
+                  (expr_cmd
+                    (expr {
+                      (binop_expr
+                        (variable_substitution (id PLACEHOLDER_18)) +
+                        (binop_expr
+                          (variable_substitution x) ** 2)) })))))))
+        (procedure
+          (definition PLACEHOLDER_4)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_5)))
+          (braced_word
+            (expr_cmd
+              (expr {
+                (function_call abs
+                  (function_arguments
+                    (binop_expr
+                      (command_substitution
+                        (command PLACEHOLDER_3
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_5))))) -
+                      (command_substitution
+                        (command PLACEHOLDER_2
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_5)))))))) }))))))))

@@ -1,78 +1,227 @@
-namespace eval ::seq {
-namespace export seq
-# Generate a sequence of numbers
-#
-# seq -to 10 ;
-# seq -to 10 -from 14 -by -2 ;
-# seq -from 1 -to 5 -by -2 ;
-# seq -from 1 -to 5 -by 0 ;
-#
-proc seq { args } {
-set len [ llength $args ]
-if { $len == 0 || ( $len % 2 ) == 1 } {
-error { usage: seq [ -from A ] [ -to B ] [ -by C ]}
-}
-array set arg [ list -from 0 -to 0 -by 1 {*} $args ]
-set from $arg ( -from )
-set to $arg ( -to )
-set step $arg ( -by )
-if { $step == 0
-|| ( $step > 0 && $from > $to )
-|| ( $step < 0 && $from < $to )
-} {
-error "\"invalid step\""
-}
-if { $step > 0 } {
-proc ::tcl::mathfunc::seq_cmp_ { a b } { expr $a <= $b }
-} else {
-proc ::tcl::mathfunc::seq_cmp_ { a b } { expr $a >= $b }
-}
-set seq {}
-for {} { seq_cmp_ ( $from , $to )} { incr from $step } {
-lappend seq $from
-}
-rename ::tcl::mathfunc::seq_cmp_ "\"\""
-return $seq
-}
-}
-source seq.tcl
-namespace eval TwelveDays {
-namespace import ::seq::seq
-namespace export verse sing
-variable ordinal {
-"\"--zero--\""
-first second third fourth fifth sixth
-seventh eighth ninth tenth eleventh twelfth
-}
-variable gifts {
-"\"--zero--\""
-"\"a Partridge in a Pear Tree\""
-"\"two Turtle Doves\""
-"\"three French Hens\""
-"\"four Calling Birds\""
-"\"five Gold Rings\""
-"\"six Geese-a-Laying\""
-"\"seven Swans-a-Swimming\""
-"\"eight Maids-a-Milking\""
-"\"nine Ladies Dancing\""
-"\"ten Lords-a-Leaping\""
-"\"eleven Pipers Piping\""
-"\"twelve Drummers Drumming\""
-}
-variable fmt { On the %s day of Christmas my true love gave to me: %s. }
-proc verse { n } {
-variable ordinal
-variable gifts
-variable fmt
-set presents [ lreverse [ lrange $gifts 1 $n ]]
-if { $n > 1 } {
-lset presents end "\"and " [ lindex $presents end ] "\""
-}
-format $fmt [ lindex $ordinal $n ] [ join $presents "\", \"" ]
-}
-proc sing { from to } {
-set days [ lmap i [ seq -from $from -to $to ] { verse $i }]
-return [ join $days \n ]
-}
-}
-namespace import TwelveDays::*
+(source_file
+  (command source
+    (word_list seq.tcl))
+  (namespace
+    (word_list eval
+      (definition PLACEHOLDER_1)
+      (braced_word
+        (namespace
+          (word_list export PLACEHOLDER_2 PLACEHOLDER_3))
+        (variable
+          (definition PLACEHOLDER_4) "\n        \"--zero--\"\n        first second third fourth fifth sixth\n        seventh eighth ninth tenth eleventh twelfth\n    ")
+        (variable
+          (definition PLACEHOLDER_5) "\n        \"--zero--\"\n        \"a Partridge in a Pear Tree\"\n        \"two Turtle Doves\"\n        \"three French Hens\"\n        \"four Calling Birds\"\n        \"five Gold Rings\"\n        \"six Geese-a-Laying\"\n        \"seven Swans-a-Swimming\"\n        \"eight Maids-a-Milking\"\n        \"nine Ladies Dancing\"\n        \"ten Lords-a-Leaping\"\n        \"eleven Pipers Piping\"\n        \"twelve Drummers Drumming\"\n    ")
+        (variable
+          (definition PLACEHOLDER_6) "On the %s day of Christmas my true love gave to me: %s.")
+        (procedure
+          (definition PLACEHOLDER_2)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_7)))
+          (braced_word
+            (variable
+              (definition PLACEHOLDER_4))
+            (variable
+              (definition PLACEHOLDER_5))
+            (variable
+              (definition PLACEHOLDER_6))
+            (set
+              (definition (id PLACEHOLDER_8))
+              (command_substitution
+                (command lreverse
+                  (word_list
+                    (command_substitution
+                      (command lrange
+                        (word_list
+                          (variable_substitution (id PLACEHOLDER_5)) 1
+                          (variable_substitution (id PLACEHOLDER_7)))))))))
+            (if
+              (expr {
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_7)) > 1) })
+              (braced_word
+                (command lset
+                  (word_list PLACEHOLDER_8 end
+                    (word "and "
+                      (command_substitution
+                        (command lindex
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_8)) end))))))))
+            (command format
+              (word_list
+                (variable_substitution (id PLACEHOLDER_6))
+                (command_substitution
+                  (command lindex
+                    (word_list
+                      (variable_substitution (id PLACEHOLDER_4))
+                      (variable_substitution (id PLACEHOLDER_7)))))
+                (command_substitution
+                  (command join
+                    (word_list
+                      (variable_substitution (id PLACEHOLDER_8)) ", ")))))))
+        (procedure
+          (definition PLACEHOLDER_3)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_9))
+            (argument
+              (definition PLACEHOLDER_10)))
+          (braced_word
+            (set
+              (definition (id PLACEHOLDER_11))
+              (command_substitution
+                (command lmap
+                  (word_list
+                    (definition PLACEHOLDER_12)
+                    (command_substitution
+                      (command PLACEHOLDER_13
+                        (word_list -from
+                          (variable_substitution (id PLACEHOLDER_9)) -to
+                          (variable_substitution (id PLACEHOLDER_10)))))
+                    (braced_word
+                      (command PLACEHOLDER_2
+                        (word_list
+                          (variable_substitution (id PLACEHOLDER_12)))))))))
+            (command return
+              (word_list
+                (command_substitution
+                  (command join
+                    (word_list
+                      (variable_substitution (id PLACEHOLDER_11)) "\n"))))))))))
+  (namespace
+    (word_list eval
+      (definition PLACEHOLDER_14)
+      (braced_word
+        (namespace
+          (word_list export PLACEHOLDER_13))
+        (procedure
+          (definition PLACEHOLDER_13)
+          (arguments
+            (argument args))
+          (braced_word
+            (set
+              (definition (id PLACEHOLDER_15))
+              (command_substitution
+                (command llength
+                  (word_list
+                    (variable_substitution args)))))
+            (if
+              (expr {
+                (binop_expr
+                  (binop_expr
+                    (variable_substitution (id PLACEHOLDER_15)) == 0) ||
+                  (binop_expr
+                    (binop_expr
+                      (variable_substitution (id PLACEHOLDER_15)) % 2) == 1)) })
+              (braced_word
+                (command error
+                  (word_list
+                    (braced_word
+                      (command usage:
+                        (word_list PLACEHOLDER_13
+                          (command_substitution
+                            (command -from
+                              (word_list A)))
+                          (command_substitution
+                            (command -to
+                              (word_list B)))
+                          (command_substitution
+                            (command -by
+                              (word_list C))))))))))
+            (command array
+              (word_list set
+                (definition PLACEHOLDER_16)
+                (command_substitution
+                  (command list
+                    (word_list -from 0 -to 0 -by 1
+                      (unpack
+                        (variable_substitution args)))))))
+            (set
+              (definition (id PLACEHOLDER_9))
+              (variable_substitution (id PLACEHOLDER_16)
+                (array_index -from)))
+            (set
+              (definition (id PLACEHOLDER_10))
+              (variable_substitution (id PLACEHOLDER_16)
+                (array_index -to)))
+            (set
+              (definition (id PLACEHOLDER_17))
+              (variable_substitution (id PLACEHOLDER_16)
+                (array_index -by)))
+            (if
+              (expr {
+                (binop_expr
+                  (binop_expr
+                    (binop_expr
+                      (variable_substitution (id PLACEHOLDER_17)) == 0) ||
+                    (binop_expr
+                      (binop_expr
+                        (variable_substitution (id PLACEHOLDER_17)) > 0) &&
+                      (binop_expr
+                        (variable_substitution (id PLACEHOLDER_9)) >
+                        (variable_substitution (id PLACEHOLDER_10))))) ||
+                  (binop_expr
+                    (binop_expr
+                      (variable_substitution (id PLACEHOLDER_17)) < 0) &&
+                    (binop_expr
+                      (variable_substitution (id PLACEHOLDER_9)) <
+                      (variable_substitution (id PLACEHOLDER_10))))) })
+              (braced_word
+                (command error
+                  (word_list "invalid step"))))
+            (if
+              (expr {
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_17)) > 0) })
+              (braced_word
+                (procedure
+                  (definition PLACEHOLDER_18)
+                  (arguments
+                    (argument
+                      (definition PLACEHOLDER_19))
+                    (argument
+                      (definition PLACEHOLDER_20)))
+                  (braced_word
+                    (expr_cmd
+                      (expr
+                        (binop_expr
+                          (variable_substitution (id PLACEHOLDER_19)) <=
+                          (variable_substitution (id PLACEHOLDER_20))))))))
+              (else
+                (braced_word
+                  (procedure
+                    (definition PLACEHOLDER_18)
+                    (arguments
+                      (argument
+                        (definition PLACEHOLDER_19))
+                      (argument
+                        (definition PLACEHOLDER_20)))
+                    (braced_word
+                      (expr_cmd
+                        (expr
+                          (binop_expr
+                            (variable_substitution (id PLACEHOLDER_19)) >=
+                            (variable_substitution (id PLACEHOLDER_20))))))))))
+            (set
+              (definition (id PLACEHOLDER_13)) "")
+            (for ""
+              (expr {
+                (function_call seq_cmp_
+                  (function_arguments
+                    (variable_substitution (id PLACEHOLDER_9))
+                    (variable_substitution (id PLACEHOLDER_10)))) })
+              (braced_word
+                (command incr
+                  (word_list
+                    (definition PLACEHOLDER_9)
+                    (variable_substitution (id PLACEHOLDER_17)))))
+              (braced_word
+                (command lappend
+                  (word_list
+                    (definition PLACEHOLDER_13)
+                    (variable_substitution (id PLACEHOLDER_9))))))
+            (command rename
+              (word_list PLACEHOLDER_18 ""))
+            (command return
+              (word_list
+                (variable_substitution (id PLACEHOLDER_13))))))))))

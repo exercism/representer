@@ -1,86 +1,381 @@
-oo::class create Scanner {
-variable str index
-constructor { input } {
-set str [ string trimright $input "\" ?\"" ]
-set index 0
-}
-method next {{ valueVar "\"\"" }} {
-if { $value Var ne "\"\"" } { upvar $valueVar value }
-my SkipWhitespace
-if {[ my AtEOF ]} {
-return EOF
-} elseif {[ my TryParse "\"plus\"" ]} {
-return ADD
-} elseif {[ my TryParse "\"minus\"" ]} {
-return SUB
-} elseif {[ my TryParse "\"multiplied by\"" ]} {
-return MUL
-} elseif {[ my TryParse "\"divided by\"" ]} {
-return DIV
-} else {
-return [ my TryParseNum value ]
-}
-}
-method AtEOF {} {
-expr { $index == [ string length $str ]}
-}
-method TryParseNum { valueVar } {
-upvar $valueVar value
-set i $index
-if {[ string index $str $i ] eq "\"-\"" } { incr i }
-set j $i
-while {[ string is digit -strict [ string index $str $j ]]} {
-incr j
-}
-if { $i < $j } {
-set value [ string range $str $index $j ]
-set index $j
-return NUM
-} else {
-return ERR
-}
-}
-method TryParse { s } {
-set len [ string length $s ]
-if {[ string range $str $index [ expr { $index +$len-1 }]] eq $s } {
-incr index $len
-return true
-} else {
-return false
-}
-}
-method SkipWhitespace {} {
-while {[ string is space -strict [ string index $str $index ]]} {
-incr index
-}
-my TryParse "\"What is\""
-while {[ string is space -strict [ string index $str $index ]]} {
-incr index
-}
-if {[ string index $str $index ] eq "\"?\"" } {
-incr index
-}
-}
-}
-proc answer { question } {
-set scanner [ Scanner new $question ]
-set tok [ $scanner next n ]
-if { $tok eq "\"ERR\"" } { return -code error "\"unknown operation\"" }
-if { $tok ne "\"NUM\"" } { return -code error "\"syntax error\"" }
-while { true } {
-set op [ $scanner next ]
-if { $op eq "\"EOF\"" } { break }
-if { $op eq "\"ERR\"" } { return -code error "\"unknown operation\"" }
-if { $op eq "\"NUM\"" } { return -code error "\"syntax error\"" }
-set tok [ $scanner next m ]
-if { $tok ne "\"NUM\"" } { return -code error "\"syntax error\"" }
-switch $op {
-ADD { set n [ expr { $n + $m }]}
-SUB { set n [ expr { $n - $m }]}
-MUL { set n [ expr { $n * $m }]}
-DIV { set n [ expr { $n / $m }]}
-}
-}
-$scanner destroy
-return $n
-}
+(source_file
+  (command oo::class
+    (word_list create
+      (definition PLACEHOLDER_1)
+      (braced_word
+        (variable
+          (definition PLACEHOLDER_2) PLACEHOLDER_3)
+        (command constructor
+          (word_list
+            (braced_word
+              (command
+                (definition PLACEHOLDER_4)))
+            (braced_word
+              (set
+                (definition (id PLACEHOLDER_2))
+                (command_substitution
+                  (command string
+                    (word_list trimright
+                      (variable_substitution (id PLACEHOLDER_4)) " ?"))))
+              (set
+                (definition (id PLACEHOLDER_3)) 0))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_5)
+            (braced_word
+              (command
+                (braced_word
+                  (command
+                    (definition PLACEHOLDER_6)
+                    (word_list "")))))
+            (braced_word
+              (if
+                (expr {
+                  (binop_expr
+                    (variable_substitution (id PLACEHOLDER_6)) ne "") })
+                (braced_word
+                  (command upvar
+                    (word_list
+                      (variable_substitution (id PLACEHOLDER_6))
+                      (definition PLACEHOLDER_7)))))
+              (command my
+                (word_list PLACEHOLDER_8))
+              (if
+                (expr {
+                  (command_substitution
+                    (command my
+                      (word_list PLACEHOLDER_9))) })
+                (braced_word
+                  (command return
+                    (word_list EOF)))
+                (elseif
+                  (expr {
+                    (command_substitution
+                      (command my
+                        (word_list PLACEHOLDER_10 plus))) })
+                  (braced_word
+                    (command return
+                      (word_list ADD))))
+                (elseif
+                  (expr {
+                    (command_substitution
+                      (command my
+                        (word_list PLACEHOLDER_10 minus))) })
+                  (braced_word
+                    (command return
+                      (word_list SUB))))
+                (elseif
+                  (expr {
+                    (command_substitution
+                      (command my
+                        (word_list PLACEHOLDER_10 "multiplied by"))) })
+                  (braced_word
+                    (command return
+                      (word_list MUL))))
+                (elseif
+                  (expr {
+                    (command_substitution
+                      (command my
+                        (word_list PLACEHOLDER_10 "divided by"))) })
+                  (braced_word
+                    (command return
+                      (word_list DIV))))
+                (else
+                  (braced_word
+                    (command return
+                      (word_list
+                        (command_substitution
+                          (command my
+                            (word_list PLACEHOLDER_11 PLACEHOLDER_7)))))))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_9) ""
+            (braced_word
+              (expr_cmd
+                (expr {
+                  (binop_expr
+                    (variable_substitution (id PLACEHOLDER_3)) ==
+                    (command_substitution
+                      (command string
+                        (word_list length
+                          (variable_substitution (id PLACEHOLDER_2)))))) })))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_11)
+            (braced_word
+              (command
+                (definition PLACEHOLDER_6)))
+            (braced_word
+              (command upvar
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_6))
+                  (definition PLACEHOLDER_7)))
+              (set
+                (definition (id PLACEHOLDER_12))
+                (variable_substitution (id PLACEHOLDER_3)))
+              (if
+                (expr {
+                  (binop_expr
+                    (command_substitution
+                      (command string
+                        (word_list PLACEHOLDER_3
+                          (variable_substitution (id PLACEHOLDER_2))
+                          (variable_substitution (id PLACEHOLDER_12))))) eq -) })
+                (braced_word
+                  (command incr
+                    (word_list
+                      (definition PLACEHOLDER_12)))))
+              (set
+                (definition (id PLACEHOLDER_13))
+                (variable_substitution (id PLACEHOLDER_12)))
+              (while
+                (expr {
+                  (command_substitution
+                    (command string
+                      (word_list is digit -strict
+                        (command_substitution
+                          (command string
+                            (word_list PLACEHOLDER_3
+                              (variable_substitution (id PLACEHOLDER_2))
+                              (variable_substitution (id PLACEHOLDER_13)))))))) })
+                (braced_word
+                  (command incr
+                    (word_list
+                      (definition PLACEHOLDER_13)))))
+              (if
+                (expr {
+                  (binop_expr
+                    (variable_substitution (id PLACEHOLDER_12)) <
+                    (variable_substitution (id PLACEHOLDER_13))) })
+                (braced_word
+                  (set
+                    (definition (id PLACEHOLDER_7))
+                    (command_substitution
+                      (command string
+                        (word_list range
+                          (variable_substitution (id PLACEHOLDER_2))
+                          (variable_substitution (id PLACEHOLDER_3))
+                          (variable_substitution (id PLACEHOLDER_13))))))
+                  (set
+                    (definition (id PLACEHOLDER_3))
+                    (variable_substitution (id PLACEHOLDER_13)))
+                  (command return
+                    (word_list NUM)))
+                (else
+                  (braced_word
+                    (command return
+                      (word_list ERR))))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_10)
+            (braced_word
+              (command
+                (definition PLACEHOLDER_14)))
+            (braced_word
+              (set
+                (definition (id PLACEHOLDER_15))
+                (command_substitution
+                  (command string
+                    (word_list length
+                      (variable_substitution (id PLACEHOLDER_14))))))
+              (if
+                (expr {
+                  (binop_expr
+                    (command_substitution
+                      (command string
+                        (word_list range
+                          (variable_substitution (id PLACEHOLDER_2))
+                          (variable_substitution (id PLACEHOLDER_3))
+                          (command_substitution
+                            (expr_cmd
+                              (expr {
+                                (binop_expr
+                                  (binop_expr
+                                    (variable_substitution (id PLACEHOLDER_3)) +
+                                    (variable_substitution (id PLACEHOLDER_15))) - 1) })))))) eq
+                    (variable_substitution (id PLACEHOLDER_14))) })
+                (braced_word
+                  (command incr
+                    (word_list
+                      (definition PLACEHOLDER_3)
+                      (variable_substitution (id PLACEHOLDER_15))))
+                  (command return
+                    (word_list true)))
+                (else
+                  (braced_word
+                    (command return
+                      (word_list false))))))))
+        (command method
+          (word_list
+            (definition PLACEHOLDER_8) ""
+            (braced_word
+              (while
+                (expr {
+                  (command_substitution
+                    (command string
+                      (word_list is space -strict
+                        (command_substitution
+                          (command string
+                            (word_list PLACEHOLDER_3
+                              (variable_substitution (id PLACEHOLDER_2))
+                              (variable_substitution (id PLACEHOLDER_3)))))))) })
+                (braced_word
+                  (command incr
+                    (word_list
+                      (definition PLACEHOLDER_3)))))
+              (command my
+                (word_list PLACEHOLDER_10 "What is"))
+              (while
+                (expr {
+                  (command_substitution
+                    (command string
+                      (word_list is space -strict
+                        (command_substitution
+                          (command string
+                            (word_list PLACEHOLDER_3
+                              (variable_substitution (id PLACEHOLDER_2))
+                              (variable_substitution (id PLACEHOLDER_3)))))))) })
+                (braced_word
+                  (command incr
+                    (word_list
+                      (definition PLACEHOLDER_3)))))
+              (if
+                (expr {
+                  (binop_expr
+                    (command_substitution
+                      (command string
+                        (word_list PLACEHOLDER_3
+                          (variable_substitution (id PLACEHOLDER_2))
+                          (variable_substitution (id PLACEHOLDER_3))))) eq ?) })
+                (braced_word
+                  (command incr
+                    (word_list
+                      (definition PLACEHOLDER_3)))))))))))
+  (procedure
+    (definition PLACEHOLDER_16)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_17)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_18))
+        (command_substitution
+          (command PLACEHOLDER_1
+            (word_list new
+              (variable_substitution (id PLACEHOLDER_17))))))
+      (set
+        (definition (id PLACEHOLDER_19))
+        (command_substitution
+          (command
+            (variable_substitution (id PLACEHOLDER_18))
+            (word_list PLACEHOLDER_5 PLACEHOLDER_20))))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_19)) eq ERR) })
+        (braced_word
+          (command return
+            (word_list -code error "unknown operation"))))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_19)) ne NUM) })
+        (braced_word
+          (command return
+            (word_list -code error "syntax error"))))
+      (while
+        (expr { true })
+        (braced_word
+          (set
+            (definition (id PLACEHOLDER_21))
+            (command_substitution
+              (command
+                (variable_substitution (id PLACEHOLDER_18))
+                (word_list PLACEHOLDER_5))))
+          (if
+            (expr {
+              (binop_expr
+                (variable_substitution (id PLACEHOLDER_21)) eq EOF) })
+            (braced_word
+              (command break)))
+          (if
+            (expr {
+              (binop_expr
+                (variable_substitution (id PLACEHOLDER_21)) eq ERR) })
+            (braced_word
+              (command return
+                (word_list -code error "unknown operation"))))
+          (if
+            (expr {
+              (binop_expr
+                (variable_substitution (id PLACEHOLDER_21)) eq NUM) })
+            (braced_word
+              (command return
+                (word_list -code error "syntax error"))))
+          (set
+            (definition (id PLACEHOLDER_19))
+            (command_substitution
+              (command
+                (variable_substitution (id PLACEHOLDER_18))
+                (word_list PLACEHOLDER_5 m))))
+          (if
+            (expr {
+              (binop_expr
+                (variable_substitution (id PLACEHOLDER_19)) ne NUM) })
+            (braced_word
+              (command return
+                (word_list -code error "syntax error"))))
+          (command switch
+            (word_list
+              (variable_substitution (id PLACEHOLDER_21))
+              (braced_word
+                (command ADD
+                  (word_list
+                    (braced_word
+                      (set
+                        (definition (id PLACEHOLDER_20))
+                        (command_substitution
+                          (expr_cmd
+                            (expr {
+                              (binop_expr
+                                (variable_substitution (id PLACEHOLDER_20)) +
+                                (variable_substitution m)) })))))))
+                (command SUB
+                  (word_list
+                    (braced_word
+                      (set
+                        (definition (id PLACEHOLDER_20))
+                        (command_substitution
+                          (expr_cmd
+                            (expr {
+                              (binop_expr
+                                (variable_substitution (id PLACEHOLDER_20)) -
+                                (variable_substitution m)) })))))))
+                (command MUL
+                  (word_list
+                    (braced_word
+                      (set
+                        (definition (id PLACEHOLDER_20))
+                        (command_substitution
+                          (expr_cmd
+                            (expr {
+                              (binop_expr
+                                (variable_substitution (id PLACEHOLDER_20)) *
+                                (variable_substitution m)) })))))))
+                (command DIV
+                  (word_list
+                    (braced_word
+                      (set
+                        (definition (id PLACEHOLDER_20))
+                        (command_substitution
+                          (expr_cmd
+                            (expr {
+                              (binop_expr
+                                (variable_substitution (id PLACEHOLDER_20)) /
+                                (variable_substitution m)) }))))))))))))
+      (command
+        (variable_substitution (id PLACEHOLDER_18))
+        (word_list destroy))
+      (command return
+        (word_list
+          (variable_substitution (id PLACEHOLDER_20)))))))

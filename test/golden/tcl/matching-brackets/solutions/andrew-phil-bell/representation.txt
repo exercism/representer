@@ -1,25 +1,89 @@
-proc bracketsMatch { input } {
-set stack {}
-set openers [ list "\"\\{\"" "\"(\"" "\"\\[\"" ]
-set closers [ list "\"\\}\"" "\")\"" "\"\\]\"" ]
-foreach c [ split $input "\"\"" ] {
-if { $c in $openers } {
-lappend stack $c
-} elseif { $c in $closers } {
-# can only pull off the same opener
-set cidx [ lsearch -exact $closers $c ]
-set oval [ lindex $openers $cidx ]
-if { $oval eq [ lindex $stack end ] } {
-# pop this off and continue
-set stack [ lrange $stack 0 end-1 ]
-} else {
-# unbalanced, return false
-return false
-}
-}
-}
-if { [ llength $stack ] == 0 } {
-return true
-}
-return false
-}
+(source_file
+  (procedure
+    (definition PLACEHOLDER_1)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_2)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_3)) "")
+      (set
+        (definition (id PLACEHOLDER_4))
+        (command_substitution
+          (command list
+            (word_list "{" "(" "["))))
+      (set
+        (definition (id PLACEHOLDER_5))
+        (command_substitution
+          (command list
+            (word_list "}" ")" "]"))))
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_6)))
+        (command_substitution
+          (command split
+            (word_list
+              (variable_substitution (id PLACEHOLDER_2)) "")))
+        (braced_word
+          (if
+            (expr {
+              (binop_expr
+                (variable_substitution (id PLACEHOLDER_6)) in
+                (variable_substitution (id PLACEHOLDER_4))) })
+            (braced_word
+              (command lappend
+                (word_list
+                  (definition PLACEHOLDER_3)
+                  (variable_substitution (id PLACEHOLDER_6)))))
+            (elseif
+              (expr {
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_6)) in
+                  (variable_substitution (id PLACEHOLDER_5))) })
+              (braced_word
+                (set
+                  (definition (id PLACEHOLDER_7))
+                  (command_substitution
+                    (command lsearch
+                      (word_list -exact
+                        (variable_substitution (id PLACEHOLDER_5))
+                        (variable_substitution (id PLACEHOLDER_6))))))
+                (set
+                  (definition (id PLACEHOLDER_8))
+                  (command_substitution
+                    (command lindex
+                      (word_list
+                        (variable_substitution (id PLACEHOLDER_4))
+                        (variable_substitution (id PLACEHOLDER_7))))))
+                (if
+                  (expr {
+                    (binop_expr
+                      (variable_substitution (id PLACEHOLDER_8)) eq
+                      (command_substitution
+                        (command lindex
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_3)) end)))) })
+                  (braced_word
+                    (set
+                      (definition (id PLACEHOLDER_3))
+                      (command_substitution
+                        (command lrange
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_3)) 0 end-1)))))
+                  (else
+                    (braced_word
+                      (command return
+                        (word_list false))))))))))
+      (if
+        (expr {
+          (binop_expr
+            (command_substitution
+              (command llength
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_3))))) == 0) })
+        (braced_word
+          (command return
+            (word_list true))))
+      (command return
+        (word_list false)))))
