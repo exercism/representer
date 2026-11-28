@@ -1,11 +1,73 @@
-if (( $( bc <<< "\"" $2 " + " $3 " <= " $4 " || " $3 " + " $4 " <= " $2 " || " $4 " + " $2 " <= " $3 "\")" )) ; then
-echo false
-exit
-fi
-if [[ $1 == equilateral ]] ; then
-(( $( bc <<< "\"" $2 " == " $3 " && " $3 " == " $4 "\")" )) && echo true || echo false
-elif [[ $1 == isosceles ]] ; then
-(( $( bc <<< "\"" $2 " == " $3 " || " $3 " == " $4 " || " $4 " == " $2 "\")" )) && echo true || echo false
-elif [[ $1 == scalene ]] ; then
-(( $( bc <<< "\"" $2 " != " $3 " && " $3 " != " $4 " && " $4 " != " $2 "\")" )) && echo true || echo false
-fi
+(program
+  (if_statement
+    (arithmetic_command
+      (command_substitution
+        (command bc
+          (herestring_redirect
+            (string
+              (simple_expansion 2) " + "
+              (simple_expansion 3) " <= "
+              (simple_expansion 4) " || "
+              (simple_expansion 3) " + "
+              (simple_expansion 4) " <= "
+              (simple_expansion 2) " || "
+              (simple_expansion 4) " + "
+              (simple_expansion 2) " <= "
+              (simple_expansion 3)))))) then
+    (command echo false)
+    (command exit))
+  (if_statement
+    (test_command [[
+      (binary_expression
+        (simple_expansion 1) == equilateral)) then
+    (list
+      (list
+        (arithmetic_command
+          (command_substitution
+            (command bc
+              (herestring_redirect
+                (string
+                  (simple_expansion 2) " == "
+                  (simple_expansion 3) " && "
+                  (simple_expansion 3) " == "
+                  (simple_expansion 4)))))) &&
+        (command echo true)) ||
+      (command echo false))
+    (elif_clause
+      (test_command [[
+        (binary_expression
+          (simple_expansion 1) == isosceles)) then
+      (list
+        (list
+          (arithmetic_command
+            (command_substitution
+              (command bc
+                (herestring_redirect
+                  (string
+                    (simple_expansion 2) " == "
+                    (simple_expansion 3) " || "
+                    (simple_expansion 3) " == "
+                    (simple_expansion 4) " || "
+                    (simple_expansion 4) " == "
+                    (simple_expansion 2)))))) &&
+          (command echo true)) ||
+        (command echo false)))
+    (elif_clause
+      (test_command [[
+        (binary_expression
+          (simple_expansion 1) == scalene)) then
+      (list
+        (list
+          (arithmetic_command
+            (command_substitution
+              (command bc
+                (herestring_redirect
+                  (string
+                    (simple_expansion 2) " != "
+                    (simple_expansion 3) " && "
+                    (simple_expansion 3) " != "
+                    (simple_expansion 4) " && "
+                    (simple_expansion 4) " != "
+                    (simple_expansion 2)))))) &&
+          (command echo true)) ||
+        (command echo false)))))

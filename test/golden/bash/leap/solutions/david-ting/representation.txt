@@ -1,13 +1,30 @@
-if [[ $# -ne 1 || ! $1 = ~ ^[1-9][0-9]+ $ ]] ; then
-echo "\"Usage: leap.sh <year>\""
-exit 1
-fi
-if (( $1 % 4 != 0 )) ; then
-echo "\"false\""
-else
-if (( $1 % 100 == 0 && $1 % 400 != 0 )) ; then
-echo "\"false\""
-else
-echo "\"true\""
-fi
-fi
+(program
+  (if_statement
+    (test_command [[
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (simple_expansion #) -ne 1) ||
+          (unary_expression !
+            (simple_expansion 1))) =~ ^[1-9][0-9]+$)) then
+    (command echo "Usage: leap.sh <year>")
+    (command exit 1))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (binary_expression
+          (simple_expansion 1) % 4) != 0)) then
+    (command echo "false")
+    (else_clause
+      (if_statement
+        (arithmetic_command
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (simple_expansion 1) % 100) == 0) &&
+            (binary_expression
+              (binary_expression
+                (simple_expansion 1) % 400) != 0))) then
+        (command echo "false")
+        (else_clause
+          (command echo "true"))))))

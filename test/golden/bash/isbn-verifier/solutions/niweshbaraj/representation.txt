@@ -1,22 +1,49 @@
-isbn = "\"" $@ "\""
-isbn = "\"" ${ isbn // / } "\""
-isbn = ${ isbn //-/ }
-if ! [[ "\"" $isbn "\"" = ~ ^[0-9] { 9 }[ 0-9xX] $ ]] ; then
-echo "\"false\""
-exit 0
-fi
-sum = 0
-counter = 10
-for (( i = 0 ; i < ${# isbn } ; i++ )) ; do
-if [ $counter -eq 1 ] && [[ ${ isbn :i:1 } = ~ [ xX] ]] ; then
-(( sum + = 10 ))
-else
-(( sum + = ${ isbn :i:1 } * counter ))
-fi
-(( counter - = 1 ))
-done
-if (( sum % 11 == 0 )) ; then
-echo "\"true\""
-else
-echo "\"false\""
-fi
+(program
+  (variable_assignment PLACEHOLDER_1
+    (string
+      (simple_expansion @)))
+  (variable_assignment PLACEHOLDER_1
+    (string
+      (expansion PLACEHOLDER_1 // " " /)))
+  (variable_assignment PLACEHOLDER_1
+    (expansion PLACEHOLDER_1 // - /))
+  (if_statement
+    (negated_command
+      (test_command [[
+        (binary_expression
+          (string
+            (simple_expansion PLACEHOLDER_1)) =~ ^[0-9]{9}[0-9xX]$))) then
+    (command echo "false")
+    (command exit 0))
+  (variable_assignment PLACEHOLDER_2 0)
+  (variable_assignment PLACEHOLDER_3 10)
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_4 0) ;
+    (binary_expression PLACEHOLDER_4 <
+      (expansion # PLACEHOLDER_1)) ;
+    (postfix_expression PLACEHOLDER_4 ++)
+    (do_group
+      (if_statement
+        (list
+          (test_command [
+            (binary_expression
+              (simple_expansion PLACEHOLDER_3) -eq 1)) &&
+          (test_command [[
+            (binary_expression
+              (expansion PLACEHOLDER_1 : PLACEHOLDER_4 : 1) =~ [xX]))) then
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_2 += 10))
+        (else_clause
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 +=
+              (binary_expression
+                (expansion PLACEHOLDER_1 : PLACEHOLDER_4 : 1) * PLACEHOLDER_3)))))
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_3 -= 1))))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 % 11) == 0)) then
+    (command echo "true")
+    (else_clause
+      (command echo "false"))))

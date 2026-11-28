@@ -1,35 +1,103 @@
-main () {
-local target_char = "\"" $1 "\""
-LC_ALL = C printf -v target_code "\"%d\"" "\"'" $target_char "\""
-LC_ALL = C printf -v a_code "\"%d\"" "\"'A\""
-local max_index = $(( target_code - a_code ))
-make_spaces () {
-local count = "\"" $1 "\""
-if (( count > 0 )) ; then
-printf "\"%*s\"" "\"" $count "\"" "\"\""
-fi
-}
-render_row () {
-local i = "\"" $1 "\""
-local char
-printf -v char "\"\\\\$(" printf '%03o' $(( a_code + i )) )"
-local outer_spaces = $(( max_index - i ))
-local outer
-outer = $( make_spaces "\"" $outer_spaces "\")"
-if (( i == 0 )) ; then
-printf "\"%sA%s\\n\"" "\"" $outer "\"" "\"" $outer "\""
-else
-local inner_spaces = $(( 2 * i - 1 ))
-local inner
-inner = $( make_spaces "\"" $inner_spaces "\")"
-printf "\"%s%s%s%s%s\\n\"" "\"" $outer "\"" "\"" $char "\"" "\"" $inner "\"" "\"" $char "\"" "\"" $outer "\""
-fi
-}
-for (( i = 0 ; i < = max_index ; i++ )) ; do
-render_row "\"" $i "\""
-done
-for (( i = max_index - 1 ; i >= 0 ; i-- )) ; do
-render_row "\"" $i "\""
-done
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_2
+          (string
+            (simple_expansion 1))))
+      (command
+        (variable_assignment LC_ALL C) printf -v PLACEHOLDER_3 "%d"
+        (string "'"
+          (simple_expansion PLACEHOLDER_2)))
+      (command
+        (variable_assignment LC_ALL C) printf -v PLACEHOLDER_4 "%d" "'A")
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_5
+          (arithmetic_expansion
+            (binary_expression PLACEHOLDER_3 - PLACEHOLDER_4))))
+      (function_definition (function_name PLACEHOLDER_6)
+        (compound_statement
+          (declaration_command local
+            (variable_assignment PLACEHOLDER_7
+              (string
+                (simple_expansion 1))))
+          (if_statement
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_7 > 0)) then
+            (command printf "%*s"
+              (string
+                (simple_expansion PLACEHOLDER_7)) ""))))
+      (function_definition (function_name PLACEHOLDER_8)
+        (compound_statement
+          (declaration_command local
+            (variable_assignment PLACEHOLDER_9
+              (string
+                (simple_expansion 1))))
+          (declaration_command local PLACEHOLDER_10)
+          (command printf -v PLACEHOLDER_10
+            (string "\\"
+              (command_substitution
+                (command printf "%03o"
+                  (arithmetic_expansion
+                    (binary_expression PLACEHOLDER_4 + PLACEHOLDER_9))))))
+          (declaration_command local
+            (variable_assignment PLACEHOLDER_11
+              (arithmetic_expansion
+                (binary_expression PLACEHOLDER_5 - PLACEHOLDER_9))))
+          (declaration_command local PLACEHOLDER_12)
+          (variable_assignment PLACEHOLDER_12
+            (command_substitution
+              (command (command_name PLACEHOLDER_6)
+                (string
+                  (simple_expansion PLACEHOLDER_11)))))
+          (if_statement
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_9 == 0)) then
+            (command printf "%sA%s\\n"
+              (string
+                (simple_expansion PLACEHOLDER_12))
+              (string
+                (simple_expansion PLACEHOLDER_12)))
+            (else_clause
+              (declaration_command local
+                (variable_assignment PLACEHOLDER_13
+                  (arithmetic_expansion
+                    (binary_expression
+                      (binary_expression 2 * PLACEHOLDER_9) - 1))))
+              (declaration_command local PLACEHOLDER_14)
+              (variable_assignment PLACEHOLDER_14
+                (command_substitution
+                  (command (command_name PLACEHOLDER_6)
+                    (string
+                      (simple_expansion PLACEHOLDER_13)))))
+              (command printf "%s%s%s%s%s\\n"
+                (string
+                  (simple_expansion PLACEHOLDER_12))
+                (string
+                  (simple_expansion PLACEHOLDER_10))
+                (string
+                  (simple_expansion PLACEHOLDER_14))
+                (string
+                  (simple_expansion PLACEHOLDER_10))
+                (string
+                  (simple_expansion PLACEHOLDER_12)))))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_9 0) ;
+        (binary_expression PLACEHOLDER_9 <= PLACEHOLDER_5) ;
+        (postfix_expression PLACEHOLDER_9 ++)
+        (do_group
+          (command (command_name PLACEHOLDER_8)
+            (string
+              (simple_expansion PLACEHOLDER_9)))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_9
+          (binary_expression PLACEHOLDER_5 - 1)) ;
+        (binary_expression PLACEHOLDER_9 >= 0) ;
+        (postfix_expression PLACEHOLDER_9 --)
+        (do_group
+          (command (command_name PLACEHOLDER_8)
+            (string
+              (simple_expansion PLACEHOLDER_9)))))))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

@@ -1,14 +1,39 @@
-main () {
-local string = ${ 1 ,, }
-string = ${ string //[ -]/ }
-length1 = $( echo "\"" ${ string } "\"" | fold -w1 | sort | uniq | wc -l )
-length2 = $( echo "\"" ${ string } "\"" | fold -w1 | wc -l )
-if [[ ${ length1 } -eq ${ length2 } ]] ; then
-echo "\"true\""
-exit 0
-else
-echo "\"false\""
-exit 0
-fi
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_2
+          (expansion 1 ,,)))
+      (variable_assignment PLACEHOLDER_2
+        (expansion PLACEHOLDER_2 // "[ -]" /))
+      (variable_assignment PLACEHOLDER_3
+        (command_substitution
+          (pipeline
+            (command echo
+              (string
+                (expansion PLACEHOLDER_2))) |
+            (command fold -w1) |
+            (command sort) |
+            (command uniq) |
+            (command wc -l))))
+      (variable_assignment PLACEHOLDER_4
+        (command_substitution
+          (pipeline
+            (command echo
+              (string
+                (expansion PLACEHOLDER_2))) |
+            (command fold -w1) |
+            (command wc -l))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (expansion PLACEHOLDER_3) -eq
+            (expansion PLACEHOLDER_4))) then
+        (command echo "true")
+        (command exit 0)
+        (else_clause
+          (command echo "false")
+          (command exit 0)))))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

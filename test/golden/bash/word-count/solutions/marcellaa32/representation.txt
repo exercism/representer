@@ -1,19 +1,80 @@
-sent1 = "\"" ${ 1 ,, } "\""
-declare -A counts
-while read -r word ; do
-(( counts[ "\"" $word "\"" ] ++ ))
-counts[ "\"" $word "\"" ]= $(( counts[ "\"" $word "\"" ]++ ))
-done < < ( echo "\"" $sent1 "\"" | grep -oE "\"[[:alnum:]]+('[[:alnum:]]+)?\"" )
-keys =( "\"" ${ !counts[@] } "\"" )
-for (( i = 0 ; i< ${# keys [@] } ; i++ )) ; do
-for (( j = 0 ; j< ${# keys [@] } -1-i ; j++ )) ; do
-if [[ "\"" $keys [i+1]}" < "\"{keys[i]}\"" ]] ; then
-temp = "\"" ${ keys [i] } "\""
-keys[i] = "\"" ${ keys [i+1] } "\""
-keys[i+1] = "\"" $temp "\""
-fi
-done
-done
-for key in "\"" ${ keys [@] } "\"" ; do
-echo "\"" $key ": " ${ counts [ $key ] } "\""
-done
+(program
+  (variable_assignment PLACEHOLDER_1
+    (string
+      (expansion 1 ,,)))
+  (declaration_command declare -A PLACEHOLDER_2)
+  (redirected_statement
+    (while_statement
+      (command read -r PLACEHOLDER_3)
+      (do_group
+        (arithmetic_command
+          (postfix_expression
+            (subscript PLACEHOLDER_2
+              (string
+                (simple_expansion PLACEHOLDER_3))) ++))
+        (variable_assignment
+          (subscript PLACEHOLDER_2
+            (string
+              (simple_expansion PLACEHOLDER_3)))
+          (arithmetic_expansion
+            (postfix_expression
+              (subscript PLACEHOLDER_2
+                (string
+                  (simple_expansion PLACEHOLDER_3))) ++)))))
+    (file_redirect <
+      (process_substitution "<("
+        (pipeline
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_1))) |
+          (command grep -oE "[[:alnum:]]+('[[:alnum:]]+)?")))))
+  (variable_assignment PLACEHOLDER_4
+    (array
+      (string
+        (expansion !
+          (subscript PLACEHOLDER_2 @)))))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_5 0) ;
+    (binary_expression PLACEHOLDER_5 <
+      (expansion #
+        (subscript PLACEHOLDER_4 @))) ;
+    (postfix_expression PLACEHOLDER_5 ++)
+    (do_group
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_6 0) ;
+        (binary_expression PLACEHOLDER_6 <
+          (binary_expression
+            (binary_expression
+              (expansion #
+                (subscript PLACEHOLDER_4 @)) - 1) - PLACEHOLDER_5)) ;
+        (postfix_expression PLACEHOLDER_6 ++)
+        (do_group
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_4) "[i+1]}") < "{keys[i]}")) then
+            (variable_assignment PLACEHOLDER_7
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_4 PLACEHOLDER_5))))
+            (variable_assignment
+              (subscript PLACEHOLDER_4 PLACEHOLDER_5)
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_4 i+1))))
+            (variable_assignment
+              (subscript PLACEHOLDER_4 i+1)
+              (string
+                (simple_expansion PLACEHOLDER_7))))))))
+  (for_statement PLACEHOLDER_8 in
+    (string
+      (expansion
+        (subscript PLACEHOLDER_4 @)))
+    (do_group
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_8) ": "
+          (expansion
+            (subscript PLACEHOLDER_2
+              (simple_expansion PLACEHOLDER_8))))))))

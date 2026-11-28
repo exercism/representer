@@ -1,16 +1,52 @@
-declare -A codebook
-alpha = abcdefghijklmnopqrstuvwxyz
-for i in { 0..25 } ; do
-codebook[ ${ alpha :i:1 } ]= ${ alpha :25- $i :1 }
-done
-text = ${ 2 //[![ :alnum:]]/ }
-text = ${ text ,, }
-i = 1
-while read -rn 1 current ; do
-[[ $current == [[ :alpha:]] ]] && current = ${ codebook [ $current ] }
-result+ = $current
-(( i % 5 == 0 )) && result+ = "' '"
-(( i++ ))
-done < < ( echo -n "\"" $text "\"" )
-[[ $1 == decode ]] && result = ${ result //[[ :space:]]/ }
-echo "\"" ${ result % } "\""
+(program
+  (declaration_command declare -A PLACEHOLDER_1)
+  (variable_assignment PLACEHOLDER_2 abcdefghijklmnopqrstuvwxyz)
+  (for_statement PLACEHOLDER_3 in
+    (brace_expression 0 25)
+    (do_group
+      (variable_assignment
+        (subscript PLACEHOLDER_1
+          (expansion PLACEHOLDER_2 : PLACEHOLDER_3 : 1))
+        (expansion PLACEHOLDER_2 :
+          (binary_expression 25 -
+            (simple_expansion PLACEHOLDER_3)) : 1))))
+  (variable_assignment PLACEHOLDER_4
+    (expansion 2 // [![:alnum:]] /))
+  (variable_assignment PLACEHOLDER_4
+    (expansion PLACEHOLDER_4 ,,))
+  (variable_assignment PLACEHOLDER_3 1)
+  (redirected_statement
+    (while_statement
+      (command read -rn 1 PLACEHOLDER_5)
+      (do_group
+        (list
+          (test_command [[
+            (binary_expression
+              (simple_expansion PLACEHOLDER_5) == [[:alpha:]])) &&
+          (variable_assignment PLACEHOLDER_5
+            (expansion
+              (subscript PLACEHOLDER_1
+                (simple_expansion PLACEHOLDER_5)))))
+        (variable_assignment PLACEHOLDER_6 +=
+          (simple_expansion PLACEHOLDER_5))
+        (list
+          (arithmetic_command
+            (binary_expression
+              (binary_expression PLACEHOLDER_3 % 5) == 0)) &&
+          (variable_assignment PLACEHOLDER_6 += " "))
+        (arithmetic_command
+          (postfix_expression PLACEHOLDER_3 ++))))
+    (file_redirect <
+      (process_substitution "<("
+        (command echo -n
+          (string
+            (simple_expansion PLACEHOLDER_4))))))
+  (list
+    (test_command [[
+      (binary_expression
+        (simple_expansion 1) == decode)) &&
+    (variable_assignment PLACEHOLDER_6
+      (expansion PLACEHOLDER_6 // [[:space:]] /)))
+  (command echo
+    (string
+      (expansion PLACEHOLDER_6 % " "))))

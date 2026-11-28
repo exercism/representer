@@ -1,15 +1,57 @@
-privateKey () {
-(( $# == 1 )) || exit 1
-echo $(( $RANDOM % ( $1 - 2 ) + 2 ))
-}
-publicKey () {
-(( $# == 3 )) || exit 1
-local -i p = $1 g = $2 private = $3
-echo $(( g ** private % p ))
-}
-secret () {
-(( $# == 3 )) || exit 1
-local -i p = $1 public = $2 private = $3
-bc <<< "\"" $public " ^ " $private " % " $p "\""
-}
-"\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (list
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion #) == 1)) ||
+        (command exit 1))
+      (command echo
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression
+              (simple_expansion RANDOM) %
+              (binary_expression
+                (simple_expansion 1) - 2)) + 2)))))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (list
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion #) == 3)) ||
+        (command exit 1))
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_3
+          (simple_expansion 1))
+        (variable_assignment PLACEHOLDER_4
+          (simple_expansion 2))
+        (variable_assignment PLACEHOLDER_5
+          (simple_expansion 3)))
+      (command echo
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression PLACEHOLDER_4 ** PLACEHOLDER_5) % PLACEHOLDER_3)))))
+  (function_definition (function_name PLACEHOLDER_6)
+    (compound_statement
+      (list
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion #) == 3)) ||
+        (command exit 1))
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_3
+          (simple_expansion 1))
+        (variable_assignment PLACEHOLDER_7
+          (simple_expansion 2))
+        (variable_assignment PLACEHOLDER_5
+          (simple_expansion 3)))
+      (command bc
+        (herestring_redirect
+          (string
+            (simple_expansion PLACEHOLDER_7) " ^ "
+            (simple_expansion PLACEHOLDER_5) " % "
+            (simple_expansion PLACEHOLDER_3))))))
+  (command
+    (command_name
+      (string
+        (simple_expansion @)))))

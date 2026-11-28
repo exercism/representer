@@ -1,67 +1,191 @@
-declare op = $1 r1 = $2 r2 = $3
-declare -i n1 = ${ r1 %/* } d1 = ${ r1 #*/ }
-declare -i n2 = ${ r2 %/* } d2 = ${ r2 #*/ }
-find_gcd () {
-local -i a = ${ 1 //-/ } b = ${ 2 //-/ }
-(( a == 0 )) && echo "\"" $b "\"" && return
-local -i candidate = $a
-(( candidate > b )) && (( candidate = b ))
-while (( candidate > 1 )) ; do
-(( a % candidate == 0 && b % candidate == 0 )) && break
-(( candidate-- ))
-done
-echo "\"" $candidate "\""
-}
-declare -i n d
-case "\"" $op "\"" in
-'+' )
-(( n = n1 * d2 + n2 * d1 ))
-(( d = d1 * d2 ))
-;;
-'-' )
-(( n = n1 * d2 - n2 * d1 ))
-(( d = d1 * d2 ))
-;;
-'*' )
-(( n = n1 * n2 ))
-(( d = d1 * d2 ))
-;;
-'/' )
-(( n = n1 * d2 ))
-(( d = n2 * d1 ))
-;;
-'abs' )
-(( n = n1, d = d1 ))
-(( n < 0 )) && (( n * = -1 ))
-(( d < 0 )) && (( d * = -1 ))
-;;
-'pow' )
-declare -i power = $3
-if (( power < 0 )) ; then
-(( power * = -1 ))
-(( n = d1 ** power, d = n1 ** power ))
-else
-(( n = n1 ** power, d = d1 ** power ))
-fi
-;;
-'rpow' )
-declare number = $2 result = ''
-result = $( awk "'BEGIN { print (ARGV[1] ** ARGV[2]) ** (1.0 / ARGV[3]) }'" "\"" $number "\"" "\"" $n2 "\"" "\"" $d2 "\")"
-[[ "\"" $result "\"" = ~ . * \. . * ]] && echo "\"" $result "\"" || echo "\"" $result .0"
-exit
-;;
-'reduce' )
-(( n = n1, d = d1 ))
-;;
-esac
-declare -i gcd = 1
-gcd = $( find_gcd $n $d )
-if (( gcd > 0 )) ; then
-(( n = n / gcd ))
-(( d = d / gcd ))
-fi
-if (( d < 0 )) ; then
-(( n * = -1 ))
-(( d * = -1 ))
-fi
-echo "\"" $n / $d "\""
+(program
+  (declaration_command declare
+    (variable_assignment PLACEHOLDER_1
+      (simple_expansion 1))
+    (variable_assignment PLACEHOLDER_2
+      (simple_expansion 2))
+    (variable_assignment PLACEHOLDER_3
+      (simple_expansion 3)))
+  (declaration_command declare -i
+    (variable_assignment PLACEHOLDER_4
+      (expansion PLACEHOLDER_2 % /*))
+    (variable_assignment PLACEHOLDER_5
+      (expansion PLACEHOLDER_2 # */)))
+  (declaration_command declare -i
+    (variable_assignment PLACEHOLDER_6
+      (expansion PLACEHOLDER_3 % /*))
+    (variable_assignment PLACEHOLDER_7
+      (expansion PLACEHOLDER_3 # */)))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_9
+          (expansion 1 // - /))
+        (variable_assignment PLACEHOLDER_10
+          (expansion 2 // - /)))
+      (list
+        (list
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_9 == 0)) &&
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_10)))) &&
+        (command return))
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_11
+          (simple_expansion PLACEHOLDER_9)))
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_11 > PLACEHOLDER_10)) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_11 = PLACEHOLDER_10)))
+      (while_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_11 > 1))
+        (do_group
+          (list
+            (arithmetic_command
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_9 % PLACEHOLDER_11) == 0) &&
+                (binary_expression
+                  (binary_expression PLACEHOLDER_10 % PLACEHOLDER_11) == 0))) &&
+            (command break))
+          (arithmetic_command
+            (postfix_expression PLACEHOLDER_11 --))))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_11)))))
+  (declaration_command declare -i PLACEHOLDER_12 PLACEHOLDER_13)
+  (case_statement
+    (string
+      (simple_expansion PLACEHOLDER_1))
+    (case_item "+"
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_12 =
+          (binary_expression
+            (binary_expression PLACEHOLDER_4 * PLACEHOLDER_7) +
+            (binary_expression PLACEHOLDER_6 * PLACEHOLDER_5))))
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_13 =
+          (binary_expression PLACEHOLDER_5 * PLACEHOLDER_7))))
+    (case_item "-"
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_12 =
+          (binary_expression
+            (binary_expression PLACEHOLDER_4 * PLACEHOLDER_7) -
+            (binary_expression PLACEHOLDER_6 * PLACEHOLDER_5))))
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_13 =
+          (binary_expression PLACEHOLDER_5 * PLACEHOLDER_7))))
+    (case_item "*"
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_12 =
+          (binary_expression PLACEHOLDER_4 * PLACEHOLDER_6)))
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_13 =
+          (binary_expression PLACEHOLDER_5 * PLACEHOLDER_7))))
+    (case_item "/"
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_12 =
+          (binary_expression PLACEHOLDER_4 * PLACEHOLDER_7)))
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_13 =
+          (binary_expression PLACEHOLDER_6 * PLACEHOLDER_5))))
+    (case_item "abs"
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_12 = PLACEHOLDER_4) ,
+        (binary_expression PLACEHOLDER_13 = PLACEHOLDER_5))
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_12 < 0)) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_12 *=
+            (unary_expression - 1))))
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_13 < 0)) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_13 *=
+            (unary_expression - 1)))))
+    (case_item "pow"
+      (declaration_command declare -i
+        (variable_assignment PLACEHOLDER_14
+          (simple_expansion 3)))
+      (if_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_14 < 0)) then
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_14 *=
+            (unary_expression - 1)))
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_12 =
+            (binary_expression PLACEHOLDER_5 ** PLACEHOLDER_14)) ,
+          (binary_expression PLACEHOLDER_13 =
+            (binary_expression PLACEHOLDER_4 ** PLACEHOLDER_14)))
+        (else_clause
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_12 =
+              (binary_expression PLACEHOLDER_4 ** PLACEHOLDER_14)) ,
+            (binary_expression PLACEHOLDER_13 =
+              (binary_expression PLACEHOLDER_5 ** PLACEHOLDER_14))))))
+    (case_item "rpow"
+      (declaration_command declare
+        (variable_assignment PLACEHOLDER_15
+          (simple_expansion 2))
+        (variable_assignment PLACEHOLDER_16 ""))
+      (variable_assignment PLACEHOLDER_16
+        (command_substitution
+          (command awk "BEGIN { print (ARGV[1] ** ARGV[2]) ** (1.0 / ARGV[3]) }"
+            (string
+              (simple_expansion PLACEHOLDER_15))
+            (string
+              (simple_expansion PLACEHOLDER_6))
+            (string
+              (simple_expansion PLACEHOLDER_7)))))
+      (list
+        (list
+          (test_command [[
+            (binary_expression
+              (string
+                (simple_expansion PLACEHOLDER_16)) =~ ".*\\..*")) &&
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_16)))) ||
+        (command echo
+          (string
+            (simple_expansion PLACEHOLDER_16) ".0")))
+      (command exit))
+    (case_item "reduce"
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_12 = PLACEHOLDER_4) ,
+        (binary_expression PLACEHOLDER_13 = PLACEHOLDER_5))))
+  (declaration_command declare -i
+    (variable_assignment PLACEHOLDER_17 1))
+  (variable_assignment PLACEHOLDER_17
+    (command_substitution
+      (command (command_name PLACEHOLDER_8)
+        (simple_expansion PLACEHOLDER_12)
+        (simple_expansion PLACEHOLDER_13))))
+  (if_statement
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_17 > 0)) then
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_12 =
+        (binary_expression PLACEHOLDER_12 / PLACEHOLDER_17)))
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_13 =
+        (binary_expression PLACEHOLDER_13 / PLACEHOLDER_17))))
+  (if_statement
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_13 < 0)) then
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_12 *=
+        (unary_expression - 1)))
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_13 *=
+        (unary_expression - 1))))
+  (command echo
+    (string
+      (simple_expansion PLACEHOLDER_12) "/"
+      (simple_expansion PLACEHOLDER_13))))

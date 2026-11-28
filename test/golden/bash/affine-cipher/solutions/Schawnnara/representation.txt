@@ -1,59 +1,158 @@
-function die () {
-printf '%s\n' "\"" ${ 1 :- generic error } "\""
-exit 1
-}
-function coprime () {
-local -i x = $1 y = $2
-[[ $y -gt 0 ]] && coprime $y $(( x % y )) ||
-(( x == 1 )) && return 0 || return 1
-}
-function make_maps () {
-local -a alphabet
-for letter in { a..z } ; do
-alphabet+ =( $letter )
-done
-declare -i i j
-for i in { 0..25 } ; do
-j = $(( ( A * i + B ) % M ))
-TO_CIPH[ ${ alphabet [i] } ]= ${ alphabet [j] }
-TO_ALPH[ ${ alphabet [j] } ]= ${ alphabet [i] }
-done
-}
-function fmt () {
-while read -r -n5 chunk ; do
-[[ -z $chunk ]] && break
-output+ =( "\"" $chunk "\"" )
-done <<< "\"" $1 "\""
-printf '%s\n' "\"" ${ output [*] } "\""
-}
-function encode () {
-local trans
-while read -r -N1 char ; do
-trans+ = "\"" ${ char /[[ :alpha:]] } "\""
-trans+ = "\"" ${ TO_CIPH [ $char ] } "\""
-done <<< "\"" $TEXT "\""
-fmt "\"" $trans "\""
-}
-function decode () {
-while read -r -N1 char ; do
-printf '%s' "\"" ${ char /[[ :alpha:]] } "\""
-printf '%s' "\"" ${ TO_ALPH [ $char ] } "\""
-done <<< "\"" $TEXT "\""
-printf "\"\\n\""
-}
-function main () {
-declare -ri A = $2 B = $3 M = 26
-declare -rl ACTION = "\"" ${ 1 :- 0 } "\"" TEXT = "\"" ${ 4 //[![ :alpha:][:digit:]]/ } "\""
-coprime $A $M || die "'a and m must be coprime.'"
-declare -A TO_CIPH TO_ALPH
-make_maps
-declare -r TO_CIPH TO_ALPH
-case "\"" $ACTION "\"" in
-encode ) encode ;;
-decode ) decode ;;
-* )
-die "\"Usage: " ${ 0 } " <encode/decode> a b text\""
-;;
-esac
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (command printf "%s\\n"
+        (string
+          (expansion 1 :-
+            (concatenation generic " error"))))
+      (command exit 1)))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_3
+          (simple_expansion 1))
+        (variable_assignment PLACEHOLDER_4
+          (simple_expansion 2)))
+      (list
+        (list
+          (list
+            (list
+              (test_command [[
+                (binary_expression
+                  (simple_expansion PLACEHOLDER_4) -gt 0)) &&
+              (command (command_name PLACEHOLDER_2)
+                (simple_expansion PLACEHOLDER_4)
+                (arithmetic_expansion
+                  (binary_expression PLACEHOLDER_3 % PLACEHOLDER_4)))) ||
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_3 == 1))) &&
+          (command return 0)) ||
+        (command return 1))))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (declaration_command local -a PLACEHOLDER_6)
+      (for_statement PLACEHOLDER_7 in
+        (concatenation { a..z })
+        (do_group
+          (variable_assignment PLACEHOLDER_6 +=
+            (array
+              (simple_expansion PLACEHOLDER_7)))))
+      (declaration_command declare -i PLACEHOLDER_8 PLACEHOLDER_9)
+      (for_statement PLACEHOLDER_8 in
+        (brace_expression 0 25)
+        (do_group
+          (variable_assignment PLACEHOLDER_9
+            (arithmetic_expansion
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_10 * PLACEHOLDER_8) + PLACEHOLDER_11) % PLACEHOLDER_12)))
+          (variable_assignment
+            (subscript PLACEHOLDER_13
+              (expansion
+                (subscript PLACEHOLDER_6 PLACEHOLDER_8)))
+            (expansion
+              (subscript PLACEHOLDER_6 PLACEHOLDER_9)))
+          (variable_assignment
+            (subscript PLACEHOLDER_14
+              (expansion
+                (subscript PLACEHOLDER_6 PLACEHOLDER_9)))
+            (expansion
+              (subscript PLACEHOLDER_6 PLACEHOLDER_8)))))))
+  (function_definition (function_name PLACEHOLDER_15)
+    (compound_statement
+      (redirected_statement
+        (while_statement
+          (command read -r -n5 PLACEHOLDER_16)
+          (do_group
+            (list
+              (test_command [[
+                (unary_expression -z
+                  (simple_expansion PLACEHOLDER_16))) &&
+              (command break))
+            (variable_assignment PLACEHOLDER_17 +=
+              (array
+                (string
+                  (simple_expansion PLACEHOLDER_16))))))
+        (herestring_redirect
+          (string
+            (simple_expansion 1))))
+      (command printf "%s\\n"
+        (string
+          (expansion
+            (subscript PLACEHOLDER_17 *))))))
+  (function_definition (function_name PLACEHOLDER_18)
+    (compound_statement
+      (declaration_command local PLACEHOLDER_19)
+      (redirected_statement
+        (while_statement
+          (command read -r -N1 PLACEHOLDER_20)
+          (do_group
+            (variable_assignment PLACEHOLDER_19 +=
+              (string
+                (expansion PLACEHOLDER_20 / [[:alpha:]])))
+            (variable_assignment PLACEHOLDER_19 +=
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_13
+                    (simple_expansion PLACEHOLDER_20)))))))
+        (herestring_redirect
+          (string
+            (simple_expansion PLACEHOLDER_21))))
+      (command (command_name PLACEHOLDER_15)
+        (string
+          (simple_expansion PLACEHOLDER_19)))))
+  (function_definition (function_name PLACEHOLDER_22)
+    (compound_statement
+      (redirected_statement
+        (while_statement
+          (command read -r -N1 PLACEHOLDER_20)
+          (do_group
+            (command printf "%s"
+              (string
+                (expansion PLACEHOLDER_20 / [[:alpha:]])))
+            (command printf "%s"
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_14
+                    (simple_expansion PLACEHOLDER_20)))))))
+        (herestring_redirect
+          (string
+            (simple_expansion PLACEHOLDER_21))))
+      (command printf "\\n")))
+  (function_definition (function_name PLACEHOLDER_23)
+    (compound_statement
+      (declaration_command declare -ri
+        (variable_assignment PLACEHOLDER_10
+          (simple_expansion 2))
+        (variable_assignment PLACEHOLDER_11
+          (simple_expansion 3))
+        (variable_assignment PLACEHOLDER_12 26))
+      (declaration_command declare -rl
+        (variable_assignment PLACEHOLDER_24
+          (string
+            (expansion 1 :- 0)))
+        (variable_assignment PLACEHOLDER_21
+          (string
+            (expansion 4 // [![:alpha:][:digit:]] /))))
+      (list
+        (command (command_name PLACEHOLDER_2)
+          (simple_expansion PLACEHOLDER_10)
+          (simple_expansion PLACEHOLDER_12)) ||
+        (command (command_name PLACEHOLDER_1) "a and m must be coprime."))
+      (declaration_command declare -A PLACEHOLDER_13 PLACEHOLDER_14)
+      (command (command_name PLACEHOLDER_5))
+      (declaration_command declare -r PLACEHOLDER_13 PLACEHOLDER_14)
+      (case_statement
+        (string
+          (simple_expansion PLACEHOLDER_24))
+        (case_item encode
+          (command (command_name PLACEHOLDER_18)))
+        (case_item decode
+          (command (command_name PLACEHOLDER_22)))
+        (case_item *
+          (command (command_name PLACEHOLDER_1)
+            (string "Usage: "
+              (expansion 0) " <encode/decode> a b text"))))))
+  (command (command_name PLACEHOLDER_23)
+    (string
+      (simple_expansion @))))

@@ -1,72 +1,211 @@
-if [[ "\"" ${ BASH_SOURCE [0] } "\"" == "\"" $0 "\"" ]] ; then
-echo "\"This library of functions should be sourced into another script\"" > &2
-exit 4
-fi
-bash_version = $(( 10 * BASH_VERSINFO[0] + BASH_VERSINFO[1] ))
-if (( bash_version < 43 )) ; then
-echo "\"This library requires at least bash version 4.3\"" > &2
-return 4
-fi
-list::append () {
-local -n __list1 = "\"" $1 "\""
-shift
-declare -a list2 =( "\"" $@ "\"" )
-__list1+ =( "\"" ${ list2 [@] } "\"" )
-return 0
-}
-list::filter () {
-local __pred = "\"" $1 "\""
-local -n __list = "\"" $2 "\""
-local -n __filtered = "\"" $3 "\""
-local x
-__filtered =()
-for x in "\"" ${ __list [@] } "\"" ; do
-$__pred "\"" $x "\"" && __filtered+ =( "\"" $x "\"" )
-done
-return 0
-}
-list::map () {
-local __function = "\"" $1 "\""
-local -n __list = "\"" $2 "\""
-local -n __mapped = "\"" $3 "\""
-local x y
-__mapped =()
-for x in "\"" ${ __list [@] } "\"" ; do
-y = $( $__function "\"" $x "\")"
-__mapped+ =( "\"" $y "\"" )
-done
-return 0
-}
-list::foldl () {
-local __accumulator = "\"" $1 "\""
-local y = "\"" $2 "\""
-local -n __list = "\"" $3 "\""
-local x
-for x in "\"" ${ __list [@] } "\"" ; do
-y = $( $__accumulator "\"" $y "\"" "\"" $x "\")"
-done
-echo "\"" $y "\""
-return 0
-}
-list::foldr () {
-local __accumulator = "\"" $1 "\""
-local y = "\"" $2 "\""
-local -n __list = "\"" $3 "\""
-local x i
-for (( i = ${# __list [@] } - 1 ; i >= 0 ; i-- )) ; do
-x = "\"" ${ __list [i] } "\""
-y = $( $__accumulator "\"" $x "\"" "\"" $y "\")"
-done
-echo "\"" $y "\""
-return 0
-}
-list::reverse () {
-local -n __list = "\"" $1 "\""
-local -n __reversed = "\"" $2 "\""
-local i
-__reversed =()
-for (( i = ${# __list [@] } - 1 ; i >= 0 ; i-- )) ; do
-__reversed+ =( "\"" ${ __list [i] } "\"" )
-done
-return 0
-}
+(program
+  (if_statement
+    (test_command [[
+      (binary_expression
+        (string
+          (expansion
+            (subscript BASH_SOURCE 0))) ==
+        (string
+          (simple_expansion 0)))) then
+    (redirected_statement
+      (command echo "This library of functions should be sourced into another script")
+      (file_redirect >& 2))
+    (command exit 4))
+  (variable_assignment PLACEHOLDER_1
+    (arithmetic_expansion
+      (binary_expression
+        (binary_expression 10 *
+          (subscript BASH_VERSINFO 0)) +
+        (subscript BASH_VERSINFO 1))))
+  (if_statement
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_1 < 43)) then
+    (redirected_statement
+      (command echo "This library requires at least bash version 4.3")
+      (file_redirect >& 2))
+    (command return 4))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_3
+          (string
+            (simple_expansion 1))))
+      (command shift)
+      (declaration_command declare -a
+        (variable_assignment PLACEHOLDER_4
+          (array
+            (string
+              (simple_expansion @)))))
+      (variable_assignment PLACEHOLDER_3 +=
+        (array
+          (string
+            (expansion
+              (subscript PLACEHOLDER_4 @)))))
+      (command return 0)))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_6
+          (string
+            (simple_expansion 1))))
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_7
+          (string
+            (simple_expansion 2))))
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_8
+          (string
+            (simple_expansion 3))))
+      (declaration_command local PLACEHOLDER_9)
+      (variable_assignment PLACEHOLDER_8
+        (array))
+      (for_statement PLACEHOLDER_9 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_7 @)))
+        (do_group
+          (list
+            (command
+              (command_name
+                (simple_expansion PLACEHOLDER_6))
+              (string
+                (simple_expansion PLACEHOLDER_9))) &&
+            (variable_assignment PLACEHOLDER_8 +=
+              (array
+                (string
+                  (simple_expansion PLACEHOLDER_9)))))))
+      (command return 0)))
+  (function_definition (function_name PLACEHOLDER_10)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_11
+          (string
+            (simple_expansion 1))))
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_7
+          (string
+            (simple_expansion 2))))
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_12
+          (string
+            (simple_expansion 3))))
+      (declaration_command local PLACEHOLDER_9 PLACEHOLDER_13)
+      (variable_assignment PLACEHOLDER_12
+        (array))
+      (for_statement PLACEHOLDER_9 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_7 @)))
+        (do_group
+          (variable_assignment PLACEHOLDER_13
+            (command_substitution
+              (command
+                (command_name
+                  (simple_expansion PLACEHOLDER_11))
+                (string
+                  (simple_expansion PLACEHOLDER_9)))))
+          (variable_assignment PLACEHOLDER_12 +=
+            (array
+              (string
+                (simple_expansion PLACEHOLDER_13))))))
+      (command return 0)))
+  (function_definition (function_name PLACEHOLDER_14)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_15
+          (string
+            (simple_expansion 1))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_13
+          (string
+            (simple_expansion 2))))
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_7
+          (string
+            (simple_expansion 3))))
+      (declaration_command local PLACEHOLDER_9)
+      (for_statement PLACEHOLDER_9 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_7 @)))
+        (do_group
+          (variable_assignment PLACEHOLDER_13
+            (command_substitution
+              (command
+                (command_name
+                  (simple_expansion PLACEHOLDER_15))
+                (string
+                  (simple_expansion PLACEHOLDER_13))
+                (string
+                  (simple_expansion PLACEHOLDER_9)))))))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_13)))
+      (command return 0)))
+  (function_definition (function_name PLACEHOLDER_16)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_15
+          (string
+            (simple_expansion 1))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_13
+          (string
+            (simple_expansion 2))))
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_7
+          (string
+            (simple_expansion 3))))
+      (declaration_command local PLACEHOLDER_9 PLACEHOLDER_17)
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_17
+          (binary_expression
+            (expansion #
+              (subscript PLACEHOLDER_7 @)) - 1)) ;
+        (binary_expression PLACEHOLDER_17 >= 0) ;
+        (postfix_expression PLACEHOLDER_17 --)
+        (do_group
+          (variable_assignment PLACEHOLDER_9
+            (string
+              (expansion
+                (subscript PLACEHOLDER_7 PLACEHOLDER_17))))
+          (variable_assignment PLACEHOLDER_13
+            (command_substitution
+              (command
+                (command_name
+                  (simple_expansion PLACEHOLDER_15))
+                (string
+                  (simple_expansion PLACEHOLDER_9))
+                (string
+                  (simple_expansion PLACEHOLDER_13)))))))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_13)))
+      (command return 0)))
+  (function_definition (function_name PLACEHOLDER_18)
+    (compound_statement
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_7
+          (string
+            (simple_expansion 1))))
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_19
+          (string
+            (simple_expansion 2))))
+      (declaration_command local PLACEHOLDER_17)
+      (variable_assignment PLACEHOLDER_19
+        (array))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_17
+          (binary_expression
+            (expansion #
+              (subscript PLACEHOLDER_7 @)) - 1)) ;
+        (binary_expression PLACEHOLDER_17 >= 0) ;
+        (postfix_expression PLACEHOLDER_17 --)
+        (do_group
+          (variable_assignment PLACEHOLDER_19 +=
+            (array
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_7 PLACEHOLDER_17)))))))
+      (command return 0))))

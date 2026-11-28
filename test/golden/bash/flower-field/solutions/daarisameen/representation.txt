@@ -1,28 +1,126 @@
-declare -a rawGrid =( "\"" $@ "\"" )
-(( ${# rawGrid [@] } == 0 )) && exit
-declare -a transformed
-declare -i matrixDepth = ${# rawGrid [@] }
-scanLayer () {
-local -i rowIndex len colStart colEnd deltaY deltaX rowAbove rowBelow
-rowIndex = $1 len = ${# rawGrid [rowIndex] }
-rowAbove = $(( rowIndex - 1 )) rowBelow = $(( rowIndex + 1 ))
-for (( deltaX = 0 ; deltaX < len ; deltaX++ )) ; do
-cell = "\"" ${ rawGrid [rowIndex] :deltaX:1 } "\""
-[[ $cell == "\"*\"" ]] && { transformed[rowIndex]+ = "\"*\"" ; continue ; }
-(( deltaX - 1 >= 0 )) && colStart = $(( deltaX - 1 )) || colStart = 0
-(( deltaX + 1 < len )) && colEnd = $(( deltaX + 1 )) || colEnd = $deltaX
-(( colStart < colEnd )) && spanWidth = $(( colEnd - colStart + 1 )) || spanWidth = 1
-temp = "\"\""
-(( rowAbove >= 0 )) && temp+ = "\"" ${ rawGrid [rowAbove] :colStart:spanWidth } "\""
-temp+ = "\"" ${ rawGrid [rowIndex] :colStart:spanWidth } "\""
-(( rowBelow != matrixDepth )) && temp+ = "\"" ${ rawGrid [rowBelow] :colStart:spanWidth } "\""
-temp = "\"" ${ temp //[^\*] } "\""
-if (( ${# temp } == 0 )) ; then
-transformed[rowIndex]+ = "\" \""
-else
-transformed[rowIndex]+ = "\"" ${# temp } "\""
-fi
-done
-}
-for (( idx = 0 ; idx < ${# rawGrid [@] } ; idx++ )) ; do scanLayer "\"" $idx "\"" ; done
-IFS = $'\n' printf "\"%s\\n\"" "\"" ${ transformed [@] } "\""
+(program
+  (declaration_command declare -a
+    (variable_assignment PLACEHOLDER_1
+      (array
+        (string
+          (simple_expansion @)))))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (expansion #
+          (subscript PLACEHOLDER_1 @)) == 0)) &&
+    (command exit))
+  (declaration_command declare -a PLACEHOLDER_2)
+  (declaration_command declare -i
+    (variable_assignment PLACEHOLDER_3
+      (expansion #
+        (subscript PLACEHOLDER_1 @))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (declaration_command local -i PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_12)
+      (variable_assignments
+        (variable_assignment PLACEHOLDER_5
+          (simple_expansion 1))
+        (variable_assignment PLACEHOLDER_6
+          (expansion #
+            (subscript PLACEHOLDER_1 PLACEHOLDER_5))))
+      (variable_assignments
+        (variable_assignment PLACEHOLDER_11
+          (arithmetic_expansion
+            (binary_expression PLACEHOLDER_5 - 1)))
+        (variable_assignment PLACEHOLDER_12
+          (arithmetic_expansion
+            (binary_expression PLACEHOLDER_5 + 1))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_10 0) ;
+        (binary_expression PLACEHOLDER_10 < PLACEHOLDER_6) ;
+        (postfix_expression PLACEHOLDER_10 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_13
+            (string
+              (expansion
+                (subscript PLACEHOLDER_1 PLACEHOLDER_5) : PLACEHOLDER_10 : 1)))
+          (list
+            (test_command [[
+              (binary_expression
+                (simple_expansion PLACEHOLDER_13) == "*")) &&
+            (compound_statement
+              (variable_assignment
+                (subscript PLACEHOLDER_2 PLACEHOLDER_5) += "*")
+              (command continue)))
+          (list
+            (list
+              (arithmetic_command
+                (binary_expression
+                  (binary_expression PLACEHOLDER_10 - 1) >= 0)) &&
+              (variable_assignment PLACEHOLDER_7
+                (arithmetic_expansion
+                  (binary_expression PLACEHOLDER_10 - 1)))) ||
+            (variable_assignment PLACEHOLDER_7 0))
+          (list
+            (list
+              (arithmetic_command
+                (binary_expression
+                  (binary_expression PLACEHOLDER_10 + 1) < PLACEHOLDER_6)) &&
+              (variable_assignment PLACEHOLDER_8
+                (arithmetic_expansion
+                  (binary_expression PLACEHOLDER_10 + 1)))) ||
+            (variable_assignment PLACEHOLDER_8
+              (simple_expansion PLACEHOLDER_10)))
+          (list
+            (list
+              (arithmetic_command
+                (binary_expression PLACEHOLDER_7 < PLACEHOLDER_8)) &&
+              (variable_assignment PLACEHOLDER_14
+                (arithmetic_expansion
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_8 - PLACEHOLDER_7) + 1)))) ||
+            (variable_assignment PLACEHOLDER_14 1))
+          (variable_assignment PLACEHOLDER_15 "")
+          (list
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_11 >= 0)) &&
+            (variable_assignment PLACEHOLDER_15 +=
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_1 PLACEHOLDER_11) : PLACEHOLDER_7 : PLACEHOLDER_14))))
+          (variable_assignment PLACEHOLDER_15 +=
+            (string
+              (expansion
+                (subscript PLACEHOLDER_1 PLACEHOLDER_5) : PLACEHOLDER_7 : PLACEHOLDER_14)))
+          (list
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_12 != PLACEHOLDER_3)) &&
+            (variable_assignment PLACEHOLDER_15 +=
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_1 PLACEHOLDER_12) : PLACEHOLDER_7 : PLACEHOLDER_14))))
+          (variable_assignment PLACEHOLDER_15
+            (string
+              (expansion PLACEHOLDER_15 // "[^\\*]")))
+          (if_statement
+            (arithmetic_command
+              (binary_expression
+                (expansion # PLACEHOLDER_15) == 0)) then
+            (variable_assignment
+              (subscript PLACEHOLDER_2 PLACEHOLDER_5) += "")
+            (else_clause
+              (variable_assignment
+                (subscript PLACEHOLDER_2 PLACEHOLDER_5) +=
+                (string
+                  (expansion # PLACEHOLDER_15)))))))))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_16 0) ;
+    (binary_expression PLACEHOLDER_16 <
+      (expansion #
+        (subscript PLACEHOLDER_1 @))) ;
+    (postfix_expression PLACEHOLDER_16 ++)
+    (do_group
+      (command (command_name PLACEHOLDER_4)
+        (string
+          (simple_expansion PLACEHOLDER_16)))))
+  (command
+    (variable_assignment IFS "\n") printf "%s\\n"
+    (string
+      (expansion
+        (subscript PLACEHOLDER_2 @)))))

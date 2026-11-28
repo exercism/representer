@@ -1,12 +1,25 @@
-DNA = CGTA
-RNA = GCAU
-validate () {
-DNA_STRAND = $1
-if [[ ! "\"" $DNA_STRAND "\"" = ~ ^[ $DNA ] * $ ]] ; then
-echo "\"Invalid nucleotide detected.\""
-exit 1
-fi
-}
-DNA_STRAND = $1
-validate $DNA_STRAND
-echo $DNA_STRAND | tr $DNA $RNA
+(program
+  (variable_assignment PLACEHOLDER_1 CGTA)
+  (variable_assignment PLACEHOLDER_2 GCAU)
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_4
+        (simple_expansion 1))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (unary_expression !
+              (string
+                (simple_expansion PLACEHOLDER_4))) =~ ^[$DNA]*$)) then
+        (command echo "Invalid nucleotide detected.")
+        (command exit 1))))
+  (variable_assignment PLACEHOLDER_4
+    (simple_expansion 1))
+  (command (command_name PLACEHOLDER_3)
+    (simple_expansion PLACEHOLDER_4))
+  (pipeline
+    (command echo
+      (simple_expansion PLACEHOLDER_4)) |
+    (command tr
+      (simple_expansion PLACEHOLDER_1)
+      (simple_expansion PLACEHOLDER_2))))

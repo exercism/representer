@@ -1,19 +1,95 @@
-function die { echo "\"" $1 "\"" > &2 ; exit 1 ; }
-function converter {
-[[ "\"" $2 "\"" = ~ - ]] && die "\"negative value detected\""
-local origin_base = "\"" $1 "\"" value =( $2 ) return_base = "\"" $3 "\"" sum = 0
-(( origin_base < = 1 || return_base < = 1 )) && die "\"invalid base\""
-digits = $(( ${# value [@] } - 1 ))
-for number in "\"" ${ value [@] } "\"" ; do
-(( number >= origin_base )) && die "\"digit " $number " invalid for base " $origin_base "\""
-(( sum + = number * ( origin_base ** digits-- ) ))
-done
-while (( sum > 0 )) ; do
-output+ =( $(( sum % return_base )) )
-(( sum / = return_base ))
-done
-output =( $( printf '%s\n' "\"" ${ output [@] } "\"" | tac ) )
-[[ -z "\"" ${ output [*] } "\"" ]] && output =( 0 )
-echo "\"" ${ output [@] } "\""
-}
-converter "\"" $1 "\"" "\"" $2 "\"" "\"" $3 "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (redirected_statement
+        (command echo
+          (string
+            (simple_expansion 1)))
+        (file_redirect >& 2))
+      (command exit 1)))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (list
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion 2)) =~ -
+            (regex))) &&
+        (command (command_name PLACEHOLDER_1) "negative value detected"))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3
+          (string
+            (simple_expansion 1)))
+        (variable_assignment PLACEHOLDER_4
+          (array
+            (simple_expansion 2)))
+        (variable_assignment PLACEHOLDER_5
+          (string
+            (simple_expansion 3)))
+        (variable_assignment PLACEHOLDER_6 0))
+      (list
+        (arithmetic_command
+          (binary_expression
+            (binary_expression PLACEHOLDER_3 <= 1) ||
+            (binary_expression PLACEHOLDER_5 <= 1))) &&
+        (command (command_name PLACEHOLDER_1) "invalid base"))
+      (variable_assignment PLACEHOLDER_7
+        (arithmetic_expansion
+          (binary_expression
+            (expansion #
+              (subscript PLACEHOLDER_4 @)) - 1)))
+      (for_statement PLACEHOLDER_8 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_4 @)))
+        (do_group
+          (list
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_8 >= PLACEHOLDER_3)) &&
+            (command (command_name PLACEHOLDER_1)
+              (string "digit "
+                (simple_expansion PLACEHOLDER_8) " invalid for base "
+                (simple_expansion PLACEHOLDER_3))))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_6 +=
+              (binary_expression PLACEHOLDER_8 *
+                (binary_expression PLACEHOLDER_3 **
+                  (postfix_expression PLACEHOLDER_7 --)))))))
+      (while_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_6 > 0))
+        (do_group
+          (variable_assignment PLACEHOLDER_9 +=
+            (array
+              (arithmetic_expansion
+                (binary_expression PLACEHOLDER_6 % PLACEHOLDER_5))))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_6 /= PLACEHOLDER_5))))
+      (variable_assignment PLACEHOLDER_9
+        (array
+          (command_substitution
+            (pipeline
+              (command printf "%s\\n"
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_9 @)))) |
+              (command tac)))))
+      (list
+        (test_command [[
+          (unary_expression -z
+            (string
+              (expansion
+                (subscript PLACEHOLDER_9 *))))) &&
+        (variable_assignment PLACEHOLDER_9
+          (array 0)))
+      (command echo
+        (string
+          (expansion
+            (subscript PLACEHOLDER_9 @))))))
+  (command (command_name PLACEHOLDER_2)
+    (string
+      (simple_expansion 1))
+    (string
+      (simple_expansion 2))
+    (string
+      (simple_expansion 3))))

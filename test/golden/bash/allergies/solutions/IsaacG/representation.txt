@@ -1,35 +1,76 @@
-allergens =(
-eggs
-peanuts
-shellfish
-strawberries
-tomatoes
-chocolate
-pollen
-cats
-)
-boolRC () { (( $? == 0 )) && echo true || echo false ; }
-(( $# == 3 || $# == 2 )) || exit 1
-allergic_to () {
-score = $1
-allergen = $2
-v = 1
-for a in "\"" ${ allergens [@] } "\"" ; do
-if [[ $a = "\"" $allergen "\"" ]] ; then
-(( score & v ))
-boolRC
-fi
-(( v << = 1 ))
-done
-}
-list () {
-score = $1
-v = 1
-allergies =()
-for a in "\"" ${ allergens [@] } "\"" ; do
-(( score & v )) && allergies+ =( "\"" $a "\"" )
-(( v << = 1 ))
-done
-echo "\"" ${ allergies [@] } "\""
-}
-"\"" $2 "\"" "\"" $1 "\"" "\"" $3 "\""
+(program
+  (variable_assignment PLACEHOLDER_1
+    (array eggs peanuts shellfish strawberries tomatoes chocolate pollen cats))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (list
+        (list
+          (arithmetic_command
+            (binary_expression
+              (simple_expansion ?) == 0)) &&
+          (command echo true)) ||
+        (command echo false))))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (binary_expression
+          (simple_expansion #) == 3) ||
+        (binary_expression
+          (simple_expansion #) == 2))) ||
+    (command exit 1))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_4
+        (simple_expansion 1))
+      (variable_assignment PLACEHOLDER_5
+        (simple_expansion 2))
+      (variable_assignment PLACEHOLDER_6 1)
+      (for_statement PLACEHOLDER_7 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1 @)))
+        (do_group
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (simple_expansion PLACEHOLDER_7) =
+                (string
+                  (simple_expansion PLACEHOLDER_5)))) then
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_4 & PLACEHOLDER_6))
+            (command (command_name PLACEHOLDER_2)))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_6 <<= 1))))))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_4
+        (simple_expansion 1))
+      (variable_assignment PLACEHOLDER_6 1)
+      (variable_assignment PLACEHOLDER_9
+        (array))
+      (for_statement PLACEHOLDER_7 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1 @)))
+        (do_group
+          (list
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_4 & PLACEHOLDER_6)) &&
+            (variable_assignment PLACEHOLDER_9 +=
+              (array
+                (string
+                  (simple_expansion PLACEHOLDER_7)))))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_6 <<= 1))))
+      (command echo
+        (string
+          (expansion
+            (subscript PLACEHOLDER_9 @))))))
+  (command
+    (command_name
+      (string
+        (simple_expansion 2)))
+    (string
+      (simple_expansion 1))
+    (string
+      (simple_expansion 3))))

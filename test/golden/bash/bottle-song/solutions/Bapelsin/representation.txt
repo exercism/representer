@@ -1,58 +1,135 @@
-declare -A num_spelled_out =(
-[ 0] = "\"no\""
-[ 1] = "\"one\""
-[ 2] = "\"two\""
-[ 3] = "\"three\""
-[ 4] = "\"four\""
-[ 5] = "\"five\""
-[ 6] = "\"six\""
-[ 7] = "\"seven\""
-[ 8] = "\"eight\""
-[ 9] = "\"nine\""
-[ 10] = "\"ten\""
-)
-capitalize_first () {
-first = ${ 1 :0:1 }
-echo "\"" ${ first ^^ }${ 1 :1 } "\""
-}
-recite () {
-start_bottles = "\"" ${ 1 } "\""
-takedown = "\"" ${ 2 } "\""
-while [ "\"" ${ takedown } "\"" -gt 0 ] ; do
-line = "\"$(" capitalize_first "\"" ${ num_spelled_out [ ${ start_bottles } ] } "\")\""
-line+ = "\" green \""
-[[ ${ start_bottles } -gt 1 ]] && bottles = "\"bottles\"" ||
-bottles = "\"bottle\""
-line+ = "\"" ${ bottles } " hanging on the wall,\""
-echo "\"" ${ line } "\""
-echo "\"" ${ line } "\""
-echo "\"And if one green bottle should accidentally fall,\""
-[[ ${ start_bottles } -eq 2 ]] && bottles = "\"bottle\"" ||
-bottles = "\"bottles\""
-line = "\"There'll be \""
-line+ = "\"" ${ num_spelled_out [ $(( start_bottles - 1 )) ] } " \""
-line+ = "\"green " ${ bottles } " hanging on the wall.\""
-echo "\"" ${ line } "\""
-[[ ${ takedown } -gt 1 ]] && echo "\"\""
-(( start_bottles-- ))
-(( takedown-- ))
-done
-}
-print_usage () {
-echo "\"Usage: " ${ 0 } " <start bottles> <takedown>\""
-}
-main () {
-if [[ ${#} -ne 2 ]] ; then
-echo "\"Error: 2 arguments expected.\""
-print_usage && exit 1
-elif [[ ${ 1 } -lt ${ 2 } ]] ; then
-echo "\"Error: cannot generate more verses than bottles.\""
-print_usage && exit 1
-elif [[ ${ 1 } = ~ [ ^0-9] ]] || [[ ${ 2 } = ~ [ ^0-9] ]] ; then
-echo "\"Error: Invalid argument.\""
-print_usage && exit 1
-fi
-recite "\"" ${ @ } "\""
-}
-main "\"" ${ @ } "\""
-exit 0
+(program
+  (declaration_command declare -A
+    (variable_assignment PLACEHOLDER_1
+      (array
+        (concatenation [ 0 ] = "no")
+        (concatenation [ 1 ] = "one")
+        (concatenation [ 2 ] = "two")
+        (concatenation [ 3 ] = "three")
+        (concatenation [ 4 ] = "four")
+        (concatenation [ 5 ] = "five")
+        (concatenation [ 6 ] = "six")
+        (concatenation [ 7 ] = "seven")
+        (concatenation [ 8 ] = "eight")
+        (concatenation [ 9 ] = "nine")
+        (concatenation [ 10 ] = "ten"))))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_3
+        (expansion 1 : 0 : 1))
+      (command echo
+        (string
+          (expansion PLACEHOLDER_3 ^^)
+          (expansion 1 : 1)))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_5
+        (string
+          (expansion 1)))
+      (variable_assignment PLACEHOLDER_6
+        (string
+          (expansion 2)))
+      (while_statement
+        (test_command [
+          (binary_expression
+            (string
+              (expansion PLACEHOLDER_6)) -gt 0))
+        (do_group
+          (variable_assignment PLACEHOLDER_7
+            (string
+              (command_substitution
+                (command (command_name PLACEHOLDER_2)
+                  (string
+                    (expansion
+                      (subscript PLACEHOLDER_1
+                        (expansion PLACEHOLDER_5))))))))
+          (variable_assignment PLACEHOLDER_7 += " green ")
+          (list
+            (list
+              (test_command [[
+                (binary_expression
+                  (expansion PLACEHOLDER_5) -gt 1)) &&
+              (variable_assignment PLACEHOLDER_8 "bottles")) ||
+            (variable_assignment PLACEHOLDER_8 "bottle"))
+          (variable_assignment PLACEHOLDER_7 +=
+            (string
+              (expansion PLACEHOLDER_8) " hanging on the wall,"))
+          (command echo
+            (string
+              (expansion PLACEHOLDER_7)))
+          (command echo
+            (string
+              (expansion PLACEHOLDER_7)))
+          (command echo "And if one green bottle should accidentally fall,")
+          (list
+            (list
+              (test_command [[
+                (binary_expression
+                  (expansion PLACEHOLDER_5) -eq 2)) &&
+              (variable_assignment PLACEHOLDER_8 "bottle")) ||
+            (variable_assignment PLACEHOLDER_8 "bottles"))
+          (variable_assignment PLACEHOLDER_7 "There'll be ")
+          (variable_assignment PLACEHOLDER_7 +=
+            (string
+              (expansion
+                (subscript PLACEHOLDER_1
+                  (arithmetic_expansion
+                    (binary_expression PLACEHOLDER_5 - 1))))))
+          (variable_assignment PLACEHOLDER_7 +=
+            (string "green "
+              (expansion PLACEHOLDER_8) " hanging on the wall."))
+          (command echo
+            (string
+              (expansion PLACEHOLDER_7)))
+          (list
+            (test_command [[
+              (binary_expression
+                (expansion PLACEHOLDER_6) -gt 1)) &&
+            (command echo ""))
+          (arithmetic_command
+            (postfix_expression PLACEHOLDER_5 --))
+          (arithmetic_command
+            (postfix_expression PLACEHOLDER_6 --))))))
+  (function_definition (function_name PLACEHOLDER_9)
+    (compound_statement
+      (command echo
+        (string "Usage: "
+          (expansion 0) " <start bottles> <takedown>"))))
+  (function_definition (function_name PLACEHOLDER_10)
+    (compound_statement
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (expansion #) -ne 2)) then
+        (command echo "Error: 2 arguments expected.")
+        (list
+          (command (command_name PLACEHOLDER_9)) &&
+          (command exit 1))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (expansion 1) -lt
+              (expansion 2))) then
+          (command echo "Error: cannot generate more verses than bottles.")
+          (list
+            (command (command_name PLACEHOLDER_9)) &&
+            (command exit 1)))
+        (elif_clause
+          (list
+            (test_command [[
+              (binary_expression
+                (expansion 1) =~ [^0-9])) ||
+            (test_command [[
+              (binary_expression
+                (expansion 2) =~ [^0-9]))) then
+          (command echo "Error: Invalid argument.")
+          (list
+            (command (command_name PLACEHOLDER_9)) &&
+            (command exit 1))))
+      (command (command_name PLACEHOLDER_4)
+        (string
+          (expansion @)))))
+  (command (command_name PLACEHOLDER_10)
+    (string
+      (expansion @)))
+  (command exit 0))

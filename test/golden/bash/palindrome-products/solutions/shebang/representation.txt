@@ -1,17 +1,136 @@
-(( $2 < = $3 )) || { echo "\"min must be <= max\"" > &2 ; exit 1 ; }
-if [[ "\"" $1 "\"" = "\"smallest\"" ]] ; then INC = 1 P0 = "\"" $2 "\"" P1 = "\"" $3 "\""
-elif [[ "\"" $1 "\"" = "\"largest\"" ]] ; then INC = "\"-1\"" P0 = "\"" $3 "\"" P1 = "\"" $2 "\""
-else echo "\"first arg should be 'smallest' or 'largest'\"" > &2 ; exit 1 ; fi
-PALINDROME = 0 FACTORS =
-for (( Pi = P0 ; Pi != P1 + INC ; Pi + = INC )) ; do
-for (( Pj = P0 ; Pj != Pi + INC ; Pj + = INC )) ; do (( PROD = Pi * Pj ))
-for (( i = 0, j = ${# PROD } - 1 ; i < j ; i++, j-- ))
-do (( ${ PROD :i:1 } == ${ PROD :j:1 } )) || continue 2 ; done
-if (( INC > 0 )) ; then PALINDROME = "\"" $PROD "\"" ; [[ -z "\"" $FACTORS "\"" ]] &&
-FACTORS = "\"[" $Pj ", " $Pi ]" || FACTORS+ = "\"[" $Pi ", " $Pj ]" ; break 2
-elif (( PROD > PALINDROME )) ; then PALINDROME = "\"" $PROD "\"" FACTORS = "\"[" $Pi ", " $Pj ]"
-elif (( PROD == PALINDROME )) ; then FACTORS+ = "\"[" $Pi ", " $Pj ]" ; fi
-done
-(( PALINDROME && ( ( INC > 0 && Pi * Pi > PALINDROME ) ||
-( INC < 0 && Pi * $3 < PALINDROME ) ) )) && break
-done ; (( PALINDROME > 0 )) && echo "\"" $PALINDROME : $FACTORS "\"" || echo
+(program
+  (list
+    (arithmetic_command
+      (binary_expression
+        (simple_expansion 2) <=
+        (simple_expansion 3))) ||
+    (compound_statement
+      (redirected_statement
+        (command echo "min must be <= max")
+        (file_redirect >& 2))
+      (command exit 1)))
+  (if_statement
+    (test_command [[
+      (binary_expression
+        (string
+          (simple_expansion 1)) = "smallest")) then
+    (variable_assignments
+      (variable_assignment PLACEHOLDER_1 1)
+      (variable_assignment PLACEHOLDER_2
+        (string
+          (simple_expansion 2)))
+      (variable_assignment PLACEHOLDER_3
+        (string
+          (simple_expansion 3))))
+    (elif_clause
+      (test_command [[
+        (binary_expression
+          (string
+            (simple_expansion 1)) = "largest")) then
+      (redirected_statement
+        (command
+          (variable_assignment PLACEHOLDER_1 "-1")
+          (variable_assignment PLACEHOLDER_2
+            (string
+              (simple_expansion 3)))
+          (variable_assignment PLACEHOLDER_3
+            (string
+              (simple_expansion 2))) else echo "first arg should be 'smallest' or 'largest'")
+        (file_redirect >& 2))
+      (command exit 1)))
+  (variable_assignments
+    (variable_assignment PLACEHOLDER_4 0)
+    (variable_assignment PLACEHOLDER_5))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_6 PLACEHOLDER_2) ;
+    (binary_expression PLACEHOLDER_6 !=
+      (binary_expression PLACEHOLDER_3 + PLACEHOLDER_1)) ;
+    (binary_expression PLACEHOLDER_6 += PLACEHOLDER_1)
+    (do_group
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_7 PLACEHOLDER_2) ;
+        (binary_expression PLACEHOLDER_7 !=
+          (binary_expression PLACEHOLDER_6 + PLACEHOLDER_1)) ;
+        (binary_expression PLACEHOLDER_7 += PLACEHOLDER_1)
+        (do_group
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_8 =
+              (binary_expression PLACEHOLDER_6 * PLACEHOLDER_7)))
+          (c_style_for_statement
+            (variable_assignment PLACEHOLDER_9 0) ,
+            (variable_assignment PLACEHOLDER_10
+              (binary_expression
+                (expansion # PLACEHOLDER_8) - 1)) ;
+            (binary_expression PLACEHOLDER_9 < PLACEHOLDER_10) ;
+            (postfix_expression PLACEHOLDER_9 ++) ,
+            (postfix_expression PLACEHOLDER_10 --)
+            (do_group
+              (list
+                (arithmetic_command
+                  (binary_expression
+                    (expansion PLACEHOLDER_8 : PLACEHOLDER_9 : 1) ==
+                    (expansion PLACEHOLDER_8 : PLACEHOLDER_10 : 1))) ||
+                (command continue 2))))
+          (if_statement
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_1 > 0)) then
+            (variable_assignment PLACEHOLDER_4
+              (string
+                (simple_expansion PLACEHOLDER_8)))
+            (list
+              (list
+                (test_command [[
+                  (unary_expression -z
+                    (string
+                      (simple_expansion PLACEHOLDER_5)))) &&
+                (variable_assignment PLACEHOLDER_5
+                  (string "["
+                    (simple_expansion PLACEHOLDER_7) ", "
+                    (simple_expansion PLACEHOLDER_6) "]"))) ||
+              (variable_assignment PLACEHOLDER_5 +=
+                (string "["
+                  (simple_expansion PLACEHOLDER_6) ", "
+                  (simple_expansion PLACEHOLDER_7) "]")))
+            (command break 2)
+            (elif_clause
+              (arithmetic_command
+                (binary_expression PLACEHOLDER_8 > PLACEHOLDER_4)) then
+              (command
+                (variable_assignment PLACEHOLDER_4
+                  (string
+                    (simple_expansion PLACEHOLDER_8)))
+                (variable_assignment PLACEHOLDER_5
+                  (string "["
+                    (simple_expansion PLACEHOLDER_6) ", "
+                    (simple_expansion PLACEHOLDER_7) "]")) elif
+                (subshell
+                  (subshell
+                    (command (command_name PLACEHOLDER_8) == PALINDROME))))
+              (command then
+                (concatenation FACTORS+=
+                  (string "["
+                    (simple_expansion PLACEHOLDER_6) ", "
+                    (simple_expansion PLACEHOLDER_7) "]")))))))
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_4 &&
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_1 > 0) &&
+                (binary_expression
+                  (binary_expression PLACEHOLDER_6 * PLACEHOLDER_6) > PLACEHOLDER_4)) ||
+              (binary_expression
+                (binary_expression PLACEHOLDER_1 < 0) &&
+                (binary_expression
+                  (binary_expression PLACEHOLDER_6 *
+                    (simple_expansion 3)) < PLACEHOLDER_4))))) &&
+        (command break))))
+  (list
+    (list
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_4 > 0)) &&
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_4) ":"
+          (simple_expansion PLACEHOLDER_5)))) ||
+    (command echo)))

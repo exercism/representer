@@ -1,24 +1,75 @@
-main () {
-target = "\"" $1 "\""
-shift
-list =( $@ )
-[[ -z $list ]] && echo "\"-1\"" && exit 0
-(( $target < ${ list [0] } || ${ list [-1] } < $target )) && echo "\"-1\"" && exit 0
-r = ${# list [@] }
-l = 0
-m = $(( r / 2 ))
-while (( l < = r )) ; do
-v = ${ list [ $m ] }
-if (( $v > $target )) ; then
-r = $(( m-1 ))
-elif (( $v < $target )) ; then
-l = $(( m+1 ))
-else
-echo $m
-exit 0
-fi
-m = $(( ( r+l ) / 2 ))
-done
-echo "\"-1\""
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (string
+          (simple_expansion 1)))
+      (command shift)
+      (variable_assignment PLACEHOLDER_3
+        (array
+          (simple_expansion @)))
+      (list
+        (list
+          (test_command [[
+            (unary_expression -z
+              (simple_expansion PLACEHOLDER_3))) &&
+          (command echo "-1")) &&
+        (command exit 0))
+      (list
+        (list
+          (arithmetic_command
+            (binary_expression
+              (binary_expression
+                (simple_expansion PLACEHOLDER_2) <
+                (expansion
+                  (subscript PLACEHOLDER_3 0))) ||
+              (binary_expression
+                (expansion
+                  (subscript PLACEHOLDER_3
+                    (unary_expression - 1))) <
+                (simple_expansion PLACEHOLDER_2)))) &&
+          (command echo "-1")) &&
+        (command exit 0))
+      (variable_assignment PLACEHOLDER_4
+        (expansion #
+          (subscript PLACEHOLDER_3 @)))
+      (variable_assignment PLACEHOLDER_5 0)
+      (variable_assignment PLACEHOLDER_6
+        (arithmetic_expansion
+          (binary_expression PLACEHOLDER_4 / 2)))
+      (while_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_5 <= PLACEHOLDER_4))
+        (do_group
+          (variable_assignment PLACEHOLDER_7
+            (expansion
+              (subscript PLACEHOLDER_3
+                (simple_expansion PLACEHOLDER_6))))
+          (if_statement
+            (arithmetic_command
+              (binary_expression
+                (simple_expansion PLACEHOLDER_7) >
+                (simple_expansion PLACEHOLDER_2))) then
+            (variable_assignment PLACEHOLDER_4
+              (arithmetic_expansion
+                (binary_expression PLACEHOLDER_6 - 1)))
+            (elif_clause
+              (arithmetic_command
+                (binary_expression
+                  (simple_expansion PLACEHOLDER_7) <
+                  (simple_expansion PLACEHOLDER_2))) then
+              (variable_assignment PLACEHOLDER_5
+                (arithmetic_expansion
+                  (binary_expression PLACEHOLDER_6 + 1))))
+            (else_clause
+              (command echo
+                (simple_expansion PLACEHOLDER_6))
+              (command exit 0)))
+          (variable_assignment PLACEHOLDER_6
+            (arithmetic_expansion
+              (binary_expression
+                (binary_expression PLACEHOLDER_4 + PLACEHOLDER_5) / 2)))))
+      (command echo "-1")))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

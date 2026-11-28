@@ -1,17 +1,36 @@
-if ! [[ $1 = ~ ^[0-9]+ $ ]] || [[ $# != 1 ]] ; then
-echo "\"Usage: " $0 " <year>\""
-exit 1
-fi
-if (( $1 % 400 == 0 )) ; then
-echo "\"true\""
-exit 0
-fi
-if (( $1 % 100 == 0 )) ; then
-echo "\"false\""
-exit 0
-fi
-if (( $1 % 4 == 0 )) ; then
-echo "\"true\""
-exit 0
-fi
-echo "\"false\""
+(program
+  (if_statement
+    (list
+      (negated_command
+        (test_command [[
+          (binary_expression
+            (simple_expansion 1) =~ ^[0-9]+$))) ||
+      (test_command [[
+        (binary_expression
+          (simple_expansion #) != 1))) then
+    (command echo
+      (string "Usage: "
+        (simple_expansion 0) " <year>"))
+    (command exit 1))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (binary_expression
+          (simple_expansion 1) % 400) == 0)) then
+    (command echo "true")
+    (command exit 0))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (binary_expression
+          (simple_expansion 1) % 100) == 0)) then
+    (command echo "false")
+    (command exit 0))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (binary_expression
+          (simple_expansion 1) % 4) == 0)) then
+    (command echo "true")
+    (command exit 0))
+  (command echo "false"))

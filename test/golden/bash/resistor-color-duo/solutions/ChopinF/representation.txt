@@ -1,41 +1,84 @@
-function calculateValue () {
-chr = "\"" $1 "\""
-case "\"" $chr "\"" in
-"\"black\"" ) echo "\"0\"" ;;
-"\"brown\"" ) echo "\"1\"" ;;
-"\"red\"" ) echo "\"2\"" ;;
-"\"orange\"" ) echo "\"3\"" ;;
-"\"yellow\"" ) echo "\"4\"" ;;
-"\"green\"" ) echo "\"5\"" ;;
-"\"blue\"" ) echo "\"6\"" ;;
-"\"violet\"" ) echo "\"7\"" ;;
-"\"grey\"" ) echo "\"8\"" ;;
-"\"white\"" ) echo "\"9\"" ;;
-* )
-echo "\"10\""
-;;
-esac
-}
-function main (){
-sum = "\"\""
-for param in "\"" $@ "\"" ; do
-value = $( calculateValue "\"" $param "\")"
-if [[ "\"" $value "\"" == "\"10\"" ]] ; then
-echo "\"invalid color\""
-exit 1
-return
-fi
-sum = "\"" $sum$value "\""
-done
-echo "\"" $sum "\""
-}
-sum = "\"$(" main "\"" $@ "\")\""
-if [[ "\"" $sum "\"" = ~ ^[0-9]+ $ ]] ; then
-if [[ "\"" ${ sum :0:1 } "\"" == "\"0\"" ]] ; then
-echo "\"" ${ sum :1:2 } "\""
-else echo "\"" ${ sum :0:2 } "\""
-fi
-else
-echo "\"invalid color\""
-exit 1
-fi
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (string
+          (simple_expansion 1)))
+      (case_statement
+        (string
+          (simple_expansion PLACEHOLDER_2))
+        (case_item "black"
+          (command echo "0"))
+        (case_item "brown"
+          (command echo "1"))
+        (case_item "red"
+          (command echo "2"))
+        (case_item "orange"
+          (command echo "3"))
+        (case_item "yellow"
+          (command echo "4"))
+        (case_item "green"
+          (command echo "5"))
+        (case_item "blue"
+          (command echo "6"))
+        (case_item "violet"
+          (command echo "7"))
+        (case_item "grey"
+          (command echo "8"))
+        (case_item "white"
+          (command echo "9"))
+        (case_item *
+          (command echo "10")))))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_4 "")
+      (for_statement PLACEHOLDER_5 in
+        (string
+          (simple_expansion @))
+        (do_group
+          (variable_assignment PLACEHOLDER_6
+            (command_substitution
+              (command (command_name PLACEHOLDER_1)
+                (string
+                  (simple_expansion PLACEHOLDER_5)))))
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_6)) == "10")) then
+            (command echo "invalid color")
+            (command exit 1)
+            (command return))
+          (variable_assignment PLACEHOLDER_4
+            (string
+              (simple_expansion PLACEHOLDER_4)
+              (simple_expansion PLACEHOLDER_6)))))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_4)))))
+  (variable_assignment PLACEHOLDER_4
+    (string
+      (command_substitution
+        (command (command_name PLACEHOLDER_3)
+          (string
+            (simple_expansion @))))))
+  (if_statement
+    (test_command [[
+      (binary_expression
+        (string
+          (simple_expansion PLACEHOLDER_4)) =~ ^[0-9]+$)) then
+    (if_statement
+      (test_command [[
+        (binary_expression
+          (string
+            (expansion PLACEHOLDER_4 : 0 : 1)) == "0")) then
+      (command echo
+        (string
+          (expansion PLACEHOLDER_4 : 1 : 2)))
+      (else_clause
+        (command echo
+          (string
+            (expansion PLACEHOLDER_4 : 0 : 2)))))
+    (else_clause
+      (command echo "invalid color")
+      (command exit 1))))

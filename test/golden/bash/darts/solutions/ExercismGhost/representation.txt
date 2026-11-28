@@ -1,22 +1,74 @@
-main () {
-radius =( 1 5 10 )
-points = "\" \""
-return = 1
-is_numerical = '^[+-]?[0-9]+([.][0-9]+)?$'
-if [[ $# -eq 2 ]] && [[ $1 = ~ $is_numerical ]] && [[ $2 = ~ $is_numerical ]] ; then
-distance = $( echo "\"scale=2; calc=(" $1 "^2); calc+=(" $2 "^2); sqrt(calc)\"" | bc )
-if (( $( echo "\"" $distance " > " ${ radius [2] } "\"" | bc -l ) )) ; then
-points = "\"0\""
-elif (( $( echo "\"" $distance " > " ${ radius [1] } "\"" | bc -l ) )) ; then
-points = "\"1\""
-elif (( $( echo "\"" $distance " > " ${ radius [0] } "\"" | bc -l ) )) ; then
-points = "\"5\""
-else
-points = "\"10\""
-fi
-return = 0
-fi
-echo "\"" $points "\""
-return $return
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (array 1 5 10))
+      (variable_assignment PLACEHOLDER_3 "")
+      (variable_assignment PLACEHOLDER_4 1)
+      (variable_assignment PLACEHOLDER_5 "^[+-]?[0-9]+([.][0-9]+)?$")
+      (if_statement
+        (list
+          (list
+            (test_command [[
+              (binary_expression
+                (simple_expansion #) -eq 2)) &&
+            (test_command [[
+              (binary_expression
+                (simple_expansion 1) =~
+                (simple_expansion PLACEHOLDER_5)))) &&
+          (test_command [[
+            (binary_expression
+              (simple_expansion 2) =~
+              (simple_expansion PLACEHOLDER_5)))) then
+        (variable_assignment PLACEHOLDER_6
+          (command_substitution
+            (pipeline
+              (command echo
+                (string "scale=2; calc=("
+                  (simple_expansion 1) "^2); calc+=("
+                  (simple_expansion 2) "^2); sqrt(calc)")) |
+              (command bc))))
+        (if_statement
+          (arithmetic_command
+            (command_substitution
+              (pipeline
+                (command echo
+                  (string
+                    (simple_expansion PLACEHOLDER_6) " > "
+                    (expansion
+                      (subscript PLACEHOLDER_2 2)))) |
+                (command bc -l)))) then
+          (variable_assignment PLACEHOLDER_3 "0")
+          (elif_clause
+            (arithmetic_command
+              (command_substitution
+                (pipeline
+                  (command echo
+                    (string
+                      (simple_expansion PLACEHOLDER_6) " > "
+                      (expansion
+                        (subscript PLACEHOLDER_2 1)))) |
+                  (command bc -l)))) then
+            (variable_assignment PLACEHOLDER_3 "1"))
+          (elif_clause
+            (arithmetic_command
+              (command_substitution
+                (pipeline
+                  (command echo
+                    (string
+                      (simple_expansion PLACEHOLDER_6) " > "
+                      (expansion
+                        (subscript PLACEHOLDER_2 0)))) |
+                  (command bc -l)))) then
+            (variable_assignment PLACEHOLDER_3 "5"))
+          (else_clause
+            (variable_assignment PLACEHOLDER_3 "10")))
+        (variable_assignment PLACEHOLDER_4 0))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_3)))
+      (command (command_name PLACEHOLDER_4)
+        (simple_expansion PLACEHOLDER_4))))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

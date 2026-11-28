@@ -1,75 +1,222 @@
-usage () {
-echo "\"Usage: " $0 " <input>\""
-echo "\"  Input format: '<team1>;<team2>;<result>'\""
-exit 1
-}
-new_team () {
-if [[ ! ${ teams [ $1 ] } = ~ [ 0-9]+ ]] ; then
-teams+ =( [ "\"" $1 "\"" ]= "\"" ${# teams [@] } "\"" )
-i = ${ teams [ $1 ] }
-t[ $i ]= "\"" $1 "\""
-mp[ $i ]= 0
-w[ $i ]= 0
-d[ $i ]= 0
-l[ $i ]= 0
-p[ $i ]= 0
-r[ $i ]= $( printf "\"%05d-%s\"" "\"" ${ p [ $i ] } "\"" "\"" ${ t [ $i ] } "\"" )
-fi
-}
-update_score () {
-i = ${ teams [ $2 ] }
-(( mp[ $i ] + = 1 ))
-case "\"" $1 "\"" in
-win )
-(( w[ $i ] + = 1 ))
-(( p[ $i ] + = 3 ))
-;;
-loss )
-(( l[ $i ] + = 1 ))
-;;
-draw )
-(( d[ $i ] + = 1 ))
-(( p[ $i ] + = 1 ))
-esac
-r[ $i ]= $( printf "\"%05d-%s\"" "\"" ${ p [ $i ] } "\"" "\"" ${ t [ $i ] } "\"" )
-}
-main () {
-header = "\"%-30s | %2s | %2s | %2s | %2s | %2s\\n\""
-format = "\"%-30s | %2d | %2d | %2d | %2d | %2d\\n\""
-printf "\"" $header "\"" "\"Team\"" "\"MP\"" "\"W\"" "\"D\"" "\"L\"" "\"P\""
-declare -A teams
-declare -a t
-declare -a mp
-declare -a w
-declare -a d
-declare -a l
-declare -a p
-declare -a r
-while IFS = ';' read -r teamA teamB result ; do
-if [[ "\"" $teamA "\"" == '' ]] ; then exit 0 ; fi ;
-new_team "\"" $teamA "\""
-new_team "\"" $teamB "\""
-case "\"" $result "\"" in
-win )
-update_score "\"win\"" "\"" $teamA "\""
-update_score "\"loss\"" "\"" $teamB "\""
-;;
-loss )
-update_score "\"win\"" "\"" $teamB "\""
-update_score "\"loss\"" "\"" $teamA "\""
-;;
-draw )
-update_score "\"draw\"" "\"" $teamA "\""
-update_score "\"draw\"" "\"" $teamB "\""
-esac
-done < "\"" ${ 1 :- /dev/stdin } "\""
-IFS = $'\n' sorted =( $( sort -t '-' -k1r ,1 -k2 <<< "\"" ${ r [*] } "\"" ) )
-unset IFS
-for sort_team in "\"" ${ sorted [@] } "\"" ; do
-x = ${ sort_team :6 }
-i = ${ teams [ $x ] }
-printf "\"" $format "\"" "\"" ${ t [ $i ] } "\"" "\"" ${ mp [ $i ] } "\"" "\"" ${ w [ $i ] } "\"" "\"" ${ d [ $i ] } "\"" "\"" ${ l [ $i ] } "\"" "\"" ${ p [ $i ] } "\""
-done
-return 0
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (command echo
+        (string "Usage: "
+          (simple_expansion 0) " <input>"))
+      (command echo "  Input format: '<team1>;<team2>;<result>'")
+      (command exit 1)))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (unary_expression !
+              (expansion
+                (subscript PLACEHOLDER_3
+                  (simple_expansion 1)))) =~ [0-9]+)) then
+        (variable_assignment PLACEHOLDER_3 +=
+          (array
+            (concatenation [
+              (string
+                (simple_expansion 1)) ] =
+              (string
+                (expansion #
+                  (subscript PLACEHOLDER_3 @))))))
+        (variable_assignment PLACEHOLDER_4
+          (expansion
+            (subscript PLACEHOLDER_3
+              (simple_expansion 1))))
+        (variable_assignment
+          (subscript PLACEHOLDER_5
+            (simple_expansion PLACEHOLDER_4))
+          (string
+            (simple_expansion 1)))
+        (variable_assignment
+          (subscript PLACEHOLDER_6
+            (simple_expansion PLACEHOLDER_4)) 0)
+        (variable_assignment
+          (subscript PLACEHOLDER_7
+            (simple_expansion PLACEHOLDER_4)) 0)
+        (variable_assignment
+          (subscript PLACEHOLDER_8
+            (simple_expansion PLACEHOLDER_4)) 0)
+        (variable_assignment
+          (subscript PLACEHOLDER_9
+            (simple_expansion PLACEHOLDER_4)) 0)
+        (variable_assignment
+          (subscript PLACEHOLDER_10
+            (simple_expansion PLACEHOLDER_4)) 0)
+        (variable_assignment
+          (subscript PLACEHOLDER_11
+            (simple_expansion PLACEHOLDER_4))
+          (command_substitution
+            (command printf "%05d-%s"
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_10
+                    (simple_expansion PLACEHOLDER_4))))
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_5
+                    (simple_expansion PLACEHOLDER_4))))))))))
+  (function_definition (function_name PLACEHOLDER_12)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_4
+        (expansion
+          (subscript PLACEHOLDER_3
+            (simple_expansion 2))))
+      (arithmetic_command
+        (binary_expression
+          (subscript PLACEHOLDER_6
+            (simple_expansion PLACEHOLDER_4)) += 1))
+      (case_statement
+        (string
+          (simple_expansion 1))
+        (case_item win
+          (arithmetic_command
+            (binary_expression
+              (subscript PLACEHOLDER_7
+                (simple_expansion PLACEHOLDER_4)) += 1))
+          (arithmetic_command
+            (binary_expression
+              (subscript PLACEHOLDER_10
+                (simple_expansion PLACEHOLDER_4)) += 3)))
+        (case_item loss
+          (arithmetic_command
+            (binary_expression
+              (subscript PLACEHOLDER_9
+                (simple_expansion PLACEHOLDER_4)) += 1)))
+        (case_item draw
+          (arithmetic_command
+            (binary_expression
+              (subscript PLACEHOLDER_8
+                (simple_expansion PLACEHOLDER_4)) += 1))
+          (arithmetic_command
+            (binary_expression
+              (subscript PLACEHOLDER_10
+                (simple_expansion PLACEHOLDER_4)) += 1))))
+      (variable_assignment
+        (subscript PLACEHOLDER_11
+          (simple_expansion PLACEHOLDER_4))
+        (command_substitution
+          (command printf "%05d-%s"
+            (string
+              (expansion
+                (subscript PLACEHOLDER_10
+                  (simple_expansion PLACEHOLDER_4))))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_5
+                  (simple_expansion PLACEHOLDER_4)))))))))
+  (function_definition (function_name PLACEHOLDER_13)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_14 "%-30s | %2s | %2s | %2s | %2s | %2s\\n")
+      (variable_assignment PLACEHOLDER_15 "%-30s | %2d | %2d | %2d | %2d | %2d\\n")
+      (command printf
+        (string
+          (simple_expansion PLACEHOLDER_14)) "Team" "MP" "W" "D" "L" "P")
+      (declaration_command declare -A PLACEHOLDER_3)
+      (declaration_command declare -a PLACEHOLDER_5)
+      (declaration_command declare -a PLACEHOLDER_6)
+      (declaration_command declare -a PLACEHOLDER_7)
+      (declaration_command declare -a PLACEHOLDER_8)
+      (declaration_command declare -a PLACEHOLDER_9)
+      (declaration_command declare -a PLACEHOLDER_10)
+      (declaration_command declare -a PLACEHOLDER_11)
+      (redirected_statement
+        (while_statement
+          (command
+            (variable_assignment IFS ";") read -r PLACEHOLDER_16 PLACEHOLDER_17 PLACEHOLDER_18)
+          (do_group
+            (if_statement
+              (test_command [[
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_16)) == "")) then
+              (command exit 0))
+            (command (command_name PLACEHOLDER_2)
+              (string
+                (simple_expansion PLACEHOLDER_16)))
+            (command (command_name PLACEHOLDER_2)
+              (string
+                (simple_expansion PLACEHOLDER_17)))
+            (case_statement
+              (string
+                (simple_expansion PLACEHOLDER_18))
+              (case_item win
+                (command (command_name PLACEHOLDER_12) "win"
+                  (string
+                    (simple_expansion PLACEHOLDER_16)))
+                (command (command_name PLACEHOLDER_12) "loss"
+                  (string
+                    (simple_expansion PLACEHOLDER_17))))
+              (case_item loss
+                (command (command_name PLACEHOLDER_12) "win"
+                  (string
+                    (simple_expansion PLACEHOLDER_17)))
+                (command (command_name PLACEHOLDER_12) "loss"
+                  (string
+                    (simple_expansion PLACEHOLDER_16))))
+              (case_item draw
+                (command (command_name PLACEHOLDER_12) "draw"
+                  (string
+                    (simple_expansion PLACEHOLDER_16)))
+                (command (command_name PLACEHOLDER_12) "draw"
+                  (string
+                    (simple_expansion PLACEHOLDER_17)))))))
+        (file_redirect <
+          (string
+            (expansion 1 :- /dev/stdin))))
+      (command
+        (variable_assignment IFS "\n")
+        (variable_assignment PLACEHOLDER_19
+          (array
+            (command_substitution
+              (command sort -t "-" -k1r,1 -k2
+                (herestring_redirect
+                  (string
+                    (expansion
+                      (subscript PLACEHOLDER_11 *)))))))) unset IFS)
+      (for_statement PLACEHOLDER_20 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_19 @)))
+        (do_group
+          (variable_assignment PLACEHOLDER_21
+            (expansion PLACEHOLDER_20 : 6))
+          (variable_assignment PLACEHOLDER_4
+            (expansion
+              (subscript PLACEHOLDER_3
+                (simple_expansion PLACEHOLDER_21))))
+          (command printf
+            (string
+              (simple_expansion PLACEHOLDER_15))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_5
+                  (simple_expansion PLACEHOLDER_4))))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_6
+                  (simple_expansion PLACEHOLDER_4))))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_7
+                  (simple_expansion PLACEHOLDER_4))))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_8
+                  (simple_expansion PLACEHOLDER_4))))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_9
+                  (simple_expansion PLACEHOLDER_4))))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_10
+                  (simple_expansion PLACEHOLDER_4)))))))
+      (command return 0)))
+  (command (command_name PLACEHOLDER_13)
+    (string
+      (simple_expansion @))))

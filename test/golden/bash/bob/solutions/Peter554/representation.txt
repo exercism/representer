@@ -1,23 +1,54 @@
-s = $( echo "\"" $1 "\"" | sed 's/^\s*//' | sed 's/\s*$//')
-if [[ -z "\"" $s "\"" ]] ; then
-echo "\"Fine. Be that way!\""
-exit 0
-fi
-s = ${ s //[^a-zA-Z?]/ }
-question = 0
-if [[ ${ s : (-1) } == "\"?\"" ]] ; then
-question = 1
-fi
-yelling = 0
-if [[ $s == "\"" ${ s ^^ } "\"" ]] && [[ "\"" $1 "\"" = ~ [ a-zA-Z] ]] ; then
-yelling = 1
-fi
-if (( question == 1 && yelling == 1 )) ; then
-echo "\"Calm down, I know what I'm doing!\""
-elif (( question == 1 )) ; then
-echo "\"Sure.\""
-elif (( yelling == 1 )) ; then
-echo "\"Whoa, chill out!\""
-else
-echo "\"Whatever.\""
-fi
+(program
+  (variable_assignment PLACEHOLDER_1
+    (command_substitution
+      (pipeline
+        (command echo
+          (string
+            (simple_expansion 1))) |
+        (command sed "s/^\\s*//") |
+        (command sed "s/\\s*$//"))))
+  (if_statement
+    (test_command [[
+      (unary_expression -z
+        (string
+          (simple_expansion PLACEHOLDER_1)))) then
+    (command echo "Fine. Be that way!")
+    (command exit 0))
+  (variable_assignment PLACEHOLDER_1
+    (expansion PLACEHOLDER_1 // [^a-zA-Z?] /))
+  (variable_assignment PLACEHOLDER_2 0)
+  (if_statement
+    (test_command [[
+      (binary_expression
+        (expansion PLACEHOLDER_1 :
+          (unary_expression - 1)) == "?")) then
+    (variable_assignment PLACEHOLDER_2 1))
+  (variable_assignment PLACEHOLDER_3 0)
+  (if_statement
+    (list
+      (test_command [[
+        (binary_expression
+          (simple_expansion PLACEHOLDER_1) ==
+          (string
+            (expansion PLACEHOLDER_1 ^^)))) &&
+      (test_command [[
+        (binary_expression
+          (string
+            (simple_expansion 1)) =~ [a-zA-Z]))) then
+    (variable_assignment PLACEHOLDER_3 1))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 == 1) &&
+        (binary_expression PLACEHOLDER_3 == 1))) then
+    (command echo "Calm down, I know what I'm doing!")
+    (elif_clause
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_2 == 1)) then
+      (command echo "Sure."))
+    (elif_clause
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_3 == 1)) then
+      (command echo "Whoa, chill out!"))
+    (else_clause
+      (command echo "Whatever."))))

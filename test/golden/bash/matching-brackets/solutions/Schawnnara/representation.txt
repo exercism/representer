@@ -1,23 +1,68 @@
-main ()
-{
-S = $( echo "\"" $1 "\"" | tr -dc '{}()[]')
-while test ! -z "\"" $S "\""
-do
-if echo "\"" $S "\"" | grep "\"()\"" > /dev/null
-then
-S = $( echo "\"" $S "\"" | sed 's/()//g')
-elif echo "\"" $S "\"" | grep "\"\\[\\]\"" > /dev/null
-then
-S = $( echo "\"" $S "\"" | sed 's/\[\]//g')
-elif echo "\"" $S "\"" | grep "\"{}\"" > /dev/null
-then
-S = $( echo "\"" $S "\"" | sed 's/{}//g')
-else
-echo false
-exit 0
-fi
-done
-echo true
-exit 0
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (command_substitution
+          (pipeline
+            (command echo
+              (string
+                (simple_expansion 1))) |
+            (command tr -dc "{}()[]"))))
+      (while_statement
+        (command test ! -z
+          (string
+            (simple_expansion PLACEHOLDER_2)))
+        (do_group
+          (if_statement
+            (redirected_statement
+              (pipeline
+                (command echo
+                  (string
+                    (simple_expansion PLACEHOLDER_2))) |
+                (command grep "()"))
+              (file_redirect > /dev/null)) then
+            (variable_assignment PLACEHOLDER_2
+              (command_substitution
+                (pipeline
+                  (command echo
+                    (string
+                      (simple_expansion PLACEHOLDER_2))) |
+                  (command sed "s/()//g"))))
+            (elif_clause
+              (redirected_statement
+                (pipeline
+                  (command echo
+                    (string
+                      (simple_expansion PLACEHOLDER_2))) |
+                  (command grep "\\[\\]"))
+                (file_redirect > /dev/null)) then
+              (variable_assignment PLACEHOLDER_2
+                (command_substitution
+                  (pipeline
+                    (command echo
+                      (string
+                        (simple_expansion PLACEHOLDER_2))) |
+                    (command sed "s/\\[\\]//g")))))
+            (elif_clause
+              (redirected_statement
+                (pipeline
+                  (command echo
+                    (string
+                      (simple_expansion PLACEHOLDER_2))) |
+                  (command grep "{}"))
+                (file_redirect > /dev/null)) then
+              (variable_assignment PLACEHOLDER_2
+                (command_substitution
+                  (pipeline
+                    (command echo
+                      (string
+                        (simple_expansion PLACEHOLDER_2))) |
+                    (command sed "s/{}//g")))))
+            (else_clause
+              (command echo false)
+              (command exit 0)))))
+      (command echo true)
+      (command exit 0)))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

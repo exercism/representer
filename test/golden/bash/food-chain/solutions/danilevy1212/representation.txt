@@ -1,35 +1,135 @@
-set -o errexit
-set -o nounset
-getHistory (){
-local bottom
-for (( j = $1 ; j> = 1 ; j-- )) ; do
-[[ ${ animals [ $(( $j - 1 )) ] } == 'spider' ]] && bottom = "\"" ${ animals [ $(( $j - 1 )) ] } " that wriggled and jiggled and tickled inside her\"" ||
-bottom = "\"" ${ animals [ $(( $j - 1 )) ] } "\""
-echo "\"She swallowed the " ${ animals [ $(( $j )) ] } " to catch the " $bottom ."
-done
-}
-getConsequence (){
-[[ $1 == 'horse' ]] && { echo "\"She's dead, of course!\"" ; return 0 ; }
-echo "\"I don't know why she swallowed the fly. Perhaps she'll die.\""
-}
-main (){
-(( ${# @ } != 2 )) && { echo "\"2 arguments expected\"" > &2 ; exit 1 ; }
-local -i start = $1
-local -i end = $2
-(( $start > $end )) && { echo "\"Start must be less than or equal to End\"" > &2 ; exit 1 ; }
-declare -a animals =( 'fly' 'spider' 'bird' 'cat' 'dog' 'goat' 'cow' 'horse' )
-declare -A reaction =( [ 'spider' ]= "'It wriggled and jiggled and tickled inside her.'"
-[ 'bird' ]= "'How absurd to swallow a bird!'"
-[ 'cat' ]= "'Imagine that, to swallow a cat!'"
-[ 'dog' ]= "'What a hog, to swallow a dog!'"
-[ 'goat' ]= "'Just opened her throat and swallowed a goat!'"
-[ 'cow' ]= "\"I don't know how she swallowed a cow!\""
-)
-for (( i = $start -1 ; i< $end ; i++ )) ; do
-echo "\"I know an old lady who swallowed a " ${ animals [ $i ] } ."
-[[ ${ reaction [ ${ animals [ $i ] } ]+_ } ]] && echo ${ reaction [ ${ animals [ $i ] } ] }
-(( $i < ${# animals [@] } -1 )) && getHistory $i
-getConsequence ${ animals [ $i ] } && echo "\"\""
-done
-}
-main "\"" $@ "\""
+(program
+  (command set -o errexit)
+  (command set -o nounset)
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local PLACEHOLDER_2)
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_3
+          (simple_expansion 1)) ;
+        (binary_expression PLACEHOLDER_3 >= 1) ;
+        (postfix_expression PLACEHOLDER_3 --)
+        (do_group
+          (list
+            (list
+              (test_command [[
+                (binary_expression
+                  (expansion
+                    (subscript PLACEHOLDER_4
+                      (arithmetic_expansion
+                        (binary_expression
+                          (simple_expansion PLACEHOLDER_3) - 1)))) == "spider")) &&
+              (variable_assignment PLACEHOLDER_2
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_4
+                      (arithmetic_expansion
+                        (binary_expression
+                          (simple_expansion PLACEHOLDER_3) - 1)))) " that wriggled and jiggled and tickled inside her"))) ||
+            (variable_assignment PLACEHOLDER_2
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_4
+                    (arithmetic_expansion
+                      (binary_expression
+                        (simple_expansion PLACEHOLDER_3) - 1)))))))
+          (command echo
+            (string "She swallowed the "
+              (expansion
+                (subscript PLACEHOLDER_4
+                  (arithmetic_expansion
+                    (simple_expansion PLACEHOLDER_3)))) " to catch the "
+              (simple_expansion PLACEHOLDER_2) "."))))))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (list
+        (test_command [[
+          (binary_expression
+            (simple_expansion 1) == "horse")) &&
+        (compound_statement
+          (command echo "She's dead, of course!")
+          (command return 0)))
+      (command echo "I don't know why she swallowed the fly. Perhaps she'll die.")))
+  (function_definition (function_name PLACEHOLDER_6)
+    (compound_statement
+      (list
+        (arithmetic_command
+          (binary_expression
+            (expansion # @) != 2)) &&
+        (compound_statement
+          (redirected_statement
+            (command echo "2 arguments expected")
+            (file_redirect >& 2))
+          (command exit 1)))
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_7
+          (simple_expansion 1)))
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_8
+          (simple_expansion 2)))
+      (list
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion PLACEHOLDER_7) >
+            (simple_expansion PLACEHOLDER_8))) &&
+        (compound_statement
+          (redirected_statement
+            (command echo "Start must be less than or equal to End")
+            (file_redirect >& 2))
+          (command exit 1)))
+      (declaration_command declare -a
+        (variable_assignment PLACEHOLDER_4
+          (array "fly" "spider" "bird" "cat" "dog" "goat" "cow" "horse")))
+      (declaration_command declare -A
+        (variable_assignment PLACEHOLDER_9
+          (array
+            (concatenation [ "spider" ] = "It wriggled and jiggled and tickled inside her.")
+            (concatenation [ "bird" ] = "How absurd to swallow a bird!")
+            (concatenation [ "cat" ] = "Imagine that, to swallow a cat!")
+            (concatenation [ "dog" ] = "What a hog, to swallow a dog!")
+            (concatenation [ "goat" ] = "Just opened her throat and swallowed a goat!")
+            (concatenation [ "cow" ] = "I don't know how she swallowed a cow!"))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_10
+          (binary_expression
+            (simple_expansion PLACEHOLDER_7) - 1)) ;
+        (binary_expression PLACEHOLDER_10 <
+          (simple_expansion PLACEHOLDER_8)) ;
+        (postfix_expression PLACEHOLDER_10 ++)
+        (do_group
+          (command echo
+            (string "I know an old lady who swallowed a "
+              (expansion
+                (subscript PLACEHOLDER_4
+                  (simple_expansion PLACEHOLDER_10))) "."))
+          (list
+            (test_command [[
+              (expansion
+                (subscript PLACEHOLDER_9
+                  (expansion
+                    (subscript PLACEHOLDER_4
+                      (simple_expansion PLACEHOLDER_10)))) + _)) &&
+            (command echo
+              (expansion
+                (subscript PLACEHOLDER_9
+                  (expansion
+                    (subscript PLACEHOLDER_4
+                      (simple_expansion PLACEHOLDER_10)))))))
+          (list
+            (arithmetic_command
+              (binary_expression
+                (simple_expansion PLACEHOLDER_10) <
+                (binary_expression
+                  (expansion #
+                    (subscript PLACEHOLDER_4 @)) - 1))) &&
+            (command (command_name PLACEHOLDER_1)
+              (simple_expansion PLACEHOLDER_10)))
+          (list
+            (command (command_name PLACEHOLDER_5)
+              (expansion
+                (subscript PLACEHOLDER_4
+                  (simple_expansion PLACEHOLDER_10)))) &&
+            (command echo ""))))))
+  (command (command_name PLACEHOLDER_6)
+    (string
+      (simple_expansion @))))

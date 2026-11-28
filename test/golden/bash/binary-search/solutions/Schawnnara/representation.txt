@@ -1,21 +1,67 @@
-main () {
-local target = "\"" $1 "\"" ; shift
-local -a tree =( "\"" $@ "\"" )
-local length = ${# tree [@] }
-local left = 0
-local right = $(( $length - 1 ))
-local middle = 0
-while (( $left < = $right )) ; do
-middle = $(( ( $left + $right ) / 2 ))
-if (( tree[ $middle ] < $target )) ; then
-left = $(( $middle + 1 ))
-elif (( tree[ $middle ] > $target )) ; then
-right = $(( $middle - 1 ))
-else
-echo "\"" $middle "\""
-return
-fi
-done
-echo "\"-1\""
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_2
+          (string
+            (simple_expansion 1))))
+      (command shift)
+      (declaration_command local -a
+        (variable_assignment PLACEHOLDER_3
+          (array
+            (string
+              (simple_expansion @)))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_4
+          (expansion #
+            (subscript PLACEHOLDER_3 @))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_5 0))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_6
+          (arithmetic_expansion
+            (binary_expression
+              (simple_expansion PLACEHOLDER_4) - 1))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_7 0))
+      (while_statement
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion PLACEHOLDER_5) <=
+            (simple_expansion PLACEHOLDER_6)))
+        (do_group
+          (variable_assignment PLACEHOLDER_7
+            (arithmetic_expansion
+              (binary_expression
+                (binary_expression
+                  (simple_expansion PLACEHOLDER_5) +
+                  (simple_expansion PLACEHOLDER_6)) / 2)))
+          (if_statement
+            (arithmetic_command
+              (binary_expression
+                (subscript PLACEHOLDER_3
+                  (simple_expansion PLACEHOLDER_7)) <
+                (simple_expansion PLACEHOLDER_2))) then
+            (variable_assignment PLACEHOLDER_5
+              (arithmetic_expansion
+                (binary_expression
+                  (simple_expansion PLACEHOLDER_7) + 1)))
+            (elif_clause
+              (arithmetic_command
+                (binary_expression
+                  (subscript PLACEHOLDER_3
+                    (simple_expansion PLACEHOLDER_7)) >
+                  (simple_expansion PLACEHOLDER_2))) then
+              (variable_assignment PLACEHOLDER_6
+                (arithmetic_expansion
+                  (binary_expression
+                    (simple_expansion PLACEHOLDER_7) - 1))))
+            (else_clause
+              (command echo
+                (string
+                  (simple_expansion PLACEHOLDER_7)))
+              (command return)))))
+      (command echo "-1")))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

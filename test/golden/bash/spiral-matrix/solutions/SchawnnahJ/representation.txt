@@ -1,15 +1,104 @@
-start = 0
-end = $1
-count = 1
-while (( count < = $1 * $1 )) ; do
-(( end - start == 1 )) && { out[ $(( $1 * $1 / 2 )) ]= $(( $1 * $1 )) ; break ; }
-for (( i = start ; i<end-1 ; i++ )) ; do out[ $(( i+start * $1 )) ]= $(( count++ )) ; done
-for (( i = start ; i<end-1 ; i++ )) ; do out[ $(( $1 * i+end-1 )) ]= $(( count++ )) ; done
-for (( i = start ; i<end-1 ; i++ )) ; do out[ $(( end * $1 - i-1 )) ]= $(( count++ )) ; done
-for (( i = end-1 ; i>start ; i-- )) ; do out[ $(( $1 * i+start )) ]= $(( count++ )) ; done
-(( end-- ))
-(( start++ ))
-done
-for (( idx = 0 ; idx< ${# out [@] } ; idx+ = $1 )) ; do
-echo "\"" ${ out [@] :idx: $1 } "\""
-done
+(program
+  (variable_assignment PLACEHOLDER_1 0)
+  (variable_assignment PLACEHOLDER_2
+    (simple_expansion 1))
+  (variable_assignment PLACEHOLDER_3 1)
+  (while_statement
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_3 <=
+        (binary_expression
+          (simple_expansion 1) *
+          (simple_expansion 1))))
+    (do_group
+      (list
+        (arithmetic_command
+          (binary_expression
+            (binary_expression PLACEHOLDER_2 - PLACEHOLDER_1) == 1)) &&
+        (compound_statement
+          (variable_assignment
+            (subscript PLACEHOLDER_4
+              (arithmetic_expansion
+                (binary_expression
+                  (binary_expression
+                    (simple_expansion 1) *
+                    (simple_expansion 1)) / 2)))
+            (arithmetic_expansion
+              (binary_expression
+                (simple_expansion 1) *
+                (simple_expansion 1))))
+          (command break)))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_5 PLACEHOLDER_1) ;
+        (binary_expression PLACEHOLDER_5 <
+          (binary_expression PLACEHOLDER_2 - 1)) ;
+        (postfix_expression PLACEHOLDER_5 ++)
+        (do_group
+          (variable_assignment
+            (subscript PLACEHOLDER_4
+              (arithmetic_expansion
+                (binary_expression PLACEHOLDER_5 +
+                  (binary_expression PLACEHOLDER_1 *
+                    (simple_expansion 1)))))
+            (arithmetic_expansion
+              (postfix_expression PLACEHOLDER_3 ++)))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_5 PLACEHOLDER_1) ;
+        (binary_expression PLACEHOLDER_5 <
+          (binary_expression PLACEHOLDER_2 - 1)) ;
+        (postfix_expression PLACEHOLDER_5 ++)
+        (do_group
+          (variable_assignment
+            (subscript PLACEHOLDER_4
+              (arithmetic_expansion
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (simple_expansion 1) * PLACEHOLDER_5) + PLACEHOLDER_2) - 1)))
+            (arithmetic_expansion
+              (postfix_expression PLACEHOLDER_3 ++)))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_5 PLACEHOLDER_1) ;
+        (binary_expression PLACEHOLDER_5 <
+          (binary_expression PLACEHOLDER_2 - 1)) ;
+        (postfix_expression PLACEHOLDER_5 ++)
+        (do_group
+          (variable_assignment
+            (subscript PLACEHOLDER_4
+              (arithmetic_expansion
+                (binary_expression
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_2 *
+                      (simple_expansion 1)) - PLACEHOLDER_5) - 1)))
+            (arithmetic_expansion
+              (postfix_expression PLACEHOLDER_3 ++)))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_5
+          (binary_expression PLACEHOLDER_2 - 1)) ;
+        (binary_expression PLACEHOLDER_5 > PLACEHOLDER_1) ;
+        (postfix_expression PLACEHOLDER_5 --)
+        (do_group
+          (variable_assignment
+            (subscript PLACEHOLDER_4
+              (arithmetic_expansion
+                (binary_expression
+                  (binary_expression
+                    (simple_expansion 1) * PLACEHOLDER_5) + PLACEHOLDER_1)))
+            (arithmetic_expansion
+              (postfix_expression PLACEHOLDER_3 ++)))))
+      (arithmetic_command
+        (postfix_expression PLACEHOLDER_2 --))
+      (arithmetic_command
+        (postfix_expression PLACEHOLDER_1 ++))))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_6 0) ;
+    (binary_expression PLACEHOLDER_6 <
+      (expansion #
+        (subscript PLACEHOLDER_4 @))) ;
+    (binary_expression PLACEHOLDER_6 +=
+      (simple_expansion 1))
+    (do_group
+      (command echo
+        (string
+          (expansion
+            (subscript PLACEHOLDER_4 @) : PLACEHOLDER_6 :
+            (simple_expansion 1)))))))

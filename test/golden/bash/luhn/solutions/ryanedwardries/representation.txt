@@ -1,45 +1,125 @@
-string = $( echo "\"" $1 "\")"
-stringcheck = $( echo "\"" $string "\"" | tr -d [ :blank:] )
-numcheck = $( echo "\"" $string "\"" | tr -d [ :digit:] | tr -d [ :blank:] )
-if [[ -n "\"" $numcheck "\"" ]]
-then
-echo "\"false\""
-elif [[ ${# stringcheck } -lt 2 ]]
-then
-echo "\"false\""
-else
-luhnlist =()
-luhnscore = 0
-if [[ ${# stringcheck } -eq 3 ]]
-then
-doubles = $( echo "\"" ${ stringcheck :1:1 } "\")"
-else
-doubles = $( echo "\"" $1 "\"" | tr -d [ :blank:] | sed "\"s/\\(.\\)./\\1/g\"" | sed -e "'s/\\(.\\)/\\1 /g')"
-fi
-nondoubles = $( echo "\"" $1 "\"" | tr -d [ :blank:] | rev | sed "\"s/\\(.\\)./\\1/g\"" | sed -e "'s/\\(.\\)/\\1 /g')"
-for i in $nondoubles
-do
-luhnlist+ =( $i )
-done
-for i in $doubles
-do
-num = $( echo "\"" $i " * 2\"" | bc )
-if [[ "\"" $num "\"" -gt 9 ]]
-then
-num = $( echo "\"" $num " - 9\"" | bc )
-luhnlist+ =( $num )
-else
-luhnlist+ =( $num )
-fi
-done
-for i in ${ luhnlist [@] }
-do
-luhnscore = $( echo "\"" $luhnscore " + " $i "\"" | bc )
-done
-if (( $luhnscore % 10 == 0 ))
-then
-echo "\"true\""
-else
-echo "\"false\""
-fi
-fi
+(program
+  (variable_assignment PLACEHOLDER_1
+    (command_substitution
+      (command echo
+        (string
+          (simple_expansion 1)))))
+  (variable_assignment PLACEHOLDER_2
+    (command_substitution
+      (pipeline
+        (command echo
+          (string
+            (simple_expansion PLACEHOLDER_1))) |
+        (command tr -d
+          (concatenation [ :blank: ])))))
+  (variable_assignment PLACEHOLDER_3
+    (command_substitution
+      (pipeline
+        (command echo
+          (string
+            (simple_expansion PLACEHOLDER_1))) |
+        (command tr -d
+          (concatenation [ :digit: ])) |
+        (command tr -d
+          (concatenation [ :blank: ])))))
+  (if_statement
+    (test_command [[
+      (unary_expression -n
+        (string
+          (simple_expansion PLACEHOLDER_3)))) then
+    (command echo "false")
+    (elif_clause
+      (test_command [[
+        (binary_expression
+          (expansion # PLACEHOLDER_2) -lt 2)) then
+      (command echo "false"))
+    (else_clause
+      (variable_assignment PLACEHOLDER_4
+        (array))
+      (variable_assignment PLACEHOLDER_5 0)
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (expansion # PLACEHOLDER_2) -eq 3)) then
+        (variable_assignment PLACEHOLDER_6
+          (command_substitution
+            (command echo
+              (string
+                (expansion PLACEHOLDER_2 : 1 : 1)))))
+        (else_clause
+          (variable_assignment PLACEHOLDER_6
+            (command_substitution
+              (pipeline
+                (command echo
+                  (string
+                    (simple_expansion 1))) |
+                (command tr -d
+                  (concatenation [ :blank: ])) |
+                (command sed "s/\\(.\\)./\\1/g") |
+                (command sed -e "s/\\(.\\)/\\1 /g"))))))
+      (variable_assignment PLACEHOLDER_7
+        (command_substitution
+          (pipeline
+            (command echo
+              (string
+                (simple_expansion 1))) |
+            (command tr -d
+              (concatenation [ :blank: ])) |
+            (command rev) |
+            (command sed "s/\\(.\\)./\\1/g") |
+            (command sed -e "s/\\(.\\)/\\1 /g"))))
+      (for_statement PLACEHOLDER_8 in
+        (simple_expansion PLACEHOLDER_7)
+        (do_group
+          (variable_assignment PLACEHOLDER_4 +=
+            (array
+              (simple_expansion PLACEHOLDER_8)))))
+      (for_statement PLACEHOLDER_8 in
+        (simple_expansion PLACEHOLDER_6)
+        (do_group
+          (variable_assignment PLACEHOLDER_9
+            (command_substitution
+              (pipeline
+                (command echo
+                  (string
+                    (simple_expansion PLACEHOLDER_8) " * 2")) |
+                (command bc))))
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_9)) -gt 9)) then
+            (variable_assignment PLACEHOLDER_9
+              (command_substitution
+                (pipeline
+                  (command echo
+                    (string
+                      (simple_expansion PLACEHOLDER_9) " - 9")) |
+                  (command bc))))
+            (variable_assignment PLACEHOLDER_4 +=
+              (array
+                (simple_expansion PLACEHOLDER_9)))
+            (else_clause
+              (variable_assignment PLACEHOLDER_4 +=
+                (array
+                  (simple_expansion PLACEHOLDER_9)))))))
+      (for_statement PLACEHOLDER_8 in
+        (expansion
+          (subscript PLACEHOLDER_4 @))
+        (do_group
+          (variable_assignment PLACEHOLDER_5
+            (command_substitution
+              (pipeline
+                (command echo
+                  (string
+                    (simple_expansion PLACEHOLDER_5) " + "
+                    (simple_expansion PLACEHOLDER_8))) |
+                (command bc))))))
+      (if_statement
+        (arithmetic_command
+          (binary_expression
+            (binary_expression
+              (simple_expansion PLACEHOLDER_5) % 10) == 0)) then
+        (command echo "true")
+        (else_clause
+          (command echo "false"))))))

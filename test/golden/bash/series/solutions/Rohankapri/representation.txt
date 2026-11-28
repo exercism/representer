@@ -1,18 +1,57 @@
-failure () {
-echo "\"" $1 "\""
-exit 1
-}
-segment () {
-(( $# == 2 )) || exit 1
-local seq = $1 span = $2
-local -a slices
-(( ${# seq } == 0 )) && failure "\"series cannot be empty\""
-(( span == 0 )) && failure "\"slice length cannot be zero\""
-(( span < 0 )) && failure "\"slice length cannot be negative\""
-(( span > ${# seq } )) && failure "\"slice length cannot be greater than series length\""
-for (( k = 0 ; k+span < = ${# seq } ; k++ )) ; do
-slices+ =( "\"" ${ seq :k:span } "\"" )
-done
-IFS = "' '" ; echo "\"" ${ slices [*] } "\""
-}
-segment "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (command echo
+        (string
+          (simple_expansion 1)))
+      (command exit 1)))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (list
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion #) == 2)) ||
+        (command exit 1))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3
+          (simple_expansion 1))
+        (variable_assignment PLACEHOLDER_4
+          (simple_expansion 2)))
+      (declaration_command local -a PLACEHOLDER_5)
+      (list
+        (arithmetic_command
+          (binary_expression
+            (expansion # PLACEHOLDER_3) == 0)) &&
+        (command (command_name PLACEHOLDER_1) "series cannot be empty"))
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_4 == 0)) &&
+        (command (command_name PLACEHOLDER_1) "slice length cannot be zero"))
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_4 < 0)) &&
+        (command (command_name PLACEHOLDER_1) "slice length cannot be negative"))
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_4 >
+            (expansion # PLACEHOLDER_3))) &&
+        (command (command_name PLACEHOLDER_1) "slice length cannot be greater than series length"))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_6 0) ;
+        (binary_expression
+          (binary_expression PLACEHOLDER_6 + PLACEHOLDER_4) <=
+          (expansion # PLACEHOLDER_3)) ;
+        (postfix_expression PLACEHOLDER_6 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_5 +=
+            (array
+              (string
+                (expansion PLACEHOLDER_3 : PLACEHOLDER_6 : PLACEHOLDER_4))))))
+      (variable_assignment IFS " ")
+      (command echo
+        (string
+          (expansion
+            (subscript PLACEHOLDER_5 *))))))
+  (command (command_name PLACEHOLDER_2)
+    (string
+      (simple_expansion @))))

@@ -1,32 +1,60 @@
-readonly -a BOTTLES =(
-"\"no\""
-"\"one\""
-"\"two\""
-"\"three\""
-"\"four\""
-"\"five\""
-"\"six\""
-"\"seven\""
-"\"eight\""
-"\"nine\""
-"\"ten\""
-)
-get_bottles () {
-echo -n "\"" ${ BOTTLES [ $1 ] } " green bottle\""
-(( $1 != 1 )) && echo -n "\"s\""
-echo -n "\" hanging on the wall\""
-}
-main () {
-if (( $# != 2 )) ; then
-echo "\"2 arguments expected\"" ; exit 1
-elif (( $2 > $1 )) ; then
-echo "\"cannot generate more verses than bottles\"" ; exit 1
-fi
-for (( i = $1 ; i > $1 - $2 ; i-- )) ; do
-tmp = $( get_bottles $i )
-yes "\"" ${ tmp ^ } ," | head -n 2
-echo "\"And if one green bottle should accidentally fall,\""
-echo -e "\"There'll be $(" get_bottles $(( i - 1 )) ).\n"
-done
-}
-main "\"" $@ "\""
+(program
+  (declaration_command readonly -a
+    (variable_assignment PLACEHOLDER_1
+      (array "no" "one" "two" "three" "four" "five" "six" "seven" "eight" "nine" "ten")))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (command echo -n
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1
+              (simple_expansion 1))) " green bottle"))
+      (list
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion 1) != 1)) &&
+        (command echo -n "s"))
+      (command echo -n " hanging on the wall")))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (if_statement
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion #) != 2)) then
+        (command echo "2 arguments expected")
+        (command exit 1)
+        (elif_clause
+          (arithmetic_command
+            (binary_expression
+              (simple_expansion 2) >
+              (simple_expansion 1))) then
+          (command echo "cannot generate more verses than bottles")
+          (command exit 1)))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_4
+          (simple_expansion 1)) ;
+        (binary_expression PLACEHOLDER_4 >
+          (binary_expression
+            (simple_expansion 1) -
+            (simple_expansion 2))) ;
+        (postfix_expression PLACEHOLDER_4 --)
+        (do_group
+          (variable_assignment PLACEHOLDER_5
+            (command_substitution
+              (command (command_name PLACEHOLDER_2)
+                (simple_expansion PLACEHOLDER_4))))
+          (pipeline
+            (command yes
+              (string
+                (expansion PLACEHOLDER_5 ^) ",")) |
+            (command head -n 2))
+          (command echo "And if one green bottle should accidentally fall,")
+          (command echo -e
+            (string "There'll be "
+              (command_substitution
+                (command (command_name PLACEHOLDER_2)
+                  (arithmetic_expansion
+                    (binary_expression PLACEHOLDER_4 - 1)))) ".\\n"))))))
+  (command (command_name PLACEHOLDER_3)
+    (string
+      (simple_expansion @))))
