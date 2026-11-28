@@ -1,74 +1,270 @@
-use context essentials2020 # Don't delete this line when using Pyret on Exercism
-provide: word-count end
-include string-dict
-fun string-is-alphabetic(character :: String) -> Boolean:
-doc: 'Determines if the one-character string is an ASCII letter.'
-(("A" <= character) and (character <= "\"Z\"))" or
-(("a" <= character) and (character <= "\"z\"))"
-end
-fun string-is-numeric(character :: String) -> Boolean:
-doc: 'Is the one-character string a digit?'
-("0" <= character) and (character <= "\"9\")"
-end
-fun string-is-non-word-character(character :: String) -> Boolean:
-doc: 'Is the character NOT a "\"word" character" (letters or apostrophes)?'
-not(string-is-alphabetic(character) or (character == "\"'\")" or string-is-numeric(character))
-end
-fun trim-apostrophes(s :: String, x :: String) -> String:
-doc: "\"remove" all xs from the start or end of a string"
-ask:
-| string-length(s) == 0 then: s
-| string-starts-with(s, x) then: trim-apostrophes(string-substring(s, 1, string-length(s)), x)
-| string-ends-with(s, x) then: trim-apostrophes(string-substring(s, 0, string-length(s) - 1), x)
-| otherwise: s
-end
-end
-fun word-count(phrase :: String) -> StringDict:
-block:
-words = parse-text-to-words(phrase)
-counts = [mutable-string-dict: ]
-for each(word from words):
-cases(Option) counts.get-now(word):
-| none => counts.set-now(word, 1)
-| some(n) => counts.set-now(word, n + 1)
-end
-end
-counts.freeze()
-end
-end
-fun parse-text-to-words(phrase :: String) -> List<String>:
-doc: "\"Extract" the words from the phrase"
-rec parser = lam(state :: String, chars :: List<String>, word :: String, words :: List<String>) -> List<String>:
-cases(List) chars:
-| empty =>
-trimmed = trim-apostrophes(word, "\"'\")"
-if string-length(trimmed) == 0:
-words
-else:
-words + [list: trimmed]
-end
-| link(c, cs) =>
-if state == 'seeking':
-# Looking for the start of a word
-if string-is-non-word-character(c):
-parser(state, cs, word, words)
-else:
-parser('in-word', cs, string-to-lower(c), words)
-end
-else:
-# In a word
-if not(string-is-non-word-character(c)):
-parser(state, cs, word + string-to-lower(c), words)
-else:
-trimmed = trim-apostrophes(word, "\"'\")"
-if string-length(trimmed) == 0:
-parser('seeking', cs, '', words)
-else:
-parser('seeking', cs, '', words + [list: trimmed])
-end
-end
-end
-end
-end
-parser('seeking', string-explode(phrase), '', [list:])
-end
+(source_file
+  (block
+    (fun_expr PLACEHOLDER_1
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Determines if the one-character string is an ASCII letter.")
+      (block
+        (binop_expr
+          (binop_expr
+            (binop_expr "A" <= (id_expr PLACEHOLDER_2)) and
+            (binop_expr (id_expr PLACEHOLDER_2) <= "Z")) or
+          (binop_expr
+            (binop_expr "a" <= (id_expr PLACEHOLDER_2)) and
+            (binop_expr (id_expr PLACEHOLDER_2) <= "z")))))
+    (fun_expr PLACEHOLDER_3
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the one-character string a digit?")
+      (block
+        (binop_expr
+          (binop_expr "0" <= (id_expr PLACEHOLDER_2)) and
+          (binop_expr (id_expr PLACEHOLDER_2) <= "9"))))
+    (fun_expr PLACEHOLDER_4
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the character NOT a \"word character\" (letters or apostrophes)?")
+      (block
+        (app_expr not
+          (app_args
+            (comma_binops
+              (binop_expr
+                (binop_expr
+                  (app_expr (id_expr PLACEHOLDER_1)
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_2)))) or
+                  (binop_expr (id_expr PLACEHOLDER_2) == "'")) or
+                (app_expr (id_expr PLACEHOLDER_3)
+                  (app_args
+                    (comma_binops (id_expr PLACEHOLDER_2))))))))))
+    (fun_expr PLACEHOLDER_5
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_6
+            (name_ann String))
+          (name_binding PLACEHOLDER_7
+            (name_ann String)))
+        (return_ann
+          (name_ann String)))
+      (doc_string "remove all xs from the start or end of a string")
+      (block
+        (if_pipe_expr
+          (if_pipe_branch
+            (binop_expr
+              (app_expr string-length
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_6)))) == 0)
+            (block (id_expr PLACEHOLDER_6)))
+          (if_pipe_branch
+            (app_expr string-starts-with
+              (app_args
+                (comma_binops (id_expr PLACEHOLDER_6) (id_expr PLACEHOLDER_7))))
+            (block
+              (app_expr (id_expr PLACEHOLDER_5)
+                (app_args
+                  (comma_binops
+                    (app_expr string-substring
+                      (app_args
+                        (comma_binops (id_expr PLACEHOLDER_6) 1
+                          (app_expr string-length
+                            (app_args
+                              (comma_binops (id_expr PLACEHOLDER_6))))))) (id_expr PLACEHOLDER_7))))))
+          (if_pipe_branch
+            (app_expr string-ends-with
+              (app_args
+                (comma_binops (id_expr PLACEHOLDER_6) (id_expr PLACEHOLDER_7))))
+            (block
+              (app_expr (id_expr PLACEHOLDER_5)
+                (app_args
+                  (comma_binops
+                    (app_expr string-substring
+                      (app_args
+                        (comma_binops (id_expr PLACEHOLDER_6) 0
+                          (binop_expr
+                            (app_expr string-length
+                              (app_args
+                                (comma_binops (id_expr PLACEHOLDER_6)))) - 1)))) (id_expr PLACEHOLDER_7))))))
+          (block (id_expr PLACEHOLDER_6)))))
+    (fun_expr PLACEHOLDER_8
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_9
+            (name_ann String)))
+        (return_ann
+          (name_ann StringDict)))
+      (block
+        (user_block_expr block:
+          (block
+            (let_expr
+              (name_binding PLACEHOLDER_10)
+              (app_expr (id_expr PLACEHOLDER_11)
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_9)))))
+            (let_expr
+              (name_binding PLACEHOLDER_12)
+              (construct_expr mutable-string-dict))
+            (for_expr each
+              (for_bind
+                (name_binding PLACEHOLDER_13) (id_expr PLACEHOLDER_10))
+              (block
+                (cases_expr
+                  (name_ann Option)
+                  (app_expr
+                    (dot_expr (id_expr PLACEHOLDER_12) get-now)
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_13))))
+                  (cases_branch none
+                    (block
+                      (app_expr
+                        (dot_expr (id_expr PLACEHOLDER_12) set-now)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_13) 1)))))
+                  (cases_branch some
+                    (cases_args
+                      (cases_binding
+                        (name_binding PLACEHOLDER_14)))
+                    (block
+                      (app_expr
+                        (dot_expr (id_expr PLACEHOLDER_12) set-now)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_13)
+                            (binop_expr (id_expr PLACEHOLDER_14) + 1)))))))))
+            (app_expr
+              (dot_expr (id_expr PLACEHOLDER_12) freeze)
+              (app_args))))))
+    (fun_expr PLACEHOLDER_11
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_9
+            (name_ann String)))
+        (return_ann
+          (app_ann
+            (name_ann List)
+            (comma_anns
+              (name_ann String)))))
+      (doc_string "Extract the words from the phrase")
+      (block
+        (rec_expr
+          (name_binding PLACEHOLDER_15)
+          (lambda_expr
+            (fun_header
+              (args
+                (name_binding PLACEHOLDER_16
+                  (name_ann String))
+                (name_binding PLACEHOLDER_17
+                  (app_ann
+                    (name_ann List)
+                    (comma_anns
+                      (name_ann String))))
+                (name_binding PLACEHOLDER_13
+                  (name_ann String))
+                (name_binding PLACEHOLDER_10
+                  (app_ann
+                    (name_ann List)
+                    (comma_anns
+                      (name_ann String)))))
+              (return_ann
+                (app_ann
+                  (name_ann List)
+                  (comma_anns
+                    (name_ann String)))))
+            (block
+              (cases_expr
+                (name_ann List) (id_expr PLACEHOLDER_17)
+                (cases_branch empty
+                  (block
+                    (let_expr
+                      (name_binding PLACEHOLDER_18)
+                      (app_expr (id_expr PLACEHOLDER_5)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_13) "'"))))
+                    (if_expr
+                      (binop_expr
+                        (app_expr string-length
+                          (app_args
+                            (comma_binops (id_expr PLACEHOLDER_18)))) == 0)
+                      (block (id_expr PLACEHOLDER_10))
+                      (block
+                        (binop_expr (id_expr PLACEHOLDER_10) +
+                          (construct_expr list (id_expr PLACEHOLDER_18)))))))
+                (cases_branch link
+                  (cases_args
+                    (cases_binding
+                      (name_binding PLACEHOLDER_19))
+                    (cases_binding
+                      (name_binding PLACEHOLDER_20)))
+                  (block
+                    (if_expr
+                      (binop_expr (id_expr PLACEHOLDER_16) == "seeking")
+                      (block
+                        (if_expr
+                          (app_expr (id_expr PLACEHOLDER_4)
+                            (app_args
+                              (comma_binops (id_expr PLACEHOLDER_19))))
+                          (block
+                            (app_expr (id_expr PLACEHOLDER_15)
+                              (app_args
+                                (comma_binops (id_expr PLACEHOLDER_16) (id_expr PLACEHOLDER_20) (id_expr PLACEHOLDER_13) (id_expr PLACEHOLDER_10)))))
+                          (block
+                            (app_expr (id_expr PLACEHOLDER_15)
+                              (app_args
+                                (comma_binops "in-word" (id_expr PLACEHOLDER_20)
+                                  (app_expr string-to-lower
+                                    (app_args
+                                      (comma_binops (id_expr PLACEHOLDER_19)))) (id_expr PLACEHOLDER_10)))))))
+                      (block
+                        (if_expr
+                          (app_expr not
+                            (app_args
+                              (comma_binops
+                                (app_expr (id_expr PLACEHOLDER_4)
+                                  (app_args
+                                    (comma_binops (id_expr PLACEHOLDER_19)))))))
+                          (block
+                            (app_expr (id_expr PLACEHOLDER_15)
+                              (app_args
+                                (comma_binops (id_expr PLACEHOLDER_16) (id_expr PLACEHOLDER_20)
+                                  (binop_expr (id_expr PLACEHOLDER_13) +
+                                    (app_expr string-to-lower
+                                      (app_args
+                                        (comma_binops (id_expr PLACEHOLDER_19))))) (id_expr PLACEHOLDER_10)))))
+                          (block
+                            (let_expr
+                              (name_binding PLACEHOLDER_18)
+                              (app_expr (id_expr PLACEHOLDER_5)
+                                (app_args
+                                  (comma_binops (id_expr PLACEHOLDER_13) "'"))))
+                            (if_expr
+                              (binop_expr
+                                (app_expr string-length
+                                  (app_args
+                                    (comma_binops (id_expr PLACEHOLDER_18)))) == 0)
+                              (block
+                                (app_expr (id_expr PLACEHOLDER_15)
+                                  (app_args
+                                    (comma_binops "seeking" (id_expr PLACEHOLDER_20) "" (id_expr PLACEHOLDER_10)))))
+                              (block
+                                (app_expr (id_expr PLACEHOLDER_15)
+                                  (app_args
+                                    (comma_binops "seeking" (id_expr PLACEHOLDER_20) ""
+                                      (binop_expr (id_expr PLACEHOLDER_10) +
+                                        (construct_expr list (id_expr PLACEHOLDER_18))))))))))))))))))
+        (app_expr (id_expr PLACEHOLDER_15)
+          (app_args
+            (comma_binops "seeking"
+              (app_expr string-explode
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_9)))) ""
+              (construct_expr list))))))))

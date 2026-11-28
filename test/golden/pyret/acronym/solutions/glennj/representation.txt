@@ -1,51 +1,151 @@
-provide:
-string-is-alpha,
-string-is-non-word-char
-end
-fun string-is-alpha(character :: String) -> Boolean:
-doc: 'Is the character an ASCII letter?'
-(("A" <= character) and (character <= "\"Z\"))" or
-(("a" <= character) and (character <= "\"z\"))"
-where:
-string-is-alpha("A") is true
-string-is-alpha("a") is true
-string-is-alpha(" "\")" is false
-string-is-alpha("-") is false
-string-is-alpha("_") is false
-string-is-alpha("'") is false
-end
-fun string-is-non-word-char(character :: String) -> Boolean:
-doc: 'Is the character NOT a "\"word" character" (letters or apostrophes)?'
-not(string-is-alpha(character) or (character == "\"'\"))"
-where:
-string-is-non-word-char("A") is false
-string-is-non-word-char("a") is false
-string-is-non-word-char(" "\")" is true
-string-is-non-word-char("-") is true
-string-is-non-word-char("_") is true
-string-is-non-word-char("'") is false
-end
-use context essentials2020 # Don't delete this line when using Pyret on Exercism
-provide: abbreviate end
-include file("string-helpers.arr")
-fun abbreviate(phrase):
-fun abbr(phr, state, acronym):
-if phr == "\"\":"
-acronym
-else:
-character = string-char-at(phr, 0)
-rest = string-substring(phr, 1, string-length(phr))
-ask:
-| (state == "\"seeking-alpha\")" and string-is-alpha(character) then:
-abbr(rest, "\"seeking-end-of-word\"," acronym + character)
-| (state == "\"seeking-end-of-word\")" and string-is-non-word-char(character) then:
-abbr(rest, "\"seeking-alpha\"," acronym)
-| otherwise:
-abbr(rest, state, acronym)
-end
-end
-end
-phrase
-^ abbr(_, "\"seeking-alpha\"," "\"\")"
-^ string-to-upper(_)
-end
+(source_file
+  (block
+    (fun_expr PLACEHOLDER_1
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the character an ASCII letter?")
+      (block
+        (binop_expr
+          (binop_expr
+            (binop_expr "A" <= (id_expr PLACEHOLDER_2)) and
+            (binop_expr (id_expr PLACEHOLDER_2) <= "Z")) or
+          (binop_expr
+            (binop_expr "a" <= (id_expr PLACEHOLDER_2)) and
+            (binop_expr (id_expr PLACEHOLDER_2) <= "z"))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "A"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "a"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops " "))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "-"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "_"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "'"))) is false))))
+    (fun_expr PLACEHOLDER_3
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the character NOT a \"word character\" (letters or apostrophes)?")
+      (block
+        (app_expr not
+          (app_args
+            (comma_binops
+              (binop_expr
+                (app_expr (id_expr PLACEHOLDER_1)
+                  (app_args
+                    (comma_binops (id_expr PLACEHOLDER_2)))) or
+                (binop_expr (id_expr PLACEHOLDER_2) == "'"))))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "A"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "a"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops " "))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "-"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "_"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "'"))) is false)))))
+  (block
+    (fun_expr PLACEHOLDER_4
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_5)))
+      (block
+        (fun_expr PLACEHOLDER_6
+          (fun_header
+            (args
+              (name_binding PLACEHOLDER_7)
+              (name_binding PLACEHOLDER_8)
+              (name_binding PLACEHOLDER_9)))
+          (block
+            (if_expr
+              (binop_expr (id_expr PLACEHOLDER_7) == "")
+              (block (id_expr PLACEHOLDER_9))
+              (block
+                (let_expr
+                  (name_binding PLACEHOLDER_2)
+                  (app_expr string-char-at
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_7) 0))))
+                (let_expr
+                  (name_binding PLACEHOLDER_10)
+                  (app_expr string-substring
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_7) 1
+                        (app_expr string-length
+                          (app_args
+                            (comma_binops (id_expr PLACEHOLDER_7))))))))
+                (if_pipe_expr
+                  (if_pipe_branch
+                    (binop_expr
+                      (binop_expr (id_expr PLACEHOLDER_8) == "seeking-alpha") and
+                      (app_expr (id_expr PLACEHOLDER_1)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_2)))))
+                    (block
+                      (app_expr (id_expr PLACEHOLDER_6)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_10) "seeking-end-of-word"
+                            (binop_expr (id_expr PLACEHOLDER_9) + (id_expr PLACEHOLDER_2)))))))
+                  (if_pipe_branch
+                    (binop_expr
+                      (binop_expr (id_expr PLACEHOLDER_8) == "seeking-end-of-word") and
+                      (app_expr (id_expr PLACEHOLDER_3)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_2)))))
+                    (block
+                      (app_expr (id_expr PLACEHOLDER_6)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_10) "seeking-alpha" (id_expr PLACEHOLDER_9))))))
+                  (block
+                    (app_expr (id_expr PLACEHOLDER_6)
+                      (app_args
+                        (comma_binops (id_expr PLACEHOLDER_10) (id_expr PLACEHOLDER_8) (id_expr PLACEHOLDER_9))))))))))
+        (binop_expr
+          (binop_expr (id_expr PLACEHOLDER_5) ^
+            (app_expr (id_expr PLACEHOLDER_6)
+              (app_args
+                (comma_binops _ "seeking-alpha" "")))) ^
+          (app_expr string-to-upper
+            (app_args
+              (comma_binops _))))))))

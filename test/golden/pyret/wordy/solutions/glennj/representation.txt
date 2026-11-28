@@ -1,50 +1,179 @@
-use context starter2024
-include string-dict
-provide: answer end
-operations = [string-dict:
-"\"plus\"," lam(a, b): a + b end,
-"\"minus\"," lam(a, b): a - b end,
-"\"multiplied-by\"," lam(a, b): a * b end,
-"\"divided-by\"," lam(a, b): num-floor(a / b) end
-]
-fun answer(question):
-lc = string-to-lower(question)
-ask:
-| not(string-starts-with(lc, "\"what" is")) then: raise("unknown operation")
-| otherwise: parse-number(tokenize(lc), 0, "\"plus\")"
-end
-end
-# ---------------------------------------------------
-fun tokenize(question):
-(question
-^ string-replace(_, "\"?\"," "\"\")"
-^ string-replace(_, "\"" by", "\"-by\")"
-^ string-split-all(_, "\"" "\")"
-).drop(2) # drops "\"What\"" and "\"is\""
-end
-fun parse-number(tokens, current-result, op):
-cases(List) tokens:
-| empty => raise("syntax error")
-| link(token, rest) =>
-cases(Option) string-to-number(token):
-| none => raise("syntax error")
-| some(n) =>
-f = operations.get-value(op)
-parse-operator(rest, f(current-result, n))
-end
-end
-end
-fun parse-operator(tokens, current-result):
-cases(List) tokens:
-| empty => current-result
-| link(token, rest) =>
-if operations.has-key(token):
-parse-number(rest, current-result, token)
-else:
-cases(Option) string-to-number(token):
-| some(_) => raise("syntax error")
-| none => raise("unknown operation")
-end
-end
-end
-end
+(source_file
+  (block
+    (let_expr
+      (name_binding PLACEHOLDER_1)
+      (construct_expr string-dict "plus"
+        (lambda_expr
+          (fun_header
+            (args
+              (name_binding PLACEHOLDER_2)
+              (name_binding PLACEHOLDER_3)))
+          (block
+            (binop_expr (id_expr PLACEHOLDER_2) + (id_expr PLACEHOLDER_3)))) "minus"
+        (lambda_expr
+          (fun_header
+            (args
+              (name_binding PLACEHOLDER_2)
+              (name_binding PLACEHOLDER_3)))
+          (block
+            (binop_expr (id_expr PLACEHOLDER_2) - (id_expr PLACEHOLDER_3)))) "multiplied-by"
+        (lambda_expr
+          (fun_header
+            (args
+              (name_binding PLACEHOLDER_2)
+              (name_binding PLACEHOLDER_3)))
+          (block
+            (binop_expr (id_expr PLACEHOLDER_2) * (id_expr PLACEHOLDER_3)))) "divided-by"
+        (lambda_expr
+          (fun_header
+            (args
+              (name_binding PLACEHOLDER_2)
+              (name_binding PLACEHOLDER_3)))
+          (block
+            (app_expr num-floor
+              (app_args
+                (comma_binops
+                  (binop_expr (id_expr PLACEHOLDER_2) / (id_expr PLACEHOLDER_3)))))))))
+    (fun_expr PLACEHOLDER_4
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_5)))
+      (block
+        (let_expr
+          (name_binding PLACEHOLDER_6)
+          (app_expr string-to-lower
+            (app_args
+              (comma_binops (id_expr PLACEHOLDER_5)))))
+        (if_pipe_expr
+          (if_pipe_branch
+            (app_expr not
+              (app_args
+                (comma_binops
+                  (app_expr string-starts-with
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_6) "what is"))))))
+            (block
+              (app_expr raise
+                (app_args
+                  (comma_binops "unknown operation")))))
+          (block
+            (app_expr (id_expr PLACEHOLDER_7)
+              (app_args
+                (comma_binops
+                  (app_expr (id_expr PLACEHOLDER_8)
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_6)))) 0 "plus")))))))
+    (fun_expr PLACEHOLDER_8
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_5)))
+      (block
+        (app_expr
+          (dot_expr
+            (binop_expr
+              (binop_expr
+                (binop_expr (id_expr PLACEHOLDER_5) ^
+                  (app_expr string-replace
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_9) "?" "")))) ^
+                (app_expr string-replace
+                  (app_args
+                    (comma_binops (id_expr PLACEHOLDER_9) " by" "-by")))) ^
+              (app_expr string-split-all
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_9) " ")))) drop)
+          (app_args
+            (comma_binops 2)))))
+    (fun_expr PLACEHOLDER_7
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_10)
+          (name_binding PLACEHOLDER_11)
+          (name_binding PLACEHOLDER_12)))
+      (block
+        (cases_expr
+          (name_ann List) (id_expr PLACEHOLDER_10)
+          (cases_branch empty
+            (block
+              (app_expr raise
+                (app_args
+                  (comma_binops "syntax error")))))
+          (cases_branch link
+            (cases_args
+              (cases_binding
+                (name_binding PLACEHOLDER_13))
+              (cases_binding
+                (name_binding PLACEHOLDER_14)))
+            (block
+              (cases_expr
+                (name_ann Option)
+                (app_expr string-to-number
+                  (app_args
+                    (comma_binops (id_expr PLACEHOLDER_13))))
+                (cases_branch none
+                  (block
+                    (app_expr raise
+                      (app_args
+                        (comma_binops "syntax error")))))
+                (cases_branch some
+                  (cases_args
+                    (cases_binding
+                      (name_binding PLACEHOLDER_15)))
+                  (block
+                    (let_expr
+                      (name_binding PLACEHOLDER_16)
+                      (app_expr
+                        (dot_expr (id_expr PLACEHOLDER_1) get-value)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_12)))))
+                    (app_expr (id_expr PLACEHOLDER_17)
+                      (app_args
+                        (comma_binops (id_expr PLACEHOLDER_14)
+                          (app_expr (id_expr PLACEHOLDER_16)
+                            (app_args
+                              (comma_binops (id_expr PLACEHOLDER_11) (id_expr PLACEHOLDER_15)))))))))))))))
+    (fun_expr PLACEHOLDER_17
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_10)
+          (name_binding PLACEHOLDER_11)))
+      (block
+        (cases_expr
+          (name_ann List) (id_expr PLACEHOLDER_10)
+          (cases_branch empty
+            (block (id_expr PLACEHOLDER_11)))
+          (cases_branch link
+            (cases_args
+              (cases_binding
+                (name_binding PLACEHOLDER_13))
+              (cases_binding
+                (name_binding PLACEHOLDER_14)))
+            (block
+              (if_expr
+                (app_expr
+                  (dot_expr (id_expr PLACEHOLDER_1) has-key)
+                  (app_args
+                    (comma_binops (id_expr PLACEHOLDER_13))))
+                (block
+                  (app_expr (id_expr PLACEHOLDER_7)
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_14) (id_expr PLACEHOLDER_11) (id_expr PLACEHOLDER_13)))))
+                (block
+                  (cases_expr
+                    (name_ann Option)
+                    (app_expr string-to-number
+                      (app_args
+                        (comma_binops (id_expr PLACEHOLDER_13))))
+                    (cases_branch some
+                      (cases_args
+                        (cases_binding
+                          (name_binding PLACEHOLDER_9)))
+                      (block
+                        (app_expr raise
+                          (app_args
+                            (comma_binops "syntax error")))))
+                    (cases_branch none
+                      (block
+                        (app_expr raise
+                          (app_args
+                            (comma_binops "unknown operation")))))))))))))))
