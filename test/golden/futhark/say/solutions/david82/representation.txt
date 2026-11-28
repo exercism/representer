@@ -1,77 +1,210 @@
-let all_words: [30][]u8 = [
-"\"zero" "\"," "\"one" "\"," "\"two" "\"," "\"three" "\"," "\"four" "\"," "\"five" "\"," "\"six" "\"," "\"seven" "\"," "\"eight" "\"," "\"nine" "\"," -- 0-9
-"\"ten" "\"," "\"eleven" "\"," "\"twelve" "\"," "\"thirteen" "\"," "\"fourteen" "\"," "\"fifteen" "\"," "\"sixteen" "\"," "\"seventeen\"," "\"eighteen" "\"," "\"nineteen" "\"," -- 10-19
-"\"" "\"," "\"" "\"," "\"twenty" "\"," "\"thirty" "\"," "\"forty" "\"," "\"fifty" "\"," "\"sixty" "\"," "\"seventy" "\"," "\"eighty" "\"," "\"ninety" "\"" -- 20-29 (with empty slots for 20,21)
-]
--- Function to trim trailing spaces from a string
-let trim_spaces (s: []u8): []u8 =
-let is_space (c: u8): bool = c == 32u8 -- ASCII space
-let last_non_space = length s - 1
-let trimmed_length = loop i = last_non_space while i >= 0 && is_space s[i] do i - 1
-in if trimmed_length < 0 then "\"\"" else take (trimmed_length + 1) s
--- Helper function to get ones word
-let get_ones (n: i64): []u8 =
-if n >= 0 && n < 10 then trim_spaces (copy all_words[n]) else "\"\""
--- Helper function to get teens word
-let get_teens (n: i64): []u8 =
-if n >= 10 && n < 20 then trim_spaces (copy all_words[n]) else "\"\""
--- Helper function to get tens word
-let get_tens (n: i64): []u8 =
-if n >= 2 && n < 10 then trim_spaces (copy all_words[n + 20]) else "\"\""
--- Convert numbers below 100
-let say_below_hundred (n: i64): []u8 =
-if n < 10 then
-get_ones n
-else if n < 20 then
-get_teens n
-else
-let tens_digit = n / 10
-let ones_digit = n % 10
-let tens_word = get_tens tens_digit
-in if ones_digit == 0 then
-tens_word
-else
-tens_word ++ "\"-\"" ++ get_ones ones_digit
--- Convert numbers below 1000
-let say_below_thousand (n: i64): []u8 =
-if n < 100 then
-say_below_hundred n
-else
-let hundreds_digit = n / 100
-let remainder = n % 100
-let hundreds_word = get_ones hundreds_digit ++ "\"" hundred"
-in if remainder == 0 then
-hundreds_word
-else
-hundreds_word ++ "\"" "\"" ++ say_below_hundred remainder
--- Main function to convert number to English words
-def say (number: i64): []u8 =
-assert (number >= 0 && number <= 999999999999)
-(if number == 0 then
-"\"zero\""
-else
-let billions = number / 1000000000
-let millions = (number % 1000000000) / 1000000
-let thousands = (number % 1000000) / 1000
-let ones = number % 1000
-let billions_part = if billions > 0 then say_below_thousand billions ++ "\"" billion" else "\"\""
-let millions_part = if millions > 0 then say_below_thousand millions ++ "\"" million" else "\"\""
-let thousands_part = if thousands > 0 then say_below_thousand thousands ++ "\"" thousand" else "\"\""
-let ones_part = if ones > 0 then say_below_thousand ones else "\"\""
--- Build result by concatenating parts
-let result =
-if length billions_part > 0 then
-billions_part ++
-(if length millions_part > 0 then "\"" "\"" ++ millions_part else "\"\")" ++
-(if length thousands_part > 0 then "\"" "\"" ++ thousands_part else "\"\")" ++
-(if length ones_part > 0 then "\"" "\"" ++ ones_part else "\"\")"
-else if length millions_part > 0 then
-millions_part ++
-(if length thousands_part > 0 then "\"" "\"" ++ thousands_part else "\"\")" ++
-(if length ones_part > 0 then "\"" "\"" ++ ones_part else "\"\")"
-else if length thousands_part > 0 then
-thousands_part ++
-(if length ones_part > 0 then "\"" "\"" ++ ones_part else "\"\")"
-else
-ones_part
-in result)
+(source_file
+  (value_declaration PLACEHOLDER_1 :
+    (array_type 30
+      (array_type
+        (type_name u8)))
+    (array "zero     " "one      " "two      " "three    " "four     " "five     " "six      " "seven    " "eight    " "nine     " "ten      " "eleven   " "twelve   " "thirteen " "fourteen " "fifteen  " "sixteen  " "seventeen" "eighteen " "nineteen " "         " "         " "twenty   " "thirty   " "forty    " "fifty    " "sixty    " "seventy  " "eighty   " "ninety   "))
+  (value_declaration PLACEHOLDER_2
+    (typed_pattern PLACEHOLDER_3
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_4
+        (typed_pattern PLACEHOLDER_5
+          (type_name u8)) :
+        (type_name bool))
+      (binary_expression PLACEHOLDER_5 == 32u8)
+      (let_expression
+        (binding PLACEHOLDER_6)
+        (binary_expression
+          (application length PLACEHOLDER_3) - 1)
+        (let_expression
+          (binding PLACEHOLDER_7)
+          (loop_expression PLACEHOLDER_8 PLACEHOLDER_6
+            (while
+              (binary_expression
+                (binary_expression PLACEHOLDER_8 >= 0) &&
+                (application PLACEHOLDER_4
+                  (index_expression PLACEHOLDER_3 PLACEHOLDER_8))))
+            (binary_expression PLACEHOLDER_8 - 1))
+          (if_expression
+            (binary_expression PLACEHOLDER_7 < 0) ""
+            (application
+              (application take
+                (binary_expression PLACEHOLDER_7 + 1)) PLACEHOLDER_3))))))
+  (value_declaration PLACEHOLDER_9
+    (typed_pattern PLACEHOLDER_10
+      (type_name i64)) :
+    (array_type
+      (type_name u8))
+    (if_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_10 >= 0) &&
+        (binary_expression PLACEHOLDER_10 < 10))
+      (application PLACEHOLDER_2
+        (application copy
+          (index_expression PLACEHOLDER_1 PLACEHOLDER_10))) ""))
+  (value_declaration PLACEHOLDER_11
+    (typed_pattern PLACEHOLDER_10
+      (type_name i64)) :
+    (array_type
+      (type_name u8))
+    (if_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_10 >= 10) &&
+        (binary_expression PLACEHOLDER_10 < 20))
+      (application PLACEHOLDER_2
+        (application copy
+          (index_expression PLACEHOLDER_1 PLACEHOLDER_10))) ""))
+  (value_declaration PLACEHOLDER_12
+    (typed_pattern PLACEHOLDER_10
+      (type_name i64)) :
+    (array_type
+      (type_name u8))
+    (if_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_10 >= 2) &&
+        (binary_expression PLACEHOLDER_10 < 10))
+      (application PLACEHOLDER_2
+        (application copy
+          (index_expression PLACEHOLDER_1
+            (binary_expression PLACEHOLDER_10 + 20)))) ""))
+  (value_declaration PLACEHOLDER_13
+    (typed_pattern PLACEHOLDER_10
+      (type_name i64)) :
+    (array_type
+      (type_name u8))
+    (if_expression
+      (binary_expression PLACEHOLDER_10 < 10)
+      (application PLACEHOLDER_9 PLACEHOLDER_10)
+      (if_expression
+        (binary_expression PLACEHOLDER_10 < 20)
+        (application PLACEHOLDER_11 PLACEHOLDER_10)
+        (let_expression
+          (binding PLACEHOLDER_14)
+          (binary_expression PLACEHOLDER_10 / 10)
+          (let_expression
+            (binding PLACEHOLDER_15)
+            (binary_expression PLACEHOLDER_10 % 10)
+            (let_expression
+              (binding PLACEHOLDER_16)
+              (application PLACEHOLDER_12 PLACEHOLDER_14)
+              (if_expression
+                (binary_expression PLACEHOLDER_15 == 0) PLACEHOLDER_16
+                (binary_expression
+                  (binary_expression PLACEHOLDER_16 ++ "-") ++
+                  (application PLACEHOLDER_9 PLACEHOLDER_15)))))))))
+  (value_declaration PLACEHOLDER_17
+    (typed_pattern PLACEHOLDER_10
+      (type_name i64)) :
+    (array_type
+      (type_name u8))
+    (if_expression
+      (binary_expression PLACEHOLDER_10 < 100)
+      (application PLACEHOLDER_13 PLACEHOLDER_10)
+      (let_expression
+        (binding PLACEHOLDER_18)
+        (binary_expression PLACEHOLDER_10 / 100)
+        (let_expression
+          (binding PLACEHOLDER_19)
+          (binary_expression PLACEHOLDER_10 % 100)
+          (let_expression
+            (binding PLACEHOLDER_20)
+            (binary_expression
+              (application PLACEHOLDER_9 PLACEHOLDER_18) ++ " hundred")
+            (if_expression
+              (binary_expression PLACEHOLDER_19 == 0) PLACEHOLDER_20
+              (binary_expression
+                (binary_expression PLACEHOLDER_20 ++ " ") ++
+                (application PLACEHOLDER_13 PLACEHOLDER_19))))))))
+  (value_declaration PLACEHOLDER_21
+    (typed_pattern PLACEHOLDER_22
+      (type_name i64)) :
+    (array_type
+      (type_name u8))
+    (assert_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_22 >= 0) &&
+        (binary_expression PLACEHOLDER_22 <= 999999999999))
+      (if_expression
+        (binary_expression PLACEHOLDER_22 == 0) "zero"
+        (let_expression
+          (binding PLACEHOLDER_23)
+          (binary_expression PLACEHOLDER_22 / 1000000000)
+          (let_expression
+            (binding PLACEHOLDER_24)
+            (binary_expression
+              (binary_expression PLACEHOLDER_22 % 1000000000) / 1000000)
+            (let_expression
+              (binding PLACEHOLDER_25)
+              (binary_expression
+                (binary_expression PLACEHOLDER_22 % 1000000) / 1000)
+              (let_expression
+                (binding PLACEHOLDER_26)
+                (binary_expression PLACEHOLDER_22 % 1000)
+                (let_expression
+                  (binding PLACEHOLDER_27)
+                  (if_expression
+                    (binary_expression PLACEHOLDER_23 > 0)
+                    (binary_expression
+                      (application PLACEHOLDER_17 PLACEHOLDER_23) ++ " billion") "")
+                  (let_expression
+                    (binding PLACEHOLDER_28)
+                    (if_expression
+                      (binary_expression PLACEHOLDER_24 > 0)
+                      (binary_expression
+                        (application PLACEHOLDER_17 PLACEHOLDER_24) ++ " million") "")
+                    (let_expression
+                      (binding PLACEHOLDER_29)
+                      (if_expression
+                        (binary_expression PLACEHOLDER_25 > 0)
+                        (binary_expression
+                          (application PLACEHOLDER_17 PLACEHOLDER_25) ++ " thousand") "")
+                      (let_expression
+                        (binding PLACEHOLDER_30)
+                        (if_expression
+                          (binary_expression PLACEHOLDER_26 > 0)
+                          (application PLACEHOLDER_17 PLACEHOLDER_26) "")
+                        (let_expression
+                          (binding PLACEHOLDER_31)
+                          (if_expression
+                            (binary_expression
+                              (application length PLACEHOLDER_27) > 0)
+                            (binary_expression
+                              (binary_expression
+                                (binary_expression PLACEHOLDER_27 ++
+                                  (if_expression
+                                    (binary_expression
+                                      (application length PLACEHOLDER_28) > 0)
+                                    (binary_expression " " ++ PLACEHOLDER_28) "")) ++
+                                (if_expression
+                                  (binary_expression
+                                    (application length PLACEHOLDER_29) > 0)
+                                  (binary_expression " " ++ PLACEHOLDER_29) "")) ++
+                              (if_expression
+                                (binary_expression
+                                  (application length PLACEHOLDER_30) > 0)
+                                (binary_expression " " ++ PLACEHOLDER_30) ""))
+                            (if_expression
+                              (binary_expression
+                                (application length PLACEHOLDER_28) > 0)
+                              (binary_expression
+                                (binary_expression PLACEHOLDER_28 ++
+                                  (if_expression
+                                    (binary_expression
+                                      (application length PLACEHOLDER_29) > 0)
+                                    (binary_expression " " ++ PLACEHOLDER_29) "")) ++
+                                (if_expression
+                                  (binary_expression
+                                    (application length PLACEHOLDER_30) > 0)
+                                  (binary_expression " " ++ PLACEHOLDER_30) ""))
+                              (if_expression
+                                (binary_expression
+                                  (application length PLACEHOLDER_29) > 0)
+                                (binary_expression PLACEHOLDER_29 ++
+                                  (if_expression
+                                    (binary_expression
+                                      (application length PLACEHOLDER_30) > 0)
+                                    (binary_expression " " ++ PLACEHOLDER_30) "")) PLACEHOLDER_30))) PLACEHOLDER_31)))))))))))))

@@ -1,47 +1,213 @@
-def compute_degrees [n] (dominoes: [n][2]i32) (num_nodes: i64): []i32 =
-let indices = map (\i -> i64.i32 dominoes[i / 2, i % 2]) (iota (2 * n))
-let vals = replicate (2 * n) 1
-in reduce_by_index (replicate num_nodes 0) (+) 0 indices vals
-def check_even_degrees (degrees: []i32): bool =
-map (\d -> d % 2 == 0) degrees
-|> reduce (&&) true
-def union_find [n] (dominoes: [n][2]i32) (num_nodes: i64): []i64 =
-let P_init = iota num_nodes
-let (P_final, _) =
-loop (P, changed) = (P_init, true) while changed do
-let P_jump = map (\p -> P[p]) P
-let (hook_idx, hook_val) =
-map (\d ->
-let u = P_jump[i64.i32 d[0]]
-let v = P_jump[i64.i32 d[1]]
-in if u < v then (v, u)
-else if v < u then (u, v)
-else (-1, -1)
-) dominoes
-|> unzip
-let P_hooked =
-reduce_by_index (copy P_jump) i64.min i64.highest hook_idx hook_val
-let changed_now =
-map2 (!=) P P_hooked
-|> reduce (||) false
-in (P_hooked, changed_now)
-in P_final
-def check_connectivity (degrees: []i32) (parents: []i64): bool =
-let active_nodes = filter (\i -> degrees[i] > 0) (iota (length degrees))
-in if length active_nodes == 0 then true
-else
-let first_root = parents[active_nodes[0]]
-in map (\i -> parents[i] == first_root) active_nodes
-|> reduce (&&) true
-def can_chain [n] (dominoes: [n][2]i32): bool =
-if n == 0 then true
-else
-let max_node =
-map (\d -> i32.max d[0] d[1]) dominoes
-|> reduce i32.max 0
-let num_nodes = i64.i32 (max_node + 1)
-let degrees = compute_degrees dominoes num_nodes
-let is_even = check_even_degrees degrees
-let parents = union_find dominoes num_nodes
-let is_connected = check_connectivity degrees parents
-in is_even && is_connected
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (size_parameter PLACEHOLDER_2)
+    (typed_pattern PLACEHOLDER_3
+      (array_type PLACEHOLDER_2
+        (array_type 2
+          (type_name i32))))
+    (typed_pattern PLACEHOLDER_4
+      (type_name i64)) :
+    (array_type
+      (type_name i32))
+    (let_expression
+      (binding PLACEHOLDER_5)
+      (application
+        (application map
+          (lambda PLACEHOLDER_6
+            (application
+              (qualified_name i64 i32)
+              (index_expression PLACEHOLDER_3
+                (binary_expression PLACEHOLDER_6 / 2)
+                (binary_expression PLACEHOLDER_6 % 2)))))
+        (application iota
+          (binary_expression 2 * PLACEHOLDER_2)))
+      (let_expression
+        (binding PLACEHOLDER_7)
+        (application
+          (application replicate
+            (binary_expression 2 * PLACEHOLDER_2)) 1)
+        (application
+          (application
+            (application
+              (application
+                (application reduce_by_index
+                  (application
+                    (application replicate PLACEHOLDER_4) 0))
+                (operator_section
+                  (operator +))) 0) PLACEHOLDER_5) PLACEHOLDER_7))))
+  (value_declaration PLACEHOLDER_8
+    (typed_pattern PLACEHOLDER_9
+      (array_type
+        (type_name i32))) :
+    (type_name bool)
+    (binary_expression
+      (application
+        (application map
+          (lambda PLACEHOLDER_10
+            (binary_expression
+              (binary_expression PLACEHOLDER_10 % 2) == 0))) PLACEHOLDER_9) |>
+      (application
+        (application reduce
+          (operator_section
+            (operator &&)))
+        (boolean true))))
+  (value_declaration PLACEHOLDER_11
+    (size_parameter PLACEHOLDER_2)
+    (typed_pattern PLACEHOLDER_3
+      (array_type PLACEHOLDER_2
+        (array_type 2
+          (type_name i32))))
+    (typed_pattern PLACEHOLDER_4
+      (type_name i64)) :
+    (array_type
+      (type_name i64))
+    (let_expression
+      (binding PLACEHOLDER_12)
+      (application iota PLACEHOLDER_4)
+      (let_expression
+        (binding
+          (tuple_pattern PLACEHOLDER_13 _))
+        (loop_expression
+          (tuple_pattern PLACEHOLDER_14 PLACEHOLDER_15)
+          (tuple PLACEHOLDER_12
+            (boolean true))
+          (while PLACEHOLDER_15)
+          (let_expression
+            (binding PLACEHOLDER_16)
+            (application
+              (application map
+                (lambda PLACEHOLDER_17
+                  (index_expression PLACEHOLDER_14 PLACEHOLDER_17))) PLACEHOLDER_14)
+            (let_expression
+              (binding
+                (tuple_pattern PLACEHOLDER_18 PLACEHOLDER_19))
+              (binary_expression
+                (application
+                  (application map
+                    (lambda PLACEHOLDER_10
+                      (let_expression
+                        (binding PLACEHOLDER_20)
+                        (index_expression PLACEHOLDER_16
+                          (application
+                            (qualified_name i64 i32)
+                            (index_expression PLACEHOLDER_10 0)))
+                        (let_expression
+                          (binding PLACEHOLDER_21)
+                          (index_expression PLACEHOLDER_16
+                            (application
+                              (qualified_name i64 i32)
+                              (index_expression PLACEHOLDER_10 1)))
+                          (if_expression
+                            (binary_expression PLACEHOLDER_20 < PLACEHOLDER_21)
+                            (tuple PLACEHOLDER_21 PLACEHOLDER_20)
+                            (if_expression
+                              (binary_expression PLACEHOLDER_21 < PLACEHOLDER_20)
+                              (tuple PLACEHOLDER_20 PLACEHOLDER_21)
+                              (tuple
+                                (unary_expression - 1)
+                                (unary_expression - 1)))))))) PLACEHOLDER_3) |> unzip)
+              (let_expression
+                (binding PLACEHOLDER_22)
+                (application
+                  (application
+                    (application
+                      (application
+                        (application reduce_by_index
+                          (application copy PLACEHOLDER_16))
+                        (qualified_name i64 min))
+                      (qualified_name i64 highest)) PLACEHOLDER_18) PLACEHOLDER_19)
+                (let_expression
+                  (binding PLACEHOLDER_23)
+                  (binary_expression
+                    (application
+                      (application
+                        (application map2
+                          (operator_section
+                            (operator !=))) PLACEHOLDER_14) PLACEHOLDER_22) |>
+                    (application
+                      (application reduce
+                        (operator_section
+                          (operator ||)))
+                      (boolean false)))
+                  (tuple PLACEHOLDER_22 PLACEHOLDER_23)))))) PLACEHOLDER_13)))
+  (value_declaration PLACEHOLDER_24
+    (typed_pattern PLACEHOLDER_9
+      (array_type
+        (type_name i32)))
+    (typed_pattern PLACEHOLDER_25
+      (array_type
+        (type_name i64))) :
+    (type_name bool)
+    (let_expression
+      (binding PLACEHOLDER_26)
+      (application
+        (application filter
+          (lambda PLACEHOLDER_6
+            (binary_expression
+              (index_expression PLACEHOLDER_9 PLACEHOLDER_6) > 0)))
+        (application iota
+          (application length PLACEHOLDER_9)))
+      (if_expression
+        (binary_expression
+          (application length PLACEHOLDER_26) == 0)
+        (boolean true)
+        (let_expression
+          (binding PLACEHOLDER_27)
+          (index_expression PLACEHOLDER_25
+            (index_expression PLACEHOLDER_26 0))
+          (binary_expression
+            (application
+              (application map
+                (lambda PLACEHOLDER_6
+                  (binary_expression
+                    (index_expression PLACEHOLDER_25 PLACEHOLDER_6) == PLACEHOLDER_27))) PLACEHOLDER_26) |>
+            (application
+              (application reduce
+                (operator_section
+                  (operator &&)))
+              (boolean true)))))))
+  (value_declaration PLACEHOLDER_28
+    (size_parameter PLACEHOLDER_2)
+    (typed_pattern PLACEHOLDER_3
+      (array_type PLACEHOLDER_2
+        (array_type 2
+          (type_name i32)))) :
+    (type_name bool)
+    (if_expression
+      (binary_expression PLACEHOLDER_2 == 0)
+      (boolean true)
+      (let_expression
+        (binding PLACEHOLDER_29)
+        (binary_expression
+          (application
+            (application map
+              (lambda PLACEHOLDER_10
+                (application
+                  (application
+                    (qualified_name i32 max)
+                    (index_expression PLACEHOLDER_10 0))
+                  (index_expression PLACEHOLDER_10 1)))) PLACEHOLDER_3) |>
+          (application
+            (application reduce
+              (qualified_name i32 max)) 0))
+        (let_expression
+          (binding PLACEHOLDER_4)
+          (application
+            (qualified_name i64 i32)
+            (binary_expression PLACEHOLDER_29 + 1))
+          (let_expression
+            (binding PLACEHOLDER_9)
+            (application
+              (application PLACEHOLDER_1 PLACEHOLDER_3) PLACEHOLDER_4)
+            (let_expression
+              (binding PLACEHOLDER_30)
+              (application PLACEHOLDER_8 PLACEHOLDER_9)
+              (let_expression
+                (binding PLACEHOLDER_25)
+                (application
+                  (application PLACEHOLDER_11 PLACEHOLDER_3) PLACEHOLDER_4)
+                (let_expression
+                  (binding PLACEHOLDER_31)
+                  (application
+                    (application PLACEHOLDER_24 PLACEHOLDER_9) PLACEHOLDER_25)
+                  (binary_expression PLACEHOLDER_30 && PLACEHOLDER_31))))))))))

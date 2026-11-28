@@ -1,37 +1,103 @@
-type position = (i32, i32)
-type direction = #north | #east | #south | #west
-type state = (position, direction)
--- Helper function to turn right
-local def turn_right (d: direction): direction =
-match d
-case #north -> #east
-case #east -> #south
-case #south -> #west
-case #west -> #north
--- Helper function to turn left
-local def turn_left (d: direction): direction =
-match d
-case #north -> #west
-case #east -> #north
-case #south -> #east
-case #west -> #south
--- Helper function to advance in the current direction
-local def advance (pos: position) (d: direction): position =
-match d
-case #north -> (pos.0, pos.1 + 1)
-case #east -> (pos.0 + 1, pos.1)
-case #south -> (pos.0, pos.1 - 1)
-case #west -> (pos.0 - 1, pos.1)
--- Process a single instruction
-local def process_instruction (s: state) (instr: u8): state =
-if instr == 82 then -- 'R'
-(s.0, turn_right s.1)
-else if instr == 76 then -- 'L'
-(s.0, turn_left s.1)
-else if instr == 65 then -- 'A'
-(advance s.0 s.1, s.1)
-else
-s -- Unknown instruction, no change
-def move (start: state) (instructions: []u8): state =
-loop current_state = start for i < length instructions do
-process_instruction current_state instructions[i]
+(source_file
+  (type_declaration PLACEHOLDER_1
+    (tuple_type
+      (type_name i32)
+      (type_name i32)))
+  (type_declaration PLACEHOLDER_2
+    (sum_type
+      (variant (constructor PLACEHOLDER_3))
+      (variant (constructor PLACEHOLDER_4))
+      (variant (constructor PLACEHOLDER_5))
+      (variant (constructor PLACEHOLDER_6))))
+  (type_declaration PLACEHOLDER_7
+    (tuple_type
+      (type_name PLACEHOLDER_1)
+      (type_name PLACEHOLDER_2)))
+  (local_declaration local
+    (value_declaration PLACEHOLDER_8
+      (typed_pattern PLACEHOLDER_9
+        (type_name PLACEHOLDER_2)) :
+      (type_name PLACEHOLDER_2)
+      (match_expression PLACEHOLDER_9
+        (case (constructor PLACEHOLDER_3) (constructor PLACEHOLDER_4))
+        (case (constructor PLACEHOLDER_4) (constructor PLACEHOLDER_5))
+        (case (constructor PLACEHOLDER_5) (constructor PLACEHOLDER_6))
+        (case (constructor PLACEHOLDER_6) (constructor PLACEHOLDER_3)))))
+  (local_declaration local
+    (value_declaration PLACEHOLDER_10
+      (typed_pattern PLACEHOLDER_9
+        (type_name PLACEHOLDER_2)) :
+      (type_name PLACEHOLDER_2)
+      (match_expression PLACEHOLDER_9
+        (case (constructor PLACEHOLDER_3) (constructor PLACEHOLDER_6))
+        (case (constructor PLACEHOLDER_4) (constructor PLACEHOLDER_3))
+        (case (constructor PLACEHOLDER_5) (constructor PLACEHOLDER_4))
+        (case (constructor PLACEHOLDER_6) (constructor PLACEHOLDER_5)))))
+  (local_declaration local
+    (value_declaration PLACEHOLDER_11
+      (typed_pattern PLACEHOLDER_12
+        (type_name PLACEHOLDER_1))
+      (typed_pattern PLACEHOLDER_9
+        (type_name PLACEHOLDER_2)) :
+      (type_name PLACEHOLDER_1)
+      (match_expression PLACEHOLDER_9
+        (case (constructor PLACEHOLDER_3)
+          (tuple
+            (field_access PLACEHOLDER_12 0)
+            (binary_expression
+              (field_access PLACEHOLDER_12 1) + 1)))
+        (case (constructor PLACEHOLDER_4)
+          (tuple
+            (binary_expression
+              (field_access PLACEHOLDER_12 0) + 1)
+            (field_access PLACEHOLDER_12 1)))
+        (case (constructor PLACEHOLDER_5)
+          (tuple
+            (field_access PLACEHOLDER_12 0)
+            (binary_expression
+              (field_access PLACEHOLDER_12 1) - 1)))
+        (case (constructor PLACEHOLDER_6)
+          (tuple
+            (binary_expression
+              (field_access PLACEHOLDER_12 0) - 1)
+            (field_access PLACEHOLDER_12 1))))))
+  (local_declaration local
+    (value_declaration PLACEHOLDER_13
+      (typed_pattern PLACEHOLDER_14
+        (type_name PLACEHOLDER_7))
+      (typed_pattern PLACEHOLDER_15
+        (type_name u8)) :
+      (type_name PLACEHOLDER_7)
+      (if_expression
+        (binary_expression PLACEHOLDER_15 == 82)
+        (tuple
+          (field_access PLACEHOLDER_14 0)
+          (application PLACEHOLDER_8
+            (field_access PLACEHOLDER_14 1)))
+        (if_expression
+          (binary_expression PLACEHOLDER_15 == 76)
+          (tuple
+            (field_access PLACEHOLDER_14 0)
+            (application PLACEHOLDER_10
+              (field_access PLACEHOLDER_14 1)))
+          (if_expression
+            (binary_expression PLACEHOLDER_15 == 65)
+            (tuple
+              (application
+                (application PLACEHOLDER_11
+                  (field_access PLACEHOLDER_14 0))
+                (field_access PLACEHOLDER_14 1))
+              (field_access PLACEHOLDER_14 1)) PLACEHOLDER_14)))))
+  (value_declaration PLACEHOLDER_16
+    (typed_pattern PLACEHOLDER_17
+      (type_name PLACEHOLDER_7))
+    (typed_pattern PLACEHOLDER_18
+      (array_type
+        (type_name u8))) :
+    (type_name PLACEHOLDER_7)
+    (loop_expression PLACEHOLDER_19 PLACEHOLDER_17
+      (for_upto PLACEHOLDER_20
+        (application length PLACEHOLDER_18))
+      (application
+        (application PLACEHOLDER_13 PLACEHOLDER_19)
+        (index_expression PLACEHOLDER_18 PLACEHOLDER_20)))))

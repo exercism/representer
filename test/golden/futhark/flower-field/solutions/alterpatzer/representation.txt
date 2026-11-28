@@ -1,26 +1,135 @@
-def has_bomb [m] [n] (field: [m][n]u8) (i: i64) (j: i64): bool =
-i >= 0 && i < m && j >= 0 && j < n && field[i][j] == '*'
-def bomb_at [m] [n] (field: [m][n]u8) (i: i64) (j: i64): i32 =
-if has_bomb field i j then 1 else 0
-def surrounding [m] [n] (field: [m][n]u8) (r: i64) (c: i64): i32 =
-let adjacent =
-loop sum = 0
-for i in [r - 1, r, r + 1] do
-let rsum = map (bomb_at field i) [c - 1, c, c + 1]
-|> i32.sum
-in sum + rsum
-in adjacent - bomb_at field r c
-def mark [n] (row: [n]u8) (count: [n]i32) (c: i64): u8 =
-if row[c] == '*'
-then '*'
-else if count[c] == 0
-then ' '
-else (u8.i32 count[c]) + '0'
-def annotate [m] [n] (garden: [m][n]u8): [m][n]u8 =
-let grid =
-loop grid = []
-for i < m do
-let count = tabulate n (surrounding garden i)
-let row = tabulate n (mark garden[i] count)
-in grid ++ [row]
-in grid :> [m][n]u8
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (size_parameter PLACEHOLDER_2)
+    (size_parameter PLACEHOLDER_3)
+    (typed_pattern PLACEHOLDER_4
+      (array_type PLACEHOLDER_2
+        (array_type PLACEHOLDER_3
+          (type_name u8))))
+    (typed_pattern PLACEHOLDER_5
+      (type_name i64))
+    (typed_pattern PLACEHOLDER_6
+      (type_name i64)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_5 >= 0) &&
+            (binary_expression PLACEHOLDER_5 < PLACEHOLDER_2)) &&
+          (binary_expression PLACEHOLDER_6 >= 0)) &&
+        (binary_expression PLACEHOLDER_6 < PLACEHOLDER_3)) &&
+      (binary_expression
+        (index_expression
+          (index_expression PLACEHOLDER_4 PLACEHOLDER_5) PLACEHOLDER_6) ==
+        (char "*"))))
+  (value_declaration PLACEHOLDER_7
+    (size_parameter PLACEHOLDER_2)
+    (size_parameter PLACEHOLDER_3)
+    (typed_pattern PLACEHOLDER_4
+      (array_type PLACEHOLDER_2
+        (array_type PLACEHOLDER_3
+          (type_name u8))))
+    (typed_pattern PLACEHOLDER_5
+      (type_name i64))
+    (typed_pattern PLACEHOLDER_6
+      (type_name i64)) :
+    (type_name i32)
+    (if_expression
+      (application
+        (application
+          (application PLACEHOLDER_1 PLACEHOLDER_4) PLACEHOLDER_5) PLACEHOLDER_6) 1 0))
+  (value_declaration PLACEHOLDER_8
+    (size_parameter PLACEHOLDER_2)
+    (size_parameter PLACEHOLDER_3)
+    (typed_pattern PLACEHOLDER_4
+      (array_type PLACEHOLDER_2
+        (array_type PLACEHOLDER_3
+          (type_name u8))))
+    (typed_pattern PLACEHOLDER_9
+      (type_name i64))
+    (typed_pattern PLACEHOLDER_10
+      (type_name i64)) :
+    (type_name i32)
+    (let_expression
+      (binding PLACEHOLDER_11)
+      (loop_expression PLACEHOLDER_12 0
+        (for_in PLACEHOLDER_5
+          (array
+            (binary_expression PLACEHOLDER_9 - 1) PLACEHOLDER_9
+            (binary_expression PLACEHOLDER_9 + 1)))
+        (let_expression
+          (binding PLACEHOLDER_13)
+          (binary_expression
+            (application
+              (application map
+                (application
+                  (application PLACEHOLDER_7 PLACEHOLDER_4) PLACEHOLDER_5))
+              (array
+                (binary_expression PLACEHOLDER_10 - 1) PLACEHOLDER_10
+                (binary_expression PLACEHOLDER_10 + 1))) |>
+            (qualified_name i32 PLACEHOLDER_12))
+          (binary_expression PLACEHOLDER_12 + PLACEHOLDER_13)))
+      (binary_expression PLACEHOLDER_11 -
+        (application
+          (application
+            (application PLACEHOLDER_7 PLACEHOLDER_4) PLACEHOLDER_9) PLACEHOLDER_10))))
+  (value_declaration PLACEHOLDER_14
+    (size_parameter PLACEHOLDER_3)
+    (typed_pattern PLACEHOLDER_15
+      (array_type PLACEHOLDER_3
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_16
+      (array_type PLACEHOLDER_3
+        (type_name i32)))
+    (typed_pattern PLACEHOLDER_10
+      (type_name i64)) :
+    (type_name u8)
+    (if_expression
+      (binary_expression
+        (index_expression PLACEHOLDER_15 PLACEHOLDER_10) ==
+        (char "*"))
+      (char "*")
+      (if_expression
+        (binary_expression
+          (index_expression PLACEHOLDER_16 PLACEHOLDER_10) == 0)
+        (char " ")
+        (binary_expression
+          (application
+            (qualified_name u8 i32)
+            (index_expression PLACEHOLDER_16 PLACEHOLDER_10)) +
+          (char "0")))))
+  (value_declaration PLACEHOLDER_17
+    (size_parameter PLACEHOLDER_2)
+    (size_parameter PLACEHOLDER_3)
+    (typed_pattern PLACEHOLDER_18
+      (array_type PLACEHOLDER_2
+        (array_type PLACEHOLDER_3
+          (type_name u8)))) :
+    (array_type PLACEHOLDER_2
+      (array_type PLACEHOLDER_3
+        (type_name u8)))
+    (let_expression
+      (binding PLACEHOLDER_19)
+      (loop_expression PLACEHOLDER_19
+        (array)
+        (for_upto PLACEHOLDER_5 PLACEHOLDER_2)
+        (let_expression
+          (binding PLACEHOLDER_16)
+          (application
+            (application tabulate PLACEHOLDER_3)
+            (application
+              (application PLACEHOLDER_8 PLACEHOLDER_18) PLACEHOLDER_5))
+          (let_expression
+            (binding PLACEHOLDER_15)
+            (application
+              (application tabulate PLACEHOLDER_3)
+              (application
+                (application PLACEHOLDER_14
+                  (index_expression PLACEHOLDER_18 PLACEHOLDER_5)) PLACEHOLDER_16))
+            (binary_expression PLACEHOLDER_19 ++
+              (array PLACEHOLDER_15)))))
+      (coercion PLACEHOLDER_19
+        (array_type PLACEHOLDER_2
+          (array_type PLACEHOLDER_3
+            (type_name u8)))))))

@@ -1,13 +1,73 @@
-def is_digit (c: u8) : bool = any (\d -> d == c) "\"0123456789\""
-def from_digit (c: u8) : u32 =
-if c == 'X'
-then 10
-else u32.u8 (c - '0')
-def is_checksum (ns: [10]u32) : bool =
-(i64.sum (map2 (\i n -> (10 - i) * (i64.u32 n)) (indices ns) ns)) % 11 == 0
-def is_valid (isbn: []u8) : bool =
-let cs = isbn |> filter (!= '-')
-in if (length cs) == 10 && all is_digit cs[:9] && (is_digit cs[9] || cs[9] == 'X')
-then let ds = (map from_digit cs) :> [10]u32
-in is_checksum ds
-else false
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name bool)
+    (application
+      (application any
+        (lambda PLACEHOLDER_3
+          (binary_expression PLACEHOLDER_3 == PLACEHOLDER_2))) "0123456789"))
+  (value_declaration PLACEHOLDER_4
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name u32)
+    (if_expression
+      (binary_expression PLACEHOLDER_2 ==
+        (char "X")) 10
+      (application
+        (qualified_name u32 u8)
+        (binary_expression PLACEHOLDER_2 -
+          (char "0")))))
+  (value_declaration PLACEHOLDER_5
+    (typed_pattern PLACEHOLDER_6
+      (array_type 10
+        (type_name u32))) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (application
+          (qualified_name i64 sum)
+          (application
+            (application
+              (application map2
+                (lambda PLACEHOLDER_7 PLACEHOLDER_8
+                  (binary_expression
+                    (binary_expression 10 - PLACEHOLDER_7) *
+                    (application
+                      (qualified_name i64 u32) PLACEHOLDER_8))))
+              (application indices PLACEHOLDER_6)) PLACEHOLDER_6)) % 11) == 0))
+  (value_declaration PLACEHOLDER_9
+    (typed_pattern PLACEHOLDER_10
+      (array_type
+        (type_name u8))) :
+    (type_name bool)
+    (let_expression
+      (binding PLACEHOLDER_11)
+      (binary_expression PLACEHOLDER_10 |>
+        (application filter
+          (right_section !=
+            (char "-"))))
+      (if_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (application length PLACEHOLDER_11) == 10) &&
+            (application
+              (application all PLACEHOLDER_1)
+              (index_expression PLACEHOLDER_11
+                (slice : 9)))) &&
+          (binary_expression
+            (application PLACEHOLDER_1
+              (index_expression PLACEHOLDER_11 9)) ||
+            (binary_expression
+              (index_expression PLACEHOLDER_11 9) ==
+              (char "X"))))
+        (let_expression
+          (binding PLACEHOLDER_12)
+          (coercion
+            (application
+              (application map PLACEHOLDER_4) PLACEHOLDER_11)
+            (array_type 10
+              (type_name u32)))
+          (application PLACEHOLDER_5 PLACEHOLDER_12))
+        (boolean false)))))

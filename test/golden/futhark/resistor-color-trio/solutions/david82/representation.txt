@@ -1,71 +1,252 @@
-type resistance = { value: [3]u8, unit: [8]u8 }
-def strings_equal [m] [n] (a: [m]u8) (b: [n]u8): bool =
-if m != n then false
-else all (\i -> a[i] == b[i]) (iota m)
-def label (first: []u8) (second: []u8) (third: []u8): resistance =
-let to_digit (c: []u8): u8 =
-if strings_equal c "\"black\"" then 0
-else if strings_equal c "\"brown\"" then 1
-else if strings_equal c "\"red\"" then 2
-else if strings_equal c "\"orange\"" then 3
-else if strings_equal c "\"yellow\"" then 4
-else if strings_equal c "\"green\"" then 5
-else if strings_equal c "\"blue\"" then 6
-else if strings_equal c "\"violet\"" then 7
-else if strings_equal c "\"grey\"" then 8
-else 9
-let d1: u8 = to_digit first
-let d2: u8 = to_digit second
-let zeros: i64 = i64.u8 (to_digit third)
-let ascii_0: u8 = 48
-let ascii_dot: u8 = 46
-let ascii_space: u8 = 32
-let char_of_digit (d: u8): u8 = ascii_0 + d
-let tens_char: u8 = char_of_digit d1
-let ones_char: u8 = char_of_digit d2
--- Calculate base value: d1*10 + d2
-let base_value: i64 = i64.u8 d1 * 10 + i64.u8 d2
--- Total value with zeros
-let total_value: i64 = base_value * (10 ** zeros)
--- Determine unit and scaling
-let (k, divisor): (i64, i64) =
-if total_value >= 1000000000 then (3, 1000000000) -- gigaohms
-else if total_value >= 1000000 then (2, 1000000) -- megaohms
-else if total_value >= 1000 then (1, 1000) -- kiloohms
-else (0, 1) -- ohms
-let units: [4][8]u8 = [
-[111, 104, 109, 115, 32, 32, 32, 32], -- "\"ohms" "\""
-[107, 105, 108, 111, 111, 104, 109, 115], -- "\"kiloohms\""
-[109, 101, 103, 97, 111, 104, 109, 115], -- "\"megaohms\""
-[103, 105, 103, 97, 111, 104, 109, 115] -- "\"gigaohms\""
-]
-let unit_str: [8]u8 = units[k]
--- Calculate the displayed value
-let scaled_value: i64 = total_value / divisor
-let remainder_value: i64 = total_value % divisor
--- Check if we need decimal format
-let needs_decimal: bool = remainder_value != 0 && divisor > 1
--- Format the value
-let value_str: [3]u8 =
-if needs_decimal then
--- Decimal value (x.y format)
--- Calculate decimal digit: (remainder * 10) / divisor
-let decimal_digit: i64 = (remainder_value * 10) / divisor
-let int_part = u8.i64 scaled_value
-let dec_part = u8.i64 decimal_digit
-in [char_of_digit int_part, ascii_dot, char_of_digit dec_part]
-else
--- Integer value
-if scaled_value >= 100 then
-let h = u8.i64 (scaled_value / 100)
-let t = u8.i64 ((scaled_value / 10) % 10)
-let o = u8.i64 (scaled_value % 10)
-in [char_of_digit h, char_of_digit t, char_of_digit o]
-else if scaled_value >= 10 then
-let t = u8.i64 (scaled_value / 10)
-let o = u8.i64 (scaled_value % 10)
-in [ascii_space, char_of_digit t, char_of_digit o]
-else
-let o = u8.i64 scaled_value
-in [ascii_space, ascii_space, char_of_digit o]
-in { value = value_str, unit = unit_str }
+(source_file
+  (type_declaration PLACEHOLDER_1
+    (record_type PLACEHOLDER_2
+      (array_type 3
+        (type_name u8)) PLACEHOLDER_3
+      (array_type 8
+        (type_name u8))))
+  (value_declaration PLACEHOLDER_4
+    (size_parameter PLACEHOLDER_5)
+    (size_parameter PLACEHOLDER_6)
+    (typed_pattern PLACEHOLDER_7
+      (array_type PLACEHOLDER_5
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_8
+      (array_type PLACEHOLDER_6
+        (type_name u8))) :
+    (type_name bool)
+    (if_expression
+      (binary_expression PLACEHOLDER_5 != PLACEHOLDER_6)
+      (boolean false)
+      (application
+        (application all
+          (lambda PLACEHOLDER_9
+            (binary_expression
+              (index_expression PLACEHOLDER_7 PLACEHOLDER_9) ==
+              (index_expression PLACEHOLDER_8 PLACEHOLDER_9))))
+        (application iota PLACEHOLDER_5))))
+  (value_declaration PLACEHOLDER_10
+    (typed_pattern PLACEHOLDER_11
+      (array_type
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_12
+      (array_type
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_13
+      (array_type
+        (type_name u8))) :
+    (type_name PLACEHOLDER_1)
+    (let_expression
+      (binding PLACEHOLDER_14
+        (typed_pattern PLACEHOLDER_15
+          (array_type
+            (type_name u8))) :
+        (type_name u8))
+      (if_expression
+        (application
+          (application PLACEHOLDER_4 PLACEHOLDER_15) "black") 0
+        (if_expression
+          (application
+            (application PLACEHOLDER_4 PLACEHOLDER_15) "brown") 1
+          (if_expression
+            (application
+              (application PLACEHOLDER_4 PLACEHOLDER_15) "red") 2
+            (if_expression
+              (application
+                (application PLACEHOLDER_4 PLACEHOLDER_15) "orange") 3
+              (if_expression
+                (application
+                  (application PLACEHOLDER_4 PLACEHOLDER_15) "yellow") 4
+                (if_expression
+                  (application
+                    (application PLACEHOLDER_4 PLACEHOLDER_15) "green") 5
+                  (if_expression
+                    (application
+                      (application PLACEHOLDER_4 PLACEHOLDER_15) "blue") 6
+                    (if_expression
+                      (application
+                        (application PLACEHOLDER_4 PLACEHOLDER_15) "violet") 7
+                      (if_expression
+                        (application
+                          (application PLACEHOLDER_4 PLACEHOLDER_15) "grey") 8 9)))))))))
+      (let_expression
+        (binding
+          (typed_pattern PLACEHOLDER_16
+            (type_name u8)))
+        (application PLACEHOLDER_14 PLACEHOLDER_11)
+        (let_expression
+          (binding
+            (typed_pattern PLACEHOLDER_17
+              (type_name u8)))
+          (application PLACEHOLDER_14 PLACEHOLDER_12)
+          (let_expression
+            (binding
+              (typed_pattern PLACEHOLDER_18
+                (type_name i64)))
+            (application
+              (qualified_name i64 u8)
+              (application PLACEHOLDER_14 PLACEHOLDER_13))
+            (let_expression
+              (binding
+                (typed_pattern PLACEHOLDER_19
+                  (type_name u8))) 48
+              (let_expression
+                (binding
+                  (typed_pattern PLACEHOLDER_20
+                    (type_name u8))) 46
+                (let_expression
+                  (binding
+                    (typed_pattern PLACEHOLDER_21
+                      (type_name u8))) 32
+                  (let_expression
+                    (binding PLACEHOLDER_22
+                      (typed_pattern PLACEHOLDER_23
+                        (type_name u8)) :
+                      (type_name u8))
+                    (binary_expression PLACEHOLDER_19 + PLACEHOLDER_23)
+                    (let_expression
+                      (binding
+                        (typed_pattern PLACEHOLDER_24
+                          (type_name u8)))
+                      (application PLACEHOLDER_22 PLACEHOLDER_16)
+                      (let_expression
+                        (binding
+                          (typed_pattern PLACEHOLDER_25
+                            (type_name u8)))
+                        (application PLACEHOLDER_22 PLACEHOLDER_17)
+                        (let_expression
+                          (binding
+                            (typed_pattern PLACEHOLDER_26
+                              (type_name i64)))
+                          (binary_expression
+                            (binary_expression
+                              (application
+                                (qualified_name i64 u8) PLACEHOLDER_16) * 10) +
+                            (application
+                              (qualified_name i64 u8) PLACEHOLDER_17))
+                          (let_expression
+                            (binding
+                              (typed_pattern PLACEHOLDER_27
+                                (type_name i64)))
+                            (binary_expression PLACEHOLDER_26 *
+                              (binary_expression 10 ** PLACEHOLDER_18))
+                            (let_expression
+                              (binding
+                                (typed_pattern
+                                  (tuple_pattern PLACEHOLDER_28 PLACEHOLDER_29)
+                                  (tuple_type
+                                    (type_name i64)
+                                    (type_name i64))))
+                              (if_expression
+                                (binary_expression PLACEHOLDER_27 >= 1000000000)
+                                (tuple 3 1000000000)
+                                (if_expression
+                                  (binary_expression PLACEHOLDER_27 >= 1000000)
+                                  (tuple 2 1000000)
+                                  (if_expression
+                                    (binary_expression PLACEHOLDER_27 >= 1000)
+                                    (tuple 1 1000)
+                                    (tuple 0 1))))
+                              (let_expression
+                                (binding
+                                  (typed_pattern PLACEHOLDER_30
+                                    (array_type 4
+                                      (array_type 8
+                                        (type_name u8)))))
+                                (array
+                                  (array 111 104 109 115 32 32 32 32)
+                                  (array 107 105 108 111 111 104 109 115)
+                                  (array 109 101 103 97 111 104 109 115)
+                                  (array 103 105 103 97 111 104 109 115))
+                                (let_expression
+                                  (binding
+                                    (typed_pattern PLACEHOLDER_31
+                                      (array_type 8
+                                        (type_name u8))))
+                                  (index_expression PLACEHOLDER_30 PLACEHOLDER_28)
+                                  (let_expression
+                                    (binding
+                                      (typed_pattern PLACEHOLDER_32
+                                        (type_name i64)))
+                                    (binary_expression PLACEHOLDER_27 / PLACEHOLDER_29)
+                                    (let_expression
+                                      (binding
+                                        (typed_pattern PLACEHOLDER_33
+                                          (type_name i64)))
+                                      (binary_expression PLACEHOLDER_27 % PLACEHOLDER_29)
+                                      (let_expression
+                                        (binding
+                                          (typed_pattern PLACEHOLDER_34
+                                            (type_name bool)))
+                                        (binary_expression
+                                          (binary_expression PLACEHOLDER_33 != 0) &&
+                                          (binary_expression PLACEHOLDER_29 > 1))
+                                        (let_expression
+                                          (binding
+                                            (typed_pattern PLACEHOLDER_35
+                                              (array_type 3
+                                                (type_name u8))))
+                                          (if_expression PLACEHOLDER_34
+                                            (let_expression
+                                              (binding
+                                                (typed_pattern PLACEHOLDER_36
+                                                  (type_name i64)))
+                                              (binary_expression
+                                                (binary_expression PLACEHOLDER_33 * 10) / PLACEHOLDER_29)
+                                              (let_expression
+                                                (binding PLACEHOLDER_37)
+                                                (application
+                                                  (qualified_name u8 i64) PLACEHOLDER_32)
+                                                (let_expression
+                                                  (binding PLACEHOLDER_38)
+                                                  (application
+                                                    (qualified_name u8 i64) PLACEHOLDER_36)
+                                                  (array
+                                                    (application PLACEHOLDER_22 PLACEHOLDER_37) PLACEHOLDER_20
+                                                    (application PLACEHOLDER_22 PLACEHOLDER_38)))))
+                                            (if_expression
+                                              (binary_expression PLACEHOLDER_32 >= 100)
+                                              (let_expression
+                                                (binding PLACEHOLDER_39)
+                                                (application
+                                                  (qualified_name u8 i64)
+                                                  (binary_expression PLACEHOLDER_32 / 100))
+                                                (let_expression
+                                                  (binding PLACEHOLDER_40)
+                                                  (application
+                                                    (qualified_name u8 i64)
+                                                    (binary_expression
+                                                      (binary_expression PLACEHOLDER_32 / 10) % 10))
+                                                  (let_expression
+                                                    (binding PLACEHOLDER_41)
+                                                    (application
+                                                      (qualified_name u8 i64)
+                                                      (binary_expression PLACEHOLDER_32 % 10))
+                                                    (array
+                                                      (application PLACEHOLDER_22 PLACEHOLDER_39)
+                                                      (application PLACEHOLDER_22 PLACEHOLDER_40)
+                                                      (application PLACEHOLDER_22 PLACEHOLDER_41)))))
+                                              (if_expression
+                                                (binary_expression PLACEHOLDER_32 >= 10)
+                                                (let_expression
+                                                  (binding PLACEHOLDER_40)
+                                                  (application
+                                                    (qualified_name u8 i64)
+                                                    (binary_expression PLACEHOLDER_32 / 10))
+                                                  (let_expression
+                                                    (binding PLACEHOLDER_41)
+                                                    (application
+                                                      (qualified_name u8 i64)
+                                                      (binary_expression PLACEHOLDER_32 % 10))
+                                                    (array PLACEHOLDER_21
+                                                      (application PLACEHOLDER_22 PLACEHOLDER_40)
+                                                      (application PLACEHOLDER_22 PLACEHOLDER_41))))
+                                                (let_expression
+                                                  (binding PLACEHOLDER_41)
+                                                  (application
+                                                    (qualified_name u8 i64) PLACEHOLDER_32)
+                                                  (array PLACEHOLDER_21 PLACEHOLDER_21
+                                                    (application PLACEHOLDER_22 PLACEHOLDER_41))))))
+                                          (record
+                                            (record_field PLACEHOLDER_2 PLACEHOLDER_35)
+                                            (record_field PLACEHOLDER_3 PLACEHOLDER_31)))))))))))))))))))))))

@@ -1,38 +1,110 @@
-def add_parity (x: i32): i32 =
-2 * x + (i32.popc x % 2)
-def split_word (x: i32) (bits: i32): (i32, i32) =
-let start = x >> (8 - bits)
-let rest = (x & ((1 << (8 - bits)) - 1)) << (bits - 1)
-in (start, rest)
-def transmit_sequence (message: []i32): []i32 =
-let (code, carried, bits) =
-loop (code, carried, bits) =
-([], 0, 7)
-for x in message do
-let (use, keep) = split_word x bits
-let y = add_parity (carried | use)
-in
-if bits != 1
-then (code ++ [y], keep, bits - 1)
-else
-let y2 = add_parity (x & 0x7f)
-in (code ++ [y, y2], 0, 7)
-in
-if bits != 7
-then code ++ [add_parity carried]
-else code
-def decode_message (message: []i32): []i32 =
-let (text, _, _) =
-loop(text, carried, bits) =
-([], 0, 8)
-for x in message do
-let y = assert (i32.popc x % 2 == 0) (x / 2)
-in
-if bits == 8
-then (text, 2 * y, 1)
-else
-let (use, keep) = split_word y (bits + 1)
-in
-(text ++ [carried|use], 2 * keep, bits + 1)
-in
-text
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32)) :
+    (type_name i32)
+    (binary_expression
+      (binary_expression 2 * PLACEHOLDER_2) +
+      (binary_expression
+        (application
+          (qualified_name i32 popc) PLACEHOLDER_2) % 2)))
+  (value_declaration PLACEHOLDER_3
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_4
+      (type_name i32)) :
+    (tuple_type
+      (type_name i32)
+      (type_name i32))
+    (let_expression
+      (binding PLACEHOLDER_5)
+      (binary_expression PLACEHOLDER_2 >>
+        (binary_expression 8 - PLACEHOLDER_4))
+      (let_expression
+        (binding PLACEHOLDER_6)
+        (binary_expression
+          (binary_expression PLACEHOLDER_2 &
+            (binary_expression
+              (binary_expression 1 <<
+                (binary_expression 8 - PLACEHOLDER_4)) - 1)) <<
+          (binary_expression PLACEHOLDER_4 - 1))
+        (tuple PLACEHOLDER_5 PLACEHOLDER_6))))
+  (value_declaration PLACEHOLDER_7
+    (typed_pattern PLACEHOLDER_8
+      (array_type
+        (type_name i32))) :
+    (array_type
+      (type_name i32))
+    (let_expression
+      (binding
+        (tuple_pattern PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_4))
+      (loop_expression
+        (tuple_pattern PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_4)
+        (tuple
+          (array) 0 7)
+        (for_in PLACEHOLDER_2 PLACEHOLDER_8)
+        (let_expression
+          (binding
+            (tuple_pattern PLACEHOLDER_11 PLACEHOLDER_12))
+          (application
+            (application PLACEHOLDER_3 PLACEHOLDER_2) PLACEHOLDER_4)
+          (let_expression
+            (binding PLACEHOLDER_13)
+            (application PLACEHOLDER_1
+              (binary_expression PLACEHOLDER_10 | PLACEHOLDER_11))
+            (if_expression
+              (binary_expression PLACEHOLDER_4 != 1)
+              (tuple
+                (binary_expression PLACEHOLDER_9 ++
+                  (array PLACEHOLDER_13)) PLACEHOLDER_12
+                (binary_expression PLACEHOLDER_4 - 1))
+              (let_expression
+                (binding PLACEHOLDER_14)
+                (application PLACEHOLDER_1
+                  (binary_expression PLACEHOLDER_2 & 127))
+                (tuple
+                  (binary_expression PLACEHOLDER_9 ++
+                    (array PLACEHOLDER_13 PLACEHOLDER_14)) 0 7))))))
+      (if_expression
+        (binary_expression PLACEHOLDER_4 != 7)
+        (binary_expression PLACEHOLDER_9 ++
+          (array
+            (application PLACEHOLDER_1 PLACEHOLDER_10))) PLACEHOLDER_9)))
+  (value_declaration PLACEHOLDER_15
+    (typed_pattern PLACEHOLDER_8
+      (array_type
+        (type_name i32))) :
+    (array_type
+      (type_name i32))
+    (let_expression
+      (binding
+        (tuple_pattern PLACEHOLDER_16 _ _))
+      (loop_expression
+        (tuple_pattern PLACEHOLDER_16 PLACEHOLDER_10 PLACEHOLDER_4)
+        (tuple
+          (array) 0 8)
+        (for_in PLACEHOLDER_2 PLACEHOLDER_8)
+        (let_expression
+          (binding PLACEHOLDER_13)
+          (assert_expression
+            (binary_expression
+              (binary_expression
+                (application
+                  (qualified_name i32 popc) PLACEHOLDER_2) % 2) == 0)
+            (binary_expression PLACEHOLDER_2 / 2))
+          (if_expression
+            (binary_expression PLACEHOLDER_4 == 8)
+            (tuple PLACEHOLDER_16
+              (binary_expression 2 * PLACEHOLDER_13) 1)
+            (let_expression
+              (binding
+                (tuple_pattern PLACEHOLDER_11 PLACEHOLDER_12))
+              (application
+                (application PLACEHOLDER_3 PLACEHOLDER_13)
+                (binary_expression PLACEHOLDER_4 + 1))
+              (tuple
+                (binary_expression PLACEHOLDER_16 ++
+                  (array
+                    (binary_expression PLACEHOLDER_10 | PLACEHOLDER_11)))
+                (binary_expression 2 * PLACEHOLDER_12)
+                (binary_expression PLACEHOLDER_4 + 1)))))) PLACEHOLDER_16)))

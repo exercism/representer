@@ -1,37 +1,132 @@
--- Helper function to check if a character is a digit
-def is_digit (c: u8): bool =
-c >= 48 && c <= 57
--- Helper function to check if a character is whitespace
-def is_whitespace (c: u8): bool =
-c == 32 || c == 9 || c == 10 || c == 13
--- Generic function to parse a character into a digit
-def char_to_digit (c: u8): i32 =
-i32.u8 (c - 48)
--- Generic function to check if we should continue parsing a number
-def should_continue_number [n] (string: [n]u8) (i: i64): bool =
-i + 1 < n && string[i + 1] > 32
--- Generic function to check if we should collect a number
-def should_collect_number (current_row: i32) (current_column: i32) (required_row: i32) (required_column: i32): bool =
-current_row == required_row || current_column == required_column
--- Generic matrix element selector
-def select [n] (string: [n]u8) (required_row: i32) (required_column: i32): []i32 =
-let (a, count, _, _, _, _) = loop (a, count, current_row, current_column, i, number) = (replicate n 0, 0, 1, 1, 0, 0) while i < n do
-let ch = string[i]
-in
-if ch == 32 then (a, count, current_row, current_column + 1, i + 1, 0)
-else if ch == 10 then (a, count, current_row + 1, 1, i + 1, 0)
-else
-let number = 10 * number + char_to_digit ch
-in
-if should_continue_number string i then (a, count, current_row, current_column, i + 1, number)
-else if should_collect_number current_row current_column required_row required_column then
-(a with [count] = number, count + 1, current_row, current_column, i + 1, 0)
-else (a, count, current_row, current_column, i + 1, 0)
-in
-a[0:count]
--- Generic row extraction function
-def row (string: []u8) (index: i32): []i32 =
-select string index 0
--- Generic column extraction function
-def column (string: []u8) (index: i32): []i32 =
-select string 0 index
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression PLACEHOLDER_2 >= 48) &&
+      (binary_expression PLACEHOLDER_2 <= 57)))
+  (value_declaration PLACEHOLDER_3
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (binary_expression PLACEHOLDER_2 == 32) ||
+          (binary_expression PLACEHOLDER_2 == 9)) ||
+        (binary_expression PLACEHOLDER_2 == 10)) ||
+      (binary_expression PLACEHOLDER_2 == 13)))
+  (value_declaration PLACEHOLDER_4
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name i32)
+    (application
+      (qualified_name i32 u8)
+      (binary_expression PLACEHOLDER_2 - 48)))
+  (value_declaration PLACEHOLDER_5
+    (size_parameter PLACEHOLDER_6)
+    (typed_pattern PLACEHOLDER_7
+      (array_type PLACEHOLDER_6
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_8
+      (type_name i64)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_8 + 1) < PLACEHOLDER_6) &&
+      (binary_expression
+        (index_expression PLACEHOLDER_7
+          (binary_expression PLACEHOLDER_8 + 1)) > 32)))
+  (value_declaration PLACEHOLDER_9
+    (typed_pattern PLACEHOLDER_10
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_11
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_12
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_13
+      (type_name i32)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression PLACEHOLDER_10 == PLACEHOLDER_12) ||
+      (binary_expression PLACEHOLDER_11 == PLACEHOLDER_13)))
+  (value_declaration PLACEHOLDER_14
+    (size_parameter PLACEHOLDER_6)
+    (typed_pattern PLACEHOLDER_7
+      (array_type PLACEHOLDER_6
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_12
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_13
+      (type_name i32)) :
+    (array_type
+      (type_name i32))
+    (let_expression
+      (binding
+        (tuple_pattern PLACEHOLDER_15 PLACEHOLDER_16 _ _ _ _))
+      (loop_expression
+        (tuple_pattern PLACEHOLDER_15 PLACEHOLDER_16 PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_8 PLACEHOLDER_17)
+        (tuple
+          (application
+            (application replicate PLACEHOLDER_6) 0) 0 1 1 0 0)
+        (while
+          (binary_expression PLACEHOLDER_8 < PLACEHOLDER_6))
+        (let_expression
+          (binding PLACEHOLDER_18)
+          (index_expression PLACEHOLDER_7 PLACEHOLDER_8)
+          (if_expression
+            (binary_expression PLACEHOLDER_18 == 32)
+            (tuple PLACEHOLDER_15 PLACEHOLDER_16 PLACEHOLDER_10
+              (binary_expression PLACEHOLDER_11 + 1)
+              (binary_expression PLACEHOLDER_8 + 1) 0)
+            (if_expression
+              (binary_expression PLACEHOLDER_18 == 10)
+              (tuple PLACEHOLDER_15 PLACEHOLDER_16
+                (binary_expression PLACEHOLDER_10 + 1) 1
+                (binary_expression PLACEHOLDER_8 + 1) 0)
+              (let_expression
+                (binding PLACEHOLDER_17)
+                (binary_expression
+                  (binary_expression 10 * PLACEHOLDER_17) +
+                  (application PLACEHOLDER_4 PLACEHOLDER_18))
+                (if_expression
+                  (application
+                    (application PLACEHOLDER_5 PLACEHOLDER_7) PLACEHOLDER_8)
+                  (tuple PLACEHOLDER_15 PLACEHOLDER_16 PLACEHOLDER_10 PLACEHOLDER_11
+                    (binary_expression PLACEHOLDER_8 + 1) PLACEHOLDER_17)
+                  (if_expression
+                    (application
+                      (application
+                        (application
+                          (application PLACEHOLDER_9 PLACEHOLDER_10) PLACEHOLDER_11) PLACEHOLDER_12) PLACEHOLDER_13)
+                    (tuple
+                      (with_expression PLACEHOLDER_15 [ PLACEHOLDER_16 ] PLACEHOLDER_17)
+                      (binary_expression PLACEHOLDER_16 + 1) PLACEHOLDER_10 PLACEHOLDER_11
+                      (binary_expression PLACEHOLDER_8 + 1) 0)
+                    (tuple PLACEHOLDER_15 PLACEHOLDER_16 PLACEHOLDER_10 PLACEHOLDER_11
+                      (binary_expression PLACEHOLDER_8 + 1) 0))))))))
+      (index_expression PLACEHOLDER_15
+        (slice 0 : PLACEHOLDER_16))))
+  (value_declaration PLACEHOLDER_19
+    (typed_pattern PLACEHOLDER_7
+      (array_type
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_20
+      (type_name i32)) :
+    (array_type
+      (type_name i32))
+    (application
+      (application
+        (application PLACEHOLDER_14 PLACEHOLDER_7) PLACEHOLDER_20) 0))
+  (value_declaration PLACEHOLDER_21
+    (typed_pattern PLACEHOLDER_7
+      (array_type
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_20
+      (type_name i32)) :
+    (array_type
+      (type_name i32))
+    (application
+      (application
+        (application PLACEHOLDER_14 PLACEHOLDER_7) 0) PLACEHOLDER_20)))

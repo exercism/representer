@@ -1,31 +1,155 @@
-def score (dice: [5]i32) (category: []u8): i32 =
-let freqs = map (\v -> reduce (+) 0 (map (\x -> if x == v then 1 else 0) dice)) [1,2,3,4,5,6]
-let sum_all = reduce (+) 0 dice
-let non_zero = filter (>0) freqs
-let (len, c0, c1) = (length category,
-if length category > 0 then category[0] else 0,
-if length category > 1 then category[1] else 0)
-in match (len, c0, c1)
--- Number categories: ones through sixes
-case (4, 111, _) -> freqs[0] * 1 -- "\"ones\""
-case (4, 116, _) -> freqs[1] * 2 -- "\"twos\""
-case (6, 116, _) -> freqs[2] * 3 -- "\"threes\""
-case (5, 102, 111) -> freqs[3] * 4 -- "\"fours\""
-case (5, 102, 105) -> freqs[4] * 5 -- "\"fives\""
-case (5, 115, _) -> freqs[5] * 6 -- "\"sixes\""
--- Special categories
-case (5, 121, _) -> if all (==dice[0]) dice then 50 else 0 -- "\"yacht\""
-case (6, 99, _) -> sum_all -- "\"choice\""
-case (10, 102, 117) -> -- "\"full" house"
-if length non_zero == 2 && any (==3) non_zero && any (==2) non_zero
-then sum_all else 0
-case (14, 102, 111) -> -- "\"four" of a kind"
-let four_idx = filter (\i -> freqs[i] >= 4) [0,1,2,3,4,5]
-in if length four_idx > 0 then (four_idx[0] + 1) * 4 else 0
-case (15, 108, _) -> -- "\"little" straight" (1,2,3,4,5)
-if all (\v -> any (==v) dice) [1,2,3,4,5] && length (filter (\v -> any (==v) [1,2,3,4,5]) dice) == 5
-then 30 else 0
-case (12, 98, _) -> -- "\"big" straight" (2,3,4,5,6)
-if all (\v -> any (==v) dice) [2,3,4,5,6] && length (filter (\v -> any (==v) [2,3,4,5,6]) dice) == 5
-then 30 else 0
-case _ -> 0
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (array_type 5
+        (type_name i32)))
+    (typed_pattern PLACEHOLDER_3
+      (array_type
+        (type_name u8))) :
+    (type_name i32)
+    (let_expression
+      (binding PLACEHOLDER_4)
+      (application
+        (application map
+          (lambda PLACEHOLDER_5
+            (application
+              (application
+                (application reduce
+                  (operator_section
+                    (operator +))) 0)
+              (application
+                (application map
+                  (lambda PLACEHOLDER_6
+                    (if_expression
+                      (binary_expression PLACEHOLDER_6 == PLACEHOLDER_5) 1 0))) PLACEHOLDER_2))))
+        (array 1 2 3 4 5 6))
+      (let_expression
+        (binding PLACEHOLDER_7)
+        (application
+          (application
+            (application reduce
+              (operator_section
+                (operator +))) 0) PLACEHOLDER_2)
+        (let_expression
+          (binding PLACEHOLDER_8)
+          (application
+            (application filter
+              (right_section > 0)) PLACEHOLDER_4)
+          (let_expression
+            (binding
+              (tuple_pattern PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11))
+            (tuple
+              (application length PLACEHOLDER_3)
+              (if_expression
+                (binary_expression
+                  (application length PLACEHOLDER_3) > 0)
+                (index_expression PLACEHOLDER_3 0) 0)
+              (if_expression
+                (binary_expression
+                  (application length PLACEHOLDER_3) > 1)
+                (index_expression PLACEHOLDER_3 1) 0))
+            (match_expression
+              (tuple PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11)
+              (case
+                (tuple_pattern 4 111 _)
+                (binary_expression
+                  (index_expression PLACEHOLDER_4 0) * 1))
+              (case
+                (tuple_pattern 4 116 _)
+                (binary_expression
+                  (index_expression PLACEHOLDER_4 1) * 2))
+              (case
+                (tuple_pattern 6 116 _)
+                (binary_expression
+                  (index_expression PLACEHOLDER_4 2) * 3))
+              (case
+                (tuple_pattern 5 102 111)
+                (binary_expression
+                  (index_expression PLACEHOLDER_4 3) * 4))
+              (case
+                (tuple_pattern 5 102 105)
+                (binary_expression
+                  (index_expression PLACEHOLDER_4 4) * 5))
+              (case
+                (tuple_pattern 5 115 _)
+                (binary_expression
+                  (index_expression PLACEHOLDER_4 5) * 6))
+              (case
+                (tuple_pattern 5 121 _)
+                (if_expression
+                  (application
+                    (application all
+                      (right_section ==
+                        (index_expression PLACEHOLDER_2 0))) PLACEHOLDER_2) 50 0))
+              (case
+                (tuple_pattern 6 99 _) PLACEHOLDER_7)
+              (case
+                (tuple_pattern 10 102 117)
+                (if_expression
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression
+                        (application length PLACEHOLDER_8) == 2) &&
+                      (application
+                        (application any
+                          (right_section == 3)) PLACEHOLDER_8)) &&
+                    (application
+                      (application any
+                        (right_section == 2)) PLACEHOLDER_8)) PLACEHOLDER_7 0))
+              (case
+                (tuple_pattern 14 102 111)
+                (let_expression
+                  (binding PLACEHOLDER_12)
+                  (application
+                    (application filter
+                      (lambda PLACEHOLDER_13
+                        (binary_expression
+                          (index_expression PLACEHOLDER_4 PLACEHOLDER_13) >= 4)))
+                    (array 0 1 2 3 4 5))
+                  (if_expression
+                    (binary_expression
+                      (application length PLACEHOLDER_12) > 0)
+                    (binary_expression
+                      (binary_expression
+                        (index_expression PLACEHOLDER_12 0) + 1) * 4) 0)))
+              (case
+                (tuple_pattern 15 108 _)
+                (if_expression
+                  (binary_expression
+                    (application
+                      (application all
+                        (lambda PLACEHOLDER_5
+                          (application
+                            (application any
+                              (right_section == PLACEHOLDER_5)) PLACEHOLDER_2)))
+                      (array 1 2 3 4 5)) &&
+                    (binary_expression
+                      (application length
+                        (application
+                          (application filter
+                            (lambda PLACEHOLDER_5
+                              (application
+                                (application any
+                                  (right_section == PLACEHOLDER_5))
+                                (array 1 2 3 4 5)))) PLACEHOLDER_2)) == 5)) 30 0))
+              (case
+                (tuple_pattern 12 98 _)
+                (if_expression
+                  (binary_expression
+                    (application
+                      (application all
+                        (lambda PLACEHOLDER_5
+                          (application
+                            (application any
+                              (right_section == PLACEHOLDER_5)) PLACEHOLDER_2)))
+                      (array 2 3 4 5 6)) &&
+                    (binary_expression
+                      (application length
+                        (application
+                          (application filter
+                            (lambda PLACEHOLDER_5
+                              (application
+                                (application any
+                                  (right_section == PLACEHOLDER_5))
+                                (array 2 3 4 5 6)))) PLACEHOLDER_2)) == 5)) 30 0))
+              (case _ 0))))))))

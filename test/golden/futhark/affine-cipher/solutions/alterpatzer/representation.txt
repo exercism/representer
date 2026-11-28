@@ -1,35 +1,177 @@
-def gcd (a: i32) (b: i32): i32 =
-let (u, _) = loop (u, v) = (a, b) while v != 0 do (v, u % v) in u
-def inverse (a: i32) (m: i32): i32 =
-let (_, _, ai, _) =
-loop (u, v, x, y) =
-(a, m, 0, 1)
-while u != 0 do
-let q = v / u
-let r = v % u
-in (r, u, y, (x - q * y))
-in ai % m
-def clean (phrase: []u8): []u8 =
-phrase
-|> map (\c -> c | 0x20)
-|> filter (\c -> c >= '0' && c <= '9' || c >= 'a' && c <= 'z')
-def translate (a: i32) (b: i32) (c: u8): u8 =
-if c < 'a' || c > 'z' then c
-else
-let x = i32.u8 (c - 'a')
-let z = u8.i32 ((a * x + b) % 26)
-in 'a' + z
-def code (a: i32) (b: i32) (phrase: []u8): []u8 =
-clean phrase |> map (translate a b)
-def group (text: []u8): []u8 =
-loop out = [] for i < length text do
-if i % 5 == 0 && i != 0
-then out ++ [' ', text[i]]
-else out ++ [text[i]]
-def encode (a: i32) (b: i32) (phrase: []u8): []u8 =
-let g = gcd a 26
-in assert (g == 1) (code a b phrase |> group)
-def decode (a: i32) (b: i32) (phrase: []u8): []u8 =
-let g = gcd a 26
-let ainv = assert (g == 1) (inverse a 26)
-in code ainv (-ainv * b % 26) phrase
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i32)) :
+    (type_name i32)
+    (let_expression
+      (binding
+        (tuple_pattern PLACEHOLDER_4 _))
+      (loop_expression
+        (tuple_pattern PLACEHOLDER_4 PLACEHOLDER_5)
+        (tuple PLACEHOLDER_2 PLACEHOLDER_3)
+        (while
+          (binary_expression PLACEHOLDER_5 != 0))
+        (tuple PLACEHOLDER_5
+          (binary_expression PLACEHOLDER_4 % PLACEHOLDER_5))) PLACEHOLDER_4))
+  (value_declaration PLACEHOLDER_6
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_7
+      (type_name i32)) :
+    (type_name i32)
+    (let_expression
+      (binding
+        (tuple_pattern _ _ PLACEHOLDER_8 _))
+      (loop_expression
+        (tuple_pattern PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_9 PLACEHOLDER_10)
+        (tuple PLACEHOLDER_2 PLACEHOLDER_7 0 1)
+        (while
+          (binary_expression PLACEHOLDER_4 != 0))
+        (let_expression
+          (binding PLACEHOLDER_11)
+          (binary_expression PLACEHOLDER_5 / PLACEHOLDER_4)
+          (let_expression
+            (binding PLACEHOLDER_12)
+            (binary_expression PLACEHOLDER_5 % PLACEHOLDER_4)
+            (tuple PLACEHOLDER_12 PLACEHOLDER_4 PLACEHOLDER_10
+              (binary_expression PLACEHOLDER_9 -
+                (binary_expression PLACEHOLDER_11 * PLACEHOLDER_10))))))
+      (binary_expression PLACEHOLDER_8 % PLACEHOLDER_7)))
+  (value_declaration PLACEHOLDER_13
+    (typed_pattern PLACEHOLDER_14
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name u8))
+    (binary_expression
+      (binary_expression PLACEHOLDER_14 |>
+        (application map
+          (lambda PLACEHOLDER_15
+            (binary_expression PLACEHOLDER_15 | 32)))) |>
+      (application filter
+        (lambda PLACEHOLDER_15
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_15 >=
+                (char "0")) &&
+              (binary_expression PLACEHOLDER_15 <=
+                (char "9"))) ||
+            (binary_expression
+              (binary_expression PLACEHOLDER_15 >=
+                (char "a")) &&
+              (binary_expression PLACEHOLDER_15 <=
+                (char "z"))))))))
+  (value_declaration PLACEHOLDER_16
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_15
+      (type_name u8)) :
+    (type_name u8)
+    (if_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_15 <
+          (char "a")) ||
+        (binary_expression PLACEHOLDER_15 >
+          (char "z"))) PLACEHOLDER_15
+      (let_expression
+        (binding PLACEHOLDER_9)
+        (application
+          (qualified_name i32 u8)
+          (binary_expression PLACEHOLDER_15 -
+            (char "a")))
+        (let_expression
+          (binding PLACEHOLDER_17)
+          (application
+            (qualified_name u8 i32)
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_2 * PLACEHOLDER_9) + PLACEHOLDER_3) % 26))
+          (binary_expression
+            (char "a") + PLACEHOLDER_17)))))
+  (value_declaration PLACEHOLDER_18
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_14
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name u8))
+    (binary_expression
+      (application PLACEHOLDER_13 PLACEHOLDER_14) |>
+      (application map
+        (application
+          (application PLACEHOLDER_16 PLACEHOLDER_2) PLACEHOLDER_3))))
+  (value_declaration PLACEHOLDER_19
+    (typed_pattern PLACEHOLDER_20
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name u8))
+    (loop_expression PLACEHOLDER_21
+      (array)
+      (for_upto PLACEHOLDER_22
+        (application length PLACEHOLDER_20))
+      (if_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_22 % 5) == 0) &&
+          (binary_expression PLACEHOLDER_22 != 0))
+        (binary_expression PLACEHOLDER_21 ++
+          (array
+            (char " ")
+            (index_expression PLACEHOLDER_20 PLACEHOLDER_22)))
+        (binary_expression PLACEHOLDER_21 ++
+          (array
+            (index_expression PLACEHOLDER_20 PLACEHOLDER_22))))))
+  (value_declaration PLACEHOLDER_23
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_14
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_24)
+      (application
+        (application PLACEHOLDER_1 PLACEHOLDER_2) 26)
+      (assert_expression
+        (binary_expression PLACEHOLDER_24 == 1)
+        (binary_expression
+          (application
+            (application
+              (application PLACEHOLDER_18 PLACEHOLDER_2) PLACEHOLDER_3) PLACEHOLDER_14) |> PLACEHOLDER_19))))
+  (value_declaration PLACEHOLDER_25
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_14
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_24)
+      (application
+        (application PLACEHOLDER_1 PLACEHOLDER_2) 26)
+      (let_expression
+        (binding PLACEHOLDER_26)
+        (assert_expression
+          (binary_expression PLACEHOLDER_24 == 1)
+          (application
+            (application PLACEHOLDER_6 PLACEHOLDER_2) 26))
+        (application
+          (application
+            (application PLACEHOLDER_18 PLACEHOLDER_26)
+            (binary_expression
+              (binary_expression
+                (unary_expression - PLACEHOLDER_26) * PLACEHOLDER_3) % 26)) PLACEHOLDER_14)))))

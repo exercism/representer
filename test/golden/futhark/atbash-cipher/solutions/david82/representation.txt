@@ -1,28 +1,120 @@
-def is_alpha (c: u8): bool = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
-def is_digit (c: u8): bool = c >= '0' && c <= '9'
-def to_lower (c: u8): u8 = if c >= 'A' && c <= 'Z' then c + 32 else c
-def atbash_transform (c: u8): u8 =
-let lower_c = to_lower c
-in if lower_c >= 'a' && lower_c <= 'z'
-then 'z' - (lower_c - 'a')
-else lower_c
-def encode (phrase: []u8): []u8 =
--- Filter out non-alphanumeric characters and transform
-let filtered = filter (\c -> is_alpha c || is_digit c) phrase
-let transformed = map atbash_transform filtered
--- Group into chunks of 5 with spaces
-let n = length transformed
-let chunks = (n + 4) / 5 -- Number of complete groups of 5
-let result_length = n + (chunks - 1) -- Add spaces between groups
-in if n == 0 then []
-else tabulate result_length (\i ->
-let group_idx = i / 6 -- Which group (accounting for spaces)
-let pos_in_group = i % 6
-in if pos_in_group == 5 then ' '
-else
-let actual_idx = group_idx * 5 + pos_in_group
-in if actual_idx < n then transformed[actual_idx] else ' ')
-def decode (phrase: []u8): []u8 =
--- Remove spaces and transform back
-let no_spaces = filter (\c -> c != ' ') phrase
-in map atbash_transform no_spaces
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 >=
+          (char "a")) &&
+        (binary_expression PLACEHOLDER_2 <=
+          (char "z"))) ||
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 >=
+          (char "A")) &&
+        (binary_expression PLACEHOLDER_2 <=
+          (char "Z")))))
+  (value_declaration PLACEHOLDER_3
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression PLACEHOLDER_2 >=
+        (char "0")) &&
+      (binary_expression PLACEHOLDER_2 <=
+        (char "9"))))
+  (value_declaration PLACEHOLDER_4
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name u8)
+    (if_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 >=
+          (char "A")) &&
+        (binary_expression PLACEHOLDER_2 <=
+          (char "Z")))
+      (binary_expression PLACEHOLDER_2 + 32) PLACEHOLDER_2))
+  (value_declaration PLACEHOLDER_5
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name u8)
+    (let_expression
+      (binding PLACEHOLDER_6)
+      (application PLACEHOLDER_4 PLACEHOLDER_2)
+      (if_expression
+        (binary_expression
+          (binary_expression PLACEHOLDER_6 >=
+            (char "a")) &&
+          (binary_expression PLACEHOLDER_6 <=
+            (char "z")))
+        (binary_expression
+          (char "z") -
+          (binary_expression PLACEHOLDER_6 -
+            (char "a"))) PLACEHOLDER_6)))
+  (value_declaration PLACEHOLDER_7
+    (typed_pattern PLACEHOLDER_8
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_9)
+      (application
+        (application filter
+          (lambda PLACEHOLDER_2
+            (binary_expression
+              (application PLACEHOLDER_1 PLACEHOLDER_2) ||
+              (application PLACEHOLDER_3 PLACEHOLDER_2)))) PLACEHOLDER_8)
+      (let_expression
+        (binding PLACEHOLDER_10)
+        (application
+          (application map PLACEHOLDER_5) PLACEHOLDER_9)
+        (let_expression
+          (binding PLACEHOLDER_11)
+          (application length PLACEHOLDER_10)
+          (let_expression
+            (binding PLACEHOLDER_12)
+            (binary_expression
+              (binary_expression PLACEHOLDER_11 + 4) / 5)
+            (let_expression
+              (binding PLACEHOLDER_13)
+              (binary_expression PLACEHOLDER_11 +
+                (binary_expression PLACEHOLDER_12 - 1))
+              (if_expression
+                (binary_expression PLACEHOLDER_11 == 0)
+                (array)
+                (application
+                  (application tabulate PLACEHOLDER_13)
+                  (lambda PLACEHOLDER_14
+                    (let_expression
+                      (binding PLACEHOLDER_15)
+                      (binary_expression PLACEHOLDER_14 / 6)
+                      (let_expression
+                        (binding PLACEHOLDER_16)
+                        (binary_expression PLACEHOLDER_14 % 6)
+                        (if_expression
+                          (binary_expression PLACEHOLDER_16 == 5)
+                          (char " ")
+                          (let_expression
+                            (binding PLACEHOLDER_17)
+                            (binary_expression
+                              (binary_expression PLACEHOLDER_15 * 5) + PLACEHOLDER_16)
+                            (if_expression
+                              (binary_expression PLACEHOLDER_17 < PLACEHOLDER_11)
+                              (index_expression PLACEHOLDER_10 PLACEHOLDER_17)
+                              (char " ")))))))))))))))
+  (value_declaration PLACEHOLDER_18
+    (typed_pattern PLACEHOLDER_8
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_19)
+      (application
+        (application filter
+          (lambda PLACEHOLDER_2
+            (binary_expression PLACEHOLDER_2 !=
+              (char " ")))) PLACEHOLDER_8)
+      (application
+        (application map PLACEHOLDER_5) PLACEHOLDER_19))))

@@ -1,22 +1,68 @@
--- Alternative histogram-based implementation
-let sum_of_multiples (numbers: []i32) (upper_bound: i32): i32 =
-if upper_bound <= 1 then 0
-else
-let valid_bases = numbers
-|> filter (>0)
-|> filter (<upper_bound)
-in if length valid_bases == 0 then 0
-else
--- Create histogram to mark multiples directly
-let bound = i64.i32 upper_bound
-let histogram = replicate bound false
-let histogram' = loop acc = histogram for base in valid_bases do
-loop acc' = acc for k in 1..<(upper_bound / base + 1) do
-let multiple = base * k
-in if multiple < upper_bound
-then acc' with [i64.i32 multiple] = true
-else acc'
--- Sum all indices that are marked as multiples (skip index 0)
-let indices = map i32.i64 (1..<bound)
-let multiples = map2 (\i is_mult -> if is_mult then i else 0) indices histogram'[1:]
-in reduce (+) 0 multiples
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (array_type
+        (type_name i32)))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i32)) :
+    (type_name i32)
+    (if_expression
+      (binary_expression PLACEHOLDER_3 <= 1) 0
+      (let_expression
+        (binding PLACEHOLDER_4)
+        (binary_expression
+          (binary_expression PLACEHOLDER_2 |>
+            (application filter
+              (right_section > 0))) |>
+          (application filter
+            (right_section < PLACEHOLDER_3)))
+        (if_expression
+          (binary_expression
+            (application length PLACEHOLDER_4) == 0) 0
+          (let_expression
+            (binding PLACEHOLDER_5)
+            (application
+              (qualified_name i64 i32) PLACEHOLDER_3)
+            (let_expression
+              (binding PLACEHOLDER_6)
+              (application
+                (application replicate PLACEHOLDER_5)
+                (boolean false))
+              (let_expression
+                (binding PLACEHOLDER_7)
+                (loop_expression PLACEHOLDER_8 PLACEHOLDER_6
+                  (for_in PLACEHOLDER_9 PLACEHOLDER_4)
+                  (loop_expression PLACEHOLDER_10 PLACEHOLDER_8
+                    (for_in PLACEHOLDER_11
+                      (range 1 ..<
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_3 / PLACEHOLDER_9) + 1)))
+                    (let_expression
+                      (binding PLACEHOLDER_12)
+                      (binary_expression PLACEHOLDER_9 * PLACEHOLDER_11)
+                      (if_expression
+                        (binary_expression PLACEHOLDER_12 < PLACEHOLDER_3)
+                        (with_expression PLACEHOLDER_10 [
+                          (application
+                            (qualified_name i64 i32) PLACEHOLDER_12) ]
+                          (boolean true)) PLACEHOLDER_10))))
+                (let_expression
+                  (binding PLACEHOLDER_13)
+                  (application
+                    (application map
+                      (qualified_name i32 i64))
+                    (range 1 ..< PLACEHOLDER_5))
+                  (let_expression
+                    (binding PLACEHOLDER_14)
+                    (application
+                      (application
+                        (application map2
+                          (lambda PLACEHOLDER_15 PLACEHOLDER_16
+                            (if_expression PLACEHOLDER_16 PLACEHOLDER_15 0))) PLACEHOLDER_13)
+                      (index_expression PLACEHOLDER_7
+                        (slice 1 :)))
+                    (application
+                      (application
+                        (application reduce
+                          (operator_section
+                            (operator +))) 0) PLACEHOLDER_14)))))))))))

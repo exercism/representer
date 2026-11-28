@@ -1,31 +1,95 @@
-let largest_product (digits: []u8) (span: i32) : i32 =
--- Check for negative span
-if span < 0 then
-let _ = trace "\"negative" span" in 0/0
--- Check for span longer than string length
-else if span > i32.i64 (length digits) then
-let _ = trace "\"span" too long" in 0/0
--- Check for empty string with nonzero span
-else if length digits == 0 && span > 0 then
-let _ = trace "\"empty" string with nonzero span" in 0/0
--- Handle span of 0 (empty product)
-else if span == 0 then
-1
-else
--- Validate that all characters are digits
-let valid_digits = map (\c -> c >= '0' && c <= '9') digits
-let all_valid = reduce (&&) true valid_digits
-in if not all_valid then
-let _ = trace "\"invalid" character" in 0/0
-else
--- Convert characters to integers
-let digit_values = map (\c -> i32.u8 (c - '0')) digits
--- Calculate products of all spans
-let span_i64 = i64.i32 span
-let num_spans = length digits - span_i64 + 1
-let products = tabulate num_spans (\i ->
-let series = digit_values[i:i+span_i64]
-in reduce (*) 1 series
-)
--- Return the maximum product
-in reduce i32.max 0 products
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (array_type
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i32)) :
+    (type_name i32)
+    (if_expression
+      (binary_expression PLACEHOLDER_3 < 0)
+      (let_expression
+        (binding _)
+        (application trace "negative span")
+        (binary_expression 0 / 0))
+      (if_expression
+        (binary_expression PLACEHOLDER_3 >
+          (application
+            (qualified_name i32 i64)
+            (application length PLACEHOLDER_2)))
+        (let_expression
+          (binding _)
+          (application trace "span too long")
+          (binary_expression 0 / 0))
+        (if_expression
+          (binary_expression
+            (binary_expression
+              (application length PLACEHOLDER_2) == 0) &&
+            (binary_expression PLACEHOLDER_3 > 0))
+          (let_expression
+            (binding _)
+            (application trace "empty string with nonzero span")
+            (binary_expression 0 / 0))
+          (if_expression
+            (binary_expression PLACEHOLDER_3 == 0) 1
+            (let_expression
+              (binding PLACEHOLDER_4)
+              (application
+                (application map
+                  (lambda PLACEHOLDER_5
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_5 >=
+                        (char "0")) &&
+                      (binary_expression PLACEHOLDER_5 <=
+                        (char "9"))))) PLACEHOLDER_2)
+              (let_expression
+                (binding PLACEHOLDER_6)
+                (application
+                  (application
+                    (application reduce
+                      (operator_section
+                        (operator &&)))
+                    (boolean true)) PLACEHOLDER_4)
+                (if_expression
+                  (application not PLACEHOLDER_6)
+                  (let_expression
+                    (binding _)
+                    (application trace "invalid character")
+                    (binary_expression 0 / 0))
+                  (let_expression
+                    (binding PLACEHOLDER_7)
+                    (application
+                      (application map
+                        (lambda PLACEHOLDER_5
+                          (application
+                            (qualified_name i32 u8)
+                            (binary_expression PLACEHOLDER_5 -
+                              (char "0"))))) PLACEHOLDER_2)
+                    (let_expression
+                      (binding PLACEHOLDER_8)
+                      (application
+                        (qualified_name i64 i32) PLACEHOLDER_3)
+                      (let_expression
+                        (binding PLACEHOLDER_9)
+                        (binary_expression
+                          (binary_expression
+                            (application length PLACEHOLDER_2) - PLACEHOLDER_8) + 1)
+                        (let_expression
+                          (binding PLACEHOLDER_10)
+                          (application
+                            (application tabulate PLACEHOLDER_9)
+                            (lambda PLACEHOLDER_11
+                              (let_expression
+                                (binding PLACEHOLDER_12)
+                                (index_expression PLACEHOLDER_7
+                                  (slice PLACEHOLDER_11 :
+                                    (binary_expression PLACEHOLDER_11 + PLACEHOLDER_8)))
+                                (application
+                                  (application
+                                    (application reduce
+                                      (operator_section
+                                        (operator *))) 1) PLACEHOLDER_12))))
+                          (application
+                            (application
+                              (application reduce
+                                (qualified_name i32 max)) 0) PLACEHOLDER_10))))))))))))))

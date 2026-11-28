@@ -1,59 +1,105 @@
--- Build the subject for position i (0-based) using optimized pattern matching
-let get_subject (i: i32): []u8 =
-match i
-case 0 -> "\"house" that Jack built."
-case 1 -> "\"malt\""
-case 2 -> "\"rat\""
-case 3 -> "\"cat\""
-case 4 -> "\"dog\""
-case 5 -> "\"cow" with the crumpled horn"
-case 6 -> "\"maiden" all forlorn"
-case 7 -> "\"man" all tattered and torn"
-case 8 -> "\"priest" all shaven and shorn"
-case 9 -> "\"rooster" that crowed in the morn"
-case 10 -> "\"farmer" sowing his corn"
-case 11 -> "\"horse" and the hound and the horn"
-case _ -> "\"\""
--- Get the bridge/relation for position i (1-based indexing for bridges)
-let get_bridge (i: i32): []u8 =
-match i
-case 1 -> "\"" that lay in "\""
-case 2 -> "\"" that ate "\""
-case 3 -> "\"" that killed "\""
-case 4 -> "\"" that worried "\""
-case 5 -> "\"" that tossed "\""
-case 6 -> "\"" that milked "\""
-case 7 -> "\"" that kissed "\""
-case 8 -> "\"" that married "\""
-case 9 -> "\"" that woke "\""
-case 10 -> "\"" that kept "\""
-case 11 -> "\"" that belonged to "\""
-case _ -> "\"\""
--- Build a single verse using functional programming approach
-let build_verse (verse_num: i32): []u8 =
-let start_text = "\"This" is the "\"" ++ get_subject (verse_num - 1)
-in if verse_num == 1
-then start_text ++ "\"\\n\""
-else
--- Build chain by folding over the sequence from verse_num-1 down to 1
-let chain_length = verse_num - 1
-let result =
-loop acc = start_text for step_idx < chain_length do
-let current_bridge_idx = chain_length - step_idx
-let bridge_text = get_bridge current_bridge_idx
-let subject_text = get_subject (current_bridge_idx - 1)
-in acc ++ bridge_text ++ "\"the" "\"" ++ subject_text
-in result ++ "\"\\n\""
--- Public API: Generate verses from start_verse to end_verse (inclusive)
-def recite (start_verse: i32) (end_verse: i32): []u8 =
--- Input validation and bounds checking
-let max_verses = 12
-let valid_start = i32.max 1 start_verse
-let valid_end = i32.min max_verses (i32.max start_verse end_verse)
-let verse_count = valid_end - valid_start + 1
--- Generate all requested verses using functional approach
-in if verse_count <= 0
-then "\"\""
-else
-loop result = "\"\"" for verse_offset < verse_count do
-result ++ build_verse (valid_start + verse_offset)
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32)) :
+    (array_type
+      (type_name u8))
+    (match_expression PLACEHOLDER_2
+      (case 0 "house that Jack built.")
+      (case 1 "malt")
+      (case 2 "rat")
+      (case 3 "cat")
+      (case 4 "dog")
+      (case 5 "cow with the crumpled horn")
+      (case 6 "maiden all forlorn")
+      (case 7 "man all tattered and torn")
+      (case 8 "priest all shaven and shorn")
+      (case 9 "rooster that crowed in the morn")
+      (case 10 "farmer sowing his corn")
+      (case 11 "horse and the hound and the horn")
+      (case _ "")))
+  (value_declaration PLACEHOLDER_3
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32)) :
+    (array_type
+      (type_name u8))
+    (match_expression PLACEHOLDER_2
+      (case 1 " that lay in ")
+      (case 2 " that ate ")
+      (case 3 " that killed ")
+      (case 4 " that worried ")
+      (case 5 " that tossed ")
+      (case 6 " that milked ")
+      (case 7 " that kissed ")
+      (case 8 " that married ")
+      (case 9 " that woke ")
+      (case 10 " that kept ")
+      (case 11 " that belonged to ")
+      (case _ "")))
+  (value_declaration PLACEHOLDER_4
+    (typed_pattern PLACEHOLDER_5
+      (type_name i32)) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_6)
+      (binary_expression "This is the " ++
+        (application PLACEHOLDER_1
+          (binary_expression PLACEHOLDER_5 - 1)))
+      (if_expression
+        (binary_expression PLACEHOLDER_5 == 1)
+        (binary_expression PLACEHOLDER_6 ++ "\n")
+        (let_expression
+          (binding PLACEHOLDER_7)
+          (binary_expression PLACEHOLDER_5 - 1)
+          (let_expression
+            (binding PLACEHOLDER_8)
+            (loop_expression PLACEHOLDER_9 PLACEHOLDER_6
+              (for_upto PLACEHOLDER_10 PLACEHOLDER_7)
+              (let_expression
+                (binding PLACEHOLDER_11)
+                (binary_expression PLACEHOLDER_7 - PLACEHOLDER_10)
+                (let_expression
+                  (binding PLACEHOLDER_12)
+                  (application PLACEHOLDER_3 PLACEHOLDER_11)
+                  (let_expression
+                    (binding PLACEHOLDER_13)
+                    (application PLACEHOLDER_1
+                      (binary_expression PLACEHOLDER_11 - 1))
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_9 ++ PLACEHOLDER_12) ++ "the ") ++ PLACEHOLDER_13)))))
+            (binary_expression PLACEHOLDER_8 ++ "\n"))))))
+  (value_declaration PLACEHOLDER_14
+    (typed_pattern PLACEHOLDER_15
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_16
+      (type_name i32)) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_17) 12
+      (let_expression
+        (binding PLACEHOLDER_18)
+        (application
+          (application
+            (qualified_name i32 max) 1) PLACEHOLDER_15)
+        (let_expression
+          (binding PLACEHOLDER_19)
+          (application
+            (application
+              (qualified_name i32 min) PLACEHOLDER_17)
+            (application
+              (application
+                (qualified_name i32 max) PLACEHOLDER_15) PLACEHOLDER_16))
+          (let_expression
+            (binding PLACEHOLDER_20)
+            (binary_expression
+              (binary_expression PLACEHOLDER_19 - PLACEHOLDER_18) + 1)
+            (if_expression
+              (binary_expression PLACEHOLDER_20 <= 0) ""
+              (loop_expression PLACEHOLDER_8 ""
+                (for_upto PLACEHOLDER_21 PLACEHOLDER_20)
+                (binary_expression PLACEHOLDER_8 ++
+                  (application PLACEHOLDER_4
+                    (binary_expression PLACEHOLDER_18 + PLACEHOLDER_21)))))))))))
