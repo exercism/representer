@@ -1,99 +1,119 @@
-.text
-.globl encode
-.globl decode
-// void encode(char *buffer, const char *string);
-// x0 = buffer (output), x1 = string (input)
-encode:
-stp x29, x30, [sp, #-16]!
-mov x29, sp
-stp x19, x20, [sp, #-16]!
-mov x19, x1 // input string
-mov x20, x0 // output buffer
-ldrb w2, [x19] // current character
-cbz w2, .Lenc_empty
-mov w3, #1 // count
-add x19, x19, #1
-.Lenc_loop:
-ldrb w4, [x19] // next character
-cmp w4, w2
-b.ne .Lenc_flush
-add w3, w3, #1
-add x19, x19, #1
-b .Lenc_loop
-.Lenc_flush:
-cmp w3, #1
-b.le .Lenc_single
-// Write count
-mov w5, w3
-sub sp, sp, #16
-mov x6, sp // use x6 for comparison
-mov x7, sp
-.Lenc_count_loop:
-mov w8, #10
-udiv w9, w5, w8
-msub w10, w9, w8, w5
-add w10, w10, #'0'
-strb w10, [x7], #1
-mov w5, w9
-cbnz w5, .Lenc_count_loop
-sub x7, x7, #1
-.Lenc_write_digits:
-ldrb w10, [x7], #-1
-strb w10, [x20], #1
-cmp x7, x6
-b.ge .Lenc_write_digits
-add sp, sp, #16
-.Lenc_single:
-strb w2, [x20], #1
-cbz w4, .Lenc_terminate
-mov w2, w4
-mov w3, #1
-add x19, x19, #1
-b .Lenc_loop
-.Lenc_terminate:
-strb wzr, [x20]
-b .Lenc_exit
-.Lenc_empty:
-strb wzr, [x20]
-.Lenc_exit:
-ldp x19, x20, [sp], #16
-ldp x29, x30, [sp], #16
-ret
-// void decode(char *buffer, const char *string);
-// x0 = buffer (output), x1 = string (input)
-decode:
-stp x29, x30, [sp, #-16]!
-mov x29, sp
-stp x19, x20, [sp, #-16]!
-mov x19, x1 // input string
-mov x20, x0 // output buffer
-mov w2, #0 // current count
-.Ldec_loop:
-ldrb w3, [x19]
-cbz w3, .Ldec_done
-cmp w3, #'0'
-b.lt .Ldec_letter
-cmp w3, #'9'
-b.gt .Ldec_letter
-sub w3, w3, #'0'
-mov w4, #10
-mul w2, w2, w4
-add w2, w2, w3
-add x19, x19, #1
-b .Ldec_loop
-.Ldec_letter:
-cmp w2, #0
-b.ne .Ldec_write
-mov w2, #1
-.Ldec_write:
-strb w3, [x20], #1
-sub w2, w2, #1
-cbnz w2, .Ldec_write
-mov w2, #0
-add x19, x19, #1
-b .Ldec_loop
-.Ldec_done:
-strb wzr, [x20]
-ldp x19, x20, [sp], #16
-ldp x29, x30, [sp], #16
-ret
+(source_file
+  (directive .text)
+  (directive .globl PLACEHOLDER_1)
+  (directive .globl PLACEHOLDER_2)
+  (label PLACEHOLDER_1)
+  (instruction stp x29 x30
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction mov x29 sp)
+  (instruction stp x19 x20
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction mov x19 x1)
+  (instruction mov x20 x0)
+  (instruction ldrb w2
+    (memory x19))
+  (instruction cbz w2 PLACEHOLDER_3)
+  (instruction mov w3 1)
+  (instruction add x19 x19 1)
+  (label PLACEHOLDER_4)
+  (instruction ldrb w4
+    (memory x19))
+  (instruction cmp w4 w2)
+  (instruction b.ne PLACEHOLDER_5)
+  (instruction add w3 w3 1)
+  (instruction add x19 x19 1)
+  (instruction b PLACEHOLDER_4)
+  (label PLACEHOLDER_5)
+  (instruction cmp w3 1)
+  (instruction b.le PLACEHOLDER_6)
+  (instruction mov w5 w3)
+  (instruction sub sp sp 16)
+  (instruction mov x6 sp)
+  (instruction mov x7 sp)
+  (label PLACEHOLDER_7)
+  (instruction mov w8 10)
+  (instruction udiv w9 w5 w8)
+  (instruction msub w10 w9 w8 w5)
+  (instruction add w10 w10 '0')
+  (instruction strb w10
+    (memory x7) 1)
+  (instruction mov w5 w9)
+  (instruction cbnz w5 PLACEHOLDER_7)
+  (instruction sub x7 x7 1)
+  (label PLACEHOLDER_8)
+  (instruction ldrb w10
+    (memory x7)
+    (unary_expression - 1))
+  (instruction strb w10
+    (memory x20) 1)
+  (instruction cmp x7 x6)
+  (instruction b.ge PLACEHOLDER_8)
+  (instruction add sp sp 16)
+  (label PLACEHOLDER_6)
+  (instruction strb w2
+    (memory x20) 1)
+  (instruction cbz w4 PLACEHOLDER_9)
+  (instruction mov w2 w4)
+  (instruction mov w3 1)
+  (instruction add x19 x19 1)
+  (instruction b PLACEHOLDER_4)
+  (label PLACEHOLDER_9)
+  (instruction strb wzr
+    (memory x20))
+  (instruction b PLACEHOLDER_10)
+  (label PLACEHOLDER_3)
+  (instruction strb wzr
+    (memory x20))
+  (label PLACEHOLDER_10)
+  (instruction ldp x19 x20
+    (memory sp) 16)
+  (instruction ldp x29 x30
+    (memory sp) 16)
+  (instruction ret)
+  (label PLACEHOLDER_2)
+  (instruction stp x29 x30
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction mov x29 sp)
+  (instruction stp x19 x20
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction mov x19 x1)
+  (instruction mov x20 x0)
+  (instruction mov w2 0)
+  (label PLACEHOLDER_11)
+  (instruction ldrb w3
+    (memory x19))
+  (instruction cbz w3 PLACEHOLDER_12)
+  (instruction cmp w3 '0')
+  (instruction b.lt PLACEHOLDER_13)
+  (instruction cmp w3 '9')
+  (instruction b.gt PLACEHOLDER_13)
+  (instruction sub w3 w3 '0')
+  (instruction mov w4 10)
+  (instruction mul w2 w2 w4)
+  (instruction add w2 w2 w3)
+  (instruction add x19 x19 1)
+  (instruction b PLACEHOLDER_11)
+  (label PLACEHOLDER_13)
+  (instruction cmp w2 0)
+  (instruction b.ne PLACEHOLDER_14)
+  (instruction mov w2 1)
+  (label PLACEHOLDER_14)
+  (instruction strb w3
+    (memory x20) 1)
+  (instruction sub w2 w2 1)
+  (instruction cbnz w2 PLACEHOLDER_14)
+  (instruction mov w2 0)
+  (instruction add x19 x19 1)
+  (instruction b PLACEHOLDER_11)
+  (label PLACEHOLDER_12)
+  (instruction strb wzr
+    (memory x20))
+  (instruction ldp x19 x20
+    (memory sp) 16)
+  (instruction ldp x29 x30
+    (memory sp) 16)
+  (instruction ret))

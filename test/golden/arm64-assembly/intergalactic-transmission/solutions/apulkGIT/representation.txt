@@ -1,141 +1,147 @@
-.equ WRONG_PARITY, -1
-.text
-.globl transmit_sequence
-.globl decode_message
-// Input: x0 dest, x1 msg, x2 msg len
-transmit_sequence:
-lsl x3,x2,#3
-mov x11,#0
-add x2,x3,#6
-mov x4,#7
-udiv x2,x2,x4
-sub x2,x2,#1
-mov x5,#0 // bitsi
-transmitloop:
-cmp x5,x3
-b.ge endoftransmit
-mov x4,#8
-udiv x6,x5,x4
-ldrb w7,[x1,x6]
-msub x6,x6,x4,x5
-lsl w7,w7,w6
-cmp x6,#2
-b.lt bytex
-cmp x11,x2
-b.ge bytex
-add x9,x5,#7
-lsr x9,x9,#3
-ldrb w9,[x1,x9]
-sub x6,x4,x6
-lsr w9,w9,w6
-add w7,w7,w9 // w7 = byte
-bytex:
-mov x4,#0xfe
-and w7,w7,w4
-mov w9,w7
-mov x6,#0 // l
-mov x4,#2
-bitloop:
-cmp w9,#0
-b.eq endofbitloop
-udiv w8,w9,w4
-msub w10,w8,w4,w9
-cmp w10,#1
-b.ne bitloopinner
-add x6,x6,#1
-bitloopinner:
-mov w9,w8
-b.al bitloop
-endofbitloop:
-udiv w8,w6,w4
-msub w10,w8,w4,w6
-cmp w10,#1
-b.ne donotor
-orr w7,w7,#1
-donotor:
-strb w7,[x0],#1
-add x5,x5,#7
-add x11,x11,#1
-b.al transmitloop
-endoftransmit:
-mov x0,x11
-ret
-// Input: x0 dest, x1 message, x2 message len
-decode_message:
-mov x4,#7
-mul x3,x2,x4
-lsr x3,x3,#3
-lsl x3,x3,#3 // x3==maxbits (message_length*7/8)*8;
-mov x5,#0 // i
-mov x6,#0 // bitsi
-decodeloop:
-cmp x6,x3
-b.ge endofdecode
-mov x4,#7
-udiv x7,x6,x4
-ldrb w7,[x1,x7]
-mov w11,w7 // w11 = BYTE 1
-and w7,w7,#0xfe
-mov x4,#2
-mov x8,#0
-bitloop1:
-cbz w7,endofbitloop1
-udiv w9,w7,w4
-msub w10,w9,w4,w7
-cmp w10,#1
-b.ne bitloop1inner
-add x8,x8,#1
-bitloop1inner:
-mov w7,w9
-b.al bitloop1
-endofbitloop1:
-udiv w9,w8,w4
-msub w9,w9,w4,w8
-and w7,w11,#1
-cmp w9,w7
-b.eq noterror
-mov x0,WRONG_PARITY
-ret
-noterror:
-mov x4,#7
-add x7,x6,x4
-udiv x7,x7,x4
-ldrb w7,[x1,x7]
-mov w12,w7 // w12 = BYTE 2
-and w7,w7,#0xfe
-mov x4,#2
-mov x8,#0
-bitloop2:
-cbz w7,endofbitloop2
-udiv w9,w7,w4
-msub w10,w9,w4,w7
-cmp w10,#1
-b.ne bitloop2inner
-add x8,x8,#1
-bitloop2inner:
-mov w7,w9
-b.al bitloop2
-endofbitloop2:
-udiv w9,w8,w4
-msub w9,w9,w4,w8
-and w7,w12,#1
-cmp w9,w7
-b.eq noterror2
-mov x0,WRONG_PARITY
-ret
-noterror2:
-mov x4,#7
-udiv x7,x6,x4
-msub x7,x7,x4,x6
-and w11,w11,#0xfe
-lsl w11,w11,w7
-sub x7,x4,x7
-lsr w12,w12,w7
-add w11,w11,w12
-strb w11,[x0],#1
-add x5,x5,#1
-add x6,x6,#8
-b.al decodeloop
-endofdecode:
-mov x0,x5
-ret
+(source_file
+  (symbol_definition PLACEHOLDER_1
+    (unary_expression - 1))
+  (directive .text)
+  (directive .globl PLACEHOLDER_2)
+  (directive .globl PLACEHOLDER_3)
+  (label PLACEHOLDER_2)
+  (instruction lsl x3 x2 3)
+  (instruction mov x11 0)
+  (instruction add x2 x3 6)
+  (instruction mov x4 7)
+  (instruction udiv x2 x2 x4)
+  (instruction sub x2 x2 1)
+  (instruction mov x5 0)
+  (label PLACEHOLDER_4)
+  (instruction cmp x5 x3)
+  (instruction b.ge PLACEHOLDER_5)
+  (instruction mov x4 8)
+  (instruction udiv x6 x5 x4)
+  (instruction ldrb w7
+    (memory x1 x6))
+  (instruction msub x6 x6 x4 x5)
+  (instruction lsl w7 w7 w6)
+  (instruction cmp x6 2)
+  (instruction b.lt PLACEHOLDER_6)
+  (instruction cmp x11 x2)
+  (instruction b.ge PLACEHOLDER_6)
+  (instruction add x9 x5 7)
+  (instruction lsr x9 x9 3)
+  (instruction ldrb w9
+    (memory x1 x9))
+  (instruction sub x6 x4 x6)
+  (instruction lsr w9 w9 w6)
+  (instruction add w7 w7 w9)
+  (label PLACEHOLDER_6)
+  (instruction mov x4 254)
+  (instruction and w7 w7 w4)
+  (instruction mov w9 w7)
+  (instruction mov x6 0)
+  (instruction mov x4 2)
+  (label PLACEHOLDER_7)
+  (instruction cmp w9 0)
+  (instruction b.eq PLACEHOLDER_8)
+  (instruction udiv w8 w9 w4)
+  (instruction msub w10 w8 w4 w9)
+  (instruction cmp w10 1)
+  (instruction b.ne PLACEHOLDER_9)
+  (instruction add x6 x6 1)
+  (label PLACEHOLDER_9)
+  (instruction mov w9 w8)
+  (instruction b.al PLACEHOLDER_7)
+  (label PLACEHOLDER_8)
+  (instruction udiv w8 w6 w4)
+  (instruction msub w10 w8 w4 w6)
+  (instruction cmp w10 1)
+  (instruction b.ne PLACEHOLDER_10)
+  (instruction orr w7 w7 1)
+  (label PLACEHOLDER_10)
+  (instruction strb w7
+    (memory x0) 1)
+  (instruction add x5 x5 7)
+  (instruction add x11 x11 1)
+  (instruction b.al PLACEHOLDER_4)
+  (label PLACEHOLDER_5)
+  (instruction mov x0 x11)
+  (instruction ret)
+  (label PLACEHOLDER_3)
+  (instruction mov x4 7)
+  (instruction mul x3 x2 x4)
+  (instruction lsr x3 x3 3)
+  (instruction lsl x3 x3 3)
+  (instruction mov x5 0)
+  (instruction mov x6 0)
+  (label PLACEHOLDER_11)
+  (instruction cmp x6 x3)
+  (instruction b.ge PLACEHOLDER_12)
+  (instruction mov x4 7)
+  (instruction udiv x7 x6 x4)
+  (instruction ldrb w7
+    (memory x1 x7))
+  (instruction mov w11 w7)
+  (instruction and w7 w7 254)
+  (instruction mov x4 2)
+  (instruction mov x8 0)
+  (label PLACEHOLDER_13)
+  (instruction cbz w7 PLACEHOLDER_14)
+  (instruction udiv w9 w7 w4)
+  (instruction msub w10 w9 w4 w7)
+  (instruction cmp w10 1)
+  (instruction b.ne PLACEHOLDER_15)
+  (instruction add x8 x8 1)
+  (label PLACEHOLDER_15)
+  (instruction mov w7 w9)
+  (instruction b.al PLACEHOLDER_13)
+  (label PLACEHOLDER_14)
+  (instruction udiv w9 w8 w4)
+  (instruction msub w9 w9 w4 w8)
+  (instruction and w7 w11 1)
+  (instruction cmp w9 w7)
+  (instruction b.eq PLACEHOLDER_16)
+  (instruction mov x0 PLACEHOLDER_1)
+  (instruction ret)
+  (label PLACEHOLDER_16)
+  (instruction mov x4 7)
+  (instruction add x7 x6 x4)
+  (instruction udiv x7 x7 x4)
+  (instruction ldrb w7
+    (memory x1 x7))
+  (instruction mov w12 w7)
+  (instruction and w7 w7 254)
+  (instruction mov x4 2)
+  (instruction mov x8 0)
+  (label PLACEHOLDER_17)
+  (instruction cbz w7 PLACEHOLDER_18)
+  (instruction udiv w9 w7 w4)
+  (instruction msub w10 w9 w4 w7)
+  (instruction cmp w10 1)
+  (instruction b.ne PLACEHOLDER_19)
+  (instruction add x8 x8 1)
+  (label PLACEHOLDER_19)
+  (instruction mov w7 w9)
+  (instruction b.al PLACEHOLDER_17)
+  (label PLACEHOLDER_18)
+  (instruction udiv w9 w8 w4)
+  (instruction msub w9 w9 w4 w8)
+  (instruction and w7 w12 1)
+  (instruction cmp w9 w7)
+  (instruction b.eq PLACEHOLDER_20)
+  (instruction mov x0 PLACEHOLDER_1)
+  (instruction ret)
+  (label PLACEHOLDER_20)
+  (instruction mov x4 7)
+  (instruction udiv x7 x6 x4)
+  (instruction msub x7 x7 x4 x6)
+  (instruction and w11 w11 254)
+  (instruction lsl w11 w11 w7)
+  (instruction sub x7 x4 x7)
+  (instruction lsr w12 w12 w7)
+  (instruction add w11 w11 w12)
+  (instruction strb w11
+    (memory x0) 1)
+  (instruction add x5 x5 1)
+  (instruction add x6 x6 8)
+  (instruction b.al PLACEHOLDER_11)
+  (label PLACEHOLDER_12)
+  (instruction mov x0 x5)
+  (instruction ret))

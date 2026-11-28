@@ -1,97 +1,146 @@
-.section .rodata
-.balign 64
-rows: .asciz "\"\";" .balign 64
-.asciz "\"It" wriggled and jiggled and tickled inside her.\n"; .balign 64
-.asciz "\"How" absurd to swallow a bird!\n"; .balign 64
-.asciz "\"Imagine" that, to swallow a cat!\n"; .balign 64
-.asciz "\"What" a hog, to swallow a dog!\n"; .balign 64
-.asciz "\"Just" opened her throat and swallowed a goat!\n"; .balign 64
-.asciz "\"I" don't know how she swallowed a cow!\n"; .balign 64
-.balign 8
-animals:
-.asciz "\"fly\";" .balign 8
-.asciz "\"spider\";" .balign 8
-.asciz "\"bird\";" .balign 8
-.asciz "\"cat\";" .balign 8
-.asciz "\"dog\";" .balign 8
-.asciz "\"goat\";" .balign 8
-.asciz "\"cow\";" .balign 8
-.text
-.globl recite
-buffer .req x0
-start_verse .req w1
-end_verse .req w2
-verse_index .req w3
-verse_index_x .req x3
-index_down .req w4
-src .req x5
-animals_base .req x6
-ch .req w7
-t0 .req x8
-t1 .req x9
-.macro output_zero_terminated ptr
-.Loutput_loop\@:
-ldrb ch, [\ptr], #1
-strb ch, [buffer], #1
-cbnz ch, .Loutput_loop\@
-sub buffer, buffer, #1
-.endm
-.macro output_animal index
-ldr t0, [animals_base, \index, uxtw #3] // whole 8-byte slot, zero padded
-str t0, [buffer]
-clz t1, t0 // little-endian: leading zeros = unused high bytes
-add buffer, buffer, #8
-sub buffer, buffer, t1, lsr #3 // buffer += 8 - clz/8 = strlen
-.endm
-.macro output_str s
-.pushsection .rodata
-.balign 64
-.Lstr\@: .ascii "\"\\s\""
-.set len\@, . - .Lstr\@
-.popsection
-.if len\@ > 64
-.error "\"output_str:" string longer than 64 bytes"
-.endif
-// always copy 64 bytes from pointer, but advance pointer only by known length
-adr src, .Lstr\@
-ld1 {v0.16b-v3.16b}, [src]
-st1 {v0.16b-v3.16b}, [buffer]
-add buffer, buffer, len\@
-.endm
-recite:
-adr animals_base, animals
-sub verse_index, start_verse, #1
-.Lverse_loop:
-cmp verse_index, #7
-b.eq .Llast_verse
-output_str "\"I" know an old lady who swallowed a "\""
-output_animal verse_index
-output_str "\".\\n\""
-adr src, rows // e.g. "\"It" wriggled and jiggled and tickled inside her."
-add src, src, verse_index_x, lsl #6
-output_zero_terminated src
-mov index_down, verse_index
-b .Linner_check
-.Linner_loop:
-output_str "\"She" swallowed the "\""
-output_animal index_down
-output_str "\"" to catch the "\""
-sub index_down, index_down, #1
-output_animal index_down
-cmp index_down, #1
-b.ne 1f
-output_str "\"" that wriggled and jiggled and tickled inside her" // special handling for spider
-1: output_str "\".\\n\""
-.Linner_check:
-cbnz index_down, .Linner_loop
-output_str "\"I" don't know why she swallowed the fly. Perhaps she'll die.\n\n"
-add verse_index, verse_index, #1
-cmp verse_index, end_verse
-b.lo .Lverse_loop
-strb wzr, [buffer, #-1] // remove extra newline in the end
-ret
-.Llast_verse:
-output_str "\"I" know an old lady who swallowed a horse.\n"
-output_str "\"She's" dead, of course!\n"
-strb wzr, [buffer]
-ret
+(source_file
+  (directive .section .rodata)
+  (directive .balign 64)
+  (label PLACEHOLDER_1)
+  (directive .asciz "")
+  (directive .balign 64)
+  (directive .asciz "It wriggled and jiggled and tickled inside her.\n")
+  (directive .balign 64)
+  (directive .asciz "How absurd to swallow a bird!\n")
+  (directive .balign 64)
+  (directive .asciz "Imagine that, to swallow a cat!\n")
+  (directive .balign 64)
+  (directive .asciz "What a hog, to swallow a dog!\n")
+  (directive .balign 64)
+  (directive .asciz "Just opened her throat and swallowed a goat!\n")
+  (directive .balign 64)
+  (directive .asciz "I don't know how she swallowed a cow!\n")
+  (directive .balign 64)
+  (directive .balign 8)
+  (label PLACEHOLDER_2)
+  (directive .asciz "fly")
+  (directive .balign 8)
+  (directive .asciz "spider")
+  (directive .balign 8)
+  (directive .asciz "bird")
+  (directive .balign 8)
+  (directive .asciz "cat")
+  (directive .balign 8)
+  (directive .asciz "dog")
+  (directive .balign 8)
+  (directive .asciz "goat")
+  (directive .balign 8)
+  (directive .asciz "cow")
+  (directive .balign 8)
+  (directive .text)
+  (directive .globl PLACEHOLDER_3)
+  (register_alias PLACEHOLDER_4 x0)
+  (register_alias PLACEHOLDER_5 w1)
+  (register_alias PLACEHOLDER_6 w2)
+  (register_alias PLACEHOLDER_7 w3)
+  (register_alias PLACEHOLDER_8 x3)
+  (register_alias PLACEHOLDER_9 w4)
+  (register_alias PLACEHOLDER_10 x5)
+  (register_alias PLACEHOLDER_11 x6)
+  (register_alias PLACEHOLDER_12 w7)
+  (register_alias PLACEHOLDER_13 x8)
+  (register_alias PLACEHOLDER_14 x9)
+  (macro_definition PLACEHOLDER_15
+    (parameters
+      (parameter PLACEHOLDER_16))
+    (block
+      (label PLACEHOLDER_17)
+      (instruction ldrb PLACEHOLDER_12
+        (memory
+          (macro_argument PLACEHOLDER_16)) 1)
+      (instruction strb PLACEHOLDER_12
+        (memory PLACEHOLDER_4) 1)
+      (instruction cbnz PLACEHOLDER_12 PLACEHOLDER_17)
+      (instruction sub PLACEHOLDER_4 PLACEHOLDER_4 1)))
+  (macro_definition PLACEHOLDER_18
+    (parameters
+      (parameter PLACEHOLDER_19))
+    (block
+      (instruction ldr PLACEHOLDER_13
+        (memory PLACEHOLDER_11
+          (macro_argument PLACEHOLDER_19)
+          (extend uxtw 3)))
+      (instruction str PLACEHOLDER_13
+        (memory PLACEHOLDER_4))
+      (instruction clz PLACEHOLDER_14 PLACEHOLDER_13)
+      (instruction add PLACEHOLDER_4 PLACEHOLDER_4 8)
+      (instruction sub PLACEHOLDER_4 PLACEHOLDER_4 PLACEHOLDER_14
+        (shift lsr 3))))
+  (macro_definition PLACEHOLDER_20
+    (parameters
+      (parameter PLACEHOLDER_21))
+    (block
+      (directive .pushsection .rodata)
+      (directive .balign 64)
+      (label PLACEHOLDER_22)
+      (directive .ascii
+        (string "\\s"))
+      (symbol_definition PLACEHOLDER_23
+        (binary_expression . - PLACEHOLDER_22))
+      (directive .popsection)
+      (directive .if
+        (binary_expression PLACEHOLDER_23 > 64))
+      (directive .error "output_str: string longer than 64 bytes")
+      (directive .endif)
+      (instruction adr PLACEHOLDER_10 PLACEHOLDER_22)
+      (instruction ld1
+        (register_list
+          (register_range
+            (vector_register v0 .16b) -
+            (vector_register v3 .16b)))
+        (memory PLACEHOLDER_10))
+      (instruction st1
+        (register_list
+          (register_range
+            (vector_register v0 .16b) -
+            (vector_register v3 .16b)))
+        (memory PLACEHOLDER_4))
+      (instruction add PLACEHOLDER_4 PLACEHOLDER_4 PLACEHOLDER_23)))
+  (label PLACEHOLDER_3)
+  (instruction adr PLACEHOLDER_11 PLACEHOLDER_2)
+  (instruction sub PLACEHOLDER_7 PLACEHOLDER_5 1)
+  (label PLACEHOLDER_24)
+  (instruction cmp PLACEHOLDER_7 7)
+  (instruction b.eq PLACEHOLDER_25)
+  (macro_call PLACEHOLDER_20 "I know an old lady who swallowed a ")
+  (macro_call PLACEHOLDER_18 PLACEHOLDER_7)
+  (macro_call PLACEHOLDER_20 ".\n")
+  (instruction adr PLACEHOLDER_10 PLACEHOLDER_1)
+  (instruction add PLACEHOLDER_10 PLACEHOLDER_10 PLACEHOLDER_8
+    (shift lsl 6))
+  (macro_call PLACEHOLDER_15 PLACEHOLDER_10)
+  (instruction mov PLACEHOLDER_9 PLACEHOLDER_7)
+  (instruction b PLACEHOLDER_26)
+  (label PLACEHOLDER_27)
+  (macro_call PLACEHOLDER_20 "She swallowed the ")
+  (macro_call PLACEHOLDER_18 PLACEHOLDER_9)
+  (macro_call PLACEHOLDER_20 " to catch the ")
+  (instruction sub PLACEHOLDER_9 PLACEHOLDER_9 1)
+  (macro_call PLACEHOLDER_18 PLACEHOLDER_9)
+  (instruction cmp PLACEHOLDER_9 1)
+  (instruction b.ne
+    (local_label_reference (local_label PLACEHOLDER_28) f))
+  (macro_call PLACEHOLDER_20 " that wriggled and jiggled and tickled inside her")
+  (label (local_label PLACEHOLDER_28))
+  (macro_call PLACEHOLDER_20 ".\n")
+  (label PLACEHOLDER_26)
+  (instruction cbnz PLACEHOLDER_9 PLACEHOLDER_27)
+  (macro_call PLACEHOLDER_20 "I don't know why she swallowed the fly. Perhaps she'll die.\n\n")
+  (instruction add PLACEHOLDER_7 PLACEHOLDER_7 1)
+  (instruction cmp PLACEHOLDER_7 PLACEHOLDER_6)
+  (instruction b.lo PLACEHOLDER_24)
+  (instruction strb wzr
+    (memory PLACEHOLDER_4
+      (unary_expression - 1)))
+  (instruction ret)
+  (label PLACEHOLDER_25)
+  (macro_call PLACEHOLDER_20 "I know an old lady who swallowed a horse.\n")
+  (macro_call PLACEHOLDER_20 "She's dead, of course!\n")
+  (instruction strb wzr
+    (memory PLACEHOLDER_4))
+  (instruction ret))

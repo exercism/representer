@@ -1,50 +1,59 @@
-.section .rodata
-.balign 32
-actions: // 32-byte stride, indexed by bit number
-.string "\"wink," "\""
-.balign 32
-.string "\"double" blink, "\""
-.balign 32
-.string "\"close" your eyes, "\""
-.balign 32
-.string "\"jump," "\""
-.text
-.globl commands
-buffer .req x0
-number .req x1
-src .req x2
-ch .req w3
-tbl .req x4
-idx .req x5
-step .req x6
-count .req x7
-bits .req x8
-commands:
-and bits, number, #15
-cbz bits, .Lempty // no actions?
-adrp tbl, actions
-add tbl, tbl, :lo12:actions
-mov count, #4
-mov idx, #0
-mov step, #1
-tbz number, #4, .Lloop
-mov idx, #3 // reverse order
-mov step, #-1
-.Lloop:
-lsr bits, number, idx
-tbz bits, #0, .Lnext
-add src, tbl, idx, lsl #5
-.Lcopy:
-ldrb ch, [src], #1
-strb ch, [buffer], #1
-cbnz ch, .Lcopy
-sub buffer, buffer, #1
-.Lnext:
-add idx, idx, step
-subs count, count, #1
-b.ne .Lloop
-strb wzr, [buffer, #-2] // replace trailing "\"," "\"" with NUL
-ret
-.Lempty:
-strb wzr, [buffer]
-ret
+(source_file
+  (directive .section .rodata)
+  (directive .balign 32)
+  (label PLACEHOLDER_1)
+  (directive .string "wink, ")
+  (directive .balign 32)
+  (directive .string "double blink, ")
+  (directive .balign 32)
+  (directive .string "close your eyes, ")
+  (directive .balign 32)
+  (directive .string "jump, ")
+  (directive .text)
+  (directive .globl PLACEHOLDER_2)
+  (register_alias PLACEHOLDER_3 x0)
+  (register_alias PLACEHOLDER_4 x1)
+  (register_alias PLACEHOLDER_5 x2)
+  (register_alias PLACEHOLDER_6 w3)
+  (register_alias PLACEHOLDER_7 x4)
+  (register_alias PLACEHOLDER_8 x5)
+  (register_alias PLACEHOLDER_9 x6)
+  (register_alias PLACEHOLDER_10 x7)
+  (register_alias PLACEHOLDER_11 x8)
+  (label PLACEHOLDER_2)
+  (instruction and PLACEHOLDER_11 PLACEHOLDER_4 15)
+  (instruction cbz PLACEHOLDER_11 PLACEHOLDER_12)
+  (instruction adrp PLACEHOLDER_7 PLACEHOLDER_1)
+  (instruction add PLACEHOLDER_7 PLACEHOLDER_7
+    (relocation :lo12: PLACEHOLDER_1))
+  (instruction mov PLACEHOLDER_10 4)
+  (instruction mov PLACEHOLDER_8 0)
+  (instruction mov PLACEHOLDER_9 1)
+  (instruction tbz PLACEHOLDER_4 4 PLACEHOLDER_13)
+  (instruction mov PLACEHOLDER_8 3)
+  (instruction mov PLACEHOLDER_9
+    (unary_expression - 1))
+  (label PLACEHOLDER_13)
+  (instruction lsr PLACEHOLDER_11 PLACEHOLDER_4 PLACEHOLDER_8)
+  (instruction tbz PLACEHOLDER_11 0 PLACEHOLDER_14)
+  (instruction add PLACEHOLDER_5 PLACEHOLDER_7 PLACEHOLDER_8
+    (shift lsl 5))
+  (label PLACEHOLDER_15)
+  (instruction ldrb PLACEHOLDER_6
+    (memory PLACEHOLDER_5) 1)
+  (instruction strb PLACEHOLDER_6
+    (memory PLACEHOLDER_3) 1)
+  (instruction cbnz PLACEHOLDER_6 PLACEHOLDER_15)
+  (instruction sub PLACEHOLDER_3 PLACEHOLDER_3 1)
+  (label PLACEHOLDER_14)
+  (instruction add PLACEHOLDER_8 PLACEHOLDER_8 PLACEHOLDER_9)
+  (instruction subs PLACEHOLDER_10 PLACEHOLDER_10 1)
+  (instruction b.ne PLACEHOLDER_13)
+  (instruction strb wzr
+    (memory PLACEHOLDER_3
+      (unary_expression - 2)))
+  (instruction ret)
+  (label PLACEHOLDER_12)
+  (instruction strb wzr
+    (memory PLACEHOLDER_3))
+  (instruction ret))

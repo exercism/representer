@@ -1,45 +1,54 @@
-.equ BAD_BASE, -1
-.equ BAD_DIGIT, -2
-.text
-.globl rebase
-/* extern int rebase(int32_t in_base, const int32_t* in_digits, int in_digit_count, int32_t out_base, int32_t* out_digits); */
-rebase:
-cmp w0, #2 /* minimum valid base */
-blt .bad_base
-cmp w3, #2
-blt .bad_base
-mov x5, #0 /* value represented by digits */
-mov x7, x4 /* output pointer */
-.read:
-cbz x2, .write
-ldr w6, [x1], 4 /* load input digit, post-increment */
-cmp w6, w0
-bhs .bad_digit /* unsigned >= */
-madd x5, x0, x5, x6 /* in_base * value + digit */
-sub x2, x2, #1 /* decrement number of digits remaining */
-b .read
-.bad_base:
-mov x0, BAD_BASE
-ret
-.bad_digit:
-mov x0, BAD_DIGIT
-ret
-.write:
-udiv x1, x5, x3 /* divide value by out_base */
-msub x6, x1, x3, x5 /* remainder, i.e. output digit */
-str w6, [x7], #4 /* store, post-increment */
-mov x5, x1
-cbnz x5, .write /* loop until value is 0 */
-sub x0, x7, x4 /* length of output, in bytes */
-lsr x0, x0, #2
-.reverse:
-ldr w1, [x7, #-4]! /* load, pre-decrement */
-cmp x7, x4
-beq .return
-ldr w2, [x4]
-str w2, [x7]
-str w1, [x4], #4 /* store, post-increment */
-cmp x7, x4
-bne .reverse
-.return:
-ret
+(source_file
+  (symbol_definition PLACEHOLDER_1
+    (unary_expression - 1))
+  (symbol_definition PLACEHOLDER_2
+    (unary_expression - 2))
+  (directive .text)
+  (directive .globl PLACEHOLDER_3)
+  (label PLACEHOLDER_3)
+  (instruction cmp w0 2)
+  (instruction blt PLACEHOLDER_4)
+  (instruction cmp w3 2)
+  (instruction blt PLACEHOLDER_4)
+  (instruction mov x5 0)
+  (instruction mov x7 x4)
+  (label PLACEHOLDER_5)
+  (instruction cbz x2 PLACEHOLDER_6)
+  (instruction ldr w6
+    (memory x1) 4)
+  (instruction cmp w6 w0)
+  (instruction bhs PLACEHOLDER_7)
+  (instruction madd x5 x0 x5 x6)
+  (instruction sub x2 x2 1)
+  (instruction b PLACEHOLDER_5)
+  (label PLACEHOLDER_4)
+  (instruction mov x0 PLACEHOLDER_1)
+  (instruction ret)
+  (label PLACEHOLDER_7)
+  (instruction mov x0 PLACEHOLDER_2)
+  (instruction ret)
+  (label PLACEHOLDER_6)
+  (instruction udiv x1 x5 x3)
+  (instruction msub x6 x1 x3 x5)
+  (instruction str w6
+    (memory x7) 4)
+  (instruction mov x5 x1)
+  (instruction cbnz x5 PLACEHOLDER_6)
+  (instruction sub x0 x7 x4)
+  (instruction lsr x0 x0 2)
+  (label PLACEHOLDER_8)
+  (instruction ldr w1
+    (memory x7
+      (unary_expression - 4) !))
+  (instruction cmp x7 x4)
+  (instruction beq PLACEHOLDER_9)
+  (instruction ldr w2
+    (memory x4))
+  (instruction str w2
+    (memory x7))
+  (instruction str w1
+    (memory x4) 4)
+  (instruction cmp x7 x4)
+  (instruction bne PLACEHOLDER_8)
+  (label PLACEHOLDER_9)
+  (instruction ret))

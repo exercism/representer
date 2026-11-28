@@ -1,28 +1,41 @@
-.section .rodata
-prefix: .string "\"One" for "\""
-you: .string "\"you\""
-suffix: .string "\"," one for me."
-.macro LOAD str
-adrp x2, \str
-add x2, x2, :lo12:\str
-.endm
-.macro APPEND str
-.copy_\str:
-ldrb w3, [x2], #1 /* load byte, with post-increment */
-strb w3, [x0], #1 /* store byte, post-increment */
-cbnz w3, .copy_\str
-sub x0, x0, #1 /* address of null terminator */
-.endm
-.text
-.globl two_fer
-/* extern void two_fer(char *buffer, const char *name); */
-two_fer:
-LOAD prefix
-APPEND prefix
-LOAD you
-tst x1, x1
-csel x2, x1, x2, ne /* name if non-null, otherwise you */
-APPEND you
-LOAD suffix
-APPEND suffix
-ret
+(source_file
+  (directive .section .rodata)
+  (label PLACEHOLDER_1)
+  (directive .string "One for ")
+  (label PLACEHOLDER_2)
+  (directive .string "you")
+  (label PLACEHOLDER_3)
+  (directive .string ", one for me.")
+  (macro_definition PLACEHOLDER_4
+    (parameters
+      (parameter PLACEHOLDER_5))
+    (block
+      (instruction adrp x2
+        (macro_argument PLACEHOLDER_5))
+      (instruction add x2 x2
+        (relocation :lo12:
+          (macro_argument PLACEHOLDER_5)))))
+  (macro_definition PLACEHOLDER_6
+    (parameters
+      (parameter PLACEHOLDER_5))
+    (block
+      (label PLACEHOLDER_7)
+      (instruction ldrb w3
+        (memory x2) 1)
+      (instruction strb w3
+        (memory x0) 1)
+      (instruction cbnz w3 PLACEHOLDER_7)
+      (instruction sub x0 x0 1)))
+  (directive .text)
+  (directive .globl PLACEHOLDER_8)
+  (label PLACEHOLDER_8)
+  (macro_call PLACEHOLDER_4 PLACEHOLDER_1)
+  (macro_call PLACEHOLDER_6 PLACEHOLDER_1)
+  (macro_call PLACEHOLDER_4 PLACEHOLDER_2)
+  (instruction tst x1 x1)
+  (instruction csel x2 x1 x2
+    (condition ne))
+  (macro_call PLACEHOLDER_6 PLACEHOLDER_2)
+  (macro_call PLACEHOLDER_4 PLACEHOLDER_3)
+  (macro_call PLACEHOLDER_6 PLACEHOLDER_3)
+  (instruction ret))

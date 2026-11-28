@@ -1,73 +1,91 @@
-.text
-.globl ciphertext
-buffer .req x0
-plaintext .req x1
-buffer_size .req x2
-n .req x3
-ch .req w4
-ptr .req x5
-len .req x6
-ch_idx .req w7
-cols_sq .req x7 // reuse
-space .req w7 // reuse
-cols .req x8
-col .req x9
-i .req x10
-total .req x11
-norm .req x12
-ciphertext:
-// calculate length of the string
-mov ptr, plaintext
-1: ldrb ch, [ptr], #1
-cbnz ch, 1b
-sub len, ptr, plaintext
-// allocate len bytes from the stack for the norm buffer
-add buffer_size, len, #15
-and buffer_size, buffer_size, #-16
-sub sp, sp, buffer_size
-mov norm, sp
-// copy normalized input into scratch buffer
-mov ptr, norm
-b 2f
-1: orr ch, ch, #32 // lowercase
-sub ch_idx, ch, #'0'
-cmp ch_idx, #9 // digit?
-sub ch_idx, ch, #'a'
-ccmp ch_idx, #25, #0, hi // or letter?
-strb ch, [ptr]
-cinc ptr, ptr, ls
-2: ldrb ch, [plaintext], #1
-cbnz ch, 1b
-sub n, ptr, norm // length of normalized input
-// no data? we're done
-cbz n, .Ldone
-// cols = sqrt(n)
-mov cols, #0
-1: add cols, cols, #1
-mul cols_sq, cols, cols
-cmp cols_sq, n
-b.lt 1b
-add total, n, cols
-sub total, total, #1
-udiv total, total, cols
-mul total, total, cols // rows * cols + padding
-// copy data from scratch buffer to output
-mov col, #0
-mov space, #' '
-1: mov i, col
-2: ldrb ch, [norm, i] // reads up to cols - 2 bytes past buffer but it's ok
-cmp i, n
-csel ch, ch, space, lo // i < n ? ch : ' '
-strb ch, [buffer], #1
-add i, i, cols
-cmp i, total
-b.lo 2b
-strb space, [buffer], #1 // separator after each column
-add col, col, #1
-cmp col, cols
-b.lo 1b
-sub buffer, buffer, #1 // remove last separator
-.Ldone:
-strb wzr, [buffer]
-add sp, sp, buffer_size
-ret
+(source_file
+  (directive .text)
+  (directive .globl PLACEHOLDER_1)
+  (register_alias PLACEHOLDER_2 x0)
+  (register_alias PLACEHOLDER_3 x1)
+  (register_alias PLACEHOLDER_4 x2)
+  (register_alias PLACEHOLDER_5 x3)
+  (register_alias PLACEHOLDER_6 w4)
+  (register_alias PLACEHOLDER_7 x5)
+  (register_alias PLACEHOLDER_8 x6)
+  (register_alias PLACEHOLDER_9 w7)
+  (register_alias PLACEHOLDER_10 x7)
+  (register_alias PLACEHOLDER_11 w7)
+  (register_alias PLACEHOLDER_12 x8)
+  (register_alias PLACEHOLDER_13 x9)
+  (register_alias PLACEHOLDER_14 x10)
+  (register_alias PLACEHOLDER_15 x11)
+  (register_alias PLACEHOLDER_16 x12)
+  (label PLACEHOLDER_1)
+  (instruction mov PLACEHOLDER_7 PLACEHOLDER_3)
+  (label (local_label PLACEHOLDER_17))
+  (instruction ldrb PLACEHOLDER_6
+    (memory PLACEHOLDER_7) 1)
+  (instruction cbnz PLACEHOLDER_6
+    (local_label_reference (local_label PLACEHOLDER_17) b))
+  (instruction sub PLACEHOLDER_8 PLACEHOLDER_7 PLACEHOLDER_3)
+  (instruction add PLACEHOLDER_4 PLACEHOLDER_8 15)
+  (instruction and PLACEHOLDER_4 PLACEHOLDER_4
+    (unary_expression - 16))
+  (instruction sub sp sp PLACEHOLDER_4)
+  (instruction mov PLACEHOLDER_16 sp)
+  (instruction mov PLACEHOLDER_7 PLACEHOLDER_16)
+  (instruction b
+    (local_label_reference (local_label PLACEHOLDER_18) f))
+  (label (local_label PLACEHOLDER_17))
+  (instruction orr PLACEHOLDER_6 PLACEHOLDER_6 32)
+  (instruction sub PLACEHOLDER_9 PLACEHOLDER_6 '0')
+  (instruction cmp PLACEHOLDER_9 9)
+  (instruction sub PLACEHOLDER_9 PLACEHOLDER_6 'a')
+  (instruction ccmp PLACEHOLDER_9 25 0
+    (condition hi))
+  (instruction strb PLACEHOLDER_6
+    (memory PLACEHOLDER_7))
+  (instruction cinc PLACEHOLDER_7 PLACEHOLDER_7
+    (condition ls))
+  (label (local_label PLACEHOLDER_18))
+  (instruction ldrb PLACEHOLDER_6
+    (memory PLACEHOLDER_3) 1)
+  (instruction cbnz PLACEHOLDER_6
+    (local_label_reference (local_label PLACEHOLDER_17) b))
+  (instruction sub PLACEHOLDER_5 PLACEHOLDER_7 PLACEHOLDER_16)
+  (instruction cbz PLACEHOLDER_5 PLACEHOLDER_19)
+  (instruction mov PLACEHOLDER_12 0)
+  (label (local_label PLACEHOLDER_17))
+  (instruction add PLACEHOLDER_12 PLACEHOLDER_12 1)
+  (instruction mul PLACEHOLDER_10 PLACEHOLDER_12 PLACEHOLDER_12)
+  (instruction cmp PLACEHOLDER_10 PLACEHOLDER_5)
+  (instruction b.lt
+    (local_label_reference (local_label PLACEHOLDER_17) b))
+  (instruction add PLACEHOLDER_15 PLACEHOLDER_5 PLACEHOLDER_12)
+  (instruction sub PLACEHOLDER_15 PLACEHOLDER_15 1)
+  (instruction udiv PLACEHOLDER_15 PLACEHOLDER_15 PLACEHOLDER_12)
+  (instruction mul PLACEHOLDER_15 PLACEHOLDER_15 PLACEHOLDER_12)
+  (instruction mov PLACEHOLDER_13 0)
+  (instruction mov PLACEHOLDER_11 "' '")
+  (label (local_label PLACEHOLDER_17))
+  (instruction mov PLACEHOLDER_14 PLACEHOLDER_13)
+  (label (local_label PLACEHOLDER_18))
+  (instruction ldrb PLACEHOLDER_6
+    (memory PLACEHOLDER_16 PLACEHOLDER_14))
+  (instruction cmp PLACEHOLDER_14 PLACEHOLDER_5)
+  (instruction csel PLACEHOLDER_6 PLACEHOLDER_6 PLACEHOLDER_11
+    (condition lo))
+  (instruction strb PLACEHOLDER_6
+    (memory PLACEHOLDER_2) 1)
+  (instruction add PLACEHOLDER_14 PLACEHOLDER_14 PLACEHOLDER_12)
+  (instruction cmp PLACEHOLDER_14 PLACEHOLDER_15)
+  (instruction b.lo
+    (local_label_reference (local_label PLACEHOLDER_18) b))
+  (instruction strb PLACEHOLDER_11
+    (memory PLACEHOLDER_2) 1)
+  (instruction add PLACEHOLDER_13 PLACEHOLDER_13 1)
+  (instruction cmp PLACEHOLDER_13 PLACEHOLDER_12)
+  (instruction b.lo
+    (local_label_reference (local_label PLACEHOLDER_17) b))
+  (instruction sub PLACEHOLDER_2 PLACEHOLDER_2 1)
+  (label PLACEHOLDER_19)
+  (instruction strb wzr
+    (memory PLACEHOLDER_2))
+  (instruction add sp sp PLACEHOLDER_4)
+  (instruction ret))

@@ -1,91 +1,142 @@
-.section .rodata
-.balign 16
-.Lletters:
-.ascii "\"abcdefghijklmnopqrstuvwxyz\""
-.zero 6
-.text
-.globl find_anagrams
-is_anagram .req x0
-candidates .req x1
-num_candidates .req x2
-subject .req x3
-candidate_idx .req x4
-ch1 .req w5
-ch2 .req w6
-str1 .req x7
-str2 .req x8
-candidate .req x9
-candidate_ok .req w10
-tmp_x .req x11
-hist_sub1 .req v1
-hist_sub2 .req v2
-hist_cand1 .req v3
-hist_cand2 .req v4
-letters1_v .req v5
-letters1_q .req q5
-letters2_v .req v6
-letters2_q .req q6
-char_v .req v7
-match1 .req v16
-match2 .req v17
-tmp_v .req v18
-tmp_d .req d18
-// Increments/decrements counts of given histograms from letters of given string.
-// Assumes letters are ASCII and that individual letters have at most 255 repetitions,
-// which allows storing the histograms in two vector registers.
-.macro counts mode src h1 h2
-mov str1, \src
-b .Lcounts_check\@
-.Lcounts_loop\@:
-orr ch1, ch1, #32 // lowercase
-dup char_v.16b, ch1
-cmeq match1.16b, char_v.16b, letters1_v.16b // all-ones (-1) in the lane of this letter
-cmeq match2.16b, char_v.16b, letters2_v.16b
-.ifc \mode, inc
-sub \h1, \h1, match1.16b // sub -1 (add 1) for matching letters
-sub \h2, \h2, match2.16b
-.else
-add \h1, \h1, match1.16b // add -1 (sub 1) for matching letters
-add \h2, \h2, match2.16b
-.endif
-.Lcounts_check\@:
-ldrb ch1, [str1], #1
-cbnz ch1, .Lcounts_loop\@
-.endm
-find_anagrams:
-mov candidate_idx, #0
-ldr letters1_q, .Lletters // load letters into vector registers
-ldr letters2_q, .Lletters + 16
-movi hist_sub1.16b, #0 // reset histogram to zeros
-movi hist_sub2.16b, #0
-counts inc, subject, hist_sub1.16b, hist_sub2.16b // prepare histogram for subject
-b .Lcheck_next_candidate
-.Lnext_candidate:
-ldr candidate, [candidates, candidate_idx, lsl #3]
-mov hist_cand1.16b, hist_sub1.16b
-mov hist_cand2.16b, hist_sub2.16b
-counts dec, candidate, hist_cand1.16b, hist_cand2.16b
-orr tmp_v.16b, hist_cand1.16b, hist_cand2.16b // check that counts are zero
-umaxp tmp_v.4s, tmp_v.4s, tmp_v.4s
-fmov tmp_x, tmp_d
-cbnz tmp_x, .Lcandidate_fail // had non-zero count, reject the candidate
-// We had all the same letters. But perhaps this is the same string?
-// We already know they have the same length, so we can simplify the loop a bit
-mov str1, subject
-mov str2, candidate
-1: ldrb ch1, [str1], #1
-cbz ch1, .Lcandidate_fail // strings were the same, reject the candidate
-ldrb ch2, [str2], #1
-eor ch1, ch1, ch2 // compare letters
-tst ch1, #~32 // ignore differences in bit 5 (case)
-b.eq 1b
-mov candidate_ok, #1
-b 2f
-.Lcandidate_fail:
-mov candidate_ok, #0
-2: str candidate_ok, [is_anagram, candidate_idx, lsl #2]
-add candidate_idx, candidate_idx, #1
-.Lcheck_next_candidate:
-cmp candidate_idx, num_candidates
-b.lo .Lnext_candidate
-ret
+(source_file
+  (directive .section .rodata)
+  (directive .balign 16)
+  (label PLACEHOLDER_1)
+  (directive .ascii "abcdefghijklmnopqrstuvwxyz")
+  (directive .zero 6)
+  (directive .text)
+  (directive .globl PLACEHOLDER_2)
+  (register_alias PLACEHOLDER_3 x0)
+  (register_alias PLACEHOLDER_4 x1)
+  (register_alias PLACEHOLDER_5 x2)
+  (register_alias PLACEHOLDER_6 x3)
+  (register_alias PLACEHOLDER_7 x4)
+  (register_alias PLACEHOLDER_8 w5)
+  (register_alias PLACEHOLDER_9 w6)
+  (register_alias PLACEHOLDER_10 x7)
+  (register_alias PLACEHOLDER_11 x8)
+  (register_alias PLACEHOLDER_12 x9)
+  (register_alias PLACEHOLDER_13 w10)
+  (register_alias PLACEHOLDER_14 x11)
+  (register_alias PLACEHOLDER_15 v1)
+  (register_alias PLACEHOLDER_16 v2)
+  (register_alias PLACEHOLDER_17 v3)
+  (register_alias PLACEHOLDER_18 v4)
+  (register_alias PLACEHOLDER_19 v5)
+  (register_alias PLACEHOLDER_20 q5)
+  (register_alias PLACEHOLDER_21 v6)
+  (register_alias PLACEHOLDER_22 q6)
+  (register_alias PLACEHOLDER_23 v7)
+  (register_alias PLACEHOLDER_24 v16)
+  (register_alias PLACEHOLDER_25 v17)
+  (register_alias PLACEHOLDER_26 v18)
+  (register_alias PLACEHOLDER_27 d18)
+  (macro_definition PLACEHOLDER_28
+    (parameters
+      (parameter PLACEHOLDER_29)
+      (parameter PLACEHOLDER_30)
+      (parameter PLACEHOLDER_31)
+      (parameter PLACEHOLDER_32))
+    (block
+      (instruction mov PLACEHOLDER_10
+        (macro_argument PLACEHOLDER_30))
+      (instruction b PLACEHOLDER_33)
+      (label PLACEHOLDER_34)
+      (instruction orr PLACEHOLDER_8 PLACEHOLDER_8 32)
+      (instruction dup
+        (vector_register PLACEHOLDER_23 .16b) PLACEHOLDER_8)
+      (instruction cmeq
+        (vector_register PLACEHOLDER_24 .16b)
+        (vector_register PLACEHOLDER_23 .16b)
+        (vector_register PLACEHOLDER_19 .16b))
+      (instruction cmeq
+        (vector_register PLACEHOLDER_25 .16b)
+        (vector_register PLACEHOLDER_23 .16b)
+        (vector_register PLACEHOLDER_21 .16b))
+      (directive .ifc
+        (macro_argument PLACEHOLDER_29) inc)
+      (instruction sub
+        (macro_argument PLACEHOLDER_31)
+        (macro_argument PLACEHOLDER_31)
+        (vector_register PLACEHOLDER_24 .16b))
+      (instruction sub
+        (macro_argument PLACEHOLDER_32)
+        (macro_argument PLACEHOLDER_32)
+        (vector_register PLACEHOLDER_25 .16b))
+      (directive .else)
+      (instruction add
+        (macro_argument PLACEHOLDER_31)
+        (macro_argument PLACEHOLDER_31)
+        (vector_register PLACEHOLDER_24 .16b))
+      (instruction add
+        (macro_argument PLACEHOLDER_32)
+        (macro_argument PLACEHOLDER_32)
+        (vector_register PLACEHOLDER_25 .16b))
+      (directive .endif)
+      (label PLACEHOLDER_33)
+      (instruction ldrb PLACEHOLDER_8
+        (memory PLACEHOLDER_10) 1)
+      (instruction cbnz PLACEHOLDER_8 PLACEHOLDER_34)))
+  (label PLACEHOLDER_2)
+  (instruction mov PLACEHOLDER_7 0)
+  (instruction ldr PLACEHOLDER_20 PLACEHOLDER_1)
+  (instruction ldr PLACEHOLDER_22
+    (binary_expression PLACEHOLDER_1 + 16))
+  (instruction movi
+    (vector_register PLACEHOLDER_15 .16b) 0)
+  (instruction movi
+    (vector_register PLACEHOLDER_16 .16b) 0)
+  (macro_call PLACEHOLDER_28 inc PLACEHOLDER_6
+    (vector_register PLACEHOLDER_15 .16b)
+    (vector_register PLACEHOLDER_16 .16b))
+  (instruction b PLACEHOLDER_35)
+  (label PLACEHOLDER_36)
+  (instruction ldr PLACEHOLDER_12
+    (memory PLACEHOLDER_4 PLACEHOLDER_7
+      (shift lsl 3)))
+  (instruction mov
+    (vector_register PLACEHOLDER_17 .16b)
+    (vector_register PLACEHOLDER_15 .16b))
+  (instruction mov
+    (vector_register PLACEHOLDER_18 .16b)
+    (vector_register PLACEHOLDER_16 .16b))
+  (macro_call PLACEHOLDER_28 dec PLACEHOLDER_12
+    (vector_register PLACEHOLDER_17 .16b)
+    (vector_register PLACEHOLDER_18 .16b))
+  (instruction orr
+    (vector_register PLACEHOLDER_26 .16b)
+    (vector_register PLACEHOLDER_17 .16b)
+    (vector_register PLACEHOLDER_18 .16b))
+  (instruction umaxp
+    (vector_register PLACEHOLDER_26 .4s)
+    (vector_register PLACEHOLDER_26 .4s)
+    (vector_register PLACEHOLDER_26 .4s))
+  (instruction fmov PLACEHOLDER_14 PLACEHOLDER_27)
+  (instruction cbnz PLACEHOLDER_14 PLACEHOLDER_37)
+  (instruction mov PLACEHOLDER_10 PLACEHOLDER_6)
+  (instruction mov PLACEHOLDER_11 PLACEHOLDER_12)
+  (label (local_label PLACEHOLDER_38))
+  (instruction ldrb PLACEHOLDER_8
+    (memory PLACEHOLDER_10) 1)
+  (instruction cbz PLACEHOLDER_8 PLACEHOLDER_37)
+  (instruction ldrb PLACEHOLDER_9
+    (memory PLACEHOLDER_11) 1)
+  (instruction eor PLACEHOLDER_8 PLACEHOLDER_8 PLACEHOLDER_9)
+  (instruction tst PLACEHOLDER_8
+    (unary_expression ~ 32))
+  (instruction b.eq
+    (local_label_reference (local_label PLACEHOLDER_38) b))
+  (instruction mov PLACEHOLDER_13 1)
+  (instruction b
+    (local_label_reference (local_label PLACEHOLDER_39) f))
+  (label PLACEHOLDER_37)
+  (instruction mov PLACEHOLDER_13 0)
+  (label (local_label PLACEHOLDER_39))
+  (instruction str PLACEHOLDER_13
+    (memory PLACEHOLDER_3 PLACEHOLDER_7
+      (shift lsl 2)))
+  (instruction add PLACEHOLDER_7 PLACEHOLDER_7 1)
+  (label PLACEHOLDER_35)
+  (instruction cmp PLACEHOLDER_7 PLACEHOLDER_5)
+  (instruction b.lo PLACEHOLDER_36)
+  (instruction ret))

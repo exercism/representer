@@ -1,101 +1,130 @@
-.text
-.globl translate
-buffer .req x0
-phrase .req x1
-ch .req w2
-ch2 .req w3
-src .req x4
-suffix .req x5
-rest .req x6
-tmp .req w7
-const_u .req w8
-const_xr .req w9
-const_yt .req w10
-const_vowels .req w11 // bit (c - 'a') set for a, e, i, o, u
-const_vowels_y .req w12 // ... and y
-const_ay .req w13
-const_qu .req w14
-// Input is assumed to be lower-case ASCII letters separated by spaces.
-// branch if ch is a vowel
-.macro b_vowel ch, label
-sub tmp, \ch, #'a'
-lsr tmp, const_vowels, tmp // shift amount is taken mod 32
-tst tmp, #1
-b.ne \label
-.endm
-// branch if ch is a vowel, a 'y', a space or a nul
-.macro b_cluster_end ch, label
-sub tmp, \ch, #'a'
-lsr tmp, const_vowels_y, tmp
-and tmp, tmp, #1
-cmp \ch, #' '
-ccmp tmp, #1, #4, hi // ch <= ' ' (space or nul) forces eq
-b.ne \label
-.endm
-// copies a string which is terminated either by ' ' or a null
-.macro copy_str s
-mov src, \s
-.Lcopy_str\@:
-ldrb ch, [src], #1
-strb ch, [buffer], #1
-cmp ch, #' '
-b.hi .Lcopy_str\@
-sub buffer, buffer, #1
-.endm
-// copies bytes from start until end (exclusive)
-.macro copy_until start end
-mov src, \start
-b .Lcopy_until_check\@
-.Lcopy_until\@:
-ldrb ch, [src], #1
-strb ch, [buffer], #1
-.Lcopy_until_check\@:
-cmp src, \end
-b.ne .Lcopy_until\@
-.endm
-translate:
-mov const_u, #'u'
-mov const_xr, #0x7278 // xr
-mov const_yt, #0x7479 // yt
-mov const_vowels, #0x4111
-movk const_vowels, #0x10, lsl #16
-orr const_vowels_y, const_vowels, #(1 << 24)
-mov const_ay, #0x7961 // ay
-mov const_qu, 0x7571 // qu
-.Lword:
-ldrb ch, [phrase]
-cbz ch, .Ldone
-// starts with [aeiou]|xr|yt: the cluster is empty
-b_vowel ch, .Lstarts_with_vowel
-ldrh ch2, [phrase]
-cmp ch2, const_xr
-ccmp ch2, const_yt, #4, ne
-b.eq .Lstarts_with_vowel
-// The first letter is always part of the cluster (a leading 'y' is a
-// consonant). After that the cluster ends at a vowel, a 'y' or the
-// end of the word.
-add suffix, phrase, #1
-.Lscan:
-ldrb ch, [suffix], #1
-b_cluster_end ch, .Lscan
-sub suffix, suffix, #1
-// "\"qu\"" belongs to the cluster
-ldurh ch2, [suffix, #-1]
-cmp ch2, const_qu
-cinc suffix, suffix, eq
-.Lemit:
-copy_str suffix
-mov rest, src
-copy_until phrase, suffix
-strh const_ay, [buffer], #2
-ldurb ch, [rest, #-1] // what ended the word: ' ' or nul
-cbz ch, .Ldone
-strb ch, [buffer], #1
-mov phrase, rest
-b .Lword
-.Lstarts_with_vowel:
-mov suffix, phrase
-b .Lemit
-.Ldone:
-strb wzr, [buffer]
-ret
+(source_file
+  (directive .text)
+  (directive .globl PLACEHOLDER_1)
+  (register_alias PLACEHOLDER_2 x0)
+  (register_alias PLACEHOLDER_3 x1)
+  (register_alias PLACEHOLDER_4 w2)
+  (register_alias PLACEHOLDER_5 w3)
+  (register_alias PLACEHOLDER_6 x4)
+  (register_alias PLACEHOLDER_7 x5)
+  (register_alias PLACEHOLDER_8 x6)
+  (register_alias PLACEHOLDER_9 w7)
+  (register_alias PLACEHOLDER_10 w8)
+  (register_alias PLACEHOLDER_11 w9)
+  (register_alias PLACEHOLDER_12 w10)
+  (register_alias PLACEHOLDER_13 w11)
+  (register_alias PLACEHOLDER_14 w12)
+  (register_alias PLACEHOLDER_15 w13)
+  (register_alias PLACEHOLDER_16 w14)
+  (macro_definition PLACEHOLDER_17
+    (parameters
+      (parameter PLACEHOLDER_4)
+      (parameter PLACEHOLDER_18))
+    (block
+      (instruction sub PLACEHOLDER_9
+        (macro_argument PLACEHOLDER_4) 'a')
+      (instruction lsr PLACEHOLDER_9 PLACEHOLDER_13 PLACEHOLDER_9)
+      (instruction tst PLACEHOLDER_9 1)
+      (instruction b.ne
+        (macro_argument PLACEHOLDER_18))))
+  (macro_definition PLACEHOLDER_19
+    (parameters
+      (parameter PLACEHOLDER_4)
+      (parameter PLACEHOLDER_18))
+    (block
+      (instruction sub PLACEHOLDER_9
+        (macro_argument PLACEHOLDER_4) 'a')
+      (instruction lsr PLACEHOLDER_9 PLACEHOLDER_14 PLACEHOLDER_9)
+      (instruction and PLACEHOLDER_9 PLACEHOLDER_9 1)
+      (instruction cmp
+        (macro_argument PLACEHOLDER_4) "' '")
+      (instruction ccmp PLACEHOLDER_9 1 4
+        (condition hi))
+      (instruction b.ne
+        (macro_argument PLACEHOLDER_18))))
+  (macro_definition PLACEHOLDER_20
+    (parameters
+      (parameter PLACEHOLDER_21))
+    (block
+      (instruction mov PLACEHOLDER_6
+        (macro_argument PLACEHOLDER_21))
+      (label PLACEHOLDER_22)
+      (instruction ldrb PLACEHOLDER_4
+        (memory PLACEHOLDER_6) 1)
+      (instruction strb PLACEHOLDER_4
+        (memory PLACEHOLDER_2) 1)
+      (instruction cmp PLACEHOLDER_4 "' '")
+      (instruction b.hi PLACEHOLDER_22)
+      (instruction sub PLACEHOLDER_2 PLACEHOLDER_2 1)))
+  (macro_definition PLACEHOLDER_23
+    (parameters
+      (parameter PLACEHOLDER_24)
+      (parameter PLACEHOLDER_25))
+    (block
+      (instruction mov PLACEHOLDER_6
+        (macro_argument PLACEHOLDER_24))
+      (instruction b PLACEHOLDER_26)
+      (label PLACEHOLDER_27)
+      (instruction ldrb PLACEHOLDER_4
+        (memory PLACEHOLDER_6) 1)
+      (instruction strb PLACEHOLDER_4
+        (memory PLACEHOLDER_2) 1)
+      (label PLACEHOLDER_26)
+      (instruction cmp PLACEHOLDER_6
+        (macro_argument PLACEHOLDER_25))
+      (instruction b.ne PLACEHOLDER_27)))
+  (label PLACEHOLDER_1)
+  (instruction mov PLACEHOLDER_10 'u')
+  (instruction mov PLACEHOLDER_11 29304)
+  (instruction mov PLACEHOLDER_12 29817)
+  (instruction mov PLACEHOLDER_13 16657)
+  (instruction movk PLACEHOLDER_13 16
+    (shift lsl 16))
+  (instruction orr PLACEHOLDER_14 PLACEHOLDER_13
+    (binary_expression 1 << 24))
+  (instruction mov PLACEHOLDER_15 31073)
+  (instruction mov PLACEHOLDER_16 30065)
+  (label PLACEHOLDER_28)
+  (instruction ldrb PLACEHOLDER_4
+    (memory PLACEHOLDER_3))
+  (instruction cbz PLACEHOLDER_4 PLACEHOLDER_29)
+  (macro_call PLACEHOLDER_17 PLACEHOLDER_4 PLACEHOLDER_30)
+  (instruction ldrh PLACEHOLDER_5
+    (memory PLACEHOLDER_3))
+  (instruction cmp PLACEHOLDER_5 PLACEHOLDER_11)
+  (instruction ccmp PLACEHOLDER_5 PLACEHOLDER_12 4
+    (condition ne))
+  (instruction b.eq PLACEHOLDER_30)
+  (instruction add PLACEHOLDER_7 PLACEHOLDER_3 1)
+  (label PLACEHOLDER_31)
+  (instruction ldrb PLACEHOLDER_4
+    (memory PLACEHOLDER_7) 1)
+  (macro_call PLACEHOLDER_19 PLACEHOLDER_4 PLACEHOLDER_31)
+  (instruction sub PLACEHOLDER_7 PLACEHOLDER_7 1)
+  (instruction ldurh PLACEHOLDER_5
+    (memory PLACEHOLDER_7
+      (unary_expression - 1)))
+  (instruction cmp PLACEHOLDER_5 PLACEHOLDER_16)
+  (instruction cinc PLACEHOLDER_7 PLACEHOLDER_7
+    (condition eq))
+  (label PLACEHOLDER_32)
+  (macro_call PLACEHOLDER_20 PLACEHOLDER_7)
+  (instruction mov PLACEHOLDER_8 PLACEHOLDER_6)
+  (macro_call PLACEHOLDER_23 PLACEHOLDER_3 PLACEHOLDER_7)
+  (instruction strh PLACEHOLDER_15
+    (memory PLACEHOLDER_2) 2)
+  (instruction ldurb PLACEHOLDER_4
+    (memory PLACEHOLDER_8
+      (unary_expression - 1)))
+  (instruction cbz PLACEHOLDER_4 PLACEHOLDER_29)
+  (instruction strb PLACEHOLDER_4
+    (memory PLACEHOLDER_2) 1)
+  (instruction mov PLACEHOLDER_3 PLACEHOLDER_8)
+  (instruction b PLACEHOLDER_28)
+  (label PLACEHOLDER_30)
+  (instruction mov PLACEHOLDER_7 PLACEHOLDER_3)
+  (instruction b PLACEHOLDER_32)
+  (label PLACEHOLDER_29)
+  (instruction strb wzr
+    (memory PLACEHOLDER_2))
+  (instruction ret))

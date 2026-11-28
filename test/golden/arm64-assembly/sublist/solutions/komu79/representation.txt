@@ -1,51 +1,59 @@
-.equ UNEQUAL, 0
-.equ EQUAL, 1
-.equ SUBLIST, 2
-.equ SUPERLIST, 3
-.text
-.globl sublist
-list1 .req x0
-size1 .req x1
-list2 .req x2
-size2 .req x3
-needle .req x4
-needle_size .req x5
-haystack .req x6
-haystack_size .req x7
-last_start .req x7 // reuse
-tmp1 .req x8
-tmp2 .req x9
-needle_bytes .req x10
-off .req x11
-sublist:
-// pick the shorter list as the needle, longer has haystack
-cmp size1, size2
-csel needle, list1, list2, le
-csel haystack, list2, list1, le
-csel needle_size, size1, size2, le
-csel haystack_size, size2, size1, le
-sub tmp1, haystack_size, needle_size // slack
-add last_start, haystack, tmp1, lsl #3 // last valid start position
-lsl needle_bytes, needle_size, #3
-.Lposition:
-mov off, #0
-.Lcompare:
-cmp off, needle_bytes
-b.hs .Lfound
-ldr tmp1, [haystack, off]
-ldr tmp2, [needle, off]
-add off, off, #8
-cmp tmp1, tmp2
-b.eq .Lcompare
-add haystack, haystack, #8
-cmp haystack, last_start
-b.ls .Lposition
-mov x0, #0 // not found
-ret
-.Lfound:
-// We found a match, now figure out the correct return value
-mov x0, #EQUAL
-cmp size1, size2
-cinc x0, x0, ne // EQUAL+1 = SUBLIST if sizes differ
-cinc x0, x0, hi // +1 again = SUPERLIST if size1 > size2
-ret
+(source_file
+  (symbol_definition PLACEHOLDER_1 0)
+  (symbol_definition PLACEHOLDER_2 1)
+  (symbol_definition PLACEHOLDER_3 2)
+  (symbol_definition PLACEHOLDER_4 3)
+  (directive .text)
+  (directive .globl PLACEHOLDER_5)
+  (register_alias PLACEHOLDER_6 x0)
+  (register_alias PLACEHOLDER_7 x1)
+  (register_alias PLACEHOLDER_8 x2)
+  (register_alias PLACEHOLDER_9 x3)
+  (register_alias PLACEHOLDER_10 x4)
+  (register_alias PLACEHOLDER_11 x5)
+  (register_alias PLACEHOLDER_12 x6)
+  (register_alias PLACEHOLDER_13 x7)
+  (register_alias PLACEHOLDER_14 x7)
+  (register_alias PLACEHOLDER_15 x8)
+  (register_alias PLACEHOLDER_16 x9)
+  (register_alias PLACEHOLDER_17 x10)
+  (register_alias PLACEHOLDER_18 x11)
+  (label PLACEHOLDER_5)
+  (instruction cmp PLACEHOLDER_7 PLACEHOLDER_9)
+  (instruction csel PLACEHOLDER_10 PLACEHOLDER_6 PLACEHOLDER_8
+    (condition le))
+  (instruction csel PLACEHOLDER_12 PLACEHOLDER_8 PLACEHOLDER_6
+    (condition le))
+  (instruction csel PLACEHOLDER_11 PLACEHOLDER_7 PLACEHOLDER_9
+    (condition le))
+  (instruction csel PLACEHOLDER_13 PLACEHOLDER_9 PLACEHOLDER_7
+    (condition le))
+  (instruction sub PLACEHOLDER_15 PLACEHOLDER_13 PLACEHOLDER_11)
+  (instruction add PLACEHOLDER_14 PLACEHOLDER_12 PLACEHOLDER_15
+    (shift lsl 3))
+  (instruction lsl PLACEHOLDER_17 PLACEHOLDER_11 3)
+  (label PLACEHOLDER_19)
+  (instruction mov PLACEHOLDER_18 0)
+  (label PLACEHOLDER_20)
+  (instruction cmp PLACEHOLDER_18 PLACEHOLDER_17)
+  (instruction b.hs PLACEHOLDER_21)
+  (instruction ldr PLACEHOLDER_15
+    (memory PLACEHOLDER_12 PLACEHOLDER_18))
+  (instruction ldr PLACEHOLDER_16
+    (memory PLACEHOLDER_10 PLACEHOLDER_18))
+  (instruction add PLACEHOLDER_18 PLACEHOLDER_18 8)
+  (instruction cmp PLACEHOLDER_15 PLACEHOLDER_16)
+  (instruction b.eq PLACEHOLDER_20)
+  (instruction add PLACEHOLDER_12 PLACEHOLDER_12 8)
+  (instruction cmp PLACEHOLDER_12 PLACEHOLDER_14)
+  (instruction b.ls PLACEHOLDER_19)
+  (instruction mov x0 0)
+  (instruction ret)
+  (label PLACEHOLDER_21)
+  (instruction mov x0 PLACEHOLDER_2)
+  (instruction cmp PLACEHOLDER_7 PLACEHOLDER_9)
+  (instruction cinc x0 x0
+    (condition ne))
+  (instruction cinc x0 x0
+    (condition hi))
+  (instruction ret))

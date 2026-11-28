@@ -1,101 +1,122 @@
-.equ WHAT_IS, 8
-.equ PLUS, 8
-.equ MINUS, 16
-.equ MULTIPLIED_BY, 24
-.equ DIVIDED_BY, 32
-.equ QUESTION_MARK, 40
-.data
-what_is: .string "\"What" is "\""
-plus: .string "\"" plus "\""
-minus: .string "\"" minus "\""
-multiplied_by: .string "\"" multiplied by "\""
-divided_by: .string "\"" divided by "\""
-question_mark: .string "\"?\""
-word_array:
-.quad what_is
-.quad 0
-.quad plus
-.quad minus
-.quad multiplied_by
-.quad divided_by
-.quad question_mark
-.quad 0
-.text
-.globl answer
-read_word:
-mov x9, x1
-mov x2, x14
-b .next
-.compare:
-ldrb w11, [x10], #1
-cbz w11, .match
-ldrb w12, [x1], #1
-cmp w12, w11
-beq .compare
-.next:
-mov x1, x9
-ldr x10, [x2], #8
-cbnz x10, .compare
-b reject
-.match:
-sub x2, x2, x14
-ret
-read_number:
-mov w10, #10
-ldrb w11, [x1]
-cmp w11, #'-'
-cset x9, eq
-cinc x1, x1, eq
-mov x3, xzr
-ldrb w11, [x1], #1
-add w11, w11, #-48
-cmp w11, w10
-bhs reject
-.accept_digit:
-madd x3, x3, x10, x11
-ldrb w11, [x1], #1
-add w11, w11, #-48
-cmp w11, w10
-blo .accept_digit
-add x1, x1, #-1
-cmp x9, xzr
-cneg x3, x3, ne
-ret
-answer:
-mov x15, lr
-adrp x14, word_array
-add x14, x14, :lo12:word_array
-bl read_word
-add x14, x14, #16
-bl read_number
-mov x4, x3
-.read_operation:
-bl read_word
-cmp x2, QUESTION_MARK
-beq .success
-bl read_number
-cmp x2, MINUS
-beq .subtract
-cmp x2, MULTIPLIED_BY
-beq .multiply
-cmp x2, DIVIDED_BY
-beq .divide
-.add:
-add x4, x4, x3
-b .read_operation
-.subtract:
-sub x4, x4, x3
-b .read_operation
-.multiply:
-mul x4, x4, x3
-b .read_operation
-.divide:
-sdiv x4, x4, x3
-b .read_operation
-.success:
-str x4, [x0]
-mov x0, #1
-ret x15
-reject:
-mov x0, xzr
-ret x15
+(source_file
+  (symbol_definition PLACEHOLDER_1 8)
+  (symbol_definition PLACEHOLDER_2 8)
+  (symbol_definition PLACEHOLDER_3 16)
+  (symbol_definition PLACEHOLDER_4 24)
+  (symbol_definition PLACEHOLDER_5 32)
+  (symbol_definition PLACEHOLDER_6 40)
+  (directive .data)
+  (label PLACEHOLDER_7)
+  (directive .string "What is ")
+  (label PLACEHOLDER_8)
+  (directive .string " plus ")
+  (label PLACEHOLDER_9)
+  (directive .string " minus ")
+  (label PLACEHOLDER_10)
+  (directive .string " multiplied by ")
+  (label PLACEHOLDER_11)
+  (directive .string " divided by ")
+  (label PLACEHOLDER_12)
+  (directive .string "?")
+  (label PLACEHOLDER_13)
+  (directive .quad PLACEHOLDER_7)
+  (directive .quad 0)
+  (directive .quad PLACEHOLDER_8)
+  (directive .quad PLACEHOLDER_9)
+  (directive .quad PLACEHOLDER_10)
+  (directive .quad PLACEHOLDER_11)
+  (directive .quad PLACEHOLDER_12)
+  (directive .quad 0)
+  (directive .text)
+  (directive .globl PLACEHOLDER_14)
+  (label PLACEHOLDER_15)
+  (instruction mov x9 x1)
+  (instruction mov x2 x14)
+  (instruction b PLACEHOLDER_16)
+  (label PLACEHOLDER_17)
+  (instruction ldrb w11
+    (memory x10) 1)
+  (instruction cbz w11 PLACEHOLDER_18)
+  (instruction ldrb w12
+    (memory x1) 1)
+  (instruction cmp w12 w11)
+  (instruction beq PLACEHOLDER_17)
+  (label PLACEHOLDER_16)
+  (instruction mov x1 x9)
+  (instruction ldr x10
+    (memory x2) 8)
+  (instruction cbnz x10 PLACEHOLDER_17)
+  (instruction b PLACEHOLDER_19)
+  (label PLACEHOLDER_18)
+  (instruction sub x2 x2 x14)
+  (instruction ret)
+  (label PLACEHOLDER_20)
+  (instruction mov w10 10)
+  (instruction ldrb w11
+    (memory x1))
+  (instruction cmp w11 '-')
+  (instruction cset x9
+    (condition eq))
+  (instruction cinc x1 x1
+    (condition eq))
+  (instruction mov x3 xzr)
+  (instruction ldrb w11
+    (memory x1) 1)
+  (instruction add w11 w11
+    (unary_expression - 48))
+  (instruction cmp w11 w10)
+  (instruction bhs PLACEHOLDER_19)
+  (label PLACEHOLDER_21)
+  (instruction madd x3 x3 x10 x11)
+  (instruction ldrb w11
+    (memory x1) 1)
+  (instruction add w11 w11
+    (unary_expression - 48))
+  (instruction cmp w11 w10)
+  (instruction blo PLACEHOLDER_21)
+  (instruction add x1 x1
+    (unary_expression - 1))
+  (instruction cmp x9 xzr)
+  (instruction cneg x3 x3
+    (condition ne))
+  (instruction ret)
+  (label PLACEHOLDER_14)
+  (instruction mov x15 lr)
+  (instruction adrp x14 PLACEHOLDER_13)
+  (instruction add x14 x14
+    (relocation :lo12: PLACEHOLDER_13))
+  (instruction bl PLACEHOLDER_15)
+  (instruction add x14 x14 16)
+  (instruction bl PLACEHOLDER_20)
+  (instruction mov x4 x3)
+  (label PLACEHOLDER_22)
+  (instruction bl PLACEHOLDER_15)
+  (instruction cmp x2 PLACEHOLDER_6)
+  (instruction beq PLACEHOLDER_23)
+  (instruction bl PLACEHOLDER_20)
+  (instruction cmp x2 PLACEHOLDER_3)
+  (instruction beq PLACEHOLDER_24)
+  (instruction cmp x2 PLACEHOLDER_4)
+  (instruction beq PLACEHOLDER_25)
+  (instruction cmp x2 PLACEHOLDER_5)
+  (instruction beq PLACEHOLDER_26)
+  (label PLACEHOLDER_27)
+  (instruction add x4 x4 x3)
+  (instruction b PLACEHOLDER_22)
+  (label PLACEHOLDER_24)
+  (instruction sub x4 x4 x3)
+  (instruction b PLACEHOLDER_22)
+  (label PLACEHOLDER_25)
+  (instruction mul x4 x4 x3)
+  (instruction b PLACEHOLDER_22)
+  (label PLACEHOLDER_26)
+  (instruction sdiv x4 x4 x3)
+  (instruction b PLACEHOLDER_22)
+  (label PLACEHOLDER_23)
+  (instruction str x4
+    (memory x0))
+  (instruction mov x0 1)
+  (instruction ret x15)
+  (label PLACEHOLDER_19)
+  (instruction mov x0 xzr)
+  (instruction ret x15))
