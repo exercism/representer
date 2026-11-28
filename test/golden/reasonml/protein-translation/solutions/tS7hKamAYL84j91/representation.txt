@@ -1,28 +1,101 @@
-let protiens_of_string =
-fun
-| "\"AUG\"" => Some ( "\"Methionine\"" )
-| "\"UUU\""
-| "\"UUC\"" => Some ( "\"Phenylalanine\"" )
-| "\"UUA\""
-| "\"UUG\"" => Some ( "\"Leucine\"" )
-| "\"UCU\""
-| "\"UCC\""
-| "\"UCA\""
-| "\"UCG\"" => Some ( "\"Serine\"" )
-| "\"UAU\""
-| "\"UAC\"" => Some ( "\"Tyrosine\"" )
-| "\"UGU\""
-| "\"UGC\"" => Some ( "\"Cysteine\"" )
-| "\"UGG\"" => Some ( "\"Tryptophan\"" )
-| _ => None ;
-let rec take_while = ( f , xs ) =>
-switch ( xs ) {
-| [ x , ... xs' ] when f ( x ) == true => [ x , ... take_while ( f , xs' )]
-| _ => []
-};
-let proteins = str =>
-Js . String . match ([ % re "\"/.{1,3}/g\"" ] , str )
--> Belt . Option . map ( x => x |> Array . to_list |> List . map ( protiens_of_string ))
--> Belt . Option . getWithDefault ([])
-|> take_while ( x => x != None )
-|> List . map ( Belt . Option . getExn );
+(source_file
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (fun_expression
+        (match_case "AUG"
+          (constructor_expression Some "Methionine"))
+        (match_case
+          (or_pattern "UUU" "UUC")
+          (constructor_expression Some "Phenylalanine"))
+        (match_case
+          (or_pattern "UUA" "UUG")
+          (constructor_expression Some "Leucine"))
+        (match_case
+          (or_pattern
+            (or_pattern
+              (or_pattern "UCU" "UCC") "UCA") "UCG")
+          (constructor_expression Some "Serine"))
+        (match_case
+          (or_pattern "UAU" "UAC")
+          (constructor_expression Some "Tyrosine"))
+        (match_case
+          (or_pattern "UGU" "UGC")
+          (constructor_expression Some "Cysteine"))
+        (match_case "UGG"
+          (constructor_expression Some "Tryptophan"))
+        (match_case
+          (wildcard_pattern _) None))))
+  (let_declaration rec
+    (let_binding
+      (value_pattern PLACEHOLDER_2)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_3))
+          (parameter
+            (value_pattern PLACEHOLDER_4)))
+        (switch_expression PLACEHOLDER_4
+          (match_case
+            (list_pattern
+              (value_pattern PLACEHOLDER_5)
+              (spread_pattern
+                (value_pattern PLACEHOLDER_6)))
+            (binary_expression
+              (call_expression PLACEHOLDER_3
+                (arguments PLACEHOLDER_5)) ==
+              (boolean true))
+            (list PLACEHOLDER_5
+              (spread
+                (call_expression PLACEHOLDER_2
+                  (arguments PLACEHOLDER_3 PLACEHOLDER_6)))))
+          (match_case
+            (wildcard_pattern _)
+            (list))))))
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_7)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_8)))
+        (binary_expression
+          (binary_expression
+            (pipe_expression
+              (pipe_expression
+                (call_expression
+                  (value_path
+                    (module_path Js String) match)
+                  (arguments
+                    (extension re "/.{1,3}/g") PLACEHOLDER_8))
+                (call_expression
+                  (value_path
+                    (module_path Belt Option) map)
+                  (arguments
+                    (function
+                      (parameters
+                        (parameter
+                          (value_pattern PLACEHOLDER_5)))
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_5 |>
+                          (value_path Array to_list)) |>
+                        (call_expression
+                          (value_path List map)
+                          (arguments PLACEHOLDER_1)))))))
+              (call_expression
+                (value_path
+                  (module_path Belt Option) getWithDefault)
+                (arguments
+                  (list)))) |>
+            (call_expression PLACEHOLDER_2
+              (arguments
+                (function
+                  (parameters
+                    (parameter
+                      (value_pattern PLACEHOLDER_5)))
+                  (binary_expression PLACEHOLDER_5 != None))))) |>
+          (call_expression
+            (value_path List map)
+            (arguments
+              (value_path
+                (module_path Belt Option) getExn))))))))

@@ -213,7 +213,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | r | R | 391 | 97 | 100 | 71 | 98 | 0 | 3 | 0 | 0 |
 | racket | Racket | 277 | 59 | 100 | 56 | 98 | 0 | 9 | 0 | 0 |
 | raku | Raku | 128 | 12 | 92 | 59 | 83 | 0 | 3 | 0 | 0 |
-| reasonml | Basic | 178 | 26 | 100 | 26 | 95 | 4 | 0 | 0 | 0 |
+| reasonml | Reasonml | 178 | 26 | 100 | 26 | 95 | 0 | 3 | 0 | 0 |
 | red | Red | 190 | 30 | 100 | 45 | 100 | 0 | 0 | 0 | 0 |
 | rescript | Rescript | 45 | 1 | 42 | 22 | 39 | 0 | 1 | 0 | 0 |
 | roc | Roc | 36 | 1 | 33 | 28 | 32 | 0 | 0 | 0 | 0 |

@@ -1,60 +1,271 @@
-let _encode = xs =>
-xs
-|> Js . String . split ( "\"\"" )
-|> Js . Array . reducei (
-( b , a , i ) => {
-let ( cs , ns ) = b ;
-let len = Js . Array . length ( cs );
-let lastIndex = Js . Array . length ( cs ) - 1 ;
-let cs' = i == 0 ? [ | a | ] : a == cs [ lastIndex ] ? cs : Array . append ( cs , [ | a | ]);
-let ns' =
-i == 0 ?
-[ | 1 | ] :
-a == cs [ lastIndex ] ?
-Array . append ( Array . sub ( ns , 0 , len - 1 ) , [ | ns [ lastIndex ] + 1 | ]) : Array . append ( ns , [ | 1 | ]);
-( cs' , ns' );
-} ,
-([ || ] , [ || ]) ,
-)
-|> (
-result => {
-let ( cs , ns ) = result ;
-ns |> Js . Array . mapi (( n , i ) => n > 1 ? string_of_int ( n ) ++ cs [ i ] : cs [ i ]) |> Js . Array . joinWith ( "\"\"" );
-}
-);
-let encode = xs =>
-switch ( xs ) {
-| "\"\"" => "\"\""
-| _ => _encode ( xs )
-};
-let rec _decode = xs => {
-let sub = String . sub ;
-let length = String . length ;
-let head = xs => sub ( xs , 0 , 1 );
-let rec takeDigits = ( s : string ) =>
-switch ( s ) {
-| "\"\"" => "\"\""
-| _ => Js . String . includes ( head ( s ) , "\"0123456789\"" ) ? head ( s ) ++ takeDigits ( sub ( s , 1 , length ( s ) - 1 )) : "\"\""
-};
-let takeLetter = ( s : string ) =>
-switch ( s ) {
-| "\"\"" => "\"\""
-| _ => head ( s )
-};
-switch ( xs ) {
-| "\"\"" => "\"\""
-| _ =>
-let digits = takeDigits ( xs );
-let letter = takeLetter ( sub ( xs , length ( digits ) , length ( xs ) - length ( digits )));
-let offset = digits == "\"\"" ? 1 : length ( digits ) + 1 ;
-let next = sub ( xs , offset , String . length ( xs ) - offset );
-let n = digits == "\"\"" ? 1 : int_of_string ( digits );
-let c = letter . [ 0 ];
-String . make ( n , c ) ++ _decode ( next );
-};
-};
-let decode = xs =>
-switch ( xs ) {
-| "\"\"" => "\"\""
-| _ => _decode ( xs )
-};
+(source_file
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_2)))
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_2 |>
+              (call_expression
+                (value_path
+                  (module_path Js String) split)
+                (arguments ""))) |>
+            (call_expression
+              (value_path
+                (module_path Js Array) reducei)
+              (arguments
+                (function
+                  (parameters
+                    (parameter
+                      (value_pattern PLACEHOLDER_3))
+                    (parameter
+                      (value_pattern PLACEHOLDER_4))
+                    (parameter
+                      (value_pattern PLACEHOLDER_5)))
+                  (block
+                    (let_declaration
+                      (let_binding
+                        (tuple_pattern
+                          (value_pattern PLACEHOLDER_6)
+                          (value_pattern PLACEHOLDER_7)) PLACEHOLDER_3))
+                    (let_declaration
+                      (let_binding
+                        (value_pattern PLACEHOLDER_8)
+                        (call_expression
+                          (value_path
+                            (module_path Js Array) PLACEHOLDER_9)
+                          (arguments PLACEHOLDER_6))))
+                    (let_declaration
+                      (let_binding
+                        (value_pattern PLACEHOLDER_10)
+                        (binary_expression
+                          (call_expression
+                            (value_path
+                              (module_path Js Array) PLACEHOLDER_9)
+                            (arguments PLACEHOLDER_6)) - 1)))
+                    (let_declaration
+                      (let_binding
+                        (value_pattern PLACEHOLDER_11)
+                        (ternary_expression
+                          (binary_expression PLACEHOLDER_5 == 0)
+                          (array PLACEHOLDER_4)
+                          (ternary_expression
+                            (binary_expression PLACEHOLDER_4 ==
+                              (index_expression PLACEHOLDER_6 PLACEHOLDER_10)) PLACEHOLDER_6
+                            (call_expression
+                              (value_path Array append)
+                              (arguments PLACEHOLDER_6
+                                (array PLACEHOLDER_4)))))))
+                    (let_declaration
+                      (let_binding
+                        (value_pattern PLACEHOLDER_12)
+                        (ternary_expression
+                          (binary_expression PLACEHOLDER_5 == 0)
+                          (array 1)
+                          (ternary_expression
+                            (binary_expression PLACEHOLDER_4 ==
+                              (index_expression PLACEHOLDER_6 PLACEHOLDER_10))
+                            (call_expression
+                              (value_path Array append)
+                              (arguments
+                                (call_expression
+                                  (value_path Array PLACEHOLDER_13)
+                                  (arguments PLACEHOLDER_7 0
+                                    (binary_expression PLACEHOLDER_8 - 1)))
+                                (array
+                                  (binary_expression
+                                    (index_expression PLACEHOLDER_7 PLACEHOLDER_10) + 1))))
+                            (call_expression
+                              (value_path Array append)
+                              (arguments PLACEHOLDER_7
+                                (array 1)))))))
+                    (tuple PLACEHOLDER_11 PLACEHOLDER_12)))
+                (tuple
+                  (array)
+                  (array))))) |>
+          (function
+            (parameters
+              (parameter
+                (value_pattern PLACEHOLDER_14)))
+            (block
+              (let_declaration
+                (let_binding
+                  (tuple_pattern
+                    (value_pattern PLACEHOLDER_6)
+                    (value_pattern PLACEHOLDER_7)) PLACEHOLDER_14))
+              (binary_expression
+                (binary_expression PLACEHOLDER_7 |>
+                  (call_expression
+                    (value_path
+                      (module_path Js Array) mapi)
+                    (arguments
+                      (function
+                        (parameters
+                          (parameter
+                            (value_pattern PLACEHOLDER_15))
+                          (parameter
+                            (value_pattern PLACEHOLDER_5)))
+                        (ternary_expression
+                          (binary_expression PLACEHOLDER_15 > 1)
+                          (binary_expression
+                            (call_expression string_of_int
+                              (arguments PLACEHOLDER_15)) ++
+                            (index_expression PLACEHOLDER_6 PLACEHOLDER_5))
+                          (index_expression PLACEHOLDER_6 PLACEHOLDER_5)))))) |>
+                (call_expression
+                  (value_path
+                    (module_path Js Array) joinWith)
+                  (arguments "")))))))))
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_16)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_2)))
+        (switch_expression PLACEHOLDER_2
+          (match_case "" "")
+          (match_case
+            (wildcard_pattern _)
+            (call_expression PLACEHOLDER_1
+              (arguments PLACEHOLDER_2)))))))
+  (let_declaration rec
+    (let_binding
+      (value_pattern PLACEHOLDER_17)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_2)))
+        (block
+          (let_declaration
+            (let_binding
+              (value_pattern PLACEHOLDER_13)
+              (value_path String PLACEHOLDER_13)))
+          (let_declaration
+            (let_binding
+              (value_pattern PLACEHOLDER_9)
+              (value_path String PLACEHOLDER_9)))
+          (let_declaration
+            (let_binding
+              (value_pattern PLACEHOLDER_18)
+              (function
+                (parameters
+                  (parameter
+                    (value_pattern PLACEHOLDER_2)))
+                (call_expression PLACEHOLDER_13
+                  (arguments PLACEHOLDER_2 0 1)))))
+          (let_declaration rec
+            (let_binding
+              (value_pattern PLACEHOLDER_19)
+              (function
+                (parameters
+                  (parameter
+                    (value_pattern PLACEHOLDER_20) string))
+                (switch_expression PLACEHOLDER_20
+                  (match_case "" "")
+                  (match_case
+                    (wildcard_pattern _)
+                    (ternary_expression
+                      (call_expression
+                        (value_path
+                          (module_path Js String) includes)
+                        (arguments
+                          (call_expression PLACEHOLDER_18
+                            (arguments PLACEHOLDER_20)) "0123456789"))
+                      (binary_expression
+                        (call_expression PLACEHOLDER_18
+                          (arguments PLACEHOLDER_20)) ++
+                        (call_expression PLACEHOLDER_19
+                          (arguments
+                            (call_expression PLACEHOLDER_13
+                              (arguments PLACEHOLDER_20 1
+                                (binary_expression
+                                  (call_expression PLACEHOLDER_9
+                                    (arguments PLACEHOLDER_20)) - 1)))))) ""))))))
+          (let_declaration
+            (let_binding
+              (value_pattern PLACEHOLDER_21)
+              (function
+                (parameters
+                  (parameter
+                    (value_pattern PLACEHOLDER_20) string))
+                (switch_expression PLACEHOLDER_20
+                  (match_case "" "")
+                  (match_case
+                    (wildcard_pattern _)
+                    (call_expression PLACEHOLDER_18
+                      (arguments PLACEHOLDER_20)))))))
+          (switch_expression PLACEHOLDER_2
+            (match_case "" "")
+            (match_case
+              (wildcard_pattern _)
+              (block
+                (let_declaration
+                  (let_binding
+                    (value_pattern PLACEHOLDER_22)
+                    (call_expression PLACEHOLDER_19
+                      (arguments PLACEHOLDER_2))))
+                (let_declaration
+                  (let_binding
+                    (value_pattern PLACEHOLDER_23)
+                    (call_expression PLACEHOLDER_21
+                      (arguments
+                        (call_expression PLACEHOLDER_13
+                          (arguments PLACEHOLDER_2
+                            (call_expression PLACEHOLDER_9
+                              (arguments PLACEHOLDER_22))
+                            (binary_expression
+                              (call_expression PLACEHOLDER_9
+                                (arguments PLACEHOLDER_2)) -
+                              (call_expression PLACEHOLDER_9
+                                (arguments PLACEHOLDER_22)))))))))
+                (let_declaration
+                  (let_binding
+                    (value_pattern PLACEHOLDER_24)
+                    (ternary_expression
+                      (binary_expression PLACEHOLDER_22 == "") 1
+                      (binary_expression
+                        (call_expression PLACEHOLDER_9
+                          (arguments PLACEHOLDER_22)) + 1))))
+                (let_declaration
+                  (let_binding
+                    (value_pattern PLACEHOLDER_25)
+                    (call_expression PLACEHOLDER_13
+                      (arguments PLACEHOLDER_2 PLACEHOLDER_24
+                        (binary_expression
+                          (call_expression
+                            (value_path String PLACEHOLDER_9)
+                            (arguments PLACEHOLDER_2)) - PLACEHOLDER_24)))))
+                (let_declaration
+                  (let_binding
+                    (value_pattern PLACEHOLDER_15)
+                    (ternary_expression
+                      (binary_expression PLACEHOLDER_22 == "") 1
+                      (call_expression int_of_string
+                        (arguments PLACEHOLDER_22)))))
+                (let_declaration
+                  (let_binding
+                    (value_pattern PLACEHOLDER_26)
+                    (string_index_expression PLACEHOLDER_23 0)))
+                (binary_expression
+                  (call_expression
+                    (value_path String make)
+                    (arguments PLACEHOLDER_15 PLACEHOLDER_26)) ++
+                  (call_expression PLACEHOLDER_17
+                    (arguments PLACEHOLDER_25))))))))))
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_27)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_2)))
+        (switch_expression PLACEHOLDER_2
+          (match_case "" "")
+          (match_case
+            (wildcard_pattern _)
+            (call_expression PLACEHOLDER_17
+              (arguments PLACEHOLDER_2))))))))
