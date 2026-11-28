@@ -1,92 +1,388 @@
-UPDATE yacht
-SET result =
-CASE
-WHEN category = 'ones'
-THEN ( LENGTH ( dice_results ) - LENGTH ( REPLACE ( dice_results , '1' , '' ))) * 1
-WHEN category = 'twos'
-THEN ( LENGTH ( dice_results ) - LENGTH ( REPLACE ( dice_results , '2' , '' ))) * 2
-WHEN category = 'threes'
-THEN ( LENGTH ( dice_results ) - LENGTH ( REPLACE ( dice_results , '3' , '' ))) * 3
-WHEN category = 'fours'
-THEN ( LENGTH ( dice_results ) - LENGTH ( REPLACE ( dice_results , '4' , '' ))) * 4
-WHEN category = 'fives'
-THEN ( LENGTH ( dice_results ) - LENGTH ( REPLACE ( dice_results , '5' , '' ))) * 5
-WHEN category = 'sixes'
-THEN ( LENGTH ( dice_results ) - LENGTH ( REPLACE ( dice_results , '6' , '' ))) * 6
-ELSE ''
-END
-;
-UPDATE yacht
-SET result = (
-WITH RECURSIVE
-rcte ( digits , digit , i ) AS (
-VALUES (
-REPLACE ( REPLACE ( dice_results , ',' , '' ), "' '" , '' ),
-NULL ,
-1
-)
-UNION ALL
-SELECT digits , SUBSTRING ( digits , i , 1 ) + 0 , i + 1
-FROM rcte
-WHERE i <= LENGTH ( digits )
-)
-SELECT
-CASE
-WHEN category = 'choice' THEN SUM ( digit )
-WHEN category = "'little straight'" AND GROUP_CONCAT ( digit , '' ) = '12345'
-THEN 30
-WHEN category = "'big straight'" AND GROUP_CONCAT ( digit , '' ) = '23456'
-THEN 30
-ELSE ''
-END
-FROM (
-SELECT digit
-FROM rcte
-WHERE digit IS NOT NULL
-ORDER BY digit
-) AS d
-)
-WHERE result = ''
-;
-UPDATE yacht
-SET result = (
-WITH RECURSIVE
-rcte ( digits , digit , i ) AS (
-VALUES (
-REPLACE ( REPLACE ( dice_results , ',' , '' ), "' '" , '' ),
-NULL ,
-1
-)
-UNION ALL
-SELECT digits , SUBSTRING ( digits , i , 1 ) + 0 , i + 1
-FROM rcte
-WHERE i <= LENGTH ( digits )
-)
-SELECT
-CASE
-WHEN category = "'full house'" AND GROUP_CONCAT ( c , '' ) = '32'
-THEN SUBSTRING ( GROUP_CONCAT ( digit , '' ), 1 , 1 )
-* SUBSTRING ( GROUP_CONCAT ( c , '' ), 1 , 1 )
-+ SUBSTRING ( GROUP_CONCAT ( digit , '' ), 2 , 1 )
-* SUBSTRING ( GROUP_CONCAT ( c , '' ), 2 , 1 )
-WHEN category = "'four of a kind'"
-AND SUBSTRING ( GROUP_CONCAT ( c , '' ), 1 , 1 ) + 0 >= 4
-THEN SUBSTRING ( GROUP_CONCAT ( digit , '' ), 1 , 1 ) * 4
-WHEN category = 'yacht' AND LENGTH ( GROUP_CONCAT ( c , '' )) = 1
-THEN 50
-ELSE 0
-END
-FROM (
-SELECT COUNT ( * ) AS c , digit
-FROM (
-SELECT digit
-FROM rcte
-WHERE digit IS NOT NULL
-ORDER BY digit
-) AS d
-GROUP BY digit
-ORDER BY c DESC
-) t
-)
-WHERE result = ''
-;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference yacht))
+      (assignment
+        (field result)
+        (case when
+          (binary_expression
+            (field category) = "ones") then
+          (binary_expression
+            (binary_expression
+              (invocation
+                (object_reference length)
+                (term
+                  (field dice_results))) -
+              (invocation
+                (object_reference length)
+                (term
+                  (invocation
+                    (object_reference replace)
+                    (term
+                      (field dice_results))
+                    (term "1")
+                    (term ""))))) * 1) when
+          (binary_expression
+            (field category) = "twos") then
+          (binary_expression
+            (binary_expression
+              (invocation
+                (object_reference length)
+                (term
+                  (field dice_results))) -
+              (invocation
+                (object_reference length)
+                (term
+                  (invocation
+                    (object_reference replace)
+                    (term
+                      (field dice_results))
+                    (term "2")
+                    (term ""))))) * 2) when
+          (binary_expression
+            (field category) = "threes") then
+          (binary_expression
+            (binary_expression
+              (invocation
+                (object_reference length)
+                (term
+                  (field dice_results))) -
+              (invocation
+                (object_reference length)
+                (term
+                  (invocation
+                    (object_reference replace)
+                    (term
+                      (field dice_results))
+                    (term "3")
+                    (term ""))))) * 3) when
+          (binary_expression
+            (field category) = "fours") then
+          (binary_expression
+            (binary_expression
+              (invocation
+                (object_reference length)
+                (term
+                  (field dice_results))) -
+              (invocation
+                (object_reference length)
+                (term
+                  (invocation
+                    (object_reference replace)
+                    (term
+                      (field dice_results))
+                    (term "4")
+                    (term ""))))) * 4) when
+          (binary_expression
+            (field category) = "fives") then
+          (binary_expression
+            (binary_expression
+              (invocation
+                (object_reference length)
+                (term
+                  (field dice_results))) -
+              (invocation
+                (object_reference length)
+                (term
+                  (invocation
+                    (object_reference replace)
+                    (term
+                      (field dice_results))
+                    (term "5")
+                    (term ""))))) * 5) when
+          (binary_expression
+            (field category) = "sixes") then
+          (binary_expression
+            (binary_expression
+              (invocation
+                (object_reference length)
+                (term
+                  (field dice_results))) -
+              (invocation
+                (object_reference length)
+                (term
+                  (invocation
+                    (object_reference replace)
+                    (term
+                      (field dice_results))
+                    (term "6")
+                    (term ""))))) * 6) else ""))))
+  (statement
+    (update
+      (relation
+        (object_reference yacht))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+            (statement
+              (set_operation
+                (values
+                  (list
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (invocation
+                          (object_reference replace)
+                          (term
+                            (field dice_results))
+                          (term ",")
+                          (term "")))
+                      (term " ")
+                      (term "")) null 1)) union all
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_2))
+                    (term
+                      (binary_expression
+                        (invocation
+                          (object_reference substring)
+                          (term
+                            (field PLACEHOLDER_2))
+                          (term
+                            (field PLACEHOLDER_4))
+                          (term 1)) + 0))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_4) + 1))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_4) <=
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field PLACEHOLDER_2)))))))))
+          (select
+            (select_expression
+              (term
+                (case when
+                  (binary_expression
+                    (field category) = "choice") then
+                  (invocation
+                    (object_reference sum)
+                    (term
+                      (field PLACEHOLDER_3))) when
+                  (binary_expression
+                    (binary_expression
+                      (field category) = "little straight") and
+                    (binary_expression
+                      (invocation
+                        (object_reference group_concat)
+                        (term
+                          (field PLACEHOLDER_3))
+                        (term "")) = "12345")) then 30 when
+                  (binary_expression
+                    (binary_expression
+                      (field category) = "big straight") and
+                    (binary_expression
+                      (invocation
+                        (object_reference group_concat)
+                        (term
+                          (field PLACEHOLDER_3))
+                        (term "")) = "23456")) then 30 else ""))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_3))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_3)
+                      (is_not is not) null))
+                  (order_by
+                    (order_target
+                      (field PLACEHOLDER_3))))) PLACEHOLDER_5))))
+      (where
+        (binary_expression
+          (field result) = ""))))
+  (statement
+    (update
+      (relation
+        (object_reference yacht))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+            (statement
+              (set_operation
+                (values
+                  (list
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (invocation
+                          (object_reference replace)
+                          (term
+                            (field dice_results))
+                          (term ",")
+                          (term "")))
+                      (term " ")
+                      (term "")) null 1)) union all
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_2))
+                    (term
+                      (binary_expression
+                        (invocation
+                          (object_reference substring)
+                          (term
+                            (field PLACEHOLDER_2))
+                          (term
+                            (field PLACEHOLDER_4))
+                          (term 1)) + 0))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_4) + 1))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_4) <=
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field PLACEHOLDER_2)))))))))
+          (select
+            (select_expression
+              (term
+                (case when
+                  (binary_expression
+                    (binary_expression
+                      (field category) = "full house") and
+                    (binary_expression
+                      (invocation
+                        (object_reference group_concat)
+                        (term
+                          (field PLACEHOLDER_6))
+                        (term "")) = "32")) then
+                  (binary_expression
+                    (binary_expression
+                      (invocation
+                        (object_reference substring)
+                        (term
+                          (invocation
+                            (object_reference group_concat)
+                            (term
+                              (field PLACEHOLDER_3))
+                            (term "")))
+                        (term 1)
+                        (term 1)) *
+                      (invocation
+                        (object_reference substring)
+                        (term
+                          (invocation
+                            (object_reference group_concat)
+                            (term
+                              (field PLACEHOLDER_6))
+                            (term "")))
+                        (term 1)
+                        (term 1))) +
+                    (binary_expression
+                      (invocation
+                        (object_reference substring)
+                        (term
+                          (invocation
+                            (object_reference group_concat)
+                            (term
+                              (field PLACEHOLDER_3))
+                            (term "")))
+                        (term 2)
+                        (term 1)) *
+                      (invocation
+                        (object_reference substring)
+                        (term
+                          (invocation
+                            (object_reference group_concat)
+                            (term
+                              (field PLACEHOLDER_6))
+                            (term "")))
+                        (term 2)
+                        (term 1)))) when
+                  (binary_expression
+                    (binary_expression
+                      (field category) = "four of a kind") and
+                    (binary_expression
+                      (binary_expression
+                        (invocation
+                          (object_reference substring)
+                          (term
+                            (invocation
+                              (object_reference group_concat)
+                              (term
+                                (field PLACEHOLDER_6))
+                              (term "")))
+                          (term 1)
+                          (term 1)) + 0) >= 4)) then
+                  (binary_expression
+                    (invocation
+                      (object_reference substring)
+                      (term
+                        (invocation
+                          (object_reference group_concat)
+                          (term
+                            (field PLACEHOLDER_3))
+                          (term "")))
+                      (term 1)
+                      (term 1)) * 4) when
+                  (binary_expression
+                    (binary_expression
+                      (field category) = "yacht") and
+                    (binary_expression
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (invocation
+                            (object_reference group_concat)
+                            (term
+                              (field PLACEHOLDER_6))
+                            (term "")))) = 1)) then 50 else 0))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference count)
+                        (term
+                          (all_fields *))) PLACEHOLDER_6)
+                    (term
+                      (field PLACEHOLDER_3))))
+                (from
+                  (relation
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_3))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_1))
+                        (where
+                          (binary_expression
+                            (field PLACEHOLDER_3)
+                            (is_not is not) null))
+                        (order_by
+                          (order_target
+                            (field PLACEHOLDER_3))))) PLACEHOLDER_5)
+                  (group_by
+                    (field PLACEHOLDER_3))
+                  (order_by
+                    (order_target
+                      (field PLACEHOLDER_6)
+                      (direction desc))))) PLACEHOLDER_7))))
+      (where
+        (binary_expression
+          (field result) = "")))))

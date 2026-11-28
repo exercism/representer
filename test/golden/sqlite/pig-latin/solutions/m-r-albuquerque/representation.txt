@@ -1,23 +1,172 @@
-UPDATE "\"pig-latin\"" SET result = (
-WITH words ( i , w , c ) AS (
-SELECT 2 , 0 , substr ( phrase , 1 , 1 )
-UNION
-SELECT i + 1 , w + iif ( c = "' '" , 1 , 0 ), substr ( phrase , i , 1 )
-FROM words WHERE i <= length ( phrase )
-),
-split ( w , i , suf , split ) AS (
-SELECT w , 1 , w , iif ( w GLOB '[aeiou]*' OR substr ( w , 1 , 2 ) IN ( 'xr' , 'yt' ), 1 , 0 )
-FROM ( SELECT group_concat ( c , '' ) w FROM words WHERE c != "' '" GROUP BY w )
-UNION
-SELECT w , i + 1 , substr ( suf , 2 ),
-CASE
-WHEN suf GLOB 'qu*' THEN i + 2
-WHEN ( i > 1 AND suf GLOB 'y*' ) OR suf GLOB '[aeiou]*' THEN i
-ELSE 0
-END
-FROM split WHERE split = 0
-)
-SELECT group_concat ( w , "' '" )
-FROM ( SELECT ( substr ( w , split ) || substr ( w , 1 , split - 1 ) || 'ay' ) w
-FROM split WHERE split != 0 )
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "pig-latin")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 2)
+                    (term 0)
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field phrase))
+                        (term 1)
+                        (term 1))))) union
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_3) +
+                        (invocation
+                          (object_reference iif)
+                          (term
+                            (binary_expression
+                              (field PLACEHOLDER_4) = " "))
+                          (term 1)
+                          (term 0))))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field phrase))
+                        (term
+                          (field PLACEHOLDER_2))
+                        (term 1)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_2) <=
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field phrase)))))))))
+          (cte PLACEHOLDER_5 PLACEHOLDER_3 PLACEHOLDER_2 PLACEHOLDER_6 PLACEHOLDER_5
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_3))
+                    (term 1)
+                    (term
+                      (field PLACEHOLDER_3))
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (binary_expression
+                            (binary_expression
+                              (field PLACEHOLDER_3) glob "[aeiou]*") or
+                            (binary_expression
+                              (invocation
+                                (object_reference substr)
+                                (term
+                                  (field PLACEHOLDER_3))
+                                (term 1)
+                                (term 2)) in
+                              (list "xr" "yt"))))
+                        (term 1)
+                        (term 0)))))
+                (from
+                  (relation
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (invocation
+                              (object_reference group_concat)
+                              (term
+                                (field PLACEHOLDER_4))
+                              (term "")) PLACEHOLDER_3)))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_1))
+                        (where
+                          (binary_expression
+                            (field PLACEHOLDER_4) != " "))
+                        (group_by
+                          (field PLACEHOLDER_3)))))) union
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_3))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_6))
+                        (term 2)))
+                    (term
+                      (case when
+                        (binary_expression
+                          (field PLACEHOLDER_6) glob "qu*") then
+                        (binary_expression
+                          (field PLACEHOLDER_2) + 2) when
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (field PLACEHOLDER_2) > 1) and
+                            (binary_expression
+                              (field PLACEHOLDER_6) glob "y*")) or
+                          (binary_expression
+                            (field PLACEHOLDER_6) glob "[aeiou]*")) then
+                        (field PLACEHOLDER_2) else 0))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_5))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_5) = 0))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field PLACEHOLDER_3))
+                  (term " ")))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_3))
+                            (term
+                              (field PLACEHOLDER_5))) ||
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_3))
+                            (term 1)
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_5) - 1)))) || "ay") PLACEHOLDER_3)))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_5))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_5) != 0)))))))))))

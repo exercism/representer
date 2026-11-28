@@ -1,14 +1,63 @@
-WITH RECURSIVE calculateSteps ( number , x , steps ) AS (
-SELECT number , number , 0
-FROM collatz
-UNION ALL
-SELECT number , IIF ( x % 2 , x * 3 + 1 , x / 2 ), steps + 1
-FROM calculateSteps
-WHERE x > 1
-)
-UPDATE collatz
-SET steps = (
-SELECT MAX ( steps )
-from calculateSteps
-WHERE calculateSteps . number = collatz . number
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term
+                (field PLACEHOLDER_2))
+              (term 0)))
+          (from
+            (relation
+              (object_reference collatz))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_3) % 2))
+                  (term
+                    (binary_expression
+                      (binary_expression
+                        (field PLACEHOLDER_3) * 3) + 1))
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_3) / 2))))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_4) + 1))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_3) > 1))))))
+    (update
+      (relation
+        (object_reference collatz))
+      (assignment
+        (field PLACEHOLDER_4)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference max)
+                  (term
+                    (field PLACEHOLDER_4))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_1) PLACEHOLDER_2) =
+                (field
+                  (object_reference collatz) PLACEHOLDER_2)))))))))

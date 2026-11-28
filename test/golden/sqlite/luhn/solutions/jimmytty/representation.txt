@@ -1,38 +1,126 @@
-UPDATE luhn
-SET result =
-CASE
-WHEN GLOB ( '*[^0-9]*' , REPLACE ( value , "' '" , '' )) THEN FALSE
-WHEN LENGTH ( REPLACE ( value , "' '" , '' )) < 2 THEN FALSE
-ELSE ''
-END
-;
-UPDATE luhn
-SET result = (
-WITH RECURSIVE
-rcte ( digits , digit , i ) AS (
-VALUES (
-REPLACE (
-PRINTF ( '%16s' , REPLACE ( value , "' '" , '' )), "' '" , '0'
-),
-'' ,
-1
-)
-UNION ALL
-SELECT digits ,
-CASE
-WHEN i % 2 == 1 THEN
-CASE
-WHEN SUBSTRING ( digits , i , 1 ) * 2 > 9
-THEN SUBSTRING ( digits , i , 1 ) * 2 - 9
-ELSE SUBSTRING ( digits , i , 1 ) * 2
-END
-ELSE SUBSTRING ( digits , i , 1 )
-END ,
-i + 1
-FROM rcte
-WHERE i <= LENGTH ( digits )
-)
-SELECT SUM ( digit ) % 10 == 0 FROM rcte
-)
-WHERE result = ''
-;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference luhn))
+      (assignment
+        (field result)
+        (case when
+          (invocation
+            (object_reference glob)
+            (term "*[^0-9]*")
+            (term
+              (invocation
+                (object_reference replace)
+                (term
+                  (field value))
+                (term " ")
+                (term "")))) then false when
+          (binary_expression
+            (invocation
+              (object_reference length)
+              (term
+                (invocation
+                  (object_reference replace)
+                  (term
+                    (field value))
+                  (term " ")
+                  (term "")))) < 2) then false else ""))))
+  (statement
+    (update
+      (relation
+        (object_reference luhn))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+            (statement
+              (set_operation
+                (values
+                  (list
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (invocation
+                          (object_reference printf)
+                          (term "%16s")
+                          (term
+                            (invocation
+                              (object_reference replace)
+                              (term
+                                (field value))
+                              (term " ")
+                              (term "")))))
+                      (term " ")
+                      (term "0")) "" 1)) union all
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_2))
+                    (term
+                      (case when
+                        (binary_expression
+                          (binary_expression
+                            (field PLACEHOLDER_4) % 2) = 1) then
+                        (case when
+                          (binary_expression
+                            (binary_expression
+                              (invocation
+                                (object_reference substring)
+                                (term
+                                  (field PLACEHOLDER_2))
+                                (term
+                                  (field PLACEHOLDER_4))
+                                (term 1)) * 2) > 9) then
+                          (binary_expression
+                            (binary_expression
+                              (invocation
+                                (object_reference substring)
+                                (term
+                                  (field PLACEHOLDER_2))
+                                (term
+                                  (field PLACEHOLDER_4))
+                                (term 1)) * 2) - 9) else
+                          (binary_expression
+                            (invocation
+                              (object_reference substring)
+                              (term
+                                (field PLACEHOLDER_2))
+                              (term
+                                (field PLACEHOLDER_4))
+                              (term 1)) * 2)) else
+                        (invocation
+                          (object_reference substring)
+                          (term
+                            (field PLACEHOLDER_2))
+                          (term
+                            (field PLACEHOLDER_4))
+                          (term 1))))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_4) + 1))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_4) <=
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field PLACEHOLDER_2)))))))))
+          (select
+            (select_expression
+              (term
+                (binary_expression
+                  (binary_expression
+                    (invocation
+                      (object_reference sum)
+                      (term
+                        (field PLACEHOLDER_3))) % 10) = 0))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1)))))
+      (where
+        (binary_expression
+          (field result) = "")))))

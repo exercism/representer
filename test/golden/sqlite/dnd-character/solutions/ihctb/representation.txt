@@ -1,14 +1,121 @@
-UPDATE "\"dnd-character\""
-SET ( strength , dexterity , constitution , intelligence , wisdom , charisma ) = (
-ABS ( random () % 16 ) + 3 , ABS ( random () % 16 ) + 3 , ABS ( random () % 16 ) + 3 ,
-ABS ( random () % 16 ) + 3 , ABS ( random () % 16 ) + 3 , ABS ( random () % 16 ) + 3 )
-WHERE input = 'random' ;
-UPDATE "\"dnd-character\""
-SET ( strength , dexterity , constitution , intelligence , wisdom , charisma ) = (
-SELECT strength , dexterity , constitution , intelligence , wisdom , charisma
-FROM "\"dnd-character\"" WHERE input = 'random' LIMIT 1 )
-WHERE property = 'character' ;
-UPDATE "\"dnd-character\""
-SET modifier = FLOOR (( constitution - 10 ) / 2 . 0 );
-UPDATE "\"dnd-character\""
-SET hitpoints = 10 + modifier ;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "dnd-character")))
+      (assignment
+        (list
+          (column strength)
+          (column dexterity)
+          (column constitution)
+          (column intelligence)
+          (column wisdom)
+          (column charisma))
+        (list
+          (binary_expression
+            (invocation
+              (object_reference abs)
+              (term
+                (binary_expression
+                  (invocation
+                    (object_reference random)) % 16))) + 3)
+          (binary_expression
+            (invocation
+              (object_reference abs)
+              (term
+                (binary_expression
+                  (invocation
+                    (object_reference random)) % 16))) + 3)
+          (binary_expression
+            (invocation
+              (object_reference abs)
+              (term
+                (binary_expression
+                  (invocation
+                    (object_reference random)) % 16))) + 3)
+          (binary_expression
+            (invocation
+              (object_reference abs)
+              (term
+                (binary_expression
+                  (invocation
+                    (object_reference random)) % 16))) + 3)
+          (binary_expression
+            (invocation
+              (object_reference abs)
+              (term
+                (binary_expression
+                  (invocation
+                    (object_reference random)) % 16))) + 3)
+          (binary_expression
+            (invocation
+              (object_reference abs)
+              (term
+                (binary_expression
+                  (invocation
+                    (object_reference random)) % 16))) + 3)))
+      (where
+        (binary_expression
+          (field input) = "random"))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "dnd-character")))
+      (assignment
+        (list
+          (column strength)
+          (column dexterity)
+          (column constitution)
+          (column intelligence)
+          (column wisdom)
+          (column charisma))
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field strength))
+              (term
+                (field dexterity))
+              (term
+                (field constitution))
+              (term
+                (field intelligence))
+              (term
+                (field wisdom))
+              (term
+                (field charisma))))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "dnd-character")))
+            (where
+              (binary_expression
+                (field input) = "random"))
+            (limit 1))))
+      (where
+        (binary_expression
+          (field property) = "character"))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "dnd-character")))
+      (assignment
+        (field modifier)
+        (invocation
+          (object_reference floor)
+          (term
+            (binary_expression
+              (binary_expression
+                (field constitution) - 10) / 2.0))))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "dnd-character")))
+      (assignment
+        (field hitpoints)
+        (binary_expression 10 +
+          (field modifier))))))

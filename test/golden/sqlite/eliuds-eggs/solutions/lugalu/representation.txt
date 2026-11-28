@@ -1,16 +1,68 @@
-WITH RECURSIVE countBits ( sum , num , mask ) AS (
-SELECT 0 as sum , number as num , 1 as mask
-FROM "\"eliuds-eggs\""
-UNION ALL
-SELECT sum + IIF ( num & mask = mask , 1 , 0 ), num , mask << 1
-FROM countBits
-WHERE mask <= num
-)
-UPDATE "\"eliuds-eggs\""
-SET result = (
-SELECT sum
-FROM countBits
-WHERE countBits . num = "\"eliuds-eggs\"" . number
-ORDER BY mask DESC
-LIMIT 1
-)
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term 0 PLACEHOLDER_2)
+              (term
+                (field number) PLACEHOLDER_3)
+              (term 1 PLACEHOLDER_4)))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "eliuds-eggs")))) union all
+          (select
+            (select_expression
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_2) +
+                  (invocation
+                    (object_reference iif)
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (field PLACEHOLDER_3) &
+                          (field PLACEHOLDER_4)) =
+                        (field PLACEHOLDER_4)))
+                    (term 1)
+                    (term 0))))
+              (term
+                (field PLACEHOLDER_3))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_4) << 1))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_4) <=
+                (field PLACEHOLDER_3)))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "eliuds-eggs")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_1) PLACEHOLDER_3) =
+                (field
+                  (object_reference
+                    (quoted_identifier "eliuds-eggs")) number)))
+            (order_by
+              (order_target
+                (field PLACEHOLDER_4)
+                (direction desc)))
+            (limit 1)))))))

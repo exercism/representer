@@ -1,13 +1,53 @@
-UPDATE "\"etl\""
-SET result = (
-WITH dados_ordenados AS (
-SELECT
-LOWER ( letra . value ) AS chave ,
-CAST ( pontos . key AS INT ) AS valor
-FROM json_each ( etl . input ) AS pontos ,
-json_each ( pontos . value ) AS letra
-ORDER BY chave ASC
-)
-SELECT json_group_object ( chave , valor )
-FROM dados_ordenados
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "etl")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference lower)
+                      (term
+                        (field
+                          (object_reference PLACEHOLDER_2) value))) PLACEHOLDER_3)
+                  (term
+                    (cast
+                      (field
+                        (object_reference PLACEHOLDER_4) key)
+                      (int int)) PLACEHOLDER_5)))
+              (from
+                (relation
+                  (invocation
+                    (object_reference json_each)
+                    (term
+                      (field
+                        (object_reference etl) input))) PLACEHOLDER_4)
+                (relation
+                  (invocation
+                    (object_reference json_each)
+                    (term
+                      (field
+                        (object_reference PLACEHOLDER_4) value))) PLACEHOLDER_2)
+                (order_by
+                  (order_target
+                    (field PLACEHOLDER_3)
+                    (direction asc))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference json_group_object)
+                  (term
+                    (field PLACEHOLDER_3))
+                  (term
+                    (field PLACEHOLDER_5))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))))))))

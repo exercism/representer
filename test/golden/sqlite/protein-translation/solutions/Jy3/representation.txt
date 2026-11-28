@@ -1,35 +1,145 @@
-update "\"protein-translation\""
-set ( result , error ) = (
-with
-map ( code , name ) as (
-values
-( 'AUG' , 'Methionine' ),
-( 'UUU' , 'Phenylalanine' ),
-( 'UUC' , 'Phenylalanine' ),
-( 'UUA' , 'Leucine' ),
-( 'UUG' , 'Leucine' ),
-( 'UCU' , 'Serine' ),
-( 'UCC' , 'Serine' ),
-( 'UCA' , 'Serine' ),
-( 'UCG' , 'Serine' ),
-( 'UAU' , 'Tyrosine' ),
-( 'UAC' , 'Tyrosine' ),
-( 'UGU' , 'Cysteine' ),
-( 'UGC' , 'Cysteine' ),
-( 'UGG' , 'Tryptophan' ),
-( 'UAA' , 'STOP' ),
-( 'UAG' , 'STOP' ),
-( 'UGA' , 'STOP' )
-),
-trans as (
-select 1 as i , '' as out
-union all
-select i + 3 , out || "', '" || ifnull (( select name from map where code = substr ( strand , i , 3 )), 'ERR' )
-from trans
-where substr ( strand , i , 3 ) != ''
-and ifnull (( select name from map where code = substr ( strand , i , 3 )), '' ) != 'STOP'
-)
-select iif ( out like '%ERR' , null , ltrim ( out , "', '" )), iif ( out like '%ERR' , "'Invalid codon'" , null )
-from trans
-where i = ( select max ( i ) from trans )
-)
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "protein-translation")))
+      (assignment
+        (list
+          (column result)
+          (column error))
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+            (statement
+              (values
+                (list "AUG" "Methionine")
+                (list "UUU" "Phenylalanine")
+                (list "UUC" "Phenylalanine")
+                (list "UUA" "Leucine")
+                (list "UUG" "Leucine")
+                (list "UCU" "Serine")
+                (list "UCC" "Serine")
+                (list "UCA" "Serine")
+                (list "UCG" "Serine")
+                (list "UAU" "Tyrosine")
+                (list "UAC" "Tyrosine")
+                (list "UGU" "Cysteine")
+                (list "UGC" "Cysteine")
+                (list "UGG" "Tryptophan")
+                (list "UAA" "STOP")
+                (list "UAG" "STOP")
+                (list "UGA" "STOP"))))
+          (cte PLACEHOLDER_4
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1 PLACEHOLDER_5)
+                    (term "" PLACEHOLDER_6))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_5) + 3))
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (field PLACEHOLDER_6) || ", ") ||
+                        (invocation
+                          (object_reference ifnull)
+                          (term
+                            (subquery
+                              (select
+                                (select_expression
+                                  (term
+                                    (field PLACEHOLDER_3))))
+                              (from
+                                (relation
+                                  (object_reference PLACEHOLDER_1))
+                                (where
+                                  (binary_expression
+                                    (field PLACEHOLDER_2) =
+                                    (invocation
+                                      (object_reference substr)
+                                      (term
+                                        (field strand))
+                                      (term
+                                        (field PLACEHOLDER_5))
+                                      (term 3)))))))
+                          (term "ERR"))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_4))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field strand))
+                          (term
+                            (field PLACEHOLDER_5))
+                          (term 3)) != "") and
+                      (binary_expression
+                        (invocation
+                          (object_reference ifnull)
+                          (term
+                            (subquery
+                              (select
+                                (select_expression
+                                  (term
+                                    (field PLACEHOLDER_3))))
+                              (from
+                                (relation
+                                  (object_reference PLACEHOLDER_1))
+                                (where
+                                  (binary_expression
+                                    (field PLACEHOLDER_2) =
+                                    (invocation
+                                      (object_reference substr)
+                                      (term
+                                        (field strand))
+                                      (term
+                                        (field PLACEHOLDER_5))
+                                      (term 3)))))))
+                          (term "")) != "STOP")))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_6) like "%ERR"))
+                  (term null)
+                  (term
+                    (invocation
+                      (object_reference ltrim)
+                      (term
+                        (field PLACEHOLDER_6))
+                      (term ", ")))))
+              (term
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_6) like "%ERR"))
+                  (term "Invalid codon")
+                  (term null)))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_5) =
+                (subquery
+                  (select
+                    (select_expression
+                      (term
+                        (invocation
+                          (object_reference max)
+                          (term
+                            (field PLACEHOLDER_5))))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_4))))))))))))

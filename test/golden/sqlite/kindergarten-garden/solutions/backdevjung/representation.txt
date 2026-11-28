@@ -1,43 +1,192 @@
-WITH
-util AS (
-SELECT
-2 * ( unicode ( substr ( student , 1 , 1 )) - unicode ( 'A' )) + 1 AS first_index ,
-coalesce (
-trim (
-substr ( diagram , 1 , instr ( diagram , CHAR ( 10 ))),
-char ( 9 , 10 , 13 , 32 )
-),
-"\"\""
-) AS first_row ,
-coalesce (
-trim (
-substr ( diagram , instr ( diagram , CHAR ( 10 ))),
-char ( 9 , 10 , 13 , 32 )
-),
-"\"\""
-) AS second_row
-),
-mapping ( encoding , plant ) AS (
-VALUES
-( "\"G\"" , "\"grass\"" ),
-( "\"C\"" , "\"clover\"" ),
-( "\"R\"" , "\"radishes\"" ),
-( "\"V\"" , "\"violets\"" )
-)
-UPDATE "\"kindergarten-garden\""
-SET result = (
-SELECT (
-SELECT plant FROM mapping
-WHERE encoding = substr ( first_row , first_index , 1 )
-) || "\",\"" || (
-SELECT plant FROM mapping
-WHERE encoding = substr ( first_row , first_index + 1 , 1 )
-) || "\",\"" || (
-SELECT plant FROM mapping
-WHERE encoding = substr ( second_row , first_index , 1 )
-) || "\",\"" || (
-SELECT plant FROM mapping
-WHERE encoding = substr ( second_row , first_index + 1 , 1 )
-)
-FROM util
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1
+      (statement
+        (select
+          (select_expression
+            (term
+              (binary_expression
+                (binary_expression 2 *
+                  (binary_expression
+                    (invocation
+                      (object_reference unicode)
+                      (term
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field student))
+                          (term 1)
+                          (term 1)))) -
+                    (invocation
+                      (object_reference unicode)
+                      (term "A")))) + 1) PLACEHOLDER_2)
+            (term
+              (invocation
+                (object_reference coalesce)
+                (term
+                  (invocation
+                    (object_reference trim)
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field diagram))
+                        (term 1)
+                        (term
+                          (invocation
+                            (object_reference instr)
+                            (term
+                              (field diagram))
+                            (term
+                              (invocation
+                                (object_reference char)
+                                (term 10)))))))
+                    (term
+                      (invocation
+                        (object_reference char)
+                        (term 9)
+                        (term 10)
+                        (term 13)
+                        (term 32)))))
+                (term
+                  (quoted_identifier ""))) PLACEHOLDER_3)
+            (term
+              (invocation
+                (object_reference coalesce)
+                (term
+                  (invocation
+                    (object_reference trim)
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field diagram))
+                        (term
+                          (invocation
+                            (object_reference instr)
+                            (term
+                              (field diagram))
+                            (term
+                              (invocation
+                                (object_reference char)
+                                (term 10)))))))
+                    (term
+                      (invocation
+                        (object_reference char)
+                        (term 9)
+                        (term 10)
+                        (term 13)
+                        (term 32)))))
+                (term
+                  (quoted_identifier ""))) PLACEHOLDER_4)))))
+    (cte PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7
+      (statement
+        (values
+          (list
+            (quoted_identifier "G")
+            (quoted_identifier "grass"))
+          (list
+            (quoted_identifier "C")
+            (quoted_identifier "clover"))
+          (list
+            (quoted_identifier "R")
+            (quoted_identifier "radishes"))
+          (list
+            (quoted_identifier "V")
+            (quoted_identifier "violets")))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "kindergarten-garden")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (subquery
+                              (select
+                                (select_expression
+                                  (term
+                                    (field PLACEHOLDER_7))))
+                              (from
+                                (relation
+                                  (object_reference PLACEHOLDER_5))
+                                (where
+                                  (binary_expression
+                                    (field PLACEHOLDER_6) =
+                                    (invocation
+                                      (object_reference substr)
+                                      (term
+                                        (field PLACEHOLDER_3))
+                                      (term
+                                        (field PLACEHOLDER_2))
+                                      (term 1)))))) ||
+                            (quoted_identifier ",")) ||
+                          (subquery
+                            (select
+                              (select_expression
+                                (term
+                                  (field PLACEHOLDER_7))))
+                            (from
+                              (relation
+                                (object_reference PLACEHOLDER_5))
+                              (where
+                                (binary_expression
+                                  (field PLACEHOLDER_6) =
+                                  (invocation
+                                    (object_reference substr)
+                                    (term
+                                      (field PLACEHOLDER_3))
+                                    (term
+                                      (binary_expression
+                                        (field PLACEHOLDER_2) + 1))
+                                    (term 1))))))) ||
+                        (quoted_identifier ",")) ||
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_7))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_5))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_6) =
+                              (invocation
+                                (object_reference substr)
+                                (term
+                                  (field PLACEHOLDER_4))
+                                (term
+                                  (field PLACEHOLDER_2))
+                                (term 1))))))) ||
+                    (quoted_identifier ",")) ||
+                  (subquery
+                    (select
+                      (select_expression
+                        (term
+                          (field PLACEHOLDER_7))))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_5))
+                      (where
+                        (binary_expression
+                          (field PLACEHOLDER_6) =
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_4))
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_2) + 1))
+                            (term 1))))))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))))))))

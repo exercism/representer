@@ -1,54 +1,154 @@
-UPDATE "\"all-your-base\"" AS t
-SET result = CASE
-WHEN t . input_base < 2 THEN
-json_object ( 'error' , "'input base must be >= 2'" )
-WHEN t . output_base < 2 THEN
-json_object ( 'error' , "'output base must be >= 2'" )
-WHEN EXISTS (
-SELECT 1
-FROM json_each ( t . digits ) AS d
-WHERE d . value < 0 OR d . value >= t . input_base
-) THEN
-json_object (
-'error' ,
-"'all digits must satisfy 0 <= d < input base'"
-)
-ELSE (
-WITH RECURSIVE
-base_10 ( pos , decimal_n ) AS (
-SELECT 0 , 0
-UNION ALL
-SELECT
-pos + 1 ,
-decimal_n * t . input_base
-+ json_extract ( t . digits , '$[' || pos || ']' )
-FROM base_10
-WHERE pos < json_array_length ( t . digits )
-),
-base_n ( residual , coded ) AS (
-SELECT decimal_n , ''
-FROM base_10
-WHERE pos = json_array_length ( t . digits )
-UNION ALL
-SELECT
-residual / t . output_base ,
-CAST ( residual % t . output_base AS TEXT )
-|| CASE
-WHEN coded = '' THEN ''
-ELSE ',' || coded
-END
-FROM base_n
-WHERE residual > 0
-)
-SELECT json_object (
-'digits' ,
-json (
-'['
-|| CASE WHEN coded = '' THEN '0' ELSE coded END
-|| ']'
-)
-)
-FROM base_n
-WHERE residual = 0
-)
-END ;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "all-your-base")) PLACEHOLDER_1)
+      (assignment
+        (field result)
+        (case when
+          (binary_expression
+            (field
+              (object_reference PLACEHOLDER_1) input_base) < 2) then
+          (invocation
+            (object_reference json_object)
+            (term "error")
+            (term "input base must be >= 2")) when
+          (binary_expression
+            (field
+              (object_reference PLACEHOLDER_1) output_base) < 2) then
+          (invocation
+            (object_reference json_object)
+            (term "error")
+            (term "output base must be >= 2")) when
+          (exists exists
+            (subquery
+              (select
+                (select_expression
+                  (term 1)))
+              (from
+                (relation
+                  (invocation
+                    (object_reference json_each)
+                    (term
+                      (field
+                        (object_reference PLACEHOLDER_1) digits))) PLACEHOLDER_2)
+                (where
+                  (binary_expression
+                    (binary_expression
+                      (field
+                        (object_reference PLACEHOLDER_2) value) < 0) or
+                    (binary_expression
+                      (field
+                        (object_reference PLACEHOLDER_2) value) >=
+                      (field
+                        (object_reference PLACEHOLDER_1) input_base))))))) then
+          (invocation
+            (object_reference json_object)
+            (term "error")
+            (term "all digits must satisfy 0 <= d < input base")) else
+          (subquery
+            (cte PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+              (statement
+                (set_operation
+                  (select
+                    (select_expression
+                      (term 0)
+                      (term 0))) union all
+                  (select
+                    (select_expression
+                      (term
+                        (binary_expression
+                          (field PLACEHOLDER_4) + 1))
+                      (term
+                        (binary_expression
+                          (binary_expression
+                            (field PLACEHOLDER_5) *
+                            (field
+                              (object_reference PLACEHOLDER_1) input_base)) +
+                          (invocation
+                            (object_reference json_extract)
+                            (term
+                              (field
+                                (object_reference PLACEHOLDER_1) digits))
+                            (term
+                              (binary_expression
+                                (binary_expression "$[" ||
+                                  (field PLACEHOLDER_4)) || "]")))))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_3))
+                    (where
+                      (binary_expression
+                        (field PLACEHOLDER_4) <
+                        (invocation
+                          (object_reference json_array_length)
+                          (term
+                            (field
+                              (object_reference PLACEHOLDER_1) digits)))))))))
+            (cte PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8
+              (statement
+                (set_operation
+                  (select
+                    (select_expression
+                      (term
+                        (field PLACEHOLDER_5))
+                      (term "")))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_3))
+                    (where
+                      (binary_expression
+                        (field PLACEHOLDER_4) =
+                        (invocation
+                          (object_reference json_array_length)
+                          (term
+                            (field
+                              (object_reference PLACEHOLDER_1) digits)))))) union all
+                  (select
+                    (select_expression
+                      (term
+                        (binary_expression
+                          (field PLACEHOLDER_7) /
+                          (field
+                            (object_reference PLACEHOLDER_1) output_base)))
+                      (term
+                        (binary_expression
+                          (cast
+                            (binary_expression
+                              (field PLACEHOLDER_7) %
+                              (field
+                                (object_reference PLACEHOLDER_1) output_base)) text) ||
+                          (case when
+                            (binary_expression
+                              (field PLACEHOLDER_8) = "") then "" else
+                            (binary_expression "," ||
+                              (field PLACEHOLDER_8)))))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_6))
+                    (where
+                      (binary_expression
+                        (field PLACEHOLDER_7) > 0))))))
+            (select
+              (select_expression
+                (term
+                  (invocation
+                    (object_reference json_object)
+                    (term "digits")
+                    (term
+                      (invocation
+                        (object_reference json)
+                        (term
+                          (binary_expression
+                            (binary_expression "[" ||
+                              (case when
+                                (binary_expression
+                                  (field PLACEHOLDER_8) = "") then "0" else
+                                (field PLACEHOLDER_8))) || "]"))))))))
+            (from
+              (relation
+                (object_reference PLACEHOLDER_6))
+              (where
+                (binary_expression
+                  (field PLACEHOLDER_7) = 0)))))))))

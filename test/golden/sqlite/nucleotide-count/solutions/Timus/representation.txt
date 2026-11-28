@@ -1,23 +1,107 @@
-CREATE TABLE "\"nucleotide-count\"" (
-strand TEXT CHECK ( NOT strand GLOB '*[^ACGT]*' ),
-result TEXT
-);
-. mode csv
-. import . / data . csv "\"nucleotide-count\""
-WITH RECURSIVE counts ( strand , pos , n , jstr ) AS (
-SELECT strand , 2 ,
-format ( '$.%s' , substr ( strand , 1 , 1 )),
-json ( '{"A":0,"C":0,"G":0,"T":0}' )
-FROM "\"nucleotide-count\""
-UNION ALL
-SELECT strand , pos + 1 ,
-format ( '$.%s' , substr ( strand , pos , 1 )),
-json_set ( jstr , n , ( jstr ->> n ) + 1 )
-FROM counts
-WHERE pos <= length ( strand ) + 1
-)
-UPDATE "\"nucleotide-count\""
-SET result = jstr
-FROM counts
-WHERE "\"nucleotide-count\"" . strand = counts . strand
-AND pos = length ( counts . strand ) + 2 ;
+(program
+  (statement
+    (create_table
+      (object_reference
+        (quoted_identifier "nucleotide-count"))
+      (column_definitions
+        (column_definition PLACEHOLDER_1 text check
+          (binary_expression
+            (unary_expression not
+              (field PLACEHOLDER_1)) glob "*[^ACGT]*"))
+        (column_definition PLACEHOLDER_2 text)))) ".mode csv" ".import ./data.csv \"nucleotide-count\""
+  (statement
+    (cte PLACEHOLDER_3 PLACEHOLDER_1 PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_1))
+              (term 2)
+              (term
+                (invocation
+                  (object_reference format)
+                  (term "$.%s")
+                  (term
+                    (invocation
+                      (object_reference substr)
+                      (term
+                        (field PLACEHOLDER_1))
+                      (term 1)
+                      (term 1)))))
+              (term
+                (invocation
+                  (object_reference json)
+                  (term "{\"A\":0,\"C\":0,\"G\":0,\"T\":0}")))))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "nucleotide-count")))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_1))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_4) + 1))
+              (term
+                (invocation
+                  (object_reference format)
+                  (term "$.%s")
+                  (term
+                    (invocation
+                      (object_reference substr)
+                      (term
+                        (field PLACEHOLDER_1))
+                      (term
+                        (field PLACEHOLDER_4))
+                      (term 1)))))
+              (term
+                (invocation
+                  (object_reference json_set)
+                  (term
+                    (field PLACEHOLDER_6))
+                  (term
+                    (field PLACEHOLDER_5))
+                  (term
+                    (binary_expression
+                      (binary_expression
+                        (field PLACEHOLDER_6) ->>
+                        (field PLACEHOLDER_5)) + 1))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_3))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_4) <=
+                (binary_expression
+                  (invocation
+                    (object_reference length)
+                    (term
+                      (field PLACEHOLDER_1))) + 1)))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "nucleotide-count")))
+      (assignment
+        (field PLACEHOLDER_2)
+        (field PLACEHOLDER_6))
+      (from
+        (relation
+          (object_reference PLACEHOLDER_3))
+        (where
+          (binary_expression
+            (binary_expression
+              (field
+                (object_reference
+                  (quoted_identifier "nucleotide-count")) PLACEHOLDER_1) =
+              (field
+                (object_reference PLACEHOLDER_3) PLACEHOLDER_1)) and
+            (binary_expression
+              (field PLACEHOLDER_4) =
+              (binary_expression
+                (invocation
+                  (object_reference length)
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_3) PLACEHOLDER_1))) + 2))))))))

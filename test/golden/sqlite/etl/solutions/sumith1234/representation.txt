@@ -1,13 +1,57 @@
-UPDATE etl
-SET result = (
-SELECT '{' || GROUP_CONCAT ( pair ) || '}'
-FROM (
-SELECT ( '"' || LOWER ( j . VALUE ) || '":' || t . KEY ) AS pair
-FROM (
-SELECT j . *
-FROM JSON_EACH ( input ) j
-) t , JSON_EACH ( t . VALUE ) j
-ORDER BY j . VALUE
-) t
-)
-;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference etl))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (binary_expression
+                  (binary_expression "{" ||
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (field PLACEHOLDER_1)))) || "}"))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression "\"" ||
+                            (invocation
+                              (object_reference lower)
+                              (term
+                                (field
+                                  (object_reference PLACEHOLDER_2) value)))) || "\":") ||
+                        (field
+                          (object_reference PLACEHOLDER_3) key)) PLACEHOLDER_1)))
+                (from
+                  (relation
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (all_fields
+                              (object_reference PLACEHOLDER_2) *))))
+                      (from
+                        (relation
+                          (invocation
+                            (object_reference json_each)
+                            (term
+                              (field input))) PLACEHOLDER_2))) PLACEHOLDER_3)
+                  (relation
+                    (invocation
+                      (object_reference json_each)
+                      (term
+                        (field
+                          (object_reference PLACEHOLDER_3) value))) PLACEHOLDER_2)
+                  (order_by
+                    (order_target
+                      (field
+                        (object_reference PLACEHOLDER_2) value))))) PLACEHOLDER_3)))))))

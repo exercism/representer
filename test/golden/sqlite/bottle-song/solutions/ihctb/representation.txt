@@ -1,22 +1,145 @@
-WITH RECURSIVE
-bottles ( n , num ) AS ( VALUES
-( 0 , 'No' ), ( 1 , 'One' ), ( 2 , 'Two' ),( 3 , 'Three' ), ( 4 , 'Four' ), ( 5 , 'Five' ),
-( 6 , 'Six' ), ( 7 , 'Seven' ), ( 8 , 'Eight' ), ( 9 , 'Nine' ), ( 10 , 'Ten' )),
-green_bottles ( n , num ) AS ( SELECT
-n , num || "' green bottle'" || IIF ( n = 1 , '' , 's' ) FROM bottles ),
-tmp ( row_id , current_bottle , bottles_left , verse ) AS (
-SELECT rowid , start_bottles , take_down , '' FROM "\"bottle-song\""
-UNION ALL
-SELECT row_id , current_bottle - 1 , bottles_left - 1 , verse ||
-bs . num || "' hanging on the wall,'" || CHAR ( 10 ) ||
-bs . num || "' hanging on the wall,'" || CHAR ( 10 ) ||
-"'And if one green bottle should accidentally fall,'" || CHAR ( 10 ) ||
-"'There''ll be '" || LOWER ( bs2 . num ) || "' hanging on the wall.'" ||
-CASE WHEN bottles_left > 1 THEN CHAR ( 10 ) || CHAR ( 10 ) ELSE '' END
-FROM tmp
-JOIN green_bottles bs ON bs . n = current_bottle
-JOIN green_bottles bs2 ON bs2 . n = current_bottle - 1
-WHERE bottles_left > 0 )
-UPDATE "\"bottle-song\""
-SET result = verse FROM tmp
-WHERE bottles_left = 0 AND "\"bottle-song\"" . rowid = tmp . row_id
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (values
+          (list 0 "No")
+          (list 1 "One")
+          (list 2 "Two")
+          (list 3 "Three")
+          (list 4 "Four")
+          (list 5 "Five")
+          (list 6 "Six")
+          (list 7 "Seven")
+          (list 8 "Eight")
+          (list 9 "Nine")
+          (list 10 "Ten"))))
+    (cte PLACEHOLDER_4 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (select
+          (select_expression
+            (term
+              (field PLACEHOLDER_2))
+            (term
+              (binary_expression
+                (binary_expression
+                  (field PLACEHOLDER_3) || " green bottle") ||
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_2) = 1))
+                  (term "")
+                  (term "s"))))))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_1)))))
+    (cte PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field rowid))
+              (term
+                (field start_bottles))
+              (term
+                (field take_down))
+              (term "")))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "bottle-song")))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_7) - 1))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_8) - 1))
+              (term
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (binary_expression
+                                (binary_expression
+                                  (binary_expression
+                                    (binary_expression
+                                      (binary_expression
+                                        (field PLACEHOLDER_9) ||
+                                        (field
+                                          (object_reference PLACEHOLDER_10) PLACEHOLDER_3)) || " hanging on the wall,") ||
+                                    (invocation
+                                      (object_reference char)
+                                      (term 10))) ||
+                                  (field
+                                    (object_reference PLACEHOLDER_10) PLACEHOLDER_3)) || " hanging on the wall,") ||
+                              (invocation
+                                (object_reference char)
+                                (term 10))) || "And if one green bottle should accidentally fall,") ||
+                          (invocation
+                            (object_reference char)
+                            (term 10))) || "There'll be ") ||
+                      (invocation
+                        (object_reference lower)
+                        (term
+                          (field
+                            (object_reference PLACEHOLDER_11) PLACEHOLDER_3)))) || " hanging on the wall.") ||
+                  (case when
+                    (binary_expression
+                      (field PLACEHOLDER_8) > 1) then
+                    (binary_expression
+                      (invocation
+                        (object_reference char)
+                        (term 10)) ||
+                      (invocation
+                        (object_reference char)
+                        (term 10))) else "")))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_5))
+            (join
+              (relation
+                (object_reference PLACEHOLDER_4) PLACEHOLDER_10) on
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_10) PLACEHOLDER_2) =
+                (field PLACEHOLDER_7)))
+            (join
+              (relation
+                (object_reference PLACEHOLDER_4) PLACEHOLDER_11) on
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_11) PLACEHOLDER_2) =
+                (binary_expression
+                  (field PLACEHOLDER_7) - 1)))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_8) > 0))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "bottle-song")))
+      (assignment
+        (field result)
+        (field PLACEHOLDER_9))
+      (from
+        (relation
+          (object_reference PLACEHOLDER_5))
+        (where
+          (binary_expression
+            (binary_expression
+              (field PLACEHOLDER_8) = 0) and
+            (binary_expression
+              (field
+                (object_reference
+                  (quoted_identifier "bottle-song")) rowid) =
+              (field
+                (object_reference PLACEHOLDER_5) PLACEHOLDER_6))))))))

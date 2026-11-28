@@ -1,72 +1,317 @@
-UPDATE "\"swift-scheduling\""
-SET result = (
-WITH RECURSIVE
-contexto_limpo AS (
-SELECT
-meeting_start ,
-TRIM ( date_description ) AS desc_limpa ,
-CAST ( STRFTIME ( '%Y' , meeting_start ) AS INT ) AS ano_atual ,
-CAST ( STRFTIME ( '%m' , meeting_start ) AS INT ) AS mes_atual
-FROM "\"swift-scheduling\"" AS s
-WHERE s . rowid = "\"swift-scheduling\"" . rowid
-),
-parametros_alvo AS (
-SELECT
-meeting_start ,
-desc_limpa ,
-CASE
-WHEN desc_limpa LIKE '%M' THEN CAST ( REPLACE ( desc_limpa , 'M' , '' ) AS INT )
-WHEN desc_limpa LIKE 'Q%' THEN CAST ( REPLACE ( desc_limpa , 'Q' , '' ) AS INT ) * 3
-ELSE NULL
-END AS mes_destino ,
-CASE
-WHEN desc_limpa LIKE '%M' THEN
-IIF ( mes_atual >= CAST ( REPLACE ( desc_limpa , 'M' , '' ) AS INT ), ano_atual + 1 , ano_atual )
-WHEN desc_limpa LIKE 'Q%' THEN
-IIF ( mes_atual > CAST ( REPLACE ( desc_limpa , 'Q' , '' ) AS INT ) * 3 , ano_atual + 1 , ano_atual )
-ELSE NULL
-END AS ano_destino
-FROM contexto_limpo
-),
-calendario_mes ( data_str , mes_limite ) AS (
-SELECT
-PRINTF ( '%04d-%02d-01' , ano_destino , mes_destino ),
-PRINTF ( '%02d' , mes_destino )
-FROM parametros_alvo
-WHERE mes_destino IS NOT NULL
-UNION ALL
-SELECT DATE ( data_str , "'+1 day'" ), mes_limite
-FROM calendario_mes
-WHERE STRFTIME ( '%m' , DATE ( data_str , "'+1 day'" )) = mes_limite
-),
-primeiro_dia_util AS (
-SELECT data_str
-FROM calendario_mes
-WHERE STRFTIME ( '%w' , data_str ) NOT IN ( '0' , '6' )
-ORDER BY data_str ASC
-LIMIT 1
-),
-ultimo_dia_util AS (
-SELECT data_str
-FROM calendario_mes
-WHERE STRFTIME ( '%w' , data_str ) NOT IN ( '0' , '6' )
-ORDER BY data_str DESC
-LIMIT 1
-)
-SELECT
-CASE
-WHEN desc_limpa = 'NOW' THEN
-STRFTIME ( '%Y-%m-%dT%H:%M:%S' , datetime ( meeting_start , "'+2 hours'" ))
-WHEN desc_limpa = 'ASAP' THEN
-STRFTIME ( '%Y-%m-%dT%H:%M:%S' , datetime ( meeting_start , "'start of day'" , IIF ( TIME ( meeting_start ) < '13:00:00' , "'+17 hours'" , "'+37 hours'" )))
-WHEN desc_limpa = 'EOW' THEN
-STRFTIME ( '%Y-%m-%dT%H:%M:%S' , datetime ( meeting_start , "'start of day'" ,
-( IIF ( STRFTIME ( '%w' , meeting_start ) IN ( '1' , '2' , '3' ), 137 , 188 )
-- CAST ( STRFTIME ( '%w' , meeting_start ) AS INT ) * 24 ) || "' hours'" ))
-WHEN desc_limpa LIKE '%M' THEN
-( SELECT data_str FROM primeiro_dia_util ) || 'T08:00:00'
-WHEN desc_limpa LIKE 'Q%' THEN
-( SELECT data_str FROM ultimo_dia_util ) || 'T08:00:00'
-END
-FROM contexto_limpo
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "swift-scheduling")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field meeting_start))
+                  (term
+                    (invocation
+                      (object_reference trim)
+                      (term
+                        (field date_description))) PLACEHOLDER_2)
+                  (term
+                    (cast
+                      (invocation
+                        (object_reference strftime)
+                        (term "%Y")
+                        (term
+                          (field meeting_start)))
+                      (int int)) PLACEHOLDER_3)
+                  (term
+                    (cast
+                      (invocation
+                        (object_reference strftime)
+                        (term "%m")
+                        (term
+                          (field meeting_start)))
+                      (int int)) PLACEHOLDER_4)))
+              (from
+                (relation
+                  (object_reference
+                    (quoted_identifier "swift-scheduling")) PLACEHOLDER_5)
+                (where
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_5) rowid) =
+                    (field
+                      (object_reference
+                        (quoted_identifier "swift-scheduling")) rowid))))))
+          (cte PLACEHOLDER_6
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field meeting_start))
+                  (term
+                    (field PLACEHOLDER_2))
+                  (term
+                    (case when
+                      (binary_expression
+                        (field PLACEHOLDER_2) like "%M") then
+                      (cast
+                        (invocation
+                          (object_reference replace)
+                          (term
+                            (field PLACEHOLDER_2))
+                          (term "M")
+                          (term ""))
+                        (int int)) when
+                      (binary_expression
+                        (field PLACEHOLDER_2) like "Q%") then
+                      (binary_expression
+                        (cast
+                          (invocation
+                            (object_reference replace)
+                            (term
+                              (field PLACEHOLDER_2))
+                            (term "Q")
+                            (term ""))
+                          (int int)) * 3) else null) PLACEHOLDER_7)
+                  (term
+                    (case when
+                      (binary_expression
+                        (field PLACEHOLDER_2) like "%M") then
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_4) >=
+                            (cast
+                              (invocation
+                                (object_reference replace)
+                                (term
+                                  (field PLACEHOLDER_2))
+                                (term "M")
+                                (term ""))
+                              (int int))))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_3) + 1))
+                        (term
+                          (field PLACEHOLDER_3))) when
+                      (binary_expression
+                        (field PLACEHOLDER_2) like "Q%") then
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_4) >
+                            (binary_expression
+                              (cast
+                                (invocation
+                                  (object_reference replace)
+                                  (term
+                                    (field PLACEHOLDER_2))
+                                  (term "Q")
+                                  (term ""))
+                                (int int)) * 3)))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_3) + 1))
+                        (term
+                          (field PLACEHOLDER_3))) else null) PLACEHOLDER_8)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1)))))
+          (cte PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference printf)
+                        (term "%04d-%02d-01")
+                        (term
+                          (field PLACEHOLDER_8))
+                        (term
+                          (field PLACEHOLDER_7))))
+                    (term
+                      (invocation
+                        (object_reference printf)
+                        (term "%02d")
+                        (term
+                          (field PLACEHOLDER_7))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_6))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_7)
+                      (is_not is not) null))) union all
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference date)
+                        (term
+                          (field PLACEHOLDER_10))
+                        (term "+1 day")))
+                    (term
+                      (field PLACEHOLDER_11))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_9))
+                  (where
+                    (binary_expression
+                      (invocation
+                        (object_reference strftime)
+                        (term "%m")
+                        (term
+                          (invocation
+                            (object_reference date)
+                            (term
+                              (field PLACEHOLDER_10))
+                            (term "+1 day")))) =
+                      (field PLACEHOLDER_11)))))))
+          (cte PLACEHOLDER_12
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field PLACEHOLDER_10))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_9))
+                (where
+                  (binary_expression
+                    (invocation
+                      (object_reference strftime)
+                      (term "%w")
+                      (term
+                        (field PLACEHOLDER_10)))
+                    (not_in not in)
+                    (list "0" "6")))
+                (order_by
+                  (order_target
+                    (field PLACEHOLDER_10)
+                    (direction asc)))
+                (limit 1))))
+          (cte PLACEHOLDER_13
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field PLACEHOLDER_10))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_9))
+                (where
+                  (binary_expression
+                    (invocation
+                      (object_reference strftime)
+                      (term "%w")
+                      (term
+                        (field PLACEHOLDER_10)))
+                    (not_in not in)
+                    (list "0" "6")))
+                (order_by
+                  (order_target
+                    (field PLACEHOLDER_10)
+                    (direction desc)))
+                (limit 1))))
+          (select
+            (select_expression
+              (term
+                (case when
+                  (binary_expression
+                    (field PLACEHOLDER_2) = "NOW") then
+                  (invocation
+                    (object_reference strftime)
+                    (term "%Y-%m-%dT%H:%M:%S")
+                    (term
+                      (invocation
+                        (object_reference datetime)
+                        (term
+                          (field meeting_start))
+                        (term "+2 hours")))) when
+                  (binary_expression
+                    (field PLACEHOLDER_2) = "ASAP") then
+                  (invocation
+                    (object_reference strftime)
+                    (term "%Y-%m-%dT%H:%M:%S")
+                    (term
+                      (invocation
+                        (object_reference datetime)
+                        (term
+                          (field meeting_start))
+                        (term "start of day")
+                        (term
+                          (invocation
+                            (object_reference iif)
+                            (term
+                              (binary_expression
+                                (invocation
+                                  (object_reference time)
+                                  (term
+                                    (field meeting_start))) < "13:00:00"))
+                            (term "+17 hours")
+                            (term "+37 hours")))))) when
+                  (binary_expression
+                    (field PLACEHOLDER_2) = "EOW") then
+                  (invocation
+                    (object_reference strftime)
+                    (term "%Y-%m-%dT%H:%M:%S")
+                    (term
+                      (invocation
+                        (object_reference datetime)
+                        (term
+                          (field meeting_start))
+                        (term "start of day")
+                        (term
+                          (binary_expression
+                            (binary_expression
+                              (invocation
+                                (object_reference iif)
+                                (term
+                                  (binary_expression
+                                    (invocation
+                                      (object_reference strftime)
+                                      (term "%w")
+                                      (term
+                                        (field meeting_start))) in
+                                    (list "1" "2" "3")))
+                                (term 137)
+                                (term 188)) -
+                              (binary_expression
+                                (cast
+                                  (invocation
+                                    (object_reference strftime)
+                                    (term "%w")
+                                    (term
+                                      (field meeting_start)))
+                                  (int int)) * 24)) || " hours"))))) when
+                  (binary_expression
+                    (field PLACEHOLDER_2) like "%M") then
+                  (binary_expression
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_10))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_12)))) || "T08:00:00") when
+                  (binary_expression
+                    (field PLACEHOLDER_2) like "Q%") then
+                  (binary_expression
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_10))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_13)))) || "T08:00:00")))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))))))))

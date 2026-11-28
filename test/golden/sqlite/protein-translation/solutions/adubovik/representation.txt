@@ -1,37 +1,141 @@
-WITH codes ( triplet , acid ) AS ( VALUES
-( 'AUG' , 'Methionine' ),
-( 'UUU' , 'Phenylalanine' ),
-( 'UUC' , 'Phenylalanine' ),
-( 'UUA' , 'Leucine' ),
-( 'UUG' , 'Leucine' ),
-( 'UCU' , 'Serine' ),
-( 'UCC' , 'Serine' ),
-( 'UCA' , 'Serine' ),
-( 'UCG' , 'Serine' ),
-( 'UAU' , 'Tyrosine' ),
-( 'UAC' , 'Tyrosine' ),
-( 'UGU' , 'Cysteine' ),
-( 'UGC' , 'Cysteine' ),
-( 'UGG' , 'Tryptophan' )
-)
-UPDATE "\"protein-translation\""
-SET ( result , error ) = ( WITH RECURSIVE
-aminos ( rest , acid ) AS (
-SELECT strand , ''
-UNION ALL
-SELECT substr ( rest , 4 ), ( SELECT acid FROM codes WHERE triplet = substr ( rest , 1 , 3 )) FROM aminos
-WHERE
-length ( rest ) > 0 AND
-NOT substr ( rest , 1 , 3 ) IN ( 'UAA' , 'UAG' , 'UGA' )
-),
-invalid ( b ) AS (
-SELECT COUNT ( 1 ) > 0 FROM aminos WHERE acid IS NULL
-),
-res ( s ) AS (
-SELECT group_concat ( acid , "', '" ) FROM aminos WHERE acid <> ''
-)
-SELECT
-IIF ( invalid . b , NULL , IFNULL ( res . s , '' )),
-IIF ( invalid . b , "'Invalid codon'" , NULL )
-FROM invalid , res
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (values
+          (list "AUG" "Methionine")
+          (list "UUU" "Phenylalanine")
+          (list "UUC" "Phenylalanine")
+          (list "UUA" "Leucine")
+          (list "UUG" "Leucine")
+          (list "UCU" "Serine")
+          (list "UCC" "Serine")
+          (list "UCA" "Serine")
+          (list "UCG" "Serine")
+          (list "UAU" "Tyrosine")
+          (list "UAC" "Tyrosine")
+          (list "UGU" "Cysteine")
+          (list "UGC" "Cysteine")
+          (list "UGG" "Tryptophan"))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "protein-translation")))
+      (assignment
+        (list
+          (column result)
+          (column error))
+        (subquery
+          (cte PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_3
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (field strand))
+                    (term ""))) union all
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_5))
+                        (term 4)))
+                    (term
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_3))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_1))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_2) =
+                              (invocation
+                                (object_reference substr)
+                                (term
+                                  (field PLACEHOLDER_5))
+                                (term 1)
+                                (term 3)))))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_4))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (invocation
+                          (object_reference length)
+                          (term
+                            (field PLACEHOLDER_5))) > 0) and
+                      (binary_expression
+                        (unary_expression not
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_5))
+                            (term 1)
+                            (term 3))) in
+                        (list "UAA" "UAG" "UGA"))))))))
+          (cte PLACEHOLDER_6 PLACEHOLDER_7
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference count)
+                        (term 1)) > 0))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_4))
+                (where
+                  (binary_expression
+                    (field PLACEHOLDER_3) is null)))))
+          (cte PLACEHOLDER_8 PLACEHOLDER_9
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (field PLACEHOLDER_3))
+                      (term ", ")))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_4))
+                (where
+                  (binary_expression
+                    (field PLACEHOLDER_3) != "")))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_6) PLACEHOLDER_7))
+                  (term null)
+                  (term
+                    (invocation
+                      (object_reference ifnull)
+                      (term
+                        (field
+                          (object_reference PLACEHOLDER_8) PLACEHOLDER_9))
+                      (term "")))))
+              (term
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_6) PLACEHOLDER_7))
+                  (term "Invalid codon")
+                  (term null)))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_6))
+            (relation
+              (object_reference PLACEHOLDER_8))))))))

@@ -1,23 +1,103 @@
-WITH students AS (
-SELECT
-value ->> '$[0]' AS name ,
-FIRST_VALUE ( value ->> '$[1]' ) OVER ( PARTITION BY value ->> '$[0]' ) AS grade
-FROM json_each ( input , '$.students' )
-ORDER BY grade , name
-)
-UPDATE "\"grade-school\""
-SET result = CASE property
-WHEN 'add' THEN (
-SELECT json_group_array ( json ( IIF ( st_count = 1 , 'true' , 'false' )))
-FROM (
-SELECT ROW_NUMBER () OVER ( PARTITION BY name ) AS st_count
-FROM students )
-)
-ELSE (
-SELECT json_group_array ( name )
-FROM (
-SELECT DISTINCT name
-FROM students
-WHERE grade = IIF ( property = 'roster' , grade , input ->> '$.desiredGrade' ))
-)
-END ;
+(program
+  (statement
+    (cte PLACEHOLDER_1
+      (statement
+        (select
+          (select_expression
+            (term
+              (binary_expression
+                (field value) ->> "$[0]") PLACEHOLDER_2)
+            (term
+              (window_function
+                (invocation
+                  (object_reference first_value)
+                  (term
+                    (binary_expression
+                      (field value) ->> "$[1]")))
+                (window_specification
+                  (partition_by
+                    (binary_expression
+                      (field value) ->> "$[0]")))) PLACEHOLDER_3)))
+        (from
+          (relation
+            (invocation
+              (object_reference json_each)
+              (term
+                (field input))
+              (term "$.students")))
+          (order_by
+            (order_target
+              (field PLACEHOLDER_3))
+            (order_target
+              (field PLACEHOLDER_2))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "grade-school")))
+      (assignment
+        (field result)
+        (case
+          (field property) when "add" then
+          (subquery
+            (select
+              (select_expression
+                (term
+                  (invocation
+                    (object_reference json_group_array)
+                    (term
+                      (invocation
+                        (object_reference json)
+                        (term
+                          (invocation
+                            (object_reference iif)
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_4) = 1))
+                            (term "true")
+                            (term "false")))))))))
+            (from
+              (relation
+                (subquery
+                  (select
+                    (select_expression
+                      (term
+                        (window_function
+                          (invocation
+                            (object_reference row_number))
+                          (window_specification
+                            (partition_by
+                              (field PLACEHOLDER_2)))) PLACEHOLDER_4)))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_1))))))) else
+          (subquery
+            (select
+              (select_expression
+                (term
+                  (invocation
+                    (object_reference json_group_array)
+                    (term
+                      (field PLACEHOLDER_2))))))
+            (from
+              (relation
+                (subquery
+                  (select distinct
+                    (select_expression
+                      (term
+                        (field PLACEHOLDER_2))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_1))
+                    (where
+                      (binary_expression
+                        (field PLACEHOLDER_3) =
+                        (invocation
+                          (object_reference iif)
+                          (term
+                            (binary_expression
+                              (field property) = "roster"))
+                          (term
+                            (field PLACEHOLDER_3))
+                          (term
+                            (binary_expression
+                              (field input) ->> "$.desiredGrade")))))))))))))))

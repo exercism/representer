@@ -1,15 +1,74 @@
-update isogram
-set is_isogram = ( with splits ( c , i ) as (
-select substr ( phrase , 1 , 1 ), 1
-union all
-select substr ( phrase , i + 1 , 1 ), i + 1
-from splits
-where i < length ( phrase )
-)
-select not exists (
-select count ( 1 ) > 1
-from splits
-where c glob '[a-zA-Z]'
-group by lower ( c )
-having count ( 1 ) > 1
-));
+(program
+  (statement
+    (update
+      (relation
+        (object_reference isogram))
+      (assignment
+        (field is_isogram)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field phrase))
+                        (term 1)
+                        (term 1)))
+                    (term 1))) union all
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field phrase))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_3) + 1))
+                        (term 1)))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_3) + 1))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_3) <
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field phrase)))))))))
+          (select
+            (select_expression
+              (term
+                (unary_expression not
+                  (exists exists
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (binary_expression
+                              (invocation
+                                (object_reference count)
+                                (term 1)) > 1))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_1))
+                        (where
+                          (binary_expression
+                            (field PLACEHOLDER_2) glob "[a-zA-Z]"))
+                        (group_by
+                          (invocation
+                            (object_reference lower)
+                            (term
+                              (field PLACEHOLDER_2))))
+                        (having
+                          (binary_expression
+                            (invocation
+                              (object_reference count)
+                              (term 1)) > 1))))))))))))))

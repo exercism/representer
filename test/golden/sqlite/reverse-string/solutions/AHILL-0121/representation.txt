@@ -1,12 +1,66 @@
-WITH RECURSIVE rev AS (
-SELECT input , LENGTH ( input ) AS pos , '' AS acc
-FROM "\"reverse-string\""
-UNION ALL
-SELECT input , pos - 1 , acc || SUBSTR ( input , pos , 1 )
-FROM rev WHERE pos > 0
-)
-UPDATE "\"reverse-string\"" SET result = (
-SELECT acc FROM rev
-WHERE rev . input = "\"reverse-string\"" . input
-AND pos = 0
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field input))
+              (term
+                (invocation
+                  (object_reference length)
+                  (term
+                    (field input))) PLACEHOLDER_2)
+              (term "" PLACEHOLDER_3)))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "reverse-string")))) union all
+          (select
+            (select_expression
+              (term
+                (field input))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_2) - 1))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_3) ||
+                  (invocation
+                    (object_reference substr)
+                    (term
+                      (field input))
+                    (term
+                      (field PLACEHOLDER_2))
+                    (term 1))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_2) > 0))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "reverse-string")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_3))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (binary_expression
+                  (field
+                    (object_reference PLACEHOLDER_1) input) =
+                  (field
+                    (object_reference
+                      (quoted_identifier "reverse-string")) input)) and
+                (binary_expression
+                  (field PLACEHOLDER_2) = 0)))))))))

@@ -1,12 +1,75 @@
-WITH RECURSIVE sumDigits ( number , sum , len , idx ) AS (
-SELECT number , 0 AS sum , length ( CAST ( number AS TEXT )) AS len , 0 AS idx
-FROM "\"armstrong-numbers\""
-UNION ALL
-SELECT number , sum + pow ( CAST ( SUBSTR ( CAST ( number AS TEXT ), idx , 1 ) AS INT ), len ), len , idx + 1
-FROM sumDigits
-WHERE idx <= len
-)
-UPDATE "\"armstrong-numbers\""
-SET result = ( sum = sumDigits . number )
-FROM sumDigits
-WHERE sumDigits . number = "\"armstrong-numbers\"" . number
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term 0 PLACEHOLDER_3)
+              (term
+                (invocation
+                  (object_reference length)
+                  (term
+                    (cast
+                      (field PLACEHOLDER_2) text))) PLACEHOLDER_4)
+              (term 0 PLACEHOLDER_5)))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "armstrong-numbers")))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_3) +
+                  (invocation
+                    (object_reference pow)
+                    (term
+                      (cast
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (cast
+                              (field PLACEHOLDER_2) text))
+                          (term
+                            (field PLACEHOLDER_5))
+                          (term 1))
+                        (int int)))
+                    (term
+                      (field PLACEHOLDER_4)))))
+              (term
+                (field PLACEHOLDER_4))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_5) + 1))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_5) <=
+                (field PLACEHOLDER_4)))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "armstrong-numbers")))
+      (assignment
+        (field result)
+        (binary_expression
+          (field PLACEHOLDER_3) =
+          (field
+            (object_reference PLACEHOLDER_1) PLACEHOLDER_2)))
+      (from
+        (relation
+          (object_reference PLACEHOLDER_1))
+        (where
+          (binary_expression
+            (field
+              (object_reference PLACEHOLDER_1) PLACEHOLDER_2) =
+            (field
+              (object_reference
+                (quoted_identifier "armstrong-numbers")) PLACEHOLDER_2)))))))

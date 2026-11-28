@@ -1,27 +1,94 @@
-DROP TABLE IF EXISTS "\"nucleotide-count\"" ;
-CREATE TABLE "\"nucleotide-count\"" (
-"\"strand\"" TEXT ,
-"\"result\"" TEXT
-CHECK ( NOT glob ( "\"*[^ACGT]*\"" , strand ))
-);
-. mode csv
-. import . / data . csv "\"nucleotide-count\""
-WITH chars ( ch ) AS (
-SELECT substr ( strand , value , 1 )
-FROM generate_series ( 1 , length ( strand ))
-), chars_enum ( ch ) AS (
-VALUES
-( 'A' ), ( 'C' ), ( 'G' ), ( 'T' )
-), char_count ( ch , cnt ) AS (
-SELECT e . ch , count ( c . ch )
-FROM chars_enum AS e
-LEFT JOIN chars AS c
-USING ( ch )
-GROUP BY e . ch
-)
-UPDATE "\"nucleotide-count\""
-SET result = (
-SELECT
-json_group_object ( ch , cnt )
-FROM char_count
-);
+(program
+  (statement
+    (drop_table if exists
+      (object_reference
+        (quoted_identifier "nucleotide-count"))))
+  (statement
+    (create_table
+      (object_reference
+        (quoted_identifier "nucleotide-count"))
+      (column_definitions
+        (column_definition
+          (quoted_identifier "strand") text)
+        (column_definition
+          (quoted_identifier "result") text check
+          (unary_expression not
+            (invocation
+              (object_reference glob)
+              (term
+                (quoted_identifier "*[^ACGT]*"))
+              (term
+                (field strand)))))))) ".mode csv" ".import ./data.csv \"nucleotide-count\""
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2
+      (statement
+        (select
+          (select_expression
+            (term
+              (invocation
+                (object_reference substr)
+                (term
+                  (field strand))
+                (term
+                  (field value))
+                (term 1)))))
+        (from
+          (relation
+            (invocation
+              (object_reference generate_series)
+              (term 1)
+              (term
+                (invocation
+                  (object_reference length)
+                  (term
+                    (field strand)))))))))
+    (cte PLACEHOLDER_3 PLACEHOLDER_2
+      (statement
+        (values
+          (list "A")
+          (list "C")
+          (list "G")
+          (list "T"))))
+    (cte PLACEHOLDER_4 PLACEHOLDER_2 PLACEHOLDER_5
+      (statement
+        (select
+          (select_expression
+            (term
+              (field
+                (object_reference PLACEHOLDER_6) PLACEHOLDER_2))
+            (term
+              (invocation
+                (object_reference count)
+                (term
+                  (field
+                    (object_reference PLACEHOLDER_7) PLACEHOLDER_2))))))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_3) PLACEHOLDER_6)
+          (join left
+            (relation
+              (object_reference PLACEHOLDER_1) PLACEHOLDER_7) using
+            (list
+              (column PLACEHOLDER_2)))
+          (group_by
+            (field
+              (object_reference PLACEHOLDER_6) PLACEHOLDER_2)))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "nucleotide-count")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference json_group_object)
+                  (term
+                    (field PLACEHOLDER_2))
+                  (term
+                    (field PLACEHOLDER_5))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))))))))

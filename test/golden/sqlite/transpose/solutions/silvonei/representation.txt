@@ -1,82 +1,377 @@
-UPDATE transpose
-SET result = (
-WITH RECURSIVE
-linhas_matriz AS (
-SELECT
-row_idx . key + 1 AS linha_idx ,
-row_idx . value AS linha_texto
-FROM transpose AS cr
-JOIN json_each ( '["' || REPLACE ( REPLACE ( cr . lines , CHAR ( 13 ), '' ), CHAR ( 10 ), '","' ) || '"]' ) AS row_idx
-WHERE cr . rowid = transpose . rowid
-),
-metadados AS (
-SELECT
-COALESCE ( MAX ( LENGTH ( linha_texto )), 0 ) AS max_colunas ,
-COALESCE ( MAX ( linha_idx ), 0 ) AS total_linhas
-FROM linhas_matriz
-),
-sequencia_colunas ( c_idx ) AS (
-SELECT 1 WHERE ( SELECT max_colunas FROM metadados ) > 0
-UNION ALL
-SELECT c_idx + 1 FROM sequencia_colunas WHERE c_idx < ( SELECT max_colunas FROM metadados )
-),
-sequencia_linhas ( r_idx ) AS (
-SELECT 1 WHERE ( SELECT total_linhas FROM metadados ) > 0
-UNION ALL
-SELECT r_idx + 1 FROM sequencia_linhas WHERE r_idx < ( SELECT total_linhas FROM metadados )
-),
-coordenadas_matriz AS (
-SELECT
-c . c_idx ,
-r . r_idx ,
-SUBSTR ( l . linha_texto , c . c_idx , 1 ) AS caractere ,
-EXISTS (
-SELECT 1
-FROM linhas_matriz l2
-WHERE l2 . linha_idx > r . r_idx
-AND LENGTH ( l2 . linha_texto ) >= c . c_idx
-) AS precisa_padding
-FROM sequencia_colunas c
-CROSS JOIN sequencia_linhas r
-LEFT JOIN linhas_matriz l ON l . linha_idx = r . r_idx
-),
-celulas_finais AS (
-SELECT
-c_idx ,
-r_idx ,
-CASE
-WHEN caractere <> '' THEN caractere
-WHEN precisa_padding THEN "' '"
-ELSE ''
-END AS char_final
-FROM coordenadas_matriz
-),
-juntador_horizontal ( c_idx , r_idx , texto_acumulado ) AS (
-SELECT c_idx , 1 , COALESCE ( char_final , '' )
-FROM celulas_finais
-WHERE r_idx = 1
-UNION ALL
-SELECT
-j . c_idx ,
-j . r_idx + 1 ,
-j . texto_acumulado || COALESCE ( c . char_final , '' )
-FROM juntador_horizontal j
-JOIN celulas_finais c ON c . c_idx = j . c_idx AND c . r_idx = j . r_idx + 1
-),
-novas_linhas_prontas AS (
-SELECT c_idx , texto_acumulado AS linha_completa
-FROM juntador_horizontal
-WHERE r_idx = ( SELECT total_linhas FROM metadados )
-),
-juntador_vertical ( c_idx , texto_final ) AS (
-SELECT 1 , ( SELECT linha_completa FROM novas_linhas_prontas WHERE c_idx = 1 )
-FROM metadados WHERE max_colunas > 0
-UNION ALL
-SELECT
-jv . c_idx + 1 ,
-jv . texto_final || CHAR ( 10 ) || n . linha_completa
-FROM juntador_vertical jv
-JOIN novas_linhas_prontas n ON n . c_idx = jv . c_idx + 1
-)
-SELECT COALESCE (( SELECT texto_final FROM juntador_vertical ORDER BY c_idx DESC LIMIT 1 ), '' )
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference transpose))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (binary_expression
+                      (field
+                        (object_reference PLACEHOLDER_2) key) + 1) PLACEHOLDER_3)
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_2) value) PLACEHOLDER_4)))
+              (from
+                (relation
+                  (object_reference transpose) PLACEHOLDER_5)
+                (join
+                  (relation
+                    (invocation
+                      (object_reference json_each)
+                      (term
+                        (binary_expression
+                          (binary_expression "[\"" ||
+                            (invocation
+                              (object_reference replace)
+                              (term
+                                (invocation
+                                  (object_reference replace)
+                                  (term
+                                    (field
+                                      (object_reference PLACEHOLDER_5) lines))
+                                  (term
+                                    (invocation
+                                      (object_reference char)
+                                      (term 13)))
+                                  (term "")))
+                              (term
+                                (invocation
+                                  (object_reference char)
+                                  (term 10)))
+                              (term "\",\""))) || "\"]"))) PLACEHOLDER_2))
+                (where
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_5) rowid) =
+                    (field
+                      (object_reference transpose) rowid))))))
+          (cte PLACEHOLDER_6
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference coalesce)
+                      (term
+                        (invocation
+                          (object_reference max)
+                          (term
+                            (invocation
+                              (object_reference length)
+                              (term
+                                (field PLACEHOLDER_4))))))
+                      (term 0)) PLACEHOLDER_7)
+                  (term
+                    (invocation
+                      (object_reference coalesce)
+                      (term
+                        (invocation
+                          (object_reference max)
+                          (term
+                            (field PLACEHOLDER_3))))
+                      (term 0)) PLACEHOLDER_8)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1)))))
+          (cte PLACEHOLDER_9 PLACEHOLDER_10
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)))
+                (where
+                  (binary_expression
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_7))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_6)))) > 0)) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_10) + 1))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_9))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_10) <
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_7))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_6))))))))))
+          (cte PLACEHOLDER_11 PLACEHOLDER_12
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)))
+                (where
+                  (binary_expression
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_8))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_6)))) > 0)) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_12) + 1))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_11))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_12) <
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_8))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_6))))))))))
+          (cte PLACEHOLDER_13
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_14) PLACEHOLDER_10))
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_15) PLACEHOLDER_12))
+                  (term
+                    (invocation
+                      (object_reference substr)
+                      (term
+                        (field
+                          (object_reference PLACEHOLDER_16) PLACEHOLDER_4))
+                      (term
+                        (field
+                          (object_reference PLACEHOLDER_14) PLACEHOLDER_10))
+                      (term 1)) PLACEHOLDER_17)
+                  (term
+                    (exists exists
+                      (subquery
+                        (select
+                          (select_expression
+                            (term 1)))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_1) PLACEHOLDER_18)
+                          (where
+                            (binary_expression
+                              (binary_expression
+                                (field
+                                  (object_reference PLACEHOLDER_18) PLACEHOLDER_3) >
+                                (field
+                                  (object_reference PLACEHOLDER_15) PLACEHOLDER_12)) and
+                              (binary_expression
+                                (invocation
+                                  (object_reference length)
+                                  (term
+                                    (field
+                                      (object_reference PLACEHOLDER_18) PLACEHOLDER_4))) >=
+                                (field
+                                  (object_reference PLACEHOLDER_14) PLACEHOLDER_10))))))) PLACEHOLDER_19)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_9) PLACEHOLDER_14)
+                (cross_join cross
+                  (relation
+                    (object_reference PLACEHOLDER_11) PLACEHOLDER_15))
+                (join left
+                  (relation
+                    (object_reference PLACEHOLDER_1) PLACEHOLDER_16) on
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_16) PLACEHOLDER_3) =
+                    (field
+                      (object_reference PLACEHOLDER_15) PLACEHOLDER_12))))))
+          (cte PLACEHOLDER_20
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field PLACEHOLDER_10))
+                  (term
+                    (field PLACEHOLDER_12))
+                  (term
+                    (case when
+                      (binary_expression
+                        (field PLACEHOLDER_17) != "") then
+                      (field PLACEHOLDER_17) when
+                      (field PLACEHOLDER_19) then " " else "") PLACEHOLDER_21)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_13)))))
+          (cte PLACEHOLDER_22 PLACEHOLDER_10 PLACEHOLDER_12 PLACEHOLDER_23
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_10))
+                    (term 1)
+                    (term
+                      (invocation
+                        (object_reference coalesce)
+                        (term
+                          (field PLACEHOLDER_21))
+                        (term "")))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_20))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_12) = 1))) union all
+                (select
+                  (select_expression
+                    (term
+                      (field
+                        (object_reference PLACEHOLDER_24) PLACEHOLDER_10))
+                    (term
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_24) PLACEHOLDER_12) + 1))
+                    (term
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_24) PLACEHOLDER_23) ||
+                        (invocation
+                          (object_reference coalesce)
+                          (term
+                            (field
+                              (object_reference PLACEHOLDER_14) PLACEHOLDER_21))
+                          (term ""))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_22) PLACEHOLDER_24)
+                  (join
+                    (relation
+                      (object_reference PLACEHOLDER_20) PLACEHOLDER_14) on
+                    (binary_expression
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_14) PLACEHOLDER_10) =
+                        (field
+                          (object_reference PLACEHOLDER_24) PLACEHOLDER_10)) and
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_14) PLACEHOLDER_12) =
+                        (binary_expression
+                          (field
+                            (object_reference PLACEHOLDER_24) PLACEHOLDER_12) + 1))))))))
+          (cte PLACEHOLDER_25
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field PLACEHOLDER_10))
+                  (term
+                    (field PLACEHOLDER_23) PLACEHOLDER_26)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_22))
+                (where
+                  (binary_expression
+                    (field PLACEHOLDER_12) =
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_8))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_6)))))))))
+          (cte PLACEHOLDER_27 PLACEHOLDER_10 PLACEHOLDER_28
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)
+                    (term
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_26))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_25))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_10) = 1)))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_6))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_7) > 0))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_29) PLACEHOLDER_10) + 1))
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (field
+                            (object_reference PLACEHOLDER_29) PLACEHOLDER_28) ||
+                          (invocation
+                            (object_reference char)
+                            (term 10))) ||
+                        (field
+                          (object_reference PLACEHOLDER_30) PLACEHOLDER_26)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_27) PLACEHOLDER_29)
+                  (join
+                    (relation
+                      (object_reference PLACEHOLDER_25) PLACEHOLDER_30) on
+                    (binary_expression
+                      (field
+                        (object_reference PLACEHOLDER_30) PLACEHOLDER_10) =
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_29) PLACEHOLDER_10) + 1)))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference coalesce)
+                  (term
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_28))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_27))
+                        (order_by
+                          (order_target
+                            (field PLACEHOLDER_10)
+                            (direction desc)))
+                        (limit 1))))
+                  (term ""))))))))))

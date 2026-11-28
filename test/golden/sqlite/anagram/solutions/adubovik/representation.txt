@@ -1,15 +1,124 @@
-WITH alpha ( c ) AS (
-SELECT char ( value ) FROM generate_series ( unicode ( 'a' ), unicode ( 'z' ))
-)
-UPDATE anagram
-SET result = (
-SELECT json_group_array ( value )
-FROM json_each ( candidates ) WHERE ( WITH
-a ( s ) AS ( SELECT lower ( subject )),
-b ( s ) AS ( SELECT lower ( value ))
-SELECT sum ( abs (
-length ( a . s ) - length ( replace ( a . s , c , '' )) -
-length ( b . s ) + length ( replace ( b . s , c , '' ))
-)) FROM alpha , a , b
-) = 0 AND lower ( subject ) <> lower ( value )
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2
+      (statement
+        (select
+          (select_expression
+            (term
+              (invocation
+                (object_reference char)
+                (term
+                  (field value))))))
+        (from
+          (relation
+            (invocation
+              (object_reference generate_series)
+              (term
+                (invocation
+                  (object_reference unicode)
+                  (term "a")))
+              (term
+                (invocation
+                  (object_reference unicode)
+                  (term "z"))))))))
+    (update
+      (relation
+        (object_reference anagram))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference json_group_array)
+                  (term
+                    (field value))))))
+          (from
+            (relation
+              (invocation
+                (object_reference json_each)
+                (term
+                  (field candidates))))
+            (where
+              (binary_expression
+                (binary_expression
+                  (subquery
+                    (cte PLACEHOLDER_3 PLACEHOLDER_4
+                      (statement
+                        (select
+                          (select_expression
+                            (term
+                              (invocation
+                                (object_reference lower)
+                                (term
+                                  (field subject))))))))
+                    (cte PLACEHOLDER_5 PLACEHOLDER_4
+                      (statement
+                        (select
+                          (select_expression
+                            (term
+                              (invocation
+                                (object_reference lower)
+                                (term
+                                  (field value))))))))
+                    (select
+                      (select_expression
+                        (term
+                          (invocation
+                            (object_reference sum)
+                            (term
+                              (invocation
+                                (object_reference abs)
+                                (term
+                                  (binary_expression
+                                    (binary_expression
+                                      (binary_expression
+                                        (invocation
+                                          (object_reference length)
+                                          (term
+                                            (field
+                                              (object_reference PLACEHOLDER_3) PLACEHOLDER_4))) -
+                                        (invocation
+                                          (object_reference length)
+                                          (term
+                                            (invocation
+                                              (object_reference replace)
+                                              (term
+                                                (field
+                                                  (object_reference PLACEHOLDER_3) PLACEHOLDER_4))
+                                              (term
+                                                (field PLACEHOLDER_2))
+                                              (term ""))))) -
+                                      (invocation
+                                        (object_reference length)
+                                        (term
+                                          (field
+                                            (object_reference PLACEHOLDER_5) PLACEHOLDER_4)))) +
+                                    (invocation
+                                      (object_reference length)
+                                      (term
+                                        (invocation
+                                          (object_reference replace)
+                                          (term
+                                            (field
+                                              (object_reference PLACEHOLDER_5) PLACEHOLDER_4))
+                                          (term
+                                            (field PLACEHOLDER_2))
+                                          (term ""))))))))))))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_1))
+                      (relation
+                        (object_reference PLACEHOLDER_3))
+                      (relation
+                        (object_reference PLACEHOLDER_5)))) = 0) and
+                (binary_expression
+                  (invocation
+                    (object_reference lower)
+                    (term
+                      (field subject))) !=
+                  (invocation
+                    (object_reference lower)
+                    (term
+                      (field value))))))))))))

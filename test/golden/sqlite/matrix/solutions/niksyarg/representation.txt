@@ -1,73 +1,309 @@
-WITH RECURSIVE
-rows_split AS (
-SELECT
-rowid AS matrix_id ,
-property ,
-"\"index\"" AS target_index ,
-1 AS row_num ,
-instr ( string || x '0a' , x '0a' ) AS pos ,
-substr ( string || x '0a' , 1 , instr ( string || x '0a' , x '0a' ) - 1 ) AS row_str ,
-substr ( string || x '0a' , instr ( string || x '0a' , x '0a' ) + 1 ) AS rest
-FROM matrix
-UNION ALL
-SELECT
-matrix_id ,
-property ,
-target_index ,
-row_num + 1 ,
-instr ( rest , x '0a' ),
-substr ( rest , 1 , instr ( rest , x '0a' ) - 1 ),
-substr ( rest , instr ( rest , x '0a' ) + 1 )
-FROM rows_split
-WHERE rest <> ''
-),
-rows_cleaned AS (
-SELECT matrix_id , property , target_index , row_num , trim ( row_str ) AS row_str
-FROM rows_split
-WHERE trim ( row_str ) <> ''
-),
-cells_split AS (
-SELECT
-matrix_id ,
-property ,
-target_index ,
-row_num ,
-1 AS col_num ,
-instr ( row_str || "' '" , "' '" ) AS pos ,
-substr ( row_str || "' '" , 1 , instr ( row_str || "' '" , "' '" ) - 1 ) AS cell_val ,
-substr ( row_str || "' '" , instr ( row_str || "' '" , "' '" ) + 1 ) AS rest
-FROM rows_cleaned
-UNION ALL
-SELECT
-matrix_id ,
-property ,
-target_index ,
-row_num ,
-col_num + 1 ,
-instr ( rest , "' '" ),
-substr ( rest , 1 , instr ( rest , "' '" ) - 1 ),
-substr ( rest , instr ( rest , "' '" ) + 1 )
-FROM cells_split
-WHERE rest <> ''
-),
-cells_cleaned AS (
-SELECT matrix_id , property , target_index , row_num , col_num , CAST ( trim ( cell_val ) AS INTEGER ) AS val
-FROM cells_split
-WHERE trim ( cell_val ) <> ''
-),
-final_json AS (
-SELECT
-matrix_id ,
-json_group_array ( val ) AS json_res
-FROM cells_cleaned
-WHERE
-( property = 'row' AND row_num = target_index ) OR
-( property = 'column' AND col_num = target_index )
-GROUP BY matrix_id
-)
-UPDATE matrix
-SET result = (
-SELECT json_res
-FROM final_json
-WHERE final_json . matrix_id = matrix . rowid
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field rowid) PLACEHOLDER_2)
+              (term
+                (field property))
+              (term
+                (quoted_identifier "index") PLACEHOLDER_3)
+              (term 1 PLACEHOLDER_4)
+              (term
+                (invocation
+                  (object_reference instr)
+                  (term
+                    (binary_expression
+                      (field string) || x'0a'))
+                  (term x'0a')) PLACEHOLDER_5)
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (binary_expression
+                      (field string) || x'0a'))
+                  (term 1)
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (binary_expression
+                            (field string) || x'0a'))
+                        (term x'0a')) - 1))) PLACEHOLDER_6)
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (binary_expression
+                      (field string) || x'0a'))
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (binary_expression
+                            (field string) || x'0a'))
+                        (term x'0a')) + 1))) PLACEHOLDER_7)))
+          (from
+            (relation
+              (object_reference matrix))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term
+                (field property))
+              (term
+                (field PLACEHOLDER_3))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_4) + 1))
+              (term
+                (invocation
+                  (object_reference instr)
+                  (term
+                    (field PLACEHOLDER_7))
+                  (term x'0a')))
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (field PLACEHOLDER_7))
+                  (term 1)
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (field PLACEHOLDER_7))
+                        (term x'0a')) - 1))))
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (field PLACEHOLDER_7))
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (field PLACEHOLDER_7))
+                        (term x'0a')) + 1))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_7) != ""))))))
+    (cte PLACEHOLDER_8
+      (statement
+        (select
+          (select_expression
+            (term
+              (field PLACEHOLDER_2))
+            (term
+              (field property))
+            (term
+              (field PLACEHOLDER_3))
+            (term
+              (field PLACEHOLDER_4))
+            (term
+              (invocation
+                (object_reference trim)
+                (term
+                  (field PLACEHOLDER_6))) PLACEHOLDER_6)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_1))
+          (where
+            (binary_expression
+              (invocation
+                (object_reference trim)
+                (term
+                  (field PLACEHOLDER_6))) != "")))))
+    (cte PLACEHOLDER_9
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term
+                (field property))
+              (term
+                (field PLACEHOLDER_3))
+              (term
+                (field PLACEHOLDER_4))
+              (term 1 PLACEHOLDER_10)
+              (term
+                (invocation
+                  (object_reference instr)
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_6) || " "))
+                  (term " ")) PLACEHOLDER_5)
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_6) || " "))
+                  (term 1)
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_6) || " "))
+                        (term " ")) - 1))) PLACEHOLDER_11)
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_6) || " "))
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_6) || " "))
+                        (term " ")) + 1))) PLACEHOLDER_7)))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_8))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term
+                (field property))
+              (term
+                (field PLACEHOLDER_3))
+              (term
+                (field PLACEHOLDER_4))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_10) + 1))
+              (term
+                (invocation
+                  (object_reference instr)
+                  (term
+                    (field PLACEHOLDER_7))
+                  (term " ")))
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (field PLACEHOLDER_7))
+                  (term 1)
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (field PLACEHOLDER_7))
+                        (term " ")) - 1))))
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (field PLACEHOLDER_7))
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (field PLACEHOLDER_7))
+                        (term " ")) + 1))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_9))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_7) != ""))))))
+    (cte PLACEHOLDER_12
+      (statement
+        (select
+          (select_expression
+            (term
+              (field PLACEHOLDER_2))
+            (term
+              (field property))
+            (term
+              (field PLACEHOLDER_3))
+            (term
+              (field PLACEHOLDER_4))
+            (term
+              (field PLACEHOLDER_10))
+            (term
+              (cast
+                (invocation
+                  (object_reference trim)
+                  (term
+                    (field PLACEHOLDER_11)))
+                (int integer)) PLACEHOLDER_13)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_9))
+          (where
+            (binary_expression
+              (invocation
+                (object_reference trim)
+                (term
+                  (field PLACEHOLDER_11))) != "")))))
+    (cte PLACEHOLDER_14
+      (statement
+        (select
+          (select_expression
+            (term
+              (field PLACEHOLDER_2))
+            (term
+              (invocation
+                (object_reference json_group_array)
+                (term
+                  (field PLACEHOLDER_13))) PLACEHOLDER_15)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_12))
+          (where
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (field property) = "row") and
+                (binary_expression
+                  (field PLACEHOLDER_4) =
+                  (field PLACEHOLDER_3))) or
+              (binary_expression
+                (binary_expression
+                  (field property) = "column") and
+                (binary_expression
+                  (field PLACEHOLDER_10) =
+                  (field PLACEHOLDER_3)))))
+          (group_by
+            (field PLACEHOLDER_2)))))
+    (update
+      (relation
+        (object_reference matrix))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_15))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_14))
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_14) PLACEHOLDER_2) =
+                (field
+                  (object_reference matrix) rowid)))))))))

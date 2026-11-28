@@ -1,7 +1,62 @@
-UPDATE "\"sum-of-multiples\""
-SET result = ( WITH series ( n , m ) AS (
-SELECT value , value FROM json_each ( factors ) WHERE value < "\"limit\""
-UNION ALL
-SELECT n , m + n from series WHERE m + n < "\"limit\"" AND n > 0
-) SELECT COALESCE ( sum ( DISTINCT m ), 0 ) FROM series
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "sum-of-multiples")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (field value))
+                    (term
+                      (field value))))
+                (from
+                  (relation
+                    (invocation
+                      (object_reference json_each)
+                      (term
+                        (field factors))))
+                  (where
+                    (binary_expression
+                      (field value) <
+                      (quoted_identifier "limit")))) union all
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_2))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_3) +
+                        (field PLACEHOLDER_2)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression
+                          (field PLACEHOLDER_3) +
+                          (field PLACEHOLDER_2)) <
+                        (quoted_identifier "limit")) and
+                      (binary_expression
+                        (field PLACEHOLDER_2) > 0)))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference coalesce)
+                  (term
+                    (invocation
+                      (object_reference sum) distinct
+                      (term
+                        (field PLACEHOLDER_3))))
+                  (term 0)))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))))))))

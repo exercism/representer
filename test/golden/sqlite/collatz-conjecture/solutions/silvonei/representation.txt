@@ -1,26 +1,89 @@
-UPDATE collatz
-SET steps = (
-WITH RECURSIVE
-contexto AS (
-SELECT
-number AS num_alvo
-FROM collatz AS sub
-WHERE sub . rowid = collatz . rowid
-),
-sequencia ( passo , valor_corrente ) AS (
-SELECT 0 , num_alvo
-FROM contexto
-WHERE num_alvo > 0
-UNION ALL
-SELECT
-passo + 1 ,
-IIF ( valor_corrente % 2 = 0 , valor_corrente / 2 , ( valor_corrente * 3 ) + 1 )
-FROM sequencia
-WHERE valor_corrente > 1
-)
-SELECT
-CASE
-WHEN ( SELECT num_alvo FROM contexto ) <= 0 THEN 1 / 0
-ELSE ( SELECT passo FROM sequencia ORDER BY passo DESC LIMIT 1 )
-END
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference collatz))
+      (assignment
+        (field steps)
+        (subquery
+          (cte PLACEHOLDER_1
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field number) PLACEHOLDER_2)))
+              (from
+                (relation
+                  (object_reference collatz) PLACEHOLDER_3)
+                (where
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_3) rowid) =
+                    (field
+                      (object_reference collatz) rowid))))))
+          (cte PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 0)
+                    (term
+                      (field PLACEHOLDER_2))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_2) > 0))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_5) + 1))
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (binary_expression
+                            (binary_expression
+                              (field PLACEHOLDER_6) % 2) = 0))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_6) / 2))
+                        (term
+                          (binary_expression
+                            (binary_expression
+                              (field PLACEHOLDER_6) * 3) + 1))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_4))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_6) > 1))))))
+          (select
+            (select_expression
+              (term
+                (case when
+                  (binary_expression
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_2))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_1)))) <= 0) then
+                  (binary_expression 1 / 0) else
+                  (subquery
+                    (select
+                      (select_expression
+                        (term
+                          (field PLACEHOLDER_5))))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_4))
+                      (order_by
+                        (order_target
+                          (field PLACEHOLDER_5)
+                          (direction desc)))
+                      (limit 1))))))))))))

@@ -222,7 +222,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | scala | Scala | 362 | 89 | 100 | 59 | 97 | 0 | 6 | 0 | 0 |
 | scheme | Scheme | 238 | 46 | 100 | 46 | 99 | 0 | 1 | 0 | 0 |
 | sml | Sml | 211 | 37 | 100 | 60 | 95 | 0 | 5 | 0 | 0 |
-| sqlite | Basic | 328 | 76 | 100 | 63 | 100 | 38 | 11 | 0 | 0 |
+| sqlite | Sqlite | 328 | 76 | 100 | 63 | 100 | 0 | 15 | 0 | 0 |
 | swift | Swift | 373 | 91 | 100 | 62 | 96 | 1 | 6 | 0 | 0 |
 | tcl | Basic | 370 | 90 | 100 | 91 | 54 | 5 | 0 | 0 | 0 |
 | typescript | TypeScript | 387 | 96 | 100 | 63 | 95 | 0 | 2 | 0 | 0 |

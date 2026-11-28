@@ -1,34 +1,216 @@
-UPDATE "\"binary-search\""
-SET result = ( WITH RECURSIVE
-tbl ( idx , n ) AS (
-SELECT j . key , j . value FROM json_each ( array ) as j
-),
-s ( idx , a , b , result ) AS (
-SELECT 0 , 0 , ( SELECT COUNT ( 1 ) FROM tbl ) - 1 , NULL
-UNION ALL
-SELECT idx + 1 ,
-( CASE
-WHEN ( SELECT n FROM tbl where tbl . idx = ( a + b ) / 2 ) < "\"value\""
-THEN ( a + b ) / 2 + 1
-WHEN ( SELECT n FROM tbl where tbl . idx = ( a + b ) / 2 ) == "\"value\""
-THEN ( a + b ) / 2
-ELSE
-a
-END ),
-( CASE
-WHEN ( SELECT n FROM tbl where tbl . idx = ( a + b ) / 2 ) < "\"value\""
-THEN b
-WHEN ( SELECT n FROM tbl where tbl . idx = ( a + b ) / 2 ) == "\"value\""
-THEN ( a + b ) / 2
-ELSE
-( a + b ) / 2 - 1
-END ),
-IIF (( SELECT n FROM tbl where tbl . idx = ( a + b ) / 2 ) == "\"value\"" , ( a + b ) / 2 , NULL )
-FROM s
-WHERE result IS NULL AND a <= b
-)
-SELECT result FROM s WHERE idx = ( SELECT max ( idx ) FROM s )
-);
-UPDATE "\"binary-search\""
-SET error = "\"value" not in array"
-WHERE result IS NULL ;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "binary-search")))
+      (assignment
+        (field PLACEHOLDER_1)
+        (subquery
+          (cte PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_5) key))
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_5) value))))
+              (from
+                (relation
+                  (invocation
+                    (object_reference json_each)
+                    (term
+                      (field array))) PLACEHOLDER_5))))
+          (cte PLACEHOLDER_6 PLACEHOLDER_3 PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_1
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 0)
+                    (term 0)
+                    (term
+                      (binary_expression
+                        (subquery
+                          (select
+                            (select_expression
+                              (term
+                                (invocation
+                                  (object_reference count)
+                                  (term 1)))))
+                          (from
+                            (relation
+                              (object_reference PLACEHOLDER_2)))) - 1))
+                    (term null))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_3) + 1))
+                    (term
+                      (case when
+                        (binary_expression
+                          (subquery
+                            (select
+                              (select_expression
+                                (term
+                                  (field PLACEHOLDER_4))))
+                            (from
+                              (relation
+                                (object_reference PLACEHOLDER_2))
+                              (where
+                                (binary_expression
+                                  (field
+                                    (object_reference PLACEHOLDER_2) PLACEHOLDER_3) =
+                                  (binary_expression
+                                    (binary_expression
+                                      (field PLACEHOLDER_7) +
+                                      (field PLACEHOLDER_8)) / 2))))) <
+                          (quoted_identifier "value")) then
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (field PLACEHOLDER_7) +
+                              (field PLACEHOLDER_8)) / 2) + 1) when
+                        (binary_expression
+                          (subquery
+                            (select
+                              (select_expression
+                                (term
+                                  (field PLACEHOLDER_4))))
+                            (from
+                              (relation
+                                (object_reference PLACEHOLDER_2))
+                              (where
+                                (binary_expression
+                                  (field
+                                    (object_reference PLACEHOLDER_2) PLACEHOLDER_3) =
+                                  (binary_expression
+                                    (binary_expression
+                                      (field PLACEHOLDER_7) +
+                                      (field PLACEHOLDER_8)) / 2))))) =
+                          (quoted_identifier "value")) then
+                        (binary_expression
+                          (binary_expression
+                            (field PLACEHOLDER_7) +
+                            (field PLACEHOLDER_8)) / 2) else
+                        (field PLACEHOLDER_7)))
+                    (term
+                      (case when
+                        (binary_expression
+                          (subquery
+                            (select
+                              (select_expression
+                                (term
+                                  (field PLACEHOLDER_4))))
+                            (from
+                              (relation
+                                (object_reference PLACEHOLDER_2))
+                              (where
+                                (binary_expression
+                                  (field
+                                    (object_reference PLACEHOLDER_2) PLACEHOLDER_3) =
+                                  (binary_expression
+                                    (binary_expression
+                                      (field PLACEHOLDER_7) +
+                                      (field PLACEHOLDER_8)) / 2))))) <
+                          (quoted_identifier "value")) then
+                        (field PLACEHOLDER_8) when
+                        (binary_expression
+                          (subquery
+                            (select
+                              (select_expression
+                                (term
+                                  (field PLACEHOLDER_4))))
+                            (from
+                              (relation
+                                (object_reference PLACEHOLDER_2))
+                              (where
+                                (binary_expression
+                                  (field
+                                    (object_reference PLACEHOLDER_2) PLACEHOLDER_3) =
+                                  (binary_expression
+                                    (binary_expression
+                                      (field PLACEHOLDER_7) +
+                                      (field PLACEHOLDER_8)) / 2))))) =
+                          (quoted_identifier "value")) then
+                        (binary_expression
+                          (binary_expression
+                            (field PLACEHOLDER_7) +
+                            (field PLACEHOLDER_8)) / 2) else
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (field PLACEHOLDER_7) +
+                              (field PLACEHOLDER_8)) / 2) - 1)))
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (binary_expression
+                            (subquery
+                              (select
+                                (select_expression
+                                  (term
+                                    (field PLACEHOLDER_4))))
+                              (from
+                                (relation
+                                  (object_reference PLACEHOLDER_2))
+                                (where
+                                  (binary_expression
+                                    (field
+                                      (object_reference PLACEHOLDER_2) PLACEHOLDER_3) =
+                                    (binary_expression
+                                      (binary_expression
+                                        (field PLACEHOLDER_7) +
+                                        (field PLACEHOLDER_8)) / 2))))) =
+                            (quoted_identifier "value")))
+                        (term
+                          (binary_expression
+                            (binary_expression
+                              (field PLACEHOLDER_7) +
+                              (field PLACEHOLDER_8)) / 2))
+                        (term null)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_6))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (field PLACEHOLDER_1) is null) and
+                      (binary_expression
+                        (field PLACEHOLDER_7) <=
+                        (field PLACEHOLDER_8))))))))
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_1))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_6))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_3) =
+                (subquery
+                  (select
+                    (select_expression
+                      (term
+                        (invocation
+                          (object_reference max)
+                          (term
+                            (field PLACEHOLDER_3))))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_6)))))))))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "binary-search")))
+      (assignment
+        (field error)
+        (quoted_identifier "value not in array"))
+      (where
+        (binary_expression
+          (field PLACEHOLDER_1) is null)))))

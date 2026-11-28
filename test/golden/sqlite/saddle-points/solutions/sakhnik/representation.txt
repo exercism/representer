@@ -1,20 +1,129 @@
-update "\"saddle-points\""
-set result = (
-with
-dims ( width , height ) as (
-select json_array_length ( matrix ->> 0 ), json_array_length ( matrix )
-),
-maximums ( row , max_height ) as (
-select s1 . value , ( select max ( value ) from json_each ( matrix ->> s1 . value ))
-from dims
-join generate_series ( 0 , height - 1 ) as s1
-),
-minimums ( col , min_height ) as (
-select s1 . value , ( select min ( matrix ->> s2 . value ->> s1 . value ) from dims join generate_series ( 0 , height - 1 ) as s2 )
-from dims
-join generate_series ( 0 , width - 1 ) as s1
-)
-select json_group_array ( json_object ( 'row' , row + 1 , 'column' , col + 1 ))
-from minimums
-join maximums on min_height = max_height
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "saddle-points")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference json_array_length)
+                      (term
+                        (binary_expression
+                          (field matrix) ->> 0))))
+                  (term
+                    (invocation
+                      (object_reference json_array_length)
+                      (term
+                        (field matrix))))))))
+          (cte PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_7) value))
+                  (term
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (invocation
+                              (object_reference max)
+                              (term
+                                (field value))))))
+                      (from
+                        (relation
+                          (invocation
+                            (object_reference json_each)
+                            (term
+                              (binary_expression
+                                (field matrix) ->>
+                                (field
+                                  (object_reference PLACEHOLDER_7) value))))))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1))
+                (join
+                  (relation
+                    (invocation
+                      (object_reference generate_series)
+                      (term 0)
+                      (term
+                        (binary_expression
+                          (field PLACEHOLDER_3) - 1))) PLACEHOLDER_7)))))
+          (cte PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_7) value))
+                  (term
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (invocation
+                              (object_reference min)
+                              (term
+                                (binary_expression
+                                  (binary_expression
+                                    (field matrix) ->>
+                                    (field
+                                      (object_reference PLACEHOLDER_11) value)) ->>
+                                  (field
+                                    (object_reference PLACEHOLDER_7) value)))))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_1))
+                        (join
+                          (relation
+                            (invocation
+                              (object_reference generate_series)
+                              (term 0)
+                              (term
+                                (binary_expression
+                                  (field PLACEHOLDER_3) - 1))) PLACEHOLDER_11)))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1))
+                (join
+                  (relation
+                    (invocation
+                      (object_reference generate_series)
+                      (term 0)
+                      (term
+                        (binary_expression
+                          (field PLACEHOLDER_2) - 1))) PLACEHOLDER_7)))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference json_group_array)
+                  (term
+                    (invocation
+                      (object_reference json_object)
+                      (term "row")
+                      (term
+                        (binary_expression
+                          (field PLACEHOLDER_5) + 1))
+                      (term "column")
+                      (term
+                        (binary_expression
+                          (field PLACEHOLDER_9) + 1))))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_8))
+            (join
+              (relation
+                (object_reference PLACEHOLDER_4)) on
+              (binary_expression
+                (field PLACEHOLDER_10) =
+                (field PLACEHOLDER_6)))))))))

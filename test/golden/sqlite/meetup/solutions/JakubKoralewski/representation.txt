@@ -1,15 +1,33 @@
-UPDATE meetup SET result = date ( year || '-' || IIF ( month < 10 , '0' , '' ) || month || '-01' , CASE week
-WHEN 'teenth' THEN "'+12 days'"
-WHEN 'first' THEN "'+0 days'"
-WHEN 'second' THEN "'+7 days'"
-WHEN 'third' THEN "'+14 days'"
-WHEN 'fourth' THEN "'+21 days'"
-WHEN 'last' THEN "'+1 month'"
-ELSE "'+0 days'" END , CASE WEEK WHEN 'last' THEN "'-7 days'" ELSE "'+0 days'" END , "'weekday '" || CASE dayofweek
-WHEN 'Sunday' THEN 0
-WHEN 'Monday' THEN 1
-WHEN 'Tuesday' THEN 2
-WHEN 'Wednesday' THEN 3
-WHEN 'Thursday' THEN 4
-WHEN 'Friday' THEN 5
-WHEN 'Saturday' THEN 6 END )
+(program
+  (statement
+    (update
+      (relation
+        (object_reference meetup))
+      (assignment
+        (field result)
+        (invocation
+          (object_reference date)
+          (term
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (field year) || "-") ||
+                  (invocation
+                    (object_reference iif)
+                    (term
+                      (binary_expression
+                        (field month) < 10))
+                    (term "0")
+                    (term ""))) ||
+                (field month)) || "-01"))
+          (term
+            (case
+              (field week) when "teenth" then "+12 days" when "first" then "+0 days" when "second" then "+7 days" when "third" then "+14 days" when "fourth" then "+21 days" when "last" then "+1 month" else "+0 days"))
+          (term
+            (case
+              (field week) when "last" then "-7 days" else "+0 days"))
+          (term
+            (binary_expression "weekday " ||
+              (case
+                (field dayofweek) when "Sunday" then 0 when "Monday" then 1 when "Tuesday" then 2 when "Wednesday" then 3 when "Thursday" then 4 when "Friday" then 5 when "Saturday" then 6))))))))
