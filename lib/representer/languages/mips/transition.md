@@ -19,6 +19,17 @@ For MIPS, these are the changes:
 The representation starts at version 6, one above Basic's version 5.
 If a solution doesn't parse, it still gets Basic's representation, now with version 6.
 
+## Spellings that share a representation
+
+The assembler reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Operands split by spaces or by commas: `addi $t0 $zero 400` → `addi $t0, $zero, 400`.
+- Number spelling: `0x1F` → `31`, `010` → `8` and `1.50` → `1.5`.
+- An escape and the character it stands for: `"a\n"` → `"a` followed by a line break and `"`.
+- A space before the brackets of a macro call: `store ('A')` → `store('A')`.
+- Brackets after a macro with no arguments: `clear()` → `clear`.
+- A space before a label's colon: `loop :` → `loop:`.
+
 ## Analysis
 
 This service doesn't make MIPS analyses yet, and MIPS had no analyzer, so there is nothing to compare.

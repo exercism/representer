@@ -16,8 +16,15 @@ The steps are:
 ## The goal
 
 Every solution that the representer sees passes its tests.
-So the representer can throw away any code that makes no difference to the solution working, such as comments, imports, brackets that only group, and the way a number or a string is written. A merge of solutions that differ in only these ways (names, whitespace, comments, imports, quote style, how a number is written, brackets that only group) is accepted in `differences.yml`; any other kind of difference stays undecided until iHiD decides.
+So the representer can throw away any code that makes no difference to the solution working, such as comments, imports, brackets that only group, and the way a number or a string is written.
 Two solutions that differ only in such code would pass the same tests in the same way, and a mentor would give them the same feedback.
+
+The same goes for two spellings that the language's own parser reads as the same program, such as an optional trailing comma or `;`, braces around a single statement, or keyword case in a case-insensitive language.
+Each language's `transition.md` lists the spellings that its representation treats as the same, in a section called "Spellings that share a representation" (see [Dart's](./lib/representer/languages/dart/transition.md#spellings-that-share-a-representation), for example).
+If you make the representation treat another pair of spellings as the same, add it to that list.
+
+A merge is accepted in `differences.yml` if the solutions differ only in names, whitespace, comments, imports, quote style, how a number is written, brackets that only group, or spellings listed in the language's `transition.md`.
+Any other kind of difference stays undecided until iHiD decides.
 
 Two solutions should get the same representation if a mentor would give them the same feedback, and different representations otherwise.
 A merge is only harmful if a mentor would comment differently on the two solutions.

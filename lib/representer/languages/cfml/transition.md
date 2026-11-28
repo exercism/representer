@@ -21,6 +21,23 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+A CFML engine's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- The case of names and keywords: `PUBLIC FUNCTION f()` → `public function f()`, and `ArrayLen(a)` → `arraylen(a)`.
+- Quote style: `'you'` → `"you"`.
+- A doubled quote and the quote it stands for: `'it''s'` → `"it's"`.
+- The `#` around an expression outside a string: `return #a#;` → `return a;`.
+- A `;` after the last statement: `return a` → `return a;`.
+- An empty statement: `a = 1; ; return a;` → `a = 1; return a;`.
+- Brackets that only group, including around a whole `return` expression: `return (a + b);` → `return a + b;`, and `(a * b) + 1` → `a * b + 1`.
+- Word operators and their symbols, in any case: `a AND b` → `a && b`, `a OR b` → `a || b`, `NOT a` → `!a`, `a MOD b` → `a % b`, `a EQ b` and `a IS b` → `a == b`, `a NEQ b`, `a IS NOT b` and `a <> b` → `a != b`, `a LT b` and `a LESS THAN b` → `a < b`, `a LTE b` and `a LE b` → `a <= b`, `a GT b` and `a GREATER THAN b` → `a > b`, `a GTE b` → `a >= b`, and `a CT b` → `a CONTAINS b`.
+- `elseif` and `else if`: `} elseif (b) {` → `} else if (b) {`.
+- Brackets around a lone arrow function parameter: `x => x` → `(x) => x`.
+- `=` and `:` in a struct literal: `{a = 1, "b" = 2}` → `{a: 1, "b": 2}`.
+- Number spelling: `010` → `10`, `1.50` → `1.5` and `1e3` → `1000.0`.
+
 ## Analysis
 
 This service doesn't make CFML analyses yet, and CFML had no analyzer, so there is nothing to compare.

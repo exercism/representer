@@ -19,6 +19,21 @@ These things change for D:
 
 The representation's version is 6, one above Basic's version 5, so the website will represent every D solution again.
 
+## Spellings that share a representation
+
+D's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `` `a` `` → `"a"`, and `q{a < b}` → `"a < b"`.
+- A raw string and its escaped spelling: `r"a\b"` → `"a\\b"`.
+- An escape and the character it stands for: `"\x41"` → `"A"`, and `"\u0041"` → `"A"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0b11` → `3`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(y % 4 == 0) && b` → `y % 4 == 0 && b`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, `g(1, 2,)` → `g(1, 2)`, and `enum E { A, B, }` → `enum E { A, B }`.
+- A `;` after a function: `int f() { return 1; };` → `int f() { return 1; }`.
+- A body after `=>`: `int f() => 1;` → `int f() { return 1; }`.
+- Brackets around a function literal's single parameter: `(x) => x * 2` → `x => x * 2`.
+- Brackets around a single template argument: `to!int` → `to!(int)`.
+
 ## Analysis
 
 This service doesn't make D analyses yet, and D had no analyzer before.

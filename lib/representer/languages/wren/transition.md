@@ -13,6 +13,17 @@ It differs from the old representer in the decisions that apply to every languag
 - **Brackets and braces.** The old representer kept every bracket. This one drops brackets that only group, so `(a + b)` is `a + b`, and puts braces around the body of each `if`, `else`, `while` and `for`, so `if (a) b()` is `if (a) { b() }`.
 - **Maps.** Both representers sort the entries of a map literal. The old representer sorted them by the text of each key. This one sorts them by their code, with the renamed names left out.
 
+## Spellings that share a representation
+
+Wren's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- A raw string and its plain spelling: `"""you"""` → `"you"`, and `"""a\n"""` → `"a\\n"`.
+- An escape in a string and the character it stands for: `"\u0041"` → `"A"`, and `"a\nb"` → the string with a real line break.
+- Number spelling: `0x1F` → `31`, `1.50` → `1.5`, `1e3` → `1000` and `1.0` → `1`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`.
+- Braces around the body of an `if`, `else`, `while` or `for`: `if (a) return 1` → `if (a) { return 1 }`, and `else if (c) return 2` → `else { if (c) { return 2 } }`.
+
 ## Analysis
 
 This service doesn't make Wren analyses yet, and Wren has no old analyzer to compare with.

@@ -21,6 +21,17 @@ For PureScript, these are the changes:
 The representation starts at version 6, one above Basic's version 5.
 If a solution doesn't parse, it still gets Basic's representation, now with version 6.
 
+## Spellings that share a representation
+
+PureScript's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Unicode symbols: `∷` → `::`, `→` → `->`, `∀` → `forall`, `⇒` → `=>` and `←` → `<-`.
+- Quote style: `"""you"""` → `"you"`.
+- An escape and the character it stands for: `"a\"b"` → `"""a"b"""`.
+- Number spelling: `1_000` → `1000`, `0xFF` → `255`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `g ((h x))` → `g (h x)`, and `-(x)` → `-x`.
+- A record pun: `{ x }` → `{ x: x }`.
+
 ## Analysis
 
 This service doesn't make PureScript analyses yet, and PureScript had no analyzer, so there is nothing to compare.

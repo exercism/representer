@@ -22,6 +22,20 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+jq's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- A field and an index with a string: `.a` → `.["a"]`, `."a b"` → `.["a b"]`, and `.a.b` → `.a["b"]`.
+- Quotes around an object key: `{a: 1}` → `{"a": 1}`.
+- A key given on its own: `{a}` → `{a: .a}`, `{"a"}` → `{a: .a}`, and `{$a}` → `{a: $a}`, also in a pattern, so `. as {$a}` → `. as {a: $a}`.
+- `?` and `try`: `.a?` → `try .a`.
+- `elif` and an `if` inside the `else`: `if . then 1 elif . then 2 else 3 end` → `if . then 1 else if . then 2 else 3 end end`.
+- An `if` without an `else`: `if . then 1 end` → `if . then 1 else . end`.
+- An escape and the character it stands for: `"a\nb"` → the string with a real line break.
+- Number spelling: `.8` → `0.8`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `{a: (.b)}` → `{a: .b}`, and `. * (2)` → `. * 2`.
+
 ## Analysis
 
 This service doesn't make jq analyses yet, and jq had no analyzer, so there is nothing to compare.

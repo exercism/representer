@@ -19,6 +19,21 @@ It differs from the old representer in the decisions that apply to every languag
 - A solution with a syntax error, such as a missing bracket, gets Basic's representation, which only drops comments and formatting. The old representer gave SBCL's reader error as the representation.
 - `#.` forms are represented like any other code. The old representer refused them, because SBCL's reader would run them.
 
+## Spellings that share a representation
+
+Common Lisp's reader reads each of these pairs as the same forms, so the representer gives them the same representation:
+
+- Symbol case: `(CAR x)` → `(car x)`, and `:Key` → `:key`.
+- A quote mark and the form it stands for: `'(1 2)` → `(quote (1 2))`, and `#'car` → `(function car)`.
+- `#'` before a lambda: `#'(lambda (y) y)` → `(lambda (y) y)`.
+- The spellings of `nil`: `NIL`, `()`, `'()` and `'nil` → `nil`.
+- The `cl` package on a symbol: `cl:car` and `common-lisp:car` → `car`.
+- The name of the standard package: `:common-lisp` → `:cl`.
+- `#:` before a keyword: `#:p` → `:p`.
+- An optional parameter with no default: `&optional (n nil)` and `&optional (n)` → `&optional n`.
+- An escape in a string and the character it stands for: `"a\b"` → `"ab"`.
+- Number spelling: `#x1F` → `31`, `#b101` → `5`, `#o17` → `15`, `+7` → `7`, `7.` → `7`, `2/4` → `1/2`, `4/2` → `2`, `1.50` → `1.5` and `1e3` → `1000.0`.
+
 ## Analysis
 
 This service doesn't make Common Lisp analyses yet, so there is nothing to compare with the old analyzer (`exercism/common-lisp-analyzer`).

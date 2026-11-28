@@ -14,6 +14,28 @@ It matches what the old representer did, apart from the decisions that apply to 
 - Each number is written as its value, so `0x10` and `16` are the same. The old representer kept the base a number was written in.
 - An escape for a byte above 127, such as `"\xFF"`, keeps its text. The old representer read it as a byte, so it merged `"\xFF"` and `"\377"`.
 
+## Spellings that share a representation
+
+PHP's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'you'` → `"you"`, and `'it\'s'` → `"it's"`.
+- A heredoc or nowdoc and the same string in quotes: `<<<END` with the line `you` → `"you"`, and `<<<'END'` with the line `you` → `'you'`.
+- An escape and the character it stands for: `"\x41"` → `"A"`, `"\101"` → `"A"` and `"\u{41}"` → `"A"`.
+- Braces around a variable in a string: `"a${a}"` → `"a$a"`, and `"a{$a}"` → `"a$a"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `017` → `15`, `0o17` → `15`, `0b101` → `5`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `($a * $b) + $c` → `$a * $b + $c`.
+- The two ways to write an array: `array(1, 2)` → `[1, 2]`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, and `g($a, $b,)` → `g($a, $b)`.
+- An empty statement: `return 1;;` → `return 1;`.
+- Braces around the body of `if`, `else` and loops: `if ($a) return 1;` → `if ($a) { return 1; }`.
+- A `\` before a global function or class name: `\strlen($a)` → `strlen($a)`, and `new \DateTime()` → `new DateTime()`.
+- Empty brackets after `new`: `new DateTime` → `new DateTime()`.
+- The case of a function name: `STRLEN($a)` → `strlen($a)`.
+- The ways to end the program: `exit;` → `exit();`, and `die("x");` → `exit("x");`.
+- The other names of a cast: `(integer)` → `(int)`, `(boolean)` → `(bool)` and `(DOUBLE)` → `(float)`.
+
+The representer also gives the same representation to some code that PHP's parser reads differently, because the code works the same way: a function alias and its main name (`sizeof($a)` → `count($a)`), a method's visibility and `final` (`private function g()` → `public function g()`), and a string with code in it and the matching concatenation (`"a $a"` → `'a ' . $a`).
+
 ## Analysis
 
 This service doesn't make PHP analyses yet, so there is nothing to compare with the old analyzer (`exercism/php-analyzer`).

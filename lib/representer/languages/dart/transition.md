@@ -16,6 +16,18 @@ These things change for Dart:
 
 The representation's version is 6, one above Basic's version 5, so the website will represent every Dart solution again.
 
+## Spellings that share a representation
+
+Dart's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'you'` → `"you"`, and `'''you'''` → `'you'`.
+- A raw string and its escaped spelling: `r'a\n'` → `'a\\n'`.
+- An escape and the character it stands for: `'\x41'` → `'A'`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `010` → `10`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, and `f(a, b,)` → `f(a, b)`.
+- Braces around a name in a string: `'$name'` → `'${name}'`.
+
 ## Analysis
 
 This service doesn't make Dart analyses yet, and Dart has no old analyzer to compare with.

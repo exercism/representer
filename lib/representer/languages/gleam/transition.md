@@ -15,6 +15,15 @@ This service applies the decisions that apply to every language, which [README.m
 - **Labelled arguments.** `f(age:)` is written as `f(age: age)`, and `Circle(radius:)` in a pattern as `Circle(radius: radius)`, because Gleam reads them the same way.
 - **Numbers and strings.** Each number is written as its value, so `1_000`, `0x3E8` and `1000` are the same, and `1.50` and `1.5` are the same. Each string is written as its value, so `"\u{41}"` and `"A"` are the same.
 
+## Spellings that share a representation
+
+Gleam's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- An escape and the character it stands for: `"\u{41}"` → `"A"`, and `"a\nb"` → the string with a real line break.
+- Number spelling: `1_000` → `1000`, `0x3E8` → `1000`, `0b11` → `3`, `0o10` → `8`, `1.50` → `1.5` and `1.0e3` → `1000.0`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, and `g(a, b,)` → `g(a, b)`.
+- A labelled argument without a value: `g(age:)` → `g(age: age)`.
+
 ## Analysis
 
 This service doesn't make Gleam analyses yet, so there is nothing to compare with an old analyzer.

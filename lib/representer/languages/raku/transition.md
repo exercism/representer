@@ -17,6 +17,17 @@ It differs from the old representer in the decisions that apply to every languag
 - A Num, such as `1e3`, keeps its text, and a Rat, such as `1.50`, is written as its value (`1.5`).
 - A solution with a syntax error gets Basic's representation, which only drops comments and formatting.
 
+## Spellings that share a representation
+
+Raku's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'you'` → `"you"`, and `‘you’` → `'you'`.
+- An escape and the character it stands for: `'it\'s'` → `"it's"`, and `"a\$b"` → `'a$b'`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31` and `1.50` → `1.5`.
+- Brackets that only group: `($a * $b) + $c` → `$a * $b + $c`.
+- A statement modifier and its block: `say $x if $y;` → `if $y { say $x }`, and the same for `unless` and `for`.
+- A `;` after the last statement: `say 1;` → `say 1`, and `{ say $x; }` → `{ say $x }`.
+
 ## Analysis
 
 This service doesn't make Raku analyses yet, so there is nothing to compare with an old analyzer.

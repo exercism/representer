@@ -17,6 +17,21 @@ It matches what the old representer did, apart from the decisions that apply to 
 - A string keeps its escapes as they are written, so `"a\nb"` and a string with a real line break stay apart. A ratio, a number in another base and a number with a suffix keep their text, so `2/4` and `1/2` stay apart. The old representer printed the values that the reader gave.
 - The items of a set, and the entries of a map, are sorted if they are all strings, characters, numbers or keywords. Every other set and map keeps its order. The old representer printed every set in the order of its items' hashes, and kept the order of a map with up to eight entries.
 
+## Spellings that share a representation
+
+Clojure's reader reads each of these pairs as the same forms, and Clojure expands the macros in them to the same code, so the representer gives them the same representation:
+
+- A reader macro and the form it stands for: `@x` → `(deref x)`, `'x` → `(quote x)` and `#'x` → `(var x)`.
+- An anonymous function and `fn`: `#(inc %)` → `(fn [z] (inc z))`, and `%` → `%1`.
+- `defn` and a `def` of a function: `(defn f [x] x)` → `(def f (fn [x] x))`, and `defn-` → `defn`.
+- A top-level `comment` form and no form: `(comment (f 1))` → nothing.
+- A core macro and the code it expands to: `(-> x inc (+ y))` → `(+ (inc x) y)`, `(->> x (map inc))` → `(map inc x)`, `(when x y)` → `(if x (do y))`, `(if-not x y)` → `(if (not x) y nil)` and `(cond x 1 :else 2)` → `(if x 1 (if :else 2 nil))`.
+- Commas: `[1, 2]` → `[1 2]`.
+- The order of a set's items and a map's entries, if they are all strings, characters, numbers or keywords: `#{2 1}` → `#{1 2}`, and `{:b 1 :a 2}` → `{:a 2 :b 1}`.
+- Number spelling: `0x1F` → `31`, `017` → `15`, `0.90` → `0.9` and `1e3` → `1000.0`.
+
+The representer also drops metadata and docstrings, which the reader keeps: `(defn ^:private f [^long x] x)` → `(defn f [x] x)`, `(defn f "Adds." [x] x)` → `(defn f [x] x)`, and `(ns app "Doc.")` → `(ns app)`.
+
 ## Analysis
 
 This service doesn't make Clojure analyses yet, so there is nothing to compare with the old analyzer (`exercism/clojure-analyzer`).

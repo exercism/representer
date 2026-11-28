@@ -11,6 +11,35 @@ It matches what the old representer did, apart from the decisions that apply to 
 - Only the escapes used in the golden data are read (`\n`, `\t`, `\s`, `\e`, `\0`, `\\`, `\"`, `\'` and `\#`). The old representer read every escape, so it merged `"\x41"` and `"A"`, which stay apart here.
 - `|a,|` and `|a|` stay apart, because `|a,|` takes an array's first element. The old representer merged them, which was a bug.
 
+## Spellings that share a representation
+
+Ruby's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'you'` → `"you"`, `%q(you)` → `'you'`, `%Q(you)` → `"you"` and `?a` → `"a"`.
+- An escape and the character it stands for: `'a\'b'` → `"a'b"`, and `"a\sb"` → `"a b"`.
+- A heredoc and the string it makes: `<<~TEXT` with the indented line `hello` → `"hello\n"`.
+- Symbol spelling: `:"a"` → `:a`.
+- Word lists: `%w[a b]` → `["a", "b"]`, and `%i[a b]` → `[:a, :b]`.
+- Hash keys: `{:a => 1}` → `{a: 1}`, `{"a": 1}` → `{a: 1}` and `{a:}` → `{a: a}`.
+- Regex spelling: `%r{a}` → `/a/`, and `/a/mi` → `/a/im`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `037` → `31`, `0o37` → `31`, `0b11` → `3`, `0d10` → `10`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- Brackets around a call's arguments: `puts(x)` → `puts x`, and `a.b()` → `a.b`.
+- Empty brackets after a method's name: `def f()` → `def f`.
+- `::` before a method: `A::b` → `A.b`.
+- An implicit `call`: `f.(x)` → `f.call(x)`.
+- A modifier and its block: `x = 1 if y` → `if y` with `x = 1` inside, and the same for `unless`, `while` and `until`.
+- A ternary and its `if`: `y ? a : b` → `if y then a else b end`.
+- `elsif` and an `if` inside `else`: `elsif c` → `else` with `if c` inside.
+- `unless` with an `else` and the `if` with its branches swapped: `unless x then a else b end` → `if x then b else a end`.
+- The word operators: `(a and b)` → `(a && b)`, `(a or b)` → `(a || b)` and `not a` → `!a`.
+- Block style: `do |x| ... end` → `{ |x| ... }`.
+- A stabby lambda: `->(a) { a }` → `lambda { |a| a }`.
+- An endless method: `def f = 1` → `def f` with `1` in its body.
+- `then` after a condition: `if a then b end` → `if a` with `b` on the next line.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`.
+- A `;` at the end of a statement: `x = 1;` → `x = 1`.
+
 ## Analysis
 
 The analysis replaces the old Ruby analyzer (`exercism/ruby-analyzer`), for two-fer, leap, high-scores and acronym.

@@ -15,6 +15,26 @@ It makes the decisions that apply to every language, which [README.md](../../../
 - **Numbers.** Basic kept each number as written. This representer writes each number as its value, so `1_000` and `1000` are the same, and so are `0x1F` and `31`. A `Long`, a `Float` and a `Double` with a suffix keep it, so `1`, `1L`, `1.0f` and `1.0d` stay apart.
 - **Errors.** A solution that tree-sitter can't parse still gets Basic's representation, with the Scala representer's version.
 
+## Spellings that share a representation
+
+Scala's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `"""a"""` → `"a"`.
+- An escape in a string and the character it stands for: `"\u0041"` → `"A"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0b101` → `5`, `1.50` → `1.5`, `1.5e3F` → `1500.0f`, `1.5D` → `1.5d` and `0x10l` → `16L`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A trailing comma after the last item: `List(1, 2,)` → `List(1, 2)`.
+- A `;` between statements: `val a = 1; a` → the same statements on separate lines.
+- A body in braces and a Scala 3 body after `:` with indentation: `object H { def f = x }` → `object H:` with `def f = x` indented below it.
+- An indented block of one expression: `def f =` with `x` indented on the next line → `def f = x`.
+- An indented `match` and one in braces: `x match` with indented `case` lines → `x match { case ... }`.
+- The old and new `if` syntax: `if (x > 1) 1 else 2` → `if x > 1 then 1 else 2`.
+- Brackets around a `for`'s enumerators: `for (a <- xs)` → `for { a <- xs }` → `for a <- xs`.
+- The Unicode arrow: `a ← xs` → `a <- xs`.
+- `with` and `,` between parents: `class A extends B with C` → `class A extends B, C`.
+- Backticks around a name: `` `count` `` → `count`.
+- Braces around a name in an interpolated string: `s"$name"` → `s"${name}"`.
+
 ## Analysis
 
 This service doesn't make Scala analyses yet, and Scala has no old analyzer to compare with.

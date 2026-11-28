@@ -13,6 +13,18 @@ It matches what the old representer did, apart from the decisions that apply to 
 - **Operators.** `&&`, `||` and `!` are the same as `and`, `or` and `not`, because GDScript reads them the same.
 - **Region markers and line continuations.** `#region` and `#endregion` lines and a backslash at the end of a line are dropped, as layout.
 
+## Spellings that share a representation
+
+GDScript's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'you'` → `"you"`, and `'''you'''` → `"""you"""`.
+- An escaped quote and the quote itself: `'it\'s'` → `"it's"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0b11` → `3`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, `{"a": 1,}` → `{"a": 1}`, and `g(a, b,)` → `g(a, b)`.
+- A `;` at the end of a statement: `var n = 1;` → `var n = 1`.
+- Symbol and word operators: `a && b` → `a and b`, `a || b` → `a or b`, and `!a` → `not a`.
+
 ## Analysis
 
 This service doesn't make GDScript analyses yet, so there is nothing to compare with an old analyzer.

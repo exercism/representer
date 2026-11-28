@@ -18,6 +18,20 @@ It makes the decisions that apply to every language, which [README.md](../../../
 - **Layout.** Brackets that only group, trailing commas and semicolons between statements make no difference. The `;` before keyword arguments and the `;` in a matrix stay.
 - **Errors.** A solution that tree-sitter can't parse still gets Basic's representation, with the Julia representer's version.
 
+## Spellings that share a representation
+
+Julia's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `"""you"""` → `"you"`.
+- An escape and the character it stands for: `"\u41"` → `"A"`, and `'\u41'` → `'A'`.
+- Brackets around an interpolated name: `"a$(b)"` → `"a$b"`.
+- Number spelling: `1_000` → `1000`, `1.50` → `1.5`, `1.` → `1.0` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, `(1, 2,)` → `(1, 2)` and `f(a, b,)` → `f(a, b)`.
+- A `;` at the end of a statement: `a = 1;` → `a = 1`.
+- The operator of a loop binding: `for i = 1:3` → `for i in 1:3`, and `for i ∈ 1:3` → `for i in 1:3`.
+- A number written before a name: `2x` → `2 * x`.
+
 ## Analysis
 
 This service doesn't make Julia analyses yet, and Julia has no old analyzer to compare with.

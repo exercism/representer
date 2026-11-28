@@ -19,6 +19,20 @@ For V, these are the changes:
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+V's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `"you"` → `'you'`.
+- A raw string and its escaped spelling: `r'a\n'` → `'a\\n'`.
+- An escape in a string and the character it stands for: `'\x41'` → `'A'`.
+- Braces around a name in a string: `'$name!'` → `'${name}!'`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0o17` → `15`, `017` → `15`, `0b11` → `3` and `1.50` → `1.5`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, `g(a, b,)` → `g(a, b)`, and `P{ x: 1, }` → `P{ x: 1 }`.
+- A `;` between statements: `a := 1; return a` → the same statements on separate lines.
+- A line that starts with `.`: `xs.filter(it > 0)` with `.len` on the next line → `xs.filter(it > 0).len`.
+
 ## Analysis
 
 This service doesn't make V analyses yet, and V had no analyzer, so there is nothing to compare.

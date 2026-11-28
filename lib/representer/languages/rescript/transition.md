@@ -21,6 +21,20 @@ For ReScript, these are the changes:
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+ReScript's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- An escape and the character it stands for: `"a\tb"` → `"a	b"`, with a real tab.
+- Number spelling: `1_000` → `1000`, `0xFF` → `255`, `1.` → `1.0`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(n * (n + 1)) / 2` → `n * (n + 1) / 2`, and `switch (x)` → `switch x`.
+- Brackets around a function's one parameter: `x => x` → `(x) => x`.
+- Braces around one expression: `x => { x + 1 }` → `x => x + 1`, and `| 1 => { 2 }` → `| 1 => 2`.
+- A punned record field or label: `{x, y}` → `{x: x, y: y}`, `| {x} => x` → `| {x: x} => x`, and `f(~x)` → `f(~x=x)`.
+- The keyword of a guard: `| n when n > 1 =>` → `| n if n > 1 =>`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, and `f(a, b,)` → `f(a, b)`.
+- A `;` at the end of a statement: `let x = 1;` → `let x = 1`.
+
 ## Analysis
 
 This service doesn't make ReScript analyses yet, and ReScript had no analyzer, so there is nothing to compare.

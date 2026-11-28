@@ -13,6 +13,12 @@ It applies the decisions that apply to every language, which [README.md](../../.
 - **Names.** The words defined with `:` and `::`, the names in stack effects and the names bound with `:>` are renamed, wherever they appear. So a name used in a stack effect, such as `?` in `( n -- ? )`, is renamed wherever it appears, including where it is used as a word. Words in declarations such as `TUPLE:` and `CONSTANT:` keep their names, because the grammar gives them no structure.
 - **Numbers.** Each decimal or hexadecimal integer and each float is written as its value, so `1,000`, `1_000` and `1000` are the same, `0x1F` and `31` are the same, and `1.50` and `1.5` are the same.
 
+## Spellings that share a representation
+
+Factor's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Number spelling: `1,000` → `1000`, `1_000` → `1000`, `0x1F` → `31`, `1.50` → `1.5` and `1e3` → `1000.0`.
+
 ## Analysis
 
 This service doesn't make Factor analyses yet, and Factor has no old analyzer to compare with.

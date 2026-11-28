@@ -12,6 +12,15 @@ It matches what the old representer did, apart from the decisions that apply to 
 - A number is written as its value, so `0x1F` and `31` are the same, and so are `1.50` and `1.5`. The old representer kept a hexadecimal number as it was written. `1` and `1.0` stay apart, because Elm reads `1.0` as a Float.
 - A constrained type variable keeps its name if it starts with `number`, `comparable`, `appendable` or `compappend`, as `comparable2` does, because Elm reads every such name as a constraint. The old representer kept only those four names exactly, and renamed `comparable2` like any other type variable.
 
+## Spellings that share a representation
+
+Elm's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `"""a"""` → `"a"`.
+- An escape in a string and the character it stands for: `"a\u{41}"` → `"aA"`, and `"\'"` → `"'"`.
+- Number spelling: `0x1F` → `31`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `g (h (x))` → `g (h x)`, and `(g x)` → `g x`. Brackets around an operator expression inside another one stay, as in `(a * b) + c`.
+
 ## Analysis
 
 This service doesn't make Elm analyses yet, so there is nothing to compare with the old Elm analyzer (`exercism/elm-analyzer`).

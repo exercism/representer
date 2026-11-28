@@ -21,6 +21,16 @@ For Haskell, these are the changes:
 The representation starts at version 6, one above Basic's version 5.
 If a solution doesn't parse, it still gets Basic's representation, now with version 6.
 
+## Spellings that share a representation
+
+GHC's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Unicode symbols: `∷` → `::`, `→` → `->`, `←` → `<-`, `⇒` → `=>` and `∀` → `forall`.
+- Braces and semicolons in place of layout: `do { x <- getLine; pure x }` → the two statements on separate lines, and the same for `case ... of { ... }`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0o17` → `15`, `0b11` → `3`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `g ((h x))` → `g (h x)`, `a + (g x)` → `a + g x`, and `f x = (g x)` → `f x = g x`. Brackets around an operator expression inside another operator expression stay, as in `(a * b) + c`.
+- A dot with no spaces between two names: `not.isSpace` → `not . isSpace`, unless the module turns on `OverloadedRecordDot`.
+
 ## Analysis
 
 This service doesn't make Haskell analyses yet, and Haskell had no analyzer, so there is nothing to compare.

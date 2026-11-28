@@ -19,6 +19,21 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+Fortran's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- The case of keywords and names: `IF (A > B) THEN` → `if (a > b) then`, and `MOD(Year, 4)` → `mod(year, 4)`.
+- Quote style: `'it''s'` → `"it's"`, and `"say ""hi"""` → `'say "hi"'`.
+- Number spelling: `007` → `7`, `1e3` → `1000.0` and `1.5D0` → `1.50d0`.
+- Relational operators: `a .eq. b` → `a == b`, and the same for `.ne.`, `.lt.`, `.le.`, `.gt.` and `.ge.`.
+- Array brackets: `(/ 1, 2 /)` → `[1, 2]`.
+- A keyword with or without its space: `else if` → `elseif`, `go to` → `goto`, `double precision` → `doubleprecision`, and `intent(in out)` → `intent(inout)`.
+- End statements: `end function f` → `end function` → `end`, and `end if` → `endif`.
+- Brackets that only group: `(a * b) / c` → `a * b / c`.
+- The `::` of a declaration: `integer :: f` → `integer f`.
+- A `;` after a statement, and a `&` line continuation: `r = a > b;` → `r = a > b`.
+
 ## Analysis
 
 This service doesn't make Fortran analyses yet, and Fortran had no analyzer, so there is nothing to compare.

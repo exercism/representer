@@ -18,6 +18,25 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+Perl's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'Ding!'` → `"Ding!"`, `q{you}` → `'you'`, `qq{you}` → `"you"`, and `'$5'` → `"\$5"`.
+- An escaped quote: `'it\'s'` → `"it's"`.
+- A heredoc and the same string in quotes: `<<END` with the line `hi` → `"hi\n"`.
+- A word list: `qw(a b)` → `("a", "b")`.
+- A word that `=>` or a hash subscript quotes: `(a => 1)` → `("a" => 1)`, and `$h{key}` → `$h{"key"}`.
+- A fat comma: `(a => 1)` → `("a", 1)`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `017` → `15`, `0b101` → `5`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `($a * $b) + $c` → `$a * $b + $c`.
+- Brackets around a function's arguments: `print("hi")` → `print "hi"`.
+- A `;` after the last statement of a block: `{ return 1; }` → `{ return 1 }`.
+- A trailing comma after the last item: `(1, 2,)` → `(1, 2)`.
+- An arrow between subscripts: `$x->[0]->[1]` → `$x->[0][1]`.
+- `foreach` and `for`: `foreach my $x (@_)` → `for my $x (@_)`.
+- The spelling of a regular expression: `m/a/` → `/a/`, `m{a}` → `/a/`, `y/a/b/` → `tr/a/b/`, and the order of its flags, `/a/ix` → `/a/xi`.
+
 ## Analysis
 
 This service doesn't make Perl analyses yet, and Perl had no analyzer, so there is nothing to compare.

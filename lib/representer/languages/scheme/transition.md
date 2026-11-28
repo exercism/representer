@@ -19,6 +19,17 @@ These things change for Scheme:
 
 The representation's version is 6, one above Basic's version 5, so the website will represent every Scheme solution again.
 
+## Spellings that share a representation
+
+Scheme's reader reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Square and round brackets: `(let ([x 1]) x)` → `(let ((x 1)) x)`.
+- A quote mark and its form: `'x` → `(quote x)`, `` `(a ,y) `` → `(quasiquote (a (unquote y)))`, and `,@y` → `(unquote-splicing y)`.
+- An escape in a string and the character it stands for: `"a\nb"` → the string with a real line break.
+- The case of a character's name: `#\Space` → `#\space`, and `#\NEWLINE` → `#\newline`.
+- Boolean spelling: `#true` → `#t`, and `#false` → `#f`.
+- Number spelling: `#x1F` → `31`, `#b101` → `5`, `#d10` → `10`, `+7` → `7`, `1.50` → `1.5` and `1e3` → `1000.0`.
+
 ## Analysis
 
 This service doesn't make Scheme analyses yet, and Scheme has no old analyzer to compare with.

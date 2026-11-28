@@ -17,6 +17,15 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+Roc's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- An escape and the character it stands for: `"\u(41)"` → `"A"`, and `"a\tb"` → `"a	b"`, with a real tab.
+- Number spelling: `0x1F` → `31`, `0b11` → `3`, `0o17` → `15`, `1_000` → `1000`, `1.50` → `1.5`, `1e3` → `1000.0` and `(-5)` → `-5`.
+- Brackets that only group: `g((x))` → `g(x)`, and `|x| (x + 1)` → `|x| x + 1`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, and `g(x, 1,)` → `g(x, 1)`.
+
 ## Analysis
 
 This service doesn't make Roc analyses yet, and Roc had no analyzer, so there is nothing to compare.
