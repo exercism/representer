@@ -15,6 +15,15 @@ It differs from the old representer in the decisions that apply to every languag
 - **Strings.** Each string is written as its value, so `"a\x0Ab"` and `"a\nb"` are the same, and so are `"\u{41}"` and `"A"`. A byte escape such as `"\xff"` stays as it is written. Characters and multiline strings keep their text.
 - **Numbers.** Each number is written as its value, so `1_000` and `1000` are the same, and so are `0x1F` and `31`, and `1.50` and `1.5`.
 
+## Spellings that share a representation
+
+Zig's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- An escape in a string and the character it stands for: `"a\x0Ab"` → `"a\nb"`, `"\x41"` → `"A"`, and `"\u{41}"` → `"A"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0o17` → `15`, `0b11` → `3`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A trailing comma after the last item: `g(a, b,)` → `g(a, b)`, `.{ 1, 2, }` → `.{ 1, 2 }`, `f(a: u32, b: u32,)` → `f(a: u32, b: u32)`, and `struct { x: u32, y: u32, }` → `struct { x: u32, y: u32 }`.
+
 ## Analysis
 
 This service doesn't make Zig analyses yet, and Zig has no old analyzer to compare with.

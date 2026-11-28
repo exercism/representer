@@ -20,6 +20,18 @@ For Racket, these are the changes:
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+Racket's reader reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- The kind of bracket: `[name "you"]` → `(name "you")`, and `{list 1}` → `(list 1)`.
+- A quote mark and the form it stands for: `'a` → `(quote a)`, and `` `(a ,b) `` → `(quasiquote (a (unquote b)))`.
+- Boolean spelling: `#true` → `#t`, and `#F` → `#f`.
+- Character spelling: `#\linefeed` → `#\newline`, `#\null` → `#\nul`, `#\ ` → `#\space`, `#\101` → `#\A` and `#\u41` → `#\A`.
+- A here string and the string with the same text: `#<<END` with the line `a"b` → `"a\"b"`.
+- Number spelling: `#x1F` → `31`, `#b11` → `3`, `1.50` → `1.5`, `1.` → `1.0`, `1e3` → `1000.0`, `2/4` → `1/2` and `4/2` → `2`.
+- The case of a hash's kind: `#HASH((a . 1))` → `#hash((a . 1))`.
+
 ## Analysis
 
 This service doesn't make Racket analyses yet, and Racket had no analyzer, so there is nothing to compare.

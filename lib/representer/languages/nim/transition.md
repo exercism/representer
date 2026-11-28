@@ -14,6 +14,21 @@ It differs from the old representer in the decisions that apply to every languag
 - **Parameters.** This one writes `proc f(a, b: int)` as `proc f(a: int; b: int)`. The old representer read only the first name of a group of parameters that share a type.
 - **Strings.** The old representer printed each string as its value, so `"\x41"` and `"A"` were the same. This one keeps each escape as it is written, so the two stay apart.
 
+## Spellings that share a representation
+
+Nim's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0b101` → `5`, `0o17` → `15`, `1.50` → `1.5`, `1e3` → `1000.0` and `1_000'i64` → `1000'i64`.
+- The spelling of a name after its first letter: `toUpperAscii` → `toupperascii`, and `foo_bar` → `fooBar`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A command and a call: `echo 1, 2` → `echo(1, 2)`.
+- An operator and a call to it: `` `+`(a, b) `` → `a + b`.
+- Empty brackets after a routine's name: `proc f = discard` → `proc f() = discard`.
+- Parameters that share a type: `proc f(a, b: int)` → `proc f(a: int; b: int)`, and `proc f(a: int, b: int)` → `proc f(a: int; b: int)`.
+- The two ways to write a format string: `&"x {a}"` → `fmt"x {a}"`.
+- A trailing comma after the last item: `@[1, 2,]` → `@[1, 2]`.
+- A `;` at the end of a statement: `let n = 1;` → `let n = 1`.
+
 ## Analysis
 
 This service doesn't make Nim analyses yet, so there is nothing to compare with an old analyzer.

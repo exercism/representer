@@ -15,6 +15,17 @@ The representation now reads the code's syntax tree, and differs from Basic in t
 
 A solution with a syntax error still gets Basic's representation, with C's version.
 
+## Spellings that share a representation
+
+The C compiler reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- The spelling of an integer that fits in an int and has no suffix: `0x1F` → `31`, `017` → `15`, `0b101` → `5` and `1'000` → `1000`.
+- The spelling of a decimal without a suffix: `1.50` → `1.5`, and `1e3` → `1000.0`.
+- An escape in a string and the character it stands for: `"a\x41"` → `"aA"`, `"\101"` → `"A"`, `"\'"` → `"'"` and `"\u00e9"` → `"é"`.
+- Strings written next to each other and the joined string: `"a" "b"` → `"ab"`.
+- Brackets that only group: `(a * b) + 1` → `a * b + 1`, `if ((a = b))` → `if (a = b)`, and `sizeof(a)` → `sizeof a`.
+- A trailing comma after the last item: `{1, 2,}` → `{1, 2}`, and `enum e { A, B, }` → `enum e { A, B }`.
+
 ## Analysis
 
 This service doesn't make C analyses yet, and C had no analyzer before.

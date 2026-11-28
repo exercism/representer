@@ -18,6 +18,21 @@ These things change for Lua:
 
 The representation's version is 6, one above Basic's version 5, so the website will represent every Lua solution again.
 
+## Spellings that share a representation
+
+Lua's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'you'` → `"you"`, `[[you]]` → `"you"`, and `[==[you]==]` → `"you"`.
+- A line break straight after the opening brackets of a long string: `[[` followed by a new line and `you]]` → `[[you]]`.
+- An escaped quote: `'a\'b'` → `"a'b"`.
+- Number spelling: `0x1F` → `31`, `010` → `10`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A call with one string or table argument written without brackets: `f "x"` → `f("x")`, `s:gmatch "."` → `s:gmatch('.')`, and `f {1}` → `f({1})`.
+- The separator between table fields: `{1, 2; 3}` → `{1, 2, 3}`.
+- A trailing separator after the last field: `{1, 2,}` → `{1, 2}`.
+- A `;` at the end of a statement, and an empty statement: `x = 1;;` → `x = 1`.
+- A function declaration and the assignment of a function: `function M.f(x) end` → `M.f = function(x) end`, and `function M:f(x) end` → `M.f = function(self, x) end`.
+
 ## Analysis
 
 This service doesn't make Lua analyses yet, and Lua has no old analyzer to compare with.

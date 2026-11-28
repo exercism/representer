@@ -18,6 +18,23 @@ These things change for R:
 
 The representation's version is 6, one above Basic's version 5, so the website will represent every R solution again.
 
+## Spellings that share a representation
+
+R's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'you'` → `"you"`.
+- A raw string and its escaped spelling: `r"(a\n)"` → `"a\\n"`.
+- An escape and the character it stands for: `'a\'b'` → `"a'b"`.
+- Number spelling: `1.50` → `1.5`, `1.0` → `1`, `0x1F` → `31`, `1e3` → `1000` and `0x1FL` → `31L`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- A right assignment: `1 -> x` → `x <- 1`, and `1 ->> x` → `x <<- 1`.
+- The power operator: `a ** 2` → `a ^ 2`.
+- The short lambda: `\(x) x` → `function(x) x`.
+- A pipe and the call it makes: `x |> f(z)` → `f(x, z)`, and `x |> f(z, w = _)` → `f(z, w = x)`.
+- A name in backticks: `` `f`(x) `` → `f(x)`.
+- An argument name in quotes: `list("a" = 1)` → `list(a = 1)`.
+- A `;` at the end of a statement: `x <- 1;` → `x <- 1`.
+
 ## Analysis
 
 This service doesn't make R analyses yet, and R has no old analyzer to compare with.

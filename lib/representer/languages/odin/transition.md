@@ -20,6 +20,19 @@ These things change for Odin:
 
 The representation's version is 6, one above Basic's version 5, so the website will represent every Odin solution again.
 
+## Spellings that share a representation
+
+Odin's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `` `you` `` → `"you"`.
+- An escape and the character it stands for: `"\x41"` → `"A"`, `"\u0041"` → `"A"` and `"\101"` → `"A"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0b101` → `5`, `0o17` → `15`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`, and `-> (int)` → `-> int` for a single result.
+- A `;` at the end of a statement: `x := 1;` → `x := 1`.
+- A trailing comma after the last item: `[]int{1, 2,}` → `[]int{1, 2}`.
+- A `do` and braces: `if a > b do return a` → `if a > b { return a }`.
+- The two ways to write a ternary: `a if b > 0 else c` → `b > 0 ? a : c`.
+
 ## Analysis
 
 This service doesn't make Odin analyses yet, and Odin had no analyzer before.

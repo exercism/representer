@@ -19,6 +19,21 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+OCaml's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `{|you|}` → `"you"`, and `{x|you|x}` → `"you"`.
+- A backslash at the end of a line inside a string: `"a\` followed by a new line and `b"` → `"ab"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0o17` → `15`, `0b101` → `5`, `1.` → `1.0`, `1.50` → `1.5` and `1e3` → `1000.`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`, `g (x)` → `g x`, and `begin a * b end` → `(a * b)`.
+- Spaces inside a polymorphic variant type: `` [`A | `B] `` → `` [ `A | `B ] ``.
+- A `|` before the first case: `match x with | 0 -> 1 | _ -> 2` → `match x with 0 -> 1 | _ -> 2`, `type t = | A | B` → `type t = A | B`, and `` [ | `A | `B ] `` → `` [ `A | `B ] ``.
+- A `;` after the last item: `[1; 2;]` → `[1; 2]`.
+- A `;;` between top-level definitions: `let a = 1;;` → `let a = 1`.
+- A punned label or record field: `~n` → `~n:n`, and `{ w }` → `{ w = w }`.
+- A local open: `let open List in map g xs` → `List.(map g xs)`.
+
 ## Analysis
 
 This service doesn't make OCaml analyses yet, and OCaml had no analyzer, so there is nothing to compare.

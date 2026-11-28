@@ -20,6 +20,17 @@ These things change for Idris:
 
 The representation's version is 6, one above Basic's version 5, so the website will represent every Idris solution again.
 
+## Spellings that share a representation
+
+Idris's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Unicode arrows: `←` → `<-`, and `⇒` → `=>`.
+- Braces and semicolons in place of layout: `case x of { Z => 0; _ => 1 }` → the two cases on separate lines.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `1.50` → `1.5` and `1.0e3` → `1000.0`.
+- Brackets that only group, when they sit outside any operator expression: `f x = (g x)` → `f x = g x`, `if (a == b) then ...` → `if a == b then ...`, and `[(f 1), 2]` → `[f 1, 2]`.
+- The `implementation` keyword: `Show A where` → `implementation Show A where`.
+- A space in `\case`: `\ case` → `\case`.
+
 ## Analysis
 
 This service doesn't make Idris analyses yet, and Idris had no analyzer before.

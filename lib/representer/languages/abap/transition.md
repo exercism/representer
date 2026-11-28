@@ -19,6 +19,19 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+ABAP's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Keyword case: `IF x = 1.` → `if x = 1.`
+- The case of a built-in name: `REVERSE( x )` → `reverse( x )`.
+- Comparison keywords and their symbols, in any case: `a EQ b` → `a = b`, `a eq b` → `a = b`, `a NE b` → `a <> b`, `a LT b` → `a < b`, `a GT b` → `a > b`, `a LE b` → `a <= b` and `a GE b` → `a >= b`.
+- A chained statement and its separate statements: `DATA: a TYPE i, b TYPE i.` → `DATA a TYPE i. DATA b TYPE i.`
+- The `!` before a parameter's name: `IMPORTING !year TYPE i` → `IMPORTING year TYPE i`.
+- `EXPORTING` in a method call: `f( EXPORTING a = 1 )` → `f( a = 1 )`.
+- Brackets that only group: `x = ( x + 1 ).` → `x = x + 1.`
+- Number spelling: `007` → `7`.
+
 ## Analysis
 
 This service doesn't make ABAP analyses yet, and ABAP had no analyzer, so there is nothing to compare.

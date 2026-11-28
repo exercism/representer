@@ -15,6 +15,18 @@ It differs from the old representer in the decisions that apply to every languag
 - **Local variables.** Both representers write a `var` inside a function as a `:=`. The old representer wrote the zero value of every type other than `int` and `string` as `T(0)`, so `var a bool` became `a := bool(0)`. It wrote the zero value of a slice, map, pointer or package type as the same text, so `var xs []int` and `var m map[string]bool` got the same representation. This one writes `false`, `0.0` and `0i` for `bool`, `float64` and `complex128`, and `T{}` for a struct or array type defined in the file or a standard library type such as `strings.Builder`. It keeps the `var` for any other type, and when `var a, b = 1, a` reads an outer `a`.
 - **Values with a type.** The old representer dropped the type from `var x T = v`, unless `v` was a literal and `T` wasn't `string`, `int`, `float64`, `complex128` or `bool`. This one writes `T(v)`, unless `v` is already a literal of type `T` or a conversion to `T`, so `var a float64 = 1` is `a := float64(1)` and stays apart from `a := 1`. It keeps the `var` if `T` isn't a named type, as in `var m map[string]int = make(map[string]int)`.
 
+## Spellings that share a representation
+
+Go's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `` `a` `` → `"a"`, and `` `a\n` `` → `"a\\n"`.
+- An escape and the character it stands for: `"\x41"` → `"A"`, `"\101"` → `"A"`, and `"\u00e9"` → `"é"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `017` → `15`, `0o17` → `15`, `0b11` → `3`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`, and `*(int)` → `*int`.
+- A `;` between statements: `a := 1; g(a)` → the two statements on separate lines.
+- A trailing comma after the last item: `[]int{1, 2,}` → `[]int{1, 2}`.
+- A group of declarations: `var (` with `a = 1` and `b = 2` on their own lines → `var a = 1` and `var b = 2`, the same for `type`, and `import ("fmt")` → `import "fmt"`.
+
 ## Analysis
 
 This service doesn't make Go analyses yet, so there is nothing to compare with the old analyzer (`exercism/go-analyzer`).

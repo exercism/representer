@@ -15,6 +15,20 @@ It makes the decisions that apply to every language, which [README.md](../../../
 - **Products.** The grammar reads a product written without spaces, such as `a*b`, as one name. This representer reads it as a product wherever nothing next to it binds more tightly than `*`, so `a*b + 1` and `a * b + 1` are the same.
 - **Errors.** A solution that tree-sitter can't parse still gets Basic's representation, with the Swift representer's version.
 
+## Spellings that share a representation
+
+Swift's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- A raw string and its plain spelling: `#"a"#` → `"a"`, and `#"a\n"#` → `"a\\n"`.
+- A multi-line string and its one-line spelling: `"""` with the line `a` between the quotes → `"a"`.
+- An escape in a string and the character it stands for: `"\u{41}"` → `"A"`, and `"a\tb"` → the string with a real tab.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0o10` → `8`, `0b11` → `3`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`, `if (x > 1)` → `if x > 1`, and `"a\((n))"` → `"a\(n)"`.
+- Spaces around `*`: `a*b` → `a * b`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, and `["a": 1,]` → `["a": 1]`.
+- A `;` after a statement: `return a;` → `return a`.
+- Backticks around a name: `` `count` `` → `count`.
+
 ## Analysis
 
 This service doesn't make Swift analyses yet, and Swift has no old analyzer to compare with.

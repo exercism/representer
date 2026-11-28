@@ -16,6 +16,22 @@ This representer gives one form to the same spellings, and differs from the old 
 - **Modules.** A file that holds a module's fields without the `(module ...)` around them gets the same representation as one with it.
 - **Imports.** WebAssembly's `import` fields stay, because they say what the module needs from its host, beyond making names available.
 
+## Spellings that share a representation
+
+WebAssembly's text format reads each of these pairs as the same module, so the representer gives them the same representation:
+
+- A folded instruction and its plain spelling: `(i32.add (local.get $a) (i32.const 1))` → `local.get $a i32.const 1 i32.add`.
+- A folded `if` and a flat one: `(if (local.get $a) (then (i32.const 1)) (else (i32.const 2)))` → `local.get $a if i32.const 1 else i32.const 2 end`.
+- An empty `else`: `(if (local.get $a) (then nop) (else))` → `(if (local.get $a) (then nop))`.
+- Several types in one group: `(param i32 i64)` → `(param i32) (param i64)`.
+- An export written apart from its definition: `(func $f) (export "f" (func $f))` → `(func $f (export "f"))`.
+- A function type without a name that nothing refers to: `(type (func (param i32))) (func (param i32))` → `(func (param i32))`.
+- An escape in a string and the bytes it stands for: `"a\0a"` → `"a\n"`, and `"\u{41}"` → `"A"`.
+- The `offset` of a segment: `(data (offset (i32.const 0)) "a")` → `(data (i32.const 0) "a")`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `+5` → `5`, `1.50` → `1.5` and `offset=1_000` → `offset=1000`.
+- A constant with the same bits: `f32.const 1` → `f32.const 1.0`, and `i32.const 4294967295` → `i32.const -1`.
+- A `(module ...)` around the whole file: `(module (func (export "f")))` → `(func (export "f"))`.
+
 ## Analysis
 
 This service doesn't make WebAssembly analyses yet.

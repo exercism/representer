@@ -19,6 +19,23 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+AWK's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Braces around a single statement: `if (x > 0) { print x }` → `if (x > 0) print x`, and the same for `else`, `for` and `while`.
+- Braces around a block inside a block: `{ x = 1; { y = 2 } }` → `{ x = 1; y = 2 }`.
+- A `;` after the last statement: `{ x = 1; print x; }` → `{ x = 1; print x }`.
+- A `;` and a line break between statements: `x = 1; print x` → `x = 1` and `print x` on two lines.
+- An empty statement: `x = 1;; print x` → `x = 1; print x`.
+- A `\` at the end of a line: `x = 1 + \` and `2` on the next line → `x = 1 + 2`.
+- Brackets around the arguments of `print` and `printf`: `printf("%s", x)` → `printf "%s", x`, and `print(a, b)` → `print a, b`.
+- `length` without brackets: `length` → `length()`.
+- `func` and `function`: `func f(x) { return x }` → `function f(x) { return x }`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- Number spelling: `0x1F` → `31`, `011` → `9`, `1.50` → `1.5`, `1.0` → `1` and `1e3` → `1000`.
+- An escape and the character it stands for: `"a\tb"` → the same string written with a real tab.
+
 ## Analysis
 
 This service doesn't make AWK analyses yet, and AWK had no analyzer, so there is nothing to compare.

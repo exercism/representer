@@ -11,6 +11,19 @@ It matches what the old representer did, apart from the decisions that apply to 
 - A character literal keeps the text it is written with. The old representer read its value, so it merged `'A'` and `'A'`. No golden solution writes a character with a Unicode or octal escape.
 - `else { if (a) b(); }` and `else if (a) b();` get the same representation, as they did before, but both are written as an `else` whose block holds the `if`. The old representer wrote both as an `else if`.
 
+## Spellings that share a representation
+
+Java's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- An escape and the character it stands for in a string: `"\101"` → `"A"`, `"\u0041"` → `"A"`, `"a\sb"` → `"a b"`, and `"it\'s"` → `"it's"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `017` → `15`, `0b11` → `3`, `1.50` → `1.5`, `1e3` → `1000.0`, `1.5e3F` → `1500.0f`, and `0x10l` → `16L`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- Brackets around a lambda's single parameter: `(x) -> x` → `x -> x`.
+- Several variables in one declaration: `int a, b = 1;` → `int a; int b = 1;`.
+- Braces around a single statement: `if (x) g();` → `if (x) { g(); }`, and the same for `else`, `for`, `while` and `do`.
+- A trailing comma after the last item: `{1, 2,}` → `{1, 2}`, and `enum C { RED, GREEN, }` → `enum C { RED, GREEN }`.
+- A `;` after an enum's constants with nothing after it: `enum C { RED, GREEN; }` → `enum C { RED, GREEN }`.
+
 ## Analysis
 
 This service doesn't make Java analyses yet, so there is nothing to compare with the old analyzer (`exercism/java-analyzer`).

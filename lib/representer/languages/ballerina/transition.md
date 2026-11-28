@@ -7,6 +7,13 @@ This file says how the Ballerina outputs of this service differ from the tools t
 Ballerina never had a representer of its own (there is no `exercism/ballerina-representer`), so there is nothing to compare with.
 The representation follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
 
+## Spellings that share a representation
+
+Ballerina's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- A `'` before a name: `io:'println(1)` → `io:println(1)`.
+- The spelling of a float without a type suffix: `1.50` → `1.5`, and `1e3` → `1000.0`.
+
 ## Analysis
 
 This service doesn't make Ballerina analyses yet, and Ballerina has no old analyzer to compare with.

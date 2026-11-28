@@ -13,6 +13,26 @@ It differs from the old representer in the decisions that apply to every languag
 - **Order.** Both representers sort the methods inside each class, module and struct, and at the top of the file, and put them in the places where methods were. The old representer sorted them by their names before renaming them, so two solutions that named their methods differently could get different orders. This one sorts them by their code, with the renamed names left out.
 - **Names.** Both representers rename the names the solution defines, wherever they appear, and give `@count`, `@@count` and `count` the same placeholder. This one also renames the members of an enum, the type variables of a generic type (`T` in `class Box(T)`) and the type variables of `forall`, which the old representer kept.
 
+## Spellings that share a representation
+
+Crystal's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `%q(you)` → `"you"`, `%(a b)` → `"a b"`, and `%w(a b)` → `["a", "b"]`.
+- An escape and the character it stands for: `"\x41"` → `"A"`, and `"\u{41}"` → `"A"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0b11` → `3`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- A suffix that names the number's default type: `1_i32` → `1`, and `2.0_f64` → `2.0`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- Brackets around a call's arguments: `puts(x)` → `puts x`, and `f()` → `f`.
+- A trailing comma after the last item: `[1, 2,]` → `[1, 2]`, and `f(a, b,)` → `f(a, b)`.
+- A `;` after a statement: `x = 1;` → `x = 1`.
+- A modifier and its block: `puts 1 if a` → `if a; puts 1; end`, and the same for `unless`.
+- Braces and `do ... end` around a block: `a.each { |x| p x }` → `a.each do |x| p x end`.
+- `then` after `when`: `when 1 then y` → `when 1` with `y` on the next line.
+- A quoted symbol: `:"abc"` → `:abc`.
+- An operator called as a method: `y.**(2)` → `y ** 2`.
+
+The representer also gives the same representation to an accessor's name written as a symbol or as a call: `getter :count` → `getter count`. Crystal's parser reads these differently, and the `getter` macro gives them the same meaning.
+
 ## Analysis
 
 This service doesn't make Crystal analyses yet, so there is nothing to compare with the old analyzer (`exercism/crystal-analyzer`).

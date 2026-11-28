@@ -20,6 +20,17 @@ For Erlang, these are the changes:
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+Erlang's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `'ok'` → `ok`.
+- An escape and the character it stands for: `"a\sb"` → `"a b"`, and `"a\'b"` → `"a'b"`.
+- Strings next to each other: `"a" "b"` → `"ab"`.
+- Number spelling: `1_000` → `1000`, `16#FF` → `255`, `2#11` → `3`, `1.50` → `1.5` and `1.0e3` → `1000.0`.
+- Brackets that only group: `(A * B) + C` → `A * B + C`.
+- The spelling of `-behaviour`: `-behavior(gen_server).` → `-behaviour(gen_server).`.
+
 ## Analysis
 
 This service doesn't make Erlang analyses yet, and Erlang had no analyzer, so there is nothing to compare.

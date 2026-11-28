@@ -19,6 +19,18 @@ It makes the decisions that apply to every language, which [README.md](../../../
 
 The representation starts at version 6, one above Basic's version 5.
 
+## Spellings that share a representation
+
+SML's parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- A `;` after a top-level declaration, including the last one: `val a = 1;` → `val a = 1`.
+- A `|` before the first case of a match: `case x of | 0 => 1 | _ => 2` → `case x of 0 => 1 | _ => 2`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`, `fun f (x) = x` → `fun f x = x`, and `(g a) b` → `g a b`.
+- Brackets around `op`: `(op +) (1, 2)` → `op + (1, 2)`.
+- Number spelling: `0x1F` → `31`, and `2.50` → `2.5`.
+- An escape in a string and the character it stands for: `"a\nb"` → the string with a real line break, and a gap `"ab\   \cd"` → `"abcd"`.
+- A record field that only names a variable: `fun f {width} = width` → `fun f {width = width} = width`.
+
 ## Analysis
 
 This service doesn't make Standard ML analyses yet, and Standard ML had no analyzer, so there is nothing to compare.

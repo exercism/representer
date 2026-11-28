@@ -7,6 +7,20 @@ This file says how the F# outputs of this service differ from the tools they rep
 The representation replaces the old F# representer (`exercism/fsharp-representer`).
 It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
 
+## Spellings that share a representation
+
+F#'s parser reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Quote style: `@"a""b"` → `"a\"b"`, and `"""a"b"""` → `"a\"b"`.
+- An escape and the character it stands for: `"\x41"` → `"A"`, and `"\u0042"` → `"B"`.
+- Number spelling: `1_000` → `1000`, `0x1F` → `31`, `0b11` → `3`, `010` → `10` and `1.50` → `1.5`.
+- Brackets that only group: `(a * b) + c` → `a * b + c`.
+- Brackets around a tuple: `(1, 2)` → `1, 2`.
+- Brackets around a single argument: `g(x)` → `g x`.
+- `else if` and `elif`: `if a then 1 else if b then 2 else 3` → `if a then 1 elif b then 2 else 3`.
+- A `|` before the first case: `type Shape = | Circle | Square` → `type Shape = Circle | Square`, and the same before the first case of a `match`.
+- Separators in a list: `[1; 2; 3]` → the items on separate lines, and `[1; 2; 3;]` → `[1; 2; 3]`.
+
 ## Analysis
 
 This service doesn't make F# analyses yet, so there is nothing to compare with the old F# analyzer.

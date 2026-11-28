@@ -17,6 +17,16 @@ It makes the decisions that apply to every language, which [README.md](../../../
 - **Layout.** Line breaks and spaces make no difference. Basic kept line breaks.
 - **Errors.** A solution that tree-sitter can't parse still gets Basic's representation, with the Emacs Lisp representer's version.
 
+## Spellings that share a representation
+
+The Emacs Lisp reader reads each of these pairs as the same program, so the representer gives them the same representation:
+
+- Number spelling: `1.` → `1`, `+7` → `7`, `#x1F` → `31`, `#b11` → `3`, `#o17` → `15`, `#24r1k` → `44`, `1.50` → `1.5` and `1e3` → `1000.0`.
+- An escape in a string and the text it stands for: `"a\nb"` → a string with a real line break, and `"a\` followed by a line break and `b"` → `"ab"`.
+- Character spelling: `?\(` → `?(`, `?\x41` → `?A`, and `? ` → `?\s`.
+- A quote mark and its list: `'x` → `(quote x)`, and `#'car` → `(function car)`.
+- The empty list: `()` → `nil`.
+
 ## Analysis
 
 This service doesn't make Emacs Lisp analyses yet, and Emacs Lisp has no old analyzer to compare with.
