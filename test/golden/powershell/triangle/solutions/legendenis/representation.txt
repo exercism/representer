@@ -1,38 +1,101 @@
-Function Check-Triangle () {
-Param (
-[ double []] $Sides
-)
-return (
-( $Sides [ 0 ] + $Sides [ 1 ] -ge $Sides [ 2 ]) -and
-( $Sides [ 0 ] + $Sides [ 2 ] -ge $Sides [ 1 ]) -and
-( $Sides [ 1 ] + $Sides [ 2 ] -ge $Sides [ 0 ])
-)
-}
-Enum Triangle {
-EQUILATERAL
-ISOSCELES
-SCALENE
-}
-Function Get-Triangle () {
-Param (
-[ double []] $Sides
-)
-$AllSidesPositive = ( $Sides | Where-Object { $_ -le 0 }) . Count -eq 0
-if ( ! $AllSidesPositive ) {
-throw "\"*All side lengths must be positive.*\""
-}
-if ( ! ( Check-Triangle -Sides $Sides )) {
-throw "\"*Side lengths violate triangle inequality.*\""
-}
-$Count = 0
-for ( $i = 0 ; $i -lt 3 ; $i ++ ){
-if ( $Sides [ $i ] -eq $Sides [( $i + 1 ) % 3 ]){
-$Count ++
-}
-}
-switch ( $Count ) {
-0 { return [ Triangle ]:: SCALENE }
-1 { return [ Triangle ]:: ISOSCELES }
-{ 2 -or 3 } { return [ Triangle ]:: EQUILATERAL }
-}
-}
+(source_file
+  (function_definition (function_name PLACEHOLDER_1)
+    (script_block
+      (param_block
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name double [ ])) $PLACEHOLDER_2)))
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (element_access $PLACEHOLDER_2 0) +
+                (element_access $PLACEHOLDER_2 1)) -ge
+              (element_access $PLACEHOLDER_2 2)) -and
+            (binary_expression
+              (binary_expression
+                (element_access $PLACEHOLDER_2 0) +
+                (element_access $PLACEHOLDER_2 2)) -ge
+              (element_access $PLACEHOLDER_2 1))) -and
+          (binary_expression
+            (binary_expression
+              (element_access $PLACEHOLDER_2 1) +
+              (element_access $PLACEHOLDER_2 2)) -ge
+            (element_access $PLACEHOLDER_2 0))))))
+  (enum_definition (identifier PLACEHOLDER_3)
+    (enum_body
+      (enum_member (identifier PLACEHOLDER_4))
+      (enum_member (identifier PLACEHOLDER_5))
+      (enum_member (identifier PLACEHOLDER_6))))
+  (function_definition (function_name PLACEHOLDER_7)
+    (script_block
+      (param_block
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name double [ ])) $PLACEHOLDER_2)))
+      (assignment_statement $PLACEHOLDER_8 =
+        (binary_expression
+          (member_access
+            (parenthesized_expression
+              (pipeline $PLACEHOLDER_2
+                (command where-object
+                  (command_argument
+                    (script_block
+                      (binary_expression $_ -le 0)))))) . (identifier PLACEHOLDER_9)) -eq 0))
+      (if_statement
+        (condition
+          (unary_expression ! $PLACEHOLDER_8))
+        (statement_block
+          (throw_statement "*All side lengths must be positive.*")))
+      (if_statement
+        (condition
+          (unary_expression !
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_1)
+                (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                (command_argument $PLACEHOLDER_2)))))
+        (statement_block
+          (throw_statement "*Side lengths violate triangle inequality.*")))
+      (assignment_statement $PLACEHOLDER_9 = 0)
+      (for_statement
+        (assignment_statement $PLACEHOLDER_10 = 0)
+        (binary_expression $PLACEHOLDER_10 -lt 3)
+        (unary_expression $PLACEHOLDER_10 ++)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (element_access $PLACEHOLDER_2 $PLACEHOLDER_10) -eq
+                (element_access $PLACEHOLDER_2
+                  (binary_expression
+                    (binary_expression $PLACEHOLDER_10 + 1) % 3))))
+            (statement_block
+              (unary_expression $PLACEHOLDER_9 ++)))))
+      (switch_statement
+        (condition $PLACEHOLDER_9)
+        (switch_clause
+          (command_argument 0)
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_3))) :: (identifier PLACEHOLDER_6)))))
+        (switch_clause
+          (command_argument 1)
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_3))) :: (identifier PLACEHOLDER_5)))))
+        (switch_clause
+          (command_argument
+            (script_block
+              (binary_expression 2 -or 3)))
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_3))) :: (identifier PLACEHOLDER_4)))))))))

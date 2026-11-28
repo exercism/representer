@@ -1,71 +1,275 @@
-using namespace System.Collections.Generic
-using namespace System.Text
-enum Status { Finished ; Loop }
-Function Invoke-Camicia () {
-[ CmdletBinding ()]
-Param (
-[ string []] $PlayerA ,
-[ string []] $PlayerB
-)
-$status = [ Status ]:: Loop
-$gameState = [ GameState ]:: new ( $PlayerA , $PlayerB )
-$priorStates = [ Collections.Generic.HashSet [ string ]]:: new ()
-while ( $true ) {
-$currentState = $gameState . GetState ()
-if ( $currentState -in $priorStates ) { break }
-if ( $currentState -match "\"[JQKA]\"" ) { [ void ] $priorStates . Add ( $currentState ) }
-if ( $gameState . PlayTurnAndCheckIfDone ()) {
-$status = [ Status ]:: Finished
-break
-}
-}
-[ PSCustomObject ]@{ Status = $status ; Cards = $gameState . CardsPlayed ; Tricks = $gameState . Tricks }
-}
-class GameState {
-hidden [ Collections.Generic.Queue [ string ][]] $Hands
-hidden [ Collections.Generic.List [ string ]] $Pile = [ Collections.Generic.List [ string ]]:: new ()
-hidden [ int ] $CurrentPlayer = 0
-hidden [ int ] $Debt = 0
-[ int ] $CardsPlayed = 0
-[ int ] $Tricks = 0
-GameState ([ string []] $PlayerA , [ string []] $PlayerB ) {
-$this . Hands = @(
-[ Collections.Generic.Queue [ string ]] ::new( $PlayerA ), [ Collections.Generic.Queue [ string ]]:: new ( $PlayerB )
-)
-}
-[ bool ] PlayTurnAndCheckIfDone () {
-while ( $true ) {
-$origDebt = $this . Debt
-$this Hand = $this . Hands [ $this . CurrentPlayer ]
-$otherHand = $this . Hands [ 1 - $this . CurrentPlayer ]
-if ( $this Hand.Count -eq 0 ) {
-$this . TransferPile ()
-break
-}
-$topCard = $this Hand.Dequeue ()
-$this . Pile . Add ( $topCard )
-$this . CardsPlayed ++
-$newDebt = "\"JQKA\"" . IndexOf ( $topCard ) + 1
-if ( $newDebt ) { $this . Debt = $newDebt }
-else {
-$this . Debt = [ Math ]:: Max ( $this . Debt - 1 , 0 )
-if ( $origDebt -gt 0 -and $this . Debt -eq 0 ) {
-$this . TransferPile ()
-$this . NextPlayer ()
-break
-}
-}
-if ( $newDebt -ne 0 -or $this . Debt -eq 0 ) { $this . NextPlayer () }
-}
-return ( $this . Pile . Count -eq 0 -and ( $this . Hands [ 0 ] . Count -eq 0 -or $this . Hands [ 1 ] . Count -eq 0 ))
-}
-[ string ] GetState () {
-return ( $this . Hands | ForEach-Object { -join ( $_ -replace "\"[^JQKA]+\"" , "\"-\"" ) }) -join "\" \""
-}
-hidden [ void ] TransferPile () {
-$this . Pile | ForEach-Object { $this . Hands [ 1 - $this . CurrentPlayer ] . Enqueue ( $_ ) }
-$this . Pile . Clear ()
-$this . Tricks ++
-}
-hidden [ void ] NextPlayer () { $this . CurrentPlayer = 1 - $this . CurrentPlayer }
-}
+(source_file
+  (enum_definition (identifier PLACEHOLDER_1)
+    (enum_body
+      (enum_member (identifier PLACEHOLDER_2))
+      (enum_member (identifier PLACEHOLDER_3))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_5)
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_6)))
+      (assignment_statement $PLACEHOLDER_1 =
+        (member_access
+          (type_literal
+            (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_3)))
+      (assignment_statement $PLACEHOLDER_7 =
+        (invocation_expression
+          (member_access
+            (type_literal
+              (type_name (type_identifier PLACEHOLDER_7))) :: new)
+          (argument_list $PLACEHOLDER_5 $PLACEHOLDER_6)))
+      (assignment_statement $PLACEHOLDER_8 =
+        (invocation_expression
+          (member_access
+            (type_literal
+              (type_name collections.generic.hashset [
+                (type_name string) ])) :: new)
+          (argument_list)))
+      (while_statement
+        (condition $true)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_9 =
+            (invocation_expression
+              (member_access $PLACEHOLDER_7 . (identifier PLACEHOLDER_10))
+              (argument_list)))
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_9 -in $PLACEHOLDER_8))
+            (statement_block
+              (break_statement)))
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_9 -match "[JQKA]"))
+            (statement_block
+              (cast_expression
+                (type_literal
+                  (type_name void))
+                (invocation_expression
+                  (member_access $PLACEHOLDER_8 . add)
+                  (argument_list $PLACEHOLDER_9)))))
+          (if_statement
+            (condition
+              (invocation_expression
+                (member_access $PLACEHOLDER_7 . (identifier PLACEHOLDER_11))
+                (argument_list)))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_1 =
+                (member_access
+                  (type_literal
+                    (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_2)))
+              (break_statement)))))
+      (cast_expression
+        (type_literal
+          (type_name pscustomobject))
+        (hashtable_expression
+          (hash_entry "Status" $PLACEHOLDER_1)
+          (hash_entry "Cards"
+            (member_access $PLACEHOLDER_7 . (identifier PLACEHOLDER_12)))
+          (hash_entry "Tricks"
+            (member_access $PLACEHOLDER_7 . (identifier PLACEHOLDER_13)))))))
+  (class_definition (identifier PLACEHOLDER_7)
+    (class_body
+      (class_property hidden
+        (type_literal
+          (type_name collections.generic.queue [
+            (type_name string) ] [ ])) $PLACEHOLDER_14)
+      (class_property hidden
+        (type_literal
+          (type_name collections.generic.list [
+            (type_name string) ])) $PLACEHOLDER_15
+        (invocation_expression
+          (member_access
+            (type_literal
+              (type_name collections.generic.list [
+                (type_name string) ])) :: new)
+          (argument_list)))
+      (class_property hidden
+        (type_literal
+          (type_name int)) $PLACEHOLDER_16 0)
+      (class_property hidden
+        (type_literal
+          (type_name int)) $PLACEHOLDER_17 0)
+      (class_property
+        (type_literal
+          (type_name int)) $PLACEHOLDER_12 0)
+      (class_property
+        (type_literal
+          (type_name int)) $PLACEHOLDER_13 0)
+      (class_method (identifier PLACEHOLDER_7)
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_5)
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_6))
+        (statement_block
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_14)) =
+            (array_expression
+              (array_literal_expression
+                (invocation_expression
+                  (member_access
+                    (type_literal
+                      (type_name collections.generic.queue [
+                        (type_name string) ])) :: new)
+                  (argument_list $PLACEHOLDER_5))
+                (invocation_expression
+                  (member_access
+                    (type_literal
+                      (type_name collections.generic.queue [
+                        (type_name string) ])) :: new)
+                  (argument_list $PLACEHOLDER_6)))))))
+      (class_method
+        (type_literal
+          (type_name bool)) (identifier PLACEHOLDER_11)
+        (parameter_list)
+        (statement_block
+          (while_statement
+            (condition $true)
+            (statement_block
+              (assignment_statement $PLACEHOLDER_18 =
+                (member_access $this . (identifier PLACEHOLDER_17)))
+              (assignment_statement $PLACEHOLDER_19 =
+                (element_access
+                  (member_access $this . (identifier PLACEHOLDER_14))
+                  (member_access $this . (identifier PLACEHOLDER_16))))
+              (assignment_statement $PLACEHOLDER_20 =
+                (element_access
+                  (member_access $this . (identifier PLACEHOLDER_14))
+                  (binary_expression 1 -
+                    (member_access $this . (identifier PLACEHOLDER_16)))))
+              (if_statement
+                (condition
+                  (binary_expression
+                    (member_access $PLACEHOLDER_19 . count) -eq 0))
+                (statement_block
+                  (invocation_expression
+                    (member_access $this . (identifier PLACEHOLDER_21))
+                    (argument_list))
+                  (break_statement)))
+              (assignment_statement $PLACEHOLDER_22 =
+                (invocation_expression
+                  (member_access $PLACEHOLDER_19 . dequeue)
+                  (argument_list)))
+              (invocation_expression
+                (member_access
+                  (member_access $this . (identifier PLACEHOLDER_15)) . add)
+                (argument_list $PLACEHOLDER_22))
+              (unary_expression
+                (member_access $this . (identifier PLACEHOLDER_12)) ++)
+              (assignment_statement $PLACEHOLDER_23 =
+                (binary_expression
+                  (invocation_expression
+                    (member_access "JQKA" . indexof)
+                    (argument_list $PLACEHOLDER_22)) + 1))
+              (if_statement
+                (condition $PLACEHOLDER_23)
+                (statement_block
+                  (assignment_statement
+                    (member_access $this . (identifier PLACEHOLDER_17)) = $PLACEHOLDER_23))
+                (else_clause
+                  (statement_block
+                    (assignment_statement
+                      (member_access $this . (identifier PLACEHOLDER_17)) =
+                      (invocation_expression
+                        (member_access
+                          (type_literal
+                            (type_name math)) :: max)
+                        (argument_list
+                          (binary_expression
+                            (member_access $this . (identifier PLACEHOLDER_17)) - 1) 0)))
+                    (if_statement
+                      (condition
+                        (binary_expression
+                          (binary_expression $PLACEHOLDER_18 -gt 0) -and
+                          (binary_expression
+                            (member_access $this . (identifier PLACEHOLDER_17)) -eq 0)))
+                      (statement_block
+                        (invocation_expression
+                          (member_access $this . (identifier PLACEHOLDER_21))
+                          (argument_list))
+                        (invocation_expression
+                          (member_access $this . (identifier PLACEHOLDER_24))
+                          (argument_list))
+                        (break_statement))))))
+              (if_statement
+                (condition
+                  (binary_expression
+                    (binary_expression $PLACEHOLDER_23 -ne 0) -or
+                    (binary_expression
+                      (member_access $this . (identifier PLACEHOLDER_17)) -eq 0)))
+                (statement_block
+                  (invocation_expression
+                    (member_access $this . (identifier PLACEHOLDER_24))
+                    (argument_list))))))
+          (return_statement
+            (binary_expression
+              (binary_expression
+                (member_access
+                  (member_access $this . (identifier PLACEHOLDER_15)) . count) -eq 0) -and
+              (binary_expression
+                (binary_expression
+                  (member_access
+                    (element_access
+                      (member_access $this . (identifier PLACEHOLDER_14)) 0) . count) -eq 0) -or
+                (binary_expression
+                  (member_access
+                    (element_access
+                      (member_access $this . (identifier PLACEHOLDER_14)) 1) . count) -eq 0))))))
+      (class_method
+        (type_literal
+          (type_name string)) (identifier PLACEHOLDER_10)
+        (parameter_list)
+        (statement_block
+          (return_statement
+            (binary_expression
+              (parenthesized_expression
+                (pipeline
+                  (member_access $this . (identifier PLACEHOLDER_14))
+                  (command foreach-object
+                    (command_argument
+                      (script_block
+                        (unary_expression -join
+                          (binary_expression $_ -replace
+                            (array_literal_expression "[^JQKA]+" "-")))))))) -join " "))))
+      (class_method hidden
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_21)
+        (parameter_list)
+        (statement_block
+          (pipeline
+            (member_access $this . (identifier PLACEHOLDER_15))
+            (command foreach-object
+              (command_argument
+                (script_block
+                  (invocation_expression
+                    (member_access
+                      (element_access
+                        (member_access $this . (identifier PLACEHOLDER_14))
+                        (binary_expression 1 -
+                          (member_access $this . (identifier PLACEHOLDER_16)))) . enqueue)
+                    (argument_list $_))))))
+          (invocation_expression
+            (member_access
+              (member_access $this . (identifier PLACEHOLDER_15)) . clear)
+            (argument_list))
+          (unary_expression
+            (member_access $this . (identifier PLACEHOLDER_13)) ++)))
+      (class_method hidden
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_24)
+        (parameter_list)
+        (statement_block
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_16)) =
+            (binary_expression 1 -
+              (member_access $this . (identifier PLACEHOLDER_16)))))))))

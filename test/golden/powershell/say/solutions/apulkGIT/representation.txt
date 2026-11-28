@@ -1,62 +1,170 @@
-$num0to9 = @( "\"zero\"" , "\"one\"" , "\"two\"" , "\"three\"" , "\"four\"" , "\"five\"" , "\"six\"" , "\"seven\"" , "\"eight\"" , "\"nine\"" );
-$num10to19 = @( "\"ten\"" , "\"eleven\"" , "\"twelve\"" , "\"thirteen\"" , "\"fourteen\"" , "\"fifteen\"" , "\"sixteen\"" , "\"seventeen\"" , "\"eighteen\"" , "\"nineteen\"" );
-$num20to90 = @( "\"twenty\"" , "\"thirty\"" , "\"forty\"" , "\"fifty\"" , "\"sixty\"" , "\"seventy\"" , "\"eighty\"" , "\"ninety\"" );
-Function checksubnum ([ int ] $Number ) {
-$s = "\"\"" ;
-if ( $Number -ge 100 ) {
-$s += $num0to9 [[ Math ]:: floor ( $Number / 100 )] + "\" hundred \"" ;
-$Number = $Number % 100 ;
-}
-if ( $Number -gt 0 ) {
-if ( $Number -ge 20 ) {
-$s += $num20to90 [[ Math ]:: floor ( $Number / 10 ) -2 ];
-$Number = $Number % 10 ;
-if ( $Number -ne 0 ) {
-$s += "\"-\"" + $num0to9 [ $Number ] + "\" \"" ;
-}
-} else {
-if ( $Number -ge 10 ) {
-$s += $num10to19 [ $Number % 10 ] + "\" \"" ;
-} else {
-$s += $num0to9 [ $Number ] + "\" \"" ;
-}
-}
-}
-return $s ;
-}
-Function Invoke -Say () {
-[ CmdletBinding ()]
-Param (
-[ int64 ] $Number
-)
-if ( $Number -eq 0 ) {
-return "\"zero\"" ;
-}
-if ( $Number -lt 0 ) {
-throw "\"*Cannot validate argument on parameter 'Number'*\"" ;
-}
-if ( $Number -gt 999999999999 ) {
-throw "\"*Cannot validate argument on parameter 'Number'\"" ;
-}
-$s = "\"\"" ;
-if ( $Number -ge 1000000000 ) {
-$s += checksubnum ([ Math ]:: floor ( $Number / 1000000000 ));
-$s += "\"billion \"" ;
-$Number = $Number % 1000000000 ;
-}
-if ( $Number -ge 1000000 ) {
-$s += checksubnum ([ Math ]:: floor ( $Number / 1000000 ));
-$s += "\"million \"" ;
-$Number = $Number % 1000000 ;
-}
-if ( $Number -ge 1000 ) {
-$s += checksubnum ([ Math ]:: floor ( $Number / 1000 ));
-$s += "\"thousand \"" ;
-$Number = $Number % 1000 ;
-}
-$s += checksubnum ([ Math ]:: floor ( $Number ));
-if ( $s . EndsWith ( "' '" )) {
-$s = $s . substring ( 0 , $s . Length-1 );
-}
-return $s ;
-}
+(source_file
+  (assignment_statement $PLACEHOLDER_1 =
+    (array_expression
+      (array_literal_expression "zero" "one" "two" "three" "four" "five" "six" "seven" "eight" "nine")))
+  (assignment_statement $PLACEHOLDER_2 =
+    (array_expression
+      (array_literal_expression "ten" "eleven" "twelve" "thirteen" "fourteen" "fifteen" "sixteen" "seventeen" "eighteen" "nineteen")))
+  (assignment_statement $PLACEHOLDER_3 =
+    (array_expression
+      (array_literal_expression "twenty" "thirty" "forty" "fifty" "sixty" "seventy" "eighty" "ninety")))
+  (function_definition (function_name PLACEHOLDER_4)
+    (parameter_list
+      (parameter
+        (type_literal
+          (type_name int)) $PLACEHOLDER_5))
+    (script_block
+      (assignment_statement $PLACEHOLDER_6 = "")
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_5 -ge 100))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_6 +=
+            (binary_expression
+              (element_access $PLACEHOLDER_1
+                (invocation_expression
+                  (member_access
+                    (type_literal
+                      (type_name math)) :: floor)
+                  (argument_list
+                    (binary_expression $PLACEHOLDER_5 / 100)))) + " hundred "))
+          (assignment_statement $PLACEHOLDER_5 =
+            (binary_expression $PLACEHOLDER_5 % 100))))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_5 -gt 0))
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_5 -ge 20))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_6 +=
+                (element_access $PLACEHOLDER_3
+                  (binary_expression
+                    (invocation_expression
+                      (member_access
+                        (type_literal
+                          (type_name math)) :: floor)
+                      (argument_list
+                        (binary_expression $PLACEHOLDER_5 / 10))) - 2)))
+              (assignment_statement $PLACEHOLDER_5 =
+                (binary_expression $PLACEHOLDER_5 % 10))
+              (if_statement
+                (condition
+                  (binary_expression $PLACEHOLDER_5 -ne 0))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_6 +=
+                    (binary_expression
+                      (binary_expression "-" +
+                        (element_access $PLACEHOLDER_1 $PLACEHOLDER_5)) + " ")))))
+            (else_clause
+              (statement_block
+                (if_statement
+                  (condition
+                    (binary_expression $PLACEHOLDER_5 -ge 10))
+                  (statement_block
+                    (assignment_statement $PLACEHOLDER_6 +=
+                      (binary_expression
+                        (element_access $PLACEHOLDER_2
+                          (binary_expression $PLACEHOLDER_5 % 10)) + " ")))
+                  (else_clause
+                    (statement_block
+                      (assignment_statement $PLACEHOLDER_6 +=
+                        (binary_expression
+                          (element_access $PLACEHOLDER_1 $PLACEHOLDER_5) + " "))))))))))
+      (return_statement $PLACEHOLDER_6)))
+  (function_definition (function_name PLACEHOLDER_7)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name int64)) $PLACEHOLDER_5)))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_5 -eq 0))
+        (statement_block
+          (return_statement "zero")))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_5 -lt 0))
+        (statement_block
+          (throw_statement "*Cannot validate argument on parameter 'Number'*")))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_5 -gt 999999999999))
+        (statement_block
+          (throw_statement "*Cannot validate argument on parameter 'Number'")))
+      (assignment_statement $PLACEHOLDER_6 = "")
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_5 -ge 1000000000))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_6 +=
+            (command (command_name PLACEHOLDER_4)
+              (command_argument
+                (invocation_expression
+                  (member_access
+                    (type_literal
+                      (type_name math)) :: floor)
+                  (argument_list
+                    (binary_expression $PLACEHOLDER_5 / 1000000000))))))
+          (assignment_statement $PLACEHOLDER_6 += "billion ")
+          (assignment_statement $PLACEHOLDER_5 =
+            (binary_expression $PLACEHOLDER_5 % 1000000000))))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_5 -ge 1000000))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_6 +=
+            (command (command_name PLACEHOLDER_4)
+              (command_argument
+                (invocation_expression
+                  (member_access
+                    (type_literal
+                      (type_name math)) :: floor)
+                  (argument_list
+                    (binary_expression $PLACEHOLDER_5 / 1000000))))))
+          (assignment_statement $PLACEHOLDER_6 += "million ")
+          (assignment_statement $PLACEHOLDER_5 =
+            (binary_expression $PLACEHOLDER_5 % 1000000))))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_5 -ge 1000))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_6 +=
+            (command (command_name PLACEHOLDER_4)
+              (command_argument
+                (invocation_expression
+                  (member_access
+                    (type_literal
+                      (type_name math)) :: floor)
+                  (argument_list
+                    (binary_expression $PLACEHOLDER_5 / 1000))))))
+          (assignment_statement $PLACEHOLDER_6 += "thousand ")
+          (assignment_statement $PLACEHOLDER_5 =
+            (binary_expression $PLACEHOLDER_5 % 1000))))
+      (assignment_statement $PLACEHOLDER_6 +=
+        (command (command_name PLACEHOLDER_4)
+          (command_argument
+            (invocation_expression
+              (member_access
+                (type_literal
+                  (type_name math)) :: floor)
+              (argument_list $PLACEHOLDER_5)))))
+      (if_statement
+        (condition
+          (invocation_expression
+            (member_access $PLACEHOLDER_6 . endswith)
+            (argument_list " ")))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_6 =
+            (invocation_expression
+              (member_access $PLACEHOLDER_6 . substring)
+              (argument_list 0
+                (binary_expression
+                  (member_access $PLACEHOLDER_6 . length) - 1))))))
+      (return_statement $PLACEHOLDER_6))))

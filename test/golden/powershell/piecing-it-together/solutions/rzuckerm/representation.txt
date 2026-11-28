@@ -1,86 +1,386 @@
-enum Format { Unknown ; Portrait ; Square ; Landscape }
-class JigsawPuzzle {
-[ Nullable [ int ]] $Pieces
-[ Nullable [ int ]] $Border
-[ Nullable [ int ]] $Inside
-[ Nullable [ int ]] $Rows
-[ Nullable [ int ]] $Columns
-[ Nullable [ double ]] $AspectRatio
-[ Nullable [ Format ]] $Format
-[ string []] static hidden $fields = @( "\"Pieces\"" , "\"Border\"" , "\"Inside\"" , "\"Rows\"" , "\"Columns\"" , "\"AspectRatio\"" , "\"Format\"" )
-GetData ([ PSCustomObject ] $partialData )
-{
-foreach ( $field in [ JigsawPuzzle ]:: fields ) {
-if ( $partialData . $field ) { $this . $field = $partialData . $field }
-}
-$this . GetFormatFromAspectRatio ()
-$this . GetDataForSquare ()
-$this . GetRowsAndColumnsFromPiecesAndAspectRatio ()
-$this . GetColumnsFromRowsAndAspectRatio ()
-$this . GetBorderAndInsideFromRowsAndColumns ()
-$this . GetDataFromPiecesBorderAndFormat ()
-foreach ( $field in [ JigsawPuzzle ]:: fields ) {
-if ( $this . $field -eq $null ) { throw "\"insufficient data\"" }
-}
-}
-[ void ] SetValue ([ string ] $field , $value ) {
-if ( $this . $field -eq $value ) { return }
-if ( $this . $field -ne $null ) { throw "\"contradictory data\"" }
-$this . $field = $value
-}
-[ void ] GetFormatFromAspectRatio () {
-if ( $this . AspectRatio -eq $null ) { return }
-if ( $this . AspectRatio -eq 1.0 ) { $this . SetValue ( "\"Format\"" , "\"Square\"" ) }
-else { $this . SetValue ( "\"Format\"" , (( $this . AspectRatio -lt 1.0 ) ? "\"Portrait\"" : "\"Landscape\"" )) }
-}
-[ void ] GetDataForSquare () {
-if ( $this . Format -ne "\"Square\"" -and $this . AspectRatio -ne 1.0 ) { return }
-$this . SetValue ( "\"AspectRatio\"" , 1.0 )
-$this . SetValue ( "\"Format\"" , "\"Square\"" )
-if ( $this . Inside -ne $null ) {
-$s = [ int ][ Math ]:: Round ([ Math ]:: Sqrt ( $this . Inside )) + 2
-$this . SetValue ( "\"Rows\"" , $s )
-}
-if ( $this . Rows -ne $null -or $this . Columns -ne $null ) {
-$s = $this . Rows ?? $this . Columns
-$this . SetValue ( "\"Rows\"" , $s )
-$this . SetValue ( "\"Columns\"" , $s )
-$this . SetValue ( "\"Pieces\"" , ( $s * $s ))
-}
-}
-[ void ] GetColumnsFromRowsAndAspectRatio () {
-if ( $this . Rows -eq $null -or $this . AspectRatio -eq $null ) { return }
-$this . SetValue ( "\"Columns\"" , ( $this . Rows * $this . AspectRatio ))
-}
-[ void ] GetRowsAndColumnsFromPiecesAndAspectRatio () {
-if ( $this . Pieces -eq $null -or $this . AspectRatio -eq $null ) { return }
-$r = [ int ][ Math ]:: Round ([ Math ]:: Sqrt ( $this . Pieces / $this . AspectRatio ))
-$c = [ int ][ Math ]:: Round ( $r * $this . AspectRatio )
-$this . SetValue ( "\"Rows\"" , $r )
-$this . SetValue ( "\"Columns\"" , $c )
-}
-[ void ] GetBorderAndInsideFromRowsAndColumns () {
-if ( $this . Rows -eq $null -or $this . Columns -eq $null ) { return }
-$border_ = 2 * ( $this . Rows + $this . Columns ) - 4
-$pieces_ = $this . Rows * $this . Columns
-$this . SetValue ( "\"Border\"" , $border_ )
-$this . SetValue ( "\"Inside\"" , ( $pieces_ - $border_ ))
-$this . SetValue ( "\"Pieces\"" , $pieces_ )
-}
-[ void ] GetDataFromPiecesBorderAndFormat () {
-if ( $this . Pieces -eq $null -or $this . Border -eq $null -or $this . Format -eq $null ) { return }
-$border_ = $this . Border
-$this . SetValue ( "\"Inside\"" , ( $this . Pieces - $border_ ))
-$d = [ int ][ Math ]:: sqrt ( 16 + 8 * $border_ + $border_ * $border_ - 16 * $this . Pieces )
-$x = [ int ](( $border_ + 4 + $d ) / 4 )
-$y = [ int ]( $this . Pieces / $x )
-$trialBorder = 2 * ( $x + $y ) - 4
-if ( $border_ -eq $trialBorder ) {
-$r = ( $this . Format -eq "\"Portrait\"" ) ? $x : $y
-$c = ( $this . Format -eq "\"Portrait\"" ) ? $y : $x
-$this . SetValue ( "\"Rows\"" , $r )
-$this . SetValue ( "\"Columns\"" , $c )
-$this . SetValue ( "\"AspectRatio\"" , ( $c / $r ))
-}
-}
-}
+(source_file
+  (enum_definition (identifier PLACEHOLDER_1)
+    (enum_body
+      (enum_member (identifier PLACEHOLDER_2))
+      (enum_member (identifier PLACEHOLDER_3))
+      (enum_member (identifier PLACEHOLDER_4))
+      (enum_member (identifier PLACEHOLDER_5))))
+  (class_definition (identifier PLACEHOLDER_6)
+    (class_body
+      (class_property
+        (type_literal
+          (type_name nullable [
+            (type_name int) ])) $PLACEHOLDER_7)
+      (class_property
+        (type_literal
+          (type_name nullable [
+            (type_name int) ])) $PLACEHOLDER_8)
+      (class_property
+        (type_literal
+          (type_name nullable [
+            (type_name int) ])) $PLACEHOLDER_9)
+      (class_property
+        (type_literal
+          (type_name nullable [
+            (type_name int) ])) $PLACEHOLDER_10)
+      (class_property
+        (type_literal
+          (type_name nullable [
+            (type_name int) ])) $PLACEHOLDER_11)
+      (class_property
+        (type_literal
+          (type_name nullable [
+            (type_name double) ])) $PLACEHOLDER_12)
+      (class_property
+        (type_literal
+          (type_name nullable [
+            (type_name (type_identifier PLACEHOLDER_1)) ])) $PLACEHOLDER_1)
+      (class_property
+        (type_literal
+          (type_name string [ ])) static hidden $PLACEHOLDER_13
+        (array_expression
+          (array_literal_expression "Pieces" "Border" "Inside" "Rows" "Columns" "AspectRatio" "Format")))
+      (class_method (identifier PLACEHOLDER_14)
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name pscustomobject)) $PLACEHOLDER_15))
+        (statement_block
+          (foreach_statement $PLACEHOLDER_16
+            (member_access
+              (type_literal
+                (type_name (type_identifier PLACEHOLDER_6))) :: (identifier PLACEHOLDER_13))
+            (statement_block
+              (if_statement
+                (condition
+                  (member_access $PLACEHOLDER_15 . $PLACEHOLDER_16))
+                (statement_block
+                  (assignment_statement
+                    (member_access $this . $PLACEHOLDER_16) =
+                    (member_access $PLACEHOLDER_15 . $PLACEHOLDER_16))))))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_17))
+            (argument_list))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_18))
+            (argument_list))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_19))
+            (argument_list))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_20))
+            (argument_list))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_21))
+            (argument_list))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_22))
+            (argument_list))
+          (foreach_statement $PLACEHOLDER_16
+            (member_access
+              (type_literal
+                (type_name (type_identifier PLACEHOLDER_6))) :: (identifier PLACEHOLDER_13))
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression
+                    (member_access $this . $PLACEHOLDER_16) -eq $null))
+                (statement_block
+                  (throw_statement "insufficient data")))))))
+      (class_method
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_23)
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string)) $PLACEHOLDER_16)
+          (parameter $PLACEHOLDER_24))
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access $this . $PLACEHOLDER_16) -eq $PLACEHOLDER_24))
+            (statement_block
+              (return_statement)))
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access $this . $PLACEHOLDER_16) -ne $null))
+            (statement_block
+              (throw_statement "contradictory data")))
+          (assignment_statement
+            (member_access $this . $PLACEHOLDER_16) = $PLACEHOLDER_24)))
+      (class_method
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_17)
+        (parameter_list)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_12)) -eq $null))
+            (statement_block
+              (return_statement)))
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_12)) -eq 1.0))
+            (statement_block
+              (invocation_expression
+                (member_access $this . (identifier PLACEHOLDER_23))
+                (argument_list "Format" "Square")))
+            (else_clause
+              (statement_block
+                (invocation_expression
+                  (member_access $this . (identifier PLACEHOLDER_23))
+                  (argument_list "Format"
+                    (ternary_expression
+                      (binary_expression
+                        (member_access $this . (identifier PLACEHOLDER_12)) -lt 1.0) "Portrait" "Landscape"))))))))
+      (class_method
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_18)
+        (parameter_list)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_1)) -ne "Square") -and
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_12)) -ne 1.0)))
+            (statement_block
+              (return_statement)))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "AspectRatio" 1.0))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "Format" "Square"))
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_9)) -ne $null))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_25 =
+                (binary_expression
+                  (cast_expression
+                    (type_literal
+                      (type_name int))
+                    (invocation_expression
+                      (member_access
+                        (type_literal
+                          (type_name math)) :: round)
+                      (argument_list
+                        (invocation_expression
+                          (member_access
+                            (type_literal
+                              (type_name math)) :: sqrt)
+                          (argument_list
+                            (member_access $this . (identifier PLACEHOLDER_9))))))) + 2))
+              (invocation_expression
+                (member_access $this . (identifier PLACEHOLDER_23))
+                (argument_list "Rows" $PLACEHOLDER_25))))
+          (if_statement
+            (condition
+              (binary_expression
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_10)) -ne $null) -or
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_11)) -ne $null)))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_25 =
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_10)) ??
+                  (member_access $this . (identifier PLACEHOLDER_11))))
+              (invocation_expression
+                (member_access $this . (identifier PLACEHOLDER_23))
+                (argument_list "Rows" $PLACEHOLDER_25))
+              (invocation_expression
+                (member_access $this . (identifier PLACEHOLDER_23))
+                (argument_list "Columns" $PLACEHOLDER_25))
+              (invocation_expression
+                (member_access $this . (identifier PLACEHOLDER_23))
+                (argument_list "Pieces"
+                  (binary_expression $PLACEHOLDER_25 * $PLACEHOLDER_25)))))))
+      (class_method
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_20)
+        (parameter_list)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_10)) -eq $null) -or
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_12)) -eq $null)))
+            (statement_block
+              (return_statement)))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "Columns"
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_10)) *
+                (member_access $this . (identifier PLACEHOLDER_12)))))))
+      (class_method
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_19)
+        (parameter_list)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_7)) -eq $null) -or
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_12)) -eq $null)))
+            (statement_block
+              (return_statement)))
+          (assignment_statement $PLACEHOLDER_26 =
+            (cast_expression
+              (type_literal
+                (type_name int))
+              (invocation_expression
+                (member_access
+                  (type_literal
+                    (type_name math)) :: round)
+                (argument_list
+                  (invocation_expression
+                    (member_access
+                      (type_literal
+                        (type_name math)) :: sqrt)
+                    (argument_list
+                      (binary_expression
+                        (member_access $this . (identifier PLACEHOLDER_7)) /
+                        (member_access $this . (identifier PLACEHOLDER_12)))))))))
+          (assignment_statement $PLACEHOLDER_27 =
+            (cast_expression
+              (type_literal
+                (type_name int))
+              (invocation_expression
+                (member_access
+                  (type_literal
+                    (type_name math)) :: round)
+                (argument_list
+                  (binary_expression $PLACEHOLDER_26 *
+                    (member_access $this . (identifier PLACEHOLDER_12)))))))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "Rows" $PLACEHOLDER_26))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "Columns" $PLACEHOLDER_27))))
+      (class_method
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_21)
+        (parameter_list)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_10)) -eq $null) -or
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_11)) -eq $null)))
+            (statement_block
+              (return_statement)))
+          (assignment_statement $PLACEHOLDER_28 =
+            (binary_expression
+              (binary_expression 2 *
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_10)) +
+                  (member_access $this . (identifier PLACEHOLDER_11)))) - 4))
+          (assignment_statement $PLACEHOLDER_29 =
+            (binary_expression
+              (member_access $this . (identifier PLACEHOLDER_10)) *
+              (member_access $this . (identifier PLACEHOLDER_11))))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "Border" $PLACEHOLDER_28))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "Inside"
+              (binary_expression $PLACEHOLDER_29 - $PLACEHOLDER_28)))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "Pieces" $PLACEHOLDER_29))))
+      (class_method
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_22)
+        (parameter_list)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (member_access $this . (identifier PLACEHOLDER_7)) -eq $null) -or
+                  (binary_expression
+                    (member_access $this . (identifier PLACEHOLDER_8)) -eq $null)) -or
+                (binary_expression
+                  (member_access $this . (identifier PLACEHOLDER_1)) -eq $null)))
+            (statement_block
+              (return_statement)))
+          (assignment_statement $PLACEHOLDER_28 =
+            (member_access $this . (identifier PLACEHOLDER_8)))
+          (invocation_expression
+            (member_access $this . (identifier PLACEHOLDER_23))
+            (argument_list "Inside"
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_7)) - $PLACEHOLDER_28)))
+          (assignment_statement $PLACEHOLDER_30 =
+            (cast_expression
+              (type_literal
+                (type_name int))
+              (invocation_expression
+                (member_access
+                  (type_literal
+                    (type_name math)) :: sqrt)
+                (argument_list
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression 16 +
+                        (binary_expression 8 * $PLACEHOLDER_28)) +
+                      (binary_expression $PLACEHOLDER_28 * $PLACEHOLDER_28)) -
+                    (binary_expression 16 *
+                      (member_access $this . (identifier PLACEHOLDER_7))))))))
+          (assignment_statement $PLACEHOLDER_31 =
+            (cast_expression
+              (type_literal
+                (type_name int))
+              (binary_expression
+                (binary_expression
+                  (binary_expression $PLACEHOLDER_28 + 4) + $PLACEHOLDER_30) / 4)))
+          (assignment_statement $PLACEHOLDER_32 =
+            (cast_expression
+              (type_literal
+                (type_name int))
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_7)) / $PLACEHOLDER_31)))
+          (assignment_statement $PLACEHOLDER_33 =
+            (binary_expression
+              (binary_expression 2 *
+                (binary_expression $PLACEHOLDER_31 + $PLACEHOLDER_32)) - 4))
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_28 -eq $PLACEHOLDER_33))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_26 =
+                (ternary_expression
+                  (binary_expression
+                    (member_access $this . (identifier PLACEHOLDER_1)) -eq "Portrait") $PLACEHOLDER_31 $PLACEHOLDER_32))
+              (assignment_statement $PLACEHOLDER_27 =
+                (ternary_expression
+                  (binary_expression
+                    (member_access $this . (identifier PLACEHOLDER_1)) -eq "Portrait") $PLACEHOLDER_32 $PLACEHOLDER_31))
+              (invocation_expression
+                (member_access $this . (identifier PLACEHOLDER_23))
+                (argument_list "Rows" $PLACEHOLDER_26))
+              (invocation_expression
+                (member_access $this . (identifier PLACEHOLDER_23))
+                (argument_list "Columns" $PLACEHOLDER_27))
+              (invocation_expression
+                (member_access $this . (identifier PLACEHOLDER_23))
+                (argument_list "AspectRatio"
+                  (binary_expression $PLACEHOLDER_27 / $PLACEHOLDER_26))))))))))

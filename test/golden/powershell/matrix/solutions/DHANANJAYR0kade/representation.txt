@@ -1,179 +1,602 @@
-Function Invoke-Row () {
-[ CmdletBinding ()]
-Param (
-[ string ] $String ,
-[ int ] $Index
-)
-$rows = $String -split "\"`n\""
-if ( $Index -lt 1 -or $Index -gt $rows . Count ) {
-throw "\"Index out of range\""
-}
-$rowString = $rows [ $Index - 1 ]
-$result = @()
-$numbers = $rowString -split "' '"
-foreach ( $num in $numbers ) {
-if ( $num -ne '' ) {
-$result += [ int ] $num
-}
-}
-return $result
-}
-Function Invoke-Column () {
-[ CmdletBinding ()]
-Param (
-[ string ] $String ,
-[ int ] $Index
-)
-$rows = $String -split "\"`n\""
-if ( $rows . Count -eq 0 ) {
-throw "\"Matrix is empty\""
-}
-$matrix = @()
-foreach ( $row in $rows ) {
-$numbers = $row -split "' '"
-$rowArray = @()
-foreach ( $num in $numbers ) {
-if ( $num -ne '' ) {
-$rowArray += [ int ] $num
-}
-}
-$matrix += , $rowArray
-}
-$columnCount = $matrix [ 0 ] . Count
-if ( $Index -lt 1 -or $Index -gt $columnCount ) {
-throw "\"Index out of range\""
-}
-$result = @()
-$colIndex = $Index - 1
-for ( $i = 0 ; $i -lt $matrix . Count ; $i ++ ) {
-$result += $matrix [ $i ][ $colIndex ]
-}
-return $result
-}
-Function Get-Matrix () {
-[ CmdletBinding ()]
-Param (
-[ string ] $String
-)
-$rows = $String -split "\"`n\""
-$matrix = @()
-foreach ( $row in $rows ) {
-$numbers = $row -split "' '"
-$rowArray = @()
-foreach ( $num in $numbers ) {
-if ( $num -ne '' ) {
-$rowArray += [ int ] $num
-}
-}
-$matrix += , $rowArray
-}
-return $matrix
-}
-if ( $MyInvocation . InvocationName -ne '.' ) {
-Describe "\"Matrix Operations\"" {
-Context "\"Invoke-Row\"" {
-It "\"Gets first row from 2x2 matrix\"" {
-$result = Invoke-Row -String "\"1 2`n3 4\"" -Index 1
-$result . Count | Should -Be 2
-$result [ 0 ] | Should -Be 1
-$result [ 1 ] | Should -Be 2
-}
-It "\"Gets second row from 2x2 matrix\"" {
-$result = Invoke-Row -String "\"1 2`n3 4\"" -Index 2
-$result . Count | Should -Be 2
-$result [ 0 ] | Should -Be 3
-$result [ 1 ] | Should -Be 4
-}
-It "\"Gets row from 3x3 matrix\"" {
-$result = Invoke-Row -String "\"1 2 3`n4 5 6`n7 8 9\"" -Index 2
-$result . Count | Should -Be 3
-$result [ 0 ] | Should -Be 4
-$result [ 1 ] | Should -Be 5
-$result [ 2 ] | Should -Be 6
-}
-It "\"Throws on invalid index\"" {
-{ Invoke-Row -String "\"1 2`n3 4\"" -Index 3 } | Should -Throw "\"Index out of range\""
-}
-It "\"Throws on zero index\"" {
-{ Invoke-Row -String "\"1 2`n3 4\"" -Index 0 } | Should -Throw "\"Index out of range\""
-}
-}
-Context "\"Invoke-Column\"" {
-It "\"Gets first column from 2x2 matrix\"" {
-$result = Invoke-Column -String "\"1 2`n3 4\"" -Index 1
-$result . Count | Should -Be 2
-$result [ 0 ] | Should -Be 1
-$result [ 1 ] | Should -Be 3
-}
-It "\"Gets second column from 2x2 matrix\"" {
-$result = Invoke-Column -String "\"1 2`n3 4\"" -Index 2
-$result . Count | Should -Be 2
-$result [ 0 ] | Should -Be 2
-$result [ 1 ] | Should -Be 4
-}
-It "\"Gets column from 3x3 matrix\"" {
-$result = Invoke-Column -String "\"1 2 3`n4 5 6`n7 8 9\"" -Index 3
-$result . Count | Should -Be 3
-$result [ 0 ] | Should -Be 3
-$result [ 1 ] | Should -Be 6
-$result [ 2 ] | Should -Be 9
-}
-It "\"Gets middle column from 3x3 matrix\"" {
-$result = Invoke-Column -String "\"1 2 3`n4 5 6`n7 8 9\"" -Index 2
-$result . Count | Should -Be 3
-$result [ 0 ] | Should -Be 2
-$result [ 1 ] | Should -Be 5
-$result [ 2 ] | Should -Be 8
-}
-It "\"Throws on invalid index\"" {
-{ Invoke-Column -String "\"1 2`n3 4\"" -Index 3 } | Should -Throw "\"Index out of range\""
-}
-It "\"Throws on zero index\"" {
-{ Invoke-Column -String "\"1 2`n3 4\"" -Index 0 } | Should -Throw "\"Index out of range\""
-}
-}
-Context "\"Get-Matrix\"" {
-It "\"Returns full 2x2 matrix\"" {
-$result = Get-Matrix -String "\"1 2`n3 4\""
-$result . Count | Should -Be 2
-$result [ 0 ] . Count | Should -Be 2
-$result [ 1 ] . Count | Should -Be 2
-$result [ 0 ][ 0 ] | Should -Be 1
-$result [ 0 ][ 1 ] | Should -Be 2
-$result [ 1 ][ 0 ] | Should -Be 3
-$result [ 1 ][ 1 ] | Should -Be 4
-}
-It "\"Returns full 3x3 matrix\"" {
-$result = Get-Matrix -String "\"1 2 3`n4 5 6`n7 8 9\""
-$result . Count | Should -Be 3
-$result [ 0 ] . Count | Should -Be 3
-$result [ 1 ] . Count | Should -Be 3
-$result [ 2 ] . Count | Should -Be 3
-$result [ 0 ][ 0 ] | Should -Be 1
-$result [ 0 ][ 1 ] | Should -Be 2
-$result [ 0 ][ 2 ] | Should -Be 3
-$result [ 1 ][ 0 ] | Should -Be 4
-$result [ 1 ][ 1 ] | Should -Be 5
-$result [ 1 ][ 2 ] | Should -Be 6
-$result [ 2 ][ 0 ] | Should -Be 7
-$result [ 2 ][ 1 ] | Should -Be 8
-$result [ 2 ][ 2 ] | Should -Be 9
-}
-}
-Context "\"Integration\"" {
-It "\"Row and column extraction work together\"" {
-$matrixString = "\"1 2 3`n4 5 6`n7 8 9\""
-$row2 = Invoke-Row -String $matrixString -Index 2
-$row2 [ 0 ] | Should -Be 4
-$row2 [ 1 ] | Should -Be 5
-$row2 [ 2 ] | Should -Be 6
-$col2 = Invoke-Column -String $matrixString -Index 2
-$col2 [ 0 ] | Should -Be 2
-$col2 [ 1 ] | Should -Be 5
-$col2 [ 2 ] | Should -Be 8
-$row2 [ 1 ] | Should -Be 5
-$col2 [ 1 ] | Should -Be 5
-}
-}
-}
-}
+(source_file
+  (function_definition (function_name PLACEHOLDER_1)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name (type_identifier PLACEHOLDER_2))) $PLACEHOLDER_2)
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_3)))
+      (assignment_statement $PLACEHOLDER_4 =
+        (binary_expression $PLACEHOLDER_2 -split "\n"))
+      (if_statement
+        (condition
+          (binary_expression
+            (binary_expression $PLACEHOLDER_3 -lt 1) -or
+            (binary_expression $PLACEHOLDER_3 -gt
+              (member_access $PLACEHOLDER_4 . count))))
+        (statement_block
+          (throw_statement "Index out of range")))
+      (assignment_statement $PLACEHOLDER_5 =
+        (element_access $PLACEHOLDER_4
+          (binary_expression $PLACEHOLDER_3 - 1)))
+      (assignment_statement $PLACEHOLDER_6 =
+        (array_expression))
+      (assignment_statement $PLACEHOLDER_7 =
+        (binary_expression $PLACEHOLDER_5 -split " "))
+      (foreach_statement $PLACEHOLDER_8 $PLACEHOLDER_7
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_8 -ne ""))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_6 +=
+                (cast_expression
+                  (type_literal
+                    (type_name int)) $PLACEHOLDER_8))))))
+      (return_statement $PLACEHOLDER_6)))
+  (function_definition (function_name PLACEHOLDER_9)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name (type_identifier PLACEHOLDER_2))) $PLACEHOLDER_2)
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_3)))
+      (assignment_statement $PLACEHOLDER_4 =
+        (binary_expression $PLACEHOLDER_2 -split "\n"))
+      (if_statement
+        (condition
+          (binary_expression
+            (member_access $PLACEHOLDER_4 . count) -eq 0))
+        (statement_block
+          (throw_statement "Matrix is empty")))
+      (assignment_statement $PLACEHOLDER_10 =
+        (array_expression))
+      (foreach_statement $PLACEHOLDER_11 $PLACEHOLDER_4
+        (statement_block
+          (assignment_statement $PLACEHOLDER_7 =
+            (binary_expression $PLACEHOLDER_11 -split " "))
+          (assignment_statement $PLACEHOLDER_12 =
+            (array_expression))
+          (foreach_statement $PLACEHOLDER_8 $PLACEHOLDER_7
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression $PLACEHOLDER_8 -ne ""))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_12 +=
+                    (cast_expression
+                      (type_literal
+                        (type_name int)) $PLACEHOLDER_8))))))
+          (assignment_statement $PLACEHOLDER_10 +=
+            (unary_expression , $PLACEHOLDER_12))))
+      (assignment_statement $PLACEHOLDER_13 =
+        (member_access
+          (element_access $PLACEHOLDER_10 0) . count))
+      (if_statement
+        (condition
+          (binary_expression
+            (binary_expression $PLACEHOLDER_3 -lt 1) -or
+            (binary_expression $PLACEHOLDER_3 -gt $PLACEHOLDER_13)))
+        (statement_block
+          (throw_statement "Index out of range")))
+      (assignment_statement $PLACEHOLDER_6 =
+        (array_expression))
+      (assignment_statement $PLACEHOLDER_14 =
+        (binary_expression $PLACEHOLDER_3 - 1))
+      (for_statement
+        (assignment_statement $PLACEHOLDER_15 = 0)
+        (binary_expression $PLACEHOLDER_15 -lt
+          (member_access $PLACEHOLDER_10 . count))
+        (unary_expression $PLACEHOLDER_15 ++)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_6 +=
+            (element_access
+              (element_access $PLACEHOLDER_10 $PLACEHOLDER_15) $PLACEHOLDER_14))))
+      (return_statement $PLACEHOLDER_6)))
+  (function_definition (function_name PLACEHOLDER_16)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name (type_identifier PLACEHOLDER_2))) $PLACEHOLDER_2)))
+      (assignment_statement $PLACEHOLDER_4 =
+        (binary_expression $PLACEHOLDER_2 -split "\n"))
+      (assignment_statement $PLACEHOLDER_10 =
+        (array_expression))
+      (foreach_statement $PLACEHOLDER_11 $PLACEHOLDER_4
+        (statement_block
+          (assignment_statement $PLACEHOLDER_7 =
+            (binary_expression $PLACEHOLDER_11 -split " "))
+          (assignment_statement $PLACEHOLDER_12 =
+            (array_expression))
+          (foreach_statement $PLACEHOLDER_8 $PLACEHOLDER_7
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression $PLACEHOLDER_8 -ne ""))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_12 +=
+                    (cast_expression
+                      (type_literal
+                        (type_name int)) $PLACEHOLDER_8))))))
+          (assignment_statement $PLACEHOLDER_10 +=
+            (unary_expression , $PLACEHOLDER_12))))
+      (return_statement $PLACEHOLDER_10)))
+  (if_statement
+    (condition
+      (binary_expression
+        (member_access $myinvocation . invocationname) -ne "."))
+    (statement_block
+      (command describe
+        (command_argument "Matrix Operations")
+        (command_argument
+          (script_block
+            (command context
+              (command_argument "Invoke-Row")
+              (command_argument
+                (script_block
+                  (command it
+                    (command_argument "Gets first row from 2x2 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_1)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2\n3 4")
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 1)))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 1)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2))))))
+                  (command it
+                    (command_argument "Gets second row from 2x2 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_1)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2\n3 4")
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 2)))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 4))))))
+                  (command it
+                    (command_argument "Gets row from 3x3 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_1)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2 3\n4 5 6\n7 8 9")
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 2)))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 4)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 5)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 2)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 6))))))
+                  (command it
+                    (command_argument "Throws on invalid index")
+                    (command_argument
+                      (script_block
+                        (pipeline
+                          (script_block
+                            (command (command_name PLACEHOLDER_1)
+                              (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                              (command_argument "1 2\n3 4")
+                              (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                              (command_argument 3)))
+                          (command should
+                            (command_parameter -throw)
+                            (command_argument "Index out of range"))))))
+                  (command it
+                    (command_argument "Throws on zero index")
+                    (command_argument
+                      (script_block
+                        (pipeline
+                          (script_block
+                            (command (command_name PLACEHOLDER_1)
+                              (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                              (command_argument "1 2\n3 4")
+                              (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                              (command_argument 0)))
+                          (command should
+                            (command_parameter -throw)
+                            (command_argument "Index out of range")))))))))
+            (command context
+              (command_argument "Invoke-Column")
+              (command_argument
+                (script_block
+                  (command it
+                    (command_argument "Gets first column from 2x2 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_9)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2\n3 4")
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 1)))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 1)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3))))))
+                  (command it
+                    (command_argument "Gets second column from 2x2 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_9)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2\n3 4")
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 2)))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 4))))))
+                  (command it
+                    (command_argument "Gets column from 3x3 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_9)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2 3\n4 5 6\n7 8 9")
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 3)))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 6)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 2)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 9))))))
+                  (command it
+                    (command_argument "Gets middle column from 3x3 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_9)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2 3\n4 5 6\n7 8 9")
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 2)))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 5)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_6 2)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 8))))))
+                  (command it
+                    (command_argument "Throws on invalid index")
+                    (command_argument
+                      (script_block
+                        (pipeline
+                          (script_block
+                            (command (command_name PLACEHOLDER_9)
+                              (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                              (command_argument "1 2\n3 4")
+                              (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                              (command_argument 3)))
+                          (command should
+                            (command_parameter -throw)
+                            (command_argument "Index out of range"))))))
+                  (command it
+                    (command_argument "Throws on zero index")
+                    (command_argument
+                      (script_block
+                        (pipeline
+                          (script_block
+                            (command (command_name PLACEHOLDER_9)
+                              (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                              (command_argument "1 2\n3 4")
+                              (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                              (command_argument 0)))
+                          (command should
+                            (command_parameter -throw)
+                            (command_argument "Index out of range")))))))))
+            (command context
+              (command_argument "Get-Matrix")
+              (command_argument
+                (script_block
+                  (command it
+                    (command_argument "Returns full 2x2 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_16)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2\n3 4")))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (member_access
+                            (element_access $PLACEHOLDER_6 0) . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (member_access
+                            (element_access $PLACEHOLDER_6 1) . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 0) 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 1)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 0) 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 1) 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 1) 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 4))))))
+                  (command it
+                    (command_argument "Returns full 3x3 matrix")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_6 =
+                          (command (command_name PLACEHOLDER_16)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument "1 2 3\n4 5 6\n7 8 9")))
+                        (pipeline
+                          (member_access $PLACEHOLDER_6 . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (member_access
+                            (element_access $PLACEHOLDER_6 0) . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (member_access
+                            (element_access $PLACEHOLDER_6 1) . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (member_access
+                            (element_access $PLACEHOLDER_6 2) . count)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 0) 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 1)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 0) 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 0) 2)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 3)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 1) 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 4)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 1) 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 5)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 1) 2)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 6)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 2) 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 7)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 2) 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 8)))
+                        (pipeline
+                          (element_access
+                            (element_access $PLACEHOLDER_6 2) 2)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 9)))))))))
+            (command context
+              (command_argument "Integration")
+              (command_argument
+                (script_block
+                  (command it
+                    (command_argument "Row and column extraction work together")
+                    (command_argument
+                      (script_block
+                        (assignment_statement $PLACEHOLDER_17 = "1 2 3\n4 5 6\n7 8 9")
+                        (assignment_statement $PLACEHOLDER_18 =
+                          (command (command_name PLACEHOLDER_1)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument $PLACEHOLDER_17)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_18 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 4)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_18 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 5)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_18 2)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 6)))
+                        (assignment_statement $PLACEHOLDER_19 =
+                          (command (command_name PLACEHOLDER_9)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_2))
+                            (command_argument $PLACEHOLDER_17)
+                            (command_parameter (command_parameter_name -PLACEHOLDER_3))
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_19 0)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 2)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_19 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 5)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_19 2)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 8)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_18 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 5)))
+                        (pipeline
+                          (element_access $PLACEHOLDER_19 1)
+                          (command should
+                            (command_parameter -be)
+                            (command_argument 5)))))))))))))))

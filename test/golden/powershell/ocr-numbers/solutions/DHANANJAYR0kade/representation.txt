@@ -1,52 +1,95 @@
-Function Invoke-OCR () {
-[ CmdletBinding ()]
-Param (
-[ string []] $Grid
-)
-if (( $Grid . Count % 4 ) -ne 0 ) {
-throw "\"Number of input lines is not a multiple of four\""
-}
-if ( $Grid . Count -eq 0 ) {
-return "\"\""
-}
-$width = $Grid [ 0 ] . Length
-if (( $width % 3 ) -ne 0 ) {
-throw "\"Number of input columns is not a multiple of three\""
-}
-foreach ( $line in $Grid ) {
-if ( $line . Length -ne $width ) {
-throw "\"Number of input columns is not a multiple of three\""
-}
-}
-$patterns = @{
-"\" _ `n| |`n|_|`n   \"" = "\"0\""
-"\"   `n  |`n  |`n   \"" = "\"1\""
-"\" _ `n _|`n|_ `n   \"" = "\"2\""
-"\" _ `n _|`n _|`n   \"" = "\"3\""
-"\"   `n|_|`n  |`n   \"" = "\"4\""
-"\" _ `n|_ `n _|`n   \"" = "\"5\""
-"\" _ `n|_ `n|_|`n   \"" = "\"6\""
-"\" _ `n  |`n  |`n   \"" = "\"7\""
-"\" _ `n|_|`n|_|`n   \"" = "\"8\""
-"\" _ `n|_|`n _|`n   \"" = "\"9\""
-}
-$output = @()
-for ( $baseRow = 0 ; $baseRow -lt $Grid . Count ; $baseRow += 4 ) {
-$number = "\"\""
-for ( $column = 0 ; $column -lt $width ; $column += 3 ) {
-$parts = @()
-for ( $row = 0 ; $row -lt 4 ; $row ++ ) {
-$parts += $Grid [ $baseRow + $row ] . Substring ( $column , 3 )
-}
-$pattern = $parts -join "\"`n\""
-if ( $patterns . ContainsKey ( $pattern )) {
-$number += $patterns [ $pattern ]
-}
-else {
-$number += "\"?\""
-}
-}
-$output += $number
-}
-$output -join "\",\""
-}
+(source_file
+  (function_definition (function_name PLACEHOLDER_1)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_2)))
+      (if_statement
+        (condition
+          (binary_expression
+            (binary_expression
+              (member_access $PLACEHOLDER_2 . count) % 4) -ne 0))
+        (statement_block
+          (throw_statement "Number of input lines is not a multiple of four")))
+      (if_statement
+        (condition
+          (binary_expression
+            (member_access $PLACEHOLDER_2 . count) -eq 0))
+        (statement_block
+          (return_statement "")))
+      (assignment_statement $PLACEHOLDER_3 =
+        (member_access
+          (element_access $PLACEHOLDER_2 0) . length))
+      (if_statement
+        (condition
+          (binary_expression
+            (binary_expression $PLACEHOLDER_3 % 3) -ne 0))
+        (statement_block
+          (throw_statement "Number of input columns is not a multiple of three")))
+      (foreach_statement $PLACEHOLDER_4 $PLACEHOLDER_2
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access $PLACEHOLDER_4 . length) -ne $PLACEHOLDER_3))
+            (statement_block
+              (throw_statement "Number of input columns is not a multiple of three")))))
+      (assignment_statement $PLACEHOLDER_5 =
+        (hashtable_expression
+          (hash_entry " _ \n| |\n|_|\n   " "0")
+          (hash_entry "   \n  |\n  |\n   " "1")
+          (hash_entry " _ \n _|\n|_ \n   " "2")
+          (hash_entry " _ \n _|\n _|\n   " "3")
+          (hash_entry "   \n|_|\n  |\n   " "4")
+          (hash_entry " _ \n|_ \n _|\n   " "5")
+          (hash_entry " _ \n|_ \n|_|\n   " "6")
+          (hash_entry " _ \n  |\n  |\n   " "7")
+          (hash_entry " _ \n|_|\n|_|\n   " "8")
+          (hash_entry " _ \n|_|\n _|\n   " "9")))
+      (assignment_statement $PLACEHOLDER_6 =
+        (array_expression))
+      (for_statement
+        (assignment_statement $PLACEHOLDER_7 = 0)
+        (binary_expression $PLACEHOLDER_7 -lt
+          (member_access $PLACEHOLDER_2 . count))
+        (assignment_statement $PLACEHOLDER_7 += 4)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_8 = "")
+          (for_statement
+            (assignment_statement $PLACEHOLDER_9 = 0)
+            (binary_expression $PLACEHOLDER_9 -lt $PLACEHOLDER_3)
+            (assignment_statement $PLACEHOLDER_9 += 3)
+            (statement_block
+              (assignment_statement $PLACEHOLDER_10 =
+                (array_expression))
+              (for_statement
+                (assignment_statement $PLACEHOLDER_11 = 0)
+                (binary_expression $PLACEHOLDER_11 -lt 4)
+                (unary_expression $PLACEHOLDER_11 ++)
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_10 +=
+                    (invocation_expression
+                      (member_access
+                        (element_access $PLACEHOLDER_2
+                          (binary_expression $PLACEHOLDER_7 + $PLACEHOLDER_11)) . substring)
+                      (argument_list $PLACEHOLDER_9 3)))))
+              (assignment_statement $PLACEHOLDER_12 =
+                (binary_expression $PLACEHOLDER_10 -join "\n"))
+              (if_statement
+                (condition
+                  (invocation_expression
+                    (member_access $PLACEHOLDER_5 . containskey)
+                    (argument_list $PLACEHOLDER_12)))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_8 +=
+                    (element_access $PLACEHOLDER_5 $PLACEHOLDER_12)))
+                (else_clause
+                  (statement_block
+                    (assignment_statement $PLACEHOLDER_8 += "?"))))))
+          (assignment_statement $PLACEHOLDER_6 += $PLACEHOLDER_8)))
+      (binary_expression $PLACEHOLDER_6 -join ","))))

@@ -1,47 +1,121 @@
-Function Invoke-Encode () {
-[ CmdletBinding ()]
-Param (
-[ Parameter ( ValueFromPipeline )]
-[ string ] $Data
-)
-if ( $Data -match '[0-9]' ) { throw "\"caca\"" }
-[ string []] $charArray = $Data . ToCharArray ()
-$accumulation = @()
-for ( $i = 0 ; $i -lt $charArray . Count ; $i ++ ) {
-if ( $accumulation [ -1 ] . Char -ceq $charArray [ $i ]) {
-$accumulation [ -1 ] . Number += 1
-} else {
-$accumulation += [ PSCustomObject ]@{ Char = $charArray [ $i ] ; Number = 1 }
-}
-}
-$output = ''
-$accumulation | ForEach-Object {
-$char = $_ . Char
-$number = $_ . Number
-if ( $number -eq 1 ) {
-$output += $char
-} else {
-$output += "\"" $number$char "\""
-}
-}
-return $output
-}
-Function Invoke-Decode () {
-[ CmdletBinding ()]
-Param (
-[ Parameter ( ValueFromPipeline )]
-[ string ] $Data
-)
-$number = $output = ''
-for ( $i = 0 ; $i -lt $Data . Length ; $i ++ ) {
-$char = $Data . Substring ( $i , 1 )
-if ( $char -match '[0-9]' ) {
-$number += $char
-} else {
-if ( $number -eq '' ) { $number = 1 }
-$output += $char * [ int ] $number
-$number = ''
-}
-}
-return $output
-}
+(source_file
+  (function_definition (function_name PLACEHOLDER_1)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (attribute
+              (type_name parameter)
+              (argument_list
+                (attribute_argument valuefrompipeline)))
+            (type_literal
+              (type_name string)) $PLACEHOLDER_2)))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_2 -match "[0-9]"))
+        (statement_block
+          (throw_statement "caca")))
+      (assignment_statement
+        (cast_expression
+          (type_literal
+            (type_name string [ ])) $chararray) =
+        (invocation_expression
+          (member_access $PLACEHOLDER_2 . tochararray)
+          (argument_list)))
+      (assignment_statement $PLACEHOLDER_3 =
+        (array_expression))
+      (for_statement
+        (assignment_statement $PLACEHOLDER_4 = 0)
+        (binary_expression $PLACEHOLDER_4 -lt
+          (member_access $chararray . count))
+        (unary_expression $PLACEHOLDER_4 ++)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access
+                  (element_access $PLACEHOLDER_3
+                    (unary_expression - 1)) . (identifier PLACEHOLDER_5)) -ceq
+                (element_access $chararray $PLACEHOLDER_4)))
+            (statement_block
+              (assignment_statement
+                (member_access
+                  (element_access $PLACEHOLDER_3
+                    (unary_expression - 1)) . (identifier PLACEHOLDER_6)) += 1))
+            (else_clause
+              (statement_block
+                (assignment_statement $PLACEHOLDER_3 +=
+                  (cast_expression
+                    (type_literal
+                      (type_name pscustomobject))
+                    (hashtable_expression
+                      (hash_entry "Char"
+                        (element_access $chararray $PLACEHOLDER_4))
+                      (hash_entry "Number" 1)))))))))
+      (assignment_statement $PLACEHOLDER_7 = "")
+      (pipeline $PLACEHOLDER_3
+        (command foreach-object
+          (command_argument
+            (script_block
+              (assignment_statement $PLACEHOLDER_5 =
+                (member_access $_ . (identifier PLACEHOLDER_5)))
+              (assignment_statement $PLACEHOLDER_6 =
+                (member_access $_ . (identifier PLACEHOLDER_6)))
+              (if_statement
+                (condition
+                  (binary_expression $PLACEHOLDER_6 -eq 1))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_7 += $PLACEHOLDER_5))
+                (else_clause
+                  (statement_block
+                    (assignment_statement $PLACEHOLDER_7 +=
+                      (expandable_string $PLACEHOLDER_6 $PLACEHOLDER_5)))))))))
+      (return_statement $PLACEHOLDER_7)))
+  (function_definition (function_name PLACEHOLDER_8)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (attribute
+              (type_name parameter)
+              (argument_list
+                (attribute_argument valuefrompipeline)))
+            (type_literal
+              (type_name string)) $PLACEHOLDER_2)))
+      (assignment_statement $PLACEHOLDER_6 =
+        (assignment_statement $PLACEHOLDER_7 = ""))
+      (for_statement
+        (assignment_statement $PLACEHOLDER_4 = 0)
+        (binary_expression $PLACEHOLDER_4 -lt
+          (member_access $PLACEHOLDER_2 . length))
+        (unary_expression $PLACEHOLDER_4 ++)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_5 =
+            (invocation_expression
+              (member_access $PLACEHOLDER_2 . substring)
+              (argument_list $PLACEHOLDER_4 1)))
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_5 -match "[0-9]"))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_6 += $PLACEHOLDER_5))
+            (else_clause
+              (statement_block
+                (if_statement
+                  (condition
+                    (binary_expression $PLACEHOLDER_6 -eq ""))
+                  (statement_block
+                    (assignment_statement $PLACEHOLDER_6 = 1)))
+                (assignment_statement $PLACEHOLDER_7 +=
+                  (binary_expression $PLACEHOLDER_5 *
+                    (cast_expression
+                      (type_literal
+                        (type_name int)) $PLACEHOLDER_6)))
+                (assignment_statement $PLACEHOLDER_6 = ""))))))
+      (return_statement $PLACEHOLDER_7))))

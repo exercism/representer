@@ -1,56 +1,148 @@
-Function Invoke-Tournament {
-[ CmdletBinding ()]
-Param (
-[ string []] $Results
-)
-$Teams = @{}
-$Stats = @{
-M = 0
-W = 0
-D = 0
-L = 0
-P = 0
-}
-$Order = @{}
-$Header = "\"Team                           | MP |  W |  D |  L |  P`n\""
-foreach ( $Game in $Results ) {
-$Team1 , $Team2 , $Score = $Game -split "\";\""
-if ( $Team1 -notin $Teams . Keys ) {
-$Teams . Add ( $Team1 , $Stats . Clone ())
-}
-if ( $Team2 -notin $Teams . Keys ) {
-$Teams . Add ( $Team2 , $Stats . Clone ())
-}
-$Teams [ $Team1 ] . M += 1
-$Teams [ $Team2 ] . M += 1
-switch -Regex ( $Score ) {
-"\"win\"" {
-$Teams [ $Team1 ] . P += 3
-$Teams [ $Team1 ] . W += 1
-$Teams [ $Team2 ] . L += 1
-}
-"\"loss\"" {
-$Teams [ $Team2 ] . P += 3
-$Teams [ $Team2 ] . W += 1
-$Teams [ $Team1 ] . L += 1
-}
-"\"draw\"" {
-$Teams [ $Team1 ] . P += 1
-$Teams [ $Team1 ] . D += 1
-$Teams [ $Team2 ] . P += 1
-$Teams [ $Team2 ] . D += 1
-}
-}
-}
-foreach ( $t in $Teams . Keys ) {
-$Order . Add ( $t , $Teams [ $t ] . P )
-}
-$Sorted = ( $Order . GetEnumerator () | Sort-Object -Property @{ Expression = { $_ . Value } ; Descending = $true }, @{ Expression = { $_ . Key } })
-$Table = $Header
-foreach ( $s in $Sorted ) {
-$t = $s . Key
-$Table += ( "\"{0,-30} | {1,2:d} | {2,2:d} | {3,2:d} | {4,2:d} | {5,2:d}`n\"" `
--f $t , $Teams [ $t ] . M , $Teams [ $t ] . W , $Teams [ $t ] . D , $Teams [ $t ] . L , $Teams [ $t ] . P )
-}
-$Table . TrimEnd ( "\"`n\"" )
-}
+(source_file
+  (function_definition (function_name PLACEHOLDER_1)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_2)))
+      (assignment_statement $PLACEHOLDER_3 =
+        (hashtable_expression))
+      (assignment_statement $PLACEHOLDER_4 =
+        (hashtable_expression
+          (hash_entry "M" 0)
+          (hash_entry "W" 0)
+          (hash_entry "D" 0)
+          (hash_entry "L" 0)
+          (hash_entry "P" 0)))
+      (assignment_statement $PLACEHOLDER_5 =
+        (hashtable_expression))
+      (assignment_statement $PLACEHOLDER_6 = "Team                           | MP |  W |  D |  L |  P\n")
+      (foreach_statement $PLACEHOLDER_7 $PLACEHOLDER_2
+        (statement_block
+          (assignment_statement
+            (array_literal_expression $team1 $team2 $score) =
+            (binary_expression $PLACEHOLDER_7 -split ";"))
+          (if_statement
+            (condition
+              (binary_expression $team1 -notin
+                (member_access $PLACEHOLDER_3 . keys)))
+            (statement_block
+              (invocation_expression
+                (member_access $PLACEHOLDER_3 . add)
+                (argument_list $team1
+                  (invocation_expression
+                    (member_access $PLACEHOLDER_4 . clone)
+                    (argument_list))))))
+          (if_statement
+            (condition
+              (binary_expression $team2 -notin
+                (member_access $PLACEHOLDER_3 . keys)))
+            (statement_block
+              (invocation_expression
+                (member_access $PLACEHOLDER_3 . add)
+                (argument_list $team2
+                  (invocation_expression
+                    (member_access $PLACEHOLDER_4 . clone)
+                    (argument_list))))))
+          (assignment_statement
+            (member_access
+              (element_access $PLACEHOLDER_3 $team1) . m) += 1)
+          (assignment_statement
+            (member_access
+              (element_access $PLACEHOLDER_3 $team2) . m) += 1)
+          (switch_statement
+            (switch_parameter -regex)
+            (condition $score)
+            (switch_clause
+              (command_argument "win")
+              (statement_block
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team1) . p) += 3)
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team1) . w) += 1)
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team2) . l) += 1)))
+            (switch_clause
+              (command_argument "loss")
+              (statement_block
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team2) . p) += 3)
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team2) . w) += 1)
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team1) . l) += 1)))
+            (switch_clause
+              (command_argument "draw")
+              (statement_block
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team1) . p) += 1)
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team1) . d) += 1)
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team2) . p) += 1)
+                (assignment_statement
+                  (member_access
+                    (element_access $PLACEHOLDER_3 $team2) . d) += 1))))))
+      (foreach_statement $PLACEHOLDER_8
+        (member_access $PLACEHOLDER_3 . keys)
+        (statement_block
+          (invocation_expression
+            (member_access $PLACEHOLDER_5 . add)
+            (argument_list $PLACEHOLDER_8
+              (member_access
+                (element_access $PLACEHOLDER_3 $PLACEHOLDER_8) . p)))))
+      (assignment_statement $PLACEHOLDER_9 =
+        (parenthesized_expression
+          (pipeline
+            (invocation_expression
+              (member_access $PLACEHOLDER_5 . getenumerator)
+              (argument_list))
+            (command sort-object
+              (command_parameter -property)
+              (command_argument
+                (array_literal_expression
+                  (command_argument
+                    (hashtable_expression
+                      (hash_entry "Expression"
+                        (script_block
+                          (member_access $_ . value)))
+                      (hash_entry "Descending" $true)))
+                  (command_argument
+                    (hashtable_expression
+                      (hash_entry "Expression"
+                        (script_block
+                          (member_access $_ . key)))))))))))
+      (assignment_statement $PLACEHOLDER_10 = $PLACEHOLDER_6)
+      (foreach_statement $PLACEHOLDER_11 $PLACEHOLDER_9
+        (statement_block
+          (assignment_statement $PLACEHOLDER_8 =
+            (member_access $PLACEHOLDER_11 . key))
+          (assignment_statement $PLACEHOLDER_10 +=
+            (binary_expression "{0,-30} | {1,2:d} | {2,2:d} | {3,2:d} | {4,2:d} | {5,2:d}\n" -f
+              (array_literal_expression $PLACEHOLDER_8
+                (member_access
+                  (element_access $PLACEHOLDER_3 $PLACEHOLDER_8) . m)
+                (member_access
+                  (element_access $PLACEHOLDER_3 $PLACEHOLDER_8) . w)
+                (member_access
+                  (element_access $PLACEHOLDER_3 $PLACEHOLDER_8) . d)
+                (member_access
+                  (element_access $PLACEHOLDER_3 $PLACEHOLDER_8) . l)
+                (member_access
+                  (element_access $PLACEHOLDER_3 $PLACEHOLDER_8) . p))))))
+      (invocation_expression
+        (member_access $PLACEHOLDER_10 . trimend)
+        (argument_list "\n")))))

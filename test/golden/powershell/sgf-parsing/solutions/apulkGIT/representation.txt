@@ -1,120 +1,348 @@
-Class SgfTree {
-[ hashtable ] $Properties
-[ SgfTree []] $Children
-SgfTree () {
-$this . Properties = @{}
-$this . Children = @()
-}
-SgfTree ( $properties , $children ) {
-$this . Properties = $properties
-$this . Children = $children
-}
-[ bool ] Equals ( $other ) {
-if ( $other -eq $null ) {
-return $false ;
-}
-$matchesKeys = -not ( Compare-Object $this . Properties . Keys $other . Properties . Keys );
-$matchesValues = -not ( Compare-Object $this . Properties . Values $other . Properties . Values );
-if ( $matchesKeys -and $matchesValues ) {
-if ( $this . Children . Count -ne $other . Children . Count ) {
-return $false ;
-}
-for ( $i = 0 ; $i -lt $this . Count ; $i ++ ) {
-if (( $this . Children [ $i ] -eq $null -and ( $this . Children [ $i ] -ne $null )) -or
-( $this . Children [ $i ] -ne $null -and ( $this . Children [ $i ] -eq $null ))) {
-return $false ;
-}
-if (( $this . Children [ $i ] -ne $null -and ( $this . Children [ $i ] -ne $null )) -and
-$this . Children [ $i ] . Equals ( $other . Children [ $i ]) -eq $false ) {
-return $false ;
-}
-}
-return $true ;
-}
-return $false ;
-}
-}
-$intitable = @( 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 );
-function getnextitems ([ int ] $i ,[ string ] $Data ,[ int ] $inti ) {
-$properties = @{};
-$children = @();
-while ( $i -lt $Data . Length -and $Data [ $i ] -ne ';' -and $Data [ $i ] -ne '(' -and $Data [ $i ] -ne ')' ) {
-$j = $i ;
-while ( $j -lt $Data . Length -and $Data [ $j ] -ge 65 -and $Data [ $j ] -le 90 ) {
-$j ++ ;
-}
-if ( $Data [ $j ] -eq ')' ) {
-if ( $j - $i -eq 0 ) {
-return $obj ;
-}
-throw "\"*Properties without delimiter*\"" ;
-}
-$s = $Data . substring ( $i , $j - $i );
-if ( $i -eq $j -or $s -cmatch "\"[a-z]+\"" ) {
-throw "\"*Property must be in uppercase*\"" ;
-}
-$i = $j ;
-$items = @();
-while ( 1 ) {
-if ( $Data [ $i ] -eq '[' ) {
-$i ++ ;
-$j = $i ;
-$s2 = $Data . substring ( $i );
-$s3 = "\"\"" ;
-$k = 0 ;
-while ( $k -lt $s2 . Length -and $s2 [ $k ] -ne ']' ) {
-if ( $s2 [ $k ] -eq '\' -and ( $k + 1 ) -lt $s2 . Length -and $s2 [ $k + 1 ] -eq '\' ) {
-$k += 2 ;
-if ( $s2 [ $k ] -eq '\' -and $s2 [ $k + 1 ] -eq '\' ) {
-$s3 += '\' ;
-$s3 += '\' ;
-$k += 2 ;
-} elseif ( $s2 [ $k ] -eq ']' ) {
-$s3 += ']' ;
-$k ++ ;
-} elseif ( $s2 [ $k ] -eq '\' -and $s2 [ $k + 1 ] -eq 'n' ) {
-$k += 2 ;
-}
-} else {
-$s3 += $s2 [ $k ];
-$k ++ ;
-}
-}
-$s3 = $s3 . Replace ( "\"\\t\"" , "\" \"" );
-$items += $s3 ;
-$i += $k ;
-} else {
-break ;
-}
-$i ++ ;
-}
-$properties [ $s ] = $items ;
-}
-while ( $i -lt $Data . Length -and ( $Data [ $i ] -eq '(' -or $Data [ $i ] -eq ';' )) {
-while ( $i -lt $Data . Length -and $Data [ $i ] -ne ';' ) {
-$i ++ ;
-}
-$i ++ ;
-$children += ( getnextitems $i $Data ( $inti + 1 ));
-$i = $intitable [ $inti + 1 ];
-if ( $Data [ $i ] -eq ')' ) {
-$i ++ ;
-}
-}
-$intitable [ $inti ] = $i ;
-return [ SgfTree ]:: new ( $properties , $children );
-}
-function Invoke-Parser {
-param (
-[ string ] $Data
-)
-if ( $Data . Length -eq 0 -or $Data [ 0 ] -eq "\";\"" ) {
-throw "\"*Tree missing*\"" ;
-}
-if ( $Data -eq "\"()\"" ) {
-throw "\"*Tree with no nodes*\"" ;
-}
-$i = 2 ;
-$obj = getnextitems 2 $Data 0 ;
-return $obj ;
-}
+(source_file
+  (class_definition (identifier PLACEHOLDER_1)
+    (class_body
+      (class_property
+        (type_literal
+          (type_name hashtable)) $PLACEHOLDER_2)
+      (class_property
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_1) [ ])) $PLACEHOLDER_3)
+      (class_method (identifier PLACEHOLDER_1)
+        (parameter_list)
+        (statement_block
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_2)) =
+            (hashtable_expression))
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_3)) =
+            (array_expression))))
+      (class_method (identifier PLACEHOLDER_1)
+        (parameter_list
+          (parameter $PLACEHOLDER_2)
+          (parameter $PLACEHOLDER_3))
+        (statement_block
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_2)) = $PLACEHOLDER_2)
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_3)) = $PLACEHOLDER_3)))
+      (class_method
+        (type_literal
+          (type_name bool)) (identifier PLACEHOLDER_4)
+        (parameter_list
+          (parameter $PLACEHOLDER_5))
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_5 -eq $null))
+            (statement_block
+              (return_statement $false)))
+          (assignment_statement $PLACEHOLDER_6 =
+            (unary_expression -not
+              (parenthesized_expression
+                (command compare-object
+                  (command_argument
+                    (member_access
+                      (member_access $this . (identifier PLACEHOLDER_2)) . keys))
+                  (command_argument
+                    (member_access
+                      (member_access $PLACEHOLDER_5 . (identifier PLACEHOLDER_2)) . keys))))))
+          (assignment_statement $PLACEHOLDER_7 =
+            (unary_expression -not
+              (parenthesized_expression
+                (command compare-object
+                  (command_argument
+                    (member_access
+                      (member_access $this . (identifier PLACEHOLDER_2)) . values))
+                  (command_argument
+                    (member_access
+                      (member_access $PLACEHOLDER_5 . (identifier PLACEHOLDER_2)) . values))))))
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_6 -and $PLACEHOLDER_7))
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression
+                    (member_access
+                      (member_access $this . (identifier PLACEHOLDER_3)) . count) -ne
+                    (member_access
+                      (member_access $PLACEHOLDER_5 . (identifier PLACEHOLDER_3)) . count)))
+                (statement_block
+                  (return_statement $false)))
+              (for_statement
+                (assignment_statement $PLACEHOLDER_8 = 0)
+                (binary_expression $PLACEHOLDER_8 -lt
+                  (member_access $this . count))
+                (unary_expression $PLACEHOLDER_8 ++)
+                (statement_block
+                  (if_statement
+                    (condition
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (element_access
+                              (member_access $this . (identifier PLACEHOLDER_3)) $PLACEHOLDER_8) -eq $null) -and
+                          (binary_expression
+                            (element_access
+                              (member_access $this . (identifier PLACEHOLDER_3)) $PLACEHOLDER_8) -ne $null)) -or
+                        (binary_expression
+                          (binary_expression
+                            (element_access
+                              (member_access $this . (identifier PLACEHOLDER_3)) $PLACEHOLDER_8) -ne $null) -and
+                          (binary_expression
+                            (element_access
+                              (member_access $this . (identifier PLACEHOLDER_3)) $PLACEHOLDER_8) -eq $null))))
+                    (statement_block
+                      (return_statement $false)))
+                  (if_statement
+                    (condition
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (element_access
+                              (member_access $this . (identifier PLACEHOLDER_3)) $PLACEHOLDER_8) -ne $null) -and
+                          (binary_expression
+                            (element_access
+                              (member_access $this . (identifier PLACEHOLDER_3)) $PLACEHOLDER_8) -ne $null)) -and
+                        (binary_expression
+                          (invocation_expression
+                            (member_access
+                              (element_access
+                                (member_access $this . (identifier PLACEHOLDER_3)) $PLACEHOLDER_8) . (identifier PLACEHOLDER_4))
+                            (argument_list
+                              (element_access
+                                (member_access $PLACEHOLDER_5 . (identifier PLACEHOLDER_3)) $PLACEHOLDER_8))) -eq $false)))
+                    (statement_block
+                      (return_statement $false)))))
+              (return_statement $true)))
+          (return_statement $false)))))
+  (assignment_statement $PLACEHOLDER_9 =
+    (array_expression
+      (array_literal_expression 0 0 0 0 0 0 0 0 0)))
+  (function_definition (function_name PLACEHOLDER_10)
+    (parameter_list
+      (parameter
+        (type_literal
+          (type_name int)) $PLACEHOLDER_8)
+      (parameter
+        (type_literal
+          (type_name string)) $PLACEHOLDER_11)
+      (parameter
+        (type_literal
+          (type_name int)) $PLACEHOLDER_12))
+    (script_block
+      (assignment_statement $PLACEHOLDER_2 =
+        (hashtable_expression))
+      (assignment_statement $PLACEHOLDER_3 =
+        (array_expression))
+      (while_statement
+        (condition
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression $PLACEHOLDER_8 -lt
+                  (member_access $PLACEHOLDER_11 . length)) -and
+                (binary_expression
+                  (element_access $PLACEHOLDER_11 $PLACEHOLDER_8) -ne ";")) -and
+              (binary_expression
+                (element_access $PLACEHOLDER_11 $PLACEHOLDER_8) -ne "(")) -and
+            (binary_expression
+              (element_access $PLACEHOLDER_11 $PLACEHOLDER_8) -ne ")")))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_13 = $PLACEHOLDER_8)
+          (while_statement
+            (condition
+              (binary_expression
+                (binary_expression
+                  (binary_expression $PLACEHOLDER_13 -lt
+                    (member_access $PLACEHOLDER_11 . length)) -and
+                  (binary_expression
+                    (element_access $PLACEHOLDER_11 $PLACEHOLDER_13) -ge 65)) -and
+                (binary_expression
+                  (element_access $PLACEHOLDER_11 $PLACEHOLDER_13) -le 90)))
+            (statement_block
+              (unary_expression $PLACEHOLDER_13 ++)))
+          (if_statement
+            (condition
+              (binary_expression
+                (element_access $PLACEHOLDER_11 $PLACEHOLDER_13) -eq ")"))
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression
+                    (binary_expression $PLACEHOLDER_13 - $PLACEHOLDER_8) -eq 0))
+                (statement_block
+                  (return_statement $PLACEHOLDER_14)))
+              (throw_statement "*Properties without delimiter*")))
+          (assignment_statement $PLACEHOLDER_15 =
+            (invocation_expression
+              (member_access $PLACEHOLDER_11 . substring)
+              (argument_list $PLACEHOLDER_8
+                (binary_expression $PLACEHOLDER_13 - $PLACEHOLDER_8))))
+          (if_statement
+            (condition
+              (binary_expression
+                (binary_expression $PLACEHOLDER_8 -eq $PLACEHOLDER_13) -or
+                (binary_expression $PLACEHOLDER_15 -cmatch "[a-z]+")))
+            (statement_block
+              (throw_statement "*Property must be in uppercase*")))
+          (assignment_statement $PLACEHOLDER_8 = $PLACEHOLDER_13)
+          (assignment_statement $PLACEHOLDER_16 =
+            (array_expression))
+          (while_statement
+            (condition 1)
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression
+                    (element_access $PLACEHOLDER_11 $PLACEHOLDER_8) -eq "["))
+                (statement_block
+                  (unary_expression $PLACEHOLDER_8 ++)
+                  (assignment_statement $PLACEHOLDER_13 = $PLACEHOLDER_8)
+                  (assignment_statement $PLACEHOLDER_17 =
+                    (invocation_expression
+                      (member_access $PLACEHOLDER_11 . substring)
+                      (argument_list $PLACEHOLDER_8)))
+                  (assignment_statement $PLACEHOLDER_18 = "")
+                  (assignment_statement $PLACEHOLDER_19 = 0)
+                  (while_statement
+                    (condition
+                      (binary_expression
+                        (binary_expression $PLACEHOLDER_19 -lt
+                          (member_access $PLACEHOLDER_17 . length)) -and
+                        (binary_expression
+                          (element_access $PLACEHOLDER_17 $PLACEHOLDER_19) -ne "]")))
+                    (statement_block
+                      (if_statement
+                        (condition
+                          (binary_expression
+                            (binary_expression
+                              (binary_expression
+                                (element_access $PLACEHOLDER_17 $PLACEHOLDER_19) -eq "\\") -and
+                              (binary_expression
+                                (binary_expression $PLACEHOLDER_19 + 1) -lt
+                                (member_access $PLACEHOLDER_17 . length))) -and
+                            (binary_expression
+                              (element_access $PLACEHOLDER_17
+                                (binary_expression $PLACEHOLDER_19 + 1)) -eq "\\")))
+                        (statement_block
+                          (assignment_statement $PLACEHOLDER_19 += 2)
+                          (if_statement
+                            (condition
+                              (binary_expression
+                                (binary_expression
+                                  (element_access $PLACEHOLDER_17 $PLACEHOLDER_19) -eq "\\") -and
+                                (binary_expression
+                                  (element_access $PLACEHOLDER_17
+                                    (binary_expression $PLACEHOLDER_19 + 1)) -eq "\\")))
+                            (statement_block
+                              (assignment_statement $PLACEHOLDER_18 += "\\")
+                              (assignment_statement $PLACEHOLDER_18 += "\\")
+                              (assignment_statement $PLACEHOLDER_19 += 2))
+                            (elseif_clause
+                              (condition
+                                (binary_expression
+                                  (element_access $PLACEHOLDER_17 $PLACEHOLDER_19) -eq "]"))
+                              (statement_block
+                                (assignment_statement $PLACEHOLDER_18 += "]")
+                                (unary_expression $PLACEHOLDER_19 ++)))
+                            (elseif_clause
+                              (condition
+                                (binary_expression
+                                  (binary_expression
+                                    (element_access $PLACEHOLDER_17 $PLACEHOLDER_19) -eq "\\") -and
+                                  (binary_expression
+                                    (element_access $PLACEHOLDER_17
+                                      (binary_expression $PLACEHOLDER_19 + 1)) -eq "n")))
+                              (statement_block
+                                (assignment_statement $PLACEHOLDER_19 += 2)))))
+                        (else_clause
+                          (statement_block
+                            (assignment_statement $PLACEHOLDER_18 +=
+                              (element_access $PLACEHOLDER_17 $PLACEHOLDER_19))
+                            (unary_expression $PLACEHOLDER_19 ++))))))
+                  (assignment_statement $PLACEHOLDER_18 =
+                    (invocation_expression
+                      (member_access $PLACEHOLDER_18 . replace)
+                      (argument_list "\\t" " ")))
+                  (assignment_statement $PLACEHOLDER_16 += $PLACEHOLDER_18)
+                  (assignment_statement $PLACEHOLDER_8 += $PLACEHOLDER_19))
+                (else_clause
+                  (statement_block
+                    (break_statement))))
+              (unary_expression $PLACEHOLDER_8 ++)))
+          (assignment_statement
+            (element_access $PLACEHOLDER_2 $PLACEHOLDER_15) = $PLACEHOLDER_16)))
+      (while_statement
+        (condition
+          (binary_expression
+            (binary_expression $PLACEHOLDER_8 -lt
+              (member_access $PLACEHOLDER_11 . length)) -and
+            (binary_expression
+              (binary_expression
+                (element_access $PLACEHOLDER_11 $PLACEHOLDER_8) -eq "(") -or
+              (binary_expression
+                (element_access $PLACEHOLDER_11 $PLACEHOLDER_8) -eq ";"))))
+        (statement_block
+          (while_statement
+            (condition
+              (binary_expression
+                (binary_expression $PLACEHOLDER_8 -lt
+                  (member_access $PLACEHOLDER_11 . length)) -and
+                (binary_expression
+                  (element_access $PLACEHOLDER_11 $PLACEHOLDER_8) -ne ";")))
+            (statement_block
+              (unary_expression $PLACEHOLDER_8 ++)))
+          (unary_expression $PLACEHOLDER_8 ++)
+          (assignment_statement $PLACEHOLDER_3 +=
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_10)
+                (command_argument $PLACEHOLDER_8)
+                (command_argument $PLACEHOLDER_11)
+                (command_argument
+                  (binary_expression $PLACEHOLDER_12 + 1)))))
+          (assignment_statement $PLACEHOLDER_8 =
+            (element_access $PLACEHOLDER_9
+              (binary_expression $PLACEHOLDER_12 + 1)))
+          (if_statement
+            (condition
+              (binary_expression
+                (element_access $PLACEHOLDER_11 $PLACEHOLDER_8) -eq ")"))
+            (statement_block
+              (unary_expression $PLACEHOLDER_8 ++)))))
+      (assignment_statement
+        (element_access $PLACEHOLDER_9 $PLACEHOLDER_12) = $PLACEHOLDER_8)
+      (return_statement
+        (invocation_expression
+          (member_access
+            (type_literal
+              (type_name (type_identifier PLACEHOLDER_1))) :: new)
+          (argument_list $PLACEHOLDER_2 $PLACEHOLDER_3)))))
+  (function_definition (function_name PLACEHOLDER_20)
+    (script_block
+      (param_block
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string)) $PLACEHOLDER_11)))
+      (if_statement
+        (condition
+          (binary_expression
+            (binary_expression
+              (member_access $PLACEHOLDER_11 . length) -eq 0) -or
+            (binary_expression
+              (element_access $PLACEHOLDER_11 0) -eq ";")))
+        (statement_block
+          (throw_statement "*Tree missing*")))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_11 -eq "()"))
+        (statement_block
+          (throw_statement "*Tree with no nodes*")))
+      (assignment_statement $PLACEHOLDER_8 = 2)
+      (assignment_statement $PLACEHOLDER_14 =
+        (command (command_name PLACEHOLDER_10)
+          (command_argument 2)
+          (command_argument $PLACEHOLDER_11)
+          (command_argument 0)))
+      (return_statement $PLACEHOLDER_14))))

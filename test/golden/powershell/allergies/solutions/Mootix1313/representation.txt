@@ -1,33 +1,82 @@
-$ global : allergens =
-$ global : THRESHOLD = 256 ;
-Class Allergies {
-$score = 0 ;
-$allergicTo = @(
-@{
-"\"eggs\"" = 1 ;
-"\"peanuts\"" = 2 ;
-"\"shellfish\"" = 4 ;
-"\"strawberries\"" = 8 ;
-"\"tomatoes\"" = 16 ;
-"\"chocolate\"" = 32 ;
-"\"pollen\"" = 64 ;
-"\"cats\"" = 128 ;
-} .GetEnumerator( ) | Sort-Object -Property Value
-)
-Allergies ( $score ) {
-if ( $score -gt $ global : THRESHOLD ){
-$this . score = $score - $ global : THRESHOLD ;
-} else {
-$this . score = $score
-}
-$this . allergicTo . foreach ({
-$_ . Value = $ ( $this . score -band $_ . Value ) -ne 0 ;
-})
-}
-[ bool ] IsAllergicTo ([ string ] $allergen ){
-return $this . allergicTo . where ({ $_ . Key -imatch $allergen }) . Value
-}
-[ array ] GetAllergies (){
-return $this . allergicTo . where ({ $_ . Value -eq $true }) . Name
-}
-}
+(source_file
+  (assignment_statement $PLACEHOLDER_1 =
+    (assignment_statement $PLACEHOLDER_2 = 256))
+  (class_definition (identifier PLACEHOLDER_3)
+    (class_body
+      (class_property $PLACEHOLDER_4 0)
+      (class_property $PLACEHOLDER_5
+        (array_expression
+          (pipeline
+            (invocation_expression
+              (member_access
+                (hashtable_expression
+                  (hash_entry "eggs" 1)
+                  (hash_entry "peanuts" 2)
+                  (hash_entry "shellfish" 4)
+                  (hash_entry "strawberries" 8)
+                  (hash_entry "tomatoes" 16)
+                  (hash_entry "chocolate" 32)
+                  (hash_entry "pollen" 64)
+                  (hash_entry "cats" 128)) . getenumerator)
+              (argument_list))
+            (command sort-object
+              (command_parameter -property)
+              (command_argument "Value")))))
+      (class_method (identifier PLACEHOLDER_3)
+        (parameter_list
+          (parameter $PLACEHOLDER_4))
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_4 -gt $PLACEHOLDER_2))
+            (statement_block
+              (assignment_statement
+                (member_access $this . (identifier PLACEHOLDER_4)) =
+                (binary_expression $PLACEHOLDER_4 - $PLACEHOLDER_2)))
+            (else_clause
+              (statement_block
+                (assignment_statement
+                  (member_access $this . (identifier PLACEHOLDER_4)) = $PLACEHOLDER_4))))
+          (invocation_expression
+            (member_access
+              (member_access $this . (identifier PLACEHOLDER_5)) . foreach)
+            (argument_list
+              (script_block
+                (assignment_statement
+                  (member_access $_ . value) =
+                  (binary_expression
+                    (sub_expression
+                      (binary_expression
+                        (member_access $this . (identifier PLACEHOLDER_4)) -band
+                        (member_access $_ . value))) -ne 0)))))))
+      (class_method
+        (type_literal
+          (type_name bool)) (identifier PLACEHOLDER_6)
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string)) $PLACEHOLDER_7))
+        (statement_block
+          (return_statement
+            (member_access
+              (invocation_expression
+                (member_access
+                  (member_access $this . (identifier PLACEHOLDER_5)) . where)
+                (argument_list
+                  (script_block
+                    (binary_expression
+                      (member_access $_ . key) -imatch $PLACEHOLDER_7)))) . value))))
+      (class_method
+        (type_literal
+          (type_name array)) (identifier PLACEHOLDER_8)
+        (parameter_list)
+        (statement_block
+          (return_statement
+            (member_access
+              (invocation_expression
+                (member_access
+                  (member_access $this . (identifier PLACEHOLDER_5)) . where)
+                (argument_list
+                  (script_block
+                    (binary_expression
+                      (member_access $_ . value) -eq $true)))) . name)))))))

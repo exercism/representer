@@ -1,201 +1,550 @@
-enum HandRank {
-HighCard
-Pair
-TwoPair
-ThreeOfAKind
-Straight
-Flush
-FullHouse
-FourOfAKind
-StraightFlush
-}
-Function Get-CardRank {
-[ CmdletBinding ()]
-Param ([ string ] $Card )
-$Rank = 10
-if ( $Card . SubString ( 0 , 2 ) -ne "\"10\"" ) {
-switch ( $Card . SubString ( 0 , 1 )) {
-"\"J\"" { $Rank = 11 ; break }
-"\"Q\"" { $Rank = 12 ; break }
-"\"K\"" { $Rank = 13 ; break }
-"\"A\"" { $Rank = 14 ; break }
-default {
-$Rank = [ int ]( $Card . SubString ( 0 , 1 ))
-}
-}
-}
-return $Rank
-}
-Function Get-HandRank {
-[ CmdletBinding ()]
-Param ([ string []] $Cards )
-[ string []] $SortedCards = $Cards |
-Sort-Object -Property { Get-CardRank $_ }
-[ int []] $SortedCardRanks = @(
-(Get-CardRank $SortedCards [ 0 ]),
-( Get-CardRank $SortedCards [ 1 ]),
-( Get-CardRank $SortedCards [ 2 ]),
-( Get-CardRank $SortedCards [ 3 ]),
-( Get-CardRank $SortedCards [ 4 ])
-)
-$Diffs = @(
-( $SortedCardRanks [ 1 ] - $SortedCardRanks [ 0 ]),
-( $SortedCardRanks [ 2 ] - $SortedCardRanks [ 1 ]),
-( $SortedCardRanks [ 3 ] - $SortedCardRanks [ 2 ]),
-( $SortedCardRanks [ 4 ] - $SortedCardRanks [ 3 ])
-)
-$Straight =
-$Diffs [ 0 ] -eq 1 -and
-$Diffs [ 1 ] -eq 1 -and
-$Diffs [ 2 ] -eq 1 -and
-( $Diffs [ 3 ] -eq 1 -or $Diffs [ 3 ] -eq 9 )
-$SortedCardSuits = @(
-$SortedCards [ 0 ] .SubString( $SortedCards [ 0 ] .Length - 1 , 1 ),
-$SortedCards [ 1 ] . SubString ( $SortedCards [ 1 ] . Length - 1 , 1 ),
-$SortedCards [ 2 ] . SubString ( $SortedCards [ 2 ] . Length - 1 , 1 ),
-$SortedCards [ 3 ] . SubString ( $SortedCards [ 3 ] . Length - 1 , 1 ),
-$SortedCards [ 4 ] . SubString ( $SortedCards [ 4 ] . Length - 1 , 1 )
-)
-$Flush =
-$SortedCardSuits [ 0 ] -eq $SortedCardSuits [ 1 ] -and
-$SortedCardSuits [ 0 ] -eq $SortedCardSuits [ 2 ] -and
-$SortedCardSuits [ 0 ] -eq $SortedCardSuits [ 3 ] -and
-$SortedCardSuits [ 0 ] -eq $SortedCardSuits [ 4 ]
-if ( $Straight -and $Flush ) {
-return [ HandRank ]:: StraightFlush
-}
-elseif (
-$SortedCardRanks [ 1 ] -eq $SortedCardRanks [ 2 ] -and
-$SortedCardRanks [ 2 ] -eq $SortedCardRanks [ 3 ] -and
-( $SortedCardRanks [ 0 ] -eq $SortedCardRanks [ 1 ] -or
-$SortedCardRanks [ 3 ] -eq $SortedCardRanks [ 4 ])
-) {
-return [ HandRank ]:: FourOfAKind
-}
-elseif (
-$SortedCardRanks [ 0 ] -eq $SortedCardRanks [ 1 ] -and
-$SortedCardRanks [ 3 ] -eq $SortedCardRanks [ 4 ] -and
-( $SortedCardRanks [ 1 ] -eq $SortedCardRanks [ 2 ] -or
-$SortedCardRanks [ 2 ] -eq $SortedCardRanks [ 3 ])
-) {
-return [ HandRank ]:: FullHouse
-}
-elseif ( $Flush ) { return [ HandRank ]:: Flush }
-elseif ( $Straight ) { return [ HandRank ]:: Straight }
-elseif (
-( $SortedCardRanks [ 0 ] -eq $SortedCardRanks [ 1 ] -and
-$SortedCardRanks [ 1 ] -eq $SortedCardRanks [ 2 ]) -or
-$SortedCardRanks [ 2 ] -eq $SortedCardRanks [ 3 ] -and
-( $SortedCardRanks [ 1 ] -eq $SortedCardRanks [ 2 ] -or
-$SortedCardRanks [ 3 ] -eq $SortedCardRanks [ 4 ])
-) {
-return [ HandRank ]:: ThreeOfAKind
-}
-elseif (
-( $SortedCardRanks [ 0 ] -eq $SortedCardRanks [ 1 ] -and
-( $SortedCardRanks [ 2 ] -eq $SortedCardRanks [ 3 ] -or
-$SortedCardRanks [ 3 ] -eq $SortedCardRanks [ 4 ])) -or
-( $SortedCardRanks [ 1 ] -eq $SortedCardRanks [ 2 ] -and
-$SortedCardRanks [ 3 ] -eq $SortedCardRanks [ 4 ])
-) {
-return [ HandRank ]:: TwoPair
-}
-elseif (
-$SortedCardRanks [ 0 ] -eq $SortedCardRanks [ 1 ] -or
-$SortedCardRanks [ 1 ] -eq $SortedCardRanks [ 2 ] -or
-$SortedCardRanks [ 2 ] -eq $SortedCardRanks [ 3 ] -or
-$SortedCardRanks [ 3 ] -eq $SortedCardRanks [ 4 ]
-) {
-return [ HandRank ]:: Pair
-}
-else {
-return [ HandRank ]:: HighCard
-}
-}
-Function Get-HandCardRanks {
-[ CmdletBinding ()]
-Param ([ string []] $Cards )
-[ string []] $SortedCards = $Cards |
-Sort-Object -Property { Get-CardRank $_ }
-[ int []] $SortedCardRanks = @(
-(Get-CardRank $SortedCards [ 0 ]),
-( Get-CardRank $SortedCards [ 1 ]),
-( Get-CardRank $SortedCards [ 2 ]),
-( Get-CardRank $SortedCards [ 3 ]),
-( Get-CardRank $SortedCards [ 4 ])
-)
-$HandRank = Get-HandRank $Cards
-if ( $HandRank -in @([ HandRank ] ::Straight , [ HandRank ] ::StraightFlush )) {
-if ( $SortedCardRanks [ 4 ] -eq 14 ) {
-$SortedCardRanks = @(
-1 ,
-$SortedCardRanks [ 0 ],
-$SortedCardRanks [ 1 ],
-$SortedCardRanks [ 2 ],
-$SortedCardRanks [ 3 ]
-)
-}
-}
-elseif ( $HandRank -eq [ HandRank ]:: FourOfAKind ) {
-if ( $SortedCardRanks [ 0 ] -eq $SortedCardRanks [ 3 ]) {
-$SortedCardRanks = @(
-$SortedCardRanks [ 4 ],
-$SortedCardRanks [ 0 ],
-$SortedCardRanks [ 1 ],
-$SortedCardRanks [ 2 ],
-$SortedCardRanks [ 3 ]
-)
-}
-}
-elseif ( $HandRank -eq [ HandRank ]:: FullHouse ) {
-if ( $SortedCardRanks [ 0 ] -eq $SortedCardRanks [ 2 ]) {
-$SortedCardRanks = @(
-$SortedCardRanks [ 3 ],
-$SortedCardRanks [ 4 ],
-$SortedCardRanks [ 0 ],
-$SortedCardRanks [ 1 ],
-$SortedCardRanks [ 2 ]
-)
-}
-}
-return $SortedCardRanks ;
-}
-Function Get-BestHand () {
-[ CmdletBinding ()]
-Param (
-[ string []] $Hands
-)
-$BestIndex = @( 0 )
-$BestCards = $Hands [ 0 ] -split "\" \"" |
-Sort-Object -Property { Get-CardRank $_ }
-$BestRank = Get-HandRank $BestCards
-for ( $i = 1 ; $i -lt $Hands . Count ; $i ++ ) {
-$Cards = $Hands [ $i ] -split "\" \"" |
-Sort-Object -Property { Get-CardRank $_ }
-$Rank = Get-HandRank $Cards
-if ( $BestRank -lt $Rank ) {
-$BestIndex = $i
-$BestCards = $Cards
-$BestRank = $Rank
-}
-elseif ( $BestRank -eq $Rank ) {
-$BestCardRanks = Get-HandCardRanks $BestCards
-$CardRanks = Get-HandCardRanks $Cards
-$Tie = $true
-foreach ( $j in ( 4 .. 0 )) {
-if ( $CardRanks [ $j ] -lt $BestCardRanks [ $j ]) {
-$Tie = $false
-break
-}
-elseif ( $CardRanks [ $j ] -gt $BestCardRanks [ $j ]) {
-$BestIndex = @( $i )
-$BestCards = $Cards
-$Tie = $false
-break
-}
-}
-if ( $Tie ) { $BestIndex += , $i }
-}
-}
-return $Hands [ $BestIndex ]
-}
+(source_file
+  (enum_definition (identifier PLACEHOLDER_1)
+    (enum_body
+      (enum_member (identifier PLACEHOLDER_2))
+      (enum_member (identifier PLACEHOLDER_3))
+      (enum_member (identifier PLACEHOLDER_4))
+      (enum_member (identifier PLACEHOLDER_5))
+      (enum_member (identifier PLACEHOLDER_6))
+      (enum_member (identifier PLACEHOLDER_7))
+      (enum_member (identifier PLACEHOLDER_8))
+      (enum_member (identifier PLACEHOLDER_9))
+      (enum_member (identifier PLACEHOLDER_10))))
+  (function_definition (function_name PLACEHOLDER_11)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string)) $PLACEHOLDER_12)))
+      (assignment_statement $PLACEHOLDER_13 = 10)
+      (if_statement
+        (condition
+          (binary_expression
+            (invocation_expression
+              (member_access $PLACEHOLDER_12 . substring)
+              (argument_list 0 2)) -ne "10"))
+        (statement_block
+          (switch_statement
+            (condition
+              (invocation_expression
+                (member_access $PLACEHOLDER_12 . substring)
+                (argument_list 0 1)))
+            (switch_clause
+              (command_argument "J")
+              (statement_block
+                (assignment_statement $PLACEHOLDER_13 = 11)
+                (break_statement)))
+            (switch_clause
+              (command_argument "Q")
+              (statement_block
+                (assignment_statement $PLACEHOLDER_13 = 12)
+                (break_statement)))
+            (switch_clause
+              (command_argument "K")
+              (statement_block
+                (assignment_statement $PLACEHOLDER_13 = 13)
+                (break_statement)))
+            (switch_clause
+              (command_argument "A")
+              (statement_block
+                (assignment_statement $PLACEHOLDER_13 = 14)
+                (break_statement)))
+            (switch_clause default
+              (statement_block
+                (assignment_statement $PLACEHOLDER_13 =
+                  (cast_expression
+                    (type_literal
+                      (type_name int))
+                    (invocation_expression
+                      (member_access $PLACEHOLDER_12 . substring)
+                      (argument_list 0 1)))))))))
+      (return_statement $PLACEHOLDER_13)))
+  (function_definition (function_name PLACEHOLDER_14)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_15)))
+      (assignment_statement
+        (cast_expression
+          (type_literal
+            (type_name string [ ])) $sortedcards) =
+        (pipeline $PLACEHOLDER_15
+          (command sort-object
+            (command_parameter -property)
+            (command_argument
+              (script_block
+                (command (command_name PLACEHOLDER_11)
+                  (command_argument $_)))))))
+      (assignment_statement
+        (cast_expression
+          (type_literal
+            (type_name int [ ])) $PLACEHOLDER_16) =
+        (array_expression
+          (array_literal_expression
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 0))))
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 1))))
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 2))))
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 3))))
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 4)))))))
+      (assignment_statement $PLACEHOLDER_17 =
+        (array_expression
+          (array_literal_expression
+            (binary_expression
+              (element_access $PLACEHOLDER_16 1) -
+              (element_access $PLACEHOLDER_16 0))
+            (binary_expression
+              (element_access $PLACEHOLDER_16 2) -
+              (element_access $PLACEHOLDER_16 1))
+            (binary_expression
+              (element_access $PLACEHOLDER_16 3) -
+              (element_access $PLACEHOLDER_16 2))
+            (binary_expression
+              (element_access $PLACEHOLDER_16 4) -
+              (element_access $PLACEHOLDER_16 3)))))
+      (assignment_statement $PLACEHOLDER_6 =
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (element_access $PLACEHOLDER_17 0) -eq 1) -and
+              (binary_expression
+                (element_access $PLACEHOLDER_17 1) -eq 1)) -and
+            (binary_expression
+              (element_access $PLACEHOLDER_17 2) -eq 1)) -and
+          (binary_expression
+            (binary_expression
+              (element_access $PLACEHOLDER_17 3) -eq 1) -or
+            (binary_expression
+              (element_access $PLACEHOLDER_17 3) -eq 9))))
+      (assignment_statement $PLACEHOLDER_18 =
+        (array_expression
+          (array_literal_expression
+            (invocation_expression
+              (member_access
+                (element_access $sortedcards 0) . substring)
+              (argument_list
+                (binary_expression
+                  (member_access
+                    (element_access $sortedcards 0) . length) - 1) 1))
+            (invocation_expression
+              (member_access
+                (element_access $sortedcards 1) . substring)
+              (argument_list
+                (binary_expression
+                  (member_access
+                    (element_access $sortedcards 1) . length) - 1) 1))
+            (invocation_expression
+              (member_access
+                (element_access $sortedcards 2) . substring)
+              (argument_list
+                (binary_expression
+                  (member_access
+                    (element_access $sortedcards 2) . length) - 1) 1))
+            (invocation_expression
+              (member_access
+                (element_access $sortedcards 3) . substring)
+              (argument_list
+                (binary_expression
+                  (member_access
+                    (element_access $sortedcards 3) . length) - 1) 1))
+            (invocation_expression
+              (member_access
+                (element_access $sortedcards 4) . substring)
+              (argument_list
+                (binary_expression
+                  (member_access
+                    (element_access $sortedcards 4) . length) - 1) 1)))))
+      (assignment_statement $PLACEHOLDER_7 =
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (element_access $PLACEHOLDER_18 0) -eq
+                (element_access $PLACEHOLDER_18 1)) -and
+              (binary_expression
+                (element_access $PLACEHOLDER_18 0) -eq
+                (element_access $PLACEHOLDER_18 2))) -and
+            (binary_expression
+              (element_access $PLACEHOLDER_18 0) -eq
+              (element_access $PLACEHOLDER_18 3))) -and
+          (binary_expression
+            (element_access $PLACEHOLDER_18 0) -eq
+            (element_access $PLACEHOLDER_18 4))))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_6 -and $PLACEHOLDER_7))
+        (statement_block
+          (return_statement
+            (member_access
+              (type_literal
+                (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_10))))
+        (elseif_clause
+          (condition
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 1) -eq
+                  (element_access $PLACEHOLDER_16 2)) -and
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 2) -eq
+                  (element_access $PLACEHOLDER_16 3))) -and
+              (binary_expression
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 0) -eq
+                  (element_access $PLACEHOLDER_16 1)) -or
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 3) -eq
+                  (element_access $PLACEHOLDER_16 4)))))
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_9)))))
+        (elseif_clause
+          (condition
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 0) -eq
+                  (element_access $PLACEHOLDER_16 1)) -and
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 3) -eq
+                  (element_access $PLACEHOLDER_16 4))) -and
+              (binary_expression
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 1) -eq
+                  (element_access $PLACEHOLDER_16 2)) -or
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 2) -eq
+                  (element_access $PLACEHOLDER_16 3)))))
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_8)))))
+        (elseif_clause
+          (condition $PLACEHOLDER_7)
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_7)))))
+        (elseif_clause
+          (condition $PLACEHOLDER_6)
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_6)))))
+        (elseif_clause
+          (condition
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (element_access $PLACEHOLDER_16 0) -eq
+                    (element_access $PLACEHOLDER_16 1)) -and
+                  (binary_expression
+                    (element_access $PLACEHOLDER_16 1) -eq
+                    (element_access $PLACEHOLDER_16 2))) -or
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 2) -eq
+                  (element_access $PLACEHOLDER_16 3))) -and
+              (binary_expression
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 1) -eq
+                  (element_access $PLACEHOLDER_16 2)) -or
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 3) -eq
+                  (element_access $PLACEHOLDER_16 4)))))
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_5)))))
+        (elseif_clause
+          (condition
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 0) -eq
+                  (element_access $PLACEHOLDER_16 1)) -and
+                (binary_expression
+                  (binary_expression
+                    (element_access $PLACEHOLDER_16 2) -eq
+                    (element_access $PLACEHOLDER_16 3)) -or
+                  (binary_expression
+                    (element_access $PLACEHOLDER_16 3) -eq
+                    (element_access $PLACEHOLDER_16 4)))) -or
+              (binary_expression
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 1) -eq
+                  (element_access $PLACEHOLDER_16 2)) -and
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 3) -eq
+                  (element_access $PLACEHOLDER_16 4)))))
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_4)))))
+        (elseif_clause
+          (condition
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (element_access $PLACEHOLDER_16 0) -eq
+                    (element_access $PLACEHOLDER_16 1)) -or
+                  (binary_expression
+                    (element_access $PLACEHOLDER_16 1) -eq
+                    (element_access $PLACEHOLDER_16 2))) -or
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 2) -eq
+                  (element_access $PLACEHOLDER_16 3))) -or
+              (binary_expression
+                (element_access $PLACEHOLDER_16 3) -eq
+                (element_access $PLACEHOLDER_16 4))))
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_3)))))
+        (else_clause
+          (statement_block
+            (return_statement
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_2))))))))
+  (function_definition (function_name PLACEHOLDER_19)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_15)))
+      (assignment_statement
+        (cast_expression
+          (type_literal
+            (type_name string [ ])) $sortedcards) =
+        (pipeline $PLACEHOLDER_15
+          (command sort-object
+            (command_parameter -property)
+            (command_argument
+              (script_block
+                (command (command_name PLACEHOLDER_11)
+                  (command_argument $_)))))))
+      (assignment_statement
+        (cast_expression
+          (type_literal
+            (type_name int [ ])) $PLACEHOLDER_16) =
+        (array_expression
+          (array_literal_expression
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 0))))
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 1))))
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 2))))
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 3))))
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_11)
+                (command_argument
+                  (element_access $sortedcards 4)))))))
+      (assignment_statement $PLACEHOLDER_1 =
+        (command (command_name PLACEHOLDER_14)
+          (command_argument $PLACEHOLDER_15)))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_1 -in
+            (array_expression
+              (array_literal_expression
+                (member_access
+                  (type_literal
+                    (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_6))
+                (member_access
+                  (type_literal
+                    (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_10))))))
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (element_access $PLACEHOLDER_16 4) -eq 14))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_16 =
+                (array_expression
+                  (array_literal_expression 1
+                    (element_access $PLACEHOLDER_16 0)
+                    (element_access $PLACEHOLDER_16 1)
+                    (element_access $PLACEHOLDER_16 2)
+                    (element_access $PLACEHOLDER_16 3)))))))
+        (elseif_clause
+          (condition
+            (binary_expression $PLACEHOLDER_1 -eq
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_9))))
+          (statement_block
+            (if_statement
+              (condition
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 0) -eq
+                  (element_access $PLACEHOLDER_16 3)))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_16 =
+                  (array_expression
+                    (array_literal_expression
+                      (element_access $PLACEHOLDER_16 4)
+                      (element_access $PLACEHOLDER_16 0)
+                      (element_access $PLACEHOLDER_16 1)
+                      (element_access $PLACEHOLDER_16 2)
+                      (element_access $PLACEHOLDER_16 3))))))))
+        (elseif_clause
+          (condition
+            (binary_expression $PLACEHOLDER_1 -eq
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_8))))
+          (statement_block
+            (if_statement
+              (condition
+                (binary_expression
+                  (element_access $PLACEHOLDER_16 0) -eq
+                  (element_access $PLACEHOLDER_16 2)))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_16 =
+                  (array_expression
+                    (array_literal_expression
+                      (element_access $PLACEHOLDER_16 3)
+                      (element_access $PLACEHOLDER_16 4)
+                      (element_access $PLACEHOLDER_16 0)
+                      (element_access $PLACEHOLDER_16 1)
+                      (element_access $PLACEHOLDER_16 2)))))))))
+      (return_statement $PLACEHOLDER_16)))
+  (function_definition (function_name PLACEHOLDER_20)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_21)))
+      (assignment_statement $PLACEHOLDER_22 =
+        (array_expression 0))
+      (assignment_statement $PLACEHOLDER_23 =
+        (pipeline
+          (binary_expression
+            (element_access $PLACEHOLDER_21 0) -split " ")
+          (command sort-object
+            (command_parameter -property)
+            (command_argument
+              (script_block
+                (command (command_name PLACEHOLDER_11)
+                  (command_argument $_)))))))
+      (assignment_statement $PLACEHOLDER_24 =
+        (command (command_name PLACEHOLDER_14)
+          (command_argument $PLACEHOLDER_23)))
+      (for_statement
+        (assignment_statement $PLACEHOLDER_25 = 1)
+        (binary_expression $PLACEHOLDER_25 -lt
+          (member_access $PLACEHOLDER_21 . count))
+        (unary_expression $PLACEHOLDER_25 ++)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_15 =
+            (pipeline
+              (binary_expression
+                (element_access $PLACEHOLDER_21 $PLACEHOLDER_25) -split " ")
+              (command sort-object
+                (command_parameter -property)
+                (command_argument
+                  (script_block
+                    (command (command_name PLACEHOLDER_11)
+                      (command_argument $_)))))))
+          (assignment_statement $PLACEHOLDER_13 =
+            (command (command_name PLACEHOLDER_14)
+              (command_argument $PLACEHOLDER_15)))
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_24 -lt $PLACEHOLDER_13))
+            (statement_block
+              (assignment_statement $PLACEHOLDER_22 = $PLACEHOLDER_25)
+              (assignment_statement $PLACEHOLDER_23 = $PLACEHOLDER_15)
+              (assignment_statement $PLACEHOLDER_24 = $PLACEHOLDER_13))
+            (elseif_clause
+              (condition
+                (binary_expression $PLACEHOLDER_24 -eq $PLACEHOLDER_13))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_26 =
+                  (command (command_name PLACEHOLDER_19)
+                    (command_argument $PLACEHOLDER_23)))
+                (assignment_statement $PLACEHOLDER_27 =
+                  (command (command_name PLACEHOLDER_19)
+                    (command_argument $PLACEHOLDER_15)))
+                (assignment_statement $PLACEHOLDER_28 = $true)
+                (foreach_statement $PLACEHOLDER_29
+                  (binary_expression 4 .. 0)
+                  (statement_block
+                    (if_statement
+                      (condition
+                        (binary_expression
+                          (element_access $PLACEHOLDER_27 $PLACEHOLDER_29) -lt
+                          (element_access $PLACEHOLDER_26 $PLACEHOLDER_29)))
+                      (statement_block
+                        (assignment_statement $PLACEHOLDER_28 = $false)
+                        (break_statement))
+                      (elseif_clause
+                        (condition
+                          (binary_expression
+                            (element_access $PLACEHOLDER_27 $PLACEHOLDER_29) -gt
+                            (element_access $PLACEHOLDER_26 $PLACEHOLDER_29)))
+                        (statement_block
+                          (assignment_statement $PLACEHOLDER_22 =
+                            (array_expression $PLACEHOLDER_25))
+                          (assignment_statement $PLACEHOLDER_23 = $PLACEHOLDER_15)
+                          (assignment_statement $PLACEHOLDER_28 = $false)
+                          (break_statement))))))
+                (if_statement
+                  (condition $PLACEHOLDER_28)
+                  (statement_block
+                    (assignment_statement $PLACEHOLDER_22 +=
+                      (unary_expression , $PLACEHOLDER_25)))))))))
+      (return_statement
+        (element_access $PLACEHOLDER_21 $PLACEHOLDER_22)))))

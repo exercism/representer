@@ -1,115 +1,423 @@
-Enum Winner {
-X
-O
-NONE
-}
-class Coordenate {
-[ int ] $Y
-[ int ] $X
-Coordenate ( $Y , $X ) {
-$this . Y = $Y
-$this . X = $X
-}
-[ bool ]
-Equals ( $other ) {
-return $this . X -eq $other . X -and $this . Y -eq $other . Y
-}
-}
-class Tile {
-[ Winner ] $OccupiedBy
-[ Coordenate ] $Location
-[ Tile []] $LinkedWith
-Tile ([ int ] $Y ,[ int ] $X ,[ Winner ] $OccupiedBy ) {
-$this . Location = [ Coordenate ]:: new ( $Y , $X )
-$this . OccupiedBy = [ Winner ] $OccupiedBy
-}
-[ void ]
-Link ( $tile ) {
-if ( $tile -notin $this . LinkedWith ) {
-$this . LinkedWith += $tile
-}
-}
-[ bool ]
-Equals ( $other ) {
-return $this . OccupiedBy -eq $other . OccupiedBy -and $this . Location -eq $other . Location
-}
-}
-Class Connect {
-[ Tile []] $board
-[ Coordenate ] $maxCoord
-[ Tile []] $tiles_X
-[ Tile []] $tiles_O
-Connect ( $_ input ) {
-for ( $y = 0 ; $y -lt $_ input.Count ; $y ++ ) {
-[ array ] $row = $_ input [ $y ] . Trim ( "' '" ) -split "' '"
-for ( $x = 0 ; $x -lt $row . Count ; $x ++ ) {
-$occupant = $row [ $x ]
-if ( $occupant -notin [ Winner ] . GetEnumNames ()) { $occupant = 'NONE' }
-$this . board += [ Tile ]:: new ( $y , $x , $occupant )
-}
-$this . maxCoord = [ Coordenate ]:: new ( $y , $x -1 )
-}
-$this . tiles_X = $this . board | Where-Object OccupiedBy -EQ X
-$this . tiles_O = $this . board | Where-Object OccupiedBy -EQ O
-for ( $y = 0 ; $y -le $this . maxCoord . Y ; $y ++ ) {
-for ( $x = 0 ; $x -le $this . maxCoord . X ; $x ++ ) {
-[ array ] $checks = @(
-@{ Y = $y - 1 ; X = $x },
-@{ Y = $y - 1 ; X = $x + 1 },
-@{ Y = $y ; X = $x - 1 },
-@{ Y = $y ; X = $x + 1 },
-@{ Y = $y + 1 ; X = $x - 1 },
-@{ Y = $y + 1 ; X = $x }
-) | Where-Object { $_ . Y -ge 0 -and $_ . Y -le $this . maxCoord . Y -and $_ . X -ge 0 -and $_ . X -le $this . maxCoord . X }
-$this _ Tile = $this . GetTile ( $y , $x )
-for ( $i = 0 ; $i -lt $checks . Count ; $i ++ ) {
-if ( $this _ Tile.OccupiedBy -ne [ Winner ]:: NONE ) {
-$other_Tile = $this . GetTile ( $checks [ $i ] . Y , $checks [ $i ] . X )
-if ( $this _ Tile.OccupiedBy -eq $other_Tile . OccupiedBy ) {
-$this _ Tile.Link ( $other_Tile )
-}
-}
-}
-}
-}
-}
-[ Winner ]
-GetWinner () {
-$Starters = @{
-X = $this . tiles_X | Where - Object { $_ . Location . X -eq 0 }
-O = $this . tiles_O | Where - Object { $_ . Location . Y -eq 0 }
-}
-$Paths = @{
-X = @( $Starters .X )
-O = @( $Starters .O )
-}
-for ( $i = 0 ; $i -lt $this . tiles_X . Count ; $i ++ ) {
-$Paths . X = $this . AddLinkedtoPath ( $Paths . X )
-}
-for ( $i = 0 ; $i -lt $this . tiles_O . Count ; $i ++ ) {
-$Paths . O = $this . AddLinkedtoPath ( $Paths . O )
-}
-$winners = @{
-X = $this . maxCoord . X - in $Paths . X . Location . X
-O = $this . maxCoord . Y - in $Paths . O . Location . Y
-}
-if ( $winners . X -and $winners . O ) { throw "\"Something went wrong somehow\"" }
-elseif ( $winners . X ) { $winner = [ Winner ]:: X }
-elseif ( $winners . O ) { $winner = [ Winner ]:: O }
-else { $winner = [ Winner ]:: NONE }
-return $winner
-}
-[ Tile ]
-hidden GetTile ( $y , $x ) {
-return $this . board | Where-Object { $_ . Location . Y -eq $y -and $_ . Location . X -eq $x }
-}
-[ Tile []]
-hidden AddLinkedtoPath ([ Tile []] $PathArray ) {
-foreach ( $link in $PathArray . LinkedWith ) {
-if ( $link -notin $PathArray ) {
-$PathArray += $link
-}
-}
-return $PathArray
-}
-}
+(source_file
+  (enum_definition (identifier PLACEHOLDER_1)
+    (enum_body
+      (enum_member (identifier PLACEHOLDER_2))
+      (enum_member (identifier PLACEHOLDER_3))
+      (enum_member (identifier PLACEHOLDER_4))))
+  (class_definition (identifier PLACEHOLDER_5)
+    (class_body
+      (class_property
+        (type_literal
+          (type_name int)) $PLACEHOLDER_6)
+      (class_property
+        (type_literal
+          (type_name int)) $PLACEHOLDER_2)
+      (class_method (identifier PLACEHOLDER_5)
+        (parameter_list
+          (parameter $PLACEHOLDER_6)
+          (parameter $PLACEHOLDER_2))
+        (statement_block
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_6)) = $PLACEHOLDER_6)
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_2)) = $PLACEHOLDER_2)))
+      (class_method
+        (type_literal
+          (type_name bool)) (identifier PLACEHOLDER_7)
+        (parameter_list
+          (parameter $PLACEHOLDER_8))
+        (statement_block
+          (return_statement
+            (binary_expression
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_2)) -eq
+                (member_access $PLACEHOLDER_8 . (identifier PLACEHOLDER_2))) -and
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_6)) -eq
+                (member_access $PLACEHOLDER_8 . (identifier PLACEHOLDER_6)))))))))
+  (class_definition (identifier PLACEHOLDER_9)
+    (class_body
+      (class_property
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_1))) $PLACEHOLDER_10)
+      (class_property
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_5))) $PLACEHOLDER_11)
+      (class_property
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_9) [ ])) $PLACEHOLDER_12)
+      (class_method (identifier PLACEHOLDER_9)
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_6)
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_2)
+          (parameter
+            (type_literal
+              (type_name (type_identifier PLACEHOLDER_1))) $PLACEHOLDER_10))
+        (statement_block
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_11)) =
+            (invocation_expression
+              (member_access
+                (type_literal
+                  (type_name (type_identifier PLACEHOLDER_5))) :: new)
+              (argument_list $PLACEHOLDER_6 $PLACEHOLDER_2)))
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_10)) =
+            (cast_expression
+              (type_literal
+                (type_name (type_identifier PLACEHOLDER_1))) $PLACEHOLDER_10))))
+      (class_method
+        (type_literal
+          (type_name void)) (identifier PLACEHOLDER_13)
+        (parameter_list
+          (parameter $PLACEHOLDER_9))
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression $PLACEHOLDER_9 -notin
+                (member_access $this . (identifier PLACEHOLDER_12))))
+            (statement_block
+              (assignment_statement
+                (member_access $this . (identifier PLACEHOLDER_12)) += $PLACEHOLDER_9)))))
+      (class_method
+        (type_literal
+          (type_name bool)) (identifier PLACEHOLDER_7)
+        (parameter_list
+          (parameter $PLACEHOLDER_8))
+        (statement_block
+          (return_statement
+            (binary_expression
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_10)) -eq
+                (member_access $PLACEHOLDER_8 . (identifier PLACEHOLDER_10))) -and
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_11)) -eq
+                (member_access $PLACEHOLDER_8 . (identifier PLACEHOLDER_11)))))))))
+  (class_definition (identifier PLACEHOLDER_14)
+    (class_body
+      (class_property
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_9) [ ])) $PLACEHOLDER_15)
+      (class_property
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_5))) $PLACEHOLDER_16)
+      (class_property
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_9) [ ])) $PLACEHOLDER_17)
+      (class_property
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_9) [ ])) $PLACEHOLDER_18)
+      (class_method (identifier PLACEHOLDER_14)
+        (parameter_list
+          (parameter $PLACEHOLDER_19))
+        (statement_block
+          (for_statement
+            (assignment_statement $PLACEHOLDER_6 = 0)
+            (binary_expression $PLACEHOLDER_6 -lt
+              (member_access $PLACEHOLDER_19 . count))
+            (unary_expression $PLACEHOLDER_6 ++)
+            (statement_block
+              (assignment_statement
+                (cast_expression
+                  (type_literal
+                    (type_name array)) $row) =
+                (binary_expression
+                  (invocation_expression
+                    (member_access
+                      (element_access $PLACEHOLDER_19 $PLACEHOLDER_6) . trim)
+                    (argument_list " ")) -split " "))
+              (for_statement
+                (assignment_statement $PLACEHOLDER_2 = 0)
+                (binary_expression $PLACEHOLDER_2 -lt
+                  (member_access $row . count))
+                (unary_expression $PLACEHOLDER_2 ++)
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_20 =
+                    (element_access $row $PLACEHOLDER_2))
+                  (if_statement
+                    (condition
+                      (binary_expression $PLACEHOLDER_20 -notin
+                        (invocation_expression
+                          (member_access
+                            (type_literal
+                              (type_name (type_identifier PLACEHOLDER_1))) . getenumnames)
+                          (argument_list))))
+                    (statement_block
+                      (assignment_statement $PLACEHOLDER_20 = "NONE")))
+                  (assignment_statement
+                    (member_access $this . (identifier PLACEHOLDER_15)) +=
+                    (invocation_expression
+                      (member_access
+                        (type_literal
+                          (type_name (type_identifier PLACEHOLDER_9))) :: new)
+                      (argument_list $PLACEHOLDER_6 $PLACEHOLDER_2 $PLACEHOLDER_20)))))
+              (assignment_statement
+                (member_access $this . (identifier PLACEHOLDER_16)) =
+                (invocation_expression
+                  (member_access
+                    (type_literal
+                      (type_name (type_identifier PLACEHOLDER_5))) :: new)
+                  (argument_list $PLACEHOLDER_6
+                    (binary_expression $PLACEHOLDER_2 - 1))))))
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_17)) =
+            (pipeline
+              (member_access $this . (identifier PLACEHOLDER_15))
+              (command where-object
+                (command_argument "OccupiedBy")
+                (command_parameter -eq)
+                (command_argument "X"))))
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_18)) =
+            (pipeline
+              (member_access $this . (identifier PLACEHOLDER_15))
+              (command where-object
+                (command_argument "OccupiedBy")
+                (command_parameter -eq)
+                (command_argument "O"))))
+          (for_statement
+            (assignment_statement $PLACEHOLDER_6 = 0)
+            (binary_expression $PLACEHOLDER_6 -le
+              (member_access
+                (member_access $this . (identifier PLACEHOLDER_16)) . (identifier PLACEHOLDER_6)))
+            (unary_expression $PLACEHOLDER_6 ++)
+            (statement_block
+              (for_statement
+                (assignment_statement $PLACEHOLDER_2 = 0)
+                (binary_expression $PLACEHOLDER_2 -le
+                  (member_access
+                    (member_access $this . (identifier PLACEHOLDER_16)) . (identifier PLACEHOLDER_2)))
+                (unary_expression $PLACEHOLDER_2 ++)
+                (statement_block
+                  (assignment_statement
+                    (cast_expression
+                      (type_literal
+                        (type_name array)) $checks) =
+                    (pipeline
+                      (array_expression
+                        (array_literal_expression
+                          (hashtable_expression
+                            (hash_entry "Y"
+                              (binary_expression $PLACEHOLDER_6 - 1))
+                            (hash_entry "X" $PLACEHOLDER_2))
+                          (hashtable_expression
+                            (hash_entry "Y"
+                              (binary_expression $PLACEHOLDER_6 - 1))
+                            (hash_entry "X"
+                              (binary_expression $PLACEHOLDER_2 + 1)))
+                          (hashtable_expression
+                            (hash_entry "Y" $PLACEHOLDER_6)
+                            (hash_entry "X"
+                              (binary_expression $PLACEHOLDER_2 - 1)))
+                          (hashtable_expression
+                            (hash_entry "Y" $PLACEHOLDER_6)
+                            (hash_entry "X"
+                              (binary_expression $PLACEHOLDER_2 + 1)))
+                          (hashtable_expression
+                            (hash_entry "Y"
+                              (binary_expression $PLACEHOLDER_6 + 1))
+                            (hash_entry "X"
+                              (binary_expression $PLACEHOLDER_2 - 1)))
+                          (hashtable_expression
+                            (hash_entry "Y"
+                              (binary_expression $PLACEHOLDER_6 + 1))
+                            (hash_entry "X" $PLACEHOLDER_2))))
+                      (command where-object
+                        (command_argument
+                          (script_block
+                            (binary_expression
+                              (binary_expression
+                                (binary_expression
+                                  (binary_expression
+                                    (member_access $_ . (identifier PLACEHOLDER_6)) -ge 0) -and
+                                  (binary_expression
+                                    (member_access $_ . (identifier PLACEHOLDER_6)) -le
+                                    (member_access
+                                      (member_access $this . (identifier PLACEHOLDER_16)) . (identifier PLACEHOLDER_6)))) -and
+                                (binary_expression
+                                  (member_access $_ . (identifier PLACEHOLDER_2)) -ge 0)) -and
+                              (binary_expression
+                                (member_access $_ . (identifier PLACEHOLDER_2)) -le
+                                (member_access
+                                  (member_access $this . (identifier PLACEHOLDER_16)) . (identifier PLACEHOLDER_2)))))))))
+                  (assignment_statement $PLACEHOLDER_21 =
+                    (invocation_expression
+                      (member_access $this . (identifier PLACEHOLDER_22))
+                      (argument_list $PLACEHOLDER_6 $PLACEHOLDER_2)))
+                  (for_statement
+                    (assignment_statement $PLACEHOLDER_23 = 0)
+                    (binary_expression $PLACEHOLDER_23 -lt
+                      (member_access $checks . count))
+                    (unary_expression $PLACEHOLDER_23 ++)
+                    (statement_block
+                      (if_statement
+                        (condition
+                          (binary_expression
+                            (member_access $PLACEHOLDER_21 . (identifier PLACEHOLDER_10)) -ne
+                            (member_access
+                              (type_literal
+                                (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_4))))
+                        (statement_block
+                          (assignment_statement $PLACEHOLDER_24 =
+                            (invocation_expression
+                              (member_access $this . (identifier PLACEHOLDER_22))
+                              (argument_list
+                                (member_access
+                                  (element_access $checks $PLACEHOLDER_23) . (identifier PLACEHOLDER_6))
+                                (member_access
+                                  (element_access $checks $PLACEHOLDER_23) . (identifier PLACEHOLDER_2)))))
+                          (if_statement
+                            (condition
+                              (binary_expression
+                                (member_access $PLACEHOLDER_21 . (identifier PLACEHOLDER_10)) -eq
+                                (member_access $PLACEHOLDER_24 . (identifier PLACEHOLDER_10))))
+                            (statement_block
+                              (invocation_expression
+                                (member_access $PLACEHOLDER_21 . (identifier PLACEHOLDER_13))
+                                (argument_list $PLACEHOLDER_24))))))))))))))
+      (class_method
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_1))) (identifier PLACEHOLDER_25)
+        (parameter_list)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_26 =
+            (hashtable_expression
+              (hash_entry "X"
+                (pipeline
+                  (member_access $this . (identifier PLACEHOLDER_17))
+                  (command where-object
+                    (command_argument
+                      (script_block
+                        (binary_expression
+                          (member_access
+                            (member_access $_ . (identifier PLACEHOLDER_11)) . (identifier PLACEHOLDER_2)) -eq 0))))))
+              (hash_entry "O"
+                (pipeline
+                  (member_access $this . (identifier PLACEHOLDER_18))
+                  (command where-object
+                    (command_argument
+                      (script_block
+                        (binary_expression
+                          (member_access
+                            (member_access $_ . (identifier PLACEHOLDER_11)) . (identifier PLACEHOLDER_6)) -eq 0))))))))
+          (assignment_statement $PLACEHOLDER_27 =
+            (hashtable_expression
+              (hash_entry "X"
+                (array_expression
+                  (member_access $PLACEHOLDER_26 . (identifier PLACEHOLDER_2))))
+              (hash_entry "O"
+                (array_expression
+                  (member_access $PLACEHOLDER_26 . (identifier PLACEHOLDER_3))))))
+          (for_statement
+            (assignment_statement $PLACEHOLDER_23 = 0)
+            (binary_expression $PLACEHOLDER_23 -lt
+              (member_access
+                (member_access $this . (identifier PLACEHOLDER_17)) . count))
+            (unary_expression $PLACEHOLDER_23 ++)
+            (statement_block
+              (assignment_statement
+                (member_access $PLACEHOLDER_27 . (identifier PLACEHOLDER_2)) =
+                (invocation_expression
+                  (member_access $this . (identifier PLACEHOLDER_28))
+                  (argument_list
+                    (member_access $PLACEHOLDER_27 . (identifier PLACEHOLDER_2)))))))
+          (for_statement
+            (assignment_statement $PLACEHOLDER_23 = 0)
+            (binary_expression $PLACEHOLDER_23 -lt
+              (member_access
+                (member_access $this . (identifier PLACEHOLDER_18)) . count))
+            (unary_expression $PLACEHOLDER_23 ++)
+            (statement_block
+              (assignment_statement
+                (member_access $PLACEHOLDER_27 . (identifier PLACEHOLDER_3)) =
+                (invocation_expression
+                  (member_access $this . (identifier PLACEHOLDER_28))
+                  (argument_list
+                    (member_access $PLACEHOLDER_27 . (identifier PLACEHOLDER_3)))))))
+          (assignment_statement $PLACEHOLDER_29 =
+            (hashtable_expression
+              (hash_entry "X"
+                (binary_expression
+                  (member_access
+                    (member_access $this . (identifier PLACEHOLDER_16)) . (identifier PLACEHOLDER_2)) -in
+                  (member_access
+                    (member_access
+                      (member_access $PLACEHOLDER_27 . (identifier PLACEHOLDER_2)) . (identifier PLACEHOLDER_11)) . (identifier PLACEHOLDER_2))))
+              (hash_entry "O"
+                (binary_expression
+                  (member_access
+                    (member_access $this . (identifier PLACEHOLDER_16)) . (identifier PLACEHOLDER_6)) -in
+                  (member_access
+                    (member_access
+                      (member_access $PLACEHOLDER_27 . (identifier PLACEHOLDER_3)) . (identifier PLACEHOLDER_11)) . (identifier PLACEHOLDER_6))))))
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access $PLACEHOLDER_29 . (identifier PLACEHOLDER_2)) -and
+                (member_access $PLACEHOLDER_29 . (identifier PLACEHOLDER_3))))
+            (statement_block
+              (throw_statement "Something went wrong somehow"))
+            (elseif_clause
+              (condition
+                (member_access $PLACEHOLDER_29 . (identifier PLACEHOLDER_2)))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_1 =
+                  (member_access
+                    (type_literal
+                      (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_2)))))
+            (elseif_clause
+              (condition
+                (member_access $PLACEHOLDER_29 . (identifier PLACEHOLDER_3)))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_1 =
+                  (member_access
+                    (type_literal
+                      (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_3)))))
+            (else_clause
+              (statement_block
+                (assignment_statement $PLACEHOLDER_1 =
+                  (member_access
+                    (type_literal
+                      (type_name (type_identifier PLACEHOLDER_1))) :: (identifier PLACEHOLDER_4))))))
+          (return_statement $PLACEHOLDER_1)))
+      (class_method
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_9))) hidden (identifier PLACEHOLDER_22)
+        (parameter_list
+          (parameter $PLACEHOLDER_6)
+          (parameter $PLACEHOLDER_2))
+        (statement_block
+          (return_statement
+            (pipeline
+              (member_access $this . (identifier PLACEHOLDER_15))
+              (command where-object
+                (command_argument
+                  (script_block
+                    (binary_expression
+                      (binary_expression
+                        (member_access
+                          (member_access $_ . (identifier PLACEHOLDER_11)) . (identifier PLACEHOLDER_6)) -eq $PLACEHOLDER_6) -and
+                      (binary_expression
+                        (member_access
+                          (member_access $_ . (identifier PLACEHOLDER_11)) . (identifier PLACEHOLDER_2)) -eq $PLACEHOLDER_2)))))))))
+      (class_method
+        (type_literal
+          (type_name (type_identifier PLACEHOLDER_9) [ ])) hidden (identifier PLACEHOLDER_28)
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name (type_identifier PLACEHOLDER_9) [ ])) $PLACEHOLDER_30))
+        (statement_block
+          (foreach_statement $PLACEHOLDER_13
+            (member_access $PLACEHOLDER_30 . (identifier PLACEHOLDER_12))
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression $PLACEHOLDER_13 -notin $PLACEHOLDER_30))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_30 += $PLACEHOLDER_13)))))
+          (return_statement $PLACEHOLDER_30))))))
