@@ -52,7 +52,7 @@ make_event() { jq -n --rawfile b "${1}" '{body: $b}' > "${2}"; }
 # Realistic requests: one per language with a class, plus Basic (Haskell)
 tracks=(clojure common-lisp cpp crystal csharp elixir elm fsharp gdscript gleam go java javascript nim php python ruby rust typescript wasm wren zig haskell)
 for track in "${tracks[@]}"; do
-    request=$(ls tests/${track}/*/request.json | grep -v 'syntax-error' | head -n 1)
+    request=$(ls test/fixtures/requests/${track}/*/request.json | grep -v 'syntax-error' | head -n 1)
     name="${track}"
     [[ "${track}" == "haskell" ]] && name="basic (haskell)"
     make_event "${request}" "${work_dir}/event-${track}.json"
@@ -82,7 +82,7 @@ nested = {
 }
 
 def request(track, files):
-    base = sorted(p for p in glob.glob(f"tests/{track}/*/request.json") if "syntax-error" not in p)[0]
+    base = sorted(p for p in glob.glob(f"test/fixtures/requests/{track}/*/request.json") if "syntax-error" not in p)[0]
     req = json.load(open(base))
     req["solution_files"] = files
     return req

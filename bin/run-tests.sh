@@ -2,7 +2,8 @@
 
 # Synopsis:
 # Test the representer: run the unit tests, then run the representer against
-# each request in tests/ and compare its response with the expected one.
+# each request in test/fixtures/requests/ and compare its response with the
+# expected one.
 # With a track slug, run only that track's tests: its language tests, its
 # golden tests, its fuzz test and its request tests.
 
@@ -36,7 +37,7 @@ else
     FUZZ_TRACKS="$1" bundle exec ruby -Itest test/fuzz_test.rb
 fi
 
-for test_dir in tests/${track_slug}/*/; do
+for test_dir in test/fixtures/requests/${track_slug}/*/; do
     test_dir="${test_dir%/}"
     response_file="${test_dir}/response.json"
     expected_response_file="${test_dir}/expected_response.json"

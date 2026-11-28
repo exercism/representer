@@ -386,7 +386,7 @@ Ruby's test uses the `parser` gem, which the old Ruby representer used, and list
 Keep the ported tests and the tests of the whole representer in `test/languages/<track>_test.rb`.
 `RepresenterTest` gives you `assert_same_representation`, `refute_same_representation`, `assert_basic_representation` (which checks that a solution doesn't parse, and so gets Basic's representation) and `assert_unrepresentable` (which checks that a solution gets no representation, for a given reason).
 
-Also add a request test: a `tests/<track>/<name>/request.json` with a typical solution and its tests, and an `expected_response.json` made by running `./bin/run.sh tests/<track>/<name>/request.json tests/<track>/<name>` and copying `response.json` after checking it.
+Also add a request test: a `test/fixtures/requests/<track>/<name>/request.json` with a typical solution and its tests, and an `expected_response.json` made by running `./bin/run.sh test/fixtures/requests/<track>/<name>/request.json test/fixtures/requests/<track>/<name>` and copying `response.json` after checking it.
 
 Run the tests as "Running the tests" below says.
 
@@ -458,7 +458,7 @@ If a change only touches one language's files (its folder, its grammar's pin or 
 ./bin/run-tests.sh ruby
 ```
 
-With a track slug, the script runs the language's own tests (`test/languages/<track>_test.rb` and the files in `test/languages/<track>/`), its golden tests, its fuzz test and its request tests in `tests/<track>/`.
+With a track slug, the script runs the language's own tests (`test/languages/<track>_test.rb` and the files in `test/languages/<track>/`), its golden tests, its fuzz test and its request tests in `test/fixtures/requests/<track>/`.
 To run one of those on its own, use these commands:
 
 ```shell

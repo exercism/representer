@@ -2,8 +2,8 @@
 
 # Synopsis:
 # Test the representer's Docker image by running it against each request in
-# tests/ and comparing its response with the expected one. The Docker image
-# is built automatically.
+# test/fixtures/requests/ and comparing its response with the expected one.
+# The Docker image is built automatically.
 
 # Arguments:
 # $1: track slug (optional, limits the tests to that track)
@@ -23,7 +23,7 @@ exit_code=0
 # Pre-build the image, so that it isn't built for every test
 docker build --rm -t exercism/representer .
 
-for test_dir in tests/${track_slug}/*/; do
+for test_dir in test/fixtures/requests/${track_slug}/*/; do
     test_dir="${test_dir%/}"
     response_file="${test_dir}/response.json"
     expected_response_file="${test_dir}/expected_response.json"

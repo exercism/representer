@@ -13,7 +13,7 @@
 # response's body to response.json in that directory.
 
 # Example:
-# ./bin/run-in-docker.sh tests/ruby/two-fer/request.json
+# ./bin/run-in-docker.sh test/fixtures/requests/ruby/two-fer/request.json
 
 # Stop executing when a command returns a non-zero return code
 set -e
