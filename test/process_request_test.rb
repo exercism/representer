@@ -34,9 +34,11 @@ class ProcessRequestTest < Minitest::Test
     assert_equal({ "snippet" => "x = 1\n", "version" => Inspector::Languages::Ruby::Snippet::Spec.version }, body["snippet"])
   end
 
+  # Almost every track has a language of its own, so the tests of Basic use
+  # a track that Inspector doesn't know.
   def test_tracks_with_no_snippet_of_their_own_get_the_basic_one
-    body = JSON.parse(request(track_slug: "cobol", outputs: ["snippet"],
-      solution_files: { "a.cob" => "      * A comment\n       DISPLAY 'HI'.\n" })[:body])
+    body = JSON.parse(request(track_slug: "unknown", outputs: ["snippet"],
+      solution_files: { "a.src" => "       DISPLAY 'HI'.\n" })[:body])
     assert_equal({ "snippet" => "       DISPLAY 'HI'.\n", "version" => Inspector::Languages::Basic::Snippet::Spec.version },
       body["snippet"])
   end
@@ -63,7 +65,7 @@ class ProcessRequestTest < Minitest::Test
   end
 
   def test_unknown_tracks_get_basic
-    body = JSON.parse(request(track_slug: "cobol", solution_files: { "a.cob" => "DISPLAY 'HI'." })[:body])
+    body = JSON.parse(request(track_slug: "unknown", solution_files: { "a.src" => "DISPLAY 'HI'." })[:body])
     assert_equal Inspector::Languages::Basic::VERSION, body["representation"]["version"]
   end
 
@@ -91,7 +93,7 @@ class ProcessRequestTest < Minitest::Test
 
   def test_solutions_over_the_limit
     big = "x" * (Inspector::MAX_SOLUTION_BYTES + 1)
-    %w[ruby cobol].each do |track_slug|
+    %w[ruby unknown].each do |track_slug|
       response = request(track_slug:, solution_files: { "a" => big })
       assert_equal 200, response[:statusCode]
       output = JSON.parse(response[:body])["representation"]

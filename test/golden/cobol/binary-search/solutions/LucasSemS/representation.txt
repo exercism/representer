@@ -1,95 +1,333 @@
-IDENTIFICATION DIVISION .
-  PROGRAM-ID . BINARY-SEARCH .
-  ENVIRONMENT DIVISION .
-  DATA DIVISION .
-  WORKING-STORAGE SECTION .
-  01 WS-ITEM PIC 9999 .
-  01 WS-RESULT PIC 9999 .
-  01 WS-ERROR PIC X ( 40 ) VALUE SPACES .
-  01 WS-ARRAY PIC X ( 60 ).
-  01 L PIC 99 VALUE 0 .
-  01 R PIC 99 .
-  01 M PIC 99 .
-  01 STR PIC X ( 60 ).
-  01 EXP PIC 999 VALUE ZEROES .
-  01 IDX PIC 999 .
-  01 NUM2 PIC ZZ9 VALUE ZEROES .
-  01 COUNTER PIC 999 .
-  01 LEN PIC 999 .
-  01 Teibel .
-    02 Taulukko PIC 999 OCCURS 1 TO 20
-      DEPENDING ON IDX .
-  PROCEDURE DIVISION .
-  STR-LENGTH .
-    MOVE 0 TO LEN .
-    PERFORM VARYING COUNTER FROM FUNCTION LENGTH ( STR )
-      BY -1 UNTIL STR ( COUNTER : 1 ) <> "\" \""
-      ADD 1 TO LEN
-    END-PERFORM .
-    COMPUTE LEN = FUNCTION LENGTH ( STR ) - LEN .
-  REVERSE-TABLE .
-    COMPUTE R = FUNCTION INTEGER-PART ( IDX / 2 ).
-    PERFORM VARYING COUNTER FROM 1 BY 1 UNTIL COUNTER = R
-      COMPUTE L = IDX - COUNTER
-      MOVE Taulukko ( L ) TO NUM2
-      MOVE Taulukko ( COUNTER ) TO Taulukko ( L )
-      MOVE NUM2 TO Taulukko ( COUNTER )
-    END-PERFORM .
-  MOVE-TO-TABLE .
-    MOVE WS-ARRAY TO STR .
-    PERFORM STR-LENGTH .
-    MOVE 20 TO IDX .
-    INITIALIZE Teibel .
-    MOVE 3 TO EXP .
-    MOVE 1 TO IDX
-    MOVE ZEROES TO NUM2 .
-    PERFORM VARYING COUNTER FROM LEN BY -1 UNTIL COUNTER = 0
-      IF WS-ARRAY ( COUNTER : 1 ) = ','
-        MOVE 3 TO EXP
-        MOVE NUM2 TO Taulukko ( IDX )
-        MOVE ZEROES TO NUM2
-        ADD 1 TO IDX
-      ELSE IF COUNTER = 1
-        MOVE WS-ARRAY ( COUNTER : 1 ) TO NUM2 ( EXP : 1 )
-        MOVE NUM2 TO Taulukko ( IDX )
-        ADD 1 TO IDX
-      ELSE
-        MOVE WS-ARRAY ( COUNTER : 1 ) TO NUM2 ( EXP : 1 )
-        SUBTRACT 1 FROM EXP
-      END-IF
-    END-PERFORM .
-  BINARY-SEARCH .
-    MOVE ZERO TO WS-RESULT .
-    MOVE SPACES TO WS-ERROR .
-    PERFORM MOVE-TO-TABLE .
-    IF IDX > 2
-      PERFORM REVERSE-TABLE
-    END-IF .
-    IF L IS LESS THAN 1 OR R IS GREATER THAN IDX
-      MOVE "\"value not in array\"" TO WS-ERROR
-      EXIT PROGRAM
-    END-IF .
-    MOVE 1 TO L .
-    COMPUTE R = IDX - 1 .
-    PERFORM UNTIL L IS GREATER THAN R
-      COMPUTE M = L + R
-      COMPUTE M = FUNCTION INTEGER-PART ( M / 2 )
-      IF Taulukko ( M ) = WS-ITEM
-        MOVE M TO WS-RESULT
-        EXIT PARAGRAPH
-      END-IF
-      IF Taulukko ( M ) IS LESS THAN WS-ITEM
-        COMPUTE L = M + 1
-      ELSE IF Taulukko ( M ) IS GREATER THAN WS-ITEM
-        COMPUTE R = M - 1
-      ELSE
-        COMPUTE WS-RESULT = M - 1
-        IF Taulukko ( WS-RESULT ) = WS-ITEM
-          EXIT PROGRAM
-        ELSE
-          MOVE "\"value not in array\"" TO WS-ERROR
-          EXIT PROGRAM
-        END-IF
-      END-IF
-    END-PERFORM .
-    MOVE "\"value not in array\"" TO WS-ERROR .
+(start
+  (program_definition
+    (identification_division (program_name PLACEHOLDER_1))
+    (environment_division)
+    (data_division
+      (working_storage_section
+        (data_description 1 (entry_name PLACEHOLDER_2)
+          (picture_clause "9(4)"))
+        (data_description 1 (entry_name PLACEHOLDER_3)
+          (picture_clause "9(4)"))
+        (data_description 1 (entry_name PLACEHOLDER_4)
+          (picture_clause "x(40)")
+          (value_clause value
+            (value_item SPACE)))
+        (data_description 1 (entry_name PLACEHOLDER_5)
+          (picture_clause "x(60)"))
+        (data_description 1 (entry_name PLACEHOLDER_6)
+          (picture_clause "9(2)")
+          (value_clause value
+            (value_item
+              (number 0))))
+        (data_description 1 (entry_name PLACEHOLDER_7)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_8)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_9)
+          (picture_clause "x(60)"))
+        (data_description 1 (entry_name PLACEHOLDER_10)
+          (picture_clause "9(3)")
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_11)
+          (picture_clause "9(3)"))
+        (data_description 1 (entry_name PLACEHOLDER_12)
+          (picture_clause "z(2)9")
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_13)
+          (picture_clause "9(3)"))
+        (data_description 1 (entry_name PLACEHOLDER_14)
+          (picture_clause "9(3)"))
+        (data_description 1 (entry_name PLACEHOLDER_15))
+        (data_description 2 (entry_name PLACEHOLDER_16)
+          (picture_clause "9(3)")
+          (occurs_clause 1 20
+            (qualified_word PLACEHOLDER_11)))))
+    (procedure_division
+      (paragraph_header PLACEHOLDER_17)
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_14))
+      (period)
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_13) from
+            (function_ function length
+              (func_args
+                (qualified_word PLACEHOLDER_9))) by
+            (number -1) until
+            (expr
+              (qualified_word PLACEHOLDER_9)
+              (refmod
+                (qualified_word PLACEHOLDER_13) :
+                (number 1)) ne " "))))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_14))) END_PERFORM
+      (period)
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_14))
+        (expr
+          (function_ function length
+            (func_args
+              (qualified_word PLACEHOLDER_9))) -
+          (qualified_word PLACEHOLDER_14)))
+      (period)
+      (paragraph_header PLACEHOLDER_18)
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7))
+        (expr
+          (function_ function integer-part
+            (func_args
+              (div_exp
+                (qualified_word PLACEHOLDER_11) /
+                (number 2))))))
+      (period)
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_13) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_13) eq
+              (qualified_word PLACEHOLDER_7)))))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6))
+        (expr
+          (qualified_word PLACEHOLDER_11) -
+          (qualified_word PLACEHOLDER_13)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_16)
+        (subref
+          (qualified_word PLACEHOLDER_6)) to
+        (qualified_word PLACEHOLDER_12))
+      (move_statement move
+        (qualified_word PLACEHOLDER_16)
+        (subref
+          (qualified_word PLACEHOLDER_13)) to
+        (qualified_word PLACEHOLDER_16)
+        (subref
+          (qualified_word PLACEHOLDER_6)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_12) to
+        (qualified_word PLACEHOLDER_16)
+        (subref
+          (qualified_word PLACEHOLDER_13))) END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_19)
+      (move_statement move
+        (qualified_word PLACEHOLDER_5) to
+        (qualified_word PLACEHOLDER_9))
+      (period)
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_17))))
+      (period)
+      (move_statement move
+        (number 20) to
+        (qualified_word PLACEHOLDER_11))
+      (period)
+      (initialize_statement initialize
+        (qualified_word PLACEHOLDER_15))
+      (period)
+      (move_statement move
+        (number 3) to
+        (qualified_word PLACEHOLDER_10))
+      (period)
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_11))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_12))
+      (period)
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_13) from
+            (qualified_word PLACEHOLDER_14) by
+            (number -1) until
+            (expr
+              (qualified_word PLACEHOLDER_13) eq
+              (number 0)))))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_5)
+          (refmod
+            (qualified_word PLACEHOLDER_13) :
+            (number 1)) eq ","))
+      (move_statement move
+        (number 3) to
+        (qualified_word PLACEHOLDER_10))
+      (move_statement move
+        (qualified_word PLACEHOLDER_12) to
+        (qualified_word PLACEHOLDER_16)
+        (subref
+          (qualified_word PLACEHOLDER_11)))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_12))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_11)))
+      (else_if_header
+        (expr
+          (qualified_word PLACEHOLDER_13) eq
+          (number 1)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_5)
+        (refmod
+          (qualified_word PLACEHOLDER_13) :
+          (number 1)) to
+        (qualified_word PLACEHOLDER_12)
+        (refmod
+          (qualified_word PLACEHOLDER_10) :
+          (number 1)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_12) to
+        (qualified_word PLACEHOLDER_16)
+        (subref
+          (qualified_word PLACEHOLDER_11)))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_11))) else_header
+      (move_statement move
+        (qualified_word PLACEHOLDER_5)
+        (refmod
+          (qualified_word PLACEHOLDER_13) :
+          (number 1)) to
+        (qualified_word PLACEHOLDER_12)
+        (refmod
+          (qualified_word PLACEHOLDER_10) :
+          (number 1)))
+      (subtract_statement subtract
+        (number 1) from
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_10))) END_IF END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_1)
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_3))
+      (period)
+      (move_statement move SPACE to
+        (qualified_word PLACEHOLDER_4))
+      (period)
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_19))))
+      (period)
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_11) gt
+          (number 2)))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_18)))) END_IF
+      (period)
+      (if_header
+        (expr
+          (expr
+            (qualified_word PLACEHOLDER_6) lt
+            (number 1)) OR
+          (expr
+            (qualified_word PLACEHOLDER_7) gt
+            (qualified_word PLACEHOLDER_11))))
+      (move_statement move "value not in array" to
+        (qualified_word PLACEHOLDER_4))
+      (exit_statement PROGRAM) END_IF
+      (period)
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_6))
+      (period)
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7))
+        (expr
+          (qualified_word PLACEHOLDER_11) -
+          (number 1)))
+      (period)
+      (perform_statement_loop
+        (perform_option until
+          (expr
+            (qualified_word PLACEHOLDER_6) gt
+            (qualified_word PLACEHOLDER_7))))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_8))
+        (expr
+          (qualified_word PLACEHOLDER_6) +
+          (qualified_word PLACEHOLDER_7)))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_8))
+        (expr
+          (function_ function integer-part
+            (func_args
+              (div_exp
+                (qualified_word PLACEHOLDER_8) /
+                (number 2))))))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_16)
+          (subref
+            (qualified_word PLACEHOLDER_8)) eq
+          (qualified_word PLACEHOLDER_2)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_8) to
+        (qualified_word PLACEHOLDER_3))
+      (exit_statement PARAGRAPH) END_IF
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_16)
+          (subref
+            (qualified_word PLACEHOLDER_8)) lt
+          (qualified_word PLACEHOLDER_2)))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6))
+        (expr
+          (qualified_word PLACEHOLDER_8) +
+          (number 1)))
+      (else_if_header
+        (expr
+          (qualified_word PLACEHOLDER_16)
+          (subref
+            (qualified_word PLACEHOLDER_8)) gt
+          (qualified_word PLACEHOLDER_2)))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7))
+        (expr
+          (qualified_word PLACEHOLDER_8) -
+          (number 1))) else_header
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_3))
+        (expr
+          (qualified_word PLACEHOLDER_8) -
+          (number 1)))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_16)
+          (subref
+            (qualified_word PLACEHOLDER_3)) eq
+          (qualified_word PLACEHOLDER_2)))
+      (exit_statement PROGRAM) else_header
+      (move_statement move "value not in array" to
+        (qualified_word PLACEHOLDER_4))
+      (exit_statement PROGRAM) END_IF END_IF END_PERFORM
+      (period)
+      (move_statement move "value not in array" to
+        (qualified_word PLACEHOLDER_4))
+      (period))))
