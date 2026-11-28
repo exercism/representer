@@ -1,88 +1,202 @@
-IDENTIFICATION DIVISION .
-  PROGRAM-ID . PROTEIN-TRANSLATION .
-  ENVIRONMENT DIVISION .
-  DATA DIVISION .
-  WORKING-STORAGE SECTION .
-  01 WS-INPUT PIC X ( 60 ).
-  01 WS-PROTEIN PIC X ( 120 ).
-  01 WS-ERROR PIC X ( 60 ).
-  77 WS-INPUT-INDEX PIC 99 .
-  77 WS-SEARCH-STRING PIC X ( 3 ).
-  77 WS-STOP-CONDITION PIC X .
-    88 WS-STOP-PROCESSING VALUE 'Y' .
-  01 WS-TABLE .
-    05 WS-CODON-TABLE OCCURS 17 TIMES INDEXED BY WS-CODON-IDX .
-      10 WS-CODON-VALUE PIC X ( 3 ).
-      10 WS-PROTEIN-VALUE PIC X ( 13 ).
-  PROCEDURE DIVISION .
-  TRANSLATE-CODON .
-    MOVE 'N' TO WS-ERROR .
-    IF FUNCTION MOD
-      ( FUNCTION LENGTH ( FUNCTION TRIM ( WS-INPUT )) 3 ) > 0 THEN
-        MOVE "\"Invalid codon\"" TO WS-ERROR
-    END-IF .
-    IF WS-ERROR = 'N' THEN
-      CONTINUE
-    ELSE
-      EXIT
-    END-IF .
-    PERFORM LOAD-LOOKUP-TABLE .
-    PERFORM TRANSLATE .
-    EXIT .
-  TRANSLATE-RNA .
-    MOVE 'N' TO WS-ERROR .
-    PERFORM LOAD-LOOKUP-TABLE .
-    PERFORM TRANSLATE .
-    EXIT .
-  TRANSLATE .
-    MOVE SPACES TO WS-PROTEIN .
-    MOVE 1 TO WS-INPUT-INDEX .
-    MOVE 'N' TO WS-STOP-CONDITION .
-    PERFORM VARYING WS-INPUT-INDEX FROM 1 BY 3 UNTIL
-      WS-INPUT-INDEX > LENGTH OF FUNCTION TRIM ( WS-INPUT ) OR
-      WS-STOP-PROCESSING
-      SET WS-CODON-IDX TO 1
-      MOVE WS-INPUT ( WS-INPUT-INDEX : 3 ) TO WS-SEARCH-STRING
-      SEARCH WS-CODON-TABLE VARYING WS-CODON-IDX
-      AT END
-        MOVE "\"Invalid codon\"" to WS-ERROR
-      WHEN WS-CODON-VALUE ( WS-CODON-IDX ) = WS-SEARCH-STRING
-        IF FUNCTION
-          TRIM ( WS-PROTEIN-VALUE ( WS-CODON-IDX )) =
-          "\"Stp\"" THEN
-          MOVE 'Y' TO WS-STOP-CONDITION
-          EXIT
-        ELSE
-          STRING FUNCTION TRIM ( WS-PROTEIN ) DELIMITED BY
-          SIZE "\",\"" DELIMITED BY SIZE
-          WS-PROTEIN-VALUE ( WS-CODON-IDX ) DELIMITED BY SIZE
-          INTO WS-PROTEIN
-        END-IF
-      END-SEARCH
-    END-PERFORM .
-    IF WS-PROTEIN NOT EQUAL TO SPACES THEN
-      INSPECT WS-PROTEIN REPLACING FIRST ',' BY "' '"
-      MOVE FUNCTION TRIM ( WS-PROTEIN ) TO WS-PROTEIN
-    END-IF
-    EXIT .
-  LOAD-LOOKUP-TABLE .
-    STRING
-    "\"AUGMethionine   \"" DELIMITED BY SIZE
-    "\"UUUPhenylalanine\"" DELIMITED BY SIZE
-    "\"UUCPhenylalanine\"" DELIMITED BY SIZE
-    "\"UUALeucine      \"" DELIMITED BY SIZE
-    "\"UUGLeucine      \"" DELIMITED BY SIZE
-    "\"UCUSerine       \"" DELIMITED BY SIZE
-    "\"UCCSerine       \"" DELIMITED BY SIZE
-    "\"UCASerine       \"" DELIMITED BY SIZE
-    "\"UCGSerine       \"" DELIMITED BY SIZE
-    "\"UAUTyrosine     \"" DELIMITED BY SIZE
-    "\"UACTyrosine     \"" DELIMITED BY SIZE
-    "\"UGUCysteine     \"" DELIMITED BY SIZE
-    "\"UGCCysteine     \"" DELIMITED BY SIZE
-    "\"UGGTryptophan   \"" DELIMITED BY SIZE
-    "\"UAAStp          \"" DELIMITED BY SIZE
-    "\"UAGStp          \"" DELIMITED BY SIZE
-    "\"UGAStp          \"" DELIMITED BY SIZE
-    INTO WS-TABLE .
-    EXIT .
+(start
+  (program_definition
+    (identification_division (program_name PLACEHOLDER_1))
+    (environment_division)
+    (data_division
+      (working_storage_section
+        (data_description 1 (entry_name PLACEHOLDER_2)
+          (picture_clause "x(60)"))
+        (data_description 1 (entry_name PLACEHOLDER_3)
+          (picture_clause "x(120)"))
+        (data_description 1 (entry_name PLACEHOLDER_4)
+          (picture_clause "x(60)"))
+        (data_description 77 (entry_name PLACEHOLDER_5)
+          (picture_clause "9(2)"))
+        (data_description 77 (entry_name PLACEHOLDER_6)
+          (picture_clause "x(3)"))
+        (data_description 77 (entry_name PLACEHOLDER_7)
+          (picture_clause x))
+        (data_description 88 (entry_name PLACEHOLDER_8)
+          (value_clause value
+            (value_item "Y")))
+        (data_description 1 (entry_name PLACEHOLDER_9))
+        (data_description 5 (entry_name PLACEHOLDER_10)
+          (occurs_clause 17
+            (occurs_key_spec
+              (occurs_indexed PLACEHOLDER_11))))
+        (data_description 10 (entry_name PLACEHOLDER_12)
+          (picture_clause "x(3)"))
+        (data_description 10 (entry_name PLACEHOLDER_13)
+          (picture_clause "x(13)"))))
+    (procedure_division
+      (paragraph_header PLACEHOLDER_14)
+      (move_statement move "N" to
+        (qualified_word PLACEHOLDER_4))
+      (period)
+      (if_header
+        (expr
+          (function_ function mod
+            (func_args
+              (function_ function length
+                (func_args
+                  (function_ function trim
+                    (func_args
+                      (qualified_word PLACEHOLDER_2)))))
+              (number 3))) gt
+          (number 0)))
+      (move_statement move "Invalid codon" to
+        (qualified_word PLACEHOLDER_4)) END_IF
+      (period)
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_4) eq "N")) continue_statement else_header exit_statement END_IF
+      (period)
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_15))))
+      (period)
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_16))))
+      (period) exit_statement
+      (period)
+      (paragraph_header PLACEHOLDER_17)
+      (move_statement move "N" to
+        (qualified_word PLACEHOLDER_4))
+      (period)
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_15))))
+      (period)
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_16))))
+      (period) exit_statement
+      (period)
+      (paragraph_header PLACEHOLDER_16)
+      (move_statement move SPACE to
+        (qualified_word PLACEHOLDER_3))
+      (period)
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_5))
+      (period)
+      (move_statement move "N" to
+        (qualified_word PLACEHOLDER_7))
+      (period)
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_5) from
+            (number 1) by
+            (number 3) until
+            (expr
+              (expr
+                (qualified_word PLACEHOLDER_5) gt length of
+                (function_ function trim
+                  (func_args
+                    (qualified_word PLACEHOLDER_2)))) OR
+              (expr
+                (qualified_word PLACEHOLDER_8))))))
+      (set_statement
+        (set_to
+          (qualified_word PLACEHOLDER_11) to
+          (number 1)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_2)
+        (refmod
+          (qualified_word PLACEHOLDER_5) :
+          (number 3)) to
+        (qualified_word PLACEHOLDER_6))
+      (search_statement
+        (qualified_word PLACEHOLDER_10) VARYING
+        (qualified_word PLACEHOLDER_11)) at_end
+      (move_statement move "Invalid codon" to
+        (qualified_word PLACEHOLDER_4))
+      (when
+        (expr
+          (qualified_word PLACEHOLDER_12)
+          (subref
+            (qualified_word PLACEHOLDER_11)) eq
+          (qualified_word PLACEHOLDER_6)))
+      (if_header
+        (expr
+          (function_ function trim
+            (func_args
+              (qualified_word PLACEHOLDER_13)
+              (subref
+                (qualified_word PLACEHOLDER_11)))) eq "Stp"))
+      (move_statement move "Y" to
+        (qualified_word PLACEHOLDER_7)) exit_statement else_header
+      (string_statement
+        (string_item
+          (function_ function trim
+            (func_args
+              (qualified_word PLACEHOLDER_3))))
+        (string_item DELIMITED by SIZE)
+        (string_item ",")
+        (string_item DELIMITED by SIZE)
+        (string_item
+          (qualified_word PLACEHOLDER_13)
+          (subref
+            (qualified_word PLACEHOLDER_11)))
+        (string_item DELIMITED by SIZE)
+        (qualified_word PLACEHOLDER_3)) END_IF END_SEARCH END_PERFORM
+      (period)
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_3) ne SPACE))
+      (inspect_statement
+        (qualified_word PLACEHOLDER_3)
+        (inspect_replacing
+          (replacing_item FIRST
+            (replacing_region "," " "))))
+      (move_statement move
+        (function_ function trim
+          (func_args
+            (qualified_word PLACEHOLDER_3))) to
+        (qualified_word PLACEHOLDER_3)) END_IF exit_statement
+      (period)
+      (paragraph_header PLACEHOLDER_15)
+      (string_statement
+        (string_item "AUGMethionine   ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UUUPhenylalanine")
+        (string_item DELIMITED by SIZE)
+        (string_item "UUCPhenylalanine")
+        (string_item DELIMITED by SIZE)
+        (string_item "UUALeucine      ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UUGLeucine      ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UCUSerine       ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UCCSerine       ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UCASerine       ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UCGSerine       ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UAUTyrosine     ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UACTyrosine     ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UGUCysteine     ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UGCCysteine     ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UGGTryptophan   ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UAAStp          ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UAGStp          ")
+        (string_item DELIMITED by SIZE)
+        (string_item "UGAStp          ")
+        (string_item DELIMITED by SIZE)
+        (qualified_word PLACEHOLDER_9))
+      (period) exit_statement
+      (period))))

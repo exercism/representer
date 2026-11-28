@@ -1,112 +1,371 @@
-IDENTIFICATION DIVISION .
-  PROGRAM-ID . ANAGRAM .
-  DATA DIVISION .
-  WORKING-STORAGE SECTION .
-  01 WS-SUBJECT PIC X ( 20 ).
-  01 WS-L-SUBJECT PIC X ( 20 ).
-  01 WS-SUBJECT-LENGTH PIC 99 .
-  01 WS-CANDIDATES-COUNT PIC 9 .
-  01 WS-I PIC 99 .
-  01 WS-J PIC 99 .
-  01 WS-CANDIDATES-TABLE .
-    02 WS-CANDIDATES OCCURS 1 TO 20
-      DEPENDING ON WS-CANDIDATES-COUNT .
-      05 WS-CANDIDATE PIC X ( 20 ).
-  01 WS-CUR PIC X ( 20 ).
-  01 WS-L-CAN PIC X ( 20 ).
-  01 WS-CL PIC 99 .
-  01 WS-RESULT-LIST PIC X ( 48 ).
-  01 WS-COUNTS-TABLE .
-    02 WS-COUNT PIC S99 OCCURS 26 TIMES .
-  01 WS-COPIED-COUNTS-TABLE .
-    02 WS-COPIED-COUNT PIC S99 OCCURS 26 TIMES .
-  01 WS-C PIC X .
-  01 WS-ORD-BIG-A PIC 999 .
-  01 WS-ORD-SMALL-A PIC 999 .
-  01 WS-CC PIC 999 .
-  01 WS-RP PIC 99 .
-  01 WS-ISANAGRAM PIC 9 .
-  PROCEDURE DIVISION .
-  FIND-ANAGRAMS .
-    COMPUTE WS-SUBJECT-LENGTH = LENGTH OF WS-SUBJECT .
-    COMPUTE WS-ORD-BIG-A = FUNCTION ORD ( 'A' ).
-    COMPUTE WS-ORD-SMALL-A = FUNCTION ORD ( 'a' ).
-    MOVE 1 TO WS-I .
-    MOVE 1 TO WS-RP .
-    PERFORM 48 TIMES
-      MOVE "' '" TO WS-RESULT-LIST ( WS-I : 1 )
-      ADD 1 TO WS-I
-    END-PERFORM .
-    MOVE 1 TO WS-I .
-    PERFORM 26 TIMES
-      MOVE 0 TO WS-COUNT ( WS-I )
-      ADD 1 TO WS-I
-    END-PERFORM .
-    MOVE 1 TO WS-I .
-    PERFORM WS-SUBJECT-LENGTH TIMES
-      MOVE WS-SUBJECT ( WS-I : 1 ) TO WS-C
-      COMPUTE WS-CC = FUNCTION ORD ( WS-C )
-      IF ( WS-CC >= WS-ORD-BIG-A ) AND ( WS-CC <= 25 +
-        WS-ORD-BIG-A ) THEN
-        ADD 1 TO WS-COUNT ( WS-CC - WS-ORD-BIG-A + 1 )
-      END-IF
-      IF ( WS-CC >= WS-ORD-SMALL-A ) AND ( WS-CC <= 25 +
-        WS-ORD-SMALL-A ) THEN
-        ADD 1 TO WS-COUNT ( WS-CC - WS-ORD-SMALL-A + 1 )
-      END-IF
-      ADD 1 TO WS-I
-    END-PERFORM .
-    MOVE 1 TO WS-I .
-    PERFORM WS-CANDIDATES-COUNT TIMES
-      MOVE WS-CANDIDATES ( WS-I ) TO WS-CUR
-      COMPUTE WS-CL = LENGTH OF WS-CUR
-      MOVE 1 TO WS-J
-      PERFORM 26 TIMES
-        MOVE WS-COUNT ( WS-J ) TO WS-COPIED-COUNT ( WS-J )
-        ADD 1 TO WS-J
-      END-PERFORM
-      MOVE 1 TO WS-J
-      MOVE WS-CUR ( 1 : 1 ) TO WS-C
-      PERFORM UNTIL ( WS-C = "' '" ) OR ( WS-J >
-        WS-CL )
-        MOVE WS-CUR ( WS-J : 1 ) TO WS-C
-        COMPUTE WS-CC = FUNCTION ORD ( WS-C )
-        IF ( WS-CC >= WS-ORD-BIG-A ) AND ( WS-CC <= 25 +
-          WS-ORD-BIG-A ) THEN
-          SUBTRACT 1 FROM WS-COPIED-COUNT ( WS-CC -
-          WS-ORD-BIG-A + 1 )
-        END-IF
-        IF ( WS-CC >= WS-ORD-SMALL-A ) AND ( WS-CC <= 25 +
-          WS-ORD-SMALL-A ) THEN
-          SUBTRACT 1 FROM WS-COPIED-COUNT ( WS-CC -
-          WS-ORD-SMALL-A + 1 )
-        END-IF
-        ADD 1 TO WS-J
-      END-PERFORM
-      IF WS-C = "' '" THEN
-        MOVE WS-J TO WS-CL
-        SUBTRACT 2 FROM WS-CL
-      END-IF
-      MOVE 1 TO WS-J
-      MOVE 1 TO WS-ISANAGRAM
-      PERFORM 26 TIMES
-        IF WS-COPIED-COUNT ( WS-J ) NOT = 0 THEN
-          MOVE 0 TO WS-ISANAGRAM
-        END-IF
-        ADD 1 TO WS-J
-      END-PERFORM
-      MOVE FUNCTION LOWER-CASE ( WS-SUBJECT ) TO WS-L-SUBJECT
-      MOVE FUNCTION LOWER-CASE ( WS-CUR ) TO WS-L-CAN
-      IF WS-L-CAN = WS-L-SUBJECT
-        MOVE 0 TO WS-ISANAGRAM
-      END-IF
-      IF WS-ISANAGRAM = 1
-        IF WS-RP > 1 THEN
-          MOVE "\",\"" TO WS-RESULT-LIST ( WS-RP : 1 )
-          ADD 1 TO WS-RP
-        END-IF
-        MOVE WS-CUR TO WS-RESULT-LIST ( WS-RP : WS-CL )
-        ADD WS-CL TO WS-RP
-      END-IF
-      ADD 1 TO WS-I
-    END-PERFORM .
+(start
+  (program_definition
+    (identification_division (program_name PLACEHOLDER_1))
+    (data_division
+      (working_storage_section
+        (data_description 1 (entry_name PLACEHOLDER_2)
+          (picture_clause "x(20)"))
+        (data_description 1 (entry_name PLACEHOLDER_3)
+          (picture_clause "x(20)"))
+        (data_description 1 (entry_name PLACEHOLDER_4)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_5)
+          (picture_clause 9))
+        (data_description 1 (entry_name PLACEHOLDER_6)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_7)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_8))
+        (data_description 2 (entry_name PLACEHOLDER_9)
+          (occurs_clause 1 20
+            (qualified_word PLACEHOLDER_5)))
+        (data_description 5 (entry_name PLACEHOLDER_10)
+          (picture_clause "x(20)"))
+        (data_description 1 (entry_name PLACEHOLDER_11)
+          (picture_clause "x(20)"))
+        (data_description 1 (entry_name PLACEHOLDER_12)
+          (picture_clause "x(20)"))
+        (data_description 1 (entry_name PLACEHOLDER_13)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_14)
+          (picture_clause "x(48)"))
+        (data_description 1 (entry_name PLACEHOLDER_15))
+        (data_description 2 (entry_name PLACEHOLDER_16)
+          (picture_clause "s9(2)")
+          (occurs_clause 26))
+        (data_description 1 (entry_name PLACEHOLDER_17))
+        (data_description 2 (entry_name PLACEHOLDER_18)
+          (picture_clause "s9(2)")
+          (occurs_clause 26))
+        (data_description 1 (entry_name PLACEHOLDER_19)
+          (picture_clause x))
+        (data_description 1 (entry_name PLACEHOLDER_20)
+          (picture_clause "9(3)"))
+        (data_description 1 (entry_name PLACEHOLDER_21)
+          (picture_clause "9(3)"))
+        (data_description 1 (entry_name PLACEHOLDER_22)
+          (picture_clause "9(3)"))
+        (data_description 1 (entry_name PLACEHOLDER_23)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_24)
+          (picture_clause 9))))
+    (procedure_division
+      (paragraph_header PLACEHOLDER_25)
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_4))
+        (expr length of
+          (qualified_word PLACEHOLDER_2)))
+      (period)
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_20))
+        (expr
+          (function_ function ord
+            (func_args "A"))))
+      (period)
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_21))
+        (expr
+          (function_ function ord
+            (func_args "a"))))
+      (period)
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_6))
+      (period)
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_23))
+      (period)
+      (perform_statement_loop
+        (perform_option
+          (number 48) times))
+      (move_statement move " " to
+        (qualified_word PLACEHOLDER_14)
+        (refmod
+          (qualified_word PLACEHOLDER_6) :
+          (number 1)))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6))) END_PERFORM
+      (period)
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_6))
+      (period)
+      (perform_statement_loop
+        (perform_option
+          (number 26) times))
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_16)
+        (subref
+          (qualified_word PLACEHOLDER_6)))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6))) END_PERFORM
+      (period)
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_6))
+      (period)
+      (perform_statement_loop
+        (perform_option
+          (qualified_word PLACEHOLDER_4) times))
+      (move_statement move
+        (qualified_word PLACEHOLDER_2)
+        (refmod
+          (qualified_word PLACEHOLDER_6) :
+          (number 1)) to
+        (qualified_word PLACEHOLDER_19))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_22))
+        (expr
+          (function_ function ord
+            (func_args
+              (qualified_word PLACEHOLDER_19)))))
+      (if_header
+        (expr
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_22) ge
+              (qualified_word PLACEHOLDER_20)) ")") AND
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_22) le
+              (number 25) +
+              (qualified_word PLACEHOLDER_20)) ")")))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_16)
+          (subref
+            (add_exp
+              (sub_exp
+                (qualified_word PLACEHOLDER_22) -
+                (qualified_word PLACEHOLDER_20)) +
+              (number 1))))) END_IF
+      (if_header
+        (expr
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_22) ge
+              (qualified_word PLACEHOLDER_21)) ")") AND
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_22) le
+              (number 25) +
+              (qualified_word PLACEHOLDER_21)) ")")))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_16)
+          (subref
+            (add_exp
+              (sub_exp
+                (qualified_word PLACEHOLDER_22) -
+                (qualified_word PLACEHOLDER_21)) +
+              (number 1))))) END_IF
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6))) END_PERFORM
+      (period)
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_6))
+      (period)
+      (perform_statement_loop
+        (perform_option
+          (qualified_word PLACEHOLDER_5) times))
+      (move_statement move
+        (qualified_word PLACEHOLDER_9)
+        (subref
+          (qualified_word PLACEHOLDER_6)) to
+        (qualified_word PLACEHOLDER_11))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_13))
+        (expr length of
+          (qualified_word PLACEHOLDER_11)))
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_7))
+      (perform_statement_loop
+        (perform_option
+          (number 26) times))
+      (move_statement move
+        (qualified_word PLACEHOLDER_16)
+        (subref
+          (qualified_word PLACEHOLDER_7)) to
+        (qualified_word PLACEHOLDER_18)
+        (subref
+          (qualified_word PLACEHOLDER_7)))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7))) END_PERFORM
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_7))
+      (move_statement move
+        (qualified_word PLACEHOLDER_11)
+        (refmod
+          (number 1) :
+          (number 1)) to
+        (qualified_word PLACEHOLDER_19))
+      (perform_statement_loop
+        (perform_option until
+          (expr
+            (expr "("
+              (expr
+                (qualified_word PLACEHOLDER_19) eq " ") ")") OR
+            (expr "("
+              (expr
+                (qualified_word PLACEHOLDER_7) gt
+                (qualified_word PLACEHOLDER_13)) ")"))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_11)
+        (refmod
+          (qualified_word PLACEHOLDER_7) :
+          (number 1)) to
+        (qualified_word PLACEHOLDER_19))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_22))
+        (expr
+          (function_ function ord
+            (func_args
+              (qualified_word PLACEHOLDER_19)))))
+      (if_header
+        (expr
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_22) ge
+              (qualified_word PLACEHOLDER_20)) ")") AND
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_22) le
+              (number 25) +
+              (qualified_word PLACEHOLDER_20)) ")")))
+      (subtract_statement subtract
+        (number 1) from
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_18)
+          (subref
+            (add_exp
+              (sub_exp
+                (qualified_word PLACEHOLDER_22) -
+                (qualified_word PLACEHOLDER_20)) +
+              (number 1))))) END_IF
+      (if_header
+        (expr
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_22) ge
+              (qualified_word PLACEHOLDER_21)) ")") AND
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_22) le
+              (number 25) +
+              (qualified_word PLACEHOLDER_21)) ")")))
+      (subtract_statement subtract
+        (number 1) from
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_18)
+          (subref
+            (add_exp
+              (sub_exp
+                (qualified_word PLACEHOLDER_22) -
+                (qualified_word PLACEHOLDER_21)) +
+              (number 1))))) END_IF
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7))) END_PERFORM
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_19) eq " "))
+      (move_statement move
+        (qualified_word PLACEHOLDER_7) to
+        (qualified_word PLACEHOLDER_13))
+      (subtract_statement subtract
+        (number 2) from
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_13))) END_IF
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_7))
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_24))
+      (perform_statement_loop
+        (perform_option
+          (number 26) times))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_18)
+          (subref
+            (qualified_word PLACEHOLDER_7)) ne
+          (number 0)))
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_24)) END_IF
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7))) END_PERFORM
+      (move_statement move
+        (function_ function lower-case
+          (func_args
+            (qualified_word PLACEHOLDER_2))) to
+        (qualified_word PLACEHOLDER_3))
+      (move_statement move
+        (function_ function lower-case
+          (func_args
+            (qualified_word PLACEHOLDER_11))) to
+        (qualified_word PLACEHOLDER_12))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_12) eq
+          (qualified_word PLACEHOLDER_3)))
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_24)) END_IF
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_24) eq
+          (number 1)))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_23) gt
+          (number 1)))
+      (move_statement move "," to
+        (qualified_word PLACEHOLDER_14)
+        (refmod
+          (qualified_word PLACEHOLDER_23) :
+          (number 1)))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_23))) END_IF
+      (move_statement move
+        (qualified_word PLACEHOLDER_11) to
+        (qualified_word PLACEHOLDER_14)
+        (refmod
+          (qualified_word PLACEHOLDER_23) :
+          (qualified_word PLACEHOLDER_13)))
+      (add_statement add
+        (qualified_word PLACEHOLDER_13) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_23))) END_IF
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6))) END_PERFORM
+      (period))))

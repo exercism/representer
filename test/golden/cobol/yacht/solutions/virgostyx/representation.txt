@@ -1,173 +1,534 @@
-IDENTIFICATION DIVISION .
-  PROGRAM-ID . YACHT .
-  DATA DIVISION .
-  WORKING-STORAGE SECTION .
-  01 WS-RESULT PIC 99 VALUE 0 .
-  01 WS-CATEGORY PIC X ( 15 ).
-  01 WS-DICE PIC 9 ( 5 ).
-  01 WS-DES REDEFINES WS-DICE .
-    05 WS-DE PIC 9 OCCURS 5 TIMES .
-  01 WS-DIGIT PIC 9 .
-  01 WS-DIGIT-COUNT PIC 9 .
-  01 WS-FACE PIC 9 .
-  01 WS-NB-INVALIDES PIC 9 VALUE ZERO .
-  01 WS-COMPTEURS .
-    05 WS-NB PIC 9 OCCURS 6 TIMES .
-  01 WS-NB-BRELAN PIC 9 VALUE ZERO .
-  01 WS-NB-PAIRE PIC 9 VALUE ZERO .
-  01 WS-I PIC 99 .
-  01 WS-POS PIC 999 VALUE ZERO .
-  01 WS-SOMME PIC 99 VALUE ZERO .
-  01 WS-SUITE PIC X VALUE "\"O\"" .
-    88 SUITE-OK VALUE "\"O\"" .
-    88 SUITE-KO VALUE "\"N\"" .
-  01 WS-SUITE-LOWEST PIC 9 .
-  01 WS-SUITE-HIGHEST PIC 9 .
-  01 WS-SUITE-COUNT PIC 9 VALUE ZERO .
-  01 WS-SUITE-CIBLE PIC 9 VALUE ZERO .
-  01 WS-CARRE PIC X VALUE "\"N\"" .
-    88 CARRE-OK VALUE "\"O\"" .
-    88 CARRE-KO VALUE "\"N\"" .
-  01 WS-YACHT PIC X VALUE "\"N\"" .
-    88 YACHT-OK VALUE "\"O\"" .
-    88 YACHT-KO VALUE "\"N\"" .
-  01 WS-SOURCE PIC X ( 15 ) VALUE SPACES .
-  01 WS-RESULTAT PIC X ( 15 ) VALUE SPACES .
-  01 WS-CAR PIC X .
-    88 CAR-A-SUPPRIMER VALUE "\" \"" "\"-\"" "\"_\"" .
-  PROCEDURE DIVISION .
-  YACHT .
-    PERFORM VALIDER-INPUT
-    PERFORM VALIDER-DES
-    IF WS-NB-INVALIDES > 0
-      DISPLAY WS-DICE "\" contient une face invalide (1 a 6)\""
-    ELSE
-      PERFORM EVALUER-CATEGORY
-    END-IF
-    DISPLAY "\"Voici le resultat : \"" WS-RESULT .
-  VALIDER-INPUT .
-    MOVE WS-CATEGORY TO WS-SOURCE
-    PERFORM METTRE-EN-MINUSCULES
-    PERFORM SUPPRIMER-SEPARATEURS
-    MOVE WS-RESULTAT TO WS-CATEGORY .
-  VALIDER-DES .
-    MOVE ZERO TO WS-NB-INVALIDES
-    INSPECT WS-DICE TALLYING WS-NB-INVALIDES
-      FOR ALL "\"0\"" ALL "\"7\"" ALL "\"8\"" ALL "\"9\"" .
-  METTRE-EN-MINUSCULES .
-    INSPECT WS-SOURCE CONVERTING "\"ABCDEFGHIJKLMNOPQRSTUVWXYZ\""
-      TO "\"abcdefghijklmnopqrstuvwxyz\"" .
-  SUPPRIMER-SEPARATEURS .
-    MOVE SPACES TO WS-RESULTAT
-    MOVE ZERO TO WS-POS
-    PERFORM VARYING WS-I FROM 1 BY 1
-      UNTIL WS-I > LENGTH OF WS-SOURCE
-      MOVE WS-SOURCE ( WS-I : 1 ) TO WS-CAR
-      IF NOT CAR-A-SUPPRIMER
-        ADD 1 TO WS-POS
-        MOVE WS-CAR TO WS-RESULTAT ( WS-POS : 1 )
-      END-IF
-    END-PERFORM .
-  EVALUER-CATEGORY .
-    EVALUATE WS-CATEGORY
-      WHEN "\"ones\""
-        MOVE 1 TO WS-DIGIT
-        PERFORM GET-SCORE-FOR-DIGIT
-      WHEN "\"twos\""
-        MOVE 2 TO WS-DIGIT
-        PERFORM GET-SCORE-FOR-DIGIT
-      WHEN "\"threes\""
-        MOVE 3 TO WS-DIGIT
-        PERFORM GET-SCORE-FOR-DIGIT
-      WHEN "\"fours\""
-        MOVE 4 TO WS-DIGIT
-        PERFORM GET-SCORE-FOR-DIGIT
-      WHEN "\"fives\""
-        MOVE 5 TO WS-DIGIT
-        PERFORM GET-SCORE-FOR-DIGIT
-      WHEN "\"sixes\""
-        MOVE 6 TO WS-DIGIT
-        PERFORM GET-SCORE-FOR-DIGIT
-      WHEN "\"fullhouse\""
-        PERFORM VERIFIER-FULL
-      WHEN "\"fourofakind\""
-        PERFORM VERIFIER-CARRE
-      WHEN "\"littlestraight\""
-        MOVE 1 TO WS-SUITE-LOWEST
-        MOVE 5 TO WS-SUITE-HIGHEST
-        PERFORM VERIFIER-SUITE
-      WHEN "\"bigstraight\""
-        MOVE 2 TO WS-SUITE-LOWEST
-        MOVE 6 TO WS-SUITE-HIGHEST
-        PERFORM VERIFIER-SUITE
-      WHEN "\"choice\""
-        PERFORM CALCULER-SOMME
-        MOVE WS-SOMME TO WS-RESULT
-      WHEN "\"yacht\""
-        PERFORM VERIFIER-YACHT
-    END-EVALUATE .
-  GET-SCORE-FOR-DIGIT .
-    MOVE ZERO TO WS-DIGIT-COUNT
-    INSPECT WS-DICE TALLYING WS-DIGIT-COUNT FOR ALL WS-DIGIT
-    MULTIPLY WS-DIGIT BY WS-DIGIT-COUNT GIVING WS-RESULT .
-  CALCULER-SOMME .
-    MOVE ZERO TO WS-SOMME
-    PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 5
-      ADD WS-DE ( WS-I ) TO WS-SOMME
-    END-PERFORM .
-  COMPTER-FACES .
-    INITIALIZE WS-COMPTEURS
-    PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 5
-      ADD 1 TO WS-NB ( WS-DE ( WS-I ))
-    END-PERFORM .
-  VERIFIER-FULL .
-    PERFORM COMPTER-FACES
-    DISPLAY "\"Compteurs faces :\"" WS-NB ( 2 ) WS-NB ( 4 )
-    MOVE ZERO TO WS-NB-BRELAN WS-NB-PAIRE
-    PERFORM VARYING WS-FACE FROM 1 BY 1 UNTIL WS-FACE > 6
-      EVALUATE WS-NB ( WS-FACE )
-        WHEN 3 ADD 1 TO WS-NB-BRELAN
-        WHEN 2 ADD 1 TO WS-NB-PAIRE
-      END-EVALUATE
-    END-PERFORM
-    IF WS-NB-BRELAN = 1 AND WS-NB-PAIRE = 1
-      PERFORM CALCULER-SOMME
-      MOVE WS-SOMME TO WS-RESULT
-    ELSE
-      MOVE ZERO TO WS-RESULT
-    END-IF .
-  VERIFIER-SUITE .
-    SET SUITE-OK TO TRUE
-    MOVE 30 TO WS-RESULT
-    PERFORM VARYING WS-SUITE-CIBLE FROM WS-SUITE-LOWEST BY 1
-      UNTIL WS-SUITE-CIBLE > WS-SUITE-HIGHEST OR SUITE-KO
-      MOVE ZERO TO WS-SUITE-COUNT
-      INSPECT WS-DICE TALLYING WS-SUITE-COUNT
-        FOR ALL WS-SUITE-CIBLE
-      IF WS-SUITE-COUNT NOT = 1
-        SET SUITE-KO TO TRUE
-        MOVE ZERO TO WS-RESULT
-      END-IF
-    END-PERFORM .
-  VERIFIER-CARRE .
-    SET CARRE-KO TO TRUE
-    MOVE ZERO TO WS-RESULT
-    PERFORM COMPTER-FACES
-    PERFORM VARYING WS-FACE FROM 1 BY 1
-      UNTIL WS-FACE > 6 OR CARRE-OK
-      IF WS-NB ( WS-FACE ) = 4 OR 5
-        MULTIPLY WS-FACE BY 4 GIVING WS-RESULT
-        SET CARRE-OK TO TRUE
-      END-IF
-    END-PERFORM .
-  VERIFIER-YACHT .
-    SET YACHT-KO TO TRUE
-    MOVE ZERO TO WS-RESULT
-    PERFORM COMPTER-FACES
-    PERFORM VARYING WS-FACE FROM 1 BY 1
-      UNTIL WS-FACE > 6 OR CARRE-OK
-      IF WS-NB ( WS-FACE ) = 5
-        MOVE 50 TO WS-RESULT
-        SET CARRE-OK TO TRUE
-      END-IF
-    END-PERFORM .
+(start
+  (program_definition
+    (identification_division (program_name PLACEHOLDER_1))
+    (data_division
+      (working_storage_section
+        (data_description 1 (entry_name PLACEHOLDER_2)
+          (picture_clause "9(2)")
+          (value_clause value
+            (value_item
+              (number 0))))
+        (data_description 1 (entry_name PLACEHOLDER_3)
+          (picture_clause "x(15)"))
+        (data_description 1 (entry_name PLACEHOLDER_4)
+          (picture_clause "9(5)"))
+        (data_description 1 (entry_name PLACEHOLDER_5)
+          (redefines_clause
+            (qualified_word PLACEHOLDER_4)))
+        (data_description 5 (entry_name PLACEHOLDER_6)
+          (picture_clause 9)
+          (occurs_clause 5))
+        (data_description 1 (entry_name PLACEHOLDER_7)
+          (picture_clause 9))
+        (data_description 1 (entry_name PLACEHOLDER_8)
+          (picture_clause 9))
+        (data_description 1 (entry_name PLACEHOLDER_9)
+          (picture_clause 9))
+        (data_description 1 (entry_name PLACEHOLDER_10)
+          (picture_clause 9)
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_11))
+        (data_description 5 (entry_name PLACEHOLDER_12)
+          (picture_clause 9)
+          (occurs_clause 6))
+        (data_description 1 (entry_name PLACEHOLDER_13)
+          (picture_clause 9)
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_14)
+          (picture_clause 9)
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_15)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_16)
+          (picture_clause "9(3)")
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_17)
+          (picture_clause "9(2)")
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_18)
+          (picture_clause x)
+          (value_clause value
+            (value_item "O")))
+        (data_description 88 (entry_name PLACEHOLDER_19)
+          (value_clause value
+            (value_item "O")))
+        (data_description 88 (entry_name PLACEHOLDER_20)
+          (value_clause value
+            (value_item "N")))
+        (data_description 1 (entry_name PLACEHOLDER_21)
+          (picture_clause 9))
+        (data_description 1 (entry_name PLACEHOLDER_22)
+          (picture_clause 9))
+        (data_description 1 (entry_name PLACEHOLDER_23)
+          (picture_clause 9)
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_24)
+          (picture_clause 9)
+          (value_clause value
+            (value_item ZERO)))
+        (data_description 1 (entry_name PLACEHOLDER_25)
+          (picture_clause x)
+          (value_clause value
+            (value_item "N")))
+        (data_description 88 (entry_name PLACEHOLDER_26)
+          (value_clause value
+            (value_item "O")))
+        (data_description 88 (entry_name PLACEHOLDER_27)
+          (value_clause value
+            (value_item "N")))
+        (data_description 1 (entry_name PLACEHOLDER_28)
+          (picture_clause x)
+          (value_clause value
+            (value_item "N")))
+        (data_description 88 (entry_name PLACEHOLDER_29)
+          (value_clause value
+            (value_item "O")))
+        (data_description 88 (entry_name PLACEHOLDER_30)
+          (value_clause value
+            (value_item "N")))
+        (data_description 1 (entry_name PLACEHOLDER_31)
+          (picture_clause "x(15)")
+          (value_clause value
+            (value_item SPACE)))
+        (data_description 1 (entry_name PLACEHOLDER_32)
+          (picture_clause "x(15)")
+          (value_clause value
+            (value_item SPACE)))
+        (data_description 1 (entry_name PLACEHOLDER_33)
+          (picture_clause x))
+        (data_description 88 (entry_name PLACEHOLDER_34)
+          (value_clause value
+            (value_item " ")
+            (value_item "-")
+            (value_item "_")))))
+    (procedure_division
+      (paragraph_header PLACEHOLDER_1)
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_35))))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_36))))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_10) gt
+          (number 0)))
+      (display_statement display
+        (qualified_word PLACEHOLDER_4) " contient une face invalide (1 a 6)") else_header
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_37)))) END_IF
+      (display_statement display "Voici le resultat : "
+        (qualified_word PLACEHOLDER_2))
+      (period)
+      (paragraph_header PLACEHOLDER_35)
+      (move_statement move
+        (qualified_word PLACEHOLDER_3) to
+        (qualified_word PLACEHOLDER_31))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_38))))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_39))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_32) to
+        (qualified_word PLACEHOLDER_3))
+      (period)
+      (paragraph_header PLACEHOLDER_36)
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_10))
+      (inspect_statement
+        (qualified_word PLACEHOLDER_4)
+        (inspect_tallying tallying
+          (qualified_word PLACEHOLDER_10) for ALL "0" ALL "7" ALL "8" ALL "9"))
+      (period)
+      (paragraph_header PLACEHOLDER_38)
+      (inspect_statement
+        (qualified_word PLACEHOLDER_31)
+        (inspect_converting "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz"))
+      (period)
+      (paragraph_header PLACEHOLDER_39)
+      (move_statement move SPACE to
+        (qualified_word PLACEHOLDER_32))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_16))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_15) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_15) gt length of
+              (qualified_word PLACEHOLDER_31)))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_31)
+        (refmod
+          (qualified_word PLACEHOLDER_15) :
+          (number 1)) to
+        (qualified_word PLACEHOLDER_33))
+      (if_header
+        (expr NOT
+          (expr
+            (qualified_word PLACEHOLDER_34))))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_16)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_33) to
+        (qualified_word PLACEHOLDER_32)
+        (refmod
+          (qualified_word PLACEHOLDER_16) :
+          (number 1))) END_IF END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_37)
+      (evaluate_header
+        (evaluate_subject
+          (expr
+            (qualified_word PLACEHOLDER_3))))
+      (when
+        (expr "ones"))
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_7))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_40))))
+      (when
+        (expr "twos"))
+      (move_statement move
+        (number 2) to
+        (qualified_word PLACEHOLDER_7))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_40))))
+      (when
+        (expr "threes"))
+      (move_statement move
+        (number 3) to
+        (qualified_word PLACEHOLDER_7))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_40))))
+      (when
+        (expr "fours"))
+      (move_statement move
+        (number 4) to
+        (qualified_word PLACEHOLDER_7))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_40))))
+      (when
+        (expr "fives"))
+      (move_statement move
+        (number 5) to
+        (qualified_word PLACEHOLDER_7))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_40))))
+      (when
+        (expr "sixes"))
+      (move_statement move
+        (number 6) to
+        (qualified_word PLACEHOLDER_7))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_40))))
+      (when
+        (expr "fullhouse"))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_41))))
+      (when
+        (expr "fourofakind"))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_42))))
+      (when
+        (expr "littlestraight"))
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_21))
+      (move_statement move
+        (number 5) to
+        (qualified_word PLACEHOLDER_22))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_43))))
+      (when
+        (expr "bigstraight"))
+      (move_statement move
+        (number 2) to
+        (qualified_word PLACEHOLDER_21))
+      (move_statement move
+        (number 6) to
+        (qualified_word PLACEHOLDER_22))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_43))))
+      (when
+        (expr "choice"))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_44))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_17) to
+        (qualified_word PLACEHOLDER_2))
+      (when
+        (expr "yacht"))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_45)))) END_EVALUATE
+      (period)
+      (paragraph_header PLACEHOLDER_40)
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_8))
+      (inspect_statement
+        (qualified_word PLACEHOLDER_4)
+        (inspect_tallying tallying
+          (qualified_word PLACEHOLDER_8) for ALL
+          (qualified_word PLACEHOLDER_7)))
+      (multiply_statement multiply
+        (qualified_word PLACEHOLDER_7) by
+        (qualified_word PLACEHOLDER_8) giving
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2)))
+      (period)
+      (paragraph_header PLACEHOLDER_44)
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_17))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_15) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_15) gt
+              (number 5)))))
+      (add_statement add
+        (qualified_word PLACEHOLDER_6)
+        (subref
+          (qualified_word PLACEHOLDER_15)) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_17))) END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_46)
+      (initialize_statement initialize
+        (qualified_word PLACEHOLDER_11))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_15) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_15) gt
+              (number 5)))))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_12)
+          (subref
+            (qualified_word PLACEHOLDER_6)
+            (subref
+              (qualified_word PLACEHOLDER_15))))) END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_41)
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_46))))
+      (display_statement display "Compteurs faces :"
+        (qualified_word PLACEHOLDER_12)
+        (subref
+          (number 2))
+        (qualified_word PLACEHOLDER_12)
+        (subref
+          (number 4)))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_13)
+        (qualified_word PLACEHOLDER_14))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_9) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_9) gt
+              (number 6)))))
+      (evaluate_header
+        (evaluate_subject
+          (expr
+            (qualified_word PLACEHOLDER_12)
+            (subref
+              (qualified_word PLACEHOLDER_9)))))
+      (when
+        (expr
+          (number 3)))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_13)))
+      (when
+        (expr
+          (number 2)))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_14))) END_EVALUATE END_PERFORM
+      (if_header
+        (expr
+          (expr
+            (qualified_word PLACEHOLDER_13) eq
+            (number 1)) AND
+          (expr
+            (qualified_word PLACEHOLDER_14) eq
+            (number 1))))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_44))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_17) to
+        (qualified_word PLACEHOLDER_2)) else_header
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_2)) END_IF
+      (period)
+      (paragraph_header PLACEHOLDER_43)
+      (set_statement
+        (set_to_true_false
+          (qualified_word PLACEHOLDER_19) to true))
+      (move_statement move
+        (number 30) to
+        (qualified_word PLACEHOLDER_2))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_24) from
+            (qualified_word PLACEHOLDER_21) by
+            (number 1) until
+            (expr
+              (expr
+                (qualified_word PLACEHOLDER_24) gt
+                (qualified_word PLACEHOLDER_22)) OR
+              (expr
+                (qualified_word PLACEHOLDER_20))))))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_23))
+      (inspect_statement
+        (qualified_word PLACEHOLDER_4)
+        (inspect_tallying tallying
+          (qualified_word PLACEHOLDER_23) for ALL
+          (qualified_word PLACEHOLDER_24)))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_23) ne
+          (number 1)))
+      (set_statement
+        (set_to_true_false
+          (qualified_word PLACEHOLDER_20) to true))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_2)) END_IF END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_42)
+      (set_statement
+        (set_to_true_false
+          (qualified_word PLACEHOLDER_27) to true))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_2))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_46))))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_9) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (expr
+                (qualified_word PLACEHOLDER_9) gt
+                (number 6)) OR
+              (expr
+                (qualified_word PLACEHOLDER_26))))))
+      (if_header
+        (expr
+          (expr
+            (qualified_word PLACEHOLDER_12)
+            (subref
+              (qualified_word PLACEHOLDER_9)) eq
+            (number 4)) OR
+          (expr
+            (number 5))))
+      (multiply_statement multiply
+        (qualified_word PLACEHOLDER_9) by
+        (number 4) giving
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2)))
+      (set_statement
+        (set_to_true_false
+          (qualified_word PLACEHOLDER_26) to true)) END_IF END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_45)
+      (set_statement
+        (set_to_true_false
+          (qualified_word PLACEHOLDER_30) to true))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_2))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_46))))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_9) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (expr
+                (qualified_word PLACEHOLDER_9) gt
+                (number 6)) OR
+              (expr
+                (qualified_word PLACEHOLDER_26))))))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_12)
+          (subref
+            (qualified_word PLACEHOLDER_9)) eq
+          (number 5)))
+      (move_statement move
+        (number 50) to
+        (qualified_word PLACEHOLDER_2))
+      (set_statement
+        (set_to_true_false
+          (qualified_word PLACEHOLDER_26) to true)) END_IF END_PERFORM
+      (period))))

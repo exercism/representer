@@ -1,55 +1,147 @@
-IDENTIFICATION DIVISION .
-  PROGRAM-ID . luhn .
-  ENVIRONMENT DIVISION .
-  CONFIGURATION SECTION .
-  REPOSITORY . FUNCTION ALL INTRINSIC .
-  DATA DIVISION .
-  WORKING-STORAGE SECTION .
-  01 WS-CARD-NUMBER PIC X ( 32 ).
-  01 WS-CARD-DIGITS PIC 9 ( 32 ).
-  01 WS-CHECKSUM PIC 9 ( 2 ).
-  01 WS-VALID PIC X ( 5 ).
-  01 WS-INDEX PIC 9 ( 2 ).
-  01 WS-LEN PIC 9 ( 2 ).
-  01 WS-DOUBLE PIC 9 ( 2 ).
-  PROCEDURE DIVISION .
-  LUHN .
-    DISPLAY WS-CARD-NUMBER
-    MOVE "\"VALID\"" TO WS-VALID
-    MOVE FUNCTION REVERSE ( FUNCTION TRIM ( WS-CARD-NUMBER ))
-    TO WS-CARD-NUMBER
-    MOVE ZERO TO WS-INDEX , WS-DOUBLE
-    MOVE LENGTH OF FUNCTION TRIM ( WS-CARD-NUMBER ) TO WS-LEN
-    DISPLAY WS-LEN
-    DISPLAY WS-CARD-NUMBER
-    PERFORM UNTIL WS-INDEX > WS-LEN
-      ADD 1 TO WS-INDEX
-      PERFORM UNTIL
-      FUNCTION TEST-NUMVAL ( WS-CARD-NUMBER ( WS-INDEX : 1 )) = 0
-      OR WS-INDEX > WS-LEN
-        IF WS-CARD-NUMBER ( WS-INDEX : 1 ) = SPACE
-          DISPLAY WS-INDEX
-        ELSE
-          DISPLAY WS-CARD-NUMBER ( WS-INDEX : 1 )
-          MOVE "\"FALSE\"" TO WS-VALID
-        END-IF
-        ADD 1 TO WS-INDEX
-      END-PERFORM
-      ADD 1 TO WS-DOUBLE
-      MOVE WS-CARD-NUMBER ( WS-INDEX : 1 ) TO WS-CHECKSUM
-      IF WS-DOUBLE = 2
-        MOVE ZERO TO WS-DOUBLE
-        COMPUTE WS-CHECKSUM = WS-CHECKSUM + WS-CHECKSUM
-        IF WS-CHECKSUM > 9
-          SUBTRACT 9 FROM WS-CHECKSUM
-        END-IF
-      END-IF
-      DISPLAY WS-CARD-DIGITS , "\" + \"" , WS-CHECKSUM
-      ADD WS-CHECKSUM TO WS-CARD-DIGITS
-    END-PERFORM
-    MOVE FUNCTION TRIM ( WS-CARD-DIGITS ) TO WS-CARD-DIGITS
-    DISPLAY "\"CARD DIGITS: \"" , WS-CARD-DIGITS
-    IF FUNCTION MOD ( WS-CARD-DIGITS , 10 ) > 0 OR
-    ( WS-LEN = 1 )
-      MOVE "\"FALSE\"" TO WS-VALID
-    END-IF .
+(start
+  (program_definition
+    (identification_division (program_name PLACEHOLDER_1))
+    (environment_division
+      (configuration_section))
+    (data_division
+      (working_storage_section
+        (data_description 1 (entry_name PLACEHOLDER_2)
+          (picture_clause "x(32)"))
+        (data_description 1 (entry_name PLACEHOLDER_3)
+          (picture_clause "9(32)"))
+        (data_description 1 (entry_name PLACEHOLDER_4)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_5)
+          (picture_clause "x(5)"))
+        (data_description 1 (entry_name PLACEHOLDER_6)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_7)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_8)
+          (picture_clause "9(2)"))))
+    (procedure_division
+      (paragraph_header PLACEHOLDER_1)
+      (display_statement display
+        (qualified_word PLACEHOLDER_2))
+      (move_statement move "VALID" to
+        (qualified_word PLACEHOLDER_5))
+      (move_statement move
+        (function_ function reverse
+          (func_args
+            (function_ function trim
+              (func_args
+                (qualified_word PLACEHOLDER_2))))) to
+        (qualified_word PLACEHOLDER_2))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_6)
+        (qualified_word PLACEHOLDER_8))
+      (move_statement move length of
+        (function_ function trim
+          (func_args
+            (qualified_word PLACEHOLDER_2))) to
+        (qualified_word PLACEHOLDER_7))
+      (display_statement display
+        (qualified_word PLACEHOLDER_7))
+      (display_statement display
+        (qualified_word PLACEHOLDER_2))
+      (perform_statement_loop
+        (perform_option until
+          (expr
+            (qualified_word PLACEHOLDER_6) gt
+            (qualified_word PLACEHOLDER_7))))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6)))
+      (perform_statement_loop
+        (perform_option until
+          (expr
+            (expr
+              (function_ function test-numval
+                (func_args
+                  (qualified_word PLACEHOLDER_2)
+                  (refmod
+                    (qualified_word PLACEHOLDER_6) :
+                    (number 1)))) eq
+              (number 0)) OR
+            (expr
+              (qualified_word PLACEHOLDER_6) gt
+              (qualified_word PLACEHOLDER_7)))))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_2)
+          (refmod
+            (qualified_word PLACEHOLDER_6) :
+            (number 1)) eq SPACE))
+      (display_statement display
+        (qualified_word PLACEHOLDER_6)) else_header
+      (display_statement display
+        (qualified_word PLACEHOLDER_2)
+        (refmod
+          (qualified_word PLACEHOLDER_6) :
+          (number 1)))
+      (move_statement move "FALSE" to
+        (qualified_word PLACEHOLDER_5)) END_IF
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6))) END_PERFORM
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_8)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_2)
+        (refmod
+          (qualified_word PLACEHOLDER_6) :
+          (number 1)) to
+        (qualified_word PLACEHOLDER_4))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_8) eq
+          (number 2)))
+      (move_statement move ZERO to
+        (qualified_word PLACEHOLDER_8))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_4))
+        (expr
+          (qualified_word PLACEHOLDER_4) +
+          (qualified_word PLACEHOLDER_4)))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_4) gt
+          (number 9)))
+      (subtract_statement subtract
+        (number 9) from
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_4))) END_IF END_IF
+      (display_statement display
+        (qualified_word PLACEHOLDER_3) " + "
+        (qualified_word PLACEHOLDER_4))
+      (add_statement add
+        (qualified_word PLACEHOLDER_4) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_3))) END_PERFORM
+      (move_statement move
+        (function_ function trim
+          (func_args
+            (qualified_word PLACEHOLDER_3))) to
+        (qualified_word PLACEHOLDER_3))
+      (display_statement display "CARD DIGITS: "
+        (qualified_word PLACEHOLDER_3))
+      (if_header
+        (expr
+          (expr
+            (function_ function mod
+              (func_args
+                (qualified_word PLACEHOLDER_3)
+                (number 10))) gt
+            (number 0)) OR
+          (expr "("
+            (expr
+              (qualified_word PLACEHOLDER_7) eq
+              (number 1)) ")")))
+      (move_statement move "FALSE" to
+        (qualified_word PLACEHOLDER_5)) END_IF
+      (period))))

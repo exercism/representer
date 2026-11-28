@@ -1,92 +1,257 @@
-IDENTIFICATION DIVISION .
-  PROGRAM-ID . HIGH-SCORES .
-  DATA DIVISION .
-  WORKING-STORAGE SECTION .
-  01 WS-PROPERTY PIC A ( 20 ).
-  01 WS-SCORES .
-    02 SCORES PIC X ( 3 ) OCCURS 20 TIMES
-      INDEXED BY IDX .
-  01 WS-RESULT-STRING PIC X ( 60 ).
-  01 WS-RESULT-VALUE PIC 999 .
-  01 WS-CUR-SCORE PIC 999 BINARY .
-  01 WS-BEST-SCORE PIC 999 BINARY .
-  01 WS-TOP-SCORE-NAMES .
-    05 WS-FIRST PIC S999 BINARY .
-    05 WS-SECOND PIC S999 BINARY .
-    05 WS-THIRD PIC S999 BINARY .
-  01 WS-TOP-ARRAY REDEFINES WS-TOP-SCORE-NAMES .
-    05 WS-TOP-SCORE PIC S999 BINARY OCCURS 3 TIMES .
-  01 WS-SCORE-DISPLAY PIC ZZ9 .
-  01 WS-COUNT PIC 99 BINARY .
-  01 I PIC 9 BINARY .
-  01 K PIC 9 BINARY .
-  PROCEDURE DIVISION .
-  TEST-PARAGRAPH .
-    MOVE "\" 10 30 90 30100 20 10  0 30 40 40 70 70\"" TO WS-SCORES
-    DISPLAY "'WS-SCORES = \"'" WS-SCORES '"'
-    MOVE "\"personalTopThree\"" TO WS-PROPERTY
-    PERFORM HIGH-SCORES
-    DISPLAY "'WS-RESULT-STRING = \"'" WS-RESULT-STRING '"' .
-  TEST-PARAGRAPH-END .
-    STOP RUN .
-  HIGH-SCORES .
-    EVALUATE WS-PROPERTY
-      WHEN "\"scores\""
-        PERFORM LIST-SCORES
-      WHEN "\"latest\""
-        PERFORM GET-LATEST-SCORE
-      WHEN "\"personalBest\""
-        PERFORM GET-BEST-SCORE
-      WHEN "\"personalTopThree\""
-        PERFORM GET-BEST-THREE-SCORES
-    END-EVALUATE .
-  LIST-SCORES .
-    MOVE WS-SCORES TO WS-RESULT-STRING .
-  GET-LATEST-SCORE .
-    MOVE 0 TO WS-RESULT-VALUE
-    PERFORM VARYING IDX FROM 1 BY 1 UNTIL SCORES ( IDX ) = SPACE
-      MOVE SCORES ( IDX ) TO WS-RESULT-VALUE
-    END-PERFORM .
-  GET-BEST-SCORE .
-    MOVE 0 TO WS-BEST-SCORE
-    PERFORM VARYING IDX FROM 1 BY 1 UNTIL SCORES ( IDX ) = SPACE
-      MOVE SCORES ( IDX ) TO WS-CUR-SCORE
-      IF WS-CUR-SCORE > WS-BEST-SCORE
-        MOVE WS-CUR-SCORE TO WS-BEST-SCORE
-      END-IF
-      MOVE WS-BEST-SCORE TO WS-RESULT-VALUE
-    END-PERFORM .
-  GET-BEST-THREE-SCORES .
-    MOVE -999 TO WS-FIRST
-    MOVE -999 TO WS-SECOND
-    MOVE -999 TO WS-THIRD
-    MOVE 0 TO WS-COUNT
-    PERFORM VARYING IDX FROM 1 BY 1 UNTIL SCORES ( IDX ) = SPACE
-      MOVE SCORES ( IDX ) TO WS-CUR-SCORE
-      ADD 1 TO WS-COUNT
-      EVALUATE TRUE
-      WHEN WS-CUR-SCORE <= WS-THIRD
-        CONTINUE
-      WHEN WS-CUR-SCORE <= WS-SECOND
-        MOVE WS-CUR-SCORE TO WS-THIRD
-      WHEN WS-CUR-SCORE <= WS-FIRST
-        MOVE WS-SECOND TO WS-THIRD
-        MOVE WS-CUR-SCORE TO WS-SECOND
-      WHEN OTHER
-        MOVE WS-SECOND TO WS-THIRD
-        MOVE WS-FIRST TO WS-SECOND
-        MOVE WS-CUR-SCORE TO WS-FIRST
-      END-EVALUATE
-    END-PERFORM
-    IF WS-COUNT > 3 THEN
-      MOVE 3 TO WS-COUNT
-    END-IF
-    MOVE SPACE TO WS-RESULT-STRING
-    IF WS-COUNT = 0 THEN
-      EXIT PARAGRAPH
-    END-IF
-    PERFORM VARYING I FROM 1 BY 1 UNTIL I > WS-COUNT
-      MOVE WS-TOP-SCORE ( I ) TO WS-SCORE-DISPLAY
-      MOVE WS-SCORE-DISPLAY TO WS-RESULT-STRING ( 3 * I - 2 : 3 )
-    END-PERFORM .
-  END PROGRAM HIGH-SCORES .
+(start
+  (program_definition
+    (identification_division (program_name PLACEHOLDER_1))
+    (data_division
+      (working_storage_section
+        (data_description 1 (entry_name PLACEHOLDER_2)
+          (picture_clause "a(20)"))
+        (data_description 1 (entry_name PLACEHOLDER_3))
+        (data_description 2 (entry_name PLACEHOLDER_4)
+          (picture_clause "x(3)")
+          (occurs_clause 20
+            (occurs_key_spec
+              (occurs_indexed PLACEHOLDER_5))))
+        (data_description 1 (entry_name PLACEHOLDER_6)
+          (picture_clause "x(60)"))
+        (data_description 1 (entry_name PLACEHOLDER_7)
+          (picture_clause "9(3)"))
+        (data_description 1 (entry_name PLACEHOLDER_8)
+          (picture_clause "9(3)")
+          (usage_clause BINARY))
+        (data_description 1 (entry_name PLACEHOLDER_9)
+          (picture_clause "9(3)")
+          (usage_clause BINARY))
+        (data_description 1 (entry_name PLACEHOLDER_10))
+        (data_description 5 (entry_name PLACEHOLDER_11)
+          (picture_clause "s9(3)")
+          (usage_clause BINARY))
+        (data_description 5 (entry_name PLACEHOLDER_12)
+          (picture_clause "s9(3)")
+          (usage_clause BINARY))
+        (data_description 5 (entry_name PLACEHOLDER_13)
+          (picture_clause "s9(3)")
+          (usage_clause BINARY))
+        (data_description 1 (entry_name PLACEHOLDER_14)
+          (redefines_clause
+            (qualified_word PLACEHOLDER_10)))
+        (data_description 5 (entry_name PLACEHOLDER_15)
+          (picture_clause "s9(3)")
+          (usage_clause BINARY)
+          (occurs_clause 3))
+        (data_description 1 (entry_name PLACEHOLDER_16)
+          (picture_clause "z(2)9"))
+        (data_description 1 (entry_name PLACEHOLDER_17)
+          (picture_clause "9(2)")
+          (usage_clause BINARY))
+        (data_description 1 (entry_name PLACEHOLDER_18)
+          (picture_clause 9)
+          (usage_clause BINARY))
+        (data_description 1 (entry_name PLACEHOLDER_19)
+          (picture_clause 9)
+          (usage_clause BINARY))))
+    (procedure_division
+      (paragraph_header PLACEHOLDER_20)
+      (move_statement move " 10 30 90 30100 20 10  0 30 40 40 70 70" to
+        (qualified_word PLACEHOLDER_3))
+      (display_statement display "WS-SCORES = \""
+        (qualified_word PLACEHOLDER_3) "\"")
+      (move_statement move "personalTopThree" to
+        (qualified_word PLACEHOLDER_2))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_1))))
+      (display_statement display "WS-RESULT-STRING = \""
+        (qualified_word PLACEHOLDER_6) "\"")
+      (period)
+      (paragraph_header PLACEHOLDER_21) stop_statement
+      (period)
+      (paragraph_header PLACEHOLDER_1)
+      (evaluate_header
+        (evaluate_subject
+          (expr
+            (qualified_word PLACEHOLDER_2))))
+      (when
+        (expr "scores"))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_22))))
+      (when
+        (expr "latest"))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_23))))
+      (when
+        (expr "personalBest"))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_24))))
+      (when
+        (expr "personalTopThree"))
+      (perform_statement_call_proc
+        (perform_procedure
+          (label
+            (qualified_word PLACEHOLDER_25)))) END_EVALUATE
+      (period)
+      (paragraph_header PLACEHOLDER_22)
+      (move_statement move
+        (qualified_word PLACEHOLDER_3) to
+        (qualified_word PLACEHOLDER_6))
+      (period)
+      (paragraph_header PLACEHOLDER_23)
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_7))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_5) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_4)
+              (subref
+                (qualified_word PLACEHOLDER_5)) eq SPACE))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_4)
+        (subref
+          (qualified_word PLACEHOLDER_5)) to
+        (qualified_word PLACEHOLDER_7)) END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_24)
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_9))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_5) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_4)
+              (subref
+                (qualified_word PLACEHOLDER_5)) eq SPACE))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_4)
+        (subref
+          (qualified_word PLACEHOLDER_5)) to
+        (qualified_word PLACEHOLDER_8))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_8) gt
+          (qualified_word PLACEHOLDER_9)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_8) to
+        (qualified_word PLACEHOLDER_9)) END_IF
+      (move_statement move
+        (qualified_word PLACEHOLDER_9) to
+        (qualified_word PLACEHOLDER_7)) END_PERFORM
+      (period)
+      (paragraph_header PLACEHOLDER_25)
+      (move_statement move
+        (number -999) to
+        (qualified_word PLACEHOLDER_11))
+      (move_statement move
+        (number -999) to
+        (qualified_word PLACEHOLDER_12))
+      (move_statement move
+        (number -999) to
+        (qualified_word PLACEHOLDER_13))
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_17))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_5) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_4)
+              (subref
+                (qualified_word PLACEHOLDER_5)) eq SPACE))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_4)
+        (subref
+          (qualified_word PLACEHOLDER_5)) to
+        (qualified_word PLACEHOLDER_8))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_17)))
+      (evaluate_header
+        (evaluate_subject TRUE))
+      (when
+        (expr
+          (qualified_word PLACEHOLDER_8) le
+          (qualified_word PLACEHOLDER_13))) continue_statement
+      (when
+        (expr
+          (qualified_word PLACEHOLDER_8) le
+          (qualified_word PLACEHOLDER_12)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_8) to
+        (qualified_word PLACEHOLDER_13))
+      (when
+        (expr
+          (qualified_word PLACEHOLDER_8) le
+          (qualified_word PLACEHOLDER_11)))
+      (move_statement move
+        (qualified_word PLACEHOLDER_12) to
+        (qualified_word PLACEHOLDER_13))
+      (move_statement move
+        (qualified_word PLACEHOLDER_8) to
+        (qualified_word PLACEHOLDER_12)) when_other
+      (move_statement move
+        (qualified_word PLACEHOLDER_12) to
+        (qualified_word PLACEHOLDER_13))
+      (move_statement move
+        (qualified_word PLACEHOLDER_11) to
+        (qualified_word PLACEHOLDER_12))
+      (move_statement move
+        (qualified_word PLACEHOLDER_8) to
+        (qualified_word PLACEHOLDER_11)) END_EVALUATE END_PERFORM
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_17) gt
+          (number 3)))
+      (move_statement move
+        (number 3) to
+        (qualified_word PLACEHOLDER_17)) END_IF
+      (move_statement move SPACE to
+        (qualified_word PLACEHOLDER_6))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_17) eq
+          (number 0)))
+      (exit_statement PARAGRAPH) END_IF
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_18) from
+            (number 1) by
+            (number 1) until
+            (expr
+              (qualified_word PLACEHOLDER_18) gt
+              (qualified_word PLACEHOLDER_17)))))
+      (move_statement move
+        (qualified_word PLACEHOLDER_15)
+        (subref
+          (qualified_word PLACEHOLDER_18)) to
+        (qualified_word PLACEHOLDER_16))
+      (move_statement move
+        (qualified_word PLACEHOLDER_16) to
+        (qualified_word PLACEHOLDER_6)
+        (refmod
+          (sub_exp
+            (mul_exp
+              (number 3) *
+              (qualified_word PLACEHOLDER_18)) -
+            (number 2)) :
+          (number 3))) END_PERFORM
+      (period))
+    (end_program (program_name PLACEHOLDER_1))))

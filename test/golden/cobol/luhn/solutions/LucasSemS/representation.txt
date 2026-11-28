@@ -1,46 +1,137 @@
-IDENTIFICATION DIVISION .
-  PROGRAM-ID . luhn .
-  ENVIRONMENT DIVISION .
-  CONFIGURATION SECTION .
-  REPOSITORY . FUNCTION ALL INTRINSIC .
-  DATA DIVISION .
-  WORKING-STORAGE SECTION .
-  01 WS-CARD-NUMBER PIC X ( 32 ).
-  01 WS-CARD-DIGITS PIC 9 ( 32 ).
-  01 WS-CHECKSUM PIC 9 ( 2 ).
-  01 WS-VALID PIC X ( 5 ).
-  01 WS-INDEX PIC 99 .
-  01 WS-DIGIT PIC 99 .
-  01 WS-SRC-INDEX PIC 99 .
-  01 WS-CARD-NUMBER-2 PIC X ( 32 ).
-  PROCEDURE DIVISION .
-  LUHN .
-    MOVE "\"FALSE\"" TO WS-VALID .
-    MOVE WS-CARD-NUMBER TO WS-CARD-NUMBER-2 .
-    INSPECT WS-CARD-NUMBER-2 CONVERTING "\"1234567890\"" TO "\"          \"" .
-    IF NOT WS-CARD-NUMBER-2 = SPACES OR LENGTH OF FUNCTION TRIM ( WS-CARD-NUMBER ) = 1 THEN
-      EXIT PARAGRAPH
-    END-IF .
-    MOVE 0 TO WS-CHECKSUM
-    MOVE 1 TO WS-INDEX
-    MOVE 0 TO WS-SRC-INDEX
-    PERFORM VARYING WS-SRC-INDEX
-      FROM LENGTH OF FUNCTION TRIM ( WS-CARD-NUMBER )
-      BY -1
-    UNTIL WS-SRC-INDEX = 0
-      IF WS-CARD-NUMBER ( WS-SRC-INDEX : 1 ) >= 0 AND WS-CARD-NUMBER ( WS-SRC-INDEX : 1 ) <= 9 THEN
-        IF FUNCTION MOD ( WS-INDEX , 2 ) = 0 THEN
-          COMPUTE WS-DIGIT = FUNCTION NUMVAL ( WS-CARD-NUMBER ( WS-SRC-INDEX : 1 )) * 2
-          IF WS-DIGIT > 9 THEN
-            SUBTRACT 9 FROM WS-DIGIT
-            END-IF
-            COMPUTE WS-CHECKSUM = WS-CHECKSUM + WS-DIGIT
-          ELSE
-            ADD FUNCTION NUMVAL ( WS-CARD-NUMBER ( WS-SRC-INDEX : 1 )) TO WS-CHECKSUM
-          END-IF
-          ADD 1 TO WS-INDEX
-        END-IF
-      END-PERFORM
-      IF FUNCTION MOD ( WS-CHECKSUM , 10 ) = 0 THEN
-        MOVE "\"VALID\"" TO WS-VALID
-      END-IF .
+(start
+  (program_definition
+    (identification_division (program_name PLACEHOLDER_1))
+    (environment_division
+      (configuration_section))
+    (data_division
+      (working_storage_section
+        (data_description 1 (entry_name PLACEHOLDER_2)
+          (picture_clause "x(32)"))
+        (data_description 1 (entry_name PLACEHOLDER_3)
+          (picture_clause "9(32)"))
+        (data_description 1 (entry_name PLACEHOLDER_4)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_5)
+          (picture_clause "x(5)"))
+        (data_description 1 (entry_name PLACEHOLDER_6)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_7)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_8)
+          (picture_clause "9(2)"))
+        (data_description 1 (entry_name PLACEHOLDER_9)
+          (picture_clause "x(32)"))))
+    (procedure_division
+      (paragraph_header PLACEHOLDER_1)
+      (move_statement move "FALSE" to
+        (qualified_word PLACEHOLDER_5))
+      (period)
+      (move_statement move
+        (qualified_word PLACEHOLDER_2) to
+        (qualified_word PLACEHOLDER_9))
+      (period)
+      (inspect_statement
+        (qualified_word PLACEHOLDER_9)
+        (inspect_converting "1234567890" "          "))
+      (period)
+      (if_header
+        (expr
+          (expr NOT
+            (expr
+              (qualified_word PLACEHOLDER_9) eq SPACE)) OR
+          (expr length of
+            (function_ function trim
+              (func_args
+                (qualified_word PLACEHOLDER_2))) eq
+            (number 1))))
+      (exit_statement PARAGRAPH) END_IF
+      (period)
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_4))
+      (move_statement move
+        (number 1) to
+        (qualified_word PLACEHOLDER_6))
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_8))
+      (perform_statement_loop
+        (perform_option varying
+          (perform_varying
+            (qualified_word PLACEHOLDER_8) from length of
+            (function_ function trim
+              (func_args
+                (qualified_word PLACEHOLDER_2))) by
+            (number -1) until
+            (expr
+              (qualified_word PLACEHOLDER_8) eq
+              (number 0)))))
+      (if_header
+        (expr
+          (expr
+            (qualified_word PLACEHOLDER_2)
+            (refmod
+              (qualified_word PLACEHOLDER_8) :
+              (number 1)) ge
+            (number 0)) AND
+          (expr
+            (qualified_word PLACEHOLDER_2)
+            (refmod
+              (qualified_word PLACEHOLDER_8) :
+              (number 1)) le
+            (number 9))))
+      (if_header
+        (expr
+          (function_ function mod
+            (func_args
+              (qualified_word PLACEHOLDER_6)
+              (number 2))) eq
+          (number 0)))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7))
+        (expr
+          (function_ function numval
+            (func_args
+              (qualified_word PLACEHOLDER_2)
+              (refmod
+                (qualified_word PLACEHOLDER_8) :
+                (number 1)))) *
+          (number 2)))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_7) gt
+          (number 9)))
+      (subtract_statement subtract
+        (number 9) from
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7))) END_IF
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_4))
+        (expr
+          (qualified_word PLACEHOLDER_4) +
+          (qualified_word PLACEHOLDER_7))) else_header
+      (add_statement add
+        (function_ function numval
+          (func_args
+            (qualified_word PLACEHOLDER_2)
+            (refmod
+              (qualified_word PLACEHOLDER_8) :
+              (number 1)))) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_4))) END_IF
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_6))) END_IF END_PERFORM
+      (if_header
+        (expr
+          (function_ function mod
+            (func_args
+              (qualified_word PLACEHOLDER_4)
+              (number 10))) eq
+          (number 0)))
+      (move_statement move "VALID" to
+        (qualified_word PLACEHOLDER_5)) END_IF
+      (period))))

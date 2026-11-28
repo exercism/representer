@@ -1,75 +1,299 @@
-IDENTIFICATION DIVISION .
-  PROGRAM-ID . YACHT .
-  DATA DIVISION .
-  WORKING-STORAGE SECTION .
-  01 WS-RESULT PIC 99 VALUE 0 .
-  01 WS-CATEGORY PIC X ( 15 ).
-  01 WS-DICE PIC 9 ( 5 ).
-  01 FILLER REDEFINES WS-DICE .
-    05 D PIC 9 OCCURS 5 TIMES .
-  01 WS-DICE-COUNT .
-    05 C PIC 9 OCCURS 6 TIMES INDEXED BY I .
-  01 AUX1 PIC 99 VALUE 0 .
-  01 AUX2 PIC 99 VALUE 0 .
-  PROCEDURE DIVISION .
-  YACHT .
-    MOVE 0 TO WS-RESULT
-    MOVE 0 TO AUX1
-    MOVE 0 TO AUX2
-    MOVE '000000' TO WS-DICE-COUNT .
-    ADD 1 TO C ( D ( 1 ))
-    ADD 1 TO C ( D ( 2 ))
-    ADD 1 TO C ( D ( 3 ))
-    ADD 1 TO C ( D ( 4 ))
-    ADD 1 TO C ( D ( 5 ))
-    EVALUATE WS-CATEGORY
-      WHEN 'ones'
-        MOVE C ( 1 ) TO WS-RESULT
-      WHEN 'twos'
-        COMPUTE WS-RESULT = C ( 2 ) * 2
-      WHEN 'threes'
-        COMPUTE WS-RESULT = C ( 3 ) * 3
-      WHEN 'fours'
-        COMPUTE WS-RESULT = C ( 4 ) * 4
-      WHEN 'fives'
-        COMPUTE WS-RESULT = C ( 5 ) * 5
-      WHEN 'sixes'
-        COMPUTE WS-RESULT = C ( 6 ) * 6
-      WHEN 'yacht'
-        INSPECT WS-DICE TALLYING AUX1 FOR ALL D ( 1 )
-        IF AUX1 = 5 THEN
-          MOVE 50 TO WS-RESULT
-      WHEN 'choice'
-        COMPUTE WS-RESULT = D ( 1 ) + D ( 2 ) + D ( 3 ) + D ( 4 ) + D ( 5 )
-      WHEN "'four of a kind'"
-        INSPECT WS-DICE TALLYING AUX1 FOR ALL D ( 1 )
-        IF AUX1 > 3
-          COMPUTE WS-RESULT = 4 * D ( 1 )
-        ELSE
-          INSPECT WS-DICE TALLYING AUX2 FOR ALL D ( 2 )
-          IF AUX2 > 3
-            COMPUTE WS-RESULT = 4 * D ( 2 )
-        END-IF
-      WHEN "'full house'"
-        SET I TO 1
-        SEARCH C
-          WHEN C ( I ) = 3
-            COMPUTE AUX1 = 3 * I
-        END-SEARCH
-        SET I TO 1
-        SEARCH C
-          WHEN C ( I ) = 2
-            COMPUTE AUX2 = 2 * I
-        END-SEARCH
-        IF AUX1 NOT = 0 AND AUX2 NOT = 0 THEN
-          COMPUTE WS-RESULT = AUX1 + AUX2
-      WHEN "'little straight'"
-        IF WS-DICE-COUNT = '111110' THEN
-          MOVE 30 TO WS-RESULT
-      WHEN "'big straight'"
-        IF WS-DICE-COUNT = '011111' THEN
-          MOVE 30 TO WS-RESULT
-    END-EVALUATE
-    CONTINUE .
-  YACHT-EXIT .
-    EXIT .
+(start
+  (program_definition
+    (identification_division (program_name PLACEHOLDER_1))
+    (data_division
+      (working_storage_section
+        (data_description 1 (entry_name PLACEHOLDER_2)
+          (picture_clause "9(2)")
+          (value_clause value
+            (value_item
+              (number 0))))
+        (data_description 1 (entry_name PLACEHOLDER_3)
+          (picture_clause "x(15)"))
+        (data_description 1 (entry_name PLACEHOLDER_4)
+          (picture_clause "9(5)"))
+        (data_description 1 FILLER
+          (redefines_clause
+            (qualified_word PLACEHOLDER_4)))
+        (data_description 5 (entry_name PLACEHOLDER_5)
+          (picture_clause 9)
+          (occurs_clause 5))
+        (data_description 1 (entry_name PLACEHOLDER_6))
+        (data_description 5 (entry_name PLACEHOLDER_7)
+          (picture_clause 9)
+          (occurs_clause 6
+            (occurs_key_spec
+              (occurs_indexed PLACEHOLDER_8))))
+        (data_description 1 (entry_name PLACEHOLDER_9)
+          (picture_clause "9(2)")
+          (value_clause value
+            (value_item
+              (number 0))))
+        (data_description 1 (entry_name PLACEHOLDER_10)
+          (picture_clause "9(2)")
+          (value_clause value
+            (value_item
+              (number 0))))))
+    (procedure_division
+      (paragraph_header PLACEHOLDER_1)
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_2))
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_9))
+      (move_statement move
+        (number 0) to
+        (qualified_word PLACEHOLDER_10))
+      (move_statement move "000000" to
+        (qualified_word PLACEHOLDER_6))
+      (period)
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (qualified_word PLACEHOLDER_5)
+            (subref
+              (number 1)))))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (qualified_word PLACEHOLDER_5)
+            (subref
+              (number 2)))))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (qualified_word PLACEHOLDER_5)
+            (subref
+              (number 3)))))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (qualified_word PLACEHOLDER_5)
+            (subref
+              (number 4)))))
+      (add_statement add
+        (number 1) to
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (qualified_word PLACEHOLDER_5)
+            (subref
+              (number 5)))))
+      (evaluate_header
+        (evaluate_subject
+          (expr
+            (qualified_word PLACEHOLDER_3))))
+      (when
+        (expr "ones"))
+      (move_statement move
+        (qualified_word PLACEHOLDER_7)
+        (subref
+          (number 1)) to
+        (qualified_word PLACEHOLDER_2))
+      (when
+        (expr "twos"))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (number 2)) *
+          (number 2)))
+      (when
+        (expr "threes"))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (number 3)) *
+          (number 3)))
+      (when
+        (expr "fours"))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (number 4)) *
+          (number 4)))
+      (when
+        (expr "fives"))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (number 5)) *
+          (number 5)))
+      (when
+        (expr "sixes"))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (number 6)) *
+          (number 6)))
+      (when
+        (expr "yacht"))
+      (inspect_statement
+        (qualified_word PLACEHOLDER_4)
+        (inspect_tallying tallying
+          (qualified_word PLACEHOLDER_9) for ALL
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 1))))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_9) eq
+          (number 5)))
+      (move_statement move
+        (number 50) to
+        (qualified_word PLACEHOLDER_2))
+      (when
+        (expr "choice"))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 1)) +
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 2)) +
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 3)) +
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 4)) +
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 5))))
+      (when
+        (expr "four of a kind"))
+      (inspect_statement
+        (qualified_word PLACEHOLDER_4)
+        (inspect_tallying tallying
+          (qualified_word PLACEHOLDER_9) for ALL
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 1))))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_9) gt
+          (number 3)))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (number 4) *
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 1)))) else_header
+      (inspect_statement
+        (qualified_word PLACEHOLDER_4)
+        (inspect_tallying tallying
+          (qualified_word PLACEHOLDER_10) for ALL
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 2))))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_10) gt
+          (number 3)))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (number 4) *
+          (qualified_word PLACEHOLDER_5)
+          (subref
+            (number 2)))) END_IF
+      (when
+        (expr "full house"))
+      (set_statement
+        (set_to
+          (qualified_word PLACEHOLDER_8) to
+          (number 1)))
+      (search_statement
+        (qualified_word PLACEHOLDER_7))
+      (when
+        (expr
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (qualified_word PLACEHOLDER_8)) eq
+          (number 3)))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_9))
+        (expr
+          (number 3) *
+          (qualified_word PLACEHOLDER_8))) END_SEARCH
+      (set_statement
+        (set_to
+          (qualified_word PLACEHOLDER_8) to
+          (number 1)))
+      (search_statement
+        (qualified_word PLACEHOLDER_7))
+      (when
+        (expr
+          (qualified_word PLACEHOLDER_7)
+          (subref
+            (qualified_word PLACEHOLDER_8)) eq
+          (number 2)))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_10))
+        (expr
+          (number 2) *
+          (qualified_word PLACEHOLDER_8))) END_SEARCH
+      (if_header
+        (expr
+          (expr
+            (qualified_word PLACEHOLDER_9) ne
+            (number 0)) AND
+          (expr
+            (qualified_word PLACEHOLDER_10) ne
+            (number 0))))
+      (compute_statement
+        (arithmetic_x
+          (qualified_word PLACEHOLDER_2))
+        (expr
+          (qualified_word PLACEHOLDER_9) +
+          (qualified_word PLACEHOLDER_10)))
+      (when
+        (expr "little straight"))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_6) eq "111110"))
+      (move_statement move
+        (number 30) to
+        (qualified_word PLACEHOLDER_2))
+      (when
+        (expr "big straight"))
+      (if_header
+        (expr
+          (qualified_word PLACEHOLDER_6) eq "011111"))
+      (move_statement move
+        (number 30) to
+        (qualified_word PLACEHOLDER_2)) END_EVALUATE continue_statement
+      (period)
+      (paragraph_header PLACEHOLDER_11) exit_statement
+      (period))))
