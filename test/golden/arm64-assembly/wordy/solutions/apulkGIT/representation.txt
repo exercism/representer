@@ -1,173 +1,197 @@
-.data
-what: .string "\"What\""
-is: .string "\"is\""
-plus: .string "\"plus\""
-minus: .string "\"minus\""
-multiplied: .string "\"multiplied" by"
-divided: .string "\"divided" by"
-.text
-.globl answer
-// Input: x1 str2, x2 str1, x5 str2 len Output: x3 -1 less than, 0 equal, 1 greater than
-cmpstrings:
-cmploop:
-ldrb w4, [x1],#1
-ldrb w3, [x2],#1
-cmp w4,w3
-b.eq equal
-b.lt lessthan
-mov x3,#1
-ret
-lessthan:
-mov x3,#-1
-ret
-equal: cbz w3,strsequal
-sub x5,x5,#1
-cbz x5,strsequal
-b.al cmploop
-strsequal:
-mov x3,#0
-ret
-// Input: x1 = string, Output: x2
-getlength:
-lenloop:
-ldrb w3, [x1, x2]
-cbz w3,lenok
-cmp w3,' '
-b.eq lenok
-add x2,x2,#1
-b.al lenloop
-lenok:
-ret
-// Input x1 src, x4 len, Output: x3 number as int, x4 boolean (if valid)
-fromstrtoint:
-eor x2,x2,x2
-eor x3,x3,x3
-mov x5,#10
-mov x9,#0
-ldrb w2,[x1]
-cmp w2,'-'
-b.ne intloop
-mov x9,#1
-add x1,x1,#1
-sub x4,x4,#1
-intloop:
-ldrb w2,[x1],#1
-sub w2,w2,#48
-cmp w2,0
-b.lt invalidstr
-cmp w2,9
-b.gt invalidstr
-madd x3,x5,x3,x2
-sub x4,x4,#1
-cbnz x4,intloop
-cbz x9,plussign
-mov x9,#0
-sub x3,x9,x3
-plussign:
-mov x4,#1
-ret
-invalidstr:
-mov x4,#0
-ret
-answer:
-stp fp, lr, [sp, -16]!
-ldr x2,=what
-mov x5,#4
-bl cmpstrings
-cbnz x3,failure
-add x1,x1,#1
-ldr x2,=is
-mov x5,#2
-bl cmpstrings
-cbnz x3,failure
-add x1,x1,#1
-mov x2,#0
-bl getlength
-mov x6,#0
-sub x4,x2,#1
-ldrb w3,[x1,x4]
-add x4,x4,#1
-cmp w3,'?'
-b.ne notquestion
-mov x6,#1
-sub x4,x4,#1
-notquestion:
-bl fromstrtoint // Saves to x4 int
-cbz x4,failure
-add x1,x1,#1
-mov x8,x3
-cmp x6,#1
-b.eq success
-numberloop:
-ldr x2,=plus
-mov x5,#4
-mov x10,x1
-bl cmpstrings
-mov x7,#0
-cbz x3,dooperation
-mov x1,x10
-ldr x2,=minus
-mov x5,#5
-bl cmpstrings
-mov x7,#1
-cbz x3,dooperation
-mov x1,x10
-ldr x2,=multiplied
-mov x5,#13
-bl cmpstrings
-mov x7,#2
-cbz x3,dooperation
-mov x1,x10
-ldr x2,=divided
-mov x5,#10
-bl cmpstrings
-mov x7,#3
-cbz x3,dooperation
-b.al failure
-dooperation:
-add x1,x1,#1
-mov x2,#0
-bl getlength
-mov x6,#0
-sub x4,x2,#1
-ldrb w3,[x1,x4]
-add x4,x4,#1
-cmp w3,'?'
-b.ne notquestion2
-sub x4,x4,#1
-mov x6,#1
-notquestion2:
-bl fromstrtoint // Saves to x4 int
-cbz x4,failure
-add x1,x1,#1
-cmp x7,#0
-b.eq plusoperation
-cmp x7,#1
-b.eq minusoperation
-cmp x7,#2
-b.eq multoperation
-b.al divideoperation
-plusoperation:
-add x8,x8,x3
-b.al endofloop
-minusoperation:
-sub x8,x8,x3
-b.al endofloop
-multoperation:
-mul x8,x8,x3
-b.al endofloop
-divideoperation:
-sdiv x8,x8,x3
-endofloop:
-cmp x6,#1
-b.eq success
-b.al numberloop
-success:
-str x8,[x0]
-mov x0,#1
-ldp fp, lr, [sp], 16
-ret
-failure:
-mov x0,#0
-ldp fp, lr, [sp], 16
-ret
+(source_file
+  (directive .data)
+  (label PLACEHOLDER_1)
+  (directive .string "What")
+  (label PLACEHOLDER_2)
+  (directive .string "is")
+  (label PLACEHOLDER_3)
+  (directive .string "plus")
+  (label PLACEHOLDER_4)
+  (directive .string "minus")
+  (label PLACEHOLDER_5)
+  (directive .string "multiplied by")
+  (label PLACEHOLDER_6)
+  (directive .string "divided by")
+  (directive .text)
+  (directive .globl PLACEHOLDER_7)
+  (label PLACEHOLDER_8)
+  (label PLACEHOLDER_9)
+  (instruction ldrb w4
+    (memory x1) 1)
+  (instruction ldrb w3
+    (memory x2) 1)
+  (instruction cmp w4 w3)
+  (instruction b.eq PLACEHOLDER_10)
+  (instruction b.lt PLACEHOLDER_11)
+  (instruction mov x3 1)
+  (instruction ret)
+  (label PLACEHOLDER_11)
+  (instruction mov x3
+    (unary_expression - 1))
+  (instruction ret)
+  (label PLACEHOLDER_10)
+  (instruction cbz w3 PLACEHOLDER_12)
+  (instruction sub x5 x5 1)
+  (instruction cbz x5 PLACEHOLDER_12)
+  (instruction b.al PLACEHOLDER_9)
+  (label PLACEHOLDER_12)
+  (instruction mov x3 0)
+  (instruction ret)
+  (label PLACEHOLDER_13)
+  (label PLACEHOLDER_14)
+  (instruction ldrb w3
+    (memory x1 x2))
+  (instruction cbz w3 PLACEHOLDER_15)
+  (instruction cmp w3 "' '")
+  (instruction b.eq PLACEHOLDER_15)
+  (instruction add x2 x2 1)
+  (instruction b.al PLACEHOLDER_14)
+  (label PLACEHOLDER_15)
+  (instruction ret)
+  (label PLACEHOLDER_16)
+  (instruction eor x2 x2 x2)
+  (instruction eor x3 x3 x3)
+  (instruction mov x5 10)
+  (instruction mov x9 0)
+  (instruction ldrb w2
+    (memory x1))
+  (instruction cmp w2 '-')
+  (instruction b.ne PLACEHOLDER_17)
+  (instruction mov x9 1)
+  (instruction add x1 x1 1)
+  (instruction sub x4 x4 1)
+  (label PLACEHOLDER_17)
+  (instruction ldrb w2
+    (memory x1) 1)
+  (instruction sub w2 w2 48)
+  (instruction cmp w2 0)
+  (instruction b.lt PLACEHOLDER_18)
+  (instruction cmp w2 9)
+  (instruction b.gt PLACEHOLDER_18)
+  (instruction madd x3 x5 x3 x2)
+  (instruction sub x4 x4 1)
+  (instruction cbnz x4 PLACEHOLDER_17)
+  (instruction cbz x9 PLACEHOLDER_19)
+  (instruction mov x9 0)
+  (instruction sub x3 x9 x3)
+  (label PLACEHOLDER_19)
+  (instruction mov x4 1)
+  (instruction ret)
+  (label PLACEHOLDER_18)
+  (instruction mov x4 0)
+  (instruction ret)
+  (label PLACEHOLDER_7)
+  (instruction stp fp lr
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction ldr x2
+    (literal_pool PLACEHOLDER_1))
+  (instruction mov x5 4)
+  (instruction bl PLACEHOLDER_8)
+  (instruction cbnz x3 PLACEHOLDER_20)
+  (instruction add x1 x1 1)
+  (instruction ldr x2
+    (literal_pool PLACEHOLDER_2))
+  (instruction mov x5 2)
+  (instruction bl PLACEHOLDER_8)
+  (instruction cbnz x3 PLACEHOLDER_20)
+  (instruction add x1 x1 1)
+  (instruction mov x2 0)
+  (instruction bl PLACEHOLDER_13)
+  (instruction mov x6 0)
+  (instruction sub x4 x2 1)
+  (instruction ldrb w3
+    (memory x1 x4))
+  (instruction add x4 x4 1)
+  (instruction cmp w3 '?')
+  (instruction b.ne PLACEHOLDER_21)
+  (instruction mov x6 1)
+  (instruction sub x4 x4 1)
+  (label PLACEHOLDER_21)
+  (instruction bl PLACEHOLDER_16)
+  (instruction cbz x4 PLACEHOLDER_20)
+  (instruction add x1 x1 1)
+  (instruction mov x8 x3)
+  (instruction cmp x6 1)
+  (instruction b.eq PLACEHOLDER_22)
+  (label PLACEHOLDER_23)
+  (instruction ldr x2
+    (literal_pool PLACEHOLDER_3))
+  (instruction mov x5 4)
+  (instruction mov x10 x1)
+  (instruction bl PLACEHOLDER_8)
+  (instruction mov x7 0)
+  (instruction cbz x3 PLACEHOLDER_24)
+  (instruction mov x1 x10)
+  (instruction ldr x2
+    (literal_pool PLACEHOLDER_4))
+  (instruction mov x5 5)
+  (instruction bl PLACEHOLDER_8)
+  (instruction mov x7 1)
+  (instruction cbz x3 PLACEHOLDER_24)
+  (instruction mov x1 x10)
+  (instruction ldr x2
+    (literal_pool PLACEHOLDER_5))
+  (instruction mov x5 13)
+  (instruction bl PLACEHOLDER_8)
+  (instruction mov x7 2)
+  (instruction cbz x3 PLACEHOLDER_24)
+  (instruction mov x1 x10)
+  (instruction ldr x2
+    (literal_pool PLACEHOLDER_6))
+  (instruction mov x5 10)
+  (instruction bl PLACEHOLDER_8)
+  (instruction mov x7 3)
+  (instruction cbz x3 PLACEHOLDER_24)
+  (instruction b.al PLACEHOLDER_20)
+  (label PLACEHOLDER_24)
+  (instruction add x1 x1 1)
+  (instruction mov x2 0)
+  (instruction bl PLACEHOLDER_13)
+  (instruction mov x6 0)
+  (instruction sub x4 x2 1)
+  (instruction ldrb w3
+    (memory x1 x4))
+  (instruction add x4 x4 1)
+  (instruction cmp w3 '?')
+  (instruction b.ne PLACEHOLDER_25)
+  (instruction sub x4 x4 1)
+  (instruction mov x6 1)
+  (label PLACEHOLDER_25)
+  (instruction bl PLACEHOLDER_16)
+  (instruction cbz x4 PLACEHOLDER_20)
+  (instruction add x1 x1 1)
+  (instruction cmp x7 0)
+  (instruction b.eq PLACEHOLDER_26)
+  (instruction cmp x7 1)
+  (instruction b.eq PLACEHOLDER_27)
+  (instruction cmp x7 2)
+  (instruction b.eq PLACEHOLDER_28)
+  (instruction b.al PLACEHOLDER_29)
+  (label PLACEHOLDER_26)
+  (instruction add x8 x8 x3)
+  (instruction b.al PLACEHOLDER_30)
+  (label PLACEHOLDER_27)
+  (instruction sub x8 x8 x3)
+  (instruction b.al PLACEHOLDER_30)
+  (label PLACEHOLDER_28)
+  (instruction mul x8 x8 x3)
+  (instruction b.al PLACEHOLDER_30)
+  (label PLACEHOLDER_29)
+  (instruction sdiv x8 x8 x3)
+  (label PLACEHOLDER_30)
+  (instruction cmp x6 1)
+  (instruction b.eq PLACEHOLDER_22)
+  (instruction b.al PLACEHOLDER_23)
+  (label PLACEHOLDER_22)
+  (instruction str x8
+    (memory x0))
+  (instruction mov x0 1)
+  (instruction ldp fp lr
+    (memory sp) 16)
+  (instruction ret)
+  (label PLACEHOLDER_20)
+  (instruction mov x0 0)
+  (instruction ldp fp lr
+    (memory sp) 16)
+  (instruction ret))

@@ -1,46 +1,62 @@
-// Dedicated to Shree DR.MDD
-.data
-for: .string "\"For" want of a "\""
-the: .string "\"" the "\""
-was: .string "\"" was lost.\n"
-and: .string "\"And" all for the want of a "\""
-end: .string "\".\\n\""
-.macro APPEND str
-adrp x9, \str
-add x9, x9, :lo12:\str
-bl append
-.endm
-.text
-.globl recite
-append:
-ldrb w10, [x9], #1
-strb w10, [x0], #1
-cbnz w10, append
-sub x0, x0, #1
-ret
-recite:
-mov x8, lr
-mov x11, x1
-ldr x12, [x11], #8
-cbz x12, .empty
-.next_line:
-ldr x13, [x11], #8
-cbz x13, .last
-APPEND for
-mov x9, x12
-bl append
-APPEND the
-mov x9, x13
-bl append
-APPEND was
-mov x12, x13
-b .next_line
-.last:
-APPEND and
-ldr x9, [x1]
-bl append
-APPEND end
-mov lr, x8
-.empty:
-strb wzr, [x0]
-ret
+(source_file
+  (directive .data)
+  (label PLACEHOLDER_1)
+  (directive .string "For want of a ")
+  (label PLACEHOLDER_2)
+  (directive .string " the ")
+  (label PLACEHOLDER_3)
+  (directive .string " was lost.\n")
+  (label PLACEHOLDER_4)
+  (directive .string "And all for the want of a ")
+  (label PLACEHOLDER_5)
+  (directive .string ".\n")
+  (macro_definition PLACEHOLDER_6
+    (parameters
+      (parameter PLACEHOLDER_7))
+    (block
+      (instruction adrp x9
+        (macro_argument PLACEHOLDER_7))
+      (instruction add x9 x9
+        (relocation :lo12:
+          (macro_argument PLACEHOLDER_7)))
+      (instruction bl PLACEHOLDER_8)))
+  (directive .text)
+  (directive .globl PLACEHOLDER_9)
+  (label PLACEHOLDER_8)
+  (instruction ldrb w10
+    (memory x9) 1)
+  (instruction strb w10
+    (memory x0) 1)
+  (instruction cbnz w10 PLACEHOLDER_8)
+  (instruction sub x0 x0 1)
+  (instruction ret)
+  (label PLACEHOLDER_9)
+  (instruction mov x8 lr)
+  (instruction mov x11 x1)
+  (instruction ldr x12
+    (memory x11) 8)
+  (instruction cbz x12 PLACEHOLDER_10)
+  (label PLACEHOLDER_11)
+  (instruction ldr x13
+    (memory x11) 8)
+  (instruction cbz x13 PLACEHOLDER_12)
+  (macro_call PLACEHOLDER_6 PLACEHOLDER_1)
+  (instruction mov x9 x12)
+  (instruction bl PLACEHOLDER_8)
+  (macro_call PLACEHOLDER_6 PLACEHOLDER_2)
+  (instruction mov x9 x13)
+  (instruction bl PLACEHOLDER_8)
+  (macro_call PLACEHOLDER_6 PLACEHOLDER_3)
+  (instruction mov x12 x13)
+  (instruction b PLACEHOLDER_11)
+  (label PLACEHOLDER_12)
+  (macro_call PLACEHOLDER_6 PLACEHOLDER_4)
+  (instruction ldr x9
+    (memory x1))
+  (instruction bl PLACEHOLDER_8)
+  (macro_call PLACEHOLDER_6 PLACEHOLDER_5)
+  (instruction mov lr x8)
+  (label PLACEHOLDER_10)
+  (instruction strb wzr
+    (memory x0))
+  (instruction ret))

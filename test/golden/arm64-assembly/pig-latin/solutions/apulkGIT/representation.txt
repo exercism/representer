@@ -1,145 +1,168 @@
-.data
-letter1: .string "\"a\""
-letter2: .string "\"e\""
-letter3: .string "\"i\""
-letter4: .string "\"o\""
-letter5: .string "\"u\""
-letter6: .string "\"xr\""
-letter7: .string "\"yt\""
-letters: .dword letter1
-.dword letter2
-.dword letter3
-.dword letter4
-.dword letter5
-.dword letter6
-.dword letter7
-.dword 0
-ay: .string "\"ay\""
-consonantss: .string "\"bcdfghjklmnpqrstvwxz\""
-.text
-.globl translate
-getlength:
-lenloop:
-ldrb w3, [x1, x2]
-cmp w3,' '
-b.eq lenok
-cbz w3, lenok
-add x2,x2,#1
-b.al lenloop
-lenok:
-ret
-// Input: x0 str2, x1 str1, Output: x2 -1 less than, 0 equal, 1 greater than
-cmpstrings:
-cmploop:
-ldrb w3, [x6], #1
-cbz w3,equal
-ldrb w8, [x1, x7]
-cmp w3,w8
-b.ne notequal
-add x7,x7,#1
-b.al cmploop
-notequal:
-mov x3,#1
-ret
-equal: mov x3,#0
-ret
-// x0 dest addr, x1 src addr, x7 offset, x2 maxoffset
-copystrings:
-copystrings_loop:
-cmp x7,x2
-b.eq copystrings_done
-ldrb w3, [x1, x7]
-cbz w3,copystrings_done
-strb w3, [x0], #1
-add x7,x7,#1
-b.al copystrings_loop
-copystrings_done:
-mov w3,#0
-strb w3, [x0]
-ret
-translate:
-stp fp, lr, [sp, -16]!
-eor x2,x2,x2
-mainloop:
-mov x4,x2
-bl getlength
-mov x7,x4
-ldr x5,=letters
-rule1:
-ldr x6,[x5]
-cbz x6,consonants
-bl cmpstrings
-cbz x3,foundrule1
-add x5,x5,#8
-mov x7,x4
-b.al rule1
-foundrule1:
-mov x7,x4
-bl copystrings
-b.al adday
-consonants:
-mov x7,x4
-ldrb w3,[x1,x7]
-mov w8,'y'
-cmp w3,w8
-b.ne consloopstart
-add x7,x7,#1
-b.al rule2to4
-consloopstart:
-mov x7,x4
-consloop:
-ldrb w3,[x1,x7]
-ldr x5,=consonantss
-consinnerloop:
-ldrb w8,[x5],#1
-cbz w8,consinnerloopover
-cmp w3,w8
-b.ne consinnerloop
-add x7,x7,#1
-b.al consloop
-consinnerloopover:
-cmp x4,x7
-b.eq endofmain
-ldrb w3,[x1,x7]
-cmp w3,'u'
-b.ne rule2to4//rule4
-sub x5,x7,#1
-ldrb w3,[x1,x5]
-cmp w3,'q'
-b.ne rule2to4
-add x7,x7,#1
-b.al rule2to4
-//rule4:
-//ldrb w3,[x1,x7]
-//cmp w3,'y'
-//b.ne rule2
-//b.al rule2to4
-//rule2:
-// b.al rule2to4
-rule2to4:
-mov x5,x7
-bl copystrings
-mov x6,x2
-mov x2,x5
-mov x7,x4
-bl copystrings
-mov x2,x6
-adday:
-mov x5,x1
-ldr x1,=ay
-eor x7,x7,x7
-mov x6,x2
-mov x2,#2
-bl copystrings
-mov x2,x6
-mov x1,x5
-endofmain:
-ldrb w3,[x1,x2]
-cbz w3,end
-mov w3,' '
-strb w3,[x0],#1
-add x2,x2,#1
-b.al mainloop
-end:
-ldp fp, lr, [sp], 16
-ret
+(source_file
+  (directive .data)
+  (label PLACEHOLDER_1)
+  (directive .string "a")
+  (label PLACEHOLDER_2)
+  (directive .string "e")
+  (label PLACEHOLDER_3)
+  (directive .string "i")
+  (label PLACEHOLDER_4)
+  (directive .string "o")
+  (label PLACEHOLDER_5)
+  (directive .string "u")
+  (label PLACEHOLDER_6)
+  (directive .string "xr")
+  (label PLACEHOLDER_7)
+  (directive .string "yt")
+  (label PLACEHOLDER_8)
+  (directive .dword PLACEHOLDER_1)
+  (directive .dword PLACEHOLDER_2)
+  (directive .dword PLACEHOLDER_3)
+  (directive .dword PLACEHOLDER_4)
+  (directive .dword PLACEHOLDER_5)
+  (directive .dword PLACEHOLDER_6)
+  (directive .dword PLACEHOLDER_7)
+  (directive .dword 0)
+  (label PLACEHOLDER_9)
+  (directive .string "ay")
+  (label PLACEHOLDER_10)
+  (directive .string "bcdfghjklmnpqrstvwxz")
+  (directive .text)
+  (directive .globl PLACEHOLDER_11)
+  (label PLACEHOLDER_12)
+  (label PLACEHOLDER_13)
+  (instruction ldrb w3
+    (memory x1 x2))
+  (instruction cmp w3 "' '")
+  (instruction b.eq PLACEHOLDER_14)
+  (instruction cbz w3 PLACEHOLDER_14)
+  (instruction add x2 x2 1)
+  (instruction b.al PLACEHOLDER_13)
+  (label PLACEHOLDER_14)
+  (instruction ret)
+  (label PLACEHOLDER_15)
+  (label PLACEHOLDER_16)
+  (instruction ldrb w3
+    (memory x6) 1)
+  (instruction cbz w3 PLACEHOLDER_17)
+  (instruction ldrb w8
+    (memory x1 x7))
+  (instruction cmp w3 w8)
+  (instruction b.ne PLACEHOLDER_18)
+  (instruction add x7 x7 1)
+  (instruction b.al PLACEHOLDER_16)
+  (label PLACEHOLDER_18)
+  (instruction mov x3 1)
+  (instruction ret)
+  (label PLACEHOLDER_17)
+  (instruction mov x3 0)
+  (instruction ret)
+  (label PLACEHOLDER_19)
+  (label PLACEHOLDER_20)
+  (instruction cmp x7 x2)
+  (instruction b.eq PLACEHOLDER_21)
+  (instruction ldrb w3
+    (memory x1 x7))
+  (instruction cbz w3 PLACEHOLDER_21)
+  (instruction strb w3
+    (memory x0) 1)
+  (instruction add x7 x7 1)
+  (instruction b.al PLACEHOLDER_20)
+  (label PLACEHOLDER_21)
+  (instruction mov w3 0)
+  (instruction strb w3
+    (memory x0))
+  (instruction ret)
+  (label PLACEHOLDER_11)
+  (instruction stp fp lr
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction eor x2 x2 x2)
+  (label PLACEHOLDER_22)
+  (instruction mov x4 x2)
+  (instruction bl PLACEHOLDER_12)
+  (instruction mov x7 x4)
+  (instruction ldr x5
+    (literal_pool PLACEHOLDER_8))
+  (label PLACEHOLDER_23)
+  (instruction ldr x6
+    (memory x5))
+  (instruction cbz x6 PLACEHOLDER_24)
+  (instruction bl PLACEHOLDER_15)
+  (instruction cbz x3 PLACEHOLDER_25)
+  (instruction add x5 x5 8)
+  (instruction mov x7 x4)
+  (instruction b.al PLACEHOLDER_23)
+  (label PLACEHOLDER_25)
+  (instruction mov x7 x4)
+  (instruction bl PLACEHOLDER_19)
+  (instruction b.al PLACEHOLDER_26)
+  (label PLACEHOLDER_24)
+  (instruction mov x7 x4)
+  (instruction ldrb w3
+    (memory x1 x7))
+  (instruction mov w8 'y')
+  (instruction cmp w3 w8)
+  (instruction b.ne PLACEHOLDER_27)
+  (instruction add x7 x7 1)
+  (instruction b.al PLACEHOLDER_28)
+  (label PLACEHOLDER_27)
+  (instruction mov x7 x4)
+  (label PLACEHOLDER_29)
+  (instruction ldrb w3
+    (memory x1 x7))
+  (instruction ldr x5
+    (literal_pool PLACEHOLDER_10))
+  (label PLACEHOLDER_30)
+  (instruction ldrb w8
+    (memory x5) 1)
+  (instruction cbz w8 PLACEHOLDER_31)
+  (instruction cmp w3 w8)
+  (instruction b.ne PLACEHOLDER_30)
+  (instruction add x7 x7 1)
+  (instruction b.al PLACEHOLDER_29)
+  (label PLACEHOLDER_31)
+  (instruction cmp x4 x7)
+  (instruction b.eq PLACEHOLDER_32)
+  (instruction ldrb w3
+    (memory x1 x7))
+  (instruction cmp w3 'u')
+  (instruction b.ne PLACEHOLDER_28)
+  (instruction sub x5 x7 1)
+  (instruction ldrb w3
+    (memory x1 x5))
+  (instruction cmp w3 'q')
+  (instruction b.ne PLACEHOLDER_28)
+  (instruction add x7 x7 1)
+  (instruction b.al PLACEHOLDER_28)
+  (label PLACEHOLDER_28)
+  (instruction mov x5 x7)
+  (instruction bl PLACEHOLDER_19)
+  (instruction mov x6 x2)
+  (instruction mov x2 x5)
+  (instruction mov x7 x4)
+  (instruction bl PLACEHOLDER_19)
+  (instruction mov x2 x6)
+  (label PLACEHOLDER_26)
+  (instruction mov x5 x1)
+  (instruction ldr x1
+    (literal_pool PLACEHOLDER_9))
+  (instruction eor x7 x7 x7)
+  (instruction mov x6 x2)
+  (instruction mov x2 2)
+  (instruction bl PLACEHOLDER_19)
+  (instruction mov x2 x6)
+  (instruction mov x1 x5)
+  (label PLACEHOLDER_32)
+  (instruction ldrb w3
+    (memory x1 x2))
+  (instruction cbz w3 PLACEHOLDER_33)
+  (instruction mov w3 "' '")
+  (instruction strb w3
+    (memory x0) 1)
+  (instruction add x2 x2 1)
+  (instruction b.al PLACEHOLDER_22)
+  (label PLACEHOLDER_33)
+  (instruction ldp fp lr
+    (memory sp) 16)
+  (instruction ret))

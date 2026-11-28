@@ -1,93 +1,107 @@
-.text
-.globl prime
-number .req x0
-limit .req x1
-p .req x3
-m .req x4
-step .req x5
-idx .req x6
-word .req x7
-word32 .req w7
-bytes .req x8
-one .req x9
-base .req x10
-ptr .req x11
-end .req x12
-tmp .req x13
-prime:
-cbz number, .Lnone
-mov one, #1
-clz limit, number
-neg limit, limit
-add limit, limit, #64
-mul limit, number, limit // n * bitlength(n)
-add limit, limit, #1023 // align
-and limit, limit, #-1024
-lsr bytes, limit, #3
-sub sp, sp, bytes // allocate buffer
-// Bit i set <=> i is still a prime candidate: all odd numbers plus 2.
-movi v0.16b, #0xaa
-mov ptr, sp
-add end, sp, bytes
-.Lfill:
-stp q0, q0, [ptr]
-stp q0, q0, [ptr, #32]
-stp q0, q0, [ptr, #64]
-stp q0, q0, [ptr, #96]
-add ptr, ptr, #128
-cmp ptr, end
-b.ne .Lfill
-mov word32, #0xac // low byte: clear bit 1, set bit 2
-strb word32, [sp]
-// Sieve with odd p while p*p < limit, clearing odd multiples only.
-mov p, #3
-b .Lsieve_check
-.Lsieve_loop:
-lsr idx, p, #6
-ldr word, [sp, idx, lsl #3]
-lsr word, word, p // implicit p mod 64
-tbz word, #0, .Lsieve_next // p already composite
-lsl step, p, #1
-.Lmark:
-lsr idx, m, #6
-ldr word, [sp, idx, lsl #3]
-lsl tmp, one, m // implicit m mod 64
-bic word, word, tmp
-str word, [sp, idx, lsl #3]
-add m, m, step
-cmp m, limit
-b.lo .Lmark
-.Lsieve_next:
-add p, p, #2
-.Lsieve_check:
-mul m, p, p
-cmp m, limit
-b.lo .Lsieve_loop
-// Search the bits for nth set bit, one word at a time.
-mov base, #0
-mov ptr, sp
-.Lword_loop:
-ldr word, [ptr], #8
-b .Lbits_check
-.Lbit_loop:
-subs number, number, #1
-b.eq .Lfound
-sub tmp, word, #1
-and word, word, tmp // clear lowest set bit
-.Lbits_check:
-cbnz word, .Lbit_loop
-add base, base, #64
-cmp base, limit
-b.lo .Lword_loop
-mov x0, #-1
-b .Lreturn
-.Lfound:
-rbit tmp, word
-clz tmp, tmp // ctz
-add x0, tmp, base
-.Lreturn:
-add sp, sp, bytes
-ret
-.Lnone:
-mov x0, #-1
-ret
+(source_file
+  (directive .text)
+  (directive .globl PLACEHOLDER_1)
+  (register_alias PLACEHOLDER_2 x0)
+  (register_alias PLACEHOLDER_3 x1)
+  (register_alias PLACEHOLDER_4 x3)
+  (register_alias PLACEHOLDER_5 x4)
+  (register_alias PLACEHOLDER_6 x5)
+  (register_alias PLACEHOLDER_7 x6)
+  (register_alias PLACEHOLDER_8 x7)
+  (register_alias PLACEHOLDER_9 w7)
+  (register_alias PLACEHOLDER_10 x8)
+  (register_alias PLACEHOLDER_11 x9)
+  (register_alias PLACEHOLDER_12 x10)
+  (register_alias PLACEHOLDER_13 x11)
+  (register_alias PLACEHOLDER_14 x12)
+  (register_alias PLACEHOLDER_15 x13)
+  (label PLACEHOLDER_1)
+  (instruction cbz PLACEHOLDER_2 PLACEHOLDER_16)
+  (instruction mov PLACEHOLDER_11 1)
+  (instruction clz PLACEHOLDER_3 PLACEHOLDER_2)
+  (instruction neg PLACEHOLDER_3 PLACEHOLDER_3)
+  (instruction add PLACEHOLDER_3 PLACEHOLDER_3 64)
+  (instruction mul PLACEHOLDER_3 PLACEHOLDER_2 PLACEHOLDER_3)
+  (instruction add PLACEHOLDER_3 PLACEHOLDER_3 1023)
+  (instruction and PLACEHOLDER_3 PLACEHOLDER_3
+    (unary_expression - 1024))
+  (instruction lsr PLACEHOLDER_10 PLACEHOLDER_3 3)
+  (instruction sub sp sp PLACEHOLDER_10)
+  (instruction movi
+    (vector_register v0 .16b) 170)
+  (instruction mov PLACEHOLDER_13 sp)
+  (instruction add PLACEHOLDER_14 sp PLACEHOLDER_10)
+  (label PLACEHOLDER_17)
+  (instruction stp q0 q0
+    (memory PLACEHOLDER_13))
+  (instruction stp q0 q0
+    (memory PLACEHOLDER_13 32))
+  (instruction stp q0 q0
+    (memory PLACEHOLDER_13 64))
+  (instruction stp q0 q0
+    (memory PLACEHOLDER_13 96))
+  (instruction add PLACEHOLDER_13 PLACEHOLDER_13 128)
+  (instruction cmp PLACEHOLDER_13 PLACEHOLDER_14)
+  (instruction b.ne PLACEHOLDER_17)
+  (instruction mov PLACEHOLDER_9 172)
+  (instruction strb PLACEHOLDER_9
+    (memory sp))
+  (instruction mov PLACEHOLDER_4 3)
+  (instruction b PLACEHOLDER_18)
+  (label PLACEHOLDER_19)
+  (instruction lsr PLACEHOLDER_7 PLACEHOLDER_4 6)
+  (instruction ldr PLACEHOLDER_8
+    (memory sp PLACEHOLDER_7
+      (shift lsl 3)))
+  (instruction lsr PLACEHOLDER_8 PLACEHOLDER_8 PLACEHOLDER_4)
+  (instruction tbz PLACEHOLDER_8 0 PLACEHOLDER_20)
+  (instruction lsl PLACEHOLDER_6 PLACEHOLDER_4 1)
+  (label PLACEHOLDER_21)
+  (instruction lsr PLACEHOLDER_7 PLACEHOLDER_5 6)
+  (instruction ldr PLACEHOLDER_8
+    (memory sp PLACEHOLDER_7
+      (shift lsl 3)))
+  (instruction lsl PLACEHOLDER_15 PLACEHOLDER_11 PLACEHOLDER_5)
+  (instruction bic PLACEHOLDER_8 PLACEHOLDER_8 PLACEHOLDER_15)
+  (instruction str PLACEHOLDER_8
+    (memory sp PLACEHOLDER_7
+      (shift lsl 3)))
+  (instruction add PLACEHOLDER_5 PLACEHOLDER_5 PLACEHOLDER_6)
+  (instruction cmp PLACEHOLDER_5 PLACEHOLDER_3)
+  (instruction b.lo PLACEHOLDER_21)
+  (label PLACEHOLDER_20)
+  (instruction add PLACEHOLDER_4 PLACEHOLDER_4 2)
+  (label PLACEHOLDER_18)
+  (instruction mul PLACEHOLDER_5 PLACEHOLDER_4 PLACEHOLDER_4)
+  (instruction cmp PLACEHOLDER_5 PLACEHOLDER_3)
+  (instruction b.lo PLACEHOLDER_19)
+  (instruction mov PLACEHOLDER_12 0)
+  (instruction mov PLACEHOLDER_13 sp)
+  (label PLACEHOLDER_22)
+  (instruction ldr PLACEHOLDER_8
+    (memory PLACEHOLDER_13) 8)
+  (instruction b PLACEHOLDER_23)
+  (label PLACEHOLDER_24)
+  (instruction subs PLACEHOLDER_2 PLACEHOLDER_2 1)
+  (instruction b.eq PLACEHOLDER_25)
+  (instruction sub PLACEHOLDER_15 PLACEHOLDER_8 1)
+  (instruction and PLACEHOLDER_8 PLACEHOLDER_8 PLACEHOLDER_15)
+  (label PLACEHOLDER_23)
+  (instruction cbnz PLACEHOLDER_8 PLACEHOLDER_24)
+  (instruction add PLACEHOLDER_12 PLACEHOLDER_12 64)
+  (instruction cmp PLACEHOLDER_12 PLACEHOLDER_3)
+  (instruction b.lo PLACEHOLDER_22)
+  (instruction mov x0
+    (unary_expression - 1))
+  (instruction b PLACEHOLDER_26)
+  (label PLACEHOLDER_25)
+  (instruction rbit PLACEHOLDER_15 PLACEHOLDER_8)
+  (instruction clz PLACEHOLDER_15 PLACEHOLDER_15)
+  (instruction add x0 PLACEHOLDER_15 PLACEHOLDER_12)
+  (label PLACEHOLDER_26)
+  (instruction add sp sp PLACEHOLDER_10)
+  (instruction ret)
+  (label PLACEHOLDER_16)
+  (instruction mov x0
+    (unary_expression - 1))
+  (instruction ret))

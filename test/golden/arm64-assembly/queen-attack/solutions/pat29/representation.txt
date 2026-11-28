@@ -1,58 +1,72 @@
-.macro PROLOGUE
-str lr, [sp, #-16]!
-.endm
-.macro EPILOGUE
-ldr lr, [sp], #16
-.endm
-.macro ABS result, value1, value2
-sub \result, \value1, \value2
-cmp \result, #0
-bge .1$\@
-neg \result, \result
-.1$\@:
-.endm
-.text
-.globl can_create, _can_create
-.globl can_attack, _can_attack
-can_create:
-_can_create:
-cmp x0, #0 // cheese board: 0<= row >=7
-blt .error
-cmp x0, #8
-bge .error
-cmp x1, #0 // cheese board: 0<= column >=7
-blt .error
-cmp x1, #8
-bge .error
-mov x0, #1
-ret
-.error:
-mov x0, xzr
-ret
-can_attack:
-_can_attack:
-PROLOGUE
-mov x5, x0 // valid rows & columns
-mov x6, x1
-bl can_create
-cbz x0, .no_attack
-mov x0, x2
-mov x1, x3
-bl can_create
-cbz x0, .no_attack
-cmp x5, x2 // same rows
-beq .attack
-cmp x6, x3 // same columns
-beq .attack
-ABS x0, x5, x2
-ABS x1, x6, x3
-cmp x0, x1 // same diagonals
-bne .no_attack
-.attack:
-mov x0, #1
-EPILOGUE
-ret
-.no_attack:
-mov x0, xzr
-EPILOGUE
-ret
+(source_file
+  (macro_definition PLACEHOLDER_1
+    (block
+      (instruction str lr
+        (memory sp
+          (unary_expression - 16) !))))
+  (macro_definition PLACEHOLDER_2
+    (block
+      (instruction ldr lr
+        (memory sp) 16)))
+  (macro_definition PLACEHOLDER_3
+    (parameters
+      (parameter PLACEHOLDER_4)
+      (parameter PLACEHOLDER_5)
+      (parameter PLACEHOLDER_6))
+    (block
+      (instruction sub
+        (macro_argument PLACEHOLDER_4)
+        (macro_argument PLACEHOLDER_5)
+        (macro_argument PLACEHOLDER_6))
+      (instruction cmp
+        (macro_argument PLACEHOLDER_4) 0)
+      (instruction bge PLACEHOLDER_7)
+      (instruction neg
+        (macro_argument PLACEHOLDER_4)
+        (macro_argument PLACEHOLDER_4))
+      (label PLACEHOLDER_7)))
+  (directive .text)
+  (directive .globl PLACEHOLDER_8 PLACEHOLDER_9)
+  (directive .globl PLACEHOLDER_10 PLACEHOLDER_11)
+  (label PLACEHOLDER_8)
+  (label PLACEHOLDER_9)
+  (instruction cmp x0 0)
+  (instruction blt PLACEHOLDER_12)
+  (instruction cmp x0 8)
+  (instruction bge PLACEHOLDER_12)
+  (instruction cmp x1 0)
+  (instruction blt PLACEHOLDER_12)
+  (instruction cmp x1 8)
+  (instruction bge PLACEHOLDER_12)
+  (instruction mov x0 1)
+  (instruction ret)
+  (label PLACEHOLDER_12)
+  (instruction mov x0 xzr)
+  (instruction ret)
+  (label PLACEHOLDER_10)
+  (label PLACEHOLDER_11)
+  (macro_call PLACEHOLDER_1)
+  (instruction mov x5 x0)
+  (instruction mov x6 x1)
+  (instruction bl PLACEHOLDER_8)
+  (instruction cbz x0 PLACEHOLDER_13)
+  (instruction mov x0 x2)
+  (instruction mov x1 x3)
+  (instruction bl PLACEHOLDER_8)
+  (instruction cbz x0 PLACEHOLDER_13)
+  (instruction cmp x5 x2)
+  (instruction beq PLACEHOLDER_14)
+  (instruction cmp x6 x3)
+  (instruction beq PLACEHOLDER_14)
+  (macro_call PLACEHOLDER_3 x0 x5 x2)
+  (macro_call PLACEHOLDER_3 x1 x6 x3)
+  (instruction cmp x0 x1)
+  (instruction bne PLACEHOLDER_13)
+  (label PLACEHOLDER_14)
+  (instruction mov x0 1)
+  (macro_call PLACEHOLDER_2)
+  (instruction ret)
+  (label PLACEHOLDER_13)
+  (instruction mov x0 xzr)
+  (macro_call PLACEHOLDER_2)
+  (instruction ret))

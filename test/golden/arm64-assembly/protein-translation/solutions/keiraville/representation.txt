@@ -1,101 +1,124 @@
-.equ A, 0x41
-.equ U, 0x55
-.equ AUG, 0x4755
-.equ UUU, 0x5555
-.equ UUC, 0x4355
-.equ UUA, 0x4155
-.equ UUG, 0x4755
-.equ UCU, 0x5543
-.equ UCC, 0x4343
-.equ UCA, 0x4143
-.equ UCG, 0x4743
-.equ UAU, 0x5541
-.equ UAC, 0x4341
-.equ UGU, 0x5547
-.equ UGC, 0x4347
-.equ UGG, 0x4747
-.equ UAA, 0x4141
-.equ UAG, 0x4741
-.equ UGA, 0x4147
-.macro LOAD str
-adrp x9, \str
-add x9, x9, :lo12:\str
-.endm
-.macro CHECK codon
-mov w13, \codon
-cmp w12, w13
-beq .copy_string
-.endm
-.macro CHECKS codon
-mov w13, \codon
-cmp w12, w13
-beq .stop
-.endm
-.section .rodata
-methionine: .string "\"Methionine\\n\""
-phenylalanine: .string "\"Phenylalanine\\n\""
-leucine: .string "\"Leucine\\n\""
-serine: .string "\"Serine\\n\""
-tyrosine: .string "\"Tyrosine\\n\""
-cysteine: .string "\"Cysteine\\n\""
-tryptophan: .string "\"Tryptophan\\n\""
-.text
-.globl proteins
-/* extern void proteins(char *buffer, const char *strand); */
-proteins:
-mov x10, x0 /* copy destination address */
-strb wzr, [x10] /* output is null terminated */
-b .read_codon
-.copy_string:
-/* copy string from source x9 to destination x10 */
-ldrb w11, [x9], #1 /* load source byte */
-strb w11, [x10], #1 /* write byte to destination */
-cbnz w11, .copy_string /* repeat until we have reached null terminator */
-add x10, x10, #-1 /* decrement destination pointer, in case
-we later need to append proteins */
-add x1, x1, #3 /* advance input pointer to next codon */
-.read_codon:
-ldrb w11, [x1] /* read first byte of codon */
-cbz w11, .stop /* no more codons */
-ldrb w12, [x1, #1] /* read second byte of codon */
-cbz w12, .invalid /* incomplete codon */
-ldrh w12, [x1, #1] /* read half word of codon input */
-mov w13, A
-cmp w11, w13
-beq .a
-mov w13, U
-cmp w11, w13
-beq .u
-b .invalid
-.a:
-LOAD methionine
-CHECK AUG
-b .invalid
-.u:
-LOAD phenylalanine
-CHECK UUU
-CHECK UUC
-LOAD leucine
-CHECK UUA
-CHECK UUG
-LOAD serine
-CHECK UCU
-CHECK UCC
-CHECK UCA
-CHECK UCG
-LOAD tyrosine
-CHECK UAU
-CHECK UAC
-LOAD cysteine
-CHECK UGU
-CHECK UGC
-LOAD tryptophan
-CHECK UGG
-CHECKS UAA
-CHECKS UAG
-CHECKS UGA
-/* we have an unknown codon */
-.invalid:
-strb wzr, [x0] /* replace any output with empty string */
-.stop:
-ret
+(source_file
+  (symbol_definition PLACEHOLDER_1 65)
+  (symbol_definition PLACEHOLDER_2 85)
+  (symbol_definition PLACEHOLDER_3 18261)
+  (symbol_definition PLACEHOLDER_4 21845)
+  (symbol_definition PLACEHOLDER_5 17237)
+  (symbol_definition PLACEHOLDER_6 16725)
+  (symbol_definition PLACEHOLDER_7 18261)
+  (symbol_definition PLACEHOLDER_8 21827)
+  (symbol_definition PLACEHOLDER_9 17219)
+  (symbol_definition PLACEHOLDER_10 16707)
+  (symbol_definition PLACEHOLDER_11 18243)
+  (symbol_definition PLACEHOLDER_12 21825)
+  (symbol_definition PLACEHOLDER_13 17217)
+  (symbol_definition PLACEHOLDER_14 21831)
+  (symbol_definition PLACEHOLDER_15 17223)
+  (symbol_definition PLACEHOLDER_16 18247)
+  (symbol_definition PLACEHOLDER_17 16705)
+  (symbol_definition PLACEHOLDER_18 18241)
+  (symbol_definition PLACEHOLDER_19 16711)
+  (macro_definition PLACEHOLDER_20
+    (parameters
+      (parameter PLACEHOLDER_21))
+    (block
+      (instruction adrp x9
+        (macro_argument PLACEHOLDER_21))
+      (instruction add x9 x9
+        (relocation :lo12:
+          (macro_argument PLACEHOLDER_21)))))
+  (macro_definition PLACEHOLDER_22
+    (parameters
+      (parameter PLACEHOLDER_23))
+    (block
+      (instruction mov w13
+        (macro_argument PLACEHOLDER_23))
+      (instruction cmp w12 w13)
+      (instruction beq PLACEHOLDER_24)))
+  (macro_definition PLACEHOLDER_25
+    (parameters
+      (parameter PLACEHOLDER_23))
+    (block
+      (instruction mov w13
+        (macro_argument PLACEHOLDER_23))
+      (instruction cmp w12 w13)
+      (instruction beq PLACEHOLDER_26)))
+  (directive .section .rodata)
+  (label PLACEHOLDER_27)
+  (directive .string "Methionine\n")
+  (label PLACEHOLDER_28)
+  (directive .string "Phenylalanine\n")
+  (label PLACEHOLDER_29)
+  (directive .string "Leucine\n")
+  (label PLACEHOLDER_30)
+  (directive .string "Serine\n")
+  (label PLACEHOLDER_31)
+  (directive .string "Tyrosine\n")
+  (label PLACEHOLDER_32)
+  (directive .string "Cysteine\n")
+  (label PLACEHOLDER_33)
+  (directive .string "Tryptophan\n")
+  (directive .text)
+  (directive .globl PLACEHOLDER_34)
+  (label PLACEHOLDER_34)
+  (instruction mov x10 x0)
+  (instruction strb wzr
+    (memory x10))
+  (instruction b PLACEHOLDER_35)
+  (label PLACEHOLDER_24)
+  (instruction ldrb w11
+    (memory x9) 1)
+  (instruction strb w11
+    (memory x10) 1)
+  (instruction cbnz w11 PLACEHOLDER_24)
+  (instruction add x10 x10
+    (unary_expression - 1))
+  (instruction add x1 x1 3)
+  (label PLACEHOLDER_35)
+  (instruction ldrb w11
+    (memory x1))
+  (instruction cbz w11 PLACEHOLDER_26)
+  (instruction ldrb w12
+    (memory x1 1))
+  (instruction cbz w12 PLACEHOLDER_36)
+  (instruction ldrh w12
+    (memory x1 1))
+  (instruction mov w13 PLACEHOLDER_1)
+  (instruction cmp w11 w13)
+  (instruction beq PLACEHOLDER_37)
+  (instruction mov w13 PLACEHOLDER_2)
+  (instruction cmp w11 w13)
+  (instruction beq PLACEHOLDER_38)
+  (instruction b PLACEHOLDER_36)
+  (label PLACEHOLDER_37)
+  (macro_call PLACEHOLDER_20 PLACEHOLDER_27)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_3)
+  (instruction b PLACEHOLDER_36)
+  (label PLACEHOLDER_38)
+  (macro_call PLACEHOLDER_20 PLACEHOLDER_28)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_4)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_5)
+  (macro_call PLACEHOLDER_20 PLACEHOLDER_29)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_6)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_7)
+  (macro_call PLACEHOLDER_20 PLACEHOLDER_30)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_8)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_9)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_10)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_11)
+  (macro_call PLACEHOLDER_20 PLACEHOLDER_31)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_12)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_13)
+  (macro_call PLACEHOLDER_20 PLACEHOLDER_32)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_14)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_15)
+  (macro_call PLACEHOLDER_20 PLACEHOLDER_33)
+  (macro_call PLACEHOLDER_22 PLACEHOLDER_16)
+  (macro_call PLACEHOLDER_25 PLACEHOLDER_17)
+  (macro_call PLACEHOLDER_25 PLACEHOLDER_18)
+  (macro_call PLACEHOLDER_25 PLACEHOLDER_19)
+  (label PLACEHOLDER_36)
+  (instruction strb wzr
+    (memory x0))
+  (label PLACEHOLDER_26)
+  (instruction ret))

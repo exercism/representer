@@ -1,278 +1,323 @@
-.text
-.globl drinks_water
-.globl owns_zebra
-.equ NATIONALITIES, 8
-.equ ENGLISHMAN, 9
-.equ JAPANESE, 10
-.equ NORWEGIAN, 11
-.equ SPANIARD, 12
-.equ UKRAINIAN, 13
-.equ COLORS, 16
-.equ BLUE, 17
-.equ GREEN, 18
-.equ IVORY, 19
-.equ RED, 20
-.equ YELLOW, 21
-.equ DRINKS, 24
-.equ COFFEE, 25
-.equ MILK, 26
-.equ ORANGE_JUICE, 27
-.equ TEA, 28
-.equ WATER, 29
-.equ HOBBIES, 32
-.equ READING, 33
-.equ PAINTING, 34
-.equ FOOTBALL, 35
-.equ DANCING, 36
-.equ CHESS, 37
-.equ PETS, 40
-.equ DOG, 41
-.equ FOX, 42
-.equ HORSE, 43
-.equ SNAILS, 44
-.equ ZEBRA, 45
-.equ DRINKS_WATER, 0
-.equ OWNS_ZEBRA, 1
-next_permutation:
-add x9, x0, 5
-add x10, x0, 6
-ldrb w12, [x9]
-.loop1:
-mov w13, w12
-add x9, x9, -1
-ldrb w12, [x9]
-cmp w12, w13
-bge .loop1
-.loop2:
-add x10, x10, -1
-ldrb w13, [x10]
-cmp w12, w13
-bge .loop2
-strb w12, [x10]
-strb w13, [x9]
-add x9, x9, 1
-add x10, x0, 5
-cmp x10, x9
-bls .done
-.loop3:
-ldrb w12, [x9]
-ldrb w13, [x10]
-strb w12, [x10]
-strb w13, [x9]
-add x9, x9, 1
-add x10, x10, -1
-cmp x10, x9
-bhi .loop3
-.done:
-ret
-/*
-10. The Norwegian lives in the first house.
-*/
-valid_nationalities:
-ldrb w9, [x0, NORWEGIAN]
-cmp w9, 1
-cset w0, eq
-ret
-/*
-2. The Englishman lives in the red house.
-6. The green house is immediately to the right of the ivory house.
-15. The Norwegian lives next to the blue house.
-*/
-valid_colors:
-ldrb w10, [x0, ENGLISHMAN]
-ldrb w11, [x0, RED]
-cmp w10, w11
-bne .invalid_colors
-ldrb w10, [x0, GREEN]
-ldrb w11, [x0, IVORY]
-add w11, w11, 1
-cmp w10, w11
-bne .invalid_colors
-ldrb w10, [x0, NORWEGIAN]
-ldrb w11, [x0, BLUE]
-sub w10, w10, w11 /* -1 or 1 if adjacent */
-add w10, w10, 1 /* 0 or 2 if adjacent */
-and w10, w10, -3 /* clear 2 bit */
-cbnz w10, .invalid_colors
-mov w0, 1
-ret
-.invalid_colors:
-mov w0, 0
-ret
-/*
-4. Coffee is drunk in the green house.
-5. The Ukrainian drinks tea.
-9. Milk is drunk in the middle house.
-*/
-valid_drinks:
-ldrb w10, [x0, COFFEE]
-ldrb w11, [x0, GREEN]
-cmp w10, w11
-bne .invalid_drinks
-ldrb w10, [x0, UKRAINIAN]
-ldrb w11, [x0, TEA]
-cmp w10, w11
-bne .invalid_drinks
-ldrb w10, [x0, MILK]
-mov w11, 3
-cmp w10, w11
-bne .invalid_drinks
-mov w0, 1
-ret
-.invalid_drinks:
-mov w0, 0
-ret
-/*
-8. The person in the yellow house is a painter.
-13. The person who plays football drinks orange juice.
-14. The Japanese person plays chess.
-*/
-valid_hobbies:
-ldrb w10, [x0, PAINTING]
-ldrb w11, [x0, YELLOW]
-cmp w10, w11
-bne .invalid_hobbies
-ldrb w10, [x0, FOOTBALL]
-ldrb w11, [x0, ORANGE_JUICE]
-cmp w10, w11
-bne .invalid_hobbies
-ldrb w10, [x0, JAPANESE]
-ldrb w11, [x0, CHESS]
-cmp w10, w11
-bne .invalid_hobbies
-mov w0, 1
-ret
-.invalid_hobbies:
-mov w0, 0
-ret
-/*
-3. The Spaniard owns the dog.
-7. The snail owner likes to go dancing.
-11. The person who enjoys reading lives in the house next to the person with the fox.
-12. The painter's house is next to the house with the horse.
-*/
-valid_pets:
-ldrb w10, [x0, SPANIARD]
-ldrb w11, [x0, DOG]
-add w11, w11, 1
-cmp w10, w11
-bne .invalid_pets
-ldrb w10, [x0, DANCING]
-ldrb w11, [x0, SNAILS]
-add w11, w11, 1
-cmp w10, w11
-bne .invalid_pets
-ldrb w10, [x0, READING]
-ldrb w11, [x0, FOX]
-sub w10, w10, w11 /* -1 or 1 if adjacent */
-add w10, w10, 1 /* 0 or 2 if adjacent */
-and w10, w10, -3 /* clear 2 bit */
-cbnz w10, .invalid_pets
-ldrb w10, [x0, PAINTING]
-ldrb w11, [x0, HORSE]
-sub w10, w10, w11 /* -1 or 1 if adjacent */
-add w10, w10, 1 /* 0 or 2 if adjacent */
-and w10, w10, -3 /* clear 2 bit */
-cbnz w10, .invalid_pets
-mov w0, 1
-ret
-.invalid_pets:
-mov w0, 0
-ret
-answer:
-add sp, sp, -96
-stp x20, x21, [sp, 48]
-stp x22, x23, [sp, 64]
-stp x24, lr, [sp, 80]
-mov x22, sp
-mov w23, w0 /* DRINKS_WATER or OWNS_ZEBRA */
-ldr x24, =0x050403020100
-str x24, [x22, NATIONALITIES]
-.consider_nationalities:
-mov x0, x22
-bl valid_nationalities
-cbz w0, .next_nationalities
-str x24, [x22, COLORS]
-.consider_colors:
-mov x0, x22
-bl valid_colors
-cbz w0, .next_colors
-str x24, [x22, DRINKS]
-.consider_drinks:
-mov x0, x22
-bl valid_drinks
-cbz w0, .next_drinks
-str x24, [x22, HOBBIES]
-.consider_hobbies:
-mov x0, x22
-bl valid_hobbies
-cbz w0, .next_hobbies
-str x24, [x22, PETS]
-.consider_pets:
-mov x0, x22
-bl valid_pets
-cbz w0, .next_pets
-mov x0, x22
-ldrb w10, [x0, WATER]
-ldrb w11, [x0, ZEBRA]
-cmp w23, OWNS_ZEBRA
-csel w10, w11, w10, eq
-mov w9, 'E'
-ldrb w11, [x0, ENGLISHMAN]
-cmp w10, w11
-beq .return
-mov w9, 'J'
-ldrb w11, [x0, JAPANESE]
-cmp w10, w11
-beq .return
-mov w9, 'N'
-ldrb w11, [x0, NORWEGIAN]
-cmp w10, w11
-beq .return
-mov w9, 'S'
-ldrb w11, [x0, SPANIARD]
-cmp w10, w11
-beq .return
-mov w9, 'U'
-ldrb w11, [x0, UKRAINIAN]
-cmp w10, w11
-beq .return
-.next_pets:
-add x0, x22, PETS
-bl next_permutation
-ldrb w10, [x22, PETS]
-cbz w10, .consider_pets
-.next_hobbies:
-add x0, x22, HOBBIES
-bl next_permutation
-ldrb w10, [x22, HOBBIES]
-cbz w10, .consider_hobbies
-.next_drinks:
-add x0, x22, DRINKS
-bl next_permutation
-ldrb w10, [x22, DRINKS]
-cbz w10, .consider_drinks
-.next_colors:
-add x0, x22, COLORS
-bl next_permutation
-ldrb w10, [x22, COLORS]
-cbz w10, .consider_colors
-.next_nationalities:
-add x0, x22, NATIONALITIES
-bl next_permutation
-ldrb w10, [x22, NATIONALITIES]
-cbz w10, .consider_nationalities
-mov w9, '?'
-.return:
-ldp x20, x21, [sp, 48]
-ldp x22, x23, [sp, 64]
-ldp x24, lr, [sp, 80]
-add sp, sp, 96
-mov w0, w9
-ret
-drinks_water:
-mov x0, DRINKS_WATER
-b answer
-owns_zebra:
-mov x0, OWNS_ZEBRA
-b answer
+(source_file
+  (directive .text)
+  (directive .globl PLACEHOLDER_1)
+  (directive .globl PLACEHOLDER_2)
+  (symbol_definition PLACEHOLDER_3 8)
+  (symbol_definition PLACEHOLDER_4 9)
+  (symbol_definition PLACEHOLDER_5 10)
+  (symbol_definition PLACEHOLDER_6 11)
+  (symbol_definition PLACEHOLDER_7 12)
+  (symbol_definition PLACEHOLDER_8 13)
+  (symbol_definition PLACEHOLDER_9 16)
+  (symbol_definition PLACEHOLDER_10 17)
+  (symbol_definition PLACEHOLDER_11 18)
+  (symbol_definition PLACEHOLDER_12 19)
+  (symbol_definition PLACEHOLDER_13 20)
+  (symbol_definition PLACEHOLDER_14 21)
+  (symbol_definition PLACEHOLDER_15 24)
+  (symbol_definition PLACEHOLDER_16 25)
+  (symbol_definition PLACEHOLDER_17 26)
+  (symbol_definition PLACEHOLDER_18 27)
+  (symbol_definition PLACEHOLDER_19 28)
+  (symbol_definition PLACEHOLDER_20 29)
+  (symbol_definition PLACEHOLDER_21 32)
+  (symbol_definition PLACEHOLDER_22 33)
+  (symbol_definition PLACEHOLDER_23 34)
+  (symbol_definition PLACEHOLDER_24 35)
+  (symbol_definition PLACEHOLDER_25 36)
+  (symbol_definition PLACEHOLDER_26 37)
+  (symbol_definition PLACEHOLDER_27 40)
+  (symbol_definition PLACEHOLDER_28 41)
+  (symbol_definition PLACEHOLDER_29 42)
+  (symbol_definition PLACEHOLDER_30 43)
+  (symbol_definition PLACEHOLDER_31 44)
+  (symbol_definition PLACEHOLDER_32 45)
+  (symbol_definition PLACEHOLDER_33 0)
+  (symbol_definition PLACEHOLDER_34 1)
+  (label PLACEHOLDER_35)
+  (instruction add x9 x0 5)
+  (instruction add x10 x0 6)
+  (instruction ldrb w12
+    (memory x9))
+  (label PLACEHOLDER_36)
+  (instruction mov w13 w12)
+  (instruction add x9 x9
+    (unary_expression - 1))
+  (instruction ldrb w12
+    (memory x9))
+  (instruction cmp w12 w13)
+  (instruction bge PLACEHOLDER_36)
+  (label PLACEHOLDER_37)
+  (instruction add x10 x10
+    (unary_expression - 1))
+  (instruction ldrb w13
+    (memory x10))
+  (instruction cmp w12 w13)
+  (instruction bge PLACEHOLDER_37)
+  (instruction strb w12
+    (memory x10))
+  (instruction strb w13
+    (memory x9))
+  (instruction add x9 x9 1)
+  (instruction add x10 x0 5)
+  (instruction cmp x10 x9)
+  (instruction bls PLACEHOLDER_38)
+  (label PLACEHOLDER_39)
+  (instruction ldrb w12
+    (memory x9))
+  (instruction ldrb w13
+    (memory x10))
+  (instruction strb w12
+    (memory x10))
+  (instruction strb w13
+    (memory x9))
+  (instruction add x9 x9 1)
+  (instruction add x10 x10
+    (unary_expression - 1))
+  (instruction cmp x10 x9)
+  (instruction bhi PLACEHOLDER_39)
+  (label PLACEHOLDER_38)
+  (instruction ret)
+  (label PLACEHOLDER_40)
+  (instruction ldrb w9
+    (memory x0 PLACEHOLDER_6))
+  (instruction cmp w9 1)
+  (instruction cset w0
+    (condition eq))
+  (instruction ret)
+  (label PLACEHOLDER_41)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_4))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_13))
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_42)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_11))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_12))
+  (instruction add w11 w11 1)
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_42)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_6))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_10))
+  (instruction sub w10 w10 w11)
+  (instruction add w10 w10 1)
+  (instruction and w10 w10
+    (unary_expression - 3))
+  (instruction cbnz w10 PLACEHOLDER_42)
+  (instruction mov w0 1)
+  (instruction ret)
+  (label PLACEHOLDER_42)
+  (instruction mov w0 0)
+  (instruction ret)
+  (label PLACEHOLDER_43)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_16))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_11))
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_44)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_8))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_19))
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_44)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_17))
+  (instruction mov w11 3)
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_44)
+  (instruction mov w0 1)
+  (instruction ret)
+  (label PLACEHOLDER_44)
+  (instruction mov w0 0)
+  (instruction ret)
+  (label PLACEHOLDER_45)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_23))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_14))
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_46)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_24))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_18))
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_46)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_5))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_26))
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_46)
+  (instruction mov w0 1)
+  (instruction ret)
+  (label PLACEHOLDER_46)
+  (instruction mov w0 0)
+  (instruction ret)
+  (label PLACEHOLDER_47)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_7))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_28))
+  (instruction add w11 w11 1)
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_48)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_25))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_31))
+  (instruction add w11 w11 1)
+  (instruction cmp w10 w11)
+  (instruction bne PLACEHOLDER_48)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_22))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_29))
+  (instruction sub w10 w10 w11)
+  (instruction add w10 w10 1)
+  (instruction and w10 w10
+    (unary_expression - 3))
+  (instruction cbnz w10 PLACEHOLDER_48)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_23))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_30))
+  (instruction sub w10 w10 w11)
+  (instruction add w10 w10 1)
+  (instruction and w10 w10
+    (unary_expression - 3))
+  (instruction cbnz w10 PLACEHOLDER_48)
+  (instruction mov w0 1)
+  (instruction ret)
+  (label PLACEHOLDER_48)
+  (instruction mov w0 0)
+  (instruction ret)
+  (label PLACEHOLDER_49)
+  (instruction add sp sp
+    (unary_expression - 96))
+  (instruction stp x20 x21
+    (memory sp 48))
+  (instruction stp x22 x23
+    (memory sp 64))
+  (instruction stp x24 lr
+    (memory sp 80))
+  (instruction mov x22 sp)
+  (instruction mov w23 w0)
+  (instruction ldr x24
+    (literal_pool 5514788471040))
+  (instruction str x24
+    (memory x22 PLACEHOLDER_3))
+  (label PLACEHOLDER_50)
+  (instruction mov x0 x22)
+  (instruction bl PLACEHOLDER_40)
+  (instruction cbz w0 PLACEHOLDER_51)
+  (instruction str x24
+    (memory x22 PLACEHOLDER_9))
+  (label PLACEHOLDER_52)
+  (instruction mov x0 x22)
+  (instruction bl PLACEHOLDER_41)
+  (instruction cbz w0 PLACEHOLDER_53)
+  (instruction str x24
+    (memory x22 PLACEHOLDER_15))
+  (label PLACEHOLDER_54)
+  (instruction mov x0 x22)
+  (instruction bl PLACEHOLDER_43)
+  (instruction cbz w0 PLACEHOLDER_55)
+  (instruction str x24
+    (memory x22 PLACEHOLDER_21))
+  (label PLACEHOLDER_56)
+  (instruction mov x0 x22)
+  (instruction bl PLACEHOLDER_45)
+  (instruction cbz w0 PLACEHOLDER_57)
+  (instruction str x24
+    (memory x22 PLACEHOLDER_27))
+  (label PLACEHOLDER_58)
+  (instruction mov x0 x22)
+  (instruction bl PLACEHOLDER_47)
+  (instruction cbz w0 PLACEHOLDER_59)
+  (instruction mov x0 x22)
+  (instruction ldrb w10
+    (memory x0 PLACEHOLDER_20))
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_32))
+  (instruction cmp w23 PLACEHOLDER_34)
+  (instruction csel w10 w11 w10
+    (condition eq))
+  (instruction mov w9 'E')
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_4))
+  (instruction cmp w10 w11)
+  (instruction beq PLACEHOLDER_60)
+  (instruction mov w9 'J')
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_5))
+  (instruction cmp w10 w11)
+  (instruction beq PLACEHOLDER_60)
+  (instruction mov w9 'N')
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_6))
+  (instruction cmp w10 w11)
+  (instruction beq PLACEHOLDER_60)
+  (instruction mov w9 'S')
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_7))
+  (instruction cmp w10 w11)
+  (instruction beq PLACEHOLDER_60)
+  (instruction mov w9 'U')
+  (instruction ldrb w11
+    (memory x0 PLACEHOLDER_8))
+  (instruction cmp w10 w11)
+  (instruction beq PLACEHOLDER_60)
+  (label PLACEHOLDER_59)
+  (instruction add x0 x22 PLACEHOLDER_27)
+  (instruction bl PLACEHOLDER_35)
+  (instruction ldrb w10
+    (memory x22 PLACEHOLDER_27))
+  (instruction cbz w10 PLACEHOLDER_58)
+  (label PLACEHOLDER_57)
+  (instruction add x0 x22 PLACEHOLDER_21)
+  (instruction bl PLACEHOLDER_35)
+  (instruction ldrb w10
+    (memory x22 PLACEHOLDER_21))
+  (instruction cbz w10 PLACEHOLDER_56)
+  (label PLACEHOLDER_55)
+  (instruction add x0 x22 PLACEHOLDER_15)
+  (instruction bl PLACEHOLDER_35)
+  (instruction ldrb w10
+    (memory x22 PLACEHOLDER_15))
+  (instruction cbz w10 PLACEHOLDER_54)
+  (label PLACEHOLDER_53)
+  (instruction add x0 x22 PLACEHOLDER_9)
+  (instruction bl PLACEHOLDER_35)
+  (instruction ldrb w10
+    (memory x22 PLACEHOLDER_9))
+  (instruction cbz w10 PLACEHOLDER_52)
+  (label PLACEHOLDER_51)
+  (instruction add x0 x22 PLACEHOLDER_3)
+  (instruction bl PLACEHOLDER_35)
+  (instruction ldrb w10
+    (memory x22 PLACEHOLDER_3))
+  (instruction cbz w10 PLACEHOLDER_50)
+  (instruction mov w9 '?')
+  (label PLACEHOLDER_60)
+  (instruction ldp x20 x21
+    (memory sp 48))
+  (instruction ldp x22 x23
+    (memory sp 64))
+  (instruction ldp x24 lr
+    (memory sp 80))
+  (instruction add sp sp 96)
+  (instruction mov w0 w9)
+  (instruction ret)
+  (label PLACEHOLDER_1)
+  (instruction mov x0 PLACEHOLDER_33)
+  (instruction b PLACEHOLDER_49)
+  (label PLACEHOLDER_2)
+  (instruction mov x0 PLACEHOLDER_34)
+  (instruction b PLACEHOLDER_49))

@@ -1,91 +1,105 @@
-.equ INVALID_CHARACTER, -1
-.equ NEGATIVE_SPAN, -2
-.equ INSUFFICIENT_DIGITS, -3
-.text
-.globl largest_product
-// int64_t largest_product(int span, const char *digits);
-// w0 = span, x1 = digits string
-largest_product:
-stp x29, x30, [sp, #-16]!
-mov x29, sp
-stp x19, x20, [sp, #-16]!
-stp x21, x22, [sp, #-16]!
-stp x23, x24, [sp, #-16]!
-mov w19, w0 // span
-mov x20, x1 // digits string
-// Check for negative span
-cmp w19, #0
-b.lt .Lnegative_span
-// Compute length of digits
-mov x0, x20
-bl strlen_asm
-mov w21, w0 // length
-// If span == 0, return 1 (empty product)
-cbz w19, .Lempty_product
-// If span > length, insufficient digits
-cmp w19, w21
-b.gt .Linsufficient_digits
-// Check for invalid characters
-mov w22, #0 // i = 0
-.Lvalidate_loop:
-cmp w22, w21
-b.ge .Lcompute
-ldrb w23, [x20, w22, uxtw]
-cmp w23, #'0'
-b.lt .Linvalid_char
-cmp w23, #'9'
-b.gt .Linvalid_char
-add w22, w22, #1
-b .Lvalidate_loop
-.Lcompute:
-mov x22, #0 // max product = 0
-mov w23, #0 // i = 0
-.Louter_loop:
-sub w24, w21, w19 // length - span
-cmp w23, w24
-b.gt .Ldone
-mov x25, #1 // current product = 1
-mov w26, #0 // j = 0
-.Linner_loop:
-cmp w26, w19
-b.ge .Lcheck_max
-add x27, x20, x23
-ldrb w28, [x27, w26, uxtw]
-sub w28, w28, #'0'
-mul x25, x25, x28
-add w26, w26, #1
-b .Linner_loop
-.Lcheck_max:
-cmp x25, x22
-csel x22, x25, x22, gt
-add w23, w23, #1
-b .Louter_loop
-.Ldone:
-mov x0, x22
-b .Lexit
-.Lempty_product:
-mov x0, #1
-b .Lexit
-.Linvalid_char:
-mov x0, #INVALID_CHARACTER
-b .Lexit
-.Lnegative_span:
-mov x0, #NEGATIVE_SPAN
-b .Lexit
-.Linsufficient_digits:
-mov x0, #INSUFFICIENT_DIGITS
-.Lexit:
-ldp x23, x24, [sp], #16
-ldp x21, x22, [sp], #16
-ldp x19, x20, [sp], #16
-ldp x29, x30, [sp], #16
-ret
-// Simple strlen implementation
-strlen_asm:
-mov x1, x0
-.Lstrlen_loop:
-ldrb w2, [x1], #1
-cbnz w2, .Lstrlen_loop
-sub x0, x1, x0
-sub x0, x0, #1
-ret
+(source_file
+  (symbol_definition PLACEHOLDER_1
+    (unary_expression - 1))
+  (symbol_definition PLACEHOLDER_2
+    (unary_expression - 2))
+  (symbol_definition PLACEHOLDER_3
+    (unary_expression - 3))
+  (directive .text)
+  (directive .globl PLACEHOLDER_4)
+  (label PLACEHOLDER_4)
+  (instruction stp x29 x30
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction mov x29 sp)
+  (instruction stp x19 x20
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction stp x21 x22
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction stp x23 x24
+    (memory sp
+      (unary_expression - 16) !))
+  (instruction mov w19 w0)
+  (instruction mov x20 x1)
+  (instruction cmp w19 0)
+  (instruction b.lt PLACEHOLDER_5)
+  (instruction mov x0 x20)
+  (instruction bl PLACEHOLDER_6)
+  (instruction mov w21 w0)
+  (instruction cbz w19 PLACEHOLDER_7)
+  (instruction cmp w19 w21)
+  (instruction b.gt PLACEHOLDER_8)
+  (instruction mov w22 0)
+  (label PLACEHOLDER_9)
+  (instruction cmp w22 w21)
+  (instruction b.ge PLACEHOLDER_10)
+  (instruction ldrb w23
+    (memory x20 w22
+      (extend uxtw)))
+  (instruction cmp w23 '0')
+  (instruction b.lt PLACEHOLDER_11)
+  (instruction cmp w23 '9')
+  (instruction b.gt PLACEHOLDER_11)
+  (instruction add w22 w22 1)
+  (instruction b PLACEHOLDER_9)
+  (label PLACEHOLDER_10)
+  (instruction mov x22 0)
+  (instruction mov w23 0)
+  (label PLACEHOLDER_12)
+  (instruction sub w24 w21 w19)
+  (instruction cmp w23 w24)
+  (instruction b.gt PLACEHOLDER_13)
+  (instruction mov x25 1)
+  (instruction mov w26 0)
+  (label PLACEHOLDER_14)
+  (instruction cmp w26 w19)
+  (instruction b.ge PLACEHOLDER_15)
+  (instruction add x27 x20 x23)
+  (instruction ldrb w28
+    (memory x27 w26
+      (extend uxtw)))
+  (instruction sub w28 w28 '0')
+  (instruction mul x25 x25 x28)
+  (instruction add w26 w26 1)
+  (instruction b PLACEHOLDER_14)
+  (label PLACEHOLDER_15)
+  (instruction cmp x25 x22)
+  (instruction csel x22 x25 x22
+    (condition gt))
+  (instruction add w23 w23 1)
+  (instruction b PLACEHOLDER_12)
+  (label PLACEHOLDER_13)
+  (instruction mov x0 x22)
+  (instruction b PLACEHOLDER_16)
+  (label PLACEHOLDER_7)
+  (instruction mov x0 1)
+  (instruction b PLACEHOLDER_16)
+  (label PLACEHOLDER_11)
+  (instruction mov x0 PLACEHOLDER_1)
+  (instruction b PLACEHOLDER_16)
+  (label PLACEHOLDER_5)
+  (instruction mov x0 PLACEHOLDER_2)
+  (instruction b PLACEHOLDER_16)
+  (label PLACEHOLDER_8)
+  (instruction mov x0 PLACEHOLDER_3)
+  (label PLACEHOLDER_16)
+  (instruction ldp x23 x24
+    (memory sp) 16)
+  (instruction ldp x21 x22
+    (memory sp) 16)
+  (instruction ldp x19 x20
+    (memory sp) 16)
+  (instruction ldp x29 x30
+    (memory sp) 16)
+  (instruction ret)
+  (label PLACEHOLDER_6)
+  (instruction mov x1 x0)
+  (label PLACEHOLDER_17)
+  (instruction ldrb w2
+    (memory x1) 1)
+  (instruction cbnz w2 PLACEHOLDER_17)
+  (instruction sub x0 x1 x0)
+  (instruction sub x0 x0 1)
+  (instruction ret))

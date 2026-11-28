@@ -1,107 +1,112 @@
-.macro PROLOGUE
-str lr, [sp, #-16]!
-.endm
-.macro EPILOGUE
-ldr lr, [sp], #16
-.endm
-.text
-.globl encode, _encode
-.globl decode, _decode
-//------------------------------------------------------
-// input: x0 = *buffer, x1 = *phrase
-//------------------------------------------------------
-encode:
-_encode:
-PROLOGUE
-mov x6, xzr
-mov x10, x0
-mov x11, x1
-mov x12, xzr
-.encode_loop:
-ldrb w6, [x11], #1
-cbz w6, .end_encode
-cmp w6, #'A'
-blo .no_upper
-cmp w6, #'Z'
-bhi .no_upper
-add w6, w6, #32
-.no_upper:
-cmp w6, #'a'
-blo .no_letter
-cmp w6, #'z'
-bhi .no_letter
-mov x0, x6
-bl cipher
-mov x6, x0
-strb w6, [x10], #1
-add x12, x12, #1
-b .no_number
-.no_letter:
-cmp w6, #'0'
-blo .no_number
-cmp w6, #'9'
-bhi .no_number
-strb w6, [x10], #1
-add x12, x12, #1
-.no_number:
-cmp x12, #5
-bne .no_space
-mov w6, #' '
-strb w6, [x10], #1
-mov x12, xzr
-.no_space:
-b .encode_loop
-.end_encode:
-mov x11, x10
-sub x11, x11, #1
-ldrb w6, [x11]
-cmp w6, #' '
-bne .done_encode
-strb wzr, [x11]
-EPILOGUE
-ret
-.done_encode:
-strb wzr, [x10]
-EPILOGUE
-ret
-//------------------------------------------------------
-// input: x0 = *buffer, x1 = *phrase
-//------------------------------------------------------
-decode:
-_decode:
-PROLOGUE
-mov x6, xzr
-mov x10, x0
-mov x11, x1
-.decode_loop:
-ldrb w6, [x11], #1
-cbz w6, .end_encode
-cmp w6, #' '
-beq .decode_loop
-mov x0, x6
-bl decipher
-mov x6, x0
-strb w6, [x10], #1
-b .decode_loop
-.end_decode:
-strb wzr, [x10]
-EPILOGUE
-ret
-//------------------------------------------------------
-// input: x0 = initial char
-// output: x0 = decoded/encoded char
-// decode/encode a char
-//------------------------------------------------------
-decipher:
-cmp x0, #'0'
-cset x1, hs
-cmp x0, #'9'
-cset x2, ls
-and x1, x2, x1
-cbnz x1, .done
-cipher:
-mov x2, #'z'
-sub x0, x2, x0
-add x0, x0, #'a'
-.done:
-ret
+(source_file
+  (macro_definition PLACEHOLDER_1
+    (block
+      (instruction str lr
+        (memory sp
+          (unary_expression - 16) !))))
+  (macro_definition PLACEHOLDER_2
+    (block
+      (instruction ldr lr
+        (memory sp) 16)))
+  (directive .text)
+  (directive .globl PLACEHOLDER_3 PLACEHOLDER_4)
+  (directive .globl PLACEHOLDER_5 PLACEHOLDER_6)
+  (label PLACEHOLDER_3)
+  (label PLACEHOLDER_4)
+  (macro_call PLACEHOLDER_1)
+  (instruction mov x6 xzr)
+  (instruction mov x10 x0)
+  (instruction mov x11 x1)
+  (instruction mov x12 xzr)
+  (label PLACEHOLDER_7)
+  (instruction ldrb w6
+    (memory x11) 1)
+  (instruction cbz w6 PLACEHOLDER_8)
+  (instruction cmp w6 'A')
+  (instruction blo PLACEHOLDER_9)
+  (instruction cmp w6 'Z')
+  (instruction bhi PLACEHOLDER_9)
+  (instruction add w6 w6 32)
+  (label PLACEHOLDER_9)
+  (instruction cmp w6 'a')
+  (instruction blo PLACEHOLDER_10)
+  (instruction cmp w6 'z')
+  (instruction bhi PLACEHOLDER_10)
+  (instruction mov x0 x6)
+  (instruction bl PLACEHOLDER_11)
+  (instruction mov x6 x0)
+  (instruction strb w6
+    (memory x10) 1)
+  (instruction add x12 x12 1)
+  (instruction b PLACEHOLDER_12)
+  (label PLACEHOLDER_10)
+  (instruction cmp w6 '0')
+  (instruction blo PLACEHOLDER_12)
+  (instruction cmp w6 '9')
+  (instruction bhi PLACEHOLDER_12)
+  (instruction strb w6
+    (memory x10) 1)
+  (instruction add x12 x12 1)
+  (label PLACEHOLDER_12)
+  (instruction cmp x12 5)
+  (instruction bne PLACEHOLDER_13)
+  (instruction mov w6 "' '")
+  (instruction strb w6
+    (memory x10) 1)
+  (instruction mov x12 xzr)
+  (label PLACEHOLDER_13)
+  (instruction b PLACEHOLDER_7)
+  (label PLACEHOLDER_8)
+  (instruction mov x11 x10)
+  (instruction sub x11 x11 1)
+  (instruction ldrb w6
+    (memory x11))
+  (instruction cmp w6 "' '")
+  (instruction bne PLACEHOLDER_14)
+  (instruction strb wzr
+    (memory x11))
+  (macro_call PLACEHOLDER_2)
+  (instruction ret)
+  (label PLACEHOLDER_14)
+  (instruction strb wzr
+    (memory x10))
+  (macro_call PLACEHOLDER_2)
+  (instruction ret)
+  (label PLACEHOLDER_5)
+  (label PLACEHOLDER_6)
+  (macro_call PLACEHOLDER_1)
+  (instruction mov x6 xzr)
+  (instruction mov x10 x0)
+  (instruction mov x11 x1)
+  (label PLACEHOLDER_15)
+  (instruction ldrb w6
+    (memory x11) 1)
+  (instruction cbz w6 PLACEHOLDER_8)
+  (instruction cmp w6 "' '")
+  (instruction beq PLACEHOLDER_15)
+  (instruction mov x0 x6)
+  (instruction bl PLACEHOLDER_16)
+  (instruction mov x6 x0)
+  (instruction strb w6
+    (memory x10) 1)
+  (instruction b PLACEHOLDER_15)
+  (label PLACEHOLDER_17)
+  (instruction strb wzr
+    (memory x10))
+  (macro_call PLACEHOLDER_2)
+  (instruction ret)
+  (label PLACEHOLDER_16)
+  (instruction cmp x0 '0')
+  (instruction cset x1
+    (condition hs))
+  (instruction cmp x0 '9')
+  (instruction cset x2
+    (condition ls))
+  (instruction and x1 x2 x1)
+  (instruction cbnz x1 PLACEHOLDER_18)
+  (label PLACEHOLDER_11)
+  (instruction mov x2 'z')
+  (instruction sub x0 x2 x0)
+  (instruction add x0 x0 'a')
+  (label PLACEHOLDER_18)
+  (instruction ret))
