@@ -204,7 +204,7 @@ All accessed on 2026-11-26 unless noted.
 
 - Parse rates: each track's `exercism/<track>` repo, with the solutions under `.meta/` parsed by tree-sitter CLI 0.25.10 (see Parse rates). Alternative grammars were found through GitHub, Codeberg and sourcehut searches, nvim-treesitter `main`, Helix `languages.toml` and the Zed extension registry.
 
-- `grammars.yml` in `~/Code/exercism/representer` (23 pinned grammars).
+- `grammars.yml` in `~/Code/exercism/inspector` (23 pinned grammars).
 - nvim-treesitter `lockfile.json` and `lua/nvim-treesitter/parsers.lua` on the `master` branch, and `lua/nvim-treesitter/parsers.lua` and `SUPPORTED_LANGUAGES.md` on `main` (github.com/nvim-treesitter/nvim-treesitter). The master branch has been frozen since 2026-03-23.
 - The repo lists of the `tree-sitter` and `tree-sitter-grammars` GitHub orgs (`gh api orgs/<org>/repos`).
 - GitHub repository searches for `tree-sitter-<name>` for every track without a match in the lists above.
