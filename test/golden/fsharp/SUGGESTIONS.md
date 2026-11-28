@@ -1,6 +1,6 @@
 # Suggestions for F#
 
-[`transition.md`](../../../lib/inspector/languages/fsharp/transition.md) says how Inspector differs from the old F# representer.
+[`transition.md`](../../../lib/rosetta/languages/fsharp/transition.md) says how Rosetta differs from the old F# representer.
 These are changes that could improve it.
 None of them is made, because a change to F#'s own behaviour needs the maintainers to decide it.
 

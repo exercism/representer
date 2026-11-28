@@ -42,7 +42,7 @@ class ZigNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Zig::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Zig::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << node.text if Zig::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort

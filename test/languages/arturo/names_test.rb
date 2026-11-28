@@ -38,7 +38,7 @@ class ArturoNamesTest < Minitest::Test
 
   def prepare_and_rename(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Arturo::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Arturo::Representation::Spec)
     tree
   end
 end

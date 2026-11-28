@@ -1,6 +1,6 @@
 # Suggestions for Erlang
 
-[`transition.md`](../../../lib/inspector/languages/erlang/transition.md) says how Inspector treats Erlang differently from Basic, which Erlang used before.
+[`transition.md`](../../../lib/rosetta/languages/erlang/transition.md) says how Rosetta treats Erlang differently from Basic, which Erlang used before.
 These are changes that could improve it.
 None of them is made, because a change to Erlang's own behaviour needs the maintainers to decide it.
 

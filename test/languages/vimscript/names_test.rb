@@ -45,7 +45,7 @@ class VimscriptNamesTest < Minitest::Test
 
   def prepare_and_rename(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Vimscript::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Vimscript::Representation::Spec)
     tree
   end
 end

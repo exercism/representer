@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FutharkTest < InspectorTest
+class FutharkTest < RosettaTest
   track "futhark"
 
   def test_comments_and_layout_are_ignored

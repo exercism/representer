@@ -1,6 +1,6 @@
 # Suggestions for Ruby
 
-[`transition.md`](../../../lib/inspector/languages/ruby/transition.md) says how Inspector differs from the old Ruby representer.
+[`transition.md`](../../../lib/rosetta/languages/ruby/transition.md) says how Rosetta differs from the old Ruby representer.
 These are changes that could improve it.
 None of them is made, because a change to Ruby's own behaviour needs the maintainers to decide it.
 

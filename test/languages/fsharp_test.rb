@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FSharpTest < InspectorTest
+class FSharpTest < RosettaTest
   extend UpstreamTests
 
   track "fsharp"
@@ -8,7 +8,7 @@ class FSharpTest < InspectorTest
   DEVIATIONS = {
     "TypeDefinitionNotIndented" => {
       add: %w[Volume Liter USPint ImperialPint],
-      why: "Inspector renames every name the solution defines, including type and " \
+      why: "Rosetta renames every name the solution defines, including type and " \
            "union case names."
     }
   }.freeze

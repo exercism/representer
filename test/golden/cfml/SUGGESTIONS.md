@@ -1,10 +1,10 @@
 # Suggestions for CFML
 
-[`transition.md`](../../../lib/inspector/languages/cfml/transition.md) says how Inspector treats CFML differently from Basic, which CFML used before.
+[`transition.md`](../../../lib/rosetta/languages/cfml/transition.md) says how Rosetta treats CFML differently from Basic, which CFML used before.
 These are changes that could improve it.
 None of them is made, because a change to CFML's own behaviour needs the maintainers to decide it.
 
-## Names that Inspector keeps
+## Names that Rosetta keeps
 
 1. **Rename the index of a `cfloop`.** `cfloop(index="i" from="1" to="#len(s)#")` defines the variable `i`, but the name sits in a string, so `i` keeps its name. One golden solution uses this loop.
 2. **Rename the properties of a component.** `property name="count";` defines `count` and, with `accessors=true`, `getCount()` and `setCount()`. The names sit in strings, so they keep their names. No golden solution has a property.

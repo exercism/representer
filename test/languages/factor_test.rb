@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Factor solutions. test/languages/factor/ tests each
+# Tests Rosetta as a whole on Factor solutions. test/languages/factor/ tests each
 # stage and the names.
-class FactorTest < InspectorTest
+class FactorTest < RosettaTest
   track "factor"
 
   def test_comments_are_dropped

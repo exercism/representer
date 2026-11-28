@@ -25,7 +25,7 @@ class AttachToEachFollowingTest < Minitest::Test
 
   def test_each_definition_gets_its_own_copy
     tree = node(:body, leaf("private"), node(:def, leaf("a")), node(:def, leaf("b")))
-    result = Inspector::Engine::AttachToEachFollowing.(tree, LINES, ["(def)"])
+    result = Rosetta::Engine::AttachToEachFollowing.(tree, LINES, ["(def)"])
     refute_same result.children[0].children.last, result.children[1].children.last
   end
 
@@ -33,6 +33,6 @@ class AttachToEachFollowingTest < Minitest::Test
   LINES = ['(identifier /\A(private|public)\z/)'].freeze
 
   def mark(tree)
-    Inspector::Engine::Serialize.(Inspector::Engine::AttachToEachFollowing.(tree, LINES, ["(def)"]))
+    Rosetta::Engine::Serialize.(Rosetta::Engine::AttachToEachFollowing.(tree, LINES, ["(def)"]))
   end
 end

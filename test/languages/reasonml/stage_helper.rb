@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs ReasonML's stages by hand, for the tests of each stage.
 module ReasonmlStages
-  Reasonml = Inspector::Languages::Reasonml
+  Reasonml = Rosetta::Languages::Reasonml
 
   def parse(source)
-    Inspector::Engine::Grammar["reasonml"].parse(Inspector::Engine.clean(source), **Reasonml::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["reasonml"].parse(Rosetta::Engine.clean(source), **Reasonml::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module ReasonmlStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Reasonml::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Reasonml::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

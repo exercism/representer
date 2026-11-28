@@ -1,6 +1,6 @@
 # Suggestions for Nim
 
-[`transition.md`](../../../lib/inspector/languages/nim/transition.md) says how Inspector differs from the old Nim representer.
+[`transition.md`](../../../lib/rosetta/languages/nim/transition.md) says how Rosetta differs from the old Nim representer.
 These are changes that could improve it.
 None of them is made, because a change to Nim's own behaviour needs the maintainers to decide it.
 

@@ -35,7 +35,7 @@ test/golden/<track>/
   They come from the track's repo at `main`, and each exercise has one copy.
 - A solution's folder is named after the student's handle.
   If two solutions have the same handle (deleted accounts are all called `ExercismGhost`), the second one gets `-2`.
-- `representation.txt` holds the representation, or `unrepresentable: <reason>` if the solution gets none, or `error: <message>` if Inspector raises an error.
+- `representation.txt` holds the representation, or `unrepresentable: <reason>` if the solution gets none, or `error: <message>` if Rosetta raises an error.
 - The solutions are students' published solutions in a public repo, so only the files, the public URL and the production representation id are kept.
 
 ## Changing the representations
@@ -67,7 +67,7 @@ A decided difference also has a one-line `why`.
 A rejected difference stays listed until the fix lands, and the fix then removes it when the data is regenerated.
 
 A merge is accepted if its solutions differ only in names, whitespace, comments, imports, quote style, how a number is written, brackets that only group, or spellings that the language's own parser reads as the same program.
-Each language's `transition.md` lists those spellings in its "Spellings that share a representation" section, such as [Dart's](../../lib/inspector/languages/dart/transition.md#spellings-that-share-a-representation).
+Each language's `transition.md` lists those spellings in its "Spellings that share a representation" section, such as [Dart's](../../lib/rosetta/languages/dart/transition.md#spellings-that-share-a-representation).
 Its `why` names the spelling, such as "Dart's parser reads a trailing comma after the last item as no comma."
 Any other merge stays `undecided` until iHiD decides.
 
@@ -110,15 +110,15 @@ The other 314 have `mutation: none`. For 312 the code has nothing to change (Tcl
 
 The variants find 25 near-miss merges. 23 are accepted, and 2 are still `undecided`: an Elixir and a Rust variant that swap a library call (`filter` and `map`).
 
-- 3 are in Common Lisp. The Common Lisp class keeps only the variable of a `loop` clause such as `for x from 1 to n`, so `(loop for i from 1 to n ...)` and `(loop for i from 2 to n ...)` get the same representation (in `binary`, `rail-fence-cipher` and `sieve`). Every solution that Inspector sees passes its tests, so a loop bound that the representation leaves out can't matter to a mentor.
-- 19 change only an import, which Inspector drops: a path in Ballerina (10), Odin (3) and Ruby (2), a name in a Haskell (1) or PureScript (2) import list, and a name in a Perl `qw` list (1). Each of these variants would no longer compile or pass its tests, so no real solution can look like it.
+- 3 are in Common Lisp. The Common Lisp class keeps only the variable of a `loop` clause such as `for x from 1 to n`, so `(loop for i from 1 to n ...)` and `(loop for i from 2 to n ...)` get the same representation (in `binary`, `rail-fence-cipher` and `sieve`). Every solution that Rosetta sees passes its tests, so a loop bound that the representation leaves out can't matter to a mentor.
+- 19 change only an import, which Rosetta drops: a path in Ballerina (10), Odin (3) and Ruby (2), a name in a Haskell (1) or PureScript (2) import list, and a name in a Perl `qw` list (1). Each of these variants would no longer compile or pass its tests, so no real solution can look like it.
 - 1 in ABAP changes only a comment.
 
 ## The differences today
 
 The data holds 20,581 solutions in 82 tracks: 4,187 production groups of two or three solutions, and 8,041 singles.
 Each track has between 33 and 100 singles (the median is 100), from between 22 and 100 exercises (the median is 69).
-Compared with production, Inspector today makes 198 splits and 246 merges, and 25 singles get the same representation as their variant.
+Compared with production, Rosetta today makes 198 splits and 246 merges, and 25 singles get the same representation as their variant.
 245 of the merges, 23 of the near-miss merges and 21 of the splits are accepted. The other splits, 1 merge and 2 near-miss merges are still `undecided`.
 
 ### The 26 tracks that use Basic
@@ -143,7 +143,7 @@ The main causes of splits are:
 - The rest are one-off cases, such as Elm's `100` and `100.0` (an Int and a Float) or Elixir code that uses a function from an `import` without its module's name.
 
 All but one of the merges are accepted. They are solutions with the same code, or code that differs only in comments, whitespace, imports, names, quote style, how a number is written, brackets that only group, or spellings listed in the language's `transition.md`.
-The one still `undecided` is in ReScript, where one solution also holds a `.resi` interface file, which Inspector ignores.
+The one still `undecided` is in ReScript, where one solution also holds a `.resi` interface file, which Rosetta ignores.
 
 If the pinned grammar rejects a solution's code, the solution gets Basic's representation, so no solution in these tracks is unrepresentable.
 Five solutions get Basic's representation this way: four in GDScript and one in C#.

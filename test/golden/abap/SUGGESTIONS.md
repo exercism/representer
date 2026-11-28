@@ -1,8 +1,8 @@
 # Suggestions for ABAP
 
-[`transition.md`](../../../lib/inspector/languages/abap/transition.md) says how Inspector treats ABAP differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/abap/transition.md) says how Rosetta treats ABAP differently from Basic, which the track used before.
 These are changes that could improve it.
-None of them is in Inspector yet, because a change to ABAP's own behaviour needs a human to decide it.
+None of them is in Rosetta yet, because a change to ABAP's own behaviour needs a human to decide it.
 The counts come from a text search of the 400 golden solutions.
 
 ## Code that could be dropped

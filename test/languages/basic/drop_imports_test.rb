@@ -4,8 +4,8 @@ require "test_helper"
 # the lines given by Tokenise.
 class BasicDropImportsTest < Minitest::Test
   def drop_imports(source, track:)
-    lines = Inspector::Languages::Basic::Tokenise.(track, source)
-    Inspector::Languages::Basic::DropImports.(track, lines).map(&:last)
+    lines = Rosetta::Languages::Basic::Tokenise.(track, source)
+    Rosetta::Languages::Basic::DropImports.(track, lines).map(&:last)
   end
 
   def test_drops_a_line_that_starts_with_an_import_word

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class MoonscriptTest < InspectorTest
+class MoonscriptTest < RosettaTest
   track "moonscript"
 
   def test_comments_and_layout_are_ignored

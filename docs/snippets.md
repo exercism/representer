@@ -21,12 +21,12 @@ If one of the snippet's rules raises an error, the snippet gets the error `inter
 
 Each track's `Snippet::Spec` class says what to leave out of the snippet.
 A language keeps it in its folder, as `snippet/spec.rb`, and its snippet reads the comments and docstrings declared in `common/spec.rb`.
-A track with no language of its own can have a folder holding only `snippet/spec.rb`, such as `lib/inspector/languages/phix/snippet/spec.rb`, which starts with `tracks`.
+A track with no language of its own can have a folder holding only `snippet/spec.rb`, such as `lib/rosetta/languages/phix/snippet/spec.rb`, which starts with `tracks`.
 A track with no snippet of its own gets Basic's, which removes the comments found by the track's Rouge lexer.
 
 ```ruby
-module Inspector::Languages::Ruby::Snippet
-  class Spec < Inspector::Engine::Snippet
+module Rosetta::Languages::Ruby::Snippet
+  class Spec < Rosetta::Engine::Snippet
     version 1
     remove :comments
     skip_at_top :require, :require_relative

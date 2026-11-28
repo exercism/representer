@@ -1,6 +1,6 @@
 # Suggestions for Elm
 
-[`transition.md`](../../../lib/inspector/languages/elm/transition.md) says how Inspector differs from the old Elm representer.
+[`transition.md`](../../../lib/rosetta/languages/elm/transition.md) says how Rosetta differs from the old Elm representer.
 These are changes that could improve it.
 None of them is made, because a change to Elm's own behaviour needs the maintainers to decide it.
 

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class LfeTest < InspectorTest
+class LfeTest < RosettaTest
   track "lfe"
 
   def test_comments_and_layout_are_ignored

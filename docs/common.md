@@ -1,6 +1,6 @@
 # Common
 
-Inspector turns a student's solution into a normal form, so that two solutions with the same approach give the same output.
+Rosetta turns a student's solution into a normal form, so that two solutions with the same approach give the same output.
 To do this for a language, it needs to know a few things that only a person who knows the language can say: which names the solution defines, which code does nothing (such as comments and imports), and which spellings mean the same thing.
 A language says these things in a folder of small files of declarations, plus one file for each stage the language needs.
 This doc covers the folder's layout and its `common/` folder, which holds what every output shares: the declarations in `common/spec.rb`, `GenerateAST` and its declarations, and `common/normalise.rb`.
@@ -9,13 +9,13 @@ Each output's own declarations and verbs are in [representation.md](./representa
 
 ## How a language is laid out
 
-Each language has a folder of its own in `lib/inspector/languages/`.
+Each language has a folder of its own in `lib/rosetta/languages/`.
 The folder has a folder for each output, and a folder called `common/` for what every output shares.
 Each of these folders holds a `spec.rb` with its settings, and the stages for that output.
 The folder's `common/spec.rb` says what the language is and how its files are read:
 
 ```
-lib/inspector/languages/ruby/
+lib/rosetta/languages/ruby/
   common/spec.rb                Ruby::Common::Spec
   common/generate_ast.rb        Ruby::Common::GenerateAST
   common/normalise.rb           Ruby::Common::Normalise
@@ -33,8 +33,8 @@ lib/inspector/languages/ruby/
 `transition.md` says how the language differs from the tools it replaces.
 
 ```ruby
-module Inspector::Languages::Ruby::Common
-  class Spec < Inspector::Engine::Language
+module Rosetta::Languages::Ruby::Common
+  class Spec < Rosetta::Engine::Language
     tracks "ruby"
     grammar "ruby"
     extensions ".rb"
@@ -46,8 +46,8 @@ end
 ```
 
 ```ruby
-module Inspector::Languages::Ruby::Representation
-  class Spec < Inspector::Engine::Representation
+module Rosetta::Languages::Ruby::Representation
+  class Spec < Rosetta::Engine::Representation
     version 12
   end
 end
@@ -56,7 +56,7 @@ end
 When a language defines its `Common::Spec`, the engine looks in the language's folder for each output's `spec.rb` and each stage's file.
 If a file is missing, the language doesn't run that stage.
 
-A language that builds on another can subclass the other language's outputs and stages, as TypeScript's `class GenerateAST < Inspector::Languages::JavaScript::Common::GenerateAST` does.
+A language that builds on another can subclass the other language's outputs and stages, as TypeScript's `class GenerateAST < Rosetta::Languages::JavaScript::Common::GenerateAST` does.
 Each subclass starts with its parent's declarations and adds its own to them, so it declares only what its language adds.
 
 ## The language's declarations

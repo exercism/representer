@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CSharpTest < InspectorTest
+class CSharpTest < RosettaTest
   extend UpstreamTests
 
   track "csharp"
@@ -27,13 +27,13 @@ class CSharpTest < InspectorTest
       restore: { "PLACEHOLDER_2" => "FacialFeatures", "PLACEHOLDER_3" => "Identity" },
       add: %w[Admin Developers Email EyeColor NameAndAddress PhiltrumWidth],
       why: "The fixture renames FacialFeatures and Identity where they are declared but not where they are " \
-           "used, so its output isn't valid code. Inspector renames both consistently, and renames properties too."
+           "used, so its output isn't valid code. Rosetta renames both consistently, and renames properties too."
     },
     "DictionaryInitializations-RealWorldObjectInit" => {
       restore: { "PLACEHOLDER_2" => "FacialFeatures", "PLACEHOLDER_3" => "Identity" },
       add: %w[Admin Developers Email EyeColor NameAndAddress PhiltrumWidth],
       why: "The fixture renames FacialFeatures and Identity where they are declared but not where they are " \
-           "used, so its output isn't valid code. Inspector renames both consistently, and renames properties too."
+           "used, so its output isn't valid code. Rosetta renames both consistently, and renames properties too."
     },
     "Identifiers-CombinationOfEverything" => {
       parse_error: true,

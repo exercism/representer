@@ -1,6 +1,6 @@
 require "test_helper"
 
-class VimscriptTest < InspectorTest
+class VimscriptTest < RosettaTest
   track "vimscript"
 
   def test_comments_and_layout_are_ignored

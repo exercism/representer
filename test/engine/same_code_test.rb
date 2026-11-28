@@ -3,7 +3,7 @@ require_relative "toy_language"
 class SameCodeTest < Minitest::Test
   include ToyLanguage::Trees
 
-  SameCode = Inspector::Engine::SameCode
+  SameCode = Rosetta::Engine::SameCode
 
   def test_compares_types_texts_and_children
     assert SameCode.(node(:call, leaf("a")), node(:call, leaf("a")))

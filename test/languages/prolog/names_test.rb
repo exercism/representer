@@ -34,7 +34,7 @@ class PrologNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Prolog::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Prolog::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << node.text if Prolog::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort

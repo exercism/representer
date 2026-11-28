@@ -1,6 +1,6 @@
 # Suggestions for Roc
 
-[`transition.md`](../../../lib/inspector/languages/roc/transition.md) says how Inspector treats Roc differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/roc/transition.md) says how Rosetta treats Roc differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to Roc's own behaviour needs the maintainers to decide it.
 The counts come from the 35 golden solutions that parse.
@@ -13,7 +13,7 @@ The counts come from the 35 golden solutions that parse.
 4. **Write `&&` and `and`, and `||` and `or`, the same way.** Older versions of Roc used `&&` and `||`, and newer ones use `and` and `or`. No golden solution uses `&&` or `||`, and 11 use `and` or `or`.
 5. **Write an `if` branch with braces the same as one without.** `if a { b } else { c }` and `if a b else c` give the same result. 13 golden solutions have a branch without braces.
 6. **Write a multiline string the same as a string with `\n`.** A string written with `\\` lines has the same value as one string with line breaks in it. Today they stay apart, because the parser gives them different nodes. 3 golden solutions use a multiline string.
-7. **Write a number with a type as its value.** `5.U8` and `0x05.U8` are the same number, but Inspector keeps the text of a number with a type. 1 golden solution writes a number with a type.
+7. **Write a number with a type as its value.** `5.U8` and `0x05.U8` are the same number, but Rosetta keeps the text of a number with a type. 1 golden solution writes a number with a type.
 
 ## Equivalences for the maintainers to decide
 

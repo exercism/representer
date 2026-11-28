@@ -1,8 +1,8 @@
-# Exercism's Inspector
+# Exercism's Rosetta
 
-![Tests](https://github.com/exercism/inspector/workflows/Test/badge.svg)
+![Tests](https://github.com/exercism/rosetta/workflows/Test/badge.svg)
 
-This is Exercism's Inspector.
+This is Exercism's Rosetta.
 It is responsible for analyzing a student's solution and returning information about it. 
 It aims to be fast, have coverage across all of Exercism's live languages, and be readable and understandable by humans.
 
@@ -14,10 +14,10 @@ The application is deployed on AWS Lambda, accepts a request (see "Deployment"),
 ## Representations
 
 A representation is a normal form of a student's solution.
-Inspector drops everything that makes no difference to the solution working, such as comments and imports, gives one spelling to code that means the same thing, and replaces the names the solution defines with placeholders.
+Rosetta drops everything that makes no difference to the solution working, such as comments and imports, gives one spelling to code that means the same thing, and replaces the names the solution defines with placeholders.
 Two solutions with the same approach then get the same representation, so the website can group them, and a mentor's feedback on one solution reaches every solution in its group.
 
-Each language with a `common/spec.rb` in its folder in [`lib/inspector/languages/`](./lib/inspector/languages/) has a language of its own in Inspector, which parses its solutions with [tree-sitter][tree-sitter].
+Each language with a `common/spec.rb` in its folder in [`lib/rosetta/languages/`](./lib/rosetta/languages/) has a language of its own in Rosetta, which parses its solutions with [tree-sitter][tree-sitter].
 Every other track gets Basic, a simpler representation that splits the code into tokens with the track's [Rouge][rouge] lexer and drops only comments, spacing and some imports.
 [docs/representation.md](./docs/representation.md) describes the output, Basic, versions, the golden data tests and the declarations each language makes.
 
@@ -37,7 +37,7 @@ Every track gets a snippet, even when its solution can't be represented.
 
 ## Deployment
 
-Inspector runs as an AWS Lambda function behind Exercism's internal load balancer.
+Rosetta runs as an AWS Lambda function behind Exercism's internal load balancer.
 One service handles every track.
 
 ### The request
@@ -54,13 +54,13 @@ The website POSTs JSON like this:
 }
 ```
 
-- `outputs` lists what to generate, as one or more of `representation`, `snippet` and `analysis`. Inspector only runs the steps needed for these outputs.
+- `outputs` lists what to generate, as one or more of `representation`, `snippet` and `analysis`. Rosetta only runs the steps needed for these outputs.
 - `solution_files` are the student's files.
 - `exercise_files` are the exercise's test files and stub. The snippet and the analysis read the exercise's `.meta/config.json` from them, to find the solution's main file. The representation doesn't use them.
 
 ### The response
 
-Inspector responds with `200` and one key for each output asked for:
+Rosetta responds with `200` and one key for each output asked for:
 
 ```json
 {
@@ -79,28 +79,28 @@ Inspector responds with `200` and one key for each output asked for:
 Each output's doc lists its fields: [representation](./docs/representation.md#the-representation-output), [analysis](./docs/analysis.md#the-analysis-output) and [snippet](./docs/snippets.md#the-snippet-output).
 Each output has its own version, so a change to one output never makes the website generate the others again.
 
-If Inspector can't generate an output, that output holds an error instead, and the other outputs still come back.
+If Rosetta can't generate an output, that output holds an error instead, and the other outputs still come back.
 An error has the same shape for every output: `error` gives the reason, `message` says what went wrong, and `version` is the output's version for the track, if it has one.
 If a track doesn't support an output yet, the error is `not_supported`.
 Each output's doc lists its other reasons.
 
 The response is a `400` if the request is invalid, including when `outputs` is missing or empty.
 
-From Ruby, call `Inspector::Generate` with the outputs as symbols:
+From Ruby, call `Rosetta::Generate` with the outputs as symbols:
 
 ```ruby
-Inspector::Generate.("ruby", solution_files, outputs: %i[representation snippet], exercise_files:)
+Rosetta::Generate.("ruby", solution_files, outputs: %i[representation snippet], exercise_files:)
 ```
 
 ## How it works
 
-For a language with a grammar, Inspector parses each file with tree-sitter, and then runs the language's stages on the tree.
+For a language with a grammar, Rosetta parses each file with tree-sitter, and then runs the language's stages on the tree.
 The stages drop code that makes no difference and write different spellings of the same code as one.
-For the representation, Inspector then joins the files, sorts code that can come in any order and replaces names with placeholders.
+For the representation, Rosetta then joins the files, sorts code that can come in any order and replaces names with placeholders.
 The engine makes the decisions that apply to every language, and each language declares only what the engine can't know, such as which code counts as an import.
 [docs/how-it-works.md](./docs/how-it-works.md) lists every step.
 
-Each language has a folder in [`lib/inspector/languages/`](./lib/inspector/languages/), such as [`ruby/`](./lib/inspector/languages/ruby/).
+Each language has a folder in [`lib/rosetta/languages/`](./lib/rosetta/languages/), such as [`ruby/`](./lib/rosetta/languages/ruby/).
 Its `common/` folder holds what every output shares, such as the language's grammar and comments.
 Next to `common/`, the language's folder has one folder for each output: `representation/`, `analysis/` and `snippet/`.
 Its `transition.md` says how the language differs from the tools it replaces.
@@ -114,7 +114,7 @@ Some grammars (marked `generate: true` in `grammars.yml`) don't commit their `pa
 1. Run `bundle install`.
 2. Run `./bin/build-grammars` to fetch and compile the tree-sitter grammars pinned in [`grammars.yml`](./grammars.yml). This puts them in `grammars/build/`, which git ignores.
 
-## Run Inspector
+## Run Rosetta
 
 To represent a solution, write a request body to a file (see [`test/fixtures/requests/`](./test/fixtures/requests/) for examples) and run:
 
@@ -122,7 +122,7 @@ To represent a solution, write a request body to a file (see [`test/fixtures/req
 ./bin/run.sh path/to/request.json
 ```
 
-To see how Inspector parses and represents a file, and the file's snippet, run:
+To see how Rosetta parses and represents a file, and the file's snippet, run:
 
 ```shell
 ./bin/inspect ruby path/to/two_fer.rb
@@ -150,7 +150,7 @@ It takes one solution per track by default. Set `FUZZ_SAMPLE` (and `FUZZ_TRACKS`
 Run `./bin/setup-hooks` to install a pre-commit hook that regenerates them for you when you change a language.
 The hook runs with the Ruby named in `.ruby-version`, whatever Ruby your shell has.
 
-To run the request tests against the Docker image, which is how Inspector runs in production, run `./bin/run-tests-in-docker.sh`.
+To run the request tests against the Docker image, which is how Rosetta runs in production, run `./bin/run-tests-in-docker.sh`.
 
 ## Credit
 

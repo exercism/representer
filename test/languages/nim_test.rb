@@ -11,7 +11,7 @@ require "test_helper"
 # The old unit tests only counted the names in all-features, so its expected
 # mapping lists the names found in the input and its equivalent.nim was
 # written by hand.
-class NimTest < InspectorTest
+class NimTest < RosettaTest
   extend UpstreamTests
 
   track "nim"
@@ -24,7 +24,7 @@ class NimTest < InspectorTest
     "all-features" => {
       add: %w[Dollar testmacro testproc testtemplate],
       remove: %w[testMacro testProc testTemplate],
-      why: "Inspector renames the type Dollar, which " \
+      why: "Rosetta renames the type Dollar, which " \
            "the fixture's mapping leaves out. #{ONE_SPELLING}"
     },
     "all-the-things" => {

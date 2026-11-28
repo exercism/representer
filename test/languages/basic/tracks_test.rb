@@ -3,7 +3,7 @@ require "test_helper"
 # Tests what Basic knows about each track: its Rouge lexer and which of its
 # files are source files.
 class BasicTracksTest < Minitest::Test
-  Basic = Inspector::Languages::Basic
+  Basic = Rosetta::Languages::Basic
 
   def test_finds_a_lexer_named_after_the_track_or_mapped_to_it
     assert_equal "haskell", Basic.lexer_for("haskell").tag

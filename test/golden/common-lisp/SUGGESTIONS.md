@@ -1,6 +1,6 @@
 # Suggestions for Common Lisp
 
-[`transition.md`](../../../lib/inspector/languages/common_lisp/transition.md) says how Inspector differs from the old Common Lisp representer.
+[`transition.md`](../../../lib/rosetta/languages/common_lisp/transition.md) says how Rosetta differs from the old Common Lisp representer.
 These are changes that could improve it.
 None of them is made, because a change to Common Lisp's own behaviour needs the maintainers to decide it.
 

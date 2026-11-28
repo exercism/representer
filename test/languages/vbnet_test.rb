@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on VB.NET solutions. The tests of each stage are
+# Tests Rosetta as a whole on VB.NET solutions. The tests of each stage are
 # in test/languages/vbnet/.
-class VBNetTest < InspectorTest
+class VBNetTest < RosettaTest
   track "vbnet"
 
   def test_comments_layout_imports_and_case_go

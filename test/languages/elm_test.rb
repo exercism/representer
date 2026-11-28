@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ElmTest < InspectorTest
+class ElmTest < RosettaTest
   extend UpstreamTests
 
   track "elm"
@@ -12,13 +12,13 @@ class ElmTest < InspectorTest
   # equivalent. A test's name says which upstream suite it came from.
 
   UNDEFINED = "The fixture's mapping lists %s, which the solution never defines. " \
-              "Inspector only renames names the solution defines, so %s keeps its name.".freeze
+              "Rosetta only renames names the solution defines, so %s keeps its name.".freeze
 
   def self.undefined(placeholder, name, what)
     { restore: { placeholder => name }, remove: [name], why: format(UNDEFINED, what, name) }
   end
 
-  QUALIFIED = "The solution defines `length`, so Inspector renames it wherever it appears, including in " \
+  QUALIFIED = "The solution defines `length`, so Rosetta renames it wherever it appears, including in " \
               "`%s.length`. The fixture keeps a name after a module's dot.".freeze
 
   DEVIATIONS = {
@@ -35,17 +35,17 @@ class ElmTest < InspectorTest
     "imports-qualified-aliased" => { replace: { "D.length" => "D.identifier_1" }, why: format(QUALIFIED, "D") },
     "exports-module-name" => {
       merges_with: "exports-exposed-things",
-      why: "The two tests only differ in what the module exposes. Inspector drops the exposing list, as " \
+      why: "The two tests only differ in what the module exposes. Rosetta drops the exposing list, as " \
            "every solution exposes what the tests use."
     },
     "expression-parenthesized" => {
       merges_with: "function-name-and-parameters",
-      why: "`(x)` and `x` are the same value. The fixture keeps brackets that only group, and Inspector " \
+      why: "`(x)` and `x` are the same value. The fixture keeps brackets that only group, and Rosetta " \
            "drops them."
     },
     "pattern-uncons" => {
       parse_error: true,
-      why: "`f x :: xs = ...` isn't valid Elm. The old parser accepted it, but tree-sitter rejects it, so Inspector " \
+      why: "`f x :: xs = ...` isn't valid Elm. The old parser accepted it, but tree-sitter rejects it, so Rosetta " \
            " gives it Basic's representation."
     }
   }.freeze
@@ -62,12 +62,12 @@ class ElmTest < InspectorTest
   upstream_tests ".elm",
     deviations: DEVIATIONS,
     renamed: MODULES,
-    renamed_why: "The solution defines its module, so Inspector renames the module's name. The old " \
+    renamed_why: "The solution defines its module, so Rosetta renames the module's name. The old " \
                  "representer kept it."
 
   # The upstream tests for the names that Elm imports into every module.
   # The fixtures' mappings leave out these names, even where the solution
-  # defines them. Inspector renames every name the solution defines.
+  # defines them. Rosetta renames every name the solution defines.
   %w[toFloat round floor ceiling truncate max min compare not xor modBy remainderBy
      negate abs clamp sqrt logBase e pi cos sin tan acos asin atan atan2
      degrees radians turns toPolar fromPolar isNaN isInfinite identity always never

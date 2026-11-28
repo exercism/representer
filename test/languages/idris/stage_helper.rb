@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Idris's stages by hand, for the tests of each stage.
 module IdrisStages
-  Idris = Inspector::Languages::Idris
+  Idris = Rosetta::Languages::Idris
 
   def parse(source)
-    Inspector::Engine::Grammar["idris"].parse(Inspector::Engine.clean(source), **Idris::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["idris"].parse(Rosetta::Engine.clean(source), **Idris::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module IdrisStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Idris::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Idris::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

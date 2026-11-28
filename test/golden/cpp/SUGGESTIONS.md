@@ -1,6 +1,6 @@
 # Suggestions for C++
 
-[`transition.md`](../../../lib/inspector/languages/cpp/transition.md) says how Inspector differs from the old C++ representer.
+[`transition.md`](../../../lib/rosetta/languages/cpp/transition.md) says how Rosetta differs from the old C++ representer.
 These are changes that could improve it.
 None of them is made, because a change to C++'s own behaviour needs the maintainers to decide it.
 

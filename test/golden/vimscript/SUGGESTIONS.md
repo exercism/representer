@@ -1,6 +1,6 @@
 # Suggestions for Vimscript
 
-[`transition.md`](../../../lib/inspector/languages/vimscript/transition.md) says how Inspector treats Vimscript differently from Basic, which Vimscript used before.
+[`transition.md`](../../../lib/rosetta/languages/vimscript/transition.md) says how Rosetta treats Vimscript differently from Basic, which Vimscript used before.
 These are changes that could improve it.
 None of them is made, because a change to Vimscript's own behaviour needs the maintainers to decide it.
 
@@ -12,9 +12,9 @@ None of them is made, because a change to Vimscript's own behaviour needs the ma
 ## Spellings that Vim reads as the same
 
 3. **Write a method call as a call.** Vim runs `a:list->sort()` as `sort(a:list)`, and `x->f(y)` as `f(x, y)`. Today the two spellings stay apart. 79 method calls appear in the golden solutions. Mentors may comment on the choice.
-4. **Write a member access with a name as an index.** For a dictionary, `d.key` is `d['key']`. The grammar can't tell a dictionary from a string, for which `d.key` is a concatenation, so the two stay apart. Inspector also renames a member name the solution assigns to (`let self.count = 0`), and keeps a key written as a string (`{'count': 0}`), so the same member can have a placeholder in one solution and its name in another.
+4. **Write a member access with a name as an index.** For a dictionary, `d.key` is `d['key']`. The grammar can't tell a dictionary from a string, for which `d.key` is a concatenation, so the two stay apart. Rosetta also renames a member name the solution assigns to (`let self.count = 0`), and keeps a key written as a string (`{'count': 0}`), so the same member can have a placeholder in one solution and its name in another.
 5. **Write a number key as a string.** Vim turns each dictionary key into a string, so `{1: 'a'}` and `{'1': 'a'}` are the same dictionary.
-6. **Treat `+1` and `+ 1` as the same.** Inspector writes the number `+1` as `1`, and keeps `+ 1` as a plus sign on `1`. They have the same value.
+6. **Treat `+1` and `+ 1` as the same.** Rosetta writes the number `+1` as `1`, and keeps `+ 1` as a plus sign on `1`. They have the same value.
 
 ## Equivalences for the maintainers to decide
 

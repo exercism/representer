@@ -1,19 +1,19 @@
 require "test_helper"
 
-class RustTest < InspectorTest
+class RustTest < RosettaTest
   extend UpstreamTests
 
   track "rust"
 
   UNDEFINED = "The fixture's mapping lists names the solution never defines (a name " \
-              "from the surrounding code). Inspector only renames names the solution defines, so %s keeps its name.".freeze
+              "from the surrounding code). Rosetta only renames names the solution defines, so %s keeps its name.".freeze
 
   IMPL_TYPE = {
     why: "The fixture leaves the names in an impl header (`impl Test`) as they were, even where it renames " \
-         "the type, so its output isn't valid code. Inspector renames them, so the equivalent has the placeholder."
+         "the type, so its output isn't valid code. Rosetta renames them, so the equivalent has the placeholder."
   }.freeze
 
-  CAPITALS = "Inspector reads a capitalised name in a pattern as an enum variant or a constant, which binds " \
+  CAPITALS = "Rosetta reads a capitalised name in a pattern as an enum variant or a constant, which binds " \
              "nothing, so the equivalent writes its placeholders in lower case.".freeze
 
   # The deviation for a test with a placeholder in a pattern, such as
@@ -41,13 +41,13 @@ class RustTest < InspectorTest
     "type_aliases" => {
       add: ["T"],
       replace: { "std::result::Result" => "std::result::PLACEHOLDER_1" },
-      why: "The fixture leaves the type parameter T of a type alias. Inspector renames it, as it does in a " \
-           "struct, so the equivalent has a placeholder for T. The solution defines the name Result, so Inspector " \
+      why: "The fixture leaves the type parameter T of a type alias. Rosetta renames it, as it does in a " \
+           "struct, so the equivalent has a placeholder for T. The solution defines the name Result, so Rosetta " \
            " also renames it in `std::result::Result`."
     },
     "union_names" => {
       add: %w[A B x y],
-      why: "The fixture leaves the type parameters and fields of a union. Inspector renames them, as it " \
+      why: "The fixture leaves the type parameters and fields of a union. Rosetta renames them, as it " \
            "does in a struct, so the equivalent has placeholders for them."
     }
   }.freeze
@@ -57,7 +57,7 @@ class RustTest < InspectorTest
             replace_same_identifier typed_let_binding while_loops].freeze
 
   upstream_tests ".rs", deviations: DEVIATIONS, renamed: { ["main"] => MAIN },
-    renamed_why: "The fixture keeps the name main. Inspector renames every name the solution defines."
+    renamed_why: "The fixture keeps the name main. Rosetta renames every name the solution defines."
 
   def test_locals_and_parameters_are_renamed
     assert_same_representation "fn f(a: u32) -> u32 { let b = a; b }", "fn g(x: u32) -> u32 { let y = x; y }"
@@ -100,11 +100,11 @@ class RustTest < InspectorTest
   def test_files_in_other_formats_are_ignored
     code = "pub fn f() {}"
     assert_equal represent(code, filename: "src/lib.rs").representation,
-      Inspector::RepresentSolution.(track, { "src/lib.rs" => code, "Cargo.toml" => "[package]\nname = \"p\"\n" }).representation
+      Rosetta::RepresentSolution.(track, { "src/lib.rs" => code, "Cargo.toml" => "[package]\nname = \"p\"\n" }).representation
   end
 
   def test_a_solution_with_no_source_files
-    result = Inspector::RepresentSolution.(track, { "Cargo.toml" => "[package]" })
+    result = Rosetta::RepresentSolution.(track, { "Cargo.toml" => "[package]" })
     assert_nil result.representation
     assert_equal "no_source_files", result.reason
   end

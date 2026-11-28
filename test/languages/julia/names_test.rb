@@ -45,7 +45,7 @@ class JuliaNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Julia::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Julia::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << [node.text, node.renamed] if Julia::Representation::Spec.name?(node) }
     leaves

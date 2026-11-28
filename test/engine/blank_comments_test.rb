@@ -17,5 +17,5 @@ class BlankCommentsTest < Minitest::Test
   end
 
   private
-  def blank(source) = Inspector::Engine::BlankComments.(source, COMMENT, outside: STRING)
+  def blank(source) = Rosetta::Engine::BlankComments.(source, COMMENT, outside: STRING)
 end

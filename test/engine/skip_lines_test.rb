@@ -1,7 +1,7 @@
 require_relative "snippet_rules"
 
 class SkipLinesTest < Minitest::Test
-  def skip(text) = Inspector::Engine::SkipLines.(SnippetRules::LinesSnippet, text.lines).join
+  def skip(text) = Rosetta::Engine::SkipLines.(SnippetRules::LinesSnippet, text.lines).join
 
   def test_skips_the_lines_at_the_top_that_start_with_a_word
     assert_equal "x = 1\nimport b\n", skip("import a\n\nx = 1\nimport b\n")

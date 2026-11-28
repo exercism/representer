@@ -1,6 +1,6 @@
 # Suggestions for Crystal
 
-[`transition.md`](../../../lib/inspector/languages/crystal/transition.md) says how Inspector differs from the old Crystal representer.
+[`transition.md`](../../../lib/rosetta/languages/crystal/transition.md) says how Rosetta differs from the old Crystal representer.
 These are changes that could improve it.
 None of them is made, because a change to Crystal's own behaviour needs the maintainers to decide it.
 

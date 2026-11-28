@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RacketTest < InspectorTest
+class RacketTest < RosettaTest
   track "racket"
 
   def test_comments_and_layout_are_ignored

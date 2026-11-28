@@ -1,6 +1,6 @@
 # Suggestions for Gleam
 
-[`transition.md`](../../../lib/inspector/languages/gleam/transition.md) says how Inspector differs from the old Gleam representer.
+[`transition.md`](../../../lib/rosetta/languages/gleam/transition.md) says how Rosetta differs from the old Gleam representer.
 These are changes that could improve it.
 None of them is made, because a change to Gleam's own behaviour needs the maintainers to decide it.
 

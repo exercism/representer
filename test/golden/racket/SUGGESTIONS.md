@@ -1,6 +1,6 @@
 # Suggestions for Racket
 
-[`transition.md`](../../../lib/inspector/languages/racket/transition.md) says how Inspector treats Racket differently from Basic, which Racket used before.
+[`transition.md`](../../../lib/rosetta/languages/racket/transition.md) says how Rosetta treats Racket differently from Basic, which Racket used before.
 These are changes that could improve it.
 None of them is made, because a change to Racket's own behaviour needs the maintainers to decide it.
 

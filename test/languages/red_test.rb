@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Red solutions. The tests of each stage are in
+# Tests Rosetta as a whole on Red solutions. The tests of each stage are in
 # test/languages/red/.
-class RedTest < InspectorTest
+class RedTest < RosettaTest
   track "red"
 
   def test_comments_and_formatting

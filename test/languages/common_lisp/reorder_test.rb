@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Common Lisp's Reorder stage, through Inspector as a whole, because
+# Tests Common Lisp's Reorder stage, through Rosetta as a whole, because
 # it sorts by the code with the renamed names left out.
-class CommonLispReorderTest < InspectorTest
+class CommonLispReorderTest < RosettaTest
   track "common-lisp"
 
   def test_the_order_of_defpackage_options_makes_no_difference

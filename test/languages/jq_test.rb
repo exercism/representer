@@ -1,6 +1,6 @@
 require "test_helper"
 
-class JqTest < InspectorTest
+class JqTest < RosettaTest
   track "jq"
 
   def test_comments_and_layout_are_ignored

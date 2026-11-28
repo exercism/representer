@@ -3,21 +3,21 @@ require "test_helper"
 # Checks code patterns and the Normalise verbs built on them, with Ruby's
 # grammar and GenerateAST stage.
 class CodePatternTest < Minitest::Test
-  CodePattern = Inspector::Engine::CodePattern
-  Ruby = Inspector::Languages::Ruby
+  CodePattern = Rosetta::Engine::CodePattern
+  Ruby = Rosetta::Languages::Ruby
 
   # A language with Ruby's grammar, for stage classes of the tests' own.
   module Rubyish
     module Common
-      class Spec < Inspector::Engine::Language
+      class Spec < Rosetta::Engine::Language
         grammar "ruby"
       end
 
-      GenerateAST = Inspector::Languages::Ruby::Common::GenerateAST
+      GenerateAST = Rosetta::Languages::Ruby::Common::GenerateAST
     end
 
     module Representation
-      class Spec < Inspector::Engine::Representation
+      class Spec < Rosetta::Engine::Representation
         names_are :identifier, :constant, :instance_variable
         names_are :simple_symbol, without_prefix: ":"
         pattern_contexts "{{pattern}}\nend", "begin\n{{pattern}}\nend", "f {{pattern}}"
@@ -26,13 +26,13 @@ class CodePatternTest < Minitest::Test
     end
 
     # A Normalise stage that drops a class's own name before a method call.
-    class Within < Inspector::Engine::Normalise
+    class Within < Rosetta::Engine::Normalise
       rewrite "{{type}}.{{name}}",
           as: "{{name}}",
       within: "class {{type}}\n{{...}}\nend"
     end
 
-    class Normalise < Inspector::Engine::Normalise
+    class Normalise < Rosetta::Engine::Normalise
       drop_calls_to :puts
       drop "{{x}} if debug?"
       rewrite "{{list}}.length", as: "{{list}}.size"
@@ -91,14 +91,14 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_token_and_the_empty_list_after_it_can_be_left_out
-    haskell = Inspector::Languages::Haskell::Common::Spec
+    haskell = Rosetta::Languages::Haskell::Common::Spec
     pattern = CodePattern[haskell, "import {{...}} as {{...}} ({{...}})"]
     assert pattern.match(generated(haskell, "import Data.List\nx = 1").children.first)
     assert pattern.match(generated(haskell, "import Data.Map as M (Map)\nx = 1").children.first)
   end
 
   def test_a_typed_list_placeholder_matches_leaves_of_its_kind
-    purescript = Inspector::Languages::PureScript::Common::Spec
+    purescript = Rosetta::Languages::PureScript::Common::Spec
     pattern = CodePattern[purescript, "import {{...}} ({{...}}) as {{...}}"]
     assert pattern.match(generated(purescript, "module M where\nimport Data.Map as M\nx = 1").children[1])
     assert pattern.match(generated(purescript, "module M where\nimport Prelude\nx = 1").children[1])
@@ -187,7 +187,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_placeholder_can_be_wrapped_in_several_nodes
-    d = Inspector::Languages::D::Common::Spec
+    d = Rosetta::Languages::D::Common::Spec
     pattern = CodePattern[d, "import {{...}};"]
     assert pattern.match(generated(d, "module m;\nimport std.algorithm, std.range;\nvoid f() {}").children[1])
   end
@@ -199,7 +199,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_pattern_that_is_one_token_inside_a_node_is_that_token
-    csharp = Inspector::Languages::CSharp::Common::Spec
+    csharp = Rosetta::Languages::CSharp::Common::Spec
     pattern = CodePattern[csharp, "readonly", inside: "class A { ref {{pattern}} int F() => x; }"]
     assert_equal "readonly", pattern.type
     assert_equal "modifier", CodePattern[csharp, "readonly", inside: "class A { {{pattern}} int x; }"].type
@@ -245,15 +245,15 @@ class CodePatternTest < Minitest::Test
   # A language with Ruby's grammar and a placeholder suffix of its own.
   module Suffixed
     module Common
-      class Spec < Inspector::Engine::Language
+      class Spec < Rosetta::Engine::Language
         grammar "ruby"
       end
 
-      GenerateAST = Inspector::Languages::Ruby::Common::GenerateAST
+      GenerateAST = Rosetta::Languages::Ruby::Common::GenerateAST
     end
 
     module Representation
-      class Spec < Inspector::Engine::Representation
+      class Spec < Rosetta::Engine::Representation
         names_are :identifier
         placeholder_suffix "_ph"
       end
@@ -266,30 +266,30 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_language_can_use_one_of_the_grammars_keywords_as_a_name
-    language = Inspector::Languages::CommonLisp::Common::Spec
+    language = Rosetta::Languages::CommonLisp::Common::Spec
     pattern = CodePattern[language, ":cl"]
-    file = Inspector::Engine::PrepareFile.(language, "(f :cl)")
+    file = Rosetta::Engine::PrepareFile.(language, "(f :cl)")
     found = []
     file.each_descendant { |node| found << node if pattern.match(node) }
     assert_equal 1, found.size
   end
 
   private
-  def parse(source) = Inspector::Engine::Grammar["ruby"].parse(source)
+  def parse(source) = Rosetta::Engine::Grammar["ruby"].parse(source)
   def tree(source) = Ruby::Common::GenerateAST.(parse(source))
   def statement(source) = tree(source).children.first
   def normalise(source) = Rubyish::Normalise.(tree(source))
-  def write(tree) = Inspector::Engine::Serialize.(tree)
-  def helpers = Object.new.extend(Inspector::Engine::TreeHelpers)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
+  def helpers = Object.new.extend(Rosetta::Engine::TreeHelpers)
 
   def generated(language, source)
-    language.run_stage(:GenerateAST, Inspector::Engine::Grammar[language.grammar].parse(source, **language.parse_options))
+    language.run_stage(:GenerateAST, Rosetta::Engine::Grammar[language.grammar].parse(source, **language.parse_options))
   end
 
   # PHP wraps each of a call's arguments in an `argument` node.
-  PHP = Inspector::Languages::PHP::Common::Spec
+  PHP = Rosetta::Languages::PHP::Common::Spec
 
-  def php_statement(source) = Inspector::Engine::PrepareFile.(PHP, source).children.first
+  def php_statement(source) = Rosetta::Engine::PrepareFile.(PHP, source).children.first
 
   def php_matched(pattern, source, word)
     found = []

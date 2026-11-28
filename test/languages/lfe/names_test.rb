@@ -59,7 +59,7 @@ class LfeNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Lfe::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Lfe::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << node.text if Lfe::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort

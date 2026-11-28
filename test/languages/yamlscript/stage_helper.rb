@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs YAMLScript's stages by hand, for the tests of each stage.
 module YAMLScriptStages
-  YAMLScript = Inspector::Languages::YAMLScript
+  YAMLScript = Rosetta::Languages::YAMLScript
 
   def parse(source)
-    Inspector::Engine::Grammar["yamlscript"].parse(Inspector::Engine.clean(source),
+    Rosetta::Engine::Grammar["yamlscript"].parse(Rosetta::Engine.clean(source),
                                                    **YAMLScript::Common::Spec.parse_options)
   end
 
@@ -14,7 +14,7 @@ module YAMLScriptStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(code) = Inspector::Engine::PrepareFile.(YAMLScript::Common::Spec, "!YS-v0\n#{code}\n")
+  def prepare(code) = Rosetta::Engine::PrepareFile.(YAMLScript::Common::Spec, "!YS-v0\n#{code}\n")
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

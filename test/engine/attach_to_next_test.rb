@@ -31,5 +31,5 @@ class AttachToNextTest < Minitest::Test
   end
 
   private
-  def attach(tree, past: []) = Inspector::Engine::Serialize.(Inspector::Engine::AttachToNext.(tree, ["(spec)"], past:))
+  def attach(tree, past: []) = Rosetta::Engine::Serialize.(Rosetta::Engine::AttachToNext.(tree, ["(spec)"], past:))
 end

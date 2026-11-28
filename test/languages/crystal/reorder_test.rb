@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Crystal's Reorder stage, through Inspector as a whole, because it
+# Tests Crystal's Reorder stage, through Rosetta as a whole, because it
 # sorts by the code with the renamed names left out.
-class CrystalReorderTest < InspectorTest
+class CrystalReorderTest < RosettaTest
   include CrystalStages
 
   track "crystal"

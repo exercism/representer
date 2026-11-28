@@ -1,13 +1,13 @@
 # Suggestions for Euphoria
 
-[`transition.md`](../../../lib/inspector/languages/euphoria/transition.md) says how Inspector treats Euphoria differently from Basic, which Euphoria used before.
+[`transition.md`](../../../lib/rosetta/languages/euphoria/transition.md) says how Rosetta treats Euphoria differently from Basic, which Euphoria used before.
 These are changes that could improve it.
 None of them is made, because a change to Euphoria's own behaviour needs the maintainers to decide it.
 
 ## Names
 
 1. **Rename the routine named in a `routine_id` string.** `routine_id("neq")` refers to a routine the solution defines, but the name sits in a string, so it keeps its text while the routine itself gets a placeholder. Two solutions that differ only in that routine's name then stay apart. Three golden solutions call `routine_id`.
-2. **Rename the namespace given by `include ... as`.** In `include std/math.e as m`, `m` is a name the student chose, and calls such as `m:sum(s)` keep it. Inspector drops the include before it renames names, so it never sees `m` defined. Three golden solutions use `as`.
+2. **Rename the namespace given by `include ... as`.** In `include std/math.e as m`, `m` is a name the student chose, and calls such as `m:sum(s)` keep it. Rosetta drops the include before it renames names, so it never sees `m` defined. Three golden solutions use `as`.
 
 ## Spellings that Euphoria reads as the same
 

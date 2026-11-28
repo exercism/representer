@@ -1,16 +1,16 @@
 require "test_helper"
 
-class JavaScriptTest < InspectorTest
+class JavaScriptTest < RosettaTest
   extend UpstreamTests
 
   track "javascript"
 
-  LIBRARY_NAMES = "Inspector never renames names from JavaScript's library (console, log, indexOf...), " \
+  LIBRARY_NAMES = "Rosetta never renames names from JavaScript's library (console, log, indexOf...), " \
                   "so mentors' comments on different library calls stay apart.".freeze
 
-  EXPORTS = "Inspector renames every name the solution defines, including the exported ones.".freeze
+  EXPORTS = "Rosetta renames every name the solution defines, including the exported ones.".freeze
 
-  OWN_METHODS = "Inspector renames every method the solution defines, including the ones that JavaScript " \
+  OWN_METHODS = "Rosetta renames every method the solution defines, including the ones that JavaScript " \
                 "itself calls (constructor, toString, valueOf).".freeze
 
   DEVIATIONS = {
@@ -73,7 +73,7 @@ class JavaScriptTest < InspectorTest
     assert_same_representation "class A { size() { return this.a.size } }", "class A { count() { return this.a.count } }"
   end
 
-  # A shorthand property is also a variable, and Inspector renames
+  # A shorthand property is also a variable, and Rosetta renames
   # it with the variable.
   def test_shorthand_properties_are_renamed_with_their_variable
     assert_same_representation "const a = 1; export const f = () => ({ a })", "const b = 1; export const f = () => ({ b })"

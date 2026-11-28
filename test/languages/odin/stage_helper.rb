@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Odin's stages by hand, for the tests of each stage.
 module OdinStages
-  Odin = Inspector::Languages::Odin
+  Odin = Rosetta::Languages::Odin
 
   def parse(source)
-    Inspector::Engine::Grammar["odin"].parse(Inspector::Engine.clean(source), **Odin::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["odin"].parse(Rosetta::Engine.clean(source), **Odin::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module OdinStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Odin::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Odin::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

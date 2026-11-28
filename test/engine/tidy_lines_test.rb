@@ -1,7 +1,7 @@
 require "test_helper"
 
 class TidyLinesTest < Minitest::Test
-  def tidy(lines) = Inspector::Engine::TidyLines.(lines)
+  def tidy(lines) = Rosetta::Engine::TidyLines.(lines)
 
   def test_drops_nil_lines_and_blank_lines_at_the_top
     assert_equal %W[a\n b\n], tidy(["\n", " \n", "a\n", nil, "b\n"])

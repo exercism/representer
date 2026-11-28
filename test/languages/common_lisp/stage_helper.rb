@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Common Lisp's stages by hand, for the tests of each stage.
 module CommonLispStages
-  CommonLisp = Inspector::Languages::CommonLisp
+  CommonLisp = Rosetta::Languages::CommonLisp
 
   def parse(source)
-    Inspector::Engine::Grammar["common_lisp"].parse(Inspector::Engine.clean(source), **CommonLisp::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["common_lisp"].parse(Rosetta::Engine.clean(source), **CommonLisp::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module CommonLispStages
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(CommonLisp::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(CommonLisp::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

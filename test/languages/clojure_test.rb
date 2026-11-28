@@ -9,31 +9,31 @@ require "test_helper"
 # - equivalent.clj is the second solution with that output. A solution that
 #   has no other solution with its output gets its own code with the comments
 #   removed and the whitespace joined.
-# - expected_mapping.json was made by Inspector and read through.
+# - expected_mapping.json was made by Rosetta and read through.
 #
 # Differences from the expected outputs:
 #
 # - two-fer-53 is not ported. It is two-fer-2 plus a `(comment ...)` block.
 #   `macroexpand-all` turns the block into a `nil`, so the expected
 #   outputs differ. A mentor would give the same feedback for both, so
-#   Inspector drops the block (see
+#   Rosetta drops the block (see
 #   ClojureNormaliseTest#test_comment_forms_are_dropped_at_the_top_level).
 # - The expected output contained the expansion of `ns`, gensym names such as
 #   `p1__123#` and object addresses cleaned with regular expressions. None of
 #   that is reproduced, because the fixtures only compare which solutions
 #   merge.
-class ClojureTest < InspectorTest
+class ClojureTest < RosettaTest
   extend UpstreamTests
 
   track "clojure"
 
-  UNUSED_REQUIRE = "The two tests only differ in a `:require` that the code never uses. Inspector drops the " \
+  UNUSED_REQUIRE = "The two tests only differ in a `:require` that the code never uses. Rosetta drops the " \
                    "`:require`, `:use` and `:import` clauses, which only make names available.".freeze
 
-  CORE_NAME = "Inspector renames a name that the solution defines, even if it is also a clojure.core name " \
+  CORE_NAME = "Rosetta renames a name that the solution defines, even if it is also a clojure.core name " \
               "(`name`, `num`). The two tests only differ in such a name, which the expected mapping keeps.".freeze
 
-  UNDERSCORE = "Inspector renames `_`, because it is a name that the solution binds. The expected " \
+  UNDERSCORE = "Rosetta renames `_`, because it is a name that the solution binds. The expected " \
                "mapping keeps it.".freeze
 
   DEVIATIONS = {
@@ -54,14 +54,14 @@ class ClojureTest < InspectorTest
     "two-fer-345" => {
       merges_with: "two-fer-327",
       why: "The two tests only differ in whether the solution requires clojure.string in its `ns` or with a " \
-           "`require` form. Inspector drops both."
+           "`require` form. Rosetta drops both."
     }
   }.freeze
 
   # The expected mappings never list a clojure.core name, even if the solution defined it (a local called
-  # `name` or `num`). Inspector renames every name the solution defines, so the mapping of each test
+  # `name` or `num`). Rosetta renames every name the solution defines, so the mapping of each test
   # below has these names too.
-  RENAMED_WHY = "Inspector renames a name that the solution defines, even if it is also a clojure.core name. " \
+  RENAMED_WHY = "Rosetta renames a name that the solution defines, even if it is also a clojure.core name. " \
                 "The expected mapping never lists a clojure.core name.".freeze
 
   RENAMED = {

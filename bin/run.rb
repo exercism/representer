@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-require_relative "../lib/inspector"
+require_relative "../lib/rosetta"
 
 event = { "body" => File.read(ARGV[0]) }
-response = Inspector.process(event:, context: {})
+response = Rosetta.process(event:, context: {})
 puts response.to_json

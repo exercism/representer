@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ArturoTest < InspectorTest
+class ArturoTest < RosettaTest
   track "arturo"
 
   def test_comments_and_layout_are_ignored

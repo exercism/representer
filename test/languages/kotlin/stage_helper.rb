@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Kotlin's stages by hand, for the tests of each stage.
 module KotlinStages
-  Kotlin = Inspector::Languages::Kotlin
+  Kotlin = Rosetta::Languages::Kotlin
 
   def parse(source)
-    Inspector::Engine::Grammar["kotlin"].parse(Inspector::Engine.clean(source), **Kotlin::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["kotlin"].parse(Rosetta::Engine.clean(source), **Kotlin::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,9 +13,9 @@ module KotlinStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Kotlin::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Kotlin::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 
   # The source as the body of a function.
   def in_function(body) = "fun f() {\n#{body}\n}\n"

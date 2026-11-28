@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Synopsis:
-# Run Inspector on a request.
+# Run Rosetta on a request.
 
 # Arguments:
 # $1: path to a request.json file, holding the request's JSON body. Its

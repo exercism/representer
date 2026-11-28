@@ -1,6 +1,6 @@
 require "test_helper"
 
-class UnisonTest < InspectorTest
+class UnisonTest < RosettaTest
   track "unison"
 
   def test_comments_documentation_and_layout_are_ignored

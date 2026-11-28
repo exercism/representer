@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on x86-64 assembly solutions. The tests of each
+# Tests Rosetta as a whole on x86-64 assembly solutions. The tests of each
 # stage are in test/languages/x86_64_assembly/.
-class X8664AssemblyTest < InspectorTest
+class X8664AssemblyTest < RosettaTest
   track "x86-64-assembly"
 
   def test_comments_and_formatting

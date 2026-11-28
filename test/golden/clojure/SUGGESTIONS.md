@@ -1,6 +1,6 @@
 # Suggestions for Clojure
 
-[`transition.md`](../../../lib/inspector/languages/clojure/transition.md) says how Inspector differs from the old Clojure representer.
+[`transition.md`](../../../lib/rosetta/languages/clojure/transition.md) says how Rosetta differs from the old Clojure representer.
 These are changes that could improve it.
 None of them is made, because a change to Clojure's own behaviour needs the maintainers to decide it.
 

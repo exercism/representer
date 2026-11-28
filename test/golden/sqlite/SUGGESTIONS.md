@@ -1,6 +1,6 @@
 # Suggestions for SQLite
 
-[`transition.md`](../../../lib/inspector/languages/sqlite/transition.md) says how Inspector treats SQLite differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/sqlite/transition.md) says how Rosetta treats SQLite differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to SQLite's own behaviour needs the maintainers to decide it.
 The counts come from the 328 golden solutions.
@@ -12,7 +12,7 @@ The counts come from the 328 golden solutions.
 
 ## Spellings that are apart today
 
-3. **Read a double-quoted text as a string if no column has that name.** SQLite reads `"single-square"` as a name if the table has such a column, and as the string `'single-square'` otherwise. 126 golden solutions use double quotes, mostly for strings such as `WHERE task = "total"`. Inspector never reads the exercise's schema, so today a double-quoted text gets a node of its own and stays apart from both a name and a string.
+3. **Read a double-quoted text as a string if no column has that name.** SQLite reads `"single-square"` as a name if the table has such a column, and as the string `'single-square'` otherwise. 126 golden solutions use double quotes, mostly for strings such as `WHERE task = "total"`. Rosetta never reads the exercise's schema, so today a double-quoted text gets a node of its own and stays apart from both a name and a string.
 4. **Read a double-quoted name in any case.** SQLite matches `"Input"` to the column `input`, as it does for names without quotes. Today a double-quoted name keeps its case.
 5. **Write `iif(a, b, c)` as `CASE WHEN a THEN b ELSE c END`.** The two give the same value. 45 golden solutions call `iif`.
 6. **Write `CASE x WHEN a THEN ...` as `CASE WHEN x = a THEN ...`.** The two give the same value, apart from a `NULL` in `x`, which matches no `WHEN` either way.

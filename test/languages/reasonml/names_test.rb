@@ -42,7 +42,7 @@ class ReasonmlNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Reasonml::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Reasonml::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << node.text if Reasonml::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort

@@ -73,7 +73,7 @@ class PowershellNamesTest < Minitest::Test
   # before them.
   def renamed(source, uniq: true)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Powershell::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Powershell::Representation::Spec)
     leaves = []
     tree.each_descendant do |node|
       leaves << node.text.sub(/\A[$@-]/, "") if Powershell::Representation::Spec.name?(node) && node.renamed

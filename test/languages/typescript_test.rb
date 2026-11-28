@@ -1,11 +1,11 @@
 require "test_helper"
 
-class TypeScriptTest < InspectorTest
+class TypeScriptTest < RosettaTest
   extend UpstreamTests
 
   track "typescript"
 
-  LIBRARY_NAMES = "Inspector renames only the names that the solution defines, so names from JavaScript's " \
+  LIBRARY_NAMES = "Rosetta renames only the names that the solution defines, so names from JavaScript's " \
                   "library (Math, abs, console, log...) keep their names.".freeze
 
   DEVIATIONS = {

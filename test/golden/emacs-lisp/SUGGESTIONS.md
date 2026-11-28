@@ -1,6 +1,6 @@
 # Suggestions for Emacs Lisp
 
-[`transition.md`](../../../lib/inspector/languages/emacs_lisp/transition.md) says how Inspector treats Emacs Lisp differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/emacs_lisp/transition.md) says how Rosetta treats Emacs Lisp differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to Emacs Lisp's own behaviour needs the maintainers to decide it.
 The counts come from the 190 golden solutions.
@@ -16,7 +16,7 @@ The counts come from the 190 golden solutions.
 
 5. **Write `'nil` as `nil` and `'t` as `t`**, and the same for a quoted number, string or keyword, because each evaluates to itself. Two golden solutions quote `nil` or `t`.
 6. **Write `#'(lambda ...)` as `(lambda ...)`.** Both make the same function. Nine golden solutions use `#'(lambda ...)`.
-7. **Expand `when` and `unless`.** `(when a b c)` expands to `(if a (progn b c))`, and `(unless a b)` to `(if a nil b)`. 32 golden solutions use one of them. Inspector expands the Clojure macros that solutions use in the same way.
+7. **Expand `when` and `unless`.** `(when a b c)` expands to `(if a (progn b c))`, and `(unless a b)` to `(if a nil b)`. 32 golden solutions use one of them. Rosetta expands the Clojure macros that solutions use in the same way.
 8. **Write `cl-incf` and `cl-decf` as `setq`.** `(cl-incf x)` and `(setq x (1+ x))` do the same for a variable. Six golden solutions use them.
 9. **Write the `cl-` aliases of list functions as the functions.** `cl-first`, `first` and `car` are the same function, and so are `cl-rest`, `rest` and `cdr`.
 10. **Split a `setq` of several variables.** `(setq a 1 b 2)` and `(setq a 1) (setq b 2)` do the same, as long as the forms run in order.

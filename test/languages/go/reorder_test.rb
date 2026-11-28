@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Go's Reorder stage, through Inspector as a whole, because it
+# Tests Go's Reorder stage, through Rosetta as a whole, because it
 # sorts by the code with the renamed names left out.
-class GoReorderTest < InspectorTest
+class GoReorderTest < RosettaTest
   include GoStages
 
   track "go"

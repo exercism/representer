@@ -1,6 +1,6 @@
 # Suggestions for Kotlin
 
-[`transition.md`](../../../lib/inspector/languages/kotlin/transition.md) says how Inspector treats Kotlin differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/kotlin/transition.md) says how Rosetta treats Kotlin differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to Kotlin's own behaviour needs the maintainers to decide it.
 The counts come from the 388 golden solutions.

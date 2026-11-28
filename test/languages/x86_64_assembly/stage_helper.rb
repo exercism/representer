@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs x86-64 assembly's stages by hand, for the tests of each stage.
 module X8664AssemblyStages
-  X8664Assembly = Inspector::Languages::X8664Assembly
+  X8664Assembly = Rosetta::Languages::X8664Assembly
 
   def parse(source)
-    Inspector::Engine::Grammar["x86_64_assembly"].parse(Inspector::Engine.clean(source),
+    Rosetta::Engine::Grammar["x86_64_assembly"].parse(Rosetta::Engine.clean(source),
                                                         **X8664Assembly::Common::Spec.parse_options)
   end
 
@@ -14,7 +14,7 @@ module X8664AssemblyStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(X8664Assembly::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(X8664Assembly::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

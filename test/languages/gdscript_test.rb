@@ -5,7 +5,7 @@ require "test_helper"
 # below, because a fixture holds one equivalent file. Each test's
 # `.meta/config.json` is not copied, because it only said which files were
 # the solution. The tests of each stage are in test/languages/gdscript/.
-class GDScriptTest < InspectorTest
+class GDScriptTest < RosettaTest
   extend UpstreamTests
 
   track "gdscript"
@@ -15,10 +15,10 @@ class GDScriptTest < InspectorTest
   upstream_tests ".gd", deviations: DEVIATIONS
 
   def test_multiple_solution_files
-    result = Inspector::RepresentSolution.("gdscript",
+    result = Rosetta::RepresentSolution.("gdscript",
       { "one.gd" => "func foo():\n\treturn 1\n", "two.gd" => "func bar():\n\treturn \"Hello\"\n" })
     assert_equal %w[bar foo], result.mapping.values.sort
-    refute_equal Inspector::Languages::Basic, result.language
+    refute_equal Rosetta::Languages::Basic, result.language
   end
 
   def test_functions_variables_and_parameters_are_renamed

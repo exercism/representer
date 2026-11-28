@@ -1,6 +1,6 @@
 # Suggestions for ReasonML
 
-[`transition.md`](../../../lib/inspector/languages/reasonml/transition.md) says how Inspector treats ReasonML differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/reasonml/transition.md) says how Rosetta treats ReasonML differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to ReasonML's own behaviour needs the maintainers to decide it.
 The counts come from the 178 golden solution files.
@@ -12,7 +12,7 @@ The counts come from the 178 golden solution files.
 
 ## Equivalences for the maintainers to decide
 
-3. **Rename the variables inside a `{j|...|j}` string.** BuckleScript reads `$name` in such a string as the variable `name`. Inspector keeps the string's text, so the variable is renamed everywhere except in the string. This can only keep two solutions apart, never merge them. 5 golden solutions use `{j|...|j}` strings.
+3. **Rename the variables inside a `{j|...|j}` string.** BuckleScript reads `$name` in such a string as the variable `name`. Rosetta keeps the string's text, so the variable is renamed everywhere except in the string. This can only keep two solutions apart, never merge them. 5 golden solutions use `{j|...|j}` strings.
 4. **Write a `{js|...|js}` string with only ASCII text as a plain string.** BuckleScript gives both the same value in that case. No golden solution uses `{js|...|js}`.
 5. **Write `x |> f` as `f(x)`, and `x->f(y)` as `f(x, y)`.** Each pair calls the same function with the same arguments, but a mentor may prefer the pipe or comment on it. 79 golden solutions use `|>`, and 20 use `->`.
 6. **Write `c ? a : b` as `if (c) { a } else { b }`.** Both choose a value in the same way. 31 golden solutions use the ternary, and 25 use `if`.

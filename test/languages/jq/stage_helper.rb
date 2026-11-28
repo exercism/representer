@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs jq's stages by hand, for the tests of each stage.
 module JqStages
-  Jq = Inspector::Languages::Jq
+  Jq = Rosetta::Languages::Jq
 
   def parse(source)
-    Inspector::Engine::Grammar["jq"].parse(Inspector::Engine.clean(source), **Jq::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["jq"].parse(Rosetta::Engine.clean(source), **Jq::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module JqStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Jq::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Jq::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

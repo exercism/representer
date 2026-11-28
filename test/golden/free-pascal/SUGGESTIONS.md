@@ -1,6 +1,6 @@
 # Suggestions for Free Pascal
 
-[`transition.md`](../../../lib/inspector/languages/free_pascal/transition.md) says how Inspector treats Free Pascal differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/free_pascal/transition.md) says how Rosetta treats Free Pascal differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to Free Pascal's own behaviour needs the maintainers to decide it.
 The counts come from the 103 golden solution files.

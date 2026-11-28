@@ -1,7 +1,7 @@
 require "test_helper"
 
 class AnalyseTest < Minitest::Test
-  Analysis = Inspector::Languages::Ruby::Analysis::Spec
+  Analysis = Rosetta::Languages::Ruby::Analysis::Spec
 
   def test_runs_the_exercises_rules_on_the_main_file
     files = { "a_helper.rb" => "x = 1", "leap.rb" => "class Year\n  def self.leap?(y) = Date.leap?(y)\nend\n" }
@@ -19,10 +19,10 @@ class AnalyseTest < Minitest::Test
   end
 
   def test_a_main_file_that_does_not_parse_cannot_be_analysed
-    error = assert_raises(Inspector::CannotRepresent) { analyse("leap", { "leap.rb" => "def x(" }) }
+    error = assert_raises(Rosetta::CannotRepresent) { analyse("leap", { "leap.rb" => "def x(" }) }
     assert_equal "parse_error", error.reason
   end
 
   private
-  def analyse(slug, files, exercise_files = {}) = Inspector::Engine::Analyse.(Analysis, slug, files, exercise_files)
+  def analyse(slug, files, exercise_files = {}) = Rosetta::Engine::Analyse.(Analysis, slug, files, exercise_files)
 end

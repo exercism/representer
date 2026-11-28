@@ -1,6 +1,6 @@
 require "test_helper"
 
-class PharoSmalltalkTest < InspectorTest
+class PharoSmalltalkTest < RosettaTest
   track "pharo-smalltalk"
 
   def test_comments_and_layout_are_ignored

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Synopsis:
-# Test Inspector: run the unit tests, then run Inspector against
+# Test Rosetta: run the unit tests, then run Rosetta against
 # each request in test/fixtures/requests/ and compare its response with the
 # expected one.
 # With a track slug, run only that track's tests: its language tests, its

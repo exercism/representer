@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Unison's stages by hand, for the tests of each stage.
 module UnisonStages
-  Unison = Inspector::Languages::Unison
+  Unison = Rosetta::Languages::Unison
 
   def parse(source)
-    Inspector::Engine::Grammar["unison"].parse(Inspector::Engine.clean(source), **Unison::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["unison"].parse(Rosetta::Engine.clean(source), **Unison::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module UnisonStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Unison::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Unison::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

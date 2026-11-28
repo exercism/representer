@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
 # Tests Elm's Normalise stage, and the engine's dropping of Elm's imports,
-# through Inspector as a whole.
-class ElmNormaliseTest < InspectorTest
+# through Rosetta as a whole.
+class ElmNormaliseTest < RosettaTest
   include ElmStages
 
   track "elm"

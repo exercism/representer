@@ -5,7 +5,7 @@ class GrammarTest < Minitest::Test
   # between the children of a node needs a span too.
   def test_gives_each_fragment_its_span_when_asked
     source = 'x = "a\\nb"'
-    tree = Inspector::Engine::Grammar["python"].parse(source, gap_types: Set["string_content"], spans: true)
+    tree = Rosetta::Engine::Grammar["python"].parse(source, gap_types: Set["string_content"], spans: true)
     fragments = []
     tree.each_descendant { |node| fragments << node if node.type == "fragment" }
 

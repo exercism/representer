@@ -1,6 +1,6 @@
 require "test_helper"
 
-class EuphoriaTest < InspectorTest
+class EuphoriaTest < RosettaTest
   track "euphoria"
 
   def test_comments_and_layout_are_ignored

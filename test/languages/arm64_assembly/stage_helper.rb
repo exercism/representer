@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs ARM64 assembly's stages by hand, for the tests of each stage.
 module Arm64AssemblyStages
-  Arm64Assembly = Inspector::Languages::Arm64Assembly
+  Arm64Assembly = Rosetta::Languages::Arm64Assembly
 
   def parse(source)
-    Inspector::Engine::Grammar["arm64_assembly"].parse(Inspector::Engine.clean(source),
+    Rosetta::Engine::Grammar["arm64_assembly"].parse(Rosetta::Engine.clean(source),
                                                        **Arm64Assembly::Common::Spec.parse_options)
   end
 
@@ -14,7 +14,7 @@ module Arm64AssemblyStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Arm64Assembly::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Arm64Assembly::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

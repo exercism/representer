@@ -1,6 +1,6 @@
 require "test_helper"
 
-class FortranTest < InspectorTest
+class FortranTest < RosettaTest
   track "fortran"
 
   def test_comments_and_layout_are_ignored

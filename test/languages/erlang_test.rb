@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ErlangTest < InspectorTest
+class ErlangTest < RosettaTest
   track "erlang"
 
   def test_comments_and_layout_are_ignored

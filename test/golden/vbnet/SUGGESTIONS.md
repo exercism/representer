@@ -1,8 +1,8 @@
 # Suggestions for VB.NET
 
-[`transition.md`](../../../lib/inspector/languages/vbnet/transition.md) says how Inspector treats VB.NET differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/vbnet/transition.md) says how Rosetta treats VB.NET differently from Basic, which the track used before.
 These are changes that could improve it.
-None of them is in Inspector yet, because a change to VB.NET's own behaviour needs a human to decide it.
+None of them is in Rosetta yet, because a change to VB.NET's own behaviour needs a human to decide it.
 The counts come from a search of the 174 golden solutions.
 
 ## Code that could be dropped
@@ -25,6 +25,6 @@ The counts come from a search of the 174 golden solutions.
 
 ## Names
 
-13. **Rename the members of anonymous types.** `New With {.Total = x}` defines the member `Total`, but Inspector keeps its name today, because `.Total = x` in an object initializer such as `New Point With {.X = 1}` sets a member that the solution may not define.
-14. **Read a name's type character as part of the declaration.** VB.NET reads `count%` and `count` as the same variable, but Inspector renames them as two names today.
+13. **Rename the members of anonymous types.** `New With {.Total = x}` defines the member `Total`, but Rosetta keeps its name today, because `.Total = x` in an object initializer such as `New Point With {.X = 1}` sets a member that the solution may not define.
+14. **Read a name's type character as part of the declaration.** VB.NET reads `count%` and `count` as the same variable, but Rosetta renames them as two names today.
 

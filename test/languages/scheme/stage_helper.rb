@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Scheme's stages by hand, for the tests of each stage.
 module SchemeStages
-  Scheme = Inspector::Languages::Scheme
+  Scheme = Rosetta::Languages::Scheme
 
   def parse(source)
-    Inspector::Engine::Grammar["scheme"].parse(Inspector::Engine.clean(source), **Scheme::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["scheme"].parse(Rosetta::Engine.clean(source), **Scheme::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module SchemeStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Scheme::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Scheme::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

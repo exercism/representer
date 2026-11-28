@@ -1,7 +1,7 @@
 require "test_helper"
 
 class PatternTest < Minitest::Test
-  Node = Inspector::Engine::Node
+  Node = Rosetta::Engine::Node
 
   # (pair key: a key: 1 key: b value: c), where a, b and c are identifiers.
   def pair
@@ -40,7 +40,7 @@ class PatternTest < Minitest::Test
   end
 
   private
-  def parse(source) = Inspector::Engine::Pattern.parse(source)
+  def parse(source) = Rosetta::Engine::Pattern.parse(source)
 
   def field(node, name)
     node.field = name.to_s

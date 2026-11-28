@@ -1,6 +1,6 @@
 # Suggestions for PowerShell
 
-[`transition.md`](../../../lib/inspector/languages/powershell/transition.md) says how Inspector treats PowerShell differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/powershell/transition.md) says how Rosetta treats PowerShell differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to PowerShell's own behaviour needs the maintainers to decide it.
 The counts come from the 205 golden solutions.
@@ -25,6 +25,6 @@ The counts come from the 205 golden solutions.
 
 ## Names
 
-13. **Rename the variables of a multiple assignment.** `$a, $b = 1, 2` defines `$a` and `$b`, but Inspector only renames a variable assigned to on its own, so they keep their names unless the solution assigns them elsewhere. 2 golden solutions use a multiple assignment.
+13. **Rename the variables of a multiple assignment.** `$a, $b = 1, 2` defines `$a` and `$b`, but Rosetta only renames a variable assigned to on its own, so they keep their names unless the solution assigns them elsewhere. 2 golden solutions use a multiple assignment.
 14. **Keep the names fixed by the tests.** The tests call the functions and their parameters by name, such as `Test-LeapYear -Year 2000`, so those names are the same in every solution, and renaming them only makes the output harder to read.
 15. **Keep hash keys and member names apart from variables.** A hash key such as `@{ count = 1 }` is a string and keeps its name, but `$h.count` is a member name and is renamed if the solution defines `$count`. Renaming the two the same way would keep them matching.

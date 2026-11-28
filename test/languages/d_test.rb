@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on D solutions. The tests of each stage are in
+# Tests Rosetta as a whole on D solutions. The tests of each stage are in
 # test/languages/d/.
-class DTest < InspectorTest
+class DTest < RosettaTest
   track "d"
 
   def test_comments_layout_and_imports_go

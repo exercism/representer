@@ -35,7 +35,7 @@ class FutharkNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Futhark::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Futhark::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << node.text if Futhark::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort

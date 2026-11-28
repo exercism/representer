@@ -49,7 +49,7 @@ class FreePascalNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(code)
     tree = prepare(code)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], FreePascal::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], FreePascal::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << [node.text, node.renamed] if FreePascal::Representation::Spec.name?(node) }
     leaves

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CrystalTest < InspectorTest
+class CrystalTest < RosettaTest
   extend UpstreamTests
 
   track "crystal"
@@ -24,8 +24,8 @@ class CrystalTest < InspectorTest
       equivalents = Dir[File.join(dir, "equivalent", "*.cr")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Inspector::RepresentSolution.("crystal", inputs)
-      assert_equal Inspector::RepresentSolution.("crystal", equivalents).representation, actual.representation
+      actual = Rosetta::RepresentSolution.("crystal", inputs)
+      assert_equal Rosetta::RepresentSolution.("crystal", equivalents).representation, actual.representation
       assert_equal mapping.values.sort, actual.mapping.values.sort
     end
   end

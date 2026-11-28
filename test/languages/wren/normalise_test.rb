@@ -1,7 +1,7 @@
 require_relative "stage_helper"
 
-# Tests Wren's Normalise stage, through Inspector as a whole.
-class WrenNormaliseTest < InspectorTest
+# Tests Wren's Normalise stage, through Rosetta as a whole.
+class WrenNormaliseTest < RosettaTest
   include WrenStages
 
   track "wren"

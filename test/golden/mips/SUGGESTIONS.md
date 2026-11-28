@@ -1,6 +1,6 @@
 # Suggestions for MIPS
 
-[`transition.md`](../../../lib/inspector/languages/mips/transition.md) says how Inspector treats MIPS differently from Basic, which MIPS used before.
+[`transition.md`](../../../lib/rosetta/languages/mips/transition.md) says how Rosetta treats MIPS differently from Basic, which MIPS used before.
 These are changes that could improve it.
 None of them is made, because a change to MIPS's own behaviour needs the maintainers to decide it.
 

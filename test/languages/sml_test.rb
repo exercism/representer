@@ -1,6 +1,6 @@
 require "test_helper"
 
-class SmlTest < InspectorTest
+class SmlTest < RosettaTest
   track "sml"
 
   def test_comments_and_layout_are_ignored

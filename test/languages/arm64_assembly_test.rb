@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on ARM64 assembly solutions. The tests of each
+# Tests Rosetta as a whole on ARM64 assembly solutions. The tests of each
 # stage are in test/languages/arm64_assembly/.
-class Arm64AssemblyTest < InspectorTest
+class Arm64AssemblyTest < RosettaTest
   track "arm64-assembly"
 
   def test_comments_and_formatting

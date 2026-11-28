@@ -2,7 +2,7 @@ require_relative "snippet_rules"
 
 class FindSkippedStatementsTest < Minitest::Test
   def skipped(source, rules = SnippetRules::RubySnippet)
-    ranges = Inspector::Engine::FindSkippedStatements.(rules, SnippetRules.parse(source), source)
+    ranges = Rosetta::Engine::FindSkippedStatements.(rules, SnippetRules.parse(source), source)
     ranges.map { |range| source.byteslice(range) }
   end
 

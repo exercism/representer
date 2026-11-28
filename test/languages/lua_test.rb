@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Lua solutions. The tests of each stage are in
+# Tests Rosetta as a whole on Lua solutions. The tests of each stage are in
 # test/languages/lua/.
-class LuaTest < InspectorTest
+class LuaTest < RosettaTest
   track "lua"
 
   def wrap(body) = "local function f(a, b)\n#{body}\nend\n"

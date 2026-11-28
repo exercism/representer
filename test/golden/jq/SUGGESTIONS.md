@@ -1,6 +1,6 @@
 # Suggestions for jq
 
-[`transition.md`](../../../lib/inspector/languages/jq/transition.md) says how Inspector treats jq differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/jq/transition.md) says how Rosetta treats jq differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to jq's own behaviour needs the maintainers to decide it.
 The counts come from the 379 golden solutions that parse.
@@ -15,7 +15,7 @@ The counts come from the 379 golden solutions that parse.
 
 ## Names
 
-6. **Rename a value parameter's filter too.** In `def f($a): a;`, jq defines both `$a` and the filter `a`. Inspector renames `$a` and keeps `a`, so two solutions that use `a` with different names stay apart.
+6. **Rename a value parameter's filter too.** In `def f($a): a;`, jq defines both `$a` and the filter `a`. Rosetta renames `$a` and keeps `a`, so two solutions that use `a` with different names stay apart.
 7. **Keep the names fixed by the tests.** In exercises such as log-line-parser, the tests call the functions given in the stub by name, such as `message` and `log_level`, so those names are the same in every solution, and renaming them only makes the output harder to read. 164 golden solutions define a function.
 
 ## Parsing

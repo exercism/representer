@@ -3,7 +3,7 @@ require "test_helper"
 # Tests Basic's WriteLines, which writes the lines of tokens as the
 # representation.
 class BasicWriteLinesTest < Minitest::Test
-  def write(lines, track: "dart") = Inspector::Languages::Basic::WriteLines.(track, lines)
+  def write(lines, track: "dart") = Rosetta::Languages::Basic::WriteLines.(track, lines)
 
   def test_writes_tokens_with_single_spaces_and_keeps_line_breaks
     assert_equal "x = 1\ny", write([[0, ["x", "=", "1"]], [0, ["y"]]])

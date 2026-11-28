@@ -1,6 +1,6 @@
 # Suggestions for WebAssembly
 
-[`transition.md`](../../../lib/inspector/languages/wasm/transition.md) says how Inspector differs from the old WebAssembly representer.
+[`transition.md`](../../../lib/rosetta/languages/wasm/transition.md) says how Rosetta differs from the old WebAssembly representer.
 These are changes that could improve it.
 None of them is made, because a change to WebAssembly's own behaviour needs the maintainers to decide it.
 

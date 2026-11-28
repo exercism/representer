@@ -1,6 +1,6 @@
 require "test_helper"
 
-class Perl5Test < InspectorTest
+class Perl5Test < RosettaTest
   track "perl5"
 
   def test_comments_and_layout_are_ignored

@@ -1,8 +1,8 @@
 # Suggestions for Bash
 
-[`transition.md`](../../../lib/inspector/languages/bash/transition.md) says how Inspector treats Bash differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/bash/transition.md) says how Rosetta treats Bash differently from Basic, which the track used before.
 These are changes that could improve it.
-None of them is in Inspector yet, because a change to Bash's own behaviour needs a human to decide it.
+None of them is in Rosetta yet, because a change to Bash's own behaviour needs a human to decide it.
 The counts come from a text search of the 379 golden solutions, so they are approximate.
 
 ## Spellings that are apart today
@@ -25,4 +25,4 @@ The counts come from a text search of the 379 golden solutions, so they are appr
 
 11. **Parse arithmetic in an array's index that has no spaces.** The grammar reads `${a[i+1]}` as a word `i+1`, so the `i` isn't renamed. It parses `${a[i + 1]}` as arithmetic. 19 golden solutions have such an index.
 12. **Parse a line of assignments before `elif` or `fi`.** The grammar reads `goal=one other=$b2` followed by `elif (( b2 == goal )); then` as one command with `elif` as an argument, so the tree for the `if` has the wrong shape. It parses without an error, and the same code always gets the same tree, so it makes no difference to the golden groups today. 6 golden solutions have it.
-13. **Keep the text of `10#$x`.** The grammar leaves the `10#` out of a number such as `$((10#$x))`. Inspector keeps it with `text_between_children`, and the same goes for a regular expression such as `-` in `[[ $x =~ - ]]`, which the grammar leaves out of the `=~` expression. A fix to the grammar would let Inspector drop those declarations.
+13. **Keep the text of `10#$x`.** The grammar leaves the `10#` out of a number such as `$((10#$x))`. Rosetta keeps it with `text_between_children`, and the same goes for a regular expression such as `-` in `[[ $x =~ - ]]`, which the grammar leaves out of the `=~` expression. A fix to the grammar would let Rosetta drop those declarations.

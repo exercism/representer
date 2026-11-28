@@ -1,6 +1,6 @@
 # Suggestions for PHP
 
-[`transition.md`](../../../lib/inspector/languages/php/transition.md) says how Inspector differs from the old PHP representer.
+[`transition.md`](../../../lib/rosetta/languages/php/transition.md) says how Rosetta differs from the old PHP representer.
 These are changes that could improve it.
 None of them is made, because a change to PHP's own behaviour needs the maintainers to decide it.
 

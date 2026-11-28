@@ -10,10 +10,10 @@ class RepresentationTest < Minitest::Test
   end
 
   def test_says_which_leaves_are_names_and_their_text
-    symbol = Inspector::Engine::Node.leaf(:simple_symbol, ":count")
+    symbol = Rosetta::Engine::Node.leaf(:simple_symbol, ":count")
     assert Representation.name?(symbol)
     assert_equal "count", Representation.name_text(symbol)
-    refute Representation.name?(Inspector::Engine::Node.leaf(:integer, "1"))
+    refute Representation.name?(Rosetta::Engine::Node.leaf(:integer, "1"))
   end
 
   def test_rejects_a_version_out_of_range

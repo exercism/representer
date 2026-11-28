@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Standard ML's stages by hand, for the tests of each stage.
 module SmlStages
-  Sml = Inspector::Languages::Sml
+  Sml = Rosetta::Languages::Sml
 
   def parse(source)
-    Inspector::Engine::Grammar["sml"].parse(Inspector::Engine.clean(source), **Sml::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["sml"].parse(Rosetta::Engine.clean(source), **Sml::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module SmlStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Sml::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Sml::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

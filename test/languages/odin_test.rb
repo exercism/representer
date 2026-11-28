@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Odin solutions. The tests of each stage are in
+# Tests Rosetta as a whole on Odin solutions. The tests of each stage are in
 # test/languages/odin/.
-class OdinTest < InspectorTest
+class OdinTest < RosettaTest
   track "odin"
 
   def test_comments_layout_and_imports_go

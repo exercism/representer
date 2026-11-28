@@ -1,6 +1,6 @@
 require "test_helper"
 
-class PrologTest < InspectorTest
+class PrologTest < RosettaTest
   track "prolog"
 
   def test_comments_and_layout_are_ignored

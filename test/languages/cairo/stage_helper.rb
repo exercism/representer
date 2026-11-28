@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Cairo's stages by hand, for the tests of each stage.
 module CairoStages
-  Cairo = Inspector::Languages::Cairo
+  Cairo = Rosetta::Languages::Cairo
 
   def parse(source)
-    Inspector::Engine::Grammar["cairo"].parse(Inspector::Engine.clean(source), **Cairo::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["cairo"].parse(Rosetta::Engine.clean(source), **Cairo::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,9 +13,9 @@ module CairoStages
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Cairo::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Cairo::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 
   def wrap(body) = "fn f(a: u32, b: u32) -> u32 {\n#{body}\n}\n"
 end

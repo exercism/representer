@@ -34,14 +34,14 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ -z "${SKIP_BUILD:-}" ]]; then
-    docker build --rm -t exercism/inspector .
+    docker build --rm -t exercism/rosetta .
 fi
 
 # Image sizes
-uncompressed_bytes=$(docker image inspect exercism/inspector --format '{{.Size}}')
-compressed_bytes=$(docker save exercism/inspector | gzip | wc -c)
+uncompressed_bytes=$(docker image inspect exercism/rosetta --format '{{.Size}}')
+compressed_bytes=$(docker save exercism/rosetta | gzip | wc -c)
 echo "${uncompressed_bytes} ${compressed_bytes}" > "${work_dir}/sizes.txt"
-docker history --no-trunc=false --format '{{.Size}}\t{{.CreatedBy}}' exercism/inspector > "${work_dir}/layers.txt" || true
+docker history --no-trunc=false --format '{{.Size}}\t{{.CreatedBy}}' exercism/rosetta > "${work_dir}/layers.txt" || true
 
 # Scenarios: each one is "name<TAB>path to an event file"
 scenarios_file="${work_dir}/scenarios.tsv"
@@ -127,7 +127,7 @@ while IFS=$'\t' read -r name event; do
 
     echo "Running ${name}"
     started=$(date +%s.%N)
-    container_id=$(docker run --detach --publish ${container_port}:8080 exercism/inspector)
+    container_id=$(docker run --detach --publish ${container_port}:8080 exercism/rosetta)
 
     # Send the real request until the container answers. The first successful
     # one is the cold request.
@@ -163,7 +163,7 @@ work = sys.argv[1]
 def mb(n): return f"{int(n) / 1024 / 1024:.1f} MB"
 
 unc, comp = open(f"{work}/sizes.txt").read().split()
-out = ["## Inspector image benchmark", "",
+out = ["## Rosetta image benchmark", "",
        f"- Image size, uncompressed: {mb(unc)}",
        f"- Image size, layers gzipped (about what ECR stores): {mb(comp)}", "",
        "Durations are in milliseconds. Cold is the first request to a new container. Warm is the median of the later requests (max in brackets).",

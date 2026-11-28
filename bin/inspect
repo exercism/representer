@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Synopsis:
-# Show how Inspector sees a file, to help write its rules.
+# Show how Rosetta sees a file, to help write its rules.
 
 # Arguments:
 # $1: track slug
@@ -14,25 +14,25 @@
 # Example:
 # ./bin/inspect ruby path/to/two_fer.rb
 
-require_relative "../lib/inspector"
+require_relative "../lib/rosetta"
 
 track_slug, path = ARGV
 abort "usage: ./bin/inspect track-slug path/to/file" unless track_slug && path
 
-language = Inspector::Languages.for(track_slug)
+language = Rosetta::Languages.for(track_slug)
 source = File.read(path)
 
-# Inspector ignores files named like tests or config files, such as
+# Rosetta ignores files named like tests or config files, such as
 # leap_test.gleam, so such a file is represented as solution.gleam.
 filename = File.basename(path)
-if Inspector::Engine.test_or_config_file?(filename)
+if Rosetta::Engine.test_or_config_file?(filename)
   renamed = "solution#{File.extname(filename)}"
-  puts "Inspector ignores files named like #{filename}, so this represents it as #{renamed}.\n\n"
+  puts "Rosetta ignores files named like #{filename}, so this represents it as #{renamed}.\n\n"
   filename = renamed
 end
 
-if language != Inspector::Languages::Basic && !language.source_file?(filename)
-  puts "Inspector ignores #{filename}, because #{track_slug} only reads #{language.extensions.join(', ')} files.\n\n"
+if language != Rosetta::Languages::Basic && !language.source_file?(filename)
+  puts "Rosetta ignores #{filename}, because #{track_slug} only reads #{language.extensions.join(', ')} files.\n\n"
 end
 
 def show(node, depth = 0)
@@ -43,19 +43,19 @@ def show(node, depth = 0)
   node.children.each { |child| show(child, depth + 1) }
 end
 
-if language == Inspector::Languages::Basic
+if language == Rosetta::Languages::Basic
   puts "#{track_slug} has no language of its own, so it uses Basic."
 else
   puts "Parsed tree:"
-  show(Inspector::Engine::Grammar[language.grammar].parse(Inspector::Engine.clean(source)))
+  show(Rosetta::Engine::Grammar[language.grammar].parse(Rosetta::Engine.clean(source)))
 end
 
-result = Inspector::RepresentSolution.(track_slug, { filename => source })
+result = Rosetta::RepresentSolution.(track_slug, { filename => source })
 language_name = result.language.name.delete_suffix("::Common::Spec").split("::").last
 puts "\nRepresentation (#{language_name}, version #{result.version}):"
 puts result.representation
 puts "\nMapping: #{result.mapping}"
 
-snippet = Inspector::Generate.(track_slug, { filename => source }, outputs: [:snippet])[:snippet]
+snippet = Rosetta::Generate.(track_slug, { filename => source }, outputs: [:snippet])[:snippet]
 puts "\nSnippet (version #{snippet[:version]}):"
 puts snippet[:snippet] || snippet[:message]

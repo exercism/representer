@@ -4,7 +4,7 @@ class SnippetTest < Minitest::Test
   # A Ruby snippet, unless a track is given.
   def snippet(solution_files, exercise_files = {}, track: "ruby")
     solution_files = { "solution" => solution_files } if solution_files.is_a?(String)
-    Inspector::Generate.(track, solution_files, outputs: [:snippet], exercise_files:)[:snippet][:snippet]
+    Rosetta::Generate.(track, solution_files, outputs: [:snippet], exercise_files:)[:snippet][:snippet]
   end
 
   def config(*solution) = { ".meta/config.json" => { files: { solution: } }.to_json }
@@ -116,10 +116,10 @@ class SnippetTest < Minitest::Test
   ### Other languages ###
 
   def test_every_language_with_a_representation_has_a_snippet
-    languages = Inspector::Languages.registry.values.uniq - [Inspector::Languages::Basic]
+    languages = Rosetta::Languages.registry.values.uniq - [Rosetta::Languages::Basic]
     languages.each do |language|
-      snippet = Inspector::Languages.snippet_for(language.tracks.first)
-      refute_equal Inspector::Languages::Basic::Snippet::Spec, snippet, language.name
+      snippet = Rosetta::Languages.snippet_for(language.tracks.first)
+      refute_equal Rosetta::Languages::Basic::Snippet::Spec, snippet, language.name
     end
   end
 
@@ -251,7 +251,7 @@ class SnippetTest < Minitest::Test
   ### Rules ###
 
   def test_rejects_unknown_rules
-    assert_raises(ArgumentError) { Class.new(Inspector::Engine::Snippet).remove(:strings) }
+    assert_raises(ArgumentError) { Class.new(Rosetta::Engine::Snippet).remove(:strings) }
   end
 
   def test_the_main_file_is_parsed_once_for_the_snippet_and_the_representation
@@ -263,28 +263,28 @@ class SnippetTest < Minitest::Test
         super(code, **options)
       end
     end
-    Inspector::Engine::Grammar["ruby"].singleton_class.prepend(counting)
-    output = Inspector::Generate.("ruby", { "a.rb" => source }, outputs: %i[representation snippet])
+    Rosetta::Engine::Grammar["ruby"].singleton_class.prepend(counting)
+    output = Rosetta::Generate.("ruby", { "a.rb" => source }, outputs: %i[representation snippet])
     assert_equal 1, parses
     assert_equal "x = 1\n", output[:snippet][:snippet]
-    assert_equal Inspector::Generate.("ruby", { "a.rb" => "x = 1\n" }, outputs: %i[representation]), output.slice(:representation)
+    assert_equal Rosetta::Generate.("ruby", { "a.rb" => "x = 1\n" }, outputs: %i[representation]), output.slice(:representation)
   ensure
     counting&.send(:remove_method, :parse)
   end
 
   def test_a_bug_in_a_rule_gives_the_snippet_an_error
-    Inspector::Languages.register_snippet("broken", Class.new(Inspector::Engine::Snippet) { def call = raise("Oops") })
+    Rosetta::Languages.register_snippet("broken", Class.new(Rosetta::Engine::Snippet) { def call = raise("Oops") })
     output = nil
-    _, log = capture_io { output = Inspector::Generate.("broken", { "a" => "x" }, outputs: %i[snippet]) }
+    _, log = capture_io { output = Rosetta::Generate.("broken", { "a" => "x" }, outputs: %i[snippet]) }
     assert_equal({ error: "internal_error", message: "One of the snippet's rules raised an error" }, output[:snippet])
     assert_includes log, "broken"
   ensure
-    Inspector::Languages.snippets.delete("broken")
+    Rosetta::Languages.snippets.delete("broken")
   end
 
   def test_the_snippet_has_its_own_version
-    output = Inspector::Generate.("ruby", { "a.rb" => "x" }, outputs: %i[snippet])
-    assert_equal Inspector::Languages::Ruby::Snippet::Spec.version, output[:snippet][:version]
+    output = Rosetta::Generate.("ruby", { "a.rb" => "x" }, outputs: %i[snippet])
+    assert_equal Rosetta::Languages::Ruby::Snippet::Spec.version, output[:snippet][:version]
   end
 
   def test_a_language_reads_its_comments_and_docstrings_from_its_spec

@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Scheme solutions. The tests of each stage are in
+# Tests Rosetta as a whole on Scheme solutions. The tests of each stage are in
 # test/languages/scheme/.
-class SchemeTest < InspectorTest
+class SchemeTest < RosettaTest
   track "scheme"
 
   def test_comments_and_formatting

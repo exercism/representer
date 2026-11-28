@@ -2,19 +2,19 @@ $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 
 require "minitest/autorun"
 require "minitest/pride" if $stdout.tty?
-require "inspector"
+require "rosetta"
 
-class InspectorTest < Minitest::Test
+class RosettaTest < Minitest::Test
   # Every language's test sets this, and the helpers below use it.
   def self.track(slug = nil) = slug ? @track = slug : @track
   def track = self.class.track
 
-  def represent(code, filename: default_filename) = Inspector::RepresentSolution.(track, { filename => code })
+  def represent(code, filename: default_filename) = Rosetta::RepresentSolution.(track, { filename => code })
 
   # A solution file with the language's first extension, as the engine
   # ignores files with other extensions.
   def default_filename
-    language = Inspector::Languages.for(track)
+    language = Rosetta::Languages.for(track)
     language.respond_to?(:extensions) ? "solution#{language.extensions.first}" : "solution"
   end
 
@@ -36,16 +36,16 @@ class InspectorTest < Minitest::Test
     assert_nil result.representation
     assert_empty result.mapping
     assert_equal reason, result.reason
-    assert_equal Inspector::Languages.for(track).version, result.version
+    assert_equal Rosetta::Languages.for(track).version, result.version
   end
 
   # Checks that the solution doesn't parse, so it gets Basic's representation
   # with the language's version.
   def assert_basic_representation(code)
     result = represent(code)
-    basic = Inspector::Languages::Basic.(track, { default_filename => code })
-    assert_equal Inspector::RepresentSolution::BASIC_PREFIX + basic.representation, result.representation
-    assert_equal Inspector::Languages.for(track).version, result.version
+    basic = Rosetta::Languages::Basic.(track, { default_filename => code })
+    assert_equal Rosetta::RepresentSolution::BASIC_PREFIX + basic.representation, result.representation
+    assert_equal Rosetta::Languages.for(track).version, result.version
   end
 end
 
@@ -65,16 +65,16 @@ end
 # 3. Distinctness: two tests get the same representation exactly when they
 #    have the same expected output.
 #
-# Where Inspector deliberately differs, a deviation says how and why:
+# Where Rosetta deliberately differs, a deviation says how and why:
 #
 # - restore: placeholders in equivalent.<ext> to turn back into names, for
-#   names that expected_mapping.json lists but Inspector keeps.
+#   names that expected_mapping.json lists but Rosetta keeps.
 # - replace: text in equivalent.<ext> to replace with other text, for names
-#   that Inspector renames and the fixture keeps.
+#   that Rosetta renames and the fixture keeps.
 # - add / remove: names to add to or remove from the expected mapping.
 # - parse_error: the input has a syntax error, so it gets Basic's
 #   representation. The test checks that, and nothing else.
-# - merges_with: the names of other tests that Inspector gives the
+# - merges_with: the names of other tests that Rosetta gives the
 #   same representation, although their expected outputs differ (such as two
 #   solutions that differ only in their imports).
 # - why: the reason, which every deviation must give.
@@ -102,23 +102,23 @@ module UpstreamTests
 
       if test_case.deviation[:parse_error]
         define_method("test_upstream_#{test_case.name}_gets_a_basic_representation") do
-          result = Inspector::RepresentSolution.(track, test_case.solution_files)
-          assert_equal Inspector::Languages::Basic, result.language
-          assert result.representation.start_with?(Inspector::RepresentSolution::BASIC_PREFIX)
+          result = Rosetta::RepresentSolution.(track, test_case.solution_files)
+          assert_equal Rosetta::Languages::Basic, result.language
+          assert result.representation.start_with?(Rosetta::RepresentSolution::BASIC_PREFIX)
         end
         next
       end
 
       define_method("test_upstream_#{test_case.name}_equivalence") do
         filename = test_case.solution_files.keys.first
-        expected = Inspector::RepresentSolution.(track, { filename => test_case.equivalent })
-        actual = Inspector::RepresentSolution.(track, test_case.solution_files)
+        expected = Rosetta::RepresentSolution.(track, { filename => test_case.equivalent })
+        actual = Rosetta::RepresentSolution.(track, test_case.solution_files)
         assert_equal expected.representation, actual.representation
         refute_nil actual.representation, "#{test_case.name} has no representation (#{actual.reason})"
       end
 
       define_method("test_upstream_#{test_case.name}_mapping") do
-        actual = Inspector::RepresentSolution.(track, test_case.solution_files)
+        actual = Rosetta::RepresentSolution.(track, test_case.solution_files)
         assert_equal test_case.mapping_names.uniq.sort, actual.mapping.values.uniq.sort
       end
     end
@@ -126,7 +126,7 @@ module UpstreamTests
     define_method(:test_upstream_distinctness) do
       represented = cases.reject { |test_case| test_case.deviation[:parse_error] }
       representations = represented.to_h do |test_case|
-        [test_case.name, Inspector::RepresentSolution.(track, test_case.solution_files).representation]
+        [test_case.name, Rosetta::RepresentSolution.(track, test_case.solution_files).representation]
       end
       represented.combination(2).each do |a, b|
         if a.key == b.key || UpstreamTests.merged?(a, b)

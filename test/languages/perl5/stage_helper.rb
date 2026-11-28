@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Perl's stages by hand, for the tests of each stage.
 module Perl5Stages
-  Perl5 = Inspector::Languages::Perl5
+  Perl5 = Rosetta::Languages::Perl5
 
   def parse(source)
-    Inspector::Engine::Grammar["perl"].parse(Inspector::Engine.clean(source), **Perl5::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["perl"].parse(Rosetta::Engine.clean(source), **Perl5::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module Perl5Stages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Perl5::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Perl5::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

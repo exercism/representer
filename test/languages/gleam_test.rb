@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Gleam solutions. Each stage has its own tests in
+# Tests Rosetta as a whole on Gleam solutions. Each stage has its own tests in
 # test/languages/gleam/.
-class GleamTest < InspectorTest
+class GleamTest < RosettaTest
   track "gleam"
 
   def wrap(body) = "pub fn f(x: Int) -> Int {\n#{body}\n}\n"

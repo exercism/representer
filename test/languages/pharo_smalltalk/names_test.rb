@@ -41,7 +41,7 @@ class PharoSmalltalkNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], PharoSmalltalk::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], PharoSmalltalk::Representation::Spec)
     leaves = []
     tree.each_descendant do |node|
       leaves << node.text if PharoSmalltalk::Representation::Spec.name?(node) && node.renamed

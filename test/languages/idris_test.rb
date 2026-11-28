@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Idris solutions. The tests of each stage are in
+# Tests Rosetta as a whole on Idris solutions. The tests of each stage are in
 # test/languages/idris/.
-class IdrisTest < InspectorTest
+class IdrisTest < RosettaTest
   track "idris"
 
   def test_comments_layout_and_imports_go

@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Go's Normalise stage, through Inspector as a whole, because the
+# Tests Go's Normalise stage, through Rosetta as a whole, because the
 # names it writes are renamed afterwards.
-class GoNormaliseTest < InspectorTest
+class GoNormaliseTest < RosettaTest
   include GoStages
 
   track "go"

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class PowershellTest < InspectorTest
+class PowershellTest < RosettaTest
   track "powershell"
 
   def test_comments_and_layout_are_ignored

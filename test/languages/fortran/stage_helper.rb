@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Fortran's stages by hand, for the tests of each stage.
 module FortranStages
-  Fortran = Inspector::Languages::Fortran
+  Fortran = Rosetta::Languages::Fortran
 
   def parse(source)
-    Inspector::Engine::Grammar["fortran"].parse(Inspector::Engine.clean(source), **Fortran::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["fortran"].parse(Rosetta::Engine.clean(source), **Fortran::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module FortranStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Fortran::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Fortran::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on R solutions. The tests of each stage are in
+# Tests Rosetta as a whole on R solutions. The tests of each stage are in
 # test/languages/r/.
-class RTest < InspectorTest
+class RTest < RosettaTest
   track "r"
 
   def wrap(body) = "f <- function(a, b) {\n#{body}\n}\n"

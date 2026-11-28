@@ -1,7 +1,7 @@
 require "test_helper"
 
 class RepresentSolutionTest < Minitest::Test
-  def represent(track_slug, files) = Inspector::RepresentSolution.(track_slug, files)
+  def represent(track_slug, files) = Rosetta::RepresentSolution.(track_slug, files)
 
   def test_a_solution_that_does_not_parse_gets_basics_representation_with_the_languages_version
     files = { "two_fer.rb" => "def two_fer(name\n  name # the name\nend" }
@@ -9,7 +9,7 @@ class RepresentSolutionTest < Minitest::Test
 
     assert_equal "basic\ndef two_fer ( name\nname\nend", result.representation
     assert_empty result.mapping
-    assert_equal Inspector::Languages::Ruby::Representation::Spec.version, result.version
+    assert_equal Rosetta::Languages::Ruby::Representation::Spec.version, result.version
     assert_nil result.reason
   end
 
@@ -20,7 +20,7 @@ class RepresentSolutionTest < Minitest::Test
     basic = represent("clojure", { "a.clj" => "(inc x" }).representation
 
     assert tree.start_with?("(")
-    assert basic.start_with?(Inspector::RepresentSolution::BASIC_PREFIX)
+    assert basic.start_with?(Rosetta::RepresentSolution::BASIC_PREFIX)
   end
 
   def test_a_solution_that_nests_too_deeply_still_gets_no_representation

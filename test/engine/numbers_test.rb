@@ -1,7 +1,7 @@
 require "test_helper"
 
 class NumbersTest < Minitest::Test
-  Numbers = Inspector::Engine::Numbers
+  Numbers = Rosetta::Engine::Numbers
 
   def test_integers
     assert_equal 1000, Numbers.integer("1_000")

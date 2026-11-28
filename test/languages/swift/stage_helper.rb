@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Swift's stages by hand, for the tests of each stage.
 module SwiftStages
-  Swift = Inspector::Languages::Swift
+  Swift = Rosetta::Languages::Swift
 
   def parse(source)
-    Inspector::Engine::Grammar["swift"].parse(Inspector::Engine.clean(source), **Swift::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["swift"].parse(Rosetta::Engine.clean(source), **Swift::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,9 +13,9 @@ module SwiftStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Swift::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Swift::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 
   # The source as the body of a function.
   def in_function(body) = "func f(x: Int) -> Int {\n#{body}\n}\n"

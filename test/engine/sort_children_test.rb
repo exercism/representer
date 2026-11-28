@@ -26,5 +26,5 @@ class SortChildrenTest < Minitest::Test
 
   private
   def renamed(leaf) = leaf.tap { leaf.renamed = true }
-  def sort(tree, *types) = Inspector::Engine::Serialize.(Inspector::Engine::SortChildren.(tree, types))
+  def sort(tree, *types) = Rosetta::Engine::Serialize.(Rosetta::Engine::SortChildren.(tree, types))
 end

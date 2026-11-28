@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Ruby's Reorder stage, through Inspector as a whole, because it
+# Tests Ruby's Reorder stage, through Rosetta as a whole, because it
 # sorts by the code with the renamed names left out.
-class RubyReorderTest < InspectorTest
+class RubyReorderTest < RosettaTest
   track "ruby"
 
   def test_the_order_of_methods_in_a_class_or_module_makes_no_difference

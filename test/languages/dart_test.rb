@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Dart solutions. The tests of each stage are in
+# Tests Rosetta as a whole on Dart solutions. The tests of each stage are in
 # test/languages/dart/.
-class DartTest < InspectorTest
+class DartTest < RosettaTest
   track "dart"
 
   def wrap(body) = "int f(int a, int b) {\n#{body}\n}\n"

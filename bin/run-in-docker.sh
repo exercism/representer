@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Synopsis:
-# Run Inspector on a request using the Docker image, which mimics how
+# Run Rosetta on a request using the Docker image, which mimics how
 # it runs in production (as a Lambda function).
 
 # Arguments:
@@ -27,10 +27,10 @@ container_port=9876
 
 # Build the Docker image, unless SKIP_BUILD is set
 if [[ -z "${SKIP_BUILD}" ]]; then
-    docker build --rm -t exercism/inspector .
+    docker build --rm -t exercism/rosetta .
 fi
 
-container_id=$(docker run --detach --publish ${container_port}:8080 exercism/inspector)
+container_id=$(docker run --detach --publish ${container_port}:8080 exercism/rosetta)
 
 # Give the Lambda runtime a moment to start
 sleep 1

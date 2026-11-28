@@ -5,14 +5,14 @@ class UnwrapBracketsTest < Minitest::Test
 
   def test_unwraps_brackets_with_one_named_child
     tree = node(:program, node(:parens, node(:parens, leaf("a"))), node(:parens, leaf("b"), leaf("c")))
-    assert_equal "(program a\n  (parens b c))", write(Inspector::Engine::UnwrapBrackets.(tree, %w[parens]))
+    assert_equal "(program a\n  (parens b c))", write(Rosetta::Engine::UnwrapBrackets.(tree, %w[parens]))
   end
 
   def test_unwraps_only_the_types_given
     tree = node(:program, node(:block, leaf("a")))
-    assert_equal "(program\n  (block a))", write(Inspector::Engine::UnwrapBrackets.(tree, %w[parens]))
+    assert_equal "(program\n  (block a))", write(Rosetta::Engine::UnwrapBrackets.(tree, %w[parens]))
   end
 
   private
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

@@ -1,9 +1,9 @@
 require_relative "stage_helper"
 
 # Tests Gleam's Normalise stage, and the imports that the engine drops,
-# through Inspector as a whole, because the names it writes are renamed
+# through Rosetta as a whole, because the names it writes are renamed
 # afterwards.
-class GleamNormaliseTest < InspectorTest
+class GleamNormaliseTest < RosettaTest
   include GleamStages
 
   track "gleam"

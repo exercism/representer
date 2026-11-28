@@ -1,6 +1,6 @@
 # Suggestions for Swift
 
-[`transition.md`](../../../lib/inspector/languages/swift/transition.md) says how Inspector treats Swift differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/swift/transition.md) says how Rosetta treats Swift differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to Swift's own behaviour needs the maintainers to decide it.
 The counts come from the 373 golden solutions.

@@ -5,13 +5,13 @@ require "test_helper"
 class InheritDeclarationsTest < Minitest::Test
   module Parent
     module Common
-      class Spec < Inspector::Engine::Language
+      class Spec < Rosetta::Engine::Language
         grammar "ruby"
       end
     end
 
     module Representation
-      class Spec < Inspector::Engine::Representation
+      class Spec < Rosetta::Engine::Representation
         version 2
         names_are :identifier
         names_are_defined_by :def
@@ -20,7 +20,7 @@ class InheritDeclarationsTest < Minitest::Test
       end
     end
 
-    class GenerateAST < Inspector::Engine::GenerateAST
+    class GenerateAST < Rosetta::Engine::GenerateAST
       strip_tokens "def"
       strip_tokens "|", only_in: :block_parameters
       keep_tokens ";", in: :block_parameters
@@ -28,16 +28,16 @@ class InheritDeclarationsTest < Minitest::Test
       numbers_are integer: :integer
     end
 
-    class Normalise < Inspector::Engine::Normalise
+    class Normalise < Rosetta::Engine::Normalise
       drop "puts 1"
     end
 
-    class Reorder < Inspector::Engine::Reorder
+    class Reorder < Rosetta::Engine::Reorder
       sort :hash
     end
 
     module Snippet
-      class Spec < Inspector::Engine::Snippet
+      class Spec < Rosetta::Engine::Snippet
         version 2
         remove :comments
         skip_at_top :require
@@ -47,7 +47,7 @@ class InheritDeclarationsTest < Minitest::Test
 
   module Child
     module Common
-      class Spec < Inspector::Engine::Language
+      class Spec < Rosetta::Engine::Language
         grammar "ruby"
       end
     end
@@ -106,7 +106,7 @@ class InheritDeclarationsTest < Minitest::Test
     assert_equal([["puts 1"], ["puts 2"]], Child::Normalise.rules.map { |rule| rule[1] })
     assert_equal([["puts 1"]], Parent::Normalise.rules.map { |rule| rule[1] })
 
-    tree = Inspector::Engine::Grammar["ruby"].parse("puts 1\nputs 2\nputs 3\n")
+    tree = Rosetta::Engine::Grammar["ruby"].parse("puts 1\nputs 2\nputs 3\n")
     calls = Child::Normalise.(tree).named_children
     assert_equal(["3"], calls.map { |call| call["arguments"].named_children.first.text })
   end
@@ -127,7 +127,7 @@ class InheritDeclarationsTest < Minitest::Test
   end
 
   def test_a_representation_inherits_the_names_its_parent_defines
-    definition = Inspector::Engine::Node.new(:def, [Inspector::Engine::Node.leaf(:identifier, "area")])
+    definition = Rosetta::Engine::Node.new(:def, [Rosetta::Engine::Node.leaf(:identifier, "area")])
     assert_equal ["area"], Child::Representation::Spec.names_defined_by(definition).map(&:text)
   end
 

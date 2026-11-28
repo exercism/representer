@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ReasonmlTest < InspectorTest
+class ReasonmlTest < RosettaTest
   track "reasonml"
 
   def test_comments_and_layout_are_ignored

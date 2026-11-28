@@ -27,7 +27,7 @@ The rules come from the exercise given in `exercise_slug`, and an exercise with 
 The analysis reads the exercise's `.meta/config.json` from the request's `exercise_files`, to find the solution's main file.
 This is the first file listed in `files.solution` that the student submitted, or else the student's first file.
 
-If Inspector can't generate the analysis, the output holds an error with the shape described in the README's "Deployment" section, and `error` is one of these reasons:
+If Rosetta can't generate the analysis, the output holds an error with the shape described in the README's "Deployment" section, and `error` is one of these reasons:
 
 - `not_supported`: the track has no analysis.
 - `parse_error`: the solution's main file doesn't parse.
@@ -49,8 +49,8 @@ The analysis keeps the imports and the student's names, and doesn't reorder the 
 Each exercise has a file of rules in `analysis/`, named after its slug, such as `analysis/two_fer.rb` for two-fer:
 
 ```ruby
-module Inspector::Languages::Ruby::Analysis
-  class Leap < Inspector::Engine::AnalysisRules
+module Rosetta::Languages::Ruby::Analysis
+  class Leap < Rosetta::Engine::AnalysisRules
     within ["class Year; {{...}}; end", "module Year; {{...}}; end"] do
       within "def self.leap?({{...}}); {{...}}; end" do
         uses(["Date.leap?({{...}})", "Date.gregorian_leap?({{...}})"]) { actionable "ruby.leap.std_lib" }

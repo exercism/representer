@@ -1,6 +1,6 @@
 require "test_helper"
 
-class BashTest < InspectorTest
+class BashTest < RosettaTest
   track "bash"
 
   def test_comments_and_layout_are_ignored

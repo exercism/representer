@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Haskell's stages by hand, for the tests of each stage.
 module HaskellStages
-  Haskell = Inspector::Languages::Haskell
+  Haskell = Rosetta::Languages::Haskell
 
   def parse(source)
-    Inspector::Engine::Grammar["haskell"].parse(Inspector::Engine.clean(source), **Haskell::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["haskell"].parse(Rosetta::Engine.clean(source), **Haskell::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,9 +13,9 @@ module HaskellStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Haskell::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Haskell::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 
   # The source as a module with one declaration.
   def in_module(code) = "module Leap (f) where\n\n#{code}\n"

@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RocTest < InspectorTest
+class RocTest < RosettaTest
   track "roc"
 
   def test_comments_and_layout_are_ignored

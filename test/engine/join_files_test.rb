@@ -22,5 +22,5 @@ class JoinFilesTest < Minitest::Test
 
   private
   def renamed(leaf) = leaf.tap { leaf.renamed = true }
-  def join(trees) = Inspector::Engine::Serialize.(Inspector::Engine::JoinFiles.(trees, "program"))
+  def join(trees) = Rosetta::Engine::Serialize.(Rosetta::Engine::JoinFiles.(trees, "program"))
 end

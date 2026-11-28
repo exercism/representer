@@ -6,7 +6,7 @@ require "rubocop-ast"
 # Tests Ruby's GenerateAST stage on its own, and against the tree that Ruby's
 # own parser gives (the parser gem, with RuboCop's builder).
 class RubyGenerateASTTest < Minitest::Test
-  GenerateAST = Inspector::Languages::Ruby::Common::GenerateAST
+  GenerateAST = Rosetta::Languages::Ruby::Common::GenerateAST
 
   def test_drops_comments_and_layout
     assert_same "x = 1 # one\n\n", "x = 1;"
@@ -169,16 +169,16 @@ class RubyGenerateASTTest < Minitest::Test
   def ast(source, names: true)
     # tree-sitter-ruby needs a line break after a heredoc's closing name.
     source = "#{source}\n"
-    tree = GenerateAST.(Inspector::Engine::Grammar["ruby"].parse(Inspector::Engine.clean(source)))
+    tree = GenerateAST.(Rosetta::Engine::Grammar["ruby"].parse(Rosetta::Engine.clean(source)))
     anonymise_names!(tree) unless names
-    Inspector::Engine::Serialize.(tree)
+    Rosetta::Engine::Serialize.(tree)
   end
 
   # Gives every name leaf a placeholder of its type and a number, for
   # Serialize to write.
   def anonymise_names!(tree)
     numbers = {}
-    names = Inspector::Languages::Ruby::Representation::Spec.names
+    names = Rosetta::Languages::Ruby::Representation::Spec.names
     tree.each_descendant do |leaf|
       prefix = names[leaf.type] if leaf.named? && leaf.leaf?
       leaf.placeholder = "#{leaf.type}:N#{numbers[leaf.text.delete_prefix(prefix)] ||= numbers.size}" if prefix

@@ -49,7 +49,7 @@ class JavaNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Java::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Java::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << [node.text, node.renamed] if Java::Representation::Spec.name?(node) }
     leaves

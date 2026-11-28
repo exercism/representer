@@ -45,7 +45,7 @@ class NimNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Nim::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Nim::Representation::Spec)
     names = []
     tree.each_descendant { |node| names << Nim::Representation::Spec.name_text(node) if node.renamed }
     names.uniq.sort

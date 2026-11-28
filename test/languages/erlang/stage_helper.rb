@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Erlang's stages by hand, for the tests of each stage.
 module ErlangStages
-  Erlang = Inspector::Languages::Erlang
+  Erlang = Rosetta::Languages::Erlang
 
   def parse(source)
-    Inspector::Engine::Grammar["erlang"].parse(Inspector::Engine.clean(source), **Erlang::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["erlang"].parse(Rosetta::Engine.clean(source), **Erlang::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,9 +13,9 @@ module ErlangStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Erlang::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Erlang::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 
   # The source as a module with one function.
   def in_module(code) = "-module(leap).\n-export([f/1]).\n\n#{code}\n"

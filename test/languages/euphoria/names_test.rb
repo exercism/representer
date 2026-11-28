@@ -37,7 +37,7 @@ class EuphoriaNamesTest < Minitest::Test
 
   def prepare_and_rename(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Euphoria::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Euphoria::Representation::Spec)
     tree
   end
 end

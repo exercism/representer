@@ -1,6 +1,6 @@
 require "test_helper"
 
-class SwiftTest < InspectorTest
+class SwiftTest < RosettaTest
   track "swift"
 
   def wrap(body) = "func f(x: Int) -> Int {\n#{body}\n}\n"

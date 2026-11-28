@@ -39,5 +39,5 @@ class WriteNumbersAsValuesTest < Minitest::Test
   end
 
   private
-  def write(tree, **numbers) = Inspector::Engine::Serialize.(Inspector::Engine::WriteNumbersAsValues.(tree, **numbers))
+  def write(tree, **numbers) = Rosetta::Engine::Serialize.(Rosetta::Engine::WriteNumbersAsValues.(tree, **numbers))
 end

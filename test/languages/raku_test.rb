@@ -3,13 +3,13 @@ require "test_helper"
 # The fixtures are normalize-whitespace and remove-comments. Differences:
 #
 # - The fixture's mapping holds every name in Rakudo's AST dump, including
-#   `export` and `return`, which Raku defines. Inspector only renames the
+#   `export` and `return`, which Raku defines. Rosetta only renames the
 #   module and sub that the student defines, so the old mapping's `export` and
 #   `return` are removed, and the others are written without the quotes that
 #   the old mapping kept.
 # - Each test's `.meta/config.json` is not copied, because it only said which
 #   file was the solution.
-class RakuTest < InspectorTest
+class RakuTest < RosettaTest
   extend UpstreamTests
 
   track "raku"

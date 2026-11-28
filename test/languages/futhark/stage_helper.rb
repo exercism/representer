@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Futhark's stages by hand, for the tests of each stage.
 module FutharkStages
-  Futhark = Inspector::Languages::Futhark
+  Futhark = Rosetta::Languages::Futhark
 
   def parse(source)
-    Inspector::Engine::Grammar["futhark"].parse(Inspector::Engine.clean(source), **Futhark::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["futhark"].parse(Rosetta::Engine.clean(source), **Futhark::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module FutharkStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Futhark::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Futhark::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

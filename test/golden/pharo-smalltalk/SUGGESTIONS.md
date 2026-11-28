@@ -1,8 +1,8 @@
 # Suggestions for Pharo Smalltalk
 
-[`transition.md`](../../../lib/inspector/languages/pharo_smalltalk/transition.md) says how Inspector treats Pharo Smalltalk differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/pharo_smalltalk/transition.md) says how Rosetta treats Pharo Smalltalk differently from Basic, which the track used before.
 These are changes that could improve it.
-None of them is in Inspector yet, because a change to Pharo Smalltalk's own behaviour needs a human to decide it.
+None of them is in Rosetta yet, because a change to Pharo Smalltalk's own behaviour needs a human to decide it.
 The counts come from a text search of the 115 golden solutions, so they are approximate.
 
 ## Spellings that are apart today
@@ -16,8 +16,8 @@ The counts come from a text search of the 115 golden solutions, so they are appr
 
 ## Names
 
-7. **Rename the binary selectors that the solution defines.** A class can define `=`, `<` or `+`, as in `Money >> + other [ ... ]`. Inspector keeps every binary selector, so it doesn't rename a binary method the solution defines, because renaming by text would also rename every `+` on numbers. 4 golden solutions define a binary method.
-8. **Rename the traits in a `#traits` entry.** A class header names its traits in a string, as in `#traits : 'TComparable'`. If the solution defines the trait, Inspector renames it in the trait's own header but not in this string. 1 golden solution uses `#traits`.
+7. **Rename the binary selectors that the solution defines.** A class can define `=`, `<` or `+`, as in `Money >> + other [ ... ]`. Rosetta keeps every binary selector, so it doesn't rename a binary method the solution defines, because renaming by text would also rename every `+` on numbers. 4 golden solutions define a binary method.
+8. **Rename the traits in a `#traits` entry.** A class header names its traits in a string, as in `#traits : 'TComparable'`. If the solution defines the trait, Rosetta renames it in the trait's own header but not in this string. 1 golden solution uses `#traits`.
 
 ## Snippet
 

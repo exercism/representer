@@ -65,7 +65,7 @@ class VBNetNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], VBNet::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], VBNet::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << node.text if VBNet::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort

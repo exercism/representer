@@ -29,4 +29,4 @@ COPY lib/ lib/
 
 ENV RUBY_YJIT_ENABLE=1
 
-CMD [ "lib/inspector.Inspector.process" ]
+CMD [ "lib/rosetta.Rosetta.process" ]

@@ -84,7 +84,7 @@ class VimscriptGenerateASTTest < Minitest::Test
   end
 
   def test_vim9_script_is_refused
-    assert_raises(Inspector::CannotRepresent) { generate_ast("vim9script\ndef g:F(): number\n  return 1\nenddef\n") }
+    assert_raises(Rosetta::CannotRepresent) { generate_ast("vim9script\ndef g:F(): number\n  return 1\nenddef\n") }
   end
 
   private

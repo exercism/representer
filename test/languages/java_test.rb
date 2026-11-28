@@ -1,12 +1,12 @@
 require "test_helper"
 
-class JavaTest < InspectorTest
+class JavaTest < RosettaTest
   extend UpstreamTests
 
   track "java"
 
   PER_DECLARATION = "The fixture gives each declaration its own placeholder, so a field and a parameter with " \
-                    "the same name, or two parameters of different methods, get different placeholders. Inspector " \
+                    "the same name, or two parameters of different methods, get different placeholders. Rosetta " \
                     "renames by name, so they share one. The equivalent file has the later placeholders " \
                     "changed to the first, and the mapping lists the name once.".freeze
 
@@ -26,11 +26,11 @@ class JavaTest < InspectorTest
     "scenario-simple" => {
       parse_error: true,
       why: "The upstream scenario has a syntax error (a missing semicolon after the return), which the " \
-           "fixture's Java compiler repaired. Inspector gives it Basic's representation."
+           "fixture's Java compiler repaired. Rosetta gives it Basic's representation."
     },
     "scenario-lambda-arguments" => {
       replace: { ".filter(" => ".PLACEHOLDER_02(" },
-      why: "The solution defines a method called filter, so Inspector renames every use of the name, " \
+      why: "The solution defines a method called filter, so Rosetta renames every use of the name, " \
            "including the call to Stream.filter. The fixture renames only the declaration."
     },
     "scenario-class-with-nested-enum" => per_declaration("scenario-class-with-nested-enum")
@@ -52,8 +52,8 @@ class JavaTest < InspectorTest
       end
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Inspector::RepresentSolution.("java", inputs)
-      assert_equal Inspector::RepresentSolution.("java", equivalents).representation, actual.representation
+      actual = Rosetta::RepresentSolution.("java", inputs)
+      assert_equal Rosetta::RepresentSolution.("java", equivalents).representation, actual.representation
       assert_equal mapping.values.uniq.sort, actual.mapping.values.uniq.sort
     end
   end

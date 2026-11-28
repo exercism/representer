@@ -1,6 +1,6 @@
 require "test_helper"
 
-class CobolTest < InspectorTest
+class CobolTest < RosettaTest
   track "cobol"
 
   def test_comments_layout_and_comment_entries_are_ignored

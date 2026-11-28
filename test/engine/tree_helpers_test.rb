@@ -2,9 +2,9 @@ require "test_helper"
 
 # Checks the tree operations that the languages' stages use.
 class TreeHelpersTest < Minitest::Test
-  include Inspector::Engine::TreeHelpers
+  include Rosetta::Engine::TreeHelpers
 
-  Node = Inspector::Engine::Node
+  Node = Rosetta::Engine::Node
 
   def test_transform_works_from_the_leaves_up
     tree = build(:program, build(:pair, leaf(:a, "1"), build(:pair, leaf(:a, "2"), leaf(:a, "3"))))
@@ -32,5 +32,5 @@ class TreeHelpersTest < Minitest::Test
   end
 
   private
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

@@ -1,17 +1,17 @@
 require "test_helper"
 
-class PHPTest < InspectorTest
+class PHPTest < RosettaTest
   extend UpstreamTests
 
   track "php"
 
-  UNDEFINED = "Inspector only renames a name that the solution defines. The fixture's mapping also lists " \
+  UNDEFINED = "Rosetta only renames a name that the solution defines. The fixture's mapping also lists " \
               "classes and methods that the solution only uses (here MyClass and method).".freeze
 
-  DOLLARS = "Inspector keeps a variable's `$` in the mapping, as in `$year`, because PHP keeps variables " \
+  DOLLARS = "Rosetta keeps a variable's `$` in the mapping, as in `$year`, because PHP keeps variables " \
             "apart from functions and methods with the same name.".freeze
 
-  UNSET = "The variable is never set, so the solution doesn't define it and Inspector keeps its name.".freeze
+  UNSET = "The variable is never set, so the solution doesn't define it and Rosetta keeps its name.".freeze
 
   # The deviation for a test whose variables are set, so the mapping lists
   # each of them with its `$`.
@@ -41,7 +41,7 @@ class PHPTest < InspectorTest
     "unit-function-aliases" => {
       remove: %w[array_key_exists count current floatval fwrite highlight_file implode ini_set
                  is_float is_int is_writable rtrim strstr],
-      why: "Inspector writes a function's aliases as its main name (join is implode, sizeof is count) without " \
+      why: "Rosetta writes a function's aliases as its main name (join is implode, sizeof is count) without " \
            "listing them in the mapping, because they aren't names the student chose. The fixture's mapping lists them. " \
            "(The fixture mapping's stable names are real function names here, so the test helper reads the mapping the " \
            "other way round, and the names to remove are the stable ones.)"
@@ -61,7 +61,7 @@ class PHPTest < InspectorTest
   # The old tests/example-multiple-files test has two solution files, and the
   # upstream_tests helper only handles one, so it is written out here. The
   # equivalent files are the old output with a <?php line added, and without
-  # the `use Helpers;`, which Inspector drops as an import.
+  # the `use Helpers;`, which Rosetta drops as an import.
   def test_upstream_example_multiple_files
     input = {
       "Helpers.php" => "<?php\n\nclass Helpers\n{\n    public static function mod($x, $y)\n    {\n        return $x % $y;\n    }\n}\n",
@@ -73,8 +73,8 @@ class PHPTest < InspectorTest
       "Leap.php" => "<?php\nclass C0\n{\n    public static function m0($v0)\n    {\n" \
                     "        return C1::m1($v0, 4) === 0;\n    }\n}\n"
     }
-    actual = Inspector::RepresentSolution.("php", input)
-    assert_equal actual.representation, Inspector::RepresentSolution.("php", equivalent).representation
+    actual = Rosetta::RepresentSolution.("php", input)
+    assert_equal actual.representation, Rosetta::RepresentSolution.("php", equivalent).representation
     assert_equal ["$x", "$y", "$year", "Helpers", "Leap", "isLeapYear", "mod"], actual.mapping.values.sort
   end
 

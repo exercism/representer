@@ -2,7 +2,7 @@ require "test_helper"
 
 # Checks the analysis output with Ruby's, which has rules for some exercises.
 class AnalysisTest < Minitest::Test
-  Ruby = Inspector::Languages::Ruby
+  Ruby = Rosetta::Languages::Ruby
 
   def test_belongs_to_the_spec_beside_it
     assert_equal Ruby::Common::Spec, Ruby::Analysis::Spec.language

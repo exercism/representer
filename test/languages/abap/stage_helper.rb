@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs ABAP's stages by hand, for the tests of each stage.
 module AbapStages
-  Abap = Inspector::Languages::Abap
+  Abap = Rosetta::Languages::Abap
 
   def parse(source)
-    Inspector::Engine::Grammar["abap"].parse(Inspector::Engine.clean(source), **Abap::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["abap"].parse(Rosetta::Engine.clean(source), **Abap::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module AbapStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Abap::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Abap::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

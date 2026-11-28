@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Euphoria's stages by hand, for the tests of each stage.
 module EuphoriaStages
-  Euphoria = Inspector::Languages::Euphoria
+  Euphoria = Rosetta::Languages::Euphoria
 
   def parse(source)
-    Inspector::Engine::Grammar["euphoria"].parse(Inspector::Engine.clean(source), **Euphoria::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["euphoria"].parse(Rosetta::Engine.clean(source), **Euphoria::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module EuphoriaStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Euphoria::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Euphoria::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end

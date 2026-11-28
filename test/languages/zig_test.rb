@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ZigTest < InspectorTest
+class ZigTest < RosettaTest
   track "zig"
 
   def wrap(body) = "pub fn f(x: u32) u32 {\n#{body}\n}\n"

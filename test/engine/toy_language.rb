@@ -6,14 +6,14 @@ require "test_helper"
 # name.
 module ToyLanguage
   module Common
-    class Spec < Inspector::Engine::Language
+    class Spec < Rosetta::Engine::Language
       grammar "ruby"
       extensions ".rb"
     end
   end
 
   module Representation
-    class Spec < Inspector::Engine::Representation
+    class Spec < Rosetta::Engine::Representation
       version 2
       names_are :identifier, :constant
       names_are :simple_symbol, without_prefix: ":"
@@ -26,7 +26,7 @@ module ToyLanguage
 
   # Helpers for building trees by hand.
   module Trees
-    Node = Inspector::Engine::Node
+    Node = Rosetta::Engine::Node
 
     def node(type, *children) = Node.new(type, children)
     def leaf(text, type = :identifier) = Node.leaf(type, text)

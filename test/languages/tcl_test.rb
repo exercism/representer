@@ -1,8 +1,8 @@
 require "test_helper"
 
-# Tests Inspector as a whole on Tcl solutions. The tests of each stage are in
+# Tests Rosetta as a whole on Tcl solutions. The tests of each stage are in
 # test/languages/tcl/.
-class TclTest < InspectorTest
+class TclTest < RosettaTest
   track "tcl"
 
   def test_comments_and_formatting

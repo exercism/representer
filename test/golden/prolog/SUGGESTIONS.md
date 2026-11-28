@@ -1,6 +1,6 @@
 # Suggestions for Prolog
 
-[`transition.md`](../../../lib/inspector/languages/prolog/transition.md) says how Inspector treats Prolog differently from Basic, which Prolog used before.
+[`transition.md`](../../../lib/rosetta/languages/prolog/transition.md) says how Rosetta treats Prolog differently from Basic, which Prolog used before.
 These are changes that could improve it.
 None of them is made, because a change to Prolog's own behaviour needs the maintainers to decide it.
 

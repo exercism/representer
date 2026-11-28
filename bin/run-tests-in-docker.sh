@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Synopsis:
-# Test Inspector's Docker image by running it against each request in
+# Test Rosetta's Docker image by running it against each request in
 # test/fixtures/requests/ and comparing its response with the expected one.
 # The Docker image is built automatically.
 
@@ -21,7 +21,7 @@ track_slug="${1:-*}"
 exit_code=0
 
 # Pre-build the image, so that it isn't built for every test
-docker build --rm -t exercism/inspector .
+docker build --rm -t exercism/rosetta .
 
 for test_dir in test/fixtures/requests/${track_slug}/*/; do
     test_dir="${test_dir%/}"

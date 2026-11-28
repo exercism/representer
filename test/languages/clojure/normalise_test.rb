@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Clojure's representation Normalise stage, through Inspector as a
+# Tests Clojure's representation Normalise stage, through Rosetta as a
 # whole, because the names it writes are renamed afterwards.
-class ClojureNormaliseTest < InspectorTest
+class ClojureNormaliseTest < RosettaTest
   track "clojure"
 
   def wrap(body) = "(defn f [x y] #{body})"

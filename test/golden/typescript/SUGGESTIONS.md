@@ -1,6 +1,6 @@
 # Suggestions for TypeScript
 
-[`transition.md`](../../../lib/inspector/languages/typescript/transition.md) says how Inspector differs from the old TypeScript representer.
+[`transition.md`](../../../lib/rosetta/languages/typescript/transition.md) says how Rosetta differs from the old TypeScript representer.
 These are changes that could improve it.
 None of them is made, because a change to TypeScript's own behaviour needs the maintainers to decide it.
 

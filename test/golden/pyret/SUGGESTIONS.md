@@ -1,6 +1,6 @@
 # Suggestions for Pyret
 
-[`transition.md`](../../../lib/inspector/languages/pyret/transition.md) says how Inspector treats Pyret differently from Basic, which the track used before.
+[`transition.md`](../../../lib/rosetta/languages/pyret/transition.md) says how Rosetta treats Pyret differently from Basic, which the track used before.
 These are changes that could improve it.
 None of them is made, because a change to Pyret's own behaviour needs the maintainers to decide it.
 The counts come from the 111 golden solution files.

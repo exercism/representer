@@ -1,13 +1,13 @@
 require "test_helper"
 
-class WasmTest < InspectorTest
+class WasmTest < RosettaTest
   extend UpstreamTests
 
   track "wasm"
 
-  # Every fixture mapping is empty. Inspector renames each `$name` that the
+  # Every fixture mapping is empty. Rosetta renames each `$name` that the
   # solution chooses, so every mapping gains the leap solution's parameter.
-  RENAMES = "Inspector renames every `$name` the solution chooses, here the parameter.".freeze
+  RENAMES = "Rosetta renames every `$name` the solution chooses, here the parameter.".freeze
 
   DEVIATIONS = %w[sugared unsugared normalize-whitespace remove-comments].to_h do |name|
     [name, { add: ["year"], why: RENAMES }]
@@ -30,8 +30,8 @@ class WasmTest < InspectorTest
       equivalents = Dir[File.join(dir, "equivalent", "*.wat")].to_h { |path| [File.basename(path), File.read(path)] }
       assert_equal inputs.keys.sort, equivalents.keys.sort
 
-      actual = Inspector::RepresentSolution.("wasm", inputs)
-      assert_equal Inspector::RepresentSolution.("wasm", equivalents).representation, actual.representation
+      actual = Rosetta::RepresentSolution.("wasm", inputs)
+      assert_equal Rosetta::RepresentSolution.("wasm", equivalents).representation, actual.representation
       assert_equal ["year"], actual.mapping.values.uniq
     end
   end

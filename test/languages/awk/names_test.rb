@@ -39,7 +39,7 @@ class AwkNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Inspector::Engine::RenameUserDefinedNodes.([tree], Awk::Representation::Spec)
+    Rosetta::Engine::RenameUserDefinedNodes.([tree], Awk::Representation::Spec)
     leaves = []
     tree.each_descendant { |node| leaves << node.text if Awk::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort

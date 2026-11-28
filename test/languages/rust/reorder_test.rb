@@ -1,8 +1,8 @@
 require_relative "stage_helper"
 
-# Tests Rust's Reorder stage, through Inspector as a whole, because it
+# Tests Rust's Reorder stage, through Rosetta as a whole, because it
 # sorts by the code with the renamed names left out.
-class RustReorderTest < InspectorTest
+class RustReorderTest < RosettaTest
   track "rust"
 
   def test_the_order_of_items_in_a_file_makes_no_difference

@@ -2,10 +2,10 @@ require "test_helper"
 
 # Runs Pyret's stages by hand, for the tests of each stage.
 module PyretStages
-  Pyret = Inspector::Languages::Pyret
+  Pyret = Rosetta::Languages::Pyret
 
   def parse(source)
-    Inspector::Engine::Grammar["pyret"].parse(Inspector::Engine.clean(source), **Pyret::Common::Spec.parse_options)
+    Rosetta::Engine::Grammar["pyret"].parse(Rosetta::Engine.clean(source), **Pyret::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module PyretStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Inspector::Engine::PrepareFile.(Pyret::Common::Spec, source)
+  def prepare(source) = Rosetta::Engine::PrepareFile.(Pyret::Common::Spec, source)
 
-  def write(tree) = Inspector::Engine::Serialize.(tree)
+  def write(tree) = Rosetta::Engine::Serialize.(tree)
 end
