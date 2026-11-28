@@ -57,6 +57,7 @@ module Inspector::Languages::Tcl::Common
     def call
       tree.tap do
         join_the_parts_of_each_word!
+        join_namespaces_to_their_variables!
         write_booleans_as_leaves!
         write_braced_variable_names_as_names!
         write_strings_as_their_values!
@@ -103,6 +104,26 @@ module Inspector::Languages::Tcl::Common
     def join(parts) = parts.one? ? parts.first : build(:word, *parts)
 
     def space?(text) = text.match?(/\A(\s|\\\r?\n)*\z/)
+
+    # Join the namespace after a variable to its name, because Tcl reads
+    # `$a::b` as the variable `a::b`, and the grammar ends the variable at
+    # `a`. A variable in braces, as in `${a}::b`, ends at its brace.
+    # puts $a::b  ->  (command puts (word_list $a::b))
+    def join_namespaces_to_their_variables!
+      each_node(tree) do |node, _|
+        next unless node.type == "word"
+
+        node.children.each_cons(2) do |variable, after|
+          name = variable.children.last if variable.type == "variable_substitution"
+          namespace = after.text[/\A(::\w+)+/] if after.type == "simple_word"
+          next unless name&.type == "id" && namespace
+
+          name.text += namespace
+          after.text = after.text.delete_prefix(namespace)
+        end
+        node.children = node.children.reject { |child| child.type == "simple_word" && child.text.empty? }
+      end
+    end
 
     # Write each `true` and `false` in an expression as a leaf, because the
     # grammar leaves them out of the tree.

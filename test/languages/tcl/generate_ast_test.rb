@@ -48,6 +48,8 @@ class TclGenerateASTTest < Minitest::Test
   def test_names_with_namespaces_keep_their_whole_text
     refute_same "puts $::x", "puts $::y"
     refute_same "puts $::x", "puts $x"
+    refute_same "puts $a::b", "puts ${a}::b"
+    assert_same "puts $a::b", "puts ${a::b}"
   end
 
   def test_expansion_stays_with_its_word
