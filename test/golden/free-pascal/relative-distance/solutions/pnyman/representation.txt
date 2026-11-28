@@ -1,83 +1,235 @@
-unit RelativeDistance ;
-interface
-uses SysUtils , Generics . Collections ;
-type
-TStrArray = array of string ;
-TFamilyTree = specialize TDictionary < string , TStrArray >;
-TSeen = specialize TDictionary < string , boolean >;
-TSeparation = record
-person : string ;
-degree : integer ;
-end ;
-TQueue = array of TSeparation ;
-function degreeOfSeparation ( const familyTree : TFamilyTree ;
-const personA , personB : string ): integer ;
-implementation
-function bfs ( graph : TFamilyTree ; root , target : string ): integer ;
-var
-seen : TSeen ;
-queue : TQueue ;
-separation : TSeparation ;
-person , p : string ;
-degree : integer ;
-begin
-seen := TSeen . Create ;
-seen . Add ( root , True );
-queue := nil ;
-separation . person := root ;
-separation . degree := 0 ;
-insert ( separation , queue , length ( queue ));
-while length ( queue ) > 0 do
-begin
-person := queue [ 0 ]. person ;
-degree := queue [ 0 ]. degree ;
-Delete ( queue , 0 , 1 );
-if person = target then exit ( degree );
-for p in graph [ person ] do
-if not seen . ContainsKey ( p ) then
-begin
-seen . Add ( p , True );
-separation . person := p ;
-separation . degree := degree + 1 ;
-insert ( separation , queue , length ( queue ));
-end ;
-end ;
-Result := - 1 ;
-end ;
-function degreeOfSeparation ( const familyTree : TFamilyTree ;
-const personA , personB : string ): integer ;
-var
-graph : TFamilyTree ;
-kv : TFamilyTree . TDictionaryPair ;
-parent , child1 , child2 : string ;
-arr : TStrArray ;
-begin
-graph := TFamilyTree . Create ;
-for kv in familyTree do
-begin
-parent := kv . key ;
-for child1 in kv . Value do
-begin
-if not graph . ContainsKey ( parent ) then graph . Add ( parent , nil );
-arr := graph [ parent ];
-insert ( child1 , arr , length ( arr ));
-graph [ parent ] := arr ;
-if not graph . ContainsKey ( child1 ) then graph . Add ( child1 , nil );
-arr := graph [ child1 ];
-insert ( parent , arr , length ( arr ));
-graph [ child1 ] := arr ;
-for child2 in kv . Value do
-begin
-if child1 <> child2 then
-begin
-if not graph . ContainsKey ( child2 ) then graph . Add ( child2 , nil );
-arr := graph [ child1 ];
-insert ( child2 , arr , length ( arr ));
-graph [ child1 ] := arr ;
-end ;
-end ;
-end ;
-end ;
-Result := bfs ( graph , personA , personB );
-end ;
-end .
+(root
+  (unit
+    (moduleName PLACEHOLDER_1)
+    (interface
+      (declTypes
+        (declType PLACEHOLDER_2
+          (type
+            (declArray array
+              (type
+                (declString string)))))
+        (declType PLACEHOLDER_3
+          (type
+            (typeref specialize
+              (typerefTpl tdictionary
+                (typerefArgs string PLACEHOLDER_2)))))
+        (declType PLACEHOLDER_4
+          (type
+            (typeref specialize
+              (typerefTpl tdictionary
+                (typerefArgs string boolean)))))
+        (declType PLACEHOLDER_5
+          (declClass record
+            (declField PLACEHOLDER_6
+              (type
+                (declString string)))
+            (declField PLACEHOLDER_7
+              (type
+                (typeref integer)))))
+        (declType PLACEHOLDER_8
+          (type
+            (declArray array
+              (type
+                (typeref PLACEHOLDER_5))))))
+      (declProc function PLACEHOLDER_9
+        (declArgs
+          (declArg const PLACEHOLDER_10
+            (type
+              (typeref PLACEHOLDER_3)))
+          (declArg const PLACEHOLDER_11 PLACEHOLDER_12
+            (type
+              (declString string))))
+        (typeref integer)))
+    (implementation
+      (defProc
+        (declProc function PLACEHOLDER_13
+          (declArgs
+            (declArg PLACEHOLDER_14
+              (type
+                (typeref PLACEHOLDER_3)))
+            (declArg PLACEHOLDER_15 PLACEHOLDER_16
+              (type
+                (declString string))))
+          (typeref integer))
+        (declVars
+          (declVar PLACEHOLDER_17
+            (type
+              (typeref PLACEHOLDER_4)))
+          (declVar PLACEHOLDER_18
+            (type
+              (typeref PLACEHOLDER_8)))
+          (declVar PLACEHOLDER_19
+            (type
+              (typeref PLACEHOLDER_5)))
+          (declVar PLACEHOLDER_6 PLACEHOLDER_20
+            (type
+              (declString string)))
+          (declVar PLACEHOLDER_7
+            (type
+              (typeref integer))))
+        (block
+          (assignment PLACEHOLDER_17
+            (exprDot PLACEHOLDER_4 create))
+          (statement
+            (exprCall
+              (exprDot PLACEHOLDER_17 add)
+              (exprArgs PLACEHOLDER_15 true)))
+          (assignment PLACEHOLDER_18 nil)
+          (assignment
+            (exprDot PLACEHOLDER_19 PLACEHOLDER_6) PLACEHOLDER_15)
+          (assignment
+            (exprDot PLACEHOLDER_19 PLACEHOLDER_7) 0)
+          (statement
+            (exprCall insert
+              (exprArgs PLACEHOLDER_19 PLACEHOLDER_18
+                (exprCall length
+                  (exprArgs PLACEHOLDER_18)))))
+          (while
+            (exprBinary
+              (exprCall length
+                (exprArgs PLACEHOLDER_18)) > 0)
+            (block
+              (assignment PLACEHOLDER_6
+                (exprDot
+                  (exprSubscript PLACEHOLDER_18
+                    (exprArgs 0)) PLACEHOLDER_6))
+              (assignment PLACEHOLDER_7
+                (exprDot
+                  (exprSubscript PLACEHOLDER_18
+                    (exprArgs 0)) PLACEHOLDER_7))
+              (statement
+                (exprCall delete
+                  (exprArgs PLACEHOLDER_18 0 1)))
+              (if
+                (exprBinary PLACEHOLDER_6 = PLACEHOLDER_16)
+                (statement
+                  (exprCall exit
+                    (exprArgs PLACEHOLDER_7))))
+              (foreach PLACEHOLDER_20
+                (exprSubscript PLACEHOLDER_14
+                  (exprArgs PLACEHOLDER_6))
+                (if
+                  (exprUnary not
+                    (exprCall
+                      (exprDot PLACEHOLDER_17 containskey)
+                      (exprArgs PLACEHOLDER_20)))
+                  (block
+                    (statement
+                      (exprCall
+                        (exprDot PLACEHOLDER_17 add)
+                        (exprArgs PLACEHOLDER_20 true)))
+                    (assignment
+                      (exprDot PLACEHOLDER_19 PLACEHOLDER_6) PLACEHOLDER_20)
+                    (assignment
+                      (exprDot PLACEHOLDER_19 PLACEHOLDER_7)
+                      (exprBinary PLACEHOLDER_7 + 1))
+                    (statement
+                      (exprCall insert
+                        (exprArgs PLACEHOLDER_19 PLACEHOLDER_18
+                          (exprCall length
+                            (exprArgs PLACEHOLDER_18))))))))))
+          (assignment result
+            (exprUnary - 1))))
+      (defProc
+        (declProc function PLACEHOLDER_9
+          (declArgs
+            (declArg const PLACEHOLDER_10
+              (type
+                (typeref PLACEHOLDER_3)))
+            (declArg const PLACEHOLDER_11 PLACEHOLDER_12
+              (type
+                (declString string))))
+          (typeref integer))
+        (declVars
+          (declVar PLACEHOLDER_14
+            (type
+              (typeref PLACEHOLDER_3)))
+          (declVar PLACEHOLDER_21
+            (type
+              (typeref
+                (typerefDot PLACEHOLDER_3 tdictionarypair))))
+          (declVar PLACEHOLDER_22 PLACEHOLDER_23 PLACEHOLDER_24
+            (type
+              (declString string)))
+          (declVar PLACEHOLDER_25
+            (type
+              (typeref PLACEHOLDER_2))))
+        (block
+          (assignment PLACEHOLDER_14
+            (exprDot PLACEHOLDER_3 create))
+          (foreach PLACEHOLDER_21 PLACEHOLDER_10
+            (block
+              (assignment PLACEHOLDER_22
+                (exprDot PLACEHOLDER_21 key))
+              (foreach PLACEHOLDER_23
+                (exprDot PLACEHOLDER_21 value)
+                (block
+                  (if
+                    (exprUnary not
+                      (exprCall
+                        (exprDot PLACEHOLDER_14 containskey)
+                        (exprArgs PLACEHOLDER_22)))
+                    (statement
+                      (exprCall
+                        (exprDot PLACEHOLDER_14 add)
+                        (exprArgs PLACEHOLDER_22 nil))))
+                  (assignment PLACEHOLDER_25
+                    (exprSubscript PLACEHOLDER_14
+                      (exprArgs PLACEHOLDER_22)))
+                  (statement
+                    (exprCall insert
+                      (exprArgs PLACEHOLDER_23 PLACEHOLDER_25
+                        (exprCall length
+                          (exprArgs PLACEHOLDER_25)))))
+                  (assignment
+                    (exprSubscript PLACEHOLDER_14
+                      (exprArgs PLACEHOLDER_22)) PLACEHOLDER_25)
+                  (if
+                    (exprUnary not
+                      (exprCall
+                        (exprDot PLACEHOLDER_14 containskey)
+                        (exprArgs PLACEHOLDER_23)))
+                    (statement
+                      (exprCall
+                        (exprDot PLACEHOLDER_14 add)
+                        (exprArgs PLACEHOLDER_23 nil))))
+                  (assignment PLACEHOLDER_25
+                    (exprSubscript PLACEHOLDER_14
+                      (exprArgs PLACEHOLDER_23)))
+                  (statement
+                    (exprCall insert
+                      (exprArgs PLACEHOLDER_22 PLACEHOLDER_25
+                        (exprCall length
+                          (exprArgs PLACEHOLDER_25)))))
+                  (assignment
+                    (exprSubscript PLACEHOLDER_14
+                      (exprArgs PLACEHOLDER_23)) PLACEHOLDER_25)
+                  (foreach PLACEHOLDER_24
+                    (exprDot PLACEHOLDER_21 value)
+                    (block
+                      (if
+                        (exprBinary PLACEHOLDER_23 <> PLACEHOLDER_24)
+                        (block
+                          (if
+                            (exprUnary not
+                              (exprCall
+                                (exprDot PLACEHOLDER_14 containskey)
+                                (exprArgs PLACEHOLDER_24)))
+                            (statement
+                              (exprCall
+                                (exprDot PLACEHOLDER_14 add)
+                                (exprArgs PLACEHOLDER_24 nil))))
+                          (assignment PLACEHOLDER_25
+                            (exprSubscript PLACEHOLDER_14
+                              (exprArgs PLACEHOLDER_23)))
+                          (statement
+                            (exprCall insert
+                              (exprArgs PLACEHOLDER_24 PLACEHOLDER_25
+                                (exprCall length
+                                  (exprArgs PLACEHOLDER_25)))))
+                          (assignment
+                            (exprSubscript PLACEHOLDER_14
+                              (exprArgs PLACEHOLDER_23)) PLACEHOLDER_25)))))))))
+          (assignment result
+            (exprCall PLACEHOLDER_13
+              (exprArgs PLACEHOLDER_14 PLACEHOLDER_11 PLACEHOLDER_12))))))))

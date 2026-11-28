@@ -1,93 +1,218 @@
-unit Grep ;
-interface
-type
-TStrArray = array of string ;
-function grep ( const pattern : string ; const flags : TStrArray ; const files : TStrArray ): TStrArray ;
-implementation
-uses SysUtils , StrUtils ;
-procedure SetFlags ( const flags : TStrArray ; var flagN , flagL , flagI , flagV , flagX : boolean );
-var
-flag : string ;
-begin
-for flag in flags do
-case flag of
-'-n' : flagN := True ;
-'-l' : flagL := True ;
-'-i' : flagI := True ;
-'-v' : flagV := True ;
-'-x' : flagX := True ;
-end ;
-end ;
-function grep ( const pattern : string ; const flags : TStrArray ; const files : TStrArray ): TStrArray ;
-var
-tfIn : TextFile ;
-filename , s : string ;
-line : integer ;
-flagN , flagL , flagI , flagV , flagX : boolean ;
-match , multifiles : boolean ;
-begin
-Result := nil ;
-flagN := False ;
-flagL := False ;
-flagI := False ;
-flagV := False ;
-flagX := False ;
-SetFlags ( flags , flagN , flagL , flagI , flagV , flagX );
-if length ( files ) > 1 then
-multifiles := True
-else
-multifiles := False ;
-for filename in files do
-begin
-line := 0 ;
-AssignFile ( tfIn , filename );
-try
-reset ( tfIn );
-while not EOF ( tfIn ) do
-begin
-ReadLn ( tfIn , s );
-Inc ( line );
-match := False ;
-if flagX then
-if flagI then
-match := MatchText ( pattern , [ s ])
-else
-match := MatchStr ( pattern , [ s ])
-else if flagI then
-match := ContainsText ( s , pattern )
-else
-match := ContainsStr ( s , pattern );
-if flagV then
-match := not match ;
-if match then
-begin
-if flagL then
-begin
-if not ( filename in Result ) then
-begin
-SetLength ( Result , length ( Result ) + 1 );
-Result [ high ( Result )] += format ( '%s' , [ filename ]);
-end ;
-continue ;
-end ;
-SetLength ( Result , length ( Result ) + 1 );
-if multifiles and not flagN then
-Result [ high ( Result )] += format ( '%s:%s' , [ filename , s ])
-else if flagN then
-begin
-if multifiles then
-Result [ high ( Result )] += format ( '%s:' , [ filename ]);
-Result [ high ( Result )] += format ( '%d:%s' , [ line , s ]);
-end
-else
-Result [ high ( Result )] += format ( '%s' , [ s ]);
-end ;
-end ;
-closeFile ( tfIn );
-except
-on E : EInOutError do
-WriteLn ( "'An error occured: '" , E . MEssage );
-end ;
-end ;
-end ;
-end .
+(root
+  (unit
+    (moduleName PLACEHOLDER_1)
+    (interface
+      (declTypes
+        (declType PLACEHOLDER_2
+          (type
+            (declArray array
+              (type
+                (declString string))))))
+      (declProc function PLACEHOLDER_1
+        (declArgs
+          (declArg const PLACEHOLDER_3
+            (type
+              (declString string)))
+          (declArg const PLACEHOLDER_4
+            (type
+              (typeref PLACEHOLDER_2)))
+          (declArg const PLACEHOLDER_5
+            (type
+              (typeref PLACEHOLDER_2))))
+        (typeref PLACEHOLDER_2)))
+    (implementation
+      (defProc
+        (declProc procedure PLACEHOLDER_6
+          (declArgs
+            (declArg const PLACEHOLDER_4
+              (type
+                (typeref PLACEHOLDER_2)))
+            (declArg var PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11
+              (type
+                (typeref boolean)))))
+        (declVars
+          (declVar PLACEHOLDER_12
+            (type
+              (declString string))))
+        (block
+          (foreach PLACEHOLDER_12 PLACEHOLDER_4
+            (case PLACEHOLDER_12
+              (caseCase
+                (caseLabel "-n")
+                (assignment PLACEHOLDER_7 true))
+              (caseCase
+                (caseLabel "-l")
+                (assignment PLACEHOLDER_8 true))
+              (caseCase
+                (caseLabel "-i")
+                (assignment PLACEHOLDER_9 true))
+              (caseCase
+                (caseLabel "-v")
+                (assignment PLACEHOLDER_10 true))
+              (caseCase
+                (caseLabel "-x")
+                (assignment PLACEHOLDER_11 true))))))
+      (defProc
+        (declProc function PLACEHOLDER_1
+          (declArgs
+            (declArg const PLACEHOLDER_3
+              (type
+                (declString string)))
+            (declArg const PLACEHOLDER_4
+              (type
+                (typeref PLACEHOLDER_2)))
+            (declArg const PLACEHOLDER_5
+              (type
+                (typeref PLACEHOLDER_2))))
+          (typeref PLACEHOLDER_2))
+        (declVars
+          (declVar PLACEHOLDER_13
+            (type
+              (typeref textfile)))
+          (declVar PLACEHOLDER_14 PLACEHOLDER_15
+            (type
+              (declString string)))
+          (declVar PLACEHOLDER_16
+            (type
+              (typeref integer)))
+          (declVar PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11
+            (type
+              (typeref boolean)))
+          (declVar PLACEHOLDER_17 PLACEHOLDER_18
+            (type
+              (typeref boolean))))
+        (block
+          (assignment result nil)
+          (assignment PLACEHOLDER_7 false)
+          (assignment PLACEHOLDER_8 false)
+          (assignment PLACEHOLDER_9 false)
+          (assignment PLACEHOLDER_10 false)
+          (assignment PLACEHOLDER_11 false)
+          (statement
+            (exprCall PLACEHOLDER_6
+              (exprArgs PLACEHOLDER_4 PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11)))
+          (ifElse
+            (exprBinary
+              (exprCall length
+                (exprArgs PLACEHOLDER_5)) > 1)
+            (assignment PLACEHOLDER_18 true)
+            (assignment PLACEHOLDER_18 false))
+          (foreach PLACEHOLDER_14 PLACEHOLDER_5
+            (block
+              (assignment PLACEHOLDER_16 0)
+              (statement
+                (exprCall assignfile
+                  (exprArgs PLACEHOLDER_13 PLACEHOLDER_14)))
+              (try
+                (statements
+                  (statement
+                    (exprCall reset
+                      (exprArgs PLACEHOLDER_13)))
+                  (while
+                    (exprUnary not
+                      (exprCall eof
+                        (exprArgs PLACEHOLDER_13)))
+                    (block
+                      (statement
+                        (exprCall readln
+                          (exprArgs PLACEHOLDER_13 PLACEHOLDER_15)))
+                      (statement
+                        (exprCall inc
+                          (exprArgs PLACEHOLDER_16)))
+                      (assignment PLACEHOLDER_17 false)
+                      (ifElse PLACEHOLDER_11
+                        (ifElse PLACEHOLDER_9
+                          (assignment PLACEHOLDER_17
+                            (exprCall matchtext
+                              (exprArgs PLACEHOLDER_3
+                                (exprBrackets PLACEHOLDER_15))))
+                          (assignment PLACEHOLDER_17
+                            (exprCall matchstr
+                              (exprArgs PLACEHOLDER_3
+                                (exprBrackets PLACEHOLDER_15)))))
+                        (ifElse PLACEHOLDER_9
+                          (assignment PLACEHOLDER_17
+                            (exprCall containstext
+                              (exprArgs PLACEHOLDER_15 PLACEHOLDER_3)))
+                          (assignment PLACEHOLDER_17
+                            (exprCall containsstr
+                              (exprArgs PLACEHOLDER_15 PLACEHOLDER_3)))))
+                      (if PLACEHOLDER_10
+                        (assignment PLACEHOLDER_17
+                          (exprUnary not PLACEHOLDER_17)))
+                      (if PLACEHOLDER_17
+                        (block
+                          (if PLACEHOLDER_8
+                            (block
+                              (if
+                                (exprUnary not
+                                  (exprBinary PLACEHOLDER_14 in result))
+                                (block
+                                  (statement
+                                    (exprCall setlength
+                                      (exprArgs result
+                                        (exprBinary
+                                          (exprCall length
+                                            (exprArgs result)) + 1))))
+                                  (assignment
+                                    (exprSubscript result
+                                      (exprArgs
+                                        (exprCall high
+                                          (exprArgs result)))) +=
+                                    (exprCall format
+                                      (exprArgs "%s"
+                                        (exprBrackets PLACEHOLDER_14))))))
+                              (statement continue)))
+                          (statement
+                            (exprCall setlength
+                              (exprArgs result
+                                (exprBinary
+                                  (exprCall length
+                                    (exprArgs result)) + 1))))
+                          (ifElse
+                            (exprBinary PLACEHOLDER_18 and
+                              (exprUnary not PLACEHOLDER_7))
+                            (assignment
+                              (exprSubscript result
+                                (exprArgs
+                                  (exprCall high
+                                    (exprArgs result)))) +=
+                              (exprCall format
+                                (exprArgs "%s:%s"
+                                  (exprBrackets PLACEHOLDER_14 PLACEHOLDER_15))))
+                            (ifElse PLACEHOLDER_7
+                              (block
+                                (if PLACEHOLDER_18
+                                  (assignment
+                                    (exprSubscript result
+                                      (exprArgs
+                                        (exprCall high
+                                          (exprArgs result)))) +=
+                                    (exprCall format
+                                      (exprArgs "%s:"
+                                        (exprBrackets PLACEHOLDER_14)))))
+                                (assignment
+                                  (exprSubscript result
+                                    (exprArgs
+                                      (exprCall high
+                                        (exprArgs result)))) +=
+                                  (exprCall format
+                                    (exprArgs "%d:%s"
+                                      (exprBrackets PLACEHOLDER_16 PLACEHOLDER_15)))))
+                              (assignment
+                                (exprSubscript result
+                                  (exprArgs
+                                    (exprCall high
+                                      (exprArgs result)))) +=
+                                (exprCall format
+                                  (exprArgs "%s"
+                                    (exprBrackets PLACEHOLDER_15))))))))))
+                  (statement
+                    (exprCall closefile
+                      (exprArgs PLACEHOLDER_13)))) except
+                (exceptionHandler PLACEHOLDER_19
+                  (typeref einouterror)
+                  (statement
+                    (exprCall writeln
+                      (exprArgs "An error occured: "
+                        (exprDot PLACEHOLDER_19 message)))))))))))))
