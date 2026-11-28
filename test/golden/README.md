@@ -136,7 +136,7 @@ The main causes of splits are:
 - **Real differences (24 splits, accepted).** The solutions are different programs that an old representer treated as the same, such as PHP's `!==` and `!=`, JavaScript's `toUpperCase` and `toLocaleUpperCase`, or a solution with an extra file.
 - The rest are one-off cases, such as Elm's `100` and `100.0` (an Int and a Float) or Elixir code that uses a function from an `import` without its module's name.
 
-The merges are all accepted. They are solutions with the same code, code that differs only in comments, formatting or imports, or code that differs only in names or in spellings that mean the same.
+The merges are all accepted. They are solutions with the same code, or code that differs only in comments, whitespace, imports, names, quote style, how a number is written, or brackets that only group.
 
 If the pinned grammar rejects a solution's code, the solution gets Basic's representation, so no solution in these tracks is unrepresentable.
 Five solutions get Basic's representation this way: four in GDScript and one in C#.

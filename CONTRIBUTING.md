@@ -16,7 +16,7 @@ The steps are:
 ## The goal
 
 Every solution that the representer sees passes its tests.
-So the representer can throw away any code that makes no difference to the solution working, such as comments, imports, brackets that only group, and the way a number or a string is written.
+So the representer can throw away any code that makes no difference to the solution working, such as comments, imports, brackets that only group, and the way a number or a string is written. A merge of solutions that differ in only these ways (names, whitespace, comments, imports, quote style, how a number is written, brackets that only group) is accepted in `differences.yml`; any other kind of difference stays undecided until iHiD decides.
 Two solutions that differ only in such code would pass the same tests in the same way, and a mentor would give them the same feedback.
 
 Two solutions should get the same representation if a mentor would give them the same feedback, and different representations otherwise.
