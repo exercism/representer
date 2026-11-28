@@ -1,67 +1,362 @@
-proc solve { puzzle } {
-# puzzle -> equations for each digit: { char char ... reschar } and nonZeroChars: { leadingChar ... }
-# use backtracking to solve the equation ( s ) .
-# first parse the puzzle string.
-set addends [ regexp -inline -all {[ A-Z ] + } $puzzle ]
-set nonZeroChars [ lsort -unique [ lmap word $addends { string index $word 0 }]]
-# reverse words to ease of indexing.
-set addends [ lmap word $addends { string reverse $word }]
-lassign [ list [ lindex $addends end ] [ lreplace $addends end end ]] res addends
-set sols [ list [ dict create carry 0 ]]
-for { set i 0 ; set n [ string length $res ]} { $i <$n } { incr i } {
-set ads [ list ]
-foreach addend $addends {
-set ad [ string index $addend $i ]
-if { $ad ne {}} { lappend ads $ad }
-}
-set rd [ string index $res $i ]
-foreach ad [ concat $ads $rd ] {
-if { ! [ dict exists [ lindex $sols 0 ] $ad ]} {
-set sols [ expandSols $sols $ad nonZeroChars ]
-}
-}
-#filter out solutions
-set sols [ filterSols $sols $ads $rd ]
-# no need to go further if there is no possible solution
-if { $sols eq {}} return {}
-}
-set sols [ lmap sol $sols { dict unset sol carry }]
-lindex $sols 0
-}
-proc initAd { ad nonZeroCharsName } {
-upvar $nonZeroCharsName nonZeroChars
-if {[ lsearch -sorted $nonZeroChars $ad ] != -1 } then { return 1 } else { return 0 }
-}
-proc expandSols { oldSols ad nonZeroCharsName } {
-upvar $nonZeroCharsName nonZeroChars
-set d [ expr {[ lsearch -sorted $nonZeroChars $ad ] !=-1?1:0 }]
-set newSols [ list ]
-foreach sol $oldSols {
-# exclude carry for lsearch below.
-set carry [ dict get $sol carry ]
-dict unset sol carry
-for { set i $d } { $i <10 } { incr i } {
-# each char should represent different digit.
-if {[ lsearch -integer [ dict values $sol ] $i ] !=-1 } then continue
-dict set sol $ad $i
-dict set sol carry $carry
-lappend newSols $sol
-}
-}
-return $newSols
-}
-proc filterSols { sols ads rd } {
-set newSols [ list ]
-foreach sol $sols {
-set adSum [ expr {[ lsum [ lmap ad $ads { dict get $sol $ad }]] + [ dict get $sol carry ]}]
-set rdSum [ dict get $sol $rd ]
-if { $ad Sum % 10 == $rdSum } {
-dict set sol carry [ expr { $ad Sum/10 }]
-lappend newSols $sol
-}
-}
-return $newSols
-}
-proc lsum { l } {
-tcl::mathop::+ {*} $l
-}
+(source_file
+  (procedure
+    (definition PLACEHOLDER_1)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_2)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_3))
+        (command_substitution
+          (regexp -inline -all "[A-Z]+"
+            (variable_substitution (id PLACEHOLDER_2)))))
+      (set
+        (definition (id PLACEHOLDER_4))
+        (command_substitution
+          (command lsort
+            (word_list -unique
+              (command_substitution
+                (command lmap
+                  (word_list
+                    (definition PLACEHOLDER_5)
+                    (variable_substitution (id PLACEHOLDER_3))
+                    (braced_word
+                      (command string
+                        (word_list index
+                          (variable_substitution (id PLACEHOLDER_5)) 0))))))))))
+      (set
+        (definition (id PLACEHOLDER_3))
+        (command_substitution
+          (command lmap
+            (word_list
+              (definition PLACEHOLDER_5)
+              (variable_substitution (id PLACEHOLDER_3))
+              (braced_word
+                (command string
+                  (word_list reverse
+                    (variable_substitution (id PLACEHOLDER_5)))))))))
+      (command lassign
+        (word_list
+          (command_substitution
+            (command list
+              (word_list
+                (command_substitution
+                  (command lindex
+                    (word_list
+                      (variable_substitution (id PLACEHOLDER_3)) end)))
+                (command_substitution
+                  (command lreplace
+                    (word_list
+                      (variable_substitution (id PLACEHOLDER_3)) end end))))))
+          (definition PLACEHOLDER_6)
+          (definition PLACEHOLDER_3)))
+      (set
+        (definition (id PLACEHOLDER_7))
+        (command_substitution
+          (command list
+            (word_list
+              (command_substitution
+                (command dict
+                  (word_list create PLACEHOLDER_8 0)))))))
+      (for
+        (braced_word
+          (set
+            (definition (id PLACEHOLDER_9)) 0)
+          (set
+            (definition (id PLACEHOLDER_10))
+            (command_substitution
+              (command string
+                (word_list length
+                  (variable_substitution (id PLACEHOLDER_6)))))))
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_9)) <
+            (variable_substitution (id PLACEHOLDER_10))) })
+        (braced_word
+          (command incr
+            (word_list
+              (definition PLACEHOLDER_9))))
+        (braced_word
+          (set
+            (definition (id PLACEHOLDER_11))
+            (command_substitution
+              (command list)))
+          (foreach
+            (arguments
+              (argument
+                (definition PLACEHOLDER_12)))
+            (variable_substitution (id PLACEHOLDER_3))
+            (braced_word
+              (set
+                (definition (id PLACEHOLDER_13))
+                (command_substitution
+                  (command string
+                    (word_list index
+                      (variable_substitution (id PLACEHOLDER_12))
+                      (variable_substitution (id PLACEHOLDER_9))))))
+              (if
+                (expr {
+                  (binop_expr
+                    (variable_substitution (id PLACEHOLDER_13)) ne "") })
+                (braced_word
+                  (command lappend
+                    (word_list
+                      (definition PLACEHOLDER_11)
+                      (variable_substitution (id PLACEHOLDER_13))))))))
+          (set
+            (definition (id PLACEHOLDER_14))
+            (command_substitution
+              (command string
+                (word_list index
+                  (variable_substitution (id PLACEHOLDER_6))
+                  (variable_substitution (id PLACEHOLDER_9))))))
+          (foreach
+            (arguments
+              (argument
+                (definition PLACEHOLDER_13)))
+            (command_substitution
+              (command concat
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_11))
+                  (variable_substitution (id PLACEHOLDER_14)))))
+            (braced_word
+              (if
+                (expr {
+                  (unary_expr !
+                    (command_substitution
+                      (command dict
+                        (word_list exists
+                          (command_substitution
+                            (command lindex
+                              (word_list
+                                (variable_substitution (id PLACEHOLDER_7)) 0)))
+                          (variable_substitution (id PLACEHOLDER_13)))))) })
+                (braced_word
+                  (set
+                    (definition (id PLACEHOLDER_7))
+                    (command_substitution
+                      (command PLACEHOLDER_15
+                        (word_list
+                          (variable_substitution (id PLACEHOLDER_7))
+                          (variable_substitution (id PLACEHOLDER_13)) PLACEHOLDER_4))))))))
+          (set
+            (definition (id PLACEHOLDER_7))
+            (command_substitution
+              (command PLACEHOLDER_16
+                (word_list
+                  (variable_substitution (id PLACEHOLDER_7))
+                  (variable_substitution (id PLACEHOLDER_11))
+                  (variable_substitution (id PLACEHOLDER_14))))))
+          (if
+            (expr {
+              (binop_expr
+                (variable_substitution (id PLACEHOLDER_7)) eq "") }) return
+            (else ""))))
+      (set
+        (definition (id PLACEHOLDER_7))
+        (command_substitution
+          (command lmap
+            (word_list
+              (definition PLACEHOLDER_17)
+              (variable_substitution (id PLACEHOLDER_7))
+              (braced_word
+                (command dict
+                  (word_list unset
+                    (definition PLACEHOLDER_17) PLACEHOLDER_8)))))))
+      (command lindex
+        (word_list
+          (variable_substitution (id PLACEHOLDER_7)) 0))))
+  (procedure
+    (definition PLACEHOLDER_18)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_13))
+      (argument
+        (definition PLACEHOLDER_19)))
+    (braced_word
+      (command upvar
+        (word_list
+          (variable_substitution (id PLACEHOLDER_19))
+          (definition PLACEHOLDER_4)))
+      (if
+        (expr {
+          (binop_expr
+            (command_substitution
+              (command lsearch
+                (word_list -sorted
+                  (variable_substitution (id PLACEHOLDER_4))
+                  (variable_substitution (id PLACEHOLDER_13))))) != -1) })
+        (braced_word
+          (command return
+            (word_list 1)))
+        (else
+          (braced_word
+            (command return
+              (word_list 0)))))))
+  (procedure
+    (definition PLACEHOLDER_15)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_20))
+      (argument
+        (definition PLACEHOLDER_13))
+      (argument
+        (definition PLACEHOLDER_19)))
+    (braced_word
+      (command upvar
+        (word_list
+          (variable_substitution (id PLACEHOLDER_19))
+          (definition PLACEHOLDER_4)))
+      (set
+        (definition (id PLACEHOLDER_21))
+        (command_substitution
+          (expr_cmd
+            (expr {
+              (ternary_expr
+                (binop_expr
+                  (command_substitution
+                    (command lsearch
+                      (word_list -sorted
+                        (variable_substitution (id PLACEHOLDER_4))
+                        (variable_substitution (id PLACEHOLDER_13))))) != -1) 1 0) }))))
+      (set
+        (definition (id PLACEHOLDER_22))
+        (command_substitution
+          (command list)))
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_17)))
+        (variable_substitution (id PLACEHOLDER_20))
+        (braced_word
+          (set
+            (definition (id PLACEHOLDER_8))
+            (command_substitution
+              (command dict
+                (word_list get
+                  (variable_substitution (id PLACEHOLDER_17)) PLACEHOLDER_8))))
+          (command dict
+            (word_list unset
+              (definition PLACEHOLDER_17) PLACEHOLDER_8))
+          (for
+            (braced_word
+              (set
+                (definition (id PLACEHOLDER_9))
+                (variable_substitution (id PLACEHOLDER_21))))
+            (expr {
+              (binop_expr
+                (variable_substitution (id PLACEHOLDER_9)) < 10) })
+            (braced_word
+              (command incr
+                (word_list
+                  (definition PLACEHOLDER_9))))
+            (braced_word
+              (if
+                (expr {
+                  (binop_expr
+                    (command_substitution
+                      (command lsearch
+                        (word_list -integer
+                          (command_substitution
+                            (command dict
+                              (word_list values
+                                (variable_substitution (id PLACEHOLDER_17)))))
+                          (variable_substitution (id PLACEHOLDER_9))))) != -1) }) continue)
+              (command dict
+                (word_list set
+                  (definition PLACEHOLDER_17)
+                  (variable_substitution (id PLACEHOLDER_13))
+                  (variable_substitution (id PLACEHOLDER_9))))
+              (command dict
+                (word_list set
+                  (definition PLACEHOLDER_17) PLACEHOLDER_8
+                  (variable_substitution (id PLACEHOLDER_8))))
+              (command lappend
+                (word_list
+                  (definition PLACEHOLDER_22)
+                  (variable_substitution (id PLACEHOLDER_17))))))))
+      (command return
+        (word_list
+          (variable_substitution (id PLACEHOLDER_22))))))
+  (procedure
+    (definition PLACEHOLDER_16)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_7))
+      (argument
+        (definition PLACEHOLDER_11))
+      (argument
+        (definition PLACEHOLDER_14)))
+    (braced_word
+      (set
+        (definition (id PLACEHOLDER_22))
+        (command_substitution
+          (command list)))
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_17)))
+        (variable_substitution (id PLACEHOLDER_7))
+        (braced_word
+          (set
+            (definition (id PLACEHOLDER_23))
+            (command_substitution
+              (expr_cmd
+                (expr {
+                  (binop_expr
+                    (command_substitution
+                      (command PLACEHOLDER_24
+                        (word_list
+                          (command_substitution
+                            (command lmap
+                              (word_list
+                                (definition PLACEHOLDER_13)
+                                (variable_substitution (id PLACEHOLDER_11))
+                                (braced_word
+                                  (command dict
+                                    (word_list get
+                                      (variable_substitution (id PLACEHOLDER_17))
+                                      (variable_substitution (id PLACEHOLDER_13))))))))))) +
+                    (command_substitution
+                      (command dict
+                        (word_list get
+                          (variable_substitution (id PLACEHOLDER_17)) PLACEHOLDER_8)))) }))))
+          (set
+            (definition (id PLACEHOLDER_25))
+            (command_substitution
+              (command dict
+                (word_list get
+                  (variable_substitution (id PLACEHOLDER_17))
+                  (variable_substitution (id PLACEHOLDER_14))))))
+          (if
+            (expr {
+              (binop_expr
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_23)) % 10) ==
+                (variable_substitution (id PLACEHOLDER_25))) })
+            (braced_word
+              (command dict
+                (word_list set
+                  (definition PLACEHOLDER_17) PLACEHOLDER_8
+                  (command_substitution
+                    (expr_cmd
+                      (expr {
+                        (binop_expr
+                          (variable_substitution (id PLACEHOLDER_23)) / 10) })))))
+              (command lappend
+                (word_list
+                  (definition PLACEHOLDER_22)
+                  (variable_substitution (id PLACEHOLDER_17))))))))
+      (command return
+        (word_list
+          (variable_substitution (id PLACEHOLDER_22))))))
+  (procedure
+    (definition PLACEHOLDER_24)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_26)))
+    (braced_word
+      (command tcl::mathop::+
+        (word_list
+          (unpack
+            (variable_substitution (id PLACEHOLDER_26))))))))

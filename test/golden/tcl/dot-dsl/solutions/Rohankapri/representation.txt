@@ -1,84 +1,493 @@
-namespace eval DotGraph {
-namespace export processDotFile
-variable commentPattern { ^ ( //|# )}
-variable objectPattern {[ ^ \[ ] * }
-variable attrBindPattern { \[ [ ^ \] ] * \] }
-variable attrPattern { ^ \[\s * ([ ^= ] * ) \s *= \s * ([ ^= ] * ) \s * \] $ }
-}
-proc DotGraph::getLines { fname } { split [ read -nonewline [ open $fname r ]] "\"\\n\"" }
-proc DotGraph::discardComments { lines } {
-variable commentPattern
-lmap ln $lines {
-set ln [ string trim $ln ]
-if {[ regexp -- $commentPattern $ln ]} then continue else { set ln }
-}
-}
-proc DotGraph::getHeadBody { lines } {
-lassign [ regexp -inline { ^ [ \s\0 ] * ( \S * )[ \s\0 ] * ( .* \S * )[ \s\0 ] *$ } [ join $lines "\"\\0\"" ]] _ head body
-if { $head != "\"graph\"" } { error "\"invalid command name \\\"" $head \"" }
-set body [ lrange [ split [ string trim $body ] "\"\\0\"" ] 1 end-1 ]
-set body [ concat {*} [ lmap ln $body { split [ string trimright $ln "\";\"" ] "\";\"" }]]
-list $head $body
-}
-proc DotGraph::parseCmd { cmd } {
-foreach reg { objectPattern attrBindPattern attrPattern } { variable $reg }
-lassign [ regexp -inline "\"^\\\\s*(" $object Pattern)\\s*( $attr BindPattern)?\\s* $ "\"" $cmd ] _ obj attrBind
-if { $_ eq {}} { error "\"wrong cmd: " $cmd "\"" }
-set attributes [ dict create ]
-if { $attr Bind ne {}} {
-lassign [ regexp -inline $attrPattern $attrBind ] _ attrName attrVal
-if { ! [ isValidNode $attrName ] || $_ eq {}} { error "\"invalid attribute\"" }
-dict set attributes $attrName [ string trim $attrVal { \" }]
-set hasAttr yes
-} else { set hasAttr no }
-list [ string trim $obj ] $hasAttr $attributes
-}
-proc DotGraph::processDotFile { fname } {
-lassign [ getHeadBody [ discardComments [ getLines $fname ]]] head body
-set $head [ dict create nodes {} edges {} attrs {}]
-foreach cmd $body {
-lassign [ parseCmd $cmd ] obj hasAttr attributes
-if { $obj eq {} && $hasAttr } {
-addAttr graph $attributes
-} elseif {[ string map {{ } {}} $obj ] eq $obj } {
-if { ! [ isValidNode $obj ]} { error "\"node name must be alphanumeric\"" }
-addNode graph $obj $attributes
-} else {
-set check { node isValidNode line isLine }
-set prevNode {}; set type node
-foreach node [ split $obj ] {
-set node [ string trim $node ]
-if { ! [[ dict get $check $type ] $node ]} { error "\"invalid edge\"" }
-if { $type eq "\"node\"" } {
-addNode graph $node
-if { $prev Node ne {}} { addEdge graph $prevNode $node $attributes }
-set prevNode $node
-set type line
-} elseif { $type eq "\"line\"" } { set type node } else { error "\"??? " $type "\"" }
-}
-if { $type ne "\"line\"" } { error "\"invalid edge\"" }
-}
-}
-set graph
-}
-proc DotGraph::addEdge { graphName fromNode toNode attrs } {
-upvar $graphName graph
-dict set graph edges [ lsort [ list $fromNode $toNode ]] $attrs
-}
-proc DotGraph::addNode { graphName node { attrs {}}} {
-upvar $graphName graph
-set nodeInfo $attrs
-if {[ dict exists $graph nodes $node ]} {
-if { $node Info eq {}} { return }
-set nodeInfo [ dict merge [ dict get $graph nodes $node ] $nodeInfo ]
-}
-dict set graph nodes $node $nodeInfo
-}
-proc DotGraph::addAttr { graphName attrs } {
-upvar $graphName graph
-lassign $attrs attrName attrVal
-dict set graph attrs $attrName $attrVal
-}
-proc DotGraph::isLine { obj } { expr { $obj eq "\"--\"" }}
-proc DotGraph::isValidNode { nm } { expr { $nm ne {} && [ string is alnum $nm ]}}
-namespace import DotGraph::processDotFile
+(source_file
+  (namespace
+    (word_list eval
+      (definition PLACEHOLDER_1)
+      (braced_word
+        (namespace
+          (word_list export processDotFile))
+        (variable
+          (definition PLACEHOLDER_2) "^(//|#)")
+        (variable
+          (definition PLACEHOLDER_3) "[^\\[]*")
+        (variable
+          (definition PLACEHOLDER_4) "\\[[^\\]]*\\]")
+        (variable
+          (definition PLACEHOLDER_5) "^\\[\\s*([^=]*)\\s*=\\s*([^=]*)\\s*\\]$"))))
+  (procedure
+    (definition PLACEHOLDER_6)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_7)))
+    (braced_word
+      (command split
+        (word_list
+          (command_substitution
+            (command read
+              (word_list -nonewline
+                (command_substitution
+                  (command open
+                    (word_list
+                      (variable_substitution (id PLACEHOLDER_7)) r)))))) "\n"))))
+  (procedure
+    (definition PLACEHOLDER_8)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_9)))
+    (braced_word
+      (variable
+        (definition PLACEHOLDER_2))
+      (command lmap
+        (word_list
+          (definition PLACEHOLDER_10)
+          (variable_substitution (id PLACEHOLDER_9))
+          (braced_word
+            (set
+              (definition (id PLACEHOLDER_10))
+              (command_substitution
+                (command string
+                  (word_list trim
+                    (variable_substitution (id PLACEHOLDER_10))))))
+            (if
+              (expr {
+                (command_substitution
+                  (regexp --
+                    (variable_substitution (id PLACEHOLDER_2))
+                    (variable_substitution (id PLACEHOLDER_10)))) }) continue
+              (else
+                (braced_word
+                  (set
+                    (definition (id PLACEHOLDER_10)))))))))))
+  (procedure
+    (definition PLACEHOLDER_11)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_9)))
+    (braced_word
+      (command lassign
+        (word_list
+          (command_substitution
+            (regexp -inline "^[\\s\\0]*(\\S*)[\\s\\0]*(.*\\S*)[\\s\\0]*$"
+              (command_substitution
+                (command join
+                  (word_list
+                    (variable_substitution (id PLACEHOLDER_9))
+                    (escape
+                      (escape "\\0")))))))
+          (definition PLACEHOLDER_12)
+          (definition PLACEHOLDER_13)
+          (definition PLACEHOLDER_14)))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_13)) != PLACEHOLDER_15) })
+        (braced_word
+          (command error
+            (word_list
+              (word "invalid command name \""
+                (variable_substitution (id PLACEHOLDER_13)) "\"")))))
+      (set
+        (definition (id PLACEHOLDER_14))
+        (command_substitution
+          (command lrange
+            (word_list
+              (command_substitution
+                (command split
+                  (word_list
+                    (command_substitution
+                      (command string
+                        (word_list trim
+                          (variable_substitution (id PLACEHOLDER_14)))))
+                    (escape
+                      (escape "\\0"))))) 1 end-1))))
+      (set
+        (definition (id PLACEHOLDER_14))
+        (command_substitution
+          (command concat
+            (word_list
+              (unpack
+                (command_substitution
+                  (command lmap
+                    (word_list
+                      (definition PLACEHOLDER_10)
+                      (variable_substitution (id PLACEHOLDER_14))
+                      (braced_word
+                        (command split
+                          (word_list
+                            (command_substitution
+                              (command string
+                                (word_list trimright
+                                  (variable_substitution (id PLACEHOLDER_10)) ";"))) ";")))))))))))
+      (command list
+        (word_list
+          (variable_substitution (id PLACEHOLDER_13))
+          (variable_substitution (id PLACEHOLDER_14))))))
+  (procedure
+    (definition PLACEHOLDER_16)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_17)))
+    (braced_word
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_18))) "objectPattern attrBindPattern attrPattern"
+        (braced_word
+          (variable
+            (variable_substitution (id PLACEHOLDER_18)))))
+      (command lassign
+        (word_list
+          (command_substitution
+            (regexp -inline
+              (word "^\\s*("
+                (variable_substitution (id PLACEHOLDER_3)) ")\\s*("
+                (variable_substitution (id PLACEHOLDER_4)) ")?\\s*$")
+              (variable_substitution (id PLACEHOLDER_17))))
+          (definition PLACEHOLDER_12)
+          (definition PLACEHOLDER_19)
+          (definition PLACEHOLDER_20)))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_12)) eq "") })
+        (braced_word
+          (command error
+            (word_list
+              (word "wrong cmd: "
+                (variable_substitution (id PLACEHOLDER_17)))))))
+      (set
+        (definition (id PLACEHOLDER_21))
+        (command_substitution
+          (command dict
+            (word_list create))))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_20)) ne "") })
+        (braced_word
+          (command lassign
+            (word_list
+              (command_substitution
+                (regexp -inline
+                  (variable_substitution (id PLACEHOLDER_5))
+                  (variable_substitution (id PLACEHOLDER_20))))
+              (definition PLACEHOLDER_12)
+              (definition PLACEHOLDER_22)
+              (definition PLACEHOLDER_23)))
+          (if
+            (expr {
+              (binop_expr
+                (unary_expr !
+                  (command_substitution
+                    (command isValidNode
+                      (word_list
+                        (variable_substitution (id PLACEHOLDER_22)))))) ||
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_12)) eq "")) })
+            (braced_word
+              (command error
+                (word_list "invalid attribute"))))
+          (command dict
+            (word_list set
+              (definition PLACEHOLDER_21)
+              (variable_substitution (id PLACEHOLDER_22))
+              (command_substitution
+                (command string
+                  (word_list trim
+                    (variable_substitution (id PLACEHOLDER_23))
+                    (braced_word
+                      (command "\"")))))))
+          (set
+            (definition (id PLACEHOLDER_24)) yes))
+        (else
+          (braced_word
+            (set
+              (definition (id PLACEHOLDER_24)) no))))
+      (command list
+        (word_list
+          (command_substitution
+            (command string
+              (word_list trim
+                (variable_substitution (id PLACEHOLDER_19)))))
+          (variable_substitution (id PLACEHOLDER_24))
+          (variable_substitution (id PLACEHOLDER_21))))))
+  (procedure
+    (definition PLACEHOLDER_25)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_7)))
+    (braced_word
+      (command lassign
+        (word_list
+          (command_substitution
+            (command getHeadBody
+              (word_list
+                (command_substitution
+                  (command discardComments
+                    (word_list
+                      (command_substitution
+                        (command getLines
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_7)))))))))))
+          (definition PLACEHOLDER_13)
+          (definition PLACEHOLDER_14)))
+      (set
+        (variable_substitution (id PLACEHOLDER_13))
+        (command_substitution
+          (command dict
+            (word_list create nodes "" edges "" PLACEHOLDER_26 ""))))
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_17)))
+        (variable_substitution (id PLACEHOLDER_14))
+        (braced_word
+          (command lassign
+            (word_list
+              (command_substitution
+                (command parseCmd
+                  (word_list
+                    (variable_substitution (id PLACEHOLDER_17)))))
+              (definition PLACEHOLDER_19)
+              (definition PLACEHOLDER_24)
+              (definition PLACEHOLDER_21)))
+          (if
+            (expr {
+              (binop_expr
+                (binop_expr
+                  (variable_substitution (id PLACEHOLDER_19)) eq "") &&
+                (variable_substitution (id PLACEHOLDER_24))) })
+            (braced_word
+              (command addAttr
+                (word_list PLACEHOLDER_15
+                  (variable_substitution (id PLACEHOLDER_21)))))
+            (elseif
+              (expr {
+                (binop_expr
+                  (command_substitution
+                    (command string
+                      (word_list map
+                        (braced_word
+                          (command ""
+                            (word_list "")))
+                        (variable_substitution (id PLACEHOLDER_19))))) eq
+                  (variable_substitution (id PLACEHOLDER_19))) })
+              (braced_word
+                (if
+                  (expr {
+                    (unary_expr !
+                      (command_substitution
+                        (command isValidNode
+                          (word_list
+                            (variable_substitution (id PLACEHOLDER_19)))))) })
+                  (braced_word
+                    (command error
+                      (word_list "node name must be alphanumeric"))))
+                (command addNode
+                  (word_list PLACEHOLDER_15
+                    (variable_substitution (id PLACEHOLDER_19))
+                    (variable_substitution (id PLACEHOLDER_21))))))
+            (else
+              (braced_word
+                (set
+                  (definition (id PLACEHOLDER_27)) "node isValidNode line isLine")
+                (set
+                  (definition (id PLACEHOLDER_28)) "")
+                (set
+                  (definition (id PLACEHOLDER_29)) PLACEHOLDER_30)
+                (foreach
+                  (arguments
+                    (argument
+                      (definition PLACEHOLDER_30)))
+                  (command_substitution
+                    (command split
+                      (word_list
+                        (variable_substitution (id PLACEHOLDER_19)))))
+                  (braced_word
+                    (set
+                      (definition (id PLACEHOLDER_30))
+                      (command_substitution
+                        (command string
+                          (word_list trim
+                            (variable_substitution (id PLACEHOLDER_30))))))
+                    (if
+                      (expr {
+                        (unary_expr !
+                          (command_substitution
+                            (command
+                              (command_substitution
+                                (command dict
+                                  (word_list get
+                                    (variable_substitution (id PLACEHOLDER_27))
+                                    (variable_substitution (id PLACEHOLDER_29)))))
+                              (word_list
+                                (variable_substitution (id PLACEHOLDER_30)))))) })
+                      (braced_word
+                        (command error
+                          (word_list "invalid edge"))))
+                    (if
+                      (expr {
+                        (binop_expr
+                          (variable_substitution (id PLACEHOLDER_29)) eq PLACEHOLDER_30) })
+                      (braced_word
+                        (command addNode
+                          (word_list PLACEHOLDER_15
+                            (variable_substitution (id PLACEHOLDER_30))))
+                        (if
+                          (expr {
+                            (binop_expr
+                              (variable_substitution (id PLACEHOLDER_28)) ne "") })
+                          (braced_word
+                            (command addEdge
+                              (word_list PLACEHOLDER_15
+                                (variable_substitution (id PLACEHOLDER_28))
+                                (variable_substitution (id PLACEHOLDER_30))
+                                (variable_substitution (id PLACEHOLDER_21))))))
+                        (set
+                          (definition (id PLACEHOLDER_28))
+                          (variable_substitution (id PLACEHOLDER_30)))
+                        (set
+                          (definition (id PLACEHOLDER_29)) line))
+                      (elseif
+                        (expr {
+                          (binop_expr
+                            (variable_substitution (id PLACEHOLDER_29)) eq line) })
+                        (braced_word
+                          (set
+                            (definition (id PLACEHOLDER_29)) PLACEHOLDER_30)))
+                      (else
+                        (braced_word
+                          (command error
+                            (word_list
+                              (word "??? "
+                                (variable_substitution (id PLACEHOLDER_29))))))))))
+                (if
+                  (expr {
+                    (binop_expr
+                      (variable_substitution (id PLACEHOLDER_29)) ne line) })
+                  (braced_word
+                    (command error
+                      (word_list "invalid edge")))))))))
+      (set
+        (definition (id PLACEHOLDER_15)))))
+  (procedure
+    (definition PLACEHOLDER_31)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_32))
+      (argument
+        (definition PLACEHOLDER_33))
+      (argument
+        (definition PLACEHOLDER_34))
+      (argument
+        (definition PLACEHOLDER_26)))
+    (braced_word
+      (command upvar
+        (word_list
+          (variable_substitution (id PLACEHOLDER_32))
+          (definition PLACEHOLDER_15)))
+      (command dict
+        (word_list set
+          (definition PLACEHOLDER_15) edges
+          (command_substitution
+            (command lsort
+              (word_list
+                (command_substitution
+                  (command list
+                    (word_list
+                      (variable_substitution (id PLACEHOLDER_33))
+                      (variable_substitution (id PLACEHOLDER_34))))))))
+          (variable_substitution (id PLACEHOLDER_26))))))
+  (procedure
+    (definition PLACEHOLDER_35)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_32))
+      (argument
+        (definition PLACEHOLDER_30))
+      (argument
+        (definition PLACEHOLDER_26) ""))
+    (braced_word
+      (command upvar
+        (word_list
+          (variable_substitution (id PLACEHOLDER_32))
+          (definition PLACEHOLDER_15)))
+      (set
+        (definition (id PLACEHOLDER_36))
+        (variable_substitution (id PLACEHOLDER_26)))
+      (if
+        (expr {
+          (command_substitution
+            (command dict
+              (word_list exists
+                (variable_substitution (id PLACEHOLDER_15)) nodes
+                (variable_substitution (id PLACEHOLDER_30))))) })
+        (braced_word
+          (if
+            (expr {
+              (binop_expr
+                (variable_substitution (id PLACEHOLDER_36)) eq "") })
+            (braced_word
+              (command return)))
+          (set
+            (definition (id PLACEHOLDER_36))
+            (command_substitution
+              (command dict
+                (word_list merge
+                  (command_substitution
+                    (command dict
+                      (word_list get
+                        (variable_substitution (id PLACEHOLDER_15)) nodes
+                        (variable_substitution (id PLACEHOLDER_30)))))
+                  (variable_substitution (id PLACEHOLDER_36))))))))
+      (command dict
+        (word_list set
+          (definition PLACEHOLDER_15) nodes
+          (variable_substitution (id PLACEHOLDER_30))
+          (variable_substitution (id PLACEHOLDER_36))))))
+  (procedure
+    (definition PLACEHOLDER_37)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_32))
+      (argument
+        (definition PLACEHOLDER_26)))
+    (braced_word
+      (command upvar
+        (word_list
+          (variable_substitution (id PLACEHOLDER_32))
+          (definition PLACEHOLDER_15)))
+      (command lassign
+        (word_list
+          (variable_substitution (id PLACEHOLDER_26))
+          (definition PLACEHOLDER_22)
+          (definition PLACEHOLDER_23)))
+      (command dict
+        (word_list set
+          (definition PLACEHOLDER_15) PLACEHOLDER_26
+          (variable_substitution (id PLACEHOLDER_22))
+          (variable_substitution (id PLACEHOLDER_23))))))
+  (procedure
+    (definition PLACEHOLDER_38)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_19)))
+    (braced_word
+      (expr_cmd
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_19)) eq --) }))))
+  (procedure
+    (definition PLACEHOLDER_39)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_40)))
+    (braced_word
+      (expr_cmd
+        (expr {
+          (binop_expr
+            (binop_expr
+              (variable_substitution (id PLACEHOLDER_40)) ne "") &&
+            (command_substitution
+              (command string
+                (word_list is alnum
+                  (variable_substitution (id PLACEHOLDER_40)))))) })))))

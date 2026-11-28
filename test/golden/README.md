@@ -224,7 +224,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | sml | Sml | 211 | 37 | 100 | 60 | 95 | 0 | 5 | 0 | 0 |
 | sqlite | Basic | 328 | 76 | 100 | 63 | 100 | 38 | 11 | 0 | 0 |
 | swift | Swift | 373 | 91 | 100 | 62 | 96 | 1 | 6 | 0 | 0 |
-| tcl | Basic | 370 | 90 | 100 | 91 | 54 | 5 | 0 | 0 | 0 |
+| tcl | Tcl | 370 | 90 | 100 | 91 | 54 | 0 | 2 | 0 | 3 |
 | typescript | TypeScript | 387 | 96 | 100 | 63 | 95 | 0 | 2 | 0 | 0 |
 | uiua | Basic | 217 | 39 | 100 | 76 | 91 | 12 | 0 | 0 | 0 |
 | unison | Basic | 115 | 5 | 100 | 43 | 97 | 0 | 0 | 0 | 0 |

@@ -1,22 +1,54 @@
-scan [ info patchlevel ] %f minorRelease
-if { $minor Release >= 8.7 } {
-proc encode { txt } {
-regsub -command -all {( . ) \1 + } $txt {
-apply {{ sequence ch } { string cat [ string length $sequence ] $ch }}
-}
-}
-proc decode { txt } {
-regsub -command -all {( \d + )( . )} $txt {
-apply {{ - n ch } { string repeat $ch $n }}
-}
-}
-} else {
-proc encode { txt } {
-regsub -all {( . ) \1 + } $txt {[ string length "\"&\"" ] \1 } enc
-subst -nobackslashes -novariables $enc
-}
-proc decode { txt } {
-regsub -all {( \d + )( . )} $txt {[ string repeat "\"\\2\"" \1 ]} dec
-subst -nobackslashes -novariables $dec
-}
-}
+(source_file
+  (command scan
+    (word_list
+      (command_substitution
+        (command info
+          (word_list patchlevel))) %f
+      (definition PLACEHOLDER_1)))
+  (if
+    (expr {
+      (binop_expr
+        (variable_substitution (id PLACEHOLDER_1)) >= 8.7) })
+    (braced_word
+      (procedure
+        (definition PLACEHOLDER_2)
+        (arguments
+          (argument
+            (definition PLACEHOLDER_3)))
+        (braced_word
+          (regsub -command -all "(.)\\1+"
+            (variable_substitution (id PLACEHOLDER_3)) "\n            apply \n        ")))
+      (procedure
+        (definition PLACEHOLDER_4)
+        (arguments
+          (argument
+            (definition PLACEHOLDER_3)))
+        (braced_word
+          (regsub -command -all "(\\d+)(.)"
+            (variable_substitution (id PLACEHOLDER_3)) "\n            apply \n        "))))
+    (else
+      (braced_word
+        (procedure
+          (definition PLACEHOLDER_2)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_3)))
+          (braced_word
+            (regsub -all "(.)\\1+"
+              (variable_substitution (id PLACEHOLDER_3)) "[string length \"&\"]\\1"
+              (definition PLACEHOLDER_5))
+            (command subst
+              (word_list -nobackslashes -novariables
+                (variable_substitution (id PLACEHOLDER_5))))))
+        (procedure
+          (definition PLACEHOLDER_4)
+          (arguments
+            (argument
+              (definition PLACEHOLDER_3)))
+          (braced_word
+            (regsub -all "(\\d+)(.)"
+              (variable_substitution (id PLACEHOLDER_3)) "[string repeat \"\\2\" \\1]"
+              (definition PLACEHOLDER_6))
+            (command subst
+              (word_list -nobackslashes -novariables
+                (variable_substitution (id PLACEHOLDER_6))))))))))

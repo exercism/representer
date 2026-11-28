@@ -1,16 +1,112 @@
-proc clean { s } {
-regsub -all {[ \+\-\(\)\s\. ]} $s {} s
-if [ regexp -- {[ a-zA-Z ]} $s ] { error "\"letters not permitted\"" }
-if [ regexp -- { \D } $s ] { error "\"punctuations not permitted\"" }
-set l [ string length $s ]
-if { $l <10 } { error "\"must not be fewer than 10 digits\"" }
-if { $l >11 } { error "\"must not be greater than 11 digits\"" }
-if { $l ==11 } {
-if {[ string index $s 0 ] != 1 } { error "\"11 digits must start with 1\"" }
-set s [ string range $s 1 end ]
-}
-lassign [ lmap d { 0 3 } { string index $s $d }] a x
-if { $a <2 } { error "\"area code cannot start with " [ expr { $a ? "\"one\"" : "\"zero\"" }] "\"" }
-if { $x <2 } { error "\"exchange code cannot start with " [ expr { $x ? "\"one\"" : "\"zero\"" }] "\"" }
-return $s
-}
+(source_file
+  (procedure
+    (definition PLACEHOLDER_1)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_2)))
+    (braced_word
+      (regsub -all "[\\+\\-\\(\\)\\s\\.]"
+        (variable_substitution (id PLACEHOLDER_2)) ""
+        (definition PLACEHOLDER_2))
+      (if
+        (expr
+          (command_substitution
+            (regexp -- "[a-zA-Z]"
+              (variable_substitution (id PLACEHOLDER_2)))))
+        (braced_word
+          (command error
+            (word_list "letters not permitted"))))
+      (if
+        (expr
+          (command_substitution
+            (regexp -- "\\D"
+              (variable_substitution (id PLACEHOLDER_2)))))
+        (braced_word
+          (command error
+            (word_list "punctuations not permitted"))))
+      (set
+        (definition (id PLACEHOLDER_3))
+        (command_substitution
+          (command string
+            (word_list length
+              (variable_substitution (id PLACEHOLDER_2))))))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_3)) < 10) })
+        (braced_word
+          (command error
+            (word_list "must not be fewer than 10 digits"))))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_3)) > 11) })
+        (braced_word
+          (command error
+            (word_list "must not be greater than 11 digits"))))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_3)) == 11) })
+        (braced_word
+          (if
+            (expr {
+              (binop_expr
+                (command_substitution
+                  (command string
+                    (word_list index
+                      (variable_substitution (id PLACEHOLDER_2)) 0))) != 1) })
+            (braced_word
+              (command error
+                (word_list "11 digits must start with 1"))))
+          (set
+            (definition (id PLACEHOLDER_2))
+            (command_substitution
+              (command string
+                (word_list range
+                  (variable_substitution (id PLACEHOLDER_2)) 1 end))))))
+      (command lassign
+        (word_list
+          (command_substitution
+            (command lmap
+              (word_list
+                (definition PLACEHOLDER_4)
+                (braced_word
+                  (command 0
+                    (word_list 3)))
+                (braced_word
+                  (command string
+                    (word_list index
+                      (variable_substitution (id PLACEHOLDER_2))
+                      (variable_substitution (id PLACEHOLDER_4))))))))
+          (definition PLACEHOLDER_5)
+          (definition PLACEHOLDER_6)))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_5)) < 2) })
+        (braced_word
+          (command error
+            (word_list
+              (word "area code cannot start with "
+                (command_substitution
+                  (expr_cmd
+                    (expr {
+                      (ternary_expr
+                        (variable_substitution (id PLACEHOLDER_5)) one zero) }))))))))
+      (if
+        (expr {
+          (binop_expr
+            (variable_substitution (id PLACEHOLDER_6)) < 2) })
+        (braced_word
+          (command error
+            (word_list
+              (word "exchange code cannot start with "
+                (command_substitution
+                  (expr_cmd
+                    (expr {
+                      (ternary_expr
+                        (variable_substitution (id PLACEHOLDER_6)) one zero) }))))))))
+      (command return
+        (word_list
+          (variable_substitution (id PLACEHOLDER_2)))))))

@@ -1,29 +1,50 @@
-package require Thread
-proc calculate { input } {
-tsv::set calculate counts {}
-set tids {}
-set worker {{ line } {
-set localCounts {}
-foreach c [ split [ string tolower $line ] "\"\"" ] {
-if {[ string is alpha $c ]} {
-dict incr localCounts $c
-}
-}
-tsv::lock calculate {
-set counts [ tsv::get calculate counts ]
-dict for { c n } $localCounts {
-dict incr counts $c $n
-}
-tsv::set calculate counts $counts
-}
-}}
-foreach line $input {
-lappend tids [ thread::create -joinable [ list apply $worker $line ]]
-}
-foreach tid $tids {
-thread::join $tid
-}
-set res [ tsv::pop calculate counts ]
-puts "\"res: " $res "\""
-set res
-}
+(source_file
+  (procedure
+    (definition PLACEHOLDER_1)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_2)))
+    (braced_word
+      (command tsv::set
+        (word_list PLACEHOLDER_1 counts ""))
+      (set
+        (definition (id PLACEHOLDER_3)) "")
+      (set
+        (definition (id PLACEHOLDER_4)) " ")
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_5)))
+        (variable_substitution (id PLACEHOLDER_2))
+        (braced_word
+          (command lappend
+            (word_list
+              (definition PLACEHOLDER_3)
+              (command_substitution
+                (command thread::create
+                  (word_list -joinable
+                    (command_substitution
+                      (command list
+                        (word_list apply
+                          (variable_substitution (id PLACEHOLDER_4))
+                          (variable_substitution (id PLACEHOLDER_5))))))))))))
+      (foreach
+        (arguments
+          (argument
+            (definition PLACEHOLDER_6)))
+        (variable_substitution (id PLACEHOLDER_3))
+        (braced_word
+          (command thread::join
+            (word_list
+              (variable_substitution (id PLACEHOLDER_6))))))
+      (set
+        (definition (id PLACEHOLDER_7))
+        (command_substitution
+          (command tsv::pop
+            (word_list PLACEHOLDER_1 counts))))
+      (command puts
+        (word_list
+          (word "res: "
+            (variable_substitution (id PLACEHOLDER_7)))))
+      (set
+        (definition (id PLACEHOLDER_7))))))

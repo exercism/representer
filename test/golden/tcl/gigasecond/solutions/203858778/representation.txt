@@ -1,11 +1,61 @@
-proc addGigasecond { datetime } {
-if {[ string length $datetime ] == [ string length YYYY-MM-DD ]} {
-set now [ clock scan $datetime -gmt yes -format "\"%Y-%m-%d\"" ]
-} elseif {[ string length $datetime ] == [ string length YYYY-MM-DDTHH:MM:SS ]} {
-set now [ clock scan $datetime -gmt yes -format "\"%Y-%m-%dT%H:%M:%S\"" ]
-} else {
-set now [ clock scan $datetime -gmt yes ]
-}
-set then [ clock add $now 1000000000 seconds ]
-return [ clock format $then -gmt yes -format "\"%Y-%m-%dT%H:%M:%S\"" ]
-}
+(source_file
+  (procedure
+    (definition PLACEHOLDER_1)
+    (arguments
+      (argument
+        (definition PLACEHOLDER_2)))
+    (braced_word
+      (if
+        (expr {
+          (binop_expr
+            (command_substitution
+              (command string
+                (word_list length
+                  (variable_substitution (id PLACEHOLDER_2))))) ==
+            (command_substitution
+              (command string
+                (word_list length YYYY-MM-DD)))) })
+        (braced_word
+          (set
+            (definition (id PLACEHOLDER_3))
+            (command_substitution
+              (command clock
+                (word_list scan
+                  (variable_substitution (id PLACEHOLDER_2)) -gmt yes -format %Y-%m-%d)))))
+        (elseif
+          (expr {
+            (binop_expr
+              (command_substitution
+                (command string
+                  (word_list length
+                    (variable_substitution (id PLACEHOLDER_2))))) ==
+              (command_substitution
+                (command string
+                  (word_list length YYYY-MM-DDTHH:MM:SS)))) })
+          (braced_word
+            (set
+              (definition (id PLACEHOLDER_3))
+              (command_substitution
+                (command clock
+                  (word_list scan
+                    (variable_substitution (id PLACEHOLDER_2)) -gmt yes -format %Y-%m-%dT%H:%M:%S))))))
+        (else
+          (braced_word
+            (set
+              (definition (id PLACEHOLDER_3))
+              (command_substitution
+                (command clock
+                  (word_list scan
+                    (variable_substitution (id PLACEHOLDER_2)) -gmt yes)))))))
+      (set
+        (definition (id PLACEHOLDER_4))
+        (command_substitution
+          (command clock
+            (word_list add
+              (variable_substitution (id PLACEHOLDER_3)) 1000000000 seconds))))
+      (command return
+        (word_list
+          (command_substitution
+            (command clock
+              (word_list format
+                (variable_substitution (id PLACEHOLDER_4)) -gmt yes -format %Y-%m-%dT%H:%M:%S))))))))
