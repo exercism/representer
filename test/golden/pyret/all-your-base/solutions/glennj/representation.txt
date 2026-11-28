@@ -1,56 +1,172 @@
-use context starter2024
-provide: rebase end
-invalid-digit-error = "\"all" digits must satisfy 0 <= d < input base"
-invalid-input-base-error = "\"input" base must be >= 2"
-invalid-output-base-error = "\"output" base must be >= 2"
-fun to-decimal(
-ds :: List<NumInteger>,
-sum :: NumInteger,
-base :: NumInteger
-) -> NumInteger:
-doc: "\"convert" a list of digits and a base to a decimal number"
-cases(List) ds:
-| empty => sum
-| link(d, rest) =>
-ask:
-| (d < 0) or (d >= base) then: raise(invalid-digit-error)
-| otherwise: to-decimal(rest, (sum * base) + d, base)
-end
-end
-where:
-to-decimal([list: ], 0, 2) is 0
-to-decimal([list: 1, 0, 1], 0, 2) is 5
-to-decimal([list: -1], 0, 2) raises invalid-digit-error
-end
-fun to-output-digits(
-dec :: NumInteger,
-ds :: List<NumInteger>,
-base :: NumInteger
-) -> List<NumInteger>:
-doc: "\"convert" a decimal number and a base to a list of digits"
-ask:
-| (dec == 0) and is-empty(ds) then: [list: 0]
-| dec == 0 then: ds
-| otherwise:
-rem = num-modulo(dec, base)
-to-output-digits((dec - rem) / base, [list: rem] + ds, base)
-end
-where:
-to-output-digits(0, [list: ], 2) is [list: 0]
-to-output-digits(1, [list: ], 2) is [list: 1]
-to-output-digits(6, [list: ], 2) is [list: 1, 1, 0]
-end
-# ----------------------------------------------------
-fun rebase(
-input-base :: NumInteger,
-digits :: List<NumInteger>,
-output-base :: NumInteger
-) -> List<NumInteger>:
-ask:
-| input-base < 2 then: raise(invalid-input-base-error)
-| output-base < 2 then: raise(invalid-output-base-error)
-| otherwise:
-decimal = to-decimal(digits, 0, input-base)
-to-output-digits(decimal, [list: ], output-base)
-end
-end
+(source_file
+  (block
+    (let_expr
+      (name_binding PLACEHOLDER_1) "all digits must satisfy 0 <= d < input base")
+    (let_expr
+      (name_binding PLACEHOLDER_2) "input base must be >= 2")
+    (let_expr
+      (name_binding PLACEHOLDER_3) "output base must be >= 2")
+    (fun_expr PLACEHOLDER_4
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_5
+            (app_ann
+              (name_ann List)
+              (comma_anns
+                (name_ann NumInteger))))
+          (name_binding PLACEHOLDER_6
+            (name_ann NumInteger))
+          (name_binding PLACEHOLDER_7
+            (name_ann NumInteger)))
+        (return_ann
+          (name_ann NumInteger)))
+      (doc_string "convert a list of digits and a base to a decimal number")
+      (block
+        (cases_expr
+          (name_ann List) (id_expr PLACEHOLDER_5)
+          (cases_branch empty
+            (block (id_expr PLACEHOLDER_6)))
+          (cases_branch link
+            (cases_args
+              (cases_binding
+                (name_binding PLACEHOLDER_8))
+              (cases_binding
+                (name_binding PLACEHOLDER_9)))
+            (block
+              (if_pipe_expr
+                (if_pipe_branch
+                  (binop_expr
+                    (binop_expr (id_expr PLACEHOLDER_8) < 0) or
+                    (binop_expr (id_expr PLACEHOLDER_8) >= (id_expr PLACEHOLDER_7)))
+                  (block
+                    (app_expr raise
+                      (app_args
+                        (comma_binops (id_expr PLACEHOLDER_1))))))
+                (block
+                  (app_expr (id_expr PLACEHOLDER_4)
+                    (app_args
+                      (comma_binops (id_expr PLACEHOLDER_9)
+                        (binop_expr
+                          (binop_expr (id_expr PLACEHOLDER_6) * (id_expr PLACEHOLDER_7)) + (id_expr PLACEHOLDER_8)) (id_expr PLACEHOLDER_7))))))))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops
+                  (construct_expr list) 0 2))) is 0)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops
+                  (construct_expr list 1 0 1) 0 2))) is 5)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops
+                  (construct_expr list -1) 0 2))) raises (id_expr PLACEHOLDER_1)))))
+    (fun_expr PLACEHOLDER_10
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_11
+            (name_ann NumInteger))
+          (name_binding PLACEHOLDER_5
+            (app_ann
+              (name_ann List)
+              (comma_anns
+                (name_ann NumInteger))))
+          (name_binding PLACEHOLDER_7
+            (name_ann NumInteger)))
+        (return_ann
+          (app_ann
+            (name_ann List)
+            (comma_anns
+              (name_ann NumInteger)))))
+      (doc_string "convert a decimal number and a base to a list of digits")
+      (block
+        (if_pipe_expr
+          (if_pipe_branch
+            (binop_expr
+              (binop_expr (id_expr PLACEHOLDER_11) == 0) and
+              (app_expr is-empty
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_5)))))
+            (block
+              (construct_expr list 0)))
+          (if_pipe_branch
+            (binop_expr (id_expr PLACEHOLDER_11) == 0)
+            (block (id_expr PLACEHOLDER_5)))
+          (block
+            (let_expr
+              (name_binding PLACEHOLDER_12)
+              (app_expr num-modulo
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_11) (id_expr PLACEHOLDER_7)))))
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops
+                  (binop_expr
+                    (binop_expr (id_expr PLACEHOLDER_11) - (id_expr PLACEHOLDER_12)) / (id_expr PLACEHOLDER_7))
+                  (binop_expr
+                    (construct_expr list (id_expr PLACEHOLDER_12)) + (id_expr PLACEHOLDER_5)) (id_expr PLACEHOLDER_7)))))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops 0
+                  (construct_expr list) 2))) is
+            (construct_expr list 0))
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops 1
+                  (construct_expr list) 2))) is
+            (construct_expr list 1))
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops 6
+                  (construct_expr list) 2))) is
+            (construct_expr list 1 1 0)))))
+    (fun_expr PLACEHOLDER_13
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_14
+            (name_ann NumInteger))
+          (name_binding PLACEHOLDER_15
+            (app_ann
+              (name_ann List)
+              (comma_anns
+                (name_ann NumInteger))))
+          (name_binding PLACEHOLDER_16
+            (name_ann NumInteger)))
+        (return_ann
+          (app_ann
+            (name_ann List)
+            (comma_anns
+              (name_ann NumInteger)))))
+      (block
+        (if_pipe_expr
+          (if_pipe_branch
+            (binop_expr (id_expr PLACEHOLDER_14) < 2)
+            (block
+              (app_expr raise
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_2))))))
+          (if_pipe_branch
+            (binop_expr (id_expr PLACEHOLDER_16) < 2)
+            (block
+              (app_expr raise
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_3))))))
+          (block
+            (let_expr
+              (name_binding PLACEHOLDER_17)
+              (app_expr (id_expr PLACEHOLDER_4)
+                (app_args
+                  (comma_binops (id_expr PLACEHOLDER_15) 0 (id_expr PLACEHOLDER_14)))))
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops (id_expr PLACEHOLDER_17)
+                  (construct_expr list) (id_expr PLACEHOLDER_16))))))))))

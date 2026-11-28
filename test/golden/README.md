@@ -208,7 +208,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | powershell | Powershell | 205 | 35 | 100 | 91 | 94 | 0 | 2 | 0 | 0 |
 | prolog | Basic | 400 | 100 | 100 | 73 | 81 | 22 | 1 | 0 | 0 |
 | purescript | PureScript | 123 | 8 | 100 | 25 | 98 | 0 | 2 | 0 | 2 |
-| pyret | Basic | 103 | 1 | 100 | 65 | 97 | 0 | 0 | 0 | 0 |
+| pyret | Pyret | 103 | 1 | 100 | 65 | 97 | 0 | 0 | 0 | 0 |
 | python | Python | 397 | 99 | 100 | 92 | 100 | 1 | 0 | 0 | 0 |
 | r | R | 391 | 97 | 100 | 71 | 98 | 0 | 3 | 0 | 0 |
 | racket | Racket | 277 | 59 | 100 | 56 | 98 | 0 | 9 | 0 | 0 |

@@ -1,142 +1,425 @@
-provide:
-string-is-upper,
-string-is-lower,
-string-is-alpha,
-string-is-whitespace,
-string-is-digit,
-string-is-punct,
-string-is-non-word-char,
-string-is-all-upper,
-string-remove-all,
-string-format
-end
-import lists as L
-fun string-is-upper(character :: String) -> Boolean:
-doc: 'Is the one-character string an ASCII uppercase letter?'
-("A" <= character) and (character <= "\"Z\")"
-where:
-string-is-upper("A") is true
-string-is-upper("a") is false
-string-is-upper(" "\")" is false
-string-is-upper("-") is false
-string-is-upper("_") is false
-string-is-upper("'") is false
-end
-fun string-is-lower(character :: String) -> Boolean:
-doc: 'Is the one-character string an ASCII lowercase letter?'
-("a" <= character) and (character <= "\"z\")"
-where:
-string-is-lower("A") is false
-string-is-lower("a") is true
-string-is-lower(" "\")" is false
-string-is-lower("-") is false
-string-is-lower("_") is false
-string-is-lower("'") is false
-end
-fun string-is-alpha(character :: String) -> Boolean:
-doc: 'Is the one-character string an ASCII letter?'
-string-is-upper(character) or string-is-lower(character)
-where:
-string-is-alpha("A") is true
-string-is-alpha("a") is true
-string-is-alpha(" "\")" is false
-string-is-alpha("-") is false
-string-is-alpha("_") is false
-string-is-alpha("'") is false
-end
-fun string-is-whitespace(c):
-doc: "\"Return" true if the one-character string c is a whitespace character."
-cp = string-to-code-point(c)
-[list: 8, 9, 10, 11, 13, 32].member(cp)
-end
-fun string-is-digit(character :: String) -> Boolean:
-doc: 'Is the one-character string a digit?'
-("0" <= character) and (character <= "\"9\")"
-where:
-string-is-digit("A") is false
-string-is-digit("0") is true
-end
-fun string-is-punct(character :: String) -> Boolean:
-doc: 'Is the one-character string an ASCII punctuation character?'
-(("!" <= character) and (character <= "\"/\"))" or
-((":" <= character) and (character <= "\"@\"))" or
-(("[" <= character) and (character <= "\"`\"))" or
-(("{" <= character) and (character <= "\"~\"))"
-end
-# for `acronym` exercise
-fun string-is-non-word-char(character :: String) -> Boolean:
-doc: 'Is the character NOT a "\"word" character" (letters or apostrophes)?'
-not(string-is-alpha(character) or (character == "\"'\"))"
-where:
-string-is-non-word-char("A") is false
-string-is-non-word-char("a") is false
-string-is-non-word-char(" "\")" is true
-string-is-non-word-char("-") is true
-string-is-non-word-char("_") is true
-string-is-non-word-char("'") is false
-end
-fun string-is-all-upper(s :: String) -> Boolean:
-doc: "\"Return" true if the string s contains an uppercase letter but no lowercase letters."
-chars = string-explode(s)
-chars.any(string-is-upper) and
-chars.all(lam(c): not(string-is-lower(c)) end)
-where:
-string-is-all-upper("HELLO") is true
-string-is-all-upper("HeLLO") is false
-string-is-all-upper("hello") is false
-string-is-all-upper("¡HELLO!") is true
-string-is-all-upper("1234?!") is false
-end
-#| turns out this is builtin (but not documented?)
-fun string-ends-with(s, t):
-doc: "\"Returns" true if the string s ends with the string t."
-slen = string-length(s)
-tlen = string-length(t)
-ask:
-| tlen > slen then: false
-| otherwise: string-substring(s, slen - tlen, slen) == t
-end
-end
-|#
-fun string-remove-all(s, cs):
-doc: "\"Remove" all the characters in list cs from string s"
-string-explode(s)
-^ filter({(c): not(cs.member(c))}, _)
-^ L.join-str(_, '')
-where:
-string-remove-all('hello', [list: 'e', 'l']) is 'ho'
-string-remove-all('hello', [list: '-']) is 'hello'
-end
-fun string-format(format-string, strings):
-doc: "\"...\""
-for L.fold_n(i from 1, fmt from format-string, str from strings):
-string-replace(fmt, '{' + num-to-string(i) + '}', str)
-end
-where:
-string-format('Hello, {1}!', [list: 'World']) is 'Hello, World!'
-string-format('He{1}{1}{2}, W{2}r{1}d!', [list: 'l', 'o']) is 'Hello, World!'
-end
-provide: recite end
-import file("string-helpers.arr") as SH
-include from SH:
-string-format
-end
-fun recite(items):
-rec stanzas = lam(xs, lines):
-ask:
-| xs.length() < 2 then: lines
-| otherwise:
-stanzas(
-xs.drop(1),
-lines.push(string-format("For want of a {1} the {2} was lost.", xs.take(2)))
-)
-end
-end
-cases(List) items:
-| empty => [list:]
-| link(first, _) =>
-stanzas(items, [list:])
-.push("And all for the want of a "\"" + first + "\".\")"
-.reverse()
-end
-end
+(source_file
+  (block
+    (fun_expr PLACEHOLDER_1
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the one-character string an ASCII uppercase letter?")
+      (block
+        (binop_expr
+          (binop_expr "A" <= (id_expr PLACEHOLDER_2)) and
+          (binop_expr (id_expr PLACEHOLDER_2) <= "Z")))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "A"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "a"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops " "))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "-"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "_"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_1)
+              (app_args
+                (comma_binops "'"))) is false))))
+    (fun_expr PLACEHOLDER_3
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the one-character string an ASCII lowercase letter?")
+      (block
+        (binop_expr
+          (binop_expr "a" <= (id_expr PLACEHOLDER_2)) and
+          (binop_expr (id_expr PLACEHOLDER_2) <= "z")))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "A"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "a"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops " "))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "-"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "_"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_3)
+              (app_args
+                (comma_binops "'"))) is false))))
+    (fun_expr PLACEHOLDER_4
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the one-character string an ASCII letter?")
+      (block
+        (binop_expr
+          (app_expr (id_expr PLACEHOLDER_1)
+            (app_args
+              (comma_binops (id_expr PLACEHOLDER_2)))) or
+          (app_expr (id_expr PLACEHOLDER_3)
+            (app_args
+              (comma_binops (id_expr PLACEHOLDER_2))))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops "A"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops "a"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops " "))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops "-"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops "_"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_4)
+              (app_args
+                (comma_binops "'"))) is false))))
+    (fun_expr PLACEHOLDER_5
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_6)))
+      (doc_string "Return true if the one-character string c is a whitespace character.")
+      (block
+        (let_expr
+          (name_binding PLACEHOLDER_7)
+          (app_expr string-to-code-point
+            (app_args
+              (comma_binops (id_expr PLACEHOLDER_6)))))
+        (app_expr
+          (dot_expr
+            (construct_expr list 8 9 10 11 13 32) member)
+          (app_args
+            (comma_binops (id_expr PLACEHOLDER_7))))))
+    (fun_expr PLACEHOLDER_8
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the one-character string a digit?")
+      (block
+        (binop_expr
+          (binop_expr "0" <= (id_expr PLACEHOLDER_2)) and
+          (binop_expr (id_expr PLACEHOLDER_2) <= "9")))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_8)
+              (app_args
+                (comma_binops "A"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_8)
+              (app_args
+                (comma_binops "0"))) is true))))
+    (fun_expr PLACEHOLDER_9
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the one-character string an ASCII punctuation character?")
+      (block
+        (binop_expr
+          (binop_expr
+            (binop_expr
+              (binop_expr
+                (binop_expr "!" <= (id_expr PLACEHOLDER_2)) and
+                (binop_expr (id_expr PLACEHOLDER_2) <= "/")) or
+              (binop_expr
+                (binop_expr ":" <= (id_expr PLACEHOLDER_2)) and
+                (binop_expr (id_expr PLACEHOLDER_2) <= "@"))) or
+            (binop_expr
+              (binop_expr "[" <= (id_expr PLACEHOLDER_2)) and
+              (binop_expr (id_expr PLACEHOLDER_2) <= "`"))) or
+          (binop_expr
+            (binop_expr "{" <= (id_expr PLACEHOLDER_2)) and
+            (binop_expr (id_expr PLACEHOLDER_2) <= "~")))))
+    (fun_expr PLACEHOLDER_10
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_2
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Is the character NOT a \"word character\" (letters or apostrophes)?")
+      (block
+        (app_expr not
+          (app_args
+            (comma_binops
+              (binop_expr
+                (app_expr (id_expr PLACEHOLDER_4)
+                  (app_args
+                    (comma_binops (id_expr PLACEHOLDER_2)))) or
+                (binop_expr (id_expr PLACEHOLDER_2) == "'"))))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops "A"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops "a"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops " "))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops "-"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops "_"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_10)
+              (app_args
+                (comma_binops "'"))) is false))))
+    (fun_expr PLACEHOLDER_11
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_12
+            (name_ann String)))
+        (return_ann
+          (name_ann Boolean)))
+      (doc_string "Return true if the string s contains an uppercase letter but no lowercase letters.")
+      (block
+        (let_expr
+          (name_binding PLACEHOLDER_13)
+          (app_expr string-explode
+            (app_args
+              (comma_binops (id_expr PLACEHOLDER_12)))))
+        (binop_expr
+          (app_expr
+            (dot_expr (id_expr PLACEHOLDER_13) any)
+            (app_args
+              (comma_binops (id_expr PLACEHOLDER_1)))) and
+          (app_expr
+            (dot_expr (id_expr PLACEHOLDER_13) all)
+            (app_args
+              (comma_binops
+                (lambda_expr
+                  (fun_header
+                    (args
+                      (name_binding PLACEHOLDER_6)))
+                  (block
+                    (app_expr not
+                      (app_args
+                        (comma_binops
+                          (app_expr (id_expr PLACEHOLDER_3)
+                            (app_args
+                              (comma_binops (id_expr PLACEHOLDER_6))))))))))))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_11)
+              (app_args
+                (comma_binops "HELLO"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_11)
+              (app_args
+                (comma_binops "HeLLO"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_11)
+              (app_args
+                (comma_binops "hello"))) is false)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_11)
+              (app_args
+                (comma_binops "\u00A1HELLO!"))) is true)
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_11)
+              (app_args
+                (comma_binops "1234?!"))) is false))))
+    (fun_expr PLACEHOLDER_14
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_12)
+          (name_binding PLACEHOLDER_15)))
+      (doc_string "Remove all the characters in list cs from string s")
+      (block
+        (binop_expr
+          (binop_expr
+            (app_expr string-explode
+              (app_args
+                (comma_binops (id_expr PLACEHOLDER_12)))) ^
+            (app_expr filter
+              (app_args
+                (comma_binops
+                  (lambda_expr
+                    (fun_header
+                      (args
+                        (name_binding PLACEHOLDER_6)))
+                    (block
+                      (app_expr not
+                        (app_args
+                          (comma_binops
+                            (app_expr
+                              (dot_expr (id_expr PLACEHOLDER_15) member)
+                              (app_args
+                                (comma_binops (id_expr PLACEHOLDER_6))))))))) (id_expr PLACEHOLDER_16))))) ^
+          (app_expr
+            (dot_expr L join-str)
+            (app_args
+              (comma_binops (id_expr PLACEHOLDER_16) "")))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_14)
+              (app_args
+                (comma_binops "hello"
+                  (construct_expr list "e" "l")))) is "ho")
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_14)
+              (app_args
+                (comma_binops "hello"
+                  (construct_expr list "-")))) is "hello"))))
+    (fun_expr PLACEHOLDER_17
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_18)
+          (name_binding PLACEHOLDER_19)))
+      (doc_string "...")
+      (block
+        (for_expr
+          (dot_expr L fold_n)
+          (for_bind
+            (name_binding PLACEHOLDER_20) 1)
+          (for_bind
+            (name_binding PLACEHOLDER_21) (id_expr PLACEHOLDER_18))
+          (for_bind
+            (name_binding PLACEHOLDER_22) (id_expr PLACEHOLDER_19))
+          (block
+            (app_expr string-replace
+              (app_args
+                (comma_binops (id_expr PLACEHOLDER_21)
+                  (binop_expr
+                    (binop_expr "{" +
+                      (app_expr num-to-string
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_20))))) + "}") (id_expr PLACEHOLDER_22)))))))
+      (where_clause
+        (block
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_17)
+              (app_args
+                (comma_binops "Hello, {1}!"
+                  (construct_expr list "World")))) is "Hello, World!")
+          (check_test
+            (app_expr (id_expr PLACEHOLDER_17)
+              (app_args
+                (comma_binops "He{1}{1}{2}, W{2}r{1}d!"
+                  (construct_expr list "l" "o")))) is "Hello, World!")))))
+  (block
+    (fun_expr PLACEHOLDER_23
+      (fun_header
+        (args
+          (name_binding PLACEHOLDER_24)))
+      (block
+        (rec_expr
+          (name_binding PLACEHOLDER_25)
+          (lambda_expr
+            (fun_header
+              (args
+                (name_binding PLACEHOLDER_26)
+                (name_binding PLACEHOLDER_27)))
+            (block
+              (if_pipe_expr
+                (if_pipe_branch
+                  (binop_expr
+                    (app_expr
+                      (dot_expr (id_expr PLACEHOLDER_26) length)
+                      (app_args)) < 2)
+                  (block (id_expr PLACEHOLDER_27)))
+                (block
+                  (app_expr (id_expr PLACEHOLDER_25)
+                    (app_args
+                      (comma_binops
+                        (app_expr
+                          (dot_expr (id_expr PLACEHOLDER_26) drop)
+                          (app_args
+                            (comma_binops 1)))
+                        (app_expr
+                          (dot_expr (id_expr PLACEHOLDER_27) push)
+                          (app_args
+                            (comma_binops
+                              (app_expr (id_expr PLACEHOLDER_17)
+                                (app_args
+                                  (comma_binops "For want of a {1} the {2} was lost."
+                                    (app_expr
+                                      (dot_expr (id_expr PLACEHOLDER_26) take)
+                                      (app_args
+                                        (comma_binops 2)))))))))))))))))
+        (cases_expr
+          (name_ann List) (id_expr PLACEHOLDER_24)
+          (cases_branch empty
+            (block
+              (construct_expr list)))
+          (cases_branch link
+            (cases_args
+              (cases_binding
+                (name_binding PLACEHOLDER_28))
+              (cases_binding
+                (name_binding PLACEHOLDER_16)))
+            (block
+              (app_expr
+                (dot_expr
+                  (app_expr
+                    (dot_expr
+                      (app_expr (id_expr PLACEHOLDER_25)
+                        (app_args
+                          (comma_binops (id_expr PLACEHOLDER_24)
+                            (construct_expr list)))) push)
+                    (app_args
+                      (comma_binops
+                        (binop_expr
+                          (binop_expr "And all for the want of a " + (id_expr PLACEHOLDER_28)) + ".")))) reverse)
+                (app_args)))))))))
