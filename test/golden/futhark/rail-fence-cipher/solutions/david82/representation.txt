@@ -1,17 +1,101 @@
-import "\"lib/github.com/diku-dk/sorts/merge_sort\""
-def rail_cipher (msg: []u8) (rails: i64) (is_encode: bool): []u8 =
-if rails <= 1 then msg
-else
-let seq = (iota rails) ++ (iota (rails - 2) |> map (+1) |> reverse)
-let positions = map (\i -> (seq[i % length seq], i)) (iota (length msg))
-let sorted = merge_sort (\(r1, p1) (r2, p2) -> if r1 == r2 then p1 <= p2 else r1 <= r2) positions
-in if is_encode then
-map (\(_, pos) -> msg[pos]) sorted
-else
-let pos_to_char = replicate (length msg) 0
-let pos_to_char = loop pos_to_char for i < length msg do
-let (_, pos) = sorted[i]
-in pos_to_char with [pos] = msg[i]
-in map (\i -> let (_, pos) = positions[i] in pos_to_char[pos]) (iota (length msg))
-def encode (msg: []u8) (rails: i64): []u8 = rail_cipher msg rails true
-def decode (msg: []u8) (rails: i64): []u8 = rail_cipher msg rails false
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (array_type
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i64))
+    (typed_pattern PLACEHOLDER_4
+      (type_name bool)) :
+    (array_type
+      (type_name u8))
+    (if_expression
+      (binary_expression PLACEHOLDER_3 <= 1) PLACEHOLDER_2
+      (let_expression
+        (binding PLACEHOLDER_5)
+        (binary_expression
+          (application iota PLACEHOLDER_3) ++
+          (binary_expression
+            (binary_expression
+              (application iota
+                (binary_expression PLACEHOLDER_3 - 2)) |>
+              (application map
+                (right_section + 1))) |> reverse))
+        (let_expression
+          (binding PLACEHOLDER_6)
+          (application
+            (application map
+              (lambda PLACEHOLDER_7
+                (tuple
+                  (index_expression PLACEHOLDER_5
+                    (binary_expression PLACEHOLDER_7 %
+                      (application length PLACEHOLDER_5))) PLACEHOLDER_7)))
+            (application iota
+              (application length PLACEHOLDER_2)))
+          (let_expression
+            (binding PLACEHOLDER_8)
+            (application
+              (application merge_sort
+                (lambda
+                  (tuple_pattern PLACEHOLDER_9 PLACEHOLDER_10)
+                  (tuple_pattern PLACEHOLDER_11 PLACEHOLDER_12)
+                  (if_expression
+                    (binary_expression PLACEHOLDER_9 == PLACEHOLDER_11)
+                    (binary_expression PLACEHOLDER_10 <= PLACEHOLDER_12)
+                    (binary_expression PLACEHOLDER_9 <= PLACEHOLDER_11)))) PLACEHOLDER_6)
+            (if_expression PLACEHOLDER_4
+              (application
+                (application map
+                  (lambda
+                    (tuple_pattern _ PLACEHOLDER_13)
+                    (index_expression PLACEHOLDER_2 PLACEHOLDER_13))) PLACEHOLDER_8)
+              (let_expression
+                (binding PLACEHOLDER_14)
+                (application
+                  (application replicate
+                    (application length PLACEHOLDER_2)) 0)
+                (let_expression
+                  (binding PLACEHOLDER_14)
+                  (loop_expression PLACEHOLDER_14
+                    (for_upto PLACEHOLDER_7
+                      (application length PLACEHOLDER_2))
+                    (let_expression
+                      (binding
+                        (tuple_pattern _ PLACEHOLDER_13))
+                      (index_expression PLACEHOLDER_8 PLACEHOLDER_7)
+                      (with_expression PLACEHOLDER_14 [ PLACEHOLDER_13 ]
+                        (index_expression PLACEHOLDER_2 PLACEHOLDER_7))))
+                  (application
+                    (application map
+                      (lambda PLACEHOLDER_7
+                        (let_expression
+                          (binding
+                            (tuple_pattern _ PLACEHOLDER_13))
+                          (index_expression PLACEHOLDER_6 PLACEHOLDER_7)
+                          (index_expression PLACEHOLDER_14 PLACEHOLDER_13))))
+                    (application iota
+                      (application length PLACEHOLDER_2)))))))))))
+  (value_declaration PLACEHOLDER_15
+    (typed_pattern PLACEHOLDER_2
+      (array_type
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i64)) :
+    (array_type
+      (type_name u8))
+    (application
+      (application
+        (application PLACEHOLDER_1 PLACEHOLDER_2) PLACEHOLDER_3)
+      (boolean true)))
+  (value_declaration PLACEHOLDER_16
+    (typed_pattern PLACEHOLDER_2
+      (array_type
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_3
+      (type_name i64)) :
+    (array_type
+      (type_name u8))
+    (application
+      (application
+        (application PLACEHOLDER_1 PLACEHOLDER_2) PLACEHOLDER_3)
+      (boolean false))))

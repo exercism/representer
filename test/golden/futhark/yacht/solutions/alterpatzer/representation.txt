@@ -1,45 +1,187 @@
-def matches [m] [n] (word: [m]u8) (key: [n]u8): bool =
-m == n && and (map2 (==) (word :> [n]u8) key)
-def count (d: i32) (dice: [5]i32): i32 =
-d * i32.i64 (length (filter (== d) dice))
-def yacht (dice: [5]i32): i32 =
-if i32.minimum dice == i32.maximum dice then 50 else 0
-def group (dice: [5]i32): [6]i32 =
-loop g = (replicate 6 0) for d in dice do g with [d - 1] = 1 + g[d - 1]
-def fullhouse (dice: [5]i32): i32 =
-let g = group dice |> filter (!= 0)
-in if i32.minimum g == 2 && i32.maximum g == 3
-then i32.sum dice
-else 0
-def foursome (dice: [5]i32): i32 =
-let g = group dice
-in loop sum = 0 for d < 6 do if g[d] >= 4 then 4 * (d + 1) else sum
-def straight (start: i64) (dice: [5]i32): i32 =
-let g = group dice
-in if all (== 1) g[start - 1:start + 4] then 30 else 0
-def score (dice: [5]i32) (category: []u8): i32 =
-if matches category "\"ones\""
-then count 1 dice
-else if matches category "\"twos\""
-then count 2 dice
-else if matches category "\"threes\""
-then count 3 dice
-else if matches category "\"fours\""
-then count 4 dice
-else if matches category "\"fives\""
-then count 5 dice
-else if matches category "\"sixes\""
-then count 6 dice
-else if matches category "\"full" house"
-then fullhouse dice
-else if matches category "\"four" of a kind"
-then foursome dice
-else if matches category "\"little" straight"
-then straight 1 dice
-else if matches category "\"big" straight"
-then straight 2 dice
-else if matches category "\"choice\""
-then reduce (+) 0 dice
-else if matches category "\"yacht\""
-then yacht dice
-else assert false (-999)
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (size_parameter PLACEHOLDER_2)
+    (size_parameter PLACEHOLDER_3)
+    (typed_pattern PLACEHOLDER_4
+      (array_type PLACEHOLDER_2
+        (type_name u8)))
+    (typed_pattern PLACEHOLDER_5
+      (array_type PLACEHOLDER_3
+        (type_name u8))) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression PLACEHOLDER_2 == PLACEHOLDER_3) &&
+      (application and
+        (application
+          (application
+            (application map2
+              (operator_section
+                (operator ==)))
+            (coercion PLACEHOLDER_4
+              (array_type PLACEHOLDER_3
+                (type_name u8)))) PLACEHOLDER_5))))
+  (value_declaration PLACEHOLDER_6
+    (typed_pattern PLACEHOLDER_7
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_8
+      (array_type 5
+        (type_name i32))) :
+    (type_name i32)
+    (binary_expression PLACEHOLDER_7 *
+      (application
+        (qualified_name i32 i64)
+        (application length
+          (application
+            (application filter
+              (right_section == PLACEHOLDER_7)) PLACEHOLDER_8)))))
+  (value_declaration PLACEHOLDER_9
+    (typed_pattern PLACEHOLDER_8
+      (array_type 5
+        (type_name i32))) :
+    (type_name i32)
+    (if_expression
+      (binary_expression
+        (application
+          (qualified_name i32 minimum) PLACEHOLDER_8) ==
+        (application
+          (qualified_name i32 maximum) PLACEHOLDER_8)) 50 0))
+  (value_declaration PLACEHOLDER_10
+    (typed_pattern PLACEHOLDER_8
+      (array_type 5
+        (type_name i32))) :
+    (array_type 6
+      (type_name i32))
+    (loop_expression PLACEHOLDER_11
+      (application
+        (application replicate 6) 0)
+      (for_in PLACEHOLDER_7 PLACEHOLDER_8)
+      (with_expression PLACEHOLDER_11 [
+        (binary_expression PLACEHOLDER_7 - 1) ]
+        (binary_expression 1 +
+          (index_expression PLACEHOLDER_11
+            (binary_expression PLACEHOLDER_7 - 1))))))
+  (value_declaration PLACEHOLDER_12
+    (typed_pattern PLACEHOLDER_8
+      (array_type 5
+        (type_name i32))) :
+    (type_name i32)
+    (let_expression
+      (binding PLACEHOLDER_11)
+      (binary_expression
+        (application PLACEHOLDER_10 PLACEHOLDER_8) |>
+        (application filter
+          (right_section != 0)))
+      (if_expression
+        (binary_expression
+          (binary_expression
+            (application
+              (qualified_name i32 minimum) PLACEHOLDER_11) == 2) &&
+          (binary_expression
+            (application
+              (qualified_name i32 maximum) PLACEHOLDER_11) == 3))
+        (application
+          (qualified_name i32 PLACEHOLDER_13) PLACEHOLDER_8) 0)))
+  (value_declaration PLACEHOLDER_14
+    (typed_pattern PLACEHOLDER_8
+      (array_type 5
+        (type_name i32))) :
+    (type_name i32)
+    (let_expression
+      (binding PLACEHOLDER_11)
+      (application PLACEHOLDER_10 PLACEHOLDER_8)
+      (loop_expression PLACEHOLDER_13 0
+        (for_upto PLACEHOLDER_7 6)
+        (if_expression
+          (binary_expression
+            (index_expression PLACEHOLDER_11 PLACEHOLDER_7) >= 4)
+          (binary_expression 4 *
+            (binary_expression PLACEHOLDER_7 + 1)) PLACEHOLDER_13))))
+  (value_declaration PLACEHOLDER_15
+    (typed_pattern PLACEHOLDER_16
+      (type_name i64))
+    (typed_pattern PLACEHOLDER_8
+      (array_type 5
+        (type_name i32))) :
+    (type_name i32)
+    (let_expression
+      (binding PLACEHOLDER_11)
+      (application PLACEHOLDER_10 PLACEHOLDER_8)
+      (if_expression
+        (application
+          (application all
+            (right_section == 1))
+          (index_expression PLACEHOLDER_11
+            (slice
+              (binary_expression PLACEHOLDER_16 - 1) :
+              (binary_expression PLACEHOLDER_16 + 4)))) 30 0)))
+  (value_declaration PLACEHOLDER_17
+    (typed_pattern PLACEHOLDER_8
+      (array_type 5
+        (type_name i32)))
+    (typed_pattern PLACEHOLDER_18
+      (array_type
+        (type_name u8))) :
+    (type_name i32)
+    (if_expression
+      (application
+        (application PLACEHOLDER_1 PLACEHOLDER_18) "ones")
+      (application
+        (application PLACEHOLDER_6 1) PLACEHOLDER_8)
+      (if_expression
+        (application
+          (application PLACEHOLDER_1 PLACEHOLDER_18) "twos")
+        (application
+          (application PLACEHOLDER_6 2) PLACEHOLDER_8)
+        (if_expression
+          (application
+            (application PLACEHOLDER_1 PLACEHOLDER_18) "threes")
+          (application
+            (application PLACEHOLDER_6 3) PLACEHOLDER_8)
+          (if_expression
+            (application
+              (application PLACEHOLDER_1 PLACEHOLDER_18) "fours")
+            (application
+              (application PLACEHOLDER_6 4) PLACEHOLDER_8)
+            (if_expression
+              (application
+                (application PLACEHOLDER_1 PLACEHOLDER_18) "fives")
+              (application
+                (application PLACEHOLDER_6 5) PLACEHOLDER_8)
+              (if_expression
+                (application
+                  (application PLACEHOLDER_1 PLACEHOLDER_18) "sixes")
+                (application
+                  (application PLACEHOLDER_6 6) PLACEHOLDER_8)
+                (if_expression
+                  (application
+                    (application PLACEHOLDER_1 PLACEHOLDER_18) "full house")
+                  (application PLACEHOLDER_12 PLACEHOLDER_8)
+                  (if_expression
+                    (application
+                      (application PLACEHOLDER_1 PLACEHOLDER_18) "four of a kind")
+                    (application PLACEHOLDER_14 PLACEHOLDER_8)
+                    (if_expression
+                      (application
+                        (application PLACEHOLDER_1 PLACEHOLDER_18) "little straight")
+                      (application
+                        (application PLACEHOLDER_15 1) PLACEHOLDER_8)
+                      (if_expression
+                        (application
+                          (application PLACEHOLDER_1 PLACEHOLDER_18) "big straight")
+                        (application
+                          (application PLACEHOLDER_15 2) PLACEHOLDER_8)
+                        (if_expression
+                          (application
+                            (application PLACEHOLDER_1 PLACEHOLDER_18) "choice")
+                          (application
+                            (application
+                              (application reduce
+                                (operator_section
+                                  (operator +))) 0) PLACEHOLDER_8)
+                          (if_expression
+                            (application
+                              (application PLACEHOLDER_1 PLACEHOLDER_18) "yacht")
+                            (application PLACEHOLDER_9 PLACEHOLDER_8)
+                            (assert_expression
+                              (boolean false)
+                              (unary_expression - 999))))))))))))))))

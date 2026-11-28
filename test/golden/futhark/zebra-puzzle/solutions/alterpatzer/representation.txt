@@ -1,114 +1,445 @@
-type house = i32
-type street = [5]house
-def attribute (a: i32): i32 = 1 << a
-def red: i32 = attribute 0
-def green: i32 = attribute 1
-def ivory: i32 = attribute 2
-def yellow: i32 = attribute 3
-def blue: i32 = attribute 4
-def english: i32 = attribute 5
-def spanish: i32 = attribute 6
-def ukrainian: i32 = attribute 7
-def norwegian: i32 = attribute 8
-def japanese: i32 = attribute 9
-def dog: i32 = attribute 10
-def snail: i32 = attribute 11
-def fox: i32 = attribute 12
-def horse: i32 = attribute 13
-def zebra: i32 = attribute 14
-def coffee: i32 = attribute 15
-def tea: i32 = attribute 16
-def milk: i32 = attribute 17
-def oj: i32 = attribute 18
-def water: i32 = attribute 19
--- what would Mrs. Grundy say?
-def dancing: i32 = attribute 20
-def painting: i32 = attribute 21
-def reading: i32 = attribute 22
-def soccer: i32 = attribute 23
-def chess: i32 = attribute 24
-def everything: i32 = (1 << 30) - 1
-def house_number(h: house): i32 =
-match ((h >> 25) & 0x1f)
-case 1 -> 1
-case 2 -> 2
-case 4 -> 3
-case 8 -> 4
-case 16 -> 5
-case _ -> assert false (-999)
-def has (h: house) (a: i32): bool = (h & a) != 0
-def feasible_house (h: house): bool =
-has h english == has h red &&
-has h spanish == has h dog &&
-has h green == has h coffee &&
-has h ukrainian == has h tea &&
-has h snail == has h dancing &&
-has h yellow == has h painting &&
-(house_number h == 3) == has h milk &&
-has h norwegian == (house_number h == 1) &&
-has h soccer == has h oj &&
-has h japanese == has h chess &&
-(house_number h == 2) == has h blue &&
-!(house_number h == 1 && has h green) &&
-!(house_number h == 5 && has h ivory) &&
-!(has h reading && has h fox) &&
-!(has h painting && has h horse)
-def make_tuple (rs: []i32) (n: i32): []i32 =
-let (xs, _) =
-loop (xs, m) = ([], n)
-for r in rs do
-([m % r] ++ xs, m / r)
-in xs
-def build_house (n: i32): house =
-let ds = make_tuple (replicate 6 5) n
-in foldl (\acc d -> 32 * acc + (1 << d)) 0 ds
-def houses_to_try: []house =
-map build_house (0..<5**6) |> filter feasible_house
-def houses_by_number (houses: []house): []i32 =
-map (\i -> filter (\h -> house_number h <= i + 1) houses
-|> length |> i32.i64) (0..<5)
-def group_sizes (starts: []i32): []i32 =
-let (xs, _) =
-loop (xs, start) = ([], 0)
-for s in starts do
-(xs ++ [s - start], s)
-in xs
-def make_streets: []street =
-let hs = houses_to_try
-let loc = houses_by_number hs
-let groups = group_sizes loc
-let off = [0] ++ loc[:length loc - 1]
-in
-loop streets = []
-for g < i32.product groups do
-let ds = make_tuple groups g |> reverse
-let ss = map (\i -> hs[off[i] + ds[i]]) (0..<5)
-let as = reduce (|) 0 ss
-in if as == everything then streets ++ [ss :> street] else streets
-def find (s: street) (a: i32): i64 =
-loop k = (-1)
-for i < 5 do
-if has s[i] a then i else k
-def feasible_street (s: street): bool =
-let ig = find s green
-let ii = find s ivory
-let ir = find s reading
-let ifx = find s fox
-let ip = find s painting
-let ih = find s horse
-in ig == ii + 1 && i64.abs (ir - ifx) == 1 && i64.abs (ip - ih) == 1
-def nationality (h: house): []u8 =
-match (h >> 5) & 0x1f
-case 1 -> "\"Englishman\""
-case 2 -> "\"Spaniard\""
-case 4 -> "\"Ukrainian\""
-case 8 -> "\"Norwegian\""
-case 16 -> "\"Japanese\""
-case _ -> assert false "\"space" alien"
-def solve (a: i32): []u8 =
-let streets = filter feasible_street make_streets
-let street = assert (length streets == 1) streets[0]
-let i = find street a
-in nationality street[i]
-def drinks_water: []u8 = solve water
-def owns_zebra: []u8 = solve zebra
+(source_file
+  (type_declaration PLACEHOLDER_1
+    (type_name i32))
+  (type_declaration PLACEHOLDER_2
+    (array_type 5
+      (type_name PLACEHOLDER_1)))
+  (value_declaration PLACEHOLDER_3
+    (typed_pattern PLACEHOLDER_4
+      (type_name i32)) :
+    (type_name i32)
+    (binary_expression 1 << PLACEHOLDER_4))
+  (value_declaration PLACEHOLDER_5 :
+    (type_name i32)
+    (application PLACEHOLDER_3 0))
+  (value_declaration PLACEHOLDER_6 :
+    (type_name i32)
+    (application PLACEHOLDER_3 1))
+  (value_declaration PLACEHOLDER_7 :
+    (type_name i32)
+    (application PLACEHOLDER_3 2))
+  (value_declaration PLACEHOLDER_8 :
+    (type_name i32)
+    (application PLACEHOLDER_3 3))
+  (value_declaration PLACEHOLDER_9 :
+    (type_name i32)
+    (application PLACEHOLDER_3 4))
+  (value_declaration PLACEHOLDER_10 :
+    (type_name i32)
+    (application PLACEHOLDER_3 5))
+  (value_declaration PLACEHOLDER_11 :
+    (type_name i32)
+    (application PLACEHOLDER_3 6))
+  (value_declaration PLACEHOLDER_12 :
+    (type_name i32)
+    (application PLACEHOLDER_3 7))
+  (value_declaration PLACEHOLDER_13 :
+    (type_name i32)
+    (application PLACEHOLDER_3 8))
+  (value_declaration PLACEHOLDER_14 :
+    (type_name i32)
+    (application PLACEHOLDER_3 9))
+  (value_declaration PLACEHOLDER_15 :
+    (type_name i32)
+    (application PLACEHOLDER_3 10))
+  (value_declaration PLACEHOLDER_16 :
+    (type_name i32)
+    (application PLACEHOLDER_3 11))
+  (value_declaration PLACEHOLDER_17 :
+    (type_name i32)
+    (application PLACEHOLDER_3 12))
+  (value_declaration PLACEHOLDER_18 :
+    (type_name i32)
+    (application PLACEHOLDER_3 13))
+  (value_declaration PLACEHOLDER_19 :
+    (type_name i32)
+    (application PLACEHOLDER_3 14))
+  (value_declaration PLACEHOLDER_20 :
+    (type_name i32)
+    (application PLACEHOLDER_3 15))
+  (value_declaration PLACEHOLDER_21 :
+    (type_name i32)
+    (application PLACEHOLDER_3 16))
+  (value_declaration PLACEHOLDER_22 :
+    (type_name i32)
+    (application PLACEHOLDER_3 17))
+  (value_declaration PLACEHOLDER_23 :
+    (type_name i32)
+    (application PLACEHOLDER_3 18))
+  (value_declaration PLACEHOLDER_24 :
+    (type_name i32)
+    (application PLACEHOLDER_3 19))
+  (value_declaration PLACEHOLDER_25 :
+    (type_name i32)
+    (application PLACEHOLDER_3 20))
+  (value_declaration PLACEHOLDER_26 :
+    (type_name i32)
+    (application PLACEHOLDER_3 21))
+  (value_declaration PLACEHOLDER_27 :
+    (type_name i32)
+    (application PLACEHOLDER_3 22))
+  (value_declaration PLACEHOLDER_28 :
+    (type_name i32)
+    (application PLACEHOLDER_3 23))
+  (value_declaration PLACEHOLDER_29 :
+    (type_name i32)
+    (application PLACEHOLDER_3 24))
+  (value_declaration PLACEHOLDER_30 :
+    (type_name i32)
+    (binary_expression
+      (binary_expression 1 << 30) - 1))
+  (value_declaration PLACEHOLDER_31
+    (typed_pattern PLACEHOLDER_32
+      (type_name PLACEHOLDER_1)) :
+    (type_name i32)
+    (match_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_32 >> 25) & 31)
+      (case 1 1)
+      (case 2 2)
+      (case 4 3)
+      (case 8 4)
+      (case 16 5)
+      (case _
+        (assert_expression
+          (boolean false)
+          (unary_expression - 999)))))
+  (value_declaration PLACEHOLDER_33
+    (typed_pattern PLACEHOLDER_32
+      (type_name PLACEHOLDER_1))
+    (typed_pattern PLACEHOLDER_4
+      (type_name i32)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression PLACEHOLDER_32 & PLACEHOLDER_4) != 0))
+  (value_declaration PLACEHOLDER_34
+    (typed_pattern PLACEHOLDER_32
+      (type_name PLACEHOLDER_1)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (binary_expression
+                                (binary_expression
+                                  (application
+                                    (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_10) ==
+                                  (application
+                                    (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_5)) &&
+                                (binary_expression
+                                  (application
+                                    (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_11) ==
+                                  (application
+                                    (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_15))) &&
+                              (binary_expression
+                                (application
+                                  (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_6) ==
+                                (application
+                                  (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_20))) &&
+                            (binary_expression
+                              (application
+                                (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_12) ==
+                              (application
+                                (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_21))) &&
+                          (binary_expression
+                            (application
+                              (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_16) ==
+                            (application
+                              (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_25))) &&
+                        (binary_expression
+                          (application
+                            (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_8) ==
+                          (application
+                            (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_26))) &&
+                      (binary_expression
+                        (binary_expression
+                          (application PLACEHOLDER_31 PLACEHOLDER_32) == 3) ==
+                        (application
+                          (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_22))) &&
+                    (binary_expression
+                      (application
+                        (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_13) ==
+                      (binary_expression
+                        (application PLACEHOLDER_31 PLACEHOLDER_32) == 1))) &&
+                  (binary_expression
+                    (application
+                      (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_28) ==
+                    (application
+                      (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_23))) &&
+                (binary_expression
+                  (application
+                    (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_14) ==
+                  (application
+                    (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_29))) &&
+              (binary_expression
+                (binary_expression
+                  (application PLACEHOLDER_31 PLACEHOLDER_32) == 2) ==
+                (application
+                  (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_9))) &&
+            (unary_expression !
+              (binary_expression
+                (binary_expression
+                  (application PLACEHOLDER_31 PLACEHOLDER_32) == 1) &&
+                (application
+                  (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_6)))) &&
+          (unary_expression !
+            (binary_expression
+              (binary_expression
+                (application PLACEHOLDER_31 PLACEHOLDER_32) == 5) &&
+              (application
+                (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_7)))) &&
+        (unary_expression !
+          (binary_expression
+            (application
+              (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_27) &&
+            (application
+              (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_17)))) &&
+      (unary_expression !
+        (binary_expression
+          (application
+            (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_26) &&
+          (application
+            (application PLACEHOLDER_33 PLACEHOLDER_32) PLACEHOLDER_18)))))
+  (value_declaration PLACEHOLDER_35
+    (typed_pattern PLACEHOLDER_36
+      (array_type
+        (type_name i32)))
+    (typed_pattern PLACEHOLDER_37
+      (type_name i32)) :
+    (array_type
+      (type_name i32))
+    (let_expression
+      (binding
+        (tuple_pattern PLACEHOLDER_38 _))
+      (loop_expression
+        (tuple_pattern PLACEHOLDER_38 PLACEHOLDER_39)
+        (tuple
+          (array) PLACEHOLDER_37)
+        (for_in PLACEHOLDER_40 PLACEHOLDER_36)
+        (tuple
+          (binary_expression
+            (array
+              (binary_expression PLACEHOLDER_39 % PLACEHOLDER_40)) ++ PLACEHOLDER_38)
+          (binary_expression PLACEHOLDER_39 / PLACEHOLDER_40))) PLACEHOLDER_38))
+  (value_declaration PLACEHOLDER_41
+    (typed_pattern PLACEHOLDER_37
+      (type_name i32)) :
+    (type_name PLACEHOLDER_1)
+    (let_expression
+      (binding PLACEHOLDER_42)
+      (application
+        (application PLACEHOLDER_35
+          (application
+            (application replicate 6) 5)) PLACEHOLDER_37)
+      (application
+        (application
+          (application foldl
+            (lambda PLACEHOLDER_43 PLACEHOLDER_44
+              (binary_expression
+                (binary_expression 32 * PLACEHOLDER_43) +
+                (binary_expression 1 << PLACEHOLDER_44)))) 0) PLACEHOLDER_42)))
+  (value_declaration PLACEHOLDER_45 :
+    (array_type
+      (type_name PLACEHOLDER_1))
+    (binary_expression
+      (application
+        (application map PLACEHOLDER_41)
+        (range 0 ..<
+          (binary_expression 5 ** 6))) |>
+      (application filter PLACEHOLDER_34)))
+  (value_declaration PLACEHOLDER_46
+    (typed_pattern PLACEHOLDER_47
+      (array_type
+        (type_name PLACEHOLDER_1))) :
+    (array_type
+      (type_name i32))
+    (application
+      (application map
+        (lambda PLACEHOLDER_48
+          (binary_expression
+            (binary_expression
+              (application
+                (application filter
+                  (lambda PLACEHOLDER_32
+                    (binary_expression
+                      (application PLACEHOLDER_31 PLACEHOLDER_32) <=
+                      (binary_expression PLACEHOLDER_48 + 1)))) PLACEHOLDER_47) |> length) |>
+            (qualified_name i32 i64))))
+      (range 0 ..< 5)))
+  (value_declaration PLACEHOLDER_49
+    (typed_pattern PLACEHOLDER_50
+      (array_type
+        (type_name i32))) :
+    (array_type
+      (type_name i32))
+    (let_expression
+      (binding
+        (tuple_pattern PLACEHOLDER_38 _))
+      (loop_expression
+        (tuple_pattern PLACEHOLDER_38 PLACEHOLDER_51)
+        (tuple
+          (array) 0)
+        (for_in PLACEHOLDER_52 PLACEHOLDER_50)
+        (tuple
+          (binary_expression PLACEHOLDER_38 ++
+            (array
+              (binary_expression PLACEHOLDER_52 - PLACEHOLDER_51))) PLACEHOLDER_52)) PLACEHOLDER_38))
+  (value_declaration PLACEHOLDER_53 :
+    (array_type
+      (type_name PLACEHOLDER_2))
+    (let_expression
+      (binding PLACEHOLDER_54) PLACEHOLDER_45
+      (let_expression
+        (binding PLACEHOLDER_55)
+        (application PLACEHOLDER_46 PLACEHOLDER_54)
+        (let_expression
+          (binding PLACEHOLDER_56)
+          (application PLACEHOLDER_49 PLACEHOLDER_55)
+          (let_expression
+            (binding PLACEHOLDER_57)
+            (binary_expression
+              (array 0) ++
+              (index_expression PLACEHOLDER_55
+                (slice :
+                  (binary_expression
+                    (application length PLACEHOLDER_55) - 1))))
+            (loop_expression PLACEHOLDER_58
+              (array)
+              (for_upto PLACEHOLDER_59
+                (application
+                  (qualified_name i32 product) PLACEHOLDER_56))
+              (let_expression
+                (binding PLACEHOLDER_42)
+                (binary_expression
+                  (application
+                    (application PLACEHOLDER_35 PLACEHOLDER_56) PLACEHOLDER_59) |> reverse)
+                (let_expression
+                  (binding PLACEHOLDER_60)
+                  (application
+                    (application map
+                      (lambda PLACEHOLDER_48
+                        (index_expression PLACEHOLDER_54
+                          (binary_expression
+                            (index_expression PLACEHOLDER_57 PLACEHOLDER_48) +
+                            (index_expression PLACEHOLDER_42 PLACEHOLDER_48)))))
+                    (range 0 ..< 5))
+                  (let_expression
+                    (binding PLACEHOLDER_61)
+                    (application
+                      (application
+                        (application reduce
+                          (operator_section
+                            (operator |))) 0) PLACEHOLDER_60)
+                    (if_expression
+                      (binary_expression PLACEHOLDER_61 == PLACEHOLDER_30)
+                      (binary_expression PLACEHOLDER_58 ++
+                        (array
+                          (coercion PLACEHOLDER_60
+                            (type_name PLACEHOLDER_2)))) PLACEHOLDER_58))))))))))
+  (value_declaration PLACEHOLDER_62
+    (typed_pattern PLACEHOLDER_52
+      (type_name PLACEHOLDER_2))
+    (typed_pattern PLACEHOLDER_4
+      (type_name i32)) :
+    (type_name i64)
+    (loop_expression PLACEHOLDER_63
+      (unary_expression - 1)
+      (for_upto PLACEHOLDER_48 5)
+      (if_expression
+        (application
+          (application PLACEHOLDER_33
+            (index_expression PLACEHOLDER_52 PLACEHOLDER_48)) PLACEHOLDER_4) PLACEHOLDER_48 PLACEHOLDER_63)))
+  (value_declaration PLACEHOLDER_64
+    (typed_pattern PLACEHOLDER_52
+      (type_name PLACEHOLDER_2)) :
+    (type_name bool)
+    (let_expression
+      (binding PLACEHOLDER_65)
+      (application
+        (application PLACEHOLDER_62 PLACEHOLDER_52) PLACEHOLDER_6)
+      (let_expression
+        (binding PLACEHOLDER_66)
+        (application
+          (application PLACEHOLDER_62 PLACEHOLDER_52) PLACEHOLDER_7)
+        (let_expression
+          (binding PLACEHOLDER_67)
+          (application
+            (application PLACEHOLDER_62 PLACEHOLDER_52) PLACEHOLDER_27)
+          (let_expression
+            (binding PLACEHOLDER_68)
+            (application
+              (application PLACEHOLDER_62 PLACEHOLDER_52) PLACEHOLDER_17)
+            (let_expression
+              (binding PLACEHOLDER_69)
+              (application
+                (application PLACEHOLDER_62 PLACEHOLDER_52) PLACEHOLDER_26)
+              (let_expression
+                (binding PLACEHOLDER_70)
+                (application
+                  (application PLACEHOLDER_62 PLACEHOLDER_52) PLACEHOLDER_18)
+                (binary_expression
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_65 ==
+                      (binary_expression PLACEHOLDER_66 + 1)) &&
+                    (binary_expression
+                      (application
+                        (qualified_name i64 abs)
+                        (binary_expression PLACEHOLDER_67 - PLACEHOLDER_68)) == 1)) &&
+                  (binary_expression
+                    (application
+                      (qualified_name i64 abs)
+                      (binary_expression PLACEHOLDER_69 - PLACEHOLDER_70)) == 1)))))))))
+  (value_declaration PLACEHOLDER_71
+    (typed_pattern PLACEHOLDER_32
+      (type_name PLACEHOLDER_1)) :
+    (array_type
+      (type_name u8))
+    (match_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_32 >> 5) & 31)
+      (case 1 "Englishman")
+      (case 2 "Spaniard")
+      (case 4 "Ukrainian")
+      (case 8 "Norwegian")
+      (case 16 "Japanese")
+      (case _
+        (assert_expression
+          (boolean false) "space alien"))))
+  (value_declaration PLACEHOLDER_72
+    (typed_pattern PLACEHOLDER_4
+      (type_name i32)) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_58)
+      (application
+        (application filter PLACEHOLDER_64) PLACEHOLDER_53)
+      (let_expression
+        (binding PLACEHOLDER_2)
+        (assert_expression
+          (binary_expression
+            (application length PLACEHOLDER_58) == 1)
+          (index_expression PLACEHOLDER_58 0))
+        (let_expression
+          (binding PLACEHOLDER_48)
+          (application
+            (application PLACEHOLDER_62 PLACEHOLDER_2) PLACEHOLDER_4)
+          (application PLACEHOLDER_71
+            (index_expression PLACEHOLDER_2 PLACEHOLDER_48))))))
+  (value_declaration PLACEHOLDER_73 :
+    (array_type
+      (type_name u8))
+    (application PLACEHOLDER_72 PLACEHOLDER_24))
+  (value_declaration PLACEHOLDER_74 :
+    (array_type
+      (type_name u8))
+    (application PLACEHOLDER_72 PLACEHOLDER_19)))

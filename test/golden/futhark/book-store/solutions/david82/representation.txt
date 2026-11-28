@@ -1,37 +1,112 @@
--- Simple bubble sort for small arrays
-def bubble_sort (arr: [6]i32): [6]i32 =
-loop sorted = copy arr for pass < 6 do
-loop temp = sorted for i < 5 do
-if temp[i] > temp[i+1]
-then (temp with [i] = temp[i+1]) with [i+1] = temp[i]
-else temp
-def total (basket: []i32): i32 =
-let book_count = 5
-let book_price = 800
-let group_size_factor = [0.0, 1.0, 0.95, 0.90, 0.80, 0.75]
--- Create tally array for books 0-5
-let tally = replicate 6 0
-let tally = loop tally for book in basket do
-if book >= 0 && book <= 5
-then tally with [book] = tally[book] + 1
-else tally
--- Sort the tally array
-let sorted_tally = bubble_sort tally
--- Calculate groups based on differences
-let groups = replicate 6 0
-let groups = loop groups for i in 1..<6 do
-let diff = sorted_tally[book_count - i + 1] - sorted_tally[book_count - i]
-in groups with [i] = diff
--- Apply the key optimization: convert groups of 3 and 5 to groups of 4
-let (final_groups3, final_groups5, final_groups4) =
-loop (g3, g5, g4) = (groups[3], groups[5], groups[4])
-while g3 > 0 && g5 > 0 do
-(g3 - 1, g5 - 1, g4 + 2)
-let final_groups = ((groups with [3] = final_groups3)
-with [5] = final_groups5)
-with [4] = final_groups4
--- Calculate total cost
-let total_cost = loop cost = 0.0 for size in 1..<6 do
-let group_cost = f32.i32 book_price * f32.i32 (final_groups[size] * size) * group_size_factor[size]
-in cost + group_cost
-in i32.f32 total_cost
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (array_type 6
+        (type_name i32))) :
+    (array_type 6
+      (type_name i32))
+    (loop_expression PLACEHOLDER_3
+      (application copy PLACEHOLDER_2)
+      (for_upto PLACEHOLDER_4 6)
+      (loop_expression PLACEHOLDER_5 PLACEHOLDER_3
+        (for_upto PLACEHOLDER_6 5)
+        (if_expression
+          (binary_expression
+            (index_expression PLACEHOLDER_5 PLACEHOLDER_6) >
+            (index_expression PLACEHOLDER_5
+              (binary_expression PLACEHOLDER_6 + 1)))
+          (with_expression
+            (with_expression PLACEHOLDER_5 [ PLACEHOLDER_6 ]
+              (index_expression PLACEHOLDER_5
+                (binary_expression PLACEHOLDER_6 + 1))) [
+            (binary_expression PLACEHOLDER_6 + 1) ]
+            (index_expression PLACEHOLDER_5 PLACEHOLDER_6)) PLACEHOLDER_5))))
+  (value_declaration PLACEHOLDER_7
+    (typed_pattern PLACEHOLDER_8
+      (array_type
+        (type_name i32))) :
+    (type_name i32)
+    (let_expression
+      (binding PLACEHOLDER_9) 5
+      (let_expression
+        (binding PLACEHOLDER_10) 800
+        (let_expression
+          (binding PLACEHOLDER_11)
+          (array 0.0 1.0 0.95 0.9 0.8 0.75)
+          (let_expression
+            (binding PLACEHOLDER_12)
+            (application
+              (application replicate 6) 0)
+            (let_expression
+              (binding PLACEHOLDER_12)
+              (loop_expression PLACEHOLDER_12
+                (for_in PLACEHOLDER_13 PLACEHOLDER_8)
+                (if_expression
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_13 >= 0) &&
+                    (binary_expression PLACEHOLDER_13 <= 5))
+                  (with_expression PLACEHOLDER_12 [ PLACEHOLDER_13 ]
+                    (binary_expression
+                      (index_expression PLACEHOLDER_12 PLACEHOLDER_13) + 1)) PLACEHOLDER_12))
+              (let_expression
+                (binding PLACEHOLDER_14)
+                (application PLACEHOLDER_1 PLACEHOLDER_12)
+                (let_expression
+                  (binding PLACEHOLDER_15)
+                  (application
+                    (application replicate 6) 0)
+                  (let_expression
+                    (binding PLACEHOLDER_15)
+                    (loop_expression PLACEHOLDER_15
+                      (for_in PLACEHOLDER_6
+                        (range 1 ..< 6))
+                      (let_expression
+                        (binding PLACEHOLDER_16)
+                        (binary_expression
+                          (index_expression PLACEHOLDER_14
+                            (binary_expression
+                              (binary_expression PLACEHOLDER_9 - PLACEHOLDER_6) + 1)) -
+                          (index_expression PLACEHOLDER_14
+                            (binary_expression PLACEHOLDER_9 - PLACEHOLDER_6)))
+                        (with_expression PLACEHOLDER_15 [ PLACEHOLDER_6 ] PLACEHOLDER_16)))
+                    (let_expression
+                      (binding
+                        (tuple_pattern PLACEHOLDER_17 PLACEHOLDER_18 PLACEHOLDER_19))
+                      (loop_expression
+                        (tuple_pattern PLACEHOLDER_20 PLACEHOLDER_21 PLACEHOLDER_22)
+                        (tuple
+                          (index_expression PLACEHOLDER_15 3)
+                          (index_expression PLACEHOLDER_15 5)
+                          (index_expression PLACEHOLDER_15 4))
+                        (while
+                          (binary_expression
+                            (binary_expression PLACEHOLDER_20 > 0) &&
+                            (binary_expression PLACEHOLDER_21 > 0)))
+                        (tuple
+                          (binary_expression PLACEHOLDER_20 - 1)
+                          (binary_expression PLACEHOLDER_21 - 1)
+                          (binary_expression PLACEHOLDER_22 + 2)))
+                      (let_expression
+                        (binding PLACEHOLDER_23)
+                        (with_expression
+                          (with_expression
+                            (with_expression PLACEHOLDER_15 [ 3 ] PLACEHOLDER_17) [ 5 ] PLACEHOLDER_18) [ 4 ] PLACEHOLDER_19)
+                        (let_expression
+                          (binding PLACEHOLDER_24)
+                          (loop_expression PLACEHOLDER_25 0.0
+                            (for_in PLACEHOLDER_26
+                              (range 1 ..< 6))
+                            (let_expression
+                              (binding PLACEHOLDER_27)
+                              (binary_expression
+                                (binary_expression
+                                  (application
+                                    (qualified_name f32 i32) PLACEHOLDER_10) *
+                                  (application
+                                    (qualified_name f32 i32)
+                                    (binary_expression
+                                      (index_expression PLACEHOLDER_23 PLACEHOLDER_26) * PLACEHOLDER_26))) *
+                                (index_expression PLACEHOLDER_11 PLACEHOLDER_26))
+                              (binary_expression PLACEHOLDER_25 + PLACEHOLDER_27)))
+                          (application
+                            (qualified_name i32 f32) PLACEHOLDER_24))))))))))))))

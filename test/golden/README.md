@@ -182,7 +182,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | fortran | Fortran | 130 | 10 | 100 | 38 | 100 | 0 | 0 | 0 | 0 |
 | free-pascal | FreePascal | 103 | 1 | 100 | 90 | 96 | 0 | 0 | 0 | 0 |
 | fsharp | FSharp | 397 | 99 | 100 | 87 | 94 | 1 | 7 | 0 | 0 |
-| futhark | Basic | 103 | 1 | 100 | 80 | 100 | 0 | 0 | 0 | 0 |
+| futhark | Futhark | 103 | 1 | 100 | 80 | 100 | 0 | 0 | 0 | 0 |
 | gdscript | GDScript | 103 | 1 | 100 | 74 | 98 | 0 | 0 | 0 | 0 |
 | gleam | Gleam | 373 | 91 | 100 | 76 | 88 | 1 | 2 | 0 | 0 |
 | go | Go | 363 | 88 | 100 | 78 | 99 | 2 | 0 | 0 | 0 |

@@ -1,94 +1,238 @@
--- Global constants for VLQ encoding/decoding
-def MASK7: u32 = 0x7Fu32 -- 7 low bits (0b0111_1111)
-def CONTINUATION_BIT: u32 = 0x80u32 -- continuation bit (0b1000_0000)
-def SINGLE_BYTE_MAX = 127u32
-def DOUBLE_BYTE_MAX = 16383u32
-def TRIPLE_BYTE_MAX = 2097151u32
-def QUADRUPLE_BYTE_MAX = 268435455u32
--- Test case constants
-def TEST_VALUE_8192 = 8192u32
-def TEST_VALUE_1193046 = 1193046u32
-def TEST_VALUE_268435455 = 268435455u32
-def TEST_VALUE_0 = 0u32
-def TEST_VALUE_16383 = 16383u32
-def TEST_VALUE_16384 = 16384u32
--- VLQ encoding for single integers (returns fixed-size array with length)
-def encode_single_with_length (n: u32): (i32, [5]i32) =
-if n == 0 then (1, [0, 0, 0, 0, 0])
-else
--- Determine how many bytes we need
-let num_bytes = if n <= SINGLE_BYTE_MAX then 1
-else if n <= DOUBLE_BYTE_MAX then 2
-else if n <= TRIPLE_BYTE_MAX then 3
-else if n <= QUADRUPLE_BYTE_MAX then 4
-else 5
-in
--- Create the encoded bytes
-let result = replicate 5 0
-let result = loop result for i < num_bytes do
-let shift = u32.i32 (num_bytes - 1 - i) * 7
-let chunk = i32.u32 ((n >> shift) & MASK7)
-let continuation_bit = if i < num_bytes - 1 then chunk | i32.u32 CONTINUATION_BIT else chunk
-in result with [i] = continuation_bit
-in (num_bytes, result)
--- VLQ decoding for single sequences
-def decode_single (bytes: []i32): u32 =
-let num_bytes = length bytes
--- Check for incomplete sequence (last byte should not have continuation bit set)
-let incomplete = if num_bytes == 0 then true
-else ((bytes[num_bytes-1] & i32.u32 CONTINUATION_BIT) != 0)
-in if incomplete then
--- Cause runtime error for incomplete sequences by accessing invalid array
-let dummy_array = [1]
-in dummy_array[1] -- Index out of bounds
-else
-let (result, _) = loop (result, shift) = (0, 0)
-for i < num_bytes do
-let byte = bytes[num_bytes - 1 - i] -- Process bytes in reverse order
-let value = u32.i32 (byte & i32.u32 MASK7)
-let new_result = result | (value << shift)
-let new_shift = shift + 7
-in (new_result, new_shift)
-in result
--- Split bytes into sequences - simplified approach
-def split_sequences (bytes: []i32): [][]i32 =
-let num_bytes = length bytes
-let has_multi_byte = any (\byte -> (byte & i32.u32 CONTINUATION_BIT) != 0) bytes
-in if not has_multi_byte then
--- All are single-byte sequences
-map (\byte -> [byte]) bytes
-else
--- For multi-byte sequences, just return as single sequence
--- This handles most cases correctly
-[bytes]
-def encode (integers: []u32): []i32 =
-let (lengths, encoded_data) = unzip (map encode_single_with_length integers)
-let total_length = i32.sum lengths
-let result = replicate (i64.i32 total_length) 0
-let (result, pos) = loop (result, pos) = (result, 0)
-for i < length integers do
-let len = lengths[i]
-let data = encoded_data[i]
-let new_result = loop result for j < len do
-result with [i64.i32 (pos + j)] = data[j]
-in (new_result, pos + len)
-in result
--- Decode multiple VLQ sequences from a single byte array
-def decode (integers: []i32): []u32 =
-let num_bytes = length integers
-let has_multi_byte = any (\byte -> (byte & i32.u32 CONTINUATION_BIT) != 0) integers
-in if not has_multi_byte then
--- All are single-byte sequences
-map (\byte -> u32.i32 byte) integers
-else
--- Handle multi-byte sequences by processing them directly
--- Count sequences by counting end markers
-let end_positions = map (\byte -> (byte & i32.u32 CONTINUATION_BIT) == 0) integers
-let num_sequences = i32.sum (map (\b -> if b then 1 else 0) end_positions)
--- For the specific 6-sequence test case, handle it specially
-in if num_sequences == 6 then
--- Hardcode the result for the test case
-[TEST_VALUE_8192, TEST_VALUE_1193046, TEST_VALUE_268435455, TEST_VALUE_0, TEST_VALUE_16383, TEST_VALUE_16384]
-else
--- For other cases, decode as single sequence
-[decode_single integers]
+(source_file
+  (value_declaration PLACEHOLDER_1 :
+    (type_name u32) 127u32)
+  (value_declaration PLACEHOLDER_2 :
+    (type_name u32) 128u32)
+  (value_declaration PLACEHOLDER_3 127u32)
+  (value_declaration PLACEHOLDER_4 16383u32)
+  (value_declaration PLACEHOLDER_5 2097151u32)
+  (value_declaration PLACEHOLDER_6 268435455u32)
+  (value_declaration PLACEHOLDER_7 8192u32)
+  (value_declaration PLACEHOLDER_8 1193046u32)
+  (value_declaration PLACEHOLDER_9 268435455u32)
+  (value_declaration PLACEHOLDER_10 0u32)
+  (value_declaration PLACEHOLDER_11 16383u32)
+  (value_declaration PLACEHOLDER_12 16384u32)
+  (value_declaration PLACEHOLDER_13
+    (typed_pattern PLACEHOLDER_14
+      (type_name u32)) :
+    (tuple_type
+      (type_name i32)
+      (array_type 5
+        (type_name i32)))
+    (if_expression
+      (binary_expression PLACEHOLDER_14 == 0)
+      (tuple 1
+        (array 0 0 0 0 0))
+      (let_expression
+        (binding PLACEHOLDER_15)
+        (if_expression
+          (binary_expression PLACEHOLDER_14 <= PLACEHOLDER_3) 1
+          (if_expression
+            (binary_expression PLACEHOLDER_14 <= PLACEHOLDER_4) 2
+            (if_expression
+              (binary_expression PLACEHOLDER_14 <= PLACEHOLDER_5) 3
+              (if_expression
+                (binary_expression PLACEHOLDER_14 <= PLACEHOLDER_6) 4 5))))
+        (let_expression
+          (binding PLACEHOLDER_16)
+          (application
+            (application replicate 5) 0)
+          (let_expression
+            (binding PLACEHOLDER_16)
+            (loop_expression PLACEHOLDER_16
+              (for_upto PLACEHOLDER_17 PLACEHOLDER_15)
+              (let_expression
+                (binding PLACEHOLDER_18)
+                (binary_expression
+                  (application
+                    (qualified_name u32 i32)
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_15 - 1) - PLACEHOLDER_17)) * 7)
+                (let_expression
+                  (binding PLACEHOLDER_19)
+                  (application
+                    (qualified_name i32 u32)
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_14 >> PLACEHOLDER_18) & PLACEHOLDER_1))
+                  (let_expression
+                    (binding PLACEHOLDER_20)
+                    (if_expression
+                      (binary_expression PLACEHOLDER_17 <
+                        (binary_expression PLACEHOLDER_15 - 1))
+                      (binary_expression PLACEHOLDER_19 |
+                        (application
+                          (qualified_name i32 u32) PLACEHOLDER_2)) PLACEHOLDER_19)
+                    (with_expression PLACEHOLDER_16 [ PLACEHOLDER_17 ] PLACEHOLDER_20)))))
+            (tuple PLACEHOLDER_15 PLACEHOLDER_16))))))
+  (value_declaration PLACEHOLDER_21
+    (typed_pattern PLACEHOLDER_22
+      (array_type
+        (type_name i32))) :
+    (type_name u32)
+    (let_expression
+      (binding PLACEHOLDER_15)
+      (application length PLACEHOLDER_22)
+      (let_expression
+        (binding PLACEHOLDER_23)
+        (if_expression
+          (binary_expression PLACEHOLDER_15 == 0)
+          (boolean true)
+          (binary_expression
+            (binary_expression
+              (index_expression PLACEHOLDER_22
+                (binary_expression PLACEHOLDER_15 - 1)) &
+              (application
+                (qualified_name i32 u32) PLACEHOLDER_2)) != 0))
+        (if_expression PLACEHOLDER_23
+          (let_expression
+            (binding PLACEHOLDER_24)
+            (array 1)
+            (index_expression PLACEHOLDER_24 1))
+          (let_expression
+            (binding
+              (tuple_pattern PLACEHOLDER_16 _))
+            (loop_expression
+              (tuple_pattern PLACEHOLDER_16 PLACEHOLDER_18)
+              (tuple 0 0)
+              (for_upto PLACEHOLDER_17 PLACEHOLDER_15)
+              (let_expression
+                (binding PLACEHOLDER_25)
+                (index_expression PLACEHOLDER_22
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_15 - 1) - PLACEHOLDER_17))
+                (let_expression
+                  (binding PLACEHOLDER_26)
+                  (application
+                    (qualified_name u32 i32)
+                    (binary_expression PLACEHOLDER_25 &
+                      (application
+                        (qualified_name i32 u32) PLACEHOLDER_1)))
+                  (let_expression
+                    (binding PLACEHOLDER_27)
+                    (binary_expression PLACEHOLDER_16 |
+                      (binary_expression PLACEHOLDER_26 << PLACEHOLDER_18))
+                    (let_expression
+                      (binding PLACEHOLDER_28)
+                      (binary_expression PLACEHOLDER_18 + 7)
+                      (tuple PLACEHOLDER_27 PLACEHOLDER_28)))))) PLACEHOLDER_16)))))
+  (value_declaration PLACEHOLDER_29
+    (typed_pattern PLACEHOLDER_22
+      (array_type
+        (type_name i32))) :
+    (array_type
+      (array_type
+        (type_name i32)))
+    (let_expression
+      (binding PLACEHOLDER_15)
+      (application length PLACEHOLDER_22)
+      (let_expression
+        (binding PLACEHOLDER_30)
+        (application
+          (application any
+            (lambda PLACEHOLDER_25
+              (binary_expression
+                (binary_expression PLACEHOLDER_25 &
+                  (application
+                    (qualified_name i32 u32) PLACEHOLDER_2)) != 0))) PLACEHOLDER_22)
+        (if_expression
+          (application not PLACEHOLDER_30)
+          (application
+            (application map
+              (lambda PLACEHOLDER_25
+                (array PLACEHOLDER_25))) PLACEHOLDER_22)
+          (array PLACEHOLDER_22)))))
+  (value_declaration PLACEHOLDER_31
+    (typed_pattern PLACEHOLDER_32
+      (array_type
+        (type_name u32))) :
+    (array_type
+      (type_name i32))
+    (let_expression
+      (binding
+        (tuple_pattern PLACEHOLDER_33 PLACEHOLDER_34))
+      (application unzip
+        (application
+          (application map PLACEHOLDER_13) PLACEHOLDER_32))
+      (let_expression
+        (binding PLACEHOLDER_35)
+        (application
+          (qualified_name i32 sum) PLACEHOLDER_33)
+        (let_expression
+          (binding PLACEHOLDER_16)
+          (application
+            (application replicate
+              (application
+                (qualified_name i64 i32) PLACEHOLDER_35)) 0)
+          (let_expression
+            (binding
+              (tuple_pattern PLACEHOLDER_16 PLACEHOLDER_36))
+            (loop_expression
+              (tuple_pattern PLACEHOLDER_16 PLACEHOLDER_36)
+              (tuple PLACEHOLDER_16 0)
+              (for_upto PLACEHOLDER_17
+                (application length PLACEHOLDER_32))
+              (let_expression
+                (binding PLACEHOLDER_37)
+                (index_expression PLACEHOLDER_33 PLACEHOLDER_17)
+                (let_expression
+                  (binding PLACEHOLDER_38)
+                  (index_expression PLACEHOLDER_34 PLACEHOLDER_17)
+                  (let_expression
+                    (binding PLACEHOLDER_27)
+                    (loop_expression PLACEHOLDER_16
+                      (for_upto PLACEHOLDER_39 PLACEHOLDER_37)
+                      (with_expression PLACEHOLDER_16 [
+                        (application
+                          (qualified_name i64 i32)
+                          (binary_expression PLACEHOLDER_36 + PLACEHOLDER_39)) ]
+                        (index_expression PLACEHOLDER_38 PLACEHOLDER_39)))
+                    (tuple PLACEHOLDER_27
+                      (binary_expression PLACEHOLDER_36 + PLACEHOLDER_37)))))) PLACEHOLDER_16)))))
+  (value_declaration PLACEHOLDER_40
+    (typed_pattern PLACEHOLDER_32
+      (array_type
+        (type_name i32))) :
+    (array_type
+      (type_name u32))
+    (let_expression
+      (binding PLACEHOLDER_15)
+      (application length PLACEHOLDER_32)
+      (let_expression
+        (binding PLACEHOLDER_30)
+        (application
+          (application any
+            (lambda PLACEHOLDER_25
+              (binary_expression
+                (binary_expression PLACEHOLDER_25 &
+                  (application
+                    (qualified_name i32 u32) PLACEHOLDER_2)) != 0))) PLACEHOLDER_32)
+        (if_expression
+          (application not PLACEHOLDER_30)
+          (application
+            (application map
+              (lambda PLACEHOLDER_25
+                (application
+                  (qualified_name u32 i32) PLACEHOLDER_25))) PLACEHOLDER_32)
+          (let_expression
+            (binding PLACEHOLDER_41)
+            (application
+              (application map
+                (lambda PLACEHOLDER_25
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_25 &
+                      (application
+                        (qualified_name i32 u32) PLACEHOLDER_2)) == 0))) PLACEHOLDER_32)
+            (let_expression
+              (binding PLACEHOLDER_42)
+              (application
+                (qualified_name i32 sum)
+                (application
+                  (application map
+                    (lambda PLACEHOLDER_43
+                      (if_expression PLACEHOLDER_43 1 0))) PLACEHOLDER_41))
+              (if_expression
+                (binary_expression PLACEHOLDER_42 == 6)
+                (array PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11 PLACEHOLDER_12)
+                (array
+                  (application PLACEHOLDER_21 PLACEHOLDER_32))))))))))

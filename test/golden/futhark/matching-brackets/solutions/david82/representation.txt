@@ -1,59 +1,167 @@
--- Helper function to check if a character is an opening bracket
-def is_opening_bracket (c: u8): bool =
-c == '(' || c == '[' || c == '{'
--- Helper function to check if a character is a closing bracket
-def is_closing_bracket (c: u8): bool =
-c == ')' || c == ']' || c == '}'
--- Helper function to get the matching opening bracket for a closing bracket
-def get_matching_opening (c: u8): u8 =
-if c == ')' then '('
-else if c == ']' then '['
-else if c == '}' then '{'
-else 0u8
--- Helper function to check if a character is a bracket
-def is_bracket (c: u8): bool =
-is_opening_bracket c || is_closing_bracket c
--- Convert character to bracket value for stack operations
--- Returns: 1 for (, 2 for [, 3 for {, -1 for ), -2 for ], -3 for }, 0 for non-bracket
-def bracket_value (c: u8): i32 =
-if c == '(' then 1
-else if c == '[' then 2
-else if c == '{' then 3
-else if c == ')' then -1
-else if c == ']' then -2
-else if c == '}' then -3
-else 0
--- Check if two bracket values match (opening and closing)
-def brackets_match (open_val: i32) (close_val: i32): bool =
-(open_val == 1 && close_val == -1) || -- ()
-(open_val == 2 && close_val == -2) || -- []
-(open_val == 3 && close_val == -3) -- {}
--- Process brackets using a proper stack simulation
--- We'll use a fixed-size array to simulate the stack
-def is_paired (value: []u8): bool =
-let bracket_values = map bracket_value value
-let max_stack_size = length bracket_values
-let (stack, stack_size, is_valid) =
-loop (s, size, valid) = (replicate max_stack_size 0, 0, true) for i < length bracket_values do
-if !valid then (s, size, false)
-else
-let v = bracket_values[i]
-in if v > 0 then
--- Opening bracket - push to stack
-let new_stack = scatter (copy s) [size] [v]
-in (new_stack, size + 1, true)
-else if v < 0 then
--- Closing bracket - check if it matches
-if size == 0 then
-(s, size, false) -- No opening bracket to match
-else
-let last_open = s[size - 1]
-in if brackets_match last_open v then
-let new_stack = scatter (copy s) [size - 1] [0]
-in (new_stack, size - 1, true)
-else
-(s, size, false) -- Mismatched brackets
-else
--- Non-bracket character - ignore
-(s, size, true)
-in is_valid && stack_size == 0
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 ==
+          (char "(")) ||
+        (binary_expression PLACEHOLDER_2 ==
+          (char "["))) ||
+      (binary_expression PLACEHOLDER_2 ==
+        (char "{"))))
+  (value_declaration PLACEHOLDER_3
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 ==
+          (char ")")) ||
+        (binary_expression PLACEHOLDER_2 ==
+          (char "]"))) ||
+      (binary_expression PLACEHOLDER_2 ==
+        (char "}"))))
+  (value_declaration PLACEHOLDER_4
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name u8)
+    (if_expression
+      (binary_expression PLACEHOLDER_2 ==
+        (char ")"))
+      (char "(")
+      (if_expression
+        (binary_expression PLACEHOLDER_2 ==
+          (char "]"))
+        (char "[")
+        (if_expression
+          (binary_expression PLACEHOLDER_2 ==
+            (char "}"))
+          (char "{") 0u8))))
+  (value_declaration PLACEHOLDER_5
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name bool)
+    (binary_expression
+      (application PLACEHOLDER_1 PLACEHOLDER_2) ||
+      (application PLACEHOLDER_3 PLACEHOLDER_2)))
+  (value_declaration PLACEHOLDER_6
+    (typed_pattern PLACEHOLDER_2
+      (type_name u8)) :
+    (type_name i32)
+    (if_expression
+      (binary_expression PLACEHOLDER_2 ==
+        (char "(")) 1
+      (if_expression
+        (binary_expression PLACEHOLDER_2 ==
+          (char "[")) 2
+        (if_expression
+          (binary_expression PLACEHOLDER_2 ==
+            (char "{")) 3
+          (if_expression
+            (binary_expression PLACEHOLDER_2 ==
+              (char ")"))
+            (unary_expression - 1)
+            (if_expression
+              (binary_expression PLACEHOLDER_2 ==
+                (char "]"))
+              (unary_expression - 2)
+              (if_expression
+                (binary_expression PLACEHOLDER_2 ==
+                  (char "}"))
+                (unary_expression - 3) 0)))))))
+  (value_declaration PLACEHOLDER_7
+    (typed_pattern PLACEHOLDER_8
+      (type_name i32))
+    (typed_pattern PLACEHOLDER_9
+      (type_name i32)) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (binary_expression PLACEHOLDER_8 == 1) &&
+          (binary_expression PLACEHOLDER_9 ==
+            (unary_expression - 1))) ||
+        (binary_expression
+          (binary_expression PLACEHOLDER_8 == 2) &&
+          (binary_expression PLACEHOLDER_9 ==
+            (unary_expression - 2)))) ||
+      (binary_expression
+        (binary_expression PLACEHOLDER_8 == 3) &&
+        (binary_expression PLACEHOLDER_9 ==
+          (unary_expression - 3)))))
+  (value_declaration PLACEHOLDER_10
+    (typed_pattern PLACEHOLDER_11
+      (array_type
+        (type_name u8))) :
+    (type_name bool)
+    (let_expression
+      (binding PLACEHOLDER_12)
+      (application
+        (application map PLACEHOLDER_6) PLACEHOLDER_11)
+      (let_expression
+        (binding PLACEHOLDER_13)
+        (application length PLACEHOLDER_12)
+        (let_expression
+          (binding
+            (tuple_pattern PLACEHOLDER_14 PLACEHOLDER_15 PLACEHOLDER_16))
+          (loop_expression
+            (tuple_pattern PLACEHOLDER_17 PLACEHOLDER_18 PLACEHOLDER_19)
+            (tuple
+              (application
+                (application replicate PLACEHOLDER_13) 0) 0
+              (boolean true))
+            (for_upto PLACEHOLDER_20
+              (application length PLACEHOLDER_12))
+            (if_expression
+              (unary_expression ! PLACEHOLDER_19)
+              (tuple PLACEHOLDER_17 PLACEHOLDER_18
+                (boolean false))
+              (let_expression
+                (binding PLACEHOLDER_21)
+                (index_expression PLACEHOLDER_12 PLACEHOLDER_20)
+                (if_expression
+                  (binary_expression PLACEHOLDER_21 > 0)
+                  (let_expression
+                    (binding PLACEHOLDER_22)
+                    (application
+                      (application
+                        (application scatter
+                          (application copy PLACEHOLDER_17))
+                        (array PLACEHOLDER_18))
+                      (array PLACEHOLDER_21))
+                    (tuple PLACEHOLDER_22
+                      (binary_expression PLACEHOLDER_18 + 1)
+                      (boolean true)))
+                  (if_expression
+                    (binary_expression PLACEHOLDER_21 < 0)
+                    (if_expression
+                      (binary_expression PLACEHOLDER_18 == 0)
+                      (tuple PLACEHOLDER_17 PLACEHOLDER_18
+                        (boolean false))
+                      (let_expression
+                        (binding PLACEHOLDER_23)
+                        (index_expression PLACEHOLDER_17
+                          (binary_expression PLACEHOLDER_18 - 1))
+                        (if_expression
+                          (application
+                            (application PLACEHOLDER_7 PLACEHOLDER_23) PLACEHOLDER_21)
+                          (let_expression
+                            (binding PLACEHOLDER_22)
+                            (application
+                              (application
+                                (application scatter
+                                  (application copy PLACEHOLDER_17))
+                                (array
+                                  (binary_expression PLACEHOLDER_18 - 1)))
+                              (array 0))
+                            (tuple PLACEHOLDER_22
+                              (binary_expression PLACEHOLDER_18 - 1)
+                              (boolean true)))
+                          (tuple PLACEHOLDER_17 PLACEHOLDER_18
+                            (boolean false)))))
+                    (tuple PLACEHOLDER_17 PLACEHOLDER_18
+                      (boolean true)))))))
+          (binary_expression PLACEHOLDER_16 &&
+            (binary_expression PLACEHOLDER_15 == 0)))))))

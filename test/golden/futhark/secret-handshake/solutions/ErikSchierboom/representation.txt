@@ -1,20 +1,62 @@
-def check_command (code: i32, mask: i32, command: []u8, acc: []u8): []u8 =
-if code & mask == 0 then
-acc
-else if null acc then
-command
-else
-acc ++ "\"," "\"" ++ command
-def commands (code: i32): []u8 =
-if code & 0b10000 == 0 then
-"\"\""
-|> (\acc -> check_command(code, 0b00001, "\"wink\"," acc))
-|> (\acc -> check_command(code, 0b00010, "\"double" blink", acc))
-|> (\acc -> check_command(code, 0b00100, "\"close" your eyes", acc))
-|> (\acc -> check_command(code, 0b01000, "\"jump\"," acc))
-else
-"\"\""
-|> (\acc -> check_command(code, 0b01000, "\"jump\"," acc))
-|> (\acc -> check_command(code, 0b00100, "\"close" your eyes", acc))
-|> (\acc -> check_command(code, 0b00010, "\"double" blink", acc))
-|> (\acc -> check_command(code, 0b00001, "\"wink\"," acc))
+(source_file
+  (value_declaration PLACEHOLDER_1
+    (tuple_pattern
+      (typed_pattern PLACEHOLDER_2
+        (type_name i32))
+      (typed_pattern PLACEHOLDER_3
+        (type_name i32))
+      (typed_pattern PLACEHOLDER_4
+        (array_type
+          (type_name u8)))
+      (typed_pattern PLACEHOLDER_5
+        (array_type
+          (type_name u8)))) :
+    (array_type
+      (type_name u8))
+    (if_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 & PLACEHOLDER_3) == 0) PLACEHOLDER_5
+      (if_expression
+        (application null PLACEHOLDER_5) PLACEHOLDER_4
+        (binary_expression
+          (binary_expression PLACEHOLDER_5 ++ ", ") ++ PLACEHOLDER_4))))
+  (value_declaration PLACEHOLDER_6
+    (typed_pattern PLACEHOLDER_2
+      (type_name i32)) :
+    (array_type
+      (type_name u8))
+    (if_expression
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 & 16) == 0)
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression "" |>
+              (lambda PLACEHOLDER_5
+                (application PLACEHOLDER_1
+                  (tuple PLACEHOLDER_2 1 "wink" PLACEHOLDER_5)))) |>
+            (lambda PLACEHOLDER_5
+              (application PLACEHOLDER_1
+                (tuple PLACEHOLDER_2 2 "double blink" PLACEHOLDER_5)))) |>
+          (lambda PLACEHOLDER_5
+            (application PLACEHOLDER_1
+              (tuple PLACEHOLDER_2 4 "close your eyes" PLACEHOLDER_5)))) |>
+        (lambda PLACEHOLDER_5
+          (application PLACEHOLDER_1
+            (tuple PLACEHOLDER_2 8 "jump" PLACEHOLDER_5))))
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression "" |>
+              (lambda PLACEHOLDER_5
+                (application PLACEHOLDER_1
+                  (tuple PLACEHOLDER_2 8 "jump" PLACEHOLDER_5)))) |>
+            (lambda PLACEHOLDER_5
+              (application PLACEHOLDER_1
+                (tuple PLACEHOLDER_2 4 "close your eyes" PLACEHOLDER_5)))) |>
+          (lambda PLACEHOLDER_5
+            (application PLACEHOLDER_1
+              (tuple PLACEHOLDER_2 2 "double blink" PLACEHOLDER_5)))) |>
+        (lambda PLACEHOLDER_5
+          (application PLACEHOLDER_1
+            (tuple PLACEHOLDER_2 1 "wink" PLACEHOLDER_5)))))))

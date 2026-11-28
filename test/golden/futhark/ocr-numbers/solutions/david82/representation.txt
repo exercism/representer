@@ -1,42 +1,342 @@
--- Define digit patterns
-let patterns: []([][]u8, u8) = [
-([[' ', '_', ' '], ['|', ' ', '|'], ['|', '_', '|'], [' ', ' ', ' ']], '0'),
-([[' ', ' ', ' '], [' ', ' ', '|'], [' ', ' ', '|'], [' ', ' ', ' ']], '1'),
-([[' ', '_', ' '], [' ', '_', '|'], ['|', '_', ' '], [' ', ' ', ' ']], '2'),
-([[' ', '_', ' '], [' ', '_', '|'], [' ', '_', '|'], [' ', ' ', ' ']], '3'),
-([[' ', ' ', ' '], ['|', '_', '|'], [' ', ' ', '|'], [' ', ' ', ' ']], '4'),
-([[' ', '_', ' '], ['|', '_', ' '], [' ', '_', '|'], [' ', ' ', ' ']], '5'),
-([[' ', '_', ' '], ['|', '_', ' '], ['|', '_', '|'], [' ', ' ', ' ']], '6'),
-([[' ', '_', ' '], [' ', ' ', '|'], [' ', ' ', '|'], [' ', ' ', ' ']], '7'),
-([[' ', '_', ' '], ['|', '_', '|'], ['|', '_', '|'], [' ', ' ', ' ']], '8'),
-([[' ', '_', ' '], ['|', '_', '|'], [' ', '_', '|'], [' ', ' ', ' ']], '9')
-]
--- Check if grids match
-let grids_match (a: [][]u8) (b: [][]u8): bool =
-length a == 4 && length b == 4 && all (\i -> all (\j -> a[i][j] == b[i][j]) (iota 3)) (iota 4)
--- Main conversion function
-def convert (rows: [][]u8): []u8 =
-let num_rows = length rows
-let num_cols = if num_rows > 0 then length rows[0] else 0
-let valid = num_rows > 0 && num_rows % 4 == 0 && num_cols > 0 && num_cols % 3 == 0 &&
-all (\row -> length row == num_cols) rows
-in if !valid then rows[100]
-else
-let num_lines = num_rows / 4
-let num_digits = num_cols / 3
-let line_results = map (\line ->
-let start_row = i32.i64 line * 4
-in map (\digit ->
-let start_col = i32.i64 digit * 3
-let subgrid = map (\i ->
-let row_idx = start_row + i32.i64 i
-let col_start = i64.i32 start_col
-in [rows[row_idx][col_start], rows[row_idx][col_start+1], rows[row_idx][col_start+2]]
-) (iota 4)
-let matches = filter (\(pattern, _) -> grids_match pattern subgrid) patterns
-in if length matches > 0 then matches[0].1 else '?'
-) (iota num_digits)
-) (iota num_lines)
-in if num_lines == 1 then line_results[0]
-else loop acc = line_results[0] for i in 1..<num_lines do
-concat acc (concat [','] line_results[i])
+(source_file
+  (value_declaration PLACEHOLDER_1 :
+    (array_type
+      (tuple_type
+        (array_type
+          (array_type
+            (type_name u8)))
+        (type_name u8)))
+    (array
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char "_")
+            (char " "))
+          (array
+            (char "|")
+            (char " ")
+            (char "|"))
+          (array
+            (char "|")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "0"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char " ")
+            (char " "))
+          (array
+            (char " ")
+            (char " ")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "1"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char "_")
+            (char " "))
+          (array
+            (char " ")
+            (char "_")
+            (char "|"))
+          (array
+            (char "|")
+            (char "_")
+            (char " "))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "2"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char "_")
+            (char " "))
+          (array
+            (char " ")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "3"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char " ")
+            (char " "))
+          (array
+            (char "|")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "4"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char "_")
+            (char " "))
+          (array
+            (char "|")
+            (char "_")
+            (char " "))
+          (array
+            (char " ")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "5"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char "_")
+            (char " "))
+          (array
+            (char "|")
+            (char "_")
+            (char " "))
+          (array
+            (char "|")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "6"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char "_")
+            (char " "))
+          (array
+            (char " ")
+            (char " ")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "7"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char "_")
+            (char " "))
+          (array
+            (char "|")
+            (char "_")
+            (char "|"))
+          (array
+            (char "|")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "8"))
+      (tuple
+        (array
+          (array
+            (char " ")
+            (char "_")
+            (char " "))
+          (array
+            (char "|")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char "_")
+            (char "|"))
+          (array
+            (char " ")
+            (char " ")
+            (char " ")))
+        (char "9"))))
+  (value_declaration PLACEHOLDER_2
+    (typed_pattern PLACEHOLDER_3
+      (array_type
+        (array_type
+          (type_name u8))))
+    (typed_pattern PLACEHOLDER_4
+      (array_type
+        (array_type
+          (type_name u8)))) :
+    (type_name bool)
+    (binary_expression
+      (binary_expression
+        (binary_expression
+          (application length PLACEHOLDER_3) == 4) &&
+        (binary_expression
+          (application length PLACEHOLDER_4) == 4)) &&
+      (application
+        (application all
+          (lambda PLACEHOLDER_5
+            (application
+              (application all
+                (lambda PLACEHOLDER_6
+                  (binary_expression
+                    (index_expression
+                      (index_expression PLACEHOLDER_3 PLACEHOLDER_5) PLACEHOLDER_6) ==
+                    (index_expression
+                      (index_expression PLACEHOLDER_4 PLACEHOLDER_5) PLACEHOLDER_6))))
+              (application iota 3))))
+        (application iota 4))))
+  (value_declaration PLACEHOLDER_7
+    (typed_pattern PLACEHOLDER_8
+      (array_type
+        (array_type
+          (type_name u8)))) :
+    (array_type
+      (type_name u8))
+    (let_expression
+      (binding PLACEHOLDER_9)
+      (application length PLACEHOLDER_8)
+      (let_expression
+        (binding PLACEHOLDER_10)
+        (if_expression
+          (binary_expression PLACEHOLDER_9 > 0)
+          (application length
+            (index_expression PLACEHOLDER_8 0)) 0)
+        (let_expression
+          (binding PLACEHOLDER_11)
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_9 > 0) &&
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_9 % 4) == 0)) &&
+                (binary_expression PLACEHOLDER_10 > 0)) &&
+              (binary_expression
+                (binary_expression PLACEHOLDER_10 % 3) == 0)) &&
+            (application
+              (application all
+                (lambda PLACEHOLDER_12
+                  (binary_expression
+                    (application length PLACEHOLDER_12) == PLACEHOLDER_10))) PLACEHOLDER_8))
+          (if_expression
+            (unary_expression ! PLACEHOLDER_11)
+            (index_expression PLACEHOLDER_8 100)
+            (let_expression
+              (binding PLACEHOLDER_13)
+              (binary_expression PLACEHOLDER_9 / 4)
+              (let_expression
+                (binding PLACEHOLDER_14)
+                (binary_expression PLACEHOLDER_10 / 3)
+                (let_expression
+                  (binding PLACEHOLDER_15)
+                  (application
+                    (application map
+                      (lambda PLACEHOLDER_16
+                        (let_expression
+                          (binding PLACEHOLDER_17)
+                          (binary_expression
+                            (application
+                              (qualified_name i32 i64) PLACEHOLDER_16) * 4)
+                          (application
+                            (application map
+                              (lambda PLACEHOLDER_18
+                                (let_expression
+                                  (binding PLACEHOLDER_19)
+                                  (binary_expression
+                                    (application
+                                      (qualified_name i32 i64) PLACEHOLDER_18) * 3)
+                                  (let_expression
+                                    (binding PLACEHOLDER_20)
+                                    (application
+                                      (application map
+                                        (lambda PLACEHOLDER_5
+                                          (let_expression
+                                            (binding PLACEHOLDER_21)
+                                            (binary_expression PLACEHOLDER_17 +
+                                              (application
+                                                (qualified_name i32 i64) PLACEHOLDER_5))
+                                            (let_expression
+                                              (binding PLACEHOLDER_22)
+                                              (application
+                                                (qualified_name i64 i32) PLACEHOLDER_19)
+                                              (array
+                                                (index_expression
+                                                  (index_expression PLACEHOLDER_8 PLACEHOLDER_21) PLACEHOLDER_22)
+                                                (index_expression
+                                                  (index_expression PLACEHOLDER_8 PLACEHOLDER_21)
+                                                  (binary_expression PLACEHOLDER_22 + 1))
+                                                (index_expression
+                                                  (index_expression PLACEHOLDER_8 PLACEHOLDER_21)
+                                                  (binary_expression PLACEHOLDER_22 + 2)))))))
+                                      (application iota 4))
+                                    (let_expression
+                                      (binding PLACEHOLDER_23)
+                                      (application
+                                        (application filter
+                                          (lambda
+                                            (tuple_pattern PLACEHOLDER_24 _)
+                                            (application
+                                              (application PLACEHOLDER_2 PLACEHOLDER_24) PLACEHOLDER_20))) PLACEHOLDER_1)
+                                      (if_expression
+                                        (binary_expression
+                                          (application length PLACEHOLDER_23) > 0)
+                                        (field_access
+                                          (index_expression PLACEHOLDER_23 0) 1)
+                                        (char "?")))))))
+                            (application iota PLACEHOLDER_14)))))
+                    (application iota PLACEHOLDER_13))
+                  (if_expression
+                    (binary_expression PLACEHOLDER_13 == 1)
+                    (index_expression PLACEHOLDER_15 0)
+                    (loop_expression PLACEHOLDER_25
+                      (index_expression PLACEHOLDER_15 0)
+                      (for_in PLACEHOLDER_5
+                        (range 1 ..< PLACEHOLDER_13))
+                      (application
+                        (application concat PLACEHOLDER_25)
+                        (application
+                          (application concat
+                            (array
+                              (char ",")))
+                          (index_expression PLACEHOLDER_15 PLACEHOLDER_5))))))))))))))

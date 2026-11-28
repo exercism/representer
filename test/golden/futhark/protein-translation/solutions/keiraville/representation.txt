@@ -1,31 +1,129 @@
-type amino_acid = #methionine | #phenylalanine | #leucine | #serine | #tyrosine | #cysteine | #tryptophan
-local def equal [m] [n] (first: [m]u8) (second: [n]u8): bool =
-if m != n then false else
-let same = loop same = true for i < n do
-same && (first[i] == second[i])
-in
-same
-local def contains (needle: []u8) (haystack: [][]u8): bool =
-let found = loop found = false for item in haystack do
-found || equal item needle
-in
-found
-local def is_stop (codon: []u8): bool =
-contains codon ["UAA", "\"UAG\"," "\"UGA\"]"
-local def translate (codon: []u8): amino_acid =
-if contains codon ["AUG"] then #methionine else
-if contains codon ["UUU", "\"UUC\"]" then #phenylalanine else
-if contains codon ["UUA", "\"UUG\"]" then #leucine else
-if contains codon ["UCU", "\"UCC\"," "\"UCA\"," "\"UCG\"]" then #serine else
-if contains codon ["UAU", "\"UAC\"]" then #tyrosine else
-if contains codon ["UGU", "\"UGC\"]" then #cysteine else
-assert (contains codon ["UGG"]) #tryptophan
-def proteins (strand: []u8): []amino_acid =
-let (result, _) = loop (result, index) = ([], 0) while index < length strand do
-let index = index + 3
-let codon = assert (index <= length strand) strand[index - 3:index]
-in
-if is_stop codon then (result, length strand) else
-(result ++ [translate codon], index)
-in
-result
+(source_file
+  (type_declaration PLACEHOLDER_1
+    (sum_type
+      (variant (constructor PLACEHOLDER_2))
+      (variant (constructor PLACEHOLDER_3))
+      (variant (constructor PLACEHOLDER_4))
+      (variant (constructor PLACEHOLDER_5))
+      (variant (constructor PLACEHOLDER_6))
+      (variant (constructor PLACEHOLDER_7))
+      (variant (constructor PLACEHOLDER_8))))
+  (local_declaration local
+    (value_declaration PLACEHOLDER_9
+      (size_parameter PLACEHOLDER_10)
+      (size_parameter PLACEHOLDER_11)
+      (typed_pattern PLACEHOLDER_12
+        (array_type PLACEHOLDER_10
+          (type_name u8)))
+      (typed_pattern PLACEHOLDER_13
+        (array_type PLACEHOLDER_11
+          (type_name u8))) :
+      (type_name bool)
+      (if_expression
+        (binary_expression PLACEHOLDER_10 != PLACEHOLDER_11)
+        (boolean false)
+        (let_expression
+          (binding PLACEHOLDER_14)
+          (loop_expression PLACEHOLDER_14
+            (boolean true)
+            (for_upto PLACEHOLDER_15 PLACEHOLDER_11)
+            (binary_expression PLACEHOLDER_14 &&
+              (binary_expression
+                (index_expression PLACEHOLDER_12 PLACEHOLDER_15) ==
+                (index_expression PLACEHOLDER_13 PLACEHOLDER_15)))) PLACEHOLDER_14))))
+  (local_declaration local
+    (value_declaration PLACEHOLDER_16
+      (typed_pattern PLACEHOLDER_17
+        (array_type
+          (type_name u8)))
+      (typed_pattern PLACEHOLDER_18
+        (array_type
+          (array_type
+            (type_name u8)))) :
+      (type_name bool)
+      (let_expression
+        (binding PLACEHOLDER_19)
+        (loop_expression PLACEHOLDER_19
+          (boolean false)
+          (for_in PLACEHOLDER_20 PLACEHOLDER_18)
+          (binary_expression PLACEHOLDER_19 ||
+            (application
+              (application PLACEHOLDER_9 PLACEHOLDER_20) PLACEHOLDER_17))) PLACEHOLDER_19)))
+  (local_declaration local
+    (value_declaration PLACEHOLDER_21
+      (typed_pattern PLACEHOLDER_22
+        (array_type
+          (type_name u8))) :
+      (type_name bool)
+      (application
+        (application PLACEHOLDER_16 PLACEHOLDER_22)
+        (array "UAA" "UAG" "UGA"))))
+  (local_declaration local
+    (value_declaration PLACEHOLDER_23
+      (typed_pattern PLACEHOLDER_22
+        (array_type
+          (type_name u8))) :
+      (type_name PLACEHOLDER_1)
+      (if_expression
+        (application
+          (application PLACEHOLDER_16 PLACEHOLDER_22)
+          (array "AUG")) (constructor PLACEHOLDER_2)
+        (if_expression
+          (application
+            (application PLACEHOLDER_16 PLACEHOLDER_22)
+            (array "UUU" "UUC")) (constructor PLACEHOLDER_3)
+          (if_expression
+            (application
+              (application PLACEHOLDER_16 PLACEHOLDER_22)
+              (array "UUA" "UUG")) (constructor PLACEHOLDER_4)
+            (if_expression
+              (application
+                (application PLACEHOLDER_16 PLACEHOLDER_22)
+                (array "UCU" "UCC" "UCA" "UCG")) (constructor PLACEHOLDER_5)
+              (if_expression
+                (application
+                  (application PLACEHOLDER_16 PLACEHOLDER_22)
+                  (array "UAU" "UAC")) (constructor PLACEHOLDER_6)
+                (if_expression
+                  (application
+                    (application PLACEHOLDER_16 PLACEHOLDER_22)
+                    (array "UGU" "UGC")) (constructor PLACEHOLDER_7)
+                  (assert_expression
+                    (application
+                      (application PLACEHOLDER_16 PLACEHOLDER_22)
+                      (array "UGG")) (constructor PLACEHOLDER_8))))))))))
+  (value_declaration PLACEHOLDER_24
+    (typed_pattern PLACEHOLDER_25
+      (array_type
+        (type_name u8))) :
+    (array_type
+      (type_name PLACEHOLDER_1))
+    (let_expression
+      (binding
+        (tuple_pattern PLACEHOLDER_26 _))
+      (loop_expression
+        (tuple_pattern PLACEHOLDER_26 PLACEHOLDER_27)
+        (tuple
+          (array) 0)
+        (while
+          (binary_expression PLACEHOLDER_27 <
+            (application length PLACEHOLDER_25)))
+        (let_expression
+          (binding PLACEHOLDER_27)
+          (binary_expression PLACEHOLDER_27 + 3)
+          (let_expression
+            (binding PLACEHOLDER_22)
+            (assert_expression
+              (binary_expression PLACEHOLDER_27 <=
+                (application length PLACEHOLDER_25))
+              (index_expression PLACEHOLDER_25
+                (slice
+                  (binary_expression PLACEHOLDER_27 - 3) : PLACEHOLDER_27)))
+            (if_expression
+              (application PLACEHOLDER_21 PLACEHOLDER_22)
+              (tuple PLACEHOLDER_26
+                (application length PLACEHOLDER_25))
+              (tuple
+                (binary_expression PLACEHOLDER_26 ++
+                  (array
+                    (application PLACEHOLDER_23 PLACEHOLDER_22))) PLACEHOLDER_27))))) PLACEHOLDER_26)))
