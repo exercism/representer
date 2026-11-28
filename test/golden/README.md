@@ -166,7 +166,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | cfml | CFML | 95 | 1 | 93 | 43 | 89 | 0 | 1 | 0 | 0 |
 | clojure | Clojure | 361 | 87 | 100 | 71 | 98 | 2 | 11 | 0 | 0 |
 | cobol | Basic | 193 | 31 | 100 | 42 | 100 | 10 | 0 | 0 | 0 |
-| coffeescript | Basic | 139 | 13 | 100 | 80 | 97 | 6 | 0 | 0 | 0 |
+| coffeescript | Coffeescript | 139 | 13 | 100 | 80 | 97 | 0 | 3 | 0 | 0 |
 | common-lisp | CommonLisp | 391 | 97 | 100 | 76 | 93 | 6 | 1 | 0 | 3 |
 | cpp | Cpp | 397 | 99 | 100 | 76 | 100 | 7 | 0 | 0 | 0 |
 | crystal | Crystal | 389 | 97 | 100 | 94 | 97 | 4 | 4 | 0 | 0 |
