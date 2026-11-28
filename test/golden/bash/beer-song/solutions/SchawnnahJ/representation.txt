@@ -1,35 +1,65 @@
-if (( $# < 1 || $# > 2 )) ; then
-printf "\"Error: 1 or 2 arguments expected.\\\\n\""
-exit 1
-fi
-first = $1
-last = ${ 2 :- $first }
-if (( first < last )) ; then
-printf "\"Start must be greater than End\\\\n\""
-exit 1
-fi
-for (( i = first ; i> = last ; i-- )) ; do
-if [[ "\"" $i "\"" == 0 ]] ; then
-printf "\"%s\\\\n%s\\\\n\"" \
-"\"No more bottles of beer on the wall, no more bottles of beer.\"\\"
-"\"Go to the store and buy some more, 99 bottles of beer on the wall.\""
-continue
-fi
-how_many_on_the_wall = "\"" $i " bottles\""
-how_many_down = "\"one\""
-remaining_on_the_wall = "\"" $(( i - 1 )) " bottles\""
-if [[ "\"" $i "\"" == 1 ]] ; then
-how_many_on_the_wall = "\"1 bottle\""
-how_many_down = "\"it\""
-remaining_on_the_wall = "\"no more bottles\""
-elif [[ "\"" $i "\"" == 2 ]] ; then
-remaining_on_the_wall = "\"1 bottle\""
-fi
-printf "\"%s of beer on the wall, %s of beer.\\\\n\"\\"
-"\"" $how_many_on_the_wall "\"" \
-"\"" $how_many_on_the_wall "\""
-printf "\"Take %s down and pass it around, %s of beer on the wall.\\\\n\"\\"
-"\"" $how_many_down "\"\\"
-"\"" $remaining_on_the_wall "\""
-printf "\"\\\\n\""
-done
+(program
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (binary_expression
+          (simple_expansion #) < 1) ||
+        (binary_expression
+          (simple_expansion #) > 2))) then
+    (command printf "Error: 1 or 2 arguments expected.\\n")
+    (command exit 1))
+  (variable_assignment PLACEHOLDER_1
+    (simple_expansion 1))
+  (variable_assignment PLACEHOLDER_2
+    (expansion 2 :-
+      (simple_expansion PLACEHOLDER_1)))
+  (if_statement
+    (arithmetic_command
+      (binary_expression PLACEHOLDER_1 < PLACEHOLDER_2)) then
+    (command printf "Start must be greater than End\\n")
+    (command exit 1))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_3 PLACEHOLDER_1) ;
+    (binary_expression PLACEHOLDER_3 >= PLACEHOLDER_2) ;
+    (postfix_expression PLACEHOLDER_3 --)
+    (do_group
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_3)) == 0)) then
+        (command printf "%s\\n%s\\n" "No more bottles of beer on the wall, no more bottles of beer." "Go to the store and buy some more, 99 bottles of beer on the wall.")
+        (command continue))
+      (variable_assignment PLACEHOLDER_4
+        (string
+          (simple_expansion PLACEHOLDER_3) " bottles"))
+      (variable_assignment PLACEHOLDER_5 "one")
+      (variable_assignment PLACEHOLDER_6
+        (string
+          (arithmetic_expansion
+            (binary_expression PLACEHOLDER_3 - 1)) " bottles"))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_3)) == 1)) then
+        (variable_assignment PLACEHOLDER_4 "1 bottle")
+        (variable_assignment PLACEHOLDER_5 "it")
+        (variable_assignment PLACEHOLDER_6 "no more bottles")
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (string
+                (simple_expansion PLACEHOLDER_3)) == 2)) then
+          (variable_assignment PLACEHOLDER_6 "1 bottle")))
+      (command printf "%s of beer on the wall, %s of beer.\\n"
+        (string
+          (simple_expansion PLACEHOLDER_4))
+        (string
+          (simple_expansion PLACEHOLDER_4)))
+      (command printf "Take %s down and pass it around, %s of beer on the wall.\\n"
+        (string
+          (simple_expansion PLACEHOLDER_5))
+        (string
+          (simple_expansion PLACEHOLDER_6)))
+      (command printf "\\n"))))

@@ -1,34 +1,153 @@
-(( $# == 6 )) || exit 1
-declare -a count inv_count
-declare -i sum
-setup () {
-for arg ; do (( count[arg]++ )) ; (( sum + = arg )) ; done
-for c in "\"" ${ !count[@] } "\"" ; do (( inv_count[count[c]] = c )) ; done
-}
-type = $1 ; shift
-setup "\"" $@ "\""
-score = 0
-case "\"" $type "\"" in
-'ones' ) for arg ; do (( arg == 1 && ( score + = arg ) )) ; done ;;
-'twos' ) for arg ; do (( arg == 2 && ( score + = arg ) )) ; done ;;
-'threes' ) for arg ; do (( arg == 3 && ( score + = arg ) )) ; done ;;
-'fours' ) for arg ; do (( arg == 4 && ( score + = arg ) )) ; done ;;
-'fives' ) for arg ; do (( arg == 5 && ( score + = arg ) )) ; done ;;
-'sixes' ) for arg ; do (( arg == 6 && ( score + = arg ) )) ; done ;;
-"'full house'" )
-[[ "\"" ${ !inv_count[@] } "\"" = "\"2 3\"" ]] && (( score = sum )) ;;
-"'four of a kind'" )
-[[ "\"" ${ !inv_count[@] } "\"" = "\"1 4\"" ]] && ((
-score = 4 * ${ inv_count [4] } ))
-[[ "\"" ${ !inv_count[@] } "\"" = "\"5\"" ]] && ((
-score = 4 * ${ inv_count [5] } )) ;;
-"'little straight'" )
-[[ "\"" ${ !count[@] } "\"" = "\"1 2 3 4 5\"" ]] && (( score = 30 )) ;;
-"'big straight'" )
-[[ "\"" ${ !count[@] } "\"" = "\"2 3 4 5 6\"" ]] && (( score = 30 )) ;;
-'choice' ) (( score = sum )) ;;
-'yacht' )
-(( $1 == $2 && $1 == $3 && $1 == $4 && $1 == $5 )) && ((
-score = 50 )) ;;
-esac
-echo $score
+(program
+  (list
+    (arithmetic_command
+      (binary_expression
+        (simple_expansion #) == 6)) ||
+    (command exit 1))
+  (declaration_command declare -a PLACEHOLDER_1 PLACEHOLDER_2)
+  (declaration_command declare -i PLACEHOLDER_3)
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (for_statement PLACEHOLDER_5
+        (do_group
+          (arithmetic_command
+            (postfix_expression
+              (subscript PLACEHOLDER_1 PLACEHOLDER_5) ++))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_3 += PLACEHOLDER_5))))
+      (for_statement PLACEHOLDER_6 in
+        (string
+          (expansion !
+            (subscript PLACEHOLDER_1 @)))
+        (do_group
+          (arithmetic_command
+            (binary_expression
+              (subscript PLACEHOLDER_2
+                (subscript PLACEHOLDER_1 PLACEHOLDER_6)) = PLACEHOLDER_6))))))
+  (variable_assignment PLACEHOLDER_7
+    (simple_expansion 1))
+  (command shift)
+  (command (command_name PLACEHOLDER_4)
+    (string
+      (simple_expansion @)))
+  (variable_assignment PLACEHOLDER_8 0)
+  (case_statement
+    (string
+      (simple_expansion PLACEHOLDER_7))
+    (case_item "ones"
+      (for_statement PLACEHOLDER_5
+        (do_group
+          (arithmetic_command
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 == 1) &&
+              (binary_expression PLACEHOLDER_8 += PLACEHOLDER_5))))))
+    (case_item "twos"
+      (for_statement PLACEHOLDER_5
+        (do_group
+          (arithmetic_command
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 == 2) &&
+              (binary_expression PLACEHOLDER_8 += PLACEHOLDER_5))))))
+    (case_item "threes"
+      (for_statement PLACEHOLDER_5
+        (do_group
+          (arithmetic_command
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 == 3) &&
+              (binary_expression PLACEHOLDER_8 += PLACEHOLDER_5))))))
+    (case_item "fours"
+      (for_statement PLACEHOLDER_5
+        (do_group
+          (arithmetic_command
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 == 4) &&
+              (binary_expression PLACEHOLDER_8 += PLACEHOLDER_5))))))
+    (case_item "fives"
+      (for_statement PLACEHOLDER_5
+        (do_group
+          (arithmetic_command
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 == 5) &&
+              (binary_expression PLACEHOLDER_8 += PLACEHOLDER_5))))))
+    (case_item "sixes"
+      (for_statement PLACEHOLDER_5
+        (do_group
+          (arithmetic_command
+            (binary_expression
+              (binary_expression PLACEHOLDER_5 == 6) &&
+              (binary_expression PLACEHOLDER_8 += PLACEHOLDER_5))))))
+    (case_item "full house"
+      (list
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion !
+                (subscript PLACEHOLDER_2 @))) = "2 3")) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_8 = PLACEHOLDER_3))))
+    (case_item "four of a kind"
+      (list
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion !
+                (subscript PLACEHOLDER_2 @))) = "1 4")) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_8 =
+            (binary_expression 4 *
+              (expansion
+                (subscript PLACEHOLDER_2 4))))))
+      (list
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion !
+                (subscript PLACEHOLDER_2 @))) = "5")) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_8 =
+            (binary_expression 4 *
+              (expansion
+                (subscript PLACEHOLDER_2 5)))))))
+    (case_item "little straight"
+      (list
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion !
+                (subscript PLACEHOLDER_1 @))) = "1 2 3 4 5")) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_8 = 30))))
+    (case_item "big straight"
+      (list
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion !
+                (subscript PLACEHOLDER_1 @))) = "2 3 4 5 6")) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_8 = 30))))
+    (case_item "choice"
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_8 = PLACEHOLDER_3)))
+    (case_item "yacht"
+      (list
+        (arithmetic_command
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression
+                  (simple_expansion 1) ==
+                  (simple_expansion 2)) &&
+                (binary_expression
+                  (simple_expansion 1) ==
+                  (simple_expansion 3))) &&
+              (binary_expression
+                (simple_expansion 1) ==
+                (simple_expansion 4))) &&
+            (binary_expression
+              (simple_expansion 1) ==
+              (simple_expansion 5)))) &&
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_8 = 50)))))
+  (command echo
+    (simple_expansion PLACEHOLDER_8)))

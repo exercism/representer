@@ -1,41 +1,107 @@
-set -euo pipefail
-main () {
-local input = "\"" ${ 1 :-} "\""
-local cleaned
-cleaned = "\"$(" printf "\"%s\"" "\"" $input "\"" \
-| tr '[:upper:]' '[:lower:]' \
-| sed 's/[^a-z0-9]//g')"
-if [[ -z "\"" $cleaned "\"" ]] ; then
-printf "\"\\n\""
-exit 0
-fi
-local n = "\"" ${# cleaned } "\""
-local c r
-local sqrt
-sqrt = $( printf "\"%s\"" "\"" $n "\"" | awk "'{printf \"%.0f\", sqrt($1)}')"
-c = $sqrt
-if (( c * c < n )) ; then
-(( c++ ))
-fi
-r = $(( ( n + c - 1 ) / c ))
-local -a rows =()
-local i row
-for (( i = 0 ; i<r ; i++ )) ; do
-row = "\"" ${ cleaned :i *c :c } "\""
-while (( ${# row } < c )) ; do
-row = "\"" $row " \""
-done
-rows+ =( "\"" $row "\"" )
-done
-local -a chunks =()
-local col j chunk
-for (( col = 0 ; col<c ; col++ )) ; do
-chunk = "\"\""
-for (( j = 0 ; j<r ; j++ )) ; do
-chunk = "\"" ${ chunk }${ rows [j] :col:1 } "\""
-done
-chunks+ =( "\"" $chunk "\"" )
-done
-printf "\"%s\\n\"" "\"" ${ chunks [*] } "\""
-}
-main "\"" $@ "\""
+(program
+  (command set -euo pipefail)
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_2
+          (string
+            (expansion 1 :-))))
+      (declaration_command local PLACEHOLDER_3)
+      (variable_assignment PLACEHOLDER_3
+        (string
+          (command_substitution
+            (pipeline
+              (command printf "%s"
+                (string
+                  (simple_expansion PLACEHOLDER_2))) |
+              (command tr "[:upper:]" "[:lower:]") |
+              (command sed "s/[^a-z0-9]//g")))))
+      (if_statement
+        (test_command [[
+          (unary_expression -z
+            (string
+              (simple_expansion PLACEHOLDER_3)))) then
+        (command printf "\\n")
+        (command exit 0))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_4
+          (string
+            (expansion # PLACEHOLDER_3))))
+      (declaration_command local PLACEHOLDER_5 PLACEHOLDER_6)
+      (declaration_command local PLACEHOLDER_7)
+      (variable_assignment PLACEHOLDER_7
+        (command_substitution
+          (pipeline
+            (command printf "%s"
+              (string
+                (simple_expansion PLACEHOLDER_4))) |
+            (command awk "{printf \"%.0f\", sqrt($1)}"))))
+      (variable_assignment PLACEHOLDER_5
+        (simple_expansion PLACEHOLDER_7))
+      (if_statement
+        (arithmetic_command
+          (binary_expression
+            (binary_expression PLACEHOLDER_5 * PLACEHOLDER_5) < PLACEHOLDER_4)) then
+        (arithmetic_command
+          (postfix_expression PLACEHOLDER_5 ++)))
+      (variable_assignment PLACEHOLDER_6
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_4 + PLACEHOLDER_5) - 1) / PLACEHOLDER_5)))
+      (declaration_command local -a
+        (variable_assignment PLACEHOLDER_8
+          (array)))
+      (declaration_command local PLACEHOLDER_9 PLACEHOLDER_10)
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_9 0) ;
+        (binary_expression PLACEHOLDER_9 < PLACEHOLDER_6) ;
+        (postfix_expression PLACEHOLDER_9 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_10
+            (string
+              (expansion PLACEHOLDER_3 :
+                (binary_expression PLACEHOLDER_9 * PLACEHOLDER_5) : PLACEHOLDER_5)))
+          (while_statement
+            (arithmetic_command
+              (binary_expression
+                (expansion # PLACEHOLDER_10) < PLACEHOLDER_5))
+            (do_group
+              (variable_assignment PLACEHOLDER_10
+                (string
+                  (simple_expansion PLACEHOLDER_10)))))
+          (variable_assignment PLACEHOLDER_8 +=
+            (array
+              (string
+                (simple_expansion PLACEHOLDER_10))))))
+      (declaration_command local -a
+        (variable_assignment PLACEHOLDER_11
+          (array)))
+      (declaration_command local PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_14)
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_12 0) ;
+        (binary_expression PLACEHOLDER_12 < PLACEHOLDER_5) ;
+        (postfix_expression PLACEHOLDER_12 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_14 "")
+          (c_style_for_statement
+            (variable_assignment PLACEHOLDER_13 0) ;
+            (binary_expression PLACEHOLDER_13 < PLACEHOLDER_6) ;
+            (postfix_expression PLACEHOLDER_13 ++)
+            (do_group
+              (variable_assignment PLACEHOLDER_14
+                (string
+                  (expansion PLACEHOLDER_14)
+                  (expansion
+                    (subscript PLACEHOLDER_8 PLACEHOLDER_13) : PLACEHOLDER_12 : 1)))))
+          (variable_assignment PLACEHOLDER_11 +=
+            (array
+              (string
+                (simple_expansion PLACEHOLDER_14))))))
+      (command printf "%s\\n"
+        (string
+          (expansion
+            (subscript PLACEHOLDER_11 *))))))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

@@ -1,37 +1,77 @@
-findallwords () {
-local line linelen PATTERN = $'^[0-9]+|^[a-zA-Z]+(\'[a-zA-Z]+)?'
-local -i lineno = 0 charno = 0
-while read line ; do
-linelen = ${# line }
-while (( charno < linelen )) ; do
-if [[ "\"" ${ line :charno } "\"" = ~ $PATTERN ]] ; then
-echo "\"" ${ BASH_REMATCH [0] } "\""
-charno+ = ${# BASH_REMATCH [0] }
-else
-charno+ = 1
-fi
-done
-charno = 0
-lineno+ = 1
-done
-}
-tolower () {
-local line
-while read line ; do
-echo "\"" ${ line ,, } "\""
-done
-}
-count () {
-local line word
-local -iA counts
-while read line ; do
-counts[ $line ] + = 1
-done
-for word in "\"" ${ !counts[@] } "\"" ; do
-printf "'%s: %d\\n'" "\"" $word "\"" "\"" ${ counts [ $word ] } "\""
-done
-}
-main () {
-printf '%b\n' "\"" $1 "\"" | findallwords | tolower | count
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local PLACEHOLDER_2 PLACEHOLDER_3
+        (variable_assignment PLACEHOLDER_4 "^[0-9]+|^[a-zA-Z]+('[a-zA-Z]+)?"))
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_5 0)
+        (variable_assignment PLACEHOLDER_6 0))
+      (while_statement
+        (command read PLACEHOLDER_2)
+        (do_group
+          (variable_assignment PLACEHOLDER_3
+            (expansion # PLACEHOLDER_2))
+          (while_statement
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_6 < PLACEHOLDER_3))
+            (do_group
+              (if_statement
+                (test_command [[
+                  (binary_expression
+                    (string
+                      (expansion PLACEHOLDER_2 : PLACEHOLDER_6)) =~
+                    (simple_expansion PLACEHOLDER_4))) then
+                (command echo
+                  (string
+                    (expansion
+                      (subscript BASH_REMATCH 0))))
+                (variable_assignment PLACEHOLDER_6 +=
+                  (expansion #
+                    (subscript BASH_REMATCH 0)))
+                (else_clause
+                  (variable_assignment PLACEHOLDER_6 += 1)))))
+          (variable_assignment PLACEHOLDER_6 0)
+          (variable_assignment PLACEHOLDER_5 += 1)))))
+  (function_definition (function_name PLACEHOLDER_7)
+    (compound_statement
+      (declaration_command local PLACEHOLDER_2)
+      (while_statement
+        (command read PLACEHOLDER_2)
+        (do_group
+          (command echo
+            (string
+              (expansion PLACEHOLDER_2 ,,)))))))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (declaration_command local PLACEHOLDER_2 PLACEHOLDER_9)
+      (declaration_command local -iA PLACEHOLDER_10)
+      (while_statement
+        (command read PLACEHOLDER_2)
+        (do_group
+          (variable_assignment
+            (subscript PLACEHOLDER_10
+              (simple_expansion PLACEHOLDER_2)) += 1)))
+      (for_statement PLACEHOLDER_9 in
+        (string
+          (expansion !
+            (subscript PLACEHOLDER_10 @)))
+        (do_group
+          (command printf "%s: %d\\n"
+            (string
+              (simple_expansion PLACEHOLDER_9))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_10
+                  (simple_expansion PLACEHOLDER_9)))))))))
+  (function_definition (function_name PLACEHOLDER_11)
+    (compound_statement
+      (pipeline
+        (command printf "%b\\n"
+          (string
+            (simple_expansion 1))) |
+        (command (command_name PLACEHOLDER_1)) |
+        (command (command_name PLACEHOLDER_7)) |
+        (command (command_name PLACEHOLDER_8)))))
+  (command (command_name PLACEHOLDER_11)
+    (string
+      (simple_expansion @))))

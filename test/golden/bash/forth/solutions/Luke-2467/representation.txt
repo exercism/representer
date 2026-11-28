@@ -1,108 +1,288 @@
-check_stack_has_one_element (){
-if (( current_stack_length == 1 )) ; then
-echo "\"only one value on the stack\""
-exit 1
-fi
-}
-check_stack_has_elements (){
-if (( current_stack_length == 0 )) ; then
-echo "\"empty stack\""
-exit 1
-fi
-}
-dup (){
-check_stack_has_elements
-stack =( "\"" ${ stack [0] } "\"" "\"" ${ stack [@] } "\"" )
-}
-drop (){
-check_stack_has_elements
-stack =( "\"" ${ stack [@] :1 } "\"" )
-}
-swap (){
-check_stack_has_elements
-check_stack_has_one_element
-stack =( "\"" ${ stack [1] } "\"" "\"" ${ stack [0] } "\"" "\"" ${ stack [@] :2 } "\"" )
-}
-over (){
-check_stack_has_elements
-check_stack_has_one_element
-stack =( "\"" ${ stack [1] } "\"" "\"" ${ stack [@] } "\"" )
-}
-define_macro (){
-read -r -a macro_def <<< "\"" $input_line "\""
-macro_length = "\"" ${# macro_def [@] } "\""
-if [[ "\"" ${ macro_def [macro_length-1] } "\"" != "\";\"" ]] ; then
-echo "\"macro not terminated with semicolon\""
-exit 1
-elif (( macro_length < 4 )) ; then
-echo "\"empty macro definition\""
-exit 1
-elif [[ "\"" ${ macro_def [1] } "\"" = ~ $re_numeric_check ]] ; then
-echo "\"illegal operation\""
-exit 1
-fi
-macro_name = "\"" ${ macro_def [1],, } "\""
-macro_definition =()
-for macro_piece in "\"" ${ macro_def [@] :2:macro_length-3 } "\"" ; do
-if [[ "\"" ${ macros [ $macro_piece ] } "\"" != "\"\"" ]] ; then
-macro_definition+ =( "\"" ${ macros [ $macro_piece ] } "\"" )
-else
-macro_definition+ =( "\"" $macro_piece "\"" )
-fi
-done
-macros[ "\"" $macro_name "\"" ]= "\"" ${ macro_definition [*] } "\""
-}
-run_stack (){
-for (( input_index = 0 ; input_index < number_of_inputs ; input_index++ )) ; do
-input = "\"" ${ input_array [input_index] } "\""
-if [[ "\"" ${ macros [ ${ input ,, } ] } "\"" != "\"\"" ]] ; then
-input_array[input_index] = "\"" ${ macros [ ${ input ,, } ] } "\""
-fi
-done
-read -r -a input_array <<< "\"" ${ input_array [@] } "\""
-result = "\"\""
-stack =()
-for element in "\"" ${ input_array [@] } "\"" ; do
-current_stack_length = "\"" ${# stack [@] } "\""
-if [[ "\"" $element "\"" = ~ $re_numeric_operation_check ]] ; then
-check_stack_has_one_element
-check_stack_has_elements
-if [[ "\"" $element "\"" = "\"/\"" && "\"" ${ stack [0] } "\"" = "\"0\"" ]] ; then
-echo "\"divide by zero\""
-exit 1
-fi
-result = "\"$(" echo "\"" ${ stack [1] } " " $element " " ${ stack [0] } "\"" | bc )"
-stack =( "\"" $result "\"" "\"" ${ stack [@] :2 } "\"" )
-elif [[ "\"" ${ element ,, } "\"" = ~ $re_other_operations ]] ; then
-${ element ,, }
-elif [[ "\"" $element "\"" = ~ $re_numeric_check ]] ; then
-stack =( "\"" $element "\"" "\"" ${ stack [@] } "\"" )
-else
-echo "\"undefined operation\""
-exit 1
-fi
-done
-stack_length = "\"" ${# stack [@] } "\""
-result_for_output =()
-for (( index = stack_length-1 ; index >= 0 ; index-- )) ; do
-result_for_output+ =( "\"" ${ stack [index] } "\"" )
-done
-echo "\"" ${ result_for_output [*] } "\""
-}
-main (){
-re_numeric_check = '^[-]?[0-9]+'
-re_numeric_operation_check = '^[-+*/]$'
-re_other_operations = '^(dup|drop|swap|over)$'
-readarray -t input
-declare -A macros
-for input_line in "\"" ${ input [@] } "\"" ; do
-read -r -a input_array <<< "\"" $input_line "\""
-number_of_inputs = "\"" ${# input_array [@] } "\""
-if [[ "\"" ${ input_array [0] } "\"" = "\":\"" ]] ; then
-define_macro
-else
-run_stack
-fi
-done
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (if_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_2 == 1)) then
+        (command echo "only one value on the stack")
+        (command exit 1))))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (if_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_2 == 0)) then
+        (command echo "empty stack")
+        (command exit 1))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (command (command_name PLACEHOLDER_3))
+      (variable_assignment PLACEHOLDER_5
+        (array
+          (string
+            (expansion
+              (subscript PLACEHOLDER_5 0)))
+          (string
+            (expansion
+              (subscript PLACEHOLDER_5 @)))))))
+  (function_definition (function_name PLACEHOLDER_6)
+    (compound_statement
+      (command (command_name PLACEHOLDER_3))
+      (variable_assignment PLACEHOLDER_5
+        (array
+          (string
+            (expansion
+              (subscript PLACEHOLDER_5 @) : 1))))))
+  (function_definition (function_name PLACEHOLDER_7)
+    (compound_statement
+      (command (command_name PLACEHOLDER_3))
+      (command (command_name PLACEHOLDER_1))
+      (variable_assignment PLACEHOLDER_5
+        (array
+          (string
+            (expansion
+              (subscript PLACEHOLDER_5 1)))
+          (string
+            (expansion
+              (subscript PLACEHOLDER_5 0)))
+          (string
+            (expansion
+              (subscript PLACEHOLDER_5 @) : 2))))))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (command (command_name PLACEHOLDER_3))
+      (command (command_name PLACEHOLDER_1))
+      (variable_assignment PLACEHOLDER_5
+        (array
+          (string
+            (expansion
+              (subscript PLACEHOLDER_5 1)))
+          (string
+            (expansion
+              (subscript PLACEHOLDER_5 @)))))))
+  (function_definition (function_name PLACEHOLDER_9)
+    (compound_statement
+      (command read -r -a PLACEHOLDER_10
+        (herestring_redirect
+          (string
+            (simple_expansion PLACEHOLDER_11))))
+      (variable_assignment PLACEHOLDER_12
+        (string
+          (expansion #
+            (subscript PLACEHOLDER_10 @))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion
+                (subscript PLACEHOLDER_10 macro_length-1))) != ";")) then
+        (command echo "macro not terminated with semicolon")
+        (command exit 1)
+        (elif_clause
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_12 < 4)) then
+          (command echo "empty macro definition")
+          (command exit 1))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_10 1))) =~
+              (simple_expansion PLACEHOLDER_13))) then
+          (command echo "illegal operation")
+          (command exit 1)))
+      (variable_assignment PLACEHOLDER_14
+        (string
+          (expansion
+            (subscript PLACEHOLDER_10 1) ,,)))
+      (variable_assignment PLACEHOLDER_15
+        (array))
+      (for_statement PLACEHOLDER_16 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_10 @) : 2 :
+            (binary_expression PLACEHOLDER_12 - 3)))
+        (do_group
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_17
+                      (simple_expansion PLACEHOLDER_16)))) != "")) then
+            (variable_assignment PLACEHOLDER_15 +=
+              (array
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_17
+                      (simple_expansion PLACEHOLDER_16))))))
+            (else_clause
+              (variable_assignment PLACEHOLDER_15 +=
+                (array
+                  (string
+                    (simple_expansion PLACEHOLDER_16))))))))
+      (variable_assignment
+        (subscript PLACEHOLDER_17
+          (string
+            (simple_expansion PLACEHOLDER_14)))
+        (string
+          (expansion
+            (subscript PLACEHOLDER_15 *))))))
+  (function_definition (function_name PLACEHOLDER_18)
+    (compound_statement
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_19 0) ;
+        (binary_expression PLACEHOLDER_19 < PLACEHOLDER_20) ;
+        (postfix_expression PLACEHOLDER_19 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_21
+            (string
+              (expansion
+                (subscript PLACEHOLDER_22 PLACEHOLDER_19))))
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_17
+                      (expansion PLACEHOLDER_21 ,,)))) != "")) then
+            (variable_assignment
+              (subscript PLACEHOLDER_22 PLACEHOLDER_19)
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_17
+                    (expansion PLACEHOLDER_21 ,,))))))))
+      (command read -r -a PLACEHOLDER_22
+        (herestring_redirect
+          (string
+            (expansion
+              (subscript PLACEHOLDER_22 @)))))
+      (variable_assignment PLACEHOLDER_23 "")
+      (variable_assignment PLACEHOLDER_5
+        (array))
+      (for_statement PLACEHOLDER_24 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_22 @)))
+        (do_group
+          (variable_assignment PLACEHOLDER_2
+            (string
+              (expansion #
+                (subscript PLACEHOLDER_5 @))))
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_24)) =~
+                (simple_expansion PLACEHOLDER_25))) then
+            (command (command_name PLACEHOLDER_1))
+            (command (command_name PLACEHOLDER_3))
+            (if_statement
+              (test_command [[
+                (binary_expression
+                  (binary_expression
+                    (string
+                      (simple_expansion PLACEHOLDER_24)) =
+                    (binary_expression "/" &&
+                      (string
+                        (expansion
+                          (subscript PLACEHOLDER_5 0))))) = "0")) then
+              (command echo "divide by zero")
+              (command exit 1))
+            (variable_assignment PLACEHOLDER_23
+              (string
+                (command_substitution
+                  (pipeline
+                    (command echo
+                      (string
+                        (expansion
+                          (subscript PLACEHOLDER_5 1))
+                        (simple_expansion PLACEHOLDER_24)
+                        (expansion
+                          (subscript PLACEHOLDER_5 0)))) |
+                    (command bc)))))
+            (variable_assignment PLACEHOLDER_5
+              (array
+                (string
+                  (simple_expansion PLACEHOLDER_23))
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_5 @) : 2))))
+            (elif_clause
+              (test_command [[
+                (binary_expression
+                  (string
+                    (expansion PLACEHOLDER_24 ,,)) =~
+                  (simple_expansion PLACEHOLDER_26))) then
+              (command
+                (command_name
+                  (expansion PLACEHOLDER_24 ,,))))
+            (elif_clause
+              (test_command [[
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_24)) =~
+                  (simple_expansion PLACEHOLDER_13))) then
+              (variable_assignment PLACEHOLDER_5
+                (array
+                  (string
+                    (simple_expansion PLACEHOLDER_24))
+                  (string
+                    (expansion
+                      (subscript PLACEHOLDER_5 @))))))
+            (else_clause
+              (command echo "undefined operation")
+              (command exit 1)))))
+      (variable_assignment PLACEHOLDER_27
+        (string
+          (expansion #
+            (subscript PLACEHOLDER_5 @))))
+      (variable_assignment PLACEHOLDER_28
+        (array))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_29
+          (binary_expression PLACEHOLDER_27 - 1)) ;
+        (binary_expression PLACEHOLDER_29 >= 0) ;
+        (postfix_expression PLACEHOLDER_29 --)
+        (do_group
+          (variable_assignment PLACEHOLDER_28 +=
+            (array
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_5 PLACEHOLDER_29)))))))
+      (command echo
+        (string
+          (expansion
+            (subscript PLACEHOLDER_28 *))))))
+  (function_definition (function_name PLACEHOLDER_30)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_13 "^[-]?[0-9]+")
+      (variable_assignment PLACEHOLDER_25 "^[-+*/]$")
+      (variable_assignment PLACEHOLDER_26 "^(dup|drop|swap|over)$")
+      (command readarray -t PLACEHOLDER_21)
+      (declaration_command declare -A PLACEHOLDER_17)
+      (for_statement PLACEHOLDER_11 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_21 @)))
+        (do_group
+          (command read -r -a PLACEHOLDER_22
+            (herestring_redirect
+              (string
+                (simple_expansion PLACEHOLDER_11))))
+          (variable_assignment PLACEHOLDER_20
+            (string
+              (expansion #
+                (subscript PLACEHOLDER_22 @))))
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_22 0))) = ":")) then
+            (command (command_name PLACEHOLDER_9))
+            (else_clause
+              (command (command_name PLACEHOLDER_18))))))))
+  (command (command_name PLACEHOLDER_30)
+    (string
+      (simple_expansion @))))

@@ -1,19 +1,63 @@
-rule1 = '^(xr|yt|[aeiou])'
-rule2 = '^([^aeiou][^aeiouy]*)(.*)'
-rule3 = '^([^aeiou]*)(qu)(.*)'
-igpay_aysay () {
-if [[ $1 = ~ $rule1 ]] ; then
-printf '%say' "\"" $1 "\""
-elif [[ $1 = ~ $rule3 ]] ; then
-m =( "\"" ${ BASH_REMATCH [@] } "\"" )
-printf '%s%s%say' "\"" ${ m [3] } "\"" "\"" ${ m [1] } "\"" "\"" ${ m [2] } "\""
-elif [[ $1 = ~ $rule2 ]] ; then
-printf '%s%say' "\"" ${ BASH_REMATCH [2] } "\"" "\"" ${ BASH_REMATCH [1] } "\""
-fi
-}
-words =()
-while (( $# )) ; do
-words+ =( $( igpay_aysay "\"" $1 "\"" ) )
-shift
-done
-echo "\"" ${ words [@] } "\""
+(program
+  (variable_assignment PLACEHOLDER_1 "^(xr|yt|[aeiou])")
+  (variable_assignment PLACEHOLDER_2 "^([^aeiou][^aeiouy]*)(.*)")
+  (variable_assignment PLACEHOLDER_3 "^([^aeiou]*)(qu)(.*)")
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (simple_expansion 1) =~
+            (simple_expansion PLACEHOLDER_1))) then
+        (command printf "%say"
+          (string
+            (simple_expansion 1)))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (simple_expansion 1) =~
+              (simple_expansion PLACEHOLDER_3))) then
+          (variable_assignment PLACEHOLDER_5
+            (array
+              (string
+                (expansion
+                  (subscript BASH_REMATCH @)))))
+          (command printf "%s%s%say"
+            (string
+              (expansion
+                (subscript PLACEHOLDER_5 3)))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_5 1)))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_5 2)))))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (simple_expansion 1) =~
+              (simple_expansion PLACEHOLDER_2))) then
+          (command printf "%s%say"
+            (string
+              (expansion
+                (subscript BASH_REMATCH 2)))
+            (string
+              (expansion
+                (subscript BASH_REMATCH 1))))))))
+  (variable_assignment PLACEHOLDER_6
+    (array))
+  (while_statement
+    (arithmetic_command
+      (simple_expansion #))
+    (do_group
+      (variable_assignment PLACEHOLDER_6 +=
+        (array
+          (command_substitution
+            (command (command_name PLACEHOLDER_4)
+              (string
+                (simple_expansion 1))))))
+      (command shift)))
+  (command echo
+    (string
+      (expansion
+        (subscript PLACEHOLDER_6 @)))))

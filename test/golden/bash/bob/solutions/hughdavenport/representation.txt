@@ -1,17 +1,62 @@
-request = $1
-while [[ "\"" ${ request : ${# request } -1 } "\"" = ~ [ "$'\\n\\r \\t'" ] ]] ; do
-request = "\"" ${ request :0: ${# request } -1 } "\""
-done
-if [ ${# request } -eq 0 ] ; then
-echo "\"Fine. Be that way!\""
-elif [ "\"" ${ request : ${# request } -1 } "\"" == "\"?\"" ] ; then
-if [ "\"" ${ request ,, } "\"" != "\"" $request "\"" ] && [ "\"" ${ request ^^ } "\"" == "\"" $request "\"" ] ; then
-echo "\"Calm down, I know what I'm doing!\""
-else
-echo "\"Sure.\""
-fi
-elif [ "\"" ${ request ,, } "\"" != "\"" $request "\"" ] && [ "\"" ${ request ^^ } "\"" == "\"" $request "\"" ] ; then
-echo "\"Whoa, chill out!\""
-else
-echo "\"Whatever.\""
-fi
+(program
+  (variable_assignment PLACEHOLDER_1
+    (simple_expansion 1))
+  (while_statement
+    (test_command [[
+      (binary_expression
+        (string
+          (expansion PLACEHOLDER_1 :
+            (binary_expression
+              (expansion # PLACEHOLDER_1) - 1))) =~ "[$'\\n\\r \\t']"))
+    (do_group
+      (variable_assignment PLACEHOLDER_1
+        (string
+          (expansion PLACEHOLDER_1 : 0 :
+            (binary_expression
+              (expansion # PLACEHOLDER_1) - 1))))))
+  (if_statement
+    (test_command [
+      (binary_expression
+        (expansion # PLACEHOLDER_1) -eq 0)) then
+    (command echo "Fine. Be that way!")
+    (elif_clause
+      (test_command [
+        (binary_expression
+          (string
+            (expansion PLACEHOLDER_1 :
+              (binary_expression
+                (expansion # PLACEHOLDER_1) - 1))) == "?")) then
+      (if_statement
+        (list
+          (test_command [
+            (binary_expression
+              (string
+                (expansion PLACEHOLDER_1 ,,)) !=
+              (string
+                (simple_expansion PLACEHOLDER_1)))) &&
+          (test_command [
+            (binary_expression
+              (string
+                (expansion PLACEHOLDER_1 ^^)) ==
+              (string
+                (simple_expansion PLACEHOLDER_1))))) then
+        (command echo "Calm down, I know what I'm doing!")
+        (else_clause
+          (command echo "Sure."))))
+    (elif_clause
+      (list
+        (test_command [
+          (binary_expression
+            (string
+              (expansion PLACEHOLDER_1 ,,)) !=
+            (string
+              (simple_expansion PLACEHOLDER_1)))) &&
+        (test_command [
+          (binary_expression
+            (string
+              (expansion PLACEHOLDER_1 ^^)) ==
+            (string
+              (simple_expansion PLACEHOLDER_1))))) then
+      (command echo "Whoa, chill out!"))
+    (else_clause
+      (command echo "Whatever."))))

@@ -1,20 +1,82 @@
-[[ $# -ne 2 ]] && exit 1
-[[ "\"" $1 "\"" = ~ [ ^0-9, "\\[\\]\\ " ] || "\"" $2 "\"" = ~ [ ^0-9, "\\[\\]\\ " ] ]] && exit 1
-[ "\"" $1 "\"" = "\"" $2 "\"" ] && { echo "\"equal\"" ; exit 0 ; }
-[[ "\"" $1 "\"" = "\"[]\"" && "\"" $2 "\"" != "\"[]\"" ]] && { echo "\"sublist\"" ; exit 0 ; }
-[[ "\"" $2 "\"" = "\"[]\"" && "\"" $1 "\"" != "\"[]\"" ]] && { echo "\"superlist\"" ; exit 0 ; }
-num1 = "\"" ${ 1 //[\[\] ]/ } "\""
-num2 = "\"" ${ 2 //[\[\] ]/ } "\""
-if (( ${# num1 } > ${# num2 } )) ; then
-if [[ "\"," $num1 ," == * "\"," $num2 ," * ]] ; then
-echo "\"superlist\""
-else
-echo "\"unequal\""
-fi
-else
-if [[ "\"," $num2 ," == * "\"," $num1 ," * ]] ; then
-echo "\"sublist\""
-else
-echo "\"unequal\""
-fi
-fi
+(program
+  (list
+    (test_command [[
+      (binary_expression
+        (simple_expansion #) -ne 2)) &&
+    (command exit 1))
+  (list
+    (test_command [[
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (string
+              (simple_expansion 1)) =~ "[^0-9,\\[\\]\\ ]") ||
+          (string
+            (simple_expansion 2))) =~ "[^0-9,\\[\\]\\ ]")) &&
+    (command exit 1))
+  (list
+    (test_command [
+      (binary_expression
+        (string
+          (simple_expansion 1)) =
+        (string
+          (simple_expansion 2)))) &&
+    (compound_statement
+      (command echo "equal")
+      (command exit 0)))
+  (list
+    (test_command [[
+      (binary_expression
+        (string
+          (simple_expansion 1)) =
+        (binary_expression "[]" &&
+          (binary_expression
+            (string
+              (simple_expansion 2)) != "[]")))) &&
+    (compound_statement
+      (command echo "sublist")
+      (command exit 0)))
+  (list
+    (test_command [[
+      (binary_expression
+        (string
+          (simple_expansion 2)) =
+        (binary_expression "[]" &&
+          (binary_expression
+            (string
+              (simple_expansion 1)) != "[]")))) &&
+    (compound_statement
+      (command echo "superlist")
+      (command exit 0)))
+  (variable_assignment PLACEHOLDER_1
+    (string
+      (expansion 1 // "[\\[\\] ]" /)))
+  (variable_assignment PLACEHOLDER_2
+    (string
+      (expansion 2 // "[\\[\\] ]" /)))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (expansion # PLACEHOLDER_1) >
+        (expansion # PLACEHOLDER_2))) then
+    (if_statement
+      (test_command [[
+        (binary_expression
+          (string ","
+            (simple_expansion PLACEHOLDER_1) ",") == *
+          (string ","
+            (simple_expansion PLACEHOLDER_2) ",") *)) then
+      (command echo "superlist")
+      (else_clause
+        (command echo "unequal")))
+    (else_clause
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string ","
+              (simple_expansion PLACEHOLDER_2) ",") == *
+            (string ","
+              (simple_expansion PLACEHOLDER_1) ",") *)) then
+        (command echo "sublist")
+        (else_clause
+          (command echo "unequal"))))))

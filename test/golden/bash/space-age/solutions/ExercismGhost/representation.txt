@@ -1,15 +1,38 @@
-planet = $1
-age = $2
-earth_seconds = 31557600
-case "\"" $planet "\"" in
-Mercury ) multiplier = 0.2408467 ;;
-Venus ) multiplier = 0.61519726 ;;
-Earth ) multiplier = 1 ;;
-Mars ) multiplier = 1.8808158 ;;
-Jupiter ) multiplier = 11.862615 ;;
-Saturn ) multiplier = 29.447498 ;;
-Uranus ) multiplier = 84.016846 ;;
-Neptune ) multiplier = 164.79132 ;;
-* ) echo "'not a planet'" && exit 1 ;;
-esac
-printf '%.2f\n' "\"$(" bc -l <<< "\"" $age " / " $multiplier " / " $earth_seconds "\")\""
+(program
+  (variable_assignment PLACEHOLDER_1
+    (simple_expansion 1))
+  (variable_assignment PLACEHOLDER_2
+    (simple_expansion 2))
+  (variable_assignment PLACEHOLDER_3 31557600)
+  (case_statement
+    (string
+      (simple_expansion PLACEHOLDER_1))
+    (case_item Mercury
+      (variable_assignment PLACEHOLDER_4 0.2408467))
+    (case_item Venus
+      (variable_assignment PLACEHOLDER_4 0.61519726))
+    (case_item Earth
+      (variable_assignment PLACEHOLDER_4 1))
+    (case_item Mars
+      (variable_assignment PLACEHOLDER_4 1.8808158))
+    (case_item Jupiter
+      (variable_assignment PLACEHOLDER_4 11.862615))
+    (case_item Saturn
+      (variable_assignment PLACEHOLDER_4 29.447498))
+    (case_item Uranus
+      (variable_assignment PLACEHOLDER_4 84.016846))
+    (case_item Neptune
+      (variable_assignment PLACEHOLDER_4 164.79132))
+    (case_item *
+      (list
+        (command echo "not a planet") &&
+        (command exit 1))))
+  (command printf "%.2f\\n"
+    (string
+      (command_substitution
+        (command bc -l
+          (herestring_redirect
+            (string
+              (simple_expansion PLACEHOLDER_2) " / "
+              (simple_expansion PLACEHOLDER_4) " / "
+              (simple_expansion PLACEHOLDER_3))))))))

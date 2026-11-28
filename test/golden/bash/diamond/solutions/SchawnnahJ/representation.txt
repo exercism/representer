@@ -1,30 +1,106 @@
-set -o errexit
-set -o nounset
-LETTERS =( { A..Z } )
-ord () {
-LC_CTYPE = C printf '%d' "\"'" $1 "\""
-}
-START = "\"$(" ord A )"
-chr () {
-printf "\"%s\"" "\"" ${ LETTERS [ $(( $1 - START )) ] } "\""
-}
-write_spaces ()
-{
-for _ in $( seq 0 "\"" $1 "\")" ; do printf "\" \"" ; done
-}
-write_row ()
-{
-char = "\"$(" chr "\"" $ch "\")\""
-outer_spacing = "\"$(" write_spaces "\"" $(( stop - ch - 1 )) "\")\""
-inner_spacing = "\"$(" write_spaces "\"" $(( ( ch - START - 1 ) * 2 )) "\")\""
-printf "\"%s%s\"" "\"" $outer_spacing "\"" "\"" $char "\""
-[ "\"" $ch "\"" != "\"" $START "\"" ] && printf "\"%s%s\"" "\"" $inner_spacing "\"" "\"" $char "\""
-printf "\"%s\\n\"" "\"" $outer_spacing "\""
-}
-main () {
-stop = "\"$(" ord "\"" $1 "\")\""
-for ch in $( seq "\"" $START "\"" "\"" $stop "\")" $( seq "\"" $(( stop - 1 )) "\"" -1 "\"" $START "\")" ; do
-write_row
-done
-}
-main "\"" $@ "\""
+(program
+  (command set -o errexit)
+  (command set -o nounset)
+  (variable_assignment PLACEHOLDER_1
+    (array
+      (concatenation { A..Z })))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (command
+        (variable_assignment LC_CTYPE C) printf "%d"
+        (string "'"
+          (simple_expansion 1)))))
+  (variable_assignment PLACEHOLDER_3
+    (string
+      (command_substitution
+        (command (command_name PLACEHOLDER_2) A))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (command printf "%s"
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1
+              (arithmetic_expansion
+                (binary_expression
+                  (simple_expansion 1) - PLACEHOLDER_3))))))))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (for_statement PLACEHOLDER_6 in
+        (command_substitution
+          (command seq 0
+            (string
+              (simple_expansion 1))))
+        (do_group
+          (command printf "")))))
+  (function_definition (function_name PLACEHOLDER_7)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_8
+        (string
+          (command_substitution
+            (command (command_name PLACEHOLDER_4)
+              (string
+                (simple_expansion PLACEHOLDER_9))))))
+      (variable_assignment PLACEHOLDER_10
+        (string
+          (command_substitution
+            (command (command_name PLACEHOLDER_5)
+              (string
+                (arithmetic_expansion
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_11 - PLACEHOLDER_9) - 1)))))))
+      (variable_assignment PLACEHOLDER_12
+        (string
+          (command_substitution
+            (command (command_name PLACEHOLDER_5)
+              (string
+                (arithmetic_expansion
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_9 - PLACEHOLDER_3) - 1) * 2)))))))
+      (command printf "%s%s"
+        (string
+          (simple_expansion PLACEHOLDER_10))
+        (string
+          (simple_expansion PLACEHOLDER_8)))
+      (list
+        (test_command [
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_9)) !=
+            (string
+              (simple_expansion PLACEHOLDER_3)))) &&
+        (command printf "%s%s"
+          (string
+            (simple_expansion PLACEHOLDER_12))
+          (string
+            (simple_expansion PLACEHOLDER_8))))
+      (command printf "%s\\n"
+        (string
+          (simple_expansion PLACEHOLDER_10)))))
+  (function_definition (function_name PLACEHOLDER_13)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_11
+        (string
+          (command_substitution
+            (command (command_name PLACEHOLDER_2)
+              (string
+                (simple_expansion 1))))))
+      (for_statement PLACEHOLDER_9 in
+        (command_substitution
+          (command seq
+            (string
+              (simple_expansion PLACEHOLDER_3))
+            (string
+              (simple_expansion PLACEHOLDER_11))))
+        (command_substitution
+          (command seq
+            (string
+              (arithmetic_expansion
+                (binary_expression PLACEHOLDER_11 - 1))) -1
+            (string
+              (simple_expansion PLACEHOLDER_3))))
+        (do_group
+          (command (command_name PLACEHOLDER_7))))))
+  (command (command_name PLACEHOLDER_13)
+    (string
+      (simple_expansion @))))

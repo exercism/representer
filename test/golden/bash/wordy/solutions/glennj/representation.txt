@@ -1,195 +1,96 @@
-checkBashVersion () {
-local -i major minor
-IFS = . read -r major minor <<< "\"" $1 "\""
-local feature = ${ 2 :+ "\" for " $2 "\"" }
-if (( BASH_VERSINFO[0] < major )) ||
-(( BASH_VERSINFO[0] == major && BASH_VERSINFO[1] < minor ))
-then
-die -s 254 "\"Bash version " $1 " is required" ${ feature } ": this is " $BASH_VERSION "\""
-fi
-}
-bashversion () {
-echo $(( 10 * BASH_VERSINFO[0] + BASH_VERSINFO[1] ))
-}
-die () {
-local status = 1
-local OPTIND OPTARG
-while getopts s: opt ; do
-[[ $opt == "\"s\"" ]] && status = $OPTARG
-done
-echo "\"" ${ * :OPTIND } "\"" > &2
-exit "\"" $status "\""
-}
-assert () {
-local mode = A
-local OPTIND OPTARG opt
-while getopts :hC opt ; do
-case $opt in
-h ) assert::usage
-return
-;;
-C ) mode = C ;;
-* ) : ;;
-esac
-done
-shift $(( OPTIND - 1 ))
-if (( $# < 2 )) ; then
-assert::usage
-return 1
-fi
-local msg = "\"" ${ * : -1 :1 } "\""
-local args =( "\"" ${ @ :1: $# - 1 } "\"" )
-case $mode in
-A )
-(( "\"" ${ args [@] } "\"" )) || die "\"" $msg "\""
-;;
-C )
-"\"" ${ args [@] } "\"" || die "\"" $msg "\""
-;;
-esac
-}
-assert::usage () {
-cat > &2 <<- END_USAGE "\n\t\tUsage: " ${ FUNCNAME [1] } " [-h] [-C] arg [...] \"message\"\n\t\t\n\t\tWithout -C, 'arg ...' is an arithmetic expression to evaluate.\n\t\tWith    -C, 'arg ...' is a command to execute.\n" END_USAGE
-}
-refute () {
-local msg = ${ * : -1 :1 }
-if _ = $( assert "\"" $@ "\"" 2>&1 ) ; then
-die "\"" $msg "\""
-fi
-}
-with_shopt () {
-local setting = $1 script = $2
-local current_setting
-read -ra current_setting < < ( shopt -p "\"" $setting "\"" )
-shopt -s "\"" $setting "\""
-eval "\"" $script "\""
-local rc = $?
-"\"" ${ current_setting [@] } "\""
-return "\"" $rc "\""
-}
-true_or_false () {
-(( $? == 0 )) && echo true || echo false
-}
-if ! type -t with_shopt > /dev/null ; then
-source "\"$(" dirname "\"" ${ BASH_SOURCE [0] } "\")\"" /utils.bash
-fi
-str::ord () {
-printf "\"%d\"" "\"\\\"" $1 "\""
-}
-str::chr () {
-printf "\"\\x$(" printf "\"%x\"" "\"" $1 "\")\""
-}
-str::join () {
-local IFS = $1
-shift
-echo "\"" $* "\""
-}
-str::chars () {
-local -n chars = $2
-[[ $1 = ~ ${ 1 //?/(.) } ]]
-chars =( "\"" ${ BASH_REMATCH [@] :1 } "\"" )
-}
-str::isInt () {
-local str = $1
-with_shopt extglob "'[[ $str == ?([-+])+([[:digit:]]) ]]'"
-}
-str::isFloat () {
-local str = $1
-with_shopt extglob "'\n        [[ $str == ?([-+])+([[:digit:]])?(.*([[:digit:]])) ]] ||\n        [[ $str == ?([-+])*([[:digit:]]).+([[:digit:]]) ]]\n    '"
-}
-str::repeat () {
-local char = $1 count = $2
-local result
-printf -v result "\"%*s\"" "\"" $count "\"" "\"\""
-echo "\"" ${ result // / $char } "\""
-}
-str::putAt () {
-local -i idx = $1
-local char = ${ 2 :- }
-local -n __str = $3
-if (( 0 < = idx && idx < ${# __str } )) ; then
-__str = ${ __str :0:idx }${ char }${ __str :idx+1 }
-fi
-}
-str::isPalindrome () {
-local word = $1
-local -i i j len = ${# word }
-for (( i = len / 2 ; i >= 0 ; i-- )) ; do
-j = $(( len - i - 1 ))
-[[ ${ word :i:1 } == "\"" ${ word :j:1 } "\"" ]] || return 1
-done
-}
-str::reverse () {
-local reversed = "\"\""
-for (( i = ${# 1 } - 1 ; i >= 0 ; i-- )) ; do
-reversed+ = "\"" ${ 1 :i:1 } "\""
-done
-echo "\"" $reversed "\""
-}
-str::trimright () {
-local str = $1 chars = ${ 2 :- [ :space:] }
-with_shopt extglob "'echo \"${str/%+([$chars])/}\"'"
-}
-str::trimleft () {
-local str = $1 chars = ${ 2 :- [ :space:] }
-with_shopt extglob "'echo \"${str/#+([$chars])/}\"'"
-}
-str::trim () {
-str::trimleft "\"$(" str::trimright "\"" $1 "\"" "\"" $2 "\")\"" "\"" $2 "\""
-}
-str::index () {
-local needle = $1 haystack = $2
-local prefix = ${ haystack %% "\"" $needle "\"" * }
-[[ "\"" $prefix "\"" == "\"" $haystack "\"" ]] && echo -1 || echo "\"" ${# prefix } "\""
-}
-str::commify () {
-local n = $1
-local IFS = ${ 2 :- , }
-local size = ${ 3 :- 3 }
-local -a groups
-while [[ $n = ~ ( . { 1, $size }) $ ]] ; do
-groups =( "\"" ${ BASH_REMATCH [1] } "\"" "\"" ${ groups [@] } "\"" )
-n = ${ n % ${ BASH_REMATCH [1] }}
-done
-echo "\"" ${ groups [*] } "\""
-}
-source ./utils.bash
-source ./utils_string.bash
-checkBashVersion 4.3 namerefs
-subst () {
-local -n q = $1
-while [[ $q == * [[ :alpha:]] * ]] ; do
-prev = $q
-q = ${ q //plus/+ }
-q = ${ q //minus/- }
-q = ${ q //multiplied by/* }
-q = ${ q //divided by/\/ }
-if [[ $prev == "\"" $q "\"" ]] ; then
-die "\"unknown operation\""
-fi
-done
-}
-evaluate () {
-local -n q = $1
-while true ; do
-read -r a op b rest <<< "\"" $q "\""
-str::isInt "\"" $a "\"" || die "\"syntax error\""
-if [[ -z $op ]] ; then
-echo "\"" $a "\""
-return
-fi
-[[ $op == [ -+ * /] ]] || die "\"syntax error\""
-str::isInt "\"" $b "\"" || die "\"syntax error\""
-q = $(( a $op b ))
-[[ -n $rest ]] && q+ = "\" " $rest "\""
-done
-}
-main () {
-local -l question = $1
-shopt -s extglob
-question = ${ question ##*([[ :blank:]] )what is*([[ :blank:]] ) }
-question = ${ question %%*([[ :blank:]] )?*([[ :blank:]] ) }
-[[ -n $question ]] || die "\"syntax error\""
-subst question && evaluate question
-}
-main "\"" $@ "\""
+(program
+  (command checkBashVersion 4.3 namerefs)
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_2
+          (simple_expansion 1)))
+      (while_statement
+        (test_command [[
+          (binary_expression
+            (simple_expansion PLACEHOLDER_2) == *[[:alpha:]]*))
+        (do_group
+          (variable_assignment PLACEHOLDER_3
+            (simple_expansion PLACEHOLDER_2))
+          (variable_assignment PLACEHOLDER_2
+            (expansion PLACEHOLDER_2 // plus / +))
+          (variable_assignment PLACEHOLDER_2
+            (expansion PLACEHOLDER_2 // minus / -))
+          (variable_assignment PLACEHOLDER_2
+            (expansion PLACEHOLDER_2 // "multiplied by" / *))
+          (variable_assignment PLACEHOLDER_2
+            (expansion PLACEHOLDER_2 // "divided by" / "\\/"))
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (simple_expansion PLACEHOLDER_3) ==
+                (string
+                  (simple_expansion PLACEHOLDER_2)))) then
+            (command die "unknown operation"))))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (declaration_command local -n
+        (variable_assignment PLACEHOLDER_2
+          (simple_expansion 1)))
+      (while_statement
+        (command true)
+        (do_group
+          (command read -r PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8
+            (herestring_redirect
+              (string
+                (simple_expansion PLACEHOLDER_2))))
+          (list
+            (command str::isInt
+              (string
+                (simple_expansion PLACEHOLDER_5))) ||
+            (command die "syntax error"))
+          (if_statement
+            (test_command [[
+              (unary_expression -z
+                (simple_expansion PLACEHOLDER_6))) then
+            (command echo
+              (string
+                (simple_expansion PLACEHOLDER_5)))
+            (command return))
+          (list
+            (test_command [[
+              (binary_expression
+                (simple_expansion PLACEHOLDER_6) == [-+*/])) ||
+            (command die "syntax error"))
+          (list
+            (command str::isInt
+              (string
+                (simple_expansion PLACEHOLDER_7))) ||
+            (command die "syntax error"))
+          (variable_assignment PLACEHOLDER_2
+            (arithmetic_expansion
+              (binary_expression PLACEHOLDER_5
+                (simple_expansion PLACEHOLDER_6) PLACEHOLDER_7)))
+          (list
+            (test_command [[
+              (unary_expression -n
+                (simple_expansion PLACEHOLDER_8))) &&
+            (variable_assignment PLACEHOLDER_2 +=
+              (string
+                (simple_expansion PLACEHOLDER_8))))))))
+  (function_definition (function_name PLACEHOLDER_9)
+    (compound_statement
+      (declaration_command local -l
+        (variable_assignment PLACEHOLDER_10
+          (simple_expansion 1)))
+      (command shopt -s extglob)
+      (variable_assignment PLACEHOLDER_10
+        (expansion PLACEHOLDER_10 ## "*([[:blank:]])what is*([[:blank:]])"))
+      (variable_assignment PLACEHOLDER_10
+        (expansion PLACEHOLDER_10 %% "*([[:blank:]])?*([[:blank:]])"))
+      (list
+        (test_command [[
+          (unary_expression -n
+            (simple_expansion PLACEHOLDER_10))) ||
+        (command die "syntax error"))
+      (list
+        (command (command_name PLACEHOLDER_1) question) &&
+        (command (command_name PLACEHOLDER_4) question))))
+  (command (command_name PLACEHOLDER_9)
+    (string
+      (simple_expansion @))))

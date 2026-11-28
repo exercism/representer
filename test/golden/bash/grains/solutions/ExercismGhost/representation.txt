@@ -1,9 +1,23 @@
-if [[ $1 == total ]] ; then
-printf '%u' -1
-else
-if (( $1 < 1 || $1 > 64 )) ; then
-echo "'Error: invalid input'" 1>&2
-exit 1
-fi
-printf '%u' $(( 1 << ( $1 - 1 )) )
-fi
+(program
+  (if_statement
+    (test_command [[
+      (binary_expression
+        (simple_expansion 1) == total)) then
+    (command printf "%u" -1)
+    (else_clause
+      (if_statement
+        (arithmetic_command
+          (binary_expression
+            (binary_expression
+              (simple_expansion 1) < 1) ||
+            (binary_expression
+              (simple_expansion 1) > 64))) then
+        (redirected_statement
+          (command echo "Error: invalid input")
+          (file_redirect 1 >& 2))
+        (command exit 1))
+      (command printf "%u"
+        (arithmetic_expansion
+          (binary_expression 1 <<
+            (binary_expression
+              (simple_expansion 1) - 1)))))))

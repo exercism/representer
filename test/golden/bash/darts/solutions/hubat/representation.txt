@@ -1,36 +1,93 @@
-is_a_number () {
-[[ $1 = ~ ^[+-]? ([ 0-9]+ ([ .][0-9] * ) ?|[.][0-9]+ $) ]]
-}
-calculate_distance_to_middle () {
-local x = $1
-local y = $2
-local distance
-distance = $( bc -l <<< "\"sqrt(" $x "^2 + " $y ^2)")
-echo "\"" $distance "\""
-}
-calculate_earned_points_by_dart () {
-local distance_to_center
-distance_to_center = "\"$(" calculate_distance_to_middle "\"" $1 "\"" "\"" $2 "\")\""
-if (( $( bc <<< "\"" $distance_to_center " <= 1\")" )) ; then
-echo 10
-elif (( $( bc <<< "\"" $distance_to_center " <= 5\")" )) ; then
-echo 5
-elif (( $( bc <<< "\"" $distance_to_center " <= 10\")" )) ; then
-echo 1
-else
-echo 0
-fi
-}
-if (( $# != 2 )) ; then
-echo "\"Usage: <x> <y>\"" > &2
-exit 1
-fi
-if ! is_a_number "\"" $1 "\"" ; then
-echo "\"error: x is not a number\"" > &2
-exit 1
-fi
-if ! is_a_number "\"" $2 "\"" ; then
-echo "\"error: y is not a number\"" > &2
-exit 1
-fi
-calculate_earned_points_by_dart "\"" $1 "\"" "\"" $2 "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (test_command [[
+        (binary_expression
+          (simple_expansion 1) =~ "^[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+$)"))))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3
+          (simple_expansion 1)))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_4
+          (simple_expansion 2)))
+      (declaration_command local PLACEHOLDER_5)
+      (variable_assignment PLACEHOLDER_5
+        (command_substitution
+          (command bc -l
+            (herestring_redirect
+              (string "sqrt("
+                (simple_expansion PLACEHOLDER_3) "^2 + "
+                (simple_expansion PLACEHOLDER_4) "^2)")))))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_5)))))
+  (function_definition (function_name PLACEHOLDER_6)
+    (compound_statement
+      (declaration_command local PLACEHOLDER_7)
+      (variable_assignment PLACEHOLDER_7
+        (string
+          (command_substitution
+            (command (command_name PLACEHOLDER_2)
+              (string
+                (simple_expansion 1))
+              (string
+                (simple_expansion 2))))))
+      (if_statement
+        (arithmetic_command
+          (command_substitution
+            (command bc
+              (herestring_redirect
+                (string
+                  (simple_expansion PLACEHOLDER_7) " <= 1"))))) then
+        (command echo 10)
+        (elif_clause
+          (arithmetic_command
+            (command_substitution
+              (command bc
+                (herestring_redirect
+                  (string
+                    (simple_expansion PLACEHOLDER_7) " <= 5"))))) then
+          (command echo 5))
+        (elif_clause
+          (arithmetic_command
+            (command_substitution
+              (command bc
+                (herestring_redirect
+                  (string
+                    (simple_expansion PLACEHOLDER_7) " <= 10"))))) then
+          (command echo 1))
+        (else_clause
+          (command echo 0)))))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (simple_expansion #) != 2)) then
+    (redirected_statement
+      (command echo "Usage: <x> <y>")
+      (file_redirect >& 2))
+    (command exit 1))
+  (if_statement
+    (negated_command
+      (command (command_name PLACEHOLDER_1)
+        (string
+          (simple_expansion 1)))) then
+    (redirected_statement
+      (command echo "error: x is not a number")
+      (file_redirect >& 2))
+    (command exit 1))
+  (if_statement
+    (negated_command
+      (command (command_name PLACEHOLDER_1)
+        (string
+          (simple_expansion 2)))) then
+    (redirected_statement
+      (command echo "error: y is not a number")
+      (file_redirect >& 2))
+    (command exit 1))
+  (command (command_name PLACEHOLDER_6)
+    (string
+      (simple_expansion 1))
+    (string
+      (simple_expansion 2))))

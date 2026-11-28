@@ -1,40 +1,108 @@
-declare -ra objects =([ 1] = fly spider bird cat dog goat cow horse )
-declare -rA second_lines =(
-[ "\"spider\"" ]= "\"It wriggled and jiggled and tickled inside her.\""
-[ "\"bird\"" ]= "\"How absurd to swallow a bird!\""
-[ "\"cat\"" ]= "\"Imagine that, to swallow a cat!\""
-[ "\"dog\"" ]= "\"What a hog, to swallow a dog!\""
-[ "\"goat\"" ]= "\"Just opened her throat and swallowed a goat!\""
-[ "\"cow\"" ]= "\"I don't know how she swallowed a cow!\""
-)
-sing () {
-local -r swallowed = "\"" ${ objects [ $1 ] } "\""
-local -r second_line = "\"" ${ second_lines [ $swallowed ] } "\""
-local -i i
-echo I know an old lady who swallowed a "\"" $swallowed "\"" .
-[[ -z $second_line ]] || echo "\"" $second_line "\""
-for (( i = $1 ; i < 8 && i > 1 ; i-- )) ; do
-printf "\"She swallowed the %s to catch the %s\"" "\"" ${ objects [ $i ] } "\"" "\"" ${ objects [ $i - 1] } "\""
-(( i == 3 )) && echo -n "\" that wriggled and jiggled and tickled inside her\""
-echo "\".\""
-done
-case $1 in
-8 ) echo "\"She's dead, of course!\"" ;;
-* ) echo "\"I don't know why she swallowed the fly. Perhaps she'll die.\"" ;;
-esac
-}
-main () {
-local -i i
-for (( i = "\"" $1 "\"" ; i < "\"" $2 "\"" ; i++ )) ; do
-sing "\"" $i "\""
-echo
-done
-sing "\"" $2 "\""
-}
-abort () {
-echo "\"" $* "\""
-exit 1
-}
-(( $# == 2 )) || abort 2 arguments expected
-(( $1 < = $2 )) || abort Start must be less than or equal to End
-main "\"" $@ "\""
+(program
+  (declaration_command declare -ra
+    (variable_assignment PLACEHOLDER_1
+      (array
+        (concatenation [ 1 ] =fly) spider bird cat dog goat cow horse)))
+  (declaration_command declare -rA
+    (variable_assignment PLACEHOLDER_2
+      (array
+        (concatenation [ "spider" ] = "It wriggled and jiggled and tickled inside her.")
+        (concatenation [ "bird" ] = "How absurd to swallow a bird!")
+        (concatenation [ "cat" ] = "Imagine that, to swallow a cat!")
+        (concatenation [ "dog" ] = "What a hog, to swallow a dog!")
+        (concatenation [ "goat" ] = "Just opened her throat and swallowed a goat!")
+        (concatenation [ "cow" ] = "I don't know how she swallowed a cow!"))))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (declaration_command local -r
+        (variable_assignment PLACEHOLDER_4
+          (string
+            (expansion
+              (subscript PLACEHOLDER_1
+                (simple_expansion 1))))))
+      (declaration_command local -r
+        (variable_assignment PLACEHOLDER_5
+          (string
+            (expansion
+              (subscript PLACEHOLDER_2
+                (simple_expansion PLACEHOLDER_4))))))
+      (declaration_command local -i PLACEHOLDER_6)
+      (command echo I know an old lady who swallowed a
+        (concatenation
+          (string
+            (simple_expansion PLACEHOLDER_4)) .))
+      (list
+        (test_command [[
+          (unary_expression -z
+            (simple_expansion PLACEHOLDER_5))) ||
+        (command echo
+          (string
+            (simple_expansion PLACEHOLDER_5))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_6
+          (simple_expansion 1)) ;
+        (binary_expression
+          (binary_expression PLACEHOLDER_6 < 8) &&
+          (binary_expression PLACEHOLDER_6 > 1)) ;
+        (postfix_expression PLACEHOLDER_6 --)
+        (do_group
+          (command printf "She swallowed the %s to catch the %s"
+            (string
+              (expansion
+                (subscript PLACEHOLDER_1
+                  (simple_expansion PLACEHOLDER_6))))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_1
+                  (binary_expression
+                    (simple_expansion PLACEHOLDER_6) - 1)))))
+          (list
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_6 == 3)) &&
+            (command echo -n " that wriggled and jiggled and tickled inside her"))
+          (command echo ".")))
+      (case_statement
+        (simple_expansion 1)
+        (case_item 8
+          (command echo "She's dead, of course!"))
+        (case_item *
+          (command echo "I don't know why she swallowed the fly. Perhaps she'll die.")))))
+  (function_definition (function_name PLACEHOLDER_7)
+    (compound_statement
+      (declaration_command local -i PLACEHOLDER_6)
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_6
+          (string
+            (simple_expansion 1))) ;
+        (binary_expression PLACEHOLDER_6 <
+          (string
+            (simple_expansion 2))) ;
+        (postfix_expression PLACEHOLDER_6 ++)
+        (do_group
+          (command (command_name PLACEHOLDER_3)
+            (string
+              (simple_expansion PLACEHOLDER_6)))
+          (command echo)))
+      (command (command_name PLACEHOLDER_3)
+        (string
+          (simple_expansion 2)))))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (command echo
+        (string
+          (simple_expansion *)))
+      (command exit 1)))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (simple_expansion #) == 2)) ||
+    (command (command_name PLACEHOLDER_8) 2 arguments expected))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (simple_expansion 1) <=
+        (simple_expansion 2))) ||
+    (command (command_name PLACEHOLDER_8) Start must be less than or equal to End))
+  (command (command_name PLACEHOLDER_7)
+    (string
+      (simple_expansion @))))

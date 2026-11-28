@@ -1,17 +1,82 @@
-IFS = "\",\""
-read -r -a pos1 <<< "\"" $2 "\""
-read -r -a pos2 <<< "\"" $4 "\""
-row1 = "\"" ${ pos1 [0] } "\""
-col1 = "\"" ${ pos1 [1] } "\""
-row2 = "\"" ${ pos2 [0] } "\""
-col2 = "\"" ${ pos2 [1] } "\""
-(( row1 < 0 || row2 < 0 )) && echo "\"row not positive\"" && exit 1
-(( col1 < 0 || col2 < 0 )) && echo "\"column not positive\"" && exit 1
-(( row1 > 7 || row2 > 7 )) && echo "\"row not on board\"" && exit 1
-(( col1 > 7 || col2 > 7 )) && echo "\"column not on board\"" && exit 1
-(( row1 == row2 && col1 == col2 )) && echo "\"same position\"" && exit 1
-if (( row1 == row2 || col1 == col2 || row1 - row2 == col1 - col2 || row1 - row2 == col2 - col1 )) ; then
-echo true
-else
-echo false
-fi
+(program
+  (variable_assignment IFS ",")
+  (command read -r -a PLACEHOLDER_1
+    (herestring_redirect
+      (string
+        (simple_expansion 2))))
+  (command read -r -a PLACEHOLDER_2
+    (herestring_redirect
+      (string
+        (simple_expansion 4))))
+  (variable_assignment PLACEHOLDER_3
+    (string
+      (expansion
+        (subscript PLACEHOLDER_1 0))))
+  (variable_assignment PLACEHOLDER_4
+    (string
+      (expansion
+        (subscript PLACEHOLDER_1 1))))
+  (variable_assignment PLACEHOLDER_5
+    (string
+      (expansion
+        (subscript PLACEHOLDER_2 0))))
+  (variable_assignment PLACEHOLDER_6
+    (string
+      (expansion
+        (subscript PLACEHOLDER_2 1))))
+  (list
+    (list
+      (arithmetic_command
+        (binary_expression
+          (binary_expression PLACEHOLDER_3 < 0) ||
+          (binary_expression PLACEHOLDER_5 < 0))) &&
+      (command echo "row not positive")) &&
+    (command exit 1))
+  (list
+    (list
+      (arithmetic_command
+        (binary_expression
+          (binary_expression PLACEHOLDER_4 < 0) ||
+          (binary_expression PLACEHOLDER_6 < 0))) &&
+      (command echo "column not positive")) &&
+    (command exit 1))
+  (list
+    (list
+      (arithmetic_command
+        (binary_expression
+          (binary_expression PLACEHOLDER_3 > 7) ||
+          (binary_expression PLACEHOLDER_5 > 7))) &&
+      (command echo "row not on board")) &&
+    (command exit 1))
+  (list
+    (list
+      (arithmetic_command
+        (binary_expression
+          (binary_expression PLACEHOLDER_4 > 7) ||
+          (binary_expression PLACEHOLDER_6 > 7))) &&
+      (command echo "column not on board")) &&
+    (command exit 1))
+  (list
+    (list
+      (arithmetic_command
+        (binary_expression
+          (binary_expression PLACEHOLDER_3 == PLACEHOLDER_5) &&
+          (binary_expression PLACEHOLDER_4 == PLACEHOLDER_6))) &&
+      (command echo "same position")) &&
+    (command exit 1))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_3 == PLACEHOLDER_5) ||
+            (binary_expression PLACEHOLDER_4 == PLACEHOLDER_6)) ||
+          (binary_expression
+            (binary_expression PLACEHOLDER_3 - PLACEHOLDER_5) ==
+            (binary_expression PLACEHOLDER_4 - PLACEHOLDER_6))) ||
+        (binary_expression
+          (binary_expression PLACEHOLDER_3 - PLACEHOLDER_5) ==
+          (binary_expression PLACEHOLDER_6 - PLACEHOLDER_4)))) then
+    (command echo true)
+    (else_clause
+      (command echo false))))

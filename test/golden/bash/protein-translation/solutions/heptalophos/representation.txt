@@ -1,27 +1,79 @@
-errexit () { echo "\"" $* "\"" > &2 && exit 1 ; }
-protein_translate () {
-local rna = "\"" $1 "\"" codon protein
-local -a proteins
-local -rA codons_map =(
-[ AUG] = Methionine
-[ UUU] = Phenylalanine [ UUC] = Phenylalanine
-[ UUA] = Leucine [ UUG] = Leucine
-[ UCU] = Serine [ UCC] = Serine [ UCA] = Serine [ UCG] = Serine
-[ UAU] = Tyrosine [ UAC] = Tyrosine
-[ UGU] = Cysteine [ UGC] = Cysteine
-[ UGG] = Tryptophan
-[ UAA] = STOP [ UAG] = STOP [ UGA] = STOP
-)
-while [[ -n $rna ]]
-do
-codon = ${ rna :0:3 }
-protein = ${ codons_map [ $codon ] }
-[[ -n $protein ]] || errexit "\"Invalid codon\""
-[[ $protein == STOP ]] && break
-proteins+ =( $protein )
-rna = ${ rna :3 }
-done
-printf '%s' "\"" ${ proteins [*] } "\""
-}
-main () { protein_translate "\"" $1 "\"" && exit 0 ; }
-set -e && main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (list
+        (redirected_statement
+          (command echo
+            (string
+              (simple_expansion *)))
+          (file_redirect >& 2)) &&
+        (command exit 1))))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3
+          (string
+            (simple_expansion 1))) PLACEHOLDER_4 PLACEHOLDER_5)
+      (declaration_command local -a PLACEHOLDER_6)
+      (declaration_command local -rA
+        (variable_assignment PLACEHOLDER_7
+          (array
+            (concatenation [ AUG ] =Methionine)
+            (concatenation [ UUU ] =Phenylalanine)
+            (concatenation [ UUC ] =Phenylalanine)
+            (concatenation [ UUA ] =Leucine)
+            (concatenation [ UUG ] =Leucine)
+            (concatenation [ UCU ] =Serine)
+            (concatenation [ UCC ] =Serine)
+            (concatenation [ UCA ] =Serine)
+            (concatenation [ UCG ] =Serine)
+            (concatenation [ UAU ] =Tyrosine)
+            (concatenation [ UAC ] =Tyrosine)
+            (concatenation [ UGU ] =Cysteine)
+            (concatenation [ UGC ] =Cysteine)
+            (concatenation [ UGG ] =Tryptophan)
+            (concatenation [ UAA ] =STOP)
+            (concatenation [ UAG ] =STOP)
+            (concatenation [ UGA ] =STOP))))
+      (while_statement
+        (test_command [[
+          (unary_expression -n
+            (simple_expansion PLACEHOLDER_3)))
+        (do_group
+          (variable_assignment PLACEHOLDER_4
+            (expansion PLACEHOLDER_3 : 0 : 3))
+          (variable_assignment PLACEHOLDER_5
+            (expansion
+              (subscript PLACEHOLDER_7
+                (simple_expansion PLACEHOLDER_4))))
+          (list
+            (test_command [[
+              (unary_expression -n
+                (simple_expansion PLACEHOLDER_5))) ||
+            (command (command_name PLACEHOLDER_1) "Invalid codon"))
+          (list
+            (test_command [[
+              (binary_expression
+                (simple_expansion PLACEHOLDER_5) == STOP)) &&
+            (command break))
+          (variable_assignment PLACEHOLDER_6 +=
+            (array
+              (simple_expansion PLACEHOLDER_5)))
+          (variable_assignment PLACEHOLDER_3
+            (expansion PLACEHOLDER_3 : 3))))
+      (command printf "%s"
+        (string
+          (expansion
+            (subscript PLACEHOLDER_6 *))))))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (list
+        (command (command_name PLACEHOLDER_2)
+          (string
+            (simple_expansion 1))) &&
+        (command exit 0))))
+  (list
+    (command set -e) &&
+    (command (command_name PLACEHOLDER_8)
+      (string
+        (simple_expansion @)))))

@@ -1,40 +1,121 @@
-declare -a count =( 0 ) using =( 0 )
-target = $1 ; shift ; coins =( $@ )
-die () { echo "\"" $@ "\"" ; exit 1 ; }
-compute () {
-for (( i = 1 ; i < = target ; i++ )) ; do
-min = 0
-count[i] = using[i] =
-for n in "\"" ${ coins [@] } "\"" ; do
-(( n > i )) && continue
-[[ ${ count [i-n] } ]] || continue
-maybe = $(( ${ count [i-n] } + 1 ))
-if (( ! min )) || (( maybe < min )) ; then
-min = $maybe
-count[i] = $maybe
-using[i] = $n
-fi
-done
-done
-}
-show () {
-[[ -z ${ count [target] } ]] && die "\"can't make target with given coins\""
-used =()
-while (( target > 0 )) ; do
-used+ =( "\"" ${ using [target] } "\"" )
-(( target - = "\"" ${ using [target] } "\"" ))
-done
-sorted =()
-for n in "\"" ${ coins [@] } "\"" ; do
-for u in "\"" ${ used [@] } "\"" ; do
-(( n == u )) && sorted+ =( $n )
-done
-done
-echo "\"" ${ sorted [@] } "\""
-}
-main () {
-(( target < 0 )) && die "\"target can't be negative\""
-compute
-show
-}
-main "\"" $@ "\""
+(program
+  (declaration_command declare -a
+    (variable_assignment PLACEHOLDER_1
+      (array 0))
+    (variable_assignment PLACEHOLDER_2
+      (array 0)))
+  (variable_assignment PLACEHOLDER_3
+    (simple_expansion 1))
+  (command shift)
+  (variable_assignment PLACEHOLDER_4
+    (array
+      (simple_expansion @)))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (command echo
+        (string
+          (simple_expansion @)))
+      (command exit 1)))
+  (function_definition (function_name PLACEHOLDER_6)
+    (compound_statement
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_7 1) ;
+        (binary_expression PLACEHOLDER_7 <= PLACEHOLDER_3) ;
+        (postfix_expression PLACEHOLDER_7 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_8 0)
+          (variable_assignments
+            (variable_assignment
+              (subscript PLACEHOLDER_1 PLACEHOLDER_7))
+            (variable_assignment
+              (subscript PLACEHOLDER_2 PLACEHOLDER_7)))
+          (for_statement PLACEHOLDER_9 in
+            (string
+              (expansion
+                (subscript PLACEHOLDER_4 @)))
+            (do_group
+              (list
+                (arithmetic_command
+                  (binary_expression PLACEHOLDER_9 > PLACEHOLDER_7)) &&
+                (command continue))
+              (list
+                (test_command [[
+                  (expansion
+                    (subscript PLACEHOLDER_1 i-n))) ||
+                (command continue))
+              (variable_assignment PLACEHOLDER_10
+                (arithmetic_expansion
+                  (binary_expression
+                    (expansion
+                      (subscript PLACEHOLDER_1 i-n)) + 1)))
+              (if_statement
+                (list
+                  (arithmetic_command
+                    (unary_expression ! PLACEHOLDER_8)) ||
+                  (arithmetic_command
+                    (binary_expression PLACEHOLDER_10 < PLACEHOLDER_8))) then
+                (variable_assignment PLACEHOLDER_8
+                  (simple_expansion PLACEHOLDER_10))
+                (variable_assignment
+                  (subscript PLACEHOLDER_1 PLACEHOLDER_7)
+                  (simple_expansion PLACEHOLDER_10))
+                (variable_assignment
+                  (subscript PLACEHOLDER_2 PLACEHOLDER_7)
+                  (simple_expansion PLACEHOLDER_9)))))))))
+  (function_definition (function_name PLACEHOLDER_11)
+    (compound_statement
+      (list
+        (test_command [[
+          (unary_expression -z
+            (expansion
+              (subscript PLACEHOLDER_1 PLACEHOLDER_3)))) &&
+        (command (command_name PLACEHOLDER_5) "can't make target with given coins"))
+      (variable_assignment PLACEHOLDER_12
+        (array))
+      (while_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_3 > 0))
+        (do_group
+          (variable_assignment PLACEHOLDER_12 +=
+            (array
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_2 PLACEHOLDER_3)))))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_3 -=
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_2 PLACEHOLDER_3)))))))
+      (variable_assignment PLACEHOLDER_13
+        (array))
+      (for_statement PLACEHOLDER_9 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_4 @)))
+        (do_group
+          (for_statement PLACEHOLDER_14 in
+            (string
+              (expansion
+                (subscript PLACEHOLDER_12 @)))
+            (do_group
+              (list
+                (arithmetic_command
+                  (binary_expression PLACEHOLDER_9 == PLACEHOLDER_14)) &&
+                (variable_assignment PLACEHOLDER_13 +=
+                  (array
+                    (simple_expansion PLACEHOLDER_9))))))))
+      (command echo
+        (string
+          (expansion
+            (subscript PLACEHOLDER_13 @))))))
+  (function_definition (function_name PLACEHOLDER_15)
+    (compound_statement
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_3 < 0)) &&
+        (command (command_name PLACEHOLDER_5) "target can't be negative"))
+      (command (command_name PLACEHOLDER_6))
+      (command (command_name PLACEHOLDER_11))))
+  (command (command_name PLACEHOLDER_15)
+    (string
+      (simple_expansion @))))

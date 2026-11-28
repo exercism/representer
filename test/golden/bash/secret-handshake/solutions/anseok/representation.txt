@@ -1,6 +1,40 @@
-n = "\"" $1 "\""
-for s in wink "'double blink'" "'close your eyes'" jump ; do
-[ $(( n & 1 )) -eq 1 ] && r = "\"" $r , $s "\"" ; n = $(( n >> 1 )) ; done
-[ "\"" $r "\"" ] && r = "\"" ${ r #, } "\""
-[ "\"" $n "\"" -eq 0 ] && { echo "\"" $r "\"" ; exit ; }
-echo "\"" $r "\"" | awk -F , "'{\n  if (NF) printf $NF; for (i = NF - 1; i > 0; i--) printf \",%s\", $i }'"
+(program
+  (variable_assignment PLACEHOLDER_1
+    (string
+      (simple_expansion 1)))
+  (for_statement PLACEHOLDER_2 in wink "double blink" "close your eyes" jump
+    (do_group
+      (list
+        (test_command [
+          (binary_expression
+            (arithmetic_expansion
+              (binary_expression PLACEHOLDER_1 & 1)) -eq 1)) &&
+        (variable_assignment PLACEHOLDER_3
+          (string
+            (simple_expansion PLACEHOLDER_3) ","
+            (simple_expansion PLACEHOLDER_2))))
+      (variable_assignment PLACEHOLDER_1
+        (arithmetic_expansion
+          (binary_expression PLACEHOLDER_1 >> 1)))))
+  (list
+    (test_command [
+      (string
+        (simple_expansion PLACEHOLDER_3))) &&
+    (variable_assignment PLACEHOLDER_3
+      (string
+        (expansion PLACEHOLDER_3 # ,))))
+  (list
+    (test_command [
+      (binary_expression
+        (string
+          (simple_expansion PLACEHOLDER_1)) -eq 0)) &&
+    (compound_statement
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_3)))
+      (command exit)))
+  (pipeline
+    (command echo
+      (string
+        (simple_expansion PLACEHOLDER_3))) |
+    (command awk -F, "{\n  if (NF) printf $NF; for (i = NF - 1; i > 0; i--) printf \",%s\", $i }")))

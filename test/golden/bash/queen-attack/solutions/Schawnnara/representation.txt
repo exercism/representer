@@ -1,15 +1,78 @@
-while getopts w:b: option ; do
-case "\"" $option "\"" in
-w ) IFS = , read -r wx wy <<< $OPTARG ;;
-b ) IFS = , read -r bx by <<< $OPTARG ;;
-* ) echo invalid option ; exit 1 ;;
-esac
-done
-(( wx < 0 || bx < 0 )) && { echo row not positive ; exit 1 ; }
-(( wy < 0 || by < 0 )) && { echo column not positive ; exit 1 ; }
-(( wx > 7 || bx > 7 )) && { echo row not on board ; exit 1 ; }
-(( wy > 7 || by > 7 )) && { echo column not on board ; exit 1 ; }
-(( wx == bx && wy == by )) && { echo same position ; exit 1 ; }
-diagx = $(( wx - bx ))
-diagy = $(( wy - by ))
-(( wx == bx || wy == by || ${ diagx #- } == ${ diagy #- } )) && echo true || echo false
+(program
+  (while_statement
+    (command getopts w:b: PLACEHOLDER_1)
+    (do_group
+      (case_statement
+        (string
+          (simple_expansion PLACEHOLDER_1))
+        (case_item w
+          (command
+            (variable_assignment IFS ,) read -r PLACEHOLDER_2 PLACEHOLDER_3
+            (herestring_redirect
+              (simple_expansion OPTARG))))
+        (case_item b
+          (command
+            (variable_assignment IFS ,) read -r PLACEHOLDER_4 PLACEHOLDER_5
+            (herestring_redirect
+              (simple_expansion OPTARG))))
+        (case_item *
+          (command echo invalid option)
+          (command exit 1)))))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 < 0) ||
+        (binary_expression PLACEHOLDER_4 < 0))) &&
+    (compound_statement
+      (command echo row not positive)
+      (command exit 1)))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (binary_expression PLACEHOLDER_3 < 0) ||
+        (binary_expression PLACEHOLDER_5 < 0))) &&
+    (compound_statement
+      (command echo column not positive)
+      (command exit 1)))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 > 7) ||
+        (binary_expression PLACEHOLDER_4 > 7))) &&
+    (compound_statement
+      (command echo row not on board)
+      (command exit 1)))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (binary_expression PLACEHOLDER_3 > 7) ||
+        (binary_expression PLACEHOLDER_5 > 7))) &&
+    (compound_statement
+      (command echo column not on board)
+      (command exit 1)))
+  (list
+    (arithmetic_command
+      (binary_expression
+        (binary_expression PLACEHOLDER_2 == PLACEHOLDER_4) &&
+        (binary_expression PLACEHOLDER_3 == PLACEHOLDER_5))) &&
+    (compound_statement
+      (command echo same position)
+      (command exit 1)))
+  (variable_assignment PLACEHOLDER_6
+    (arithmetic_expansion
+      (binary_expression PLACEHOLDER_2 - PLACEHOLDER_4)))
+  (variable_assignment PLACEHOLDER_7
+    (arithmetic_expansion
+      (binary_expression PLACEHOLDER_3 - PLACEHOLDER_5)))
+  (list
+    (list
+      (arithmetic_command
+        (binary_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_2 == PLACEHOLDER_4) ||
+            (binary_expression PLACEHOLDER_3 == PLACEHOLDER_5)) ||
+          (binary_expression
+            (expansion PLACEHOLDER_6 # -) ==
+            (expansion PLACEHOLDER_7 # -)))) &&
+      (command echo true)) ||
+    (command echo false)))

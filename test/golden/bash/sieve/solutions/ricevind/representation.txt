@@ -1,24 +1,59 @@
-start = 2 ;
-end = $1 ;
-sieve = "\"\"" ;
-primes = "\"\"" ;
-addMultiplesToSieve () {
-multiples = "\"\"" ;
-nextMultiple = $1 ;
-while (( $nextMultiple < = $end )) ; do
-multiples+ = "\"" ${ nextMultiple } " \"" ;
-nextMultiple = $(( $nextMultiple + $1 )) ;
-done
-sieve+ = "\"" ${ multiples } " \"" ;
-}
-main () {
-(( $1 < 2 )) && exit 0 ;
-for i in $( seq $start $end ) ; do
-if [[ ! $sieve = ~ "\" " ${ i } " \"" ]] ; then
-primes+ = "\"" ${ i } " \"" ;
-addMultiplesToSieve $i ;
-fi
-done
-echo "\"" ${ primes % } "\""
-}
-main "\"" $@ "\""
+(program
+  (variable_assignment PLACEHOLDER_1 2)
+  (variable_assignment PLACEHOLDER_2
+    (simple_expansion 1))
+  (variable_assignment PLACEHOLDER_3 "")
+  (variable_assignment PLACEHOLDER_4 "")
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_6 "")
+      (variable_assignment PLACEHOLDER_7
+        (simple_expansion 1))
+      (while_statement
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion PLACEHOLDER_7) <=
+            (simple_expansion PLACEHOLDER_2)))
+        (do_group
+          (variable_assignment PLACEHOLDER_6 +=
+            (string
+              (expansion PLACEHOLDER_7)))
+          (variable_assignment PLACEHOLDER_7
+            (arithmetic_expansion
+              (binary_expression
+                (simple_expansion PLACEHOLDER_7) +
+                (simple_expansion 1))))))
+      (variable_assignment PLACEHOLDER_3 +=
+        (string
+          (expansion PLACEHOLDER_6)))))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (list
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion 1) < 2)) &&
+        (command exit 0))
+      (for_statement PLACEHOLDER_9 in
+        (command_substitution
+          (command seq
+            (simple_expansion PLACEHOLDER_1)
+            (simple_expansion PLACEHOLDER_2)))
+        (do_group
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (unary_expression !
+                  (simple_expansion PLACEHOLDER_3)) =~
+                (string
+                  (expansion PLACEHOLDER_9)))) then
+            (variable_assignment PLACEHOLDER_4 +=
+              (string
+                (expansion PLACEHOLDER_9)))
+            (command (command_name PLACEHOLDER_5)
+              (simple_expansion PLACEHOLDER_9)))))
+      (command echo
+        (string
+          (expansion PLACEHOLDER_4 % " ")))))
+  (command (command_name PLACEHOLDER_8)
+    (string
+      (simple_expansion @))))

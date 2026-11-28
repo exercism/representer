@@ -1,40 +1,122 @@
-declare -A character_abilities
-modifier () {
-local score = "\"" $1 "\""
-if [[ "\"" $score "\"" -lt 10 && $(( "\"" $score "\"" % 2 )) -ne 0 ]] ; then
-echo $(( ( "\"" $score "\"" - 11 ) / 2 ))
-else
-echo $(( ( "\"" $score "\"" - 10 ) / 2 ))
-fi
-}
-generate () {
-declare -a abilities =( "\"strength\"" "\"dexterity\"" "\"constitution\"" "\"intelligence\"" "\"wisdom\"" "\"charisma\"" )
-declare -a rolls
-for skill in "\"" ${ abilities [@] } "\"" ; do
-local i = 0
-local value = 0
-for i in { 1..4 } ; do
-roll = $(( 1 + RANDOM % 6 ))
-rolls+ =( "\"" $roll "\"" )
-done
-mapfile -t sorted < < ( printf '%s\n' "\"" ${ rolls [@] } "\"" | sort -n )
-for (( i = 1 ; i< ${# sorted [@] } ; i++ )) ; do
-value = $(( value + sorted[i] ))
-done
-character_abilities+ =([ "\"" $skill "\"" ]= "\"" $value "\"" )
-unset rolls
-echo "\"" $skill " " $value "\""
-done
-echo "\"hitpoints " $(( 10 + $( modifier "\"" ${ character_abilities [ "\"constitution\"" ] } "\")" )) "\""
-}
-main () {
-if [[ "\"" $1 "\"" == "\"modifier\"" ]] ; then
-modifier "\"" $2 "\""
-elif [[ "\"" $1 "\"" == "\"generate\"" ]] ; then
-generate
-else
-echo "\"error\""
-exit 1
-fi
-}
-main "\"" $@ "\""
+(program
+  (declaration_command declare -A PLACEHOLDER_1)
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3
+          (string
+            (simple_expansion 1))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (binary_expression
+              (string
+                (simple_expansion PLACEHOLDER_3)) -lt 10) &&
+            (binary_expression
+              (arithmetic_expansion
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_3)) % 2)) -ne 0))) then
+        (command echo
+          (arithmetic_expansion
+            (binary_expression
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_3)) - 11) / 2)))
+        (else_clause
+          (command echo
+            (arithmetic_expansion
+              (binary_expression
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_3)) - 10) / 2)))))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (declaration_command declare -a
+        (variable_assignment PLACEHOLDER_5
+          (array "strength" "dexterity" "constitution" "intelligence" "wisdom" "charisma")))
+      (declaration_command declare -a PLACEHOLDER_6)
+      (for_statement PLACEHOLDER_7 in
+        (string
+          (expansion
+            (subscript PLACEHOLDER_5 @)))
+        (do_group
+          (declaration_command local
+            (variable_assignment PLACEHOLDER_8 0))
+          (declaration_command local
+            (variable_assignment PLACEHOLDER_9 0))
+          (for_statement PLACEHOLDER_8 in
+            (brace_expression 1 4)
+            (do_group
+              (variable_assignment PLACEHOLDER_10
+                (arithmetic_expansion
+                  (binary_expression 1 +
+                    (binary_expression RANDOM % 6))))
+              (variable_assignment PLACEHOLDER_6 +=
+                (array
+                  (string
+                    (simple_expansion PLACEHOLDER_10))))))
+          (redirected_statement
+            (command mapfile -t PLACEHOLDER_11)
+            (file_redirect <
+              (process_substitution "<("
+                (pipeline
+                  (command printf "%s\\n"
+                    (string
+                      (expansion
+                        (subscript PLACEHOLDER_6 @)))) |
+                  (command sort -n)))))
+          (c_style_for_statement
+            (variable_assignment PLACEHOLDER_8 1) ;
+            (binary_expression PLACEHOLDER_8 <
+              (expansion #
+                (subscript PLACEHOLDER_11 @))) ;
+            (postfix_expression PLACEHOLDER_8 ++)
+            (do_group
+              (variable_assignment PLACEHOLDER_9
+                (arithmetic_expansion
+                  (binary_expression PLACEHOLDER_9 +
+                    (subscript PLACEHOLDER_11 PLACEHOLDER_8))))))
+          (variable_assignment PLACEHOLDER_1 +=
+            (array
+              (concatenation [
+                (string
+                  (simple_expansion PLACEHOLDER_7)) ] =
+                (string
+                  (simple_expansion PLACEHOLDER_9)))))
+          (unset_command unset PLACEHOLDER_6)
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_7)
+              (simple_expansion PLACEHOLDER_9)))))
+      (command echo
+        (string "hitpoints "
+          (arithmetic_expansion
+            (binary_expression 10 +
+              (command_substitution
+                (command (command_name PLACEHOLDER_2)
+                  (string
+                    (expansion
+                      (subscript PLACEHOLDER_1 "constitution")))))))))))
+  (function_definition (function_name PLACEHOLDER_12)
+    (compound_statement
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion 1)) == "modifier")) then
+        (command (command_name PLACEHOLDER_2)
+          (string
+            (simple_expansion 2)))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (string
+                (simple_expansion 1)) == "generate")) then
+          (command (command_name PLACEHOLDER_4)))
+        (else_clause
+          (command echo "error")
+          (command exit 1)))))
+  (command (command_name PLACEHOLDER_12)
+    (string
+      (simple_expansion @))))

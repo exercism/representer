@@ -1,24 +1,53 @@
-input = "\"" ${ 1 } "\""
-function checks {
-if [ "\"" ${# input } "\"" == "\"0\"" ] ; then
-printf "'A: 0\\nC: 0\\nG: 0\\nT: 0'"
-exit
-fi
-stripped_input = "\"" ${ input //A/ '' } "\""
-stripped_input = "\"" ${ stripped_input //C/ '' } "\""
-stripped_input = "\"" ${ stripped_input //G/ '' } "\""
-stripped_input = "\"" ${ stripped_input //T/ '' } "\""
-if [[ ${# stripped_input } -gt 0 ]] ; then
-echo "\"Invalid nucleotide in strand\""
-exit 10
-fi
-}
-function count {
-a_count = "\"" ${ input //[^A,] } "\""
-c_count = "\"" ${ input //[^C,] } "\""
-g_count = "\"" ${ input //[^G,] } "\""
-t_count = "\"" ${ input //[^T,] } "\""
-printf "\"A: " ${# a_count } "\\nC: " ${# c_count } "\\nG: " ${# g_count } "\\nT: " ${# t_count } "\""
-}
-checks
-count
+(program
+  (variable_assignment PLACEHOLDER_1
+    (string
+      (expansion 1)))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (if_statement
+        (test_command [
+          (binary_expression
+            (string
+              (expansion # PLACEHOLDER_1)) == "0")) then
+        (command printf "A: 0\\nC: 0\\nG: 0\\nT: 0")
+        (command exit))
+      (variable_assignment PLACEHOLDER_3
+        (string
+          (expansion PLACEHOLDER_1 // A / "")))
+      (variable_assignment PLACEHOLDER_3
+        (string
+          (expansion PLACEHOLDER_3 // C / "")))
+      (variable_assignment PLACEHOLDER_3
+        (string
+          (expansion PLACEHOLDER_3 // G / "")))
+      (variable_assignment PLACEHOLDER_3
+        (string
+          (expansion PLACEHOLDER_3 // T / "")))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (expansion # PLACEHOLDER_3) -gt 0)) then
+        (command echo "Invalid nucleotide in strand")
+        (command exit 10))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_5
+        (string
+          (expansion PLACEHOLDER_1 // [^A,])))
+      (variable_assignment PLACEHOLDER_6
+        (string
+          (expansion PLACEHOLDER_1 // [^C,])))
+      (variable_assignment PLACEHOLDER_7
+        (string
+          (expansion PLACEHOLDER_1 // [^G,])))
+      (variable_assignment PLACEHOLDER_8
+        (string
+          (expansion PLACEHOLDER_1 // [^T,])))
+      (command printf
+        (string "A: "
+          (expansion # PLACEHOLDER_5) "\\nC: "
+          (expansion # PLACEHOLDER_6) "\\nG: "
+          (expansion # PLACEHOLDER_7) "\\nT: "
+          (expansion # PLACEHOLDER_8)))))
+  (command (command_name PLACEHOLDER_2))
+  (command (command_name PLACEHOLDER_4)))

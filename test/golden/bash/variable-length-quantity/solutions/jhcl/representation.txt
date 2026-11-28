@@ -1,29 +1,84 @@
-case $1 in
-encode )
-shift
-for inp in "\"" ${ @ } "\"" ; do
-inp = $(( 0 X $inp ))
-code =( $( printf "\"%02X\"" $(( inp & 0 x7f )) ) )
-(( inp>> = 7 ))
-while (( inp )) ; do
-code =( $( printf %02X $(( inp & 0 x7f | 0 x80 )) ) ${ code [@] } )
-(( inp>> = 7 ))
-done
-out+ =( ${ code [*] } )
-done
-echo "\"" ${ out [@] } "\""
-;;
-decode )
-(( ( 0x ${ @ : -1 } & 0x80 ) != 0 )) && { echo incomplete byte sequence ; exit 1 ; }
-shift
-for inp in "\"" ${ @ } "\"" ; do
-inp = $(( 0 X $inp ))
-(( code << = 7 ))
-(( code + = ( inp & 0x7f ) ))
-(( ( inp & 0x80 ) == 0 )) && { out+ =( $( printf "\"%02X\"" $code ) ) ; code = 0 ; }
-done
-echo ${ out [*] }
-;;
-* ) echo unknown subcommand ; exit 1
-;;
-esac
+(program
+  (case_statement
+    (simple_expansion 1)
+    (case_item encode
+      (command shift)
+      (for_statement PLACEHOLDER_1 in
+        (string
+          (expansion @))
+        (do_group
+          (variable_assignment PLACEHOLDER_1
+            (arithmetic_expansion
+              (number 0X
+                (simple_expansion PLACEHOLDER_1))))
+          (variable_assignment PLACEHOLDER_2
+            (array
+              (command_substitution
+                (command printf "%02X"
+                  (arithmetic_expansion
+                    (binary_expression PLACEHOLDER_1 & 127))))))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_1 >>= 7))
+          (while_statement
+            (arithmetic_command PLACEHOLDER_1)
+            (do_group
+              (variable_assignment PLACEHOLDER_2
+                (array
+                  (command_substitution
+                    (command printf %02X
+                      (arithmetic_expansion
+                        (binary_expression
+                          (binary_expression PLACEHOLDER_1 & 127) | 128))))
+                  (expansion
+                    (subscript PLACEHOLDER_2 @))))
+              (arithmetic_command
+                (binary_expression PLACEHOLDER_1 >>= 7))))
+          (variable_assignment PLACEHOLDER_3 +=
+            (array
+              (expansion
+                (subscript PLACEHOLDER_2 *))))))
+      (command echo
+        (string
+          (expansion
+            (subscript PLACEHOLDER_3 @)))))
+    (case_item decode
+      (list
+        (arithmetic_command
+          (binary_expression
+            (binary_expression
+              (number 0x
+                (expansion @ : -1)) & 128) != 0)) &&
+        (compound_statement
+          (command echo incomplete byte sequence)
+          (command exit 1)))
+      (command shift)
+      (for_statement PLACEHOLDER_1 in
+        (string
+          (expansion @))
+        (do_group
+          (variable_assignment PLACEHOLDER_1
+            (arithmetic_expansion
+              (number 0X
+                (simple_expansion PLACEHOLDER_1))))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 <<= 7))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 +=
+              (binary_expression PLACEHOLDER_1 & 127)))
+          (list
+            (arithmetic_command
+              (binary_expression
+                (binary_expression PLACEHOLDER_1 & 128) == 0)) &&
+            (compound_statement
+              (variable_assignment PLACEHOLDER_3 +=
+                (array
+                  (command_substitution
+                    (command printf "%02X"
+                      (simple_expansion PLACEHOLDER_2)))))
+              (variable_assignment PLACEHOLDER_2 0)))))
+      (command echo
+        (expansion
+          (subscript PLACEHOLDER_3 *))))
+    (case_item *
+      (command echo unknown subcommand)
+      (command exit 1))))

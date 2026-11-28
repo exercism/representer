@@ -1,10 +1,30 @@
-acronym = "\"\""
-IFS = "\" -\"" read -ra words <<< "\"" $1 "\""
-for word in "\"" ${ words [@] } "\"" ; do
-word = $( echo "\"" $word "\"" | tr '-d' '[:punct:]')
-if [[ -z "\"" $word "\"" ]] ; then
-continue
-fi
-acronym+ = ${ word :0:1 }
-done
-echo "\"" ${ acronym ^^ } "\""
+(program
+  (variable_assignment PLACEHOLDER_1 "")
+  (command
+    (variable_assignment IFS " -") read -ra PLACEHOLDER_2
+    (herestring_redirect
+      (string
+        (simple_expansion 1))))
+  (for_statement PLACEHOLDER_3 in
+    (string
+      (expansion
+        (subscript PLACEHOLDER_2 @)))
+    (do_group
+      (variable_assignment PLACEHOLDER_3
+        (command_substitution
+          (pipeline
+            (command echo
+              (string
+                (simple_expansion PLACEHOLDER_3))) |
+            (command tr "-d" "[:punct:]"))))
+      (if_statement
+        (test_command [[
+          (unary_expression -z
+            (string
+              (simple_expansion PLACEHOLDER_3)))) then
+        (command continue))
+      (variable_assignment PLACEHOLDER_1 +=
+        (expansion PLACEHOLDER_3 : 0 : 1))))
+  (command echo
+    (string
+      (expansion PLACEHOLDER_1 ^^))))

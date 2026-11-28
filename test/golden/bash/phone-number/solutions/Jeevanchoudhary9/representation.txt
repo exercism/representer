@@ -1,39 +1,103 @@
-INVALID = "\"Invalid number.  [1]NXX-NXX-XXXX N=2-9, X=0-9\""
-main () {
-if [[ $# -ne 1 ]] ; then
-echo "\"Usage: phone_number.sh <number>\"" > &2
-exit 1
-fi
-local input = "\"" $1 "\""
-if [[ "\"" $input "\"" = ~ [ a-zA-Z] ]] ; then
-echo "\"" $INVALID "\"" > &2
-exit 1
-fi
-local cleaned = $( echo "\"" $input "\"" | tr -d "' ().+-')"
-if [[ "\"" $cleaned "\"" = ~ [ ^0-9] ]] ; then
-echo "\"" $INVALID "\"" > &2
-exit 1
-fi
-if [[ ${# cleaned } -eq 11 ]] ; then
-if [[ "\"" ${ cleaned :0:1 } "\"" == "\"1\"" ]] ; then
-cleaned = "\"" ${ cleaned :1 } "\""
-else
-echo "\"" $INVALID "\"" > &2
-exit 1
-fi
-fi
-if [[ ${# cleaned } -ne 10 ]] ; then
-echo "\"" $INVALID "\"" > &2
-exit 1
-fi
-if [[ "\"" ${ cleaned :0:1 } "\"" = ~ [ 01] ]] ; then
-echo "\"" $INVALID "\"" > &2
-exit 1
-fi
-if [[ "\"" ${ cleaned :3:1 } "\"" = ~ [ 01] ]] ; then
-echo "\"" $INVALID "\"" > &2
-exit 1
-fi
-echo "\"" $cleaned "\""
-}
-main "\"" $@ "\""
+(program
+  (variable_assignment PLACEHOLDER_1 "Invalid number.  [1]NXX-NXX-XXXX N=2-9, X=0-9")
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (simple_expansion #) -ne 1)) then
+        (redirected_statement
+          (command echo "Usage: phone_number.sh <number>")
+          (file_redirect >& 2))
+        (command exit 1))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3
+          (string
+            (simple_expansion 1))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_3)) =~ [a-zA-Z])) then
+        (redirected_statement
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_1)))
+          (file_redirect >& 2))
+        (command exit 1))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_4
+          (command_substitution
+            (pipeline
+              (command echo
+                (string
+                  (simple_expansion PLACEHOLDER_3))) |
+              (command tr -d " ().+-")))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_4)) =~ [^0-9])) then
+        (redirected_statement
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_1)))
+          (file_redirect >& 2))
+        (command exit 1))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (expansion # PLACEHOLDER_4) -eq 11)) then
+        (if_statement
+          (test_command [[
+            (binary_expression
+              (string
+                (expansion PLACEHOLDER_4 : 0 : 1)) == "1")) then
+          (variable_assignment PLACEHOLDER_4
+            (string
+              (expansion PLACEHOLDER_4 : 1)))
+          (else_clause
+            (redirected_statement
+              (command echo
+                (string
+                  (simple_expansion PLACEHOLDER_1)))
+              (file_redirect >& 2))
+            (command exit 1))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (expansion # PLACEHOLDER_4) -ne 10)) then
+        (redirected_statement
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_1)))
+          (file_redirect >& 2))
+        (command exit 1))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion PLACEHOLDER_4 : 0 : 1)) =~ [01])) then
+        (redirected_statement
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_1)))
+          (file_redirect >& 2))
+        (command exit 1))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion PLACEHOLDER_4 : 3 : 1)) =~ [01])) then
+        (redirected_statement
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_1)))
+          (file_redirect >& 2))
+        (command exit 1))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_4)))))
+  (command (command_name PLACEHOLDER_2)
+    (string
+      (simple_expansion @))))

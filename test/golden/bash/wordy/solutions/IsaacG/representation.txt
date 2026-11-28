@@ -1,34 +1,105 @@
-(( $# == 1 )) || exit 1
-syntax_err () {
-echo "\"syntax error\""
-exit 1
-}
-unknown () {
-echo "\"unknown operation\""
-exit 1
-}
-declare -r operations = "'(plus)|(minus)|(multiplied by)|(divided by)'"
-declare -r op_re = "'^(.*[-[:digit:]]+) ([ [:lower:]]+) ([-[:digit:]]+)$'"
-declare -r format = "\"^What is ?(.*)\\?$\""
-evaluate () {
-[[ $1 ]] || syntax_err
-[[ $1 = * [ ^-[:digit:]] * ]] || { echo "\"" $1 "\"" ; return ; }
-[[ $1 = ~ $operations ]] || unknown
-[[ $1 = ~ $op_re ]] || syntax_err
-local a = "\"" ${ BASH_REMATCH [1] } "\""
-local op = "\"" ${ BASH_REMATCH [2] } "\""
-local b = "\"" ${ BASH_REMATCH [3] } "\""
-a = $( evaluate "\"" $a "\")" || return
-case "\"" $op "\"" in
-plus ) echo $(( a + b )) ;;
-minus ) echo $(( a - b )) ;;
-"'multiplied by'" ) echo $(( a * b )) ;;
-"'divided by'" ) echo $(( a / b )) ;;
-* ) syntax_err ;;
-esac
-}
-main () {
-[[ $1 = ~ $format ]] || unknown
-evaluate "\"" ${ BASH_REMATCH [1] } "\""
-}
-main "\"" $1 "\""
+(program
+  (list
+    (arithmetic_command
+      (binary_expression
+        (simple_expansion #) == 1)) ||
+    (command exit 1))
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (command echo "syntax error")
+      (command exit 1)))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (command echo "unknown operation")
+      (command exit 1)))
+  (declaration_command declare -r
+    (variable_assignment PLACEHOLDER_3 "(plus)|(minus)|(multiplied by)|(divided by)"))
+  (declaration_command declare -r
+    (variable_assignment PLACEHOLDER_4 "^(.*[-[:digit:]]+) ([ [:lower:]]+) ([-[:digit:]]+)$"))
+  (declaration_command declare -r
+    (variable_assignment PLACEHOLDER_5 "^What is ?(.*)\\?$"))
+  (function_definition (function_name PLACEHOLDER_6)
+    (compound_statement
+      (list
+        (test_command [[
+          (simple_expansion 1)) ||
+        (command (command_name PLACEHOLDER_1)))
+      (list
+        (test_command [[
+          (binary_expression
+            (simple_expansion 1) = *[^-[:digit:]]*)) ||
+        (compound_statement
+          (command echo
+            (string
+              (simple_expansion 1)))
+          (command return)))
+      (list
+        (test_command [[
+          (binary_expression
+            (simple_expansion 1) =~
+            (simple_expansion PLACEHOLDER_3))) ||
+        (command (command_name PLACEHOLDER_2)))
+      (list
+        (test_command [[
+          (binary_expression
+            (simple_expansion 1) =~
+            (simple_expansion PLACEHOLDER_4))) ||
+        (command (command_name PLACEHOLDER_1)))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_7
+          (string
+            (expansion
+              (subscript BASH_REMATCH 1)))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_8
+          (string
+            (expansion
+              (subscript BASH_REMATCH 2)))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_9
+          (string
+            (expansion
+              (subscript BASH_REMATCH 3)))))
+      (list
+        (variable_assignment PLACEHOLDER_7
+          (command_substitution
+            (command (command_name PLACEHOLDER_6)
+              (string
+                (simple_expansion PLACEHOLDER_7))))) ||
+        (command return))
+      (case_statement
+        (string
+          (simple_expansion PLACEHOLDER_8))
+        (case_item plus
+          (command echo
+            (arithmetic_expansion
+              (binary_expression PLACEHOLDER_7 + PLACEHOLDER_9))))
+        (case_item minus
+          (command echo
+            (arithmetic_expansion
+              (binary_expression PLACEHOLDER_7 - PLACEHOLDER_9))))
+        (case_item "multiplied by"
+          (command echo
+            (arithmetic_expansion
+              (binary_expression PLACEHOLDER_7 * PLACEHOLDER_9))))
+        (case_item "divided by"
+          (command echo
+            (arithmetic_expansion
+              (binary_expression PLACEHOLDER_7 / PLACEHOLDER_9))))
+        (case_item *
+          (command (command_name PLACEHOLDER_1))))))
+  (function_definition (function_name PLACEHOLDER_10)
+    (compound_statement
+      (list
+        (test_command [[
+          (binary_expression
+            (simple_expansion 1) =~
+            (simple_expansion PLACEHOLDER_5))) ||
+        (command (command_name PLACEHOLDER_2)))
+      (command (command_name PLACEHOLDER_6)
+        (string
+          (expansion
+            (subscript BASH_REMATCH 1))))))
+  (command (command_name PLACEHOLDER_10)
+    (string
+      (simple_expansion 1))))

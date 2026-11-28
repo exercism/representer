@@ -1,11 +1,37 @@
-function order {
-echo $( echo ${ 1 ,, } | grep -o . | sort | tr -d "\"\\n\")"
-}
-word = $( order $1 )
-list = "\"\""
-for w in $2 ; do
-if [[ $word = $( order $w ) && ${ 1 ,, } != ${ w ,, } ]] ; then
-list = $list "\" " $w "\""
-fi
-done
-echo $list
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (command echo
+        (command_substitution
+          (pipeline
+            (command echo
+              (expansion 1 ,,)) |
+            (command grep -o .) |
+            (command sort) |
+            (command tr -d "\\n"))))))
+  (variable_assignment PLACEHOLDER_2
+    (command_substitution
+      (command (command_name PLACEHOLDER_1)
+        (simple_expansion 1))))
+  (variable_assignment PLACEHOLDER_3 "")
+  (for_statement PLACEHOLDER_4 in
+    (simple_expansion 2)
+    (do_group
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (simple_expansion PLACEHOLDER_2) =
+            (binary_expression
+              (command_substitution
+                (command (command_name PLACEHOLDER_1)
+                  (simple_expansion PLACEHOLDER_4))) &&
+              (binary_expression
+                (expansion 1 ,,) !=
+                (expansion PLACEHOLDER_4 ,,))))) then
+        (variable_assignment PLACEHOLDER_3
+          (concatenation
+            (simple_expansion PLACEHOLDER_3)
+            (string
+              (simple_expansion PLACEHOLDER_4)))))))
+  (command echo
+    (simple_expansion PLACEHOLDER_3)))

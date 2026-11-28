@@ -1,26 +1,124 @@
-main () {
-declare -A weekday =( [ "\"Sunday\"" ]= 0 [ "\"Monday\"" ]= 1 [ "\"Tuesday\"" ]= 2 [ "\"Wednesday\"" ]= 3 [ "\"Thursday\"" ]= 4 [ "\"Friday\"" ]= 5 [ "\"Saturday\"" ]= 6 )
-year = $1 ; month = $2 ; schedule = $3 ; dow = $4
-firstDay = $( date -d "\"" $1 / $2 /1" +%w )
-downum = ${ weekday [ $dow ] }
-(( dow_offset = ( downum - firstDay + 7 ) % 7 ))
-(( firstDOW = dow_offset + 1 ))
-(( month == 12 )) && daysInTheMonth = 31 || (( daysInTheMonth = 1 $( date -d "\"" $1 / $(( $2 + 1 )) /1" +%j ) - 1 $( date -d "\"" $1 / $2 /1" +%j ) ))
-daysofweeks =( 0 )
-for (( ii = $firstDOW ; ii< = $daysInTheMonth ; ii + = 7 )) ; do
-daysofweeks+ =( $ii )
-(( ii> = 13 && ii< = 19 )) && teenth = $ii
-theLastDay = $ii
-done
-case $schedule in
-teenth ) day = $teenth ;;
-first ) day = ${ daysofweeks [1] } ;;
-second ) day = ${ daysofweeks [2] } ;;
-third ) day = ${ daysofweeks [3] } ;;
-fourth ) day = ${ daysofweeks [4] } ;;
-last ) day = $theLastDay ;;
-esac
-[[ -z $day ]] && { echo "\"invalid argument\"" ; exit 1 ; }
-echo $( date -d "\"" $year / $month / $day "\"" + "\"%Y-%m-%d\")"
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command declare -A
+        (variable_assignment PLACEHOLDER_2
+          (array
+            (concatenation [ "Sunday" ] =0)
+            (concatenation [ "Monday" ] =1)
+            (concatenation [ "Tuesday" ] =2)
+            (concatenation [ "Wednesday" ] =3)
+            (concatenation [ "Thursday" ] =4)
+            (concatenation [ "Friday" ] =5)
+            (concatenation [ "Saturday" ] =6))))
+      (variable_assignment PLACEHOLDER_3
+        (simple_expansion 1))
+      (variable_assignment PLACEHOLDER_4
+        (simple_expansion 2))
+      (variable_assignment PLACEHOLDER_5
+        (simple_expansion 3))
+      (variable_assignment PLACEHOLDER_6
+        (simple_expansion 4))
+      (variable_assignment PLACEHOLDER_7
+        (command_substitution
+          (command date -d
+            (string
+              (simple_expansion 1) "/"
+              (simple_expansion 2) "/1") +%w)))
+      (variable_assignment PLACEHOLDER_8
+        (expansion
+          (subscript PLACEHOLDER_2
+            (simple_expansion PLACEHOLDER_6))))
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_9 =
+          (binary_expression
+            (binary_expression
+              (binary_expression PLACEHOLDER_8 - PLACEHOLDER_7) + 7) % 7)))
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_10 =
+          (binary_expression PLACEHOLDER_9 + 1)))
+      (list
+        (list
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_4 == 12)) &&
+          (variable_assignment PLACEHOLDER_11 31)) ||
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_11 =
+            (binary_expression
+              (concatenation 1
+                (command_substitution
+                  (command date -d
+                    (string
+                      (simple_expansion 1) "/"
+                      (arithmetic_expansion
+                        (binary_expression
+                          (simple_expansion 2) + 1)) "/1") +%j))) -
+              (concatenation 1
+                (command_substitution
+                  (command date -d
+                    (string
+                      (simple_expansion 1) "/"
+                      (simple_expansion 2) "/1") +%j)))))))
+      (variable_assignment PLACEHOLDER_12
+        (array 0))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_13
+          (simple_expansion PLACEHOLDER_10)) ;
+        (binary_expression PLACEHOLDER_13 <=
+          (simple_expansion PLACEHOLDER_11)) ;
+        (binary_expression PLACEHOLDER_13 += 7)
+        (do_group
+          (variable_assignment PLACEHOLDER_12 +=
+            (array
+              (simple_expansion PLACEHOLDER_13)))
+          (list
+            (arithmetic_command
+              (binary_expression
+                (binary_expression PLACEHOLDER_13 >= 13) &&
+                (binary_expression PLACEHOLDER_13 <= 19))) &&
+            (variable_assignment PLACEHOLDER_14
+              (simple_expansion PLACEHOLDER_13)))
+          (variable_assignment PLACEHOLDER_15
+            (simple_expansion PLACEHOLDER_13))))
+      (case_statement
+        (simple_expansion PLACEHOLDER_5)
+        (case_item teenth
+          (variable_assignment PLACEHOLDER_16
+            (simple_expansion PLACEHOLDER_14)))
+        (case_item first
+          (variable_assignment PLACEHOLDER_16
+            (expansion
+              (subscript PLACEHOLDER_12 1))))
+        (case_item second
+          (variable_assignment PLACEHOLDER_16
+            (expansion
+              (subscript PLACEHOLDER_12 2))))
+        (case_item third
+          (variable_assignment PLACEHOLDER_16
+            (expansion
+              (subscript PLACEHOLDER_12 3))))
+        (case_item fourth
+          (variable_assignment PLACEHOLDER_16
+            (expansion
+              (subscript PLACEHOLDER_12 4))))
+        (case_item last
+          (variable_assignment PLACEHOLDER_16
+            (simple_expansion PLACEHOLDER_15))))
+      (list
+        (test_command [[
+          (unary_expression -z
+            (simple_expansion PLACEHOLDER_16))) &&
+        (compound_statement
+          (command echo "invalid argument")
+          (command exit 1)))
+      (command echo
+        (command_substitution
+          (command date -d
+            (string
+              (simple_expansion PLACEHOLDER_3) "/"
+              (simple_expansion PLACEHOLDER_4) "/"
+              (simple_expansion PLACEHOLDER_16))
+            (concatenation + "%Y-%m-%d"))))))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

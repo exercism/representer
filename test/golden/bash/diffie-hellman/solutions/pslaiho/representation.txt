@@ -1,17 +1,55 @@
-rand () {
-echo "\"" $(( "\"" $1 "\"" + RANDOM % ( "\"" $2 "\"" - "\"" $1 "\"" + 1 ) )) "\""
-}
-calculate_key () {
-echo "\"" $1 ^ $2 % $3 "\"" | bc
-}
-main () {
-case "\"" $1 "\"" in
-"\"privateKey\"" )
-rand 2 $(( "\"" $2 "\"" - 1 )) ;;
-"\"publicKey\"" )
-calculate_key "\"" $3 "\"" "\"" $4 "\"" "\"" $2 "\"" ;;
-"\"secret\"" )
-calculate_key "\"" $3 "\"" "\"" $4 "\"" "\"" $2 "\"" ;;
-esac
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (command echo
+        (string
+          (arithmetic_expansion
+            (binary_expression
+              (string
+                (simple_expansion 1)) +
+              (binary_expression RANDOM %
+                (binary_expression
+                  (binary_expression
+                    (string
+                      (simple_expansion 2)) -
+                    (string
+                      (simple_expansion 1))) + 1))))))))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (pipeline
+        (command echo
+          (string
+            (simple_expansion 1) "^"
+            (simple_expansion 2) "%"
+            (simple_expansion 3))) |
+        (command bc))))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (case_statement
+        (string
+          (simple_expansion 1))
+        (case_item "privateKey"
+          (command (command_name PLACEHOLDER_1) 2
+            (arithmetic_expansion
+              (binary_expression
+                (string
+                  (simple_expansion 2)) - 1))))
+        (case_item "publicKey"
+          (command (command_name PLACEHOLDER_2)
+            (string
+              (simple_expansion 3))
+            (string
+              (simple_expansion 4))
+            (string
+              (simple_expansion 2))))
+        (case_item "secret"
+          (command (command_name PLACEHOLDER_2)
+            (string
+              (simple_expansion 3))
+            (string
+              (simple_expansion 4))
+            (string
+              (simple_expansion 2)))))))
+  (command (command_name PLACEHOLDER_3)
+    (string
+      (simple_expansion @))))

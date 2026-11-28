@@ -1,56 +1,193 @@
-value () {
-case $1 in
-[ 2-9] ) echo "\"" $1 "\"" ;;
-10 ) echo a ;;
-J ) echo b ;;
-Q ) echo c ;;
-K ) echo d ;;
-A ) echo e ;;
-esac
-}
-declare -A ranks
-for hand ; do
-declare -A values =()
-declare -A suits =()
-for card in $hand ; do
-value = $( value "\"" ${ card %? } "\")"
-(( values[ $value ] ++ ))
-suit = ${ card : -1 }
-(( suits[ $suit ] ++ ))
-done
-(( flush = ${# suits [@] } == 1 ))
-declare -A combinations =()
-for i in { 1..4 } ; do
-for j in { e..a } { 9..1 } ; do
-[[ ${ values [ $j ] } == "\"" $i "\"" ]] && combinations[ $i ] + = "\"" $j "\""
-done
-done
-if (( ${# combinations [1] } == 5 )) ; then
-[[ ${ combinations [1] } == e5432 ]] && combinations[1] = 54321
-[[ edcba987654321 == *${ combinations [1] }* ]] && straight = 1 || straight = 0
-fi
-if (( flush && straight )) ; then
-rank = "\"9" ${ combinations [1] } "\""
-elif (( flush )) ; then
-rank = "\"6" ${ combinations [1] } "\""
-elif (( straight )) ; then
-rank = "\"5" ${ combinations [1] } "\""
-elif [[ ${ combinations [4] } ]] ; then
-rank = "\"8" ${ combinations [4] }${ combinations [1] } "\""
-elif [[ ${ combinations [3] } ]] ; then
-[[ ${ combinations [2] } ]] &&
-rank = "\"7" ${ combinations [3] }${ combinations [2] } "\"" ||
-rank = "\"4" ${ combinations [3] }${ combinations [1] } "\""
-elif [[ ${ combinations [2] } ]] ; then
-(( ${# combinations [2] } == 2 )) &&
-rank = "\"3" ${ combinations [2] }${ combinations [1] } "\"" ||
-rank = "\"2" ${ combinations [2] }${ combinations [1] } "\""
-else
-rank = "\"1" ${ combinations [1] } "\""
-fi
-ranks[ $rank ] + = "\"" $hand \n"
-done
-for k in "\"" ${ !ranks[@] } "\"" ; do
-[[ $k > $max ]] && max = $k
-done
-echo -en "\"" ${ ranks [ $max ] } "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (case_statement
+        (simple_expansion 1)
+        (case_item [2-9]
+          (command echo
+            (string
+              (simple_expansion 1))))
+        (case_item 10
+          (command echo a))
+        (case_item J
+          (command echo b))
+        (case_item Q
+          (command echo c))
+        (case_item K
+          (command echo d))
+        (case_item A
+          (command echo e)))))
+  (declaration_command declare -A PLACEHOLDER_2)
+  (for_statement PLACEHOLDER_3
+    (do_group
+      (declaration_command declare -A
+        (variable_assignment PLACEHOLDER_4
+          (array)))
+      (declaration_command declare -A
+        (variable_assignment PLACEHOLDER_5
+          (array)))
+      (for_statement PLACEHOLDER_6 in
+        (simple_expansion PLACEHOLDER_3)
+        (do_group
+          (variable_assignment PLACEHOLDER_1
+            (command_substitution
+              (command (command_name PLACEHOLDER_1)
+                (string
+                  (expansion PLACEHOLDER_6 % ?)))))
+          (arithmetic_command
+            (postfix_expression
+              (subscript PLACEHOLDER_4
+                (simple_expansion PLACEHOLDER_1)) ++))
+          (variable_assignment PLACEHOLDER_7
+            (expansion PLACEHOLDER_6 : -1))
+          (arithmetic_command
+            (postfix_expression
+              (subscript PLACEHOLDER_5
+                (simple_expansion PLACEHOLDER_7)) ++))))
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_8 =
+          (binary_expression
+            (expansion #
+              (subscript PLACEHOLDER_5 @)) == 1)))
+      (declaration_command declare -A
+        (variable_assignment PLACEHOLDER_9
+          (array)))
+      (for_statement PLACEHOLDER_10 in
+        (brace_expression 1 4)
+        (do_group
+          (for_statement PLACEHOLDER_11 in
+            (concatenation { e..a })
+            (brace_expression 9 1)
+            (do_group
+              (list
+                (test_command [[
+                  (binary_expression
+                    (expansion
+                      (subscript PLACEHOLDER_4
+                        (simple_expansion PLACEHOLDER_11))) ==
+                    (string
+                      (simple_expansion PLACEHOLDER_10)))) &&
+                (variable_assignment
+                  (subscript PLACEHOLDER_9
+                    (simple_expansion PLACEHOLDER_10)) +=
+                  (string
+                    (simple_expansion PLACEHOLDER_11))))))))
+      (if_statement
+        (arithmetic_command
+          (binary_expression
+            (expansion #
+              (subscript PLACEHOLDER_9 1)) == 5)) then
+        (list
+          (test_command [[
+            (binary_expression
+              (expansion
+                (subscript PLACEHOLDER_9 1)) == e5432)) &&
+          (variable_assignment
+            (subscript PLACEHOLDER_9 1) 54321))
+        (list
+          (list
+            (test_command [[
+              (binary_expression edcba987654321 == *
+                (expansion
+                  (subscript PLACEHOLDER_9 1)) *)) &&
+            (variable_assignment PLACEHOLDER_12 1)) ||
+          (variable_assignment PLACEHOLDER_12 0)))
+      (if_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_8 && PLACEHOLDER_12)) then
+        (variable_assignment PLACEHOLDER_13
+          (string "9"
+            (expansion
+              (subscript PLACEHOLDER_9 1))))
+        (elif_clause
+          (arithmetic_command PLACEHOLDER_8) then
+          (variable_assignment PLACEHOLDER_13
+            (string "6"
+              (expansion
+                (subscript PLACEHOLDER_9 1)))))
+        (elif_clause
+          (arithmetic_command PLACEHOLDER_12) then
+          (variable_assignment PLACEHOLDER_13
+            (string "5"
+              (expansion
+                (subscript PLACEHOLDER_9 1)))))
+        (elif_clause
+          (test_command [[
+            (expansion
+              (subscript PLACEHOLDER_9 4))) then
+          (variable_assignment PLACEHOLDER_13
+            (string "8"
+              (expansion
+                (subscript PLACEHOLDER_9 4))
+              (expansion
+                (subscript PLACEHOLDER_9 1)))))
+        (elif_clause
+          (test_command [[
+            (expansion
+              (subscript PLACEHOLDER_9 3))) then
+          (list
+            (list
+              (test_command [[
+                (expansion
+                  (subscript PLACEHOLDER_9 2))) &&
+              (variable_assignment PLACEHOLDER_13
+                (string "7"
+                  (expansion
+                    (subscript PLACEHOLDER_9 3))
+                  (expansion
+                    (subscript PLACEHOLDER_9 2))))) ||
+            (variable_assignment PLACEHOLDER_13
+              (string "4"
+                (expansion
+                  (subscript PLACEHOLDER_9 3))
+                (expansion
+                  (subscript PLACEHOLDER_9 1))))))
+        (elif_clause
+          (test_command [[
+            (expansion
+              (subscript PLACEHOLDER_9 2))) then
+          (list
+            (list
+              (arithmetic_command
+                (binary_expression
+                  (expansion #
+                    (subscript PLACEHOLDER_9 2)) == 2)) &&
+              (variable_assignment PLACEHOLDER_13
+                (string "3"
+                  (expansion
+                    (subscript PLACEHOLDER_9 2))
+                  (expansion
+                    (subscript PLACEHOLDER_9 1))))) ||
+            (variable_assignment PLACEHOLDER_13
+              (string "2"
+                (expansion
+                  (subscript PLACEHOLDER_9 2))
+                (expansion
+                  (subscript PLACEHOLDER_9 1))))))
+        (else_clause
+          (variable_assignment PLACEHOLDER_13
+            (string "1"
+              (expansion
+                (subscript PLACEHOLDER_9 1))))))
+      (variable_assignment
+        (subscript PLACEHOLDER_2
+          (simple_expansion PLACEHOLDER_13)) +=
+        (string
+          (simple_expansion PLACEHOLDER_3) "\\n"))))
+  (for_statement PLACEHOLDER_14 in
+    (string
+      (expansion !
+        (subscript PLACEHOLDER_2 @)))
+    (do_group
+      (list
+        (test_command [[
+          (binary_expression
+            (simple_expansion PLACEHOLDER_14) >
+            (simple_expansion PLACEHOLDER_15))) &&
+        (variable_assignment PLACEHOLDER_15
+          (simple_expansion PLACEHOLDER_14)))))
+  (command echo -en
+    (string
+      (expansion
+        (subscript PLACEHOLDER_2
+          (simple_expansion PLACEHOLDER_15))))))

@@ -1,10 +1,48 @@
-(( $1 % 2 != 0 )) && exit
-a = 1
-while true ; do
-if (( $1 * ( $1 - 2 * a ) % ( 2 * ( $1 - a )) == 0 )) ; then
-(( b = $1 * ( $1 - 2 * a ) / ( 2 * ( $1 - a ))))
-(( a >= b )) && break
-echo "\"" $a , $b , $(( $1 - a - b )) "\""
-fi
-(( a++ ))
-done
+(program
+  (list
+    (arithmetic_command
+      (binary_expression
+        (binary_expression
+          (simple_expansion 1) % 2) != 0)) &&
+    (command exit))
+  (variable_assignment PLACEHOLDER_1 1)
+  (while_statement
+    (command true)
+    (do_group
+      (if_statement
+        (arithmetic_command
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (simple_expansion 1) *
+                (binary_expression
+                  (simple_expansion 1) -
+                  (binary_expression 2 * PLACEHOLDER_1))) %
+              (binary_expression 2 *
+                (binary_expression
+                  (simple_expansion 1) - PLACEHOLDER_1))) == 0)) then
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_2 =
+            (binary_expression
+              (binary_expression
+                (simple_expansion 1) *
+                (binary_expression
+                  (simple_expansion 1) -
+                  (binary_expression 2 * PLACEHOLDER_1))) /
+              (binary_expression 2 *
+                (binary_expression
+                  (simple_expansion 1) - PLACEHOLDER_1)))))
+        (list
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_1 >= PLACEHOLDER_2)) &&
+          (command break))
+        (command echo
+          (string
+            (simple_expansion PLACEHOLDER_1) ","
+            (simple_expansion PLACEHOLDER_2) ","
+            (arithmetic_expansion
+              (binary_expression
+                (binary_expression
+                  (simple_expansion 1) - PLACEHOLDER_1) - PLACEHOLDER_2)))))
+      (arithmetic_command
+        (postfix_expression PLACEHOLDER_1 ++)))))

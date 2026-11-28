@@ -1,25 +1,127 @@
-declare -A color_values
-color_values =([ black] = 0 [ brown] = 1 [ red] = 2 [ orange] = 3 [ yellow] = 4 [ green] = 5 [ blue] = 6 [ violet] = 7 [ grey] = 8 [ white] = 9 )
-user_input =( "\"" ${ 1 } "\"" "\"" ${ 2 } "\"" "\"" ${ 3 } "\"" )
-[[ -z "\"" ${ color_values [ ${ user_input [0] } ] } "\"" || -z "\"" ${ color_values [ ${ user_input [1] } ] } "\"" || -z "\"" ${ color_values [ ${ user_input [2] } ] } "\"" ]] && echo "\"invalid color\"" && exit 1
-function ohm_value {
-ohm = $(( "\"" ${ 1 } "\"" * 10 + "\"" ${ 2 } "\"" ))
-for (( i = 0 ; i < "\"" ${ 3 } "\"" ; i++ )) ; do
-ohm = $(( "\"" ${ ohm } "\"" * 10 ))
-done
-result = "\"\""
-if [[ "\"" ${ ohm } "\"" -eq 0 ]] ; then
-result = "\"0 ohms\""
-elif [[ "\"" ${ ohm } " % 1000000000\"" -eq 0 ]] ; then
-result = "\"" $(( ohm/1000000000 )) " gigaohms\""
-elif [[ "\"" ${ ohm } " % 1000000\"" -eq 0 ]] ; then
-result = "\"" $(( ohm/1000000 )) " megaohms\""
-elif [[ "\"" ${ ohm } " % 1000\"" -eq 0 ]] ; then
-result = "\"" $(( ohm/1000 )) " kiloohms\""
-else
-result = "\"" ${ ohm } " ohms\""
-fi
-echo "\"" ${ result } "\""
-}
-ohm_value "\"" ${ color_values [ ${ user_input [0] } ] } "\"" "\"" ${ color_values [ ${ user_input [1] } ] } "\"" "\"" ${ color_values [ ${ user_input [2] } ] } "\""
-exit 0
+(program
+  (declaration_command declare -A PLACEHOLDER_1)
+  (variable_assignment PLACEHOLDER_1
+    (array
+      (concatenation [ black ] =0)
+      (concatenation [ brown ] =1)
+      (concatenation [ red ] =2)
+      (concatenation [ orange ] =3)
+      (concatenation [ yellow ] =4)
+      (concatenation [ green ] =5)
+      (concatenation [ blue ] =6)
+      (concatenation [ violet ] =7)
+      (concatenation [ grey ] =8)
+      (concatenation [ white ] =9)))
+  (variable_assignment PLACEHOLDER_2
+    (array
+      (string
+        (expansion 1))
+      (string
+        (expansion 2))
+      (string
+        (expansion 3))))
+  (list
+    (list
+      (test_command [[
+        (binary_expression
+          (binary_expression
+            (unary_expression -z
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_1
+                    (expansion
+                      (subscript PLACEHOLDER_2 0)))))) ||
+            (unary_expression -z
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_1
+                    (expansion
+                      (subscript PLACEHOLDER_2 1))))))) ||
+          (unary_expression -z
+            (string
+              (expansion
+                (subscript PLACEHOLDER_1
+                  (expansion
+                    (subscript PLACEHOLDER_2 2)))))))) &&
+      (command echo "invalid color")) &&
+    (command exit 1))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_4
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression
+              (string
+                (expansion 1)) * 10) +
+            (string
+              (expansion 2)))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_5 0) ;
+        (binary_expression PLACEHOLDER_5 <
+          (string
+            (expansion 3))) ;
+        (postfix_expression PLACEHOLDER_5 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_4
+            (arithmetic_expansion
+              (binary_expression
+                (string
+                  (expansion PLACEHOLDER_4)) * 10)))))
+      (variable_assignment PLACEHOLDER_6 "")
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (expansion PLACEHOLDER_4)) -eq 0)) then
+        (variable_assignment PLACEHOLDER_6 "0 ohms")
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (string
+                (expansion PLACEHOLDER_4) " % 1000000000") -eq 0)) then
+          (variable_assignment PLACEHOLDER_6
+            (string
+              (arithmetic_expansion
+                (binary_expression PLACEHOLDER_4 / 1000000000)) " gigaohms")))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (string
+                (expansion PLACEHOLDER_4) " % 1000000") -eq 0)) then
+          (variable_assignment PLACEHOLDER_6
+            (string
+              (arithmetic_expansion
+                (binary_expression PLACEHOLDER_4 / 1000000)) " megaohms")))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (string
+                (expansion PLACEHOLDER_4) " % 1000") -eq 0)) then
+          (variable_assignment PLACEHOLDER_6
+            (string
+              (arithmetic_expansion
+                (binary_expression PLACEHOLDER_4 / 1000)) " kiloohms")))
+        (else_clause
+          (variable_assignment PLACEHOLDER_6
+            (string
+              (expansion PLACEHOLDER_4) " ohms"))))
+      (command echo
+        (string
+          (expansion PLACEHOLDER_6)))))
+  (command (command_name PLACEHOLDER_3)
+    (string
+      (expansion
+        (subscript PLACEHOLDER_1
+          (expansion
+            (subscript PLACEHOLDER_2 0)))))
+    (string
+      (expansion
+        (subscript PLACEHOLDER_1
+          (expansion
+            (subscript PLACEHOLDER_2 1)))))
+    (string
+      (expansion
+        (subscript PLACEHOLDER_1
+          (expansion
+            (subscript PLACEHOLDER_2 2))))))
+  (command exit 0))

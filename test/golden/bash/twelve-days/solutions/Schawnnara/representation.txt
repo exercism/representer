@@ -1,41 +1,58 @@
-readonly days =(
-"\"\"" first second third fourth fifth sixth
-seventh eighth ninth tenth eleventh twelfth
-)
-readonly gifts =(
-"\"\""
-"\"a Partridge in a Pear Tree\""
-"\"two Turtle Doves\""
-"\"three French Hens\""
-"\"four Calling Birds\""
-"\"five Gold Rings\""
-"\"six Geese-a-Laying\""
-"\"seven Swans-a-Swimming\""
-"\"eight Maids-a-Milking\""
-"\"nine Ladies Dancing\""
-"\"ten Lords-a-Leaping\""
-"\"eleven Pipers Piping\""
-"\"twelve Drummers Drumming\""
-)
-verse () {
-local -a presents
-local -i n = $1 i
-local comma = "\",\"" and = "\"\""
-for (( i = n ; i >= 1 ; i-- )) ; do
-if (( i == 1 )) ; then
-comma = "\".\""
-(( n > 1 )) && and = "\"and \""
-fi
-presents+ =( "\"" ${ and }${ gifts [i] }${ comma } "\"" )
-done
-printf "\"On the %s day of Christmas my true love gave to me: %s\\n\"" \
-"\"" ${ days [n] } "\"" \
-"\"" ${ presents [*] } "\""
-}
-main () {
-local -i i
-for (( i = $1 ; i < = $2 ; i++ )) ; do
-verse $i
-done
-}
-main "\"" $@ "\""
+(program
+  (declaration_command readonly
+    (variable_assignment PLACEHOLDER_1
+      (array "" first second third fourth fifth sixth seventh eighth ninth tenth eleventh twelfth)))
+  (declaration_command readonly
+    (variable_assignment PLACEHOLDER_2
+      (array "" "a Partridge in a Pear Tree" "two Turtle Doves" "three French Hens" "four Calling Birds" "five Gold Rings" "six Geese-a-Laying" "seven Swans-a-Swimming" "eight Maids-a-Milking" "nine Ladies Dancing" "ten Lords-a-Leaping" "eleven Pipers Piping" "twelve Drummers Drumming")))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (declaration_command local -a PLACEHOLDER_4)
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_5
+          (simple_expansion 1)) PLACEHOLDER_6)
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_7 ",")
+        (variable_assignment PLACEHOLDER_8 ""))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_6 PLACEHOLDER_5) ;
+        (binary_expression PLACEHOLDER_6 >= 1) ;
+        (postfix_expression PLACEHOLDER_6 --)
+        (do_group
+          (if_statement
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_6 == 1)) then
+            (variable_assignment PLACEHOLDER_7 ".")
+            (list
+              (arithmetic_command
+                (binary_expression PLACEHOLDER_5 > 1)) &&
+              (variable_assignment PLACEHOLDER_8 "and ")))
+          (variable_assignment PLACEHOLDER_4 +=
+            (array
+              (string
+                (expansion PLACEHOLDER_8)
+                (expansion
+                  (subscript PLACEHOLDER_2 PLACEHOLDER_6))
+                (expansion PLACEHOLDER_7))))))
+      (command printf "On the %s day of Christmas my true love gave to me: %s\\n"
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1 PLACEHOLDER_5)))
+        (string
+          (expansion
+            (subscript PLACEHOLDER_4 *))))))
+  (function_definition (function_name PLACEHOLDER_9)
+    (compound_statement
+      (declaration_command local -i PLACEHOLDER_6)
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_6
+          (simple_expansion 1)) ;
+        (binary_expression PLACEHOLDER_6 <=
+          (simple_expansion 2)) ;
+        (postfix_expression PLACEHOLDER_6 ++)
+        (do_group
+          (command (command_name PLACEHOLDER_3)
+            (simple_expansion PLACEHOLDER_6))))))
+  (command (command_name PLACEHOLDER_9)
+    (string
+      (simple_expansion @))))

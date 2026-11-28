@@ -1,11 +1,32 @@
-input = ${ 1 ,, }
-input_len = ${# input }
-alphabet = abcdefghijklmnopqrstuvwxyz
-declare -A letters
-for (( i = 0 ; i < ${# alphabet } ; i++ )) ; do
-letters[ ${ alphabet :i:1 } ]= "\"\""
-done
-for (( i = 0 ; i < input_len ; i++ )) ; do
-unset "\"letters[" ${ input :i:1 } ]"
-done
-[[ ${# letters [@] } -eq 0 ]] && echo "\"true\"" || echo "\"false\""
+(program
+  (variable_assignment PLACEHOLDER_1
+    (expansion 1 ,,))
+  (variable_assignment PLACEHOLDER_2
+    (expansion # PLACEHOLDER_1))
+  (variable_assignment PLACEHOLDER_3 abcdefghijklmnopqrstuvwxyz)
+  (declaration_command declare -A PLACEHOLDER_4)
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_5 0) ;
+    (binary_expression PLACEHOLDER_5 <
+      (expansion # PLACEHOLDER_3)) ;
+    (postfix_expression PLACEHOLDER_5 ++)
+    (do_group
+      (variable_assignment
+        (subscript PLACEHOLDER_4
+          (expansion PLACEHOLDER_3 : PLACEHOLDER_5 : 1)) "")))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_5 0) ;
+    (binary_expression PLACEHOLDER_5 < PLACEHOLDER_2) ;
+    (postfix_expression PLACEHOLDER_5 ++)
+    (do_group
+      (unset_command unset
+        (string "letters["
+          (expansion PLACEHOLDER_1 : PLACEHOLDER_5 : 1) "]"))))
+  (list
+    (list
+      (test_command [[
+        (binary_expression
+          (expansion #
+            (subscript PLACEHOLDER_4 @)) -eq 0)) &&
+      (command echo "true")) ||
+    (command echo "false")))

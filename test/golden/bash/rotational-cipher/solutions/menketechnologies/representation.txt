@@ -1,11 +1,37 @@
-declare -A dict
-for alpha in abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ ; do
-for i in { 0..25 } ; do
-dict[ ${ alpha :i:1 } ]= ${ alpha : (i + $2 )%26 :1 }
-done
-done
-while IFS = read -rn 1 cur ; do
-[[ $cur == [[ :alpha:]] ]] && cur = ${ dict [ $cur ] }
-res+ = $cur
-done < < ( printf "\"" $1 "\"" )
-echo "\"" $res "\""
+(program
+  (declaration_command declare -A PLACEHOLDER_1)
+  (for_statement PLACEHOLDER_2 in abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    (do_group
+      (for_statement PLACEHOLDER_3 in
+        (brace_expression 0 25)
+        (do_group
+          (variable_assignment
+            (subscript PLACEHOLDER_1
+              (expansion PLACEHOLDER_2 : PLACEHOLDER_3 : 1))
+            (expansion PLACEHOLDER_2 :
+              (binary_expression
+                (binary_expression PLACEHOLDER_3 +
+                  (simple_expansion 2)) % 26) : 1))))))
+  (redirected_statement
+    (while_statement
+      (command
+        (variable_assignment IFS) read -rn 1 PLACEHOLDER_4)
+      (do_group
+        (list
+          (test_command [[
+            (binary_expression
+              (simple_expansion PLACEHOLDER_4) == [[:alpha:]])) &&
+          (variable_assignment PLACEHOLDER_4
+            (expansion
+              (subscript PLACEHOLDER_1
+                (simple_expansion PLACEHOLDER_4)))))
+        (variable_assignment PLACEHOLDER_5 +=
+          (simple_expansion PLACEHOLDER_4))))
+    (file_redirect <
+      (process_substitution "<("
+        (command printf
+          (string
+            (simple_expansion 1))))))
+  (command echo
+    (string
+      (simple_expansion PLACEHOLDER_5))))

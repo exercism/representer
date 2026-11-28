@@ -1,14 +1,34 @@
-limit = $1
-shift
-multiples =()
-for factor ; do
-(( factor > 0 )) || continue
-for (( i = factor ; i < limit ; i + = factor )) ; do
-if (( i % factor == 0 )) ; then
-multiples[ $i ]= 1
-fi
-done
-done
-sum = 0
-for m in "\"" ${ !multiples[@] } "\"" ; do (( sum + = m )) ; done
-echo $sum
+(program
+  (variable_assignment PLACEHOLDER_1
+    (simple_expansion 1))
+  (command shift)
+  (variable_assignment PLACEHOLDER_2
+    (array))
+  (for_statement PLACEHOLDER_3
+    (do_group
+      (list
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_3 > 0)) ||
+        (command continue))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_4 PLACEHOLDER_3) ;
+        (binary_expression PLACEHOLDER_4 < PLACEHOLDER_1) ;
+        (binary_expression PLACEHOLDER_4 += PLACEHOLDER_3)
+        (do_group
+          (if_statement
+            (arithmetic_command
+              (binary_expression
+                (binary_expression PLACEHOLDER_4 % PLACEHOLDER_3) == 0)) then
+            (variable_assignment
+              (subscript PLACEHOLDER_2
+                (simple_expansion PLACEHOLDER_4)) 1))))))
+  (variable_assignment PLACEHOLDER_5 0)
+  (for_statement PLACEHOLDER_6 in
+    (string
+      (expansion !
+        (subscript PLACEHOLDER_2 @)))
+    (do_group
+      (arithmetic_command
+        (binary_expression PLACEHOLDER_5 += PLACEHOLDER_6))))
+  (command echo
+    (simple_expansion PLACEHOLDER_5)))

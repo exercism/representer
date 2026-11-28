@@ -1,26 +1,101 @@
-chr () { printf "\"\\\\$(" printf '%03o' "\"" $1 "\")\"" ; }
-ord () { LC_CTYPE = C printf '%d' "\"'" $1 "\"" ; }
-readonly TRANSPOSITION_CONST = $(( 25 + ( $( ord a ) << 1 ) ))
-transpose () {
-[[ $1 = ~ [[ :digit:]] ]] &&
-echo -n "\"" $1 "\"" ||
-chr "\"" $(( TRANSPOSITION_CONST - $( ord "\"" $1 "\")" )) "\""
-}
-encode () {
-local count = 0
-while read -rn1 ch ; do
-(( count++ % 5 == 0 && count > 1 )) && echo -n "\" \""
-transpose "\"" $ch "\""
-done < < ( echo -n "\"" ${ 1 //[[ :punct:]]/ } "\"" )
-}
-decode () {
-while read -rn1 ch ; do
-transpose "\"" $ch "\""
-done < < ( echo -n "\"" $1 "\"" )
-}
-readonly op = "\"" $1 "\""
-[[ "\"" $op "\"" == "\"encode\"" || "\"" $op "\"" == "\"decode\"" ]] || exit 1
-shift
-arg = "\"" ${ *,, } "\""
-eval "\"" $op " " ${ arg // / } "\""
-echo
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (command printf
+        (string "\\"
+          (command_substitution
+            (command printf "%03o"
+              (string
+                (simple_expansion 1))))))))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (command
+        (variable_assignment LC_CTYPE C) printf "%d"
+        (string "'"
+          (simple_expansion 1)))))
+  (declaration_command readonly
+    (variable_assignment PLACEHOLDER_3
+      (arithmetic_expansion
+        (binary_expression 25 +
+          (binary_expression
+            (command_substitution
+              (command (command_name PLACEHOLDER_2) a)) << 1)))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (list
+        (list
+          (test_command [[
+            (binary_expression
+              (simple_expansion 1) =~ [[:digit:]])) &&
+          (command echo -n
+            (string
+              (simple_expansion 1)))) ||
+        (command (command_name PLACEHOLDER_1)
+          (string
+            (arithmetic_expansion
+              (binary_expression PLACEHOLDER_3 -
+                (command_substitution
+                  (command (command_name PLACEHOLDER_2)
+                    (string
+                      (simple_expansion 1)))))))))))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_6 0))
+      (redirected_statement
+        (while_statement
+          (command read -rn1 PLACEHOLDER_7)
+          (do_group
+            (list
+              (arithmetic_command
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (postfix_expression PLACEHOLDER_6 ++) % 5) == 0) &&
+                  (binary_expression PLACEHOLDER_6 > 1))) &&
+              (command echo -n ""))
+            (command (command_name PLACEHOLDER_4)
+              (string
+                (simple_expansion PLACEHOLDER_7)))))
+        (file_redirect <
+          (process_substitution "<("
+            (command echo -n
+              (string
+                (expansion 1 // [[:punct:]] /))))))))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (redirected_statement
+        (while_statement
+          (command read -rn1 PLACEHOLDER_7)
+          (do_group
+            (command (command_name PLACEHOLDER_4)
+              (string
+                (simple_expansion PLACEHOLDER_7)))))
+        (file_redirect <
+          (process_substitution "<("
+            (command echo -n
+              (string
+                (simple_expansion 1))))))))
+  (declaration_command readonly
+    (variable_assignment PLACEHOLDER_9
+      (string
+        (simple_expansion 1))))
+  (list
+    (test_command [[
+      (binary_expression
+        (binary_expression
+          (string
+            (simple_expansion PLACEHOLDER_9)) == "encode") ||
+        (binary_expression
+          (string
+            (simple_expansion PLACEHOLDER_9)) == "decode"))) ||
+    (command exit 1))
+  (command shift)
+  (variable_assignment PLACEHOLDER_10
+    (string
+      (expansion * ,,)))
+  (command eval
+    (string
+      (simple_expansion PLACEHOLDER_9)
+      (expansion PLACEHOLDER_10 // " " /)))
+  (command echo))

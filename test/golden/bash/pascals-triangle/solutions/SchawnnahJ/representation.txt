@@ -1,12 +1,50 @@
-(( $# == 1 )) || exit 1
-row =()
-for (( i = 0 ; i < $1 ; i++ )) ; do
-next =( 1 )
-for (( j = 1 ; j < i ; j++ )) ; do
-next+ =( $(( ${ row [j-1] } + ${ row [j] } )) )
-done
-(( i )) && next+ =( 1 )
-row =( "\"" ${ next [@] } "\"" )
-for (( j = i + 1 ; j < $1 ; j++ )) ; do printf "' '" ; done
-echo "\"" ${ row [@] } "\""
-done
+(program
+  (list
+    (arithmetic_command
+      (binary_expression
+        (simple_expansion #) == 1)) ||
+    (command exit 1))
+  (variable_assignment PLACEHOLDER_1
+    (array))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_2 0) ;
+    (binary_expression PLACEHOLDER_2 <
+      (simple_expansion 1)) ;
+    (postfix_expression PLACEHOLDER_2 ++)
+    (do_group
+      (variable_assignment PLACEHOLDER_3
+        (array 1))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_4 1) ;
+        (binary_expression PLACEHOLDER_4 < PLACEHOLDER_2) ;
+        (postfix_expression PLACEHOLDER_4 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_3 +=
+            (array
+              (arithmetic_expansion
+                (binary_expression
+                  (expansion
+                    (subscript PLACEHOLDER_1 j-1)) +
+                  (expansion
+                    (subscript PLACEHOLDER_1 PLACEHOLDER_4))))))))
+      (list
+        (arithmetic_command PLACEHOLDER_2) &&
+        (variable_assignment PLACEHOLDER_3 +=
+          (array 1)))
+      (variable_assignment PLACEHOLDER_1
+        (array
+          (string
+            (expansion
+              (subscript PLACEHOLDER_3 @)))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_4
+          (binary_expression PLACEHOLDER_2 + 1)) ;
+        (binary_expression PLACEHOLDER_4 <
+          (simple_expansion 1)) ;
+        (postfix_expression PLACEHOLDER_4 ++)
+        (do_group
+          (command printf " ")))
+      (command echo
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1 @)))))))

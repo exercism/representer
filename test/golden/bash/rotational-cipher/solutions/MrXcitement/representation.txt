@@ -1,29 +1,88 @@
-input = $1
-shift_value = $2
-set -euo pipefail
-rotate_ascii () {
-local base = $1
-local ascii = $2
-local shift = $3
-echo $(( ( ascii - base + shift ) % 26 + base ))
-}
-ascii_to_char () {
-local ascii = $1
-printf "\"%b\"" "\"\\\\$(" printf "\"%o\"" "\"" $ascii "\")\""
-}
-rotate_char () {
-local char = $1
-local shift = $2
-ascii = $( printf "\"%d\"" "\"'" $char "\")"
-if [[ $char = ~ [ a-z] ]] ; then
-ascii_to_char "\"$(" rotate_ascii 97 "\"" $ascii "\"" "\"" $shift "\")\""
-elif [[ $char = ~ [ A-Z] ]] ; then
-ascii_to_char "\"$(" rotate_ascii 65 "\"" $ascii "\"" "\"" $shift "\")\""
-else
-printf "\"%s\"" "\"" $char "\""
-fi
-}
-for (( i = 0 ; i< ${# input } ; i++ )) ; do
-rotate_char "\"" ${ input : $i :1 } "\"" "\"" $shift_value "\""
-done
-echo
+(program
+  (variable_assignment PLACEHOLDER_1
+    (simple_expansion 1))
+  (variable_assignment PLACEHOLDER_2
+    (simple_expansion 2))
+  (command set -euo pipefail)
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_4
+          (simple_expansion 1)))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_5
+          (simple_expansion 2)))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_6
+          (simple_expansion 3)))
+      (command echo
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_5 - PLACEHOLDER_4) + PLACEHOLDER_6) % 26) + PLACEHOLDER_4)))))
+  (function_definition (function_name PLACEHOLDER_7)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_5
+          (simple_expansion 1)))
+      (command printf "%b"
+        (string "\\"
+          (command_substitution
+            (command printf "%o"
+              (string
+                (simple_expansion PLACEHOLDER_5))))))))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_9
+          (simple_expansion 1)))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_6
+          (simple_expansion 2)))
+      (variable_assignment PLACEHOLDER_5
+        (command_substitution
+          (command printf "%d"
+            (string "'"
+              (simple_expansion PLACEHOLDER_9)))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (simple_expansion PLACEHOLDER_9) =~ [a-z])) then
+        (command (command_name PLACEHOLDER_7)
+          (string
+            (command_substitution
+              (command (command_name PLACEHOLDER_3) 97
+                (string
+                  (simple_expansion PLACEHOLDER_5))
+                (string
+                  (simple_expansion PLACEHOLDER_6))))))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (simple_expansion PLACEHOLDER_9) =~ [A-Z])) then
+          (command (command_name PLACEHOLDER_7)
+            (string
+              (command_substitution
+                (command (command_name PLACEHOLDER_3) 65
+                  (string
+                    (simple_expansion PLACEHOLDER_5))
+                  (string
+                    (simple_expansion PLACEHOLDER_6)))))))
+        (else_clause
+          (command printf "%s"
+            (string
+              (simple_expansion PLACEHOLDER_9)))))))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_10 0) ;
+    (binary_expression PLACEHOLDER_10 <
+      (expansion # PLACEHOLDER_1)) ;
+    (postfix_expression PLACEHOLDER_10 ++)
+    (do_group
+      (command (command_name PLACEHOLDER_8)
+        (string
+          (expansion PLACEHOLDER_1 :
+            (simple_expansion PLACEHOLDER_10) : 1))
+        (string
+          (simple_expansion PLACEHOLDER_2)))))
+  (command echo))

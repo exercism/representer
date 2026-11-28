@@ -1,27 +1,55 @@
-generate () {
-prefix =(
-"\"first\"" "\"second\"" "\"third\"" "\"fourth\"" "\"fifth\"" "\"sixth\""
-"\"seventh\"" "\"eighth\"" "\"ninth\"" "\"tenth\"" "\"eleventh\"" "\"twelfth\""
-)
-things =(
-"\"a Partridge in a Pear Tree\"" "\"two Turtle Doves\"" "\"three French Hens\""
-"\"four Calling Birds\"" "\"five Gold Rings\"" "\"six Geese-a-Laying\""
-"\"seven Swans-a-Swimming\"" "\"eight Maids-a-Milking\"" "\"nine Ladies Dancing\""
-"\"ten Lords-a-Leaping\"" "\"eleven Pipers Piping\"" "\"twelve Drummers Drumming\""
-)
-n = $(( $1 - 1 ))
-result = "\"On the " ${ prefix [n] } " day of Christmas my true love gave to me: \""
-for i in $( seq "\"" $n "\"" -1 0 ) ; do
-if [[ $i -ne $n ]] ; then
-result = "\"" $result ", \""
-if [[ $i -eq 0 ]] ; then
-result = "\"" ${ result } "and \""
-fi
-fi
-result = $result ${ things [i] }
-done
-echo "\"" $result ."
-}
-for i in $( seq "\"" $1 "\"" "\"" $2 "\")" ; do
-generate "\"" $i "\""
-done
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (array "first" "second" "third" "fourth" "fifth" "sixth" "seventh" "eighth" "ninth" "tenth" "eleventh" "twelfth"))
+      (variable_assignment PLACEHOLDER_3
+        (array "a Partridge in a Pear Tree" "two Turtle Doves" "three French Hens" "four Calling Birds" "five Gold Rings" "six Geese-a-Laying" "seven Swans-a-Swimming" "eight Maids-a-Milking" "nine Ladies Dancing" "ten Lords-a-Leaping" "eleven Pipers Piping" "twelve Drummers Drumming"))
+      (variable_assignment PLACEHOLDER_4
+        (arithmetic_expansion
+          (binary_expression
+            (simple_expansion 1) - 1)))
+      (variable_assignment PLACEHOLDER_5
+        (string "On the "
+          (expansion
+            (subscript PLACEHOLDER_2 PLACEHOLDER_4)) " day of Christmas my true love gave to me: "))
+      (for_statement PLACEHOLDER_6 in
+        (command_substitution
+          (command seq
+            (string
+              (simple_expansion PLACEHOLDER_4)) -1 0))
+        (do_group
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (simple_expansion PLACEHOLDER_6) -ne
+                (simple_expansion PLACEHOLDER_4))) then
+            (variable_assignment PLACEHOLDER_5
+              (string
+                (simple_expansion PLACEHOLDER_5) ", "))
+            (if_statement
+              (test_command [[
+                (binary_expression
+                  (simple_expansion PLACEHOLDER_6) -eq 0)) then
+              (variable_assignment PLACEHOLDER_5
+                (string
+                  (expansion PLACEHOLDER_5) "and "))))
+          (variable_assignment PLACEHOLDER_5
+            (concatenation
+              (simple_expansion PLACEHOLDER_5)
+              (expansion
+                (subscript PLACEHOLDER_3 PLACEHOLDER_6))))))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_5) "."))))
+  (for_statement PLACEHOLDER_6 in
+    (command_substitution
+      (command seq
+        (string
+          (simple_expansion 1))
+        (string
+          (simple_expansion 2))))
+    (do_group
+      (command (command_name PLACEHOLDER_1)
+        (string
+          (simple_expansion PLACEHOLDER_6))))))

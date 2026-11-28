@@ -1,28 +1,99 @@
-set -euo pipefail
-declare -Ar lookup_table =(
-[ black] = 0 [ brown] = 1 [ red] = 2 [ orange] = 3 [ yellow] = 4
-[ green] = 5 [ blue] = 6 [ violet] = 7 [ grey] = 8 [ white] = 9
-)
-declare -ar units =( ohms kiloohms megaohms gigaohms )
-die () {
-echo "\"" $* "\"" > &2
-exit 1
-}
-resistor_value () {
-local value = "\"" ${ 1 }${ 2 } "\"" zero_count = $3 idx = 0
-for (( i = 0 ; i < zero_count ; i++ )) ; do
-value+ = 0
-done
-while [[ $value == * 000 ]] ; do
-value = ${ value %000 }
-(( ++idx ))
-done
-value = ${ value #0 }
-echo "\"" $value "\"" "\"" ${ units [ $idx ] } "\""
-}
-main () {
-local first = ${ 1 :-} second = ${ 2 :-} third = ${ 3 :-}
-[[ -v lookup_table[ $first ] && -v lookup_table[ $second ] && -v lookup_table[ $third ] ]] || die "\"invalid color\""
-resistor_value "\"" ${ lookup_table [ $first ] } "\"" "\"" ${ lookup_table [ $second ] } "\"" "\"" ${ lookup_table [ $third ] } "\""
-}
-main "\"" $@ "\""
+(program
+  (command set -euo pipefail)
+  (declaration_command declare -Ar
+    (variable_assignment PLACEHOLDER_1
+      (array
+        (concatenation [ black ] =0)
+        (concatenation [ brown ] =1)
+        (concatenation [ red ] =2)
+        (concatenation [ orange ] =3)
+        (concatenation [ yellow ] =4)
+        (concatenation [ green ] =5)
+        (concatenation [ blue ] =6)
+        (concatenation [ violet ] =7)
+        (concatenation [ grey ] =8)
+        (concatenation [ white ] =9))))
+  (declaration_command declare -ar
+    (variable_assignment PLACEHOLDER_2
+      (array ohms kiloohms megaohms gigaohms)))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (redirected_statement
+        (command echo
+          (string
+            (simple_expansion *)))
+        (file_redirect >& 2))
+      (command exit 1)))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_5
+          (string
+            (expansion 1)
+            (expansion 2)))
+        (variable_assignment PLACEHOLDER_6
+          (simple_expansion 3))
+        (variable_assignment PLACEHOLDER_7 0))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_8 0) ;
+        (binary_expression PLACEHOLDER_8 < PLACEHOLDER_6) ;
+        (postfix_expression PLACEHOLDER_8 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_5 += 0)))
+      (while_statement
+        (test_command [[
+          (binary_expression
+            (simple_expansion PLACEHOLDER_5) == *000))
+        (do_group
+          (variable_assignment PLACEHOLDER_5
+            (expansion PLACEHOLDER_5 % 000))
+          (arithmetic_command
+            (unary_expression ++ PLACEHOLDER_7))))
+      (variable_assignment PLACEHOLDER_5
+        (expansion PLACEHOLDER_5 # 0))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_5))
+        (string
+          (expansion
+            (subscript PLACEHOLDER_2
+              (simple_expansion PLACEHOLDER_7)))))))
+  (function_definition (function_name PLACEHOLDER_9)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_10
+          (expansion 1 :-))
+        (variable_assignment PLACEHOLDER_11
+          (expansion 2 :-))
+        (variable_assignment PLACEHOLDER_12
+          (expansion 3 :-)))
+      (list
+        (test_command [[
+          (binary_expression
+            (binary_expression
+              (unary_expression -v
+                (concatenation lookup_table [
+                  (simple_expansion PLACEHOLDER_10) ])) &&
+              (unary_expression -v
+                (concatenation lookup_table [
+                  (simple_expansion PLACEHOLDER_11) ]))) &&
+            (unary_expression -v
+              (concatenation lookup_table [
+                (simple_expansion PLACEHOLDER_12) ])))) ||
+        (command (command_name PLACEHOLDER_3) "invalid color"))
+      (command (command_name PLACEHOLDER_4)
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1
+              (simple_expansion PLACEHOLDER_10))))
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1
+              (simple_expansion PLACEHOLDER_11))))
+        (string
+          (expansion
+            (subscript PLACEHOLDER_1
+              (simple_expansion PLACEHOLDER_12)))))))
+  (command (command_name PLACEHOLDER_9)
+    (string
+      (simple_expansion @))))

@@ -1,23 +1,67 @@
-set -eu
-main () {
-local -i bits = 0
-if (( $# > 0 )) ; then
-[[ $1 == * [[ :lower:]] * ]] && (( bits | = 1 ))
-[[ $1 == * [[ :upper:]] * ]] && (( bits | = 2 ))
-[[ $1 == * [[ :digit:]] * ]] && (( bits | = 4 ))
-[[ $1 = ~ \? [[ :space:]] * $ ]] && (( bits | = 8 ))
-fi
-local res = "\"\""
-res+ = $(( bits >> 3 & 1 ))
-res+ = $(( bits >> 2 & 1 ))
-res+ = $(( bits >> 1 & 1 ))
-res+ = $(( bits >> 0 & 1 ))
-case $res in
-1 * 10 ) echo "\"Calm down, I know what I'm doing!\"" ;;
-** 10 ) echo "\"Whoa, chill out!\"" ;;
-1 *** ) echo "\"Sure.\"" ;;
-0000 ) echo "\"Fine. Be that way!\"" ;;
-* ) echo "\"Whatever.\"" ;;
-esac
-}
-main "\"" $@ "\""
+(program
+  (command set -eu)
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local -i
+        (variable_assignment PLACEHOLDER_2 0))
+      (if_statement
+        (arithmetic_command
+          (binary_expression
+            (simple_expansion #) > 0)) then
+        (list
+          (test_command [[
+            (binary_expression
+              (simple_expansion 1) == *[[:lower:]]*)) &&
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 |= 1)))
+        (list
+          (test_command [[
+            (binary_expression
+              (simple_expansion 1) == *[[:upper:]]*)) &&
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 |= 2)))
+        (list
+          (test_command [[
+            (binary_expression
+              (simple_expansion 1) == *[[:digit:]]*)) &&
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 |= 4)))
+        (list
+          (test_command [[
+            (binary_expression
+              (simple_expansion 1) =~ "\\?[[:space:]]*$")) &&
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 |= 8))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3 ""))
+      (variable_assignment PLACEHOLDER_3 +=
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression PLACEHOLDER_2 >> 3) & 1)))
+      (variable_assignment PLACEHOLDER_3 +=
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression PLACEHOLDER_2 >> 2) & 1)))
+      (variable_assignment PLACEHOLDER_3 +=
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression PLACEHOLDER_2 >> 1) & 1)))
+      (variable_assignment PLACEHOLDER_3 +=
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression PLACEHOLDER_2 >> 0) & 1)))
+      (case_statement
+        (simple_expansion PLACEHOLDER_3)
+        (case_item 1*10
+          (command echo "Calm down, I know what I'm doing!"))
+        (case_item **10
+          (command echo "Whoa, chill out!"))
+        (case_item 1***
+          (command echo "Sure."))
+        (case_item 0000
+          (command echo "Fine. Be that way!"))
+        (case_item *
+          (command echo "Whatever.")))))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

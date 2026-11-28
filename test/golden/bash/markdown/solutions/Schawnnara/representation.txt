@@ -1,52 +1,184 @@
-while IFS = read -r line ; do
-while true ; do
-orig = $line
-if [[ $line = ~ ^ ( .+ ) __ ( . * ) ]] ; then
-post = ${ BASH_REMATCH [2] } ; pre = ${ BASH_REMATCH [1] }
-if [[ $pre = ~ ^ ( . * ) __ ( .+ ) ]] ; then
-printf -v line "\"%s<strong>%s</strong>%s\"" "\"" ${ BASH_REMATCH [1] } "\"" "\"" ${ BASH_REMATCH [2] } "\"" "\"" $post "\""
-fi
-fi
-[ "\"" $line "\"" != "\"" $orig "\"" ] || break
-done
-echo "\"" $line "\"" | grep '^\*' > /dev/null 2>&1
-if [ $? -eq 0 ] ; then
-if [ X $inside_a_list != Xyes ] ; then
-h = "\"" $h <ul>"
-inside_a_list = yes
-fi
-while [[ $line == * _ * ?_ * ]] ; do
-one = ${ line #*_ }
-two = ${ one #*_ }
-if [ ${# two } -lt ${# one } -a ${# one } -lt ${# line } ] ; then
-line = "\"" ${ line %%_ $one } <em> ${ one %%_ $two } </em> $two "\""
-fi ; done
-h = "\"" $h <li> ${ line #?? } </li>"
-else
-if [ X $inside_a_list = Xyes ] ; then
-h = "\"" $h </ul>"
-inside_a_list = no
-fi
-n = ` expr "\"" $line "\"" : "\"#\\{1,\\}\"`"
-if [ $n -gt 0 -a 7 -gt $n ] ; then
-while [[ $line == * _ * ?_ * ]] ; do
-s = ${ line #*_ }
-t = ${ s #*_ }
-if [ ${# t } -lt ${# s } -a ${# s } -lt ${# line } ] ; then
-line = "\"" ${ line %%_ $s } <em> ${ s %%_ $t } </em> $t "\""
-fi
-done
-HEAD = ${ line :n }
-while [[ $HEAD == "\" \"" * ]] ; do HEAD = ${ HEAD # } ; done
-h = "\"" $h <h $n > $HEAD </h $n >"
-else
-grep '_..*_' <<< "\"" $line "\"" > /dev/null &&
-line = ` echo "\"" $line "\"" | sed -E 's,_([^_]+)_,<em>\1</em>,g'`
-h = "\"" $h <p> $line </p>"
-fi
-fi
-done < "\"" $1 "\""
-if [ X $inside_a_list = Xyes ] ; then
-h = "\"" $h </ul>"
-fi
-echo "\"" $h "\""
+(program
+  (redirected_statement
+    (while_statement
+      (command
+        (variable_assignment IFS) read -r PLACEHOLDER_1)
+      (do_group
+        (while_statement
+          (command true)
+          (do_group
+            (variable_assignment PLACEHOLDER_2
+              (simple_expansion PLACEHOLDER_1))
+            (if_statement
+              (test_command [[
+                (binary_expression
+                  (simple_expansion PLACEHOLDER_1) =~ "^(.+)__(.*)")) then
+              (variable_assignment PLACEHOLDER_3
+                (expansion
+                  (subscript BASH_REMATCH 2)))
+              (variable_assignment PLACEHOLDER_4
+                (expansion
+                  (subscript BASH_REMATCH 1)))
+              (if_statement
+                (test_command [[
+                  (binary_expression
+                    (simple_expansion PLACEHOLDER_4) =~ "^(.*)__(.+)")) then
+                (command printf -v PLACEHOLDER_1 "%s<strong>%s</strong>%s"
+                  (string
+                    (expansion
+                      (subscript BASH_REMATCH 1)))
+                  (string
+                    (expansion
+                      (subscript BASH_REMATCH 2)))
+                  (string
+                    (simple_expansion PLACEHOLDER_3)))))
+            (list
+              (test_command [
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_1)) !=
+                  (string
+                    (simple_expansion PLACEHOLDER_2)))) ||
+              (command break))))
+        (redirected_statement
+          (pipeline
+            (command echo
+              (string
+                (simple_expansion PLACEHOLDER_1))) |
+            (command grep "^\\*"))
+          (file_redirect > /dev/null)
+          (file_redirect 2 >& 1))
+        (if_statement
+          (test_command [
+            (binary_expression
+              (simple_expansion ?) -eq 0)) then
+          (if_statement
+            (test_command [
+              (binary_expression
+                (concatenation X
+                  (simple_expansion PLACEHOLDER_5)) != Xyes)) then
+            (variable_assignment PLACEHOLDER_6
+              (string
+                (simple_expansion PLACEHOLDER_6) "<ul>"))
+            (variable_assignment PLACEHOLDER_5 yes))
+          (while_statement
+            (test_command [[
+              (binary_expression
+                (simple_expansion PLACEHOLDER_1) == *_*?_*))
+            (do_group
+              (variable_assignment PLACEHOLDER_7
+                (expansion PLACEHOLDER_1 # *_))
+              (variable_assignment PLACEHOLDER_8
+                (expansion PLACEHOLDER_7 # *_))
+              (if_statement
+                (test_command [
+                  (binary_expression
+                    (binary_expression
+                      (binary_expression
+                        (expansion # PLACEHOLDER_8) -lt
+                        (expansion # PLACEHOLDER_7)) -a
+                      (expansion # PLACEHOLDER_7)) -lt
+                    (expansion # PLACEHOLDER_1))) then
+                (variable_assignment PLACEHOLDER_1
+                  (string
+                    (expansion PLACEHOLDER_1 %% _$one) "<em>"
+                    (expansion PLACEHOLDER_7 %% _$two) "</em>"
+                    (simple_expansion PLACEHOLDER_8))))))
+          (variable_assignment PLACEHOLDER_6
+            (string
+              (simple_expansion PLACEHOLDER_6) "<li>"
+              (expansion PLACEHOLDER_1 # ??) "</li>"))
+          (else_clause
+            (if_statement
+              (test_command [
+                (binary_expression
+                  (concatenation X
+                    (simple_expansion PLACEHOLDER_5)) = Xyes)) then
+              (variable_assignment PLACEHOLDER_6
+                (string
+                  (simple_expansion PLACEHOLDER_6) "</ul>"))
+              (variable_assignment PLACEHOLDER_5 no))
+            (variable_assignment PLACEHOLDER_9
+              (command_substitution
+                (command expr
+                  (string
+                    (simple_expansion PLACEHOLDER_1)) : "#\\{1,\\}")))
+            (if_statement
+              (test_command [
+                (binary_expression
+                  (binary_expression
+                    (binary_expression
+                      (simple_expansion PLACEHOLDER_9) -gt 0) -a 7) -gt
+                  (simple_expansion PLACEHOLDER_9))) then
+              (while_statement
+                (test_command [[
+                  (binary_expression
+                    (simple_expansion PLACEHOLDER_1) == *_*?_*))
+                (do_group
+                  (variable_assignment PLACEHOLDER_10
+                    (expansion PLACEHOLDER_1 # *_))
+                  (variable_assignment PLACEHOLDER_11
+                    (expansion PLACEHOLDER_10 # *_))
+                  (if_statement
+                    (test_command [
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (expansion # PLACEHOLDER_11) -lt
+                            (expansion # PLACEHOLDER_10)) -a
+                          (expansion # PLACEHOLDER_10)) -lt
+                        (expansion # PLACEHOLDER_1))) then
+                    (variable_assignment PLACEHOLDER_1
+                      (string
+                        (expansion PLACEHOLDER_1 %% _$s) "<em>"
+                        (expansion PLACEHOLDER_10 %% _$t) "</em>"
+                        (simple_expansion PLACEHOLDER_11))))))
+              (variable_assignment PLACEHOLDER_12
+                (expansion PLACEHOLDER_1 : PLACEHOLDER_9))
+              (while_statement
+                (test_command [[
+                  (binary_expression
+                    (simple_expansion PLACEHOLDER_12) ==
+                    (concatenation "" *)))
+                (do_group
+                  (variable_assignment PLACEHOLDER_12
+                    (expansion PLACEHOLDER_12 # " "))))
+              (variable_assignment PLACEHOLDER_6
+                (string
+                  (simple_expansion PLACEHOLDER_6) "<h"
+                  (simple_expansion PLACEHOLDER_9) ">"
+                  (simple_expansion PLACEHOLDER_12) "</h"
+                  (simple_expansion PLACEHOLDER_9) ">"))
+              (else_clause
+                (list
+                  (redirected_statement
+                    (command grep "_..*_"
+                      (herestring_redirect
+                        (string
+                          (simple_expansion PLACEHOLDER_1))))
+                    (file_redirect > /dev/null)) &&
+                  (variable_assignment PLACEHOLDER_1
+                    (command_substitution
+                      (pipeline
+                        (command echo
+                          (string
+                            (simple_expansion PLACEHOLDER_1))) |
+                        (command sed -E "s,_([^_]+)_,<em>\\1</em>,g")))))
+                (variable_assignment PLACEHOLDER_6
+                  (string
+                    (simple_expansion PLACEHOLDER_6) "<p>"
+                    (simple_expansion PLACEHOLDER_1) "</p>"))))))))
+    (file_redirect <
+      (string
+        (simple_expansion 1))))
+  (if_statement
+    (test_command [
+      (binary_expression
+        (concatenation X
+          (simple_expansion PLACEHOLDER_5)) = Xyes)) then
+    (variable_assignment PLACEHOLDER_6
+      (string
+        (simple_expansion PLACEHOLDER_6) "</ul>")))
+  (command echo
+    (string
+      (simple_expansion PLACEHOLDER_6))))

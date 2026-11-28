@@ -1,27 +1,62 @@
-error_exit () {
-echo "\"Invalid number.  [1]NXX-NXX-XXXX N=2-9, X=0-9\"" > &2
-exit 1
-}
-main () {
-local input = "\"" $1 "\""
-local cleaned = "\"" ${ input //[ -\.\(\)\+]/ } "\""
-if [[ "\"" $cleaned "\"" = ~ [ ^0-9] ]] ; then
-error_exit
-fi
-local len = ${# cleaned }
-if (( len == 11 )) ; then
-if [[ "\"" ${ cleaned :0:1 } "\"" != "\"1\"" ]] ; then
-error_exit
-fi
-cleaned = "\"" ${ cleaned :1 } "\""
-len = 10
-fi
-if (( len != 10 )) ; then
-error_exit
-fi
-if [[ ! "\"" ${ cleaned :0:1 } "\"" = ~ [ 2-9] ]] || [[ ! "\"" ${ cleaned :3:1 } "\"" = ~ [ 2-9] ]] ; then
-error_exit
-fi
-echo "\"" $cleaned "\""
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (redirected_statement
+        (command echo "Invalid number.  [1]NXX-NXX-XXXX N=2-9, X=0-9")
+        (file_redirect >& 2))
+      (command exit 1)))
+  (function_definition (function_name PLACEHOLDER_2)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3
+          (string
+            (simple_expansion 1))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_4
+          (string
+            (expansion PLACEHOLDER_3 // "[ -\\.\\(\\)\\+]" /))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_4)) =~ [^0-9])) then
+        (command (command_name PLACEHOLDER_1)))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_5
+          (expansion # PLACEHOLDER_4)))
+      (if_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_5 == 11)) then
+        (if_statement
+          (test_command [[
+            (binary_expression
+              (string
+                (expansion PLACEHOLDER_4 : 0 : 1)) != "1")) then
+          (command (command_name PLACEHOLDER_1)))
+        (variable_assignment PLACEHOLDER_4
+          (string
+            (expansion PLACEHOLDER_4 : 1)))
+        (variable_assignment PLACEHOLDER_5 10))
+      (if_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_5 != 10)) then
+        (command (command_name PLACEHOLDER_1)))
+      (if_statement
+        (list
+          (test_command [[
+            (binary_expression
+              (unary_expression !
+                (string
+                  (expansion PLACEHOLDER_4 : 0 : 1))) =~ [2-9])) ||
+          (test_command [[
+            (binary_expression
+              (unary_expression !
+                (string
+                  (expansion PLACEHOLDER_4 : 3 : 1))) =~ [2-9]))) then
+        (command (command_name PLACEHOLDER_1)))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_4)))))
+  (command (command_name PLACEHOLDER_2)
+    (string
+      (simple_expansion @))))

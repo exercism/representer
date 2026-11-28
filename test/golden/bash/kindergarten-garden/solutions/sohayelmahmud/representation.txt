@@ -1,14 +1,62 @@
-declare -A plants =([ G] = grass [ C] = clover [ R] = radishes [ V] = violets )
-garden =( $( IFS = $'\n' ; echo $1 ) )
-first_letters =({ A..L })
-for index in "\"" ${ !first_letters[@] } "\"" ; do
-[[ $2 == "\"" ${ first_letters [index] } "\"" * ]] && break
-done
-(( garden_index = index * 2 ))
-result =(
-"\"" ${ plants [ ${ garden [0] :garden_index:1 } ] } "\""
-"\"" ${ plants [ ${ garden [0] :garden_index+1:1 } ] } "\""
-"\"" ${ plants [ ${ garden [1] :garden_index:1 } ] } "\""
-"\"" ${ plants [ ${ garden [1] :garden_index+1:1 } ] } "\""
-)
-echo "\"" ${ result [@] } "\""
+(program
+  (declaration_command declare -A
+    (variable_assignment PLACEHOLDER_1
+      (array
+        (concatenation [ G ] =grass)
+        (concatenation [ C ] =clover)
+        (concatenation [ R ] =radishes)
+        (concatenation [ V ] =violets))))
+  (variable_assignment PLACEHOLDER_2
+    (array
+      (command_substitution
+        (variable_assignment IFS "\n")
+        (command echo
+          (simple_expansion 1)))))
+  (variable_assignment PLACEHOLDER_3
+    (array
+      (concatenation { A..L })))
+  (for_statement PLACEHOLDER_4 in
+    (string
+      (expansion !
+        (subscript PLACEHOLDER_3 @)))
+    (do_group
+      (list
+        (test_command [[
+          (binary_expression
+            (simple_expansion 2) ==
+            (concatenation
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_3 PLACEHOLDER_4))) *))) &&
+        (command break))))
+  (arithmetic_command
+    (binary_expression PLACEHOLDER_5 =
+      (binary_expression PLACEHOLDER_4 * 2)))
+  (variable_assignment PLACEHOLDER_6
+    (array
+      (string
+        (expansion
+          (subscript PLACEHOLDER_1
+            (expansion
+              (subscript PLACEHOLDER_2 0) : PLACEHOLDER_5 : 1))))
+      (string
+        (expansion
+          (subscript PLACEHOLDER_1
+            (expansion
+              (subscript PLACEHOLDER_2 0) :
+              (binary_expression PLACEHOLDER_5 + 1) : 1))))
+      (string
+        (expansion
+          (subscript PLACEHOLDER_1
+            (expansion
+              (subscript PLACEHOLDER_2 1) : PLACEHOLDER_5 : 1))))
+      (string
+        (expansion
+          (subscript PLACEHOLDER_1
+            (expansion
+              (subscript PLACEHOLDER_2 1) :
+              (binary_expression PLACEHOLDER_5 + 1) : 1))))))
+  (command echo
+    (string
+      (expansion
+        (subscript PLACEHOLDER_6 @)))))

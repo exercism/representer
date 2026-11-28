@@ -1,74 +1,221 @@
-gcd () {
-local a = $1 b = $2
-while (( b != 0 )) ; do
-local t = $b
-(( b = a % b ))
-(( a = t ))
-done
-echo "\"" $a "\""
-}
-mod_inv () {
-local a = $1 m = 26
-for (( i = 1 ; i<m ; i++ )) ; do
-if (( ( a * i ) % m == 1 )) ; then
-echo "\"" $i "\""
-return
-fi
-done
-echo 0
-}
-main () {
-local cmd = "\"" $1 "\""
-local a = "\"" $2 "\""
-local b = "\"" $3 "\""
-local text = "\"" $4 "\""
-local g
-g = $( gcd "\"" $a "\"" 26 )
-if (( g != 1 )) ; then
-echo "\"a and m must be coprime.\"" > &2
-exit 1
-fi
-text = $( tr '[:upper:]' '[:lower:]' <<< "\"" $text "\")"
-if [[ "\"" $cmd "\"" == "\"encode\"" ]] ; then
-local raw = "\"\""
-for (( i = 0 ; i< ${# text } ; i++ )) ; do
-local ch = "\"" ${ text :i:1 } "\""
-if [[ "\"" $ch "\"" = ~ [ a-z] ]] ; then
-printf -v code "\"%d\"" "\"'" $ch "\""
-local x = $(( code - 97 ))
-local enc = $(( ( a * x + b ) % 26 ))
-printf -v enc_ch "\"\\\\$(" printf '%03o' $(( enc + 97 )) )"
-raw+ = "\"" $enc_ch "\""
-elif [[ "\"" $ch "\"" = ~ [ 0-9] ]] ; then
-raw+ = "\"" $ch "\""
-fi
-done
-local out = "\"\""
-for (( i = 0 ; i< ${# raw } ; i+ = 5 )) ; do
-if [[ -n "\"" $out "\"" ]] ; then
-out+ = "\" \""
-fi
-out+ = "\"" ${ raw :i:5 } "\""
-done
-echo "\"" $out "\""
-elif [[ "\"" $cmd "\"" == "\"decode\"" ]] ; then
-local a_inv
-a_inv = $( mod_inv "\"" $a "\")"
-local out = "\"\""
-for (( i = 0 ; i< ${# text } ; i++ )) ; do
-local ch = "\"" ${ text :i:1 } "\""
-if [[ "\"" $ch "\"" = ~ [ a-z] ]] ; then
-printf -v code "\"%d\"" "\"'" $ch "\""
-local y = $(( code - 97 ))
-local dec = $(( ( a_inv * ( y - b )) % 26 ))
-(( dec = ( dec + 26 ) % 26 ))
-printf -v dec_ch "\"\\\\$(" printf '%03o' $(( dec + 97 )) )"
-out+ = "\"" $dec_ch "\""
-elif [[ "\"" $ch "\"" = ~ [ 0-9] ]] ; then
-out+ = "\"" $ch "\""
-fi
-done
-echo "\"" $out "\""
-fi
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_2
+          (simple_expansion 1))
+        (variable_assignment PLACEHOLDER_3
+          (simple_expansion 2)))
+      (while_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_3 != 0))
+        (do_group
+          (declaration_command local
+            (variable_assignment PLACEHOLDER_4
+              (simple_expansion PLACEHOLDER_3)))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_3 =
+              (binary_expression PLACEHOLDER_2 % PLACEHOLDER_3)))
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 = PLACEHOLDER_4))))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_2)))))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_2
+          (simple_expansion 1))
+        (variable_assignment PLACEHOLDER_6 26))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_7 1) ;
+        (binary_expression PLACEHOLDER_7 < PLACEHOLDER_6) ;
+        (postfix_expression PLACEHOLDER_7 ++)
+        (do_group
+          (if_statement
+            (arithmetic_command
+              (binary_expression
+                (binary_expression
+                  (binary_expression PLACEHOLDER_2 * PLACEHOLDER_7) % PLACEHOLDER_6) == 1)) then
+            (command echo
+              (string
+                (simple_expansion PLACEHOLDER_7)))
+            (command return))))
+      (command echo 0)))
+  (function_definition (function_name PLACEHOLDER_8)
+    (compound_statement
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_9
+          (string
+            (simple_expansion 1))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_2
+          (string
+            (simple_expansion 2))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_3
+          (string
+            (simple_expansion 3))))
+      (declaration_command local
+        (variable_assignment PLACEHOLDER_10
+          (string
+            (simple_expansion 4))))
+      (declaration_command local PLACEHOLDER_11)
+      (variable_assignment PLACEHOLDER_11
+        (command_substitution
+          (command (command_name PLACEHOLDER_1)
+            (string
+              (simple_expansion PLACEHOLDER_2)) 26)))
+      (if_statement
+        (arithmetic_command
+          (binary_expression PLACEHOLDER_11 != 1)) then
+        (redirected_statement
+          (command echo "a and m must be coprime.")
+          (file_redirect >& 2))
+        (command exit 1))
+      (variable_assignment PLACEHOLDER_10
+        (command_substitution
+          (command tr "[:upper:]" "[:lower:]"
+            (herestring_redirect
+              (string
+                (simple_expansion PLACEHOLDER_10))))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_9)) == "encode")) then
+        (declaration_command local
+          (variable_assignment PLACEHOLDER_12 ""))
+        (c_style_for_statement
+          (variable_assignment PLACEHOLDER_7 0) ;
+          (binary_expression PLACEHOLDER_7 <
+            (expansion # PLACEHOLDER_10)) ;
+          (postfix_expression PLACEHOLDER_7 ++)
+          (do_group
+            (declaration_command local
+              (variable_assignment PLACEHOLDER_13
+                (string
+                  (expansion PLACEHOLDER_10 : PLACEHOLDER_7 : 1))))
+            (if_statement
+              (test_command [[
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_13)) =~ [a-z])) then
+              (command printf -v PLACEHOLDER_14 "%d"
+                (string "'"
+                  (simple_expansion PLACEHOLDER_13)))
+              (declaration_command local
+                (variable_assignment PLACEHOLDER_15
+                  (arithmetic_expansion
+                    (binary_expression PLACEHOLDER_14 - 97))))
+              (declaration_command local
+                (variable_assignment PLACEHOLDER_16
+                  (arithmetic_expansion
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_2 * PLACEHOLDER_15) + PLACEHOLDER_3) % 26))))
+              (command printf -v PLACEHOLDER_17
+                (string "\\"
+                  (command_substitution
+                    (command printf "%03o"
+                      (arithmetic_expansion
+                        (binary_expression PLACEHOLDER_16 + 97))))))
+              (variable_assignment PLACEHOLDER_12 +=
+                (string
+                  (simple_expansion PLACEHOLDER_17)))
+              (elif_clause
+                (test_command [[
+                  (binary_expression
+                    (string
+                      (simple_expansion PLACEHOLDER_13)) =~ [0-9])) then
+                (variable_assignment PLACEHOLDER_12 +=
+                  (string
+                    (simple_expansion PLACEHOLDER_13)))))))
+        (declaration_command local
+          (variable_assignment PLACEHOLDER_18 ""))
+        (c_style_for_statement
+          (variable_assignment PLACEHOLDER_7 0) ;
+          (binary_expression PLACEHOLDER_7 <
+            (expansion # PLACEHOLDER_12)) ;
+          (binary_expression PLACEHOLDER_7 += 5)
+          (do_group
+            (if_statement
+              (test_command [[
+                (unary_expression -n
+                  (string
+                    (simple_expansion PLACEHOLDER_18)))) then
+              (variable_assignment PLACEHOLDER_18 += ""))
+            (variable_assignment PLACEHOLDER_18 +=
+              (string
+                (expansion PLACEHOLDER_12 : PLACEHOLDER_7 : 5)))))
+        (command echo
+          (string
+            (simple_expansion PLACEHOLDER_18)))
+        (elif_clause
+          (test_command [[
+            (binary_expression
+              (string
+                (simple_expansion PLACEHOLDER_9)) == "decode")) then
+          (declaration_command local PLACEHOLDER_19)
+          (variable_assignment PLACEHOLDER_19
+            (command_substitution
+              (command (command_name PLACEHOLDER_5)
+                (string
+                  (simple_expansion PLACEHOLDER_2)))))
+          (declaration_command local
+            (variable_assignment PLACEHOLDER_18 ""))
+          (c_style_for_statement
+            (variable_assignment PLACEHOLDER_7 0) ;
+            (binary_expression PLACEHOLDER_7 <
+              (expansion # PLACEHOLDER_10)) ;
+            (postfix_expression PLACEHOLDER_7 ++)
+            (do_group
+              (declaration_command local
+                (variable_assignment PLACEHOLDER_13
+                  (string
+                    (expansion PLACEHOLDER_10 : PLACEHOLDER_7 : 1))))
+              (if_statement
+                (test_command [[
+                  (binary_expression
+                    (string
+                      (simple_expansion PLACEHOLDER_13)) =~ [a-z])) then
+                (command printf -v PLACEHOLDER_14 "%d"
+                  (string "'"
+                    (simple_expansion PLACEHOLDER_13)))
+                (declaration_command local
+                  (variable_assignment PLACEHOLDER_20
+                    (arithmetic_expansion
+                      (binary_expression PLACEHOLDER_14 - 97))))
+                (declaration_command local
+                  (variable_assignment PLACEHOLDER_21
+                    (arithmetic_expansion
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_19 *
+                          (binary_expression PLACEHOLDER_20 - PLACEHOLDER_3)) % 26))))
+                (arithmetic_command
+                  (binary_expression PLACEHOLDER_21 =
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_21 + 26) % 26)))
+                (command printf -v PLACEHOLDER_22
+                  (string "\\"
+                    (command_substitution
+                      (command printf "%03o"
+                        (arithmetic_expansion
+                          (binary_expression PLACEHOLDER_21 + 97))))))
+                (variable_assignment PLACEHOLDER_18 +=
+                  (string
+                    (simple_expansion PLACEHOLDER_22)))
+                (elif_clause
+                  (test_command [[
+                    (binary_expression
+                      (string
+                        (simple_expansion PLACEHOLDER_13)) =~ [0-9])) then
+                  (variable_assignment PLACEHOLDER_18 +=
+                    (string
+                      (simple_expansion PLACEHOLDER_13)))))))
+          (command echo
+            (string
+              (simple_expansion PLACEHOLDER_18)))))))
+  (command (command_name PLACEHOLDER_8)
+    (string
+      (simple_expansion @))))

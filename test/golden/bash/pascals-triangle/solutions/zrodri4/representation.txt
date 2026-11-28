@@ -1,24 +1,74 @@
-main (){
-n = $1
-rows =()
-row =( 1 )
-for (( i = 0 ; i<n ; i++ )) ; do
-line = "\"\""
-for (( k = 0 ; k< ${# row [@] } ; k++ )) ; do
-if (( k>0 )) ; then line+ = "\" \"" ; fi
-line+ = "\"" ${ row [k] } "\""
-done
-rows+ =( "\"" $line "\"" )
-new =( 1 )
-for (( j = 0 ; j< ${# row [@] } -1 ; j++ )) ; do
-new+ =( $(( row[j] + row[j+1] )) )
-done
-new+ =( 1 )
-row =( "\"" ${ new [@] } "\"" )
-done
-for (( i = 0 ; i<n ; i++ )) ; do
-printf "\"%*s\"" $(( n - i - 1 )) "\"\""
-printf "\"%s\\n\"" "\"" ${ rows [i] } "\""
-done
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (simple_expansion 1))
+      (variable_assignment PLACEHOLDER_3
+        (array))
+      (variable_assignment PLACEHOLDER_4
+        (array 1))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_5 0) ;
+        (binary_expression PLACEHOLDER_5 < PLACEHOLDER_2) ;
+        (postfix_expression PLACEHOLDER_5 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_6 "")
+          (c_style_for_statement
+            (variable_assignment PLACEHOLDER_7 0) ;
+            (binary_expression PLACEHOLDER_7 <
+              (expansion #
+                (subscript PLACEHOLDER_4 @))) ;
+            (postfix_expression PLACEHOLDER_7 ++)
+            (do_group
+              (if_statement
+                (arithmetic_command
+                  (binary_expression PLACEHOLDER_7 > 0)) then
+                (variable_assignment PLACEHOLDER_6 += ""))
+              (variable_assignment PLACEHOLDER_6 +=
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_4 PLACEHOLDER_7))))))
+          (variable_assignment PLACEHOLDER_3 +=
+            (array
+              (string
+                (simple_expansion PLACEHOLDER_6))))
+          (variable_assignment PLACEHOLDER_8
+            (array 1))
+          (c_style_for_statement
+            (variable_assignment PLACEHOLDER_9 0) ;
+            (binary_expression PLACEHOLDER_9 <
+              (binary_expression
+                (expansion #
+                  (subscript PLACEHOLDER_4 @)) - 1)) ;
+            (postfix_expression PLACEHOLDER_9 ++)
+            (do_group
+              (variable_assignment PLACEHOLDER_8 +=
+                (array
+                  (arithmetic_expansion
+                    (binary_expression
+                      (subscript PLACEHOLDER_4 PLACEHOLDER_9) +
+                      (subscript PLACEHOLDER_4
+                        (binary_expression PLACEHOLDER_9 + 1))))))))
+          (variable_assignment PLACEHOLDER_8 +=
+            (array 1))
+          (variable_assignment PLACEHOLDER_4
+            (array
+              (string
+                (expansion
+                  (subscript PLACEHOLDER_8 @)))))))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_5 0) ;
+        (binary_expression PLACEHOLDER_5 < PLACEHOLDER_2) ;
+        (postfix_expression PLACEHOLDER_5 ++)
+        (do_group
+          (command printf "%*s"
+            (arithmetic_expansion
+              (binary_expression
+                (binary_expression PLACEHOLDER_2 - PLACEHOLDER_5) - 1)) "")
+          (command printf "%s\\n"
+            (string
+              (expansion
+                (subscript PLACEHOLDER_3 PLACEHOLDER_5))))))))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

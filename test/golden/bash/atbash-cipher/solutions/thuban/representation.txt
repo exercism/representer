@@ -1,33 +1,100 @@
-cipher () {
-input = $( cat )
-alphabet = $( echo { a..z } { 0..9 } | tr -d "' ')"
-zetabet = $( echo { z..a } { 0..9 } | tr -d "' ')"
-echo "\"" $input "\"" | tr "\"" $alphabet "\"" "\"" $zetabet "\""
-}
-normalize () {
-input = $( cat )
-input = ${ input //[ .,]/ }
-input = ${ input ,, }
-echo "\"" $input "\""
-}
-group () {
-input = $( cat )
-l = ${# input }
-format = "\"\""
-for (( i = 0 ; i < l ; i++ )) ; do
-if [[ $(( ( i + 1 ) % 5 )) -eq 0 && $(( i + 1 )) -ne l ]] ; then
-format+ = ${ input :i:1 } "\" \""
-else
-format+ = ${ input :i:1 }
-fi
-done
-echo "\"" $format "\""
-}
-main () {
-case "\"" $1 "\"" in
-encode ) echo "\"" $2 "\"" | normalize | cipher | group ;;
-decode ) echo "\"" $2 "\"" | normalize | cipher ;;
-* ) echo "\"Usage: " $0 " encode|decode 'text'\"" ;;
-esac
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (command_substitution
+          (command cat)))
+      (variable_assignment PLACEHOLDER_3
+        (command_substitution
+          (pipeline
+            (command echo
+              (concatenation { a..z })
+              (brace_expression 0 9)) |
+            (command tr -d " "))))
+      (variable_assignment PLACEHOLDER_4
+        (command_substitution
+          (pipeline
+            (command echo
+              (concatenation { z..a })
+              (brace_expression 0 9)) |
+            (command tr -d " "))))
+      (pipeline
+        (command echo
+          (string
+            (simple_expansion PLACEHOLDER_2))) |
+        (command tr
+          (string
+            (simple_expansion PLACEHOLDER_3))
+          (string
+            (simple_expansion PLACEHOLDER_4))))))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (command_substitution
+          (command cat)))
+      (variable_assignment PLACEHOLDER_2
+        (expansion PLACEHOLDER_2 // "[ .,]" /))
+      (variable_assignment PLACEHOLDER_2
+        (expansion PLACEHOLDER_2 ,,))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_2)))))
+  (function_definition (function_name PLACEHOLDER_6)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (command_substitution
+          (command cat)))
+      (variable_assignment PLACEHOLDER_7
+        (expansion # PLACEHOLDER_2))
+      (variable_assignment PLACEHOLDER_8 "")
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_9 0) ;
+        (binary_expression PLACEHOLDER_9 < PLACEHOLDER_7) ;
+        (postfix_expression PLACEHOLDER_9 ++)
+        (do_group
+          (if_statement
+            (test_command [[
+              (binary_expression
+                (binary_expression
+                  (arithmetic_expansion
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_9 + 1) % 5)) -eq 0) &&
+                (binary_expression
+                  (arithmetic_expansion
+                    (binary_expression PLACEHOLDER_9 + 1)) -ne l))) then
+            (variable_assignment PLACEHOLDER_8 +=
+              (concatenation
+                (expansion PLACEHOLDER_2 : PLACEHOLDER_9 : 1) ""))
+            (else_clause
+              (variable_assignment PLACEHOLDER_8 +=
+                (expansion PLACEHOLDER_2 : PLACEHOLDER_9 : 1))))))
+      (command echo
+        (string
+          (simple_expansion PLACEHOLDER_8)))))
+  (function_definition (function_name PLACEHOLDER_10)
+    (compound_statement
+      (case_statement
+        (string
+          (simple_expansion 1))
+        (case_item encode
+          (pipeline
+            (command echo
+              (string
+                (simple_expansion 2))) |
+            (command (command_name PLACEHOLDER_5)) |
+            (command (command_name PLACEHOLDER_1)) |
+            (command (command_name PLACEHOLDER_6))))
+        (case_item decode
+          (pipeline
+            (command echo
+              (string
+                (simple_expansion 2))) |
+            (command (command_name PLACEHOLDER_5)) |
+            (command (command_name PLACEHOLDER_1))))
+        (case_item *
+          (command echo
+            (string "Usage: "
+              (simple_expansion 0) " encode|decode 'text'"))))))
+  (command (command_name PLACEHOLDER_10)
+    (string
+      (simple_expansion @))))

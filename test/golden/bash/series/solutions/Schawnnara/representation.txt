@@ -1,14 +1,48 @@
-error () {
-echo "\"" $1 "\""
-exit 1
-}
-series = $1
-slice = $2
-[[ $slice -eq 0 ]] && error "\"slice length cannot be zero\""
-[[ $slice -lt 0 ]] && error "\"slice length cannot be negative\""
-[[ $series -eq "\"\"" ]] && error "\"series cannot be empty\""
-[[ $slice -gt "\"" ${# series } "\"" ]] && error "\"slice length cannot be greater than series length\""
-for (( i = 0 ; i < = ${# series } -slice ; i++ )) ; do
-result[i] = "\"" ${ series :i:slice } "\""
-done
-echo "\"" ${ result [@] } "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (command echo
+        (string
+          (simple_expansion 1)))
+      (command exit 1)))
+  (variable_assignment PLACEHOLDER_2
+    (simple_expansion 1))
+  (variable_assignment PLACEHOLDER_3
+    (simple_expansion 2))
+  (list
+    (test_command [[
+      (binary_expression
+        (simple_expansion PLACEHOLDER_3) -eq 0)) &&
+    (command (command_name PLACEHOLDER_1) "slice length cannot be zero"))
+  (list
+    (test_command [[
+      (binary_expression
+        (simple_expansion PLACEHOLDER_3) -lt 0)) &&
+    (command (command_name PLACEHOLDER_1) "slice length cannot be negative"))
+  (list
+    (test_command [[
+      (binary_expression
+        (simple_expansion PLACEHOLDER_2) -eq "")) &&
+    (command (command_name PLACEHOLDER_1) "series cannot be empty"))
+  (list
+    (test_command [[
+      (binary_expression
+        (simple_expansion PLACEHOLDER_3) -gt
+        (string
+          (expansion # PLACEHOLDER_2)))) &&
+    (command (command_name PLACEHOLDER_1) "slice length cannot be greater than series length"))
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_4 0) ;
+    (binary_expression PLACEHOLDER_4 <=
+      (binary_expression
+        (expansion # PLACEHOLDER_2) - PLACEHOLDER_3)) ;
+    (postfix_expression PLACEHOLDER_4 ++)
+    (do_group
+      (variable_assignment
+        (subscript PLACEHOLDER_5 PLACEHOLDER_4)
+        (string
+          (expansion PLACEHOLDER_2 : PLACEHOLDER_4 : PLACEHOLDER_3)))))
+  (command echo
+    (string
+      (expansion
+        (subscript PLACEHOLDER_5 @)))))

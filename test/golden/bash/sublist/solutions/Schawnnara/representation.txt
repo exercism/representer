@@ -1,20 +1,103 @@
-[[ $1 = ~ \[ ( . * )] ]] && a =( ${ BASH_REMATCH [1]//, } )
-[[ $2 = ~ \[ ( . * )] ]] && b =( ${ BASH_REMATCH [1]//, } )
-compare () {
-small =( $1 )
-large =( $2 )
-for (( i == 0 ; i< = ${# large [@] } - ${# small [@] } ; i++ )) ; do
-for (( j = 0 ; j< ${# small [@] } ; j++ )) ; do
-[[ ${ small [ $j ] } != ${ large [ $(( i+j )) ] } ]] && continue 2 ;
-done
-return 0
-done
-return 1
-}
-if (( ${# a [@] } < ${# b [@] } )) ; then
-compare "\"" ${ a [*] } "\"" "\"" ${ b [*] } "\"" && echo sublist || echo unequal
-elif (( ${# a [@] } > ${# b [@] } )) ; then
-compare "\"" ${ b [*] } "\"" "\"" ${ a [*] } "\"" && echo superlist || echo unequal
-else
-compare "\"" ${ b [*] } "\"" "\"" ${ a [*] } "\"" && echo equal || echo unequal
-fi
+(program
+  (list
+    (test_command [[
+      (binary_expression
+        (simple_expansion 1) =~ "\\[(.*)]")) &&
+    (variable_assignment PLACEHOLDER_1
+      (array
+        (expansion
+          (subscript BASH_REMATCH 1) // ,))))
+  (list
+    (test_command [[
+      (binary_expression
+        (simple_expansion 2) =~ "\\[(.*)]")) &&
+    (variable_assignment PLACEHOLDER_2
+      (array
+        (expansion
+          (subscript BASH_REMATCH 1) // ,))))
+  (function_definition (function_name PLACEHOLDER_3)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_4
+        (array
+          (simple_expansion 1)))
+      (variable_assignment PLACEHOLDER_5
+        (array
+          (simple_expansion 2)))
+      (c_style_for_statement
+        (binary_expression PLACEHOLDER_6 == 0) ;
+        (binary_expression PLACEHOLDER_6 <=
+          (binary_expression
+            (expansion #
+              (subscript PLACEHOLDER_5 @)) -
+            (expansion #
+              (subscript PLACEHOLDER_4 @)))) ;
+        (postfix_expression PLACEHOLDER_6 ++)
+        (do_group
+          (c_style_for_statement
+            (variable_assignment PLACEHOLDER_7 0) ;
+            (binary_expression PLACEHOLDER_7 <
+              (expansion #
+                (subscript PLACEHOLDER_4 @))) ;
+            (postfix_expression PLACEHOLDER_7 ++)
+            (do_group
+              (list
+                (test_command [[
+                  (binary_expression
+                    (expansion
+                      (subscript PLACEHOLDER_4
+                        (simple_expansion PLACEHOLDER_7))) !=
+                    (expansion
+                      (subscript PLACEHOLDER_5
+                        (arithmetic_expansion
+                          (binary_expression PLACEHOLDER_6 + PLACEHOLDER_7)))))) &&
+                (command continue 2))))
+          (command return 0)))
+      (command return 1)))
+  (if_statement
+    (arithmetic_command
+      (binary_expression
+        (expansion #
+          (subscript PLACEHOLDER_1 @)) <
+        (expansion #
+          (subscript PLACEHOLDER_2 @)))) then
+    (list
+      (list
+        (command (command_name PLACEHOLDER_3)
+          (string
+            (expansion
+              (subscript PLACEHOLDER_1 *)))
+          (string
+            (expansion
+              (subscript PLACEHOLDER_2 *)))) &&
+        (command echo sublist)) ||
+      (command echo unequal))
+    (elif_clause
+      (arithmetic_command
+        (binary_expression
+          (expansion #
+            (subscript PLACEHOLDER_1 @)) >
+          (expansion #
+            (subscript PLACEHOLDER_2 @)))) then
+      (list
+        (list
+          (command (command_name PLACEHOLDER_3)
+            (string
+              (expansion
+                (subscript PLACEHOLDER_2 *)))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_1 *)))) &&
+          (command echo superlist)) ||
+        (command echo unequal)))
+    (else_clause
+      (list
+        (list
+          (command (command_name PLACEHOLDER_3)
+            (string
+              (expansion
+                (subscript PLACEHOLDER_2 *)))
+            (string
+              (expansion
+                (subscript PLACEHOLDER_1 *)))) &&
+          (command echo equal)) ||
+        (command echo unequal)))))

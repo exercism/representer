@@ -1,43 +1,125 @@
-gen_modifier () {
-n = $( echo "\"scale=1; (" $1 " - 10) / 2\"" | bc -l )
-modifier = $( echo "\"\n  define floor(x) {\n    if (x >= 0) return x - (x % 1);\n    return x - (x % 1) - (x % 1 != 0);\n  }\n  scale=0;\n  floor(" $n ")\n  \"" | bc -l )
-echo $modifier
-}
-random () {
-echo $(( RANDOM % 6 + 1 ))
-}
-select_score () {
-rolls =()
-for (( i = 0 ; i<4 ; i++ )) ; do
-rolls+ =( $( random ) )
-done
-rolls =( $( printf "\"%s\\n\"" "\"" ${ rolls [@] } "\"" | sort -n ) )
-score = 0
-for (( i = 1 ; i<4 ; i++ )) ; do
-(( score = score + rolls[i] ))
-done
-echo $score
-}
-main () {
-if [[ $1 == 'modifier' ]] ; then
-modifier = $( gen_modifier $2 )
-echo ${ modifier %.* }
-exit 0
-fi
-strength = $( select_score )
-dextrity = $( select_score )
-constitution = $( select_score )
-intelligence = $( select_score )
-wisdom = $( select_score )
-charisma = $( select_score )
-constitution_modifier = $( gen_modifier $constitution )
-hitpoints = $( echo "\"scale=0; 10 + " $constitution_modifier "\"" | bc -l )
-echo "\"strength " ${ strength %.* } "\""
-echo "\"dexterity " ${ dextrity %.* } "\""
-echo "\"constitution " ${ constitution %.* } "\""
-echo "\"intelligence " ${ intelligence %.* } "\""
-echo "\"wisdom " ${ wisdom %.* } "\""
-echo "\"charisma " ${ charisma %.* } "\""
-echo "\"hitpoints " ${ hitpoints %.* } "\""
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (command_substitution
+          (pipeline
+            (command echo
+              (string "scale=1; ("
+                (simple_expansion 1) " - 10) / 2")) |
+            (command bc -l))))
+      (variable_assignment PLACEHOLDER_3
+        (command_substitution
+          (pipeline
+            (command echo
+              (string "  define floor(x) {    if (x >= 0) return x - (x % 1);    return x - (x % 1) - (x % 1 != 0);  }  scale=0;  floor("
+                (simple_expansion PLACEHOLDER_2) ")")) |
+            (command bc -l))))
+      (command echo
+        (simple_expansion PLACEHOLDER_3))))
+  (function_definition (function_name PLACEHOLDER_4)
+    (compound_statement
+      (command echo
+        (arithmetic_expansion
+          (binary_expression
+            (binary_expression RANDOM % 6) + 1)))))
+  (function_definition (function_name PLACEHOLDER_5)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_6
+        (array))
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_7 0) ;
+        (binary_expression PLACEHOLDER_7 < 4) ;
+        (postfix_expression PLACEHOLDER_7 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_6 +=
+            (array
+              (command_substitution
+                (command (command_name PLACEHOLDER_4)))))))
+      (variable_assignment PLACEHOLDER_6
+        (array
+          (command_substitution
+            (pipeline
+              (command printf "%s\\n"
+                (string
+                  (expansion
+                    (subscript PLACEHOLDER_6 @)))) |
+              (command sort -n)))))
+      (variable_assignment PLACEHOLDER_8 0)
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_7 1) ;
+        (binary_expression PLACEHOLDER_7 < 4) ;
+        (postfix_expression PLACEHOLDER_7 ++)
+        (do_group
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_8 =
+              (binary_expression PLACEHOLDER_8 +
+                (subscript PLACEHOLDER_6 PLACEHOLDER_7))))))
+      (command echo
+        (simple_expansion PLACEHOLDER_8))))
+  (function_definition (function_name PLACEHOLDER_9)
+    (compound_statement
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (simple_expansion 1) == "modifier")) then
+        (variable_assignment PLACEHOLDER_3
+          (command_substitution
+            (command (command_name PLACEHOLDER_1)
+              (simple_expansion 2))))
+        (command echo
+          (expansion PLACEHOLDER_3 % .*))
+        (command exit 0))
+      (variable_assignment PLACEHOLDER_10
+        (command_substitution
+          (command (command_name PLACEHOLDER_5))))
+      (variable_assignment PLACEHOLDER_11
+        (command_substitution
+          (command (command_name PLACEHOLDER_5))))
+      (variable_assignment PLACEHOLDER_12
+        (command_substitution
+          (command (command_name PLACEHOLDER_5))))
+      (variable_assignment PLACEHOLDER_13
+        (command_substitution
+          (command (command_name PLACEHOLDER_5))))
+      (variable_assignment PLACEHOLDER_14
+        (command_substitution
+          (command (command_name PLACEHOLDER_5))))
+      (variable_assignment PLACEHOLDER_15
+        (command_substitution
+          (command (command_name PLACEHOLDER_5))))
+      (variable_assignment PLACEHOLDER_16
+        (command_substitution
+          (command (command_name PLACEHOLDER_1)
+            (simple_expansion PLACEHOLDER_12))))
+      (variable_assignment PLACEHOLDER_17
+        (command_substitution
+          (pipeline
+            (command echo
+              (string "scale=0; 10 + "
+                (simple_expansion PLACEHOLDER_16))) |
+            (command bc -l))))
+      (command echo
+        (string "strength "
+          (expansion PLACEHOLDER_10 % .*)))
+      (command echo
+        (string "dexterity "
+          (expansion PLACEHOLDER_11 % .*)))
+      (command echo
+        (string "constitution "
+          (expansion PLACEHOLDER_12 % .*)))
+      (command echo
+        (string "intelligence "
+          (expansion PLACEHOLDER_13 % .*)))
+      (command echo
+        (string "wisdom "
+          (expansion PLACEHOLDER_14 % .*)))
+      (command echo
+        (string "charisma "
+          (expansion PLACEHOLDER_15 % .*)))
+      (command echo
+        (string "hitpoints "
+          (expansion PLACEHOLDER_17 % .*)))))
+  (command (command_name PLACEHOLDER_9)
+    (string
+      (simple_expansion @))))

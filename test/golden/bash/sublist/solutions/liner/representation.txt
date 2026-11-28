@@ -1,19 +1,87 @@
-normalize () {
-cc1 = "\"" ${ 1 //[^,]/ } "\"" ;
-cc2 = "\"" ${ 2 //[^,]/ } "\"" ;
-arg1 = "\"" ${ 1 //[\[\], ]/ } "\"" ;
-arg2 = "\"" ${ 2 //[\[\], ]/ } "\"" ;
-}
-main () {
-normalize "\"" $1 "\"" "\"" $2 "\"" ;
-if (( ${# arg1 } == ${# arg2 } )) && (( ${# cc1 } == ${# cc2 } )) ; then
-[[ "\"" $arg1 "\"" == "\"" $arg2 "\"" ]] && echo "\"equal\"" || echo "\"unequal\"" ;
-elif (( ${# arg1 } < ${# arg2 } )) && (( ${# cc1 } != ${# cc2 } )) ; then
-[[ "\"" $arg2 "\"" == * "\"" $arg1 "\"" * ]] && echo "\"sublist\"" || echo "\"unequal\"" ;
-elif (( ${# arg1 } > ${# arg2 } )) && (( ${# cc1 } != ${# cc2 } )) ; then
-[[ "\"" $arg1 "\"" == * "\"" $arg2 "\"" * ]] && echo "\"superlist\"" || echo "\"unequal\"" ;
-else
-echo "\"unequal\"" ;
-fi
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (string
+          (expansion 1 // [^,] /)))
+      (variable_assignment PLACEHOLDER_3
+        (string
+          (expansion 2 // [^,] /)))
+      (variable_assignment PLACEHOLDER_4
+        (string
+          (expansion 1 // "[\\[\\], ]" /)))
+      (variable_assignment PLACEHOLDER_5
+        (string
+          (expansion 2 // "[\\[\\], ]" /)))))
+  (function_definition (function_name PLACEHOLDER_6)
+    (compound_statement
+      (command (command_name PLACEHOLDER_1)
+        (string
+          (simple_expansion 1))
+        (string
+          (simple_expansion 2)))
+      (if_statement
+        (list
+          (arithmetic_command
+            (binary_expression
+              (expansion # PLACEHOLDER_4) ==
+              (expansion # PLACEHOLDER_5))) &&
+          (arithmetic_command
+            (binary_expression
+              (expansion # PLACEHOLDER_2) ==
+              (expansion # PLACEHOLDER_3)))) then
+        (list
+          (list
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_4)) ==
+                (string
+                  (simple_expansion PLACEHOLDER_5)))) &&
+            (command echo "equal")) ||
+          (command echo "unequal"))
+        (elif_clause
+          (list
+            (arithmetic_command
+              (binary_expression
+                (expansion # PLACEHOLDER_4) <
+                (expansion # PLACEHOLDER_5))) &&
+            (arithmetic_command
+              (binary_expression
+                (expansion # PLACEHOLDER_2) !=
+                (expansion # PLACEHOLDER_3)))) then
+          (list
+            (list
+              (test_command [[
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_5)) == *
+                  (string
+                    (simple_expansion PLACEHOLDER_4)) *)) &&
+              (command echo "sublist")) ||
+            (command echo "unequal")))
+        (elif_clause
+          (list
+            (arithmetic_command
+              (binary_expression
+                (expansion # PLACEHOLDER_4) >
+                (expansion # PLACEHOLDER_5))) &&
+            (arithmetic_command
+              (binary_expression
+                (expansion # PLACEHOLDER_2) !=
+                (expansion # PLACEHOLDER_3)))) then
+          (list
+            (list
+              (test_command [[
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_4)) == *
+                  (string
+                    (simple_expansion PLACEHOLDER_5)) *)) &&
+              (command echo "superlist")) ||
+            (command echo "unequal")))
+        (else_clause
+          (command echo "unequal")))))
+  (command (command_name PLACEHOLDER_6)
+    (string
+      (simple_expansion @))))

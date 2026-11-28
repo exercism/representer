@@ -1,29 +1,98 @@
-main (){
-string = "\"" $1 "\""
-only_brackets = $( echo "\"" $string "\"" | tr -dc '\[\]\(\)\{\}')
-brackets_to_letters = $( echo "\"" $only_brackets "\"" | tr '[' 's' | tr ']' 'S' | tr '(' 'v' | tr '\)' 'V' | tr '\{' 'c' | tr '\}' 'C')
-brackets_length = "\"" ${# brackets_to_letters } "\""
-bracket_tracking = "\"\""
-for (( string_index = 0 ; string_index<brackets_length ; string_index++ )) ; do
-current_bracket = "\"" ${ brackets_to_letters : "\"" $string_index "\"" :1 } "\""
-bracket_tracking_length = "\"" ${# bracket_tracking } "\""
-current = "\"" ${ bracket_tracking : "\"" $bracket_tracking_length "\"" -1 :1 } "\""
-needed_closure = "\"" ${ current ^^ } "\""
-if [ "\"" $current_bracket "\"" == "\"S\"" ] || [ "\"" $current_bracket "\"" == "\"V\"" ] || [ "\"" $current_bracket "\"" == "\"C\"" ] ; then
-if [[ "\"" $needed_closure "\"" == "\"" $current_bracket "\"" ]] ; then
-bracket_tracking = "\"" ${ bracket_tracking :0: "\"" $bracket_tracking_length "\"" -1 } "\""
-else
-echo false
-exit 0
-fi
-else
-bracket_tracking = "\"" ${ bracket_tracking }${ current_bracket } "\""
-fi
-done
-if [[ "\"" $bracket_tracking "\"" = "\"\"" ]] ; then
-echo true
-else
-echo false
-fi
-}
-main "\"" $@ "\""
+(program
+  (function_definition (function_name PLACEHOLDER_1)
+    (compound_statement
+      (variable_assignment PLACEHOLDER_2
+        (string
+          (simple_expansion 1)))
+      (variable_assignment PLACEHOLDER_3
+        (command_substitution
+          (pipeline
+            (command echo
+              (string
+                (simple_expansion PLACEHOLDER_2))) |
+            (command tr -dc "\\[\\]\\(\\)\\{\\}"))))
+      (variable_assignment PLACEHOLDER_4
+        (command_substitution
+          (pipeline
+            (command echo
+              (string
+                (simple_expansion PLACEHOLDER_3))) |
+            (command tr "[" "s") |
+            (command tr "]" "S") |
+            (command tr "(" "v") |
+            (command tr "\\)" "V") |
+            (command tr "\\{" "c") |
+            (command tr "\\}" "C"))))
+      (variable_assignment PLACEHOLDER_5
+        (string
+          (expansion # PLACEHOLDER_4)))
+      (variable_assignment PLACEHOLDER_6 "")
+      (c_style_for_statement
+        (variable_assignment PLACEHOLDER_7 0) ;
+        (binary_expression PLACEHOLDER_7 < PLACEHOLDER_5) ;
+        (postfix_expression PLACEHOLDER_7 ++)
+        (do_group
+          (variable_assignment PLACEHOLDER_8
+            (string
+              (expansion PLACEHOLDER_4 :
+                (string
+                  (simple_expansion PLACEHOLDER_7)) : 1)))
+          (variable_assignment PLACEHOLDER_9
+            (string
+              (expansion # PLACEHOLDER_6)))
+          (variable_assignment PLACEHOLDER_10
+            (string
+              (expansion PLACEHOLDER_6 :
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_9)) - 1) : 1)))
+          (variable_assignment PLACEHOLDER_11
+            (string
+              (expansion PLACEHOLDER_10 ^^)))
+          (if_statement
+            (list
+              (list
+                (test_command [
+                  (binary_expression
+                    (string
+                      (simple_expansion PLACEHOLDER_8)) == "S")) ||
+                (test_command [
+                  (binary_expression
+                    (string
+                      (simple_expansion PLACEHOLDER_8)) == "V"))) ||
+              (test_command [
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_8)) == "C"))) then
+            (if_statement
+              (test_command [[
+                (binary_expression
+                  (string
+                    (simple_expansion PLACEHOLDER_11)) ==
+                  (string
+                    (simple_expansion PLACEHOLDER_8)))) then
+              (variable_assignment PLACEHOLDER_6
+                (string
+                  (expansion PLACEHOLDER_6 : 0 :
+                    (binary_expression
+                      (string
+                        (simple_expansion PLACEHOLDER_9)) - 1))))
+              (else_clause
+                (command echo false)
+                (command exit 0)))
+            (else_clause
+              (variable_assignment PLACEHOLDER_6
+                (string
+                  (expansion PLACEHOLDER_6)
+                  (expansion PLACEHOLDER_8)))))))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_6)) = "")) then
+        (command echo true)
+        (else_clause
+          (command echo false)))))
+  (command (command_name PLACEHOLDER_1)
+    (string
+      (simple_expansion @))))

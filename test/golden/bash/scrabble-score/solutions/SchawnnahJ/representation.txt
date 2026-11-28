@@ -1,13 +1,34 @@
-total = 0
-for x in $( echo ${ 1 ^^ } | grep -o . ) ; do
-case $x in
-[ AEIOULNRST] ) (( total++ )) ;;
-[ DG] ) (( total+ = 2 )) ;;
-[ BCMP] ) (( total+ = 3 )) ;;
-[ FHVWY] ) (( total+ = 4 )) ;;
-K ) (( total+ = 5 )) ;;
-[ JX] ) (( total+ = 8 )) ;;
-* ) (( total+ = 10 )) ;;
-esac
-done
-echo $total
+(program
+  (variable_assignment PLACEHOLDER_1 0)
+  (for_statement PLACEHOLDER_2 in
+    (command_substitution
+      (pipeline
+        (command echo
+          (expansion 1 ^^)) |
+        (command grep -o .)))
+    (do_group
+      (case_statement
+        (simple_expansion PLACEHOLDER_2)
+        (case_item [AEIOULNRST]
+          (arithmetic_command
+            (postfix_expression PLACEHOLDER_1 ++)))
+        (case_item [DG]
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_1 += 2)))
+        (case_item [BCMP]
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_1 += 3)))
+        (case_item [FHVWY]
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_1 += 4)))
+        (case_item K
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_1 += 5)))
+        (case_item [JX]
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_1 += 8)))
+        (case_item *
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_1 += 10))))))
+  (command echo
+    (simple_expansion PLACEHOLDER_1)))

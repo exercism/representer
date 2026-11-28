@@ -1,27 +1,77 @@
-input = $1
-result = 0
-for (( i = 0 ; i< ${# input } ; i++ )) ; do
-char = "\"" ${ input : $i :1 } "\""
-if [[ "\"" $char "\"" = ~ [ A-Za-z] ]] ; then
-if [[ "\"" $char "\"" = ~ [ AEIOULNRSTaeioulnrst] ]] ; then
-(( result+ = 1 ))
-elif [[ "\"" $char "\"" = ~ [ DGdg] ]] ; then
-(( result+ = 2 ))
-elif [[ "\"" $char "\"" = ~ [ BCMPbcmp] ]] ; then
-(( result+ = 3 ))
-elif [[ "\"" $char "\"" = ~ [ FHVWYfhvwy] ]] ; then
-(( result+ = 4 ))
-elif [[ "\"" $char "\"" = ~ [ Kk] ]] ; then
-(( result+ = 5 ))
-elif [[ "\"" $char "\"" = ~ [ JXjx] ]] ; then
-(( result+ = 8 ))
-elif [[ "\"" $char "\"" = ~ [ QZqz] ]] ; then
-(( result+ = 10 ))
-else
-(( result+ = 0 ))
-fi
-else
-(( result+ = 0 ))
-fi
-done
-echo "\"" $result "\""
+(program
+  (variable_assignment PLACEHOLDER_1
+    (simple_expansion 1))
+  (variable_assignment PLACEHOLDER_2 0)
+  (c_style_for_statement
+    (variable_assignment PLACEHOLDER_3 0) ;
+    (binary_expression PLACEHOLDER_3 <
+      (expansion # PLACEHOLDER_1)) ;
+    (postfix_expression PLACEHOLDER_3 ++)
+    (do_group
+      (variable_assignment PLACEHOLDER_4
+        (string
+          (expansion PLACEHOLDER_1 :
+            (simple_expansion PLACEHOLDER_3) : 1)))
+      (if_statement
+        (test_command [[
+          (binary_expression
+            (string
+              (simple_expansion PLACEHOLDER_4)) =~ [A-Za-z])) then
+        (if_statement
+          (test_command [[
+            (binary_expression
+              (string
+                (simple_expansion PLACEHOLDER_4)) =~ [AEIOULNRSTaeioulnrst])) then
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 += 1))
+          (elif_clause
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_4)) =~ [DGdg])) then
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_2 += 2)))
+          (elif_clause
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_4)) =~ [BCMPbcmp])) then
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_2 += 3)))
+          (elif_clause
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_4)) =~ [FHVWYfhvwy])) then
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_2 += 4)))
+          (elif_clause
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_4)) =~ [Kk])) then
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_2 += 5)))
+          (elif_clause
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_4)) =~ [JXjx])) then
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_2 += 8)))
+          (elif_clause
+            (test_command [[
+              (binary_expression
+                (string
+                  (simple_expansion PLACEHOLDER_4)) =~ [QZqz])) then
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_2 += 10)))
+          (else_clause
+            (arithmetic_command
+              (binary_expression PLACEHOLDER_2 += 0))))
+        (else_clause
+          (arithmetic_command
+            (binary_expression PLACEHOLDER_2 += 0))))))
+  (command echo
+    (string
+      (simple_expansion PLACEHOLDER_2))))
