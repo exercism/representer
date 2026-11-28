@@ -1,62 +1,190 @@
-Class SaddlePoint {
-[ int ] $Row
-[ int ] $Column
-SaddlePoint ( $row , $col ) {
-$this . Row = $row
-$this . Column = $col
-}
-[ bool ] Equals ( $other ) {
-return $this . Row -eq $other . Row -and $this . Column -eq $other . Column
-}
-}
-Function Get-SaddlePoints () {
-[ CmdletBinding ()]
-Param (
-[ int [][]] $Matrix
-)
-if ( $Matrix . Count -eq 0 ) {
-return @()
-}
-$rowLength = $Matrix [ 0 ] . Length
-for ( $r = 0 ; $r -lt $Matrix . Count ; $r ++ ) {
-if ( $Matrix [ $r ] . Length -ne $rowLength ) {
-throw "\"Irregular matrix\""
-}
-}
-$saddlePoints = @()
-if ( $Matrix . Count -eq 1 ) {
-$maxValue = ( $Matrix [ 0 ] | Measure-Object -Maximum ) . Maximum
-for ( $col = 0 ; $col -lt $Matrix [ 0 ] . Length ; $col ++ ) {
-if ( $Matrix [ 0 ][ $col ] -eq $maxValue ) {
-$saddlePoints += [ SaddlePoint ]:: new ( 1 , $col + 1 )
-}
-}
-return $saddlePoints
-}
-if ( $rowLength -eq 1 ) {
-$minValue = ( $Matrix | ForEach-Object { $_ [ 0 ] } | Measure-Object -Minimum ) . Minimum
-for ( $row = 0 ; $row -lt $Matrix . Count ; $row ++ ) {
-if ( $Matrix [ $row ][ 0 ] -eq $minValue ) {
-$saddlePoints += [ SaddlePoint ]:: new ( $row + 1 , 1 )
-}
-}
-return $saddlePoints
-}
-for ( $rowIndex = 0 ; $rowIndex -lt $Matrix . Count ; $rowIndex ++ ) {
-$row = $Matrix [ $rowIndex ]
-$maxInRow = ( $row | Measure-Object -Maximum ) . Maximum
-for ( $colIndex = 0 ; $colIndex -lt $row . Length ; $colIndex ++ ) {
-if ( $row [ $colIndex ] -eq $maxInRow ) {
-$column = @()
-for ( $r = 0 ; $r -lt $Matrix . Count ; $r ++ ) {
-$column += $Matrix [ $r ][ $colIndex ]
-}
-$minInColumn = ( $column | Measure-Object -Minimum ) . Minimum
-if ( $row [ $colIndex ] -eq $minInColumn ) {
-$saddlePoints += [ SaddlePoint ]:: new ( $rowIndex + 1 , $colIndex + 1 )
-}
-}
-}
-}
-return $saddlePoints
-}
+(source_file
+  (class_definition (identifier PLACEHOLDER_1)
+    (class_body
+      (class_property
+        (type_literal
+          (type_name int)) $PLACEHOLDER_2)
+      (class_property
+        (type_literal
+          (type_name int)) $PLACEHOLDER_3)
+      (class_method (identifier PLACEHOLDER_1)
+        (parameter_list
+          (parameter $PLACEHOLDER_2)
+          (parameter $PLACEHOLDER_4))
+        (statement_block
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_2)) = $PLACEHOLDER_2)
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_3)) = $PLACEHOLDER_4)))
+      (class_method
+        (type_literal
+          (type_name bool)) (identifier PLACEHOLDER_5)
+        (parameter_list
+          (parameter $PLACEHOLDER_6))
+        (statement_block
+          (return_statement
+            (binary_expression
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_2)) -eq
+                (member_access $PLACEHOLDER_6 . (identifier PLACEHOLDER_2))) -and
+              (binary_expression
+                (member_access $this . (identifier PLACEHOLDER_3)) -eq
+                (member_access $PLACEHOLDER_6 . (identifier PLACEHOLDER_3)))))))))
+  (function_definition (function_name PLACEHOLDER_7)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name int [ ] [ ])) $PLACEHOLDER_8)))
+      (if_statement
+        (condition
+          (binary_expression
+            (member_access $PLACEHOLDER_8 . count) -eq 0))
+        (statement_block
+          (return_statement
+            (array_expression))))
+      (assignment_statement $PLACEHOLDER_9 =
+        (member_access
+          (element_access $PLACEHOLDER_8 0) . length))
+      (for_statement
+        (assignment_statement $PLACEHOLDER_10 = 0)
+        (binary_expression $PLACEHOLDER_10 -lt
+          (member_access $PLACEHOLDER_8 . count))
+        (unary_expression $PLACEHOLDER_10 ++)
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (member_access
+                  (element_access $PLACEHOLDER_8 $PLACEHOLDER_10) . length) -ne $PLACEHOLDER_9))
+            (statement_block
+              (throw_statement "Irregular matrix")))))
+      (assignment_statement $PLACEHOLDER_11 =
+        (array_expression))
+      (if_statement
+        (condition
+          (binary_expression
+            (member_access $PLACEHOLDER_8 . count) -eq 1))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_12 =
+            (member_access
+              (parenthesized_expression
+                (pipeline
+                  (element_access $PLACEHOLDER_8 0)
+                  (command measure-object
+                    (command_parameter -maximum)))) . maximum))
+          (for_statement
+            (assignment_statement $PLACEHOLDER_4 = 0)
+            (binary_expression $PLACEHOLDER_4 -lt
+              (member_access
+                (element_access $PLACEHOLDER_8 0) . length))
+            (unary_expression $PLACEHOLDER_4 ++)
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression
+                    (element_access
+                      (element_access $PLACEHOLDER_8 0) $PLACEHOLDER_4) -eq $PLACEHOLDER_12))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_11 +=
+                    (invocation_expression
+                      (member_access
+                        (type_literal
+                          (type_name (type_identifier PLACEHOLDER_1))) :: new)
+                      (argument_list 1
+                        (binary_expression $PLACEHOLDER_4 + 1))))))))
+          (return_statement $PLACEHOLDER_11)))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_9 -eq 1))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_13 =
+            (member_access
+              (parenthesized_expression
+                (pipeline $PLACEHOLDER_8
+                  (command foreach-object
+                    (command_argument
+                      (script_block
+                        (element_access $_ 0))))
+                  (command measure-object
+                    (command_parameter -minimum)))) . minimum))
+          (for_statement
+            (assignment_statement $PLACEHOLDER_2 = 0)
+            (binary_expression $PLACEHOLDER_2 -lt
+              (member_access $PLACEHOLDER_8 . count))
+            (unary_expression $PLACEHOLDER_2 ++)
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression
+                    (element_access
+                      (element_access $PLACEHOLDER_8 $PLACEHOLDER_2) 0) -eq $PLACEHOLDER_13))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_11 +=
+                    (invocation_expression
+                      (member_access
+                        (type_literal
+                          (type_name (type_identifier PLACEHOLDER_1))) :: new)
+                      (argument_list
+                        (binary_expression $PLACEHOLDER_2 + 1) 1)))))))
+          (return_statement $PLACEHOLDER_11)))
+      (for_statement
+        (assignment_statement $PLACEHOLDER_14 = 0)
+        (binary_expression $PLACEHOLDER_14 -lt
+          (member_access $PLACEHOLDER_8 . count))
+        (unary_expression $PLACEHOLDER_14 ++)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_2 =
+            (element_access $PLACEHOLDER_8 $PLACEHOLDER_14))
+          (assignment_statement $PLACEHOLDER_15 =
+            (member_access
+              (parenthesized_expression
+                (pipeline $PLACEHOLDER_2
+                  (command measure-object
+                    (command_parameter -maximum)))) . maximum))
+          (for_statement
+            (assignment_statement $PLACEHOLDER_16 = 0)
+            (binary_expression $PLACEHOLDER_16 -lt
+              (member_access $PLACEHOLDER_2 . length))
+            (unary_expression $PLACEHOLDER_16 ++)
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression
+                    (element_access $PLACEHOLDER_2 $PLACEHOLDER_16) -eq $PLACEHOLDER_15))
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_3 =
+                    (array_expression))
+                  (for_statement
+                    (assignment_statement $PLACEHOLDER_10 = 0)
+                    (binary_expression $PLACEHOLDER_10 -lt
+                      (member_access $PLACEHOLDER_8 . count))
+                    (unary_expression $PLACEHOLDER_10 ++)
+                    (statement_block
+                      (assignment_statement $PLACEHOLDER_3 +=
+                        (element_access
+                          (element_access $PLACEHOLDER_8 $PLACEHOLDER_10) $PLACEHOLDER_16))))
+                  (assignment_statement $PLACEHOLDER_17 =
+                    (member_access
+                      (parenthesized_expression
+                        (pipeline $PLACEHOLDER_3
+                          (command measure-object
+                            (command_parameter -minimum)))) . minimum))
+                  (if_statement
+                    (condition
+                      (binary_expression
+                        (element_access $PLACEHOLDER_2 $PLACEHOLDER_16) -eq $PLACEHOLDER_17))
+                    (statement_block
+                      (assignment_statement $PLACEHOLDER_11 +=
+                        (invocation_expression
+                          (member_access
+                            (type_literal
+                              (type_name (type_identifier PLACEHOLDER_1))) :: new)
+                          (argument_list
+                            (binary_expression $PLACEHOLDER_14 + 1)
+                            (binary_expression $PLACEHOLDER_16 + 1))))))))))))
+      (return_statement $PLACEHOLDER_11))))

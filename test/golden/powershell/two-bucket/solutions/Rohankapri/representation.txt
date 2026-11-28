@@ -1,31 +1,173 @@
-Class TwoBucket {
-[ string []] $BucketIds
-[ int []] $Sizes
-TwoBucket ([ int ] $cap1 , [ int ] $cap2 , [ string ] $first ) {
-$this . BucketIds = ( $first -eq "\"one\"" ) ? @( "\"one\"" , "\"two\"" ) : @( "\"two\"" , "\"one\"" )
-$this . Sizes = ( $first -eq "\"one\"" ) ? @( $cap1 , $cap2 ) : @( $cap2 , $cap1 )
-}
-[ object ] Measure ([ int ] $goal ) {
-if ( $this . Sizes [ 0 ] -eq $this . Sizes [ 1 ]) { throw "\"Two buckets can't be of the same size\"" }
-if ( $goal -lt 0 -or $goal -gt [ Math ]:: Max ( $this . Sizes [ 0 ], $this . Sizes [ 1 ]) -or
-$goal % $this . ComputeGcd ()) {
-throw "\"Target is impossible to reach\""
-}
-$buckets = @( $this .Sizes [ 0 ], 0 )
-for (( $steps = 1 ), ( $idx = $buckets . IndexOf ( $goal )); $idx -lt 0 ; ( $steps ++ ), ( $idx = $buckets . IndexOf ( $goal ))) {
-if ( $this . Sizes [ 1 ] -eq $goal ) { $buckets [ 1 ] = $goal }
-elseif ( $buckets [ 1 ] -eq $this . Sizes [ 1 ]) { $buckets [ 1 ] = 0 }
-elseif ( $buckets [ 0 ] -eq 0 ) { $buckets [ 0 ] = $this . Sizes [ 0 ] }
-else {
-$total = $buckets [ 0 ] + $buckets [ 1 ]
-$buckets = @([ Math ] ::Max( 0 , $total - $this .Sizes [ 1 ]), [ Math ]:: Min ( $total , $this . Sizes [ 1 ]))
-}
-}
-return @{ Moves = $steps ; GoalBucket = $this . BucketIds [ $idx ]; OtherBucket = $buckets [ 1 - $idx ] }
-}
-hidden [ int ] ComputeGcd () {
-$x , $y = $this . Sizes
-while ( $y ) { $x , $y = $y , ( $x % $y ) }
-return $x
-}
-}
+(source_file
+  (class_definition (identifier PLACEHOLDER_1)
+    (class_body
+      (class_property
+        (type_literal
+          (type_name string [ ])) $PLACEHOLDER_2)
+      (class_property
+        (type_literal
+          (type_name int [ ])) $PLACEHOLDER_3)
+      (class_method (identifier PLACEHOLDER_1)
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_4)
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_5)
+          (parameter
+            (type_literal
+              (type_name string)) $PLACEHOLDER_6))
+        (statement_block
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_2)) =
+            (ternary_expression
+              (binary_expression $PLACEHOLDER_6 -eq "one")
+              (array_expression
+                (array_literal_expression "one" "two"))
+              (array_expression
+                (array_literal_expression "two" "one"))))
+          (assignment_statement
+            (member_access $this . (identifier PLACEHOLDER_3)) =
+            (ternary_expression
+              (binary_expression $PLACEHOLDER_6 -eq "one")
+              (array_expression
+                (array_literal_expression $PLACEHOLDER_4 $PLACEHOLDER_5))
+              (array_expression
+                (array_literal_expression $PLACEHOLDER_5 $PLACEHOLDER_4))))))
+      (class_method
+        (type_literal
+          (type_name object)) (identifier PLACEHOLDER_7)
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_8))
+        (statement_block
+          (if_statement
+            (condition
+              (binary_expression
+                (element_access
+                  (member_access $this . (identifier PLACEHOLDER_3)) 0) -eq
+                (element_access
+                  (member_access $this . (identifier PLACEHOLDER_3)) 1)))
+            (statement_block
+              (throw_statement "Two buckets can't be of the same size")))
+          (if_statement
+            (condition
+              (binary_expression
+                (binary_expression
+                  (binary_expression $PLACEHOLDER_8 -lt 0) -or
+                  (binary_expression $PLACEHOLDER_8 -gt
+                    (invocation_expression
+                      (member_access
+                        (type_literal
+                          (type_name math)) :: max)
+                      (argument_list
+                        (element_access
+                          (member_access $this . (identifier PLACEHOLDER_3)) 0)
+                        (element_access
+                          (member_access $this . (identifier PLACEHOLDER_3)) 1))))) -or
+                (binary_expression $PLACEHOLDER_8 %
+                  (invocation_expression
+                    (member_access $this . (identifier PLACEHOLDER_9))
+                    (argument_list)))))
+            (statement_block
+              (throw_statement "Target is impossible to reach")))
+          (assignment_statement $PLACEHOLDER_10 =
+            (array_expression
+              (array_literal_expression
+                (element_access
+                  (member_access $this . (identifier PLACEHOLDER_3)) 0) 0)))
+          (for_statement
+            (array_literal_expression
+              (parenthesized_expression
+                (assignment_statement $PLACEHOLDER_11 = 1))
+              (parenthesized_expression
+                (assignment_statement $PLACEHOLDER_12 =
+                  (invocation_expression
+                    (member_access $PLACEHOLDER_10 . indexof)
+                    (argument_list $PLACEHOLDER_8)))))
+            (binary_expression $PLACEHOLDER_12 -lt 0)
+            (array_literal_expression
+              (unary_expression $PLACEHOLDER_11 ++)
+              (parenthesized_expression
+                (assignment_statement $PLACEHOLDER_12 =
+                  (invocation_expression
+                    (member_access $PLACEHOLDER_10 . indexof)
+                    (argument_list $PLACEHOLDER_8)))))
+            (statement_block
+              (if_statement
+                (condition
+                  (binary_expression
+                    (element_access
+                      (member_access $this . (identifier PLACEHOLDER_3)) 1) -eq $PLACEHOLDER_8))
+                (statement_block
+                  (assignment_statement
+                    (element_access $PLACEHOLDER_10 1) = $PLACEHOLDER_8))
+                (elseif_clause
+                  (condition
+                    (binary_expression
+                      (element_access $PLACEHOLDER_10 1) -eq
+                      (element_access
+                        (member_access $this . (identifier PLACEHOLDER_3)) 1)))
+                  (statement_block
+                    (assignment_statement
+                      (element_access $PLACEHOLDER_10 1) = 0)))
+                (elseif_clause
+                  (condition
+                    (binary_expression
+                      (element_access $PLACEHOLDER_10 0) -eq 0))
+                  (statement_block
+                    (assignment_statement
+                      (element_access $PLACEHOLDER_10 0) =
+                      (element_access
+                        (member_access $this . (identifier PLACEHOLDER_3)) 0))))
+                (else_clause
+                  (statement_block
+                    (assignment_statement $PLACEHOLDER_13 =
+                      (binary_expression
+                        (element_access $PLACEHOLDER_10 0) +
+                        (element_access $PLACEHOLDER_10 1)))
+                    (assignment_statement $PLACEHOLDER_10 =
+                      (array_expression
+                        (array_literal_expression
+                          (invocation_expression
+                            (member_access
+                              (type_literal
+                                (type_name math)) :: max)
+                            (argument_list 0
+                              (binary_expression $PLACEHOLDER_13 -
+                                (element_access
+                                  (member_access $this . (identifier PLACEHOLDER_3)) 1))))
+                          (invocation_expression
+                            (member_access
+                              (type_literal
+                                (type_name math)) :: min)
+                            (argument_list $PLACEHOLDER_13
+                              (element_access
+                                (member_access $this . (identifier PLACEHOLDER_3)) 1)))))))))))
+          (return_statement
+            (hashtable_expression
+              (hash_entry "Moves" $PLACEHOLDER_11)
+              (hash_entry "GoalBucket"
+                (element_access
+                  (member_access $this . (identifier PLACEHOLDER_2)) $PLACEHOLDER_12))
+              (hash_entry "OtherBucket"
+                (element_access $PLACEHOLDER_10
+                  (binary_expression 1 - $PLACEHOLDER_12)))))))
+      (class_method hidden
+        (type_literal
+          (type_name int)) (identifier PLACEHOLDER_9)
+        (parameter_list)
+        (statement_block
+          (assignment_statement
+            (array_literal_expression $x $y) =
+            (member_access $this . (identifier PLACEHOLDER_3)))
+          (while_statement
+            (condition $y)
+            (statement_block
+              (assignment_statement
+                (array_literal_expression $x $y) =
+                (array_literal_expression $y
+                  (binary_expression $x % $y)))))
+          (return_statement $x))))))

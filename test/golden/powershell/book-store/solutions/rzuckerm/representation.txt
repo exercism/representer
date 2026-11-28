@@ -1,20 +1,88 @@
-$ Global : Price = 8.0
-$ Global : Multipliers = @( 0.0 , 1.0 , ( 2 * 0.95 ), ( 3 * 0.9 ), ( 4 * 0.80 ), ( 5 * 0.75 ))
-Function Get-Total () {
-[ CmdletBinding ()]
-Param (
-[ ValidateRange ( 1 , 5 )]
-[ int []] $Books
-)
-$Counts = $Books | Group-Object | Sort-Object -Property Count -Descending | ForEach-Object { $_ . Count }
-Find-LowestPrice ( $Counts )
-}
-Function Find-LowestPrice ([ int []] $Counts ) {
-$lowestPrice = $ Global : Price * ( $Counts | Measure-Object -Sum ) . Sum
-$n = ( $Counts | Where-Object { $_ }) . Length
-for ( $i = 2 ; $i -le $n ; $i ++ ) {
-$newCounts = ( 0 .. ( $n - 1 ) | ForEach-Object { $Counts [ $_ ] - ( $_ -lt $i )} ) | Sort-Object -Descending
-$lowestPrice = [ Math ]:: Min ( $lowestPrice , ( $ Global : Price * $ Global : Multipliers [ $i ] + ( Find-LowestPrice $newCounts )))
-}
-$lowestPrice
-}
+(source_file
+  (assignment_statement $PLACEHOLDER_1 = 8.0)
+  (assignment_statement $PLACEHOLDER_2 =
+    (array_expression
+      (array_literal_expression 0.0 1.0
+        (binary_expression 2 * 0.95)
+        (binary_expression 3 * 0.9)
+        (binary_expression 4 * 0.8)
+        (binary_expression 5 * 0.75))))
+  (function_definition (function_name PLACEHOLDER_3)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (attribute
+              (type_name validaterange)
+              (argument_list
+                (attribute_argument 1)
+                (attribute_argument 5)))
+            (type_literal
+              (type_name int [ ])) $PLACEHOLDER_4)))
+      (assignment_statement $PLACEHOLDER_5 =
+        (pipeline $PLACEHOLDER_4
+          (command group-object)
+          (command sort-object
+            (command_parameter -property)
+            (command_argument "Count")
+            (command_parameter -descending))
+          (command foreach-object
+            (command_argument
+              (script_block
+                (member_access $_ . count))))))
+      (command (command_name PLACEHOLDER_6)
+        (command_argument $PLACEHOLDER_5))))
+  (function_definition (function_name PLACEHOLDER_6)
+    (parameter_list
+      (parameter
+        (type_literal
+          (type_name int [ ])) $PLACEHOLDER_5))
+    (script_block
+      (assignment_statement $PLACEHOLDER_7 =
+        (binary_expression $PLACEHOLDER_1 *
+          (member_access
+            (parenthesized_expression
+              (pipeline $PLACEHOLDER_5
+                (command measure-object
+                  (command_parameter -sum)))) . sum)))
+      (assignment_statement $PLACEHOLDER_8 =
+        (member_access
+          (parenthesized_expression
+            (pipeline $PLACEHOLDER_5
+              (command where-object
+                (command_argument
+                  (script_block $_))))) . length))
+      (for_statement
+        (assignment_statement $PLACEHOLDER_9 = 2)
+        (binary_expression $PLACEHOLDER_9 -le $PLACEHOLDER_8)
+        (unary_expression $PLACEHOLDER_9 ++)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_10 =
+            (pipeline
+              (parenthesized_expression
+                (pipeline
+                  (binary_expression 0 ..
+                    (binary_expression $PLACEHOLDER_8 - 1))
+                  (command foreach-object
+                    (command_argument
+                      (script_block
+                        (binary_expression
+                          (element_access $PLACEHOLDER_5 $_) -
+                          (binary_expression $_ -lt $PLACEHOLDER_9)))))))
+              (command sort-object
+                (command_parameter -descending))))
+          (assignment_statement $PLACEHOLDER_7 =
+            (invocation_expression
+              (member_access
+                (type_literal
+                  (type_name math)) :: min)
+              (argument_list $PLACEHOLDER_7
+                (binary_expression
+                  (binary_expression $PLACEHOLDER_1 *
+                    (element_access $PLACEHOLDER_2 $PLACEHOLDER_9)) +
+                  (parenthesized_expression
+                    (command (command_name PLACEHOLDER_6)
+                      (command_argument $PLACEHOLDER_10))))))))) $PLACEHOLDER_7)))

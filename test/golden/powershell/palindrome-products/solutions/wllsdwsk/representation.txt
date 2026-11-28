@@ -1,30 +1,154 @@
-Function Get-Products () {
-[ CmdletBinding ()]
-Param (
-[ int ] $Min ,
-[ int ] $Max ,
-[ switch ] $Largest
-)
-if ( $min -gt $max ){ throw "\"*Cannot validate argument on parameter 'Max'*\"" }
-if ( $largest ){ $first = $max ; $second = $min ; $alt = $first - 150 }
-else { $first = $min ; $second = $max ; $alt = $first + 150 }
-if ( $max - $min -gt 100 ){ $firstarr = @( $first .. $alt ) | Where-Object { $_ % 2 -eq 1 } }
-else { $firstArr = @( $first .. $second ) | Where-Object { $_ % 2 -eq 1 } }
-$value = $null
-foreach ( $n in $firstArr ){
-foreach ( $x in $firstArr ){
-$found = $false
-$product = $n * $x
-$str = [ string ] $product
-if ( $found -eq $false ){
-if (( compare-object $str [ 0 .. $str . length ] $str [ $str . length .. 0 ] -syncwindow 0 ) -eq $null -and $product -ne 0 ){
-if ( $product -eq $value ){ $productarr += ,(@( $n , $x ) | sort-object ) }
-if ( $value -eq $null ){ $value = $product ; $productarr += ,(@( $n , $x ) | sort-object ) }
-if ( $largest ){ if ( $product -gt $value ){ $value = $product ; $productarr = ,(@( $n , $x ) | sort-object ) } }
-else { if ( $product -lt $value ){ $value = $product ; $productarr = ,(@( $n , $x ) | sort-object ) } }
-}
-}
-}
-}
-return @{ Value = $value ; Products = @( $productarr | select -unique ) }
-}
+(source_file
+  (function_definition (function_name PLACEHOLDER_1)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_2)
+          (parameter
+            (type_literal
+              (type_name int)) $PLACEHOLDER_3)
+          (parameter
+            (type_literal
+              (type_name switch)) $PLACEHOLDER_4)))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_2 -gt $PLACEHOLDER_3))
+        (statement_block
+          (throw_statement "*Cannot validate argument on parameter 'Max'*")))
+      (if_statement
+        (condition $PLACEHOLDER_4)
+        (statement_block
+          (assignment_statement $PLACEHOLDER_5 = $PLACEHOLDER_3)
+          (assignment_statement $PLACEHOLDER_6 = $PLACEHOLDER_2)
+          (assignment_statement $PLACEHOLDER_7 =
+            (binary_expression $PLACEHOLDER_5 - 150)))
+        (else_clause
+          (statement_block
+            (assignment_statement $PLACEHOLDER_5 = $PLACEHOLDER_2)
+            (assignment_statement $PLACEHOLDER_6 = $PLACEHOLDER_3)
+            (assignment_statement $PLACEHOLDER_7 =
+              (binary_expression $PLACEHOLDER_5 + 150)))))
+      (if_statement
+        (condition
+          (binary_expression
+            (binary_expression $PLACEHOLDER_3 - $PLACEHOLDER_2) -gt 100))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_8 =
+            (pipeline
+              (array_expression
+                (binary_expression $PLACEHOLDER_5 .. $PLACEHOLDER_7))
+              (command where-object
+                (command_argument
+                  (script_block
+                    (binary_expression
+                      (binary_expression $_ % 2) -eq 1)))))))
+        (else_clause
+          (statement_block
+            (assignment_statement $PLACEHOLDER_8 =
+              (pipeline
+                (array_expression
+                  (binary_expression $PLACEHOLDER_5 .. $PLACEHOLDER_6))
+                (command where-object
+                  (command_argument
+                    (script_block
+                      (binary_expression
+                        (binary_expression $_ % 2) -eq 1)))))))))
+      (assignment_statement $PLACEHOLDER_9 = $null)
+      (foreach_statement $PLACEHOLDER_10 $PLACEHOLDER_8
+        (statement_block
+          (foreach_statement $PLACEHOLDER_11 $PLACEHOLDER_8
+            (statement_block
+              (assignment_statement $PLACEHOLDER_12 = $false)
+              (assignment_statement $PLACEHOLDER_13 =
+                (binary_expression $PLACEHOLDER_10 * $PLACEHOLDER_11))
+              (assignment_statement $PLACEHOLDER_14 =
+                (cast_expression
+                  (type_literal
+                    (type_name string)) $PLACEHOLDER_13))
+              (if_statement
+                (condition
+                  (binary_expression $PLACEHOLDER_12 -eq $false))
+                (statement_block
+                  (if_statement
+                    (condition
+                      (binary_expression
+                        (binary_expression
+                          (parenthesized_expression
+                            (command compare-object
+                              (command_argument
+                                (element_access $PLACEHOLDER_14
+                                  (binary_expression 0 ..
+                                    (member_access $PLACEHOLDER_14 . length))))
+                              (command_argument
+                                (element_access $PLACEHOLDER_14
+                                  (binary_expression
+                                    (member_access $PLACEHOLDER_14 . length) .. 0)))
+                              (command_parameter -syncwindow)
+                              (command_argument 0))) -eq $null) -and
+                        (binary_expression $PLACEHOLDER_13 -ne 0)))
+                    (statement_block
+                      (if_statement
+                        (condition
+                          (binary_expression $PLACEHOLDER_13 -eq $PLACEHOLDER_9))
+                        (statement_block
+                          (assignment_statement $PLACEHOLDER_15 +=
+                            (unary_expression ,
+                              (parenthesized_expression
+                                (pipeline
+                                  (array_expression
+                                    (array_literal_expression $PLACEHOLDER_10 $PLACEHOLDER_11))
+                                  (command sort-object)))))))
+                      (if_statement
+                        (condition
+                          (binary_expression $PLACEHOLDER_9 -eq $null))
+                        (statement_block
+                          (assignment_statement $PLACEHOLDER_9 = $PLACEHOLDER_13)
+                          (assignment_statement $PLACEHOLDER_15 +=
+                            (unary_expression ,
+                              (parenthesized_expression
+                                (pipeline
+                                  (array_expression
+                                    (array_literal_expression $PLACEHOLDER_10 $PLACEHOLDER_11))
+                                  (command sort-object)))))))
+                      (if_statement
+                        (condition $PLACEHOLDER_4)
+                        (statement_block
+                          (if_statement
+                            (condition
+                              (binary_expression $PLACEHOLDER_13 -gt $PLACEHOLDER_9))
+                            (statement_block
+                              (assignment_statement $PLACEHOLDER_9 = $PLACEHOLDER_13)
+                              (assignment_statement $PLACEHOLDER_15 =
+                                (unary_expression ,
+                                  (parenthesized_expression
+                                    (pipeline
+                                      (array_expression
+                                        (array_literal_expression $PLACEHOLDER_10 $PLACEHOLDER_11))
+                                      (command sort-object))))))))
+                        (else_clause
+                          (statement_block
+                            (if_statement
+                              (condition
+                                (binary_expression $PLACEHOLDER_13 -lt $PLACEHOLDER_9))
+                              (statement_block
+                                (assignment_statement $PLACEHOLDER_9 = $PLACEHOLDER_13)
+                                (assignment_statement $PLACEHOLDER_15 =
+                                  (unary_expression ,
+                                    (parenthesized_expression
+                                      (pipeline
+                                        (array_expression
+                                          (array_literal_expression $PLACEHOLDER_10 $PLACEHOLDER_11))
+                                        (command sort-object))))))))))))))))))
+      (return_statement
+        (hashtable_expression
+          (hash_entry "Value" $PLACEHOLDER_9)
+          (hash_entry "Products"
+            (array_expression
+              (pipeline $PLACEHOLDER_15
+                (command select
+                  (command_parameter -unique))))))))))

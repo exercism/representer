@@ -1,69 +1,183 @@
-$ResistorBands = @{
-"\"black\"" = 0
-"\"brown\"" = 1
-"\"red\"" = 2
-"\"orange\"" = 3
-"\"yellow\"" = 4
-"\"green\"" = 5
-"\"blue\"" = 6
-"\"violet\"" = 7
-"\"grey\"" = 8
-"\"white\"" = 9
-}
-$ToleranceBands = @{
-"\"brown\"" = "\"\u00B11%\""
-"\"red\"" = "\"\u00B12%\""
-"\"green\"" = "\"\u00B10.5%\""
-"\"blue\"" = "\"\u00B10.25%\""
-"\"violet\"" = "\"\u00B10.1%\""
-"\"grey\"" = "\"\u00B10.05%\""
-}
-$UnitBands = @{
-0 = "\"ohms\""
-1 = "\"kiloohms\""
-2 = "\"megaohms\""
-}
-Function Get-ResistorLabel () {
-[ CmdletBinding ()]
-Param (
-[ string []] $Colors
-)
-$result = "\"\""
-$milliMultiplier = 0
-switch ( $Colors . Count ) {
-1 {
-$result = "\"$(" $ResistorBands [ $Colors [ 0 ]] ") ohms\""
-}
-4 {
-$result = "\"$(" $ResistorBands [ $Colors [ 0 ]] )$( $ResistorBands [ $Colors [ 1 ]] )"
-$multiplier = $ResistorBands [ $Colors [ 2 ]]
-if ( $multiplier -gt 0 ) {
-$result = [ int ] $result * [ math ]:: Pow ( 10 , $multiplier )
-}
-if ([ int ] $result -ge 1000 ) {
-while ( $result -ge 1000 ) {
-$result = [ math ]:: Round ( $result / 1000 , 2 )
-$milliMultiplier ++
-}
-}
-$result = [ string ] $result + "\" $(" $UnitBands [ $milliMultiplier ] )"
-$result += "\" $(" $ToleranceBands [ $Colors [ 3 ]] )"
-}
-5 {
-$result = "\"$(" $ResistorBands [ $Colors [ 0 ]] )$( $ResistorBands [ $Colors [ 1 ]] )$( $ResistorBands [ $Colors [ 2 ]] )"
-$multiplier = $ResistorBands [ $Colors [ 3 ]]
-if ( $multiplier -gt 0 ) {
-$result = [ int ] $result * [ math ]:: Pow ( 10 , $multiplier )
-}
-if ([ int ] $result -ge 1000 ) {
-while ( $result -ge 1000 ) {
-$result = [ math ]:: Round ( $result / 1000 , 2 )
-$milliMultiplier ++
-}
-}
-$result = [ string ] $result + "\" $(" $UnitBands [ $milliMultiplier ] )"
-$result += "\" $(" $ToleranceBands [ $Colors [ 4 ]] )"
-}
-}
-return $result
-}
+(source_file
+  (assignment_statement $PLACEHOLDER_1 =
+    (hashtable_expression
+      (hash_entry "black" 0)
+      (hash_entry "brown" 1)
+      (hash_entry "red" 2)
+      (hash_entry "orange" 3)
+      (hash_entry "yellow" 4)
+      (hash_entry "green" 5)
+      (hash_entry "blue" 6)
+      (hash_entry "violet" 7)
+      (hash_entry "grey" 8)
+      (hash_entry "white" 9)))
+  (assignment_statement $PLACEHOLDER_2 =
+    (hashtable_expression
+      (hash_entry "brown" "\u00B11%")
+      (hash_entry "red" "\u00B12%")
+      (hash_entry "green" "\u00B10.5%")
+      (hash_entry "blue" "\u00B10.25%")
+      (hash_entry "violet" "\u00B10.1%")
+      (hash_entry "grey" "\u00B10.05%")))
+  (assignment_statement $PLACEHOLDER_3 =
+    (hashtable_expression
+      (hash_entry 0 "ohms")
+      (hash_entry 1 "kiloohms")
+      (hash_entry 2 "megaohms")))
+  (function_definition (function_name PLACEHOLDER_4)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (type_literal
+              (type_name string [ ])) $PLACEHOLDER_5)))
+      (assignment_statement $PLACEHOLDER_6 = "")
+      (assignment_statement $PLACEHOLDER_7 = 0)
+      (switch_statement
+        (condition
+          (member_access $PLACEHOLDER_5 . count))
+        (switch_clause
+          (command_argument 1)
+          (statement_block
+            (assignment_statement $PLACEHOLDER_6 =
+              (expandable_string
+                (interpolation
+                  (sub_expression
+                    (element_access $PLACEHOLDER_1
+                      (element_access $PLACEHOLDER_5 0)))) " ohms"))))
+        (switch_clause
+          (command_argument 4)
+          (statement_block
+            (assignment_statement $PLACEHOLDER_6 =
+              (expandable_string
+                (interpolation
+                  (sub_expression
+                    (element_access $PLACEHOLDER_1
+                      (element_access $PLACEHOLDER_5 0))))
+                (interpolation
+                  (sub_expression
+                    (element_access $PLACEHOLDER_1
+                      (element_access $PLACEHOLDER_5 1))))))
+            (assignment_statement $PLACEHOLDER_8 =
+              (element_access $PLACEHOLDER_1
+                (element_access $PLACEHOLDER_5 2)))
+            (if_statement
+              (condition
+                (binary_expression $PLACEHOLDER_8 -gt 0))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_6 =
+                  (binary_expression
+                    (cast_expression
+                      (type_literal
+                        (type_name int)) $PLACEHOLDER_6) *
+                    (invocation_expression
+                      (member_access
+                        (type_literal
+                          (type_name math)) :: pow)
+                      (argument_list 10 $PLACEHOLDER_8))))))
+            (if_statement
+              (condition
+                (binary_expression
+                  (cast_expression
+                    (type_literal
+                      (type_name int)) $PLACEHOLDER_6) -ge 1000))
+              (statement_block
+                (while_statement
+                  (condition
+                    (binary_expression $PLACEHOLDER_6 -ge 1000))
+                  (statement_block
+                    (assignment_statement $PLACEHOLDER_6 =
+                      (invocation_expression
+                        (member_access
+                          (type_literal
+                            (type_name math)) :: round)
+                        (argument_list
+                          (binary_expression $PLACEHOLDER_6 / 1000) 2)))
+                    (unary_expression $PLACEHOLDER_7 ++)))))
+            (assignment_statement $PLACEHOLDER_6 =
+              (binary_expression
+                (cast_expression
+                  (type_literal
+                    (type_name string)) $PLACEHOLDER_6) +
+                (expandable_string " "
+                  (interpolation
+                    (sub_expression
+                      (element_access $PLACEHOLDER_3 $PLACEHOLDER_7))))))
+            (assignment_statement $PLACEHOLDER_6 +=
+              (expandable_string " "
+                (interpolation
+                  (sub_expression
+                    (element_access $PLACEHOLDER_2
+                      (element_access $PLACEHOLDER_5 3))))))))
+        (switch_clause
+          (command_argument 5)
+          (statement_block
+            (assignment_statement $PLACEHOLDER_6 =
+              (expandable_string
+                (interpolation
+                  (sub_expression
+                    (element_access $PLACEHOLDER_1
+                      (element_access $PLACEHOLDER_5 0))))
+                (interpolation
+                  (sub_expression
+                    (element_access $PLACEHOLDER_1
+                      (element_access $PLACEHOLDER_5 1))))
+                (interpolation
+                  (sub_expression
+                    (element_access $PLACEHOLDER_1
+                      (element_access $PLACEHOLDER_5 2))))))
+            (assignment_statement $PLACEHOLDER_8 =
+              (element_access $PLACEHOLDER_1
+                (element_access $PLACEHOLDER_5 3)))
+            (if_statement
+              (condition
+                (binary_expression $PLACEHOLDER_8 -gt 0))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_6 =
+                  (binary_expression
+                    (cast_expression
+                      (type_literal
+                        (type_name int)) $PLACEHOLDER_6) *
+                    (invocation_expression
+                      (member_access
+                        (type_literal
+                          (type_name math)) :: pow)
+                      (argument_list 10 $PLACEHOLDER_8))))))
+            (if_statement
+              (condition
+                (binary_expression
+                  (cast_expression
+                    (type_literal
+                      (type_name int)) $PLACEHOLDER_6) -ge 1000))
+              (statement_block
+                (while_statement
+                  (condition
+                    (binary_expression $PLACEHOLDER_6 -ge 1000))
+                  (statement_block
+                    (assignment_statement $PLACEHOLDER_6 =
+                      (invocation_expression
+                        (member_access
+                          (type_literal
+                            (type_name math)) :: round)
+                        (argument_list
+                          (binary_expression $PLACEHOLDER_6 / 1000) 2)))
+                    (unary_expression $PLACEHOLDER_7 ++)))))
+            (assignment_statement $PLACEHOLDER_6 =
+              (binary_expression
+                (cast_expression
+                  (type_literal
+                    (type_name string)) $PLACEHOLDER_6) +
+                (expandable_string " "
+                  (interpolation
+                    (sub_expression
+                      (element_access $PLACEHOLDER_3 $PLACEHOLDER_7))))))
+            (assignment_statement $PLACEHOLDER_6 +=
+              (expandable_string " "
+                (interpolation
+                  (sub_expression
+                    (element_access $PLACEHOLDER_2
+                      (element_access $PLACEHOLDER_5 4)))))))))
+      (return_statement $PLACEHOLDER_6))))

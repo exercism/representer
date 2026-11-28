@@ -1,100 +1,305 @@
-Function Is-Workday ([ datetime ] $date ) {
-return $date . DayOfWeek -ge [ DayOfWeek ]:: Monday -and $date . DayOfWeek -le [ DayOfWeek ]:: Friday
-}
-Function Get-FirstWorkday ([ datetime ] $startDate ) {
-$currentDate = $startDate
-while ( -not ( Is-Workday $currentDate )) {
-$currentDate = $currentDate . AddDays ( 1 )
-}
-return $currentDate
-}
-Function Get-LastWorkday ([ datetime ] $endDate ) {
-$currentDate = $endDate
-while ( -not ( Is-Workday $currentDate )) {
-$currentDate = $currentDate . AddDays ( -1 )
-}
-return $currentDate
-}
-Function Invoke-SwiftScheduling () {
-[ CmdletBinding ()]
-Param (
-[ Parameter ( Mandatory = $true )]
-[ datetime ] $MeetingStart ,
-[ Parameter ( Mandatory = $true )]
-[ string ] $Description
-)
-$deliveryDate = $null
-switch -Regex ( $Description ) {
-"\"NOW\"" {
-$deliveryDate = $MeetingStart . AddHours ( 2 )
-}
-"\"ASAP\"" {
-if ( $MeetingStart . Hour -lt 13 ) {
-$deliveryDate = $MeetingStart . Date . AddHours ( 17 )
-} else {
-$deliveryDate = $MeetingStart . Date . AddDays ( 1 ) . AddHours ( 13 )
-}
-}
-"\"EOW\"" {
-$startDay = $MeetingStart . DayOfWeek
-if ( $startDay -ge [ DayOfWeek ]:: Monday -and $startDay -le [ DayOfWeek ]:: Wednesday ) {
-$daysUntilFriday = [ int ][ DayOfWeek ]:: Friday - [ int ] $startDay
-$deliveryDate = $MeetingStart . Date . AddDays ( $daysUntilFriday ) . AddHours ( 17 )
-} else {
-$daysUntilSunday = switch ( $startDay ) {
-([ DayOfWeek ]:: Thursday ) { 3 }
-([ DayOfWeek ]:: Friday ) { 2 }
-([ DayOfWeek ]:: Saturday ) { 1 }
-([ DayOfWeek ]:: Sunday ) { 0 }
-}
-if ( $daysUntilSunday -eq $null ) {
-throw "\"Internal error: Could not determine days until Sunday for EOW rule.\""
-}
-$deliveryDate = $MeetingStart . Date . AddDays ( $daysUntilSunday ) . AddHours ( 20 )
-}
-}
-"\"^(\\d{1,2})M$\"" {
-$targetMonth = [ int ] $matches [ 1 ]
-if ( $targetMonth -lt 1 -or $targetMonth -gt 12 ) {
-throw "\"Invalid month number specified in '" $Description '"
-}
-$targetYear = $MeetingStart . Year
-if ( $MeetingStart . Month -ge $targetMonth ) {
-$targetYear ++
-}
-$firstDayOfMonth = try {
-[ datetime ]:: new ( $targetYear , $targetMonth , 1 , 8 , 0 , 0 )
-} catch {
-throw "\"Failed to construct date for " $targetYear - $targetMonth "-01. Error: $(" $_ . Exception . Message )"
-}
-$deliveryDate = Get-FirstWorkday $firstDayOfMonth
-}
-"\"^Q([1-4])$\"" {
-$targetQuarter = [ int ] $matches [ 1 ]
-$currentQuarter = [ math ]:: Ceiling ( $MeetingStart . Month / 3.0 )
-$targetYear = $MeetingStart . Year
-if ( $currentQuarter -gt $targetQuarter ) {
-$targetYear ++
-}
-$lastMonthOfQuarter = $targetQuarter * 3
-$lastDayOfMonth = try {
-[ datetime ]:: DaysInMonth ( $targetYear , $lastMonthOfQuarter )
-} catch {
-throw "\"Failed to get days in month for " $targetYear - $lastMonthOfQuarter ". Error: $(" $_ . Exception . Message )"
-}
-$lastDayOfQuarterTarget = try {
-[ datetime ]:: new ( $targetYear , $lastMonthOfQuarter , $lastDayOfMonth , 8 , 0 , 0 )
-} catch {
-throw "\"Failed to construct date for " $targetYear - $lastMonthOfQuarter - $lastDayOfMonth ". Error: $(" $_ . Exception . Message )"
-}
-$deliveryDate = Get-LastWorkday $lastDayOfQuarterTarget
-}
-Default {
-throw "\"Invalid description format provided: '" $Description '"
-}
-}
-if ( $deliveryDate -eq $null ) {
-throw "\"Failed to calculate delivery date for '" $Description "' - internal logic error.\""
-}
-return $deliveryDate
-}
+(source_file
+  (function_definition (function_name PLACEHOLDER_1)
+    (parameter_list
+      (parameter
+        (type_literal
+          (type_name datetime)) $PLACEHOLDER_2))
+    (script_block
+      (return_statement
+        (binary_expression
+          (binary_expression
+            (member_access $PLACEHOLDER_2 . dayofweek) -ge
+            (member_access
+              (type_literal
+                (type_name dayofweek)) :: monday)) -and
+          (binary_expression
+            (member_access $PLACEHOLDER_2 . dayofweek) -le
+            (member_access
+              (type_literal
+                (type_name dayofweek)) :: friday))))))
+  (function_definition (function_name PLACEHOLDER_3)
+    (parameter_list
+      (parameter
+        (type_literal
+          (type_name datetime)) $PLACEHOLDER_4))
+    (script_block
+      (assignment_statement $PLACEHOLDER_5 = $PLACEHOLDER_4)
+      (while_statement
+        (condition
+          (unary_expression -not
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_1)
+                (command_argument $PLACEHOLDER_5)))))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_5 =
+            (invocation_expression
+              (member_access $PLACEHOLDER_5 . adddays)
+              (argument_list 1)))))
+      (return_statement $PLACEHOLDER_5)))
+  (function_definition (function_name PLACEHOLDER_6)
+    (parameter_list
+      (parameter
+        (type_literal
+          (type_name datetime)) $PLACEHOLDER_7))
+    (script_block
+      (assignment_statement $PLACEHOLDER_5 = $PLACEHOLDER_7)
+      (while_statement
+        (condition
+          (unary_expression -not
+            (parenthesized_expression
+              (command (command_name PLACEHOLDER_1)
+                (command_argument $PLACEHOLDER_5)))))
+        (statement_block
+          (assignment_statement $PLACEHOLDER_5 =
+            (invocation_expression
+              (member_access $PLACEHOLDER_5 . adddays)
+              (argument_list
+                (unary_expression - 1))))))
+      (return_statement $PLACEHOLDER_5)))
+  (function_definition (function_name PLACEHOLDER_8)
+    (script_block
+      (param_block
+        (attribute
+          (type_name cmdletbinding)
+          (argument_list))
+        (parameter_list
+          (parameter
+            (attribute
+              (type_name parameter)
+              (argument_list
+                (attribute_argument mandatory $true)))
+            (type_literal
+              (type_name datetime)) $PLACEHOLDER_9)
+          (parameter
+            (attribute
+              (type_name parameter)
+              (argument_list
+                (attribute_argument mandatory $true)))
+            (type_literal
+              (type_name string)) $PLACEHOLDER_10)))
+      (assignment_statement $PLACEHOLDER_11 = $null)
+      (switch_statement
+        (switch_parameter -regex)
+        (condition $PLACEHOLDER_10)
+        (switch_clause
+          (command_argument "NOW")
+          (statement_block
+            (assignment_statement $PLACEHOLDER_11 =
+              (invocation_expression
+                (member_access $PLACEHOLDER_9 . addhours)
+                (argument_list 2)))))
+        (switch_clause
+          (command_argument "ASAP")
+          (statement_block
+            (if_statement
+              (condition
+                (binary_expression
+                  (member_access $PLACEHOLDER_9 . hour) -lt 13))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_11 =
+                  (invocation_expression
+                    (member_access
+                      (member_access $PLACEHOLDER_9 . (identifier PLACEHOLDER_2)) . addhours)
+                    (argument_list 17))))
+              (else_clause
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_11 =
+                    (invocation_expression
+                      (member_access
+                        (invocation_expression
+                          (member_access
+                            (member_access $PLACEHOLDER_9 . (identifier PLACEHOLDER_2)) . adddays)
+                          (argument_list 1)) . addhours)
+                      (argument_list 13))))))))
+        (switch_clause
+          (command_argument "EOW")
+          (statement_block
+            (assignment_statement $PLACEHOLDER_12 =
+              (member_access $PLACEHOLDER_9 . dayofweek))
+            (if_statement
+              (condition
+                (binary_expression
+                  (binary_expression $PLACEHOLDER_12 -ge
+                    (member_access
+                      (type_literal
+                        (type_name dayofweek)) :: monday)) -and
+                  (binary_expression $PLACEHOLDER_12 -le
+                    (member_access
+                      (type_literal
+                        (type_name dayofweek)) :: wednesday))))
+              (statement_block
+                (assignment_statement $PLACEHOLDER_13 =
+                  (binary_expression
+                    (cast_expression
+                      (type_literal
+                        (type_name int))
+                      (member_access
+                        (type_literal
+                          (type_name dayofweek)) :: friday)) -
+                    (cast_expression
+                      (type_literal
+                        (type_name int)) $PLACEHOLDER_12)))
+                (assignment_statement $PLACEHOLDER_11 =
+                  (invocation_expression
+                    (member_access
+                      (invocation_expression
+                        (member_access
+                          (member_access $PLACEHOLDER_9 . (identifier PLACEHOLDER_2)) . adddays)
+                        (argument_list $PLACEHOLDER_13)) . addhours)
+                    (argument_list 17))))
+              (else_clause
+                (statement_block
+                  (assignment_statement $PLACEHOLDER_14 =
+                    (switch_statement
+                      (condition $PLACEHOLDER_12)
+                      (switch_clause
+                        (command_argument
+                          (member_access
+                            (type_literal
+                              (type_name dayofweek)) :: thursday))
+                        (statement_block 3))
+                      (switch_clause
+                        (command_argument
+                          (member_access
+                            (type_literal
+                              (type_name dayofweek)) :: friday))
+                        (statement_block 2))
+                      (switch_clause
+                        (command_argument
+                          (member_access
+                            (type_literal
+                              (type_name dayofweek)) :: saturday))
+                        (statement_block 1))
+                      (switch_clause
+                        (command_argument
+                          (member_access
+                            (type_literal
+                              (type_name dayofweek)) :: sunday))
+                        (statement_block 0))))
+                  (if_statement
+                    (condition
+                      (binary_expression $PLACEHOLDER_14 -eq $null))
+                    (statement_block
+                      (throw_statement "Internal error: Could not determine days until Sunday for EOW rule.")))
+                  (assignment_statement $PLACEHOLDER_11 =
+                    (invocation_expression
+                      (member_access
+                        (invocation_expression
+                          (member_access
+                            (member_access $PLACEHOLDER_9 . (identifier PLACEHOLDER_2)) . adddays)
+                          (argument_list $PLACEHOLDER_14)) . addhours)
+                      (argument_list 20))))))))
+        (switch_clause
+          (command_argument "^(\\d{1,2})M$")
+          (statement_block
+            (assignment_statement $PLACEHOLDER_15 =
+              (cast_expression
+                (type_literal
+                  (type_name int))
+                (element_access $matches 1)))
+            (if_statement
+              (condition
+                (binary_expression
+                  (binary_expression $PLACEHOLDER_15 -lt 1) -or
+                  (binary_expression $PLACEHOLDER_15 -gt 12)))
+              (statement_block
+                (throw_statement
+                  (expandable_string "Invalid month number specified in '" $PLACEHOLDER_10 "'"))))
+            (assignment_statement $PLACEHOLDER_16 =
+              (member_access $PLACEHOLDER_9 . year))
+            (if_statement
+              (condition
+                (binary_expression
+                  (member_access $PLACEHOLDER_9 . month) -ge $PLACEHOLDER_15))
+              (statement_block
+                (unary_expression $PLACEHOLDER_16 ++)))
+            (assignment_statement $PLACEHOLDER_17 =
+              (try_statement
+                (statement_block
+                  (invocation_expression
+                    (member_access
+                      (type_literal
+                        (type_name datetime)) :: new)
+                    (argument_list $PLACEHOLDER_16 $PLACEHOLDER_15 1 8 0 0)))
+                (catch_clause
+                  (statement_block
+                    (throw_statement
+                      (expandable_string "Failed to construct date for " $PLACEHOLDER_16 "-" $PLACEHOLDER_15 "-01. Error: "
+                        (interpolation
+                          (sub_expression
+                            (member_access
+                              (member_access $_ . exception) . message)))))))))
+            (assignment_statement $PLACEHOLDER_11 =
+              (command (command_name PLACEHOLDER_3)
+                (command_argument $PLACEHOLDER_17)))))
+        (switch_clause
+          (command_argument "^Q([1-4])$")
+          (statement_block
+            (assignment_statement $PLACEHOLDER_18 =
+              (cast_expression
+                (type_literal
+                  (type_name int))
+                (element_access $matches 1)))
+            (assignment_statement $PLACEHOLDER_19 =
+              (invocation_expression
+                (member_access
+                  (type_literal
+                    (type_name math)) :: ceiling)
+                (argument_list
+                  (binary_expression
+                    (member_access $PLACEHOLDER_9 . month) / 3.0))))
+            (assignment_statement $PLACEHOLDER_16 =
+              (member_access $PLACEHOLDER_9 . year))
+            (if_statement
+              (condition
+                (binary_expression $PLACEHOLDER_19 -gt $PLACEHOLDER_18))
+              (statement_block
+                (unary_expression $PLACEHOLDER_16 ++)))
+            (assignment_statement $PLACEHOLDER_20 =
+              (binary_expression $PLACEHOLDER_18 * 3))
+            (assignment_statement $PLACEHOLDER_21 =
+              (try_statement
+                (statement_block
+                  (invocation_expression
+                    (member_access
+                      (type_literal
+                        (type_name datetime)) :: daysinmonth)
+                    (argument_list $PLACEHOLDER_16 $PLACEHOLDER_20)))
+                (catch_clause
+                  (statement_block
+                    (throw_statement
+                      (expandable_string "Failed to get days in month for " $PLACEHOLDER_16 "-" $PLACEHOLDER_20 ". Error: "
+                        (interpolation
+                          (sub_expression
+                            (member_access
+                              (member_access $_ . exception) . message)))))))))
+            (assignment_statement $PLACEHOLDER_22 =
+              (try_statement
+                (statement_block
+                  (invocation_expression
+                    (member_access
+                      (type_literal
+                        (type_name datetime)) :: new)
+                    (argument_list $PLACEHOLDER_16 $PLACEHOLDER_20 $PLACEHOLDER_21 8 0 0)))
+                (catch_clause
+                  (statement_block
+                    (throw_statement
+                      (expandable_string "Failed to construct date for " $PLACEHOLDER_16 "-" $PLACEHOLDER_20 "-" $PLACEHOLDER_21 ". Error: "
+                        (interpolation
+                          (sub_expression
+                            (member_access
+                              (member_access $_ . exception) . message)))))))))
+            (assignment_statement $PLACEHOLDER_11 =
+              (command (command_name PLACEHOLDER_6)
+                (command_argument $PLACEHOLDER_22)))))
+        (switch_clause default
+          (statement_block
+            (throw_statement
+              (expandable_string "Invalid description format provided: '" $PLACEHOLDER_10 "'")))))
+      (if_statement
+        (condition
+          (binary_expression $PLACEHOLDER_11 -eq $null))
+        (statement_block
+          (throw_statement
+            (expandable_string "Failed to calculate delivery date for '" $PLACEHOLDER_10 "' - internal logic error."))))
+      (return_statement $PLACEHOLDER_11))))
