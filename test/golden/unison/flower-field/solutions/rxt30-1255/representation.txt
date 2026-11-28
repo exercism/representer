@@ -1,38 +1,93 @@
-parseLine : Nat -> [ Char ] -> [( Nat , Nat )]
-parseLine i =
-  mapIndexed (
-    j -> cases
-      ?* -> Some ( i , j )
-      _ -> None
-  ) >>
-  List . somes
-getFlowers : [ Text ] -> [( Nat , Nat )]
-getFlowers =
-  List . map ( toCharList ) >>
-  mapIndexed ( parseLine ) >>
-  List . foldLeft ( ++ ) []
-countFlowersAround : Nat -> Nat -> ( Nat , Nat ) -> Boolean
-countFlowersAround i j flower =
-  List . contains ( at1 flower ) ( Nat . rangeClosed ( i - 1 ) ( i + 1 )) && List . contains ( at2 flower ) ( Nat . rangeClosed ( j - 1 ) ( j + 1 ))
-generateNumber : [( Nat , Nat )] -> Nat -> Nat -> Text
-generateNumber flowers i j =
-  List . count ( countFlowersAround i j ) flowers |>
-  cases
-    0 -> "\" \""
-    x -> Nat . toText x
-generateChar : [( Nat , Nat )] -> Nat -> Nat -> Char -> Text
-generateChar flowers i j = cases
-  ?* -> "\"*\""
-  _ -> generateNumber flowers i j
-generateLine : [( Nat , Nat )] -> Nat -> Text -> Text
-generateLine flowers i =
-  toCharList >>
-  mapIndexed ( generateChar flowers i ) >>
-  Text . join "\"\""
-generateField : [ Text ] -> [( Nat , Nat )] -> [ Text ]
-generateField field flowers =
-  mapIndexed ( generateLine flowers ) field
-flowerField . annotate : [ Text ] -> [ Text ]
-flowerField . annotate flowers =
-  getFlowers flowers |>
-  generateField flowers
+(unison
+  (term_declaration
+    (type_signature PLACEHOLDER_1
+      (term_type Nat ->
+        (sequence_type Char) ->
+        (sequence_type
+          (tuple_or_parenthesized_type Nat , Nat))))
+    (term_definition PLACEHOLDER_1 PLACEHOLDER_2
+      (block_term mapIndexed
+        (literal_function PLACEHOLDER_3 ->
+          (match_expression_lambda
+            (pattern_case
+              (literal_char ?*) ->
+              (block_term Some
+                (tuple_or_parenthesized PLACEHOLDER_2 , PLACEHOLDER_3)))
+            (pattern_case _ ->
+              (block_term None)))) >> List. somes)))
+  (term_declaration
+    (type_signature PLACEHOLDER_4
+      (term_type
+        (sequence_type Text) ->
+        (sequence_type
+          (tuple_or_parenthesized_type Nat , Nat))))
+    (term_definition PLACEHOLDER_4
+      (block_term List. map toCharList >> mapIndexed PLACEHOLDER_1 >> List. foldLeft
+        (prefix_operator ++)
+        (literal_list))))
+  (term_declaration
+    (type_signature PLACEHOLDER_5
+      (term_type Nat -> Nat ->
+        (tuple_or_parenthesized_type Nat , Nat) -> Boolean))
+    (term_definition PLACEHOLDER_5 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_6
+      (block_term List. contains
+        (tuple_or_parenthesized at1 PLACEHOLDER_6)
+        (tuple_or_parenthesized Nat. rangeClosed
+          (tuple_or_parenthesized PLACEHOLDER_2 -1)
+          (tuple_or_parenthesized PLACEHOLDER_2 +1)) && List. contains
+        (tuple_or_parenthesized at2 PLACEHOLDER_6)
+        (tuple_or_parenthesized Nat. rangeClosed
+          (tuple_or_parenthesized PLACEHOLDER_3 -1)
+          (tuple_or_parenthesized PLACEHOLDER_3 +1)))))
+  (term_declaration
+    (type_signature PLACEHOLDER_7
+      (term_type
+        (sequence_type
+          (tuple_or_parenthesized_type Nat , Nat)) -> Nat -> Nat -> Text))
+    (term_definition PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_2 PLACEHOLDER_3
+      (block_term List. count
+        (tuple_or_parenthesized PLACEHOLDER_5 PLACEHOLDER_2 PLACEHOLDER_3) PLACEHOLDER_8 |>
+        (match_expression_lambda
+          (pattern_case 0 ->
+            (block_term " "))
+          (pattern_case
+            (variable_pattern PLACEHOLDER_9) ->
+            (block_term Nat. toText PLACEHOLDER_9))))))
+  (term_declaration
+    (type_signature PLACEHOLDER_10
+      (term_type
+        (sequence_type
+          (tuple_or_parenthesized_type Nat , Nat)) -> Nat -> Nat -> Char -> Text))
+    (term_definition PLACEHOLDER_10 PLACEHOLDER_8 PLACEHOLDER_2 PLACEHOLDER_3
+      (block_term
+        (match_expression_lambda
+          (pattern_case
+            (literal_char ?*) ->
+            (block_term "*"))
+          (pattern_case _ ->
+            (block_term PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_2 PLACEHOLDER_3))))))
+  (term_declaration
+    (type_signature PLACEHOLDER_11
+      (term_type
+        (sequence_type
+          (tuple_or_parenthesized_type Nat , Nat)) -> Nat -> Text -> Text))
+    (term_definition PLACEHOLDER_11 PLACEHOLDER_8 PLACEHOLDER_2
+      (block_term toCharList >> mapIndexed
+        (tuple_or_parenthesized PLACEHOLDER_10 PLACEHOLDER_8 PLACEHOLDER_2) >> Text. join "")))
+  (term_declaration
+    (type_signature PLACEHOLDER_12
+      (term_type
+        (sequence_type Text) ->
+        (sequence_type
+          (tuple_or_parenthesized_type Nat , Nat)) ->
+        (sequence_type Text)))
+    (term_definition PLACEHOLDER_12 PLACEHOLDER_13 PLACEHOLDER_8
+      (block_term mapIndexed
+        (tuple_or_parenthesized PLACEHOLDER_11 PLACEHOLDER_8) PLACEHOLDER_13)))
+  (term_declaration
+    (type_signature flowerField. PLACEHOLDER_14
+      (term_type
+        (sequence_type Text) ->
+        (sequence_type Text)))
+    (term_definition flowerField. PLACEHOLDER_14 PLACEHOLDER_8
+      (block_term PLACEHOLDER_4 PLACEHOLDER_8 |> PLACEHOLDER_12 PLACEHOLDER_8))))

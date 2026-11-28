@@ -1,40 +1,119 @@
-ciphertext : Text -> Text
-use Text
-use List
-ciphertext inputText =
-  normalized = ciphertext . normalize ( toCharList inputText )
-  column = findSquare ( size normalized ) |> cases ( col , row ) -> col
-  ciphertext . group column normalized |>
-  ciphertext . readColumns column |>
-  map ( fromCharList ) |>
-  Text . join "\" \""
-ciphertext . findSquare : Nat -> ( Nat , Nat )
-use Nat
-ciphertext . findSquare total =
-  go =
-    cases
-      col
-        | col Nat .* col Nat .== total -> ( col , col )
-        | col Nat .* col Nat .> total -> ( col , col Nat .- 1 )
-        | otherwise -> go ( col Nat .+ 1 )
-  go 1
-ciphertext . group : Nat -> [ Char ] -> [[ Char ]]
-ciphertext . group column =
-  go acc curr = cases
-    h +: t
-      | ( size curr ) Nat .== column -> go ( acc :+ curr ) [ h ] t
-      | otherwise -> go acc ( curr :+ h ) t
-    [] -> curr |> cases
-      h +: t -> ( acc :+ curr )
-      [] -> acc
-  go [] []
-ciphertext . readColumns : Nat -> [[ Char ]] -> [[ Char ]]
-ciphertext . readColumns size columns =
-  final = List . replicate size ( _ -> [] )
-  mapIndexed ( c x -> map ( y -> Optional . getOrElse ?\ s ( List . at c y )) columns ) final
-ciphertext . normalize : [ Char ] -> [ Char ]
-use Char
-ciphertext . normalize = filterMap ( cases
-  x
-    | ( ascii . isBlank x ) || ( ascii . isPunct x ) -> Optional . None
-    | otherwise -> Some ( ascii . toLower x ))
+(unison
+  (term_declaration
+    (type_signature PLACEHOLDER_1
+      (term_type Text -> Text))
+    (term_definition PLACEHOLDER_1 PLACEHOLDER_2
+      (term_declaration
+        (term_definition PLACEHOLDER_3
+          (block_term ciphertext. PLACEHOLDER_4
+            (tuple_or_parenthesized toCharList PLACEHOLDER_2))))
+      (term_declaration
+        (term_definition PLACEHOLDER_5
+          (block_term PLACEHOLDER_6
+            (tuple_or_parenthesized PLACEHOLDER_7 PLACEHOLDER_3) |>
+            (match_expression_lambda
+              (pattern_case
+                (parenthesized_or_tuple_pattern
+                  (variable_pattern PLACEHOLDER_8) ,
+                  (variable_pattern PLACEHOLDER_9)) ->
+                (block_term PLACEHOLDER_8))))))
+      (block_term ciphertext. PLACEHOLDER_10 PLACEHOLDER_5 PLACEHOLDER_3 |> ciphertext. PLACEHOLDER_11 PLACEHOLDER_5 |> map fromCharList |> Text. join " ")))
+  (term_declaration
+    (type_signature ciphertext. PLACEHOLDER_6
+      (term_type Nat ->
+        (tuple_or_parenthesized_type Nat , Nat)))
+    (term_definition ciphertext. PLACEHOLDER_6 PLACEHOLDER_12
+      (term_declaration
+        (term_definition PLACEHOLDER_13
+          (block_term
+            (match_expression_lambda
+              (pattern_case
+                (variable_pattern PLACEHOLDER_8)
+                (guarded_block
+                  (guard PLACEHOLDER_8 Nat. * PLACEHOLDER_8 Nat. == PLACEHOLDER_12) ->
+                  (block_term
+                    (tuple_or_parenthesized PLACEHOLDER_8 , PLACEHOLDER_8)))
+                (guarded_block
+                  (guard PLACEHOLDER_8 Nat. * PLACEHOLDER_8 Nat. > PLACEHOLDER_12) ->
+                  (block_term
+                    (tuple_or_parenthesized PLACEHOLDER_8 , PLACEHOLDER_8 Nat. - 1)))
+                (guarded_block
+                  (guard otherwise) ->
+                  (block_term PLACEHOLDER_13
+                    (tuple_or_parenthesized PLACEHOLDER_8 Nat. + 1))))))))
+      (block_term PLACEHOLDER_13 1)))
+  (term_declaration
+    (type_signature ciphertext. PLACEHOLDER_10
+      (term_type Nat ->
+        (sequence_type Char) ->
+        (sequence_type
+          (sequence_type Char))))
+    (term_definition ciphertext. PLACEHOLDER_10 PLACEHOLDER_5
+      (term_declaration
+        (term_definition PLACEHOLDER_13 PLACEHOLDER_14 PLACEHOLDER_15
+          (block_term
+            (match_expression_lambda
+              (pattern_case
+                (variable_pattern PLACEHOLDER_16) +:
+                (variable_pattern PLACEHOLDER_17)
+                (guarded_block
+                  (guard
+                    (tuple_or_parenthesized PLACEHOLDER_7 PLACEHOLDER_15) Nat. == PLACEHOLDER_5) ->
+                  (block_term PLACEHOLDER_13
+                    (tuple_or_parenthesized PLACEHOLDER_14 :+ PLACEHOLDER_15)
+                    (literal_list PLACEHOLDER_16) PLACEHOLDER_17))
+                (guarded_block
+                  (guard otherwise) ->
+                  (block_term PLACEHOLDER_13 PLACEHOLDER_14
+                    (tuple_or_parenthesized PLACEHOLDER_15 :+ PLACEHOLDER_16) PLACEHOLDER_17)))
+              (pattern_case
+                (literal_list_pattern) ->
+                (block_term PLACEHOLDER_15 |>
+                  (match_expression_lambda
+                    (pattern_case
+                      (variable_pattern PLACEHOLDER_16) +:
+                      (variable_pattern PLACEHOLDER_17) ->
+                      (block_term PLACEHOLDER_14 :+ PLACEHOLDER_15))
+                    (pattern_case
+                      (literal_list_pattern) ->
+                      (block_term PLACEHOLDER_14)))))))))
+      (block_term PLACEHOLDER_13
+        (literal_list)
+        (literal_list))))
+  (term_declaration
+    (type_signature ciphertext. PLACEHOLDER_11
+      (term_type Nat ->
+        (sequence_type
+          (sequence_type Char)) ->
+        (sequence_type
+          (sequence_type Char))))
+    (term_definition ciphertext. PLACEHOLDER_11 PLACEHOLDER_7 PLACEHOLDER_18
+      (term_declaration
+        (term_definition PLACEHOLDER_19
+          (block_term List. replicate PLACEHOLDER_7
+            (literal_function PLACEHOLDER_20 ->
+              (literal_list)))))
+      (block_term mapIndexed
+        (literal_function PLACEHOLDER_21 PLACEHOLDER_22 -> map
+          (literal_function PLACEHOLDER_23 -> Optional. getOrElse
+            (literal_char "?\\s")
+            (tuple_or_parenthesized List. at PLACEHOLDER_21 PLACEHOLDER_23)) PLACEHOLDER_18) PLACEHOLDER_19)))
+  (term_declaration
+    (type_signature ciphertext. PLACEHOLDER_4
+      (term_type
+        (sequence_type Char) ->
+        (sequence_type Char)))
+    (term_definition ciphertext. PLACEHOLDER_4
+      (block_term filterMap
+        (match_expression_lambda
+          (pattern_case
+            (variable_pattern PLACEHOLDER_22)
+            (guarded_block
+              (guard
+                (tuple_or_parenthesized ascii. isBlank PLACEHOLDER_22) ||
+                (tuple_or_parenthesized ascii. isPunct PLACEHOLDER_22)) ->
+              (block_term Optional. None))
+            (guarded_block
+              (guard otherwise) ->
+              (block_term Some
+                (tuple_or_parenthesized ascii. toLower PLACEHOLDER_22)))))))))

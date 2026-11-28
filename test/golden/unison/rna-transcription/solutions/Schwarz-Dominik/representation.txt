@@ -1,23 +1,64 @@
-rna . toRNA : Text -> Optional ( Text )
-rna . toRNA dna =
-  go : [ Char ] -> [ Text ] -> Optional ( Text )
-  go list transformed =
-    match list with
-    [] -> Some (
-      transformed
-        |> Text . join "\"\""
-      )
-    x +: xs ->
-      match rna . getComplement x with
-        None -> None
-        Some c -> go xs ( transformed ++ [( Char . toText c )])
-  go ( Text . toCharList dna ) []
-rna . getComplement : Char -> Optional Char
-rna . getComplement = cases
-  ? A -> Some ? U
-  ? C -> Some ? G
-  ? G -> Some ? C
-  ? T -> Some ? A
-  _ -> None
-> toRNA "\"ACGTGGTCTTAA\""
-> toRNA "\"ACGTXXXCTTAA\""
+(unison
+  (term_declaration
+    (type_signature rna. PLACEHOLDER_1
+      (term_type Text -> Optional Text))
+    (term_definition rna. PLACEHOLDER_1 PLACEHOLDER_2
+      (term_declaration
+        (type_signature PLACEHOLDER_3
+          (term_type
+            (sequence_type Char) ->
+            (sequence_type Text) -> Optional Text))
+        (term_definition PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+          (block_term
+            (match_expression PLACEHOLDER_4
+              (pattern_case
+                (literal_list_pattern) ->
+                (block_term Some
+                  (tuple_or_parenthesized PLACEHOLDER_5 |> Text. join "")))
+              (pattern_case
+                (variable_pattern PLACEHOLDER_6) +:
+                (variable_pattern PLACEHOLDER_7) ->
+                (block_term
+                  (match_expression rna. PLACEHOLDER_8 PLACEHOLDER_6
+                    (pattern_case
+                      (var_or_nullary_ctor None) ->
+                      (block_term None))
+                    (pattern_case
+                      (pattern
+                        (var_or_nullary_ctor Some)
+                        (variable_pattern PLACEHOLDER_9)) ->
+                      (block_term PLACEHOLDER_3 PLACEHOLDER_7
+                        (tuple_or_parenthesized PLACEHOLDER_5 ++
+                          (literal_list
+                            (tuple_or_parenthesized Char. toText PLACEHOLDER_9))))))))))))
+      (block_term PLACEHOLDER_3
+        (tuple_or_parenthesized Text. toCharList PLACEHOLDER_2)
+        (literal_list))))
+  (term_declaration
+    (type_signature rna. PLACEHOLDER_8
+      (term_type Char -> Optional Char))
+    (term_definition rna. PLACEHOLDER_8
+      (block_term
+        (match_expression_lambda
+          (pattern_case
+            (literal_char ?A) ->
+            (block_term Some
+              (literal_char ?U)))
+          (pattern_case
+            (literal_char ?C) ->
+            (block_term Some
+              (literal_char ?G)))
+          (pattern_case
+            (literal_char ?G) ->
+            (block_term Some
+              (literal_char ?C)))
+          (pattern_case
+            (literal_char ?T) ->
+            (block_term Some
+              (literal_char ?A)))
+          (pattern_case _ ->
+            (block_term None))))))
+  (watch_expression
+    (block_term PLACEHOLDER_1 "ACGTGGTCTTAA"))
+  (watch_expression
+    (block_term PLACEHOLDER_1 "ACGTXXXCTTAA")))

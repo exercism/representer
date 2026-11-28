@@ -1,37 +1,105 @@
-minesweeper . annotate : [ Text ] -> [ Text ]
-minesweeper . annotate chart =
-  charChart = chart |> List . map toCharList
-  charChart
-    |> north
-    |> chartToNats
-    |> zipWith ( zipWith ( + )) ( charChart |> north |> east |> chartToNats )
-    |> zipWith ( zipWith ( + )) ( charChart |> east |> chartToNats )
-    |> zipWith ( zipWith ( + )) ( charChart |> south |> east |> chartToNats )
-    |> zipWith ( zipWith ( + )) ( charChart |> south |> chartToNats )
-    |> zipWith ( zipWith ( + )) ( charChart |> south |> west |> chartToNats )
-    |> zipWith ( zipWith ( + )) ( charChart |> west |> chartToNats )
-    |> zipWith ( zipWith ( + )) ( charChart |> north |> west |> chartToNats )
-    |> List . zipWith annotateCount charChart
-    |> List . map ( join "\"\"" )
-minesweeper . annotateCount : [ Char ] -> [ Nat ] -> [ Text ]
-minesweeper . annotateCount row counts =
-  List . zipWith ( cases
-    _ , ?* -> "\"*\""
-    0 , _ -> "\" \""
-    n , _ -> Nat . toText n ) counts row
-minesweeper . east chart =
-  chart
-    |> List . map ( row -> ( row |> drop 1 ) :+ ?\ s )
-minesweeper . west chart =
-  chart
-    |> List . map ( row -> ?\ s +: ( row |> dropLast ))
-minesweeper . north = cases
-  chart :+ last
-    -> ( List . fill ( size last ) ?\ s ) +: chart
-  [] -> []
-minesweeper . south = cases
-  first +: chart
-    -> chart :+ ( List . fill ( size first ) ?\ s )
-  [] -> []
-minesweeper . chartToNats chart =
-  chart |> List . map ( List . map ( c -> if c == ?* then 1 else 0 ))
+(unison
+  (term_declaration
+    (type_signature minesweeper. PLACEHOLDER_1
+      (term_type
+        (sequence_type Text) ->
+        (sequence_type Text)))
+    (term_definition minesweeper. PLACEHOLDER_1 PLACEHOLDER_2
+      (term_declaration
+        (term_definition PLACEHOLDER_3
+          (block_term PLACEHOLDER_2 |> List. map toCharList)))
+      (block_term PLACEHOLDER_3 |> PLACEHOLDER_4 |> PLACEHOLDER_5 |> zipWith
+        (tuple_or_parenthesized zipWith
+          (prefix_operator +))
+        (tuple_or_parenthesized PLACEHOLDER_3 |> PLACEHOLDER_4 |> PLACEHOLDER_6 |> PLACEHOLDER_5) |> zipWith
+        (tuple_or_parenthesized zipWith
+          (prefix_operator +))
+        (tuple_or_parenthesized PLACEHOLDER_3 |> PLACEHOLDER_6 |> PLACEHOLDER_5) |> zipWith
+        (tuple_or_parenthesized zipWith
+          (prefix_operator +))
+        (tuple_or_parenthesized PLACEHOLDER_3 |> PLACEHOLDER_7 |> PLACEHOLDER_6 |> PLACEHOLDER_5) |> zipWith
+        (tuple_or_parenthesized zipWith
+          (prefix_operator +))
+        (tuple_or_parenthesized PLACEHOLDER_3 |> PLACEHOLDER_7 |> PLACEHOLDER_5) |> zipWith
+        (tuple_or_parenthesized zipWith
+          (prefix_operator +))
+        (tuple_or_parenthesized PLACEHOLDER_3 |> PLACEHOLDER_7 |> PLACEHOLDER_8 |> PLACEHOLDER_5) |> zipWith
+        (tuple_or_parenthesized zipWith
+          (prefix_operator +))
+        (tuple_or_parenthesized PLACEHOLDER_3 |> PLACEHOLDER_8 |> PLACEHOLDER_5) |> zipWith
+        (tuple_or_parenthesized zipWith
+          (prefix_operator +))
+        (tuple_or_parenthesized PLACEHOLDER_3 |> PLACEHOLDER_4 |> PLACEHOLDER_8 |> PLACEHOLDER_5) |> List. zipWith PLACEHOLDER_9 PLACEHOLDER_3 |> List. map
+        (tuple_or_parenthesized join ""))))
+  (term_declaration
+    (type_signature minesweeper. PLACEHOLDER_9
+      (term_type
+        (sequence_type Char) ->
+        (sequence_type Nat) ->
+        (sequence_type Text)))
+    (term_definition minesweeper. PLACEHOLDER_9 PLACEHOLDER_10 PLACEHOLDER_11
+      (block_term List. zipWith
+        (match_expression_lambda
+          (pattern_case _ ,
+            (literal_char ?*) ->
+            (block_term "*"))
+          (pattern_case 0 , _ ->
+            (block_term " "))
+          (pattern_case
+            (variable_pattern PLACEHOLDER_12) , _ ->
+            (block_term Nat. toText PLACEHOLDER_12))) PLACEHOLDER_11 PLACEHOLDER_10)))
+  (term_declaration
+    (term_definition minesweeper. PLACEHOLDER_6 PLACEHOLDER_2
+      (block_term PLACEHOLDER_2 |> List. map
+        (literal_function PLACEHOLDER_10 ->
+          (tuple_or_parenthesized PLACEHOLDER_10 |> drop 1) :+
+          (literal_char "?\\s")))))
+  (term_declaration
+    (term_definition minesweeper. PLACEHOLDER_8 PLACEHOLDER_2
+      (block_term PLACEHOLDER_2 |> List. map
+        (literal_function PLACEHOLDER_10 ->
+          (literal_char "?\\s") +:
+          (tuple_or_parenthesized PLACEHOLDER_10 |> dropLast)))))
+  (term_declaration
+    (term_definition minesweeper. PLACEHOLDER_4
+      (block_term
+        (match_expression_lambda
+          (pattern_case
+            (variable_pattern PLACEHOLDER_2) :+
+            (variable_pattern PLACEHOLDER_13) ->
+            (block_term
+              (tuple_or_parenthesized List. fill
+                (tuple_or_parenthesized size PLACEHOLDER_13)
+                (literal_char "?\\s")) +: PLACEHOLDER_2))
+          (pattern_case
+            (literal_list_pattern) ->
+            (block_term
+              (literal_list)))))))
+  (term_declaration
+    (term_definition minesweeper. PLACEHOLDER_7
+      (block_term
+        (match_expression_lambda
+          (pattern_case
+            (variable_pattern PLACEHOLDER_14) +:
+            (variable_pattern PLACEHOLDER_2) ->
+            (block_term PLACEHOLDER_2 :+
+              (tuple_or_parenthesized List. fill
+                (tuple_or_parenthesized size PLACEHOLDER_14)
+                (literal_char "?\\s"))))
+          (pattern_case
+            (literal_list_pattern) ->
+            (block_term
+              (literal_list)))))))
+  (term_declaration
+    (term_definition minesweeper. PLACEHOLDER_5 PLACEHOLDER_2
+      (block_term PLACEHOLDER_2 |> List. map
+        (tuple_or_parenthesized List. map
+          (literal_function PLACEHOLDER_15 ->
+            (exp_if
+              (if_block
+                (block_term PLACEHOLDER_15 ==
+                  (literal_char ?*)))
+              (then_block
+                (block_term 1))
+              (else_block
+                (block_term 0)))))))))

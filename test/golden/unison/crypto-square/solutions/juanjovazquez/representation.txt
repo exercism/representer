@@ -1,5 +1,217 @@
-normalize : Text -> Text
-normalize t =
-  special : Char -> Boolean
-  special c =
-    List . any ( x -> x == c ) [ ?\ s , ?. , ?? , ?! , ? ,, ? ;, ?: , ?- , ? _ , ? [, ? ], ? (, ? ), ? {, ? }, ?\ ' , ?\ "\", ?@, ?%]\n  Text.fromCharList (List.map ascii.toLower (List.filter (not << special) (Text.toCharList t)))\n\noptimize : Text -> (Nat, Nat)\noptimize t =\n  length = Text.size t\n  loop c r = match (c * r) with\n    x | x < length -> if r < c then loop c (r + 1) else loop (c + 1) r\n      | otherwise  -> (c, r)\n  loop 1 1\n\nsquare : Text -> [Text]\nsquare t = \n  (c, _) = optimize t\n  loop : List Text -> List Char -> List Text\n  loop acc = cases\n    []    -> acc\n    rest  -> \n      (first, second) = (take c rest, drop c rest)\n      length = size first\n      new = if length < c then first ++ (List.fill (c - length) ?\\" s) else "first\n      loop ((Text.fromCharList new) +: acc) second \n  List.reverse (loop [] (Text.toCharList t))\n\nsequence : [Optional a] -> Optional [a]\nsequence l = \n  f a acc = match a with\n    Some x -> Optional.map (l -> x List.+: l) acc\n    _      -> None\n  List.foldRight f (Some []) l \n\nheads : [Text] -> Optional Text\nheads = cases\n  [] -> None\n  ts -> map fromCharList (sequence (map (head << toCharList) ts))\n\ntails : [Text] -> [Text]\ntails ts = \n  List.map (Text.fromCharList << (Optional.getOrElse []) << List.tail << Text.toCharList) ts\n\npack : [Text] -> [Text]\npack ts =\n  loop acc rest = match (heads rest) with\n    Some t -> \n      loop (t List.+: acc) (tails rest) \n    _      -> acc\n  reverse (loop [] ts) \n\nmkText : Char -> [Text] -> Text\nmkText sep ts =\n  f t = cases\n    []  -> Text.toCharList t\n    acc -> (Text.toCharList t) ++ [sep] ++ acc\n  Text.fromCharList (List.foldRight f [] ts)\n\nciphertext : Text -> Text\nciphertext inputText = \n  ((mkText ?\\" s) << p "ack << square << normalize) inputText"
+(unison
+  (term_declaration
+    (type_signature PLACEHOLDER_1
+      (term_type Text -> Text))
+    (term_definition PLACEHOLDER_1 PLACEHOLDER_2
+      (term_declaration
+        (type_signature PLACEHOLDER_3
+          (term_type Char -> Boolean))
+        (term_definition PLACEHOLDER_3 PLACEHOLDER_4
+          (block_term List. any
+            (literal_function PLACEHOLDER_5 -> PLACEHOLDER_5 == PLACEHOLDER_4)
+            (literal_list
+              (literal_char "?\\s") ,
+              (literal_char ?.) ,
+              (literal_char ??) ,
+              (literal_char ?!) ,
+              (literal_char ?,) ,
+              (literal_char ?;) ,
+              (literal_char ?:) ,
+              (literal_char ?-) ,
+              (literal_char ?_) ,
+              (literal_char ?[) ,
+              (literal_char ?]) ,
+              (literal_char "?(") ,
+              (literal_char "?)") ,
+              (literal_char ?{) ,
+              (literal_char ?}) ,
+              (literal_char "?\\'") ,
+              (literal_char "?\\\"") ,
+              (literal_char ?@) ,
+              (literal_char ?%)))))
+      (block_term Text. fromCharList
+        (tuple_or_parenthesized List. map ascii. toLower
+          (tuple_or_parenthesized List. filter
+            (tuple_or_parenthesized not << PLACEHOLDER_3)
+            (tuple_or_parenthesized Text. toCharList PLACEHOLDER_2))))))
+  (term_declaration
+    (type_signature PLACEHOLDER_6
+      (term_type Text ->
+        (tuple_or_parenthesized_type Nat , Nat)))
+    (term_definition PLACEHOLDER_6 PLACEHOLDER_2
+      (term_declaration
+        (term_definition PLACEHOLDER_7
+          (block_term Text. size PLACEHOLDER_2)))
+      (term_declaration
+        (term_definition PLACEHOLDER_8 PLACEHOLDER_4 PLACEHOLDER_9
+          (block_term
+            (match_expression
+              (tuple_or_parenthesized PLACEHOLDER_4 * PLACEHOLDER_9)
+              (pattern_case
+                (variable_pattern PLACEHOLDER_5)
+                (guarded_block
+                  (guard PLACEHOLDER_5 < PLACEHOLDER_7) ->
+                  (block_term
+                    (exp_if
+                      (if_block
+                        (block_term PLACEHOLDER_9 < PLACEHOLDER_4))
+                      (then_block
+                        (block_term PLACEHOLDER_8 PLACEHOLDER_4
+                          (tuple_or_parenthesized PLACEHOLDER_9 + 1)))
+                      (else_block
+                        (block_term PLACEHOLDER_8
+                          (tuple_or_parenthesized PLACEHOLDER_4 + 1) PLACEHOLDER_9)))))
+                (guarded_block
+                  (guard otherwise) ->
+                  (block_term
+                    (tuple_or_parenthesized PLACEHOLDER_4 , PLACEHOLDER_9))))))))
+      (block_term PLACEHOLDER_8 1 1)))
+  (term_declaration
+    (type_signature PLACEHOLDER_10
+      (term_type Text ->
+        (sequence_type Text)))
+    (term_definition PLACEHOLDER_10 PLACEHOLDER_2
+      (destructuring_bind
+        (parenthesized_or_tuple_pattern
+          (variable_pattern PLACEHOLDER_4) , _)
+        (block_term PLACEHOLDER_6 PLACEHOLDER_2))
+      (term_declaration
+        (type_signature PLACEHOLDER_8
+          (term_type List Text -> List Char -> List Text))
+        (term_definition PLACEHOLDER_8 PLACEHOLDER_11
+          (block_term
+            (match_expression_lambda
+              (pattern_case
+                (literal_list_pattern) ->
+                (block_term PLACEHOLDER_11))
+              (pattern_case
+                (variable_pattern PLACEHOLDER_12) ->
+                (destructuring_bind
+                  (parenthesized_or_tuple_pattern
+                    (variable_pattern PLACEHOLDER_13) ,
+                    (variable_pattern PLACEHOLDER_14))
+                  (block_term
+                    (tuple_or_parenthesized take PLACEHOLDER_4 PLACEHOLDER_12 , drop PLACEHOLDER_4 PLACEHOLDER_12)))
+                (term_declaration
+                  (term_definition PLACEHOLDER_7
+                    (block_term size PLACEHOLDER_13)))
+                (term_declaration
+                  (term_definition PLACEHOLDER_15
+                    (block_term
+                      (exp_if
+                        (if_block
+                          (block_term PLACEHOLDER_7 < PLACEHOLDER_4))
+                        (then_block
+                          (block_term PLACEHOLDER_13 ++
+                            (tuple_or_parenthesized List. fill
+                              (tuple_or_parenthesized PLACEHOLDER_4 - PLACEHOLDER_7)
+                              (literal_char "?\\s"))))
+                        (else_block
+                          (block_term PLACEHOLDER_13))))))
+                (block_term PLACEHOLDER_8
+                  (tuple_or_parenthesized
+                    (tuple_or_parenthesized Text. fromCharList PLACEHOLDER_15) +: PLACEHOLDER_11) PLACEHOLDER_14))))))
+      (block_term List. reverse
+        (tuple_or_parenthesized PLACEHOLDER_8
+          (literal_list)
+          (tuple_or_parenthesized Text. toCharList PLACEHOLDER_2)))))
+  (term_declaration
+    (type_signature PLACEHOLDER_16
+      (term_type
+        (sequence_type Optional
+          (type_variable PLACEHOLDER_17)) -> Optional
+        (sequence_type
+          (type_variable PLACEHOLDER_17))))
+    (term_definition PLACEHOLDER_16 PLACEHOLDER_18
+      (term_declaration
+        (term_definition PLACEHOLDER_19 PLACEHOLDER_17 PLACEHOLDER_11
+          (block_term
+            (match_expression PLACEHOLDER_17
+              (pattern_case
+                (pattern
+                  (var_or_nullary_ctor Some)
+                  (variable_pattern PLACEHOLDER_5)) ->
+                (block_term Optional. map
+                  (literal_function PLACEHOLDER_18 -> PLACEHOLDER_5 List. +: PLACEHOLDER_18) PLACEHOLDER_11))
+              (pattern_case _ ->
+                (block_term None))))))
+      (block_term List. foldRight PLACEHOLDER_19
+        (tuple_or_parenthesized Some
+          (literal_list)) PLACEHOLDER_18)))
+  (term_declaration
+    (type_signature PLACEHOLDER_20
+      (term_type
+        (sequence_type Text) -> Optional Text))
+    (term_definition PLACEHOLDER_20
+      (block_term
+        (match_expression_lambda
+          (pattern_case
+            (literal_list_pattern) ->
+            (block_term None))
+          (pattern_case
+            (variable_pattern PLACEHOLDER_21) ->
+            (block_term map fromCharList
+              (tuple_or_parenthesized PLACEHOLDER_16
+                (tuple_or_parenthesized map
+                  (tuple_or_parenthesized head << toCharList) PLACEHOLDER_21))))))))
+  (term_declaration
+    (type_signature PLACEHOLDER_22
+      (term_type
+        (sequence_type Text) ->
+        (sequence_type Text)))
+    (term_definition PLACEHOLDER_22 PLACEHOLDER_21
+      (block_term List. map
+        (tuple_or_parenthesized Text. fromCharList <<
+          (tuple_or_parenthesized Optional. getOrElse
+            (literal_list)) << List. tail << Text. toCharList) PLACEHOLDER_21)))
+  (term_declaration
+    (type_signature PLACEHOLDER_23
+      (term_type
+        (sequence_type Text) ->
+        (sequence_type Text)))
+    (term_definition PLACEHOLDER_23 PLACEHOLDER_21
+      (term_declaration
+        (term_definition PLACEHOLDER_8 PLACEHOLDER_11 PLACEHOLDER_12
+          (block_term
+            (match_expression
+              (tuple_or_parenthesized PLACEHOLDER_20 PLACEHOLDER_12)
+              (pattern_case
+                (pattern
+                  (var_or_nullary_ctor Some)
+                  (variable_pattern PLACEHOLDER_2)) ->
+                (block_term PLACEHOLDER_8
+                  (tuple_or_parenthesized PLACEHOLDER_2 List. +: PLACEHOLDER_11)
+                  (tuple_or_parenthesized PLACEHOLDER_22 PLACEHOLDER_12)))
+              (pattern_case _ ->
+                (block_term PLACEHOLDER_11))))))
+      (block_term reverse
+        (tuple_or_parenthesized PLACEHOLDER_8
+          (literal_list) PLACEHOLDER_21))))
+  (term_declaration
+    (type_signature PLACEHOLDER_24
+      (term_type Char ->
+        (sequence_type Text) -> Text))
+    (term_definition PLACEHOLDER_24 PLACEHOLDER_25 PLACEHOLDER_21
+      (term_declaration
+        (term_definition PLACEHOLDER_19 PLACEHOLDER_2
+          (block_term
+            (match_expression_lambda
+              (pattern_case
+                (literal_list_pattern) ->
+                (block_term Text. toCharList PLACEHOLDER_2))
+              (pattern_case
+                (variable_pattern PLACEHOLDER_11) ->
+                (block_term
+                  (tuple_or_parenthesized Text. toCharList PLACEHOLDER_2) ++
+                  (literal_list PLACEHOLDER_25) ++ PLACEHOLDER_11))))))
+      (block_term Text. fromCharList
+        (tuple_or_parenthesized List. foldRight PLACEHOLDER_19
+          (literal_list) PLACEHOLDER_21))))
+  (term_declaration
+    (type_signature PLACEHOLDER_26
+      (term_type Text -> Text))
+    (term_definition PLACEHOLDER_26 PLACEHOLDER_27
+      (block_term
+        (tuple_or_parenthesized
+          (tuple_or_parenthesized PLACEHOLDER_24
+            (literal_char "?\\s")) << PLACEHOLDER_23 << PLACEHOLDER_10 << PLACEHOLDER_1) PLACEHOLDER_27))))

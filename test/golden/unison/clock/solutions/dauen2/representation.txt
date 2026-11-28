@@ -1,54 +1,99 @@
-{{
-  Given an hour and minute value represented as positive or negative numbers , return the "\"clock time\"" in text form .
-  For example :
-  ` create + 23 + 5 ` should be "\"23:05\""
-  Negative arguments should be supported :
-  ` create - 1 + 15 ` should be "\"23:15\""
-  Values over the traditional hour or minute values should roll over :
-  ` create + 1 + 65 ` should be "\"02:05\""
-}}
-clock . create : Int -> Int -> Text
-clock . create hour minute = match normalize ( hour , minute ) with h , m ->
-  left = alignRightWith 2 ? 0 ( toText h )
-  right = alignRightWith 2 ? 0 ( toText m )
-  left ++ "\":\"" ++ right
-{{
-  { clock . add } is a function which takes in an hour and minutes representing the initial time , and a third argument representing the number of minutes to add .
-  The minutes to add may be values over 60 :
-  ` add + 0 + 45 + 160 ` should be "\"03:25\""
-}}
-clock . add : Int -> Int -> Int -> Text
-clock . add hour min additionalMinutes =
-  create hour ( min + additionalMinutes )
-{{
-  { clock . subtract } is a function which takes in an hour and minutes representing the initial time , and a third argument representing the number of minutes to subtract
-  ` subtract + 10 + 3 + 4 ` should be "\"09:59\""
-}}
-clock . subtract : Int -> Int -> Int -> Text
-clock . subtract hour min minutesSubtract =
-  create hour ( min - minutesSubtract )
-{{
-  { equal } is a function which takes in two hour and minute pairs representing the initial times , returning if the resulting clock values are the same .
-  For example , ` equal ( + 25 , + 0 ) ( + 1 , 0 )` should be ` true ` because they both represent the same clock value time .
-}}
-clock . equal : ( Int , Int ) -> ( Int , Int ) -> Boolean
-clock . equal clock1 clock2 =
-  norm1 = normalize clock1
-  norm2 = normalize clock2
-  and (( at1 norm1 ) == ( at1 norm2 ))
-    (( at2 norm1 ) == ( at2 norm2 ))
-clock . normalize : ( Int , Int ) -> ( Int , Int )
-clock . normalize clock = match clock with hour , minute ->
-  if minute >= + 0 then
-    if minute / + 60 > + 0 then
-      clock . normalize ( hour + ( minute / + 60 ), minute % + 60 )
-    else
-      if hour >= + 0 then
-        if hour >= + 24 then
-          ( hour % + 24 , minute )
-        else
-          ( hour , minute )
-      else
-        clock . normalize ( hour + + 24 , minute )
-  else
-    clock . normalize ( hour - + 1 , minute + + 60 )
+(unison
+  (term_declaration
+    (type_signature clock. PLACEHOLDER_1
+      (term_type Int -> Int -> Text))
+    (term_definition clock. PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (block_term
+        (match_expression PLACEHOLDER_4
+          (tuple_or_parenthesized PLACEHOLDER_2 , PLACEHOLDER_3)
+          (pattern_case
+            (variable_pattern PLACEHOLDER_5) ,
+            (variable_pattern PLACEHOLDER_6) ->
+            (term_declaration
+              (term_definition PLACEHOLDER_7
+                (block_term alignRightWith 2
+                  (literal_char ?0)
+                  (tuple_or_parenthesized toText PLACEHOLDER_5))))
+            (term_declaration
+              (term_definition PLACEHOLDER_8
+                (block_term alignRightWith 2
+                  (literal_char ?0)
+                  (tuple_or_parenthesized toText PLACEHOLDER_6))))
+            (block_term PLACEHOLDER_7 ++ ":" ++ PLACEHOLDER_8))))))
+  (term_declaration
+    (type_signature clock. PLACEHOLDER_9
+      (term_type Int -> Int -> Int -> Text))
+    (term_definition clock. PLACEHOLDER_9 PLACEHOLDER_2 PLACEHOLDER_10 PLACEHOLDER_11
+      (block_term PLACEHOLDER_1 PLACEHOLDER_2
+        (tuple_or_parenthesized PLACEHOLDER_10 + PLACEHOLDER_11))))
+  (term_declaration
+    (type_signature clock. PLACEHOLDER_12
+      (term_type Int -> Int -> Int -> Text))
+    (term_definition clock. PLACEHOLDER_12 PLACEHOLDER_2 PLACEHOLDER_10 PLACEHOLDER_13
+      (block_term PLACEHOLDER_1 PLACEHOLDER_2
+        (tuple_or_parenthesized PLACEHOLDER_10 - PLACEHOLDER_13))))
+  (term_declaration
+    (type_signature clock. PLACEHOLDER_14
+      (term_type
+        (tuple_or_parenthesized_type Int , Int) ->
+        (tuple_or_parenthesized_type Int , Int) -> Boolean))
+    (term_definition clock. PLACEHOLDER_14 PLACEHOLDER_15 PLACEHOLDER_16
+      (term_declaration
+        (term_definition PLACEHOLDER_17
+          (block_term PLACEHOLDER_4 PLACEHOLDER_15)))
+      (term_declaration
+        (term_definition PLACEHOLDER_18
+          (block_term PLACEHOLDER_4 PLACEHOLDER_16)))
+      (block_term and
+        (tuple_or_parenthesized
+          (tuple_or_parenthesized at1 PLACEHOLDER_17) ==
+          (tuple_or_parenthesized at1 PLACEHOLDER_18))
+        (tuple_or_parenthesized
+          (tuple_or_parenthesized at2 PLACEHOLDER_17) ==
+          (tuple_or_parenthesized at2 PLACEHOLDER_18)))))
+  (term_declaration
+    (type_signature clock. PLACEHOLDER_4
+      (term_type
+        (tuple_or_parenthesized_type Int , Int) ->
+        (tuple_or_parenthesized_type Int , Int)))
+    (term_definition clock. PLACEHOLDER_4 PLACEHOLDER_19
+      (block_term
+        (match_expression PLACEHOLDER_19
+          (pattern_case
+            (variable_pattern PLACEHOLDER_2) ,
+            (variable_pattern PLACEHOLDER_3) ->
+            (block_term
+              (exp_if
+                (if_block
+                  (block_term PLACEHOLDER_3 >= +0))
+                (then_block
+                  (block_term
+                    (exp_if
+                      (if_block
+                        (block_term PLACEHOLDER_3 / +60 > +0))
+                      (then_block
+                        (block_term clock. PLACEHOLDER_4
+                          (tuple_or_parenthesized PLACEHOLDER_2 +
+                            (tuple_or_parenthesized PLACEHOLDER_3 / +60) , PLACEHOLDER_3 % +60)))
+                      (else_block
+                        (block_term
+                          (exp_if
+                            (if_block
+                              (block_term PLACEHOLDER_2 >= +0))
+                            (then_block
+                              (block_term
+                                (exp_if
+                                  (if_block
+                                    (block_term PLACEHOLDER_2 >= +24))
+                                  (then_block
+                                    (block_term
+                                      (tuple_or_parenthesized PLACEHOLDER_2 % +24 , PLACEHOLDER_3)))
+                                  (else_block
+                                    (block_term
+                                      (tuple_or_parenthesized PLACEHOLDER_2 , PLACEHOLDER_3))))))
+                            (else_block
+                              (block_term clock. PLACEHOLDER_4
+                                (tuple_or_parenthesized PLACEHOLDER_2 + +24 , PLACEHOLDER_3)))))))))
+                (else_block
+                  (block_term clock. PLACEHOLDER_4
+                    (tuple_or_parenthesized PLACEHOLDER_2 - +1 , PLACEHOLDER_3 + +60)))))))))))

@@ -1,8 +1,44 @@
-abbreviate : Text -> Text
-abbreviate t =
-  go inWord t = match Text . uncons t with
-    None -> "\"\""
-    Some ( a , as ) | isSpace a || ( a == ?- ) -> ( go false as )
-    Some ( a , as ) | isLetter a && not inWord -> toText ( toUpper a ) ++ go true as
-    Some ( a , as ) -> go inWord as
-  go false t
+(unison
+  (term_declaration
+    (type_signature PLACEHOLDER_1
+      (term_type Text -> Text))
+    (term_definition PLACEHOLDER_1 PLACEHOLDER_2
+      (term_declaration
+        (term_definition PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_2
+          (block_term
+            (match_expression Text. uncons PLACEHOLDER_2
+              (pattern_case
+                (var_or_nullary_ctor None) ->
+                (block_term ""))
+              (pattern_case
+                (pattern
+                  (var_or_nullary_ctor Some)
+                  (parenthesized_or_tuple_pattern
+                    (variable_pattern PLACEHOLDER_5) ,
+                    (variable_pattern PLACEHOLDER_6)))
+                (guarded_block
+                  (guard isSpace PLACEHOLDER_5 ||
+                    (tuple_or_parenthesized PLACEHOLDER_5 ==
+                      (literal_char ?-))) ->
+                  (block_term PLACEHOLDER_3
+                    (literal_boolean false) PLACEHOLDER_6)))
+              (pattern_case
+                (pattern
+                  (var_or_nullary_ctor Some)
+                  (parenthesized_or_tuple_pattern
+                    (variable_pattern PLACEHOLDER_5) ,
+                    (variable_pattern PLACEHOLDER_6)))
+                (guarded_block
+                  (guard isLetter PLACEHOLDER_5 && not PLACEHOLDER_4) ->
+                  (block_term toText
+                    (tuple_or_parenthesized toUpper PLACEHOLDER_5) ++ PLACEHOLDER_3
+                    (literal_boolean true) PLACEHOLDER_6)))
+              (pattern_case
+                (pattern
+                  (var_or_nullary_ctor Some)
+                  (parenthesized_or_tuple_pattern
+                    (variable_pattern PLACEHOLDER_5) ,
+                    (variable_pattern PLACEHOLDER_6))) ->
+                (block_term PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_6))))))
+      (block_term PLACEHOLDER_3
+        (literal_boolean false) PLACEHOLDER_2))))

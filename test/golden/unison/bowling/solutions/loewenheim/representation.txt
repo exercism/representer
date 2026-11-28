@@ -1,40 +1,104 @@
-use Either Right Left
-use List +:
-{{ This type is used to capture the expected error message }}
-unique type bowling . Error = Error Text
-{{
-  { score } takes in a list of numbers representing the pins knocked down for each roll of the bowling game , and should return either the total score or an error .
-}}
-bowling . score : [ Nat ] -> Either Error Nat
-bowling . score rolls = Throw . toEither <| do
-  if List . size rolls < 10 then
-    throw ( Error "\"Score cannot be taken until the end of the game\"" )
-  else
-    Store . withInitialValue 0 do bowling . scoreImpl rolls
-bowling . scoreImpl : [ Nat ] -> { Store Nat , Throw Error } Nat
-bowling . scoreImpl rolls =
-  match rolls with
-    [] -> Store . get
-    [ _ ] -> throw ( Error "\"Score cannot be taken until the end of the game\"" )
-    [ 10 , x , y ] ->
-      Store . get + 10 + x + y
-    ( 10 +: ( x +: ( y +: ys ))) ->
-      Store . modify ( score -> score + 10 + x + y )
-      bowling . scoreImpl ( x +: ( y +: ys ))
-    [ x , y , z ] ->
-      if x + y >= 10 then
-        Store . get + x + y + z
-      else
-        Store . modify ( score -> score + x + y )
-        bowling . scoreImpl [ z ]
-    [ x , y ] ->
-      if x + y >= 10 then
-        throw ( Error "\"Score cannot be taken until the end of the game\"" )
-      else
-        Store . get + x + y
-    ( x +: ( y +: ( z +: zs ))) ->
-      if x + y >= 10 then
-        Store . modify ( score -> score + 10 + z )
-      else
-        Store . modify ( score -> score + x + y )
-      bowling . scoreImpl ( z +: zs )
+(unison
+  (type_declaration unique
+    (type_constructor
+      (type_name bowling. PLACEHOLDER_1)) PLACEHOLDER_1 Text)
+  (term_declaration
+    (type_signature bowling. PLACEHOLDER_2
+      (term_type
+        (sequence_type Nat) -> Either PLACEHOLDER_1 Nat))
+    (term_definition bowling. PLACEHOLDER_2 PLACEHOLDER_3
+      (block_term Throw. toEither <|
+        (delay_block
+          (block_term
+            (exp_if
+              (if_block
+                (block_term List. size PLACEHOLDER_3 < 10))
+              (then_block
+                (block_term throw
+                  (tuple_or_parenthesized PLACEHOLDER_1 "Score cannot be taken until the end of the game")))
+              (else_block
+                (block_term Store. withInitialValue 0
+                  (delay_block
+                    (block_term bowling. PLACEHOLDER_4 PLACEHOLDER_3))))))))))
+  (term_declaration
+    (type_signature bowling. PLACEHOLDER_4
+      (term_type
+        (sequence_type Nat) -> {
+        (effect Store Nat) ,
+        (effect Throw PLACEHOLDER_1) } Nat bowling. PLACEHOLDER_4))
+    (term_definition PLACEHOLDER_3
+      (block_term
+        (match_expression PLACEHOLDER_3
+          (pattern_case
+            (literal_list_pattern) ->
+            (block_term Store. get))
+          (pattern_case
+            (literal_list_pattern _) ->
+            (block_term throw
+              (tuple_or_parenthesized PLACEHOLDER_1 "Score cannot be taken until the end of the game")))
+          (pattern_case
+            (literal_list_pattern 10 ,
+              (variable_pattern PLACEHOLDER_5) ,
+              (variable_pattern PLACEHOLDER_6)) ->
+            (block_term Store. get + 10 + PLACEHOLDER_5 + PLACEHOLDER_6))
+          (pattern_case
+            (parenthesized_or_tuple_pattern 10 +:
+              (parenthesized_or_tuple_pattern
+                (variable_pattern PLACEHOLDER_5) +:
+                (parenthesized_or_tuple_pattern
+                  (variable_pattern PLACEHOLDER_6) +:
+                  (variable_pattern PLACEHOLDER_7)))) ->
+            (block_term Store. modify
+              (literal_function PLACEHOLDER_2 -> PLACEHOLDER_2 + 10 + PLACEHOLDER_5 + PLACEHOLDER_6))
+            (block_term bowling. PLACEHOLDER_4
+              (tuple_or_parenthesized PLACEHOLDER_5 +:
+                (tuple_or_parenthesized PLACEHOLDER_6 +: PLACEHOLDER_7))))
+          (pattern_case
+            (literal_list_pattern
+              (variable_pattern PLACEHOLDER_5) ,
+              (variable_pattern PLACEHOLDER_6) ,
+              (variable_pattern PLACEHOLDER_8)) ->
+            (block_term
+              (exp_if
+                (if_block
+                  (block_term PLACEHOLDER_5 + PLACEHOLDER_6 >= 10))
+                (then_block
+                  (block_term Store. get + PLACEHOLDER_5 + PLACEHOLDER_6 + PLACEHOLDER_8))
+                (else_block
+                  (block_term Store. modify
+                    (literal_function PLACEHOLDER_2 -> PLACEHOLDER_2 + PLACEHOLDER_5 + PLACEHOLDER_6))
+                  (block_term bowling. PLACEHOLDER_4
+                    (literal_list PLACEHOLDER_8))))))
+          (pattern_case
+            (literal_list_pattern
+              (variable_pattern PLACEHOLDER_5) ,
+              (variable_pattern PLACEHOLDER_6)) ->
+            (block_term
+              (exp_if
+                (if_block
+                  (block_term PLACEHOLDER_5 + PLACEHOLDER_6 >= 10))
+                (then_block
+                  (block_term throw
+                    (tuple_or_parenthesized PLACEHOLDER_1 "Score cannot be taken until the end of the game")))
+                (else_block
+                  (block_term Store. get + PLACEHOLDER_5 + PLACEHOLDER_6)))))
+          (pattern_case
+            (parenthesized_or_tuple_pattern
+              (variable_pattern PLACEHOLDER_5) +:
+              (parenthesized_or_tuple_pattern
+                (variable_pattern PLACEHOLDER_6) +:
+                (parenthesized_or_tuple_pattern
+                  (variable_pattern PLACEHOLDER_8) +:
+                  (variable_pattern PLACEHOLDER_9)))) ->
+            (block_term
+              (exp_if
+                (if_block
+                  (block_term PLACEHOLDER_5 + PLACEHOLDER_6 >= 10))
+                (then_block
+                  (block_term Store. modify
+                    (literal_function PLACEHOLDER_2 -> PLACEHOLDER_2 + 10 + PLACEHOLDER_8)))
+                (else_block
+                  (block_term Store. modify
+                    (literal_function PLACEHOLDER_2 -> PLACEHOLDER_2 + PLACEHOLDER_5 + PLACEHOLDER_6)))))
+            (block_term bowling. PLACEHOLDER_4
+              (tuple_or_parenthesized PLACEHOLDER_8 +: PLACEHOLDER_9))))))))

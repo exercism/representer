@@ -1,37 +1,114 @@
-getOrUpdate : k -> ' { Store ( Map k v )} v -> { Store ( Map k v )} v
-getOrUpdate k ifEmpty =
-  match Map . lookup k get with
-    Some v -> v
-    None ->
-      v = ! ifEmpty
-      modify ( Map . insert k v )
-      v
-Set . isEmpty : Set a -> Boolean
-Set . isEmpty s = Map . isEmpty ( underlying s )
-findFewestCoins : [ Nat ] -> Nat -> Optional [ Nat ]
-findFewestCoins inputCoins target =
-  use Optional map
-  coinSet = Set . delete 0 ( Set . fromList inputCoins )
-  go : Nat -> { Store ( Map Nat ( Optional ( Bag Nat )))} Optional ( Bag Nat )
-  go t =
-    match t with
-      0 -> Some Bag . empty
-      _ ->
-        f c bag =
-          use Nat <=
-          if c <= t then
-            recur =
-              use Nat -
-              getOrUpdate ( t - c ) ' ( go ( t - c ))
-            match recur with
-              Some b ->
-                use Bag size
-                use Nat <
-                Optional . orElse
-                  ( map ( acc -> ( if size b Nat .+ 1 < size acc then add c b else acc )) bag )
-                  ( Some ( add c b ))
-              None -> bag
-          else bag
-        List . foldRight f None ( Set . toList coinSet )
-  if Set . isEmpty coinSet then None
-  else map Bag . toList ( withInitialValue Map . empty ' ( go target ))
+(unison
+  (term_declaration
+    (type_signature PLACEHOLDER_1
+      (term_type
+        (type_variable PLACEHOLDER_2) ->
+        (delayed {
+          (effect Store
+            (tuple_or_parenthesized_type Map
+              (type_variable PLACEHOLDER_2)
+              (type_variable PLACEHOLDER_3))) }
+          (type_variable PLACEHOLDER_3)) -> {
+        (effect Store
+          (tuple_or_parenthesized_type Map
+            (type_variable PLACEHOLDER_2)
+            (type_variable PLACEHOLDER_3))) }
+        (type_variable PLACEHOLDER_3)))
+    (term_definition PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_4
+      (block_term
+        (match_expression Map. lookup PLACEHOLDER_2 get
+          (pattern_case
+            (pattern
+              (var_or_nullary_ctor Some)
+              (variable_pattern PLACEHOLDER_3)) ->
+            (block_term PLACEHOLDER_3))
+          (pattern_case
+            (var_or_nullary_ctor None) ->
+            (term_declaration
+              (term_definition PLACEHOLDER_3
+                (block_term
+                  (bang PLACEHOLDER_4))))
+            (block_term modify
+              (tuple_or_parenthesized Map. insert PLACEHOLDER_2 PLACEHOLDER_3))
+            (block_term PLACEHOLDER_3))))))
+  (term_declaration
+    (type_signature Set. PLACEHOLDER_5
+      (term_type Set
+        (type_variable PLACEHOLDER_6) -> Boolean))
+    (term_definition Set. PLACEHOLDER_5 PLACEHOLDER_7
+      (block_term Map. PLACEHOLDER_5
+        (tuple_or_parenthesized underlying PLACEHOLDER_7))))
+  (term_declaration
+    (type_signature PLACEHOLDER_8
+      (term_type
+        (sequence_type Nat) -> Nat -> Optional
+        (sequence_type Nat)))
+    (term_definition PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10
+      (term_declaration
+        (term_definition PLACEHOLDER_11
+          (block_term Set. delete 0
+            (tuple_or_parenthesized Set. fromList PLACEHOLDER_9))))
+      (term_declaration
+        (type_signature PLACEHOLDER_12
+          (term_type Nat -> {
+            (effect Store
+              (tuple_or_parenthesized_type Map Nat
+                (tuple_or_parenthesized_type Optional
+                  (tuple_or_parenthesized_type Bag Nat)))) } Optional
+            (tuple_or_parenthesized_type Bag Nat)))
+        (term_definition PLACEHOLDER_12 PLACEHOLDER_13
+          (block_term
+            (match_expression PLACEHOLDER_13
+              (pattern_case 0 ->
+                (block_term Some Bag. empty))
+              (pattern_case _ ->
+                (term_declaration
+                  (term_definition PLACEHOLDER_14 PLACEHOLDER_15 PLACEHOLDER_16
+                    (block_term
+                      (exp_if
+                        (if_block
+                          (block_term PLACEHOLDER_15 <= PLACEHOLDER_13))
+                        (then_block
+                          (term_declaration
+                            (term_definition PLACEHOLDER_17
+                              (block_term PLACEHOLDER_1
+                                (tuple_or_parenthesized PLACEHOLDER_13 - PLACEHOLDER_15)
+                                (delay_quote
+                                  (tuple_or_parenthesized PLACEHOLDER_12
+                                    (tuple_or_parenthesized PLACEHOLDER_13 - PLACEHOLDER_15))))))
+                          (block_term
+                            (match_expression PLACEHOLDER_17
+                              (pattern_case
+                                (pattern
+                                  (var_or_nullary_ctor Some)
+                                  (variable_pattern PLACEHOLDER_18)) ->
+                                (block_term Optional. orElse
+                                  (tuple_or_parenthesized map
+                                    (literal_function PLACEHOLDER_19 ->
+                                      (exp_if
+                                        (if_block
+                                          (block_term size PLACEHOLDER_18 Nat. + 1 < size PLACEHOLDER_19))
+                                        (then_block
+                                          (block_term add PLACEHOLDER_15 PLACEHOLDER_18))
+                                        (else_block
+                                          (block_term PLACEHOLDER_19)))) PLACEHOLDER_16)
+                                  (tuple_or_parenthesized Some
+                                    (tuple_or_parenthesized add PLACEHOLDER_15 PLACEHOLDER_18))))
+                              (pattern_case
+                                (var_or_nullary_ctor None) ->
+                                (block_term PLACEHOLDER_16)))))
+                        (else_block
+                          (block_term PLACEHOLDER_16))))))
+                (block_term List. foldRight PLACEHOLDER_14 None
+                  (tuple_or_parenthesized Set. toList PLACEHOLDER_11)))))))
+      (block_term
+        (exp_if
+          (if_block
+            (block_term Set. PLACEHOLDER_5 PLACEHOLDER_11))
+          (then_block
+            (block_term None))
+          (else_block
+            (block_term map Bag. toList
+              (tuple_or_parenthesized withInitialValue Map. empty
+                (delay_quote
+                  (tuple_or_parenthesized PLACEHOLDER_12 PLACEHOLDER_10))))))))))
