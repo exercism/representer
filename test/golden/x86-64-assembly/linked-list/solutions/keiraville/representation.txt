@@ -1,122 +1,313 @@
-default rel
-struc Node
-.Prev: resq 1
-.Next: resq 1
-.Data: resd 1
-.Index: resd 1
-.Padding: resq 1
-endstruc
-struc List
-.First resq 1
-.Last resq 1
-endstruc
-section .bss
-list:
-resb List_size
-nodes:
-resb 0x10 * Node_size
-currnodeidx:
-resq 1
-section .text
-remove_node:
-lea rcx , currnodeidx
-mov edx , [ rcx ]
-mov [ rdi + Node.Data ], edx
-mov edx , [ rdi + Node.Index ]
-mov [ rcx ], edx
-mov rdx , [ rdi + Node.Next ]
-mov rcx , [ rdi + Node.Prev ]
-mov [ rcx + Node.Next ], rdx
-mov [ rdx + Node.Prev ], rcx
-ret
-allocate_node:
-lea r8 , nodes
-lea r9 , currnodeidx
-xor rdx , rdx
-mov edx , [ r9 ]
-mov rax , Node_size
-mul rdx
-add rax , r8
-mov edx , [ rax + Node.Data ]
-mov [ r9 ], edx
-ret
-global list_create
-list_create:
-lea r8 , nodes
-mov [ r8 + Node.Prev ], r8
-mov [ r8 + Node.Next ], r8
-mov edx , 1
-.loop_list_create:
-add r8 , Node_size
-mov [ r8 + Node.Index ], edx
-inc edx
-mov [ r8 + Node.Data ], edx
-cmp edx , 16
-jnz .loop_list_create
-lea r9 , currnodeidx
-mov [ r9 ], dword 1
-ret
-global list_count
-list_count:
-mov rax , - 1
-lea r8 , nodes
-mov rcx , r8
-.list_count_loop:
-inc rax
-mov rcx , [ rcx + Node.Next ]
-cmp rcx , r8
-jnz .list_count_loop
-.list_count_return:
-ret
-global list_push
-list_push:
-call al locate_node
-lea r8 , nodes
-mov r9 , [ r8 + Node.Prev ]
-mov [ r9 + Node.Next ], rax
-mov [ rax + Node.Prev ], r9
-mov [ rax + Node.Next ], r8
-mov dword [ rax + Node.Data ], edi
-mov [ r8 + Node.Prev ], rax
-ret
-global list_pop
-list_pop:
-lea r8 , nodes
-mov rdi , [ r8 + Node.Prev ]
-mov eax , dword [ rdi + Node.Data ]
-jmp remove_node
-global list_unshift
-list_unshift:
-call al locate_node
-lea r8 , nodes
-mov r9 , [ r8 + Node.Next ]
-mov [ r9 + Node.Prev ], rax
-mov [ rax + Node.Next ], r9
-mov [ rax + Node.Prev ], r8
-mov dword [ rax + Node.Data ], edi
-mov [ r8 + Node.Next ], rax
-ret
-global list_shift
-list_shift:
-lea r8 , nodes
-mov rdi , [ r8 + Node.Next ]
-mov eax , dword [ rdi + Node.Data ]
-jmp remove_node
-global list_delete
-list_delete:
-mov rax , rdi
-lea r8 , nodes
-mov rdi , r8
-.list_delete_loop:
-mov rdi , [ rdi + Node.Next ]
-cmp rdi , r8
-jz .list_delete_return
-mov edx , dword [ rdi + Node.Data ]
-cmp edx , eax
-jnz .list_delete_loop
-jmp remove_node
-.list_delete_return:
-ret
-global list_destroy
-list_destroy:
-ret
+(source_file
+  (default_directive rel)
+  (struc_definition PLACEHOLDER_1
+    (block
+      (data_definition (local_label PLACEHOLDER_2)
+        (data_directive resq) 1)
+      (data_definition (local_label PLACEHOLDER_3)
+        (data_directive resq) 1)
+      (data_definition (local_label PLACEHOLDER_4)
+        (data_directive resd) 1)
+      (data_definition (local_label PLACEHOLDER_5)
+        (data_directive resd) 1)
+      (data_definition (local_label PLACEHOLDER_6)
+        (data_directive resq) 1)))
+  (struc_definition PLACEHOLDER_7
+    (block
+      (data_definition (local_label PLACEHOLDER_8)
+        (data_directive resq) 1)
+      (data_definition (local_label PLACEHOLDER_9)
+        (data_directive resq) 1)))
+  (section_directive .bss)
+  (data_definition PLACEHOLDER_10
+    (data_directive resb) List_size)
+  (data_definition PLACEHOLDER_11
+    (data_directive resb)
+    (binary_expression 16 * Node_size))
+  (data_definition PLACEHOLDER_12
+    (data_directive resq) 1)
+  (section_directive .text)
+  (label PLACEHOLDER_13)
+  (instruction lea
+    (register rcx) PLACEHOLDER_12)
+  (instruction mov
+    (register edx)
+    (memory_operand
+      (register rcx)))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register rdi) + Node.Data))
+    (register edx))
+  (instruction mov
+    (register edx)
+    (memory_operand
+      (binary_expression
+        (register rdi) + Node.Index)))
+  (instruction mov
+    (memory_operand
+      (register rcx))
+    (register edx))
+  (instruction mov
+    (register rdx)
+    (memory_operand
+      (binary_expression
+        (register rdi) + Node.Next)))
+  (instruction mov
+    (register rcx)
+    (memory_operand
+      (binary_expression
+        (register rdi) + Node.Prev)))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register rcx) + Node.Next))
+    (register rdx))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register rdx) + Node.Prev))
+    (register rcx))
+  (instruction ret)
+  (label PLACEHOLDER_14)
+  (instruction lea
+    (register r8) PLACEHOLDER_11)
+  (instruction lea
+    (register r9) PLACEHOLDER_12)
+  (instruction xor
+    (register rdx)
+    (register rdx))
+  (instruction mov
+    (register edx)
+    (memory_operand
+      (register r9)))
+  (instruction mov
+    (register rax) Node_size)
+  (instruction mul
+    (register rdx))
+  (instruction add
+    (register rax)
+    (register r8))
+  (instruction mov
+    (register edx)
+    (memory_operand
+      (binary_expression
+        (register rax) + Node.Data)))
+  (instruction mov
+    (memory_operand
+      (register r9))
+    (register edx))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_15)
+  (label PLACEHOLDER_15)
+  (instruction lea
+    (register r8) PLACEHOLDER_11)
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Prev))
+    (register r8))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Next))
+    (register r8))
+  (instruction mov
+    (register edx) 1)
+  (label (local_label PLACEHOLDER_16))
+  (instruction add
+    (register r8) Node_size)
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Index))
+    (register edx))
+  (instruction inc
+    (register edx))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Data))
+    (register edx))
+  (instruction cmp
+    (register edx) 16)
+  (instruction jnz (local_label PLACEHOLDER_16))
+  (instruction lea
+    (register r9) PLACEHOLDER_12)
+  (instruction mov
+    (memory_operand
+      (register r9))
+    (sized_operand
+      (size dword) 1))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_17)
+  (label PLACEHOLDER_17)
+  (instruction mov
+    (register rax)
+    (unary_expression - 1))
+  (instruction lea
+    (register r8) PLACEHOLDER_11)
+  (instruction mov
+    (register rcx)
+    (register r8))
+  (label (local_label PLACEHOLDER_18))
+  (instruction inc
+    (register rax))
+  (instruction mov
+    (register rcx)
+    (memory_operand
+      (binary_expression
+        (register rcx) + Node.Next)))
+  (instruction cmp
+    (register rcx)
+    (register r8))
+  (instruction jnz (local_label PLACEHOLDER_18))
+  (label (local_label PLACEHOLDER_19))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_20)
+  (label PLACEHOLDER_20)
+  (instruction call PLACEHOLDER_14)
+  (instruction lea
+    (register r8) PLACEHOLDER_11)
+  (instruction mov
+    (register r9)
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Prev)))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register r9) + Node.Next))
+    (register rax))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register rax) + Node.Prev))
+    (register r9))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register rax) + Node.Next))
+    (register r8))
+  (instruction mov
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (register rax) + Node.Data)))
+    (register edi))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Prev))
+    (register rax))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_21)
+  (label PLACEHOLDER_21)
+  (instruction lea
+    (register r8) PLACEHOLDER_11)
+  (instruction mov
+    (register rdi)
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Prev)))
+  (instruction mov
+    (register eax)
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (register rdi) + Node.Data))))
+  (instruction jmp PLACEHOLDER_13)
+  (symbol_directive global PLACEHOLDER_22)
+  (label PLACEHOLDER_22)
+  (instruction call PLACEHOLDER_14)
+  (instruction lea
+    (register r8) PLACEHOLDER_11)
+  (instruction mov
+    (register r9)
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Next)))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register r9) + Node.Prev))
+    (register rax))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register rax) + Node.Next))
+    (register r9))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register rax) + Node.Prev))
+    (register r8))
+  (instruction mov
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (register rax) + Node.Data)))
+    (register edi))
+  (instruction mov
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Next))
+    (register rax))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_23)
+  (label PLACEHOLDER_23)
+  (instruction lea
+    (register r8) PLACEHOLDER_11)
+  (instruction mov
+    (register rdi)
+    (memory_operand
+      (binary_expression
+        (register r8) + Node.Next)))
+  (instruction mov
+    (register eax)
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (register rdi) + Node.Data))))
+  (instruction jmp PLACEHOLDER_13)
+  (symbol_directive global PLACEHOLDER_24)
+  (label PLACEHOLDER_24)
+  (instruction mov
+    (register rax)
+    (register rdi))
+  (instruction lea
+    (register r8) PLACEHOLDER_11)
+  (instruction mov
+    (register rdi)
+    (register r8))
+  (label (local_label PLACEHOLDER_25))
+  (instruction mov
+    (register rdi)
+    (memory_operand
+      (binary_expression
+        (register rdi) + Node.Next)))
+  (instruction cmp
+    (register rdi)
+    (register r8))
+  (instruction jz (local_label PLACEHOLDER_26))
+  (instruction mov
+    (register edx)
+    (sized_operand
+      (size dword)
+      (memory_operand
+        (binary_expression
+          (register rdi) + Node.Data))))
+  (instruction cmp
+    (register edx)
+    (register eax))
+  (instruction jnz (local_label PLACEHOLDER_25))
+  (instruction jmp PLACEHOLDER_13)
+  (label (local_label PLACEHOLDER_26))
+  (instruction ret)
+  (symbol_directive global PLACEHOLDER_27)
+  (label PLACEHOLDER_27)
+  (instruction ret))

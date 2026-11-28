@@ -1,30 +1,53 @@
-section .text
-global steps
-steps:
-mov rax , rdi
-mov rcx , - 1
-cmp rdi , 0
-je .error
-cmp rdi , 0xFFFFFFF
-ja .error
-inc rcx
-.check:
-cmp rax , 1
-je .return
-inc rcx
-test rax , 1
-jnz .muladd
-shr rax , 1
-jmp .check
-.muladd:
-lea rax , [ rax * 2 + rax + 1 ]
-jmp .check
-.return:
-mov rax , rcx
-ret
-.error:
-mov rax , - 1
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (label PLACEHOLDER_1)
+  (instruction mov
+    (register rax)
+    (register rdi))
+  (instruction mov
+    (register rcx)
+    (unary_expression - 1))
+  (instruction cmp
+    (register rdi) 0)
+  (instruction je (local_label PLACEHOLDER_2))
+  (instruction cmp
+    (register rdi) 268435455)
+  (instruction ja (local_label PLACEHOLDER_2))
+  (instruction inc
+    (register rcx))
+  (label (local_label PLACEHOLDER_3))
+  (instruction cmp
+    (register rax) 1)
+  (instruction je (local_label PLACEHOLDER_4))
+  (instruction inc
+    (register rcx))
+  (instruction test
+    (register rax) 1)
+  (instruction jnz (local_label PLACEHOLDER_5))
+  (instruction shr
+    (register rax) 1)
+  (instruction jmp (local_label PLACEHOLDER_3))
+  (label (local_label PLACEHOLDER_5))
+  (instruction lea
+    (register rax)
+    (memory_operand
+      (binary_expression
+        (binary_expression
+          (binary_expression
+            (register rax) * 2) +
+          (register rax)) + 1)))
+  (instruction jmp (local_label PLACEHOLDER_3))
+  (label (local_label PLACEHOLDER_4))
+  (instruction mov
+    (register rax)
+    (register rcx))
+  (instruction ret)
+  (label (local_label PLACEHOLDER_2))
+  (instruction mov
+    (register rax)
+    (unary_expression - 1))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

@@ -1,44 +1,82 @@
-section .text
-global modifier
-global ability
-global make_dnd_character
-modifier:
-shr di l , 1
-lea eax , [ edi - 5 ]
-ret
-ability:
-xor al , al
-mov r8b , 6
-mov ecx , 4
-.dice:
-rdrand dx
-and dl , 7
-cmp dl , 6
-jae .dice
-add al , dl
-cmp r8b , dl
-cmova r8w , dx
-loop .dice
-sub al , r8b
-add al , 3
-ret
-make_dnd_character:
-xor r9d , r9d
-mov r10d , 6
-.loop:
-call ability
-shl r9 , 8
-or r9b , al
-dec r10d
-jnz .loop
-mov rdi , r9
-shr rdi , 16
-call modifier
-xor ah , ah
-add al , 10
-shl rax , 48
-or rax , r9
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (symbol_directive global PLACEHOLDER_2)
+  (symbol_directive global PLACEHOLDER_3)
+  (label PLACEHOLDER_1)
+  (instruction shr
+    (register dil) 1)
+  (instruction lea
+    (register eax)
+    (memory_operand
+      (binary_expression
+        (register edi) - 5)))
+  (instruction ret)
+  (label PLACEHOLDER_2)
+  (instruction xor
+    (register al)
+    (register al))
+  (instruction mov
+    (register r8b) 6)
+  (instruction mov
+    (register ecx) 4)
+  (label (local_label PLACEHOLDER_4))
+  (instruction rdrand
+    (register dx))
+  (instruction and
+    (register dl) 7)
+  (instruction cmp
+    (register dl) 6)
+  (instruction jae (local_label PLACEHOLDER_4))
+  (instruction add
+    (register al)
+    (register dl))
+  (instruction cmp
+    (register r8b)
+    (register dl))
+  (instruction cmova
+    (register r8w)
+    (register dx))
+  (instruction loop (local_label PLACEHOLDER_4))
+  (instruction sub
+    (register al)
+    (register r8b))
+  (instruction add
+    (register al) 3)
+  (instruction ret)
+  (label PLACEHOLDER_3)
+  (instruction xor
+    (register r9d)
+    (register r9d))
+  (instruction mov
+    (register r10d) 6)
+  (label (local_label PLACEHOLDER_5))
+  (instruction call PLACEHOLDER_2)
+  (instruction shl
+    (register r9) 8)
+  (instruction or
+    (register r9b)
+    (register al))
+  (instruction dec
+    (register r10d))
+  (instruction jnz (local_label PLACEHOLDER_5))
+  (instruction mov
+    (register rdi)
+    (register r9))
+  (instruction shr
+    (register rdi) 16)
+  (instruction call PLACEHOLDER_1)
+  (instruction xor
+    (register ah)
+    (register ah))
+  (instruction add
+    (register al) 10)
+  (instruction shl
+    (register rax) 48)
+  (instruction or
+    (register rax)
+    (register r9))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))

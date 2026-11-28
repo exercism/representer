@@ -1,26 +1,43 @@
-%macro strlen 1
-pxor xmm0 , xmm0
-pcmpistri xmm0 ,[ % 1 ], 00001000b
-inc rcx
-%endmacro
-section .text
-global di stance
-distance:
-xor rax , rax
-strlen rdi
-mov rbx , rcx
-strlen rsi
-cmp rbx , rcx
-jne di ffer
-cld
-.loop:
-cmpsb
-je .equals
-inc rax
-.equals:
-loop .loop
-ret
-differ:
-mov rax , - 1
-leave
-ret
+(source_file
+  (macro_definition PLACEHOLDER_1 1
+    (block
+      (instruction pxor
+        (register xmm0)
+        (register xmm0))
+      (instruction pcmpistri
+        (register xmm0)
+        (memory_operand %1) 8)
+      (instruction inc
+        (register rcx))))
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_2)
+  (label PLACEHOLDER_2)
+  (instruction xor
+    (register rax)
+    (register rax))
+  (macro_call PLACEHOLDER_1
+    (register rdi))
+  (instruction mov
+    (register rbx)
+    (register rcx))
+  (macro_call PLACEHOLDER_1
+    (register rsi))
+  (instruction cmp
+    (register rbx)
+    (register rcx))
+  (instruction jne PLACEHOLDER_3)
+  (instruction cld)
+  (label (local_label PLACEHOLDER_4))
+  (instruction cmpsb)
+  (instruction je (local_label PLACEHOLDER_5))
+  (instruction inc
+    (register rax))
+  (label (local_label PLACEHOLDER_5))
+  (instruction loop (local_label PLACEHOLDER_4))
+  (instruction ret)
+  (label PLACEHOLDER_3)
+  (instruction mov
+    (register rax)
+    (unary_expression - 1))
+  (instruction leave)
+  (instruction ret))

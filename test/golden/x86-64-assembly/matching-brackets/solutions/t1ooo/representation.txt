@@ -1,48 +1,74 @@
-%macro save_stack_pointer 0
-mov rcx , rsp
-%endmacro
-%macro is_stack_empty 0
-cmp rcx , rsp
-%endmacro
-%macro restore_stack_poiter 0
-mov rsp , rcx
-%endmacro
-%macro process 2
-mov r10b , % 2
-cmp r9b , % 1
-je push
-cmp r9b , % 2
-je ch eck
-%endmacro
-section .text
-global is_paired
-is_paired:
-mov rax , 0
-save_stack_pointer
-mov r8 , 0
-loop:
-mov r9b , byte [ rdi + r8 ]
-cmp r9b , 0
-je break
-process '[' , ']'
-process '{' , '}'
-process '(' , ')'
-jmp continue
-push:
-push r10
-jmp continue
-check:
-is_stack_empty
-je return
-pop r11
-cmp r11b , r9b
-jne return
-continue:
-inc r8
-jmp loop
-break:
-is_stack_empty
-sete al
-return:
-rest ore_stack_poiter
-ret
+(source_file
+  (macro_definition PLACEHOLDER_1 0
+    (block
+      (instruction mov
+        (register rcx)
+        (register rsp))))
+  (macro_definition PLACEHOLDER_2 0
+    (block
+      (instruction cmp
+        (register rcx)
+        (register rsp))))
+  (macro_definition PLACEHOLDER_3 0
+    (block
+      (instruction mov
+        (register rsp)
+        (register rcx))))
+  (macro_definition PLACEHOLDER_4 2
+    (block
+      (instruction mov
+        (register r10b) %2)
+      (instruction cmp
+        (register r9b) %1)
+      (instruction je PLACEHOLDER_5)
+      (instruction cmp
+        (register r9b) %2)
+      (instruction je PLACEHOLDER_6)))
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_7)
+  (label PLACEHOLDER_7)
+  (instruction mov
+    (register rax) 0)
+  (macro_call PLACEHOLDER_1)
+  (instruction mov
+    (register r8) 0)
+  (label PLACEHOLDER_8)
+  (instruction mov
+    (register r9b)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (binary_expression
+          (register rdi) +
+          (register r8)))))
+  (instruction cmp
+    (register r9b) 0)
+  (instruction je PLACEHOLDER_9)
+  (macro_call PLACEHOLDER_4 "[" "]")
+  (macro_call PLACEHOLDER_4 "{" "}")
+  (macro_call PLACEHOLDER_4 "(" ")")
+  (instruction jmp PLACEHOLDER_10)
+  (label PLACEHOLDER_5)
+  (instruction push
+    (register r10))
+  (instruction jmp PLACEHOLDER_10)
+  (label PLACEHOLDER_6)
+  (macro_call PLACEHOLDER_2)
+  (instruction je PLACEHOLDER_11)
+  (instruction pop
+    (register r11))
+  (instruction cmp
+    (register r11b)
+    (register r9b))
+  (instruction jne PLACEHOLDER_11)
+  (label PLACEHOLDER_10)
+  (instruction inc
+    (register r8))
+  (instruction jmp PLACEHOLDER_8)
+  (label PLACEHOLDER_9)
+  (macro_call PLACEHOLDER_2)
+  (instruction sete
+    (register al))
+  (label PLACEHOLDER_11)
+  (macro_call PLACEHOLDER_3)
+  (instruction ret))

@@ -1,45 +1,102 @@
-section .text
-global sum
-sum:
-mov r8 , rdi
-push rbp
-mov rbp , rsp
-sub rsp , r8
-lea rdi , [ rsp ]
-mov rcx , r8
-mov al , 0
-cld
-rep stosb
-lea rdi , [ rsp ]
-mov rcx , - 1
-extract_factor:
-inc rcx
-cmp rcx , rdx
-jge end_extraction
-lodsq
-cmp rax , 0
-jle extract_factor
-mov r9 , rax
-fill_multiples:
-cmp r9 , r8
-jge extract_factor
-mov byte [ rdi + r9 ], 1
-add r9 , rax
-jmp fill_multiples
-end_extraction:
-xor rax , rax
-mov rcx , r8
-accumulate_factors:
-mov r10b , byte [ rdi + rcx ]
-xor r11 , r11
-cmp r10b , 1
-cmove r11 , rcx
-add rax , r11
-loop accumulate_factors
-end_sum:
-mov rsp , rbp
-pop rbp
-ret
-%ifidn __OUTPUT_FORMAT__,elf64
-section .note.GNU - stack noalloc noexec nowrite progbits
-%endif
+(source_file
+  (section_directive .text)
+  (symbol_directive global PLACEHOLDER_1)
+  (label PLACEHOLDER_1)
+  (instruction mov
+    (register r8)
+    (register rdi))
+  (instruction push
+    (register rbp))
+  (instruction mov
+    (register rbp)
+    (register rsp))
+  (instruction sub
+    (register rsp)
+    (register r8))
+  (instruction lea
+    (register rdi)
+    (memory_operand
+      (register rsp)))
+  (instruction mov
+    (register rcx)
+    (register r8))
+  (instruction mov
+    (register al) 0)
+  (instruction cld)
+  (instruction
+    (prefix rep) stosb)
+  (instruction lea
+    (register rdi)
+    (memory_operand
+      (register rsp)))
+  (instruction mov
+    (register rcx)
+    (unary_expression - 1))
+  (label PLACEHOLDER_2)
+  (instruction inc
+    (register rcx))
+  (instruction cmp
+    (register rcx)
+    (register rdx))
+  (instruction jge PLACEHOLDER_3)
+  (instruction lodsq)
+  (instruction cmp
+    (register rax) 0)
+  (instruction jle PLACEHOLDER_2)
+  (instruction mov
+    (register r9)
+    (register rax))
+  (label PLACEHOLDER_4)
+  (instruction cmp
+    (register r9)
+    (register r8))
+  (instruction jge PLACEHOLDER_2)
+  (instruction mov
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (binary_expression
+          (register rdi) +
+          (register r9)))) 1)
+  (instruction add
+    (register r9)
+    (register rax))
+  (instruction jmp PLACEHOLDER_4)
+  (label PLACEHOLDER_3)
+  (instruction xor
+    (register rax)
+    (register rax))
+  (instruction mov
+    (register rcx)
+    (register r8))
+  (label PLACEHOLDER_5)
+  (instruction mov
+    (register r10b)
+    (sized_operand
+      (size byte)
+      (memory_operand
+        (binary_expression
+          (register rdi) +
+          (register rcx)))))
+  (instruction xor
+    (register r11)
+    (register r11))
+  (instruction cmp
+    (register r10b) 1)
+  (instruction cmove
+    (register r11)
+    (register rcx))
+  (instruction add
+    (register rax)
+    (register r11))
+  (instruction loop PLACEHOLDER_5)
+  (label PLACEHOLDER_6)
+  (instruction mov
+    (register rsp)
+    (register rbp))
+  (instruction pop
+    (register rbp))
+  (instruction ret)
+  (preproc_conditional %ifidn __OUTPUT_FORMAT__,elf64
+    (block
+      (section_directive .note.GNU-stack noalloc noexec nowrite progbits))))
