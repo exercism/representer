@@ -1,19 +1,102 @@
-re = require 're'
-wordy = re . compile "[[\n  wordy      <- 'What is ' {| expression |} '?'\n  expression <- { number } (ss { operation } ss { number })*\n  number     <- '-'? %d+\n  operation  <- 'plus' / 'minus' / 'multiplied by' / 'divided by'\n  ss         <- %s+\n]]"
-syntaxError = re . compile "[[\n  err       <- no_expr / two_ops / two_nums / ending_op\n  no_expr   <- 'What is' s '?'\n  two_ops   <- ss op ss op\n  two_nums  <- ss num ss num\n  ending_op <- ss op '?'\n  num       <- '-'? %d+\n  op        <- 'plus' / 'minus' / 'multiplied by' / 'divided by'\n  s         <- %s*\n  ss        <- %s+ \n]]"
-evaluate = ( tokens ) ->
-  result = tonumber tokens [ 1 ]
-  for i = 2 , # tokens , 2
-    result = switch tokens [ i ]
-      when 'plus' then result + tonumber tokens [ i + 1 ]
-      when 'minus' then result - tonumber tokens [ i + 1 ]
-      when "'multiplied by'" then result * tonumber tokens [ i + 1 ]
-      when "'divided by'" then result // tonumber tokens [ i + 1 ]
-  result
-{
-  answer: ( question ) ->
-    tokens = re . match question , wordy
-    return evaluate tokens if tokens
-    error "'syntax error'" if re . find question , syntaxError
-    error "'unknown operation'"
-}
+(source_file
+  (assignment
+    (variable_list PLACEHOLDER_1)
+    (expression_list
+      (call
+        (dot_index re compile)
+        (arguments "  wordy      <- 'What is ' {| expression |} '?'\n  expression <- { number } (ss { operation } ss { number })*\n  number     <- '-'? %d+\n  operation  <- 'plus' / 'minus' / 'multiplied by' / 'divided by'\n  ss         <- %s+\n"))))
+  (assignment
+    (variable_list PLACEHOLDER_2)
+    (expression_list
+      (call
+        (dot_index re compile)
+        (arguments "  err       <- no_expr / two_ops / two_nums / ending_op\n  no_expr   <- 'What is' s '?'\n  two_ops   <- ss op ss op\n  two_nums  <- ss num ss num\n  ending_op <- ss op '?'\n  num       <- '-'? %d+\n  op        <- 'plus' / 'minus' / 'multiplied by' / 'divided by'\n  s         <- %s*\n  ss        <- %s+ \n"))))
+  (assignment
+    (variable_list PLACEHOLDER_3)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_4)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_5)
+            (expression_list
+              (call tonumber
+                (arguments
+                  (index_expression PLACEHOLDER_4 1)))))
+          (expression_statement
+            (for_expression PLACEHOLDER_6 2
+              (unary_expression # PLACEHOLDER_4) 2
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_5)
+                  (expression_list
+                    (switch_expression
+                      (index_expression PLACEHOLDER_4 PLACEHOLDER_6)
+                      (when_branch
+                        (expression_list "plus")
+                        (block
+                          (expression_statement
+                            (binary_expression PLACEHOLDER_5 +
+                              (call tonumber
+                                (arguments
+                                  (index_expression PLACEHOLDER_4
+                                    (binary_expression PLACEHOLDER_6 + 1))))))))
+                      (when_branch
+                        (expression_list "minus")
+                        (block
+                          (expression_statement
+                            (binary_expression PLACEHOLDER_5 -
+                              (call tonumber
+                                (arguments
+                                  (index_expression PLACEHOLDER_4
+                                    (binary_expression PLACEHOLDER_6 + 1))))))))
+                      (when_branch
+                        (expression_list "multiplied by")
+                        (block
+                          (expression_statement
+                            (binary_expression PLACEHOLDER_5 *
+                              (call tonumber
+                                (arguments
+                                  (index_expression PLACEHOLDER_4
+                                    (binary_expression PLACEHOLDER_6 + 1))))))))
+                      (when_branch
+                        (expression_list "divided by")
+                        (block
+                          (expression_statement
+                            (binary_expression PLACEHOLDER_5 //
+                              (call tonumber
+                                (arguments
+                                  (index_expression PLACEHOLDER_4
+                                    (binary_expression PLACEHOLDER_6 + 1))))))))))))))
+          (expression_statement PLACEHOLDER_5)))))
+  (expression_statement
+    (table
+      (pair (property_identifier PLACEHOLDER_7)
+        (function_definition
+          (parameters
+            (parameter PLACEHOLDER_8)) ->
+          (block
+            (assignment
+              (variable_list PLACEHOLDER_4)
+              (expression_list
+                (call
+                  (dot_index re match)
+                  (arguments PLACEHOLDER_8 PLACEHOLDER_1))))
+            (decorated_statement
+              (return_statement
+                (expression_list
+                  (call PLACEHOLDER_3
+                    (arguments PLACEHOLDER_4))))
+              (if_decorator PLACEHOLDER_4))
+            (decorated_statement
+              (expression_statement
+                (call error
+                  (arguments "syntax error")))
+              (if_decorator
+                (call
+                  (dot_index re find)
+                  (arguments PLACEHOLDER_8 PLACEHOLDER_2))))
+            (expression_statement
+              (call error
+                (arguments "unknown operation")))))))))
