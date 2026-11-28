@@ -37,7 +37,7 @@ module Inspector
       # A bug in a rule must never fail the request, so the website marks the
       # solution as unrepresentable and the log says what went wrong.
       warn "#{track_slug}/#{exercise_slug}: #{e.class}: #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}"
-      unrepresentable("internal_error", "One of the representer's rules raised an error")
+      unrepresentable("internal_error", "One of Inspector's rules raised an error")
     end
 
     private
@@ -59,11 +59,11 @@ module Inspector
     def represent_with_basic
       basic = Languages::Basic.(track_slug, solution_files)
       Engine::Result.new(representation: BASIC_PREFIX + basic.representation, mapping: basic.mapping,
-        version: language.version, representer: Languages::Basic)
+        version: language.version, language: Languages::Basic)
     end
 
     def unrepresentable(reason, message)
-      Engine::Result.new(representation: nil, mapping: {}, version: language.version, representer: language, reason:,
+      Engine::Result.new(representation: nil, mapping: {}, version: language.version, language: language, reason:,
         message:)
     end
   end

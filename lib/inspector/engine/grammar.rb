@@ -13,7 +13,7 @@ module Inspector::Engine
     CONFIG = YAML.safe_load_file(File.join(ROOT, "grammars.yml"))
     EXTENSION = RbConfig::CONFIG["host_os"].include?("darwin") ? "dylib" : "so"
 
-    def self.dir = ENV.fetch("REPRESENTER_GRAMMARS_DIR", File.join(ROOT, "grammars", "build"))
+    def self.dir = ENV.fetch("INSPECTOR_GRAMMARS_DIR", File.join(ROOT, "grammars", "build"))
     def self.[](name) = (@cache ||= {})[name] ||= new(name)
 
     def initialize(name)

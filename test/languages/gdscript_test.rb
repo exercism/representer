@@ -19,7 +19,7 @@ class GDScriptTest < InspectorTest
     result = Inspector::RepresentSolution.("gdscript",
       { "one.gd" => "func foo():\n\treturn 1\n", "two.gd" => "func bar():\n\treturn \"Hello\"\n" })
     assert_equal %w[bar foo], result.mapping.values.sort
-    refute_equal Inspector::Languages::Basic, result.representer
+    refute_equal Inspector::Languages::Basic, result.language
   end
 
   def test_functions_variables_and_parameters_are_renamed

@@ -31,7 +31,7 @@ class Inspector::Languages::Basic
   def call
     raise Inspector::CannotRepresent.new("no_source_files", "No solution file is a #{track_slug} source file") if sources.empty?
 
-    Inspector::Engine::Result.new(representation:, mapping: {}, version: VERSION, representer: self.class)
+    Inspector::Engine::Result.new(representation:, mapping: {}, version: VERSION, language: self.class)
   end
 
   private

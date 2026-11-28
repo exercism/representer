@@ -37,7 +37,7 @@ module Inspector::Engine
       tree = JoinFiles.(prepared, prepared.first.type)
       tree = representation.run_stage(:Reorder, tree)
       mapping = NumberPlaceholders.(tree, representation)
-      Result.new(representation: Serialize.(tree), mapping:, version: representation.version, representer: language)
+      Result.new(representation: Serialize.(tree), mapping:, version: representation.version, language: language)
     end
 
     private
@@ -52,7 +52,7 @@ module Inspector::Engine
   # representer is the class that made the representation. reason and
   # message say why a solution has no representation (representation is
   # then nil).
-  Result = Struct.new(:representation, :mapping, :version, :representer, :reason, :message, keyword_init: true)
+  Result = Struct.new(:representation, :mapping, :version, :language, :reason, :message, keyword_init: true)
 
   # Source code arrives as JSON strings, which are UTF-8 but may hold
   # invalid bytes from a student's editor. The editor also chooses Windows

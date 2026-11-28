@@ -18,7 +18,7 @@ class BasicTest < InspectorTest
 
   def test_tracks_without_a_class_use_basic_and_its_version
     result = Inspector::RepresentSolution.("8th", { "main.8th" => ": main 1 . ;" })
-    assert_equal Inspector::Languages::Basic, result.representer
+    assert_equal Inspector::Languages::Basic, result.language
     assert_nil result.reason
     assert_equal Inspector::Languages::Basic::VERSION, result.version
     assert_empty result.mapping

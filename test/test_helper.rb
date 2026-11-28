@@ -105,7 +105,7 @@ module UpstreamTests
       if test_case.deviation[:parse_error]
         define_method("test_upstream_#{test_case.name}_gets_a_basic_representation") do
           result = Inspector::RepresentSolution.(track, test_case.solution_files)
-          assert_equal Inspector::Languages::Basic, result.representer
+          assert_equal Inspector::Languages::Basic, result.language
           assert result.representation.start_with?(Inspector::RepresentSolution::BASIC_PREFIX)
         end
         next
