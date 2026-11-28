@@ -3,7 +3,8 @@
 # shows the student's own code. docs/snippets.md explains each declaration.
 module Inspector::Languages::VBNet::Snippet
   class Spec < Inspector::Engine::Snippet
-    tracks "vbnet"
+    # Bump the version whenever the snippet of any solution could change.
+    version 1
 
     # Remove every comment, wherever it is.
     remove :comments # Dim x = 1 «' The answer»
