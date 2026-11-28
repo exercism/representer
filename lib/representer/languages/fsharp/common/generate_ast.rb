@@ -170,7 +170,7 @@ module Representer::Languages::FSharp::Common
 
     ### Names ###
 
-    # Give the code that defines a name a shape of its own, so that spec.rb
+    # Give the code that defines a name a shape of its own, so that representation/spec.rb
     # can list it in names_are_defined_by.
     def mark_the_code_that_defines_names!
       # Mark the name of a module or a namespace as a `module_name`.

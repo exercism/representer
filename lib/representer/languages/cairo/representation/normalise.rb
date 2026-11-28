@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to spellings that Cairo reads the same way.
-class Representer::Languages::Cairo::Representation
+module Representer::Languages::Cairo::Representation
   class Normalise < Representer::Engine::Normalise
     def call
       super.tap do |root|

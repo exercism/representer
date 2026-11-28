@@ -9,7 +9,7 @@ Later stages then see the same tree for the same meaning.
 
 ## Declarations and steps
 
-The engine drops the comments declared in `spec.rb` before `GenerateAST` starts.
+The engine drops the comments declared in `common/spec.rb` before `GenerateAST` starts.
 The top of the class lists the steps that every language needs, as declarations: `strip_tokens`, `keep_tokens`, `unwrap` and `numbers_are` (see "GenerateAST's declarations" in [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#generateasts-declarations)).
 The engine writes the numbers before the language's own steps, and unwraps the brackets and strips the tokens after them.
 

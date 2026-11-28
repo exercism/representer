@@ -187,7 +187,7 @@ module Representer::Languages::Rescript::Common
     ### Names ###
 
     # Give the code that defines a name a shape of its own, so that
-    # representation.rb can list it in names_are_defined_by.
+    # representation/spec.rb can list it in names_are_defined_by.
     def mark_the_code_that_defines_names!
       write_wildcards_as_wildcards!
       wrap_each_type_variable!
@@ -210,7 +210,7 @@ module Representer::Languages::Rescript::Common
       end
     end
 
-    # Put the name in each definition in a field, so that representation.rb
+    # Put the name in each definition in a field, so that representation/spec.rb
     # can tell it from the code beside it, such as a default value.
     # let f = (~width=size) => ...  ->  (labeled_parameter name: width size)
     # for i in 0 to n { ... }  ->  (for_expression variable: i 0 to n ...)

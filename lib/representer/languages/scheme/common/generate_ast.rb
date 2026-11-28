@@ -114,7 +114,7 @@ module Representer::Languages::Scheme::Common
     ### Names ###
 
     # Wrap each name that a form defines in a `definition` node, so that
-    # representation.rb can list them in names_are_defined_by. The forms
+    # representation/spec.rb can list them in names_are_defined_by. The forms
     # are definitions with their parameters, lambdas, local bindings, loops,
     # records, macros and condition handlers.
     #

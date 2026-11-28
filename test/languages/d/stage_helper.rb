@@ -4,14 +4,14 @@ require "test_helper"
 module DStages
   D = Representer::Languages::D
 
-  def parse(source) = Representer::Engine::Grammar["d"].parse(Representer::Engine.clean(source), **D::Spec.parse_options)
+  def parse(source) = Representer::Engine::Grammar["d"].parse(Representer::Engine.clean(source), **D::Common::Spec.parse_options)
 
   # GenerateAST's tree for the source.
   def generate_ast(source) = D::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(D::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(D::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 

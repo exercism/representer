@@ -17,7 +17,7 @@ class RewriteCodeTest < Minitest::Test
 
   private
   def rewrite(source, code, replacement, scopes: [])
-    patterns = [code, replacement, *scopes].map { |text| CodePattern[Ruby::Spec, text] }
+    patterns = [code, replacement, *scopes].map { |text| CodePattern[Ruby::Common::Spec, text] }
     write(Representer::Engine::RewriteCode.(tree(source), patterns[0], patterns[1], scopes: patterns[2..]))
   end
 

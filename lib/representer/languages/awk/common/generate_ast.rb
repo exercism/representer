@@ -141,7 +141,7 @@ module Representer::Languages::Awk::Common
     end
 
     # Give each argument that a builtin fills or changes the field `filled`,
-    # so that representation.rb can list it with the other names that are
+    # so that representation/spec.rb can list it with the other names that are
     # assigned to.
     # split(s, «parts», ",")
     # gsub(/a/, "b", «word»)

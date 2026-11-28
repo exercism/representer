@@ -23,7 +23,7 @@ class AddBracesTest < Minitest::Test
 
   private
   def add_braces(source, braced, block: nil)
-    pattern = Representer::Engine::CodePattern[CSharp::Spec, braced]
+    pattern = Representer::Engine::CodePattern[CSharp::Common::Spec, braced]
     write(Representer::Engine::AddBraces.(tree(source), pattern, block:))
   end
 

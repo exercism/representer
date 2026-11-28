@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to spellings that C++ reads the same way.
-class Representer::Languages::Cpp::Representation
+module Representer::Languages::Cpp::Representation
   class Normalise < Representer::Engine::Normalise
     # Drop every `#pragma`, because it never changes whether a passing
     # solution works.

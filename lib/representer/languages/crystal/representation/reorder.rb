@@ -1,7 +1,7 @@
 # REPRESENTER_DSL.md defines the verbs and helpers in this file.
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so reordering only exists to group students who list things in a different order.
-class Representer::Languages::Crystal::Representation
+module Representer::Languages::Crystal::Representation
   class Reorder < Representer::Engine::Reorder
     def call
       super.tap do |root|

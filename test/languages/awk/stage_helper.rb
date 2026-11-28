@@ -5,7 +5,7 @@ module AwkStages
   Awk = Representer::Languages::Awk
 
   def parse(source)
-    Representer::Engine::Grammar["awk"].parse(Representer::Engine.clean(source), **Awk::Spec.parse_options)
+    Representer::Engine::Grammar["awk"].parse(Representer::Engine.clean(source), **Awk::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module AwkStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Awk::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Awk::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

@@ -1,6 +1,6 @@
 # REPRESENTER_DSL.md defines the verbs in this file.
 # The tests call TwoFer.two_fer with a name and without one.
-class Representer::Languages::Ruby::Analysis
+module Representer::Languages::Ruby::Analysis
   class TwoFer < Representer::Engine::AnalysisRules
     missing(["class TwoFer; {{...}}; end", "module TwoFer; {{...}}; end"]) { essential "ruby.general.no_target_module" }
 

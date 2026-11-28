@@ -177,7 +177,7 @@ module Representer::Languages::Python::Common
     ### Names ###
 
     # Put the name of each assigned attribute in the field `name`, as Python's
-    # parser marks it with its Store context, so that representation.rb can
+    # parser marks it with its Store context, so that representation/spec.rb can
     # list it.
     # self.«count» = 0
     # self.«a», self.«b» = pair

@@ -175,7 +175,7 @@ module Representer::Languages::Racket::Common
     ### Names ###
 
     # Wrap each name that a form defines in a `definition` node, so that
-    # representation.rb can list it in names_are_defined_by. The forms are
+    # representation/spec.rb can list it in names_are_defined_by. The forms are
     # definitions, functions and their parameters, local bindings, loops,
     # `match` patterns, structures and the fields of classes. A quoted form
     # is data, so it defines nothing.

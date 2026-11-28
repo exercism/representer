@@ -195,7 +195,7 @@ module Representer::Languages::R::Common
       end
     end
 
-    # Give each assignment a type of its own, so that representation.rb can
+    # Give each assignment a type of its own, so that representation/spec.rb can
     # list the names that are assigned to.
     # total <- 0  ->  (assignment total <- 0)
     def give_assignments_a_type_of_their_own!
@@ -203,7 +203,7 @@ module Representer::Languages::R::Common
     end
 
     # Give the field of each `a$b` that is assigned to the field `name`, so
-    # that representation.rb can list it with the other names that are
+    # that representation/spec.rb can list it with the other names that are
     # assigned to, and leave the fields that are only read alone.
     # robot$«direction» <- "north"
     def give_each_assigned_field_the_field_name!

@@ -180,7 +180,7 @@ module Representer::Languages::Cpp::Common
     ### Declarations ###
 
     # In a declaration of more than one name, put each name and its value in
-    # an `init_declarator` of its own, so that representation.rb can list
+    # an `init_declarator` of its own, so that representation/spec.rb can list
     # each name as a definition.
     # int a, b = 1;  ->  (declaration int (init_declarator a) (init_declarator b = 1))
     # struct A { int a = 1, b; };  ->  (field_declaration int (init_declarator a = 1) (init_declarator b))
@@ -198,7 +198,7 @@ module Representer::Languages::Cpp::Common
     end
 
     # Write the scopes of a function's name before the name, as the compiler
-    # does, so that representation.rb can list the name as a definition.
+    # does, so that representation/spec.rb can list the name as a definition.
     # int Clock::hour()  ->  (function_declarator Clock hour (parameter_list))
     def write_the_scopes_of_a_function_name_before_the_name!
       find_all(tree, "(function_declarator declarator: (qualified_identifier) @name)").each do |match|
@@ -215,7 +215,7 @@ module Representer::Languages::Cpp::Common
     end
 
     # Give a `using` in a class a type of its own, so that the imports in
-    # representation.rb leave it alone. It changes what the class has, as in
+    # representation/spec.rb leave it alone. It changes what the class has, as in
     # `using Base::Base;`.
     def give_a_using_declaration_in_a_class_its_own_type!
       each_node(tree) do |node, _|

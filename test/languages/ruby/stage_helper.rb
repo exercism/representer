@@ -9,7 +9,7 @@ module RubyStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Ruby::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Ruby::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

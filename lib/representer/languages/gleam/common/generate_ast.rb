@@ -74,7 +74,7 @@ module Representer::Languages::Gleam::Common
     end
 
     # Wrap each variable bound by a pattern in a `variable` node, so that
-    # representation.rb can list it in names_are_defined_by. The patterns are
+    # representation/spec.rb can list it in names_are_defined_by. The patterns are
     # the left of `let`, `let assert` and `use`, and the patterns of a `case`.
     def wrap_the_names_bound_by_patterns_in_variable_nodes!
       each_node(tree) do |node, _|

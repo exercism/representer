@@ -66,7 +66,7 @@ module Representer::Languages::GDScript::Common
     end
 
     # Put the name of each parameter with a default or a type in the field
-    # `name`, so that representation.rb can list it without its default.
+    # `name`, so that representation/spec.rb can list it without its default.
     # func f(«a» = b, «c»: int):
     def mark_the_names_of_parameters!
       captured(tree, PARAMETERS).each { |parameter| parameter.children.first.field = "name" }

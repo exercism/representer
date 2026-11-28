@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to declarations that Go reads the same way.
-class Representer::Languages::Go::Representation
+module Representer::Languages::Go::Representation
   class Normalise < Representer::Engine::Normalise
     # Drop the package clause, because every file of a solution must be in
     # the package that its tests use.

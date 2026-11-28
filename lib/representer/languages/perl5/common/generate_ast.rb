@@ -239,7 +239,7 @@ module Representer::Languages::Perl5::Common
 
     # Give each `use` of a pragma a type of its own. Perl's pragmas have names
     # in lower case, and change how Perl reads the code around them, so
-    # representation.rb drops only the modules and the pragmas that can't
+    # representation/spec.rb drops only the modules and the pragmas that can't
     # change a passing solution.
     # use feature 'say';  ->  (pragma_statement use (package feature) "say")
     # use List::Util 'sum';  ->  (use_statement use (package List::Util) "sum")
@@ -250,7 +250,7 @@ module Representer::Languages::Perl5::Common
     end
 
     # Give each name that `use constant` defines the type of a function name,
-    # and the field `constant`, so that representation.rb can list it with
+    # and the field `constant`, so that representation/spec.rb can list it with
     # the other definitions. Perl reads `use constant PI => 3` as a function
     # called PI.
     # use constant PI => 3.14;  ->  (pragma_statement use (package constant) (list_expression «PI» 3.14))
@@ -272,7 +272,7 @@ module Representer::Languages::Perl5::Common
 
     # Give the name of each variable that `my`, `our`, `state`, `field`, a
     # `for` loop or a signature declares the field `declared`, so that
-    # representation.rb can list it as a definition.
+    # representation/spec.rb can list it as a definition.
     # my ($x, @y) = @_;  ->  my ($«x», @«y») = @_;
     # for my ($k, $v) (%h) { ... }  ->  for my ($«k», $«v») (%h) { ... }
     # sub f ($n, $m = 1) { ... }  ->  sub f ($«n», $«m» = 1) { ... }

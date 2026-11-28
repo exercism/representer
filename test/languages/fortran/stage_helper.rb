@@ -5,7 +5,7 @@ module FortranStages
   Fortran = Representer::Languages::Fortran
 
   def parse(source)
-    Representer::Engine::Grammar["fortran"].parse(Representer::Engine.clean(source), **Fortran::Spec.parse_options)
+    Representer::Engine::Grammar["fortran"].parse(Representer::Engine.clean(source), **Fortran::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module FortranStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Fortran::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Fortran::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

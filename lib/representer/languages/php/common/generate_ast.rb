@@ -71,7 +71,7 @@ module Representer::Languages::PHP::Common
 
     # Refuse a file that is all text, because it holds no PHP code. A code
     # pattern without its `<?php` tag is all text, so this makes the engine
-    # read each pattern in the contexts in representation.rb.
+    # read each pattern in the contexts in representation/spec.rb.
     def refuse_a_file_with_no_php_code!
       return unless tree.children.any? && tree.children.none? { |child| child.type == "php_tag" }
 

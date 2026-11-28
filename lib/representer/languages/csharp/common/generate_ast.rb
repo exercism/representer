@@ -118,7 +118,7 @@ module Representer::Languages::CSharp::Common
     ### Names ###
 
     # Give a lambda's single parameter without brackets a `parameter` node,
-    # as Roslyn does, so that spec.rb can list it with the other parameters.
+    # as Roslyn does, so that representation/spec.rb can list it with the other parameters.
     # x => x * 2 has the parameter x
     def add_parameter_node_to_bare_lambda_parameters!
       transform(tree, "(implicit_parameter) @parameter") do |match|

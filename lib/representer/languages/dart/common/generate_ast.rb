@@ -133,7 +133,7 @@ module Representer::Languages::Dart::Common
     end
 
     # Give the name in each of these declarations the field `name`, as the
-    # parser does, so that representation.rb can tell it from the types and
+    # parser does, so that representation/spec.rb can tell it from the types and
     # values beside it.
     # int total = sum;  ->  (initialized_identifier name: total sum)
     # (int y) => y  ->  (formal_parameter int name: y)

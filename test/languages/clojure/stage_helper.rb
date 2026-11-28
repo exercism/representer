@@ -5,7 +5,7 @@ module ClojureStages
   Clojure = Representer::Languages::Clojure
 
   def parse(source)
-    Representer::Engine::Grammar["clojure"].parse(Representer::Engine.clean(source), **Clojure::Spec.parse_options)
+    Representer::Engine::Grammar["clojure"].parse(Representer::Engine.clean(source), **Clojure::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module ClojureStages
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Clojure::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Clojure::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

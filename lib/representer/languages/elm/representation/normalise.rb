@@ -1,7 +1,7 @@
 # REPRESENTER_DSL.md defines the verbs and helpers in this file.
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on.
-class Representer::Languages::Elm::Representation
+module Representer::Languages::Elm::Representation
   class Normalise < Representer::Engine::Normalise
     def call
       super.tap do |root|

@@ -276,7 +276,7 @@ module Representer::Languages::CFML::Common
     end
 
     # Mark each variable that an assignment sets on the `this`, `variables`
-    # or `local` scope, so that representation.rb can list it with the other
+    # or `local` scope, so that representation/spec.rb can list it with the other
     # definitions.
     # local.count = 0  ->  (assignment_expression (scope_property local count) 0)
     def mark_variables_set_on_scopes!

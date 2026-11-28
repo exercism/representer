@@ -5,7 +5,7 @@ module HaskellStages
   Haskell = Representer::Languages::Haskell
 
   def parse(source)
-    Representer::Engine::Grammar["haskell"].parse(Representer::Engine.clean(source), **Haskell::Spec.parse_options)
+    Representer::Engine::Grammar["haskell"].parse(Representer::Engine.clean(source), **Haskell::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module HaskellStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Haskell::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Haskell::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 

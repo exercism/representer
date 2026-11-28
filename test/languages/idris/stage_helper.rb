@@ -5,7 +5,7 @@ module IdrisStages
   Idris = Representer::Languages::Idris
 
   def parse(source)
-    Representer::Engine::Grammar["idris"].parse(Representer::Engine.clean(source), **Idris::Spec.parse_options)
+    Representer::Engine::Grammar["idris"].parse(Representer::Engine.clean(source), **Idris::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module IdrisStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Idris::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Idris::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

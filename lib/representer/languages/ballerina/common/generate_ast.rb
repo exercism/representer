@@ -66,7 +66,7 @@ module Representer::Languages::Ballerina::Common
     ### Names ###
 
     # Wrap each name that the solution defines in a node that says what it
-    # defines, so that representation.rb can list them. The tokens around a
+    # defines, so that representation/spec.rb can list them. The tokens around a
     # name show whether the solution defines it:
     #
     # - A name after `function`, `type`, `class` or `enum`. A resource

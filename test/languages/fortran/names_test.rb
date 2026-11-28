@@ -93,9 +93,9 @@ class FortranNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Fortran::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Fortran::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << node.text if Fortran::Representation.name?(node) && node.renamed }
+    tree.each_descendant { |node| leaves << node.text if Fortran::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort
   end
 end

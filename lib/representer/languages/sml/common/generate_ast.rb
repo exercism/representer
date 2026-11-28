@@ -210,7 +210,7 @@ module Representer::Languages::Sml::Common
     ### Names ###
 
     # Give the code that defines a name a shape of its own, so that
-    # representation.rb can list it in names_are_defined_by.
+    # representation/spec.rb can list it in names_are_defined_by.
     def mark_the_code_that_defines_names!
       write_punned_record_fields_in_full!
       mark_the_variables_in_patterns!
@@ -251,7 +251,7 @@ module Representer::Languages::Sml::Common
     end
 
     # Put the label of each record field in the field `label`, so that
-    # representation.rb can tell it from the field's value. Put the
+    # representation/spec.rb can tell it from the field's value. Put the
     # parameter of each functor in the field `name`, beside the functor's
     # own name, so that both count as defined.
     # {width = w}  ->  (exprow label: width w)

@@ -135,7 +135,7 @@ module Representer::Languages::JavaScript::Common
     end
 
     # Mark each property that an assignment sets on `this`, so that
-    # representation.rb can list it with the other definitions.
+    # representation/spec.rb can list it with the other definitions.
     # this.count = 0  ->  (assignment_expression (this_property this count) 0)
     def mark_properties_set_on_this!
       captured(tree, "(assignment_expression left: (member_expression object: (this)) @name)").each do |member|

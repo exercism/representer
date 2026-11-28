@@ -55,9 +55,9 @@ class ClojureNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Clojure::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Clojure::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Clojure::Representation.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Clojure::Representation::Spec.name?(node) }
     leaves
   end
 end

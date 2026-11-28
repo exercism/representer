@@ -11,9 +11,9 @@ module Representer::Engine
 
     initialize_with :tree
 
-    # The Spec of the language that holds the stage, such as Ruby::Spec for
-    # Ruby::Common::Normalise.
-    def self.language = Representer::Engine.language_module(self)::Spec
+    # The Spec of the language that holds the stage, such as
+    # Ruby::Common::Spec for Ruby::Representation::Normalise.
+    def self.language = Representer::Engine.language_module(self)::Common::Spec
   end
 
   # A GenerateAST stage turns tree-sitter's tree into the tree given by

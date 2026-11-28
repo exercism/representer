@@ -48,7 +48,7 @@ module Representer::Languages::Zig::Common
 
     # Drop the `Decl` or `Statement` node around a declaration or statement
     # that has no keyword of its own, as Zig's parser does. An import is then
-    # one node, which representation.rb can drop whole.
+    # one node, which representation/spec.rb can drop whole.
     # const x = 1;  ->  (VarDecl const x = 1)
     # defer f();  ->  (Statement defer f())
     def drop_the_wrapper_around_each_lone_declaration_and_statement!

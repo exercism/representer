@@ -10,7 +10,7 @@ module BallerinaStages
   def generate_ast(source) = Ballerina::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST and Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Ballerina::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Ballerina::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

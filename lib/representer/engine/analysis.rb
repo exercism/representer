@@ -1,28 +1,30 @@
 module Representer::Engine
-  # A language's analysis output is a class called Analysis that
-  # subclasses this one, beside the language's Spec. It declares the
-  # analysis's version. Its stages and rules are classes inside it, in the
-  # language's `analysis/` folder: a Normalise stage that only the analysis
-  # runs, and one class of rules for each exercise, such as
+  # A language's analysis output is a module called Analysis, beside the
+  # language's Common module, in the language's `analysis/` folder. Its
+  # settings are a class called Spec that subclasses this one, such as
+  # Ruby::Analysis::Spec, and declare the analysis's version. Its stages
+  # and rules are classes beside the Spec: a Normalise stage that only the
+  # analysis runs, and one class of rules for each exercise, such as
   # Ruby::Analysis::TwoFer in `analysis/two_fer.rb` for two-fer (see
   # AnalysisRules).
   class Analysis
     STAGE_FILES = { Normalise: "normalise" }.freeze
 
     class << self
-      # Ruby calls this when a language defines its Analysis. The engine
-      # then finds the analysis's stage and each exercise's rules in its
-      # folder (see AutoloadFiles).
-      def inherited(output)
+      # Ruby calls this when a language defines its Analysis::Spec. The
+      # engine then finds the analysis's stage and each exercise's rules in
+      # its folder (see AutoloadFiles).
+      def inherited(spec)
         super
-        folder = File.join(Representer::Engine.folder_of(Representer::Engine.language_module(output)), "analysis")
-        files = Dir[File.join(folder, "*.rb")].map { |path| File.basename(path, ".rb") } - STAGE_FILES.values
-        files.each { |file| output.exercises[file.tr("_", "-")] = class_name(file) }
-        AutoloadFiles.(output, folder, STAGE_FILES.merge(files.to_h { |file| [class_name(file), file] }))
+        folder = File.join(Representer::Engine.folder_of(Representer::Engine.language_module(spec)), "analysis")
+        files = Dir[File.join(folder, "*.rb")].map { |path| File.basename(path, ".rb") } - STAGE_FILES.values - ["spec"]
+        files.each { |file| spec.exercises[file.tr("_", "-")] = class_name(file) }
+        AutoloadFiles.(Representer::Engine.output_module(spec), folder,
+          STAGE_FILES.merge(files.to_h { |file| [class_name(file), file] }))
       end
 
-      # The Spec of the language, such as Ruby::Spec.
-      def language = Representer::Engine.language_module(self)::Spec
+      # The Spec of the language, such as Ruby::Common::Spec.
+      def language = Representer::Engine.language_module(self)::Common::Spec
 
       # The analysis's version. Bump it whenever the comments on any
       # solution could change, so the website knows to analyse the track's
@@ -41,12 +43,12 @@ module Representer::Engine
       # two-fer, or nil if the exercise has none.
       def rules_for(exercise_slug)
         name = exercises[exercise_slug]
-        name && const_get(name, false)
+        name && Representer::Engine.output_module(self).const_get(name, false)
       end
 
       # Runs the analysis's stage with this name on the tree, and returns
       # the new tree (see Engine.run_stage).
-      def run_stage(name, tree) = Representer::Engine.run_stage(self, name, tree)
+      def run_stage(name, tree) = Representer::Engine.run_stage(Representer::Engine.output_module(self), name, tree)
 
       private
       # two_fer  ->  TwoFer

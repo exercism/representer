@@ -3,7 +3,7 @@
 # a method on itself in several ways, and the tests call each one the same
 # way, so this stage writes each of them as `def self.name`. Each rule can
 # then find the method with one pattern.
-class Representer::Languages::Ruby::Analysis
+module Representer::Languages::Ruby::Analysis
   class Normalise < Representer::Engine::Normalise
     def call
       super.tap do |root|

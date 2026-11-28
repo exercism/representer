@@ -5,7 +5,7 @@ module OCamlStages
   OCaml = Representer::Languages::OCaml
 
   def parse(source)
-    Representer::Engine::Grammar["ocaml"].parse(Representer::Engine.clean(source), **OCaml::Spec.parse_options)
+    Representer::Engine::Grammar["ocaml"].parse(Representer::Engine.clean(source), **OCaml::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module OCamlStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(OCaml::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(OCaml::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

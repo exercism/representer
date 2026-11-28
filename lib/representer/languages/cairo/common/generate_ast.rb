@@ -62,7 +62,7 @@ module Representer::Languages::Cairo::Common
       drop(tree, "(empty_statement)")
     end
 
-    # Mark the name of each impl as its name, so that representation.rb can
+    # Mark the name of each impl as its name, so that representation/spec.rb can
     # list it with the other definitions, and leave the trait it implements
     # alone.
     # impl «PointShape» of Shape { ... }
@@ -72,7 +72,7 @@ module Representer::Languages::Cairo::Common
 
     # Write each name in a pattern that starts with a capital letter as a
     # path. Cairo reads such a name as an enum variant or a struct, so it
-    # binds nothing, and representation.rb lists only the names that a
+    # binds nothing, and representation/spec.rb lists only the names that a
     # pattern binds.
     # Some(x) => x  ->  (match_pattern (tuple_enum_pattern (path Some) x)) x
     # None => 0  ->  (match_pattern (path None)) 0

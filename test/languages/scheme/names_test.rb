@@ -52,9 +52,9 @@ class SchemeNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Scheme::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Scheme::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Scheme::Representation.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Scheme::Representation::Spec.name?(node) }
     leaves
   end
 end

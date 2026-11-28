@@ -145,7 +145,7 @@ module Representer::Languages::CommonLisp::Common
     ### Names ###
 
     # Wrap each name that a form defines in a `definition` or `variable`
-    # node, so that representation.rb can list them in
+    # node, so that representation/spec.rb can list them in
     # names_are_defined_by. The forms are functions, macros and methods
     # with their lambda lists, loops, local bindings, global variables,
     # structures, classes, condition handlers and packages.

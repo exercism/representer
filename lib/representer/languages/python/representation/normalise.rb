@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. These rules
 # remove code that makes no difference to a passing solution.
-class Representer::Languages::Python::Representation
+module Representer::Languages::Python::Representation
   class Normalise < Representer::Engine::Normalise
     # Drop `if __name__ == "__main__":` blocks, because they only run when
     # the file is run as a script.

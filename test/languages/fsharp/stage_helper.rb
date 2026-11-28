@@ -4,14 +4,16 @@ require "test_helper"
 module FSharpStages
   FSharp = Representer::Languages::FSharp
 
-  def parse(source) = Representer::Engine::Grammar["fsharp"].parse(Representer::Engine.clean(source), **FSharp::Spec.parse_options)
+  def parse(source)
+    Representer::Engine::Grammar["fsharp"].parse(Representer::Engine.clean(source), **FSharp::Common::Spec.parse_options)
+  end
 
   # GenerateAST's tree for the source.
   def generate_ast(source) = FSharp::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(FSharp::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(FSharp::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

@@ -132,7 +132,7 @@ module Representer::Languages::Rust::Common
     ### Names ###
 
     # Mark the name inside a lifetime parameter's lifetime as its name, so
-    # that representation.rb can list it with the other definitions.
+    # that representation/spec.rb can list it with the other definitions.
     # struct S<'«a»> { x: &'a str }
     def mark_the_names_of_lifetime_parameters!
       captured(tree, "(lifetime_parameter name: (lifetime (identifier) @name))").each { |name| name.field = "name" }
@@ -140,7 +140,7 @@ module Representer::Languages::Rust::Common
 
     # Write each name in a pattern that starts with a capital letter as a
     # path. Rust reads such a name as an enum variant, a struct or a
-    # constant, so it binds nothing, and representation.rb lists only the
+    # constant, so it binds nothing, and representation/spec.rb lists only the
     # names that a pattern binds.
     # Some(x) => x  ->  (match_pattern (tuple_struct_pattern (path Some) x)) x
     # None => 0  ->  (match_pattern (path None)) 0

@@ -210,7 +210,7 @@ module Representer::Languages::Odin::Common
     end
 
     # Give the field `name` to each name that a declaration defines, so
-    # representation.rb can list them as definitions. A declaration defines
+    # representation/spec.rb can list them as definitions. A declaration defines
     # the names before its `::`, `:=`, `:` or `in`, a type switch defines the
     # name before its `in`, and a `$` defines the name after it.
     # a, b := f()  ->  (assignment_statement a b := f())

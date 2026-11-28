@@ -34,9 +34,9 @@ class KotlinNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Kotlin::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Kotlin::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Kotlin::Representation.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Kotlin::Representation::Spec.name?(node) }
     leaves
   end
 end

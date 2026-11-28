@@ -30,7 +30,7 @@ module Representer::Languages::Factor::Common
 
     private
     # Mark the word after `:` or `::` as the definition's name, so that
-    # representation.rb can list it.
+    # representation/spec.rb can list it.
     # : «double» ( n -- m ) 2 * ;
     def mark_the_name_of_each_definition!
       each_node(tree) do |node, _|

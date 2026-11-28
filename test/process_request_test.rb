@@ -17,27 +17,27 @@ class ProcessRequestTest < Minitest::Test
     body = JSON.parse(response[:body])
     assert_equal ["representation"], body.keys
     assert_equal({ "PLACEHOLDER_1" => "two_fer", "PLACEHOLDER_2" => "who" }, body["representation"]["mapping"])
-    assert_equal Representer::Languages::Ruby::Representation.version, body["representation"]["version"]
+    assert_equal Representer::Languages::Ruby::Representation::Spec.version, body["representation"]["version"]
   end
 
   def test_returns_each_output_asked_for
     body = JSON.parse(request(track_slug: "ruby", outputs: %w[analysis representation],
       solution_files: { "a.rb" => "x = 1" })[:body])
     assert_equal %w[analysis representation], body.keys
-    assert_equal({ "comments" => [], "version" => Representer::Languages::Ruby::Analysis.version }, body["analysis"])
+    assert_equal({ "comments" => [], "version" => Representer::Languages::Ruby::Analysis::Spec.version }, body["analysis"])
     refute_nil body["representation"]["representation"]
   end
 
   def test_returns_the_snippet_and_its_version
     body = JSON.parse(request(track_slug: "ruby", outputs: ["snippet"],
       solution_files: { "a.rb" => "require 'set'\n# A comment\nx = 1\n" })[:body])
-    assert_equal({ "snippet" => "x = 1\n", "version" => Representer::Languages::Ruby::Snippet.version }, body["snippet"])
+    assert_equal({ "snippet" => "x = 1\n", "version" => Representer::Languages::Ruby::Snippet::Spec.version }, body["snippet"])
   end
 
   def test_tracks_with_no_snippet_of_their_own_get_the_basic_one
     body = JSON.parse(request(track_slug: "cobol", outputs: ["snippet"],
       solution_files: { "a.cob" => "      * A comment\n       DISPLAY 'HI'.\n" })[:body])
-    assert_equal({ "snippet" => "       DISPLAY 'HI'.\n", "version" => Representer::Languages::Basic::Snippet.version },
+    assert_equal({ "snippet" => "       DISPLAY 'HI'.\n", "version" => Representer::Languages::Basic::Snippet::Spec.version },
       body["snippet"])
   end
 
@@ -80,7 +80,7 @@ class ProcessRequestTest < Minitest::Test
     response = request(track_slug: "ruby", solution_files: { "a.rb" => "def x(" })
     assert_equal 200, response[:statusCode]
     assert_equal({ "representation" => { "representation" => "basic\ndef x (", "mapping" => {},
-                                         "version" => Representer::Languages::Ruby::Representation.version } },
+                                         "version" => Representer::Languages::Ruby::Representation::Spec.version } },
       JSON.parse(response[:body]))
   end
 
@@ -112,24 +112,26 @@ class ProcessRequestTest < Minitest::Test
 
   # A language with a bug in a stage.
   module Raising
-    class Spec < Representer::Engine::Language
-      grammar "ruby"
-      extensions ".rb"
-    end
-
-    class Representation < Representer::Engine::Representation
-      version 2
-    end
-
     module Common
+      class Spec < Representer::Engine::Language
+        grammar "ruby"
+        extensions ".rb"
+      end
+
       class Normalise < Representer::Engine::Stage
         def call = tree.nonexistent
+      end
+    end
+
+    module Representation
+      class Spec < Representer::Engine::Representation
+        version 2
       end
     end
   end
 
   def test_an_error_in_a_rule_makes_the_solution_unrepresentable
-    Representer::Languages.register("raising", Raising::Spec)
+    Representer::Languages.register("raising", Raising::Common::Spec)
     body = nil
     _, log = capture_io do
       body = JSON.parse(request(track_slug: "raising", exercise_slug: "leap", solution_files: { "a.rb" => "x = 1" })[:body])

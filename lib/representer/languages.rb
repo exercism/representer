@@ -1,6 +1,6 @@
 # Finds the representer and the snippet for a track. Tracks with no language
 # of their own get Basic, and tracks with no snippet of their own get
-# Basic::Snippet.
+# Basic::Snippet::Spec.
 module Representer::Languages
   def self.register(track_slug, language) = registry[track_slug] = language
   def self.for(track_slug) = registry.fetch(track_slug, Basic)
@@ -11,25 +11,36 @@ module Representer::Languages
   def self.register_snippet(track_slug, snippet) = snippets[track_slug] = snippet
   def self.snippets = @snippets ||= {}
 
-  # The snippet beside the track's Spec, such as Ruby::Snippet.
+  # The snippet of the track's language, such as Ruby::Snippet::Spec.
   def self.snippet_for(track_slug)
     snippets.fetch(track_slug) do
       language = self.for(track_slug)
-      next Basic::Snippet if language == Basic
+      next Basic::Snippet::Spec if language == Basic
 
-      language.stages.const_defined?(:Snippet, false) ? language.stages::Snippet : Basic::Snippet
+      language.snippet || Basic::Snippet::Spec
     end
+  end
+
+  # Each language's files start with the module inside the language, such
+  # as `module Representer::Languages::Ruby::Common`, so Ruby asks for the
+  # language's own module first. If the language has a folder, this makes
+  # the module.
+  # Ruby  ->  `languages/ruby/`
+  def self.const_missing(name)
+    return super unless File.directory?(Representer::Engine.folder_named("#{self.name}::#{name}"))
+
+    const_set(name, Module.new)
   end
 end
 
 require_relative "languages/basic"
 
-# Each language is a folder, such as `languages/ruby/`. Its spec.rb defines
-# the language, and Engine::Language loads the rest of the folder.
-Dir[File.join(__dir__, "languages", "*", "spec.rb")].each { |file| require file }
+# Each language is a folder, such as `languages/ruby/`. Its common/spec.rb
+# defines the language, and Engine::Language loads the rest of the folder.
+Dir[File.join(__dir__, "languages", "*", "common", "spec.rb")].each { |file| require file }
 
 # A track with no language of its own can have a folder holding only its
-# snippet, such as `languages/lean/snippet.rb`.
-Dir[File.join(__dir__, "languages", "*", "snippet.rb")].each do |file|
-  require file unless File.exist?(File.join(File.dirname(file), "spec.rb"))
+# snippet, such as `languages/lean/snippet/spec.rb`.
+Dir[File.join(__dir__, "languages", "*", "snippet", "spec.rb")].each do |file|
+  require file unless File.exist?(File.join(File.dirname(file), "..", "common", "spec.rb"))
 end

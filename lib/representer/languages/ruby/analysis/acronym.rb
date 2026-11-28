@@ -1,6 +1,6 @@
 # REPRESENTER_DSL.md defines the verbs in this file.
 # The tests call Acronym.abbreviate with a phrase.
-class Representer::Languages::Ruby::Analysis
+module Representer::Languages::Ruby::Analysis
   class Acronym < Representer::Engine::AnalysisRules
     within ["class Acronym; {{...}}; end", "module Acronym; {{...}}; end"] do
       # Suggest `map(&:chr)` in place of a block that only calls `chr`.

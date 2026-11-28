@@ -8,19 +8,21 @@ class CodePatternTest < Minitest::Test
 
   # A language with Ruby's grammar, for stage classes of the tests' own.
   module Rubyish
-    class Spec < Representer::Engine::Language
-      grammar "ruby"
-    end
-
-    class Representation < Representer::Engine::Representation
-      names_are :identifier, :constant, :instance_variable
-      names_are :simple_symbol, without_prefix: ":"
-      pattern_contexts "{{pattern}}\nend", "begin\n{{pattern}}\nend", "f {{pattern}}"
-      imports 'require "{{...}}"'
-    end
-
     module Common
+      class Spec < Representer::Engine::Language
+        grammar "ruby"
+      end
+
       GenerateAST = Representer::Languages::Ruby::Common::GenerateAST
+    end
+
+    module Representation
+      class Spec < Representer::Engine::Representation
+        names_are :identifier, :constant, :instance_variable
+        names_are :simple_symbol, without_prefix: ":"
+        pattern_contexts "{{pattern}}\nend", "begin\n{{pattern}}\nend", "f {{pattern}}"
+        imports 'require "{{...}}"'
+      end
     end
 
     # A Normalise stage that drops a class's own name before a method call.
@@ -40,7 +42,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_pattern_matches_only_the_code_it_names
-    pattern = CodePattern[Rubyish::Spec, "f(1)"]
+    pattern = CodePattern[Rubyish::Common::Spec, "f(1)"]
     assert pattern.match(statement("f(1)"))
     refute pattern.match(statement("f(1, 2)"))
     refute pattern.match(statement("f()"))
@@ -50,14 +52,14 @@ class CodePatternTest < Minitest::Test
 
   def test_a_placeholder_matches_one_item
     assert_equal ["1", "(call f\n  (argument_list 2 3))"], matched("x = {{value}}", "x = 1\nx = f(2, 3)", "value")
-    pattern = CodePattern[Rubyish::Spec, "f({{x}})"]
+    pattern = CodePattern[Rubyish::Common::Spec, "f({{x}})"]
     assert_equal "1", pattern.match(statement("f(1)"))["x"].text
     refute pattern.match(statement("f(1, 2)"))
     refute pattern.match(statement("f()"))
   end
 
   def test_an_underscore_matches_one_item_and_binds_nothing
-    pattern = CodePattern[Rubyish::Spec, "f({{_}}, 2)"]
+    pattern = CodePattern[Rubyish::Common::Spec, "f({{_}}, 2)"]
     assert_equal({}, pattern.match(statement("f(1, 2)")))
     refute pattern.match(statement("f(2)"))
     refute pattern.match(statement("f(0, 1, 2)"))
@@ -69,7 +71,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_an_anonymous_list_placeholder_matches_any_number_of_items
-    pattern = CodePattern[Rubyish::Spec, "f(1, {{...}})"]
+    pattern = CodePattern[Rubyish::Common::Spec, "f(1, {{...}})"]
     assert_equal [{}], pattern.matches(statement("f(1)"))
     assert pattern.match(statement("f(1, 2)"))
     assert pattern.match(statement("f(1, 2, 3)"))
@@ -77,39 +79,39 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_list_placeholder_matches_the_statements_of_a_body
-    pattern = CodePattern[Rubyish::Spec, "def f\n  x = 1\n  {{...rest}}\nend"]
+    pattern = CodePattern[Rubyish::Common::Spec, "def f\n  x = 1\n  {{...rest}}\nend"]
     assert_equal 2, pattern.match(statement("def f\n  x = 1\n  y\n  z\nend"))["rest"].size
     refute pattern.match(statement("def f\n  y\n  x = 1\nend"))
   end
 
   def test_a_list_node_that_holds_only_list_placeholders_also_matches_no_node
-    pattern = CodePattern[Rubyish::Spec, "def f({{...}})\n  {{...}}\nend"]
+    pattern = CodePattern[Rubyish::Common::Spec, "def f({{...}})\n  {{...}}\nend"]
     assert pattern.match(statement("def f\nend"))
     assert pattern.match(statement("def f(a, b)\n  a\nend"))
   end
 
   def test_a_token_and_the_empty_list_after_it_can_be_left_out
-    haskell = Representer::Languages::Haskell::Spec
+    haskell = Representer::Languages::Haskell::Common::Spec
     pattern = CodePattern[haskell, "import {{...}} as {{...}} ({{...}})"]
     assert pattern.match(generated(haskell, "import Data.List\nx = 1").children.first)
     assert pattern.match(generated(haskell, "import Data.Map as M (Map)\nx = 1").children.first)
   end
 
   def test_a_typed_list_placeholder_matches_leaves_of_its_kind
-    purescript = Representer::Languages::PureScript::Spec
+    purescript = Representer::Languages::PureScript::Common::Spec
     pattern = CodePattern[purescript, "import {{...}} ({{...}}) as {{...}}"]
     assert pattern.match(generated(purescript, "module M where\nimport Data.Map as M\nx = 1").children[1])
     assert pattern.match(generated(purescript, "module M where\nimport Prelude\nx = 1").children[1])
   end
 
   def test_a_placeholder_in_quotes_matches_a_string
-    pattern = CodePattern[Rubyish::Spec, 'require "{{file}}"']
+    pattern = CodePattern[Rubyish::Common::Spec, 'require "{{file}}"']
     assert pattern.match(tree("require 'set'").children.first)
     refute pattern.match(tree("require name").children.first)
   end
 
   def test_nothing_labelled_comes_before_the_pattern
-    pattern = CodePattern[Rubyish::Spec, 'require "{{file}}"']
+    pattern = CodePattern[Rubyish::Common::Spec, 'require "{{file}}"']
     refute pattern.match(tree("Kernel.require 'set'").children.first)
   end
 
@@ -118,7 +120,7 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_keyword_read_as_a_name_moves_the_pattern_into_a_context
-    assert_equal "rescue", CodePattern[Rubyish::Spec, "rescue => {{x}}"].type
+    assert_equal "rescue", CodePattern[Rubyish::Common::Spec, "rescue => {{x}}"].type
   end
 
   def test_an_inside_context_makes_the_pattern_match_anywhere
@@ -130,28 +132,28 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_an_anonymous_placeholder_matches_any_code
-    assert_equal 1, CodePattern[Rubyish::Spec, 'require "{{_}}"'].matches(tree("require 'set'").children.first).size
-    assert_equal [{}], CodePattern[Rubyish::Spec, "{{_}} + {{_}}"].matches(tree("a + b").children.first)
+    assert_equal 1, CodePattern[Rubyish::Common::Spec, 'require "{{_}}"'].matches(tree("require 'set'").children.first).size
+    assert_equal [{}], CodePattern[Rubyish::Common::Spec, "{{_}} + {{_}}"].matches(tree("a + b").children.first)
   end
 
   def test_an_anonymous_placeholder_ignores_bindings
-    pattern = CodePattern[Rubyish::Spec, "{{_}}.size"]
+    pattern = CodePattern[Rubyish::Common::Spec, "{{_}}.size"]
     assert pattern.match(tree("b.size").children.first, { "anything1" => tree("a").children.first })
   end
 
   def test_an_anonymous_placeholder_cannot_be_copied
-    pattern = CodePattern[Rubyish::Spec, "f({{_}})"]
+    pattern = CodePattern[Rubyish::Common::Spec, "f({{_}})"]
     assert_raises(ArgumentError) { pattern.build(pattern.match(tree("f(1)").children.first)) }
   end
 
   def test_a_word_used_twice_matches_the_same_code
-    pattern = CodePattern[Rubyish::Spec, "{{x}} + {{x}}"]
+    pattern = CodePattern[Rubyish::Common::Spec, "{{x}} + {{x}}"]
     assert pattern.match(tree("a + a").children.first)
     refute pattern.match(tree("a + b").children.first)
   end
 
   def test_a_word_already_bound_must_match_the_same_code
-    pattern = CodePattern[Rubyish::Spec, "{{x}}.size"]
+    pattern = CodePattern[Rubyish::Common::Spec, "{{x}}.size"]
     assert pattern.match(tree("a.size").children.first, { "x" => tree("a").children.first })
     refute pattern.match(tree("b.size").children.first, { "x" => tree("a").children.first })
   end
@@ -185,19 +187,19 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_a_placeholder_can_be_wrapped_in_several_nodes
-    d = Representer::Languages::D::Spec
+    d = Representer::Languages::D::Common::Spec
     pattern = CodePattern[d, "import {{...}};"]
     assert pattern.match(generated(d, "module m;\nimport std.algorithm, std.range;\nvoid f() {}").children[1])
   end
 
   def test_a_raw_pattern_matches_the_grammars_own_tree
-    raw = CodePattern[Rubyish::Spec, "x if {{_}}", raw: true]
+    raw = CodePattern[Rubyish::Common::Spec, "x if {{_}}", raw: true]
     assert_equal "if_modifier", raw.type
-    assert_equal "if", CodePattern[Rubyish::Spec, "x if {{_}}"].type
+    assert_equal "if", CodePattern[Rubyish::Common::Spec, "x if {{_}}"].type
   end
 
   def test_a_pattern_that_is_one_token_inside_a_node_is_that_token
-    csharp = Representer::Languages::CSharp::Spec
+    csharp = Representer::Languages::CSharp::Common::Spec
     pattern = CodePattern[csharp, "readonly", inside: "class A { ref {{pattern}} int F() => x; }"]
     assert_equal "readonly", pattern.type
     assert_equal "modifier", CodePattern[csharp, "readonly", inside: "class A { {{pattern}} int x; }"].type
@@ -210,11 +212,11 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_patterns_are_cached
-    assert_same CodePattern[Rubyish::Spec, "@{{x}}"], CodePattern[Rubyish::Spec, "@{{x}}"]
+    assert_same CodePattern[Rubyish::Common::Spec, "@{{x}}"], CodePattern[Rubyish::Common::Spec, "@{{x}}"]
   end
 
   def test_code_that_never_parses_is_an_error
-    assert_raises(ArgumentError) { CodePattern[Rubyish::Spec, "def def def"] }
+    assert_raises(ArgumentError) { CodePattern[Rubyish::Common::Spec, "def def def"] }
   end
 
   def test_normalise_drops_calls_and_matching_code
@@ -226,43 +228,45 @@ class CodePatternTest < Minitest::Test
   end
 
   def test_code_of_several_top_level_items_drops_each_run_of_them
-    pattern = CodePattern[Rubyish::Spec, "a\n{{...}}\nb"]
+    pattern = CodePattern[Rubyish::Common::Spec, "a\n{{...}}\nb"]
     assert pattern.run?
     assert_equal "(program c)", write(helpers.drop(tree("a\n1\n2\nb\nc\na\nb"), pattern))
   end
 
   def test_a_placeholder_at_the_end_of_a_run_matches_one_child
-    pattern = CodePattern[Rubyish::Spec, "a\n{{_}}"]
+    pattern = CodePattern[Rubyish::Common::Spec, "a\n{{_}}"]
     assert_equal "(program 2 3)", write(helpers.drop(tree("a\n1\n2\n3"), pattern))
   end
 
   def test_a_run_can_only_be_dropped
-    assert_raises(ArgumentError) { CodePattern[Rubyish::Spec, "a\nb"].match(tree("a\nb")) }
+    assert_raises(ArgumentError) { CodePattern[Rubyish::Common::Spec, "a\nb"].match(tree("a\nb")) }
   end
 
   # A language with Ruby's grammar and a placeholder suffix of its own.
   module Suffixed
-    class Spec < Representer::Engine::Language
-      grammar "ruby"
-    end
-
-    class Representation < Representer::Engine::Representation
-      names_are :identifier
-      placeholder_suffix "_ph"
-    end
-
     module Common
+      class Spec < Representer::Engine::Language
+        grammar "ruby"
+      end
+
       GenerateAST = Representer::Languages::Ruby::Common::GenerateAST
+    end
+
+    module Representation
+      class Spec < Representer::Engine::Representation
+        names_are :identifier
+        placeholder_suffix "_ph"
+      end
     end
   end
 
   def test_a_language_can_spell_its_placeholders_with_another_suffix
-    pattern = CodePattern[Suffixed::Spec, "x = {{value}}"]
+    pattern = CodePattern[Suffixed::Common::Spec, "x = {{value}}"]
     assert_equal "1", pattern.match(tree("x = 1").children.first)["value"].text
   end
 
   def test_a_language_can_use_one_of_the_grammars_keywords_as_a_name
-    language = Representer::Languages::CommonLisp::Spec
+    language = Representer::Languages::CommonLisp::Common::Spec
     pattern = CodePattern[language, ":cl"]
     file = Representer::Engine::PrepareFile.(language, "(f :cl)")
     found = []
@@ -283,7 +287,7 @@ class CodePatternTest < Minitest::Test
   end
 
   # PHP wraps each of a call's arguments in an `argument` node.
-  PHP = Representer::Languages::PHP::Spec
+  PHP = Representer::Languages::PHP::Common::Spec
 
   def php_statement(source) = Representer::Engine::PrepareFile.(PHP, source).children.first
 
@@ -298,7 +302,7 @@ class CodePatternTest < Minitest::Test
   # The code that the placeholder matches, written out, in each match in
   # the source. A match of a list is written as its items, joined.
   def matched(code, source, word, inside: nil)
-    pattern = CodePattern[Rubyish::Spec, code, inside:]
+    pattern = CodePattern[Rubyish::Common::Spec, code, inside:]
     found = []
     tree(source).each_descendant do |node|
       pattern.matches(node).each do |bindings|

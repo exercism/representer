@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to statements that Wren reads the same way.
-class Representer::Languages::Wren::Representation
+module Representer::Languages::Wren::Representation
   class Normalise < Representer::Engine::Normalise
     # Put braces around the body of each `if`, `else`, `while` and `for`,
     # including an `else if`. The grammar reads empty braces as an empty

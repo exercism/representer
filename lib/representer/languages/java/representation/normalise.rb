@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to spellings that Java reads the same way.
-class Representer::Languages::Java::Representation
+module Representer::Languages::Java::Representation
   class Normalise < Representer::Engine::Normalise
     # Drop the package declaration, because the engine leaves out where each
     # file lives.

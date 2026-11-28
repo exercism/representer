@@ -45,9 +45,9 @@ class RNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], R::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], R::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if R::Representation.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if R::Representation::Spec.name?(node) }
     leaves
   end
 end

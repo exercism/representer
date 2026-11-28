@@ -44,9 +44,9 @@ class CrystalNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Crystal::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Crystal::Representation::Spec)
     names = []
-    tree.each_descendant { |node| names << Crystal::Representation.name_text(node) if node.renamed }
+    tree.each_descendant { |node| names << Crystal::Representation::Spec.name_text(node) if node.renamed }
     names.uniq.sort
   end
 end

@@ -11,7 +11,7 @@ module CStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(C::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(C::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

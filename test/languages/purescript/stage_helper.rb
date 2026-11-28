@@ -5,7 +5,7 @@ module PureScriptStages
   PureScript = Representer::Languages::PureScript
 
   def parse(source)
-    Representer::Engine::Grammar["purescript"].parse(Representer::Engine.clean(source), **PureScript::Spec.parse_options)
+    Representer::Engine::Grammar["purescript"].parse(Representer::Engine.clean(source), **PureScript::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module PureScriptStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(PureScript::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(PureScript::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 

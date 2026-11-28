@@ -37,8 +37,9 @@ module Representer::Engine
 
       def rules = @rules ||= []
 
-      # The Spec of the language, such as Ruby::Spec for Ruby::Analysis::TwoFer.
-      def language = Representer::Engine.language_module(self)::Spec
+      # The Spec of the language, such as Ruby::Common::Spec for
+      # Ruby::Analysis::TwoFer.
+      def language = Representer::Engine.language_module(self)::Common::Spec
     end
 
     def call

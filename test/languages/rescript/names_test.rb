@@ -42,9 +42,9 @@ class RescriptNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Rescript::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Rescript::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << node.text if Rescript::Representation.name?(node) && node.renamed }
+    tree.each_descendant { |node| leaves << node.text if Rescript::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort
   end
 end

@@ -9,7 +9,7 @@ class RepresentSolutionTest < Minitest::Test
 
     assert_equal "basic\ndef two_fer ( name\nname\nend", result.representation
     assert_empty result.mapping
-    assert_equal Representer::Languages::Ruby::Representation.version, result.version
+    assert_equal Representer::Languages::Ruby::Representation::Spec.version, result.version
     assert_nil result.reason
   end
 

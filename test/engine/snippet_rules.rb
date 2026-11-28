@@ -4,28 +4,34 @@ require "test_helper"
 # and LinesSnippet has none.
 module SnippetRules
   module Toy
-    class Spec < Representer::Engine::Language
-      grammar "ruby"
+    module Common
+      class Spec < Representer::Engine::Language
+        grammar "ruby"
+      end
     end
 
-    class Snippet < Representer::Engine::Snippet
-      remove :comments
-      skip_at_top :require
+    module Snippet
+      class Spec < Representer::Engine::Snippet
+        remove :comments
+        skip_at_top :require
+      end
     end
   end
 
-  RubySnippet = Toy::Snippet
+  RubySnippet = Toy::Snippet::Spec
 
   module Lines
-    class Snippet < Representer::Engine::Snippet
-      remove :comments
-      comment_lines "//", "/*" => "*/"
-      skip_at_top :import, "BEGIN" => "END"
-      skip_at_bottom :end
+    module Snippet
+      class Spec < Representer::Engine::Snippet
+        remove :comments
+        comment_lines "//", "/*" => "*/"
+        skip_at_top :import, "BEGIN" => "END"
+        skip_at_bottom :end
+      end
     end
   end
 
-  LinesSnippet = Lines::Snippet
+  LinesSnippet = Lines::Snippet::Spec
 
   def self.parse(source) = Representer::Engine::Grammar["ruby"].parse(source, spans: true)
 end

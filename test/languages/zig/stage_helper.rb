@@ -4,14 +4,14 @@ require "test_helper"
 module ZigStages
   Zig = Representer::Languages::Zig
 
-  def parse(source) = Representer::Engine::Grammar["zig"].parse(Representer::Engine.clean(source), **Zig::Spec.parse_options)
+  def parse(source) = Representer::Engine::Grammar["zig"].parse(Representer::Engine.clean(source), **Zig::Common::Spec.parse_options)
 
   # GenerateAST's tree for the source.
   def generate_ast(source) = Zig::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Zig::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Zig::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 

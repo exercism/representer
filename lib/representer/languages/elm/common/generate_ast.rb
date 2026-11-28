@@ -102,7 +102,7 @@ module Representer::Languages::Elm::Common
     ### Names ###
 
     # Mark the name of the module as a `module_name`, so that
-    # representation.rb can list it.
+    # representation/spec.rb can list it.
     # module «Leap» exposing (isLeapYear)
     def mark_the_module_name!
       captured(tree, "(module_declaration name: (upper_case_qid) @name)").each { |name| name.type = "module_name" }

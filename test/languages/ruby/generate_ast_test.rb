@@ -179,7 +179,7 @@ class RubyGenerateASTTest < Minitest::Test
   # Serialize to write.
   def anonymise_names!(tree)
     numbers = {}
-    names = Representer::Languages::Ruby::Representation.names
+    names = Representer::Languages::Ruby::Representation::Spec.names
     tree.each_descendant do |leaf|
       prefix = names[leaf.type] if leaf.named? && leaf.leaf?
       leaf.placeholder = "#{leaf.type}:N#{numbers[leaf.text.delete_prefix(prefix)] ||= numbers.size}" if prefix

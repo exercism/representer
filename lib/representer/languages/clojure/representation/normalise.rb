@@ -4,7 +4,7 @@
 # expands every macro before it runs the code, so this stage expands the core
 # macros that solutions use, and the solution's own simple macros, into the
 # forms that Clojure's `macroexpand-all` gives. It never runs a macro.
-class Representer::Languages::Clojure::Representation
+module Representer::Languages::Clojure::Representation
   class Normalise < Representer::Engine::Normalise
     # Drop the docstring and attribute map of `ns`, because they only add metadata.
     # (ns app "Counts things." {:author "me"})  ->  (ns app)
@@ -447,7 +447,7 @@ class Representer::Languages::Clojure::Representation
     ### Names ###
 
     # Mark each name that a form defines as a definition or a local, so that
-    # representation.rb can list them.
+    # representation/spec.rb can list them.
     # (def limit 5)  ->  (def (definition limit) 5)
     # (let [total (* price 2)] total)  ->  (let [(local total) (* price 2)] total)
     def mark_the_names_each_form_defines!(root)
@@ -523,7 +523,7 @@ class Representer::Languages::Clojure::Representation
       end
     end
 
-    # Put a symbol inside a node of the type given, so that representation.rb
+    # Put a symbol inside a node of the type given, so that representation/spec.rb
     # can list it. `&` only marks the rest of the parameters, so it is never a
     # name.
     def mark(name, type)

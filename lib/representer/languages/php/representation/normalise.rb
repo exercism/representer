@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to code that works the same way.
-class Representer::Languages::PHP::Representation
+module Representer::Languages::PHP::Representation
   class Normalise < Representer::Engine::Normalise
     FUNCTION_ALIASES = {
       "chop" => "rtrim",

@@ -1,6 +1,6 @@
 # REPRESENTER_DSL.md defines the verbs in this file.
 # The tests call Year.leap? with a year.
-class Representer::Languages::Ruby::Analysis
+module Representer::Languages::Ruby::Analysis
   class Leap < Representer::Engine::AnalysisRules
     within ["class Year; {{...}}; end", "module Year; {{...}}; end"] do
       # Ask for the rule to be written out, because the exercise is about

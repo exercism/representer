@@ -238,7 +238,7 @@ module Representer::Languages::Vlang::Common
     ### Names ###
 
     # Put the names that `:=` defines in a list of their own, as v.ast marks
-    # them, so representation.rb can list them as definitions.
+    # them, so representation/spec.rb can list them as definitions.
     # a, mut b := 1, 2  ->  (var_declaration (identifier_list a (mutable_identifier mut b)) (expression_list 1 2))
     def list_the_names_each_declaration_defines!
       captured(tree, "(var_declaration var_list: (expression_list) @name)").each do |names|

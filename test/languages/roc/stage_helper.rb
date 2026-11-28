@@ -5,7 +5,7 @@ module RocStages
   Roc = Representer::Languages::Roc
 
   def parse(source)
-    Representer::Engine::Grammar["roc"].parse(Representer::Engine.clean(source), **Roc::Spec.parse_options)
+    Representer::Engine::Grammar["roc"].parse(Representer::Engine.clean(source), **Roc::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module RocStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Roc::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Roc::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

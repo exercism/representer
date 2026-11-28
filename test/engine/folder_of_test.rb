@@ -20,5 +20,5 @@ class FolderOfTest < Minitest::Test
   end
 
   private
-  def folder(name) = File.basename(Representer::Engine.folder_of(Struct.new(:name).new("Representer::Languages::#{name}")))
+  def folder(name) = File.basename(Representer::Engine.folder_named("Representer::Languages::#{name}"))
 end

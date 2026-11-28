@@ -51,7 +51,7 @@ module Representer::Languages::Red::Common
     ### Names ###
 
     # Put the word of each set word in a word of its own, so that
-    # representation.rb can rename it.
+    # representation/spec.rb can rename it.
     # total:  ->  (set_word total)
     def put_the_word_of_each_set_word_in_a_word!
       transform(tree, "(set_word) @set_word") do |match|
@@ -69,14 +69,14 @@ module Representer::Languages::Red::Common
     end
 
     # Give each function's spec block a type of its own, so that
-    # representation.rb can list the parameters and locals it defines.
+    # representation/spec.rb can list the parameters and locals it defines.
     # f: func [a /local b] [...]  ->  (function (set_word f) func (function_spec a /local b) ...)
     def give_each_function_spec_a_type_of_its_own!
       captured(tree, "(function spec: (block) @name)").each { |spec| spec.type = "function_spec" }
     end
 
     # Put the word that `foreach` and `repeat` give each item in a
-    # loop_variable node, so that representation.rb can rename it.
+    # loop_variable node, so that representation/spec.rb can rename it.
     # foreach c "ab" [...]  ->  foreach (loop_variable c) "ab" [...]
     def mark_the_word_after_each_foreach_and_repeat!
       each_node(tree) do |node, _|

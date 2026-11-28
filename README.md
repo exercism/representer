@@ -8,7 +8,7 @@ The website groups solutions by their representation, and shows a mentor's feedb
 
 It runs as an AWS Lambda function behind Exercism's internal load balancer.
 One service handles every track.
-Each language with a `spec.rb` in its folder in [`lib/representer/languages/`](./lib/representer/languages/) has a representer of its own, and the representer parses it with [tree-sitter][tree-sitter].
+Each language with a `common/spec.rb` in its folder in [`lib/representer/languages/`](./lib/representer/languages/) has a representer of its own, and the representer parses it with [tree-sitter][tree-sitter].
 
 Every other track gets a simpler token-based representation called Basic.
 
@@ -114,9 +114,9 @@ For a language with a representer of its own, the representer:
 5. Replaces every name the solution defines with a placeholder, wherever the name appears.
 6. Writes the tree out as an indented s-expression.
 
-Each language has a folder in [`lib/representer/languages/`](./lib/representer/languages/) that holds a `spec.rb`, such as [`ruby/`](./lib/representer/languages/ruby/).
-In each folder, `spec.rb` says what the language is and how its files are read, including its comments and docstrings.
-`representation.rb`, `analysis.rb` and `snippet.rb` declare the settings of each output, such as the representation's version, names and imports.
+Each language has a folder in [`lib/representer/languages/`](./lib/representer/languages/), such as [`ruby/`](./lib/representer/languages/ruby/).
+In each folder, `common/spec.rb` says what the language is and how its files are read, including its comments and docstrings.
+`representation/spec.rb`, `analysis/spec.rb` and `snippet/spec.rb` declare the settings of each output, such as the representation's version, names and imports.
 The stages that describe steps 2 and 3 sit in `common/`, for the stages that every output needs, and `representation/`, for the stages that only the representation needs.
 `transition.md` says how the language differs from the tools it replaces.
 A comment above each declaration and method says what it does.
@@ -137,7 +137,7 @@ It runs the stages in `common/` and the analysis's own `analysis/normalise.rb` o
 The analysis keeps the imports and the student's names, and doesn't reorder the code.
 
 Every track also gets a snippet: the first 15 lines of the solution's main file, without its comments or the boilerplate at its top, such as imports.
-Each track's `snippet.rb` in its folder in [`lib/representer/languages/`](./lib/representer/languages/) says what to leave out, and [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#snippets) explains the rules.
+Each track's `snippet/spec.rb` in its folder in [`lib/representer/languages/`](./lib/representer/languages/) says what to leave out, and [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#snippets) explains the rules.
 For a language with a grammar, the snippet works on the grammar's tree, before any of the steps above change it.
 
 ## Set up

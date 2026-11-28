@@ -137,7 +137,7 @@ module Representer::Languages::Erlang::Common
       end
     end
 
-    # Wrap each variable in a `variable` node, so that representation.rb can
+    # Wrap each variable in a `variable` node, so that representation/spec.rb can
     # list it in names_are_defined_by. Every variable in an Erlang module
     # belongs to the solution. Leave `_` and the names of macros, such as
     # `?MODULE`, because they aren't variables.

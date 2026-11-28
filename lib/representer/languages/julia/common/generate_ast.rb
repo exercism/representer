@@ -121,7 +121,7 @@ module Representer::Languages::Julia::Common
     ### Names ###
 
     # Put each name that a definition defines in the field `name`, so that
-    # representation.rb can list the nodes that hold them. Julia's grammar
+    # representation/spec.rb can list the nodes that hold them. Julia's grammar
     # gives the same node types to definitions and to other code, such as a
     # call and a function's signature, so only the place of a name shows that
     # it is defined.

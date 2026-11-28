@@ -133,29 +133,32 @@ These rules decide what a language may do:
 ### The language's folder
 
 Each language has a folder of its own, named after it, such as `lib/representer/languages/ruby/`.
-The folder holds all the language's files, and splits its stages by the outputs that need them:
+The folder holds all the language's files in one folder for each output, and a folder called `common/` for what every output shares.
+Each of these folders holds a `spec.rb` with its settings, and the stages for that output.
+The top level of the folder holds only these folders and `transition.md`:
 
 ```text
 languages/ruby/
-  spec.rb                       Ruby::Spec
-  representation.rb             Ruby::Representation
-  analysis.rb                   Ruby::Analysis
-  snippet.rb                    Ruby::Snippet
+  common/spec.rb                Ruby::Common::Spec
   common/generate_ast.rb        Ruby::Common::GenerateAST
   common/normalise.rb           Ruby::Common::Normalise
+  representation/spec.rb        Ruby::Representation::Spec
   representation/normalise.rb   Ruby::Representation::Normalise
   representation/reorder.rb     Ruby::Representation::Reorder
+  analysis/spec.rb              Ruby::Analysis::Spec
   analysis/normalise.rb         Ruby::Analysis::Normalise
   analysis/two_fer.rb           Ruby::Analysis::TwoFer
+  snippet/spec.rb               Ruby::Snippet::Spec
+  transition.md
 ```
 
-- `spec.rb` says what the language is and how its files are read: its `tracks`, `extensions` and `grammar`, which code is a comment (`comments_are`) and which code is a docstring (`docstrings_are`). A grammar that needs `text_nodes` or `text_between_children` declares them here too.
-- `representation.rb` declares the representation's settings: its `version`, `names_are`, `names_are_defined_by`, `imports` and `pattern_contexts`.
-- `analysis.rb` declares the analysis's `version`. Bump it whenever the comments on any solution could change.
-- `snippet.rb` declares the snippet's `version` and what to leave out of it (see step 5).
-- `common/` holds the stages that every output needs, which are the representation and the analysis.
-- `representation/` holds the stages that only the representation needs.
-- `analysis/` holds the Normalise stage that only the analysis needs, and one file of rules for each exercise, named after the exercise's slug ([REPRESENTER_DSL.md](./REPRESENTER_DSL.md#analysis) describes the rules). Give each exercise's rules a test file in `test/languages/<track>/`, such as `two_fer_analysis_test.rb`.
+- `common/spec.rb` says what the language is and how its files are read: its `tracks`, `extensions` and `grammar`, which code is a comment (`comments_are`) and which code is a docstring (`docstrings_are`). A grammar that needs `text_nodes` or `text_between_children` declares them here too.
+- `representation/spec.rb` declares the representation's settings: its `version`, `names_are`, `names_are_defined_by`, `imports` and `pattern_contexts`.
+- `analysis/spec.rb` declares the analysis's `version`. Bump it whenever the comments on any solution could change.
+- `snippet/spec.rb` declares the snippet's `version` and what to leave out of it (see step 5).
+- `common/` also holds the stages that every output needs, which are the representation and the analysis.
+- `representation/` also holds the stages that only the representation needs.
+- `analysis/` also holds the Normalise stage that only the analysis needs, and one file of rules for each exercise, named after the exercise's slug ([REPRESENTER_DSL.md](./REPRESENTER_DSL.md#analysis) describes the rules). Give each exercise's rules a test file in `test/languages/<track>/`, such as `two_fer_analysis_test.rb`.
 
 A rewrite goes in `common/normalise.rb` only if it hides no spelling that an analysis rule would need. If you aren't sure, put it in `representation/normalise.rb`.
 Every `Reorder` goes in `representation/`, and so does dropping docstrings, as the analysis may read them.
@@ -163,7 +166,7 @@ Every `Reorder` goes in `representation/`, and so does dropping docstrings, as t
 Every file uses the compact module form:
 
 ```ruby
-module Representer::Languages::Ruby
+module Representer::Languages::Ruby::Common
   class Spec < Representer::Engine::Language
     tracks "ruby"
     grammar "ruby"
@@ -176,8 +179,8 @@ end
 ```
 
 ```ruby
-module Representer::Languages::Ruby
-  class Representation < Representer::Engine::Representation
+module Representer::Languages::Ruby::Representation
+  class Spec < Representer::Engine::Representation
     version 12
 
     # Rename a symbol such as `:count` as the name `count`, without the colon.
@@ -186,10 +189,10 @@ module Representer::Languages::Ruby
 end
 ```
 
-A stage in `representation/` is a class inside the output's class:
+A stage in `representation/` is a class beside the output's `Spec`, in the same module:
 
 ```ruby
-class Representer::Languages::Ruby::Representation
+module Representer::Languages::Ruby::Representation
   class Reorder < Representer::Engine::Reorder
     # Reorder manually written hash keys.
     # {"a": 1, "b": 2} == {"b": 2, "a": 1}
@@ -198,7 +201,7 @@ class Representer::Languages::Ruby::Representation
 end
 ```
 
-When a language defines its `Spec`, the engine finds the outputs and the stage files in the language's folder, and loads each one the first time it needs it.
+When a language defines its `Common::Spec`, the engine finds the outputs and the stage files in the language's folder, and loads each one the first time it needs it.
 If a file doesn't exist, the language doesn't run that stage, so a language only has the files it needs, and never needs `require` lines for them.
 
 Give `names_are` and `names_are_defined_by` the node types that `GenerateAST` leaves.
@@ -208,7 +211,7 @@ Check the grammar's `queries/locals.scm` and `queries/tags.scm`, which mark the 
 
 The engine runs the stages and its own steps in this order:
 
-1. The engine drops the comments declared in `spec.rb` from each file.
+1. The engine drops the comments declared in `common/spec.rb` from each file.
 2. `common/generate_ast.rb` runs on each file. It turns tree-sitter's tree, which has every token, into the tree given by the language's own parser. It turns spellings that the parser treats as one into one tree (for Ruby, these include heredocs and strings, `%w[]` and arrays, and `do ... end` and braces). The declarations at the top of the class strip tokens, unwrap brackets that only group and write numbers as their values (see "GenerateAST's declarations" below).
 3. `common/normalise.rb` runs on each file. It applies the equivalences that a human has decided for the language and that every output wants.
 4. The engine drops the imports from each file.
@@ -393,11 +396,11 @@ The golden tests fail if a change splits or merges any of the production groups,
 ## 5. Write the snippet
 
 The website shows the first 15 lines of each solution on its card.
-Create `snippet.rb` in the language's folder, and list what to leave out, such as comments and the imports at the top of the file:
+Create `snippet/spec.rb` in the language's folder, and list what to leave out, such as comments and the imports at the top of the file:
 
 ```ruby
-module Representer::Languages::Ruby
-  class Snippet < Representer::Engine::Snippet
+module Representer::Languages::Ruby::Snippet
+  class Spec < Representer::Engine::Snippet
     # Bump the version whenever the snippet of any solution could change.
     version 1
 
@@ -411,20 +414,20 @@ module Representer::Languages::Ruby
 end
 ```
 
-A language's snippet reads the comments and docstrings declared in `spec.rb`, so `remove :comments, :docstrings` needs nothing else.
+A language's snippet reads the comments and docstrings declared in `common/spec.rb`, so `remove :comments, :docstrings` needs nothing else.
 [REPRESENTER_DSL.md](./REPRESENTER_DSL.md#snippets) explains every declaration.
 To choose the words, look at the start of the track's example solutions.
 Add a test to [`test/engine/snippet_test.rb`](./test/engine/snippet_test.rb) for anything unusual, and run the track's request tests, whose expected responses include the snippet.
 If Rouge has no lexer for the language, add `comment_lines`, so a file that doesn't parse still loses its comments.
 
 A track with no representer of its own can have a snippet too.
-Its folder holds only `snippet.rb`, which starts with `tracks "<slug>"`, and its rules apply to lines.
+Its folder holds only `snippet/spec.rb`, which starts with `tracks "<slug>"`, and its rules apply to lines.
 
 Bump the snippet's version whenever its snippets could change. The snippet's version is separate from the representation's version.
 
 ## 6. Set the version
 
-The representation's version is in `representation.rb`.
+The representation's version is in `representation/spec.rb`.
 A new language starts at version 2, because the old per-track representers all reported version 1.
 
 Bump the representation's version whenever its output could change for any solution: a change to a stage, a rule or the names, or a new grammar commit.
@@ -441,7 +444,7 @@ It takes its inputs with `initialize_with`, and code calls it with `.()`, as in 
 Each command has a unit test file of its own, named after it, such as `test/engine/rename_user_defined_nodes_test.rb`.
 The tests check the command on small trees, apart from any language where they can.
 
-Every file uses the compact module form, such as `module Representer::Engine` or `module Representer::Languages::Ruby`, and never nested modules.
+Every file uses the compact module form, such as `module Representer::Engine` or `module Representer::Languages::Ruby::Common`, and never nested modules.
 
 Write new code this way, and convert older code to it when you change that code.
 

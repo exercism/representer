@@ -284,7 +284,7 @@ module Representer::Languages::D::Common
     end
 
     # Give the first name in each definition the field `name`, so that
-    # representation.rb can tell it apart from a value in the same node. In
+    # representation/spec.rb can tell it apart from a value in the same node. In
     # an `if`, only a condition with `=` defines a name.
     # int total = count;  ->  (declarator name: total count)
     # if (auto p = k in aa)  ->  (if_condition auto name: p (identity_expression k in aa))

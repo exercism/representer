@@ -5,7 +5,7 @@ module RacketStages
   Racket = Representer::Languages::Racket
 
   def parse(source)
-    Representer::Engine::Grammar["racket"].parse(Representer::Engine.clean(source), **Racket::Spec.parse_options)
+    Representer::Engine::Grammar["racket"].parse(Representer::Engine.clean(source), **Racket::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module RacketStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Racket::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Racket::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

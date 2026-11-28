@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to spellings that Rust reads the same way.
-class Representer::Languages::Rust::Representation
+module Representer::Languages::Rust::Representation
   class Normalise < Representer::Engine::Normalise
     # Move each attribute into the item after it, so the two move together
     # when Reorder sorts the items.

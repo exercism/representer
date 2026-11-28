@@ -99,7 +99,7 @@ module Representer::Languages::Idris::Common
     ### Names ###
 
     # Give the code that defines a name a shape of its own, so that
-    # representation.rb can list it in names_are_defined_by.
+    # representation/spec.rb can list it in names_are_defined_by.
     def mark_the_code_that_defines_names!
       mark_the_constructors_in_patterns!
       mark_the_constructors_of_data_types!

@@ -130,7 +130,7 @@ module Representer::Languages::Lua::Common
     end
 
     # Give each table field with a key in brackets a type of its own, so
-    # that representation.rb can tell `{[k] = 1}`, whose key is the value of
+    # that representation/spec.rb can tell `{[k] = 1}`, whose key is the value of
     # `k`, from `{k = 1}`, whose key is the name `k`.
     # {[k] = 1}  ->  (table_constructor (keyed_field k 1))
     def give_fields_with_a_key_in_brackets_a_type_of_their_own!
@@ -176,7 +176,7 @@ module Representer::Languages::Lua::Common
     end
 
     # Give the field of each `a.b` that is assigned to the field `name`, so
-    # that representation.rb can list it with the other names that are
+    # that representation/spec.rb can list it with the other names that are
     # assigned to, and leave the fields that are only read alone.
     # self.«count» = 0
     # M.«f» = function(x) end

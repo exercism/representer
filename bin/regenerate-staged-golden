@@ -47,7 +47,7 @@ changed = languages.select do |language|
   sources = files_of(language)
   parents = sources.flat_map { |file| File.read(file).scan(/Representer::Languages::(\w+)::/).flatten }
   parents.uniq.map { |name| Representer::Languages.const_get(name) }.each do |parent|
-    sources += files_of(parent::Spec) if parent != language.stages && parent.const_defined?(:Spec, false)
+    sources += files_of(parent::Common::Spec) if parent != language.stages && Representer::Engine.language_module?(parent)
   end
 
   (staged & sources).any? || changed_grammars.include?(language.grammar)

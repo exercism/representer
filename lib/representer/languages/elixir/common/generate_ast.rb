@@ -191,7 +191,7 @@ module Representer::Languages::Elixir::Common
 
     ### Definitions ###
 
-    # Give the code that defines a name a node type of its own, so that spec.rb
+    # Give the code that defines a name a node type of its own, so that representation/spec.rb
     # can list it in names_are_defined_by.
     #
     # - Mark the name of a `defmodule` or `defprotocol` as a `module_name`, and
@@ -256,7 +256,7 @@ module Representer::Languages::Elixir::Common
     ### Variables ###
 
     # Wrap each variable bound by a pattern in a `variable` node, so that
-    # spec.rb can list it in names_are_defined_by. The patterns are a
+    # representation/spec.rb can list it in names_are_defined_by. The patterns are a
     # function's parameters and the left of `=`, `<-` and `->`. A pinned `^x`
     # binds nothing, and neither does `_`.
     def wrap_bound_variables_in_variable_nodes!

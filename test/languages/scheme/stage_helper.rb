@@ -4,14 +4,16 @@ require "test_helper"
 module SchemeStages
   Scheme = Representer::Languages::Scheme
 
-  def parse(source) = Representer::Engine::Grammar["scheme"].parse(Representer::Engine.clean(source), **Scheme::Spec.parse_options)
+  def parse(source)
+    Representer::Engine::Grammar["scheme"].parse(Representer::Engine.clean(source), **Scheme::Common::Spec.parse_options)
+  end
 
   # GenerateAST's tree for the source.
   def generate_ast(source) = Scheme::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Scheme::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Scheme::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

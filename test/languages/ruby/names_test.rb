@@ -38,9 +38,9 @@ class RubyNamesTest < Minitest::Test
   # Each name leaf's text, and whether the engine renames it, in source order.
   def marks(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Ruby::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Ruby::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Ruby::Representation.name?(node) }
+    tree.each_descendant { |node| leaves << [node.text, node.renamed] if Ruby::Representation::Spec.name?(node) }
     leaves
   end
 end

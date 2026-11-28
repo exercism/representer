@@ -2,7 +2,7 @@
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to spellings that Common Lisp treats the same way.
-class Representer::Languages::CommonLisp::Representation
+module Representer::Languages::CommonLisp::Representation
   class Normalise < Representer::Engine::Normalise
     # Write a quoted `nil` as `nil`.
     # 'nil  ->  nil

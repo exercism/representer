@@ -149,7 +149,7 @@ module Representer::Languages::OCaml::Common
     ### Names ###
 
     # Give the code that defines a name a shape of its own, so that
-    # representation.rb can list it in names_are_defined_by.
+    # representation/spec.rb can list it in names_are_defined_by.
     def mark_the_code_that_defines_names!
       write_punned_labels_and_fields_in_full!
       mark_the_variables_in_let_bindings!
@@ -225,7 +225,7 @@ module Representer::Languages::OCaml::Common
     end
 
     # Put the name in each definition in the field `name`, so that
-    # representation.rb can tell it from the types beside it.
+    # representation/spec.rb can tell it from the types beside it.
     # val area : int -> int  ->  (value_specification name: area (function_type int int))
     def put_each_defined_name_in_a_field!
       each_node(tree) do |node, _|

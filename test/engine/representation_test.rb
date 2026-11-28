@@ -1,12 +1,12 @@
 require_relative "toy_language"
 
 class RepresentationTest < Minitest::Test
-  Representation = ToyLanguage::Representation
+  Representation = ToyLanguage::Representation::Spec
 
   def test_belongs_to_the_spec_beside_it
-    assert_equal ToyLanguage::Spec, Representation.language
-    assert_equal Representation, ToyLanguage::Spec.representation
-    assert_equal 2, ToyLanguage::Spec.version
+    assert_equal ToyLanguage::Common::Spec, Representation.language
+    assert_equal Representation, ToyLanguage::Common::Spec.representation
+    assert_equal 2, ToyLanguage::Common::Spec.version
   end
 
   def test_says_which_leaves_are_names_and_their_text

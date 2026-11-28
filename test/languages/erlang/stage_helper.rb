@@ -5,7 +5,7 @@ module ErlangStages
   Erlang = Representer::Languages::Erlang
 
   def parse(source)
-    Representer::Engine::Grammar["erlang"].parse(Representer::Engine.clean(source), **Erlang::Spec.parse_options)
+    Representer::Engine::Grammar["erlang"].parse(Representer::Engine.clean(source), **Erlang::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module ErlangStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Erlang::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Erlang::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 

@@ -219,7 +219,7 @@ module Representer::Languages::Crystal::Common
     ### Names ###
 
     # Put the names on the left of a multiple assignment in a list of their
-    # own, as the parser does, so representation.rb can list them as
+    # own, as the parser does, so representation/spec.rb can list them as
     # definitions.
     # a, b = 1, 2  ->  (assign (targets a b) 1 2)
     def list_the_targets_of_a_multiple_assignment!
@@ -234,7 +234,7 @@ module Representer::Languages::Crystal::Common
     end
 
     # Give the type variables of a type, and a type's name written as a
-    # path, types of their own, so representation.rb can list them as
+    # path, types of their own, so representation/spec.rb can list them as
     # definitions.
     # class Box(T)  ->  (class_def (generic_type Box (type_vars T)) ...)
     # module Shop::Counting  ->  (module_def (type_name Shop :: Counting) ...)

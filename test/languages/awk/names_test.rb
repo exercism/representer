@@ -39,9 +39,9 @@ class AwkNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Awk::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Awk::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << node.text if Awk::Representation.name?(node) && node.renamed }
+    tree.each_descendant { |node| leaves << node.text if Awk::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort
   end
 end

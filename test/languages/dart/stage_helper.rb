@@ -4,14 +4,14 @@ require "test_helper"
 module DartStages
   Dart = Representer::Languages::Dart
 
-  def parse(source) = Representer::Engine::Grammar["dart"].parse(Representer::Engine.clean(source), **Dart::Spec.parse_options)
+  def parse(source) = Representer::Engine::Grammar["dart"].parse(Representer::Engine.clean(source), **Dart::Common::Spec.parse_options)
 
   # GenerateAST's tree for the source.
   def generate_ast(source) = Dart::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Dart::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Dart::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 

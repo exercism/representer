@@ -4,16 +4,20 @@ require "test_helper"
 # declarations, adds its own to them, and leaves its parent's alone.
 class InheritDeclarationsTest < Minitest::Test
   module Parent
-    class Spec < Representer::Engine::Language
-      grammar "ruby"
+    module Common
+      class Spec < Representer::Engine::Language
+        grammar "ruby"
+      end
     end
 
-    class Representation < Representer::Engine::Representation
-      version 2
-      names_are :identifier
-      names_are_defined_by :def
-      imports 'require "{{...}}"'
-      pattern_contexts "{{pattern}}\nend"
+    module Representation
+      class Spec < Representer::Engine::Representation
+        version 2
+        names_are :identifier
+        names_are_defined_by :def
+        imports 'require "{{...}}"'
+        pattern_contexts "{{pattern}}\nend"
+      end
     end
 
     class GenerateAST < Representer::Engine::GenerateAST
@@ -32,23 +36,29 @@ class InheritDeclarationsTest < Minitest::Test
       sort :hash
     end
 
-    class Snippet < Representer::Engine::Snippet
-      version 2
-      remove :comments
-      skip_at_top :require
+    module Snippet
+      class Spec < Representer::Engine::Snippet
+        version 2
+        remove :comments
+        skip_at_top :require
+      end
     end
   end
 
   module Child
-    class Spec < Representer::Engine::Language
-      grammar "ruby"
+    module Common
+      class Spec < Representer::Engine::Language
+        grammar "ruby"
+      end
     end
 
-    class Representation < Parent::Representation
-      version 3
-      names_are :constant
-      names_are_defined_by assignment: :left
-      imports 'require_relative "{{...}}"'
+    module Representation
+      class Spec < Parent::Representation::Spec
+        version 3
+        names_are :constant
+        names_are_defined_by assignment: :left
+        imports 'require_relative "{{...}}"'
+      end
     end
 
     class GenerateAST < Parent::GenerateAST
@@ -65,8 +75,10 @@ class InheritDeclarationsTest < Minitest::Test
       sort :class_body
     end
 
-    class Snippet < Parent::Snippet
-      skip_at_top :load
+    module Snippet
+      class Spec < Parent::Snippet::Spec
+        skip_at_top :load
+      end
     end
   end
 
@@ -105,24 +117,24 @@ class InheritDeclarationsTest < Minitest::Test
   end
 
   def test_a_representation_adds_to_its_parents_declarations
-    assert_equal 3, Child::Representation.version
-    assert_equal({ "identifier" => "", "constant" => "" }, Child::Representation.names)
-    assert_equal 2, Child::Representation.imports.size
-    assert_equal ["{{pattern}}\nend"], Child::Representation.pattern_contexts
-    assert_equal 2, Parent::Representation.version
-    assert_equal({ "identifier" => "" }, Parent::Representation.names)
-    assert_equal 1, Parent::Representation.imports.size
+    assert_equal 3, Child::Representation::Spec.version
+    assert_equal({ "identifier" => "", "constant" => "" }, Child::Representation::Spec.names)
+    assert_equal 2, Child::Representation::Spec.imports.size
+    assert_equal ["{{pattern}}\nend"], Child::Representation::Spec.pattern_contexts
+    assert_equal 2, Parent::Representation::Spec.version
+    assert_equal({ "identifier" => "" }, Parent::Representation::Spec.names)
+    assert_equal 1, Parent::Representation::Spec.imports.size
   end
 
   def test_a_representation_inherits_the_names_its_parent_defines
     definition = Representer::Engine::Node.new(:def, [Representer::Engine::Node.leaf(:identifier, "area")])
-    assert_equal ["area"], Child::Representation.names_defined_by(definition).map(&:text)
+    assert_equal ["area"], Child::Representation::Spec.names_defined_by(definition).map(&:text)
   end
 
   def test_a_snippet_adds_to_its_parents_declarations
-    assert_equal 2, Child::Snippet.version
-    assert_equal [:comments], Child::Snippet.removed
-    assert_equal %w[require load], Child::Snippet.skipped_words
-    assert_equal ["require"], Parent::Snippet.skipped_words
+    assert_equal 2, Child::Snippet::Spec.version
+    assert_equal [:comments], Child::Snippet::Spec.removed
+    assert_equal %w[require load], Child::Snippet::Spec.skipped_words
+    assert_equal ["require"], Parent::Snippet::Spec.skipped_words
   end
 end

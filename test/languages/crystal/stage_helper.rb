@@ -4,14 +4,16 @@ require "test_helper"
 module CrystalStages
   Crystal = Representer::Languages::Crystal
 
-  def parse(source) = Representer::Engine::Grammar["crystal"].parse(Representer::Engine.clean(source), **Crystal::Spec.parse_options)
+  def parse(source)
+    Representer::Engine::Grammar["crystal"].parse(Representer::Engine.clean(source), **Crystal::Common::Spec.parse_options)
+  end
 
   # GenerateAST's tree for the source.
   def generate_ast(source) = Crystal::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Crystal::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Crystal::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 

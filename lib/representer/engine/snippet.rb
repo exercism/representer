@@ -1,18 +1,20 @@
 module Representer::Engine
   # The website shows the start of each solution on its card. Each track's
-  # snippet is a class called Snippet that subclasses this one, and lists
-  # what to leave out of it (REPRESENTER_DSL.md describes every
-  # declaration):
+  # snippet is a class called Spec in a module called Snippet, such as
+  # Ruby::Snippet::Spec. It subclasses this one, and lists what to leave
+  # out of the snippet (REPRESENTER_DSL.md describes every declaration):
   #
-  #   class Snippet < Representer::Engine::Snippet
-  #     remove :comments
-  #     skip_at_top :require, :require_relative
+  #   module Representer::Languages::Ruby::Snippet
+  #     class Spec < Representer::Engine::Snippet
+  #       remove :comments
+  #       skip_at_top :require, :require_relative
+  #     end
   #   end
   #
-  # A language keeps its snippet in its folder (`languages/ruby/
-  # snippet.rb`), and the engine loads it like a stage. A track with no
-  # language of its own can have a folder holding only `snippet.rb`. A track
-  # with no snippet of its own gets Languages::Basic::Snippet.
+  # A language keeps its snippet in its folder (`languages/ruby/snippet/
+  # spec.rb`), and the engine loads it like a stage. A track with no
+  # language of its own can have a folder holding only `snippet/spec.rb`. A
+  # track with no snippet of its own gets Languages::Basic::Snippet::Spec.
   #
   # The engine runs the snippet on the solution's main file (see
   # FindMainFile), with the tree from the language's grammar, before any
@@ -124,14 +126,14 @@ module Representer::Engine
 
       def container?(node) = container_types.include?(node.type)
 
-      # The language whose grammar parses the solution: the Spec beside the
-      # snippet. It is nil for a track with no language of its own, and for
-      # a snippet that works on lines only.
+      # The language whose grammar parses the solution: the Common::Spec
+      # beside the snippet. It is nil for a track with no language of its
+      # own, and for a snippet that works on lines only.
       def language
         return nil if @lines_only
 
-        owner = Object.const_get(name.delete_suffix("::Snippet"))
-        owner.const_defined?(:Spec, false) ? owner::Spec : nil
+        owner = Object.const_get(name.delete_suffix("::Snippet::Spec"))
+        Representer::Engine.language_module?(owner) ? owner::Common::Spec : nil
       end
 
       # Matches text that starts with one of the words, in any case (Common

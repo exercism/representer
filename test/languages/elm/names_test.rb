@@ -41,7 +41,7 @@ class ElmNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     names = []
-    rename(source).each_descendant { |node| names << Elm::Representation.name_text(node) if node.renamed }
+    rename(source).each_descendant { |node| names << Elm::Representation::Spec.name_text(node) if node.renamed }
     names.uniq.sort
   end
 
@@ -52,6 +52,6 @@ class ElmNamesTest < Minitest::Test
   end
 
   def rename(source)
-    prepare(source).tap { |tree| Representer::Engine::RenameUserDefinedNodes.([tree], Elm::Representation) }
+    prepare(source).tap { |tree| Representer::Engine::RenameUserDefinedNodes.([tree], Elm::Representation::Spec) }
   end
 end

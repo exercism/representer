@@ -36,9 +36,9 @@ class ErlangNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Erlang::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Erlang::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << node.text if Erlang::Representation.name?(node) && node.renamed }
+    tree.each_descendant { |node| leaves << node.text if Erlang::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort
   end
 end

@@ -3,7 +3,7 @@
 # so normalising only has to keep what a mentor would comment on. These rules
 # remove code that makes no difference to a passing solution, and give one
 # form to spellings that mean the same thing.
-class Representer::Languages::GDScript::Representation
+module Representer::Languages::GDScript::Representation
   class Normalise < Representer::Engine::Normalise
     # Write the symbol operators as words, because GDScript reads both the same.
     # a && b  ->  a and b

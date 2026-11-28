@@ -5,7 +5,7 @@ module JqStages
   Jq = Representer::Languages::Jq
 
   def parse(source)
-    Representer::Engine::Grammar["jq"].parse(Representer::Engine.clean(source), **Jq::Spec.parse_options)
+    Representer::Engine::Grammar["jq"].parse(Representer::Engine.clean(source), **Jq::Common::Spec.parse_options)
   end
 
   # GenerateAST's tree for the source.
@@ -13,7 +13,7 @@ module JqStages
 
   # The tree after GenerateAST and the engine's dropping of imports (see
   # Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Jq::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Jq::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

@@ -141,7 +141,7 @@ module Representer::Languages::Go::Common
     end
 
     # Put the names that each declaration defines in a list of their own, as
-    # go/ast does, so representation.rb can list them as definitions.
+    # go/ast does, so representation/spec.rb can list them as definitions.
     # var a, b int  ->  (var_spec (identifier_list a b) int)
     # a, b := f()  ->  (short_var_declaration (identifier_list a b) := (expression_list f()))
     def list_the_names_each_declaration_defines!

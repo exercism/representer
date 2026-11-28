@@ -1,13 +1,14 @@
 module Representer::Engine
-  # Every language is a class called Spec that subclasses this one,
-  # in a module named after the language. The Spec says what the language
-  # is and how its files are read. Each output is a class beside it, such
-  # as Ruby::Representation, Ruby::Analysis and Ruby::Snippet, and the
-  # stages that every output needs sit in a module beside it, such as
-  # Ruby::Common.
+  # Every language is a class called Spec that subclasses this one, in the
+  # Common module of a module named after the language, such as
+  # Ruby::Common::Spec. The Spec says what the language is and how its
+  # files are read. Each output is a module beside Common, such as
+  # Ruby::Representation, Ruby::Analysis and Ruby::Snippet, and holds the
+  # output's settings as a class called Spec. Common holds the stages that
+  # every output needs.
   # REPRESENTER_DSL.md describes every declaration.
   class Language
-    OUTPUT_FILES = { Representation: "representation", Analysis: "analysis", Snippet: "snippet" }.freeze
+    OUTPUT_FILES = { Representation: "representation/spec", Analysis: "analysis/spec", Snippet: "snippet/spec" }.freeze
 
     COMMON_FILES = { GenerateAST: "generate_ast", Normalise: "normalise" }.freeze
 
@@ -22,8 +23,7 @@ module Representer::Engine
         language = Representer::Engine.language_module(spec)
         folder = Representer::Engine.folder_of(language)
         AutoloadFiles.(language, folder, OUTPUT_FILES)
-        common = language.const_defined?(:Common, false) ? language::Common : language.const_set(:Common, Module.new)
-        AutoloadFiles.(common, File.join(folder, "common"), COMMON_FILES)
+        AutoloadFiles.(Representer::Engine.output_module(spec), File.join(folder, "common"), COMMON_FILES)
       end
 
       # Called by Representer when it picks a language for a track.
@@ -91,42 +91,62 @@ module Representer::Engine
         @comment_text ? options.merge(comment_text: @comment_text) : options
       end
 
-      # The language's representation output, such as Ruby::Representation,
-      # or nil if it has none.
-      def representation = stages.const_defined?(:Representation, false) ? stages::Representation : nil
+      # The settings of the language's representation, such as
+      # Ruby::Representation::Spec, or nil if it has none.
+      def representation = output(:Representation)
 
-      # The language's analysis output, such as Ruby::Analysis, or nil if it
-      # has none.
-      def analysis = stages.const_defined?(:Analysis, false) ? stages::Analysis : nil
+      # The settings of the language's analysis, such as Ruby::Analysis::Spec,
+      # or nil if it has none.
+      def analysis = output(:Analysis)
+
+      # The settings of the language's snippet, such as Ruby::Snippet::Spec,
+      # or nil if it has none.
+      def snippet = output(:Snippet)
 
       # The representation's version. A response gives it even when the
       # solution can't be represented.
       def version = representation.version
 
-      # The module that holds the stages every output needs, such as
-      # Ruby::Common.
-      def common = stages::Common
+      # The module that holds the Spec and the stages every output needs,
+      # such as Ruby::Common.
+      def common = Representer::Engine.output_module(self)
 
       # Runs the common stage with this name on the tree, and returns the
       # new tree (see Engine.run_stage).
       def run_stage(name, tree) = Representer::Engine.run_stage(common, name, tree)
 
-      # The module that holds the Spec and its outputs, such as
+      # The module that holds Common and the outputs, such as
       # Representer::Languages::Ruby.
       def stages = Representer::Engine.language_module(self)
+
+      private
+      def output(name)
+        return nil unless stages.const_defined?(name, false)
+
+        owner = stages.const_get(name, false)
+        owner.const_defined?(:Spec, false) ? owner::Spec : nil
+      end
     end
   end
 
   # Returns the module of the language that holds the class: the nearest
-  # module around it that holds a Spec. So Ruby::Common::Normalise belongs
-  # to Representer::Languages::Ruby.
+  # module around it whose Common holds a Spec. So
+  # Ruby::Representation::Normalise belongs to Representer::Languages::Ruby.
   def self.language_module(klass)
     parts = klass.name.split("::")
-    parts.pop until parts.empty? || Object.const_get(parts.join("::")).const_defined?(:Spec, false)
-    raise ArgumentError, "#{klass.name} isn't inside a language with a Spec" if parts.empty?
+    parts.pop until parts.empty? || language_module?(Object.const_get(parts.join("::")))
+    raise ArgumentError, "#{klass.name} isn't inside a language with a Common::Spec" if parts.empty?
 
     Object.const_get(parts.join("::"))
   end
+
+  # Whether the module is a language's own module, such as
+  # Representer::Languages::Ruby, which holds Ruby::Common::Spec.
+  def self.language_module?(owner) = owner.const_defined?(:Common, false) && owner::Common.const_defined?(:Spec, false)
+
+  # Returns the module that holds an output's Spec, such as
+  # Ruby::Representation for Ruby::Representation::Spec.
+  def self.output_module(spec) = Object.const_get(spec.name.delete_suffix("::Spec"))
 
   # Languages whose names are one word, although they have a capital inside.
   # JavaScript  ->  `languages/javascript/`
@@ -137,8 +157,12 @@ module Representer::Engine
   # a new word, unless the name is in ONE_WORD_NAMES.
   # EmacsLisp  ->  `languages/emacs_lisp/`
   # CSharp  ->  `languages/csharp/`
-  def self.folder_of(language)
-    name = language.name.split("::").last
+  def self.folder_of(language) = folder_named(language.name)
+
+  # Returns the folder of the language with this module name, such as
+  # `languages/ruby/` for "Representer::Languages::Ruby" (see folder_of).
+  def self.folder_named(module_name)
+    name = module_name.split("::").last
     name = name.gsub(/([a-z\d])([A-Z])/, '\1_\2') unless ONE_WORD_NAMES.include?(name)
     File.expand_path("../languages/#{name.downcase}", __dir__)
   end

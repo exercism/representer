@@ -118,7 +118,8 @@ class SnippetTest < Minitest::Test
   def test_every_language_with_a_representation_has_a_snippet
     languages = Representer::Languages.registry.values.uniq - [Representer::Languages::Basic]
     languages.each do |language|
-      refute_equal Representer::Languages::Basic::Snippet, Representer::Languages.snippet_for(language.tracks.first), language.name
+      snippet = Representer::Languages.snippet_for(language.tracks.first)
+      refute_equal Representer::Languages::Basic::Snippet::Spec, snippet, language.name
     end
   end
 
@@ -283,7 +284,7 @@ class SnippetTest < Minitest::Test
 
   def test_the_snippet_has_its_own_version
     output = Representer::Generate.("ruby", { "a.rb" => "x" }, outputs: %i[snippet])
-    assert_equal Representer::Languages::Ruby::Snippet.version, output[:snippet][:version]
+    assert_equal Representer::Languages::Ruby::Snippet::Spec.version, output[:snippet][:version]
   end
 
   def test_a_language_reads_its_comments_and_docstrings_from_its_spec

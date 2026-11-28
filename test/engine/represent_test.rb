@@ -63,5 +63,5 @@ class RepresentTest < Minitest::Test
   end
 
   private
-  def represent(files) = Representer::Engine::Represent.(ToyLanguage::Spec, files)
+  def represent(files) = Representer::Engine::Represent.(ToyLanguage::Common::Spec, files)
 end

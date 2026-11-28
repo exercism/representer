@@ -1,7 +1,7 @@
 require "test_helper"
 
 class AnalyseTest < Minitest::Test
-  Analysis = Representer::Languages::Ruby::Analysis
+  Analysis = Representer::Languages::Ruby::Analysis::Spec
 
   def test_runs_the_exercises_rules_on_the_main_file
     files = { "a_helper.rb" => "x = 1", "leap.rb" => "class Year\n  def self.leap?(y) = Date.leap?(y)\nend\n" }

@@ -109,7 +109,7 @@ module Representer::Languages::Wren::Common
     ### Names ###
 
     # Put a setter's parameter in a parameter list, as a method's parameters
-    # are, so that representation.rb can list it with the other parameters.
+    # are, so that representation/spec.rb can list it with the other parameters.
     # count=(value) { ... }  ->  (setter_definition count = (parameter_list value) ...)
     def put_each_setter_parameter_in_a_parameter_list!
       find_all(tree, "(setter_definition parameter: (identifier) @parameter)").each do |match|

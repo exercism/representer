@@ -189,7 +189,7 @@ module Representer::Languages::EmacsLisp::Common
     ### Names ###
 
     # Wrap each name that a form defines in a `definition` or `variable`
-    # node, so that representation.rb can list them in
+    # node, so that representation/spec.rb can list them in
     # names_are_defined_by.
     # (defun area (w) w)  ->  (list defun (definition area) (list (variable w)) w)
     # (let ((x 1)) x)  ->  (list let (list (list (variable x) 1)) x)

@@ -4,13 +4,13 @@ require "test_helper"
 module NimStages
   Nim = Representer::Languages::Nim
 
-  def parse(source) = Representer::Engine::Grammar["nim"].parse(Representer::Engine.clean(source), **Nim::Spec.parse_options)
+  def parse(source) = Representer::Engine::Grammar["nim"].parse(Representer::Engine.clean(source), **Nim::Common::Spec.parse_options)
 
   # GenerateAST's tree for the source.
   def generate_ast(source) = Nim::Common::GenerateAST.(parse(source))
 
   # The tree after GenerateAST and Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(Nim::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(Nim::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 

@@ -11,7 +11,7 @@ module TypeScriptStages
 
   # The tree after GenerateAST, the engine's dropping of imports and
   # Normalise (see Engine::PrepareFile).
-  def prepare(source) = Representer::Engine::PrepareFile.(TypeScript::Spec, source)
+  def prepare(source) = Representer::Engine::PrepareFile.(TypeScript::Common::Spec, source)
 
   def write(tree) = Representer::Engine::Serialize.(tree)
 end

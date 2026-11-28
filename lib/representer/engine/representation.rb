@@ -1,11 +1,12 @@
 module Representer::Engine
-  # A language's representation output is a class called
-  # Representation that subclasses this one, beside the language's Spec.
-  # It declares the representation's version and the names and imports
-  # that the representation works with (REPRESENTER_DSL.md describes every
+  # A language's representation output is a module called Representation,
+  # beside the language's Common module, in the language's
+  # `representation/` folder. Its settings are a class called Spec that
+  # subclasses this one, such as Ruby::Representation::Spec. The Spec
+  # declares the representation's version and the names and imports that
+  # the representation works with (REPRESENTER_DSL.md describes every
   # declaration). The stages that only the representation needs are
-  # classes inside it, such as Ruby::Representation::Reorder, in the
-  # language's `representation/` folder.
+  # classes beside the Spec, such as Ruby::Representation::Reorder.
   class Representation
     extend InheritDeclarations
 
@@ -15,17 +16,17 @@ module Representer::Engine
                     :@keywords_used_as_names
 
     class << self
-      # Ruby calls this when a language defines its Representation. The
-      # engine then finds the representation's stages in its folder (see
-      # AutoloadFiles).
-      def inherited(output)
+      # Ruby calls this when a language defines its Representation::Spec.
+      # The engine then finds the representation's stages in its folder
+      # (see AutoloadFiles).
+      def inherited(spec)
         super
-        folder = Representer::Engine.folder_of(Representer::Engine.language_module(output))
-        AutoloadFiles.(output, File.join(folder, "representation"), STAGE_FILES)
+        folder = Representer::Engine.folder_of(Representer::Engine.language_module(spec))
+        AutoloadFiles.(Representer::Engine.output_module(spec), File.join(folder, "representation"), STAGE_FILES)
       end
 
-      # The Spec of the language, such as Ruby::Spec.
-      def language = Representer::Engine.language_module(self)::Spec
+      # The Spec of the language, such as Ruby::Common::Spec.
+      def language = Representer::Engine.language_module(self)::Common::Spec
 
       # The representation's version. Bump it whenever the representation
       # of any solution could change, so the website knows to represent the
@@ -96,7 +97,7 @@ module Representer::Engine
 
       # Runs the representation's stage with this name on the tree, and
       # returns the new tree (see Engine.run_stage).
-      def run_stage(name, tree) = Representer::Engine.run_stage(self, name, tree)
+      def run_stage(name, tree) = Representer::Engine.run_stage(Representer::Engine.output_module(self), name, tree)
     end
   end
 end

@@ -1,6 +1,6 @@
 # REPRESENTER_DSL.md defines the verbs in this file.
 # The tests create a HighScores with a list of scores, and call its methods.
-class Representer::Languages::Ruby::Analysis
+module Representer::Languages::Ruby::Analysis
   class HighScores < Representer::Engine::AnalysisRules
     # Look for a class with six members, which are these methods in any
     # order, and a reader for the scores.

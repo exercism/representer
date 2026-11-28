@@ -36,9 +36,9 @@ class GleamNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Gleam::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Gleam::Representation::Spec)
     names = []
-    tree.each_descendant { |node| names << Gleam::Representation.name_text(node) if node.renamed }
+    tree.each_descendant { |node| names << Gleam::Representation::Spec.name_text(node) if node.renamed }
     names.uniq.sort
   end
 end

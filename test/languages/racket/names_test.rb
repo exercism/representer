@@ -57,9 +57,9 @@ class RacketNamesTest < Minitest::Test
   # The names that the engine renames, sorted.
   def renamed(source)
     tree = prepare(source)
-    Representer::Engine::RenameUserDefinedNodes.([tree], Racket::Representation)
+    Representer::Engine::RenameUserDefinedNodes.([tree], Racket::Representation::Spec)
     leaves = []
-    tree.each_descendant { |node| leaves << node.text if Racket::Representation.name?(node) && node.renamed }
+    tree.each_descendant { |node| leaves << node.text if Racket::Representation::Spec.name?(node) && node.renamed }
     leaves.uniq.sort
   end
 end
