@@ -152,11 +152,11 @@ The hook runs with the Ruby named in `.ruby-version`, whatever Ruby your shell h
 
 To run the request tests against the Docker image, which is how Rosetta runs in production, run `./bin/run-tests-in-docker.sh`.
 
-## Credit
+## Credit & Contributing
 
-This repo is built and maintained by Exercism.
+This repo is built and maintained by [Exercism](https://exercism.org). It's primarily maintainer is [Jeremy Walker](https://ihid.info). 
 
-Contributions are welcome!
+Please open an issue if you want to improve analysis, representations or code snippets. Code contributions are also welcome.
 
 [tree-sitter]: https://tree-sitter.github.io/tree-sitter/
 [rouge]: https://github.com/rouge-ruby/rouge
