@@ -1,19 +1,61 @@
-let getProtein = ( triplet ) => {
-switch ( triplet ){
-| "\"AUG\"" => "\"Methionine\""
-| ( "\"UUU\"" | "\"UUC\"" ) => "\"Phenylalanine\""
-| ( "\"UUA\"" | "\"UUG\"" ) => "\"Leucine\""
-| ( "\"UCU\"" | "\"UCC\"" | "\"UCA\"" | "\"UCG\"" ) => "\"Serine\""
-| ( "\"UAU\"" | "\"UAC\"" ) => "\"Tyrosine\""
-| ( "\"UGU\"" | "\"UGC\"" ) => "\"Cysteine\""
-| "\"UGG\"" => "\"Tryptophan\""
-| _ => "\"STOP\""
-};
-};
-let rec proteins = ( rnaStr ) => {
-switch ( rnaStr |> String . sub ( _ , 0 , 3 ) |> getProtein ){
-| exception Invalid_argument ( _ ) => []
-| "\"STOP\"" => []
-| protein => [ protein , ... proteins ( rnaStr |> String . sub ( _ , 3 , String . length ( rnaStr ) - 3 ))]
-};
-};
+(source_file
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_1)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_2)))
+        (switch_expression PLACEHOLDER_2
+          (match_case "AUG" "Methionine")
+          (match_case
+            (or_pattern "UUU" "UUC") "Phenylalanine")
+          (match_case
+            (or_pattern "UUA" "UUG") "Leucine")
+          (match_case
+            (or_pattern
+              (or_pattern
+                (or_pattern "UCU" "UCC") "UCA") "UCG") "Serine")
+          (match_case
+            (or_pattern "UAU" "UAC") "Tyrosine")
+          (match_case
+            (or_pattern "UGU" "UGC") "Cysteine")
+          (match_case "UGG" "Tryptophan")
+          (match_case
+            (wildcard_pattern _) "STOP")))))
+  (let_declaration rec
+    (let_binding
+      (value_pattern PLACEHOLDER_3)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_4)))
+        (switch_expression
+          (binary_expression
+            (binary_expression PLACEHOLDER_4 |>
+              (call_expression
+                (value_path String sub)
+                (arguments
+                  (placeholder _) 0 3))) |> PLACEHOLDER_1)
+          (match_case
+            (exception_pattern
+              (constructor_pattern Invalid_argument
+                (wildcard_pattern _)))
+            (list))
+          (match_case "STOP"
+            (list))
+          (match_case
+            (value_pattern PLACEHOLDER_5)
+            (list PLACEHOLDER_5
+              (spread
+                (call_expression PLACEHOLDER_3
+                  (arguments
+                    (binary_expression PLACEHOLDER_4 |>
+                      (call_expression
+                        (value_path String sub)
+                        (arguments
+                          (placeholder _) 3
+                          (binary_expression
+                            (call_expression
+                              (value_path String length)
+                              (arguments PLACEHOLDER_4)) - 3))))))))))))))

@@ -1,34 +1,134 @@
-let ( >> ) = ( f , g , x ) => x |> f |> g ;
-let flip = ( f , x , y ) => f ( y , x );
-module type Ord = {
-type t ;
-let succ : t => t ;
-};
-module MakeRange = ( O : Ord ) => {
-include O ;
-let rec range = ( start , finish ) => {
-let succ = O . succ ( start );
-let res = [ start , succ ];
-succ == finish ? res : append ( res , range ( succ , finish ));
-};
-};
-module OrdChar = {
-include Char ;
-let succ = c => Char . code ( c ) + 1 |> Char . chr ;
-};
-module RangeChar = MakeRange ( OrdChar );
-module CharSet = Set . Make ( Char );
-let alphabet : CharSet . t = RangeChar . range ( 'a' , 'z' ) |> CharSet . of_list ;
-module String = {
-include String ;
-let chars = s => {
-s
-|> Js . String . split ( "\"\"" )
-|> Array . map ( flip ( String . get , 0 ))
-|> Array . to_list ;
-};
-};
-let isPangram : string => bool =
-String . chars
->> List . map ( Char . lowercase_ascii )
->> CharSet .( of_list >> diff ( alphabet ) >> is_empty );
+(source_file
+  (let_declaration
+    (let_binding
+      (value_pattern (operator PLACEHOLDER_1))
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_2))
+          (parameter
+            (value_pattern PLACEHOLDER_3))
+          (parameter
+            (value_pattern PLACEHOLDER_4)))
+        (binary_expression
+          (binary_expression PLACEHOLDER_4 |> PLACEHOLDER_2) |> PLACEHOLDER_3))))
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_5)
+      (function
+        (parameters
+          (parameter
+            (value_pattern PLACEHOLDER_2))
+          (parameter
+            (value_pattern PLACEHOLDER_4))
+          (parameter
+            (value_pattern PLACEHOLDER_6)))
+        (call_expression PLACEHOLDER_2
+          (arguments PLACEHOLDER_6 PLACEHOLDER_4)))))
+  (module_type_declaration (module_identifier PLACEHOLDER_7)
+    (signature
+      (type_declaration
+        (type_binding (type_identifier PLACEHOLDER_8)))
+      (value_specification
+        (value_pattern PLACEHOLDER_9)
+        (function_type (type_identifier PLACEHOLDER_8) (type_identifier PLACEHOLDER_8)))))
+  (module_declaration (module_identifier PLACEHOLDER_10)
+    (functor (module_identifier PLACEHOLDER_11) (module_identifier PLACEHOLDER_7)
+      (structure
+        (include_statement (module_identifier PLACEHOLDER_11))
+        (let_declaration rec
+          (let_binding
+            (value_pattern PLACEHOLDER_12)
+            (function
+              (parameters
+                (parameter
+                  (value_pattern PLACEHOLDER_13))
+                (parameter
+                  (value_pattern PLACEHOLDER_14)))
+              (block
+                (let_declaration
+                  (let_binding
+                    (value_pattern PLACEHOLDER_9)
+                    (call_expression
+                      (value_path (module_identifier PLACEHOLDER_11) PLACEHOLDER_9)
+                      (arguments PLACEHOLDER_13))))
+                (let_declaration
+                  (let_binding
+                    (value_pattern PLACEHOLDER_15)
+                    (list PLACEHOLDER_13 PLACEHOLDER_9)))
+                (ternary_expression
+                  (binary_expression PLACEHOLDER_9 == PLACEHOLDER_14) PLACEHOLDER_15
+                  (call_expression append
+                    (arguments PLACEHOLDER_15
+                      (call_expression PLACEHOLDER_12
+                        (arguments PLACEHOLDER_9 PLACEHOLDER_14))))))))))))
+  (module_declaration (module_identifier PLACEHOLDER_16)
+    (structure
+      (include_statement Char)
+      (let_declaration
+        (let_binding
+          (value_pattern PLACEHOLDER_9)
+          (function
+            (parameters
+              (parameter
+                (value_pattern PLACEHOLDER_17)))
+            (binary_expression
+              (binary_expression
+                (call_expression
+                  (value_path Char code)
+                  (arguments PLACEHOLDER_17)) + 1) |>
+              (value_path Char chr)))))))
+  (module_declaration (module_identifier PLACEHOLDER_18)
+    (functor_application (module_identifier PLACEHOLDER_10) (module_identifier PLACEHOLDER_16)))
+  (module_declaration (module_identifier PLACEHOLDER_19)
+    (functor_application
+      (module_path Set Make) Char))
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_20)
+      (type_constructor_path (module_identifier PLACEHOLDER_19) (type_identifier PLACEHOLDER_8))
+      (binary_expression
+        (call_expression
+          (value_path (module_identifier PLACEHOLDER_18) PLACEHOLDER_12)
+          (arguments 'a' 'z')) |>
+        (value_path (module_identifier PLACEHOLDER_19) of_list))))
+  (module_declaration (module_identifier PLACEHOLDER_21)
+    (structure
+      (include_statement (module_identifier PLACEHOLDER_21))
+      (let_declaration
+        (let_binding
+          (value_pattern PLACEHOLDER_22)
+          (function
+            (parameters
+              (parameter
+                (value_pattern PLACEHOLDER_23)))
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_23 |>
+                  (call_expression
+                    (value_path
+                      (module_path Js (module_identifier PLACEHOLDER_21)) split)
+                    (arguments ""))) |>
+                (call_expression
+                  (value_path Array map)
+                  (arguments
+                    (call_expression PLACEHOLDER_5
+                      (arguments
+                        (value_path (module_identifier PLACEHOLDER_21) get) 0))))) |>
+              (value_path Array to_list)))))))
+  (let_declaration
+    (let_binding
+      (value_pattern PLACEHOLDER_24)
+      (function_type string bool)
+      (binary_expression
+        (binary_expression
+          (value_path (module_identifier PLACEHOLDER_21) PLACEHOLDER_22) (operator PLACEHOLDER_1)
+          (call_expression
+            (value_path List map)
+            (arguments
+              (value_path Char lowercase_ascii)))) (operator PLACEHOLDER_1)
+        (local_open (module_identifier PLACEHOLDER_19)
+          (binary_expression
+            (binary_expression of_list (operator PLACEHOLDER_1)
+              (call_expression diff
+                (arguments PLACEHOLDER_20))) (operator PLACEHOLDER_1) is_empty))))))
