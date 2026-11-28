@@ -96,13 +96,13 @@ class BasicTest < InspectorTest
     with_config = code.merge("package.yaml" => "name: leap", "HELP.md" => "# Help", "test/LeapSpec_test.hs" => "x")
     assert_equal Inspector::RepresentSolution.("haskell", code).representation,
       Inspector::RepresentSolution.("haskell", with_config).representation
-    assert_equal "1", Inspector::RepresentSolution.("groovy", { "a.groovy" => "1", "notes.txt" => "2" }).representation
+    assert_equal "1", Inspector::Languages::Basic.("groovy", { "a.groovy" => "1", "notes.txt" => "2" }).representation
     assert_equal "no_source_files", Inspector::RepresentSolution.("haskell", { "package.yaml" => "x" }).reason
   end
 
   def test_imports_on_their_own_lines_are_dropped
-    groovy = Inspector::RepresentSolution.("groovy", { "a.groovy" => "import java.time.Year\ndef f() { 1 }\n" })
-    assert_equal Inspector::RepresentSolution.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
+    groovy = Inspector::Languages::Basic.("groovy", { "a.groovy" => "import java.time.Year\ndef f() { 1 }\n" })
+    assert_equal Inspector::Languages::Basic.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
       groovy.representation
     c = basic("#include <stdio.h>\n#include \"a.h\"\nint f() { return 1; }\n", track: "c")
     assert_equal basic("int f() { return 1; }\n", track: "c").representation, c.representation
@@ -120,8 +120,8 @@ class BasicTest < InspectorTest
   end
 
   def test_a_line_that_only_starts_like_an_import_stays
-    with_call = Inspector::RepresentSolution.("groovy", { "a.groovy" => "def f() { importer() }\n" })
-    refute_equal Inspector::RepresentSolution.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
+    with_call = Inspector::Languages::Basic.("groovy", { "a.groovy" => "def f() { importer() }\n" })
+    refute_equal Inspector::Languages::Basic.("groovy", { "a.groovy" => "def f() { 1 }\n" }).representation,
       with_call.representation
   end
 end

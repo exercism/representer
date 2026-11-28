@@ -186,7 +186,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | gdscript | GDScript | 103 | 1 | 100 | 74 | 98 | 0 | 0 | 0 | 0 |
 | gleam | Gleam | 373 | 91 | 100 | 76 | 88 | 1 | 2 | 0 | 0 |
 | go | Go | 363 | 88 | 100 | 78 | 99 | 2 | 0 | 0 | 0 |
-| groovy | Basic | 235 | 45 | 100 | 57 | 94 | 13 | 1 | 0 | 0 |
+| groovy | Groovy | 235 | 45 | 100 | 57 | 94 | 0 | 5 | 0 | 0 |
 | haskell | Haskell | 399 | 100 | 100 | 73 | 98 | 0 | 19 | 0 | 1 |
 | idris | Idris | 132 | 11 | 100 | 53 | 92 | 0 | 5 | 0 | 0 |
 | java | Java | 388 | 96 | 100 | 80 | 98 | 3 | 0 | 0 | 0 |
