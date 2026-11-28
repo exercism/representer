@@ -5,7 +5,7 @@ This file says how the Rust outputs of this service differ from the tools they r
 ## Representation
 
 The representation replaces the old Rust representer (`exercism/rust-representer`), which parsed the solution with syn, renamed the names it met and printed the result with prettyplease.
-It differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+It differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - Doc comments are dropped with the other comments. The old representer read them as attributes and printed them.
 - Numbers are written as their values, so `1_000` and `1000` are the same, and so are `0x1F` and `31`. An integer or float keeps its type suffix, as in `1000u32`. The old representer printed each number as written.

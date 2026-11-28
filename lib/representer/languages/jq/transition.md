@@ -6,7 +6,7 @@ This file says how the jq outputs of this service differ from the tools they rep
 
 jq had no representer of its own, so the track used Basic, which writes a solution's tokens line by line and renames nothing.
 The jq representer parses each solution with tree-sitter-jq instead, and writes the tree that jq's own parser would give.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears: functions, their parameters, the variables bound by `as` and in its patterns, and labels. A variable keeps its `$`, so `$x` and a function called `x` stay apart. The names of fields, such as `.name`, and of builtins, such as `length`, stay as they are.
 - **Layout.** Basic kept line breaks and indentation. This representer drops comments, layout and brackets that only group, so `{a: (.b)}` and `{a: .b}` are the same.

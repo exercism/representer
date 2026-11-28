@@ -5,7 +5,7 @@ This file says how the Common Lisp outputs of this service differ from the tools
 ## Representation
 
 The representation replaces the old Common Lisp representer (`exercism/common-lisp-representer`), which read the solution with SBCL's reader, replaced the package name, the exported names, the names of `defun` functions and their lambda-list variables with generated keywords, and printed the forms.
-It differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+It differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - Every name the solution defines is renamed, wherever it is defined: functions, macros, methods, global variables, structures and their slots, classes with their slots and accessors, local bindings (`let`, `flet`, `labels`, `dolist`, `multiple-value-bind` and the others), loop variables and condition handlers' variables. The old representer only renamed the package, its exports, and the names and lambda-list variables of `defun`.
 - A keyword is renamed if the solution defines a name with the same text, so `:twofer` in `(:export :twofer)` and `(defun twofer ...)` get one placeholder.

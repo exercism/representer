@@ -120,14 +120,14 @@ Never use a deviation to hide a merge that the old representer kept apart.
 
 ## 3. Declare the names and write the stages
 
-[docs/dsl.md](./docs/dsl.md) defines every declaration and verb used in this step.
+[docs/common.md](./docs/common.md) defines the declarations that every output shares, [docs/code-patterns.md](./docs/code-patterns.md) explains code patterns, and [docs/representation.md](./docs/representation.md) defines the representation's declarations and the verbs used in this step.
 
 ### The rules for every language
 
 These rules decide what a language may do:
 
 1. Every solution that the representer sees is valid code that passes its tests. A stage may throw away code that makes no difference to the solution working, but it never adds code that only copes with invalid input.
-2. The engine makes the decisions that apply to every language (see [docs/dsl.md](./docs/dsl.md#what-the-engine-does-for-every-language)). A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of the engine's decisions.
+2. The engine makes the decisions that apply to every language (see [docs/how-it-works.md](./docs/how-it-works.md#the-engines-steps)). A language only says what the engine can't know, such as which code counts as an import. A stage never repeats one of the engine's decisions.
 3. Within a language, match what the old representer (`exercism/<track>-representer`) did. A language-specific difference from the old behaviour only goes in if a human has decided it, and the language's `transition.md` records it. List any other improvement you'd suggest in `test/golden/<track>/SUGGESTIONS.md` for the maintainers to discuss. Fix bugs, such as wrong merges and crashes.
 
 ### The language's folder
@@ -158,7 +158,7 @@ languages/ruby/
 - `snippet/spec.rb` declares the snippet's `version` and what to leave out of it (see step 5).
 - `common/` also holds the stages that every output needs, which are the representation and the analysis.
 - `representation/` also holds the stages that only the representation needs.
-- `analysis/` also holds the Normalise stage that only the analysis needs, and one file of rules for each exercise, named after the exercise's slug ([docs/dsl.md](./docs/dsl.md#analysis) describes the rules). Give each exercise's rules a test file in `test/languages/<track>/`, such as `two_fer_analysis_test.rb`.
+- `analysis/` also holds the Normalise stage that only the analysis needs, and one file of rules for each exercise, named after the exercise's slug ([docs/analysis.md](./docs/analysis.md) describes the rules). Give each exercise's rules a test file in `test/languages/<track>/`, such as `two_fer_analysis_test.rb`.
 
 A rewrite goes in `common/normalise.rb` only if it hides no spelling that an analysis rule would need. If you aren't sure, put it in `representation/normalise.rb`.
 Every `Reorder` goes in `representation/`, and so does dropping docstrings, as the analysis may read them.
@@ -224,7 +224,7 @@ The engine runs the stages and its own steps in this order:
 The snippet works on tree-sitter's own tree, before any of these steps.
 
 `GenerateAST` works on the tree with the tree helpers, because it has to know the grammar's tree in detail.
-A `Normalise` stage lists its rules with verbs such as `drop`, `rewrite`, `attach_to_next` and `add_braces_to`, and their arguments are code patterns: code in the language itself, with placeholders such as `{{x}}` and `{{...}}`. A code pattern matches code exactly, so use `{{...}}` wherever the code may hold more items (see [docs/dsl.md](./docs/dsl.md#code-patterns)).
+A `Normalise` stage lists its rules with verbs such as `drop`, `rewrite`, `attach_to_next` and `add_braces_to`, and their arguments are code patterns: code in the language itself, with placeholders such as `{{x}}` and `{{...}}`. A code pattern matches code exactly, so use `{{...}}` wherever the code may hold more items (see [docs/code-patterns.md](./docs/code-patterns.md)).
 Use a verb wherever one fits, and write a method only when no verb can say the rule.
 A `Reorder` stage lists the node types it sorts with `sort`.
 Only sort containers of definitions or entries, such as a class's body or a hash, and never a block of statements.
@@ -345,7 +345,7 @@ end
 The engine writes the numbers before the language's own steps.
 The language's steps can still read the tokens and the brackets, so the engine unwraps the brackets and strips the tokens after them.
 If one of the language's steps needs the brackets gone, unwrap them in a step of its own instead, at the right point (as Elixir and F# do).
-[docs/dsl.md](./docs/dsl.md#generateasts-declarations) explains each declaration.
+[docs/common.md](./docs/common.md#generateasts-declarations) explains each declaration.
 
 `strip_tokens` lists the tokens to strip explicitly.
 To draft the list from the grammar, run:
@@ -415,7 +415,7 @@ end
 ```
 
 A language's snippet reads the comments and docstrings declared in `common/spec.rb`, so `remove :comments, :docstrings` needs nothing else.
-[docs/dsl.md](./docs/dsl.md#snippets) explains every declaration.
+[docs/snippets.md](./docs/snippets.md) explains every declaration.
 To choose the words, look at the start of the track's example solutions.
 Add a test to [`test/engine/snippet_test.rb`](./test/engine/snippet_test.rb) for anything unusual, and run the track's request tests, whose expected responses include the snippet.
 If Rouge has no lexer for the language, add `comment_lines`, so a file that doesn't parse still loses its comments.
@@ -481,6 +481,7 @@ These rules apply to every comment and doc in this repo:
 - Use the future tense for what would happen after a specific event, and the present tense for what is always true.
 - Don't use em dashes, "not X but Y" framing, "The X is the Y" equations or shouted capitals.
 - Don't use object relative clauses. Write "the names used in the tests", and don't write "the names that the tests use".
+- Describe how things are now. Decision history lives outside the repo.
 
 [parsers]: https://github.com/tree-sitter/tree-sitter/wiki/List-of-parsers
 [queries]: https://tree-sitter.github.io/tree-sitter/using-parsers/queries/index.html

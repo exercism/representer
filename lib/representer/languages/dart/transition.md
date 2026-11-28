@@ -5,7 +5,7 @@ This file says how the Dart outputs of this service differ from the tools they r
 ## Representation
 
 Dart had no representer of its own (there is no `exercism/dart-representer`), so Dart used Basic. Basic drops comments, imports and the spaces between tokens, and keeps everything else as it is written, including line breaks.
-Dart now has a representation of its own, which follows the decisions that apply to every language ([README.md](../../../../README.md#how-it-works) describes them).
+Dart now has a representation of its own, which follows the decisions that apply to every language ([docs/how-it-works.md](../../../../docs/how-it-works.md) describes them).
 These things change for Dart:
 
 - The representer renames every name the solution defines, so two solutions that differ only in their names get the same representation. Basic kept every name.

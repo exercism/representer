@@ -5,7 +5,7 @@ This file says how the PHP outputs of this service differ from the tools they re
 ## Representation
 
 The representation replaces the old PHP representer (`exercism/php-representer`), which renamed names in nikic/php-parser's tree and printed the tree back as code.
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - A solution with a syntax error gets Basic's representation, which only drops comments and formatting. The old representer gave it the solution's code unchanged. A file that has no `<?php` tag, and so holds no PHP code, gets Basic's representation too.
 - The old representer renamed every variable, including `$this` and the superglobals such as `$_GET`. This representer renames each variable that the solution sets: by assignment, as a parameter, in a loop, `catch`, `global`, `static` or a closure's `use`, or by passing it to a function. `$this` and the superglobals keep their names. A variable that is only ever read keeps its name too, which only happens in code that would warn when it runs.

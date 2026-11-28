@@ -5,7 +5,7 @@ This file says how the Factor outputs of this service differ from the tools they
 ## Representation
 
 Factor had no representer of its own (there is no `exercism/factor-representer`), so this service has no earlier Factor representation to differ from.
-It applies the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these rules of its own:
+It applies the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these rules of its own:
 
 - **Comments.** The grammar reads comments as words, so the representer removes each `! text` and `#! text` from the source before parsing it. A `!` inside a string stays.
 - **Layout.** Brackets, the stack effect's `--` and the `;` that ends a definition are left out, because the tree already shows them.

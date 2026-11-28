@@ -5,7 +5,7 @@ This file says how the C++ outputs of this service differ from the tools they re
 ## Representation
 
 The representation replaces the old C++ representer (`exercism/cpp-representer`), which split the code into tokens with Pygments, dropped the comments, the preprocessor lines and the spacing, and renamed every name apart from the names after `std::`.
-It differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+It differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - **Syntax errors.** A solution with a syntax error gets Basic's representation, which only drops comments and formatting. The old representer worked on tokens, so it represented any text.
 - **Preprocessor lines.** The old representer dropped every preprocessor line. This one drops `#include` and `#pragma` lines, and an `#ifndef` include guard around a whole file. It keeps `#define`s, because they change the code, and every other `#if`, `#ifdef` and `#ifndef`.

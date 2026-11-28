@@ -5,7 +5,7 @@ This file says how the TypeScript outputs of this service differ from the tools 
 ## Representation
 
 The representation replaces the old TypeScript representer (`exercism/typescript-representer`), which parsed the solution with typescript-estree and printed the tree as JSON, with every identifier renamed.
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - A string is its value, so `'a'`, `"a"` and `` `a` `` are the same, and so are `"\x41"` and `"A"`. The old representer printed each string's source text too, so it kept them apart.
 - A number is its value, so `1_000`, `1000.0`, `1e3` and `0x3E8` are the same. JavaScript has one number type, so they are the same number. The old representer printed each number's source text too.

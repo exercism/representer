@@ -5,7 +5,7 @@ This file says how the JavaScript outputs of this service differ from the tools 
 ## Representation
 
 The representation replaces the old JavaScript representer (`exercism/javascript-representer`), which parsed the solution with typescript-estree, renamed its identifiers and printed it again as code.
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - Export lists (`export { a }`), `module.exports = { a }` and declarations that only `require` modules are dropped, with the imports. The `export` keyword is dropped too, so `export function f` and `function f` followed by `export { f }` get the same representation. The old representer kept all of them.
 - Empty statements, such as the second `;` of `x = 1;;`, are dropped. The old representer printed each one. The empty parts of a `for`, as in `for (;; i++)`, stay.

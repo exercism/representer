@@ -5,7 +5,7 @@ This file says how the Cairo outputs of this service differ from the tools they 
 ## Representation
 
 Cairo never had a representer of its own (there is no `exercism/cairo-representer`), so there is nothing to compare with.
-The representation follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+The representation follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 
 ## Spellings that share a representation
 

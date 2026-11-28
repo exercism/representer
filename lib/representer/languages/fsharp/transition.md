@@ -5,7 +5,7 @@ This file says how the F# outputs of this service differ from the tools they rep
 ## Representation
 
 The representation replaces the old F# representer (`exercism/fsharp-representer`).
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 
 ## Spellings that share a representation
 

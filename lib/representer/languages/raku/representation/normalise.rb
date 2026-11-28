@@ -1,4 +1,4 @@
-# docs/dsl.md defines the verbs in this file.
+# docs/representation.md defines the verbs in this file.
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on. Each rule
 # here gives one form to code that works the same way.

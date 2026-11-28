@@ -5,7 +5,7 @@ This file says how the Crystal outputs of this service differ from the tools the
 ## Representation
 
 The representation replaces the old Crystal representer (`exercism/crystal-representer`), which parsed the solution with the Crystal compiler, renamed the names the solution defines, sorted the methods, and printed the tree back as Crystal code.
-It differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+It differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - **Imports.** The old representer kept each `require`. This one drops them.
 - **Spellings.** The old representer printed the code in the compiler's own layout. This one writes each string as its value, keeping its interpolations, and each number as its value, so `1_000` and `1000` are the same, and so are `0x1F` and `31`. It drops a number's type suffix if it names the type the number has anyway, so `1_i32` is `1` and `2.0_f64` is `2.0`. It also drops brackets that only group, and the empty brackets of a call, so `f()` is `f`.

@@ -6,7 +6,7 @@ This file says how the ReScript outputs of this service differ from the tools th
 
 ReScript had no representer of its own, so the track used Basic, which drops comments and formatting and keeps everything else as tokens.
 The representation now parses the solution with tree-sitter-rescript and writes the tree that the ReScript compiler's parser would give.
-It follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+It follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 For ReScript, these are the changes:
 
 - **Names.** Basic kept every name. Every name the solution defines now gets a placeholder: values and functions, their parameters and labels, the variables in patterns and `for` loops, types, type variables, abstract types, variant constructors, exceptions, record fields, polymorphic variants declared in a type, modules, functor parameters and externals. A name the solution doesn't define keeps its name, such as `Array.map` or `Some`.

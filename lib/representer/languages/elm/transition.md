@@ -5,7 +5,7 @@ This file says how the Elm outputs of this service differ from the tools they re
 ## Representation
 
 The representation replaces the old Elm representer (`exercism/elm-representer`), which parsed the solution with elm-syntax, renamed every name that wasn't in its list of Elm's standard names or in the module's exposing list or imports, and printed the result as Elm code.
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - The list of what the module exposes is dropped, because every solution exposes what the tests use. The old representer printed it.
 - Brackets that only group are dropped, so `f (g x)` and `f (g (x))` are the same. Brackets around an operator expression inside another one stay, as in `(a + b) * c`, because the grammar writes `a + b * c` as one flat list. The old representer printed every pair of brackets.

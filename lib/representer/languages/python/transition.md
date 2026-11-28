@@ -5,7 +5,7 @@ This file says how the Python outputs of this service differ from the tools they
 ## Representation
 
 The representation replaces the old Python representer (`exercism/python-representer`), which renamed names in the tree from Python's own `ast` module, and left out docstrings, `print` statements, `if __name__ == "__main__":` blocks and type hints.
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - `elif` and an `else` that holds only an `if` stay apart. Python's parser gives them the same tree, so the old representer merged them. A mentor would tell a student who writes the second to use `elif`, so iHiD decided to keep them apart.
 - The name given with `as` in an import keeps its name, so `import numpy as np` and `import numpy as n` stay apart. The engine drops every import, so the alias is never defined. The old representer kept imports and renamed the alias.

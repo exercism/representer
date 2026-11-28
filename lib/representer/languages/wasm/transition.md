@@ -6,7 +6,7 @@ This file says how the WebAssembly outputs of this service differ from the tools
 
 The representation replaces the old WebAssembly representer (`exercism/wasm-representer`), which ran wabt's `wat-desugar` over every file and printed the result.
 `wat-desugar` drops comments, writes folded instructions as plain instructions and writes each inline export as a separate export field, but it never renamed anything.
-This representer gives one form to the same spellings, and differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+This representer gives one form to the same spellings, and differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - **Names.** Every `$name` defined by the solution is renamed: functions, parameters, locals, globals, memories, tables, types, labels and so on. The old representer kept every name.
 - **Exports.** An export is moved into the function, memory, global or table that it exports, so `(export "f" (func $f))` and `(func $f (export "f"))` are the same. `wat-desugar` did the opposite, and wrote each inline export as a separate field.

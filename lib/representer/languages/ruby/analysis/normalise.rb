@@ -1,4 +1,4 @@
-# docs/dsl.md defines the helpers in this file.
+# docs/writing-generate-ast.md defines the helpers in this file.
 # This stage runs only on the analysis's tree. A class or module can define
 # a method on itself in several ways, and the tests call each one the same
 # way, so this stage writes each of them as `def self.name`. Each rule can

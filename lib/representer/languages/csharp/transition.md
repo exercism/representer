@@ -5,7 +5,7 @@ This file says how the C# outputs of this service differ from the tools they rep
 ## Representation
 
 The representation replaces the old C# representer (`exercism/csharp-representer`), which ran Roslyn's simplifier and then its own rewriters.
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and this difference:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and this difference:
 
 - `this.` is dropped before every name, even when a parameter or local variable has the same name, as in `this.count = count`. Roslyn's simplifier kept it there. The engine renames by name, so the field and the parameter get the same placeholder anyway, and two solutions only merge if both pass their tests.
 

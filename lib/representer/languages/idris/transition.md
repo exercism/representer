@@ -5,7 +5,7 @@ This file says how the Idris outputs of this service differ from the tools they 
 ## Representation
 
 Idris had no representer of its own, so the track used Basic. Basic splits the code into tokens, drops the comments and the `import` lines, and keeps everything else as it is written, including the line breaks, the indentation and the names.
-Idris now has a representation of its own, which reads the solution's syntax tree with tree-sitter-idris and follows the decisions that apply to every language ([README.md](../../../../README.md#how-it-works) describes them).
+Idris now has a representation of its own, which reads the solution's syntax tree with tree-sitter-idris and follows the decisions that apply to every language ([docs/how-it-works.md](../../../../docs/how-it-works.md) describes them).
 These things change for Idris:
 
 - **Names.** Basic renamed nothing. The representer renames every name the solution defines: its module, namespaces, functions, values, parameters, the variables in patterns, `let` and `do` bindings, data types and their constructors, records with their constructors and fields, interfaces, the named arguments of a type such as `(n : Nat)`, and type variables. A lower case name in a type is a type variable unless it is applied to arguments, because Idris binds such a name as an implicit argument. A name the solution doesn't define, such as `map`, `Nothing` or `Show`, keeps its name. If a solution implements an interface from the library, such as `Show`, the names of the methods it defines, such as `show`, are renamed everywhere.

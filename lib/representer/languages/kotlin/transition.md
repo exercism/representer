@@ -6,7 +6,7 @@ This file says how the Kotlin outputs of this service differ from the tools they
 
 Kotlin had no representer of its own, so the track used Basic, which drops comments, imports and formatting and keeps everything else as tokens.
 The Kotlin representer parses each solution with tree-sitter instead.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears, including classes, objects, functions, properties, parameters, type parameters, enum entries and labels. A name in backticks is the same name without them.
 - **Strings.** Basic kept each string as written. This representer writes each string as its value, so `"""a"""` and `"a"` are the same, and so are `"\u0041"` and `"A"`. A raw string has no escapes, so `"""\n"""` keeps its backslash. `"$a"` and `"${a}"` are the same interpolation.

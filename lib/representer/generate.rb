@@ -16,8 +16,8 @@ module Representer
   #
   # If an output can't be generated, its key holds an error with a reason
   # (error) and a message. The other outputs still come back. A solution that
-  # can't be represented gets an error with the reasons listed in README.md,
-  # and the language's version. An analysis whose main file doesn't parse
+  # can't be represented gets an error with one of the reasons listed in
+  # docs/representation.md, and the language's version. An analysis whose main file doesn't parse
   # gets an error with the analysis's version. An output that the track
   # doesn't support yet gets the error "not_supported", and a bug in the
   # snippet's or the analysis's rules gets "internal_error".

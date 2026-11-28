@@ -6,7 +6,7 @@ This file says how the Julia outputs of this service differ from the tools they 
 
 Julia had no representer of its own, so the track used Basic, which drops comments, imports and formatting and keeps everything else as tokens.
 The Julia representer parses each solution with tree-sitter instead.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears, including functions, macros, modules, structs and their fields, abstract and primitive types, type parameters, parameters, keyword parameters and variables. A function that the solution adds a method to after `import Base: show` counts as defined by the solution, so `show` is renamed there. `Base.show(io, x) = ...` keeps its name.
 - **Imports.** `using`, `import` and `include("file.jl")` are dropped. Basic dropped only the lines that start with `using` or `import`.

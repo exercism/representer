@@ -6,7 +6,7 @@ This file says how the Emacs Lisp outputs of this service differ from the tools 
 
 Emacs Lisp had no representer of its own, so the track used Basic, which drops comments and formatting and keeps everything else as tokens.
 The Emacs Lisp representer parses each solution with tree-sitter instead.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears, including quoted symbols such as the feature in `(provide 'two-fer)`. It renames the names of functions, macros, methods, global variables, aliases, errors, structures and classes with their slots and accessors, and every parameter and local variable (`let`, `let*`, `if-let`, `when-let*`, `dolist`, `dotimes`, `seq-let`, `cl-flet`, `cl-labels`, `cl-loop`, `condition-case` and the others).
 - **Imports.** `require` forms are dropped. Basic kept them.

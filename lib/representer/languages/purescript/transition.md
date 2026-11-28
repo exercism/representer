@@ -6,7 +6,7 @@ This file says how the PureScript outputs of this service differ from the tools 
 
 PureScript had no representer of its own, so it used Basic, which writes a solution's tokens line by line and renames nothing.
 The representation now parses the solution with tree-sitter-purescript and writes the tree that the PureScript compiler's parser would give.
-It follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+It follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 For PureScript, these are the changes:
 
 - Every name the solution defines gets a placeholder: the module, functions, operators, values, parameters, the variables in patterns, types, classes, instances, constructors, record labels and type variables. Basic kept every name.

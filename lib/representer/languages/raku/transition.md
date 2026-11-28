@@ -6,7 +6,7 @@ This file says how the Raku outputs of this service differ from the tools they r
 
 The representation replaces the old Raku representer (`exercism/raku-representer`), which printed Rakudo's AST of each solution file (`.AST.raku`) and replaced each name in it with a placeholder.
 This service reads the code with tree-sitter, so it needs no Rakudo.
-It differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+It differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - The old representer replaced every name in the AST, including names that the solution doesn't define, such as `say`, `export` and `return`, and its mapping wrote each name in quotes. This service renames the names the solution defines: its subs, methods, classes, modules, constants, variables and parameters. A variable's sigil stays part of its name, so `$count` and a sub called `count` are two names. A public attribute (`$.size`) and a named parameter (`:$size`) keep their names, because callers use them.
 - Comments and Pod blocks are dropped.

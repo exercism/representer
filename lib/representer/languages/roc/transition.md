@@ -6,7 +6,7 @@ This file says how the Roc outputs of this service differ from the tools they re
 
 Roc had no representer of its own, so the track used Basic, which writes a solution's tokens line by line and renames nothing.
 The Roc representer parses each solution with tree-sitter-roc instead, and writes the tree that the Roc compiler's parser would give.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears: values, functions, their parameters, the variables in patterns, mutable variables such as `$total`, types, the fields of records, the tags of tag unions and type variables.
 - **Layout.** Basic kept line breaks and indentation. This representer drops comments, documentation comments, layout, commas and brackets that only group, so `f((x))` and `f(x)` are the same. Brackets around an operator expression or a negation inside an operator expression stay, as in `(a + b) * c`, because the grammar writes `a + b * c` as one flat list.

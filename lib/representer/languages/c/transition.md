@@ -5,7 +5,7 @@ This file says how the C outputs of this service differ from the tools they repl
 ## Representation
 
 C used Basic before, which split the code into tokens, dropped the comments and the `#include` lines, and kept everything else as it was written, including the line breaks and the names.
-The representation now reads the code's syntax tree, and differs from Basic in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+The representation now reads the code's syntax tree, and differs from Basic in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - **Names.** Basic renamed nothing. This representation renames every name the solution defines: its functions, variables, parameters, types, `struct` and `enum` tags, fields, enumerators, macros and labels. A name the solution doesn't define, such as `strlen`, keeps its name.
 - **Layout.** Basic kept the line breaks and the spaces between tokens. This representation ignores all layout.

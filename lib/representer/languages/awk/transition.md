@@ -6,7 +6,7 @@ This file says how the AWK outputs of this service differ from the tools they re
 
 AWK had no representer of its own, so the track used Basic, which writes a solution's tokens line by line and renames nothing.
 The AWK representer parses each solution with tree-sitter-awk instead, and writes the tree that gawk's parser would give.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears: functions and their parameters, and the variables and arrays that the solution assigns to, changes, subscripts, reads into with `getline`, deletes, loops over, or passes to a builtin that fills it, such as `split` or `gsub`. AWK's own variables, such as `NR`, `FS` and `PROCINFO`, keep their names, and so do the builtins and the functions that come from an `@load`, such as `ord`.
 - **Layout.** Basic kept line breaks. This representer drops comments, layout, the `;` and line breaks between statements and rules, a lone `;`, the `\` at the end of a line, and brackets that only group.

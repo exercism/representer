@@ -6,7 +6,7 @@ This file says how the MIPS outputs of this service differ from the tools they r
 
 MIPS had no representer of its own, so it used Basic, which writes a solution's tokens line by line and renames nothing.
 The representation now parses the solution with tree-sitter-mips and writes the tree that the assembler reads.
-It follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+It follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 For MIPS, these are the changes:
 
 - Every name the solution defines gets a placeholder: labels, `.eqv` constants, macros and the parameters of macros. Basic kept every name. Registers and instructions keep their names.

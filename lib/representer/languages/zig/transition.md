@@ -5,7 +5,7 @@ This file says how the Zig outputs of this service differ from the tools they re
 ## Representation
 
 The representation replaces the old Zig representer (`exercism/zig-representer`), which joined the solution files and removed blank lines and trailing whitespace. It never changed a name, and it kept the code as it was written.
-It differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+It differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - **Syntax errors.** A solution with a syntax error gets Basic's representation, which only drops comments and formatting. The old representer represented any text.
 - **Comments.** Comments and doc comments are dropped. The old representer kept them.

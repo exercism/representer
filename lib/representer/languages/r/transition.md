@@ -5,7 +5,7 @@ This file says how the R outputs of this service differ from the tools they repl
 ## Representation
 
 R had no representer of its own (there is no `exercism/r-representer`), so R used Basic. Basic drops comments and the spaces between tokens, and keeps everything else as it is written, including line breaks.
-R now has a representation of its own, which follows the decisions that apply to every language ([README.md](../../../../README.md#how-it-works) describes them).
+R now has a representation of its own, which follows the decisions that apply to every language ([docs/how-it-works.md](../../../../docs/how-it-works.md) describes them).
 These things change for R:
 
 - The representer renames every name the solution defines, so two solutions that differ only in their names get the same representation. This includes the functions and variables assigned with `<-`, `<<-`, `=` or `->`, parameters, loop variables, and the fields assigned with `$`, such as `robot$direction <- "north"`. Basic kept every name.

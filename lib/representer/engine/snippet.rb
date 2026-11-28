@@ -2,7 +2,7 @@ module Representer::Engine
   # The website shows the start of each solution on its card. Each track's
   # snippet is a class called Spec in a module called Snippet, such as
   # Ruby::Snippet::Spec. It subclasses this one, and lists what to leave
-  # out of the snippet (docs/dsl.md describes every declaration):
+  # out of the snippet (docs/snippets.md describes every declaration):
   #
   #   module Representer::Languages::Ruby::Snippet
   #     class Spec < Representer::Engine::Snippet

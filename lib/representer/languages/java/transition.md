@@ -5,7 +5,7 @@ This file says how the Java outputs of this service differ from the tools they r
 ## Representation
 
 The representation replaces the old Java representer (`exercism/java-representer`), which renamed the names in Spoon's model of the solution and printed the model back as formatted code.
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - A solution with a syntax error gets Basic's representation, which only drops comments and formatting. The old representer's compiler repaired small errors, such as a missing semicolon, and represented the result. Every solution that the representer sees passes its tests, so this only affects code that doesn't compile.
 - A character literal keeps the text it is written with. The old representer read its value, so it merged `'A'` and `'A'`. No golden solution writes a character with a Unicode or octal escape.

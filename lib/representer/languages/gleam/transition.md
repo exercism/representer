@@ -6,7 +6,7 @@ This file says how the Gleam outputs of this service differ from the tools they 
 
 The representation replaces the old Gleam representer (`exercism/gleam-representer`), which was Exercism's template representer.
 It joined the solution's files, removed blank lines and trailing whitespace, and kept every name as it was written.
-This service applies the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these rules of its own:
+This service applies the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these rules of its own:
 
 - **Syntax errors.** A solution with a syntax error gets Basic's representation, which only drops comments and formatting. The old representer worked on text, so it represented any file.
 - **Comments and layout.** Comments (`//`, `///` and `////`), brackets, commas and the keywords that sit in a fixed place are left out, because the tree already shows them.

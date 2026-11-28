@@ -1,4 +1,4 @@
-# docs/dsl.md and docs/writing-generate-ast.md define the declarations and
+# docs/common.md and docs/writing-generate-ast.md define the declarations and
 # helpers in this file.
 # Tree-sitter's tree keeps every token and spelling, but a mentor would give
 # the same feedback however a solution is written. So this stage turns it into

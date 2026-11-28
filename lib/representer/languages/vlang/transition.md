@@ -6,7 +6,7 @@ This file says how the V outputs of this service differ from the tools they repl
 
 V had no representer of its own, so the track used Basic, which drops comments and formatting and keeps everything else as tokens.
 The representation now parses the solution with tree-sitter-v (from vlang/v-analyzer) and writes the tree that V's own parser (v.ast) would give.
-It follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+It follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 For V, these are the changes:
 
 - **Names.** Basic kept every name. Every name the solution defines now gets a placeholder: functions and methods, their receivers and parameters, generic types, variables defined with `:=` or in a `for` loop, short lambda parameters, constants, globals, labels, structs and their fields, enums and their values, type aliases and sum types, and interfaces and their methods. A name the solution doesn't define keeps its name, such as `println`, `it` or `strings.Builder`. `_` keeps its name.

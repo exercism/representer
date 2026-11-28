@@ -6,7 +6,7 @@ This file says how the Haskell outputs of this service differ from the tools the
 
 Haskell had no representer of its own, so it used Basic, which writes a solution's tokens line by line and renames nothing.
 The representation now parses the solution with tree-sitter-haskell and writes the tree that GHC's parser would give.
-It follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+It follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 For Haskell, these are the changes:
 
 - Every name the solution defines gets a placeholder: the module, functions, operators, values, parameters, the variables in patterns, types, classes, constructors, record fields and type variables. Basic kept every name.

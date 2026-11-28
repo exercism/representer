@@ -6,7 +6,7 @@ This file says how the Fortran outputs of this service differ from the tools the
 
 Fortran had no representer of its own, so the track used Basic, which writes a solution's tokens line by line and renames nothing.
 The Fortran representer parses each solution with tree-sitter-fortran instead, and writes the tree that a Fortran compiler's parser would give.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears: programs, modules, interfaces, functions, subroutines, their parameters and results, variables and constants, derived types and their components, type-bound procedures, the names given by `associate`, construct labels, and the variables assigned to without a declaration.
 - **Case.** Fortran ignores the case of names and keywords, so this representer writes them all in lower case. `MOD(Year, 4)` and `mod(year, 4)` are the same. Strings keep their case.

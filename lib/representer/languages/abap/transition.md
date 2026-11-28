@@ -6,7 +6,7 @@ This file says how the ABAP outputs of this service differ from the tools they r
 
 ABAP had no representer of its own, so the track used Basic, which writes a solution's tokens line by line and renames nothing.
 The ABAP representer parses each solution with kennyhml/tree-sitter-abap instead, and writes the tree that the ABAP compiler's parser would give.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears: classes, interfaces, methods, events and forms, parameters, types and structure components, variables, constants and field symbols, inline declarations such as `DATA(x)`, and the names given by `FOR`, `INDEX INTO`, `INIT`, `LET` and group keys.
 - **Case.** ABAP ignores the case of names and keywords, so this representer writes them all in lower case. `IF Year MOD 4 = 0` and `if year mod 4 = 0` are the same. Strings keep their case.

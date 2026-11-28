@@ -5,7 +5,7 @@ This file says how the Scheme outputs of this service differ from the tools they
 ## Representation
 
 Scheme had no representer of its own (there is no `exercism/scheme-representer`), so Scheme used Basic. Basic drops comments and the spaces between tokens, and keeps everything else as it is written, including line breaks.
-Scheme now has a representation of its own, which follows the decisions that apply to every language ([README.md](../../../../README.md#how-it-works) describes them).
+Scheme now has a representation of its own, which follows the decisions that apply to every language ([docs/how-it-works.md](../../../../docs/how-it-works.md) describes them).
 These things change for Scheme:
 
 - The representer renames every name the solution defines, so two solutions that differ only in their names get the same representation. This includes the names and parameters of `define`, `define*` and `lambda`, the variables of `let`, `let*`, `letrec`, named `let`, `let-values`, `receive`, `define-values` and `do`, the variable of a `guard`, the names of a record type (its type, constructor, predicate, fields, accessors and modifiers), and macros with their pattern variables. Basic kept every name.

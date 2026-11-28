@@ -6,7 +6,7 @@ This file says how the Scala outputs of this service differ from the tools they 
 
 Scala had no representer of its own, so the track used Basic, which drops comments, imports and formatting and keeps everything else as tokens.
 The Scala representer parses each solution with tree-sitter instead.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears, including objects, classes, traits, enums and their cases, types, type parameters, methods, givens, values, variables, parameters and the variables bound by patterns. In a pattern, only a name that starts with a lower-case letter binds a variable, so `case Nil` keeps `Nil`. A name in backticks is the same name without them.
 - **Layout.** Basic kept the line breaks and the indentation. This representer ignores layout, so a body in braces and the same body after Scala 3's `:` and indentation are the same, and so are `if (a) b` and `if a then b`, and `for (x <- xs)`, `for { x <- xs }` and `for x <- xs`. An indented block that holds one expression is that expression, as Scala's parser reads it.

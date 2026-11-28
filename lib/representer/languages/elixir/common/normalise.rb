@@ -1,4 +1,5 @@
-# docs/dsl.md defines the verbs and helpers in this file.
+# docs/representation.md defines the verbs in this file, and
+# docs/writing-generate-ast.md defines the helpers.
 module Representer::Languages::Elixir::Common
   class Normalise < Representer::Engine::Normalise
     # Attach each `@spec` and `@impl` to the function after it, so that it stays

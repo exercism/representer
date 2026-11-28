@@ -5,7 +5,7 @@ This file says how the Go outputs of this service differ from the tools they rep
 ## Representation
 
 The representation replaces the old Go representer (`exercism/go-representer`), which parsed the solution with go/ast, rewrote it, and printed it as Go code.
-It differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+It differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - **Names.** The engine renames every name the solution defines, wherever it appears. The old representer renamed every name apart from Go's built-in names, the names of imported packages and their members, and a type written as the type of a parameter or field (`sound sound`). So a type now gets the same placeholder everywhere.
 - **Imports.** The old representer kept every import. This one drops them, apart from an import of `_` (`import _ "embed"`), which runs the package's code.

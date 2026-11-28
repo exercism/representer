@@ -6,7 +6,7 @@ This file says how the Erlang outputs of this service differ from the tools they
 
 Erlang had no representer of its own, so the track used Basic, which drops comments, imports, export lists and formatting and keeps everything else as tokens.
 The representation now parses the solution with tree-sitter-erlang and writes the tree that Erlang's parser (`erl_parse`) would give.
-It follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+It follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 For Erlang, these are the changes:
 
 - **Names.** Basic kept every name. Every name the solution defines now gets a placeholder: the module, functions, variables, records and their fields, types, and macros. A predefined macro such as `?MODULE` keeps its name, and so does `_`.

@@ -5,7 +5,7 @@ This file says how the Odin outputs of this service differ from the tools they r
 ## Representation
 
 Odin had no representer of its own, so the track used Basic. Rouge has no Odin lexer, so Basic split the code at whitespace, dropped the `import` lines, and kept everything else as it was written, including the comments, the line breaks and the names.
-Odin now has a representation of its own, which reads the solution's syntax tree with BradLewis/tree-sitter-odin and follows the decisions that apply to every language ([README.md](../../../../README.md#how-it-works) describes them).
+Odin now has a representation of its own, which reads the solution's syntax tree with BradLewis/tree-sitter-odin and follows the decisions that apply to every language ([docs/how-it-works.md](../../../../docs/how-it-works.md) describes them).
 These things change for Odin:
 
 - **Names.** Basic renamed nothing. The representer renames every name the solution defines: its package, procedures, structs, unions, enums and their values, constants, variables, parameters, named results, struct fields, labels, the variables of `for` loops and type switches, and polymorphic names such as `$T`. `_` keeps its name, because it defines nothing. A name the solution doesn't define, such as `len`, `fmt` or `strings.to_upper`, keeps its name, and so does the alias of an import, such as `str` in `import str "core:strings"`.

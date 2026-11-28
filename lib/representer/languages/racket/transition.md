@@ -6,7 +6,7 @@ This file says how the Racket outputs of this service differ from the tools they
 
 Racket had no representer of its own, so the track used Basic, which drops comments and formatting and keeps everything else as tokens.
 The representation now parses the solution with tree-sitter-racket and writes the forms that Racket's reader would give.
-It follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+It follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 For Racket, these are the changes:
 
 - **Names.** Basic kept every name. Every name the solution defines now gets a placeholder: functions and their parameters, global and local definitions, `let` and loop variables, `for/fold` accumulators, names bound by `match` patterns, macros defined with `define-syntax-rule`, structures and their fields, and classes with their fields and methods. A name the solution doesn't define keeps its name, such as `string-upcase`.

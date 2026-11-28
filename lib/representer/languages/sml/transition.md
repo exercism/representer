@@ -6,7 +6,7 @@ This file says how the Standard ML outputs of this service differ from the tools
 
 Standard ML had no representer of its own, so the track used Basic, which writes a solution's tokens line by line and renames nothing.
 The Standard ML representer parses each solution with tree-sitter-sml instead, and writes the tree that an SML compiler's parser would give.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears: values, functions, operators, the variables in patterns, constructors, exceptions, record labels, types, type variables, structures, signatures, functors and their parameters. The constructors and exceptions of the Basis Library, such as `SOME`, `true` and `Fail`, keep their names in patterns.
 - **Layout.** Basic kept line breaks. This representer drops comments, layout, the `;` between declarations, the `|` before the first case of a match, and brackets that only group.

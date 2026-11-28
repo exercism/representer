@@ -5,7 +5,7 @@ This file says how the Red outputs of this service differ from the tools they re
 ## Representation
 
 Red never had a working representer of its own. The `exercism/red-representer` repository holds only the files that every Exercism repository starts with, so there is nothing to compare with.
-The representation follows the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes.
+The representation follows the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes.
 
 ## Spellings that share a representation
 

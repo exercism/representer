@@ -5,7 +5,7 @@ This file says how the Wren outputs of this service differ from the tools they r
 ## Representation
 
 The representation replaces the old Wren representer (`exercism/wren-representer`), which parsed the solution with the Lezer Wren grammar, replaced the names of classes, methods and variables with placeholders, and wrote each token with spaces between them.
-It differs from the old representer in the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and in these ways:
+It differs from the old representer in the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and in these ways:
 
 - **Names.** The old representer kept the names of Wren's core classes (such as `List`, `Num` and `Random`) and the method name `new`, and kept the name of a method called after a dot (`board.size`). This one renames every name the solution defines, wherever it appears, including a method called `new` or `toString`, and keeps every other name.
 - **Strings.** The old representer wrote each string as it was written. This one writes each string as its value, so `"""a"""` and `"a"` are the same, and so are `"A"` and `"A"`. A string with interpolations keeps them, with the text between them as values. Only the common escapes are read (`\n`, `\r`, `\t`, `\0`, `\a`, `\b`, `\e`, `\f`, `\v`, `\\`, `\"`, `\%`, `\uHHHH` and `\UHHHHHHHH`), so `"\x41"` and `"A"` stay apart.

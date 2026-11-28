@@ -1,4 +1,4 @@
-# docs/dsl.md defines the verbs in this file.
+# docs/analysis.md defines the verbs in this file.
 # The tests call Acronym.abbreviate with a phrase.
 module Representer::Languages::Ruby::Analysis
   class Acronym < Representer::Engine::AnalysisRules

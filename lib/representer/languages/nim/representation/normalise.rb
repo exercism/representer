@@ -1,4 +1,5 @@
-# docs/dsl.md defines the verbs and helpers in this file.
+# docs/representation.md defines the verbs in this file, and
+# docs/writing-generate-ast.md defines the helpers.
 # Remember that all solutions pass the tests and we don't need to run the code,
 # so normalising only has to keep what a mentor would comment on.
 module Representer::Languages::Nim::Representation

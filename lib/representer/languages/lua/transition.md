@@ -5,7 +5,7 @@ This file says how the Lua outputs of this service differ from the tools they re
 ## Representation
 
 Lua had no representer of its own (there is no `exercism/lua-representer`), so Lua used Basic. Basic drops comments and the spaces between tokens, and keeps everything else as it is written, including line breaks.
-Lua now has a representation of its own, which follows the decisions that apply to every language ([README.md](../../../../README.md#how-it-works) describes them).
+Lua now has a representation of its own, which follows the decisions that apply to every language ([docs/how-it-works.md](../../../../docs/how-it-works.md) describes them).
 These things change for Lua:
 
 - The representer renames every name the solution defines, so two solutions that differ only in their names get the same representation. This includes the functions and fields set on a table, such as `M.two_fer` and `self.count`, and the names of fields in a table constructor. Basic kept every name.

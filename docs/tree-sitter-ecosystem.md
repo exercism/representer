@@ -13,7 +13,7 @@ All data was pulled on 2026-11-26 through the GitHub API (read only). "Last comm
 | Stale | 3 |
 | None | 3 |
 
-The ratings use each track's recommended grammar. The rule for each rating was:
+The ratings use each track's recommended grammar. The rule for each rating is:
 
 - Active means a commit in the last 6 months and maintainers who respond.
 - Slow but alive means a commit 6 to 24 months ago, or recent commits with no maintainer replies to the issues and PRs that came in.
@@ -21,17 +21,6 @@ The ratings use each track's recommended grammar. The rule for each rating was:
 - None means no grammar was found.
 
 A repo with recent commits and no incoming issues or PRs counts as responsive, because nobody was waiting for a reply. "Maintainers responded" means a comment from an owner, member or collaborator, a merged PR, or a closed issue in the last 6 months, among each repo's 8 most recently updated issues and 8 most recently updated PRs. This test is rough. Ratings near a boundary deserve a second look before anyone depends on them.
-
-## Decisions and grammar changes
-
-Decisions made:
-
-- wasm switches to `g-plane/tree-sitter-wat`.
-- Cairo, Factor, Ballerina and Red get classes that use `starkware-libs/tree-sitter-cairo`, `erochest/tree-sitter-factor` (no licence stated), `David-Stephenson/tree-sitter-ballerina` and `red/tree-sitter-red`.
-- Raku uses `rexylic/tree-sitter-raku`, with its parser generated at build time.
-- Haxe stays on the Basic fallback.
-
-The research also found a better grammar than the one first listed for awk (konomanoasa), arturo (the Codeberg DaZhi grammar), jq (nverno) and pharo-smalltalk (shnarazk's Tonel grammar). The table recommends these and keeps the old grammar as the alternative. These four changes are recommendations from the research and are not yet confirmed.
 
 ## Parse rates
 
@@ -57,9 +46,9 @@ Tracks whose recommended grammar has 2 stars or fewer: arturo, awk, ballerina, c
 
 ## Summary of the data
 
-These counts describe the 82 grammars chosen before the grammar changes above. They do not include the new picks for arturo, awk, ballerina, cairo, factor, jq, pharo-smalltalk and wasm.
+These counts describe 82 of the grammars in the table. They leave out the grammars recommended for arturo, awk, ballerina, cairo, factor, jq, pharo-smalltalk and wasm.
 
-- 64 of the 82 chosen grammars ship `queries/highlights.scm`. Another 8 ship a `queries/` folder without that file, and 10 have no queries folder.
+- 64 of the 82 grammars ship `queries/highlights.scm`. Another 8 ship a `queries/` folder without that file, and 10 have no queries folder.
 - 56 of the 82 are in nvim-treesitter's main branch. The master branch is frozen at 2026-03-23, and main was last updated on 2026-11-21. In main every parser has a tier (stable, unstable, unmaintained). Only three of our grammars are marked unmaintained: gdscript, roc and unison. Only csharp and python are marked stable.
 - 32 grammars have a committed `parser.c` at ABI 14 or lower. Four of them are at ABI 13: factor, jq (the nvim-treesitter one), pharo-smalltalk and wasm. libtree-sitter 0.25 loads ABI 13 to 15. The representer's own requirement is ABI 15 (libtree-sitter 0.25), so ABI 14 grammars load, and the ones that need regenerating are easy to spot in the ABI column.
 - 9 grammars do not commit `parser.c` and need `tree-sitter generate` at build time, as the representer already does for raku: abap, arturo, cfml, perl5, prolog, raku, sqlite, swift and vbnet. For these the ABI column shows the CLI version named in `package.json`, which is what decides the ABI.
@@ -148,20 +137,20 @@ The ABI column shows the `LANGUAGE_VERSION` in the committed `src/parser.c` (in 
 | uiua | shnarazk/tree-sitter-uiua | individual | 27 | 2025-04-25 | 0 | 14 | yes | no | Stale | 25.7% (26/101) | Archived. The repo is archived (read-only). Last commit 2025-04-25. Not in nvim-treesitter. Alternative: magistau/tree-sitter-uiua (0 stars, no queries). Fails on newer syntax: `\|1` signatures, `⨬`, `⊸` and `⟜` modifiers and `┌─╴` data definitions. magistau/tree-sitter-uiua targets Uiua 0.17-dev, needs `bun` and a downloaded primitives file to build, and was not built. |
 | unison | kylegoetz/tree-sitter-unison | individual | 12 | 2026-10-19 | 125 | 15 | yes | yes (unmaintained) | Active | not measured | Single maintainer (kylegoetz, 99 of 100 commits). nvim-treesitter main marks it unmaintained (tier 3), but the repo had 29 commits in 6 months. |
 | vbnet | govindbanura/tree-sitter-vbnet | individual | 2 | 2025-07-30 | 0 | gen | no | no | Slow but alive | 51.3% (61/119) | 2 stars, last commit 2025-07-30, no queries, no committed parser.c. Not in nvim-treesitter. Fails on `"a"c` character literals, `$"..."` interpolation, `{ ... }` array literals, tuples and block `If`. Other VB.NET grammars parse 20.2% (CodeAnt-AI), 14.3% (CoolCoderSuper) and 0% (gabriel-gubert). |
-| vimscript | tree-sitter-grammars/tree-sitter-vim | tree-sitter-grammars org | 39 | 2026-07-12 | 21 | 15 | queries/ only | yes (unstable) | Active | not measured | Moved from vigoux and neovim to tree-sitter-grammars. Release v0.8.1 (2026-02-26), 2 commits in 6 months. 39 stars. |
+| vimscript | tree-sitter-grammars/tree-sitter-vim | tree-sitter-grammars org | 39 | 2026-07-12 | 21 | 15 | queries/ only | yes (unstable) | Active | not measured | Release v0.8.1 (2026-02-26), 2 commits in 6 months. 39 stars. |
 | vlang | vlang/v-analyzer | language org | 206 | 2026-11-02 | 13 | 15 | no | yes (unstable) | Active | not measured | The grammar is a subfolder (`tree_sitter_v`) of the v-analyzer language server, which is what nvim-treesitter uses. 13 commits in 12 months, none about the grammar specifically. Release tags are for the language server. Alternative: nedpals/tree-sitter-v (24 stars, last commit 2022-10-30, ABI 13). |
-| wasm | g-plane/tree-sitter-wat (the representer uses the exercism/tree-sitter-wat fork at commit afe87728) | individual | 0 | 2026-02-28 | 19 | 15 | not checked | no | Slow but alive | 98.9% (86/87) | MIT. Used by Zed. The representer pins Exercism's fork, which adds the folded `if` shorthand that wabt 1.0.32 accepts (`(if c t)` and `(if c t e)`), with the same tree as the spec form with `(then ...)`. The wasm-lsp grammar that the representer used before parsed 253 of 289 golden solutions. Alternative: wasm-lsp/tree-sitter-wasm (`wat/` folder, 40 stars, last commit 2022-05-17, ABI 13, used by Helix), also 98.9% (86/87), failing a different file. mkatychev and markmurphydev parse 0%. |
+| wasm | g-plane/tree-sitter-wat (the representer uses the exercism/tree-sitter-wat fork at commit afe87728) | individual | 0 | 2026-02-28 | 19 | 15 | not checked | no | Slow but alive | 98.9% (86/87) | MIT. Used by Zed. The representer pins Exercism's fork, which adds the folded `if` shorthand that wabt 1.0.32 accepts (`(if c t)` and `(if c t e)`), with the same tree as the spec form with `(then ...)`. The wasm-lsp grammar parses 253 of 289 golden solutions. Alternative: wasm-lsp/tree-sitter-wasm (`wat/` folder, 40 stars, last commit 2022-05-17, ABI 13, used by Helix), also 98.9% (86/87), failing a different file. mkatychev and markmurphydev parse 0%. |
 | wren | jossephus/tree-sitter-wren | individual | 1 | 2026-02-28 | 7 | 15 | yes | no | Slow but alive | 100% (313 of 313 real solutions) at the pinned commit, which is the latest | 1 star, single author. Last commit 2026-02-28. Already pinned by the representer. Not in nvim-treesitter. The latest commit of this repo parses all 121 files. The commit pinned in the representer (d408dd2) parses 39 and fails on block arguments (`{ \|x\| ... }`), `static` getters, ranges and method chains on a new line, so the pin needs moving. Alternatives: jlcrochet/tree-sitter-wren (88.4%) and hgmich/wren-tree-sitter (88.4%). |
 | x86-64-assembly | RubixDev/tree-sitter-asm | individual | 58 | 2025-11-08 | 0 | 14 | queries/ only | yes (unstable) | Slow but alive | 0% (0/132) | Unsure which to pick. Generic assembly (asm) and NASM-specific grammars both exist. nvim-treesitter ships both asm and nasm. Alternative: naclsn/tree-sitter-nasm (16 stars, nvim-treesitter name nasm, last commit 2024-11-23, ABI 14); bearcove/tree-sitter-x86asm (30 stars, 2023, ABI 13). The generic grammar fails on `db`/`dd` data lines, `%macro`, `%ifidn` and `[rel x]` operands. naclsn/tree-sitter-nasm also parses 0%, nearly always failing at the `%ifidn __OUTPUT_FORMAT__,elf64` block. |
 | yamlscript | none found | |  | |  | |  | no | None | not measured | No tree-sitter grammar found. A generic YAML grammar exists (tree-sitter-grammars/tree-sitter-yaml) but does not parse YAMLScript code. |
-| zig | tree-sitter-grammars/tree-sitter-zig | tree-sitter-grammars org | 44 | 2025-09-10 | 0 | 15 | yes | yes (unstable) | Slow but alive | 100% (104/104) | The representer pins maxxnino/tree-sitter-zig, which is archived. nvim-treesitter uses tree-sitter-grammars/tree-sitter-zig, which has the newer grammar and ABI 15 but no commits since 2025-09-10. Alternative: maxxnino/tree-sitter-zig (123 stars, archived, last commit 2024-10-13, the one the representer pins). Both the archived maxxnino grammar and the tree-sitter-grammars one parse every file. Both fail on a labeled `switch` with `continue :sw` (Zig 0.14). The representer uses the Exercism fork `exercism/tree-sitter-zig` (branch `exercism-fixes`), which parses destructuring declarations and assignments. |
+| zig | tree-sitter-grammars/tree-sitter-zig | tree-sitter-grammars org | 44 | 2025-09-10 | 0 | 15 | yes | yes (unstable) | Slow but alive | 100% (104/104) | nvim-treesitter uses tree-sitter-grammars/tree-sitter-zig, which has the newer grammar and ABI 15 but no commits since 2025-09-10. Alternative: maxxnino/tree-sitter-zig (123 stars, archived, last commit 2024-10-13). Both the archived maxxnino grammar and the tree-sitter-grammars one parse every file. Both fail on a labeled `switch` with `continue :sw` (Zig 0.14). The representer uses the Exercism fork `exercism/tree-sitter-zig` (branch `exercism-fixes`), which parses destructuring declarations and assignments. |
 ## Language name mappings
 
 - csharp is `c_sharp` in nvim-treesitter and `c-sharp` in the repo name.
 - common-lisp is `commonlisp` (the representer calls it `common_lisp`).
 - emacs-lisp is `elisp`. nvim-treesitter does not have it.
 - perl5 is `perl`. raku is a separate grammar, and nvim-treesitter does not have it.
-- vimscript is `vim` (the repo was `vigoux/tree-sitter-viml`, then `neovim/tree-sitter-vim`, and is now `tree-sitter-grammars/tree-sitter-vim`).
+- vimscript is `vim`, in the `tree-sitter-grammars/tree-sitter-vim` repo.
 - objective-c is `objc`.
 - free-pascal and delphi both use `pascal`.
 - wasm is `wat` (the representer's name too).
@@ -186,15 +175,15 @@ Grammars that depend on one maintainer, where over 70% of the last 100 commits i
 Forks and moves:
 
 - nvim-treesitter main now points c, julia and haskell at `tree-sitter-grammars` repos. The c fork is 2 commits ahead of `tree-sitter/tree-sitter-c`. The julia and haskell forks have diverged from the official repos (14 ahead and 10 behind for julia, 9 ahead and 12 behind for haskell). The representer pins the official `tree-sitter` repos for the languages it already has, so the choice of repo matters for these three.
-- The old cairo pick (tree-sitter-grammars/tree-sitter-cairo) is a fork whose original repo no longer exists. The recommended grammar is the StarkWare one.
-- Zig: the representer pins `maxxnino/tree-sitter-zig`, which is archived (last commit 2024-10-13, ABI 14). nvim-treesitter uses `tree-sitter-grammars/tree-sitter-zig` (ABI 15, last commit 2025-09-10).
+- tree-sitter-grammars/tree-sitter-cairo is a fork of a repo that doesn't exist any more. The recommended grammar is the StarkWare one.
+- Zig: the representer pins Exercism's fork `exercism/tree-sitter-zig`. `maxxnino/tree-sitter-zig` is archived (last commit 2024-10-13, ABI 14), and nvim-treesitter uses `tree-sitter-grammars/tree-sitter-zig` (ABI 15, last commit 2025-09-10).
 - The official `tree-sitter/tree-sitter-swift` is archived. nvim-treesitter and everyone else use `alex-pinkus/tree-sitter-swift`.
 - The clojure repo has moved to `clj-commons/tree-sitter-clojure`, and `sogaiu/` still redirects to it.
 
 Grammars already pinned by the representer that are stale or at risk:
 
-- wasm: the pin is Exercism's fork of `g-plane/tree-sitter-wat` (ABI 15), which adds wabt's folded `if` shorthand. The old wasm-lsp pin had its last commit on 2022-05-17, ABI 13 and 8 open PRs.
-- zig: archived (see above). The archived grammar and the nvim-treesitter one both parse all 104 solutions.
+- wasm: the pin is Exercism's fork of `g-plane/tree-sitter-wat` (ABI 15), which adds wabt's folded `if` shorthand. The alternative, wasm-lsp/tree-sitter-wasm, had its last commit on 2022-05-17, targets ABI 13 and has 8 open PRs.
+- zig: the pin is Exercism's fork (see above). The archived maxxnino grammar and the nvim-treesitter one both parse all 104 solutions.
 - wren: 1 star, one author, last commit 2026-02-28. The pinned commit is the latest, and it parses all 313 real solutions in the golden data.
 - raku: 0 stars, 2 commits, created in the last month. It is still the only Raku grammar that parses real code (69.2%).
 - gdscript: marked unmaintained in nvim-treesitter. The repo still gets commits, mostly from a contributor who is not the owner.
@@ -205,7 +194,7 @@ Other risks:
 
 - Three grammars have many recent commits authored by an account named "claude" (cfml, perl5 and emacs-lisp). Their activity numbers are high, and the grammar may change a lot between pins.
 - Several grammars are generic and do not match the track: sqlite (general SQL), the two assembly tracks, delphi (Pascal), pharo-smalltalk (generic Smalltalk). A tree-sitter grammar for these tracks will parse more than the track teaches, or fail on the track's dialect.
-- Few grammars belong to the language's own organisation. Of the 82 repos chosen before the grammar changes, 42 belong to individuals, 24 to the tree-sitter or tree-sitter-grammars orgs, 9 to community orgs, 5 to a language org (elixir-lang, gleam-lang, rescript-lang, red, vlang) and 2 to a company.
+- Few grammars belong to the language's own organisation. Of those 82 repos, 42 belong to individuals, 24 to the tree-sitter or tree-sitter-grammars orgs, 9 to community orgs, 5 to a language org (elixir-lang, gleam-lang, rescript-lang, red, vlang) and 2 to a company.
 - 18 of those 82 grammars have no `queries/highlights.scm` (8 have only other query files, 10 have no queries folder). The representer's tree-sitter prototype relies on each grammar's own `highlights.scm` and `locals.scm`, so these tracks need their queries written.
 - Release tags are rare. 20 of those grammars have no tag or release at all (including arturo, crystal, dart, lean, raku, red, roc, tcl and wren), so pinning has to be to a commit.
 

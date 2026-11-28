@@ -6,7 +6,7 @@ This file says how the Perl outputs of this service differ from the tools they r
 
 Perl had no representer of its own, so the track used Basic, which writes a solution's tokens line by line and renames nothing.
 The Perl representer parses each solution with tree-sitter-perl instead, and writes the tree that Perl's own parser would give.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears: its packages and classes, its subs and methods, the constants from `use constant`, its labels, and the variables declared with `my`, `our`, `state`, `field`, a `for` loop or a signature. Perl's own variables, such as `$_`, `@_`, `$a` and `@ISA`, keep their names, and so do hash keys and the functions that come from a module.
 - **Layout.** Basic kept line breaks. This representer drops comments, POD, layout, the `;` between statements, a trailing `,` in a list, and brackets that only group. The brackets of a list assignment, such as `my ($x) = @_`, and of a repeated list, such as `(0) x 5`, stay, because they change what the code does.

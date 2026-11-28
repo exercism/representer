@@ -5,7 +5,7 @@ This file says how the D outputs of this service differ from the tools they repl
 ## Representation
 
 D had no representer of its own, so the track used Basic. Basic splits the code into tokens, drops the comments and the `import` lines, and keeps everything else as it is written, including the line breaks and the names.
-D now has a representation of its own, which reads the solution's syntax tree and follows the decisions that apply to every language ([README.md](../../../../README.md#how-it-works) describes them).
+D now has a representation of its own, which reads the solution's syntax tree and follows the decisions that apply to every language ([docs/how-it-works.md](../../../../docs/how-it-works.md) describes them).
 These things change for D:
 
 - **Names.** Basic renamed nothing. The representer renames every name the solution defines: its module, functions, types, enum members, constants, aliases, template parameters, variables, parameters (including those of function literals), `foreach` variables, caught exceptions and labels. A name the solution doesn't define, such as `writeln` or `length`, keeps its name.

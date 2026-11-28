@@ -5,7 +5,7 @@ This file says how the Ruby outputs of this service differ from the tools they r
 ## Representation
 
 The representation replaces the old Ruby representer (`exercism/ruby-representer`).
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - The methods defined with `attr_reader`, `attr_writer` and `attr_accessor` keep their names. The old representer renamed them, but these are calls, and a call defines no name.
 - Only the escapes used in the golden data are read (`\n`, `\t`, `\s`, `\e`, `\0`, `\\`, `\"`, `\'` and `\#`). The old representer read every escape, so it merged `"\x41"` and `"A"`, which stay apart here.

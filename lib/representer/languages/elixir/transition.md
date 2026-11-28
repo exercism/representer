@@ -5,7 +5,7 @@ This file says how the Elixir outputs of this service differ from the tools they
 ## Representation
 
 The representation replaces the old Elixir representer (`exercism/elixir-representer`).
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - The name given with `as:` in `alias Foo.Bar, as: B` keeps its name. The engine drops every `alias`, so `B` is never defined. The old representer renamed it.
 - `@type t(a) :: ...` and `@callback f(x) :: y` don't rename `t` and `f`, because only a type without parameters counts as a definition. The old representer renamed both.

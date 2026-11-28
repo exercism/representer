@@ -6,7 +6,7 @@ This file says how the CFML outputs of this service differ from the tools they r
 
 CFML had no representer of its own, so the track used Basic, which writes a solution's tokens line by line and renames nothing.
 The CFML representer parses each solution with the CFScript grammar of tree-sitter-cfml instead, and writes the tree that a CFML engine's parser gives.
-It makes the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and so it changes these things for the track:
+It makes the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and so it changes these things for the track:
 
 - **Names.** Basic kept every name. This representer renames every name the solution defines, wherever it appears: functions, parameters, variables (with or without `var`), the variables set on the `this`, `variables` and `local` scopes, and the variables of `for ... in` loops, closures and `catch`. Built-in functions, named arguments, attributes and types keep their names.
 - **Case.** CFML ignores the case of names, keywords and operators, so this representer writes them all in lower case. `ArrayLen(Values)` and `arraylen(values)` are the same. Strings keep their case. The mapping gives each renamed name in lower case.

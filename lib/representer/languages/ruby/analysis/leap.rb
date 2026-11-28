@@ -1,4 +1,4 @@
-# docs/dsl.md defines the verbs in this file.
+# docs/analysis.md defines the verbs in this file.
 # The tests call Year.leap? with a year.
 module Representer::Languages::Ruby::Analysis
   class Leap < Representer::Engine::AnalysisRules

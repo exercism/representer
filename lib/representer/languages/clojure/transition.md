@@ -6,7 +6,7 @@ This file says how the Clojure outputs of this service differ from the tools the
 
 The representation replaces the old Clojure representer (`exercism/clojure-representer`), which ran `macroexpand-all` on the solution and printed the result, with every symbol that wasn't in clojure.core or the tests replaced by a placeholder.
 This service never runs the solution's code, so it expands the macros that solutions use with rules of its own, which give the same forms.
-It matches what the old representer did, apart from the decisions that apply to every language, which [README.md](../../../../README.md#how-it-works) describes, and these differences:
+It matches what the old representer did, apart from the decisions that apply to every language, which [docs/how-it-works.md](../../../../docs/how-it-works.md) describes, and these differences:
 
 - Only these macros are expanded: `->`, `->>`, `as->`, `cond->`, `cond->>`, `some->`, `some->>`, `when`, `when-not`, `if-not`, `cond`, `and`, `or`, `if-let`, `when-let`, `for`, `fn`, `defn`, `defn-`, `defmacro`, and `let` when it destructures. Every other form stays as it is written, such as `doseq`, `case`, `condp` and a `loop` that destructures. The old representer expanded every macro.
 - A macro defined by the solution is expanded only if its parameters are plain names and its body is one syntax-quoted template. A `~rest` of its rest parameter becomes `(list ...)` of the arguments.

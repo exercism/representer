@@ -13,7 +13,7 @@ module Representer::Engine
   # The rules run in the order they are written, on the analysis's tree of
   # the solution's main file, and the analysis returns every comment they
   # add. A block is plain Ruby run on the rules, so it can hold more rules,
-  # which run only when its condition holds. docs/dsl.md describes
+  # which run only when its condition holds. docs/analysis.md describes
   # every verb.
   class AnalysisRules
     include Mandate
