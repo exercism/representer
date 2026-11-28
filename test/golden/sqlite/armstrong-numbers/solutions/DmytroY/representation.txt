@@ -1,13 +1,70 @@
-UPDATE "\"armstrong-numbers\"" SET result = (
-CASE
-WHEN number = (
-WITH series ( n , m ) AS (
-SELECT number , pow ( number % 10 , length ( number ))
-UNION ALL
-SELECT CAST ( n / 10 AS INTEGER ), pow ( CAST ( n / 10 AS INTEGER ) % 10 , length ( number )) FROM series WHERE CAST ( n / 10 AS INTEGER ) > 0
-) SELECT sum ( m ) FROM series
-)
-THEN true
-ELSE false
-END
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "armstrong-numbers")))
+      (assignment
+        (field result)
+        (case when
+          (binary_expression
+            (field number) =
+            (subquery
+              (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+                (statement
+                  (set_operation
+                    (select
+                      (select_expression
+                        (term
+                          (field number))
+                        (term
+                          (invocation
+                            (object_reference pow)
+                            (term
+                              (binary_expression
+                                (field number) % 10))
+                            (term
+                              (invocation
+                                (object_reference length)
+                                (term
+                                  (field number)))))))) union all
+                    (select
+                      (select_expression
+                        (term
+                          (cast
+                            (binary_expression
+                              (field PLACEHOLDER_2) / 10)
+                            (int integer)))
+                        (term
+                          (invocation
+                            (object_reference pow)
+                            (term
+                              (binary_expression
+                                (cast
+                                  (binary_expression
+                                    (field PLACEHOLDER_2) / 10)
+                                  (int integer)) % 10))
+                            (term
+                              (invocation
+                                (object_reference length)
+                                (term
+                                  (field number))))))))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_1))
+                      (where
+                        (binary_expression
+                          (cast
+                            (binary_expression
+                              (field PLACEHOLDER_2) / 10)
+                            (int integer)) > 0))))))
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference sum)
+                      (term
+                        (field PLACEHOLDER_3))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1))))) then true else false)))))

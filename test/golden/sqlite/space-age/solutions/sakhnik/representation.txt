@@ -1,19 +1,49 @@
-with
-planets ( name , ratio ) as (
-values
-( 'Mercury' , 0 . 2408467 ),
-( 'Venus' , 0 . 61519726 ),
-( 'Earth' , 1 . 0 ),
-( 'Mars' , 1 . 8808158 ),
-( 'Jupiter' , 11 . 862615 ),
-( 'Saturn' , 29 . 447498 ),
-( 'Uranus' , 84 . 016846 ),
-( 'Neptune' , 164 . 79132 )
-),
-year ( year_seconds ) as ( select 60 * 60 * 24 * 365 . 25 )
-update "\"space-age\""
-set result = (
-select round ( seconds / year_seconds / ratio , 2 )
-from year
-join planets on planet = name
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (values
+          (list "Mercury" 0.2408467)
+          (list "Venus" 0.61519726)
+          (list "Earth" 1.0)
+          (list "Mars" 1.8808158)
+          (list "Jupiter" 11.862615)
+          (list "Saturn" 29.447498)
+          (list "Uranus" 84.016846)
+          (list "Neptune" 164.79132))))
+    (cte PLACEHOLDER_4 PLACEHOLDER_5
+      (statement
+        (select
+          (select_expression
+            (term
+              (binary_expression
+                (binary_expression
+                  (binary_expression 60 * 60) * 24) * 365.25))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "space-age")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference round)
+                  (term
+                    (binary_expression
+                      (binary_expression
+                        (field seconds) /
+                        (field PLACEHOLDER_5)) /
+                      (field PLACEHOLDER_3)))
+                  (term 2)))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (join
+              (relation
+                (object_reference PLACEHOLDER_1)) on
+              (binary_expression
+                (field planet) =
+                (field PLACEHOLDER_2)))))))))

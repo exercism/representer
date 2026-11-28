@@ -1,35 +1,165 @@
-WITH RECURSIVE
-max_limit_finder AS (
-SELECT COALESCE ( MAX ( "\"limit\"" ), 0 ) AS max_l FROM sieve
-),
-tally ( val ) AS (
-SELECT 2 WHERE ( SELECT max_l FROM max_limit_finder ) >= 2
-UNION ALL
-SELECT val + 1 FROM tally WHERE val < ( SELECT max_l FROM max_limit_finder )
-),
-composites AS (
-SELECT DISTINCT t1 . val AS comp_val
-FROM tally t1
-JOIN tally t2 ON t2 . val * t2 . val <= t1 . val
-WHERE t1 . val % t2 . val = 0
-),
-primes AS (
-SELECT val FROM tally
-WHERE val NOT IN ( SELECT comp_val FROM composites )
-),
-ordered_results AS (
-SELECT DISTINCT
-s . rowid AS r_id ,
-group_concat ( p . val , "', '" ) OVER (
-PARTITION BY s . rowid
-ORDER BY p . val ASC
-ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-) AS prime_string
-FROM sieve s
-JOIN primes p ON p . val <= s . "\"limit\""
-)
-UPDATE sieve
-SET result = COALESCE (
-( SELECT o . prime_string FROM ordered_results o WHERE o . r_id = sieve . rowid ),
-''
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1
+      (statement
+        (select
+          (select_expression
+            (term
+              (invocation
+                (object_reference coalesce)
+                (term
+                  (invocation
+                    (object_reference max)
+                    (term
+                      (quoted_identifier "limit"))))
+                (term 0)) PLACEHOLDER_2)))
+        (from
+          (relation
+            (object_reference sieve)))))
+    (cte PLACEHOLDER_3 PLACEHOLDER_4
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term 2)))
+          (where
+            (binary_expression
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_2))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1)))) >= 2)) union all
+          (select
+            (select_expression
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_4) + 1))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_3))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_4) <
+                (subquery
+                  (select
+                    (select_expression
+                      (term
+                        (field PLACEHOLDER_2))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_1))))))))))
+    (cte PLACEHOLDER_5
+      (statement
+        (select distinct
+          (select_expression
+            (term
+              (field
+                (object_reference PLACEHOLDER_6) PLACEHOLDER_4) PLACEHOLDER_7)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_3) PLACEHOLDER_6)
+          (join
+            (relation
+              (object_reference PLACEHOLDER_3) PLACEHOLDER_8) on
+            (binary_expression
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_8) PLACEHOLDER_4) *
+                (field
+                  (object_reference PLACEHOLDER_8) PLACEHOLDER_4)) <=
+              (field
+                (object_reference PLACEHOLDER_6) PLACEHOLDER_4)))
+          (where
+            (binary_expression
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_6) PLACEHOLDER_4) %
+                (field
+                  (object_reference PLACEHOLDER_8) PLACEHOLDER_4)) = 0)))))
+    (cte PLACEHOLDER_9
+      (statement
+        (select
+          (select_expression
+            (term
+              (field PLACEHOLDER_4))))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_3))
+          (where
+            (binary_expression
+              (field PLACEHOLDER_4)
+              (not_in not in)
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_7))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_5)))))))))
+    (cte PLACEHOLDER_10
+      (statement
+        (select distinct
+          (select_expression
+            (term
+              (field
+                (object_reference PLACEHOLDER_11) rowid) PLACEHOLDER_12)
+            (term
+              (window_function
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_13) PLACEHOLDER_4))
+                  (term ", "))
+                (window_specification
+                  (partition_by
+                    (field
+                      (object_reference PLACEHOLDER_11) rowid))
+                  (order_by
+                    (order_target
+                      (field
+                        (object_reference PLACEHOLDER_13) PLACEHOLDER_4)
+                      (direction asc)))
+                  (window_frame rows between
+                    (frame_definition unbounded preceding) and
+                    (frame_definition unbounded following)))) PLACEHOLDER_14)))
+        (from
+          (relation
+            (object_reference sieve) PLACEHOLDER_11)
+          (join
+            (relation
+              (object_reference PLACEHOLDER_9) PLACEHOLDER_13) on
+            (binary_expression
+              (field
+                (object_reference PLACEHOLDER_13) PLACEHOLDER_4) <=
+              (field
+                (object_reference PLACEHOLDER_11)
+                (quoted_identifier "limit")))))))
+    (update
+      (relation
+        (object_reference sieve))
+      (assignment
+        (field result)
+        (invocation
+          (object_reference coalesce)
+          (term
+            (subquery
+              (select
+                (select_expression
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_15) PLACEHOLDER_14))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_10) PLACEHOLDER_15)
+                (where
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_15) PLACEHOLDER_12) =
+                    (field
+                      (object_reference sieve) rowid))))))
+          (term ""))))))

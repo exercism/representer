@@ -1,24 +1,111 @@
-DROP TABLE IF EXISTS "\"nucleotide-count\"" ;
-CREATE TABLE "\"nucleotide-count\"" (
-"\"strand\"" TEXT ,
-"\"result\"" TEXT ,
-CHECK ( strand REGEXP "\"^[ACGT]*$\"" )
-);
-. mode csv
-. import . / data . csv "\"nucleotide-count\""
-WITH RECURSIVE chars AS (
-SELECT 1 AS pos , SUBSTR ( strand , 1 , 1 ) AS nuc
-UNION ALL
-SELECT pos + 1 , SUBSTR ( strand , pos + 1 , 1 )
-FROM chars
-WHERE pos < LENGTH ( strand )
-)
-UPDATE "\"nucleotide-count\""
-SET result = (
-SELECT json_patch (
-"'{\"A\": 0, \"C\": 0, \"G\": 0, \"T\": 0}'" ,
-json_group_object ( nuc , c )
-)
-FROM ( SELECT nuc , COUNT ( * ) as c FROM chars GROUP BY nuc ORDER BY nuc asc )
-);
-UPDATE "\"nucleotide-count\"" SET result = json ( "'{\"A\": 0, \"C\": 0, \"G\": 0, \"T\": 0}'" ) WHERE strand == '' ;
+(program
+  (statement
+    (drop_table if exists
+      (object_reference
+        (quoted_identifier "nucleotide-count"))))
+  (statement
+    (create_table
+      (object_reference
+        (quoted_identifier "nucleotide-count"))
+      (column_definitions
+        (column_definition
+          (quoted_identifier "strand") text)
+        (column_definition
+          (quoted_identifier "result") text)
+        (constraints
+          (constraint check
+            (binary_expression
+              (field strand) regexp
+              (quoted_identifier "^[ACGT]*$"))))))) ".mode csv" ".import ./data.csv \"nucleotide-count\""
+  (statement
+    (cte PLACEHOLDER_1
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term 1 PLACEHOLDER_2)
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (field strand))
+                  (term 1)
+                  (term 1)) PLACEHOLDER_3))) union all
+          (select
+            (select_expression
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_2) + 1))
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (field strand))
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_2) + 1))
+                  (term 1)))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_2) <
+                (invocation
+                  (object_reference length)
+                  (term
+                    (field strand)))))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "nucleotide-count")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference json_patch)
+                  (term "{\"A\": 0, \"C\": 0, \"G\": 0, \"T\": 0}")
+                  (term
+                    (invocation
+                      (object_reference json_group_object)
+                      (term
+                        (field PLACEHOLDER_3))
+                      (term
+                        (field PLACEHOLDER_4))))))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_3))
+                    (term
+                      (invocation
+                        (object_reference count)
+                        (term
+                          (all_fields *))) PLACEHOLDER_4)))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (group_by
+                    (field PLACEHOLDER_3))
+                  (order_by
+                    (order_target
+                      (field PLACEHOLDER_3)
+                      (direction asc)))))))))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "nucleotide-count")))
+      (assignment
+        (field result)
+        (invocation
+          (object_reference json)
+          (term "{\"A\": 0, \"C\": 0, \"G\": 0, \"T\": 0}")))
+      (where
+        (binary_expression
+          (field strand) = "")))))

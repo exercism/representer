@@ -1,23 +1,116 @@
-WITH mapping ( arabic , roman ) AS (
-VALUES ( 1000 , 'M' ), ( 900 , 'CM' ), ( 500 , 'D' ), ( 400 , 'CD' ),
-( 100 , 'C' ), ( 90 , 'XC' ), ( 50 , 'L' ), ( 40 , 'XL' ),
-( 10 , 'X' ), ( 9 , 'IX' ), ( 5 , 'V' ), ( 4 , 'IV' ), ( 1 , 'I' )
-)
-UPDATE "\"roman-numerals\"" AS r
-SET result = (
-WITH RECURSIVE calc ( number , remaining , letters ) AS (
-SELECT r . number , r . number , ''
-UNION ALL
-SELECT c . number ,
-c . remaining % m . arabic ,
-REPLACE (
-PRINTF ( '%.*c' , FLOOR ( c . remaining / m . arabic ), '@' ),
-'@' , m . roman
-)
-FROM calc AS c , mapping AS m
-WHERE c . remaining > 0 AND m . arabic = ( SELECT MAX ( arabic ) FROM mapping WHERE arabic <= c . remaining )
-)
-SELECT GROUP_CONCAT ( c . letters , '' )
-FROM calc AS c
-WHERE c . number = r . number
-)
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (values
+          (list 1000 "M")
+          (list 900 "CM")
+          (list 500 "D")
+          (list 400 "CD")
+          (list 100 "C")
+          (list 90 "XC")
+          (list 50 "L")
+          (list 40 "XL")
+          (list 10 "X")
+          (list 9 "IX")
+          (list 5 "V")
+          (list 4 "IV")
+          (list 1 "I"))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "roman-numerals")) PLACEHOLDER_4)
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (field
+                        (object_reference PLACEHOLDER_4) PLACEHOLDER_6))
+                    (term
+                      (field
+                        (object_reference PLACEHOLDER_4) PLACEHOLDER_6))
+                    (term ""))) union all
+                (select
+                  (select_expression
+                    (term
+                      (field
+                        (object_reference PLACEHOLDER_9) PLACEHOLDER_6))
+                    (term
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_9) PLACEHOLDER_7) %
+                        (field
+                          (object_reference PLACEHOLDER_10) PLACEHOLDER_2)))
+                    (term
+                      (invocation
+                        (object_reference replace)
+                        (term
+                          (invocation
+                            (object_reference printf)
+                            (term "%.*c")
+                            (term
+                              (invocation
+                                (object_reference floor)
+                                (term
+                                  (binary_expression
+                                    (field
+                                      (object_reference PLACEHOLDER_9) PLACEHOLDER_7) /
+                                    (field
+                                      (object_reference PLACEHOLDER_10) PLACEHOLDER_2)))))
+                            (term "@")))
+                        (term "@")
+                        (term
+                          (field
+                            (object_reference PLACEHOLDER_10) PLACEHOLDER_3))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_5) PLACEHOLDER_9)
+                  (relation
+                    (object_reference PLACEHOLDER_1) PLACEHOLDER_10)
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_9) PLACEHOLDER_7) > 0) and
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_10) PLACEHOLDER_2) =
+                        (subquery
+                          (select
+                            (select_expression
+                              (term
+                                (invocation
+                                  (object_reference max)
+                                  (term
+                                    (field PLACEHOLDER_2))))))
+                          (from
+                            (relation
+                              (object_reference PLACEHOLDER_1))
+                            (where
+                              (binary_expression
+                                (field PLACEHOLDER_2) <=
+                                (field
+                                  (object_reference PLACEHOLDER_9) PLACEHOLDER_7))))))))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_9) PLACEHOLDER_8))
+                  (term "")))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_5) PLACEHOLDER_9)
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_9) PLACEHOLDER_6) =
+                (field
+                  (object_reference PLACEHOLDER_4) PLACEHOLDER_6)))))))))

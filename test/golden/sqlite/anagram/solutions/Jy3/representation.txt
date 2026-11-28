@@ -1,29 +1,148 @@
-update anagram
-set result = (
-with
-target as (
-select group_concat ( c , '' ) as word
-from (
-select lower ( substr ( subject , value , 1 )) c
-from generate_series ( 1 , length ( subject ))
-order by c
-)
-),
-chars_by_key as (
-select words . key , lower ( substr ( words . value , cs . value , 1 )) as c
-from json_each ( candidates ) words , generate_series ( 1 , length ( words . value )) cs
-order by words . key , c
-),
-sorted_words_by_key as (
-select key , group_concat ( c , '' ) as word
-from chars_by_key
-group by key
-),
-remaining_keys as (
-select key
-from sorted_words_by_key sorted , target
-where sorted . word = target . word
-)
-select json_group_array ( candidates -> key ) filter ( where lower ( candidates ->> key ) != lower ( subject ))
-from remaining_keys
-)
+(program
+  (statement
+    (update
+      (relation
+        (object_reference anagram))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (field PLACEHOLDER_2))
+                      (term "")) PLACEHOLDER_3)))
+              (from
+                (relation
+                  (subquery
+                    (select
+                      (select_expression
+                        (term
+                          (invocation
+                            (object_reference lower)
+                            (term
+                              (invocation
+                                (object_reference substr)
+                                (term
+                                  (field subject))
+                                (term
+                                  (field value))
+                                (term 1)))) PLACEHOLDER_2)))
+                    (from
+                      (relation
+                        (invocation
+                          (object_reference generate_series)
+                          (term 1)
+                          (term
+                            (invocation
+                              (object_reference length)
+                              (term
+                                (field subject))))))
+                      (order_by
+                        (order_target
+                          (field PLACEHOLDER_2)))))))))
+          (cte PLACEHOLDER_4
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_5) key))
+                  (term
+                    (invocation
+                      (object_reference lower)
+                      (term
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field
+                              (object_reference PLACEHOLDER_5) value))
+                          (term
+                            (field
+                              (object_reference PLACEHOLDER_6) value))
+                          (term 1)))) PLACEHOLDER_2)))
+              (from
+                (relation
+                  (invocation
+                    (object_reference json_each)
+                    (term
+                      (field candidates))) PLACEHOLDER_5)
+                (relation
+                  (invocation
+                    (object_reference generate_series)
+                    (term 1)
+                    (term
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field
+                            (object_reference PLACEHOLDER_5) value))))) PLACEHOLDER_6)
+                (order_by
+                  (order_target
+                    (field
+                      (object_reference PLACEHOLDER_5) key))
+                  (order_target
+                    (field PLACEHOLDER_2))))))
+          (cte PLACEHOLDER_7
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field key))
+                  (term
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (field PLACEHOLDER_2))
+                      (term "")) PLACEHOLDER_3)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_4))
+                (group_by
+                  (field key)))))
+          (cte PLACEHOLDER_8
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field key))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_7) PLACEHOLDER_9)
+                (relation
+                  (object_reference PLACEHOLDER_1))
+                (where
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_9) PLACEHOLDER_3) =
+                    (field
+                      (object_reference PLACEHOLDER_1) PLACEHOLDER_3))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference json_group_array)
+                  (term
+                    (binary_expression
+                      (field candidates) ->
+                      (field key)))
+                  (filter_expression filter
+                    (where
+                      (binary_expression
+                        (invocation
+                          (object_reference lower)
+                          (term
+                            (binary_expression
+                              (field candidates) ->>
+                              (field key)))) !=
+                        (invocation
+                          (object_reference lower)
+                          (term
+                            (field subject))))))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_8))))))))

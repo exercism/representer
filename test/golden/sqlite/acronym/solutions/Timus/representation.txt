@@ -1,16 +1,95 @@
-UPDATE acronym SET result = (
-WITH chars ( i , c , clean , grp ) AS (
-SELECT 2 , substr ( phrase , 1 , 1 ), '' , 0
-UNION
-SELECT i + 1 , substr ( phrase , i , 1 ),
-CASE
-WHEN c GLOB '[a-zA-Z]' THEN upper ( c )
-WHEN c in ( "' '" , '-' ) THEN "' '"
-ELSE ''
-END ,
-iif ( c in ( "' '" , '-' ), grp + 1 , grp )
-FROM chars WHERE i <= length ( phrase ) + 1
-)
-SELECT group_concat ( clean , '' )
-FROM ( SELECT clean FROM chars WHERE clean NOT IN ( "' '" , '' ) GROUP BY grp )
-)
+(program
+  (statement
+    (update
+      (relation
+        (object_reference acronym))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 2)
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field phrase))
+                        (term 1)
+                        (term 1)))
+                    (term "")
+                    (term 0))) union
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field phrase))
+                        (term
+                          (field PLACEHOLDER_2))
+                        (term 1)))
+                    (term
+                      (case when
+                        (binary_expression
+                          (field PLACEHOLDER_3) glob "[a-zA-Z]") then
+                        (invocation
+                          (object_reference upper)
+                          (term
+                            (field PLACEHOLDER_3))) when
+                        (binary_expression
+                          (field PLACEHOLDER_3) in
+                          (list " " "-")) then " " else ""))
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_3) in
+                            (list " " "-")))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_5) + 1))
+                        (term
+                          (field PLACEHOLDER_5))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_2) <=
+                      (binary_expression
+                        (invocation
+                          (object_reference length)
+                          (term
+                            (field phrase))) + 1)))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field PLACEHOLDER_4))
+                  (term "")))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_4))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_4)
+                      (not_in not in)
+                      (list " " "")))
+                  (group_by
+                    (field PLACEHOLDER_5)))))))))))

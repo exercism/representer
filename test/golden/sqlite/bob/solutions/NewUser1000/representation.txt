@@ -1,9 +1,75 @@
-UPDATE bob
-SET reply =
-CASE
-WHEN TRIM ( input ) LIKE '%?' AND TRIM ( input ) REGEXP '^[^a-z]*$' AND TRIM ( input ) REGEXP '[A-Z]' THEN "\"Calm" down, I know what I'm doing!"
-WHEN TRIM ( input ) LIKE '%?' THEN "\"Sure.\""
-WHEN TRIM ( input ) REGEXP '^[^a-z]*$' AND TRIM ( input ) REGEXP '[A-Z]' THEN "\"Whoa," chill out!"
-WHEN TRIM ( REPLACE ( REPLACE ( REPLACE ( input , CHAR ( 9 ), '' ), CHAR ( 10 ), '' ), CHAR ( 13 ), '' )) = '' THEN "\"Fine." Be that way!"
-ELSE "\"Whatever.\""
-END
+(program
+  (statement
+    (update
+      (relation
+        (object_reference bob))
+      (assignment
+        (field reply)
+        (case when
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (invocation
+                  (object_reference trim)
+                  (term
+                    (field input))) like "%?") and
+              (binary_expression
+                (invocation
+                  (object_reference trim)
+                  (term
+                    (field input))) regexp "^[^a-z]*$")) and
+            (binary_expression
+              (invocation
+                (object_reference trim)
+                (term
+                  (field input))) regexp "[A-Z]")) then
+          (quoted_identifier "Calm down, I know what I'm doing!") when
+          (binary_expression
+            (invocation
+              (object_reference trim)
+              (term
+                (field input))) like "%?") then
+          (quoted_identifier "Sure.") when
+          (binary_expression
+            (binary_expression
+              (invocation
+                (object_reference trim)
+                (term
+                  (field input))) regexp "^[^a-z]*$") and
+            (binary_expression
+              (invocation
+                (object_reference trim)
+                (term
+                  (field input))) regexp "[A-Z]")) then
+          (quoted_identifier "Whoa, chill out!") when
+          (binary_expression
+            (invocation
+              (object_reference trim)
+              (term
+                (invocation
+                  (object_reference replace)
+                  (term
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (invocation
+                          (object_reference replace)
+                          (term
+                            (field input))
+                          (term
+                            (invocation
+                              (object_reference char)
+                              (term 9)))
+                          (term "")))
+                      (term
+                        (invocation
+                          (object_reference char)
+                          (term 10)))
+                      (term "")))
+                  (term
+                    (invocation
+                      (object_reference char)
+                      (term 13)))
+                  (term "")))) = "") then
+          (quoted_identifier "Fine. Be that way!") else
+          (quoted_identifier "Whatever."))))))

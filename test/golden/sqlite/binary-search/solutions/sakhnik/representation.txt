@@ -1,19 +1,114 @@
-update "\"binary-search\""
-set ( result , error ) = (
-with recursive search ( i , l , m , r ) as (
-values ( 0 , 0 , json_array_length ( array ) / 2 , json_array_length ( array ))
-union all
-select i + 1 , m + 1 , ( m + r + 1 ) / 2 , r
-from search
-where l < r and array ->> m < value
-union all
-select i + 1 , l , ( l + m ) / 2 , m
-from search
-where l < r and array ->> m > value
-)
-select iif ( array ->> m = value , m , null ),
-iif ( array ->> m = value , null , "'value not in array'" )
-from search
-order by i desc
-limit 1
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "binary-search")))
+      (assignment
+        (list
+          (column result)
+          (column error))
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+            (statement
+              (set_operation
+                (values
+                  (list 0 0
+                    (binary_expression
+                      (invocation
+                        (object_reference json_array_length)
+                        (term
+                          (field array))) / 2)
+                    (invocation
+                      (object_reference json_array_length)
+                      (term
+                        (field array))))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_4) + 1))
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (binary_expression
+                            (field PLACEHOLDER_4) +
+                            (field PLACEHOLDER_5)) + 1) / 2))
+                    (term
+                      (field PLACEHOLDER_5))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (field PLACEHOLDER_3) <
+                        (field PLACEHOLDER_5)) and
+                      (binary_expression
+                        (binary_expression
+                          (field array) ->>
+                          (field PLACEHOLDER_4)) <
+                        (field value))))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (field PLACEHOLDER_3))
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (field PLACEHOLDER_3) +
+                          (field PLACEHOLDER_4)) / 2))
+                    (term
+                      (field PLACEHOLDER_4))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (field PLACEHOLDER_3) <
+                        (field PLACEHOLDER_5)) and
+                      (binary_expression
+                        (binary_expression
+                          (field array) ->>
+                          (field PLACEHOLDER_4)) >
+                        (field value))))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (binary_expression
+                      (binary_expression
+                        (field array) ->>
+                        (field PLACEHOLDER_4)) =
+                      (field value)))
+                  (term
+                    (field PLACEHOLDER_4))
+                  (term null)))
+              (term
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (binary_expression
+                      (binary_expression
+                        (field array) ->>
+                        (field PLACEHOLDER_4)) =
+                      (field value)))
+                  (term null)
+                  (term "value not in array")))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (order_by
+              (order_target
+                (field PLACEHOLDER_2)
+                (direction desc)))
+            (limit 1)))))))

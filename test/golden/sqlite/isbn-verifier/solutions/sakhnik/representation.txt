@@ -1,30 +1,112 @@
-UPDATE "\"isbn-verifier\""
-SET result = (
-WITH
-normalized ( val ) AS (
-SELECT REPLACE ( isbn , '-' , '' )
-),
-digits ( pos , digit , weight ) AS (
-SELECT 1 , CAST ( SUBSTR ( val , 1 , 1 ) AS INTEGER ), 10 FROM normalized
-UNION ALL
-SELECT pos + 1 ,
-CASE
-WHEN pos + 1 = 10 AND SUBSTR ( val , 10 , 1 ) = 'X'
-THEN 10
-ELSE CAST ( SUBSTR ( val , pos + 1 , 1 ) AS INTEGER )
-END ,
-10 - pos
-FROM digits , normalized
-WHERE pos < 10
-),
-checksum ( sum ) AS (
-SELECT SUM ( digit * weight ) FROM digits
-)
-SELECT CASE
-WHEN val REGEXP '^[0-9]{9}[0-9X]$'
-AND ( SELECT sum FROM checksum ) % 11 = 0
-THEN 1
-ELSE 0
-END
-FROM normalized
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "isbn-verifier")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (field isbn))
+                      (term "-")
+                      (term "")))))))
+          (cte PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_6
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)
+                    (term
+                      (cast
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field PLACEHOLDER_2))
+                          (term 1)
+                          (term 1))
+                        (int integer)))
+                    (term 10)))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_4) + 1))
+                    (term
+                      (case when
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (field PLACEHOLDER_4) + 1) = 10) and
+                          (binary_expression
+                            (invocation
+                              (object_reference substr)
+                              (term
+                                (field PLACEHOLDER_2))
+                              (term 10)
+                              (term 1)) = "X")) then 10 else
+                        (cast
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_2))
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_4) + 1))
+                            (term 1))
+                          (int integer))))
+                    (term
+                      (binary_expression 10 -
+                        (field PLACEHOLDER_4)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_3))
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_4) < 10))))))
+          (cte PLACEHOLDER_7 PLACEHOLDER_8
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference PLACEHOLDER_8)
+                      (term
+                        (binary_expression
+                          (field PLACEHOLDER_5) *
+                          (field PLACEHOLDER_6)))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_3)))))
+          (select
+            (select_expression
+              (term
+                (case when
+                  (binary_expression
+                    (binary_expression
+                      (field PLACEHOLDER_2) regexp "^[0-9]{9}[0-9X]$") and
+                    (binary_expression
+                      (binary_expression
+                        (subquery
+                          (select
+                            (select_expression
+                              (term
+                                (field PLACEHOLDER_8))))
+                          (from
+                            (relation
+                              (object_reference PLACEHOLDER_7)))) % 11) = 0)) then 1 else 0))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))))))))

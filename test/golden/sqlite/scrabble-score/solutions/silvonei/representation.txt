@@ -1,32 +1,77 @@
-UPDATE "\"scrabble-score\""
-SET result = (
-WITH RECURSIVE
-contador_letras ( rest , letra_atual , pontos_acumulados ) AS (
-SELECT
-UPPER ( COALESCE ( word , '' )),
-'' ,
-0
-FROM "\"scrabble-score\"" AS cr
-WHERE cr . rowid = "\"scrabble-score\"" . rowid
-UNION ALL
-SELECT
-SUBSTR ( rest , 2 ),
-SUBSTR ( rest , 1 , 1 ),
-pontos_acumulados + CASE SUBSTR ( rest , 1 , 1 )
-WHEN 'A' THEN 1 WHEN 'E' THEN 1 WHEN 'I' THEN 1 WHEN 'O' THEN 1 WHEN 'U' THEN 1
-WHEN 'L' THEN 1 WHEN 'N' THEN 1 WHEN 'R' THEN 1 WHEN 'S' THEN 1 WHEN 'T' THEN 1
-WHEN 'D' THEN 2 WHEN 'G' THEN 2
-WHEN 'B' THEN 3 WHEN 'C' THEN 3 WHEN 'M' THEN 3 WHEN 'P' THEN 3
-WHEN 'F' THEN 4 WHEN 'H' THEN 4 WHEN 'V' THEN 4 WHEN 'W' THEN 4 WHEN 'Y' THEN 4
-WHEN 'K' THEN 5
-WHEN 'J' THEN 8 WHEN 'X' THEN 8
-WHEN 'Q' THEN 10 WHEN 'Z' THEN 10
-ELSE 0
-END
-FROM contador_letras
-WHERE rest <> ''
-)
-SELECT pontos_acumulados
-FROM contador_letras
-WHERE rest = ''
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "scrabble-score")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference upper)
+                        (term
+                          (invocation
+                            (object_reference coalesce)
+                            (term
+                              (field word))
+                            (term "")))))
+                    (term "")
+                    (term 0)))
+                (from
+                  (relation
+                    (object_reference
+                      (quoted_identifier "scrabble-score")) PLACEHOLDER_5)
+                  (where
+                    (binary_expression
+                      (field
+                        (object_reference PLACEHOLDER_5) rowid) =
+                      (field
+                        (object_reference
+                          (quoted_identifier "scrabble-score")) rowid)))) union all
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_2))
+                        (term 2)))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_2))
+                        (term 1)
+                        (term 1)))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_4) +
+                        (case
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_2))
+                            (term 1)
+                            (term 1)) when "A" then 1 when "E" then 1 when "I" then 1 when "O" then 1 when "U" then 1 when "L" then 1 when "N" then 1 when "R" then 1 when "S" then 1 when "T" then 1 when "D" then 2 when "G" then 2 when "B" then 3 when "C" then 3 when "M" then 3 when "P" then 3 when "F" then 4 when "H" then 4 when "V" then 4 when "W" then 4 when "Y" then 4 when "K" then 5 when "J" then 8 when "X" then 8 when "Q" then 10 when "Z" then 10 else 0)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_2) != ""))))))
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_4))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_2) = ""))))))))

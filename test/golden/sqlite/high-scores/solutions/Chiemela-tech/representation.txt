@@ -1,36 +1,126 @@
-UPDATE results
-SET result = (
-SELECT GROUP_CONCAT ( score , ',' )
-FROM scores AS s
-WHERE s . game_id = results . game_id
-ORDER BY ROWID
-)
-WHERE property = 'scores' ;
-UPDATE results
-SET result = (
-SELECT CAST ( score AS TEXT )
-FROM scores AS s
-WHERE s . game_id = results . game_id
-ORDER BY ROWID DESC
-LIMIT 1
-)
-WHERE property = 'latest' ;
-UPDATE results
-SET result = (
-SELECT CAST ( MAX ( score ) AS TEXT )
-FROM scores AS s
-WHERE s . game_id = results . game_id
-)
-WHERE property = 'personalBest' ;
-UPDATE results
-SET result = (
-SELECT GROUP_CONCAT ( score , ',' )
-FROM (
-SELECT score
-FROM scores AS s
-WHERE s . game_id = results . game_id
-ORDER BY score DESC
-LIMIT 3
-)
-)
-WHERE property = 'personalTopThree' ;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference results))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field score))
+                  (term ",")))))
+          (from
+            (relation
+              (object_reference scores) PLACEHOLDER_1)
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_1) game_id) =
+                (field
+                  (object_reference results) game_id)))
+            (order_by
+              (order_target
+                (field rowid))))))
+      (where
+        (binary_expression
+          (field property) = "scores"))))
+  (statement
+    (update
+      (relation
+        (object_reference results))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (cast
+                  (field score) text))))
+          (from
+            (relation
+              (object_reference scores) PLACEHOLDER_1)
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_1) game_id) =
+                (field
+                  (object_reference results) game_id)))
+            (order_by
+              (order_target
+                (field rowid)
+                (direction desc)))
+            (limit 1))))
+      (where
+        (binary_expression
+          (field property) = "latest"))))
+  (statement
+    (update
+      (relation
+        (object_reference results))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (cast
+                  (invocation
+                    (object_reference max)
+                    (term
+                      (field score))) text))))
+          (from
+            (relation
+              (object_reference scores) PLACEHOLDER_1)
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_1) game_id) =
+                (field
+                  (object_reference results) game_id))))))
+      (where
+        (binary_expression
+          (field property) = "personalBest"))))
+  (statement
+    (update
+      (relation
+        (object_reference results))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field score))
+                  (term ",")))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (field score))))
+                (from
+                  (relation
+                    (object_reference scores) PLACEHOLDER_1)
+                  (where
+                    (binary_expression
+                      (field
+                        (object_reference PLACEHOLDER_1) game_id) =
+                      (field
+                        (object_reference results) game_id)))
+                  (order_by
+                    (order_target
+                      (field score)
+                      (direction desc)))
+                  (limit 3)))))))
+      (where
+        (binary_expression
+          (field property) = "personalTopThree")))))

@@ -1,71 +1,390 @@
-WITH RECURSIVE
-word_bank ( synonym , standard_op ) AS (
-VALUES
-( 'plus' , 'add' ),
-( 'add' , 'add' ),
-( 'minus' , 'subtract' ),
-( 'subtracted' , 'subtract' ),
-( 'multiplied' , 'multiply' ),
-( 'times' , 'multiply' ),
-( 'divided' , 'divide' ),
-( 'over' , 'divide' )
-),
-parser AS (
-SELECT
-rowid ,
-CASE
-WHEN question = "'What is?'" THEN "'syntax error'"
-WHEN question NOT LIKE "'What is %?'" THEN "'unknown operation'"
-ELSE NULL
-END as err ,
-CASE
-WHEN question LIKE "'What is %?'" AND question != "'What is?'" THEN
-REPLACE ( REPLACE ( SUBSTR ( question , 9 , LENGTH ( question ) - 9 ), "'multiplied by'" , 'multiplied' ), "'divided by'" , 'divided' ) || "' '"
-ELSE ''
-END as remain ,
-0 as val ,
-'add' as current_op ,
-'num' as expected
-FROM wordy
-UNION ALL
-SELECT
-rowid ,
-CASE
-WHEN expected = 'num' AND ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) = '' OR CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER ) || '' != SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 )) THEN "'syntax error'"
-WHEN expected = 'op' AND CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER ) || '' = SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) THEN "'syntax error'"
-WHEN expected = 'op' AND SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) NOT IN ( SELECT synonym FROM word_bank ) THEN "'unknown operation'"
-ELSE NULL
-END as err ,
-SUBSTR ( remain , INSTR ( remain , "' '" ) + 1 ) as remain ,
-CASE
-WHEN expected = 'num' AND ( CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER ) || '' = SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 )) THEN
-CASE current_op
-WHEN 'add' THEN val + CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER )
-WHEN 'subtract' THEN val - CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER )
-WHEN 'multiply' THEN val * CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER )
-WHEN 'divide' THEN val / CAST ( SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ) AS INTEGER )
-END
-ELSE val
-END as val ,
-CASE
-WHEN expected = 'op' THEN ( SELECT standard_op FROM word_bank WHERE synonym = SUBSTR ( remain , 1 , INSTR ( remain , "' '" ) - 1 ))
-ELSE current_op
-END as current_op ,
-CASE WHEN expected = 'num' THEN 'op' ELSE 'num' END as expected
-FROM parser
-WHERE remain != '' AND err IS NULL
-),
-terminal AS (
-SELECT
-rowid ,
-CASE
-WHEN err IS NULL AND expected = 'num' THEN "'syntax error'"
-ELSE err
-END as final_err ,
-val as final_val
-FROM parser
-WHERE remain = '' OR err IS NOT NULL
-)
-UPDATE wordy
-SET result = ( SELECT final_val FROM terminal WHERE terminal . rowid = wordy . rowid AND final_err IS NULL ),
-error = ( SELECT final_err FROM terminal WHERE terminal . rowid = wordy . rowid AND final_err IS NOT NULL );
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (values
+          (list "plus" "add")
+          (list "add" "add")
+          (list "minus" "subtract")
+          (list "subtracted" "subtract")
+          (list "multiplied" "multiply")
+          (list "times" "multiply")
+          (list "divided" "divide")
+          (list "over" "divide"))))
+    (cte PLACEHOLDER_4
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field rowid))
+              (term
+                (case when
+                  (binary_expression
+                    (field question) = "What is?") then "syntax error" when
+                  (binary_expression
+                    (field question)
+                    (not_like not like) "What is %?") then "unknown operation" else null) PLACEHOLDER_5)
+              (term
+                (case when
+                  (binary_expression
+                    (binary_expression
+                      (field question) like "What is %?") and
+                    (binary_expression
+                      (field question) != "What is?")) then
+                  (binary_expression
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (invocation
+                          (object_reference replace)
+                          (term
+                            (invocation
+                              (object_reference substr)
+                              (term
+                                (field question))
+                              (term 9)
+                              (term
+                                (binary_expression
+                                  (invocation
+                                    (object_reference length)
+                                    (term
+                                      (field question))) - 9))))
+                          (term "multiplied by")
+                          (term "multiplied")))
+                      (term "divided by")
+                      (term "divided")) || " ") else "") PLACEHOLDER_6)
+              (term 0 PLACEHOLDER_7)
+              (term "add" PLACEHOLDER_8)
+              (term "num" PLACEHOLDER_9)))
+          (from
+            (relation
+              (object_reference wordy))) union all
+          (select
+            (select_expression
+              (term
+                (field rowid))
+              (term
+                (case when
+                  (binary_expression
+                    (binary_expression
+                      (field PLACEHOLDER_9) = "num") and
+                    (binary_expression
+                      (binary_expression
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field PLACEHOLDER_6))
+                          (term 1)
+                          (term
+                            (binary_expression
+                              (invocation
+                                (object_reference instr)
+                                (term
+                                  (field PLACEHOLDER_6))
+                                (term " ")) - 1))) = "") or
+                      (binary_expression
+                        (binary_expression
+                          (cast
+                            (invocation
+                              (object_reference substr)
+                              (term
+                                (field PLACEHOLDER_6))
+                              (term 1)
+                              (term
+                                (binary_expression
+                                  (invocation
+                                    (object_reference instr)
+                                    (term
+                                      (field PLACEHOLDER_6))
+                                    (term " ")) - 1)))
+                            (int integer)) || "") !=
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field PLACEHOLDER_6))
+                          (term 1)
+                          (term
+                            (binary_expression
+                              (invocation
+                                (object_reference instr)
+                                (term
+                                  (field PLACEHOLDER_6))
+                                (term " ")) - 1)))))) then "syntax error" when
+                  (binary_expression
+                    (binary_expression
+                      (field PLACEHOLDER_9) = "op") and
+                    (binary_expression
+                      (binary_expression
+                        (cast
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_6))
+                            (term 1)
+                            (term
+                              (binary_expression
+                                (invocation
+                                  (object_reference instr)
+                                  (term
+                                    (field PLACEHOLDER_6))
+                                  (term " ")) - 1)))
+                          (int integer)) || "") =
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_6))
+                        (term 1)
+                        (term
+                          (binary_expression
+                            (invocation
+                              (object_reference instr)
+                              (term
+                                (field PLACEHOLDER_6))
+                              (term " ")) - 1))))) then "syntax error" when
+                  (binary_expression
+                    (binary_expression
+                      (field PLACEHOLDER_9) = "op") and
+                    (binary_expression
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_6))
+                        (term 1)
+                        (term
+                          (binary_expression
+                            (invocation
+                              (object_reference instr)
+                              (term
+                                (field PLACEHOLDER_6))
+                              (term " ")) - 1)))
+                      (not_in not in)
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_2))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_1)))))) then "unknown operation" else null) PLACEHOLDER_5)
+              (term
+                (invocation
+                  (object_reference substr)
+                  (term
+                    (field PLACEHOLDER_6))
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference instr)
+                        (term
+                          (field PLACEHOLDER_6))
+                        (term " ")) + 1))) PLACEHOLDER_6)
+              (term
+                (case when
+                  (binary_expression
+                    (binary_expression
+                      (field PLACEHOLDER_9) = "num") and
+                    (binary_expression
+                      (binary_expression
+                        (cast
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_6))
+                            (term 1)
+                            (term
+                              (binary_expression
+                                (invocation
+                                  (object_reference instr)
+                                  (term
+                                    (field PLACEHOLDER_6))
+                                  (term " ")) - 1)))
+                          (int integer)) || "") =
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_6))
+                        (term 1)
+                        (term
+                          (binary_expression
+                            (invocation
+                              (object_reference instr)
+                              (term
+                                (field PLACEHOLDER_6))
+                              (term " ")) - 1))))) then
+                  (case
+                    (field PLACEHOLDER_8) when "add" then
+                    (binary_expression
+                      (field PLACEHOLDER_7) +
+                      (cast
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field PLACEHOLDER_6))
+                          (term 1)
+                          (term
+                            (binary_expression
+                              (invocation
+                                (object_reference instr)
+                                (term
+                                  (field PLACEHOLDER_6))
+                                (term " ")) - 1)))
+                        (int integer))) when "subtract" then
+                    (binary_expression
+                      (field PLACEHOLDER_7) -
+                      (cast
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field PLACEHOLDER_6))
+                          (term 1)
+                          (term
+                            (binary_expression
+                              (invocation
+                                (object_reference instr)
+                                (term
+                                  (field PLACEHOLDER_6))
+                                (term " ")) - 1)))
+                        (int integer))) when "multiply" then
+                    (binary_expression
+                      (field PLACEHOLDER_7) *
+                      (cast
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field PLACEHOLDER_6))
+                          (term 1)
+                          (term
+                            (binary_expression
+                              (invocation
+                                (object_reference instr)
+                                (term
+                                  (field PLACEHOLDER_6))
+                                (term " ")) - 1)))
+                        (int integer))) when "divide" then
+                    (binary_expression
+                      (field PLACEHOLDER_7) /
+                      (cast
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field PLACEHOLDER_6))
+                          (term 1)
+                          (term
+                            (binary_expression
+                              (invocation
+                                (object_reference instr)
+                                (term
+                                  (field PLACEHOLDER_6))
+                                (term " ")) - 1)))
+                        (int integer)))) else
+                  (field PLACEHOLDER_7)) PLACEHOLDER_7)
+              (term
+                (case when
+                  (binary_expression
+                    (field PLACEHOLDER_9) = "op") then
+                  (subquery
+                    (select
+                      (select_expression
+                        (term
+                          (field PLACEHOLDER_3))))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_1))
+                      (where
+                        (binary_expression
+                          (field PLACEHOLDER_2) =
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field PLACEHOLDER_6))
+                            (term 1)
+                            (term
+                              (binary_expression
+                                (invocation
+                                  (object_reference instr)
+                                  (term
+                                    (field PLACEHOLDER_6))
+                                  (term " ")) - 1))))))) else
+                  (field PLACEHOLDER_8)) PLACEHOLDER_8)
+              (term
+                (case when
+                  (binary_expression
+                    (field PLACEHOLDER_9) = "num") then "op" else "num") PLACEHOLDER_9)))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (binary_expression
+                  (field PLACEHOLDER_6) != "") and
+                (binary_expression
+                  (field PLACEHOLDER_5) is null)))))))
+    (cte PLACEHOLDER_10
+      (statement
+        (select
+          (select_expression
+            (term
+              (field rowid))
+            (term
+              (case when
+                (binary_expression
+                  (binary_expression
+                    (field PLACEHOLDER_5) is null) and
+                  (binary_expression
+                    (field PLACEHOLDER_9) = "num")) then "syntax error" else
+                (field PLACEHOLDER_5)) PLACEHOLDER_11)
+            (term
+              (field PLACEHOLDER_7) PLACEHOLDER_12)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_4))
+          (where
+            (binary_expression
+              (binary_expression
+                (field PLACEHOLDER_6) = "") or
+              (binary_expression
+                (field PLACEHOLDER_5)
+                (is_not is not) null))))))
+    (update
+      (relation
+        (object_reference wordy))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_12))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_10))
+            (where
+              (binary_expression
+                (binary_expression
+                  (field
+                    (object_reference PLACEHOLDER_10) rowid) =
+                  (field
+                    (object_reference wordy) rowid)) and
+                (binary_expression
+                  (field PLACEHOLDER_11) is null))))))
+      (assignment
+        (field error)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_11))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_10))
+            (where
+              (binary_expression
+                (binary_expression
+                  (field
+                    (object_reference PLACEHOLDER_10) rowid) =
+                  (field
+                    (object_reference wordy) rowid)) and
+                (binary_expression
+                  (field PLACEHOLDER_11)
+                  (is_not is not) null)))))))))

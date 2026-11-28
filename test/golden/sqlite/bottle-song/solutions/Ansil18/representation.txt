@@ -1,33 +1,174 @@
-UPDATE "\"bottle-song\"" SET result = (
-WITH ns ( n , w ) AS (
-VALUES ( 1 , 'One' ), ( 2 , 'Two' ), ( 3 , 'Three' ), ( 4 , 'Four' ), ( 5 , 'Five' ),
-( 6 , 'Six' ), ( 7 , 'Seven' ), ( 8 , 'Eight' ), ( 9 , 'Nine' ), ( 10 , 'Ten' )
-),
-vs ( i , n , w1 , w2 , verse ) AS (
-SELECT start_bottles , take_down ,
-( SELECT w FROM ns WHERE n = start_bottles ),
-( SELECT w FROM ns WHERE n = start_bottles - 1 ),
-NULL
-UNION
-SELECT i - 1 , n - 1 , w2 , ( SELECT w FROM ns WHERE n = i - 2 ),
-CASE i
-WHEN 1 THEN
-"'One green bottle hanging on the wall,'" || char ( 10 ) ||
-"'One green bottle hanging on the wall,'" || char ( 10 ) ||
-"'And if one green bottle should accidentally fall,'" || char ( 10 ) ||
-"'There''ll be no green bottles hanging on the wall.'"
-WHEN 2 THEN
-"'Two green bottles hanging on the wall,'" || char ( 10 ) ||
-"'Two green bottles hanging on the wall,'" || char ( 10 ) ||
-"'And if one green bottle should accidentally fall,'" || char ( 10 ) ||
-"'There''ll be one green bottle hanging on the wall.'"
-ELSE
-format ( "'%s green bottles hanging on the wall,'" , w1 ) || char ( 10 ) ||
-format ( "'%s green bottles hanging on the wall,'" , w1 ) || char ( 10 ) ||
-"'And if one green bottle should accidentally fall,'" || char ( 10 ) ||
-format ( "'There''ll be %s green bottles hanging on the wall.'" , lower ( w2 ))
-END
-FROM vs WHERE n > 0
-)
-SELECT group_concat ( verse , char ( 10 , 10 )) FROM vs WHERE n < take_down
-)
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "bottle-song")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+            (statement
+              (values
+                (list 1 "One")
+                (list 2 "Two")
+                (list 3 "Three")
+                (list 4 "Four")
+                (list 5 "Five")
+                (list 6 "Six")
+                (list 7 "Seven")
+                (list 8 "Eight")
+                (list 9 "Nine")
+                (list 10 "Ten"))))
+          (cte PLACEHOLDER_4 PLACEHOLDER_5 PLACEHOLDER_2 PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (field start_bottles))
+                    (term
+                      (field take_down))
+                    (term
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_3))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_1))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_2) =
+                              (field start_bottles))))))
+                    (term
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_3))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_1))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_2) =
+                              (binary_expression
+                                (field start_bottles) - 1))))))
+                    (term null))) union
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_5) - 1))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) - 1))
+                    (term
+                      (field PLACEHOLDER_7))
+                    (term
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_3))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_1))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_2) =
+                              (binary_expression
+                                (field PLACEHOLDER_5) - 2))))))
+                    (term
+                      (case
+                        (field PLACEHOLDER_5) when 1 then
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (binary_expression
+                                (binary_expression
+                                  (binary_expression "One green bottle hanging on the wall," ||
+                                    (invocation
+                                      (object_reference char)
+                                      (term 10))) || "One green bottle hanging on the wall,") ||
+                                (invocation
+                                  (object_reference char)
+                                  (term 10))) || "And if one green bottle should accidentally fall,") ||
+                            (invocation
+                              (object_reference char)
+                              (term 10))) || "There'll be no green bottles hanging on the wall.") when 2 then
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (binary_expression
+                                (binary_expression
+                                  (binary_expression "Two green bottles hanging on the wall," ||
+                                    (invocation
+                                      (object_reference char)
+                                      (term 10))) || "Two green bottles hanging on the wall,") ||
+                                (invocation
+                                  (object_reference char)
+                                  (term 10))) || "And if one green bottle should accidentally fall,") ||
+                            (invocation
+                              (object_reference char)
+                              (term 10))) || "There'll be one green bottle hanging on the wall.") else
+                        (binary_expression
+                          (binary_expression
+                            (binary_expression
+                              (binary_expression
+                                (binary_expression
+                                  (binary_expression
+                                    (invocation
+                                      (object_reference format)
+                                      (term "%s green bottles hanging on the wall,")
+                                      (term
+                                        (field PLACEHOLDER_6))) ||
+                                    (invocation
+                                      (object_reference char)
+                                      (term 10))) ||
+                                  (invocation
+                                    (object_reference format)
+                                    (term "%s green bottles hanging on the wall,")
+                                    (term
+                                      (field PLACEHOLDER_6)))) ||
+                                (invocation
+                                  (object_reference char)
+                                  (term 10))) || "And if one green bottle should accidentally fall,") ||
+                            (invocation
+                              (object_reference char)
+                              (term 10))) ||
+                          (invocation
+                            (object_reference format)
+                            (term "There'll be %s green bottles hanging on the wall.")
+                            (term
+                              (invocation
+                                (object_reference lower)
+                                (term
+                                  (field PLACEHOLDER_7))))))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_4))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_2) > 0))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field PLACEHOLDER_8))
+                  (term
+                    (invocation
+                      (object_reference char)
+                      (term 10)
+                      (term 10)))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_2) <
+                (field take_down)))))))))

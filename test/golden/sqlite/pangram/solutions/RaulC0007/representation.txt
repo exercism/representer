@@ -1,19 +1,87 @@
-UPDATE pangram
-SET result = CASE
-WHEN (
-SELECT COUNT ( DISTINCT letter )
-FROM (
-WITH RECURSIVE letters ( pos ) AS (
-SELECT 1
-UNION ALL
-SELECT pos + 1
-FROM letters
-WHERE pos <= LENGTH ( REPLACE ( LOWER ( sentence ), "' '" , '' ))
-)
-SELECT SUBSTR ( REPLACE ( LOWER ( sentence ), "' '" , '' ), pos , 1 ) AS letter
-FROM letters
-WHERE SUBSTR ( REPLACE ( LOWER ( sentence ), "' '" , '' ), pos , 1 ) BETWEEN 'a' AND 'z'
-)
-) = 26 THEN 1
-ELSE 0
-END ;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference pangram))
+      (assignment
+        (field result)
+        (case when
+          (binary_expression
+            (subquery
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference count) distinct
+                      (term
+                        (field PLACEHOLDER_1))))))
+              (from
+                (relation
+                  (subquery
+                    (cte PLACEHOLDER_2 PLACEHOLDER_3
+                      (statement
+                        (set_operation
+                          (select
+                            (select_expression
+                              (term 1))) union all
+                          (select
+                            (select_expression
+                              (term
+                                (binary_expression
+                                  (field PLACEHOLDER_3) + 1))))
+                          (from
+                            (relation
+                              (object_reference PLACEHOLDER_2))
+                            (where
+                              (binary_expression
+                                (field PLACEHOLDER_3) <=
+                                (invocation
+                                  (object_reference length)
+                                  (term
+                                    (invocation
+                                      (object_reference replace)
+                                      (term
+                                        (invocation
+                                          (object_reference lower)
+                                          (term
+                                            (field sentence))))
+                                      (term " ")
+                                      (term ""))))))))))
+                    (select
+                      (select_expression
+                        (term
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (invocation
+                                (object_reference replace)
+                                (term
+                                  (invocation
+                                    (object_reference lower)
+                                    (term
+                                      (field sentence))))
+                                (term " ")
+                                (term "")))
+                            (term
+                              (field PLACEHOLDER_3))
+                            (term 1)) PLACEHOLDER_1)))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_2))
+                      (where
+                        (between_expression
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (invocation
+                                (object_reference replace)
+                                (term
+                                  (invocation
+                                    (object_reference lower)
+                                    (term
+                                      (field sentence))))
+                                (term " ")
+                                (term "")))
+                            (term
+                              (field PLACEHOLDER_3))
+                            (term 1)) between "a" "z"))))))) = 26) then 1 else 0)))))

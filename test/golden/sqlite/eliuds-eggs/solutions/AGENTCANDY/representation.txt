@@ -1,11 +1,53 @@
-CREATE TEMPORARY TABLE bits AS
-WITH RECURSIVE count ( n ) AS (
-SELECT 0
-UNION ALL
-SELECT n + 1
-FROM count
-WHERE n < 31
-)
-SELECT * FROM count ;
-UPDATE "\"eliuds-eggs\""
-SET result = ( SELECT COUNT ( * ) FROM bits WHERE ( number & ( 1 << bits . n )) <> 0 );
+(program
+  (statement
+    (create_table temp PLACEHOLDER_1
+      (create_query
+        (cte PLACEHOLDER_2 PLACEHOLDER_3
+          (statement
+            (set_operation
+              (select
+                (select_expression
+                  (term 0))) union all
+              (select
+                (select_expression
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_3) + 1))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_2))
+                (where
+                  (binary_expression
+                    (field PLACEHOLDER_3) < 31))))))
+        (select
+          (select_expression
+            (term
+              (all_fields *))))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_2))))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "eliuds-eggs")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference PLACEHOLDER_2)
+                  (term
+                    (all_fields *))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (binary_expression
+                  (field number) &
+                  (binary_expression 1 <<
+                    (field
+                      (object_reference PLACEHOLDER_1) PLACEHOLDER_3))) != 0))))))))

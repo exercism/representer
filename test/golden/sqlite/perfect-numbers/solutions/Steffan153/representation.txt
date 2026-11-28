@@ -1,14 +1,81 @@
-UPDATE "\"perfect-numbers\""
-SET error = "'Classification is only possible for positive integers.'"
-WHERE number <= 0 ;
-UPDATE "\"perfect-numbers\""
-SET result = (
-WITH nums ( n ) AS ( SELECT 1 UNION ALL SELECT n + 1 FROM nums WHERE ( n + 1 ) * ( n + 1 ) < number )
-SELECT
-CASE sign (( SELECT sum ( n + number / n * ( n * n != number )) FILTER ( WHERE number % n == 0 ) FROM nums ) - number * 2 )
-WHEN 1 THEN 'abundant'
-WHEN 0 THEN 'perfect'
-ELSE 'deficient'
-END
-)
-WHERE number > 0 ;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "perfect-numbers")))
+      (assignment
+        (field error) "Classification is only possible for positive integers.")
+      (where
+        (binary_expression
+          (field number) <= 0))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "perfect-numbers")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (binary_expression
+                          (field PLACEHOLDER_2) + 1) *
+                        (binary_expression
+                          (field PLACEHOLDER_2) + 1)) <
+                      (field number)))))))
+          (select
+            (select_expression
+              (term
+                (case
+                  (invocation
+                    (object_reference sign)
+                    (term
+                      (binary_expression
+                        (subquery
+                          (select
+                            (select_expression
+                              (term
+                                (invocation
+                                  (object_reference sum)
+                                  (term
+                                    (binary_expression
+                                      (field PLACEHOLDER_2) +
+                                      (binary_expression
+                                        (binary_expression
+                                          (field number) /
+                                          (field PLACEHOLDER_2)) *
+                                        (binary_expression
+                                          (binary_expression
+                                            (field PLACEHOLDER_2) *
+                                            (field PLACEHOLDER_2)) !=
+                                          (field number)))))
+                                  (filter_expression filter
+                                    (where
+                                      (binary_expression
+                                        (binary_expression
+                                          (field number) %
+                                          (field PLACEHOLDER_2)) = 0)))))))
+                          (from
+                            (relation
+                              (object_reference PLACEHOLDER_1)))) -
+                        (binary_expression
+                          (field number) * 2)))) when 1 then "abundant" when 0 then "perfect" else "deficient"))))))
+      (where
+        (binary_expression
+          (field number) > 0)))))

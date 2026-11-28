@@ -1,27 +1,174 @@
-UPDATE "\"rail-fence-cipher\""
-SET result = ( WITH
-dirs ( col_idx , row_idx , dir , chr ) AS (
-SELECT 1 , 1 , 1 , substr ( msg , 1 , 1 )
-UNION ALL
-SELECT
-col_idx + 1 ,
-IIF ( row_idx + dir BETWEEN 1 AND rails , row_idx + dir , row_idx - dir ),
-IIF ( row_idx + dir BETWEEN 1 AND rails , dir , - dir ),
-substr ( msg , col_idx + 1 , 1 )
-FROM dirs
-WHERE col_idx + 1 <= length ( msg )
-),
-dirs_sorted ( col_idx , chr , rev_col_idx ) AS (
-SELECT col_idx , chr , ROW_NUMBER () OVER ( ORDER BY row_idx , col_idx )
-FROM dirs
-ORDER BY row_idx , col_idx
-),
-encoded ( s ) AS (
-SELECT group_concat ( chr , '' ) FROM dirs_sorted
-),
-decoded ( s ) AS (
-SELECT group_concat ( substr ( msg , rev_col_idx , 1 ), '' )
-FROM ( SELECT * FROM dirs_sorted ORDER BY col_idx )
-)
-SELECT IIF ( property = 'encode' , ( SELECT s FROM encoded ), ( SELECT s FROM decoded ))
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "rail-fence-cipher")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)
+                    (term 1)
+                    (term 1)
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field msg))
+                        (term 1)
+                        (term 1))))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (between_expression
+                            (binary_expression
+                              (field PLACEHOLDER_3) +
+                              (field PLACEHOLDER_4)) between 1
+                            (field rails)))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_3) +
+                            (field PLACEHOLDER_4)))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_3) -
+                            (field PLACEHOLDER_4)))))
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (between_expression
+                            (binary_expression
+                              (field PLACEHOLDER_3) +
+                              (field PLACEHOLDER_4)) between 1
+                            (field rails)))
+                        (term
+                          (field PLACEHOLDER_4))
+                        (term
+                          (unary_expression -
+                            (field PLACEHOLDER_4)))))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field msg))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_2) + 1))
+                        (term 1)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1) <=
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field msg)))))))))
+          (cte PLACEHOLDER_6 PLACEHOLDER_2 PLACEHOLDER_5 PLACEHOLDER_7
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field PLACEHOLDER_2))
+                  (term
+                    (field PLACEHOLDER_5))
+                  (term
+                    (window_function
+                      (invocation
+                        (object_reference row_number))
+                      (window_specification
+                        (order_by
+                          (order_target
+                            (field PLACEHOLDER_3))
+                          (order_target
+                            (field PLACEHOLDER_2))))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1))
+                (order_by
+                  (order_target
+                    (field PLACEHOLDER_3))
+                  (order_target
+                    (field PLACEHOLDER_2))))))
+          (cte PLACEHOLDER_8 PLACEHOLDER_9
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (field PLACEHOLDER_5))
+                      (term "")))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_6)))))
+          (cte PLACEHOLDER_10 PLACEHOLDER_9
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field msg))
+                          (term
+                            (field PLACEHOLDER_7))
+                          (term 1)))
+                      (term "")))))
+              (from
+                (relation
+                  (subquery
+                    (select
+                      (select_expression
+                        (term
+                          (all_fields *))))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_6))
+                      (order_by
+                        (order_target
+                          (field PLACEHOLDER_2)))))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference iif)
+                  (term
+                    (binary_expression
+                      (field property) = "encode"))
+                  (term
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_9))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_8)))))
+                  (term
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (field PLACEHOLDER_9))))
+                      (from
+                        (relation
+                          (object_reference PLACEHOLDER_10))))))))))))))

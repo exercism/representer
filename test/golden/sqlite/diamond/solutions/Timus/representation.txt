@@ -1,17 +1,133 @@
-UPDATE diamond SET result = (
-WITH ls ( n , stop , s , line ) AS (
-SELECT 1 , unicode ( letter ) - 65 , unicode ( letter ) - 65 - 1 ,
-format ( '%*sA%*s' ,
-unicode ( letter ) - 65 , '' , unicode ( letter ) - 65 , '' )
-UNION ALL
-SELECT n + 1 , stop , s - 1 ,
-format ( '%*s%s%*s%s%*s' ,
-s , '' , char ( n + 65 ), 2 * n - 1 , '' , char ( n + 65 ), s , '' )
-FROM ls WHERE n <= stop
-)
-SELECT group_concat ( line , char ( 10 ))
-FROM ( SELECT line FROM ls
-UNION ALL
-SELECT line
-FROM ( SELECT line FROM ls WHERE n <= stop ORDER BY n DESC ))
-)
+(program
+  (statement
+    (update
+      (relation
+        (object_reference diamond))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)
+                    (term
+                      (binary_expression
+                        (invocation
+                          (object_reference unicode)
+                          (term
+                            (field letter))) - 65))
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (invocation
+                            (object_reference unicode)
+                            (term
+                              (field letter))) - 65) - 1))
+                    (term
+                      (invocation
+                        (object_reference format)
+                        (term "%*sA%*s")
+                        (term
+                          (binary_expression
+                            (invocation
+                              (object_reference unicode)
+                              (term
+                                (field letter))) - 65))
+                        (term "")
+                        (term
+                          (binary_expression
+                            (invocation
+                              (object_reference unicode)
+                              (term
+                                (field letter))) - 65))
+                        (term ""))))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (field PLACEHOLDER_3))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_4) - 1))
+                    (term
+                      (invocation
+                        (object_reference format)
+                        (term "%*s%s%*s%s%*s")
+                        (term
+                          (field PLACEHOLDER_4))
+                        (term "")
+                        (term
+                          (invocation
+                            (object_reference char)
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_2) + 65))))
+                        (term
+                          (binary_expression
+                            (binary_expression 2 *
+                              (field PLACEHOLDER_2)) - 1))
+                        (term "")
+                        (term
+                          (invocation
+                            (object_reference char)
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_2) + 65))))
+                        (term
+                          (field PLACEHOLDER_4))
+                        (term "")))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_2) <=
+                      (field PLACEHOLDER_3)))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field PLACEHOLDER_5))
+                  (term
+                    (invocation
+                      (object_reference char)
+                      (term 10)))))))
+          (from
+            (relation
+              (subquery
+                (set_operation
+                  (select
+                    (select_expression
+                      (term
+                        (field PLACEHOLDER_5))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_1))) union all
+                  (select
+                    (select_expression
+                      (term
+                        (field PLACEHOLDER_5))))
+                  (from
+                    (relation
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_5))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_1))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_2) <=
+                              (field PLACEHOLDER_3)))
+                          (order_by
+                            (order_target
+                              (field PLACEHOLDER_2)
+                              (direction desc))))))))))))))))

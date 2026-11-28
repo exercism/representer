@@ -1,23 +1,150 @@
-ALTER TABLE "\"armstrong-numbers\""
-ADD rest INTEGER ;
-ALTER TABLE "\"armstrong-numbers\""
-ADD exp INTEGER ;
-UPDATE "\"armstrong-numbers\""
-SET exp = IIF ( INSTR ( number , 'e' ) != 0 , SUBSTR ( number , INSTR ( number , 'e' ) + 1 , LENGTH ( number )), LENGTH ( NUMBER ));
-UPDATE "\"armstrong-numbers\""
-SET result = 0 ;
-PRAGMA recursive_triggers = ON ;
-CREATE TRIGGER IF NOT EXISTS "\"update_armstrong-numbers\""
-AFTER UPDATE
-ON "\"armstrong-numbers\""
-WHEN NEW . rest > 0
-BEGIN
-UPDATE "\"armstrong-numbers\""
-SET rest = NEW . rest / 10
-, result = result + POWER ( NEW . rest % 10 , exp )
-WHERE rest = NEW . rest ;
-END ;
-UPDATE "\"armstrong-numbers\""
-SET rest = IIF ( INSTR ( number , 'e' ) != 0 , SUBSTR ( REPLACE ( number , '.' , '' ), 0 , INSTR ( number , 'e' ) - 1 ), number );
-UPDATE "\"armstrong-numbers\""
-SET result = IIF ( result = number , TRUE , FALSE );
+(program
+  (statement
+    (alter_table
+      (object_reference
+        (quoted_identifier "armstrong-numbers"))
+      (add_column
+        (column_definition PLACEHOLDER_1
+          (int integer)))))
+  (statement
+    (alter_table
+      (object_reference
+        (quoted_identifier "armstrong-numbers"))
+      (add_column
+        (column_definition PLACEHOLDER_2
+          (int integer)))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "armstrong-numbers")))
+      (assignment
+        (field PLACEHOLDER_2)
+        (invocation
+          (object_reference iif)
+          (term
+            (binary_expression
+              (invocation
+                (object_reference instr)
+                (term
+                  (field number))
+                (term "e")) != 0))
+          (term
+            (invocation
+              (object_reference substr)
+              (term
+                (field number))
+              (term
+                (binary_expression
+                  (invocation
+                    (object_reference instr)
+                    (term
+                      (field number))
+                    (term "e")) + 1))
+              (term
+                (invocation
+                  (object_reference length)
+                  (term
+                    (field number))))))
+          (term
+            (invocation
+              (object_reference length)
+              (term
+                (field number))))))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "armstrong-numbers")))
+      (assignment
+        (field result) 0)))
+  (statement
+    (pragma_statement
+      (object_reference recursive_triggers) = on))
+  (statement
+    (create_trigger if not exists
+      (object_reference
+        (quoted_identifier "update_armstrong-numbers")) after update on
+      (object_reference
+        (quoted_identifier "armstrong-numbers")) when
+      (binary_expression
+        (field
+          (object_reference new) PLACEHOLDER_1) > 0)
+      (statement
+        (update
+          (relation
+            (object_reference
+              (quoted_identifier "armstrong-numbers")))
+          (assignment
+            (field PLACEHOLDER_1)
+            (binary_expression
+              (field
+                (object_reference new) PLACEHOLDER_1) / 10))
+          (assignment
+            (field result)
+            (binary_expression
+              (field result) +
+              (invocation
+                (object_reference power)
+                (term
+                  (binary_expression
+                    (field
+                      (object_reference new) PLACEHOLDER_1) % 10))
+                (term
+                  (field PLACEHOLDER_2)))))
+          (where
+            (binary_expression
+              (field PLACEHOLDER_1) =
+              (field
+                (object_reference new) PLACEHOLDER_1)))))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "armstrong-numbers")))
+      (assignment
+        (field PLACEHOLDER_1)
+        (invocation
+          (object_reference iif)
+          (term
+            (binary_expression
+              (invocation
+                (object_reference instr)
+                (term
+                  (field number))
+                (term "e")) != 0))
+          (term
+            (invocation
+              (object_reference substr)
+              (term
+                (invocation
+                  (object_reference replace)
+                  (term
+                    (field number))
+                  (term ".")
+                  (term "")))
+              (term 0)
+              (term
+                (binary_expression
+                  (invocation
+                    (object_reference instr)
+                    (term
+                      (field number))
+                    (term "e")) - 1))))
+          (term
+            (field number))))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "armstrong-numbers")))
+      (assignment
+        (field result)
+        (invocation
+          (object_reference iif)
+          (term
+            (binary_expression
+              (field result) =
+              (field number)))
+          (term true)
+          (term false))))))

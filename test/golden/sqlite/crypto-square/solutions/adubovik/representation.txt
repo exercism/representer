@@ -1,25 +1,210 @@
-UPDATE "\"crypto-square\""
-SET result = ( WITH
-text_arr ( c ) AS (
-SELECT lower ( substr ( plaintext , value , 1 ))
-FROM generate_series ( 1 , length ( plaintext ))
-WHERE substr ( plaintext , value , 1 ) GLOB '[0-9a-zA-Z]'
-),
-norm ( s ) AS ( SELECT IFNULL ( group_concat ( c , '' ), '' ) FROM text_arr ),
-lom ( n ) AS ( SELECT length ( s ) FROM norm ),
-c ( n ) AS ( SELECT ceiling ( sqrt ( n )) FROM lom ),
-r0 ( n ) AS ( SELECT floor ( sqrt ( n )) FROM lom ),
-r ( n ) AS ( SELECT IIF ( r0 . n * c . n >= lom . n , r0 . n , r0 . n + 1 ) FROM lom , r0 , c ),
-coded_line ( s ) AS (
-SELECT group_concat (
-IFNULL ( NULLIF ( substr ( norm . s , i . value * c . n + j . value + 1 , 1 ), '' ), "' '" ),
-'' )
-FROM
-r , generate_series ( 0 , r . n - 1 ) AS i ,
-c , generate_series ( 0 , c . n - 1 ) AS j ,
-norm
-GROUP BY j . value
-ORDER BY j . value
-)
-SELECT IFNULL ( group_concat ( s , "' '" ), '' ) FROM coded_line
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "crypto-square")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference lower)
+                      (term
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field plaintext))
+                          (term
+                            (field value))
+                          (term 1)))))))
+              (from
+                (relation
+                  (invocation
+                    (object_reference generate_series)
+                    (term 1)
+                    (term
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field plaintext))))))
+                (where
+                  (binary_expression
+                    (invocation
+                      (object_reference substr)
+                      (term
+                        (field plaintext))
+                      (term
+                        (field value))
+                      (term 1)) glob "[0-9a-zA-Z]")))))
+          (cte PLACEHOLDER_3 PLACEHOLDER_4
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference ifnull)
+                      (term
+                        (invocation
+                          (object_reference group_concat)
+                          (term
+                            (field PLACEHOLDER_2))
+                          (term "")))
+                      (term "")))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1)))))
+          (cte PLACEHOLDER_5 PLACEHOLDER_6
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference length)
+                      (term
+                        (field PLACEHOLDER_4))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_3)))))
+          (cte PLACEHOLDER_2 PLACEHOLDER_6
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference ceiling)
+                      (term
+                        (invocation
+                          (object_reference sqrt)
+                          (term
+                            (field PLACEHOLDER_6))))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_5)))))
+          (cte PLACEHOLDER_7 PLACEHOLDER_6
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference floor)
+                      (term
+                        (invocation
+                          (object_reference sqrt)
+                          (term
+                            (field PLACEHOLDER_6))))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_5)))))
+          (cte PLACEHOLDER_8 PLACEHOLDER_6
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference iif)
+                      (term
+                        (binary_expression
+                          (binary_expression
+                            (field
+                              (object_reference PLACEHOLDER_7) PLACEHOLDER_6) *
+                            (field
+                              (object_reference PLACEHOLDER_2) PLACEHOLDER_6)) >=
+                          (field
+                            (object_reference PLACEHOLDER_5) PLACEHOLDER_6)))
+                      (term
+                        (field
+                          (object_reference PLACEHOLDER_7) PLACEHOLDER_6))
+                      (term
+                        (binary_expression
+                          (field
+                            (object_reference PLACEHOLDER_7) PLACEHOLDER_6) + 1))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_5))
+                (relation
+                  (object_reference PLACEHOLDER_7))
+                (relation
+                  (object_reference PLACEHOLDER_2)))))
+          (cte PLACEHOLDER_9 PLACEHOLDER_4
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (invocation
+                          (object_reference ifnull)
+                          (term
+                            (invocation
+                              (object_reference nullif)
+                              (term
+                                (invocation
+                                  (object_reference substr)
+                                  (term
+                                    (field
+                                      (object_reference PLACEHOLDER_3) PLACEHOLDER_4))
+                                  (term
+                                    (binary_expression
+                                      (binary_expression
+                                        (binary_expression
+                                          (field
+                                            (object_reference PLACEHOLDER_10) value) *
+                                          (field
+                                            (object_reference PLACEHOLDER_2) PLACEHOLDER_6)) +
+                                        (field
+                                          (object_reference PLACEHOLDER_11) value)) + 1))
+                                  (term 1)))
+                              (term "")))
+                          (term " ")))
+                      (term "")))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_8))
+                (relation
+                  (invocation
+                    (object_reference generate_series)
+                    (term 0)
+                    (term
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_8) PLACEHOLDER_6) - 1))) PLACEHOLDER_10)
+                (relation
+                  (object_reference PLACEHOLDER_2))
+                (relation
+                  (invocation
+                    (object_reference generate_series)
+                    (term 0)
+                    (term
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_2) PLACEHOLDER_6) - 1))) PLACEHOLDER_11)
+                (relation
+                  (object_reference PLACEHOLDER_3))
+                (group_by
+                  (field
+                    (object_reference PLACEHOLDER_11) value))
+                (order_by
+                  (order_target
+                    (field
+                      (object_reference PLACEHOLDER_11) value))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference ifnull)
+                  (term
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (field PLACEHOLDER_4))
+                      (term " ")))
+                  (term "")))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_9))))))))

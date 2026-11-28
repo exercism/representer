@@ -1,8 +1,15 @@
-. mode csv
-. once input . txt
-SELECT dna FROM "\"rna-transcription\"" ;
-. shell cat input . txt | tr - d '\\r' > cleaned - input . txt
-. shell cat cleaned - input . txt | tr GCTA CGAU > transcribed . txt
-. shell paste - d , cleaned - input . txt transcribed . txt > combined . csv
-DELETE FROM "\"rna-transcription\"" ;
-. import
+(program ".mode csv" ".once input.txt"
+  (statement
+    (select
+      (select_expression
+        (term
+          (field dna))))
+    (from
+      (relation
+        (object_reference
+          (quoted_identifier "rna-transcription"))))) ".shell cat input.txt | tr -d '\\\\r' > cleaned-input.txt" ".shell cat cleaned-input.txt | tr GCTA CGAU > transcribed.txt" ".shell paste -d , cleaned-input.txt transcribed.txt > combined.csv"
+  (statement
+    (delete)
+    (from
+      (object_reference
+        (quoted_identifier "rna-transcription")))) ".import --csv combined.csv \"rna-transcription\"")

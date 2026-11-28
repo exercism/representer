@@ -1,18 +1,107 @@
-WITH RECURSIVE flat ( rowid , val , type , path ) AS (
-SELECT f . rowid , e . value , e . type , printf ( '%09d' , e . key )
-FROM "\"flatten-array\"" f , json_each ( f . array ) e
-UNION ALL
-SELECT flat . rowid , e . value , e . type , flat . path || '.' || printf ( '%09d' , e . key )
-FROM flat , json_each ( flat . val ) e
-WHERE flat . type = 'array'
-)
-UPDATE "\"flatten-array\""
-SET result = (
-SELECT json_group_array ( val )
-FROM (
-SELECT val FROM flat
-WHERE flat . rowid = "\"flatten-array\"" . rowid
-AND type NOT IN ( 'array' , 'null' )
-ORDER BY path
-)
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field
+                  (object_reference PLACEHOLDER_6) PLACEHOLDER_2))
+              (term
+                (field
+                  (object_reference PLACEHOLDER_7) value))
+              (term
+                (field
+                  (object_reference PLACEHOLDER_7) PLACEHOLDER_4))
+              (term
+                (invocation
+                  (object_reference printf)
+                  (term "%09d")
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_7) key))))))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "flatten-array")) PLACEHOLDER_6)
+            (relation
+              (invocation
+                (object_reference json_each)
+                (term
+                  (field
+                    (object_reference PLACEHOLDER_6) array))) PLACEHOLDER_7)) union all
+          (select
+            (select_expression
+              (term
+                (field
+                  (object_reference PLACEHOLDER_1) PLACEHOLDER_2))
+              (term
+                (field
+                  (object_reference PLACEHOLDER_7) value))
+              (term
+                (field
+                  (object_reference PLACEHOLDER_7) PLACEHOLDER_4))
+              (term
+                (binary_expression
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_1) PLACEHOLDER_5) || ".") ||
+                  (invocation
+                    (object_reference printf)
+                    (term "%09d")
+                    (term
+                      (field
+                        (object_reference PLACEHOLDER_7) key)))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (relation
+              (invocation
+                (object_reference json_each)
+                (term
+                  (field
+                    (object_reference PLACEHOLDER_1) PLACEHOLDER_3))) PLACEHOLDER_7)
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_1) PLACEHOLDER_4) = "array"))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "flatten-array")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference json_group_array)
+                  (term
+                    (field PLACEHOLDER_3))))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_3))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_1) PLACEHOLDER_2) =
+                        (field
+                          (object_reference
+                            (quoted_identifier "flatten-array")) PLACEHOLDER_2)) and
+                      (binary_expression
+                        (field PLACEHOLDER_4)
+                        (not_in not in)
+                        (list "array" "null"))))
+                  (order_by
+                    (order_target
+                      (field PLACEHOLDER_5))))))))))))

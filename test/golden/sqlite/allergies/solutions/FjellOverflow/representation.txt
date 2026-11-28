@@ -1,26 +1,72 @@
-CREATE TABLE items ( item TEXT , value INT );
-INSERT INTO items VALUES
-( 'eggs' , 1 ),
-( 'peanuts' , 2 ),
-( 'shellfish' , 4 ),
-( 'strawberries' , 8 ),
-( 'tomatoes' , 16 ),
-( 'chocolate' , 32 ),
-( 'pollen' , 64 ),
-( 'cats' , 128 );
-UPDATE allergies
-SET result = '' ;
-UPDATE allergies
-SET result = (
-SELECT GROUP_CONCAT ( item , "', '" )
-FROM items
-WHERE MOD ( score , value * 2 ) >= value
-) WHERE score > 0 ;
-UPDATE allergies
-SET result = (
-CASE
-WHEN INSTR ( result , item ) > 0 THEN 'true'
-ELSE 'false'
-END
-)
-WHERE task = 'allergicTo' ;
+(program
+  (statement
+    (create_table PLACEHOLDER_1
+      (column_definitions
+        (column_definition PLACEHOLDER_2 text)
+        (column_definition PLACEHOLDER_3
+          (int int)))))
+  (statement
+    (insert
+      (object_reference PLACEHOLDER_1) values
+      (list "eggs" 1)
+      (list "peanuts" 2)
+      (list "shellfish" 4)
+      (list "strawberries" 8)
+      (list "tomatoes" 16)
+      (list "chocolate" 32)
+      (list "pollen" 64)
+      (list "cats" 128)))
+  (statement
+    (update
+      (relation
+        (object_reference allergies))
+      (assignment
+        (field result) "")))
+  (statement
+    (update
+      (relation
+        (object_reference allergies))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field PLACEHOLDER_2))
+                  (term ", ")))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (invocation
+                  (object_reference mod)
+                  (term
+                    (field score))
+                  (term
+                    (binary_expression
+                      (field PLACEHOLDER_3) * 2))) >=
+                (field PLACEHOLDER_3))))))
+      (where
+        (binary_expression
+          (field score) > 0))))
+  (statement
+    (update
+      (relation
+        (object_reference allergies))
+      (assignment
+        (field result)
+        (case when
+          (binary_expression
+            (invocation
+              (object_reference instr)
+              (term
+                (field result))
+              (term
+                (field PLACEHOLDER_2))) > 0) then "true" else "false"))
+      (where
+        (binary_expression
+          (field task) = "allergicTo")))))

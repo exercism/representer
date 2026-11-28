@@ -1,15 +1,84 @@
-UPDATE sublist
-SET result = ( WITH
-s1 ( s1 ) AS (
-SELECT replace ( replace ( replace ( replace ( list_one , '[' , '|' ), ']' , '|' ), ',' , '|' ), '||' , '|' )
-),
-s2 ( s2 ) AS (
-SELECT replace ( replace ( replace ( replace ( list_two , '[' , '|' ), ']' , '|' ), ',' , '|' ), '||' , '|' )
-)
-SELECT CASE
-WHEN s1 = s2 THEN 'equal'
-WHEN instr ( s1 , s2 ) THEN 'superlist'
-WHEN instr ( s2 , s1 ) THEN 'sublist'
-ELSE 'unequal'
-END FROM s1 , s2
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference sublist))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_1
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (invocation
+                          (object_reference replace)
+                          (term
+                            (invocation
+                              (object_reference replace)
+                              (term
+                                (invocation
+                                  (object_reference replace)
+                                  (term
+                                    (field list_one))
+                                  (term "[")
+                                  (term "|")))
+                              (term "]")
+                              (term "|")))
+                          (term ",")
+                          (term "|")))
+                      (term "||")
+                      (term "|")))))))
+          (cte PLACEHOLDER_2 PLACEHOLDER_2
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (invocation
+                          (object_reference replace)
+                          (term
+                            (invocation
+                              (object_reference replace)
+                              (term
+                                (invocation
+                                  (object_reference replace)
+                                  (term
+                                    (field list_two))
+                                  (term "[")
+                                  (term "|")))
+                              (term "]")
+                              (term "|")))
+                          (term ",")
+                          (term "|")))
+                      (term "||")
+                      (term "|")))))))
+          (select
+            (select_expression
+              (term
+                (case when
+                  (binary_expression
+                    (field PLACEHOLDER_1) =
+                    (field PLACEHOLDER_2)) then "equal" when
+                  (invocation
+                    (object_reference instr)
+                    (term
+                      (field PLACEHOLDER_1))
+                    (term
+                      (field PLACEHOLDER_2))) then "superlist" when
+                  (invocation
+                    (object_reference instr)
+                    (term
+                      (field PLACEHOLDER_2))
+                    (term
+                      (field PLACEHOLDER_1))) then "sublist" else "unequal"))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (relation
+              (object_reference PLACEHOLDER_2))))))))

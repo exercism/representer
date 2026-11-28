@@ -1,14 +1,103 @@
-UPDATE proverb SET result = '' WHERE json_array_length ( strings ) = 0 ;
-UPDATE proverb SET result = (
-WITH verses ( n , i , stop , verse ) AS (
-SELECT json_array_length ( strings ), 0 , json_array_length ( strings ),
-format ( "'And all for the want of a %s.'" , strings ->> 0 )
-UNION
-SELECT i , i + 1 , stop ,
-format ( "'For want of a %s the %s was lost.'" ,
-strings ->> i , strings ->> ( i + 1 ))
-FROM verses WHERE i < stop
-)
-SELECT group_concat ( verse , char ( 10 ))
-FROM ( SELECT verse FROM verses WHERE i < stop ORDER BY n )
-) WHERE result IS NULL ;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference proverb))
+      (assignment
+        (field result) "")
+      (where
+        (binary_expression
+          (invocation
+            (object_reference json_array_length)
+            (term
+              (field strings))) = 0))))
+  (statement
+    (update
+      (relation
+        (object_reference proverb))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (invocation
+                        (object_reference json_array_length)
+                        (term
+                          (field strings))))
+                    (term 0)
+                    (term
+                      (invocation
+                        (object_reference json_array_length)
+                        (term
+                          (field strings))))
+                    (term
+                      (invocation
+                        (object_reference format)
+                        (term "And all for the want of a %s.")
+                        (term
+                          (binary_expression
+                            (field strings) ->> 0)))))) union
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_3))
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_3) + 1))
+                    (term
+                      (field PLACEHOLDER_4))
+                    (term
+                      (invocation
+                        (object_reference format)
+                        (term "For want of a %s the %s was lost.")
+                        (term
+                          (binary_expression
+                            (field strings) ->>
+                            (field PLACEHOLDER_3)))
+                        (term
+                          (binary_expression
+                            (field strings) ->>
+                            (binary_expression
+                              (field PLACEHOLDER_3) + 1)))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_3) <
+                      (field PLACEHOLDER_4)))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field PLACEHOLDER_5))
+                  (term
+                    (invocation
+                      (object_reference char)
+                      (term 10)))))))
+          (from
+            (relation
+              (subquery
+                (select
+                  (select_expression
+                    (term
+                      (field PLACEHOLDER_5))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_3) <
+                      (field PLACEHOLDER_4)))
+                  (order_by
+                    (order_target
+                      (field PLACEHOLDER_2)))))))))
+      (where
+        (binary_expression
+          (field result) is null)))))

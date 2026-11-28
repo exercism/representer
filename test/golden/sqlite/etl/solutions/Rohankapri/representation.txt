@@ -1,55 +1,180 @@
-CREATE TABLE IF NOT EXISTS "\"etl\"" ( "\"input\"" TEXT , "\"result\"" TEXT );
-INSERT INTO etl ( input , result ) VALUES
-( '{"1":["A"]}' , '' ),
-( '{"1":["A","E","I","O","U"]}' , '' ),
-( '{"1":["A","E"],"2":["D","G"]}' , '' ),
-( '{"1":["A","E","I","O","U","L","N","R","S","T"],"2":["D","G"],"3":["B","C","M","P"],"4":["F","H","V","W","Y"],"5":["K"],"8":["J","X"],"10":["Q","Z"]}' , '' );
-CREATE TABLE IF NOT EXISTS numbers ( n INTEGER PRIMARY KEY );
-INSERT INTO numbers ( n )
-WITH RECURSIVE
-seq ( s ) AS ( SELECT 0 UNION ALL SELECT s + 1 FROM seq WHERE s < 100 )
-SELECT s FROM seq ;
-WITH RECURSIVE
-parse_input AS (
-SELECT
-input ,
-json_each . key AS pts ,
-json_each . value AS chars
-FROM etl , json_each ( input )
-),
-expand_vals AS (
-SELECT
-input ,
-LOWER ( json_extract ( chars , '$[' || n || ']' )) AS ch ,
-pts
-FROM parse_input
-JOIN numbers ON n < json_array_length ( chars )
-),
-unique_vals AS (
-SELECT DISTINCT
-input ,
-ch ,
-'"' || ch || '":' || pts AS item
-FROM expand_vals
-WHERE ch IS NOT NULL
-),
-sort_vals AS (
-SELECT
-input ,
-item
-FROM unique_vals
-ORDER BY ch
-),
-group_vals AS (
-SELECT
-input ,
-'{' || GROUP_CONCAT ( item , ',' ) || '}' AS output
-FROM sort_vals
-GROUP BY input
-)
-UPDATE etl
-SET result = (
-SELECT output
-FROM group_vals
-WHERE etl . input = group_vals . input
-);
+(program
+  (statement
+    (create_table if not exists
+      (object_reference
+        (quoted_identifier "etl"))
+      (column_definitions
+        (column_definition
+          (quoted_identifier "input") text)
+        (column_definition
+          (quoted_identifier "result") text))))
+  (statement
+    (insert
+      (object_reference etl)
+      (list
+        (column input)
+        (column result)) values
+      (list "{\"1\":[\"A\"]}" "")
+      (list "{\"1\":[\"A\",\"E\",\"I\",\"O\",\"U\"]}" "")
+      (list "{\"1\":[\"A\",\"E\"],\"2\":[\"D\",\"G\"]}" "")
+      (list "{\"1\":[\"A\",\"E\",\"I\",\"O\",\"U\",\"L\",\"N\",\"R\",\"S\",\"T\"],\"2\":[\"D\",\"G\"],\"3\":[\"B\",\"C\",\"M\",\"P\"],\"4\":[\"F\",\"H\",\"V\",\"W\",\"Y\"],\"5\":[\"K\"],\"8\":[\"J\",\"X\"],\"10\":[\"Q\",\"Z\"]}" "")))
+  (statement
+    (create_table if not exists PLACEHOLDER_1
+      (column_definitions
+        (column_definition PLACEHOLDER_2
+          (int integer) primary key))))
+  (statement
+    (insert
+      (object_reference PLACEHOLDER_1)
+      (list
+        (column PLACEHOLDER_2))
+      (cte PLACEHOLDER_3 PLACEHOLDER_4
+        (statement
+          (set_operation
+            (select
+              (select_expression
+                (term 0))) union all
+            (select
+              (select_expression
+                (term
+                  (binary_expression
+                    (field PLACEHOLDER_4) + 1))))
+            (from
+              (relation
+                (object_reference PLACEHOLDER_3))
+              (where
+                (binary_expression
+                  (field PLACEHOLDER_4) < 100))))))
+      (select
+        (select_expression
+          (term
+            (field PLACEHOLDER_4))))
+      (from
+        (relation
+          (object_reference PLACEHOLDER_3)))))
+  (statement
+    (cte PLACEHOLDER_5
+      (statement
+        (select
+          (select_expression
+            (term
+              (field input))
+            (term
+              (field
+                (object_reference json_each) key) PLACEHOLDER_6)
+            (term
+              (field
+                (object_reference json_each) value) PLACEHOLDER_7)))
+        (from
+          (relation
+            (object_reference etl))
+          (relation
+            (invocation
+              (object_reference json_each)
+              (term
+                (field input)))))))
+    (cte PLACEHOLDER_8
+      (statement
+        (select
+          (select_expression
+            (term
+              (field input))
+            (term
+              (invocation
+                (object_reference lower)
+                (term
+                  (invocation
+                    (object_reference json_extract)
+                    (term
+                      (field PLACEHOLDER_7))
+                    (term
+                      (binary_expression
+                        (binary_expression "$[" ||
+                          (field PLACEHOLDER_2)) || "]"))))) PLACEHOLDER_9)
+            (term
+              (field PLACEHOLDER_6))))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_5))
+          (join
+            (relation
+              (object_reference PLACEHOLDER_1)) on
+            (binary_expression
+              (field PLACEHOLDER_2) <
+              (invocation
+                (object_reference json_array_length)
+                (term
+                  (field PLACEHOLDER_7))))))))
+    (cte PLACEHOLDER_10
+      (statement
+        (select distinct
+          (select_expression
+            (term
+              (field input))
+            (term
+              (field PLACEHOLDER_9))
+            (term
+              (binary_expression
+                (binary_expression
+                  (binary_expression "\"" ||
+                    (field PLACEHOLDER_9)) || "\":") ||
+                (field PLACEHOLDER_6)) PLACEHOLDER_11)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_8))
+          (where
+            (binary_expression
+              (field PLACEHOLDER_9)
+              (is_not is not) null)))))
+    (cte PLACEHOLDER_12
+      (statement
+        (select
+          (select_expression
+            (term
+              (field input))
+            (term
+              (field PLACEHOLDER_11))))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_10))
+          (order_by
+            (order_target
+              (field PLACEHOLDER_9))))))
+    (cte PLACEHOLDER_13
+      (statement
+        (select
+          (select_expression
+            (term
+              (field input))
+            (term
+              (binary_expression
+                (binary_expression "{" ||
+                  (invocation
+                    (object_reference group_concat)
+                    (term
+                      (field PLACEHOLDER_11))
+                    (term ","))) || "}") PLACEHOLDER_14)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_12))
+          (group_by
+            (field input)))))
+    (update
+      (relation
+        (object_reference etl))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_14))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_13))
+            (where
+              (binary_expression
+                (field
+                  (object_reference etl) input) =
+                (field
+                  (object_reference PLACEHOLDER_13) input)))))))))

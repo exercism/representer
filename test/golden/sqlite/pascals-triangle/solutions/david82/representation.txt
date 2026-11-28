@@ -1,22 +1,82 @@
-UPDATE "\"pascals-triangle\""
-SET result = (
-CASE
-WHEN input = 0 THEN ''
-ELSE (
-WITH RECURSIVE counter ( k ) AS (
-SELECT 1 UNION ALL
-SELECT k + 1 FROM counter WHERE k < input
-)
-SELECT group_concat (
-(
-WITH RECURSIVE nums ( idx , s ) AS (
-SELECT 1 , 1 UNION ALL
-SELECT idx + 1 , s * k / idx - s FROM nums WHERE idx < k
-)
-SELECT group_concat ( s , "' '" ) FROM nums
-),
-char ( 10 )
-) FROM counter
-)
-END
-);
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "pascals-triangle")))
+      (assignment
+        (field result)
+        (case when
+          (binary_expression
+            (field input) = 0) then "" else
+          (subquery
+            (cte PLACEHOLDER_1 PLACEHOLDER_2
+              (statement
+                (set_operation
+                  (select
+                    (select_expression
+                      (term 1))) union all
+                  (select
+                    (select_expression
+                      (term
+                        (binary_expression
+                          (field PLACEHOLDER_2) + 1))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_1))
+                    (where
+                      (binary_expression
+                        (field PLACEHOLDER_2) <
+                        (field input)))))))
+            (select
+              (select_expression
+                (term
+                  (invocation
+                    (object_reference group_concat)
+                    (term
+                      (subquery
+                        (cte PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+                          (statement
+                            (set_operation
+                              (select
+                                (select_expression
+                                  (term 1)
+                                  (term 1))) union all
+                              (select
+                                (select_expression
+                                  (term
+                                    (binary_expression
+                                      (field PLACEHOLDER_4) + 1))
+                                  (term
+                                    (binary_expression
+                                      (binary_expression
+                                        (binary_expression
+                                          (field PLACEHOLDER_5) *
+                                          (field PLACEHOLDER_2)) /
+                                        (field PLACEHOLDER_4)) -
+                                      (field PLACEHOLDER_5)))))
+                              (from
+                                (relation
+                                  (object_reference PLACEHOLDER_3))
+                                (where
+                                  (binary_expression
+                                    (field PLACEHOLDER_4) <
+                                    (field PLACEHOLDER_2)))))))
+                        (select
+                          (select_expression
+                            (term
+                              (invocation
+                                (object_reference group_concat)
+                                (term
+                                  (field PLACEHOLDER_5))
+                                (term " ")))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_3)))))
+                    (term
+                      (invocation
+                        (object_reference char)
+                        (term 10)))))))
+            (from
+              (relation
+                (object_reference PLACEHOLDER_1)))))))))

@@ -1,39 +1,158 @@
-WITH phrases ( idx , intro , repeater ) AS ( VALUES
-( 1 , "\"fly.\"" , "\"I" don't know why she swallowed the fly. Perhaps she'll die." ),
-( 2 , "\"spider.\"" || char ( 10 ) || "\"It" wriggled and jiggled and tickled inside her." ,
-"\"She" swallowed the spider to catch the fly." ),
-( 3 , "\"bird.\"" || char ( 10 ) || "\"How" absurd to swallow a bird!" ,
-"\"She" swallowed the bird to catch the spider that wriggled and jiggled and tickled inside her." ),
-( 4 , "\"cat.\"" || char ( 10 ) || "\"Imagine" that, to swallow a cat!" ,
-"\"She" swallowed the cat to catch the bird." ),
-( 5 , "\"dog.\"" || char ( 10 ) || "\"What" a hog, to swallow a dog!" ,
-"\"She" swallowed the dog to catch the cat." ),
-( 6 , "\"goat.\"" || char ( 10 ) || "\"Just" opened her throat and swallowed a goat!" ,
-"\"She" swallowed the goat to catch the dog." ),
-( 7 , "\"cow.\"" || char ( 10 ) || "\"I" don't know how she swallowed a cow!" ,
-"\"She" swallowed the cow to catch the goat." )
-)
-UPDATE "\"food-chain\""
-SET result = ( WITH
-verses ( idx , s ) AS (
-SELECT P1 . idx , (
-SELECT "\"I" know an old lady who swallowed a "\"" ||
-P1 . intro || char ( 10 ) ||
-group_concat ( P2 . repeater , char ( 10 ))
-FROM (
-SELECT * FROM
-phrases AS P2
-WHERE P2 . idx BETWEEN 1 AND P1 . idx
-ORDER BY P2 . idx DESC
-) AS P2
-)
-FROM phrases AS P1
-UNION ALL
-SELECT 8 ,
-"\"I" know an old lady who swallowed a horse." || char ( 10 ) ||
-"\"She's" dead, of course!"
-)
-SELECT group_concat ( s , char ( 10 ) || char ( 10 ))
-FROM verses
-WHERE idx BETWEEN start_verse AND end_verse
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4
+      (statement
+        (values
+          (list 1
+            (quoted_identifier "fly.")
+            (quoted_identifier "I don't know why she swallowed the fly. Perhaps she'll die."))
+          (list 2
+            (binary_expression
+              (binary_expression
+                (quoted_identifier "spider.") ||
+                (invocation
+                  (object_reference char)
+                  (term 10))) ||
+              (quoted_identifier "It wriggled and jiggled and tickled inside her."))
+            (quoted_identifier "She swallowed the spider to catch the fly."))
+          (list 3
+            (binary_expression
+              (binary_expression
+                (quoted_identifier "bird.") ||
+                (invocation
+                  (object_reference char)
+                  (term 10))) ||
+              (quoted_identifier "How absurd to swallow a bird!"))
+            (quoted_identifier "She swallowed the bird to catch the spider that wriggled and jiggled and tickled inside her."))
+          (list 4
+            (binary_expression
+              (binary_expression
+                (quoted_identifier "cat.") ||
+                (invocation
+                  (object_reference char)
+                  (term 10))) ||
+              (quoted_identifier "Imagine that, to swallow a cat!"))
+            (quoted_identifier "She swallowed the cat to catch the bird."))
+          (list 5
+            (binary_expression
+              (binary_expression
+                (quoted_identifier "dog.") ||
+                (invocation
+                  (object_reference char)
+                  (term 10))) ||
+              (quoted_identifier "What a hog, to swallow a dog!"))
+            (quoted_identifier "She swallowed the dog to catch the cat."))
+          (list 6
+            (binary_expression
+              (binary_expression
+                (quoted_identifier "goat.") ||
+                (invocation
+                  (object_reference char)
+                  (term 10))) ||
+              (quoted_identifier "Just opened her throat and swallowed a goat!"))
+            (quoted_identifier "She swallowed the goat to catch the dog."))
+          (list 7
+            (binary_expression
+              (binary_expression
+                (quoted_identifier "cow.") ||
+                (invocation
+                  (object_reference char)
+                  (term 10))) ||
+              (quoted_identifier "I don't know how she swallowed a cow!"))
+            (quoted_identifier "She swallowed the cow to catch the goat.")))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "food-chain")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_5 PLACEHOLDER_2 PLACEHOLDER_6
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term
+                      (field
+                        (object_reference PLACEHOLDER_7) PLACEHOLDER_2))
+                    (term
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (binary_expression
+                                (binary_expression
+                                  (binary_expression
+                                    (quoted_identifier "I know an old lady who swallowed a ") ||
+                                    (field
+                                      (object_reference PLACEHOLDER_7) PLACEHOLDER_3)) ||
+                                  (invocation
+                                    (object_reference char)
+                                    (term 10))) ||
+                                (invocation
+                                  (object_reference group_concat)
+                                  (term
+                                    (field
+                                      (object_reference PLACEHOLDER_8) PLACEHOLDER_4))
+                                  (term
+                                    (invocation
+                                      (object_reference char)
+                                      (term 10))))))))
+                        (from
+                          (relation
+                            (subquery
+                              (select
+                                (select_expression
+                                  (term
+                                    (all_fields *))))
+                              (from
+                                (relation
+                                  (object_reference PLACEHOLDER_1) PLACEHOLDER_8)
+                                (where
+                                  (between_expression
+                                    (field
+                                      (object_reference PLACEHOLDER_8) PLACEHOLDER_2) between 1
+                                    (field
+                                      (object_reference PLACEHOLDER_7) PLACEHOLDER_2)))
+                                (order_by
+                                  (order_target
+                                    (field
+                                      (object_reference PLACEHOLDER_8) PLACEHOLDER_2)
+                                    (direction desc))))) PLACEHOLDER_8))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1) PLACEHOLDER_7)) union all
+                (select
+                  (select_expression
+                    (term 8)
+                    (term
+                      (binary_expression
+                        (binary_expression
+                          (quoted_identifier "I know an old lady who swallowed a horse.") ||
+                          (invocation
+                            (object_reference char)
+                            (term 10))) ||
+                        (quoted_identifier "She's dead, of course!"))))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field PLACEHOLDER_6))
+                  (term
+                    (binary_expression
+                      (invocation
+                        (object_reference char)
+                        (term 10)) ||
+                      (invocation
+                        (object_reference char)
+                        (term 10))))))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_5))
+            (where
+              (between_expression
+                (field PLACEHOLDER_2) between
+                (field start_verse)
+                (field end_verse)))))))))

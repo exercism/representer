@@ -1,92 +1,368 @@
-WITH RECURSIVE
-ones_words ( val , word ) AS (
-VALUES
-( 1 , 'one' ), ( 2 , 'two' ), ( 3 , 'three' ), ( 4 , 'four' ), ( 5 , 'five' ),
-( 6 , 'six' ), ( 7 , 'seven' ), ( 8 , 'eight' ), ( 9 , 'nine' ), ( 10 , 'ten' ),
-( 11 , 'eleven' ), ( 12 , 'twelve' ), ( 13 , 'thirteen' ), ( 14 , 'fourteen' ), ( 15 , 'fifteen' ),
-( 16 , 'sixteen' ), ( 17 , 'seventeen' ), ( 18 , 'eighteen' ), ( 19 , 'nineteen' )
-),
-tens_words ( val , word ) AS (
-VALUES
-( 2 , 'twenty' ), ( 3 , 'thirty' ), ( 4 , 'forty' ), ( 5 , 'fifty' ),
-( 6 , 'sixty' ), ( 7 , 'seventy' ), ( 8 , 'eighty' ), ( 9 , 'ninety' )
-),
-validation AS (
-SELECT
-rowid AS r_id ,
-number ,
-CASE
-WHEN number < 0 OR number > 999999999999 THEN "'input out of range'"
-ELSE NULL
-END AS error_msg
-FROM say
-),
-chunks AS (
-SELECT r_id , ( number / 1000000000 ) % 1000 AS chunk_val , 4 AS chunk_group , 'billion' AS group_name FROM validation WHERE error_msg IS NULL
-UNION ALL
-SELECT r_id , ( number / 1000000 ) % 1000 AS chunk_val , 3 AS chunk_group , 'million' AS group_name FROM validation WHERE error_msg IS NULL
-UNION ALL
-SELECT r_id , ( number / 1000 ) % 1000 AS chunk_val , 2 AS chunk_group , 'thousand' AS group_name FROM validation WHERE error_msg IS NULL
-UNION ALL
-SELECT r_id , number % 1000 AS chunk_val , 1 AS chunk_group , '' AS group_name FROM validation WHERE error_msg IS NULL
-),
-filtered_chunks AS (
-SELECT c . *
-FROM chunks c
-JOIN validation v ON c . r_id = v . r_id
-WHERE c . chunk_val > 0 OR ( c . chunk_group = 1 AND v . number = 0 )
-),
-translated_chunks AS (
-SELECT
-fc . r_id ,
-fc . chunk_group ,
-fc . group_name ,
-CASE
-WHEN fc . chunk_val / 100 > 0 THEN ( SELECT word FROM ones_words WHERE val = fc . chunk_val / 100 ) || "' hundred'"
-ELSE ''
-END AS h_part ,
-CASE
-WHEN fc . chunk_val % 100 = 0 THEN ''
-WHEN fc . chunk_val % 100 < 20 THEN ( SELECT word FROM ones_words WHERE val = fc . chunk_val % 100 )
-ELSE
-( SELECT word FROM tens_words WHERE val = ( fc . chunk_val % 100 ) / 10 ) ||
-CASE
-WHEN ( fc . chunk_val % 10 ) > 0 THEN '-' || ( SELECT word FROM ones_words WHERE val = fc . chunk_val % 10 )
-ELSE ''
-END
-END AS r_part
-FROM filtered_chunks fc
-),
-combined_chunk_words AS (
-SELECT
-r_id ,
-chunk_group ,
-CASE
-WHEN h_part = '' AND r_part = '' THEN 'zero'
-WHEN h_part != '' AND r_part != '' THEN h_part || "' '" || r_part
-WHEN h_part != '' THEN h_part
-ELSE r_part
-END ||
-CASE
-WHEN group_name != '' THEN "' '" || group_name
-ELSE ''
-END AS chunk_str
-FROM translated_chunks
-),
-assembled_sentences AS (
-SELECT DISTINCT
-ccw . r_id ,
-group_concat ( ccw . chunk_str , "' '" ) OVER (
-PARTITION BY ccw . r_id
-ORDER BY ccw . chunk_group DESC
-ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
-) AS full_sentence
-FROM combined_chunk_words ccw
-)
-UPDATE say
-SET
-error = ( SELECT v . error_msg FROM validation v WHERE v . r_id = say . rowid ),
-result = CASE
-WHEN ( SELECT v . error_msg FROM validation v WHERE v . r_id = say . rowid ) IS NOT NULL THEN NULL
-ELSE ( SELECT a . full_sentence FROM assembled_sentences a WHERE a . r_id = say . rowid )
-END ;
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (values
+          (list 1 "one")
+          (list 2 "two")
+          (list 3 "three")
+          (list 4 "four")
+          (list 5 "five")
+          (list 6 "six")
+          (list 7 "seven")
+          (list 8 "eight")
+          (list 9 "nine")
+          (list 10 "ten")
+          (list 11 "eleven")
+          (list 12 "twelve")
+          (list 13 "thirteen")
+          (list 14 "fourteen")
+          (list 15 "fifteen")
+          (list 16 "sixteen")
+          (list 17 "seventeen")
+          (list 18 "eighteen")
+          (list 19 "nineteen"))))
+    (cte PLACEHOLDER_4 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (values
+          (list 2 "twenty")
+          (list 3 "thirty")
+          (list 4 "forty")
+          (list 5 "fifty")
+          (list 6 "sixty")
+          (list 7 "seventy")
+          (list 8 "eighty")
+          (list 9 "ninety"))))
+    (cte PLACEHOLDER_5
+      (statement
+        (select
+          (select_expression
+            (term
+              (field rowid) PLACEHOLDER_6)
+            (term
+              (field number))
+            (term
+              (case when
+                (binary_expression
+                  (binary_expression
+                    (field number) < 0) or
+                  (binary_expression
+                    (field number) > 999999999999)) then "input out of range" else null) PLACEHOLDER_7)))
+        (from
+          (relation
+            (object_reference say)))))
+    (cte PLACEHOLDER_8
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))
+              (term
+                (binary_expression
+                  (binary_expression
+                    (field number) / 1000000000) % 1000) PLACEHOLDER_9)
+              (term 4 PLACEHOLDER_10)
+              (term "billion" PLACEHOLDER_11)))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_5))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_7) is null))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))
+              (term
+                (binary_expression
+                  (binary_expression
+                    (field number) / 1000000) % 1000) PLACEHOLDER_9)
+              (term 3 PLACEHOLDER_10)
+              (term "million" PLACEHOLDER_11)))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_5))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_7) is null))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))
+              (term
+                (binary_expression
+                  (binary_expression
+                    (field number) / 1000) % 1000) PLACEHOLDER_9)
+              (term 2 PLACEHOLDER_10)
+              (term "thousand" PLACEHOLDER_11)))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_5))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_7) is null))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))
+              (term
+                (binary_expression
+                  (field number) % 1000) PLACEHOLDER_9)
+              (term 1 PLACEHOLDER_10)
+              (term "" PLACEHOLDER_11)))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_5))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_7) is null))))))
+    (cte PLACEHOLDER_12
+      (statement
+        (select
+          (select_expression
+            (term
+              (all_fields
+                (object_reference PLACEHOLDER_13) *))))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_8) PLACEHOLDER_13)
+          (join
+            (relation
+              (object_reference PLACEHOLDER_5) PLACEHOLDER_14) on
+            (binary_expression
+              (field
+                (object_reference PLACEHOLDER_13) PLACEHOLDER_6) =
+              (field
+                (object_reference PLACEHOLDER_14) PLACEHOLDER_6)))
+          (where
+            (binary_expression
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_13) PLACEHOLDER_9) > 0) or
+              (binary_expression
+                (binary_expression
+                  (field
+                    (object_reference PLACEHOLDER_13) PLACEHOLDER_10) = 1) and
+                (binary_expression
+                  (field
+                    (object_reference PLACEHOLDER_14) number) = 0)))))))
+    (cte PLACEHOLDER_15
+      (statement
+        (select
+          (select_expression
+            (term
+              (field
+                (object_reference PLACEHOLDER_16) PLACEHOLDER_6))
+            (term
+              (field
+                (object_reference PLACEHOLDER_16) PLACEHOLDER_10))
+            (term
+              (field
+                (object_reference PLACEHOLDER_16) PLACEHOLDER_11))
+            (term
+              (case when
+                (binary_expression
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_16) PLACEHOLDER_9) / 100) > 0) then
+                (binary_expression
+                  (subquery
+                    (select
+                      (select_expression
+                        (term
+                          (field PLACEHOLDER_3))))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_1))
+                      (where
+                        (binary_expression
+                          (field PLACEHOLDER_2) =
+                          (binary_expression
+                            (field
+                              (object_reference PLACEHOLDER_16) PLACEHOLDER_9) / 100))))) || " hundred") else "") PLACEHOLDER_17)
+            (term
+              (case when
+                (binary_expression
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_16) PLACEHOLDER_9) % 100) = 0) then "" when
+                (binary_expression
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_16) PLACEHOLDER_9) % 100) < 20) then
+                (subquery
+                  (select
+                    (select_expression
+                      (term
+                        (field PLACEHOLDER_3))))
+                  (from
+                    (relation
+                      (object_reference PLACEHOLDER_1))
+                    (where
+                      (binary_expression
+                        (field PLACEHOLDER_2) =
+                        (binary_expression
+                          (field
+                            (object_reference PLACEHOLDER_16) PLACEHOLDER_9) % 100))))) else
+                (binary_expression
+                  (subquery
+                    (select
+                      (select_expression
+                        (term
+                          (field PLACEHOLDER_3))))
+                    (from
+                      (relation
+                        (object_reference PLACEHOLDER_4))
+                      (where
+                        (binary_expression
+                          (field PLACEHOLDER_2) =
+                          (binary_expression
+                            (binary_expression
+                              (field
+                                (object_reference PLACEHOLDER_16) PLACEHOLDER_9) % 100) / 10))))) ||
+                  (case when
+                    (binary_expression
+                      (binary_expression
+                        (field
+                          (object_reference PLACEHOLDER_16) PLACEHOLDER_9) % 10) > 0) then
+                    (binary_expression "-" ||
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (field PLACEHOLDER_3))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_1))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_2) =
+                              (binary_expression
+                                (field
+                                  (object_reference PLACEHOLDER_16) PLACEHOLDER_9) % 10)))))) else ""))) PLACEHOLDER_18)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_12) PLACEHOLDER_16))))
+    (cte PLACEHOLDER_19
+      (statement
+        (select
+          (select_expression
+            (term
+              (field PLACEHOLDER_6))
+            (term
+              (field PLACEHOLDER_10))
+            (term
+              (binary_expression
+                (case when
+                  (binary_expression
+                    (binary_expression
+                      (field PLACEHOLDER_17) = "") and
+                    (binary_expression
+                      (field PLACEHOLDER_18) = "")) then "zero" when
+                  (binary_expression
+                    (binary_expression
+                      (field PLACEHOLDER_17) != "") and
+                    (binary_expression
+                      (field PLACEHOLDER_18) != "")) then
+                  (binary_expression
+                    (binary_expression
+                      (field PLACEHOLDER_17) || " ") ||
+                    (field PLACEHOLDER_18)) when
+                  (binary_expression
+                    (field PLACEHOLDER_17) != "") then
+                  (field PLACEHOLDER_17) else
+                  (field PLACEHOLDER_18)) ||
+                (case when
+                  (binary_expression
+                    (field PLACEHOLDER_11) != "") then
+                  (binary_expression " " ||
+                    (field PLACEHOLDER_11)) else "")) PLACEHOLDER_20)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_15)))))
+    (cte PLACEHOLDER_21
+      (statement
+        (select distinct
+          (select_expression
+            (term
+              (field
+                (object_reference PLACEHOLDER_22) PLACEHOLDER_6))
+            (term
+              (window_function
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_22) PLACEHOLDER_20))
+                  (term " "))
+                (window_specification
+                  (partition_by
+                    (field
+                      (object_reference PLACEHOLDER_22) PLACEHOLDER_6))
+                  (order_by
+                    (order_target
+                      (field
+                        (object_reference PLACEHOLDER_22) PLACEHOLDER_10)
+                      (direction desc)))
+                  (window_frame rows between
+                    (frame_definition unbounded preceding) and
+                    (frame_definition unbounded following)))) PLACEHOLDER_23)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_19) PLACEHOLDER_22))))
+    (update
+      (relation
+        (object_reference say))
+      (assignment
+        (field error)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field
+                  (object_reference PLACEHOLDER_14) PLACEHOLDER_7))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_5) PLACEHOLDER_14)
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_14) PLACEHOLDER_6) =
+                (field
+                  (object_reference say) rowid))))))
+      (assignment
+        (field result)
+        (case when
+          (binary_expression
+            (subquery
+              (select
+                (select_expression
+                  (term
+                    (field
+                      (object_reference PLACEHOLDER_14) PLACEHOLDER_7))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_5) PLACEHOLDER_14)
+                (where
+                  (binary_expression
+                    (field
+                      (object_reference PLACEHOLDER_14) PLACEHOLDER_6) =
+                    (field
+                      (object_reference say) rowid)))))
+            (is_not is not) null) then null else
+          (subquery
+            (select
+              (select_expression
+                (term
+                  (field
+                    (object_reference PLACEHOLDER_24) PLACEHOLDER_23))))
+            (from
+              (relation
+                (object_reference PLACEHOLDER_21) PLACEHOLDER_24)
+              (where
+                (binary_expression
+                  (field
+                    (object_reference PLACEHOLDER_24) PLACEHOLDER_6) =
+                  (field
+                    (object_reference say) rowid))))))))))

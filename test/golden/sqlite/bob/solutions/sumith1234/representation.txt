@@ -1,13 +1,39 @@
-UPDATE bob
-SET reply =
-CASE
-WHEN input REGEXP "\"^" \s *$"
-THEN "\"Fine." Be that way!"
-WHEN input REGEXP "\"[A-Z]\"" AND NOT input REGEXP "\"[a-z]\"" AND input REGEXP "\".+" \? "\""
-THEN "\"Calm" down, I know what I'm doing!"
-WHEN input REGEXP "\"" \?\s *$"
-THEN "\"Sure.\""
-WHEN input REGEXP "\"[A-Z]\"" AND NOT input REGEXP "\"[a-z]\""
-THEN "\"Whoa," chill out!"
-ELSE "\"Whatever.\""
-END
+(program
+  (statement
+    (update
+      (relation
+        (object_reference bob))
+      (assignment
+        (field reply)
+        (case when
+          (binary_expression
+            (field input) regexp
+            (quoted_identifier "^\\s*$")) then
+          (quoted_identifier "Fine. Be that way!") when
+          (binary_expression
+            (binary_expression
+              (binary_expression
+                (field input) regexp
+                (quoted_identifier "[A-Z]")) and
+              (binary_expression
+                (unary_expression not
+                  (field input)) regexp
+                (quoted_identifier "[a-z]"))) and
+            (binary_expression
+              (field input) regexp
+              (quoted_identifier ".+\\?"))) then
+          (quoted_identifier "Calm down, I know what I'm doing!") when
+          (binary_expression
+            (field input) regexp
+            (quoted_identifier "\\?\\s*$")) then
+          (quoted_identifier "Sure.") when
+          (binary_expression
+            (binary_expression
+              (field input) regexp
+              (quoted_identifier "[A-Z]")) and
+            (binary_expression
+              (unary_expression not
+                (field input)) regexp
+              (quoted_identifier "[a-z]"))) then
+          (quoted_identifier "Whoa, chill out!") else
+          (quoted_identifier "Whatever."))))))

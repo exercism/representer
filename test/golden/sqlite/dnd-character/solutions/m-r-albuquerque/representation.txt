@@ -1,48 +1,209 @@
-WITH RECURSIVE
-rolls AS (
-SELECT
-ROW_NUMBER () OVER () AS n ,
-1 + abs ( random ()) % 6 AS roll
-FROM generate_series ( 1 , 24 )
-),
-abilities AS (
-SELECT
-( n - 1 ) / 4 AS ability ,
-SUM ( roll ) - MIN ( roll ) AS score
-FROM (
-SELECT
-n ,
-roll
-FROM rolls
-)
-GROUP BY ( n - 1 ) / 4
-)
-UPDATE "\"dnd-character\""
-SET
-strength = ( SELECT score FROM abilities WHERE ability = 0 ),
-dexterity = ( SELECT score FROM abilities WHERE ability = 1 ),
-constitution = ( SELECT score FROM abilities WHERE ability = 2 ),
-intelligence = ( SELECT score FROM abilities WHERE ability = 3 ),
-wisdom = ( SELECT score FROM abilities WHERE ability = 4 ),
-charisma = ( SELECT score FROM abilities WHERE ability = 5 )
-WHERE input <> 'score' ;
-UPDATE "\"dnd-character\""
-SET modifier = floor (( constitution - 10 ) / 2 . 0 )
-WHERE property = 'modifier'
-AND input = 'score' ;
-UPDATE "\"dnd-character\""
-SET
-modifier = (
-SELECT modifier
-FROM "\"dnd-character\""
-WHERE property = 'modifier'
-AND input = 'score'
-),
-hitpoints = 10 + (
-SELECT modifier
-FROM "\"dnd-character\""
-WHERE property = 'modifier'
-AND input = 'score'
-)
-WHERE property = 'character'
-AND input = 'random' ;
+(program
+  (statement
+    (cte PLACEHOLDER_1
+      (statement
+        (select
+          (select_expression
+            (term
+              (window_function
+                (invocation
+                  (object_reference row_number))
+                (window_specification)) PLACEHOLDER_2)
+            (term
+              (binary_expression 1 +
+                (binary_expression
+                  (invocation
+                    (object_reference abs)
+                    (term
+                      (invocation
+                        (object_reference random)))) % 6)) PLACEHOLDER_3)))
+        (from
+          (relation
+            (invocation
+              (object_reference generate_series)
+              (term 1)
+              (term 24))))))
+    (cte PLACEHOLDER_4
+      (statement
+        (select
+          (select_expression
+            (term
+              (binary_expression
+                (binary_expression
+                  (field PLACEHOLDER_2) - 1) / 4) PLACEHOLDER_5)
+            (term
+              (binary_expression
+                (invocation
+                  (object_reference sum)
+                  (term
+                    (field PLACEHOLDER_3))) -
+                (invocation
+                  (object_reference min)
+                  (term
+                    (field PLACEHOLDER_3)))) PLACEHOLDER_6)))
+        (from
+          (relation
+            (subquery
+              (select
+                (select_expression
+                  (term
+                    (field PLACEHOLDER_2))
+                  (term
+                    (field PLACEHOLDER_3))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1)))))
+          (group_by
+            (binary_expression
+              (binary_expression
+                (field PLACEHOLDER_2) - 1) / 4)))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "dnd-character")))
+      (assignment
+        (field strength)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_5) = 0)))))
+      (assignment
+        (field dexterity)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_5) = 1)))))
+      (assignment
+        (field constitution)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_5) = 2)))))
+      (assignment
+        (field intelligence)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_5) = 3)))))
+      (assignment
+        (field wisdom)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_5) = 4)))))
+      (assignment
+        (field charisma)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_6))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4))
+            (where
+              (binary_expression
+                (field PLACEHOLDER_5) = 5)))))
+      (where
+        (binary_expression
+          (field input) != "score"))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "dnd-character")))
+      (assignment
+        (field modifier)
+        (invocation
+          (object_reference floor)
+          (term
+            (binary_expression
+              (binary_expression
+                (field constitution) - 10) / 2.0))))
+      (where
+        (binary_expression
+          (binary_expression
+            (field property) = "modifier") and
+          (binary_expression
+            (field input) = "score")))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "dnd-character")))
+      (assignment
+        (field modifier)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field modifier))))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "dnd-character")))
+            (where
+              (binary_expression
+                (binary_expression
+                  (field property) = "modifier") and
+                (binary_expression
+                  (field input) = "score"))))))
+      (assignment
+        (field hitpoints)
+        (binary_expression 10 +
+          (subquery
+            (select
+              (select_expression
+                (term
+                  (field modifier))))
+            (from
+              (relation
+                (object_reference
+                  (quoted_identifier "dnd-character")))
+              (where
+                (binary_expression
+                  (binary_expression
+                    (field property) = "modifier") and
+                  (binary_expression
+                    (field input) = "score")))))))
+      (where
+        (binary_expression
+          (binary_expression
+            (field property) = "character") and
+          (binary_expression
+            (field input) = "random"))))))

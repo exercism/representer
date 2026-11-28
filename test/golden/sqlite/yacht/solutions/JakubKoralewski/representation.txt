@@ -1,34 +1,307 @@
-UPDATE yacht SET result = (
-WITH RECURSIVE
-input AS ( SELECT dice_results AS text ),
-nospace AS ( SELECT replace ( text , "' '" , '' ) AS nstext FROM input ),
-nocomma AS ( SELECT replace ( nstext , ',' , '' ) AS text FROM nospace ),
-chars ( pos , char ) AS (
-SELECT 1 , SUBSTR ( text , 1 , 1 ) FROM nocomma
-UNION ALL
-SELECT pos + 1 , SUBSTR ( text , pos + 1 , 1 )
-FROM chars , nocomma
-WHERE pos < LENGTH ( text )
-),
-frequencies AS (
-SELECT char AS number , COUNT ( * ) as counts
-FROM chars
-GROUP BY char
-)
-SELECT
-ifnull ( CASE category
-WHEN 'ones' THEN ( SELECT number * counts FROM frequencies WHERE number = '1' )
-WHEN 'twos' THEN ( SELECT number * counts FROM frequencies WHERE number = '2' )
-WHEN 'threes' THEN ( SELECT number * counts FROM frequencies WHERE number = '3' )
-WHEN 'fours' THEN ( SELECT number * counts FROM frequencies WHERE number = '4' )
-WHEN 'fives' THEN ( SELECT number * counts FROM frequencies WHERE number = '5' )
-WHEN 'sixes' THEN ( SELECT number * counts FROM frequencies WHERE number = '6' )
-WHEN "'full house'" THEN ( SELECT number * counts FROM frequencies WHERE counts = 3 ) + ( SELECT number * counts FROM frequencies WHERE counts = 2 )
-WHEN "'four of a kind'" THEN ( SELECT number * 4 FROM frequencies WHERE counts >= 4 )
-WHEN "'little straight'" THEN ( SELECT IIF ( GROUP_CONCAT ( number ) == '1,2,3,4,5' , 30 , 0 ) FROM frequencies WHERE counts = 1 ORDER BY number ASC )
-WHEN "'big straight'" THEN ( SELECT IIF ( GROUP_CONCAT ( number ) == '2,3,4,5,6' , 30 , 0 ) FROM frequencies WHERE counts = 1 ORDER BY number ASC )
-WHEN 'choice' THEN ( SELECT SUM ( number * counts ) FROM frequencies )
-WHEN 'yacht' THEN ( SELECT IIF ( COUNT ( * ) = 1 , 50 , 0 ) FROM frequencies WHERE counts = 5 )
-ELSE 0
-END , 0 )
-)
+(program
+  (statement
+    (update
+      (relation
+        (object_reference yacht))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field dice_results) PLACEHOLDER_2)))))
+          (cte PLACEHOLDER_3
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (field PLACEHOLDER_2))
+                      (term " ")
+                      (term "")) PLACEHOLDER_4)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1)))))
+          (cte PLACEHOLDER_5
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (invocation
+                      (object_reference replace)
+                      (term
+                        (field PLACEHOLDER_4))
+                      (term ",")
+                      (term "")) PLACEHOLDER_2)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_3)))))
+          (cte PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_2))
+                        (term 1)
+                        (term 1)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_5))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_7) + 1))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field PLACEHOLDER_2))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_7) + 1))
+                        (term 1)))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_6))
+                  (relation
+                    (object_reference PLACEHOLDER_5))
+                  (where
+                    (binary_expression
+                      (field PLACEHOLDER_7) <
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field PLACEHOLDER_2)))))))))
+          (cte PLACEHOLDER_9
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (field PLACEHOLDER_8) PLACEHOLDER_10)
+                  (term
+                    (invocation
+                      (object_reference count)
+                      (term
+                        (all_fields *))) PLACEHOLDER_11)))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_6))
+                (group_by
+                  (field PLACEHOLDER_8)))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference ifnull)
+                  (term
+                    (case
+                      (field category) when "ones" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_10) *
+                                (field PLACEHOLDER_11)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_10) = "1")))) when "twos" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_10) *
+                                (field PLACEHOLDER_11)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_10) = "2")))) when "threes" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_10) *
+                                (field PLACEHOLDER_11)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_10) = "3")))) when "fours" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_10) *
+                                (field PLACEHOLDER_11)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_10) = "4")))) when "fives" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_10) *
+                                (field PLACEHOLDER_11)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_10) = "5")))) when "sixes" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_10) *
+                                (field PLACEHOLDER_11)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_10) = "6")))) when "full house" then
+                      (binary_expression
+                        (subquery
+                          (select
+                            (select_expression
+                              (term
+                                (binary_expression
+                                  (field PLACEHOLDER_10) *
+                                  (field PLACEHOLDER_11)))))
+                          (from
+                            (relation
+                              (object_reference PLACEHOLDER_9))
+                            (where
+                              (binary_expression
+                                (field PLACEHOLDER_11) = 3)))) +
+                        (subquery
+                          (select
+                            (select_expression
+                              (term
+                                (binary_expression
+                                  (field PLACEHOLDER_10) *
+                                  (field PLACEHOLDER_11)))))
+                          (from
+                            (relation
+                              (object_reference PLACEHOLDER_9))
+                            (where
+                              (binary_expression
+                                (field PLACEHOLDER_11) = 2))))) when "four of a kind" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_10) * 4))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_11) >= 4)))) when "little straight" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (invocation
+                                (object_reference iif)
+                                (term
+                                  (binary_expression
+                                    (invocation
+                                      (object_reference group_concat)
+                                      (term
+                                        (field PLACEHOLDER_10))) = "1,2,3,4,5"))
+                                (term 30)
+                                (term 0)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_11) = 1))
+                          (order_by
+                            (order_target
+                              (field PLACEHOLDER_10)
+                              (direction asc))))) when "big straight" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (invocation
+                                (object_reference iif)
+                                (term
+                                  (binary_expression
+                                    (invocation
+                                      (object_reference group_concat)
+                                      (term
+                                        (field PLACEHOLDER_10))) = "2,3,4,5,6"))
+                                (term 30)
+                                (term 0)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_11) = 1))
+                          (order_by
+                            (order_target
+                              (field PLACEHOLDER_10)
+                              (direction asc))))) when "choice" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (invocation
+                                (object_reference sum)
+                                (term
+                                  (binary_expression
+                                    (field PLACEHOLDER_10) *
+                                    (field PLACEHOLDER_11)))))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9)))) when "yacht" then
+                      (subquery
+                        (select
+                          (select_expression
+                            (term
+                              (invocation
+                                (object_reference iif)
+                                (term
+                                  (binary_expression
+                                    (invocation
+                                      (object_reference count)
+                                      (term
+                                        (all_fields *))) = 1))
+                                (term 50)
+                                (term 0)))))
+                        (from
+                          (relation
+                            (object_reference PLACEHOLDER_9))
+                          (where
+                            (binary_expression
+                              (field PLACEHOLDER_11) = 5)))) else 0))
+                  (term 0))))))))))

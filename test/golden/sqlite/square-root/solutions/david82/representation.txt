@@ -1,22 +1,69 @@
-WITH RECURSIVE
-root_finder ( radicand , current_guess ) AS (
-SELECT radicand , 1
-FROM "\"square-root\""
-UNION ALL
-SELECT radicand , current_guess + 1
-FROM root_finder
-WHERE ( current_guess * current_guess ) < radicand
-),
-matched_roots AS (
-SELECT
-radicand ,
-current_guess AS root
-FROM root_finder
-WHERE current_guess * current_guess = radicand
-)
-UPDATE "\"square-root\""
-SET result = (
-SELECT mr . root
-FROM matched_roots mr
-WHERE mr . radicand = "\"square-root\"" . radicand
-);
+(program
+  (statement
+    (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3
+      (statement
+        (set_operation
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term 1)))
+          (from
+            (relation
+              (object_reference
+                (quoted_identifier "square-root")))) union all
+          (select
+            (select_expression
+              (term
+                (field PLACEHOLDER_2))
+              (term
+                (binary_expression
+                  (field PLACEHOLDER_3) + 1))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (binary_expression
+                (binary_expression
+                  (field PLACEHOLDER_3) *
+                  (field PLACEHOLDER_3)) <
+                (field PLACEHOLDER_2)))))))
+    (cte PLACEHOLDER_4
+      (statement
+        (select
+          (select_expression
+            (term
+              (field PLACEHOLDER_2))
+            (term
+              (field PLACEHOLDER_3) PLACEHOLDER_5)))
+        (from
+          (relation
+            (object_reference PLACEHOLDER_1))
+          (where
+            (binary_expression
+              (binary_expression
+                (field PLACEHOLDER_3) *
+                (field PLACEHOLDER_3)) =
+              (field PLACEHOLDER_2))))))
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "square-root")))
+      (assignment
+        (field result)
+        (subquery
+          (select
+            (select_expression
+              (term
+                (field
+                  (object_reference PLACEHOLDER_6) PLACEHOLDER_5))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_4) PLACEHOLDER_6)
+            (where
+              (binary_expression
+                (field
+                  (object_reference PLACEHOLDER_6) PLACEHOLDER_2) =
+                (field
+                  (object_reference
+                    (quoted_identifier "square-root")) PLACEHOLDER_2)))))))))

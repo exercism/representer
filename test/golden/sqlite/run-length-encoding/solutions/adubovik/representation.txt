@@ -1,50 +1,313 @@
-UPDATE "\"run-length-encoding\""
-SET result = string
-WHERE property = 'consistency' ;
-UPDATE "\"run-length-encoding\""
-SET result = ( WITH RECURSIVE
-rec ( idx , cnt , c , is_end ) AS (
-SELECT
-1 ,
-1 ,
-substr ( string , 1 , 1 ),
-substr ( string , 1 , 1 ) <> substr ( string , 2 , 1 )
-UNION ALL
-SELECT
-idx + 1 ,
-IIF ( is_end , 1 , cnt + 1 ),
-substr ( string , idx + 1 , 1 ),
-substr ( string , idx + 1 , 1 ) <> substr ( string , idx + 2 , 1 )
-FROM rec
-WHERE idx + 1 <= length ( string )
-)
-SELECT IFNULL ( group_concat ( IIF ( cnt = 1 , c , printf ( "\"%d%s\"" , cnt , c )), '' ), '' )
-FROM rec WHERE is_end
-)
-WHERE property = 'encode' ;
-UPDATE "\"run-length-encoding\""
-SET result = ( WITH RECURSIVE
-rec ( idx , cnt , c , is_end ) AS (
-SELECT
-1 ,
-IIF ( substr ( string , 1 , 1 ) BETWEEN '0' AND '9' , CAST ( substr ( string , 1 , 1 ) AS INT ), 1 ),
-substr ( string , 1 , 1 ),
-NOT ( substr ( string , 1 , 1 ) BETWEEN '0' AND '9' )
-UNION ALL
-SELECT
-idx + 1 ,
-IIF ( substr ( string , idx + 1 , 1 ) BETWEEN '0' AND '9' , CAST ( substr ( string , idx + 1 , 1 ) AS INT ) + IIF ( is_end , 0 , 10 * cnt ), IIF ( is_end , 1 , cnt )),
-substr ( string , idx + 1 , 1 ),
-NOT ( substr ( string , idx + 1 , 1 ) BETWEEN '0' AND '9' )
-FROM rec
-WHERE idx + 1 <= length ( string )
-),
-strings ( s ) AS (
-SELECT (
-SELECT group_concat ( r . c || IIF ( 1 > 0 , '' , s . value ), '' ) FROM generate_series ( 1 , cnt ) AS s
-) FROM rec AS r WHERE is_end
-)
-SELECT group_concat ( s , '' )
-FROM strings
-)
-WHERE property = 'decode' ;
+(program
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "run-length-encoding")))
+      (assignment
+        (field result)
+        (field string))
+      (where
+        (binary_expression
+          (field property) = "consistency"))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "run-length-encoding")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)
+                    (term 1)
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field string))
+                        (term 1)
+                        (term 1)))
+                    (term
+                      (binary_expression
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field string))
+                          (term 1)
+                          (term 1)) !=
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field string))
+                          (term 2)
+                          (term 1)))))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (field PLACEHOLDER_5))
+                        (term 1)
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_3) + 1))))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field string))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_2) + 1))
+                        (term 1)))
+                    (term
+                      (binary_expression
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field string))
+                          (term
+                            (binary_expression
+                              (field PLACEHOLDER_2) + 1))
+                          (term 1)) !=
+                        (invocation
+                          (object_reference substr)
+                          (term
+                            (field string))
+                          (term
+                            (binary_expression
+                              (field PLACEHOLDER_2) + 2))
+                          (term 1))))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1) <=
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field string)))))))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference ifnull)
+                  (term
+                    (invocation
+                      (object_reference group_concat)
+                      (term
+                        (invocation
+                          (object_reference iif)
+                          (term
+                            (binary_expression
+                              (field PLACEHOLDER_3) = 1))
+                          (term
+                            (field PLACEHOLDER_4))
+                          (term
+                            (invocation
+                              (object_reference printf)
+                              (term
+                                (quoted_identifier "%d%s"))
+                              (term
+                                (field PLACEHOLDER_3))
+                              (term
+                                (field PLACEHOLDER_4))))))
+                      (term "")))
+                  (term "")))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_1))
+            (where
+              (field PLACEHOLDER_5)))))
+      (where
+        (binary_expression
+          (field property) = "encode"))))
+  (statement
+    (update
+      (relation
+        (object_reference
+          (quoted_identifier "run-length-encoding")))
+      (assignment
+        (field result)
+        (subquery
+          (cte PLACEHOLDER_1 PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4 PLACEHOLDER_5
+            (statement
+              (set_operation
+                (select
+                  (select_expression
+                    (term 1)
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (between_expression
+                            (invocation
+                              (object_reference substr)
+                              (term
+                                (field string))
+                              (term 1)
+                              (term 1)) between "0" "9"))
+                        (term
+                          (cast
+                            (invocation
+                              (object_reference substr)
+                              (term
+                                (field string))
+                              (term 1)
+                              (term 1))
+                            (int int)))
+                        (term 1)))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field string))
+                        (term 1)
+                        (term 1)))
+                    (term
+                      (unary_expression not
+                        (between_expression
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field string))
+                            (term 1)
+                            (term 1)) between "0" "9"))))) union all
+                (select
+                  (select_expression
+                    (term
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1))
+                    (term
+                      (invocation
+                        (object_reference iif)
+                        (term
+                          (between_expression
+                            (invocation
+                              (object_reference substr)
+                              (term
+                                (field string))
+                              (term
+                                (binary_expression
+                                  (field PLACEHOLDER_2) + 1))
+                              (term 1)) between "0" "9"))
+                        (term
+                          (binary_expression
+                            (cast
+                              (invocation
+                                (object_reference substr)
+                                (term
+                                  (field string))
+                                (term
+                                  (binary_expression
+                                    (field PLACEHOLDER_2) + 1))
+                                (term 1))
+                              (int int)) +
+                            (invocation
+                              (object_reference iif)
+                              (term
+                                (field PLACEHOLDER_5))
+                              (term 0)
+                              (term
+                                (binary_expression 10 *
+                                  (field PLACEHOLDER_3))))))
+                        (term
+                          (invocation
+                            (object_reference iif)
+                            (term
+                              (field PLACEHOLDER_5))
+                            (term 1)
+                            (term
+                              (field PLACEHOLDER_3))))))
+                    (term
+                      (invocation
+                        (object_reference substr)
+                        (term
+                          (field string))
+                        (term
+                          (binary_expression
+                            (field PLACEHOLDER_2) + 1))
+                        (term 1)))
+                    (term
+                      (unary_expression not
+                        (between_expression
+                          (invocation
+                            (object_reference substr)
+                            (term
+                              (field string))
+                            (term
+                              (binary_expression
+                                (field PLACEHOLDER_2) + 1))
+                            (term 1)) between "0" "9")))))
+                (from
+                  (relation
+                    (object_reference PLACEHOLDER_1))
+                  (where
+                    (binary_expression
+                      (binary_expression
+                        (field PLACEHOLDER_2) + 1) <=
+                      (invocation
+                        (object_reference length)
+                        (term
+                          (field string)))))))))
+          (cte PLACEHOLDER_6 PLACEHOLDER_7
+            (statement
+              (select
+                (select_expression
+                  (term
+                    (subquery
+                      (select
+                        (select_expression
+                          (term
+                            (invocation
+                              (object_reference group_concat)
+                              (term
+                                (binary_expression
+                                  (field
+                                    (object_reference PLACEHOLDER_8) PLACEHOLDER_4) ||
+                                  (invocation
+                                    (object_reference iif)
+                                    (term
+                                      (binary_expression 1 > 0))
+                                    (term "")
+                                    (term
+                                      (field
+                                        (object_reference PLACEHOLDER_7) value)))))
+                              (term "")))))
+                      (from
+                        (relation
+                          (invocation
+                            (object_reference generate_series)
+                            (term 1)
+                            (term
+                              (field PLACEHOLDER_3))) PLACEHOLDER_7))))))
+              (from
+                (relation
+                  (object_reference PLACEHOLDER_1) PLACEHOLDER_8)
+                (where
+                  (field PLACEHOLDER_5)))))
+          (select
+            (select_expression
+              (term
+                (invocation
+                  (object_reference group_concat)
+                  (term
+                    (field PLACEHOLDER_7))
+                  (term "")))))
+          (from
+            (relation
+              (object_reference PLACEHOLDER_6)))))
+      (where
+        (binary_expression
+          (field property) = "decode")))))
