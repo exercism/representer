@@ -74,7 +74,7 @@ module Inspector::Engine
     def build(ts_root, source, text_types, max_depth, gap_types)
       cursor = TreeSitter::TreeCursor.new(ts_root)
       root = copy(cursor.current_node, nil, source)
-      gaps = Gaps.new(source, gap_types)
+      gaps = Gaps.new(source, gap_types, spans: @with_spans)
       gaps.enter(root, cursor.current_node)
       parents = [root]
 
@@ -127,9 +127,10 @@ module Inspector::Engine
     class Gaps
       Span = Struct.new(:from, :to)
 
-      def initialize(source, types)
+      def initialize(source, types, spans:)
         @source = source
         @types = types
+        @with_spans = spans
         @spans = {}.compare_by_identity
       end
 
@@ -157,7 +158,9 @@ module Inspector::Engine
       def add(node, from, to)
         return unless to > from
 
-        node.children << Node.leaf("fragment", @source.byteslice(from...to))
+        fragment = Node.leaf("fragment", @source.byteslice(from...to))
+        fragment.span = from...to if @with_spans
+        node.children << fragment
       end
     end
 
