@@ -1,82 +1,450 @@
-pop = ( stack , msg ) ->
-  assert # stack > 0 , msg
-  table.remove stack
-class Forth
-  new: =>
-    @_stack = {}
-    @custom_op = false
-    @parse_op = {}
-    @ops =
-      [ "\"+\"" ]: ->
-        { v1 , v2 } = @binary !
-        @_stack [ # @_stack + 1 ] = v2 + v1
-      [ "\"-\"" ]: ->
-        { v1 , v2 } = @binary !
-        @_stack [ # @_stack + 1 ] = v2 - v1
-      [ "\"*\"" ]: ->
-        { v1 , v2 } = @binary !
-        @_stack [ # @_stack + 1 ] = v2 * v1
-      [ "\"/\"" ]: ->
-        { v1 , v2 } = @binary !
-        assert v1 != 0 , "'divide by zero'"
-        @_stack [ # @_stack + 1 ] = math.floor ( v2 / v1 )
-      [ "\"dup\"" ]: ->
-        v1 = @unary !
-        @_stack [ # @_stack + 1 ], @_stack [ # @_stack + 2 ] = v1 , v1
-      [ "\"drop\"" ]: ->
-        @unary !
-      [ "\"swap\"" ]: ->
-        { v1 , v2 } = @binary !
-        @_stack [ # @_stack + 1 ], @_stack [ # @_stack + 2 ] = v1 , v2
-      [ "\"over\"" ]: ->
-        { v1 , v2 } = @binary !
-        @_stack [ # @_stack + 1 ], @_stack [ # @_stack + 2 ], @_stack [ # @_stack + 3 ] = v2 , v1 , v2
-  unary: =>
-    pop @_stack , "\"empty stack\""
-  binary: =>
-    v1 = @unary !
-    v2 = pop @_stack , "\"only one value on the stack\""
-    { v1 , v2 }
-  call_op: ( opcode ) =>
-    op = @ops [ opcode ]
-    assert op != nil , "\"undefined operation\""
-    op ()
-  check_number: ( candidate ) =>
-    num = tonumber ( candidate )
-    if num != nil
-      @_stack [ # @_stack + 1 ] = num
-      return true
-    false
-  execute_instruction: ( instruction ) =>
-    @check_number ( instruction ) or @call_op ( instruction )
-  stack: =>
-    @_stack
-  evaluate: ( script ) =>
-    for instructions in * script
-      for instruction in instructions \ gmatch "\"%S+\""
-        opcode = instruction \ lower !
-        if @custom_op
-          if opcode != ';'
-            @parse_op [ # @parse_op + 1 ] = opcode
-          else
-            key = table.remove @parse_op , 1
-            assert tonumber ( key ) == nil , "\"illegal operation\""
-            ops = {}
-            for op in * @parse_op
-              num = tonumber ( op )
-              if num != nil
-                ops [ # ops + 1 ] = () -> @_stack [ # @_stack + 1 ] = num
-              else
-                op = @ops [ op ]
-                ops [ # ops + 1 ] = () ->
-                  assert op != nil , "\"undefined operation\""
-                  op ()
-            @ops [ key ] = () ->
-              for op in * ops
-                op ()
-            @custom_op = false
-            @parse_op = {}
-        else if opcode == ':'
-          @custom_op = true
-        else
-          @execute_instruction ( opcode )
+(source_file
+  (assignment
+    (variable_list PLACEHOLDER_1)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)
+          (parameter PLACEHOLDER_3)) ->
+        (block
+          (expression_statement
+            (call assert
+              (arguments
+                (binary_expression
+                  (unary_expression # PLACEHOLDER_2) > 0) PLACEHOLDER_3)))
+          (expression_statement
+            (call
+              (dot_index table remove)
+              (arguments PLACEHOLDER_2)))))))
+  (expression_statement
+    (class_declaration PLACEHOLDER_4
+      (class_body
+        (class_properties
+          (pair new
+            (function_definition =>
+              (block
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_5)))
+                  (expression_list
+                    (table)))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_6)))
+                  (expression_list false))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_7)))
+                  (expression_list
+                    (table)))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_8)))
+                  (expression_list
+                    (table
+                      (keyed_pair "+"
+                        (function_definition ->
+                          (block
+                            (assignment
+                              (variable_list
+                                (table_pattern PLACEHOLDER_9 PLACEHOLDER_10))
+                              (expression_list
+                                (call
+                                  (self_field (property_identifier PLACEHOLDER_11))
+                                  (arguments))))
+                            (assignment
+                              (variable_list
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 1)))
+                              (expression_list
+                                (binary_expression PLACEHOLDER_10 + PLACEHOLDER_9))))))
+                      (keyed_pair "-"
+                        (function_definition ->
+                          (block
+                            (assignment
+                              (variable_list
+                                (table_pattern PLACEHOLDER_9 PLACEHOLDER_10))
+                              (expression_list
+                                (call
+                                  (self_field (property_identifier PLACEHOLDER_11))
+                                  (arguments))))
+                            (assignment
+                              (variable_list
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 1)))
+                              (expression_list
+                                (binary_expression PLACEHOLDER_10 - PLACEHOLDER_9))))))
+                      (keyed_pair "*"
+                        (function_definition ->
+                          (block
+                            (assignment
+                              (variable_list
+                                (table_pattern PLACEHOLDER_9 PLACEHOLDER_10))
+                              (expression_list
+                                (call
+                                  (self_field (property_identifier PLACEHOLDER_11))
+                                  (arguments))))
+                            (assignment
+                              (variable_list
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 1)))
+                              (expression_list
+                                (binary_expression PLACEHOLDER_10 * PLACEHOLDER_9))))))
+                      (keyed_pair "/"
+                        (function_definition ->
+                          (block
+                            (assignment
+                              (variable_list
+                                (table_pattern PLACEHOLDER_9 PLACEHOLDER_10))
+                              (expression_list
+                                (call
+                                  (self_field (property_identifier PLACEHOLDER_11))
+                                  (arguments))))
+                            (expression_statement
+                              (call assert
+                                (arguments
+                                  (binary_expression PLACEHOLDER_9 != 0) "divide by zero")))
+                            (assignment
+                              (variable_list
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 1)))
+                              (expression_list
+                                (call
+                                  (dot_index math floor)
+                                  (arguments
+                                    (binary_expression PLACEHOLDER_10 / PLACEHOLDER_9))))))))
+                      (keyed_pair "dup"
+                        (function_definition ->
+                          (block
+                            (assignment
+                              (variable_list PLACEHOLDER_9)
+                              (expression_list
+                                (call
+                                  (self_field (property_identifier PLACEHOLDER_12))
+                                  (arguments))))
+                            (assignment
+                              (variable_list
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 1))
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 2)))
+                              (expression_list PLACEHOLDER_9 PLACEHOLDER_9)))))
+                      (keyed_pair "drop"
+                        (function_definition ->
+                          (block
+                            (expression_statement
+                              (call
+                                (self_field (property_identifier PLACEHOLDER_12))
+                                (arguments))))))
+                      (keyed_pair "swap"
+                        (function_definition ->
+                          (block
+                            (assignment
+                              (variable_list
+                                (table_pattern PLACEHOLDER_9 PLACEHOLDER_10))
+                              (expression_list
+                                (call
+                                  (self_field (property_identifier PLACEHOLDER_11))
+                                  (arguments))))
+                            (assignment
+                              (variable_list
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 1))
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 2)))
+                              (expression_list PLACEHOLDER_9 PLACEHOLDER_10)))))
+                      (keyed_pair "over"
+                        (function_definition ->
+                          (block
+                            (assignment
+                              (variable_list
+                                (table_pattern PLACEHOLDER_9 PLACEHOLDER_10))
+                              (expression_list
+                                (call
+                                  (self_field (property_identifier PLACEHOLDER_11))
+                                  (arguments))))
+                            (assignment
+                              (variable_list
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 1))
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 2))
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_5))
+                                  (binary_expression
+                                    (unary_expression #
+                                      (self_field (property_identifier PLACEHOLDER_5))) + 3)))
+                              (expression_list PLACEHOLDER_10 PLACEHOLDER_9 PLACEHOLDER_10))))))))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_12)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (call PLACEHOLDER_1
+                    (arguments
+                      (self_field (property_identifier PLACEHOLDER_5)) "empty stack")))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_11)
+            (function_definition =>
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_9)
+                  (expression_list
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_12))
+                      (arguments))))
+                (assignment
+                  (variable_list PLACEHOLDER_10)
+                  (expression_list
+                    (call PLACEHOLDER_1
+                      (arguments
+                        (self_field (property_identifier PLACEHOLDER_5)) "only one value on the stack"))))
+                (expression_statement
+                  (table PLACEHOLDER_9 PLACEHOLDER_10))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_13)
+            (function_definition
+              (parameters
+                (parameter PLACEHOLDER_14)) =>
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_15)
+                  (expression_list
+                    (index_expression
+                      (self_field (property_identifier PLACEHOLDER_8)) PLACEHOLDER_14)))
+                (expression_statement
+                  (call assert
+                    (arguments
+                      (binary_expression PLACEHOLDER_15 != nil) "undefined operation")))
+                (expression_statement
+                  (call PLACEHOLDER_15
+                    (arguments)))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_16)
+            (function_definition
+              (parameters
+                (parameter PLACEHOLDER_17)) =>
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_18)
+                  (expression_list
+                    (call tonumber
+                      (arguments PLACEHOLDER_17))))
+                (expression_statement
+                  (if_expression
+                    (binary_expression PLACEHOLDER_18 != nil)
+                    (block
+                      (assignment
+                        (variable_list
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_5))
+                            (binary_expression
+                              (unary_expression #
+                                (self_field (property_identifier PLACEHOLDER_5))) + 1)))
+                        (expression_list PLACEHOLDER_18))
+                      (return_statement
+                        (expression_list true)))))
+                (expression_statement false)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_19)
+            (function_definition
+              (parameters
+                (parameter PLACEHOLDER_20)) =>
+              (block
+                (expression_statement
+                  (binary_expression
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_16))
+                      (arguments PLACEHOLDER_20)) or
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_13))
+                      (arguments PLACEHOLDER_20))))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_2)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (self_field (property_identifier PLACEHOLDER_5)))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_21)
+            (function_definition
+              (parameters
+                (parameter PLACEHOLDER_22)) =>
+              (block
+                (expression_statement
+                  (for_in_expression
+                    (name_list PLACEHOLDER_23)
+                    (unpack PLACEHOLDER_22)
+                    (block
+                      (expression_statement
+                        (for_in_expression
+                          (name_list PLACEHOLDER_20)
+                          (expression_list
+                            (call
+                              (method_index PLACEHOLDER_23 gmatch)
+                              (arguments "%S+")))
+                          (block
+                            (assignment
+                              (variable_list PLACEHOLDER_14)
+                              (expression_list
+                                (call
+                                  (method_index PLACEHOLDER_20 lower)
+                                  (arguments))))
+                            (expression_statement
+                              (if_expression
+                                (self_field (property_identifier PLACEHOLDER_6))
+                                (block
+                                  (expression_statement
+                                    (if_expression
+                                      (binary_expression PLACEHOLDER_14 != ";")
+                                      (block
+                                        (assignment
+                                          (variable_list
+                                            (index_expression
+                                              (self_field (property_identifier PLACEHOLDER_7))
+                                              (binary_expression
+                                                (unary_expression #
+                                                  (self_field (property_identifier PLACEHOLDER_7))) + 1)))
+                                          (expression_list PLACEHOLDER_14)))
+                                      (else_clause
+                                        (block
+                                          (assignment
+                                            (variable_list PLACEHOLDER_24)
+                                            (expression_list
+                                              (call
+                                                (dot_index table remove)
+                                                (arguments
+                                                  (self_field (property_identifier PLACEHOLDER_7)) 1))))
+                                          (expression_statement
+                                            (call assert
+                                              (arguments
+                                                (binary_expression
+                                                  (call tonumber
+                                                    (arguments PLACEHOLDER_24)) == nil) "illegal operation")))
+                                          (assignment
+                                            (variable_list PLACEHOLDER_8)
+                                            (expression_list
+                                              (table)))
+                                          (expression_statement
+                                            (for_in_expression
+                                              (name_list PLACEHOLDER_15)
+                                              (unpack
+                                                (self_field (property_identifier PLACEHOLDER_7)))
+                                              (block
+                                                (assignment
+                                                  (variable_list PLACEHOLDER_18)
+                                                  (expression_list
+                                                    (call tonumber
+                                                      (arguments PLACEHOLDER_15))))
+                                                (expression_statement
+                                                  (if_expression
+                                                    (binary_expression PLACEHOLDER_18 != nil)
+                                                    (block
+                                                      (assignment
+                                                        (variable_list
+                                                          (index_expression PLACEHOLDER_8
+                                                            (binary_expression
+                                                              (unary_expression # PLACEHOLDER_8) + 1)))
+                                                        (expression_list
+                                                          (function_definition ->
+                                                            (block
+                                                              (assignment
+                                                                (variable_list
+                                                                  (index_expression
+                                                                    (self_field (property_identifier PLACEHOLDER_5))
+                                                                    (binary_expression
+                                                                      (unary_expression #
+                                                                        (self_field (property_identifier PLACEHOLDER_5))) + 1)))
+                                                                (expression_list PLACEHOLDER_18)))))))
+                                                    (else_clause
+                                                      (block
+                                                        (assignment
+                                                          (variable_list PLACEHOLDER_15)
+                                                          (expression_list
+                                                            (index_expression
+                                                              (self_field (property_identifier PLACEHOLDER_8)) PLACEHOLDER_15)))
+                                                        (assignment
+                                                          (variable_list
+                                                            (index_expression PLACEHOLDER_8
+                                                              (binary_expression
+                                                                (unary_expression # PLACEHOLDER_8) + 1)))
+                                                          (expression_list
+                                                            (function_definition ->
+                                                              (block
+                                                                (expression_statement
+                                                                  (call assert
+                                                                    (arguments
+                                                                      (binary_expression PLACEHOLDER_15 != nil) "undefined operation")))
+                                                                (expression_statement
+                                                                  (call PLACEHOLDER_15
+                                                                    (arguments))))))))))))))
+                                          (assignment
+                                            (variable_list
+                                              (index_expression
+                                                (self_field (property_identifier PLACEHOLDER_8)) PLACEHOLDER_24))
+                                            (expression_list
+                                              (function_definition ->
+                                                (block
+                                                  (expression_statement
+                                                    (for_in_expression
+                                                      (name_list PLACEHOLDER_15)
+                                                      (unpack PLACEHOLDER_8)
+                                                      (block
+                                                        (expression_statement
+                                                          (call PLACEHOLDER_15
+                                                            (arguments))))))))))
+                                          (assignment
+                                            (variable_list
+                                              (self_field (property_identifier PLACEHOLDER_6)))
+                                            (expression_list false))
+                                          (assignment
+                                            (variable_list
+                                              (self_field (property_identifier PLACEHOLDER_7)))
+                                            (expression_list
+                                              (table))))))))
+                                (else_clause
+                                  (block
+                                    (expression_statement
+                                      (if_expression
+                                        (binary_expression PLACEHOLDER_14 == ":")
+                                        (block
+                                          (assignment
+                                            (variable_list
+                                              (self_field (property_identifier PLACEHOLDER_6)))
+                                            (expression_list true)))
+                                        (else_clause
+                                          (block
+                                            (expression_statement
+                                              (call
+                                                (self_field (property_identifier PLACEHOLDER_19))
+                                                (arguments PLACEHOLDER_14)))))))))))))))))))))))))

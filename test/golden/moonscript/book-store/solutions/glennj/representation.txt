@@ -1,64 +1,326 @@
-contains = ( t , item ) ->
-  for elem in * t
-    return true if elem == item
-  false
-map = ( t , fn ) ->
-  result = {}
-  for i , elem in pairs t
-    result [ i ] = fn elem , i
-  result
-treverse = ( t ) ->
-  { i , j } = { 1 , # t }
-  while i < j
-    temp = t [ i ]
-    t [ i ] = t [ j ]
-    t [ j ] = temp
-    i += 1
-    j -= 1
-clone = ( t ) -> { table.unpack t }
-sorted = ( t ) ->
-  u = clone t
-  table.sort u
-  u
-{ :contains , :map , :treverse , :clone , :sorted }
-import contains , map from require 'lib/table'
-import sum from require 'lib/math'
-BookPrice = 800
-Discounted = {[ 0 ]: 1 . 0 , 1 . 0 , 0 . 95 , 0 . 90 , 0 . 80 , 0 . 75 }
-bundleBooks = ( basket ) ->
-  bundles = {{}}
-  local added
-  for book in * basket
-    added = false
-    for bundle in * bundles
-      if not contains bundle , book
-        table.insert bundle , book
-        added = true
-        break
-    if not added
-      table.insert bundles , { book }
-  bundles
-optimize = ( bundles ) ->
-  local b5 , b3
-  for bundle in * bundles
-    if # bundle == 5 then b5 = bundle
-    elseif # bundle == 3 then b3 = bundle
-  if not ( b5 and b3 ) then return bundles
-  for i , book in ipairs b5
-    if not contains b3 , book
-      table.insert b3 , book
-      table.remove b5 , i
-      break
-  optimize bundles
-total = ( basket ) ->
-  bundles = optimize bundleBooks basket
-  sum map bundles , ( bundle ) -> # bundle * BookPrice * Discounted [ # bundle ]
-{ :total }
-import fold from require 'moon'
-sum = ( t ) ->
-  fold { 0 , table.unpack t }, ( s , n ) -> s + n
-product = ( t ) ->
-  fold { 1 , table.unpack t }, ( prod , n ) -> prod * n
-gcd = ( a , b ) ->
-  b == 0 and a or gcd b , a % b
-{ :sum , :product , :gcd }
+(source_file
+  (assignment
+    (variable_list PLACEHOLDER_1)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)
+          (parameter PLACEHOLDER_3)) ->
+        (block
+          (expression_statement
+            (for_in_expression
+              (name_list PLACEHOLDER_4)
+              (unpack PLACEHOLDER_2)
+              (block
+                (decorated_statement
+                  (return_statement
+                    (expression_list true))
+                  (if_decorator
+                    (binary_expression PLACEHOLDER_4 == PLACEHOLDER_3))))))
+          (expression_statement false)))))
+  (assignment
+    (variable_list PLACEHOLDER_5)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)
+          (parameter PLACEHOLDER_6)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_7)
+            (expression_list
+              (table)))
+          (expression_statement
+            (for_in_expression
+              (name_list PLACEHOLDER_8 PLACEHOLDER_4)
+              (expression_list
+                (call pairs
+                  (arguments PLACEHOLDER_2)))
+              (block
+                (assignment
+                  (variable_list
+                    (index_expression PLACEHOLDER_7 PLACEHOLDER_8))
+                  (expression_list
+                    (call PLACEHOLDER_6
+                      (arguments PLACEHOLDER_4 PLACEHOLDER_8)))))))
+          (expression_statement PLACEHOLDER_7)))))
+  (assignment
+    (variable_list PLACEHOLDER_9)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)) ->
+        (block
+          (assignment
+            (variable_list
+              (table_pattern PLACEHOLDER_8 PLACEHOLDER_10))
+            (expression_list
+              (table 1
+                (unary_expression # PLACEHOLDER_2))))
+          (expression_statement
+            (while_expression
+              (binary_expression PLACEHOLDER_8 < PLACEHOLDER_10)
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_11)
+                  (expression_list
+                    (index_expression PLACEHOLDER_2 PLACEHOLDER_8)))
+                (assignment
+                  (variable_list
+                    (index_expression PLACEHOLDER_2 PLACEHOLDER_8))
+                  (expression_list
+                    (index_expression PLACEHOLDER_2 PLACEHOLDER_10)))
+                (assignment
+                  (variable_list
+                    (index_expression PLACEHOLDER_2 PLACEHOLDER_10))
+                  (expression_list PLACEHOLDER_11))
+                (update_assignment PLACEHOLDER_8 += 1)
+                (update_assignment PLACEHOLDER_10 -= 1))))))))
+  (assignment
+    (variable_list PLACEHOLDER_12)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)) ->
+        (block
+          (expression_statement
+            (table
+              (call
+                (dot_index table unpack)
+                (arguments PLACEHOLDER_2))))))))
+  (assignment
+    (variable_list PLACEHOLDER_13)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_14)
+            (expression_list
+              (call PLACEHOLDER_12
+                (arguments PLACEHOLDER_2))))
+          (expression_statement
+            (call
+              (dot_index table sort)
+              (arguments PLACEHOLDER_14)))
+          (expression_statement PLACEHOLDER_14)))))
+  (expression_statement
+    (table
+      (pair (property_identifier PLACEHOLDER_1) PLACEHOLDER_1)
+      (pair (property_identifier PLACEHOLDER_5) PLACEHOLDER_5)
+      (pair (property_identifier PLACEHOLDER_9) PLACEHOLDER_9)
+      (pair (property_identifier PLACEHOLDER_12) PLACEHOLDER_12)
+      (pair (property_identifier PLACEHOLDER_13) PLACEHOLDER_13)))
+  (assignment
+    (variable_list PLACEHOLDER_15)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)) ->
+        (block
+          (expression_statement
+            (call fold
+              (arguments
+                (table 0
+                  (call
+                    (dot_index table unpack)
+                    (arguments PLACEHOLDER_2)))
+                (function_definition
+                  (parameters
+                    (parameter PLACEHOLDER_16)
+                    (parameter PLACEHOLDER_17)) ->
+                  (block
+                    (expression_statement
+                      (binary_expression PLACEHOLDER_16 + PLACEHOLDER_17)))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_18)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)) ->
+        (block
+          (expression_statement
+            (call fold
+              (arguments
+                (table 1
+                  (call
+                    (dot_index table unpack)
+                    (arguments PLACEHOLDER_2)))
+                (function_definition
+                  (parameters
+                    (parameter PLACEHOLDER_19)
+                    (parameter PLACEHOLDER_17)) ->
+                  (block
+                    (expression_statement
+                      (binary_expression PLACEHOLDER_19 * PLACEHOLDER_17)))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_20)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_21)
+          (parameter PLACEHOLDER_22)) ->
+        (block
+          (expression_statement
+            (binary_expression
+              (binary_expression
+                (binary_expression PLACEHOLDER_22 == 0) and PLACEHOLDER_21) or
+              (call PLACEHOLDER_20
+                (arguments PLACEHOLDER_22
+                  (binary_expression PLACEHOLDER_21 % PLACEHOLDER_22)))))))))
+  (expression_statement
+    (table
+      (pair (property_identifier PLACEHOLDER_15) PLACEHOLDER_15)
+      (pair (property_identifier PLACEHOLDER_18) PLACEHOLDER_18)
+      (pair (property_identifier PLACEHOLDER_20) PLACEHOLDER_20)))
+  (assignment
+    (variable_list PLACEHOLDER_23)
+    (expression_list 800))
+  (assignment
+    (variable_list PLACEHOLDER_24)
+    (expression_list
+      (table
+        (keyed_pair 0 1.0) 1.0 0.95 0.9 0.8 0.75)))
+  (assignment
+    (variable_list PLACEHOLDER_25)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_26)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_27)
+            (expression_list
+              (table
+                (table))))
+          (local_declaration
+            (variable_list PLACEHOLDER_28))
+          (expression_statement
+            (for_in_expression
+              (name_list PLACEHOLDER_29)
+              (unpack PLACEHOLDER_26)
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_28)
+                  (expression_list false))
+                (expression_statement
+                  (for_in_expression
+                    (name_list PLACEHOLDER_30)
+                    (unpack PLACEHOLDER_27)
+                    (block
+                      (expression_statement
+                        (if_expression
+                          (unary_expression not
+                            (call PLACEHOLDER_1
+                              (arguments PLACEHOLDER_30 PLACEHOLDER_29)))
+                          (block
+                            (expression_statement
+                              (call
+                                (dot_index table insert)
+                                (arguments PLACEHOLDER_30 PLACEHOLDER_29)))
+                            (assignment
+                              (variable_list PLACEHOLDER_28)
+                              (expression_list true)) break))))))
+                (expression_statement
+                  (if_expression
+                    (unary_expression not PLACEHOLDER_28)
+                    (block
+                      (expression_statement
+                        (call
+                          (dot_index table insert)
+                          (arguments PLACEHOLDER_27
+                            (table PLACEHOLDER_29))))))))))
+          (expression_statement PLACEHOLDER_27)))))
+  (assignment
+    (variable_list PLACEHOLDER_31)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_27)) ->
+        (block
+          (local_declaration
+            (variable_list PLACEHOLDER_32 PLACEHOLDER_33))
+          (expression_statement
+            (for_in_expression
+              (name_list PLACEHOLDER_30)
+              (unpack PLACEHOLDER_27)
+              (block
+                (expression_statement
+                  (if_expression
+                    (binary_expression
+                      (unary_expression # PLACEHOLDER_30) == 5)
+                    (block
+                      (assignment
+                        (variable_list PLACEHOLDER_32)
+                        (expression_list PLACEHOLDER_30)))
+                    (elseif_clause
+                      (binary_expression
+                        (unary_expression # PLACEHOLDER_30) == 3)
+                      (block
+                        (assignment
+                          (variable_list PLACEHOLDER_33)
+                          (expression_list PLACEHOLDER_30)))))))))
+          (expression_statement
+            (if_expression
+              (unary_expression not
+                (binary_expression PLACEHOLDER_32 and PLACEHOLDER_33))
+              (block
+                (return_statement
+                  (expression_list PLACEHOLDER_27)))))
+          (expression_statement
+            (for_in_expression
+              (name_list PLACEHOLDER_8 PLACEHOLDER_29)
+              (expression_list
+                (call ipairs
+                  (arguments PLACEHOLDER_32)))
+              (block
+                (expression_statement
+                  (if_expression
+                    (unary_expression not
+                      (call PLACEHOLDER_1
+                        (arguments PLACEHOLDER_33 PLACEHOLDER_29)))
+                    (block
+                      (expression_statement
+                        (call
+                          (dot_index table insert)
+                          (arguments PLACEHOLDER_33 PLACEHOLDER_29)))
+                      (expression_statement
+                        (call
+                          (dot_index table remove)
+                          (arguments PLACEHOLDER_32 PLACEHOLDER_8))) break))))))
+          (expression_statement
+            (call PLACEHOLDER_31
+              (arguments PLACEHOLDER_27)))))))
+  (assignment
+    (variable_list PLACEHOLDER_34)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_26)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_27)
+            (expression_list
+              (call PLACEHOLDER_31
+                (arguments
+                  (call PLACEHOLDER_25
+                    (arguments PLACEHOLDER_26))))))
+          (expression_statement
+            (call PLACEHOLDER_15
+              (arguments
+                (call PLACEHOLDER_5
+                  (arguments PLACEHOLDER_27
+                    (function_definition
+                      (parameters
+                        (parameter PLACEHOLDER_30)) ->
+                      (block
+                        (expression_statement
+                          (binary_expression
+                            (binary_expression
+                              (unary_expression # PLACEHOLDER_30) * PLACEHOLDER_23) *
+                            (index_expression PLACEHOLDER_24
+                              (unary_expression # PLACEHOLDER_30)))))))))))))))
+  (expression_statement
+    (table
+      (pair (property_identifier PLACEHOLDER_34) PLACEHOLDER_34))))

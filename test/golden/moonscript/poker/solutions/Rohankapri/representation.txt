@@ -1,130 +1,840 @@
-stringx = require 'pl.stringx'
-List = require 'pl.List'
-seq = require 'pl.seq'
-class Card
-  new: ( @string ) =>
-    face , @suit = @string \ match '(.+)([HDCS])'
-    @value = switch face
-      when 'A' then 14
-      when 'K' then 13
-      when 'Q' then 12
-      when 'J' then 11
-      else tonumber face
-  __lt: ( other ) => @value < other . value
-  __eq: ( other ) => @value == other . value
-sum = ( cards ) ->
-  accum = ( acc , card ) -> acc * 14 + card . value
-  seq . reduce accum , cards , 0
-class Hand
-  new: ( @string ) =>
-    @cards = [ Card card for card in * ( stringx . split @string )]
-    table.sort @cards , ( a , b ) -> a > b
-    @analyze !
-  analyze: =>
-    return if @fiveOfAKind !
-    return if @straightFlush !
-    return if @fourOfAKind !
-    return if @fullHouse !
-    return if @flush !
-    return if @straight !
-    return if @threeOfAKind !
-    return if @twoPair !
-    return if @onePair !
-    @ranking = 11
-    @value = sum @cards
-  fiveOfAKind: =>
-    return false if @cards [ 1 ] != @cards [ 5 ]
-    @ranking = 1
-    @value = @cards [ 1 ]. value
-    true
-  straightFlush: =>
-    return false unless @isFlush ! and @isStraight !
-    @ranking = @isAceHighStraight ! and 2 or 3
-    @value = @isAceLowStraight ! and 5 or @cards [ 1 ]. value
-    true
-  fourOfAKind: =>
-    if @cards [ 1 ] == @cards [ 4 ]
-      @value = sum { @cards [ 1 ], @cards [ 5 ]}
-    elseif @cards [ 2 ] == @cards [ 5 ]
-      @value = sum { @cards [ 2 ], @cards [ 1 ]}
-    else
-      return false
-    @ranking = 4
-    true
-  fullHouse: =>
-    if @cards [ 1 ] == @cards [ 2 ] and @cards [ 3 ] == @cards [ 5 ]
-      @value = sum { @cards [ 3 ], @cards [ 1 ]}
-    elseif @cards [ 1 ] == @cards [ 3 ] and @cards [ 4 ] == @cards [ 5 ]
-      @value = sum { @cards [ 1 ], @cards [ 4 ]}
-    else
-      return false
-    @ranking = 5
-    true
-  flush: =>
-    return false unless @isFlush !
-    @ranking = 6
-    @value = sum @cards
-    true
-  straight: =>
-    return false unless @isStraight !
-    @ranking = 7
-    @value = @isAceLowStraight ! and 5 or @cards [ 1 ]. value
-    true
-  threeOfAKind: =>
-    if @cards [ 1 ] == @cards [ 3 ]
-      @value = sum { @cards [ 1 ], @cards [ 4 ], @cards [ 5 ]}
-    elseif @cards [ 2 ] == @cards [ 4 ]
-      @value = sum { @cards [ 2 ], @cards [ 1 ], @cards [ 5 ]}
-    elseif @cards [ 3 ] == @cards [ 5 ]
-      @value = sum { @cards [ 3 ], @cards [ 1 ], @cards [ 2 ]}
-    else
-      return false
-    @ranking = 8
-    true
-  twoPair: =>
-    if @cards [ 1 ] == @cards [ 2 ] and @cards [ 3 ] == @cards [ 4 ]
-      @value = sum { @cards [ 1 ], @cards [ 3 ], @cards [ 5 ]}
-    elseif @cards [ 1 ] == @cards [ 2 ] and @cards [ 4 ] == @cards [ 5 ]
-      @value = sum { @cards [ 1 ], @cards [ 4 ], @cards [ 3 ]}
-    elseif @cards [ 2 ] == @cards [ 3 ] and @cards [ 4 ] == @cards [ 5 ]
-      @value = sum { @cards [ 2 ], @cards [ 4 ], @cards [ 1 ]}
-    else
-      return false
-    @ranking = 9
-    true
-  onePair: =>
-    if @cards [ 1 ] == @cards [ 2 ]
-      @value = sum { @cards [ 1 ], @cards [ 3 ], @cards [ 4 ], @cards [ 5 ]}
-    elseif @cards [ 2 ] == @cards [ 3 ]
-      @value = sum { @cards [ 2 ], @cards [ 1 ], @cards [ 4 ], @cards [ 5 ]}
-    elseif @cards [ 3 ] == @cards [ 4 ]
-      @value = sum { @cards [ 3 ], @cards [ 1 ], @cards [ 2 ], @cards [ 5 ]}
-    elseif @cards [ 4 ] == @cards [ 5 ]
-      @value = sum { @cards [ 4 ], @cards [ 1 ], @cards [ 2 ], @cards [ 3 ]}
-    else
-      return false
-    @ranking = 10
-    true
-  isFlush: =>
-    suits = { card . suit , true for card in * @cards }
-    count = 0
-    count += 1 for _ in pairs suits
-    count == 1
-  isStraight: =>
-    values = List [ card . value for card in * @cards ]
-    return true if values == { 14 , 5 , 4 , 3 , 2 }
-    for i = 2 , # values
-      return false if values [ i - 1 ] - 1 != values [ i ]
-    true
-  isAceHighStraight: => @cards [ 1 ]. value == 14 and @cards [ 2 ]. value == 13
-  isAceLowStraight: => @cards [ 1 ]. value == 14 and @cards [ 2 ]. value == 5
-  __lt: ( other ) =>
-    return true if @ranking < other . ranking
-    return true if @ranking == other . ranking and @value > other . value
-    false
-{
-  bestHands: ( handStrings ) ->
-    hands = [ Hand hand for hand in * handStrings ]
-    table.sort hands
-    [ hand . string for hand in * hands when hand . ranking == hands [ 1 ]. ranking and hand . value == hands [ 1 ]. value ]
-}
+(source_file
+  (expression_statement
+    (class_declaration PLACEHOLDER_1
+      (class_body
+        (class_properties
+          (pair new
+            (function_definition
+              (parameters
+                (parameter
+                  (self_field (property_identifier PLACEHOLDER_2)))) =>
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_3
+                    (self_field (property_identifier PLACEHOLDER_4)))
+                  (expression_list
+                    (call
+                      (method_index
+                        (self_field (property_identifier PLACEHOLDER_2)) match)
+                      (arguments "(.+)([HDCS])"))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_5)))
+                  (expression_list
+                    (switch_expression PLACEHOLDER_3
+                      (when_branch
+                        (expression_list "A")
+                        (block
+                          (expression_statement 14)))
+                      (when_branch
+                        (expression_list "K")
+                        (block
+                          (expression_statement 13)))
+                      (when_branch
+                        (expression_list "Q")
+                        (block
+                          (expression_statement 12)))
+                      (when_branch
+                        (expression_list "J")
+                        (block
+                          (expression_statement 11)))
+                      (else_clause
+                        (block
+                          (expression_statement
+                            (call tonumber
+                              (arguments PLACEHOLDER_3))))))))))))
+        (class_properties
+          (pair __lt
+            (function_definition
+              (parameters
+                (parameter PLACEHOLDER_6)) =>
+              (block
+                (expression_statement
+                  (binary_expression
+                    (self_field (property_identifier PLACEHOLDER_5)) <
+                    (dot_index PLACEHOLDER_6 (property_identifier PLACEHOLDER_5))))))))
+        (class_properties
+          (pair __eq
+            (function_definition
+              (parameters
+                (parameter PLACEHOLDER_6)) =>
+              (block
+                (expression_statement
+                  (binary_expression
+                    (self_field (property_identifier PLACEHOLDER_5)) ==
+                    (dot_index PLACEHOLDER_6 (property_identifier PLACEHOLDER_5)))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_7)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_8)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_9)
+            (expression_list
+              (function_definition
+                (parameters
+                  (parameter PLACEHOLDER_10)
+                  (parameter PLACEHOLDER_11)) ->
+                (block
+                  (expression_statement
+                    (binary_expression
+                      (binary_expression PLACEHOLDER_10 * 14) +
+                      (dot_index PLACEHOLDER_11 (property_identifier PLACEHOLDER_5))))))))
+          (expression_statement
+            (call
+              (dot_index seq reduce)
+              (arguments PLACEHOLDER_9 PLACEHOLDER_8 0)))))))
+  (expression_statement
+    (class_declaration PLACEHOLDER_12
+      (class_body
+        (class_properties
+          (pair new
+            (function_definition
+              (parameters
+                (parameter
+                  (self_field (property_identifier PLACEHOLDER_2)))) =>
+              (block
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_8)))
+                  (expression_list
+                    (comprehension
+                      (call PLACEHOLDER_1
+                        (arguments PLACEHOLDER_11))
+                      (for_in_clause
+                        (name_list PLACEHOLDER_11)
+                        (unpack
+                          (parenthesized_expression
+                            (call
+                              (dot_index stringx split)
+                              (arguments
+                                (self_field (property_identifier PLACEHOLDER_2))))))))))
+                (expression_statement
+                  (call
+                    (dot_index table sort)
+                    (arguments
+                      (self_field (property_identifier PLACEHOLDER_8))
+                      (function_definition
+                        (parameters
+                          (parameter PLACEHOLDER_13)
+                          (parameter PLACEHOLDER_14)) ->
+                        (block
+                          (expression_statement
+                            (binary_expression PLACEHOLDER_13 > PLACEHOLDER_14)))))))
+                (expression_statement
+                  (call
+                    (self_field (property_identifier PLACEHOLDER_15))
+                    (arguments)))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_15)
+            (function_definition =>
+              (block
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_16))
+                      (arguments))))
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_17))
+                      (arguments))))
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_18))
+                      (arguments))))
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_19))
+                      (arguments))))
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_20))
+                      (arguments))))
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_21))
+                      (arguments))))
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_22))
+                      (arguments))))
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_23))
+                      (arguments))))
+                (decorated_statement
+                  (return_statement)
+                  (if_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_24))
+                      (arguments))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 11))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_5)))
+                  (expression_list
+                    (call PLACEHOLDER_7
+                      (arguments
+                        (self_field (property_identifier PLACEHOLDER_8))))))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_16)
+            (function_definition =>
+              (block
+                (decorated_statement
+                  (return_statement
+                    (expression_list false))
+                  (if_decorator
+                    (binary_expression
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 1) !=
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 5))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 1))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_5)))
+                  (expression_list
+                    (dot_index
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 1) (property_identifier PLACEHOLDER_5))))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_17)
+            (function_definition =>
+              (block
+                (decorated_statement
+                  (return_statement
+                    (expression_list false))
+                  (unless_decorator
+                    (binary_expression
+                      (call
+                        (self_field (property_identifier PLACEHOLDER_26))
+                        (arguments)) and
+                      (call
+                        (self_field (property_identifier PLACEHOLDER_27))
+                        (arguments)))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list
+                    (binary_expression
+                      (binary_expression
+                        (call
+                          (self_field (property_identifier PLACEHOLDER_28))
+                          (arguments)) and 2) or 3)))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_5)))
+                  (expression_list
+                    (binary_expression
+                      (binary_expression
+                        (call
+                          (self_field (property_identifier PLACEHOLDER_29))
+                          (arguments)) and 5) or
+                      (dot_index
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 1) (property_identifier PLACEHOLDER_5)))))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_18)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (if_expression
+                    (binary_expression
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 1) ==
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 4))
+                    (block
+                      (assignment
+                        (variable_list
+                          (self_field (property_identifier PLACEHOLDER_5)))
+                        (expression_list
+                          (call PLACEHOLDER_7
+                            (arguments
+                              (table
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 5)))))))
+                    (elseif_clause
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 2) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 5))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 2)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1))))))))
+                    (else_clause
+                      (block
+                        (return_statement
+                          (expression_list false))))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 4))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_19)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (if_expression
+                    (binary_expression
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 1) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 2)) and
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 3) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 5)))
+                    (block
+                      (assignment
+                        (variable_list
+                          (self_field (property_identifier PLACEHOLDER_5)))
+                        (expression_list
+                          (call PLACEHOLDER_7
+                            (arguments
+                              (table
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 3)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 1)))))))
+                    (elseif_clause
+                      (binary_expression
+                        (binary_expression
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 1) ==
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 3)) and
+                        (binary_expression
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 4) ==
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 5)))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 4))))))))
+                    (else_clause
+                      (block
+                        (return_statement
+                          (expression_list false))))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 5))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_20)
+            (function_definition =>
+              (block
+                (decorated_statement
+                  (return_statement
+                    (expression_list false))
+                  (unless_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_26))
+                      (arguments))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 6))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_5)))
+                  (expression_list
+                    (call PLACEHOLDER_7
+                      (arguments
+                        (self_field (property_identifier PLACEHOLDER_8))))))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_21)
+            (function_definition =>
+              (block
+                (decorated_statement
+                  (return_statement
+                    (expression_list false))
+                  (unless_decorator
+                    (call
+                      (self_field (property_identifier PLACEHOLDER_27))
+                      (arguments))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 7))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_5)))
+                  (expression_list
+                    (binary_expression
+                      (binary_expression
+                        (call
+                          (self_field (property_identifier PLACEHOLDER_29))
+                          (arguments)) and 5) or
+                      (dot_index
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 1) (property_identifier PLACEHOLDER_5)))))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_22)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (if_expression
+                    (binary_expression
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 1) ==
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 3))
+                    (block
+                      (assignment
+                        (variable_list
+                          (self_field (property_identifier PLACEHOLDER_5)))
+                        (expression_list
+                          (call PLACEHOLDER_7
+                            (arguments
+                              (table
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 4)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 5)))))))
+                    (elseif_clause
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 2) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 4))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 2)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 5))))))))
+                    (elseif_clause
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 3) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 5))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 3)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 2))))))))
+                    (else_clause
+                      (block
+                        (return_statement
+                          (expression_list false))))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 8))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_23)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (if_expression
+                    (binary_expression
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 1) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 2)) and
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 3) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 4)))
+                    (block
+                      (assignment
+                        (variable_list
+                          (self_field (property_identifier PLACEHOLDER_5)))
+                        (expression_list
+                          (call PLACEHOLDER_7
+                            (arguments
+                              (table
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 3)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 5)))))))
+                    (elseif_clause
+                      (binary_expression
+                        (binary_expression
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 1) ==
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 2)) and
+                        (binary_expression
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 4) ==
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 5)))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 4)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 3))))))))
+                    (elseif_clause
+                      (binary_expression
+                        (binary_expression
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 2) ==
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 3)) and
+                        (binary_expression
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 4) ==
+                          (index_expression
+                            (self_field (property_identifier PLACEHOLDER_8)) 5)))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 2)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 4)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1))))))))
+                    (else_clause
+                      (block
+                        (return_statement
+                          (expression_list false))))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 9))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_24)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (if_expression
+                    (binary_expression
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 1) ==
+                      (index_expression
+                        (self_field (property_identifier PLACEHOLDER_8)) 2))
+                    (block
+                      (assignment
+                        (variable_list
+                          (self_field (property_identifier PLACEHOLDER_5)))
+                        (expression_list
+                          (call PLACEHOLDER_7
+                            (arguments
+                              (table
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 3)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 4)
+                                (index_expression
+                                  (self_field (property_identifier PLACEHOLDER_8)) 5)))))))
+                    (elseif_clause
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 2) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 3))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 2)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 4)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 5))))))))
+                    (elseif_clause
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 3) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 4))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 3)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 2)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 5))))))))
+                    (elseif_clause
+                      (binary_expression
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 4) ==
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 5))
+                      (block
+                        (assignment
+                          (variable_list
+                            (self_field (property_identifier PLACEHOLDER_5)))
+                          (expression_list
+                            (call PLACEHOLDER_7
+                              (arguments
+                                (table
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 4)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 1)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 2)
+                                  (index_expression
+                                    (self_field (property_identifier PLACEHOLDER_8)) 3))))))))
+                    (else_clause
+                      (block
+                        (return_statement
+                          (expression_list false))))))
+                (assignment
+                  (variable_list
+                    (self_field (property_identifier PLACEHOLDER_25)))
+                  (expression_list 10))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_26)
+            (function_definition =>
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_30)
+                  (expression_list
+                    (table_comprehension
+                      (dot_index PLACEHOLDER_11 (property_identifier PLACEHOLDER_4)) true
+                      (for_in_clause
+                        (name_list PLACEHOLDER_11)
+                        (unpack
+                          (self_field (property_identifier PLACEHOLDER_8)))))))
+                (assignment
+                  (variable_list PLACEHOLDER_31)
+                  (expression_list 0))
+                (decorated_statement
+                  (update_assignment PLACEHOLDER_31 += 1)
+                  (comprehension_decorator
+                    (for_in_clause
+                      (name_list PLACEHOLDER_32)
+                      (call pairs
+                        (arguments PLACEHOLDER_30)))))
+                (expression_statement
+                  (binary_expression PLACEHOLDER_31 == 1))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_27)
+            (function_definition =>
+              (block
+                (assignment
+                  (variable_list PLACEHOLDER_33)
+                  (expression_list
+                    (call List
+                      (arguments
+                        (comprehension
+                          (dot_index PLACEHOLDER_11 (property_identifier PLACEHOLDER_5))
+                          (for_in_clause
+                            (name_list PLACEHOLDER_11)
+                            (unpack
+                              (self_field (property_identifier PLACEHOLDER_8)))))))))
+                (decorated_statement
+                  (return_statement
+                    (expression_list true))
+                  (if_decorator
+                    (binary_expression PLACEHOLDER_33 ==
+                      (table 14 5 4 3 2))))
+                (expression_statement
+                  (for_expression PLACEHOLDER_34 2
+                    (unary_expression # PLACEHOLDER_33)
+                    (block
+                      (decorated_statement
+                        (return_statement
+                          (expression_list false))
+                        (if_decorator
+                          (binary_expression
+                            (binary_expression
+                              (index_expression PLACEHOLDER_33
+                                (binary_expression PLACEHOLDER_34 - 1)) - 1) !=
+                            (index_expression PLACEHOLDER_33 PLACEHOLDER_34)))))))
+                (expression_statement true)))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_28)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (binary_expression
+                    (binary_expression
+                      (dot_index
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 1) (property_identifier PLACEHOLDER_5)) == 14) and
+                    (binary_expression
+                      (dot_index
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 2) (property_identifier PLACEHOLDER_5)) == 13)))))))
+        (class_properties
+          (pair (property_identifier PLACEHOLDER_29)
+            (function_definition =>
+              (block
+                (expression_statement
+                  (binary_expression
+                    (binary_expression
+                      (dot_index
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 1) (property_identifier PLACEHOLDER_5)) == 14) and
+                    (binary_expression
+                      (dot_index
+                        (index_expression
+                          (self_field (property_identifier PLACEHOLDER_8)) 2) (property_identifier PLACEHOLDER_5)) == 5)))))))
+        (class_properties
+          (pair __lt
+            (function_definition
+              (parameters
+                (parameter PLACEHOLDER_6)) =>
+              (block
+                (decorated_statement
+                  (return_statement
+                    (expression_list true))
+                  (if_decorator
+                    (binary_expression
+                      (self_field (property_identifier PLACEHOLDER_25)) <
+                      (dot_index PLACEHOLDER_6 (property_identifier PLACEHOLDER_25)))))
+                (decorated_statement
+                  (return_statement
+                    (expression_list true))
+                  (if_decorator
+                    (binary_expression
+                      (binary_expression
+                        (self_field (property_identifier PLACEHOLDER_25)) ==
+                        (dot_index PLACEHOLDER_6 (property_identifier PLACEHOLDER_25))) and
+                      (binary_expression
+                        (self_field (property_identifier PLACEHOLDER_5)) >
+                        (dot_index PLACEHOLDER_6 (property_identifier PLACEHOLDER_5))))))
+                (expression_statement false))))))))
+  (expression_statement
+    (table
+      (pair (property_identifier PLACEHOLDER_35)
+        (function_definition
+          (parameters
+            (parameter PLACEHOLDER_36)) ->
+          (block
+            (assignment
+              (variable_list PLACEHOLDER_37)
+              (expression_list
+                (comprehension
+                  (call PLACEHOLDER_12
+                    (arguments PLACEHOLDER_38))
+                  (for_in_clause
+                    (name_list PLACEHOLDER_38)
+                    (unpack PLACEHOLDER_36)))))
+            (expression_statement
+              (call
+                (dot_index table sort)
+                (arguments PLACEHOLDER_37)))
+            (expression_statement
+              (comprehension
+                (dot_index PLACEHOLDER_38 (property_identifier PLACEHOLDER_2))
+                (for_in_clause
+                  (name_list PLACEHOLDER_38)
+                  (unpack PLACEHOLDER_37))
+                (when_clause
+                  (binary_expression
+                    (binary_expression
+                      (dot_index PLACEHOLDER_38 (property_identifier PLACEHOLDER_25)) ==
+                      (dot_index
+                        (index_expression PLACEHOLDER_37 1) (property_identifier PLACEHOLDER_25))) and
+                    (binary_expression
+                      (dot_index PLACEHOLDER_38 (property_identifier PLACEHOLDER_5)) ==
+                      (dot_index
+                        (index_expression PLACEHOLDER_37 1) (property_identifier PLACEHOLDER_5)))))))))))))

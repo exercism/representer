@@ -1,26 +1,117 @@
-SMALL = {
-  [ 0 ]: 'zero' , 'one' , 'two' , 'three' , 'four' , 'five' , 'six' ,
-  'seven' , 'eight' , 'nine' , 'ten' , 'eleven' , 'twelve' ,
-  'thirteen' , 'fourteen' , 'fifteen' , 'sixteen' , 'seventeen' ,
-  'eighteen' , 'nineteen' ,
-}
-XTY = {
-  [ 20 ]: 'twenty' , [ 30 ]: 'thirty' , [ 40 ]: 'forty' , [ 50 ]: 'fifty' ,
-  [ 60 ]: 'sixty' , [ 70 ]: 'seventy' , [ 80 ]: 'eighty' , [ 90 ]: 'ninety' ,
-}
-say_small = ( n ) ->
-  SMALL [ n ] or XTY [ n ] or XTY [ n - n % 10 ] .. '-' .. SMALL [ n % 10 ]
-local say
-say_compound = ( n , base , word ) ->
-  quot , rem = n // base , n % base
-  said = "\"\#{" say quot "} \#{" word }"
-  if rem > 0 then said ..= "\" \#{" say rem }"
-  said
-say = ( n ) ->
-  assert 0 <= n and n < 1e12 , "'input out of range'"
-  if n < 100 then say_small n
-  elseif n < 1e3 then say_compound n , 100 , 'hundred'
-  elseif n < 1e6 then say_compound n , 1e3 , 'thousand'
-  elseif n < 1e9 then say_compound n , 1e6 , 'million'
-  else say_compound n , 1e9 , 'billion'
-{ in_english: say }
+(source_file
+  (assignment
+    (variable_list PLACEHOLDER_1)
+    (expression_list
+      (table
+        (keyed_pair 0 "zero") "one" "two" "three" "four" "five" "six" "seven" "eight" "nine" "ten" "eleven" "twelve" "thirteen" "fourteen" "fifteen" "sixteen" "seventeen" "eighteen" "nineteen")))
+  (assignment
+    (variable_list PLACEHOLDER_2)
+    (expression_list
+      (table
+        (keyed_pair 20 "twenty")
+        (keyed_pair 30 "thirty")
+        (keyed_pair 40 "forty")
+        (keyed_pair 50 "fifty")
+        (keyed_pair 60 "sixty")
+        (keyed_pair 70 "seventy")
+        (keyed_pair 80 "eighty")
+        (keyed_pair 90 "ninety"))))
+  (assignment
+    (variable_list PLACEHOLDER_3)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_4)) ->
+        (block
+          (expression_statement
+            (binary_expression
+              (binary_expression
+                (index_expression PLACEHOLDER_1 PLACEHOLDER_4) or
+                (index_expression PLACEHOLDER_2 PLACEHOLDER_4)) or
+              (binary_expression
+                (index_expression PLACEHOLDER_2
+                  (binary_expression PLACEHOLDER_4 -
+                    (binary_expression PLACEHOLDER_4 % 10))) ..
+                (binary_expression "-" ..
+                  (index_expression PLACEHOLDER_1
+                    (binary_expression PLACEHOLDER_4 % 10))))))))))
+  (local_declaration
+    (variable_list PLACEHOLDER_5))
+  (assignment
+    (variable_list PLACEHOLDER_6)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_4)
+          (parameter PLACEHOLDER_7)
+          (parameter PLACEHOLDER_8)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_9 PLACEHOLDER_10)
+            (expression_list
+              (binary_expression PLACEHOLDER_4 // PLACEHOLDER_7)
+              (binary_expression PLACEHOLDER_4 % PLACEHOLDER_7)))
+          (assignment
+            (variable_list PLACEHOLDER_11)
+            (expression_list
+              (string
+                (interpolation
+                  (call PLACEHOLDER_5
+                    (arguments PLACEHOLDER_9))) " "
+                (interpolation PLACEHOLDER_8))))
+          (expression_statement
+            (if_expression
+              (binary_expression PLACEHOLDER_10 > 0)
+              (block
+                (update_assignment PLACEHOLDER_11 ..=
+                  (string " "
+                    (interpolation
+                      (call PLACEHOLDER_5
+                        (arguments PLACEHOLDER_10))))))))
+          (expression_statement PLACEHOLDER_11)))))
+  (assignment
+    (variable_list PLACEHOLDER_5)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_4)) ->
+        (block
+          (expression_statement
+            (call assert
+              (arguments
+                (binary_expression
+                  (binary_expression 0 <= PLACEHOLDER_4) and
+                  (binary_expression PLACEHOLDER_4 < 1000000000000.0)) "input out of range")))
+          (expression_statement
+            (if_expression
+              (binary_expression PLACEHOLDER_4 < 100)
+              (block
+                (expression_statement
+                  (call PLACEHOLDER_3
+                    (arguments PLACEHOLDER_4))))
+              (elseif_clause
+                (binary_expression PLACEHOLDER_4 < 1000.0)
+                (block
+                  (expression_statement
+                    (call PLACEHOLDER_6
+                      (arguments PLACEHOLDER_4 100 "hundred")))))
+              (elseif_clause
+                (binary_expression PLACEHOLDER_4 < 1000000.0)
+                (block
+                  (expression_statement
+                    (call PLACEHOLDER_6
+                      (arguments PLACEHOLDER_4 1000.0 "thousand")))))
+              (elseif_clause
+                (binary_expression PLACEHOLDER_4 < 1000000000.0)
+                (block
+                  (expression_statement
+                    (call PLACEHOLDER_6
+                      (arguments PLACEHOLDER_4 1000000.0 "million")))))
+              (else_clause
+                (block
+                  (expression_statement
+                    (call PLACEHOLDER_6
+                      (arguments PLACEHOLDER_4 1000000000.0 "billion")))))))))))
+  (expression_statement
+    (table
+      (pair (property_identifier PLACEHOLDER_12) PLACEHOLDER_5))))

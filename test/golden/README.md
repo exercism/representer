@@ -198,7 +198,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | lfe | Lfe | 84 | 1 | 81 | 52 | 81 | 0 | 0 | 0 | 0 |
 | lua | Lua | 331 | 77 | 100 | 72 | 95 | 0 | 7 | 0 | 0 |
 | mips | Mips | 124 | 8 | 100 | 52 | 100 | 0 | 0 | 0 | 0 |
-| moonscript | Basic | 100 | 0 | 100 | 99 | 98 | 0 | 0 | 0 | 0 |
+| moonscript | Moonscript | 100 | 0 | 100 | 99 | 98 | 0 | 0 | 0 | 0 |
 | nim | Nim | 256 | 52 | 100 | 64 | 98 | 1 | 8 | 0 | 0 |
 | ocaml | OCaml | 244 | 48 | 100 | 48 | 100 | 0 | 9 | 0 | 0 |
 | odin | Odin | 160 | 20 | 100 | 65 | 100 | 0 | 5 | 0 | 3 |

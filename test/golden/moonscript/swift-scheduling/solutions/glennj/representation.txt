@@ -1,66 +1,345 @@
-parse_timestamp = ( timestamp ) ->
-  parts = [ tonumber m for m in timestamp \ gmatch '(%d+)' ]
-  { year , month , day , hour , min , sec } = parts
-  os.date '*t' , os.time { :year , :month , :day , :hour , :min , :sec }
-first_workday = ( year , month ) ->
-  t = os.date '*t' , os.time { :year , :month , day: 1 }
-  switch t . wday
-    when 1 then 2
-    when 7 then 3
-    else t . day
-last_workday = ( year , month ) ->
-  t = os.date '*t' , os.time { :year , month: month + 1 , day: 0 }
-  switch t . wday
-    when 1 then t . day - 2
-    when 7 then t . day - 1
-    else t . day
-now = ( t ) ->
-  t . hour += 2
-asap = ( t ) ->
-  if t . hour < 13
-    t . hour = 17
-  else
-    t . day += 1
-    t . hour = 13
-eow = ( t ) ->
-  switch t . wday
-    when 2 , 3 , 4
-      t . day += 6 - t . wday
-      t . hour = 17
-    when 5 , 6
-      t . day += 8 - t . wday
-      t . hour = 20
-month = ( t , m ) ->
-  if t . month < m
-    t . month = m
-  else
-    t . year += 1
-    t . month = m
-  t . day = first_workday t . year , t . month
-quarter = ( t , q ) ->
-  m = 3 * q
-  if t . month <= m
-    t . month = m
-  else
-    t . year += 1
-    t . month = m
-  t . day = last_workday t . year , t . month
-{
-  delivery_date: ( code , timestamp ) ->
-    t = with parse_timestamp timestamp
-      . min = 0
-      . sec = 0
-    switch code
-      when 'NOW' then now t
-      when 'ASAP' then asap t
-      when 'EOW' then eow t
-      else
-        m = code \ match '(%d+)M'
-        q = code \ match 'Q([1234])'
-        if m then month t , tonumber m
-        else if q then quarter t , tonumber q
-        else error "'Invalid code'"
-        t . hour = 8
-        t . isdst = nil
-    os.date '%Y-%m-%dT%H:%M:%S' , os.time t
-}
+(source_file
+  (assignment
+    (variable_list PLACEHOLDER_1)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_2)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_3)
+            (expression_list
+              (comprehension
+                (call tonumber
+                  (arguments PLACEHOLDER_4))
+                (for_in_clause
+                  (name_list PLACEHOLDER_4)
+                  (call
+                    (method_index PLACEHOLDER_2 gmatch)
+                    (arguments "(%d+)"))))))
+          (assignment
+            (variable_list
+              (table_pattern PLACEHOLDER_5 PLACEHOLDER_6 PLACEHOLDER_7 PLACEHOLDER_8 PLACEHOLDER_9 PLACEHOLDER_10))
+            (expression_list PLACEHOLDER_3))
+          (expression_statement
+            (call
+              (dot_index os date)
+              (arguments "*t"
+                (call
+                  (dot_index os time)
+                  (arguments
+                    (table
+                      (pair (property_identifier PLACEHOLDER_5) PLACEHOLDER_5)
+                      (pair (property_identifier PLACEHOLDER_6) PLACEHOLDER_6)
+                      (pair (property_identifier PLACEHOLDER_7) PLACEHOLDER_7)
+                      (pair (property_identifier PLACEHOLDER_8) PLACEHOLDER_8)
+                      (pair (property_identifier PLACEHOLDER_9) PLACEHOLDER_9)
+                      (pair (property_identifier PLACEHOLDER_10) PLACEHOLDER_10)))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_11)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_5)
+          (parameter PLACEHOLDER_6)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_12)
+            (expression_list
+              (call
+                (dot_index os date)
+                (arguments "*t"
+                  (call
+                    (dot_index os time)
+                    (arguments
+                      (table
+                        (pair (property_identifier PLACEHOLDER_5) PLACEHOLDER_5)
+                        (pair (property_identifier PLACEHOLDER_6) PLACEHOLDER_6)
+                        (pair (property_identifier PLACEHOLDER_7) 1))))))))
+          (expression_statement
+            (switch_expression
+              (dot_index PLACEHOLDER_12 wday)
+              (when_branch
+                (expression_list 1)
+                (block
+                  (expression_statement 2)))
+              (when_branch
+                (expression_list 7)
+                (block
+                  (expression_statement 3)))
+              (else_clause
+                (block
+                  (expression_statement
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_13)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_5)
+          (parameter PLACEHOLDER_6)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_12)
+            (expression_list
+              (call
+                (dot_index os date)
+                (arguments "*t"
+                  (call
+                    (dot_index os time)
+                    (arguments
+                      (table
+                        (pair (property_identifier PLACEHOLDER_5) PLACEHOLDER_5)
+                        (pair (property_identifier PLACEHOLDER_6)
+                          (binary_expression PLACEHOLDER_6 + 1))
+                        (pair (property_identifier PLACEHOLDER_7) 0))))))))
+          (expression_statement
+            (switch_expression
+              (dot_index PLACEHOLDER_12 wday)
+              (when_branch
+                (expression_list 1)
+                (block
+                  (expression_statement
+                    (binary_expression
+                      (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)) - 2))))
+              (when_branch
+                (expression_list 7)
+                (block
+                  (expression_statement
+                    (binary_expression
+                      (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)) - 1))))
+              (else_clause
+                (block
+                  (expression_statement
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_14)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_12)) ->
+        (block
+          (update_assignment
+            (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_8)) += 2)))))
+  (assignment
+    (variable_list PLACEHOLDER_15)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_12)) ->
+        (block
+          (expression_statement
+            (if_expression
+              (binary_expression
+                (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_8)) < 13)
+              (block
+                (assignment
+                  (variable_list
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_8)))
+                  (expression_list 17)))
+              (else_clause
+                (block
+                  (update_assignment
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)) += 1)
+                  (assignment
+                    (variable_list
+                      (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_8)))
+                    (expression_list 13))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_16)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_12)) ->
+        (block
+          (expression_statement
+            (switch_expression
+              (dot_index PLACEHOLDER_12 wday)
+              (when_branch
+                (expression_list 2 3 4)
+                (block
+                  (update_assignment
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)) +=
+                    (binary_expression 6 -
+                      (dot_index PLACEHOLDER_12 wday)))
+                  (assignment
+                    (variable_list
+                      (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_8)))
+                    (expression_list 17))))
+              (when_branch
+                (expression_list 5 6)
+                (block
+                  (update_assignment
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)) +=
+                    (binary_expression 8 -
+                      (dot_index PLACEHOLDER_12 wday)))
+                  (assignment
+                    (variable_list
+                      (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_8)))
+                    (expression_list 20))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_6)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_12)
+          (parameter PLACEHOLDER_4)) ->
+        (block
+          (expression_statement
+            (if_expression
+              (binary_expression
+                (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_6)) < PLACEHOLDER_4)
+              (block
+                (assignment
+                  (variable_list
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_6)))
+                  (expression_list PLACEHOLDER_4)))
+              (else_clause
+                (block
+                  (update_assignment
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_5)) += 1)
+                  (assignment
+                    (variable_list
+                      (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_6)))
+                    (expression_list PLACEHOLDER_4))))))
+          (assignment
+            (variable_list
+              (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)))
+            (expression_list
+              (call PLACEHOLDER_11
+                (arguments
+                  (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_5))
+                  (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_6))))))))))
+  (assignment
+    (variable_list PLACEHOLDER_17)
+    (expression_list
+      (function_definition
+        (parameters
+          (parameter PLACEHOLDER_12)
+          (parameter PLACEHOLDER_18)) ->
+        (block
+          (assignment
+            (variable_list PLACEHOLDER_4)
+            (expression_list
+              (binary_expression 3 * PLACEHOLDER_18)))
+          (expression_statement
+            (if_expression
+              (binary_expression
+                (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_6)) <= PLACEHOLDER_4)
+              (block
+                (assignment
+                  (variable_list
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_6)))
+                  (expression_list PLACEHOLDER_4)))
+              (else_clause
+                (block
+                  (update_assignment
+                    (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_5)) += 1)
+                  (assignment
+                    (variable_list
+                      (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_6)))
+                    (expression_list PLACEHOLDER_4))))))
+          (assignment
+            (variable_list
+              (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_7)))
+            (expression_list
+              (call PLACEHOLDER_13
+                (arguments
+                  (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_5))
+                  (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_6))))))))))
+  (expression_statement
+    (table
+      (pair (property_identifier PLACEHOLDER_19)
+        (function_definition
+          (parameters
+            (parameter PLACEHOLDER_20)
+            (parameter PLACEHOLDER_2)) ->
+          (block
+            (assignment
+              (variable_list PLACEHOLDER_12)
+              (expression_list
+                (with_expression
+                  (expression_list
+                    (call PLACEHOLDER_1
+                      (arguments PLACEHOLDER_2)))
+                  (block
+                    (assignment
+                      (variable_list
+                        (with_dot_index (property_identifier PLACEHOLDER_9)))
+                      (expression_list 0))
+                    (assignment
+                      (variable_list
+                        (with_dot_index (property_identifier PLACEHOLDER_10)))
+                      (expression_list 0))))))
+            (expression_statement
+              (switch_expression PLACEHOLDER_20
+                (when_branch
+                  (expression_list "NOW")
+                  (block
+                    (expression_statement
+                      (call PLACEHOLDER_14
+                        (arguments PLACEHOLDER_12)))))
+                (when_branch
+                  (expression_list "ASAP")
+                  (block
+                    (expression_statement
+                      (call PLACEHOLDER_15
+                        (arguments PLACEHOLDER_12)))))
+                (when_branch
+                  (expression_list "EOW")
+                  (block
+                    (expression_statement
+                      (call PLACEHOLDER_16
+                        (arguments PLACEHOLDER_12)))))
+                (else_clause
+                  (block
+                    (assignment
+                      (variable_list PLACEHOLDER_4)
+                      (expression_list
+                        (call
+                          (method_index PLACEHOLDER_20 match)
+                          (arguments "(%d+)M"))))
+                    (assignment
+                      (variable_list PLACEHOLDER_18)
+                      (expression_list
+                        (call
+                          (method_index PLACEHOLDER_20 match)
+                          (arguments "Q([1234])"))))
+                    (expression_statement
+                      (if_expression PLACEHOLDER_4
+                        (block
+                          (expression_statement
+                            (call PLACEHOLDER_6
+                              (arguments PLACEHOLDER_12
+                                (call tonumber
+                                  (arguments PLACEHOLDER_4))))))
+                        (else_clause
+                          (block
+                            (expression_statement
+                              (if_expression PLACEHOLDER_18
+                                (block
+                                  (expression_statement
+                                    (call PLACEHOLDER_17
+                                      (arguments PLACEHOLDER_12
+                                        (call tonumber
+                                          (arguments PLACEHOLDER_18))))))
+                                (else_clause
+                                  (block
+                                    (expression_statement
+                                      (call error
+                                        (arguments "Invalid code")))))))))))
+                    (assignment
+                      (variable_list
+                        (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_8)))
+                      (expression_list 8))
+                    (assignment
+                      (variable_list
+                        (dot_index PLACEHOLDER_12 (property_identifier PLACEHOLDER_21)))
+                      (expression_list nil))))))
+            (expression_statement
+              (call
+                (dot_index os date)
+                (arguments "%Y-%m-%dT%H:%M:%S"
+                  (call
+                    (dot_index os time)
+                    (arguments PLACEHOLDER_12)))))))))))
