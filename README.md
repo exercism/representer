@@ -1,4 +1,4 @@
-# Exercism's Rosetta
+# Rosetta - Exercism's Static Analysis Engine
 
 ![Tests](https://github.com/exercism/rosetta/workflows/Test/badge.svg)
 
