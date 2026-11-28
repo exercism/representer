@@ -1,6 +1,6 @@
 # Exercism's Inspector
 
-![Tests](https://github.com/exercism/representer/workflows/Test/badge.svg)
+![Tests](https://github.com/exercism/inspector/workflows/Test/badge.svg)
 
 This is Exercism's Inspector.
 It is responsible for analyzing a student's solution and returning information about it. 
