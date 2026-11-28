@@ -3,12 +3,14 @@
 # shows the student's own code. docs/snippets.md explains each declaration.
 module Inspector::Languages::Euphoria::Snippet
   class Spec < Inspector::Engine::Snippet
-    tracks "euphoria"
+    # Bump the version whenever the snippet of any solution could change.
+    version 2
 
     # Remove every comment, wherever it is.
     remove :comments # integer x = 1 «-- The answer»
 
-    # Find the comments by the way they start, because Rouge has no Euphoria lexer.
+    # Find the comments by the way they start in a file that doesn't parse,
+    # because Rouge has no Euphoria lexer.
     comment_lines "--", "/*" => "*/" # «-- A comment» and «/* A comment */»
 
     # Skip the includes at the top of the file, up to the first other statement.

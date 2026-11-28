@@ -1,79 +1,299 @@
-include std/convert.e
-include std/map.e
-include std/sequence.e
-include std/text.e
-include std/types.e
-sequence err = "\"\""
-constant operators = {"+","-","*","/","swap","over","dup","drop"}
-function process(sequence stack, sequence words, map word_dict)
-for i=1 to length(words) do
-string w = words[i]
-object num = to_number(w, 1)
-if num[2]=0 then
-stack &= num[1]
-elsif equal(w,":") then
-sequence wd = words[i+1]
-num = to_number(wd, 1)
-if num[2]=0 then err = "\"illegal" operation" exit end if
-sequence cmd = {}
-integer k = find(";",words,i+1),
-l = length(words)
-if k=0 then k = l+1 end if
-for j=i+2 to k-1 do
-w = words[j]
-if map:has(word_dict,w) then
-cmd &= map:get(word_dict,w)
-else
-cmd = append(cmd,w)
-end if
-end for
-map:put(word_dict,wd,cmd)
-if k<l then
-stack = process(stack,words[k+1..$],word_dict)
-end if
-exit
-elsif map:has(word_dict,w) then
-stack = process(stack,map:get(word_dict,w),word_dict)
-if length(err) then exit end if
-else
-integer l = length(stack),
-op = find(w,operators)
-if op=0 then err = "\"undefined" operation" exit end if
-if l=0 then err = "\"empty" stack" exit end if
-integer top = stack[$], tm1
-if op<7 then
-if l=1 then err = "\"only" one value on the stack" exit end if
-if op=4 and top=0 then err = "\"divide" by zero" exit end if
-tm1 = stack[$-1]
-end if
-if op<5 or op=8 then stack = stack[1..$-1] end if
-switch op do
-case 1 then stack[$] = tm1+top
-case 2 then stack[$] = tm1-top
-case 3 then stack[$] = tm1*top
-case 4 then stack[$] = floor(tm1/top)
-case 5 then stack[$-1] = top -- swap
-stack[$] = tm1
-case 6 then stack &= tm1 -- over
-case 7 then stack &= top -- dup
-end switch
-end if
-end for
-return stack
-end function
-public function evaluate(sequence instructions)
-sequence stack = {}
-map:map word_dict = map:new()
-err = "\"\""
-if sequence_array(instructions) then
-for i=1 to length(instructions) do
-stack = process(stack,split(lower(instructions[i])),word_dict)
-if length(err) then exit end if
-end for
-else
-stack = process(stack,split(lower(instructions)),word_dict)
-end if
-map:clear(word_dict)
-if length(err) then return err end if
-return stack
-end function
+(source_file
+  (variable_declaration sequence
+    (variable_declarator PLACEHOLDER_1 ""))
+  (constant_declaration
+    (constant_declarator PLACEHOLDER_2
+      (sequence "+" "-" "*" "/" "swap" "over" "dup" "drop")))
+  (function_definition PLACEHOLDER_3
+    (parameter_list
+      (parameter sequence PLACEHOLDER_4)
+      (parameter sequence PLACEHOLDER_5)
+      (parameter map PLACEHOLDER_6))
+    (block
+      (for_statement PLACEHOLDER_7 1
+        (call length
+          (argument_list PLACEHOLDER_5))
+        (block
+          (variable_declaration string
+            (variable_declarator PLACEHOLDER_8
+              (subscript_expression PLACEHOLDER_5
+                (index PLACEHOLDER_7))))
+          (variable_declaration object
+            (variable_declarator PLACEHOLDER_9
+              (call to_number
+                (argument_list PLACEHOLDER_8 1))))
+          (if_statement
+            (binary_expression
+              (subscript_expression PLACEHOLDER_9
+                (index 2)) = 0)
+            (block
+              (assignment_statement
+                (lvalue PLACEHOLDER_4) &=
+                (subscript_expression PLACEHOLDER_9
+                  (index 1))))
+            (elsif_clause
+              (call equal
+                (argument_list PLACEHOLDER_8 ":"))
+              (block
+                (variable_declaration sequence
+                  (variable_declarator PLACEHOLDER_10
+                    (subscript_expression PLACEHOLDER_5
+                      (index
+                        (binary_expression PLACEHOLDER_7 + 1)))))
+                (assignment_statement
+                  (lvalue PLACEHOLDER_9) =
+                  (call to_number
+                    (argument_list PLACEHOLDER_10 1)))
+                (if_statement
+                  (binary_expression
+                    (subscript_expression PLACEHOLDER_9
+                      (index 2)) = 0)
+                  (block
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_1) = "illegal operation")
+                    (exit_statement)))
+                (variable_declaration sequence
+                  (variable_declarator PLACEHOLDER_11
+                    (sequence)))
+                (variable_declaration integer
+                  (variable_declarator PLACEHOLDER_12
+                    (call find
+                      (argument_list ";" PLACEHOLDER_5
+                        (binary_expression PLACEHOLDER_7 + 1))))
+                  (variable_declarator PLACEHOLDER_13
+                    (call length
+                      (argument_list PLACEHOLDER_5))))
+                (if_statement
+                  (binary_expression PLACEHOLDER_12 = 0)
+                  (block
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_12) =
+                      (binary_expression PLACEHOLDER_13 + 1))))
+                (for_statement PLACEHOLDER_14
+                  (binary_expression PLACEHOLDER_7 + 2)
+                  (binary_expression PLACEHOLDER_12 - 1)
+                  (block
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_8) =
+                      (subscript_expression PLACEHOLDER_5
+                        (index PLACEHOLDER_14)))
+                    (if_statement
+                      (call
+                        (qualified_identifier map has)
+                        (argument_list PLACEHOLDER_6 PLACEHOLDER_8))
+                      (block
+                        (assignment_statement
+                          (lvalue PLACEHOLDER_11) &=
+                          (call
+                            (qualified_identifier map get)
+                            (argument_list PLACEHOLDER_6 PLACEHOLDER_8))))
+                      (else_clause
+                        (block
+                          (assignment_statement
+                            (lvalue PLACEHOLDER_11) =
+                            (call append
+                              (argument_list PLACEHOLDER_11 PLACEHOLDER_8))))))))
+                (call_statement
+                  (call
+                    (qualified_identifier map put)
+                    (argument_list PLACEHOLDER_6 PLACEHOLDER_10 PLACEHOLDER_11)))
+                (if_statement
+                  (binary_expression PLACEHOLDER_12 < PLACEHOLDER_13)
+                  (block
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_4) =
+                      (call PLACEHOLDER_3
+                        (argument_list PLACEHOLDER_4
+                          (slice_expression PLACEHOLDER_5
+                            (slice
+                              (binary_expression PLACEHOLDER_12 + 1)
+                              (dollar))) PLACEHOLDER_6)))))
+                (exit_statement)))
+            (elsif_clause
+              (call
+                (qualified_identifier map has)
+                (argument_list PLACEHOLDER_6 PLACEHOLDER_8))
+              (block
+                (assignment_statement
+                  (lvalue PLACEHOLDER_4) =
+                  (call PLACEHOLDER_3
+                    (argument_list PLACEHOLDER_4
+                      (call
+                        (qualified_identifier map get)
+                        (argument_list PLACEHOLDER_6 PLACEHOLDER_8)) PLACEHOLDER_6)))
+                (if_statement
+                  (call length
+                    (argument_list PLACEHOLDER_1))
+                  (block
+                    (exit_statement)))))
+            (else_clause
+              (block
+                (variable_declaration integer
+                  (variable_declarator PLACEHOLDER_13
+                    (call length
+                      (argument_list PLACEHOLDER_4)))
+                  (variable_declarator PLACEHOLDER_15
+                    (call find
+                      (argument_list PLACEHOLDER_8 PLACEHOLDER_2))))
+                (if_statement
+                  (binary_expression PLACEHOLDER_15 = 0)
+                  (block
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_1) = "undefined operation")
+                    (exit_statement)))
+                (if_statement
+                  (binary_expression PLACEHOLDER_13 = 0)
+                  (block
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_1) = "empty stack")
+                    (exit_statement)))
+                (variable_declaration integer
+                  (variable_declarator PLACEHOLDER_16
+                    (subscript_expression PLACEHOLDER_4
+                      (index
+                        (dollar))))
+                  (variable_declarator PLACEHOLDER_17))
+                (if_statement
+                  (binary_expression PLACEHOLDER_15 < 7)
+                  (block
+                    (if_statement
+                      (binary_expression PLACEHOLDER_13 = 1)
+                      (block
+                        (assignment_statement
+                          (lvalue PLACEHOLDER_1) = "only one value on the stack")
+                        (exit_statement)))
+                    (if_statement
+                      (binary_expression
+                        (binary_expression PLACEHOLDER_15 = 4) and
+                        (binary_expression PLACEHOLDER_16 = 0))
+                      (block
+                        (assignment_statement
+                          (lvalue PLACEHOLDER_1) = "divide by zero")
+                        (exit_statement)))
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_17) =
+                      (subscript_expression PLACEHOLDER_4
+                        (index
+                          (binary_expression
+                            (dollar) - 1))))))
+                (if_statement
+                  (binary_expression
+                    (binary_expression PLACEHOLDER_15 < 5) or
+                    (binary_expression PLACEHOLDER_15 = 8))
+                  (block
+                    (assignment_statement
+                      (lvalue PLACEHOLDER_4) =
+                      (slice_expression PLACEHOLDER_4
+                        (slice 1
+                          (binary_expression
+                            (dollar) - 1))))))
+                (switch_statement PLACEHOLDER_15
+                  (case_clause 1
+                    (block
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_4
+                          (index
+                            (dollar))) =
+                        (binary_expression PLACEHOLDER_17 + PLACEHOLDER_16))))
+                  (case_clause 2
+                    (block
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_4
+                          (index
+                            (dollar))) =
+                        (binary_expression PLACEHOLDER_17 - PLACEHOLDER_16))))
+                  (case_clause 3
+                    (block
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_4
+                          (index
+                            (dollar))) =
+                        (binary_expression PLACEHOLDER_17 * PLACEHOLDER_16))))
+                  (case_clause 4
+                    (block
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_4
+                          (index
+                            (dollar))) =
+                        (call floor
+                          (argument_list
+                            (binary_expression PLACEHOLDER_17 / PLACEHOLDER_16))))))
+                  (case_clause 5
+                    (block
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_4
+                          (index
+                            (binary_expression
+                              (dollar) - 1))) = PLACEHOLDER_16)
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_4
+                          (index
+                            (dollar))) = PLACEHOLDER_17)))
+                  (case_clause 6
+                    (block
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_4) &= PLACEHOLDER_17)))
+                  (case_clause 7
+                    (block
+                      (assignment_statement
+                        (lvalue PLACEHOLDER_4) &= PLACEHOLDER_16)))))))))
+      (return_statement PLACEHOLDER_4)))
+  (function_definition
+    (scope public) PLACEHOLDER_18
+    (parameter_list
+      (parameter sequence PLACEHOLDER_19))
+    (block
+      (variable_declaration sequence
+        (variable_declarator PLACEHOLDER_4
+          (sequence)))
+      (variable_declaration
+        (qualified_identifier map map)
+        (variable_declarator PLACEHOLDER_6
+          (call
+            (qualified_identifier map new)
+            (argument_list))))
+      (assignment_statement
+        (lvalue PLACEHOLDER_1) = "")
+      (if_statement
+        (call sequence_array
+          (argument_list PLACEHOLDER_19))
+        (block
+          (for_statement PLACEHOLDER_7 1
+            (call length
+              (argument_list PLACEHOLDER_19))
+            (block
+              (assignment_statement
+                (lvalue PLACEHOLDER_4) =
+                (call PLACEHOLDER_3
+                  (argument_list PLACEHOLDER_4
+                    (call split
+                      (argument_list
+                        (call lower
+                          (argument_list
+                            (subscript_expression PLACEHOLDER_19
+                              (index PLACEHOLDER_7)))))) PLACEHOLDER_6)))
+              (if_statement
+                (call length
+                  (argument_list PLACEHOLDER_1))
+                (block
+                  (exit_statement))))))
+        (else_clause
+          (block
+            (assignment_statement
+              (lvalue PLACEHOLDER_4) =
+              (call PLACEHOLDER_3
+                (argument_list PLACEHOLDER_4
+                  (call split
+                    (argument_list
+                      (call lower
+                        (argument_list PLACEHOLDER_19)))) PLACEHOLDER_6))))))
+      (call_statement
+        (call
+          (qualified_identifier map clear)
+          (argument_list PLACEHOLDER_6)))
+      (if_statement
+        (call length
+          (argument_list PLACEHOLDER_1))
+        (block
+          (return_statement PLACEHOLDER_1)))
+      (return_statement PLACEHOLDER_4))))
