@@ -1,32 +1,216 @@
-maximum_value ([], _ , 0 ).
-maximum_value ( Items , Capacity , Value ) :-
-remove_unfit_items ( Capacity , Items , FitItems ),
-search_maximum_value ( FitItems , Capacity , Value ).
-unfit_item ( Capacity , item ( Weight , _ )) :-
-Weight > Capacity .
-remove_unfit_items ( Capacity , ItemsIn , ItemsOut ) :-
-exclude ( unfit_item ( Capacity ), ItemsIn , ItemsOut ).
-search_maximum_value ( Items , Capacity , Value ) :-
-gen_state ( InitialState ),
-length ( Items , NbItems ),
-numlist ( 1 , NbItems , Indices ),
-create_indices_constraint ( Indices , InitialState , TmpState1 ),
-maplist ( create_weight_value_constraint , Indices , Items , Weights , Values ),
-constraint ( Weights =< Capacity , TmpState1 , TmpState2 ),
-maximize ( Values , TmpState2 , EndState ),
-get_max_value ( EndState , Items , Indices , 0 , Value ).
-create_indices_constraint ([], State , State ).
-create_indices_constraint ([ HeadIndices | TailIndices ], InitialState , EndState ) :-
-constraint ( integral ( x ( HeadIndices )), InitialState , TmpState1 ),
-constraint ([ x ( HeadIndices )] =< 1 , TmpState1 , TmpState2 ),
-constraint ([ x ( HeadIndices )] >= 0 , TmpState2 , TmpState3 ),
-create_indices_constraint ( TailIndices , TmpState3 , EndState ).
-create_weight_value_constraint ( Indices , item ( Weight , Value ), Weight * x ( Indices ), Value * x ( Indices )).
-get_max_value ( _ , [], [], ValueMax , ValueMax ).
-get_max_value ( State , [ item ( _ , Value )| TailItems ], [ HeadIndex | TailIndices ], AccValue1 , ValueMax ) :-
-variable_value ( State , x ( HeadIndex ), Index ),
-(
-Index = 0 -> AccValue1 = AccValue2 ;
-AccValue2 is AccValue1 + Value
-),
-get_max_value ( State , TailItems , TailIndices , AccValue2 , ValueMax ).
+(source_file
+  (clause_term
+    (head (atom PLACEHOLDER_1)
+      (arg_list [] _ 0)))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_1)
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (variable PLACEHOLDER_3)
+          (variable PLACEHOLDER_4))) :-
+      (operator_notation
+        (functional_notation (atom PLACEHOLDER_5)
+          (arg_list
+            (variable PLACEHOLDER_3)
+            (variable PLACEHOLDER_2)
+            (variable PLACEHOLDER_6))) ,
+        (functional_notation (atom PLACEHOLDER_7)
+          (arg_list
+            (variable PLACEHOLDER_6)
+            (variable PLACEHOLDER_3)
+            (variable PLACEHOLDER_4))))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_8)
+        (arg_list
+          (variable PLACEHOLDER_3)
+          (functional_notation item
+            (arg_list
+              (variable PLACEHOLDER_9) _)))) :-
+      (operator_notation
+        (variable PLACEHOLDER_9) >
+        (variable PLACEHOLDER_3))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_5)
+        (arg_list
+          (variable PLACEHOLDER_3)
+          (variable PLACEHOLDER_10)
+          (variable PLACEHOLDER_11))) :-
+      (functional_notation exclude
+        (arg_list
+          (functional_notation (atom PLACEHOLDER_8)
+            (arg_list
+              (variable PLACEHOLDER_3)))
+          (variable PLACEHOLDER_10)
+          (variable PLACEHOLDER_11)))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_7)
+        (arg_list
+          (variable PLACEHOLDER_2)
+          (variable PLACEHOLDER_3)
+          (variable PLACEHOLDER_4))) :-
+      (operator_notation
+        (functional_notation gen_state
+          (arg_list
+            (variable PLACEHOLDER_12))) ,
+        (operator_notation
+          (functional_notation length
+            (arg_list
+              (variable PLACEHOLDER_2)
+              (variable PLACEHOLDER_13))) ,
+          (operator_notation
+            (functional_notation numlist
+              (arg_list 1
+                (variable PLACEHOLDER_13)
+                (variable PLACEHOLDER_14))) ,
+            (operator_notation
+              (functional_notation (atom PLACEHOLDER_15)
+                (arg_list
+                  (variable PLACEHOLDER_14)
+                  (variable PLACEHOLDER_12)
+                  (variable PLACEHOLDER_16))) ,
+              (operator_notation
+                (functional_notation maplist
+                  (arg_list (atom PLACEHOLDER_17)
+                    (variable PLACEHOLDER_14)
+                    (variable PLACEHOLDER_2)
+                    (variable PLACEHOLDER_18)
+                    (variable PLACEHOLDER_19))) ,
+                (operator_notation
+                  (functional_notation constraint
+                    (arg_list
+                      (operator_notation
+                        (variable PLACEHOLDER_18) =<
+                        (variable PLACEHOLDER_3))
+                      (variable PLACEHOLDER_16)
+                      (variable PLACEHOLDER_20))) ,
+                  (operator_notation
+                    (functional_notation maximize
+                      (arg_list
+                        (variable PLACEHOLDER_19)
+                        (variable PLACEHOLDER_20)
+                        (variable PLACEHOLDER_21))) ,
+                    (functional_notation (atom PLACEHOLDER_22)
+                      (arg_list
+                        (variable PLACEHOLDER_21)
+                        (variable PLACEHOLDER_2)
+                        (variable PLACEHOLDER_14) 0
+                        (variable PLACEHOLDER_4))))))))))))
+  (clause_term
+    (head (atom PLACEHOLDER_15)
+      (arg_list []
+        (variable PLACEHOLDER_23)
+        (variable PLACEHOLDER_23))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_15)
+        (arg_list
+          (list_notation
+            (variable PLACEHOLDER_24) |
+            (variable PLACEHOLDER_25))
+          (variable PLACEHOLDER_12)
+          (variable PLACEHOLDER_21))) :-
+      (operator_notation
+        (functional_notation constraint
+          (arg_list
+            (functional_notation integral
+              (arg_list
+                (functional_notation x
+                  (arg_list
+                    (variable PLACEHOLDER_24)))))
+            (variable PLACEHOLDER_12)
+            (variable PLACEHOLDER_16))) ,
+        (operator_notation
+          (functional_notation constraint
+            (arg_list
+              (operator_notation
+                (list_notation
+                  (functional_notation x
+                    (arg_list
+                      (variable PLACEHOLDER_24)))) =< 1)
+              (variable PLACEHOLDER_16)
+              (variable PLACEHOLDER_20))) ,
+          (operator_notation
+            (functional_notation constraint
+              (arg_list
+                (operator_notation
+                  (list_notation
+                    (functional_notation x
+                      (arg_list
+                        (variable PLACEHOLDER_24)))) >= 0)
+                (variable PLACEHOLDER_20)
+                (variable PLACEHOLDER_26))) ,
+            (functional_notation (atom PLACEHOLDER_15)
+              (arg_list
+                (variable PLACEHOLDER_25)
+                (variable PLACEHOLDER_26)
+                (variable PLACEHOLDER_21))))))))
+  (clause_term
+    (head (atom PLACEHOLDER_17)
+      (arg_list
+        (variable PLACEHOLDER_14)
+        (functional_notation item
+          (arg_list
+            (variable PLACEHOLDER_9)
+            (variable PLACEHOLDER_4)))
+        (operator_notation
+          (variable PLACEHOLDER_9) *
+          (functional_notation x
+            (arg_list
+              (variable PLACEHOLDER_14))))
+        (operator_notation
+          (variable PLACEHOLDER_4) *
+          (functional_notation x
+            (arg_list
+              (variable PLACEHOLDER_14)))))))
+  (clause_term
+    (head (atom PLACEHOLDER_22)
+      (arg_list _ [] []
+        (variable PLACEHOLDER_27)
+        (variable PLACEHOLDER_27))))
+  (clause_term
+    (operator_notation
+      (head (atom PLACEHOLDER_22)
+        (arg_list
+          (variable PLACEHOLDER_23)
+          (list_notation
+            (functional_notation item
+              (arg_list _
+                (variable PLACEHOLDER_4))) |
+            (variable PLACEHOLDER_28))
+          (list_notation
+            (variable PLACEHOLDER_29) |
+            (variable PLACEHOLDER_25))
+          (variable PLACEHOLDER_30)
+          (variable PLACEHOLDER_27))) :-
+      (operator_notation
+        (functional_notation variable_value
+          (arg_list
+            (variable PLACEHOLDER_23)
+            (functional_notation x
+              (arg_list
+                (variable PLACEHOLDER_29)))
+            (variable PLACEHOLDER_31))) ,
+        (operator_notation
+          (operator_notation
+            (operator_notation
+              (operator_notation
+                (variable PLACEHOLDER_31) = 0) ->
+              (operator_notation
+                (variable PLACEHOLDER_30) =
+                (variable PLACEHOLDER_32))) ;
+            (operator_notation
+              (variable PLACEHOLDER_32) is
+              (operator_notation
+                (variable PLACEHOLDER_30) +
+                (variable PLACEHOLDER_4)))) ,
+          (functional_notation (atom PLACEHOLDER_22)
+            (arg_list
+              (variable PLACEHOLDER_23)
+              (variable PLACEHOLDER_28)
+              (variable PLACEHOLDER_25)
+              (variable PLACEHOLDER_32)
+              (variable PLACEHOLDER_27))))))))

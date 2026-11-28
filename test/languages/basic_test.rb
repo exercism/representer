@@ -115,8 +115,8 @@ class BasicTest < InspectorTest
     assert_equal basic("-module(a).\nf(X) -> X.\n", track: "erlang").representation,
       basic(erlang, track: "erlang").representation
     prolog = ":- use_module(library(lists)).\nf(X) :- X.\n"
-    assert_equal Inspector::RepresentSolution.("prolog", { "a.pl" => "f(X) :- X.\n" }).representation,
-      Inspector::RepresentSolution.("prolog", { "a.pl" => prolog }).representation
+    assert_equal Inspector::Languages::Basic.("prolog", { "a.pl" => "f(X) :- X.\n" }).representation,
+      Inspector::Languages::Basic.("prolog", { "a.pl" => prolog }).representation
   end
 
   def test_a_line_that_only_starts_like_an_import_stays
