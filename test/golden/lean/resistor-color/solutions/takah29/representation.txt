@@ -1,22 +1,40 @@
-syntax "\"register_colors \"" "\"[\"" ( ident "\":=\"" num ), * "\"]\"" : command
-macro_rules
-  | ` ( register_colors [ $ [ $ names := $ vals ], * ]) => do
-    let mut rules := # []
-    for ( id , val ) in names . zip vals do
-      let rule ← ` ( macro_rules | ` ( c * $ id ) => ` (( $ val : Fin 10 )))
-      rules := rules . push rule
-    let all_rules ← ` ( macro_rules | ` ( c * all ) => ` ( # [ $ [ c * $ names ], * ]))
-    rules := rules . push all_rules
-    pure $ Lean . Syntax . node Lean . SourceInfo . none ` null rules
-register_colors [
-  black := 0 ,
-  brown := 1 ,
-  red := 2 ,
-  orange := 3 ,
-  yellow := 4 ,
-  green := 5 ,
-  blue := 6 ,
-  violet := 7 ,
-  grey := 8 ,
-  white := 9
-]
+(source_file
+  (syntax_command "register_colors " "[" "(" ident ":=" num ")" ,* "]" command)
+  (macro_rules
+    (match_alternatives
+      (match_alternative | "`(register_colors [ $[$names := $vals],* ])"
+        (do_expression
+          (block
+            (let_statement mut PLACEHOLDER_1 :=
+              (array))
+            (for_statement
+              (tuple
+                (variable_pattern PLACEHOLDER_2)
+                (variable_pattern PLACEHOLDER_3))
+              (application
+                (dotted_name names zip) vals)
+              (block
+                (let_statement PLACEHOLDER_4 ← "`(macro_rules | `(c*$id) => `(($val : Fin 10)))")
+                (assignment PLACEHOLDER_1 :=
+                  (application
+                    (dotted_name PLACEHOLDER_1 push) PLACEHOLDER_4))))
+            (let_statement PLACEHOLDER_5 ← "`(macro_rules | `(c*all) => `(#[$[c*$names],*]))")
+            (assignment PLACEHOLDER_1 :=
+              (application
+                (dotted_name PLACEHOLDER_1 push) PLACEHOLDER_5))
+            (binary_expression pure $
+              (application
+                (dotted_name Lean Syntax node)
+                (dotted_name Lean SourceInfo none) `null PLACEHOLDER_1)))))))
+  (user_command register_colors
+    (list
+      (field_assignment black 0)
+      (field_assignment brown 1)
+      (field_assignment red 2)
+      (field_assignment orange 3)
+      (field_assignment yellow 4)
+      (field_assignment green 5)
+      (field_assignment blue 6)
+      (field_assignment violet 7)
+      (field_assignment grey 8)
+      (field_assignment white 9))))

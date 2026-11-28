@@ -1,98 +1,391 @@
-namespace TwoBucket
-inductive BucketId where
-  | one | two
-  deriving BEq , Repr
-abbrev Capacity := Nat
-abbrev Volume := Nat
-abbrev Moves := Nat
-structure Result where
-  moves : Nat
-  goal : BucketId
-  other : Volume
-  deriving BEq , Repr
-private structure Deque (α : Type ) where
-  front : List α
-  back : List α
-private def Deque . nil { α } : Deque α := { front := [], back := [] }
-private def Deque . push_back { α } ( elem : α) ( deque : Deque α) : Deque α :=
-  ⟨ deque . front , elem :: deque . back ⟩
-private def Deque . pop_front { α } ( deque : Deque α) : Option (α × Deque α) := Id . run do
-  if let ( elem :: front ) := deque . front then
-    return . some ( elem , { front := front , back := deque . back : Deque α } )
-  return match deque . back . reverse with
-  | [] => . none
-  | ( elem :: front ) => . some ( elem , ⟨ front , [] ⟩ )
-#guard ( Deque . nil : Deque Nat ) . pop_front . isNone
-#guard ( Deque . nil . push_back 2 : Deque Nat ) . pop_front . map ( · . fst ) == . some 2
-private structure State where
-  first : Volume
-  second : Volume
-  steps : Nat
-  deriving BEq , Repr
-private def State . nil : State :=
-  { first := 0 , second := 0 , steps := 0 }
-private
-def State . fill { first second : Capacity } ( st : State ) ( which : BucketId ) : State :=
-  let st := { st with steps := st . steps + 1 }
-  match which with
-  | . one => { st with first := first }
-  | . two => { st with second := second }
-#guard State . fill ( first := 3 ) ( second := 5 ) ⟨ 3 , 0 , 0 ⟩ . two == ⟨ 3 , 5 , 1 ⟩
-private
-def State . empty ( st : State ) ( which : BucketId ) : State :=
-  let st := { st with steps := st . steps + 1 }
-  match which with
-  | . one => { st with first := 0 }
-  | . two => { st with second := 0 }
-#guard State . empty ⟨ 3 , 0 , 0 ⟩ . one == ⟨ 0 , 0 , 1 ⟩
-private
-def State . exchange { first second : Capacity } ( st : State ) ( dest : BucketId ) : State :=
-  let st := { st with steps := st . steps + 1 }
-  match dest with
-  | . one =>
-    let unused := Nat . min ( first - st . first ) st . second
-    { st with first := st . first + unused , second := st . second - unused }
-  | . two =>
-    let unused := Nat . min ( second - st . second ) st . first
-    { st with first := st . first - unused , second := st . second + unused }
-#guard State . exchange ( first := 3 ) ( second := 5 ) ⟨ 2 , 2 , 0 ⟩ . one == ⟨ 3 , 1 , 1 ⟩
-#guard State . exchange ( first := 3 ) ( second := 5 ) ⟨ 2 , 0 , 0 ⟩ . one == ⟨ 2 , 0 , 1 ⟩
-#guard State . exchange ( first := 3 ) ( second := 5 ) ⟨ 2 , 0 , 0 ⟩ . two == ⟨ 0 , 2 , 1 ⟩
-private
-def State . reached ( st : State ) ( goal : Volume ) : Option Result :=
-  if st . first == goal then
-    . some { moves := st . steps , goal := . one , other := st . second }
-  else if st . second == goal then
-    . some { moves := st . steps , goal := . two , other := st . first }
-  else
-    . none
-#guard State . reached ⟨ 2 , 6 , 10 ⟩ 2 == . some { moves := 10 , goal := . one , other := 6 }
-#guard State . reached ⟨ 3 , 6 , 10 ⟩ 2 == . none
-#guard State . reached ⟨ 3 , 6 , 10 ⟩ 6 == . some { moves := 10 , goal := . two , other := 3 }
-def measure
-  ( first second : Capacity )
-  ( goal : Volume )
-  ( start : BucketId )
-: Option Result := Id . run do
-  let fill := fun st which => State . fill ( first := first ) ( second := second ) st which
-  let exchange := fun st which => State . exchange ( first := first ) ( second := second ) st which
-  let mut visited : HashMap ( Volume × Volume ) Moves := {}
-  let st0 := fill State . nil start
-  visited := visited . insert ( first , 0 ) st0 . steps
-  visited := visited . insert ( 0 , second ) st0 . steps
-  let mut q : Deque State := Deque . nil . push_back st0
-  while True do
-    let . some ( st , q0 ) := q . pop_front
-      | return . none
-    if let . some result := st . reached goal then
-      return . some result
-    visited := visited . insert ( st . first , st . second ) st . steps
-    q := q0
-    for action in [ State . empty , exchange , fill ] do
-      for target in [ . one , . two ] do
-        let st1 := action st target
-        if ! visited . contains ( st1 . first , st1 . second ) then
-          q := q . push_back st1
-  return . none
-#eval TwoBucket . measure 3 5 1 . two
-end TwoBucket
+(source_file
+  (namespace PLACEHOLDER_1)
+  (declaration
+    (inductive PLACEHOLDER_2
+      (constructor PLACEHOLDER_3)
+      (constructor PLACEHOLDER_4)
+      (deriving BEq Repr)))
+  (declaration
+    (definition abbrev PLACEHOLDER_5 Nat))
+  (declaration
+    (definition abbrev PLACEHOLDER_6 Nat))
+  (declaration
+    (definition abbrev PLACEHOLDER_7 Nat))
+  (declaration
+    (structure structure PLACEHOLDER_8
+      (structure_field PLACEHOLDER_9 Nat)
+      (structure_field PLACEHOLDER_10 PLACEHOLDER_2)
+      (structure_field PLACEHOLDER_11 PLACEHOLDER_6)
+      (deriving BEq Repr)))
+  (declaration
+    (modifier private)
+    (structure structure PLACEHOLDER_12
+      (explicit_binder PLACEHOLDER_13 Type)
+      (structure_field PLACEHOLDER_14
+        (application List PLACEHOLDER_13))
+      (structure_field PLACEHOLDER_15
+        (application List PLACEHOLDER_13))))
+  (declaration
+    (modifier private)
+    (definition def PLACEHOLDER_12 PLACEHOLDER_16
+      (implicit_binder PLACEHOLDER_13)
+      (application PLACEHOLDER_12 PLACEHOLDER_13)
+      (structure_instance
+        (field_assignment PLACEHOLDER_14
+          (list))
+        (field_assignment PLACEHOLDER_15
+          (list)))))
+  (declaration
+    (modifier private)
+    (definition def PLACEHOLDER_12 PLACEHOLDER_17
+      (implicit_binder PLACEHOLDER_13)
+      (explicit_binder PLACEHOLDER_18 PLACEHOLDER_13)
+      (explicit_binder PLACEHOLDER_19
+        (application PLACEHOLDER_12 PLACEHOLDER_13))
+      (application PLACEHOLDER_12 PLACEHOLDER_13)
+      (anonymous_constructor
+        (dotted_name PLACEHOLDER_19 PLACEHOLDER_14)
+        (binary_expression PLACEHOLDER_18 ::
+          (dotted_name PLACEHOLDER_19 PLACEHOLDER_15)))))
+  (declaration
+    (modifier private)
+    (definition def PLACEHOLDER_12 PLACEHOLDER_20
+      (implicit_binder PLACEHOLDER_13)
+      (explicit_binder PLACEHOLDER_19
+        (application PLACEHOLDER_12 PLACEHOLDER_13))
+      (application Option
+        (binary_expression PLACEHOLDER_13 ×
+          (application PLACEHOLDER_12 PLACEHOLDER_13)))
+      (application
+        (dotted_name Id run)
+        (do_expression
+          (block
+            (if_expression let
+              (binary_expression
+                (variable_pattern PLACEHOLDER_18) ::
+                (variable_pattern PLACEHOLDER_14))
+              (dotted_name PLACEHOLDER_19 PLACEHOLDER_14)
+              (return_statement
+                (application .some
+                  (tuple PLACEHOLDER_18
+                    (structure_instance
+                      (field_assignment PLACEHOLDER_14 PLACEHOLDER_14)
+                      (field_assignment PLACEHOLDER_15
+                        (dotted_name PLACEHOLDER_19 PLACEHOLDER_15)
+                        (application PLACEHOLDER_12 PLACEHOLDER_13)))))))
+            (return_statement
+              (match_expression
+                (match_discriminant
+                  (dotted_name PLACEHOLDER_19 PLACEHOLDER_15 reverse))
+                (match_alternatives
+                  (match_alternative |
+                    (list) .none)
+                  (match_alternative |
+                    (binary_expression
+                      (variable_pattern PLACEHOLDER_18) ::
+                      (variable_pattern PLACEHOLDER_14))
+                    (application .some
+                      (tuple PLACEHOLDER_18
+                        (anonymous_constructor PLACEHOLDER_14
+                          (list)))))))))))))
+  (hash_command #guard
+    (projection
+      (type_ascription
+        (dotted_name PLACEHOLDER_12 PLACEHOLDER_16)
+        (application PLACEHOLDER_12 Nat)) .pop_front.isNone))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (projection
+          (type_ascription
+            (application
+              (dotted_name PLACEHOLDER_12 PLACEHOLDER_16 PLACEHOLDER_17) 2)
+            (application PLACEHOLDER_12 Nat)) .pop_front.map)
+        (dot_function
+          (projection
+            (cdot) .fst))) ==
+      (application .some 2)))
+  (declaration
+    (modifier private)
+    (structure structure PLACEHOLDER_21
+      (structure_field PLACEHOLDER_22 PLACEHOLDER_6)
+      (structure_field PLACEHOLDER_23 PLACEHOLDER_6)
+      (structure_field PLACEHOLDER_24 Nat)
+      (deriving BEq Repr)))
+  (declaration
+    (modifier private)
+    (definition def PLACEHOLDER_21 PLACEHOLDER_16 PLACEHOLDER_21
+      (structure_instance
+        (field_assignment PLACEHOLDER_22 0)
+        (field_assignment PLACEHOLDER_23 0)
+        (field_assignment PLACEHOLDER_24 0))))
+  (declaration
+    (modifier private)
+    (definition def PLACEHOLDER_21 PLACEHOLDER_25
+      (implicit_binder PLACEHOLDER_22 PLACEHOLDER_23 PLACEHOLDER_5)
+      (explicit_binder PLACEHOLDER_26 PLACEHOLDER_21)
+      (explicit_binder PLACEHOLDER_27 PLACEHOLDER_2) PLACEHOLDER_21
+      (block
+        (let_statement PLACEHOLDER_26 :=
+          (structure_instance PLACEHOLDER_26 with
+            (field_assignment PLACEHOLDER_24
+              (binary_expression
+                (dotted_name PLACEHOLDER_26 PLACEHOLDER_24) + 1))))
+        (match_expression
+          (match_discriminant PLACEHOLDER_27)
+          (match_alternatives
+            (match_alternative | (dot_identifier .PLACEHOLDER_3)
+              (structure_instance PLACEHOLDER_26 with
+                (field_assignment PLACEHOLDER_22 PLACEHOLDER_22)))
+            (match_alternative | (dot_identifier .PLACEHOLDER_4)
+              (structure_instance PLACEHOLDER_26 with
+                (field_assignment PLACEHOLDER_23 PLACEHOLDER_23))))))))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (dotted_name PLACEHOLDER_21 PLACEHOLDER_25)
+        (named_argument PLACEHOLDER_22 3)
+        (named_argument PLACEHOLDER_23 5)
+        (anonymous_constructor 3 0 0) (dot_identifier .PLACEHOLDER_4)) ==
+      (anonymous_constructor 3 5 1)))
+  (declaration
+    (modifier private)
+    (definition def PLACEHOLDER_21 PLACEHOLDER_28
+      (explicit_binder PLACEHOLDER_26 PLACEHOLDER_21)
+      (explicit_binder PLACEHOLDER_27 PLACEHOLDER_2) PLACEHOLDER_21
+      (block
+        (let_statement PLACEHOLDER_26 :=
+          (structure_instance PLACEHOLDER_26 with
+            (field_assignment PLACEHOLDER_24
+              (binary_expression
+                (dotted_name PLACEHOLDER_26 PLACEHOLDER_24) + 1))))
+        (match_expression
+          (match_discriminant PLACEHOLDER_27)
+          (match_alternatives
+            (match_alternative | (dot_identifier .PLACEHOLDER_3)
+              (structure_instance PLACEHOLDER_26 with
+                (field_assignment PLACEHOLDER_22 0)))
+            (match_alternative | (dot_identifier .PLACEHOLDER_4)
+              (structure_instance PLACEHOLDER_26 with
+                (field_assignment PLACEHOLDER_23 0))))))))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (dotted_name PLACEHOLDER_21 PLACEHOLDER_28)
+        (anonymous_constructor 3 0 0) (dot_identifier .PLACEHOLDER_3)) ==
+      (anonymous_constructor 0 0 1)))
+  (declaration
+    (modifier private)
+    (definition def PLACEHOLDER_21 PLACEHOLDER_29
+      (implicit_binder PLACEHOLDER_22 PLACEHOLDER_23 PLACEHOLDER_5)
+      (explicit_binder PLACEHOLDER_26 PLACEHOLDER_21)
+      (explicit_binder PLACEHOLDER_30 PLACEHOLDER_2) PLACEHOLDER_21
+      (block
+        (let_statement PLACEHOLDER_26 :=
+          (structure_instance PLACEHOLDER_26 with
+            (field_assignment PLACEHOLDER_24
+              (binary_expression
+                (dotted_name PLACEHOLDER_26 PLACEHOLDER_24) + 1))))
+        (match_expression
+          (match_discriminant PLACEHOLDER_30)
+          (match_alternatives
+            (match_alternative | (dot_identifier .PLACEHOLDER_3)
+              (block
+                (let_statement PLACEHOLDER_31 :=
+                  (application
+                    (dotted_name Nat min)
+                    (binary_expression PLACEHOLDER_22 -
+                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_22))
+                    (dotted_name PLACEHOLDER_26 PLACEHOLDER_23)))
+                (structure_instance PLACEHOLDER_26 with
+                  (field_assignment PLACEHOLDER_22
+                    (binary_expression
+                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_22) + PLACEHOLDER_31))
+                  (field_assignment PLACEHOLDER_23
+                    (binary_expression
+                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_23) - PLACEHOLDER_31)))))
+            (match_alternative | (dot_identifier .PLACEHOLDER_4)
+              (block
+                (let_statement PLACEHOLDER_31 :=
+                  (application
+                    (dotted_name Nat min)
+                    (binary_expression PLACEHOLDER_23 -
+                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_23))
+                    (dotted_name PLACEHOLDER_26 PLACEHOLDER_22)))
+                (structure_instance PLACEHOLDER_26 with
+                  (field_assignment PLACEHOLDER_22
+                    (binary_expression
+                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_22) - PLACEHOLDER_31))
+                  (field_assignment PLACEHOLDER_23
+                    (binary_expression
+                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_23) + PLACEHOLDER_31))))))))))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (dotted_name PLACEHOLDER_21 PLACEHOLDER_29)
+        (named_argument PLACEHOLDER_22 3)
+        (named_argument PLACEHOLDER_23 5)
+        (anonymous_constructor 2 2 0) (dot_identifier .PLACEHOLDER_3)) ==
+      (anonymous_constructor 3 1 1)))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (dotted_name PLACEHOLDER_21 PLACEHOLDER_29)
+        (named_argument PLACEHOLDER_22 3)
+        (named_argument PLACEHOLDER_23 5)
+        (anonymous_constructor 2 0 0) (dot_identifier .PLACEHOLDER_3)) ==
+      (anonymous_constructor 2 0 1)))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (dotted_name PLACEHOLDER_21 PLACEHOLDER_29)
+        (named_argument PLACEHOLDER_22 3)
+        (named_argument PLACEHOLDER_23 5)
+        (anonymous_constructor 2 0 0) (dot_identifier .PLACEHOLDER_4)) ==
+      (anonymous_constructor 0 2 1)))
+  (declaration
+    (modifier private)
+    (definition def PLACEHOLDER_21 PLACEHOLDER_32
+      (explicit_binder PLACEHOLDER_26 PLACEHOLDER_21)
+      (explicit_binder PLACEHOLDER_10 PLACEHOLDER_6)
+      (application Option PLACEHOLDER_8)
+      (if_expression
+        (binary_expression
+          (dotted_name PLACEHOLDER_26 PLACEHOLDER_22) == PLACEHOLDER_10)
+        (application .some
+          (structure_instance
+            (field_assignment PLACEHOLDER_9
+              (dotted_name PLACEHOLDER_26 PLACEHOLDER_24))
+            (field_assignment PLACEHOLDER_10 (dot_identifier .PLACEHOLDER_3))
+            (field_assignment PLACEHOLDER_11
+              (dotted_name PLACEHOLDER_26 PLACEHOLDER_23))))
+        (if_expression
+          (binary_expression
+            (dotted_name PLACEHOLDER_26 PLACEHOLDER_23) == PLACEHOLDER_10)
+          (application .some
+            (structure_instance
+              (field_assignment PLACEHOLDER_9
+                (dotted_name PLACEHOLDER_26 PLACEHOLDER_24))
+              (field_assignment PLACEHOLDER_10 (dot_identifier .PLACEHOLDER_4))
+              (field_assignment PLACEHOLDER_11
+                (dotted_name PLACEHOLDER_26 PLACEHOLDER_22)))) .none))))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (dotted_name PLACEHOLDER_21 PLACEHOLDER_32)
+        (anonymous_constructor 2 6 10) 2) ==
+      (application .some
+        (structure_instance
+          (field_assignment PLACEHOLDER_9 10)
+          (field_assignment PLACEHOLDER_10 (dot_identifier .PLACEHOLDER_3))
+          (field_assignment PLACEHOLDER_11 6)))))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (dotted_name PLACEHOLDER_21 PLACEHOLDER_32)
+        (anonymous_constructor 3 6 10) 2) == .none))
+  (hash_command #guard
+    (binary_expression
+      (application
+        (dotted_name PLACEHOLDER_21 PLACEHOLDER_32)
+        (anonymous_constructor 3 6 10) 6) ==
+      (application .some
+        (structure_instance
+          (field_assignment PLACEHOLDER_9 10)
+          (field_assignment PLACEHOLDER_10 (dot_identifier .PLACEHOLDER_4))
+          (field_assignment PLACEHOLDER_11 3)))))
+  (declaration
+    (definition def PLACEHOLDER_33
+      (explicit_binder PLACEHOLDER_22 PLACEHOLDER_23 PLACEHOLDER_5)
+      (explicit_binder PLACEHOLDER_10 PLACEHOLDER_6)
+      (explicit_binder PLACEHOLDER_34 PLACEHOLDER_2)
+      (application Option PLACEHOLDER_8)
+      (application
+        (dotted_name Id run)
+        (do_expression
+          (block
+            (let_statement PLACEHOLDER_25 :=
+              (fun
+                (variable_pattern PLACEHOLDER_26)
+                (variable_pattern PLACEHOLDER_27)
+                (application
+                  (dotted_name PLACEHOLDER_21 PLACEHOLDER_25)
+                  (named_argument PLACEHOLDER_22 PLACEHOLDER_22)
+                  (named_argument PLACEHOLDER_23 PLACEHOLDER_23) PLACEHOLDER_26 PLACEHOLDER_27)))
+            (let_statement PLACEHOLDER_29 :=
+              (fun
+                (variable_pattern PLACEHOLDER_26)
+                (variable_pattern PLACEHOLDER_27)
+                (application
+                  (dotted_name PLACEHOLDER_21 PLACEHOLDER_29)
+                  (named_argument PLACEHOLDER_22 PLACEHOLDER_22)
+                  (named_argument PLACEHOLDER_23 PLACEHOLDER_23) PLACEHOLDER_26 PLACEHOLDER_27)))
+            (let_statement mut PLACEHOLDER_35
+              (application HashMap
+                (binary_expression PLACEHOLDER_6 × PLACEHOLDER_6) PLACEHOLDER_7) :=
+              (structure_instance))
+            (let_statement PLACEHOLDER_36 :=
+              (application PLACEHOLDER_25
+                (dotted_name PLACEHOLDER_21 PLACEHOLDER_16) PLACEHOLDER_34))
+            (assignment PLACEHOLDER_35 :=
+              (application
+                (dotted_name PLACEHOLDER_35 insert)
+                (tuple PLACEHOLDER_22 0)
+                (dotted_name PLACEHOLDER_36 PLACEHOLDER_24)))
+            (assignment PLACEHOLDER_35 :=
+              (application
+                (dotted_name PLACEHOLDER_35 insert)
+                (tuple 0 PLACEHOLDER_23)
+                (dotted_name PLACEHOLDER_36 PLACEHOLDER_24)))
+            (let_statement mut PLACEHOLDER_37
+              (application PLACEHOLDER_12 PLACEHOLDER_21) :=
+              (application
+                (dotted_name PLACEHOLDER_12 PLACEHOLDER_16 PLACEHOLDER_17) PLACEHOLDER_36))
+            (while_statement True
+              (block
+                (let_statement
+                  (application .some
+                    (tuple
+                      (variable_pattern PLACEHOLDER_26)
+                      (variable_pattern PLACEHOLDER_38))) :=
+                  (dotted_name PLACEHOLDER_37 PLACEHOLDER_20)
+                  (return_statement .none))
+                (if_expression let
+                  (application .some
+                    (variable_pattern PLACEHOLDER_39))
+                  (application
+                    (dotted_name PLACEHOLDER_26 PLACEHOLDER_32) PLACEHOLDER_10)
+                  (return_statement
+                    (application .some PLACEHOLDER_39)))
+                (assignment PLACEHOLDER_35 :=
+                  (application
+                    (dotted_name PLACEHOLDER_35 insert)
+                    (tuple
+                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_22)
+                      (dotted_name PLACEHOLDER_26 PLACEHOLDER_23))
+                    (dotted_name PLACEHOLDER_26 PLACEHOLDER_24)))
+                (assignment PLACEHOLDER_37 := PLACEHOLDER_38)
+                (for_statement
+                  (variable_pattern PLACEHOLDER_40)
+                  (list
+                    (dotted_name PLACEHOLDER_21 PLACEHOLDER_28) PLACEHOLDER_29 PLACEHOLDER_25)
+                  (for_statement
+                    (variable_pattern PLACEHOLDER_41)
+                    (list (dot_identifier .PLACEHOLDER_3) (dot_identifier .PLACEHOLDER_4))
+                    (block
+                      (let_statement PLACEHOLDER_42 :=
+                        (application PLACEHOLDER_40 PLACEHOLDER_26 PLACEHOLDER_41))
+                      (if_expression
+                        (unary_expression !
+                          (application
+                            (dotted_name PLACEHOLDER_35 contains)
+                            (tuple
+                              (dotted_name PLACEHOLDER_42 PLACEHOLDER_22)
+                              (dotted_name PLACEHOLDER_42 PLACEHOLDER_23))))
+                        (assignment PLACEHOLDER_37 :=
+                          (application
+                            (dotted_name PLACEHOLDER_37 PLACEHOLDER_17) PLACEHOLDER_42))))))))
+            (return_statement .none))))))
+  (hash_command #eval
+    (application
+      (dotted_name PLACEHOLDER_1 PLACEHOLDER_33) 3 5 1 (dot_identifier .PLACEHOLDER_4))))

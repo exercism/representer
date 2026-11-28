@@ -1,7 +1,18 @@
-syntax "\"*[[\"" term , * "\"]]\"" : term
-macro_rules
-  | ` ( * [[ $ [ $ cs ], * ]]) =>
-    match cs . toList with
-    | c1 :: c2 :: _ => ` ( Nat . mul 10 $ c1 + $ c2 )
-    | [ c1 ] => ` ( $ c1 )
-    | _ => ` ( 0 )
+(source_file
+  (syntax_command "*[[" term ,* "]]" term)
+  (macro_rules
+    (match_alternatives
+      (match_alternative | "`(*[[ $[$cs],* ]])"
+        (match_expression
+          (match_discriminant
+            (dotted_name cs toList))
+          (match_alternatives
+            (match_alternative |
+              (binary_expression
+                (variable_pattern PLACEHOLDER_1) ::
+                (binary_expression
+                  (variable_pattern PLACEHOLDER_2) :: _)) "`(Nat.mul 10 $c1 + $c2)")
+            (match_alternative |
+              (list
+                (variable_pattern PLACEHOLDER_1)) "`($c1)")
+            (match_alternative | _ "`(0)")))))))

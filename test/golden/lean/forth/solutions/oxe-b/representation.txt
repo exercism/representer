@@ -1,56 +1,269 @@
-namespace Forth
-abbrev Stack := List Int
-abbrev Op := Stack -> Except String Stack
-abbrev OpMap := Std . TreeMap String Op
-structure State where
-  stack : Stack
-  opMap : OpMap
-def applyUnary ( op : Int -> Except String Stack ) : Op
-  | [] => . error "\"empty stack\""
-  | x :: xs => op x >>= fun rs => . ok ( rs ++ xs )
-def applyBinary ( op : Int -> Int -> Except String Stack ) : Op
-  | [] => . error "\"empty stack\""
-  | _ :: [] => . error "\"only one value on the stack\""
-  | x1 :: x2 :: xs => op x2 x1 >>= fun rs => . ok ( rs ++ xs )
-def parseExpression ( state : State ) ( expression : String ) : Except String State :=
-  match expression . toInt ? with
-  | some value => . ok { state with stack := ( value :: state . stack ) }
-  | none => match state . opMap . get ? expression with
-    | some op => op state . stack >>= ( . ok { state with stack := · } )
-    | none => . error "\"undefined operation\""
-def checkOp ( expression : String ) ( opMap : OpMap ) : Op :=
-  match opMap . get ? expression with
-  | some op => op
-  | none => fun stack => parseExpression { stack := stack , opMap := opMap } expression >>= fun state => . ok state . stack
-def addUserOp ( pattern : String ) ( state : State ) : Op :=
-  let ops := pattern . splitOn "\" \"" |> ( · . map ( checkOp · state . opMap ))
-  ops . foldlM ( fun acc op => op acc )
-def parseInstruction ( state : State ) ( instruction : String ) : Except String State :=
-  let expressions := instruction . toLower . splitOn "\" \""
-  match expressions with
-  | [] => . ok state
-  | "\":\"" :: key :: xs =>
-    match key . toInt ? with
-    | some _ => . error "\"illegal operation\""
-    | none =>
-      let userOp := String . intercalate "\" \"" xs . dropLast
-      let op := addUserOp userOp state
-      . ok { state with opMap := state . opMap . insert key op }
-  | _ => expressions . foldlM parseExpression state
-def evaluate ( instructions : List String ) : Except String Stack :=
-  let initial : State := {
-    stack := [],
-    opMap := . ofList [
-      ( "\"+\"" , applyBinary ( fun a b => . ok [ a + b ])),
-      ( "\"-\"" , applyBinary ( fun a b => . ok [ a - b ])),
-      ( "\"*\"" , applyBinary ( fun a b => . ok [ a * b ])),
-      ( "\"/\"" , applyBinary ( fun a b => if b == 0 then . error "\"divide by zero\"" else . ok [ a / b ])),
-      ( "\"dup\"" , applyUnary ( fun a => . ok [ a , a ])),
-      ( "\"drop\"" , applyUnary ( fun a => . ok [])),
-      ( "\"swap\"" , applyBinary ( fun a b => . ok [ a , b ])),
-      ( "\"over\"" , applyBinary ( fun a b => . ok [ a , b , a ]))
-    ]
-  }
-  instructions . foldlM parseInstruction initial
-  >>= fun state => . ok state . stack . reverse
-end Forth
+(source_file
+  (namespace PLACEHOLDER_1)
+  (declaration
+    (definition abbrev PLACEHOLDER_2
+      (application List Int)))
+  (declaration
+    (definition abbrev PLACEHOLDER_3
+      (binary_expression PLACEHOLDER_2 →
+        (application Except String PLACEHOLDER_2))))
+  (declaration
+    (definition abbrev PLACEHOLDER_4
+      (application
+        (dotted_name Std TreeMap) String PLACEHOLDER_3)))
+  (declaration
+    (structure structure PLACEHOLDER_5
+      (structure_field PLACEHOLDER_6 PLACEHOLDER_2)
+      (structure_field PLACEHOLDER_7 PLACEHOLDER_4)))
+  (declaration
+    (definition def PLACEHOLDER_8
+      (explicit_binder PLACEHOLDER_9
+        (binary_expression Int →
+          (application Except String PLACEHOLDER_2))) PLACEHOLDER_3
+      (match_alternatives
+        (match_alternative |
+          (list)
+          (application .error "empty stack"))
+        (match_alternative |
+          (binary_expression
+            (variable_pattern PLACEHOLDER_10) ::
+            (variable_pattern PLACEHOLDER_11))
+          (binary_expression
+            (application PLACEHOLDER_9 PLACEHOLDER_10) >>=
+            (fun
+              (variable_pattern PLACEHOLDER_12)
+              (application .ok
+                (binary_expression PLACEHOLDER_12 ++ PLACEHOLDER_11))))))))
+  (declaration
+    (definition def PLACEHOLDER_13
+      (explicit_binder PLACEHOLDER_9
+        (binary_expression Int →
+          (binary_expression Int →
+            (application Except String PLACEHOLDER_2)))) PLACEHOLDER_3
+      (match_alternatives
+        (match_alternative |
+          (list)
+          (application .error "empty stack"))
+        (match_alternative |
+          (binary_expression _ ::
+            (list))
+          (application .error "only one value on the stack"))
+        (match_alternative |
+          (binary_expression
+            (variable_pattern PLACEHOLDER_14) ::
+            (binary_expression
+              (variable_pattern PLACEHOLDER_15) ::
+              (variable_pattern PLACEHOLDER_11)))
+          (binary_expression
+            (application PLACEHOLDER_9 PLACEHOLDER_15 PLACEHOLDER_14) >>=
+            (fun
+              (variable_pattern PLACEHOLDER_12)
+              (application .ok
+                (binary_expression PLACEHOLDER_12 ++ PLACEHOLDER_11))))))))
+  (declaration
+    (definition def PLACEHOLDER_16
+      (explicit_binder PLACEHOLDER_17 PLACEHOLDER_5)
+      (explicit_binder PLACEHOLDER_18 String)
+      (application Except String PLACEHOLDER_5)
+      (match_expression
+        (match_discriminant
+          (dotted_name PLACEHOLDER_18 toInt?))
+        (match_alternatives
+          (match_alternative |
+            (application some
+              (variable_pattern PLACEHOLDER_19))
+            (application .ok
+              (structure_instance PLACEHOLDER_17 with
+                (field_assignment PLACEHOLDER_6
+                  (binary_expression PLACEHOLDER_19 ::
+                    (dotted_name PLACEHOLDER_17 PLACEHOLDER_6))))))
+          (match_alternative | none
+            (match_expression
+              (match_discriminant
+                (application
+                  (dotted_name PLACEHOLDER_17 PLACEHOLDER_7 get?) PLACEHOLDER_18))
+              (match_alternatives
+                (match_alternative |
+                  (application some
+                    (variable_pattern PLACEHOLDER_9))
+                  (binary_expression
+                    (application PLACEHOLDER_9
+                      (dotted_name PLACEHOLDER_17 PLACEHOLDER_6)) >>=
+                    (dot_function
+                      (application .ok
+                        (structure_instance PLACEHOLDER_17 with
+                          (field_assignment PLACEHOLDER_6
+                            (cdot)))))))
+                (match_alternative | none
+                  (application .error "undefined operation")))))))))
+  (declaration
+    (definition def PLACEHOLDER_20
+      (explicit_binder PLACEHOLDER_18 String)
+      (explicit_binder PLACEHOLDER_7 PLACEHOLDER_4) PLACEHOLDER_3
+      (match_expression
+        (match_discriminant
+          (application
+            (dotted_name PLACEHOLDER_7 get?) PLACEHOLDER_18))
+        (match_alternatives
+          (match_alternative |
+            (application some
+              (variable_pattern PLACEHOLDER_9)) PLACEHOLDER_9)
+          (match_alternative | none
+            (fun
+              (variable_pattern PLACEHOLDER_6)
+              (binary_expression
+                (application PLACEHOLDER_16
+                  (structure_instance
+                    (field_assignment PLACEHOLDER_6 PLACEHOLDER_6)
+                    (field_assignment PLACEHOLDER_7 PLACEHOLDER_7)) PLACEHOLDER_18) >>=
+                (fun
+                  (variable_pattern PLACEHOLDER_17)
+                  (application .ok
+                    (dotted_name PLACEHOLDER_17 PLACEHOLDER_6))))))))))
+  (declaration
+    (definition def PLACEHOLDER_21
+      (explicit_binder PLACEHOLDER_22 String)
+      (explicit_binder PLACEHOLDER_17 PLACEHOLDER_5) PLACEHOLDER_3
+      (block
+        (let_statement PLACEHOLDER_23 :=
+          (binary_expression
+            (application
+              (dotted_name PLACEHOLDER_22 splitOn) " ") |>
+            (dot_function
+              (application
+                (projection
+                  (cdot) .map)
+                (dot_function
+                  (application PLACEHOLDER_20
+                    (cdot)
+                    (dotted_name PLACEHOLDER_17 PLACEHOLDER_7)))))))
+        (application
+          (dotted_name PLACEHOLDER_23 foldlM)
+          (fun
+            (variable_pattern PLACEHOLDER_24)
+            (variable_pattern PLACEHOLDER_9)
+            (application PLACEHOLDER_9 PLACEHOLDER_24))))))
+  (declaration
+    (definition def PLACEHOLDER_25
+      (explicit_binder PLACEHOLDER_17 PLACEHOLDER_5)
+      (explicit_binder PLACEHOLDER_26 String)
+      (application Except String PLACEHOLDER_5)
+      (block
+        (let_statement PLACEHOLDER_27 :=
+          (application
+            (dotted_name PLACEHOLDER_26 toLower splitOn) " "))
+        (match_expression
+          (match_discriminant PLACEHOLDER_27)
+          (match_alternatives
+            (match_alternative |
+              (list)
+              (application .ok PLACEHOLDER_17))
+            (match_alternative |
+              (binary_expression ":" ::
+                (binary_expression
+                  (variable_pattern PLACEHOLDER_28) ::
+                  (variable_pattern PLACEHOLDER_11)))
+              (match_expression
+                (match_discriminant
+                  (dotted_name PLACEHOLDER_28 toInt?))
+                (match_alternatives
+                  (match_alternative |
+                    (application some _)
+                    (application .error "illegal operation"))
+                  (match_alternative | none
+                    (block
+                      (let_statement PLACEHOLDER_29 :=
+                        (application
+                          (dotted_name String intercalate) " "
+                          (dotted_name PLACEHOLDER_11 dropLast)))
+                      (let_statement PLACEHOLDER_9 :=
+                        (application PLACEHOLDER_21 PLACEHOLDER_29 PLACEHOLDER_17))
+                      (application .ok
+                        (structure_instance PLACEHOLDER_17 with
+                          (field_assignment PLACEHOLDER_7
+                            (application
+                              (dotted_name PLACEHOLDER_17 PLACEHOLDER_7 insert) PLACEHOLDER_28 PLACEHOLDER_9)))))))))
+            (match_alternative | _
+              (application
+                (dotted_name PLACEHOLDER_27 foldlM) PLACEHOLDER_16 PLACEHOLDER_17)))))))
+  (declaration
+    (definition def PLACEHOLDER_30
+      (explicit_binder PLACEHOLDER_31
+        (application List String))
+      (application Except String PLACEHOLDER_2)
+      (block
+        (let_statement PLACEHOLDER_32 PLACEHOLDER_5 :=
+          (structure_instance
+            (field_assignment PLACEHOLDER_6
+              (list))
+            (field_assignment PLACEHOLDER_7
+              (application .ofList
+                (list
+                  (tuple "+"
+                    (application PLACEHOLDER_13
+                      (fun
+                        (variable_pattern PLACEHOLDER_33)
+                        (variable_pattern PLACEHOLDER_34)
+                        (application .ok
+                          (list
+                            (binary_expression PLACEHOLDER_33 + PLACEHOLDER_34))))))
+                  (tuple "-"
+                    (application PLACEHOLDER_13
+                      (fun
+                        (variable_pattern PLACEHOLDER_33)
+                        (variable_pattern PLACEHOLDER_34)
+                        (application .ok
+                          (list
+                            (binary_expression PLACEHOLDER_33 - PLACEHOLDER_34))))))
+                  (tuple "*"
+                    (application PLACEHOLDER_13
+                      (fun
+                        (variable_pattern PLACEHOLDER_33)
+                        (variable_pattern PLACEHOLDER_34)
+                        (application .ok
+                          (list
+                            (binary_expression PLACEHOLDER_33 * PLACEHOLDER_34))))))
+                  (tuple "/"
+                    (application PLACEHOLDER_13
+                      (fun
+                        (variable_pattern PLACEHOLDER_33)
+                        (variable_pattern PLACEHOLDER_34)
+                        (if_expression
+                          (binary_expression PLACEHOLDER_34 == 0)
+                          (application .error "divide by zero")
+                          (application .ok
+                            (list
+                              (binary_expression PLACEHOLDER_33 / PLACEHOLDER_34)))))))
+                  (tuple "dup"
+                    (application PLACEHOLDER_8
+                      (fun
+                        (variable_pattern PLACEHOLDER_33)
+                        (application .ok
+                          (list PLACEHOLDER_33 PLACEHOLDER_33)))))
+                  (tuple "drop"
+                    (application PLACEHOLDER_8
+                      (fun
+                        (variable_pattern PLACEHOLDER_33)
+                        (application .ok
+                          (list)))))
+                  (tuple "swap"
+                    (application PLACEHOLDER_13
+                      (fun
+                        (variable_pattern PLACEHOLDER_33)
+                        (variable_pattern PLACEHOLDER_34)
+                        (application .ok
+                          (list PLACEHOLDER_33 PLACEHOLDER_34)))))
+                  (tuple "over"
+                    (application PLACEHOLDER_13
+                      (fun
+                        (variable_pattern PLACEHOLDER_33)
+                        (variable_pattern PLACEHOLDER_34)
+                        (application .ok
+                          (list PLACEHOLDER_33 PLACEHOLDER_34 PLACEHOLDER_33))))))))))
+        (binary_expression
+          (application
+            (dotted_name PLACEHOLDER_31 foldlM) PLACEHOLDER_25 PLACEHOLDER_32) >>=
+          (fun
+            (variable_pattern PLACEHOLDER_17)
+            (application .ok
+              (dotted_name PLACEHOLDER_17 PLACEHOLDER_6 reverse))))))))

@@ -194,7 +194,7 @@ Five solutions get Basic's representation this way: four in GDScript and one in 
 | jq | Jq | 400 | 100 | 100 | 62 | 100 | 5 | 8 | 0 | 0 |
 | julia | Julia | 392 | 98 | 100 | 85 | 100 | 2 | 0 | 0 | 0 |
 | kotlin | Kotlin | 388 | 96 | 100 | 71 | 95 | 0 | 0 | 0 | 0 |
-| lean | Basic | 121 | 7 | 100 | 81 | 94 | 3 | 0 | 0 | 0 |
+| lean | Lean | 121 | 7 | 100 | 81 | 94 | 0 | 2 | 0 | 0 |
 | lfe | Lfe | 84 | 1 | 81 | 52 | 81 | 0 | 0 | 0 | 0 |
 | lua | Lua | 331 | 77 | 100 | 72 | 95 | 0 | 7 | 0 | 0 |
 | mips | Mips | 124 | 8 | 100 | 52 | 100 | 0 | 0 | 0 | 0 |
