@@ -59,23 +59,28 @@ module Inspector::Languages::VBNet::Common
     keep_tokens "Module", "Return", in: [:attribute, :global_attribute]
     keep_tokens "Group", in: :aggregation
 
-    # Unwrap brackets that only group, because the tree's shape shows the grouping.
+    # Unwrap brackets that only group, because the tree's shape shows the
+    # grouping. The brackets around a whole argument stay (see
+    # mark_arguments_passed_by_value!).
     # (a + b) * c  ->  (binary_expression (binary_expression a + b) * c)
     unwrap :parenthesized_expression
 
     # Write each number as its value. A floating-point number keeps its type
     # character, in lower case, because `1.5D` is a Decimal and `1.5` is a
-    # Double. An integer with a type character keeps its text.
+    # Double. An integer with a type character keeps its text, and
+    # write_based_integers_as_values! reads hexadecimal, octal and binary
+    # integers.
     #
     # 1_000  ->  1000
-    # &H1F  ->  31
     # 1.50  ->  1.5
     # 1E3  ->  1000.0
     # 8D  ->  8.0d
     numbers_are integer: :integer_literal,
                 decimal: :floating_literal,
-                prefixes: { "&H" => 16, "&O" => 8, "&B" => 2 },
                 suffixes: ["f", "r", "d", "!", "#", "@"]
+
+    BASES = { "h" => 16, "o" => 8, "b" => 2 }.freeze
+    BASED_INTEGER = /\A&(?<base>[hob])(?<digits>[0-9a-f_]+)\z/i
 
     # VB.NET reads a typographic quote as a plain double quote, so any two
     # quotes in a row stand for one quote.
@@ -85,6 +90,8 @@ module Inspector::Languages::VBNet::Common
       tree.tap do
         drop_end_lines!
         drop_the_variables_after_next!
+        mark_arguments_passed_by_value!
+        write_based_integers_as_values!
         write_strings_as_their_values!
         write_names_in_lower_case!
       end
@@ -120,7 +127,41 @@ module Inspector::Languages::VBNet::Common
       end
     end
 
+    # Mark each argument wrapped in its own brackets, because VB.NET passes
+    # it by value even to a `ByRef` parameter, so the call can't change it.
+    # F((x))  ->  (invocation_expression f (argument_list (by_value_argument x)))
+    def mark_arguments_passed_by_value!
+      each_node(tree) do |node, _|
+        next unless node.type == "argument_list"
+
+        node.children.each { |child| child.type = "by_value_argument" if child.type == "parenthesized_expression" }
+      end
+    end
+
     ### Values ###
+
+    # Write each hexadecimal, octal and binary integer without a type
+    # character as its value. VB.NET reads its digits as the bits of an
+    # Integer if they fit in 32 bits, and of a Long otherwise, so the top bit
+    # makes it negative. A negative Long keeps an `l`, so it stays apart from
+    # the Integer with the same value.
+    #
+    # &H1F  ->  31
+    # &HFFFFFFFF  ->  -1
+    # &HFFFFFFFFFFFFFFFF  ->  -1l
+    def write_based_integers_as_values!
+      each_node(tree) do |node, _|
+        match = node.text.match(BASED_INTEGER) if node.type == "integer_literal" && node.leaf?
+        node.text = signed(match[:digits].delete("_").to_i(BASES.fetch(match[:base].downcase))) if match
+      end
+    end
+
+    def signed(value)
+      return (value >= 2**31 ? value - 2**32 : value).to_s if value < 2**32
+
+      value -= 2**64 if value >= 2**63
+      value.negative? ? "#{value}l" : value.to_s
+    end
 
     # Turn each string and character into its value. VB.NET reads a doubled
     # quote in a string as one quote, and has no other escapes. An

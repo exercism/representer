@@ -28,7 +28,3 @@ The counts come from a search of the 174 golden solutions.
 13. **Rename the members of anonymous types.** `New With {.Total = x}` defines the member `Total`, but Inspector keeps its name today, because `.Total = x` in an object initializer such as `New Point With {.X = 1}` sets a member that the solution may not define.
 14. **Read a name's type character as part of the declaration.** VB.NET reads `count%` and `count` as the same variable, but Inspector renames them as two names today.
 
-## Code that could merge wrongly
-
-15. **Check that brackets around an argument stay dropped.** VB.NET passes `F((x))` by value even if `F`'s parameter is `ByRef`, so the brackets can change what `F` does to `x`. Inspector drops them today, as brackets that only group. No golden solution puts brackets around a single argument.
-16. **Check how hexadecimal numbers with the top bit set are written.** VB.NET reads `&HFFFFFFFF` as the Integer -1, but Inspector writes it as `4294967295`, which is also how it writes the Long `4294967295`. No golden solution uses such a number.
