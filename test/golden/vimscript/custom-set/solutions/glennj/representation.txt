@@ -1,70 +1,218 @@
-let s:customSetPrototype = {}
-function s:customSetPrototype . Len ()
-return len ( self . values )
-endfunction
-function s:customSetPrototype . IsEmpty ()
-return self . Len () == 0
-endfunction
-function s:customSetPrototype . Contains ( elem )
-let i = 0
-let j = self . Len () - 1
-while i <= j
-let mid = ( i + j ) / 2
-if a:elem > self . values [ mid ]
-let i = mid + 1
-elseif a:elem < self . values [ mid ]
-let j = mid - 1
-else
-return 1
-endif
-endwhile
-return 0
-endfunction
-function s:customSetPrototype . Add ( elem )
-if self . IsEmpty () || a:elem > self . values [ -1 ]
-eval self . values -> add ( a:elem )
-return
-else
-let i = 0
-while i < self . Len ()
-if a:elem == self . values [ i ]
-return
-elseif a:elem < self . values [ i ]
-eval self . values -> insert ( a:elem , i )
-return
-endif
-let i += 1
-endwhile
-endif
-endfunction
-function s:customSetPrototype . IsSubset ( other )
-for v in self . values
-if ! a:other . Contains ( v ) | return 0 | endif
-endfor
-return 1
-endfunction
-function s:customSetPrototype . IsDisjoint ( other )
-for v in self . values
-if a:other . Contains ( v ) | return 0 | endif
-endfor
-return 1
-endfunction
-function s:customSetPrototype . Intersection ( other )
-let vs = self . values -> copy ()-> filter ({ _ , v -> a:other . Contains ( v )})
-return Set ( vs )
-endfunction
-function s:customSetPrototype . Difference ( other )
-let vs = self . values -> copy ()-> filter ({ _ , v -> ! a:other . Contains ( v )})
-return Set ( vs )
-endfunction
-function s:customSetPrototype . Union ( other )
-let vs = self . values -> copy ()-> extend ( a:other . values )
-return Set ( vs )
-endfunction
-lockvar ! s:customSetPrototype
-function ! Set ( values ) abort
-let o = s:customSetPrototype -> copy ()
-let o . values = []
-for v in a:values | eval o . Add ( v ) | endfor
-return o
-endfunction
+(script_file
+  (let_statement
+    (scoped_identifier s: PLACEHOLDER_1)
+    (dictionnary))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_2)
+      (parameters))
+    (body
+      (return_statement
+        (call_expression len
+          (field_expression self PLACEHOLDER_3)))))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_4)
+      (parameters))
+    (body
+      (return_statement
+        (binary_operation
+          (call_expression
+            (field_expression self PLACEHOLDER_2)) == 0))))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_5)
+      (parameters PLACEHOLDER_6))
+    (body
+      (let_statement PLACEHOLDER_7 0)
+      (let_statement PLACEHOLDER_8
+        (binary_operation
+          (call_expression
+            (field_expression self PLACEHOLDER_2)) - 1))
+      (while_loop
+        (binary_operation PLACEHOLDER_7 <= PLACEHOLDER_8)
+        (body
+          (let_statement PLACEHOLDER_9
+            (binary_operation
+              (binary_operation PLACEHOLDER_7 + PLACEHOLDER_8) / 2))
+          (if_statement
+            (binary_operation
+              (argument PLACEHOLDER_6) >
+              (index_expression
+                (field_expression self PLACEHOLDER_3) PLACEHOLDER_9))
+            (body
+              (let_statement PLACEHOLDER_7
+                (binary_operation PLACEHOLDER_9 + 1)))
+            (elseif_statement
+              (binary_operation
+                (argument PLACEHOLDER_6) <
+                (index_expression
+                  (field_expression self PLACEHOLDER_3) PLACEHOLDER_9))
+              (body
+                (let_statement PLACEHOLDER_8
+                  (binary_operation PLACEHOLDER_9 - 1))))
+            (else_statement
+              (body
+                (return_statement 1))))))
+      (return_statement 0)))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_10)
+      (parameters PLACEHOLDER_6))
+    (body
+      (if_statement
+        (binary_operation
+          (call_expression
+            (field_expression self PLACEHOLDER_4)) ||
+          (binary_operation
+            (argument PLACEHOLDER_6) >
+            (index_expression
+              (field_expression self PLACEHOLDER_3)
+              (unary_operation - 1))))
+        (body
+          (eval_statement
+            (method_expression
+              (field_expression self PLACEHOLDER_3)
+              (call_expression add
+                (argument PLACEHOLDER_6))))
+          (return_statement))
+        (else_statement
+          (body
+            (let_statement PLACEHOLDER_7 0)
+            (while_loop
+              (binary_operation PLACEHOLDER_7 <
+                (call_expression
+                  (field_expression self PLACEHOLDER_2)))
+              (body
+                (if_statement
+                  (binary_operation
+                    (argument PLACEHOLDER_6) ==
+                    (index_expression
+                      (field_expression self PLACEHOLDER_3) PLACEHOLDER_7))
+                  (body
+                    (return_statement))
+                  (elseif_statement
+                    (binary_operation
+                      (argument PLACEHOLDER_6) <
+                      (index_expression
+                        (field_expression self PLACEHOLDER_3) PLACEHOLDER_7))
+                    (body
+                      (eval_statement
+                        (method_expression
+                          (field_expression self PLACEHOLDER_3)
+                          (call_expression insert
+                            (argument PLACEHOLDER_6) PLACEHOLDER_7)))
+                      (return_statement))))
+                (let_statement PLACEHOLDER_7 += 1))))))))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_11)
+      (parameters PLACEHOLDER_12))
+    (body
+      (for_loop PLACEHOLDER_13
+        (field_expression self PLACEHOLDER_3)
+        (body
+          (if_statement
+            (unary_operation !
+              (call_expression
+                (field_expression
+                  (argument PLACEHOLDER_12) PLACEHOLDER_5) PLACEHOLDER_13))
+            (body
+              (return_statement 0)))))
+      (return_statement 1)))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_14)
+      (parameters PLACEHOLDER_12))
+    (body
+      (for_loop PLACEHOLDER_13
+        (field_expression self PLACEHOLDER_3)
+        (body
+          (if_statement
+            (call_expression
+              (field_expression
+                (argument PLACEHOLDER_12) PLACEHOLDER_5) PLACEHOLDER_13)
+            (body
+              (return_statement 0)))))
+      (return_statement 1)))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_15)
+      (parameters PLACEHOLDER_12))
+    (body
+      (let_statement PLACEHOLDER_16
+        (method_expression
+          (method_expression
+            (field_expression self PLACEHOLDER_3)
+            (call_expression copy))
+          (call_expression filter
+            (lambda_expression PLACEHOLDER_17 PLACEHOLDER_13
+              (call_expression
+                (field_expression
+                  (argument PLACEHOLDER_12) PLACEHOLDER_5) PLACEHOLDER_13)))))
+      (return_statement
+        (call_expression PLACEHOLDER_18 PLACEHOLDER_16))))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_19)
+      (parameters PLACEHOLDER_12))
+    (body
+      (let_statement PLACEHOLDER_16
+        (method_expression
+          (method_expression
+            (field_expression self PLACEHOLDER_3)
+            (call_expression copy))
+          (call_expression filter
+            (lambda_expression PLACEHOLDER_17 PLACEHOLDER_13
+              (unary_operation !
+                (call_expression
+                  (field_expression
+                    (argument PLACEHOLDER_12) PLACEHOLDER_5) PLACEHOLDER_13))))))
+      (return_statement
+        (call_expression PLACEHOLDER_18 PLACEHOLDER_16))))
+  (function_definition
+    (function_declaration
+      (field_expression
+        (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_20)
+      (parameters PLACEHOLDER_12))
+    (body
+      (let_statement PLACEHOLDER_16
+        (method_expression
+          (method_expression
+            (field_expression self PLACEHOLDER_3)
+            (call_expression copy))
+          (call_expression extend
+            (field_expression
+              (argument PLACEHOLDER_12) PLACEHOLDER_3))))
+      (return_statement
+        (call_expression PLACEHOLDER_18 PLACEHOLDER_16))))
+  (unknown_builtin_statement lockvar
+    (bang)
+    (arguments s:customSetPrototype))
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_18
+      (parameters PLACEHOLDER_3)) abort
+    (body
+      (let_statement PLACEHOLDER_21
+        (method_expression
+          (scoped_identifier s: PLACEHOLDER_1)
+          (call_expression copy)))
+      (let_statement
+        (field_expression PLACEHOLDER_21 PLACEHOLDER_3)
+        (list))
+      (for_loop PLACEHOLDER_13
+        (argument PLACEHOLDER_3)
+        (body
+          (eval_statement
+            (call_expression
+              (field_expression PLACEHOLDER_21 PLACEHOLDER_10) PLACEHOLDER_13))))
+      (return_statement PLACEHOLDER_21))))

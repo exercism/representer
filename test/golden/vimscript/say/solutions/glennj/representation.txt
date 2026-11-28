@@ -1,32 +1,141 @@
-let s:Small = [
-"      \\" 'zero' , 'one' , 'two' , 'three' , 'four' , 'five' , 'six' , 'seven' , 'eight' ,
-"      \\" 'nine' , 'ten' , 'eleven' , 'twelve' , 'thirteen' , 'fourteen' , 'fifteen' ,
-"      \\" 'sixteen' , 'seventeen' , 'eighteen' , 'nineteen' ]
-let s:Tens = [
-"      \\" '' , '' , 'twenty' , 'thirty' , 'forty' , 'fifty' ,
-"      \\" 'sixty' , 'seventy' , 'eighty' , 'ninety' ]
-let s:Thousand = 1000
-let s:Million = 1000000
-let s:Billion = 1000000000
-let s:Trillion = 1000000000000
-function ! Say ( number ) abort
-if a:number < 0 || a:number >= s:Trillion | throw "\"input out of range\"" | endif
-if a:number < 100 | return s:Simple ( a:number )
-elseif a:number < s:Thousand | return s:Compound ( a:number , 'hundred' , 100 )
-elseif a:number < s:Million | return s:Compound ( a:number , 'thousand' , s:Thousand )
-elseif a:number < s:Billion | return s:Compound ( a:number , 'million' , s:Million )
-else | return s:Compound ( a:number , 'billion' , s:Billion )
-endif
-endfunction
-function ! s:Simple ( n ) abort
-if a:n < len ( s:Small ) | return s:Small [ a:n ] | endif
-let [ tens , ones ] = a:n -> s:Divmod ( 10 )
-return s:Tens [ tens ] .. ( ones == 0 ? '' : '-' .. s:Small [ ones ])
-endfunction
-function ! s:Compound ( n , word , base ) abort
-let [ quo , rem ] = a:n -> s:Divmod ( a:base )
-return Say ( quo ) .. "' '" .. a:word .. ( rem == 0 ? '' : "' '" .. Say ( rem ))
-endfunction
-function ! s:Divmod ( number , divisor ) abort
-return [ a:number / a:divisor , a:number % a:divisor ]
-endfunction
+(script_file
+  (let_statement
+    (scoped_identifier s: PLACEHOLDER_1)
+    (list "zero" "one" "two" "three" "four" "five" "six" "seven" "eight" "nine" "ten" "eleven" "twelve" "thirteen" "fourteen" "fifteen" "sixteen" "seventeen" "eighteen" "nineteen"))
+  (let_statement
+    (scoped_identifier s: PLACEHOLDER_2)
+    (list "" "" "twenty" "thirty" "forty" "fifty" "sixty" "seventy" "eighty" "ninety"))
+  (let_statement
+    (scoped_identifier s: PLACEHOLDER_3) 1000)
+  (let_statement
+    (scoped_identifier s: PLACEHOLDER_4) 1000000)
+  (let_statement
+    (scoped_identifier s: PLACEHOLDER_5) 1000000000)
+  (let_statement
+    (scoped_identifier s: PLACEHOLDER_6) 1000000000000)
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_7
+      (parameters PLACEHOLDER_8)) abort
+    (body
+      (if_statement
+        (binary_operation
+          (binary_operation
+            (argument PLACEHOLDER_8) < 0) ||
+          (binary_operation
+            (argument PLACEHOLDER_8) >=
+            (scoped_identifier s: PLACEHOLDER_6)))
+        (body
+          (throw_statement "input out of range")))
+      (if_statement
+        (binary_operation
+          (argument PLACEHOLDER_8) < 100)
+        (body
+          (return_statement
+            (call_expression
+              (scoped_identifier s: PLACEHOLDER_9)
+              (argument PLACEHOLDER_8))))
+        (elseif_statement
+          (binary_operation
+            (argument PLACEHOLDER_8) <
+            (scoped_identifier s: PLACEHOLDER_3))
+          (body
+            (return_statement
+              (call_expression
+                (scoped_identifier s: PLACEHOLDER_10)
+                (argument PLACEHOLDER_8) "hundred" 100))))
+        (elseif_statement
+          (binary_operation
+            (argument PLACEHOLDER_8) <
+            (scoped_identifier s: PLACEHOLDER_4))
+          (body
+            (return_statement
+              (call_expression
+                (scoped_identifier s: PLACEHOLDER_10)
+                (argument PLACEHOLDER_8) "thousand"
+                (scoped_identifier s: PLACEHOLDER_3)))))
+        (elseif_statement
+          (binary_operation
+            (argument PLACEHOLDER_8) <
+            (scoped_identifier s: PLACEHOLDER_5))
+          (body
+            (return_statement
+              (call_expression
+                (scoped_identifier s: PLACEHOLDER_10)
+                (argument PLACEHOLDER_8) "million"
+                (scoped_identifier s: PLACEHOLDER_4)))))
+        (else_statement
+          (body
+            (return_statement
+              (call_expression
+                (scoped_identifier s: PLACEHOLDER_10)
+                (argument PLACEHOLDER_8) "billion"
+                (scoped_identifier s: PLACEHOLDER_5))))))))
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_9)
+      (parameters PLACEHOLDER_11)) abort
+    (body
+      (if_statement
+        (binary_operation
+          (argument PLACEHOLDER_11) <
+          (call_expression len
+            (scoped_identifier s: PLACEHOLDER_1)))
+        (body
+          (return_statement
+            (index_expression
+              (scoped_identifier s: PLACEHOLDER_1)
+              (argument PLACEHOLDER_11)))))
+      (let_statement
+        (list_assignment PLACEHOLDER_12 PLACEHOLDER_13)
+        (method_expression
+          (argument PLACEHOLDER_11)
+          (call_expression
+            (scoped_identifier s: PLACEHOLDER_14) 10)))
+      (return_statement
+        (binary_operation
+          (index_expression
+            (scoped_identifier s: PLACEHOLDER_2) PLACEHOLDER_12) ..
+          (ternary_expression
+            (binary_operation PLACEHOLDER_13 == 0) ""
+            (binary_operation "-" ..
+              (index_expression
+                (scoped_identifier s: PLACEHOLDER_1) PLACEHOLDER_13)))))))
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_10)
+      (parameters PLACEHOLDER_11 PLACEHOLDER_15 PLACEHOLDER_16)) abort
+    (body
+      (let_statement
+        (list_assignment PLACEHOLDER_17 PLACEHOLDER_18)
+        (method_expression
+          (argument PLACEHOLDER_11)
+          (call_expression
+            (scoped_identifier s: PLACEHOLDER_14)
+            (argument PLACEHOLDER_16))))
+      (return_statement
+        (binary_operation
+          (binary_operation
+            (binary_operation
+              (call_expression PLACEHOLDER_7 PLACEHOLDER_17) .. " ") ..
+            (argument PLACEHOLDER_15)) ..
+          (ternary_expression
+            (binary_operation PLACEHOLDER_18 == 0) ""
+            (binary_operation " " ..
+              (call_expression PLACEHOLDER_7 PLACEHOLDER_18)))))))
+  (function_definition
+    (bang)
+    (function_declaration
+      (scoped_identifier s: PLACEHOLDER_14)
+      (parameters PLACEHOLDER_8 PLACEHOLDER_19)) abort
+    (body
+      (return_statement
+        (list
+          (binary_operation
+            (argument PLACEHOLDER_8) /
+            (argument PLACEHOLDER_19))
+          (binary_operation
+            (argument PLACEHOLDER_8) %
+            (argument PLACEHOLDER_19)))))))

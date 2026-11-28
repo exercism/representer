@@ -1,41 +1,101 @@
-function ! DegreeOfSeparation ( familyTree , personA , personB ) abort
-if a:personA == # a:personB
-return 0
-endif
-let l : neighbors = {}
-for [ l : parent , l : children ] in items ( a:familyTree )
-let l : neighbors [ l : parent ] = get ( l : neighbors , l : parent , [])
-for l : child in l : children
-let l : neighbors [ l : child ] = get ( l : neighbors , l : child , [])
-call add ( l : neighbors [ l : parent ], l : child )
-call add ( l : neighbors [ l : child ], l : parent )
-endfor
-if len ( l : children ) > 1
-for l : child1 in l : children
-for l : child2 in l : children
-if l : child1 != l : child2 && index ( l : neighbors [ l : child1 ], l : child2 ) == -1
-call add ( l : neighbors [ l : child1 ], l : child2 )
-endif
-endfor
-endfor
-endif
-endfor
-if ! has_key ( l : neighbors , a:personA ) || ! has_key ( l : neighbors , a:personB )
-return -1
-endif
-let l : queue = [[ a:personA , 0 ]]
-let l : visited = {}
-let l : visited [ a:personA ] = 1
-while ! empty ( l : queue )
-let [ l : current , l : degree ] = remove ( l : queue , 0 )
-if l : current == # a:personB
-return l : degree
-endif
-let l : unvisited = filter ( l : neighbors [ l : current ], "'!has_key(visited, v:val)'" )
-for l : neighbor in l : unvisited
-call add ( l : queue , [ l : neighbor , l : degree + 1 ])
-let l : visited [ l : neighbor ] = 1
-endfor
-endwhile
-return -1
-endfunction
+(script_file
+  (function_definition
+    (bang)
+    (function_declaration PLACEHOLDER_1
+      (parameters PLACEHOLDER_2 PLACEHOLDER_3 PLACEHOLDER_4)) abort
+    (body
+      (if_statement
+        (binary_operation
+          (argument PLACEHOLDER_3) ==
+          (match_case #)
+          (argument PLACEHOLDER_4))
+        (body
+          (return_statement 0)))
+      (let_statement PLACEHOLDER_5
+        (dictionnary))
+      (for_loop
+        (list_assignment PLACEHOLDER_6 PLACEHOLDER_7)
+        (call_expression items
+          (argument PLACEHOLDER_2))
+        (body
+          (let_statement
+            (index_expression PLACEHOLDER_5 PLACEHOLDER_6)
+            (call_expression get PLACEHOLDER_5 PLACEHOLDER_6
+              (list)))
+          (for_loop PLACEHOLDER_8 PLACEHOLDER_7
+            (body
+              (let_statement
+                (index_expression PLACEHOLDER_5 PLACEHOLDER_8)
+                (call_expression get PLACEHOLDER_5 PLACEHOLDER_8
+                  (list)))
+              (call_statement
+                (call_expression add
+                  (index_expression PLACEHOLDER_5 PLACEHOLDER_6) PLACEHOLDER_8))
+              (call_statement
+                (call_expression add
+                  (index_expression PLACEHOLDER_5 PLACEHOLDER_8) PLACEHOLDER_6))))
+          (if_statement
+            (binary_operation
+              (call_expression len PLACEHOLDER_7) > 1)
+            (body
+              (for_loop PLACEHOLDER_9 PLACEHOLDER_7
+                (body
+                  (for_loop PLACEHOLDER_10 PLACEHOLDER_7
+                    (body
+                      (if_statement
+                        (binary_operation
+                          (binary_operation PLACEHOLDER_9 != PLACEHOLDER_10) &&
+                          (binary_operation
+                            (call_expression index
+                              (index_expression PLACEHOLDER_5 PLACEHOLDER_9) PLACEHOLDER_10) ==
+                            (unary_operation - 1)))
+                        (body
+                          (call_statement
+                            (call_expression add
+                              (index_expression PLACEHOLDER_5 PLACEHOLDER_9) PLACEHOLDER_10))))))))))))
+      (if_statement
+        (binary_operation
+          (unary_operation !
+            (call_expression has_key PLACEHOLDER_5
+              (argument PLACEHOLDER_3))) ||
+          (unary_operation !
+            (call_expression has_key PLACEHOLDER_5
+              (argument PLACEHOLDER_4))))
+        (body
+          (return_statement
+            (unary_operation - 1))))
+      (let_statement PLACEHOLDER_11
+        (list
+          (list
+            (argument PLACEHOLDER_3) 0)))
+      (let_statement PLACEHOLDER_12
+        (dictionnary))
+      (let_statement
+        (index_expression PLACEHOLDER_12
+          (argument PLACEHOLDER_3)) 1)
+      (while_loop
+        (unary_operation !
+          (call_expression empty PLACEHOLDER_11))
+        (body
+          (let_statement
+            (list_assignment PLACEHOLDER_13 PLACEHOLDER_14)
+            (call_expression remove PLACEHOLDER_11 0))
+          (if_statement
+            (binary_operation PLACEHOLDER_13 ==
+              (match_case #)
+              (argument PLACEHOLDER_4))
+            (body
+              (return_statement PLACEHOLDER_14)))
+          (let_statement PLACEHOLDER_15
+            (call_expression filter
+              (index_expression PLACEHOLDER_5 PLACEHOLDER_13) "!has_key(visited, v:val)"))
+          (for_loop PLACEHOLDER_16 PLACEHOLDER_15
+            (body
+              (call_statement
+                (call_expression add PLACEHOLDER_11
+                  (list PLACEHOLDER_16
+                    (binary_operation PLACEHOLDER_14 + 1))))
+              (let_statement
+                (index_expression PLACEHOLDER_12 PLACEHOLDER_16) 1)))))
+      (return_statement
+        (unary_operation - 1)))))
